@@ -1,0 +1,258 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+	<html>
+		<head>
+			<title>Quail Doc</title>
+			<style type="text/css">
+			h2 {
+				cursor: pointer;
+			}
+			.plus:before {
+				content: "+ ";
+			}
+			.minus:before {
+				content: "- ";
+			}
+			.severe, .warning, .suggestion {
+				margin-left: 10px;
+				padding-left: 28px;
+				padding-top: 3px;
+				min-height: 24px;
+			}
+			.severe {
+				background: url('img/error.png') left top no-repeat;
+			}
+			.warning {
+				background: url('img/warning.png') left top no-repeat;
+			}
+			.suggestion {
+				background: url('img/suggestion.png') left top no-repeat;
+			}
+			ul {
+				margin-left: 30px;
+			}
+			div {
+				overflow: auto;
+			}
+			</style>
+			<script src="http://code.jquery.com/jquery-latest.js"></script>
+			<script type="text/javascript">
+			$(document).ready(function() {
+				$('h2').next().hide();
+				$('h2').click(function() {
+					var h2 = $(this)
+					if ($(this).next().is(':visible')) {
+						$(this).next().slideUp(function() {h2.removeClass('minus').addClass('plus');});
+					}
+					else {
+						h2.removeClass('plus').addClass('minus');
+						$(this).next().slideDown();
+					}
+				});
+				
+			});
+			
+			</script>
+		</head>
+		<body>
+
+<h1>HFT3273 - 0M61 Accessibility Checker Results</h1>
+
+<p>The following pages have errors.</p>
+
+<h2 class="plus">course_materials/Course_Home.html</h2>
+<div>
+<p>There were 1 issues found.</p>
+
+
+<h3>Errors</h3><h4 class="severe">Data tables should contain "th" elements</h4><ul><li>Line 22: &lt;table class=&quot;tborder&quot;&gt;Instructor:
+                        Linda I. Rosa-Lugo, Ed. D; CCC/SLP
+                    Office hours
+                        Tuesday, 9-12PM; Wednesday, 9-12; and Friday, by appointment. 
+                    Office
+                        HPA II Room 110
+                    Phone
+                        
+                            407-823-4798 (Department)
+                            407-823-4805 (Office)
+                        
+                    Course hours and Location
+                        
+Wednesday, 1:30-4:20
+                            HPA 246
+                        
+                    E-Mail
+                        Linda.Rosa-Lugo@ucf.edu
+                    Class E-Mail:
+                        Webcourses@UCF Course Mail and eCommunity
+                    Fax:
+                        407-823-4816
+                    &lt;/table&gt;
+</li></ul>
+
+</div>
+
+<h2 class="plus">course_materials/Syllabus.html</h2>
+<div>
+<p>There were 1 issues found.</p>
+
+
+<h3>Errors</h3><h4 class="severe">Data tables should contain "th" elements</h4><ul><li>Line 67: &lt;table border=&quot;0&quot; style=&quot;mso-cellspacing:1.5pt; mso-yfti-tbllook:1184&quot; class=&quot;MsoNormalTable&quot; cellpadding=&quot;0&quot;&gt;
+                        Assignments
+                    
+                    
+                        Description of Requirements
+                    
+                    
+                        Possible Points
+                    
+                
+                        Service Project
+                        
+                        
+                        
+                        
+                    
+                    
+                        Students will spend a minimum of 15 hours over the course of the semester on activities related to a service-learning assignment.The assignment will address a need in our community, support our course objectives, involve a connection between the campus and the world around it, challenge students to be civically engaged, and involve structured student reflection.
+                        Students will spend time reflecting on service-learning experiences through class conversations and written assignments.&amp;Acirc;&amp;nbsp;While there is not a maximum number of hours for this project, students are required to have a 15 hour minimum for service to pass the course. The students&amp;Acirc;</li></ul>
+
+</div>
+
+<h2 class="plus">templates/video_template.html</h2>
+<div>
+<p>There were 4 issues found.</p>
+
+
+<h3>Errors</h3><h4 class="severe">Objects must contain their text equivalents</h4><ul><li>Line 31: &lt;object type=&quot;application/x-shockwave-flash&quot; data=&quot;http://engage.ucf.edu/v/files/ucfPlayer/ucfPlayer.swf&quot; width=&quot;0&quot; height=&quot;0&quot;&gt;
+
+
+	
+    &lt;/object&gt;
+</li></ul>
+
+<h3>Suggestions</h3><h4 class="suggestion">The text equivalents of an object should update if the object changes</h4><ul><li>Line 31: &lt;object type=&quot;application/x-shockwave-flash&quot; data=&quot;http://engage.ucf.edu/v/files/ucfPlayer/ucfPlayer.swf&quot; width=&quot;0&quot; height=&quot;0&quot;&gt;
+
+
+	
+    &lt;/object&gt;
+</li></ul><h4 class="suggestion">Objects must not use color to communicate alone</h4><ul><li>Line 31: &lt;object type=&quot;application/x-shockwave-flash&quot; data=&quot;http://engage.ucf.edu/v/files/ucfPlayer/ucfPlayer.swf&quot; width=&quot;0&quot; height=&quot;0&quot;&gt;
+
+
+	
+    &lt;/object&gt;
+</li></ul><h4 class="suggestion">Objects do not flicker</h4><ul><li>Line 31: &lt;object type=&quot;application/x-shockwave-flash&quot; data=&quot;http://engage.ucf.edu/v/files/ucfPlayer/ucfPlayer.swf&quot; width=&quot;0&quot; height=&quot;0&quot;&gt;
+
+
+	
+    &lt;/object&gt;
+</li></ul></div>
+
+<h2 class="plus">templates/flash_template.html</h2>
+<div>
+<p>There were 4 issues found.</p>
+
+
+<h3>Errors</h3><h4 class="severe">Objects must contain their text equivalents</h4><ul><li>Line 27: &lt;object type=&quot;application/x-shockwave-flash&quot; data=&quot;FILE_NAME.swf&quot; width=&quot;0&quot; height=&quot;0&quot;&gt;
+&lt;/object&gt;
+</li></ul>
+
+<h3>Suggestions</h3><h4 class="suggestion">The text equivalents of an object should update if the object changes</h4><ul><li>Line 27: &lt;object type=&quot;application/x-shockwave-flash&quot; data=&quot;FILE_NAME.swf&quot; width=&quot;0&quot; height=&quot;0&quot;&gt;
+&lt;/object&gt;
+</li></ul><h4 class="suggestion">Objects must not use color to communicate alone</h4><ul><li>Line 27: &lt;object type=&quot;application/x-shockwave-flash&quot; data=&quot;FILE_NAME.swf&quot; width=&quot;0&quot; height=&quot;0&quot;&gt;
+&lt;/object&gt;
+</li></ul><h4 class="suggestion">Objects do not flicker</h4><ul><li>Line 27: &lt;object type=&quot;application/x-shockwave-flash&quot; data=&quot;FILE_NAME.swf&quot; width=&quot;0&quot; height=&quot;0&quot;&gt;
+&lt;/object&gt;
+</li></ul></div>
+
+<h2 class="plus">rubric for collaborative work_09.html</h2>
+<div>
+<p>There were 1 issues found.</p>
+
+
+<h3>Errors</h3><h4 class="severe">Data tables should contain "th" elements</h4><ul><li>Line 147: &lt;table class=&quot;tborder comments&quot;&gt;
+                    
+                    
+                    
+                    
+                    &lt;/table&gt;
+</li></ul>
+
+</div>
+
+<h2 class="plus">Modules/mod01_assign.html</h2>
+<div>
+<p>There were 8 issues found.</p>
+
+
+<h3>Errors</h3><h4 class="severe">Images that are important should not have a purely white-space "alt" attribute</h4><ul><li>Line 12: &lt;img name=&quot;head&quot; alt=&quot;&quot; src=&quot;http://reach.ucf.edu/images/ssb/ssbmhead_spa4321c.jpg&quot; id=&quot;head&quot;&gt;
+</li></ul><h4 class="severe">Images that are important should not have a purely white-space "alt" attribute</h4><ul><li>Line 12: &lt;img name=&quot;bar&quot; alt=&quot;&quot; src=&quot;http://reach.ucf.edu/images/ssb/ssbbar.gif&quot; id=&quot;bar&quot;&gt;
+</li></ul>
+<h3>Warnings</h3><h4 class="warning">Any non-decorative images should have a non-empty "alt" attribute</h4><ul><li>Line 12: &lt;img name=&quot;head&quot; alt=&quot;&quot; src=&quot;http://reach.ucf.edu/images/ssb/ssbmhead_spa4321c.jpg&quot; id=&quot;head&quot;&gt;
+</li></ul><h4 class="warning">Any non-decorative images should have a non-empty "alt" attribute</h4><ul><li>Line 12: &lt;img name=&quot;bar&quot; alt=&quot;&quot; src=&quot;http://reach.ucf.edu/images/ssb/ssbbar.gif&quot; id=&quot;bar&quot;&gt;
+</li></ul>
+<h3>Suggestions</h3><h4 class="suggestion">Check that any text within an image is also in the "alt" attribute</h4><ul><li>Line 12: &lt;img name=&quot;head&quot; alt=&quot;&quot; src=&quot;http://reach.ucf.edu/images/ssb/ssbmhead_spa4321c.jpg&quot; id=&quot;head&quot;&gt;
+</li></ul><h4 class="suggestion">Check that any text within an image is also in the "alt" attribute</h4><ul><li>Line 12: &lt;img name=&quot;bar&quot; alt=&quot;&quot; src=&quot;http://reach.ucf.edu/images/ssb/ssbbar.gif&quot; id=&quot;bar&quot;&gt;
+</li></ul><h4 class="suggestion">For any image, the "alt" text cannot refer to color alone</h4><ul><li>Line 12: &lt;img name=&quot;head&quot; alt=&quot;&quot; src=&quot;http://reach.ucf.edu/images/ssb/ssbmhead_spa4321c.jpg&quot; id=&quot;head&quot;&gt;
+</li></ul><h4 class="suggestion">For any image, the "alt" text cannot refer to color alone</h4><ul><li>Line 12: &lt;img name=&quot;bar&quot; alt=&quot;&quot; src=&quot;http://reach.ucf.edu/images/ssb/ssbbar.gif&quot; id=&quot;bar&quot;&gt;
+</li></ul></div>
+
+<h2 class="plus">Modules/mod01_lecture.html</h2>
+<div>
+<p>There were 4 issues found.</p>
+
+
+<h3>Errors</h3><h4 class="severe">Images that are important should not have a purely white-space "alt" attribute</h4><ul><li>Line 18: &lt;img name=&quot;head&quot; alt=&quot;&quot; src=&quot;http://reach.ucf.edu/images/ssb/ssbmhead_spa4321c.jpg&quot; id=&quot;head&quot;&gt;
+</li></ul>
+<h3>Warnings</h3><h4 class="warning">Any non-decorative images should have a non-empty "alt" attribute</h4><ul><li>Line 18: &lt;img name=&quot;head&quot; alt=&quot;&quot; src=&quot;http://reach.ucf.edu/images/ssb/ssbmhead_spa4321c.jpg&quot; id=&quot;head&quot;&gt;
+</li></ul>
+<h3>Suggestions</h3><h4 class="suggestion">Check that any text within an image is also in the "alt" attribute</h4><ul><li>Line 18: &lt;img name=&quot;head&quot; alt=&quot;&quot; src=&quot;http://reach.ucf.edu/images/ssb/ssbmhead_spa4321c.jpg&quot; id=&quot;head&quot;&gt;
+</li></ul><h4 class="suggestion">For any image, the "alt" text cannot refer to color alone</h4><ul><li>Line 18: &lt;img name=&quot;head&quot; alt=&quot;&quot; src=&quot;http://reach.ucf.edu/images/ssb/ssbmhead_spa4321c.jpg&quot; id=&quot;head&quot;&gt;
+</li></ul></div>
+
+<h2 class="plus">Course_Objectives_and_Learning_Outcomes.html</h2>
+<div>
+<p>There were 4 issues found.</p>
+
+
+<h3>Errors</h3><h4 class="severe">Data tables should contain "th" elements</h4><ul><li>Line 28: &lt;table class=&quot;tborder&quot;&gt;Course Outcomes
+                    Related Assessment/Artifact
+                
+                        Standard III-C Knowledge Objectives: Students will be able to demonstrate knowledge of the nature of articulatory phonological communication disorders by:
+                        III-C (1) Specifying and explaining common etiological factors associated with articulation/phonological disorders in children and adults.
+                            III-C (2) Explaining the characteristics (e.g., anatomical/physiological, acoustic, psychological, developmental, and linguistic) of articulation/phonological disorders in children and adults.
+                            III-C (3) Explaining the cultural correlates of articulation/phonological disorders in children and adults.
+                            III-C (4) Summarizing the social and cognitive characteristics associated with various types of articulation/phonological disorders in children and adults.
+                        
+                    
+                        Competency Exercises
+                            Module assignments
+                            Course Examinations
+                        
+                
+                        Standard III-D Knowledge Objectives: Students will be able to demonstrate knowledge of the principles and methods of prevention, assessment, and intervention for children and adults with articulation/phonological disorders by:
+                        III-D (1) Outlining aspects and methods of assessment for speech, language, hearing and communication that should be included in a comprehensive assessment plan for children and adults suspected of exhibiting articulation/phonological disorders.
+                            III-D (2) Explaining criteria for diagnosing articulation/phonological disorders in children and adults.
+                            III-D (3) Identifying characteristics/behaviors that differentiate sound production differences from sound production disorders.
+                            III-D (4) Comparing and contrasting informal and formal assessment procedures used to assess articulation and phonological disorders.
+                            III-D (5) Summarizing adaptations of assessment methods for children and adults from culturally and linguistically diverse backgrounds who are at-risk for or suspected of exhibiting articulation/phonological disorders.
+                            III-D (6) Explaining factors that influence goal setting in designing intervention for children and adults with articulation/phonological disorders.
+                            III-D (7) Comparing and contrasting the different approaches to intervention for children and adults with articulation/phonological disorders.
+                            III-D (8) Explaining how to structure specific activities to achieve changes in articulation and phonology for children and adults.
+                            III-D (9) Explaining how to manipulate the context of intervention for children and adults with articulation/phonological disorders.
+                            III-D (10) Summarizing ways to assess intervention outcomes for children and adults with articulation/phonological disorders.
+                        
+                    
+                        Competency Exercises
+                            Module assignments
+                            Course Examinations
+                            Capstone Assignment &amp;Acirc;</li></ul>
+<h3>Warnings</h3><h4 class="warning">Any non-decorative images should have a non-empty "alt" attribute</h4><ul><li>Line 12: &lt;img name=&quot;head&quot; alt=&quot;&quot; src=&quot;http://reach.ucf.edu/images/mrb/mrbmhead_spa6204.jpg&quot; id=&quot;head&quot;&gt;
+</li></ul>
+<h3>Suggestions</h3><h4 class="suggestion">Check that any text within an image is also in the "alt" attribute</h4><ul><li>Line 12: &lt;img name=&quot;head&quot; alt=&quot;&quot; src=&quot;http://reach.ucf.edu/images/mrb/mrbmhead_spa6204.jpg&quot; id=&quot;head&quot;&gt;
+</li></ul><h4 class="suggestion">For any image, the "alt" text cannot refer to color alone</h4><ul><li>Line 12: &lt;img name=&quot;head&quot; alt=&quot;&quot; src=&quot;http://reach.ucf.edu/images/mrb/mrbmhead_spa6204.jpg&quot; id=&quot;head&quot;&gt;
+</li></ul></div>
+
+</body>
+</html>
+
+ 

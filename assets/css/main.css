@@ -1,0 +1,12 @@
+body {font-family: Arial, Helvetica, sans-serif; }
+h3 { cursor: pointer; }
+.plus:before { content: "+ "; }
+.minus:before { content: "- "; }
+.severe, .warning, .suggestion { margin-left: 10px; padding-left: 28px; padding-top: 3px; min-height: 24px; }
+.severe { background: url('../img/error.png') left top no-repeat; }
+.warning { background: url('../img/warning.png') left top no-repeat; }
+.suggestion { background: url('../img/suggestion.png') left top no-repeat; }
+ul { margin-left: 30px; }
+div { overflow: auto; }
+#course_wrapper {display: none; }
+.nobullet li { list-style: none; margin:0; padding: 0;}

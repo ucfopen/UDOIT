@@ -1,0 +1,15 @@
+Version 0.4
+--Fixed issue where imgAltNotPlaceholder was firing on empty alt text
+--Fixed bug in aMustContainText which returned result on anchors that were not links
+--Fixed bug where headersUseToMarkSection was firing on any paragraph which contained the target elements
+--Added version number global
+--Added additional comments for the tests and elements files
+--Added method elementContainsReadableText to the quailTest class (a very useful method
+  which allows you to see if any element like a link or such contains any readable text)
+--Changed the test to see if links contain readable text to use the above method
+--Added new tests: headersHaveText, labelsAreAssignedToAninput, imgAltTextNotRedundant, and selectJumpMenus
+
+Version 0.3.8
+--Fixed bug in CSS module which would force iterating over the CSS array even if it was empty
+
+---Everything before this was from beyond the edge of time... check the SVN log!
