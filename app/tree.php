@@ -1,6 +1,7 @@
 <?php
 	include_once('config/localConfig.php');
 	$dir = $base.$_POST['folder'].'/';
+	$ignore = explode(',', $_POST['ignore']);
 	$folders = array();
 		if (is_dir($dir)) {
 			if ($dh = opendir($dir)) {

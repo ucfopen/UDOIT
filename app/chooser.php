@@ -32,9 +32,9 @@
 <form method="post" action="./?page=checker">
 <p>Ignore the following folders/files</p>
 <ul class="nobullet">
-	<li><input type="checkbox" name="ignore[]" value="_notes" checked="checked" /> _notes</li>
-	<li><input type="checkbox" name="ignore[]" value="_notes" checked="checked" /> Imported_Resources</li>
-	<li><input type="text" name="ignore[]" /> <a href="#" class="add">Add Another Item</a></li>
+	<li><input type="checkbox" name="ignore[]" class="ignore" value="_notes" checked="checked" /> _notes</li>
+	<li><input type="checkbox" name="ignore[]" class="ignore" value="Imported_Resources" checked="checked" /> Imported_Resources</li>
+	<li><input type="text" class="ignore" name="ignore[]" /> <a href="#" class="add">Add Another Item</a></li>
 </ul>
 <p>Choose your Folder: 
 <select name="folder[]" class="folder">

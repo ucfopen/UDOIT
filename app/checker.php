@@ -38,6 +38,7 @@
 			$directory .= $folder."/";
 		}
 	}
+	$ignore = $_POST['ignore'];
 	$test = find_directory($directory, $ignore);
 	
 	$fullReport = array();

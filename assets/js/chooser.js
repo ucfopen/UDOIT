@@ -1,9 +1,19 @@
 function folderLook (folder, currentFolder) {
+	var ignored = new Array();
+	var ignoreFind = $('.ignore');
+	for(x=0; x<$(ignoreFind).length; x++) {
+		var value = $(ignoreFind[x]).val();
+		if(value != '') {
+			ignored.push(value);
+		}
+	}
+	ignored = ignored.join(",");
 	if(currentFolder != '') { currentFolder = currentFolder + "/";}
 	currentFolder += $(folder).val();
 	
+	console.log(ignored);
 
-	$.post('./?page=tree', { folder :  currentFolder }, function (data) {
+	$.post('./?page=tree', { folder :  currentFolder}, function (data) {
 		var childrenFolder = false;
 		var theClone = $(folder).clone();
 		$(theClone).html('');
