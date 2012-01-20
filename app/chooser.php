@@ -22,6 +22,7 @@
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 <title>Choose a Class</title>
+<link rel="icon" type="image/png" href="favicon.ico">
 <link href='http://fonts.googleapis.com/css?family=Sonsie+One' rel='stylesheet' type='text/css'>
 <link href="assets/css/main.css" type="text/css" rel="stylesheet" />
 <script src="http://code.jquery.com/jquery-latest.js"></script>
@@ -33,7 +34,7 @@
 <?php require_once('header.php'); ?>
 <div id="bodyWrapper">
 	<form method="post" action="./?page=checker">
-	<p>Ignore the following folders/files</p>
+	<p><strong>Ignore the following folders/files</strong></p>
 	<ul class="nobullet">
 		<li><input type="checkbox" name="ignore[]" class="ignore" value="_notes" checked="checked" /> _notes</li>
 		<li><input type="checkbox" name="ignore[]" class="ignore" value="Imported_Resources" checked="checked" /> Imported_Resources</li>

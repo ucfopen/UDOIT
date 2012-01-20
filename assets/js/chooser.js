@@ -1,3 +1,6 @@
+var LIMIT = 500;
+var WARN = 250;
+
 function folderLook (folder, currentFolder) {
 	var ignored = new Array();
 	var ignoreFind = $('.ignore');
@@ -62,6 +65,17 @@ function addInput(element) {
 	$(element).remove();
 	$(parentElement).after(cloned);
 }
+function checker(folderList, ignoreList) {
+	console.log(ignoreList);
+	$.post('./?page=checker', { folder : folderList, ignore : ignoreList}, function(data) {
+		$('#bodyWrapper').append('<div id="result">'+data+'</div>');
+		resultSetup();
+			killButton(function() {
+				$('#result').fadeIn(function() {
+			});
+		});
+	});
+}
 $(document).ready(function() {
 	$('.folder').change(function() {
 		folderLook(this, '');
@@ -84,12 +98,40 @@ $(document).ready(function() {
 		$('input[type=input].ignore').each(function() {
 			ignoreList.push($(this).val());
 		});
-		$.post('./?page=checker', { folder : folderList, ignore : ignoreList}, function(data) {
-			$('#bodyWrapper').append('<div id="result">'+data+'</div>');
-			resultSetup();
-			$('#result').fadeIn(function() {
-				killButton();
-			});
+		$.post('./?page=finalCheck', { folder : folderList, ignore : ignoreList}, function(amount) {
+			if(amount > LIMIT)
+			{
+				killButton(function() {
+					popUpTemplate(true, function() {
+						$('#popup').html('<div id="tooMany"><p>You are trying to test '+amount+' files for accessibility.</p><p>This tool can only check '+LIMIT+' files at one time.</p><p><button id="ok">Okay</button></p></div>');
+						$('#ok').click(function() { 
+							killButton(); 
+						});
+					});
+				});
+
+			}
+			else if(amount > WARN)
+			{
+				killButton(function() {
+					popUpTemplate(true, function() {
+						$('#popup').html('<div id="tooMany"><p>It seems like there\'s '+amount+' files you are attempting to test for accessibility.</p><p>This might take an extremely long time</p><p>Are you SURE you want to continue?</p><p><button id="continue">Yes</button><button id="stop">No</button></p></div>');
+						$('#stop').click(function() { 
+							killButton(); 
+						});
+						$('#continue').click(function() { 
+							killButton(function() {
+								loader();
+								checker(folderList, ignoreList);
+							});
+						});
+					});
+				});
+			}
+			else 
+			{
+				checker(folderList, ignoreList);
+			}
 		});
 		return false;
 	});

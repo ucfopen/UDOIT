@@ -30,7 +30,10 @@ h5 { font-size: 1em; }
 	overflow: auto;
 	display: inline-block;
 }
-#submit {
+.fade {
+	opacity: 0.2;
+	-moz-opacity: 0.2;
+	filter:alpha(opacity=2);
 }
 .center { text-align: center;}
 .plus:before { content: "+ "; }
@@ -141,7 +144,7 @@ div { overflow: auto; }
 	float: right;
 }
 
-input[type=submit] {
+input[type=submit], button {
 	background-image: linear-gradient(bottom, rgb(74,55,37) 30%, rgb(94,80,55) 96%);
 	background-image: -o-linear-gradient(bottom, rgb(74,55,37) 30%, rgb(94,80,55) 96%);
 	background-image: -moz-linear-gradient(bottom, rgb(74,55,37) 30%, rgb(94,80,55) 96%);
@@ -161,7 +164,7 @@ input[type=submit] {
 	border-radius: 5px;
 	cursor: pointer;
 }
-input[type=submit]:hover {
+input[type=submit]:hover, button:hover {
 	background-image: linear-gradient(bottom, rgb(74,55,37) 96%, rgb(94,80,55) 30%);
 	background-image: -o-linear-gradient(bottom, rgb(74,55,37) 96%, rgb(94,80,55) 30%);
 	background-image: -moz-linear-gradient(bottom, rgb(74,55,37) 96%, rgb(94,80,55) 30%);
@@ -175,6 +178,17 @@ input[type=submit]:hover {
 		color-stop(0.96, rgb(74,55,37)),
 		color-stop(0.3, rgb(94,80,55))
 	);
+}
+#tooMany {
+	padding: 10px;
+}
+#tooMany p{
+	text-align: center;
+}
+#tooMany button {
+	font-size: 1em;
+	margin-right: 10px;
+	padding: 5px;
 }
 
 /* Circle Stuff */

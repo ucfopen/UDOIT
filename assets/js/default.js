@@ -12,9 +12,21 @@ function popUpBack() {
 }
 
 /* Fades out and destroys the popup window and background. */
-function killButton() {
-	if($("#popup").length > 0) { $("#popup").fadeOut(300,function(){$('#popup').remove();}); }
-	if($("#popupback").length > 0) { $("#popupback").fadeOut(300,function(){$('#popupback').remove();}); }
+function killButton(callback) {
+	if($("#popup").length > 0) { 
+		$("#popup").fadeOut(300,function(){
+			$('#popup').remove();
+			if($("#popupback").length > 0) { 
+				$("#popupback").fadeOut(300,function(){
+					$('#popupback').remove();
+				}); 
+			}
+			if(callback) {
+				callback();
+			}
+		}); 
+	}
+	
 }
 
 /* Creates a general template for the popup window 
