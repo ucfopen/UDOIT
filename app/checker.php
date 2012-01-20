@@ -95,13 +95,13 @@
 	<h3 class="plus"><?php echo $report['path']; ?></h3>
 	<ul>
 		<?php if(count($report['error']) > 0) { ?>
-		<li class="errorCount"><?php echo count($report['error']); ?></li>
+		<li class="errorCount <?php if(count($report['error']) < 10) { echo 'single'; } else { echo 'double'; } ?>"><?php echo count($report['error']); ?></li>
 		<?php }
 		if(count($report['warning']) > 0) { ?>
-		<li class="warningCount"><?php echo count($report['warning']); ?></li>
+		<li class="warningCount <?php if(count($report['warning']) < 10) { echo 'single'; } else { echo 'double'; } ?>"><?php echo count($report['warning']); ?></li>
 		<?php }
 		if(count($report['suggestion']) > 0) { ?>
-		<li class="suggestionCount"><?php echo count($report['suggestion']); ?></li>
+		<li class="suggestionCount <?php if(count($report['suggestion']) < 10) { echo 'single'; } else { echo 'double'; } ?>"><?php echo count($report['suggestion']); ?></li>
 		<?php } ?>
 	</ul>
 </div>

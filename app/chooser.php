@@ -40,14 +40,17 @@
 		<li><input type="checkbox" name="ignore[]" class="ignore" value="Public Files" checked="checked" />Public Files</li>
 		<li><input type="text" class="ignore" name="ignore[]" /> <a href="#" class="add">Add Another Item</a></li>
 	</ul>
-	<p><strong>Choose your Folder:</strong> courses/  
+	<p><strong>Choose your Folder:</strong></p>
+	<ul id="folderChooser" class="nobullet">
+		<li> courses/  
 	<select name="folder[]" class="folder">
 		<option value="default"></option>
 		<?php foreach($folders as $folder) { ?>
 		<option value="<?php echo $folder; ?>"><?php echo $folder; ?></option>
 		<?php } #end foreach $folders ?>
-	</select></p>
-	<p><input type="submit" name="course_submit" id="submit" value="Run Checker" /></p>
+	</select></li>
+	<li><input type="submit" name="course_submit" id="submit" value="Run Checker" /></li>
+	</ul>
 	</form>
 </div>
 </body>
