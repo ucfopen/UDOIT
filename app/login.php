@@ -3,7 +3,8 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-<title>Document Checker Thing</title>
+<title>Mal - Document Accessibility Checker</title>
+<link href='http://fonts.googleapis.com/css?family=Sonsie+One' rel='stylesheet' type='text/css'>
 <link href="assets/css/main.css" type="text/css" rel="stylesheet" />
 </head>
 
@@ -12,10 +13,11 @@
  if(isset($_GET['error'])) { ?>
 	<p><?php echo $_GET['error']; ?></p>
 <?php } ?>
-<form action="?page=verify" method="post">
+<form action="?page=verify" method="post" id="loginForm">
+<h2 class="center">Login</h2>
 <p><label for="user">Username:</label> <input type="text" name="nidLoginName" id="user" /></p>
 <p><label for="pass">Password:</label> <input type="password" name="nidPassword" id="pass" /></p>
-<p><input type="submit" name="submit" value="Login" /></p>
+<p id="loginSubmit"><input type="submit" name="submit" value="Login" /></p>
 </form>
 </body>
 </html>

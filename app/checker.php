@@ -83,37 +83,38 @@
 		array_push($fullReport, $final);
 	}
 ?>
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
-	<html>
-		<head>
-			<title>Results</title>
-			<link href="assets/css/main.css" type="text/css" rel="stylesheet" />
-			<script src="http://code.jquery.com/jquery-latest.js"></script>
-			<script type="text/javascript" src="assets/js/script.js"></script>
-		</head>
-		<body>
 
-<?php require_once('header.php'); ?>
+<h2>Report for courses/<?php echo str_replace($base, '', $directory); ?></h2>
 
-<h2>Report for <?php echo str_replace($base, '', $directory); ?></h2>
+<p>The following pages have errors. </p>
 
-<p>The following pages have errors. <a href="./">Run another report.</a></p>
-
+<div id="errorWrapper">
 <?php foreach($fullReport as $report) {
-	if($report['amount'] > 0) {
-	
-	 ?>
-<h3 class="plus"><?php echo "(".$report['amount'].") ".$report['path']; ?></h3>
-<div>
+	if($report['amount'] > 0) { ?>
+<div class="errorItem">
+	<h3 class="plus"><?php echo $report['path']; ?></h3>
+	<ul>
+		<?php if(count($report['error']) > 0) { ?>
+		<li class="errorCount"><?php echo count($report['error']); ?></li>
+		<?php }
+		if(count($report['warning']) > 0) { ?>
+		<li class="warningCount"><?php echo count($report['warning']); ?></li>
+		<?php }
+		if(count($report['suggestion']) > 0) { ?>
+		<li class="suggestionCount"><?php echo count($report['suggestion']); ?></li>
+		<?php } ?>
+	</ul>
+</div>
+<div class="errorSummary">
 
 <?php if(count($report['error']) > 0) { ?><h4>Errors</h4><?php } ?>
 <?php
 	foreach($report['error'] as $item)
 	{
-		echo '<h4 class="severe">'.$item['title'].'</h4>';	
+		echo '<h5 class="severe">'.$item['title'].'</h5>';	
 		echo '<ul>';
 		if($item['html']) { echo '<li>Line '.$item['lineNo'].': '.$item['html'].'</li>'; };	
-		echo '</ul>';	
+		echo '</ul>';
 	}
 ?>
 
@@ -121,7 +122,7 @@
 <?php
 	foreach($report['warning'] as $item)
 	{
-		echo '<h4 class="warning">'.$item['title'].'</h4>';		
+		echo '<h5 class="warning">'.$item['title'].'</h5>';		
 		echo '<ul>';
 		if($item['html']) { echo '<li>Line '.$item['lineNo'].': '.$item['html'].'</li>'; };	
 		echo '</ul>';
@@ -132,7 +133,7 @@
 <?php
 	foreach($report['suggestion'] as $item)
 	{
-		echo '<h4 class="suggestion">'.$item['title'].'</h4>';		
+		echo '<h5 class="suggestion">'.$item['title'].'</h5>';		
 		echo '<ul>';
 		if($item['html']) { echo '<li>Line '.$item['lineNo'].': '.$item['html'].'</li>'; };	
 		echo '</ul>';
@@ -141,7 +142,4 @@
 
 <?php } #end if $report[amount]
 }# End foreach ?>
-</body>
-</html>
-
- 
+</div>
