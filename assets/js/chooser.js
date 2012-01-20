@@ -2,6 +2,7 @@ var LIMIT = 500;
 var WARN = 250;
 
 function folderLook (folder, currentFolder) {
+	loader();
 	var ignored = new Array();
 	var ignoreFind = $('.ignore');
 	for(x=0; x<$(ignoreFind).length; x++) {
@@ -25,23 +26,25 @@ function folderLook (folder, currentFolder) {
 	});
 
 	$.post('./?page=tree', { folder :  currentFolder, ignore : ignoreList}, function (data) {
-		var childrenFolder = false;
-		var theClone = $(folder).clone();
-		$(theClone).html('');
-		$(theClone).append("<option value='default'></option>");
-		for(i in data) {
-			if(data[i] != '' ) { 
-				childrenFolder = true;
-				$(theClone).append("<option value='"+data[i]+"'>"+data[i]+"</option>");
+		killButton(function() {
+			var childrenFolder = false;
+			var theClone = $(folder).clone();
+			$(theClone).html('');
+			$(theClone).append("<option value='default'></option>");
+			for(i in data) {
+				if(data[i] != '' ) { 
+					childrenFolder = true;
+					$(theClone).append("<option value='"+data[i]+"'>"+data[i]+"</option>");
+				}
+			}	
+			$(theClone).change(function() {folderLook(this, currentFolder);});
+			while($(folder).next().is('select')) {
+				$(folder).next().remove();
 			}
-		}	
-		$(theClone).change(function() {folderLook(this, currentFolder);});
-		while($(folder).next().is('select')) {
-			$(folder).next().remove();
-		}
-		if(childrenFolder) {
-			$(folder).after(theClone);
-		}
+			if(childrenFolder) {
+				$(folder).after(theClone);
+			}
+		});
 	}, 'json');
 }
 function resultSetup() {
@@ -66,7 +69,6 @@ function addInput(element) {
 	$(parentElement).after(cloned);
 }
 function checker(folderList, ignoreList) {
-	console.log(ignoreList);
 	$.post('./?page=checker', { folder : folderList, ignore : ignoreList}, function(data) {
 		$('#bodyWrapper').append('<div id="result">'+data+'</div>');
 		resultSetup();

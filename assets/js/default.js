@@ -45,7 +45,6 @@ function popUpTemplate(noback, callback) {
 	$('#popup').fadeIn(300);
 }
 function loader(text) {
-	console.log(text);
 	popUpTemplate(true, function() {
 		$('#popup').addClass('loading_popup');
 		$('#popup').html('<div class="inline" id="load"><div class="circle"></div><div class="circle1"></div>');	
