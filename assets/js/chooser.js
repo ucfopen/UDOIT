@@ -50,7 +50,6 @@ function folderLook (folder, currentFolder) {
 }
 /* Formates the results when clicking on an item (slidedown and plus) */
 function resultSetup() {
-	$('.errorItem').next().hide();
 	$('.errorItem').click(function() {
 		var errorItem = $(this)
 		if ($(this).next().is(':visible')) {
@@ -60,6 +59,10 @@ function resultSetup() {
 			errorItem.children('h3').removeClass('plus').addClass('minus');
 			$(this).next().slideDown();
 		}
+	});
+	$('#print').click(function() {
+		window.print();
+		return false;
 	});
 }
 

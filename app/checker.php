@@ -88,8 +88,7 @@
 ?>
 
 <h2>Report for courses/<?php echo str_replace($base, '', $directory); ?></h2>
-
-<p>The following pages have errors. </p>
+<p><a href="#" id="print">Print this Report</a><p>
 
 <div id="errorWrapper">
 <?php foreach($fullReport as $report) {
@@ -105,6 +104,7 @@
 <div class="errorSummary">
 
 <?php if(count($report['error']) > 0) { ?><h4>Errors</h4><?php } ?>
+<div class="list">
 <?php
 	foreach($report['error'] as $item)
 	{
@@ -114,8 +114,9 @@
 		echo '</ul>';
 	}
 ?>
-
+</div>
 <?php if(count($report['warning']) > 0) { ?><h4>Warnings</h4><?php } ?>
+<div class="list">
 <?php
 	foreach($report['warning'] as $item)
 	{
@@ -125,8 +126,9 @@
 		echo '</ul>';
 	}
 ?>
-
+</div>
 <?php if(count($report['suggestion']) > 0) { ?><h4>Suggestions</h4><?php } ?>
+<div class="list">
 <?php
 	foreach($report['suggestion'] as $item)
 	{
@@ -135,6 +137,7 @@
 		if($item['html']) { echo '<li>Line '.$item['lineNo'].': '.$item['html'].'</li>'; };	
 		echo '</ul>';
 	} ?>
+</div>
 </div>
 
 <?php } #end if $report[amount]

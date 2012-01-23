@@ -57,6 +57,7 @@ div { overflow: auto; }
 
 .errorSummary { 
 	margin-left: 50px;
+	display: none;
 }
 .errorSummary ul li { 
 	list-style: none;
