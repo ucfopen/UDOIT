@@ -62,11 +62,13 @@ function resultSetup() {
 }
 function addInput(element) {
 	var parentElement = $(element).parent();
+	var inputValue = $(parentElement).children('input').val();
 	var cloned = $(parentElement).clone();
 	$(cloned).children('input').val('');
 	$(cloned).children('a').click(function() { addInput(this); return false;});
-	$(element).remove();
+	$(parentElement).html('<input type="checkbox" name="ignore[]" class="ignore" value="'+inputValue+'" checked="checked" />'+inputValue);
 	$(parentElement).after(cloned);
+	$(element).remove();
 }
 function checker(folderList, ignoreList) {
 	$.post('./?page=checker', { folder : folderList, ignore : ignoreList}, function(data) {

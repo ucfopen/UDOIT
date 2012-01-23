@@ -39,7 +39,7 @@
 		<li><input type="checkbox" name="ignore[]" class="ignore" value="_notes" checked="checked" /> _notes</li>
 		<li><input type="checkbox" name="ignore[]" class="ignore" value="Imported_Resources" checked="checked" /> Imported_Resources</li>
 		<li><input type="checkbox" name="ignore[]" class="ignore" value="Public Files" checked="checked" />Public Files</li>
-		<li><input type="text" class="ignore" name="ignore[]" /> <a href="#" class="add">Add Another Item</a></li>
+		<li><input type="text" class="ignore" name="ignoreInput" /> <a href="#" class="add">Ignore This Folder</a></li>
 	</ul>
 	<p><strong>Choose your Folder:</strong></p>
 	<ul id="folderChooser" class="nobullet">
