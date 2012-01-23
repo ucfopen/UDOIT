@@ -1,4 +1,5 @@
 <?php
+	/* Runs through the directory and finds desired subdirectory */
 	include_once('config/localConfig.php');
 	$dir = $base.$_POST['folder'].'/';
 	if(count($_POST['ignore']) > 0 ) {

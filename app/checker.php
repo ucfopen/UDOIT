@@ -3,6 +3,7 @@
 		header('Location: ../');
 	}
 	include_once('config/localConfig.php');
+	/* Runs through each directory and each subdirectory */
 	function find_directory($dir, $ignore) {
 		$file_info = array();
 		// Open a known directory, and proceed to read its contents
@@ -33,6 +34,7 @@
 	}
 	
 	$directory = $base;
+	/* appends each folder to the base so it knows where to start from */
 	foreach($_POST['folder'] as $folder) {
 		if($folder != 'default') {
 			$directory .= $folder."/";
@@ -45,6 +47,7 @@
 	
 	require_once('core/quail/quail.php');
 	
+	/* Runs each item in the test array through the Quail accessibility checker */
 	foreach($test as $html) {
 		$error = 0;
 		$report = array();

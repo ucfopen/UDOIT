@@ -1,6 +1,7 @@
 var LIMIT = 500;
 var WARN = 250;
 
+/* Looks through the specifed folder and gets subfolders */
 function folderLook (folder, currentFolder) {
 	loader();
 	var ignored = new Array();
@@ -47,6 +48,7 @@ function folderLook (folder, currentFolder) {
 		});
 	}, 'json');
 }
+/* Formates the results when clicking on an item (slidedown and plus) */
 function resultSetup() {
 	$('.errorItem').next().hide();
 	$('.errorItem').click(function() {
@@ -60,6 +62,8 @@ function resultSetup() {
 		}
 	});
 }
+
+/* adds item to ignore list */
 function addInput(element) {
 	var parentElement = $(element).parent();
 	var inputValue = $(parentElement).children('input').val();
@@ -70,6 +74,7 @@ function addInput(element) {
 	$(parentElement).after(cloned);
 	$(element).remove();
 }
+/* Builds up the results and adds them to the page */
 function checker(folderList, ignoreList) {
 	$.post('./?page=checker', { folder : folderList, ignore : ignoreList}, function(data) {
 		$('#bodyWrapper').append('<div id="result">'+data+'</div>');

@@ -1,6 +1,6 @@
 <?php
 	include_once('config/localConfig.php');
-
+	/* Runs through the desired driectory and returns how many items will be tested */
 	function find_directory($dir, $ignore) {
 		$file_info = array();
 		// Open a known directory, and proceed to read its contents

@@ -1,6 +1,7 @@
 <?php
 	include_once('config/localConfig.php');
 	$dir = $base;
+	/* Gets the initial directory to look through */
 	$folders = array();
 		if (is_dir($dir)) {
 			if ($dh = opendir($dir)) {
