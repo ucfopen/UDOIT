@@ -6,6 +6,7 @@
 	/* Runs through each directory and each subdirectory */
 	function find_directory($dir, $ignore) {
 		$file_info = array();
+		$badFiles = array();
 		// Open a known directory, and proceed to read its contents
 		if (is_dir($dir)) {
 			if ($dh = opendir($dir)) {
@@ -33,6 +34,40 @@
 		return $file_info;
 	}
 	
+	function find_bad_files($dir, $ignore) {
+		$badFiles = array();
+		// Open a known directory, and proceed to read its contents
+		if (is_dir($dir)) {
+			if ($dh = opendir($dir)) {
+				while (($file = readdir($dh)) !== false) {
+					$info = pathinfo($file);
+					if($file != '.' && $file != '..' && ($info['extension'] == 'pdf' || $info['extension'] == 'doc' || $info['extension'] == 'docx' || $info['extension'] == 'ppt' || $info['extension'] == 'pptx'))			
+					{
+						array_push($badFiles, array(
+							'path' => $dir.$file,
+							'extension' => $info['extension'],
+							'filename' => $file,
+						));
+					}
+					else if($file != '.' && $file != '..' && @filetype($dir . $file) == 'dir' && !in_array($file, $ignore)) 
+					{
+						$sub_file_info = find_bad_files($dir.$file."/", $ignore);
+						foreach($sub_file_info as $sub_item) 
+						{
+							array_push($badFiles, array(
+								'path' => $sub_item['path'],
+								'extension' => $sub_item['extension'],
+								'filename' => $sub_item['filename'],
+							));
+						}
+					}
+				}
+				closedir($dh);
+			}
+		}
+		return $badFiles;
+	}
+
 	$directory = $base;
 	/* appends each folder to the base so it knows where to start from */
 	foreach($_POST['folder'] as $folder) {
@@ -41,7 +76,10 @@
 		}
 	}
 	$ignore = $_POST['ignore'];
-	$test = find_directory($directory, $ignore);
+	$result = find_directory($directory, $ignore);
+	$badFiles = find_bad_files($directory, $ignore);
+
+	$test = $result;
 	
 	$fullReport = array();
 	
@@ -84,6 +122,14 @@
 		$final['suggestion'] = $suggestion;
 
 		array_push($fullReport, $final);
+	}
+	if($_POST['folder'][count($_POST['folder'])-1] == 'default')
+	{
+		$breakHere = $_POST['folder'][count($_POST['folder'])-2]."/";
+	}
+	else
+	{
+		$breakHere = $_POST['folder'][count($_POST['folder'])-1]."/";
 	}
 ?>
 
@@ -142,4 +188,75 @@
 
 <?php } #end if $report[amount]
 }# End foreach ?>
+<?php if(count($badFiles) > 0) { ?>
+<div class="errorItem">
+	<h3 class="plus">The Following Files May Contain Accessibility Issues</h3>
+	<ul>
+		<li class="errorCount fade single">0</li>
+		<li class="warningCount <?php if(count($badFiles) < 10) { echo 'single'; } else { echo 'double'; } ?>"><?php echo count($badFiles); ?></li>
+		<li class="suggestionCount fade single">0</li>
+	</ul>
 </div>
+<div class="errorSummary">
+
+<h4>Warnings</h4>
+	<p>The following files were unable to be checked for accessiblity issues by Mal:
+	<?php 
+		$docs = array();
+		$pdfs = array();
+		$ppts = array();
+
+		foreach($badFiles as $badFile) { 
+
+			if($badFile['extension'] == 'doc' || $badFile['extension'] == 'docx') {
+				$docs[] = $badFile;
+			}
+			else if($badFile['extension'] == 'pdf') {
+				$pdfs[] = $badFile;
+			}
+			else if($badFile['extension'] == 'ppt' || $badFile['extension'] == 'pptx') {
+				$ppts[] = $badFile;
+			}
+		} #end foreach ?>
+
+	<?php if(count($docs > 0)) { ?>
+	<div class="list">
+		<h5 class="warning">Word Documents (.doc and .docx)</h5>
+		<ul>
+			<?php foreach($docs as $doc) { 
+					$path = explode($breakHere,$doc['path']);
+				?>
+			<li><?php echo $path[1]; ?></li>
+			<?php } ?>
+		</ul>
+	</div>
+	<?php } #end if
+	if(count($pdfs > 0)) { ?>
+	<div class="list">
+		<h5 class="warning">PDF Documents</h5>
+		<ul>
+			<?php foreach($pdfs as $pdf) { 
+				$path = explode($breakHere,$pdf['path']);
+			?>
+			<li><?php echo $path[1]; ?></li>
+			<?php } ?>
+		</ul>
+	</div>
+	<?php } #end if
+	if(count($ppts > 0)) { ?>
+	<div class="list">
+		<h5 class="warning">Powerpoint Documents</h5>
+		<ul>
+			<?php foreach($ppts as $ppt) { 
+				$path = explode($breakHere,$ppt['path']);
+			?>
+			<li><?php echo $path[1]; ?></li>
+			<?php } ?>
+		</ul>
+	</div>
+	<?php } #end if ?>
+</div>
+
+</div>
+
+<?	} ?>

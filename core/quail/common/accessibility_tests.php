@@ -2750,6 +2750,26 @@ class iIsNotUsed extends quailTagTest {
 }
 
 /**
+*	iframes really shouldn't be used
+*	@link http://quail-lib.org/test-info/iframeMustNotHaveLongdesc
+*/
+class iframeIsNotUsed extends quailTest {
+
+	/**
+	*	@var int $default_severity The default severity code for this test.
+	*/
+	var $default_severity = QUAIL_TEST_MODERATE;
+
+	/**
+	*	The main check function. This is called by the parent class to actually check content
+	*/
+	function check() {
+		foreach($this->getAllElements('iframe') as $iframe) {
+				$this->addReport($iframe);		
+		}
+	}
+}
+/**
 *  iframe must not use longdesc.
 *  Iframe element cannot contain a longdesc attribute.
 *	@link http://quail-lib.org/test-info/iframeMustNotHaveLongdesc

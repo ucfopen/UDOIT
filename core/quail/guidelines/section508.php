@@ -42,6 +42,7 @@ class Section508Guideline extends quailGuideline{
 		'objectTextUpdatesWhenObjectChanges',
 		'objectLinkToMultimediaHasTextTranscript',
 		'objectMustContainText',
+		'iframeIsNotUsed',
 		'scriptInBodyMustHaveNoscript',
 		'aLinksToMultiMediaRequireTranscript',
 		'imgNotReferredToByColorAlone',
@@ -78,6 +79,7 @@ class Section508Guideline extends quailGuideline{
 		'checkboxHasLabel',
 		'fileHasLabel',
 		'radioHasLabel',
+		'frameIsNotUsed',
 		/*'skipToContentLinkProvided',*/
 		'documentAutoRedirectNotUsed',
 		'documentMetaNotUsedWithTimeout',
