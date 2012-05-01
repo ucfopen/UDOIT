@@ -2750,6 +2750,45 @@ class iIsNotUsed extends quailTagTest {
 }
 
 /**
+*	Videos need to be accessible
+*	@link http://quail-lib.org/test-info/iframeMustNotHaveLongdesc
+*/
+class videoEmbedChecked extends quailTest {
+
+	/**
+	*	@var int $default_severity The default severity code for this test.
+	*/
+	var $default_severity = QUAIL_TEST_MODERATE;
+
+	/**
+	*	The main check function. This is called by the parent class to actually check content
+	*/
+	function check() {
+		$search = '/(youtube|vimeo)/';
+
+		foreach($this->getAllElements('iframe') as $iframe) {
+			if(preg_match($search, $iframe->getAttribute('src')))
+			{
+				$this->addReport($iframe);
+			}
+		}
+		foreach($this->getAllElements('a') as $link)
+		{
+			if(preg_match($search, $link->getAttribute('href')))
+			{
+				$this->addReport($link);
+			}
+		}
+		foreach($this->getAllElements('object') as $object)
+		{
+			if(preg_match($search, $object->getAttribute('data')))
+			{
+				$this->addReport($object);
+			}
+		}
+	}
+}
+/**
 *	iframes really shouldn't be used
 *	@link http://quail-lib.org/test-info/iframeMustNotHaveLongdesc
 */

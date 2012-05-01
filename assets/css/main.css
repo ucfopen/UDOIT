@@ -11,7 +11,7 @@ h5 { font-size: 1em; }
 #header p a:active { color: #FFF7EA; }
 #bodyWrapper {
 	margin: 20px;
-	width: 1024px;
+	width: 1100px;
 }
 #loginForm {
 	margin: 80px auto;
@@ -44,15 +44,25 @@ h5 { font-size: 1em; }
 .errorCount { background: url('../img/error.png') right center no-repeat; }
 .warningCount { background: url('../img/warning.png') right center no-repeat; }
 .suggestionCount { background: url('../img/suggestion.png') right center no-repeat; }
-.severe, .warning, .suggestion { margin-left: 10px; padding-left: 28px; padding-top: 3px; min-height: 24px; }
-.severe { background: url('../img/error.png') left top no-repeat; }
+.error, .warning, .suggestion { margin-left: 10px; padding-left: 28px; padding-top: 3px; min-height: 24px; }
+.error { background: url('../img/error.png') left top no-repeat; }
 .warning { background: url('../img/warning.png') left top no-repeat; }
 .suggestion { background: url('../img/suggestion.png') left top no-repeat; }
 ul { margin-left: 30px; }
 div { overflow: auto; }
 #course_wrapper {display: none; }
 .nobullet li { list-style: none; margin:0; padding: 0;}
-
+.errorItem { display: inline-block; }
+.errorItem + ul {
+	display: inline-block;
+	margin: 0;
+	padding: 0;
+}
+.errorItem + ul li {
+	display: inline-block;
+	margin: 0 0 0 20px;
+	padding: 0;
+}
 #result { display: none; }
 
 .errorSummary { 
@@ -64,11 +74,25 @@ div { overflow: auto; }
 	margin: 0;
 	padding: 0;
 }
+ul.li_border li {
+	border-bottom: 1px solid black;
+	padding: 10px;	
+}
 .errorSummary ul { 
 	margin: 0 0 15px 50px;
 	padding: 0;
 }
-
+.delete_li {
+	float: right;
+}
+h5 {
+	display: inline-block;
+}
+h5 + ul {
+	display: inline-block;
+	margin: 0 0 0 19px;
+	padding: 0;
+}
 .errorItem {
 	border-bottom: 1px #332312 solid;
 	background: #E3D2B4;

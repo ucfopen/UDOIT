@@ -43,6 +43,7 @@ class Section508Guideline extends quailGuideline{
 		'objectLinkToMultimediaHasTextTranscript',
 		'objectMustContainText',
 		'iframeIsNotUsed',
+		'videoEmbedChecked',
 		'scriptInBodyMustHaveNoscript',
 		'aLinksToMultiMediaRequireTranscript',
 		'imgNotReferredToByColorAlone',

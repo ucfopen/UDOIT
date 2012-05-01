@@ -52,18 +52,57 @@ function folderLook (folder, currentFolder) {
 function resultSetup() {
 	$('.errorItem').click(function() {
 		var errorItem = $(this)
-		if ($(this).next().is(':visible')) {
-			$(this).next().slideUp(function() {errorItem.children('h3').removeClass('minus').addClass('plus');});
+		if ($(this).next().next().is(':visible')) {
+			$(this).next().next().slideUp(function() {errorItem.children('h3').removeClass('minus').addClass('plus');});
 		}
 		else {
 			errorItem.children('h3').removeClass('plus').addClass('minus');
-			$(this).next().slideDown();
+			$(this).next().next().slideDown();
 		}
 	});
 	$('#print').click(function() {
 		window.print();
 		return false;
 	});
+	$('.delete_h5').click(function(e)
+	{
+		e.preventDefault();
+		$(this).closest('.list').remove();
+	});
+	$('.delete_li').click(function(e)
+	{
+		e.preventDefault();
+		$(this).parent().remove();
+	});
+	$('.delete_parent').click(function(e)
+	{
+		e.preventDefault();
+		var element = $(this).parent().parent();
+		var part = $(element).prev().attr('class');
+		var counter = $(element).closest('.errorSummary').prev().prev().find('.'+part+'Count')
+		$(counter).html(parseInt($(counter).html())-1);
+
+		$(element).prev().remove();
+		$(element).next().remove();
+		var parentStuff = $(element).parent();
+		$(element).remove();
+		if($(parentStuff).hasClass('list'))
+		{
+			if($(parentStuff).children().length == 0)
+			{
+				var fileItem = $(parentStuff).parent();
+				$(parentStuff).prev().remove();
+				$(parentStuff).remove();
+				if($(fileItem).children().length == 0)
+				{
+					$(fileItem).prev().prev().remove();
+					$(fileItem).prev().remove();
+					$(fileItem).remove();
+				}
+			}
+		}
+	});
+
 }
 
 /* adds item to ignore list */

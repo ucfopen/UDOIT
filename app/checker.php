@@ -147,43 +147,58 @@
 		<li class="suggestionCount <?php if(count($report['suggestion']) == 0) { echo 'fade '; } if(count($report['suggestion']) < 10) { echo 'single'; } else { echo 'double'; } ?>"><?php echo count($report['suggestion']); ?></li>
 	</ul>
 </div>
+<ul class="inline no_print">
+	<li><a href="#" class="delete_parent">Delete</a></li>
+</ul>
 <div class="errorSummary">
 
-<?php if(count($report['error']) > 0) { ?><h4>Errors</h4><?php } ?>
+<?php if(count($report['error']) > 0) { ?><h4>Errors</h4>
 <div class="list">
 <?php
 	foreach($report['error'] as $item)
 	{
-		echo '<h5 class="severe">'.$item['title'].'</h5>';	
+		echo '<h5 class="error">'.$item['title'].'</h5>';	
+		echo '<ul class="inline no_print">';
+		echo '<li><a href="#" class="delete_parent">Delete</a></li>';
+		echo '</ul>';
 		echo '<ul>';
 		if($item['html']) { echo '<li>Line '.$item['lineNo'].': '.$item['html'].'</li>'; };	
 		echo '</ul>';
 	}
 ?>
 </div>
-<?php if(count($report['warning']) > 0) { ?><h4>Warnings</h4><?php } ?>
+<?php } ?>
+<?php if(count($report['warning']) > 0) { ?><h4>Warnings</h4>
 <div class="list">
 <?php
 	foreach($report['warning'] as $item)
 	{
 		echo '<h5 class="warning">'.$item['title'].'</h5>';		
+		echo '<ul class="inline no_print">';
+		echo '<li><a href="#" class="delete_parent">Delete</a></li>';
+		echo '</ul>';
 		echo '<ul>';
 		if($item['html']) { echo '<li>Line '.$item['lineNo'].': '.$item['html'].'</li>'; };	
 		echo '</ul>';
 	}
 ?>
 </div>
-<?php if(count($report['suggestion']) > 0) { ?><h4>Suggestions</h4><?php } ?>
+<?php } ?>
+<?php if(count($report['suggestion']) > 0) { ?><h4>Suggestions</h4>
 <div class="list">
 <?php
 	foreach($report['suggestion'] as $item)
 	{
 		echo '<h5 class="suggestion">'.$item['title'].'</h5>';		
+		echo '<ul class="inline no_print">';
+		echo '<li><a href="#" class="delete_parent">Delete</a></li>';
+		echo '</ul>';
 		echo '<ul>';
 		if($item['html']) { echo '<li>Line '.$item['lineNo'].': '.$item['html'].'</li>'; };	
 		echo '</ul>';
 	} ?>
 </div>
+<?php } ?>
 </div>
 
 <?php } #end if $report[amount]
@@ -197,8 +212,10 @@
 		<li class="suggestionCount fade single">0</li>
 	</ul>
 </div>
+<ul class="inline no_print">
+	<li><a href="#" class="delete_parent">Delete</a></li>
+</ul>
 <div class="errorSummary">
-
 <h4>Warnings</h4>
 	<p>The following files were unable to be checked for accessiblity issues by Mal:
 	<?php 
@@ -222,11 +239,14 @@
 	<?php if(count($docs > 0)) { ?>
 	<div class="list">
 		<h5 class="warning">Word Documents (.doc and .docx)</h5>
-		<ul>
+		<ul class="inline no_print">
+			<li><a href="#" class="delete_h5">Delete</a></li>
+		</ul>
+		<ul class="li_border">
 			<?php foreach($docs as $doc) { 
 					$path = explode($breakHere,$doc['path']);
 				?>
-			<li><?php echo $path[1]; ?></li>
+			<li><?php echo $path[1]; ?> <a href="#" class="delete_li">Delete</a></li>
 			<?php } ?>
 		</ul>
 	</div>
@@ -234,11 +254,14 @@
 	if(count($pdfs > 0)) { ?>
 	<div class="list">
 		<h5 class="warning">PDF Documents</h5>
-		<ul>
+		<ul class="inline no_print">
+			<li><a href="#" class="delete_h5">Delete</a></li>
+		</ul>
+		<ul class="li_border">
 			<?php foreach($pdfs as $pdf) { 
 				$path = explode($breakHere,$pdf['path']);
 			?>
-			<li><?php echo $path[1]; ?></li>
+			<li><?php echo $path[1]; ?> <a href="#" class="delete_li">Delete</a></li>
 			<?php } ?>
 		</ul>
 	</div>
@@ -246,11 +269,14 @@
 	if(count($ppts > 0)) { ?>
 	<div class="list">
 		<h5 class="warning">Powerpoint Documents</h5>
-		<ul>
+		<ul class="inline no_print">
+			<li><a href="#" class="delete_h5">Delete</a></li>
+		</ul>
+		<ul class="li_border">
 			<?php foreach($ppts as $ppt) { 
 				$path = explode($breakHere,$ppt['path']);
 			?>
-			<li><?php echo $path[1]; ?></li>
+			<li><?php echo $path[1]; ?> <a href="#" class="delete_li">Delete</a></li>
 			<?php } ?>
 		</ul>
 	</div>

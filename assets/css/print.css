@@ -5,3 +5,4 @@
 h3 + ul { display: none;}
 .errorSummary {	margin-left: 35px; }
 .list {	margin-left: 20px; }
+.no_print { display: none;}
