@@ -24,10 +24,10 @@
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 <title>Choose a Class</title>
 <link rel="icon" type="image/png" href="favicon.ico">
-<link href='http://fonts.googleapis.com/css?family=Sonsie+One' rel='stylesheet' type='text/css'>
+<link href='https://fonts.googleapis.com/css?family=Sonsie+One' rel='stylesheet' type='text/css'>
 <link href="assets/css/main.css" type="text/css" rel="stylesheet" media="screen"  />
 <link href="assets/css/print.css" type="text/css" rel="stylesheet" media="print"/>
-<script src="http://code.jquery.com/jquery-latest.js"></script>
+<script src="https://code.jquery.com/jquery-1.7.2.js"></script>
 <script type="text/javascript" src="assets/js/default.js"></script>
 <script type="text/javascript" src="assets/js/chooser.js"></script>
 </head>

@@ -6,7 +6,7 @@
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 <title>Mal - Document Accessibility Checker</title>
 <link rel="icon" type="image/png" href="favicon.ico">
-<link href='http://fonts.googleapis.com/css?family=Sonsie+One' rel='stylesheet' type='text/css'>
+<link href='https://fonts.googleapis.com/css?family=Sonsie+One' rel='stylesheet' type='text/css'>
 <link href="assets/css/main.css" type="text/css" rel="stylesheet" />
 </head>
 
