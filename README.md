@@ -53,12 +53,18 @@ P.S. `logout.php` is really self explanitory, so...yeah. Not writing about it.
 _Pages Talked About_
 
 * chooser.php
+* tree.php
 
 This page is how the user is going to drill down to only choose the course that they want to parse. It's going to dig through the courses (using `assets/js/chooser.js` and using that to slam `app/tree.php` over and over again) and display them to the user as they choose a dropdown.
 
 Once the user finds their course, they hit "Run Checker" which get's the magic going by calling `checker.php`.
 
 ## Test Your Might
+
+_Pages Talked About_
+
+* checker.php
+* all the core stuff (that's all just [Quail](https://code.google.com/p/quail-lib/))
 
 _Welcome to my shame._
 
