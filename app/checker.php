@@ -6,7 +6,7 @@
 	/**
 	 * Runs through each directory and each subdirectory
 	 * @param  string $dir    Directory to look through
-	 * @param  string $ignore Files to ignore
+	 * @param  array $ignore Files to ignore
 	 * @return array          A array of the path to a directory and contents
 	 */
 	function find_directory($dir, $ignore) {
@@ -42,7 +42,7 @@
 	/**
 	 * Filters a directory to find 
 	 * @param  string $dir    Directory to look through
-	 * @param  string $ignore Files to ignore
+	 * @param  array  $ignore Files to ignore
 	 * @return array          A array of the path to a directory and contents
 	 */
 	function find_bad_files($dir, $ignore) {
@@ -135,6 +135,7 @@
 
 		array_push($fullReport, $final);
 	}
+	// Break at the spefied location
 	if($_POST['folder'][count($_POST['folder'])-1] == 'default')
 	{
 		$breakHere = $_POST['folder'][count($_POST['folder'])-2]."/";
