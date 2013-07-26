@@ -3,7 +3,12 @@
 		header('Location: ../');
 	}
 	include_once('config/localConfig.php');
-	/* Runs through each directory and each subdirectory */
+	/**
+	 * Runs through each directory and each subdirectory
+	 * @param  string $dir    Directory to look through
+	 * @param  string $ignore Files to ignore
+	 * @return array          A array of the path to a directory and contents
+	 */
 	function find_directory($dir, $ignore) {
 		$file_info = array();
 		$badFiles = array();
@@ -34,6 +39,12 @@
 		return $file_info;
 	}
 	
+	/**
+	 * Filters a directory to find 
+	 * @param  string $dir    Directory to look through
+	 * @param  string $ignore Files to ignore
+	 * @return array          A array of the path to a directory and contents
+	 */
 	function find_bad_files($dir, $ignore) {
 		$badFiles = array();
 		// Open a known directory, and proceed to read its contents
@@ -75,6 +86,7 @@
 			$directory .= $folder."/";
 		}
 	}
+	/* Grabs the ignores and filters them */
 	$ignore = $_POST['ignore'];
 	$result = find_directory($directory, $ignore);
 	$badFiles = find_bad_files($directory, $ignore);

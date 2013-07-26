@@ -1,3 +1,4 @@
+// Hides and shows results
 $(document).ready(function() {
 	$('h3').next().hide();
 	$('h3').click(function() {

@@ -1,4 +1,7 @@
-<?
+<?php
+
+// Verify's all the ldapp login information
+
 if(isset($_POST['nidLoginName']) && isset($_POST['nidPassword'])) {
 	if($_POST['nidLoginName'] != null and $_POST['nidLoginName'] != '' and $_POST['nidPassword'] != null and $_POST['nidPassword'] != '') {
 	
