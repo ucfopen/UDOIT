@@ -17,7 +17,7 @@
 			if ($dh = opendir($dir)) {
 				while (($file = readdir($dh)) !== false) {
 					$info = pathinfo($file);
-					if($file != '.' && $file != '..' && $file[0] != '.' && ($info['extension'] == 'html' || $info['extension'] == 'htm')) {
+					if($file != '.' && $file != '..' && $file[0] != '.' && (array_key_exists("extension", $info) && ($info['extension'] == 'html' || $info['extension'] == 'htm'))) {
 						array_push($file_info, array(
 							'path' => $dir.$file,
 							'text' => file_get_contents($dir . $file)
@@ -52,7 +52,7 @@
 			if ($dh = opendir($dir)) {
 				while (($file = readdir($dh)) !== false) {
 					$info = pathinfo($file);
-					if($file != '.' && $file != '..' && ($info['extension'] == 'pdf' || $info['extension'] == 'doc' || $info['extension'] == 'docx' || $info['extension'] == 'ppt' || $info['extension'] == 'pptx'))			
+					if($file != '.' && $file != '..' && (array_key_exists("extension", $info) && ($info['extension'] == 'pdf' || $info['extension'] == 'doc' || $info['extension'] == 'docx' || $info['extension'] == 'ppt' || $info['extension'] == 'pptx')))			
 					{
 						array_push($badFiles, array(
 							'path' => $dir.$file,
@@ -90,13 +90,11 @@
 	$ignore = $_POST['ignore'];
 	$result = find_directory($directory, $ignore);
 	$badFiles = find_bad_files($directory, $ignore);
-
 	$test = $result;
 	
 	$fullReport = array();
 	
 	require_once('core/quail/quail.php');
-	
 	/* Runs each item in the test array through the Quail accessibility checker */
 	foreach($test as $html) {
 		$error = 0;
@@ -113,6 +111,11 @@
 		
 		foreach($report as $value)
 		{
+			//  Some don't have a severity num, no clue why.
+			if(!array_key_exists("severity_num", $value))
+			{
+				continue;
+			}
 			if($value['severity_num'] == 1)
 			{
 				array_push($severe, $value);
@@ -216,7 +219,7 @@
 
 <?php } #end if $report[amount]
 }# End foreach ?>
-<?php if(count($badFiles) > 0) { ?>
+<?php if(count($badFiles) > 0) {?>
 <div class="errorItem">
 	<h3 class="plus">The Following Files May Contain Accessibility Issues</h3>
 	<ul>
@@ -235,9 +238,7 @@
 		$docs = array();
 		$pdfs = array();
 		$ppts = array();
-
 		foreach($badFiles as $badFile) { 
-
 			if($badFile['extension'] == 'doc' || $badFile['extension'] == 'docx') {
 				$docs[] = $badFile;
 			}
@@ -247,8 +248,7 @@
 			else if($badFile['extension'] == 'ppt' || $badFile['extension'] == 'pptx') {
 				$ppts[] = $badFile;
 			}
-		} #end foreach ?>
-
+		} // end foreach ?>
 	<?php if(count($docs > 0)) { ?>
 	<div class="list">
 		<h5 class="warning">Word Documents (.doc and .docx)</h5>
@@ -257,9 +257,9 @@
 		</ul>
 		<ul class="li_border">
 			<?php foreach($docs as $doc) { 
-					$path = explode($breakHere,$doc['path']);
-				?>
-			<li><?php echo $path[1]; ?> <a href="#" class="delete_li">Delete</a></li>
+				$path = explode($breakHere,$doc['path']);
+			?>
+			<li><?php echo end($path); ?> <a href="#" class="delete_li">Delete</a></li>
 			<?php } ?>
 		</ul>
 	</div>
@@ -274,7 +274,7 @@
 			<?php foreach($pdfs as $pdf) { 
 				$path = explode($breakHere,$pdf['path']);
 			?>
-			<li><?php echo $path[1]; ?> <a href="#" class="delete_li">Delete</a></li>
+			<li><?php echo end($path); ?> <a href="#" class="delete_li">Delete</a></li>
 			<?php } ?>
 		</ul>
 	</div>
@@ -289,7 +289,7 @@
 			<?php foreach($ppts as $ppt) { 
 				$path = explode($breakHere,$ppt['path']);
 			?>
-			<li><?php echo $path[1]; ?> <a href="#" class="delete_li">Delete</a></li>
+			<li><?php echo end($path); ?> <a href="#" class="delete_li">Delete</a></li>
 			<?php } ?>
 		</ul>
 	</div>
