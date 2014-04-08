@@ -8,12 +8,7 @@ if(isset($_GET['page'])) {
 }
 
 // If they're accessing the index, go to the chooser if they're logged in
-else if(isset($_SESSION['loggedIn'])) {
+else {
 	include_once('app/chooser.php');
 }
-// Or else redirect to the login page.
-else {
-	include_once('app/login.php');
-}
-
 ?>

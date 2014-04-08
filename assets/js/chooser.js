@@ -2,7 +2,7 @@ var LIMIT = 500;
 var WARN = 250;
 
 /* Looks through the specifed folder and gets subfolders */
-function folderLook (folder, currentFolder) {
+function folderLook(folder, currentFolder) {
 	loader();
 	var ignored = new Array();
 	var ignoreFind = $('.ignore');

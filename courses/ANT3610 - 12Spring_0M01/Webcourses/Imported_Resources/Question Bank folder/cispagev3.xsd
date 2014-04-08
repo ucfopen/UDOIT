@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema targetNamespace="http://www.webct.com/xsd/cispagev3" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:ims="http://www.imsglobal.org/xsd/imscp_v1p1" xmlns="http://www.webct.com/xsd/cispagev3" xmlns:webct="http://www.webct.com/xsd/cisv3" elementFormDefault="qualified" attributeFormDefault="qualified">
+  <xs:import namespace="http://www.imsglobal.org/xsd/imscp_v1p1"/>
+  <xs:import namespace="http://www.webct.com/xsd/cisv3"/>
+  
+  <xs:complexType name="ContentPageType">
+    <xs:complexContent>
+      <xs:extension base="webct:ContentObjectType">
+        <xs:attribute name="useHtml" type="xs:boolean" default="true"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+</xs:schema>

@@ -1,0 +1,217 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema targetNamespace="http://www.webct.com/xsd/webct_qti" elementFormDefault="qualified" attributeFormDefault="qualified" xmlns:qti="http://www.imsglobal.org/xsd/ims_qtiasiv1p2" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns="http://www.webct.com/vista/assessment">
+	<xs:import namespace="http://www.imsglobal.org/xsd/ims_qtiasiv1p2"/>
+
+	<xs:element name="material_webeq">
+		<xs:complexType>
+			<xs:simpleContent>
+				<xs:extension base="xs:string">
+					<xs:attribute name="label" type="xs:string" use="required"/>
+					<xs:attribute name="texttype" type="xs:string" use="required"/>
+				</xs:extension>
+			</xs:simpleContent>
+		</xs:complexType>
+	</xs:element>
+
+	<xs:element name="localizable_mattext">
+		<xs:complexType>
+			<xs:simpleContent>
+				<xs:extension base="xs:string">
+					<xs:attribute name="texttype" type="xs:string" use="required"/>
+					<xs:attribute name="charset" type="xs:string"/>
+				</xs:extension>
+			</xs:simpleContent>
+		</xs:complexType>
+	</xs:element>
+
+	<xs:element name="varregex">
+		<xs:complexType>
+			<xs:simpleContent>
+				<xs:extension base="xs:string">
+					<xs:attribute name="respident" type="xs:string" use="required"/>
+					<xs:attribute name="case" use="required">
+						<xs:simpleType>
+							<xs:restriction base="xs:NMTOKEN">
+								<xs:enumeration value="Yes"/>
+								<xs:enumeration value="No"/>
+							</xs:restriction>
+						</xs:simpleType>
+					</xs:attribute>
+				</xs:extension>
+			</xs:simpleContent>
+		</xs:complexType>
+	</xs:element>
+
+
+	<!-- Elements used in calculated questions -->
+	<xs:element name="calculated">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="formula" type="xs:string"/>
+				<xs:element name="var" type="varType" maxOccurs="unbounded"/>
+				<xs:element name="calculated_set" type="calculatedSetType" maxOccurs="unbounded"/>
+			</xs:sequence>
+			<xs:attribute name="label" type="xs:string"/>
+		</xs:complexType>
+	</xs:element>
+
+	<xs:complexType name="varType">
+		<xs:attribute name="name" type="xs:string" use="required"/>
+		<xs:attribute name="min" type="xs:double" use="required"/>
+		<xs:attribute name="max" type="xs:double" use="required"/>
+		<xs:attribute name="precision" type="xs:integer" use="required"/>
+	</xs:complexType>
+
+	<xs:complexType name="calculatedSetType">
+		<xs:sequence>
+			<xs:element name="calculated_var" type="calculatedVarType" maxOccurs="unbounded"/>
+			<xs:element name="answer" type="answerType"/>
+		</xs:sequence>
+		<xs:attribute name="index" type="xs:integer" use="required"/>
+	</xs:complexType>
+
+	<xs:complexType name="calculatedVarType">
+		<xs:attribute name="name" type="xs:string" use="required"/>
+		<xs:attribute name="value" type="xs:double" use="required"/>
+	</xs:complexType>
+
+	<xs:complexType name="answerType">
+		<xs:attribute name="value" type="xs:double" use="required"/>
+	</xs:complexType>
+
+	<xs:element name="variable">
+		<xs:complexType>
+			<xs:attribute name="label" type="xs:string"/>
+			<xs:attribute name="name" type="xs:string" use="required"/>
+			<xs:attribute name="precision" type="xs:integer" use="required"/>
+		</xs:complexType>
+	</xs:element>
+
+	<xs:element name="calculated_answer">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="qti:setvar"/>
+			</xs:sequence>
+			<xs:attribute name="respident" type="xs:string" use="required"/>
+			<xs:attribute name="precision" type="xs:integer" use="required"/>
+			<xs:attribute name="precisionType" use="required">
+				<xs:simpleType>
+					<xs:restriction base="xs:NMTOKEN">
+						<xs:enumeration value="Decimal"/>
+						<xs:enumeration value="SigFig"/>
+					</xs:restriction>
+				</xs:simpleType>
+			</xs:attribute>
+			<xs:attribute name="tolerance" type="xs:double" use="required"/>
+			<xs:attribute name="toleranceType" use="required">
+				<xs:simpleType>
+					<xs:restriction base="xs:NMTOKEN">
+						<xs:enumeration value="Unit"/>
+						<xs:enumeration value="Percent"/>
+					</xs:restriction>
+				</xs:simpleType>
+			</xs:attribute>
+		</xs:complexType>
+	</xs:element>
+
+	<xs:element name="unit_eval">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="qti:conditionvar"/>
+				<xs:element ref="qti:setvar"/>
+			</xs:sequence>
+			<xs:attribute name="space" use="required">
+				<xs:simpleType>
+					<xs:restriction base="xs:NMTOKEN">
+						<xs:enumeration value="Yes"/>
+						<xs:enumeration value="No"/>
+					</xs:restriction>
+				</xs:simpleType>
+			</xs:attribute>
+		</xs:complexType>
+	</xs:element>
+
+
+	<!-- Elements used by matching questions-->
+	<xs:element name="material_table">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="matching_ext_flow" type="matching_ext_flowType" minOccurs="2" maxOccurs="2"/>
+			</xs:sequence>
+			<xs:attribute name="label" type="xs:string"/>
+		</xs:complexType>
+	</xs:element>
+
+	<xs:complexType name="matching_ext_flowType">
+		<xs:sequence>
+			<xs:element name="matching_text_ext" type="matching_text_extType" maxOccurs="unbounded"/>
+		</xs:sequence>
+		<xs:attribute name="rshuffle" use="required">
+			<xs:simpleType>
+				<xs:restriction base="xs:NMTOKEN">
+					<xs:enumeration value="Yes"/>
+					<xs:enumeration value="No"/>
+				</xs:restriction>
+			</xs:simpleType>
+		</xs:attribute>
+		<xs:attribute name="rhidden" use="required">
+			<xs:simpleType>
+				<xs:restriction base="xs:NMTOKEN">
+					<xs:enumeration value="Yes"/>
+					<xs:enumeration value="No"/>
+				</xs:restriction>
+			</xs:simpleType>
+		</xs:attribute>
+		<xs:attribute name="labelType" use="required">
+			<xs:simpleType>
+				<xs:restriction base="xs:NMTOKEN">
+					<xs:enumeration value="Number"/>
+					<xs:enumeration value="Letter"/>
+					<xs:enumeration value="None"/>
+				</xs:restriction>
+			</xs:simpleType>
+		</xs:attribute>
+	</xs:complexType>
+
+	<xs:complexType name="matching_text_extType">
+		<xs:sequence>
+			<xs:element ref="qti:mattext"/>
+		</xs:sequence>
+		<xs:attribute name="label" type="xs:string"/>
+		<xs:attribute name="rshuffle" use="required">
+			<xs:simpleType>
+				<xs:restriction base="xs:NMTOKEN">
+					<xs:enumeration value="Yes"/>
+					<xs:enumeration value="No"/>
+				</xs:restriction>
+			</xs:simpleType>
+		</xs:attribute>
+	</xs:complexType>
+
+
+	<!-- Elements for jumbled sentence question -->
+	<xs:element name="ims_render_object">
+		<xs:complexType>
+			<xs:choice maxOccurs="unbounded">
+				<xs:element ref="qti:material"/>
+				<xs:element name="response_label" type="qti:response_labelType"/>
+			</xs:choice>
+            <xs:attribute name="shuffle" use="required">
+                <xs:simpleType>
+                    <xs:restriction base="xs:NMTOKEN">
+                        <xs:enumeration value="Yes"/>
+                        <xs:enumeration value="No"/>
+                    </xs:restriction>
+                </xs:simpleType>
+            </xs:attribute>
+            <xs:attribute name="orientation" use="required">
+                <xs:simpleType>
+                    <xs:restriction base="xs:NMTOKEN">
+                        <xs:enumeration value="row"/>
+                        <xs:enumeration value="column"/>
+                    </xs:restriction>
+                </xs:simpleType>
+            </xs:attribute>
+		</xs:complexType>
+	</xs:element>
+</xs:schema>

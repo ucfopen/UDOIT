@@ -1,17 +1,15 @@
-body {font-family: Arial, Helvetica, sans-serif; background: #FFF7EA; margin: 0; padding: 0;}
-h1 { background: #332312; color: #FFF; font-family: 'Sonsie One', cursive; margin: 0; padding: 0; display: inline-block;}
-h2 { color: #332312; font-family: 'Sonsie One', cursive; }
+body { background: #f3f3f3; padding: 20px 0 0;}
+h1 { color: #000000; display: inline-block; font-weight: bold; margin: 0; padding: 0; }
+h2 { color: #332312; }
 h3 { cursor: pointer; margin: 0;}
 h4, h5 { margin: 20px 0 0 0; padding: 0;}
 h5 { font-size: 1em; }
-#header { background: #332312; padding: 10px 0 0 10px;}
-#header p { float: right; margin: 5px 30px 0 0; }
-#header p a { color: #FFF; font-size: 1.2em; text-decoration: none;}
-#header p a:hover { color: #c4ab81; }
-#header p a:active { color: #FFF7EA; }
-#bodyWrapper {
-	margin: 20px;
-	width: 1100px;
+#mainHeader, #contentWrapper {
+	background: #ffffff;
+	border: 1px solid #c1c7cf;
+	border-radius: 3px;
+	box-shadow: 0 1px 0 #DDE0E4;
+	padding: 20px;
 }
 #loginForm {
 	margin: 80px auto;
@@ -189,21 +187,6 @@ input[type=submit], button {
 	border-radius: 5px;
 	cursor: pointer;
 }
-input[type=submit]:hover, button:hover {
-	background-image: linear-gradient(bottom, rgb(74,55,37) 96%, rgb(94,80,55) 30%);
-	background-image: -o-linear-gradient(bottom, rgb(74,55,37) 96%, rgb(94,80,55) 30%);
-	background-image: -moz-linear-gradient(bottom, rgb(74,55,37) 96%, rgb(94,80,55) 30%);
-	background-image: -webkit-linear-gradient(bottom, rgb(74,55,37) 96%, rgb(94,80,55) 30%);
-	background-image: -ms-linear-gradient(bottom, rgb(74,55,37) 96%, rgb(94,80,55) 30%);
-
-	background-image: -webkit-gradient(
-		linear,`
-		right bottom,
-		right top,
-		color-stop(0.96, rgb(74,55,37)),
-		color-stop(0.3, rgb(94,80,55))
-	);
-}
 #tooMany {
 	padding: 10px;
 }
@@ -265,3 +248,5 @@ input[type=submit]:hover, button:hover {
 	0% { -webkit-transform:rotate(0deg); }
 	100% { -webkit-transform:rotate(360deg); }
 }
+
+/* X. FORMS --------------------------- */

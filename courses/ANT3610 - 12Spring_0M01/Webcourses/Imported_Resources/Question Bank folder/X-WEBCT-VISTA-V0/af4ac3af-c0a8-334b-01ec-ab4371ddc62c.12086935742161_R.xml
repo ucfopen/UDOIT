@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<questestinterop xmlns="http://www.imsglobal.org/xsd/ims_qtiasiv1p2">
+  <item title="Copula Deletion" ident="12086935746161">
+    <itemmetadata>
+      <qtimetadata>
+        <vocabulary uri="imsqtiv1p2_metadata.txt" vocab_type="text/plain" />
+        <qtimetadatafield>
+          <fieldlabel>qmd_questiontype</fieldlabel>
+          <fieldentry>Multiple-choice</fieldentry>
+        </qtimetadatafield>
+      </qtimetadata>
+      <qtimetadata>
+        <vocabulary uri="webct_imsqti_metadatav1p0.txt" vocab_type="text/plain" />
+        <qtimetadatafield>
+          <fieldlabel>wct_question_labelledletter</fieldlabel>
+          <fieldentry>No</fieldentry>
+        </qtimetadatafield>
+        <qtimetadatafield>
+          <fieldlabel>layoutHorizontal</fieldlabel>
+          <fieldentry>false</fieldentry>
+        </qtimetadatafield>
+        <qtimetadatafield>
+          <fieldlabel>wct_authorFullName</fieldlabel>
+          <fieldentry>Reyes-Foster Beatriz</fieldentry>
+        </qtimetadatafield>
+        <qtimetadatafield>
+          <fieldlabel>wct_usedbyassessment</fieldlabel>
+          <fieldentry>Quiz 4Quiz 4 SDSPractice Test</fieldentry>
+        </qtimetadatafield>
+        <qtimetadatafield>
+          <fieldlabel>wct_questiontype</fieldlabel>
+          <fieldentry>WCT_MultipleChoice</fieldentry>
+        </qtimetadatafield>
+        <qtimetadatafield>
+          <fieldlabel>wct_questioncategory</fieldlabel>
+          <fieldentry>Language and Race</fieldentry>
+        </qtimetadatafield>
+        <qtimetadatafield>
+          <fieldlabel>wct_authorWebctGlid</fieldlabel>
+          <fieldentry>11099131084091</fieldentry>
+        </qtimetadatafield>
+      </qtimetadata>
+    </itemmetadata>
+    <presentation>
+      <flow>
+        <material>
+          <mattext xml:space="preserve" label="wct_question_label_1" texttype="TEXT/PLAIN" charset="US-ASCII">"Copula deletion" in African American English refers to:</mattext>
+          <matbreak />
+        </material>
+        <response_lid ident="RESP_MC" rcardinality="Single">
+          <render_choice shuffle="Yes">
+            <flow_label class="Row">
+              <response_label ident="MC0" rshuffle="Yes">
+                <material>
+                  <mattext xml:space="preserve" label="wct_mc_answer_text0" texttype="TEXT/HTML" charset="US-ASCII">The use of "be" in its conjugated, invariant form to indicate habitual action. </mattext>
+                  <matbreak />
+                </material>
+              </response_label>
+              <response_label ident="MC1" rshuffle="Yes">
+                <material>
+                  <mattext xml:space="preserve" label="wct_mc_answer_text1" texttype="TEXT/HTML" charset="US-ASCII">The omission of the conjugated "be" to indicate present-tense action when the utterance does not end with that verb.</mattext>
+                  <matbreak />
+                </material>
+              </response_label>
+              <response_label ident="MC2" rshuffle="Yes">
+                <material>
+                  <mattext xml:space="preserve" label="wct_mc_answer_text2" texttype="TEXT/HTML" charset="US-ASCII">The incorrect conjugation of the verb "to be" in casual conversations.</mattext>
+                  <matbreak />
+                </material>
+              </response_label>
+              <response_label ident="MC3" rshuffle="Yes">
+                <material>
+                  <mattext xml:space="preserve" label="wct_mc_answer_text3" texttype="TEXT/HTML" charset="US-ASCII">The dropping of voiceless "stop" consonants when they are immediately preceded by a similarly voiced consonant.</mattext>
+                  <matbreak />
+                </material>
+              </response_label>
+            </flow_label>
+          </render_choice>
+        </response_lid>
+      </flow>
+    </presentation>
+    <resprocessing scoremodel="SumofScores">
+      <outcomes>
+        <decvar vartype="Decimal" varname="SCORE" minvalue="0.0" defaultval="0.0" />
+      </outcomes>
+      <respcondition continue="Yes">
+        <conditionvar>
+          <varequal respident="RESP_MC" case="Yes">MC0</varequal>
+        </conditionvar>
+        <setvar varname="SCORE" action="Add">0.0</setvar>
+        <displayfeedback feedbacktype="Response" linkrefid="wct_mc_answer_fb0" />
+      </respcondition>
+      <respcondition continue="Yes">
+        <conditionvar>
+          <varequal respident="RESP_MC" case="Yes">MC1</varequal>
+        </conditionvar>
+        <setvar varname="SCORE" action="Add">100.0</setvar>
+        <displayfeedback feedbacktype="Response" linkrefid="wct_mc_answer_fb1" />
+      </respcondition>
+      <respcondition continue="Yes">
+        <conditionvar>
+          <varequal respident="RESP_MC" case="Yes">MC2</varequal>
+        </conditionvar>
+        <setvar varname="SCORE" action="Add">0.0</setvar>
+        <displayfeedback feedbacktype="Response" linkrefid="wct_mc_answer_fb2" />
+      </respcondition>
+      <respcondition continue="Yes">
+        <conditionvar>
+          <varequal respident="RESP_MC" case="Yes">MC3</varequal>
+        </conditionvar>
+        <setvar varname="SCORE" action="Add">0.0</setvar>
+        <displayfeedback feedbacktype="Response" linkrefid="wct_mc_answer_fb3" />
+      </respcondition>
+      <respcondition continue="Yes" title="genFeedback">
+        <conditionvar>
+          <other />
+        </conditionvar>
+        <displayfeedback feedbacktype="Response" linkrefid="wct_general_feedback_ref_1" />
+      </respcondition>
+    </resprocessing>
+  </item>
+</questestinterop>
+

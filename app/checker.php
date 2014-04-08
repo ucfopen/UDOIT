@@ -79,6 +79,7 @@
 		return $badFiles;
 	}
 
+	// Grab remote files here instead of this crap.
 	$directory = $base;
 	/* appends each folder to the base so it knows where to start from */
 	foreach($_POST['folder'] as $folder) {
@@ -89,9 +90,12 @@
 	/* Grabs the ignores and filters them */
 	$ignore = $_POST['ignore'];
 	$result = find_directory($directory, $ignore);
+	// print_r($result);
 	$badFiles = find_bad_files($directory, $ignore);
+	
 	$test = $result;
 	
+	// $test['text'] = html of page;
 	$fullReport = array();
 	
 	require_once('core/quail/quail.php');

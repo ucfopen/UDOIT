@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- edited with XML Spy v4.4 U (http://www.xmlspy.com) by WebCT (WebCT, Inc./Product Develpment) -->
+<xs:schema targetNamespace="http://www.webct.com/xsd/cisfilev3" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:ims="http://www.imsglobal.org/xsd/imscp_v1p1" xmlns="http://www.webct.com/xsd/cisfilev3" xmlns:webct="http://www.webct.com/xsd/cisv3" elementFormDefault="qualified" attributeFormDefault="unqualified">
+	<xs:import namespace="http://www.imsglobal.org/xsd/imscp_v1p1"/>
+	<xs:import namespace="http://www.webct.com/xsd/cisv3"/>
+	<xs:complexType name="FileType">
+		<xs:complexContent>
+			<xs:extension base="webct:ContentObjectType">
+				<xs:sequence>
+					<xs:element name="Title" type="xs:string" minOccurs="0"/>
+					<xs:element name="Author" type="xs:string" minOccurs="0"/>
+					<xs:element name="DateCreated" type="xs:dateTime" minOccurs="0"/>
+					<xs:element name="Description" type="xs:string" minOccurs="0"/>
+					<xs:element name="Keywords" type="xs:string" minOccurs="0"/>
+					<xs:element name="CharacterSet" type="xs:string" minOccurs="0"/>
+					<xs:element name="Path" type="xs:string" minOccurs="0"/>
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+</xs:schema>
