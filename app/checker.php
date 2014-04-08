@@ -38,6 +38,35 @@
 		}
 		return $file_info;
 	}
+
+	function get_pages($base_url, $courseID, $apikey){
+		$urls = [];
+		// $titles = array();
+		$pageNum = 1;
+		$perPage = 100;
+
+		while(true) {
+			$url = $base_url."/api/v1/courses/".$courseID."/pages?page=".$pageNum."&per_page=".$perPage."&access_token=".$apikey;
+			//using Kevin's curl class
+			$pages = Curl::get($url, true, null, true);
+
+			if(sizeof($pages['response']) == 0) {
+				break;
+			}
+
+			if(isset($pages['response']->status))
+				error($pages['response']->status, $pages['response']->message);
+
+			foreach($pages['response'] as $page){
+				$url = $base_url."/api/v1/courses/".$courseID."/pages/".$page->url."?access_token=".$apikey;
+				$wikiPage = Curl::get($url, true, null, true);
+
+				array_push($urls, $wikiPage['response']->body);
+			}
+			$pageNum++;
+		}
+		return $urls;
+	}
 	
 	/**
 	 * Filters a directory to find 
@@ -153,7 +182,7 @@
 	}
 ?>
 
-<h2>Report for courses/<?php echo str_replace($base, '', $directory); ?></h2>
+<h2>Report for Courses: <?php echo str_replace($base, '', $directory); ?></h2>
 <p><a href="#" id="print">Print this Report</a><p>
 
 <div id="errorWrapper">
