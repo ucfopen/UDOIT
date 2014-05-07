@@ -35,7 +35,25 @@ class reportStatic extends quailReporter {
 		foreach($this->guideline->getReport() as $testname => $test) {
 			$severity = $this->guideline->getSeverity($testname);
 			$translation = $this->guideline->getTranslation($testname);
-			$title = $translation['title'];
+
+			if(isset($translation['title']))
+			{
+				$title = $translation['title'];
+			}
+			else
+			{
+				$title = NULL;
+			}
+
+			if(isset($translation['description']))
+			{
+				$description = $translation['description'];
+			}
+			else
+			{
+				$description = NULL;
+			}
+			
 			switch($severity) {
 				case QUAIL_TEST_SEVERE:
 					$severityLevel = 'Error';
@@ -60,6 +78,7 @@ class reportStatic extends quailReporter {
 						$testResult['severity'] = $severityLevel;
 						$testResult['severity_num'] = $severityNumber;
 						$testResult['title'] = $title;
+						$testResult['description'] = $description;
 						$testResult['path'] = count($this->path) > 1 ? $this->path[1] : "None";
 						$testResult['html'] = htmlentities($problem->getHtml());
 					}

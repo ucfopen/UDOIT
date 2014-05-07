@@ -2,15 +2,7 @@ body { background: #f3f3f3; padding: 20px 0 0;}
 h1 { color: #000000; display: inline-block; font-weight: bold; margin: 0; padding: 0; }
 h2 { color: #332312; }
 h3 { cursor: pointer; margin: 0;}
-h3.plus {
-	max-width: 80%;
-	overflow: hidden;
-	-ms-text-overflow: ellipsis;
-	 -o-text-overflow: ellipsis;
-		text-overflow: ellipsis;
-	white-space: nowrap;
-}
-h5 { margin: 20px 0 0 0; padding: 0;}
+h4, h5 { margin: 20px 0 0 0; padding: 0;}
 h5 { font-size: 1em; }
 #mainHeader, #contentWrapper {
 	background: #ffffff;
@@ -43,36 +35,51 @@ h5 { font-size: 1em; }
 	filter:alpha(opacity=2);
 }
 .center { text-align: center;}
+.plus:before { content: "+ "; }
+.minus:before { content: "- "; }
 .single { width: 35px; }
 .double { width: 45px; }
 .errorCount, .warningCount, .suggestionCount { padding: 0 0 0 0; font-weight: bold; font-size: 1.1em;}
 .errorCount { background: url('../img/error.png') right center no-repeat; }
 .warningCount { background: url('../img/warning.png') right center no-repeat; }
 .suggestionCount { background: url('../img/suggestion.png') right center no-repeat; }
-.error, .warning, .suggestion {
-	font-weight: bold;
-	line-height: 22px;
-	margin: 0;
-}
-.error { color: #a94442; }
-.warning { color: #8a6d3b; }
-.suggestion { color: #31708f; }
+.error, .warning, .suggestion { margin-left: 10px; padding-left: 28px; padding-top: 3px; min-height: 24px; }
+.error { background: url('../img/error.png') left top no-repeat; }
+.warning { background: url('../img/warning.png') left top no-repeat; }
+.suggestion { background: url('../img/suggestion.png') left top no-repeat; }
+ul { margin-left: 30px; }
+div { overflow: auto; }
 #course_wrapper {display: none; }
 .nobullet li { list-style: none; margin:0; padding: 0;}
+.errorItem { display: inline-block; }
+.errorItem + ul {
+	display: inline-block;
+	margin: 0;
+	padding: 0;
+}
+.errorItem + ul li {
+	display: inline-block;
+	margin: 0 0 0 20px;
+	padding: 0;
+}
 #result { display: none; }
 
 .errorSummary { 
+	margin-left: 50px;
 	display: none;
 }
-#errorWrapper .errorItem:last-child {
-	margin-bottom: 0;
-}
-#errorWrapper .errorSummary .panel:last-child {
-	margin-bottom: 0;
+.errorSummary ul li { 
+	list-style: none;
+	margin: 0;
+	padding: 0;
 }
 ul.li_border li {
 	border-bottom: 1px solid black;
 	padding: 10px;	
+}
+.errorSummary ul { 
+	margin: 0 0 15px 50px;
+	padding: 0;
 }
 .delete_li {
 	float: right;
@@ -83,6 +90,31 @@ h5 {
 h5 + ul {
 	display: inline-block;
 	margin: 0 0 0 19px;
+	padding: 0;
+}
+.errorItem {
+	border-bottom: 1px #332312 solid;
+	background: #E3D2B4;
+	padding: 10px;
+	border-radius: 5px;
+	margin: 0 0 3px 0;
+	width: 1000px;
+	cursor: pointer;
+}
+.errorItem h3 {
+	display: inline-block;
+	cursor: pointer;
+}
+.errorItem ul {
+	float: right;
+	display: inline-block;
+	margin: 0;
+	padding:0;
+	cursor: pointer;
+}
+.errorItem ul li {
+	display: inline-block;
+	margin: 0 10px 0 0;
 	padding: 0;
 }
 
@@ -219,28 +251,3 @@ input[type=submit], button {
 }
 
 /* X. FORMS --------------------------- */
-
-#udoitForm {
-	margin-bottom: 20px;
-}
-
-/* X. PANELS -------------------------- */
-
-.panel-title {
-	line-height: 22px;
-	margin-left: 6px;
-}
-
-/* X. HELPERS (should go after everything else) -- */
-
-/* for lazy little developers~ */
-.no-margin { margin: 0px; }
-.margin-top { margin-top: 20px; }
-.margin-right { margin-right: 20px; }
-.margin-bottom { margin-bottom: 20px; }
-.margin-left { margin-left: 20px; }
-.margin-top-small { margin-top: 10px; }
-.margin-right-small { margin-right: 10px; }
-.margin-bottom-small { margin-bottom: 10px; }
-.margin-left-small { margin-left: 10px; }
-.position-relative { position: relative; }

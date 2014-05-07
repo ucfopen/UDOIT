@@ -1,63 +1,17 @@
 var LIMIT = 500;
 var WARN = 250;
 
-/* Looks through the specifed folder and gets subfolders */
-function folderLook(folder, currentFolder) {
-	loader();
-	var ignored = new Array();
-	var ignoreFind = $('.ignore');
-	for(x=0; x<$(ignoreFind).length; x++) {
-		var value = $(ignoreFind[x]).val();
-		if(value != '') {
-			ignored.push(value);
-		}
-	}
-	ignored = ignored.join(",");
-	if(currentFolder != '') { currentFolder = currentFolder + "/";}
-	currentFolder += $(folder).val();
-	var ignoreList = new Array();
-
-	$('input[type=checkbox].ignore').each(function() {
-		if($(this).is(':checked')) {
-			ignoreList.push($(this).val());
-		}
-	});
-	$('input[type=text].ignore').each(function() {
-		ignoreList.push($(this).val());
-	});
-
-	$.post('./?page=tree', { folder :  currentFolder, ignore : ignoreList}, function (data) {
-		killButton(function() {
-			var childrenFolder = false;
-			var theClone = $(folder).clone();
-			$(theClone).html('');
-			$(theClone).append("<option value='default'></option>");
-			for(i in data) {
-				if(data[i] != '' ) { 
-					childrenFolder = true;
-					$(theClone).append("<option value='"+data[i]+"'>"+data[i]+"</option>");
-				}
-			}	
-			$(theClone).change(function() {folderLook(this, currentFolder);});
-			while($(folder).next().is('select')) {
-				$(folder).next().remove();
-			}
-			if(childrenFolder) {
-				$(folder).after(theClone);
-			}
-		});
-	}, 'json');
-}
 /* Formates the results when clicking on an item (slidedown and plus) */
 function resultSetup() {
-	$('.errorItem').click(function() {
-		var errorItem = $(this)
-		if ($(this).next().next().is(':visible')) {
-			$(this).next().next().slideUp(function() {errorItem.children('h3').removeClass('minus').addClass('plus');});
+	$('.errorItem .panel-heading').click(function() {
+		var errorItem = $(this).parent();
+		console.log($(this).parent().find('.errorSummary'));
+		if ($(this).parent().find('.errorSummary').is(':visible')) {
+			$(this).parent().find('.errorSummary').slideUp(function() {errorItem.children('button span').removeClass('glyphicon-minus').addClass('glyphicon-plus');});
 		}
 		else {
-			errorItem.children('h3').removeClass('plus').addClass('minus');
-			$(this).next().next().slideDown();
+			errorItem.children('button span').removeClass('glyphicon-plus').addClass('glyphicon-minus');
+			$(this).parent().find('.errorSummary').slideDown();
 		}
 	});
 	$('#print').click(function() {
@@ -78,6 +32,7 @@ function resultSetup() {
 	{
 		e.preventDefault();
 		var element = $(this).parent().parent();
+		console.log(element);
 		var part = $(element).prev().attr('class');
 		var counter = $(element).closest('.errorSummary').prev().prev().find('.'+part+'Count')
 		$(counter).html(parseInt($(counter).html())-1);
@@ -102,24 +57,27 @@ function resultSetup() {
 			}
 		}
 	});
-
+	$('.delete_result').click(function(e)
+	{
+		e.preventDefault();
+		var element = $(this).parent().parent();
+		$(element).remove();
+	});
 }
 
-/* adds item to ignore list */
-function addInput(element) {
-	var parentElement = $(element).parent();
-	var inputValue = $(parentElement).children('input').val();
-	var cloned = $(parentElement).clone();
-	$(cloned).children('input').val('');
-	$(cloned).children('a').click(function() { addInput(this); return false;});
-	$(parentElement).html('<input type="checkbox" name="ignore[]" class="ignore" value="'+inputValue+'" checked="checked" />'+inputValue);
-	$(parentElement).after(cloned);
-	$(element).remove();
-}
 /* Builds up the results and adds them to the page */
-function checker(folderList, ignoreList) {
-	$.post('./?page=checker', { folder : folderList, ignore : ignoreList}, function(data) {
-		$('#bodyWrapper').append('<div id="result">'+data+'</div>');
+function checker(folderList) {
+	var content = $('.content:checked').map(function(i,n) {
+		return $(n).val();
+	}).get();
+
+	if(content.length == 0) { 
+		content = "none"; 
+	}
+	
+	$.post('./?page=checker', { course: $('#courseSelect').text(), id: $('#courseSelect').val(), content: content }, function(data) {
+		$('#contentWrapper').append('<div id="result">'+data+'</div>');
+		console.log(data);
 		resultSetup();
 			killButton(function() {
 				$('#result').fadeIn(function() {
@@ -128,28 +86,30 @@ function checker(folderList, ignoreList) {
 	});
 }
 $(document).ready(function() {
-	$('.folder').change(function() {
-		folderLook(this, '');
+	var checked = false;
+	$('#allContent').click(function() {
+		if(checked) {
+			$(this).parent().parent().parent().find('.content:not(#allContent)').attr('checked', false);
+			checked = false;
+		}
+		else {
+			$(this).parent().parent().parent().find('.content:not(#allContent)').attr('checked', true);
+			checked = true;
+		}
 	});
-	$('.add').click(function() { addInput(this); return false;})
+	$('.content:not(#allContent)').click(function() {
+		$('#allContent').attr('checked', false);
+		checked = false;
+	});
 	$('#submit').click(function() {
 		if($('#result').length > 0) { $('#result').remove(); }
 		loader();
 		var folderList = new Array();
-		var ignoreList = new Array();
 		
 		$('.folder').each(function() { 
 				folderList.push($(this).val()); 
 		});
-		$('input[type=checkbox].ignore').each(function() {
-			if($(this).is(':checked')) {
-				ignoreList.push($(this).val());
-			}
-		});
-		$('input[type=input].ignore').each(function() {
-			ignoreList.push($(this).val());
-		});
-		$.post('./?page=finalCheck', { folder : folderList, ignore : ignoreList}, function(amount) {
+		$.post('./?page=finalCheck', { folder : folderList}, function(amount) {
 			if(amount > LIMIT)
 			{
 				killButton(function() {
@@ -173,7 +133,7 @@ $(document).ready(function() {
 						$('#continue').click(function() { 
 							killButton(function() {
 								loader();
-								checker(folderList, ignoreList);
+								checker(folderList);
 							});
 						});
 					});
@@ -181,7 +141,7 @@ $(document).ready(function() {
 			}
 			else 
 			{
-				checker(folderList, ignoreList);
+				checker(folderList);
 			}
 		});
 		return false;
