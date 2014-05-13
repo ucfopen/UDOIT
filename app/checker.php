@@ -1,20 +1,15 @@
-<?php	
-	// if(!isset($_SESSION['loggedIn'])) {
-	// 	header('Location: ../');
-	// }
+<?php
 	include_once('config/localConfig.php');
 	include_once('app/curlClass.php');
 
-	$courseID = $_POST['id'];
+	if($_POST['content'] == 'none'){
+		echo "<div class=\"alert alert-danger no-margin\"><span class=\"glyphicon glyphicon-exclamation-sign\"></span> Please select which course content you wish to scan above.</div>";
+		exit();
+	}
 
-	// Gets pages from the instructors course
-	$pageContent = get_pages_html($base_url, $courseID, $apikey);
-	$discussionContent = get_discussions_html($base_url, $courseID, $apikey);
-	$announcementContent = get_announcements_html($base_url, $courseID, $apikey);
-	$filesContent = get_files_html($base_url, $courseID, $apikey);
+	$courseID = 1002791;
 
-	$courseContent = array();
-	array_push($courseContent, $pageContent, $discussionContent, $announcementContent, $filesContent);
+	$courseContent = get_content($base_url, $courseID, $apikey);
 
 	$allContent = array();
 
@@ -24,186 +19,160 @@
 		}
 	}
 
-	function get_pages_html($base_url, $courseID, $apikey){
-		$pageInfo = array();
-		$pageNum = 1;
-		$perPage = 100;
+	function get_content($base_url, $courseID, $apikey){
+		$completeContent = [];
 
-		while(true) {
-			$url = $base_url."/api/v1/courses/".$courseID."/pages?page=".$pageNum."&per_page=".$perPage."&access_token=".$apikey;
-			//using Kevin's curl class
-			$pages = Curl::get($url, true, null, true);
+		if(in_array("pages", $_POST["content"])){
+			session_start();
+			$_SESSION["progress"] = 1;
+			session_write_close();
 
-			if(sizeof($pages['response']) == 0) {
-				break;
+			$pageInfo = [];
+			$pageNum = 1;
+			$perPage = 100;
+
+			while(true) {
+				$url = $base_url."/api/v1/courses/".$courseID."/pages?page=".$pageNum."&per_page=".$perPage."&access_token=".$apikey;
+				//using Kevin's curl class
+				$pages = Curl::get($url, true, null, true);
+
+				if(sizeof($pages['response']) == 0) {
+					break;
+				}
+
+				if(isset($pages['response']->status))
+					error($pages['response']->status, $pages['response']->message);
+
+				foreach($pages['response'] as $page){
+					$url = $base_url."/api/v1/courses/".$courseID."/pages/".$page->url."?access_token=".$apikey;
+					$wikiPage = Curl::get($url, true, null, true);
+
+					array_push($pageInfo, array(
+						'content' => $wikiPage['response']->body,
+						'title' => $wikiPage['response']->title,
+						'url' => $base_url."/courses/".$courseID."/wiki/".$wikiPage['response']->url
+						)
+					);
+				}
+				$pageNum++;
 			}
+			array_push($completeContent, $pageInfo);
+		}
 
-			if(isset($pages['response']->status))
-				error($pages['response']->status, $pages['response']->message);
+		if(in_array("discussions", $_POST["content"])){
+			session_start();
+			$_SESSION["progress"] = 2;
+			session_write_close();
 
-			foreach($pages['response'] as $page){
-				$url = $base_url."/api/v1/courses/".$courseID."/pages/".$page->url."?access_token=".$apikey;
-				$wikiPage = Curl::get($url, true, null, true);
+			$discussionsInfo = [];
 
-				array_push($pageInfo, array(
-					'content' => $wikiPage['response']->body,
-					'title' => $wikiPage['response']->title,
-					'url' => $wikiPage['response']->url
+			$url = $base_url."/api/v1/courses/".$courseID."/discussion_topics?&access_token=".$apikey;
+			$topics = Curl::get($url, true, null, true);
+
+			foreach($topics['response'] as $topic){
+				$url = $base_url."/api/v1/courses/".$courseID."/discussion_topics/".$topic->id."?access_token=".$apikey;
+				$topicOp = Curl::get($url, true, null, true);
+
+				array_push($discussionsInfo, array(
+					'content' => $topicOp['response']->message,
+					'title' => $topicOp['response']->title,
+					'url' => $topicOp['response']->html_url
 					)
 				);
 			}
-			$pageNum++;
+			array_push($completeContent, $discussionsInfo);
 		}
-		return $pageInfo;
+
+		if(in_array("announcements", $_POST["content"])){
+			session_start();
+			$_SESSION["progress"] = 3;
+			session_write_close();
+
+			$announcementsInfo = [];
+
+			$url = $base_url."/api/v1/courses/".$courseID."/discussion_topics?&only_announcements=true&access_token=".$apikey;
+			$announcements = Curl::get($url, true, null, true);
+
+			foreach($announcements['response'] as $announcement){
+				$url = $base_url."/api/v1/courses/".$courseID."/discussion_topics/".$announcement->id."?access_token=".$apikey;
+				$announce = Curl::get($url, true, null, true);
+
+				array_push($announcementsInfo, array(
+					'content' => $announce['response']->message,
+					'title' => $announce['response']->title,
+					'url' => $announce['response']->html_url
+					)
+				);
+			}
+			array_push($completeContent, $announcementsInfo);
+		}
+
+		if(in_array("assignments", $_POST["content"])){
+			session_start();
+			$_SESSION["progress"] = 4;
+			session_write_close();
+
+			$assignmentInfo = [];
+
+			$url = $base_url."/api/v1/courses/".$courseID."/assignments?&access_token=".$apikey;
+			$assignments = Curl::get($url, true, null, true);
+
+			foreach($assignments['response'] as $assignment){
+				$url = $base_url."/api/v1/courses/".$courseID."/assignments/".$assignment->id."?access_token=".$apikey;
+				$assign = Curl::get($url, true, null, true);
+
+				array_push($assignmentInfo, array(
+					'content' => $assign['response']->description,
+					'title' => $assign['response']->name,
+					'url' => $assign['response']->html_url
+					)
+				);
+			}
+			array_push($completeContent, $assignmentInfo);
+		}
+
+		if(in_array("files", $_POST["content"])) {
+			session_start();
+			$_SESSION["progress"] = 5;
+			session_write_close();
+
+			$fileInfo = [];
+			$page_num = 1;
+			$per_page = 100;
+
+			while(true) {
+				$url = $base_url."/api/v1/courses/".$courseID."/files?page=".$page_num."&per_page=".$per_page."&content_types[]=text/html&access_token=".$apikey;
+				$files = Curl::get($url, true, null, true);
+
+				if(sizeof($files['response']) == 0) {
+					break;
+				}
+
+				foreach($files['response'] as $file) {
+					//don't capture them mac files, ._
+					$mac_check = (substr($file->display_name, 0, 2));
+					if($mac_check != "._") {
+						array_push($fileInfo, array(
+							'content' => Curl::get($file->url, false, array(CURLOPT_FOLLOWLOCATION=>1)),
+							'title' => $file->display_name,
+							'url' => $file->url
+							)
+						);
+					}
+				}
+				$page_num++;
+			}
+			array_push($completeContent, $fileInfo);
+		}
+
+		session_start();
+		$_SESSION["progress"] = 'done';
+		session_write_close();
+
+		return $completeContent;
 	}
 
-	function get_discussions_html($base_url, $courseID, $apikey){
-		$discussionsHtml = [];
-
-		$url = $base_url."/api/v1/courses/".$courseID."/discussion_topics?&access_token=".$apikey;
-		$topics = Curl::get($url, true, null, true);
-
-		foreach($topics['response'] as $topic){
-			$url = $base_url."/api/v1/courses/".$courseID."/discussion_topics/".$topic->id."?access_token=".$apikey;
-			$topicOp = Curl::get($url, true, null, true);
-
-			array_push($discussionsHtml, array(
-				'content' => $topicOp['response']->message,
-				'title' => $topicOp['response']->title,
-				'url' => $topicOp['response']->html_url
-				)
-			);
-		}
-		return $discussionsHtml;
-	}
-
-	function get_announcements_html($base_url, $courseID, $apikey){
-		$announcementsHTML = [];
-
-		$url = $base_url."/api/v1/courses/".$courseID."/discussion_topics?&only_announcements=true&access_token=".$apikey;
-		$announcements = Curl::get($url, true, null, true);
-
-		foreach($announcements['response'] as $announcement){
-			$url = $base_url."/api/v1/courses/".$courseID."/discussion_topics/".$announcement->id."?access_token=".$apikey;
-			$announce = Curl::get($url, true, null, true);
-
-			array_push($announcementsHTML, array(
-				'content' => $announce['response']->message,
-				'title' => $announce['response']->title,
-				'url' => $announce['response']->html_url
-				)
-			);
-		}
-		return $announcementsHTML;
-	}
-
-	function get_files_html($base_url, $courseID, $apikey){
-		$filesHTML = [];
-
-		$url = $base_url."/api/v1/courses/".$courseID."/files/?content_types[]=text/html&access_token=".$apikey;
-		$files = Curl::get($url, true, null, true);
-
-		foreach($files['response'] as $file){
-			array_push($filesHTML, array(
-				'content' => $files['response']->message,
-				'title' => $files['response']->display_name,
-				'url' => $files['response']->url
-				)
-			);
-		}
-		return $filesHTML;
-	}
-
-	/**
-	 * Runs through each directory and each subdirectory
-	 * @param  string $dir    Directory to look through
-	 * @param  array $ignore Files to ignore
-	 * @return array          A array of the path to a directory and contents
-	 */
-	// function find_directory($dir, $ignore) {
-	// 	$file_info = array();
-	// 	$badFiles = array();
-	// 	// Open a known directory, and proceed to read its contents
-	// 	if (is_dir($dir)) {
-	// 		if ($dh = opendir($dir)) {
-	// 			while (($file = readdir($dh)) !== false) {
-	// 				$info = pathinfo($file);
-	// 				if($file != '.' && $file != '..' && $file[0] != '.' && (array_key_exists("extension", $info) && ($info['extension'] == 'html' || $info['extension'] == 'htm'))) {
-	// 					array_push($file_info, array(
-	// 						'path' => $dir.$file,
-	// 						'text' => file_get_contents($dir . $file)
-	// 						)
-	// 					);
-	// 				}
-	// 				else if($file != '.' && $file != '..' && @filetype($dir . $file) == 'dir' && !in_array($file, $ignore)) 
-	// 				{
-	// 					$sub_file_info = find_directory($dir.$file."/", $ignore);
-	// 					foreach($sub_file_info as $item) 
-	// 					{
-	// 						array_push($file_info, $item);
-	// 					}
-	// 				}
-	// 			}
-	// 			closedir($dh);
-	// 		}
-	// 	}
-	// 	return $file_info;
-	// }
-	
-	/**
-	 * Filters a directory to find 
-	 * @param  string $dir    Directory to look through
-	 * @param  array  $ignore Files to ignore
-	 * @return array          A array of the path to a directory and contents
-	 */
-	// function find_bad_files($dir) {
-	// 	$badFiles = array();
-	// 	// Open a known directory, and proceed to read its contents
-	// 	if (is_dir($dir)) {
-	// 		if ($dh = opendir($dir)) {
-	// 			while (($file = readdir($dh)) !== false) {
-	// 				$info = pathinfo($file);
-	// 				if($file != '.' && $file != '..' && (array_key_exists("extension", $info) && ($info['extension'] == 'pdf' || $info['extension'] == 'doc' || $info['extension'] == 'docx' || $info['extension'] == 'ppt' || $info['extension'] == 'pptx')))			
-	// 				{
-	// 					array_push($badFiles, array(
-	// 						'path' => $dir.$file,
-	// 						'extension' => $info['extension'],
-	// 						'filename' => $file,
-	// 					));
-	// 				}
-	// 				else if($file != '.' && $file != '..' && @filetype($dir . $file) == 'dir') 
-	// 				{
-	// 					$sub_file_info = find_bad_files($dir.$file."/");
-	// 					foreach($sub_file_info as $sub_item) 
-	// 					{
-	// 						array_push($badFiles, array(
-	// 							'path' => $sub_item['path'],
-	// 							'extension' => $sub_item['extension'],
-	// 							'filename' => $sub_item['filename'],
-	// 						));
-	// 					}
-	// 				}
-	// 			}
-	// 			closedir($dh);
-	// 		}
-	// 	}
-	// 	return $badFiles;
-	// }
-	// Grab remote files here instead of this crap.
 	$directory = $base;
-	// /* appends each folder to the base so it knows where to start from */
-	// foreach($_POST['folder'] as $folder) {
-	// 	if($folder != 'default') {
-	// 		$directory .= $folder."/";
-	// 	}
-	// }
-	/* Grabs the ignores and filters them */
-	// $ignore = $_POST['ignore'];
-	// $result = find_directory($directory, $ignore);
-	// $badFiles = find_bad_files($directory);
-	// $test = $result;
-	
-	// $test['text'] = html of page;
 
 	$fullReport = array();
 	
@@ -254,15 +223,6 @@
 
 		array_push($fullReport, $final);
 	}
-	// Break at the spefied location
-	// if($_POST['folder'][count($_POST['folder'])-1] == 'default')
-	// {
-	// 	$breakHere = $_POST['folder'][count($_POST['folder'])-2]."/";
-	// }
-	// else
-	// {
-	// 	$breakHere = $_POST['folder'][count($_POST['folder'])-1]."/";
-	// }
 ?>
 
 <h2 class="center">Report for <?php echo $_POST['course']; ?></h2>
@@ -273,8 +233,8 @@
 	if($report['amount'] > 0) { ?>
 <div class="errorItem panel panel-default">
 	<div class="panel-heading clearfix">
-		<button class="btn btn-xs btn-default pull-left margin-right-small"><span class="glyphicon glyphicon-plus"></span></button>
-		<h3 class="plus pull-left"><?php echo $report['name']; ?> <small>(<a href="<?php echo $report['url']; ?>" title="Link to <?php echo $report['name']; ?>">Link</a>)</small></h3>
+		<button class="btn btn-xs btn-default btn-toggle pull-left no-print margin-right-small"><span class="glyphicon glyphicon-plus"></span></button>
+		<h3 class="plus pull-left"><?php echo $report['name']; ?> <small>(<a href="<?php echo $report['url']; ?>" title="Link to <?php echo $report['name']; ?>"><?php echo $report['url']; ?></a>)</small></h3>
 		<div class="btn-toolbar pull-right">
 			<div class="btn-group">
 				<button class="btn btn-xs btn-danger <?php if(count($report['error']) == 0) { echo 'fade '; } if(count($report['error']) < 10) { echo 'single'; } else { echo 'double'; } ?>"><span class="glyphicon glyphicon-ban-circle"></span> <?php echo count($report['error']); ?></button>
@@ -293,7 +253,7 @@
 			<div class="panel-heading">
 				<h3 class="panel-title">Errors (<?php echo count($report['error']); ?>)</h3>
 			</div>
-			<ul class="list-group no_print">
+			<ul class="list-group">
 				<?php
 					foreach($report['error'] as $item)
 					{
@@ -313,7 +273,7 @@
 			<div class="panel-heading">
 				<h3 class="panel-title">Warnings (<?php echo count($report['warning']); ?>)</h3>
 			</div>
-			<ul class="list-group no_print">
+			<ul class="list-group">
 				<?php
 					foreach($report['warning'] as $item)
 					{
@@ -333,7 +293,7 @@
 			<div class="panel-heading">
 				<h3 class="panel-title">Suggestions (<?php echo count($report['suggestion']); ?>)</h3>
 			</div>
-			<ul class="list-group no_print">
+			<ul class="list-group">
 				<?php
 					foreach($report['suggestion'] as $item)
 					{

@@ -3,24 +3,24 @@
 	include_once('app/curlClass.php');
 	$dir = $base;
 
-	$testVar = get_course_names($base_url, $instructorID, $apikey);
+	// $testVar = get_course_names($base_url, $instructorID, $apikey);
 
 	/* Grabs a list of courses for the dropdown menu */
-	function get_course_names($base_url, $instructorID, $apikey) {
-		$instructorCourses = [];
-		$url = $base_url."/api/v1/users/".$instructorID."/enrollments?type=TeacherEnrollment&access_token=".$apikey;
-		$courses = Curl::get($url, true, null, true);
-		foreach($courses['response'] as $course) {
-			$url = $base_url."/api/v1/courses/".$course->course_id."/?access_token=".$apikey;
-			$class = Curl::get($url, true, null, true);
-			array_push($instructorCourses, array(
-				'name' => $class['response']->name,
-				'id' => $class['response']->id
-				)
-			);
-		}
-		return $instructorCourses;
-	}
+	// function get_course_names($base_url, $instructorID, $apikey) {
+	// 	$instructorCourses = [];
+	// 	$url = $base_url."/api/v1/users/".$instructorID."/enrollments?type=TeacherEnrollment&access_token=".$apikey;
+	// 	$courses = Curl::get($url, true, null, true);
+	// 	foreach($courses['response'] as $course) {
+	// 		$url = $base_url."/api/v1/courses/".$course->course_id."/?access_token=".$apikey;
+	// 		$class = Curl::get($url, true, null, true);
+	// 		array_push($instructorCourses, array(
+	// 			'name' => $class['response']->name,
+	// 			'id' => $class['response']->id
+	// 			)
+	// 		);
+	// 	}
+	// 	return $instructorCourses;
+	// }
 ?>
 
 <!DOCTYPE html>
@@ -39,45 +39,33 @@
 		<div class="container">
 			<?php require_once('header.php'); ?>
 			<main id="contentWrapper" role="main">
-				<form id="udoitForm" method="post" class="form-horizontal" action="./?page=checker" role="form">
-					<div class="form-group">
-						<label for="course" class="col-sm-2 control-label">Select course:</label>
-						<div class="col-sm-10">
-							<select id="courseSelect" name="course" class="form-control input-lg">
-								<?php
-								foreach($testVar as $tVar) {
-									echo "<option value=".$tVar['id'].">".$tVar['name']."</option>";
-								}
-								?>
-							</select>
-						</div>
-					</div>
+				<form id="udoitForm" method="post" class="form-horizontal no-print" action="./?page=checker" role="form">
 					<div class="form-group">
 						<span class="col-sm-2 control-label"><strong>Select content:</strong></span>
 						<div class="col-sm-10">
 							<div class="checkbox">
-								<label><input type="checkbox" value="all" id="allContent" class="content" name="content[]"> All</label>
+								<label><input type="checkbox" value="all" id="allContent" class="content" name="content[]" checked> All</label>
 							</div>
 							<hr />
 							<div class="checkbox">
-								<label><input type="checkbox" value="announcements" class="content" name="content[]"> Announcements</label>
+								<label><input type="checkbox" value="announcements" class="content" name="content[]" checked> Announcements</label>
 							</div>
 							<div class="checkbox">
-								<label><input type="checkbox" value="assignments" class="content" name="content[]"> Assignments</label>
+								<label><input type="checkbox" value="assignments" class="content" name="content[]" checked> Assignments</label>
 							</div>
 							<div class="checkbox">
-								<label><input type="checkbox" value="discussions" class="content" class="content" name="content[]"> Discussions</label>
+								<label><input type="checkbox" value="discussions" class="content" class="content" name="content[]" checked> Discussions</label>
 							</div>
 							<div class="checkbox">
-								<label><input type="checkbox" value="pages" class="content" name="content[]"> Pages</label>
+								<label><input type="checkbox" value="pages" class="content" name="content[]" checked> Pages</label>
 							</div>
 							<div class="checkbox">
-								<label><input type="checkbox" value="files" class="content" name="content[]"> Files</label>
+								<label><input type="checkbox" value="files" class="content" name="content[]" checked> Files</label>
 							</div>
 						</div>
 					</div>
 					<hr />
-					<button id="submit" type="submit" name="course_submit"  class="btn btn-block btn-lg btn-success">Run Checker</button>
+					<button id="submit" type="submit" name="course_submit"  class="btn btn-block btn-lg btn-success">Run scanner</button>
 				</form>
 			</main>
 		</div>

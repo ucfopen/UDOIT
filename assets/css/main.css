@@ -87,32 +87,11 @@ h5 + ul {
 }
 
 /* Loader */
-#popupback { 
-	background:#000000; 
-	opacity:.5; 
-	z-index:10; 
-	position:fixed; 
-	left:0; 
-	top:0; 
-	margin-top:-21px; 
-}
-#popup { 
-	background:#262626; 
-	z-index:100; 
-	position:absolute; 
-	-moz-border-radius: 5px; 
-	-webkit-border-radius: 5px; 
-	border: 3px solid #888; 
-	color: #FFFFFF;
-	font-size: 1.2em;
-	overflow: hidden;
-}
-#load {
+#popup {
 	display: inline-block;
-	width: 89px;
-	height: 70px;
-	padding-top: 10px;
+	color: #ffffff;
 	overflow: hidden;
+	vertical-align: top;
 }
 #loginForm p {
 	clear:both;
@@ -171,58 +150,29 @@ input[type=submit], button {
 /* Circle Stuff */
 .circle {
 	background-color: rgba(0,0,0,0);
-	border:5px solid rgba(255,247,234,0.9);
-	opacity:.9;
-	border-right:5px solid rgba(0,0,0,0);
-	border-left:5px solid rgba(0,0,0,0);
-	border-radius:50px;
-	box-shadow: 0 0 35px #FFF7EA;
-	width:50px;
-	height:50px;
-	margin:0 auto;
-	-moz-animation:spinPulse 1s infinite ease-in-out;
-	-webkit-animation:spinPulse 1s infinite linear;
-}
-.circle1 {
-	background-color: rgba(0,0,0,0);
-	border:5px solid rgba(255,247,234,0.9);
-	opacity:.9;
-	border-left:5px solid rgba(0,0,0,0);
-	border-right:5px solid rgba(0,0,0,0);
-	border-radius:50px;
-	box-shadow: 0 0 15px #FFF7EA; 
-	width:30px;
-	height:30px;
-	margin:0 auto;
-	position:relative;
-	top:-50px;
-	-moz-animation:spinoffPulse 1s infinite linear;
-	-webkit-animation:spinoffPulse 1s infinite linear;
+	border: 4px solid #ffffff;
+	border-right: 4px solid rgba(0,0,0,0);
+	border-left: 4px solid rgba(0,0,0,0);
+	border-radius: 50px;
+	width: 20px;
+	height: 20px;
+	margin: 0 auto;
+	-moz-animation: spinPulse 1s infinite ease-in-out;
+	-webkit-animation: spinPulse 1s infinite linear;
 }
 @-moz-keyframes spinPulse {
 	0% { -moz-transform:rotate(160deg); opacity:0; box-shadow:0 0 1px #FFF7EA;}
 	50% { -moz-transform:rotate(145deg); opacity:1; }
 	100% { -moz-transform:rotate(-320deg); opacity:0; }
 }
-@-moz-keyframes spinoffPulse {
-	0% { -moz-transform:rotate(0deg); }
-	100% { -moz-transform:rotate(360deg);  }
-}
 @-webkit-keyframes spinPulse {
 	0% { -webkit-transform:rotate(160deg); opacity:0; box-shadow:0 0 1px #FFF7EA; }
 	50% { -webkit-transform:rotate(145deg); opacity:1;}
 	100% { -webkit-transform:rotate(-320deg); opacity:0; }
 }
-@-webkit-keyframes spinoffPulse {
-	0% { -webkit-transform:rotate(0deg); }
-	100% { -webkit-transform:rotate(360deg); }
-}
 
 /* X. FORMS --------------------------- */
 
-#udoitForm {
-	margin-bottom: 20px;
-}
 
 /* X. PANELS -------------------------- */
 
@@ -244,3 +194,17 @@ input[type=submit], button {
 .margin-bottom-small { margin-bottom: 10px; }
 .margin-left-small { margin-left: 10px; }
 .position-relative { position: relative; }
+
+.btn-success.disabled,
+.btn-success[disabled],
+.btn-success.disabled:hover,
+.btn-success[disabled]:hover,
+.btn-success.disabled:focus,
+.btn-success[disabled]:focus,
+.btn-success.disabled:active,
+.btn-success[disabled]:active,
+.btn-success.disabled.active,
+.btn-success[disabled].active {
+	background: #5cb85c;
+	opacity: 1;
+}
