@@ -3,6 +3,7 @@
 	include_once('app/curlClass.php');
 	require_once('core/quail/quail.php');
 
+	// because we can't scan what isn't selected
 	if($_POST['content'] == 'none') {
 		echo "<div class=\"alert alert-danger no-margin margin-top\"><span class=\"glyphicon glyphicon-exclamation-sign\"></span> Please select which course content you wish to scan above.</div>";
 		exit();
