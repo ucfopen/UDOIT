@@ -57,10 +57,10 @@
 								<label><input type="checkbox" value="discussions" class="content" class="content" name="content[]" checked> Discussions</label>
 							</div>
 							<div class="checkbox">
-								<label><input type="checkbox" value="pages" class="content" name="content[]" checked> Pages</label>
+								<label><input type="checkbox" value="files" class="content" name="content[]" checked> Files</label>
 							</div>
 							<div class="checkbox">
-								<label><input type="checkbox" value="files" class="content" name="content[]" checked> Files</label>
+								<label><input type="checkbox" value="pages" class="content" name="content[]" checked> Pages</label>
 							</div>
 						</div>
 					</div>

@@ -1,19 +1,17 @@
-var LIMIT = 500;
-var WARN = 250;
-
-/* Formates the results when clicking on an item (slidedown and plus) */
+/* Formats the results when clicking on an item (slidedown and plus) */
 function resultSetup() {
 	$('.errorItem .panel-heading .btn-toggle').click(function() {
+		$(this).children('button span').removeClass('glyphicon-minus').addClass('glyphicon-plus');
 		var errorItem = $(this).parent();
-		console.log($(this).parent().parent().find('.errorSummary'));
 		if ($(this).parent().parent().find('.errorSummary').is(':visible')) {
 			$(this).parent().parent().find('.errorSummary').slideUp(function() {errorItem.children('button span').removeClass('glyphicon-minus').addClass('glyphicon-plus');});
 		}
 		else {
-			errorItem.children('button span').removeClass('glyphicon-plus').addClass('glyphicon-minus');
+			$(this).children('button span').removeClass('glyphicon-plus').addClass('glyphicon-minus');
 			$(this).parent().parent().find('.errorSummary').slideDown();
 		}
 	});
+
 	$('#print').click(function() {
 		window.print();
 		return false;
@@ -40,7 +38,8 @@ function checker(timer) {
 }
 
 $(document).ready(function() {
-	var checked = false;
+	var checked = true;
+
 	$('#allContent').click(function() {
 		if(checked) {
 			$(this).parent().parent().parent().find('.content:not(#allContent)').attr('checked', false);
@@ -51,22 +50,15 @@ $(document).ready(function() {
 			checked = true;
 		}
 	});
+
 	$('.content:not(#allContent)').click(function() {
 		$('#allContent').attr('checked', false);
 		checked = false;
 	});
+
 	$('#submit').click(function() {
 		if($('#result').length > 0) { $('#result').remove(); }
 		loader();
-
-		// var timer = setInterval(function(){
-		// 	$.ajax({
-		// 		url: 'app/progress.php',
-		// 		success: function(data){
-		// 			console.log(data);
-		// 		}
-		// 	});
-		// }, 500);
 
 		var old = 0;
 
@@ -85,10 +77,10 @@ $(document).ready(function() {
 							$('#submit').html('<div id="popup"><div class="circle"></div></div> Scanning discussions...');
 						};
 						if(data == 4) {
-							$('#submit').html('<div id="popup"><div class="circle"></div></div> Scanning pages...');
+							$('#submit').html('<div id="popup"><div class="circle"></div></div> Scanning files...');
 						};
 						if(data == 5) {
-							$('#submit').html('<div id="popup"><div class="circle"></div></div> Scanning files...');
+							$('#submit').html('<div id="popup"><div class="circle"></div></div> Scanning pages...');
 						};
 						if(data == 'done') {
 							clearInterval(timer);
@@ -100,7 +92,7 @@ $(document).ready(function() {
 			});
 		}, 500);
 
-		checker(timer);
+		checker();
 
 		return false;
 	});
