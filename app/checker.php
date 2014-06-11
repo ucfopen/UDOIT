@@ -9,9 +9,9 @@
 		exit();
 	}
 
-	$course_id = 1002791;
+	$course_id = $courseID;
 ?>
-<h2 class="center">Report for Dev_TRT0003_Colon_E_03</h2>
+<h2 class="center">Report</h2>
 <p><a href="#" id="print" class="btn btn-default btn-xs"><span class="glyphicon glyphicon-print"></span> Print this Report</a><p>
 <div id="errorWrapper">
 <?php
@@ -264,7 +264,7 @@
 				<div class="errorItem panel panel-default">
 					<div class="panel-heading clearfix">
 						<button class="btn btn-xs btn-default btn-toggle pull-left no-print margin-right-small"><span class="glyphicon glyphicon-plus"></span></button>
-						<h3 class="plus pull-left"><?php echo $report['name']; ?> <small><a href="<?php echo $report['url']; ?>" class="no-print" title="Link to <?php echo $report['name']; ?>">(<?php echo $report['url']; ?>)</a></small></h3>
+						<h3 class="plus pull-left"><?php echo $report['name']; ?> <small><a href="<?php echo $report['url']; ?>" class="no-print" title="Link to <?php echo $report['name']; ?>" target="_blank">(<?php echo $report['url']; ?>)</a></small></h3>
 						<div class="btn-toolbar pull-right">
 							<div class="btn-group">
 								<button class="btn btn-xs btn-danger <?php if(count($report['error']) == 0) { echo 'fade '; } if(count($report['error']) < 10) { echo 'single'; } else { echo 'double'; } ?>"><span class="glyphicon glyphicon-ban-circle"></span> <?php echo count($report['error']); ?></button>
