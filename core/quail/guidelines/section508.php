@@ -78,6 +78,7 @@ class Section508Guideline extends quailGuideline{
 		'selectHasAssociatedLabel',
 		'passwordHasLabel',
 		'checkboxHasLabel',
+		'cssTextHasContrast',
 		'fileHasLabel',
 		'radioHasLabel',
 		'frameIsNotUsed',

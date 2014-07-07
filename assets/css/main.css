@@ -1,8 +1,8 @@
-body {
-	background: #f3f3f3;
-	padding: 20px 0 0;
-}
-h1.logo {
+body { padding: 20px 0 0; }
+
+.container { width: auto; }
+
+.logo {
 	background: url('https://lti.online.ucf.edu/udoit/img/udoit_logo.png') no-repeat center;
 	background-size: 228px 80px;
 	color: transparent;
@@ -13,9 +13,12 @@ h1.logo {
 	padding: 0;
 	width: 228px;
 }
+
 h2 { color: #332312; }
+
 h3 { margin: 0;}
-h3.plus {
+
+.plus {
 	max-width: 80%;
 	overflow: hidden;
 	-ms-text-overflow: ellipsis;
@@ -23,21 +26,26 @@ h3.plus {
 		text-overflow: ellipsis;
 	white-space: nowrap;
 }
-h3.content-title {
+
+.content-title {
 	border-bottom: 1px solid #dddddd;
 	margin-bottom: 10px;
 	padding: 5px 0;
 }
+
 h5 { margin: 20px 0 0 0; padding: 0;}
+
 h5 { font-size: 1em; }
+
 #mainHeader, #contentWrapper {
 	background: #ffffff;
 	border: 1px solid #c1c7cf;
 	border-radius: 3px;
-	box-shadow: 0 1px 0 #DDE0E4;
+	box-shadow: 0 2px 1px rgba(0,0,0,0.1);
 	margin-bottom: 20px;
 	padding: 20px;
 }
+
 #loginForm {
 	margin: 80px auto;
 	padding: 20px;
@@ -45,59 +53,72 @@ h5 { font-size: 1em; }
 	border: 3px rgba(51,35,18,0.4) solid;
 	border-radius: 5px;
 }
-#bodyWrapper a { color: #332312;
-}
+
+#bodyWrapper a { color: #332312; }
+
 .folder {
 	display: block;
 	margin-left: 40px;
 }
+
 #folderChooser {
 	overflow: auto;
 	display: inline-block;
 }
+
 .fade {
 	opacity: 0.2;
 	-moz-opacity: 0.2;
 	filter:alpha(opacity=2);
 }
-.center { text-align: center;}
+
+.center { text-align: center; }
+
 .single { width: 35px; }
+
 .double { width: 45px; }
-.errorCount, .warningCount, .suggestionCount { padding: 0 0 0 0; font-weight: bold; font-size: 1.1em;}
+
+.errorCount, .warningCount, .suggestionCount { padding: 0 0 0 0; font-weight: bold; font-size: 1.1em; }
+
 .errorCount { background: url('../img/error.png') right center no-repeat; }
+
 .warningCount { background: url('../img/warning.png') right center no-repeat; }
+
 .suggestionCount { background: url('../img/suggestion.png') right center no-repeat; }
+
 .error, .warning, .suggestion {
 	font-weight: bold;
 	line-height: 22px;
 	margin: 0;
 }
+
 .error { color: #a94442; }
+
 .warning { color: #8a6d3b; }
+
 .suggestion { color: #31708f; }
+
 #course_wrapper {display: none; }
+
 .nobullet li { list-style: none; margin:0; padding: 0;}
+
 #result { display: none; }
 
-.errorSummary { 
-	display: none;
-}
-#errorWrapper .errorItem:last-child {
-	margin-bottom: 0;
-}
-#errorWrapper .errorSummary .panel:last-child {
-	margin-bottom: 0;
-}
+.errorSummary { display: none; }
+
+#errorWrapper .errorItem:last-child { margin-bottom: 0; }
+
+#errorWrapper .errorSummary .panel:last-child { margin-bottom: 0; }
+
 ul.li_border li {
 	border-bottom: 1px solid black;
 	padding: 10px;	
 }
-.delete_li {
-	float: right;
-}
-h5 {
-	display: inline-block;
-}
+
+.delete_li { float: right; }
+
+h5 { display: inline-block; }
+
 h5 + ul {
 	display: inline-block;
 	margin: 0 0 0 19px;
@@ -111,24 +132,29 @@ h5 + ul {
 	overflow: hidden;
 	vertical-align: top;
 }
+
 #loginForm p {
 	clear:both;
 	padding: 5px 0 0 30px;
 }
+
 #loginForm label{
 	float: left;
 	width: 90px;
 	margin-top: 10px;
 }
+
 #loginForm input[type=text], #loginForm input[type=password]{
 	float: left;
 	width: 200px;
 	font-size: 1.5em;
 }
+
 #loginSubmit {
 	overflow: auto;
 	margin: 0;
 }
+
 #loginSubmit input {
 	float: right;
 }
@@ -153,12 +179,11 @@ input[type=submit], button {
 	border-radius: 5px;
 	cursor: pointer;
 }
-#tooMany {
-	padding: 10px;
-}
-#tooMany p{
-	text-align: center;
-}
+
+#tooMany { padding: 10px; }
+
+#tooMany p { text-align: center; }
+
 #tooMany button {
 	font-size: 1em;
 	margin-right: 10px;
@@ -200,7 +225,9 @@ input[type=submit], button {
 }
 
 .panel-danger .list-group-item { border-color: #ebccd1; }
+
 .panel-info .list-group-item { border-color: #bce8f1; }
+
 .panel-warning .list-group-item { border-color: #faebcc; }
 
 /* X. HELPERS (should go after everything else) -- */

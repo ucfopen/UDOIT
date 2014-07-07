@@ -24,11 +24,11 @@ function checker(timer) {
 		return $(n).val();
 	}).get();
 
-	if(content.length == 0) { 
-		content = "none"; 
+	if(content.length === 0) {
+		content = "none";
 	}
 
-	$.post('./?page=checker', { course: $('#courseSelect').text(), id: $('#courseSelect').val(), content: content }, function(data) {
+	$.post('./app/checker.php', { base_url: $('#baseUrl').val(), api_key: $('#apiKey').val(), instructor: $('#instructor').val(), course: $('#course').val(), content: content }, function(data) {
 		$('#contentWrapper').append('<div id="result">'+data+'</div>');
 		resultSetup();
 		killButton(function() {
@@ -69,22 +69,22 @@ $(document).ready(function() {
 					if(data != old) {
 						if(data == 1) {
 							$('#submit').html('<div id="popup"><div class="circle"></div></div> Scanning announcements...');
-						};
+						}
 						if(data == 2) {
 							$('#submit').html('<div id="popup"><div class="circle"></div></div> Scanning assignments...');
-						};
+						}
 						if(data == 3) {
 							$('#submit').html('<div id="popup"><div class="circle"></div></div> Scanning discussions...');
-						};
+						}
 						if(data == 4) {
 							$('#submit').html('<div id="popup"><div class="circle"></div></div> Scanning files...');
-						};
+						}
 						if(data == 5) {
 							$('#submit').html('<div id="popup"><div class="circle"></div></div> Scanning pages...');
-						};
+						}
 						if(data == 'done') {
 							clearInterval(timer);
-						};
+						}
 						old = data;
 						console.log(old);
 					}
