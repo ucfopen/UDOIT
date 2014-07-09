@@ -28,7 +28,7 @@ function checker(timer) {
 		content = "none";
 	}
 
-	$.post('./app/checker.php', { base_url: $('#baseUrl').val(), api_key: $('#apiKey').val(), instructor: $('#instructor').val(), course: $('#course').val(), content: content }, function(data) {
+	$.post('./app/checker.php', { content: content }, function(data) {
 		$('#contentWrapper').append('<div id="result">'+data+'</div>');
 		resultSetup();
 		killButton(function() {

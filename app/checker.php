@@ -3,7 +3,10 @@
 	include_once('../app/curlClass.php');
 	require_once('../core/quail/quail.php');
 
-	$course_id = $_POST['course'];
+	session_start();
+
+	$course_id = $_SESSION['launch_params']['custom_canvas_course_id'];
+	$api_key = $_SESSION['api_key'];
 
 	// because we can't scan what isn't selected
 	if($_POST['content'] == 'none') {
@@ -11,64 +14,53 @@
 		exit();
 	}
 ?>
-<h2 class="center">Report for Dev_TRT0003_Colon_E_03</h2>
+<h2 class="center">Report for <?= $_SESSION['launch_params']['context_title'] ?></h2>
 <p><a href="#" id="print" class="btn btn-default btn-xs"><span class="glyphicon glyphicon-print"></span> Print this Report</a><p>
 <div id="errorWrapper">
 <?php
 	if(in_array("announcements", $_POST["content"])) {
-		session_start();
 		$_SESSION["progress"] = 1;
-		session_write_close();
 
 		$courseAnnouncements = get_course_content("Announcements", $base_url, $course_id, $api_key);
 		$announcmentsResults = generate_report($courseAnnouncements);
 	}
 
 	if(in_array("assignments", $_POST["content"])) {
-		session_start();
 		$_SESSION["progress"] = 2;
-		session_write_close();
 
 		$courseAssignments = get_course_content("Assignments", $base_url, $course_id, $api_key);
 		$assignmentsResults = generate_report($courseAssignments);
 	}
 
 	if(in_array("discussions", $_POST["content"])) {
-		session_start();
 		$_SESSION["progress"] = 3;
-		session_write_close();
 
 		$courseDiscussions = get_course_content("Discussions", $base_url, $course_id, $api_key);
 		$discussionsResults = generate_report($courseDiscussions);
 	}
 
 	if(in_array("files", $_POST["content"])) {
-		session_start();
 		$_SESSION["progress"] = 4;
-		session_write_close();
 
 		$courseFiles = get_course_content("Files", $base_url, $course_id, $api_key);
 		$filesResults = generate_report($courseFiles);
 	}
 
 	if(in_array("pages", $_POST["content"])) {
-		session_start();
 		$_SESSION["progress"] = 5;
-		session_write_close();
 
 		$coursePages = get_course_content("Pages", $base_url, $course_id, $api_key);
 		$pagesResults = generate_report($coursePages);
 	}
 
 	// so the ajax call knows we're done
-	session_start();
 	$_SESSION["progress"] = 'done';
-	session_write_close();
 
 	// this scans the course
 	function get_course_content($content_type, $base_url, $course_id, $api_key) {
 		$content_result = [];
 
+		//TODO:  Check for pagination issues
 		if($content_type == "Announcements") {
 			$url = $base_url."/api/v1/courses/".$course_id."/discussion_topics?&only_announcements=true&access_token=".$api_key;
 			$announcements = Curl::get($url, true, null, true);
@@ -86,6 +78,7 @@
 			}
 		}
 
+		//TODO:  Check for pagination issues
 		if($content_type == "Assignments") {
 			$url = $base_url."/api/v1/courses/".$course_id."/assignments?&access_token=".$api_key;
 			$assignments = Curl::get($url, true, null, true);
@@ -103,6 +96,7 @@
 			}
 		}
 
+		//TODO:  Check for pagination issues
 		if($content_type == "Discussions") {
 			$url = $base_url."/api/v1/courses/".$course_id."/discussion_topics?&access_token=".$api_key;
 			$topics = Curl::get($url, true, null, true);
@@ -124,11 +118,18 @@
 			$page_num = 1;
 			$per_page = 100;
 
-			while(true) {
+			// Is anyone really going to have more than 10,000 files? I thought not.
+			while($page_num < 100) {
 				$url = $base_url."/api/v1/courses/".$course_id."/files?page=".$page_num."&per_page=".$per_page."&content_types[]=text/html&access_token=".$api_key;
 				$files = Curl::get($url, true, null, true);
 
-				if(sizeof($files['response']) == 0) {
+				// sizeof can return 0 for a variable that isn't set, so we check if the variable is set and not null
+				if( (sizeof($files['response']) == 0) || !isset($files['response']) || is_null($files['response'])) {
+					break;
+				}
+
+				if( isset($files['response']->errors) ){
+					echo $files['response']->errors[0]->message . '(' . $files['response']->errors[0]->error_code . ')';
 					break;
 				}
 
@@ -149,15 +150,22 @@
 		}
 
 		if($content_type == "Pages") {
-			$pageNum = 1;
-			$perPage = 100;
+			$page_num = 1;
+			$per_page = 100;
 
-			while(true) {
-				$url = $base_url."/api/v1/courses/".$course_id."/pages?page=".$pageNum."&per_page=".$perPage."&access_token=".$api_key;
+			// Is anyone really going to have more than 10,000 pages?  I thought not.
+			while($page_num < 100) {
+				$url = $base_url."/api/v1/courses/".$course_id."/pages?page=".$page_num."&per_page=".$per_page."&access_token=".$api_key;
 				//using Kevin's curl class
 				$pages = Curl::get($url, true, null, true);
+				
+				// sizeof can return 0 for a variable that isn't set, so we check if the variable is set and not null
+				if( (sizeof($pages['response']) == 0) || !isset($pages['response']) || is_null($pages['response']) ) {
+					break;
+				}
 
-				if(sizeof($pages['response']) == 0) {
+				if( isset($pages['response']->errors) ){
+					echo $pages['response']->errors[0]->message . '(' . $pages['response']->errors[0]->error_code . ')';
 					break;
 				}
 
@@ -167,16 +175,17 @@
 
 				foreach($pages['response'] as $page) {
 					$url = $base_url."/api/v1/courses/".$course_id."/pages/".$page->url."?access_token=".$api_key;
-					$wikiPage = Curl::get($url, true, null, true);
+					$wiki_page = Curl::get($url, true, null, true);
 
 					array_push($content_result, array(
-						'content' => $wikiPage['response']->body,
-						'title' => $wikiPage['response']->title,
-						'url' => $base_url."/courses/".$course_id."/wiki/".$wikiPage['response']->url
+						'content' => $wiki_page['response']->body,
+						'title' => $wiki_page['response']->title,
+						'url' => $base_url."/courses/".$course_id."/wiki/".$wiki_page['response']->url
 						)
 					);
 				}
-				$pageNum++;
+				
+				$page_num++;
 			}
 		}
 
