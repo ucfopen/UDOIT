@@ -8,7 +8,11 @@ ini_set("display_errors", 1);
 session_start();
 header('Content-Type: text/html; charset=utf-8');
 
-if( !$_SESSION['valid'] || !isset($_SESSION['valid']) ){
+if( !isset($_SESSION['valid']) ){
+	$_SESSION['valid'] = false;
+}
+
+if( $_SESSION['valid'] === false){
 	// Initialize, all secrets are 'secret', do not set session, and do not redirect
 	$context = new BLTI($consumer_key, $shared_secret, false, false);
 	//if the oauth is valid
@@ -31,7 +35,7 @@ if( !$_SESSION['valid'] || !isset($_SESSION['valid']) ){
 				<body>
 					<div style="padding: 12px;">
 						<div class="alert alert-danger">
-							<span class="glyphicon glyphicon-exclamation-sign"></span> Authentication problem, please ensure that your instance of UDOIT is configured correctly.
+							<span class="glyphicon glyphicon-exclamation-sign"></span> Configuration problem, please ensure that your instance of UDOIT is configured correctly.
 						</div>
 					</div>
 				</body>
@@ -43,24 +47,48 @@ if( !$_SESSION['valid'] || !isset($_SESSION['valid']) ){
 
 $redirect = true;
 
-// Check to see if api key is still valid
+// Pull the API key from the database
+$dsn = "mysql:dbname=$db_name;host=$db_host";
+
+try {
+	$dbh = new PDO($dsn, $db_user, $db_password);
+} catch (PDOException $e) {
+	echo 'Connection failed: ' . $e->getMessage();
+}
+
+$sth = $dbh->prepare("SELECT * FROM $db_user_table WHERE id=:userid LIMIT 1");
+$sth->bindParam(':userid', $_SESSION['launch_params']['custom_canvas_user_id'], PDO::PARAM_INT);
+$sth->execute();
+
+$result = $sth->fetchAll();
+
+if( isset($result[0]) ){
+	$_SESSION['api_key'] = $result[0]['api_key'];
+}
+
+// Do we have an API key?
 if(isset($_SESSION['api_key'])){
+	//If we do, test it out
 	$url = $base_url.'/api/v1/users/'.$_SESSION['launch_params']['custom_canvas_user_id'].'/profile?access_token='.$_SESSION['api_key'];
 	$resp = CURL::get($url, true, null, true);
 	$redirect = !isset($resp['response']->id);
 }else{
+	//Otherwise, redirect to the oauth2 process
 	$redirect = true;
 }
 
 // if the api key was invalid, or we didn't have an api key, start the oauth2 process
 if( $redirect ){
 	//Redirect user to oauth2 endpoint on the Canvas end
+	session_write_close();
 	header('Location: '.$base_url.'/login/oauth2/auth/?client_id='.$oauth2_id.'&response_type=code&redirect_uri='.$oauth2_uri);
 }
 
 // Invalidate the session so we start from scratch
 $_SESSION['valid'] = false;
 
+print_r($_SESSION);
+session_write_close();
 ?>
 
 <!DOCTYPE html>

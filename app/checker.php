@@ -4,6 +4,7 @@
 	require_once('../core/quail/quail.php');
 
 	session_start();
+	print_r($_SESSION);
 
 	$course_id = $_SESSION['launch_params']['custom_canvas_course_id'];
 	$api_key = $_SESSION['api_key'];

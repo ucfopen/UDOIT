@@ -39,6 +39,22 @@ if( isset($_GET['code']) ){
 	$resp = CURL::post($url, $postdata, true, array(), true);
 
 	$_SESSION['api_key'] = $resp['response']->access_token;
+
+	// Save API Key to DB
+	$dsn = "mysql:dbname=$db_name;host=$db_host";
+
+	try {
+		$dbh = new PDO($dsn, $db_user, $db_password);
+	} catch (PDOException $e) {
+		echo 'Connection failed: ' . $e->getMessage();
+	}
+
+	$sth = $dbh->prepare("INSERT INTO $db_user_table (id, api_key, date_created) VALUES (:userid, :key, NOW()) ON DUPLICATE KEY UPDATE api_key=VALUES(api_key)");
+	$sth->bindParam(':userid', $_SESSION['launch_params']['custom_canvas_user_id'], PDO::PARAM_INT);
+	$sth->bindParam(':key', $_SESSION['api_key'], PDO::PARAM_STR);
+	$sth->execute();
+	
+	session_write_close();
 	header('Location:index.php');
 }elseif( isset($_GET['error']) ){
 	printError('Authentication problem:  Access Denied.');
