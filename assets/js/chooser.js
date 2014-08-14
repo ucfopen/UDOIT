@@ -58,6 +58,9 @@ $(document).ready(function() {
 
 	$('#submit').click(function() {
 		if($('#result').length > 0) { $('#result').remove(); }
+
+		$('#waitMsg').fadeIn();
+
 		loader();
 
 		var old = 0;

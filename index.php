@@ -12,7 +12,7 @@ if( !isset($_SESSION['valid']) ){
 	$_SESSION['valid'] = false;
 }
 
-if( $_SESSION['valid'] === false){
+if( $_SESSION['valid'] === false ){
 	// Initialize, all secrets are 'secret', do not set session, and do not redirect
 	$context = new BLTI($consumer_key, $shared_secret, false, false);
 	//if the oauth is valid
@@ -87,7 +87,7 @@ if( $redirect ){
 // Invalidate the session so we start from scratch
 $_SESSION['valid'] = false;
 
-print_r($_SESSION);
+// print_r($_SESSION);
 session_write_close();
 ?>
 
@@ -135,6 +135,9 @@ session_write_close();
 						</div>
 					</div>
 					<hr />
+					<div id="waitMsg" class="alert alert-warning" style="display: none;">
+						<p><span class="glyphicon glyphicon-warning-sign"></span> Please stay on this page while UDOIT scans your course content.</p>
+					</div>
 					<button id="submit" type="submit" name="course_submit"  class="btn btn-block btn-lg btn-success">Run scanner</button>
 				</form>
 			</main>

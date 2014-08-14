@@ -4,7 +4,7 @@
 	require_once('../core/quail/quail.php');
 
 	session_start();
-	print_r($_SESSION);
+	// print_r($_SESSION);
 
 	$course_id = $_SESSION['launch_params']['custom_canvas_course_id'];
 	$api_key = $_SESSION['api_key'];
@@ -16,42 +16,69 @@
 	}
 ?>
 <h2 class="center">Report for <?= $_SESSION['launch_params']['context_title'] ?></h2>
+
 <p><a href="#" id="print" class="btn btn-default btn-xs"><span class="glyphicon glyphicon-print"></span> Print this Report</a><p>
+
 <div id="errorWrapper">
 <?php
 	if(in_array("announcements", $_POST["content"])) {
 		$_SESSION["progress"] = 1;
+		$announcementsResults = [];
 
 		$courseAnnouncements = get_course_content("Announcements", $base_url, $course_id, $api_key);
-		$announcmentsResults = generate_report($courseAnnouncements);
+
+		foreach(generate_report($courseAnnouncements) as $r) {
+			if($r['amount'] != 0)
+				array_push($announcementsResults, $r);
+		}
 	}
 
 	if(in_array("assignments", $_POST["content"])) {
 		$_SESSION["progress"] = 2;
+		$assignmentsResults = [];
 
 		$courseAssignments = get_course_content("Assignments", $base_url, $course_id, $api_key);
-		$assignmentsResults = generate_report($courseAssignments);
+
+		foreach(generate_report($courseAssignments) as $r) {
+			if($r['amount'] != 0)
+				array_push($assignmentsResults, $r);
+		}
 	}
 
 	if(in_array("discussions", $_POST["content"])) {
 		$_SESSION["progress"] = 3;
+		$discussionsResults = [];
 
 		$courseDiscussions = get_course_content("Discussions", $base_url, $course_id, $api_key);
-		$discussionsResults = generate_report($courseDiscussions);
+
+		foreach(generate_report($courseDiscussions) as $r) {
+			if($r['amount'] != 0)
+				array_push($discussionsResults, $r);
+		}
 	}
 
 	if(in_array("files", $_POST["content"])) {
 		$_SESSION["progress"] = 4;
+		$filesResults = [];
 
 		$courseFiles = get_course_content("Files", $base_url, $course_id, $api_key);
-		$filesResults = generate_report($courseFiles);
+
+		foreach(generate_report($courseFiles) as $r) {
+			if($r['amount'] != 0)
+				array_push($filesResults, $r);
+		}
 	}
 
 	if(in_array("pages", $_POST["content"])) {
 		$_SESSION["progress"] = 5;
+		$pagesResults = [];
 
 		$coursePages = get_course_content("Pages", $base_url, $course_id, $api_key);
-		$pagesResults = generate_report($coursePages);
+
+		foreach(generate_report($coursePages) as $r) {
+			if($r['amount'] != 0)
+				array_push($pagesResults, $r);
+		}
 	}
 
 	// so the ajax call knows we're done
@@ -185,7 +212,7 @@
 						)
 					);
 				}
-				
+
 				$page_num++;
 			}
 		}
@@ -244,7 +271,7 @@
 
 	// prints out the results of the scan
 	if(in_array("announcements", $_POST["content"])) {
-		parse_results("Announcements", $announcmentsResults);
+		parse_results("Announcements", $announcementsResults);
 	}
 
 	if(in_array("assignments", $_POST["content"])) {
@@ -265,90 +292,98 @@
 
 ?>
 <?php function parse_results($contentType, $result) { ?>
-	<h3 class="content-title"><?php echo $contentType; ?></h3>
-	<?php if(sizeof($result) == 0) { ?>
+	<h3 class="content-title"><?= $contentType; ?></h3>
+	<?php if(!$result): ?>
 		<div class="alert alert-success"><span class="glyphicon glyphicon-ok"></span> No problems were detected for this type of content!</div>
-	<?php } else { ?>
-		<?php foreach($result as $report) { ?>
-			<?php if($report['amount'] > 0) { ?>
-			<div class="errorItem panel panel-default">
-				<div class="panel-heading clearfix">
-					<button class="btn btn-xs btn-default btn-toggle pull-left no-print margin-right-small"><span class="glyphicon glyphicon-plus"></span></button>
-					<h3 class="plus pull-left"><?php echo $report['name']; ?> <small><a href="<?php echo $report['url']; ?>" class="no-print" title="Link to <?php echo $report['name']; ?>">(<?php echo $report['url']; ?>)</a></small></h3>
-					<div class="btn-toolbar pull-right">
-						<div class="btn-group">
-							<button class="btn btn-xs btn-danger <?php if(count($report['error']) == 0) { echo 'fade '; } if(count($report['error']) < 10) { echo 'single'; } else { echo 'double'; } ?>"><span class="glyphicon glyphicon-ban-circle"></span> <?php echo count($report['error']); ?></button>
+	<?php else: ?>
+		<?php foreach($result as $report): ?>
+			<?php if($report['amount'] > 0): ?>
+				<div class="errorItem panel panel-default">
+					<div class="panel-heading clearfix">
+						<button class="btn btn-xs btn-default btn-toggle pull-left no-print margin-right-small"><span class="glyphicon glyphicon-plus"></span></button>
+						<h3 class="plus pull-left"><?= $report['name']; ?> <small><a href="<?= $report['url']; ?>" class="no-print" title="Link to <?= $report['name']; ?>">(<?= $report['url']; ?>)</a></small></h3>
+						<div class="btn-toolbar pull-right">
+							<div class="btn-group">
+								<button class="btn btn-xs btn-danger <?php if(count($report['error']) == 0) { echo 'fade '; } if(count($report['error']) < 10) { echo 'single'; } else { echo 'double'; } ?>"><span class="glyphicon glyphicon-ban-circle"></span> <?= count($report['error']); ?></button>
+							</div>
+							<div class="btn-group">
+								<button class="btn btn-xs btn-warning <?php if(count($report['warning']) == 0) { echo 'fade '; } if(count($report['warning']) < 10) { echo 'single'; } else { echo 'double'; } ?>"><span class="glyphicon glyphicon-warning-sign"></span> <?= count($report['warning']); ?></button>
+							</div>
+							<div class="btn-group">
+								<button class="btn btn-xs btn-primary <?php if(count($report['suggestion']) == 0) { echo 'fade '; } if(count($report['suggestion']) < 10) { echo 'single'; } else { echo 'double'; } ?>"><span class="glyphicon glyphicon-list-alt"></span> <?= count($report['suggestion']); ?></button>
+							</div>
 						</div>
-						<div class="btn-group">
-							<button class="btn btn-xs btn-warning <?php if(count($report['warning']) == 0) { echo 'fade '; } if(count($report['warning']) < 10) { echo 'single'; } else { echo 'double'; } ?>"><span class="glyphicon glyphicon-warning-sign"></span> <?php echo count($report['warning']); ?></button>
-						</div>
-						<div class="btn-group">
-							<button class="btn btn-xs btn-primary <?php if(count($report['suggestion']) == 0) { echo 'fade '; } if(count($report['suggestion']) < 10) { echo 'single'; } else { echo 'double'; } ?>"><span class="glyphicon glyphicon-list-alt"></span> <?php echo count($report['suggestion']); ?></button>
-						</div>
+					</div>
+					<div class="errorSummary panel-body">
+						<?php if(count($report['error']) > 0): ?>
+							<div class="panel panel-danger">
+								<div class="panel-heading">
+									<h4 class="panel-title">Errors (<?= count($report['error']); ?>)</h3>
+								</div>
+								<ul class="list-group">
+									<?php foreach($report['error'] as $item): ?>
+										<li class="list-group-item">
+											<div class="clearfix margin-bottom-small">
+												<h5 class="error pull-left"><span class="glyphicon glyphicon-remove-sign"></span> <?= $item['title']; ?></h5>
+											</div>
+											<? if(isset($item['description'])): ?>
+												<p><?= $item['description'] ?></p>
+											<? endif; ?>
+											<? if($item['html']): ?>
+												<pre><code class="html"><strong>Line <?= $item['lineNo']; ?></strong>: <?= $item['html']; ?></code></pre>
+											<? endif; ?>
+										</li>
+									<?php endforeach; ?>
+								</ul>
+							</div>
+						<?php endif; ?>
+						<?php if(count($report['warning']) > 0): ?>
+							<div class="panel panel-warning">
+								<div class="panel-heading">
+									<h4 class="panel-title">Warnings (<?= count($report['warning']); ?>)</h3>
+								</div>
+								<ul class="list-group">
+									<?php foreach($report['warning'] as $item): ?>
+										<li class="list-group-item">
+											<div class="clearfix margin-bottom-small">
+												<h5 class="warning pull-left"><span class="glyphicon glyphicon-remove-sign"></span> <?= $item['title']; ?></h5>
+											</div>
+											<? if(isset($item['description'])): ?>
+												<p><?= $item['description'] ?></p>
+											<? endif; ?>
+											<? if($item['html']): ?>
+												<pre><code class="html"><strong>Line <?= $item['lineNo']; ?></strong>: <?= $item['html']; ?></code></pre>
+											<? endif; ?>
+										</li>
+									<?php endforeach; ?>
+								</ul>
+							</div>
+						<?php endif; ?>
+						<?php if(count($report['suggestion']) > 0): ?>
+							<div class="panel panel-info no-margin">
+								<div class="panel-heading">
+									<h4 class="panel-title">Suggestions (<?= count($report['suggestion']); ?>)</h3>
+								</div>
+								<ul class="list-group">
+									<?php foreach($report['suggestion'] as $item): ?>
+										<li class="list-group-item">
+											<div class="clearfix margin-bottom-small">
+												<h5 class="suggestion pull-left"><span class="glyphicon glyphicon-remove-sign"></span> <?= $item['title']; ?></h5>
+											</div>
+											<? if(isset($item['description'])): ?>
+												<p><?= $item['description'] ?></p>
+											<? endif; ?>
+											<? if($item['html']): ?>
+												<pre><code class="html"><strong>Line <?= $item['lineNo']; ?></strong>: <?= $item['html']; ?></code></pre>
+											<? endif; ?>
+										</li>
+									<?php endforeach; ?>
+								</ul>
+							</div>
+						<?php endif; ?>
 					</div>
 				</div>
-				<div class="errorSummary panel-body">
-					<?php if(count($report['error']) > 0) { ?>
-					<div class="panel panel-danger">
-						<div class="panel-heading">
-							<h4 class="panel-title">Errors (<?php echo count($report['error']); ?>)</h3>
-						</div>
-						<ul class="list-group">
-							<?php
-								foreach($report['error'] as $item) {
-									echo '<li class="list-group-item">';
-									echo '<div class="clearfix margin-bottom-small">';
-									echo '<h5 class="error pull-left"><span class="glyphicon glyphicon-remove-sign"></span> '.$item['title'].'</h5>';
-									echo '</div>';
-									if(isset($item['description'])) { echo '<p>'.$item['description'].'</p>'; };
-									if($item['html']) { echo '<pre><code class="html">Line '.$item['lineNo'].': '.$item['html'].'</code></pre>'; }
-									echo '</li>';
-								}
-							?>
-						</ul>
-					</div>
-					<?php } ?>
-					<?php if(count($report['warning']) > 0) { ?>
-					<div class="panel panel-warning">
-						<div class="panel-heading">
-							<h4 class="panel-title">Warnings (<?php echo count($report['warning']); ?>)</h3>
-						</div>
-						<ul class="list-group">
-							<?php
-								foreach($report['warning'] as $item) {
-									echo '<li class="list-group-item">';
-									echo '<div class="clearfix margin-bottom-small">';
-									echo '<h5 class="warning"><span class="glyphicon glyphicon-warning-sign"></span> '.$item['title'].'</h5>';
-									echo '</div>';
-									if($item['html']) { echo '<pre><code class="html">Line '.$item['lineNo'].': '.$item['html'].'</code></pre>'; }
-									echo '</li>';
-								}
-							?>
-						</ul>
-					</div>
-					<?php } ?>
-					<?php if(count($report['suggestion']) > 0) { ?>
-					<div class="panel panel-info no-margin">
-						<div class="panel-heading">
-							<h4 class="panel-title">Suggestions (<?php echo count($report['suggestion']); ?>)</h3>
-						</div>
-						<ul class="list-group">
-							<?php
-								foreach($report['suggestion'] as $item) {
-									echo '<li class="list-group-item">';
-									echo '<div class="clearfix margin-bottom-small">';
-									echo '<h5 class="suggestion"><span class="glyphicon glyphicon-list-alt"></span> '.$item['title'].'</h5>';
-									echo '</div>';
-									if($item['html']) { echo '<pre><code class="html">Line '.$item['lineNo'].': '.$item['html'].'</code></pre>'; }
-									echo '</li>';
-								}
-							?>
-						</ul>
-					</div>
-					<?php } ?>
-				</div>
-			</div>
-			<?php } ?>
-		<?php } ?>
-	<?php } ?>
-<?php } ?>
+			<?php endif; ?>
+		<?php endforeach; ?>
+	<?php endif; ?>
+<?php } //end of function ?>

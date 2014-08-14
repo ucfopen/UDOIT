@@ -1134,10 +1134,12 @@ class cssTextHasContrast extends quailColorTest {
 		$entries = $xpath->query('//*');
 		foreach($entries as $element) {
 			$style = $this->css->getStyle($element);
+			// print_r($element->nodeValue);
 			if((isset($style['background']) || isset($style['background-color'])) && isset($style['color']) && $element->nodeValue) {
 				$background = (isset($style['background-color']))
 							   ? $style['background-color']
 							   : $style['background'];
+				var_dump($background);
 				if(!$background || $this->options['css_only_use_default']) {
 					$background = $this->default_background;
 				}
