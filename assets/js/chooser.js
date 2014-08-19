@@ -29,7 +29,7 @@ function checker(timer) {
 	}
 
 	$.post('./app/checker.php', { content: content }, function(data) {
-		$('#contentWrapper').append('<div id="result">'+data+'</div>');
+		$('#contentWrapper').append('<section id="result">'+data+'</section>');
 		resultSetup();
 		killButton(function() {
 			$('#result').fadeIn(function() {});

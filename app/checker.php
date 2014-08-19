@@ -1,6 +1,7 @@
 <?php
 	include_once('../config/localConfig.php');
-	include_once('../app/curlClass.php');
+	include_once('curlClass.php');
+	include_once('scanClass.php');
 	require_once('../core/quail/quail.php');
 
 	session_start();
@@ -14,79 +15,123 @@
 		echo "<div class=\"alert alert-danger no-margin margin-top\"><span class=\"glyphicon glyphicon-exclamation-sign\"></span> Please select which course content you wish to scan above.</div>";
 		exit();
 	}
+
+	session_write_close();
 ?>
-<h2 class="center">Report for <?= $_SESSION['launch_params']['context_title'] ?></h2>
+<h1 class="center">Report for <?= $_SESSION['launch_params']['context_title'] ?></h1>
 
 <p><a href="#" id="print" class="btn btn-default btn-xs"><span class="glyphicon glyphicon-print"></span> Print this Report</a><p>
 
 <div id="errorWrapper">
 <?php
 	if(in_array("announcements", $_POST["content"])) {
+		session_start();
 		$_SESSION["progress"] = 1;
-		$announcementsResults = [];
+		session_write_close();
+
+		$assignmentsResults = [];
 
 		$courseAnnouncements = get_course_content("Announcements", $base_url, $course_id, $api_key);
 
-		foreach(generate_report($courseAnnouncements) as $r) {
+		foreach($courseAnnouncements['items'] as $r) {
 			if($r['amount'] != 0)
-				array_push($announcementsResults, $r);
+				array_push($assignmentsResults, $r);
 		}
+
+		$courseAnnouncements['items'] = $assignmentsResults;
+
+		parse_results("Announcements", $courseAnnouncements);
 	}
 
+
 	if(in_array("assignments", $_POST["content"])) {
+		session_start();
 		$_SESSION["progress"] = 2;
+		session_write_close();
+
 		$assignmentsResults = [];
 
 		$courseAssignments = get_course_content("Assignments", $base_url, $course_id, $api_key);
 
-		foreach(generate_report($courseAssignments) as $r) {
+		foreach($courseAssignments['items'] as $r) {
 			if($r['amount'] != 0)
 				array_push($assignmentsResults, $r);
 		}
+
+		$courseAssignments['items'] = $assignmentsResults;
+
+		parse_results("Assignments", $courseAssignments);
 	}
 
 	if(in_array("discussions", $_POST["content"])) {
+		session_start();
 		$_SESSION["progress"] = 3;
+		session_write_close();
+
 		$discussionsResults = [];
 
 		$courseDiscussions = get_course_content("Discussions", $base_url, $course_id, $api_key);
 
-		foreach(generate_report($courseDiscussions) as $r) {
+		foreach($courseDiscussions['items'] as $r) {
 			if($r['amount'] != 0)
 				array_push($discussionsResults, $r);
 		}
+
+		$courseDiscussions['items'] = $discussionsResults;
+
+		parse_results("Discussions", $courseDiscussions);
 	}
 
 	if(in_array("files", $_POST["content"])) {
+		session_start();
 		$_SESSION["progress"] = 4;
+		session_write_close();
+
 		$filesResults = [];
 
 		$courseFiles = get_course_content("Files", $base_url, $course_id, $api_key);
 
-		foreach(generate_report($courseFiles) as $r) {
+		foreach($courseFiles['items'] as $r) {
 			if($r['amount'] != 0)
 				array_push($filesResults, $r);
 		}
+
+		$courseFiles['items'] = $filesResults;
+
+		parse_results("Files", $courseFiles);
 	}
 
 	if(in_array("pages", $_POST["content"])) {
+		session_start();
 		$_SESSION["progress"] = 5;
+		session_write_close();
+
 		$pagesResults = [];
 
 		$coursePages = get_course_content("Pages", $base_url, $course_id, $api_key);
 
-		foreach(generate_report($coursePages) as $r) {
+		foreach($coursePages['items'] as $r) {
 			if($r['amount'] != 0)
 				array_push($pagesResults, $r);
 		}
+
+		$coursePages['items'] = $pagesResults;
+
+		parse_results("Pages", $coursePages);
 	}
 
 	// so the ajax call knows we're done
-	$_SESSION["progress"] = 'done';
+	session_start();
+	$_SESSION["progress"] = "done";
+	session_write_close();
 
 	// this scans the course
 	function get_course_content($content_type, $base_url, $course_id, $api_key) {
-		$content_result = [];
+		$content_result = [
+			'items' => [],
+			'amount' => 0,
+			'time' => microtime(true),
+		];
 
 		//TODO:  Check for pagination issues
 		if($content_type == "Announcements") {
@@ -97,7 +142,7 @@
 				$url = $base_url."/api/v1/courses/".$course_id."/discussion_topics/".$announcement->id."?access_token=".$api_key;
 				$announce = Curl::get($url, true, null, true);
 
-				array_push($content_result, array(
+				array_push($content_result['items'], array(
 					'content' => $announce['response']->message,
 					'title' => $announce['response']->title,
 					'url' => $announce['response']->html_url
@@ -115,7 +160,7 @@
 				$url = $base_url."/api/v1/courses/".$course_id."/assignments/".$assignment->id."?access_token=".$api_key;
 				$assign = Curl::get($url, true, null, true);
 
-				array_push($content_result, array(
+				array_push($content_result['items'], array(
 					'content' => $assign['response']->description,
 					'title' => $assign['response']->name,
 					'url' => $assign['response']->html_url
@@ -133,7 +178,7 @@
 				$url = $base_url."/api/v1/courses/".$course_id."/discussion_topics/".$topic->id."?access_token=".$api_key;
 				$topicOp = Curl::get($url, true, null, true);
 
-				array_push($content_result, array(
+				array_push($content_result['items'], array(
 					'content' => $topicOp['response']->message,
 					'title' => $topicOp['response']->title,
 					'url' => $topicOp['response']->html_url
@@ -165,7 +210,7 @@
 					//don't capture them mac files, ._
 					$mac_check = (substr($file->display_name, 0, 2));
 					if($mac_check != "._") {
-						array_push($content_result, array(
+						array_push($content_result['items'], array(
 							'content' => Curl::get($file->url, false, array(CURLOPT_FOLLOWLOCATION=>1)),
 							'title' => $file->display_name,
 							'url' => $file->url
@@ -205,7 +250,7 @@
 					$url = $base_url."/api/v1/courses/".$course_id."/pages/".$page->url."?access_token=".$api_key;
 					$wiki_page = Curl::get($url, true, null, true);
 
-					array_push($content_result, array(
+					array_push($content_result['items'], array(
 						'content' => $wiki_page['response']->body,
 						'title' => $wiki_page['response']->title,
 						'url' => $base_url."/courses/".$course_id."/wiki/".$wiki_page['response']->url
@@ -216,6 +261,12 @@
 				$page_num++;
 			}
 		}
+
+		$time_end = microtime(true);
+
+		$content_result['items'] = generate_report($content_result['items']);
+		$content_result['amount'] = count($content_result['items']);
+		$content_result['time'] = round($time_end - $content_result['time'], 2);
 
 		return $content_result;
 	}
@@ -268,50 +319,22 @@
 		}
 		return $contentReport;
 	}
-
-	// prints out the results of the scan
-	if(in_array("announcements", $_POST["content"])) {
-		parse_results("Announcements", $announcementsResults);
-	}
-
-	if(in_array("assignments", $_POST["content"])) {
-		parse_results("Assignments", $assignmentsResults);
-	}
-
-	if(in_array("discussions", $_POST["content"])) {
-		parse_results("Discussions", $discussionsResults);
-	}
-
-	if(in_array("files", $_POST["content"])) {
-		parse_results("Files", $filesResults);
-	}
-
-	if(in_array("pages", $_POST["content"])) {
-		parse_results("Pages", $pagesResults);
-	}
-
 ?>
 <?php function parse_results($contentType, $result) { ?>
-	<h3 class="content-title"><?= $contentType; ?></h3>
-	<?php if(!$result): ?>
+	<h2 class="content-title"><?= $contentType; ?> <small><?= count($result['items']) ?> results from <?= $result['amount'] ?> items in <?= $result['time'] ?> seconds</small></h2>
+	<?php if(!$result['items']): ?>
 		<div class="alert alert-success"><span class="glyphicon glyphicon-ok"></span> No problems were detected for this type of content!</div>
 	<?php else: ?>
-		<?php foreach($result as $report): ?>
+		<?php foreach($result['items'] as $report): ?>
 			<?php if($report['amount'] > 0): ?>
 				<div class="errorItem panel panel-default">
 					<div class="panel-heading clearfix">
 						<button class="btn btn-xs btn-default btn-toggle pull-left no-print margin-right-small"><span class="glyphicon glyphicon-plus"></span></button>
 						<h3 class="plus pull-left"><?= $report['name']; ?> <small><a href="<?= $report['url']; ?>" class="no-print" title="Link to <?= $report['name']; ?>">(<?= $report['url']; ?>)</a></small></h3>
-						<div class="btn-toolbar pull-right">
-							<div class="btn-group">
-								<button class="btn btn-xs btn-danger <?php if(count($report['error']) == 0) { echo 'fade '; } if(count($report['error']) < 10) { echo 'single'; } else { echo 'double'; } ?>"><span class="glyphicon glyphicon-ban-circle"></span> <?= count($report['error']); ?></button>
-							</div>
-							<div class="btn-group">
-								<button class="btn btn-xs btn-warning <?php if(count($report['warning']) == 0) { echo 'fade '; } if(count($report['warning']) < 10) { echo 'single'; } else { echo 'double'; } ?>"><span class="glyphicon glyphicon-warning-sign"></span> <?= count($report['warning']); ?></button>
-							</div>
-							<div class="btn-group">
-								<button class="btn btn-xs btn-primary <?php if(count($report['suggestion']) == 0) { echo 'fade '; } if(count($report['suggestion']) < 10) { echo 'single'; } else { echo 'double'; } ?>"><span class="glyphicon glyphicon-list-alt"></span> <?= count($report['suggestion']); ?></button>
-							</div>
+						<div class="pull-right">
+							<span class="label label-danger <?php if(count($report['error']) == 0) { echo 'fade '; } if(count($report['error']) < 10) { echo 'single'; } else { echo 'double'; } ?>"><span class="glyphicon glyphicon-ban-circle"></span> <?= count($report['error']); ?></span>
+							<span class="label label-warning <?php if(count($report['warning']) == 0) { echo 'fade '; } if(count($report['warning']) < 10) { echo 'single'; } else { echo 'double'; } ?>"><span class="glyphicon glyphicon-warning-sign"></span> <?= count($report['warning']); ?></span>
+							<span class="label label-primary <?php if(count($report['suggestion']) == 0) { echo 'fade '; } if(count($report['suggestion']) < 10) { echo 'single'; } else { echo 'double'; } ?>"><span class="glyphicon glyphicon-list-alt"></span> <?= count($report['suggestion']); ?></span>
 						</div>
 					</div>
 					<div class="errorSummary panel-body">
@@ -386,4 +409,17 @@
 			<?php endif; ?>
 		<?php endforeach; ?>
 	<?php endif; ?>
-<?php } //end of function ?>
+<?php } //end of function
+
+	function strip_non_errors($items) {
+		$stripped_items = [];
+
+		foreach(generate_report($items) as $i) {
+			if($i['amount'] != 0)
+				array_push($stipped_items, $i);
+		}
+
+		return $stripped_items;
+	}
+
+?>
