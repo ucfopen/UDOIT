@@ -114,23 +114,23 @@ session_write_close();
 						<span class="col-sm-2 control-label"><strong>Select content:</strong></span>
 						<div class="col-sm-10">
 							<div class="checkbox">
-								<label><input type="checkbox" value="all" id="allContent" class="content" name="content[]" checked> All</label>
+								<label><input id="allContent" type="checkbox" value="all" id="allContent" class="content" name="content[]" checked> All</label>
 							</div>
 							<hr />
 							<div class="checkbox">
-								<label><input type="checkbox" value="announcements" class="content" name="content[]" checked> Announcements</label>
+								<label><input id="courseAnnouncements" type="checkbox" value="announcements" class="content" name="content[]" checked> Announcements</label>
 							</div>
 							<div class="checkbox">
-								<label><input type="checkbox" value="assignments" class="content" name="content[]" checked> Assignments</label>
+								<label><input id="courseAssignments" type="checkbox" value="assignments" class="content" name="content[]" checked> Assignments</label>
 							</div>
 							<div class="checkbox">
-								<label><input type="checkbox" value="discussions" class="content" class="content" name="content[]" checked> Discussions</label>
+								<label><input id="courseDiscussions" type="checkbox" value="discussions" class="content" class="content" name="content[]" checked> Discussions</label>
 							</div>
 							<div class="checkbox">
-								<label><input type="checkbox" value="files" class="content" name="content[]" checked> Files</label>
+								<label><input id="courseFiles" type="checkbox" value="files" class="content" name="content[]" checked> Files</label>
 							</div>
 							<div class="checkbox">
-								<label><input type="checkbox" value="pages" class="content" name="content[]" checked> Pages</label>
+								<label><input id="coursePages" type="checkbox" value="pages" class="content" name="content[]" checked> Pages</label>
 							</div>
 						</div>
 					</div>

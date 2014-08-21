@@ -1,7 +1,6 @@
 <?php
 	include_once('../config/localConfig.php');
 	include_once('curlClass.php');
-	include_once('scanClass.php');
 	require_once('../core/quail/quail.php');
 
 	session_start();
@@ -20,7 +19,7 @@
 ?>
 <h1 class="center">Report for <?= $_SESSION['launch_params']['context_title'] ?></h1>
 
-<p><a href="#" id="print" class="btn btn-default btn-xs"><span class="glyphicon glyphicon-print"></span> Print this Report</a><p>
+<p><a href="#" id="print" class="btn btn-default btn-xs"><span class="glyphicon glyphicon-save"></span> Save report as PDF</a><p>
 
 <div id="errorWrapper">
 <?php
@@ -121,9 +120,7 @@
 	}
 
 	// so the ajax call knows we're done
-	session_start();
 	$_SESSION["progress"] = "done";
-	session_write_close();
 
 	// this scans the course
 	function get_course_content($content_type, $base_url, $course_id, $api_key) {
@@ -341,7 +338,7 @@
 						<?php if(count($report['error']) > 0): ?>
 							<div class="panel panel-danger">
 								<div class="panel-heading">
-									<h4 class="panel-title">Errors (<?= count($report['error']); ?>)</h3>
+									<h4 class="panel-title">Errors (<?= count($report['error']); ?>)</h4>
 								</div>
 								<ul class="list-group">
 									<?php foreach($report['error'] as $item): ?>
@@ -363,7 +360,7 @@
 						<?php if(count($report['warning']) > 0): ?>
 							<div class="panel panel-warning">
 								<div class="panel-heading">
-									<h4 class="panel-title">Warnings (<?= count($report['warning']); ?>)</h3>
+									<h4 class="panel-title">Warnings (<?= count($report['warning']); ?>)</h4>
 								</div>
 								<ul class="list-group">
 									<?php foreach($report['warning'] as $item): ?>
@@ -385,7 +382,7 @@
 						<?php if(count($report['suggestion']) > 0): ?>
 							<div class="panel panel-info no-margin">
 								<div class="panel-heading">
-									<h4 class="panel-title">Suggestions (<?= count($report['suggestion']); ?>)</h3>
+									<h4 class="panel-title">Suggestions (<?= count($report['suggestion']); ?>)</h4>
 								</div>
 								<ul class="list-group">
 									<?php foreach($report['suggestion'] as $item): ?>
