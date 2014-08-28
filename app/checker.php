@@ -24,9 +24,7 @@
 <div id="errorWrapper">
 <?php
 	if(in_array("announcements", $_POST["content"])) {
-		session_start();
 		$_SESSION["progress"] = 1;
-		session_write_close();
 
 		$assignmentsResults = [];
 
@@ -44,9 +42,7 @@
 
 
 	if(in_array("assignments", $_POST["content"])) {
-		session_start();
 		$_SESSION["progress"] = 2;
-		session_write_close();
 
 		$assignmentsResults = [];
 
@@ -63,9 +59,7 @@
 	}
 
 	if(in_array("discussions", $_POST["content"])) {
-		session_start();
 		$_SESSION["progress"] = 3;
-		session_write_close();
 
 		$discussionsResults = [];
 
@@ -82,9 +76,7 @@
 	}
 
 	if(in_array("files", $_POST["content"])) {
-		session_start();
 		$_SESSION["progress"] = 4;
-		session_write_close();
 
 		$filesResults = [];
 
@@ -101,9 +93,7 @@
 	}
 
 	if(in_array("pages", $_POST["content"])) {
-		session_start();
 		$_SESSION["progress"] = 5;
-		session_write_close();
 
 		$pagesResults = [];
 
@@ -140,6 +130,7 @@
 				$announce = Curl::get($url, true, null, true);
 
 				array_push($content_result['items'], array(
+					'id' => $announce['response']->id,
 					'content' => $announce['response']->message,
 					'title' => $announce['response']->title,
 					'url' => $announce['response']->html_url
@@ -158,6 +149,7 @@
 				$assign = Curl::get($url, true, null, true);
 
 				array_push($content_result['items'], array(
+					'id' => $assign['response']->id,
 					'content' => $assign['response']->description,
 					'title' => $assign['response']->name,
 					'url' => $assign['response']->html_url
@@ -176,6 +168,7 @@
 				$topicOp = Curl::get($url, true, null, true);
 
 				array_push($content_result['items'], array(
+					'id' => $topicOp['response']->id,
 					'content' => $topicOp['response']->message,
 					'title' => $topicOp['response']->title,
 					'url' => $topicOp['response']->html_url
@@ -208,6 +201,7 @@
 					$mac_check = (substr($file->display_name, 0, 2));
 					if($mac_check != "._") {
 						array_push($content_result['items'], array(
+							'id' => $file->id,
 							'content' => Curl::get($file->url, false, array(CURLOPT_FOLLOWLOCATION=>1)),
 							'title' => $file->display_name,
 							'url' => $file->url
@@ -248,6 +242,7 @@
 					$wiki_page = Curl::get($url, true, null, true);
 
 					array_push($content_result['items'], array(
+						'id' => $wiki_page['response']->url,
 						'content' => $wiki_page['response']->body,
 						'title' => $wiki_page['response']->title,
 						'url' => $base_url."/courses/".$course_id."/wiki/".$wiki_page['response']->url
@@ -277,15 +272,15 @@
 			}
 
 			$error = 0;
-			$report = array();
+			$report = [];
 			$quail = new quail($html['content'], 'section508', 'string', 'static');
 
 			$quail->runCheck();
 			$result = $quail->getReport();
 			$report = $result['report'];
-			$severe = array();
-			$warning = array();
-			$suggestion = array();
+			$severe = [];
+			$warning = [];
+			$suggestion = [];
 
 
 			foreach($report as $value) {
@@ -305,6 +300,7 @@
 				if(count($value) > 0) $error++;
 			}
 
+			$final['id'] = $html['id'];
 			$final['name'] = $html['title'];
 			$final['url'] = $html['url'];
 			$final['amount'] = $error;
@@ -327,50 +323,75 @@
 				<div class="errorItem panel panel-default">
 					<div class="panel-heading clearfix">
 						<button class="btn btn-xs btn-default btn-toggle pull-left no-print margin-right-small"><span class="glyphicon glyphicon-plus"></span></button>
+
 						<h3 class="plus pull-left"><?= $report['name']; ?> <small><a href="<?= $report['url']; ?>" class="no-print" title="Link to <?= $report['name']; ?>">(<?= $report['url']; ?>)</a></small></h3>
+
 						<div class="pull-right">
 							<span class="label label-danger <?php if(count($report['error']) == 0) { echo 'fade '; } if(count($report['error']) < 10) { echo 'single'; } else { echo 'double'; } ?>"><span class="glyphicon glyphicon-ban-circle"></span> <?= count($report['error']); ?></span>
 							<span class="label label-warning <?php if(count($report['warning']) == 0) { echo 'fade '; } if(count($report['warning']) < 10) { echo 'single'; } else { echo 'double'; } ?>"><span class="glyphicon glyphicon-warning-sign"></span> <?= count($report['warning']); ?></span>
 							<span class="label label-primary <?php if(count($report['suggestion']) == 0) { echo 'fade '; } if(count($report['suggestion']) < 10) { echo 'single'; } else { echo 'double'; } ?>"><span class="glyphicon glyphicon-list-alt"></span> <?= count($report['suggestion']); ?></span>
 						</div>
 					</div>
+
 					<div class="errorSummary panel-body">
 						<?php if(count($report['error']) > 0): ?>
 							<div class="panel panel-danger">
 								<div class="panel-heading">
 									<h4 class="panel-title">Errors (<?= count($report['error']); ?>)</h4>
 								</div>
+
 								<ul class="list-group">
 									<?php foreach($report['error'] as $item): ?>
 										<li class="list-group-item">
 											<div class="clearfix margin-bottom-small">
 												<h5 class="error pull-left"><span class="glyphicon glyphicon-remove-sign"></span> <?= $item['title']; ?></h5>
 											</div>
+
 											<? if(isset($item['description'])): ?>
 												<p><?= $item['description'] ?></p>
 											<? endif; ?>
+
 											<? if($item['html']): ?>
 												<pre><code class="html"><strong>Line <?= $item['lineNo']; ?></strong>: <?= $item['html']; ?></code></pre>
+											<? endif; ?>
+
+											<? if($item['type'] = "cssTextHasContrast" || $item['type'] = "imgHasAlt" || $item['type'] = "tableDataShouldHaveTh" || $item['type'] = "tableThShouldHaveScope"): ?>
+												<button class="fix-this btn btn-success">U FIX IT!</button>
+
+												<form action="app/contentUpdater.php" method="post" class="form-horizontal hidden" role="form">
+													<input type="hidden" name="contentid" value="<?= $report['id'] ?>">
+
+													<div class="input-group">
+														<input type="text" name="newcontent" class="form-control" placeholder="New value">
+														<span class="input-group-btn">
+															<button class="submit-content btn btn-default" type="submit">Submit</button>
+														</span>
+													</div><!-- /input-group -->
+												</form>
 											<? endif; ?>
 										</li>
 									<?php endforeach; ?>
 								</ul>
 							</div>
 						<?php endif; ?>
+
 						<?php if(count($report['warning']) > 0): ?>
 							<div class="panel panel-warning">
 								<div class="panel-heading">
 									<h4 class="panel-title">Warnings (<?= count($report['warning']); ?>)</h4>
 								</div>
+
 								<ul class="list-group">
 									<?php foreach($report['warning'] as $item): ?>
 										<li class="list-group-item">
 											<div class="clearfix margin-bottom-small">
 												<h5 class="warning pull-left"><span class="glyphicon glyphicon-remove-sign"></span> <?= $item['title']; ?></h5>
 											</div>
+
 											<? if(isset($item['description'])): ?>
 												<p><?= $item['description'] ?></p>
 											<? endif; ?>
+
 											<? if($item['html']): ?>
 												<pre><code class="html"><strong>Line <?= $item['lineNo']; ?></strong>: <?= $item['html']; ?></code></pre>
 											<? endif; ?>
@@ -379,20 +400,24 @@
 								</ul>
 							</div>
 						<?php endif; ?>
+
 						<?php if(count($report['suggestion']) > 0): ?>
 							<div class="panel panel-info no-margin">
 								<div class="panel-heading">
 									<h4 class="panel-title">Suggestions (<?= count($report['suggestion']); ?>)</h4>
 								</div>
+
 								<ul class="list-group">
 									<?php foreach($report['suggestion'] as $item): ?>
 										<li class="list-group-item">
 											<div class="clearfix margin-bottom-small">
 												<h5 class="suggestion pull-left"><span class="glyphicon glyphicon-remove-sign"></span> <?= $item['title']; ?></h5>
 											</div>
+
 											<? if(isset($item['description'])): ?>
 												<p><?= $item['description'] ?></p>
 											<? endif; ?>
+
 											<? if($item['html']): ?>
 												<pre><code class="html"><strong>Line <?= $item['lineNo']; ?></strong>: <?= $item['html']; ?></code></pre>
 											<? endif; ?>

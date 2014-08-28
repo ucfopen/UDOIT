@@ -74,6 +74,7 @@ class reportStatic extends quailReporter {
 					$testResult = array();
 					if(is_object($problem))
 					{
+						$testResult['type'] = $testname;
 						$testResult['lineNo'] = $problem->line;
 						$testResult['severity'] = $severityLevel;
 						$testResult['severity_num'] = $severityNumber;
