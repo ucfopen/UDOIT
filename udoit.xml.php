@@ -1,4 +1,11 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?php 
+	$servername = 'http://' . $_SERVER['SERVER_NAME'];
+	$scriptname=end(explode('/',$_SERVER['PHP_SELF']));
+	$scriptpath=str_replace($scriptname,'',$_SERVER['PHP_SELF']);
+	$launch = $servername . $scriptpath;
+	header('Content-type: text/xml');
+	echo '<?xml version="1.0" encoding="UTF-8"?>';
+?>
 <cartridge_basiclti_link xmlns="http://www.imsglobal.org/xsd/imslticc_v1p0"
 	xmlns:blti = "http://www.imsglobal.org/xsd/imsbasiclti_v1p0"
 	xmlns:lticm ="http://www.imsglobal.org/xsd/imslticm_v1p0"
@@ -11,13 +18,13 @@
 	<blti:title>UDOIT</blti:title>
 	<blti:description>This tool allows you scan your courses and check for common accessibility issues.</blti:description>
 	<blti:icon></blti:icon>
-	<blti:launch_url>https://lti.online.ucf.edu/udoit/</blti:launch_url>
+	<blti:launch_url><?= $launch ?></blti:launch_url>
 	<blti:extensions platform="canvas.instructure.com">
 		<lticm:property name="tool_id">udoit</lticm:property>
 		<lticm:property name="privacy_level">public</lticm:property>
-		<lticm:property name="domain">lti.online.ucf.edu</lticm:property>
+		<lticm:property name="domain"><?= $_SERVER['SERVER_NAME'] ?></lticm:property>
 		<lticm:options name="course_navigation">
-			<lticm:property name="url">https://lti.online.ucf.edu/udoit/</lticm:property>
+			<lticm:property name="url"><?= $launch ?></lticm:property>
 			<lticm:property name="default">enabled</lticm:property>
 			<lticm:property name="visibility">admins</lticm:property>
 			<lticm:property name="text">UDOIT</lticm:property>

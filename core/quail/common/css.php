@@ -264,7 +264,9 @@ class quailCSS {
 			$inline_styles = explode(';', $element->getAttribute('style'));
 			foreach($inline_styles as $inline_style) {
 				$s = explode(':', $inline_style);
-				$style[$s[0]] = trim(strtolower($s[1]));
+				if(isset($s[1])){	// Edit:  Make sure the style attribute doesn't have a trailing ;
+					$style[trim($s[0])] = trim(strtolower($s[1]));
+				}
 			}
 		}
 		if(!is_array($style)) {
@@ -337,7 +339,7 @@ class quailCSS {
 			
 			if(is_array($parent_style)) {
 				foreach($parent_style as $k => $v) {
-					if(!isset($style[$k]) || in_array($style[$k]['value'], $this->inheritance_strings)) {
+					if(!isset($style[$k]) /*|| in_array($style[$k]['value'], $this->inheritance_strings)*/) {
 						$style[$k] = $v;
 					}
 				}

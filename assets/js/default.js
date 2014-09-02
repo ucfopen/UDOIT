@@ -8,7 +8,11 @@ function killButton(callback) {
 					$('#popupback').remove();
 				}); 
 			}
+
 			$('#submit').removeClass('disabled').html('Run scanner');
+
+			$('#waitMsg').fadeOut();
+
 			if(callback) {
 				callback();
 			}

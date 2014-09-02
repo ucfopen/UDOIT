@@ -95,6 +95,7 @@ class Curl{
                 $return  = array();
                 $return['response'] = json_decode($response);
                 $return['info'] = json_decode($response['info']);
+                return $return;
             }
             else
             {

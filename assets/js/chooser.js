@@ -4,7 +4,9 @@ function resultSetup() {
 		$(this).children('button span').removeClass('glyphicon-minus').addClass('glyphicon-plus');
 		var errorItem = $(this).parent();
 		if ($(this).parent().parent().find('.errorSummary').is(':visible')) {
-			$(this).parent().parent().find('.errorSummary').slideUp(function() {errorItem.children('button span').removeClass('glyphicon-minus').addClass('glyphicon-plus');});
+			$(this).parent().parent().find('.errorSummary').slideUp(function() {
+				errorItem.children('button span').removeClass('glyphicon-minus').addClass('glyphicon-plus');
+			});
 		}
 		else {
 			$(this).children('button span').removeClass('glyphicon-plus').addClass('glyphicon-minus');
@@ -16,20 +18,36 @@ function resultSetup() {
 		window.print();
 		return false;
 	});
+
+	$('.fix-this').click(function() {
+		$(this).addClass('hidden');
+
+		var contentForm = $(this).parent().find('form');
+		console.log(contentForm);
+
+		if(contentForm.is(':visible')) {
+			$(this).parent().find('form').removeClass('show');
+			$(this).parent().find('form').addClass('hidden');
+		}
+		else {
+			$(this).parent().find('form').removeClass('hidden');
+			$(this).parent().find('form').addClass('show');	
+		}
+	});
 }
 
 /* Builds up the results and adds them to the page */
-function checker(timer) {
+function checker() {
 	var content = $('.content:not(#allContent):checked').map(function(i,n) {
 		return $(n).val();
 	}).get();
 
-	if(content.length == 0) { 
-		content = "none"; 
+	if(content.length === 0) {
+		content = "none";
 	}
 
-	$.post('./?page=checker', { course: $('#courseSelect').text(), id: $('#courseSelect').val(), content: content }, function(data) {
-		$('#contentWrapper').append('<div id="result">'+data+'</div>');
+	$.post('./app/checker.php', { content: content }, function(data) {
+		$('#contentWrapper').append('<section id="result">'+data+'</section>');
 		resultSetup();
 		killButton(function() {
 			$('#result').fadeIn(function() {});
@@ -58,39 +76,42 @@ $(document).ready(function() {
 
 	$('#submit').click(function() {
 		if($('#result').length > 0) { $('#result').remove(); }
+
+		$('#waitMsg').fadeIn();
+
 		loader();
 
-		var old = 0;
+		// var old = 0;
 
-		var timer = setInterval(function(){
-			$.ajax({
-				url: 'app/progress.php',
-				success: function(data){
-					if(data != old) {
-						if(data == 1) {
-							$('#submit').html('<div id="popup"><div class="circle"></div></div> Scanning announcements...');
-						};
-						if(data == 2) {
-							$('#submit').html('<div id="popup"><div class="circle"></div></div> Scanning assignments...');
-						};
-						if(data == 3) {
-							$('#submit').html('<div id="popup"><div class="circle"></div></div> Scanning discussions...');
-						};
-						if(data == 4) {
-							$('#submit').html('<div id="popup"><div class="circle"></div></div> Scanning files...');
-						};
-						if(data == 5) {
-							$('#submit').html('<div id="popup"><div class="circle"></div></div> Scanning pages...');
-						};
-						if(data == 'done') {
-							clearInterval(timer);
-						};
-						old = data;
-						console.log(old);
-					}
-				}
-			});
-		}, 500);
+		// var timer = setInterval(function(){
+		// 	$.ajax({
+		// 		url: 'app/progress.php',
+		// 		success: function(data){
+		// 			if(data != old) {
+		// 				if(data == 1) {
+		// 					$('#submit').html('<div id="popup"><div class="circle"></div></div> Scanning announcements...');
+		// 				}
+		// 				if(data == 2) {
+		// 					$('#submit').html('<div id="popup"><div class="circle"></div></div> Scanning assignments...');
+		// 				}
+		// 				if(data == 3) {
+		// 					$('#submit').html('<div id="popup"><div class="circle"></div></div> Scanning discussions...');
+		// 				}
+		// 				if(data == 4) {
+		// 					$('#submit').html('<div id="popup"><div class="circle"></div></div> Scanning files...');
+		// 				}
+		// 				if(data == 5) {
+		// 					$('#submit').html('<div id="popup"><div class="circle"></div></div> Scanning pages...');
+		// 				}
+		// 				if(data == 'done') {
+		// 					clearInterval(timer);
+		// 				}
+		// 				old = data;
+		// 				console.log(old);
+		// 			}
+		// 		}
+		// 	});
+		// }, 500);
 
 		checker();
 
