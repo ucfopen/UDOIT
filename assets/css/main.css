@@ -18,6 +18,8 @@ h2 { color: #332312; }
 
 h3 { margin: 0;}
 
+h3 a { color: inherit; }
+
 .plus {
 	max-width: 80%;
 	overflow: hidden;
