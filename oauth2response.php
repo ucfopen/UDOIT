@@ -25,7 +25,7 @@ function printError($msg){
 	die();
 }
 
-if( isset($_GET['code']) ){
+if (isset($_GET['code'])) {
 	//Exchange code for API key
 	$url = $base_url . '/login/oauth2/token';
 
@@ -56,8 +56,8 @@ if( isset($_GET['code']) ){
 	
 	session_write_close();
 	header('Location:index.php');
-}elseif( isset($_GET['error']) ){
+} elseif (isset($_GET['error'])) {
 	printError('Authentication problem:  Access Denied.');
-}else{
+} else {
 	printError('Authentication problem, please ensure that your instance of UDOIT is configured correctly.');
 }

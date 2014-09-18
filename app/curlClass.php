@@ -1,6 +1,7 @@
 <?php
 
-class Curl{
+class Curl
+{
     /**
      * Parses header links to look for more pages
      * @param  string $header The response headers string
@@ -9,14 +10,14 @@ class Curl{
     static function parse_link($header)
     {
         $links = explode(',', $header['Link']);
-        foreach($links as $link)
-        {
-            if(preg_match('/rel=\"last\"/', $link))
-            {
+
+        foreach ($links as $link) {
+            if (preg_match('/rel=\"last\"/', $link)) {
                 preg_match('/page=([0-9]+)/', $link, $matches);
                 return $matches[1];
             }
         }
+
         return false;
     }
     /**
@@ -34,31 +35,25 @@ class Curl{
             CURLOPT_URL => $url,
         );
 
-        if(count($customCurl) > 0)
-        {
-            foreach($customCurl as $key => $value)
-            {
+        if (count($customCurl) > 0) {
+            foreach ($customCurl as $key => $value)  {
                 $param[$key] = $value;
             }
         }
+
         $response = self::base($param, true, $info);
         
-        if($decode_json)
-        {
-            if($info)
-            {
+        if ($decode_json) {
+            if ($info) {
                 $return  = array();
                 $return['response'] = json_decode($response);
                 $return['info'] = get_headers($url, 1);
+
                 return $return;
-            }
-            else
-            {
+            } else {
                 return json_decode($response);
             }
-        }
-        else
-        {
+        } else {
             return $response;
         }
     }
@@ -80,30 +75,25 @@ class Curl{
             CURLOPT_POSTFIELDS => $postdata,
         );
 
-        if(count($customCurl) > 0)
-        {
-            foreach($customCurl as $key => $value)
-            {
+        if (count($customCurl) > 0) {
+            foreach ($customCurl as $key => $value) {
                 $param[$key] = $value;
             }
         }
+
         $response = self::base($param, true, $info);
-        if($decode_json)
-        {
-            if($info)
-            {
+
+        if ($decode_json) {
+            if ($info) {
                 $return  = array();
                 $return['response'] = json_decode($response);
                 $return['info'] = json_decode($response['info']);
+
                 return $return;
-            }
-            else
-            {
+            } else {
                 return json_decode($response);
             }
-        }
-        else
-        {
+        } else {
             return $response;
         }
     }
@@ -121,6 +111,7 @@ class Curl{
             CURLOPT_CUSTOMREQUEST => 'DELETE',
         );
         $response = self::base($param, true, true);
+
         return $response;
     }
     /**
@@ -141,29 +132,23 @@ class Curl{
             CURLOPT_CUSTOMREQUEST => "PUT",
         );
 
-        if(count($customCurl) > 0)
-        {
-            foreach($customCurl as $key => $value)
-            {
+        if (count($customCurl) > 0) {
+            foreach ($customCurl as $key => $value) {
                 $param[$key] = $value;
             }
         }
+
         $response = self::base($param, true, $info);
-        if($decode_json)
-        {
-            if($info)
-            {
+
+        if ($decode_json) {
+            if($info) {
                 $return  = array();
                 $return['response'] = json_decode($response);
                 $return['info'] = $return['response']->info;
-            }
-            else
-            {
+            } else {
                 return json_decode($response);
             }
-        }
-        else
-        {
+        } else {
             return $response;
         }
     }
@@ -177,24 +162,26 @@ class Curl{
      */
     static private function base($param, $skipSSL = false, $parseHeader = false)
     {
-
         $ch = curl_init();
         curl_setopt($ch,CURLOPT_TIMEOUT,0);
-        foreach($param as $constant => $value)
-        {
+
+        foreach ($param as $constant => $value) {
             curl_setopt($ch, $constant, $value); 
         }
+
         curl_setopt ($ch, CURLOPT_RETURNTRANSFER, 1);
-        if($skipSSL)
-        {
+
+        if ($skipSSL) {
             curl_setopt ($ch, CURLOPT_SSL_VERIFYHOST, 0);
             curl_setopt ($ch, CURLOPT_SSL_VERIFYPEER, 0);
         }
+
         $error = curl_error($ch);
-        if($error)
-        {
+
+        if ($error) {
             \Log::error('An error occured: '.$error);
         }
+
         $response = curl_exec($ch);
 
         curl_close($ch);
@@ -202,15 +189,14 @@ class Curl{
         return $response;
     }
 
-    static function multithread($urls){
-
+    static function multithread($urls)
+    {
         $handles = array();
         $result = array();
 
         $mh = curl_multi_init();
 
-        foreach($urls as $url){
-
+        foreach ($urls as $url) {
             $handles[$url] = curl_init();
             curl_setopt($handles[$url], CURLOPT_URL, $url);
             curl_setopt($handles[$url], CURLOPT_MAXCONNECTS, 50);
@@ -221,11 +207,12 @@ class Curl{
         }
 
         $running = null;
-        do{
-            curl_multi_exec($mh, $running);
-        } while($running > 0);
 
-        foreach($handles as $handle => $content){
+        do {
+            curl_multi_exec($mh, $running);
+        } while ($running > 0);
+
+        foreach ($handles as $handle => $content) {
             $result[] = curl_multi_getcontent($content);
             curl_multi_remove_handle($mh, $content);
         }
@@ -233,9 +220,5 @@ class Curl{
         curl_multi_close($mh);
 
         return $result;
-
-    } 
-
+    }
 }
-
-?>

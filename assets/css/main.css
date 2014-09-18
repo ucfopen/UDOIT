@@ -119,7 +119,7 @@ ul.li_border li {
 
 .delete_li { float: right; }
 
-h5 { display: inline-block; }
+/*h5 { display: inline-block; }*/
 
 h5 + ul {
 	display: inline-block;

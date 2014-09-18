@@ -116,29 +116,29 @@ class quailCSS {
 	*	setting and attribute on all nodes that references back to a style index we maintain
 	*	in the CSS class itself
 	*/
-	private function setStyles() {
-		if(!is_array($this->css)) {
-			return null;
-		}
-		foreach($this->css as $selector => $style) {
-			$xpath = new DOMXPath($this->dom);
-			$entries = @$xpath->query($this->getXpath($selector));
-			if($entries->length) {
-				foreach($entries as $e) {
-					if(!$e->hasAttribute('quail_style_index')) {
-						$e->setAttribute('quail_style_index', $this->next_index);
-						$this->next_index++;
-					}
-					$this->addCSSToElement($e, $style, $this->getSpecificity($selector));
-				}
-			}
-		}
-		foreach($this->style_index as $k => $style) {
-			foreach($style as $i => $values) {
-				$this->style_index[$k][$i] = trim(strtolower($values['value']));
-			}
-		}
-	}
+	// private function setStyles() {
+	// 	if(!is_array($this->css)) {
+	// 		return null;
+	// 	}
+	// 	foreach($this->css as $selector => $style) {
+	// 		$xpath = new DOMXPath($this->dom);
+	// 		$entries = @$xpath->query($this->getXpath($selector));
+	// 		if($entries->length) {
+	// 			foreach($entries as $e) {
+	// 				if(!$e->hasAttribute('quail_style_index')) {
+	// 					$e->setAttribute('quail_style_index', $this->next_index);
+	// 					$this->next_index++;
+	// 				}
+	// 				// $this->addCSSToElement($e, $style, $this->getSpecificity($selector));
+	// 			}
+	// 		}
+	// 	}
+	// 	foreach($this->style_index as $k => $style) {
+	// 		foreach($style as $i => $values) {
+	// 			$this->style_index[$k][$i] = trim(strtolower($values['value']));
+	// 		}
+	// 	}
+	// }
 	
 	/**
 	*	Adds the provided CSS to the element's style entry in style_index. We first
@@ -147,21 +147,21 @@ class quailCSS {
 	*	@param array $style The provided CSS Style
 	*	@param int $specificity The specificity total for the CSS selector
 	*/
-	private function addCSSToElement($element, $style, $specificity) {
-		$index_id = $element->getAttribute('quail_style_index');
-		foreach($style as $name => $value) {
-			if(!$this->style_index[$index_id][$name] ||
-			    $this->style_index[$index_id][$name]['specificity'] < $specificity
-			    || strpos($value, '!important') !== false) 
-			{
-				$this->style_index[$index_id][$name] = array(
-					'value' => str_replace('!important', '', trim(strtolower($value))),
-					'specificity' => $specificity,
-				);
-		   }
-		}
+	// private function addCSSToElement($element, $style, $specificity) {
+	// 	$index_id = $element->getAttribute('quail_style_index');
+	// 	foreach($style as $name => $value) {
+	// 		if(!$this->style_index[$index_id][$name] ||
+	// 		    $this->style_index[$index_id][$name]['specificity'] < $specificity
+	// 		    || strpos($value, '!important') !== false) 
+	// 		{
+	// 			$this->style_index[$index_id][$name] = array(
+	// 				'value' => str_replace('!important', '', trim(strtolower($value))),
+	// 				'specificity' => $specificity,
+	// 			);
+	// 	   }
+	// 	}
 
-	}
+	// }
 	
 	/**
 	*	Loads all the CSS files from the document using LINK elements or @import commands
@@ -250,10 +250,10 @@ class quailCSS {
 		//To prevent having to parse CSS unless the info is needed,
 		//we check here if CSS has been set, and if not, run off the parsing
 		//now.
-		if(!$this->css) {
-			$this->loadCSS();
-			$this->setStyles();
-		}
+		// if(!$this->css) {
+		// 	$this->loadCSS();
+		// 	$this->setStyles();
+		// }
 		if(!is_a($element, 'DOMElement')) {
 			return array();
 		}

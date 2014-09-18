@@ -50,7 +50,7 @@ function checker() {
 		$('#contentWrapper').append('<section id="result">'+data+'</section>');
 		resultSetup();
 		killButton(function() {
-			$('#result').fadeIn(function() {});
+			$('#result').fadeIn();
 		});
 	});
 }
