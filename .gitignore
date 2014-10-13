@@ -1,1 +1,11 @@
 config/localConfig.php
+
+### OSX ###
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Thumbnails
+._*
+
+vendor

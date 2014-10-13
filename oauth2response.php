@@ -1,6 +1,6 @@
 <?php
 include_once('config/localConfig.php');
-include_once('app/curlClass.php');
+include_once('lib/curlClass.php');
 session_start();
 
 function printError($msg){

@@ -1148,8 +1148,14 @@ class cssTextHasContrast extends quailColorTest {
 								$style['color'],
 								$background
 								);
-				if($luminosity < 5) {
-					$this->addReport($element, 'background: '. $background .' fore: '. $style['color'] . ' lum: '. $luminosity);
+				if ($element->tagName == 'h1' || $element->tagName == 'h2' || $element->tagName == 'h3' || $element->tagName == 'h4' || $element->tagName == 'h5' || $element->tagName == 'h6') {
+					if($luminosity < 3) {
+						$this->addReport($element, 'background: '. $background .' fore: '. $style['color'] . ' lum: '. $luminosity);
+					}
+				} else {
+					if($luminosity < 4.5) {
+						$this->addReport($element, 'background: '. $background .' fore: '. $style['color'] . ' lum: '. $luminosity);
+					}
 				}
 			}
 		}

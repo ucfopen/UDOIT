@@ -14,7 +14,11 @@ body { padding: 20px 0 0; }
 	width: 228px;
 }
 
-h2 { color: #332312; }
+h2 {
+	margin-top: 0;
+
+	color: #332312;
+}
 
 h3 { margin: 0;}
 
@@ -35,9 +39,11 @@ h3 a { color: inherit; }
 	padding: 5px 0;
 }
 
-h5 { margin: 20px 0 0 0; padding: 0;}
-
-h5 { font-size: 1em; }
+h5 {
+	font-size: 1em;
+	margin: 0;
+	padding: 0;
+}
 
 #mainHeader, #contentWrapper {
 	background: #ffffff;
@@ -159,27 +165,6 @@ h5 + ul {
 
 #loginSubmit input {
 	float: right;
-}
-
-input[type=submit], button {
-	background-image: linear-gradient(bottom, rgb(74,55,37) 30%, rgb(94,80,55) 96%);
-	background-image: -o-linear-gradient(bottom, rgb(74,55,37) 30%, rgb(94,80,55) 96%);
-	background-image: -moz-linear-gradient(bottom, rgb(74,55,37) 30%, rgb(94,80,55) 96%);
-	background-image: -webkit-linear-gradient(bottom, rgb(74,55,37) 30%, rgb(94,80,55) 96%);
-	background-image: -ms-linear-gradient(bottom, rgb(74,55,37) 30%, rgb(94,80,55) 96%);
-
-	background-image: -webkit-gradient(
-		linear,
-		right bottom,
-		right top,
-		color-stop(0.3, rgb(74,55,37)),
-		color-stop(0.96, rgb(94,80,55))
-	);
-	border: #332312 solid 1px;
-	color: #FFF;
-	padding: 5px;
-	border-radius: 5px;
-	cursor: pointer;
 }
 
 #tooMany { padding: 10px; }
