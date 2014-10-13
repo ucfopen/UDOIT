@@ -69,27 +69,36 @@ function checker() {
 
 $(document).ready(function() {
 	// content checkboxes
-	var checked = true;
+	var content_checked = true;
 
 	$('#allContent').click(function() {
-		console.log(checked);
-		if (checked == true) {
-			$(this).parent().parent().parent().find('.content:not(#allContent)').attr('checked', false);
-			checked = false;
+		var content_checkboxes = $(this).parent().parent().parent().find('.content:not(#allContent)');
+		if (content_checked) {
+			content_checkboxes.prop('checked', false);
+			content_checked = false;
 		} else {
-			$(this).parent().parent().parent().find('.content:not(#allContent)').attr('checked', true);
-			checked = true;
+			content_checkboxes.prop('checked', true);
+			content_checked = true;
 		}
 	});
 
 	$('.content:not(#allContent)').click(function() {
-		$('#allContent').attr('checked', false);
-		checked = false;
+		var content_checkboxes = $(this).parent().parent().parent().find('.content:not(#allContent):checked');
+
+		if (content_checkboxes.length == 5) {
+			$('#allContent').prop('checked', true);
+			content_checked = true;
+		} else {
+			$('#allContent').prop('checked', false);
+			content_checked = false;
+		}
 	});
+	// END content checkboxes
 
 	// udoit form submit
 	$(document).on("click", "#submit", function(e) {
 		e.preventDefault();
+
 		if ($('#result').length > 0) {
 			$('#result').remove();
 		}
@@ -138,6 +147,7 @@ $(document).ready(function() {
 
 		return false;
 	});
+	// END udoit form submit
 
 	// result panel collapsing
 	$(document).on("click", ".errorItem .panel-heading .btn-toggle", function() {
@@ -153,18 +163,21 @@ $(document).ready(function() {
 			$(this).parent().parent().find('.errorSummary').slideDown();
 		}
 	});
+	// END result panel collapsing
 
 	// view error source
 	$(document).on("click", ".viewError", function() {
 		$(this).addClass('hidden');
 		$(this).parent().parent().find('pre').removeClass('hidden');
 	});
+	// END view error source
 
 	// print button
 	$(document).on("click", "#print", function() {
 		window.print();
 		return false;
 	});
+	// END print button
 
 	// the "U FIX IT" button
 	$(document).on("click", ".fix-this", function() {
@@ -182,6 +195,7 @@ $(document).ready(function() {
 			parent.find('form').addClass('show');	
 		}
 	});
+	// END the "U FIX IT" button
 
 	// submitting the fix-it form
 	$(document).on("submit", ".ufixit-form", function(e) {
@@ -213,4 +227,5 @@ $(document).ready(function() {
 			}
 		});
 	});
+	// END submitting the fix-it form
 });
