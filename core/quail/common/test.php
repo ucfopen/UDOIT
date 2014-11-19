@@ -513,6 +513,7 @@ class quailTableTest extends quailTest {
 	function isData($table) {
 		if($table->tagName != 'table') 
 			return false;
+
 		foreach($table->childNodes as $child) {
 			if(property_exists($child, 'tagName') && $child->tagName == 'tr') {
 				foreach($child->childNodes as $row_child) {

@@ -74,8 +74,26 @@ class reportStatic extends quailReporter {
 					$testResult = array();
 					if(is_object($problem))
 					{
+						if ($testname === "cssTextHasContrast")
+						{
+							foreach ($problem->element->attributes as $name) {
+								if ($name->name === "style")
+								{
+									$styleValue = $name->value;
+									$hexColors = [];
+									preg_match_all("/(#[0-9a-f]{6}|#[0-9a-f]{3})/", $styleValue, $hexColors);
+									$hexColors = array_unique($hexColors[0]);
+								}
+							}
+
+							$testResult['colors'] = $hexColors;
+						}
+
 						$testResult['type'] = $testname;
 						$testResult['lineNo'] = $problem->line;
+						if(isset($testResult['element'])) {
+							$testResult['element'] = $problem->element->tagName;
+						}
 						$testResult['severity'] = $severityLevel;
 						$testResult['severity_num'] = $severityNumber;
 						$testResult['title'] = $title;

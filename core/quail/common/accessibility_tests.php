@@ -400,7 +400,7 @@ class aSuspiciousLinkText extends quailTest {
 	/**
 	*	@var int $default_severity The default severity code for this test.
 	*/
-	var $default_severity = QUAIL_TEST_SEVERE;
+	var $default_severity = QUAIL_TEST_SUGGESTION;
 
 	/**
 	*	@var array $strings An array of strings, broken up by language domain
@@ -413,7 +413,7 @@ class aSuspiciousLinkText extends quailTest {
 	*/
 	function check() {
 		foreach($this->getAllElements('a') as $a) {
-			if(in_array(strtolower(trim($a->nodeValue)), $this->translation()))
+			if(in_array(strtolower(trim($a->nodeValue)), $this->translation()) || $a->nodeValue == $a->getAttribute('href'))
 				$this->addReport($a);
 		}
 	
@@ -3070,7 +3070,7 @@ class imgGifNoFlicker extends quailTest {
 	/**
 	*	@var int $default_severity The default severity code for this test.
 	*/
-	var $default_severity = QUAIL_TEST_SEVERE;
+	var $default_severity = QUAIL_TEST_SUGGESTION;
 	
 	/**
 	*	@var string $gif_control_extension Regular expression for retrieving the GIF
@@ -4254,8 +4254,8 @@ class noframesSectionMustHaveTextEquivalent extends quailTest {
 	/**
 	*	@var int $default_severity The default severity code for this test.
 	*/
-	var $default_severity = QUAIL_TEST_MODERATE;	
-	
+	var $default_severity = QUAIL_TEST_MODERATE;
+
 	/**
 	*	The main check function. This is called by the parent class to actually check content
 	*/
@@ -4269,6 +4269,35 @@ class noframesSectionMustHaveTextEquivalent extends quailTest {
 		}
 	}
 
+}
+
+/**
+*  CUSTOM TEST FOR UDOIT
+*  Checks if content has a heading or not
+*/
+class noHeadings extends quailTest {
+
+	/**
+	*	@var int $default_severity The default severity code for this test.
+	*/
+	var $default_severity = QUAIL_TEST_SUGGESTION;
+
+	/**
+	*	The main check function. This is called by the parent class to actually check content
+	*/
+	function check() {
+		$no_headings = 0;
+
+		if(!$this->getAllElements('h1') && !$this->getAllElements('h2') && !$this->getAllElements('h3') && !$this->getAllElements('h4') && !$this->getAllElements('h5') && !$this->getAllElements('h6')) {
+			$no_headings = 1;
+		} else {
+			$no_headings = 0;
+		}
+
+		if($no_headings == 1) {
+			$this->addReport(null, null, false);
+		}
+	}
 }
 
 /**

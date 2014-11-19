@@ -1,5 +1,6 @@
 {
     "require": {
-    	"nategood/httpful": "*"
+    	"nategood/httpful": "*",
+    	"mpdf/mpdf": "dev-master"
     }
 }

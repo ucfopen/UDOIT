@@ -48,11 +48,26 @@ h5 {
 #mainHeader, #contentWrapper {
 	background: #ffffff;
 	border: 1px solid #c1c7cf;
-	border-radius: 3px;
+	border-radius: 4px;
 	box-shadow: 0 2px 1px rgba(0,0,0,0.1);
 	margin-bottom: 20px;
 	padding: 20px;
 }
+
+#contentWrapper {
+	border-top: 0;
+	border-radius: 0 0 4px 4px;
+}
+
+.table caption {
+	border-bottom: 2px solid #ddd;
+	font-weight: bold;
+	padding: 8px;
+}
+
+.table-bordered caption { border: 1px solid #ddd; }
+
+#resultsTable tbody tr:hover { cursor: pointer; }
 
 #loginForm {
 	margin: 80px auto;
@@ -201,8 +216,26 @@ h5 + ul {
 	100% { -webkit-transform:rotate(-320deg); opacity:0; }
 }
 
+/* X. TABS ---------------------------- */
+
+.nav-tabs.nav-justified > .active > a {
+	border-color: #c1c7cf;
+	border-bottom-color: transparent;
+}
+
+.nav-tabs.nav-justified > li > a { border-bottom-color: #c1c7cf; }
+
 /* X. FORMS --------------------------- */
 
+.fix-alt { position: relative; }
+
+.counter {
+	color: #8F8F8F;
+	position: absolute;
+	right: 79px;
+	top: 7px;
+	z-index: 9999;
+}
 
 /* X. PANELS -------------------------- */
 
@@ -220,16 +253,16 @@ h5 + ul {
 /* X. HELPERS (should go after everything else) -- */
 
 /* for lazy little developers~ */
-.no-margin { margin: 0px; }
-.margin-top { margin-top: 20px; }
-.margin-right { margin-right: 20px; }
-.margin-bottom { margin-bottom: 20px; }
-.margin-left { margin-left: 20px; }
-.margin-top-small { margin-top: 10px; }
-.margin-right-small { margin-right: 10px; }
-.margin-bottom-small { margin-bottom: 10px; }
-.margin-left-small { margin-left: 10px; }
-.position-relative { position: relative; }
+.no-margin { margin: 0px !important; }
+.margin-top { margin-top: 20px !important; }
+.margin-right { margin-right: 20px !important; }
+.margin-bottom { margin-bottom: 20px !important; }
+.margin-left { margin-left: 20px !important; }
+.margin-top-small { margin-top: 10px !important; }
+.margin-right-small { margin-right: 10px !important; }
+.margin-bottom-small { margin-bottom: 10px !important; }
+.margin-left-small { margin-left: 10px !important; }
+.position-relative { position: relative !important; }
 
 .btn-success.disabled,
 .btn-success[disabled],

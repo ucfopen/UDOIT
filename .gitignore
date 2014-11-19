@@ -9,3 +9,4 @@ config/localConfig.php
 ._*
 
 vendor
+reports
