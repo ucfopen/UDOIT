@@ -63,6 +63,8 @@ function checker() {
 			killButton(function() {
 				$('#result').fadeIn();
 			});
+
+			jscolor.bind();
 		},
 		error: function(){
 			killButton();

@@ -2,10 +2,12 @@
 
 include_once('../config/localConfig.php');
 
-if(!empty($_POST['path'])) {
-    $the_json     = file_get_contents($_POST['path']);
-    $udoit_report = json_decode($the_json);
-}
+// if(!empty($_POST['path'])) {
+//     $the_json     = file_get_contents($_POST['path']);
+//     $udoit_report = json_decode($the_json);
+// } else {
+//     die("JSON file not found!");
+// }
 
 // saving headaches here...
 $issue_count = 0;
@@ -84,7 +86,7 @@ $issue_count = 0;
 
                                                     <?php if ($item->html): ?>
                                                         <p><a class="viewError" href="#viewError">View the source of this issue</a></p>
-                                                        <pre class="hidden"><code class="html"><strong>Line <?= $item->lineNo; ?></strong>: <?= htmlspecialchars($item->html); ?></code></pre>
+                                                        <pre class="hidden"><code class="html"><strong>Line <?= $item->lineNo; ?></strong>: <?= $item->html; ?></code></pre>
                                                     <?php endif; ?>
 
                                                     <?php if (empty($_POST['path'])): ?>
@@ -108,7 +110,8 @@ $issue_count = 0;
                                                                 case "cssTextHasContrast": ?>
                                                                     <?php for ($i = 0; $i < count($item->colors); $i++): ?>
                                                                         <div class="form-group no-margin margin-bottom">
-                                                                            <input class="form-control" type="text" name="newcontent[<?= $i; ?>]" placeholder="Replacement for <?= $item->colors[$i]; ?>">
+                                                                            <label for="newcontent[<?= $i; ?>]">Replacement color for <?= $item->colors[$i]; ?></label>
+                                                                            <input class="color {hash:true,caps:false} form-control" type="text" name="newcontent[<?= $i; ?>]" value="<?= $item->colors[$i]; ?>" placeholder="Replacement for <?= $item->colors[$i]; ?>">
                                                                         </div>
                                                                     <?php endfor; ?>
                                                                     <button class="submit-content btn btn-default" type="submit">Submit</button>
@@ -169,7 +172,7 @@ $issue_count = 0;
 
                                                 <?php if ($item->html): ?>
                                                     <p><a class="viewError" href="#viewError">View the source of this issue</a></p>
-                                                    <pre class="hidden"><code class="html"><strong>Line <?= $item->lineNo; ?></strong>: <?= htmlspecialchars($item->html); ?></code></pre>
+                                                    <pre class="hidden"><code class="html"><strong>Line <?= $item->lineNo; ?></strong>: <?= $item->html; ?></code></pre>
                                                 <?php endif; ?>
                                             </li>
                                         <?php endforeach; ?>
@@ -198,7 +201,7 @@ $issue_count = 0;
 
                                                 <?php if ($item->html): ?>
                                                     <p><a class="viewError" href="#viewError">View the source of this issue</a></p>
-                                                    <pre class="hidden"><code class="html"><strong>Line <?= $item->lineNo; ?></strong>: <?= htmlspecialchars($item->html); ?></code></pre>
+                                                    <pre class="hidden"><code class="html"><strong>Line <?= $item->lineNo; ?></strong>: <?= $item->html; ?></code></pre>
                                                 <?php endif; ?>
                                             </li>
                                         <?php endforeach; ?>

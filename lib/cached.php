@@ -36,8 +36,7 @@ $reports = $sth->fetchAll();
 		<caption>Saved reports for this course</caption>
 		<thead>
 			<tr>
-				<th scope="col">Date</th>
-				<th scope="col">File Path</th>
+				<th scope="col">Date &amp; Time</th>
 				<th scope="col">Errors</th>
 				<th scope="col">Suggestions</th>
 			</tr>
@@ -47,7 +46,6 @@ $reports = $sth->fetchAll();
 			<?php foreach ($reports as $report): ?>
 				<tr>
 					<td><?= $report['date_run']; ?></td>
-					<td class="file-path"><?= $report['file_path']; ?></td>
 					<td><?= $report['errors']; ?></td>
 					<td><?= $report['suggestions']; ?></td>
 				</tr>

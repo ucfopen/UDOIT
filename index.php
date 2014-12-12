@@ -1,7 +1,7 @@
 <?php
 include_once('config/localConfig.php');
 include_once('lib/ims-blti/blti.php');
-require('vendor/autoload.php');
+include_once('vendor/autoload.php');
 
 use Httpful\Request;
 
@@ -121,7 +121,7 @@ session_write_close();
 							<div class="panel-body">
 								<h2>Welcome to UDOIT!</h2>
 
-								<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec a diam lectus. Sed sit amet ipsum mauris. Maecenas congue ligula ac quam viverra nec consectetur ante hendrerit. Donec et mollis dolor. Praesent et diam eget libero egestas mattis sit amet vitae augue.</p>
+								<p>The Universal Design Online content Inspection Tool (UDOIT) was created by the Center for Distributed Learning at the University of Central Florida. UDOIT will scan your course content, generate a report and provide instructions on how to correct accessibility issues. Funding for UDOIT was provided by a Canvas Grant awarded in 2014.</p>
 
 								<p class="no-margin"><a href="#udoitInfo" class="btn btn-sm btn-default no-print" data-toggle="modal" data-target="#udoitInfo">What does UDOIT look for?</a></p>
 							</div>
@@ -230,7 +230,7 @@ session_write_close();
 
 		<script src="//code.jquery.com/jquery-2.1.1.min.js"></script>
 		<script src="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
-		<script src="assets/js/jspdf.min.js"></script>
+		<script src="assets/js/jscolor/jscolor.js"></script>
 		<script src="assets/js/default.js"></script>
 	</body>
 </html>

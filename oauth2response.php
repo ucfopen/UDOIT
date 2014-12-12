@@ -1,6 +1,6 @@
 <?php
 include_once('config/localConfig.php');
-include_once('lib/curlClass.php');
+include_once('vendor/autoload.php');
 session_start();
 
 function printError($msg){
@@ -36,9 +36,17 @@ if (isset($_GET['code'])) {
 		'code' => $_GET['code']
 	);
 
-	$resp = CURL::post($url, $postdata, true, array(), true);
+	$post = http_build_query($postdata);
+	$ch = curl_init($url);
 
-	$_SESSION['api_key'] = $resp['response']->access_token;
+	curl_setopt($ch, CURLOPT_POST, 1);
+	curl_setopt($ch, CURLOPT_POSTFIELDS, $post);
+	curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+
+	$response = json_decode(curl_exec($ch));
+	curl_close($ch);
+
+	$_SESSION['api_key'] = $response->access_token;
 
 	// Save API Key to DB
 	$dsn = "mysql:dbname=$db_name;host=$db_host";
