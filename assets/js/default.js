@@ -246,9 +246,10 @@ $(document).ready(function() {
 
 	// clicking a result table row to display the cached report
 	$(document).on("click", "#resultsTable tbody tr", function() {
-		var json_file = $(this).find('.file-path').html();
+		var main_action = "cached";
+		var json_file   = $(this).find('.file-path').html();
 
-		$.post("./lib/parseResults.php", { path: json_file }, function(data) {
+		$.post("./lib/parseResults.php", { main_action: main_action, path: json_file }, function(data) {
 			$('#resultsTable').fadeOut();
 			$('#cached').append('<div id="result">'+data+'</div>');
 			$('#result').fadeIn();
