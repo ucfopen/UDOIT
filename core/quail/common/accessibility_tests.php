@@ -2848,19 +2848,18 @@ class headersUseToMarkSections extends quailTest
 		}
 
 		foreach ($paragraphs as $p) {
-
 			if ((is_object($p->firstChild)
-						&& property_exists($p->firstChild, 'tagName')
-						&& in_array($p->firstChild->tagName, $this->non_header_tags)
-						&& trim($p->nodeValue) == trim($p->firstChild->nodeValue))
+					&& property_exists($p->firstChild, 'tagName')
+					&& in_array($p->firstChild->tagName, $this->non_header_tags)
+					&& trim($p->nodeValue) == trim($p->firstChild->nodeValue))
 			   || (is_object($p->firstChild->nextSibling)
-			   			&& property_exists($p->firstChild->nextSibling, 'tagName')
-			   			&& in_array($p->firstChild->nextSibling->tagName, $this->non_header_tags)
-			   			&& trim($p->nodeValue) == trim($p->firstChild->nextSibling->nodeValue))
+			   		&& property_exists($p->firstChild->nextSibling, 'tagName')
+			   		&& in_array($p->firstChild->nextSibling->tagName, $this->non_header_tags)
+			   		&& trim($p->nodeValue) == trim($p->firstChild->nextSibling->nodeValue))
 			   || (is_object($p->previousSibling)
-			   			&& property_exists($p->previousSibling, 'tagName')
-			   			&& in_array($p->previousSibling->tagName, $this->non_header_tags)
-						&& trim($p->nodeValue) == trim($p->previousSibling->nodeValue))) {
+			   		&& property_exists($p->previousSibling, 'tagName')
+			   		&& in_array($p->previousSibling->tagName, $this->non_header_tags)
+					&& trim($p->nodeValue) == trim($p->previousSibling->nodeValue))) {
 				$this->addReport($p);
 			}
 		}
@@ -4848,24 +4847,25 @@ class pNotUsedAsHeader extends quailTest
 	var $default_severity = QUAIL_TEST_SEVERE;
 
 	var $head_tags = array('strong', 'em', 'font', 'i', 'b', 'u');
-	
+
 	/**
 	*	The main check function. This is called by the parent class to actually check content
 	*/
 	function check()
 	{
 		foreach ($this->getAllElements('p') as $p) {
-			if (($p->nodeValue == $p->firstChild->nodeValue) &&
-				is_object($p->firstChild) &&
-			 	property_exists($p->firstChild, 'tagName') && 
-				in_array($p->firstChild->tagName, $this->head_tags)) {
+			if (isset($p->nodeValue) && isset($p->firstChild->nodeValue)) {
+				if (($p->nodeValue == $p->firstChild->nodeValue)
+					&& is_object($p->firstChild)
+					&& property_exists($p->firstChild, 'tagName')
+					&& in_array($p->firstChild->tagName, $this->head_tags)) {
 					$this->addReport($p);
-					
-			}
-			else {
-				$style = $this->css->getStyle($p);
-				if (@$style['font-weight'] == 'bold') {
-					$this->addReport($p);
+				} else {
+					$style = $this->css->getStyle($p);
+
+					if (@$style['font-weight'] == 'bold') {
+						$this->addReport($p);
+					}
 				}
 			}
 		}

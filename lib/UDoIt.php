@@ -307,7 +307,7 @@ class UDoIt
                         } else {
                             array_push($content_result['items'], array(
                                 'id'      => $single->id,
-                                'content' => Request::get($single->url)->followRedirects()->send()->body,
+                                'content' => Request::get($single->url)->followRedirects()->expectsHtml()->send()->body,
                                 'title'   => $single->display_name,
                                 'url'     => $single->url
                                 )

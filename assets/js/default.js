@@ -47,7 +47,7 @@ function checker() {
 		return $(n).val();
 	}).get();
 
-	if(content.length === 0) {
+	if (content.length === 0) {
 		content = "none";
 	}
 
@@ -66,9 +66,11 @@ function checker() {
 
 			jscolor.bind();
 		},
-		error: function(){
+		error: function(data){
 			killButton();
 			$('#failMsg').fadeIn();
+			$('#scanner').append('<section id="result">'+data+'</section>');
+			$('#result').fadeIn();
 		}
 	});
 }
