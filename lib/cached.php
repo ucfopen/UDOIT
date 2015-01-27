@@ -37,7 +37,6 @@ $reports = $sth->fetchAll();
 		<thead>
 			<tr>
 				<th scope="col">Date &amp; Time</th>
-				<th scope="col" style="display:none">File Path</th>
 				<th scope="col">Errors</th>
 				<th scope="col">Suggestions</th>
 			</tr>
@@ -45,9 +44,8 @@ $reports = $sth->fetchAll();
 
 		<tbody>
 			<?php foreach ($reports as $report): ?>
-				<tr>
+				<tr id="<?= $report['id']; ?>">
 					<td><?= $report['date_run']; ?></td>
-					<td class="file-path" style="display:none"><?= $report['file_path']; ?></td>
 					<td><?= $report['errors']; ?></td>
 					<td><?= $report['suggestions']; ?></td>
 				</tr>

@@ -173,7 +173,7 @@ $(document).ready(function() {
 	// view error source
 	$(document).on("click", ".viewError", function() {
 		$(this).addClass('hidden');
-		$(this).parent().parent().find('pre').removeClass('hidden');
+		$(this).parent().parent().find('div.more-info').removeClass('hidden');
 	});
 	// END view error source
 
@@ -204,7 +204,7 @@ $(document).ready(function() {
 
 	// submitting the fix-it form
 	$(document).on("submit", ".ufixit-form", function(e) {
-		e.preventDefault();
+		// e.preventDefault();
 
 		var parent = $(this).parent();
 		var values = $(this).serialize();
@@ -247,9 +247,9 @@ $(document).ready(function() {
 	// clicking a result table row to display the cached report
 	$(document).on("click", "#resultsTable tbody tr", function() {
 		var main_action = "cached";
-		var json_file   = $(this).find('.file-path').html();
+		var cached_id   = $(this).attr('id');
 
-		$.post("./lib/parseResults.php", { main_action: main_action, path: json_file }, function(data) {
+		$.post("./lib/parseResults.php", { main_action: main_action, cached_id: cached_id }, function(data) {
 			$('#resultsTable').fadeOut();
 			$('#cached').append('<div id="result">'+data+'</div>');
 			$('#result').fadeIn();
@@ -274,6 +274,8 @@ $(document).ready(function() {
 		result_html.find('.viewError').remove();
 		result_html.find('.label-success').remove();
 		result_html.find('p:empty').remove();
+		result_html.find('.error-preview').remove();
+		result_html.find('.error-source').remove();
 		result_html.find('.error-desc').prepend('<br>');
 		result_html.find('.error-desc').append('<br><br>');
 		result_html.find('a.list-group-item').after('<br>');

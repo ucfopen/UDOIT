@@ -4,7 +4,7 @@
         "Read more about it at http://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "7896b599ef49c4fc7250c85f943d369e",
+    "hash": "3172f33314be5ac3f3b4cedaad722b68",
     "packages": [
         {
             "name": "mpdf/mpdf",
@@ -12,12 +12,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/finwe/mpdf.git",
-                "reference": "66828216f52d81291186e48871a417aad4064ce7"
+                "reference": "37d5fac9b080b0ca4a822b92279abe408b70483f"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/finwe/mpdf/zipball/66828216f52d81291186e48871a417aad4064ce7",
-                "reference": "66828216f52d81291186e48871a417aad4064ce7",
+                "url": "https://api.github.com/repos/finwe/mpdf/zipball/37d5fac9b080b0ca4a822b92279abe408b70483f",
+                "reference": "37d5fac9b080b0ca4a822b92279abe408b70483f",
                 "shasum": ""
             },
             "require": {
@@ -47,7 +47,7 @@
                 "php",
                 "utf-8"
             ],
-            "time": "2014-10-24 00:49:19"
+            "time": "2014-12-17 11:55:19"
         },
         {
             "name": "nategood/httpful",
@@ -100,7 +100,61 @@
             "time": "2014-08-24 21:57:36"
         }
     ],
-    "packages-dev": [],
+    "packages-dev": [
+        {
+            "name": "symfony/var-dumper",
+            "version": "v2.6.3",
+            "target-dir": "Symfony/Component/VarDumper",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/symfony/var-dumper.git",
+                "reference": "36af986811340fd4c1bc39cf848da388bbdd8473"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/symfony/var-dumper/zipball/36af986811340fd4c1bc39cf848da388bbdd8473",
+                "reference": "36af986811340fd4c1bc39cf848da388bbdd8473",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.3.3"
+            },
+            "suggest": {
+                "ext-symfony_debug": ""
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "2.6-dev"
+                }
+            },
+            "autoload": {
+                "files": [
+                    "Resources/functions/dump.php"
+                ],
+                "psr-0": {
+                    "Symfony\\Component\\VarDumper\\": ""
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Nicolas Grekas",
+                    "email": "p@tchwork.com"
+                }
+            ],
+            "description": "Symfony mechanism for exploring and dumping PHP variables",
+            "homepage": "http://symfony.com",
+            "keywords": [
+                "debug",
+                "dump"
+            ],
+            "time": "2015-01-01 13:28:01"
+        }
+    ],
     "aliases": [],
     "minimum-stability": "stable",
     "stability-flags": {

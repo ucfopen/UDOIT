@@ -2,12 +2,33 @@
 
 include_once('../config/localConfig.php');
 
-if(isset($_POST['path'])) {
-	$the_json     = file_get_contents($_POST['path']);
+if (isset($_POST['cached_id'])) {
+	// saves the report to the database
+	$dsn = "mysql:dbname=$db_name;host=$db_host";
+
+	try {
+	    $dbh = new PDO($dsn, $db_user, $db_password);
+	} catch (PDOException $e) {
+	    echo 'Connection failed: ' . $e->getMessage();
+	}
+
+	$sth = $dbh->prepare("
+	    SELECT * FROM
+	        $db_reports_table
+	    WHERE
+			id=:cachedid
+	");
+
+	$sth->bindParam(':cachedid', $_POST['cached_id'], PDO::PARAM_INT);
+
+	if (!$sth->execute()) {
+	    die('Ya done goof\'d');
+	}
+
+	$the_json     = file_get_contents($sth->fetchAll(PDO::FETCH_OBJ)[0]->file_path);
 	$udoit_report = json_decode($the_json);
 } elseif ($_POST['main_action'] === "cahced") {
-	echo '<div class="alert alert-danger no-margin">Cannot parse this report. JSON file not found.</div>';
-	die();
+	die('<div class="alert alert-danger no-margin">Cannot parse this report. JSON file not found.</div>');
 }
 
 // saving headaches here...
@@ -87,7 +108,12 @@ $issue_count = 0;
 
 													<?php if ($item->html): ?>
 														<p><a class="viewError" href="#viewError">View the source of this issue</a></p>
-														<pre class="hidden"><code class="html"><strong>Line <?= $item->lineNo; ?></strong>: <?= $item->html; ?></code></pre>
+														<div class="more-info hidden">
+															<div class="error-preview">
+																<?= htmlspecialchars_decode($item->html); ?>
+															</div>
+															<pre class="error-source"><code class="html"><strong>Line <?= $item->lineNo; ?></strong>: <?= $item->html; ?></code></pre>
+														</div>
 													<?php endif; ?>
 
 													<?php if (empty($_POST['path'])): ?>

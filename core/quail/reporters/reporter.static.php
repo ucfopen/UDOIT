@@ -24,64 +24,60 @@
 *	This is just a demonstration of what you can do with a reporter.
 */
 
-class reportStatic extends quailReporter {
-	
+class reportStatic extends quailReporter
+{
 	/**
 	*	Generates a static list of errors within a div.
 	*	@return string A fully-formatted report
 	*/
-	function getReport() {
-		$output = array();
-		foreach($this->guideline->getReport() as $testname => $test) {
-			$severity = $this->guideline->getSeverity($testname);
+	function getReport()
+	{
+		$output = [];
+
+		foreach ($this->guideline->getReport() as $testname => $test) {
+			$severity    = $this->guideline->getSeverity($testname);
 			$translation = $this->guideline->getTranslation($testname);
 
-			if(isset($translation['title']))
-			{
+			if(isset($translation['title'])) {
 				$title = $translation['title'];
-			}
-			else
-			{
+			} else {
 				$title = NULL;
 			}
 
-			if(isset($translation['description']))
-			{
+			if(isset($translation['description'])) {
 				$description = $translation['description'];
-			}
-			else
-			{
+			} else {
 				$description = NULL;
 			}
-			
-			switch($severity) {
+
+			switch ($severity) {
 				case QUAIL_TEST_SEVERE:
-					$severityLevel = 'Error';
+					$severityLevel  = 'Error';
 					$severityNumber = 1;
 					break;
 				case QUAIL_TEST_MODERATE:
-					$severityLevel = 'Warning';
+					$severityLevel  = 'Warning';
 					$severityNumber = 2;
 					break;
 				case QUAIL_TEST_SUGGESTION:
-					$severityLevel = 'Suggestion';
+					$severityLevel  = 'Suggestion';
 					$severityNumber = 3;
 					break;
 			}
 
-			if(is_array($test)) {
-				foreach($test as $k => $problem) {
-					$testResult = array();
-					if(is_object($problem))
-					{
-						if ($testname === "cssTextHasContrast")
-						{
+			if (is_array($test)) {
+				foreach ($test as $k => $problem) {
+					$testResult = [];
+
+					if (is_object($problem)) {
+						if ($testname === "cssTextHasContrast") {
 							foreach ($problem->element->attributes as $name) {
-								if ($name->name === "style")
-								{
+								if ($name->name === "style") {
 									$styleValue = $name->value;
-									$hexColors = [];
+									$hexColors  = [];
+
 									preg_match_all("/(#[0-9a-f]{6}|#[0-9a-f]{3})/", $styleValue, $hexColors);
+
 									$hexColors = array_unique($hexColors[0]);
 								}
 							}
@@ -89,22 +85,26 @@ class reportStatic extends quailReporter {
 							$testResult['colors'] = $hexColors;
 						}
 
-						$testResult['type'] = $testname;
+						$testResult['type']   = $testname;
 						$testResult['lineNo'] = $problem->line;
+
 						if(isset($testResult['element'])) {
 							$testResult['element'] = $problem->element->tagName;
 						}
-						$testResult['severity'] = $severityLevel;
+
+						$testResult['severity']     = $severityLevel;
 						$testResult['severity_num'] = $severityNumber;
-						$testResult['title'] = $title;
-						$testResult['description'] = $description;
-						$testResult['path'] = count($this->path) > 1 ? $this->path[1] : "None";
-						$testResult['html'] = htmlentities($problem->getHtml());
+						$testResult['title']        = $title;
+						$testResult['description']  = $description;
+						$testResult['path']         = count($this->path) > 1 ? $this->path[1] : "None";
+						$testResult['html']         = htmlentities($problem->getHtml());
 					}
+
 					$output[] = $testResult;
 				}
 			}
 		}
+
 		return $output;
 	}
 }

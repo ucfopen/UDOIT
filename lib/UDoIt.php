@@ -57,11 +57,7 @@ class UDoIt
         $this->base_uri      = $data['base_uri'];
         $this->content_types = $data['content_types'];
         $this->course_id     = $data['course_id'];
-        $this->total_results = [
-            'errors'      => 0,
-            'warnings'    => 0,
-            'suggestions' => 0,
-        ];
+        $this->total_results = ['errors' => 0, 'warnings' => 0, 'suggestions' => 0];
         $this->unscannable   = '';
     }
 
@@ -98,7 +94,7 @@ class UDoIt
             }
 
             $courseContentType['items'] = $typeResults;
-            $this->bad_content[$type]    = [
+            $this->bad_content[$type]   = [
                 'title'  => $type,
                 'items'  => $courseContentType['items'],
                 'amount' => $courseContentType['amount'],
@@ -131,12 +127,12 @@ class UDoIt
         /* Runs each item in the test array through the Quail accessibility checker */
         foreach ($scanned_content as $html) {
             if (strlen($html['content']) == 0) {
-                break;
+                continue;
             }
 
             $error  = 0;
             $report = [];
-            $quail  = new quail($html['content'], 'section508', 'string', 'static');
+            $quail  = new quail($html['content'], 'wcag2aaa', 'string', 'static');
 
             $quail->runCheck();
 
@@ -151,6 +147,7 @@ class UDoIt
                 if (!array_key_exists('severity_num', $value)) {
                     continue;
                 }
+
                 if ($value['severity_num'] == 1) {
                     array_push($severe, $value);
                 } elseif ($value['severity_num'] == 2) {
@@ -158,6 +155,7 @@ class UDoIt
                 } elseif ($value['severity_num'] == 3) {
                     array_push($suggestion, $value);
                 }
+
                 if (count($value) > 0) {
                     $error++;
                 }
@@ -190,53 +188,80 @@ class UDoIt
             'time'        => microtime(true),
             'unscannable' => [],
         ];
-        $per_page = 100;
+        $the_content = [];
+        $per_page    = 100;
 
         switch ($type) {
             case 'announcements':
-                $url         = $this->base_uri.'/api/v1/courses/'.$this->course_id.'/discussion_topics?&only_announcements=true&access_token='.$this->api_key;
-                $response    = Request::get($url)->send();
-                $the_content = $response;
+                $url           = $this->base_uri.'/api/v1/courses/'.$this->course_id.'/discussion_topics?&only_announcements=true&access_token='.$this->api_key;
+                $response      = Request::get($url)->send();
+
+                foreach ($response->body as $thing) {
+                    $the_content[] = $thing;
+                }
+
                 break;
             case 'assignments':
-                $url         = $this->base_uri.'/api/v1/courses/'.$this->course_id.'/assignments?&access_token='.$this->api_key;
-                $response    = Request::get($url)->send();
-                $the_content = $response;
+                $url            = $this->base_uri.'/api/v1/courses/'.$this->course_id.'/assignments?&access_token='.$this->api_key;
+                $response       = Request::get($url)->send();
+
+                foreach ($response->body as $thing) {
+                    $the_content[] = $thing;
+                }
+
                 break;
             case 'discussions':
-                $url         = $this->base_uri.'/api/v1/courses/'.$this->course_id.'/discussion_topics?&access_token='.$this->api_key;
-                $response    = Request::get($url)->send();
-                $the_content = $response;
+                $url            = $this->base_uri.'/api/v1/courses/'.$this->course_id.'/discussion_topics?&access_token='.$this->api_key;
+                $response       = Request::get($url)->send();
+
+                foreach ($response->body as $thing) {
+                    $the_content[] = $thing;
+                }
+
                 break;
             case 'files':
                 $url = $this->base_uri.'/api/v1/courses/'.$this->course_id.'/files?page=1&per_page='.$per_page.'&access_token='.$this->api_key;
 
                 do {
-                    $response    = Request::get($url)->send();
-                    $the_links   = $this->parseLinks($response->headers->toArray()['link']);
-                    $the_content = $response;
+                    $response  = Request::get($url)->send();
+                    $the_links = $this->parseLinks($response->headers->toArray()['link']);
+
+                    foreach ($response->body as $thing) {
+                        $the_content[] = $thing;
+                    }
 
                     if (isset($the_links['next'])) {
                         $url = $the_links['next'].'&access_token='.$this->api_key;
                     }
+
                 } while (isset($the_links['next']));
+
                 break;
             case 'pages':
                 $url = $this->base_uri.'/api/v1/courses/'.$this->course_id.'/pages?page=1&per_page='.$per_page.'&access_token='.$this->api_key;
 
                 do {
-                    $response    = Request::get($url)->send();
-                    $the_links   = $this->parseLinks($response->headers->toArray()['link']);
-                    $the_content = $response;
+                    $response  = Request::get($url)->send();
+                    $the_links = $this->parseLinks($response->headers->toArray()['link']);
+
+                    foreach ($response->body as $thing) {
+                        $the_content[] = $thing;
+                    }
 
                     if (isset($the_links['next'])) {
                         $url = $the_links['next'].'&access_token='.$this->api_key;
                     }
                 } while (isset($the_links['next']));
                 break;
+            case 'syllabus':
+                $url           = $this->base_uri.'/api/v1/courses/'.$this->course_id.'/?include[]=syllabus_body&access_token='.$this->api_key;
+                $response      = Request::get($url)->send();
+                $the_content[] = $response->body;
+
+                break;
         }
 
-        foreach ($the_content->body as $single) {
+        foreach ($the_content as $single) {
             switch ($type) {
                 case 'announcements':
                     array_push($content_result['items'], array(
@@ -266,12 +291,12 @@ class UDoIt
                     );
                     break;
                 case 'files':
-                    $extension = pathinfo($single->filename)['extension'];
+                    $extension = pathinfo($single->filename, PATHINFO_EXTENSION);
                     // ignore ._ mac files
-                    $mac_check = (substr($single->display_name, 0, 2));
+                    $mac_check = substr($single->display_name, 0, 2);
                     if ($mac_check != '._') {
                         // filters non html files
-                        if ($extension != 'html') {
+                        if ($extension != 'html' && $extension != 'htm') {
                             if ($extension == 'pdf' || $extension == 'doc' || $extension == 'docx' || $extension == 'ppt' || $extension == 'pptx') {
                                 array_push($content_result['unscannable'], array(
                                     'title' => $single->display_name,
@@ -299,6 +324,15 @@ class UDoIt
                         'content' => $wiki_page->body->body,
                         'title'   => $wiki_page->body->title,
                         'url'     => $wiki_page->body->html_url
+                        )
+                    );
+                    break;
+                case 'syllabus':
+                    array_push($content_result['items'], array(
+                        'id'      => $single->id,
+                        'content' => $single->syllabus_body,
+                        'title'   => 'Syllabus',
+                        'url'     => $this->base_uri.'/courses/'.$single->id.'/assignments/syllabus'
                         )
                     );
                     break;

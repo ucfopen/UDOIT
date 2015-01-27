@@ -1,6 +1,9 @@
 {
     "require": {
-    	"nategood/httpful": "*",
-    	"mpdf/mpdf": "dev-master"
+        "nategood/httpful": "*",
+        "mpdf/mpdf": "dev-master"
+    },
+    "require-dev": {
+        "symfony/var-dumper": "*"
     }
 }

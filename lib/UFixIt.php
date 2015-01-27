@@ -38,19 +38,19 @@ class UFixIt
      */
     public function __construct($data)
     {
-        $this->api_key = $data['api_key'];
-        $this->base_uri = $data['base_uri'];
+        $this->api_key    = $data['api_key'];
+        $this->base_uri   = $data['base_uri'];
         $this->content_id = $data['content_id'];
-        $this->course_id = $data['course_id'];
-        $this->dom = new DOMDocument();
+        $this->course_id  = $data['course_id'];
+        $this->dom        = new DOMDocument();
     }
 
     /**
      * Fixes alt text for images
-     * @param string error_html - The bad html that needs to be fixed
-     * @param string new_content - The new content from the user
+     * @param string error_html     - The bad html that needs to be fixed
+     * @param string new_content    - The new content from the user
      * @param bool submitting_again - If the user is resubmitting their error fix
-     * @return string fixed_img - The image with new alt text
+     * @return string fixed_img     - The image with new alt text
      */
     public function fixAltText($error_html, $new_content, $submitting_again = false)
     {
@@ -68,11 +68,11 @@ class UFixIt
 
     /**
      * Fixes CSS contrast errors
-     * @param array error_colors - The color(s) that need to be replaced
-     * @param string error_html - The bad html that needs to be fixed
+     * @param array error_colors       - The color(s) that need to be replaced
+     * @param string error_html        - The bad html that needs to be fixed
      * @param string|array new_content - The new CSS color(s) from the user
-     * @param bool submitting_again - If the user is resubmitting their error fix
-     * @return string fixed_css - The html with corrected CSS
+     * @param bool submitting_again    - If the user is resubmitting their error fix
+     * @return string fixed_css        - The html with corrected CSS
      */
     public function fixCss($error_colors, $error_html, $new_content, $submitting_again = false)
     {
@@ -98,10 +98,10 @@ class UFixIt
 
     /**
      * Fixes table th scope errors
-     * @param string error_html - The color(s) that need to be replaced
-     * @param string new_content - The new CSS color(s) from the user
+     * @param string error_html     - The color(s) that need to be replaced
+     * @param string new_content    - The new CSS color(s) from the user
      * @param bool submitting_again - If the user is resubmitting their error fix
-     * @return string fixed_ths - The html with corrected th scopes
+     * @return string fixed_ths     - The html with corrected th scopes
      */
     public function fixTableThScopes($error_html, $new_content, $submitting_again = false)
     {
@@ -121,28 +121,28 @@ class UFixIt
     {
         $page_num = 1;
         $per_page = 100;
-        $get_uri = $this->base_uri."/api/v1/courses/".$course_id."/folders/root?&access_token=".$this->api_key;
-        $folder = Request::get($get_uri)->send();
+        $get_uri  = $this->base_uri."/api/v1/courses/".$course_id."/folders/root?&access_token=".$this->api_key;
+        $folder   = Request::get($get_uri)->send();
 
         if ($start_id == "root") {
             $start_id = $folder->body->id;
         }
 
-        $numFiles = 0;
+        $numFiles   = 0;
         $numFolders = 0;
-        $numFiles = $folder->body->files_count;
+        $numFiles   = $folder->body->files_count;
         $numFolders = $folder->body->folders_count;
         $folderName = $folder->body->full_name;
 
         if ($numFiles > 0) {
-            while(true) {
+            while (true) {
                 $files = Request::get($this->base_uri."/api/v1/courses/".$course_id."/files?page=".$page_num."&per_page=".$per_page."&content_types[]=text/html&access_token=".$api_key)->send();
 
-                if(sizeof($files->body) == 0) {
+                if (sizeof($files->body) == 0) {
                     break;
                 }
 
-                foreach($files->body as $file) {
+                foreach ($files->body as $file) {
                     //don't capture them mac files, ._
                     $mac_check = (substr($file->display_name, 0, 2));
                     if($mac_check != "._") {
@@ -152,6 +152,7 @@ class UFixIt
                         $curled_files['html'][] = Request::get($file->url)->followRedirects()->send()->body;
                     }
                 }
+
                 $page_num++;
             }
 
@@ -167,14 +168,14 @@ class UFixIt
     /**
      * Uploads fixed assignments
      * @param string corrected_error - The html that has been fixed
-     * @param string error_html - The html to be fixed
+     * @param string error_html      - The html to be fixed
      */
     public function uploadFixedAssignments($corrected_error, $error_html)
     {
         $get_uri = $this->base_uri."/api/v1/courses/".$this->course_id."/assignments/".$this->content_id."?&access_token=".$this->api_key;
         $content = Request::get($get_uri)->send();
-        $html = $content->body->description;
-        $html = str_replace($error_html, $corrected_error, $html);
+        $html    = $content->body->description;
+        $html    = str_replace($error_html, $corrected_error, $html);
         $put_uri = $this->base_uri."/api/v1/courses/".$this->course_id."/assignments/".$this->content_id."?assignment[description]=".urlencode($html)."&access_token=".$this->api_key;
 
         Request::put($put_uri)->send();
@@ -183,14 +184,14 @@ class UFixIt
     /**
      * Uploads fixed discussions (announcements are also discussions)
      * @param string corrected_error - The html that has been fixed
-     * @param string error_html - The html to be fixed
+     * @param string error_html      - The html to be fixed
      */
     public function uploadFixedDiscussions($corrected_error, $error_html)
     {
-        $get_uri = $this->base_uri."/api/v1/courses/".$this->course_id."/discussion_topics/".$this->content_id."?&access_token=".$this->$api_key;
+        $get_uri = $this->base_uri."/api/v1/courses/".$this->course_id."/discussion_topics/".$this->content_id."?&access_token=".$this->api_key;
         $content = Request::get($get_uri)->send();
-        $html = $content->body->message;
-        $html = str_replace($error_html, $corrected_error, $html);
+        $html    = $content->body->message;
+        $html    = str_replace($error_html, $corrected_error, $html);
         $put_uri = $this->base_uri."/api/v1/courses/".$this->course_id."/discussion_topics/".$this->content_id."?message=".urlencode($html)."&access_token=".$this->api_key;
 
         Request::put($put_uri)->send();
@@ -201,21 +202,36 @@ class UFixIt
      */
     public function uploadFixedFiles()
     {
-
     }
 
     /**
      * Uploads fixed pages
      * @param string corrected_error - The html that has been fixed
-     * @param string error_html - The html to be fixed
+     * @param string error_html      - The html to be fixed
      */
     public function uploadFixedPages($corrected_error, $error_html)
     {
         $get_uri = $this->base_uri."/api/v1/courses/".$this->course_id."/pages/".$this->content_id."?access_token=".$this->api_key;
         $content = Request::get($get_uri)->send();
-        $html = $content->body->body;
-        $html = str_replace($error_html, $corrected_error, $html);
+        $html    = $content->body->body;
+        $html    = str_replace($error_html, $corrected_error, $html);
         $put_uri = $this->base_uri."/api/v1/courses/".$this->course_id."/pages/".$this->content_id."?wiki_page[body]=".urlencode($html)."&access_token=".$this->api_key;
+
+        Request::put($put_uri)->send();
+    }
+
+    /**
+     * Uploads the fixed course syllabus
+     * @param string corrected_error - The html that has been fixed
+     * @param string error_html      - The html to be fixed
+     */
+    public function uploadFixedSyllabus($corrected_error, $error_html)
+    {
+        $get_uri = $this->base_uri."/api/v1/courses/".$this->course_id."/?include[]=syllabus_body&access_token=".$this->api_key;
+        $content = Request::get($get_uri)->send();
+        $html    = $content->body->syllabus_body;
+        $html    = str_replace($error_html, $corrected_error, $html);
+        $put_uri = $this->base_uri."/api/v1/courses/".$this->course_id."/?course[syllabus_body]=".urlencode($html)."&access_token=".$this->api_key;
 
         Request::put($put_uri)->send();
     }

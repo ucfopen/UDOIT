@@ -17,8 +17,7 @@ switch ($_POST['main_action']) {
 
         // UDOIT can't scan what isn't selected
         if ($_POST['content'] === 'none') {
-            echo '<div class="alert alert-danger no-margin margin-top"><span class="glyphicon glyphicon-exclamation-sign"></span> Please select which course content you wish to scan above.</div>';
-            exit();
+            die('<div class="alert alert-danger no-margin margin-top"><span class="glyphicon glyphicon-exclamation-sign"></span> Please select which course content you wish to scan above.</div>');
         }
 
         session_start();
@@ -38,7 +37,7 @@ switch ($_POST['main_action']) {
             'total_results' => $udoit->total_results,
             'content'       => $udoit->bad_content,
         ];
-        $encoded_report = json_encode($to_encode);
+        $encoded_report   = json_encode($to_encode);
         $report_directory = '../reports/'.$user_id.'/'.$to_encode['course'];
 
         // rrmdir('../reports/'.$user_id);
@@ -91,11 +90,14 @@ switch ($_POST['main_action']) {
 
         break;
     case 'ufixit':
+        $annoying_entities    = ["\n", "\r", " &Acirc;&nbsp;"];
+        $entitie_replacements = ["", "", "  "];
+
         $data = [
             'base_uri'     => $base_url,
             'content_id'   => $_POST['contentid'],
             'content_type' => $_POST['contenttype'],
-            'error_html'   => str_replace(["\n", "\r"], '', $_POST['errorhtml']),
+            'error_html'   => str_replace($annoying_entities, $entitie_replacements, $_POST['errorhtml']),
             'error_colors' => isset($_POST['errorcolor']) ? $_POST['errorcolor'] : '',
             'error_type'   => $_POST['errortype'],
             'new_content'  => $_POST['newcontent']
@@ -113,13 +115,14 @@ switch ($_POST['main_action']) {
         $submitting_again = false;
 
         // fixes content based on what the error is
-        switch($data['error_type']) {
+        switch ($data['error_type']) {
             case 'cssTextHasContrast':
                 $corrected_error = $ufixit->fixCss($data['error_colors'], $data['error_html'], $data['new_content'], $submitting_again);
                 break;
             case 'imgHasAlt':
             case 'imgNonDecorativeHasAlt':
-                $corrected_error = $ufixit->fixAltText($data['error_html'], $data['new_content'], $submitting_again);
+                $data['error_html'] = str_replace('alt=""', 'alt', $data['error_html']);
+                $corrected_error    = $ufixit->fixAltText($data['error_html'], $data['new_content'], $submitting_again);
                 break;
             case 'tableThShouldHaveScope':
                 $corrected_error = $ufixit->fixTableThScopes($data['error_html'], $data['new_content'], $submitting_again);
@@ -127,7 +130,7 @@ switch ($_POST['main_action']) {
         }
 
         // uploads the fixed content
-        switch($data['content_type']) {
+        switch ($data['content_type']) {
             case 'announcements':
             case 'discussions':
                 $ufixit->uploadFixedDiscussions($corrected_error, $data['error_html']);
@@ -139,6 +142,9 @@ switch ($_POST['main_action']) {
                 break;
             case 'pages':
                 $ufixit->uploadFixedPages($corrected_error, $data['error_html']);
+                break;
+            case 'syllabus':
+                $ufixit->uploadFixedSyllabus($corrected_error, $data['error_html']);
                 break;
         }
 
