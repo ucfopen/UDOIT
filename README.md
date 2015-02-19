@@ -14,11 +14,11 @@ Make a copy of `config/localConfig.template.php`, rename it to `localConfig.php`
 
 ### Canvas API
 
-`$base_url`This is the URL of your Canvas installation
+`$base_url` - This is the URL of your Canvas installation
 
-`$consume_key` Your consumer developer key from Canvas
+`$consume_key` - Your consumer developer key from Canvas
 
-`$shared_secret` Your shared secret key from Canvas
+`$shared_secret` - Your shared secret key from Canvas
 
 ### Database Config
 These value of these vars should be obvious:
