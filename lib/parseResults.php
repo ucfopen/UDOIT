@@ -51,7 +51,12 @@ $issue_count = 0;
 
 <div id="errorWrapper">
 <?php foreach ($udoit_report->content as $bad): ?>
-	<?php if ($bad->title != "unscannable"): ?>
+	<?php switch ($bad->title):
+	case "announcements":
+	case "assignments":
+	case "files":
+	case "pages":
+	case "syllabus": ?>
 		<h2 class="content-title"><?= ucfirst($bad->title); ?> <small><?= count($bad->items) ?> with issues from <?= $bad->amount ?> total in <?= $bad->time ?> seconds</small></h2>
 
 		<?php if (!$bad->items): ?>
@@ -110,9 +115,9 @@ $issue_count = 0;
 														<p><a class="viewError" href="#viewError">View the source of this issue</a></p>
 														<div class="more-info hidden">
 															<div class="error-preview">
-																<?= htmlspecialchars_decode($item->html); ?>
+																<?= $item->html; ?>
 															</div>
-															<pre class="error-source"><code class="html"><strong>Line <?= $item->lineNo; ?></strong>: <?= $item->html; ?></code></pre>
+															<pre class="error-source"><code class="html"><strong>Line <?= $item->lineNo; ?></strong>: <?= htmlspecialchars($item->html); ?></code></pre>
 														</div>
 													<?php endif; ?>
 
@@ -124,7 +129,7 @@ $issue_count = 0;
 																<input type="hidden" name="main_action" value="ufixit">
 																<input type="hidden" name="contenttype" value="<?= $bad->title; ?>">
 																<input type="hidden" name="contentid" value="<?= $report->id; ?>">
-																<input type="hidden" name="errorhtml" value="<?= $item->html; ?>">
+																<input type="hidden" name="errorhtml" value="<?= htmlspecialchars($item->html); ?>">
 																<?php if ($item->type == "cssTextHasContrast"): ?>
 																	<?php for ($i = 0; $i < count($item->colors); $i++): ?>
 																		<input type="hidden" name="errorcolor[<?= $i; ?>]" value="<?= $item->colors[$i]; ?>">
@@ -154,7 +159,18 @@ $issue_count = 0;
 																	</div>
 																	<?php break; ?>
 																<?php case "tableDataShouldHaveTh": ?>
-																	<div class="alert alert-info well-sm no-margin">Table editor coming soon</div>
+																	<hr>
+																	<p>Select which part of the table to convert to a header</p>
+																	<div class="input-group">
+																		<select class="form-control" name="newcontent">
+																			<option value="row">The first row</option>
+																			<option value="col">The first column</option>
+																			<option value="both">Both the first row and column</option>
+																		</select>
+																		<span class="input-group-btn">
+																			<button class="submit-content btn btn-default" type="submit">Submit</button>
+																		</span>
+																	</div>
 																	<?php break; ?>
 																<?php case "tableThShouldHaveScope": ?>
 																	<div class="input-group">
@@ -199,7 +215,7 @@ $issue_count = 0;
 
 												<?php if ($item->html): ?>
 													<p><a class="viewError" href="#viewError">View the source of this issue</a></p>
-													<pre class="hidden"><code class="html"><strong>Line <?= $item->lineNo; ?></strong>: <?= $item->html; ?></code></pre>
+													<pre class="hidden"><code class="html"><strong>Line <?= $item->lineNo; ?></strong>: <?= htmlspecialchars($item->html); ?></code></pre>
 												<?php endif; ?>
 											</li>
 										<?php endforeach; ?>
@@ -228,7 +244,7 @@ $issue_count = 0;
 
 												<?php if ($item->html): ?>
 													<p><a class="viewError" href="#viewError">View the source of this issue</a></p>
-													<pre class="hidden"><code class="html"><strong>Line <?= $item->lineNo; ?></strong>: <?= $item->html; ?></code></pre>
+													<pre class="hidden"><code class="html"><strong>Line <?= $item->lineNo; ?></strong>: <?= htmlspecialchars($item->html); ?></code></pre>
 												<?php endif; ?>
 											</li>
 										<?php endforeach; ?>
@@ -240,7 +256,34 @@ $issue_count = 0;
 				<?php endif; ?>
 			<?php endforeach; ?>
 		<?php endif; ?>
-	<?php else: ?>
+		<?php break; ?>
+	<?php case "module_urls": ?>
+		<h2 class="content-title">Module URLs <small><?= count($bad->items) ?> with issues from <?= $bad->amount ?> total in <?= $bad->time ?> seconds</small></h2>
+		<div class="errorItem panel panel-default">
+			<div class="panel-heading clearfix">
+				<button class="btn btn-xs btn-default btn-toggle pull-left no-print margin-right-small"><span class="glyphicon glyphicon-plus"></span></button>
+
+				<h3 class="plus pull-left">These module URLs link to external videos</h3>
+			</div>
+
+			<div class="errorSummary panel-body">
+				<div class="panel panel-warning">
+					<div class="panel-body">
+						<p class="no-margin">Please make sure these videos have transcripts and proper closed captioning.</p>
+					</div>
+				</div>
+
+				<div class="list-group no-margin">
+
+					<?php foreach ($bad->items as $item): ?>
+						<a href="<?= $item->url; ?>" class="list-group-item"><?= $item->title; ?> (<?= $item->external_url; ?>)</a>
+					<?php endforeach; ?>
+
+				</div>
+			</div>
+		</div>
+		<?php break; ?>
+	<?php case "unscannable": ?>
 		<h2 class="content-title">Unscannable <small><?= count($bad->items) ?> files</small></h2>
 
 		<div class="errorItem panel panel-default">
@@ -272,5 +315,6 @@ $issue_count = 0;
 				</div>
 			</div>
 		</div>
-	<?php endif; ?>
+		<?php break; ?>
+	<?php endswitch; ?>
 <?php endforeach; ?>

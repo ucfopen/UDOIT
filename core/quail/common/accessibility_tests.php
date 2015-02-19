@@ -41,7 +41,7 @@ class aAdjacentWithSameResourceShouldBeCombined extends quailTest
 	*	@var int $default_severity The default severity code for this test.
 	*/
 	var $default_severity = QUAIL_TEST_SEVERE;
-	
+
 	/**
 	*	The main check function. This is called by the parent class to actually check content
 	*/
@@ -67,7 +67,6 @@ class aAdjacentWithSameResourceShouldBeCombined extends quailTest
 */
 class aImgAltNotRepetative extends quailTest
 {
-
 	/**
 	*	@var int $default_severity The default severity code for this test.
 	*/
@@ -367,7 +366,6 @@ class aMustContainText extends quailTest
 */
 class aMustHaveTitle extends quailTest
 {
-
 	/**
 	*	@var int $default_severity The default severity code for this test.
 	*/
@@ -382,7 +380,7 @@ class aMustHaveTitle extends quailTest
 			if (!$a->hasAttribute('title'))
 				$this->addReport($a);
 		}
-	
+
 	}
 }
 
@@ -393,7 +391,6 @@ class aMustHaveTitle extends quailTest
 */
 class aMustNotHaveJavascriptHref extends quailTest
 {
-
 	/**
 	*	@var int $default_severity The default severity code for this test.
 	*/
@@ -854,7 +851,6 @@ class areaLinksToSoundFile extends quailTest
 */
 class basefontIsNotUsed extends quailTagTest
 {
-
 	/**
 	*	@var int $default_severity The default severity code for this test.
 	*/
@@ -873,7 +869,6 @@ class basefontIsNotUsed extends quailTagTest
 */
 class blinkIsNotUsed extends quailTagTest
 {
-
 	/**
 	*	@var int $default_severity The default severity code for this test.
 	*/
@@ -893,7 +888,6 @@ class blinkIsNotUsed extends quailTagTest
 */
 class blockquoteNotUsedForIndentation extends quailTest
 {
-
 	/**
 	*	@var int $default_severity The default severity code for this test.
 	*/
@@ -918,7 +912,6 @@ class blockquoteNotUsedForIndentation extends quailTest
 */
 class blockquoteUseForQuotations extends quailTest
 {
-
 	/**
 	*	@var int $default_severity The default severity code for this test.
 	*/
@@ -944,8 +937,8 @@ class blockquoteUseForQuotations extends quailTest
 *  The luminosity contrast ratio between active link text and background color is at least 5:1
 *	@link http://quail-lib.org/test-info/bodyActiveLinkColorContrast
 */
-class bodyActiveLinkColorContrast extends bodyColorContrast {
-
+class bodyActiveLinkColorContrast extends bodyColorContrast
+{
 	/**
 	*	@var int $default_severity The default severity code for this test.
 	*/
@@ -962,16 +955,13 @@ class bodyActiveLinkColorContrast extends bodyColorContrast {
 	var $foreground = 'alink';
 }
 
-
-
-
 /**
 *  The luminosity contrast ratio between link text and background color is at least 5:1.
 *  The luminosity contrast ratio between link text and background color is at least 5:1
 *	@link http://quail-lib.org/test-info/bodyLinkColorContrast
 */
-class bodyLinkColorContrast extends bodyColorContrast {
-
+class bodyLinkColorContrast extends bodyColorContrast
+{
 	/**
 	*	@var int $default_severity The default severity code for this test.
 	*/
@@ -995,7 +985,6 @@ class bodyLinkColorContrast extends bodyColorContrast {
 */
 class bodyMustNotHaveBackground extends quailTest
 {
-
 	/**
 	*	@var int $default_severity The default severity code for this test.
 	*/
@@ -1005,7 +994,7 @@ class bodyMustNotHaveBackground extends quailTest
 	*	@var bool $cms This test does not apply to content management systems (is document-related)
 	*/
 	var $cms = false;
-	
+
 	/**
 	*	The main check function. This is called by the parent class to actually check content
 	*/
@@ -1025,8 +1014,8 @@ class bodyMustNotHaveBackground extends quailTest
 *  The luminosity contrast ratio between visited link text and background color is at least 5:1
 *	@link http://quail-lib.org/test-info/bodyVisitedLinkColorContrast
 */
-class bodyVisitedLinkColorContrast extends bodyColorContrast {
-
+class bodyVisitedLinkColorContrast extends bodyColorContrast
+{
 	/**
 	*	@var int $default_severity The default severity code for this test.
 	*/
@@ -1036,7 +1025,7 @@ class bodyVisitedLinkColorContrast extends bodyColorContrast {
 	*	@var bool $cms This test does not apply to content management systems (is document-related)
 	*/
 	var $cms = false;
-	
+
 	/**
 	*	@var string $foreground The type of item that should be checked for contrast in the foreground
 	*/
@@ -1050,7 +1039,6 @@ class bodyVisitedLinkColorContrast extends bodyColorContrast {
 */
 class boldIsNotUsed extends quailTagTest
 {
-
 	/**
 	*	@var int $default_severity The default severity code for this test.
 	*/
@@ -1067,8 +1055,8 @@ class boldIsNotUsed extends quailTagTest
 *  input element that contains a type attribute value of "checkbox" must have an associated label element. An associated label is one in which the for attribute value of the label element is the same as the id attribute value of the input element.
 *	@link http://quail-lib.org/test-info/checkboxHasLabel
 */
-class checkboxHasLabel extends inputHasLabel {
-
+class checkboxHasLabel extends inputHasLabel
+{
 	/**
 	*	@var int $default_severity The default severity code for this test.
 	*/
@@ -1078,12 +1066,12 @@ class checkboxHasLabel extends inputHasLabel {
 	*	@var string $tag The tag this test will fire on
 	*/
 	var $tag = 'input';
-	
+
 	/**
 	*	@var string $type The type of input we're looking for
 	*/
 	var $type = 'checkbox';
-	
+
 	/**
 	*	@var bool $no_type We are not looking at the type of input here
 	*/
@@ -1097,7 +1085,6 @@ class checkboxHasLabel extends inputHasLabel {
 */
 class checkboxLabelIsNearby extends quailTest
 {
-
 	/**
 	*	@var int $default_severity The default severity code for this test.
 	*/
@@ -1111,7 +1098,7 @@ class checkboxLabelIsNearby extends quailTest
 		foreach ($this->getAllElements('input') as $input) {
 			if ($input->getAttribute('type') == 'checkbox')
 				$this->addReport($input);
-			
+
 		}
 	}
 }
@@ -1123,7 +1110,6 @@ class checkboxLabelIsNearby extends quailTest
 */
 class cssDocumentMakesSenseStyleTurnedOff extends quailTest
 {
-
 	/**
 	*	@var int $default_severity The default severity code for this test.
 	*/
@@ -1148,7 +1134,8 @@ class cssDocumentMakesSenseStyleTurnedOff extends quailTest
 *
 *	@link http://quail-lib.org/test-info/cssTextHasContrast
 */
-class cssTextHasContrast extends quailColorTest {
+class cssTextHasContrast extends quailColorTest
+{
 	/**
 	*	@var int $default_severity The default severity code for this test.
 	*/
@@ -1217,7 +1204,6 @@ class cssTextHasContrast extends quailColorTest {
 */
 class doctypeProvided extends quailTest
 {
-
 	/**
 	*	@var int $default_severity The default severity code for this test.
 	*/
@@ -1229,7 +1215,7 @@ class doctypeProvided extends quailTest
 	function check()
 	{
 		if (!$this->dom->doctype->publicId)
-			$this->addReport(null, null, false);		
+			$this->addReport(null, null, false);
 	}
 
 }
@@ -1241,17 +1227,16 @@ class doctypeProvided extends quailTest
 */
 class documentAbbrIsUsed extends quailTest
 {
-
 	/**
 	*	@var int $default_severity The default severity code for this test.
 	*/
 	var $default_severity = QUAIL_TEST_MODERATE;
-	
+
 	/**
 	*	@var string $acronym_tag The tag that is considered an acronym
 	*/
 	var $acronym_tag = 'abbr';
-	
+
 	/**
 	*	The main check function. This is called by the parent class to actually check content
 	*/
@@ -1276,7 +1261,7 @@ class documentAbbrIsUsed extends quailTest
 				}
 			}
 		}
-		
+
 	}
 
 }
@@ -1287,8 +1272,8 @@ class documentAbbrIsUsed extends quailTest
 *  If body element content is greater than 10 characters (English) then this error will be generated.
 *	@link http://quail-lib.org/test-info/documentAcronymsHaveElement
 */
-class documentAcronymsHaveElement extends documentAbbrIsUsed {
-
+class documentAcronymsHaveElement extends documentAbbrIsUsed
+{
 	/**
 	*	@var int $default_severity The default severity code for this test.
 	*/
@@ -1307,7 +1292,6 @@ class documentAcronymsHaveElement extends documentAbbrIsUsed {
 */
 class documentAllColorsAreSet extends quailTest
 {
-
 	/**
 	*	@var int $default_severity The default severity code for this test.
 	*/
@@ -1317,13 +1301,13 @@ class documentAllColorsAreSet extends quailTest
 	*	@var bool $cms This test does not apply to content management systems (is document-related)
 	*/
 	var $cms = false;
-		
+
 	/**
-	*	@var array $color_attributes An array of all the attributes which are considered 
+	*	@var array $color_attributes An array of all the attributes which are considered
 	*			   for computing color
 	*/
 	var $color_attributes = array('text', 'bgcolor', 'link', 'alink', 'vlink');
-	
+
 	/**
 	*	The main check function. This is called by the parent class to actually check content
 	*/
@@ -1350,7 +1334,6 @@ class documentAllColorsAreSet extends quailTest
 */
 class documentAutoRedirectNotUsed extends quailTest
 {
-
 	/**
 	*	@var int $default_severity The default severity code for this test.
 	*/
@@ -1360,7 +1343,7 @@ class documentAutoRedirectNotUsed extends quailTest
 	*	@var bool $cms This test does not apply to content management systems (is document-related)
 	*/
 	var $cms = false;
-	
+
 	/**
 	*	The main check function. This is called by the parent class to actually check content
 	*/
@@ -1370,7 +1353,7 @@ class documentAutoRedirectNotUsed extends quailTest
 			if ($meta->getAttribute('http-equiv') == 'refresh' && !$meta->hasAttribute('content'))
 				$this->addReport($meta);
 		}
-	
+
 	}
 }
 
@@ -1379,8 +1362,8 @@ class documentAutoRedirectNotUsed extends quailTest
 *  The contrast between active link text and background color must be greater than the WAI ERT color algorithm threshold.
 *	@link http://quail-lib.org/test-info/documentColorWaiActiveLinkAlgorithim
 */
-class documentColorWaiActiveLinkAlgorithim extends bodyWaiErtColorContrast {
-
+class documentColorWaiActiveLinkAlgorithim extends bodyWaiErtColorContrast
+{
 	/**
 	*	@var int $default_severity The default severity code for this test.
 	*/
@@ -1390,7 +1373,7 @@ class documentColorWaiActiveLinkAlgorithim extends bodyWaiErtColorContrast {
 	*	@var bool $cms This test does not apply to content management systems (is document-related)
 	*/
 	var $cms = false;
-	
+
 	/**
 	*	@var string $foreground The type of item that should be checked for contrast in the foreground
 	*/
@@ -1413,7 +1396,7 @@ class documentColorWaiAlgorithim extends bodyWaiErtColorContrast {
 	*	@var bool $cms This test does not apply to content management systems (is document-related)
 	*/
 	var $cms = false;
-		
+
 }
 
 /**
@@ -1421,8 +1404,8 @@ class documentColorWaiAlgorithim extends bodyWaiErtColorContrast {
 *  The contrast between link text and background color must be greater than the WAI ERT color algorithm threshold.
 *	@link http://quail-lib.org/test-info/documentColorWaiLinkAlgorithim
 */
-class documentColorWaiLinkAlgorithim extends bodyWaiErtColorContrast {
-
+class documentColorWaiLinkAlgorithim extends bodyWaiErtColorContrast
+{
 	/**
 	*	@var int $default_severity The default severity code for this test.
 	*/
@@ -1432,7 +1415,7 @@ class documentColorWaiLinkAlgorithim extends bodyWaiErtColorContrast {
 	*	@var bool $cms This test does not apply to content management systems (is document-related)
 	*/
 	var $cms = false;
-	
+
 	/**
 	*	@var string $foreground The type of item that should be checked for contrast in the foreground
 	*/
@@ -1444,8 +1427,8 @@ class documentColorWaiLinkAlgorithim extends bodyWaiErtColorContrast {
 *  The contrast between visited link text and background color must be greater than the WAI ERT color algorithm threshold.
 *	@link http://quail-lib.org/test-info/documentColorWaiVisitedLinkAlgorithim
 */
-class documentColorWaiVisitedLinkAlgorithim extends bodyWaiErtColorContrast {
-
+class documentColorWaiVisitedLinkAlgorithim extends bodyWaiErtColorContrast
+{
 	/**
 	*	@var int $default_severity The default severity code for this test.
 	*/
@@ -1455,7 +1438,7 @@ class documentColorWaiVisitedLinkAlgorithim extends bodyWaiErtColorContrast {
 	*	@var bool $cms This test does not apply to content management systems (is document-related)
 	*/
 	var $cms = false;
-	
+
 	/**
 	*	@var string $foreground The type of item that should be checked for contrast in the foreground
 	*/
@@ -1469,7 +1452,6 @@ class documentColorWaiVisitedLinkAlgorithim extends bodyWaiErtColorContrast {
 */
 class documentContentReadableWithoutStylesheets extends quailTest
 {
-
 	/**
 	*	@var int $default_severity The default severity code for this test.
 	*/
@@ -1479,7 +1461,7 @@ class documentContentReadableWithoutStylesheets extends quailTest
 	*	@var bool $cms This test does not apply to content management systems (is document-related)
 	*/
 	var $cms = false;
-	
+
 	/**
 	*	The main check function. This is called by the parent class to actually check content
 	*/
@@ -1491,7 +1473,7 @@ class documentContentReadableWithoutStylesheets extends quailTest
 				return false;
 			}
 		}
-	
+
 	}
 }
 
@@ -1502,7 +1484,6 @@ class documentContentReadableWithoutStylesheets extends quailTest
 */
 class documentHasTitleElement extends quailTest
 {
-
 	/**
 	*	@var int $default_severity The default severity code for this test.
 	*/
@@ -1512,17 +1493,17 @@ class documentHasTitleElement extends quailTest
 	*	@var bool $cms This test does not apply to content management systems (is document-related)
 	*/
 	var $cms = false;
-	
+
 	/**
 	*	The main check function. This is called by the parent class to actually check content
 	*/
 	function check()
 	{
-		
+
 		$element = $this->dom->getElementsByTagName('title');
 		if (!$element->item(0))
 			$this->addReport(null, null, false);
-	
+
 	}
 }
 
@@ -1533,7 +1514,6 @@ class documentHasTitleElement extends quailTest
 */
 class documentIDsMustBeUnique extends quailTest
 {
-
 	/**
 	*	@var int $default_severity The default severity code for this test.
 	*/
@@ -1543,7 +1523,7 @@ class documentIDsMustBeUnique extends quailTest
 	*	@var bool $cms This test does not apply to content management systems (is document-related)
 	*/
 	var $cms = false;
-		
+
 	/**
 	*	The main check function. This is called by the parent class to actually check content
 	*/
@@ -1555,7 +1535,7 @@ class documentIDsMustBeUnique extends quailTest
 		foreach ($entries as $element) {
 			if ($element->hasAttribute('id'))
 				$ids[$element->getAttribute('id')][] = $element;
-		}	
+		}
 		if (count($ids) > 0) {
 			foreach ($ids as $id) {
 				if (count($id) > 1)
@@ -1572,7 +1552,6 @@ class documentIDsMustBeUnique extends quailTest
 */
 class documentLangIsISO639Standard extends quailTest
 {
-
 	/**
 	*	@var int $default_severity The default severity code for this test.
 	*/
@@ -1582,14 +1561,14 @@ class documentLangIsISO639Standard extends quailTest
 	*	@var bool $cms This test does not apply to content management systems (is document-related)
 	*/
 	var $cms = false;
-	
+
 	/**
 	*	The main check function. This is called by the parent class to actually check content
 	*/
 	function check()
 	{
 		$languages = file(dirname(__FILE__).'/resources/iso639.txt');
-		
+
 		$element = $this->dom->getElementsByTagName('html');
 		$html = $element->item(0);
 		if (!$html)
@@ -1597,7 +1576,7 @@ class documentLangIsISO639Standard extends quailTest
 		if ($html->hasAttribute('lang'))
 			if (in_array(strtolower($html->getAttribute('lang')), $languages))
 				$this->addReport(null, null, false);
-	
+
 	}
 }
 
@@ -1608,7 +1587,6 @@ class documentLangIsISO639Standard extends quailTest
 */
 class documentLangNotIdentified extends quailTest
 {
-
 	/**
 	*	@var int $default_severity The default severity code for this test.
 	*/
@@ -1618,7 +1596,7 @@ class documentLangNotIdentified extends quailTest
 	*	@var bool $cms This test does not apply to content management systems (is document-related)
 	*/
 	var $cms = false;
-	
+
 	/**
 	*	The main check function. This is called by the parent class to actually check content
 	*/
@@ -1629,7 +1607,7 @@ class documentLangNotIdentified extends quailTest
 		if (!$html) return null;
 		if (!$html->hasAttribute('lang') || trim($html->getAttribute('lang')) == '')
 			$this->addReport(null, null, false);
-	
+
 	}
 }
 
@@ -1640,7 +1618,6 @@ class documentLangNotIdentified extends quailTest
 */
 class documentMetaNotUsedWithTimeout extends quailTest
 {
-
 	/**
 	*	@var int $default_severity The default severity code for this test.
 	*/
@@ -1650,7 +1627,7 @@ class documentMetaNotUsedWithTimeout extends quailTest
 	*	@var bool $cms This test does not apply to content management systems (is document-related)
 	*/
 	var $cms = false;
-	
+
 	/**
 	*	The main check function. This is called by the parent class to actually check content
 	*/
@@ -1660,7 +1637,7 @@ class documentMetaNotUsedWithTimeout extends quailTest
 			if ($meta->getAttribute('http-equiv') == 'refresh' && !$meta->getAttribute('content'))
 				$this->addReport($meta);
 		}
-	
+
 	}
 }
 
@@ -1688,12 +1665,12 @@ class documentReadingDirection extends quailTest
 	*	@var bool $cms This test does not apply to content management systems (is document-related)
 	*/
 	var $cms = false;
-	
+
 	/**
 	*	@var array $right_to_left The language codes that are considered right-to-left
 	*/
 	var $right_to_left = array('he', 'ar');
-	
+
 	/**
 	*	The main check function. This is called by the parent class to actually check content
 	*/
@@ -1707,7 +1684,7 @@ class documentReadingDirection extends quailTest
 				if ($element->getAttribute('dir') != 'rtl')
 				 	$this->addReport($element);
 			}
-		}			
+		}
 	}
 }
 
@@ -1718,7 +1695,6 @@ class documentReadingDirection extends quailTest
 */
 class documentStrictDocType extends quailTest
 {
-
 	/**
 	*	@var int $default_severity The default severity code for this test.
 	*/
@@ -1728,14 +1704,14 @@ class documentStrictDocType extends quailTest
 	*	@var bool $cms This test does not apply to content management systems (is document-related)
 	*/
 	var $cms = false;
-	
+
 	/**
 	*	The main check function. This is called by the parent class to actually check content
 	*/
 	function check()
 	{
 		if (strpos(strtolower($this->dom->doctype->publicId), 'strict') === false
-		   && strpos(strtolower($this->dom->doctype->systemId), 'strict') === false) 
+		   && strpos(strtolower($this->dom->doctype->systemId), 'strict') === false)
 			$this->addReport(null, null, false);
 	}
 }
@@ -1747,7 +1723,6 @@ class documentStrictDocType extends quailTest
 */
 class documentTitleDescribesDocument extends quailTest
 {
-
 	/**
 	*	@var int $default_severity The default severity code for this test.
 	*/
@@ -1757,13 +1732,13 @@ class documentTitleDescribesDocument extends quailTest
 	*	@var bool $cms This test does not apply to content management systems (is document-related)
 	*/
 	var $cms = false;
-	
+
 	/**
 	*	The main check function. This is called by the parent class to actually check content
 	*/
 	function check()
 	{
-		$placeholders = file(dirname(__FILE__).'/resources/placeholder.txt');		
+		$placeholders = file(dirname(__FILE__).'/resources/placeholder.txt');
 		$element = $this->dom->getElementsByTagName('title');
 		$title = $element->item(0);
 		if ($title) {
@@ -1779,7 +1754,6 @@ class documentTitleDescribesDocument extends quailTest
 */
 class documentTitleIsNotPlaceholder extends quailTest
 {
-
 	/**
 	*	@var int $default_severity The default severity code for this test.
 	*/
@@ -1789,13 +1763,13 @@ class documentTitleIsNotPlaceholder extends quailTest
 	*	@var bool $cms This test does not apply to content management systems (is document-related)
 	*/
 	var $cms = false;
-	
+
 	/**
 	*	The main check function. This is called by the parent class to actually check content
 	*/
 	function check()
 	{
-		$placeholders = file(dirname(__FILE__).'/resources/placeholder.txt');		
+		$placeholders = file(dirname(__FILE__).'/resources/placeholder.txt');
 		$element = $this->dom->getElementsByTagName('title');
 		$title = $element->item(0);
 		if ($title) {
@@ -1812,7 +1786,6 @@ class documentTitleIsNotPlaceholder extends quailTest
 */
 class documentTitleIsShort extends quailTest
 {
-
 	/**
 	*	@var int $default_severity The default severity code for this test.
 	*/
@@ -1822,13 +1795,13 @@ class documentTitleIsShort extends quailTest
 	*	@var bool $cms This test does not apply to content management systems (is document-related)
 	*/
 	var $cms = false;
-	
+
 	/**
 	*	The main check function. This is called by the parent class to actually check content
 	*/
 	function check()
 	{
-		
+
 		$element = $this->dom->getElementsByTagName('title');
 		$title = $element->item(0);
 		if ($title) {
@@ -1845,7 +1818,6 @@ class documentTitleIsShort extends quailTest
 */
 class documentTitleNotEmpty extends quailTest
 {
-
 	/**
 	*	@var int $default_severity The default severity code for this test.
 	*/
@@ -1855,19 +1827,19 @@ class documentTitleNotEmpty extends quailTest
 	*	@var bool $cms This test does not apply to content management systems (is document-related)
 	*/
 	var $cms = false;
-	
+
 	/**
 	*	The main check function. This is called by the parent class to actually check content
 	*/
 	function check()
 	{
-		
+
 		$element = $this->dom->getElementsByTagName('title');
 		if ($element->length > 0) {
 			$title = $element->item(0);
 			if (trim($title->nodeValue) == '')
 				$this->addReport(null, null, false);
-		}	
+		}
 	}
 }
 
@@ -1878,7 +1850,6 @@ class documentTitleNotEmpty extends quailTest
 */
 class documentValidatesToDocType extends quailTest
 {
-
 	/**
 	*	@var int $default_severity The default severity code for this test.
 	*/
@@ -1888,7 +1859,7 @@ class documentValidatesToDocType extends quailTest
 	*	@var bool $cms This test does not apply to content management systems (is document-related)
 	*/
 	var $cms = false;
-	
+
 	/**
 	*	The main check function. This is called by the parent class to actually check content
 	*/
@@ -1906,7 +1877,6 @@ class documentValidatesToDocType extends quailTest
 */
 class documentVisualListsAreMarkedUp extends quailTest
 {
-
 	/**
 	*	@var int $default_severity The default severity code for this test.
 	*/
@@ -1916,7 +1886,7 @@ class documentVisualListsAreMarkedUp extends quailTest
 	*	@var array $list_cues Things that might be considered to be part of a list
 	*/
 	var $list_cues = array('*', '<br>*', '•', '&#8226');
-	
+
 	/**
 	*	The main check function. This is called by the parent class to actually check content
 	*/
@@ -1930,7 +1900,7 @@ class documentVisualListsAreMarkedUp extends quailTest
 					$this->addReport($text);
 			}
 		}
-	
+
 	}
 }
 
@@ -1941,7 +1911,6 @@ class documentVisualListsAreMarkedUp extends quailTest
 */
 class documentWordsNotInLanguageAreMarked extends quailTest
 {
-
 	/**
 	*	@var int $default_severity The default severity code for this test.
 	*/
@@ -1977,7 +1946,6 @@ class documentWordsNotInLanguageAreMarked extends quailTest
 */
 class embedHasAssociatedNoEmbed extends quailTest
 {
-
 	/**
 	*	@var int $default_severity The default severity code for this test.
 	*/
@@ -1989,11 +1957,11 @@ class embedHasAssociatedNoEmbed extends quailTest
 	function check()
 	{
 		foreach ($this->getAllElements('embed') as $embed) {
-			if (!$this->propertyIsEqual($embed->firstChild, 'tagName', 'noembed') 
+			if (!$this->propertyIsEqual($embed->firstChild, 'tagName', 'noembed')
 			   && !$this->propertyIsEqual($embed->nextSibling, 'tagName', 'noembed')) {
 					$this->addReport($embed);
 			}
-		
+
 		}
 	}
 }
@@ -2005,7 +1973,6 @@ class embedHasAssociatedNoEmbed extends quailTest
 */
 class embedMustHaveAltAttribute extends quailTest
 {
-
 	/**
 	*	@var int $default_severity The default severity code for this test.
 	*/
@@ -2019,7 +1986,7 @@ class embedMustHaveAltAttribute extends quailTest
 		foreach ($this->getAllElements('embed') as $embed) {
 			if (!$embed->hasAttribute('alt'))
 					$this->addReport($embed);
-		
+
 		}
 	}
 }
@@ -2031,7 +1998,6 @@ class embedMustHaveAltAttribute extends quailTest
 */
 class embedMustNotHaveEmptyAlt extends quailTest
 {
-
 	/**
 	*	@var int $default_severity The default severity code for this test.
 	*/
@@ -2045,7 +2011,7 @@ class embedMustNotHaveEmptyAlt extends quailTest
 		foreach ($this->getAllElements('embed') as $embed) {
 			if ($embed->hasAttribute('alt') && trim($embed->getAttribute('alt')) == '')
 					$this->addReport($embed);
-		
+
 		}
 	}
 }
@@ -2057,7 +2023,6 @@ class embedMustNotHaveEmptyAlt extends quailTest
 */
 class embedProvidesMechanismToReturnToParent extends quailTagTest
 {
-
 	/**
 	*	@var int $default_severity The default severity code for this test.
 	*/
@@ -2076,7 +2041,6 @@ class embedProvidesMechanismToReturnToParent extends quailTagTest
 */
 class emoticonsExcessiveUse extends quailTest
 {
-
 	/**
 	*	@var int $default_severity The default severity code for this test.
 	*/
@@ -2096,21 +2060,20 @@ class emoticonsExcessiveUse extends quailTest
 					if (in_array($word, $emoticons)) {
 						$count++;
 						if ($count > 4) {
-							$this->addReport(null, null, false);	
-							return false;	
+							$this->addReport(null, null, false);
+							return false;
 						}
 					}
 				}
-			
+
 			}
 		}
-	
+
 	}
 }
 
 class emoticonsMissingAbbr extends quailTest
 {
-
 	/**
 	*	@var int $default_severity The default severity code for this test.
 	*/
@@ -2135,10 +2098,10 @@ class emoticonsMissingAbbr extends quailTest
 							$this->addReport($element);
 					}
 				}
-			
+
 			}
 		}
-	
+
 	}
 }
 
@@ -2147,8 +2110,8 @@ class emoticonsMissingAbbr extends quailTest
 *  input element that contains a type attribute value of "file" must have an associated label element. An associated label is one in which the for attribute value of the label element is the same as the id attribute value of the input element.
 *	@link http://quail-lib.org/test-info/fileHasLabel
 */
-class fileHasLabel extends inputHasLabel {
-
+class fileHasLabel extends inputHasLabel
+{
 	/**
 	*	@var int $default_severity The default severity code for this test.
 	*/
@@ -2158,7 +2121,7 @@ class fileHasLabel extends inputHasLabel {
 	*	@var string $tag The tag this test will fire on
 	*/
 	var $tag = 'input';
-	
+
 	/**
 	*	@var string $type The type of input we're looking for
 	*/
@@ -2177,7 +2140,6 @@ class fileHasLabel extends inputHasLabel {
 */
 class fileLabelIsNearby extends quailTest
 {
-
 	/**
 	*	@var int $default_severity The default severity code for this test.
 	*/
@@ -2191,7 +2153,7 @@ class fileLabelIsNearby extends quailTest
 		foreach ($this->getAllElements('input') as $input) {
 			if ($input->getAttribute('type') == 'file')
 				$this->addReport($input);
-			
+
 		}
 	}
 }
@@ -2203,12 +2165,11 @@ class fileLabelIsNearby extends quailTest
 */
 class fontIsNotUsed extends quailTagTest
 {
-
 	/**
 	*	@var int $default_severity The default severity code for this test.
 	*/
 	var $default_severity = QUAIL_TEST_SEVERE;
-	
+
 	/**
 	*	@var string $tag The tag this test will fire on
 	*/
@@ -2217,7 +2178,6 @@ class fontIsNotUsed extends quailTagTest
 
 class formAllowsCheckIfIrreversable extends quailTagTest
 {
-
 	/**
 	*	@var int $default_severity The default severity code for this test.
 	*/
@@ -2236,19 +2196,18 @@ class formAllowsCheckIfIrreversable extends quailTagTest
 */
 class formDeleteIsReversable extends quailTest
 {
-
 	/**
 	*	@var int $default_severity The default severity code for this test.
 	*/
 	var $default_severity = QUAIL_TEST_SUGGESTION;
-	
+
 	/**
 	*	@var array $strings An array of strings, broken up by language domain
 	*/
 	var $strings = array('en' => array('delete', 'remove', 'erase'),
 							 'es' => array('borrar', 'eliminar', 'suprimir'),
 							);
-	
+
 	/**
 	*	The main check function. This is called by the parent class to actually check content
 	*/
@@ -2257,9 +2216,9 @@ class formDeleteIsReversable extends quailTest
 		foreach ($this->getAllElements('input') as $input) {
 			if ($input->getAttribute('type') == 'submit') {
 				foreach ($this->translation() as $word) {
-					if (strpos(strtolower($input->getAttribute('value')), $word) !== false) 
+					if (strpos(strtolower($input->getAttribute('value')), $word) !== false)
 						$this->addReport($this->getParent($input, 'form', 'body'));
-				}				
+				}
 			}
 		}
 	}
@@ -2272,7 +2231,6 @@ class formDeleteIsReversable extends quailTest
 */
 class formErrorMessageHelpsUser extends quailTagTest
 {
-
 	/**
 	*	@var int $default_severity The default severity code for this test.
 	*/
@@ -2291,7 +2249,6 @@ class formErrorMessageHelpsUser extends quailTagTest
 */
 class formHasGoodErrorMessage extends quailTagTest
 {
-
 	/**
 	*	@var int $default_severity The default severity code for this test.
 	*/
@@ -2301,7 +2258,7 @@ class formHasGoodErrorMessage extends quailTagTest
 	*	@var string $tag The tag this test will fire on
 	*/
 	var $tag = 'form';
-}	
+}
 
 
 /**
@@ -2311,17 +2268,16 @@ class formHasGoodErrorMessage extends quailTagTest
 */
 class formWithRequiredLabel extends quailTest
 {
-
 	/**
 	*	@var int $default_severity The default severity code for this test.
 	*/
 	var $default_severity = QUAIL_TEST_MODERATE;
-	
+
 	/**
 	*	@var array $suspect_styles A list of CSS styles which might mean this is label text
 	*/
 	var $suspect_styles = array('font-weight', 'color');
-	
+
 	/**
 	*	The main check function. This is called by the parent class to actually check content
 	*/
@@ -2332,7 +2288,7 @@ class formWithRequiredLabel extends quailTest
 			$labels[] = $label;
 			if (strpos($label->nodeValue, '*') !== false) {
 				if ($input = $this->dom->getElementById($label->getAttribute('for'))) {
-					if (!$input->hasAttribute('aria-required') || 
+					if (!$input->hasAttribute('aria-required') ||
 					   strtolower($input->getAttribute('aria-required')) != 'true') {
 						 $this->addReport($label);
 					}
@@ -2344,7 +2300,7 @@ class formWithRequiredLabel extends quailTest
 		}
 		$styles = array();
 		foreach ($labels as $k => $label) {
-			//Now we check through all the labels and see if any are 
+			//Now we check through all the labels and see if any are
 			//colored different than the others
 			$styles[$k] = $this->css->getStyle($label);
 			if ($this->elementHasChild($label, 'strong') || $this->elementHasChild($label, 'b')) {
@@ -2374,7 +2330,6 @@ class formWithRequiredLabel extends quailTest
 */
 class frameIsNotUsed extends quailTagTest
 {
-
 	/**
 	*	@var int $default_severity The default severity code for this test.
 	*/
@@ -2389,7 +2344,7 @@ class frameIsNotUsed extends quailTagTest
 	*	@var bool $cms This test does not apply to content management systems (is document-related)
 	*/
 	var $cms = false;
-	
+
 }
 
 /**
@@ -2399,7 +2354,6 @@ class frameIsNotUsed extends quailTagTest
 */
 class frameRelationshipsMustBeDescribed extends quailTest
 {
-
 	/**
 	*	@var int $default_severity The default severity code for this test.
 	*/
@@ -2409,15 +2363,15 @@ class frameRelationshipsMustBeDescribed extends quailTest
 	*	@var bool $cms This test does not apply to content management systems (is document-related)
 	*/
 	var $cms = false;
-		
-	
+
+
 	/**
 	*	The main check function. This is called by the parent class to actually check content
 	*/
 	function check()
 	{
 		foreach ($this->getAllElements('frameset') as $frameset) {
-		
+
 			if (!$frameset->hasAttribute('longdesc') && $frameset->childNodes->length > 2)
 				$this->addReport($frameset);
 		}
@@ -2432,7 +2386,6 @@ class frameRelationshipsMustBeDescribed extends quailTest
 */
 class frameSrcIsAccessible extends quailTest
 {
-
 	/**
 	*	@var int $default_severity The default severity code for this test.
 	*/
@@ -2442,7 +2395,7 @@ class frameSrcIsAccessible extends quailTest
 	*	@var bool $cms This test does not apply to content management systems (is document-related)
 	*/
 	var $cms = false;
-		
+
 	/**
 	*	The main check function. This is called by the parent class to actually check content
 	*/
@@ -2453,7 +2406,7 @@ class frameSrcIsAccessible extends quailTest
 				$extension = array_pop(explode('.', $frame->getAttribute('src')));
 				if (in_array($extension, $this->image_extensions))
 					$this->addReport($frame);
-			
+
 			}
 		}
 	}
@@ -2467,17 +2420,16 @@ class frameSrcIsAccessible extends quailTest
 */
 class frameTitlesDescribeFunction extends quailTest
 {
-
 	/**
 	*	@var int $default_severity The default severity code for this test.
 	*/
-	var $default_severity = QUAIL_TEST_SUGGESTION;	
+	var $default_severity = QUAIL_TEST_SUGGESTION;
 
 	/**
 	*	@var bool $cms This test does not apply to content management systems (is document-related)
 	*/
 	var $cms = false;
-		
+
 	/**
 	*	The main check function. This is called by the parent class to actually check content
 	*/
@@ -2498,7 +2450,6 @@ class frameTitlesDescribeFunction extends quailTest
 */
 class frameTitlesNotEmpty extends quailTest
 {
-
 	/**
 	*	@var int $default_severity The default severity code for this test.
 	*/
@@ -2508,7 +2459,7 @@ class frameTitlesNotEmpty extends quailTest
 	*	@var bool $cms This test does not apply to content management systems (is document-related)
 	*/
 	var $cms = false;
-	
+
 	/**
 	*	The main check function. This is called by the parent class to actually check content
 	*/
@@ -2528,7 +2479,6 @@ class frameTitlesNotEmpty extends quailTest
 */
 class frameTitlesNotPlaceholder extends quailTest
 {
-
 	/**
 	*	@var int $default_severity The default severity code for this test.
 	*/
@@ -2538,14 +2488,14 @@ class frameTitlesNotPlaceholder extends quailTest
 	*	@var bool $cms This test does not apply to content management systems (is document-related)
 	*/
 	var $cms = false;
-	
+
 	/**
 	*	@var array $strings An array of strings, broken up by language domain
 	*/
 	var $strings = array('en' => array('title', 'frame', 'frame title', 'the title'),
 							  'es' => array('t&iacute;tulo', 'marco', 't&iacute;tulo del marco', 'el t&iacute;tulo'),
 							  );
-	
+
 	/**
 	*	The main check function. This is called by the parent class to actually check content
 	*/
@@ -2566,17 +2516,16 @@ class frameTitlesNotPlaceholder extends quailTest
 */
 class framesHaveATitle extends quailTest
 {
-
 	/**
 	*	@var int $default_severity The default severity code for this test.
 	*/
-	var $default_severity = QUAIL_TEST_SEVERE;	
-	
+	var $default_severity = QUAIL_TEST_SEVERE;
+
 	/**
 	*	@var bool $cms This test does not apply to content management systems (is document-related)
 	*/
 	var $cms = false;
-	
+
 	/**
 	*	The main check function. This is called by the parent class to actually check content
 	*/
@@ -2597,7 +2546,6 @@ class framesHaveATitle extends quailTest
 */
 class framesetIsNotUsed extends quailTagTest
 {
-
 	/**
 	*	@var int $default_severity The default severity code for this test.
 	*/
@@ -2607,7 +2555,7 @@ class framesetIsNotUsed extends quailTagTest
 	*	@var bool $cms This test does not apply to content management systems (is document-related)
 	*/
 	var $cms = false;
-	
+
 	/**
 	*	@var string $tag The tag this test will fire on
 	*/
@@ -2621,7 +2569,6 @@ class framesetIsNotUsed extends quailTagTest
 */
 class framesetMustHaveNoFramesSection extends quailTest
 {
-
 	/**
 	*	@var int $default_severity The default severity code for this test.
 	*/
@@ -2631,7 +2578,7 @@ class framesetMustHaveNoFramesSection extends quailTest
 	*	@var bool $cms This test does not apply to content management systems (is document-related)
 	*/
 	var $cms = false;
-		
+
 	/**
 	*	The main check function. This is called by the parent class to actually check content
 	*/
@@ -2650,13 +2597,13 @@ class framesetMustHaveNoFramesSection extends quailTest
 *  The following header must be equal, one level greater or any level less.
 *	@link http://quail-lib.org/test-info/headerH1
 */
-class headerH1 extends quailHeaderTest {
-	
+class headerH1 extends quailHeaderTest
+{
 	/**
 	*	@var string $tag The tag this test will fire on
 	*/
 	var $tag = 'h1';
-	
+
 }
 
 /**
@@ -2664,8 +2611,8 @@ class headerH1 extends quailHeaderTest {
 *  h1 may be used for formatting. Use the proper markup.
 *	@link http://quail-lib.org/test-info/headerH1Format
 */
-class headerH1Format extends quailTagTest{
-
+class headerH1Format extends quailTagTest
+{
 	/**
 	*	@var int $default_severity The default severity code for this test.
 	*/
@@ -2682,13 +2629,13 @@ class headerH1Format extends quailTagTest{
 *  The following header must be equal, one level greater or any level less.
 *	@link http://quail-lib.org/test-info/headerH2
 */
-class headerH2 extends quailHeaderTest {
-	
+class headerH2 extends quailHeaderTest
+{
 	/**
 	*	@var string $tag The tag this test will fire on
 	*/
 	var $tag = 'h2';
-	
+
 }
 
 /**
@@ -2696,13 +2643,13 @@ class headerH2 extends quailHeaderTest {
 *  h2 may be used for formatting. Use the proper markup.
 *	@link http://quail-lib.org/test-info/headerH2Format
 */
-class headerH2Format extends quailTagTest{
-
+class headerH2Format extends quailTagTest
+{
 	/**
 	*	@var int $default_severity The default severity code for this test.
 	*/
 	var $default_severity = QUAIL_TEST_SUGGESTION;
-	
+
 	/**
 	*	@var string $tag The tag this test will fire on
 	*/
@@ -2714,13 +2661,13 @@ class headerH2Format extends quailTagTest{
 *  The following header must be equal, one level greater or any level less.
 *	@link http://quail-lib.org/test-info/headerH3
 */
-class headerH3 extends quailHeaderTest {
-	
+class headerH3 extends quailHeaderTest
+{
 	/**
 	*	@var string $tag The tag this test will fire on
 	*/
 	var $tag = 'h3';
-	
+
 }
 
 /**
@@ -2728,13 +2675,13 @@ class headerH3 extends quailHeaderTest {
 *  h3 may be used for formatting. Use the proper markup.
 *	@link http://quail-lib.org/test-info/headerH3Format
 */
-class headerH3Format extends quailTagTest{
-
+class headerH3Format extends quailTagTest
+{
 	/**
 	*	@var int $default_severity The default severity code for this test.
 	*/
 	var $default_severity = QUAIL_TEST_SUGGESTION;
-	
+
 	/**
 	*	@var string $tag The tag this test will fire on
 	*/
@@ -2746,13 +2693,13 @@ class headerH3Format extends quailTagTest{
 *  The following header must be equal, one level greater or any level less.
 *	@link http://quail-lib.org/test-info/headerH4
 */
-class headerH4 extends quailHeaderTest {
-	
+class headerH4 extends quailHeaderTest
+{
 	/**
 	*	@var string $tag The tag this test will fire on
 	*/
 	var $tag = 'h4';
-	
+
 }
 
 /**
@@ -2760,8 +2707,8 @@ class headerH4 extends quailHeaderTest {
 *  h4 may be used for formatting. Use the proper markup.
 *	@link http://quail-lib.org/test-info/headerH4Format
 */
-class headerH4Format extends quailTagTest{
-
+class headerH4Format extends quailTagTest
+{
 	/**
 	*	@var int $default_severity The default severity code for this test.
 	*/
@@ -2773,13 +2720,13 @@ class headerH4Format extends quailTagTest{
 	var $tag = 'h4';
 }
 
-class headerH5 extends quailHeaderTest {
-	
+class headerH5 extends quailHeaderTest
+{
 	/**
 	*	@var string $tag The tag this test will fire on
 	*/
 	var $tag = 'h5';
-	
+
 }
 
 /**
@@ -2805,8 +2752,8 @@ class headerH5Format extends quailTagTest{
 *  h6 may be used for formatting. Use the proper markup.
 *	@link http://quail-lib.org/test-info/headerH6Format
 */
-class headerH6Format extends quailTagTest{
-
+class headerH6Format extends quailTagTest
+{
 	/**
 	*	@var int $default_severity The default severity code for this test.
 	*/
@@ -2816,6 +2763,41 @@ class headerH6Format extends quailTagTest{
 	*	@var string $tag The tag this test will fire on
 	*/
 	var $tag = 'h6';
+}
+
+/**
+*  CUSTOM TEST FOR UDOIT
+*  Checks if content uses heading elements (h1 - h6) at all
+*/
+class noHeadings extends quailTest
+{
+	/**
+	*	@var int $default_severity The default severity code for this test.
+	*/
+	var $default_severity = QUAIL_TEST_SUGGESTION;
+
+	/**
+	*	The main check function. This is called by the parent class to actually check content
+	*/
+	function check()
+	{
+		$no_headings = 0;
+
+		if (!$this->getAllElements('h1')
+			&& !$this->getAllElements('h2')
+			&& !$this->getAllElements('h3')
+			&& !$this->getAllElements('h4')
+			&& !$this->getAllElements('h5')
+			&& !$this->getAllElements('h6')) {
+			$no_headings = true;
+		} else {
+			$no_headings = false;
+		}
+
+		if ($no_headings) {
+			$this->addReport(null, null, false);
+		}
+	}
 }
 
 /**
@@ -2848,15 +2830,15 @@ class headersUseToMarkSections extends quailTest
 		}
 
 		foreach ($paragraphs as $p) {
-			if ((is_object($p->firstChild)
+			if ((is_object(@$p->firstChild)
 					&& property_exists($p->firstChild, 'tagName')
 					&& in_array($p->firstChild->tagName, $this->non_header_tags)
 					&& trim($p->nodeValue) == trim($p->firstChild->nodeValue))
-			   || (is_object($p->firstChild->nextSibling)
+			    || (is_object(@$p->firstChild->nextSibling)
 			   		&& property_exists($p->firstChild->nextSibling, 'tagName')
 			   		&& in_array($p->firstChild->nextSibling->tagName, $this->non_header_tags)
 			   		&& trim($p->nodeValue) == trim($p->firstChild->nextSibling->nodeValue))
-			   || (is_object($p->previousSibling)
+			    || (is_object(@$p->previousSibling)
 			   		&& property_exists($p->previousSibling, 'tagName')
 			   		&& in_array($p->previousSibling->tagName, $this->non_header_tags)
 					&& trim($p->nodeValue) == trim($p->previousSibling->nodeValue))) {
@@ -2873,7 +2855,6 @@ class headersUseToMarkSections extends quailTest
 */
 class iIsNotUsed extends quailTagTest
 {
-
 	/**
 	*	@var int $default_severity The default severity code for this test.
 	*/
@@ -2891,7 +2872,6 @@ class iIsNotUsed extends quailTagTest
 */
 class videoEmbedChecked extends quailTest
 {
-
 	/**
 	*	@var int $default_severity The default severity code for this test.
 	*/
@@ -2905,22 +2885,19 @@ class videoEmbedChecked extends quailTest
 		$search = '/(youtube|vimeo)/';
 
 		foreach ($this->getAllElements('iframe') as $iframe) {
-			if (preg_match($search, $iframe->getAttribute('src')))
-			{
+			if (preg_match($search, $iframe->getAttribute('src'))) {
 				$this->addReport($iframe);
 			}
 		}
-		foreach ($this->getAllElements('a') as $link)
-		{
-			if (preg_match($search, $link->getAttribute('href')))
-			{
+
+		foreach ($this->getAllElements('a') as $link) {
+			if (preg_match($search, $link->getAttribute('href'))) {
 				$this->addReport($link);
 			}
 		}
-		foreach ($this->getAllElements('object') as $object)
-		{
-			if (preg_match($search, $object->getAttribute('data')))
-			{
+
+		foreach ($this->getAllElements('object') as $object) {
+			if (preg_match($search, $object->getAttribute('data'))) {
 				$this->addReport($object);
 			}
 		}
@@ -2932,7 +2909,6 @@ class videoEmbedChecked extends quailTest
 */
 class iframeIsNotUsed extends quailTest
 {
-
 	/**
 	*	@var int $default_severity The default severity code for this test.
 	*/
@@ -2944,7 +2920,7 @@ class iframeIsNotUsed extends quailTest
 	function check()
 	{
 		foreach ($this->getAllElements('iframe') as $iframe) {
-				$this->addReport($iframe);		
+				$this->addReport($iframe);
 		}
 	}
 }
@@ -2955,7 +2931,6 @@ class iframeIsNotUsed extends quailTest
 */
 class iframeMustNotHaveLongdesc extends quailTest
 {
-
 	/**
 	*	@var int $default_severity The default severity code for this test.
 	*/
@@ -2969,7 +2944,7 @@ class iframeMustNotHaveLongdesc extends quailTest
 		foreach ($this->getAllElements('iframe') as $iframe) {
 			if ($iframe->hasAttribute('longdesc'))
 				$this->addReport($iframe);
-		
+
 		}
 	}
 }
@@ -2981,7 +2956,6 @@ class iframeMustNotHaveLongdesc extends quailTest
 */
 class imageMapServerSide extends quailTest
 {
-
 	/**
 	*	@var int $default_severity The default severity code for this test.
 	*/
@@ -2996,7 +2970,7 @@ class imageMapServerSide extends quailTest
 			if ($img->hasAttribute('ismap'))
 				$this->addReport($img);
 		}
-	
+
 	}
 }
 
@@ -3007,7 +2981,6 @@ class imageMapServerSide extends quailTest
 */
 class imgAltEmptyForDecorativeImages extends quailTest
 {
-
 	/**
 	*	@var int $default_severity The default severity code for this test.
 	*/
@@ -3033,12 +3006,11 @@ class imgAltEmptyForDecorativeImages extends quailTest
 */
 class imgAltIdentifiesLinkDestination extends quailTest
 {
-
 	/**
 	*	@var int $default_severity The default severity code for this test.
 	*/
 	var $default_severity = QUAIL_TEST_SUGGESTION;
-	
+
 	/**
 	*	The main check function. This is called by the parent class to actually check content
 	*/
@@ -3047,14 +3019,14 @@ class imgAltIdentifiesLinkDestination extends quailTest
 		foreach ($this->getAllElements('a') as $a) {
 			if (!$a->nodeValue) {
 				foreach ($a->childNodes as $child) {
-					if ($this->propertyIsEqual($child, 'tagName', 'img') 
+					if ($this->propertyIsEqual($child, 'tagName', 'img')
 					   && $child->hasAttribute('alt')) {
 						$this->addReport($child);
 					}
 				}
 			}
 		}
-	
+
 	}
 }
 
@@ -3065,7 +3037,6 @@ class imgAltIdentifiesLinkDestination extends quailTest
 */
 class imgAltIsDifferent extends quailTest
 {
-
 	/**
 	*	@var int $default_severity The default severity code for this test.
 	*/
@@ -3091,12 +3062,11 @@ class imgAltIsDifferent extends quailTest
 */
 class imgAltIsSameInText extends quailTest
 {
-
 	/**
 	*	@var int $default_severity The default severity code for this test.
 	*/
 	var $default_severity = QUAIL_TEST_SUGGESTION;
-	
+
 	/**
 	*	The main check function. This is called by the parent class to actually check content
 	*/
@@ -3106,7 +3076,7 @@ class imgAltIsSameInText extends quailTest
 			if ($img->hasAttribute('alt'))
 				$this->addReport($img);
 		}
-	
+
 	}
 }
 
@@ -3117,7 +3087,6 @@ class imgAltIsSameInText extends quailTest
 */
 class imgAltIsTooLong extends quailTest
 {
-
 	/**
 	*	@var int $default_severity The default severity code for this test.
 	*/
@@ -3129,10 +3098,10 @@ class imgAltIsTooLong extends quailTest
 	function check()
 	{
 		foreach ($this->getAllElements('img') as $img) {
-			if ($img->hasAttribute('alt') && strlen($img->getAttribute('alt')) > 100) 
+			if ($img->hasAttribute('alt') && strlen($img->getAttribute('alt')) > 100)
 				$this->addReport($img);
 		}
-	
+
 	}
 }
 
@@ -3143,7 +3112,6 @@ class imgAltIsTooLong extends quailTest
 */
 class imgAltNotEmptyInAnchor extends quailTest
 {
-
 	/**
 	*	@var int $default_severity The default severity code for this test.
 	*/
@@ -3163,7 +3131,7 @@ class imgAltNotEmptyInAnchor extends quailTest
 				}
 			}
 		}
-	
+
 	}
 }
 
@@ -3174,19 +3142,18 @@ class imgAltNotEmptyInAnchor extends quailTest
 */
 class imgAltNotPlaceHolder extends quailTest
 {
-
 	/**
 	*	@var int $default_severity The default severity code for this test.
 	*/
 	var $default_severity = QUAIL_TEST_SEVERE;
-	
+
 	/**
 	*	@var array $strings An array of strings, broken up by language domain
 	*/
 	var $strings = array('en' => array('nbsp', '&nbsp;', 'spacer', 'image', 'img', 'photo'),
 						 'es' => array('nbsp', '&nbsp;', 'spacer', 'espacio', 'imagen', 'img', 'foto')
 						 );
-	
+
 	/**
 	*	The main check function. This is called by the parent class to actually check content
 	*/
@@ -3195,18 +3162,18 @@ class imgAltNotPlaceHolder extends quailTest
 		foreach ($this->getAllElements('img') as $img) {
 			if ($img->hasAttribute('alt')) {
 				if (strlen($img->getAttribute('alt')) > 0) {
-					if (in_array($img->getAttribute('alt'), $this->translation()) 
+					if (in_array($img->getAttribute('alt'), $this->translation())
 					   || ord($img->getAttribute('alt')) == 194) {
 						$this->addReport($img);
 					}
-					elseif (preg_match("/^([0-9]*)(k|kb|mb|k bytes|k byte)?$/", 
+					elseif (preg_match("/^([0-9]*)(k|kb|mb|k bytes|k byte)?$/",
 							strtolower($img->getAttribute('alt')))) {
 						$this->addReport($img);
 					}
 				}
 			}
 		}
-	
+
 	}
 }
 
@@ -3217,30 +3184,29 @@ class imgAltNotPlaceHolder extends quailTest
 */
 class imgGifNoFlicker extends quailTest
 {
-
 	/**
 	*	@var int $default_severity The default severity code for this test.
 	*/
 	var $default_severity = QUAIL_TEST_SUGGESTION;
-	
+
 	/**
 	*	@var string $gif_control_extension Regular expression for retrieving the GIF
 	*				control extension
 	*/
 	var $gif_control_extension = "/21f904[0-9a-f]{2}([0-9a-f]{4})[0-9a-f]{2}00/";
-	
+
 	/**
 	*	The main check function. This is called by the parent class to actually check content
 	*/
 	function check()
 	{
 		foreach ($this->getAllElements('img') as $img) {
-			
+
 			if (substr($img->getAttribute('src'), -4, 4) == '.gif') {
 				$file = $this->getImageContent($this->getPath($img->getAttribute('src')));
 				if ($file) {
 					  $file = bin2hex($file);
-					
+
 					  // sum all frame delays
 					  $total_delay = 0;
 					  preg_match_all($this->gif_control_extension, $file, $matches);
@@ -3250,18 +3216,18 @@ class imgGifNoFlicker extends quailTest
 					    if ($delay == 0) $delay = 1;
 					    $total_delay += $delay;
 					  }
-					
+
 					  // delays are stored as hundredths of a second, lets convert to seconds
-					  
-					 
+
+
 					 if ($total_delay > 0)
 					 	$this->addReport($img);
 				}
 			}
 		}
-	
+
 	}
-	
+
 	/**
 	*	Retrieves the content of an image
 	*	@param string $image The URL to an image
@@ -3286,7 +3252,6 @@ class imgGifNoFlicker extends quailTest
 */
 class imgHasAlt extends quailTest
 {
-
 	/**
 	*	@var int $default_severity The default severity code for this test.
 	*/
@@ -3298,10 +3263,13 @@ class imgHasAlt extends quailTest
 	function check()
 	{
 		foreach ($this->getAllElements('img') as $img) {
-			if (!$img->hasAttribute('alt'))
+			if (!$img->hasAttribute('alt')
+				|| $img->getAttribute('alt') == ''
+				|| $img->getAttribute('alt') == ' ') {
 				$this->addReport($img);
+			}
 		}
-	
+
 	}
 }
 
@@ -3312,7 +3280,6 @@ class imgHasAlt extends quailTest
 */
 class imgHasLongDesc extends quailTest
 {
-
 	/**
 	*	@var int $default_severity The default severity code for this test.
 	*/
@@ -3325,13 +3292,13 @@ class imgHasLongDesc extends quailTest
 	{
 		foreach ($this->getAllElements('img') as $img) {
 			if ($img->hasAttribute('longdesc')) {
-				if (trim(strtolower($img->getAttribute('longdesc'))) == 
+				if (trim(strtolower($img->getAttribute('longdesc'))) ==
 					trim(strtolower($img->getAttribute('alt')))) {
 						$this->addReport($img);
 				}
 			}
 		}
-	
+
 	}
 }
 
@@ -3342,7 +3309,6 @@ class imgHasLongDesc extends quailTest
 */
 class imgImportantNoSpacerAlt extends quailTest
 {
-
 	/**
 	*	@var int $default_severity The default severity code for this test.
 	*/
@@ -3358,7 +3324,7 @@ class imgImportantNoSpacerAlt extends quailTest
 				if ($img->getAttribute('width') > 25 || $img->getAttribute('height') > 25) {
 					$this->addReport($img);
 				}
-				elseif (function_exists('gd_info') && (!$img->hasAttribute('width') || !$img->hasAttribute('height'))) {			
+				elseif (function_exists('gd_info') && (!$img->hasAttribute('width') || !$img->hasAttribute('height'))) {
 					$img_file = @getimagesize($this->getPath($img->getAttribute('src')));
 					if ($img_file) {
 						if ($img_file[0] > 25 || $img_file[1] > 25)
@@ -3368,7 +3334,7 @@ class imgImportantNoSpacerAlt extends quailTest
 			}
 
 		}
-	
+
 	}
 }
 
@@ -3379,12 +3345,11 @@ class imgImportantNoSpacerAlt extends quailTest
 */
 class imgMapAreasHaveDuplicateLink extends quailTest
 {
-
 	/**
 	*	@var int $default_severity The default severity code for this test.
 	*/
 	var $default_severity = QUAIL_TEST_SEVERE;
-	
+
 	/**
 	*	The main check function. This is called by the parent class to actually check content
 	*/
@@ -3395,7 +3360,7 @@ class imgMapAreasHaveDuplicateLink extends quailTest
 			$all_links[$a->getAttribute('href')] = $a->getAttribute('href');
 		}
 		$maps = $this->getElementsByAttribute('map', 'name', true);
-		
+
 		foreach ($this->getAllElements('img') as $img) {
 			if ($img->hasAttribute('usemap')) {
 				$usemap = $img->getAttribute('usemap');
@@ -3416,7 +3381,7 @@ class imgMapAreasHaveDuplicateLink extends quailTest
 				}
 			}
 		}
-	
+
 	}
 }
 
@@ -3427,7 +3392,6 @@ class imgMapAreasHaveDuplicateLink extends quailTest
 */
 class imgNeedsLongDescWDlink extends quailTest
 {
-
 	/**
 	*	@var int $default_severity The default severity code for this test.
 	*/
@@ -3441,21 +3405,21 @@ class imgNeedsLongDescWDlink extends quailTest
 		foreach ($this->getAllElements('img') as $img) {
 			if ($img->hasAttribute('longdesc')) {
 				$next = $this->getNextElement($img);
-				
+
 				if (is_object($next) && $next->tagName != 'a') {
 					$this->addReport($img);
 				}
 				else {
-					if (((!$this->propertyIsEqual($next, 'nodeValue', '[d]', true, true) 
+					if (((!$this->propertyIsEqual($next, 'nodeValue', '[d]', true, true)
 							&& !$this->propertyIsEqual($next, 'nodeValue', 'd', true, true)) )
 						|| $next->getAttribute('href') != $img->getAttribute('longdesc')) {
 							$this->addReport($img);
 					}
 				}
-					
+
 			}
 		}
-	
+
 	}
 }
 
@@ -3466,7 +3430,6 @@ class imgNeedsLongDescWDlink extends quailTest
 */
 class imgNonDecorativeHasAlt extends quailTest
 {
-
 	/**
 	*	@var int $default_severity The default severity code for this test.
 	*/
@@ -3478,13 +3441,13 @@ class imgNonDecorativeHasAlt extends quailTest
 	function check()
 	{
 		foreach ($this->getAllElements('img') as $img) {
-			if ($img->hasAttribute('src') && 
+			if ($img->hasAttribute('src') &&
 				($img->hasAttribute('alt') && html_entity_decode((trim($img->getAttribute('alt')))) == '')) {
 				$this->addReport($img);
-				
+
 			}
 		}
-	
+
 	}
 }
 
@@ -3495,12 +3458,11 @@ class imgNonDecorativeHasAlt extends quailTest
 */
 class imgNotReferredToByColorAlone extends quailTest
 {
-
 	/**
 	*	@var int $default_severity The default severity code for this test.
 	*/
 	var $default_severity = QUAIL_TEST_SUGGESTION;
-	
+
 	/**
 	*	The main check function. This is called by the parent class to actually check content
 	*/
@@ -3510,7 +3472,7 @@ class imgNotReferredToByColorAlone extends quailTest
 			if ($img->hasAttribute('alt'))
 				$this->addReport($img);
 		}
-	
+
 	}
 }
 
@@ -3521,7 +3483,6 @@ class imgNotReferredToByColorAlone extends quailTest
 */
 class imgServerSideMapNotUsed extends quailTest
 {
-
 	/**
 	*	@var int $default_severity The default severity code for this test.
 	*/
@@ -3546,7 +3507,6 @@ class imgServerSideMapNotUsed extends quailTest
 */
 class imgShouldNotHaveTitle extends quailTest
 {
-
 	/**
 	*	@var int $default_severity The default severity code for this test.
 	*/
@@ -3561,7 +3521,7 @@ class imgShouldNotHaveTitle extends quailTest
 			if ($img->hasAttribute('title'))
 				$this->addReport($img);
 		}
-	
+
 	}
 }
 
@@ -3572,12 +3532,11 @@ class imgShouldNotHaveTitle extends quailTest
 */
 class imgWithMapHasUseMap extends quailTest
 {
-
 	/**
 	*	@var int $default_severity The default severity code for this test.
 	*/
 	var $default_severity = QUAIL_TEST_SEVERE;
-	
+
 	/**
 	*	The main check function. This is called by the parent class to actually check content
 	*/
@@ -3587,7 +3546,7 @@ class imgWithMapHasUseMap extends quailTest
 			if ($img->hasAttribute('ismap') && !$img->hasAttribute('usemap'))
 				$this->addReport($img);
 		}
-	
+
 	}
 }
 
@@ -3598,7 +3557,6 @@ class imgWithMapHasUseMap extends quailTest
 */
 class imgWithMathShouldHaveMathEquivalent extends quailTest
 {
-
 	/**
 	*	@var int $default_severity The default severity code for this test.
 	*/
@@ -3610,12 +3568,12 @@ class imgWithMathShouldHaveMathEquivalent extends quailTest
 	function check()
 	{
 		foreach ($this->getAllElements('img') as $img) {
-			if (($img->getAttribute('width') > 100 
+			if (($img->getAttribute('width') > 100
 				|| $img->getAttribute('height') > 100 )
 				&& (!$this->propertyIsEqual($img->nextSibling, 'tagName', 'math'))) {
 							$this->addReport($img);
 			}
-		
+
 		}
 	}
 }
@@ -3625,18 +3583,18 @@ class imgWithMathShouldHaveMathEquivalent extends quailTest
 *  input element that contains a type attribute value of "checkbox" must have a tabindex attribute.
 *	@link http://quail-lib.org/test-info/inputCheckboxHasTabIndex
 */
-class inputCheckboxHasTabIndex extends inputTabIndex {
-
+class inputCheckboxHasTabIndex extends inputTabIndex
+{
 	/**
 	*	@var int $default_severity The default severity code for this test.
 	*/
 	var $default_severity = QUAIL_TEST_SEVERE;
-	
+
 	/**
 	*	@var string $tag The tag this test will fire on
 	*/
 	var $tag = 'input';
-	
+
 	/**
 	*	@var string $type The type of input we're looking for
 	*/
@@ -3650,7 +3608,6 @@ class inputCheckboxHasTabIndex extends inputTabIndex {
 */
 class inputCheckboxRequiresFieldset extends quailTest
 {
-
 	/**
 	*	@var int $default_severity The default severity code for this test.
 	*/
@@ -3665,7 +3622,7 @@ class inputCheckboxRequiresFieldset extends quailTest
 			if ($input->getAttribute('type') == 'checkbox') {
 				if (!$this->getParent($input, 'fieldset', 'body'))
 					$this->addReport($input);
-				
+
 			}
 		}
 	}
@@ -3678,7 +3635,6 @@ class inputCheckboxRequiresFieldset extends quailTest
 */
 class inputDoesNotUseColorAlone extends quailTest
 {
-
 	/**
 	*	@var int $default_severity The default severity code for this test.
 	*/
@@ -3704,7 +3660,6 @@ class inputDoesNotUseColorAlone extends quailTest
 */
 class inputElementsDontHaveAlt extends quailTest
 {
-
 	/**
 	*	@var int $default_severity The default severity code for this test.
 	*/
@@ -3727,8 +3682,8 @@ class inputElementsDontHaveAlt extends quailTest
 *  input element that contains a type attribute value of "file" must have a tabindex attribute.
 *	@link http://quail-lib.org/test-info/inputFileHasTabIndex
 */
-class inputFileHasTabIndex extends inputTabIndex {
-
+class inputFileHasTabIndex extends inputTabIndex
+{
 	/**
 	*	@var int $default_severity The default severity code for this test.
 	*/
@@ -3738,7 +3693,7 @@ class inputFileHasTabIndex extends inputTabIndex {
 	*	@var string $tag The tag this test will fire on
 	*/
 	var $tag = 'input';
-	
+
 	/**
 	*	@var string $type The type of input we're looking for
 	*/
@@ -3752,7 +3707,6 @@ class inputFileHasTabIndex extends inputTabIndex {
 */
 class inputImageAltIdentifiesPurpose extends quailTest
 {
-
 	/**
 	*	@var int $default_severity The default severity code for this test.
 	*/
@@ -3778,7 +3732,6 @@ class inputImageAltIdentifiesPurpose extends quailTest
 */
 class inputImageAltIsNotFileName extends quailTest
 {
-
 	/**
 	*	@var int $default_severity The default severity code for this test.
 	*/
@@ -3790,7 +3743,7 @@ class inputImageAltIsNotFileName extends quailTest
 	function check()
 	{
 		foreach ($this->getAllElements('input') as $input) {
-			if ($input->getAttribute('type') == 'image' 
+			if ($input->getAttribute('type') == 'image'
 				&& strtolower($input->getAttribute('alt')) == strtolower($input->getAttribute('src')))
 					$this->addReport($input);
 		}
@@ -3803,13 +3756,13 @@ class inputImageAltIsNotFileName extends quailTest
 *  input elements cannot have alt attribute values that are (case insensitive) (exactly) \"image\""
 *	@link http://quail-lib.org/test-info/inputImageAltIsNotPlaceholder
 */
-class inputImageAltIsNotPlaceholder extends imgAltNotPlaceHolder {
-
+class inputImageAltIsNotPlaceholder extends imgAltNotPlaceHolder
+{
 	/**
 	*	@var int $default_severity The default severity code for this test.
 	*/
 	var $default_severity = QUAIL_TEST_SEVERE;
-	
+
 	/**
 	*	The main check function. This is called by the parent class to actually check content
 	*/
@@ -3825,7 +3778,7 @@ class inputImageAltIsNotPlaceholder extends imgAltNotPlaceHolder {
 				}
 			}
 		}
-	
+
 	}
 }
 
@@ -3836,7 +3789,6 @@ class inputImageAltIsNotPlaceholder extends imgAltNotPlaceHolder {
 */
 class inputImageAltIsShort extends quailTest
 {
-
 	/**
 	*	@var int $default_severity The default severity code for this test.
 	*/
@@ -3862,7 +3814,6 @@ class inputImageAltIsShort extends quailTest
 */
 class inputImageAltNotRedundant extends quailTest
 {
-
 	/**
 	*	@var int $default_severity The default severity code for this test.
 	*/
@@ -3898,7 +3849,6 @@ class inputImageAltNotRedundant extends quailTest
 */
 class inputImageHasAlt extends quailTest
 {
-
 	/**
 	*	@var int $default_severity The default severity code for this test.
 	*/
@@ -3910,7 +3860,7 @@ class inputImageHasAlt extends quailTest
 	function check()
 	{
 		foreach ($this->getAllElements('input') as $input) {
-			if ($input->getAttribute('type') == 'image' 
+			if ($input->getAttribute('type') == 'image'
 					&& (trim($input->getAttribute('alt')) == '' || !$input->hasAttribute('alt')))
 				$this->addReport($input);
 		}
@@ -3925,7 +3875,6 @@ class inputImageHasAlt extends quailTest
 */
 class inputImageNotDecorative extends quailTest
 {
-
 	/**
 	*	@var int $default_severity The default severity code for this test.
 	*/
@@ -3948,18 +3897,18 @@ class inputImageNotDecorative extends quailTest
 *  input element that contains a type attribute value of "password" must have a tabindex attribute.
 *	@link http://quail-lib.org/test-info/inputPasswordHasTabIndex
 */
-class inputPasswordHasTabIndex extends inputTabIndex {
-
+class inputPasswordHasTabIndex extends inputTabIndex
+{
 	/**
 	*	@var int $default_severity The default severity code for this test.
 	*/
 	var $default_severity = QUAIL_TEST_SEVERE;
-	
+
 	/**
 	*	@var string $tag The tag this test will fire on
 	*/
 	var $tag = 'input';
-	
+
 	/**
 	*	@var string $type The type of input we're looking for
 	*/
@@ -3971,18 +3920,18 @@ class inputPasswordHasTabIndex extends inputTabIndex {
 *  input element that contains a type attribute value of "radio" must have a tabindex attribute.
 *	@link http://quail-lib.org/test-info/inputRadioHasTabIndex
 */
-class inputRadioHasTabIndex extends inputTabIndex {
-
+class inputRadioHasTabIndex extends inputTabIndex
+{
 	/**
 	*	@var int $default_severity The default severity code for this test.
 	*/
 	var $default_severity = QUAIL_TEST_SEVERE;
-	
+
 	/**
 	*	@var string $tag The tag this test will fire on
 	*/
 	var $tag = 'input';
-	
+
 	/**
 	*	@var string $type The type of input we're looking for
 	*/
@@ -3994,18 +3943,18 @@ class inputRadioHasTabIndex extends inputTabIndex {
 *  input element that contains a type attribute value of "submit" must have a tabindex attribute.
 *	@link http://quail-lib.org/test-info/inputSubmitHasTabIndex
 */
-class inputSubmitHasTabIndex extends inputTabIndex {
-
+class inputSubmitHasTabIndex extends inputTabIndex
+{
 	/**
 	*	@var int $default_severity The default severity code for this test.
 	*/
 	var $default_severity = QUAIL_TEST_SEVERE;
-	
+
 	/**
 	*	@var string $tag The tag this test will fire on
 	*/
 	var $tag = 'input';
-	
+
 	/**
 	*	@var string $type The type of input we're looking for
 	*/
@@ -4017,23 +3966,23 @@ class inputSubmitHasTabIndex extends inputTabIndex {
 *  input element that contains a type attribute value of "text" must have an associated label element. An associated label is one in which the for attribute value of the label element is the same as the id attribute value of the input element.
 *	@link http://quail-lib.org/test-info/inputTextHasLabel
 */
-class inputTextHasLabel extends inputHasLabel {
-
+class inputTextHasLabel extends inputHasLabel
+{
 	/**
 	*	@var int $default_severity The default severity code for this test.
 	*/
 	var $default_severity = QUAIL_TEST_SEVERE;
-	
+
 	/**
 	*	@var string $tag The tag this test will fire on
 	*/
 	var $tag = 'input';
-	
+
 	/**
 	*	@var string $type The type of input we're looking for
 	*/
 	var $type = 'text';
-	
+
 	/**
 	*	@var bool $no_type We are not looking at the type of input here
 	*/
@@ -4045,8 +3994,8 @@ class inputTextHasLabel extends inputHasLabel {
 *  input element that contains a type attribute value of "text" must have a tabindex attribute.
 *	@link http://quail-lib.org/test-info/inputTextHasTabIndex
 */
-class inputTextHasTabIndex extends inputTabIndex {
-
+class inputTextHasTabIndex extends inputTabIndex
+{
 	/**
 	*	@var int $default_severity The default severity code for this test.
 	*/
@@ -4056,7 +4005,7 @@ class inputTextHasTabIndex extends inputTabIndex {
 	*	@var string $tag The tag this test will fire on
 	*/
 	var $tag = 'input';
-	
+
 	/**
 	*	@var string $type The type of input we're looking for
 	*/
@@ -4070,12 +4019,11 @@ class inputTextHasTabIndex extends inputTabIndex {
 */
 class inputTextHasValue extends quailTest
 {
-
 	/**
 	*	@var int $default_severity The default severity code for this test.
 	*/
 	var $default_severity = QUAIL_TEST_SEVERE;
-	
+
 
 	/**
 	*	The main check function. This is called by the parent class to actually check content
@@ -4084,10 +4032,10 @@ class inputTextHasValue extends quailTest
 	{
 		foreach ($this->getAllElements('input') as $input) {
 			if ($input->getAttribute('type') == 'text' && !$input->hasAttribute('value'))
-				$this->addReport($input);	
-			
+				$this->addReport($input);
+
 		}
-	
+
 	}
 }
 
@@ -4098,12 +4046,11 @@ class inputTextHasValue extends quailTest
 */
 class inputTextValueNotEmpty extends quailTest
 {
-
 	/**
 	*	@var int $default_severity The default severity code for this test.
 	*/
 	var $default_severity = QUAIL_TEST_SEVERE;
-	
+
 	/**
 	*	The main check function. This is called by the parent class to actually check content
 	*/
@@ -4112,7 +4059,7 @@ class inputTextValueNotEmpty extends quailTest
 		foreach ($this->getAllElements('input') as $input) {
 			if (!$input->hasAttribute('value') || trim($input->getAttribute('value')) == '')
 					$this->addReport($input);
-			
+
 		}
 	}
 }
@@ -4124,7 +4071,6 @@ class inputTextValueNotEmpty extends quailTest
 */
 class labelDoesNotContainInput extends quailTest
 {
-
 	/**
 	*	@var int $default_severity The default severity code for this test.
 	*/
@@ -4149,12 +4095,11 @@ class labelDoesNotContainInput extends quailTest
 */
 class labelMustBeUnique extends quailTest
 {
-
 	/**
 	*	@var int $default_severity The default severity code for this test.
 	*/
 	var $default_severity = QUAIL_TEST_SEVERE;
-	
+
 	/**
 	*	The main check function. This is called by the parent class to actually check content
 	*/
@@ -4179,7 +4124,6 @@ class labelMustBeUnique extends quailTest
 */
 class labelMustNotBeEmpty extends quailTest
 {
-
 	/**
 	*	@var int $default_severity The default severity code for this test.
 	*/
@@ -4205,7 +4149,6 @@ class labelMustNotBeEmpty extends quailTest
 */
 class legendDescribesListOfChoices extends quailTagTest
 {
-
 	/**
 	*	@var int $default_severity The default severity code for this test.
 	*/
@@ -4224,7 +4167,6 @@ class legendDescribesListOfChoices extends quailTagTest
 */
 class legendTextNotEmpty extends quailTest
 {
-
 	/**
 	*	@var int $default_severity The default severity code for this test.
 	*/
@@ -4249,7 +4191,6 @@ class legendTextNotEmpty extends quailTest
 */
 class legendTextNotPlaceholder extends quailTest
 {
-
 	/**
 	*	@var int $default_severity The default severity code for this test.
 	*/
@@ -4261,7 +4202,7 @@ class legendTextNotPlaceholder extends quailTest
 	var $strings = array('en' => array('&nbsp;', ' ', 'legend'),
 						 'es' => array('&nbsp;', ' ', 'relato'),
 						);
-	
+
 	/**
 	*	The main check function. This is called by the parent class to actually check content
 	*/
@@ -4277,7 +4218,6 @@ class legendTextNotPlaceholder extends quailTest
 
 class liDontUseImageForBullet extends quailTest
 {
-
 	/**
 	*	@var int $default_severity The default severity code for this test.
 	*/
@@ -4289,12 +4229,12 @@ class liDontUseImageForBullet extends quailTest
 	function check()
 	{
 		foreach ($this->getAllElements('li') as $li) {
-			if (!$this->propertyIsEqual($li, 'nodeValue', '', true) 
+			if (!$this->propertyIsEqual($li, 'nodeValue', '', true)
 			   && $this->propertyIsEqual($li->firstChild, 'tagName', 'img')) {
 					$this->addReport($li);
 			}
 		}
-	
+
 	}
 }
 
@@ -4305,7 +4245,6 @@ class liDontUseImageForBullet extends quailTest
 */
 class linkUsedForAlternateContent extends quailTest
 {
-
 	/**
 	*	@var int $default_severity The default severity code for this test.
 	*/
@@ -4338,7 +4277,6 @@ class linkUsedForAlternateContent extends quailTest
 */
 class linkUsedToDescribeNavigation extends quailTest
 {
-
 	/**
 	*	@var int $default_severity The default severity code for this test.
 	*/
@@ -4368,7 +4306,6 @@ class linkUsedToDescribeNavigation extends quailTest
 */
 class listNotUsedForFormatting extends quailTest
 {
-
 	/**
 	*	@var int $default_severity The default severity code for this test.
 	*/
@@ -4389,7 +4326,7 @@ class listNotUsedForFormatting extends quailTest
 			if ($li_count < 2)
 				$this->addReport($list);
 		}
-	
+
 	}
 }
 
@@ -4400,12 +4337,11 @@ class listNotUsedForFormatting extends quailTest
 */
 class marqueeIsNotUsed extends quailTagTest
 {
-
 	/**
 	*	@var int $default_severity The default severity code for this test.
 	*/
 	var $default_severity = QUAIL_TEST_SEVERE;
-	
+
 	/**
 	*	@var string $tag The tag this test will fire on
 	*/
@@ -4420,7 +4356,6 @@ class marqueeIsNotUsed extends quailTagTest
 */
 class menuNotUsedToFormatText extends quailTest
 {
-
 	/**
 	*	@var int $default_severity The default severity code for this test.
 	*/
@@ -4441,7 +4376,7 @@ class menuNotUsedToFormatText extends quailTest
 			if ($list_items == 1)
 				$this->addReport($menu);
 		}
-	
+
 	}
 }
 
@@ -4452,7 +4387,6 @@ class menuNotUsedToFormatText extends quailTest
 */
 class noembedHasEquivalentContent extends quailTagTest
 {
-
 	/**
 	*	@var int $default_severity The default severity code for this test.
 	*/
@@ -4471,7 +4405,6 @@ class noembedHasEquivalentContent extends quailTagTest
 */
 class noframesSectionMustHaveTextEquivalent extends quailTest
 {
-
 	/**
 	*	@var int $default_severity The default severity code for this test.
 	*/
@@ -4500,7 +4433,6 @@ class noframesSectionMustHaveTextEquivalent extends quailTest
 */
 class objectContentUsableWhenDisabled extends quailTagTest
 {
-
 	/**
 	*	@var int $default_severity The default severity code for this test.
 	*/
@@ -4519,7 +4451,6 @@ class objectContentUsableWhenDisabled extends quailTagTest
 */
 class objectDoesNotFlicker extends quailTagTest
 {
-
 	/**
 	*	@var int $default_severity The default severity code for this test.
 	*/
@@ -4539,7 +4470,6 @@ class objectDoesNotFlicker extends quailTagTest
 */
 class objectDoesNotUseColorAlone extends quailTagTest
 {
-
 	/**
 	*	@var int $default_severity The default severity code for this test.
 	*/
@@ -4558,7 +4488,6 @@ class objectDoesNotUseColorAlone extends quailTagTest
 */
 class objectInterfaceIsAccessible extends quailTagTest
 {
-
 	/**
 	*	@var int $default_severity The default severity code for this test.
 	*/
@@ -4577,7 +4506,6 @@ class objectInterfaceIsAccessible extends quailTagTest
 */
 class objectLinkToMultimediaHasTextTranscript extends quailTest
 {
-
 	/**
 	*	@var int $default_severity The default severity code for this test.
 	*/
@@ -4591,7 +4519,7 @@ class objectLinkToMultimediaHasTextTranscript extends quailTest
 		foreach ($this->getAllElements('object') as $object) {
 			if ($object->getAttribute('type') == 'video')
 				$this->addReport($object);
-			
+
 		}
 	}
 
@@ -4604,7 +4532,6 @@ class objectLinkToMultimediaHasTextTranscript extends quailTest
 */
 class objectMustContainText extends quailTest
 {
-
 	/**
 	*	@var int $default_severity The default severity code for this test.
 	*/
@@ -4618,7 +4545,7 @@ class objectMustContainText extends quailTest
 		foreach ($this->getAllElements('object') as $object) {
 			if (!$object->nodeValue || trim($object->nodeValue) == '')
 				$this->addReport($object);
-		
+
 		}
 	}
 }
@@ -4630,7 +4557,6 @@ class objectMustContainText extends quailTest
 */
 class objectMustHaveEmbed extends quailTest
 {
-
 	/**
 	*	@var int $default_severity The default severity code for this test.
 	*/
@@ -4655,7 +4581,6 @@ class objectMustHaveEmbed extends quailTest
 */
 class objectMustHaveTitle extends quailTest
 {
-
 	/**
 	*	@var int $default_severity The default severity code for this test.
 	*/
@@ -4669,7 +4594,7 @@ class objectMustHaveTitle extends quailTest
 		foreach ($this->getAllElements('object') as $object) {
 			if (!$object->hasAttribute('title'))
 				$this->addReport($object);
-			
+
 		}
 	}
 
@@ -4685,7 +4610,6 @@ class objectMustHaveTitle extends quailTest
 */
 class objectMustHaveValidTitle extends quailTest
 {
-
 	/**
 	*	@var int $default_severity The default severity code for this test.
 	*/
@@ -4694,23 +4618,23 @@ class objectMustHaveValidTitle extends quailTest
 	/**
 	*	@var array $strings An array of strings, broken up by language domain
 	*/
-	var $strings = array('en' => array('nbsp', 
-											'&nbsp;', 
-											'object', 
-											'an object', 
-											'spacer', 
-											'image', 
-											'img', 
-											'photo', 
+	var $strings = array('en' => array('nbsp',
+											'&nbsp;',
+											'object',
+											'an object',
+											'spacer',
+											'image',
+											'img',
+											'photo',
 											' '),
-							  'es' => array('nbsp', 
-											'&nbsp;', 
-											'objeto', 
-											'un objeto', 
-											'espacio', 
-											'imagen', 
-											'img', 
-											'foto', 
+							  'es' => array('nbsp',
+											'&nbsp;',
+											'objeto',
+											'un objeto',
+											'espacio',
+											'imagen',
+											'img',
+											'foto',
 											' '),
 							 );
 
@@ -4738,12 +4662,11 @@ class objectMustHaveValidTitle extends quailTest
 */
 class objectProvidesMechanismToReturnToParent extends quailTagTest
 {
-
 	/**
 	*	@var int $default_severity The default severity code for this test.
 	*/
 	var $default_severity = QUAIL_TEST_SUGGESTION;
-	
+
 	/**
 	*	@var string $tag The tag this test will fire on
 	*/
@@ -4757,7 +4680,6 @@ class objectProvidesMechanismToReturnToParent extends quailTagTest
 */
 class objectShouldHaveLongDescription extends quailTagTest
 {
-
 	/**
 	*	@var int $default_severity The default severity code for this test.
 	*/
@@ -4776,7 +4698,6 @@ class objectShouldHaveLongDescription extends quailTagTest
 */
 class objectTextUpdatesWhenObjectChanges extends quailTagTest
 {
-
 	/**
 	*	@var int $default_severity The default severity code for this test.
 	*/
@@ -4795,7 +4716,6 @@ class objectTextUpdatesWhenObjectChanges extends quailTagTest
 */
 class objectUIMustBeAccessible extends quailTagTest
 {
-
 	/**
 	*	@var int $default_severity The default severity code for this test.
 	*/
@@ -4814,7 +4734,6 @@ class objectUIMustBeAccessible extends quailTagTest
 */
 class objectWithClassIDHasNoText extends quailTest
 {
-
 	/**
 	*	@var int $default_severity The default severity code for this test.
 	*/
@@ -4828,7 +4747,7 @@ class objectWithClassIDHasNoText extends quailTest
 		foreach ($this->getAllElements('object') as $object) {
 			if ($object->nodeValue && $object->hasAttribute('classid'))
 				$this->addReport($object);
-		
+
 		}
 	}
 }
@@ -4840,7 +4759,6 @@ class objectWithClassIDHasNoText extends quailTest
 */
 class pNotUsedAsHeader extends quailTest
 {
-
 	/**
 	*	@var int $default_severity The default severity code for this test.
 	*/
@@ -4877,8 +4795,8 @@ class pNotUsedAsHeader extends quailTest
 *  input element that contains a type attribute value of "password" must have an associated label element. An associated label is one in which the for attribute value of the label element is the same as the id attribute value of the input element.
 *	@link http://quail-lib.org/test-info/passwordHasLabel
 */
-class passwordHasLabel extends inputHasLabel {
-
+class passwordHasLabel extends inputHasLabel
+{
 	/**
 	*	@var int $default_severity The default severity code for this test.
 	*/
@@ -4888,12 +4806,12 @@ class passwordHasLabel extends inputHasLabel {
 	*	@var string $tag The tag this test will fire on
 	*/
 	var $tag = 'input';
-	
+
 	/**
 	*	@var string $type The type of input we're looking for
 	*/
 	var $type = 'password';
-	
+
 	/**
 	*	@var bool $no_type We are not looking at the type of input here
 	*/
@@ -4907,7 +4825,6 @@ class passwordHasLabel extends inputHasLabel {
 */
 class passwordLabelIsNearby extends quailTest
 {
-
 	/**
 	*	@var int $default_severity The default severity code for this test.
 	*/
@@ -4921,7 +4838,7 @@ class passwordLabelIsNearby extends quailTest
 		foreach ($this->getAllElements('input') as $input) {
 			if ($input->getAttribute('type') == 'password')
 				$this->addReport($input);
-			
+
 		}
 	}
 }
@@ -4933,7 +4850,6 @@ class passwordLabelIsNearby extends quailTest
 */
 class preShouldNotBeUsedForTabularLayout extends quailTest
 {
-
 	/**
 	*	@var int $default_severity The default severity code for this test.
 	*/
@@ -4949,7 +4865,7 @@ class preShouldNotBeUsedForTabularLayout extends quailTest
 			if (count($rows) > 1)
 				$this->addReport($pre);
 		}
-	
+
 	}
 }
 
@@ -4958,8 +4874,8 @@ class preShouldNotBeUsedForTabularLayout extends quailTest
 *  input element that contains a type attribute value of "radio" must have an associated label element. An associated label is one in which the for attribute value of the label element is the same as the id attribute value of the input element.
 *	@link http://quail-lib.org/test-info/radioHasLabel
 */
-class radioHasLabel extends inputHasLabel {
-
+class radioHasLabel extends inputHasLabel
+{
 	/**
 	*	@var int $default_severity The default severity code for this test.
 	*/
@@ -4969,12 +4885,12 @@ class radioHasLabel extends inputHasLabel {
 	*	@var string $tag The tag this test will fire on
 	*/
 	var $tag = 'input';
-	
+
 	/**
 	*	@var string $type The type of input we're looking for
 	*/
 	var $type = 'radio';
-	
+
 	/**
 	*	@var bool $no_type We are not looking at the type of input here
 	*/
@@ -4988,7 +4904,6 @@ class radioHasLabel extends inputHasLabel {
 */
 class radioLabelIsNearby extends quailTest
 {
-
 	/**
 	*	The main check function. This is called by the parent class to actually check content
 	*/
@@ -4997,7 +4912,7 @@ class radioLabelIsNearby extends quailTest
 		foreach ($this->getAllElements('input') as $input) {
 			if ($input->getAttribute('type') == 'radio')
 				$this->addReport($input);
-			
+
 		}
 	}
 }
@@ -5009,7 +4924,6 @@ class radioLabelIsNearby extends quailTest
 */
 class radioMarkedWithFieldgroupAndLegend extends quailTest
 {
-
 	/**
 	*	@var int $default_severity The default severity code for this test.
 	*/
@@ -5046,7 +4960,6 @@ class radioMarkedWithFieldgroupAndLegend extends quailTest
 */
 class scriptContentAccessibleWithScriptsTurnedOff extends quailTagTest
 {
-
 	/**
 	*	@var int $default_severity The default severity code for this test.
 	*/
@@ -5065,7 +4978,6 @@ class scriptContentAccessibleWithScriptsTurnedOff extends quailTagTest
 */
 class scriptInBodyMustHaveNoscript extends quailTest
 {
-
 	/**
 	*	@var int $default_severity The default severity code for this test.
 	*/
@@ -5077,10 +4989,10 @@ class scriptInBodyMustHaveNoscript extends quailTest
 	function check()
 	{
 		foreach ($this->getAllElements('script') as $script) {
-			if (!$this->propertyIsEqual($script->nextSibling, 'tagName', 'noscript') 
+			if (!$this->propertyIsEqual($script->nextSibling, 'tagName', 'noscript')
 				&& !$this->propertyIsEqual($script->parentNode, 'tagName', 'head'))
 					$this->addReport($script);
-		
+
 		}
 	}
 
@@ -5093,12 +5005,11 @@ class scriptInBodyMustHaveNoscript extends quailTest
 */
 class scriptOnclickRequiresOnKeypress extends quailTest
 {
-
 	/**
 	*	@var int $default_severity The default severity code for this test.
 	*/
 	var $default_severity = QUAIL_TEST_SEVERE;
-	
+
 	/**
 	*	@var string $click_value Attribute that is considered a mouse-only event
 	*/
@@ -5108,7 +5019,7 @@ class scriptOnclickRequiresOnKeypress extends quailTest
 	*	@var string $key_value Attribute that is considered a keyboard event
 	*/
 	var $key_value = 'onkeypress';
-	
+
 	/**
 	*	The main check function. This is called by the parent class to actually check content
 	*/
@@ -5127,8 +5038,8 @@ class scriptOnclickRequiresOnKeypress extends quailTest
 *  Any element that contains an ondblclick  attribute will generate this error.
 *	@link http://quail-lib.org/test-info/scriptOndblclickRequiresOnKeypress
 */
-class scriptOndblclickRequiresOnKeypress extends scriptOnclickRequiresOnKeypress {
-
+class scriptOndblclickRequiresOnKeypress extends scriptOnclickRequiresOnKeypress
+{
 	/**
 	*	@var string $click_value Attribute that is considered a mouse-only event
 	*/
@@ -5140,16 +5051,16 @@ class scriptOndblclickRequiresOnKeypress extends scriptOnclickRequiresOnKeypress
 *  Any element that contains an onmousedown attribute must also contain an onkeydown attribute.
 *	@link http://quail-lib.org/test-info/scriptOnmousedownRequiresOnKeypress
 */
-class scriptOnmousedownRequiresOnKeypress extends scriptOnclickRequiresOnKeypress {
-
+class scriptOnmousedownRequiresOnKeypress extends scriptOnclickRequiresOnKeypress
+{
 	/**
 	*	@var string $click_value Attribute that is considered a mouse-only event
 	*/
 	var $click_value = 'onmousedown';
-	
+
 	/**
 	*	@var string $key_value Attribute that is considered a keyboard event
-	*/	
+	*/
 	var $key_value = 'onkeydown';
 }
 
@@ -5160,7 +5071,6 @@ class scriptOnmousedownRequiresOnKeypress extends scriptOnclickRequiresOnKeypres
 */
 class scriptOnmousemove extends quailTest
 {
-
 	/**
 	*	@var int $default_severity The default severity code for this test.
 	*/
@@ -5170,12 +5080,12 @@ class scriptOnmousemove extends quailTest
 	*	@var string $click_value Attribute that is considered a mouse-only event
 	*/
 	var $click_value = 'onmousemove';
-	
+
 	/**
 	*	@var string $key_value Attribute that is considered a keyboard event
-	*/	
+	*/
 	var $key_value = 'onkeypress';
-	
+
 	/**
 	*	The main check function. This is called by the parent class to actually check content
 	*/
@@ -5194,16 +5104,16 @@ class scriptOnmousemove extends quailTest
 *  Any element that contains an onmouseout attribute must also contain an onblur attribute.
 *	@link http://quail-lib.org/test-info/scriptOnmouseoutHasOnmouseblur
 */
-class scriptOnmouseoutHasOnmouseblur extends scriptOnclickRequiresOnKeypress {
-
+class scriptOnmouseoutHasOnmouseblur extends scriptOnclickRequiresOnKeypress
+{
 	/**
 	*	@var string $click_value Attribute that is considered a mouse-only event
 	*/
 	var $click_value = 'onmouseout';
-	
+
 	/**
 	*	@var string $key_value Attribute that is considered a keyboard event
-	*/	
+	*/
 	var $key_value = 'onblur';
 }
 
@@ -5212,16 +5122,16 @@ class scriptOnmouseoutHasOnmouseblur extends scriptOnclickRequiresOnKeypress {
 *  Any element that contains an onmouseover attribute must also contain an onfocus attribute.
 *	@link http://quail-lib.org/test-info/scriptOnmouseoverHasOnfocus
 */
-class scriptOnmouseoverHasOnfocus extends scriptOnclickRequiresOnKeypress {
-
+class scriptOnmouseoverHasOnfocus extends scriptOnclickRequiresOnKeypress
+{
 	/**
 	*	@var string $click_value Attribute that is considered a mouse-only event
 	*/
 	var $click_value = 'onmouseover';
-	
+
 	/**
 	*	@var string $key_value Attribute that is considered a keyboard event
-	*/	
+	*/
 	var $key_value = 'onfocus';
 }
 
@@ -5230,16 +5140,16 @@ class scriptOnmouseoverHasOnfocus extends scriptOnclickRequiresOnKeypress {
 *  Any element that contains an onmouseup attribute must also contain an onkeyup attribute.
 *	@link http://quail-lib.org/test-info/scriptOnmouseupHasOnkeyup
 */
-class scriptOnmouseupHasOnkeyup extends scriptOnclickRequiresOnKeypress {
-
+class scriptOnmouseupHasOnkeyup extends scriptOnclickRequiresOnKeypress
+{
 	/**
 	*	@var string $click_value Attribute that is considered a mouse-only event
 	*/
 	var $click_value = 'onmouseup';
-	
+
 	/**
 	*	@var string $key_value Attribute that is considered a keyboard event
-	*/	
+	*/
 	var $key_value = 'onkeyup';
 }
 
@@ -5250,7 +5160,6 @@ class scriptOnmouseupHasOnkeyup extends scriptOnclickRequiresOnKeypress {
 */
 class scriptUIMustBeAccessible extends quailTagTest
 {
-
 	/**
 	*	@var int $default_severity The default severity code for this test.
 	*/
@@ -5269,7 +5178,6 @@ class scriptUIMustBeAccessible extends quailTagTest
 */
 class scriptsDoNotFlicker extends quailTagTest
 {
-
 	/**
 	*	@var int $default_severity The default severity code for this test.
 	*/
@@ -5288,7 +5196,6 @@ class scriptsDoNotFlicker extends quailTagTest
 */
 class scriptsDoNotUseColorAlone extends quailTagTest
 {
-
 	/**
 	*	@var int $default_severity The default severity code for this test.
 	*/
@@ -5307,7 +5214,6 @@ class scriptsDoNotUseColorAlone extends quailTagTest
 */
 class selectDoesNotChangeContext extends quailTest
 {
-
 	/**
 	*	@var int $default_severity The default severity code for this test.
 	*/
@@ -5321,7 +5227,7 @@ class selectDoesNotChangeContext extends quailTest
 		foreach ($this->getAllElements('select') as $select) {
 			if ($select->hasAttribute('onchange'))
 				$this->addReport($select);
-		
+
 		}
 	}
 }
@@ -5331,8 +5237,8 @@ class selectDoesNotChangeContext extends quailTest
 *  select element must have an associated label element. A label element is associated with the select element if the for attribute value of the label is the same as the id attribute of the select element.
 *	@link http://quail-lib.org/test-info/selectHasAssociatedLabel
 */
-class selectHasAssociatedLabel extends inputHasLabel {
-
+class selectHasAssociatedLabel extends inputHasLabel
+{
 	/**
 	*	@var int $default_severity The default severity code for this test.
 	*/
@@ -5356,7 +5262,6 @@ class selectHasAssociatedLabel extends inputHasLabel {
 */
 class selectWithOptionsHasOptgroup extends quailTest
 {
-
 	/**
 	*	@var int $default_severity The default severity code for this test.
 	*/
@@ -5388,17 +5293,16 @@ class selectWithOptionsHasOptgroup extends quailTest
 */
 class siteMap extends quailTest
 {
-
 	/**
 	*	@var int $default_severity The default severity code for this test.
 	*/
 	var $default_severity = QUAIL_TEST_SUGGESTION;
-	
+
 	/**
 	*	@var bool $cms This test does not apply to content management systems (is document-related)
 	*/
 	var $cms = false;
-	
+
 	/**
 	*	The main check function. This is called by the parent class to actually check content
 	*/
@@ -5419,24 +5323,23 @@ class siteMap extends quailTest
 */
 class skipToContentLinkProvided extends quailTest
 {
-	
 	/**
 	*	@var bool $cms This test does not apply to content management systems (is document-related)
 	*/
 	var $cms = false;
-	
+
 	/**
 	*	@var int $default_severity The default severity code for this test.
 	*/
 	var $default_severity = QUAIL_TEST_MODERATE;
-	
+
 	/**
 	*	@var array $strings An array of strings, broken up by language domain
 	*/
 	var $strings = array('en' => array('navigation', 'skip', 'content'),
 						 'es' => array('navegaci&oacute;n', 'saltar', 'contenido'),
 						);
-	
+
 	/**
 	*	The main check function. This is called by the parent class to actually check content
 	*/
@@ -5448,9 +5351,9 @@ class skipToContentLinkProvided extends quailTest
 			return null;
 		}
 		$a = $first_link[0];
-		
+
 		if (substr($a->getAttribute('href'), 0, 1) == '#') {
-			
+
 			$link_text = explode(' ', strtolower($a->nodeValue));
 			if (!in_array($this->translation(), $link_text)) {
 				$report = true;
@@ -5470,14 +5373,14 @@ class skipToContentLinkProvided extends quailTest
 					$this->addReport(null, null, false);
 				}
 			}
-		
+
 		}
 		else
 			$this->addReport(null, null, false);
 
 	}
 
-} 
+}
 
 
 /**
@@ -5487,12 +5390,11 @@ class skipToContentLinkProvided extends quailTest
 */
 class tabIndexFollowsLogicalOrder extends quailTest
 {
-
 	/**
 	*	@var int $default_severity The default severity code for this test.
 	*/
 	var $default_severity = QUAIL_TEST_MODERATE;
-	
+
 	/**
 	*	The main check function. This is called by the parent class to actually check content
 	*/
@@ -5515,7 +5417,6 @@ class tabIndexFollowsLogicalOrder extends quailTest
 */
 class tableCaptionIdentifiesTable extends quailTagTest
 {
-
 	/**
 	*	@var int $default_severity The default severity code for this test.
 	*/
@@ -5532,8 +5433,8 @@ class tableCaptionIdentifiesTable extends quailTagTest
 *  The summary is useful when the table has a complex structure (for example, when there are several sets of row or column headers, or when there are multiple groups of columns or rows). The summary may also be helpful for simple data tables that contain many columns or rows of data.
 *	@link http://quail-lib.org/test-info/tableComplexHasSummary
 */
-class tableComplexHasSummary extends quailTableTest {
-
+class tableComplexHasSummary extends quailTableTest
+{
 	/**
 	*	@var int $default_severity The default severity code for this test.
 	*/
@@ -5547,11 +5448,11 @@ class tableComplexHasSummary extends quailTableTest {
 		foreach ($this->getAllElements('table') as $table) {
 			if (!$table->hasAttribute('summary') && $table->firstChild->tagName != 'caption') {
 				$this->addReport($table);
-			
-			
+
+
 			}
 		}
-	
+
 	}
 }
 
@@ -5560,8 +5461,8 @@ class tableComplexHasSummary extends quailTableTest {
 *  Data tables must have th elements while layout tables can not have th elements.
 *	@link http://quail-lib.org/test-info/tableDataShouldHaveTh
 */
-class tableDataShouldHaveTh extends quailTableTest {
-
+class tableDataShouldHaveTh extends quailTableTest
+{
 	/**
 	*	@var int $default_severity The default severity code for this test.
 	*/
@@ -5573,19 +5474,33 @@ class tableDataShouldHaveTh extends quailTableTest {
 
 	function check()
 	{
+		// Remember: We only need to check the first tr in a table and only if there's a single th in there
 		foreach ($this->getAllElements('table') as $table) {
 			foreach ($table->childNodes as $child) {
-				if ($this->propertyIsEqual($child, 'tagName', 'tr')) {
+				if ($this->propertyIsEqual($child, 'tagName', 'tbody') || $this->propertyIsEqual($child, 'tagName', 'thead')) {
+					foreach ($child->childNodes as $tr) {
+						foreach ($tr->childNodes as $th) {
+							if ($this->propertyIsEqual($th, 'tagName', 'th')) {
+								break 3;
+							} else {
+								$this->addReport($table);
+								break 3;
+							}
+						}
+					}
+				} elseif ($this->propertyIsEqual($child, 'tagName', 'tr')) {
 					foreach ($child->childNodes as $th) {
-						if (!$this->propertyIsEqual($th, 'tagName', 'th')) {
+						if ($this->propertyIsEqual($th, 'tagName', 'th')) {
+							break 2;
+						} else {
 							$this->addReport($table);
+							break 2;
 						}
 					}
 				}
 			}
 		}
 	}
-
 }
 
 
@@ -5594,8 +5509,8 @@ class tableDataShouldHaveTh extends quailTableTest {
 *  abbr attribute value on th element must be less than 20 characters (English).
 *	@link http://quail-lib.org/test-info/tableHeaderLabelMustBeTerse
 */
-class tableHeaderLabelMustBeTerse extends quailTableTest {
-
+class tableHeaderLabelMustBeTerse extends quailTableTest
+{
 	/**
 	*	@var int $default_severity The default severity code for this test.
 	*/
@@ -5611,16 +5526,14 @@ class tableHeaderLabelMustBeTerse extends quailTableTest {
 				if ($this->propertyIsEqual($child, 'tagName', 'tr')) {
 					foreach ($child->childNodes as $td) {
 						if ($this->propertyIsEqual($td, 'tagName', 'th')) {
-							if (strlen($td->getAttribute('abbr')) > 20)
+							if (strlen($td->getAttribute('abbr')) > 20) {
 								$this->addReport($td);
-						
+							}
 						}
 					}
 				}
 			}
-			
 		}
-	
 	}
 }
 
@@ -5630,7 +5543,6 @@ class tableHeaderLabelMustBeTerse extends quailTableTest {
 */
 class tableIsGrouped extends quailTest
 {
-
 	/**
 	*	@var int $default_severity The default severity code for this test.
 	*/
@@ -5642,8 +5554,8 @@ class tableIsGrouped extends quailTest
 	function check()
 	{
 		foreach ($this->getAllElements('table') as $table) {
-			if (!$this->elementHasChild($table, 'thead') 
-					|| !$this->elementHasChild($table, 'tbody') 
+			if (!$this->elementHasChild($table, 'thead')
+					|| !$this->elementHasChild($table, 'tbody')
 					|| !$this->elementHasChild($table, 'tfoot')) {
 				$rows = 0;
 				foreach ($table->childNodes as $child) {
@@ -5652,9 +5564,9 @@ class tableIsGrouped extends quailTest
 				}
 				if ($rows > 4)
 					$this->addReport($table);
-			}		
+			}
 		}
-	
+
 	}
 }
 
@@ -5663,8 +5575,8 @@ class tableIsGrouped extends quailTest
 *  Data tables must have th elements while layout tables can not have th elements.
 *	@link http://quail-lib.org/test-info/tableLayoutDataShouldNotHaveTh
 */
-class tableLayoutDataShouldNotHaveTh extends quailTableTest {
-
+class tableLayoutDataShouldNotHaveTh extends quailTableTest
+{
 	/**
 	*	@var int $default_severity The default severity code for this test.
 	*/
@@ -5678,9 +5590,9 @@ class tableLayoutDataShouldNotHaveTh extends quailTableTest {
 		foreach ($this->getAllElements('table') as $table) {
 			if ($this->isData($table))
 				$this->addReport($table);
-		
+
 		}
-	
+
 	}
 
 }
@@ -5690,8 +5602,8 @@ class tableLayoutDataShouldNotHaveTh extends quailTableTest {
 *  table element content cannot contain a caption element if it's a layout table.
 *	@link http://quail-lib.org/test-info/tableLayoutHasNoCaption
 */
-class tableLayoutHasNoCaption extends quailTableTest {
-
+class tableLayoutHasNoCaption extends quailTableTest
+{
 	/**
 	*	@var int $default_severity The default severity code for this test.
 	*/
@@ -5714,7 +5626,7 @@ class tableLayoutHasNoCaption extends quailTableTest {
 				}
 			}
 		}
-	
+
 	}
 }
 
@@ -5723,8 +5635,8 @@ class tableLayoutHasNoCaption extends quailTableTest {
 *  The table element, summary attribute for all layout tables contains no printable characters or is absent.
 *	@link http://quail-lib.org/test-info/tableLayoutHasNoSummary
 */
-class tableLayoutHasNoSummary extends quailTableTest {
-
+class tableLayoutHasNoSummary extends quailTableTest
+{
 	/**
 	*	@var int $default_severity The default severity code for this test.
 	*/
@@ -5747,7 +5659,7 @@ class tableLayoutHasNoSummary extends quailTableTest {
 				}
 			}
 		}
-	
+
 	}
 }
 
@@ -5756,8 +5668,8 @@ class tableLayoutHasNoSummary extends quailTableTest {
 *  This error is generated for all layout tables.  If the table contains th elements then it is a data table. If the table does not contain th elements then it is a layout table.
 *	@link http://quail-lib.org/test-info/tableLayoutMakesSenseLinearized
 */
-class tableLayoutMakesSenseLinearized extends quailTableTest {
-
+class tableLayoutMakesSenseLinearized extends quailTableTest
+{
 	/**
 	*	@var int $default_severity The default severity code for this test.
 	*/
@@ -5771,9 +5683,9 @@ class tableLayoutMakesSenseLinearized extends quailTableTest {
 		foreach ($this->getAllElements('table') as $table) {
 			if (!$this->isData($table))
 				$this->addReport($table);
-		
+
 		}
-	
+
 	}
 
 }
@@ -5785,7 +5697,6 @@ class tableLayoutMakesSenseLinearized extends quailTableTest {
 */
 class tableSummaryDescribesTable extends quailTest
 {
-
 	/**
 	*	@var int $default_severity The default severity code for this test.
 	*/
@@ -5810,7 +5721,6 @@ class tableSummaryDescribesTable extends quailTest
 */
 class tableSummaryDoesNotDuplicateCaption extends quailTest
 {
-
 	/**
 	*	@var int $default_severity The default severity code for this test.
 	*/
@@ -5840,8 +5750,8 @@ class tableSummaryDoesNotDuplicateCaption extends quailTest
 *  table element cannot contain an empty summary attribute if it's a data table.
 *	@link http://quail-lib.org/test-info/tableSummaryIsEmpty
 */
-class tableSummaryIsEmpty extends quailTableTest {
-
+class tableSummaryIsEmpty extends quailTableTest
+{
 	/**
 	*	@var int $default_severity The default severity code for this test.
 	*/
@@ -5865,8 +5775,8 @@ class tableSummaryIsEmpty extends quailTableTest {
 *  table element, summary attribute value must be greater than 10 characters (English) if it's a data table.
 *	@link http://quail-lib.org/test-info/tableSummaryIsSufficient
 */
-class tableSummaryIsSufficient extends quailTableTest {
-
+class tableSummaryIsSufficient extends quailTableTest
+{
 	/**
 	*	@var int $default_severity The default severity code for this test.
 	*/
@@ -6149,7 +6059,6 @@ class textareaHasAssociatedLabel extends inputHasLabel
 */
 class textareaLabelPositionedClose extends quailTagTest
 {
-
 	/**
 	*	@var int $default_severity The default severity code for this test.
 	*/
@@ -6253,12 +6162,11 @@ class videosEmbeddedOrLinkedNeedCaptions extends quailTest
 */
 class documentIsWrittenClearly extends quailTest
 {
-	
 	/**
 	*	@var int $default_severity The default severity code for this test.
 	*/
 	var $default_severity = QUAIL_TEST_MODERATE;
-	
+
 	/**
 	*	@var array $services The services that this test will need. We're using
 	*	the readability library.
@@ -6266,7 +6174,7 @@ class documentIsWrittenClearly extends quailTest
 	var $services = array(
 		'readability' => 'readability/readability',
 	);
-	
+
 	/**
 	*	The main check function. This is called by the parent class to actually check content
 	*/
@@ -6282,7 +6190,7 @@ class documentIsWrittenClearly extends quailTest
 			}
 		}
 	}
-	
+
 }
 
 /**
@@ -6291,12 +6199,11 @@ class documentIsWrittenClearly extends quailTest
 */
 class headersHaveText extends quailTest
 {
-	
 	/**
 	*	@var int $default_severity The default severity code for this test.
 	*/
 	var $default_severity = QUAIL_TEST_SEVERE;
-	
+
 		/**
 	*	The main check function. This is called by the parent class to actually check content
 	*/
@@ -6318,12 +6225,11 @@ class headersHaveText extends quailTest
 
 class labelsAreAssignedToAnInput extends quailTest
 {
-	
 	/**
 	*	@var int $default_severity The default severity code for this test.
 	*/
 	var $default_severity = QUAIL_TEST_SEVERE;
-	
+
 		/**
 	*	The main check function. This is called by the parent class to actually check content
 	*/
@@ -6347,22 +6253,21 @@ class labelsAreAssignedToAnInput extends quailTest
 */
 class imgAltTextNotRedundant extends quailTest
 {
-	
 	/**
 	*	@var int $default_severity The default severity code for this test.
 	*/
 	var $default_severity = QUAIL_TEST_SEVERE;
-	
+
 	/**
 	*	The main check function. This is called by the parent class to actually check content
 	*/
 	function check()
 	{
 		$alt = array();
-		foreach ($this->getAllElements('img') as $img) { 
+		foreach ($this->getAllElements('img') as $img) {
 			if ($img->hasAttribute('src') && $img->hasAttribute('alt')) {
 				if (isset($alt[strtolower(trim($img->getAttribute('alt')))]) &&
-					$alt[strtolower(trim($img->getAttribute('alt')))] != 
+					$alt[strtolower(trim($img->getAttribute('alt')))] !=
 					strtolower(trim($img->getAttribute('src')))) {
 						$this->addReport($img);
 				}

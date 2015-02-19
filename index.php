@@ -99,8 +99,7 @@ session_write_close();
 		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 		<title>UDOIT Accessibility Checker</title>
 		<link rel="icon" type="image/png" href="favicon.ico">
-		<link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
-		<link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap-theme.min.css">
+		<link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css">
 		<link href='//fonts.googleapis.com/css?family=Sonsie+One' rel='stylesheet' type='text/css'>
 		<link href="assets/css/main.css" type="text/css" rel="stylesheet" media="screen">
 		<link href="assets/css/print.css" type="text/css" rel="stylesheet" media="print">
@@ -164,6 +163,10 @@ session_write_close();
 
 									<div class="checkbox">
 										<label><input id="courseSyllabus" type="checkbox" value="syllabus" class="content" name="content[]" checked> Syllabus</label>
+									</div>
+
+									<div class="checkbox">
+										<label><input id="moduleUrls" type="checkbox" value="modules" class="content" name="content[]" checked> Module URLs</label>
 									</div>
 								</div>
 							</div>

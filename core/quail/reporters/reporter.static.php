@@ -67,7 +67,7 @@ class reportStatic extends quailReporter
 
 			if (is_array($test)) {
 				foreach ($test as $k => $problem) {
-					$testResult = [];
+					$testResult           = [];
 
 					if (is_object($problem)) {
 						if ($testname === "cssTextHasContrast") {
@@ -97,7 +97,7 @@ class reportStatic extends quailReporter
 						$testResult['title']        = $title;
 						$testResult['description']  = $description;
 						$testResult['path']         = count($this->path) > 1 ? $this->path[1] : "None";
-						$testResult['html']         = htmlentities($problem->getHtml());
+						$testResult['html']         = $problem->getHtml();
 					}
 
 					$output[] = $testResult;

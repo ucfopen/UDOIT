@@ -2,8 +2,8 @@
 require_once('../config/localConfig.php');
 require_once('../core/quail/quail.php');
 require('../vendor/autoload.php');
-include 'UDoIt.php';
-include 'UFixIt.php';
+include 'Udoit.php';
+include 'Ufixit.php';
 
 use Httpful\Request;
 
@@ -29,7 +29,7 @@ switch ($_POST['main_action']) {
         ];
         session_write_close();
 
-        $udoit = new UDoIt($data);
+        $udoit = new Udoit($data);
         $udoit->buildReport();
 
         $to_encode = [
@@ -39,9 +39,6 @@ switch ($_POST['main_action']) {
         ];
         $encoded_report   = json_encode($to_encode);
         $report_directory = '../reports/'.$user_id.'/'.$to_encode['course'];
-
-        // rrmdir('../reports/'.$user_id);
-        // die();
 
         if (!file_exists($report_directory)) {
             mkdir($report_directory, 0777, true);
@@ -90,14 +87,11 @@ switch ($_POST['main_action']) {
 
         break;
     case 'ufixit':
-        $annoying_entities    = ["\n", "\r", " &Acirc;&nbsp;"];
-        $entitie_replacements = ["", "", "  "];
-
         $data = [
             'base_uri'     => $base_url,
             'content_id'   => $_POST['contentid'],
             'content_type' => $_POST['contenttype'],
-            'error_html'   => str_replace($annoying_entities, $entitie_replacements, $_POST['errorhtml']),
+            'error_html'   => htmlspecialchars_decode($_POST['errorhtml']),
             'error_colors' => isset($_POST['errorcolor']) ? $_POST['errorcolor'] : '',
             'error_type'   => $_POST['errortype'],
             'new_content'  => $_POST['newcontent']
@@ -110,7 +104,17 @@ switch ($_POST['main_action']) {
 
         session_write_close();
 
-        $ufixit = new UFixIt($data);
+        $ufixit = new Ufixit($data);
+
+        if ($data['content_type'] === 'files') {
+            $ufixit->curled_file = $ufixit->getFile("root");
+
+            if ($ufixit->curled_file == false) {
+                header('HTTP/1.1 404 File Not Found');
+                header('Content-Type: application/json; charset=UTF-8');
+                die(json_encode(['message' => '404 Error: File not found']));
+            }
+        }
 
         $submitting_again = false;
 
@@ -121,8 +125,14 @@ switch ($_POST['main_action']) {
                 break;
             case 'imgHasAlt':
             case 'imgNonDecorativeHasAlt':
-                $data['error_html'] = str_replace('alt=""', 'alt', $data['error_html']);
+                // $data['error_html'] = str_replace('alt=""', 'alt', $data['error_html']);
                 $corrected_error    = $ufixit->fixAltText($data['error_html'], $data['new_content'], $submitting_again);
+                break;
+            case 'tableDataShouldHaveTh':
+                // fixing table headers is a special case...
+                $corrected_error    = $ufixit->fixTableHeaders($data['error_html'], $data['new_content'], $submitting_again);
+                $data['error_html'] = $corrected_error['old'];
+                $corrected_error    = $corrected_error['fixed'];
                 break;
             case 'tableThShouldHaveScope':
                 $corrected_error = $ufixit->fixTableThScopes($data['error_html'], $data['new_content'], $submitting_again);
@@ -139,6 +149,7 @@ switch ($_POST['main_action']) {
                 $ufixit->uploadFixedAssignments($corrected_error, $data['error_html']);
                 break;
             case 'files':
+                $ufixit->uploadFixedFiles($corrected_error, $data['error_html']);
                 break;
             case 'pages':
                 $ufixit->uploadFixedPages($corrected_error, $data['error_html']);
@@ -149,17 +160,4 @@ switch ($_POST['main_action']) {
         }
 
         break;
-}
-
-function rrmdir($dir) {
-   if (is_dir($dir)) {
-     $objects = scandir($dir);
-     foreach ($objects as $object) {
-       if ($object != "." && $object != "..") {
-         if (filetype($dir."/".$object) == "dir") rrmdir($dir."/".$object); else unlink($dir."/".$object); 
-       }
-     }
-     reset($objects);
-     rmdir($dir);
-   }
 }

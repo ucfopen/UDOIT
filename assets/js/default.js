@@ -69,8 +69,6 @@ function checker() {
 		error: function(data){
 			killButton();
 			$('#failMsg').fadeIn();
-			$('#scanner').append('<section id="result">'+data+'</section>');
-			$('#result').fadeIn();
 		}
 	});
 }
@@ -204,9 +202,9 @@ $(document).ready(function() {
 	});
 	// END the "U FIX IT" button
 
-	// submitting the fix-it form
+	// submitting the ufixit form
 	$(document).on("submit", ".ufixit-form", function(e) {
-		// e.preventDefault();
+		e.preventDefault();
 
 		var parent = $(this).parent();
 		var values = $(this).serialize();
@@ -229,8 +227,8 @@ $(document).ready(function() {
 					parent.parent().find('.label').removeClass('hidden');
 				}
 			},
-			error: function() {
-				parent.append('<div class="alert alert-danger no-margin margin-top"><span class="glyphicon glyphicon-ban-circle"></span> The was an error sending your request.</div>');
+			error: function(data) {
+				parent.append('<div class="alert alert-danger no-margin margin-top"><span class="glyphicon glyphicon-ban-circle"></span> <strong>Error:</strong> '+data.responseText+'.</div>');
 			}
 		});
 	});
@@ -283,8 +281,11 @@ $(document).ready(function() {
 		result_html.find('a.list-group-item').after('<br>');
 
 		var form = $('<form action="./lib/parsePdf.php" method="post">' +
-		  '<input type="text" name="result_html" value="' + encodeURI(result_html.html()) + '" />' +
+		  '<input type="text" name="result_html" />' +
 		  '</form>');
+
+		$(form).find('input[name="result_html"]').val(result_html.html());
+
 		$(form).submit();
 	});
 	// END clicking the save pdf button

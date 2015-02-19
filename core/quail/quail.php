@@ -1,4 +1,4 @@
-<?php 
+<?php
 /**
 *    QUAIL - QUAIL Accessibility Information Library
 *    Copyright (C) 2009 Kevin Miller
@@ -110,11 +110,11 @@ class quail {
 	*	@var array An array of additional options
 	*/
 	var $options = [
-					'cms_mode'      => false,
-					'start_element' => 0,
-					'end_element'   => 0,
-					'cms_template'  => []
-				];
+			'cms_mode'      => false,
+			'start_element' => 0,
+			'end_element'   => 0,
+			'cms_template'  => []
+		];
 
 	/**
 	*	@var bool An indicator if the DOMDocument loaded. If not, this means that the
@@ -151,7 +151,7 @@ class quail {
 	function prepareDOM()
 	{
 		$this->prepareValue();
-		$this->is_valid = @$this->dom->loadHTML($this->value);
+		$this->is_valid = @$this->dom->loadHTML('<?xml encoding="utf-8" ?>' . $this->value);
 		$this->prepareBaseUrl($this->value, $this->type);
 	}
 
@@ -615,7 +615,7 @@ class quailReportItem {
 		$result_dom = new DOMDocument();
 
 		try {
-			$result_element = $result_dom->createElement(utf8_encode($this->element->tagName));
+			$result_element = $result_dom->importNode($this->element, true);
 		} catch (Exception $e) {
 			return false;
 		}
@@ -630,7 +630,6 @@ class quailReportItem {
 			$result_element->setAttribute($name, $value);
 		}
 
-		$result_element->nodeValue = htmlentities($this->element->nodeValue);
 		//We utf8 encode per http://us2.php.net/manual/en/domdocument.save.php#67952
 		//$result_dom->appendChild(utf8_encode($result_element));
 		@$result_dom->appendChild($result_element);

@@ -12,6 +12,11 @@ body { padding: 20px 0 0; }
 	margin: 0;
 	padding: 0;
 	width: 228px;
+	-webkit-user-select: none;
+	 -khtml-user-select: none;
+	   -moz-user-select: none;
+	     -o-user-select: none;
+	        user-select: none;
 }
 
 h2 {

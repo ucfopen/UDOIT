@@ -31,6 +31,7 @@ if (!$sth->execute()) {
 $reports = $sth->fetchAll();
 
 ?>
+
 <div id="resultsTable" class="table-responsive">
 	<table class="table table-bordered table-hover no-margin">
 		<caption>Saved reports for this course</caption>
