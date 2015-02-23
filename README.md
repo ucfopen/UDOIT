@@ -30,6 +30,17 @@ These value of these vars should be obvious:
 `$db_user_table`
 `$db_reports_table`
 
+## Dependencies
+UDOIT relies on 3 libraries installed through Composer to function:
+
+[Httpful](http://phphttpclient.com/)
+
+[HTML Minifier](https://github.com/zaininnari/html-minifier)
+
+[mPDF](https://github.com/finwe/mpdf)
+
+Please refer to the documentation for these three libraries for additional information.
+
 ## The Udoit class
 File: *lib/Udoit.php*
 
@@ -96,6 +107,7 @@ Fixes the HTML within pages and uploads it back to the Canvas course.
 Fixes the HTML within the syllabus and uploads it back to the Canvas course.
 
 ## Lib files
+All of these files are located within the */lib* directory.
 
 ### cached.php
 This file is called when clicking the "View Old Reports" tab. It connects to the database using [PDO](http://php.net/manual/en/class.pdo.php), selects reports matching the course id, and outputs a table with the data.
