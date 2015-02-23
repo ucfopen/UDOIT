@@ -31,9 +31,12 @@ These value of these vars should be obvious:
 `$db_reports_table`
 
 ## The Udoit class
+File: *lib/Udoit.php*
+
 This is the class which will scan a Canvas course's content and a return a UDOIT report if any problems are found.
 
 ### Properties
+*See class definition*
 
 ### Methods
 
@@ -53,6 +56,7 @@ Increments the current page number for either Files or Pages in the event that t
 This is the class which will fix problem content and upload it to a Canvas course.
 
 ### Properties
+*See class definition*
 
 ### Methods
 
@@ -104,4 +108,4 @@ This creates a PDF from the HTML of a UDOIT scan and allows the user to download
 The file is where all the magic happens, so to speak.
 
 ### progress.php
-Increments a progress key in the global _SESSION variable that some AJAX in default.js talks to in order to track the progress of a UDOIT scan.
+Increments a progress key in the global `$_SESSION` variable that some AJAX in default.js talks to in order to track the progress of a UDOIT scan.
