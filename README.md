@@ -53,6 +53,8 @@ Makes API calls to Canvas and retrieves HTML and other data from selected conten
 Increments the current page number for either Files or Pages in the event that their results are paginated.
 
 ## The Ufixit class
+File: *lib/Ufixit.php*
+
 This is the class which will fix problem content and upload it to a Canvas course.
 
 ### Properties
