@@ -244,7 +244,12 @@ $issue_count = 0;
 
 												<?php if ($item->html): ?>
 													<p><a class="viewError" href="#viewError">View the source of this issue</a></p>
-													<pre class="hidden"><code class="html"><strong>Line <?= $item->lineNo; ?></strong>: <?= htmlspecialchars($item->html); ?></code></pre>
+													<div class="more-info hidden">
+														<div class="error-preview">
+															<?= $item->html; ?>
+														</div>
+														<pre class="error-source"><code class="html"><strong>Line <?= $item->lineNo; ?></strong>: <?= htmlspecialchars($item->html); ?></code></pre>
+													</div>
 												<?php endif; ?>
 											</li>
 										<?php endforeach; ?>

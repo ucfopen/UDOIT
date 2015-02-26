@@ -1,4 +1,4 @@
-<?php 
+<?php
 	$servername = 'http://' . $_SERVER['SERVER_NAME'];
 	$scriptname=end(explode('/',$_SERVER['PHP_SELF']));
 	$scriptpath=str_replace($scriptname,'',$_SERVER['PHP_SELF']);
