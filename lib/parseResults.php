@@ -54,6 +54,7 @@ $issue_count = 0;
 	<?php switch ($bad->title):
 	case "announcements":
 	case "assignments":
+	case "discussions":
 	case "files":
 	case "pages":
 	case "syllabus": ?>
