@@ -262,31 +262,36 @@ $issue_count = 0;
 			<?php endforeach; ?>
 		<?php endif; ?>
 		<?php break; ?>
-	<?php case "module_urls": ?>
+	<?php case "modules": ?>
 		<h2 class="content-title">Module URLs <small><?= count($bad->items) ?> with issues from <?= $bad->amount ?> total in <?= $bad->time ?> seconds</small></h2>
-		<div class="errorItem panel panel-default">
-			<div class="panel-heading clearfix">
-				<button class="btn btn-xs btn-default btn-toggle pull-left no-print margin-right-small"><span class="glyphicon glyphicon-plus"></span></button>
 
-				<h3 class="plus pull-left">These module URLs link to external videos</h3>
-			</div>
+		<?php if (!$bad->items): ?>
+			<div class="alert alert-success"><span class="glyphicon glyphicon-ok"></span> No problems were detected for this type of content!</div>
+		<?php else: ?>
+			<div class="errorItem panel panel-default">
+				<div class="panel-heading clearfix">
+					<button class="btn btn-xs btn-default btn-toggle pull-left no-print margin-right-small"><span class="glyphicon glyphicon-plus"></span></button>
 
-			<div class="errorSummary panel-body">
-				<div class="panel panel-warning">
-					<div class="panel-body">
-						<p class="no-margin">Please make sure these videos have transcripts and proper closed captioning.</p>
+					<h3 class="plus pull-left">These module URLs link to external videos</h3>
+				</div>
+
+				<div class="errorSummary panel-body">
+					<div class="panel panel-warning">
+						<div class="panel-body">
+							<p class="no-margin">Please make sure these videos have transcripts and proper closed captioning.</p>
+						</div>
+					</div>
+
+					<div class="list-group no-margin">
+
+						<?php foreach ($bad->items as $item): ?>
+							<a href="<?= $item->url; ?>" class="list-group-item"><?= $item->title; ?> (<?= $item->external_url; ?>)</a>
+						<?php endforeach; ?>
+
 					</div>
 				</div>
-
-				<div class="list-group no-margin">
-
-					<?php foreach ($bad->items as $item): ?>
-						<a href="<?= $item->url; ?>" class="list-group-item"><?= $item->title; ?> (<?= $item->external_url; ?>)</a>
-					<?php endforeach; ?>
-
-				</div>
 			</div>
-		</div>
+		<?php endif; ?>
 		<?php break; ?>
 	<?php case "unscannable": ?>
 		<h2 class="content-title">Unscannable <small><?= count($bad->items) ?> files</small></h2>
