@@ -2875,14 +2875,14 @@ class videoEmbedChecked extends quailTest
 	/**
 	*	@var int $default_severity The default severity code for this test.
 	*/
-	var $default_severity = QUAIL_TEST_MODERATE;
+	var $default_severity = QUAIL_TEST_SUGGESTION;
 
 	/**
 	*	The main check function. This is called by the parent class to actually check content
 	*/
 	function check()
 	{
-		$search = '/(youtube|vimeo)/';
+		$search = '/(youtube|youtu.be|vimeo)/';
 
 		foreach ($this->getAllElements('iframe') as $iframe) {
 			if (preg_match($search, $iframe->getAttribute('src'))) {
