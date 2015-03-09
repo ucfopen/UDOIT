@@ -1,5 +1,5 @@
 <?php
-
+require '../vendor/autoload.php';
 include_once('../config/localConfig.php');
 
 // saves the report to the database
@@ -16,6 +16,8 @@ $sth = $dbh->prepare("
         $db_reports_table
     WHERE
 		course_id=:courseid
+	ORDER BY
+		date_run DESC
 ");
 
 session_start();
@@ -25,12 +27,14 @@ $sth->bindParam(':courseid', $_SESSION['launch_params']['custom_canvas_course_id
 session_write_close();
 
 if (!$sth->execute()) {
-    die('Ya done goof\'d');
+	echo '<div class="alert alert-danger no-margin"><span class="glyphicon glyphicon-exclamation-sign"></span> Could not complete database query</div>';
+    die();
 }
 
 $reports = $sth->fetchAll();
 
 ?>
+
 <div id="resultsTable" class="table-responsive">
 	<table class="table table-bordered table-hover no-margin">
 		<caption>Saved reports for this course</caption>
@@ -44,7 +48,7 @@ $reports = $sth->fetchAll();
 
 		<tbody>
 			<?php foreach ($reports as $report): ?>
-				<tr>
+				<tr id="<?= $report['id']; ?>">
 					<td><?= $report['date_run']; ?></td>
 					<td><?= $report['errors']; ?></td>
 					<td><?= $report['suggestions']; ?></td>

@@ -24,7 +24,7 @@ This class first parses all the CSS in the document and prepares
 an index of CSS styles to be used by accessibility tests to determine color and
 positioning.
 
-First, in loadCSS we get all the inline and linked style sheet information 
+First, in loadCSS we get all the inline and linked style sheet information
 	and merge it into a large CSS file string.
 
 Second, in setStyles we use XPath queries to find all the DOM elements which are
@@ -41,57 +41,57 @@ are only marginally referential to the original elements and cannot be altered d
 *	tests against it.
 */
 class quailCSS {
-	
+
 	/**
 	*	@var object The DOMDocument object of the current document
 	*/
 	var $dom;
-	
+
 	/**
 	*	@var string The URI of the current document
 	*/
 	var $uri;
-	
+
 	/**
 	*	@var string The type of request (inherited from the main QUAIL object)
 	*/
 	var $type;
-	
+
 	/**
 	*	@var array An array of all the CSS elements and attributes
 	*/
 	var $css;
-	
+
 	/**
 	*	@var string Additional CSS information (usually for CMS mode requests)
 	*/
 	var $css_string;
-	
+
 	/**
 	*	@var bool Whether or not we are running in CMS mode
 	*/
 	var $cms_mode;
-	
+
 	/**
 	*	@var array An array of all the strings which means the current style inherts from above
 	*/
 	var $inheritance_strings = array('inherit', 'currentColor');
-	
+
 	/**
 	*	@var array An array of all the styles keyed by the new attribute quail_style_index
 	*/
 	var $style_index = array();
-	
+
 	/**
 	*	@var int The next index ID to be applied to a node to lookup later in style_index
 	*/
 	var $next_index = 0;
-	
+
 	/**
 	*	@var array A list of all the elements which support deprecated styles such as 'background' or 'bgcolor'
 	*/
 	var $deprecated_style_elements = array('body', 'table', 'tr', 'td', 'th');
-	
+
 	/**
 	*	Class constructor. We are just building and importing variables here and then loading the CSS
 	*	@param object $dom The DOMDocument object
@@ -108,8 +108,8 @@ class quailCSS {
 		$this->cms_mode = $cms_mode;
 		$this->css_files = $css_files;
 	}
-	
-	
+
+
 	/**
 	*	Sets all the styles from the CSS index into the style_index variable.
 	*	To do this, because DOMNodeList doesn't return real elements, we are actually
@@ -139,7 +139,7 @@ class quailCSS {
 	// 		}
 	// 	}
 	// }
-	
+
 	/**
 	*	Adds the provided CSS to the element's style entry in style_index. We first
 	*	check the specificity against the items already in the index.
@@ -152,7 +152,7 @@ class quailCSS {
 	// 	foreach($style as $name => $value) {
 	// 		if(!$this->style_index[$index_id][$name] ||
 	// 		    $this->style_index[$index_id][$name]['specificity'] < $specificity
-	// 		    || strpos($value, '!important') !== false) 
+	// 		    || strpos($value, '!important') !== false)
 	// 		{
 	// 			$this->style_index[$index_id][$name] = array(
 	// 				'value' => str_replace('!important', '', trim(strtolower($value))),
@@ -162,7 +162,7 @@ class quailCSS {
 	// 	}
 
 	// }
-	
+
 	/**
 	*	Loads all the CSS files from the document using LINK elements or @import commands
 	*/
@@ -179,7 +179,7 @@ class quailCSS {
 				}
 			}
 			$style_sheets = $this->dom->getElementsByTagName('link');
-			
+
 			foreach($style_sheets as $style) {
 				if($style->hasAttribute('rel') &&
 					strtolower($style->getAttribute('rel')) == 'stylesheet' &&
@@ -195,7 +195,7 @@ class quailCSS {
 		$this->css_string = str_replace(':link', '', $this->css_string);
 		$this->formatCSS();
 	}
-	
+
 	/**
 	*	Imports files from the CSS file using @import commands
 	*/
@@ -210,9 +210,9 @@ class quailCSS {
 		}
 		preg_replace('/@import (.*?);/i', '', $this->css_string);
 	}
-	
+
 	/**
-	*	Returns a specificity count to the given selector. 
+	*	Returns a specificity count to the given selector.
 	*	Higher specificity means it overrides other styles.
 	*	@param string selector The CSS Selector
 	*/
@@ -240,7 +240,7 @@ class quailCSS {
 		}
 		return $specificity;
 	}
-	
+
 	/**
 	*	Interface method for tests to call to lookup the style information for a given DOMNode
 	*	@param object $element A DOMElement/DOMNode object
@@ -259,7 +259,7 @@ class quailCSS {
 		}
 		$style = $this->getNodeStyle($element);
 		$style = $this->walkUpTreeForInheritance($element, $style);
-		
+
 		if($element->hasAttribute('style')) {
 			$inline_styles = explode(';', $element->getAttribute('style'));
 			foreach($inline_styles as $inline_style) {
@@ -274,13 +274,13 @@ class quailCSS {
 		}
 		return $style;
 	}
-	
+
 	/**
 	*	Adds a selector to the CSS index
 	*	@param string $key The CSS selector
 	*	@param string $codestr The CSS Style code string
 	*/
-	
+
 	private function addSelector($key, $codestr) {
 		if(strpos($key, '@import') !== false) {
 			return null;
@@ -304,7 +304,7 @@ class quailCSS {
 			}
 		}
 	}
-	
+
 	/**
 	*	Returns the style from the CSS index for a given element by first
 	*	looking into its tag bucket then iterating over every item for an
@@ -319,13 +319,13 @@ class quailCSS {
 		if($element->hasAttribute('quail_style_index')) {
 			$style = $this->style_index[$element->getAttribute('quail_style_index')];
 		}
-		// To support the deprecated 'bgcolor' attribute 
+		// To support the deprecated 'bgcolor' attribute
 		if($element->hasAttribute('bgcolor') &&  in_array($element->tagName, $this->deprecated_style_elements)) {
 			$style['background-color'] = $element->getAttribute('bgcolor');
 		}
 		return $style;
 	}
-	
+
 	/**
 	*	A helper function to walk up the DOM tree to the end to build an array
 	*	of styles.
@@ -336,7 +336,7 @@ class quailCSS {
 	private function walkUpTreeForInheritance($element, $style) {
 		while(property_exists($element->parentNode, 'tagName')) {
 			$parent_style = $this->getNodeStyle($element->parentNode);
-			
+
 			if(is_array($parent_style)) {
 				foreach($parent_style as $k => $v) {
 					if(!isset($style[$k]) /*|| in_array($style[$k]['value'], $this->inheritance_strings)*/) {
@@ -348,7 +348,7 @@ class quailCSS {
 		}
 		return $style;
 	}
-	
+
 	/**
 	*	Loads a CSS file from a URI
 	*	@param string $rel The URI of the CSS file
@@ -361,13 +361,13 @@ class quailCSS {
 			$uri = quail::getAbsolutePath($this->uri, $rel);
 		}
 		$this->css_string .= @file_get_contents($uri);
-		
+
 	}
-	
+
 	/**
 	* 	Formats the CSS to be ready to import into an array of styles
 	*	@return bool Whether there were elements imported or not
-	*/	
+	*/
 	private function formatCSS() {
 		// Remove comments
 		$str = preg_replace("/\/\*(.*)?\*\//Usi", "", $this->css_string);
@@ -392,7 +392,7 @@ class quailCSS {
 		}
 		return (count($this->css) > 0);
 	}
-	
+
 	/**
 	*	Converts a CSS selector to an Xpath query
 	*	@param string $selector The selector to convert
@@ -407,19 +407,19 @@ class quailCSS {
 				$xpath .= '//';
 			elseif($q == '>' && $k)
 				$xpath .= '/';
-			elseif(substr($q, 0, 1) == '#') 
+			elseif(substr($q, 0, 1) == '#')
 				$xpath .= '[ @id = "'. str_replace('#', '', $q) .'" ]';
-	
-			elseif(substr($q, 0, 1) == '.') 
+
+			elseif(substr($q, 0, 1) == '.')
 				$xpath .= '[ @class = "'. str_replace('.', '', $q) .'" ]';
-			elseif(substr($q, 0, 1) == '[') 
+			elseif(substr($q, 0, 1) == '[')
 				$xpath .= str_replace('[id', '[ @ id', $q);
 			else
 				$xpath .= trim($q);
 		}
 		return str_replace('//[', '//*[', str_replace('//[ @', '//*[ @', $xpath));
 	}
-	
+
 	/**
 	*	Checks that a string is really a regular character
 	*	@param string $char The character
@@ -430,7 +430,7 @@ class quailCSS {
 			? mb_eregi('\w', $char)
 			: preg_match('@\w@', $char);
 	}
-	
+
 	/**
 	*	Parses a CSS selector into an array of rules.
 	*	@param string $query The CSS Selector query
@@ -597,5 +597,5 @@ class quailCSS {
 		}
 		return $queries;
 	}
-	
+
 }

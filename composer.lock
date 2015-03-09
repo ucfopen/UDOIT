@@ -4,7 +4,7 @@
         "Read more about it at http://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "7896b599ef49c4fc7250c85f943d369e",
+    "hash": "724d39e93893c91be5102a8450c71646",
     "packages": [
         {
             "name": "mpdf/mpdf",
@@ -12,12 +12,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/finwe/mpdf.git",
-                "reference": "66828216f52d81291186e48871a417aad4064ce7"
+                "reference": "37d5fac9b080b0ca4a822b92279abe408b70483f"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/finwe/mpdf/zipball/66828216f52d81291186e48871a417aad4064ce7",
-                "reference": "66828216f52d81291186e48871a417aad4064ce7",
+                "url": "https://api.github.com/repos/finwe/mpdf/zipball/37d5fac9b080b0ca4a822b92279abe408b70483f",
+                "reference": "37d5fac9b080b0ca4a822b92279abe408b70483f",
                 "shasum": ""
             },
             "require": {
@@ -47,7 +47,7 @@
                 "php",
                 "utf-8"
             ],
-            "time": "2014-10-24 00:49:19"
+            "time": "2014-12-17 11:55:19"
         },
         {
             "name": "nategood/httpful",
@@ -98,15 +98,126 @@
                 "restful"
             ],
             "time": "2014-08-24 21:57:36"
+        },
+        {
+            "name": "zaininnari/html-minifier",
+            "version": "dev-master",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/zaininnari/html-minifier.git",
+                "reference": "4ccb3db3ea40e3f1f94d006190d2e5467a0bb818"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/zaininnari/html-minifier/zipball/4ccb3db3ea40e3f1f94d006190d2e5467a0bb818",
+                "reference": "4ccb3db3ea40e3f1f94d006190d2e5467a0bb818",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.3.0"
+            },
+            "require-dev": {
+                "satooshi/php-coveralls": "dev-master"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-0": {
+                    "zz": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "The BSD 3-Clause License"
+            ],
+            "authors": [
+                {
+                    "name": "Google inc",
+                    "homepage": "http://www.chromium.org/blink",
+                    "role": "Author"
+                },
+                {
+                    "name": "zaininnari",
+                    "homepage": "https://github.com/zaininnari/",
+                    "role": "Developer"
+                }
+            ],
+            "description": "The Blink HTMLTokenizer ported to PHP.",
+            "homepage": "https://github.com/zaininnari/html-minifier",
+            "keywords": [
+                "Blink",
+                "HTML minify",
+                "php"
+            ],
+            "time": "2013-10-27 09:21:31"
         }
     ],
-    "packages-dev": [],
+    "packages-dev": [
+        {
+            "name": "symfony/var-dumper",
+            "version": "v2.6.4",
+            "target-dir": "Symfony/Component/VarDumper",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/symfony/var-dumper.git",
+                "reference": "c3d5a36c3e3298bd8b070488fba5537174647353"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/symfony/var-dumper/zipball/c3d5a36c3e3298bd8b070488fba5537174647353",
+                "reference": "c3d5a36c3e3298bd8b070488fba5537174647353",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.3.3"
+            },
+            "suggest": {
+                "ext-symfony_debug": ""
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "2.6-dev"
+                }
+            },
+            "autoload": {
+                "files": [
+                    "Resources/functions/dump.php"
+                ],
+                "psr-0": {
+                    "Symfony\\Component\\VarDumper\\": ""
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Symfony Community",
+                    "homepage": "http://symfony.com/contributors"
+                },
+                {
+                    "name": "Nicolas Grekas",
+                    "email": "p@tchwork.com"
+                }
+            ],
+            "description": "Symfony mechanism for exploring and dumping PHP variables",
+            "homepage": "http://symfony.com",
+            "keywords": [
+                "debug",
+                "dump"
+            ],
+            "time": "2015-02-02 16:32:08"
+        }
+    ],
     "aliases": [],
     "minimum-stability": "stable",
     "stability-flags": {
+        "zaininnari/html-minifier": 20,
         "mpdf/mpdf": 20
     },
     "prefer-stable": false,
+    "prefer-lowest": false,
     "platform": [],
     "platform-dev": []
 }

@@ -47,7 +47,7 @@ function checker() {
 		return $(n).val();
 	}).get();
 
-	if(content.length === 0) {
+	if (content.length === 0) {
 		content = "none";
 	}
 
@@ -66,7 +66,7 @@ function checker() {
 
 			jscolor.bind();
 		},
-		error: function(){
+		error: function(data){
 			killButton();
 			$('#failMsg').fadeIn();
 		}
@@ -173,7 +173,7 @@ $(document).ready(function() {
 	// view error source
 	$(document).on("click", ".viewError", function() {
 		$(this).addClass('hidden');
-		$(this).parent().parent().find('pre').removeClass('hidden');
+		$(this).parent().parent().find('div.more-info').removeClass('hidden');
 	});
 	// END view error source
 
@@ -202,7 +202,7 @@ $(document).ready(function() {
 	});
 	// END the "U FIX IT" button
 
-	// submitting the fix-it form
+	// submitting the ufixit form
 	$(document).on("submit", ".ufixit-form", function(e) {
 		e.preventDefault();
 
@@ -227,8 +227,8 @@ $(document).ready(function() {
 					parent.parent().find('.label').removeClass('hidden');
 				}
 			},
-			error: function() {
-				parent.append('<div class="alert alert-danger no-margin margin-top"><span class="glyphicon glyphicon-ban-circle"></span> The was an error sending your request.</div>');
+			error: function(data) {
+				parent.append('<div class="alert alert-danger no-margin margin-top"><span class="glyphicon glyphicon-ban-circle"></span> <strong>Error:</strong> '+data.responseText+'.</div>');
 			}
 		});
 	});
@@ -246,9 +246,10 @@ $(document).ready(function() {
 
 	// clicking a result table row to display the cached report
 	$(document).on("click", "#resultsTable tbody tr", function() {
-		var json_file = $(this).find('.file-path').html();
+		var main_action = "cached";
+		var cached_id   = $(this).attr('id');
 
-		$.post("./lib/parseResults.php", { path: json_file }, function(data) {
+		$.post("./lib/parseResults.php", { main_action: main_action, cached_id: cached_id }, function(data) {
 			$('#resultsTable').fadeOut();
 			$('#cached').append('<div id="result">'+data+'</div>');
 			$('#result').fadeIn();
@@ -273,13 +274,18 @@ $(document).ready(function() {
 		result_html.find('.viewError').remove();
 		result_html.find('.label-success').remove();
 		result_html.find('p:empty').remove();
+		result_html.find('.error-preview').remove();
+		result_html.find('.error-source').remove();
 		result_html.find('.error-desc').prepend('<br>');
 		result_html.find('.error-desc').append('<br><br>');
 		result_html.find('a.list-group-item').after('<br>');
 
 		var form = $('<form action="./lib/parsePdf.php" method="post">' +
-		  '<input type="text" name="result_html" value="' + encodeURI(result_html.html()) + '" />' +
+		  '<input type="text" name="result_html" />' +
 		  '</form>');
+
+		$(form).find('input[name="result_html"]').val(result_html.html());
+
 		$(form).submit();
 	});
 	// END clicking the save pdf button

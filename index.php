@@ -99,8 +99,7 @@ session_write_close();
 		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 		<title>UDOIT Accessibility Checker</title>
 		<link rel="icon" type="image/png" href="favicon.ico">
-		<link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
-		<link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap-theme.min.css">
+		<link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css">
 		<link href='//fonts.googleapis.com/css?family=Sonsie+One' rel='stylesheet' type='text/css'>
 		<link href="assets/css/main.css" type="text/css" rel="stylesheet" media="screen">
 		<link href="assets/css/print.css" type="text/css" rel="stylesheet" media="print">
@@ -110,6 +109,9 @@ session_write_close();
 			<header id="mainHeader" class="navbar navbar-default center">
 				<h1 class="logo">UDOIT</h1>
 			</header>
+			<div class="alert alert-warning">
+				If you have any suggestions on how UDOIT can be improved, please <a href="https://jfe.qualtrics.com/form/SV_es0XFCNS0ymgcD3">leave feedback</a>
+			</div>
 			<ul class="nav nav-tabs nav-justified" role="tablist">
 				<li role="presentation" class="active"><a href="#scanner" role="tab" data-toggle="tab">Scan Course</a></li>
 				<li role="presentation"><a href="#cached" role="tab" data-toggle="tab">View Old Reports</a></li>
@@ -158,6 +160,14 @@ session_write_close();
 									<div class="checkbox">
 										<label><input id="coursePages" type="checkbox" value="pages" class="content" name="content[]" checked> Pages</label>
 									</div>
+
+									<div class="checkbox">
+										<label><input id="courseSyllabus" type="checkbox" value="syllabus" class="content" name="content[]" checked> Syllabus</label>
+									</div>
+
+									<div class="checkbox">
+										<label><input id="moduleUrls" type="checkbox" value="modules" class="content" name="content[]" checked> Module URLs</label>
+									</div>
 								</div>
 							</div>
 
@@ -192,12 +202,26 @@ session_write_close();
 									<ul class="list-group no-margin">
 										<?php foreach ($udoit_tests['severe'] as $severe): ?>
 											<li class="list-group-item">
-												<p class="list-group-item-text "><?= $severe['desc'] ?> <button type="button" class="btn btn-xs btn-default" data-toggle="collapse" data-target="#<?= $severe['name'] ?>">More info</button></p>
+												<p class="list-group-item-text "><?= $severe['title'] ?> <button type="button" class="btn btn-xs btn-default" data-toggle="collapse" data-target="#<?= $severe['name'] ?>">More info</button></p>
 
 												<div class="list-group-item-text collapse" id="<?= $severe['name'] ?>">
 													<hr>
 
-													<?= $severe['example'] ?>
+													<?= $severe['desc']; ?>
+
+													<?php if ($severe['resources']) :?>
+														<p>Resources:</p>
+														<ul>
+															<?php foreach ($severe['resources'] as $resource): ?>
+																<li><?= $resource; ?></li>
+															<?php endforeach; ?>
+														</ul>
+													<?php endif; ?>
+
+													<?php if ($severe['example']): ?>
+														<hr>
+														<?= $severe['example']; ?>
+													<?php endif; ?>
 												</div>
 											</li>
 										<?php endforeach; ?>
@@ -210,12 +234,26 @@ session_write_close();
 									<ul class="list-group">
 										<?php foreach ($udoit_tests['suggestion'] as $suggestion): ?>
 											<li class="list-group-item">
-												<p class="list-group-item-text "><?= $suggestion['desc'] ?> <?php if (isset($suggestion['example'])): ?><button type="button" class="btn btn-xs btn-default" data-toggle="collapse" data-target="#<?= $suggestion['name'] ?>">More info</button><?php endif; ?></p>
+												<p class="list-group-item-text "><?= $suggestion['title'] ?> <button type="button" class="btn btn-xs btn-default" data-toggle="collapse" data-target="#<?= $suggestion['name'] ?>">More info</button></p>
 
 												<div class="list-group-item-text collapse" id="<?= $suggestion['name'] ?>">
 													<hr>
 
-													<?= $suggestion['example'] ?>
+													<?= $suggestion['desc']; ?>
+
+													<?php if ($suggestion['resources']) :?>
+														<p>Resources:</p>
+														<ul>
+															<?php foreach ($suggestion['resources'] as $resource): ?>
+																<li><?= $resource; ?></li>
+															<?php endforeach; ?>
+														</ul>
+													<?php endif; ?>
+
+													<?php if ($suggestion['example']): ?>
+														<hr>
+														<?= $suggestion['example']; ?>
+													<?php endif; ?>
 												</div>
 											</li>
 										<?php endforeach; ?>

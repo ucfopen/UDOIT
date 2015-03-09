@@ -12,6 +12,11 @@ body { padding: 20px 0 0; }
 	margin: 0;
 	padding: 0;
 	width: 228px;
+	-webkit-user-select: none;
+	 -khtml-user-select: none;
+	   -moz-user-select: none;
+	     -o-user-select: none;
+	        user-select: none;
 }
 
 h2 {
@@ -190,6 +195,57 @@ h5 + ul {
 	font-size: 1em;
 	margin-right: 10px;
 	padding: 5px;
+}
+
+.error-preview {
+	position: relative;
+
+	padding: 26.5px 9.5px 9.5px;
+	margin: 0 0 10px;
+
+	background-color: #f5f5f5;
+	border: 1px solid #ccc;
+	border-radius: 4px;
+}
+
+.error-preview:before {
+	content: "Preview";
+
+	position: absolute;
+	top: 0;
+	left: 0;
+
+	padding: 2px 6px;
+
+	color: #fff;
+	font-size: 11px;
+	font-weight: bold;
+
+	background: rgba(0,0,0,0.3);
+	border-radius: 3px 0 3px 0;
+}
+
+.error-source {
+	position: relative;
+
+	padding-top: 26.5px;
+}
+
+.error-source:before {
+	content: "Source";
+
+	position: absolute;
+	top: 0;
+	left: 0;
+
+	padding: 2px 6px;
+
+	color: #fff;
+	font-size: 11px;
+	font-weight: bold;
+
+	background: rgba(0,0,0,0.3);
+	border-radius: 3px 0 3px 0;
 }
 
 /* Circle Stuff */
