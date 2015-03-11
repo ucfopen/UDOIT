@@ -123,3 +123,13 @@ The file is where all the magic happens, so to speak.
 
 ### progress.php
 Increments a progress key in the global `$_SESSION` variable that some AJAX in default.js talks to in order to track the progress of a UDOIT scan.
+
+## Contributors
+* Jacob Bates
+* Eric Colon
+* Fenel Joseph
+* Karen Tinsley-Kim
+* Joe Fauvel
+* John Raible
+* Kathleen Bastedo
+* Nancy Swenson
