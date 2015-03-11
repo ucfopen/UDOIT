@@ -29,6 +29,7 @@ class youtubeService extends mediaService
 	*/
 	function captionsMissing($link_url)
 	{
+		return false;
 		if($code = $this->isYouTubeVideo($link_url)) {
 			$result = file_get_contents(sprintf($this->search_url, $code));
 			if(!$result) {
