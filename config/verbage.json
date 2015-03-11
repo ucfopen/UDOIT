@@ -116,7 +116,7 @@
 	        },
 	        {
 	            "name": "objectMustContainText",
-	            "title": "Objects must contain a text equivalent of the object",
+	            "title": "Objects should contain a text equivalent of the object",
 	            "desc": "",
 	            "resources": ["<a href=\"http://www.w3.org/TR/UNDERSTANDING-WCAG20/text-equiv.html\">WCAG 2.0 Guideline</a>"],
 	            "example"   : "
@@ -152,7 +152,7 @@
 	        },
 	        {
 	            "name": "aSuspiciousLinkText",
-	            "title": "Link text should be useful",
+	            "title": "Link text should be descriptive",
 	            "desc": "Link text should be descriptive of where it is taking the user",
 	            "resources": [],
 	            "example"   : "

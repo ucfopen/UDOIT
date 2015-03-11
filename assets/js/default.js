@@ -218,7 +218,7 @@ $(document).ready(function() {
 				if (data == "Missing content") {
 					parent.append('<div class="alert alert-danger well-sm no-margin margin-top"><span class="glyphicon glyphicon-ban-circle"></span> Please enter alt text.</div>');
 				} else if (data == "Incorrect table scope") {
-					parent.append('<div class="alert alert-danger well-sm no-margin margin-top"><span class="glyphicon glyphicon-ban-circle"></span> You must enter "col" or "row" for th scopes.</div>');
+					parent.append('<div class="alert alert-danger well-sm no-margin margin-top"><span class="glyphicon glyphicon-ban-circle"></span> You should enter "col" or "row" for th scopes.</div>');
 				} else {
 					parent.removeClass('in');
 					parent.find('input[name="submittingagain"]').val('Yes');
