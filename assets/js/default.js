@@ -308,4 +308,13 @@ $(document).ready(function() {
 		});
 	});
 	// END clicking the cached reports tab
+
+	// Rule forces links within "What does UDOIT Look for?" to open in new page
+	$('#udoitInfo a').on("click", function() {
+		event.preventDefault();
+
+		var url = $(this).attr('href');
+		window.open(url, '_blank');
+	});
+	// END Rule forcing links to open in new window
 });
