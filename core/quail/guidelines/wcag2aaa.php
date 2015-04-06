@@ -174,6 +174,7 @@ class Wcag2aaaGuideline extends quailGuideline
 		'cssTextHasContrast',
 		'headersHaveText',
 		'videoEmbedChecked',
+		'videosEmbeddedOrLinkedNeedCaptions',
 	];
 }
 /*@}*/
