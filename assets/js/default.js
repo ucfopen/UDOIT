@@ -172,10 +172,19 @@ $(document).ready(function() {
 
 	// view error source
 	$(document).on("click", ".viewError", function() {
+		console.log("You clicked: viewError");
 		$(this).addClass('hidden');
 		$(this).parent().parent().find('div.more-info').removeClass('hidden');
 	});
 	// END view error source
+
+	// close error source
+	$(document).on("click", ".closeError", function() {
+		console.log("You clicked: closeError");
+		$(this).parent().parent().find('a.viewError').removeClass('hidden');
+		$(this).parent().parent().find('div.more-info').addClass('hidden');
+	});
+	// END close error source
 
 	// print button
 	$(document).on("click", "#print", function() {

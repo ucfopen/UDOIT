@@ -119,6 +119,7 @@ $issue_count = 0;
 																<?= $item->html; ?>
 															</div>
 															<pre class="error-source"><code class="html"><strong>Line <?= $item->lineNo; ?></strong>: <?= htmlspecialchars($item->html); ?></code></pre>
+															<p><a class="closeError" href="#closeError">Close this view</a></p>
 														</div>
 													<?php endif; ?>
 
@@ -216,7 +217,12 @@ $issue_count = 0;
 
 												<?php if ($item->html): ?>
 													<p><a class="viewError" href="#viewError">View the source of this issue</a></p>
-													<pre class="hidden"><code class="html"><strong>Line <?= $item->lineNo; ?></strong>: <?= htmlspecialchars($item->html); ?></code></pre>
+													<div class="more-info hidden">
+														<pre class="hidden">
+															<code class="html"><strong>Line <?= $item->lineNo; ?></strong>: <?= htmlspecialchars($item->html); ?></code>
+														</pre>
+														<p><a class="closeError" href="#closeError">Close this view</a></p>
+													</div>
 												<?php endif; ?>
 											</li>
 										<?php endforeach; ?>
@@ -250,6 +256,7 @@ $issue_count = 0;
 															<?= $item->html; ?>
 														</div>
 														<pre class="error-source"><code class="html"><strong>Line <?= $item->lineNo; ?></strong>: <?= htmlspecialchars($item->html); ?></code></pre>
+														<p><a class="closeError" href="#closeError">Close this view</a></p>
 													</div>
 												<?php endif; ?>
 											</li>
