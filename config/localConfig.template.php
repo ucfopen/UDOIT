@@ -235,7 +235,7 @@ $udoit_tests = [
         ],
         [
             'name'      => 'pNotUsedAsHeader',
-            'title'     => 'Change paragraphs to headers',
+            'title'     => 'Change paragraphs to headings',
             'desc'      => '<p>Headers like <code>h1-h6</code> are extremely useful for non-sighted users to navigate the structure of the page, and formatting a paragraph to just be big or bold, while it might visually look like a header, does not make it one.</p>',
             'resources' => [],
             'example'   => '
