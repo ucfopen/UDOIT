@@ -263,7 +263,7 @@ $issue_count = 0;
 			<?php endforeach; ?>
 		<?php endif; ?>
 		<?php break; ?>
-	<?php case "modules": ?>
+	<?php case "module_urls": ?>
 		<h2 class="content-title">Module URLs <small><?= count($bad->items) ?> with issues from <?= $bad->amount ?> total in <?= $bad->time ?> seconds</small></h2>
 
 		<?php if (!$bad->items): ?>
