@@ -172,7 +172,6 @@ $(document).ready(function() {
 
 	// view error source
 	$(document).on("click", ".viewError", function() {
-		console.log("You clicked: viewError");
 		$(this).addClass('hidden');
 		$(this).parent().parent().find('div.more-info').removeClass('hidden');
 	});
@@ -180,9 +179,8 @@ $(document).ready(function() {
 
 	// close error source
 	$(document).on("click", ".closeError", function() {
-		console.log("You clicked: closeError");
-		$(this).parent().parent().find('a.viewError').removeClass('hidden');
-		$(this).parent().parent().find('div.more-info').addClass('hidden');
+		$(this).parent().parent().parent().find('a.viewError').removeClass('hidden');
+		$(this).parent().parent().parent().find('div.more-info').addClass('hidden');
 	});
 	// END close error source
 
