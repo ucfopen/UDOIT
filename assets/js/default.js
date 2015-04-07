@@ -177,6 +177,13 @@ $(document).ready(function() {
 	});
 	// END view error source
 
+	// close error source
+	$(document).on("click", ".closeError", function() {
+		$(this).parent().parent().parent().find('a.viewError').removeClass('hidden');
+		$(this).parent().parent().parent().find('div.more-info').addClass('hidden');
+	});
+	// END close error source
+
 	// print button
 	$(document).on("click", "#print", function() {
 		window.print();
