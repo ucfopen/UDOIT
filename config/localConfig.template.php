@@ -12,6 +12,9 @@ $oauth2_id = '';
 $oauth2_key = '';
 $oauth2_uri = '';
 
+/* Google/YouTube Data Api Key */
+$google_api_key = '';
+
 /* Database Config */
 $db_host = '';
 $db_user = '';
