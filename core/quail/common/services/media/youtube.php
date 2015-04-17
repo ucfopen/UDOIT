@@ -1,12 +1,14 @@
 <?php
 
 require_once('mediaService.php');
+require_once('../config/localConfig.php');
 use Httpful\Request;
 
 /**
 *  Media service for YouTube. This absracts out YouTube's API calls
 *
 */
+
 class youtubeService extends mediaService
 {
 	/**
@@ -34,31 +36,28 @@ class youtubeService extends mediaService
 	*/
 	function captionsMissing($link_url)
 	{
+		
 		$url = 'https://www.googleapis.com/youtube/v3/videos?part=contentDetails&id=';
+		$api_key = constant( 'GOOGLE_API_KEY' );
 
-		$youtube_id = youtubeID($link_url);
-		$url = $url.$youtube_id.'&key='.$google_api_key;
-		$response = Request::get($url)->send();
+		if( $youtube_id = $this->isYouTubeVideo($link_url) ) {
+			$url = $url.$youtube_id.'&key='.$api_key;
+			$response = Request::get($url)->send();
 
-		return $response->body->items[0]->contentDetails->caption;
+			if( !$response ) {
+				return true;
+			}
+
+			return ($response->body->items[0]->contentDetails->caption == 'true')? false: true;
+		}
+
+		return false;
+		
 	}
 
 	/**
 	*	Checks to see if the provided link URL is a YouTube video. If so, it returns
 	*	the video code, if not, it returns null.
-	*	@param string $link_url The URL to the video or video resource
-	*	@return mixed FALSE if it's not a YouTube video, or a string video ID if it is
-	*/
-	private function youtubeID($link_url)
-	{
-		$pattern = '/(?:youtube.com/(?:[^/]+/.+/|(?:v|e(?:mbed)?)/|.*[?&]v=)|youtu.be/)([^"&?/ ]{11})/i';
-		preg_match($pattern, $link_url, $matches);
-
-		return isset($matches[1]) ? $matches[1] : false;
-	}
-
-	/**
-	*	Gets YouTube 
 	*	@param string $link_url The URL to the video or video resource
 	*	@return mixed FALSE if it's not a YouTube video, or a string video ID if it is
 	*/

@@ -123,6 +123,40 @@ class Ufixit
         return $fixed_css;
     }
 
+        /**
+     * Fixes Empty HTML Headers
+     * @param string $error_html        - The bad html that needs to be fixed
+     * @param string|array $new_content - The new Heading text from the user
+     * @param bool $submitting_again    - If the user is resubmitting their error fix
+     * @return string $fixed_css        - The html with corrected Heading
+     */
+    public function fixHeading($error_html, $new_content, $submitting_again = false)
+    {
+        $this->dom->loadHTML('<?xml encoding="utf-8" ?>' . $error_html);
+
+        $new_data = [
+            'old'   => '',
+            'fixed' => ''
+        ];
+
+        $trs = $this->dom->getElementsByTagName('tr');
+
+        foreach ($trs as $tr) {
+            $new_data['old'] .= $this->dom->saveHTML($tr);
+        }
+
+        foreach ($trs as $tr) {
+            $td = $tr->childNodes->item(0);
+            $td = $this->renameElement($td, 'th');
+
+            $td->setAttribute('scope', 'row');
+
+            $new_data['fixed'] .= $this->dom->saveHTML($tr);
+        }
+
+        return $new_data;
+    }
+
     /**
      * Fixes table headers by changing td elements to th (and adding proper scope, of course)
      * @param  string  $error_html       - The unmodified table without proper headings

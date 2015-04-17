@@ -13,7 +13,7 @@ $oauth2_key = '';
 $oauth2_uri = '';
 
 /* Google/YouTube Data Api Key */
-$google_api_key = '';
+define( 'GOOGLE_API_KEY', '');
 
 /* Database Config */
 $db_host = '';

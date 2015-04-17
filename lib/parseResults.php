@@ -124,7 +124,7 @@ $issue_count = 0;
 													<?php endif; ?>
 
 													<?php if (empty($_POST['path'])): ?>
-														<?php if ($item->type === "cssTextHasContrast" || $item->type === "imgHasAlt" || $item->type === "imgNonDecorativeHasAlt" || $item->type === "tableDataShouldHaveTh" || $item->type === "tableThShouldHaveScope"): ?>
+														<?php if ($item->type === "cssTextHasContrast" || $item->type === "imgHasAlt" || $item->type === "imgNonDecorativeHasAlt" || $item->type === "tableDataShouldHaveTh" || $item->type === "tableThShouldHaveScope" || $item->type === "headersHaveText"): ?>
 															<button class="fix-this no-print btn btn-success">U FIX IT!</button>
 
 															<form class="ufixit-form form-horizontal no-print hidden" action="lib/process.php" method="post" role="form">
@@ -149,6 +149,13 @@ $issue_count = 0;
 																		</div>
 																	<?php endfor; ?>
 																	<button class="submit-content btn btn-default" type="submit">Submit</button>
+																	<?php break; ?>
+																<?php case "headersHaveText": ?>
+																	<div class="form-group no-margin margin-bottom">
+																		<input class="{hash:true,caps:false} form-control" type="text" name="newcontent" placeholder="New header text">
+																		<label class="clear" for="newcontent[<?= $i; ?>]">Delete this Header completely instead&nbsp;<input type="checkbox" name="newcontent[<?= $i; ?>]" value=""></label><br />
+																		<button class="submit-content btn btn-default" type="submit">Submit</button>
+																	</div>
 																	<?php break; ?>
 																<?php case "imgHasAlt": ?>
 																<?php case "imgNonDecorativeHasAlt": ?>

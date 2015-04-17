@@ -19,6 +19,10 @@ body { padding: 20px 0 0; }
 	        user-select: none;
 }
 
+.clear {
+	clear: both;
+}
+
 h2 {
 	margin-top: 0;
 
