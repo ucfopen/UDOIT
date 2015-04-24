@@ -123,18 +123,45 @@ class Ufixit
         return $fixed_css;
     }
 
+       /**
+     * Fixes Empty HTML Links
+     * @param string $error_html        - The bad html that needs to be fixed
+     * @param string|array $new_content - The new Heading text from the user
+     * @param bool $submitting_again    - If the user is resubmitting their error fix
+     * @return string $fixed_css        - The html with corrected Link
+     */
+    public function fixLink($error_html, $new_content, $submitting_again = false)
+    {
+        $fixed_link = '';
+        if ($new_content == '') {
+            return $fixed_link;
+        }
+
+        $this->dom->loadHTML('<?xml encoding="utf-8" ?>' . $error_html);
+
+        $tag = $this->dom->getElementsByTagName('a')->item(0);
+
+        $linkText = $this->dom->createTextNode($new_content);
+
+        $tag->appendChild($linkText);
+
+        $fixed_link = $this->dom->saveHTML($tag);
+
+        return $fixed_link;
+    }
+
         /**
      * Fixes Empty HTML Headers
      * @param string $error_html        - The bad html that needs to be fixed
      * @param string|array $new_content - The new Heading text from the user
      * @param bool $submitting_again    - If the user is resubmitting their error fix
-     * @return string $fixed_css        - The html with corrected Heading
+     * @return string $fixed_heading        - The html with corrected Heading
      */
     public function fixHeading($error_html, $new_content, $submitting_again = false)
     {
-        $fixedHeading = '';
+        $fixed_heading = '';
         if ($new_content == '') {
-            return $fixedHeading;
+            return $fixed_heading;
         }
 
         $matches = array();
@@ -148,9 +175,9 @@ class Ufixit
 
         $tag->appendChild($headingText);
 
-        $fixedHeading = $this->dom->saveHTML($tag);
+        $fixed_heading = $this->dom->saveHTML($tag);
 
-        return $fixedHeading;
+        return $fixed_heading;
     }
 
     /**

@@ -120,6 +120,9 @@ switch ($_POST['main_action']) {
 
         // fixes content based on what the error is
         switch ($data['error_type']) {
+            case 'aMustContainText':
+                $corrected_error = $ufixit->fixLink($data['error_html'], $data['new_content'], $submitting_again);
+                break;
             case 'cssTextHasContrast':
                 $corrected_error = $ufixit->fixCss($data['error_colors'], $data['error_html'], $data['new_content'], $submitting_again);
                 break;
