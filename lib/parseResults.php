@@ -100,7 +100,7 @@ $issue_count = 0;
 												<div class="clearfix">
 													<a href="#collapse-<?= $report->id; ?>-<?= $issue_count; ?>" data-toggle="collapse"><h5 class="text-danger pull-left"><span class="glyphicon glyphicon-remove-sign"></span> <?= $item->title; ?></h5></a>
 
-													<?php if ($item->type == "cssTextHasContrast" || $item->type == "imgHasAlt" || $item->type == "imgNonDecorativeHasAlt" || $item->type == "tableDataShouldHaveTh" || $item->type == "tableThShouldHaveScope"): ?>
+													<?php if ($item->type == "cssTextHasContrast" || $item->type == "imgHasAlt" || $item->type == "imgNonDecorativeHasAlt" || $item->type == "tableDataShouldHaveTh" || $item->type == "tableThShouldHaveScope" || $item->type === "headersHaveText"): ?>
 														<span class="label label-success margin-left-small hidden" style="margin-top: -2px;">Fixed!</span>
 													<?php endif; ?>
 												</div>
@@ -152,8 +152,8 @@ $issue_count = 0;
 																	<?php break; ?>
 																<?php case "headersHaveText": ?>
 																	<div class="form-group no-margin margin-bottom">
-																		<input class="{hash:true,caps:false} form-control" type="text" name="newcontent" placeholder="New header text">
-																		<label class="clear" for="newcontent[<?= $i; ?>]">Delete this Header completely instead&nbsp;<input type="checkbox" name="newcontent[<?= $i; ?>]" value=""></label><br />
+																		<input class="{hash:true,caps:false} form-control" type="text" name="newcontent" placeholder="New heading text">
+																		<label><input name="remove-heading" class="remove-heading" type="checkbox" />&nbsp;Delete this Header completely instead</label><br />
 																		<button class="submit-content btn btn-default" type="submit">Submit</button>
 																	</div>
 																	<?php break; ?>

@@ -132,29 +132,25 @@ class Ufixit
      */
     public function fixHeading($error_html, $new_content, $submitting_again = false)
     {
+        $fixedHeading = '';
+        if ($new_content == '') {
+            return $fixedHeading;
+        }
+
+        $matches = array();
+        preg_match('/h[0-6]/i', $error_html, $matches);
+
         $this->dom->loadHTML('<?xml encoding="utf-8" ?>' . $error_html);
 
-        $new_data = [
-            'old'   => '',
-            'fixed' => ''
-        ];
+        $tag = $this->dom->getElementsByTagName( $matches[0] )->item(0);
 
-        $trs = $this->dom->getElementsByTagName('tr');
+        $headingText = $this->dom->createTextNode($new_content);
 
-        foreach ($trs as $tr) {
-            $new_data['old'] .= $this->dom->saveHTML($tr);
-        }
+        $tag->appendChild($headingText);
 
-        foreach ($trs as $tr) {
-            $td = $tr->childNodes->item(0);
-            $td = $this->renameElement($td, 'th');
+        $fixedHeading = $this->dom->saveHTML($tag);
 
-            $td->setAttribute('scope', 'row');
-
-            $new_data['fixed'] .= $this->dom->saveHTML($tr);
-        }
-
-        return $new_data;
+        return $fixedHeading;
     }
 
     /**

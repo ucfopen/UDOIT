@@ -123,6 +123,9 @@ switch ($_POST['main_action']) {
             case 'cssTextHasContrast':
                 $corrected_error = $ufixit->fixCss($data['error_colors'], $data['error_html'], $data['new_content'], $submitting_again);
                 break;
+            case 'headersHaveText':
+                $corrected_error = $ufixit->fixHeading($data['error_html'], $data['new_content'], $submitting_again);
+                break;
             case 'imgHasAlt':
             case 'imgNonDecorativeHasAlt':
                 // $data['error_html'] = str_replace('alt=""', 'alt', $data['error_html']);
