@@ -11,13 +11,13 @@
             "version": "dev-master",
             "source": {
                 "type": "git",
-                "url": "https://github.com/finwe/mpdf.git",
-                "reference": "37d5fac9b080b0ca4a822b92279abe408b70483f"
+                "url": "https://github.com/mpdf/mpdf.git",
+                "reference": "24b85386aea7e2a81a0ceba6a09b0e0967fc759b"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/finwe/mpdf/zipball/37d5fac9b080b0ca4a822b92279abe408b70483f",
-                "reference": "37d5fac9b080b0ca4a822b92279abe408b70483f",
+                "url": "https://api.github.com/repos/mpdf/mpdf/zipball/24b85386aea7e2a81a0ceba6a09b0e0967fc759b",
+                "reference": "24b85386aea7e2a81a0ceba6a09b0e0967fc759b",
                 "shasum": ""
             },
             "require": {
@@ -33,11 +33,12 @@
             },
             "notification-url": "https://packagist.org/downloads/",
             "license": [
-                "GPL-1.0+"
+                "GPL-2.0"
             ],
             "authors": [
                 {
-                    "name": "Ian Back"
+                    "name": "Ian Back",
+                    "role": "Developer"
                 }
             ],
             "description": "A PHP class to generate PDF files from HTML with Unicode/UTF-8 and CJK support",
@@ -47,20 +48,20 @@
                 "php",
                 "utf-8"
             ],
-            "time": "2014-12-17 11:55:19"
+            "time": "2015-03-25 16:19:39"
         },
         {
             "name": "nategood/httpful",
-            "version": "0.2.17",
+            "version": "0.2.19",
             "source": {
                 "type": "git",
                 "url": "https://github.com/nategood/httpful.git",
-                "reference": "7beda470b57250f60ce1b0179c5551620c3e43e6"
+                "reference": "bd73f89d34d8f879c54ac46eb94b0f7be1d00820"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/nategood/httpful/zipball/7beda470b57250f60ce1b0179c5551620c3e43e6",
-                "reference": "7beda470b57250f60ce1b0179c5551620c3e43e6",
+                "url": "https://api.github.com/repos/nategood/httpful/zipball/bd73f89d34d8f879c54ac46eb94b0f7be1d00820",
+                "reference": "bd73f89d34d8f879c54ac46eb94b0f7be1d00820",
                 "shasum": ""
             },
             "require": {
@@ -97,7 +98,7 @@
                 "rest",
                 "restful"
             ],
-            "time": "2014-08-24 21:57:36"
+            "time": "2015-03-08 15:22:23"
         },
         {
             "name": "zaininnari/html-minifier",
@@ -154,21 +155,24 @@
     "packages-dev": [
         {
             "name": "symfony/var-dumper",
-            "version": "v2.6.4",
+            "version": "v2.6.6",
             "target-dir": "Symfony/Component/VarDumper",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/var-dumper.git",
-                "reference": "c3d5a36c3e3298bd8b070488fba5537174647353"
+                "reference": "aafae00236e147568832de3c65ccb94cfc836278"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/var-dumper/zipball/c3d5a36c3e3298bd8b070488fba5537174647353",
-                "reference": "c3d5a36c3e3298bd8b070488fba5537174647353",
+                "url": "https://api.github.com/repos/symfony/var-dumper/zipball/aafae00236e147568832de3c65ccb94cfc836278",
+                "reference": "aafae00236e147568832de3c65ccb94cfc836278",
                 "shasum": ""
             },
             "require": {
                 "php": ">=5.3.3"
+            },
+            "require-dev": {
+                "symfony/phpunit-bridge": "~2.7"
             },
             "suggest": {
                 "ext-symfony_debug": ""
@@ -207,7 +211,7 @@
                 "debug",
                 "dump"
             ],
-            "time": "2015-02-02 16:32:08"
+            "time": "2015-03-31 08:12:29"
         }
     ],
     "aliases": [],

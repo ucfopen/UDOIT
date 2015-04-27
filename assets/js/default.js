@@ -208,28 +208,13 @@ $(document).ready(function() {
 		}
 	});
 
-	$('a[data-toggle="tooltip"]').tooltip({
-         animated: 'fade',
-         placement: 'bottom',
-     });
+	$(document).on("mouseover", "#cached button.fix-this", function() {	
+		$('.toolmessage').fadeIn().css("display","inline-block");
+	});
 
-
-	// $(document).on("mouseover", "#cached button.btn-success", function(){
-	// 	aler
-	// })
-
-	// // the "U FIX IT" button ((on reports))
-	// $(window).load(function() {
-	// 	elements = document.getElementsByClassName(".btn-success");
-	// 	for (i = 0; i < 3; i++){
-	// 		$("#cached button.btn-success")[i].style.backgroundColor="#aaa";
-	// 		$("#cached button.btn-success")[i].style.borderColor="#bbb";	
-	// 	}
-	// });
-
-	// $(document).on("click", "#cached", function() {
-	// 	$(".btn-success").style.color="yellow";	
-	// });
+	$(document).on("mouseout", "#cached button.fix-this", function() {
+		$('.toolmessage').fadeOut();
+	});
 
 	// END the "U FIX IT" button
 
