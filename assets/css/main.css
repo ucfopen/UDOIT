@@ -312,6 +312,14 @@ h5 + ul {
 
 /* X. HELPERS (should go after everything else) -- */
 
+/* UFIXIT disabled*/
+div#cached button.btn-success {
+	background-color: #aaa;
+	border-color: #bbb;
+	outline:0;
+}
+
+
 /* for lazy little developers~ */
 .no-margin { margin: 0px !important; }
 .margin-top { margin-top: 20px !important; }

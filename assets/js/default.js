@@ -191,8 +191,8 @@ $(document).ready(function() {
 	});
 	// END print button
 
-	// the "U FIX IT" button
-	$(document).on("click", ".fix-this", function() {
+	// the "U FIX IT" button ((on scanner))
+	$(document).on("click", "#scanner button.fix-this", function() {
 		var parent = $(this).parent();
 		$(this).remove();
 
@@ -207,6 +207,30 @@ $(document).ready(function() {
 			parent.find('form').addClass('show');
 		}
 	});
+
+	$('a[data-toggle="tooltip"]').tooltip({
+         animated: 'fade',
+         placement: 'bottom',
+     });
+
+
+	// $(document).on("mouseover", "#cached button.btn-success", function(){
+	// 	aler
+	// })
+
+	// // the "U FIX IT" button ((on reports))
+	// $(window).load(function() {
+	// 	elements = document.getElementsByClassName(".btn-success");
+	// 	for (i = 0; i < 3; i++){
+	// 		$("#cached button.btn-success")[i].style.backgroundColor="#aaa";
+	// 		$("#cached button.btn-success")[i].style.borderColor="#bbb";	
+	// 	}
+	// });
+
+	// $(document).on("click", "#cached", function() {
+	// 	$(".btn-success").style.color="yellow";	
+	// });
+
 	// END the "U FIX IT" button
 
 	// submitting the ufixit form
