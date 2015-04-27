@@ -333,4 +333,32 @@ $(document).ready(function() {
 		window.open(url, '_blank');
 	});
 	// END Rule forcing links to open in new window
+
+	// click to remove/fill Heading with no text
+	$(document).on("click", ".remove-heading", function (e) {
+		var input = $(e.target).parent().parent().find('input[name="newcontent"]');
+		if( input.attr("placeholder") == "New heading text") {
+			input.val("");
+			input.attr("maxlength", "0");
+			input.attr("placeholder", "Empty heading will be deleted");
+		} else {
+			input.removeAttr("maxlength");
+			input.attr("placeholder", "New heading text");
+		}
+	});
+	// END click to remove/fill Heading with no text
+
+	// click to remove/fill Link with no text
+	$(document).on("click", ".remove-link", function (e) {
+		var input = $(e.target).parent().parent().find('input[name="newcontent"]');
+		if( input.attr("placeholder") == "New link text") {
+			input.val("");
+			input.attr("maxlength", "0");
+			input.attr("placeholder", "Empty link will be deleted");
+		} else {
+			input.removeAttr("maxlength");
+			input.attr("placeholder", "New link text");
+		}
+	});
+	// END click to remove/fill link with no text
 });

@@ -123,38 +123,61 @@ class Ufixit
         return $fixed_css;
     }
 
+       /**
+     * Fixes Empty HTML Links
+     * @param string $error_html        - The bad html that needs to be fixed
+     * @param string|array $new_content - The new Heading text from the user
+     * @param bool $submitting_again    - If the user is resubmitting their error fix
+     * @return string $fixed_css        - The html with corrected Link
+     */
+    public function fixLink($error_html, $new_content, $submitting_again = false)
+    {
+        $fixed_link = '';
+        if ($new_content == '') {
+            return $fixed_link;
+        }
+
+        $this->dom->loadHTML('<?xml encoding="utf-8" ?>' . $error_html);
+
+        $tag = $this->dom->getElementsByTagName('a')->item(0);
+
+        $linkText = $this->dom->createTextNode($new_content);
+
+        $tag->appendChild($linkText);
+
+        $fixed_link = $this->dom->saveHTML($tag);
+
+        return $fixed_link;
+    }
+
         /**
      * Fixes Empty HTML Headers
      * @param string $error_html        - The bad html that needs to be fixed
      * @param string|array $new_content - The new Heading text from the user
      * @param bool $submitting_again    - If the user is resubmitting their error fix
-     * @return string $fixed_css        - The html with corrected Heading
+     * @return string $fixed_heading        - The html with corrected Heading
      */
     public function fixHeading($error_html, $new_content, $submitting_again = false)
     {
+        $fixed_heading = '';
+        if ($new_content == '') {
+            return $fixed_heading;
+        }
+
+        $matches = array();
+        preg_match('/h[0-6]/i', $error_html, $matches);
+
         $this->dom->loadHTML('<?xml encoding="utf-8" ?>' . $error_html);
 
-        $new_data = [
-            'old'   => '',
-            'fixed' => ''
-        ];
+        $tag = $this->dom->getElementsByTagName( $matches[0] )->item(0);
 
-        $trs = $this->dom->getElementsByTagName('tr');
+        $headingText = $this->dom->createTextNode($new_content);
 
-        foreach ($trs as $tr) {
-            $new_data['old'] .= $this->dom->saveHTML($tr);
-        }
+        $tag->appendChild($headingText);
 
-        foreach ($trs as $tr) {
-            $td = $tr->childNodes->item(0);
-            $td = $this->renameElement($td, 'th');
+        $fixed_heading = $this->dom->saveHTML($tag);
 
-            $td->setAttribute('scope', 'row');
-
-            $new_data['fixed'] .= $this->dom->saveHTML($tr);
-        }
-
-        return $new_data;
+        return $fixed_heading;
     }
 
     /**
