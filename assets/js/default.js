@@ -191,8 +191,8 @@ $(document).ready(function() {
 	});
 	// END print button
 
-	// the "U FIX IT" button
-	$(document).on("click", ".fix-this", function() {
+	// the "U FIX IT" button ((on scanner))
+	$(document).on("click", "#scanner button.fix-this", function() {
 		var parent = $(this).parent();
 		$(this).remove();
 
@@ -207,6 +207,15 @@ $(document).ready(function() {
 			parent.find('form').addClass('show');
 		}
 	});
+
+	$(document).on("mouseover", "#cached button.fix-this", function() {	
+		$('.toolmessage').fadeIn().css("display","inline-block");
+	});
+
+	$(document).on("mouseout", "#cached button.fix-this", function() {
+		$('.toolmessage').fadeOut();
+	});
+
 	// END the "U FIX IT" button
 
 	// submitting the ufixit form

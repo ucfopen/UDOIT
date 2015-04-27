@@ -1,4 +1,4 @@
-<?php
+ <?php
 
 include_once('../config/localConfig.php');
 
@@ -126,7 +126,7 @@ $issue_count = 0;
 													<?php if (empty($_POST['path'])): ?>
 														<?php if ($item->type === "cssTextHasContrast" || $item->type === "imgHasAlt" || $item->type === "imgNonDecorativeHasAlt" || $item->type === "tableDataShouldHaveTh" || $item->type === "tableThShouldHaveScope" || $item->type === "headersHaveText" || $item->type == "aMustContainText"): ?>
 															<button class="fix-this no-print btn btn-success">U FIX IT!</button>
-
+															<div class="toolmessage">UFIXIT is disabled because this is an old report, rescan the course to use UDOIT.</div>
 															<form class="ufixit-form form-horizontal no-print hidden" action="lib/process.php" method="post" role="form">
 																<input type="hidden" name="main_action" value="ufixit">
 																<input type="hidden" name="contenttype" value="<?= $bad->title; ?>">

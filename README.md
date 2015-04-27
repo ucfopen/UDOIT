@@ -9,6 +9,8 @@ UDOIT uses [Composer](https://getcomposer.org/) to manage its dependencies, so `
 $ php composer.phar update
 ```
 
+If you are adding UDOIT on a new machine and don't want to register a new oauth2_key for development, you can grant access to a new user by manually adding them to the user table within the database.
+
 ## Configuration
 Make a copy of `config/localConfig.template.php`, rename it to `localConfig.php`.
 
