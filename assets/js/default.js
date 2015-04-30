@@ -207,13 +207,20 @@ $(document).ready(function() {
 			parent.find('form').addClass('show');
 		}
 	});
-
+	// ((tooltip on old reports))
 	$(document).on("mouseover", "#cached button.fix-this", function() {	
-		$('.toolmessage').fadeIn().css("display","inline-block");
+		$('.toolmessage').stop().fadeIn().css("display","inline-block");
 	});
-
+	
+	// $('#cached button.fix-this').hover(
+	// 	function(){
+	// 		$('.toolmessage').stop(true, true).fadeOut();
+	// 	}, function(){
+	// 		$('.toolmessage').stop(true, true).fadeIn().css("display","inline-block");
+	// 	}
+	// );
 	$(document).on("mouseout", "#cached button.fix-this", function() {
-		$('.toolmessage').fadeOut();
+		$('.toolmessage').stop().fadeOut();
 	});
 
 	// END the "U FIX IT" button
