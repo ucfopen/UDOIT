@@ -36,6 +36,22 @@ $resource_link = [
 $udoit_tests = [
     'severe' => [
         [
+            'name'      => 'aMustContainText',
+            'title'     => 'Links should contain text',
+            'desc'      => '<p>Because many users of screen-readers use links to navigate the page, providing links with no text (or with images that have empty "alt" attributes and no other readable text) hinders these users.</p>',
+            'resources' => [
+                '<a href="http://guides.instructure.com/s/2204/m/4152/l/65824-how-do-i-create-a-hyperlink-in-the-rich-content-editor">Canvas Tutorial</a>',
+                '<a href="http://www.w3.org/TR/UNDERSTANDING-WCAG20/navigation-mechanisms.html">WCAG Guidelines</a>',
+                'WCAG Standard <a href="http://www.w3.org/TR/WCAG20/#navigation-mechanisms-refs">2.4.4</a>'
+            ],
+            'example'   => '
+                <p class="text-danger">Incorrect</p>
+                <pre><code>'. htmlspecialchars('<a href="http://example.com/document.pdf"></a>') .'</code></pre>
+                <p class="text-success">Correct</p>
+                <pre><code>'. htmlspecialchars('<a href="http://example.com">read the document</a>') .'</code></pre>
+            ',
+        ],
+        [
             'name'      => 'imgHasAlt',
             'title'     => 'No Alternative Text found',
             'desc'      => '<p>Alternative Text: provide a brief (under 100 characters) written description of the image for a screen reader user.</p>',
@@ -145,7 +161,7 @@ $udoit_tests = [
         ],
         [
             'name'      => 'objectMustContainText',
-            'title'     => 'Objects must contain a text equivalent of the object',
+            'title'     => 'Objects should contain a text equivalent of the object',
             'desc'      => '',
             'resources' => ['<a href="http://www.w3.org/TR/UNDERSTANDING-WCAG20/text-equiv.html">WCAG 2.0 Guideline</a>'],
             'example'   => '
@@ -224,6 +240,20 @@ $udoit_tests = [
                 <pre><code>'. htmlspecialchars('<a href="interview.mov">Watch the interview</a>') .'</code></pre>
                 <p class="text-success">Correct</p>
                 <pre><code>'. htmlspecialchars('<a href="interview.mov">Watch the interview</a> <a href="transcript.html">(transcript)</a>') .'</code></pre>
+            ',
+        ],
+        [
+            'name'      => 'headersHaveText',
+            'title'     => 'Headings should contain text',
+            'desc'      => 'Sighted and screen reader users depend on headings to organize the content on the page. Headings should not be empty and should represent an accurate outline of the content</p>',
+            'resources' => [
+                'Using H1-H6 to Identify Headings <a href="http://www.w3.org/TR/WCAG20-TECHS/H42.html">Article</a>',
+            ],
+            'example'   => '
+                <p class="text-danger">Incorrect</p>
+                <pre><code>'. htmlspecialchars('<h1></h1>') .'</code></pre>
+                <p class="text-success">Correct</p>
+                <pre><code>'. htmlspecialchars('<h1>Title</h1>') .'</code></pre>
             ',
         ],
         [
