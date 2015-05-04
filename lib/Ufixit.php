@@ -114,6 +114,8 @@ class Ufixit
     {
         $this->dom->loadHTML('<?xml encoding="utf-8" ?>' . $error_html);
 
+        var_dump( $error_colors );
+
         $fixed_css = $error_html;
 
         for ($i = 0; $i < count($error_colors); $i++) {

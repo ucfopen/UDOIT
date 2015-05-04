@@ -83,6 +83,13 @@ class reportStatic extends quailReporter
 							}
 
 							$testResult['colors'] = $hexColors;
+
+							if ( sizeof($hexColors) === 1 ) {
+								$testResult['fore_color'] = $hexColors[0];
+							} else {
+								$testResult['back_color'] = $hexColors[0];
+								$testResult['fore_color'] = $hexColors[1];
+							}
 						}
 
 						$testResult['type']   = $testname;

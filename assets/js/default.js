@@ -194,7 +194,7 @@ $(document).ready(function() {
 	// the "U FIX IT" button ((on scanner))
 	$(document).on("click", "#scanner button.fix-this", function() {
 		var parent = $(this).parent();
-		$(this).remove();
+		$(this).hide();
 
 		var contentForm = parent.find('form');
 
@@ -351,6 +351,9 @@ $(document).ready(function() {
 	// click to remove/fill Link with no text
 	$(document).on("click", ".remove-link", function (e) {
 		var input = $(e.target).parent().parent().find('input[name="newcontent"]');
+		console.log(e.target);
+		console.log( $(e.target).parent() );
+		console.log( $(e.target).parent().parent() );
 		if( input.attr("placeholder") == "New link text") {
 			input.val("");
 			input.attr("maxlength", "0");
@@ -361,4 +364,67 @@ $(document).ready(function() {
 		}
 	});
 	// END click to remove/fill link with no text
+
+	// updates UFIXIT Preview on load
+	$(document).on("click", ".load-preview", function (e) {
+		var back = $(e.target).parent().find('input.back-color');
+		var fore = $(e.target).parent().find('input.fore-color');
+		var bgcolor = "#fff";
+
+		if (back.length !== 0) {
+			bgcolor = $(back).val();
+		}
+
+		var preview = $(e.target).parent().find('div.ufixit-preview-canvas');
+
+		preview.attr("style", "color: " + $(fore).val() + "; background-color: " + bgcolor + ";" );
+
+		$(e.target).parent().find("li.color").each(function () {
+			console.log( $(this).text() );
+			var color = $(this).text();
+			$(this).css("background-color", color);
+
+			//if the swatch color is too dark
+			//change font color to something lighter 
+			var c = color.substring(1); // strip #
+			var rgb = parseInt(c, 16); // convert rrggbb to decimal
+			var r = (rgb >> 16) & 0xff; // extract red
+			var g = (rgb >> 8) & 0xff; // extract green
+			var b = (rgb >> 0) & 0xff; // extract blue
+
+			var luma = 0.2126 * r + 0.7152 * g + 0.0722 * b; // per ITU-R BT.709
+
+			if (luma < 85) {
+				$(this).css("color", "#ffffff");
+			}
+		});
+	});
+	// END update UFIXIT Preview on load
+
+	// updates UFIXIT Preview on change of background color
+	$(document).on("change", "input.back-color", function (e) {
+		var preview = $(e.target).parent().parent().parent().find('div.ufixit-preview-canvas');
+		preview.css("background-color", $(e.target).val() );
+
+	});
+	// END update UFIXIT Preview on change of background color
+
+	// updates UFIXIT Preview on change of foreground color
+	$(document).on("change", "input.fore-color", function (e) {
+		var preview = $(e.target).parent().parent().parent().find('div.ufixit-preview-canvas');
+		preview.css("color", $(e.target).val() );
+
+	});
+	// END update UFIXIT Preview on change of foreground color
+
+	// updates UFIXIT Preview on change of foreground color using Color-Picker
+	$(document).on("click", "li.color", function (e) {
+		var preview = $(e.target).parent().parent().parent().parent().find('div.ufixit-preview-canvas');
+		var fore = $(e.target).parent().parent().parent().parent().find('input.fore-color');
+		
+		preview.css("color", $(e.target).text() );
+		$(fore).val( $(e.target).text() );
+		$(fore).css("background-color", $(e.target).text() );
+	});
+	// END update UFIXIT Preview on change of foreground color using Color-Picker
 });

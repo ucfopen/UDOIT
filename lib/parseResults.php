@@ -125,7 +125,11 @@ $issue_count = 0;
 
 													<?php if (empty($_POST['path'])): ?>
 														<?php if ($item->type === "cssTextHasContrast" || $item->type === "imgHasAlt" || $item->type === "imgNonDecorativeHasAlt" || $item->type === "tableDataShouldHaveTh" || $item->type === "tableThShouldHaveScope" || $item->type === "headersHaveText" || $item->type == "aMustContainText"): ?>
-															<button class="fix-this no-print btn btn-success">U FIX IT!</button>
+															<?php if ($item->type === "cssTextHasContrast"): ?>
+																<button class="fix-this no-print btn btn-success load-preview">U FIX IT!</button>
+															<?php else: ?>
+																<button class="fix-this no-print btn btn-success">U FIX IT!</button>
+															<?php endif; ?>
 															<div class="toolmessage">UFIXIT is disabled because this is an old report, rescan the course to use UDOIT.</div>
 															<form class="ufixit-form form-horizontal no-print hidden" action="lib/process.php" method="post" role="form">
 																<input type="hidden" name="main_action" value="ufixit">
@@ -142,13 +146,67 @@ $issue_count = 0;
 
 																<?php switch ($item->type):
 																case "cssTextHasContrast": ?>
-																	<?php for ($i = 0; $i < count($item->colors); $i++): ?>
-																		<div class="form-group no-margin margin-bottom">
-																			<label for="newcontent[<?= $i; ?>]">Replacement color for <?= $item->colors[$i]; ?></label>
-																			<input class="color {hash:true,caps:false} form-control" type="text" name="newcontent[<?= $i; ?>]" value="<?= $item->colors[$i]; ?>" placeholder="Replacement for <?= $item->colors[$i]; ?>">
+																	<div class="holder">
+																		<div class="left">
+																			<div class="form-group no-margin margin-bottom">
+																				<?php if ( isset($item->back_color) ): ?>
+																					<label for="newcontent[1]">Replacement for Background Color <?= $item->back_color; ?></label>
+																					<input class="color {hash:true,caps:false} form-control back-color" type="text" name="newcontent[1]" value="<?= $item->back_color; ?>" placeholder="Replacement for Background Color <?= $item->back_color; ?>">
+																				<?php endif; ?>
+
+																				<label for="newcontent[0]">Replacement for Foreground Color <?= $item->fore_color; ?></label>
+																				<input class="color {hash:true,caps:false} form-control fore-color" type="text" name="newcontent[0]" value="<?= $item->fore_color; ?>" placeholder="Replacement for Foreground Color <?= $item->fore_color; ?>">
+																			</div>
 																		</div>
-																	<?php endfor; ?>
-																	<button class="submit-content btn btn-default" type="submit">Submit</button>
+																		<div class="right ufixit-preview">
+																			<div class="ufixit-preview-canvas" name="load-preview">
+																				<p>Text</p>
+																			</div>
+																		</div>
+																		<div class="clear">
+																			<label for="newcontent[0]">Approved colors for foreground</label>
+																			<ul class="color-picker first short">
+																				<li class="color">#FFFFFF</li>
+																				<li class="color">#F9F59E</li>
+																				<li class="color">#C1DC99</li>
+																				<li class="color">#84C195</li>
+																				<li class="color">#82A5CB</li>
+																				<li class="color">#818FB4</li>
+																				<li class="color">#807AAA</li>
+																				<li class="color">#AE85AD</li>
+																				<li class="color">#E493A2</li>
+																				<li class="color">#EBAA82</li>
+																				<li class="color">#F1C28C</li>
+																			</ul>
+																			<ul class="color-picker regular">
+																				<li class="color">#888888</li>
+																				<li class="color">#F5EB32</li>
+																				<li class="color">#70B538</li>
+																				<li class="color">#178E3E</li>
+																				<li class="color">#225E9D</li>
+																				<li class="color">#163D76</li>
+																				<li class="color">#202164</li>
+																				<li class="color">#6A1C68</li>
+																				<li class="color">#CA1325</li>
+																				<li class="color">#D44A25</li>
+																				<li class="color">#DF7A2A</li>
+																			</ul>
+																			<ul class="color-picker short last margin-bottom">
+																				<li class="color">#000000</li>
+																				<li class="color">#99962F</li>
+																				<li class="color">#4B7631</li>
+																				<li class="color">#155F2E</li>
+																				<li class="color">#183F6A</li>
+																				<li class="color">#1B294C</li>
+																				<li class="color">#1A1A40</li>
+																				<li class="color">#451843</li>
+																				<li class="color">#7D1820</li>
+																				<li class="color">#843322</li>
+																				<li class="color">#8A5126</li>
+																			</ul>
+																		</div>
+																	</div>
+																	<button class="submit-content btn btn-default clear" type="submit">Submit</button>
 																	<?php break; ?>
 																<?php case "headersHaveText": ?>
 																	<div class="form-group no-margin margin-bottom">
