@@ -131,6 +131,7 @@ $issue_count = 0;
 																<button class="fix-this no-print btn btn-success">U FIX IT!</button>
 															<?php endif; ?>
 															<div class="toolmessage">UFIXIT is disabled because this is an old report, rescan the course to use UDOIT.</div>
+
 															<form class="ufixit-form form-horizontal no-print hidden" action="lib/process.php" method="post" role="form">
 																<input type="hidden" name="main_action" value="ufixit">
 																<input type="hidden" name="contenttype" value="<?= $bad->title; ?>">
