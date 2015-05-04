@@ -154,7 +154,7 @@ $udoit_tests = [
             ],
             'example'   => '
                 <p class="text-danger">Incorrect</p>
-                <div class="well well-sm"><p class="no-margin" style="color:yellow">Badly contrasting text</p></div>
+                <div class="well well-sm"><p class="no-margin" style="color:yellow">Bad contrasting text</p></div>
                 <p class="text-success">Correct</p>
                 <div class="well well-sm no-margin"><p class="no-margin" style="color:goldenrod">Good contrasting text</p></div>
             ',
