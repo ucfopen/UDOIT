@@ -150,11 +150,11 @@ $udoit_tests = [
             'desc'      => '<p>Text color should be easily viewable and should not be the only indicator of  meaning or function. Color balance should have at least a 4.5:1 ratio.</p>',
             'resources' => [
                 '<a href="http://webaim.org/blog/wcag-2-0-and-link-colors/">Resource Link</a>',
-                'WCAG Standard <a href="http://www.w3.org/TR/WCAG20/#visual-audio-contrast-contrast">1.2</a>',
+                'WCAG Standard <a href="http://www.w3.org/TR/WCAG20/#visual-audio-contrast-contrast">1.4.3</a>',
             ],
             'example'   => '
                 <p class="text-danger">Incorrect</p>
-                <div class="well well-sm"><p class="no-margin" style="color:yellow">Badly contrasting text</p></div>
+                <div class="well well-sm"><p class="no-margin" style="color:yellow">Bad contrasting text</p></div>
                 <p class="text-success">Correct</p>
                 <div class="well well-sm no-margin"><p class="no-margin" style="color:goldenrod">Good contrasting text</p></div>
             ',
