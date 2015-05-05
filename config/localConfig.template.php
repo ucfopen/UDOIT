@@ -54,7 +54,7 @@ $udoit_tests = [
         [
             'name'      => 'imgHasAlt',
             'title'     => 'No Alternative Text found',
-            'desc'      => '<p>Alternative Text: provide a brief (under 100 characters) written description of the image for a screen reader user.</p>',
+            'desc'      => '<p>Alternative Text (Alt Text) is an alternative (non-visual) way to describe the meaning of an image. Please provide a brief (under 100 characters) description of the image for a <a href="http://en.wikipedia.org/wiki/Screen_reader">screen reader</a> user. Note: It should not be the image file name.</p>',
             'resources' => [
                 '<a href="http://teach.ucf.edu/resources/document-formatting-guidelines/images/#about">Resource on Alternative Text</a>',
                 'WCAG Standard: <a href="http://www.w3.org/TR/WCAG20/#text-equiv-all">1.1.1</a>',
@@ -69,7 +69,7 @@ $udoit_tests = [
         [
             'name'      => 'imgAltIsDifferent',
             'title'     => 'Alternative Text should not be the image filename',
-            'desc'      => '<p>Provide a brief (under 100 characters) written description of the image for a screen reader user and should not be image file name.</p>',
+            'desc'      => '<p>Alternative Text (Alt Text) is an alternative (non-visual) way to describe the meaning of an image. Please provide a brief (under 100 characters) description of the image for a <a href="http://en.wikipedia.org/wiki/Screen_reader">screen reader</a> user. Note: It should not be the image file name.</p>',
             'resources' => [
                 '<a href="http://teach.ucf.edu/resources/document-formatting-guidelines/images/#about">Resource on Alternative Text</a>',
                 'WCAG Standard: <a href="http://www.w3.org/TR/WCAG20/#text-equiv-all">1.1.1</a>',
@@ -86,7 +86,7 @@ $udoit_tests = [
         [
             'name'      => 'imgAltIsTooLong',
             'title'     => 'Alternative Text is more than 100 characters',
-            'desc'      => '<p>Provide a brief (under 100 characters) written description of the image for a screen reader user and should not be image file name</p>',
+            'desc'      => '<p>Alternative Text (Alt Text) is an alternative (non-visual) way to describe the meaning of an image. Please provide a brief (under 100 characters) description of the image for a <a href="http://en.wikipedia.org/wiki/Screen_reader">screen reader</a> user. Note: It should not be the image file name.</p>',
             'resources' => [
                 '<a href="http://teach.ucf.edu/resources/document-formatting-guidelines/images/#about">Resource on Alternative Text</a>',
                 'WCAG Standard: <a href="http://www.w3.org/TR/WCAG20/#text-equiv-all">1.1.1</a>'
@@ -101,7 +101,7 @@ $udoit_tests = [
         [
             'name'      => 'imgAltNotEmptyInAnchor',
             'title'     => 'Alt text for all img elements used as source anchors should not be empty',
-            'desc'      => '<p>Provide a brief (under 100 characters) written description of the image for a screen reader user and should not be image file name</p>',
+            'desc'      => '<p>Alternative Text (Alt Text) is an alternative (non-visual) way to describe the meaning of an image. Please provide a brief (under 100 characters) description of the image for a <a href="http://en.wikipedia.org/wiki/Screen_reader">screen reader</a> user. Note: It should not be the image file name.</p>',
             'resources' => [
                 '<a href="http://teach.ucf.edu/resources/document-formatting-guidelines/images/#about">Resource on Alternative Text</a>',
                 'WCAG Standard: <a href="http://www.w3.org/TR/WCAG20/#text-equiv-all">1.1.1</a>'
@@ -269,7 +269,7 @@ $udoit_tests = [
         [
             'name'      => 'pNotUsedAsHeader',
             'title'     => 'Change paragraphs to headings',
-            'desc'      => '<p>Headers like <code>h1-h6</code> are extremely useful for non-sighted users to navigate the structure of the page, and formatting a paragraph to just be big or bold, while it might visually look like a header, does not make it one.</p>',
+            'desc'      => '<p>Headings like <code>h1-h6</code> are extremely useful for non-sighted users to navigate the structure of the page, and formatting a paragraph to just be big or bold, while it might visually look like a heading, does not make it one.</p>',
             'resources' => [],
             'example'   => '
                 <p class="text-danger">Incorrect</p>
