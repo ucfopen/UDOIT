@@ -258,7 +258,7 @@ $udoit_tests = [
         ],
         [
             'name'      => 'noHeadings',
-            'title'     => 'No headings are present',
+            'title'     => 'Consider adding headings to your document to create more structure',
             'desc'      => '<p>If appropriate, add headings to the page to organize the content for sighted and screen reader users. The headings should represent an accurate outline of the content</p>',
             'resources' => [
                 '<a href="http://online.ucf.edu/teach-online/develop/document-formatting-guidelines/headings/">Resource Link</a>',
