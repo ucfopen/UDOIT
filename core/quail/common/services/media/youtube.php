@@ -48,6 +48,12 @@ class youtubeService extends mediaService
 				return true;
 			}
 
+			// If the video was pulled due to copyright violations, the items array will be empty.
+			// TODO:  Make this return a different error, warning the instructor that the video is no longer available
+			if( empty($response->body->items) ){
+				return true;
+			}
+
 			return ($response->body->items[0]->contentDetails->caption == 'true')? false: true;
 		}
 
