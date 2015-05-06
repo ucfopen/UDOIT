@@ -230,27 +230,30 @@ class Udoit
 
                 break;
             case 'assignments':
-                // $page_count = 1;
-                // do {
+                $page_count = 1;
+                do {
                     $url      = $this->base_uri.'/api/v1/courses/'.$this->course_id.'/assignments?&access_token='.$this->api_key.'&page='.$page_count;
                     $response = Request::get($url)->send();
 
                     foreach ($response->body as $thing) {
                         $the_content[] = $thing;
                     }
-                // } while (!(empty($response->body)));
+                    $page_count++;
+
+                } while (!(empty($response->body)));
 
                 break;
             case 'discussions':
-                // $page_count = 1;
-                // do {
+                $page_count = 1;
+                do {
                     $url      = $this->base_uri.'/api/v1/courses/'.$this->course_id.'/discussion_topics?&access_token='.$this->api_key.'&page='.$page_count;
                     $response = Request::get($url)->send();
 
                     foreach ($response->body as $thing) {
                         $the_content[] = $thing;
                     }
-                // } while (!(empty($response->body)));
+                    $page_count++;
+                } while (!(empty($response->body)));
 
                 break;
             case 'files':
@@ -295,8 +298,8 @@ class Udoit
 
                 break;
             case 'modules':
-                // $page_count = 1;
-                // do {
+                $page_count = 1;
+                do {
                     $url      = $this->base_uri.'/api/v1/courses/'.$this->course_id.'/modules?include[]=items&access_token='.$this->api_key.'&page='.$page_count;
                     $response = Request::get($url)->send()->body;
 
@@ -305,7 +308,8 @@ class Udoit
                             $the_content[] = $item;
                         }
                     }
-                // } while (!(empty($response->body)));
+                    $page_count++;
+                } while (!(empty($response->body)));
 
                 break;
         }
