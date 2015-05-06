@@ -24,6 +24,9 @@ $db_user_table = '';
 
 $debug = false;
 
+
+$udoit_welcome_message = '<p>The Universal Design Online content Inspection Tool (U<strong>DO</strong>IT) was created by the Center for Distributed Learning at the University of Central Florida. U<strong>DO</strong>IT will scan your course content, generate a report and provide instructions on how to correct accessibility issues. Funding for U<strong>DO</strong>IT was provided by a Canvas Grant awarded in 2014.';
+
 /* Resource links */
 $resource_link = [
     'doc' => 'http://webaim.org/techniques/word/',
