@@ -15,6 +15,7 @@ class youtubeService extends mediaService
 	*	@var array An array of regular expressions to extract the YouTube item code
 	*/
 	var $regex = array(
+		'@youtube\.com/embed/([^"\& ]+)@i',
 	    '@youtube\.com/v/([^"\& ]+)@i',
 	    '@youtube\.com/watch\?v=([^"\& ]+)@i',
 	    '@youtube\.com/\?v=([^"\& ]+)@i',
