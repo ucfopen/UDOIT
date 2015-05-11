@@ -3,6 +3,9 @@
 /* Set the path for the base directory (where the user will start choosing from) */
 $base_url = ''; // Without trailing slash
 
+/* This tests to see if the user came from something other than the URL of your LMS */
+$referer_test = '';
+
 /* Oauth 1.0 Settings (For use when installing the app in Canvas) */
 $consumer_key = '';
 $shared_secret = '';
@@ -24,6 +27,9 @@ $db_user_table = '';
 
 $debug = false;
 
+
+$udoit_welcome_message = 'The Universal Design Online content Inspection Tool (U<strong>DO</strong>IT) was created by the Center for Distributed Learning at the University of Central Florida. U<strong>DO</strong>IT will scan your course content, generate a report and provide instructions on how to correct accessibility issues. Funding for U<strong>DO</strong>IT was provided by a Canvas Grant awarded in 2014.';
+
 /* Resource links */
 $resource_link = [
     'doc' => 'http://webaim.org/techniques/word/',
@@ -38,7 +44,7 @@ $udoit_tests = [
         [
             'name'      => 'aMustContainText',
             'title'     => 'Links should contain text',
-            'desc'      => '<p>Because many users of screen-readers use links to navigate the page, providing links with no text (or with images that have empty "alt" attributes and no other readable text) hinders these users.</p>',
+            'desc'      => '<p>Because many users of <a href="http://en.wikipedia.org/wiki/Screen_reader">screen readers</a> use links to navigate the page, providing links with no text (or with images that have empty "alt" attributes and no other readable text) hinders these users.</p>',
             'resources' => [
                 '<a href="http://guides.instructure.com/s/2204/m/4152/l/65824-how-do-i-create-a-hyperlink-in-the-rich-content-editor">Canvas Tutorial</a>',
                 '<a href="http://www.w3.org/TR/UNDERSTANDING-WCAG20/navigation-mechanisms.html">WCAG Guidelines</a>',
@@ -54,7 +60,7 @@ $udoit_tests = [
         [
             'name'      => 'imgHasAlt',
             'title'     => 'No Alternative Text found',
-            'desc'      => '<p>Alternative Text: provide a brief (under 100 characters) written description of the image for a screen reader user.</p>',
+            'desc'      => '<p>Alternative Text (Alt Text) is an alternative (non-visual) way to describe the meaning of an image. Please provide a brief (under 100 characters) description of the image for a <a href="http://en.wikipedia.org/wiki/Screen_reader">screen reader</a> user. Note: It should not be the image file name.</p>',
             'resources' => [
                 '<a href="http://teach.ucf.edu/resources/document-formatting-guidelines/images/#about">Resource on Alternative Text</a>',
                 'WCAG Standard: <a href="http://www.w3.org/TR/WCAG20/#text-equiv-all">1.1.1</a>',
@@ -69,7 +75,7 @@ $udoit_tests = [
         [
             'name'      => 'imgAltIsDifferent',
             'title'     => 'Alternative Text should not be the image filename',
-            'desc'      => '<p>Provide a brief (under 100 characters) written description of the image for a screen reader user and should not be image file name.</p>',
+            'desc'      => '<p>Alternative Text (Alt Text) is an alternative (non-visual) way to describe the meaning of an image. Please provide a brief (under 100 characters) description of the image for a <a href="http://en.wikipedia.org/wiki/Screen_reader">screen reader</a> user. Note: It should not be the image file name.</p>',
             'resources' => [
                 '<a href="http://teach.ucf.edu/resources/document-formatting-guidelines/images/#about">Resource on Alternative Text</a>',
                 'WCAG Standard: <a href="http://www.w3.org/TR/WCAG20/#text-equiv-all">1.1.1</a>',
@@ -86,7 +92,7 @@ $udoit_tests = [
         [
             'name'      => 'imgAltIsTooLong',
             'title'     => 'Alternative Text is more than 100 characters',
-            'desc'      => '<p>Provide a brief (under 100 characters) written description of the image for a screen reader user and should not be image file name</p>',
+            'desc'      => '<p>Alternative Text (Alt Text) is an alternative (non-visual) way to describe the meaning of an image. Please provide a brief (under 100 characters) description of the image for a <a href="http://en.wikipedia.org/wiki/Screen_reader">screen reader</a> user. Note: It should not be the image file name.</p>',
             'resources' => [
                 '<a href="http://teach.ucf.edu/resources/document-formatting-guidelines/images/#about">Resource on Alternative Text</a>',
                 'WCAG Standard: <a href="http://www.w3.org/TR/WCAG20/#text-equiv-all">1.1.1</a>'
@@ -101,7 +107,7 @@ $udoit_tests = [
         [
             'name'      => 'imgAltNotEmptyInAnchor',
             'title'     => 'Alt text for all img elements used as source anchors should not be empty',
-            'desc'      => '<p>Provide a brief (under 100 characters) written description of the image for a screen reader user and should not be image file name</p>',
+            'desc'      => '<p>Alternative Text (Alt Text) is an alternative (non-visual) way to describe the meaning of an image. Please provide a brief (under 100 characters) description of the image for a <a href="http://en.wikipedia.org/wiki/Screen_reader">screen reader</a> user. Note: It should not be the image file name.</p>',
             'resources' => [
                 '<a href="http://teach.ucf.edu/resources/document-formatting-guidelines/images/#about">Resource on Alternative Text</a>',
                 'WCAG Standard: <a href="http://www.w3.org/TR/WCAG20/#text-equiv-all">1.1.1</a>'
@@ -116,7 +122,7 @@ $udoit_tests = [
         [
             'name'      => 'tableDataShouldHaveTh',
             'title'     => 'No table headers found',
-            'desc'      => '<p>Add a table header because it provides a description of the table structure for sighted and screen reader users.</p>',
+            'desc'      => '<p>Add a table header because it provides a description of the table structure for sighted and <a href="http://en.wikipedia.org/wiki/Screen_reader">screen reader</a> users.</p>',
             'resources' => [
                 '<a href="http://online.ucf.edu/teach-online/develop/document-formatting-guidelines/tables/">Resource Link</a>',
                 'WCAG Standard: <a href="http://www.w3.org/TR/WCAG20/#content-structure-separation-programmatic">1.3.1</a>',
@@ -131,7 +137,7 @@ $udoit_tests = [
         [
             'name'      => 'tableThShouldHaveScope',
             'title'     => 'No row or column headers found in table',
-            'desc'      => '<p>Table headers organize and define table data by row/column for sighted and screen reader users.</p>',
+            'desc'      => '<p>Table headers organize and define table data by row/column for sighted and <a href="http://en.wikipedia.org/wiki/Screen_reader">screen reader</a> users.</p>',
             'resources' => [
                 '<a href="http://online.ucf.edu/teach-online/develop/document-formatting-guidelines/tables/">Resource Link</a>',
                 'WCAG Standard: <a href="http://www.w3.org/TR/WCAG20/#content-structure-separation-programmatic">1.3.1</a>',
@@ -147,7 +153,7 @@ $udoit_tests = [
         [
             'name'      => 'cssTextHasContrast',
             'title'     => 'Insufficient text color contrast with the background',
-            'desc'      => '<p>Text color should be easily viewable and should not be the only indicator of  meaning or function. Color balance should have at least a 4.5:1 ratio.</p>',
+            'desc'      => '<p>Text color should be easily viewable and should not be the only indicator of meaning or function. Color balance should have at least a 4.5:1 ratio.</p>',
             'resources' => [
                 '<a href="http://webaim.org/blog/wcag-2-0-and-link-colors/">Resource Link</a>',
                 'WCAG Standard <a href="http://www.w3.org/TR/WCAG20/#visual-audio-contrast-contrast">1.4.3</a>',
@@ -161,9 +167,11 @@ $udoit_tests = [
         ],
         [
             'name'      => 'objectMustContainText',
-            'title'     => 'Objects should contain a text equivalent of the object',
-            'desc'      => '',
-            'resources' => ['<a href="http://www.w3.org/TR/UNDERSTANDING-WCAG20/text-equiv.html">WCAG 2.0 Guideline</a>'],
+            'title'     => 'Multimedia objects should have text equivalents (e.g., transcripts).',
+            'desc'      => '<p>Multimedia objects should be accompanied by a link to a transcript of the content.</p>',
+            'resources' => [
+                'WCAG Standard: <a href="http://www.w3.org/TR/WCAG20/#media-equiv">1.2.1</a>',
+            ],
             'example'   => '
                 <p class="text-danger">Incorrect</p>
                 <pre><code>'. htmlspecialchars('<object src="widget.html" title=""></object>') .'</code></pre>
@@ -218,34 +226,38 @@ $udoit_tests = [
             'resources' => ['WCAG Standard: <a href="http://www.w3.org/TR/UNDERSTANDING-WCAG20/media-equiv.html">1.2</a>',],
             'example'   => '',
         ],
-        [
-            'name'      => 'objectLinkToMultimediaHasTextTranscript',
-            'title'     => 'Objects that link to multimedia files do not have text transcripts',
-            'desc'      => '',
-            'resources' => [],
-            'example'   => '
-                <p class="text-danger">Incorrect</p>
-                <pre><code>'. htmlspecialchars('<object src="video.mov"></object>') .'</code></pre>
-                <p class="text-success">Correct</p>
-                <pre><code>'. htmlspecialchars('<object src="video.mov"></object><a href="transcript.html">Read Transcript of the video</a>') .'</code></pre>
-            ',
-        ],
-        [
-            'name'      => 'aLinksToMultiMediaRequireTranscript',
-            'title'     => 'Links to multimedia do not have a text transcript',
-            'desc'      => '',
-            'resources' => [],
-            'example'   => '
-                <p class="text-danger">Incorrect</p>
-                <pre><code>'. htmlspecialchars('<a href="interview.mov">Watch the interview</a>') .'</code></pre>
-                <p class="text-success">Correct</p>
-                <pre><code>'. htmlspecialchars('<a href="interview.mov">Watch the interview</a> <a href="transcript.html">(transcript)</a>') .'</code></pre>
-            ',
-        ],
+        // [
+        //     'name'      => 'objectLinkToMultimediaHasTextTranscript',
+        //     'title'     => 'Multimedia objects should have text equivalents (e.g., transcripts).',
+        //     'desc'      => '<p>Multimedia objects should be accompanied by a link to a transcript of the content.</p>',
+        //     'resources' => [
+        //         'WCAG Standard: <a href="http://www.w3.org/TR/WCAG20/#media-equiv">1.2.1</a>',
+        //     ],
+        //     'example'   => '
+        //         <p class="text-danger">Incorrect</p>
+        //         <pre><code>'. htmlspecialchars('<object src="video.mov"></object>') .'</code></pre>
+        //         <p class="text-success">Correct</p>
+        //         <pre><code>'. htmlspecialchars('<object src="video.mov"></object><a href="transcript.html">Read Transcript of the video</a>') .'</code></pre>
+        //     ',
+        // ],
+        // [
+        //     'name'      => 'aLinksToMultiMediaRequireTranscript',
+        //     'title'     => 'Multimedia objects should have text equivalents (e.g., transcripts).',
+        //     'desc'      => '<p>Multimedia objects should be accompanied by a link to a transcript of the content.</p>',
+        //     'resources' => [
+        //         'WCAG Standard: <a href="http://www.w3.org/TR/WCAG20/#media-equiv">1.2.1</a>',
+        //     ],
+        //     'example'   => '
+        //         <p class="text-danger">Incorrect</p>
+        //         <pre><code>'. htmlspecialchars('<a href="interview.mov">Watch the interview</a>') .'</code></pre>
+        //         <p class="text-success">Correct</p>
+        //         <pre><code>'. htmlspecialchars('<a href="interview.mov">Watch the interview</a> <a href="transcript.html">(transcript)</a>') .'</code></pre>
+        //     ',
+        // ],
         [
             'name'      => 'headersHaveText',
             'title'     => 'Headings should contain text',
-            'desc'      => 'Sighted and screen reader users depend on headings to organize the content on the page. Headings should not be empty and should represent an accurate outline of the content</p>',
+            'desc'      => '<p>Sighted and <a href="http://en.wikipedia.org/wiki/Screen_reader">screen reader</a> users depend on headings to organize the content on the page. Headings should not be empty and should represent an accurate outline of the content</p>',
             'resources' => [
                 'Using H1-H6 to Identify Headings <a href="http://www.w3.org/TR/WCAG20-TECHS/H42.html">Article</a>',
             ],
@@ -258,8 +270,8 @@ $udoit_tests = [
         ],
         [
             'name'      => 'noHeadings',
-            'title'     => 'No headings are present',
-            'desc'      => '<p>If appropriate, add headings to the page to organize the content for sighted and screen reader users. The headings should represent an accurate outline of the content</p>',
+            'title'     => 'Consider adding headings to your document to create more structure',
+            'desc'      => '<p>If appropriate, add headings to the page to organize the content for sighted and <a href="http://en.wikipedia.org/wiki/Screen_reader">screen reader</a> users. The headings should represent an accurate outline of the content</p>',
             'resources' => [
                 '<a href="http://online.ucf.edu/teach-online/develop/document-formatting-guidelines/headings/">Resource Link</a>',
                 'WCAG standard <a href="http://www.w3.org/TR/WCAG20/#content-structure-separation-programmatic">1.3.1</a> and <a href="http://www.w3.org/TR/WCAG20/#content-structure-separation-sequence">1.3.2</a>',
@@ -269,7 +281,7 @@ $udoit_tests = [
         [
             'name'      => 'pNotUsedAsHeader',
             'title'     => 'Change paragraphs to headings',
-            'desc'      => '<p>Headers like <code>h1-h6</code> are extremely useful for non-sighted users to navigate the structure of the page, and formatting a paragraph to just be big or bold, while it might visually look like a header, does not make it one.</p>',
+            'desc'      => '<p>Headings like <code>h1-h6</code> are extremely useful for non-sighted users to navigate the structure of the page, and formatting a paragraph to just be big or bold, while it might visually look like a heading, does not make it one.</p>',
             'resources' => [],
             'example'   => '
                 <p class="text-danger">Incorrect</p>

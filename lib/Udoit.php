@@ -211,33 +211,49 @@ class Udoit
         ];
         $the_content = [];
         $per_page    = 100;
+        $page_count = 1;
 
         switch ($type) {
             case 'announcements':
-                $url      = $this->base_uri.'/api/v1/courses/'.$this->course_id.'/discussion_topics?&only_announcements=true&access_token='.$this->api_key;
-                $response = Request::get($url)->send();
+                $page_count = 1;
+                do {
+                    $url      = $this->base_uri.'/api/v1/courses/'.$this->course_id.'/discussion_topics?&only_announcements=true&access_token='.$this->api_key.'&page='.$page_count;
+                    $response = Request::get($url)->send();
 
-                foreach ($response->body as $thing) {
-                    $the_content[] = $thing;
-                }
+                    foreach ($response->body as $thing) {
+                        $the_content[] = $thing;
+                    }
+                    $page_count++;
+
+                } while (!(empty($response->body)));
+                
 
                 break;
             case 'assignments':
-                $url      = $this->base_uri.'/api/v1/courses/'.$this->course_id.'/assignments?&access_token='.$this->api_key;
-                $response = Request::get($url)->send();
+                $page_count = 1;
+                do {
+                    $url      = $this->base_uri.'/api/v1/courses/'.$this->course_id.'/assignments?&access_token='.$this->api_key.'&page='.$page_count;
+                    $response = Request::get($url)->send();
 
-                foreach ($response->body as $thing) {
-                    $the_content[] = $thing;
-                }
+                    foreach ($response->body as $thing) {
+                        $the_content[] = $thing;
+                    }
+                    $page_count++;
+
+                } while (!(empty($response->body)));
 
                 break;
             case 'discussions':
-                $url      = $this->base_uri.'/api/v1/courses/'.$this->course_id.'/discussion_topics?&access_token='.$this->api_key;
-                $response = Request::get($url)->send();
+                $page_count = 1;
+                do {
+                    $url      = $this->base_uri.'/api/v1/courses/'.$this->course_id.'/discussion_topics?&access_token='.$this->api_key.'&page='.$page_count;
+                    $response = Request::get($url)->send();
 
-                foreach ($response->body as $thing) {
-                    $the_content[] = $thing;
-                }
+                    foreach ($response->body as $thing) {
+                        $the_content[] = $thing;
+                    }
+                    $page_count++;
+                } while (!(empty($response->body)));
 
                 break;
             case 'files':
@@ -246,6 +262,7 @@ class Udoit
                 do {
                     $response  = Request::get($url)->send();
                     $the_links = $this->parseLinks($response->headers->toArray()['link']);
+
 
                     foreach ($response->body as $thing) {
                         $the_content[] = $thing;
@@ -281,14 +298,18 @@ class Udoit
 
                 break;
             case 'modules':
-                $url      = $this->base_uri.'/api/v1/courses/'.$this->course_id.'/modules?include[]=items&access_token='.$this->api_key;
-                $response = Request::get($url)->send()->body;
+                $page_count = 1;
+                do {
+                    $url      = $this->base_uri.'/api/v1/courses/'.$this->course_id.'/modules?include[]=items&access_token='.$this->api_key.'&page='.$page_count;
+                    $response = Request::get($url)->send()->body;
 
-                foreach ($response as $r) {
-                    foreach ($r->items as $item) {
-                        $the_content[] = $item;
+                    foreach ($response as $r) {
+                        foreach ($r->items as $item) {
+                            $the_content[] = $item;
+                        }
                     }
-                }
+                    $page_count++;
+                } while (!(empty($response->body)));
 
                 break;
         }

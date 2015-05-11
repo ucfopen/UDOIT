@@ -10,6 +10,63 @@ ini_set("display_errors", 1);
 session_start();
 header('Content-Type: text/html; charset=utf-8');
 
+if ( isset($_SERVER['HTTP_REFERER']) ) {
+	if ( preg_match($referer_test, $_SERVER['HTTP_REFERER']) != 1) {
+?>
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+		<title>UDOIT Accessibility Checker</title>
+		<link rel="icon" type="image/png" href="favicon.ico">
+		<link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css">
+		<link href='//fonts.googleapis.com/css?family=Sonsie+One' rel='stylesheet' type='text/css'>
+		<link href="assets/css/main.css" type="text/css" rel="stylesheet" media="screen">
+		<link href="assets/css/print.css" type="text/css" rel="stylesheet" media="print">
+	</head>
+	<body>
+		<div class="container">
+			<header id="mainHeader" class="navbar navbar-default center">
+				<h1 class="logo">UDOIT</h1>
+			</header>
+			<div class="alert alert-danger">
+				<p>It looks like you tried to access UDOIT from a website other than webcourses.ucf.edu.  Please log into <a href="https://webcourses.ucf.edu/" target="_blank">Webcourses@UCF</a> and try again.  If you are still encountering this error, contact <a href="https://online.ucf.edu/support/" target="_blank">Online@UCF Support</a>.</p>
+			</div>
+		</div>
+	</body>
+</html>
+<?php
+		die();
+	}
+} else {
+?>
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+		<title>UDOIT Accessibility Checker</title>
+		<link rel="icon" type="image/png" href="favicon.ico">
+		<link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css">
+		<link href='//fonts.googleapis.com/css?family=Sonsie+One' rel='stylesheet' type='text/css'>
+		<link href="assets/css/main.css" type="text/css" rel="stylesheet" media="screen">
+		<link href="assets/css/print.css" type="text/css" rel="stylesheet" media="print">
+	</head>
+	<body>
+		<div class="container">
+			<header id="mainHeader" class="navbar navbar-default center">
+				<h1 class="logo">UDOIT</h1>
+			</header>
+			<div class="alert alert-danger">
+				<p>Your web browser did not provide a referer.  Please contact <a href="https://online.ucf.edu/support/" target="_blank">Online@UCF Support</a>.</p>
+			</div>
+		</div>
+	</body>
+</html>
+<?php
+	die();
+}
+
+
 if (!isset($_SESSION['valid'])) {
 	$_SESSION['valid'] = false;
 }
