@@ -376,6 +376,7 @@ $(document).ready(function() {
 		var fore = $(e.target).parent().find('input.fore-color');
 
 		var error = $(e.target).parent().find('span.contrast-invalid');
+		var cr = $(e.target).parent().find('span.contrast-ratio');
 		var contrast_ratio = 0;
 
 		var bgcolor = "#fff";
@@ -386,6 +387,8 @@ $(document).ready(function() {
 		}
 
 		contrast_ratio = contrastRatio(bgcolor, $(fore).val() );
+		$(cr).innerHTML = contrast_ratio;
+
 		var preview = $(e.target).parent().find('div.ufixit-preview-canvas');
 
 		preview.attr("style", "color: " + $(fore).val() + "; background-color: " + bgcolor + ";" );
@@ -422,11 +425,13 @@ $(document).ready(function() {
 		preview.css("background-color", $(e.target).val() );
 
 		var error = $(e.target).parent().parent().parent().find('span.contrast-invalid');
+		var cr = $(e.target).parent().parent().parent().find('span.contrast-ratio');
 		var contrast_ratio = 0;
 
 		var threshold = 4.5;
 
 		contrast_ratio = contrastRatio( $(e.target).val(), $(fore).val() );
+		$(cr).innerHTML = contrast_ratio;
 
 		if (contrast_ratio < threshold) {
 			$(error).removeClass('hidden');
@@ -444,6 +449,7 @@ $(document).ready(function() {
 
 		var back = $(e.target).parent().parent().parent().find('input.back-color');
 		var error = $(e.target).parent().parent().parent().find('span.contrast-invalid');
+		var cr = $(e.target).parent().parent().parent().parent().find('span.contrast-ratio');
 		var contrast_ratio = 0;
 		var bgcolor = "#fff";
 
@@ -454,6 +460,7 @@ $(document).ready(function() {
 		var threshold = 4.5;
 
 		contrast_ratio = contrastRatio( bgcolor, $(e.target).val() );
+		$(cr).innerHTML = contrast_ratio;
 
 		if (contrast_ratio < threshold) {
 			$(error).removeClass('hidden');
@@ -471,6 +478,7 @@ $(document).ready(function() {
 		var fore = $(e.target).parent().parent().parent().parent().find('input.fore-color');
 
 		var error = $(e.target).parent().parent().parent().parent().find('span.contrast-invalid');
+		var cr = $(e.target).parent().parent().parent().parent().find('span.contrast-ratio');
 		var contrast_ratio = 0;
 		var bgcolor = "#fff";
 
@@ -481,6 +489,9 @@ $(document).ready(function() {
 		var threshold = 4.5;
 
 		contrast_ratio = contrastRatio( bgcolor, $(e.target).text() );
+		$(cr).innerText = contrast_ratio;
+		console.log(cr);
+		console.log(contrast_ratio);
 
 		if (contrast_ratio < threshold) {
 			$(error).removeClass('hidden');
