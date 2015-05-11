@@ -155,7 +155,7 @@ $issue_count = 0;
 																					<input class="color {hash:true,caps:false} form-control back-color" type="text" name="newcontent[1]" value="<?= $item->back_color; ?>" placeholder="Replacement for Background Color <?= $item->back_color; ?>">
 																				<?php endif; ?>
 
-																				<label for="newcontent[0]">Replacement for Foreground Color <?= $item->fore_color; ?></label>
+																				<label for="newcontent[0]">Replacement for Foreground Color <?= $item->fore_color; ?></label>&nbsp;<span class="contrast-invalid hidden red"><span class="glyphicon glyphicon-remove"></span>&nbsp;Ratio Invalid</span>
 																				<input class="color {hash:true,caps:false} form-control fore-color" type="text" name="newcontent[0]" value="<?= $item->fore_color; ?>" placeholder="Replacement for Foreground Color <?= $item->fore_color; ?>">
 																			</div>
 																		</div>
@@ -165,7 +165,7 @@ $issue_count = 0;
 																			</div>
 																		</div>
 																		<div class="clear">
-																			<label for="newcontent[0]">Approved colors for foreground</label>
+																			<label for="newcontent[0]">Foreground Color Palette</label>
 																			<ul class="color-picker first short">
 																				<li class="color">#FFFFFF</li>
 																				<li class="color">#F9F59E</li>
