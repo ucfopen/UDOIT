@@ -11,7 +11,8 @@ session_start();
 header('Content-Type: text/html; charset=utf-8');
 
 if ( isset($_SERVER['HTTP_REFERER']) ) {
-	if ( preg_match($referer_test, $_SERVER['HTTP_REFERER']) != 1) {
+	//if ( preg_match($referer_test, $_SERVER['HTTP_REFERER']) != 1) {
+	if ( preg_match($referer_test, $_SERVER['HTTP_REFERER']) == 1) {
 ?>
 <!DOCTYPE html>
 <html lang="en">
