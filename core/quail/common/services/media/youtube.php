@@ -15,6 +15,7 @@ class youtubeService extends mediaService
 	*	@var array An array of regular expressions to extract the YouTube item code
 	*/
 	var $regex = array(
+		'@youtube\.com/embed/([^"\& ]+)@i',
 	    '@youtube\.com/v/([^"\& ]+)@i',
 	    '@youtube\.com/watch\?v=([^"\& ]+)@i',
 	    '@youtube\.com/\?v=([^"\& ]+)@i',
@@ -45,6 +46,12 @@ class youtubeService extends mediaService
 			$response = Request::get($url)->send();
 
 			if( !$response ) {
+				return true;
+			}
+
+			// If the video was pulled due to copyright violations, the items array will be empty.
+			// TODO:  Make this return a different error, warning the instructor that the video is no longer available
+			if( empty($response->body->items) ){
 				return true;
 			}
 

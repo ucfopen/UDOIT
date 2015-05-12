@@ -2898,7 +2898,7 @@ class videoEmbedChecked extends quailTest
 	*/
 	function check()
 	{
-		$search = '/(youtube|youtu.be|vimeo)/';
+		$search = '/(vimeo)/';
 
 		foreach ($this->getAllElements('iframe') as $iframe) {
 			if (preg_match($search, $iframe->getAttribute('src'))) {
@@ -6155,15 +6155,20 @@ class videosEmbeddedOrLinkedNeedCaptions extends quailTest
 	*/
 	function check()
 	{
-		foreach ($this->getAllElements(array('a', 'embed')) as $video) {
+		$search = '/(youtube|youtu.be)/';
+
+		foreach ($this->getAllElements(array('a', 'embed', 'iframe')) as $video) {
 			$attr = ($video->tagName == 'a')
 					 ? 'href'
 					 : 'src';
 
 			if ($video->hasAttribute($attr)) {
 				foreach ($this->services as $service) {
-					if ($service->captionsMissing($video->getAttribute($attr))) {
-						$this->addReport($video);
+					$attr_val = $video->getAttribute($attr);
+					if ( preg_match($search, $attr_val) ){
+						if ($service->captionsMissing($attr_val)) {
+							$this->addReport($video);
+						}
 					}
 				}
 			}

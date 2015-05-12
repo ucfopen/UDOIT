@@ -3,6 +3,9 @@
 /* Set the path for the base directory (where the user will start choosing from) */
 $base_url = ''; // Without trailing slash
 
+/* This tests to see if the user came from something other than the URL of your LMS */
+$referer_test = '';
+
 /* Oauth 1.0 Settings (For use when installing the app in Canvas) */
 $consumer_key = '';
 $shared_secret = '';
@@ -26,6 +29,9 @@ $db_name = '';
 $db_user_table = '';
 
 $debug = false;
+
+
+$udoit_welcome_message = 'The Universal Design Online content Inspection Tool (U<strong>DO</strong>IT) was created by the Center for Distributed Learning at the University of Central Florida. U<strong>DO</strong>IT will scan your course content, generate a report and provide instructions on how to correct accessibility issues. Funding for U<strong>DO</strong>IT was provided by a Canvas Grant awarded in 2014.';
 
 /* Resource links */
 $resource_link = [
