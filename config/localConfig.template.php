@@ -12,6 +12,9 @@ $oauth2_id = '';
 $oauth2_key = '';
 $oauth2_uri = '';
 
+/* Disable headings check character count */
+$doc_length ='1500';
+
 /* Google/YouTube Data Api Key */
 define( 'GOOGLE_API_KEY', '');
 

@@ -1,5 +1,8 @@
 <?php
-/**
+
+include_once('../config/localConfig.php');
+
+/** 
 *    QUAIL - QUAIL Accessibility Information Library
 *    Copyright (C) 2009 Kevin Miller
 *
@@ -2779,23 +2782,36 @@ class noHeadings extends quailTest
 	/**
 	*	The main check function. This is called by the parent class to actually check content
 	*/
+
 	function check()
 	{
-		$no_headings = 0;
+		$doc_length = 1500;
+		$elements = $this->getAllElements('p');
 
-		if (!$this->getAllElements('h1')
-			&& !$this->getAllElements('h2')
-			&& !$this->getAllElements('h3')
-			&& !$this->getAllElements('h4')
-			&& !$this->getAllElements('h5')
-			&& !$this->getAllElements('h6')) {
-			$no_headings = true;
-		} else {
-			$no_headings = false;
+		$document_string = "";
+
+		foreach ($elements as $element) {
+			$document_string .= $element->textContent;
 		}
 
-		if ($no_headings) {
-			$this->addReport(null, null, false);
+		if (strlen($document_string) > $doc_length){
+
+			$no_headings = 0;
+
+			if (!$this->getAllElements('h1')
+				&& !$this->getAllElements('h2')
+				&& !$this->getAllElements('h3')
+				&& !$this->getAllElements('h4')
+				&& !$this->getAllElements('h5')
+				&& !$this->getAllElements('h6')) {
+				$no_headings = true;
+			} else {
+				$no_headings = false;
+			}
+
+			if ($no_headings) {
+				$this->addReport(null, null, false);
+			}
 		}
 	}
 }
