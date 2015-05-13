@@ -1,6 +1,7 @@
 <?php
 
 include_once('../config/localConfig.php');
+	
 
 /** 
 *    QUAIL - QUAIL Accessibility Information Library
@@ -2785,7 +2786,8 @@ class noHeadings extends quailTest
 
 	function check()
 	{
-		$doc_length = 1500;
+		global $doc_length;
+		
 		$elements = $this->getAllElements('p');
 
 		$document_string = "";
@@ -6370,5 +6372,6 @@ class textIsNotSmall extends quailTest
 	}
 
 }
+
 
 /*@}*/
