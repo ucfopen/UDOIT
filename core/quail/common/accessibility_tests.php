@@ -4772,7 +4772,7 @@ class objectWithClassIDHasNoText extends quailTest
 
 /**
 *  All p elements are not used as headers.
-*  All p element content must not be marked with either b, i, u, strong, font, em.
+*  All p element content must not be marked with either b, u, strong, font.
 *	@link http://quail-lib.org/test-info/pNotUsedAsHeader
 */
 class pNotUsedAsHeader extends quailTest
@@ -4790,17 +4790,20 @@ class pNotUsedAsHeader extends quailTest
 	function check()
 	{
 		foreach ($this->getAllElements('p') as $p) {
-			if (isset($p->nodeValue) && isset($p->firstChild->nodeValue)) {
-				if (($p->nodeValue == $p->firstChild->nodeValue)
-					&& is_object($p->firstChild)
-					&& property_exists($p->firstChild, 'tagName')
-					&& in_array($p->firstChild->tagName, $this->head_tags)) {
-					$this->addReport($p);
-				} else {
-					$style = $this->css->getStyle($p);
-
-					if (@$style['font-weight'] == 'bold') {
+			$parent_tag = $p->parentNode->tagName;
+			if($parent_tag != 'td' && $parent_tag != 'th'){
+				if (isset($p->nodeValue) && isset($p->firstChild->nodeValue)) {
+					if (($p->nodeValue == $p->firstChild->nodeValue)
+						&& is_object($p->firstChild)
+						&& property_exists($p->firstChild, 'tagName')
+						&& in_array($p->firstChild->tagName, $this->head_tags)) {
 						$this->addReport($p);
+					} else {
+						$style = $this->css->getStyle($p);
+
+						if (@$style['font-weight'] == 'bold') {
+							$this->addReport($p);
+						}
 					}
 				}
 			}
