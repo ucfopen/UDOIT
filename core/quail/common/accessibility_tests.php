@@ -4782,7 +4782,7 @@ class pNotUsedAsHeader extends quailTest
 	*/
 	var $default_severity = QUAIL_TEST_SEVERE;
 
-	var $head_tags = array('strong', 'em', 'font', 'i', 'b', 'u');
+	var $head_tags = array('strong', 'font', 'b', 'u');
 
 	/**
 	*	The main check function. This is called by the parent class to actually check content
