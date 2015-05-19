@@ -3,6 +3,9 @@
 Installing and developing on UDOIT is actually quite easy, below is the documentation to help you get started!
 
 ## License
+Please see `UDOIT_Release.pdf` (distributed with the source code) for more information about licensing.
+
+### UDOIT
 Copyright (C) 2014 University of Central Florida, created by Jacob Bates, Eric Colon, Fenel Joseph, and Emily Sachs.
 
 This program is free software: you can redistribute it and/or modify
@@ -20,7 +23,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 Primary Author Contact:  Jacob Bates <jacob.bates@ucf.edu>
 
-Please see `UDOIT_Release.pdf` (distributed with the source code) for more information about licensing.
+### Quail
+UDOIT uses the [QUAIL PHP library](https://code.google.com/p/quail-lib/), which has been heavily customized to suit the needs of UDOIT. This library requires distribution of tools developed with their library under the [GNU General Public License version 3](http://www.gnu.org/licenses/gpl.html)
 
 ## Installing
 UDOIT uses [Composer](https://getcomposer.org/) to manage its dependencies, so `cd` into your UDOIT directory and run this command before anything else:
