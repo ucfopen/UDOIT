@@ -2,6 +2,26 @@
 
 Installing and developing on UDOIT is actually quite easy, below is the documentation to help you get started!
 
+## License
+Copyright (C) 2014 University of Central Florida, created by Jacob Bates, Eric Colon, Fenel Joseph, and Emily Sachs.
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+Primary Author Contact:  Jacob Bates <jacob.bates@ucf.edu>
+
+Please see `UDOIT_Release.pdf` (distributed with the source code) for more information about licensing.
+
 ## Installing
 UDOIT uses [Composer](https://getcomposer.org/) to manage its dependencies, so `cd` into your UDOIT directory and run this command before anything else:
 
@@ -11,10 +31,39 @@ $ php composer.phar update
 
 If you are adding UDOIT on a new machine and don't want to register a new oauth2_key for development, you can grant access to a new user by manually adding them to the user table within the database.
 
+## Database Configuration
+There are only two tables required to run UDOIT.  They are:
+
+reports
+```
+CREATE TABLE `reports` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `user_id` int(10) unsigned NOT NULL,
+  `course_id` int(10) unsigned NOT NULL,
+  `file_path` text NOT NULL,
+  `date_run` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `errors` int(10) unsigned NOT NULL,
+  `suggestions` int(10) unsigned NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=442 DEFAULT CHARSET=latin1;
+```
+
+users
+```
+CREATE TABLE `users` (
+  `id` int(10) unsigned NOT NULL,
+  `api_key` varchar(255) NOT NULL,
+  `date_created` date NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `id` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+```
+
 ## Configuration
 Make a copy of `config/localConfig.template.php`, rename it to `localConfig.php`.
 
 ### Canvas API
+Please refer to the [Canvas API Policy](http://www.canvaslms.com/policies/api-policy) before using this application, as it makes heavy use of the Canvas API.
 
 `$base_url`
 This is the URL of your Canvas installation
@@ -130,6 +179,7 @@ Increments a progress key in the global `$_SESSION` variable that some AJAX in d
 * Jacob Bates
 * Eric Colon
 * Fenel Joseph
+* Emily Sachs
 * Karen Tinsley-Kim
 * Joe Fauvel
 * John Raible
