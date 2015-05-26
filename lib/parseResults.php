@@ -90,23 +90,23 @@ $issue_count = 0;
 							<?php if (count($report->error) > 0): ?>
 								<div class="panel panel-danger">
 									<div class="panel-heading">
-										<h4 class="panel-title">Errors <span class="badge"><?= count($report->error); ?></span></h4>
+										<h4 class="panel-title"><span class="badge"><?= count($report->error); ?></span> Errors</h4>
 									</div>
 
 									<ul class="list-group">
-										<?php $previtemtype = ''; ?>
+										<?php $previtemtype = ''; $instance = 1;?>
 										<?php foreach ($report->error as $item): ?>
 											<?php $issue_count++; $currtype = $item->type; ?>
 											<?php if ($currtype != $previtemtype): ?>
 												</li>
 												<li class="list-group-item">
-												<?php $newItemType = true; ?>
+												<?php $newItemType = true; $instance = 1; ?>
 											<?php endif; ?>
 												<div class="clearfix">
 													<?php if($newItemType): ?>
-														<a href="#collapse-<?= $report->id; ?>-<?= $issue_count; ?>" data-toggle="collapse"><h5 class="text-danger pull-left"><span class="glyphicon glyphicon-remove-sign"></span> <?= $item->title; ?></h5></a>
+														<a href="#collapse-<?= $report->id; ?>-<?= $issue_count; ?>" data-toggle="collapse"><h5 class="text-danger pull-left"><?= $item->title; ?></h5></a>
 													<?php endif; ?>
-													<?php if ($item->type == "cssTextHasContrast" || $item->type == "imgHasAlt" || $item->type == "imgNonDecorativeHasAlt" || $item->type == "tableDataShouldHaveTh" || $item->type == "tableThShouldHaveScope" || $item->type === "headersHaveText" || $item->type == "aMustContainText"): ?>
+													<?php if ($item->type == "cssTextHasContrast" || $item->type == "imgHasAlt" || $item->type == "imgNonDecorativeHasAlt" || $item->type == "tableDataShouldHaveTh" || $item->type == "tableThShouldHaveScope" || $item->type === "headersHaveText" || $item->type == "aMustContainText" || $item->type == "aSuspiciousLinkText" || $item->type == "aLinkTextDoesNotBeginWithRedundantWord"): ?>
 														<span class="label label-success margin-left-small hidden" style="margin-top: -2px;">Fixed!</span>
 													<?php endif; ?>
 												</div>
@@ -119,7 +119,7 @@ $issue_count = 0;
 													<?php endif; ?>
 
 													<?php if ($item->html): ?>
-														<p><a class="viewError" href="#viewError">View the source of this issue</a></p>
+														<p><?= $instance; ?>. <a class="viewError" href="#viewError">View the source of this issue</a></p>
 														<div class="more-info hidden">
 															<div class="error-preview">
 																<?= $item->html; ?>
@@ -130,7 +130,7 @@ $issue_count = 0;
 													<?php endif; ?>
 
 													<?php if (empty($_POST['path'])): ?>
-														<?php if ($item->type === "cssTextHasContrast" || $item->type === "imgHasAlt" || $item->type === "imgNonDecorativeHasAlt" || $item->type === "tableDataShouldHaveTh" || $item->type === "tableThShouldHaveScope" || $item->type === "headersHaveText" || $item->type == "aMustContainText"): ?>
+														<?php if ($item->type === "cssTextHasContrast" || $item->type === "imgHasAlt" || $item->type === "imgNonDecorativeHasAlt" || $item->type === "tableDataShouldHaveTh" || $item->type === "tableThShouldHaveScope" || $item->type === "headersHaveText" || $item->type == "aMustContainText" || $item->type == "aSuspiciousLinkText" || $item->type == "aLinkTextDoesNotBeginWithRedundantWord"): ?>
 															<button class="fix-this no-print btn btn-success">U FIX IT!</button>
 															<div class="toolmessage">UFIXIT is disabled because this is an old report. Rescan the course to use UFIXIT.</div>
 															<form class="ufixit-form form-horizontal no-print hidden" action="lib/process.php" method="post" role="form">
@@ -205,12 +205,20 @@ $issue_count = 0;
 																		</span>
 																	</div>
 																	<?php break; ?>
+																<?php case "aSuspiciousLinkText": ?>
+																	<div class="input-group">
+																		<input class="form-control" type="text" name="newcontent" placeholder="New link description">
+																		<span class="input-group-btn">
+																			<button class="submit-content btn btn-default" type="submit">Submit</button>
+																		</span>
+																	</div>
+																	<?php break; ?>
 																<?php endswitch; ?>
 															</form>
 														<?php endif; ?>
 													<?php endif; ?>
 												</div>
-												<?php $previtemtype = $currtype; $newItemType = false;?>
+												<?php $previtemtype = $currtype; $newItemType = false; $instance++;?>
 										<?php endforeach; ?>
 									</ul>
 								</div>
@@ -219,14 +227,14 @@ $issue_count = 0;
 							<?php if(count($report->warning) > 0): ?>
 								<div class="panel panel-warning">
 									<div class="panel-heading">
-										<h4 class="panel-title">Warnings <span class="badge"><?= count($report->warning); ?></span></h4>
+										<h4 class="panel-title"><span class="badge"><?= count($report->warning); ?></span> Warnings</h4>
 									</div>
 
 									<ul class="list-group">
 										<?php foreach ($report->warning as $item): ?>
 											<li class="list-group-item">
 												<div class="clearfix margin-bottom-small">
-													<h5 class="text-warning pull-left"><span class="glyphicon glyphicon-remove-sign"></span> <?= $item->title; ?></h5>
+													<h5 class="text-warning pull-left"><?= $item->title; ?></h5>
 												</div>
 
 												<?php if (isset($item->description)): ?>
@@ -253,23 +261,23 @@ $issue_count = 0;
 							<?php if (count($report->suggestion) > 0): ?>
 								<div class="panel panel-info no-margin">
 									<div class="panel-heading">
-										<h4 class="panel-title">Suggestions <span class="badge"><?= count($report->suggestion); ?></span></h4>
+										<h4 class="panel-title"><span class="badge"><?= count($report->suggestion); ?></span> Suggestions</h4>
 									</div>
 
 
 
 									<ul class="list-group">
-										<?php $previtemtype = ''; ?>
+										<?php $previtemtype = ''; $instance = 1;?>
 										<?php foreach ($report->suggestion as $item): ?>
 											<?php $issue_count++; $currtype = $item->type; ?>
 											<?php if ($currtype != $previtemtype): ?>
 												</li>
 												<li class="list-group-item">
-												<?php $newItemType = true; ?>
+												<?php $newItemType = true; $instance = 1; ?>
 											<?php endif; ?>
 												<div class="clearfix margin-bottom-small">
 													<?php if($newItemType): ?>
-														<h5 class="text-info pull-left"><span class="glyphicon glyphicon-remove-sign"></span> <?= $item->title; ?></h5>
+														<h5 class="text-info pull-left"><?= $item->title; ?></h5>
 													<?php endif ?>
 												</div>
 
@@ -280,7 +288,7 @@ $issue_count = 0;
 												<?php endif; ?>
 
 												<?php if ($item->html): ?>
-													<p><a class="viewError" href="#viewError">View the source of this issue</a></p>
+													<p><?= $instance; ?>. <a class="viewError" href="#viewError">View the source of this issue</a></p>
 													<div class="more-info hidden">
 														<div class="error-preview">
 															<?= $item->html; ?>
@@ -289,7 +297,7 @@ $issue_count = 0;
 														<p><a class="closeError" href="#closeError">Close this view</a></p>
 													</div>
 												<?php endif; ?>
-											<?php $previtemtype = $currtype; $newItemType = false;?>
+											<?php $previtemtype = $currtype; $newItemType = false; $instance++;?>
 										<?php endforeach; ?>
 									</ul>
 								</div>
