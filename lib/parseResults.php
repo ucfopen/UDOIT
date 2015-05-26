@@ -94,19 +94,25 @@ $issue_count = 0;
 									</div>
 
 									<ul class="list-group">
+										<?php $previtemtype = ''; ?>
 										<?php foreach ($report->error as $item): ?>
-											<?php $issue_count++; ?>
-											<li class="list-group-item">
+											<?php $issue_count++; $currtype = $item->type; ?>
+											<?php if ($currtype != $previtemtype): ?>
+												</li>
+												<li class="list-group-item">
+												<?php $newItemType = true; ?>
+											<?php endif; ?>
 												<div class="clearfix">
-													<a href="#collapse-<?= $report->id; ?>-<?= $issue_count; ?>" data-toggle="collapse"><h5 class="text-danger pull-left"><span class="glyphicon glyphicon-remove-sign"></span> <?= $item->title; ?></h5></a>
-
+													<?php if($newItemType): ?>
+														<a href="#collapse-<?= $report->id; ?>-<?= $issue_count; ?>" data-toggle="collapse"><h5 class="text-danger pull-left"><span class="glyphicon glyphicon-remove-sign"></span> <?= $item->title; ?></h5></a>
+													<?php endif; ?>
 													<?php if ($item->type == "cssTextHasContrast" || $item->type == "imgHasAlt" || $item->type == "imgNonDecorativeHasAlt" || $item->type == "tableDataShouldHaveTh" || $item->type == "tableThShouldHaveScope" || $item->type === "headersHaveText" || $item->type == "aMustContainText"): ?>
 														<span class="label label-success margin-left-small hidden" style="margin-top: -2px;">Fixed!</span>
 													<?php endif; ?>
 												</div>
 
 												<div id="collapse-<?= $report->id; ?>-<?= $issue_count; ?>" class="collapse in fade margin-top-small">
-													<?php if (isset($item->description)): ?>
+													<?php if ((isset($item->description)) && $newItemType): ?>
 														<div class="error-desc">
 															<?= $item->description ?>
 														</div>
@@ -204,7 +210,7 @@ $issue_count = 0;
 														<?php endif; ?>
 													<?php endif; ?>
 												</div>
-											</li>
+												<?php $previtemtype = $currtype; $newItemType = false;?>
 										<?php endforeach; ?>
 									</ul>
 								</div>
@@ -250,14 +256,24 @@ $issue_count = 0;
 										<h4 class="panel-title">Suggestions <span class="badge"><?= count($report->suggestion); ?></span></h4>
 									</div>
 
+
+
 									<ul class="list-group">
+										<?php $previtemtype = ''; ?>
 										<?php foreach ($report->suggestion as $item): ?>
-											<li class="list-group-item">
+											<?php $issue_count++; $currtype = $item->type; ?>
+											<?php if ($currtype != $previtemtype): ?>
+												</li>
+												<li class="list-group-item">
+												<?php $newItemType = true; ?>
+											<?php endif; ?>
 												<div class="clearfix margin-bottom-small">
-													<h5 class="text-info pull-left"><span class="glyphicon glyphicon-remove-sign"></span> <?= $item->title; ?></h5>
+													<?php if($newItemType): ?>
+														<h5 class="text-info pull-left"><span class="glyphicon glyphicon-remove-sign"></span> <?= $item->title; ?></h5>
+													<?php endif ?>
 												</div>
 
-												<?php if (isset($item->description)): ?>
+												<?php if ((isset($item->description)) && $newItemType): ?>
 													<div class="error-desc">
 														<?= $item->description ?>
 													</div>
@@ -273,7 +289,7 @@ $issue_count = 0;
 														<p><a class="closeError" href="#closeError">Close this view</a></p>
 													</div>
 												<?php endif; ?>
-											</li>
+											<?php $previtemtype = $currtype; $newItemType = false;?>
 										<?php endforeach; ?>
 									</ul>
 								</div>
