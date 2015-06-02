@@ -94,13 +94,24 @@ $issue_count = 0;
 									</div>
 
 									<ul class="list-group">
-										<?php $previtemtype = ''; $instance = 1;?>
+										<?php $instanceIndices = []; $indice = 0; $previtemtype = ''; $instance = 1;?>
+										<?php foreach ($report->error as $item): ?>
+											<?php $issue_count++; $currtype = $item->type; ?>
+											<?php if ($currtype != $previtemtype): ?>
+												<?php $instanceIndices[$indice] = $instance - 1; ?>
+												<?php $newItemType = true; $instance = 1; $indice++;?>
+											<?php endif; ?>
+											<?php $previtemtype = $currtype; $newItemType = false; $instance++;?>
+										<?php endforeach; ?>
+										<?php $instanceIndices[$indice] = $instance - 1; ?>
+										<?php $previtemtype = ''; $instance = 1; $indice = 0; ?>
 										<?php foreach ($report->error as $item): ?>
 											<?php $issue_count++; $currtype = $item->type; ?>
 											<?php if ($currtype != $previtemtype): ?>
 												</li>
 												<li class="list-group-item">
-												<?php $newItemType = true; $instance = 1; ?>
+												<?php $newItemType = true; $instance = 1; $indice++; ?>
+												<span class="badge badge-error"><?= $instanceIndices[$indice]; ?></span>												
 											<?php endif; ?>
 												<div class="clearfix">
 													<?php if($newItemType): ?>
@@ -263,17 +274,25 @@ $issue_count = 0;
 									<div class="panel-heading">
 										<h4 class="panel-title"><span class="badge"><?= count($report->suggestion); ?></span> Suggestions</h4>
 									</div>
-
-
-
 									<ul class="list-group">
-										<?php $previtemtype = ''; $instance = 1;?>
+										<?php $instanceIndices = []; $indice = 0; $previtemtype = ''; $instance = 1;?>
+										<?php foreach ($report->suggestion as $item): ?>
+											<?php $issue_count++; $currtype = $item->type; ?>
+											<?php if ($currtype != $previtemtype): ?>
+												<?php $instanceIndices[$indice] = $instance - 1; ?>
+												<?php $newItemType = true; $instance = 1; $indice++;?>
+											<?php endif; ?>
+											<?php $previtemtype = $currtype; $newItemType = false; $instance++;?>
+										<?php endforeach; ?>
+										<?php $instanceIndices[$indice] = $instance - 1; ?>
+										<?php $previtemtype = ''; $instance = 1; $indice = 0; ?>
 										<?php foreach ($report->suggestion as $item): ?>
 											<?php $issue_count++; $currtype = $item->type; ?>
 											<?php if ($currtype != $previtemtype): ?>
 												</li>
 												<li class="list-group-item">
-												<?php $newItemType = true; $instance = 1; ?>
+												<?php $newItemType = true; $instance = 1; $indice++; ?>
+												<span class="badge badge-suggestion"><?= $instanceIndices[$indice]; ?></span>												
 											<?php endif; ?>
 												<div class="clearfix margin-bottom-small">
 													<?php if($newItemType): ?>

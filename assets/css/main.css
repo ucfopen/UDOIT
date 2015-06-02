@@ -301,8 +301,8 @@ h5 + ul {
 
 .panel-title {
 	line-height: 22px;
-	margin-left: 6px;
-}
+/*	margin-left: 6px;
+*/}
 
 .panel-danger .list-group-item { border-color: #ebccd1; }
 
@@ -353,6 +353,29 @@ div#cached button.btn-success:hover{
 	height: 0;
 }
 
+.badge-error {
+  	background-color: #AE6C6C;
+  	float: left !important;
+  	margin-right: 6px;
+  	font-size: 12px;
+}
+
+.badge-suggestion {
+  	background-color: #588AA3;
+  	float: left !important;
+  	margin-right: 6px;
+  	font-size: 12px;
+}
+
+#errorWrapper p {
+	margin-left: 27px;
+	margin-right: 17px;
+}
+
+#errorWrapper .fix-this {
+	margin-left: 27px;
+	margin-right: 17px;
+}
 
 /* for lazy little developers~ */
 .no-margin { margin: 0px !important; }
