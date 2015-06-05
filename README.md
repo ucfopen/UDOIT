@@ -72,24 +72,37 @@ Please refer to the [Canvas API Policy](http://www.canvaslms.com/policies/api-po
 `$base_url`
 This is the URL of your Canvas installation
 
-`$consume_key` Your consumer developer key from Canvas
-`$shared_secret` Your shared secret key from Canvas
+`$consume_key`
+Your consumer developer key from Canvas
+
+`$shared_secret`
+Your shared secret key from Canvas
 
 ### Canvas Oauth2
 Since this application uses Oauth2 to take actions on behalf of the user, you'll need to [sign up for a developer key](https://docs.google.com/forms/d/1C5vOpWHAAl-cltj2944-NM0w16AiCvKQFJae3euwwM8/viewform)
 
-`$oauth2_id` The Client_ID Instructure gives you
-`$oauth2_key` The Secret Instructure gives you
-`$oauth2_uri` The "Oauth2 Redirect URI" you provided instructure.  This is the URI of the oauth2response.php file in the UDOIT directory.
+`$oauth2_id`
+The Client_ID Instructure gives you
+
+`$oauth2_key`
+The Secret Instructure gives you
+
+`$oauth2_uri`
+The "Oauth2 Redirect URI" you provided instructure.  This is the URI of the oauth2response.php file in the UDOIT directory.
 
 ### Database Config
 These value of these vars should be obvious:
 
 `$db_host`
+
 `$db_user`
+
 `$db_password`
+
 `$db_name`
+
 `$db_user_table`
+
 `$db_reports_table`
 
 ## Dependencies
