@@ -127,7 +127,6 @@ $issue_count = 0;
 												</li>
 												<li class="list-group-item">
 												<?php $newItemType = true; $instance = 1; $indice++; ?>
-										
 											<?php endif; ?>
 												<div class="clearfix">
 													<?php if($newItemType): ?>
@@ -137,17 +136,15 @@ $issue_count = 0;
 														<span class="label label-success margin-left-small hidden" style="margin-top: -2px;">Fixed!</span>
 													<?php endif; ?>
 												</div>
-
 												<div id="collapse-<?= $report->id; ?>-<?= $issue_count; ?>" class="collapse in fade margin-top-small">
 													<?php if ((isset($item->description)) && $newItemType): ?>
 														<div class="error-desc">
 															<?= $item->description ?>
 														</div>
 													<?php endif; ?>
-													<div class="instance">
 														<?php if ($item->html): ?>
-															<p><?= $instance; ?>. <a class="viewError" href="#viewError">View the source of this issue</a></p>
-															<div class="more-info hidden">
+															<p class="instance"><?= $instance; ?>. <a class="viewError" href="#viewError">View the source of this issue</a></p>
+															<div class="more-info hidden instance">
 																<div class="error-preview">
 																	<?= $item->html; ?>
 																</div>
@@ -158,9 +155,9 @@ $issue_count = 0;
 
 														<?php if (empty($_POST['path'])): ?>
 															<?php if ($item->type === "cssTextHasContrast" || $item->type === "imgHasAlt" || $item->type === "imgNonDecorativeHasAlt" || $item->type === "tableDataShouldHaveTh" || $item->type === "tableThShouldHaveScope" || $item->type === "headersHaveText" || $item->type == "aMustContainText" || $item->type == "aSuspiciousLinkText" || $item->type == "aLinkTextDoesNotBeginWithRedundantWord"): ?>
-																<button class="fix-this no-print btn btn-success">U FIX IT!</button>
-																<div class="toolmessage">UFIXIT is disabled because this is an old report. Rescan the course to use UFIXIT.</div>
-																<form class="ufixit-form form-horizontal no-print hidden" action="lib/process.php" method="post" role="form">
+																<button class="fix-this no-print btn btn-success instance">U FIX IT!</button>
+																<div class="toolmessage instance">UFIXIT is disabled because this is an old report. Rescan the course to use UFIXIT.</div>
+																<form class="ufixit-form form-horizontal no-print hidden instance" action="lib/process.php" method="post" role="form">
 																	<input type="hidden" name="main_action" value="ufixit">
 																	<input type="hidden" name="contenttype" value="<?= $bad->title; ?>">
 																	<input type="hidden" name="contentid" value="<?= $report->id; ?>">
@@ -244,7 +241,6 @@ $issue_count = 0;
 																</form>
 															<?php endif; ?>
 														<?php endif; ?>
-													</div>
 												</div>
 												<?php $previtemtype = $currtype; $newItemType = false; $instance++;?>
 										<?php endforeach; ?>
@@ -322,10 +318,9 @@ $issue_count = 0;
 														<?= $item->description ?>
 													</div>
 												<?php endif; ?>
-												<div class="instance">
 													<?php if ($item->html): ?>
-														<p><?= $instance; ?>. <a class="viewError" href="#viewError">View the source of this issue</a></p>
-														<div class="more-info hidden">
+														<p class="instance"><?= $instance; ?>. <a class="viewError" href="#viewError">View the source of this issue</a></p>
+														<div class="more-info hidden instance">
 															<div class="error-preview">
 																<?= $item->html; ?>
 															</div>
@@ -336,9 +331,9 @@ $issue_count = 0;
 
 													<?php if (empty($_POST['path'])): ?>
 															<?php if ($item->type === "aSuspiciousLinkText" || $item->type === "aLinkTextDoesNotBeginWithRedundantWord"): ?>
-																<button class="fix-this no-print btn btn-success">U FIX IT!</button>
-																<div class="toolmessage">UFIXIT is disabled because this is an old report. Rescan the course to use UFIXIT.</div>
-																<form class="ufixit-form form-horizontal no-print hidden" action="lib/process.php" method="post" role="form">
+																<button class="fix-this no-print btn btn-success instance">U FIX IT!</button>
+																<div class="toolmessage instance">UFIXIT is disabled because this is an old report. Rescan the course to use UFIXIT.</div>
+																<form class="ufixit-form form-horizontal no-print hidden instance" action="lib/process.php" method="post" role="form">
 																	<input type="hidden" name="main_action" value="ufixit">
 																	<input type="hidden" name="contenttype" value="<?= $bad->title; ?>">
 																	<input type="hidden" name="contentid" value="<?= $report->id; ?>">
@@ -346,7 +341,7 @@ $issue_count = 0;
 
 																<?php switch ($item->type):
 																case "aSuspiciousLinkText": ?>
-																	<div class="input-group">
+																	<div class="input-group instance">
 																		<input class="form-control" type="text" name="newcontent" placeholder="New link description">
 																		<span class="input-group-btn">
 																			<button class="submit-content btn btn-default" type="submit">Submit</button>
@@ -357,7 +352,7 @@ $issue_count = 0;
 															</form>
 														<?php endif; ?>
 													<?php endif; ?>
-												</div>
+												
 											<?php $previtemtype = $currtype; $newItemType = false; $instance++;?>
 										<?php endforeach; ?>
 									</ul>
