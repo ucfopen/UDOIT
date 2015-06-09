@@ -154,7 +154,7 @@ $issue_count = 0;
 														<?php endif; ?>
 
 														<?php if (empty($_POST['path'])): ?>
-															<?php if ($item->type === "cssTextHasContrast" || $item->type === "imgHasAlt" || $item->type === "imgNonDecorativeHasAlt" || $item->type === "tableDataShouldHaveTh" || $item->type === "tableThShouldHaveScope" || $item->type === "headersHaveText" || $item->type == "aMustContainText" || $item->type == "aSuspiciousLinkText" || $item->type == "aLinkTextDoesNotBeginWithRedundantWord"): ?>
+															<?php if ($item->type === "cssTextHasContrast" || $item->type === "imgHasAlt" || $item->type === "imgNonDecorativeHasAlt" || $item->type === "tableDataShouldHaveTh" || $item->type === "tableThShouldHaveScope" || $item->type === "headersHaveText" || $item->type == "aMustContainText"): ?>
 																<button class="fix-this no-print btn btn-success instance">U FIX IT!</button>
 																<div class="toolmessage instance">UFIXIT is disabled because this is an old report. Rescan the course to use UFIXIT.</div>
 																<form class="ufixit-form form-horizontal no-print hidden instance" action="lib/process.php" method="post" role="form">
@@ -329,7 +329,7 @@ $issue_count = 0;
 														</div>
 													<?php endif; ?>
 
-													<?php if (empty($_POST['path'])): ?>
+													<!-- <?php if (empty($_POST['path'])): ?>
 															<?php if ($item->type === "aSuspiciousLinkText" || $item->type === "aLinkTextDoesNotBeginWithRedundantWord"): ?>
 																<button class="fix-this no-print btn btn-success instance">U FIX IT!</button>
 																<div class="toolmessage instance">UFIXIT is disabled because this is an old report. Rescan the course to use UFIXIT.</div>
@@ -351,7 +351,7 @@ $issue_count = 0;
 																<?php endswitch; ?>
 															</form>
 														<?php endif; ?>
-													<?php endif; ?>
+													<?php endif; ?> -->
 												
 											<?php $previtemtype = $currtype; $newItemType = false; $instance++;?>
 										<?php endforeach; ?>

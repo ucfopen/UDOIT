@@ -264,6 +264,7 @@ $(document).ready(function() {
 					parent.removeClass('in');
 					parent.find('input[name="submittingagain"]').val('Yes');
 					parent.parent().find('button').removeClass('hidden');
+					parent.parent().find('.badge-error').addClass('badge-success');
 					parent.parent().find('h5').removeClass('text-danger').addClass('text-success');
 					parent.parent().find('.label').removeClass('hidden');
 				}

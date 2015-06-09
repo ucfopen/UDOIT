@@ -372,17 +372,21 @@ div#cached button.btn-success:hover{
 }
 
 .badge-error {
-  	background-color: #AE6C6C;
+  	background-color: #CA8A89;
   	float: left !important;
   	margin-right: 6px;
   	font-size: 12px;
 }
 
 .badge-suggestion {
-  	background-color: #588AA3;
+  	background-color: #7DA9BE;
   	float: left !important;
   	margin-right: 6px;
   	font-size: 12px;
+}
+
+.badge-success {
+	background-color: #3c763d !important;
 }
 
 #errorWrapper p {

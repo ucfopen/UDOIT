@@ -161,6 +161,9 @@ switch ($_POST['main_action']) {
             case 'tableThShouldHaveScope':
                 $corrected_error = $ufixit->fixTableThScopes($data['error_html'], $data['new_content'], $submitting_again);
                 break;
+            // case 'aSuspiciousLinkText':
+            //     $corrected_error = $ufixit->fixLinkText($data['error_html'], $data['new_content'], $submitting_again);
+            //     break;
         }
 
         // uploads the fixed content
