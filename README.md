@@ -66,17 +66,22 @@ CREATE TABLE `users` (
 ## Configuration
 Make a copy of `config/localConfig.template.php`, rename it to `localConfig.php`.
 
+### Miscellaneous
+`$referer_test`
+This is a regular expression that lets UDOIT detect whether the user accessed UDOIT from the correct URL.  For instance, UCF's value for this is: 
+`$referer_test = '/(webcourses.ucf.edu)/';`
+
 ### Canvas API
 Please refer to the [Canvas API Policy](http://www.canvaslms.com/policies/api-policy) before using this application, as it makes heavy use of the Canvas API.
 
 `$base_url`
 This is the URL of your Canvas installation
 
-`$consume_key`
-Your consumer developer key from Canvas
+`$consumer_key`
+This is a consumer key you make up.  It will be used when installing the LTI in Canvas.
 
 `$shared_secret`
-Your shared secret key from Canvas
+This is a shared secret you make up.  It will be used when installing the LTI in Canvas.
 
 ### Canvas Oauth2
 Since this application uses Oauth2 to take actions on behalf of the user, you'll need to [sign up for a developer key](https://docs.google.com/forms/d/1C5vOpWHAAl-cltj2944-NM0w16AiCvKQFJae3euwwM8/viewform)
@@ -104,6 +109,14 @@ These value of these vars should be obvious:
 `$db_user_table`
 
 `$db_reports_table`
+
+## Installing the LTI in Canvas
+1. Under _Configuration Type_, choose _By URL_.
+2. In the _Name_ field, type *UDOIT*.
+3. In the _Consumer Key_ field, copy the value from `$consumer_key` in your config file
+4. In the _Shared Secret_ field, copy the value from `$shared_secret` in your config file 
+5. In the _Config URL_ field, input the URL that points to *udoit.xml.php*.
+6. Click _Submit_.
 
 ## Dependencies
 UDOIT relies on 3 libraries installed through Composer to function:

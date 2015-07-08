@@ -1,10 +1,10 @@
 <?php
 
-/* Set the path for the base directory (where the user will start choosing from) */
-$base_url = ''; // Without trailing slash
-
 /* This tests to see if the user came from something other than the URL of your LMS */
 $referer_test = '';
+
+/* Set the path for the base directory (where the user will start choosing from) */
+$base_url = ''; // Without trailing slash
 
 /* Oauth 1.0 Settings (For use when installing the app in Canvas) */
 $consumer_key = '';
