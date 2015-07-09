@@ -48,7 +48,7 @@ if ( isset($_SERVER['HTTP_REFERER']) ) {
 				<h1 class="logo">UDOIT</h1>
 			</header>
 			<div class="alert alert-danger">
-				<p>It looks like you tried to access UDOIT from a website other than webcourses.ucf.edu.  Please log into <a href="https://webcourses.ucf.edu/" target="_blank">Webcourses@UCF</a> and try again.  If you are still encountering this error, contact <a href="https://online.ucf.edu/support/" target="_blank">Online@UCF Support</a>.</p>
+				<p><?= $error_msg_wrong_referrer ?></p>
 			</div>
 		</div>
 	</body>
@@ -75,7 +75,7 @@ if ( isset($_SERVER['HTTP_REFERER']) ) {
 				<h1 class="logo">UDOIT</h1>
 			</header>
 			<div class="alert alert-danger">
-				<p>Your web browser did not provide a referer.  Please contact <a href="https://online.ucf.edu/support/" target="_blank">Online@UCF Support</a>.</p>
+				<p><?= $error_msg_no_referrer ?></p>
 			</div>
 		</div>
 	</body>
