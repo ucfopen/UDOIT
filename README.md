@@ -27,15 +27,21 @@ Primary Author Contact:  Jacob Bates <jacob.bates@ucf.edu>
 UDOIT uses the [QUAIL PHP library](https://code.google.com/p/quail-lib/), which has been heavily customized to suit the needs of UDOIT. This library requires distribution of tools developed with their library under the [GNU General Public License version 3](http://www.gnu.org/licenses/gpl.html)
 
 ## Installing
+
+### System Requirements
+PHP 5.4 is required to run UDOIT without any modifications.  We have not tested it on 5.5 or 5.6, but some users have been able to modify the code to work on 5.3.  In order for UDOIT to work on PHP 5.3, you will need to convert all empty array initializations from using the newer `[]` syntax to use the older `array()` syntax.
+
+### Dependencies
 UDOIT uses [Composer](https://getcomposer.org/) to manage its dependencies, so `cd` into your UDOIT directory and run this command before anything else:
 
 ```
 $ php composer.phar update
 ```
 
-If you are adding UDOIT on a new machine and don't want to register a new oauth2_key for development, you can grant access to a new user by manually adding them to the user table within the database.
+### File Storage
+UDOIT saves generated reports to disk for easy retrieval.  Create a folder called `reports` in the root of the UDOIT project, and make sure PHP has permissions to create files and folders within that folder.
 
-## Database Configuration
+## Database Setup
 There are only two tables required to run UDOIT.  They are:
 
 reports
