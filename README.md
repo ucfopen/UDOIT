@@ -32,8 +32,9 @@ UDOIT uses the [QUAIL PHP library](https://code.google.com/p/quail-lib/), which 
 PHP 5.4 is required to run UDOIT without any modifications.  We have not tested it on 5.5 or 5.6, but some users have been able to modify the code to work on 5.3.
 
 If you're using PHP 5.3:
-1. Convert all empty array initializations from using the newer `[]` syntax to use the older `array()` syntax.
-2. If you have `short_open_tag` disabled, you'll need to change all `<?=` to `<?php echo`
+
+* Convert all empty array initializations from using the newer `[]` syntax to use the older `array()` syntax.
+* If you have `short_open_tag` disabled, you'll need to change all `<?=` to `<?php echo`
 
 ### Dependencies
 UDOIT uses [Composer](https://getcomposer.org/) to manage its dependencies, so `cd` into your UDOIT directory and run this command before anything else:
