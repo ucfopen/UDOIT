@@ -27,6 +27,7 @@ $db_user = '';
 $db_password = '';
 $db_name = '';
 $db_user_table = '';
+$db_reports_table = '';
 
 $debug = false;
 
