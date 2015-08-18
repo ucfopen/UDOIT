@@ -130,6 +130,7 @@ $dsn = "mysql:dbname=$db_name;host=$db_host";
 try {
 	$dbh = new PDO($dsn, $db_user, $db_password);
 } catch (PDOException $e) {
+	$_SESSION['valid'] = false;
 	echo 'Connection failed: ' . $e->getMessage();
 }
 
