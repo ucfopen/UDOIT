@@ -156,6 +156,8 @@ h5 {
 
 .errorSummary { display: none; }
 
+.error-desc { clear: both ; }
+
 #errorWrapper .errorItem:last-child { margin-bottom: 0; }
 
 #errorWrapper .errorSummary .panel:last-child { margin-bottom: 0; }

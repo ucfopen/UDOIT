@@ -129,20 +129,19 @@ $issue_count = 0;
 												<?php $newItemType = true; $instance = 1; $indice++; ?>
 											<?php endif; ?>
 											<div>
-												<div class="clearfix">
-													<?php if($newItemType): ?>
-														<a href="#collapse-<?= $report->id; ?>-<?= $issue_count; ?>" data-toggle="collapse"><h5 class="text-danger pull-left title-line"><span class="badge badge-error"><?= $instanceIndices[$indice]; ?></span>	<?= $item->title; ?></h5></a>
-													<?php endif; ?>
-													<?php if ($item->type == "cssTextHasContrast" || $item->type == "imgHasAlt" || $item->type == "imgNonDecorativeHasAlt" || $item->type == "tableDataShouldHaveTh" || $item->type == "tableThShouldHaveScope" || $item->type === "headersHaveText" || $item->type == "aMustContainText" || $item->type == "aSuspiciousLinkText" || $item->type == "aLinkTextDoesNotBeginWithRedundantWord"): ?>
-														<p class="fix-success hidden"><?= $instance; ?>. <span class="label label-success margin-left-small" style="margin-top: -2px;">Fixed!</span></p>
-													<?php endif; ?>
-												</div>
-												<div id="collapse-<?= $report->id; ?>-<?= $issue_count; ?>" class="collapse in fade margin-top-small">
+												<?php if($newItemType): ?>
+													<a href="#collapse-<?= $report->id; ?>-<?= $issue_count; ?>" data-toggle="collapse"><h5 class="text-danger pull-left title-line"><span class="badge badge-error"><?= $instanceIndices[$indice]; ?></span><?= $item->title; ?></h5></a>
 													<?php if ((isset($item->description)) && $newItemType): ?>
 														<div class="error-desc">
-															<?= $item->description ?>
+															<p><?= $item->description ?></p>
 														</div>
 													<?php endif; ?>
+												<?php endif; ?>
+												<?php if ($item->type == "cssTextHasContrast" || $item->type == "imgHasAlt" || $item->type == "imgNonDecorativeHasAlt" || $item->type == "tableDataShouldHaveTh" || $item->type == "tableThShouldHaveScope" || $item->type === "headersHaveText" || $item->type == "aMustContainText" || $item->type == "aSuspiciousLinkText" || $item->type == "aLinkTextDoesNotBeginWithRedundantWord"): ?>
+													<p class="fix-success hidden"><?= $instance; ?>. <span class="label label-success margin-left-small" style="margin-top: -2px;">Fixed!</span></p>
+												<?php endif; ?>
+												
+												<div id="collapse-<?= $report->id; ?>-<?= $issue_count; ?>" class="collapse in fade margin-top-small">
 														<?php if ($item->html): ?>
 															<p class="instance"><?= $instance; ?>. <a class="viewError" href="#viewError">View the source of this issue</a><a class="closeError hidden" href="#closeError">&nbsp;Close this view&nbsp;</a></p>
 															<div class="more-info hidden instance">
