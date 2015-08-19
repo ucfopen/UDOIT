@@ -307,6 +307,8 @@ h5 + ul {
 
 .fix-alt { position: relative; }
 
+.fix-success { clear: both; }
+
 .counter {
 	color: #8F8F8F;
 	position: absolute;

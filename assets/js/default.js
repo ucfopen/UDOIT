@@ -192,6 +192,7 @@ $(document).ready(function() {
 	$(document).on("click", ".viewError", function() {
 		$(this).addClass('hidden');
 		$(this).parent().parent().find('div.more-info').removeClass('hidden');
+		$(this).parent().parent().parent().find('a.closeError').removeClass('hidden');
 	});
 	// END view error source
 
@@ -199,8 +200,22 @@ $(document).ready(function() {
 	$(document).on("click", ".closeError", function() {
 		$(this).parent().parent().parent().find('a.viewError').removeClass('hidden');
 		$(this).parent().parent().parent().find('div.more-info').addClass('hidden');
+		$(this).parent().parent().parent().find('a.closeError').addClass('hidden');
 	});
 	// END close error source
+
+	// Link both "Close this view" statements on mouseover with highlighting
+	$(document).on("mouseenter", ".closeError", function() {
+		$(this).parent().parent().parent().find('a.closeError').css('background-color', 'rgba(225, 225, 225, 1)');
+		$(this).parent().parent().parent().find('a.closeError').css('border-radius', '3px');
+	});
+	// END link between "Close this view" statements
+
+	// Removes link between both "Close this view" statements on mouseleave removing highlighting
+	$(document).on("mouseleave", ".closeError", function() {
+		$(this).parent().parent().parent().find('a.closeError').css('background-color', 'rgba(225, 225, 225, 0)');
+	});
+	// END unlink
 
 	// print button
 	$(document).on("click", "#print", function() {
@@ -249,6 +264,7 @@ $(document).ready(function() {
 
 		var parent = $(this).parent();
 		var values = $(this).serialize();
+		var errorsRemaining = -1;
 
 		parent.find('.alert').remove();
 		$.ajax({
@@ -264,9 +280,15 @@ $(document).ready(function() {
 					parent.removeClass('in');
 					parent.find('input[name="submittingagain"]').val('Yes');
 					parent.parent().find('button').removeClass('hidden');
-					parent.parent().find('.badge-error').addClass('badge-success');
-					parent.parent().find('h5').removeClass('text-danger').addClass('text-success');
-					parent.parent().find('.label').removeClass('hidden');
+					parent.parent().find('.fix-success').removeClass('hidden');
+
+					errorsRemaining = parent.parent().parent().find('.fix-success.hidden').length;
+					if ( errorsRemaining == 0 ) {
+						console.log( parent.parent().find('.badge-error') );
+						parent.parent().parent().find('.badge-error').addClass('badge-success');
+						parent.parent().parent().find('h5').removeClass('text-danger').addClass('text-success');
+					}
+					
 				}
 			},
 			error: function(data) {
