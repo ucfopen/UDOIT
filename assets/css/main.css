@@ -156,6 +156,8 @@ h5 {
 
 .errorSummary { display: none; }
 
+.error-desc { clear: both ; }
+
 #errorWrapper .errorItem:last-child { margin-bottom: 0; }
 
 #errorWrapper .errorSummary .panel:last-child { margin-bottom: 0; }
@@ -306,6 +308,8 @@ h5 + ul {
 /* X. FORMS --------------------------- */
 
 .fix-alt { position: relative; }
+
+.fix-success { clear: both; }
 
 .counter {
 	color: #8F8F8F;
