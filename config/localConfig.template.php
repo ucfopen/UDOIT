@@ -146,11 +146,11 @@ $udoit_tests = [
         ],
         [
             'name'      => 'tableThShouldHaveScope',
-            'title'     => 'No row or column headers found in table',
-            'desc'      => '<p>Table headers organize and define table data by row/column for sighted and <a href="http://en.wikipedia.org/wiki/Screen_reader">screen reader</a> users.</p>',
+            'title'     => 'No row or column scopes declarations found in headers of the table',
+            'desc'      => '<p>Scope declarations in headers organize and define table data by row/column for sighted and <a href="http://en.wikipedia.org/wiki/Screen_reader">screen reader</a> users.</p>',
             'resources' => [
                 '<a href="http://online.ucf.edu/teach-online/develop/document-formatting-guidelines/tables/">Resource Link</a>',
-                'WCAG Standard: <a href="http://www.w3.org/TR/WCAG20/#content-structure-separation-programmatic">1.3.1</a>',
+                'WCAG Standard: <a href="http://www.w3.org/TR/WCAG20-TECHS/H63.html">1.3.1</a>',
             ],
             'example'   => '
                 <p class="text-danger">Incorrect</p>
