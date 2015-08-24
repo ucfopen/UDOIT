@@ -71,7 +71,7 @@ class Ufixit
      * Array of replacements for the annoying entities
      * @var array
      */
-    public $entity_replacements = ["", ""];
+    public $entity_replacements = ["", " "];
 
     /**
      * A file pointer
