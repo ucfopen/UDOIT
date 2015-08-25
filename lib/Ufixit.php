@@ -179,6 +179,8 @@ class Ufixit
 
         $tag = $this->dom->getElementsByTagName('a')->item(0);
 
+        var_dump( $this->dom->getElementsByTagName('a')->item(0) );
+
         $linkText = $this->dom->createTextNode($new_content);
 
         $tag->appendChild($linkText);

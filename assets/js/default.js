@@ -284,7 +284,6 @@ $(document).ready(function() {
 
 					errorsRemaining = parent.parent().parent().find('.fix-success.hidden').length;
 					if ( errorsRemaining == 0 ) {
-						console.log( parent.parent().find('.badge-error') );
 						parent.parent().parent().find('.badge-error').addClass('badge-success');
 						parent.parent().parent().find('h5').removeClass('text-danger').addClass('text-success');
 					}
