@@ -137,7 +137,7 @@ $issue_count = 0;
 														</div>
 													<?php endif; ?>
 												<?php endif; ?>
-												<?php if ($item->type == "cssTextHasContrast" || $item->type == "imgHasAlt" || $item->type == "imgNonDecorativeHasAlt" || $item->type == "tableDataShouldHaveTh" || $item->type == "tableThShouldHaveScope" || $item->type === "headersHaveText" || $item->type == "aMustContainText" || $item->type == "aSuspiciousLinkText" || $item->type == "aLinkTextDoesNotBeginWithRedundantWord"): ?>
+												<?php if ($item->type == "cssTextHasContrast" || $item->type == "imgHasAlt" || $item->type == "imgNonDecorativeHasAlt" || $item->type == "tableDataShouldHaveTh" || $item->type == "tableThShouldHaveScope" || $item->type === "headersHaveText" || $item->type == "aMustContainText" || $item->type == "aSuspiciousLinkText" || $item->type == "aLinkTextDoesNotBeginWithRedundantWord" || $item->type == "imgAltIsDifferent"): ?>
 													<p class="fix-success hidden"><?= $instance; ?>. <span class="label label-success margin-left-small" style="margin-top: -2px;">Fixed!</span></p>
 												<?php endif; ?>
 												
@@ -154,7 +154,7 @@ $issue_count = 0;
 														<?php endif; ?>
 
 														<?php if (empty($_POST['path'])): ?>
-															<?php if ($item->type === "cssTextHasContrast" || $item->type === "imgHasAlt" || $item->type === "imgNonDecorativeHasAlt" || $item->type === "tableDataShouldHaveTh" || $item->type === "tableThShouldHaveScope" || $item->type === "headersHaveText" || $item->type == "aMustContainText"): ?>
+															<?php if ($item->type === "cssTextHasContrast" || $item->type === "imgHasAlt" || $item->type === "imgNonDecorativeHasAlt" || $item->type === "tableDataShouldHaveTh" || $item->type === "tableThShouldHaveScope" || $item->type === "headersHaveText" || $item->type == "aMustContainText" || $item->type == "aSuspiciousLinkText" || $item->type == "aLinkTextDoesNotBeginWithRedundantWord" || $item->type == "imgAltIsDifferent"): ?>
 																<button class="fix-this no-print btn btn-success instance">U FIX IT!</button>
 																<div class="toolmessage instance">UFIXIT is disabled because this is an old report. Rescan the course to use UFIXIT.</div>
 																<form class="ufixit-form form-horizontal no-print hidden instance" action="lib/process.php" method="post" role="form">
@@ -188,6 +188,8 @@ $issue_count = 0;
 																		</div>
 																		<?php break; ?>
 																	<?php case "aMustContainText": ?>
+																	<?php case "aSuspiciousLinkText": ?>
+																	<?php case "aLinkTextDoesNotBeginWithRedundantWord": ?>
 																		<div class="form-group no-margin margin-bottom">
 																			<input class="{hash:true,caps:false} form-control" type="text" name="newcontent" placeholder="New link text">
 																			<label><input class="remove-link" type="checkbox" />&nbsp;Delete this Link completely instead</label><br />
@@ -196,6 +198,7 @@ $issue_count = 0;
 																		<?php break; ?>
 																	<?php case "imgHasAlt": ?>
 																	<?php case "imgNonDecorativeHasAlt": ?>
+																	<?php case "imgAltIsDifferent": ?>
 																		<div class="fix-alt input-group">
 																			<span class="counter">100</span>
 																			<input class="form-control" type="text" name="newcontent" maxlength="100" placeholder="New alt text">
