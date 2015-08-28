@@ -139,6 +139,8 @@ switch ($_POST['main_action']) {
         // fixes content based on what the error is
         switch ($data['error_type']) {
             case 'aMustContainText':
+            case 'aSuspiciousLinkText':
+            case 'aLinkTextDoesNotBeginWithRedundantWord':
                 $corrected_error = $ufixit->fixLink($data['error_html'], $data['new_content'], $submitting_again);
                 break;
             case 'cssTextHasContrast':
@@ -149,6 +151,7 @@ switch ($_POST['main_action']) {
                 break;
             case 'imgHasAlt':
             case 'imgNonDecorativeHasAlt':
+            case 'imgAltIsDifferent':
                 // $data['error_html'] = str_replace('alt=""', 'alt', $data['error_html']);
                 $corrected_error = $ufixit->fixAltText($data['error_html'], $data['new_content'], $submitting_again);
                 break;
