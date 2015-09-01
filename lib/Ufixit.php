@@ -110,6 +110,7 @@ class Ufixit
         $this->dom->loadHTML('<?xml encoding="utf-8" ?>' . $error_html);
 
         $imgs = $this->dom->getElementsByTagName('img');
+        $fixed_img = null;
 
         foreach ($imgs as $img) {
             $img->setAttribute('alt', $new_content);
