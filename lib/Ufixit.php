@@ -116,6 +116,9 @@ class Ufixit
             $fixed_img = $this->dom->saveHTML($img);
         }
 
+        $remove_attr = preg_replace("/ data-api-endpoint.+?>/", "", $fixed_img);
+        $fixed_img = $remove_attr;
+
         return $fixed_img;
     }
 
