@@ -153,9 +153,11 @@ switch ($_POST['main_action']) {
             case 'imgNonDecorativeHasAlt':
             case 'imgAltIsDifferent':
                 //$data['error_html'] = str_replace('alt=""', 'alt', $data['error_html']);
-                $remove_excess_attributes = preg_replace("/ data-api-endpoint.+?>/", "", $data['error_html']);
-                $data['error_html'] = $remove_excess_attributes;
                 $corrected_error = $ufixit->fixAltText($data['error_html'], $data['new_content'], $submitting_again);
+
+                $remove_attr = preg_replace("/ data-api-endpoint.+?>/", "", $data['error_html']);
+                $data['error_html'] = $remove_attr;
+
                 break;
             case 'tableDataShouldHaveTh':
                 // fixing table headers is a special case...
