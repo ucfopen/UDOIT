@@ -44,7 +44,7 @@ if (isset($_POST['cached_id'])) {
 
 	$the_json     = file_get_contents($sth->fetchAll(PDO::FETCH_OBJ)[0]->file_path);
 	$udoit_report = json_decode($the_json);
-} elseif ($_POST['main_action'] === "cahced") {
+} elseif ($_POST['main_action'] === "cached") {
 	die('<div class="alert alert-danger no-margin">Cannot parse this report. JSON file not found.</div>');
 }
 
