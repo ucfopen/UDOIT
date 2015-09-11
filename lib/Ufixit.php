@@ -179,8 +179,6 @@ class Ufixit
 
         $tag = $this->dom->getElementsByTagName('a')->item(0);
 
-        var_dump( $this->dom->getElementsByTagName('a')->item(0) );
-
         $linkText = $this->dom->createTextNode($new_content);
 
         $tag->appendChild($linkText);
@@ -562,6 +560,7 @@ class Ufixit
         $html            = HTMLMinify::minify(str_replace($this->annoying_entities, $this->entity_replacements, htmlentities($html)), ['doctype' => 'html5']);
 
         $html    = str_replace($error_html, $corrected_error, html_entity_decode($html));
+
         $put_uri = $this->base_uri."/api/v1/courses/".$this->course_id."/pages/".$this->content_id."?&access_token=".$this->api_key;
 
         Request::put($put_uri)->body(['wiki_page[body]' => $html])->sendsType(\Httpful\Mime::FORM)->send();

@@ -334,6 +334,7 @@ $(document).ready(function() {
 		result_html.find('button').remove();
 		result_html.find('pre').remove();
 		result_html.find('form').remove();
+		result_html.find('.instance').remove();
 		result_html.find('.viewError').remove();
 		result_html.find('.label-success').remove();
 		result_html.find('p:empty').remove();

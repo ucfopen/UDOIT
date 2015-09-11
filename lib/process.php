@@ -117,6 +117,8 @@ switch ($_POST['main_action']) {
 
         session_start();
 
+        $dom = new DOMDocument();
+
         $data['course_id'] = $_SESSION['launch_params']['custom_canvas_course_id'];
         $data['api_key']   = $_SESSION['api_key'];
 
@@ -139,6 +141,12 @@ switch ($_POST['main_action']) {
         // fixes content based on what the error is
         switch ($data['error_type']) {
             case 'aMustContainText':
+                $dom->loadHTML('<?xml encoding="utf-8" ?>' . $data['error_html']);
+
+                $tag = $dom->getElementsByTagName('a')->item(0);
+                $tag->removeAttribute('target');
+                $data['error_html'] = $dom->saveHTML($tag);
+
                 $corrected_error = $ufixit->fixLink($data['error_html'], $data['new_content'], $submitting_again);
                 break;
             case 'cssTextHasContrast':

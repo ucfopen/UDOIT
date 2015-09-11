@@ -130,7 +130,7 @@ $issue_count = 0;
 											<?php endif; ?>
 											<div>
 												<?php if($newItemType): ?>
-													<a href="#collapse-<?= $report->id; ?>-<?= $issue_count; ?>" data-toggle="collapse"><h5 class="text-danger pull-left title-line"><span class="badge badge-error"><?= $instanceIndices[$indice]; ?></span><?= $item->title; ?></h5></a>
+													<a href="#collapse-<?= $report->id; ?>-<?= $issue_count; ?>" data-toggle="collapse"><h5 class="text-danger pull-left title-line"><span class="badge badge-error"><?= $instanceIndices[$indice]; ?></span>&nbsp;<?= $item->title; ?></h5></a>
 													<?php if ((isset($item->description)) && $newItemType): ?>
 														<div class="error-desc">
 															<p><?= $item->description ?></p>
@@ -310,7 +310,7 @@ $issue_count = 0;
 											<?php endif; ?>
 												<div class="clearfix margin-bottom-small title-line">
 													<?php if($newItemType): ?>
-														<h5 class="text-info pull-left"><span class="badge badge-suggestion"><?= $instanceIndices[$indice]; ?></span> <?= $item->title; ?></h5>
+														<h5 class="text-info pull-left"><span class="badge badge-suggestion"><?= $instanceIndices[$indice]; ?></span>&nbsp;<?= $item->title; ?></h5>
 													<?php endif ?>
 												</div>
 
