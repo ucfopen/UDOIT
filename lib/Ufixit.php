@@ -71,7 +71,7 @@ class Ufixit
      * Array of replacements for the annoying entities
      * @var array
      */
-    public $entity_replacements = ["", ""];
+    public $entity_replacements = ["", " "];
 
     /**
      * A file pointer
@@ -110,11 +110,15 @@ class Ufixit
         $this->dom->loadHTML('<?xml encoding="utf-8" ?>' . $error_html);
 
         $imgs = $this->dom->getElementsByTagName('img');
+        $fixed_img = null;
 
         foreach ($imgs as $img) {
             $img->setAttribute('alt', $new_content);
             $fixed_img = $this->dom->saveHTML($img);
         }
+
+        $remove_attr = preg_replace("/ data-api-endpoint.+?>/", "", $fixed_img);
+        $fixed_img = $remove_attr;
 
         return $fixed_img;
     }

@@ -3068,6 +3068,8 @@ class imgAltIsDifferent extends quailTest
 		foreach ($this->getAllElements('img') as $img) {
 			if (trim($img->getAttribute('src')) == trim($img->getAttribute('alt')))
 				$this->addReport($img);
+			else if ( preg_match("/.jpg|.JPG|.png|.PNG|.gif|.GIF|.jpeg|.JPEG$/", trim($img->getAttribute('alt'))) )
+				$this->addReport($img);
 		}
 	}
 

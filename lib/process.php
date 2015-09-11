@@ -141,6 +141,9 @@ switch ($_POST['main_action']) {
         // fixes content based on what the error is
         switch ($data['error_type']) {
             case 'aMustContainText':
+            case 'aSuspiciousLinkText':
+            case 'aLinkTextDoesNotBeginWithRedundantWord':
+
                 $dom->loadHTML('<?xml encoding="utf-8" ?>' . $data['error_html']);
 
                 $tag = $dom->getElementsByTagName('a')->item(0);
@@ -157,8 +160,12 @@ switch ($_POST['main_action']) {
                 break;
             case 'imgHasAlt':
             case 'imgNonDecorativeHasAlt':
-                // $data['error_html'] = str_replace('alt=""', 'alt', $data['error_html']);
+            case 'imgAltIsDifferent':
+                //$data['error_html'] = str_replace('alt=""', 'alt', $data['error_html']);
                 $corrected_error = $ufixit->fixAltText($data['error_html'], $data['new_content'], $submitting_again);
+
+                $remove_attr = preg_replace("/ data-api-endpoint.*$/s", "", $data['error_html']);
+                $data['error_html'] = $remove_attr;
                 break;
             case 'tableDataShouldHaveTh':
                 // fixing table headers is a special case...
@@ -169,9 +176,6 @@ switch ($_POST['main_action']) {
             case 'tableThShouldHaveScope':
                 $corrected_error = $ufixit->fixTableThScopes($data['error_html'], $data['new_content'], $submitting_again);
                 break;
-            // case 'aSuspiciousLinkText':
-            //     $corrected_error = $ufixit->fixLinkText($data['error_html'], $data['new_content'], $submitting_again);
-            //     break;
         }
 
         // uploads the fixed content
