@@ -44,7 +44,7 @@ if (isset($_POST['cached_id'])) {
 
 	$the_json     = file_get_contents($sth->fetchAll(PDO::FETCH_OBJ)[0]->file_path);
 	$udoit_report = json_decode($the_json);
-} elseif ($_POST['main_action'] === "cahced") {
+} elseif ($_POST['main_action'] === "cached") {
 	die('<div class="alert alert-danger no-margin">Cannot parse this report. JSON file not found.</div>');
 }
 
@@ -130,14 +130,14 @@ $issue_count = 0;
 											<?php endif; ?>
 											<div>
 												<?php if($newItemType): ?>
-													<a href="#collapse-<?= $report->id; ?>-<?= $issue_count; ?>" data-toggle="collapse"><h5 class="text-danger pull-left title-line"><span class="badge badge-error"><?= $instanceIndices[$indice]; ?></span><?= $item->title; ?></h5></a>
+													<a href="#collapse-<?= $report->id; ?>-<?= $issue_count; ?>" data-toggle="collapse"><h5 class="text-danger pull-left title-line"><span class="badge badge-error"><?= $instanceIndices[$indice]; ?></span>&nbsp;<?= $item->title; ?></h5></a>
 													<?php if ((isset($item->description)) && $newItemType): ?>
 														<div class="error-desc">
 															<p><?= $item->description ?></p>
 														</div>
 													<?php endif; ?>
 												<?php endif; ?>
-												<?php if ($item->type == "cssTextHasContrast" || $item->type == "imgHasAlt" || $item->type == "imgNonDecorativeHasAlt" || $item->type == "tableDataShouldHaveTh" || $item->type == "tableThShouldHaveScope" || $item->type === "headersHaveText" || $item->type == "aMustContainText" || $item->type == "aSuspiciousLinkText" || $item->type == "aLinkTextDoesNotBeginWithRedundantWord"): ?>
+												<?php if ($item->type == "cssTextHasContrast" || $item->type == "imgHasAlt" || $item->type == "imgNonDecorativeHasAlt" || $item->type == "tableDataShouldHaveTh" || $item->type == "tableThShouldHaveScope" || $item->type === "headersHaveText" || $item->type == "aMustContainText" || $item->type == "aSuspiciousLinkText" || $item->type == "aLinkTextDoesNotBeginWithRedundantWord" || $item->type == "imgAltIsDifferent"): ?>
 													<p class="fix-success hidden"><?= $instance; ?>. <span class="label label-success margin-left-small" style="margin-top: -2px;">Fixed!</span></p>
 												<?php endif; ?>
 												
@@ -154,7 +154,7 @@ $issue_count = 0;
 														<?php endif; ?>
 
 														<?php if (empty($_POST['path'])): ?>
-															<?php if ($item->type === "cssTextHasContrast" || $item->type === "imgHasAlt" || $item->type === "imgNonDecorativeHasAlt" || $item->type === "tableDataShouldHaveTh" || $item->type === "tableThShouldHaveScope" || $item->type === "headersHaveText" || $item->type == "aMustContainText"): ?>
+															<?php if ($item->type === "cssTextHasContrast" || $item->type === "imgHasAlt" || $item->type === "imgNonDecorativeHasAlt" || $item->type === "tableDataShouldHaveTh" || $item->type === "tableThShouldHaveScope" || $item->type === "headersHaveText" || $item->type == "aMustContainText" || $item->type == "aSuspiciousLinkText" || $item->type == "aLinkTextDoesNotBeginWithRedundantWord" || $item->type == "imgAltIsDifferent"): ?>
 																<button class="fix-this no-print btn btn-success instance">U FIX IT!</button>
 																<div class="toolmessage instance">UFIXIT is disabled because this is an old report. Rescan the course to use UFIXIT.</div>
 																<form class="ufixit-form form-horizontal no-print hidden instance" action="lib/process.php" method="post" role="form">
@@ -188,6 +188,8 @@ $issue_count = 0;
 																		</div>
 																		<?php break; ?>
 																	<?php case "aMustContainText": ?>
+																	<?php case "aSuspiciousLinkText": ?>
+																	<?php case "aLinkTextDoesNotBeginWithRedundantWord": ?>
 																		<div class="form-group no-margin margin-bottom">
 																			<input class="{hash:true,caps:false} form-control" type="text" name="newcontent" placeholder="New link text">
 																			<label><input class="remove-link" type="checkbox" />&nbsp;Delete this Link completely instead</label><br />
@@ -196,6 +198,7 @@ $issue_count = 0;
 																		<?php break; ?>
 																	<?php case "imgHasAlt": ?>
 																	<?php case "imgNonDecorativeHasAlt": ?>
+																	<?php case "imgAltIsDifferent": ?>
 																		<div class="fix-alt input-group">
 																			<span class="counter">100</span>
 																			<input class="form-control" type="text" name="newcontent" maxlength="100" placeholder="New alt text">
@@ -310,7 +313,7 @@ $issue_count = 0;
 											<?php endif; ?>
 												<div class="clearfix margin-bottom-small title-line">
 													<?php if($newItemType): ?>
-														<h5 class="text-info pull-left"><span class="badge badge-suggestion"><?= $instanceIndices[$indice]; ?></span> <?= $item->title; ?></h5>
+														<h5 class="text-info pull-left"><span class="badge badge-suggestion"><?= $instanceIndices[$indice]; ?></span>&nbsp;<?= $item->title; ?></h5>
 													<?php endif ?>
 												</div>
 

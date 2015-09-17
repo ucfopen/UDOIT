@@ -110,11 +110,15 @@ class Ufixit
         $this->dom->loadHTML('<?xml encoding="utf-8" ?>' . $error_html);
 
         $imgs = $this->dom->getElementsByTagName('img');
+        $fixed_img = null;
 
         foreach ($imgs as $img) {
             $img->setAttribute('alt', $new_content);
             $fixed_img = $this->dom->saveHTML($img);
         }
+
+        $remove_attr = preg_replace("/ data-api-endpoint.+?>/", "", $fixed_img);
+        $fixed_img = $remove_attr;
 
         return $fixed_img;
     }
@@ -560,6 +564,7 @@ class Ufixit
         $html            = HTMLMinify::minify(str_replace($this->annoying_entities, $this->entity_replacements, htmlentities($html)), ['doctype' => 'html5']);
 
         $html    = str_replace($error_html, $corrected_error, html_entity_decode($html));
+
         $put_uri = $this->base_uri."/api/v1/courses/".$this->course_id."/pages/".$this->content_id."?&access_token=".$this->api_key;
 
         Request::put($put_uri)->body(['wiki_page[body]' => $html])->sendsType(\Httpful\Mime::FORM)->send();
