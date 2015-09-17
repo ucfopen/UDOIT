@@ -25,12 +25,18 @@ include 'Ufixit.php';
 
 use Httpful\Request;
 
+$SESSION_user_id = $_POST['user_id'];
+$SESSION_course_id = $_POST['course_id'];
+$SESSION_context_label = $_POST['context_label'];
+$SESSION_context_title = $_POST['context_title'];
+
 // check if course content is being scanned or fixed
 switch ($_POST['main_action']) {
     case 'udoit':
         // for saving this report later
+
         session_start();
-        $user_id = $_SESSION['launch_params']['custom_canvas_user_id'];
+        $user_id = $SESSION_user_id; //$_SESSION['launch_params']['custom_canvas_user_id'];
         session_write_close();
 
         // UDOIT can't scan what isn't selected
@@ -43,7 +49,7 @@ switch ($_POST['main_action']) {
             'api_key'       => $_SESSION['api_key'],
             'base_uri'      => $base_url,
             'content_types' => $_POST['content'],
-            'course_id'     => $_SESSION['launch_params']['custom_canvas_course_id']
+            'course_id'     => $SESSION_course_id //$_SESSION['launch_params']['custom_canvas_course_id']
         ];
         session_write_close();
 
@@ -51,7 +57,7 @@ switch ($_POST['main_action']) {
         $udoit->buildReport();
 
         $to_encode = [
-            'course'        => $_SESSION['launch_params']['context_title'],
+            'course'        => $SESSION_context_title, //$_SESSION['launch_params']['context_title'],
             'total_results' => $udoit->total_results,
             'content'       => $udoit->bad_content,
         ];
@@ -117,7 +123,7 @@ switch ($_POST['main_action']) {
 
         session_start();
 
-        $data['course_id'] = $_SESSION['launch_params']['custom_canvas_course_id'];
+        $data['course_id'] = $SESSION_course_id; //$_SESSION['launch_params']['custom_canvas_course_id'];
         $data['api_key']   = $_SESSION['api_key'];
 
         session_write_close();
