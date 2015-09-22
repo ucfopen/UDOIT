@@ -73,6 +73,8 @@ function checker() {
 		content = "none";
 	}
 
+	console.log("Course ID: "+course_id);
+
 	$.ajax({
 		url: "./lib/process.php",
 		type: "POST",
@@ -338,6 +340,7 @@ $(document).ready(function() {
 	// clicking the save pdf button
 	$(document).on("click", "#savePdf", function() {
 		var result_html = $('#result').clone();
+		var context_title = $('input[name="session_context_title"]').val();
 
 		result_html.find('button').remove();
 		result_html.find('pre').remove();
@@ -354,6 +357,7 @@ $(document).ready(function() {
 
 		var form = $('<form action="./lib/parsePdf.php" method="post">' +
 		  '<input type="text" name="result_html" />' +
+		  '<input type="text" name="context_title" value="'+ context_title +'"/>' +
 		  '</form>');
 
 		$(form).find('input[name="result_html"]').val(result_html.html());

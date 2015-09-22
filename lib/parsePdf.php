@@ -30,7 +30,7 @@ $stylesheet = <<<EOD
 EOD;
 
 session_start();
-$title = $_SESSION['launch_params']['context_title'];
+$title = $_POST['context_title'];
 session_write_close();
 
 $html = HTMLMinify::minify($_POST['result_html']);

@@ -294,7 +294,6 @@ class Udoit
                 break;
             case 'pages':
                 $url = $this->base_uri.'/api/v1/courses/'.$this->course_id.'/pages?page=1&per_page='.$per_page.'&access_token='.$this->api_key;
-
                 do {
                     $response  = Request::get($url)->send();
                     $the_links = $this->parseLinks($response->headers->toArray()['link']);
