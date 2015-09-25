@@ -206,7 +206,6 @@ session_write_close();
 						</div>
 						<form class="form-horizontal no-print" id="udoitForm" method="post" action="lib/process.php" role="form">
 							<input type="hidden" name="main_action" value="udoit">
-							<input type="hidden" name="session_user_id" value="<?php echo $_SESSION['launch_params']['custom_canvas_user_id'] ?>">
 							<input type="hidden" name="session_course_id" value="<?php echo $_SESSION['launch_params']['custom_canvas_course_id'] ?>">
 							<input type="hidden" name="session_context_label" value="<?php echo $_SESSION['launch_params']['context_label'] ?>">
 							<input type="hidden" name="session_context_title" value="<?php echo $_SESSION['launch_params']['context_title'] ?>">

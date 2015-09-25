@@ -24,7 +24,6 @@ include 'Udoit.php';
 include 'Ufixit.php';
 
 use Httpful\Request;
-$SESSION_user_id = $_POST['user_id'];
 $SESSION_course_id = $_POST['course_id'];
 $SESSION_context_label = $_POST['context_label'];
 $SESSION_context_title = $_POST['context_title'];
@@ -34,7 +33,7 @@ switch ($_POST['main_action']) {
     case 'udoit':
         // for saving this report later
         session_start();
-        $user_id = $SESSION_user_id;
+        $user_id = $_SESSION['launch_params']['custom_canvas_user_id'];
         session_write_close();
 
         // UDOIT can't scan what isn't selected

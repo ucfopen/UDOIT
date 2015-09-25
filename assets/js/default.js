@@ -61,7 +61,6 @@ function loader(text) {
 /* Builds up the results and adds them to the page */
 function checker() {
 	var main_action = $('input[name="main_action"]').val();
-	var user_id = $('input[name="session_user_id"]').val();
 	var course_id = $('input[name="session_course_id"]').val();
 	var context_label = $('input[name="session_context_label"]').val();
 	var context_title = $('input[name="session_context_title"]').val();
@@ -73,15 +72,12 @@ function checker() {
 		content = "none";
 	}
 
-	console.log("Course ID: "+course_id);
-
 	$.ajax({
 		url: "./lib/process.php",
 		type: "POST",
 		data: {
 			main_action: main_action,
 			content: content,
-			user_id: user_id,
 			course_id: course_id,
 			context_label: context_label,
 			context_title: context_title
