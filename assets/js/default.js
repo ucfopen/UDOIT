@@ -61,6 +61,9 @@ function loader(text) {
 /* Builds up the results and adds them to the page */
 function checker() {
 	var main_action = $('input[name="main_action"]').val();
+	var course_id = $('input[name="session_course_id"]').val();
+	var context_label = $('input[name="session_context_label"]').val();
+	var context_title = $('input[name="session_context_title"]').val();
 	var content = $('.content:not(#allContent):checked').map(function(i,n) {
 		return $(n).val();
 	}).get();
@@ -74,7 +77,10 @@ function checker() {
 		type: "POST",
 		data: {
 			main_action: main_action,
-			content: content
+			content: content,
+			course_id: course_id,
+			context_label: context_label,
+			context_title: context_title
 		},
 		success: function(data){
 			$('#scanner').append('<section id="result">'+data+'</section>');
@@ -330,6 +336,7 @@ $(document).ready(function() {
 	// clicking the save pdf button
 	$(document).on("click", "#savePdf", function() {
 		var result_html = $('#result').clone();
+		var context_title = $('input[name="session_context_title"]').val();
 
 		result_html.find('button').remove();
 		result_html.find('pre').remove();
@@ -346,6 +353,7 @@ $(document).ready(function() {
 
 		var form = $('<form action="./lib/parsePdf.php" method="post">' +
 		  '<input type="text" name="result_html" />' +
+		  '<input type="text" name="context_title" value="'+ context_title +'"/>' +
 		  '</form>');
 
 		$(form).find('input[name="result_html"]').val(result_html.html());
