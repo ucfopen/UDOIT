@@ -146,7 +146,37 @@ $issue_count = 0;
 															<p class="instance"><?= $instance; ?>. <a class="viewError" href="#viewError">View the source of this issue</a><a class="closeError hidden" href="#closeError">&nbsp;Close this view&nbsp;</a></p>
 															<div class="more-info hidden instance">
 																<div class="error-preview">
-																	<?= $item->html; ?>
+																	<?php if ($item->type == "videosEmbeddedOrLinkedNeedCaptions"): ?>
+																		<?php
+																			$regex = array(
+																				'@youtube\.com/embed/([^"\& ]+)@i',
+																				'@youtube\.com/v/([^"\& ]+)@i',
+																				'@youtube\.com/watch\?v=([^"\& ]+)@i',
+																				'@youtube\.com/\?v=([^"\& ]+)@i',
+																				'@youtu\.be/([^"\& ]+)@i',
+																				'@youtu\.be/v/([^"\& ]+)@i',
+																				'@youtu\.be/watch\?v=([^"\& ]+)@i',
+																				'@youtu\.be/\?v=([^"\& ]+)@i',
+																				);
+
+																			function isYouTubeVideo($link_url, $regex)
+																			{
+																				$matches = null;
+																				foreach($regex as $pattern) {
+																					if(preg_match($pattern, trim($link_url), $matches)) {
+																					return $matches[1];
+																					}
+																				}
+																				return null;
+																			}
+
+																			$video_id = isYoutubeVideo($item->html, $regex);
+
+																		?>
+																		<iframe width="100%" height="300px" src="https://www.youtube.com/embed/<?= $video_id; ?>" frameborder="0" allowfullscreen></iframe>
+																	<?php else: ?>
+																		<?= $item->html; ?>
+																	<?php endif; ?>
 																</div>
 																<pre class="error-source"><code class="html"><strong>Line <?= $item->lineNo; ?></strong>: <?= htmlspecialchars($item->html); ?></code></pre>
 																<p><a class="closeError" href="#closeError">&nbsp;Close this view&nbsp;</a></p>
