@@ -48,8 +48,29 @@ if (isset($_POST['cached_id'])) {
 	die('<div class="alert alert-danger no-margin">Cannot parse this report. JSON file not found.</div>');
 }
 
-// saving headaches here...
 $issue_count = 0;
+
+$regex = array(
+	'@youtube\.com/embed/([^"\& ]+)@i',
+	'@youtube\.com/v/([^"\& ]+)@i',
+	'@youtube\.com/watch\?v=([^"\& ]+)@i',
+	'@youtube\.com/\?v=([^"\& ]+)@i',
+	'@youtu\.be/([^"\& ]+)@i',
+	'@youtu\.be/v/([^"\& ]+)@i',
+	'@youtu\.be/watch\?v=([^"\& ]+)@i',
+	'@youtu\.be/\?v=([^"\& ]+)@i',
+	);
+
+function isYouTubeVideo($link_url, $regex)
+{
+	$matches = null;
+	foreach($regex as $pattern) {
+		if(preg_match($pattern, $link_url, $matches)) {
+			return $matches[1];
+		}
+	}
+	return null;
+}
 
 ?>
 
@@ -67,6 +88,7 @@ $issue_count = 0;
 <p>
 
 <div id="errorWrapper">
+<!--<?php var_dump($udoit_report); ?>-->
 <?php foreach ($udoit_report->content as $bad): ?>
 	<?php switch ($bad->title):
 	case "announcements":
@@ -147,32 +169,7 @@ $issue_count = 0;
 															<div class="more-info hidden instance">
 																<div class="error-preview">
 																	<?php if ($item->type == "videosEmbeddedOrLinkedNeedCaptions"): ?>
-																		<?php
-																			$regex = array(
-																				'@youtube\.com/embed/([^"\& ]+)@i',
-																				'@youtube\.com/v/([^"\& ]+)@i',
-																				'@youtube\.com/watch\?v=([^"\& ]+)@i',
-																				'@youtube\.com/\?v=([^"\& ]+)@i',
-																				'@youtu\.be/([^"\& ]+)@i',
-																				'@youtu\.be/v/([^"\& ]+)@i',
-																				'@youtu\.be/watch\?v=([^"\& ]+)@i',
-																				'@youtu\.be/\?v=([^"\& ]+)@i',
-																				);
-
-																			function isYouTubeVideo($link_url, $regex)
-																			{
-																				$matches = null;
-																				foreach($regex as $pattern) {
-																					if(preg_match($pattern, trim($link_url), $matches)) {
-																					return $matches[1];
-																					}
-																				}
-																				return null;
-																			}
-
-																			$video_id = isYoutubeVideo($item->html, $regex);
-
-																		?>
+																		<?php $video_id = isYoutubeVideo($item->html, $regex); ?>
 																		<iframe width="100%" height="300px" src="https://www.youtube.com/embed/<?= $video_id; ?>" frameborder="0" allowfullscreen></iframe>
 																	<?php else: ?>
 																		<?= $item->html; ?>
