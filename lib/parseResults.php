@@ -88,7 +88,6 @@ function isYouTubeVideo($link_url, $regex)
 <p>
 
 <div id="errorWrapper">
-<!--<?php var_dump($udoit_report); ?>-->
 <?php foreach ($udoit_report->content as $bad): ?>
 	<?php switch ($bad->title):
 	case "announcements":
