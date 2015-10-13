@@ -108,7 +108,7 @@ function isYouTubeVideo($link_url, $regex)
 						<div class="panel-heading clearfix">
 							<button class="btn btn-xs btn-default btn-toggle pull-left no-print margin-right-small"><span class="glyphicon glyphicon-plus"></span></button>
 
-							<h3 class="plus pull-left"><a href="<?= $report->url; ?>" target="_blank"><?= $report->name; ?></a></h3>
+							<h3 class="plus pull-left"><a href="<?= $report->url; ?>" target="_blank"><?= $report->name; ?>&nbsp;<small><span class ="glyphicon glyphicon-new-window"></span></small></a></h3>
 
 							<div class="pull-right">
 								<?php if (count($report->error) > 0): ?>
