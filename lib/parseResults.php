@@ -172,10 +172,12 @@ $issue_count = 0;
 
 																	<?php switch ($item->type):
 																	case "cssTextHasContrast": ?>
+																		<?php var_dump($item); ?>
 																		<?php for ($i = 0; $i < count($item->colors); $i++): ?>
 																			<div class="form-group no-margin margin-bottom">
 																				<label for="newcontent[<?= $i; ?>]">Replacement color for <?= $item->colors[$i]; ?></label>
 																				<input class="color {hash:true,caps:false} form-control" type="text" name="newcontent[<?= $i; ?>]" value="<?= $item->colors[$i]; ?>" placeholder="Replacement for <?= $item->colors[$i]; ?>">
+																				<label><input class="add-bold" type="checkbox" />&nbsp;Make this text bold</label>&nbsp;<label><input class="add-italics" type="checkbox" />&nbsp;Make this text <span style="font-style: italics;">italicized</span></label><br />
 																			</div>
 																		<?php endfor; ?>
 																		<button class="submit-content btn btn-default" type="submit">Submit</button>
