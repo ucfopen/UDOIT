@@ -269,8 +269,12 @@ $(document).ready(function() {
 		e.preventDefault();
 
 		var parent = $(this).parent();
-		var values = $(this).serialize();
-		var errorsRemaining = -1;
+		var values = $(this).serializeArray();
+		var errorsRemaining = -1; 
+
+		values.push({ name: 'course_id', value: $('input[name="session_course_id"]').val() });
+		values.push({ name: 'context_label', value: $('input[name="session_context_label"]').val() });
+		values.push({ name: 'context_title', value: $('input[name="session_context_title"]').val() });
 
 		parent.find('.alert').remove();
 		$.ajax({
