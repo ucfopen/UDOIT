@@ -162,6 +162,7 @@ $issue_count = 0;
 																	<input type="hidden" name="contenttype" value="<?= $bad->title; ?>">
 																	<input type="hidden" name="contentid" value="<?= $report->id; ?>">
 																	<input type="hidden" name="errorhtml" value="<?= htmlspecialchars($item->html); ?>">
+																	<input type="hidden" name="reporttype" value="error">
 																	<?php if ($item->type == "cssTextHasContrast"): ?>
 																		<?php for ($i = 0; $i < count($item->colors); $i++): ?>
 																			<input type="hidden" name="errorcolor[<?= $i; ?>]" value="<?= $item->colors[$i]; ?>">
@@ -311,17 +312,21 @@ $issue_count = 0;
 												<?php $newItemType = true; $instance = 1; $indice++; ?>
 																								
 											<?php endif; ?>
-												<div class="clearfix margin-bottom-small title-line">
-													<?php if($newItemType): ?>
-														<h5 class="text-info pull-left"><span class="badge badge-suggestion"><?= $instanceIndices[$indice]; ?></span>&nbsp;<?= $item->title; ?></h5>
-													<?php endif ?>
-												</div>
-
+											<div class="clearfix margin-bottom-small title-line">
+												<?php if($newItemType): ?>
+													<h5 class="text-info pull-left"><span class="badge badge-suggestion"><?= $instanceIndices[$indice]; ?></span>&nbsp;<?= $item->title; ?></h5>
+												<?php endif ?>
+											</div>
+											<div>
 												<?php if ((isset($item->description)) && $newItemType): ?>
 													<div class="error-desc">
 														<?= $item->description ?>
 													</div>
 												<?php endif; ?>
+												<?php if ($item->type === "aSuspiciousLinkText" || $item->type === "aLinkTextDoesNotBeginWithRedundantWord"): ?>
+													<p class="fix-success hidden"><?= $instance; ?>. <span class="label label-success margin-left-small" style="margin-top: -2px;">Fixed!</span></p>
+												<?php endif; ?>
+												<div id="collapse-<?= $report->id; ?>-<?= $issue_count; ?>" class="collapse in fade margin-top-small">
 													<?php if ($item->html): ?>
 														<p class="instance"><?= $instance; ?>. <a class="viewError" href="#viewError">View the source of this issue</a><a class="closeError hidden" href="#closeError">&nbsp;Close this view&nbsp;</a></p>
 														<div class="more-info hidden instance">
@@ -343,6 +348,7 @@ $issue_count = 0;
 																	<input type="hidden" name="contentid" value="<?= $report->id; ?>">
 																	<input type="hidden" name="errorhtml" value="<?= htmlspecialchars($item->html); ?>">
 																	<input type="hidden" name="errortype" value="<?= $item->type; ?>">
+																	<input type="hidden" name="reporttype" value="suggestion">
 																	<input type="hidden" name="submittingagain" value="">
 
 																	<?php switch ($item->type):
@@ -359,7 +365,8 @@ $issue_count = 0;
 															</form>
 														<?php endif; ?>
 													<?php endif; ?>
-												
+												</div>
+											</div>
 											<?php $previtemtype = $currtype; $newItemType = false; $instance++;?>
 										<?php endforeach; ?>
 									</ul>
