@@ -116,7 +116,9 @@ switch ($_POST['main_action']) {
             'error_html'   => htmlspecialchars_decode($_POST['errorhtml']),
             'error_colors' => isset($_POST['errorcolor']) ? $_POST['errorcolor'] : '',
             'error_type'   => $_POST['errortype'],
-            'new_content'  => $_POST['newcontent']
+            'new_content'  => $_POST['newcontent'],
+            'bold'         => isset($_POST['add-bold']) ? $_POST['add-bold'] : '',
+            'italic'       => isset($_POST['add-italic']) ? $_POST['add-italic'] : ''
         ];
 
         session_start();
@@ -157,7 +159,7 @@ switch ($_POST['main_action']) {
                 $corrected_error = $ufixit->fixLink($data['error_html'], $data['new_content'], $submitting_again);
                 break;
             case 'cssTextHasContrast':
-                $corrected_error = $ufixit->fixCss($data['error_colors'], $data['error_html'], $data['new_content'], $submitting_again);
+                $corrected_error = $ufixit->fixCss($data['error_colors'], $data['error_html'], $data['new_content'], $data['bold'], $data['italic'], $submitting_again);
                 break;
             case 'headersHaveText':
                 $corrected_error = $ufixit->fixHeading($data['error_html'], $data['new_content'], $submitting_again);

@@ -123,27 +123,6 @@ class Ufixit
         return $fixed_img;
     }
 
-    /*********/
-
-    // public function fixLinkText($error_html, $new_content, $submitting_again = false)
-    // {
-    //     $this->dom->loadHTML('<?xml encoding="utf-8" >' . $error_html);
-
-    //     $as = $this->dom->getElementsByTagName('a');
-
-    //     foreach ($as as $a) {
-    //         var_dump($a);
-    //         $a->setAttribute('nodeValue', $new_content);
-    //         echo($new_content);
-    //         $fixed_link = $this->dom->saveHTML($a);
-    //         echo($fixed_link);
-    //     }
-
-    //     return $fixed_link;
-    // }
-
-
-
     /**
      * Fixes CSS contrast errors
      * @param array $error_colors       - The color(s) that need to be replaced
@@ -152,15 +131,28 @@ class Ufixit
      * @param bool $submitting_again    - If the user is resubmitting their error fix
      * @return string $fixed_css        - The html with corrected CSS
      */
-    public function fixCss($error_colors, $error_html, $new_content, $submitting_again = false)
+    public function fixCss($error_colors, $error_html, $new_content, $bold, $italic, $submitting_again = false)
     {
-        $this->dom->loadHTML('<?xml encoding="utf-8" ?>' . $error_html);
+        preg_match_all('/<(\w+)\s+\w+.*?>/s', $error_html, $matches);
 
         $fixed_css = $error_html;
-
         for ($i = 0; $i < count($error_colors); $i++) {
             $fixed_css = str_replace($error_colors[$i], $new_content[$i], $fixed_css);
         }
+
+        $this->dom->loadHTML('<?xml encoding="utf-8" ?>' . $fixed_css);
+
+        $tag = $this->dom->getElementsByTagName( $matches[1][0] )->item(0);
+
+        if ($bold == 'bold') {
+            $tag->setAttribute('style', $tag->getAttribute('style').' font-weight: bold;');
+        }
+
+        if ($italic == 'italic') {
+            $tag->setAttribute('style', $tag->getAttribute('style').' font-style: italic;');
+        }
+
+        $fixed_css = $this->dom->saveHTML($tag);
 
         return $fixed_css;
     }
