@@ -2,7 +2,9 @@
     "require": {
         "nategood/httpful": "*",
         "zaininnari/html-minifier": "dev-master",
-        "mpdf/mpdf": "dev-master"
+        "mpdf/mpdf": "dev-master",
+        "league/plates": "~3.1",
+        "ext-pdo": "*"
     },
     "require-dev": {
         "symfony/var-dumper": "*"
