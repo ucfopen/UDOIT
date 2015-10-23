@@ -29,7 +29,8 @@ session_start();
 header('Content-Type: text/html; charset=utf-8');
 
 if ( isset($_SERVER['HTTP_REFERER']) ) {
-	if ( preg_match($referer_test, $_SERVER['HTTP_REFERER']) != 1) {
+	preg_match('/^(?:https?:\/\/)?(?:[^@\n]+@)?(?:www\.)?([^:\/\n]+)/im', $_SERVER['HTTP_REFERER'], $matches);
+	if ( $_POST['custom_canvas_api_domain'] != $matches[1]) {
 ?>
 <!DOCTYPE html>
 <html lang="en">
