@@ -19,6 +19,7 @@
 */
 require_once('vendor/autoload.php');
 require_once('config/localConfig.php');
+use Httpful\Request;
 
 error_reporting(E_ALL & ~E_NOTICE);
 ini_set("display_errors", 1);
@@ -85,7 +86,6 @@ if (isset($result[0])) {
 // Do we have an API key?
 if (isset($_SESSION['api_key'])) {
 	//If we do, test it out
-	use Httpful\Request;
 	$url = $base_url.'/api/v1/users/'.$_SESSION['launch_params']['custom_canvas_user_id'].'/profile?access_token='.$_SESSION['api_key'];
 	$resp = Request::get($url)->send();
 	$redirect = !isset($resp->body->id);

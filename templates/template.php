@@ -19,8 +19,10 @@
 
 		</div>
 
-		<?php foreach($footer_scripts as $script): ?>
-			<script src="<?=$script?>"></script>
-		<?php endforeach ?>
+		<?php if($footer_scripts): ?>
+			<?php foreach($footer_scripts as $script): ?>
+				<script src="<?=$script?>"></script>
+			<?php endforeach ?>
+		<?php endif ?>
 	</body>
 </html>
