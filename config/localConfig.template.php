@@ -30,8 +30,8 @@ $db_host = '';
 $db_user = '';
 $db_password = '';
 $db_name = '';
-$db_user_table = '';
-$db_reports_table = '';
+$db_user_table = 'user';
+$db_reports_table = 'reports';
 
 $debug = false;
 
@@ -302,5 +302,3 @@ $udoit_tests = [
         ],
     ],
 ];
-
-?>
