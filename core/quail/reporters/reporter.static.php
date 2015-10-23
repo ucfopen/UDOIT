@@ -98,7 +98,7 @@ class reportStatic extends quailReporter
 						$testResult['description']  = $description;
 						$testResult['path']         = count($this->path) > 1 ? $this->path[1] : "None";
 						$tempHtml			        = $problem->getHtml();
-						$testResult['html']         = str_replace("<a", "<a target='_blank'", $tempHtml);
+						$testResult['html']         = $tempHtml;//str_replace("<a", "<a target='_blank'", $tempHtml);
 					}
 
 					$output[] = $testResult;

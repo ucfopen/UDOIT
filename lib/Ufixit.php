@@ -564,10 +564,6 @@ class Ufixit
         $corrected_error = HTMLMinify::minify(str_replace($this->annoying_entities, $this->entity_replacements, $corrected_error), ['doctype' => 'html5']);
         $html            = HTMLMinify::minify(str_replace($this->annoying_entities, $this->entity_replacements, htmlentities($html)), ['doctype' => 'html5']);
 
-        echo 'Error: '.$error_html.'
-Correct: '.$corrected_error.'
-HTML: '.html_entity_decode($html);
-
         $html    = str_replace($error_html, $corrected_error, html_entity_decode($html));
 
         $put_uri = $this->base_uri."/api/v1/courses/".$this->course_id."/pages/".$this->content_id."?&access_token=".$this->api_key;
