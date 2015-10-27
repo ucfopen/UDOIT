@@ -4,9 +4,6 @@ header("Cache-Control: no-cache, no-store, must-revalidate"); // HTTP 1.1.
 header("Pragma: no-cache"); // HTTP 1.0.
 header("Expires: 0"); // Proxies.
 
-/* Set the path for the base directory (where the user will start choosing from) */
-$base_url = ''; // Without trailing slash
-
 /* Oauth 1.0 Settings (For use when installing the app in Canvas) */
 $consumer_key = '';
 $shared_secret = '';

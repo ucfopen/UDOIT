@@ -24,6 +24,7 @@ include 'Udoit.php';
 include 'Ufixit.php';
 
 use Httpful\Request;
+$base_url = $_POST['base_url'];
 $SESSION_course_id = $_POST['course_id'];
 $SESSION_context_label = $_POST['context_label'];
 $SESSION_context_title = $_POST['context_title'];
