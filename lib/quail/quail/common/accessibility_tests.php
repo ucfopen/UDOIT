@@ -1,6 +1,6 @@
 <?php
 
-include_once('../config/localConfig.php');
+// include_once('../config/localConfig.php');
 	
 
 /** 

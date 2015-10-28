@@ -17,18 +17,10 @@
 *
 *	Primary Author Contact:  Jacob Bates <jacob.bates@ucf.edu>
 */
-require '../vendor/autoload.php';
-include_once('../config/localConfig.php');
+require_once('../config/settings.php');
 
+$dbh = include('../lib/db.php');
 // saves the report to the database
-$dsn = "mysql:dbname=$db_name;host=$db_host";
-
-try {
-    $dbh = new PDO($dsn, $db_user, $db_password);
-} catch (PDOException $e) {
-    echo 'Connection failed: ' . $e->getMessage();
-}
-
 $sth = $dbh->prepare("
     SELECT * FROM
         $db_reports_table
@@ -52,7 +44,6 @@ if (!$sth->execute()) {
 $reports = $sth->fetchAll();
 
 ?>
-
 <div id="resultsTable" class="table-responsive">
 	<table class="table table-bordered table-hover no-margin">
 		<caption>Saved reports for this course</caption>
@@ -66,10 +57,10 @@ $reports = $sth->fetchAll();
 
 		<tbody>
 			<?php foreach ($reports as $report): ?>
-				<tr id="<?= $report['id']; ?>">
-					<td><?= $report['date_run']; ?></td>
-					<td><?= $report['errors']; ?></td>
-					<td><?= $report['suggestions']; ?></td>
+				<tr id="<?=$report['id']?>">
+					<td><?=$report['date_run']?></td>
+					<td><?=$report['errors']?></td>
+					<td><?=$report['suggestions']?></td>
 				</tr>
 			<?php endforeach; ?>
 		</tbody>

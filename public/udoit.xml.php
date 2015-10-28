@@ -17,12 +17,13 @@
 *
 *	Primary Author Contact:  Jacob Bates <jacob.bates@ucf.edu>
 */
-	$servername = 'https://' . $_SERVER['SERVER_NAME'];
-	$scriptname=end(explode('/',$_SERVER['PHP_SELF']));
-	$scriptpath=str_replace($scriptname,'',$_SERVER['PHP_SELF']);
-	$launch = $servername . $scriptpath;
-	header('Content-type: text/xml');
-	echo '<?xml version="1.0" encoding="UTF-8"?>';
+$servername = 'https://' . $_SERVER['SERVER_NAME'];
+$scriptname=end(explode('/',$_SERVER['PHP_SELF']));
+$scriptpath=str_replace($scriptname,'',$_SERVER['PHP_SELF']);
+$launch = $servername . $scriptpath;
+header('Content-type: text/xml');
+echo '<?xml version="1.0" encoding="UTF-8"?>';
+
 ?>
 <cartridge_basiclti_link xmlns="http://www.imsglobal.org/xsd/imslticc_v1p0"
 	xmlns:blti = "http://www.imsglobal.org/xsd/imsbasiclti_v1p0"

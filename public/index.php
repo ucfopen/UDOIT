@@ -17,9 +17,8 @@
 *
 *	Primary Author Contact:  Jacob Bates <jacob.bates@ucf.edu>
 */
-include_once('config/localConfig.php');
-include_once('lib/ims-blti/blti.php');
-include_once('vendor/autoload.php');
+require_once('../config/settings.php');
+require_once('../lib/ims-blti/blti.php');
 
 use Httpful\Request;
 
@@ -100,6 +99,8 @@ if ($_SESSION['valid'] === false) {
 		$_SESSION['launch_params']['context_title'] = $_POST['context_title'];
 		$_SESSION['valid'] = true;
 	} else {
+		error_log("BLTI not valid: our key: {$consumer_key}");
+		error_log($context->message);
 		echo '
 			<!DOCTYPE html>
 			<html lang="en">
@@ -124,16 +125,9 @@ if ($_SESSION['valid'] === false) {
 
 $redirect = true;
 
+$dbh = include('../lib/db.php');
+
 // Pull the API key from the database
-$dsn = "mysql:dbname=$db_name;host=$db_host";
-
-try {
-	$dbh = new PDO($dsn, $db_user, $db_password);
-} catch (PDOException $e) {
-	$_SESSION['valid'] = false;
-	echo 'Connection failed: ' . $e->getMessage();
-}
-
 $sth = $dbh->prepare("SELECT * FROM $db_user_table WHERE id=:userid LIMIT 1");
 $sth->bindParam(':userid', $_SESSION['launch_params']['custom_canvas_user_id'], PDO::PARAM_INT);
 $sth->execute();

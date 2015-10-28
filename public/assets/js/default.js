@@ -73,7 +73,7 @@ function checker() {
 	}
 
 	$.ajax({
-		url: "./lib/process.php",
+		url: "process.php",
 		type: "POST",
 		data: {
 			main_action: main_action,
@@ -145,7 +145,7 @@ $(document).ready(function() {
 
 		var timer = setInterval(function(){
 			$.ajax({
-				url: 'lib/progress.php',
+				url: 'progress.php',
 				success: function(data){
 					if(data != old) {
 						if(data == 'announcements') {
@@ -278,7 +278,7 @@ $(document).ready(function() {
 
 		parent.find('.alert').remove();
 		$.ajax({
-			url: "./lib/process.php",
+			url: "process.php",
 			type: "POST",
 			data: values,
 			success: function(data) {
@@ -322,7 +322,7 @@ $(document).ready(function() {
 		var main_action = "cached";
 		var cached_id   = $(this).attr('id');
 
-		$.post("./lib/parseResults.php", { main_action: main_action, cached_id: cached_id }, function(data) {
+		$.post("parseResults.php", { main_action: main_action, cached_id: cached_id }, function(data) {
 			$('#resultsTable').fadeOut();
 			$('#cached').append('<div id="result">'+data+'</div>');
 			$('#result').fadeIn();
@@ -355,7 +355,7 @@ $(document).ready(function() {
 		result_html.find('.error-desc').append('<br><br>');
 		result_html.find('a.list-group-item').after('<br>');
 
-		var form = $('<form action="./lib/parsePdf.php" method="post">' +
+		var form = $('<form action="parsePdf.php" method="post">' +
 		  '<input type="text" name="result_html" />' +
 		  '<input type="text" name="context_title" value="'+ context_title +'"/>' +
 		  '</form>');
@@ -373,7 +373,7 @@ $(document).ready(function() {
 		}
 
 		$.ajax({
-			url: "./lib/cached.php",
+			url: "cached.php",
 			type: "GET",
 			success: function(data) {
 				$("#cached").html(data);
