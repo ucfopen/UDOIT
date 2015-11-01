@@ -16,6 +16,9 @@
 *
 *	Primary Author Contact:  Jacob Bates <jacob.bates@ucf.edu>
 */
+
+var progressTimer = null;
+
 /* Fades out and destroys the popup window and background. */
 function killButton(callback) {
 	if($("#popup").length > 0) {
@@ -83,6 +86,7 @@ function checker() {
 			context_title: context_title
 		},
 		success: function(data){
+			clearInterval(progressTimer);
 			$('#scanner').append('<section id="result">'+data+'</section>');
 			killButton(function() {
 				$('#result').fadeIn();
@@ -91,6 +95,7 @@ function checker() {
 			jscolor.bind();
 		},
 		error: function(data){
+			clearInterval(progressTimer);
 			killButton();
 			$('#failMsg').fadeIn();
 		}
@@ -143,30 +148,20 @@ $(document).ready(function() {
 
 		var old = 0;
 
-		var timer = setInterval(function(){
+
+		// start progress checker, this is cleared here or from checker()
+		clearInterval(progressTimer);
+		progressTimer = setInterval(function(){
 			$.ajax({
 				url: 'lib/progress.php',
+				error: function(xhr, status, error) {
+					clearInterval(progressTimer);
+				},
 				success: function(data){
+					// update display if progress state has changed
 					if(data != old) {
-						if(data == 'announcements') {
-							$('#submit').html('<div id="popup"><div class="circle"></div></div> Scanning announcements...');
-						}
-						if(data == 'assignments') {
-							$('#submit').html('<div id="popup"><div class="circle"></div></div> Scanning assignments...');
-						}
-						if(data == 'discussions') {
-							$('#submit').html('<div id="popup"><div class="circle"></div></div> Scanning discussions...');
-						}
-						if(data == 'files') {
-							$('#submit').html('<div id="popup"><div class="circle"></div></div> Scanning files...');
-						}
-						if(data == 'pages') {
-							$('#submit').html('<div id="popup"><div class="circle"></div></div> Scanning pages...');
-						}
-						if(data == 'done') {
-							clearInterval(timer);
-						}
 						old = data;
+						$('#submit').html('<div id="popup"><div class="circle"></div></div> Scanning '+data+'...');
 					}
 				}
 			});
