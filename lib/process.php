@@ -150,12 +150,6 @@ switch ($_POST['main_action']) {
             case 'aSuspiciousLinkText':
             case 'aLinkTextDoesNotBeginWithRedundantWord':
 
-                $dom->loadHTML('<?xml encoding="utf-8" ?>' . $data['error_html']);
-
-                $tag = $dom->getElementsByTagName('a')->item(0);
-                $tag->removeAttribute('target');
-                $data['error_html'] = $dom->saveHTML($tag);
-
                 $corrected_error = $ufixit->fixLink($data['error_html'], $data['new_content'], $submitting_again);
                 break;
             case 'cssTextHasContrast':
