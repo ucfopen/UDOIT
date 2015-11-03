@@ -152,7 +152,7 @@ function isYouTubeVideo($link_url, $regex)
 														</div>
 													<?php endif; ?>
 												<?php endif; ?>
-												<?php if ($item->type == "cssTextHasContrast" || $item->type == "imgHasAlt" || $item->type == "imgNonDecorativeHasAlt" || $item->type == "tableDataShouldHaveTh" || $item->type == "tableThShouldHaveScope" || $item->type === "headersHaveText" || $item->type == "aMustContainText" || $item->type == "aSuspiciousLinkText" || $item->type == "aLinkTextDoesNotBeginWithRedundantWord" || $item->type == "imgAltIsDifferent"): ?>
+												<?php if ($item->type == "cssTextHasContrast" || $item->type == "imgHasAlt" || $item->type == "imgNonDecorativeHasAlt" || $item->type == "tableDataShouldHaveTh" || $item->type == "tableThShouldHaveScope" || $item->type === "headersHaveText" || $item->type == "aMustContainText" || $item->type == "imgAltIsDifferent"): ?>
 													<p class="fix-success hidden"><?= $instance; ?>. <span class="label label-success margin-left-small" style="margin-top: -2px;">Fixed!</span></p>
 												<?php endif; ?>
 												
@@ -174,7 +174,7 @@ function isYouTubeVideo($link_url, $regex)
 														<?php endif; ?>
 
 														<?php if (empty($_POST['path'])): ?>
-															<?php if ($item->type === "cssTextHasContrast" || $item->type === "imgHasAlt" || $item->type === "imgNonDecorativeHasAlt" || $item->type === "tableDataShouldHaveTh" || $item->type === "tableThShouldHaveScope" || $item->type === "headersHaveText" || $item->type == "aMustContainText" || $item->type == "aSuspiciousLinkText" || $item->type == "aLinkTextDoesNotBeginWithRedundantWord" || $item->type == "imgAltIsDifferent"): ?>
+															<?php if ($item->type === "cssTextHasContrast" || $item->type === "imgHasAlt" || $item->type === "imgNonDecorativeHasAlt" || $item->type === "tableDataShouldHaveTh" || $item->type === "tableThShouldHaveScope" || $item->type === "headersHaveText" || $item->type == "aMustContainText" || $item->type == "imgAltIsDifferent"): ?>
 																<button class="fix-this no-print btn btn-success instance">U FIX IT!</button>
 																<div class="toolmessage instance">UFIXIT is disabled because this is an old report. Rescan the course to use UFIXIT.</div>
 																<form class="ufixit-form form-horizontal no-print hidden instance" action="lib/process.php" method="post" role="form">
@@ -182,6 +182,7 @@ function isYouTubeVideo($link_url, $regex)
 																	<input type="hidden" name="contenttype" value="<?= $bad->title; ?>">
 																	<input type="hidden" name="contentid" value="<?= $report->id; ?>">
 																	<input type="hidden" name="errorhtml" value="<?= htmlspecialchars($item->html); ?>">
+																	<input type="hidden" name="reporttype" value="error">
 																	<?php if ($item->type == "cssTextHasContrast"): ?>
 																		<?php for ($i = 0; $i < count($item->colors); $i++): ?>
 																			<input type="hidden" name="errorcolor[<?= $i; ?>]" value="<?= $item->colors[$i]; ?>">
@@ -292,7 +293,7 @@ function isYouTubeVideo($link_url, $regex)
 												<?php endif; ?>
 
 												<?php if ($item->html): ?>
-													<p><a class="viewError" href="#viewError">View the source of this issue</a></p>
+													<p class="instance"><?= $instance; ?>. <a class="viewError" href="#viewError">View the source of this issue</a><a class="closeError hidden" href="#closeError">&nbsp;Close this view&nbsp;</a></p>
 													<div class="more-info hidden">
 														<pre class="hidden">
 															<code class="html"><strong>Line <?= $item->lineNo; ?></strong>: <?= htmlspecialchars($item->html); ?></code>
@@ -331,19 +332,23 @@ function isYouTubeVideo($link_url, $regex)
 												<?php $newItemType = true; $instance = 1; $indice++; ?>
 																								
 											<?php endif; ?>
-												<div class="clearfix margin-bottom-small title-line">
-													<?php if($newItemType): ?>
-														<h5 class="text-info pull-left"><span class="badge badge-suggestion"><?= $instanceIndices[$indice]; ?></span>&nbsp;<?= $item->title; ?></h5>
-													<?php endif ?>
-												</div>
-
+											<div class="clearfix margin-bottom-small title-line">
+												<?php if($newItemType): ?>
+													<h5 class="text-info pull-left"><span class="badge badge-suggestion"><?= $instanceIndices[$indice]; ?></span>&nbsp;<?= $item->title; ?></h5>
+												<?php endif ?>
+											</div>
+											<div>
 												<?php if ((isset($item->description)) && $newItemType): ?>
 													<div class="error-desc">
 														<?= $item->description ?>
 													</div>
 												<?php endif; ?>
+												<?php if ($item->type === "aSuspiciousLinkText" || $item->type === "aLinkTextDoesNotBeginWithRedundantWord"): ?>
+													<p class="fix-success hidden"><?= $instance; ?>. <span class="label label-success margin-left-small" style="margin-top: -2px;">Fixed!</span></p>
+												<?php endif; ?>
+												<div id="collapse-<?= $report->id; ?>-<?= $issue_count; ?>" class="collapse in fade margin-top-small">
 													<?php if ($item->html): ?>
-														<p class="instance"><?= $instance; ?>. <a class="viewError" href="#viewError">View the source of this issue</a></p>
+														<p class="instance"><?= $instance; ?>. <a class="viewError" href="#viewError">View the source of this issue</a><a class="closeError hidden" href="#closeError">&nbsp;Close this view&nbsp;</a></p>
 														<div class="more-info hidden instance">
 															<div class="error-preview">
 																<?= $item->html; ?>
@@ -353,7 +358,7 @@ function isYouTubeVideo($link_url, $regex)
 														</div>
 													<?php endif; ?>
 
-													<!-- <?php if (empty($_POST['path'])): ?>
+													<?php if (empty($_POST['path'])): ?>
 															<?php if ($item->type === "aSuspiciousLinkText" || $item->type === "aLinkTextDoesNotBeginWithRedundantWord"): ?>
 																<button class="fix-this no-print btn btn-success instance">U FIX IT!</button>
 																<div class="toolmessage instance">UFIXIT is disabled because this is an old report. Rescan the course to use UFIXIT.</div>
@@ -362,21 +367,26 @@ function isYouTubeVideo($link_url, $regex)
 																	<input type="hidden" name="contenttype" value="<?= $bad->title; ?>">
 																	<input type="hidden" name="contentid" value="<?= $report->id; ?>">
 																	<input type="hidden" name="errorhtml" value="<?= htmlspecialchars($item->html); ?>">
+																	<input type="hidden" name="errortype" value="<?= $item->type; ?>">
+																	<input type="hidden" name="reporttype" value="suggestion">
+																	<input type="hidden" name="submittingagain" value="">
 
-																<?php switch ($item->type):
+																	<?php switch ($item->type):
 																case "aSuspiciousLinkText": ?>
-																	<div class="input-group instance">
-																		<input class="form-control" type="text" name="newcontent" placeholder="New link description">
-																		<span class="input-group-btn">
+																	<?php case "aLinkTextDoesNotBeginWithRedundantWord": ?>
+																		<div class="form-group no-margin margin-bottom">
+																			<input class="{hash:true,caps:false} form-control" type="text" name="newcontent" placeholder="New link text">
+																			<label><input class="remove-link" type="checkbox" />&nbsp;Delete this Link completely instead</label><br />
 																			<button class="submit-content btn btn-default" type="submit">Submit</button>
-																		</span>
-																	</div>
+																		</div>
+																		<?php break; ?>
 																	<?php break; ?>
 																<?php endswitch; ?>
 															</form>
 														<?php endif; ?>
-													<?php endif; ?> -->
-												
+													<?php endif; ?>
+												</div>
+											</div>
 											<?php $previtemtype = $currtype; $newItemType = false; $instance++;?>
 										<?php endforeach; ?>
 									</ul>
