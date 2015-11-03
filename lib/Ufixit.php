@@ -183,6 +183,7 @@ class Ufixit
 
         $linkText = $this->dom->createTextNode($new_content);
 
+        $tag->nodeValue = "";
         $tag->appendChild($linkText);
 
         $fixed_link = $this->dom->saveHTML($tag);

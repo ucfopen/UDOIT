@@ -291,7 +291,9 @@ $(document).ready(function() {
 					parent.append('<div class="alert alert-danger well-sm no-margin margin-top"><span class="glyphicon glyphicon-ban-circle"></span> You should enter "col" or "row" for th scopes.</div>');
 				} else {
 					parent.removeClass('in');
+
 					parent.find('input[name="submittingagain"]').val('Yes');
+
 					parent.parent().find('button').removeClass('hidden');
 					parent.parent().find('.fix-success').removeClass('hidden');
 
@@ -417,7 +419,7 @@ $(document).ready(function() {
 		if( input.attr("placeholder") == "New link text") {
 			input.val("");
 			input.attr("maxlength", "0");
-			input.attr("placeholder", "Empty link will be deleted");
+			input.attr("placeholder", "Link will be deleted");
 		} else {
 			input.removeAttr("maxlength");
 			input.attr("placeholder", "New link text");
