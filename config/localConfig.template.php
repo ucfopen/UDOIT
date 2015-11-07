@@ -22,11 +22,13 @@ $doc_length ='1500';
 define( 'GOOGLE_API_KEY', '');
 
 /* Database Config */
-$db_type = ''; // 'mysql' or 'pgsql'
-$db_user = '';
-$db_password = '';
-$db_name = '';
-$db_user_table = 'user';
+$db_type          = ''; // 'mysql' or 'pgsql'
+$db_host          = ''; // localhost or some other domain
+$db_port          = '3306';
+$db_user          = '';
+$db_password      = '';
+$db_name          = '';
+$db_user_table    = 'users';
 $db_reports_table = 'reports';
 $dsn = "{$db_type}:host={$db_host};port={$db_port};dbname={$db_name}";
 
