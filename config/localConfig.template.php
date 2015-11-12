@@ -22,8 +22,8 @@ $doc_length ='1500';
 define( 'GOOGLE_API_KEY', '');
 
 /* Database Config */
-$db_type          = ''; // 'mysql' or 'pgsql'
-$db_host          = ''; // localhost or some other domain
+$db_type          = 'mysql'; // 'mysql' or 'pgsql'
+$db_host          = ''; // localhost or some other domain/ip
 $db_port          = '3306';
 $db_user          = '';
 $db_password      = '';
