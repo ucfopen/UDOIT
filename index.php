@@ -39,7 +39,7 @@ if ( isset($_SERVER['HTTP_REFERER']) ) {
 		<link rel="icon" type="image/png" href="favicon.ico">
 		<link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css">
 		<link href='//fonts.googleapis.com/css?family=Sonsie+One' rel='stylesheet' type='text/css'>
-		<link href="assets/css/main.css" type="text/css" rel="stylesheet" media="screen">
+		<link href="assets/css/main.css?c=0" type="text/css" rel="stylesheet" media="screen">
 		<link href="assets/css/print.css" type="text/css" rel="stylesheet" media="print">
 	</head>
 	<body>
