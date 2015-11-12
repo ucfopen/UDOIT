@@ -23,6 +23,8 @@ define( 'GOOGLE_API_KEY', '');
 
 /* Database Config */
 $db_type = ''; // 'mysql' or 'pgsql'
+$db_host = '';
+$db_port = '3306';
 $db_user = '';
 $db_password = '';
 $db_name = '';

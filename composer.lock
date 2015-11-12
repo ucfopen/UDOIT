@@ -1,10 +1,11 @@
 {
     "_readme": [
         "This file locks the dependencies of your project to a known state",
-        "Read more about it at http://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
+        "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
     "hash": "ee7bd7c4cb1079d0451efaa73d6bc852",
+    "content-hash": "390f93483f18ee686d382377c977afc5",
     "packages": [
         {
             "name": "mpdf/mpdf",
