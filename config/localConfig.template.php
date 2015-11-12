@@ -28,7 +28,7 @@ $db_port = '3306';
 $db_user = '';
 $db_password = '';
 $db_name = '';
-$db_user_table = 'user';
+$db_user_table = 'users';
 $db_reports_table = 'reports';
 $dsn = "{$db_type}:host={$db_host};port={$db_port};dbname={$db_name}";
 
