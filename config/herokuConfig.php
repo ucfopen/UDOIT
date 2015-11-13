@@ -1,6 +1,6 @@
 <?php
 
-$debug            = getenv("DEBUG");
+$debug            = getenv("DEBUG"):?false;
 
 /* This tests to see if the user came from something other than the URL of your LMS */
 $referer_test     = getenv('REFERER_TEST');
@@ -22,18 +22,18 @@ $oauth2_uri       = getenv('OAUTH2_URI');
 $db_url           = parse_url(getenv('DATABASE_URL'));
 $db_type          = 'pgsql';
 $db_host          = $db_url['host'];
+$db_port          = $db_url['port'];
 $db_name          = substr($db_url['path'], 1);
 $db_user          = $db_url['user'];
 $db_password      = $db_url['pass'];
-$db_port          = $db_url['port'];
-$db_user_table    = 'user';
+$db_user_table    = 'users';
 $db_reports_table = 'reports';
 
 $dsn = "pgsql:host={$db_host};dbname={$db_name};user={$db_user};port={$db_port};sslmode=require;password={$db_password}";
 
 
 /* Disable headings check character count */
-$doc_length       = getenv('DOC_LENGTH');
+$doc_length       = getenv('DOC_LENGTH')?:1500;
 
 /* Google/YouTube Data Api Key */
-define( 'GOOGLE_API_KEY', getenv('GOOGLE_API_KEY'));
+define( 'GOOGLE_API_KEY', getenv('GOOGLE_API_KEY')?:'');

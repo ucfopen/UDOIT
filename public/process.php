@@ -98,6 +98,7 @@ switch ($_POST['main_action']) {
         require 'parseResults.php';
 
         break;
+
     case 'ufixit':
         $data = [
             'base_uri'     => $base_url,
@@ -149,7 +150,6 @@ switch ($_POST['main_action']) {
             case 'imgHasAlt':
             case 'imgNonDecorativeHasAlt':
             case 'imgAltIsDifferent':
-                //$data['error_html'] = str_replace('alt=""', 'alt', $data['error_html']);
                 $corrected_error = $ufixit->fixAltText($data['error_html'], $data['new_content'], $submitting_again);
 
                 $remove_attr = preg_replace("/ data-api-endpoint.*$/s", "", $data['error_html']);

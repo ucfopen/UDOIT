@@ -6,6 +6,7 @@
         "mpdf/mpdf": "dev-master"
     },
     "require-dev": {
-        "symfony/var-dumper": "*"
+        "symfony/var-dumper": "*",
+        "phpunit/phpunit": "4.8.*"
     }
 }

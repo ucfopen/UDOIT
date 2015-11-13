@@ -123,27 +123,6 @@ class Ufixit
         return $fixed_img;
     }
 
-    /*********/
-
-    // public function fixLinkText($error_html, $new_content, $submitting_again = false)
-    // {
-    //     $this->dom->loadHTML('<?xml encoding="utf-8" >' . $error_html);
-
-    //     $as = $this->dom->getElementsByTagName('a');
-
-    //     foreach ($as as $a) {
-    //         var_dump($a);
-    //         $a->setAttribute('nodeValue', $new_content);
-    //         echo($new_content);
-    //         $fixed_link = $this->dom->saveHTML($a);
-    //         echo($fixed_link);
-    //     }
-
-    //     return $fixed_link;
-    // }
-
-
-
     /**
      * Fixes CSS contrast errors
      * @param array $error_colors       - The color(s) that need to be replaced
