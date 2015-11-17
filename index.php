@@ -28,66 +28,6 @@ ini_set("display_errors", 1);
 session_start();
 header('Content-Type: text/html; charset=utf-8');
 
-<<<<<<< HEAD
-=======
-if ( isset($_SERVER['HTTP_REFERER']) ) {
-	if ( preg_match($referer_test, $_SERVER['HTTP_REFERER']) != 1) {
-?>
-<!DOCTYPE html>
-<html lang="en">
-	<head>
-		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-		<title>UDOIT Accessibility Checker</title>
-		<link rel="icon" type="image/png" href="favicon.ico">
-		<link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css">
-		<link href='//fonts.googleapis.com/css?family=Sonsie+One' rel='stylesheet' type='text/css'>
-		<link href="assets/css/main.css?c=0" type="text/css" rel="stylesheet" media="screen">
-		<link href="assets/css/print.css" type="text/css" rel="stylesheet" media="print">
-	</head>
-	<body>
-		<div class="container">
-			<header id="mainHeader" class="navbar navbar-default center">
-				<h1 class="logo">UDOIT</h1>
-			</header>
-			<div class="alert alert-danger">
-				<p><?= $error_msg_wrong_referrer ?></p>
-			</div>
-		</div>
-	</body>
-</html>
-<?php
-		die();
-	}
-} else {
-?>
-<!DOCTYPE html>
-<html lang="en">
-	<head>
-		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-		<title>UDOIT Accessibility Checker</title>
-		<link rel="icon" type="image/png" href="favicon.ico">
-		<link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css">
-		<link href='//fonts.googleapis.com/css?family=Sonsie+One' rel='stylesheet' type='text/css'>
-		<link href="assets/css/main.css" type="text/css" rel="stylesheet" media="screen">
-		<link href="assets/css/print.css" type="text/css" rel="stylesheet" media="print">
-	</head>
-	<body>
-		<div class="container">
-			<header id="mainHeader" class="navbar navbar-default center">
-				<h1 class="logo">UDOIT</h1>
-			</header>
-			<div class="alert alert-danger">
-				<p><?= $error_msg_no_referrer ?></p>
-			</div>
-		</div>
-	</body>
-</html>
-<?php
-	die();
-}
-
-
->>>>>>> 1b2273342d7d27e6f19232acdb196ada5a09e25a
 if (!isset($_SESSION['valid'])) {
 	$_SESSION['valid'] = false;
 }
