@@ -61,6 +61,7 @@ function loader(text) {
 /* Builds up the results and adds them to the page */
 function checker() {
 	var main_action = $('input[name="main_action"]').val();
+	var base_url = $('input[name="base_url"]').val();
 	var course_id = $('input[name="session_course_id"]').val();
 	var context_label = $('input[name="session_context_label"]').val();
 	var context_title = $('input[name="session_context_title"]').val();
@@ -77,6 +78,7 @@ function checker() {
 		type: "POST",
 		data: {
 			main_action: main_action,
+			base_url: base_url,
 			content: content,
 			course_id: course_id,
 			context_label: context_label,
@@ -272,6 +274,7 @@ $(document).ready(function() {
 		var values = $(this).serializeArray();
 		var errorsRemaining = -1; 
 
+		values.push({ name: 'base_url', value: $('input[name="base_url"]').val() });
 		values.push({ name: 'course_id', value: $('input[name="session_course_id"]').val() });
 		values.push({ name: 'context_label', value: $('input[name="session_context_label"]').val() });
 		values.push({ name: 'context_title', value: $('input[name="session_context_title"]').val() });
