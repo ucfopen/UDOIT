@@ -36,7 +36,13 @@ If you're using PHP 5.3:
 * Convert all empty array initializations from using the newer `[]` syntax to use the older `array()` syntax.
 * If you have `short_open_tag` disabled, you'll need to change all `<?=` to `<?php echo`
 
-### Dependencies
+### Bower Dependencies
+[Bower](http://bower.io/) is used to install external JavaScript Dependencies. Composer automatically runs Bower during install in the next step, so install Bower before continuing.
+
+> Currently there is only one bower library installed. You can also install manually by placing [JSColor](https://github.com/callumacrae/JSColor) library contents in `assets/js/vendor/JSColor/`.
+
+### Composer Dependencies
+
 UDOIT uses [Composer](https://getcomposer.org/) to manage its dependencies, so `cd` into your UDOIT directory and run this command before anything else:
 
 ```
@@ -50,14 +56,6 @@ The libraries (other then Quail) that we rely on:
 * [mPDF](https://github.com/finwe/mpdf)
 
 Please refer to the documentation for these three libraries for additional information.
-
-### Bower
-[Bower](http://bower.io/) is used to install external JavaScript Dependencies.
-
-Once Bower is installed, run `bower install` in the top UDOIT directory will install the required javascript libraries.
-
-> Currently there is only one bower library installed. You can install manually by placing [JSColor](https://github.com/callumacrae/JSColor) library contents in `assets/js/vendor/JSColor/`.
-
 
 ### File Storage
 Make sure the `reports` directory in the root of UDOIT is *writable by your webserver*.  UDOIT saves generated reports here for easy retrieval.  You may have to change the user, group, or permissions to get this working (sorry we can't be more specific, it varies greatly depending on your environment).
