@@ -29,7 +29,7 @@ UDOIT uses the [QUAIL PHP library](https://code.google.com/p/quail-lib/), which 
 ## Installing
 
 ### System Requirements
-PHP 5.4 is required to run UDOIT without any modifications.  We have not tested it on 5.5 or 5.6, but some users have been able to modify the code to work on 5.3.
+*PHP 5.4 is required* to run UDOIT without any modifications.  We have not tested it on 5.5 or 5.6, but some users have been able to modify the code to work on 5.3.
 
 If you're using PHP 5.3:
 
@@ -40,8 +40,16 @@ If you're using PHP 5.3:
 UDOIT uses [Composer](https://getcomposer.org/) to manage its dependencies, so `cd` into your UDOIT directory and run this command before anything else:
 
 ```
-$ php composer.phar update
+$ php composer.phar install
 ```
+
+The libraries (other then Quail) that we rely on:
+
+* [Httpful](http://phphttpclient.com/)
+* [HTML Minifier](https://github.com/zaininnari/html-minifier)
+* [mPDF](https://github.com/finwe/mpdf)
+
+Please refer to the documentation for these three libraries for additional information.
 
 ### Bower
 [Bower](http://bower.io/) is used to install external JavaScript Dependencies.
@@ -50,14 +58,16 @@ Once Bower is installed, run `bower install` in the top UDOIT directory will ins
 
 > Currently there is only one bower library installed. You can install manually by placing [JSColor](https://github.com/callumacrae/JSColor) library contents in `assets/js/vendor/JSColor/`.
 
+
 ### File Storage
-UDOIT saves generated reports to disk for easy retrieval.  Create a folder called `reports` in the root of the UDOIT project, and make sure PHP has permissions to create files and folders within that folder.
+Make sure the `reports` directory in the root of UDOIT is *writable by your webserver*.  UDOIT saves generated reports here for easy retrieval.  You may have to change the user, group, or permissions to get this working (sorry we can't be more specific, it varies greatly depending on your environment).
 
 ## Database Setup
 There are only two tables required to run UDOIT.  They are:
 
-reports
-```
+### Reports Table
+
+```sql
 CREATE TABLE `reports` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `user_id` int(10) unsigned NOT NULL,
@@ -67,11 +77,12 @@ CREATE TABLE `reports` (
   `errors` int(10) unsigned NOT NULL,
   `suggestions` int(10) unsigned NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=442 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 ```
 
-users
-```
+### Users Table
+
+```sql
 CREATE TABLE `users` (
   `id` int(10) unsigned NOT NULL,
   `api_key` varchar(255) NOT NULL,
@@ -85,48 +96,32 @@ CREATE TABLE `users` (
 Make a copy of `config/localConfig.template.php`, rename it to `localConfig.php`.
 
 ### Miscellaneous
-`$referer_test`
-This is a regular expression that lets UDOIT detect whether the user accessed UDOIT from the correct URL.  For instance, UCF's value for this is: 
-`$referer_test = '/(webcourses.ucf.edu)/';`
+
+* `$referer_test` This is a regular expression that lets UDOIT detect whether the user accessed UDOIT from the correct URL.  For instance, UCF's value for this is: `$referer_test = '/(webcourses.ucf.edu)/';`
 
 ### Canvas API
 Please refer to the [Canvas API Policy](http://www.canvaslms.com/policies/api-policy) before using this application, as it makes heavy use of the Canvas API.
 
-`$base_url`
-This is the URL of your Canvas installation
-
-`$consumer_key`
-This is a consumer key you make up.  It will be used when installing the LTI in Canvas.
-
-`$shared_secret`
-This is a shared secret you make up.  It will be used when installing the LTI in Canvas.
+* `$base_url`: The URL of your Canvas installation
+* `$consumer_key`: A consumer key you make up.  Used when installing the LTI in Canvas.
+* `$shared_secret`: The shared secret you make up.  Used when installing the LTI in Canvas.
 
 ### Canvas Oauth2
-Since this application uses Oauth2 to take actions on behalf of the user, you'll need to [sign up for a developer key](https://docs.google.com/forms/d/1C5vOpWHAAl-cltj2944-NM0w16AiCvKQFJae3euwwM8/viewform)
+UDOIT uses Oauth2 to take actions on behalf of the user, you'll need to [sign up for a developer key](https://docs.google.com/forms/d/1C5vOpWHAAl-cltj2944-NM0w16AiCvKQFJae3euwwM8/viewform)
 
-`$oauth2_id`
-The Client_ID Instructure gives you
-
-`$oauth2_key`
-The Secret Instructure gives you
-
-`$oauth2_uri`
-The "Oauth2 Redirect URI" you provided instructure.  This is the URI of the oauth2response.php file in the UDOIT directory.
+* `$oauth2_id`: The Client_ID Instructure gives you
+* `$oauth2_key`: The Secret Instructure gives you
+* `$oauth2_uri`: The "Oauth2 Redirect URI" you provided instructure.  This is the URI of the oauth2response.php file in the UDOIT directory.
 
 ### Database Config
 These value of these vars should be obvious:
 
-`$db_host`
-
-`$db_user`
-
-`$db_password`
-
-`$db_name`
-
-`$db_user_table`
-
-`$db_reports_table`
+* `$db_host`
+* `$db_user`
+* `$db_password`
+* `$db_name`
+* `$db_user_table`
+* `$db_reports_table`
 
 ## Installing the LTI in Canvas
 1. Under _Configuration Type_, choose _By URL_.
@@ -135,17 +130,6 @@ These value of these vars should be obvious:
 4. In the _Shared Secret_ field, copy the value from `$shared_secret` in your config file 
 5. In the _Config URL_ field, input the URL that points to *udoit.xml.php*.
 6. Click _Submit_.
-
-## Dependencies
-UDOIT relies on 3 libraries installed through Composer to function:
-
-[Httpful](http://phphttpclient.com/)
-
-[HTML Minifier](https://github.com/zaininnari/html-minifier)
-
-[mPDF](https://github.com/finwe/mpdf)
-
-Please refer to the documentation for these three libraries for additional information.
 
 ## The Udoit class
 File: *lib/Udoit.php*

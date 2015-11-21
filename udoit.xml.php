@@ -41,6 +41,9 @@
 		<lticm:property name="tool_id">udoit</lticm:property>
 		<lticm:property name="privacy_level">public</lticm:property>
 		<lticm:property name="domain"><?= $_SERVER['SERVER_NAME'] ?></lticm:property>
+		<lticm:options name="custom_fields">
+			<lticm:property name="canvas_api_domain">$Canvas.api.domain</lticm:property>
+		</lticm:options>
 		<lticm:options name="course_navigation">
 			<lticm:property name="url"><?= $launch ?></lticm:property>
 			<lticm:property name="default">enabled</lticm:property>
