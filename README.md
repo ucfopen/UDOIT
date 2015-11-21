@@ -43,6 +43,13 @@ UDOIT uses [Composer](https://getcomposer.org/) to manage its dependencies, so `
 $ php composer.phar update
 ```
 
+### Bower
+[Bower](http://bower.io/) is used to install external JavaScript Dependencies.
+
+Once Bower is installed, run `bower install` in the top UDOIT directory will install the required javascript libraries.
+
+> Currently there is only one bower library installed. You can install manually by placing [JSColor](https://github.com/callumacrae/JSColor) library contents in `assets/js/vendor/JSColor/`.
+
 ### File Storage
 UDOIT saves generated reports to disk for easy retrieval.  Create a folder called `reports` in the root of the UDOIT project, and make sure PHP has permissions to create files and folders within that folder.
 
