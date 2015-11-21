@@ -15,12 +15,10 @@ $this->layout('template', $footer_scripts);
 <div class="alert alert-warning">
 	If you have any suggestions on how UDOIT can be improved, please <a href="https://jfe.qualtrics.com/form/SV_es0XFCNS0ymgcD3">leave feedback</a>
 </div>
-
 <ul class="nav nav-tabs nav-justified" role="tablist">
 	<li role="presentation" class="active"><a href="#scanner" role="tab" data-toggle="tab">Scan Course</a></li>
 	<li role="presentation"><a href="#cached" role="tab" data-toggle="tab">View Old Reports</a></li>
 </ul>
-
 <main id="contentWrapper" role="main">
 	<div class="tab-content">
 		<div class="tab-pane active" id="scanner" role="tabpanel">
@@ -35,6 +33,7 @@ $this->layout('template', $footer_scripts);
 			</div>
 			<form class="form-horizontal no-print" id="udoitForm" method="post" action="lib/process.php" role="form">
 				<input type="hidden" name="main_action" value="udoit">
+				<input type="hidden" name="base_url" value="https://<?=$_POST['custom_canvas_api_domain']?>/">
 				<input type="hidden" name="session_course_id" value="<?=$launch_params['custom_canvas_course_id']?>">
 				<input type="hidden" name="session_context_label" value="<?=$launch_params['context_label']?>">
 				<input type="hidden" name="session_context_title" value="<?=$launch_params['context_title']?>">

@@ -28,17 +28,6 @@ header('Content-Type: text/html; charset=utf-8');
 
 $templates = new League\Plates\Engine('templates');
 
-if ( ! isset($_SERVER['HTTP_REFERER']) ) {
-	echo $templates->render('error', ['error' => $error_msg_no_referrer]);
-	exit();
-}
-
-if (preg_match($referer_test, $_SERVER['HTTP_REFERER']) != 1) {
-	echo $templates->render('error', ['error' => $error_msg_wrong_referrer]);
-	exit();
-}
-
-
 if ( ! isset($_SESSION['valid'])) {
 	$_SESSION['valid'] = false;
 }
@@ -62,6 +51,9 @@ if ($_SESSION['valid'] === false) {
 }
 
 $redirect = true;
+
+// Establish base_url given by canvas API
+$base_url = 'https://'.$_POST['custom_canvas_api_domain'].'/';
 
 // Pull the API key from the database
 try {

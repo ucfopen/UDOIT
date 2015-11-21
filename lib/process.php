@@ -24,6 +24,7 @@ include 'Udoit.php';
 include 'Ufixit.php';
 
 use Httpful\Request;
+$base_url = $_POST['base_url'];
 $SESSION_course_id = $_POST['course_id'];
 $SESSION_context_label = $_POST['context_label'];
 $SESSION_context_title = $_POST['context_title'];
@@ -147,12 +148,6 @@ switch ($_POST['main_action']) {
             case 'aMustContainText':
             case 'aSuspiciousLinkText':
             case 'aLinkTextDoesNotBeginWithRedundantWord':
-
-                $dom->loadHTML('<?xml encoding="utf-8" ?>' . $data['error_html']);
-
-                $tag = $dom->getElementsByTagName('a')->item(0);
-                $tag->removeAttribute('target');
-                $data['error_html'] = $dom->saveHTML($tag);
 
                 $corrected_error = $ufixit->fixLink($data['error_html'], $data['new_content'], $submitting_again);
                 break;
