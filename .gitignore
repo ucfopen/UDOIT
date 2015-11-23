@@ -10,3 +10,4 @@ config/localConfig.php
 
 vendor
 reports
+assets/js/vendor/

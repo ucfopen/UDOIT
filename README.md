@@ -36,13 +36,18 @@ If you're using PHP 5.3:
 * Convert all empty array initializations from using the newer `[]` syntax to use the older `array()` syntax.
 * If you have `short_open_tag` disabled, you'll need to change all `<?=` to `<?php echo`
 
-### Dependencies
+### Bower Dependencies
+[Bower](http://bower.io/) is used to install external JavaScript Dependencies. Composer automatically runs Bower during install in the next step, so install Bower before continuing.
+
+> Currently there is only one bower library installed. You can also install manually by placing [JSColor](https://github.com/callumacrae/JSColor) library contents in `assets/js/vendor/JSColor/`.
+
+### Composer Dependencies
+
 UDOIT uses [Composer](https://getcomposer.org/) to manage its dependencies, so `cd` into your UDOIT directory and run this command before anything else:
 
 ```
 $ php composer.phar install
 ```
-
 
 The libraries (other then Quail) that we rely on:
 
