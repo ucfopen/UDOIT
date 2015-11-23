@@ -294,7 +294,7 @@ session_write_close();
 
 		<script src="//code.jquery.com/jquery-2.1.1.min.js"></script>
 		<script src="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
-		<script src="assets/js/jscolor/jscolor.js"></script>
+		<script src="assets/js/vendor/JSColor/jscolor.js"></script>
 		<script src="assets/js/default.js?c=0"></script>
 	</body>
 </html>
