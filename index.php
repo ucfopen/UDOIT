@@ -68,7 +68,29 @@ if ($_SESSION['valid'] === false) {
 $redirect = true;
 
 // Establish base_url given by canvas API
-$base_url = 'https://'.$_POST['custom_canvas_api_domain'].'/';
+if( isset($_POST['custom_canvas_api_domain']) ){
+	$base_url = $_SESSION['base_url'] = 'https://'.$_POST['custom_canvas_api_domain'].'/';
+} else {
+	echo '
+			<!DOCTYPE html>
+			<html lang="en">
+				<head>
+					<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+					<title>UDOIT Accessibility Checker</title>
+					<link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css" />
+					<link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap-theme.min.css" />
+				</head>
+				<body>
+					<div style="padding: 12px;">
+						<div class="alert alert-danger">
+							<span class="glyphicon glyphicon-exclamation-sign"></span> No domain provided.  Please ensure that your instance of UDOIT is installed to Canvas correctly.
+						</div>
+					</div>
+				</body>
+			</html>
+		';
+		die();
+}
 
 // Pull the API key from the database
 $dsn = "mysql:dbname=$db_name;host=$db_host";
@@ -152,7 +174,7 @@ session_write_close();
 						</div>
 						<form class="form-horizontal no-print" id="udoitForm" method="post" action="lib/process.php" role="form">
 							<input type="hidden" name="main_action" value="udoit">
-							<input type="hidden" name="base_url" value="https://<?php echo $_POST['custom_canvas_api_domain'] ?>/">
+							<input type="hidden" name="base_url" value="<?php echo $base_url ?>">
 							<input type="hidden" name="session_course_id" value="<?php echo $_SESSION['launch_params']['custom_canvas_course_id'] ?>">
 							<input type="hidden" name="session_context_label" value="<?php echo $_SESSION['launch_params']['context_label'] ?>">
 							<input type="hidden" name="session_context_title" value="<?php echo $_SESSION['launch_params']['context_title'] ?>">

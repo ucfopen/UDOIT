@@ -23,11 +23,14 @@ require('../vendor/autoload.php');
 include 'Udoit.php';
 include 'Ufixit.php';
 
+session_start();
+
 use Httpful\Request;
-$base_url = $_POST['base_url'];
+$base_url = $_SESSION['base_url'];
 $SESSION_course_id = $_POST['course_id'];
 $SESSION_context_label = $_POST['context_label'];
 $SESSION_context_title = $_POST['context_title'];
+session_write_close();
 
 // check if course content is being scanned or fixed
 switch ($_POST['main_action']) {
