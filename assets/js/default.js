@@ -361,13 +361,13 @@ $(document).ready(function() {
 		result_html.find('a.list-group-item').after('<br>');
 
 		var form = $('<form action="./lib/parsePdf.php" method="post">' +
-		  '<input type="text" name="result_html" />' +
-		  '<input type="text" name="context_title" value="'+ context_title +'"/>' +
+		  '<input type="hidden" name="result_html" />' +
+		  '<input type="hidden" name="context_title" value="'+ context_title +'"/>' +
 		  '</form>');
 
 		$(form).find('input[name="result_html"]').val(result_html.html());
 
-		$(form).submit();
+		$(form).appendTo('body').submit();
 	});
 	// END clicking the save pdf button
 
