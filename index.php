@@ -70,6 +70,8 @@ $redirect = true;
 // Establish base_url given by canvas API
 if( isset($_POST['custom_canvas_api_domain']) ){
 	$base_url = $_SESSION['base_url'] = 'https://'.$_POST['custom_canvas_api_domain'].'/';
+} elseif( isset($_SESSION['base_url']) ){
+	$base_url = $_SESSION['base_url'];
 } else {
 	echo '
 			<!DOCTYPE html>
@@ -94,7 +96,6 @@ if( isset($_POST['custom_canvas_api_domain']) ){
 
 // Pull the API key from the database
 $dsn = "mysql:dbname=$db_name;host=$db_host";
-
 try {
 	$dbh = new PDO($dsn, $db_user, $db_password);
 } catch (PDOException $e) {
