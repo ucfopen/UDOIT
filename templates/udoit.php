@@ -9,7 +9,7 @@ $settings = [
 	]
 ];
 
-$this->layout('template', $footer_scripts);
+$this->layout('template', $settings);
 
 ?>
 <div class="alert alert-warning">
