@@ -43,6 +43,8 @@ function printError($msg){
 	die();
 }
 
+$base_url = $_SESSION['base_url'];
+
 if (isset($_GET['code'])) {
 	//Exchange code for API key
 	$url = $base_url . '/login/oauth2/token';

@@ -23,11 +23,14 @@ require('../vendor/autoload.php');
 include 'Udoit.php';
 include 'Ufixit.php';
 
+session_start();
+
 use Httpful\Request;
-$base_url = $_POST['base_url'];
+$base_url = $_SESSION['base_url'];
 $SESSION_course_id = $_POST['course_id'];
 $SESSION_context_label = $_POST['context_label'];
 $SESSION_context_title = $_POST['context_title'];
+session_write_close();
 
 // check if course content is being scanned or fixed
 switch ($_POST['main_action']) {
@@ -117,7 +120,9 @@ switch ($_POST['main_action']) {
             'error_html'   => htmlspecialchars_decode($_POST['errorhtml']),
             'error_colors' => isset($_POST['errorcolor']) ? $_POST['errorcolor'] : '',
             'error_type'   => $_POST['errortype'],
-            'new_content'  => $_POST['newcontent']
+            'new_content'  => $_POST['newcontent'],
+            'bold'         => isset($_POST['add-bold']) ? $_POST['add-bold'] : '',
+            'italic'       => isset($_POST['add-italic']) ? $_POST['add-italic'] : ''
         ];
 
         session_start();
@@ -152,7 +157,7 @@ switch ($_POST['main_action']) {
                 $corrected_error = $ufixit->fixLink($data['error_html'], $data['new_content'], $submitting_again);
                 break;
             case 'cssTextHasContrast':
-                $corrected_error = $ufixit->fixCss($data['error_colors'], $data['error_html'], $data['new_content'], $submitting_again);
+                $corrected_error = $ufixit->fixCss($data['error_colors'], $data['error_html'], $data['new_content'], $data['bold'], $data['italic'], $submitting_again);
                 break;
             case 'headersHaveText':
                 $corrected_error = $ufixit->fixHeading($data['error_html'], $data['new_content'], $submitting_again);
