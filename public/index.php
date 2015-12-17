@@ -28,7 +28,7 @@ session_start();
 header('Content-Type: text/html; charset=utf-8');
 
 if ( isset($_SERVER['HTTP_REFERER']) ) {
-	if ( preg_match($referer_test, $_SERVER['HTTP_REFERER']) != 1) {
+	if ( preg_match(Config::REFERER_TEST, $_SERVER['HTTP_REFERER']) != 1) {
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -90,7 +90,7 @@ if (!isset($_SESSION['valid'])) {
 
 if ($_SESSION['valid'] === false) {
 	// Initialize, all secrets are 'secret', do not set session, and do not redirect
-	$context = new BLTI($consumer_key, $shared_secret, false, false);
+	$context = new BLTI(Config::CONSUMER_KEY, Config::SHARED_SECRET, false, false);
 	//if the oauth is valid
 	if ($context->valid) {
 		$_SESSION['launch_params']['custom_canvas_user_id'] = $_POST['custom_canvas_user_id'];
@@ -99,7 +99,7 @@ if ($_SESSION['valid'] === false) {
 		$_SESSION['launch_params']['context_title'] = $_POST['context_title'];
 		$_SESSION['valid'] = true;
 	} else {
-		error_log("BLTI not valid: our key: {$consumer_key}");
+		error_log("BLTI not valid: our key: {Config::CONSUMER_KEY}");
 		error_log($context->message);
 		echo '
 			<!DOCTYPE html>
@@ -126,9 +126,10 @@ if ($_SESSION['valid'] === false) {
 $redirect = true;
 
 $dbh = include('../lib/db.php');
+$table = Config::DB_USER_TABLE;
 
 // Pull the API key from the database
-$sth = $dbh->prepare("SELECT * FROM $db_user_table WHERE id=:userid LIMIT 1");
+$sth = $dbh->prepare("SELECT * FROM $table WHERE id=:userid LIMIT 1");
 $sth->bindParam(':userid', $_SESSION['launch_params']['custom_canvas_user_id'], PDO::PARAM_INT);
 $sth->execute();
 
@@ -141,7 +142,7 @@ if (isset($result[0])) {
 // Do we have an API key?
 if (isset($_SESSION['api_key'])) {
 	//If we do, test it out
-	$url = $base_url.'/api/v1/users/'.$_SESSION['launch_params']['custom_canvas_user_id'].'/profile?access_token='.$_SESSION['api_key'];
+	$url = Config::BASE_URL.'/api/v1/users/'.$_SESSION['launch_params']['custom_canvas_user_id'].'/profile?access_token='.$_SESSION['api_key'];
 	$resp = Request::get($url)->send();
 	$redirect = !isset($resp->body->id);
 } else {
@@ -153,7 +154,7 @@ if (isset($_SESSION['api_key'])) {
 if ($redirect) {
 	//Redirect user to oauth2 endpoint on the Canvas end
 	session_write_close();
-	header('Location: '.$base_url.'/login/oauth2/auth/?client_id='.$oauth2_id.'&response_type=code&redirect_uri='.$oauth2_uri);
+	header('Location: '.Config::BASE_URL.'/login/oauth2/auth/?client_id='.Config::OATH2_URI.'&response_type=code&redirect_uri='.Config::OATH2_URI);
 }
 
 // Invalidate the session so we start from scratch

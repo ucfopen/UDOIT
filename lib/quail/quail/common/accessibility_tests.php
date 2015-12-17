@@ -1,8 +1,5 @@
 <?php
 
-// include_once('../config/localConfig.php');
-	
-
 /** 
 *    QUAIL - QUAIL Accessibility Information Library
 *    Copyright (C) 2009 Kevin Miller
