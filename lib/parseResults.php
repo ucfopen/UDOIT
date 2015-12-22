@@ -84,7 +84,7 @@ function isYouTubeVideo($link_url, $regex)
 	<?php if(!empty($_POST['path'])): ?>
 		<button class="btn btn-default btn-xs no-print" id="backToResults">Back to cached reports</button>
 	<?php endif; ?>
-	<button class="btn btn-default btn-xs no-print" id="savePdf"><span class="glyphicon glyphicon-save"></span> Save report as PDF</button>
+	<button class="btn btn-default btn-s no-print" id="savePdf"><div class="circle-black hidden"></div><span class="glyphicon glyphicon-save"></span> Save report as PDF</button>
 <p>
 
 <div id="errorWrapper">
