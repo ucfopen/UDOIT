@@ -1,3 +1,24 @@
+/**
+*	Copyright (C) 2014 University of Central Florida, created by Jacob Bates, Eric Colon, Fenel Joseph, and Emily Sachs.
+*
+*	This program is free software: you can redistribute it and/or modify
+*	it under the terms of the GNU General Public License as published by
+*	the Free Software Foundation, either version 3 of the License, or
+*	(at your option) any later version.
+*
+*	This program is distributed in the hope that it will be useful,
+*	but WITHOUT ANY WARRANTY; without even the implied warranty of
+*	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+*	GNU General Public License for more details.
+*
+*	You should have received a copy of the GNU General Public License
+*	along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*
+*	Primary Author Contact:  Jacob Bates <jacob.bates@ucf.edu>
+*/
+
+var progressTimer = null;
+
 /* Fades out and destroys the popup window and background. */
 function killButton(callback) {
 	if($("#popup").length > 0) {
@@ -43,6 +64,10 @@ function loader(text) {
 /* Builds up the results and adds them to the page */
 function checker() {
 	var main_action = $('input[name="main_action"]').val();
+	var base_url = $('input[name="base_url"]').val();
+	var course_id = $('input[name="session_course_id"]').val();
+	var context_label = $('input[name="session_context_label"]').val();
+	var context_title = $('input[name="session_context_title"]').val();
 	var content = $('.content:not(#allContent):checked').map(function(i,n) {
 		return $(n).val();
 	}).get();
@@ -56,9 +81,14 @@ function checker() {
 		type: "POST",
 		data: {
 			main_action: main_action,
-			content: content
+			base_url: base_url,
+			content: content,
+			course_id: course_id,
+			context_label: context_label,
+			context_title: context_title
 		},
 		success: function(data){
+			clearInterval(progressTimer);
 			$('#scanner').append('<section id="result">'+data+'</section>');
 			killButton(function() {
 				$('#result').fadeIn();
@@ -67,6 +97,7 @@ function checker() {
 			jscolor.bind();
 		},
 		error: function(data){
+			clearInterval(progressTimer);
 			killButton();
 			$('#failMsg').fadeIn();
 		}
@@ -119,30 +150,20 @@ $(document).ready(function() {
 
 		var old = 0;
 
-		var timer = setInterval(function(){
+
+		// start progress checker, this is cleared here or from checker()
+		clearInterval(progressTimer);
+		progressTimer = setInterval(function(){
 			$.ajax({
 				url: 'lib/progress.php',
+				error: function(xhr, status, error) {
+					clearInterval(progressTimer);
+				},
 				success: function(data){
+					// update display if progress state has changed
 					if(data != old) {
-						if(data == 'announcements') {
-							$('#submit').html('<div id="popup"><div class="circle"></div></div> Scanning announcements...');
-						}
-						if(data == 'assignments') {
-							$('#submit').html('<div id="popup"><div class="circle"></div></div> Scanning assignments...');
-						}
-						if(data == 'discussions') {
-							$('#submit').html('<div id="popup"><div class="circle"></div></div> Scanning discussions...');
-						}
-						if(data == 'files') {
-							$('#submit').html('<div id="popup"><div class="circle"></div></div> Scanning files...');
-						}
-						if(data == 'pages') {
-							$('#submit').html('<div id="popup"><div class="circle"></div></div> Scanning pages...');
-						}
-						if(data == 'done') {
-							clearInterval(timer);
-						}
 						old = data;
+						$('#submit').html('<div id="popup"><div class="circle"></div></div> Scanning '+data+'...');
 					}
 				}
 			});
@@ -174,6 +195,7 @@ $(document).ready(function() {
 	$(document).on("click", ".viewError", function() {
 		$(this).addClass('hidden');
 		$(this).parent().parent().find('div.more-info').removeClass('hidden');
+		$(this).parent().parent().parent().find('a.closeError').removeClass('hidden');
 	});
 	// END view error source
 
@@ -181,8 +203,22 @@ $(document).ready(function() {
 	$(document).on("click", ".closeError", function() {
 		$(this).parent().parent().parent().find('a.viewError').removeClass('hidden');
 		$(this).parent().parent().parent().find('div.more-info').addClass('hidden');
+		$(this).parent().parent().parent().find('a.closeError').addClass('hidden');
 	});
 	// END close error source
+
+	// Link both "Close this view" statements on mouseover with highlighting
+	$(document).on("mouseenter", ".closeError", function() {
+		$(this).parent().parent().parent().find('a.closeError').css('background-color', 'rgba(225, 225, 225, 1)');
+		$(this).parent().parent().parent().find('a.closeError').css('border-radius', '3px');
+	});
+	// END link between "Close this view" statements
+
+	// Removes link between both "Close this view" statements on mouseleave removing highlighting
+	$(document).on("mouseleave", ".closeError", function() {
+		$(this).parent().parent().parent().find('a.closeError').css('background-color', 'rgba(225, 225, 225, 0)');
+	});
+	// END unlink
 
 	// print button
 	$(document).on("click", "#print", function() {
@@ -230,7 +266,13 @@ $(document).ready(function() {
 		e.preventDefault();
 
 		var parent = $(this).parent();
-		var values = $(this).serialize();
+		var values = $(this).serializeArray();
+		var errorsRemaining = -1; 
+
+		values.push({ name: 'base_url', value: $('input[name="base_url"]').val() });
+		values.push({ name: 'course_id', value: $('input[name="session_course_id"]').val() });
+		values.push({ name: 'context_label', value: $('input[name="session_context_label"]').val() });
+		values.push({ name: 'context_title', value: $('input[name="session_context_title"]').val() });
 
 		parent.find('.alert').remove();
 		$.ajax({
@@ -244,10 +286,18 @@ $(document).ready(function() {
 					parent.append('<div class="alert alert-danger well-sm no-margin margin-top"><span class="glyphicon glyphicon-ban-circle"></span> You should enter "col" or "row" for th scopes.</div>');
 				} else {
 					parent.removeClass('in');
+
 					parent.find('input[name="submittingagain"]').val('Yes');
+
 					parent.parent().find('button').removeClass('hidden');
-					parent.parent().find('h5').removeClass('text-danger').addClass('text-success');
-					parent.parent().find('.label').removeClass('hidden');
+					parent.parent().find('.fix-success').removeClass('hidden');
+
+					errorsRemaining = parent.parent().parent().find('.fix-success.hidden').length;
+					if ( errorsRemaining == 0 ) {
+						parent.parent().parent().find('.badge-error').addClass('badge-success');
+						parent.parent().parent().find('h5').removeClass('text-danger').addClass('text-success');
+					}
+					
 				}
 			},
 			error: function(data) {
@@ -290,10 +340,12 @@ $(document).ready(function() {
 	// clicking the save pdf button
 	$(document).on("click", "#savePdf", function() {
 		var result_html = $('#result').clone();
+		var context_title = $('input[name="session_context_title"]').val();
 
 		result_html.find('button').remove();
 		result_html.find('pre').remove();
 		result_html.find('form').remove();
+		result_html.find('.instance').remove();
 		result_html.find('.viewError').remove();
 		result_html.find('.label-success').remove();
 		result_html.find('p:empty').remove();
@@ -304,12 +356,13 @@ $(document).ready(function() {
 		result_html.find('a.list-group-item').after('<br>');
 
 		var form = $('<form action="./lib/parsePdf.php" method="post">' +
-		  '<input type="text" name="result_html" />' +
+		  '<input type="hidden" name="result_html" />' +
+		  '<input type="hidden" name="context_title" value="'+ context_title +'"/>' +
 		  '</form>');
 
 		$(form).find('input[name="result_html"]').val(result_html.html());
 
-		$(form).submit();
+		$(form).appendTo('body').submit();
 	});
 	// END clicking the save pdf button
 
@@ -362,7 +415,7 @@ $(document).ready(function() {
 		if( input.attr("placeholder") == "New link text") {
 			input.val("");
 			input.attr("maxlength", "0");
-			input.attr("placeholder", "Empty link will be deleted");
+			input.attr("placeholder", "Link will be deleted");
 		} else {
 			input.removeAttr("maxlength");
 			input.attr("placeholder", "New link text");

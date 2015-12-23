@@ -1,10 +1,8 @@
 <?php
-
-/* Set the path for the base directory (where the user will start choosing from) */
-$base_url = ''; // Without trailing slash
-
-/* This tests to see if the user came from something other than the URL of your LMS */
-$referer_test = '';
+/* Prevent Caching */
+header("Cache-Control: no-cache, no-store, must-revalidate"); // HTTP 1.1.
+header("Pragma: no-cache"); // HTTP 1.0.
+header("Expires: 0"); // Proxies.
 
 /* Oauth 1.0 Settings (For use when installing the app in Canvas) */
 $consumer_key = '';
@@ -15,6 +13,9 @@ $oauth2_id = '';
 $oauth2_key = '';
 $oauth2_uri = '';
 
+/* Disable headings check character count */
+$doc_length ='1500';
+
 /* Google/YouTube Data Api Key */
 define( 'GOOGLE_API_KEY', '');
 
@@ -23,12 +24,15 @@ $db_host = '';
 $db_user = '';
 $db_password = '';
 $db_name = '';
-$db_user_table = '';
+$db_user_table = 'users';
+$db_reports_table = 'reports';
 
 $debug = false;
 
-
+/* Messages */
 $udoit_welcome_message = 'The Universal Design Online content Inspection Tool (U<strong>DO</strong>IT) was created by the Center for Distributed Learning at the University of Central Florida. U<strong>DO</strong>IT will scan your course content, generate a report and provide instructions on how to correct accessibility issues. Funding for U<strong>DO</strong>IT was provided by a Canvas Grant awarded in 2014.';
+$error_msg_wrong_referrer = 'It looks like you tried to access UDOIT from a website other than Canvas.  Please contact support.';
+$error_msg_no_referrer = 'Your web browser did not provide a referrer.  Please contact support.';
 
 /* Resource links */
 $resource_link = [
@@ -136,11 +140,11 @@ $udoit_tests = [
         ],
         [
             'name'      => 'tableThShouldHaveScope',
-            'title'     => 'No row or column headers found in table',
-            'desc'      => '<p>Table headers organize and define table data by row/column for sighted and <a href="http://en.wikipedia.org/wiki/Screen_reader">screen reader</a> users.</p>',
+            'title'     => 'No row or column scopes declarations found in headers of the table',
+            'desc'      => '<p>Scope declarations in headers organize and define table data by row/column for sighted and <a href="http://en.wikipedia.org/wiki/Screen_reader">screen reader</a> users.</p>',
             'resources' => [
                 '<a href="http://online.ucf.edu/teach-online/develop/document-formatting-guidelines/tables/">Resource Link</a>',
-                'WCAG Standard: <a href="http://www.w3.org/TR/WCAG20/#content-structure-separation-programmatic">1.3.1</a>',
+                'WCAG Standard: <a href="http://www.w3.org/TR/WCAG20-TECHS/H63.html">1.3.1</a>',
             ],
             'example'   => '
                 <p class="text-danger">Incorrect</p>
@@ -280,8 +284,8 @@ $udoit_tests = [
         ],
         [
             'name'      => 'pNotUsedAsHeader',
-            'title'     => 'Change paragraphs to headings',
-            'desc'      => '<p>Headings like <code>h1-h6</code> are extremely useful for non-sighted users to navigate the structure of the page, and formatting a paragraph to just be big or bold, while it might visually look like a heading, does not make it one.</p>',
+            'title'     => 'Avoid using styles for document structure',
+            'desc'      => '<p>Bold and Italics are used to emphasize text, whereas headings are used to define the structure of the document. Headings like <code>h1-h6</code> are extremely useful for non-sighted users to navigate the structure of the page, and formatting a paragraph to just be big or bold, while it might visually look like a heading, does not make it one.</p>',
             'resources' => [],
             'example'   => '
                 <p class="text-danger">Incorrect</p>
@@ -292,5 +296,3 @@ $udoit_tests = [
         ],
     ],
 ];
-
-?>

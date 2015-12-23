@@ -104,7 +104,7 @@ class reportStatic extends quailReporter
 						$testResult['title']        = $title;
 						$testResult['description']  = $description;
 						$testResult['path']         = count($this->path) > 1 ? $this->path[1] : "None";
-						$testResult['html']         = $problem->getHtml();
+						$testResult['html']	        = $problem->getHtml();
 					}
 
 					$output[] = $testResult;

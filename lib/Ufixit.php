@@ -1,5 +1,22 @@
 <?php
-
+/**
+*   Copyright (C) 2014 University of Central Florida, created by Jacob Bates, Eric Colon, Fenel Joseph, and Emily Sachs.
+*
+*   This program is free software: you can redistribute it and/or modify
+*   it under the terms of the GNU General Public License as published by
+*   the Free Software Foundation, either version 3 of the License, or
+*   (at your option) any later version.
+*
+*   This program is distributed in the hope that it will be useful,
+*   but WITHOUT ANY WARRANTY; without even the implied warranty of
+*   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+*   GNU General Public License for more details.
+*
+*   You should have received a copy of the GNU General Public License
+*   along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*
+*   Primary Author Contact:  Jacob Bates <jacob.bates@ucf.edu>
+*/
 require_once '../core/quail/quail.php';
 require '../vendor/autoload.php';
 
@@ -54,7 +71,7 @@ class Ufixit
      * Array of replacements for the annoying entities
      * @var array
      */
-    public $entity_replacements = ["", ""];
+    public $entity_replacements = ["", " "];
 
     /**
      * A file pointer
@@ -93,11 +110,15 @@ class Ufixit
         $this->dom->loadHTML('<?xml encoding="utf-8" ?>' . $error_html);
 
         $imgs = $this->dom->getElementsByTagName('img');
+        $fixed_img = null;
 
         foreach ($imgs as $img) {
             $img->setAttribute('alt', $new_content);
             $fixed_img = $this->dom->saveHTML($img);
         }
+
+        $remove_attr = preg_replace("/ data-api-endpoint.+?>/", "", $fixed_img);
+        $fixed_img = $remove_attr;
 
         return $fixed_img;
     }
@@ -110,9 +131,9 @@ class Ufixit
      * @param bool $submitting_again    - If the user is resubmitting their error fix
      * @return string $fixed_css        - The html with corrected CSS
      */
-    public function fixCss($error_colors, $error_html, $new_content, $submitting_again = false)
+    public function fixCss($error_colors, $error_html, $new_content, $bold, $italic, $submitting_again = false)
     {
-        $this->dom->loadHTML('<?xml encoding="utf-8" ?>' . $error_html);
+        preg_match_all('/<(\w+)\s+\w+.*?>/s', $error_html, $matches);
 
         var_dump( $error_colors );
 
@@ -121,6 +142,21 @@ class Ufixit
         for ($i = 0; $i < count($error_colors); $i++) {
             $fixed_css = str_replace($error_colors[$i], $new_content[$i], $fixed_css);
         }
+
+        $this->dom->loadHTML('<?xml encoding="utf-8" ?>' . $fixed_css );
+
+        $tag = $this->dom->getElementsByTagName( $matches[1][0] )->item(0);
+
+        if ($bold == 'bold') {
+            $tag->setAttribute('style', $tag->getAttribute('style').' font-weight: bold;');
+
+        }
+
+        if ($italic == 'italic') {
+            $tag->setAttribute('style', $tag->getAttribute('style').' font-style: italic;');
+        }
+
+        $fixed_css = $this->dom->saveHTML($tag);
 
         return $fixed_css;
     }
@@ -143,8 +179,9 @@ class Ufixit
 
         $tag = $this->dom->getElementsByTagName('a')->item(0);
 
-        $linkText = $this->dom->createTextNode($new_content);
+        $linkText = $this->dom->createTextNode( htmlspecialchars($new_content) );
 
+        $tag->nodeValue = "";
         $tag->appendChild($linkText);
 
         $fixed_link = $this->dom->saveHTML($tag);
@@ -173,7 +210,7 @@ class Ufixit
 
         $tag = $this->dom->getElementsByTagName( $matches[0] )->item(0);
 
-        $headingText = $this->dom->createTextNode($new_content);
+        $headingText = $this->dom->createTextNode( htmlspecialchars($new_content) );
 
         $tag->appendChild($headingText);
 
@@ -191,6 +228,7 @@ class Ufixit
      */
     public function fixTableHeaders($error_html, $selected_header, $submitting_again = false)
     {
+
         $new_data = [
             'old'   => '',
             'fixed' => ''
@@ -207,7 +245,7 @@ class Ufixit
                 }
 
                 foreach ($trs as $tr) {
-                    $td = $tr->childNodes->item(0);
+                    $td = $tr->firstChild;
                     $td = $this->renameElement($td, 'th');
 
                     $td->setAttribute('scope', 'row');
@@ -259,7 +297,7 @@ class Ufixit
                         continue;
                     }
 
-                    $td = $tr->childNodes->item(0);
+                    $td = $tr->firstChild;
                     $td = $this->renameElement($td, 'th');
 
                     $td->setAttribute('scope', 'row');
@@ -404,7 +442,7 @@ class Ufixit
     {
         $get_uri = $this->base_uri."/api/v1/courses/".$this->course_id."/assignments/".$this->content_id."?&access_token=".$this->api_key;
         $content = Request::get($get_uri)->send();
-        $html    = $content->body->description;
+        $html    = html_entity_decode($content->body->description);
 
         $error_html      = HTMLMinify::minify(str_replace($this->annoying_entities, $this->entity_replacements, $error_html), ['doctype' => 'html5']);
         $corrected_error = HTMLMinify::minify(str_replace($this->annoying_entities, $this->entity_replacements, $corrected_error), ['doctype' => 'html5']);
@@ -425,7 +463,7 @@ class Ufixit
     {
         $get_uri = $this->base_uri."/api/v1/courses/".$this->course_id."/discussion_topics/".$this->content_id."?&access_token=".$this->api_key;
         $content = Request::get($get_uri)->send();
-        $html    = $content->body->message;
+        $html    = html_entity_decode($content->body->message);
 
         $error_html      = HTMLMinify::minify(str_replace($this->annoying_entities, $this->entity_replacements, $error_html), ['doctype' => 'html5']);
         $corrected_error = HTMLMinify::minify(str_replace($this->annoying_entities, $this->entity_replacements, $corrected_error), ['doctype' => 'html5']);
@@ -516,13 +554,14 @@ class Ufixit
     {
         $get_uri = $this->base_uri."/api/v1/courses/".$this->course_id."/pages/".$this->content_id."?access_token=".$this->api_key;
         $content = Request::get($get_uri)->send();
-        $html    = $content->body->body;
+        $html    = html_entity_decode($content->body->body);
 
         $error_html      = HTMLMinify::minify(str_replace($this->annoying_entities, $this->entity_replacements, $error_html), ['doctype' => 'html5']);
         $corrected_error = HTMLMinify::minify(str_replace($this->annoying_entities, $this->entity_replacements, $corrected_error), ['doctype' => 'html5']);
         $html            = HTMLMinify::minify(str_replace($this->annoying_entities, $this->entity_replacements, htmlentities($html)), ['doctype' => 'html5']);
 
         $html    = str_replace($error_html, $corrected_error, html_entity_decode($html));
+
         $put_uri = $this->base_uri."/api/v1/courses/".$this->course_id."/pages/".$this->content_id."?&access_token=".$this->api_key;
 
         Request::put($put_uri)->body(['wiki_page[body]' => $html])->sendsType(\Httpful\Mime::FORM)->send();
@@ -537,7 +576,7 @@ class Ufixit
     {
         $get_uri = $this->base_uri."/api/v1/courses/".$this->course_id."/?include[]=syllabus_body&access_token=".$this->api_key;
         $content = Request::get($get_uri)->send();
-        $html    = $content->body->syllabus_body;
+        $html    = html_entity_decode($content->body->syllabus_body);
 
         $error_html      = HTMLMinify::minify(str_replace($this->annoying_entities, $this->entity_replacements, $error_html), ['doctype' => 'html5']);
         $corrected_error = HTMLMinify::minify(str_replace($this->annoying_entities, $this->entity_replacements, $corrected_error), ['doctype' => 'html5']);

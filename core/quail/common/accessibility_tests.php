@@ -1,5 +1,9 @@
 <?php
-/**
+
+include_once('../config/localConfig.php');
+	
+
+/** 
 *    QUAIL - QUAIL Accessibility Information Library
 *    Copyright (C) 2009 Kevin Miller
 *
@@ -1185,11 +1189,11 @@ class cssTextHasContrast extends quailColorTest
 
 				if ($element->tagName === 'h1' || $element->tagName === 'h2' || $element->tagName === 'h3' || $element->tagName === 'h4' || $element->tagName === 'h5' || $element->tagName === 'h6') {
 					if ($luminosity < 3) {
-						$this->addReport($element, 'background: '. $background .' fore: '. $style['color'] . ' lum: '. $luminosity);
+						$this->addReport($element, 'background: '. $background .' fore: '. $style['color'] . ' lum: '. $luminosity . 'type: heading');
 					}
 				} else {
 					if ($luminosity < 4.5) {
-						$this->addReport($element, 'background: '. $background .' fore: '. $style['color'] . ' lum: '. $luminosity);
+						$this->addReport($element, 'background: '. $background .' fore: '. $style['color'] . ' lum: '. $luminosity . 'type: text');
 					}
 				}
 			}
@@ -2779,23 +2783,37 @@ class noHeadings extends quailTest
 	/**
 	*	The main check function. This is called by the parent class to actually check content
 	*/
+
 	function check()
 	{
-		$no_headings = 0;
+		global $doc_length;
+		
+		$elements = $this->getAllElements('p');
 
-		if (!$this->getAllElements('h1')
-			&& !$this->getAllElements('h2')
-			&& !$this->getAllElements('h3')
-			&& !$this->getAllElements('h4')
-			&& !$this->getAllElements('h5')
-			&& !$this->getAllElements('h6')) {
-			$no_headings = true;
-		} else {
-			$no_headings = false;
+		$document_string = "";
+
+		foreach ($elements as $element) {
+			$document_string .= $element->textContent;
 		}
 
-		if ($no_headings) {
-			$this->addReport(null, null, false);
+		if (strlen($document_string) > $doc_length){
+
+			$no_headings = 0;
+
+			if (!$this->getAllElements('h1')
+				&& !$this->getAllElements('h2')
+				&& !$this->getAllElements('h3')
+				&& !$this->getAllElements('h4')
+				&& !$this->getAllElements('h5')
+				&& !$this->getAllElements('h6')) {
+				$no_headings = true;
+			} else {
+				$no_headings = false;
+			}
+
+			if ($no_headings) {
+				$this->addReport(null, null, false);
+			}
 		}
 	}
 }
@@ -3049,6 +3067,8 @@ class imgAltIsDifferent extends quailTest
 	{
 		foreach ($this->getAllElements('img') as $img) {
 			if (trim($img->getAttribute('src')) == trim($img->getAttribute('alt')))
+				$this->addReport($img);
+			else if ( preg_match("/.jpg|.JPG|.png|.PNG|.gif|.GIF|.jpeg|.JPEG$/", trim($img->getAttribute('alt'))) )
 				$this->addReport($img);
 		}
 	}
@@ -4754,7 +4774,7 @@ class objectWithClassIDHasNoText extends quailTest
 
 /**
 *  All p elements are not used as headers.
-*  All p element content must not be marked with either b, i, u, strong, font, em.
+*  All p element content must not be marked with either b, u, strong, font.
 *	@link http://quail-lib.org/test-info/pNotUsedAsHeader
 */
 class pNotUsedAsHeader extends quailTest
@@ -4764,7 +4784,7 @@ class pNotUsedAsHeader extends quailTest
 	*/
 	var $default_severity = QUAIL_TEST_SEVERE;
 
-	var $head_tags = array('strong', 'em', 'font', 'i', 'b', 'u');
+	var $head_tags = array('strong', 'font', 'b', 'u');
 
 	/**
 	*	The main check function. This is called by the parent class to actually check content
@@ -4772,17 +4792,20 @@ class pNotUsedAsHeader extends quailTest
 	function check()
 	{
 		foreach ($this->getAllElements('p') as $p) {
-			if (isset($p->nodeValue) && isset($p->firstChild->nodeValue)) {
-				if (($p->nodeValue == $p->firstChild->nodeValue)
-					&& is_object($p->firstChild)
-					&& property_exists($p->firstChild, 'tagName')
-					&& in_array($p->firstChild->tagName, $this->head_tags)) {
-					$this->addReport($p);
-				} else {
-					$style = $this->css->getStyle($p);
-
-					if (@$style['font-weight'] == 'bold') {
+			$parent_tag = $p->parentNode->tagName;
+			if($parent_tag != 'td' && $parent_tag != 'th'){
+				if (isset($p->nodeValue) && isset($p->firstChild->nodeValue)) {
+					if (($p->nodeValue == $p->firstChild->nodeValue)
+						&& is_object($p->firstChild)
+						&& property_exists($p->firstChild, 'tagName')
+						&& in_array($p->firstChild->tagName, $this->head_tags)) {
 						$this->addReport($p);
+					} else {
+						$style = $this->css->getStyle($p);
+
+						if (@$style['font-weight'] == 'bold') {
+							$this->addReport($p);
+						}
 					}
 				}
 			}
@@ -6354,5 +6377,6 @@ class textIsNotSmall extends quailTest
 	}
 
 }
+
 
 /*@}*/

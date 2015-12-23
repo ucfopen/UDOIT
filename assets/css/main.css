@@ -1,3 +1,21 @@
+/**
+*	Copyright (C) 2014 University of Central Florida, created by Jacob Bates, Eric Colon, Fenel Joseph, and Emily Sachs.
+*
+*	This program is free software: you can redistribute it and/or modify
+*	it under the terms of the GNU General Public License as published by
+*	the Free Software Foundation, either version 3 of the License, or
+*	(at your option) any later version.
+*
+*	This program is distributed in the hope that it will be useful,
+*	but WITHOUT ANY WARRANTY; without even the implied warranty of
+*	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+*	GNU General Public License for more details.
+*
+*	You should have received a copy of the GNU General Public License
+*	along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*
+*	Primary Author Contact:  Jacob Bates <jacob.bates@ucf.edu>
+*/
 body { padding: 20px 0 0; }
 
 .red {color: red;}
@@ -5,7 +23,7 @@ body { padding: 20px 0 0; }
 .container { width: auto; }
 
 .logo {
-	background: url('https://lti.online.ucf.edu/udoit/assets/img/udoit_logo.png') no-repeat center;
+	background: url('../img/udoit_logo.png') no-repeat center;
 	background-size: 228px 80px;
 	color: transparent;
 	display: inline-block;
@@ -149,6 +167,8 @@ h5 {
 #result { display: none; }
 
 .errorSummary { display: none; }
+
+.error-desc { clear: both ; }
 
 #errorWrapper .errorItem:last-child { margin-bottom: 0; }
 
@@ -346,6 +366,8 @@ h5 + ul {
 
 .fix-alt { position: relative; }
 
+.fix-success { clear: both; }
+
 .counter {
 	color: #8F8F8F;
 	position: absolute;
@@ -358,8 +380,8 @@ h5 + ul {
 
 .panel-title {
 	line-height: 22px;
-	margin-left: 6px;
-}
+/*	margin-left: 6px;
+*/}
 
 .panel-danger .list-group-item { border-color: #ebccd1; }
 
@@ -410,6 +432,33 @@ div#cached button.btn-success:hover{
 	height: 0;
 }
 
+.badge-error {
+  	background-color: #CA8A89;
+  	float: left !important;
+  	margin-right: 6px;
+  	font-size: 12px;
+}
+
+.badge-suggestion {
+  	background-color: #7DA9BE;
+  	float: left !important;
+  	margin-right: 6px;
+  	font-size: 12px;
+}
+
+.badge-success {
+	background-color: #3c763d !important;
+}
+
+#errorWrapper p {
+	margin-left: 27px;
+	margin-right: 17px;
+}
+
+#errorWrapper .fix-this {
+	margin-left: 27px;
+	margin-right: 17px;
+}
 
 /* for lazy little developers~ */
 .no-margin { margin: 0px !important; }

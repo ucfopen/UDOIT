@@ -1,4 +1,22 @@
 <?php
+/**
+*	Copyright (C) 2014 University of Central Florida, created by Jacob Bates, Eric Colon, Fenel Joseph, and Emily Sachs.
+*
+*	This program is free software: you can redistribute it and/or modify
+*	it under the terms of the GNU General Public License as published by
+*	the Free Software Foundation, either version 3 of the License, or
+*	(at your option) any later version.
+*
+*	This program is distributed in the hope that it will be useful,
+*	but WITHOUT ANY WARRANTY; without even the implied warranty of
+*	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+*	GNU General Public License for more details.
+*
+*	You should have received a copy of the GNU General Public License
+*	along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*
+*	Primary Author Contact:  Jacob Bates <jacob.bates@ucf.edu>
+*/
 	$servername = 'https://' . $_SERVER['SERVER_NAME'];
 	$scriptname=end(explode('/',$_SERVER['PHP_SELF']));
 	$scriptpath=str_replace($scriptname,'',$_SERVER['PHP_SELF']);
@@ -23,6 +41,9 @@
 		<lticm:property name="tool_id">udoit</lticm:property>
 		<lticm:property name="privacy_level">public</lticm:property>
 		<lticm:property name="domain"><?= $_SERVER['SERVER_NAME'] ?></lticm:property>
+		<lticm:options name="custom_fields">
+			<lticm:property name="canvas_api_domain">$Canvas.api.domain</lticm:property>
+		</lticm:options>
 		<lticm:options name="course_navigation">
 			<lticm:property name="url"><?= $launch ?></lticm:property>
 			<lticm:property name="default">enabled</lticm:property>

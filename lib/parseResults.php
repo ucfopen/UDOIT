@@ -1,5 +1,22 @@
  <?php
-
+/**
+*	Copyright (C) 2014 University of Central Florida, created by Jacob Bates, Eric Colon, Fenel Joseph, and Emily Sachs.
+*
+*	This program is free software: you can redistribute it and/or modify
+*	it under the terms of the GNU General Public License as published by
+*	the Free Software Foundation, either version 3 of the License, or
+*	(at your option) any later version.
+*
+*	This program is distributed in the hope that it will be useful,
+*	but WITHOUT ANY WARRANTY; without even the implied warranty of
+*	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+*	GNU General Public License for more details.
+*
+*	You should have received a copy of the GNU General Public License
+*	along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*
+*	Primary Author Contact:  Jacob Bates <jacob.bates@ucf.edu>
+*/
 include_once('../config/localConfig.php');
 
 if (isset($_POST['cached_id'])) {
@@ -27,12 +44,33 @@ if (isset($_POST['cached_id'])) {
 
 	$the_json     = file_get_contents($sth->fetchAll(PDO::FETCH_OBJ)[0]->file_path);
 	$udoit_report = json_decode($the_json);
-} elseif ($_POST['main_action'] === "cahced") {
+} elseif ($_POST['main_action'] === "cached") {
 	die('<div class="alert alert-danger no-margin">Cannot parse this report. JSON file not found.</div>');
 }
 
-// saving headaches here...
 $issue_count = 0;
+
+$regex = array(
+	'@youtube\.com/embed/([^"\& ]+)@i',
+	'@youtube\.com/v/([^"\& ]+)@i',
+	'@youtube\.com/watch\?v=([^"\& ]+)@i',
+	'@youtube\.com/\?v=([^"\& ]+)@i',
+	'@youtu\.be/([^"\& ]+)@i',
+	'@youtu\.be/v/([^"\& ]+)@i',
+	'@youtu\.be/watch\?v=([^"\& ]+)@i',
+	'@youtu\.be/\?v=([^"\& ]+)@i',
+	);
+
+function isYouTubeVideo($link_url, $regex)
+{
+	$matches = null;
+	foreach($regex as $pattern) {
+		if(preg_match($pattern, $link_url, $matches)) {
+			return $matches[1];
+		}
+	}
+	return null;
+}
 
 ?>
 
@@ -69,7 +107,7 @@ $issue_count = 0;
 						<div class="panel-heading clearfix">
 							<button class="btn btn-xs btn-default btn-toggle pull-left no-print margin-right-small"><span class="glyphicon glyphicon-plus"></span></button>
 
-							<h3 class="plus pull-left"><a href="<?= $report->url; ?>" target="_blank"><?= $report->name; ?></a></h3>
+							<h3 class="plus pull-left"><a href="<?= $report->url; ?>" target="_blank"><?= $report->name; ?>&nbsp;<small><span class ="glyphicon glyphicon-new-window"></span></small></a></h3>
 
 							<div class="pull-right">
 								<?php if (count($report->error) > 0): ?>
@@ -90,63 +128,77 @@ $issue_count = 0;
 							<?php if (count($report->error) > 0): ?>
 								<div class="panel panel-danger">
 									<div class="panel-heading">
-										<h4 class="panel-title">Errors <span class="badge"><?= count($report->error); ?></span></h4>
+										<h4 class="panel-title"><span class="badge"><?= count($report->error); ?></span> Errors</h4>
 									</div>
-
 									<ul class="list-group">
+										<?php $instanceIndices = []; $indice = 0; $previtemtype = ''; $instance = 1;?>
 										<?php foreach ($report->error as $item): ?>
-											<?php $issue_count++; ?>
-											<li class="list-group-item">
-												<div class="clearfix">
-													<a href="#collapse-<?= $report->id; ?>-<?= $issue_count; ?>" data-toggle="collapse"><h5 class="text-danger pull-left"><span class="glyphicon glyphicon-remove-sign"></span> <?= $item->title; ?></h5></a>
-
-													<?php if ($item->type == "cssTextHasContrast" || $item->type == "imgHasAlt" || $item->type == "imgNonDecorativeHasAlt" || $item->type == "tableDataShouldHaveTh" || $item->type == "tableThShouldHaveScope" || $item->type === "headersHaveText" || $item->type == "aMustContainText"): ?>
-														<span class="label label-success margin-left-small hidden" style="margin-top: -2px;">Fixed!</span>
-													<?php endif; ?>
-												</div>
-
-												<div id="collapse-<?= $report->id; ?>-<?= $issue_count; ?>" class="collapse in fade margin-top-small">
-													<?php if (isset($item->description)): ?>
+											<?php $issue_count++; $currtype = $item->type; ?>
+											<?php if ($currtype != $previtemtype): ?>
+												<?php $instanceIndices[$indice] = $instance - 1; ?>
+												<?php $newItemType = true; $instance = 1; $indice++;?>
+											<?php endif; ?>
+											<?php $previtemtype = $currtype; $newItemType = false; $instance++;?>
+										<?php endforeach; ?>
+										<?php $instanceIndices[$indice] = $instance - 1; ?>
+										<?php $previtemtype = ''; $instance = 1; $indice = 0; ?>
+										<?php foreach ($report->error as $item): ?>
+											<?php $issue_count++; $currtype = $item->type; ?>
+											<?php if ($currtype != $previtemtype): ?>
+												</li>
+												<li class="list-group-item">
+												<?php $newItemType = true; $instance = 1; $indice++; ?>
+											<?php endif; ?>
+											<div>
+												<?php if($newItemType): ?>
+													<a href="#collapse-<?= $report->id; ?>-<?= $issue_count; ?>" data-toggle="collapse"><h5 class="text-danger pull-left title-line"><span class="badge badge-error"><?= $instanceIndices[$indice]; ?></span>&nbsp;<?= $item->title; ?></h5></a>
+													<?php if ((isset($item->description)) && $newItemType): ?>
 														<div class="error-desc">
-															<?= $item->description ?>
+															<p><?= $item->description ?></p>
 														</div>
 													<?php endif; ?>
-
-													<?php if ($item->html): ?>
-														<p><a class="viewError" href="#viewError">View the source of this issue</a></p>
-														<div class="more-info hidden">
-															<div class="error-preview">
-																<?= $item->html; ?>
+												<?php endif; ?>
+												<?php if ($item->type == "cssTextHasContrast" || $item->type == "imgHasAlt" || $item->type == "imgNonDecorativeHasAlt" || $item->type == "tableDataShouldHaveTh" || $item->type == "tableThShouldHaveScope" || $item->type === "headersHaveText" || $item->type == "aMustContainText" || $item->type == "imgAltIsDifferent"): ?>
+													<p class="fix-success hidden"><?= $instance; ?>. <span class="label label-success margin-left-small" style="margin-top: -2px;">Fixed!</span></p>
+												<?php endif; ?>
+												
+												<div id="collapse-<?= $report->id; ?>-<?= $issue_count; ?>" class="collapse in fade margin-top-small">
+														<?php if ($item->html): ?>
+															<p class="instance"><?= $instance; ?>. <a class="viewError" href="#viewError">View the source of this issue</a><a class="closeError hidden" href="#closeError">&nbsp;Close this view&nbsp;</a></p>
+															<div class="more-info hidden instance">
+																<div class="error-preview">
+																	<?php if ($item->type == "videosEmbeddedOrLinkedNeedCaptions"): ?>
+																		<?php $video_id = isYoutubeVideo($item->html, $regex); ?>
+																		<iframe width="100%" height="300px" src="https://www.youtube.com/embed/<?= $video_id; ?>" frameborder="0" allowfullscreen></iframe>
+																	<?php else: ?>
+																		<?= $item->html; ?>
+																	<?php endif; ?>
+																</div>
+																<pre class="error-source"><code class="html"><strong>Line <?= $item->lineNo; ?></strong>: <?= htmlspecialchars($item->html); ?></code></pre>
+																<p><a class="closeError" href="#closeError">&nbsp;Close this view&nbsp;</a></p>
 															</div>
-															<pre class="error-source"><code class="html"><strong>Line <?= $item->lineNo; ?></strong>: <?= htmlspecialchars($item->html); ?></code></pre>
-															<p><a class="closeError" href="#closeError">Close this view</a></p>
-														</div>
-													<?php endif; ?>
+														<?php endif; ?>
 
-													<?php if (empty($_POST['path'])): ?>
-														<?php if ($item->type === "cssTextHasContrast" || $item->type === "imgHasAlt" || $item->type === "imgNonDecorativeHasAlt" || $item->type === "tableDataShouldHaveTh" || $item->type === "tableThShouldHaveScope" || $item->type === "headersHaveText" || $item->type == "aMustContainText"): ?>
-															<?php if ($item->type === "cssTextHasContrast"): ?>
-																<button class="fix-this no-print btn btn-success load-preview">U FIX IT!</button>
-															<?php else: ?>
-																<button class="fix-this no-print btn btn-success">U FIX IT!</button>
-															<?php endif; ?>
-															<div class="toolmessage">UFIXIT is disabled because this is an old report, rescan the course to use UDOIT.</div>
+														<?php if (empty($_POST['path'])): ?>
+															<?php if ($item->type === "cssTextHasContrast" || $item->type === "imgHasAlt" || $item->type === "imgNonDecorativeHasAlt" || $item->type === "tableDataShouldHaveTh" || $item->type === "tableThShouldHaveScope" || $item->type === "headersHaveText" || $item->type == "aMustContainText" || $item->type == "imgAltIsDifferent"): ?>
+																<button class="fix-this no-print btn btn-success instance">U FIX IT!</button>
+																<div class="toolmessage instance">UFIXIT is disabled because this is an old report. Rescan the course to use UFIXIT.</div>
+																<form class="ufixit-form form-horizontal no-print hidden instance" action="lib/process.php" method="post" role="form">
+																	<input type="hidden" name="main_action" value="ufixit">
+																	<input type="hidden" name="contenttype" value="<?= $bad->title; ?>">
+																	<input type="hidden" name="contentid" value="<?= $report->id; ?>">
+																	<input type="hidden" name="errorhtml" value="<?= htmlspecialchars($item->html); ?>">
+																	<input type="hidden" name="reporttype" value="error">
+																	<?php if ($item->type == "cssTextHasContrast"): ?>
+																		<?php for ($i = 0; $i < count($item->colors); $i++): ?>
+																			<input type="hidden" name="errorcolor[<?= $i; ?>]" value="<?= $item->colors[$i]; ?>">
+																		<?php endfor; ?>
+																	<?php endif; ?>
+																	<input type="hidden" name="errortype" value="<?= $item->type; ?>">
+																	<input type="hidden" name="submittingagain" value="">
 
-															<form class="ufixit-form form-horizontal no-print hidden" action="lib/process.php" method="post" role="form">
-																<input type="hidden" name="main_action" value="ufixit">
-																<input type="hidden" name="contenttype" value="<?= $bad->title; ?>">
-																<input type="hidden" name="contentid" value="<?= $report->id; ?>">
-																<input type="hidden" name="errorhtml" value="<?= htmlspecialchars($item->html); ?>">
-																<?php if ($item->type == "cssTextHasContrast"): ?>
-																	<?php for ($i = 0; $i < count($item->colors); $i++): ?>
-																		<input type="hidden" name="errorcolor[<?= $i; ?>]" value="<?= $item->colors[$i]; ?>">
-																	<?php endfor; ?>
-																<?php endif; ?>
-																<input type="hidden" name="errortype" value="<?= $item->type; ?>">
-																<input type="hidden" name="submittingagain" value="">
-
-																<?php switch ($item->type):
-																case "cssTextHasContrast": ?>
+																	<?php switch ($item->type):
+																	case "cssTextHasContrast": ?>
 																	<div class="holder">
 																		<div class="left">
 																			<div class="form-group no-margin margin-bottom">
@@ -207,63 +259,75 @@ $issue_count = 0;
 																			</ul>
 																		</div>
 																	</div>
-																	<button class="submit-content btn btn-default clear" type="submit">Submit</button>
-																	<?php break; ?>
-																<?php case "headersHaveText": ?>
-																	<div class="form-group no-margin margin-bottom">
-																		<input class="{hash:true,caps:false} form-control" type="text" name="newcontent" placeholder="New heading text">
-																		<label><input class="remove-heading" type="checkbox" />&nbsp;Delete this Header completely instead</label><br />
 																		<button class="submit-content btn btn-default" type="submit">Submit</button>
-																	</div>
-																	<?php break; ?>
-																<?php case "aMustContainText": ?>
-																	<div class="form-group no-margin margin-bottom">
-																		<input class="{hash:true,caps:false} form-control" type="text" name="newcontent" placeholder="New link text">
-																		<label><input class="remove-link" type="checkbox" />&nbsp;Delete this Link completely instead</label><br />
-																		<button class="submit-content btn btn-default" type="submit">Submit</button>
-																	</div>
-																	<?php break; ?>
-																<?php case "imgHasAlt": ?>
-																<?php case "imgNonDecorativeHasAlt": ?>
-																	<div class="fix-alt input-group">
-																		<span class="counter">100</span>
-																		<input class="form-control" type="text" name="newcontent" maxlength="100" placeholder="New alt text">
-																		<span class="input-group-btn">
+																		<?php break; ?>
+																	<?php case "headersHaveText": ?>
+																		<div class="form-group no-margin margin-bottom">
+																			<input class="{hash:true,caps:false} form-control" type="text" name="newcontent" placeholder="New heading text">
+																			<label><input class="remove-heading" type="checkbox" />&nbsp;Delete this Header completely instead</label><br />
 																			<button class="submit-content btn btn-default" type="submit">Submit</button>
-																		</span>
-																	</div>
-																	<?php break; ?>
-																<?php case "tableDataShouldHaveTh": ?>
-																	<hr>
-																	<p>Select which part of the table to convert to a header</p>
-																	<div class="input-group">
-																		<select class="form-control" name="newcontent">
-																			<option value="row">The first row</option>
-																			<option value="col">The first column</option>
-																			<option value="both">Both the first row and column</option>
-																		</select>
-																		<span class="input-group-btn">
+																		</div>
+																		<?php break; ?>
+																	<?php case "aMustContainText": ?>
+																	<?php case "aSuspiciousLinkText": ?>
+																	<?php case "aLinkTextDoesNotBeginWithRedundantWord": ?>
+																		<div class="form-group no-margin margin-bottom">
+																			<input class="{hash:true,caps:false} form-control" type="text" name="newcontent" placeholder="New link text">
+																			<label><input class="remove-link" type="checkbox" />&nbsp;Delete this Link completely instead</label><br />
 																			<button class="submit-content btn btn-default" type="submit">Submit</button>
-																		</span>
-																	</div>
-																	<?php break; ?>
-																<?php case "tableThShouldHaveScope": ?>
-																	<div class="input-group">
-																		<select class="form-control" name="newcontent">
-																			<option value="col">col</option>
-																			<option value="row">row</option>
-																		</select>
-																		<span class="input-group-btn">
-																			<button class="submit-content btn btn-default" type="submit">Submit</button>
-																		</span>
-																	</div>
-																	<?php break; ?>
-																<?php endswitch; ?>
-															</form>
+																		</div>
+																		<?php break; ?>
+																	<?php case "imgHasAlt": ?>
+																	<?php case "imgNonDecorativeHasAlt": ?>
+																	<?php case "imgAltIsDifferent": ?>
+																		<div class="fix-alt input-group">
+																			<span class="counter">100</span>
+																			<input class="form-control" type="text" name="newcontent" maxlength="100" placeholder="New alt text">
+																			<span class="input-group-btn">
+																				<button class="submit-content btn btn-default" type="submit">Submit</button>
+																			</span>
+																		</div>
+																		<?php break; ?>
+																	<?php case "tableDataShouldHaveTh": ?>
+																		<hr>
+																		<p>Select which part of the table to convert to a header</p>
+																		<div class="input-group">
+																			<select class="form-control" name="newcontent">
+																				<option value="row">The first row</option>
+																				<option value="col">The first column</option>
+																				<option value="both">Both the first row and column</option>
+																			</select>
+																			<span class="input-group-btn">
+																				<button class="submit-content btn btn-default" type="submit">Submit</button>
+																			</span>
+																		</div>
+																		<?php break; ?>
+																	<?php case "tableThShouldHaveScope": ?>
+																		<div class="input-group">
+																			<select class="form-control" name="newcontent">
+																				<option value="col">col</option>
+																				<option value="row">row</option>
+																			</select>
+																			<span class="input-group-btn">
+																				<button class="submit-content btn btn-default" type="submit">Submit</button>
+																			</span>
+																		</div>
+																		<?php break; ?>
+																	<?php case "aSuspiciousLinkText": ?>
+																		<div class="input-group">
+																			<input class="form-control" type="text" name="newcontent" placeholder="New link description">
+																			<span class="input-group-btn">
+																				<button class="submit-content btn btn-default" type="submit">Submit</button>
+																			</span>
+																		</div>
+																		<?php break; ?>
+																	<?php endswitch; ?>
+																</form>
+															<?php endif; ?>
 														<?php endif; ?>
-													<?php endif; ?>
 												</div>
-											</li>
+											</div>
+											<?php $previtemtype = $currtype; $newItemType = false; $instance++;?>
 										<?php endforeach; ?>
 									</ul>
 								</div>
@@ -272,14 +336,14 @@ $issue_count = 0;
 							<?php if(count($report->warning) > 0): ?>
 								<div class="panel panel-warning">
 									<div class="panel-heading">
-										<h4 class="panel-title">Warnings <span class="badge"><?= count($report->warning); ?></span></h4>
+										<h4 class="panel-title"><span class="badge"><?= count($report->warning); ?></span> Warnings</h4>
 									</div>
 
 									<ul class="list-group">
 										<?php foreach ($report->warning as $item): ?>
 											<li class="list-group-item">
 												<div class="clearfix margin-bottom-small">
-													<h5 class="text-warning pull-left"><span class="glyphicon glyphicon-remove-sign"></span> <?= $item->title; ?></h5>
+													<h5 class="text-warning pull-left"><?= $item->title; ?></h5>
 												</div>
 
 												<?php if (isset($item->description)): ?>
@@ -289,7 +353,7 @@ $issue_count = 0;
 												<?php endif; ?>
 
 												<?php if ($item->html): ?>
-													<p><a class="viewError" href="#viewError">View the source of this issue</a></p>
+													<p class="instance"><?= $instance; ?>. <a class="viewError" href="#viewError">View the source of this issue</a><a class="closeError hidden" href="#closeError">&nbsp;Close this view&nbsp;</a></p>
 													<div class="more-info hidden">
 														<pre class="hidden">
 															<code class="html"><strong>Line <?= $item->lineNo; ?></strong>: <?= htmlspecialchars($item->html); ?></code>
@@ -306,33 +370,84 @@ $issue_count = 0;
 							<?php if (count($report->suggestion) > 0): ?>
 								<div class="panel panel-info no-margin">
 									<div class="panel-heading">
-										<h4 class="panel-title">Suggestions <span class="badge"><?= count($report->suggestion); ?></span></h4>
+										<h4 class="panel-title"><span class="badge"><?= count($report->suggestion); ?></span> Suggestions</h4>
 									</div>
-
 									<ul class="list-group">
+										<?php $instanceIndices = []; $indice = 0; $previtemtype = ''; $instance = 1;?>
 										<?php foreach ($report->suggestion as $item): ?>
-											<li class="list-group-item">
-												<div class="clearfix margin-bottom-small">
-													<h5 class="text-info pull-left"><span class="glyphicon glyphicon-remove-sign"></span> <?= $item->title; ?></h5>
-												</div>
-
-												<?php if (isset($item->description)): ?>
+											<?php $issue_count++; $currtype = $item->type; ?>
+											<?php if ($currtype != $previtemtype): ?>
+												<?php $instanceIndices[$indice] = $instance - 1; ?>
+												<?php $newItemType = true; $instance = 1; $indice++;?>
+											<?php endif; ?>
+											<?php $previtemtype = $currtype; $newItemType = false; $instance++;?>
+										<?php endforeach; ?>
+										<?php $instanceIndices[$indice] = $instance - 1; ?>
+										<?php $previtemtype = ''; $instance = 1; $indice = 0; ?>
+										<?php foreach ($report->suggestion as $item): ?>
+											<?php $issue_count++; $currtype = $item->type; ?>
+											<?php if ($currtype != $previtemtype): ?>
+												</li>
+												<li class="list-group-item">
+												<?php $newItemType = true; $instance = 1; $indice++; ?>
+																								
+											<?php endif; ?>
+											<div class="clearfix margin-bottom-small title-line">
+												<?php if($newItemType): ?>
+													<h5 class="text-info pull-left"><span class="badge badge-suggestion"><?= $instanceIndices[$indice]; ?></span>&nbsp;<?= $item->title; ?></h5>
+												<?php endif ?>
+											</div>
+											<div>
+												<?php if ((isset($item->description)) && $newItemType): ?>
 													<div class="error-desc">
 														<?= $item->description ?>
 													</div>
 												<?php endif; ?>
-
-												<?php if ($item->html): ?>
-													<p><a class="viewError" href="#viewError">View the source of this issue</a></p>
-													<div class="more-info hidden">
-														<div class="error-preview">
-															<?= $item->html; ?>
-														</div>
-														<pre class="error-source"><code class="html"><strong>Line <?= $item->lineNo; ?></strong>: <?= htmlspecialchars($item->html); ?></code></pre>
-														<p><a class="closeError" href="#closeError">Close this view</a></p>
-													</div>
+												<?php if ($item->type === "aSuspiciousLinkText" || $item->type === "aLinkTextDoesNotBeginWithRedundantWord"): ?>
+													<p class="fix-success hidden"><?= $instance; ?>. <span class="label label-success margin-left-small" style="margin-top: -2px;">Fixed!</span></p>
 												<?php endif; ?>
-											</li>
+												<div id="collapse-<?= $report->id; ?>-<?= $issue_count; ?>" class="collapse in fade margin-top-small">
+													<?php if ($item->html): ?>
+														<p class="instance"><?= $instance; ?>. <a class="viewError" href="#viewError">View the source of this issue</a><a class="closeError hidden" href="#closeError">&nbsp;Close this view&nbsp;</a></p>
+														<div class="more-info hidden instance">
+															<div class="error-preview">
+																<?= $item->html; ?>
+															</div>
+															<pre class="error-source"><code class="html"><strong>Line <?= $item->lineNo; ?></strong>: <?= htmlspecialchars($item->html); ?></code></pre>
+															<p><a class="closeError" href="#closeError">Close this view</a></p>
+														</div>
+													<?php endif; ?>
+
+													<?php if (empty($_POST['path'])): ?>
+															<?php if ($item->type === "aSuspiciousLinkText" || $item->type === "aLinkTextDoesNotBeginWithRedundantWord"): ?>
+																<button class="fix-this no-print btn btn-success instance">U FIX IT!</button>
+																<div class="toolmessage instance">UFIXIT is disabled because this is an old report. Rescan the course to use UFIXIT.</div>
+																<form class="ufixit-form form-horizontal no-print hidden instance" action="lib/process.php" method="post" role="form">
+																	<input type="hidden" name="main_action" value="ufixit">
+																	<input type="hidden" name="contenttype" value="<?= $bad->title; ?>">
+																	<input type="hidden" name="contentid" value="<?= $report->id; ?>">
+																	<input type="hidden" name="errorhtml" value="<?= htmlspecialchars($item->html); ?>">
+																	<input type="hidden" name="errortype" value="<?= $item->type; ?>">
+																	<input type="hidden" name="reporttype" value="suggestion">
+																	<input type="hidden" name="submittingagain" value="">
+
+																	<?php switch ($item->type):
+																case "aSuspiciousLinkText": ?>
+																	<?php case "aLinkTextDoesNotBeginWithRedundantWord": ?>
+																		<div class="form-group no-margin margin-bottom">
+																			<input class="{hash:true,caps:false} form-control" type="text" name="newcontent" placeholder="New link text">
+																			<label><input class="remove-link" type="checkbox" />&nbsp;Delete this Link completely instead</label><br />
+																			<button class="submit-content btn btn-default" type="submit">Submit</button>
+																		</div>
+																		<?php break; ?>
+																	<?php break; ?>
+																<?php endswitch; ?>
+															</form>
+														<?php endif; ?>
+													<?php endif; ?>
+												</div>
+											</div>
+											<?php $previtemtype = $currtype; $newItemType = false; $instance++;?>
 										<?php endforeach; ?>
 									</ul>
 								</div>

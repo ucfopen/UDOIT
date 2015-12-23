@@ -1,11 +1,36 @@
 <?php
+/**
+*   Copyright (C) 2014 University of Central Florida, created by Jacob Bates, Eric Colon, Fenel Joseph, and Emily Sachs.
+*
+*   This program is free software: you can redistribute it and/or modify
+*   it under the terms of the GNU General Public License as published by
+*   the Free Software Foundation, either version 3 of the License, or
+*   (at your option) any later version.
+*
+*   This program is distributed in the hope that it will be useful,
+*   but WITHOUT ANY WARRANTY; without even the implied warranty of
+*   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+*   GNU General Public License for more details.
+*
+*   You should have received a copy of the GNU General Public License
+*   along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*
+*   Primary Author Contact:  Jacob Bates <jacob.bates@ucf.edu>
+*/
 require_once('../config/localConfig.php');
 require_once('../core/quail/quail.php');
 require('../vendor/autoload.php');
 include 'Udoit.php';
 include 'Ufixit.php';
 
+session_start();
+
 use Httpful\Request;
+$base_url = $_SESSION['base_url'];
+$SESSION_course_id = $_POST['course_id'];
+$SESSION_context_label = $_POST['context_label'];
+$SESSION_context_title = $_POST['context_title'];
+session_write_close();
 
 // check if course content is being scanned or fixed
 switch ($_POST['main_action']) {
@@ -25,15 +50,16 @@ switch ($_POST['main_action']) {
             'api_key'       => $_SESSION['api_key'],
             'base_uri'      => $base_url,
             'content_types' => $_POST['content'],
-            'course_id'     => $_SESSION['launch_params']['custom_canvas_course_id']
+            'course_id'     => $SESSION_course_id
         ];
+
         session_write_close();
 
         $udoit = new Udoit($data);
         $udoit->buildReport();
 
         $to_encode = [
-            'course'        => $_SESSION['launch_params']['context_title'],
+            'course'        => $SESSION_context_title,
             'total_results' => $udoit->total_results,
             'content'       => $udoit->bad_content,
         ];
@@ -94,12 +120,16 @@ switch ($_POST['main_action']) {
             'error_html'   => htmlspecialchars_decode($_POST['errorhtml']),
             'error_colors' => isset($_POST['errorcolor']) ? $_POST['errorcolor'] : '',
             'error_type'   => $_POST['errortype'],
-            'new_content'  => $_POST['newcontent']
+            'new_content'  => $_POST['newcontent'],
+            'bold'         => isset($_POST['add-bold']) ? $_POST['add-bold'] : '',
+            'italic'       => isset($_POST['add-italic']) ? $_POST['add-italic'] : ''
         ];
 
         session_start();
 
-        $data['course_id'] = $_SESSION['launch_params']['custom_canvas_course_id'];
+        $data['course_id'] = $SESSION_course_id;
+
+        $dom = new DOMDocument();
         $data['api_key']   = $_SESSION['api_key'];
 
         session_write_close();
@@ -121,18 +151,25 @@ switch ($_POST['main_action']) {
         // fixes content based on what the error is
         switch ($data['error_type']) {
             case 'aMustContainText':
+            case 'aSuspiciousLinkText':
+            case 'aLinkTextDoesNotBeginWithRedundantWord':
+
                 $corrected_error = $ufixit->fixLink($data['error_html'], $data['new_content'], $submitting_again);
                 break;
             case 'cssTextHasContrast':
-                $corrected_error = $ufixit->fixCss($data['error_colors'], $data['error_html'], $data['new_content'], $submitting_again);
+                $corrected_error = $ufixit->fixCss($data['error_colors'], $data['error_html'], $data['new_content'], $data['bold'], $data['italic'], $submitting_again);
                 break;
             case 'headersHaveText':
                 $corrected_error = $ufixit->fixHeading($data['error_html'], $data['new_content'], $submitting_again);
                 break;
             case 'imgHasAlt':
             case 'imgNonDecorativeHasAlt':
-                // $data['error_html'] = str_replace('alt=""', 'alt', $data['error_html']);
+            case 'imgAltIsDifferent':
+                //$data['error_html'] = str_replace('alt=""', 'alt', $data['error_html']);
                 $corrected_error = $ufixit->fixAltText($data['error_html'], $data['new_content'], $submitting_again);
+
+                $remove_attr = preg_replace("/ data-api-endpoint.*$/s", "", $data['error_html']);
+                $data['error_html'] = $remove_attr;
                 break;
             case 'tableDataShouldHaveTh':
                 // fixing table headers is a special case...
