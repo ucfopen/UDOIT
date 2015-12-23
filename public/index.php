@@ -18,7 +18,6 @@
 *	Primary Author Contact:  Jacob Bates <jacob.bates@ucf.edu>
 */
 require_once('../config/settings.php');
-require_once('../lib/ims-blti/blti.php');
 
 use Httpful\Request;
 
@@ -34,7 +33,7 @@ if ( ! isset($_SESSION['valid'])) {
 }
 
 if ($_SESSION['valid'] === false) {
-	include_once('lib/ims-blti/blti.php');
+	require_once('../lib/ims-blti/blti.php');
 	// Initialize, all secrets are 'secret', do not set session, and do not redirect
 	$context = new BLTI($consumer_key, $shared_secret, false, false);
 
