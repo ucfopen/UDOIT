@@ -1,0 +1,11 @@
+{
+    "name": "UDOIT",
+    "description": "",
+    "keywords": [],
+    "website": "https://github.com/ucfcdl/UDOIT",
+    "repository": "https://github.com/ucfcdl/UDOIT",
+    "success_url": "/",
+    "env": {
+        "BUILDPACK_URL": "https://github.com/heroku/heroku-buildpack-multi"
+    }
+}

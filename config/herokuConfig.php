@@ -1,6 +1,6 @@
 <?php
 
-$debug            = getenv("DEBUG"):?false;
+$debug            = (getenv("DEBUG")) ?: false;
 
 /* This tests to see if the user came from something other than the URL of your LMS */
 $referer_test     = getenv('REFERER_TEST');
