@@ -27,7 +27,7 @@ ini_set("display_errors", 1);
 session_start();
 header('Content-Type: text/html; charset=utf-8');
 
-$templates = new League\Plates\Engine('templates');
+$templates = new League\Plates\Engine('../templates');
 
 if ( ! isset($_SESSION['valid'])) {
 	$_SESSION['valid'] = false;
