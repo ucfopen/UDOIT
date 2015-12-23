@@ -1,5 +1,7 @@
 <?php
 
+/* UDOIT test descriptions and examples */
+/* refer to /quail/guidelines/section508.php to view currently enabled tests */
 $udoit_tests = [
     'severe' => [
         [
@@ -213,8 +215,8 @@ $udoit_tests = [
         ],
         [
             'name'      => 'pNotUsedAsHeader',
-            'title'     => 'Change paragraphs to headings',
-            'desc'      => '<p>Headings like <code>h1-h6</code> are extremely useful for non-sighted users to navigate the structure of the page, and formatting a paragraph to just be big or bold, while it might visually look like a heading, does not make it one.</p>',
+            'title'     => 'Avoid using styles for document structure',
+            'desc'      => '<p>Bold and Italics are used to emphasize text, whereas headings are used to define the structure of the document. Headings like <code>h1-h6</code> are extremely useful for non-sighted users to navigate the structure of the page, and formatting a paragraph to just be big or bold, while it might visually look like a heading, does not make it one.</p>',
             'resources' => [],
             'example'   => '
                 <p class="text-danger">Incorrect</p>

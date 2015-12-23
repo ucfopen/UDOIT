@@ -123,27 +123,6 @@ class Ufixit
         return $fixed_img;
     }
 
-    /*********/
-
-    // public function fixLinkText($error_html, $new_content, $submitting_again = false)
-    // {
-    //     $this->dom->loadHTML('<?xml encoding="utf-8" >' . $error_html);
-
-    //     $as = $this->dom->getElementsByTagName('a');
-
-    //     foreach ($as as $a) {
-    //         var_dump($a);
-    //         $a->setAttribute('nodeValue', $new_content);
-    //         echo($new_content);
-    //         $fixed_link = $this->dom->saveHTML($a);
-    //         echo($fixed_link);
-    //     }
-
-    //     return $fixed_link;
-    // }
-
-
-
     /**
      * Fixes CSS contrast errors
      * @param array $error_colors       - The color(s) that need to be replaced
@@ -152,15 +131,30 @@ class Ufixit
      * @param bool $submitting_again    - If the user is resubmitting their error fix
      * @return string $fixed_css        - The html with corrected CSS
      */
-    public function fixCss($error_colors, $error_html, $new_content, $submitting_again = false)
+    public function fixCss($error_colors, $error_html, $new_content, $bold, $italic, $submitting_again = false)
     {
-        $this->dom->loadHTML('<?xml encoding="utf-8" ?>' . $error_html);
+        preg_match_all('/<(\w+)\s+\w+.*?>/s', $error_html, $matches);
 
         $fixed_css = $error_html;
 
         for ($i = 0; $i < count($error_colors); $i++) {
             $fixed_css = str_replace($error_colors[$i], $new_content[$i], $fixed_css);
         }
+
+        $this->dom->loadHTML('<?xml encoding="utf-8" ?>' . $fixed_css );
+
+        $tag = $this->dom->getElementsByTagName( $matches[1][0] )->item(0);
+
+        if ($bold == 'bold') {
+            $tag->setAttribute('style', $tag->getAttribute('style').' font-weight: bold;');
+
+        }
+
+        if ($italic == 'italic') {
+            $tag->setAttribute('style', $tag->getAttribute('style').' font-style: italic;');
+        }
+
+        $fixed_css = $this->dom->saveHTML($tag);
 
         return $fixed_css;
     }
@@ -183,7 +177,7 @@ class Ufixit
 
         $tag = $this->dom->getElementsByTagName('a')->item(0);
 
-        $linkText = $this->dom->createTextNode($new_content);
+        $linkText = $this->dom->createTextNode( htmlspecialchars($new_content) );
 
         $tag->nodeValue = "";
         $tag->appendChild($linkText);
@@ -214,7 +208,7 @@ class Ufixit
 
         $tag = $this->dom->getElementsByTagName( $matches[0] )->item(0);
 
-        $headingText = $this->dom->createTextNode($new_content);
+        $headingText = $this->dom->createTextNode( htmlspecialchars($new_content) );
 
         $tag->appendChild($headingText);
 
@@ -446,7 +440,7 @@ class Ufixit
     {
         $get_uri = $this->base_uri."/api/v1/courses/".$this->course_id."/assignments/".$this->content_id."?&access_token=".$this->api_key;
         $content = Request::get($get_uri)->send();
-        $html    = $content->body->description;
+        $html    = html_entity_decode($content->body->description);
 
         $error_html      = HTMLMinify::minify(str_replace($this->annoying_entities, $this->entity_replacements, $error_html), ['doctype' => 'html5']);
         $corrected_error = HTMLMinify::minify(str_replace($this->annoying_entities, $this->entity_replacements, $corrected_error), ['doctype' => 'html5']);
@@ -467,7 +461,7 @@ class Ufixit
     {
         $get_uri = $this->base_uri."/api/v1/courses/".$this->course_id."/discussion_topics/".$this->content_id."?&access_token=".$this->api_key;
         $content = Request::get($get_uri)->send();
-        $html    = $content->body->message;
+        $html    = html_entity_decode($content->body->message);
 
         $error_html      = HTMLMinify::minify(str_replace($this->annoying_entities, $this->entity_replacements, $error_html), ['doctype' => 'html5']);
         $corrected_error = HTMLMinify::minify(str_replace($this->annoying_entities, $this->entity_replacements, $corrected_error), ['doctype' => 'html5']);
@@ -558,7 +552,7 @@ class Ufixit
     {
         $get_uri = $this->base_uri."/api/v1/courses/".$this->course_id."/pages/".$this->content_id."?access_token=".$this->api_key;
         $content = Request::get($get_uri)->send();
-        $html    = $content->body->body;
+        $html    = html_entity_decode($content->body->body);
 
         $error_html      = HTMLMinify::minify(str_replace($this->annoying_entities, $this->entity_replacements, $error_html), ['doctype' => 'html5']);
         $corrected_error = HTMLMinify::minify(str_replace($this->annoying_entities, $this->entity_replacements, $corrected_error), ['doctype' => 'html5']);
@@ -580,7 +574,7 @@ class Ufixit
     {
         $get_uri = $this->base_uri."/api/v1/courses/".$this->course_id."/?include[]=syllabus_body&access_token=".$this->api_key;
         $content = Request::get($get_uri)->send();
-        $html    = $content->body->syllabus_body;
+        $html    = html_entity_decode($content->body->syllabus_body);
 
         $error_html      = HTMLMinify::minify(str_replace($this->annoying_entities, $this->entity_replacements, $error_html), ['doctype' => 'html5']);
         $corrected_error = HTMLMinify::minify(str_replace($this->annoying_entities, $this->entity_replacements, $corrected_error), ['doctype' => 'html5']);

@@ -16,6 +16,9 @@
 *
 *	Primary Author Contact:  Jacob Bates <jacob.bates@ucf.edu>
 */
+
+var progressTimer = null;
+
 /* Fades out and destroys the popup window and background. */
 function killButton(callback) {
 	if($("#popup").length > 0) {
@@ -61,6 +64,7 @@ function loader(text) {
 /* Builds up the results and adds them to the page */
 function checker() {
 	var main_action = $('input[name="main_action"]').val();
+	var base_url = $('input[name="base_url"]').val();
 	var course_id = $('input[name="session_course_id"]').val();
 	var context_label = $('input[name="session_context_label"]').val();
 	var context_title = $('input[name="session_context_title"]').val();
@@ -77,12 +81,14 @@ function checker() {
 		type: "POST",
 		data: {
 			main_action: main_action,
+			base_url: base_url,
 			content: content,
 			course_id: course_id,
 			context_label: context_label,
 			context_title: context_title
 		},
 		success: function(data){
+			clearInterval(progressTimer);
 			$('#scanner').append('<section id="result">'+data+'</section>');
 			killButton(function() {
 				$('#result').fadeIn();
@@ -91,6 +97,7 @@ function checker() {
 			jscolor.bind();
 		},
 		error: function(data){
+			clearInterval(progressTimer);
 			killButton();
 			$('#failMsg').fadeIn();
 		}
@@ -143,30 +150,20 @@ $(document).ready(function() {
 
 		var old = 0;
 
-		var timer = setInterval(function(){
+
+		// start progress checker, this is cleared here or from checker()
+		clearInterval(progressTimer);
+		progressTimer = setInterval(function(){
 			$.ajax({
 				url: 'progress.php',
+				error: function(xhr, status, error) {
+					clearInterval(progressTimer);
+				},
 				success: function(data){
+					// update display if progress state has changed
 					if(data != old) {
-						if(data == 'announcements') {
-							$('#submit').html('<div id="popup"><div class="circle"></div></div> Scanning announcements...');
-						}
-						if(data == 'assignments') {
-							$('#submit').html('<div id="popup"><div class="circle"></div></div> Scanning assignments...');
-						}
-						if(data == 'discussions') {
-							$('#submit').html('<div id="popup"><div class="circle"></div></div> Scanning discussions...');
-						}
-						if(data == 'files') {
-							$('#submit').html('<div id="popup"><div class="circle"></div></div> Scanning files...');
-						}
-						if(data == 'pages') {
-							$('#submit').html('<div id="popup"><div class="circle"></div></div> Scanning pages...');
-						}
-						if(data == 'done') {
-							clearInterval(timer);
-						}
 						old = data;
+						$('#submit').html('<div id="popup"><div class="circle"></div></div> Scanning '+data+'...');
 					}
 				}
 			});
@@ -247,10 +244,10 @@ $(document).ready(function() {
 		}
 	});
 	// ((tooltip on old reports))
-	$(document).on("mouseover", "#cached button.fix-this", function() {	
+	$(document).on("mouseover", "#cached button.fix-this", function() {
 		$('.toolmessage').stop().fadeIn().css("display","inline-block");
 	});
-	
+
 	// $('#cached button.fix-this').hover(
 	// 	function(){
 	// 		$('.toolmessage').stop(true, true).fadeOut();
@@ -272,6 +269,7 @@ $(document).ready(function() {
 		var values = $(this).serializeArray();
 		var errorsRemaining = -1; 
 
+		values.push({ name: 'base_url', value: $('input[name="base_url"]').val() });
 		values.push({ name: 'course_id', value: $('input[name="session_course_id"]').val() });
 		values.push({ name: 'context_label', value: $('input[name="session_context_label"]').val() });
 		values.push({ name: 'context_title', value: $('input[name="session_context_title"]').val() });
@@ -299,7 +297,6 @@ $(document).ready(function() {
 						parent.parent().parent().find('.badge-error').addClass('badge-success');
 						parent.parent().parent().find('h5').removeClass('text-danger').addClass('text-success');
 					}
-					
 				}
 			},
 			error: function(data) {
@@ -358,13 +355,13 @@ $(document).ready(function() {
 		result_html.find('a.list-group-item').after('<br>');
 
 		var form = $('<form action="parsePdf.php" method="post">' +
-		  '<input type="text" name="result_html" />' +
-		  '<input type="text" name="context_title" value="'+ context_title +'"/>' +
+		  '<input type="hidden" name="result_html" />' +
+		  '<input type="hidden" name="context_title" value="'+ context_title +'"/>' +
 		  '</form>');
 
 		$(form).find('input[name="result_html"]').val(result_html.html());
 
-		$(form).submit();
+		$(form).appendTo('body').submit();
 	});
 	// END clicking the save pdf button
 
