@@ -2,9 +2,6 @@
 
 $debug            = (getenv("DEBUG")) ?: false;
 
-/* This tests to see if the user came from something other than the URL of your LMS */
-$referer_test     = getenv('REFERER_TEST');
-
 /* Set the path for the base directory (where the user will start choosing from) */
 $base_url         = getenv('BASE_URL'); // Without trailing slash
 
