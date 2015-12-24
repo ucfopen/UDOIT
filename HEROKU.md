@@ -10,7 +10,6 @@
 ## Configure
 Set Heroku config variables using `heroku config:set VAR=value1`
 
-* `BASE_URL` - base url of your canvas install EX: `https://webcourses.ucf.edu`
 * `CONSUMER_KEY` - LTI consumer key entered when adding UDOIT LTI to Canvas
 * `SHARED_SECRET` - LTI secret entered when adding UDOIT LTI to Canvas
 * `OAUTH2_ID` - from the developer api key created by your admin

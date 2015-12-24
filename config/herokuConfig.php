@@ -2,9 +2,6 @@
 
 $debug            = (getenv("DEBUG")) ?: false;
 
-/* Set the path for the base directory (where the user will start choosing from) */
-$base_url         = getenv('BASE_URL'); // Without trailing slash
-
 /* Oauth 1.0 Settings (For use when installing the app in Canvas) */
 $consumer_key     = getenv('CONSUMER_KEY');
 $shared_secret    = getenv('SHARED_SECRET');
