@@ -18,8 +18,6 @@
 */
 body { padding: 20px 0 0; }
 
-.red {color: red;}
-
 .container { width: auto; }
 
 .logo {
@@ -39,9 +37,9 @@ body { padding: 20px 0 0; }
 	        user-select: none;
 }
 
-.clear {
-	clear: both;
-}
+.red { color: red;}
+
+.clear { clear: both;}
 
 h2 {
 	margin-top: 0;
@@ -55,12 +53,12 @@ h3 a { color: inherit; }
 
 .left {
 	float: left;
-	width: 59%;
+	width: 63%;
 }
 
 .right {
 	float: right;
-	width: 39%;
+	width: 35%;
 }
 
 .plus {

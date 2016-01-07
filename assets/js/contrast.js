@@ -1,6 +1,6 @@
 // Parse rgb(r, g, b) and rgba(r, g, b, a) strings into an array.
 // Adapted from https://github.com/gka/chroma.js
-var parseRgb = function(color) {
+function parseRgb (color) {
 	color = color.substring(1);
 	if ( color.length == 3 ) {
 		color = color + color;
@@ -16,7 +16,7 @@ var parseRgb = function(color) {
 };
 
 // Based on http://www.w3.org/TR/WCAG20/#contrast-ratiodef
-var contrastRatio = function(back, fore) {
+function contrastRatio (back, fore) {
 	var l1 = relativeLuminance(parseRgb( back ));
 	var l2 = relativeLuminance(parseRgb( fore ));
 	var ratio = (Math.max(l1, l2) + 0.05) / (Math.min(l1, l2) + 0.05);
@@ -25,7 +25,7 @@ var contrastRatio = function(back, fore) {
 };
 
 // Based on http://www.w3.org/TR/WCAG20/#relativeluminancedef
-var relativeLuminance = function(c) {
+function relativeLuminance (c) {
 	var lum = [];
 	for (var i = 0; i < 3; i++) {
 		var v = c[i] / 255;

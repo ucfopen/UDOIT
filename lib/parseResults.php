@@ -181,7 +181,7 @@ function isYouTubeVideo($link_url, $regex)
 
 														<?php if (empty($_POST['path'])): ?>
 															<?php if ($item->type === "cssTextHasContrast" || $item->type === "imgHasAlt" || $item->type === "imgNonDecorativeHasAlt" || $item->type === "tableDataShouldHaveTh" || $item->type === "tableThShouldHaveScope" || $item->type === "headersHaveText" || $item->type == "aMustContainText" || $item->type == "imgAltIsDifferent"): ?>
-																<button class="fix-this no-print btn btn-success instance">U FIX IT!</button>
+																<button class="fix-this no-print btn btn-success instance" value="<?= $item->type ?>">U FIX IT!</button>
 																<div class="toolmessage instance">UFIXIT is disabled because this is an old report. Rescan the course to use UFIXIT.</div>
 																<form class="ufixit-form form-horizontal no-print hidden instance" action="lib/process.php" method="post" role="form">
 																	<input type="hidden" name="main_action" value="ufixit">
@@ -207,7 +207,7 @@ function isYouTubeVideo($link_url, $regex)
 																					<input class="color {hash:true,caps:false} form-control back-color" type="text" name="newcontent[1]" value="<?= $item->back_color; ?>" placeholder="Replacement for Background Color <?= $item->back_color; ?>">
 																				<?php endif; ?>
 
-																				<label for="newcontent[0]">Replacement for Foreground Color <?= $item->fore_color; ?></label>&nbsp;<span class="contrast-invalid hidden red"><span class="glyphicon glyphicon-remove"></span>&nbsp;Ratio Invalid<!-- (<span class="contrast-ratio"></span>)--></span>
+																				<label for="newcontent[0]">Replacement for Foreground Color <?= $item->fore_color; ?></label>&nbsp;<span class="contrast-invalid hidden red"><span class="glyphicon glyphicon-remove"></span>&nbsp;Ratio Invalid (<span class="contrast-ratio"></span>:1)</span>
 																				<input class="color {hash:true,caps:false} form-control fore-color" type="text" name="newcontent[0]" value="<?= $item->fore_color; ?>" placeholder="Replacement for Foreground Color <?= $item->fore_color; ?>">
 																			</div>
 																		</div>
@@ -218,44 +218,31 @@ function isYouTubeVideo($link_url, $regex)
 																		</div>
 																		<div class="clear">
 																			<label for="newcontent[0]">Foreground Color Palette</label>
-																			<ul class="color-picker first short">
-																				<li class="color">#FFFFFF</li>
-																				<li class="color">#F9F59E</li>
-																				<li class="color">#C1DC99</li>
-																				<li class="color">#84C195</li>
-																				<li class="color">#82A5CB</li>
-																				<li class="color">#818FB4</li>
-																				<li class="color">#807AAA</li>
-																				<li class="color">#AE85AD</li>
-																				<li class="color">#E493A2</li>
-																				<li class="color">#EBAA82</li>
-																				<li class="color">#F1C28C</li>
-																			</ul>
 																			<ul class="color-picker regular">
-																				<li class="color">#888888</li>
-																				<li class="color">#F5EB32</li>
-																				<li class="color">#70B538</li>
-																				<li class="color">#178E3E</li>
-																				<li class="color">#225E9D</li>
-																				<li class="color">#163D76</li>
-																				<li class="color">#202164</li>
-																				<li class="color">#6A1C68</li>
-																				<li class="color">#CA1325</li>
-																				<li class="color">#D44A25</li>
-																				<li class="color">#DF7A2A</li>
+																				<li class="color" value="#888888">#888888</li>
+																				<li class="color" value="#F5EB32">#F5EB32</li>
+																				<li class="color" value="#70B538">#70B538</li>
+																				<li class="color" value="#178E3E">#178E3E</li>
+																				<li class="color" value="#225E9D">#225E9D</li>
+																				<li class="color" value="#163D76">#163D76</li>
+																				<li class="color" value="#202164">#202164</li>
+																				<li class="color" value="#6A1C68">#6A1C68</li>
+																				<li class="color" value="#CA1325">#CA1325</li>
+																				<li class="color" value="#D44A25">#D44A25</li>
+																				<li class="color" value="#DF7A2A">#DF7A2A</li>
 																			</ul>
-																			<ul class="color-picker short last margin-bottom">
-																				<li class="color">#000000</li>
-																				<li class="color">#99962F</li>
-																				<li class="color">#4B7631</li>
-																				<li class="color">#155F2E</li>
-																				<li class="color">#183F6A</li>
-																				<li class="color">#1B294C</li>
-																				<li class="color">#1A1A40</li>
-																				<li class="color">#451843</li>
-																				<li class="color">#7D1820</li>
-																				<li class="color">#843322</li>
-																				<li class="color">#8A5126</li>
+																			<ul class="color-picker short margin-bottom">
+																				<li class="color" value="#000000">#000000</li>
+																				<li class="color" value="#99962F">#99962F</li>
+																				<li class="color" value="#4B7631">#4B7631</li>
+																				<li class="color" value="#155F2E">#155F2E</li>
+																				<li class="color" value="#183F6A">#183F6A</li>
+																				<li class="color" value="#1B294C">#1B294C</li>
+																				<li class="color" value="#1A1A40">#1A1A40</li>
+																				<li class="color" value="#451843">#451843</li>
+																				<li class="color" value="#7D1820">#7D1820</li>
+																				<li class="color" value="#843322">#843322</li>
+																				<li class="color" value="#8A5126">#8A5126</li>
 																			</ul>
 																		</div>
 																	</div>
@@ -420,7 +407,7 @@ function isYouTubeVideo($link_url, $regex)
 
 													<?php if (empty($_POST['path'])): ?>
 															<?php if ($item->type === "aSuspiciousLinkText" || $item->type === "aLinkTextDoesNotBeginWithRedundantWord"): ?>
-																<button class="fix-this no-print btn btn-success instance">U FIX IT!</button>
+																<button class="fix-this no-print btn btn-success instance"  value="<?= $item->type ?>">U FIX IT!</button>
 																<div class="toolmessage instance">UFIXIT is disabled because this is an old report. Rescan the course to use UFIXIT.</div>
 																<form class="ufixit-form form-horizontal no-print hidden instance" action="lib/process.php" method="post" role="form">
 																	<input type="hidden" name="main_action" value="ufixit">

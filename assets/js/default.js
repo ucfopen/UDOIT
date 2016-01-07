@@ -104,6 +104,56 @@ function checker() {
 	});
 }
 
+// updates UFIXIT preview for cssTextHasContrast
+function ufixitCssTextHasContrast( button ) {
+	var back = button.parent().find('input.back-color');
+	var fore = button.parent().find('input.fore-color');
+
+	var error = button.parent().find('span.contrast-invalid');
+	var cr = button.parent().find('span.contrast-ratio');
+	var contrast_ratio = 0;
+
+	var bgcolor = "#fff";
+	var threshold = 4.5;
+
+	if (back.length !== 0) {
+		bgcolor = $(back).val();
+	}
+
+	contrast_ratio = contrastRatio(bgcolor, $(fore).val() );
+	$(cr).html( contrast_ratio.toFixed(2) );
+
+	var preview = button.parent().find('div.ufixit-preview-canvas');
+
+	preview.attr("style", "color: " + $(fore).val() + "; background-color: " + bgcolor + ";" );
+
+	if (contrast_ratio < threshold) {
+		$(error).removeClass('hidden');
+		$(fore).attr('style','border-color: red;');
+		button.parent().parent().parent().parent().find('button.submit-conent').attr('disabled');
+	}
+
+	button.parent().find("li.color").each(function () {
+		var color = $(this).attr("value");
+		$(this).css("background-color", color);
+
+		//if the swatch color is too dark
+		//change font color to something lighter 
+		var c = color.substring(1); // strip '#'
+		var rgb = parseInt(c, 16); // convert rrggbb to decimal
+		var r = (rgb >> 16) & 0xff; // extract red
+		var g = (rgb >> 8) & 0xff; // extract green
+		var b = (rgb >> 0) & 0xff; // extract blue
+
+		var luma = 0.2126 * r + 0.7152 * g + 0.0722 * b; // per ITU-R BT.709
+
+		if (luma < 85) {
+			$(this).css("color", "#ffffff");
+		}
+	});
+}
+// END update UFIXIT Preview on load
+
 $(document).ready(function() {
 	// content checkboxes
 	var content_checked = true;
@@ -228,7 +278,7 @@ $(document).ready(function() {
 	// END print button
 
 	// the "U FIX IT" button ((on scanner))
-	$(document).on("click", "#scanner button.fix-this", function() {
+	$(document).on("click", "button.fix-this", function() {
 		var parent = $(this).parent();
 		$(this).hide();
 
@@ -242,19 +292,21 @@ $(document).ready(function() {
 			parent.find('form').removeClass('hidden');
 			parent.find('form').addClass('show');
 		}
+
+		switch ( $(this).attr("value") ) {
+			case "cssTextHasContrast":
+				ufixitCssTextHasContrast( $(this) );
+				break;
+
+			default:
+				break;
+		}
 	});
 	// ((tooltip on old reports))
 	$(document).on("mouseover", "#cached button.fix-this", function() {	
 		$('.toolmessage').stop().fadeIn().css("display","inline-block");
 	});
 	
-	// $('#cached button.fix-this').hover(
-	// 	function(){
-	// 		$('.toolmessage').stop(true, true).fadeOut();
-	// 	}, function(){
-	// 		$('.toolmessage').stop(true, true).fadeIn().css("display","inline-block");
-	// 	}
-	// );
 	$(document).on("mouseout", "#cached button.fix-this", function() {
 		$('.toolmessage').stop().fadeOut();
 	});
@@ -423,54 +475,6 @@ $(document).ready(function() {
 	});
 	// END click to remove/fill link with no text
 
-	// updates UFIXIT Preview on load
-	$(document).on("click", ".load-preview", function (e) {
-		var back = $(e.target).parent().find('input.back-color');
-		var fore = $(e.target).parent().find('input.fore-color');
-
-		var error = $(e.target).parent().find('span.contrast-invalid');
-		var cr = $(e.target).parent().find('span.contrast-ratio');
-		var contrast_ratio = 0;
-
-		var bgcolor = "#fff";
-		var threshold = 4.5;
-
-		if (back.length !== 0) {
-			bgcolor = $(back).val();
-		}
-
-		contrast_ratio = contrastRatio(bgcolor, $(fore).val() );
-		$(cr).innerHTML = contrast_ratio;
-
-		var preview = $(e.target).parent().find('div.ufixit-preview-canvas');
-
-		preview.attr("style", "color: " + $(fore).val() + "; background-color: " + bgcolor + ";" );
-
-		if (contrast_ratio < threshold) {
-			$(error).removeClass('hidden');
-		}
-
-		$(e.target).parent().find("li.color").each(function () {
-			var color = $(this).text();
-			$(this).css("background-color", color);
-
-			//if the swatch color is too dark
-			//change font color to something lighter 
-			var c = color.substring(1); // strip #
-			var rgb = parseInt(c, 16); // convert rrggbb to decimal
-			var r = (rgb >> 16) & 0xff; // extract red
-			var g = (rgb >> 8) & 0xff; // extract green
-			var b = (rgb >> 0) & 0xff; // extract blue
-
-			var luma = 0.2126 * r + 0.7152 * g + 0.0722 * b; // per ITU-R BT.709
-
-			if (luma < 85) {
-				$(this).css("color", "#ffffff");
-			}
-		});
-	});
-	// END update UFIXIT Preview on load
-
 	// updates UFIXIT Preview on change of background color
 	$(document).on("change", "input.back-color", function (e) {
 		var preview = $(e.target).parent().parent().parent().find('div.ufixit-preview-canvas');
@@ -484,12 +488,14 @@ $(document).ready(function() {
 		var threshold = 4.5;
 
 		contrast_ratio = contrastRatio( $(e.target).val(), $(fore).val() );
-		$(cr).innerHTML = contrast_ratio;
+		$(cr).html( contrast_ratio.toFixed(2) );
 
 		if (contrast_ratio < threshold) {
 			$(error).removeClass('hidden');
+			fore.attr('style','border-color: red;');
 		} else {
 			$(error).addClass('hidden');
+			fore.attr('style','');
 		}
 
 	});
@@ -501,6 +507,7 @@ $(document).ready(function() {
 		preview.css("color", $(e.target).val() );
 
 		var back = $(e.target).parent().parent().parent().find('input.back-color');
+		var fore = $(e.target).parent().parent().parent().find('input.fore-color');
 		var error = $(e.target).parent().parent().parent().find('span.contrast-invalid');
 		var cr = $(e.target).parent().parent().parent().parent().find('span.contrast-ratio');
 		var contrast_ratio = 0;
@@ -513,12 +520,14 @@ $(document).ready(function() {
 		var threshold = 4.5;
 
 		contrast_ratio = contrastRatio( bgcolor, $(e.target).val() );
-		$(cr).innerHTML = contrast_ratio;
+		$(cr).html( contrast_ratio.toFixed(2) );
 
 		if (contrast_ratio < threshold) {
 			$(error).removeClass('hidden');
+			fore.attr('style','border-color: red;');
 		} else {
 			$(error).addClass('hidden');
+			fore.attr('style','');
 		}
 
 	});
@@ -539,23 +548,25 @@ $(document).ready(function() {
 			bgcolor = $(back).val();
 		}
 
+		console.log(cr);
+
 		var threshold = 4.5;
 
 		contrast_ratio = contrastRatio( bgcolor, $(e.target).text() );
-		$(cr).innerText = contrast_ratio;
-		console.log(cr);
-		console.log(contrast_ratio);
+		$(cr).html( contrast_ratio.toFixed(2) );
 
 		if (contrast_ratio < threshold) {
 			$(error).removeClass('hidden');
+			fore.attr('style','border-color: red;');
 		} else {
 			$(error).addClass('hidden');
+			fore.attr('style','');
 		}
 		
 		preview.css("color", $(e.target).text() );
-		$(fore).val( $(e.target).text() );
+		$(fore).val( $(e.target).attr("value") );
 
-		$(fore).css("background-color", $(e.target).text() );
+		$(fore).css("background-color", $(e.target).attr("value") );
 		$(fore).css("color", $(e.target).css("color") );
 	});
 	// END update UFIXIT Preview on change of foreground color using Color-Picker
