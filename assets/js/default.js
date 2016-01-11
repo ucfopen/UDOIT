@@ -118,6 +118,7 @@ function ufixitCssTextHasContrast( button ) {
 
 	if (back.length !== 0) {
 		bgcolor = $(back).val();
+		$(back).css('background-color', bgcolor);
 	}
 
 	contrast_ratio = contrastRatio(bgcolor, $(fore).val() );
@@ -129,8 +130,8 @@ function ufixitCssTextHasContrast( button ) {
 
 	if (contrast_ratio < threshold) {
 		$(error).removeClass('hidden');
-		$(fore).attr('style','border-color: red;');
-		button.parent().parent().parent().parent().find('button.submit-conent').attr('disabled');
+		$(fore).css({"border-color": "red", "background-color": $(fore).val()});
+		button.parent().parent().parent().parent().parent().parent().find('button.submit-content').attr('disabled');
 	}
 
 	button.parent().find("li.color").each(function () {
