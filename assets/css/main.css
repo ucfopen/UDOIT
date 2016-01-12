@@ -504,13 +504,13 @@ ul.color-picker {
 }
 
 .short {
-	height: 20px;
-	line-height: 20px;
+	height: 22px;
+	line-height: 22px;
 }
 
 .regular {
-	height: 35px;
-	line-height: 35px;
+	height: 36px;
+	line-height: 36px;
 }
 
 .color-picker li:hover {
@@ -525,8 +525,6 @@ ul.color-picker {
 	border-top-left-radius: 5px;
 
 	font-size: 50px;
-
-	/*box-shadow: inset 0 0 0 2px rgba(0, 0, 0, 0.9);*/
 }
 
 .color-picker .first li:last-child {
@@ -548,16 +546,8 @@ ul.color-picker {
 }
 
 .invalid-color {
-	z-index: 100;
+	color: red;
+	font-weight: 900;
 
-	position: relative;
-	height: 35px;
-	width: 100%;
-
-	top: 0;
-	left: 0;
-	background-color: rgba(0, 0, 0, .5);
-
-	text-align: center;
-	pointer-events: none;
+	-webkit-text-stroke: .5px white;
 }

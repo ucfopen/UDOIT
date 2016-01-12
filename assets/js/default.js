@@ -148,8 +148,12 @@ function ufixitCssTextHasContrast( button ) {
 
 		var luma = 0.2126 * r + 0.7152 * g + 0.0722 * b; // per ITU-R BT.709
 
-		if (luma < 85) {
+		if (luma < 100) {
 			$(this).css("color", "#ffffff");
+		}
+
+		if ( contrastRatio(bgcolor, color) < threshold ) {
+			$(this).find('span.invalid-color').removeClass('hidden');
 		}
 	});
 }
@@ -487,6 +491,7 @@ $(document).ready(function() {
 		var contrast_ratio = 0;
 
 		var threshold = 4.5;
+		var bgcolor = $(e.target).val();
 
 		contrast_ratio = contrastRatio( $(e.target).val(), $(fore).val() );
 		$(cr).html( contrast_ratio.toFixed(2) );
@@ -498,6 +503,16 @@ $(document).ready(function() {
 			$(error).addClass('hidden');
 			fore.attr('style','');
 		}
+
+		$(e.target).parent().parent().parent().find("li.color").each(function () {
+			var color = $(this).attr("value");
+
+			if ( contrastRatio(bgcolor, color) < threshold ) {
+				$(this).find('span.invalid-color').removeClass('hidden');
+			} else {
+				$(this).find('span.invalid-color').addClass('hidden');
+			}
+		});
 
 	});
 	// END update UFIXIT Preview on change of background color
@@ -531,6 +546,15 @@ $(document).ready(function() {
 			fore.attr('style','');
 		}
 
+		$(e.target).parent().parent().parent().find("li.color").each(function () {
+			var color = $(this).attr("value");
+
+			if ( contrastRatio(bgcolor, color) < threshold ) {
+				$(this).find('span.invalid-color').removeClass('hidden');
+			} else {
+				$(this).find('span.invalid-color').addClass('hidden');
+			}
+		});
 	});
 	// END update UFIXIT Preview on change of foreground color
 
@@ -549,11 +573,9 @@ $(document).ready(function() {
 			bgcolor = $(back).val();
 		}
 
-		console.log(cr);
-
 		var threshold = 4.5;
 
-		contrast_ratio = contrastRatio( bgcolor, $(e.target).text() );
+		contrast_ratio = contrastRatio( bgcolor, $(e.target).attr("value") );
 		$(cr).html( contrast_ratio.toFixed(2) );
 
 		if (contrast_ratio < threshold) {
@@ -564,11 +586,21 @@ $(document).ready(function() {
 			fore.attr('style','');
 		}
 		
-		preview.css("color", $(e.target).text() );
+		preview.css("color", $(e.target).attr("value") );
 		$(fore).val( $(e.target).attr("value") );
 
 		$(fore).css("background-color", $(e.target).attr("value") );
 		$(fore).css("color", $(e.target).css("color") );
+
+		$(e.target).parent().parent().parent().parent().find("li.color").each(function () {
+			var color = $(this).attr("value");
+
+			if ( contrastRatio(bgcolor, color) < threshold ) {
+				$(this).find('span.invalid-color').removeClass('hidden');
+			} else {
+				$(this).find('span.invalid-color').addClass('hidden');
+			}
+		});
 	});
 	// END update UFIXIT Preview on change of foreground color using Color-Picker
 });

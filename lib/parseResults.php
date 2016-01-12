@@ -219,30 +219,30 @@ function isYouTubeVideo($link_url, $regex)
 																		<div class="clear">
 																			<label for="newcontent[0]">Foreground Color Palette</label>
 																			<ul class="color-picker regular">
-																				<li class="color" value="#888888">#888888</li>
-																				<li class="color" value="#F5EB32">#F5EB32</li>
-																				<li class="color" value="#70B538">#70B538</li>
-																				<li class="color" value="#178E3E">#178E3E</li>
-																				<li class="color" value="#225E9D">#225E9D</li>
-																				<li class="color" value="#163D76">#163D76</li>
-																				<li class="color" value="#202164">#202164</li>
-																				<li class="color" value="#6A1C68">#6A1C68</li>
-																				<li class="color" value="#CA1325">#CA1325</li>
-																				<li class="color" value="#D44A25">#D44A25</li>
-																				<li class="color" value="#DF7A2A">#DF7A2A</li>
+																				<li class="color" value="#888888"><span class="hidden invalid-color">X </span>#888888</li>
+																				<li class="color" value="#F5EB32"><span class="hidden invalid-color">X </span>#F5EB32</li>
+																				<li class="color" value="#70B538"><span class="hidden invalid-color">X </span>#70B538</li>
+																				<li class="color" value="#178E3E"><span class="hidden invalid-color">X </span>#178E3E</li>
+																				<li class="color" value="#225E9D"><span class="hidden invalid-color">X </span>#225E9D</li>
+																				<li class="color" value="#163D76"><span class="hidden invalid-color">X </span>#163D76</li>
+																				<li class="color" value="#202164"><span class="hidden invalid-color">X </span>#202164</li>
+																				<li class="color" value="#6A1C68"><span class="hidden invalid-color">X </span>#6A1C68</li>
+																				<li class="color" value="#CA1325"><span class="hidden invalid-color">X </span>#CA1325</li>
+																				<li class="color" value="#D44A25"><span class="hidden invalid-color">X </span>#D44A25</li>
+																				<li class="color" value="#DF7A2A"><span class="hidden invalid-color">X </span>#DF7A2A</li>
 																			</ul>
 																			<ul class="color-picker short margin-bottom">
-																				<li class="color" value="#000000">#000000</li>
-																				<li class="color" value="#99962F">#99962F</li>
-																				<li class="color" value="#4B7631">#4B7631</li>
-																				<li class="color" value="#155F2E">#155F2E</li>
-																				<li class="color" value="#183F6A">#183F6A</li>
-																				<li class="color" value="#1B294C">#1B294C</li>
-																				<li class="color" value="#1A1A40">#1A1A40</li>
-																				<li class="color" value="#451843">#451843</li>
-																				<li class="color" value="#7D1820">#7D1820</li>
-																				<li class="color" value="#843322">#843322</li>
-																				<li class="color" value="#8A5126">#8A5126</li>
+																				<li class="color" value="#000000"><span class="hidden invalid-color">X </span>#000000</li>
+																				<li class="color" value="#99962F"><span class="hidden invalid-color">X </span>#99962F</li>
+																				<li class="color" value="#4B7631"><span class="hidden invalid-color">X </span>#4B7631</li>
+																				<li class="color" value="#155F2E"><span class="hidden invalid-color">X </span>#155F2E</li>
+																				<li class="color" value="#183F6A"><span class="hidden invalid-color">X </span>#183F6A</li>
+																				<li class="color" value="#1B294C"><span class="hidden invalid-color">X </span>#1B294C</li>
+																				<li class="color" value="#1A1A40"><span class="hidden invalid-color">X </span>#1A1A40</li>
+																				<li class="color" value="#451843"><span class="hidden invalid-color">X </span>#451843</li>
+																				<li class="color" value="#7D1820"><span class="hidden invalid-color">X </span>#7D1820</li>
+																				<li class="color" value="#843322"><span class="hidden invalid-color">X </span>#843322</li>
+																				<li class="color" value="#8A5126"><span class="hidden invalid-color">X </span>#8A5126</li>
 																			</ul>
 																		</div>
 																	</div>
