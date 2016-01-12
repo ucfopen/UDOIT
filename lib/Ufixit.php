@@ -135,8 +135,6 @@ class Ufixit
     {
         preg_match_all('/<(\w+)\s+\w+.*?>/s', $error_html, $matches);
 
-        var_dump( $error_colors );
-
         $fixed_css = $error_html;
 
         for ($i = 0; $i < count($error_colors); $i++) {
