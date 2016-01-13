@@ -131,7 +131,7 @@ function ufixitCssTextHasContrast( button ) {
 	if (contrast_ratio < threshold) {
 		$(error).removeClass('hidden');
 		$(fore).css({"border-color": "red", "background-color": $(fore).val()});
-		button.parent().parent().parent().parent().parent().parent().find('button.submit-content').attr('disabled');
+		var sub = button.parent().find('button.submit-content').prop('disabled',true);
 	}
 
 	button.parent().find("li.color").each(function () {
@@ -499,9 +499,11 @@ $(document).ready(function() {
 		if (contrast_ratio < threshold) {
 			$(error).removeClass('hidden');
 			fore.attr('style','border-color: red;');
+			$(e.target).parent().parent().parent().find('button.submit-content').prop('disabled',true);
 		} else {
 			$(error).addClass('hidden');
 			fore.attr('style','');
+			$(e.target).parent().parent().parent().find('button.submit-content').removeAttr('disabled');
 		}
 
 		$(e.target).parent().parent().parent().find("li.color").each(function () {
@@ -541,9 +543,11 @@ $(document).ready(function() {
 		if (contrast_ratio < threshold) {
 			$(error).removeClass('hidden');
 			fore.attr('style','border-color: red;');
+			$(e.target).parent().parent().parent().find('button.submit-content').prop('disabled',true);
 		} else {
 			$(error).addClass('hidden');
 			fore.attr('style','');
+			$(e.target).parent().parent().parent().find('button.submit-content').removeAttr('disabled');
 		}
 
 		$(e.target).parent().parent().parent().find("li.color").each(function () {
@@ -581,9 +585,11 @@ $(document).ready(function() {
 		if (contrast_ratio < threshold) {
 			$(error).removeClass('hidden');
 			fore.attr('style','border-color: red;');
+			$(e.target).parent().parent().parent().parent().find('button.submit-content').prop('disabled',true);
 		} else {
 			$(error).addClass('hidden');
 			fore.attr('style','');
+			$(e.target).parent().parent().parent().parent().find('button.submit-content').removeAttr('disabled');
 		}
 		
 		preview.css("color", $(e.target).attr("value") );
