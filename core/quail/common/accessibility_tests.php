@@ -1198,7 +1198,7 @@ class cssTextHasContrast extends quailColorTest
 					preg_match_all('!\d+!', $style['font-weight'], $matches);
 					
 					if (count($matches) > 0) {
-						if ($matches > 700) {
+						if ($matches >= 700) {
 							$bold = true;
 						} else {
 							if ($style['font-weight'] === 'bold' || $style['font-weight'] === 'bolder') {
