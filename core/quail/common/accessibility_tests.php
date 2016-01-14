@@ -1186,8 +1186,29 @@ class cssTextHasContrast extends quailColorTest
 				}
 
 				$luminosity = $this->getLuminosity($style['color'], $background);
+				$font_size = 0;
+				$bold = false;
 
-				if ($element->tagName === 'h1' || $element->tagName === 'h2' || $element->tagName === 'h3' || $element->tagName === 'h4' || $element->tagName === 'h5' || $element->tagName === 'h6') {
+				if (isset($style['font-size'])) {
+					preg_match_all('!\d+!', $style['font-size'], $matches);
+					$font_size = $matches[0][0];
+				}
+
+				if (isset($style['font-weight'])) {
+					preg_match_all('!\d+!', $style['font-weight'], $matches);
+					
+					if (count($matches) > 0) {
+						if ($matches > 700) {
+							$bold = true;
+						} else {
+							if ($style['font-weight'] === 'bold' || $style['font-weight'] === 'bolder') {
+								$bold = true;
+							}
+						}
+					}
+				}
+
+				if ($element->tagName === 'h1' || $element->tagName === 'h2' || $element->tagName === 'h3' || $element->tagName === 'h4' || $element->tagName === 'h5' || $element->tagName === 'h6' || $font_size >= 18 || $font_size >= 14 && $bold) {
 					if ($luminosity < 3) {
 						$this->addReport($element, 'background: '. $background .' fore: '. $style['color'] . ' lum: '. $luminosity . 'type: heading');
 					}
