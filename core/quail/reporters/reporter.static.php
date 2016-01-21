@@ -92,8 +92,9 @@ class reportStatic extends quailReporter
 							}
 						}
 
-						$testResult['type']   = $testname;
-						$testResult['lineNo'] = $problem->line;
+						$testResult['text_type']	= $problem->message;
+						$testResult['type']   	= $testname;
+						$testResult['lineNo'] 	= $problem->line;
 
 						if(isset($testResult['element'])) {
 							$testResult['element'] = $problem->element->tagName;

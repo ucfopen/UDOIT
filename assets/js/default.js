@@ -108,13 +108,14 @@ function checker() {
 function ufixitCssTextHasContrast( button ) {
 	var back = button.parent().find('input.back-color');
 	var fore = button.parent().find('input.fore-color');
+	var text_type = button.parent().find('input.threshold');
 
 	var error = button.parent().find('span.contrast-invalid');
 	var cr = button.parent().find('span.contrast-ratio');
 	var contrast_ratio = 0;
 
 	var bgcolor = "#fff";
-	var threshold = 4.5;
+	var threshold = (text_type === 'text')? 4.5: 3;
 
 	if (back.length !== 0) {
 		bgcolor = $(back).val();
@@ -484,13 +485,14 @@ $(document).ready(function() {
 	$(document).on("change", "input.back-color", function (e) {
 		var preview = $(e.target).parent().parent().parent().find('div.ufixit-preview-canvas');
 		var fore = $(e.target).parent().parent().parent().find('input.fore-color');
+		var text_type = $(e.target).parent().parent().parent().find('input.threshold');
 		preview.css("background-color", $(e.target).val() );
 
 		var error = $(e.target).parent().parent().parent().find('span.contrast-invalid');
 		var cr = $(e.target).parent().parent().parent().find('span.contrast-ratio');
 		var contrast_ratio = 0;
 
-		var threshold = 4.5;
+		var threshold = (text_type === 'text')? 4.5: 3;
 		var bgcolor = $(e.target).val();
 
 		contrast_ratio = contrastRatio( $(e.target).val(), $(fore).val() );
@@ -526,6 +528,7 @@ $(document).ready(function() {
 
 		var back = $(e.target).parent().parent().parent().find('input.back-color');
 		var fore = $(e.target).parent().parent().parent().find('input.fore-color');
+		var text_type = $(e.target).parent().parent().parent().find('input.threshold');
 		var error = $(e.target).parent().parent().parent().find('span.contrast-invalid');
 		var cr = $(e.target).parent().parent().parent().parent().find('span.contrast-ratio');
 		var contrast_ratio = 0;
@@ -535,7 +538,7 @@ $(document).ready(function() {
 			bgcolor = $(back).val();
 		}
 
-		var threshold = 4.5;
+		var threshold = (text_type === 'text')? 4.5: 3;
 
 		contrast_ratio = contrastRatio( bgcolor, $(e.target).val() );
 		$(cr).html( contrast_ratio.toFixed(2) );
@@ -567,6 +570,7 @@ $(document).ready(function() {
 		var preview = $(e.target).parent().parent().parent().parent().find('div.ufixit-preview-canvas');
 		var back = $(e.target).parent().parent().parent().parent().find('input.back-color');
 		var fore = $(e.target).parent().parent().parent().parent().find('input.fore-color');
+		var text_type = $(e.target).parent().parent().parent().parent().find('input.threshold');
 
 		var error = $(e.target).parent().parent().parent().parent().find('span.contrast-invalid');
 		var cr = $(e.target).parent().parent().parent().parent().find('span.contrast-ratio');
@@ -577,7 +581,7 @@ $(document).ready(function() {
 			bgcolor = $(back).val();
 		}
 
-		var threshold = 4.5;
+		var threshold = (text_type === 'text')? 4.5: 3;
 
 		contrast_ratio = contrastRatio( bgcolor, $(e.target).attr("value") );
 		$(cr).html( contrast_ratio.toFixed(2) );

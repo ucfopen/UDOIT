@@ -209,6 +209,7 @@ function isYouTubeVideo($link_url, $regex)
 
 																				<label for="newcontent[0]">Replacement for Foreground Color <?= $item->fore_color; ?></label>&nbsp;<span class="contrast-invalid hidden red"><span class="glyphicon glyphicon-remove"></span>&nbsp;Ratio Invalid (<span class="contrast-ratio"></span>:1)</span>
 																				<input class="color {hash:true,caps:false} form-control fore-color" type="text" name="newcontent[0]" value="<?= $item->fore_color; ?>" placeholder="Replacement for Foreground Color <?= $item->fore_color; ?>">
+																				<input type="text" name="threshold" class="threshold hidden" value="<?= $item->text_type ?>">
 																			</div>
 																		</div>
 																		<div class="right ufixit-preview">
