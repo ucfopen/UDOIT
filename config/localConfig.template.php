@@ -170,6 +170,19 @@ $udoit_tests = [
             ',
         ],
         [
+            'name'      => 'cssTextStyleEmphasize',
+            'title'     => 'Avoid using color alone for emphasis',
+            'desc'      => '<p>When emphasizing text, you may use color with sufficient contrast as long as you also apply some other form of emphasis, such as bold or italics. This ensures that screen reader users are aware of the text\'s importance.</p>',
+            'resources' => [
+                '<a href="https://www.w3.org/TR/WCAG20-TECHS/H49.html">Resource Link</a>',
+            ],
+            'example'   => '
+                <p class="text-success">Correct</p>
+                <div class="well well-sm no-margin"><p class="no-margin">...What she <em>really</em> meant to say was, &quot;This is not ok, 
+ it is <strong>excellent</strong>&quot;!...</p></div>
+            ',
+        ],
+        [
             'name'      => 'objectMustContainText',
             'title'     => 'Multimedia objects should have text equivalents (e.g., transcripts).',
             'desc'      => '<p>Multimedia objects should be accompanied by a link to a transcript of the content.</p>',

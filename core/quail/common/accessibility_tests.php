@@ -1190,14 +1190,80 @@ class cssTextHasContrast extends quailColorTest
 				if ($element->tagName === 'h1' || $element->tagName === 'h2' || $element->tagName === 'h3' || $element->tagName === 'h4' || $element->tagName === 'h5' || $element->tagName === 'h6') {
 					if ($luminosity < 3) {
 						$this->addReport($element, 'background: '. $background .' fore: '. $style['color'] . ' lum: '. $luminosity . 'type: heading');
-					} else {
-						$this->addReport($element, 'background: '. $background .' fore: '. $style['color'] . ' lum: '. $luminosity . 'type: heading');
 					}
 				} else {
 					if ($luminosity < 4.5) {
 						$this->addReport($element, 'background: '. $background .' fore: '. $style['color'] . ' lum: '. $luminosity . 'type: text');
-					} else {
-						$this->addReport($element, 'background: '. $background .' fore: '. $style['color'] . ' lum: '. $luminosity . 'type: text');
+					}
+				}
+			}
+		}
+	}
+}
+
+/**
+*	Checks that all color and background elements has stufficient contrast.
+*
+*	@link http://quail-lib.org/test-info/cssTextHasContrast
+*/
+class cssTextStyleEmphasize extends quailColorTest
+{
+	/**
+	*	@var int $default_severity The default severity code for this test.
+	*/
+	var $default_severity = QUAIL_TEST_SUGGESTION;
+
+	/**
+	*	@var string $default_background The default background color
+	*/
+	var $default_background = '#ffffff';
+
+	/**
+	*	@var string $default_background The default background color
+	*/
+	var $default_color = '#000000';
+
+	/**
+	*	The main check function. This is called by the parent class to actually check content
+	*/
+	function check()
+	{
+		if (isset($this->options['css_background'])) {
+			$this->default_background = $this->options['css_background'];
+		}
+
+		if (isset($this->options['css_foreground'])) {
+			$this->default_color = $this->options['css_foreground'];
+		}
+
+		$xpath   = new DOMXPath($this->dom);
+		$entries = $xpath->query('//*');
+
+		var_dump($this);
+
+		foreach ($entries as $element) {
+			$style = $this->css->getStyle($element);
+
+			if (!isset($style['background-color'])) {
+				$style['background-color'] = $this->default_background;
+			}
+
+			if ((isset($style['background']) || isset($style['background-color'])) && isset($style['color']) && $element->nodeValue) {
+				$background = (isset($style['background-color'])) ? $style['background-color'] : $style['background'];
+
+				if (!$background || $this->options['css_only_use_default']) {
+					$background = $this->default_background;
+				}
+
+				$luminosity = $this->getLuminosity($style['color'], $background);
+
+				if ($element->tagName === 'h1' || $element->tagName === 'h2' || $element->tagName === 'h3' || $element->tagName === 'h4' || $element->tagName === 'h5' || $element->tagName === 'h6') {
+					if ($luminosity >= 3) {
+						$this->addReport($element);
+					}
+				} else {
+					if ($luminosity >= 4.5) {
+						$this->addReport($element);
 					}
 				}
 			}

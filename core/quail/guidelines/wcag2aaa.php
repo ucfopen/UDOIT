@@ -172,6 +172,7 @@ class Wcag2aaaGuideline extends quailGuideline
 		// 'svgContainsTitle',
 		// 'documentIsWrittenClearly',
 		'cssTextHasContrast',
+		'cssTextStyleEmphasize',
 		'headersHaveText',
 		'videoEmbedChecked',
 		'videosEmbeddedOrLinkedNeedCaptions',
