@@ -367,7 +367,7 @@ function isYouTubeVideo($link_url, $regex)
 
 													<?php if (empty($_POST['path'])): ?>
 															<?php if ($item->type === "aSuspiciousLinkText" || $item->type === "aLinkTextDoesNotBeginWithRedundantWord" || $item->type === "cssTextStyleEmphasize"): ?>
-																<button class="fix-this no-print btn btn-success instance">U FIX IT!</button>
+																<button class="fix-this no-print btn btn-success instance" value="<?= $item->type; ?>">U FIX IT!</button>
 																<div class="toolmessage instance">UFIXIT is disabled because this is an old report. Rescan the course to use UFIXIT.</div>
 																<form class="ufixit-form form-horizontal no-print hidden instance" action="lib/process.php" method="post" role="form">
 																	<input type="hidden" name="main_action" value="ufixit">

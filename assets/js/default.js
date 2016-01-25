@@ -104,6 +104,10 @@ function checker() {
 	});
 }
 
+function ufixitCssTextStyleEmphasize( button ) {
+	
+}
+
 $(document).ready(function() {
 	// content checkboxes
 	var content_checked = true;
@@ -228,9 +232,9 @@ $(document).ready(function() {
 	// END print button
 
 	// the "U FIX IT" button ((on scanner))
-	$(document).on("click", "#scanner button.fix-this", function() {
+	$(document).on("click", "button.fix-this", function() {
 		var parent = $(this).parent();
-		$(this).remove();
+		$(this).hide();
 
 		var contentForm = parent.find('form');
 
@@ -242,7 +246,21 @@ $(document).ready(function() {
 			parent.find('form').removeClass('hidden');
 			parent.find('form').addClass('show');
 		}
+
+		switch ( $(this).attr("value") ) {
+			case "cssTextHasContrast":
+				ufixitCssTextHasContrast( $(this) );
+				break;
+
+			case "cssTextStyleEmphasize":
+				ufixitCssTextStyleEmphasize( $(this) );
+				break;
+
+			default:
+				break;
+		}
 	});
+
 	// ((tooltip on old reports))
 	$(document).on("mouseover", "#cached button.fix-this", function() {	
 		$('.toolmessage').stop().fadeIn().css("display","inline-block");

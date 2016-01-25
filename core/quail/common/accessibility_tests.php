@@ -1239,8 +1239,6 @@ class cssTextStyleEmphasize extends quailColorTest
 		$xpath   = new DOMXPath($this->dom);
 		$entries = $xpath->query('//*');
 
-		var_dump($this);
-
 		foreach ($entries as $element) {
 			$style = $this->css->getStyle($element);
 

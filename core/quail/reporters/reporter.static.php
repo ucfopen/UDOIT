@@ -70,7 +70,7 @@ class reportStatic extends quailReporter
 					$testResult           = [];
 
 					if (is_object($problem)) {
-						if ($testname === "cssTextHasContrast") {
+						if ($testname === "cssTextHasContrast" || $testname === "cssTextStyleEmphasize") {
 							foreach ($problem->element->attributes as $name) {
 								if ($name->name === "style") {
 									$styleValue = $name->value;
