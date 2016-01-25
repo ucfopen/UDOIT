@@ -350,7 +350,7 @@ function isYouTubeVideo($link_url, $regex)
 														<?= $item->description ?>
 													</div>
 												<?php endif; ?>
-												<?php if ($item->type === "aSuspiciousLinkText" || $item->type === "aLinkTextDoesNotBeginWithRedundantWord"): ?>
+												<?php if ($item->type === "aSuspiciousLinkText" || $item->type === "aLinkTextDoesNotBeginWithRedundantWord" || $item->type === "cssTextStyleEmphasize"): ?>
 													<p class="fix-success hidden"><?= $instance; ?>. <span class="label label-success margin-left-small" style="margin-top: -2px;">Fixed!</span></p>
 												<?php endif; ?>
 												<div id="collapse-<?= $report->id; ?>-<?= $issue_count; ?>" class="collapse in fade margin-top-small">
@@ -366,7 +366,7 @@ function isYouTubeVideo($link_url, $regex)
 													<?php endif; ?>
 
 													<?php if (empty($_POST['path'])): ?>
-															<?php if ($item->type === "aSuspiciousLinkText" || $item->type === "aLinkTextDoesNotBeginWithRedundantWord"): ?>
+															<?php if ($item->type === "aSuspiciousLinkText" || $item->type === "aLinkTextDoesNotBeginWithRedundantWord" || $item->type === "cssTextStyleEmphasize"): ?>
 																<button class="fix-this no-print btn btn-success instance">U FIX IT!</button>
 																<div class="toolmessage instance">UFIXIT is disabled because this is an old report. Rescan the course to use UFIXIT.</div>
 																<form class="ufixit-form form-horizontal no-print hidden instance" action="lib/process.php" method="post" role="form">
