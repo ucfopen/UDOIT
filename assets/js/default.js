@@ -104,9 +104,67 @@ function checker() {
 	});
 }
 
+// updates UFIXIT preview for cssTextHasContrast
 function ufixitCssTextStyleEmphasize( button ) {
 	
 }
+// END update UFIXIT Preview on load
+
+// updates UFIXIT preview for cssTextHasContrast
+function ufixitCssTextHasContrast( button ) {
+	var back = button.parent().find('input.back-color');
+	var fore = button.parent().find('input.fore-color');
+	var text_type = button.parent().find('input.threshold');
+
+	var error = button.parent().find('span.contrast-invalid');
+	var cr = button.parent().find('span.contrast-ratio');
+	var contrast_ratio = 0;
+
+	var bgcolor = "#fff";
+	var threshold = (text_type === 'text')? 4.5: 3;
+
+	if (back.length !== 0) {
+		bgcolor = $(back).val();
+		$(back).css('background-color', bgcolor);
+	}
+
+	contrast_ratio = contrastRatio(bgcolor, $(fore).val() );
+	$(cr).html( contrast_ratio.toFixed(2) );
+
+	var preview = button.parent().find('div.ufixit-preview-canvas');
+
+	preview.attr("style", "color: " + $(fore).val() + "; background-color: " + bgcolor + ";" );
+
+	if (contrast_ratio < threshold) {
+		$(error).removeClass('hidden');
+		$(fore).css({"border-color": "red", "background-color": $(fore).val()});
+		var sub = button.parent().find('button.submit-content').prop('disabled',true);
+	}
+
+	button.parent().find("li.color").each(function () {
+		var color = $(this).attr("value");
+		$(this).css("background-color", color);
+
+		//if the swatch color is too dark
+		//change font color to something lighter 
+		var c = color.substring(1); // strip '#'
+		var rgb = parseInt(c, 16); // convert rrggbb to decimal
+		var r = (rgb >> 16) & 0xff; // extract red
+		var g = (rgb >> 8) & 0xff; // extract green
+		var b = (rgb >> 0) & 0xff; // extract blue
+
+		var luma = 0.2126 * r + 0.7152 * g + 0.0722 * b; // per ITU-R BT.709
+
+		if (luma < 100) {
+			$(this).css("color", "#ffffff");
+		}
+
+		if ( contrastRatio(bgcolor, color) < threshold ) {
+			$(this).find('span.invalid-color').removeClass('hidden');
+		}
+	});
+}
+// END update UFIXIT Preview on load
 
 $(document).ready(function() {
 	// content checkboxes
