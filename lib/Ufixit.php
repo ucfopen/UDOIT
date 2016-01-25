@@ -128,10 +128,12 @@ class Ufixit
      * @param array $error_colors       - The color(s) that need to be replaced
      * @param string $error_html        - The bad html that needs to be fixed
      * @param string|array $new_content - The new CSS color(s) from the user
+     * @param bool $bold                - Boolean whether resulting text should be stylized bold
+     * @param bool $italic              - Boolean whether resulting text should be stylized italicised
      * @param bool $submitting_again    - If the user is resubmitting their error fix
      * @return string $fixed_css        - The html with corrected CSS
      */
-    public function fixCss($error_colors, $error_html, $new_content, $bold, $italic, $submitting_again = false)
+    public function fixCssColor($error_colors, $error_html, $new_content, $bold, $italic, $submitting_again = false)
     {
         preg_match_all('/<(\w+)\s+\w+.*?>/s', $error_html, $matches);
 
@@ -145,12 +147,43 @@ class Ufixit
 
         $tag = $this->dom->getElementsByTagName( $matches[1][0] )->item(0);
 
-        if ($bold == 'bold') {
+        if ($bold) {
             $tag->setAttribute('style', $tag->getAttribute('style').' font-weight: bold;');
 
         }
 
-        if ($italic == 'italic') {
+        if ($italic) {
+            $tag->setAttribute('style', $tag->getAttribute('style').' font-style: italic;');
+        }
+
+        $fixed_css = $this->dom->saveHTML($tag);
+
+        return $fixed_css;
+    }
+
+        /**
+     * Adds font styles to colored text for emphasis
+     * @param string $error_html        - The bad html that needs to be fixed
+     * @param string|array $new_content - The new CSS color(s) from the user
+     * @param bool $bold                - Boolean whether resulting text should be stylized bold
+     * @param bool $italic              - Boolean whether resulting text should be stylized italicised
+     * @param bool $submitting_again    - If the user is resubmitting their error fix
+     * @return string $fixed_css        - The html with corrected CSS
+     */
+    public function fixCssEmphasize($error_html, $new_content, $bold, $italic, $submitting_again = false)
+    {
+        preg_match_all('/<(\w+)\s+\w+.*?>/s', $error_html, $matches);
+
+        $this->dom->loadHTML('<?xml encoding="utf-8" ?>' . $error_html );
+
+        $tag = $this->dom->getElementsByTagName( $matches[1][0] )->item(0);
+
+        if ($bold) {
+            $tag->setAttribute('style', $tag->getAttribute('style').' font-weight: bold;');
+
+        }
+
+        if ($italic) {
             $tag->setAttribute('style', $tag->getAttribute('style').' font-style: italic;');
         }
 

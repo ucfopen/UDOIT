@@ -203,7 +203,7 @@ function isYouTubeVideo($link_url, $regex)
 																			<div class="form-group no-margin margin-bottom">
 																				<label for="newcontent[<?= $i; ?>]">Replacement color for <?= $item->colors[$i]; ?></label>
 																				<input class="color {hash:true,caps:false} form-control" type="text" name="newcontent[<?= $i; ?>]" value="<?= $item->colors[$i]; ?>" placeholder="Replacement for <?= $item->colors[$i]; ?>">
-																				<label><input name="add-bold" type="checkbox" value="bold" />&nbsp;Make this text bold</label>&nbsp;<label><input name="add-italic" type="checkbox" value="italic" />&nbsp;Make this text <span style="font-style: italics;">italicized</span></label><br />
+																				<label><input name="add-bold" type="checkbox" value="bold" />&nbsp;Make this text bold</label>&nbsp;<label><input name="add-italic" type="checkbox" value="italic" />&nbsp;Make this text <span style="font-style: italic;">italicized</span></label><br />
 																			</div>
 																		<?php endfor; ?>
 																		<button class="submit-content btn btn-default" type="submit">Submit</button>
@@ -378,7 +378,7 @@ function isYouTubeVideo($link_url, $regex)
 																	<input type="hidden" name="reporttype" value="suggestion">
 																	<input type="hidden" name="submittingagain" value="">
 
-																	<?php switch ($item->type):
+																<?php switch ($item->type):
 																case "aSuspiciousLinkText": ?>
 																	<?php case "aLinkTextDoesNotBeginWithRedundantWord": ?>
 																		<div class="form-group no-margin margin-bottom">
@@ -387,6 +387,10 @@ function isYouTubeVideo($link_url, $regex)
 																			<button class="submit-content btn btn-default" type="submit">Submit</button>
 																		</div>
 																		<?php break; ?>
+																	<?php break; ?>
+																<?php case "cssTextStyleEmphasize": ?>
+																	<label><input name="add-bold" type="checkbox" value="bold" />&nbsp;Make this text <span style="font-weight: 900;">bold</span></label>
+																	<label><input name="add-italic" type="checkbox" value="italic" />&nbsp;Make this text <span style="font-style: italic;">italicized</span></label>
 																	<?php break; ?>
 																<?php endswitch; ?>
 															</form>
