@@ -653,7 +653,6 @@ $(document).ready(function() {
 		var preview = $(e.target).parent().parent().parent().parent().find('div.ufixit-preview-canvas');
 
 		if( e.target.checked ) {
-			console.log("CHECKED!!");
 			preview.css("font-style", "italic");
 		} else {
 			preview.css("font-style", "normal");
