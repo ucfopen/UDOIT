@@ -203,11 +203,11 @@ function isYouTubeVideo($link_url, $regex)
 																		<div class="left">
 																			<div class="form-group no-margin margin-bottom">
 																				<?php if ( isset($item->back_color) ): ?>
-																					<label for="newcontent[1]">Replacement for Background Color <?= $item->back_color; ?></label>
+																					<label for="newcontent[1]">Replace Background Color <?= $item->back_color; ?></label>
 																					<input class="color {hash:true,caps:false} form-control back-color" type="text" name="newcontent[1]" value="<?= $item->back_color; ?>" placeholder="Replacement for Background Color <?= $item->back_color; ?>">
 																				<?php endif; ?>
 
-																				<label for="newcontent[0]">Replacement for Foreground Color <?= $item->fore_color; ?></label>&nbsp;<span class="contrast-invalid hidden red"><span class="glyphicon glyphicon-remove"></span>&nbsp;Ratio Invalid (<span class="contrast-ratio"></span>:1)</span>
+																				<label for="newcontent[0]">Replace Foreground Color <?= $item->fore_color; ?></label>&nbsp;<span class="contrast-invalid hidden red"><span class="glyphicon glyphicon-remove"></span>&nbsp;Ratio Invalid (<span class="contrast-ratio"></span>:1)</span>
 																				<input class="color {hash:true,caps:false} form-control fore-color" type="text" name="newcontent[0]" value="<?= $item->fore_color; ?>" placeholder="Replacement for Foreground Color <?= $item->fore_color; ?>">
 																				<label><input name="add-bold" type="checkbox" value="bold" />&nbsp;Make this text bold</label>&nbsp;<label><input name="add-italic" type="checkbox" value="italic" />&nbsp;Make this text <span style="font-style: italics;">italicized</span></label><br />
 																				<input type="text" name="threshold" class="threshold hidden" value="<?= $item->text_type ?>">
@@ -431,11 +431,27 @@ function isYouTubeVideo($link_url, $regex)
 																		<?php break; ?>
 																	<?php break; ?>
 																<?php case "cssTextStyleEmphasize": ?>
-																	<label><input name="add-bold" type="checkbox" value="bold" />&nbsp;Make this text <span style="font-weight: 900;">bold</span></label>
-																	<label><input name="add-italic" type="checkbox" value="italic" />&nbsp;Make this text <span style="font-style: italic;">italicized</span></label>
+																	<div class="left">
+																		<?php if ( isset($item->back_color) ): ?>
+																			<input class="hidden back-color" type="text" name="newcontent[1]" value="<?= $item->back_color; ?>">
+																		<?php endif; ?>
+																		<input class="hidden fore-color" type="text" name="newcontent[0]" value="<?= $item->fore_color; ?>">
+																		
+																		<label><input name="add-bold" type="checkbox" value="bold" />&nbsp;Make this text <span style="font-weight: 900;">bold</span></label>
+																		&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+																		<label><input name="add-italic" type="checkbox" value="italic" />&nbsp;Make this text <span style="font-style: italic;">italicized</span></label>
+																	</div>
+																	<div class="right ufixit-preview">
+																		<div class="ufixit-preview-canvas" name="load-preview">
+																			<p>Text</p>
+																		</div>
+																	</div>
+																	<div class="clear">
+																	<button class="submit-content btn btn-default" type="submit" value="<?= $item->type ?>">Submit</button>
 																	<?php break; ?>
 																<?php endswitch; ?>
-															</form>
+																</form>
+															</div>
 														<?php endif; ?>
 													<?php endif; ?>
 												</div>

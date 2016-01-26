@@ -106,6 +106,17 @@ function checker() {
 
 // updates UFIXIT preview for cssTextStyleEmphasize
 function ufixitCssTextStyleEmphasize( button ) {
+	var back = button.parent().find('input.back-color');
+	var fore = button.parent().find('input.fore-color');
+
+	var bgcolor = "#fff";
+
+	if (back.length !== 0) {
+		bgcolor = $(back).val();
+	}
+
+	var preview = button.parent().find('div.ufixit-preview-canvas');
+	preview.attr("style", "color: " + $(fore).val() + "; background-color: " + bgcolor + ";" );
 	
 }
 // END update UFIXIT Preview on load
@@ -624,4 +635,29 @@ $(document).ready(function() {
 		});
 	});
 	// END update UFIXIT Preview on change of foreground color using Color-Picker
+
+	// updates UFIXIT Preview on change of checkbox for 'bold' styling
+	$(document).on("change", "input[name='add-bold']", function (e) {
+		var preview = $(e.target).parent().parent().parent().parent().find('div.ufixit-preview-canvas');
+
+		if( e.target.checked ) {
+			preview.css("font-weight", "bold");
+		} else {
+			preview.css("font-weight", "normal");
+		}
+	});
+	// END update UFIXIT Preview
+
+	// updates UFIXIT Preview on change of checkbox for 'italic' styling
+	$(document).on("change", "input[name='add-italic']", function (e) {
+		var preview = $(e.target).parent().parent().parent().parent().find('div.ufixit-preview-canvas');
+
+		if( e.target.checked ) {
+			console.log("CHECKED!!");
+			preview.css("font-style", "italic");
+		} else {
+			preview.css("font-style", "normal");
+		}
+	});
+	// END update UFIXIT Preview
 });
