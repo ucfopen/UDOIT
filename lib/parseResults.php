@@ -181,7 +181,7 @@ function isYouTubeVideo($link_url, $regex)
 
 														<?php if (empty($_POST['path'])): ?>
 															<?php if ($item->type === "cssTextHasContrast" || $item->type === "imgHasAlt" || $item->type === "imgNonDecorativeHasAlt" || $item->type === "tableDataShouldHaveTh" || $item->type === "tableThShouldHaveScope" || $item->type === "headersHaveText" || $item->type == "aMustContainText" || $item->type == "imgAltIsDifferent"): ?>
-																<button class="fix-this no-print btn btn-success instance">U FIX IT!</button>
+																<button class="fix-this no-print btn btn-success instance" value="<?= $item->type ?>">U FIX IT!</button>
 																<div class="toolmessage instance">UFIXIT is disabled because this is an old report. Rescan the course to use UFIXIT.</div>
 																<form class="ufixit-form form-horizontal no-print hidden instance" action="lib/process.php" method="post" role="form">
 																	<input type="hidden" name="main_action" value="ufixit">
@@ -199,13 +199,54 @@ function isYouTubeVideo($link_url, $regex)
 
 																	<?php switch ($item->type):
 																	case "cssTextHasContrast": ?>
-																		<?php for ($i = 0; $i < count($item->colors); $i++): ?>
+																	<div class="holder">
+																		<div class="left">
 																			<div class="form-group no-margin margin-bottom">
-																				<label for="newcontent[<?= $i; ?>]">Replacement color for <?= $item->colors[$i]; ?></label>
-																				<input class="color {hash:true,caps:false} form-control" type="text" name="newcontent[<?= $i; ?>]" value="<?= $item->colors[$i]; ?>" placeholder="Replacement for <?= $item->colors[$i]; ?>">
-																				<label><input name="add-bold" type="checkbox" value="bold" />&nbsp;Make this text bold</label>&nbsp;<label><input name="add-italic" type="checkbox" value="italic" />&nbsp;Make this text <span style="font-style: italic;">italicized</span></label><br />
+																				<?php if ( isset($item->back_color) ): ?>
+																					<label for="newcontent[1]">Replacement for Background Color <?= $item->back_color; ?></label>
+																					<input class="color {hash:true,caps:false} form-control back-color" type="text" name="newcontent[1]" value="<?= $item->back_color; ?>" placeholder="Replacement for Background Color <?= $item->back_color; ?>">
+																				<?php endif; ?>
+
+																				<label for="newcontent[0]">Replacement for Foreground Color <?= $item->fore_color; ?></label>&nbsp;<span class="contrast-invalid hidden red"><span class="glyphicon glyphicon-remove"></span>&nbsp;Ratio Invalid (<span class="contrast-ratio"></span>:1)</span>
+																				<input class="color {hash:true,caps:false} form-control fore-color" type="text" name="newcontent[0]" value="<?= $item->fore_color; ?>" placeholder="Replacement for Foreground Color <?= $item->fore_color; ?>">
+																				<input type="text" name="threshold" class="threshold hidden" value="<?= $item->text_type ?>">
 																			</div>
-																		<?php endfor; ?>
+																		</div>
+																		<div class="right ufixit-preview">
+																			<div class="ufixit-preview-canvas" name="load-preview">
+																				<p>Text</p>
+																			</div>
+																		</div>
+																		<div class="clear">
+																			<label for="newcontent[0]">Foreground Color Palette</label>
+																			<ul class="color-picker regular">
+																				<li class="color" value="#888888"><span class="hidden invalid-color">X </span>#888888</li>
+																				<li class="color" value="#F5EB32"><span class="hidden invalid-color">X </span>#F5EB32</li>
+																				<li class="color" value="#70B538"><span class="hidden invalid-color">X </span>#70B538</li>
+																				<li class="color" value="#178E3E"><span class="hidden invalid-color">X </span>#178E3E</li>
+																				<li class="color" value="#225E9D"><span class="hidden invalid-color">X </span>#225E9D</li>
+																				<li class="color" value="#163D76"><span class="hidden invalid-color">X </span>#163D76</li>
+																				<li class="color" value="#202164"><span class="hidden invalid-color">X </span>#202164</li>
+																				<li class="color" value="#6A1C68"><span class="hidden invalid-color">X </span>#6A1C68</li>
+																				<li class="color" value="#CA1325"><span class="hidden invalid-color">X </span>#CA1325</li>
+																				<li class="color" value="#D44A25"><span class="hidden invalid-color">X </span>#D44A25</li>
+																				<li class="color" value="#DF7A2A"><span class="hidden invalid-color">X </span>#DF7A2A</li>
+																			</ul>
+																			<ul class="color-picker short margin-bottom">
+																				<li class="color" value="#000000"><span class="hidden invalid-color">X </span>#000000</li>
+																				<li class="color" value="#99962F"><span class="hidden invalid-color">X </span>#99962F</li>
+																				<li class="color" value="#4B7631"><span class="hidden invalid-color">X </span>#4B7631</li>
+																				<li class="color" value="#155F2E"><span class="hidden invalid-color">X </span>#155F2E</li>
+																				<li class="color" value="#183F6A"><span class="hidden invalid-color">X </span>#183F6A</li>
+																				<li class="color" value="#1B294C"><span class="hidden invalid-color">X </span>#1B294C</li>
+																				<li class="color" value="#1A1A40"><span class="hidden invalid-color">X </span>#1A1A40</li>
+																				<li class="color" value="#451843"><span class="hidden invalid-color">X </span>#451843</li>
+																				<li class="color" value="#7D1820"><span class="hidden invalid-color">X </span>#7D1820</li>
+																				<li class="color" value="#843322"><span class="hidden invalid-color">X </span>#843322</li>
+																				<li class="color" value="#8A5126"><span class="hidden invalid-color">X </span>#8A5126</li>
+																			</ul>
+																		</div>
+																	</div>
 																		<button class="submit-content btn btn-default" type="submit">Submit</button>
 																		<?php break; ?>
 																	<?php case "headersHaveText": ?>

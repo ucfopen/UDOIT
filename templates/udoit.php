@@ -5,7 +5,8 @@ $settings = [
 		"//code.jquery.com/jquery-2.1.1.min.js",
 		"//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js",
 		"assets/js/jscolor/jscolor.js",
-		"assets/js/default.js?c=0",
+		"assets/js/default.js?c=4",
+		"assets/js/contrast.js",
 	]
 ];
 
