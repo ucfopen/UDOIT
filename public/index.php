@@ -18,7 +18,6 @@
 *	Primary Author Contact:  Jacob Bates <jacob.bates@ucf.edu>
 */
 require_once('../config/settings.php');
-require_once('../lib/ims-blti/blti.php');
 
 use Httpful\Request;
 
@@ -27,14 +26,14 @@ ini_set("display_errors", 1);
 session_start();
 header('Content-Type: text/html; charset=utf-8');
 
-$templates = new League\Plates\Engine('templates');
+$templates = new League\Plates\Engine('../templates');
 
 if ( ! isset($_SESSION['valid'])) {
 	$_SESSION['valid'] = false;
 }
 
 if ($_SESSION['valid'] === false) {
-	include_once('lib/ims-blti/blti.php');
+	require_once('../lib/ims-blti/blti.php');
 	// Initialize, all secrets are 'secret', do not set session, and do not redirect
 	$context = new BLTI($consumer_key, $shared_secret, false, false);
 
