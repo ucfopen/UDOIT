@@ -197,6 +197,7 @@ function isYouTubeVideo($link_url, $regex)
 																			<div class="form-group no-margin margin-bottom">
 																				<label for="newcontent[<?= $i; ?>]">Replacement color for <?= $item->colors[$i]; ?></label>
 																				<input class="color {hash:true,caps:false} form-control" type="text" name="newcontent[<?= $i; ?>]" value="<?= $item->colors[$i]; ?>" placeholder="Replacement for <?= $item->colors[$i]; ?>">
+																				<label><input name="add-bold" type="checkbox" value="bold" />&nbsp;Make this text bold</label>&nbsp;<label><input name="add-italic" type="checkbox" value="italic" />&nbsp;Make this text <span style="font-style: italics;">italicized</span></label><br />
 																			</div>
 																		<?php endfor; ?>
 																		<button class="submit-content btn btn-default" type="submit">Submit</button>

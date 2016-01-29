@@ -1,13 +1,7 @@
 <?php
 
 class Config {
-    const DEBUG             = getenv("DEBUG"):?false;
-
-    /* This tests to see if the user came from something other than the URL of your LMS */
-    const REFERER_TEST      = getenv('REFERER_TEST');
-
-    /* Set the path for the base directory (where the user will start choosing from) */
-    const BASE_URL          = getenv('BASE_URL'); // Without trailing slash
+    const DEBUG             = (getenv("DEBUG")) ?: false;
 
     /* Oauth 1.0 Settings (For use when installing the app in Canvas) */
     const CONSUMER_KEY      = getenv('CONSUMER_KEY');

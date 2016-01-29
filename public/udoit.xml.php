@@ -36,12 +36,15 @@ echo '<?xml version="1.0" encoding="UTF-8"?>';
 	http://www.imsglobal.org/xsd/imslticp_v1p0 http://www.imsglobal.org/xsd/lti/ltiv1p0/imslticp_v1p0.xsd">
 	<blti:title>UDOIT</blti:title>
 	<blti:description>This tool allows you scan your courses and check for common accessibility issues.</blti:description>
-	<blti:icon></blti:icon>
+	<blti:icon><?= $servername ?>/assets/img/udoit_logo.png</blti:icon>
 	<blti:launch_url><?= $launch ?></blti:launch_url>
 	<blti:extensions platform="canvas.instructure.com">
 		<lticm:property name="tool_id">udoit</lticm:property>
 		<lticm:property name="privacy_level">public</lticm:property>
 		<lticm:property name="domain"><?= $_SERVER['SERVER_NAME'] ?></lticm:property>
+		<lticm:options name="custom_fields">
+			<lticm:property name="canvas_api_domain">$Canvas.api.domain</lticm:property>
+		</lticm:options>
 		<lticm:options name="course_navigation">
 			<lticm:property name="url"><?= $launch ?></lticm:property>
 			<lticm:property name="default">enabled</lticm:property>

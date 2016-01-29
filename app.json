@@ -1,0 +1,60 @@
+{
+  "name": "UDOIT",
+  "description": "The Universal Design Online content Inspection Tool, or UDOIT identifies and fixes accessibility issues in Canvas by Instructure.",
+  "keywords": [
+    "education",
+    "canvas",
+    "CDL",
+    "EDU",
+    "UCF",
+    "Instructure",
+    "508"
+  ],
+  "website": "http://online.ucf.edu/teach-online/resources/udoit/",
+  "repository": "https://github.com/ucfcdl/UDOIT",
+  "success_url": "/",
+  "env": {
+    "CONSUMER_KEY": {
+      "description": "LTI consumer key entered when adding UDOIT LTI to Canvas",
+      "generator": "secret"
+    },
+    "SHARED_SECRET": {
+      "description": "LTI secret entered when adding UDOIT LTI to Canvas",
+      "generator": "secret"
+    },
+    "OAUTH2_ID": {
+      "description": "Oauth ID from the developer api key created by your admin",
+      "generator": "secret"
+    },
+    "OAUTH2_KEY": {
+      "description": "Oauth Key from the developer api key created by your admin",
+      "generator": "secret"
+    },
+    "OAUTH2_URI": {
+      "description": "Full url to your oauth2responce.php file",
+      "value": "https://your.herokuapp.com/oauth2response.php"
+    },
+    "GOOGLE_API_KEY": {
+      "description": "add a google api key for youtube video support",
+      "required": false
+    },
+    "USE_HEROKU_CONFIG": {
+      "description": "needed to use the Heroku configuration",
+      "value": "true"
+    }
+  },
+  "addons": [
+    "heroku-postgresql:hobby-dev"
+  ],
+  "buildpacks": [
+    {
+      "url": "https://github.com/heroku/heroku-buildpack-nodejs"
+    },
+    {
+      "url": "https://github.com/heroku/heroku-buildpack-php"
+    }
+  ],
+  "scripts": {
+    "postdeploy": "php db_pg_setup.php"
+  }
+}

@@ -10,5 +10,7 @@ try {
 			throw new \RuntimeException("Database type Config::DB_TYPE not supported.");
 	}
 } catch (\RuntimeException $e) {
-    echo 'Connection failed: ' . $e->getMessage();
+    error_log("Database Connection Error");
+    error_log($e->getMessage());
+    echo 'Database Connection error';
 }

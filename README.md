@@ -28,7 +28,7 @@ UDOIT uses the [QUAIL PHP library](https://code.google.com/p/quail-lib/), which 
 
 ## Installing
 
-UDOIT uses php, apache or nginx, and mysql or postresql.  For instructions on installing to Heroku, view [HEROKU.md](HEROKU.md).
+UDOIT uses php, apache or nginx, and mysql or postresql.  For instructions on installing to Heroku, view [HEROKU.md](HEROKU.md).  We also support instantly deploying UDOIT: [![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy)
 
 ### System Requirements
 *PHP 5.4 is required* to run UDOIT without any modifications.  We have not tested it on 5.5 or 5.6, but some users have been able to modify the code to work on 5.3.
@@ -38,13 +38,18 @@ If you're using PHP 5.3:
 * Convert all empty array initializations from using the newer `[]` syntax to use the older `array()` syntax.
 * If you have `short_open_tag` disabled, you'll need to change all `<?=` to `<?php echo`
 
-### Dependencies
+### Bower Dependencies
+[Bower](http://bower.io/) is used to install external JavaScript Dependencies. Composer automatically runs Bower during install in the next step, so install Bower before continuing.
+
+> Currently there is only one bower library installed. You can also install manually by placing [JSColor](https://github.com/callumacrae/JSColor) library contents in `assets/js/vendor/JSColor/`.
+
+### Composer Dependencies
+
 UDOIT uses [Composer](https://getcomposer.org/) to manage its dependencies, so `cd` into your UDOIT directory and run this command before anything else:
 
 ```
 $ php composer.phar install
 ```
-
 
 The libraries (other then Quail) that we rely on:
 
@@ -112,14 +117,9 @@ CREATE TABLE users (
 ## Configuration
 Make a copy of `config/localConfig.template.php`, rename it to `localConfig.php`.
 
-### Miscellaneous
-
-* `$referer_test` This is a regular expression that lets UDOIT detect whether the user accessed UDOIT from the correct URL.  For instance, UCF's value for this is: `$referer_test = '/(webcourses.ucf.edu)/';`
-
 ### Canvas API
 Please refer to the [Canvas API Policy](http://www.canvaslms.com/policies/api-policy) before using this application, as it makes heavy use of the Canvas API.
 
-* `$base_url`: The URL of your Canvas installation
 * `$consumer_key`: A consumer key you make up.  Used when installing the LTI in Canvas.
 * `$shared_secret`: The shared secret you make up.  Used when installing the LTI in Canvas.
 
