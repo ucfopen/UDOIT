@@ -33,7 +33,7 @@
 	
 	$fullReport = array();
 	
-	require_once('../quail/quail.php');
+	require_once('../lib/quail/quail/quail.php');
 	
 	foreach($test as $html) {
 		$error = 0;

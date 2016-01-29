@@ -1,7 +1,7 @@
 <?php
 
 require_once('mediaService.php');
-require_once('../config/localConfig.php');
+// require_once('../config/localConfig.php');
 use Httpful\Request;
 
 /**

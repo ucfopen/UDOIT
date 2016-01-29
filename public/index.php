@@ -17,8 +17,8 @@
 *
 *	Primary Author Contact:  Jacob Bates <jacob.bates@ucf.edu>
 */
-require_once('vendor/autoload.php');
-require_once('config/localConfig.php');
+require_once('../config/settings.php');
+
 use Httpful\Request;
 
 error_reporting(E_ALL & ~E_NOTICE);
@@ -26,18 +26,20 @@ ini_set("display_errors", 1);
 session_start();
 header('Content-Type: text/html; charset=utf-8');
 
-$templates = new League\Plates\Engine('templates');
+$templates = new League\Plates\Engine('../templates');
 
 if ( ! isset($_SESSION['valid'])) {
 	$_SESSION['valid'] = false;
 }
 
 if ($_SESSION['valid'] === false) {
-	include_once('lib/ims-blti/blti.php');
+	require_once('../lib/ims-blti/blti.php');
 	// Initialize, all secrets are 'secret', do not set session, and do not redirect
 	$context = new BLTI($consumer_key, $shared_secret, false, false);
 
 	if ( ! $context->valid) {
+		error_log("BLTI not valid: our key: {$consumer_key}");
+		error_log($context->message);
 		$error = 'Configuration problem, please ensure that your instance of UDOIT is configured correctly.';
 		echo $templates->render('error', ['error' => $error]);
 		exit();
@@ -79,16 +81,9 @@ if( isset($_POST['custom_canvas_api_domain']) ){
 		die();
 }
 
-// Pull the API key from the database
-try {
-	$dsn = "mysql:dbname=$db_name;host=$db_host";
-	$dbh = new PDO($dsn, $db_user, $db_password);
-} catch (PDOException $e) {
-	$_SESSION['valid'] = false;
-	echo $templates->render('error', ['error' => 'Connection failed: ' . $e->getMessage()]);
-	exit();
-}
+$dbh = include('../lib/db.php');
 
+// Pull the API key from the database
 $sth = $dbh->prepare("SELECT * FROM $db_user_table WHERE id=:userid LIMIT 1");
 $sth->bindParam(':userid', $_SESSION['launch_params']['custom_canvas_user_id'], PDO::PARAM_INT);
 $sth->execute();

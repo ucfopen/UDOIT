@@ -17,17 +17,10 @@
 *
 *	Primary Author Contact:  Jacob Bates <jacob.bates@ucf.edu>
 */
-include_once('../config/localConfig.php');
+require_once('../config/settings.php');
 
 if (isset($_POST['cached_id'])) {
-	// saves the report to the database
-	$dsn = "mysql:dbname=$db_name;host=$db_host";
-
-	try {
-	    $dbh = new PDO($dsn, $db_user, $db_password);
-	} catch (PDOException $e) {
-	    echo 'Connection failed: ' . $e->getMessage();
-	}
+	$dbh = include('../lib/db.php');
 
 	$sth = $dbh->prepare("
 	    SELECT * FROM
@@ -39,7 +32,8 @@ if (isset($_POST['cached_id'])) {
 	$sth->bindParam(':cachedid', $_POST['cached_id'], PDO::PARAM_INT);
 
 	if (!$sth->execute()) {
-	    die('Ya done goof\'d');
+		error_log(print_r($sth->errorInfo(), true));
+	    die('Error searching for report');
 	}
 
 	$the_json     = file_get_contents($sth->fetchAll(PDO::FETCH_OBJ)[0]->file_path);

@@ -17,7 +17,7 @@
 *
 *	Primary Author Contact:  Jacob Bates <jacob.bates@ucf.edu>
 */
-require '../vendor/autoload.php';
+require_once('../config/settings.php');
 
 use zz\Html\HTMLMinify;
 
@@ -42,5 +42,3 @@ $pdf->WriteHTML($stylesheet, 1);
 $pdf->WriteHTML($html, 2);
 
 $pdf->Output($title.'_'.date("Y-m-d_g:i-a").'.pdf', 'D');
-
-exit();
