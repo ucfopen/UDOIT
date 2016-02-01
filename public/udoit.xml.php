@@ -17,12 +17,13 @@
 *
 *	Primary Author Contact:  Jacob Bates <jacob.bates@ucf.edu>
 */
-	$servername = 'https://' . $_SERVER['SERVER_NAME'];
-	$scriptname=end(explode('/',$_SERVER['PHP_SELF']));
-	$scriptpath=str_replace($scriptname,'',$_SERVER['PHP_SELF']);
-	$launch = $servername . $scriptpath;
-	header('Content-type: text/xml');
-	echo '<?xml version="1.0" encoding="UTF-8"?>';
+$servername = 'https://' . $_SERVER['SERVER_NAME'];
+$scriptname=end(explode('/',$_SERVER['PHP_SELF']));
+$scriptpath=str_replace($scriptname,'',$_SERVER['PHP_SELF']);
+$launch = $servername . $scriptpath;
+header('Content-type: text/xml');
+echo '<?xml version="1.0" encoding="UTF-8"?>';
+
 ?>
 <cartridge_basiclti_link xmlns="http://www.imsglobal.org/xsd/imslticc_v1p0"
 	xmlns:blti = "http://www.imsglobal.org/xsd/imsbasiclti_v1p0"
@@ -35,7 +36,7 @@
 	http://www.imsglobal.org/xsd/imslticp_v1p0 http://www.imsglobal.org/xsd/lti/ltiv1p0/imslticp_v1p0.xsd">
 	<blti:title>UDOIT</blti:title>
 	<blti:description>This tool allows you scan your courses and check for common accessibility issues.</blti:description>
-	<blti:icon></blti:icon>
+	<blti:icon><?= $servername ?>/assets/img/udoit_logo.png</blti:icon>
 	<blti:launch_url><?= $launch ?></blti:launch_url>
 	<blti:extensions platform="canvas.instructure.com">
 		<lticm:property name="tool_id">udoit</lticm:property>

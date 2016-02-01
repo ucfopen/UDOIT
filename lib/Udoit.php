@@ -17,8 +17,8 @@
 *
 *   Primary Author Contact:  Jacob Bates <jacob.bates@ucf.edu>
 */
-require_once '../core/quail/quail.php';
-require '../vendor/autoload.php';
+require_once('../vendor/autoload.php');
+require_once('quail/quail/quail.php');
 
 use Httpful\Request;
 

@@ -7,6 +7,7 @@ $settings = [
 		"assets/js/jscolor/jscolor.js",
 		"assets/js/default.js?c=4",
 		"assets/js/contrast.js",
+		"assets/js/default.js?cachebuster=".time(),
 	]
 ];
 

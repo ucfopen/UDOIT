@@ -1,46 +1,5 @@
 <?php
 
-/* Oauth 1.0 Settings (For use when installing the app in Canvas) */
-$consumer_key  = '';
-$shared_secret = '';
-
-/* Oauth 2.0 Settings (Provided by Instructure) */
-$oauth2_id  = '';
-$oauth2_key = '';
-$oauth2_uri = '';
-
-/* Disable headings check character count */
-$doc_length = '1500';
-
-/* Google/YouTube Data Api Key */
-define( 'GOOGLE_API_KEY', '');
-
-/* Database Config */
-$db_type          = 'mysql'; // 'mysql' or 'pgsql'
-$db_host          = ''; // localhost or some other domain/ip
-$db_port          = '3306';
-$db_user          = '';
-$db_password      = '';
-$db_name          = '';
-$db_user_table    = 'users';
-$db_reports_table = 'reports';
-$dsn              = "{$db_type}:host={$db_host};port={$db_port};dbname={$db_name}";
-
-$debug = false;
-<<<<<<< HEAD
-
-/* Messages */
-$udoit_welcome_message = 'The Universal Design Online content Inspection Tool (U<strong>DO</strong>IT) was created by the Center for Distributed Learning at the University of Central Florida. U<strong>DO</strong>IT will scan your course content, generate a report and provide instructions on how to correct accessibility issues. Funding for U<strong>DO</strong>IT was provided by a Canvas Grant awarded in 2014.';
-$error_msg_wrong_referrer = 'It looks like you tried to access UDOIT from a website other than Canvas.  Please contact support.';
-$error_msg_no_referrer = 'Your web browser did not provide a referrer.  Please contact support.';
-
-/* Resource links */
-$resource_link = [
-    'doc' => 'http://webaim.org/techniques/word/',
-    'pdf' => 'http://webaim.org/techniques/acrobat/',
-    'ppt' => 'http://webaim.org/techniques/powerpoint/',
-];
-
 /* UDOIT test descriptions and examples */
 /* refer to /quail/guidelines/section508.php to view currently enabled tests */
 $udoit_tests = [
@@ -157,7 +116,7 @@ $udoit_tests = [
         [
             'name'      => 'cssTextHasContrast',
             'title'     => 'Insufficient text color contrast with the background',
-            'desc'      => '<p>Text color should be easily viewable and should not be the only indicator of meaning or function. Color balance should have at least a 4.5:1 ratio for small text and 3:1 ratio for large text..</p>',
+            'desc'      => '<p>Text color should be easily viewable and should not be the only indicator of meaning or function. Color balance should have at least a 4.5:1 ratio.</p>',
             'resources' => [
                 '<a href="http://webaim.org/blog/wcag-2-0-and-link-colors/">Resource Link</a>',
                 'WCAG Standard <a href="http://www.w3.org/TR/WCAG20/#visual-audio-contrast-contrast">1.4.3</a>',
@@ -167,19 +126,6 @@ $udoit_tests = [
                 <div class="well well-sm"><p class="no-margin" style="color:yellow">Bad contrasting text</p></div>
                 <p class="text-success">Correct</p>
                 <div class="well well-sm no-margin"><p class="no-margin" style="color:goldenrod">Good contrasting text</p></div>
-            ',
-        ],
-        [
-            'name'      => 'cssTextStyleEmphasize',
-            'title'     => 'Avoid using color alone for emphasis',
-            'desc'      => '<p>When emphasizing text, you may use color with sufficient contrast as long as you also apply some other form of emphasis, such as bold or italics. This ensures that screen reader users are aware of the text\'s importance.</p>',
-            'resources' => [
-                '<a href="https://www.w3.org/TR/WCAG20-TECHS/H49.html">Resource Link</a>',
-            ],
-            'example'   => '
-                <p class="text-success">Correct</p>
-                <div class="well well-sm no-margin"><p class="no-margin">...What she <em>really</em> meant to say was, &quot;This is not ok, 
- it is <strong>excellent</strong>&quot;!...</p></div>
             ',
         ],
         [
@@ -243,34 +189,6 @@ $udoit_tests = [
             'resources' => ['WCAG Standard: <a href="http://www.w3.org/TR/UNDERSTANDING-WCAG20/media-equiv.html">1.2</a>',],
             'example'   => '',
         ],
-        // [
-        //     'name'      => 'objectLinkToMultimediaHasTextTranscript',
-        //     'title'     => 'Multimedia objects should have text equivalents (e.g., transcripts).',
-        //     'desc'      => '<p>Multimedia objects should be accompanied by a link to a transcript of the content.</p>',
-        //     'resources' => [
-        //         'WCAG Standard: <a href="http://www.w3.org/TR/WCAG20/#media-equiv">1.2.1</a>',
-        //     ],
-        //     'example'   => '
-        //         <p class="text-danger">Incorrect</p>
-        //         <pre><code>'. htmlspecialchars('<object src="video.mov"></object>') .'</code></pre>
-        //         <p class="text-success">Correct</p>
-        //         <pre><code>'. htmlspecialchars('<object src="video.mov"></object><a href="transcript.html">Read Transcript of the video</a>') .'</code></pre>
-        //     ',
-        // ],
-        // [
-        //     'name'      => 'aLinksToMultiMediaRequireTranscript',
-        //     'title'     => 'Multimedia objects should have text equivalents (e.g., transcripts).',
-        //     'desc'      => '<p>Multimedia objects should be accompanied by a link to a transcript of the content.</p>',
-        //     'resources' => [
-        //         'WCAG Standard: <a href="http://www.w3.org/TR/WCAG20/#media-equiv">1.2.1</a>',
-        //     ],
-        //     'example'   => '
-        //         <p class="text-danger">Incorrect</p>
-        //         <pre><code>'. htmlspecialchars('<a href="interview.mov">Watch the interview</a>') .'</code></pre>
-        //         <p class="text-success">Correct</p>
-        //         <pre><code>'. htmlspecialchars('<a href="interview.mov">Watch the interview</a> <a href="transcript.html">(transcript)</a>') .'</code></pre>
-        //     ',
-        // ],
         [
             'name'      => 'headersHaveText',
             'title'     => 'Headings should contain text',
@@ -309,5 +227,3 @@ $udoit_tests = [
         ],
     ],
 ];
-=======
->>>>>>> f97ae963868925c766a7ac0c1596f6d1e9d90ef1
