@@ -28,6 +28,8 @@ UDOIT uses the [QUAIL PHP library](https://code.google.com/p/quail-lib/), which 
 
 ## Installing
 
+UDOIT uses php, apache or nginx, and mysql or postresql.  For instructions on installing to Heroku, view [HEROKU.md](HEROKU.md).  We also support instantly deploying UDOIT: [![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy)
+
 ### System Requirements
 *PHP 5.4 is required* to run UDOIT without any modifications.  We have not tested it on 5.5 or 5.6, but some users have been able to modify the code to work on 5.3.
 
@@ -66,6 +68,7 @@ There are only two tables required to run UDOIT.  They are:
 ### Reports Table
 
 ```sql
+/* mysql */
 CREATE TABLE `reports` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `user_id` int(10) unsigned NOT NULL,
@@ -76,11 +79,24 @@ CREATE TABLE `reports` (
   `suggestions` int(10) unsigned NOT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+/* postgresql */
+CREATE TABLE reports (
+  id SERIAL PRIMARY KEY,
+  user_id integer,
+  course_id integer,
+  file_path text,
+  date_run bigint,
+  errors integer,
+  suggestions integer
+);
 ```
+
 
 ### Users Table
 
 ```sql
+/* mysql */
 CREATE TABLE `users` (
   `id` int(10) unsigned NOT NULL,
   `api_key` varchar(255) NOT NULL,
@@ -88,7 +104,15 @@ CREATE TABLE `users` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `id` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+/* postgresql */
+CREATE TABLE users (
+  id integer CONSTRAINT users_pk PRIMARY KEY,
+  api_key varchar(255),
+  date_created integer
+);
 ```
+
 
 ## Configuration
 Make a copy of `config/localConfig.template.php`, rename it to `localConfig.php`.
@@ -110,7 +134,7 @@ UDOIT uses Oauth2 to take actions on behalf of the user, you'll need to [sign up
 These value of these vars should be obvious:
 
 * `$db_host`
-* `$db_user`
+* `$db_url`
 * `$db_password`
 * `$db_name`
 * `$db_user_table`

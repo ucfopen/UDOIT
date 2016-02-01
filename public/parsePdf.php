@@ -23,6 +23,7 @@ $_SESSION['pdf_generated'] = false;
 session_write_close();
 
 require '../vendor/autoload.php';
+require_once('../config/settings.php');
 
 use zz\Html\HTMLMinify;
 

@@ -77,7 +77,7 @@ function checker() {
 	}
 
 	$.ajax({
-		url: "./lib/process.php",
+		url: "process.php",
 		type: "POST",
 		data: {
 			main_action: main_action,
@@ -155,7 +155,7 @@ $(document).ready(function() {
 		clearInterval(progressTimer);
 		progressTimer = setInterval(function(){
 			$.ajax({
-				url: 'lib/progress.php',
+				url: 'progress.php',
 				error: function(xhr, status, error) {
 					clearInterval(progressTimer);
 				},
@@ -246,10 +246,10 @@ $(document).ready(function() {
 		}
 	});
 	// ((tooltip on old reports))
-	$(document).on("mouseover", "#cached button.fix-this", function() {	
+	$(document).on("mouseover", "#cached button.fix-this", function() {
 		$('.toolmessage').stop().fadeIn().css("display","inline-block");
 	});
-	
+
 	// $('#cached button.fix-this').hover(
 	// 	function(){
 	// 		$('.toolmessage').stop(true, true).fadeOut();
@@ -278,7 +278,7 @@ $(document).ready(function() {
 
 		parent.find('.alert').remove();
 		$.ajax({
-			url: "./lib/process.php",
+			url: "process.php",
 			type: "POST",
 			data: values,
 			success: function(data) {
@@ -299,7 +299,6 @@ $(document).ready(function() {
 						parent.parent().parent().find('.badge-error').addClass('badge-success');
 						parent.parent().parent().find('h5').removeClass('text-danger').addClass('text-success');
 					}
-					
 				}
 			},
 			error: function(data) {
@@ -324,7 +323,7 @@ $(document).ready(function() {
 		var main_action = "cached";
 		var cached_id   = $(this).attr('id');
 
-		$.post("./lib/parseResults.php", { main_action: main_action, cached_id: cached_id }, function(data) {
+		$.post("parseResults.php", { main_action: main_action, cached_id: cached_id }, function(data) {
 			$('#resultsTable').fadeOut();
 			$('#cached').append('<div id="result">'+data+'</div>');
 			$('#result').fadeIn();
@@ -363,7 +362,7 @@ $(document).ready(function() {
 		result_html.find('a.list-group-item').after('<br>');
 		result_html.find('.fix-success').remove();
 
-		var form = $('<form action="./lib/parsePdf.php" method="post">' +
+		var form = $('<form action="parsePdf.php" method="post">' +
 		  '<input type="hidden" name="result_html" />' +
 		  '<input type="hidden" name="context_title" value="'+ context_title +'"/>' +
 		  '</form>');
@@ -401,7 +400,7 @@ $(document).ready(function() {
 		}
 
 		$.ajax({
-			url: "./lib/cached.php",
+			url: "cached.php",
 			type: "GET",
 			success: function(data) {
 				$("#cached").html(data);

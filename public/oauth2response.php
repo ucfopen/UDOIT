@@ -17,8 +17,8 @@
 *
 *	Primary Author Contact:  Jacob Bates <jacob.bates@ucf.edu>
 */
-include_once('config/localConfig.php');
-include_once('vendor/autoload.php');
+require_once('../config/settings.php');
+
 session_start();
 
 function printError($msg){
@@ -69,19 +69,25 @@ if (isset($_GET['code'])) {
 	$_SESSION['api_key'] = $response->access_token;
 
 	// Save API Key to DB
-	$dsn = "mysql:dbname=$db_name;host=$db_host";
+	$dbh = include('../lib/db.php');
 
-	try {
-		$dbh = new PDO($dsn, $db_user, $db_password);
-	} catch (PDOException $e) {
-		echo 'Connection failed: ' . $e->getMessage();
+
+	$sth = $dbh->prepare("SELECT * FROM $db_user_table WHERE id=:userid");
+	$sth->bindParam(':userid', $_SESSION['launch_params']['custom_canvas_user_id'], PDO::PARAM_INT);
+	$sth->execute();
+
+	if($sth->rowCount()) {
+		$sth = $dbh->prepare("UPDATE $db_user_table (api_key, date_created) VALUES (:key, :time)");
+	}
+	else {
+		$sth = $dbh->prepare("INSERT INTO $db_user_table (id, api_key, date_created) VALUES (:userid, :key, :time)");
+		$sth->bindParam(':userid', $_SESSION['launch_params']['custom_canvas_user_id'], PDO::PARAM_INT);
 	}
 
-	$sth = $dbh->prepare("INSERT INTO $db_user_table (id, api_key, date_created) VALUES (:userid, :key, NOW()) ON DUPLICATE KEY UPDATE api_key=VALUES(api_key)");
-	$sth->bindParam(':userid', $_SESSION['launch_params']['custom_canvas_user_id'], PDO::PARAM_INT);
 	$sth->bindParam(':key', $_SESSION['api_key'], PDO::PARAM_STR);
+	$sth->bindValue(':time', time(), PDO::PARAM_INT);
 	$sth->execute();
-	
+
 	session_write_close();
 	header('Location:index.php');
 } elseif (isset($_GET['error'])) {

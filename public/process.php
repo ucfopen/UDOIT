@@ -17,11 +17,10 @@
 *
 *   Primary Author Contact:  Jacob Bates <jacob.bates@ucf.edu>
 */
-require_once('../config/localConfig.php');
-require_once('../core/quail/quail.php');
-require('../vendor/autoload.php');
-include 'Udoit.php';
-include 'Ufixit.php';
+require_once('../config/settings.php');
+require_once('../lib/quail/quail/quail.php');
+require_once('../lib/Udoit.php');
+require_once('../lib/Ufixit.php');
 
 session_start();
 
@@ -77,26 +76,16 @@ switch ($_POST['main_action']) {
         file_put_contents($file, $encoded_report);
         chmod($file, 0777);
 
-        // saves the report to the database
-        $dsn = "mysql:dbname=$db_name;host=$db_host";
-
-        try {
-            $dbh = new PDO($dsn, $db_user, $db_password);
-        } catch (PDOException $e) {
-            echo 'Connection failed: ' . $e->getMessage();
-        }
+        $dbh = include('../lib/db.php');
 
         $sth = $dbh->prepare("
             INSERT INTO
                 $db_reports_table
-            SET
-                user_id=:userid,
-                course_id=:courseid,
-                file_path=:filepath,
-                date_run=NOW(),
-                errors=:errors,
-                suggestions=:suggestions
-        ");
+                (user_id, course_id, file_path, date_run, errors, suggestions)
+            VALUES
+                (:userid, :courseid, :filepath, :time, :errors, :suggestions)");
+        $now = time();
+        $sth->bindParam(':time', $now, PDO::PARAM_INT);
         $sth->bindParam(':userid', $user_id, PDO::PARAM_INT);
         $sth->bindParam(':courseid', $data['course_id'], PDO::PARAM_INT);
         $sth->bindParam(':filepath', $file, PDO::PARAM_STR);
@@ -104,7 +93,8 @@ switch ($_POST['main_action']) {
         $sth->bindParam(':suggestions', $udoit->total_results['suggestions'], PDO::PARAM_STR);
 
         if (!$sth->execute()) {
-            die('Ya done goof\'d');
+            error_log(print_r($sth->errorInfo(), true));
+            die('Error inserting report into database');
         }
 
         $udoit_report = json_decode($encoded_report);
