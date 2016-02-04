@@ -274,14 +274,30 @@ class Udoit
 
                 break;
             case 'files':
-                $url = $this->base_uri.'/api/v1/courses/'.$this->course_id.'/files?page=1&per_page='.$per_page.'&access_token='.$this->api_key;
+                $url_file = $this->base_uri.'/api/v1/courses/'.$this->course_id.'/files?page=1&per_page='.$per_page.'&access_token='.$this->api_key;
 
                 do {
-                    $response  = Request::get($url)->send();
-                    $the_links = $this->parseLinks($response->headers->toArray()['link']);
+                    $response_files  = Request::get($url_file)->send();
+                    $the_links = $this->parseLinks($response_files->headers->toArray()['link']);
 
 
-                    foreach ($response->body as $thing) {
+                    foreach ($response_files->body as $thing) {
+                        $url_folder = $this->base_uri.'/api/v1/folders/'.$thing->folder_id.'?access_token='.$this->api_key;
+                        $response_folder = Request::get($url_folder)->send();
+
+                        $directory = preg_replace('/^course files/i', 'root', $response_folder->body->full_name);
+
+                        if ($directory === 'root') {
+                            $directory_url = $this->base_uri.'courses/'.$this->course_id.'/files/';
+                        } else {
+                            $directory_url = preg_replace('/^root/i', '', $directory);
+                            $directory_url = preg_replace('/ /', '%20', $directory_url);
+                            $directory_url = $this->base_uri.'courses/'.$this->course_id.'/files/folder'.$directory_url;
+                        }
+
+                        $thing->directory = $directory;
+                        $thing->directory_url = $directory_url;
+
                         $the_content[] = $thing;
                     }
 
@@ -368,8 +384,10 @@ class Udoit
                         if ($extension !== 'html' && $extension !== 'htm') {
                             if ($extension === 'pdf' || $extension === 'doc' || $extension === 'docx' || $extension === 'ppt' || $extension === 'pptx') {
                                 array_push($content_result['unscannable'], [
-                                    'title' => $single->display_name,
-                                    'url'   => $single->url
+                                    'title'         => $single->display_name,
+                                    'url'           => $single->url,
+                                    'directory'     => $single->directory,
+                                    'directory_url' => $single->directory_url
                                     ]
                                 );
                             }
