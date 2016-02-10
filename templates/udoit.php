@@ -4,8 +4,8 @@ $settings = [
 	'footer_scripts' => [
 		"//code.jquery.com/jquery-2.1.1.min.js",
 		"//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js",
-		"assets/js/jscolor/jscolor.js",
-		"assets/js/default.js?cachebuster=".time(),
+		"assets/js/vendor/JSColor/jscolor.js",
+		"assets/js/default.js?cachebuster=".time()
 	]
 ];
 
