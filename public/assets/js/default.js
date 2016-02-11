@@ -132,7 +132,7 @@ function ufixitCssTextHasContrast( button ) {
 	var contrast_ratio = 0;
 
 	var bgcolor = "#fff";
-	var threshold = (text_type === 'text')? 4.5: 3;
+	var threshold = (text_type.attr('value') === 'text')? 4.5: 3;
 
 	if (back.length !== 0) {
 		bgcolor = $(back).val();
@@ -513,7 +513,7 @@ $(document).ready(function() {
 		var cr = $(e.target).parent().parent().parent().find('span.contrast-ratio');
 		var contrast_ratio = 0;
 
-		var threshold = (text_type === 'text')? 4.5: 3;
+		var threshold = (text_type.attr('value') === 'text')? 4.5: 3;
 		var bgcolor = $(e.target).val();
 
 		contrast_ratio = contrastRatio( $(e.target).val(), $(fore).val() );
@@ -559,7 +559,7 @@ $(document).ready(function() {
 			bgcolor = $(back).val();
 		}
 
-		var threshold = (text_type === 'text')? 4.5: 3;
+		var threshold = (text_type.attr('value') === 'text')? 4.5: 3;
 
 		contrast_ratio = contrastRatio( bgcolor, $(e.target).val() );
 		$(cr).html( contrast_ratio.toFixed(2) );
@@ -602,7 +602,7 @@ $(document).ready(function() {
 			bgcolor = $(back).val();
 		}
 
-		var threshold = (text_type === 'text')? 4.5: 3;
+		var threshold = (text_type.attr('value') === 'text')? 4.5: 3;
 
 		contrast_ratio = contrastRatio( bgcolor, $(e.target).attr("value") );
 		$(cr).html( contrast_ratio.toFixed(2) );
