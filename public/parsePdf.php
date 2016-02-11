@@ -17,6 +17,12 @@
 *
 *	Primary Author Contact:  Jacob Bates <jacob.bates@ucf.edu>
 */
+
+session_start();
+$_SESSION['pdf_generated'] = false; 
+session_write_close();
+
+require '../vendor/autoload.php';
 require_once('../config/settings.php');
 
 use zz\Html\HTMLMinify;
@@ -42,3 +48,9 @@ $pdf->WriteHTML($stylesheet, 1);
 $pdf->WriteHTML($html, 2);
 
 $pdf->Output($title.'_'.date("Y-m-d_g:i-a").'.pdf', 'D');
+
+session_start();
+$_SESSION['pdf_generated'] = true; 
+session_write_close();
+
+exit();
