@@ -4892,7 +4892,7 @@ class pNotUsedAsHeader extends quailTest
 	/**
 	*	@var int $default_severity The default severity code for this test.
 	*/
-	var $default_severity = QUAIL_TEST_SEVERE;
+	var $default_severity = QUAIL_TEST_SUGGESTION;
 
 	var $head_tags = array('strong', 'font', 'b', 'u');
 
