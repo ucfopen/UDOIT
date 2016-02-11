@@ -211,16 +211,16 @@
     "packages-dev": [
         {
             "name": "heroku/heroku-buildpack-php",
-            "version": "v91",
+            "version": "v92",
             "source": {
                 "type": "git",
                 "url": "https://github.com/heroku/heroku-buildpack-php.git",
-                "reference": "381d12e06534b7d059d42407c96588826d5e4ab4"
+                "reference": "5d0f849ad6f76d7d62fb82036ebf6c4793b1707e"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/heroku/heroku-buildpack-php/zipball/381d12e06534b7d059d42407c96588826d5e4ab4",
-                "reference": "381d12e06534b7d059d42407c96588826d5e4ab4",
+                "url": "https://api.github.com/repos/heroku/heroku-buildpack-php/zipball/5d0f849ad6f76d7d62fb82036ebf6c4793b1707e",
+                "reference": "5d0f849ad6f76d7d62fb82036ebf6c4793b1707e",
                 "shasum": ""
             },
             "bin": [
@@ -251,7 +251,7 @@
                 "nginx",
                 "php"
             ],
-            "time": "2016-01-08 00:59:08"
+            "time": "2016-02-08 23:53:13"
         },
         {
             "name": "symfony/polyfill-mbstring",
@@ -314,16 +314,16 @@
         },
         {
             "name": "symfony/var-dumper",
-            "version": "v3.0.1",
+            "version": "v3.0.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/var-dumper.git",
-                "reference": "87db8700deb12ba2b65e858f656a1f885530bcb0"
+                "reference": "24bb94807eff00db49374c37ebf56a0304e8aef3"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/var-dumper/zipball/87db8700deb12ba2b65e858f656a1f885530bcb0",
-                "reference": "87db8700deb12ba2b65e858f656a1f885530bcb0",
+                "url": "https://api.github.com/repos/symfony/var-dumper/zipball/24bb94807eff00db49374c37ebf56a0304e8aef3",
+                "reference": "24bb94807eff00db49374c37ebf56a0304e8aef3",
                 "shasum": ""
             },
             "require": {
@@ -373,7 +373,7 @@
                 "debug",
                 "dump"
             ],
-            "time": "2015-12-05 11:13:14"
+            "time": "2016-01-07 13:38:51"
         }
     ],
     "aliases": [],
