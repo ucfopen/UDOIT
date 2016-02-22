@@ -57,7 +57,7 @@ function popUpTemplate(noback, callback) {
 function loader(text) {
 	popUpTemplate(true, function() {
 		$('#popup').addClass('loading_popup');
-		$('#popup').html('<div class="circle"></div>');
+		$('#popup').html('<div class="circle-white"></div>');
 	});
 }
 
@@ -163,7 +163,7 @@ $(document).ready(function() {
 					// update display if progress state has changed
 					if(data != old) {
 						old = data;
-						$('#submit').html('<div id="popup"><div class="circle"></div></div> Scanning '+data+'...');
+						$('#submit').html('<div id="popup"><div class="circle-white"></div></div> Scanning '+data+'...');
 					}
 				}
 			});
@@ -196,12 +196,14 @@ $(document).ready(function() {
 		$(this).addClass('hidden');
 		$(this).parent().parent().find('div.more-info').removeClass('hidden');
 		$(this).parent().parent().parent().find('a.closeError').removeClass('hidden');
+		$(this).parent().parent().parent().find('a.closeError').first().focus();
 	});
 	// END view error source
 
 	// close error source
 	$(document).on("click", ".closeError", function() {
 		$(this).parent().parent().parent().find('a.viewError').removeClass('hidden');
+		$(this).parent().parent().parent().find('a.viewError').focus();
 		$(this).parent().parent().parent().find('div.more-info').addClass('hidden');
 		$(this).parent().parent().parent().find('a.closeError').addClass('hidden');
 	});
@@ -338,6 +340,11 @@ $(document).ready(function() {
 
 	// clicking the save pdf button
 	$(document).on("click", "#savePdf", function() {
+
+		var save = $(this);
+		save.find('div.circle-black').removeClass('hidden');
+		save.find('span.glyphicon').fadeOut(200);
+
 		var result_html = $('#result').clone();
 		var context_title = $('input[name="session_context_title"]').val();
 
@@ -353,6 +360,7 @@ $(document).ready(function() {
 		result_html.find('.error-desc').prepend('<br>');
 		result_html.find('.error-desc').append('<br><br>');
 		result_html.find('a.list-group-item').after('<br>');
+		result_html.find('.fix-success').remove();
 
 		var form = $('<form action="parsePdf.php" method="post">' +
 		  '<input type="hidden" name="result_html" />' +
@@ -362,6 +370,26 @@ $(document).ready(function() {
 		$(form).find('input[name="result_html"]').val(result_html.html());
 
 		$(form).appendTo('body').submit();
+
+		// start parsePdfProgress checker
+		clearInterval(progressTimer);
+		progressTimer = setInterval(function(){
+			$.ajax({
+				url: '../lib/parsePdfProgress.php',
+				error: function(xhr, status, error) {
+					clearInterval(progressTimer);
+				},
+				success: function(data){
+					// update display if progress state has changed
+					if (data) {
+						clearInterval(progressTimer);
+						save.find('div.circle-black').addClass('hidden');
+						save.find('span.glyphicon').fadeIn(200);
+					}
+				}
+			});
+		}, 100);
+
 	});
 	// END clicking the save pdf button
 
