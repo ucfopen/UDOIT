@@ -32,7 +32,7 @@ ini_set('max_execution_time', 300);
 $pdf = new mPDF();
 
 $stylesheet = <<<EOD
-<link rel="stylesheet" href="../assets/css/pdf.css" type="text/css">
+<link rel="stylesheet" href="assets/css/pdf.css" type="text/css">
 EOD;
 
 session_start();
