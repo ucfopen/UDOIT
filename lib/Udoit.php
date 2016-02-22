@@ -298,6 +298,40 @@ class Udoit
                         $thing->directory = $directory;
                         $thing->directory_url = $directory_url;
 
+                        /* BEGIN Emily's code */
+
+                        // keep record of module directory
+                        // access modules directory
+                        $modurls        = $this->base_uri.'/api/v1/courses/'.$this->course_id.'/modules?page=1&per_page=100&access_token='.$this->api_key;
+                        $responses      = Request::get($modurls)->send();
+                        $the_contents[] = $responses->body;
+                        $modids = $thec_content[0];
+
+                        //echo(var_dump($the_content[0]));
+                        $modnumbers = array();
+
+                        foreach($modids as $modid) {
+                            $serial = $modid->id;
+                            array_push($modnumbers, $serial);
+                        }
+
+                        //echo(var_dump($modnumbers));
+                        $data = array(array());
+
+                        foreach($modnumbers as $modnumber) {
+                            $modurl = $this->base_uri.'/api/v1/courses/'.$this->course_id.'/modules/'.$modnumber.'/items?page=1&per_page=100&access_token='.$this->api_key;
+                            $modcontent = Request::get($modurl)->send();
+                            array_push($data, $modcontent->body);
+                            print($modnumber."@@@@@@@@@");
+                            // echo(print_r($data)."~~~~~~~~\n\n\n");
+                            // foreach($pagemods as $pagemod) {
+                            //     $title = $pagemod->title;
+                            //     echo($title);
+                            // }
+                        }
+
+                        /* END Emily's code */
+
                         $the_content[] = $thing;
                     }
 
