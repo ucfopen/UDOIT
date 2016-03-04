@@ -373,18 +373,15 @@ function isYouTubeVideo($link_url, $regex)
 												</li>
 												<li class="list-group-item">
 												<?php $newItemType = true; $instance = 1; $indice++; ?>
-																								
 											<?php endif; ?>
-											<div class="clearfix margin-bottom-small title-line">
-												<?php if($newItemType): ?>
-													<h5 class="text-info pull-left"><span class="badge badge-suggestion"><?= $instanceIndices[$indice]; ?></span>&nbsp;<?= $item->title; ?></h5>
-												<?php endif ?>
-											</div>
 											<div>
-												<?php if ((isset($item->description)) && $newItemType): ?>
-													<div class="error-desc">
-														<?= $item->description ?>
-													</div>
+												<?php if($newItemType): ?>
+													<a href="#collapse-<?= $report->id; ?>-<?= $issue_count; ?>" data-toggle="collapse"><h5 class="text-danger pull-left title-line"><span class="badge badge-error"><?= $instanceIndices[$indice]; ?></span>&nbsp;<?= $item->title; ?></h5></a>
+													<?php if ((isset($item->description)) && $newItemType): ?>
+														<div class="error-desc">
+															<p><?= $item->description ?></p>
+														</div>
+													<?php endif; ?>
 												<?php endif; ?>
 												<?php if ($item->type === "aSuspiciousLinkText" || $item->type === "aLinkTextDoesNotBeginWithRedundantWord" || $item->type === "cssTextStyleEmphasize"): ?>
 													<p class="fix-success hidden"><?= $instance; ?>. <span class="label label-success margin-left-small" style="margin-top: -2px;">Fixed!</span></p>
@@ -397,33 +394,33 @@ function isYouTubeVideo($link_url, $regex)
 																<?= $item->html; ?>
 															</div>
 															<pre class="error-source"><code class="html"><strong>Line <?= $item->lineNo; ?></strong>: <?= htmlspecialchars($item->html); ?></code></pre>
-															<p><a class="closeError" href="#closeError">Close this view</a></p>
+															<p><a class="closeError" href="#closeError">&nbsp;Close this view&nbsp;</a></p>
 														</div>
 													<?php endif; ?>
 
 													<?php if (empty($_POST['path'])): ?>
-															<?php if ($item->type === "aSuspiciousLinkText" || $item->type === "aLinkTextDoesNotBeginWithRedundantWord" || $item->type === "cssTextStyleEmphasize"): ?>
-																<button class="fix-this no-print btn btn-success instance" value="<?= $item->type; ?>">U FIX IT!</button>
-																<div class="toolmessage instance">UFIXIT is disabled because this is an old report. Rescan the course to use UFIXIT.</div>
-																<form class="ufixit-form form-horizontal no-print hidden instance" action="lib/process.php" method="post" role="form">
-																	<input type="hidden" name="main_action" value="ufixit">
-																	<input type="hidden" name="contenttype" value="<?= $bad->title; ?>">
-																	<input type="hidden" name="contentid" value="<?= $report->id; ?>">
-																	<input type="hidden" name="errorhtml" value="<?= htmlspecialchars($item->html); ?>">
-																	<input type="hidden" name="errortype" value="<?= $item->type; ?>">
-																	<input type="hidden" name="reporttype" value="suggestion">
-																	<input type="hidden" name="submittingagain" value="">
+														<?php if ($item->type === "aSuspiciousLinkText" || $item->type === "aLinkTextDoesNotBeginWithRedundantWord" || $item->type === "cssTextStyleEmphasize"): ?>
+															<button class="fix-this no-print btn btn-success instance" value="<?= $item->type; ?>">U FIX IT!</button>
+															<div class="toolmessage instance">UFIXIT is disabled because this is an old report. Rescan the course to use UFIXIT.</div>
+															<form class="ufixit-form form-horizontal no-print hidden instance" action="lib/process.php" method="post" role="form">
+																<input type="hidden" name="main_action" value="ufixit">
+																<input type="hidden" name="contenttype" value="<?= $bad->title; ?>">
+																<input type="hidden" name="contentid" value="<?= $report->id; ?>">
+																<input type="hidden" name="errorhtml" value="<?= htmlspecialchars($item->html); ?>">
+																<input type="hidden" name="errortype" value="<?= $item->type; ?>">
+																<input type="hidden" name="reporttype" value="suggestion">
+																<input type="hidden" name="submittingagain" value="">
 
-																<?php switch ($item->type):
-																case "aSuspiciousLinkText": ?>
-																	<?php case "aLinkTextDoesNotBeginWithRedundantWord": ?>
-																		<div class="form-group no-margin margin-bottom">
-																			<input class="{hash:true,caps:false} form-control" type="text" name="newcontent" placeholder="New link text">
-																			<label><input class="remove-link" type="checkbox" />&nbsp;Delete this Link completely instead</label><br />
-																			<button class="submit-content btn btn-default" type="submit">Submit</button>
-																		</div>
-																		<?php break; ?>
+															<?php switch ($item->type):
+															case "aSuspiciousLinkText": ?>
+																<?php case "aLinkTextDoesNotBeginWithRedundantWord": ?>
+																	<div class="form-group no-margin margin-bottom">
+																		<input class="{hash:true,caps:false} form-control" type="text" name="newcontent" placeholder="New link text">
+																		<label><input class="remove-link" type="checkbox" />&nbsp;Delete this Link completely instead</label><br />
+																		<button class="submit-content btn btn-default" type="submit">Submit</button>
+																	</div>
 																	<?php break; ?>
+																<?php break; ?>
 																<?php case "cssTextStyleEmphasize": ?>
 																	<div class="left">
 																		<?php if ( isset($item->back_color) ): ?>
@@ -443,9 +440,8 @@ function isYouTubeVideo($link_url, $regex)
 																	<div class="clear">
 																	<button class="submit-content btn btn-default" type="submit" value="<?= $item->type ?>">Submit</button>
 																	<?php break; ?>
-																<?php endswitch; ?>
-																</form>
-															</div>
+															<?php endswitch; ?>
+															</form>
 														<?php endif; ?>
 													<?php endif; ?>
 												</div>
@@ -460,7 +456,7 @@ function isYouTubeVideo($link_url, $regex)
 				<?php endif; ?>
 			<?php endforeach; ?>
 		<?php endif; ?>
-		<?php break; ?>
+	<?php break; ?>
 	<?php case "module_urls": ?>
 		<h2 class="content-title">Module URLs <small><?= count($bad->items) ?> with issues from <?= $bad->amount ?> total in <?= $bad->time ?> seconds</small></h2>
 
