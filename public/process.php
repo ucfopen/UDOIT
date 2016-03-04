@@ -63,11 +63,11 @@ switch ($_POST['main_action']) {
             'content'       => $udoit->bad_content,
         ];
         $encoded_report   = json_encode($to_encode);
-        $report_directory = '../reports/'.$user_id.'/'.$to_encode['course'];
+        $report_directory = 'reports/'.$user_id.'/'.$to_encode['course'];
 
         if (!file_exists($report_directory)) {
             mkdir($report_directory, 0777, true);
-            chmod('../reports/'.$user_id, 0777);
+            chmod('reports/'.$user_id, 0777);
             chmod($report_directory, 0777);
         }
 
