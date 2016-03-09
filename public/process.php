@@ -83,9 +83,7 @@ switch ($_POST['main_action']) {
                 $db_reports_table
                 (user_id, course_id, file_path, date_run, errors, suggestions)
             VALUES
-                (:userid, :courseid, :filepath, :time, :errors, :suggestions)");
-        $now = time();
-        $sth->bindParam(':time', $now, PDO::PARAM_INT);
+                (:userid, :courseid, :filepath, CURRENT_TIMESTAMP, :errors, :suggestions)");
         $sth->bindParam(':userid', $user_id, PDO::PARAM_INT);
         $sth->bindParam(':courseid', $data['course_id'], PDO::PARAM_INT);
         $sth->bindParam(':filepath', $file, PDO::PARAM_STR);
