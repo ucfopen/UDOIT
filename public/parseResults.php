@@ -157,157 +157,160 @@ function isYouTubeVideo($link_url, $regex)
 												<?php endif; ?>
 												
 												<div id="collapse-<?= $report->id; ?>-<?= $issue_count; ?>" class="collapse in fade margin-top-small">
-														<?php if ($item->html): ?>
-															<p class="instance"><?= $instance; ?>. <a class="viewError" href="#viewError">View the source of this issue</a><a class="closeError hidden" href="#closeError">&nbsp;Close this view&nbsp;</a></p>
-															<div class="more-info hidden instance">
-																<div class="error-preview">
-																	<?php if ($item->type == "videosEmbeddedOrLinkedNeedCaptions"): ?>
-																		<?php $video_id = isYoutubeVideo($item->html, $regex); ?>
-																		<iframe width="100%" height="300px" src="https://www.youtube.com/embed/<?= $video_id; ?>" frameborder="0" allowfullscreen></iframe>
-																	<?php else: ?>
-																		<?= $item->html; ?>
-																	<?php endif; ?>
-																</div>
-																<pre class="error-source"><code class="html"><strong>Line <?= $item->lineNo; ?></strong>: <?= htmlspecialchars($item->html); ?></code></pre>
-																<p><a class="closeError" href="#closeError">&nbsp;Close this view&nbsp;</a></p>
+													<?php if ($item->html): ?>
+														<p class="instance"><?= $instance; ?>. <a class="viewError" href="#viewError">View the source of this issue</a><a class="closeError hidden" href="#closeError">&nbsp;Close this view&nbsp;</a></p>
+														<div class="more-info hidden instance">
+															<div class="error-preview">
+																<?php if ($item->type == "videosEmbeddedOrLinkedNeedCaptions"): ?>
+																	<?php $video_id = isYoutubeVideo($item->html, $regex); ?>
+																	<iframe width="100%" height="300px" src="https://www.youtube.com/embed/<?= $video_id; ?>" frameborder="0" allowfullscreen></iframe>
+																<?php else: ?>
+																	<?= $item->html; ?>
+																<?php endif; ?>
 															</div>
-														<?php endif; ?>
+															<pre class="error-source"><code class="html"><strong>Line <?= $item->lineNo; ?></strong>: <?= htmlspecialchars($item->html); ?></code></pre>
+															<p><a class="closeError" href="#closeError">&nbsp;Close this view&nbsp;</a></p>
+														</div>
+													<?php endif; ?>
 
-														<?php if (empty($_POST['path'])): ?>
-															<?php if ($item->type === "cssTextHasContrast" || $item->type === "imgHasAlt" || $item->type === "imgNonDecorativeHasAlt" || $item->type === "tableDataShouldHaveTh" || $item->type === "tableThShouldHaveScope" || $item->type === "headersHaveText" || $item->type == "aMustContainText" || $item->type == "imgAltIsDifferent"): ?>
-																<button class="fix-this no-print btn btn-success instance" value="<?= $item->type ?>">U FIX IT!</button>
-																<div class="toolmessage instance">UFIXIT is disabled because this is an old report. Rescan the course to use UFIXIT.</div>
-																<form class="ufixit-form form-horizontal no-print hidden instance" action="lib/process.php" method="post" role="form">
-																	<input type="hidden" name="main_action" value="ufixit">
-																	<input type="hidden" name="contenttype" value="<?= $bad->title; ?>">
-																	<input type="hidden" name="contentid" value="<?= $report->id; ?>">
-																	<input type="hidden" name="errorhtml" value="<?= htmlspecialchars($item->html); ?>">
-																	<input type="hidden" name="reporttype" value="error">
-																	<?php if ($item->type == "cssTextHasContrast"): ?>
-																		<?php for ($i = 0; $i < count($item->colors); $i++): ?>
-																			<input type="hidden" name="errorcolor[<?= $i; ?>]" value="<?= $item->colors[$i]; ?>">
-																		<?php endfor; ?>
-																	<?php endif; ?>
-																	<input type="hidden" name="errortype" value="<?= $item->type; ?>">
-																	<input type="hidden" name="submittingagain" value="">
+													<?php if (empty($_POST['path'])): ?>
+														<?php if ($item->type === "cssTextHasContrast" || $item->type === "imgHasAlt" || $item->type === "imgNonDecorativeHasAlt" || $item->type === "tableDataShouldHaveTh" || $item->type === "tableThShouldHaveScope" || $item->type === "headersHaveText" || $item->type == "aMustContainText" || $item->type == "imgAltIsDifferent"): ?>
+															<button class="fix-this no-print btn btn-success instance" value="<?= $item->type ?>">U FIX IT!</button>
+															<div class="toolmessage instance">UFIXIT is disabled because this is an old report. Rescan the course to use UFIXIT.</div>
+															<form class="ufixit-form form-horizontal no-print hidden instance" action="lib/process.php" method="post" role="form">
+																<input type="hidden" name="main_action" value="ufixit">
+																<input type="hidden" name="contenttype" value="<?= $bad->title; ?>">
+																<input type="hidden" name="contentid" value="<?= $report->id; ?>">
+																<input type="hidden" name="errorhtml" value="<?= htmlspecialchars($item->html); ?>">
+																<input type="hidden" name="errortype" value="<?= $item->type; ?>">
+																<input type="hidden" name="reporttype" value="error">
+																<input type="hidden" name="reporttype" value="suggestion">
 
-																	<?php switch ($item->type):
-																	case "cssTextHasContrast": ?>
-																	<div class="holder">
-																		<div class="left">
-																			<div class="form-group no-margin margin-bottom">
-																				<?php if ( isset($item->back_color) ): ?>
-																					<label for="newcontent[1]">Replace Background Color <?= $item->back_color; ?></label>
-																					<input class="color {hash:true,caps:false} form-control back-color" type="text" name="newcontent[1]" value="<?= $item->back_color; ?>" placeholder="Replacement for Background Color <?= $item->back_color; ?>">
-																				<?php endif; ?>
+																<?php if ($item->type == "cssTextHasContrast"): ?>
+																	<?php for ($i = 0; $i < count($item->colors); $i++): ?>
+																		<input type="hidden" name="errorcolor[<?= $i; ?>]" value="<?= $item->colors[$i]; ?>">
+																	<?php endfor; ?>
+																<?php endif; ?>
+																<input type="hidden" name="errortype" value="<?= $item->type; ?>">
+																<input type="hidden" name="submittingagain" value="">
 
-																				<label for="newcontent[0]">Replace Foreground Color <?= $item->fore_color; ?></label>&nbsp;<span class="contrast-invalid hidden red"><span class="glyphicon glyphicon-remove"></span>&nbsp;Ratio Invalid (<span class="contrast-ratio"></span>:1)</span>
-																				<input class="color {hash:true,caps:false} form-control fore-color" type="text" name="newcontent[0]" value="<?= $item->fore_color; ?>" placeholder="Replacement for Foreground Color <?= $item->fore_color; ?>">
-																				<label><input name="add-bold" type="checkbox" value="bold" />&nbsp;Make this text bold</label>&nbsp;<label><input name="add-italic" type="checkbox" value="italic" />&nbsp;Make this text <span style="font-style: italics;">italicized</span></label><br />
-																				<input type="text" name="threshold" class="threshold hidden" value="<?= $item->text_type ?>">
-																			</div>
-																		</div>
-																		<div class="right ufixit-preview">
-																			<div class="ufixit-preview-canvas" name="load-preview">
-																				<p>Text</p>
-																			</div>
-																		</div>
-																		<div class="clear">
-																			<label for="newcontent[0]">Foreground Color Palette</label>
-																			<ul class="color-picker regular">
-																				<li class="color" value="#888888"><span class="hidden invalid-color">X </span>#888888</li>
-																				<li class="color" value="#F5EB32"><span class="hidden invalid-color">X </span>#F5EB32</li>
-																				<li class="color" value="#70B538"><span class="hidden invalid-color">X </span>#70B538</li>
-																				<li class="color" value="#178E3E"><span class="hidden invalid-color">X </span>#178E3E</li>
-																				<li class="color" value="#225E9D"><span class="hidden invalid-color">X </span>#225E9D</li>
-																				<li class="color" value="#163D76"><span class="hidden invalid-color">X </span>#163D76</li>
-																				<li class="color" value="#202164"><span class="hidden invalid-color">X </span>#202164</li>
-																				<li class="color" value="#6A1C68"><span class="hidden invalid-color">X </span>#6A1C68</li>
-																				<li class="color" value="#CA1325"><span class="hidden invalid-color">X </span>#CA1325</li>
-																				<li class="color" value="#D44A25"><span class="hidden invalid-color">X </span>#D44A25</li>
-																				<li class="color" value="#DF7A2A"><span class="hidden invalid-color">X </span>#DF7A2A</li>
-																			</ul>
-																			<ul class="color-picker short margin-bottom">
-																				<li class="color" value="#000000"><span class="hidden invalid-color">X </span>#000000</li>
-																				<li class="color" value="#99962F"><span class="hidden invalid-color">X </span>#99962F</li>
-																				<li class="color" value="#4B7631"><span class="hidden invalid-color">X </span>#4B7631</li>
-																				<li class="color" value="#155F2E"><span class="hidden invalid-color">X </span>#155F2E</li>
-																				<li class="color" value="#183F6A"><span class="hidden invalid-color">X </span>#183F6A</li>
-																				<li class="color" value="#1B294C"><span class="hidden invalid-color">X </span>#1B294C</li>
-																				<li class="color" value="#1A1A40"><span class="hidden invalid-color">X </span>#1A1A40</li>
-																				<li class="color" value="#451843"><span class="hidden invalid-color">X </span>#451843</li>
-																				<li class="color" value="#7D1820"><span class="hidden invalid-color">X </span>#7D1820</li>
-																				<li class="color" value="#843322"><span class="hidden invalid-color">X </span>#843322</li>
-																				<li class="color" value="#8A5126"><span class="hidden invalid-color">X </span>#8A5126</li>
-																			</ul>
+																<?php switch ($item->type):
+																case "cssTextHasContrast": ?>
+																<div class="holder">
+																	<div class="left">
+																		<div class="form-group no-margin margin-bottom">
+																			<?php if ( isset($item->back_color) ): ?>
+																				<label for="newcontent[1]">Replace Background Color <?= $item->back_color; ?></label>
+																				<input class="color {hash:true,caps:false} form-control back-color" type="text" name="newcontent[1]" value="<?= $item->back_color; ?>" placeholder="Replacement for Background Color <?= $item->back_color; ?>">
+																			<?php endif; ?>
+
+																			<label for="newcontent[0]">Replace Foreground Color <?= $item->fore_color; ?></label>&nbsp;<span class="contrast-invalid hidden red"><span class="glyphicon glyphicon-remove"></span>&nbsp;Ratio Invalid (<span class="contrast-ratio"></span>:1)</span>
+																			<input class="color {hash:true,caps:false} form-control fore-color" type="text" name="newcontent[0]" value="<?= $item->fore_color; ?>" placeholder="Replacement for Foreground Color <?= $item->fore_color; ?>">
+																			<label><input name="add-bold" type="checkbox" value="bold" />&nbsp;Make this text bold</label>&nbsp;<label><input name="add-italic" type="checkbox" value="italic" />&nbsp;Make this text <span style="font-style: italics;">italicized</span></label><br />
+																			<input type="text" name="threshold" class="threshold hidden" value="<?= $item->text_type ?>">
 																		</div>
 																	</div>
+																	<div class="right ufixit-preview">
+																		<div class="ufixit-preview-canvas" name="load-preview">
+																			<p>Text</p>
+																		</div>
+																	</div>
+																	<div class="clear">
+																		<label for="newcontent[0]">Foreground Color Palette</label>
+																		<ul class="color-picker regular">
+																			<li class="color" value="#888888"><span class="hidden invalid-color">X </span>#888888</li>
+																			<li class="color" value="#F5EB32"><span class="hidden invalid-color">X </span>#F5EB32</li>
+																			<li class="color" value="#70B538"><span class="hidden invalid-color">X </span>#70B538</li>
+																			<li class="color" value="#178E3E"><span class="hidden invalid-color">X </span>#178E3E</li>
+																			<li class="color" value="#225E9D"><span class="hidden invalid-color">X </span>#225E9D</li>
+																			<li class="color" value="#163D76"><span class="hidden invalid-color">X </span>#163D76</li>
+																			<li class="color" value="#202164"><span class="hidden invalid-color">X </span>#202164</li>
+																			<li class="color" value="#6A1C68"><span class="hidden invalid-color">X </span>#6A1C68</li>
+																			<li class="color" value="#CA1325"><span class="hidden invalid-color">X </span>#CA1325</li>
+																			<li class="color" value="#D44A25"><span class="hidden invalid-color">X </span>#D44A25</li>
+																			<li class="color" value="#DF7A2A"><span class="hidden invalid-color">X </span>#DF7A2A</li>
+																		</ul>
+																		<ul class="color-picker short margin-bottom">
+																			<li class="color" value="#000000"><span class="hidden invalid-color">X </span>#000000</li>
+																			<li class="color" value="#99962F"><span class="hidden invalid-color">X </span>#99962F</li>
+																			<li class="color" value="#4B7631"><span class="hidden invalid-color">X </span>#4B7631</li>
+																			<li class="color" value="#155F2E"><span class="hidden invalid-color">X </span>#155F2E</li>
+																			<li class="color" value="#183F6A"><span class="hidden invalid-color">X </span>#183F6A</li>
+																			<li class="color" value="#1B294C"><span class="hidden invalid-color">X </span>#1B294C</li>
+																			<li class="color" value="#1A1A40"><span class="hidden invalid-color">X </span>#1A1A40</li>
+																			<li class="color" value="#451843"><span class="hidden invalid-color">X </span>#451843</li>
+																			<li class="color" value="#7D1820"><span class="hidden invalid-color">X </span>#7D1820</li>
+																			<li class="color" value="#843322"><span class="hidden invalid-color">X </span>#843322</li>
+																			<li class="color" value="#8A5126"><span class="hidden invalid-color">X </span>#8A5126</li>
+																		</ul>
+																	</div>
+																</div>
+																	<button class="submit-content btn btn-default" type="submit">Submit</button>
+																	<?php break; ?>
+																<?php case "headersHaveText": ?>
+																	<div class="form-group no-margin margin-bottom">
+																		<input class="{hash:true,caps:false} form-control" type="text" name="newcontent" placeholder="New heading text">
+																		<label><input class="remove-heading" type="checkbox" />&nbsp;Delete this Header completely instead</label><br />
 																		<button class="submit-content btn btn-default" type="submit">Submit</button>
-																		<?php break; ?>
-																	<?php case "headersHaveText": ?>
-																		<div class="form-group no-margin margin-bottom">
-																			<input class="{hash:true,caps:false} form-control" type="text" name="newcontent" placeholder="New heading text">
-																			<label><input class="remove-heading" type="checkbox" />&nbsp;Delete this Header completely instead</label><br />
+																	</div>
+																	<?php break; ?>
+																<?php case "aMustContainText": ?>
+																<?php case "aSuspiciousLinkText": ?>
+																<?php case "aLinkTextDoesNotBeginWithRedundantWord": ?>
+																	<div class="form-group no-margin margin-bottom">
+																		<input class="{hash:true,caps:false} form-control" type="text" name="newcontent" placeholder="New link text">
+																		<label><input class="remove-link" type="checkbox" />&nbsp;Delete this Link completely instead</label><br />
+																		<button class="submit-content btn btn-default" type="submit">Submit</button>
+																	</div>
+																	<?php break; ?>
+																<?php case "imgHasAlt": ?>
+																<?php case "imgNonDecorativeHasAlt": ?>
+																<?php case "imgAltIsDifferent": ?>
+																	<div class="fix-alt input-group">
+																		<span class="counter">100</span>
+																		<input class="form-control" type="text" name="newcontent" maxlength="100" placeholder="New alt text">
+																		<span class="input-group-btn">
 																			<button class="submit-content btn btn-default" type="submit">Submit</button>
-																		</div>
-																		<?php break; ?>
-																	<?php case "aMustContainText": ?>
-																	<?php case "aSuspiciousLinkText": ?>
-																	<?php case "aLinkTextDoesNotBeginWithRedundantWord": ?>
-																		<div class="form-group no-margin margin-bottom">
-																			<input class="{hash:true,caps:false} form-control" type="text" name="newcontent" placeholder="New link text">
-																			<label><input class="remove-link" type="checkbox" />&nbsp;Delete this Link completely instead</label><br />
+																		</span>
+																	</div>
+																	<?php break; ?>
+																<?php case "tableDataShouldHaveTh": ?>
+																	<hr>
+																	<p>Select which part of the table to convert to a header</p>
+																	<div class="input-group">
+																		<select class="form-control" name="newcontent">
+																			<option value="row">The first row</option>
+																			<option value="col">The first column</option>
+																			<option value="both">Both the first row and column</option>
+																		</select>
+																		<span class="input-group-btn">
 																			<button class="submit-content btn btn-default" type="submit">Submit</button>
-																		</div>
-																		<?php break; ?>
-																	<?php case "imgHasAlt": ?>
-																	<?php case "imgNonDecorativeHasAlt": ?>
-																	<?php case "imgAltIsDifferent": ?>
-																		<div class="fix-alt input-group">
-																			<span class="counter">100</span>
-																			<input class="form-control" type="text" name="newcontent" maxlength="100" placeholder="New alt text">
-																			<span class="input-group-btn">
-																				<button class="submit-content btn btn-default" type="submit">Submit</button>
-																			</span>
-																		</div>
-																		<?php break; ?>
-																	<?php case "tableDataShouldHaveTh": ?>
-																		<hr>
-																		<p>Select which part of the table to convert to a header</p>
-																		<div class="input-group">
-																			<select class="form-control" name="newcontent">
-																				<option value="row">The first row</option>
-																				<option value="col">The first column</option>
-																				<option value="both">Both the first row and column</option>
-																			</select>
-																			<span class="input-group-btn">
-																				<button class="submit-content btn btn-default" type="submit">Submit</button>
-																			</span>
-																		</div>
-																		<?php break; ?>
-																	<?php case "tableThShouldHaveScope": ?>
-																		<div class="input-group">
-																			<select class="form-control" name="newcontent">
-																				<option value="col">col</option>
-																				<option value="row">row</option>
-																			</select>
-																			<span class="input-group-btn">
-																				<button class="submit-content btn btn-default" type="submit">Submit</button>
-																			</span>
-																		</div>
-																		<?php break; ?>
-																	<?php case "aSuspiciousLinkText": ?>
-																		<div class="input-group">
-																			<input class="form-control" type="text" name="newcontent" placeholder="New link description">
-																			<span class="input-group-btn">
-																				<button class="submit-content btn btn-default" type="submit">Submit</button>
-																			</span>
-																		</div>
-																		<?php break; ?>
-																	<?php endswitch; ?>
-																</form>
-															<?php endif; ?>
+																		</span>
+																	</div>
+																	<?php break; ?>
+																<?php case "tableThShouldHaveScope": ?>
+																	<div class="input-group">
+																		<select class="form-control" name="newcontent">
+																			<option value="col">col</option>
+																			<option value="row">row</option>
+																		</select>
+																		<span class="input-group-btn">
+																			<button class="submit-content btn btn-default" type="submit">Submit</button>
+																		</span>
+																	</div>
+																	<?php break; ?>
+																<?php case "aSuspiciousLinkText": ?>
+																	<div class="input-group">
+																		<input class="form-control" type="text" name="newcontent" placeholder="New link description">
+																		<span class="input-group-btn">
+																			<button class="submit-content btn btn-default" type="submit">Submit</button>
+																		</span>
+																	</div>
+																	<?php break; ?>
+																<?php endswitch; ?>
+															</form>
 														<?php endif; ?>
+													<?php endif; ?>
 												</div>
 											</div>
 											<?php $previtemtype = $currtype; $newItemType = false; $instance++;?>
@@ -437,8 +440,7 @@ function isYouTubeVideo($link_url, $regex)
 																			<p>Text</p>
 																		</div>
 																	</div>
-																	<div class="clear">
-																	<button class="submit-content btn btn-default" type="submit" value="<?= $item->type ?>">Submit</button>
+																	<button class="submit-content btn btn-default clear" type="submit" value="<?= $item->type ?>">Submit</button>
 																	<?php break; ?>
 															<?php endswitch; ?>
 															</form>
