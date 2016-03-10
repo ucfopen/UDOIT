@@ -31,7 +31,7 @@ UDOIT uses the [QUAIL PHP library](https://code.google.com/p/quail-lib/), which 
 UDOIT uses php, apache or nginx, and mysql or postresql.  For instructions on installing to Heroku, view [HEROKU.md](HEROKU.md).  We also support instantly deploying UDOIT: [![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy)
 
 ### System Requirements
-*PHP 5.4 is required* to run UDOIT without any modifications.  We have not tested it on 5.5 or 5.6, but some users have been able to modify the code to work on 5.3.
+*PHP 5.4 is required* to run UDOIT without any modifications.  UDOIT is now compatible with PHP 5.6.  Also, some users have been able to modify the code to work on 5.3.
 
 If you're using PHP 5.3:
 
