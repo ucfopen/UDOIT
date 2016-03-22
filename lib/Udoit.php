@@ -282,26 +282,31 @@ class Udoit
                     $response_files  = Request::get($url_file)->send();
                     $the_links = $this->parseLinks($response_files->headers->toArray()['link']);
 
-                    $str = print_r($response_files->body, true);
-                    file_put_contents($f, $str);
+                    // $str = print_r($response_files->body, true);
+                    // file_put_contents($f, $str, FILE_APPEND);
+
+                    $directories = [];
 
                     foreach ($response_files->body as $thing) {
-                        $str = print_r($thing, true);
-                        file_put_contents($f, $str, FILE_APPEND);
+                        $folder_info = NULL;
 
-                        $url_folder = $this->base_uri.'/api/v1/folders/'.$thing->folder_id.'?access_token='.$this->api_key;
-                        $response_folder = Request::get($url_folder)->send();
+                        foreach ( $directories as $dir) {
+                            if ($dir['id'] === $thing->folder_id) {
+                                $folder_info = $dir;
 
-                        $str = print_r($url_folder, true);
-                        file_put_contents($f, $str, FILE_APPEND);
+                                break;
+                            }
+                        }
 
-                        $str = print_r($response_folder->body, true);
-                        file_put_contents($f, $str, FILE_APPEND);
+                        if ( is_null($folder_info) ) {
+                            $url_folder = $this->base_uri.'/api/v1/folders/'.$thing->folder_id.'?access_token='.$this->api_key;
+                            $response_folder = Request::get($url_folder)->send();
 
-                        $directory = preg_replace('/^course files/i', 'root', $response_folder->body->full_name);
+                            $folder_info = $response_folder->body;
+                            array_push($directories, $folder_info);
+                        }                        
 
-                        $str = print_r($directory, true);
-                        file_put_contents($f, $str, FILE_APPEND);
+                        $directory = preg_replace('/^course files/i', 'root', $folder_info->full_name);
 
                         if ($directory === 'root') {
                             $directory_url = $this->base_uri.'courses/'.$this->course_id.'/files/';
@@ -310,18 +315,12 @@ class Udoit
                             $directory_url = preg_replace('/ /', '%20', $directory_url);
                             $directory_url = $this->base_uri.'courses/'.$this->course_id.'/files/folder'.$directory_url;
                         }
-                        
-                        $str = print_r($directory_url, true);
-                        file_put_contents($f, $str, FILE_APPEND);
 
                         $thing->directory = $directory;
                         $thing->directory_url = $directory_url;
 
                         $the_content[] = $thing;
                     }
-
-                    $str = 'hasNext: '.print_r(isset($the_links['next']), true);
-                    file_put_contents($f, $str, FILE_APPEND);
 
                     if (isset($the_links['next'])) {
                         $url = $the_links['next'].'&access_token='.$this->api_key;
