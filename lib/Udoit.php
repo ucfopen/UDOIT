@@ -274,18 +274,34 @@ class Udoit
 
                 break;
             case 'files':
+                $f = '../lib/dir.txt';
+
                 $url_file = $this->base_uri.'/api/v1/courses/'.$this->course_id.'/files?page=1&per_page='.$per_page.'&access_token='.$this->api_key;
 
                 do {
                     $response_files  = Request::get($url_file)->send();
                     $the_links = $this->parseLinks($response_files->headers->toArray()['link']);
 
+                    $str = print_r($response_files->body, true);
+                    file_put_contents($f, $str);
 
                     foreach ($response_files->body as $thing) {
+                        $str = print_r($thing, true);
+                        file_put_contents($f, $str, FILE_APPEND);
+
                         $url_folder = $this->base_uri.'/api/v1/folders/'.$thing->folder_id.'?access_token='.$this->api_key;
                         $response_folder = Request::get($url_folder)->send();
 
+                        $str = print_r($url_folder, true);
+                        file_put_contents($f, $str, FILE_APPEND);
+
+                        $str = print_r($response_folder->body, true);
+                        file_put_contents($f, $str, FILE_APPEND);
+
                         $directory = preg_replace('/^course files/i', 'root', $response_folder->body->full_name);
+
+                        $str = print_r($directory, true);
+                        file_put_contents($f, $str, FILE_APPEND);
 
                         if ($directory === 'root') {
                             $directory_url = $this->base_uri.'courses/'.$this->course_id.'/files/';
@@ -294,12 +310,18 @@ class Udoit
                             $directory_url = preg_replace('/ /', '%20', $directory_url);
                             $directory_url = $this->base_uri.'courses/'.$this->course_id.'/files/folder'.$directory_url;
                         }
+                        
+                        $str = print_r($directory_url, true);
+                        file_put_contents($f, $str, FILE_APPEND);
 
                         $thing->directory = $directory;
                         $thing->directory_url = $directory_url;
 
                         $the_content[] = $thing;
                     }
+
+                    $str = 'hasNext: '.print_r(isset($the_links['next']), true);
+                    file_put_contents($f, $str, FILE_APPEND);
 
                     if (isset($the_links['next'])) {
                         $url = $the_links['next'].'&access_token='.$this->api_key;
