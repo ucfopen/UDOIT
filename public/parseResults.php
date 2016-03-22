@@ -152,7 +152,7 @@ function isYouTubeVideo($link_url, $regex)
 														</div>
 													<?php endif; ?>
 												<?php endif; ?>
-												<?php if ($item->type == "cssTextHasContrast" || $item->type == "imgHasAlt" || $item->type == "imgNonDecorativeHasAlt" || $item->type == "tableDataShouldHaveTh" || $item->type == "tableThShouldHaveScope" || $item->type === "headersHaveText" || $item->type == "aMustContainText" || $item->type == "imgAltIsDifferent"): ?>
+												<?php if ($item->type == "cssTextHasContrast" || $item->type == "imgHasAlt" || $item->type == "imgNonDecorativeHasAlt" || $item->type == "tableDataShouldHaveTh" || $item->type == "tableThShouldHaveScope" || $item->type === "headersHaveText" || $item->type == "aMustContainText" || $item->type == "imgAltIsDifferent" || $item->type == "imgAltIsTooLong"): ?>
 													<p class="fix-success hidden"><?= $instance; ?>. <span class="label label-success margin-left-small" style="margin-top: -2px;">Done!</span></p>
 												<?php endif; ?>
 												
@@ -174,7 +174,7 @@ function isYouTubeVideo($link_url, $regex)
 													<?php endif; ?>
 
 													<?php if (empty($_POST['path'])): ?>
-														<?php if ($item->type === "cssTextHasContrast" || $item->type === "imgHasAlt" || $item->type === "imgNonDecorativeHasAlt" || $item->type === "tableDataShouldHaveTh" || $item->type === "tableThShouldHaveScope" || $item->type === "headersHaveText" || $item->type == "aMustContainText" || $item->type == "imgAltIsDifferent"): ?>
+														<?php if ($item->type === "cssTextHasContrast" || $item->type === "imgHasAlt" || $item->type === "imgNonDecorativeHasAlt" || $item->type === "tableDataShouldHaveTh" || $item->type === "tableThShouldHaveScope" || $item->type === "headersHaveText" || $item->type == "aMustContainText" || $item->type == "imgAltIsDifferent" || $item->type == "imgAltIsTooLong"): ?>
 															<button class="fix-this no-print btn btn-success instance" value="<?= $item->type ?>">U FIX IT!</button>
 															<div class="toolmessage instance">UFIXIT is disabled because this is an old report. Rescan the course to use UFIXIT.</div>
 															<form class="ufixit-form form-horizontal no-print hidden instance" action="lib/process.php" method="post" role="form">
