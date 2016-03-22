@@ -266,6 +266,7 @@ function isYouTubeVideo($link_url, $regex)
 																<?php case "imgHasAlt": ?>
 																<?php case "imgNonDecorativeHasAlt": ?>
 																<?php case "imgAltIsDifferent": ?>
+																<?php case "imgAltIsTooLong": ?>
 																	<div class="fix-alt input-group">
 																		<span class="counter">100</span>
 																		<input class="form-control" type="text" name="newcontent" maxlength="100" placeholder="New alt text">
