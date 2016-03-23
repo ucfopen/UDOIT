@@ -1186,14 +1186,124 @@ class cssTextHasContrast extends quailColorTest
 				}
 
 				$luminosity = $this->getLuminosity($style['color'], $background);
+				$font_size = 0;
+				$bold = false;
 
-				if ($element->tagName === 'h1' || $element->tagName === 'h2' || $element->tagName === 'h3' || $element->tagName === 'h4' || $element->tagName === 'h5' || $element->tagName === 'h6') {
+				if (isset($style['font-size'])) {
+					preg_match_all('!\d+!', $style['font-size'], $matches);
+					$font_size = $matches[0][0];
+				}
+
+				if (isset($style['font-weight'])) {
+					preg_match_all('!\d+!', $style['font-weight'], $matches);
+					
+					if (count($matches) > 0) {
+						if ($matches >= 700) {
+							$bold = true;
+						} else {
+							if ($style['font-weight'] === 'bold' || $style['font-weight'] === 'bolder') {
+								$bold = true;
+							}
+						}
+					}
+				}
+
+				if ($element->tagName === 'h1' || $element->tagName === 'h2' || $element->tagName === 'h3' || $element->tagName === 'h4' || $element->tagName === 'h5' || $element->tagName === 'h6' || $font_size >= 18 || $font_size >= 14 && $bold) {
 					if ($luminosity < 3) {
-						$this->addReport($element, 'background: '. $background .' fore: '. $style['color'] . ' lum: '. $luminosity . 'type: heading');
+						$this->addReport($element, 'heading');
 					}
 				} else {
 					if ($luminosity < 4.5) {
-						$this->addReport($element, 'background: '. $background .' fore: '. $style['color'] . ' lum: '. $luminosity . 'type: text');
+						$this->addReport($element, 'text');
+					}
+				}
+			}
+		}
+	}
+}
+
+/**
+*	Checks that all color and background elements has stufficient contrast.
+*
+*	@link http://quail-lib.org/test-info/cssTextHasContrast
+*/
+class cssTextStyleEmphasize extends quailColorTest
+{
+	/**
+	*	@var int $default_severity The default severity code for this test.
+	*/
+	var $default_severity = QUAIL_TEST_SUGGESTION;
+
+	/**
+	*	@var string $default_background The default background color
+	*/
+	var $default_background = '#ffffff';
+
+	/**
+	*	@var string $default_background The default background color
+	*/
+	var $default_color = '#000000';
+
+	/**
+	*	The main check function. This is called by the parent class to actually check content
+	*/
+	function check()
+	{
+		if (isset($this->options['css_background'])) {
+			$this->default_background = $this->options['css_background'];
+		}
+
+		if (isset($this->options['css_foreground'])) {
+			$this->default_color = $this->options['css_foreground'];
+		}
+
+		$xpath   = new DOMXPath($this->dom);
+		$entries = $xpath->query('//*');
+
+		foreach ($entries as $element) {
+			$style = $this->css->getStyle($element);
+
+			if (!isset($style['background-color'])) {
+				$style['background-color'] = $this->default_background;
+			}
+
+			if ((isset($style['background']) || isset($style['background-color'])) && isset($style['color']) && $element->nodeValue) {
+				$background = (isset($style['background-color'])) ? $style['background-color'] : $style['background'];
+
+				if (!$background || $this->options['css_only_use_default']) {
+					$background = $this->default_background;
+				}
+
+				$luminosity = $this->getLuminosity($style['color'], $background);
+				$font_size = 0;
+				$bold = false;
+
+				if (isset($style['font-size'])) {
+					preg_match_all('!\d+!', $style['font-size'], $matches);
+					$font_size = $matches[0][0];
+				}
+
+				if (isset($style['font-weight'])) {
+					preg_match_all('!\d+!', $style['font-weight'], $matches);
+					
+					if (count($matches) > 0) {
+						if ($matches >= 700) {
+							$bold = true;
+						} else {
+							if ($style['font-weight'] === 'bold' || $style['font-weight'] === 'bolder') {
+								$bold = true;
+							}
+						}
+					}
+				}
+
+				if ($element->tagName === 'h1' || $element->tagName === 'h2' || $element->tagName === 'h3' || $element->tagName === 'h4' || $element->tagName === 'h5' || $element->tagName === 'h6' || $font_size >= 18 || $font_size >= 14 && $bold) {
+					if ($luminosity >= 3 && !$bold) {
+						$this->addReport($element, 'heading');
+					}
+				} else {
+					if ($luminosity >= 4.5 && !$bold) {
+						$this->addReport($element, 'text');
 					}
 				}
 			}
@@ -4782,7 +4892,7 @@ class pNotUsedAsHeader extends quailTest
 	/**
 	*	@var int $default_severity The default severity code for this test.
 	*/
-	var $default_severity = QUAIL_TEST_SEVERE;
+	var $default_severity = QUAIL_TEST_SUGGESTION;
 
 	var $head_tags = array('strong', 'font', 'b', 'u');
 

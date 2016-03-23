@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "4ecdb96350cddd6445ab39063bbbcb8c",
+    "hash": "706c164b15426c7297ddcb0202036a61",
     "content-hash": "ecb334706b791aa01d6e6870ade3a4c2",
     "packages": [
         {
@@ -211,16 +211,16 @@
     "packages-dev": [
         {
             "name": "heroku/heroku-buildpack-php",
-            "version": "v91",
+            "version": "v98",
             "source": {
                 "type": "git",
                 "url": "https://github.com/heroku/heroku-buildpack-php.git",
-                "reference": "381d12e06534b7d059d42407c96588826d5e4ab4"
+                "reference": "4ed1bd8f6961b8951c24778b3bb0fc06f07e8c12"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/heroku/heroku-buildpack-php/zipball/381d12e06534b7d059d42407c96588826d5e4ab4",
-                "reference": "381d12e06534b7d059d42407c96588826d5e4ab4",
+                "url": "https://api.github.com/repos/heroku/heroku-buildpack-php/zipball/4ed1bd8f6961b8951c24778b3bb0fc06f07e8c12",
+                "reference": "4ed1bd8f6961b8951c24778b3bb0fc06f07e8c12",
                 "shasum": ""
             },
             "bin": [
@@ -251,11 +251,11 @@
                 "nginx",
                 "php"
             ],
-            "time": "2016-01-08 00:59:08"
+            "time": "2016-03-21 23:17:57"
         },
         {
             "name": "symfony/polyfill-mbstring",
-            "version": "v1.1.0",
+            "version": "v1.1.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/polyfill-mbstring.git",
@@ -314,16 +314,16 @@
         },
         {
             "name": "symfony/var-dumper",
-            "version": "v3.0.1",
+            "version": "v3.0.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/var-dumper.git",
-                "reference": "87db8700deb12ba2b65e858f656a1f885530bcb0"
+                "reference": "9a6a883c48acb215d4825ce9de61dccf93d62074"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/var-dumper/zipball/87db8700deb12ba2b65e858f656a1f885530bcb0",
-                "reference": "87db8700deb12ba2b65e858f656a1f885530bcb0",
+                "url": "https://api.github.com/repos/symfony/var-dumper/zipball/9a6a883c48acb215d4825ce9de61dccf93d62074",
+                "reference": "9a6a883c48acb215d4825ce9de61dccf93d62074",
                 "shasum": ""
             },
             "require": {
@@ -373,7 +373,7 @@
                 "debug",
                 "dump"
             ],
-            "time": "2015-12-05 11:13:14"
+            "time": "2016-02-13 09:23:44"
         }
     ],
     "aliases": [],

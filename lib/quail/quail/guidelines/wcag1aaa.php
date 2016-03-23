@@ -147,6 +147,7 @@ class Wcag1aaaGuideline extends quailGuideline{
 		'skipToContentLinkProvided',
 		'svgContainsTitle',
 		'cssTextHasContrast',
+		'cssTextStyleEmphasize',
 		'headersHaveText',
 	);
 	

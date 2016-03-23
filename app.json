@@ -23,12 +23,10 @@
       "generator": "secret"
     },
     "OAUTH2_ID": {
-      "description": "Oauth ID from the developer api key created by your admin",
-      "generator": "secret"
+      "description": "Oauth ID from the developer api key created by your admin"
     },
     "OAUTH2_KEY": {
-      "description": "Oauth Key from the developer api key created by your admin",
-      "generator": "secret"
+      "description": "Oauth Key from the developer api key created by your admin"
     },
     "OAUTH2_URI": {
       "description": "Full url to your oauth2responce.php file",
