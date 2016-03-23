@@ -274,24 +274,20 @@ class Udoit
 
                 break;
             case 'files':
-                $f = '../lib/dir.txt';
-
-                $url_file = $this->base_uri.'/api/v1/courses/'.$this->course_id.'/files?page=1&per_page='.$per_page.'&access_token='.$this->api_key;
+                $url = $this->base_uri.'/api/v1/courses/'.$this->course_id.'/files?page=1&per_page='.$per_page.'&access_token='.$this->api_key;
 
                 do {
-                    $response_files  = Request::get($url_file)->send();
-                    $the_links = $this->parseLinks($response_files->headers->toArray()['link']);
-
-                    // $str = print_r($response_files->body, true);
-                    // file_put_contents($f, $str, FILE_APPEND);
+                    $response  = Request::get($url)->send();
+                    $the_links = $this->parseLinks($response->headers->toArray()['link']);
 
                     $directories = [];
 
-                    foreach ($response_files->body as $thing) {
+                    foreach ($response->body as $thing) {
                         $folder_info = NULL;
 
                         foreach ( $directories as $dir) {
-                            if ($dir['id'] === $thing->folder_id) {
+                            if ($dir->id === $thing->folder_id) {
+
                                 $folder_info = $dir;
 
                                 break;
@@ -304,7 +300,7 @@ class Udoit
 
                             $folder_info = $response_folder->body;
                             array_push($directories, $folder_info);
-                        }                        
+                        }
 
                         $directory = preg_replace('/^course files/i', 'root', $folder_info->full_name);
 
