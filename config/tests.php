@@ -21,6 +21,21 @@ $udoit_tests = [
             ',
         ],
         [
+            'name'      => 'cssTextHasContrast',
+            'title'     => 'Insufficient text color contrast with the background',
+            'desc'      => '<p>Text color should be easily viewable and should not be the only indicator of meaning or function. Color balance should have at least a 4.5:1 ratio.</p>',
+            'resources' => [
+                '<a href="http://webaim.org/blog/wcag-2-0-and-link-colors/">Resource Link</a>',
+                'WCAG Standard <a href="http://www.w3.org/TR/WCAG20/#visual-audio-contrast-contrast">1.4.3</a>',
+            ],
+            'example'   => '
+                <p class="text-danger">Incorrect</p>
+                <div class="well well-sm"><p class="no-margin" style="color:yellow">Bad contrasting text</p></div>
+                <p class="text-success">Correct</p>
+                <div class="well well-sm no-margin"><p class="no-margin" style="color:goldenrod">Good contrasting text</p></div>
+            ',
+        ],
+        [
             'name'      => 'imgHasAlt',
             'title'     => 'No Alternative Text found',
             'desc'      => '<p>Alternative Text (Alt Text) is an alternative (non-visual) way to describe the meaning of an image. Please provide a brief (under 100 characters) description of the image for a <a href="http://en.wikipedia.org/wiki/Screen_reader">screen reader</a> user. Note: It should not be the image file name.</p>',
@@ -83,6 +98,20 @@ $udoit_tests = [
             ',
         ],
         [
+            'name'      => 'objectMustContainText',
+            'title'     => 'Multimedia objects should have text equivalents (e.g., transcripts).',
+            'desc'      => '<p>Multimedia objects should be accompanied by a link to a transcript of the content.</p>',
+            'resources' => [
+                'WCAG Standard: <a href="http://www.w3.org/TR/WCAG20/#media-equiv">1.2.1</a>',
+            ],
+            'example'   => '
+                <p class="text-danger">Incorrect</p>
+                <pre><code>'. htmlspecialchars('<object src="widget.html" title=""></object>') .'</code></pre>
+                <p class="text-success">Correct</p>
+                <pre><code>'. htmlspecialchars('<object src="widget.html" title="A small web widget">A widget of stock prices. <a href="widget.html">Access this widget.</a></object>') .'</code></pre>
+            ',
+        ],
+        [
             'name'      => 'tableDataShouldHaveTh',
             'title'     => 'No table headers found',
             'desc'      => '<p>Add a table header because it provides a description of the table structure for sighted and <a href="http://en.wikipedia.org/wiki/Screen_reader">screen reader</a> users.</p>',
@@ -113,59 +142,8 @@ $udoit_tests = [
                 <pre><code>'. htmlspecialchars('<table>'."\n\t".'<tr>'."\n\t\t".'<th scope="row">Heading 1</th>'."\n\t\t".'<td>Cell 1</td>'."\n\t".'</tr>'."\n\t".'<tr>'."\n\t\t".'<th scope="row">Heading 2</th>'."\n\t\t".'<td>Cell 2</td>'."\n\t".'</tr>'."\n".'</table>') .'</code></pre>
             ',
         ],
-        [
-            'name'      => 'cssTextHasContrast',
-            'title'     => 'Insufficient text color contrast with the background',
-            'desc'      => '<p>Text color should be easily viewable and should not be the only indicator of meaning or function. Color balance should have at least a 4.5:1 ratio.</p>',
-            'resources' => [
-                '<a href="http://webaim.org/blog/wcag-2-0-and-link-colors/">Resource Link</a>',
-                'WCAG Standard <a href="http://www.w3.org/TR/WCAG20/#visual-audio-contrast-contrast">1.4.3</a>',
-            ],
-            'example'   => '
-                <p class="text-danger">Incorrect</p>
-                <div class="well well-sm"><p class="no-margin" style="color:yellow">Bad contrasting text</p></div>
-                <p class="text-success">Correct</p>
-                <div class="well well-sm no-margin"><p class="no-margin" style="color:goldenrod">Good contrasting text</p></div>
-            ',
-        ],
-        [
-            'name'      => 'objectMustContainText',
-            'title'     => 'Multimedia objects should have text equivalents (e.g., transcripts).',
-            'desc'      => '<p>Multimedia objects should be accompanied by a link to a transcript of the content.</p>',
-            'resources' => [
-                'WCAG Standard: <a href="http://www.w3.org/TR/WCAG20/#media-equiv">1.2.1</a>',
-            ],
-            'example'   => '
-                <p class="text-danger">Incorrect</p>
-                <pre><code>'. htmlspecialchars('<object src="widget.html" title=""></object>') .'</code></pre>
-                <p class="text-success">Correct</p>
-                <pre><code>'. htmlspecialchars('<object src="widget.html" title="A small web widget">A widget of stock prices. <a href="widget.html">Access this widget.</a></object>') .'</code></pre>
-            ',
-        ],
     ],
     'suggestion' => [
-        [
-            'name'      => 'imgGifNoFlicker',
-            'title'     => 'Avoid the use of animated GIF’s',
-            'desc'      => '<p>Animated GIFs may cause seizures if they flash more than 3 times per second. A recommendation is to use an alternative format to deliver the content.</p>',
-            'resources' => [
-                '<a href="http://webaim.org/techniques/images/#seizures">Resource Link</a>',
-                'WCAG Standard: <a href="http://www.w3.org/TR/WCAG20/#seizure-does-not-violate">2.3.1</a>',
-            ],
-            'example'   => '',
-        ],
-        [
-            'name'      => 'videosEmbeddedOrLinkedNeedCaptions',
-            'title'     => 'Synchronized <a href="http://webaim.org/techniques/captions/">captions</a> should be provided for prerecorded web-based video',
-            'desc'      => '<p>Captions should be included in the video to provide dialogue to users who are hearing impaired.</p>',
-            'resources' => [
-                '<a href="https://support.google.com/youtube/answer/2734796?hl=en">Adding Captions to Youtube</a>',
-                '<a href="http://guides.instructure.com/m/4152/l/98632-how-do-i-create-captions-for-new-or-uploaded-videos-in-canvas">Creating Captions for Video Uploaded to Canvas</a>',
-                'CDL Video hosted video: CDL Video will caption video if a transcript is provided',
-                'WCAG Standard <a href="http://www.w3.org/TR/WCAG20/#media-equiv-captions">1.2.2</a>',
-            ],
-            'example'   => '',
-        ],
         [
             'name'      => 'aSuspiciousLinkText',
             'title'     => 'Link text should be descriptive',
@@ -183,11 +161,16 @@ $udoit_tests = [
             ',
         ],
         [
-            'name'      => 'objectTextUpdatesWhenObjectChanges',
-            'title'     => 'The text equivalents (e.g., transcripts and/or captions) for embedded content should update when content changes.',
-            'desc'      => '',
-            'resources' => ['WCAG Standard: <a href="http://www.w3.org/TR/UNDERSTANDING-WCAG20/media-equiv.html">1.2</a>',],
-            'example'   => '',
+            'name'      => 'cssTextStyleEmphasize',
+            'title'     => 'Avoid using color alone for emphasis',
+            'desc'      => '<p>When emphasizing text, you may use color with sufficient contrast as long as you also apply some other form of emphasis, such as bold or italics. This ensures that screen reader users are aware of the text\'s importance.</p>',
+            'resources' => [
+                '<a href="https://www.w3.org/TR/WCAG20-TECHS/H49.html">Resource Link</a>'
+            ],
+            'example'   => '
+                <p>This example shows how to use the em and strong elements to emphasize text. The em and strong elements were designed to indicate structural emphasis that may be rendered in a variety of ways (font style changes, speech inflection changes, etc.).</p>
+                <pre><code>...What she <em>really</em> meant to say was, &quot;This is not ok, it is <strong>excellent</strong>&quot;!...</code></pre>
+            ',
         ],
         [
             'name'      => 'headersHaveText',
@@ -204,6 +187,16 @@ $udoit_tests = [
             ',
         ],
         [
+            'name'      => 'imgGifNoFlicker',
+            'title'     => 'Avoid the use of animated GIF’s',
+            'desc'      => '<p>Animated GIFs may cause seizures if they flash more than 3 times per second. A recommendation is to use an alternative format to deliver the content.</p>',
+            'resources' => [
+                '<a href="http://webaim.org/techniques/images/#seizures">Resource Link</a>',
+                'WCAG Standard: <a href="http://www.w3.org/TR/WCAG20/#seizure-does-not-violate">2.3.1</a>',
+            ],
+            'example'   => '',
+        ],
+        [
             'name'      => 'noHeadings',
             'title'     => 'Consider adding headings to your document to create more structure',
             'desc'      => '<p>If appropriate, add headings to the page to organize the content for sighted and <a href="http://en.wikipedia.org/wiki/Screen_reader">screen reader</a> users. The headings should represent an accurate outline of the content</p>',
@@ -211,6 +204,13 @@ $udoit_tests = [
                 '<a href="http://online.ucf.edu/teach-online/develop/document-formatting-guidelines/headings/">Resource Link</a>',
                 'WCAG standard <a href="http://www.w3.org/TR/WCAG20/#content-structure-separation-programmatic">1.3.1</a> and <a href="http://www.w3.org/TR/WCAG20/#content-structure-separation-sequence">1.3.2</a>',
             ],
+            'example'   => '',
+        ],
+        [
+            'name'      => 'objectTextUpdatesWhenObjectChanges',
+            'title'     => 'The text equivalents (e.g., transcripts and/or captions) for embedded content should update when content changes.',
+            'desc'      => '',
+            'resources' => ['WCAG Standard: <a href="http://www.w3.org/TR/UNDERSTANDING-WCAG20/media-equiv.html">1.2</a>',],
             'example'   => '',
         ],
         [
@@ -226,16 +226,16 @@ $udoit_tests = [
             ',
         ],
         [
-            'name'      => 'cssTextStyleEmphasize',
-            'title'     => 'Avoid using color alone for emphasis',
-            'desc'      => '<p>When emphasizing text, you may use color with sufficient contrast as long as you also apply some other form of emphasis, such as bold or italics. This ensures that screen reader users are aware of the text\'s importance.</p>',
+            'name'      => 'videosEmbeddedOrLinkedNeedCaptions',
+            'title'     => 'Synchronized <a href="http://webaim.org/techniques/captions/">captions</a> should be provided for prerecorded web-based video',
+            'desc'      => '<p>Captions should be included in the video to provide dialogue to users who are hearing impaired.</p>',
             'resources' => [
-                '<a href="https://www.w3.org/TR/WCAG20-TECHS/H49.html">Resource Link</a>'
+                '<a href="https://support.google.com/youtube/answer/2734796?hl=en">Adding Captions to Youtube</a>',
+                '<a href="http://guides.instructure.com/m/4152/l/98632-how-do-i-create-captions-for-new-or-uploaded-videos-in-canvas">Creating Captions for Video Uploaded to Canvas</a>',
+                'CDL Video hosted video: CDL Video will caption video if a transcript is provided',
+                'WCAG Standard <a href="http://www.w3.org/TR/WCAG20/#media-equiv-captions">1.2.2</a>',
             ],
-            'example'   => '
-                <p>This example shows how to use the em and strong elements to emphasize text. The em and strong elements were designed to indicate structural emphasis that may be rendered in a variety of ways (font style changes, speech inflection changes, etc.).</p>
-                <pre><code>...What she <em>really</em> meant to say was, &quot;This is not ok, it is <strong>excellent</strong>&quot;!...</code></pre>
-            ',
+            'example'   => '',
         ],
     ],
 ];
