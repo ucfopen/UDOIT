@@ -50,6 +50,7 @@ if (isset($_GET['code'])) {
 	$url = $base_url . '/login/oauth2/token';
 
 	$postdata = array(
+		'grant_type' => 'authorization_code',
 		'client_id' => $oauth2_id,
 		'redirect_uri' => $oauth2_uri,
 		'client_secret' => $oauth2_key,
@@ -68,24 +69,24 @@ if (isset($_GET['code'])) {
 
 	$_SESSION['api_key'] = $response->access_token;
 
+	// TODO: Modify to save refresh token instead
 	// Save API Key to DB
 	$dbh = include('../lib/db.php');
 
-
-	$sth = $dbh->prepare("SELECT * FROM $db_user_table WHERE id=:userid");
+	$sth = $dbh->prepare("SELECT * FROM $db_user_table WHERE id=:userid LIMIT 1");
 	$sth->bindParam(':userid', $_SESSION['launch_params']['custom_canvas_user_id'], PDO::PARAM_INT);
 	$sth->execute();
 
-	if($sth->rowCount()) {
-		$sth = $dbh->prepare("UPDATE $db_user_table (api_key, date_created) VALUES (:key, :time)");
-	}
-	else {
-		$sth = $dbh->prepare("INSERT INTO $db_user_table (id, api_key, date_created) VALUES (:userid, :key, :time)");
-		$sth->bindParam(':userid', $_SESSION['launch_params']['custom_canvas_user_id'], PDO::PARAM_INT);
+	$result = $sth->fetchAll();
+
+	if(isset($result[0])) {
+		$sth = $dbh->prepare("UPDATE $db_user_table SET api_key=:key WHERE id=:userid LIMIT 1");
+	} else {
+		$sth = $dbh->prepare("INSERT INTO $db_user_table (id, api_key, date_created) VALUES (:userid, :key, CURRENT_TIMESTAMP)");
 	}
 
 	$sth->bindParam(':key', $_SESSION['api_key'], PDO::PARAM_STR);
-	$sth->bindValue(':time', time(), PDO::PARAM_INT);
+	$sth->bindParam(':userid', $_SESSION['launch_params']['custom_canvas_user_id'], PDO::PARAM_INT);
 	$sth->execute();
 
 	session_write_close();
