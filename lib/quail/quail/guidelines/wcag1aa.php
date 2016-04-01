@@ -123,6 +123,7 @@ class Wcag1aaGuideline extends quailGuideline{
 		'documentTitleDescribesDocument',
 		'svgContainsTitle',
 		'cssTextHasContrast',
+		'cssTextStyleEmphasize',
 		'headersHaveText',
 	);
 }

@@ -89,6 +89,36 @@ $sth->bindParam(':userid', $_SESSION['launch_params']['custom_canvas_user_id'], 
 $sth->execute();
 
 $result = $sth->fetchAll();
+// print_r($result);
+
+/* TODO:
+if (isset($result[0])) {
+	$_SESSION['refresh_token'] = $result[0]['api_key'];
+
+	//Exchange code for API key (Can break this part into its own function, have it return the api key)
+	$url = $base_url . '/login/oauth2/token';
+
+	$postdata = array(
+		'grant_type' => 'refresh_token',
+		'client_id' => $oauth2_id,
+		'redirect_uri' => $oauth2_uri,
+		'client_secret' => $oauth2_key,
+		'refresh_token' => $_SESSION['refresh_token']
+	);
+
+	$post = http_build_query($postdata);
+	$ch = curl_init($url);
+
+	curl_setopt($ch, CURLOPT_POST, 1);
+	curl_setopt($ch, CURLOPT_POSTFIELDS, $post);
+	curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+
+	$response = json_decode(curl_exec($ch));
+	curl_close($ch);
+
+	$_SESSION['api_key'] = $response->access_token;
+}
+*/
 
 if (isset($result[0])) {
 	$_SESSION['api_key'] = $result[0]['api_key'];
@@ -97,9 +127,14 @@ if (isset($result[0])) {
 // Do we have an API key?
 if (isset($_SESSION['api_key'])) {
 	//If we do, test it out
-	$url = $base_url.'/api/v1/users/'.$_SESSION['launch_params']['custom_canvas_user_id'].'/profile?access_token='.$_SESSION['api_key'];
-	$resp = Request::get($url)->send();
+	$url = $base_url.'api/v1/users/'.$_SESSION['launch_params']['custom_canvas_user_id'].'/profile';
+	$resp = Request::get($url)
+		->addHeader('Authorization', 'Bearer '.$_SESSION['api_key'])
+		->send();
 	$redirect = !isset($resp->body->id);
+	// echo $url;
+	// print_r($resp);
+	// die();
 } else {
 	//Otherwise, redirect to the oauth2 process
 	$redirect = true;

@@ -225,5 +225,17 @@ $udoit_tests = [
                 <pre><code>'. htmlspecialchars('<h1>Header 1</h1>') .'</code></pre>
             ',
         ],
+        [
+            'name'      => 'cssTextStyleEmphasize',
+            'title'     => 'Avoid using color alone for emphasis',
+            'desc'      => '<p>When emphasizing text, you may use color with sufficient contrast as long as you also apply some other form of emphasis, such as bold or italics. This ensures that screen reader users are aware of the text\'s importance.</p>',
+            'resources' => [
+                '<a href="https://www.w3.org/TR/WCAG20-TECHS/H49.html">Resource Link</a>'
+            ],
+            'example'   => '
+                <p>This example shows how to use the em and strong elements to emphasize text. The em and strong elements were designed to indicate structural emphasis that may be rendered in a variety of ways (font style changes, speech inflection changes, etc.).</p>
+                <pre><code>...What she <em>really</em> meant to say was, &quot;This is not ok, it is <strong>excellent</strong>&quot;!...</code></pre>
+            ',
+        ],
     ],
 ];

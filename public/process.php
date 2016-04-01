@@ -83,9 +83,7 @@ switch ($_POST['main_action']) {
                 $db_reports_table
                 (user_id, course_id, file_path, date_run, errors, suggestions)
             VALUES
-                (:userid, :courseid, :filepath, :time, :errors, :suggestions)");
-        $now = time();
-        $sth->bindParam(':time', $now, PDO::PARAM_INT);
+                (:userid, :courseid, :filepath, CURRENT_TIMESTAMP, :errors, :suggestions)");
         $sth->bindParam(':userid', $user_id, PDO::PARAM_INT);
         $sth->bindParam(':courseid', $data['course_id'], PDO::PARAM_INT);
         $sth->bindParam(':filepath', $file, PDO::PARAM_STR);
@@ -147,7 +145,10 @@ switch ($_POST['main_action']) {
                 $corrected_error = $ufixit->fixLink($data['error_html'], $data['new_content'], $submitting_again);
                 break;
             case 'cssTextHasContrast':
-                $corrected_error = $ufixit->fixCss($data['error_colors'], $data['error_html'], $data['new_content'], $data['bold'], $data['italic'], $submitting_again);
+                $corrected_error = $ufixit->fixCssColor($data['error_colors'], $data['error_html'], $data['new_content'], ($data['bold'] == 'bold')? true: false, ($data['italic'] == 'italic')? true: false, $submitting_again);
+                break;
+            case 'cssTextStyleEmphasize':
+                $corrected_error = $ufixit->fixCssEmphasize($data['error_html'], $data['new_content'], ($data['bold'] == 'bold')? true: false, ($data['italic'] == 'italic')? true: false, $submitting_again);
                 break;
             case 'headersHaveText':
                 $corrected_error = $ufixit->fixHeading($data['error_html'], $data['new_content'], $submitting_again);
