@@ -501,7 +501,84 @@ $(document).ready(function() {
 	});
 	// END Rule forcing links to open in new window
 
-	// click to remove/fill Heading with no text
+	//------------------------- UFIXIT Form Validation -------------------------//
+
+	// Input: Select
+	$(document).on("change", "select.form-control", function (e) {
+		console.log('select\n');
+		var errorType = $(e.target).parent().parent().find("input[name='errortype']");
+
+		switch ( $(errorType).val() ) {
+
+			case "tableDataShouldHaveTh":
+				console.log($(errorType).val() + ': ' + $(e.target).val() + '\n');
+				break;
+
+			case "tableThShouldHaveScope":
+				console.log($(errorType).val() + ': ' + $(e.target).val() + '\n');
+				break;
+
+			default:
+				break;
+		}
+	});
+
+	// Input: Checkbox
+		// updates UFIXIT Preview on change of checkbox for 'bold' styling
+	$(document).on("change", "input[name='add-bold']", function (e) {
+		var preview = $(e.target).parent().parent().parent().parent().find('div.ufixit-preview-canvas');
+
+		if( e.target.checked ) {
+			preview.css("font-weight", "bold");
+		} else {
+			preview.css("font-weight", "normal");
+		}
+	});
+	// END update UFIXIT Preview
+
+	// updates UFIXIT Preview on change of checkbox for 'italic' styling
+	$(document).on("change", "input[name='add-italic']", function (e) {
+		var preview = $(e.target).parent().parent().parent().parent().find('div.ufixit-preview-canvas');
+
+		if( e.target.checked ) {
+			preview.css("font-style", "italic");
+		} else {
+			preview.css("font-style", "normal");
+		}
+	});
+	// END update UFIXIT Preview
+
+	// Input: Text
+	$(document).on("change", "input.form-control", function (e) {
+		console.log('test');
+		var errorType = $(e.target).parent().parent().find("input[name='errortype']");
+
+		switch ( $(errorType).val() ) {
+			/* Erros */
+			case "headersHaveText":
+				console.log($(errorType).val() + ': ' + $(e.target).val() + '\n');
+				break;
+
+			case "imgAltIsDifferent":
+			case "imgAltIsTooLong":
+			case "imgHasAlt":
+			case "imgNonDecorativeHasAlt":
+				console.log($(errorType).val() + ': ' + $(e.target).val() + '\n');
+				break;
+
+			/* Suggestions */
+			case "aLinkTextDoesNotBeginWithRedundantWord":
+			case "aMustContainText":
+			case "aSuspiciousLinkText":
+				console.log($(errorType).val() + ': ' + $(e.target).val() + '\n');
+				break;
+
+			default:
+				break;
+		}
+	});
+
+		// click to remove/fill Heading with no text
 	$(document).on("click", ".remove-heading", function (e) {
 		var input = $(e.target).parent().parent().find('input[name="newcontent"]');
 		if( input.attr("placeholder") == "New heading text") {
@@ -572,6 +649,7 @@ $(document).ready(function() {
 
 	// updates UFIXIT Preview on change of foreground color
 	$(document).on("change", "input.fore-color", function (e) {
+		console.log('inpu');
 		var preview = $(e.target).parent().parent().parent().find('div.ufixit-preview-canvas');
 		preview.css("color", $(e.target).val() );
 
@@ -663,27 +741,4 @@ $(document).ready(function() {
 	});
 	// END update UFIXIT Preview on change of foreground color using Color-Picker
 
-	// updates UFIXIT Preview on change of checkbox for 'bold' styling
-	$(document).on("change", "input[name='add-bold']", function (e) {
-		var preview = $(e.target).parent().parent().parent().parent().find('div.ufixit-preview-canvas');
-
-		if( e.target.checked ) {
-			preview.css("font-weight", "bold");
-		} else {
-			preview.css("font-weight", "normal");
-		}
-	});
-	// END update UFIXIT Preview
-
-	// updates UFIXIT Preview on change of checkbox for 'italic' styling
-	$(document).on("change", "input[name='add-italic']", function (e) {
-		var preview = $(e.target).parent().parent().parent().parent().find('div.ufixit-preview-canvas');
-
-		if( e.target.checked ) {
-			preview.css("font-style", "italic");
-		} else {
-			preview.css("font-style", "normal");
-		}
-	});
-	// END update UFIXIT Preview
 });
