@@ -63,18 +63,19 @@ switch ($_POST['main_action']) {
             'content'       => $udoit->bad_content,
         ];
         $encoded_report   = json_encode($to_encode);
-        $report_directory = '../reports/'.$user_id.'/'.$to_encode['course'];
+        $report_directory = 'reports/'.$user_id.'/'.$to_encode['course']; //jb: changed to reference correct reports dir
 
         if (!file_exists($report_directory)) {
-            mkdir($report_directory, 0777, true);
-            chmod('../reports/'.$user_id, 0777);
-            chmod($report_directory, 0777);
+
+            mkdir($report_directory, 0755, true); //jb: changed from 777 to 755 to promote security
+            chmod('reports/'.$user_id, 0755); //jb: changed from 777 to 755 to promote security
+            chmod($report_directory, 0755); //jb: changed from 777 to 755 to promote security
         }
 
         $file = $report_directory.'/'.date('Y_m_d__g:i_a').'.json';
 
         file_put_contents($file, $encoded_report);
-        chmod($file, 0777);
+        chmod($file, 0644); //jb: changed from 777 to 644 to promote security
 
         $dbh = include('../lib/db.php');
 
