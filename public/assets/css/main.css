@@ -37,7 +37,7 @@ body { padding: 20px 0 0; }
 	        user-select: none;
 }
 
-.red { color: red;}
+.red { color: red; }
 
 .clear { clear: both;}
 
@@ -52,12 +52,17 @@ h3 { margin: 0;}
 h3 a { color: inherit; }
 
 .left {
+	border-radius: 4px;
 	float: left;
+	margin-bottom: 5px;
+	padding: 5px;
 	width: 58%;
 }
 
 .right {
+	border-radius: 4px;
 	float: right;
+	margin-bottom: 5px;
 	width: 40%;
 }
 
@@ -274,7 +279,7 @@ h5 + ul {
 	border: 1px solid #ccc;
 	border-radius: 4px;
 
-	margin-bottom: 0;
+	margin-bottom: 10px;
 }
 
 .ufixit-preview:before {
@@ -388,6 +393,8 @@ h5 + ul {
 }
 
 /* X. PANELS -------------------------- */
+
+.panel { overflow: auto; }
 
 .panel-title {
 	line-height: 22px;

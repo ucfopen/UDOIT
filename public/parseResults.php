@@ -175,7 +175,7 @@ function isYouTubeVideo($link_url, $regex)
 
 													<?php if (empty($_POST['path'])): ?>
 														<?php if ($item->type === "cssTextHasContrast" || $item->type === "imgHasAlt" || $item->type === "imgNonDecorativeHasAlt" || $item->type === "tableDataShouldHaveTh" || $item->type === "tableThShouldHaveScope" || $item->type === "headersHaveText" || $item->type == "aMustContainText" || $item->type == "imgAltIsDifferent"): ?>
-															<button class="fix-this no-print btn btn-success instance" value="<?= $item->type ?>">U FIX IT!</button>
+															<button class="fix-this no-print btn btn-success instance">U FIX IT!</button>
 															<div class="toolmessage instance">UFIXIT is disabled because this is an old report. Rescan the course to use UFIXIT.</div>
 															<form class="ufixit-form form-horizontal no-print hidden instance" action="lib/process.php" method="post" role="form">
 																<input type="hidden" name="main_action" value="ufixit">
@@ -206,7 +206,8 @@ function isYouTubeVideo($link_url, $regex)
 
 																				<label for="newcontent[0]">Replace Foreground Color <?= $item->fore_color; ?></label>&nbsp;<span class="contrast-invalid hidden red"><span class="glyphicon glyphicon-remove"></span>&nbsp;Ratio Invalid (<span class="contrast-ratio"></span>:1)</span>
 																				<input class="color {hash:true,caps:false} form-control fore-color" type="text" name="newcontent[0]" value="<?= $item->fore_color; ?>" placeholder="Replacement for Foreground Color <?= $item->fore_color; ?>">
-																				<label><input name="add-bold" type="checkbox" value="bold" />&nbsp;Make this text bold</label>&nbsp;<label><input name="add-italic" type="checkbox" value="italic" />&nbsp;Make this text <span style="font-style: italics;">italicized</span></label><br />
+																				<label><input class="css-style" name="add-bold" type="checkbox" value="bold" />&nbsp;Make this text bold</label>&nbsp;
+																				<label><input class="css-style" name="add-italic" type="checkbox" value="italic" />&nbsp;Make this text <span style="font-style: italics;">italicized</span></label><br />
 																				<input type="text" name="threshold" class="threshold hidden" value="<?= $item->text_type ?>">
 																			</div>
 																		</div>
@@ -279,6 +280,7 @@ function isYouTubeVideo($link_url, $regex)
 																	<p>Select which part of the table to convert to a header</p>
 																	<div class="input-group">
 																		<select class="form-control" name="newcontent">
+																			<option value=""></option>
 																			<option value="row">The first row</option>
 																			<option value="col">The first column</option>
 																			<option value="both">Both the first row and column</option>
@@ -291,6 +293,7 @@ function isYouTubeVideo($link_url, $regex)
 																<?php case "tableThShouldHaveScope": ?>
 																	<div class="input-group">
 																		<select class="form-control" name="newcontent">
+																			<option value=""></option>
 																			<option value="col">col</option>
 																			<option value="row">row</option>
 																		</select>
@@ -431,9 +434,9 @@ function isYouTubeVideo($link_url, $regex)
 																		<?php endif; ?>
 																		<input class="hidden fore-color" type="text" name="newcontent[0]" value="<?= $item->fore_color; ?>">
 																		
-																		<label><input name="add-bold" type="checkbox" value="bold" />&nbsp;Make this text <span style="font-weight: 900;">bold</span></label>
+																		<label><input class="css-style" name="add-bold" type="checkbox" value="bold" />&nbsp;Make this text <span style="font-weight: 900;">bold</span></label>
 																		&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-																		<label><input name="add-italic" type="checkbox" value="italic" />&nbsp;Make this text <span style="font-style: italic;">italicized</span></label>
+																		<label><input class="css-style" name="add-italic" type="checkbox" value="italic" />&nbsp;Make this text <span style="font-style: italic;">italicized</span></label>
 																	</div>
 																	<div class="right ufixit-preview">
 																		<div class="ufixit-preview-canvas" name="load-preview">
