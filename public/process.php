@@ -23,7 +23,8 @@ require_once('../lib/Udoit.php');
 require_once('../lib/Ufixit.php');
 
 session_start();
-
+//ja: Sanitize $_POST parameters
+$_POST  = filter_input_array(INPUT_POST, FILTER_SANITIZE_STRING);
 use Httpful\Request;
 $base_url = $_SESSION['base_url'];
 $SESSION_course_id = $_POST['course_id'];
