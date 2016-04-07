@@ -19,14 +19,14 @@
 
 //------------------------------ UFIXIT Preview ------------------------------//
 
-// updates UFIXIT preview for aMustContainText, aSuspiciousLinkText, & aLinkTextDoesNotBeginWithRedundantWord
+// Initializes styling of UFIXIT preview for aMustContainText, aSuspiciousLinkText, & aLinkTextDoesNotBeginWithRedundantWord
 function aMustContainText( button ) {
 	textBox = button.parent().find('input.form-control');
 
-	$(textBox).attr("style", "border: 1px solid red; background-color: rgba(255, 0, 0, .05);")
+	$(textBox).attr("style", "border: 1px solid red; background-color: rgba(255, 0, 0, .05);");
 }
 
-// updates UFIXIT preview for cssTextHasContrast
+// Initializes styling of UFIXIT preview for cssTextHasContrast
 function cssTextHasContrast( button ) {
 	var back = button.parent().find('input.back-color');
 	var fore = button.parent().find('input.fore-color');
@@ -54,7 +54,6 @@ function cssTextHasContrast( button ) {
 	if (contrast_ratio < threshold) {
 		$(error).removeClass('hidden');
 		$(fore).css({"border-color": "red", "background-color": $(fore).val()});
-		var sub = button.parent().find('button.submit-content').prop('disabled',true);
 	}
 
 	button.parent().find("li.color").each(function () {
@@ -81,7 +80,7 @@ function cssTextHasContrast( button ) {
 	});
 }
 
-// updates UFIXIT preview for cssTextStyleEmphasize
+// Initializes styling of UFIXIT preview for cssTextStyleEmphasize
 function cssTextStyleEmphasize( button ) {
 	var back = button.parent().find('input.back-color');
 	var fore = button.parent().find('input.fore-color');
@@ -100,32 +99,32 @@ function cssTextStyleEmphasize( button ) {
 	
 }
 
-// updates UFIXIT preview for headersHaveText
+// Initializes styling of UFIXIT preview for headersHaveText
 function headersHaveText( button ) {
 	textBox = button.parent().find('input.form-control');
 
-	$(textBox).attr("style", "border: 1px solid red; background-color: rgba(255, 0, 0, .05);")
+	$(textBox).attr("style", "border: 1px solid red; background-color: rgba(255, 0, 0, .05);");
 }
 
-// updates UFIXIT preview for imgHasAlt, imgNonDecorativeHasAlt, & imgAltIsDifferent
+// Initializes styling of UFIXIT preview for imgHasAlt, imgNonDecorativeHasAlt, & imgAltIsDifferent
 function imgHasAlt( button ) {
-	textBox = button.parent().find('input.form-control');
+	textBox = button.parent().parent().find('input.form-control');
 
-	$(textBox).attr("style", "border: 1px solid red; background-color: rgba(255, 0, 0, .05);")
+	$(textBox).attr("style", "border: 1px solid red; background-color: rgba(255, 0, 0, .05);");
 }
 
-// updates UFIXIT preview for tableDataShouldHaveTh
+// Initializes styling of UFIXIT preview for tableDataShouldHaveTh
 function tableDataShouldHaveTh( button ) {
 	selectField = button.parent().find('select.form-control');
 	
-	$(selectField).attr("style", "border: 1px solid red; background-color: rgba(255, 0, 0, .05);")
+	$(selectField).attr("style", "border: 1px solid red; background-color: rgba(255, 0, 0, .05);");
 }
 
-// updates UFIXIT preview for tableThShouldHaveScope
+// Initializes styling of UFIXIT preview for tableThShouldHaveScope
 function tableThShouldHaveScope( button ) {
 	selectField = button.parent().find('select.form-control');
-	
-	$(selectField).attr("style", "border: 1px solid red; background-color: rgba(255, 0, 0, .05);")
+
+	$(selectField).attr("style", "border: 1px solid red; background-color: rgba(255, 0, 0, .05);");
 }
 
 
@@ -163,21 +162,21 @@ $(document).ready(function() {
 				break;
 
 			case "headersHaveText":
-
+				headersHaveText( $(this) );
 				break;
 
 			case "imgHasAlt":
 			case "imgNonDecorativeHasAlt":
 			case "imgAltIsDifferent":
-
+				imgHasAlt( $(this) );
 				break;
 
 			case "tableDataShouldHaveTh":
-
+				tableDataShouldHaveTh( $(this) );
 				break;
 
 			case "tableThShouldHaveScope":
-
+				tableThShouldHaveScope( $(this) );
 				break;
 
 			default:

@@ -34,7 +34,7 @@ $(document).ready(function() {
 				if ( $(e.target).val() == "" ) {
 					$(submitButton).prop('disabled',true);
 
-					$(e.target).css({"border-color": "red"});
+					$(e.target).attr("style", "border: 1px solid red; background-color: rgba(255, 0, 0, .05);");
 					break;
 				}
 
@@ -119,53 +119,98 @@ $(document).ready(function() {
 	// click to remove/fill Heading with no text
 	$(document).on("click", ".remove-heading", function (e) {
 		var input = $(e.target).parent().parent().find('input[name="newcontent"]');
-		if( input.attr("placeholder") == "New heading text") {
-			input.val("");
-			input.attr("maxlength", "0");
-			input.attr("placeholder", "Empty heading will be deleted");
+		var submitButton = $(e.target).parent().parent().find("button.submit-content");
+
+		if( $(input).attr("placeholder") == "New heading text") {
+			$(input).val("");
+			$(input).attr("maxlength", "0");
+			$(input).attr("placeholder", "Empty heading will be deleted");
+
+			$(submitButton).removeAttr('disabled');
+			$(input).attr("style", "");
 		} else {
-			input.removeAttr("maxlength");
-			input.attr("placeholder", "New heading text");
+			$(input).removeAttr("maxlength");
+			$(input).attr("placeholder", "New heading text");
+
+			$(submitButton).prop('disabled',true);
+			$(input).attr("style", "background-color: rgba(255, 0, 0, .05); border: 1px solid red;");
 		}
 	});
 
 	// click to remove/fill Link with no text
 	$(document).on("click", ".remove-link", function (e) {
 		var input = $(e.target).parent().parent().find('input[name="newcontent"]');
+		var submitButton = $(e.target).parent().parent().find("button.submit-content");
 
-		if( input.attr("placeholder") == "New link text") {
-			input.val("");
-			input.attr("maxlength", "0");
-			input.attr("placeholder", "Link will be deleted");
+		if( $(input).attr("placeholder") == "New link text") {
+			$(input).val("");
+			$(input).attr("maxlength", "0");
+			$(input).attr("placeholder", "Link will be deleted");
+
+			$(submitButton).removeAttr('disabled');
+			$(input).attr("style", "");
 		} else {
-			input.removeAttr("maxlength");
-			input.attr("placeholder", "New link text");
+			$(input).removeAttr("maxlength");
+			$(input).attr("placeholder", "New link text");
+
+			$(submitButton).prop('disabled',true);
+			$(input).attr("style", "background-color: rgba(255, 0, 0, .05); border: 1px solid red;");
 		}
 	});
 
 	// Validates input on change of the following UFIXIT Form Element:
 	// Input Type: Text
 	$(document).on("change keyup", "input[type='text'].form-control", function (e) {
+		var errorHTML = $(e.target).parent().parent().find("input[name='errorhtml']");
+		var errorPreview = $(e.target).parent().parent().parent().find("div.error-preview")
 		var errorType = $(e.target).parent().parent().find("input[name='errortype']");
+		var submitButton = $(e.target).parent().parent().find("button.submit-content");
+
+		var text = $(e.target).val();
 
 		switch ( $(errorType).val() ) {
 			/* Erros */
 			case "headersHaveText":
-				console.log($(errorType).val() + ': ' + $(e.target).val() + '\n');
+				if ( text.length > 0 ) {
+					$(submitButton).removeAttr('disabled');
+					$(e.target).attr("style", "");
+				} else {
+					$(submitButton).prop('disabled',true);
+					$(e.target).attr("style", "background-color: rgba(255, 0, 0, .05); border: 1px solid red;");
+				}
 				break;
 
 			case "imgAltIsDifferent":
 			case "imgAltIsTooLong":
 			case "imgHasAlt":
 			case "imgNonDecorativeHasAlt":
-				console.log($(errorType).val() + ': ' + $(e.target).val() + '\n');
+				var imageSrc = $(errorPreview).find("img").attr("src");
+				var filename = imageSrc.replace(/^.*[\\\/]/, '');
+
+				if ( text.length > 0  && text != filename ) {
+					$(submitButton).removeAttr('disabled');
+					$(e.target).attr("style", "");
+				} else {
+					$(submitButton).prop('disabled',true);
+					$(e.target).attr("style", "background-color: rgba(255, 0, 0, .05); border: 1px solid red;");
+				}
 				break;
 
 			/* Suggestions */
 			case "aLinkTextDoesNotBeginWithRedundantWord":
 			case "aMustContainText":
 			case "aSuspiciousLinkText":
-				console.log($(errorType).val() + ': ' + $(e.target).val() + '\n');
+				var aHref = $(errorPreview).find("a").attr("href");
+				var arr = ['click here', 'click', 'click here!', 'more', 'here', 'link', 'go', 'link to', 'go to'];
+				var noRedundancy = (text.indexOf(arr[7]) == -1 && text.indexOf(arr[8]) == -1)? true: false;
+
+				if ( text.length > 0 && text != aHref && $.inArray(text, arr) == -1 && noRedundancy ) {
+					$(submitButton).removeAttr('disabled');
+					$(e.target).attr("style", "");
+				} else {
+					$(submitButton).prop('disabled',true);
+					$(e.target).attr("style", "background-color: rgba(255, 0, 0, .05); border: 1px solid red;");
+				}
 				break;
 
 			default:
@@ -175,7 +220,6 @@ $(document).ready(function() {
 
 	// updates UFIXIT Preview and validates input on change of foreground color
 	$(document).on("change", "input.fore-color", function (e) {
-		console.log('inpu');
 		var preview = $(e.target).parent().parent().parent().find('div.ufixit-preview-canvas');
 		preview.css("color", $(e.target).val() );
 
