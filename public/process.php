@@ -69,6 +69,19 @@ function refresh_key($o2_id, $o2_uri, $o2_key, $base_url, $refresh_token){
     }
 }
 
+session_start();
+
+// If the API key is not valid, refresh it
+if( !test_api_key($_SESSION['launch_params']['custom_canvas_user_id'], $base_url, $_SESSION['api_key']) ){
+    $_SESSION['api_key'] = refresh_key($oauth2_id, $oauth2_uri, $oauth2_key, $base_url, $_SESSION['refresh_token']);
+    if( $_SESSION['api_key'] === false ){
+        echo "Error refreshing authorization.  Please re-load UDOIT and try again.";
+        die();
+    }
+}
+
+session_write_close();
+
 // check if course content is being scanned or fixed
 switch ($_POST['main_action']) {
     case 'udoit':
@@ -83,15 +96,6 @@ switch ($_POST['main_action']) {
         }
 
         session_start();
-
-        // If the API key is not valid, refresh it
-        if( !test_api_key($_SESSION['launch_params']['custom_canvas_user_id'], $base_url, $_SESSION['api_key']) ){
-            $_SESSION['api_key'] = refresh_key($oauth2_id, $oauth2_uri, $oauth2_key, $base_url, $_SESSION['refresh_token']);
-            if( $_SESSION['api_key'] === false ){
-                echo "Error refreshing authorization.  Please re-load UDOIT and try again.";
-                die();
-            }
-        }
 
         $data = [
             'api_key'       => $_SESSION['api_key'],
