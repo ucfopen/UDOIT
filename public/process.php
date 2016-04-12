@@ -23,17 +23,18 @@ require_once('../lib/Udoit.php');
 require_once('../lib/Ufixit.php');
 
 session_start();
-//ja: Sanitize $_POST parameters
-$_POST  = filter_input_array(INPUT_POST, FILTER_SANITIZE_STRING);
+//ja: Sanitize $post parameters
+$post  = filter_input_array(INPUT_POST, FILTER_SANITIZE_STRING);
+
 use Httpful\Request;
 $base_url = $_SESSION['base_url'];
-$SESSION_course_id = $_POST['course_id'];
-$SESSION_context_label = $_POST['context_label'];
-$SESSION_context_title = $_POST['context_title'];
+$SESSION_course_id = $post['course_id'];
+$SESSION_context_label = $post['context_label'];
+$SESSION_context_title = $post['context_title'];
 session_write_close();
 
 // check if course content is being scanned or fixed
-switch ($_POST['main_action']) {
+switch ($post['main_action']) {
     case 'udoit':
         // for saving this report later
         session_start();
@@ -41,7 +42,7 @@ switch ($_POST['main_action']) {
         session_write_close();
 
         // UDOIT can't scan what isn't selected
-        if ($_POST['content'] === 'none') {
+        if ($post['content'] === 'none') {
             die('<div class="alert alert-danger no-margin margin-top"><span class="glyphicon glyphicon-exclamation-sign"></span> Please select which course content you wish to scan above.</div>');
         }
 
@@ -49,7 +50,7 @@ switch ($_POST['main_action']) {
         $data = [
             'api_key'       => $_SESSION['api_key'],
             'base_uri'      => $base_url,
-            'content_types' => $_POST['content'],
+            'content_types' => $post['content'],
             'course_id'     => $SESSION_course_id
         ];
 
@@ -105,14 +106,14 @@ switch ($_POST['main_action']) {
     case 'ufixit':
         $data = [
             'base_uri'     => $base_url,
-            'content_id'   => $_POST['contentid'],
-            'content_type' => $_POST['contenttype'],
-            'error_html'   => htmlspecialchars_decode($_POST['errorhtml']),
-            'error_colors' => isset($_POST['errorcolor']) ? $_POST['errorcolor'] : '',
-            'error_type'   => $_POST['errortype'],
-            'new_content'  => $_POST['newcontent'],
-            'bold'         => isset($_POST['add-bold']) ? $_POST['add-bold'] : '',
-            'italic'       => isset($_POST['add-italic']) ? $_POST['add-italic'] : ''
+            'content_id'   => $post['contentid'],
+            'content_type' => $post['contenttype'],
+            'error_html'   => htmlspecialchars_decode($post['errorhtml']),
+            'error_colors' => isset($post['errorcolor']) ? $post['errorcolor'] : '',
+            'error_type'   => $post['errortype'],
+            'new_content'  => $post['newcontent'],
+            'bold'         => isset($post['add-bold']) ? $post['add-bold'] : '',
+            'italic'       => isset($post['add-italic']) ? $post['add-italic'] : ''
         ];
 
         session_start();
