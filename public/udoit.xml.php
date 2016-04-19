@@ -17,9 +17,9 @@
 *
 *	Primary Author Contact:  Jacob Bates <jacob.bates@ucf.edu>
 */
-$servername = 'https://' . $_SERVER['SERVER_NAME'];
-$scriptname=end(explode('/',$_SERVER['PHP_SELF']));
-$scriptpath=str_replace($scriptname,'',$_SERVER['PHP_SELF']);
+$servername = 'https://' . htmlspecialchars($_SERVER['SERVER_NAME'], ENT_QUOTES, "utf-8"); //jb: sanitize $_SERVER global
+$scriptname=end(explode('/',htmlspecialchars($_SERVER['PHP_SELF'], ENT_QUOTES, "utf-8"))); //jb: sanitize $_SERVER global
+$scriptpath=str_replace($scriptname,'',htmlspecialchars($_SERVER['PHP_SELF'], ENT_QUOTES, "utf-8")); //jb: sanitize $_SERVER global
 $launch = $servername . $scriptpath;
 header('Content-type: text/xml');
 echo '<?xml version="1.0" encoding="UTF-8"?>';
@@ -41,7 +41,7 @@ echo '<?xml version="1.0" encoding="UTF-8"?>';
 	<blti:extensions platform="canvas.instructure.com">
 		<lticm:property name="tool_id">udoit</lticm:property>
 		<lticm:property name="privacy_level">public</lticm:property>
-		<lticm:property name="domain"><?= $_SERVER['SERVER_NAME'] ?></lticm:property>
+		<lticm:property name="domain"><?= htmlspecialchars($_SERVER['SERVER_NAME'], ENT_QUOTES, "utf-8"); //jb: sanitize $_SERVER global ?></lticm:property>
 		<lticm:options name="custom_fields">
 			<lticm:property name="canvas_api_domain">$Canvas.api.domain</lticm:property>
 		</lticm:options>
