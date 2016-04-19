@@ -22,6 +22,7 @@ class BLTI {
     public $info = false;
     public $row = false;
     public $context_id = false;  // Override context_id
+	private $server_input = false;
 
     function __construct($consumer=false, $shared_secret=false, $usesession=true, $doredirect=true) {
         // If this request is not an LTI Launch, either
@@ -118,6 +119,8 @@ class BLTI {
             $this->redirect();
             $this->complete = true;
         }
+		
+		$this->server_input = filter_input_array(INPUT_SERVER, FILTER_SANITIZE_STRING); //jb: sanitize $_SERVER global
     }
 
     function addSession($location) {
@@ -184,7 +187,7 @@ class BLTI {
         $email = $this->getUserEmail();
         if ( $email === false ) return false;
         $size = 40;
-        $grav_url = $_SERVER['HTTPS'] ? 'https://' : 'http://';
+        $grav_url = $server_input['HTTPS'] ? 'https://' : 'http://';
         $grav_url = $grav_url . "www.gravatar.com/avatar.php?gravatar_id=".md5( strtolower($email) )."&size=".$size;
         return $grav_url;
     }
@@ -227,9 +230,9 @@ class BLTI {
 
     // TODO: Add javasript version if headers are already sent
     function redirect() {
-            $host = $_SERVER['HTTP_HOST'];
-            $uri = $_SERVER['PHP_SELF'];
-            $location = $_SERVER['HTTPS'] ? 'https://' : 'http://';
+            $host = $server_input['HTTP_HOST'];
+            $uri = $server_input['PHP_SELF'];
+            $location = $server_input['HTTPS'] ? 'https://' : 'http://';
             $location = $location . $host . $uri;
             $location = $this->addSession($location);
             header("Location: $location");
