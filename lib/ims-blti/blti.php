@@ -23,8 +23,12 @@ class BLTI {
     public $row = false;
     public $context_id = false;  // Override context_id
 	private $server_input = false;
+	private $post = false;
 
     function __construct($consumer=false, $shared_secret=false, $usesession=true, $doredirect=true) {
+		$this->server_input = filter_input_array(INPUT_SERVER, FILTER_SANITIZE_STRING); //jb: sanitize $_SERVER global
+		$this->post = filter_input_array(INPUT_POST, FILTER_SANITIZE_STRING); //jb: sanitize $_POST global
+		
         // If this request is not an LTI Launch, either
         // give up or try to retrieve the context from session
         $myKeys[$consumer] = $shared_secret;
@@ -94,7 +98,7 @@ class BLTI {
 
         // Store the launch information in the session for later
         $newinfo = array();
-        foreach($_POST as $key => $value ) {
+        foreach($post as $key => $value ) {
             if ( $key == "basiclti_submit" ) continue;
             if ( strpos($key, "oauth_") === false ) {
                 $newinfo[$key] = $value;
@@ -119,8 +123,6 @@ class BLTI {
             $this->redirect();
             $this->complete = true;
         }
-		
-		$this->server_input = filter_input_array(INPUT_SERVER, FILTER_SANITIZE_STRING); //jb: sanitize $_SERVER global
     }
 
     function addSession($location) {
