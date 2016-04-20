@@ -98,7 +98,7 @@ class BLTI {
 
         // Store the launch information in the session for later
         $newinfo = array();
-        foreach($post as $key => $value ) {
+        foreach($this->post as $key => $value ) {
             if ( $key == "basiclti_submit" ) continue;
             if ( strpos($key, "oauth_") === false ) {
                 $newinfo[$key] = $value;
@@ -189,7 +189,7 @@ class BLTI {
         $email = $this->getUserEmail();
         if ( $email === false ) return false;
         $size = 40;
-        $grav_url = $server_input['HTTPS'] ? 'https://' : 'http://';
+        $grav_url = $this->server_input['HTTPS'] ? 'https://' : 'http://';
         $grav_url = $grav_url . "www.gravatar.com/avatar.php?gravatar_id=".md5( strtolower($email) )."&size=".$size;
         return $grav_url;
     }
@@ -232,9 +232,9 @@ class BLTI {
 
     // TODO: Add javasript version if headers are already sent
     function redirect() {
-            $host = $server_input['HTTP_HOST'];
-            $uri = $server_input['PHP_SELF'];
-            $location = $server_input['HTTPS'] ? 'https://' : 'http://';
+            $host = $this->server_input['HTTP_HOST'];
+            $uri = $this->server_input['PHP_SELF'];
+            $location = $this->server_input['HTTPS'] ? 'https://' : 'http://';
             $location = $location . $host . $uri;
             $location = $this->addSession($location);
             header("Location: $location");
