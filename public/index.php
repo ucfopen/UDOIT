@@ -163,6 +163,7 @@ session_write_close();
 
 $render_arr = [
 	'welcome_message' => $udoit_welcome_message,
+	'disclaimer_message' => $udoit_disclaimer_message,
 	'launch_params'   => $_SESSION['launch_params'],
 	'udoit_tests'     => $udoit_tests
 ];
