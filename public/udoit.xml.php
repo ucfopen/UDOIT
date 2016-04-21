@@ -18,7 +18,8 @@
 *	Primary Author Contact:  Jacob Bates <jacob.bates@ucf.edu>
 */
 $servername = 'https://' . $_SERVER['SERVER_NAME'];
-$scriptname=end(explode('/',$_SERVER['PHP_SELF']));
+$exploded = explode('/',$_SERVER['PHP_SELF']);
+$scriptname= @end( $exploded );
 $scriptpath=str_replace($scriptname,'',$_SERVER['PHP_SELF']);
 $launch = $servername . $scriptpath;
 header('Content-type: text/xml');
