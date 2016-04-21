@@ -67,8 +67,12 @@ if (isset($_GET['code'])) {
 	$response = json_decode(curl_exec($ch));
 	curl_close($ch);
 
-	// TODO: Check to make sure response is correct before saving it and moving on
 	// It should have access_token and refresh_token
+	if( !isset($response->access_token) || !isset($response->refresh_token) ){
+		printError('Authentication problem:  Please contact support.');
+	}
+
+	// Save the API key to the session variable
 	$_SESSION['api_key'] = $response->access_token;
 
 	// Save Refresh Key to DB
