@@ -67,10 +67,15 @@ if (isset($_GET['code'])) {
 	$response = json_decode(curl_exec($ch));
 	curl_close($ch);
 
+	// It should have access_token and refresh_token
+	if( !isset($response->access_token) || !isset($response->refresh_token) ){
+		printError('Authentication problem:  Please contact support.');
+	}
+
+	// Save the API key to the session variable
 	$_SESSION['api_key'] = $response->access_token;
 
-	// TODO: Modify to save refresh token instead
-	// Save API Key to DB
+	// Save Refresh Key to DB
 	$dbh = include('../lib/db.php');
 
 	$sth = $dbh->prepare("SELECT * FROM $db_user_table WHERE id=:userid LIMIT 1");
@@ -85,7 +90,7 @@ if (isset($_GET['code'])) {
 		$sth = $dbh->prepare("INSERT INTO $db_user_table (id, api_key, date_created) VALUES (:userid, :key, CURRENT_TIMESTAMP)");
 	}
 
-	$sth->bindParam(':key', $_SESSION['api_key'], PDO::PARAM_STR);
+	$sth->bindParam(':key', $response->refresh_token, PDO::PARAM_STR);
 	$sth->bindParam(':userid', $_SESSION['launch_params']['custom_canvas_user_id'], PDO::PARAM_INT);
 	$sth->execute();
 

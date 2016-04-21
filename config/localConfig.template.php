@@ -15,6 +15,9 @@ $doc_length = '1500';
 /* Google/YouTube Data Api Key */
 define( 'GOOGLE_API_KEY', '');
 
+/* Google Analytics Tracking Code */
+define( 'GA_TRACKING_CODE', '');
+
 /* Database Config */
 $db_type          = 'mysql'; // 'mysql' or 'pgsql'
 $db_host          = ''; // localhost or some other domain/ip
