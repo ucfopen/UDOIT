@@ -145,8 +145,6 @@ if( $refresh ) {
 		//If there is no user in the DB, send them to the Oauth2 process
 		$redirect = true;
 	}
-	//Otherwise, redirect to the Oauth2 process
-	$redirect = true;
 }
 
 // if the redirect key was invalid or we didn't have a redirect key, start the oauth2 process
