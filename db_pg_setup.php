@@ -6,7 +6,7 @@ $reports_sql = "CREATE TABLE IF NOT EXISTS {$db_reports_table} (
   user_id integer,
   course_id integer,
   file_path text,
-  date_run bigint,
+  date_run timestamp with time zone,
   errors integer,
   suggestions integer
 );";
