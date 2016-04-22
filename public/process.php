@@ -65,12 +65,12 @@ switch ($post['main_action']) {
             'content'       => $udoit->bad_content,
         ];
         $encoded_report   = json_encode($to_encode);
-        $report_directory = 'reports/'.$user_id.'/'.$to_encode['course']; //jb: changed to reference correct reports dir
+        $report_directory = '../reports/'.$user_id.'/'.$to_encode['course'];
 
         if (!file_exists($report_directory)) {
 
             mkdir($report_directory, 0755, true); //jb: changed from 777 to 755 to promote security
-            chmod('reports/'.$user_id, 0755); //jb: changed from 777 to 755 to promote security
+            chmod('../reports/'.$user_id, 0755); //jb: changed from 777 to 755 to promote security
             chmod($report_directory, 0755); //jb: changed from 777 to 755 to promote security
         }
 

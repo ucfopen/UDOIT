@@ -68,12 +68,17 @@ function isYouTubeVideo($link_url, $regex)
 	return null;
 }
 
+// Helper function to quickly escape HTML output
+function esc_attr($s) {
+    echo htmlspecialchars($s, ENT_QUOTES, 'utf-8');
+}
+
 ?>
 
 <h1 class="text-center">
-	Report for <?= $udoit_report->course ?>
+	Report for <?php esc_attr($udoit_report->course) ?>
 	<br>
-	<small><?= $udoit_report->total_results->errors; ?> errors, <?= $udoit_report->total_results->suggestions; ?> suggestions</small>
+	<small><?php esc_attr($udoit_report->total_results->errors); ?> errors, <?php esc_attr($udoit_report->total_results->suggestions); ?> suggestions</small>
 </h1>
 
 <p>
