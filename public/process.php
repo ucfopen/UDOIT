@@ -123,7 +123,7 @@ switch ($_POST['main_action']) {
             chmod($report_directory, 0777);
         }
 
-        $file = $report_directory.'/'.date('Y_m_d__g:i_a').'.json';
+        $file = $report_directory.'/'.date('Y_m_d__g:i:s_a').'.json';
 
         file_put_contents($file, $encoded_report);
         chmod($file, 0777);
