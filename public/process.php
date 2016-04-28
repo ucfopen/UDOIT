@@ -235,7 +235,8 @@ switch ($_POST['main_action']) {
                 $ufixit->uploadFixedAssignments($corrected_error, $data['error_html']);
                 break;
             case 'files':
-                $ufixit->uploadFixedFiles($corrected_error, $data['error_html']);
+                $file_info = $ufixit->uploadFixedFiles($corrected_error, $data['error_html']);
+                print_r( json_encode($file_info) );
                 break;
             case 'pages':
                 $ufixit->uploadFixedPages($corrected_error, $data['error_html']);

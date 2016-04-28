@@ -575,9 +575,14 @@ class Ufixit
         // Step 3 in uploading
         $response = Request::post($confirm_uri)->body(['access_token' => $this->api_key])->sendsType(\Httpful\Mime::FORM)->send();
 
+        $new_file['id'] = $response->body->id;
+        $new_file['url'] = $response->body->url;
+
         // Delete the local file
         unlink("file_temp/".$this->curled_file["parent_folder_path"]."/".$this->curled_file["name"]);
         rmdir("file_temp/".$this->curled_file["parent_folder_path"]);
+
+        return $new_file;
     }
 
 

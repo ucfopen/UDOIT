@@ -101,7 +101,7 @@ function isYouTubeVideo($link_url, $regex)
 						<div class="panel-heading clearfix">
 							<button class="btn btn-xs btn-default btn-toggle pull-left no-print margin-right-small"><span class="glyphicon glyphicon-plus"></span></button>
 
-							<h3 class="plus pull-left"><a href="<?= $report->url; ?>" target="_blank"><?= $report->name; ?>&nbsp;<small><span class ="glyphicon glyphicon-new-window"></span></small></a></h3>
+							<h3 class="plus pull-left"><a class="report-url" href="<?= $report->url; ?>" target="_blank"><?= $report->name; ?>&nbsp;<small><span class ="glyphicon glyphicon-new-window"></span></small></a></h3>
 
 							<div class="pull-right">
 								<?php if (count($report->error) > 0): ?>
@@ -145,7 +145,7 @@ function isYouTubeVideo($link_url, $regex)
 											<?php endif; ?>
 											<div>
 												<?php if($newItemType): ?>
-													<a href="#collapse-<?= $report->id; ?>-<?= $issue_count; ?>" data-toggle="collapse"><h5 class="text-danger pull-left title-line"><span class="badge badge-error"><?= $instanceIndices[$indice]; ?></span>&nbsp;<?= $item->title; ?></h5></a>
+													<a href="#collapse-<?= $issue_count; ?>" data-toggle="collapse"><h5 class="text-danger pull-left title-line"><span class="badge badge-error"><?= $instanceIndices[$indice]; ?></span>&nbsp;<?= $item->title; ?></h5></a>
 													<?php if ((isset($item->description)) && $newItemType): ?>
 														<div class="error-desc">
 															<p><?= $item->description ?></p>
@@ -156,7 +156,7 @@ function isYouTubeVideo($link_url, $regex)
 													<p class="fix-success hidden"><?= $instance; ?>. <span class="label label-success margin-left-small" style="margin-top: -2px;">Done!</span></p>
 												<?php endif; ?>
 												
-												<div id="collapse-<?= $report->id; ?>-<?= $issue_count; ?>" class="collapse in fade margin-top-small">
+												<div id="collapse-<?= $issue_count; ?>" class="collapse in fade margin-top-small">
 													<?php if ($item->html): ?>
 														<p class="instance"><?= $instance; ?>. <a class="viewError" href="#viewError">View the source of this issue</a><a class="closeError hidden" href="#closeError">&nbsp;Close this view&nbsp;</a></p>
 														<div class="more-info hidden instance">
@@ -245,13 +245,13 @@ function isYouTubeVideo($link_url, $regex)
 																		</ul>
 																	</div>
 																</div>
-																	<button class="submit-content btn btn-default" type="submit">Submit</button>
+																	<button class="submit-content inactive btn btn-default" type="submit">Submit</button>
 																	<?php break; ?>
 																<?php case "headersHaveText": ?>
 																	<div class="form-group no-margin margin-bottom">
 																		<input class="{hash:true,caps:false} form-control" type="text" name="newcontent" placeholder="New heading text">
 																		<label><input class="remove-heading" type="checkbox" />&nbsp;Delete this Header completely instead</label><br />
-																		<button class="submit-content btn btn-default" type="submit">Submit</button>
+																		<button class="submit-content inactive btn btn-default" type="submit">Submit</button>
 																	</div>
 																	<?php break; ?>
 																<?php case "aMustContainText": ?>
@@ -260,7 +260,7 @@ function isYouTubeVideo($link_url, $regex)
 																	<div class="form-group no-margin margin-bottom">
 																		<input class="{hash:true,caps:false} form-control" type="text" name="newcontent" placeholder="New link text">
 																		<label><input class="remove-link" type="checkbox" />&nbsp;Delete this Link completely instead</label><br />
-																		<button class="submit-content btn btn-default" type="submit">Submit</button>
+																		<button class="submit-content inactive btn btn-default" type="submit">Submit</button>
 																	</div>
 																	<?php break; ?>
 																<?php case "imgHasAlt": ?>
@@ -270,7 +270,7 @@ function isYouTubeVideo($link_url, $regex)
 																		<span class="counter">100</span>
 																		<input class="form-control" type="text" name="newcontent" maxlength="100" placeholder="New alt text">
 																		<span class="input-group-btn">
-																			<button class="submit-content btn btn-default" type="submit">Submit</button>
+																			<button class="submit-content inactive btn btn-default" type="submit">Submit</button>
 																		</span>
 																	</div>
 																	<?php break; ?>
@@ -284,7 +284,7 @@ function isYouTubeVideo($link_url, $regex)
 																			<option value="both">Both the first row and column</option>
 																		</select>
 																		<span class="input-group-btn">
-																			<button class="submit-content btn btn-default" type="submit">Submit</button>
+																			<button class="submit-content inactive btn btn-default" type="submit">Submit</button>
 																		</span>
 																	</div>
 																	<?php break; ?>
@@ -295,7 +295,7 @@ function isYouTubeVideo($link_url, $regex)
 																			<option value="row">row</option>
 																		</select>
 																		<span class="input-group-btn">
-																			<button class="submit-content btn btn-default" type="submit">Submit</button>
+																			<button class="submit-content inactive btn btn-default" type="submit">Submit</button>
 																		</span>
 																	</div>
 																	<?php break; ?>
@@ -303,7 +303,7 @@ function isYouTubeVideo($link_url, $regex)
 																	<div class="input-group">
 																		<input class="form-control" type="text" name="newcontent" placeholder="New link description">
 																		<span class="input-group-btn">
-																			<button class="submit-content btn btn-default" type="submit">Submit</button>
+																			<button class="submit-content inactive btn btn-default" type="submit">Submit</button>
 																		</span>
 																	</div>
 																	<?php break; ?>
@@ -379,7 +379,7 @@ function isYouTubeVideo($link_url, $regex)
 											<?php endif; ?>
 											<div>
 												<?php if($newItemType): ?>
-													<a href="#collapse-<?= $report->id; ?>-<?= $issue_count; ?>" data-toggle="collapse"><h5 class="text-danger pull-left title-line"><span class="badge badge-error"><?= $instanceIndices[$indice]; ?></span>&nbsp;<?= $item->title; ?></h5></a>
+													<a href="#collapse-<?= $issue_count; ?>" data-toggle="collapse"><h5 class="text-danger pull-left title-line"><span class="badge badge-error"><?= $instanceIndices[$indice]; ?></span>&nbsp;<?= $item->title; ?></h5></a>
 													<?php if ((isset($item->description)) && $newItemType): ?>
 														<div class="error-desc">
 															<p><?= $item->description ?></p>
@@ -389,7 +389,7 @@ function isYouTubeVideo($link_url, $regex)
 												<?php if ($item->type === "aSuspiciousLinkText" || $item->type === "aLinkTextDoesNotBeginWithRedundantWord" || $item->type === "cssTextStyleEmphasize"): ?>
 													<p class="fix-success hidden"><?= $instance; ?>. <span class="label label-success margin-left-small" style="margin-top: -2px;">Done!</span></p>
 												<?php endif; ?>
-												<div id="collapse-<?= $report->id; ?>-<?= $issue_count; ?>" class="collapse in fade margin-top-small">
+												<div id="collapse-<?= $issue_count; ?>" class="collapse in fade margin-top-small">
 													<?php if ($item->html): ?>
 														<p class="instance"><?= $instance; ?>. <a class="viewError" href="#viewError">View the source of this issue</a><a class="closeError hidden" href="#closeError">&nbsp;Close this view&nbsp;</a></p>
 														<div class="more-info hidden instance">
@@ -420,7 +420,7 @@ function isYouTubeVideo($link_url, $regex)
 																	<div class="form-group no-margin margin-bottom">
 																		<input class="{hash:true,caps:false} form-control" type="text" name="newcontent" placeholder="New link text">
 																		<label><input class="remove-link" type="checkbox" />&nbsp;Delete this Link completely instead</label><br />
-																		<button class="submit-content btn btn-default" type="submit">Submit</button>
+																		<button class="submit-content inactive btn btn-default" type="submit">Submit</button>
 																	</div>
 																	<?php break; ?>
 																<?php break; ?>
@@ -440,7 +440,7 @@ function isYouTubeVideo($link_url, $regex)
 																			<p>Text</p>
 																		</div>
 																	</div>
-																	<button class="submit-content btn btn-default clear" type="submit" value="<?= $item->type ?>">Submit</button>
+																	<button class="submit-content inactive btn btn-default clear" type="submit" value="<?= $item->type ?>">Submit</button>
 																	<?php break; ?>
 															<?php endswitch; ?>
 															</form>
