@@ -4,8 +4,13 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
+<<<<<<< HEAD
     "hash": "3e9a1e27ff899e9046e1e9f16bd7ce4a",
     "content-hash": "38f91d8e25b939909eb10c4b8c421698",
+=======
+    "hash": "706c164b15426c7297ddcb0202036a61",
+    "content-hash": "ecb334706b791aa01d6e6870ade3a4c2",
+>>>>>>> 5ad0e1e50bca195b7ad82115cb07040c8dcc6e3f
     "packages": [
         {
             "name": "league/plates",
@@ -265,6 +270,7 @@
         },
         {
             "name": "heroku/heroku-buildpack-php",
+<<<<<<< HEAD
             "version": "v91",
             "source": {
                 "type": "git",
@@ -860,6 +866,18 @@
                 "type": "zip",
                 "url": "https://api.github.com/repos/sebastianbergmann/diff/zipball/13edfd8706462032c2f52b4b862974dd46b71c9e",
                 "reference": "13edfd8706462032c2f52b4b862974dd46b71c9e",
+=======
+            "version": "v98",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/heroku/heroku-buildpack-php.git",
+                "reference": "4ed1bd8f6961b8951c24778b3bb0fc06f07e8c12"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/heroku/heroku-buildpack-php/zipball/4ed1bd8f6961b8951c24778b3bb0fc06f07e8c12",
+                "reference": "4ed1bd8f6961b8951c24778b3bb0fc06f07e8c12",
+>>>>>>> 5ad0e1e50bca195b7ad82115cb07040c8dcc6e3f
                 "shasum": ""
             },
             "require": {
@@ -1151,6 +1169,7 @@
                     "role": "lead"
                 }
             ],
+<<<<<<< HEAD
             "description": "Library that helps with managing the version number of Git-hosted PHP projects",
             "homepage": "https://github.com/sebastianbergmann/version",
             "time": "2015-06-21 13:59:46"
@@ -1158,6 +1177,13 @@
         {
             "name": "symfony/polyfill-mbstring",
             "version": "v1.1.0",
+=======
+            "time": "2016-03-21 23:17:57"
+        },
+        {
+            "name": "symfony/polyfill-mbstring",
+            "version": "v1.1.1",
+>>>>>>> 5ad0e1e50bca195b7ad82115cb07040c8dcc6e3f
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/polyfill-mbstring.git",
@@ -1216,6 +1242,7 @@
         },
         {
             "name": "symfony/var-dumper",
+<<<<<<< HEAD
             "version": "v3.0.1",
             "source": {
                 "type": "git",
@@ -1226,6 +1253,18 @@
                 "type": "zip",
                 "url": "https://api.github.com/repos/symfony/var-dumper/zipball/87db8700deb12ba2b65e858f656a1f885530bcb0",
                 "reference": "87db8700deb12ba2b65e858f656a1f885530bcb0",
+=======
+            "version": "v3.0.3",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/symfony/var-dumper.git",
+                "reference": "9a6a883c48acb215d4825ce9de61dccf93d62074"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/symfony/var-dumper/zipball/9a6a883c48acb215d4825ce9de61dccf93d62074",
+                "reference": "9a6a883c48acb215d4825ce9de61dccf93d62074",
+>>>>>>> 5ad0e1e50bca195b7ad82115cb07040c8dcc6e3f
                 "shasum": ""
             },
             "require": {
@@ -1275,6 +1314,7 @@
                 "debug",
                 "dump"
             ],
+<<<<<<< HEAD
             "time": "2015-12-05 11:13:14"
         },
         {
@@ -1325,6 +1365,9 @@
             "description": "Symfony Yaml Component",
             "homepage": "https://symfony.com",
             "time": "2015-12-26 13:39:53"
+=======
+            "time": "2016-02-13 09:23:44"
+>>>>>>> 5ad0e1e50bca195b7ad82115cb07040c8dcc6e3f
         }
     ],
     "aliases": [],

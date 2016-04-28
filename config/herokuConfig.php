@@ -32,4 +32,13 @@ class Config {
 
     /* Google/YouTube Data Api Key */
     const GOOGLE_API_KEY    = getenv('GOOGLE_API_KEY')?:'';
+
+    /* Google Analytics Tracking Code */
+    const GA_TRACKING_CODE  = '';
 }
+
+/* Google/YouTube Data Api Key */
+define( 'GOOGLE_API_KEY', getenv('GOOGLE_API_KEY')?:'');
+
+/* Google Analytics Tracking Code */
+define( 'GA_TRACKING_CODE', '');

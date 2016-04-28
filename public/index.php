@@ -28,7 +28,9 @@ header('Content-Type: text/html; charset=utf-8');
 
 $templates = new League\Plates\Engine('../templates');
 
-if ( ! isset($_SESSION['valid'])) {
+// If we have oauth values in post or if we don't have a valid session variable, set the variable to false
+// This forces the user to go through the BLTI verification
+if ( isset($_POST["oauth_consumer_key"]) || !isset($_SESSION['valid'])) {
 	$_SESSION['valid'] = false;
 }
 
@@ -51,8 +53,6 @@ if ($_SESSION['valid'] === false) {
 	$_SESSION['launch_params']['context_title'] = $_POST['context_title'];
 	$_SESSION['valid'] = true;
 }
-
-$redirect = true;
 
 // Establish base_url given by canvas API
 if( isset($_POST['custom_canvas_api_domain']) ){
@@ -81,32 +81,71 @@ if( isset($_POST['custom_canvas_api_domain']) ){
 		die();
 }
 
-$dbh = include('../lib/db.php');
-$table = Config::DB_USER_TABLE;
+// By default, we'll be redirecting to the Oauth2 process, unless something below interrupts that redirect
+$redirect = true;
 
-// Pull the API key from the database
-$sth = $dbh->prepare("SELECT * FROM $table WHERE id=:userid LIMIT 1");
-$sth->bindParam(':userid', $_SESSION['launch_params']['custom_canvas_user_id'], PDO::PARAM_INT);
-$sth->execute();
-
-$result = $sth->fetchAll();
-
-if (isset($result[0])) {
-	$_SESSION['api_key'] = $result[0]['api_key'];
-}
-
-// Do we have an API key?
+// Test the API key from the session first.
+// If it doesn't work, we need to go through the refresh process
 if (isset($_SESSION['api_key'])) {
 	//If we do, test it out
-	$url = Config::BASE_URL.'/api/v1/users/'.$_SESSION['launch_params']['custom_canvas_user_id'].'/profile?access_token='.$_SESSION['api_key'];
-	$resp = Request::get($url)->send();
-	$redirect = !isset($resp->body->id);
+	$url = Config::BASE_URL.'api/v1/users/'.$_SESSION['launch_params']['custom_canvas_user_id'].'/profile';
+	$resp = Request::get($url)
+		->addHeader('Authorization', 'Bearer '.$_SESSION['api_key'])
+		->send();
+	$refresh = !isset($resp->body->id);
+	$redirect = false;
 } else {
-	//Otherwise, redirect to the oauth2 process
-	$redirect = true;
+	$refresh = true;
 }
 
-// if the api key was invalid, or we didn't have an api key, start the oauth2 process
+if( $refresh ) {
+	$dbh = include('../lib/db.php');
+
+	// Pull the Refresh Token from the database
+	$sth = $dbh->prepare("SELECT * FROM $db_user_table WHERE id=:userid LIMIT 1");
+	$sth->bindParam(':userid', $_SESSION['launch_params']['custom_canvas_user_id'], PDO::PARAM_INT);
+	$sth->execute();
+
+	$result = $sth->fetchAll();
+
+	if (isset($result[0])) {
+		$_SESSION['refresh_token'] = $result[0]['api_key'];
+
+		//Exchange Refresh Token for API Key
+		$url = $base_url . '/login/oauth2/token';
+
+		$postdata = array(
+			'grant_type' => 'refresh_token',
+			'client_id' => $oauth2_id,
+			'redirect_uri' => $oauth2_uri,
+			'client_secret' => $oauth2_key,
+			'refresh_token' => $_SESSION['refresh_token']
+		);
+
+		$post = http_build_query($postdata);
+		$ch = curl_init($url);
+
+		curl_setopt($ch, CURLOPT_POST, 1);
+		curl_setopt($ch, CURLOPT_POSTFIELDS, $post);
+		curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+
+		$response = json_decode(curl_exec($ch));
+		curl_close($ch);
+
+		// Check response to make sure the refresh token is still valid.  If not valid, go through Oauth2
+		if ( isset($response->access_token) ){
+			$_SESSION['api_key'] = $response->access_token;
+			$redirect = false;
+		} else {
+			$redirect = true;
+		}
+	} else {
+		//If there is no user in the DB, send them to the Oauth2 process
+		$redirect = true;
+	}
+}
+
+// if the redirect key was invalid or we didn't have a redirect key, start the oauth2 process
 if ($redirect) {
 	//Redirect user to oauth2 endpoint on the Canvas end
 	session_write_close();
@@ -120,6 +159,7 @@ session_write_close();
 
 $render_arr = [
 	'welcome_message' => $udoit_welcome_message,
+	'disclaimer_message' => $udoit_disclaimer_message,
 	'launch_params'   => $_SESSION['launch_params'],
 	'udoit_tests'     => $udoit_tests
 ];
