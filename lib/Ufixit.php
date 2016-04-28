@@ -29,7 +29,7 @@ class Ufixit
      * Array of annoying characters to filter out of strings
      * @var array
      */
-    public $annoying_entities = ["\r", "&nbsp;"];
+    public $annoying_entities = ["\r", "&nbsp;", "&amp;", "%2F", "%22"];
 
     /**
      * The API key needed to communicate with Canvas
@@ -71,7 +71,7 @@ class Ufixit
      * Array of replacements for the annoying entities
      * @var array
      */
-    public $entity_replacements = ["", " "];
+    public $entity_replacements = ["", " ", "&", "/", ""];
 
     /**
      * A file pointer
@@ -551,9 +551,12 @@ class Ufixit
 
         //step 2 for uploading
         $upload_uri = $response->upload_url;
+
         //send everything again
         $post_data = (array)$response->upload_params;
-        $post_data['file'] = "@".$file;
+
+        $f = fopen($file, "r");
+        $post_data['file'] = fread($f, filesize($file));
 
         $response = Request::post($upload_uri)->body($post_data)->sendsType(\Httpful\Mime::UPLOAD)->send();
 
@@ -566,6 +569,8 @@ class Ufixit
         }
 
         $confirm_uri = $matches[1];
+
+        $confirm_uri = str_replace($this->annoying_entities, $this->entity_replacements, $confirm_uri);
 
         // Step 3 in uploading
         $response = Request::post($confirm_uri)->body(['access_token' => $this->api_key])->sendsType(\Httpful\Mime::FORM)->send();
