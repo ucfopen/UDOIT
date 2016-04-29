@@ -12,8 +12,8 @@ $settings = [
 
 $this->layout('template', $settings);
 
-//ja: Sanitize $post parameters
-$post  = filter_input_array(INPUT_POST, FILTER_SANITIZE_STRING);
+//Sanitize $_POST parameters
+$post_input  = filter_input_array(INPUT_POST, FILTER_SANITIZE_STRING);
 
 ?>
 <ul class="nav nav-tabs nav-justified" role="tablist">
@@ -36,7 +36,7 @@ $post  = filter_input_array(INPUT_POST, FILTER_SANITIZE_STRING);
 			</div>
 			<form class="form-horizontal no-print" id="udoitForm" method="post" action="lib/process.php" role="form">
 				<input type="hidden" name="main_action" value="udoit">
-				<input type="hidden" name="base_url" value="https://<?=$post['custom_canvas_api_domain']?>/">
+				<input type="hidden" name="base_url" value="https://<?=$post_input['custom_canvas_api_domain']?>/">
 				<input type="hidden" name="session_course_id" value="<?=$launch_params['custom_canvas_course_id']?>">
 				<input type="hidden" name="session_context_label" value="<?=$launch_params['context_label']?>">
 				<input type="hidden" name="session_context_title" value="<?=$launch_params['context_title']?>">

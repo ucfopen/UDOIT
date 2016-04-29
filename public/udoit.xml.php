@@ -17,17 +17,13 @@
 *
 *	Primary Author Contact:  Jacob Bates <jacob.bates@ucf.edu>
 */
-<<<<<<< HEAD
-$servername = 'https://' . $_SERVER['SERVER_NAME'];
-$exploded = explode('/',$_SERVER['PHP_SELF']);
+
+$server = filter_input_array(INPUT_SERVER, FILTER_SANITIZE_STRING); //Sanitize $_SERVER global
+$servername = 'https://' . $server['SERVER_NAME'];
+$exploded = explode('/',$server['PHP_SELF']);
 $scriptname= @end( $exploded );
-$scriptpath=str_replace($scriptname,'',$_SERVER['PHP_SELF']);
-=======
-$server = filter_input_array(INPUT_SERVER, FILTER_SANITIZE_STRING); //jb: sanitize $_SERVER global
-$servername = 'https://' . $server['SERVER_NAME']; 
-$scriptname=end(explode('/',$server['PHP_SELF']));
 $scriptpath=str_replace($scriptname,'',$server['PHP_SELF']);
->>>>>>> master
+
 $launch = $servername . $scriptpath;
 header('Content-type: text/xml');
 echo '<?xml version="1.0" encoding="UTF-8"?>';

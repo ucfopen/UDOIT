@@ -21,7 +21,7 @@ require_once('../config/settings.php');
 
 session_start();
 
-$get = filter_input_array(INPUT_GET, FILTER_SANITIZE_STRING); //jb: sanitize $_GET global
+$get = filter_input_array(INPUT_GET, FILTER_SANITIZE_STRING); //Sanitize $_GET global
 
 function printError($msg){
 	echo '

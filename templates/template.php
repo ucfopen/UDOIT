@@ -26,7 +26,8 @@
 		<?php endif; ?>
 
 		<?php
-		$ga_tracking_code = constant('GA_TRACKING_CODE');
+
+		$ga_tracking_code = defined('GA_TRACKING_CODE') ? constant('GA_TRACKING_CODE') : '';
 		?>
 		<?php if( trim($ga_tracking_code) !== '' ): ?>
 			<script>

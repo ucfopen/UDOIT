@@ -19,9 +19,9 @@
 */
 require_once('../config/settings.php');
 
-$post = filter_input_array(INPUT_POST, FILTER_SANITIZE_STRING); //jb: sanitize $_POST global
+$post_input = filter_input_array(INPUT_POST, FILTER_SANITIZE_STRING); //Sanitize $_POST global
 
-if (isset($post['cached_id'])) {
+if (isset($post_input['cached_id'])) {
 	$dbh = include('../lib/db.php');
 
 	$sth = $dbh->prepare("
@@ -31,7 +31,7 @@ if (isset($post['cached_id'])) {
 			id=:cachedid
 	");
 
-	$sth->bindParam(':cachedid', $post['cached_id'], PDO::PARAM_INT);
+	$sth->bindParam(':cachedid', $post_input['cached_id'], PDO::PARAM_INT);
 
 	if (!$sth->execute()) {
 		error_log(print_r($sth->errorInfo(), true));
@@ -40,7 +40,7 @@ if (isset($post['cached_id'])) {
 
 	$the_json     = file_get_contents($sth->fetchAll(PDO::FETCH_OBJ)[0]->file_path);
 	$udoit_report = json_decode($the_json);
-} elseif ($post['main_action'] === "cached") {
+} elseif ($post_input['main_action'] === "cached") {
 	die('<div class="alert alert-danger no-margin">Cannot parse this report. JSON file not found.</div>');
 }
 
@@ -82,7 +82,7 @@ function esc_attr($s) {
 </h1>
 
 <p>
-	<?php if(!empty($post['path'])): ?>
+	<?php if(!empty($post_input['path'])): ?>
 		<button class="btn btn-default btn-xs no-print" id="backToResults">Back to cached reports</button>
 	<?php endif; ?>
 	<button class="btn btn-default btn-s no-print" id="savePdf"><div class="circle-black hidden"></div><span class="glyphicon glyphicon-save"></span> Save report as PDF</button>
@@ -180,7 +180,7 @@ function esc_attr($s) {
 														</div>
 													<?php endif; ?>
 
-													<?php if (empty($post['path'])): ?>
+													<?php if (empty($post_input['path'])): ?>
 														<?php if ($item->type === "cssTextHasContrast" || $item->type === "imgHasAlt" || $item->type === "imgNonDecorativeHasAlt" || $item->type === "tableDataShouldHaveTh" || $item->type === "tableThShouldHaveScope" || $item->type === "headersHaveText" || $item->type == "aMustContainText" || $item->type == "imgAltIsDifferent"): ?>
 															<button class="fix-this no-print btn btn-success instance" value="<?= $item->type ?>">U FIX IT!</button>
 															<div class="toolmessage instance">UFIXIT is disabled because this is an old report. Rescan the course to use UFIXIT.</div>
@@ -408,7 +408,7 @@ function esc_attr($s) {
 														</div>
 													<?php endif; ?>
 
-													<?php if (empty($post['path'])): ?>
+													<?php if (empty($post_input['path'])): ?>
 														<?php if ($item->type === "aSuspiciousLinkText" || $item->type === "aLinkTextDoesNotBeginWithRedundantWord" || $item->type === "cssTextStyleEmphasize"): ?>
 															<button class="fix-this no-print btn btn-success instance" value="<?= $item->type; ?>">U FIX IT!</button>
 															<div class="toolmessage instance">UFIXIT is disabled because this is an old report. Rescan the course to use UFIXIT.</div>

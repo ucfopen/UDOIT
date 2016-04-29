@@ -26,8 +26,8 @@ class BLTI {
 	private $post = false;
 
     function __construct($consumer=false, $shared_secret=false, $usesession=true, $doredirect=true) {
-		$this->server_input = filter_input_array(INPUT_SERVER, FILTER_SANITIZE_STRING); //jb: sanitize $_SERVER global
-		$this->post = filter_input_array(INPUT_POST, FILTER_SANITIZE_STRING); //jb: sanitize $_POST global
+		$this->server_input = filter_input_array(INPUT_SERVER, FILTER_SANITIZE_STRING); //Sanitize $_SERVER global
+		$this->post = filter_input_array(INPUT_POST, FILTER_SANITIZE_STRING); //Sanitize $_POST global
 		
         // If this request is not an LTI Launch, either
         // give up or try to retrieve the context from session

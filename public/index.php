@@ -25,14 +25,16 @@ error_reporting(E_ALL & ~E_NOTICE);
 ini_set("display_errors", 1);
 session_start();
 header('Content-Type: text/html; charset=utf-8');
-//ja: Sanitize $post parameters
-$post  = filter_input_array(INPUT_POST, FILTER_SANITIZE_STRING);
+//Sanitize $_POST parameters
+$post_input  = filter_input_array(INPUT_POST, FILTER_SANITIZE_STRING);
 
 $templates = new League\Plates\Engine('../templates');
 
+$post_input['oauth_consumer_key'] = filter_input(INPUT_POST,'oauth_consumer_key',FILTER_SANITIZE_NUMBER_INT);
+
 // If we have oauth values in post or if we don't have a valid session variable, set the variable to false
 // This forces the user to go through the BLTI verification
-if ( isset($_POST["oauth_consumer_key"]) || !isset($_SESSION['valid'])) {
+if ( isset($post_input['oauth_consumer_key']) || !isset($_SESSION['valid'])) {
 	$_SESSION['valid'] = false;
 }
 
@@ -49,16 +51,16 @@ if ($_SESSION['valid'] === false) {
 		exit();
 	}
 
-	$_SESSION['launch_params']['custom_canvas_user_id'] = $post['custom_canvas_user_id'];
-	$_SESSION['launch_params']['custom_canvas_course_id'] = $post['custom_canvas_course_id'];
-	$_SESSION['launch_params']['context_label'] = $post['context_label'];
-	$_SESSION['launch_params']['context_title'] = $post['context_title'];
+	$_SESSION['launch_params']['custom_canvas_user_id'] = filter_input(INPUT_POST, 'custom_canvas_user_id', FILTER_SANITIZE_NUMBER_INT);
+	$_SESSION['launch_params']['custom_canvas_course_id'] = filter_input(INPUT_POST, 'custom_canvas_course_id', FILTER_SANITIZE_NUMBER_INT);
+	$_SESSION['launch_params']['context_label'] = $post_input['context_label'];
+	$_SESSION['launch_params']['context_title'] = $post_input['context_title'];
 	$_SESSION['valid'] = true;
 }
 
 // Establish base_url given by canvas API
-if( isset($post['custom_canvas_api_domain']) ){
-	$base_url = $_SESSION['base_url'] = 'https://'.$post['custom_canvas_api_domain'].'/';
+if( isset($post_input['custom_canvas_api_domain']) ){
+	$base_url = $_SESSION['base_url'] = 'https://'.$post_input['custom_canvas_api_domain'].'/';
 } elseif( isset($_SESSION['base_url']) ){
 	$base_url = $_SESSION['base_url'];
 } else {
