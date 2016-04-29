@@ -21,6 +21,8 @@ require_once('../config/settings.php');
 
 session_start();
 
+$get = filter_input_array(INPUT_GET, FILTER_SANITIZE_STRING); //jb: sanitize $_GET global
+
 function printError($msg){
 	echo '
 <!DOCTYPE html>
@@ -45,7 +47,7 @@ function printError($msg){
 
 $base_url = $_SESSION['base_url'];
 
-if (isset($_GET['code'])) {
+if (isset($get['code'])) {
 	//Exchange code for API key
 	$url = $base_url . '/login/oauth2/token';
 
@@ -54,7 +56,7 @@ if (isset($_GET['code'])) {
 		'client_id' => $oauth2_id,
 		'redirect_uri' => $oauth2_uri,
 		'client_secret' => $oauth2_key,
-		'code' => $_GET['code']
+		'code' => $get['code']
 	);
 
 	$post = http_build_query($postdata);
@@ -96,7 +98,7 @@ if (isset($_GET['code'])) {
 
 	session_write_close();
 	header('Location:index.php');
-} elseif (isset($_GET['error'])) {
+} elseif (isset($get['error'])) {
 	printError('Authentication problem:  Access Denied.');
 } else {
 	printError('Authentication problem, please ensure that your instance of UDOIT is configured correctly.');

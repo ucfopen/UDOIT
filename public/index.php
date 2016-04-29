@@ -25,6 +25,8 @@ error_reporting(E_ALL & ~E_NOTICE);
 ini_set("display_errors", 1);
 session_start();
 header('Content-Type: text/html; charset=utf-8');
+//ja: Sanitize $post parameters
+$post  = filter_input_array(INPUT_POST, FILTER_SANITIZE_STRING);
 
 $templates = new League\Plates\Engine('../templates');
 
@@ -47,16 +49,16 @@ if ($_SESSION['valid'] === false) {
 		exit();
 	}
 
-	$_SESSION['launch_params']['custom_canvas_user_id'] = $_POST['custom_canvas_user_id'];
-	$_SESSION['launch_params']['custom_canvas_course_id'] = $_POST['custom_canvas_course_id'];
-	$_SESSION['launch_params']['context_label'] = $_POST['context_label'];
-	$_SESSION['launch_params']['context_title'] = $_POST['context_title'];
+	$_SESSION['launch_params']['custom_canvas_user_id'] = $post['custom_canvas_user_id'];
+	$_SESSION['launch_params']['custom_canvas_course_id'] = $post['custom_canvas_course_id'];
+	$_SESSION['launch_params']['context_label'] = $post['context_label'];
+	$_SESSION['launch_params']['context_title'] = $post['context_title'];
 	$_SESSION['valid'] = true;
 }
 
 // Establish base_url given by canvas API
-if( isset($_POST['custom_canvas_api_domain']) ){
-	$base_url = $_SESSION['base_url'] = 'https://'.$_POST['custom_canvas_api_domain'].'/';
+if( isset($post['custom_canvas_api_domain']) ){
+	$base_url = $_SESSION['base_url'] = 'https://'.$post['custom_canvas_api_domain'].'/';
 } elseif( isset($_SESSION['base_url']) ){
 	$base_url = $_SESSION['base_url'];
 } else {

@@ -43,6 +43,11 @@ if (!$sth->execute()) {
 
 $reports = $sth->fetchAll();
 
+// Helper function to quickly escape HTML output
+function esc_attr($s) {
+    echo htmlspecialchars($s, ENT_QUOTES, 'utf-8');
+}
+
 ?>
 <div id="resultsTable" class="table-responsive">
 	<table class="table table-bordered table-hover no-margin">
@@ -57,10 +62,10 @@ $reports = $sth->fetchAll();
 
 		<tbody>
 			<?php foreach ($reports as $report): ?>
-				<tr id="<?=$report['id']?>">
-					<td><?=$report['date_run']?></td>
-					<td><?=$report['errors']?></td>
-					<td><?=$report['suggestions']?></td>
+				<tr id="<?php esc_attr($report['id']); ?>">
+					<td><?php esc_attr($report['date_run']); ?></td>
+					<td><?php esc_attr($report['errors']); ?></td>
+					<td><?php esc_attr($report['suggestions']); ?></td>
 				</tr>
 			<?php endforeach; ?>
 		</tbody>
