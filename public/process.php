@@ -33,6 +33,57 @@ $SESSION_context_label = $post['context_label'];
 $SESSION_context_title = $post['context_title'];
 session_write_close();
 
+
+function test_api_key($user_id, $base_url, $api_key){
+    $url = $base_url.'api/v1/users/'.$user_id.'/profile';
+    $resp = Request::get($url)
+        ->addHeader('Authorization', 'Bearer '.$api_key)
+        ->send();
+    return isset($resp->body->id);
+}
+
+function refresh_key($o2_id, $o2_uri, $o2_key, $base_url, $refresh_token){
+    $url = $base_url . '/login/oauth2/token';
+
+    $postdata = array(
+        'grant_type' => 'refresh_token',
+        'client_id' => $o2_id,
+        'redirect_uri' => $o2_uri,
+        'client_secret' => $o2_key,
+        'refresh_token' => $refresh_token
+    );
+
+    $post = http_build_query($postdata);
+    $ch = curl_init($url);
+
+    curl_setopt($ch, CURLOPT_POST, 1);
+    curl_setopt($ch, CURLOPT_POSTFIELDS, $post);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+
+    $response = json_decode(curl_exec($ch));
+    curl_close($ch);
+
+    // Check response to make sure the refresh token is still valid.  If not valid, go through Oauth2
+    if ( isset($response->access_token) ){
+        return $response->access_token;
+    } else {
+        return false;
+    }
+}
+
+session_start();
+
+// If the API key is not valid, refresh it
+if( !test_api_key($_SESSION['launch_params']['custom_canvas_user_id'], $base_url, $_SESSION['api_key']) ){
+    $_SESSION['api_key'] = refresh_key($oauth2_id, $oauth2_uri, $oauth2_key, $base_url, $_SESSION['refresh_token']);
+    if( $_SESSION['api_key'] === false ){
+        echo "Error refreshing authorization.  Please re-load UDOIT and try again.";
+        die();
+    }
+}
+
+session_write_close();
+
 // check if course content is being scanned or fixed
 switch ($post['main_action']) {
     case 'udoit':
@@ -47,6 +98,7 @@ switch ($post['main_action']) {
         }
 
         session_start();
+
         $data = [
             'api_key'       => $_SESSION['api_key'],
             'base_uri'      => $base_url,
@@ -74,7 +126,7 @@ switch ($post['main_action']) {
             chmod($report_directory, 0755); //jb: changed from 777 to 755 to promote security
         }
 
-        $file = $report_directory.'/'.date('Y_m_d__g:i_a').'.json';
+        $file = $report_directory.'/'.date('Y_m_d__g:i:s_a').'.json';
 
         file_put_contents($file, $encoded_report);
         chmod($file, 0644); //jb: changed from 777 to 644 to promote security

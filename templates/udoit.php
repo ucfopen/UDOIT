@@ -4,7 +4,7 @@ $settings = [
 	'footer_scripts' => [
 		"//code.jquery.com/jquery-2.1.1.min.js",
 		"//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js",
-		"assets/js/vendor/JSColor/jscolor.js",
+		"assets/js/vendor/jscolor/jscolor.js",
 		"assets/js/default.js?cachebuster=".time(),
 		"assets/js/contrast.js",
 	]
@@ -16,9 +16,6 @@ $this->layout('template', $settings);
 $post  = filter_input_array(INPUT_POST, FILTER_SANITIZE_STRING);
 
 ?>
-<div class="alert alert-warning">
-	If you have any suggestions on how UDOIT can be improved, please <a href="https://jfe.qualtrics.com/form/SV_es0XFCNS0ymgcD3">leave feedback</a>
-</div>
 <ul class="nav nav-tabs nav-justified" role="tablist">
 	<li role="presentation" class="active"><a href="#scanner" role="tab" data-toggle="tab">Scan Course</a></li>
 	<li role="presentation"><a href="#cached" role="tab" data-toggle="tab">View Old Reports</a></li>
@@ -31,6 +28,8 @@ $post  = filter_input_array(INPUT_POST, FILTER_SANITIZE_STRING);
 					<h2>Welcome to <span style="font-weight: normal;">U</span><span style="font-weight: bold;">DO</span><span style="font-weight: normal;">IT</span>!</h2>
 
 					<p><?=$welcome_message?></p>
+
+					<p><?=$disclaimer_message?></p>
 
 					<p class="no-margin"><a href="#udoitInfo" class="btn btn-sm btn-default no-print" data-toggle="modal" data-target="#udoitInfo">What does UDOIT look for?</a></p>
 				</div>
