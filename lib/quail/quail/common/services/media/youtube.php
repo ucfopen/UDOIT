@@ -1,7 +1,6 @@
 <?php
 
 require_once('mediaService.php');
-// require_once('../config/localConfig.php');
 use Httpful\Request;
 
 /**
@@ -38,8 +37,8 @@ class youtubeService extends mediaService
 	function captionsMissing($link_url)
 	{
 		
-		$url = 'https://www.googleapis.com/youtube/v3/captions?part=id&videoId='; //'https://www.googleapis.com/youtube/v3/videos?part=contentDetails&id=';
-		$api_key = constant( 'GOOGLE_API_KEY' );
+		$url = 'https://www.googleapis.com/youtube/v3/videos?part=contentDetails&id=';
+		$api_key = Config::GOOGLE_API_KEY;
 
 		if( $youtube_id = $this->isYouTubeVideo($link_url) ) {
 			$url = $url.$youtube_id.'&key='.$api_key;
