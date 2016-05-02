@@ -88,7 +88,7 @@ $redirect = true;
 // If it doesn't work, we need to go through the refresh process
 if (isset($_SESSION['api_key'])) {
 	//If we do, test it out
-	$url = Config::BASE_URL.'api/v1/users/'.$_SESSION['launch_params']['custom_canvas_user_id'].'/profile';
+	$url = Config::BASE_URL.'/api/v1/users/'.$_SESSION['launch_params']['custom_canvas_user_id'].'/profile';
 	$resp = Request::get($url)
 		->addHeader('Authorization', 'Bearer '.$_SESSION['api_key'])
 		->send();
