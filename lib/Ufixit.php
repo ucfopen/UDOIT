@@ -29,7 +29,7 @@ class Ufixit
      * Array of annoying characters to filter out of strings
      * @var array
      */
-    public $annoying_entities = ["\r", "&nbsp;"];
+    public $annoying_entities = ["\r", "&nbsp;", "&lt;", "&gt;", "&quot;"];
 
     /**
      * The API key needed to communicate with Canvas
@@ -71,7 +71,7 @@ class Ufixit
      * Array of replacements for the annoying entities
      * @var array
      */
-    public $entity_replacements = ["", " "];
+    public $entity_replacements = ["", " ", "<", ">", "\""];
 
     /**
      * A file pointer
@@ -479,7 +479,7 @@ class Ufixit
         $corrected_error = HTMLMinify::minify(str_replace($this->annoying_entities, $this->entity_replacements, $corrected_error), ['doctype' => 'html5']);
         $html            = HTMLMinify::minify(str_replace($this->annoying_entities, $this->entity_replacements, htmlentities($html)), ['doctype' => 'html5']);
 
-        $html    = str_replace($error_html, $corrected_error, html_entity_decode($html));
+        $html    = str_replace($error_html, $corrected_error, $html);
         $put_uri = $this->base_uri."/api/v1/courses/".$this->course_id."/assignments/".$this->content_id."?&access_token=".$this->api_key;
 
         Request::put($put_uri)->body(['assignment[description]' => $html])->sendsType(\Httpful\Mime::FORM)->send();
@@ -500,7 +500,7 @@ class Ufixit
         $corrected_error = HTMLMinify::minify(str_replace($this->annoying_entities, $this->entity_replacements, $corrected_error), ['doctype' => 'html5']);
         $html            = HTMLMinify::minify(str_replace($this->annoying_entities, $this->entity_replacements, htmlentities($html)), ['doctype' => 'html5']);
 
-        $html    = str_replace($error_html, $corrected_error, html_entity_decode($html));
+        $html    = str_replace($error_html, $corrected_error, $html);
         $put_uri = $this->base_uri."/api/v1/courses/".$this->course_id."/discussion_topics/".$this->content_id."?&access_token=".$this->api_key;
 
         Request::put($put_uri)->body(['message' => $html])->sendsType(\Httpful\Mime::FORM)->send();
@@ -591,7 +591,7 @@ class Ufixit
         $corrected_error = HTMLMinify::minify(str_replace($this->annoying_entities, $this->entity_replacements, $corrected_error), ['doctype' => 'html5']);
         $html            = HTMLMinify::minify(str_replace($this->annoying_entities, $this->entity_replacements, htmlentities($html)), ['doctype' => 'html5']);
 
-        $html    = str_replace($error_html, $corrected_error, html_entity_decode($html));
+        $html    = str_replace($error_html, $corrected_error, $html);
 
         $put_uri = $this->base_uri."/api/v1/courses/".$this->course_id."/pages/".$this->content_id."?&access_token=".$this->api_key;
 
@@ -613,7 +613,7 @@ class Ufixit
         $corrected_error = HTMLMinify::minify(str_replace($this->annoying_entities, $this->entity_replacements, $corrected_error), ['doctype' => 'html5']);
         $html            = HTMLMinify::minify(str_replace($this->annoying_entities, $this->entity_replacements, htmlentities($html)), ['doctype' => 'html5']);
 
-        $html    = str_replace($error_html, $corrected_error, html_entity_decode($html));
+        $html    = str_replace($error_html, $corrected_error, $html);
         $put_uri = $this->base_uri."/api/v1/courses/".$this->course_id."/?&access_token=".$this->api_key;
 
         Request::put($put_uri)->body(['course[syllabus_body]' => $html])->sendsType(\Httpful\Mime::FORM)->send();
