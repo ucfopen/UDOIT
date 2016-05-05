@@ -87,7 +87,7 @@ $udoit_tests = [
             'title'     => 'No table headers found',
             'desc'      => '<p>Add a table header because it provides a description of the table structure for sighted and <a href="http://en.wikipedia.org/wiki/Screen_reader">screen reader</a> users.</p>',
             'resources' => [
-                '<a href="http://ctl.mesacc.edu/teaching/accessibility/">Resource Link</a>',
+                '<a href="http://online.ucf.edu/teach-online/develop/document-formatting-guidelines/tables/">Resource Link</a>',
                 'WCAG Standard: <a href="http://www.w3.org/TR/WCAG20/#content-structure-separation-programmatic">1.3.1</a>',
             ],
             'example'   => '
