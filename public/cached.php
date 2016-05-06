@@ -22,9 +22,9 @@ require_once('../config/settings.php');
 $dbh = include('../lib/db.php');
 // saves the report to the database
 $sth = $dbh->prepare("
-    SELECT * FROM
-        $db_reports_table
-    WHERE
+	SELECT * FROM
+		$db_reports_table
+	WHERE
 		course_id=:courseid
 	ORDER BY
 		date_run DESC
@@ -36,33 +36,12 @@ $sth->bindParam(':courseid', $_SESSION['launch_params']['custom_canvas_course_id
 
 session_write_close();
 
+$templates = new League\Plates\Engine('../templates');
+
 if (!$sth->execute()) {
-	echo '<div class="alert alert-danger no-margin"><span class="glyphicon glyphicon-exclamation-sign"></span> Could not complete database query</div>';
-    die();
+	die($templates->render('partials/error', ['error' => 'Could not complete database query']));
 }
 
 $reports = $sth->fetchAll();
 
-?>
-<div id="resultsTable" class="table-responsive">
-	<table class="table table-bordered table-hover no-margin">
-		<caption>Saved reports for this course</caption>
-		<thead>
-			<tr>
-				<th scope="col">Date &amp; Time</th>
-				<th scope="col">Errors</th>
-				<th scope="col">Suggestions</th>
-			</tr>
-		</thead>
-
-		<tbody>
-			<?php foreach ($reports as $report): ?>
-				<tr id="<?=$report['id']?>">
-					<td><?=$report['date_run']?></td>
-					<td><?=$report['errors']?></td>
-					<td><?=$report['suggestions']?></td>
-				</tr>
-			<?php endforeach; ?>
-		</tbody>
-	</table>
-</div>
+echo $templates->render('saved_reports', ['reports' => $reports]);

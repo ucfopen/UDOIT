@@ -21,31 +21,19 @@ require_once('../config/settings.php');
 
 session_start();
 
-function printError($msg){
-	echo '
-<!DOCTYPE html>
-<html lang="en">
-	<head>
-		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-		<title>UDOIT Accessibility Checker</title>
-		<link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css" />
-		<link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap-theme.min.css" />
-	</head>
-	<body>
-		<div style="padding: 12px;">
-			<div class="alert alert-danger">
-				<span class="glyphicon glyphicon-exclamation-sign"></span> '.$msg.'
-			</div>
-		</div>
-	</body>
-</html>
-	';
-	die();
+function printError($error){
+	// Start the template engine
+	$templates  = new League\Plates\Engine('../templates');
+	echo $templates->render('error', ['error' => $error]);
+	error_log($error);
+	exit();
 }
+
+$get_input = filter_input_array(INPUT_GET, FILTER_SANITIZE_STRING); // Sanitize $_GET global
 
 $base_url = $_SESSION['base_url'];
 
-if (isset($_GET['code'])) {
+if (isset($get_input['code'])) {
 	//Exchange code for API key
 	$url = $base_url . '/login/oauth2/token';
 
@@ -54,7 +42,7 @@ if (isset($_GET['code'])) {
 		'client_id' => $oauth2_id,
 		'redirect_uri' => $oauth2_uri,
 		'client_secret' => $oauth2_key,
-		'code' => $_GET['code']
+		'code' => $get_input['code']
 	);
 
 	$post = http_build_query($postdata);
@@ -96,7 +84,7 @@ if (isset($_GET['code'])) {
 
 	session_write_close();
 	header('Location:index.php');
-} elseif (isset($_GET['error'])) {
+} elseif (isset($get_input['error'])) {
 	printError('Authentication problem:  Access Denied.');
 } else {
 	printError('Authentication problem, please ensure that your instance of UDOIT is configured correctly.');

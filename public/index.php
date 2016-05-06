@@ -26,11 +26,17 @@ ini_set("display_errors", 1);
 session_start();
 header('Content-Type: text/html; charset=utf-8');
 
-$templates = new League\Plates\Engine('../templates');
+// Sanitize $_POST parameters
+$post_input = filter_input_array(INPUT_POST, FILTER_SANITIZE_STRING);
+$post_input['custom_canvas_user_id'] = filter_input(INPUT_POST, 'custom_canvas_user_id', FILTER_SANITIZE_NUMBER_INT);
+$post_input['custom_canvas_course_id'] = filter_input(INPUT_POST, 'custom_canvas_course_id', FILTER_SANITIZE_NUMBER_INT);
+
+// Start the template engine
+$templates  = new League\Plates\Engine('../templates');
 
 // If we have oauth values in post or if we don't have a valid session variable, set the variable to false
 // This forces the user to go through the BLTI verification
-if ( isset($_POST["oauth_consumer_key"]) || !isset($_SESSION['valid'])) {
+if ( isset($post_input["oauth_consumer_key"]) || !isset($_SESSION['valid'])) {
 	$_SESSION['valid'] = false;
 }
 
@@ -40,51 +46,34 @@ if ($_SESSION['valid'] === false) {
 	$context = new BLTI($consumer_key, $shared_secret, false, false);
 
 	if ( ! $context->valid) {
-		error_log("BLTI not valid: our key: {$consumer_key}");
-		error_log($context->message);
 		$error = 'Configuration problem, please ensure that your instance of UDOIT is configured correctly.';
 		echo $templates->render('error', ['error' => $error]);
+		error_log("BLTI not valid: our key: {$consumer_key}");
+		error_log($context->message);
 		exit();
 	}
 
-	$_SESSION['launch_params']['custom_canvas_user_id'] = $_POST['custom_canvas_user_id'];
-	$_SESSION['launch_params']['custom_canvas_course_id'] = $_POST['custom_canvas_course_id'];
-	$_SESSION['launch_params']['context_label'] = $_POST['context_label'];
-	$_SESSION['launch_params']['context_title'] = $_POST['context_title'];
+	$_SESSION['launch_params']['custom_canvas_user_id'] = $post_input['custom_canvas_user_id'];
+	$_SESSION['launch_params']['custom_canvas_course_id'] = $post_input['custom_canvas_course_id'];
+	$_SESSION['launch_params']['context_label'] = $post_input['context_label'];
+	$_SESSION['launch_params']['context_title'] = $post_input['context_title'];
 	$_SESSION['valid'] = true;
 }
 
 // Establish base_url given by canvas API
-if( isset($_POST['custom_canvas_api_domain']) ){
-	$base_url = $_SESSION['base_url'] = 'https://'.$_POST['custom_canvas_api_domain'].'/';
-} elseif( isset($_SESSION['base_url']) ){
+if( isset( $post_input['custom_canvas_api_domain']) ) {
+	$base_url = $_SESSION['base_url'] = 'https://'.$post_input['custom_canvas_api_domain'].'/';
+} elseif( isset($_SESSION['base_url']) ) {
 	$base_url = $_SESSION['base_url'];
 } else {
-	echo '
-			<!DOCTYPE html>
-			<html lang="en">
-				<head>
-					<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-					<title>UDOIT Accessibility Checker</title>
-					<link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css" />
-					<link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap-theme.min.css" />
-				</head>
-				<body>
-					<div style="padding: 12px;">
-						<div class="alert alert-danger">
-							<span class="glyphicon glyphicon-exclamation-sign"></span> No domain provided.  Please ensure that your instance of UDOIT is installed to Canvas correctly.
-						</div>
-					</div>
-				</body>
-			</html>
-		';
-		die();
+	$error = 'No domain provided. Please ensure that your instance of UDOIT is installed to Canvas correctly.';
+	echo $templates->render('error', ['error' => $error]);
+	error_log($error);
+	exit();
 }
 
 // By default, we'll be redirecting to the Oauth2 process, unless something below interrupts that redirect
 $redirect = true;
-
-
 
 // Test the API key from the session first.
 // If it doesn't work, we need to go through the refresh process
