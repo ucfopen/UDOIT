@@ -85,6 +85,7 @@ $results = [
 	'report_groups' => $udoit_report->content,
 	'post_path' => $post_input['path'],
 	'fixable_error_types' => ["cssTextHasContrast", "imgHasAlt", "imgNonDecorativeHasAlt", "tableDataShouldHaveTh", "tableThShouldHaveScope", "headersHaveText", "aMustContainText", "imgAltIsDifferent", "imgAltIsTooLong"],
+	'fixable_suggestions' => ["aSuspiciousLinkText", "aLinkTextDoesNotBeginWithRedundantWord", "cssTextStyleEmphasize"]
 
 ];
 

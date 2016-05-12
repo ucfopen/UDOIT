@@ -17,6 +17,13 @@
 *
 *	Primary Author Contact:  Jacob Bates <jacob.bates@ucf.edu>
 */
-
-$this->layout('template');
-echo $this->fetch('partials/error', ['error' => $error]);
+?>
+<div class="input-group">
+	<select class="form-control" name="newcontent">
+		<option value="col">col</option>
+		<option value="row">row</option>
+	</select>
+	<span class="input-group-btn">
+		<button class="submit-content btn btn-default" type="submit">Submit</button>
+	</span>
+</div>

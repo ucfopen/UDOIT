@@ -17,6 +17,16 @@
 *
 *	Primary Author Contact:  Jacob Bates <jacob.bates@ucf.edu>
 */
-
-$this->layout('template');
-echo $this->fetch('partials/error', ['error' => $error]);
+?>
+<hr>
+<p>Select which part of the table to convert to a header</p>
+<div class="input-group">
+	<select class="form-control" name="newcontent">
+		<option value="row">The first row</option>
+		<option value="col">The first column</option>
+		<option value="both">Both the first row and column</option>
+	</select>
+	<span class="input-group-btn">
+		<button class="submit-content btn btn-default" type="submit">Submit</button>
+	</span>
+</div>

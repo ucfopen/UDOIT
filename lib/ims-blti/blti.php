@@ -239,7 +239,7 @@ class BLTI {
         header("Location: $location");
     }
 
-    function dump() { 
+    function dump() {
         if ( ! $this->valid or $this->info == false ) return "Context not valid\n";
         $ret = "";
         if ( $this->isInstructor() ) {

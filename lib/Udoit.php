@@ -243,7 +243,6 @@ class Udoit
                     $page_count++;
 
                 } while (!(empty($response->body)));
-                
 
                 break;
             case 'assignments':

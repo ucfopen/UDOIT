@@ -17,6 +17,9 @@
 *
 *	Primary Author Contact:  Jacob Bates <jacob.bates@ucf.edu>
 */
-
-$this->layout('template');
-echo $this->fetch('partials/error', ['error' => $error]);
+?>
+<div class="form-group no-margin margin-bottom">
+	<input class="{hash:true,caps:false} form-control" type="text" name="newcontent" placeholder="New link text">
+	<label><input class="remove-link" type="checkbox" />Delete this Link completely instead</label><br />
+	<button class="submit-content btn btn-default" type="submit">Submit</button>
+</div>

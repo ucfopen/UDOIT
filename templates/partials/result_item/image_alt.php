@@ -17,6 +17,11 @@
 *
 *	Primary Author Contact:  Jacob Bates <jacob.bates@ucf.edu>
 */
-
-$this->layout('template');
-echo $this->fetch('partials/error', ['error' => $error]);
+?>
+<div class="fix-alt input-group">
+	<span class="counter">100</span>
+	<input class="form-control" type="text" name="newcontent" maxlength="100" placeholder="New alt text">
+	<span class="input-group-btn">
+		<button class="submit-content btn btn-default" type="submit">Submit</button>
+	</span>
+</div>

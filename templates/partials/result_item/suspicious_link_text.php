@@ -17,6 +17,10 @@
 *
 *	Primary Author Contact:  Jacob Bates <jacob.bates@ucf.edu>
 */
-
-$this->layout('template');
-echo $this->fetch('partials/error', ['error' => $error]);
+?>
+<div class="input-group">
+	<input class="form-control" type="text" name="newcontent" placeholder="New link description">
+	<span class="input-group-btn">
+		<button class="submit-content btn btn-default" type="submit">Submit</button>
+	</span>
+</div>
