@@ -43,8 +43,10 @@ if (isset($post_input['cached_id'])) {
 		exit();
 	}
 
-	$the_json     = file_get_contents($sth->fetchAll(PDO::FETCH_OBJ)[0]->file_path);
+	$file         = $sth->fetch(PDO::FETCH_OBJ)->file_path;
+	$the_json     = file_get_contents($file);
 	$udoit_report = json_decode($the_json);
+
 } elseif ($post_input['main_action'] === "cached") {
 	$error = 'Cannot parse this report. JSON file not found.';
 	echo $templates->render('partials/error', ['error' => $error]);
@@ -80,9 +82,9 @@ $results = [
 	'course' => $udoit_report->course,
 	'error_count' => $udoit_report->total_results->errors,
 	'suggestion_count' => $udoit_report->total_results->suggestions,
-	'report_content' => $udoit_report->content,
+	'report_groups' => $udoit_report->content,
 	'post_path' => $post_input['path'],
-	'supported_error_types' => ["cssTextHasContrast", "imgHasAlt", "imgNonDecorativeHasAlt", "tableDataShouldHaveTh", "tableThShouldHaveScope", "headersHaveText", "aMustContainText", "imgAltIsDifferent", "imgAltIsTooLong"],
+	'fixable_error_types' => ["cssTextHasContrast", "imgHasAlt", "imgNonDecorativeHasAlt", "tableDataShouldHaveTh", "tableThShouldHaveScope", "headersHaveText", "aMustContainText", "imgAltIsDifferent", "imgAltIsTooLong"],
 
 ];
 

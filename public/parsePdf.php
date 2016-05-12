@@ -19,7 +19,7 @@
 */
 
 session_start();
-$_SESSION['pdf_generated'] = false; 
+$_SESSION['pdf_generated'] = false;
 session_write_close();
 
 require '../vendor/autoload.php';
@@ -50,7 +50,7 @@ $pdf->WriteHTML($html, 2);
 $pdf->Output($title.'_'.date("Y-m-d_g:i-a").'.pdf', 'D');
 
 session_start();
-$_SESSION['pdf_generated'] = true; 
+$_SESSION['pdf_generated'] = true;
 session_write_close();
 
 exit();

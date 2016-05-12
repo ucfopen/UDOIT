@@ -12,21 +12,21 @@
 
 <div id="errorWrapper">
 	<?php
-		foreach ($report_content as $report) {
-			switch ($report->title) {
+		foreach ($report_groups as $group) {
+			switch ($group->title) {
 				case "announcements":
 				case "assignments":
 				case "discussions":
 				case "files":
 				case "pages":
 				case "syllabus":
-					echo $this->fetch('partials/results_scannable', ['items' => $report->items, 'module_count' => $report->amount, 'time' => $report->time]);
+					echo $this->fetch('partials/results_scannable', ['content_group' => $group, 'module_count' => $group->amount, 'time' => $group->time, 'fixable_error_types' => $fixable_error_types]);
 					break;
 				case "module_urls":
-					echo $this->fetch('partials/results_module_urls', ['items' => $report->items]);
+					echo $this->fetch('partials/results_module_urls', ['content_group' => $group]);
 					break;
 				case "unscannable":
-					echo $this->fetch('partials/results_unscannable', ['items' => $report->items]);
+					echo $this->fetch('partials/results_unscannable', ['content_group' => $group]);
 					break;
 			}
 		}

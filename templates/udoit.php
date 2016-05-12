@@ -31,7 +31,7 @@ $this->layout('template', $settings);
 					<p class="no-margin"><a href="#udoitInfo" class="btn btn-sm btn-default no-print" data-toggle="modal" data-target="#udoitInfo">What does UDOIT look for?</a></p>
 				</div>
 			</div>
-			<form class="form-horizontal no-print" id="udoitForm" method="post" action="lib/process.php" role="form">
+			<form class="form-horizontal no-print" id="udoitForm" action="#" role="form">
 				<input type="hidden" name="main_action" value="udoit">
 				<input type="hidden" name="base_url" value="https://<?=$_POST['custom_canvas_api_domain']?>/">
 				<input type="hidden" name="session_course_id" value="<?=$launch_params['custom_canvas_course_id']?>">
@@ -84,7 +84,7 @@ $this->layout('template', $settings);
 					<p><span class="glyphicon glyphicon-warning-sign"></span> Please stay on this page while UDOIT scans your course content.</p>
 				</div>
 
-				<button id="submit" type="submit" name="course_submit"  class="btn btn-block btn-lg btn-success">Run scanner</button>
+				<button type="submit" name="course_submit" class="btn btn-block btn-lg btn-success submit">Run scanner</button>
 
 				<div class="alert alert-danger no-margin margin-top" id="failMsg" style="display: none;"><span class="glyphicon glyphicon-exclamation-sign"></span> UDOIT failed to scan this course.</div>
 			</form>
