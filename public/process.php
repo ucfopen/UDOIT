@@ -83,7 +83,7 @@ session_start();
 if( !test_api_key($_SESSION['launch_params']['custom_canvas_user_id'], $base_url, $_SESSION['api_key']) ){
     $_SESSION['api_key'] = refresh_key($oauth2_id, $oauth2_uri, $oauth2_key, $base_url, $_SESSION['refresh_token']);
     if( $_SESSION['api_key'] === false ) {
-        Utils::exitWithError('Error refreshing authorization. Please re-load UDOIT and try again.');
+        Utils::exitWithPartialError('Error refreshing authorization. Please re-load UDOIT and try again.');
     }
 }
 
@@ -99,7 +99,7 @@ switch ($_POST['main_action']) {
 
         // UDOIT can't scan what isn't selected
         if ($_POST['content'] === 'none') {
-            Utils::exitWithError('Please select which course content you wish to scan above.');
+            Utils::exitWithPartialError('Please select which course content you wish to scan above.');
         }
 
         session_start();
@@ -153,7 +153,7 @@ switch ($_POST['main_action']) {
 
         if (!$sth->execute()) {
             error_log(print_r($sth->errorInfo(), true));
-            Utils::exitWithError('Error inserting report into database');
+            Utils::exitWithPartialError('Error inserting report into database');
         }
 
         $udoit_report = json_decode($encoded_report);

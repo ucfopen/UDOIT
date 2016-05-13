@@ -41,9 +41,16 @@ class Utils
         return null;
     }
 
-    public static function exitWithError($error){
+    public static function exitWithPageError($error){
         $templates = new League\Plates\Engine('../templates');
         echo $templates->render('error', ['error' => $error]);
+        error_log($error);
+        exit();
+    }
+
+    public static function exitWithPartialError($error){
+        $templates = new League\Plates\Engine('../templates');
+        echo $templates->render('partials/error', ['error' => $error]);
         error_log($error);
         exit();
     }

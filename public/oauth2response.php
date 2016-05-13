@@ -51,7 +51,7 @@ if (isset($get_input['code'])) {
 
 	// It should have access_token and refresh_token
 	if( !isset($response->access_token) || !isset($response->refresh_token) ){
-		Utils::exitWithError('Authentication problem:  Please contact support.');
+		Utils::exitWithPageError('Authentication problem:  Please contact support.');
 	}
 
 	// Save the API key to the session variable
@@ -79,7 +79,7 @@ if (isset($get_input['code'])) {
 	session_write_close();
 	header('Location:index.php');
 } elseif (isset($get_input['error'])) {
-	Utils::exitWithError('Authentication problem:  Access Denied.');
+	Utils::exitWithPageError('Authentication problem:  Access Denied.');
 } else {
-	Utils::exitWithError('Authentication problem, please ensure that your instance of UDOIT is configured correctly.');
+	Utils::exitWithPageError('Authentication problem, please ensure that your instance of UDOIT is configured correctly.');
 }

@@ -46,7 +46,7 @@ if (isset($post_input['cached_id'])) {
 
 		if ( ! $sth->execute()) {
 			error_log(print_r($sth->errorInfo(), true));
-			Utils::exitWithError('Error searching for report');
+			Utils::exitWithPartialError('Error searching for report');
 		}
 
 		$file = $sth->fetch(PDO::FETCH_OBJ)->file_path;
@@ -56,7 +56,7 @@ if (isset($post_input['cached_id'])) {
 	$udoit_report = json_decode($json);
 
 } elseif ($post_input['main_action'] === "cached") {
-	Utils::exitWithError('Cannot parse this report. JSON file not found.');
+	Utils::exitWithPartialError('Cannot parse this report. JSON file not found.');
 }
 
 $issue_count = 0;

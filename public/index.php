@@ -30,9 +30,6 @@ $post_input = filter_input_array(INPUT_POST, FILTER_SANITIZE_STRING);
 $post_input['custom_canvas_user_id'] = filter_input(INPUT_POST, 'custom_canvas_user_id', FILTER_SANITIZE_NUMBER_INT);
 $post_input['custom_canvas_course_id'] = filter_input(INPUT_POST, 'custom_canvas_course_id', FILTER_SANITIZE_NUMBER_INT);
 
-// Start the template engine
-$templates  = new League\Plates\Engine('../templates');
-
 // If we have oauth values in post or if we don't have a valid session variable, set the variable to false
 // This forces the user to go through the BLTI verification
 if ( isset($post_input["oauth_consumer_key"]) || !isset($_SESSION['valid'])) {
@@ -45,7 +42,7 @@ if ($_SESSION['valid'] === false && $UDOIT_ENV === ENV_PROD) {
 	$context = new BLTI($consumer_key, $shared_secret, false, false);
 
 	if ( ! $context->valid) {
-		Utils::exitWithError('Configuration problem, please ensure that your instance of UDOIT is configured correctly.');
+		Utils::exitWithPageError('Configuration problem, please ensure that your instance of UDOIT is configured correctly.');
 	}
 
 	$_SESSION['launch_params']['custom_canvas_user_id'] = $post_input['custom_canvas_user_id'];
@@ -61,7 +58,7 @@ if( isset( $post_input['custom_canvas_api_domain']) ) {
 } elseif( isset($_SESSION['base_url']) ) {
 	$base_url = $_SESSION['base_url'];
 } else {
-	Utils::exitWithError('No domain provided. Please ensure that your instance of UDOIT is installed to Canvas correctly.');
+	Utils::exitWithPageError('No domain provided. Please ensure that your instance of UDOIT is installed to Canvas correctly.');
 }
 
 // By default, we'll be redirecting to the Oauth2 process, unless something below interrupts that redirect
@@ -148,4 +145,6 @@ $render_arr = [
 	'udoit_tests'     => $udoit_tests
 ];
 
+
+$templates  = new League\Plates\Engine('../templates');
 echo $templates->render('index', $render_arr);
