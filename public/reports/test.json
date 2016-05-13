@@ -1,0 +1,1366 @@
+{
+    "course": "UDOIT_TEST_FILE",
+    "total_results": {
+        "errors": 64,
+        "warnings": 0,
+        "suggestions": 32
+    },
+    "content": {
+        "announcements": {
+            "title": "announcements",
+            "items": [],
+            "amount": 0,
+            "time": 0.24
+        },
+        "assignments": {
+            "title": "assignments",
+            "items": [],
+            "amount": 12,
+            "time": 1.01
+        },
+        "discussions": {
+            "title": "discussions",
+            "items": [
+                {
+                    "id": 3821136,
+                    "name": "TEST Discussion",
+                    "url": "https://fake.com/courses/000000/discussion_topics/3821136",
+                    "amount": 18,
+                    "error": [
+                        {
+                            "text_type": null,
+                            "type": "imgHasAlt",
+                            "lineNo": 3,
+                            "severity": "Error",
+                            "severity_num": 1,
+                            "title": "Image elements should have an \"alt\" attribute",
+                            "description": "<p>Alternative Text (Alt Text) is an alternative (non-visual) way to describe the meaning of an image. Please provide a brief (under 100 characters) description of the image for a <a href='http://en.wikipedia.org/wiki/Screen_reader'>screen reader</a> user. Note: It should not be the image file name.</p>",
+                            "path": "None",
+                            "html": "<img src=\"https://www.google.com/images/branding/googlelogo/1x/googlelogo_color_272x92dp.png\" alt=\"\">\n"
+                        },
+                        {
+                            "text_type": null,
+                            "type": "imgAltIsDifferent",
+                            "lineNo": 4,
+                            "severity": "Error",
+                            "severity_num": 1,
+                            "title": "Alternative Text should not be the image filename",
+                            "description": "<p>Alternative Text (Alt Text) is an alternative (non-visual) way to describe the meaning of an image. Please provide a brief (under 100 characters) description of the image for a <a href='http://en.wikipedia.org/wiki/Screen_reader'>screen reader</a> user. Note: It should not be the image file name.</p>",
+                            "path": "None",
+                            "html": "<img src=\"https://www.google.com/images/branding/googlelogo/1x/googlelogo_color_272x92dp.png\" alt=\"googlelogo_color_272x9dp.png\">\n"
+                        },
+                        {
+                            "text_type": null,
+                            "type": "imgAltIsTooLong",
+                            "lineNo": 5,
+                            "severity": "Error",
+                            "severity_num": 1,
+                            "title": "Alternative Text is more than 100 characters",
+                            "description": "<p>Alternative Text (Alt Text) is an alternative (non-visual) way to describe the meaning of an image. Please provide a brief (under 100 characters) description of the image for a <a href='http://en.wikipedia.org/wiki/Screen_reader'>screen reader</a> user. Note: It should not be the image file name.</p>",
+                            "path": "None",
+                            "html": "<img src=\"https://www.google.com/images/branding/googlelogo/1x/googlelogo_color_272x92dp.png\" alt=\" abcdefghijklmnopqrstuvwxyz abcdefghijklmnopqrstuvwxyz abcdefghijklmnopqrstuvwxyz abcdefghijklmnopqrstuvwxyz\">\n"
+                        },
+                        {
+                            "text_type": null,
+                            "type": "objectMustContainText",
+                            "lineNo": 35,
+                            "severity": "Error",
+                            "severity_num": 1,
+                            "title": "Multimedia objects should have text equivalents (e.g., transcripts).",
+                            "description": "<p>Multimedia objects should be accompanied by a link to a transcript of the content.</p>",
+                            "path": "None",
+                            "html": "<object class=\"instructure_user_content instructure_user_content instructure_user_content instructure_user_content instructure_user_content instructure_user_content instructure_user_content instructure_user_content instructure_user_content instructure_user_content instructure_user_content instructure_user_content instructure_user_content instructure_user_content \" title=\"\" width=\"300\" height=\"150\" data-uc_width=\"310px\" data-uc_height=\"160px\" data-uc_snippet=\"PG9iamVjdCBjbGFzcz0iaW5zdHJ1Y3R1cmVfdXNlcl9jb250ZW50IGluc3RydWN0dXJlX3VzZXJfY29udGVudCBpbnN0cnVjdHVyZV91c2VyX2NvbnRlbnQgaW5zdHJ1Y3R1cmVfdXNlcl9jb250ZW50IGluc3RydWN0dXJlX3VzZXJfY29udGVudCBpbnN0cnVjdHVyZV91c2VyX2NvbnRlbnQgaW5zdHJ1Y3R1cmVfdXNlcl9jb250ZW50IGluc3RydWN0dXJlX3VzZXJfY29udGVudCBpbnN0cnVjdHVyZV91c2VyX2NvbnRlbnQgaW5zdHJ1Y3R1cmVfdXNlcl9jb250ZW50IGluc3RydWN0dXJlX3VzZXJfY29udGVudCBpbnN0cnVjdHVyZV91c2VyX2NvbnRlbnQgaW5zdHJ1Y3R1cmVfdXNlcl9jb250ZW50ICIgdGl0bGU9IiIgd2lkdGg9IjMwMCIgaGVpZ2h0PSIxNTAiPjwvb2JqZWN0Pg==\" data-uc_sig=\"fa0f8507ce5e782a265c02ad7d583978dc6a8ba4\"></object>\n"
+                        },
+                        {
+                            "text_type": null,
+                            "type": "tableDataShouldHaveTh",
+                            "lineNo": 8,
+                            "severity": "Error",
+                            "severity_num": 1,
+                            "title": "No table headers found",
+                            "description": "<p>Add a table header because it provides a description of the table structure for sighted and <a href='http://en.wikipedia.org/wiki/Screen_reader'>screen reader</a> users.</p>",
+                            "path": "None",
+                            "html": "<table><tbody><tr><td>Header 1</td>\n<td>Header 2</td>\n</tr><tr><td>Placeholder 1</td>\n<td>Placeholder 2</td>\n</tr></tbody></table>\n"
+                        },
+                        {
+                            "text_type": null,
+                            "type": "tableThShouldHaveScope",
+                            "lineNo": 24,
+                            "severity": "Error",
+                            "severity_num": 1,
+                            "title": "No row or column scopes declarations found in headers of the table",
+                            "description": "<p>Scope declarations in headers organize and define table data by row/column for sighted and <a href=\"http://en.wikipedia.org/wiki/Screen_reader\">screen reader</a> users.</p>",
+                            "path": "None",
+                            "html": "<th>Header 1</th>\n"
+                        },
+                        {
+                            "text_type": null,
+                            "type": "tableThShouldHaveScope",
+                            "lineNo": 25,
+                            "severity": "Error",
+                            "severity_num": 1,
+                            "title": "No row or column scopes declarations found in headers of the table",
+                            "description": "<p>Scope declarations in headers organize and define table data by row/column for sighted and <a href=\"http://en.wikipedia.org/wiki/Screen_reader\">screen reader</a> users.</p>",
+                            "path": "None",
+                            "html": "<th>Header 2</th>\n"
+                        },
+                        {
+                            "text_type": null,
+                            "type": "aMustContainText",
+                            "lineNo": 2,
+                            "severity": "Error",
+                            "severity_num": 1,
+                            "title": "Links should contain text",
+                            "description": "<p>Because many users of <a href='http://en.wikipedia.org/wiki/Screen_reader'>screen readers</a> use links to navigate the page, providing links with no text (or with images that have empty 'alt' attributes and no other readable text) hinders these users.</p>",
+                            "path": "None",
+                            "html": "<a href=\"https://www.google.com/\"></a>\n"
+                        },
+                        {
+                            "text_type": null,
+                            "type": "aMustContainText",
+                            "lineNo": 6,
+                            "severity": "Error",
+                            "severity_num": 1,
+                            "title": "Links should contain text",
+                            "description": "<p>Because many users of <a href='http://en.wikipedia.org/wiki/Screen_reader'>screen readers</a> use links to navigate the page, providing links with no text (or with images that have empty 'alt' attributes and no other readable text) hinders these users.</p>",
+                            "path": "None",
+                            "html": "<a href=\"https://www.google.com/images/branding/googlelogo/1x/googlelogo_color_272x92dp.png\"></a>\n"
+                        },
+                        {
+                            "text_type": null,
+                            "type": "headersHaveText",
+                            "lineNo": 41,
+                            "severity": "Error",
+                            "severity_num": 1,
+                            "title": "Headings should contain text",
+                            "description": "<p>Sighted and <a href='http://en.wikipedia.org/wiki/Screen_reader'>screen reader</a> users depend on headings to organize the content on the page. Headings should not be empty and should represent an accurate outline of the content</p>",
+                            "path": "None",
+                            "html": "<h3 style=\"display: inline-block;\"></h3>\n"
+                        },
+                        {
+                            "text_type": null,
+                            "type": "videosEmbeddedOrLinkedNeedCaptions",
+                            "lineNo": 38,
+                            "severity": "Error",
+                            "severity_num": 1,
+                            "title": "Synchronized <a href='http://webaim.org/techniques/captions/'>captions</a> should be provided for prerecorded web-based video",
+                            "description": "<p>Captions should be included in the video to provide dialogue to users who are hearing impaired.</p>",
+                            "path": "None",
+                            "html": "<a class=\"\" href=\"https://www.youtube.com/watch?v=XBBwbGq6Z6Q\">Youtube Video sans Captions</a>\n"
+                        }
+                    ],
+                    "warning": [],
+                    "suggestion": [
+                        {
+                            "text_type": null,
+                            "type": "objectShouldHaveLongDescription",
+                            "lineNo": 35,
+                            "severity": "Suggestion",
+                            "severity_num": 3,
+                            "title": "An object might require a long description",
+                            "description": "<p>Objects might require a long description, especially if their content is complicated.</p>",
+                            "path": "None",
+                            "html": "<object class=\"instructure_user_content instructure_user_content instructure_user_content instructure_user_content instructure_user_content instructure_user_content instructure_user_content instructure_user_content instructure_user_content instructure_user_content instructure_user_content instructure_user_content instructure_user_content instructure_user_content \" title=\"\" width=\"300\" height=\"150\" data-uc_width=\"310px\" data-uc_height=\"160px\" data-uc_snippet=\"PG9iamVjdCBjbGFzcz0iaW5zdHJ1Y3R1cmVfdXNlcl9jb250ZW50IGluc3RydWN0dXJlX3VzZXJfY29udGVudCBpbnN0cnVjdHVyZV91c2VyX2NvbnRlbnQgaW5zdHJ1Y3R1cmVfdXNlcl9jb250ZW50IGluc3RydWN0dXJlX3VzZXJfY29udGVudCBpbnN0cnVjdHVyZV91c2VyX2NvbnRlbnQgaW5zdHJ1Y3R1cmVfdXNlcl9jb250ZW50IGluc3RydWN0dXJlX3VzZXJfY29udGVudCBpbnN0cnVjdHVyZV91c2VyX2NvbnRlbnQgaW5zdHJ1Y3R1cmVfdXNlcl9jb250ZW50IGluc3RydWN0dXJlX3VzZXJfY29udGVudCBpbnN0cnVjdHVyZV91c2VyX2NvbnRlbnQgaW5zdHJ1Y3R1cmVfdXNlcl9jb250ZW50ICIgdGl0bGU9IiIgd2lkdGg9IjMwMCIgaGVpZ2h0PSIxNTAiPjwvb2JqZWN0Pg==\" data-uc_sig=\"fa0f8507ce5e782a265c02ad7d583978dc6a8ba4\"></object>\n"
+                        },
+                        {
+                            "text_type": null,
+                            "type": "pNotUsedAsHeader",
+                            "lineNo": 44,
+                            "severity": "Suggestion",
+                            "severity_num": 3,
+                            "title": "Avoid using styles for document structure",
+                            "description": "<p>Bold and Italics are used to emphasize text, whereas headings are used to define the structure of the document. Headings like <code>h1-h6</code> are extremely useful for non-sighted users to navigate the structure of the page, and formatting a paragraph to just be big or bold, while it might visually look like a heading , does not make it one.</p>",
+                            "path": "None",
+                            "html": "<p style=\"font-weight: bold; display: inline-block;\">Bolded Non-Header</p>\n"
+                        },
+                        {
+                            "text_type": null,
+                            "type": "objectInterfaceIsAccessible",
+                            "lineNo": 35,
+                            "severity": "Suggestion",
+                            "severity_num": 3,
+                            "title": "Interfaces within objects should be accessible",
+                            "description": "<p>Object content should be assessed for accessibility. Objects cannot be checked using automated tools, this should be reviewed manually.</p>",
+                            "path": "None",
+                            "html": "<object class=\"instructure_user_content instructure_user_content instructure_user_content instructure_user_content instructure_user_content instructure_user_content instructure_user_content instructure_user_content instructure_user_content instructure_user_content instructure_user_content instructure_user_content instructure_user_content instructure_user_content \" title=\"\" width=\"300\" height=\"150\" data-uc_width=\"310px\" data-uc_height=\"160px\" data-uc_snippet=\"PG9iamVjdCBjbGFzcz0iaW5zdHJ1Y3R1cmVfdXNlcl9jb250ZW50IGluc3RydWN0dXJlX3VzZXJfY29udGVudCBpbnN0cnVjdHVyZV91c2VyX2NvbnRlbnQgaW5zdHJ1Y3R1cmVfdXNlcl9jb250ZW50IGluc3RydWN0dXJlX3VzZXJfY29udGVudCBpbnN0cnVjdHVyZV91c2VyX2NvbnRlbnQgaW5zdHJ1Y3R1cmVfdXNlcl9jb250ZW50IGluc3RydWN0dXJlX3VzZXJfY29udGVudCBpbnN0cnVjdHVyZV91c2VyX2NvbnRlbnQgaW5zdHJ1Y3R1cmVfdXNlcl9jb250ZW50IGluc3RydWN0dXJlX3VzZXJfY29udGVudCBpbnN0cnVjdHVyZV91c2VyX2NvbnRlbnQgaW5zdHJ1Y3R1cmVfdXNlcl9jb250ZW50ICIgdGl0bGU9IiIgd2lkdGg9IjMwMCIgaGVpZ2h0PSIxNTAiPjwvb2JqZWN0Pg==\" data-uc_sig=\"fa0f8507ce5e782a265c02ad7d583978dc6a8ba4\"></object>\n"
+                        },
+                        {
+                            "text_type": null,
+                            "type": "aSuspiciousLinkText",
+                            "lineNo": 39,
+                            "severity": "Suggestion",
+                            "severity_num": 3,
+                            "title": "Link text should be descriptive",
+                            "description": "<p>Links should be descriptive of the content they're linking to, such as 'Class Schedule' rather than 'schedule.html' or 'click here'.</p> ",
+                            "path": "None",
+                            "html": "<a href=\"https://www.google.com/\">https://www.google.com/</a>\n"
+                        },
+                        {
+                            "colors": [
+                                "#100000"
+                            ],
+                            "fore_color": "#100000",
+                            "text_type": "text",
+                            "type": "cssTextStyleEmphasize",
+                            "lineNo": 45,
+                            "severity": "Suggestion",
+                            "severity_num": 3,
+                            "title": "Avoid using color alone for emphasis",
+                            "description": "<p>When emphasizing text, you may use color with sufficient contrast as long as you also apply some other form of emphasis, such as bold or italics. This ensures that screen reader users are aware of the text's importance.</p>",
+                            "path": "None",
+                            "html": "<span style=\"color: #100000;\">Colored Text 1</span>\n"
+                        },
+                        {
+                            "colors": [
+                                "#200000"
+                            ],
+                            "fore_color": "#200000",
+                            "text_type": "text",
+                            "type": "cssTextStyleEmphasize",
+                            "lineNo": 46,
+                            "severity": "Suggestion",
+                            "severity_num": 3,
+                            "title": "Avoid using color alone for emphasis",
+                            "description": "<p>When emphasizing text, you may use color with sufficient contrast as long as you also apply some other form of emphasis, such as bold or italics. This ensures that screen reader users are aware of the text's importance.</p>",
+                            "path": "None",
+                            "html": "<span style=\"color: #200000;\">Colored Text 2</span>\n"
+                        },
+                        {
+                            "colors": [
+                                "#300000"
+                            ],
+                            "fore_color": "#300000",
+                            "text_type": "text",
+                            "type": "cssTextStyleEmphasize",
+                            "lineNo": 47,
+                            "severity": "Suggestion",
+                            "severity_num": 3,
+                            "title": "Avoid using color alone for emphasis",
+                            "description": "<p>When emphasizing text, you may use color with sufficient contrast as long as you also apply some other form of emphasis, such as bold or italics. This ensures that screen reader users are aware of the text's importance.</p>",
+                            "path": "None",
+                            "html": "<span style=\"color: #300000;\">Colored Text 3</span>\n"
+                        }
+                    ]
+                }
+            ],
+            "amount": 1,
+            "time": 0.6
+        },
+        "files": {
+            "title": "files",
+            "items": [
+                {
+                    "id": 54389868,
+                    "name": "test.html",
+                    "url": "https://fake.com/files/54389868/download",
+                    "amount": 18,
+                    "error": [
+                        {
+                            "text_type": null,
+                            "type": "imgHasAlt",
+                            "lineNo": 8,
+                            "severity": "Error",
+                            "severity_num": 1,
+                            "title": "Image elements should have an \"alt\" attribute",
+                            "description": "<p>Alternative Text (Alt Text) is an alternative (non-visual) way to describe the meaning of an image. Please provide a brief (under 100 characters) description of the image for a <a href='http://en.wikipedia.org/wiki/Screen_reader'>screen reader</a> user. Note: It should not be the image file name.</p>",
+                            "path": "None",
+                            "html": "<img src=\"https://www.google.com/images/branding/googlelogo/1x/googlelogo_color_272x92dp.png\" alt=\"\">\n"
+                        },
+                        {
+                            "text_type": null,
+                            "type": "imgAltIsDifferent",
+                            "lineNo": 9,
+                            "severity": "Error",
+                            "severity_num": 1,
+                            "title": "Alternative Text should not be the image filename",
+                            "description": "<p>Alternative Text (Alt Text) is an alternative (non-visual) way to describe the meaning of an image. Please provide a brief (under 100 characters) description of the image for a <a href='http://en.wikipedia.org/wiki/Screen_reader'>screen reader</a> user. Note: It should not be the image file name.</p>",
+                            "path": "None",
+                            "html": "<img src=\"https://www.google.com/images/branding/googlelogo/1x/googlelogo_color_272x92dp.png\" alt=\"googlelogo_color_272x9dp.png\">\n"
+                        },
+                        {
+                            "text_type": null,
+                            "type": "imgAltIsTooLong",
+                            "lineNo": 10,
+                            "severity": "Error",
+                            "severity_num": 1,
+                            "title": "Alternative Text is more than 100 characters",
+                            "description": "<p>Alternative Text (Alt Text) is an alternative (non-visual) way to describe the meaning of an image. Please provide a brief (under 100 characters) description of the image for a <a href='http://en.wikipedia.org/wiki/Screen_reader'>screen reader</a> user. Note: It should not be the image file name.</p>",
+                            "path": "None",
+                            "html": "<img src=\"https://www.google.com/images/branding/googlelogo/1x/googlelogo_color_272x92dp.png\" alt=\" abcdefghijklmnopqrstuvwxyz abcdefghijklmnopqrstuvwxyz abcdefghijklmnopqrstuvwxyz abcdefghijklmnopqrstuvwxyz\">\n"
+                        },
+                        {
+                            "text_type": null,
+                            "type": "objectMustContainText",
+                            "lineNo": 40,
+                            "severity": "Error",
+                            "severity_num": 1,
+                            "title": "Multimedia objects should have text equivalents (e.g., transcripts).",
+                            "description": "<p>Multimedia objects should be accompanied by a link to a transcript of the content.</p>",
+                            "path": "None",
+                            "html": "<object class=\"instructure_user_content instructure_user_content instructure_user_content instructure_user_content instructure_user_content instructure_user_content instructure_user_content instructure_user_content instructure_user_content instructure_user_content instructure_user_content instructure_user_content instructure_user_content \" title=\"\" width=\"300\" height=\"150\" data-uc_width=\"310px\" data-uc_height=\"160px\" data-uc_snippet=\"PG9iamVjdCBjbGFzcz0iaW5zdHJ1Y3R1cmVfdXNlcl9jb250ZW50IGluc3RydWN0dXJlX3VzZXJfY29udGVudCBpbnN0cnVjdHVyZV91c2VyX2NvbnRlbnQgaW5zdHJ1Y3R1cmVfdXNlcl9jb250ZW50IGluc3RydWN0dXJlX3VzZXJfY29udGVudCBpbnN0cnVjdHVyZV91c2VyX2NvbnRlbnQgaW5zdHJ1Y3R1cmVfdXNlcl9jb250ZW50IGluc3RydWN0dXJlX3VzZXJfY29udGVudCBpbnN0cnVjdHVyZV91c2VyX2NvbnRlbnQgaW5zdHJ1Y3R1cmVfdXNlcl9jb250ZW50IGluc3RydWN0dXJlX3VzZXJfY29udGVudCBpbnN0cnVjdHVyZV91c2VyX2NvbnRlbnQgIiB0aXRsZT0iIiB3aWR0aD0iMzAwIiBoZWlnaHQ9IjE1MCI+PC9vYmplY3Q+\" data-uc_sig=\"4073cb9091b2502d527c13d9fdb58a9606a8c405\"></object>\n"
+                        },
+                        {
+                            "text_type": null,
+                            "type": "tableDataShouldHaveTh",
+                            "lineNo": 13,
+                            "severity": "Error",
+                            "severity_num": 1,
+                            "title": "No table headers found",
+                            "description": "<p>Add a table header because it provides a description of the table structure for sighted and <a href='http://en.wikipedia.org/wiki/Screen_reader'>screen reader</a> users.</p>",
+                            "path": "None",
+                            "html": "<table><tbody><tr><td>Header 1</td>\n<td>Header 2</td>\n</tr><tr><td>Placeholder 1</td>\n<td>Placeholder 2</td>\n</tr></tbody></table>\n"
+                        },
+                        {
+                            "text_type": null,
+                            "type": "tableThShouldHaveScope",
+                            "lineNo": 29,
+                            "severity": "Error",
+                            "severity_num": 1,
+                            "title": "No row or column scopes declarations found in headers of the table",
+                            "description": "<p>Scope declarations in headers organize and define table data by row/column for sighted and <a href=\"http://en.wikipedia.org/wiki/Screen_reader\">screen reader</a> users.</p>",
+                            "path": "None",
+                            "html": "<th>Header 1</th>\n"
+                        },
+                        {
+                            "text_type": null,
+                            "type": "tableThShouldHaveScope",
+                            "lineNo": 30,
+                            "severity": "Error",
+                            "severity_num": 1,
+                            "title": "No row or column scopes declarations found in headers of the table",
+                            "description": "<p>Scope declarations in headers organize and define table data by row/column for sighted and <a href=\"http://en.wikipedia.org/wiki/Screen_reader\">screen reader</a> users.</p>",
+                            "path": "None",
+                            "html": "<th>Header 2</th>\n"
+                        },
+                        {
+                            "text_type": null,
+                            "type": "aMustContainText",
+                            "lineNo": 7,
+                            "severity": "Error",
+                            "severity_num": 1,
+                            "title": "Links should contain text",
+                            "description": "<p>Because many users of <a href='http://en.wikipedia.org/wiki/Screen_reader'>screen readers</a> use links to navigate the page, providing links with no text (or with images that have empty 'alt' attributes and no other readable text) hinders these users.</p>",
+                            "path": "None",
+                            "html": "<a href=\"https://www.google.com/\"></a>\n"
+                        },
+                        {
+                            "text_type": null,
+                            "type": "aMustContainText",
+                            "lineNo": 11,
+                            "severity": "Error",
+                            "severity_num": 1,
+                            "title": "Links should contain text",
+                            "description": "<p>Because many users of <a href='http://en.wikipedia.org/wiki/Screen_reader'>screen readers</a> use links to navigate the page, providing links with no text (or with images that have empty 'alt' attributes and no other readable text) hinders these users.</p>",
+                            "path": "None",
+                            "html": "<a href=\"https://www.google.com/images/branding/googlelogo/1x/googlelogo_color_272x92dp.png\"></a>\n"
+                        },
+                        {
+                            "text_type": null,
+                            "type": "headersHaveText",
+                            "lineNo": 46,
+                            "severity": "Error",
+                            "severity_num": 1,
+                            "title": "Headings should contain text",
+                            "description": "<p>Sighted and <a href='http://en.wikipedia.org/wiki/Screen_reader'>screen reader</a> users depend on headings to organize the content on the page. Headings should not be empty and should represent an accurate outline of the content</p>",
+                            "path": "None",
+                            "html": "<h3 style=\"display: inline-block;\"></h3>\n"
+                        },
+                        {
+                            "text_type": null,
+                            "type": "videosEmbeddedOrLinkedNeedCaptions",
+                            "lineNo": 43,
+                            "severity": "Error",
+                            "severity_num": 1,
+                            "title": "Synchronized <a href='http://webaim.org/techniques/captions/'>captions</a> should be provided for prerecorded web-based video",
+                            "description": "<p>Captions should be included in the video to provide dialogue to users who are hearing impaired.</p>",
+                            "path": "None",
+                            "html": "<a class=\"\" href=\"https://www.youtube.com/watch?v=XBBwbGq6Z6Q\">Youtube Video sans Captions</a>\n"
+                        }
+                    ],
+                    "warning": [],
+                    "suggestion": [
+                        {
+                            "text_type": null,
+                            "type": "objectShouldHaveLongDescription",
+                            "lineNo": 40,
+                            "severity": "Suggestion",
+                            "severity_num": 3,
+                            "title": "An object might require a long description",
+                            "description": "<p>Objects might require a long description, especially if their content is complicated.</p>",
+                            "path": "None",
+                            "html": "<object class=\"instructure_user_content instructure_user_content instructure_user_content instructure_user_content instructure_user_content instructure_user_content instructure_user_content instructure_user_content instructure_user_content instructure_user_content instructure_user_content instructure_user_content instructure_user_content \" title=\"\" width=\"300\" height=\"150\" data-uc_width=\"310px\" data-uc_height=\"160px\" data-uc_snippet=\"PG9iamVjdCBjbGFzcz0iaW5zdHJ1Y3R1cmVfdXNlcl9jb250ZW50IGluc3RydWN0dXJlX3VzZXJfY29udGVudCBpbnN0cnVjdHVyZV91c2VyX2NvbnRlbnQgaW5zdHJ1Y3R1cmVfdXNlcl9jb250ZW50IGluc3RydWN0dXJlX3VzZXJfY29udGVudCBpbnN0cnVjdHVyZV91c2VyX2NvbnRlbnQgaW5zdHJ1Y3R1cmVfdXNlcl9jb250ZW50IGluc3RydWN0dXJlX3VzZXJfY29udGVudCBpbnN0cnVjdHVyZV91c2VyX2NvbnRlbnQgaW5zdHJ1Y3R1cmVfdXNlcl9jb250ZW50IGluc3RydWN0dXJlX3VzZXJfY29udGVudCBpbnN0cnVjdHVyZV91c2VyX2NvbnRlbnQgIiB0aXRsZT0iIiB3aWR0aD0iMzAwIiBoZWlnaHQ9IjE1MCI+PC9vYmplY3Q+\" data-uc_sig=\"4073cb9091b2502d527c13d9fdb58a9606a8c405\"></object>\n"
+                        },
+                        {
+                            "text_type": null,
+                            "type": "pNotUsedAsHeader",
+                            "lineNo": 49,
+                            "severity": "Suggestion",
+                            "severity_num": 3,
+                            "title": "Avoid using styles for document structure",
+                            "description": "<p>Bold and Italics are used to emphasize text, whereas headings are used to define the structure of the document. Headings like <code>h1-h6</code> are extremely useful for non-sighted users to navigate the structure of the page, and formatting a paragraph to just be big or bold, while it might visually look like a heading , does not make it one.</p>",
+                            "path": "None",
+                            "html": "<p style=\"font-weight: bold; display: inline-block;\">Bolded Non-Header</p>\n"
+                        },
+                        {
+                            "text_type": null,
+                            "type": "objectInterfaceIsAccessible",
+                            "lineNo": 40,
+                            "severity": "Suggestion",
+                            "severity_num": 3,
+                            "title": "Interfaces within objects should be accessible",
+                            "description": "<p>Object content should be assessed for accessibility. Objects cannot be checked using automated tools, this should be reviewed manually.</p>",
+                            "path": "None",
+                            "html": "<object class=\"instructure_user_content instructure_user_content instructure_user_content instructure_user_content instructure_user_content instructure_user_content instructure_user_content instructure_user_content instructure_user_content instructure_user_content instructure_user_content instructure_user_content instructure_user_content \" title=\"\" width=\"300\" height=\"150\" data-uc_width=\"310px\" data-uc_height=\"160px\" data-uc_snippet=\"PG9iamVjdCBjbGFzcz0iaW5zdHJ1Y3R1cmVfdXNlcl9jb250ZW50IGluc3RydWN0dXJlX3VzZXJfY29udGVudCBpbnN0cnVjdHVyZV91c2VyX2NvbnRlbnQgaW5zdHJ1Y3R1cmVfdXNlcl9jb250ZW50IGluc3RydWN0dXJlX3VzZXJfY29udGVudCBpbnN0cnVjdHVyZV91c2VyX2NvbnRlbnQgaW5zdHJ1Y3R1cmVfdXNlcl9jb250ZW50IGluc3RydWN0dXJlX3VzZXJfY29udGVudCBpbnN0cnVjdHVyZV91c2VyX2NvbnRlbnQgaW5zdHJ1Y3R1cmVfdXNlcl9jb250ZW50IGluc3RydWN0dXJlX3VzZXJfY29udGVudCBpbnN0cnVjdHVyZV91c2VyX2NvbnRlbnQgIiB0aXRsZT0iIiB3aWR0aD0iMzAwIiBoZWlnaHQ9IjE1MCI+PC9vYmplY3Q+\" data-uc_sig=\"4073cb9091b2502d527c13d9fdb58a9606a8c405\"></object>\n"
+                        },
+                        {
+                            "text_type": null,
+                            "type": "aSuspiciousLinkText",
+                            "lineNo": 44,
+                            "severity": "Suggestion",
+                            "severity_num": 3,
+                            "title": "Link text should be descriptive",
+                            "description": "<p>Links should be descriptive of the content they're linking to, such as 'Class Schedule' rather than 'schedule.html' or 'click here'.</p> ",
+                            "path": "None",
+                            "html": "<a href=\"https://www.google.com/\">https://www.google.com/</a>\n"
+                        },
+                        {
+                            "colors": [
+                                "#100000"
+                            ],
+                            "fore_color": "#100000",
+                            "text_type": "text",
+                            "type": "cssTextStyleEmphasize",
+                            "lineNo": 50,
+                            "severity": "Suggestion",
+                            "severity_num": 3,
+                            "title": "Avoid using color alone for emphasis",
+                            "description": "<p>When emphasizing text, you may use color with sufficient contrast as long as you also apply some other form of emphasis, such as bold or italics. This ensures that screen reader users are aware of the text's importance.</p>",
+                            "path": "None",
+                            "html": "<span style=\"color: #100000;\">Colored Text 1</span>\n"
+                        },
+                        {
+                            "colors": [
+                                "#200000"
+                            ],
+                            "fore_color": "#200000",
+                            "text_type": "text",
+                            "type": "cssTextStyleEmphasize",
+                            "lineNo": 51,
+                            "severity": "Suggestion",
+                            "severity_num": 3,
+                            "title": "Avoid using color alone for emphasis",
+                            "description": "<p>When emphasizing text, you may use color with sufficient contrast as long as you also apply some other form of emphasis, such as bold or italics. This ensures that screen reader users are aware of the text's importance.</p>",
+                            "path": "None",
+                            "html": "<span style=\"color: #200000;\">Colored Text 2</span>\n"
+                        },
+                        {
+                            "colors": [
+                                "#300000"
+                            ],
+                            "fore_color": "#300000",
+                            "text_type": "text",
+                            "type": "cssTextStyleEmphasize",
+                            "lineNo": 52,
+                            "severity": "Suggestion",
+                            "severity_num": 3,
+                            "title": "Avoid using color alone for emphasis",
+                            "description": "<p>When emphasizing text, you may use color with sufficient contrast as long as you also apply some other form of emphasis, such as bold or italics. This ensures that screen reader users are aware of the text's importance.</p>",
+                            "path": "None",
+                            "html": "<span style=\"color: #300000;\">Colored Text 3</span>\n"
+                        }
+                    ]
+                }
+            ],
+            "amount": 1,
+            "time": 1.11
+        },
+        "pages": {
+            "title": "pages",
+            "items": [
+                {
+                    "id": "test123",
+                    "name": "test123",
+                    "url": "https://fake.com/courses/00000/pages/test123",
+                    "amount": 7,
+                    "error": [
+                        {
+                            "text_type": null,
+                            "type": "imgHasAlt",
+                            "lineNo": 10,
+                            "severity": "Error",
+                            "severity_num": 1,
+                            "title": "Image elements should have an \"alt\" attribute",
+                            "description": "<p>Alternative Text (Alt Text) is an alternative (non-visual) way to describe the meaning of an image. Please provide a brief (under 100 characters) description of the image for a <a href='http://en.wikipedia.org/wiki/Screen_reader'>screen reader</a> user. Note: It should not be the image file name.</p>",
+                            "path": "None",
+                            "html": "<img src=\"https://farm2.static.flickr.com/1384/5110231975_41ce19ef23.jpg\" alt=\"\" width=\"500\" height=\"333\">\n"
+                        },
+                        {
+                            "text_type": null,
+                            "type": "imgHasAlt",
+                            "lineNo": 13,
+                            "severity": "Error",
+                            "severity_num": 1,
+                            "title": "Image elements should have an \"alt\" attribute",
+                            "description": "<p>Alternative Text (Alt Text) is an alternative (non-visual) way to describe the meaning of an image. Please provide a brief (under 100 characters) description of the image for a <a href='http://en.wikipedia.org/wiki/Screen_reader'>screen reader</a> user. Note: It should not be the image file name.</p>",
+                            "path": "None",
+                            "html": "<img src=\"https://farm6.static.flickr.com/5102/5649455359_e337e2da3a.jpg\" alt=\"\" width=\"500\" height=\"333\">\n"
+                        },
+                        {
+                            "text_type": null,
+                            "type": "imgAltNotEmptyInAnchor",
+                            "lineNo": 10,
+                            "severity": "Error",
+                            "severity_num": 1,
+                            "title": "Alt text for all img elements used as source anchors should not be empty",
+                            "description": "<p>Alternative Text (Alt Text) is an alternative (non-visual) way to describe the meaning of an image. Please provide a brief (under 100 characters) description of the image for a <a href='http://en.wikipedia.org/wiki/Screen_reader'>screen reader</a> user. Note: It should not be the image file name.</p>",
+                            "path": "None",
+                            "html": "<img src=\"https://farm2.static.flickr.com/1384/5110231975_41ce19ef23.jpg\" alt=\"\" width=\"500\" height=\"333\">\n"
+                        },
+                        {
+                            "text_type": null,
+                            "type": "imgAltNotEmptyInAnchor",
+                            "lineNo": 13,
+                            "severity": "Error",
+                            "severity_num": 1,
+                            "title": "Alt text for all img elements used as source anchors should not be empty",
+                            "description": "<p>Alternative Text (Alt Text) is an alternative (non-visual) way to describe the meaning of an image. Please provide a brief (under 100 characters) description of the image for a <a href='http://en.wikipedia.org/wiki/Screen_reader'>screen reader</a> user. Note: It should not be the image file name.</p>",
+                            "path": "None",
+                            "html": "<img src=\"https://farm6.static.flickr.com/5102/5649455359_e337e2da3a.jpg\" alt=\"\" width=\"500\" height=\"333\">\n"
+                        },
+                        {
+                            "text_type": null,
+                            "type": "aMustContainText",
+                            "lineNo": 10,
+                            "severity": "Error",
+                            "severity_num": 1,
+                            "title": "Links should contain text",
+                            "description": "<p>Because many users of <a href='http://en.wikipedia.org/wiki/Screen_reader'>screen readers</a> use links to navigate the page, providing links with no text (or with images that have empty 'alt' attributes and no other readable text) hinders these users.</p>",
+                            "path": "None",
+                            "html": "<a href=\"https://secure.flickr.com/photos/54844390@N05/5110231975\"><img src=\"https://farm2.static.flickr.com/1384/5110231975_41ce19ef23.jpg\" alt=\"\" width=\"500\" height=\"333\"></a>\n"
+                        },
+                        {
+                            "text_type": null,
+                            "type": "aMustContainText",
+                            "lineNo": 13,
+                            "severity": "Error",
+                            "severity_num": 1,
+                            "title": "Links should contain text",
+                            "description": "<p>Because many users of <a href='http://en.wikipedia.org/wiki/Screen_reader'>screen readers</a> use links to navigate the page, providing links with no text (or with images that have empty 'alt' attributes and no other readable text) hinders these users.</p>",
+                            "path": "None",
+                            "html": "<a href=\"https://secure.flickr.com/photos/59478940@N02/5649455359\"><img src=\"https://farm6.static.flickr.com/5102/5649455359_e337e2da3a.jpg\" alt=\"\" width=\"500\" height=\"333\"></a>\n"
+                        },
+                        {
+                            "text_type": null,
+                            "type": "aMustContainText",
+                            "lineNo": 13,
+                            "severity": "Error",
+                            "severity_num": 1,
+                            "title": "Links should contain text",
+                            "description": "<p>Because many users of <a href='http://en.wikipedia.org/wiki/Screen_reader'>screen readers</a> use links to navigate the page, providing links with no text (or with images that have empty 'alt' attributes and no other readable text) hinders these users.</p>",
+                            "path": "None",
+                            "html": "<a href=\"https://secure.flickr.com/photos/54844390@N05/5110231975\"></a>\n"
+                        }
+                    ],
+                    "warning": [],
+                    "suggestion": []
+                },
+                {
+                    "id": "some-other-page",
+                    "name": "some other page",
+                    "url": "https://fake.com/courses/000000/pages/some-other-page",
+                    "amount": 1,
+                    "error": [
+                        {
+                            "colors": [
+                                "#33cccc"
+                            ],
+                            "fore_color": "#33cccc",
+                            "text_type": "text",
+                            "type": "cssTextHasContrast",
+                            "lineNo": 7,
+                            "severity": "Error",
+                            "severity_num": 1,
+                            "title": "Insufficient text color contrast with the background",
+                            "description": "<p>Text color should be easily viewable and should not be the only indicator of meaning or function. Color balance should have at least a 4.5:1 ratio for small text and 3:1 ratio for large text.</p>",
+                            "path": "None",
+                            "html": "<span style=\"color: #33cccc;\">s</span>\n"
+                        }
+                    ],
+                    "warning": [],
+                    "suggestion": []
+                },
+                {
+                    "id": "imgaltisdifferent",
+                    "name": "imgAltIsDifferent",
+                    "url": "https://fake.com/courses/000000/pages/imgaltisdifferent",
+                    "amount": 1,
+                    "error": [
+                        {
+                            "text_type": null,
+                            "type": "imgAltIsDifferent",
+                            "lineNo": 1,
+                            "severity": "Error",
+                            "severity_num": 1,
+                            "title": "Alternative Text should not be the image filename",
+                            "description": "<p>Alternative Text (Alt Text) is an alternative (non-visual) way to describe the meaning of an image. Please provide a brief (under 100 characters) description of the image for a <a href='http://en.wikipedia.org/wiki/Screen_reader'>screen reader</a> user. Note: It should not be the image file name.</p>",
+                            "path": "None",
+                            "html": "<img src=\"https://www.google.com/images/branding/googlelogo/1x/googlelogo_color_272x92dp.png\" alt=\"googlelogo_color_272x9dp.png\">\n"
+                        }
+                    ],
+                    "warning": [],
+                    "suggestion": []
+                },
+                {
+                    "id": "tabledatashouldhaveth",
+                    "name": "tableDataShouldHaveTh",
+                    "url": "https://fake.com/courses/000000/pages/tabledatashouldhaveth",
+                    "amount": 1,
+                    "error": [
+                        {
+                            "text_type": null,
+                            "type": "tableDataShouldHaveTh",
+                            "lineNo": 2,
+                            "severity": "Error",
+                            "severity_num": 1,
+                            "title": "No table headers found",
+                            "description": "<p>Add a table header because it provides a description of the table structure for sighted and <a href='http://en.wikipedia.org/wiki/Screen_reader'>screen reader</a> users.</p>",
+                            "path": "None",
+                            "html": "<table border=\"1\"><tbody><tr><td>Header 1</td>\r\n<td>Header 2</td>\r\n</tr><tr><td>Placeholder 1</td>\r\n<td>Placeholder 2</td>\r\n</tr></tbody></table>\n"
+                        }
+                    ],
+                    "warning": [],
+                    "suggestion": []
+                },
+                {
+                    "id": "imghasalt",
+                    "name": "imgHasAlt",
+                    "url": "https://fake.com/courses/000000/pages/imghasalt",
+                    "amount": 1,
+                    "error": [
+                        {
+                            "text_type": null,
+                            "type": "imgHasAlt",
+                            "lineNo": 2,
+                            "severity": "Error",
+                            "severity_num": 1,
+                            "title": "Image elements should have an \"alt\" attribute",
+                            "description": "<p>Alternative Text (Alt Text) is an alternative (non-visual) way to describe the meaning of an image. Please provide a brief (under 100 characters) description of the image for a <a href='http://en.wikipedia.org/wiki/Screen_reader'>screen reader</a> user. Note: It should not be the image file name.</p>",
+                            "path": "None",
+                            "html": "<img src=\"https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png\" alt=\"\">\n"
+                        }
+                    ],
+                    "warning": [],
+                    "suggestion": []
+                },
+                {
+                    "id": "test",
+                    "name": "TEST",
+                    "url": "https://fake.com/courses/000000/pages/test",
+                    "amount": 18,
+                    "error": [
+                        {
+                            "text_type": null,
+                            "type": "imgHasAlt",
+                            "lineNo": 3,
+                            "severity": "Error",
+                            "severity_num": 1,
+                            "title": "Image elements should have an \"alt\" attribute",
+                            "description": "<p>Alternative Text (Alt Text) is an alternative (non-visual) way to describe the meaning of an image. Please provide a brief (under 100 characters) description of the image for a <a href='http://en.wikipedia.org/wiki/Screen_reader'>screen reader</a> user. Note: It should not be the image file name.</p>",
+                            "path": "None",
+                            "html": "<img src=\"https://www.google.com/images/branding/googlelogo/1x/googlelogo_color_272x92dp.png\" alt=\"\">\n"
+                        },
+                        {
+                            "text_type": null,
+                            "type": "imgAltIsDifferent",
+                            "lineNo": 4,
+                            "severity": "Error",
+                            "severity_num": 1,
+                            "title": "Alternative Text should not be the image filename",
+                            "description": "<p>Alternative Text (Alt Text) is an alternative (non-visual) way to describe the meaning of an image. Please provide a brief (under 100 characters) description of the image for a <a href='http://en.wikipedia.org/wiki/Screen_reader'>screen reader</a> user. Note: It should not be the image file name.</p>",
+                            "path": "None",
+                            "html": "<img src=\"https://www.google.com/images/branding/googlelogo/1x/googlelogo_color_272x92dp.png\" alt=\"googlelogo_color_272x9dp.png\">\n"
+                        },
+                        {
+                            "text_type": null,
+                            "type": "imgAltIsTooLong",
+                            "lineNo": 5,
+                            "severity": "Error",
+                            "severity_num": 1,
+                            "title": "Alternative Text is more than 100 characters",
+                            "description": "<p>Alternative Text (Alt Text) is an alternative (non-visual) way to describe the meaning of an image. Please provide a brief (under 100 characters) description of the image for a <a href='http://en.wikipedia.org/wiki/Screen_reader'>screen reader</a> user. Note: It should not be the image file name.</p>",
+                            "path": "None",
+                            "html": "<img src=\"https://www.google.com/images/branding/googlelogo/1x/googlelogo_color_272x92dp.png\" alt=\" abcdefghijklmnopqrstuvwxyz abcdefghijklmnopqrstuvwxyz abcdefghijklmnopqrstuvwxyz abcdefghijklmnopqrstuvwxyz\">\n"
+                        },
+                        {
+                            "text_type": null,
+                            "type": "objectMustContainText",
+                            "lineNo": 35,
+                            "severity": "Error",
+                            "severity_num": 1,
+                            "title": "Multimedia objects should have text equivalents (e.g., transcripts).",
+                            "description": "<p>Multimedia objects should be accompanied by a link to a transcript of the content.</p>",
+                            "path": "None",
+                            "html": "<object class=\"instructure_user_content instructure_user_content instructure_user_content instructure_user_content instructure_user_content instructure_user_content instructure_user_content instructure_user_content instructure_user_content instructure_user_content instructure_user_content instructure_user_content instructure_user_content instructure_user_content instructure_user_content instructure_user_content instructure_user_content instructure_user_content \" title=\"\" width=\"300\" height=\"150\" data-uc_width=\"310px\" data-uc_height=\"160px\" data-uc_snippet=\"PG9iamVjdCBjbGFzcz0iaW5zdHJ1Y3R1cmVfdXNlcl9jb250ZW50IGluc3RydWN0dXJlX3VzZXJfY29udGVudCBpbnN0cnVjdHVyZV91c2VyX2NvbnRlbnQgaW5zdHJ1Y3R1cmVfdXNlcl9jb250ZW50IGluc3RydWN0dXJlX3VzZXJfY29udGVudCBpbnN0cnVjdHVyZV91c2VyX2NvbnRlbnQgaW5zdHJ1Y3R1cmVfdXNlcl9jb250ZW50IGluc3RydWN0dXJlX3VzZXJfY29udGVudCBpbnN0cnVjdHVyZV91c2VyX2NvbnRlbnQgaW5zdHJ1Y3R1cmVfdXNlcl9jb250ZW50IGluc3RydWN0dXJlX3VzZXJfY29udGVudCBpbnN0cnVjdHVyZV91c2VyX2NvbnRlbnQgaW5zdHJ1Y3R1cmVfdXNlcl9jb250ZW50IGluc3RydWN0dXJlX3VzZXJfY29udGVudCBpbnN0cnVjdHVyZV91c2VyX2NvbnRlbnQgaW5zdHJ1Y3R1cmVfdXNlcl9jb250ZW50IGluc3RydWN0dXJlX3VzZXJfY29udGVudCAiIHRpdGxlPSIiIHdpZHRoPSIzMDAiIGhlaWdodD0iMTUwIj48L29iamVjdD4=\" data-uc_sig=\"de8cbc0ca7fe0dc22951f4a737e8e7a859ee194a\"></object>\n"
+                        },
+                        {
+                            "text_type": null,
+                            "type": "tableDataShouldHaveTh",
+                            "lineNo": 8,
+                            "severity": "Error",
+                            "severity_num": 1,
+                            "title": "No table headers found",
+                            "description": "<p>Add a table header because it provides a description of the table structure for sighted and <a href='http://en.wikipedia.org/wiki/Screen_reader'>screen reader</a> users.</p>",
+                            "path": "None",
+                            "html": "<table><tbody><tr><td>Header 1</td>\n<td>Header 2</td>\n</tr><tr><td>Placeholder 1</td>\n<td>Placeholder 2</td>\n</tr></tbody></table>\n"
+                        },
+                        {
+                            "text_type": null,
+                            "type": "tableThShouldHaveScope",
+                            "lineNo": 24,
+                            "severity": "Error",
+                            "severity_num": 1,
+                            "title": "No row or column scopes declarations found in headers of the table",
+                            "description": "<p>Scope declarations in headers organize and define table data by row/column for sighted and <a href=\"http://en.wikipedia.org/wiki/Screen_reader\">screen reader</a> users.</p>",
+                            "path": "None",
+                            "html": "<th>Header 1</th>\n"
+                        },
+                        {
+                            "text_type": null,
+                            "type": "tableThShouldHaveScope",
+                            "lineNo": 25,
+                            "severity": "Error",
+                            "severity_num": 1,
+                            "title": "No row or column scopes declarations found in headers of the table",
+                            "description": "<p>Scope declarations in headers organize and define table data by row/column for sighted and <a href=\"http://en.wikipedia.org/wiki/Screen_reader\">screen reader</a> users.</p>",
+                            "path": "None",
+                            "html": "<th>Header 2</th>\n"
+                        },
+                        {
+                            "text_type": null,
+                            "type": "aMustContainText",
+                            "lineNo": 6,
+                            "severity": "Error",
+                            "severity_num": 1,
+                            "title": "Links should contain text",
+                            "description": "<p>Because many users of <a href='http://en.wikipedia.org/wiki/Screen_reader'>screen readers</a> use links to navigate the page, providing links with no text (or with images that have empty 'alt' attributes and no other readable text) hinders these users.</p>",
+                            "path": "None",
+                            "html": "<a href=\"https://www.google.com/images/branding/googlelogo/1x/googlelogo_color_272x92dp.png\"></a>\n"
+                        },
+                        {
+                            "text_type": null,
+                            "type": "headersHaveText",
+                            "lineNo": 41,
+                            "severity": "Error",
+                            "severity_num": 1,
+                            "title": "Headings should contain text",
+                            "description": "<p>Sighted and <a href='http://en.wikipedia.org/wiki/Screen_reader'>screen reader</a> users depend on headings to organize the content on the page. Headings should not be empty and should represent an accurate outline of the content</p>",
+                            "path": "None",
+                            "html": "<h3 style=\"display: inline-block;\"></h3>\n"
+                        },
+                        {
+                            "text_type": null,
+                            "type": "videosEmbeddedOrLinkedNeedCaptions",
+                            "lineNo": 38,
+                            "severity": "Error",
+                            "severity_num": 1,
+                            "title": "Synchronized <a href='http://webaim.org/techniques/captions/'>captions</a> should be provided for prerecorded web-based video",
+                            "description": "<p>Captions should be included in the video to provide dialogue to users who are hearing impaired.</p>",
+                            "path": "None",
+                            "html": "<a class=\"\" href=\"https://www.youtube.com/watch?v=XBBwbGq6Z6Q\">Youtube Video sans Captions</a>\n"
+                        }
+                    ],
+                    "warning": [],
+                    "suggestion": [
+                        {
+                            "text_type": null,
+                            "type": "objectShouldHaveLongDescription",
+                            "lineNo": 35,
+                            "severity": "Suggestion",
+                            "severity_num": 3,
+                            "title": "An object might require a long description",
+                            "description": "<p>Objects might require a long description, especially if their content is complicated.</p>",
+                            "path": "None",
+                            "html": "<object class=\"instructure_user_content instructure_user_content instructure_user_content instructure_user_content instructure_user_content instructure_user_content instructure_user_content instructure_user_content instructure_user_content instructure_user_content instructure_user_content instructure_user_content instructure_user_content instructure_user_content instructure_user_content instructure_user_content instructure_user_content instructure_user_content \" title=\"\" width=\"300\" height=\"150\" data-uc_width=\"310px\" data-uc_height=\"160px\" data-uc_snippet=\"PG9iamVjdCBjbGFzcz0iaW5zdHJ1Y3R1cmVfdXNlcl9jb250ZW50IGluc3RydWN0dXJlX3VzZXJfY29udGVudCBpbnN0cnVjdHVyZV91c2VyX2NvbnRlbnQgaW5zdHJ1Y3R1cmVfdXNlcl9jb250ZW50IGluc3RydWN0dXJlX3VzZXJfY29udGVudCBpbnN0cnVjdHVyZV91c2VyX2NvbnRlbnQgaW5zdHJ1Y3R1cmVfdXNlcl9jb250ZW50IGluc3RydWN0dXJlX3VzZXJfY29udGVudCBpbnN0cnVjdHVyZV91c2VyX2NvbnRlbnQgaW5zdHJ1Y3R1cmVfdXNlcl9jb250ZW50IGluc3RydWN0dXJlX3VzZXJfY29udGVudCBpbnN0cnVjdHVyZV91c2VyX2NvbnRlbnQgaW5zdHJ1Y3R1cmVfdXNlcl9jb250ZW50IGluc3RydWN0dXJlX3VzZXJfY29udGVudCBpbnN0cnVjdHVyZV91c2VyX2NvbnRlbnQgaW5zdHJ1Y3R1cmVfdXNlcl9jb250ZW50IGluc3RydWN0dXJlX3VzZXJfY29udGVudCAiIHRpdGxlPSIiIHdpZHRoPSIzMDAiIGhlaWdodD0iMTUwIj48L29iamVjdD4=\" data-uc_sig=\"de8cbc0ca7fe0dc22951f4a737e8e7a859ee194a\"></object>\n"
+                        },
+                        {
+                            "text_type": null,
+                            "type": "pNotUsedAsHeader",
+                            "lineNo": 44,
+                            "severity": "Suggestion",
+                            "severity_num": 3,
+                            "title": "Avoid using styles for document structure",
+                            "description": "<p>Bold and Italics are used to emphasize text, whereas headings are used to define the structure of the document. Headings like <code>h1-h6</code> are extremely useful for non-sighted users to navigate the structure of the page, and formatting a paragraph to just be big or bold, while it might visually look like a heading , does not make it one.</p>",
+                            "path": "None",
+                            "html": "<p style=\"font-weight: bold; display: inline-block;\">Bolded Non-Header</p>\n"
+                        },
+                        {
+                            "text_type": null,
+                            "type": "objectInterfaceIsAccessible",
+                            "lineNo": 35,
+                            "severity": "Suggestion",
+                            "severity_num": 3,
+                            "title": "Interfaces within objects should be accessible",
+                            "description": "<p>Object content should be assessed for accessibility. Objects cannot be checked using automated tools, this should be reviewed manually.</p>",
+                            "path": "None",
+                            "html": "<object class=\"instructure_user_content instructure_user_content instructure_user_content instructure_user_content instructure_user_content instructure_user_content instructure_user_content instructure_user_content instructure_user_content instructure_user_content instructure_user_content instructure_user_content instructure_user_content instructure_user_content instructure_user_content instructure_user_content instructure_user_content instructure_user_content \" title=\"\" width=\"300\" height=\"150\" data-uc_width=\"310px\" data-uc_height=\"160px\" data-uc_snippet=\"PG9iamVjdCBjbGFzcz0iaW5zdHJ1Y3R1cmVfdXNlcl9jb250ZW50IGluc3RydWN0dXJlX3VzZXJfY29udGVudCBpbnN0cnVjdHVyZV91c2VyX2NvbnRlbnQgaW5zdHJ1Y3R1cmVfdXNlcl9jb250ZW50IGluc3RydWN0dXJlX3VzZXJfY29udGVudCBpbnN0cnVjdHVyZV91c2VyX2NvbnRlbnQgaW5zdHJ1Y3R1cmVfdXNlcl9jb250ZW50IGluc3RydWN0dXJlX3VzZXJfY29udGVudCBpbnN0cnVjdHVyZV91c2VyX2NvbnRlbnQgaW5zdHJ1Y3R1cmVfdXNlcl9jb250ZW50IGluc3RydWN0dXJlX3VzZXJfY29udGVudCBpbnN0cnVjdHVyZV91c2VyX2NvbnRlbnQgaW5zdHJ1Y3R1cmVfdXNlcl9jb250ZW50IGluc3RydWN0dXJlX3VzZXJfY29udGVudCBpbnN0cnVjdHVyZV91c2VyX2NvbnRlbnQgaW5zdHJ1Y3R1cmVfdXNlcl9jb250ZW50IGluc3RydWN0dXJlX3VzZXJfY29udGVudCAiIHRpdGxlPSIiIHdpZHRoPSIzMDAiIGhlaWdodD0iMTUwIj48L29iamVjdD4=\" data-uc_sig=\"de8cbc0ca7fe0dc22951f4a737e8e7a859ee194a\"></object>\n"
+                        },
+                        {
+                            "text_type": null,
+                            "type": "aSuspiciousLinkText",
+                            "lineNo": 39,
+                            "severity": "Suggestion",
+                            "severity_num": 3,
+                            "title": "Link text should be descriptive",
+                            "description": "<p>Links should be descriptive of the content they're linking to, such as 'Class Schedule' rather than 'schedule.html' or 'click here'.</p> ",
+                            "path": "None",
+                            "html": "<a href=\"https://www.google.com/\">https://www.google.com/</a>\n"
+                        },
+                        {
+                            "colors": [
+                                "#100000"
+                            ],
+                            "fore_color": "#100000",
+                            "text_type": "text",
+                            "type": "cssTextStyleEmphasize",
+                            "lineNo": 45,
+                            "severity": "Suggestion",
+                            "severity_num": 3,
+                            "title": "Avoid using color alone for emphasis",
+                            "description": "<p>When emphasizing text, you may use color with sufficient contrast as long as you also apply some other form of emphasis, such as bold or italics. This ensures that screen reader users are aware of the text's importance.</p>",
+                            "path": "None",
+                            "html": "<span style=\"color: #100000; font-style: italic; font-style: italic;\">Colored Text 1</span>\n"
+                        },
+                        {
+                            "colors": [
+                                "#300000"
+                            ],
+                            "fore_color": "#300000",
+                            "text_type": "text",
+                            "type": "cssTextStyleEmphasize",
+                            "lineNo": 47,
+                            "severity": "Suggestion",
+                            "severity_num": 3,
+                            "title": "Avoid using color alone for emphasis",
+                            "description": "<p>When emphasizing text, you may use color with sufficient contrast as long as you also apply some other form of emphasis, such as bold or italics. This ensures that screen reader users are aware of the text's importance.</p>",
+                            "path": "None",
+                            "html": "<span style=\"color: #300000;\">Colored Text 3</span>\n"
+                        },
+                        {
+                            "colors": [
+                                "#200000"
+                            ],
+                            "fore_color": "#200000",
+                            "text_type": "text",
+                            "type": "cssTextStyleEmphasize",
+                            "lineNo": 48,
+                            "severity": "Suggestion",
+                            "severity_num": 3,
+                            "title": "Avoid using color alone for emphasis",
+                            "description": "<p>When emphasizing text, you may use color with sufficient contrast as long as you also apply some other form of emphasis, such as bold or italics. This ensures that screen reader users are aware of the text's importance.</p>",
+                            "path": "None",
+                            "html": "<span style=\"color: #200000;\">Colored Text 4</span>\n"
+                        },
+                        {
+                            "colors": [
+                                "#300000"
+                            ],
+                            "fore_color": "#300000",
+                            "text_type": "text",
+                            "type": "cssTextStyleEmphasize",
+                            "lineNo": 49,
+                            "severity": "Suggestion",
+                            "severity_num": 3,
+                            "title": "Avoid using color alone for emphasis",
+                            "description": "<p>When emphasizing text, you may use color with sufficient contrast as long as you also apply some other form of emphasis, such as bold or italics. This ensures that screen reader users are aware of the text's importance.</p>",
+                            "path": "None",
+                            "html": "<span style=\"color: #300000;\">Colored Text 5</span>\n"
+                        }
+                    ]
+                },
+                {
+                    "id": "videosembeddedorlinkedneedcaptions",
+                    "name": "videosEmbeddedOrLinkedNeedCaptions",
+                    "url": "https://fake.com/courses/000000/pages/videosembeddedorlinkedneedcaptions",
+                    "amount": 1,
+                    "error": [
+                        {
+                            "text_type": null,
+                            "type": "videosEmbeddedOrLinkedNeedCaptions",
+                            "lineNo": 5,
+                            "severity": "Error",
+                            "severity_num": 1,
+                            "title": "Synchronized <a href='http://webaim.org/techniques/captions/'>captions</a> should be provided for prerecorded web-based video",
+                            "description": "<p>Captions should be included in the video to provide dialogue to users who are hearing impaired.</p>",
+                            "path": "None",
+                            "html": "<a id=\"\" class=\"\" title=\"\" href=\"https://youtu.be/rC4xeX8WgoQ\" target=\"\">Unavailable Video</a>\n"
+                        }
+                    ],
+                    "warning": [],
+                    "suggestion": []
+                },
+                {
+                    "id": "csstexthascontrast",
+                    "name": "cssTextHasContrast",
+                    "url": "https://fake.com/courses/000000/pages/csstexthascontrast",
+                    "amount": 5,
+                    "error": [
+                        {
+                            "colors": [
+                                "#ffff00"
+                            ],
+                            "fore_color": "#ffff00",
+                            "text_type": "text",
+                            "type": "cssTextHasContrast",
+                            "lineNo": 1,
+                            "severity": "Error",
+                            "severity_num": 1,
+                            "title": "Insufficient text color contrast with the background",
+                            "description": "<p>Text color should be easily viewable and should not be the only indicator of meaning or function. Color balance should have at least a 4.5:1 ratio for small text and 3:1 ratio for large text.</p>",
+                            "path": "None",
+                            "html": "<span style=\"color: #ffff00;\">Placeholder Text</span>\n"
+                        },
+                        {
+                            "colors": [
+                                "#ffff00"
+                            ],
+                            "fore_color": "#ffff00",
+                            "text_type": "text",
+                            "type": "cssTextHasContrast",
+                            "lineNo": 2,
+                            "severity": "Error",
+                            "severity_num": 1,
+                            "title": "Insufficient text color contrast with the background",
+                            "description": "<p>Text color should be easily viewable and should not be the only indicator of meaning or function. Color balance should have at least a 4.5:1 ratio for small text and 3:1 ratio for large text.</p>",
+                            "path": "None",
+                            "html": "<p style=\"color: #ffff00;\">Please change &ldquo;me 1&rdquo;</p>\n"
+                        },
+                        {
+                            "colors": [
+                                "#ffff00"
+                            ],
+                            "fore_color": "#ffff00",
+                            "text_type": "text",
+                            "type": "cssTextHasContrast",
+                            "lineNo": 3,
+                            "severity": "Error",
+                            "severity_num": 1,
+                            "title": "Insufficient text color contrast with the background",
+                            "description": "<p>Text color should be easily viewable and should not be the only indicator of meaning or function. Color balance should have at least a 4.5:1 ratio for small text and 3:1 ratio for large text.</p>",
+                            "path": "None",
+                            "html": "<p style=\"color: #ffff00;\">Please change &ldquo;me 2&rdquo;</p>\n"
+                        },
+                        {
+                            "colors": [
+                                "#ffff00"
+                            ],
+                            "fore_color": "#ffff00",
+                            "text_type": "text",
+                            "type": "cssTextHasContrast",
+                            "lineNo": 4,
+                            "severity": "Error",
+                            "severity_num": 1,
+                            "title": "Insufficient text color contrast with the background",
+                            "description": "<p>Text color should be easily viewable and should not be the only indicator of meaning or function. Color balance should have at least a 4.5:1 ratio for small text and 3:1 ratio for large text.</p>",
+                            "path": "None",
+                            "html": "<p style=\"color: #ffff00;\">Please change &ldquo;me 3&rdquo;</p>\n"
+                        },
+                        {
+                            "colors": [
+                                "#ffff00"
+                            ],
+                            "fore_color": "#ffff00",
+                            "text_type": "text",
+                            "type": "cssTextHasContrast",
+                            "lineNo": 5,
+                            "severity": "Error",
+                            "severity_num": 1,
+                            "title": "Insufficient text color contrast with the background",
+                            "description": "<p>Text color should be easily viewable and should not be the only indicator of meaning or function. Color balance should have at least a 4.5:1 ratio for small text and 3:1 ratio for large text.</p>",
+                            "path": "None",
+                            "html": "<p style=\"color: #ffff00;\">Please change &ldquo;me 4&rdquo;</p>\n"
+                        }
+                    ],
+                    "warning": [],
+                    "suggestion": []
+                },
+                {
+                    "id": "asuspiciouslinktext",
+                    "name": "aSuspiciousLinkText",
+                    "url": "https://fake.com/courses/000000/pages/asuspiciouslinktext",
+                    "amount": 1,
+                    "error": [],
+                    "warning": [],
+                    "suggestion": [
+                        {
+                            "text_type": null,
+                            "type": "aSuspiciousLinkText",
+                            "lineNo": 2,
+                            "severity": "Suggestion",
+                            "severity_num": 3,
+                            "title": "Link text should be descriptive",
+                            "description": "<p>Links should be descriptive of the content they're linking to, such as 'Class Schedule' rather than 'schedule.html' or 'click here'.</p> ",
+                            "path": "None",
+                            "html": "<a href=\"http://example.com/document.pdf\">http://example.com/document.pdf</a>\n"
+                        }
+                    ]
+                },
+                {
+                    "id": "tablethshouldhavescope",
+                    "name": "tableThShouldHaveScope",
+                    "url": "https://fake.com/courses/000000/pages/tablethshouldhavescope",
+                    "amount": 2,
+                    "error": [
+                        {
+                            "text_type": null,
+                            "type": "tableThShouldHaveScope",
+                            "lineNo": 5,
+                            "severity": "Error",
+                            "severity_num": 1,
+                            "title": "No row or column scopes declarations found in headers of the table",
+                            "description": "<p>Scope declarations in headers organize and define table data by row/column for sighted and <a href=\"http://en.wikipedia.org/wiki/Screen_reader\">screen reader</a> users.</p>",
+                            "path": "None",
+                            "html": "<th>Header 1</th>\n"
+                        },
+                        {
+                            "text_type": null,
+                            "type": "tableThShouldHaveScope",
+                            "lineNo": 6,
+                            "severity": "Error",
+                            "severity_num": 1,
+                            "title": "No row or column scopes declarations found in headers of the table",
+                            "description": "<p>Scope declarations in headers organize and define table data by row/column for sighted and <a href=\"http://en.wikipedia.org/wiki/Screen_reader\">screen reader</a> users.</p>",
+                            "path": "None",
+                            "html": "<th>Header 2</th>\n"
+                        }
+                    ],
+                    "warning": [],
+                    "suggestion": []
+                },
+                {
+                    "id": "headershavetext",
+                    "name": "headersHaveText",
+                    "url": "https://fake.com/courses/000000/pages/headershavetext",
+                    "amount": 1,
+                    "error": [
+                        {
+                            "text_type": null,
+                            "type": "headersHaveText",
+                            "lineNo": 2,
+                            "severity": "Error",
+                            "severity_num": 1,
+                            "title": "Headings should contain text",
+                            "description": "<p>Sighted and <a href='http://en.wikipedia.org/wiki/Screen_reader'>screen reader</a> users depend on headings to organize the content on the page. Headings should not be empty and should represent an accurate outline of the content</p>",
+                            "path": "None",
+                            "html": "<h1></h1>\n"
+                        }
+                    ],
+                    "warning": [],
+                    "suggestion": []
+                },
+                {
+                    "id": "pnotusedasheader",
+                    "name": "pNotUsedAsHeader",
+                    "url": "https://fake.com/courses/000000/pages/pnotusedasheader",
+                    "amount": 1,
+                    "error": [],
+                    "warning": [],
+                    "suggestion": [
+                        {
+                            "text_type": null,
+                            "type": "pNotUsedAsHeader",
+                            "lineNo": 2,
+                            "severity": "Suggestion",
+                            "severity_num": 3,
+                            "title": "Avoid using styles for document structure",
+                            "description": "<p>Bold and Italics are used to emphasize text, whereas headings are used to define the structure of the document. Headings like <code>h1-h6</code> are extremely useful for non-sighted users to navigate the structure of the page, and formatting a paragraph to just be big or bold, while it might visually look like a heading , does not make it one.</p>",
+                            "path": "None",
+                            "html": "<p><strong>Text incorrectly used as header</strong></p>\n"
+                        }
+                    ]
+                },
+                {
+                    "id": "amustcontaintext",
+                    "name": "aMustContainText",
+                    "url": "https://fake.com/courses/000000/pages/amustcontaintext",
+                    "amount": 1,
+                    "error": [
+                        {
+                            "text_type": null,
+                            "type": "aMustContainText",
+                            "lineNo": 2,
+                            "severity": "Error",
+                            "severity_num": 1,
+                            "title": "Links should contain text",
+                            "description": "<p>Because many users of <a href='http://en.wikipedia.org/wiki/Screen_reader'>screen readers</a> use links to navigate the page, providing links with no text (or with images that have empty 'alt' attributes and no other readable text) hinders these users.</p>",
+                            "path": "None",
+                            "html": "<a href=\"https://www.google.com/\" target=\"_blank\"></a>\n"
+                        }
+                    ],
+                    "warning": [],
+                    "suggestion": []
+                },
+                {
+                    "id": "csstextstyleemphasize",
+                    "name": "cssTextStyleEmphasize",
+                    "url": "https://fake.com/courses/000000/pages/csstextstyleemphasize",
+                    "amount": 1,
+                    "error": [],
+                    "warning": [],
+                    "suggestion": [
+                        {
+                            "colors": [
+                                "#00000f"
+                            ],
+                            "fore_color": "#00000f",
+                            "text_type": "text",
+                            "type": "cssTextStyleEmphasize",
+                            "lineNo": 1,
+                            "severity": "Suggestion",
+                            "severity_num": 3,
+                            "title": "Avoid using color alone for emphasis",
+                            "description": "<p>When emphasizing text, you may use color with sufficient contrast as long as you also apply some other form of emphasis, such as bold or italics. This ensures that screen reader users are aware of the text's importance.</p>",
+                            "path": "None",
+                            "html": "<span style=\"color: #00000f;\">Colored Text</span>\n"
+                        }
+                    ]
+                }
+            ],
+            "amount": 17,
+            "time": 5.55
+        },
+        "syllabus": {
+            "title": "syllabus",
+            "items": [
+                {
+                    "id": 0000000,
+                    "name": "Syllabus",
+                    "url": "https://fake.com/courses/0000000/assignments/syllabus",
+                    "amount": 18,
+                    "error": [
+                        {
+                            "text_type": null,
+                            "type": "imgHasAlt",
+                            "lineNo": 3,
+                            "severity": "Error",
+                            "severity_num": 1,
+                            "title": "Image elements should have an \"alt\" attribute",
+                            "description": "<p>Alternative Text (Alt Text) is an alternative (non-visual) way to describe the meaning of an image. Please provide a brief (under 100 characters) description of the image for a <a href='http://en.wikipedia.org/wiki/Screen_reader'>screen reader</a> user. Note: It should not be the image file name.</p>",
+                            "path": "None",
+                            "html": "<img src=\"https://www.google.com/images/branding/googlelogo/1x/googlelogo_color_272x92dp.png\" alt=\"\">\n"
+                        },
+                        {
+                            "text_type": null,
+                            "type": "imgAltIsDifferent",
+                            "lineNo": 4,
+                            "severity": "Error",
+                            "severity_num": 1,
+                            "title": "Alternative Text should not be the image filename",
+                            "description": "<p>Alternative Text (Alt Text) is an alternative (non-visual) way to describe the meaning of an image. Please provide a brief (under 100 characters) description of the image for a <a href='http://en.wikipedia.org/wiki/Screen_reader'>screen reader</a> user. Note: It should not be the image file name.</p>",
+                            "path": "None",
+                            "html": "<img src=\"https://www.google.com/images/branding/googlelogo/1x/googlelogo_color_272x92dp.png\" alt=\"googlelogo_color_272x9dp.png\">\n"
+                        },
+                        {
+                            "text_type": null,
+                            "type": "imgAltIsTooLong",
+                            "lineNo": 5,
+                            "severity": "Error",
+                            "severity_num": 1,
+                            "title": "Alternative Text is more than 100 characters",
+                            "description": "<p>Alternative Text (Alt Text) is an alternative (non-visual) way to describe the meaning of an image. Please provide a brief (under 100 characters) description of the image for a <a href='http://en.wikipedia.org/wiki/Screen_reader'>screen reader</a> user. Note: It should not be the image file name.</p>",
+                            "path": "None",
+                            "html": "<img src=\"https://www.google.com/images/branding/googlelogo/1x/googlelogo_color_272x92dp.png\" alt=\" abcdefghijklmnopqrstuvwxyz abcdefghijklmnopqrstuvwxyz abcdefghijklmnopqrstuvwxyz abcdefghijklmnopqrstuvwxyz\">\n"
+                        },
+                        {
+                            "text_type": null,
+                            "type": "objectMustContainText",
+                            "lineNo": 35,
+                            "severity": "Error",
+                            "severity_num": 1,
+                            "title": "Multimedia objects should have text equivalents (e.g., transcripts).",
+                            "description": "<p>Multimedia objects should be accompanied by a link to a transcript of the content.</p>",
+                            "path": "None",
+                            "html": "<object class=\"instructure_user_content instructure_user_content instructure_user_content instructure_user_content instructure_user_content instructure_user_content instructure_user_content instructure_user_content instructure_user_content instructure_user_content instructure_user_content instructure_user_content instructure_user_content instructure_user_content \" title=\"\" width=\"300\" height=\"150\" data-uc_width=\"310px\" data-uc_height=\"160px\" data-uc_snippet=\"PG9iamVjdCBjbGFzcz0iaW5zdHJ1Y3R1cmVfdXNlcl9jb250ZW50IGluc3RydWN0dXJlX3VzZXJfY29udGVudCBpbnN0cnVjdHVyZV91c2VyX2NvbnRlbnQgaW5zdHJ1Y3R1cmVfdXNlcl9jb250ZW50IGluc3RydWN0dXJlX3VzZXJfY29udGVudCBpbnN0cnVjdHVyZV91c2VyX2NvbnRlbnQgaW5zdHJ1Y3R1cmVfdXNlcl9jb250ZW50IGluc3RydWN0dXJlX3VzZXJfY29udGVudCBpbnN0cnVjdHVyZV91c2VyX2NvbnRlbnQgaW5zdHJ1Y3R1cmVfdXNlcl9jb250ZW50IGluc3RydWN0dXJlX3VzZXJfY29udGVudCBpbnN0cnVjdHVyZV91c2VyX2NvbnRlbnQgaW5zdHJ1Y3R1cmVfdXNlcl9jb250ZW50ICIgdGl0bGU9IiIgd2lkdGg9IjMwMCIgaGVpZ2h0PSIxNTAiPjwvb2JqZWN0Pg==\" data-uc_sig=\"fa0f8507ce5e782a265c02ad7d583978dc6a8ba4\"></object>\n"
+                        },
+                        {
+                            "text_type": null,
+                            "type": "tableDataShouldHaveTh",
+                            "lineNo": 8,
+                            "severity": "Error",
+                            "severity_num": 1,
+                            "title": "No table headers found",
+                            "description": "<p>Add a table header because it provides a description of the table structure for sighted and <a href='http://en.wikipedia.org/wiki/Screen_reader'>screen reader</a> users.</p>",
+                            "path": "None",
+                            "html": "<table><tbody><tr><td>Header 1</td>\n<td>Header 2</td>\n</tr><tr><td>Placeholder 1</td>\n<td>Placeholder 2</td>\n</tr></tbody></table>\n"
+                        },
+                        {
+                            "text_type": null,
+                            "type": "tableThShouldHaveScope",
+                            "lineNo": 24,
+                            "severity": "Error",
+                            "severity_num": 1,
+                            "title": "No row or column scopes declarations found in headers of the table",
+                            "description": "<p>Scope declarations in headers organize and define table data by row/column for sighted and <a href=\"http://en.wikipedia.org/wiki/Screen_reader\">screen reader</a> users.</p>",
+                            "path": "None",
+                            "html": "<th>Header 1</th>\n"
+                        },
+                        {
+                            "text_type": null,
+                            "type": "tableThShouldHaveScope",
+                            "lineNo": 25,
+                            "severity": "Error",
+                            "severity_num": 1,
+                            "title": "No row or column scopes declarations found in headers of the table",
+                            "description": "<p>Scope declarations in headers organize and define table data by row/column for sighted and <a href=\"http://en.wikipedia.org/wiki/Screen_reader\">screen reader</a> users.</p>",
+                            "path": "None",
+                            "html": "<th>Header 2</th>\n"
+                        },
+                        {
+                            "text_type": null,
+                            "type": "aMustContainText",
+                            "lineNo": 2,
+                            "severity": "Error",
+                            "severity_num": 1,
+                            "title": "Links should contain text",
+                            "description": "<p>Because many users of <a href='http://en.wikipedia.org/wiki/Screen_reader'>screen readers</a> use links to navigate the page, providing links with no text (or with images that have empty 'alt' attributes and no other readable text) hinders these users.</p>",
+                            "path": "None",
+                            "html": "<a href=\"https://www.google.com/\"></a>\n"
+                        },
+                        {
+                            "text_type": null,
+                            "type": "aMustContainText",
+                            "lineNo": 6,
+                            "severity": "Error",
+                            "severity_num": 1,
+                            "title": "Links should contain text",
+                            "description": "<p>Because many users of <a href='http://en.wikipedia.org/wiki/Screen_reader'>screen readers</a> use links to navigate the page, providing links with no text (or with images that have empty 'alt' attributes and no other readable text) hinders these users.</p>",
+                            "path": "None",
+                            "html": "<a href=\"https://www.google.com/images/branding/googlelogo/1x/googlelogo_color_272x92dp.png\"></a>\n"
+                        },
+                        {
+                            "text_type": null,
+                            "type": "headersHaveText",
+                            "lineNo": 41,
+                            "severity": "Error",
+                            "severity_num": 1,
+                            "title": "Headings should contain text",
+                            "description": "<p>Sighted and <a href='http://en.wikipedia.org/wiki/Screen_reader'>screen reader</a> users depend on headings to organize the content on the page. Headings should not be empty and should represent an accurate outline of the content</p>",
+                            "path": "None",
+                            "html": "<h3 style=\"display: inline-block;\"></h3>\n"
+                        },
+                        {
+                            "text_type": null,
+                            "type": "videosEmbeddedOrLinkedNeedCaptions",
+                            "lineNo": 38,
+                            "severity": "Error",
+                            "severity_num": 1,
+                            "title": "Synchronized <a href='http://webaim.org/techniques/captions/'>captions</a> should be provided for prerecorded web-based video",
+                            "description": "<p>Captions should be included in the video to provide dialogue to users who are hearing impaired.</p>",
+                            "path": "None",
+                            "html": "<a class=\"\" href=\"https://www.youtube.com/watch?v=XBBwbGq6Z6Q\">Youtube Video sans Captions</a>\n"
+                        }
+                    ],
+                    "warning": [],
+                    "suggestion": [
+                        {
+                            "text_type": null,
+                            "type": "objectShouldHaveLongDescription",
+                            "lineNo": 35,
+                            "severity": "Suggestion",
+                            "severity_num": 3,
+                            "title": "An object might require a long description",
+                            "description": "<p>Objects might require a long description, especially if their content is complicated.</p>",
+                            "path": "None",
+                            "html": "<object class=\"instructure_user_content instructure_user_content instructure_user_content instructure_user_content instructure_user_content instructure_user_content instructure_user_content instructure_user_content instructure_user_content instructure_user_content instructure_user_content instructure_user_content instructure_user_content instructure_user_content \" title=\"\" width=\"300\" height=\"150\" data-uc_width=\"310px\" data-uc_height=\"160px\" data-uc_snippet=\"PG9iamVjdCBjbGFzcz0iaW5zdHJ1Y3R1cmVfdXNlcl9jb250ZW50IGluc3RydWN0dXJlX3VzZXJfY29udGVudCBpbnN0cnVjdHVyZV91c2VyX2NvbnRlbnQgaW5zdHJ1Y3R1cmVfdXNlcl9jb250ZW50IGluc3RydWN0dXJlX3VzZXJfY29udGVudCBpbnN0cnVjdHVyZV91c2VyX2NvbnRlbnQgaW5zdHJ1Y3R1cmVfdXNlcl9jb250ZW50IGluc3RydWN0dXJlX3VzZXJfY29udGVudCBpbnN0cnVjdHVyZV91c2VyX2NvbnRlbnQgaW5zdHJ1Y3R1cmVfdXNlcl9jb250ZW50IGluc3RydWN0dXJlX3VzZXJfY29udGVudCBpbnN0cnVjdHVyZV91c2VyX2NvbnRlbnQgaW5zdHJ1Y3R1cmVfdXNlcl9jb250ZW50ICIgdGl0bGU9IiIgd2lkdGg9IjMwMCIgaGVpZ2h0PSIxNTAiPjwvb2JqZWN0Pg==\" data-uc_sig=\"fa0f8507ce5e782a265c02ad7d583978dc6a8ba4\"></object>\n"
+                        },
+                        {
+                            "text_type": null,
+                            "type": "pNotUsedAsHeader",
+                            "lineNo": 44,
+                            "severity": "Suggestion",
+                            "severity_num": 3,
+                            "title": "Avoid using styles for document structure",
+                            "description": "<p>Bold and Italics are used to emphasize text, whereas headings are used to define the structure of the document. Headings like <code>h1-h6</code> are extremely useful for non-sighted users to navigate the structure of the page, and formatting a paragraph to just be big or bold, while it might visually look like a heading , does not make it one.</p>",
+                            "path": "None",
+                            "html": "<p style=\"font-weight: bold; display: inline-block;\">Bolded Non-Header</p>\n"
+                        },
+                        {
+                            "text_type": null,
+                            "type": "objectInterfaceIsAccessible",
+                            "lineNo": 35,
+                            "severity": "Suggestion",
+                            "severity_num": 3,
+                            "title": "Interfaces within objects should be accessible",
+                            "description": "<p>Object content should be assessed for accessibility. Objects cannot be checked using automated tools, this should be reviewed manually.</p>",
+                            "path": "None",
+                            "html": "<object class=\"instructure_user_content instructure_user_content instructure_user_content instructure_user_content instructure_user_content instructure_user_content instructure_user_content instructure_user_content instructure_user_content instructure_user_content instructure_user_content instructure_user_content instructure_user_content instructure_user_content \" title=\"\" width=\"300\" height=\"150\" data-uc_width=\"310px\" data-uc_height=\"160px\" data-uc_snippet=\"PG9iamVjdCBjbGFzcz0iaW5zdHJ1Y3R1cmVfdXNlcl9jb250ZW50IGluc3RydWN0dXJlX3VzZXJfY29udGVudCBpbnN0cnVjdHVyZV91c2VyX2NvbnRlbnQgaW5zdHJ1Y3R1cmVfdXNlcl9jb250ZW50IGluc3RydWN0dXJlX3VzZXJfY29udGVudCBpbnN0cnVjdHVyZV91c2VyX2NvbnRlbnQgaW5zdHJ1Y3R1cmVfdXNlcl9jb250ZW50IGluc3RydWN0dXJlX3VzZXJfY29udGVudCBpbnN0cnVjdHVyZV91c2VyX2NvbnRlbnQgaW5zdHJ1Y3R1cmVfdXNlcl9jb250ZW50IGluc3RydWN0dXJlX3VzZXJfY29udGVudCBpbnN0cnVjdHVyZV91c2VyX2NvbnRlbnQgaW5zdHJ1Y3R1cmVfdXNlcl9jb250ZW50ICIgdGl0bGU9IiIgd2lkdGg9IjMwMCIgaGVpZ2h0PSIxNTAiPjwvb2JqZWN0Pg==\" data-uc_sig=\"fa0f8507ce5e782a265c02ad7d583978dc6a8ba4\"></object>\n"
+                        },
+                        {
+                            "text_type": null,
+                            "type": "aSuspiciousLinkText",
+                            "lineNo": 39,
+                            "severity": "Suggestion",
+                            "severity_num": 3,
+                            "title": "Link text should be descriptive",
+                            "description": "<p>Links should be descriptive of the content they're linking to, such as 'Class Schedule' rather than 'schedule.html' or 'click here'.</p> ",
+                            "path": "None",
+                            "html": "<a href=\"https://www.google.com/\">https://www.google.com/</a>\n"
+                        },
+                        {
+                            "colors": [
+                                "#100000"
+                            ],
+                            "fore_color": "#100000",
+                            "text_type": "text",
+                            "type": "cssTextStyleEmphasize",
+                            "lineNo": 45,
+                            "severity": "Suggestion",
+                            "severity_num": 3,
+                            "title": "Avoid using color alone for emphasis",
+                            "description": "<p>When emphasizing text, you may use color with sufficient contrast as long as you also apply some other form of emphasis, such as bold or italics. This ensures that screen reader users are aware of the text's importance.</p>",
+                            "path": "None",
+                            "html": "<span style=\"color: #100000;\">Colored Text 1</span>\n"
+                        },
+                        {
+                            "colors": [
+                                "#200000"
+                            ],
+                            "fore_color": "#200000",
+                            "text_type": "text",
+                            "type": "cssTextStyleEmphasize",
+                            "lineNo": 46,
+                            "severity": "Suggestion",
+                            "severity_num": 3,
+                            "title": "Avoid using color alone for emphasis",
+                            "description": "<p>When emphasizing text, you may use color with sufficient contrast as long as you also apply some other form of emphasis, such as bold or italics. This ensures that screen reader users are aware of the text's importance.</p>",
+                            "path": "None",
+                            "html": "<span style=\"color: #200000;\">Colored Text 2</span>\n"
+                        },
+                        {
+                            "colors": [
+                                "#300000"
+                            ],
+                            "fore_color": "#300000",
+                            "text_type": "text",
+                            "type": "cssTextStyleEmphasize",
+                            "lineNo": 47,
+                            "severity": "Suggestion",
+                            "severity_num": 3,
+                            "title": "Avoid using color alone for emphasis",
+                            "description": "<p>When emphasizing text, you may use color with sufficient contrast as long as you also apply some other form of emphasis, such as bold or italics. This ensures that screen reader users are aware of the text's importance.</p>",
+                            "path": "None",
+                            "html": "<span style=\"color: #300000;\">Colored Text 3</span>\n"
+                        }
+                    ]
+                }
+            ],
+            "amount": 1,
+            "time": 0.22
+        },
+        "modules": {
+            "title": "modules",
+            "items": [],
+            "amount": 0,
+            "time": 0.27
+        }
+    }
+}
