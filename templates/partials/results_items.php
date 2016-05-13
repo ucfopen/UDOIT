@@ -18,12 +18,12 @@
 *	Primary Author Contact:  Jacob Bates <jacob.bates@ucf.edu>
 */
 ?>
-<div class="panel <?= $panel_style ?> no-margin">
+<div class="panel <?= $panel_style; ?> no-margin">
 	<div class="panel-heading">
-		<h4 class="panel-title"><span class="badge"><?= count($items); ?></span> <?= $title ?></h4>
+		<h4 class="panel-title"><span class="badge"><?= count($items); ?></span> <?= $title; ?></h4>
 	</div>
 	<ul class="list-group">
-		<?
+		<?php
 			// group the error types together
 			$tmp_types = [];
 			foreach ($items as $tmp_item) {
@@ -33,59 +33,59 @@
 				$tmp_types[$tmp_item->type][] = $tmp_item;
 			}
 		?>
-		<? foreach ($tmp_types as $type => $type_group): ?>
-			<? $heading_data = $type_group[0]; ?>
-			<? $collapse_id = "collapse-{$id}-{$type}"; ?>
+		<?php foreach ($tmp_types as $type => $type_group): ?>
+			<?php $heading_data = $type_group[0]; ?>
+			<?php $collapse_id = "collapse-{$id}-{$type}"; ?>
 			<li class="list-group-item">
 
 				<!-- Error group header -->
-				<div class="collapse-header" data-toggle="collapse" data-target="#<?= $collapse_id ?>">
+				<div class="collapse-header" data-toggle="collapse" data-target="#<?= $collapse_id; ?>">
 					<h5 class="text-danger title-line">
-						<span class="badge badge-error"><?= count($type_group) ?> x </span> <?= $heading_data->title; ?>
+						<span class="badge badge-error"><?= count($type_group); ?> x </span> <?= $heading_data->title; ?>
 					</h5>
 				</div>
-				<? if (isset($heading_data->description)): ?>
-					<div class="error-desc"><p><?= $heading_data->description ?></p></div>
-				<? endif; ?>
+				<?php if (isset($heading_data->description)): ?>
+					<div class="error-desc"><p><?= $heading_data->description; ?></p></div>
+				<?php endif; ?>
 				<!-- End Error group header -->
 
-				<div id="<?= $collapse_id ?>" class="collapse in fade margin-top-small">
+				<div id="<?= $collapse_id; ?>" class="collapse in fade margin-top-small">
 					<ol>
-						<? foreach ($type_group as $index => $group_item): ?>
-							<? $li_id = "error-{$id}-{$type}-{$index}"; ?>
-							<li id="<?= $li_id ?>">
+						<?php foreach ($type_group as $index => $group_item): ?>
+							<?php $li_id = "error-{$id}-{$type}-{$index}"; ?>
+							<li id="<?= $li_id; ?>">
 
-								<? if ( in_array($group_item->type, $fixable_types) ): ?>
+								<?php if ( in_array($group_item->type, $fixable_types) ): ?>
 									<p class="fix-success hidden"><?= $index; ?>. <span class="label label-success margin-left-small" style="margin-top: -2px;">Done!</span></p>
-								<? endif; ?>
+								<?php endif; ?>
 
 								<!-- Print Report -->
-								<? if ($group_item->html): ?>
-									<a class="viewError btn" href="#viewError" data-error="<?= $li_id ?>">View the source of this issue</a>
+								<?php if ($group_item->html): ?>
+									<a class="viewError btn" href="#viewError" data-error="<?= $li_id; ?>">View the source of this issue</a>
 									<div class="more-info hidden instance">
-										<a class="closeError btn" href="#closeError" data-error="<?= $li_id ?>">Close Issue Source</a>
+										<a class="closeError btn" href="#closeError" data-error="<?= $li_id; ?>">Close Issue Source</a>
 										<div class="error-preview">
-											<? if ($group_item->type == "videosEmbeddedOrLinkedNeedCaptions"): ?>
-												<iframe width="100%" height="300px" src="https://www.youtube.com/embed/<?= isYoutubeVideo($group_item->html, $regex); ?>" frameborder="0" allowfullscreen></iframe>
-											<? else: ?>
+											<?php if ($group_item->type == "videosEmbeddedOrLinkedNeedCaptions"): ?>
+												<iframe width="100%" height="300px" src="https://www.youtube.com/embed/<?= Utils::getYouTubeId($group_item->html); ?>" frameborder="0" allowfullscreen></iframe>
+											<?php else: ?>
 												<?= $group_item->html; ?>
-											<? endif; ?>
+											<?php endif; ?>
 										</div>
-										<pre class="error-source"><code class="html"><strong>Line <?= $group_item->lineNo; ?></strong>: <?= htmlspecialchars($group_item->html); ?></code></pre>
-										<a class="closeError btn" href="#closeError" data-error="<?= $li_id ?>">Close Issue Source</a>
+										<pre class="error-source"><code class="html"><strong>Line <?= $group_item->lineNo; ?></strong>: <?= $this->e($group_item->html); ?></code></pre>
+										<a class="closeError btn" href="#closeError" data-error="<?= $li_id; ?>">Close Issue Source</a>
 									</div>
-								<? endif; ?>
+								<?php endif; ?>
 
-								<? if (empty($post_path) && in_array($group_item->type, $fixable_types)): ?>
+								<?php if (empty($post_path) && in_array($group_item->type, $fixable_types)): ?>
 									<div>
-										<button class="fix-this no-print btn btn-success instance" value="<?= $group_item->type ?>">U FIX IT!</button>
+										<button class="fix-this no-print btn btn-success instance" value="<?= $group_item->type; ?>">U FIX IT!</button>
 										<div class="toolmessage instance">UFIXIT is disabled because this is an old report. Rescan the course to use UFIXIT.</div>
 									</div>
 									<form class="ufixit-form form-horizontal no-print hidden instance" action="#" role="form">
 										<input type="hidden" name="main_action" value="ufixit">
 										<input type="hidden" name="contenttype" value="<?= $content_group->title; ?>">
 										<input type="hidden" name="contentid" value="<?= $id; ?>">
-										<input type="hidden" name="errorhtml" value="<?= htmlspecialchars($group_item->html); ?>">
+										<input type="hidden" name="errorhtml" value="<?= $this->e($group_item->html); ?>">
 										<input type="hidden" name="errortype" value="<?= $group_item->type; ?>">
 										<input type="hidden" name="reporttype" value="error">
 										<input type="hidden" name="reporttype" value="suggestion">
@@ -143,12 +143,12 @@
 											}
 										?>
 									</form>
-								<? endif; # if (empty($post_path) && in_array($group_item->type, $fixable_types)): ?>
+								<?php endif; # if (empty($post_path) && in_array($group_item->type, $fixable_types)): ?>
 							</li>
-						<? endforeach; # foreach ($type_group as $group_item):  ?>
+						<?php endforeach; # foreach ($type_group as $group_item):  ?>
 					</ol>
 				</div>
 			</li>
-		<? endforeach; # foreach ($error_types as $type_group):?>
+		<?php endforeach; # foreach ($error_types as $type_group):?>
 	</ul>
 </div>

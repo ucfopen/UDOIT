@@ -30,13 +30,13 @@
 		</thead>
 
 		<tbody>
-			<? foreach ($reports as $report): ?>
-				<tr id="<?=$this->e($report['id'])?>">
-					<td><?=$this->e($report['date_run'])?></td>
-					<td><?=$this->e($report['errors'])?></td>
-					<td><?=$this->e($report['suggestions'])?></td>
+			<?php foreach ($reports as $report): ?>
+				<tr id="<?= $this->e($report['id']); ?>">
+					<td><?= $this->e($report['date_run']); ?></td>
+					<td><?= $this->e($report['errors']); ?></td>
+					<td><?= $this->e($report['suggestions']); ?></td>
 				</tr>
-			<? endforeach; ?>
+			<?php endforeach; ?>
 		</tbody>
 	</table>
 </div>

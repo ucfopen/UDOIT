@@ -18,65 +18,48 @@
 *	Primary Author Contact:  Jacob Bates <jacob.bates@ucf.edu>
 */
 require_once('../config/settings.php');
+require_once('../lib/utils.php');
 
 $post_input = filter_input_array(INPUT_POST, FILTER_SANITIZE_STRING); // Sanitize $_POST global
+if ( ! isset($post_input['path'])) {
+	$post_input['path'] = '';
+}
 
 $templates  = new League\Plates\Engine('../templates');
 
+// Load the test report in test/dev mode and no other report is selected
+if ($UDOIT_ENV !== ENV_PROD && !isset($post_input['cached_id'])) {
+	$post_input['cached_id'] = 'TEST'; // TEST is the id of the test report
+}
+
 if (isset($post_input['cached_id'])) {
-	$dbh = include('../lib/db.php');
 
-	$sth = $dbh->prepare("
-	    SELECT * FROM
-	        $db_reports_table
-	    WHERE
-			id=:cachedid
-	");
+	if ($post_input['cached_id'] == 'TEST') {
+		$file = 'reports/test.json';
+	}
+	else {
+		$dbh = include('../lib/db.php');
 
-	$sth->bindParam(':cachedid', $post_input['cached_id'], PDO::PARAM_INT);
+		$sth = $dbh->prepare("SELECT * FROM {$db_reports_table} WHERE id=:cachedid");
 
-	if (!$sth->execute()) {
-		$error = 'Error searching for report';
-		echo $templates->render('partials/error', ['error' => $error]);
-		error_log($error);
-		error_log(print_r($sth->errorInfo(), true));
-		exit();
+		$sth->bindParam(':cachedid', $post_input['cached_id'], PDO::PARAM_INT);
+
+		if ( ! $sth->execute()) {
+			error_log(print_r($sth->errorInfo(), true));
+			Utils::exitWithError('Error searching for report');
+		}
+
+		$file = $sth->fetch(PDO::FETCH_OBJ)->file_path;
 	}
 
-	$file         = $sth->fetch(PDO::FETCH_OBJ)->file_path;
-	$the_json     = file_get_contents($file);
-	$udoit_report = json_decode($the_json);
+	$json         = file_get_contents($file);
+	$udoit_report = json_decode($json);
 
 } elseif ($post_input['main_action'] === "cached") {
-	$error = 'Cannot parse this report. JSON file not found.';
-	echo $templates->render('partials/error', ['error' => $error]);
-	error_log($error);
-	exit();
+	Utils::exitWithError('Cannot parse this report. JSON file not found.');
 }
 
 $issue_count = 0;
-
-$regex = array(
-	'@youtube\.com/embed/([^"\& ]+)@i',
-	'@youtube\.com/v/([^"\& ]+)@i',
-	'@youtube\.com/watch\?v=([^"\& ]+)@i',
-	'@youtube\.com/\?v=([^"\& ]+)@i',
-	'@youtu\.be/([^"\& ]+)@i',
-	'@youtu\.be/v/([^"\& ]+)@i',
-	'@youtu\.be/watch\?v=([^"\& ]+)@i',
-	'@youtu\.be/\?v=([^"\& ]+)@i',
-	);
-
-function isYouTubeVideo($link_url, $regex)
-{
-	$matches = null;
-	foreach($regex as $pattern) {
-		if(preg_match($pattern, $link_url, $matches)) {
-			return $matches[1];
-		}
-	}
-	return null;
-}
 
 $results = [
 	'course' => $udoit_report->course,

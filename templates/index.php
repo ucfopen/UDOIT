@@ -42,19 +42,19 @@ $this->layout('template', $settings);
 				<div class="panel-body">
 					<h2>Welcome to <span style="font-weight: normal;">U</span><span style="font-weight: bold;">DO</span><span style="font-weight: normal;">IT</span>!</h2>
 
-					<p><?=$welcome_message?></p>
+					<p><?= $welcome_message; ?></p>
 
-					<p><?=$disclaimer_message?></p>
+					<p><?= $disclaimer_message; ?></p>
 
 					<p class="no-margin"><a href="#udoitInfo" class="btn btn-sm btn-default no-print" data-toggle="modal" data-target="#udoitInfo">What does UDOIT look for?</a></p>
 				</div>
 			</div>
 			<form class="form-horizontal no-print" id="udoitForm" action="#" role="form">
 				<input type="hidden" name="main_action" value="udoit">
-				<input type="hidden" name="base_url" value="https://<?=$_POST['custom_canvas_api_domain']?>/">
-				<input type="hidden" name="session_course_id" value="<?=$launch_params['custom_canvas_course_id']?>">
-				<input type="hidden" name="session_context_label" value="<?=$launch_params['context_label']?>">
-				<input type="hidden" name="session_context_title" value="<?=$launch_params['context_title']?>">
+				<input type="hidden" name="base_url" value="https://<?= $this->escape($post_input['custom_canvas_api_domain']); ?>/">
+				<input type="hidden" name="session_course_id" value="<?= $this->escape($launch_params['custom_canvas_course_id']); ?>">
+				<input type="hidden" name="session_context_label" value="<?= $this->escape($launch_params['context_label']); ?>">
+				<input type="hidden" name="session_context_title" value="<?= $this->escape($launch_params['context_title']); ?>">
 
 				<div class="form-group">
 					<span class="col-sm-2 control-label"><strong>Select content:</strong></span>
@@ -121,69 +121,10 @@ $this->layout('template', $settings);
 					<h4 class="modal-title" id="udoitModalLabel">What accessibility issues does UDOIT look for?</h4>
 				</div>
 				<div class="modal-body">
-					<div class="errorItem panel panel-danger">
-						<div class="panel-heading clearfix"><span class="glyphicon glyphicon-ban-circle"></span> Errors</div>
+					<?= $this->fetch('partials/look_for_modal_list', ['style_classes' => 'errorItem panel panel-danger', 'title' => 'Errors', 'tests' => $udoit_tests['severe']]); ?>
 
-						<ul class="list-group no-margin">
-							<?php foreach ($udoit_tests['severe'] as $severe): ?>
-								<li class="list-group-item">
-									<p class="list-group-item-text "><?=$severe['title']?> <button type="button" class="btn btn-xs btn-default" data-toggle="collapse" data-target="#<?=$severe['name']?>">More info</button></p>
+					<?= $this->fetch('partials/look_for_modal_list', ['style_classes' => 'panel panel-info no-margin', 'title' => 'Suggestions', 'tests' => $udoit_tests['suggestion']]); ?>
 
-									<div class="list-group-item-text collapse" id="<?=$severe['name']?>">
-										<hr>
-
-										<?=$severe['desc']?>
-
-										<?php if ($severe['resources']): ?>
-											<p>Resources:</p>
-											<ul>
-												<?php foreach ($severe['resources'] as $resource): ?>
-													<li><?=$resource?></li>
-												<?php endforeach ?>
-											</ul>
-										<?php endif ?>
-
-										<?php if ($severe['example']): ?>
-											<hr>
-											<?=$severe['example']?>
-										<?php endif ?>
-									</div>
-								</li>
-							<?php endforeach ?>
-						</ul>
-					</div>
-
-					<div class="panel panel-info no-margin">
-						<div class="panel-heading clearfix"><span class="glyphicon glyphicon-info-sign"></span> Suggestions</div>
-
-						<ul class="list-group">
-							<?php foreach ($udoit_tests['suggestion'] as $suggestion): ?>
-								<li class="list-group-item">
-									<p class="list-group-item-text "><?=$suggestion['title']?> <button type="button" class="btn btn-xs btn-default" data-toggle="collapse" data-target="#<?=$suggestion['name']?>">More info</button></p>
-
-									<div class="list-group-item-text collapse" id="<?=$suggestion['name']?>">
-										<hr>
-
-										<?=$suggestion['desc']?>
-
-										<?php if ($suggestion['resources']): ?>
-											<p>Resources:</p>
-											<ul>
-												<?php foreach ($suggestion['resources'] as $resource): ?>
-													<li><?=$resource?></li>
-												<?php endforeach ?>
-											</ul>
-										<?php endif ?>
-
-										<?php if ($suggestion['example']): ?>
-											<hr>
-											<?=$suggestion['example']?>
-										<?php endif ?>
-									</div>
-								</li>
-							<?php endforeach ?>
-						</ul>
-					</div>
 				</div>
 			</div>
 		</div>

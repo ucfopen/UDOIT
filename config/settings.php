@@ -1,16 +1,25 @@
 <?php
+define('ENV_TEST', 'test');
+define('ENV_PROD', 'prod');
+define('ENV_DEV', 'dev');
+
+// default to production
+$UDOIT_ENV = ENV_PROD; // change value in your localConfig.php
 
 if (getenv('USE_HEROKU_CONFIG'))
 {
     require_once('herokuConfig.php');
     if(!empty($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] == 'https') {
-      $_SERVER['HTTPS'] = 'on';
+        $_SERVER['HTTPS'] = 'on';
     }
 }
 else
 {
     require_once('localConfig.php');
 }
+
+error_reporting(E_ALL & ~E_NOTICE);
+ini_set("display_errors", ($UDOIT_ENV == ENV_PROD ? 0 : 1));
 
 require_once(__DIR__.'/../vendor/autoload.php');
 require_once('tests.php');

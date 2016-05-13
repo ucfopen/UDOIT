@@ -33,4 +33,4 @@
 		<p>Text</p>
 	</div>
 </div>
-<button class="submit-content btn btn-default clear" type="submit" value="<?= $group_item->type ?>">Submit</button>
+<button class="submit-content btn btn-default clear" type="submit" value="<?= $group_item->type; ?>">Submit</button>

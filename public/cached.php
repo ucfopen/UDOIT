@@ -18,17 +18,11 @@
 *	Primary Author Contact:  Jacob Bates <jacob.bates@ucf.edu>
 */
 require_once('../config/settings.php');
+require_once('../lib/utils.php');
 
 $dbh = include('../lib/db.php');
 // saves the report to the database
-$sth = $dbh->prepare("
-	SELECT * FROM
-		$db_reports_table
-	WHERE
-		course_id=:courseid
-	ORDER BY
-		date_run DESC
-");
+$sth = $dbh->prepare(" SELECT * FROM {$db_reports_table} WHERE course_id = :courseid ORDER BY date_run DESC");
 
 session_start();
 
@@ -36,12 +30,24 @@ $sth->bindParam(':courseid', $_SESSION['launch_params']['custom_canvas_course_id
 
 session_write_close();
 
-$templates = new League\Plates\Engine('../templates');
-
 if (!$sth->execute()) {
-	die($templates->render('partials/error', ['error' => 'Could not complete database query']));
+	Utils::exitWithError('Could not complete database query');
 }
 
 $reports = $sth->fetchAll();
 
+// Add the test report if not in production mode
+if ($UDOIT_ENV != ENV_PROD){
+	$reports[] = [
+		'id' => 'TEST',
+		'user_id' => 0,
+		'course_id' => 'TEST',
+		'file_path' => 'reports/test.json',
+		'date_run' => 'TEST: 1998 (when section 508 was ammended)',
+		'errors'   => 64,
+		'suggestions' => 32
+	];
+}
+
+$templates = new League\Plates\Engine('../templates');
 echo $templates->render('saved_reports', ['reports' => $reports]);

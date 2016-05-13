@@ -18,16 +18,10 @@
 *	Primary Author Contact:  Jacob Bates <jacob.bates@ucf.edu>
 */
 require_once('../config/settings.php');
+require_once('../lib/utils.php');
 
 session_start();
 
-function printError($error){
-	// Start the template engine
-	$templates  = new League\Plates\Engine('../templates');
-	echo $templates->render('error', ['error' => $error]);
-	error_log($error);
-	exit();
-}
 
 $get_input = filter_input_array(INPUT_GET, FILTER_SANITIZE_STRING); // Sanitize $_GET global
 
@@ -57,7 +51,7 @@ if (isset($get_input['code'])) {
 
 	// It should have access_token and refresh_token
 	if( !isset($response->access_token) || !isset($response->refresh_token) ){
-		printError('Authentication problem:  Please contact support.');
+		Utils::exitWithError('Authentication problem:  Please contact support.');
 	}
 
 	// Save the API key to the session variable
@@ -85,7 +79,7 @@ if (isset($get_input['code'])) {
 	session_write_close();
 	header('Location:index.php');
 } elseif (isset($get_input['error'])) {
-	printError('Authentication problem:  Access Denied.');
+	Utils::exitWithError('Authentication problem:  Access Denied.');
 } else {
-	printError('Authentication problem, please ensure that your instance of UDOIT is configured correctly.');
+	Utils::exitWithError('Authentication problem, please ensure that your instance of UDOIT is configured correctly.');
 }

@@ -18,11 +18,10 @@
 *	Primary Author Contact:  Jacob Bates <jacob.bates@ucf.edu>
 */
 require_once('../config/settings.php');
+require_once('../lib/utils.php');
 
 use Httpful\Request;
 
-error_reporting(E_ALL & ~E_NOTICE);
-ini_set("display_errors", 1);
 session_start();
 header('Content-Type: text/html; charset=utf-8');
 
@@ -40,17 +39,13 @@ if ( isset($post_input["oauth_consumer_key"]) || !isset($_SESSION['valid'])) {
 	$_SESSION['valid'] = false;
 }
 
-if ($_SESSION['valid'] === false) {
+if ($_SESSION['valid'] === false && $UDOIT_ENV === ENV_PROD) {
 	require_once('../lib/ims-blti/blti.php');
 	// Initialize, all secrets are 'secret', do not set session, and do not redirect
 	$context = new BLTI($consumer_key, $shared_secret, false, false);
 
 	if ( ! $context->valid) {
-		$error = 'Configuration problem, please ensure that your instance of UDOIT is configured correctly.';
-		echo $templates->render('error', ['error' => $error]);
-		error_log("BLTI not valid: our key: {$consumer_key}");
-		error_log($context->message);
-		exit();
+		Utils::exitWithError('Configuration problem, please ensure that your instance of UDOIT is configured correctly.');
 	}
 
 	$_SESSION['launch_params']['custom_canvas_user_id'] = $post_input['custom_canvas_user_id'];
@@ -66,10 +61,7 @@ if( isset( $post_input['custom_canvas_api_domain']) ) {
 } elseif( isset($_SESSION['base_url']) ) {
 	$base_url = $_SESSION['base_url'];
 } else {
-	$error = 'No domain provided. Please ensure that your instance of UDOIT is installed to Canvas correctly.';
-	echo $templates->render('error', ['error' => $error]);
-	error_log($error);
-	exit();
+	Utils::exitWithError('No domain provided. Please ensure that your instance of UDOIT is installed to Canvas correctly.');
 }
 
 // By default, we'll be redirecting to the Oauth2 process, unless something below interrupts that redirect
@@ -77,7 +69,7 @@ $redirect = true;
 
 // Test the API key from the session first.
 // If it doesn't work, we need to go through the refresh process
-if (isset($_SESSION['api_key'])) {
+if (isset($_SESSION['api_key']) && $UDOIT_ENV === ENV_PROD) {
 	//If we do, test it out
 	$url = $base_url.'api/v1/users/'.$_SESSION['launch_params']['custom_canvas_user_id'].'/profile';
 	$resp = Request::get($url)
@@ -89,7 +81,7 @@ if (isset($_SESSION['api_key'])) {
 	$refresh = true;
 }
 
-if( $refresh ) {
+if( $refresh && $UDOIT_ENV === ENV_PROD) {
 	$dbh = include('../lib/db.php');
 
 	// Pull the Refresh Token from the database
@@ -137,7 +129,7 @@ if( $refresh ) {
 }
 
 // if the redirect key was invalid or we didn't have a redirect key, start the oauth2 process
-if ($redirect) {
+if ($redirect && $UDOIT_ENV === ENV_PROD) {
 	//Redirect user to oauth2 endpoint on the Canvas end
 	session_write_close();
 	header('Location: '.$base_url.'/login/oauth2/auth/?client_id='.$oauth2_id.'&response_type=code&redirect_uri='.$oauth2_uri);
@@ -149,10 +141,11 @@ $_SESSION['valid'] = false;
 session_write_close();
 
 $render_arr = [
+	'post_input'      => $post_input,
 	'welcome_message' => $udoit_welcome_message,
 	'disclaimer_message' => $udoit_disclaimer_message,
 	'launch_params'   => $_SESSION['launch_params'],
 	'udoit_tests'     => $udoit_tests
 ];
 
-echo $templates->render('udoit', $render_arr);
+echo $templates->render('index', $render_arr);

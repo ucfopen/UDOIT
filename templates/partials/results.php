@@ -19,8 +19,8 @@
 */
 ?>
 <h1 class="text-center">
-	Report for <?=$this->e($course)?><br>
-	<small><?=$this->e($error_count)?> errors, <?=$suggestion_count?> suggestions</small>
+	Report for <?= $this->e($course); ?><br>
+	<small><?= $this->e($error_count); ?> errors, <?= $suggestion_count; ?> suggestions</small>
 </h1>
 
 <p>

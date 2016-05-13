@@ -18,7 +18,7 @@
 *	Primary Author Contact:  Jacob Bates <jacob.bates@ucf.edu>
 */
 ?>
-<h2 class="content-title"><?= ucfirst($content_group->title); ?> <small> <b><?= count($content_group->items) ?><b> of <?= $content_group->amount ?> have issues.</small> <span class="proc-time">precess time: <?= $content_group->time ?>s</span></h2>
+<h2 class="content-title"><?= ucfirst($content_group->title); ?> <small> <b><?= count($content_group->items); ?><b> of <?= $content_group->amount; ?> have issues.</small> <span class="proc-time">precess time: <?= $content_group->time; ?>s</span></h2>
 
 <?php if (empty($content_group->items)): ?>
 	<div class="alert alert-success"><span class="glyphicon glyphicon-ok"></span> No problems were detected in <?= ucfirst($content_group->title); ?>!</div>
