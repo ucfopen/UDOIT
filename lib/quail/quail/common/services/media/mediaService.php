@@ -10,4 +10,9 @@ abstract class mediaService {
 	*/
 	abstract function captionsMissing($link_url);
 
+	/**
+	*	Returns TRUE if a video is unavailable for any reason (Copyright, Deleted, Private, etc.), FALSE if the video exists
+	*/
+	abstract function videoUnavailable($link_url);
+
 }

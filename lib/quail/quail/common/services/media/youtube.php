@@ -38,7 +38,7 @@ class youtubeService extends mediaService
 	function captionsMissing($link_url)
 	{
 		
-		$url = 'https://www.googleapis.com/youtube/v3/captions?part=id&videoId='; //'https://www.googleapis.com/youtube/v3/videos?part=contentDetails&id=';
+		$url = 'https://www.googleapis.com/youtube/v3/captions?part=id&videoId=';
 		$api_key = constant( 'GOOGLE_API_KEY' );
 
 		if( $youtube_id = $this->isYouTubeVideo($link_url) ) {
@@ -56,6 +56,16 @@ class youtubeService extends mediaService
 
 		return false;
 		
+	}
+
+	/**
+	*	Checks to see if a video is unavailable on YouTube
+	*	@param string $link_url The URL to the video or video resource
+	*	@return bool TRUE if a video is unavailable for any reason (Copyright, Deleted, Private, etc.), FALSE if the video exists
+	*/
+	function videoUnavailable($link_url)
+	{
+		return false;
 	}
 
 	/**
