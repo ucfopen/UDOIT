@@ -72,8 +72,7 @@ class youtubeService extends mediaService
 			$url = $url.$youtube_id.'&key='.$api_key;
 			$response = Request::get($url)->send();
 
-			
-
+			return ( empty($response->body->items) )? true: false;
 		}
 
 		return false;
