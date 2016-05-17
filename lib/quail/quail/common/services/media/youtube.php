@@ -65,6 +65,17 @@ class youtubeService extends mediaService
 	*/
 	function videoUnavailable($link_url)
 	{
+		$Url = 'https://www.googleapis.com/youtube/v3/videos?part=snippet&id=';
+		$api_key = constant( 'GOOGLE_API_KEY' );
+
+		if( $youtube_id = $this->isYouTubeVideo($link_url) ) {
+			$url = $url.$youtube_id.'&key='.$api_key;
+			$response = Request::get($url)->send();
+
+			
+
+		}
+
 		return false;
 	}
 
