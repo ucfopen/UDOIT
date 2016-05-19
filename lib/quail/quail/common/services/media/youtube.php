@@ -38,7 +38,7 @@ class youtubeService extends mediaService
 	function captionsMissing($link_url)
 	{
 		
-		$url = $search_url;
+		$url = $this->search_url;
 		$api_key = constant( 'GOOGLE_API_KEY' );
 
 		if( $youtube_id = $this->isYouTubeVideo($link_url) ) {
