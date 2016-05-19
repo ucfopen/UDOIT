@@ -50,6 +50,8 @@ class youtubeService extends mediaService
 			if( empty($response->body->items) ) {
 				return false;
 			}
+
+			die($response->body->items->contentDetails->caption);
 			
 			return ( $response->body->items->contentDetails->caption )? false : true;
 		}
