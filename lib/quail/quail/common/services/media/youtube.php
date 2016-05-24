@@ -53,8 +53,16 @@ class youtubeService extends mediaService
 
 			error_log( 'TEST' );
 			error_log( print_r($response->body, true) );
-			
-			return ( $response->body->items[0]->contentDetails->caption == 'true' )? false : true;
+
+			$caption_tracks = $response->body->items;
+
+			if( empty($caption_tracks) ) {
+				return true;
+			}
+
+			foreach ( $caption_tracks as $track ) {
+				return ( $track->snippet->trackKind == 'standard')? false: true;
+			}
 		}
 
 		return false;
