@@ -51,9 +51,6 @@ class youtubeService extends mediaService
 				return false;
 			}
 
-			error_log( 'TEST' );
-			error_log( print_r($response->body, true) );
-
 			$caption_tracks = $response->body->items;
 
 			if( empty($caption_tracks) ) {
@@ -61,8 +58,11 @@ class youtubeService extends mediaService
 			}
 
 			foreach ( $caption_tracks as $track ) {
-				return ( $track->snippet->trackKind == 'standard')? false: true;
+				if ( $track->snippet->trackKind != 'ASR' )
+					return false;
 			}
+
+			return true;
 		}
 
 		return false;
