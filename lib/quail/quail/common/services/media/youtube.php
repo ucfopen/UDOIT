@@ -28,7 +28,7 @@ class youtubeService extends mediaService
 	/**
 	*	@var string The service point to request caption data from YouTube
 	*/
-	var $search_url = 'https://www.googleapis.com/youtube/v3/videos?part=contentDetails&id='; //'https://www.googleapis.com/youtube/v3/captions?part=snippet&id=';
+	var $search_url = 'https://www.googleapis.com/youtube/v3/captions?part=snippet&videoId='; //'https://www.googleapis.com/youtube/v3/videos?part=contentDetails&id='
 
 	/**
 	*	Checks to see if a video is missing caption information in YouTube
@@ -52,8 +52,7 @@ class youtubeService extends mediaService
 			}
 
 			error_log( 'TEST' );
-			error_log( print_r($response->body->items[0]->contentDetails->id, true) );
-			error_log( print_r($response->body->items[0]->contentDetails->caption, true) );
+			error_log( print_r($response->body, true) );
 			
 			return ( $response->body->items[0]->contentDetails->caption == 'true' )? false : true;
 		}
