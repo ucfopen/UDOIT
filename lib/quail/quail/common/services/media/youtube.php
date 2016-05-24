@@ -54,6 +54,7 @@ class youtubeService extends mediaService
 			error_log( 'TEST' );
 			error_log( print_r($response->body, true) );
 			echo( print_r($response->body, true) );
+			die();
 			
 			return ( $response->body->items->contentDetails->caption )? false : true;
 		}
