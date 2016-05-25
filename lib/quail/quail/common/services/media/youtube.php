@@ -38,16 +38,12 @@ class youtubeService extends mediaService
 	function captionsMissing($link_url)
 	{
 		
-		$url = 'https://www.googleapis.com/youtube/v3/captions?part=id&videoId=';
+		$url = $this->search_url;
 		$api_key = constant( 'GOOGLE_API_KEY' );
 
 		if( $youtube_id = $this->isYouTubeVideo($link_url) ) {
 			$url = $url.$youtube_id.'&key='.$api_key;
 			$response = Request::get($url)->send();
-
-			if( !$response ) {
-				return true;
-			}
 
 			// If the video was pulled due to copyright violations, the items array will be empty.
 			// TODO:  Make this return a different error, warning the instructor that the video is no longer available
