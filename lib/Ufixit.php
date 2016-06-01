@@ -339,8 +339,6 @@ class Ufixit
                 break;
         }
 
-        error_log( print_r($new_data, true) );
-
         return $new_data;
     }
 
@@ -615,14 +613,8 @@ class Ufixit
         $corrected_error = HTMLMinify::minify(str_replace($this->annoying_entities, $this->entity_replacements, $corrected_error), ['doctype' => 'html5']);
         $html            = HTMLMinify::minify(str_replace($this->annoying_entities, $this->entity_replacements, htmlentities($html)), ['doctype' => 'html5']);
 
-        error_log( print_r(html_entity_decode($html), true) );
-        error_log( print_r($error_html, true) );
-        error_log( print_r($corrected_error, true) );
-
         $html    = str_replace($error_html, $corrected_error, html_entity_decode($html));
         $put_uri = $this->base_uri."/api/v1/courses/".$this->course_id."/?&access_token=".$this->api_key;
-
-        error_log( print_r($html, true) );
 
         Request::put($put_uri)->body(['course[syllabus_body]' => $html])->sendsType(\Httpful\Mime::FORM)->send();
     }
