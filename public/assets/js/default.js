@@ -455,7 +455,7 @@ $(document).ready(function() {
 		clearInterval(progressTimer);
 		progressTimer = setInterval(function(){
 			$.ajax({
-				url: '../../parsePdfProgress.php',
+				url: 'parsePdfProgress.php',
 				error: function(xhr, status, error) {
 					clearInterval(progressTimer);
 				},
