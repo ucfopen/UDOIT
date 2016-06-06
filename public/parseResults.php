@@ -518,7 +518,7 @@ function isYouTubeVideo($link_url, $regex)
 
 					<?php foreach ($bad->items as $item): ?>
 					<span class="list-group-item">
-						<a class="unscannable-file" href="<?= $item->url; ?>"><?= $item->title; ?></a><small><a class="unscannable-directory" target="_blank" href="<?= $item->directory_url ?>">Directory: <?= $item->directory ?> <span class ="glyphicon glyphicon-new-window"></span></a></small>
+						<a class="unscannable-file" href="<?= $item->url; ?>"><?= $item->title; ?></a>&nbsp;<small><a class="unscannable-directory" target="_blank" href="<?= $item->directory_url ?>">Directory: <?= $item->directory ?> <span class ="glyphicon glyphicon-new-window"></span></a></small>
 					</span>
 					<?php endforeach; ?>
 
