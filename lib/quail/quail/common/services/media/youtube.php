@@ -28,7 +28,7 @@ class youtubeService extends mediaService
 	/**
 	*	@var string The service point to request caption data from YouTube
 	*/
-	var $search_url = 'https://www.googleapis.com/youtube/v3/videos?part=contentDetails&key=AIzaSyCwO6Tun63CCe-iLiQV0BrJdulvdpb2veQ&id=';
+	var $search_url = 'https://www.googleapis.com/youtube/v3/videos?part=contentDetails&id=';
 
 	/**
 	*	Checks to see if a video is missing caption information in YouTube
@@ -38,7 +38,7 @@ class youtubeService extends mediaService
 	function captionsMissing($link_url)
 	{
 		
-		$url = 'https://www.googleapis.com/youtube/v3/videos?part=contentDetails&id=';
+		$url = 'https://www.googleapis.com/youtube/v3/captions?part=id&videoId='; //'https://www.googleapis.com/youtube/v3/videos?part=contentDetails&id=';
 		$api_key = constant( 'GOOGLE_API_KEY' );
 
 		if( $youtube_id = $this->isYouTubeVideo($link_url) ) {
@@ -51,11 +51,7 @@ class youtubeService extends mediaService
 
 			// If the video was pulled due to copyright violations, the items array will be empty.
 			// TODO:  Make this return a different error, warning the instructor that the video is no longer available
-			if( empty($response->body->items) ){
-				return true;
-			}
-
-			return ($response->body->items[0]->contentDetails->caption == 'true')? false: true;
+			return ( empty($response->body->items) )? true : false;
 		}
 
 		return false;

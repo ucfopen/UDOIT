@@ -455,7 +455,7 @@ $(document).ready(function() {
 		clearInterval(progressTimer);
 		progressTimer = setInterval(function(){
 			$.ajax({
-				url: '../lib/parsePdfProgress.php',
+				url: 'parsePdfProgress.php',
 				error: function(xhr, status, error) {
 					clearInterval(progressTimer);
 				},
@@ -550,11 +550,11 @@ $(document).ready(function() {
 		if (contrast_ratio < threshold) {
 			$(error).removeClass('hidden');
 			fore.attr('style','border-color: red;');
-			$(e.target).parent().parent().parent().find('button.submit-content').prop('disabled',true);
+			$(e.target).parent().parent().parent().parent().find('button.submit-content').prop('disabled',true);
 		} else {
 			$(error).addClass('hidden');
 			fore.attr('style','');
-			$(e.target).parent().parent().parent().find('button.submit-content').removeAttr('disabled');
+			$(e.target).parent().parent().parent().parent().find('button.submit-content').removeAttr('disabled');
 		}
 
 		$(e.target).parent().parent().parent().find("li.color").each(function () {
@@ -595,11 +595,11 @@ $(document).ready(function() {
 		if (contrast_ratio < threshold) {
 			$(error).removeClass('hidden');
 			fore.attr('style','border-color: red;');
-			$(e.target).parent().parent().parent().find('button.submit-content').prop('disabled',true);
+			$(e.target).parent().parent().parent().parent().find('button.submit-content').prop('disabled',true);
 		} else {
 			$(error).addClass('hidden');
 			fore.attr('style','');
-			$(e.target).parent().parent().parent().find('button.submit-content').removeAttr('disabled');
+			$(e.target).parent().parent().parent().parent().find('button.submit-content').removeAttr('disabled');
 		}
 
 		$(e.target).parent().parent().parent().find("li.color").each(function () {
