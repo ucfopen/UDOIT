@@ -736,44 +736,6 @@ $(document).ready(function() {
 				$(this).find('span.invalid-color').addClass('hidden');
 			}
 		});
-
-		if (back.length !== 0) {
-			bgcolor = $(back).css('background-color');
-			
-			//if the swatch color is too dark
-			//change font color to something lighter 
-			c = bgcolor.substring(1); // strip '#'
-			rgb = parseInt(c, 16); // convert rrggbb to decimal
-			r = (rgb >> 16) & 0xff; // extract red
-			g = (rgb >> 8) & 0xff; // extract green
-			b = (rgb >> 0) & 0xff; // extract blue
-
-			luma = 0.2126 * r + 0.7152 * g + 0.0722 * b; // per ITU-R BT.709
-
-			if (luma < 100) {
-				$(back).css("color", "#ffffff");
-			} else {
-				$(back).css("color", "#000000");
-			}
-		}
-
-		bgcolor = $(fore).css('background-color');
-		
-		//if the swatch color is too dark
-		//change font color to something lighter 
-		c = bgcolor.substring(1); // strip '#'
-		rgb = parseInt(c, 16); // convert rrggbb to decimal
-		r = (rgb >> 16) & 0xff; // extract red
-		g = (rgb >> 8) & 0xff; // extract green
-		b = (rgb >> 0) & 0xff; // extract blue
-
-		luma = 0.2126 * r + 0.7152 * g + 0.0722 * b; // per ITU-R BT.709
-
-		if (luma < 100) {
-			$(fore).css("color", "#ffffff");
-		} else {
-			$(fore).css("color", "#000000");
-		}
 	});
 	// END update UFIXIT Preview on change of foreground color using Color-Picker
 
