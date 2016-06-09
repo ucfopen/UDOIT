@@ -242,24 +242,24 @@ switch ($_POST['main_action']) {
 
         // uploads the fixed content
         switch ($data['content_type']) {
-            case 'announcements':
-            case 'discussions':
+            case 'Announcements':
+            case 'Discussions':
                 $ufixit->uploadFixedDiscussions($corrected_error, $data['error_html']);
                 break;
 
-            case 'assignments':
+            case 'Assignments':
                 $ufixit->uploadFixedAssignments($corrected_error, $data['error_html']);
                 break;
 
-            case 'files':
+            case 'Files':
                 $ufixit->uploadFixedFiles($corrected_error, $data['error_html']);
                 break;
 
-            case 'pages':
+            case 'Pages':
                 $ufixit->uploadFixedPages($corrected_error, $data['error_html']);
                 break;
 
-            case 'syllabus':
+            case 'Syllabus':
                 $ufixit->uploadFixedSyllabus($corrected_error, $data['error_html']);
                 break;
         }
