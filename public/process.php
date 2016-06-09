@@ -185,7 +185,7 @@ switch ($_POST['main_action']) {
 
         $ufixit = new Ufixit($data);
 
-        if ($data['content_type'] === 'files') {
+        if (strtolower($data['content_type']) == 'files') {
             $ufixit->curled_file = $ufixit->getFile("root");
 
             if ($ufixit->curled_file == false) {
