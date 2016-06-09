@@ -185,7 +185,7 @@ switch ($_POST['main_action']) {
 
         $ufixit = new Ufixit($data);
 
-        if ($data['content_type'] === 'files') {
+        if (strtolower($data['content_type']) == 'files') {
             $ufixit->curled_file = $ufixit->getFile("root");
 
             if ($ufixit->curled_file == false) {
@@ -241,7 +241,7 @@ switch ($_POST['main_action']) {
         }
 
         // uploads the fixed content
-        switch ($data['content_type']) {
+        switch ( strtolower($data['content_type']) ) {
             case 'announcements':
             case 'discussions':
                 $ufixit->uploadFixedDiscussions($corrected_error, $data['error_html']);

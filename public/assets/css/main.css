@@ -216,9 +216,9 @@ h5 {
 
 .error-desc { clear: both ; }
 
-#errorWrapper .errorItem:last-child { margin-bottom: 0; }
+.errorWrapper .errorItem:last-child { margin-bottom: 0; }
 
-#errorWrapper .errorSummary .panel:last-child { margin-bottom: 0; }
+.errorWrapper .errorSummary .panel:last-child { margin-bottom: 0; }
 
 ul.li_border li {
 	border-bottom: 1px solid black;
@@ -421,20 +421,6 @@ h5 + ul {
 
 .nav-tabs.nav-justified > li > a { border-bottom-color: #c1c7cf; }
 
-/* X. FORMS --------------------------- */
-
-.fix-alt { position: relative; }
-
-.fix-success { clear: both; }
-
-.counter {
-	color: #8F8F8F;
-	position: absolute;
-	right: 79px;
-	top: 7px;
-	z-index: 9999;
-}
-
 /* X. PANELS -------------------------- */
 
 .panel-title {
@@ -518,12 +504,12 @@ div#cached button.btn-success:hover{
 	background-color: #3c763d !important;
 }
 
-#errorWrapper p {
+.errorWrapper p {
 	margin-left: 35px;
 	margin-right: 17px;
 }
 
-#errorWrapper .fix-this {
+.errorWrapper .fix-this {
 	margin: 5px 17px 5px 27px;
 }
 
@@ -619,4 +605,20 @@ ul.color-picker {
 	font-weight: 900;
 
 	-webkit-text-stroke: .5px white;
+}
+
+/* X. FORMS --------------------------- */
+
+.fix-alt { position: relative; }
+
+.fix-success { clear: both; }
+
+p.fix-success { margin-left: 0; }
+
+.counter {
+	color: #8F8F8F;
+	position: absolute;
+	right: 79px;
+	top: 7px;
+	z-index: 9999;
 }

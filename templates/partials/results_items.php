@@ -56,7 +56,7 @@
 							<li id="<?= $li_id; ?>">
 
 								<?php if ( in_array($group_item->type, $fixable_types) ): ?>
-									<p class="fix-success hidden"><?= $index; ?>. <span class="label label-success margin-left-small" style="margin-top: -2px;">Done!</span></p>
+									<p class="fix-success hidden"><span class="label label-success margin-left-small" style="margin-top: -2px;">Done!</span></p>
 								<?php endif; ?>
 
 								<!-- Print Report -->
@@ -83,7 +83,7 @@
 									</div>
 									<form class="ufixit-form form-horizontal no-print hidden instance" action="#" role="form">
 										<input type="hidden" name="main_action" value="ufixit">
-										<input type="hidden" name="contenttype" value="<?= $content_group->title; ?>">
+										<input type="hidden" name="contenttype" value="<?= $content_group; ?>">
 										<input type="hidden" name="contentid" value="<?= $id; ?>">
 										<input type="hidden" name="errorhtml" value="<?= $this->e($group_item->html); ?>">
 										<input type="hidden" name="errortype" value="<?= $group_item->type; ?>">

@@ -30,7 +30,7 @@
 	<button class="btn btn-default btn-s no-print" id="savePdf"><div class="circle-black hidden"></div><span class="glyphicon glyphicon-save"></span> Save report as PDF</button>
 <p>
 
-<div id="errorWrapper">
+<div class="errorWrapper">
 	<?php
 		foreach ($report_groups as $group) {
 			switch ($group->title) {
