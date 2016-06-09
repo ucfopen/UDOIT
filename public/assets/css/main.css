@@ -425,7 +425,10 @@ h5 + ul {
 
 .fix-alt { position: relative; }
 
-.fix-success { clear: both; }
+.fix-success {
+	clear: both;
+	margin-left: 0 !important;
+}
 
 .counter {
 	color: #8F8F8F;

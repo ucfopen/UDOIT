@@ -56,7 +56,7 @@
 							<li id="<?= $li_id; ?>">
 
 								<?php if ( in_array($group_item->type, $fixable_types) ): ?>
-									<p class="fix-success hidden"><?= $index; ?>. <span class="label label-success margin-left-small" style="margin-top: -2px;">Done!</span></p>
+									<p class="fix-success hidden"><span class="label label-success margin-left-small" style="margin-top: -2px;">Done!</span></p>
 								<?php endif; ?>
 
 								<!-- Print Report -->

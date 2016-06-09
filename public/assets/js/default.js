@@ -374,6 +374,9 @@ $doc.ready(function() {
 
 					$parent.parent().find('button').removeClass('hidden');
 					$parent.parent().find('.fix-success').removeClass('hidden');
+					$parent.parent().find('.viewError').addClass('hidden');
+					$parent.parent().find('.form-group').addClass('hidden');
+
 
 					errorsRemaining = $parent.parent().parent().find('.fix-success.hidden').length;
 					if ( errorsRemaining == 0 ) {
