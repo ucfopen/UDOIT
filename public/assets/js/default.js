@@ -380,7 +380,6 @@ $doc.ready(function() {
 
 
 					errorsRemaining = $parent.parent().parent().find('.fix-success.hidden').length;
-					console.log(errorsRemaining + '\n');
 					if ( errorsRemaining == 0 ) {
 						$parent.parent().parent().parent().find('.badge-error').addClass('badge-success');
 						$parent.parent().parent().parent().find('h5').removeClass('text-danger').addClass('text-success');
