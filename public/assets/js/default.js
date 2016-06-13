@@ -372,16 +372,18 @@ $doc.ready(function() {
 
 					$parent.find('input[name="submittingagain"]').val('Yes');
 
-					$parent.parent().find('button').removeClass('hidden');
-					$parent.parent().find('.fix-success').removeClass('hidden');
-					$parent.parent().find('.viewError').addClass('hidden');
-					$parent.parent().find('.form-group').addClass('hidden');
+					$parent.find('button').removeClass('hidden');
+					$parent.find('.fix-success').removeClass('hidden');
+					$parent.find('.viewError').addClass('hidden');
+					$parent.find('.more-info').addClass('hidden');
+					$parent.find('.ufixit-form').addClass('hidden');
 
 
 					errorsRemaining = $parent.parent().parent().find('.fix-success.hidden').length;
+					console.log(errorsRemaining + '\n');
 					if ( errorsRemaining == 0 ) {
-						$parent.parent().parent().find('.badge-error').addClass('badge-success');
-						$parent.parent().parent().find('h5').removeClass('text-danger').addClass('text-success');
+						$parent.parent().parent().parent().find('.badge-error').addClass('badge-success');
+						$parent.parent().parent().parent().find('h5').removeClass('text-danger').addClass('text-success');
 					}
 				}
 			},
