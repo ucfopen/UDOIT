@@ -18,7 +18,7 @@
 *   Primary Author Contact:  Jacob Bates <jacob.bates@ucf.edu>
 */
 require_once('../vendor/autoload.php');
-require_once('quail/quail/quail.php');
+require_once('../vendor/ucfcdl/quail-lib/lib/quail/quail/quail.php');
 
 use Httpful\Request;
 use zz\Html\HTMLMinify;
