@@ -37,7 +37,7 @@ class youtubeService extends mediaService
 	*/
 	function captionsMissing($link_url)
 	{
-		
+
 		$url = $this->search_url;
 		$api_key = constant( 'GOOGLE_API_KEY' );
 
@@ -51,7 +51,7 @@ class youtubeService extends mediaService
 		}
 
 		return false;
-		
+
 	}
 
 	/**
