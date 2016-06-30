@@ -36,8 +36,8 @@ class youtubeService extends mediaService
 	*/
 	function captionsMissing($link_url)
 	{
-		
-		$url = 'https://www.googleapis.com/youtube/v3/videos?part=contentDetails&id=';
+
+		$url = 'https://www.googleapis.com/youtube/v3/captions?part=id&videoId='; //'https://www.googleapis.com/youtube/v3/videos?part=contentDetails&id=';
 		$api_key = Config::GOOGLE_API_KEY;
 
 		if( $youtube_id = $this->isYouTubeVideo($link_url) ) {
@@ -54,7 +54,7 @@ class youtubeService extends mediaService
 		}
 
 		return false;
-		
+
 	}
 
 	/**
