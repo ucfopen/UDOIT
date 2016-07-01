@@ -17,7 +17,8 @@
 *
 *   Primary Author Contact:  Jacob Bates <jacob.bates@ucf.edu>
 */
-require_once('../vendor/autoload.php');
+
+require_once(__DIR__.'/../vendor/autoload.php');
 require_once('quail/quail/quail.php');
 
 use Httpful\Request;
@@ -70,6 +71,11 @@ class Udoit
     public $unscannable;
 
     /**
+     * @var boolean - mode of UDOIT instance. Test Mode: true; Regular instance: false;
+     */
+    private $test;
+
+    /**
      * The class constructor
      * @param array data - An array of POST data
      */
@@ -80,8 +86,9 @@ class Udoit
         $this->content_types = $data['content_types'];
         $this->course_id     = $data['course_id'];
         $this->total_results = ['errors' => 0, 'warnings' => 0, 'suggestions' => 0];
-        $this->module_urls = [];
+        $this->module_urls   = [];
         $this->unscannable   = [];
+        $this->test          = $data['test'];
     }
 
     /**
@@ -90,14 +97,14 @@ class Udoit
      */
     public function buildReport()
     {
-        session_start();
+        if (Config::UDOIT_ENVIRONMENT != 'TEST') session_start();
         $_SESSION['progress'] = 0;
-        session_write_close();
+        if (Config::UDOIT_ENVIRONMENT != 'TEST') session_write_close();
 
         foreach ($this->content_types as $type) {
-            session_start();
+            if (Config::UDOIT_ENVIRONMENT != 'TEST') session_start();
             $_SESSION["progress"] = $type;
-            session_write_close();
+            if (Config::UDOIT_ENVIRONMENT != 'TEST') session_write_close();
 
             $typeResults = [];
 
@@ -148,9 +155,9 @@ class Udoit
         }
 
         // so the ajax call knows we're done
-        session_start();
+        if (Config::UDOIT_ENVIRONMENT != 'TEST') session_start();
         $_SESSION["progress"] = 'done';
-        session_write_close();
+        if (Config::UDOIT_ENVIRONMENT != 'TEST') session_write_close();
     }
 
     /**
@@ -230,6 +237,7 @@ class Udoit
         $per_page    = 100;
         $page_count = 1;
 
+        if (Config::UDOIT_ENVIRONMENT != 'TEST')
         switch ($type) {
             case 'announcements':
                 $page_count = 1;
@@ -330,96 +338,101 @@ class Udoit
                 break;
         }
 
-        foreach ($the_content as $single) {
-            switch ($type) {
-                case 'announcements':
-                    array_push($content_result['items'], [
-                        'id'      => $single->id,
-                        'content' => $single->message,
-                        'title'   => $single->title,
-                        'url'     => $single->html_url
-                        ]
-                    );
-                    break;
-                case 'assignments':
-                    array_push($content_result['items'], [
-                        'id'      => $single->id,
-                        'content' => $single->description,
-                        'title'   => $single->name,
-                        'url'     => $single->html_url
-                        ]
-                    );
-                    break;
-                case 'discussions':
-                    array_push($content_result['items'], [
-                        'id'      => $single->id,
-                        'content' => $single->message,
-                        'title'   => $single->title,
-                        'url'     => $single->html_url
-                        ]
-                    );
-                    break;
-                case 'files':
-                    $extension = pathinfo($single->filename, PATHINFO_EXTENSION);
-                    // ignore ._ mac files
-                    $mac_check = substr($single->display_name, 0, 2);
-                    if ($mac_check !== '._') {
-                        // filters non html files
-                        if ($extension !== 'html' && $extension !== 'htm') {
-                            if ($extension === 'pdf' || $extension === 'doc' || $extension === 'docx' || $extension === 'ppt' || $extension === 'pptx') {
-                                array_push($content_result['unscannable'], [
-                                    'title' => $single->display_name,
-                                    'url'   => $single->url
+        if (Config::UDOIT_ENVIRONMENT != 'TEST') {
+            foreach ($the_content as $single) {
+                switch ($type) {
+                    case 'announcements':
+                        array_push($content_result['items'], [
+                            'id'      => $single->id,
+                            'content' => $single->message,
+                            'title'   => $single->title,
+                            'url'     => $single->html_url
+                            ]
+                        );
+                        break;
+                    case 'assignments':
+                        array_push($content_result['items'], [
+                            'id'      => $single->id,
+                            'content' => $single->description,
+                            'title'   => $single->name,
+                            'url'     => $single->html_url
+                            ]
+                        );
+                        break;
+                    case 'discussions':
+                        array_push($content_result['items'], [
+                            'id'      => $single->id,
+                            'content' => $single->message,
+                            'title'   => $single->title,
+                            'url'     => $single->html_url
+                            ]
+                        );
+                        break;
+                    case 'files':
+                        $extension = pathinfo($single->filename, PATHINFO_EXTENSION);
+                        // ignore ._ mac files
+                        $mac_check = substr($single->display_name, 0, 2);
+                        if ($mac_check !== '._') {
+                            // filters non html files
+                            if ($extension !== 'html' && $extension !== 'htm') {
+                                if ($extension === 'pdf' || $extension === 'doc' || $extension === 'docx' || $extension === 'ppt' || $extension === 'pptx') {
+                                    array_push($content_result['unscannable'], [
+                                        'title' => $single->display_name,
+                                        'url'   => $single->url
+                                        ]
+                                    );
+                                }
+                            } else {
+                                array_push($content_result['items'], [
+                                    'id'      => $single->id,
+                                    'content' => Request::get($single->url)->followRedirects()->expectsHtml()->send()->body,
+                                    'title'   => $single->display_name,
+                                    'url'     => $single->url
                                     ]
                                 );
                             }
-                        } else {
-                            array_push($content_result['items'], [
-                                'id'      => $single->id,
-                                'content' => Request::get($single->url)->followRedirects()->expectsHtml()->send()->body,
-                                'title'   => $single->display_name,
-                                'url'     => $single->url
+                        }
+                        break;
+                    case 'pages':
+                        $url       = $this->base_uri.'/api/v1/courses/'.$this->course_id.'/pages/'.$single->url.'?access_token='.$this->api_key;
+                        $wiki_page = Request::get($url)->send();
+
+                        array_push($content_result['items'], [
+                            'id'      => $wiki_page->body->url,
+                            'content' => $wiki_page->body->body,
+                            'title'   => $wiki_page->body->title,
+                            'url'     => $wiki_page->body->html_url
+                            ]
+                        );
+                        break;
+                    case 'syllabus':
+                        array_push($content_result['items'], [
+                            'id'      => $single->id,
+                            'content' => $single->syllabus_body,
+                            'title'   => 'Syllabus',
+                            'url'     => $this->base_uri.'/courses/'.$single->id.'/assignments/syllabus'
+                            ]
+                        );
+                        break;
+                    case 'modules':
+                        $search = '/(youtube|vimeo)/';
+                        $external_url = isset($single->external_url) ? $single->external_url : '';
+
+                        if (preg_match($search, $external_url)) {
+                            array_push($content_result['module_urls'], [
+                                'id'           => $single->id,
+                                'external_url' => $single->external_url,
+                                'title'        => $single->title,
+                                'url'          => $single->html_url
                                 ]
                             );
                         }
-                    }
-                    break;
-                case 'pages':
-                    $url       = $this->base_uri.'/api/v1/courses/'.$this->course_id.'/pages/'.$single->url.'?access_token='.$this->api_key;
-                    $wiki_page = Request::get($url)->send();
-
-                    array_push($content_result['items'], [
-                        'id'      => $wiki_page->body->url,
-                        'content' => $wiki_page->body->body,
-                        'title'   => $wiki_page->body->title,
-                        'url'     => $wiki_page->body->html_url
-                        ]
-                    );
-                    break;
-                case 'syllabus':
-                    array_push($content_result['items'], [
-                        'id'      => $single->id,
-                        'content' => $single->syllabus_body,
-                        'title'   => 'Syllabus',
-                        'url'     => $this->base_uri.'/courses/'.$single->id.'/assignments/syllabus'
-                        ]
-                    );
-                    break;
-                case 'modules':
-                    $search = '/(youtube|vimeo)/';
-                    $external_url = isset($single->external_url) ? $single->external_url : '';
-
-                    if (preg_match($search, $external_url)) {
-                        array_push($content_result['module_urls'], [
-                            'id'           => $single->id,
-                            'external_url' => $single->external_url,
-                            'title'        => $single->title,
-                            'url'          => $single->html_url
-                            ]
-                        );
-                    }
-                    break;
+                        break;
+                }
             }
+        } else {
+            require_once(__DIR__.'/../tests/resources.php');
+            $content_result = $test_content_result;     
         }
 
         $time_end                 = microtime(true);

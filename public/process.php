@@ -17,10 +17,11 @@
 *
 *   Primary Author Contact:  Jacob Bates <jacob.bates@ucf.edu>
 */
-require_once('../config/settings.php');
-require_once('../lib/quail/quail/quail.php');
-require_once('../lib/Udoit.php');
-require_once('../lib/Ufixit.php');
+
+require_once(__DIR__.'/../lib/quail/quail/quail.php');
+require_once(__DIR__.'/../lib/Udoit.php');
+require_once(__DIR__.'/../lib/Ufixit.php');
+require_once(__DIR__.'/../config/settings.php');
 
 session_start();
 
@@ -85,26 +86,28 @@ session_write_close();
 // check if course content is being scanned or fixed
 switch ($_POST['main_action']) {
     case 'udoit':
+
         // for saving this report later
-        session_start();
+        if (Config::UDOIT_ENVIRONMENT != 'TEST') session_start();
         $user_id = $_SESSION['launch_params']['custom_canvas_user_id'];
-        session_write_close();
+        if (Config::UDOIT_ENVIRONMENT != 'TEST') session_write_close();
 
         // UDOIT can't scan what isn't selected
         if ($_POST['content'] === 'none') {
             die('<div class="alert alert-danger no-margin margin-top"><span class="glyphicon glyphicon-exclamation-sign"></span> Please select which course content you wish to scan above.</div>');
         }
 
-        session_start();
+        if (Config::UDOIT_ENVIRONMENT != 'TEST') session_start();
 
         $data = [
             'api_key'       => $_SESSION['api_key'],
-            'base_uri'      => $base_url,
+            'base_uri'      => Config::BASE_URL,
             'content_types' => $_POST['content'],
-            'course_id'     => $SESSION_course_id
+            'course_id'     => $SESSION_course_id,
+            'test'          => (isset($_POST['test']))? true: false
         ];
 
-        session_write_close();
+        if (Config::UDOIT_ENVIRONMENT != 'TEST') session_write_close();
 
         $udoit = new Udoit($data);
         $udoit->buildReport();
@@ -115,11 +118,11 @@ switch ($_POST['main_action']) {
             'content'       => $udoit->bad_content,
         ];
         $encoded_report   = json_encode($to_encode);
-        $report_directory = '../reports/'.$user_id.'/'.$to_encode['course'];
+        $report_directory = __DIR__.'/../reports/'.$user_id.'/'.$to_encode['course'];
 
         if (!file_exists($report_directory)) {
             mkdir($report_directory, 0777, true);
-            chmod('../reports/'.$user_id, 0777);
+            chmod(__DIR__.'/../reports/'.$user_id, 0777);
             chmod($report_directory, 0777);
         }
 
@@ -128,11 +131,11 @@ switch ($_POST['main_action']) {
         file_put_contents($file, $encoded_report);
         chmod($file, 0777);
 
-        $dbh = include('../lib/db.php');
+        $dbh = include(__DIR__.'/../lib/db.php');
 
         $sth = $dbh->prepare("
             INSERT INTO
-                $db_reports_table
+                ".Config::DB_REPORTS_TABLE."
                 (user_id, course_id, file_path, date_run, errors, suggestions)
             VALUES
                 (:userid, :courseid, :filepath, CURRENT_TIMESTAMP, :errors, :suggestions)");
@@ -149,12 +152,13 @@ switch ($_POST['main_action']) {
 
         $udoit_report = json_decode($encoded_report);
 
-        require 'parseResults.php';
+        if (Config::UDOIT_ENVIRONMENT != 'TEST') require 'parseResults.php';
 
         break;
+
     case 'ufixit':
         $data = [
-            'base_uri'     => $base_url,
+            'base_uri'     => Config::BASE_URL,
             'content_id'   => $_POST['contentid'],
             'content_type' => $_POST['contenttype'],
             'error_html'   => htmlspecialchars_decode($_POST['errorhtml']),

@@ -37,7 +37,7 @@ if ( isset($_POST["oauth_consumer_key"]) || !isset($_SESSION['valid'])) {
 if ($_SESSION['valid'] === false) {
 	require_once('../lib/ims-blti/blti.php');
 	// Initialize, all secrets are 'secret', do not set session, and do not redirect
-	$context = new BLTI($consumer_key, $shared_secret, false, false);
+	$context = new BLTI(Config::CONSUMER_KEY, Config::SHARED_SECRET, false, false);
 
 	if ( ! $context->valid) {
 		error_log("BLTI not valid: our key: {$consumer_key}");
@@ -84,13 +84,11 @@ if( isset($_POST['custom_canvas_api_domain']) ){
 // By default, we'll be redirecting to the Oauth2 process, unless something below interrupts that redirect
 $redirect = true;
 
-
-
 // Test the API key from the session first.
 // If it doesn't work, we need to go through the refresh process
 if (isset($_SESSION['api_key'])) {
 	//If we do, test it out
-	$url = $base_url.'api/v1/users/'.$_SESSION['launch_params']['custom_canvas_user_id'].'/profile';
+	$url = Config::BASE_URL.'/api/v1/users/'.$_SESSION['launch_params']['custom_canvas_user_id'].'/profile';
 	$resp = Request::get($url)
 		->addHeader('Authorization', 'Bearer '.$_SESSION['api_key'])
 		->send();
@@ -151,7 +149,7 @@ if( $refresh ) {
 if ($redirect) {
 	//Redirect user to oauth2 endpoint on the Canvas end
 	session_write_close();
-	header('Location: '.$base_url.'/login/oauth2/auth/?client_id='.$oauth2_id.'&response_type=code&redirect_uri='.$oauth2_uri);
+	header('Location: '.Config::BASE_URL.'/login/oauth2/auth/?client_id='.Config::OATH2_URI.'&response_type=code&redirect_uri='.Config::OATH2_URI);
 }
 
 // Invalidate the session so we start from scratch
