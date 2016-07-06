@@ -1,12 +1,5 @@
 web:
   build: .
-  ports:
-    - "8000:8000"
-  environment:
-    - MYSQL_ROOT_PASSWORD=root
-    - MYSQL_DATABASE=udoit
-    - MYSQL_USER=root
-    - MYSQL_PASSWORD=root
   volumes:
     - .:/var/www
-  command: /composer_depend.sh
+  command: ./composer_depend.sh
