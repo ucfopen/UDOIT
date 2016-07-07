@@ -18,7 +18,7 @@
 *   Primary Author Contact:  Jacob Bates <jacob.bates@ucf.edu>
 */
 require_once('../config/settings.php');
-require_once('../vendor/ucfcdl/quail-lib/lib/quail/quail/quail.php');
+require_once('../lib/quail/quail/quail.php');
 require_once('../lib/Udoit.php');
 require_once('../lib/Ufixit.php');
 

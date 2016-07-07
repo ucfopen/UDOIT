@@ -4,8 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "3e6a4fefe95f5b0cc4ae7b980c95436b",
-    "content-hash": "e201ba8a23b9fbaf5187a4eef060aae9",
+    "hash": "2af7913b72a66290e0df20793b488035",
+    "content-hash": "38f91d8e25b939909eb10c4b8c421698",
     "packages": [
         {
             "name": "league/plates",
@@ -208,16 +208,6 @@
                 "pdf"
             ],
             "time": "2015-11-30 10:53:14"
-        },
-        {
-            "name": "ucfcdl/quail-lib",
-            "version": "1.0.0",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/ucfcdl/UDOIT",
-                "reference": "master"
-            },
-            "type": "library"
         },
         {
             "name": "zaininnari/html-minifier",
