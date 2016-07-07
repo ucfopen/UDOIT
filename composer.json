@@ -28,6 +28,7 @@
     },
     "require-dev": {
         "symfony/var-dumper": "*",
+        "phpunit/phpunit": "4.8.*",
         "heroku/heroku-buildpack-php": "*"
     },
     "scripts": {
