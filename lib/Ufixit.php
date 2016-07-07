@@ -17,8 +17,8 @@
 *
 *   Primary Author Contact:  Jacob Bates <jacob.bates@ucf.edu>
 */
-require_once('../vendor/autoload.php');
-require_once('quail/quail/quail.php');
+require_once(__DIR__.'/../vendor/autoload.php');
+require_once(__DIR__.'/quail/quail/quail.php');
 
 use Httpful\Request;
 use zz\Html\HTMLMinify;
@@ -464,6 +464,24 @@ class Ufixit
         return $renamed;
     }
 
+     /**
+     * Replaces problematic content in html with resolved html
+     * @param  string $html      - html from page being edited
+     * @param  string $error     - original html of error being fixed
+     * @param  string $corrected - resulting html or error after fix
+     * @return string $html      - html after corrected html has replaced error html
+     */
+    public function replaceContent($html, $error, $corrected)
+    {
+        $error_html      = HTMLMinify::minify(str_replace($this->annoying_entities, $this->entity_replacements, $error_html), ['doctype' => 'html5']);
+        $corrected_error = HTMLMinify::minify(str_replace($this->annoying_entities, $this->entity_replacements, $corrected_error), ['doctype' => 'html5']);
+        $html            = HTMLMinify::minify(str_replace($this->annoying_entities, $this->entity_replacements, htmlentities($html)), ['doctype' => 'html5']);
+
+        $html    = str_replace($error_html, $corrected_error, html_entity_decode($html));
+
+        return $html;
+    }
+
     /**
      * Uploads fixed assignments
      * @param string $corrected_error - The html that has been fixed
@@ -475,11 +493,7 @@ class Ufixit
         $content = Request::get($get_uri)->send();
         $html    = html_entity_decode($content->body->description);
 
-        $error_html      = HTMLMinify::minify(str_replace($this->annoying_entities, $this->entity_replacements, $error_html), ['doctype' => 'html5']);
-        $corrected_error = HTMLMinify::minify(str_replace($this->annoying_entities, $this->entity_replacements, $corrected_error), ['doctype' => 'html5']);
-        $html            = HTMLMinify::minify(str_replace($this->annoying_entities, $this->entity_replacements, htmlentities($html)), ['doctype' => 'html5']);
-
-        $html    = str_replace($error_html, $corrected_error, $html);
+        $html    = $this->replaceContent($html, $error_html, $corrected_error);
         $put_uri = $this->base_uri."/api/v1/courses/".$this->course_id."/assignments/".$this->content_id."?&access_token=".$this->api_key;
 
         Request::put($put_uri)->body(['assignment[description]' => $html])->sendsType(\Httpful\Mime::FORM)->send();
@@ -496,11 +510,7 @@ class Ufixit
         $content = Request::get($get_uri)->send();
         $html    = html_entity_decode($content->body->message);
 
-        $error_html      = HTMLMinify::minify(str_replace($this->annoying_entities, $this->entity_replacements, $error_html), ['doctype' => 'html5']);
-        $corrected_error = HTMLMinify::minify(str_replace($this->annoying_entities, $this->entity_replacements, $corrected_error), ['doctype' => 'html5']);
-        $html            = HTMLMinify::minify(str_replace($this->annoying_entities, $this->entity_replacements, htmlentities($html)), ['doctype' => 'html5']);
-
-        $html    = str_replace($error_html, $corrected_error, $html);
+        $html    = $this->replaceContent($html, $error_html, $corrected_error);
         $put_uri = $this->base_uri."/api/v1/courses/".$this->course_id."/discussion_topics/".$this->content_id."?&access_token=".$this->api_key;
 
         Request::put($put_uri)->body(['message' => $html])->sendsType(\Httpful\Mime::FORM)->send();
@@ -587,11 +597,7 @@ class Ufixit
         $content = Request::get($get_uri)->send();
         $html    = html_entity_decode($content->body->body);
 
-        $error_html      = HTMLMinify::minify(str_replace($this->annoying_entities, $this->entity_replacements, $error_html), ['doctype' => 'html5']);
-        $corrected_error = HTMLMinify::minify(str_replace($this->annoying_entities, $this->entity_replacements, $corrected_error), ['doctype' => 'html5']);
-        $html            = HTMLMinify::minify(str_replace($this->annoying_entities, $this->entity_replacements, htmlentities($html)), ['doctype' => 'html5']);
-
-        $html    = str_replace($error_html, $corrected_error, $html);
+        $html    = $this->replaceContent($html, $error_html, $corrected_error);
 
         $put_uri = $this->base_uri."/api/v1/courses/".$this->course_id."/pages/".$this->content_id."?&access_token=".$this->api_key;
 
@@ -609,11 +615,7 @@ class Ufixit
         $content = Request::get($get_uri)->send();
         $html    = html_entity_decode($content->body->syllabus_body);
 
-        $error_html      = HTMLMinify::minify(str_replace($this->annoying_entities, $this->entity_replacements, $error_html), ['doctype' => 'html5']);
-        $corrected_error = HTMLMinify::minify(str_replace($this->annoying_entities, $this->entity_replacements, $corrected_error), ['doctype' => 'html5']);
-        $html            = HTMLMinify::minify(str_replace($this->annoying_entities, $this->entity_replacements, htmlentities($html)), ['doctype' => 'html5']);
-
-        $html    = str_replace($error_html, $corrected_error, $html);
+        $html    = $this->replaceContent($html, $error_html, $corrected_error);
         $put_uri = $this->base_uri."/api/v1/courses/".$this->course_id."/?&access_token=".$this->api_key;
 
         Request::put($put_uri)->body(['course[syllabus_body]' => $html])->sendsType(\Httpful\Mime::FORM)->send();
