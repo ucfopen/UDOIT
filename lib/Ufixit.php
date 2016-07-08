@@ -473,7 +473,10 @@ class Ufixit
      */
     public function replaceContent($html, $error, $corrected)
     {
-        $html    = $this->replaceContent($html, $error_html, $corrected_error);
+        $error      = HTMLMinify::minify(str_replace($this->annoying_entities, $this->entity_replacements, $error), ['doctype' => 'html5']);
+        $corrected  = HTMLMinify::minify(str_replace($this->annoying_entities, $this->entity_replacements, $corrected), ['doctype' => 'html5']);
+        $html       = HTMLMinify::minify(str_replace($this->annoying_entities, $this->entity_replacements, htmlentities($html)), ['doctype' => 'html5']);
+        $html       = str_replace($error, $corrected, html_entity_decode($html));
 
         return $html;
     }
