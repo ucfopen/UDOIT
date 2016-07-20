@@ -29,7 +29,7 @@ class Ufixit
      * Array of annoying characters to filter out of strings
      * @var array
      */
-    public $annoying_entities = ["\r", "&nbsp;", "&lt;", "&gt;", "&quot;"];
+    public $annoying_entities = ["\r", "&nbsp;", "&lt;", "&gt;", "&quot;", "&lsquo;", "&rsquo;", "&sbquo;", "&ldquo;", "&rdquo;", "&bdquo;"];
 
     /**
      * The API key needed to communicate with Canvas
@@ -71,7 +71,7 @@ class Ufixit
      * Array of replacements for the annoying entities
      * @var array
      */
-    public $entity_replacements = ["", " ", "<", ">", "\""];
+    public $entity_replacements = ["", " ", "<", ">", "\"", "‘", "’", "‚", "“", "”", "„"];
 
     /**
      * A file pointer
@@ -473,7 +473,7 @@ class Ufixit
      */
     public function replaceContent($html, $error, $corrected)
     {
-        $error      = HTMLMinify::minify(str_replace($this->annoying_entities, $this->entity_replacements, htmlentities($error)), ['doctype' => 'html5']);
+        $error      = HTMLMinify::minify(str_replace($this->annoying_entities, $this->entity_replacements, $error), ['doctype' => 'html5']);
         $corrected  = HTMLMinify::minify(str_replace($this->annoying_entities, $this->entity_replacements, $corrected), ['doctype' => 'html5']);
         $html       = HTMLMinify::minify(str_replace($this->annoying_entities, $this->entity_replacements, htmlentities($html)), ['doctype' => 'html5']);
 
