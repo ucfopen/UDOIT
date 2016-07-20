@@ -477,10 +477,6 @@ class Ufixit
         $corrected  = HTMLMinify::minify(str_replace($this->annoying_entities, $this->entity_replacements, $corrected), ['doctype' => 'html5']);
         $html       = HTMLMinify::minify(str_replace($this->annoying_entities, $this->entity_replacements, htmlentities($html)), ['doctype' => 'html5']);
 
-        error_log('Corrected: '.print_r($corrected, true));
-        error_log('Error: '.print_r($error, true));
-        error_log('Html: '.print_r( html_entity_decode($html), true ));
-
         $html       = str_replace($error, $corrected, html_entity_decode($html));
 
         return $html;
