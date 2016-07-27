@@ -310,6 +310,7 @@ h5 + ul {
 	line-height: 100%;
 
 	background-color: #fff;
+	border-radius: 4px;
 }
 
 .error-source {
