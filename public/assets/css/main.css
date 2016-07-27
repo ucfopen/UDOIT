@@ -301,7 +301,15 @@ h5 + ul {
 	width: 100%;
 
 	line-height: 100%;
+}
 
+.ufixit-no-background-color {
+	position: relative;
+	width: 100%;
+
+	line-height: 100%;
+
+	background-color: #fff;
 }
 
 .error-source {
