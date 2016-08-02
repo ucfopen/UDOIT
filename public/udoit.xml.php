@@ -22,6 +22,20 @@ $exploded = explode('/',$_SERVER['PHP_SELF']);
 $scriptname= @end( $exploded );
 $scriptpath=str_replace($scriptname,'',$_SERVER['PHP_SELF']);
 $launch = $servername . $scriptpath;
+
+// Get tool configuration values from the correct config file
+if (getenv('USE_HEROKU_CONFIG'))
+{
+	require_once('../config/herokuConfig.php');
+	if(!empty($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] == 'https') {
+		$_SERVER['HTTPS'] = 'on';
+	}
+}
+else
+{
+	require_once('../config/localConfig.php');
+}
+
 header('Content-type: text/xml');
 echo '<?xml version="1.0" encoding="UTF-8"?>';
 
@@ -50,7 +64,7 @@ echo '<?xml version="1.0" encoding="UTF-8"?>';
 			<lticm:property name="url"><?= $launch ?></lticm:property>
 			<lticm:property name="default">enabled</lticm:property>
 			<lticm:property name="visibility">admins</lticm:property>
-			<lticm:property name="text">UDOIT</lticm:property>
+			<lticm:property name="text"><?= $canvas_nav_item_name ? $canvas_nav_item_name : 'UDOIT' ?></lticm:property>
 			<lticm:property name="enabled">true</lticm:property>
 		</lticm:options>
 	</blti:extensions>
