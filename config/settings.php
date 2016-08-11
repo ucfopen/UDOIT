@@ -9,7 +9,7 @@ $UDOIT_ENV = ENV_PROD; // change value in your localConfig.php
 if (getenv('USE_HEROKU_CONFIG'))
 {
     require_once('herokuConfig.php');
-    if(!empty($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] == 'https') {
+    if ( ! empty($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] == 'https') {
         $_SERVER['HTTPS'] = 'on';
     }
 }

@@ -39,13 +39,13 @@
 
 		</div>
 
-		<?php if($footer_scripts): ?>
+		<?php if ($footer_scripts): ?>
 			<?php foreach($footer_scripts as $script): ?>
 				<script src="<?= $script; ?>"></script>
 			<?php endforeach ?>
 		<?php endif; ?>
 
-		<?php if( trim(GA_TRACKING_CODE) !== '' ): ?>
+		<?php if (trim(GA_TRACKING_CODE) !== ''): ?>
 			<script>
 			  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
 			  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),

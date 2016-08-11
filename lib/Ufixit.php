@@ -397,7 +397,7 @@ class Ufixit
                 foreach ($files->body as $file) {
                     $mac_check = (substr($file->display_name, 0, 2)); // Don't capture mac files, ._
 
-                    if($mac_check !== "._" and $file->id == $this->content_id) {
+                    if ($mac_check !== "._" and $file->id == $this->content_id) {
                         $curled_file['id'] = $file->id;
                         $curled_file['name'] = $file->display_name;
                         $curled_file['parent_folder_path'] = $folder_name;
@@ -570,8 +570,8 @@ class Ufixit
         preg_match('/Location\: (.*)\\n/', $response->raw_headers, $matches);
 
         //error
-        if(!isset($matches[1])) {
-            dump($response);
+        if ( ! isset($matches[1])) {
+            error_log(print_r($response, true));
         }
 
         $confirm_uri = $matches[1];

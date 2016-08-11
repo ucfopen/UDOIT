@@ -42,7 +42,7 @@ if (isset($post_input['cached_id'])) {
 
 		$sth = $dbh->prepare("SELECT * FROM {$db_reports_table} WHERE id=:cachedid");
 
-		$sth->bindParam(':cachedid', $post_input['cached_id'], PDO::PARAM_INT);
+		$sth->bindValue(':cachedid', $post_input['cached_id'], PDO::PARAM_INT);
 
 		if ( ! $sth->execute()) {
 			error_log(print_r($sth->errorInfo(), true));
@@ -55,6 +55,11 @@ if (isset($post_input['cached_id'])) {
 	$json         = file_get_contents($file);
 	$udoit_report = json_decode($json);
 
+	if (is_null($udoit_report)) {
+		$json_error = json_last_error_msg();
+		Utils::exitWithPartialError("Cannot parse this report. JSON error $json_error.");
+	}
+
 } elseif ($post_input['main_action'] === "cached") {
 	Utils::exitWithPartialError('Cannot parse this report. JSON file not found.');
 }
@@ -62,14 +67,14 @@ if (isset($post_input['cached_id'])) {
 $issue_count = 0;
 
 $results = [
-	'course' => $udoit_report->course,
-	'error_count' => $udoit_report->total_results->errors,
-	'suggestion_count' => $udoit_report->total_results->suggestions,
-	'report_groups' => $udoit_report->content,
-	'post_path' => $post_input['path'],
+	'course'              => $udoit_report->course,
+	'error_count'         => $udoit_report->total_results->errors,
+	'suggestion_count'    => $udoit_report->total_results->suggestions,
+	'report_groups'       => $udoit_report->content,
+	'post_path'           => $post_input['path'],
 	'fixable_error_types' => ["cssTextHasContrast", "imgHasAlt", "imgNonDecorativeHasAlt", "tableDataShouldHaveTh", "tableThShouldHaveScope", "headersHaveText", "aMustContainText", "imgAltIsDifferent", "imgAltIsTooLong"],
 	'fixable_suggestions' => ["aSuspiciousLinkText", "aLinkTextDoesNotBeginWithRedundantWord", "cssTextStyleEmphasize"]
 
 ];
 
-echo $templates->render('partials/results', $results);
+echo($templates->render('partials/results', $results));

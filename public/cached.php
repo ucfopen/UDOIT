@@ -26,7 +26,7 @@ $sth = $dbh->prepare(" SELECT * FROM {$db_reports_table} WHERE course_id = :cour
 
 session_start();
 
-$sth->bindParam(':courseid', $_SESSION['launch_params']['custom_canvas_course_id'], PDO::PARAM_INT);
+$sth->bindValue(':courseid', $_SESSION['launch_params']['custom_canvas_course_id'], PDO::PARAM_INT);
 
 session_write_close();
 
@@ -37,7 +37,7 @@ if (!$sth->execute()) {
 $reports = $sth->fetchAll();
 
 // Add the test report if not in production mode
-if ($UDOIT_ENV != ENV_PROD){
+if ($UDOIT_ENV != ENV_PROD) {
 	$reports[] = [
 		'id' => 'TEST',
 		'user_id' => 0,
@@ -50,4 +50,4 @@ if ($UDOIT_ENV != ENV_PROD){
 }
 
 $templates = new League\Plates\Engine('../templates');
-echo $templates->render('saved_reports', ['reports' => $reports]);
+echo($templates->render('saved_reports', ['reports' => $reports]));

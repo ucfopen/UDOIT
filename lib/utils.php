@@ -19,7 +19,7 @@
 */
 class Utils
 {
-    public static $regex = array(
+    public static $regex = [
         '@youtube\.com/embed/([^"\& ]+)@i',
         '@youtube\.com/v/([^"\& ]+)@i',
         '@youtube\.com/watch\?v=([^"\& ]+)@i',
@@ -28,31 +28,82 @@ class Utils
         '@youtu\.be/v/([^"\& ]+)@i',
         '@youtu\.be/watch\?v=([^"\& ]+)@i',
         '@youtu\.be/\?v=([^"\& ]+)@i',
-    );
+    ];
 
     public static function getYouTubeId($link_url)
     {
         $matches = null;
         foreach(static::$regex as $pattern) {
-            if(preg_match($pattern, $link_url, $matches)) {
+            if (preg_match($pattern, $link_url, $matches)) {
                 return $matches[1];
             }
         }
         return null;
     }
 
-    public static function exitWithPageError($error){
+    public static function exitWithPageError($error) {
         $templates = new League\Plates\Engine('../templates');
-        echo $templates->render('error', ['error' => $error]);
+        echo($templates->render('error', ['error' => $error]));
         error_log($error);
         exit();
     }
 
-    public static function exitWithPartialError($error){
+    public static function exitWithPartialError($error) {
         $templates = new League\Plates\Engine('../templates');
-        echo $templates->render('partials/error', ['error' => $error]);
+        echo($templates->render('partials/error', ['error' => $error]));
         error_log($error);
         exit();
     }
 
+    protected static function curl_oath_token($base_url, $post_data) {
+        // @TODO - why not use Httpful here?
+        $ch = curl_init("{$base_url}/login/oauth2/token");
+        curl_setopt($ch, CURLOPT_POST, 1);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($post_data));
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+        $result = curl_exec($ch);
+        curl_close($ch);
+
+        return json_decode($result);
+    }
+
+    public static function validate_api_key($user_id, $base_url, $api_key) {
+        // return false for testing
+        if ($UDOIT_ENV !== ENV_PROD) return false;
+
+        $url = "{$base_url}api/v1/users/{$user_id}/profile";
+        $resp = Httpful\Request::get($url)
+            ->addHeader('Authorization', "Bearer {$api_key}")
+            ->send();
+        return isset($resp->body->id);
+    }
+
+    public static function refresh_api_key($o2_id, $o2_uri, $o2_key, $base_url, $refresh_token) {
+        if ($UDOIT_ENV !== ENV_PROD) return "test-token"; // return false for testing
+
+        $postdata = [
+            'grant_type'    => 'refresh_token',
+            'client_id'     => $o2_id,
+            'redirect_uri'  => $o2_uri,
+            'client_secret' => $o2_key,
+            'refresh_token' => $refresh_token
+        ];
+
+        $json_result = static::curl_oath_token($postdata);
+
+        return isset($json_result->access_token) ? $json_result->access_token : false;
+    }
+
+    public static function authorize_new_api_key($o2_id, $o2_uri, $o2_key, $base_url, $code) {
+
+        $postdata = [
+            'grant_type'    => 'authorization_code',
+            'client_id'     => $o2_id,
+            'redirect_uri'  => $o2_uri,
+            'client_secret' => $o2_key,
+            'code'          => $code
+        ];
+
+        return static::curl_oath_token($postdata);
+    }
 }

@@ -20,37 +20,19 @@
 require_once('../config/settings.php');
 require_once('../lib/utils.php');
 
-session_start();
-
-
-$get_input = filter_input_array(INPUT_GET, FILTER_SANITIZE_STRING); // Sanitize $_GET global
-
-$base_url = $_SESSION['base_url'];
+if (isset($get_input['error'])) {
+	Utils::exitWithPageError('Authentication problem:  Access Denied.');
+}
 
 if (isset($get_input['code'])) {
-	//Exchange code for API key
-	$url = $base_url . '/login/oauth2/token';
+	session_start();
 
-	$postdata = array(
-		'grant_type' => 'authorization_code',
-		'client_id' => $oauth2_id,
-		'redirect_uri' => $oauth2_uri,
-		'client_secret' => $oauth2_key,
-		'code' => $get_input['code']
-	);
-
-	$post = http_build_query($postdata);
-	$ch = curl_init($url);
-
-	curl_setopt($ch, CURLOPT_POST, 1);
-	curl_setopt($ch, CURLOPT_POSTFIELDS, $post);
-	curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-
-	$response = json_decode(curl_exec($ch));
-	curl_close($ch);
+	$base_url  = $_SESSION['base_url'];
+	$get_input = filter_input_array(INPUT_GET, FILTER_SANITIZE_STRING); // Sanitize $_GET global
+	$response  = Utils::authorize_new_api_key($oauth2_id, $oauth2_uri, $oauth2_key, $base_url, $get_input['code'])
 
 	// It should have access_token and refresh_token
-	if( !isset($response->access_token) || !isset($response->refresh_token) ){
+	if ( ! isset($response->access_token) || ! isset($response->refresh_token)) {
 		Utils::exitWithPageError('Authentication problem:  Please contact support.');
 	}
 
@@ -58,28 +40,27 @@ if (isset($get_input['code'])) {
 	$_SESSION['api_key'] = $response->access_token;
 
 	// Save Refresh Key to DB
-	$dbh = include('../lib/db.php');
 
-	$sth = $dbh->prepare("SELECT * FROM $db_user_table WHERE id=:userid LIMIT 1");
-	$sth->bindParam(':userid', $_SESSION['launch_params']['custom_canvas_user_id'], PDO::PARAM_INT);
+	// check for existing
+	$dbh = include('../lib/db.php');
+	$sth = $dbh->prepare("SELECT * FROM {$db_user_table} WHERE id = :userid LIMIT 1");
+	$sth->bindValue(':userid', $_SESSION['launch_params']['custom_canvas_user_id'], PDO::PARAM_INT);
 	$sth->execute();
 
-	$result = $sth->fetchAll();
-
-	if(isset($result[0])) {
-		$sth = $dbh->prepare("UPDATE $db_user_table SET api_key=:key WHERE id=:userid LIMIT 1");
+	// insert or update
+	if ($result = $sth->fetchObject()) {
+		$sth = $dbh->prepare("UPDATE {$db_user_table} SET api_key = :key WHERE id = :userid");
 	} else {
-		$sth = $dbh->prepare("INSERT INTO $db_user_table (id, api_key, date_created) VALUES (:userid, :key, CURRENT_TIMESTAMP)");
+		$sth = $dbh->prepare("INSERT INTO {$db_user_table} (id, api_key, date_created) VALUES (:userid, :key, CURRENT_TIMESTAMP)");
 	}
 
-	$sth->bindParam(':key', $response->refresh_token, PDO::PARAM_STR);
-	$sth->bindParam(':userid', $_SESSION['launch_params']['custom_canvas_user_id'], PDO::PARAM_INT);
+	// execute
+	$sth->bindValue(':key', $response->refresh_token, PDO::PARAM_STR);
+	$sth->bindValue(':userid', $_SESSION['launch_params']['custom_canvas_user_id'], PDO::PARAM_INT);
 	$sth->execute();
 
-	session_write_close();
-	header('Location:index.php');
-} elseif (isset($get_input['error'])) {
-	Utils::exitWithPageError('Authentication problem:  Access Denied.');
-} else {
-	Utils::exitWithPageError('Authentication problem, please ensure that your instance of UDOIT is configured correctly.');
+	header('Location: index.php');
+	exit();
 }
+
+Utils::exitWithPageError('Authentication problem, please ensure that your instance of UDOIT is configured correctly.');

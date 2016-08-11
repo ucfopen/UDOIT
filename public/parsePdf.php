@@ -17,11 +17,6 @@
 *
 *	Primary Author Contact:  Jacob Bates <jacob.bates@ucf.edu>
 */
-
-session_start();
-$_SESSION['pdf_generated'] = false;
-session_write_close();
-
 require '../vendor/autoload.php';
 require_once('../config/settings.php');
 
@@ -29,24 +24,23 @@ use zz\Html\HTMLMinify;
 
 ini_set('max_execution_time', 300);
 
-$pdf = new mPDF();
-
+// Write to the session now so we can check pdf completion status
 session_start();
-$title = $_POST['context_title'];
+$_SESSION['pdf_generated'] = false;
 session_write_close();
 
-$html = HTMLMinify::minify($_POST['result_html']);
+$title = filter_input(INPUT_POST, 'context_title', FILTER_SANITIZE_STRING);
+$result_html = filter_input(INPUT_POST, 'result_html', FILTER_UNSAFE_RAW);
 
+// Write the pdf
+$pdf = new mPDF();
+$html = HTMLMinify::minify($result_html);
 $pdf->SetHeader("Scanned on ".date("m/d/Y")." at ".date("g:i a"));
 $pdf->SetFooter("Page {PAGENO} / {nb}");
-
 $pdf->WriteHTML('<link rel="stylesheet" href="assets/css/pdf.css" type="text/css">', 1);
 $pdf->WriteHTML($html, 2);
-
 $pdf->Output($title.'_'.date("Y-m-d_g:i-a").'.pdf', 'D');
 
+// mark pdf generation as complete
 session_start();
 $_SESSION['pdf_generated'] = true;
-session_write_close();
-
-exit();

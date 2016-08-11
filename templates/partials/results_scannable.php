@@ -50,12 +50,12 @@
 					<?php
 					if ( ! empty($item->error)) {
 						$args = ['title' => 'Errors', 'panel_style' => 'panel-danger', 'id' => $item->id, 'items' => $item->error, 'fixable_types' => $fixable_error_types, 'content_group' => $content_group->title];
-						echo $this->fetch('partials/results_items', $args);
+						echo($this->fetch('partials/results_items', $args));
 					}
 
 					if ( ! empty ($item->suggestion)) {
 						$args = ['title' => 'Suggestions', 'panel_style' => 'panel-info', 'id' => $item->id, 'items' => $item->suggestion, 'fixable_types' => $fixable_suggestions, 'content_group' => $content_group->title];
-						echo $this->fetch('partials/results_items', $args);
+						echo($this->fetch('partials/results_items', $args));
 					}
 					?>
 				</div>

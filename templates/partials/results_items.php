@@ -138,8 +138,8 @@
 													break;
 											}
 
-											if ( ! empty($result_template)){
-												echo $this->fetch("partials/result_item/{$result_template}", ['group_item' => $group_item]);
+											if ( ! empty($result_template)) {
+												echo($this->fetch("partials/result_item/{$result_template}", ['group_item' => $group_item]));
 											}
 										?>
 									</form>

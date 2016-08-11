@@ -1132,7 +1132,7 @@
             "title": "syllabus",
             "items": [
                 {
-                    "id": 0000000,
+                    "id": "0000000",
                     "name": "Syllabus",
                     "url": "https://fake.com/courses/0000000/assignments/syllabus",
                     "amount": 18,
