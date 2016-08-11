@@ -3,7 +3,7 @@ Use the button below to quick start your deploy.
 
 [![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy)
 
-## Deploy on Heroku
+## Manual Deploy on Heroku
 1. `git clone git@github.com:ucfcdl/UDOIT.git` to grab a copy of the git repo
 2. `heroku create` will set up a Heroku project
 3. `heroku addons:create heroku-postgresql:hobby-dev` add a database addon
