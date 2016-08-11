@@ -43,10 +43,10 @@
 					echo $this->fetch('partials/results_scannable', ['content_group' => $group, 'fixable_error_types' => $fixable_error_types, 'fixable_suggestions' => $fixable_suggestions]);
 					break;
 				case "module_urls":
-					echo $this->fetch('partials/results_module_urls', ['content_group' => $group]);
+					echo($this->fetch('partials/results_module_urls', ['items' => $group->items]));
 					break;
 				case "unscannable":
-					echo $this->fetch('partials/results_unscannable', ['content_group' => $group]);
+					echo($this->fetch('partials/results_unscannable', ['items' => $group->items]));
 					break;
 			}
 		}
