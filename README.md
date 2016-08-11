@@ -66,6 +66,8 @@ Make sure the `reports` directory in the root of UDOIT is *writable by your webs
 There are only two tables required to run UDOIT.  They are:
 
 ### Reports Table
+The MySQL tables are shown below. PostgreSQL table definitions can be found in the [Heroku Install Instructions](HEROKU.md)
+
 
 ```sql
 /* mysql */
@@ -81,20 +83,6 @@ CREATE TABLE `reports` (
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 ```
 
-```sql
-/* postgresql */
-CREATE TABLE reports (
-  id SERIAL PRIMARY KEY,
-  user_id integer,
-  course_id integer,
-  file_path text,
-  date_run bigint,
-  errors integer,
-  suggestions integer
-);
-```
-
-
 ### Users Table
 
 ```sql
@@ -106,15 +94,6 @@ CREATE TABLE `users` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `id` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
-```
-
-```sql
-/* postgresql */
-CREATE TABLE users (
-  id integer CONSTRAINT users_pk PRIMARY KEY,
-  api_key varchar(255),
-  date_created integer
-);
 ```
 
 
@@ -151,6 +130,17 @@ These value of these vars should be obvious:
 4. In the _Shared Secret_ field, copy the value from `$shared_secret` in your config file 
 5. In the _Config URL_ field, input the URL that points to *udoit.xml.php*.
 6. Click _Submit_.
+
+## Developing and Testing
+
+For quick local development, set `$UDOIT_ENV = ENV_DEV;` in your `localConfig.php`.  This disables authentication and allows you to quickly see a sample test report for most template, js, and css development.
+
+### Running Tests
+We use phpunit to run unit tests on UDOIT.  To run the tests, type the following command:
+
+```
+$ ./vendor/phpunit/phpunit/phpunit
+```
 
 ## Contributors
 * [Jacob Bates](https://github.com/bagofarms)
