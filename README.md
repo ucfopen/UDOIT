@@ -133,7 +133,17 @@ These value of these vars should be obvious:
 
 ## Developing and Testing
 
-For quick local development, set `$UDOIT_ENV = ENV_DEV;` in your `localConfig.php`.  This disables authentication and allows you to quickly see a sample test report for most template, js, and css development.
+For quick local development, set `$UDOIT_ENV = ENV_DEV;` in your `localConfig.php`.  This flag disables authentication and allows you to quickly see a sample test report for most template, js, and css development. Use this along with the quick dev server below.
+
+### Quick Dev Server
+
+From the public directory, run:
+
+```
+$ php -S localhost:8000
+```
+
+Then open [http://localhost:8000 in a browser](http://localhost:8000).
 
 ### Running Tests
 We use phpunit to run unit tests on UDOIT.  To run the tests, type the following command:
