@@ -25,7 +25,7 @@ $udoit_tests = [
             'title'     => 'No Alternative Text found',
             'desc'      => '<p>Alternative Text (Alt Text) is an alternative (non-visual) way to describe the meaning of an image. Please provide a brief (under 100 characters) description of the image for a <a href="http://en.wikipedia.org/wiki/Screen_reader">screen reader</a> user. Note: It should not be the image file name.</p>',
             'resources' => [
-                '<a href="http://teach.ucf.edu/resources/document-formatting-guidelines/images/#about">Resource on Alternative Text</a>',
+                '<a href="http://ctl.mesacc.edu/teaching/accessibility/#images">Resource on Alternative Text</a>',
                 'WCAG Standard: <a href="http://www.w3.org/TR/WCAG20/#text-equiv-all">1.1.1</a>',
             ],
             'example'   => '
@@ -40,7 +40,7 @@ $udoit_tests = [
             'title'     => 'Alternative Text should not be the image filename',
             'desc'      => '<p>Alternative Text (Alt Text) is an alternative (non-visual) way to describe the meaning of an image. Please provide a brief (under 100 characters) description of the image for a <a href="http://en.wikipedia.org/wiki/Screen_reader">screen reader</a> user. Note: It should not be the image file name.</p>',
             'resources' => [
-                '<a href="http://teach.ucf.edu/resources/document-formatting-guidelines/images/#about">Resource on Alternative Text</a>',
+                '<a href="http://ctl.mesacc.edu/teaching/accessibility/#images">Resource on Alternative Text</a>',
                 'WCAG Standard: <a href="http://www.w3.org/TR/WCAG20/#text-equiv-all">1.1.1</a>',
             ],
             'example'   => '
@@ -57,7 +57,7 @@ $udoit_tests = [
             'title'     => 'Alternative Text is more than 100 characters',
             'desc'      => '<p>Alternative Text (Alt Text) is an alternative (non-visual) way to describe the meaning of an image. Please provide a brief (under 100 characters) description of the image for a <a href="http://en.wikipedia.org/wiki/Screen_reader">screen reader</a> user. Note: It should not be the image file name.</p>',
             'resources' => [
-                '<a href="http://teach.ucf.edu/resources/document-formatting-guidelines/images/#about">Resource on Alternative Text</a>',
+                '<a href="http://ctl.mesacc.edu/teaching/accessibility/#images">Resource on Alternative Text</a>',
                 'WCAG Standard: <a href="http://www.w3.org/TR/WCAG20/#text-equiv-all">1.1.1</a>'
             ],
             'example'   => '
@@ -72,7 +72,7 @@ $udoit_tests = [
             'title'     => 'Alt text for all img elements used as source anchors should not be empty',
             'desc'      => '<p>Alternative Text (Alt Text) is an alternative (non-visual) way to describe the meaning of an image. Please provide a brief (under 100 characters) description of the image for a <a href="http://en.wikipedia.org/wiki/Screen_reader">screen reader</a> user. Note: It should not be the image file name.</p>',
             'resources' => [
-                '<a href="http://teach.ucf.edu/resources/document-formatting-guidelines/images/#about">Resource on Alternative Text</a>',
+                '<a href="http://ctl.mesacc.edu/teaching/accessibility/#images">Resource on Alternative Text</a>',
                 'WCAG Standard: <a href="http://www.w3.org/TR/WCAG20/#text-equiv-all">1.1.1</a>'
             ],
             'example'   => '
@@ -87,7 +87,7 @@ $udoit_tests = [
             'title'     => 'No table headers found',
             'desc'      => '<p>Add a table header because it provides a description of the table structure for sighted and <a href="http://en.wikipedia.org/wiki/Screen_reader">screen reader</a> users.</p>',
             'resources' => [
-                '<a href="http://online.ucf.edu/teach-online/develop/document-formatting-guidelines/tables/">Resource Link</a>',
+                '<a href="http://ctl.mesacc.edu/teaching/accessibility/#tables">Resource Link</a>',
                 'WCAG Standard: <a href="http://www.w3.org/TR/WCAG20/#content-structure-separation-programmatic">1.3.1</a>',
             ],
             'example'   => '
@@ -102,7 +102,7 @@ $udoit_tests = [
             'title'     => 'No row or column scopes declarations found in headers of the table',
             'desc'      => '<p>Scope declarations in headers organize and define table data by row/column for sighted and <a href="http://en.wikipedia.org/wiki/Screen_reader">screen reader</a> users.</p>',
             'resources' => [
-                '<a href="http://online.ucf.edu/teach-online/develop/document-formatting-guidelines/tables/">Resource Link</a>',
+                '<a href="http://ctl.mesacc.edu/teaching/accessibility/#tables">Resource Link</a>',
                 'WCAG Standard: <a href="http://www.w3.org/TR/WCAG20-TECHS/H63.html">1.3.1</a>',
             ],
             'example'   => '
@@ -208,7 +208,7 @@ $udoit_tests = [
             'title'     => 'Consider adding headings to your document to create more structure',
             'desc'      => '<p>If appropriate, add headings to the page to organize the content for sighted and <a href="http://en.wikipedia.org/wiki/Screen_reader">screen reader</a> users. The headings should represent an accurate outline of the content</p>',
             'resources' => [
-                '<a href="http://online.ucf.edu/teach-online/develop/document-formatting-guidelines/headings/">Resource Link</a>',
+                '<a href="http://ctl.mesacc.edu/teaching/accessibility/#semantics">Resource Link</a>',
                 'WCAG standard <a href="http://www.w3.org/TR/WCAG20/#content-structure-separation-programmatic">1.3.1</a> and <a href="http://www.w3.org/TR/WCAG20/#content-structure-separation-sequence">1.3.2</a>',
             ],
             'example'   => '',
