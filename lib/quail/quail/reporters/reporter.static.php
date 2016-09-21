@@ -76,7 +76,7 @@ class reportStatic extends quailReporter
 									$styleValue = $name->value;
 									$hexColors  = [];
 
-									preg_match_all("/(#[0-9a-f]{6}|#[0-9a-f]{3})/", $styleValue, $hexColors);
+									$matchCount = preg_match_all("/(#[0-9a-f]{6}|#[0-9a-f]{3})/", $styleValue, $hexColors);
 
 									$hexColors = array_unique($hexColors[0]);
 								}
@@ -87,8 +87,10 @@ class reportStatic extends quailReporter
 							if ( sizeof($hexColors) === 1 ) {
 								$testResult['fore_color'] = $hexColors[0];
 							} else {
-								$testResult['back_color'] = $hexColors[0];
-								$testResult['fore_color'] = $hexColors[1];
+								if($matchCount){
+									$testResult['back_color'] = $hexColors[0];
+									$testResult['fore_color'] = $hexColors[1];
+								}
 							}
 						}
 

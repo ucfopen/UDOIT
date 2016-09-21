@@ -1190,8 +1190,8 @@ class cssTextHasContrast extends quailColorTest
 				$bold = false;
 
 				if (isset($style['font-size'])) {
-					preg_match_all('!\d+!', $style['font-size'], $matches);
-					$font_size = $matches[0][0];
+					$matchCount = preg_match_all('!\d+!', $style['font-size'], $matches);
+					if($matchCount){$font_size = $matches[0][0];}
 				}
 
 				if (isset($style['font-weight'])) {
@@ -1279,8 +1279,8 @@ class cssTextStyleEmphasize extends quailColorTest
 				$bold = false;
 
 				if (isset($style['font-size'])) {
-					preg_match_all('!\d+!', $style['font-size'], $matches);
-					$font_size = $matches[0][0];
+					$matchCount = preg_match_all('!\d+!', $style['font-size'], $matches);
+					if($matchCount){$font_size = $matches[0][0];}
 				}
 
 				if (isset($style['font-weight'])) {
