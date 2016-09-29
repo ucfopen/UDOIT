@@ -20,6 +20,8 @@
 require_once('../config/settings.php');
 require_once('../lib/utils.php');
 
+$get_input = filter_input_array(INPUT_GET, FILTER_SANITIZE_STRING); // Sanitize $_GET global
+
 if (isset($get_input['error'])) {
 	Utils::exitWithPageError('Authentication problem:  Access Denied.');
 }
@@ -28,8 +30,7 @@ if (isset($get_input['code'])) {
 	session_start();
 
 	$base_url  = $_SESSION['base_url'];
-	$get_input = filter_input_array(INPUT_GET, FILTER_SANITIZE_STRING); // Sanitize $_GET global
-	$response  = Utils::authorize_new_api_key($oauth2_id, $oauth2_uri, $oauth2_key, $base_url, $get_input['code'])
+	$response  = Utils::authorize_new_api_key($oauth2_id, $oauth2_uri, $oauth2_key, $base_url, $get_input['code']);
 
 	// It should have access_token and refresh_token
 	if ( ! isset($response->access_token) || ! isset($response->refresh_token)) {

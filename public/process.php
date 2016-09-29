@@ -47,7 +47,7 @@ switch ($main_action) {
             exit();
         }
 
-        $content = filter_input(INPUT_POST, 'add-content', FILTER_SANITIZE_STRING);
+        $content = filter_input(INPUT_POST, 'content', FILTER_DEFAULT, FILTER_REQUIRE_ARRAY);
 
         // No content selected
         if ($content == 'none') {
@@ -64,7 +64,7 @@ switch ($main_action) {
         $title = filter_input(INPUT_POST, 'context_title', FILTER_SANITIZE_STRING);
         $udoit = new Udoit($data);
         $udoit->buildReport();
-        $udoit->saveReport($title, "../reports/{$user_id}");
+        $file = $udoit->saveReport($title, "../reports/{$user_id}");
 
         $dbh = include('../lib/db.php');
 
@@ -87,24 +87,23 @@ switch ($main_action) {
             Utils::exitWithPartialError('Error inserting report into database');
         }
 
-        $udoit_report = json_decode($encoded_report);
-
+        $udoit_report = json_decode($udoit->getReport());
         require 'parseResults.php';
         break;
 
     case 'ufixit':
-        $error_color = filter_input(INPUT_POST, 'errorcolor', FILTER_SANITIZE_STRING);
+        $error_color = filter_input(INPUT_POST, 'errorcolor', FILTER_SANITIZE_STRING, FILTER_REQUIRE_ARRAY);
         $add_bold = filter_input(INPUT_POST, 'add-bold', FILTER_SANITIZE_STRING);
         $add_italic = filter_input(INPUT_POST, 'add-italic', FILTER_SANITIZE_STRING);
 
         $data = [
             'base_uri'     => $base_url,
-            'content_id'   => filter_input(INPUT_POST, 'contentid', FILTER_SANITIZE_NUMBER_INT),
+            'content_id'   => filter_input(INPUT_POST, 'contentid', FILTER_SANITIZE_STRING),
             'content_type' => filter_input(INPUT_POST, 'contenttype', FILTER_SANITIZE_STRING),
-            'error_html'   => htmlspecialchars_decode(filter_input(INPUT_POST, 'errorhtml', FILTER_SANITIZE_STRING)),
+            'error_html'   => htmlspecialchars_decode(filter_input(INPUT_POST, 'errorhtml', FILTER_SANITIZE_FULL_SPECIAL_CHARS)),
             'error_colors' => empty($error_color) ? '' : $error_color,
             'error_type'   => filter_input(INPUT_POST, 'errortype', FILTER_SANITIZE_STRING),
-            'new_content'  => filter_input(INPUT_POST, 'newcontent', FILTER_SANITIZE_STRING),
+            'new_content'  => filter_input(INPUT_POST, 'newcontent', FILTER_SANITIZE_STRING, FILTER_REQUIRE_ARRAY),
             'bold'         => empty($add_bold) ? '' : $add_bold,
             'italic'       => empty($add_italic) ? '' : $add_italic,
             'course_id'    => filter_input(INPUT_POST, 'course_id', FILTER_SANITIZE_NUMBER_INT),

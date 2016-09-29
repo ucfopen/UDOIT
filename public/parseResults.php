@@ -1,4 +1,4 @@
- <?php
+<?php
 /**
 *	Copyright (C) 2014 University of Central Florida, created by Jacob Bates, Eric Colon, Fenel Joseph, and Emily Sachs.
 *
@@ -21,6 +21,7 @@ require_once('../config/settings.php');
 require_once('../lib/utils.php');
 
 $post_input = filter_input_array(INPUT_POST, FILTER_SANITIZE_STRING); // Sanitize $_POST global
+
 if ( ! isset($post_input['path'])) {
 	$post_input['path'] = '';
 }
@@ -63,7 +64,6 @@ if (isset($post_input['cached_id'])) {
 } elseif ($post_input['main_action'] === "cached") {
 	Utils::exitWithPartialError('Cannot parse this report. JSON file not found.');
 }
-
 $issue_count = 0;
 
 $results = [

@@ -592,15 +592,24 @@ class Ufixit
      */
     public function uploadFixedPages($corrected_error, $error_html)
     {
-        $get_uri = $this->base_uri."/api/v1/courses/".$this->course_id."/pages/".$this->content_id."?access_token=".$this->api_key;
-        $content = Request::get($get_uri)->send();
-        $html    = html_entity_decode($content->body->body);
+        // get the current page content
+        $get_uri = "{$this->base_uri}/api/v1/courses/{$this->course_id}/pages/{$this->content_id}?access_token={$this->api_key}";
+        $page_resp = Request::get($get_uri)->send();
+        if($page_resp->hasErrors() || ! $page_resp->hasBody())
+        {
+            throw new \Exception("Error getting page to update: course: {$this->course_id} page: {$this->content_id}");
+        }
 
-        $html    = $this->replaceContent($html, $error_html, $corrected_error);
+        // update the page content
+        $html     = html_entity_decode($page_resp->body->body);
+        $html     = $this->replaceContent($html, $error_html, $corrected_error);
+        $put_uri  = "{$this->base_uri}/api/v1/courses/{$this->course_id}/pages/{$this->content_id}?&access_token={$this->api_key}";
+        $put_resp = Request::put($put_uri)->body(['wiki_page[body]' => $html])->sendsType(\Httpful\Mime::FORM)->send();
 
-        $put_uri = $this->base_uri."/api/v1/courses/".$this->course_id."/pages/".$this->content_id."?&access_token=".$this->api_key;
-
-        Request::put($put_uri)->body(['wiki_page[body]' => $html])->sendsType(\Httpful\Mime::FORM)->send();
+        if($put_resp->hasErrors() || ! $put_resp->hasBody())
+        {
+            throw new \Exception("Error updating: course: {$this->course_id} page: {$this->content_id}");
+        }
     }
 
     /**

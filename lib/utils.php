@@ -68,6 +68,7 @@ class Utils
     }
 
     public static function validate_api_key($user_id, $base_url, $api_key) {
+        global $UDOIT_ENV;
         // return false for testing
         if ($UDOIT_ENV !== ENV_PROD) return false;
 
@@ -79,6 +80,7 @@ class Utils
     }
 
     public static function refresh_api_key($o2_id, $o2_uri, $o2_key, $base_url, $refresh_token) {
+        global $UDOIT_ENV;
         if ($UDOIT_ENV !== ENV_PROD) return "test-token"; // return false for testing
 
         $postdata = [
@@ -89,7 +91,7 @@ class Utils
             'refresh_token' => $refresh_token
         ];
 
-        $json_result = static::curl_oath_token($postdata);
+        $json_result = static::curl_oath_token($base_url, $postdata);
 
         return isset($json_result->access_token) ? $json_result->access_token : false;
     }
@@ -104,6 +106,6 @@ class Utils
             'code'          => $code
         ];
 
-        return static::curl_oath_token($postdata);
+        return static::curl_oath_token($base_url, $postdata);
     }
 }

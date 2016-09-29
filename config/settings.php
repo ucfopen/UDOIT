@@ -24,6 +24,13 @@ ini_set("display_errors", ($UDOIT_ENV == ENV_PROD ? 0 : 1));
 require_once(__DIR__.'/../vendor/autoload.php');
 require_once('tests.php');
 
+$logger = new \Monolog\Logger('udoit');
+$logger->pushHandler(new \Monolog\Handler\StreamHandler(__DIR__.'/log.log', \Monolog\Logger::DEBUG));
+\Monolog\ErrorHandler::register($logger);
+
+// to log to the output file
+//$logger->addInfo('this is a test');
+
 /* Prevent Caching */
 header("Cache-Control: no-cache, no-store, must-revalidate"); // HTTP 1.1.
 header("Pragma: no-cache"); // HTTP 1.0.

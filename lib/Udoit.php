@@ -17,7 +17,7 @@
 *
 *   Primary Author Contact:  Jacob Bates <jacob.bates@ucf.edu>
 */
-require_once('../vendor/autoload.php');
+require_once('../config/settings.php');
 require_once('quail/quail/quail.php');
 
 use Httpful\Request;
@@ -68,6 +68,12 @@ class Udoit {
      */
     public $unscannable;
 
+
+    /**
+     * @var string - stringified json report
+     */
+    protected $json_report;
+
     /**
      * The class constructor
      * @param array data - An array of POST data
@@ -93,7 +99,6 @@ class Udoit {
             session_write_close();
 
             $typeResults = [];
-
             $courseContentType = $this->getCourseContent($type);
 
             foreach ($courseContentType['items'] as $r) {
@@ -144,6 +149,15 @@ class Udoit {
         session_start();
         $_SESSION['build_report_progress'] = 'done';
         session_write_close();
+
+        $to_encode = [
+            'course'        => $title,
+            'total_results' => $this->total_results,
+            'content'       => $this->bad_content,
+        ];
+
+        $this->json_report = json_encode($to_encode);
+
     }
 
     /**
@@ -191,13 +205,13 @@ class Udoit {
             }
 
             $content_report[] = [
-	            'id'         => $html['id'],
-	            'name'       => $html['title'],
-	            'url'        => $html['url'],
-	            'amount'     => $error_count,
-	            'error'      => $severe,
-	            'warning'    => $warning,
-	            'suggestion' => $suggestion,
+                'id'         => $html['id'],
+                'name'       => $html['title'],
+                'url'        => $html['url'],
+                'amount'     => $error_count,
+                'error'      => $severe,
+                'warning'    => $warning,
+                'suggestion' => $suggestion,
             ];
         }
 
@@ -446,6 +460,14 @@ class Udoit {
     }
 
     /**
+     * Gets a copy of the json report
+     * @return string - Stringified json report
+     */
+    public function getReport() {
+        return $this->json_report;
+   }
+
+    /**
      * Saves the report in json format to a file
      * @param  string $title        - The title of the report
      * @param  string $reports_dir  - Base path of the reports directory
@@ -461,15 +483,9 @@ class Udoit {
             chmod($reports_dir, 0755);
         }
 
-        $to_encode = [
-            'course'        => $title,
-            'total_results' => $this->total_results,
-            'content'       => $this->bad_content,
-        ];
-
-        $encoded_report = json_encode($to_encode);
-
-        file_put_contents("{$final_path}/{$file_name}", $encoded_report);
+    $file = "{$final_path}/{$file_name}";
+        file_put_contents($file, $this->json_report);
         chmod($file, 0755);
+        return $file;
     }
 }

@@ -243,7 +243,7 @@ $doc.ready(function() {
 					}
 				}
 			});
-		}, 500);
+		}, 1000);
 
 		checker();
 
@@ -473,7 +473,7 @@ $doc.ready(function() {
 					}
 				}
 			});
-		}, 100);
+		}, 1000);
 
 	});
 	// END clicking the save pdf button
