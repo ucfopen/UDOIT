@@ -93,8 +93,6 @@ switch ($main_action) {
 
     case 'ufixit':
         $error_color = filter_input(INPUT_POST, 'errorcolor', FILTER_SANITIZE_STRING, FILTER_REQUIRE_ARRAY);
-        $add_bold = filter_input(INPUT_POST, 'add-bold', FILTER_SANITIZE_STRING);
-        $add_italic = filter_input(INPUT_POST, 'add-italic', FILTER_SANITIZE_STRING);
 
         $data = [
             'base_uri'     => $base_url,
@@ -103,12 +101,12 @@ switch ($main_action) {
             'error_html'   => htmlspecialchars_decode(filter_input(INPUT_POST, 'errorhtml', FILTER_SANITIZE_FULL_SPECIAL_CHARS)),
             'error_colors' => empty($error_color) ? '' : $error_color,
             'error_type'   => filter_input(INPUT_POST, 'errortype', FILTER_SANITIZE_STRING),
-            'new_content'  => filter_input(INPUT_POST, 'newcontent', FILTER_SANITIZE_STRING, FILTER_REQUIRE_ARRAY),
-            'bold'         => empty($add_bold) ? '' : $add_bold,
-            'italic'       => empty($add_italic) ? '' : $add_italic,
+            'bold'         => (filter_input(INPUT_POST, 'add-bold', FILTER_SANITIZE_STRING) == 'bold');
+            'italic'       => (filter_input(INPUT_POST, 'add-italic', FILTER_SANITIZE_STRING) == 'italic');
             'course_id'    => filter_input(INPUT_POST, 'course_id', FILTER_SANITIZE_NUMBER_INT),
             'api_key'      => $api_key
         ];
+
 
         $ufixit = new Ufixit($data);
 
@@ -122,33 +120,35 @@ switch ($main_action) {
             }
         }
 
-        $submitting_again = false;
-
         // fixes content based on what the error is
         switch ($data['error_type']) {
             case 'aMustContainText':
             case 'aSuspiciousLinkText':
             case 'aLinkTextDoesNotBeginWithRedundantWord':
-                $corrected_error = $ufixit->fixLink($data['error_html'], $data['new_content'], $submitting_again);
+                $new_content = filter_input(INPUT_POST, 'newcontent', FILTER_SANITIZE_STRING);
+                $corrected_error = $ufixit->fixLink($data['error_html'], $new_content);
                 break;
 
             case 'cssTextHasContrast':
-                $corrected_error = $ufixit->fixCssColor($data['error_colors'], $data['error_html'], $data['new_content'], ($data['bold'] == 'bold')? true: false, ($data['italic'] == 'italic')? true: false, $submitting_again);
+                $new_content_array  = filter_input(INPUT_POST, 'newcontent', FILTER_SANITIZE_STRING, FILTER_REQUIRE_ARRAY);
+                $corrected_error = $ufixit->fixCssColor($data['error_colors'], $data['error_html'], $new_content_array, $data['bold'], $data['italic']);
                 break;
 
             case 'cssTextStyleEmphasize':
-                $corrected_error = $ufixit->fixCssEmphasize($data['error_html'], $data['new_content'], ($data['bold'] == 'bold')? true: false, ($data['italic'] == 'italic')? true: false, $submitting_again);
+                $corrected_error = $ufixit->fixCssEmphasize($data['error_html'], $data['bold'], $data['italic']);
                 break;
 
             case 'headersHaveText':
-                $corrected_error = $ufixit->fixHeading($data['error_html'], $data['new_content'], $submitting_again);
+                $new_content = filter_input(INPUT_POST, 'newcontent', FILTER_SANITIZE_STRING);
+                $corrected_error = $ufixit->fixHeading($data['error_html'], $new_content);
                 break;
 
             case 'imgHasAlt':
             case 'imgNonDecorativeHasAlt':
             case 'imgAltIsDifferent':
             case 'imgAltIsTooLong':
-                $corrected_error = $ufixit->fixAltText($data['error_html'], $data['new_content'], $submitting_again);
+                $new_content = filter_input(INPUT_POST, 'newcontent', FILTER_SANITIZE_STRING);
+                $corrected_error = $ufixit->fixAltText($data['error_html'], $new_content);
 
                 $remove_attr = preg_replace("/ data-api-endpoint.*$/s", "", $data['error_html']);
                 $data['error_html'] = $remove_attr;
@@ -156,13 +156,15 @@ switch ($main_action) {
 
             case 'tableDataShouldHaveTh':
                 // fixing table headers is a special case...
-                $corrected_error    = $ufixit->fixTableHeaders($data['error_html'], $data['new_content'], $submitting_again);
+                $new_content = filter_input(INPUT_POST, 'newcontent', FILTER_SANITIZE_STRING);
+                $corrected_error    = $ufixit->fixTableHeaders($data['error_html'], $new_content);
                 $data['error_html'] = $corrected_error['old'];
                 $corrected_error    = $corrected_error['fixed'];
                 break;
 
             case 'tableThShouldHaveScope':
-                $corrected_error = $ufixit->fixTableThScopes($data['error_html'], $data['new_content'], $submitting_again);
+                $new_content = filter_input(INPUT_POST, 'newcontent', FILTER_SANITIZE_STRING);
+                $corrected_error = $ufixit->fixTableThScopes($data['error_html'], $data['new_content']);
                 break;
         }
 

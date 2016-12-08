@@ -19,11 +19,6 @@
 */
 ?>
 <div>
-	<?php if ( isset($group_item->back_color) ): ?>
-		<input class="hidden back-color" type="text" name="newcontent[1]" value="<?= $group_item->back_color; ?>">
-	<?php endif; ?>
-	<input class="hidden fore-color" type="text" name="newcontent[0]" value="<?= $group_item->fore_color; ?>">
-
 	<label><input name="add-bold" type="checkbox" value="bold" />&nbsp;Make this text <span style="font-weight: 900;">bold</span></label>
 	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 	<label><input name="add-italic" type="checkbox" value="italic" />&nbsp;Make this text <span style="font-style: italic;">italicized</span></label>
