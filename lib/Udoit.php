@@ -282,7 +282,7 @@ class Udoit {
                 break;
 
             case 'files':
-                $url = "$this->base_uri}/api/v1/courses/{$this->course_id}/files?page=1&per_page={$per_page}&access_token={$this->api_key}";
+                $url = "{$this->base_uri}/api/v1/courses/{$this->course_id}/files?page=1&per_page={$per_page}&access_token={$this->api_key}";
 
                 do {
                     $response  = Request::get($url)->send();
@@ -371,26 +371,27 @@ class Udoit {
                     break;
 
                 case 'files':
-                    $extension = pathinfo($single->filename, PATHINFO_EXTENSION);
                     // ignore ._ mac files
-                    $mac_check = substr($single->display_name, 0, 2);
-                    if ($mac_check !== '._') {
-                        // filters non html files
-                        if ($extension !== 'html' && $extension !== 'htm') {
-                            if ($extension === 'pdf' || $extension === 'doc' || $extension === 'docx' || $extension === 'ppt' || $extension === 'pptx') {
-                                $content_result['unscannable'][] = [
-                                    'title' => $single->display_name,
-                                    'url'   => $single->url
-                                ];
-                            }
-                        } else {
-                            $content_result['items'][] = [
-                                'id'      => $single->id,
-                                'content' => Request::get($single->url)->followRedirects()->expectsHtml()->send()->body,
-                                'title'   => $single->display_name,
-                                'url'     => $single->url
-                            ];
-                        }
+                    if (substr($single->display_name, 0, 2) == '._') {
+                        break;
+                    }
+
+                    $extension = pathinfo($single->filename, PATHINFO_EXTENSION);
+
+                    if (in_array($extension, ['html', 'htm'])) {
+                        $content_result['items'][] = [
+                            'id'      => $single->id,
+                            'content' => Request::get($single->url)->followRedirects()->expectsHtml()->send()->body,
+                            'title'   => $single->display_name,
+                            'url'     => $single->url
+                        ];
+                    }
+                    // filters non html files
+                    if (in_array($extension, ['pdf', 'doc', 'docx', 'ppt', 'pptx'])){
+                        $content_result['unscannable'][] = [
+                            'title' => $single->display_name,
+                            'url'   => $single->url
+                        ];
                     }
                     break;
 

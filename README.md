@@ -139,7 +139,7 @@ Log into Canvas to add UDOIT:
 2. In the **Name** field, enter `UDOIT`.
 3. In the **Consumer Key** field, copy the value from `$consumer_key` from `config/localConfig.php`
 4. In the **Shared Secret** field, copy the value from `$shared_secret` from `config/localConfig.php`
-5. In the **Config URL** field, paste the **FULL URL** that points to `udoit.xml.php`. **See LTI Config URL Notes below**.
+5. In the **Config URL** field, paste the **FULL URL** that points to `udoit.xml.php`. **See** LTI Config URL Notes.
 6. Finish by clicking **Submit**.
 
 ### LTI Config URL Notes
