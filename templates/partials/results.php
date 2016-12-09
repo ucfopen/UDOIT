@@ -40,13 +40,13 @@
 				case "files":
 				case "pages":
 				case "syllabus":
-					echo($this->fetch('partials/results_scannable', ['content_group' => $group, 'fixable_error_types' => $fixable_error_types, 'fixable_suggestions' => $fixable_suggestions]));
+					echo($this->fetch('partials/results_scannable', ['content_group' => $group, 'fixable_error_types' => $fixable_error_types, 'fixable_suggestions' => $fixable_suggestions, 'time' => $group->time, 'out_of_items' => $group->amount]));
 					break;
 				case "module_urls":
-					echo($this->fetch('partials/results_module_urls', ['items' => $group->items]));
+					echo($this->fetch('partials/results_module_urls', ['items' => $group->items, 'time' => $group->time, 'out_of_items' => $group->amount]));
 					break;
 				case "unscannable":
-					echo($this->fetch('partials/results_unscannable', ['items' => $group->items]));
+					echo($this->fetch('partials/results_unscannable', ['items' => $group->items, 'out_of_items' => $group->amount]));
 					break;
 			}
 		}

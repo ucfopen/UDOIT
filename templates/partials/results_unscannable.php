@@ -18,7 +18,7 @@
 *	Primary Author Contact:  Jacob Bates <jacob.bates@ucf.edu>
 */
 ?>
-<h2 class="content-title">Unscannable <small><?= count($items); ?> files</small></h2>
+<h2 class="content-title">Unscannable <small><?= $out_of_items; ?> files</small></h2>
 
 <div class="errorItem panel panel-default">
 	<div class="panel-heading clearfix">

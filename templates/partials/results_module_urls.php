@@ -18,7 +18,7 @@
 *	Primary Author Contact:  Jacob Bates <jacob.bates@ucf.edu>
 */
 ?>
-<h2 class="content-title">Module URLs <small><?= count($items); ?> with issues from <?= $module_count; ?> total in <?= $time; ?> seconds</small></h2>
+<h2 class="content-title">Module URLs <small> <b><?= count($items); ?><b> of <?= $out_of_items; ?> have issues.</small> <span class="proc-time">process time: <?= $time; ?>s</span></h2>
 
 <?php if (!$items): ?>
 	<div class="alert alert-success"><span class="glyphicon glyphicon-ok"></span> No problems were detected for this type of content!</div>

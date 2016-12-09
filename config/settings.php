@@ -29,6 +29,7 @@ $logger->pushHandler(new \Monolog\Handler\StreamHandler(__DIR__.'/log.log', \Mon
 \Monolog\ErrorHandler::register($logger);
 
 // to log to the output file
+// global $logger;
 //$logger->addInfo('this is a test');
 
 /* Prevent Caching */
