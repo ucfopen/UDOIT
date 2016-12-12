@@ -1,7 +1,7 @@
 <?php
 
-require_once('../config/settings.php');
-$dbh = include('db.php');
+require_once(__DIR__.'/../config/settings.php');
+$dbh = include(__DIR__.'/db.php');
 
 if ($db_type == 'pgsql'){
     // POSTGRESQL
