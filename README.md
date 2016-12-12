@@ -70,7 +70,11 @@ UDOIT works with MySQL, MariaDB, or PostgreSQL
 2. Create a user with access to your database
 
 ### Database Config
-If `config/localConfig.php` doesn't exist, copy `config/localConfig.template.php` to `config/localConfig.php`.
+If `config/localConfig.php` doesn't exist, create it using a copy of the template:
+
+```
+$ cp config/localConfig.template.php config/localConfig.php
+```
 
 Edit `config/localConfig.php`:
 
@@ -95,10 +99,6 @@ The table schema can be found in [lib/db_create_tables.php](lib/db_create_tables
 
 ## Configuration and Setup
 If you didn't already make `config/localConfig.php` when you set up the database do it now.
-
-```
-$ cp config/localConfig.template.php config/localConfig.php
-```
 
 ### Canvas API
 Please refer to the [Canvas API Policy](http://www.canvaslms.com/policies/api-policy) before using this application, as it makes heavy use of the Canvas API.
