@@ -23,33 +23,17 @@ Set Heroku config variables using `heroku config:set VAR=value1`
 * `USE_HEROKU_CONFIG` - set to `true` to enable the Heroku configuration
 
 ## Create Database Tables
-You'll need to have postgresql installed on your own system to connect to the Heroku postgresql database.
+The Heroku install process should create the tables for you.
+
+If you need to check that the tables exist, you can connect to postgres using some convenient heroku functions. You'll need to have **postgresql installed on your own system** to do the following commands.
 
 * `heroku pg:psql` will open a psql connection to the remote Heroku database
-* copy and paste the postgresql table schemeas for the users and reports table into the prompt
 * `\dt` will show you a list of the tables you just created
+* `\d reports` and `\d users` should describe the tables
+* `Select * from users;` or `Select * from reports;` will show you their contents
 * `\q` quits the psql terminal
 
-```sql
-/* postgresql */
-CREATE TABLE reports (
-  id SERIAL PRIMARY KEY,
-  user_id integer,
-  course_id integer,
-  file_path text,
-  date_run timestamp with time zone,
-  errors integer,
-  suggestions integer
-);
-```
+If needed, you can manually run the table creation script: `heroku run php lib/db_create_tables.php`
 
-### Users Table
-
-```sql
-/* postgresql */
-CREATE TABLE users (
-  id integer CONSTRAINT users_pk PRIMARY KEY,
-  api_key varchar(255),
-  date_created integer
-);
-```
+## Table Schema
+The table schema can be found in [lib/db_create_tables.php](lib/db_create_tables.php)
