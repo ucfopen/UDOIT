@@ -87,7 +87,7 @@ if ($must_refresh_api_key) {
 	if ($result = $sth->fetchObject()) {
 		$_SESSION['refresh_token'] = $result->api_key;
 
-		$token = Utils::refresh_api_key($oatuh2_id, $oauth2_uri, $oauth2_key, $base_url, $_SESSION['refresh_token']);
+		$token = Utils::refresh_api_key($oauth2_id, $oauth2_uri, $oauth2_key, $base_url, $_SESSION['refresh_token']);
 
 		if ($token) {
 			$_SESSION['api_key'] = $token;
