@@ -31,7 +31,7 @@ UDOIT uses the [QUAIL PHP library](https://code.google.com/p/quail-lib/), which 
 # Installing UDOIT
 UDOIT can be installed on your own existing servers, but we've also configured an easy install to a free Heroku server.
 
-Heroku instructions can be found in [HEROKU.md](HEROKU.md).
+Heroku instructions can be found in the [HEROKU.md Readme](HEROKU.md).
 
 ## System Requirements
 * Apache or Nginx webserver
@@ -60,50 +60,47 @@ The libraries (other then Quail) that we rely on can be found in `bower.json` an
 
 Please refer to the documentation for these three libraries for additional information.
 
-## Report Storage
+## Storage for Reports
 Make sure the `reports` directory in the root of UDOIT is *writable by your webserver*.  UDOIT saves generated reports here for easy retrieval.  You may have to change the user, group, or permissions to get this working (sorry we can't be more specific, it varies greatly depending on your environment).
 
-## Installing Database Tables
-There are only two tables required to run UDOIT.
+## Database Setup
+UDOIT works with MySQL, MariaDB, or PostgreSQL
 
-The **MySQL** tables are shown below. PostgreSQL table definitions can be found in the [Heroku Install Instructions](HEROKU.md)
+1. Create a database for UDOIT.  
+2. Create a user with access to your database
 
-You need to create them using the snippets below:
+### Database Config
+If `config/localConfig.php` doesn't exist, copy `config/localConfig.template.php` to `config/localConfig.php`.
 
-### Reports Table
+Edit `config/localConfig.php`:
 
-```sql
-/* MySQL - see Heroku instructions for PostgreSQL */
-CREATE TABLE `reports` (
-  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
-  `user_id` int(10) unsigned NOT NULL,
-  `course_id` int(10) unsigned NOT NULL,
-  `file_path` text NOT NULL,
-  `date_run` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  `errors` int(10) unsigned NOT NULL,
-  `suggestions` int(10) unsigned NOT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+* `$db_type` - use 'mysql' or 'pgsql'
+* `$db_host` - the host or ip address of your database server, often 'localhost'
+* `$db_port` - the database server's port, MySQL's default is '3306'
+* `$db_user` - database user that has access to your tables
+* `$db_password` - the database user's password
+* `$db_name` -  The database name that contains the tables
+* `$db_user_table` - Default is 'users', no change needed unless you change the table names
+* `$db_reports_table`: - Default is 'reports', no change needed unless you change the table names
+
+### Installing Database Tables
+
+There are only two tables required. To create them, run the creation script below.  You'll need to complete the db steps above first.
+
+```
+$ php lib/db_create_tables.php
 ```
 
-### Users Table
+The table schema can be found in [lib/db_create_tables.php](lib/db_create_tables.php)
 
-```sql
-/* MySQL - see Heroku instructions for PostgreSQL */
-CREATE TABLE `users` (
-  `id` int(10) unsigned NOT NULL,
-  `api_key` varchar(255) NOT NULL,
-  `date_created` date NOT NULL,
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `id` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+## Configuration and Setup
+If you didn't already make `config/localConfig.php` when you set up the database do it now.
+
+```
+$ cp config/localConfig.template.php config/localConfig.php
 ```
 
-
-# Configuration and Setup
-Make a copy of `config/localConfig.template.php`, rename it to `localConfig.php`.
-
-## Canvas API
+### Canvas API
 Please refer to the [Canvas API Policy](http://www.canvaslms.com/policies/api-policy) before using this application, as it makes heavy use of the Canvas API.
 
 Edit `config/localConfig.php`:
@@ -111,7 +108,7 @@ Edit `config/localConfig.php`:
 * `$consumer_key`: A consumer key you make up.  Used when installing the LTI in Canvas.
 * `$shared_secret`: The shared secret you make up.  Used when installing the LTI in Canvas.
 
-## Canvas Oauth2
+### Canvas Oauth2
 UDOIT uses Oauth2 to take actions on behalf of the user, you'll need to [sign up for a developer key](https://docs.google.com/forms/d/1C5vOpWHAAl-cltj2944-NM0w16AiCvKQFJae3euwwM8/viewform)
 
 Edit `config/localConfig.php`:
@@ -120,19 +117,7 @@ Edit `config/localConfig.php`:
 * `$oauth2_key`: The Secret Instructure gives you
 * `$oauth2_uri`: The "Oauth2 Redirect URI" you provided Instructure.  This is the URI of the `auth2response.php` file in the UDOIT directory.
 
-## Database Config
-Edit `config/localConfig.php`:
-
-* `$db_type` - default to 'mysql', also supports 'pgsql'
-* `$db_host` - the host or ip address of your database server, typically 'localhost'
-* `$db_port` - the database server's port, MySQL's default is '3306'
-* `$db_user` - database user that has access to your tables
-* `$db_password` - the database user's password
-* `$db_name` -  The database name that contains the tables
-* `$db_user_table` - Default is 'users', no change needed if you used the sql above to create your tables
-* `$db_reports_table`: - Default is 'reports', no change needed if you used the sql above to create your tables
-
-## Installing the LTI in Canvas
+### Installing the LTI in Canvas
 Log into Canvas to add UDOIT:
 
 1. Under **Configuration Type**, choose **By URL**.
@@ -142,7 +127,7 @@ Log into Canvas to add UDOIT:
 5. In the **Config URL** field, paste the **FULL URL** that points to `udoit.xml.php`. **See** LTI Config URL Notes.
 6. Finish by clicking **Submit**.
 
-### LTI Config URL Notes
+#### LTI Config URL Notes
 The URL of your UDOIT LTI config depends on your webserver install.  The file is located the `public` directory. The examples below should give you are some possible values:
 
 * `http://<DOMAIN>/udoit.xml.php`
