@@ -25,9 +25,10 @@ require_once('../lib/utils.php');
 
 session_start();
 
-$base_url = $_SESSION['base_url'];
-$user_id  = $_SESSION['launch_params']['custom_canvas_user_id'];
-$api_key  = $_SESSION['api_key'];
+$base_url     = $_SESSION['base_url'];
+$user_id      = $_SESSION['launch_params']['custom_canvas_user_id'];
+$course_title = $_SESSION['launch_params']['context_title'];
+$api_key      = $_SESSION['api_key'];
 
 if ( ! Utils::validate_api_key($user_id, $base_url, $api_key)) {
     $api_key = $_SESSION['api_key'] = Utils::refresh_api_key($oauth2_id, $oauth2_uri, $oauth2_key, $base_url, $_SESSION['refresh_token']);
@@ -55,6 +56,7 @@ switch ($main_action) {
         }
 
         $data = [
+            'course_title'  => $course_title,
             'api_key'       => $api_key,
             'base_uri'      => $base_url,
             'content_types' => $content,
