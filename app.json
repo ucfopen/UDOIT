@@ -53,6 +53,6 @@
     }
   ],
   "scripts": {
-    "postdeploy": "php db_pg_setup.php"
+    "postdeploy": "php lib/db_create_tables.php"
   }
 }

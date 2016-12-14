@@ -1,6 +1,6 @@
 <?php
 try {
-    switch($db_type){
+    switch($db_type) {
         case 'pgsql':
             return new PDO($dsn);
         case 'mysql':
@@ -11,5 +11,6 @@ try {
 } catch (\RuntimeException $e) {
     error_log("Database Connection Error");
     error_log($e->getMessage());
-    echo 'Database Connection error';
+    echo('Database Connection error');
+    exit();
 }
