@@ -20,7 +20,7 @@ if ($db_type == 'pgsql'){
         CREATE TABLE IF NOT EXISTS users (
           id integer CONSTRAINT users_pk PRIMARY KEY,
           api_key varchar(255),
-          date_created integer
+          date_created timestamp with time zone
         );';
 }
 else{
