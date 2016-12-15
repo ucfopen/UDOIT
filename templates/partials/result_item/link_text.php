@@ -17,27 +17,9 @@
 *
 *	Primary Author Contact:  Jacob Bates <jacob.bates@ucf.edu>
 */
-require '../vendor/autoload.php';
-require_once('../config/settings.php');
-
-ini_set('max_execution_time', 300);
-
-// Write to the session now so we can check pdf completion status
-session_start();
-$_SESSION['pdf_generated'] = false;
-
-$title = filter_input(INPUT_POST, 'context_title', FILTER_SANITIZE_STRING);
-$result_html = filter_input(INPUT_POST, 'result_html', FILTER_UNSAFE_RAW);
-
-// Write the pdf
-$pdf = new mPDF();
-$html = zz\Html\HTMLMinify::minify($result_html);
-$pdf->SetHeader("Scanned on ".date("m/d/Y")." at ".date("g:i a"));
-$pdf->SetFooter("Page {PAGENO} / {nb}");
-$pdf->WriteHTML('<link rel="stylesheet" href="assets/css/pdf.css" type="text/css">', 1);
-$pdf->WriteHTML($html, 2);
-
-$pdf->Output($title.'_'.date("Y-m-d_g:i-a").'.pdf', 'D');
-
-// mark pdf generation as complete
-$_SESSION['pdf_generated'] = true;
+?>
+<div class="form-group no-margin margin-bottom">
+	<input class="{hash:true,caps:false} form-control" type="text" name="newcontent" placeholder="New link text">
+	<label><input class="remove-link" type="checkbox" />&nbsp;Delete this Link completely instead</label><br />
+	<button class="submit-content inactive btn btn-default" type="submit">Submit</button>
+</div>
