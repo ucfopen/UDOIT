@@ -123,7 +123,6 @@ function ufixitCssTextStyleEmphasize( $issueContainer ) {
 	var $preview = $issueContainer.find('div.ufixit-preview-canvas');
 	$preview.attr('style', 'color: ' + $fore.val() + '; background-color: ' + bgcolor + ';' );
 }
-// END update UFIXIT Preview on load
 
 // updates UFIXIT preview for cssTextHasContrast
 function ufixitCssTextHasContrast( $issueContainer ) {
@@ -306,8 +305,8 @@ $doc.ready(function() {
 	});
 
 	// tooltip on cached reports
-	$doc.on('mouseout', '#cached button.fix-this', function() {
-		var msg = event.target.parentElement.querySelector('.toolmessage');
+	$doc.on('mouseout', '#cached button.fix-this', function(e) {
+		var msg = e.target.parentElement.querySelector('.toolmessage');
 		$(msg).stop().fadeOut();
 	});
 
@@ -505,180 +504,4 @@ $doc.ready(function() {
 		window.open(url, '_blank');
 	});
 	// END Rule forcing links to open in new window
-
-	// click to remove/fill Heading with no text
-	$doc.on('click', '.remove-heading', function (e) {
-		var $input = $(e.target).parent().parent().find('input[name="newcontent"]');
-		if( $input.attr('placeholder') == 'New heading text') {
-			$input.val('');
-			$input.attr('maxlength', '0');
-			$input.attr('placeholder', 'Empty heading will be deleted');
-		} else {
-			$input.removeAttr('maxlength');
-			$input.attr('placeholder', 'New heading text');
-		}
-	});
-	// END click to remove/fill Heading with no text
-
-	// click to remove/fill Link with no text
-	$doc.on('click', '.remove-link', function (e) {
-		var $input = $(e.target).parent().parent().find('input[name="newcontent"]');
-
-		if( $input.attr('placeholder') == 'New link text') {
-			$input.val('');
-			$input.attr('maxlength', '0');
-			$input.attr('placeholder', 'Link will be deleted');
-		} else {
-			$input.removeAttr('maxlength');
-			$input.attr('placeholder', 'New link text');
-		}
-	});
-	// END click to remove/fill link with no text
-
-	// updates UFIXIT Preview on change of background color
-	$doc.on('change', 'input.back-color', function (e) {
-		var $parent = $(e.target).parent().parent().parent();
-		var $preview = $parent.find('div.ufixit-preview-canvas');
-		var $fore = $parent.find('input.fore-color');
-		var $threshold = $parent.find('input.threshold');
-
-		var $error = $parent.find('span.contrast-invalid');
-		var $cr = $parent.find('span.contrast-ratio');
-
-		var contrast_ratio = 0;
-		var threshold = ($threshold.val() === 'text')? 4.5: 3;
-		var bgcolor = $(e.target).val();
-
-		$preview.css('background-color', bgcolor );
-		contrast_ratio = contrastRatio(bgcolor, $fore.val());
-		$cr.html( contrast_ratio.toFixed(2) );
-
-		if (contrast_ratio < threshold) {
-			$error.removeClass('hidden');
-			$fore.attr('style','border-color: red;');
-			$parent.parent().find('button.submit-content').prop('disabled',true);
-		} else {
-			$error.addClass('hidden');
-			$fore.attr('style','');
-			$parent.parent().find('button.submit-content').removeAttr('disabled');
-		}
-
-		$parent.find('li.color').each(function () {
-			var color = $(this).attr('value');
-
-			if ( contrastRatio(bgcolor, color) < threshold ) {
-				$(this).find('span.invalid-color').removeClass('hidden');
-			} else {
-				$(this).find('span.invalid-color').addClass('hidden');
-			}
-		});
-
-	});
-	// END update UFIXIT Preview on change of background color
-
-	// updates UFIXIT Preview on change of foreground color
-	$doc.on('change', 'input.fore-color', function (e) {
-		var $parent = $(e.target).parent().parent().parent();
-		var $preview = $parent.find('div.ufixit-preview-canvas');
-		var $back = $parent.find('input.back-color');
-		var $fore = $parent.find('input.fore-color');
-		var $threshold = $parent.find('input.threshold');
-		var $error = $parent.find('span.contrast-invalid');
-		var $cr = $parent.parent().find('span.contrast-ratio');
-
-		var threshold = ($threshold.val() === 'text')? 4.5: 3;
-		var startingColor = $(e.target).val();
-		var contrast_ratio = 0;
-		var bgcolor = ($back.length > 0 ? $back.val() : '#fff');
-
-		$preview.css('color', startingColor );
-		contrast_ratio = contrastRatio( bgcolor, startingColor );
-		$cr.html( contrast_ratio.toFixed(2) );
-
-		if (contrast_ratio < threshold) {
-			$error.removeClass('hidden');
-			$fore.attr('style','border-color: red;');
-			$parent.parent().find('button.submit-content').prop('disabled',true);
-		} else {
-			$error.addClass('hidden');
-			$fore.attr('style','');
-			$parent.parent().find('button.submit-content').removeAttr('disabled');
-		}
-
-		$parent.find('li.color').each(function () {
-			var color = $(this).attr('value');
-
-			if ( contrastRatio(bgcolor, color) < threshold ) {
-				$(this).find('span.invalid-color').removeClass('hidden');
-			} else {
-				$(this).find('span.invalid-color').addClass('hidden');
-			}
-		});
-	});
-	// END update UFIXIT Preview on change of foreground color
-
-	// updates UFIXIT Preview on change of foreground color using Color-Picker
-	$doc.on('click', 'li.color', function (e) {
-		var $this = $(this)
-		var $parent = $this.parent().parent().parent().parent();
-		var $preview = $parent.find('div.ufixit-preview-canvas');
-		var $back = $parent.find('input.back-color');
-		var $fore = $parent.find('input.fore-color');
-		var $threshold = $parent.find('input.threshold');
-		var $error = $parent.find('span.contrast-invalid');
-		var $cr = $parent.find('span.contrast-ratio');
-
-		var color = $this.attr('value')
-		var threshold = ($threshold.val() === 'text')? 4.5: 3;
-		var contrast_ratio = 0;
-		var bgcolor = ($back.length > 0 ? $back.val() : '#fff');
-
-		contrast_ratio = contrastRatio( bgcolor, color );
-		$cr.html( contrast_ratio.toFixed(2) );
-
-		if (contrast_ratio < threshold) {
-			$error.removeClass('hidden');
-			$fore.attr('style','border-color: red;');
-			$parent.find('button.submit-content').prop('disabled',true);
-		} else {
-			$error.addClass('hidden');
-			$fore.attr('style','');
-			$parent.find('button.submit-content').removeAttr('disabled');
-		}
-
-		$preview.css('color', color );
-		$fore.val( color );
-
-		$fore.css('background-color', color );
-		$fore.css('color', $this.css('color') );
-
-		$parent.find('li.color').each(function () {
-			var color = $(this).attr('value');
-
-			if ( contrastRatio(bgcolor, color) < threshold ) {
-				$(this).find('span.invalid-color').removeClass('hidden');
-			} else {
-				$(this).find('span.invalid-color').addClass('hidden');
-			}
-		});
-	});
-	// END update UFIXIT Preview on change of foreground color using Color-Picker
-
-	// updates UFIXIT Preview on change of checkbox for 'bold' styling
-	$doc.on('change', 'input[name="add-bold"]', function (e) {
-		var $preview = $(e.target).parent().parent().parent().parent().find('div.ufixit-preview-canvas');
-		var weight = (e.target.checked ? 'bold' : 'normal');
-
-		$preview.css('font-weight', weight );
-	});
-	// END update UFIXIT Preview
-
-	// updates UFIXIT Preview on change of checkbox for 'italic' styling
-	$doc.on('change', 'input[name="add-italic"]', function (e) {
-		var $preview = $(e.target).parent().parent().parent().parent().find('div.ufixit-preview-canvas');
-		var weight = (e.target.checked ? 'italic' : 'normal');
-
-		$preview.css('font-style', weight );
-	});
-	// END update UFIXIT Preview
 });

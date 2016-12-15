@@ -24,6 +24,8 @@ $settings = [
 		"//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js",
 		"assets/js/vendor/jscolor/jscolor.js",
 		"assets/js/default.js?cachebuster=".time(),
+		"assets/js/ufixit-input-validation.js?cachebuster=".time(),
+		"assets/js/ufixit-preview.js?cachebuster=".time(),
 		"assets/js/contrast.js",
 	]
 ];

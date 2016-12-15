@@ -428,7 +428,7 @@ class aSuspiciousLinkText extends quailTest
 	/**
 	*	@var array $strings An array of strings, broken up by language domain
 	*/
-	var $strings = array('en' => array('click here', 'click', 'more', 'here'),
+	var $strings = array('en' => array('click here', 'click', 'click here!', 'more', 'here', 'link'),
 		'es' => array('clic aqu&iacute;', 'clic', 'haga clic', 'm&aacute;s', 'aqu&iacute;'));
 
 	/**
