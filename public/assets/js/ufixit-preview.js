@@ -116,7 +116,7 @@ function imgHasAlt( button ) {
 // Initializes styling of UFIXIT preview for tableDataShouldHaveTh
 function tableDataShouldHaveTh( button ) {
 	selectField = button.parent().find('select.form-control');
-	
+
 	$(selectField).attr("style", "border: 1px solid red; background-color: rgba(255, 0, 0, .05);");
 }
 
@@ -128,10 +128,11 @@ function tableThShouldHaveScope( button ) {
 }
 
 
-$(document).ready(function() {
+var $doc = $(document);
+$doc.ready(function() {
 
 	// the "U FIX IT" button ((on scanner))
-	$(document).on("click", "button.fix-this", function() {
+	$doc.on("click", "button.fix-this", function() {
 		$(this).hide();
 
 		var form = $(this).parent().find('form');

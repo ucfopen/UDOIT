@@ -1,10 +1,16 @@
 <?php
+define('ENV_TEST', 'test');
+define('ENV_PROD', 'prod');
+define('ENV_DEV', 'dev');
+
+// default to production
+$UDOIT_ENV = ENV_PROD; // change value in your localConfig.php
 
 if (getenv('USE_HEROKU_CONFIG'))
 {
     require_once('herokuConfig.php');
-    if(!empty($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] == 'https') {
-      $_SERVER['HTTPS'] = 'on';
+    if ( ! empty($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] == 'https') {
+        $_SERVER['HTTPS'] = 'on';
     }
 }
 else
@@ -12,8 +18,19 @@ else
     require_once('localConfig.php');
 }
 
+error_reporting(E_ALL & ~E_NOTICE);
+ini_set("display_errors", ($UDOIT_ENV == ENV_PROD ? 0 : 1));
+
 require_once(__DIR__.'/../vendor/autoload.php');
 require_once('tests.php');
+
+$logger = new \Monolog\Logger('udoit');
+$logger->pushHandler(new \Monolog\Handler\StreamHandler(__DIR__.'/log.log', \Monolog\Logger::DEBUG));
+\Monolog\ErrorHandler::register($logger);
+
+// to log to the output file
+// global $logger;
+//$logger->addInfo('this is a test');
 
 /* Prevent Caching */
 header("Cache-Control: no-cache, no-store, must-revalidate"); // HTTP 1.1.
@@ -25,9 +42,3 @@ $udoit_welcome_message = 'The Universal Design Online content Inspection Tool (U
 
 $udoit_disclaimer_message = 'Please Note: This tool is meant to be used as a guide, not a certification. It only checks for common accessibility issues, and is not comprehensive; a clean report in U<strong>DO</strong>IT does not necessarily mean that your course is fully accessible. Likewise, the tool may indicate a possible accessibility issue where one does not exist.';
 
-/* Resource links */
-$resource_link = [
-    'doc' => 'http://webaim.org/techniques/word/',
-    'pdf' => 'http://webaim.org/techniques/acrobat/',
-    'ppt' => 'http://webaim.org/techniques/powerpoint/',
-];

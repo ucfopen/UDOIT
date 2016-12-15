@@ -18,19 +18,22 @@
 */
 
 var progressTimer = null;
+var $doc = $(document); // hold a jquery doc reference
 
 /* Fades out and destroys the popup window and background. */
 function killButton(callback) {
-	if($("#popup").length > 0) {
-		$("#popup").fadeOut(300,function(){
-			$('#popup').remove();
-			if($("#popupback").length > 0) {
-				$("#popupback").fadeOut(300,function(){
-					$('#popupback').remove();
+	var $popup = $('#popup');
+	if($popup.length > 0) {
+		$popup.fadeOut(300,function(){
+			var $pupupBack = $('#popupback');
+			$popup.remove();
+			if($pupupBack.length > 0) {
+				$pupupBack.fadeOut(300,function(){
+					$pupupBack.remove();
 				});
 			}
 
-			$('#submit').removeClass('disabled').html('Run scanner');
+			$('#udoitForm button.submit').removeClass('disabled').html('Run scanner');
 
 			$('#waitMsg').fadeOut();
 
@@ -41,17 +44,21 @@ function killButton(callback) {
 	}
 }
 
+function buildAlertString(text){
+	return '<div class="alert alert-danger well-sm no-margin margin-top"><span class="glyphicon glyphicon-ban-circle"></span>'+text+'</div>';
+};
+
 /* Creates a general template for the popup window
  * The callback parameter takes in a function to be fired once the popup is made*/
 function popUpTemplate(noback, callback) {
 	if(!noback) { popUpBack() };
-	$('#submit').addClass('disabled').html('<div id="popup"></div> Beginning scan...');
+	$('#udoitForm button.submit').addClass('disabled').html('<div id="popup"></div> Beginning scan...');
 
 	$('#popup').hide();
 	// NEED TO MAKE THESE PARAMETERS AS WELL.
 	if(callback != undefined) { callback() };
 
-	$('#popup').fadeIn(300).css("display","inline-block");
+	$('#popup').fadeIn(300).css('display','inline-block');
 }
 
 function loader(text) {
@@ -68,17 +75,15 @@ function checker() {
 	var course_id = $('input[name="session_course_id"]').val();
 	var context_label = $('input[name="session_context_label"]').val();
 	var context_title = $('input[name="session_context_title"]').val();
-	var content = $('.content:not(#allContent):checked').map(function(i,n) {
-		return $(n).val();
-	}).get();
+	var content = $('.content:not(#allContent):checked').map(function(i, n) { return $(n).val(); }).get();
 
 	if (content.length === 0) {
-		content = "none";
+		content = 'none';
 	}
 
 	$.ajax({
-		url: "process.php",
-		type: "POST",
+		url: 'process.php',
+		type: 'POST',
 		data: {
 			main_action: main_action,
 			base_url: base_url,
@@ -104,25 +109,96 @@ function checker() {
 	});
 }
 
-$(document).ready(function() {
+// updates UFIXIT preview for cssTextStyleEmphasize
+function ufixitCssTextStyleEmphasize( $issueContainer ) {
+	var $back = $issueContainer.find('input.back-color');
+	var $fore = $issueContainer.find('input.fore-color');
+
+	var bgcolor = '#fff';
+
+	if ($back.length !== 0) {
+		bgcolor = $back.val();
+	}
+
+	var $preview = $issueContainer.find('div.ufixit-preview-canvas');
+	$preview.attr('style', 'color: ' + $fore.val() + '; background-color: ' + bgcolor + ';' );
+}
+
+// updates UFIXIT preview for cssTextHasContrast
+function ufixitCssTextHasContrast( $issueContainer ) {
+	var $back = $issueContainer.find('input.back-color');
+	var $fore = $issueContainer.find('input.fore-color');
+	var $threshold = $issueContainer.find('input.threshold');
+
+	var $error = $issueContainer.find('span.contrast-invalid');
+	var $cr = $issueContainer.find('span.contrast-ratio');
+	var contrast_ratio = 0;
+
+	var bgcolor = '#fff';
+	var threshold = ($threshold.val() === 'text')? 4.5: 3;
+
+	if ($back.length !== 0) {
+		bgcolor = $back.val();
+		$back.css('background-color', bgcolor);
+	}
+
+	contrast_ratio = contrastRatio(bgcolor, $fore.val() );
+	$cr.html( contrast_ratio.toFixed(2) );
+
+	var $preview = $issueContainer.find('div.ufixit-preview-canvas');
+
+	$preview.attr('style', 'color: ' + $fore.val() + '; background-color: ' + bgcolor + ';' );
+
+	if (contrast_ratio < threshold) {
+		$error.removeClass('hidden');
+		$fore.css({'border-color': 'red', 'background-color': $fore.val()});
+		$issueContainer.find('button.submit-content').prop('disabled', true);
+	}
+
+	$issueContainer.find('li.color').each(function () {
+		var color = $(this).attr('value');
+		$(this).css('background-color', color);
+
+		//if the swatch color is too dark
+		//change font color to something lighter
+		var c = color.substring(1); // strip '#'
+		var rgb = parseInt(c, 16); // convert rrggbb to decimal
+		var r = (rgb >> 16) & 0xff; // extract red
+		var g = (rgb >> 8) & 0xff; // extract green
+		var b = (rgb >> 0) & 0xff; // extract blue
+
+		var luma = 0.2126 * r + 0.7152 * g + 0.0722 * b; // per ITU-R BT.709
+
+		if (luma < 100) {
+			$(this).css('color', '#ffffff');
+		}
+
+		if ( contrastRatio(bgcolor, color) < threshold ) {
+			$(this).find('span.invalid-color').removeClass('hidden');
+		}
+	});
+}
+
+// END update UFIXIT Preview on load
+$doc.ready(function() {
 	// content checkboxes
 	var content_checked = true;
 
 	$('#allContent').click(function() {
-		var content_checkboxes = $(this).parent().parent().parent().find('.content:not(#allContent)');
+		var $content_checkboxes = $(this).parent().parent().parent().find('.content:not(#allContent)');
 		if (content_checked) {
-			content_checkboxes.prop('checked', false);
+			$content_checkboxes.prop('checked', false);
 			content_checked = false;
 		} else {
-			content_checkboxes.prop('checked', true);
+			$content_checkboxes.prop('checked', true);
 			content_checked = true;
 		}
 	});
 
 	$('.content:not(#allContent)').click(function() {
-		var content_checkboxes = $(this).parent().parent().parent().find('.content:not(#allContent):checked');
+		var $content_checkboxes = $(this).parent().parent().parent().find('.content:not(#allContent):checked');
 
-		if (content_checkboxes.length == 5) {
+		if ($content_checkboxes.length == 5) {
 			$('#allContent').prop('checked', true);
 			content_checked = true;
 		} else {
@@ -132,8 +208,7 @@ $(document).ready(function() {
 	});
 	// END content checkboxes
 
-	// udoit form submit
-	$(document).on("click", "#submit", function(e) {
+	var runScanner = function(e) {
 		e.preventDefault();
 
 		if ($('#result').length > 0) {
@@ -163,190 +238,222 @@ $(document).ready(function() {
 					// update display if progress state has changed
 					if(data != old) {
 						old = data;
-						$('#submit').html('<div id="popup"><div class="circle-white"></div></div> Scanning '+data+'...');
+						$('#udoitForm button.submit').html('<div id="popup"><div class="circle-white"></div></div> Scanning '+data+'...');
 					}
 				}
 			});
-		}, 500);
+		}, 1000);
 
 		checker();
 
 		return false;
-	});
-	// END udoit form submit
+	};
+
+	$doc.on('submit', '#udoitForm', runScanner);
+	$doc.on('click', '#udoitForm button.submit', runScanner);
 
 	// result panel collapsing
-	$(document).on("click", ".errorItem .panel-heading .btn-toggle", function() {
+	$doc.on('click', '.errorItem .panel-heading .btn-toggle', function() {
 		$(this).children('button span').removeClass('glyphicon-minus').addClass('glyphicon-plus');
-		var errorItem = $(this).parent();
-		if ($(this).parent().parent().find('.errorSummary').is(':visible')) {
-			$(this).parent().parent().find('.errorSummary').slideUp(function() {
-				errorItem.children('button span').removeClass('glyphicon-minus').addClass('glyphicon-plus');
+		var $errorItem = $(this).parent();
+		if ($errorItem.parent().find('.errorSummary').is(':visible')) {
+			$errorItem.parent().find('.errorSummary').slideUp(function() {
+				$errorItem.children('button span').removeClass('glyphicon-minus').addClass('glyphicon-plus');
 			});
 		}
 		else {
 			$(this).children('button span').removeClass('glyphicon-plus').addClass('glyphicon-minus');
-			$(this).parent().parent().find('.errorSummary').slideDown();
+			$errorItem.parent().find('.errorSummary').slideDown();
 		}
 	});
 	// END result panel collapsing
 
 	// view error source
-	$(document).on("click", ".viewError", function() {
+	$doc.on('click', '.viewError', function(e) {
+		var errorId = e.target.dataset.error;
+		var $error = $('#'+errorId);
+
 		$(this).addClass('hidden');
-		$(this).parent().parent().find('div.more-info').removeClass('hidden');
-		$(this).parent().parent().parent().find('a.closeError').removeClass('hidden');
-		$(this).parent().parent().parent().find('a.closeError').first().focus();
+		$error.find('div.more-info').removeClass('hidden');
+		$error.find('a.closeError').first().focus();
 	});
 	// END view error source
 
 	// close error source
-	$(document).on("click", ".closeError", function() {
-		$(this).parent().parent().parent().find('a.viewError').removeClass('hidden');
-		$(this).parent().parent().parent().find('a.viewError').focus();
-		$(this).parent().parent().parent().find('div.more-info').addClass('hidden');
-		$(this).parent().parent().parent().find('a.closeError').addClass('hidden');
+	$doc.on('click', '.closeError', function(e) {
+		var errorId = e.target.dataset.error;
+		var $error = $('#'+errorId);
+
+		$error.find('div.more-info').addClass('hidden');
+		$error.find('a.viewError').removeClass('hidden');
+		$error.find('a.viewError').focus();
 	});
 	// END close error source
 
-	// Link both "Close this view" statements on mouseover with highlighting
-	$(document).on("mouseenter", ".closeError", function() {
-		$(this).parent().parent().parent().find('a.closeError').css('background-color', 'rgba(225, 225, 225, 1)');
-		$(this).parent().parent().parent().find('a.closeError').css('border-radius', '3px');
-	});
-	// END link between "Close this view" statements
-
-	// Removes link between both "Close this view" statements on mouseleave removing highlighting
-	$(document).on("mouseleave", ".closeError", function() {
-		$(this).parent().parent().parent().find('a.closeError').css('background-color', 'rgba(225, 225, 225, 0)');
-	});
-	// END unlink
-
 	// print button
-	$(document).on("click", "#print", function() {
+	$doc.on('click', '#print', function() {
 		window.print();
 		return false;
 	});
 	// END print button
 
-	// ((tooltip on old reports))
-	$(document).on("mouseover", "#cached button.fix-this", function() {
-		$('.toolmessage').stop().fadeIn().css("display","inline-block");
+	// tooltip on cached reports
+	$doc.on('mouseover', '#cached button.fix-this', function(e) {
+
+		var msg = e.target.parentElement.querySelector('.toolmessage');
+		$(msg).stop().fadeIn().css('display','inline-block');
 	});
 
-	$(document).on("mouseout", "#cached button.fix-this", function() {
-		$('.toolmessage').stop().fadeOut();
+	// tooltip on cached reports
+	$doc.on('mouseout', '#cached button.fix-this', function(e) {
+		var msg = e.target.parentElement.querySelector('.toolmessage');
+		$(msg).stop().fadeOut();
 	});
 
-	// END the "U FIX IT" button
+	// the "U FIX IT" button
+	$doc.on('click', '#scanner button.fix-this', function() {
+		var $this = $(this)
+		var $issueContainer = $this.parent().parent();
+
+		$this.hide();
+
+		var $contentForm = $issueContainer.find('form');
+
+		if ($contentForm.is(':visible')) {
+			$contentForm.removeClass('show');
+			$contentForm.addClass('hidden');
+		}
+		else {
+			$contentForm.removeClass('hidden');
+			$contentForm.addClass('show');
+		}
+
+		switch ( $this.val() ) {
+			case 'cssTextHasContrast':
+				ufixitCssTextHasContrast( $issueContainer );
+				break;
+
+			case 'cssTextStyleEmphasize':
+				ufixitCssTextStyleEmphasize( $issueContainer );
+				break;
+
+			default:
+				break;
+		}
+	});
 
 	// submitting the ufixit form
-	$(document).on("submit", ".ufixit-form", function(e) {
+	$doc.on('submit', '#scanner .ufixit-form', function(e) {
 		e.preventDefault();
 
-		var parent = $(this).parent();
+		var $parent = $(this).parent();
 		var values = $(this).serializeArray();
-		var errorsRemaining = -1; 
+		var errorsRemaining = -1;
+
 
 		values.push({ name: 'base_url', value: $('input[name="base_url"]').val() });
 		values.push({ name: 'course_id', value: $('input[name="session_course_id"]').val() });
 		values.push({ name: 'context_label', value: $('input[name="session_context_label"]').val() });
 		values.push({ name: 'context_title', value: $('input[name="session_context_title"]').val() });
 
-		parent.find('.alert').remove();
+		$parent.find('.alert').remove();
 		$.ajax({
-			url: "process.php",
-			type: "POST",
+			url: 'process.php',
+			type: 'POST',
 			data: values,
 			success: function(data) {
-				if (data == "Missing content") {
-					parent.append('<div class="alert alert-danger well-sm no-margin margin-top"><span class="glyphicon glyphicon-ban-circle"></span> Please enter alt text.</div>');
-				} else if (data == "Incorrect table scope") {
-					parent.append('<div class="alert alert-danger well-sm no-margin margin-top"><span class="glyphicon glyphicon-ban-circle"></span> You should enter "col" or "row" for th scopes.</div>');
+				if (data == 'Missing content') {
+					$parent.append(buildAlertString('Please enter alt text.'));
+				} else if (data == 'Incorrect table scope') {
+					$parent.append(buildAlertString('You should enter "col" or "row" for th scopes.'));
 				} else {
-					parent.removeClass('in');
+					$parent.removeClass('in');
 
-					parent.find('input[name="submittingagain"]').val('Yes');
+					$parent.find('input[name="submittingagain"]').val('Yes');
 
-					parent.parent().find('button').removeClass('hidden');
-					parent.parent().find('.fix-success').removeClass('hidden');
+					$parent.find('button').removeClass('hidden');
+					$parent.find('.fix-success').removeClass('hidden');
+					$parent.find('.viewError').addClass('hidden');
+					$parent.find('.more-info').addClass('hidden');
+					$parent.find('.ufixit-form').addClass('hidden');
 
-					errorsRemaining = parent.parent().parent().find('.fix-success.hidden').length;
+
+					errorsRemaining = $parent.parent().parent().find('.fix-success.hidden').length;
 					if ( errorsRemaining == 0 ) {
-						parent.parent().parent().find('.badge-error').addClass('badge-success');
-						parent.parent().parent().find('h5').removeClass('text-danger').addClass('text-success');
+						$parent.parent().parent().parent().find('.badge-error').addClass('badge-success');
+						$parent.parent().parent().parent().find('h5').removeClass('text-danger').addClass('text-success');
 					}
 				}
 			},
 			error: function(data) {
-				parent.append('<div class="alert alert-danger no-margin margin-top"><span class="glyphicon glyphicon-ban-circle"></span> <strong>Error:</strong> '+data.responseText+'.</div>');
+				$parent.append(buildAlertString('Error: '+data.responseText));
 			}
 		});
 	});
 	// END submitting the fix-it form
 
 	// counting down the new alt text input
-	$(document).on("keyup", ".fix-alt input", function() {
+	$doc.on('keyup', '.fix-alt input', function() {
 		var left = 100 - $(this).val().length;
 		if (left < 0) {
 			left = 0;
 		}
-		$(this).parent().find(".counter").text(left);
+		$(this).parent().find('.counter').text(left);
 	});
 	// END counting down the new alt text input
 
 	// clicking a result table row to display the cached report
-	$(document).on("click", "#resultsTable tbody tr", function() {
-		var main_action = "cached";
+	$doc.on('click', '#resultsTable tbody tr', function() {
+		var main_action = 'cached';
 		var cached_id   = $(this).attr('id');
 
-		$.post("parseResults.php", { main_action: main_action, cached_id: cached_id }, function(data) {
+		$.post('parseResults.php', { main_action: main_action, cached_id: cached_id }, function(data) {
 			$('#resultsTable').fadeOut();
 			$('#cached').append('<div id="result">'+data+'</div>');
 			$('#result').fadeIn();
-		}, "html");
+		}, 'html');
 	});
 	// END clicking a result table row to display the cached report
 
 	// clicking the back button on a cached report
-	$(document).on("click", "#backToResults", function() {
+	$doc.on('click', '#backToResults', function() {
 		$('#resultsTable').fadeIn();
 		$('#result').remove();
 	});
 	// END clicking the back button on a cached report
 
 	// clicking the save pdf button
-	$(document).on("click", "#savePdf", function() {
+	$doc.on('click', '#savePdf', function() {
 
-		var save = $(this);
-		save.find('div.circle-black').removeClass('hidden');
-		save.find('span.glyphicon').fadeOut(200);
+		var $save = $(this);
+		$save.find('div.circle-black').removeClass('hidden');
+		$save.find('span.glyphicon').fadeOut(200);
 
-		var result_html = $('#result').clone();
+		var $result_html = $('#result').clone();
 		var context_title = $('input[name="session_context_title"]').val();
 
-		result_html.find('button').remove();
-		result_html.find('pre').remove();
-		result_html.find('form').remove();
-		result_html.find('.instance').remove();
-		result_html.find('.viewError').remove();
-		result_html.find('.label-success').remove();
-		result_html.find('p:empty').remove();
-		result_html.find('.error-preview').remove();
-		result_html.find('.error-source').remove();
-		result_html.find('.error-desc').prepend('<br>');
-		result_html.find('.error-desc').append('<br><br>');
-		result_html.find('a.list-group-item').after('<br>');
-		result_html.find('.fix-success').remove();
+		$result_html.find('button').remove();
+		$result_html.find('pre').remove();
+		$result_html.find('form').remove();
+		$result_html.find('.instance').remove();
+		$result_html.find('.viewError').remove();
+		$result_html.find('.label-success').remove();
+		$result_html.find('p:empty').remove();
+		$result_html.find('.error-preview').remove();
+		$result_html.find('.error-source').remove();
+		$result_html.find('.error-desc').prepend('<br>');
+		$result_html.find('.error-desc').append('<br><br>');
+		$result_html.find('a.list-group-item').after('<br>');
+		$result_html.find('.fix-success').remove();
 
-		var form = $('<form action="parsePdf.php" method="post">' +
+		var $form = $('<form action="parsePdf.php" method="post">' +
 		  '<input type="hidden" name="result_html" />' +
 		  '<input type="hidden" name="context_title" value="'+ context_title +'"/>' +
 		  '</form>');
 
-		$(form).find('input[name="result_html"]').val(result_html.html());
+		$form.find('input[name="result_html"]').val($result_html.html());
 
-		$(form).appendTo('body').submit();
+		$form.appendTo('body').submit();
 
 		// start parsePdfProgress checker
 		clearInterval(progressTimer);
@@ -360,42 +467,41 @@ $(document).ready(function() {
 					// update display if progress state has changed
 					if (data) {
 						clearInterval(progressTimer);
-						save.find('div.circle-black').addClass('hidden');
-						save.find('span.glyphicon').fadeIn(200);
+						$save.find('div.circle-black').addClass('hidden');
+						$save.find('span.glyphicon').fadeIn(200);
 					}
 				}
 			});
-		}, 100);
+		}, 1000);
 
 	});
 	// END clicking the save pdf button
 
 	// clicking the cached reports tab
-	$(document).on("click", "a[href='#cached']", function() {
+	$doc.on('click', 'a[href="#cached"]', function() {
 		if ($('#result').length > 0) {
 			$('#result').remove();
 		}
 
 		$.ajax({
-			url: "cached.php",
-			type: "GET",
+			url: 'cached.php',
+			type: 'GET',
 			success: function(data) {
-				$("#cached").html(data);
+				$('#cached').html(data);
 			},
 			error: function() {
-				$("#cached").append('<div class="alert alert-danger no-margin margin-top"><span class="glyphicon glyphicon-ban-circle"></span> Error displaying cached reports.</div>');
+				$('#cached').append(buildAlertString('Error displaying cached reports.'));
 			}
 		});
 	});
 	// END clicking the cached reports tab
 
 	// Rule forces links within "What does UDOIT Look for?" to open in new page
-	$('#udoitInfo a').on("click", function() {
+	$('#udoitInfo a').on('click', function() {
 		event.preventDefault();
 
 		var url = $(this).attr('href');
 		window.open(url, '_blank');
 	});
 	// END Rule forcing links to open in new window
-
 });
