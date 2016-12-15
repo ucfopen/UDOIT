@@ -167,6 +167,13 @@ $udoit_tests = [
             'example'   => '',
         ],
         [
+            'name'      => 'videosEmbeddedOrLinkedUnavailable',
+            'title'     => 'Web-based video is unavailable',
+            'desc'      => '<p>The following web-based videos are unavailable due to being made private or deleted.</p>',
+            'resources' => [],
+            'example'   => '',
+        ],
+        [
             'name'      => 'aSuspiciousLinkText',
             'title'     => 'Link text should be descriptive',
             'desc'      => 'Links should be descriptive of the content they\'re linking to, such as "Class Schedule" rather than "schedule.html" or "click here".',

@@ -60,6 +60,17 @@ class TestOfQuailTests extends UnitTestCase {
 		$this->assertTrue(count($results) == 0);
 	
 	}
+
+	function test_videosEmbeddedOrLinkedUnavailable() {
+		$results = $this->getTest('videosEmbeddedOrLinkedUnavailable-fail.html',
+								  'videosEmbeddedOrLinkedUnavailable');
+		$this->assertTrue($results[0]->element->tagName == 'a');
+	
+		$results = $this->getTest('videosEmbeddedOrLinkedUnavailable-pass.html', 
+								  'videosEmbeddedOrLinkedUnavailable');
+		$this->assertTrue(count($results) == 0);
+	
+	}
 	
 	function test_documentIsWrittenClearly() {
 		$results = $this->getTest('documentIsWrittenClearly-fail.html', 'documentIsWrittenClearly');
