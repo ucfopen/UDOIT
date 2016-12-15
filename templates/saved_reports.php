@@ -17,27 +17,26 @@
 *
 *	Primary Author Contact:  Jacob Bates <jacob.bates@ucf.edu>
 */
-require '../vendor/autoload.php';
-require_once('../config/settings.php');
+?>
+<div id="resultsTable" class="table-responsive">
+	<table class="table table-bordered table-hover no-margin">
+		<caption>Saved reports for this course</caption>
+		<thead>
+			<tr>
+				<th scope="col">Date &amp; Time</th>
+				<th scope="col">Errors</th>
+				<th scope="col">Suggestions</th>
+			</tr>
+		</thead>
 
-ini_set('max_execution_time', 300);
-
-// Write to the session now so we can check pdf completion status
-session_start();
-$_SESSION['pdf_generated'] = false;
-
-$title = filter_input(INPUT_POST, 'context_title', FILTER_SANITIZE_STRING);
-$result_html = filter_input(INPUT_POST, 'result_html', FILTER_UNSAFE_RAW);
-
-// Write the pdf
-$pdf = new mPDF();
-$html = zz\Html\HTMLMinify::minify($result_html);
-$pdf->SetHeader("Scanned on ".date("m/d/Y")." at ".date("g:i a"));
-$pdf->SetFooter("Page {PAGENO} / {nb}");
-$pdf->WriteHTML('<link rel="stylesheet" href="assets/css/pdf.css" type="text/css">', 1);
-$pdf->WriteHTML($html, 2);
-
-$pdf->Output($title.'_'.date("Y-m-d_g:i-a").'.pdf', 'D');
-
-// mark pdf generation as complete
-$_SESSION['pdf_generated'] = true;
+		<tbody>
+			<?php foreach ($reports as $report): ?>
+				<tr id="<?= $this->e($report['id']); ?>">
+					<td><?= $this->e($report['date_run']); ?></td>
+					<td><?= $this->e($report['errors']); ?></td>
+					<td><?= $this->e($report['suggestions']); ?></td>
+				</tr>
+			<?php endforeach; ?>
+		</tbody>
+	</table>
+</div>

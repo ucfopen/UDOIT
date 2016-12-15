@@ -17,13 +17,12 @@
 *
 *   Primary Author Contact:  Jacob Bates <jacob.bates@ucf.edu>
 */
-require_once('../vendor/autoload.php');
+require_once('../config/settings.php');
 require_once('quail/quail/quail.php');
 
 use Httpful\Request;
 
-class Udoit
-{
+class Udoit {
     /**
      * @var string - The API key needed to communicate with Canvas
      */
@@ -50,6 +49,11 @@ class Udoit
     public $content_types;
 
     /**
+     * @var string - The course title
+     */
+    public $course_title;
+
+    /**
      * @var string - The course id our content is in
      */
     public $course_id;
@@ -69,18 +73,24 @@ class Udoit
      */
     public $unscannable;
 
+
+    /**
+     * @var string - stringified json report
+     */
+    protected $json_report;
+
     /**
      * The class constructor
      * @param array data - An array of POST data
      */
-    public function __construct($data)
-    {
+    public function __construct($data) {
         $this->api_key       = $data['api_key'];
         $this->base_uri      = $data['base_uri'];
         $this->content_types = $data['content_types'];
         $this->course_id     = $data['course_id'];
+        $this->course_title  = $data['course_title'];
         $this->total_results = ['errors' => 0, 'warnings' => 0, 'suggestions' => 0];
-        $this->module_urls = [];
+        $this->module_urls   = [];
         $this->unscannable   = [];
     }
 
@@ -88,24 +98,18 @@ class Udoit
      * [buildReport description]
      * @return [type] [description]
      */
-    public function buildReport()
-    {
-        session_start();
-        $_SESSION['progress'] = 0;
-        session_write_close();
-
+    public function buildReport() {
         foreach ($this->content_types as $type) {
             session_start();
-            $_SESSION["progress"] = $type;
+            $_SESSION['build_report_progress'] = $type;
             session_write_close();
 
             $typeResults = [];
-
             $courseContentType = $this->getCourseContent($type);
 
             foreach ($courseContentType['items'] as $r) {
                 if ($r['amount'] != 0) {
-                    array_push($typeResults, $r);
+                    $typeResults[] = $r;
 
                     $this->total_results['errors']      += count($r['error']);
                     $this->total_results['warnings']    += count($r['warning']);
@@ -149,8 +153,17 @@ class Udoit
 
         // so the ajax call knows we're done
         session_start();
-        $_SESSION["progress"] = 'done';
+        $_SESSION['build_report_progress'] = 'done';
         session_write_close();
+
+        $to_encode = [
+            'course'        => $this->course_title,
+            'total_results' => $this->total_results,
+            'content'       => $this->bad_content,
+        ];
+
+        $this->json_report = json_encode($to_encode);
+
     }
 
     /**
@@ -158,8 +171,7 @@ class Udoit
      * @param  array $scanned_content - The items from whatever type of Canvas content was scanned
      * @return array                  - The report results
      */
-    private function generateReport($scanned_content)
-    {
+    private function generateReport($scanned_content) {
         $content_report = [];
         /* Runs each item in the test array through the Quail accessibility checker */
         foreach ($scanned_content as $html) {
@@ -167,46 +179,46 @@ class Udoit
                 continue;
             }
 
-            $error  = 0;
-            $report = [];
             $quail  = new quail($html['content'], 'wcag2aaa', 'string', 'static');
-
             $quail->runCheck();
 
-            $result     = $quail->getReport();
-            $report     = $result['report'];
-            $severe     = [];
-            $warning    = [];
-            $suggestion = [];
+            $error_count = 0;
+            $result      = $quail->getReport();
+            $report      = $result['report'];
+            $severe      = [];
+            $warning     = [];
+            $suggestion  = [];
 
             foreach ($report as $value) {
                 //  Some don't have a severity num
-                if (!array_key_exists('severity_num', $value)) {
+                if ( ! array_key_exists('severity_num', $value)) {
                     continue;
                 }
 
                 if ($value['severity_num'] == 1) {
-                    array_push($severe, $value);
-                } elseif ($value['severity_num'] == 2) {
-                    array_push($warning, $value);
-                } elseif ($value['severity_num'] == 3) {
-                    array_push($suggestion, $value);
+                    $severe[] = $value;
+                }
+                elseif ($value['severity_num'] == 2) {
+                    $warning[] = $value;
+                }
+                elseif ($value['severity_num'] == 3) {
+                    $suggestion[] = $value;
                 }
 
                 if (count($value) > 0) {
-                    $error++;
+                    $error_count++;
                 }
             }
 
-            $final['id']         = $html['id'];
-            $final['name']       = $html['title'];
-            $final['url']        = $html['url'];
-            $final['amount']     = $error;
-            $final['error']      = $severe;
-            $final['warning']    = $warning;
-            $final['suggestion'] = $suggestion;
-
-            array_push($content_report, $final);
+            $content_report[] = [
+                'id'         => $html['id'],
+                'name'       => $html['title'],
+                'url'        => $html['url'],
+                'amount'     => $error_count,
+                'error'      => $severe,
+                'warning'    => $warning,
+                'suggestion' => $suggestion,
+            ];
         }
 
         return $content_report;
@@ -217,64 +229,66 @@ class Udoit
      * @param  string $type - The type of course content to be scanned
      * @return array        - The report results
      */
-    private function getCourseContent($type)
-    {
+    private function getCourseContent($type) {
+        $content      = [];
+        $per_page     = 100;
+        $page_count   = 1;
+        $base_api_url = "{$this->base_uri}/api/v1/courses/{$this->course_id}/";
         $content_result = [
-            'items'         => [],
-            'amount'        => 0,
-            'time'          => microtime(true),
+            'items'       => [],
+            'amount'      => 0,
+            'time'        => microtime(true),
             'module_urls' => [],
-            'unscannable'   => [],
+            'unscannable' => [],
         ];
-        $the_content = [];
-        $per_page    = 100;
-        $page_count = 1;
 
         switch ($type) {
             case 'announcements':
                 $page_count = 1;
                 do {
-                    $url      = $this->base_uri.'/api/v1/courses/'.$this->course_id.'/discussion_topics?&only_announcements=true&access_token='.$this->api_key.'&page='.$page_count;
+                    $url = "{$base_api_url}discussion_topics?&only_announcements=true&access_token={$this->api_key}&page={$page_count}";
                     $response = Request::get($url)->send();
 
                     foreach ($response->body as $thing) {
-                        $the_content[] = $thing;
+                        $content[] = $thing;
                     }
                     $page_count++;
 
-                } while (!(empty($response->body)));
-                
+                } while ( ! empty($response->body));
 
                 break;
+
             case 'assignments':
                 $page_count = 1;
                 do {
-                    $url      = $this->base_uri.'/api/v1/courses/'.$this->course_id.'/assignments?&access_token='.$this->api_key.'&page='.$page_count;
+                    $url      = "{$base_api_url}assignments?&access_token={$this->api_key}&page={$page_count}";
                     $response = Request::get($url)->send();
 
                     foreach ($response->body as $thing) {
-                        $the_content[] = $thing;
+                        $content[] = $thing;
                     }
                     $page_count++;
 
-                } while (!(empty($response->body)));
+                } while ( ! empty($response->body));
 
                 break;
+
             case 'discussions':
                 $page_count = 1;
                 do {
-                    $url      = $this->base_uri.'/api/v1/courses/'.$this->course_id.'/discussion_topics?&access_token='.$this->api_key.'&page='.$page_count;
+                    $url      = "{$base_api_url}discussion_topics?&access_token={$this->api_key}&page={$page_count}";
                     $response = Request::get($url)->send();
 
                     foreach ($response->body as $thing) {
-                        $the_content[] = $thing;
+                        $content[] = $thing;
                     }
                     $page_count++;
-                } while (!(empty($response->body)));
+                } while ( ! empty($response->body));
 
                 break;
+
             case 'files':
-                $url = $this->base_uri.'/api/v1/courses/'.$this->course_id.'/files?page=1&per_page='.$per_page.'&access_token='.$this->api_key;
+                $url = "{$this->base_uri}/api/v1/courses/{$this->course_id}/files?page=1&per_page={$per_page}&access_token={$this->api_key}";
 
                 do {
                     $response  = Request::get($url)->send();
@@ -282,7 +296,7 @@ class Udoit
 
 
                     foreach ($response->body as $thing) {
-                        $the_content[] = $thing;
+                        $content[] = $thing;
                     }
 
                     if (isset($the_links['next'])) {
@@ -292,14 +306,15 @@ class Udoit
                 } while (isset($the_links['next']));
 
                 break;
+
             case 'pages':
-                $url = $this->base_uri.'/api/v1/courses/'.$this->course_id.'/pages?page=1&per_page='.$per_page.'&access_token='.$this->api_key;
+                $url = "{$base_api_url}pages?page=1&per_page={$per_page}&access_token={$this->api_key}";
                 do {
                     $response  = Request::get($url)->send();
                     $the_links = $this->parseLinks($response->headers->toArray()['link']);
 
                     foreach ($response->body as $thing) {
-                        $the_content[] = $thing;
+                        $content[] = $thing;
                     }
 
                     if (isset($the_links['next'])) {
@@ -307,118 +322,120 @@ class Udoit
                     }
                 } while (isset($the_links['next']));
                 break;
+
             case 'syllabus':
-                $url           = $this->base_uri.'/api/v1/courses/'.$this->course_id.'/?include[]=syllabus_body&access_token='.$this->api_key;
-                $response      = Request::get($url)->send();
-                $the_content[] = $response->body;
+                $url       = "{$base_api_url}?include[]=syllabus_body&access_token={$this->api_key}";
+                $response  = Request::get($url)->send();
+                $content[] = $response->body;
 
                 break;
+
             case 'modules':
                 $page_count = 1;
                 do {
-                    $url      = $this->base_uri.'/api/v1/courses/'.$this->course_id.'/modules?include[]=items&access_token='.$this->api_key.'&page='.$page_count;
+                    $url      = "{$base_api_url}modules?include[]=items&access_token={$this->api_key}&page={$page_count}";
                     $response = Request::get($url)->send()->body;
 
                     foreach ($response as $r) {
                         foreach ($r->items as $item) {
-                            $the_content[] = $item;
+                            $content[] = $item;
                         }
                     }
                     $page_count++;
-                } while (!(empty($response->body)));
+                } while ( ! empty($response->body));
 
                 break;
         }
 
-        foreach ($the_content as $single) {
+        foreach ($content as $single) {
             switch ($type) {
                 case 'announcements':
-                    array_push($content_result['items'], [
+                    $content_result['items'][] = [
                         'id'      => $single->id,
                         'content' => $single->message,
                         'title'   => $single->title,
                         'url'     => $single->html_url
-                        ]
-                    );
+                    ];
                     break;
+
                 case 'assignments':
-                    array_push($content_result['items'], [
+                    $content_result['items'][] = [
                         'id'      => $single->id,
                         'content' => $single->description,
                         'title'   => $single->name,
                         'url'     => $single->html_url
-                        ]
-                    );
+                    ];
                     break;
+
                 case 'discussions':
-                    array_push($content_result['items'], [
+                    $content_result['items'][] = [
                         'id'      => $single->id,
                         'content' => $single->message,
                         'title'   => $single->title,
                         'url'     => $single->html_url
-                        ]
-                    );
+                    ];
                     break;
+
                 case 'files':
-                    $extension = pathinfo($single->filename, PATHINFO_EXTENSION);
                     // ignore ._ mac files
-                    $mac_check = substr($single->display_name, 0, 2);
-                    if ($mac_check !== '._') {
-                        // filters non html files
-                        if ($extension !== 'html' && $extension !== 'htm') {
-                            if ($extension === 'pdf' || $extension === 'doc' || $extension === 'docx' || $extension === 'ppt' || $extension === 'pptx') {
-                                array_push($content_result['unscannable'], [
-                                    'title' => $single->display_name,
-                                    'url'   => $single->url
-                                    ]
-                                );
-                            }
-                        } else {
-                            array_push($content_result['items'], [
-                                'id'      => $single->id,
-                                'content' => Request::get($single->url)->followRedirects()->expectsHtml()->send()->body,
-                                'title'   => $single->display_name,
-                                'url'     => $single->url
-                                ]
-                            );
-                        }
+                    if (substr($single->display_name, 0, 2) == '._') {
+                        break;
+                    }
+
+                    $extension = pathinfo($single->filename, PATHINFO_EXTENSION);
+
+                    if (in_array($extension, ['html', 'htm'])) {
+                        $content_result['items'][] = [
+                            'id'      => $single->id,
+                            'content' => Request::get($single->url)->followRedirects()->expectsHtml()->send()->body,
+                            'title'   => $single->display_name,
+                            'url'     => $single->url
+                        ];
+                    }
+                    // filters non html files
+                    if (in_array($extension, ['pdf', 'doc', 'docx', 'ppt', 'pptx'])){
+                        $content_result['unscannable'][] = [
+                            'title' => $single->display_name,
+                            'url'   => $single->url
+                        ];
                     }
                     break;
+
                 case 'pages':
-                    $url       = $this->base_uri.'/api/v1/courses/'.$this->course_id.'/pages/'.$single->url.'?access_token='.$this->api_key;
+                    $url       = "{$base_api_url}pages/{$single->url}?access_token={$this->api_key}";
                     $wiki_page = Request::get($url)->send();
 
-                    array_push($content_result['items'], [
+                    $content_result['items'][] = [
                         'id'      => $wiki_page->body->url,
                         'content' => $wiki_page->body->body,
                         'title'   => $wiki_page->body->title,
                         'url'     => $wiki_page->body->html_url
-                        ]
-                    );
+                    ];
                     break;
+
                 case 'syllabus':
-                    array_push($content_result['items'], [
+                    $content_result['items'][] = [
                         'id'      => $single->id,
                         'content' => $single->syllabus_body,
                         'title'   => 'Syllabus',
-                        'url'     => $this->base_uri.'/courses/'.$single->id.'/assignments/syllabus'
-                        ]
-                    );
+                        'url'     => "{$this->base_uri}/courses/{$single->id}/assignments/syllabus"
+                    ];
                     break;
+
                 case 'modules':
                     $search = '/(youtube|vimeo)/';
                     $external_url = isset($single->external_url) ? $single->external_url : '';
 
                     if (preg_match($search, $external_url)) {
-                        array_push($content_result['module_urls'], [
+                        $content_result['module_urls'][] = [
                             'id'           => $single->id,
                             'external_url' => $single->external_url,
                             'title'        => $single->title,
                             'url'          => $single->html_url
-                            ]
-                        );
+                        ];
                     }
                     break;
+
             }
         }
 
@@ -433,10 +450,9 @@ class Udoit
     /**
      * Parses pagination links returned from Canvas
      * @param  string $links - The pagination links
-     * @return arrau         - An array of the separated links
+     * @return array         - An array of the separated links
      */
-    public static function parseLinks($links)
-    {
+    public static function parseLinks($links) {
         $links  = explode(',', $links);
         $pretty = [];
 
@@ -448,5 +464,35 @@ class Udoit
         }
 
         return $pretty;
+    }
+
+    /**
+     * Gets a copy of the json report
+     * @return string - Stringified json report
+     */
+    public function getReport() {
+        return $this->json_report;
+   }
+
+    /**
+     * Saves the report in json format to a file
+     * @param  string $title        - The title of the report
+     * @param  string $reports_dir  - Base path of the reports directory
+     * @return void
+     */
+    public function saveReport($title, $reports_dir) {
+        // make sure report directory exists
+        $file_name  = date('Y_m_d__g:i:s_a').'.json';
+        $final_path = "{$reports_dir}/{$title}";
+
+        if ( ! file_exists($final_path)) {
+            mkdir($final_path, 0755, true);
+            chmod($reports_dir, 0755);
+        }
+
+    $file = "{$final_path}/{$file_name}";
+        file_put_contents($file, $this->json_report);
+        chmod($file, 0755);
+        return $file;
     }
 }
