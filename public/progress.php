@@ -17,6 +17,6 @@
 *
 *	Primary Author Contact:  Jacob Bates <jacob.bates@ucf.edu>
 */
+// displays the progress of Udoit->buildReport()
 session_start();
-echo $_SESSION["progress"] != '0' ? $_SESSION["progress"] : '0';
-session_write_close();
+echo(isset($_SESSION['build_report_progress']) ? $_SESSION['build_report_progress'] : 0);

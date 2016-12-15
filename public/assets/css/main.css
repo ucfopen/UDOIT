@@ -37,6 +37,45 @@ body { padding: 20px 0 0; }
 	        user-select: none;
 }
 
+.collapse-header {
+	padding:10px;
+	cursor:pointer;
+	border-radius: 5px;
+}
+
+.collapse-header:hover {
+	background: #eee;
+}
+
+.list-group-item ol{
+	padding-left: 26px;
+}
+
+.list-group-item .btn{
+	margin: 10px;
+}
+
+.list-group-item .submit-content.btn {
+	margin: 0;
+}
+
+.list-group-item .btn:hover{
+	background-color: #ccc;
+}
+
+.list-group-item ol li {
+	border-top: 1px solid #eee;
+}
+
+a.closeError {
+	border-radius: 3px;
+	background-color: #fff;
+}
+
+.more-info {
+
+}
+
 .red { color: red;}
 
 .clear { clear: both;}
@@ -74,6 +113,15 @@ h3 a { color: inherit; }
 	border-bottom: 1px solid #dddddd;
 	margin-bottom: 10px;
 	padding: 5px 0;
+	position: relative;
+}
+
+.content-title .proc-time{
+	font-size: 40%;
+	color: #aaaaaa;
+	position: absolute;
+	bottom: 7px;
+	right: 0;
 }
 
 h5 {
@@ -168,13 +216,13 @@ h5 {
 
 .error-desc { clear: both ; }
 
-#errorWrapper .errorItem:last-child { margin-bottom: 0; }
+.errorWrapper .errorItem:last-child { margin-bottom: 0; }
 
-#errorWrapper .errorSummary .panel:last-child { margin-bottom: 0; }
+.errorWrapper .errorSummary .panel:last-child { margin-bottom: 0; }
 
 ul.li_border li {
 	border-bottom: 1px solid black;
-	padding: 10px;	
+	padding: 10px;
 }
 
 .delete_li { float: right; }
@@ -268,7 +316,7 @@ h5 + ul {
 .ufixit-preview {
 	position: relative;
 
-	padding: 26.5px 9.5px 9.5px;
+	padding: 26px 10px 10px;
 
 	background-color: #f5f5f5;
 	border: 1px solid #ccc;
@@ -373,20 +421,6 @@ h5 + ul {
 
 .nav-tabs.nav-justified > li > a { border-bottom-color: #c1c7cf; }
 
-/* X. FORMS --------------------------- */
-
-.fix-alt { position: relative; }
-
-.fix-success { clear: both; }
-
-.counter {
-	color: #8F8F8F;
-	position: absolute;
-	right: 79px;
-	top: 7px;
-	z-index: 9999;
-}
-
 /* X. PANELS -------------------------- */
 
 .panel-title {
@@ -420,12 +454,13 @@ div#cached button.btn-success:hover{
 
 .toolmessage {
 	display: none;
+	position: relative;
 	background-color: #aaa;
 	border-color: #bbb;
 	color: white;
 	padding: 6px 12px;
 	font-size: 14px;
-	line-height: 1.42857143;
+	line-height: 1.5;
 	border-radius: 4px;
 	vertical-align: middle;
 	border: 1px solid #bbb;
@@ -435,7 +470,7 @@ div#cached button.btn-success:hover{
 .toolmessage:before{
 	content:'';
 	position: absolute;
-	left: 86px;
+	left: -19px;
 	border-color: transparent #aaa transparent transparent;
 	border-style: solid;
 	border-width: 10px;
@@ -450,6 +485,14 @@ div#cached button.btn-success:hover{
   	font-size: 12px;
 }
 
+.panel-info .badge-error {
+	background-color: #4A94B9;
+}
+
+.panel-info .text-danger {
+	color: #4A94B9;
+}
+
 .badge-suggestion {
   	background-color: #7DA9BE;
   	float: left !important;
@@ -461,18 +504,17 @@ div#cached button.btn-success:hover{
 	background-color: #3c763d !important;
 }
 
-#errorWrapper p {
-	margin-left: 27px;
+.errorWrapper p {
+	margin-left: 35px;
 	margin-right: 17px;
 }
 
-#errorWrapper .fix-this {
-	margin-left: 27px;
-	margin-right: 17px;
+.errorWrapper .fix-this {
+	margin: 5px 17px 5px 27px;
 }
 
 /* for lazy little developers~ */
-.no-margin { margin: 0px !important; }
+.no-margin { margin: 0 !important; }
 .margin-top { margin-top: 20px !important; }
 .margin-right { margin-right: 20px !important; }
 .margin-bottom { margin-bottom: 20px !important; }
@@ -583,4 +625,20 @@ ul.color-picker {
 	font-weight: 900;
 
 	-webkit-text-stroke: .5px white;
+}
+
+/* X. FORMS --------------------------- */
+
+.fix-alt { position: relative; }
+
+.fix-success { clear: both; }
+
+p.fix-success { margin-left: 0; }
+
+.counter {
+	color: #8F8F8F;
+	position: absolute;
+	right: 79px;
+	top: 7px;
+	z-index: 9999;
 }

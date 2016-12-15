@@ -18,51 +18,36 @@
 *	Primary Author Contact:  Jacob Bates <jacob.bates@ucf.edu>
 */
 require_once('../config/settings.php');
+require_once('../lib/utils.php');
 
 $dbh = include('../lib/db.php');
 // saves the report to the database
-$sth = $dbh->prepare("
-    SELECT * FROM
-        $db_reports_table
-    WHERE
-		course_id=:courseid
-	ORDER BY
-		date_run DESC
-");
+$sth = $dbh->prepare(" SELECT * FROM {$db_reports_table} WHERE course_id = :courseid ORDER BY date_run DESC");
 
 session_start();
 
-$sth->bindParam(':courseid', $_SESSION['launch_params']['custom_canvas_course_id'], PDO::PARAM_INT);
+$sth->bindValue(':courseid', $_SESSION['launch_params']['custom_canvas_course_id'], PDO::PARAM_INT);
 
 session_write_close();
 
 if (!$sth->execute()) {
-	echo '<div class="alert alert-danger no-margin"><span class="glyphicon glyphicon-exclamation-sign"></span> Could not complete database query</div>';
-    die();
+	Utils::exitWithError('Could not complete database query');
 }
 
 $reports = $sth->fetchAll();
 
-?>
-<div id="resultsTable" class="table-responsive">
-	<table class="table table-bordered table-hover no-margin">
-		<caption>Saved reports for this course</caption>
-		<thead>
-			<tr>
-				<th scope="col">Date &amp; Time</th>
-				<th scope="col">Errors</th>
-				<th scope="col">Suggestions</th>
-			</tr>
-		</thead>
+// Add the test report if not in production mode
+if ($UDOIT_ENV != ENV_PROD) {
+	$reports[] = [
+		'id' => 'TEST',
+		'user_id' => 0,
+		'course_id' => 'TEST',
+		'file_path' => 'reports/test.json',
+		'date_run' => 'TEST: 1998 (when section 508 was ammended)',
+		'errors'   => 64,
+		'suggestions' => 32
+	];
+}
 
-		<tbody>
-			<?php foreach ($reports as $report): ?>
-				<tr id="<?=$report['id']?>">
-					<td><?=$report['date_run']?></td>
-					<td><?=$report['errors']?></td>
-					<td><?=$report['suggestions']?></td>
-				</tr>
-			<?php endforeach; ?>
-		</tbody>
-	</table>
-</div>
+$templates = new League\Plates\Engine('../templates');
+echo($templates->render('saved_reports', ['reports' => $reports]));

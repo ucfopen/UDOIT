@@ -18,5 +18,4 @@
 *	Primary Author Contact:  Jacob Bates <jacob.bates@ucf.edu>
 */
 session_start();
-echo $_SESSION['pdf_generated'];
-session_write_close();
+echo($_SESSION['pdf_generated']);
