@@ -22,14 +22,19 @@ class BLTI {
     public $info = false;
     public $row = false;
     public $context_id = false;  // Override context_id
+    private $server_input = false;
+    private $post = false;
 
     function __construct($consumer=false, $shared_secret=false, $usesession=true, $doredirect=true) {
+       $this->server_input = filter_input_array(INPUT_SERVER, FILTER_SANITIZE_STRING); //Sanitize $_SERVER global
+       $this->post = filter_input_array(INPUT_POST, FILTER_SANITIZE_STRING); //Sanitize $_POST global
+
         // If this request is not an LTI Launch, either
         // give up or try to retrieve the context from session
         $myKeys[$consumer] = $shared_secret;
 
         if ( ! is_basic_lti_request() ) {
-            if ( $usesession === false ) return;  
+            if ( $usesession === false ) return;
             if ( strlen(session_id()) > 0 ) {
                 $row = $_SESSION['_basiclti_lti_row'];
                 if ( isset($row) ) $this->row = $row;
@@ -79,7 +84,7 @@ class BLTI {
         $method = new OAuthSignatureMethod_HMAC_SHA1();
         $server->add_signature_method($method);
         $request = OAuthRequest::from_request();
-        
+
         $this->basestring = $request->get_signature_base_string();
         //echo $this->basestring;
 
@@ -93,7 +98,7 @@ class BLTI {
 
         // Store the launch information in the session for later
         $newinfo = array();
-        foreach($_POST as $key => $value ) {
+        foreach($this->post as $key => $value ) {
             if ( $key == "basiclti_submit" ) continue;
             if ( strpos($key, "oauth_") === false ) {
                 $newinfo[$key] = $value;
@@ -159,7 +164,7 @@ class BLTI {
         if ( strlen($familyname) > 0 ) return $familyname;
         return $this->getUserName();
     }
-  
+
     function getUserName() {
         $givenname = $this->info['lis_person_name_given'];
         $familyname = $this->info['lis_person_name_family'];
@@ -184,8 +189,7 @@ class BLTI {
         $email = $this->getUserEmail();
         if ( $email === false ) return false;
         $size = 40;
-        $grav_url = $_SERVER['HTTPS'] ? 'https://' : 'http://';
-        $grav_url = $grav_url . "www.gravatar.com/avatar.php?gravatar_id=".md5( strtolower($email) )."&size=".$size;
+        $grav_url = "//www.gravatar.com/avatar.php?gravatar_id=".md5( strtolower($email) )."&size=".$size;
         return $grav_url;
     }
 
@@ -227,15 +231,15 @@ class BLTI {
 
     // TODO: Add javasript version if headers are already sent
     function redirect() {
-            $host = $_SERVER['HTTP_HOST'];
-            $uri = $_SERVER['PHP_SELF'];
-            $location = $_SERVER['HTTPS'] ? 'https://' : 'http://';
-            $location = $location . $host . $uri;
-            $location = $this->addSession($location);
-            header("Location: $location");
+        $host     = $this->server_input['HTTP_HOST'];
+        $uri      = $this->server_input['PHP_SELF'];
+        $location = $this->server_input['HTTPS'] ? 'https://' : 'http://';
+        $location = $location . $host . $uri;
+        $location = $this->addSession($location);
+        header("Location: $location");
     }
 
-    function dump() { 
+    function dump() {
         if ( ! $this->valid or $this->info == false ) return "Context not valid\n";
         $ret = "";
         if ( $this->isInstructor() ) {
@@ -255,6 +259,4 @@ class BLTI {
         $ret .= "getConsumerKey() = ".$this->getConsumerKey()."\n";
         return $ret;
     }
-
 }
-?>
