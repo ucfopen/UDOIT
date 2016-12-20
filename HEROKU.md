@@ -3,6 +3,53 @@ Use the button below to quick start your deploy.
 
 [![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy)
 
+## Installation Instructions
+Installing UDOIT using the Heroku button is very easy, but still requires some setup.  If you prefer to watch a video demonstrating the process step-by-step, watch the [UDOIT Installation CanvasLIVE video](https://www.youtube.com/watch?v=g1LgnErkvsA).
+
+Below are the written directions if you prefer to follow along that way.
+
+### Step 1:  Create a Google/YouTube API key
+
+### Step 2:  Setting up Heroku
+After clicking the Heroku button above:
+1. Create an account (if you don't have one already).
+2. Give the app a name.
+3. Fill out the `OAUTH2_ID` and `OAUTH2_KEY` fields with dummy data.  (We'll fix it later.)
+4. Fill out the `OAUTH2_URI` field with `https://yourapp.herokuapp.com/oauth2response.php`. (Replace 'yourapp' with the name you gave in step 2.)
+5. Click the Deploy button and wait for the process to complete.
+
+### Step 3:  Request a Developer Key
+UDOIT uses Oauth2 to take actions on behalf of the user, so you'll need to ask your Canvas administrator to generate a Developer Key for you.  (If you are an admin, go to your institution's account administration page in Canvas and click on 'Developer Keys'.)  Here is the information you need to provide them:
+
+* Key Name: Probably 'UDOIT' or 'UDOIT Test' for your test instance
+* Owner Email: The email address of whoever is responsible for UDOIT at your institution
+* Redirect URI: This is the URI of the `oauth2response.php` file in the UDOIT directory.
+ * This should be `https://yourapp.herokuapp.com/oauth2response.php`. (Replace 'yourapp' with the name of your UDOIT instance on Heroku.)
+* Icon URL: The URL of the UDOIT icon.  This is `https://yourapp.herokuapp.com/assets/img/udoit_icon.png`.  (Replace 'yourapp' with the name of your UDOIT instance on Heroku.)
+
+### Step 4:  Add your Developer Key to UDOIT
+1. In Heroku, click the 'Manage App' button for your install of UDOIT.
+2. Go to the 'Settings' tab.
+3. Copy and paste the following values from the Developer Key:
+ * ID into OAUTH2_ID
+ * Secret into OAUTH2_KEY
+4. Verify that your OAUTH2_URI is correct. (See above.)
+
+### Step 5:  Install the UDOIT LTI
+
+1. You can install UDOIT at the sub-account level or the course level.  Either way, start by going to the **settings** area.
+2. Click the **Apps** tab.
+3. Click the **View App Configurations** button.
+4. Click the **Add App** button.
+5. Under **Configuration Type**, choose **By URL**.
+6. In the **Name** field, enter `UDOIT`.
+7. In the **Consumer Key** field, copy the value from OAUTH2_ID
+8. In the **Shared Secret** field, copy the value from OAUTH2_KEY
+9. In the **Config URL** field, paste value from OAUTH2_URI.
+10. Finish by clicking **Submit**.
+
+UDOIT should now be available in the course navigation menu.
+
 # Manual Deploy on Heroku
 
 You can use our configuration to launch a new Heroku app using [Heroku's app-setups api](https://devcenter.heroku.com/articles/setting-up-apps-using-the-heroku-platform-api).
@@ -34,7 +81,7 @@ These variables can be set in the curl post above.  You can also set them later 
 * `SHARED_SECRET` - LTI secret entered when adding UDOIT LTI to Canvas
 * `OAUTH2_ID` - from the developer api key created by your admin
 * `OAUTH2_KEY` - from the developer api key created by your admin
-* `OAUTH2_URI` - full url to your oauth2responce.php - EX: `https://your.herokuapp.com/oauth2response.php`
+* `OAUTH2_URI` - full url to your oauth2response.php - EX: `https://your.herokuapp.com/oauth2response.php`
 * `GOOGLE_API_KEY` - add a google api key for youtube video support
 * `USE_HEROKU_CONFIG` - set to `true` to enable the Heroku configuration
 
