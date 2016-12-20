@@ -4,9 +4,6 @@
 include_once('lib/quail/quail/common/services/media/youtube.php');
 include_once('config/settings.php');
 
-/**
- *   @group functional
- */
 class FunctionalTests extends PHPUnit_Framework_TestCase
 {
     // public function setUp () {
@@ -27,7 +24,7 @@ class FunctionalTests extends PHPUnit_Framework_TestCase
         $vid_url = 'https://www.youtube.com/watch?v=zo6aRvf-l_s';
 
         $yt_service = new youtubeService();
-        $captions_missing     = $yt_service->captionsMissing($vid_url);
+        $captions_missing = $yt_service->captionsMissing($vid_url);
 
         $this->assertFalse($captions_missing);
     }
@@ -37,7 +34,7 @@ class FunctionalTests extends PHPUnit_Framework_TestCase
         $vid_url = 'https://www.youtube.com/watch?v=nBH89Y0Xj7c';
 
         $yt_service = new youtubeService();
-        $captions_missing     = $yt_service->captionsMissing($vid_url);
+        $captions_missing = $yt_service->captionsMissing($vid_url);
 
         $this->assertTrue($captions_missing);
     }

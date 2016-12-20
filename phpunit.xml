@@ -2,7 +2,9 @@
   <testsuites>
     <testsuite name="UDOIT">
       <file>tests/UfixitTest.php</file>
-      <file>tests/FunctionalTests.php</file>
+    </testsuite>
+    <testsuite>
+    	<file>tests/FunctionalTests.php</file>
     </testsuite>
   </testsuites>
 </phpunit>
