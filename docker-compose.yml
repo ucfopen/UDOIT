@@ -1,0 +1,5 @@
+web:
+  build: .
+  volumes:
+    - .:/var/www
+  command: ./composer_depend.sh
