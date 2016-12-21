@@ -44,21 +44,16 @@ class youtubeService extends mediaService
 			$url = $url.$youtube_id.'&key='.$api_key;
 			$response = Request::get($url)->send();
 
-			// If the video was pulled due to copyright violations or is unavailable, the items array will be empty.
+			// If the video was pulled due to copyright violations, is unlisted, or is unavailable, the items array will be empty.
 			// Another error will result in this case
 			if( empty($response->body->items) ) {
-				return false;
-			}
-
-			$caption_tracks = $response->body->items;
-
-			if( empty($caption_tracks) ) {
 				return true;
 			}
 
-			foreach ( $caption_tracks as $track ) {
-				if ( $track->snippet->trackKind != 'ASR' )
+			foreach ( $response->body->items as $track ) {
+				if ( $track->snippet->trackKind != 'ASR' ) {
 					return false;
+				}
 			}
 
 			return true;
