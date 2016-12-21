@@ -114,11 +114,11 @@ Edit `config/localConfig.php`:
 ### Canvas Oauth2
 UDOIT uses Oauth2 to take actions on behalf of the user, so you'll need to ask your Canvas administrator to generate a Developer Key for you.  Here is the information you need to provide them:
 
-* Key Name: Probably 'UDOIT' or 'UDOIT Test' for your test instance
-* Owner Email: The email address of whoever is responsible for UDOIT at your institution
-* Redirect URI: This is the URI of the `oauth2response.php` file in the UDOIT directory.
+* ***Key Name:*** Probably ***UDOIT*** or ***UDOIT Test*** for your test instance
+* ***Owner Email:*** The email address of whoever is responsible for UDOIT at your institution
+* ***Redirect URI:*** This is the URI of the `oauth2response.php` file in the UDOIT directory.
  * If you did a normal install into the web root of your server, it would be `https://www.example.com/public/oauth2response.php`. (Replace 'www.example.com' with the url of your UDOIT server.)
-* Icon URL: The URL of the UDOIT icon.  This is `https://www.example.com/public/assets/img/udoit_icon.png`.  (Replace 'www.example.com' with the url of your UDOIT server.)
+* ***Icon URL:*** The URL of the UDOIT icon.  This is `https://www.example.com/public/assets/img/udoit_icon.png`.  (Replace 'www.example.com' with the url of your UDOIT server.)
 
 After you receive your Developer Key from your Canvas admin, edit the following variables in `config/localConfig.php`:
 
@@ -126,15 +126,27 @@ After you receive your Developer Key from your Canvas admin, edit the following 
 * `$oauth2_key`: The Secret your Canvas admin gives you
 * `$oauth2_uri`: The Redirect URI you provided to your Canvas admin
 
+### Google/YouTube API Key
+In order for UDOIT to scan YouTube videos for closed captioning, you will need to create a YouTube Data API key.  Follow the instructions below:
+
+1. Go to the [Google Developer Console](https://console.developers.google.com).
+2. Create a project.
+3. Enable ***YouTube Data API V3***
+4. Create an ***API key*** credential.
+
 ### Installing the LTI in Canvas
 Log into Canvas to add UDOIT:
 
-1. Under **Configuration Type**, choose **By URL**.
-2. In the **Name** field, enter `UDOIT`.
-3. In the **Consumer Key** field, copy the value from `$consumer_key` from `config/localConfig.php`
-4. In the **Shared Secret** field, copy the value from `$shared_secret` from `config/localConfig.php`
-5. In the **Config URL** field, paste the **FULL URL** that points to `udoit.xml.php`. **See** LTI Config URL Notes.
-6. Finish by clicking **Submit**.
+1. You can install UDOIT at the sub-account level or the course level.  Either way, start by going to the **settings** area.
+2. Click the **Apps** tab.
+3. Click the **View App Configurations** button.
+4. Click the **Add App** button.
+5. Under **Configuration Type**, choose **By URL**.
+6. In the **Name** field, enter `UDOIT`.
+7. In the **Consumer Key** field, copy the value from `$consumer_key` from `config/localConfig.php`
+8. In the **Shared Secret** field, copy the value from `$shared_secret` from `config/localConfig.php`
+9. In the **Config URL** field, paste the **FULL URL** that points to `udoit.xml.php`. **See** LTI Config URL Notes.
+10. Finish by clicking **Submit**.
 
 #### LTI Config URL Notes
 The URL of your UDOIT LTI config depends on your webserver install.  The file is located the `public` directory. The examples below should give you are some possible values:

@@ -10,30 +10,34 @@ Below are the written directions if you prefer to follow along that way.
 
 ### Step 1:  Create a Google/YouTube API key
 
+See the [Google/YouTube API instructions](README.md#googleyoutube-api-key) in the README.
+
 ### Step 2:  Setting up Heroku
 After clicking the Heroku button above:
+
 1. Create an account (if you don't have one already).
 2. Give the app a name.
 3. Fill out the `OAUTH2_ID` and `OAUTH2_KEY` fields with dummy data.  (We'll fix it later.)
 4. Fill out the `OAUTH2_URI` field with `https://yourapp.herokuapp.com/oauth2response.php`. (Replace 'yourapp' with the name you gave in step 2.)
+5. Copy and paste your Google/YouTube API key.
 5. Click the Deploy button and wait for the process to complete.
 
 ### Step 3:  Request a Developer Key
 UDOIT uses Oauth2 to take actions on behalf of the user, so you'll need to ask your Canvas administrator to generate a Developer Key for you.  (If you are an admin, go to your institution's account administration page in Canvas and click on 'Developer Keys'.)  Here is the information you need to provide them:
 
-* Key Name: Probably 'UDOIT' or 'UDOIT Test' for your test instance
-* Owner Email: The email address of whoever is responsible for UDOIT at your institution
-* Redirect URI: This is the URI of the `oauth2response.php` file in the UDOIT directory.
+* ***Key Name:*** Probably ***UDOIT*** or ***UDOIT Test*** for your test instance
+* ***Owner Email:*** The email address of whoever is responsible for UDOIT at your institution
+* ***Redirect URI:*** This is the URI of the `oauth2response.php` file in the UDOIT directory.
  * This should be `https://yourapp.herokuapp.com/oauth2response.php`. (Replace 'yourapp' with the name of your UDOIT instance on Heroku.)
-* Icon URL: The URL of the UDOIT icon.  This is `https://yourapp.herokuapp.com/assets/img/udoit_icon.png`.  (Replace 'yourapp' with the name of your UDOIT instance on Heroku.)
+* ***Icon URL:*** The URL of the UDOIT icon.  This is `https://yourapp.herokuapp.com/assets/img/udoit_icon.png`.  (Replace ***yourapp*** with the name of your UDOIT instance on Heroku.)
 
 ### Step 4:  Add your Developer Key to UDOIT
 1. In Heroku, click the 'Manage App' button for your install of UDOIT.
 2. Go to the 'Settings' tab.
 3. Copy and paste the following values from the Developer Key:
- * ID into OAUTH2_ID
- * Secret into OAUTH2_KEY
-4. Verify that your OAUTH2_URI is correct. (See above.)
+ * ID into ***OAUTH2_ID***
+ * Secret into ***OAUTH2_KEY***
+4. Verify that your ***OAUTH2_URI*** is correct. (See above.)
 
 ### Step 5:  Install the UDOIT LTI
 
