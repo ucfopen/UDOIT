@@ -30,3 +30,8 @@ $db_reports_table = 'reports';
 $dsn              = "{$db_type}:host={$db_host};port={$db_port};dbname={$db_name}";
 
 $debug = false;
+
+// OVERRIDE the default of PROD
+// $UDOIT_ENV = ENV_TEST;
+// $UDOIT_ENV = ENV_PROD;
+// $UDOIT_ENV = ENV_DEV;

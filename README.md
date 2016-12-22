@@ -1,242 +1,196 @@
-# UDOIT Developer Guide
+[![Build Status](https://travis-ci.org/ucfopen/UDOIT.svg?branch=master)](https://travis-ci.org/ucfopen/UDOIT)
+[![Join UCF Open Slack Discussions](https://ucf-open-slackin.herokuapp.com/badge.svg)](https://ucf-open-slackin.herokuapp.com/)
 
-Installing and developing on UDOIT is actually quite easy, below is the documentation to help you get started!
+# Universal Design Online content Inspection Tool
+UDOIT enables faculty to identify accessibility issues in Canvas by Instructure. Scan a course, generate reports, and provide resources to address common accessibility issues.
 
-## License
-Please see `UDOIT_Release.pdf` (distributed with the source code) for more information about licensing.
+## Licenses
+Please see [UDOIT_Release.pdf](UDOIT_Release.pdf) (distributed with the source code) for more information about licensing.
 
 ### UDOIT
-Copyright (C) 2014 University of Central Florida, created by Jacob Bates, Eric Colon, Fenel Joseph, and Emily Sachs.
+> Copyright (C) 2014 University of Central Florida, created by Jacob Bates, Eric Colon, Fenel Joseph, and Emily Sachs.
 
-This program is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
+> This program is free software: you can redistribute it and/or modify
+> it under the terms of the GNU General Public License as published by
+> the Free Software Foundation, either version 3 of the License, or
+> (at your option) any later version.
 
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
+> This program is distributed in the hope that it will be useful,
+> but WITHOUT ANY WARRANTY; without even the implied warranty of
+> MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+> GNU General Public License for more details.
 
-You should have received a copy of the GNU General Public License
-along with this program.  If not, see <http://www.gnu.org/licenses/>.
+> You should have received a copy of the GNU General Public License
+> along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-Primary Author Contact:  Jacob Bates <jacob.bates@ucf.edu>
+> Primary Contact:  Jacob Bates <jacob.bates@ucf.edu>
 
 ### Quail
 UDOIT uses the [QUAIL PHP library](https://code.google.com/p/quail-lib/), which has been heavily customized to suit the needs of UDOIT. This library requires distribution of tools developed with their library under the [GNU General Public License version 3](http://www.gnu.org/licenses/gpl.html)
 
-## Installing
+# Installing UDOIT
+UDOIT can be installed on your own existing servers, but we've also configured an easy install to a free Heroku server.
 
-UDOIT uses php, apache or nginx, and mysql or postresql.  For instructions on installing to Heroku, view [HEROKU.md](HEROKU.md).  We also support instantly deploying UDOIT: [![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy)
+Heroku instructions can be found in the [HEROKU.md Readme](HEROKU.md).
 
-### System Requirements
-*PHP 5.4 is required* to run UDOIT without any modifications.  UDOIT is now compatible with PHP 5.6.  Also, some users have been able to modify the code to work on 5.3.
+## System Requirements
+* Apache or Nginx webserver
+* PHP 5.4, 5.5, or 5.6 (some users have modified the code to work on 5.3)
+* Bower
+* MySQL or PostgreSQL
 
 If you're using PHP 5.3:
 
 * Convert all empty array initializations from using the newer `[]` syntax to use the older `array()` syntax.
 * If you have `short_open_tag` disabled, you'll need to change all `<?=` to `<?php echo`
 
-### Bower Dependencies
-[Bower](http://bower.io/) is used to install external JavaScript Dependencies. Composer automatically runs Bower during install in the next step, so install Bower before continuing.
+## Installing Bower Dependencies
+[Bower](http://bower.io/) is used to install JavaScript dependencies. Composer automatically runs Bower during install in the next step, so install Bower before continuing.
 
-> Currently there is only one bower library installed. You can also install manually by placing [JSColor](https://github.com/callumacrae/JSColor) library contents in `assets/js/vendor/JSColor/`.
+> Currently there is only one bower library installed. You can also install manually by cloning [JSColor](https://github.com/callumacrae/JSColor) library into `assets/js/vendor/JSColor/`.
 
-### Composer Dependencies
-
-UDOIT uses [Composer](https://getcomposer.org/) to manage its dependencies, so `cd` into your UDOIT directory and run this command before anything else:
+## Installing Composer Dependencies
+UDOIT uses [Composer](https://getcomposer.org/) to install PHP dependencies. So `cd` into your UDOIT directory and run this command before anything else:
 
 ```
 $ php composer.phar install
 ```
 
-The libraries (other then Quail) that we rely on:
-
-* [Httpful](http://phphttpclient.com/)
-* [HTML Minifier](https://github.com/zaininnari/html-minifier)
-* [mPDF](https://github.com/finwe/mpdf)
+The libraries (other then Quail) that we rely on can be found in `bower.json` and `composer.json`.
 
 Please refer to the documentation for these three libraries for additional information.
 
-### File Storage
+## Storage for Reports
 Make sure the `reports` directory in the root of UDOIT is *writable by your webserver*.  UDOIT saves generated reports here for easy retrieval.  You may have to change the user, group, or permissions to get this working (sorry we can't be more specific, it varies greatly depending on your environment).
 
 ## Database Setup
-There are only two tables required to run UDOIT.  They are:
+UDOIT works with MySQL, MariaDB, or PostgreSQL
 
-### Reports Table
+1. Create a database for UDOIT.  
+2. Create a user with access to your database
 
-```sql
-/* mysql */
-CREATE TABLE `reports` (
-  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
-  `user_id` int(10) unsigned NOT NULL,
-  `course_id` int(10) unsigned NOT NULL,
-  `file_path` text NOT NULL,
-  `date_run` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  `errors` int(10) unsigned NOT NULL,
-  `suggestions` int(10) unsigned NOT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+### Database Config
+If `config/localConfig.php` doesn't exist, create it using a copy of the template:
 
-/* postgresql */
-CREATE TABLE reports (
-  id SERIAL PRIMARY KEY,
-  user_id integer,
-  course_id integer,
-  file_path text,
-  date_run bigint,
-  errors integer,
-  suggestions integer
-);
+```
+$ cp config/localConfig.template.php config/localConfig.php
 ```
 
+Edit `config/localConfig.php`:
 
-### Users Table
+* `$db_type` - use 'mysql' or 'pgsql'
+* `$db_host` - the host or ip address of your database server, often 'localhost'
+* `$db_port` - the database server's port, MySQL's default is '3306'
+* `$db_user` - database user that has access to your tables
+* `$db_password` - the database user's password
+* `$db_name` -  The database name that contains the tables
+* `$db_user_table` - Default is 'users', no change needed unless you change the table names
+* `$db_reports_table`: - Default is 'reports', no change needed unless you change the table names
 
-```sql
-/* mysql */
-CREATE TABLE `users` (
-  `id` int(10) unsigned NOT NULL,
-  `api_key` varchar(255) NOT NULL,
-  `date_created` date NOT NULL,
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `id` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+### Installing Database Tables
 
-/* postgresql */
-CREATE TABLE users (
-  id integer CONSTRAINT users_pk PRIMARY KEY,
-  api_key varchar(255),
-  date_created integer
-);
+There are only two tables required. To create them, run the creation script below.  You'll need to complete the db steps above first.
+
+```
+$ php lib/db_create_tables.php
 ```
 
+The table schema can be found in [lib/db_create_tables.php](lib/db_create_tables.php)
 
-## Configuration
-Make a copy of `config/localConfig.template.php`, rename it to `localConfig.php`.
+## Configuration and Setup
+If you didn't already make `config/localConfig.php` when you set up the database, do it now.
 
 ### Canvas API
 Please refer to the [Canvas API Policy](http://www.canvaslms.com/policies/api-policy) before using this application, as it makes heavy use of the Canvas API.
 
-* `$consumer_key`: A consumer key you make up.  Used when installing the LTI in Canvas.
-* `$shared_secret`: The shared secret you make up.  Used when installing the LTI in Canvas.
+### LTI Security
+UDOIT uses the security processes built into the LTI specification to ensure that users are only accessing UDOIT from within your instance of Canvas.  There are two values that need to be set in order for this security process to work.  These values should be different from each other.  You will use them again when you are installing the LTI in Canvas.
+
+Edit `config/localConfig.php`:
+
+* `$consumer_key`: A value you make up.
+* `$shared_secret`: The value you make up.
 
 ### Canvas Oauth2
-UDOIT uses Oauth2 to take actions on behalf of the user, you'll need to [sign up for a developer key](https://docs.google.com/forms/d/1C5vOpWHAAl-cltj2944-NM0w16AiCvKQFJae3euwwM8/viewform)
+UDOIT uses Oauth2 to take actions on behalf of the user, so you'll need to ask your Canvas administrator to generate a Developer Key for you.  Here is the information you need to provide them:
 
-* `$oauth2_id`: The Client_ID Instructure gives you
-* `$oauth2_key`: The Secret Instructure gives you
-* `$oauth2_uri`: The "Oauth2 Redirect URI" you provided instructure.  This is the URI of the oauth2response.php file in the UDOIT directory.
+* ***Key Name:*** Probably ***UDOIT*** or ***UDOIT Test*** for your test instance
+* ***Owner Email:*** The email address of whoever is responsible for UDOIT at your institution
+* ***Redirect URI:*** This is the URI of the `oauth2response.php` file in the UDOIT directory.
+ * If you did a normal install into the web root of your server, it would be `https://www.example.com/public/oauth2response.php`. (Replace 'www.example.com' with the url of your UDOIT server.)
+* ***Icon URL:*** The URL of the UDOIT icon.  This is `https://www.example.com/public/assets/img/udoit_icon.png`.  (Replace 'www.example.com' with the url of your UDOIT server.)
 
-### Database Config
-These value of these vars should be obvious:
+After you receive your Developer Key from your Canvas admin, edit the following variables in `config/localConfig.php`:
 
-* `$db_host`
-* `$db_url`
-* `$db_password`
-* `$db_name`
-* `$db_user_table`
-* `$db_reports_table`
+* `$oauth2_id`: The Client_ID yoru Canvas admin gives you
+* `$oauth2_key`: The Secret your Canvas admin gives you
+* `$oauth2_uri`: The Redirect URI you provided to your Canvas admin
 
-## Installing the LTI in Canvas
-1. Under _Configuration Type_, choose _By URL_.
-2. In the _Name_ field, type *UDOIT*.
-3. In the _Consumer Key_ field, copy the value from `$consumer_key` in your config file
-4. In the _Shared Secret_ field, copy the value from `$shared_secret` in your config file 
-5. In the _Config URL_ field, input the URL that points to *udoit.xml.php*.
-6. Click _Submit_.
+### Google/YouTube API Key
+In order for UDOIT to scan YouTube videos for closed captioning, you will need to create a YouTube Data API key.  Follow the instructions below:
 
-## The Udoit class
-File: *lib/Udoit.php*
+1. Go to the [Google Developer Console](https://console.developers.google.com).
+2. Create a project.
+3. Enable ***YouTube Data API V3***
+4. Create an ***API key*** credential.
 
-This is the class which will scan a Canvas course's content and a return a UDOIT report if any problems are found.
+### Installing the LTI in Canvas
+Log into Canvas to add UDOIT:
 
-### Properties
-*See class definition*
+1. You can install UDOIT at the sub-account level or the course level.  Either way, start by going to the **settings** area.
+2. Click the **Apps** tab.
+3. Click the **View App Configurations** button.
+4. Click the **Add App** button.
+5. Under **Configuration Type**, choose **By URL**.
+6. In the **Name** field, enter `UDOIT`.
+7. In the **Consumer Key** field, copy the value from `$consumer_key` from `config/localConfig.php`
+8. In the **Shared Secret** field, copy the value from `$shared_secret` from `config/localConfig.php`
+9. In the **Config URL** field, paste the **FULL URL** that points to `udoit.xml.php`. **See** LTI Config URL Notes.
+10. Finish by clicking **Submit**.
 
-### Methods
+#### LTI Config URL Notes
+The URL of your UDOIT LTI config depends on your webserver install.  The file is located the `public` directory. The examples below should give you are some possible values:
 
-#### buildReport()
-Iterates through selected content types to build the final report object.
+* `http://<DOMAIN>/udoit.xml.php`
+* `http://<DOMAIN>/public/udoit.xml.php`
+* `http://<DOMAIN>/udoit/udoit.xml.php`
+* `http://<DOMAIN>/udoit/public/udoit.xml.php`
 
-#### generateReport()
-This calls the Quail library to scan HTML and check it for accessibility problems.
+# Developing and Testing
 
-#### getCourseContent()
-Makes API calls to Canvas and retrieves HTML and other data from selected content types.
+For quick local development, set `$UDOIT_ENV = ENV_DEV;` in `config/localConfig.php`.  This flag disables authentication and allows you to quickly see a sample test report for most template, js, and css development. Use this along with the quick dev server below.
 
-#### parseLinks()
-Increments the current page number for either Files or Pages in the event that their results are paginated.
+## Simple Dev Server
 
-## The Ufixit class
-File: *lib/Ufixit.php*
+From the public directory, run:
 
-This is the class which will fix problem content and upload it to a Canvas course.
+```
+$ php -S localhost:8000
+```
 
-### Properties
-*See class definition*
+Then open [http://localhost:8000 in a browser](http://localhost:8000).
 
-### Methods
+## Running Tests
+We use phpunit to run unit tests on UDOIT.  To run the tests, type the following command:
 
-#### fixAltText()
-Adds the alt text value to the image that's missing it.
+```
+$ ./vendor/phpunit/phpunit/phpunit
+```
 
-#### fixCss()
-Replaces the old color/background value with the one chosen by the user.
+By default, phpunit will run all tests, including the functional tests that require access to outside APIs.  If you would like to exclude those tests, run this command:
 
-#### fixTableHeaders()
-Converts the first row, first column, or both into `th` elements - It gives them the proper `scope` value as well.
-
-#### fixTableThScopes()
-Adds the `col` or `row` attribute to any `th` elements without them.
-
-#### getFile()
-Gets a file from a Canvas course based on the `$start_id` parameter.
-
-#### renameElement()
-Renames an element to whatever name is specified in the `$name` parameter.
-
-#### uploadFixedAssignments()
-Fixes the HTML within assignments and uploads it back to the Canvas course.
-
-#### uploadFixedDiscussions()
-Fixes the HTML within discussions and announcements - they are of the same content type - and uploads it back to the Canvas course.
-
-#### uploadFixedFiles()
-Creates a temporary file, fixes the HTML within it, then uploads it back to the Canvas course.
-
-#### uploadFixedPages()
-Fixes the HTML within pages and uploads it back to the Canvas course.
-
-#### uploadFixedSyllabus()
-Fixes the HTML within the syllabus and uploads it back to the Canvas course.
-
-## Lib files
-All of these files are located within the */lib* directory.
-
-### cached.php
-This file is called when clicking the "View Old Reports" tab. It connects to the database using [PDO](http://php.net/manual/en/class.pdo.php), selects reports matching the course id, and outputs a table with the data.
-
-### parseResults.php
-This file decodes a a UDOIT report either from a JSON file or a JSON string (if not viewing a cached report). Then, the report HTML is echoed to be displayed to the user.
-
-### parsePdf.php
-This creates a PDF from the HTML of a UDOIT scan and allows the user to download it.
-
-### process.php
-The file is where all the magic happens, so to speak.
-
-### progress.php
-Increments a progress key in the global `$_SESSION` variable that some AJAX in default.js talks to in order to track the progress of a UDOIT scan.
+```
+$ ./vendor/phpunit/phpunit/phpunit --exclude-group functional
+```
 
 ## Contributors
-* Jacob Bates
-* Eric Colon
-* Fenel Joseph
-* Emily Sachs
+* [Jacob Bates](https://github.com/bagofarms)
+* [Eric Colon](https://github.com/accell)
+* [Fenel Joseph](https://github.com/feneljoseph)
+* [Emily Sachs](https://github.com/emilysachs)
+* [Ian Turgeon](https://github.com/iturgeon)
 * Karen Tinsley-Kim
+* [Kevin Baugh](https://github.com/loraxx753)
 * Joe Fauvel
 * John Raible
 * Kathleen Bastedo

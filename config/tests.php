@@ -157,7 +157,7 @@ $udoit_tests = [
         [
             'name'      => 'videosEmbeddedOrLinkedNeedCaptions',
             'title'     => 'Synchronized <a href="http://webaim.org/techniques/captions/">captions</a> should be provided for prerecorded web-based video',
-            'desc'      => '<p>Captions should be included in the video to provide dialogue to users who are hearing impaired.</p>',
+            'desc'      => '<p>Captions should be included in the video to provide dialogue to users who are hearing impaired.  (Please note that videos that have been removed, deleted, or are Unlisted will also cause this error, and will need to be manually verified.)</p>',
             'resources' => [
                 '<a href="https://support.google.com/youtube/answer/2734796?hl=en">Adding Captions to Youtube</a>',
                 '<a href="http://guides.instructure.com/m/4152/l/98632-how-do-i-create-captions-for-new-or-uploaded-videos-in-canvas">Creating Captions for Video Uploaded to Canvas</a>',

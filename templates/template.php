@@ -1,3 +1,23 @@
+<?php
+/**
+*	Copyright (C) 2014 University of Central Florida, created by Jacob Bates, Eric Colon, Fenel Joseph, and Emily Sachs.
+*
+*	This program is free software: you can redistribute it and/or modify
+*	it under the terms of the GNU General Public License as published by
+*	the Free Software Foundation, either version 3 of the License, or
+*	(at your option) any later version.
+*
+*	This program is distributed in the hope that it will be useful,
+*	but WITHOUT ANY WARRANTY; without even the implied warranty of
+*	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+*	GNU General Public License for more details.
+*
+*	You should have received a copy of the GNU General Public License
+*	along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*
+*	Primary Author Contact:  Jacob Bates <jacob.bates@ucf.edu>
+*/
+?>
 <!DOCTYPE html>
 <html lang="en">
 	<head>
@@ -15,31 +35,28 @@
 				<h1 class="logo">UDOIT</h1>
 			</header>
 
-			<?=$this->section('content')?>
+			<?= $this->section('content'); ?>
 
 		</div>
 
-		<?php if($footer_scripts): ?>
+		<?php if ($footer_scripts): ?>
 			<?php foreach($footer_scripts as $script): ?>
-				<script src="<?=$script?>"></script>
+				<script src="<?= $script; ?>"></script>
 			<?php endforeach ?>
 		<?php endif; ?>
 
-		<?php
-		$ga_tracking_code = constant('GA_TRACKING_CODE');
-		?>
-		<?php if( trim($ga_tracking_code) !== '' ): ?>
+		<?php if (trim(GA_TRACKING_CODE) !== ''): ?>
 			<script>
 			  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
 			  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
 			  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
 			  })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
 
-			  ga('create', '<?= $ga_tracking_code ?>', 'auto');
+			  ga('create', '<?= GA_TRACKING_CODE; ?>', 'auto');
 			  ga('send', 'pageview');
 
 			</script>
 		<?php endif; ?>
 	</body>
-	
+
 </html>

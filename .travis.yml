@@ -1,0 +1,13 @@
+language: php
+cache:
+  directories:
+    - $COMPOSER_CACHE_DIR
+    - vendor
+install:
+  - 'composer install --no-scripts'
+php:
+  - '5.4'
+  - '5.5'
+  - '5.6'
+script: 
+  - './vendor/phpunit/phpunit/phpunit --testsuite "UDOIT"'
