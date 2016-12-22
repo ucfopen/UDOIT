@@ -17,6 +17,9 @@
 *
 *	Primary Author Contact:  Jacob Bates <jacob.bates@ucf.edu>
 */
+
+require_once('../config/settings.php');
+
 $servername = 'https://' . $_SERVER['SERVER_NAME'];
 $exploded   = explode('/',$_SERVER['PHP_SELF']);
 $scriptname = @end( $exploded );
@@ -50,7 +53,7 @@ echo('<?xml version="1.0" encoding="UTF-8"?>');
 			<lticm:property name="url"><?= $launch ?></lticm:property>
 			<lticm:property name="default">enabled</lticm:property>
 			<lticm:property name="visibility">admins</lticm:property>
-			<lticm:property name="text">UDOIT</lticm:property>
+			<lticm:property name="text"><?= $canvas_nav_item_name ? $canvas_nav_item_name : 'UDOIT' ?></lticm:property>
 			<lticm:property name="enabled">true</lticm:property>
 		</lticm:options>
 	</blti:extensions>
