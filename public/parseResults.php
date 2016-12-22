@@ -165,13 +165,7 @@ function isYouTubeVideo($link_url, $regex)
 																	<?php $video_id = isYoutubeVideo($item->html, $regex); ?>
 																	<iframe width="100%" height="300px" src="https://www.youtube.com/embed/<?= $video_id; ?>" frameborder="0" allowfullscreen></iframe>
 																<?php else: ?>
-																	<?php if ($item->type == "cssTextHasContrast" && !isset($item->back_color)): ?>
-																		<div class="ufixit-no-background-color">
-																			<?= $item->html; ?>
-																		</div>
-																	<?php else: ?>
-																		<?= $item->html; ?>
-																	<?php endif; ?>
+																	<?= $item->html; ?>
 																<?php endif; ?>
 															</div>
 															<pre class="error-source"><code class="html"><strong>Line <?= $item->lineNo; ?></strong>: <?= htmlspecialchars($item->html); ?></code></pre>
