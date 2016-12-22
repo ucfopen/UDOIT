@@ -98,34 +98,55 @@ $ php lib/db_create_tables.php
 The table schema can be found in [lib/db_create_tables.php](lib/db_create_tables.php)
 
 ## Configuration and Setup
-If you didn't already make `config/localConfig.php` when you set up the database do it now.
+If you didn't already make `config/localConfig.php` when you set up the database, do it now.
 
 ### Canvas API
 Please refer to the [Canvas API Policy](http://www.canvaslms.com/policies/api-policy) before using this application, as it makes heavy use of the Canvas API.
 
+### LTI Security
+UDOIT uses the security processes built into the LTI specification to ensure that users are only accessing UDOIT from within your instance of Canvas.  There are two values that need to be set in order for this security process to work.  These values should be different from each other.  You will use them again when you are installing the LTI in Canvas.
+
 Edit `config/localConfig.php`:
 
-* `$consumer_key`: A consumer key you make up.  Used when installing the LTI in Canvas.
-* `$shared_secret`: The shared secret you make up.  Used when installing the LTI in Canvas.
+* `$consumer_key`: A value you make up.
+* `$shared_secret`: The value you make up.
 
 ### Canvas Oauth2
-UDOIT uses Oauth2 to take actions on behalf of the user, you'll need to [sign up for a developer key](https://docs.google.com/forms/d/1C5vOpWHAAl-cltj2944-NM0w16AiCvKQFJae3euwwM8/viewform)
+UDOIT uses Oauth2 to take actions on behalf of the user, so you'll need to ask your Canvas administrator to generate a Developer Key for you.  Here is the information you need to provide them:
 
-Edit `config/localConfig.php`:
+* ***Key Name:*** Probably ***UDOIT*** or ***UDOIT Test*** for your test instance
+* ***Owner Email:*** The email address of whoever is responsible for UDOIT at your institution
+* ***Redirect URI:*** This is the URI of the `oauth2response.php` file in the UDOIT directory.
+ * If you did a normal install into the web root of your server, it would be `https://www.example.com/public/oauth2response.php`. (Replace 'www.example.com' with the url of your UDOIT server.)
+* ***Icon URL:*** The URL of the UDOIT icon.  This is `https://www.example.com/public/assets/img/udoit_icon.png`.  (Replace 'www.example.com' with the url of your UDOIT server.)
 
-* `$oauth2_id`: The Client_ID Instructure gives you
-* `$oauth2_key`: The Secret Instructure gives you
-* `$oauth2_uri`: The "Oauth2 Redirect URI" you provided Instructure.  This is the URI of the `auth2response.php` file in the UDOIT directory.
+After you receive your Developer Key from your Canvas admin, edit the following variables in `config/localConfig.php`:
+
+* `$oauth2_id`: The Client_ID yoru Canvas admin gives you
+* `$oauth2_key`: The Secret your Canvas admin gives you
+* `$oauth2_uri`: The Redirect URI you provided to your Canvas admin
+
+### Google/YouTube API Key
+In order for UDOIT to scan YouTube videos for closed captioning, you will need to create a YouTube Data API key.  Follow the instructions below:
+
+1. Go to the [Google Developer Console](https://console.developers.google.com).
+2. Create a project.
+3. Enable ***YouTube Data API V3***
+4. Create an ***API key*** credential.
 
 ### Installing the LTI in Canvas
 Log into Canvas to add UDOIT:
 
-1. Under **Configuration Type**, choose **By URL**.
-2. In the **Name** field, enter `UDOIT`.
-3. In the **Consumer Key** field, copy the value from `$consumer_key` from `config/localConfig.php`
-4. In the **Shared Secret** field, copy the value from `$shared_secret` from `config/localConfig.php`
-5. In the **Config URL** field, paste the **FULL URL** that points to `udoit.xml.php`. **See** LTI Config URL Notes.
-6. Finish by clicking **Submit**.
+1. You can install UDOIT at the sub-account level or the course level.  Either way, start by going to the **settings** area.
+2. Click the **Apps** tab.
+3. Click the **View App Configurations** button.
+4. Click the **Add App** button.
+5. Under **Configuration Type**, choose **By URL**.
+6. In the **Name** field, enter `UDOIT`.
+7. In the **Consumer Key** field, copy the value from `$consumer_key` from `config/localConfig.php`
+8. In the **Shared Secret** field, copy the value from `$shared_secret` from `config/localConfig.php`
+9. In the **Config URL** field, paste the **FULL URL** that points to `udoit.xml.php`. **See** LTI Config URL Notes.
+10. Finish by clicking **Submit**.
 
 #### LTI Config URL Notes
 The URL of your UDOIT LTI config depends on your webserver install.  The file is located the `public` directory. The examples below should give you are some possible values:
@@ -154,6 +175,12 @@ We use phpunit to run unit tests on UDOIT.  To run the tests, type the following
 
 ```
 $ ./vendor/phpunit/phpunit/phpunit
+```
+
+By default, phpunit will run all tests, including the functional tests that require access to outside APIs.  If you would like to exclude those tests, run this command:
+
+```
+$ ./vendor/phpunit/phpunit/phpunit --exclude-group functional
 ```
 
 ## Contributors
