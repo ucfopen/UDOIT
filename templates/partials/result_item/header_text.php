@@ -21,5 +21,5 @@
 <div class="form-group no-margin margin-bottom">
 	<input class="{hash:true,caps:false} form-control" type="text" name="newcontent" placeholder="New heading text">
 	<label><input class="remove-heading" type="checkbox" />&nbsp;Delete this Header completely instead</label><br />
-	<button class="submit-content btn btn-default" type="submit">Submit</button>
+	<button class="submit-content inactive btn btn-default" type="submit">Submit</button>
 </div>

@@ -22,6 +22,6 @@
 	<span class="counter">100</span>
 	<input class="form-control" type="text" name="newcontent" maxlength="100" placeholder="New alt text">
 	<span class="input-group-btn">
-		<button class="submit-content btn btn-default" type="submit">Submit</button>
+		<button class="submit-content inactive btn btn-default" type="submit">Submit</button>
 	</span>
 </div>

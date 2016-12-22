@@ -347,10 +347,30 @@ $doc.ready(function() {
 	$doc.on('submit', '#scanner .ufixit-form', function(e) {
 		e.preventDefault();
 
+		// Change button text from 'Submit' to 'Working'
+		var $submit = $(this).find('button.submit-content');
 		var $parent = $(this).parent();
 		var values = $(this).serializeArray();
 		var errorsRemaining = -1;
 
+		if ( $submit.html() === '<div class="circle-black"></div> Waiting for UFIXIT to Finish' ) {
+			return;
+		}
+
+		$submit.removeClass('inactive');
+		$submit.prop('disabled',true);
+		$submit.html('<div class="circle-black"></div> Working');
+
+		var $targetPanel = $(this).parent().parent().parent().parent().parent().parent().parent();
+
+		var $reportURL = $targetPanel.find('a.report-url');
+		var $reportID = $targetPanel.find('input[name="contentid"]');
+
+		var $inactive = $targetPanel.find('button.submit-content.inactive');
+
+		$inactive.each( function() {
+			$(this).html('<div class="circle-black"></div> Waiting for UFIXIT to Finish');
+		});
 
 		values.push({ name: 'base_url', value: $('input[name="base_url"]').val() });
 		values.push({ name: 'course_id', value: $('input[name="session_course_id"]').val() });
@@ -385,9 +405,35 @@ $doc.ready(function() {
 						$parent.parent().parent().parent().find('h5').removeClass('text-danger').addClass('text-success');
 					}
 				}
+
+				var newFile = JSON.parse(data);
+
+				if ( values[1]['value'] == 'files' ) {
+					$reportURL.attr('href', newFile.url);
+
+					$reportID.each( function() {
+						$(this).attr('value', newFile.id);
+					});
+				}
+
+				$submit.addClass('inactive');
+				$submit.removeAttr('disabled');
+				$submit.html('Submit');
+
+				$inactive.each( function() {
+					$(this).html('Submit');
+				});
 			},
 			error: function(data) {
 				$parent.append(buildAlertString('Error: '+data.responseText));
+
+				$submit.addClass('inactive');
+				$submit.removeAttr('disabled');
+				$submit.html('Submit');
+
+				$inactive.each( function() {
+					$(this).html('Submit');
+				});
 			}
 		});
 	});

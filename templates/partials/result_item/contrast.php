@@ -57,4 +57,4 @@
 		</ul>
 	</div>
 </div>
-<button class="submit-content btn btn-default" type="submit">Submit</button>
+<button class="submit-content inactive btn btn-default" type="submit">Submit</button>

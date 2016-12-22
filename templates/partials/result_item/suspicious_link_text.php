@@ -21,6 +21,6 @@
 <div class="input-group">
 	<input class="form-control" type="text" name="newcontent" placeholder="New link description">
 	<span class="input-group-btn">
-		<button class="submit-content btn btn-default" type="submit">Submit</button>
+		<button class="submit-content inactive btn btn-default" type="submit">Submit</button>
 	</span>
 </div>

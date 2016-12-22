@@ -27,6 +27,6 @@
 		<option value="both">Both the first row and column</option>
 	</select>
 	<span class="input-group-btn">
-		<button class="submit-content btn btn-default" type="submit">Submit</button>
+		<button class="submit-content inactive btn btn-default" type="submit">Submit</button>
 	</span>
 </div>
