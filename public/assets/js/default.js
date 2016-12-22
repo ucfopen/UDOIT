@@ -416,9 +416,9 @@ $doc.ready(function() {
 					});
 				}
 
-				$(submit).addClass('inactive');
-				$(submit).removeAttr('disabled');
-				$(submit).html('Submit');
+				$submit.addClass('inactive');
+				$submit.removeAttr('disabled');
+				$submit.html('Submit');
 
 				$inactive.each( function() {
 					$(this).html('Submit');
@@ -427,9 +427,9 @@ $doc.ready(function() {
 			error: function(data) {
 				$parent.append(buildAlertString('Error: '+data.responseText));
 
-				$(submit).addClass('inactive');
-				$(submit).removeAttr('disabled');
-				$(submit).html('Submit');
+				$submit.addClass('inactive');
+				$submit.removeAttr('disabled');
+				$submit.html('Submit');
 
 				$inactive.each( function() {
 					$(this).html('Submit');
