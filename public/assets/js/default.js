@@ -406,14 +406,28 @@ $doc.ready(function() {
 					}
 				}
 
-				var newFile = JSON.parse(data);
+				// Ensure we were looking at a file before we try to parse the file
+				// response from the server
+				for(var prop in values){
+				    if(values.hasOwnProperty(prop)){
+				        if(values[prop].name == "contenttype" && values[prop].value == "files") {
+				            try {
+				                var newFile = JSON.parse(data);
 
-				if ( values[1]['value'] == 'files' ) {
-					$reportURL.attr('href', newFile.url);
+				                if ( values[1]['value'] == 'files' ) {
+				                    $reportURL.attr('href', newFile.url);
 
-					$reportID.each( function() {
-						$(this).attr('value', newFile.id);
-					});
+				                    $reportID.each( function() {
+				                        $(this).attr('value', newFile.id);
+				                    });
+				                }
+				            } catch(e){
+				                try {
+				                    console.log('Failed to parse JSON response during a File based UFIXIT attempt!')
+				                } catch(e){}
+				            }
+				        }
+				    }
 				}
 
 				$submit.addClass('inactive');
