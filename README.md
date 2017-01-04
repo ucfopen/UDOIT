@@ -31,7 +31,9 @@ UDOIT uses the [QUAIL PHP library](https://code.google.com/p/quail-lib/), which 
 # Installing UDOIT
 UDOIT can be installed on your own existing servers, but we've also configured an easy install to a free Heroku server.
 
-Heroku instructions can be found in the [HEROKU.md Readme](HEROKU.md).
+To start the deployment process, you can click the button below, please note, that although this button eliminates much of the installation complexity, there are still some configuration steps that need to be followed, those steps are outlined in the [HEROKU.md Readme](HEROKU.md).
+
+<a href="https://heroku.com/deploy" target="_blank" title="Deploy to Heroku"><img src="https://www.herokucdn.com/deploy/button.svg" alt="Deploy to Heroku" title="Deploy to Heroku Button"></a>
 
 ## System Requirements
 * Apache or Nginx webserver
