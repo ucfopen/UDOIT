@@ -166,7 +166,7 @@ switch ($main_action) {
 
             case 'tableThShouldHaveScope':
                 $new_content = filter_input(INPUT_POST, 'newcontent', FILTER_SANITIZE_STRING);
-                $corrected_error = $ufixit->fixTableThScopes($data['error_html'], $data['new_content']);
+                $corrected_error = $ufixit->fixTableThScopes($data['error_html'], $new_content);
                 break;
         }
 
