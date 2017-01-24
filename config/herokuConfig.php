@@ -14,7 +14,6 @@ $oauth2_uri       = getenv('OAUTH2_URI');
 /* Tool name for display in Canvas Navigation */
 $canvas_nav_item_name = getenv('CANVAS_NAV_ITEM_NAME');
 
-
 /* Database Config */
 
 $db_url           = parse_url(getenv('DATABASE_URL'));
