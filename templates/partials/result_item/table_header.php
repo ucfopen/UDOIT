@@ -19,7 +19,7 @@
 */
 ?>
 <hr>
-<p>Select which part of the table to convert to a header</p>
+<label for="<?= $this->e($item_id); ?>">Select which part of the table to convert to a header</label>
 <div class="input-group">
 	<select class="form-control" name="newcontent" id="<?= $this->e($item_id); ?>">
 		<option value="row">The first row</option>
