@@ -19,7 +19,8 @@
 */
 ?>
 <div class="form-group no-margin margin-bottom">
-	<input class="{hash:true,caps:false} form-control" type="text" name="newcontent" placeholder="New heading text">
+	<label for="<?= $this->e($item_id); ?>">Enter New Text For This Heading</label>
+	<input class="{hash:true,caps:false} form-control" type="text" name="newcontent" placeholder="New heading text" id="<?= $this->e($item_id); ?>">
 	<label><input class="remove-heading" type="checkbox" />&nbsp;Delete this Header completely instead</label><br />
 	<button class="submit-content inactive btn btn-default" type="submit">Submit</button>
 </div>
