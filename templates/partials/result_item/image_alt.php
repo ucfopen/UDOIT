@@ -19,9 +19,9 @@
 */
 ?>
 <div class="fix-alt input-group">
-	<label for="<?= $this->e($item_id); ?>" class="control-label sr-only">Provide New Alt Text For This Image</label>
+	<label for="<?= $this->e($item_id); ?>-input" class="control-label sr-only">Provide New Alt Text For This Image</label>
 	<span class="counter">100</span>
-	<input class="form-control" type="text" name="newcontent" maxlength="100" placeholder="New alt text" id="<?= $this->e($item_id); ?>">
+	<input class="form-control" type="text" name="newcontent" maxlength="100" placeholder="New alt text" id="<?= $this->e($item_id); ?>-input">
 	<span class="input-group-btn">
 		<button class="submit-content inactive btn btn-default" type="submit">Submit</button>
 	</span>

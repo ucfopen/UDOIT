@@ -20,8 +20,8 @@
 ?>
 <hr>
 <div class="input-group">
-	<label for="<?= $this->e($item_id); ?>" class="control-label sr-only">Select which part of the table to convert to a header</label>
-	<select class="form-control" name="newcontent" id="<?= $this->e($item_id); ?>">
+	<label for="<?= $this->e($item_id); ?>-input" class="control-label sr-only">Select which part of the table to convert to a header</label>
+	<select class="form-control" name="newcontent" id="<?= $this->e($item_id); ?>-input">
 		<option value="row">The first row</option>
 		<option value="col">The first column</option>
 		<option value="both">Both the first row and column</option>

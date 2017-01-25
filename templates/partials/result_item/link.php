@@ -19,8 +19,8 @@
 */
 ?>
 <div class="form-group no-margin margin-bottom">
-	<label for="<?= $this->e($item_id); ?>" class="control-label sr-only">Enter New Text for This Link</label>
-	<input class="{hash:true,caps:false} form-control" type="text" name="newcontent" placeholder="New link text" id="<?= $this->e($item_id); ?>">
+	<label for="<?= $this->e($item_id); ?>-input" class="control-label sr-only">Enter New Text for This Link</label>
+	<input class="{hash:true,caps:false} form-control" type="text" name="newcontent" placeholder="New link text" id="<?= $this->e($item_id); ?>-input">
 	<label><input class="remove-link" type="checkbox" />Delete this Link completely instead</label><br />
 	<button class="submit-content inactive btn btn-default" type="submit">Submit</button>
 </div>
