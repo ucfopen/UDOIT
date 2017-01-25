@@ -26,12 +26,12 @@
 	<div class="left">
 		<div class="form-group no-margin margin-bottom">
 			<?php if ( isset($group_item->back_color) ): ?>
-				<label for="newcontent[1]">Replace Background Color <?= $group_item->back_color; ?></label>
-				<input class="color {hash:true,caps:false} form-control back-color" type="text" name="newcontent[1]" value="<?= $group_item->back_color; ?>" placeholder="Replacement for Background Color <?= $group_item->back_color; ?>">
+				<label for="<?= $this->e($item_id); ?>-bgcolor">Replace Background Color <?= $group_item->back_color; ?></label>
+				<input class="color {hash:true,caps:false} form-control back-color" type="text" name="newcontent[1]" value="<?= $group_item->back_color; ?>" placeholder="Replacement for Background Color <?= $group_item->back_color; ?>" id="<?= $this->e($item_id);-bgcolor?>">
 			<?php endif; ?>
 
-			<label for="newcontent[0]">Replace Foreground Color <?= $group_item->fore_color; ?></label>&nbsp;<span class="contrast-invalid hidden red"><span class="glyphicon glyphicon-remove"></span>&nbsp;Ratio Invalid (<span class="contrast-ratio"></span>:1)</span>
-			<input class="color {hash:true,caps:false} form-control fore-color" type="text" name="newcontent[0]" value="<?= $group_item->fore_color; ?>" placeholder="Replacement for Foreground Color <?= $group_item->fore_color; ?>">
+			<label for="<?= $this->e($item_id); ?>-fgcolor">Replace Foreground Color <?= $group_item->fore_color; ?></label>&nbsp;<span class="contrast-invalid hidden red"><span class="glyphicon glyphicon-remove"></span>&nbsp;Ratio Invalid (<span class="contrast-ratio"></span>:1)</span>
+			<input class="color {hash:true,caps:false} form-control fore-color" type="text" name="newcontent[0]" value="<?= $group_item->fore_color; ?>" placeholder="Replacement for Foreground Color <?= $group_item->fore_color; ?>" id="<?= $this->e($item_id); ?>-fgcolor">
 			<label><input name="add-bold" type="checkbox" value="bold" />&nbsp;Make this text bold</label>&nbsp;<label><input name="add-italic" type="checkbox" value="italic" />&nbsp;Make this text <span style="font-style: italics;">italicized</span></label><br />
 			<input type="text" name="threshold" class="threshold hidden" value="<?= $group_item->text_type; ?>">
 		</div>
