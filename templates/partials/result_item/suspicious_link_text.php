@@ -19,7 +19,8 @@
 */
 ?>
 <div class="input-group">
-	<input class="form-control" type="text" name="newcontent" placeholder="New link description">
+	<label for="<?= $this->e($item_id); ?>" class="control-label sr-only">Enter a New Description for This Link</label>
+	<input class="form-control" type="text" name="newcontent" placeholder="New link description" id="<?= $this->e($item_id); ?>">
 	<span class="input-group-btn">
 		<button class="submit-content inactive btn btn-default" type="submit">Submit</button>
 	</span>
