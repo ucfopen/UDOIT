@@ -21,7 +21,7 @@
 <hr>
 <p>Select which part of the table to convert to a header</p>
 <div class="input-group">
-	<select class="form-control" name="newcontent">
+	<select class="form-control" name="newcontent" id="<?= $this->e($item_id); ?>">
 		<option value="row">The first row</option>
 		<option value="col">The first column</option>
 		<option value="both">Both the first row and column</option>
