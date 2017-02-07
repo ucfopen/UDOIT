@@ -186,14 +186,28 @@ $ ./vendor/phpunit/phpunit/phpunit --exclude-group functional
 ```
 
 ## Contributors
+<!--
+Add contributors here and dont forget composer.json!)
+(Please sort each group alphabetically)
+-->
+
+### Project Lead
+
 * [Jacob Bates](https://github.com/bagofarms)
+
+### Contributors
+
+* [Cooper Fellows](https://github.com/cooperfellows)
+* [Emily Sachs](https://github.com/emilysachs)
 * [Eric Colon](https://github.com/accell)
 * [Fenel Joseph](https://github.com/feneljoseph)
-* [Emily Sachs](https://github.com/emilysachs)
 * [Ian Turgeon](https://github.com/iturgeon)
-* Karen Tinsley-Kim
-* [Kevin Baugh](https://github.com/loraxx753)
 * Joe Fauvel
 * John Raible
+* [Kevin Baugh](https://github.com/loraxx753)
+
+### Special Thanks
+
+* Karen Tinsley-Kim
 * Kathleen Bastedo
 * Nancy Swenson
