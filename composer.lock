@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "dc106a835f3cc17d0486a04cd76e1552",
+    "content-hash": "b6ccc6a4640b8b0bb00dff38226c6887",
     "packages": [
         {
             "name": "league/plates",
@@ -60,16 +60,16 @@
         },
         {
             "name": "monolog/monolog",
-            "version": "1.21.0",
+            "version": "1.22.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Seldaek/monolog.git",
-                "reference": "f42fbdfd53e306bda545845e4dbfd3e72edb4952"
+                "reference": "bad29cb8d18ab0315e6c477751418a82c850d558"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Seldaek/monolog/zipball/f42fbdfd53e306bda545845e4dbfd3e72edb4952",
-                "reference": "f42fbdfd53e306bda545845e4dbfd3e72edb4952",
+                "url": "https://api.github.com/repos/Seldaek/monolog/zipball/bad29cb8d18ab0315e6c477751418a82c850d558",
+                "reference": "bad29cb8d18ab0315e6c477751418a82c850d558",
                 "shasum": ""
             },
             "require": {
@@ -80,7 +80,7 @@
                 "psr/log-implementation": "1.0.0"
             },
             "require-dev": {
-                "aws/aws-sdk-php": "^2.4.9",
+                "aws/aws-sdk-php": "^2.4.9 || ^3.0",
                 "doctrine/couchdb": "~1.0@dev",
                 "graylog2/gelf-php": "~1.0",
                 "jakub-onderka/php-parallel-lint": "0.9",
@@ -134,7 +134,7 @@
                 "logging",
                 "psr-3"
             ],
-            "time": "2016-07-29T03:23:52+00:00"
+            "time": "2016-11-26T00:15:39+00:00"
         },
         {
             "name": "mpdf/mpdf",
@@ -442,16 +442,16 @@
         },
         {
             "name": "heroku/heroku-buildpack-php",
-            "version": "v119",
+            "version": "v117",
             "source": {
                 "type": "git",
                 "url": "https://github.com/heroku/heroku-buildpack-php.git",
-                "reference": "26ebb69005d467d45f75797c1594f60818ba3fce"
+                "reference": "960199a978308c75926fd9bb4775f7113bf1d777"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/heroku/heroku-buildpack-php/zipball/26ebb69005d467d45f75797c1594f60818ba3fce",
-                "reference": "26ebb69005d467d45f75797c1594f60818ba3fce",
+                "url": "https://api.github.com/repos/heroku/heroku-buildpack-php/zipball/960199a978308c75926fd9bb4775f7113bf1d777",
+                "reference": "960199a978308c75926fd9bb4775f7113bf1d777",
                 "shasum": ""
             },
             "bin": [
@@ -482,7 +482,7 @@
                 "nginx",
                 "php"
             ],
-            "time": "2017-01-21T00:39:13+00:00"
+            "time": "2016-12-09T19:37:38+00:00"
         },
         {
             "name": "phpdocumentor/reflection-docblock",
