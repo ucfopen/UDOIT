@@ -74,10 +74,14 @@ class reportStatic extends quailReporter
 							foreach ($problem->element->attributes as $name) {
 								if ($name->name === "style") {
 									$styleValue = $name->value;
+									$backMatches = [];
 									$hexColors  = [];
-
+									preg_match('/background-color:\s*(#[0-9a-f]{6}|#[0-9a-f]{3})\s*;*\s*/', $styleValue, $backMatches);
+									if($backMatches != null){
+										$background = $backMatches[0];
+										$styleValue = $background . str_replace($background,"", $styleValue);
+									}
 									preg_match_all("/(#[0-9a-f]{6}|#[0-9a-f]{3})/", $styleValue, $hexColors);
-
 									$hexColors = array_unique($hexColors[0]);
 								}
 							}
