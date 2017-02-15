@@ -32,7 +32,8 @@
 
 			<label for="newcontent[1]">Replace Foreground Color <?= $group_item->fore_color; ?></label>&nbsp;<span class="contrast-invalid hidden red"><span class="glyphicon glyphicon-remove"></span>&nbsp;Ratio Invalid (<span class="contrast-ratio"></span>:1)</span>
 			<input class="color {hash:true,caps:false} form-control fore-color" type="text" name="newcontent[1]" value="<?= $group_item->fore_color; ?>" placeholder="Replacement for Foreground Color <?= $group_item->fore_color; ?>">
-			<label><input name="add-bold" type="checkbox" value="bold" />&nbsp;Make this text bold</label>&nbsp;<label><input name="add-italic" type="checkbox" value="italic" />&nbsp;Make this text <span style="font-style: italics;">italicized</span></label><br />
+			<label><input name="add-bold" type="checkbox" value="<?= $group_item->font_weight; ?>" <?php echo ($group_item->font_weight == "bold" ? 'checked' : '');?>/>&nbsp;Make this text <span style="font-weight: 900;">bold</span></label>&nbsp;
+			<label><input name="add-italic" type="checkbox" value="<?= $group_item->font_style; ?>" <?php echo ($group_item->font_style == "italic" ? 'checked' : '');?>/>&nbsp;Make this text <span style="font-style: italic;">italicized</span></label><br />
 			<input type="text" name="threshold" class="threshold hidden" value="<?= $group_item->text_type; ?>">
 		</div>
 	</div>
