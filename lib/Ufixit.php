@@ -144,7 +144,7 @@ class Ufixit
         $fixed_css = preg_replace('/color:\s*([#a-z0-9]*)\s*;*\s*/', '', $fixed_css);
         $fixed_css = preg_replace('/font-weight:\s*([a-z0-9]*)\s*;*\s*/', '', $fixed_css);
         $fixed_css = preg_replace('/font-style:\s*([a-z0-9]*)\s*;*\s*/', '', $fixed_css);
-        $fixed_css = preg_replace('/style="/', 'style="background-color: ' . $new_content[0] . '; color: ' . $new_content[1] . '; ', $fixed_css);
+        $fixed_css = preg_replace('/style="/', 'style="background-color: ' . $new_content[0] . '; color: ' . $new_content[1] . ';', $fixed_css);
         
 
         $this->dom->loadHTML('<?xml encoding="utf-8" ?>' . $fixed_css );
