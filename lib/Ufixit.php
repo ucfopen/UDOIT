@@ -139,6 +139,7 @@ class Ufixit
 
         $fixed_css = $error_html;
 
+        $fixed_css = preg_replace('/background:\s*([#a-z0-9]*)\s*;*\s*/', '', $fixed_css);
         $fixed_css = preg_replace('/background-color:\s*([#a-z0-9]*)\s*;*\s*/', '', $fixed_css);
         $fixed_css = preg_replace('/color:\s*([#a-z0-9]*)\s*;*\s*/', '', $fixed_css);
         $fixed_css = preg_replace('/font-weight:\s*([a-z0-9]*)\s*;*\s*/', '', $fixed_css);

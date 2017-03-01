@@ -37,8 +37,8 @@ class UfixitTest extends PHPUnit_Framework_TestCase
 
     public function testFixCssColorOneColorBold() {
         $error_html     = '<span style="color: #ffff00;">Bad Contrasting Text</span>';
-        $new_content    = ['000000'];
-        $expected       = '<span style="color: #000000; font-weight: bold;">Bad Contrasting Text</span>';
+        $new_content    = ['#ffffff', '#000000'];
+        $expected       = '<span style="background-color: #ffffff; color: #000000; font-weight: bold; font-style: normal;">Bad Contrasting Text</span>';
         $bold           = true;
         $italic         = false;
 
@@ -52,8 +52,8 @@ class UfixitTest extends PHPUnit_Framework_TestCase
 
     public function testFixCssColorTwoColorsItalic() {
         $error_html     = '<span style="color: #ffff00; background: #ffffff;">Bad Contrasting Text</span>';
-        $new_content    = ['000000', 'fffff0'];
-        $expected       = '<span style="color: #000000; background: #fffff0; font-style: italic;">Bad Contrasting Text</span>';
+        $new_content    = ['#fffff0', '#000000'];
+        $expected       = '<span style="background-color: #000000; color: #fffff0; font-weight: normal; font-style: italic;">Bad Contrasting Text</span>';
         $bold           = false;
         $italic         = true;
 
@@ -67,8 +67,8 @@ class UfixitTest extends PHPUnit_Framework_TestCase
 
     public function testFixCssColorTwoColorsBoldItalic() {
         $error_html     = '<span style="color: #ffff00; background: #ffffff;">Bad Contrasting Text</span>';
-        $new_content    = ['000000', 'fffff0'];
-        $expected       = '<span style="color: #000000; background: #fffff0; font-weight: bold; font-style: italic;">Bad Contrasting Text</span>';
+        $new_content    = ['#fffff0', '#000000'];
+        $expected       = '<span style="background-color: #000000; color: #fffff0; font-weight: bold; font-style: italic;">Bad Contrasting Text</span>';
         $bold           = true;
         $italic         = true;
 
