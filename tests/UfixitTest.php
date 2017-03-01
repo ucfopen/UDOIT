@@ -37,7 +37,6 @@ class UfixitTest extends PHPUnit_Framework_TestCase
 
     public function testFixCssColorOneColorBold() {
         $error_html     = '<span style="color: #ffff00;">Bad Contrasting Text</span>';
-        $error_colors   = ['ffff00'];
         $new_content    = ['000000'];
         $expected       = '<span style="color: #000000; font-weight: bold;">Bad Contrasting Text</span>';
         $bold           = true;
@@ -45,7 +44,7 @@ class UfixitTest extends PHPUnit_Framework_TestCase
 
         ob_start();
         $temp           = new Ufixit($this->data);
-        $output         = $temp->fixCssColor($error_colors, $error_html, $new_content, $bold, $italic);
+        $output         = $temp->fixCssColor($error_html, $new_content, $bold, $italic);
 
         $this->assertEquals($expected, $output);
         $this->checkOutputBuffer();
@@ -53,7 +52,6 @@ class UfixitTest extends PHPUnit_Framework_TestCase
 
     public function testFixCssColorTwoColorsItalic() {
         $error_html     = '<span style="color: #ffff00; background: #ffffff;">Bad Contrasting Text</span>';
-        $error_colors   = ['ffff00', 'ffffff'];
         $new_content    = ['000000', 'fffff0'];
         $expected       = '<span style="color: #000000; background: #fffff0; font-style: italic;">Bad Contrasting Text</span>';
         $bold           = false;
@@ -61,7 +59,7 @@ class UfixitTest extends PHPUnit_Framework_TestCase
 
         ob_start();
         $temp           = new Ufixit($this->data);
-        $output         = $temp->fixCssColor($error_colors, $error_html, $new_content, $bold, $italic);
+        $output         = $temp->fixCssColor($error_html, $new_content, $bold, $italic);
 
         $this->assertEquals($expected, $output);
         $this->checkOutputBuffer();
@@ -69,7 +67,6 @@ class UfixitTest extends PHPUnit_Framework_TestCase
 
     public function testFixCssColorTwoColorsBoldItalic() {
         $error_html     = '<span style="color: #ffff00; background: #ffffff;">Bad Contrasting Text</span>';
-        $error_colors   = ['ffff00', 'ffffff'];
         $new_content    = ['000000', 'fffff0'];
         $expected       = '<span style="color: #000000; background: #fffff0; font-weight: bold; font-style: italic;">Bad Contrasting Text</span>';
         $bold           = true;
@@ -77,7 +74,7 @@ class UfixitTest extends PHPUnit_Framework_TestCase
 
         ob_start();
         $temp           = new Ufixit($this->data);
-        $output         = $temp->fixCssColor($error_colors, $error_html, $new_content, $bold, $italic);
+        $output         = $temp->fixCssColor($error_html, $new_content, $bold, $italic);
 
         $this->assertEquals($expected, $output);
         $this->checkOutputBuffer();
