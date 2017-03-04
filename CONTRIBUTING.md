@@ -2,18 +2,43 @@
 
 Thank you for your interest in contributing to UDOIT.  Even though it was originally created by the University of Central Florida, UDOIT relies on the contributions of people like you in order to be the best accessibility scanning and remediation tool possible.  This document outlines the standards we use for various aspects of the project, and should be followed whenever possible.  If you have ideas for additions or changes to this document, please follow the guidelines below to submit them.
 
-## Reporting Bugs
+## Reporting Bugs and Requesting Features
+
 ### Before Submitting
-### Submitting the Bug Report
-version, screenshot, severity
 
-## Requesting Features
-use cases
+Before you reporting a bug or requesting a feature, take a few moments to look through the [existing issues](https://github.com/ucfopen/UDOIT/issues).  Someone else may have already had the same issue or idea.  Also, check the [pull requests](https://github.com/ucfopen/UDOIT/pulls) that have been closed since you last updated UDOIT.  Your issue or feature may have already been dealt with.
 
+### Submitting a Bug Report
+
+Once you've determined that your bug hasn't been reported or fixed already, you can submit an issue.  It's important to include as much detail as possible so that your issue can be resolved faster.  Here's a quick list of information to include:
+
+* Version number, date of your last pull from Github, or Git commit ID
+* Detailed step-by-step to reproduce the issue
+* Screenshots or screen captures showing the issue
+* Example HTML content that causes or relates to the issue
+* Severity of the issue.  Is UDOIT completely broken, or can you work around the issue in the meantime?
+
+Before submitting, use the labels to mark the issue as a Bug.
+
+### Requesting Features
+
+Once you've determined that your feature hasn't been requested or implemented already, you can submit an issue.  Please take some time to flesh out the feature as much as possible.  The more work you put into the feature now, the sooner it will be implemented.  Here are some things to include:
+
+* Why do you want this feature?  What are the use cases?
+* Will this feature be useful to other institutions?  If so, describe how.
+* How should the feature work, and what should it look like?  Include wireframes and workflow.
+* Are you able to implement this feature yourself?  If not, are you available for consultation during the implementation process?
+* How desperately do you need this feature?
+
+Keep in mind that the individuals and institutions that contribute to UDOIT have their own list of priorities, so there is no guarantee that your feature will be implemented as soon as you would like.  The more universal the feature is, the more likely other institutions will help with the implementation.
 
 ## Branching and Merging
 
+If you are contributing code to UDOIT, please follow the guidelines below.  Please keep in mind that we haven't always used this structure, so there are likely old issues and branches that do not conform.
+
 ### Forking
+
+If you are outside of UCF, you will need to fork the UDOIT project in order to work on it.  Please follow the branching guidelines below.  If you are familiar with Git, but are unsure of the forking process, read the [Forking Projects](https://guides.github.com/activities/forking/) guide.
 
 ### Master Branch
 
@@ -22,7 +47,7 @@ use cases
 
 ### Dev Branches
 
-* Naming Convention: `dev/v0.2.10` - a new one for every upcoming release version
+* Naming Convention: `dev/v1.2.10` - a new one for every upcoming release version
 * Issue branches merge into this branch (never master)
 * When this dev branch is ready for release, it is merged into master and deleted
 
@@ -37,9 +62,11 @@ use cases
 
 ### Releases
 
-* Naming convention: `v0.2.10` using [SEMVER](http://semver.org/) as it's supported by your languages' package manager
+This section is mainly for the project managers, but is here for documentation purposes.
+
+* Naming convention: `v1.2.10` using [SEMVER](http://semver.org/)
 * Each release gets a tag after it's merged into master
-* If it's open source, make sure to compile a fully fledged [release doc for Github](https://help.github.com/articles/creating-releases/)
+* Write a [release doc for Github](https://help.github.com/articles/creating-releases/)
 * It is suggested that you sign release tags for extra trust ([git tag](https://git-scm.com/book/tr/v2/Git-Tools-Signing-Your-Work)) and ([using keybase gpg keys](https://clu.cdl.ucf.edu/snippets/103))
 
 
