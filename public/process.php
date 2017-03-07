@@ -70,17 +70,21 @@ switch ($main_action) {
 
         $dbh = include('../lib/db.php');
 
+        $sth = $dbh->prepare('
+            ALTER TABLE  `reports` ADD  `file` TEXT NOT NULL AFTER  `course_id` ;');
+        $sth->execute();
+
         $sth = $dbh->prepare("
             INSERT INTO
                 {$db_reports_table}
-                (user_id, course_id, file_path, date_run, errors, suggestions)
+                (user_id, course_id, file, date_run, errors, suggestions)
             VALUES
-                (:userid, :courseid, :filepath, CURRENT_TIMESTAMP, :errors, :suggestions)"
+                (:userid, :courseid, :file, CURRENT_TIMESTAMP, :errors, :suggestions)"
         );
 
         $sth->bindValue(':userid', $user_id, PDO::PARAM_INT);
         $sth->bindValue(':courseid', $data['course_id'], PDO::PARAM_INT);
-        $sth->bindValue(':filepath', $file, PDO::PARAM_STR);
+        $sth->bindValue(':file', $udoit->getReport(), PDO::PARAM_STR);
         $sth->bindValue(':errors', $udoit->total_results['errors'], PDO::PARAM_STR);
         $sth->bindValue(':suggestions', $udoit->total_results['suggestions'], PDO::PARAM_STR);
 
