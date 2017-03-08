@@ -158,13 +158,13 @@ The URL of your UDOIT LTI config depends on your webserver install.  The file is
 * `http://<DOMAIN>/udoit/udoit.xml.php`
 * `http://<DOMAIN>/udoit/public/udoit.xml.php`
 
-# Developing and Testing
-
-For quick local development, set `$UDOIT_ENV = ENV_DEV;` in `config/localConfig.php`.  This flag disables authentication and allows you to quickly see a sample test report for most template, js, and css development. Use this along with the quick dev server below.
-
 # Using UDOIT
 
 For more information about how to use UDOIT you can read the [UDOIT User Guide](https://lor.instructure.com/resources/6bf40e8d2254428cbbfd213586c84406) created by Clemson University. It can be accessed by importing the pages as modules into an existing course. The guide covers the reasoning behind the accessibility issues that UDOIT addresses as well as detailed descriptions of how to interpret and interact with the results of a scan.
+
+# Developing and Testing
+
+For quick local development, set `$UDOIT_ENV = ENV_DEV;` in `config/localConfig.php`.  This flag disables authentication and allows you to quickly see a sample test report for most template, js, and css development. Use this along with the quick dev server below.
 
 ## Simple Dev Server
 
