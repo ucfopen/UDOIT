@@ -32,6 +32,10 @@ $dsn = "pgsql:host={$db_host};dbname={$db_name};user={$db_user};port={$db_port};
 /* Disable headings check character count */
 $doc_length       = getenv('DOC_LENGTH')?:1500;
 
+/*Unscannable Suggestion */
+$unscannable_suggestion = 'Consider converting these documents to Pages, since they are easier to update and generally more accessible.';
+$unscannable_suggestion_on = true;
+
 /* Google/YouTube Data Api Key */
 define( 'GOOGLE_API_KEY', getenv('GOOGLE_API_KEY')?:'');
 
