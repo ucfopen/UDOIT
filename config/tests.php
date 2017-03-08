@@ -190,6 +190,13 @@ $udoit_tests = [
             'example'   => '',
         ],
         [
+            'name'      => 'objectTagDetected',
+            'title'     => 'Multimedia may require plugins to display properly.',
+            'desc'      => 'Multimedia embedded using the "Object" tag may require the user to install a plugin for their web browser. This can create support and access issues for some users. Additionally, users on mobile devices may not be able to view the multimedia content at all. Consider using an alternative format that the user\'s browser can display natively.',
+            'resources' => [],
+            'example'   => '',
+        ],
+        [
             'name'      => 'headersHaveText',
             'title'     => 'Headings should contain text',
             'desc'      => '<p>Sighted and <a href="http://en.wikipedia.org/wiki/Screen_reader">screen reader</a> users depend on headings to organize the content on the page. Headings should not be empty and should represent an accurate outline of the content</p>',

@@ -54,6 +54,7 @@ class Wcag2aaaGuideline extends quailGuideline
 		'aLinksToSoundFilesNeedTranscripts',
 		'aLinksToMultiMediaRequireTranscript',
 		'objectShouldHaveLongDescription',
+		'objectTagDetected',
 		// 'inputTextHasLabel',
 		'pNotUsedAsHeader',
 		// 'selectHasAssociatedLabel',
