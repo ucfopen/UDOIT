@@ -12,6 +12,9 @@ $oauth2_uri = '';
 /* Disable headings check character count */
 $doc_length = '1500';
 
+/* Enable check for redirected links */
+$redirects_on = true;
+
 /* Tool name for display in Canvas Navigation */
 $canvas_nav_item_name = getenv('CANVAS_NAV_ITEM_NAME');
 

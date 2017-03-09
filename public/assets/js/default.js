@@ -70,6 +70,7 @@ function loader(text) {
 
 /* Builds up the results and adds them to the page */
 function checker() {
+	var start = new Date().getTime();
 	var main_action = $('input[name="main_action"]').val();
 	var base_url = $('input[name="base_url"]').val();
 	var course_id = $('input[name="session_course_id"]').val();
@@ -102,9 +103,10 @@ function checker() {
 			jscolor.bind();
 		},
 		error: function(data){
+			var timetaken = new Date().getTime() - start;
 			clearInterval(progressTimer);
 			killButton();
-			$('#failMsg').fadeIn();
+			$('#failMsg').append(' Time elapsed: ' + timetaken + 'ms. Larger courses may need to be scanned by content section.').fadeIn();
 		}
 	});
 }
@@ -591,6 +593,22 @@ $doc.ready(function() {
 		} else {
 			$input.removeAttr('maxlength');
 			$input.attr('placeholder', 'New link text');
+		}
+	});
+
+	// click to remove/fill Link url for redirected links
+	$doc.on('click', '.remove-url', function (e) {
+		var $input = $(e.target).parent().parent().find('input[name="newcontent"]');
+
+		if( $input.attr('placeholder') == 'Enter the new url') {
+			$input.attr('new', $input.val());
+			$input.val('');
+			$input.attr('maxlength', '0');
+			$input.attr('placeholder', 'Link will be deleted');
+		} else {
+			$input.removeAttr('maxlength');
+			$input.val($input.attr('new'));
+			$input.attr('placeholder', 'Enter the new url');
 		}
 	});
 	// END click to remove/fill link with no text

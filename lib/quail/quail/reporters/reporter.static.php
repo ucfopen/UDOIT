@@ -93,6 +93,7 @@ class reportStatic extends quailReporter
 						}
 
 						$testResult['text_type']	= $problem->message;
+						$testResult['message']	= $problem->message;
 						$testResult['type']   	= $testname;
 						$testResult['lineNo'] 	= $problem->line;
 

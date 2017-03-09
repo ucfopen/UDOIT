@@ -197,7 +197,7 @@ class Ufixit
      * @param string $error_html        - The bad html that needs to be fixed
      * @param string|array $new_content - The new Heading text from the user
      * @param bool $submitting_again    - If the user is resubmitting their error fix
-     * @return string $fixed_css        - The html with corrected Link
+     * @return string $fixed_link       - The html with corrected Link
      */
     public function fixLink($error_html, $new_content, $submitting_again = false)
     {
@@ -214,6 +214,36 @@ class Ufixit
 
         $tag->nodeValue = "";
         $tag->appendChild($linkText);
+
+        $fixed_link = $this->dom->saveHTML($tag);
+
+        return $fixed_link;
+    }
+
+
+       /**
+     * Fixes Redirected Link
+     * @param string $error_html        - The bad html that needs to be fixed
+     * @param string|array $new_content - The new Heading text from the user
+     * @param bool $submitting_again    - If the user is resubmitting their error fix
+     * @return string $fixed_link       - The html with corrected Link
+     */
+    public function fixRedirectedLink($error_html, $new_content, $submitting_again = false)
+    {
+        $fixed_link = '';
+        if ($new_content == '') {
+            return $fixed_link;
+        }
+
+        $this->dom->loadHTML('<?xml encoding="utf-8" ?>' . $error_html);
+
+        $tag = $this->dom->getElementsByTagName('a')->item(0);
+
+        $text = $tag->nodeValue;
+        $old = $tag->getAttribute('href');
+        if($text == $old || strpos($text, 'http') !== FALSE) $tag->nodeValue = $new_content;
+
+        $tag->setAttribute('href', $new_content);
 
         $fixed_link = $this->dom->saveHTML($tag);
 

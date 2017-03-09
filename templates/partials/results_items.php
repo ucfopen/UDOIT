@@ -131,6 +131,10 @@
 													$result_template = 'image_alt';
 													break;
 
+												case "redirectedLink":
+													$result_template = 'link_redirect';
+													break;
+
 												case "tableDataShouldHaveTh":
 													$result_template = 'table_header';
 													break;

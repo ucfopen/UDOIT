@@ -428,7 +428,7 @@ class aSuspiciousLinkText extends quailTest
 	/**
 	*	@var array $strings An array of strings, broken up by language domain
 	*/
-	var $strings = array('en' => array('click here', 'click', 'more', 'here'),
+	var $strings = array('en' => array('click here', 'click', 'more', 'here', 'http'),
 		'es' => array('clic aqu&iacute;', 'clic', 'haga clic', 'm&aacute;s', 'aqu&iacute;'));
 
 	/**
@@ -437,8 +437,50 @@ class aSuspiciousLinkText extends quailTest
 	function check()
 	{
 		foreach ($this->getAllElements('a') as $a) {
-			if (in_array(strtolower(trim($a->nodeValue)), $this->translation()) || $a->nodeValue == $a->getAttribute('href'))
+			if ($a->nodeValue == $a->getAttribute('href')){
 				$this->addReport($a);
+				continue;
+			}
+			foreach($this->translation() as $str) {
+			    if(strpos($a->nodeValue, $str) !== false) {
+			    	$this->addReport($a);
+			    	break;
+			    }
+			}
+		}
+	}
+}
+
+/**
+*  Redirected Link
+*  
+*/
+
+// use hightman\http\Client;
+// use hightman\http\Request;
+// use hightman\http\Response;
+
+class redirectedLink extends quailTest
+{
+	/**
+	*	@var int $default_severity The default severity code for this test.
+	*/
+	var $default_severity = QUAIL_TEST_SUGGESTION;
+
+	/**
+	*	The main check function. This is called by the parent class to actually check content
+	*/
+	function check()
+	{
+		global $redirects_on;
+
+		if($redirects_on) {
+			foreach ($this->getAllElements('a') as $a) {
+	            $url = $a->getAttribute('href');
+	            if(strpos($url, 'http') !== false){
+	                $this->addReport($a, $url);
+	            }
+			}
 		}
 	}
 }

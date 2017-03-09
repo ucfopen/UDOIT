@@ -183,6 +183,13 @@ $udoit_tests = [
             ',
         ],
         [
+            'name'      => 'redirectedLink',
+            'title'     => 'Redirected link found',
+            'desc'      => 'When the address of a web page changes, the content owner may set up a redirect so that the link is not broken. However, that redirect could go away in the future, so it\'s best to update the link now. UFIXIT has been populated with the new URL automatically. If the UFIXIT field is empty, we were unable to fetch the new URL, and you will need to manually visit the link to discover the new URL.',
+            'resources' => [],
+            'example'   => '',
+        ],
+        [
             'name'      => 'objectTextUpdatesWhenObjectChanges',
             'title'     => 'The text equivalents (e.g., transcripts and/or captions) for embedded content should update when content changes.',
             'desc'      => '',

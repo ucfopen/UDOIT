@@ -73,7 +73,6 @@ class Udoit {
      */
     public $unscannable;
 
-
     /**
      * @var string - stringified json report
      */
@@ -172,24 +171,56 @@ class Udoit {
      * @return array                  - The report results
      */
     private function generateReport($scanned_content) {
+
+        global $redirects_on;
+
         $content_report = [];
+        $new_links = [];
+        
         /* Runs each item in the test array through the Quail accessibility checker */
-        foreach ($scanned_content as $html) {
+        foreach ($scanned_content as &$html) {
+            if (strlen($html['content']) == 0) {
+                continue;
+            }
+            $quail  = new quail($html['content'], 'wcag2aaa', 'string', 'static');
+            $quail->runCheck();
+
+            $result      = $quail->getReport();
+            $report      = $result['report'];
+
+            $html['report'] = $report;
+
+            foreach ($report as $value) {
+                if ($value['message'] != NULL && $value['type'] == 'redirectedLink') $new_links[] = $value['message'];
+            }
+        }
+
+        if($redirects_on) $redirects = $this->redirectTest($new_links);
+
+        foreach ($scanned_content as &$html) {
             if (strlen($html['content']) == 0) {
                 continue;
             }
 
-            $quail  = new quail($html['content'], 'wcag2aaa', 'string', 'static');
-            $quail->runCheck();
-
             $error_count = 0;
-            $result      = $quail->getReport();
-            $report      = $result['report'];
             $severe      = [];
             $warning     = [];
             $suggestion  = [];
 
-            foreach ($report as $value) {
+            $report = &$html['report'];
+            foreach ($report as &$value) {
+                if($value['type'] == 'redirectedLink'){        
+                    $ref = $value['message'];
+                    preg_match('/(.+?)#/', $ref, $matches);
+                    $base = $matches[1];
+                    if (array_key_exists($value['message'], $redirects) && $redirects[$ref] != $base) {
+                        $value['message'] = $redirects[$ref];
+                    } else {
+                        unset($report[$value['message']]);
+                        continue;
+                    }
+                }
+
                 //  Some don't have a severity num
                 if ( ! array_key_exists('severity_num', $value)) {
                     continue;
@@ -208,6 +239,7 @@ class Udoit {
                 if (count($value) > 0) {
                     $error_count++;
                 }
+
             }
 
             $content_report[] = [
@@ -222,6 +254,39 @@ class Udoit {
         }
 
         return $content_report;
+    }
+
+
+    function redirectTest($rlinks) {
+        $curls = array();
+        $result = array();
+        $mcurl = curl_multi_init();
+        foreach ($rlinks as $i => $link){
+            $curls[$i] = curl_init();
+            curl_setopt($curls[$i], CURLOPT_URL, $link);
+            curl_setopt($curls[$i], CURLOPT_HEADER, TRUE);
+            curl_setopt($curls[$i], CURLOPT_NOBODY, TRUE);
+            curl_setopt($curls[$i], CURLOPT_REFERER, TRUE);
+            curl_setopt($curls[$i], CURLOPT_TIMEOUT, 2);
+            curl_setopt($curls[$i], CURLOPT_AUTOREFERER, TRUE);
+            curl_setopt($curls[$i], CURLOPT_RETURNTRANSFER, TRUE);
+            curl_setopt($curls[$i], CURLOPT_FOLLOWLOCATION, TRUE);
+            curl_multi_add_handle($mcurl, $curls[$i]);
+        }
+        $running = null;
+        do {
+            curl_multi_exec($mcurl, $running);
+        } while ($running > 0);
+            
+        foreach($rlinks as $i => $link){
+            $redirect = curl_getinfo($curls[$i], CURLINFO_EFFECTIVE_URL);
+            if($link != $redirect){
+                $result[$link] = $redirect;
+            }
+            curl_multi_remove_handle($mcurl, $curls[$i]);
+        }
+        curl_multi_close($mcurl);
+        return $result;
     }
 
     /**

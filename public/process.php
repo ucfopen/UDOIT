@@ -156,6 +156,11 @@ switch ($main_action) {
                 $data['error_html'] = $remove_attr;
                 break;
 
+            case 'redirectedLink':
+                $new_content = filter_input(INPUT_POST, 'newcontent', FILTER_SANITIZE_STRING);
+                $corrected_error = $ufixit->fixRedirectedLink($data['error_html'], $new_content);
+                break;
+
             case 'tableDataShouldHaveTh':
                 // fixing table headers is a special case...
                 $new_content = filter_input(INPUT_POST, 'newcontent', FILTER_SANITIZE_STRING);
