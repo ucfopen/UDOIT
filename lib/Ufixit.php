@@ -114,11 +114,10 @@ class Ufixit
 
         foreach ($imgs as $img) {
             $img->setAttribute('alt', $new_content);
+            $removed_endpoint = $img->removeAttribute('data-api-endpoint');
+            $removed_endpoint = $img->removeAttribute('data-api-returntype');
             $fixed_img = $this->dom->saveHTML($img);
         }
-
-        $remove_attr = preg_replace("/ data-api-endpoint.+?>/", "", $fixed_img);
-        $fixed_img = $remove_attr;
 
         return $fixed_img;
     }
