@@ -3177,9 +3177,9 @@ class imgAltIsDifferent extends quailTest
 	{
 		foreach ($this->getAllElements('img') as $img) {
 			if (trim($img->getAttribute('src')) == trim($img->getAttribute('alt')))
-				$this->addReport($img);
+				$this->addReport($img, 'alt="' . $img->getAttribute('alt') . '"');
 			else if ( preg_match("/.jpg|.JPG|.png|.PNG|.gif|.GIF|.jpeg|.JPEG$/", trim($img->getAttribute('alt'))) )
-				$this->addReport($img);
+				$this->addReport($img, 'alt="' . $img->getAttribute('alt') . '"');
 		}
 	}
 
@@ -3229,7 +3229,7 @@ class imgAltIsTooLong extends quailTest
 	{
 		foreach ($this->getAllElements('img') as $img) {
 			if ($img->hasAttribute('alt') && strlen($img->getAttribute('alt')) > 100)
-				$this->addReport($img);
+				$this->addReport($img, 'alt="' . $img->getAttribute('alt') . '"');
 		}
 
 	}
@@ -3257,7 +3257,7 @@ class imgAltNotEmptyInAnchor extends quailTest
 				foreach ($a->childNodes as $child) {
 					if ($this->propertyIsEqual($child, 'tagName', 'img')
 						&& trim($child->getAttribute('alt')) == '')
-							$this->addReport($child);
+							$this->addReport($child, 'alt=""');
 				}
 			}
 		}
@@ -3396,7 +3396,7 @@ class imgHasAlt extends quailTest
 			if (!$img->hasAttribute('alt')
 				|| $img->getAttribute('alt') == ''
 				|| $img->getAttribute('alt') == ' ') {
-				$this->addReport($img);
+				$this->addReport($img, 'alt=""');
 			}
 		}
 
@@ -3573,7 +3573,7 @@ class imgNonDecorativeHasAlt extends quailTest
 		foreach ($this->getAllElements('img') as $img) {
 			if ($img->hasAttribute('src') &&
 				($img->hasAttribute('alt') && html_entity_decode((trim($img->getAttribute('alt')))) == '')) {
-				$this->addReport($img);
+				$this->addReport($img, 'alt=""');
 
 			}
 		}
@@ -3901,10 +3901,10 @@ class inputImageAltIsNotPlaceholder extends imgAltNotPlaceHolder
 		foreach ($this->getAllElements('input') as $input) {
 			if ($input->getAttribute('type') == 'image') {
 				if (in_array($input->getAttribute('alt'), $this->translation()) || ord($input->getAttribute('alt')) == 194) {
-					$this->addReport($input);
+					$this->addReport($input, $input->getAttribute('alt'));
 				}
 				elseif (preg_match("/^([0-9]*)(k|kb|mb|k bytes|k byte)?$/", strtolower($input->getAttribute('alt')))) {
-					$this->addReport($input);
+					$this->addReport($input, $input->getAttribute('alt'));
 				}
 			}
 		}

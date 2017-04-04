@@ -90,6 +90,9 @@ class reportStatic extends quailReporter
 								$testResult['back_color'] = $hexColors[0];
 								$testResult['fore_color'] = $hexColors[1];
 							}
+						} else if ($testname === "imgNonDecorativeHasAlt" || $testname === "imgAltIsDifferent" 
+								|| $testname === "imgAltIsTooLong" || $testname === "imgHasAlt" || $testname === "imgAltNotEmptyInAnchor") {
+								$testResult['alt'] = $problem->message;
 						}
 
 						$testResult['text_type']	= $problem->message;

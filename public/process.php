@@ -149,6 +149,7 @@ switch ($main_action) {
             case 'imgNonDecorativeHasAlt':
             case 'imgAltIsDifferent':
             case 'imgAltIsTooLong':
+            case 'imgAltNotEmptyInAnchor':
                 $new_content = filter_input(INPUT_POST, 'newcontent', FILTER_SANITIZE_STRING);
                 $corrected_error = $ufixit->fixAltText($data['error_html'], $new_content);
 
