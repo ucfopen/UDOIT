@@ -1,26 +1,68 @@
 {
-    "name": "ucfcdl/udoit",
+    "name": "ucfopen/udoit",
     "type": "project",
     "description" : "The Universal Design Online content Inspection Tool, or UDOIT enables faculty to identify accessibility issues in Canvas by Instructure. It will scan a course, generate a report, and provide resources on how to address common accessibility issues.",
-    "keywords": ["instructure", "canvas", "education", "udoit", "ucf"],
-    "repositories": [
+    "keywords": ["instructure", "canvas", "education", "udoit", "ucf", "accessibility", "edtech", "canvas-lms", "instructure", "section-508"],
+    "homepage": "https://github.com/ucfopen/UDOIT",
+    "license": "GPL-3.0",
+    "authors": [
+        {
+            "name": "Jacob Bates",
+            "homepage": "https://github.com/bagofarms",
+            "role": "Project Lead"
+        },
+        {
+            "name": "Eric Colon",
+            "homepage": "https://github.com/accell",
+            "role": "Developer"
+        },
+        {
+            "name": "Fenel Joseph",
+            "homepage": "https://github.com/feneljoseph",
+            "role": "Developer"
+        },
+        {
+            "name": "Emily Sachs",
+            "homepage": "https://github.com/emilysachs",
+            "role": "Developer"
+        },
+        {
+            "name": "Ian Turgeon",
+            "homepage": "https://github.com/iturgeon",
+            "role": "Developer"
+        },
+        {
+            "name": "Karen Tinsley-Kim",
+            "homepage": "https://github.com/accell",
+            "role": "Advisor"
+        },
+        {
+            "name": "Kevin Baugh",
+            "homepage": "https://github.com/loraxx753",
+            "role": "Developer"
+        },
+        {
+            "name": "Joe Fauvel",
+            "role": "Designer"
+        },
+        {
+            "name": "John Raible",
+            "role": "Developer"
+        },
+        {
+            "name": "Kathleen Bastedo",
+            "role": "Advisor"
+        },
+        {
+            "name": "Nancy Swenson",
+            "role": "Advisor"
+        },
+        {
+            "name": "Cooper Fellows",
+            "homepage": "https://github.com/cooperfellows",
+            "role": "Contributor"
+        }
     ],
-    "require": {
-        "php": "^5.4.0 || ^5.5.0 || ^5.6.0",
-        "nategood/httpful": "*",
-        "zaininnari/html-minifier": "dev-master",
-        "mpdf/mpdf": "dev-master",
-        "league/plates": "~3.1",
-        "ext-pdo": "*",
-        "monolog/monolog": "^1.21"
-    },
-    "require-dev": {
-        "phpunit/phpunit": "4.8.*",
-        "phpspec/prophecy": "1.3.1",
-        "symfony/yaml": "v2.8.9",
-        "heroku/heroku-buildpack-php": "*",
-        "monolog/monolog": "^1.21"
-    },
     "scripts": {
         "post-install-cmd": [
             "bower install"
@@ -31,5 +73,20 @@
         "compile": [
             "bower install"
         ]
+    },
+    "require": {
+        "php": "^5.4.0 || ^5.5.0 || ^5.6.0",
+        "nategood/httpful": "0.2.*",
+        "zaininnari/html-minifier": "0.4.*",
+        "mpdf/mpdf": "6.1.*",
+        "league/plates": "3.1.*",
+        "ext-pdo": "*",
+        "monolog/monolog": "1.22.*"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "4.8.*",
+        "phpspec/prophecy": "1.3.1",
+        "symfony/yaml": "v2.8.9",
+        "heroku/heroku-buildpack-php": "v117"
     }
 }

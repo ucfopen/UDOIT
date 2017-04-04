@@ -17,6 +17,7 @@ After clicking the Heroku button above:
 2. Give the app a name.
 3. Fill out the `OAUTH2_ID` and `OAUTH2_KEY` fields with dummy data.  (We'll fix it later.)
 4. Fill out the `OAUTH2_URI` field with `https://yourapp.herokuapp.com/oauth2response.php`. (Replace 'yourapp' with the name you gave in step 2.)
+5. Fill out the `CANVAS_NAV_ITEM_NAME` field with the name you would like the app to appear as in the course navigation menu.  This is useful if your instance will be use for a pilot.  The normal value to use here is ***UDOIT***.
 5. Copy and paste your Google/YouTube API key.
 5. Click the Deploy button and wait for the process to complete.
 
@@ -45,9 +46,9 @@ UDOIT uses Oauth2 to take actions on behalf of the user, so you'll need to ask y
 4. Click the **Add App** button.
 5. Under **Configuration Type**, choose **By URL**.
 6. In the **Name** field, enter `UDOIT`.
-7. In the **Consumer Key** field, copy the value from OAUTH2_ID
-8. In the **Shared Secret** field, copy the value from OAUTH2_KEY
-9. In the **Config URL** field, paste value from OAUTH2_URI.
+7. In the **Consumer Key** field, copy the value from CONSUMER_KEY
+8. In the **Shared Secret** field, copy the value from SHARED_SECRET
+9.In the **Config URL** field, insert https://yourapp.herokuapp.com/udoit.xml.php (Replace yourapp with the name of your UDOIT instance on Heroku.)
 10. Finish by clicking **Submit**.
 
 UDOIT should now be available in the course navigation menu.

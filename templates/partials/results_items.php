@@ -149,7 +149,7 @@
 												}
 
 												if ( ! empty($result_template)) {
-													echo($this->fetch("partials/result_item/{$result_template}", ['group_item' => $group_item]));
+													echo($this->fetch("partials/result_item/{$result_template}", ['group_item' => $group_item, 'item_id' => $li_id]));
 												}
 											?>
 										</form>

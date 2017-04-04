@@ -1,6 +1,6 @@
 {
   "name": "udoit",
-  "homepage": "https://github.com/ucfcdl/UDOIT",
+  "homepage": "https://github.com/ucfopen/UDOIT",
   "description": "The Universal Design Online content Inspection Tool, or UDOIT enables faculty to identify accessibility issues in Canvas by Instructure.",
   "moduleType": [
     "globals"
