@@ -167,6 +167,13 @@ $udoit_tests = [
             'example'   => '',
         ],
         [
+            'name'      => 'contentTooLong',
+            'title'     => 'Content length should not exceed 3000 words.',
+            'desc'      => '<p>For content longer than 3000 words, consider splitting it up into multiple documents. This makes it easier for students to process and retain the information.</p>',
+            'resources' => [],
+            'example'   => '',
+        ],
+        [
             'name'      => 'aSuspiciousLinkText',
             'title'     => 'Link text should be descriptive',
             'desc'      => 'Links should be descriptive of the content they\'re linking to, such as "Class Schedule" rather than "schedule.html" or "click here".',
