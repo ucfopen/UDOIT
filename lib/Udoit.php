@@ -172,7 +172,7 @@ class Udoit {
      */
     private function generateReport($scanned_content) {
 
-        global $redirects_on;
+        global $links_on;
 
         $content_report = [];
         $new_links = [];
@@ -195,7 +195,7 @@ class Udoit {
             }
         }
 
-        if($redirects_on) $redirects = $this->redirectTest($new_links);
+        if($links_on) $tested_links = $this->linkTest($new_links);
 
         foreach ($scanned_content as &$html) {
             if (strlen($html['content']) == 0) {
@@ -209,16 +209,22 @@ class Udoit {
 
             $report = &$html['report'];
             foreach ($report as &$value) {
-                if($value['type'] == 'redirectedLink'){        
+                if($value['type'] == 'redirectedLink'){ 
                     $ref = $value['message'];
                     preg_match('/(.+?)#/', $ref, $matches);
                     $base = $matches[1];
-                    if (array_key_exists($value['message'], $redirects) && $redirects[$ref] != $base) {
-                        $value['message'] = $redirects[$ref];
+                    if (array_key_exists($value['message'], $tested_links) && $tested_links[$ref] != $base && $tested_links[$ref] != 404) {
+                        $value['message'] = $tested_links[$ref];
                     } else {
                         unset($report[$value['message']]);
                         continue;
                     }
+                } else if($value['type'] == 'brokenLink'){
+                    $ref = $value['message'];
+                    if ($tested_links[$ref] != 404){
+                        unset($report[$value['message']]);
+                        continue;
+                    } 
                 }
 
                 //  Some don't have a severity num
@@ -257,12 +263,15 @@ class Udoit {
     }
 
 
-    function redirectTest($rlinks) {
+    function linkTest($rlinks) {
         $curls = array();
         $result = array();
         $mcurl = curl_multi_init();
         foreach ($rlinks as $i => $link){
             $curls[$i] = curl_init();
+            if (strpos($link, $this->base_uri) !== FALSE){
+                curl_setopt($curls[$i], CURLOPT_MAXREDIRS, 1);
+            } 
             curl_setopt($curls[$i], CURLOPT_URL, $link);
             curl_setopt($curls[$i], CURLOPT_HEADER, TRUE);
             curl_setopt($curls[$i], CURLOPT_NOBODY, TRUE);
@@ -280,8 +289,17 @@ class Udoit {
             
         foreach($rlinks as $i => $link){
             $redirect = curl_getinfo($curls[$i], CURLINFO_EFFECTIVE_URL);
+            $status = curl_getinfo($curls[$i], CURLINFO_HTTP_CODE);
             if($link != $redirect){
-                $result[$link] = $redirect;
+                if($redirect != $this->base_uri . 'login'){
+                    $result[$link] = $redirect;
+                }
+                if ($redirect == $this->base_uri . 'courses/' . $this->course_id .'/pages'){
+                    $result[$link] = 404;
+                }
+            }
+            if($status == 404){
+                $result[$link] = $status;
             }
             curl_multi_remove_handle($mcurl, $curls[$i]);
         }

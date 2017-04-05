@@ -32,8 +32,8 @@ $dsn = "pgsql:host={$db_host};dbname={$db_name};user={$db_user};port={$db_port};
 /* Disable headings check character count */
 $doc_length       = getenv('DOC_LENGTH')?:1500;
 
-/* Enable check for redirected links */
-$redirects_on = true;
+/* Enable checks for redirected links and broken links*/
+$links_on = true;
 
 /* Google/YouTube Data Api Key */
 define( 'GOOGLE_API_KEY', getenv('GOOGLE_API_KEY')?:'');

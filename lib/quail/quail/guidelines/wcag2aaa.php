@@ -135,6 +135,7 @@ class Wcag2aaaGuideline extends quailGuideline
 		'aMustContainText',
 		'aSuspiciousLinkText',
 		'redirectedLink',
+		'brokenLink',
 		// 'siteMap',
 		// 'headerH1',
 		// 'headerH2',

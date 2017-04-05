@@ -98,6 +98,9 @@ function checker() {
 			$('#scanner').append('<section id="result">'+data+'</section>');
 			killButton(function() {
 				$('#result').fadeIn();
+				$('.error-preview a').each(function() {
+				    $(this).attr("target","_blank");
+				});
 			});
 
 			jscolor.bind();

@@ -456,10 +456,6 @@ class aSuspiciousLinkText extends quailTest
 *  
 */
 
-// use hightman\http\Client;
-// use hightman\http\Request;
-// use hightman\http\Response;
-
 class redirectedLink extends quailTest
 {
 	/**
@@ -472,9 +468,39 @@ class redirectedLink extends quailTest
 	*/
 	function check()
 	{
-		global $redirects_on;
+		global $links_on;
 
-		if($redirects_on) {
+		if($links_on) {
+			foreach ($this->getAllElements('a') as $a) {
+	            $url = $a->getAttribute('href');
+	            if(strpos($url, 'http') !== false){
+	                $this->addReport($a, $url);
+	            }
+			}
+		}
+	}
+}
+
+/**
+*  Redirected Link
+*  
+*/
+
+class brokenLink extends quailTest
+{
+	/**
+	*	@var int $default_severity The default severity code for this test.
+	*/
+	var $default_severity = QUAIL_TEST_SEVERE;
+
+	/**
+	*	The main check function. This is called by the parent class to actually check content
+	*/
+	function check()
+	{
+		global $links_on;
+
+		if($links_on) {
 			foreach ($this->getAllElements('a') as $a) {
 	            $url = $a->getAttribute('href');
 	            if(strpos($url, 'http') !== false){
