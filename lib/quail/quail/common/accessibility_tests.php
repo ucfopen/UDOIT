@@ -6294,6 +6294,50 @@ class videosEmbeddedOrLinkedNeedCaptions extends quailTest
 }
 
 /**
+*	If a video is unlisted, the YouTube API will pretend that the video is not found, so we can't check for captions
+*/
+
+class videoUnlistedOrNotFound extends quailTest 
+{
+	/**
+	*	@var int $default_severity The default severity code for this test.
+	*/
+	var $default_severity = QUAIL_TEST_SEVERE;
+
+	/**
+	*	@var array $services The services that this test will need. We're using
+	*	the youtube library.
+	*/
+	var $services = ['youtube' => 'media/youtube'];
+
+	/**
+	*	The main check function. This is called by the parent class to actually check content
+	*/
+	function check()
+	{
+		$search = '/(youtube|youtu.be)/';
+
+		foreach ($this->getAllElements(array('a', 'embed', 'iframe')) as $video) {
+			$attr = ($video->tagName == 'a')
+					 ? 'href'
+					 : 'src';
+
+			if ($video->hasAttribute($attr)) {
+				foreach ($this->services as $service) {
+					$attr_val = $video->getAttribute($attr);
+					if ( preg_match($search, $attr_val) ){
+						if ($service->videoUnavailable($attr_val)) {
+							$this->addReport($video);
+						}
+					}
+				}
+			}
+		}
+	}
+
+}
+
+/**
 *	Checks that a document is written clearly to a minimum of a 60 on the
 *	Flesch Reading Ease score (9.9 max grade level).
 *	@link http://quail-lib.org/test-info/documentIsWrittenClearly

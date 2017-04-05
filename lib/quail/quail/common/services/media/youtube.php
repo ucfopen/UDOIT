@@ -15,14 +15,14 @@ class youtubeService extends mediaService
 	*	@var array An array of regular expressions to extract the YouTube item code
 	*/
 	var $regex = array(
-		'@youtube\.com/embed/([^"\& ]+)@i',
-	    '@youtube\.com/v/([^"\& ]+)@i',
-	    '@youtube\.com/watch\?v=([^"\& ]+)@i',
-	    '@youtube\.com/\?v=([^"\& ]+)@i',
-	    '@youtu\.be/([^"\& ]+)@i',
-	    '@youtu\.be/v/([^"\& ]+)@i',
-	    '@youtu\.be/watch\?v=([^"\& ]+)@i',
-	    '@youtu\.be/\?v=([^"\& ]+)@i',
+		'@youtube\.com/embed/([0-9a-zA-Z_-]+)@i',
+	    '@youtube\.com/v/([0-9a-zA-Z_-]+)@i',
+	    '@youtube\.com/watch\?v=([0-9a-zA-Z_-]+)@i',
+	    '@youtube\.com/\?v=([0-9a-zA-Z_-]+)@i',
+	    '@youtu\.be/([0-9a-zA-Z_-]+)@i',
+	    '@youtu\.be/v/([0-9a-zA-Z_-]+)@i',
+	    '@youtu\.be/watch\?v=([0-9a-zA-Z_-]+)@i',
+	    '@youtu\.be/\?v=([0-9a-zA-Z_-]+)@i',
 		);
 
 	/**
@@ -60,6 +60,31 @@ class youtubeService extends mediaService
 		}
 
 		return false;
+
+	}
+
+	/**
+	*	Checks to see if a video is unlisted, deleted, or private
+	*	@param string $link_url The URL to the video or video resource
+	*	@return bool TRUE if video is unavailable, FALSE if available
+	*/
+	function videoUnavailable($link_url)
+	{
+		$url = $this->search_url;
+		$api_key = constant( 'GOOGLE_API_KEY' );
+
+		if( $youtube_id = $this->isYouTubeVideo($link_url) ) {
+			$url = $url.$youtube_id.'&key='.$api_key;
+			$response = Request::get($url)->send();
+
+			if( !empty($response->body->error) ) {
+				return true;
+			}
+
+			return false;
+		}
+
+		return true;
 
 	}
 

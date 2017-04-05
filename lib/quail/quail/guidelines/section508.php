@@ -45,6 +45,7 @@ class Section508Guideline extends quailGuideline{
 		// 'iframeIsNotUsed',
 		// 'videoEmbedChecked',
 		'videosEmbeddedOrLinkedNeedCaptions',
+		'videoUnlistedOrNotFound',
 		// 'scriptInBodyMustHaveNoscript',
 		'aLinksToMultiMediaRequireTranscript',
 		'aSuspiciousLinkText',

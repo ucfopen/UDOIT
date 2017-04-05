@@ -167,6 +167,13 @@ $udoit_tests = [
             'example'   => '',
         ],
         [
+            'name'      => 'videoUnlistedOrNotFound',
+            'title'     => 'Video is Unlisted or Not Found',
+            'desc'      => '<p>We were unable to determine whether this video has captions because it is Unlisted, has been deleted, or has been removed due to copyright violations. Please manually verify that this video has captions.</p>',
+            'resources' => [],
+            'example'   => '',
+        ],
+        [
             'name'      => 'aSuspiciousLinkText',
             'title'     => 'Link text should be descriptive',
             'desc'      => 'Links should be descriptive of the content they\'re linking to, such as "Class Schedule" rather than "schedule.html" or "click here".',
