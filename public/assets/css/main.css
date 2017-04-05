@@ -391,7 +391,7 @@ h5 + ul {
 }
 
 .alt-source:before {
-	content: "Alt";
+	content: "Alternative Text";
 
 	position: absolute;
 	top: 0;

@@ -77,10 +77,10 @@
 												<?php endif; ?>
 											<?php endif; ?>
 										</div>
-										<pre class="error-source"><code class="html"><strong>Line <?= $group_item->lineNo; ?></strong>: <?= $this->e($group_item->html); ?></code></pre>
 										<?php if ($group_item->alt): ?>
 											<pre class="alt-source"><code class="html"><?= $group_item->alt; ?></code></pre>
 										<?php endif; ?>
+										<pre class="error-source"><code class="html"><strong>Line <?= $group_item->lineNo; ?></strong>: <?= $this->e($group_item->html); ?></code></pre>
 										<a class="closeError btn" href="#closeError" data-error="<?= $li_id; ?>">Close Issue Source</a>
 									</div>
 								<?php endif; ?>
