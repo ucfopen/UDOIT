@@ -1107,6 +1107,37 @@ class checkboxLabelIsNearby extends quailTest
 	}
 }
 
+/** 
+* Test counts words for all text elements on page and suggests content chunking for pages longer than 3000 words.
+*/
+class contentTooLong extends quailTest
+{
+	/**
+	*	@var int $default_severity The default severity code for this test.
+	*/
+	var $default_severity = QUAIL_TEST_SUGGESTION;
+
+	/**
+	*	The main check function. This is called by the parent class to actually check content
+	*/
+	function check()
+	{
+		$pageText = '';
+		$wordCount = 0;
+		foreach ($this->getAllElements(null, 'text') as $element) {
+			$text = $element->nodeValue;
+			if($text != null){
+				$pageText = $pageText . $text;
+			}
+		}
+		$wordCount = str_word_count($pageText);
+		if($wordCount > 3000){
+			$this->addReport(null, "<p id='wc'>Word Count: " . $wordCount . "</p>", false);
+		}
+
+	}
+}
+
 /**
 *  Document must be readable when stylesheets are not applied.
 *  This error will be generated for each link element that has a rel attribute with a value of "stylesheet".

@@ -295,6 +295,18 @@ $doc.ready(function() {
 	});
 	// END close error source
 
+	//view warning info
+	$doc.on('click', '.view-warning', function(e){
+		if($(this).data('clicked')){
+			$(this).data('clicked', false);
+			$(this).parent().find('.warning-info').addClass('hidden');
+		} else {
+			$(this).data('clicked', true);
+			$(this).parent().find('.warning-info').removeClass('hidden');
+		}
+	})
+	// END view warning info
+
 	// print button
 	$doc.on('click', '#print', function() {
 		window.print();
