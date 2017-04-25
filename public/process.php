@@ -70,13 +70,18 @@ switch ($main_action) {
 
         $dbh = include('../lib/db.php');
 
-        $sth = $dbh->prepare('
-            ALTER TABLE  `reports` ADD  `file` TEXT NOT NULL AFTER  `course_id` ;');
+        $sth = $dbh->prepare("
+            ALTER TABLE {$db_reports_table} ADD file TEXT;"
+        );
         $sth->execute();
+
+        if ( ! $sth->execute()) {
+            error_log("Column already created");
+        }
 
         $sth = $dbh->prepare("
             INSERT INTO
-                {$db_reports_table}
+                {$db_reports_table} 
                 (user_id, course_id, file, date_run, errors, suggestions)
             VALUES
                 (:userid, :courseid, :file, CURRENT_TIMESTAMP, :errors, :suggestions)"
