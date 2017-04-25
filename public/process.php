@@ -98,14 +98,12 @@ switch ($main_action) {
         break;
 
     case 'ufixit':
-        $error_color = filter_input(INPUT_POST, 'errorcolor', FILTER_SANITIZE_STRING, FILTER_REQUIRE_ARRAY);
 
         $data = [
             'base_uri'     => $base_url,
             'content_id'   => filter_input(INPUT_POST, 'contentid', FILTER_SANITIZE_STRING),
             'content_type' => filter_input(INPUT_POST, 'contenttype', FILTER_SANITIZE_STRING),
             'error_html'   => html_entity_decode(filter_input(INPUT_POST, 'errorhtml', FILTER_SANITIZE_FULL_SPECIAL_CHARS)),
-            'error_colors' => empty($error_color) ? '' : $error_color,
             'error_type'   => filter_input(INPUT_POST, 'errortype', FILTER_SANITIZE_STRING),
             'bold'         => (filter_input(INPUT_POST, 'add-bold', FILTER_SANITIZE_STRING) == 'bold'),
             'italic'       => (filter_input(INPUT_POST, 'add-italic', FILTER_SANITIZE_STRING) == 'italic'),
@@ -137,7 +135,7 @@ switch ($main_action) {
 
             case 'cssTextHasContrast':
                 $new_content_array  = filter_input(INPUT_POST, 'newcontent', FILTER_SANITIZE_STRING, FILTER_REQUIRE_ARRAY);
-                $corrected_error = $ufixit->fixCssColor($data['error_colors'], $data['error_html'], $new_content_array, $data['bold'], $data['italic']);
+                $corrected_error = $ufixit->fixCssColor($data['error_html'], $new_content_array, $data['bold'], $data['italic']);
                 break;
 
             case 'cssTextStyleEmphasize':
@@ -155,9 +153,6 @@ switch ($main_action) {
             case 'imgAltIsTooLong':
                 $new_content = filter_input(INPUT_POST, 'newcontent', FILTER_SANITIZE_STRING);
                 $corrected_error = $ufixit->fixAltText($data['error_html'], $new_content);
-
-                $remove_attr = preg_replace("/ data-api-endpoint.*$/s", "", $data['error_html']);
-                $data['error_html'] = $remove_attr;
                 break;
 
             case 'tableDataShouldHaveTh':
