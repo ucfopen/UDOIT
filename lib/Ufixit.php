@@ -137,19 +137,18 @@ class Ufixit
         preg_match_all('/<(\w+)\s+\w+.*?>/s', $error_html, $matches);
 
         $fixed_css = $error_html;
-
+        
         $fixed_css = preg_replace('/background:\s*([#a-z0-9]*)\s*;*\s*/', '', $fixed_css);
         $fixed_css = preg_replace('/background-color:\s*([#a-z0-9]*)\s*;*\s*/', '', $fixed_css);
         $fixed_css = preg_replace('/color:\s*([#a-z0-9]*)\s*;*\s*/', '', $fixed_css);
         $fixed_css = preg_replace('/font-weight:\s*([a-z0-9]*)\s*;*\s*/', '', $fixed_css);
         $fixed_css = preg_replace('/font-style:\s*([a-z0-9]*)\s*;*\s*/', '', $fixed_css);
         $fixed_css = preg_replace('/style="/', 'style="background-color: ' . $new_content[0] . '; color: ' . $new_content[1] . ';', $fixed_css);
-        
 
         $this->dom->loadHTML('<?xml encoding="utf-8" ?>' . $fixed_css );
 
         $tag = $this->dom->getElementsByTagName( $matches[1][0] )->item(0);
-
+        
         if ($bold) {
             $tag->setAttribute('style', $tag->getAttribute('style').' font-weight: bold;');
         } else {
@@ -163,7 +162,6 @@ class Ufixit
         }
 
         $fixed_css = $this->dom->saveHTML($tag);
-
         return $fixed_css;
     }
 
