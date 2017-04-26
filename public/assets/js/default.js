@@ -113,6 +113,8 @@ function checker() {
 function ufixitCssTextStyleEmphasize( $issueContainer ) {
 	var $back = $issueContainer.find('input.back-color');
 	var $fore = $issueContainer.find('input.fore-color');
+	var bold = $issueContainer.find('input[name="add-bold"]').val();
+	var italic = $issueContainer.find('input[name="add-italic"]').val();
 
 	var bgcolor = '#fff';
 
@@ -121,7 +123,7 @@ function ufixitCssTextStyleEmphasize( $issueContainer ) {
 	}
 
 	var $preview = $issueContainer.find('div.ufixit-preview-canvas');
-	$preview.attr('style', 'color: ' + $fore.val() + '; background-color: ' + bgcolor + ';' );
+	$preview.attr('style', 'color: ' + $fore.val() + '; background-color: ' + bgcolor + '; font-weight: ' + bold + '; font-style: ' + italic + '; ');
 }
 // END update UFIXIT Preview on load
 
@@ -130,6 +132,8 @@ function ufixitCssTextHasContrast( $issueContainer ) {
 	var $back = $issueContainer.find('input.back-color');
 	var $fore = $issueContainer.find('input.fore-color');
 	var $threshold = $issueContainer.find('input.threshold');
+	var bold = $issueContainer.find('input[name="add-bold"]').val();
+	var italic = $issueContainer.find('input[name="add-italic"]').val();
 
 	var $error = $issueContainer.find('span.contrast-invalid');
 	var $cr = $issueContainer.find('span.contrast-ratio');
@@ -148,7 +152,7 @@ function ufixitCssTextHasContrast( $issueContainer ) {
 
 	var $preview = $issueContainer.find('div.ufixit-preview-canvas');
 
-	$preview.attr('style', 'color: ' + $fore.val() + '; background-color: ' + bgcolor + ';' );
+	$preview.attr('style', 'color: ' + $fore.val() + '; background-color: ' + bgcolor + '; font-weight: ' + bold + '; font-style: ' + italic + '; ');
 
 	if (contrast_ratio < threshold) {
 		$error.removeClass('hidden');
@@ -290,6 +294,18 @@ $doc.ready(function() {
 		$error.find('a.viewError').focus();
 	});
 	// END close error source
+
+	//view warning info
+	$doc.on('click', '.view-warning', function(e){
+		if($(this).data('clicked')){
+			$(this).data('clicked', false);
+			$(this).parent().find('.warning-info').addClass('hidden');
+		} else {
+			$(this).data('clicked', true);
+			$(this).parent().find('.warning-info').removeClass('hidden');
+		}
+	})
+	// END view warning info
 
 	// print button
 	$doc.on('click', '#print', function() {
@@ -615,11 +631,13 @@ $doc.ready(function() {
 
 		if (contrast_ratio < threshold) {
 			$error.removeClass('hidden');
-			$fore.attr('style','border-color: red;');
+			$fore.css('border-color', 'red');
+			$fore.css('background-color', $fore.val());
 			$parent.parent().find('button.submit-content').prop('disabled',true);
 		} else {
 			$error.addClass('hidden');
-			$fore.attr('style','');
+			$fore.css('border-color', '#ccc');
+			$fore.css('background-color', $fore.val());
 			$parent.parent().find('button.submit-content').removeAttr('disabled');
 		}
 
@@ -657,11 +675,13 @@ $doc.ready(function() {
 
 		if (contrast_ratio < threshold) {
 			$error.removeClass('hidden');
-			$fore.attr('style','border-color: red;');
+			$fore.css('border-color', 'red');
+			$fore.css('background-color', $fore.val());
 			$parent.parent().find('button.submit-content').prop('disabled',true);
 		} else {
 			$error.addClass('hidden');
-			$fore.attr('style','');
+			$fore.css('border-color', '#ccc');
+			$fore.css('background-color', $fore.val());
 			$parent.parent().find('button.submit-content').removeAttr('disabled');
 		}
 
@@ -698,11 +718,13 @@ $doc.ready(function() {
 
 		if (contrast_ratio < threshold) {
 			$error.removeClass('hidden');
-			$fore.attr('style','border-color: red;');
+			$fore.css('border-color', 'red');
+			$fore.css('background-color', $fore.val());
 			$parent.find('button.submit-content').prop('disabled',true);
 		} else {
 			$error.addClass('hidden');
-			$fore.attr('style','');
+			$fore.css('border-color', '#ccc');
+			$fore.css('background-color', $fore.val());
 			$parent.find('button.submit-content').removeAttr('disabled');
 		}
 
@@ -728,7 +750,7 @@ $doc.ready(function() {
 	$doc.on('change', 'input[name="add-bold"]', function (e) {
 		var $preview = $(e.target).parent().parent().parent().parent().find('div.ufixit-preview-canvas');
 		var weight = (e.target.checked ? 'bold' : 'normal');
-
+		$(e.target).val(weight);
 		$preview.css('font-weight', weight );
 	});
 	// END update UFIXIT Preview
@@ -737,8 +759,9 @@ $doc.ready(function() {
 	$doc.on('change', 'input[name="add-italic"]', function (e) {
 		var $preview = $(e.target).parent().parent().parent().parent().find('div.ufixit-preview-canvas');
 		var weight = (e.target.checked ? 'italic' : 'normal');
-
+		$(e.target).val(weight);
 		$preview.css('font-style', weight );
 	});
 	// END update UFIXIT Preview
+
 });

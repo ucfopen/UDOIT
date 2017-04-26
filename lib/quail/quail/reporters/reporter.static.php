@@ -70,29 +70,31 @@ class reportStatic extends quailReporter
 					$testResult           = [];
 
 					if (is_object($problem)) {
+						$testResult['text_type']	= $problem->message;
 						if ($testname === "cssTextHasContrast" || $testname === "cssTextStyleEmphasize") {
-							foreach ($problem->element->attributes as $name) {
-								if ($name->name === "style") {
-									$styleValue = $name->value;
-									$hexColors  = [];
-
-									preg_match_all("/(#[0-9a-f]{6}|#[0-9a-f]{3})/", $styleValue, $hexColors);
-
-									$hexColors = array_unique($hexColors[0]);
-								}
-							}
-
+							$styleValue = $problem->message;
+						
+							$hexColors  = [];
+							$styleMatches = [];
+							$weightMatches = [];
+							
+							preg_match_all("/(#[0-9a-f]{6}|#[0-9a-f]{3})/", $styleValue, $hexColors);
+							preg_match("/font-style:\s([a-z]*);/", $styleValue, $styleMatches);
+							preg_match("/font-weight:\s([a-z]*);/", $styleValue, $weightMatches);
+							$hexColors = array_unique($hexColors[0]);
+								
 							$testResult['colors'] = $hexColors;
-
-							if ( sizeof($hexColors) === 1 ) {
-								$testResult['fore_color'] = $hexColors[0];
-							} else {
-								$testResult['back_color'] = $hexColors[0];
-								$testResult['fore_color'] = $hexColors[1];
+							$testResult['back_color'] = $hexColors[0];
+							$testResult['fore_color'] = $hexColors[1];
+							$testResult['font_style'] = $styleMatches[1];
+							$testResult['font_weight'] = $weightMatches[1];
+							if($testResult['font-weight'] === "bolder"){
+								$testResult['font-weight'] = "bold";
 							}
+							$testResult['text_type']	= preg_replace('/(?=:).+/', '', $problem->message);
+							
 						}
 
-						$testResult['text_type']	= $problem->message;
 						$testResult['type']   	= $testname;
 						$testResult['lineNo'] 	= $problem->line;
 

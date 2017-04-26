@@ -21,8 +21,8 @@
 global $unscannable_suggestion_on;
 global $unscannable_suggestion;
 ?>
-<h2 class="content-title">Unscannable <small><?= $out_of_items; ?> files</small></h2>
 
+<h2 class="content-title">Unscannable <small><?= $out_of_items; ?> files</small></h2>
 <div class="errorItem panel panel-default">
 	<div class="panel-heading clearfix">
 		<button class="btn btn-xs btn-default btn-toggle pull-left no-print margin-right-small"><span class="glyphicon glyphicon-plus"></span></button>
@@ -48,10 +48,22 @@ global $unscannable_suggestion;
 			</div>
 		</div>
 
-		<div class="list-group no-margin">
+		<div id="unscannable" class="list-group no-margin">
 
 			<?php foreach ($items as $item): ?>
-				<a href="<?= $item->url; ?>" class="list-group-item"><?= $item->title; ?></a>
+				<div class="item-container">
+					<a class="list-group-item" href="<?= $item->url; ?>"><?= $item->title; ?></a>
+					<?php if($item->big == true): ?>
+					<hr>
+					<a class="unscannable-warning view-warning">
+						<span class="glyphicon glyphicon-info-sign"></span>
+						Warning: Large File (>50mb)
+					</a>
+					<div class="warning-info hidden">
+						Users with slow internet connections (such as modem or 2G cellular data) may have trouble downloading files larger than 50mb in a reasonable amount of time. Consider reducing the size of this file.
+					</div>
+					<?php endif; ?>
+				</div>
 			<?php endforeach; ?>
 
 		</div>
