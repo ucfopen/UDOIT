@@ -572,7 +572,7 @@ div#cached button.btn-success:hover{
 	background-color: #3c763d !important;
 }
 
-.errorWrapper p {
+.errorWrapper p, .errorWrapper ul {
 	margin-left: 35px;
 	margin-right: 17px;
 }

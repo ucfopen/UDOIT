@@ -17,6 +17,9 @@
 *
 *	Primary Author Contact:  Jacob Bates <jacob.bates@ucf.edu>
 */
+
+global $unscannable_suggestion_on;
+global $unscannable_suggestion;
 ?>
 
 <h2 class="content-title">Unscannable <small><?= $out_of_items; ?> files</small></h2>
@@ -30,9 +33,13 @@
 	<div class="errorSummary panel-body">
 		<div class="panel panel-info">
 			<div class="panel-body">
+				<?php if($unscannable_suggestion_on): ?>
+					<p><strong><?= $unscannable_suggestion; ?></strong></p>
+				<?php endif; ?>
+
 				<p>Due to the nature of UDOIT, the content in these files cannot be scanned for accessibility problems. Please visit the following resources to read about accessibility for these file types.</p>
 
-				<ul class="list-unstyled no-margin">
+				<ul class="list-unstyled">
 					<li><a href="http://webaim.org/techniques/word/" target="blank">http://webaim.org/techniques/word/</a></li>
 					<li><a href="http://webaim.org/techniques/powerpoint/" target="blank">http://webaim.org/techniques/powerpoint/</a></li>
 					<li><a href="http://webaim.org/techniques/acrobat/" target="blank">http://webaim.org/techniques/acrobat/</a></li>
