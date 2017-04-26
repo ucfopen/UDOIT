@@ -4917,6 +4917,23 @@ class objectShouldHaveLongDescription extends quailTagTest
 }
 
 /**
+*  Objects may not be properly viewable on mobile devices.
+*  This test adds a suggestion to consider mobile users when relying on objects for multimedia content.
+*/
+class objectTagDetected extends quailTagTest
+{
+	/**
+	*	@var int $default_severity The default severity code for this test.
+	*/
+	var $default_severity = QUAIL_TEST_SUGGESTION;
+
+	/**
+	*	@var string $tag The tag this test will fire on
+	*/
+	var $tag = 'object';
+}
+
+/**
 *  Text equivalents for object should be updated if object changes.
 *  If an object element contains a codebase attribute then the codebase attribute value must be null or whitespace.
 *	@link http://quail-lib.org/test-info/objectTextUpdatesWhenObjectChanges

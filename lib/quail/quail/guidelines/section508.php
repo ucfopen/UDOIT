@@ -67,6 +67,7 @@ class Section508Guideline extends quailGuideline{
 		'noHeadings',
 		// 'appletsDoNotFlicker',
 		// 'objectDoesNotFlicker',
+		'objectTagDetected',
 		// 'scriptsDoNotFlicker',
 		// 'scriptInBodyMustHaveNoscript',
 		// 'appletContainsTextEquivalentInAlt',
