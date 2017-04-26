@@ -37,6 +37,7 @@ class Wcag2aaaGuideline extends quailGuideline
 		'imgAltNotPlaceHolder',
 		'imgAltNotEmptyInAnchor',
 		'imgHasLongDesc',
+		'contentTooLong',
 		// 'imgAltIsSameInText',
 		// 'imgAltEmptyForDecorativeImages',
 		// 'appletContainsTextEquivalentInAlt',

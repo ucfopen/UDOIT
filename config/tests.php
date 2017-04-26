@@ -116,7 +116,7 @@ $udoit_tests = [
         [
             'name'      => 'cssTextHasContrast',
             'title'     => 'Insufficient text color contrast with the background',
-            'desc'      => '<p>Text color should be easily viewable and should not be the only indicator of meaning or function. Color balance should have at least a 4.5:1 ratio.</p>',
+            'desc'      => '<p>Text color should be easily viewable and should not be the only indicator of meaning or function. Color balance should have at least a 4.5:1 ratio. Warning: using UFIXIT to fix one section of text may invalidate the contrast in nested sections of text that are not the same color.</p>',
             'resources' => [
                 '<a href="http://webaim.org/blog/wcag-2-0-and-link-colors/">Resource Link</a>',
                 'WCAG Standard <a href="http://www.w3.org/TR/WCAG20/#visual-audio-contrast-contrast">1.4.3</a>',
@@ -164,6 +164,13 @@ $udoit_tests = [
                 'CDL Video hosted video: CDL Video will caption video if a transcript is provided',
                 'WCAG Standard <a href="http://www.w3.org/TR/WCAG20/#media-equiv-captions">1.2.2</a>',
             ],
+            'example'   => '',
+        ],
+        [
+            'name'      => 'contentTooLong',
+            'title'     => 'Content length should not exceed 3000 words.',
+            'desc'      => '<p>For content longer than 3000 words, consider splitting it up into multiple documents. This makes it easier for students to process and retain the information.</p>',
+            'resources' => [],
             'example'   => '',
         ],
         [

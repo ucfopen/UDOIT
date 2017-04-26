@@ -384,21 +384,31 @@ class Udoit {
 
                     $extension = pathinfo($single->filename, PATHINFO_EXTENSION);
 
-                    if (in_array($extension, ['html', 'htm'])) {
-                        $content_result['items'][] = [
-                            'id'      => $single->id,
-                            'content' => Request::get($single->url)->followRedirects()->expectsHtml()->send()->body,
-                            'title'   => $single->display_name,
-                            'url'     => $single->url
-                        ];
-                    }
-                    // filters non html files
-                    if (in_array($extension, ['pdf', 'doc', 'docx', 'ppt', 'pptx'])){
+                    if($single->size > 50000000) {
                         $content_result['unscannable'][] = [
                             'title' => $single->display_name,
-                            'url'   => $single->url
-                        ];
+                            'url' => $single->url,
+                            'big' => true
+                            ];
+                    } else {
+                        if (in_array($extension, ['html', 'htm'])) {
+                            $content_result['items'][] = [
+                                'id'      => $single->id,
+                                'content' => Request::get($single->url)->followRedirects()->expectsHtml()->send()->body,
+                                'title'   => $single->display_name,
+                                'url'     => $single->url
+                            ];
+                        }
+                        // filters non html files
+                        if (in_array($extension, ['pdf', 'doc', 'docx', 'ppt', 'pptx'])){
+                            $content_result['unscannable'][] = [
+                                'title' => $single->display_name,
+                                'url'   => $single->url,
+                                'big'   => false
+                            ];
+                        }
                     }
+
                     break;
 
                 case 'pages':

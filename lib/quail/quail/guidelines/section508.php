@@ -35,6 +35,7 @@ class Section508Guideline extends quailGuideline{
 		'imgAltIsDifferent',
 		'imgAltIsTooLong',
 		'imgNonDecorativeHasAlt',
+		'contentTooLong',
 		// 'imgImportantNoSpacerAlt',
 		'imgAltNotPlaceHolder',
 		// 'imgAltNotEmptyInAnchor',
