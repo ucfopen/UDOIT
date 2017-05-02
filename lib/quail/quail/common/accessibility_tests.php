@@ -5609,25 +5609,27 @@ class tableDataShouldHaveTh extends quailTableTest
 	{
 		// Remember: We only need to check the first tr in a table and only if there's a single th in there
 		foreach ($this->getAllElements('table') as $table) {
-			foreach ($table->childNodes as $child) {
-				if ($this->propertyIsEqual($child, 'tagName', 'tbody') || $this->propertyIsEqual($child, 'tagName', 'thead')) {
-					foreach ($child->childNodes as $tr) {
-						foreach ($tr->childNodes as $th) {
-							if ($this->propertyIsEqual($th, 'tagName', 'th')) {
-								break 3;
-							} else {
-								$this->addReport($table);
-								break 3;
+			if (!($table->hasAttribute('role') && $table->getAttribute('role') == "presentation")){
+				foreach ($table->childNodes as $child) {
+					if ($this->propertyIsEqual($child, 'tagName', 'tbody') || $this->propertyIsEqual($child, 'tagName', 'thead')) {
+						foreach ($child->childNodes as $tr) {
+							foreach ($tr->childNodes as $th) {
+								if ($this->propertyIsEqual($th, 'tagName', 'th')) {
+									break 3;
+								} else {
+									$this->addReport($table);
+									break 3;
+								}
 							}
 						}
-					}
-				} elseif ($this->propertyIsEqual($child, 'tagName', 'tr')) {
-					foreach ($child->childNodes as $th) {
-						if ($this->propertyIsEqual($th, 'tagName', 'th')) {
-							break 2;
-						} else {
-							$this->addReport($table);
-							break 2;
+					} elseif ($this->propertyIsEqual($child, 'tagName', 'tr')) {
+						foreach ($child->childNodes as $th) {
+							if ($this->propertyIsEqual($th, 'tagName', 'th')) {
+								break 2;
+							} else {
+								$this->addReport($table);
+								break 2;
+							}
 						}
 					}
 				}
