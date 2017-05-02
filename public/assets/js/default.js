@@ -741,4 +741,14 @@ $doc.ready(function() {
 		$preview.css('font-style', weight );
 	});
 	// END update UFIXIT Preview
+
+	$doc.on('keypress', '.nav-tabs li[role="presentation"]', function (e) {
+	  	var tab = (e.target || e.srcElement);
+		if((e.keyCode == 32)){
+			e.preventDefault();
+			tab.click();	
+		}
+	});
+
 });
+
