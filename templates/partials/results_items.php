@@ -131,6 +131,10 @@
 													$result_template = 'image_alt';
 													break;
 
+												case "pNotUsedAsHeader":
+													$result_template = 'make_heading';
+													break;
+
 												case "tableDataShouldHaveTh":
 													$result_template = 'table_header';
 													break;

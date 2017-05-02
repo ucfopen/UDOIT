@@ -135,6 +135,19 @@ class UfixitTest extends PHPUnit_Framework_TestCase
         $this->checkOutputBuffer();
     }
 
+    public function testMakeHeading() {
+        $error_html     = '<p><strong>Paragraph text.</strong></p>';
+        $new_content    = 'h2';
+        $expected       = '<h2><strong>Paragraph text.</strong></h2>';
+
+        ob_start();
+        $temp           = new Ufixit($this->data);
+        $output         = $temp->makeHeading($error_html, $new_content);
+
+        $this->assertEquals($expected, $output);
+        $this->checkOutputBuffer();
+    }
+
     public function testFixTableHeadersRow() {
         $error_html     = '<table><tbody><tr><td>Header One</td><td>Header Two</td></tr><tr><td>1.30</td><td>4.50</td></tr></tbody></table>';
         $sel_header     = 'row';
