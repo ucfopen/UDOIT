@@ -3176,10 +3176,13 @@ class imgAltIsDifferent extends quailTest
 	function check()
 	{
 		foreach ($this->getAllElements('img') as $img) {
-			if (trim($img->getAttribute('src')) == trim($img->getAttribute('alt')))
-				$this->addReport($img);
-			else if ( preg_match("/.jpg|.JPG|.png|.PNG|.gif|.GIF|.jpeg|.JPEG$/", trim($img->getAttribute('alt'))) )
-				$this->addReport($img);
+			if (!($img->hasAttribute('aria-label') && strlen($img->getAttribute('aria-label')) > 0)
+				&& !($img->hasAttribute('aria-labelledby') && strlen($img->getAttribute('aria-labelledby')))){
+					if (trim($img->getAttribute('src')) == trim($img->getAttribute('alt')))
+						$this->addReport($img);
+					else if ( preg_match("/.jpg|.JPG|.png|.PNG|.gif|.GIF|.jpeg|.JPEG$/", trim($img->getAttribute('alt'))) )
+						$this->addReport($img);
+				}
 		}
 	}
 
