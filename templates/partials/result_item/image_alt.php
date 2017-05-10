@@ -22,7 +22,6 @@
 	<label for="<?= $this->e($item_id); ?>-input" class="control-label sr-only">Provide New Alt Text For This Image</label>
 	<span class="counter">100</span>
 	<input class="form-control" type="text" name="newcontent" maxlength="100" placeholder="New alt text" id="<?= $this->e($item_id); ?>-input">
-	<span class="input-group-btn">
-		<button class="submit-content inactive btn btn-default" type="submit">Submit</button>
-	</span>
+	<button class="submit-content inactive btn btn-default" type="submit">Submit</button>
+	<div class="validmessage instance">Please check that you've entered new alt text and that it isn't a filename</div>
 </div>

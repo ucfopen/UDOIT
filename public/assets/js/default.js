@@ -363,109 +363,154 @@ $doc.ready(function() {
 	$doc.on('submit', '#scanner .ufixit-form', function(e) {
 		e.preventDefault();
 
-		// Change button text from 'Submit' to 'Working'
-		var $submit = $(this).find('button.submit-content');
-		var $parent = $(this).parent();
-		var values = $(this).serializeArray();
-		var errorsRemaining = -1;
+		var valid = true;
+		var type = $(this).find('input[name="errortype"]').val();
+		var removeHeading = $(this).find('.remove-heading').is(':checked');
+		var removeLink = $(this).find('.remove-link').is(':checked');
 
-		if ( $submit.html() === '<div class="circle-black"></div> Waiting for UFIXIT to Finish' ) {
-			return;
+		if (type == "headersHaveText" && !removeHeading) {
+			var $input = $(this).find('input[name="newcontent"]');
+			if ($input.val().trim() == ''){
+				valid = false;
+			}
 		}
 
-		$submit.removeClass('inactive');
-		$submit.prop('disabled',true);
-		$submit.html('<div class="circle-black"></div> Working');
+		if (type == "imgAltIsDifferent" || type == "imgAltIsTooLong" || type == "imgHasAlt" || type == "imgNonDecorativeHasAlt") {
+			var $input = $(this).find('input[name="newcontent"]');
+			var $imgSrc = $(this).find('input[name="errorhtml"]');
+			if ($input.val().trim() == ''){
+				valid = false;
+			} else if ($imgSrc.val().indexOf($input.val().trim()) >= 0) {
+				valid = false;
+			} else if ($input.val().match(/jpg|JPG|png|PNG|gif|GIF|jpeg|JPEG$/)) {
+				valid = false;
+			}
+		}
 
-		var $targetPanel = $(this).parent().parent().parent().parent().parent().parent().parent();
+		if ((type == "aMustContainText" || type == "aSuspiciousLinkText" || type == "aLinkTextDoesNotBeginWithRedundantWord") && !removeLink) {
+			var $input = $(this).find('input[name="newcontent"]');
+			var $aSrc = $(this).find('input[name="errorhtml"]'); 
+			if ($input.val().trim() == ''){
+				valid = false;
+			} else if ($aSrc.val().indexOf($input.val().trim()) >= 0) {
+				valid = false;
+			} else if ($input.val().trim().toLowerCase().match(/^(go to|link to|go here|link|click here|click|more|here)$/)) {
+				valid = false;
+			}
+		}
 
-		var $reportURL = $targetPanel.find('a.report-url');
-		var $reportID = $targetPanel.find('input[name="contentid"]');
+		if (valid == true){
 
-		var $inactive = $targetPanel.find('button.submit-content.inactive');
+			var vmsg = e.target.parentElement.querySelector('.validmessage');
+			$(vmsg).stop().fadeOut();
 
-		$inactive.each( function() {
-			$(this).html('<div class="circle-black"></div> Waiting for UFIXIT to Finish');
-		});
+			// Change button text from 'Submit' to 'Working'
+			var $submit = $(this).find('button.submit-content');
+			var $parent = $(this).parent();
+			var values = $(this).serializeArray();
+			var errorsRemaining = -1;
 
-		values.push({ name: 'base_url', value: $('input[name="base_url"]').val() });
-		values.push({ name: 'course_id', value: $('input[name="session_course_id"]').val() });
-		values.push({ name: 'context_label', value: $('input[name="session_context_label"]').val() });
-		values.push({ name: 'context_title', value: $('input[name="session_context_title"]').val() });
+			if ( $submit.html() === '<div class="circle-black"></div> Waiting for UFIXIT to Finish' ) {
+				return;
+			}
 
-		$parent.find('.alert').remove();
-		$.ajax({
-			url: 'process.php',
-			type: 'POST',
-			data: values,
-			success: function(data) {
-				if (data == 'Missing content') {
-					$parent.append(buildAlertString('Please enter alt text.'));
-				} else if (data == 'Incorrect table scope') {
-					$parent.append(buildAlertString('You should enter "col" or "row" for th scopes.'));
-				} else {
-					$parent.removeClass('in');
+			$submit.removeClass('inactive');
+			$submit.prop('disabled',true);
+			$submit.html('<div class="circle-black"></div> Working');
 
-					$parent.find('input[name="submittingagain"]').val('Yes');
+			var $targetPanel = $(this).parent().parent().parent().parent().parent().parent().parent();
 
-					$parent.find('button').removeClass('hidden');
-					$parent.find('.fix-success').removeClass('hidden');
-					$parent.find('.viewError').addClass('hidden');
-					$parent.find('.more-info').addClass('hidden');
-					$parent.find('.ufixit-form').addClass('hidden');
+			var $reportURL = $targetPanel.find('a.report-url');
+			var $reportID = $targetPanel.find('input[name="contentid"]');
+
+			var $inactive = $targetPanel.find('button.submit-content.inactive');
+
+			$inactive.each( function() {
+				$(this).html('<div class="circle-black"></div> Waiting for UFIXIT to Finish');
+			});
+
+			values.push({ name: 'base_url', value: $('input[name="base_url"]').val() });
+			values.push({ name: 'course_id', value: $('input[name="session_course_id"]').val() });
+			values.push({ name: 'context_label', value: $('input[name="session_context_label"]').val() });
+			values.push({ name: 'context_title', value: $('input[name="session_context_title"]').val() });
+
+			$parent.find('.alert').remove();
+			$.ajax({
+				url: 'process.php',
+				type: 'POST',
+				data: values,
+				success: function(data) {
+					if (data == 'Missing content') {
+						$parent.append(buildAlertString('Please enter alt text.'));
+					} else if (data == 'Incorrect table scope') {
+						$parent.append(buildAlertString('You should enter "col" or "row" for th scopes.'));
+					} else {
+						$parent.removeClass('in');
+
+						$parent.find('input[name="submittingagain"]').val('Yes');
+
+						$parent.find('button').removeClass('hidden');
+						$parent.find('.fix-success').removeClass('hidden');
+						$parent.find('.viewError').addClass('hidden');
+						$parent.find('.more-info').addClass('hidden');
+						$parent.find('.ufixit-form').addClass('hidden');
 
 
-					errorsRemaining = $parent.parent().parent().find('.fix-success.hidden').length;
-					if ( errorsRemaining == 0 ) {
-						$parent.parent().parent().parent().find('.badge-error').addClass('badge-success');
-						$parent.parent().parent().parent().find('h5').removeClass('text-danger').addClass('text-success');
+						errorsRemaining = $parent.parent().parent().find('.fix-success.hidden').length;
+						if ( errorsRemaining == 0 ) {
+							$parent.parent().parent().parent().find('.badge-error').addClass('badge-success');
+							$parent.parent().parent().parent().find('h5').removeClass('text-danger').addClass('text-success');
+						}
 					}
-				}
 
-				// Ensure we were looking at a file before we try to parse the file
-				// response from the server
-				for(var prop in values){
-					if(values.hasOwnProperty(prop)){
-						if(values[prop].name == "contenttype" && values[prop].value == "files") {
-							try {
-								var newFile = JSON.parse(data);
-
-								if ( values[1]['value'] == 'files' ) {
-									$reportURL.attr('href', newFile.url);
-
-									$reportID.each( function() {
-										$(this).attr('value', newFile.id);
-									});
-								}
-							} catch(e){
+					// Ensure we were looking at a file before we try to parse the file
+					// response from the server
+					for(var prop in values){
+						if(values.hasOwnProperty(prop)){
+							if(values[prop].name == "contenttype" && values[prop].value == "files") {
 								try {
-									console.log('Failed to parse JSON response during a File based UFIXIT attempt!')
-								} catch(e){}
+									var newFile = JSON.parse(data);
+
+									if ( values[1]['value'] == 'files' ) {
+										$reportURL.attr('href', newFile.url);
+
+										$reportID.each( function() {
+											$(this).attr('value', newFile.id);
+										});
+									}
+								} catch(e){
+									try {
+										console.log('Failed to parse JSON response during a File based UFIXIT attempt!')
+									} catch(e){}
+								}
 							}
 						}
 					}
+
+					$submit.addClass('inactive');
+					$submit.removeAttr('disabled');
+					$submit.html('Submit');
+
+					$inactive.each( function() {
+						$(this).html('Submit');
+					});
+				},
+				error: function(data) {
+					$parent.append(buildAlertString('Error: '+data.responseText));
+
+					$submit.addClass('inactive');
+					$submit.removeAttr('disabled');
+					$submit.html('Submit');
+
+					$inactive.each( function() {
+						$(this).html('Submit');
+					});
 				}
-
-				$submit.addClass('inactive');
-				$submit.removeAttr('disabled');
-				$submit.html('Submit');
-
-				$inactive.each( function() {
-					$(this).html('Submit');
-				});
-			},
-			error: function(data) {
-				$parent.append(buildAlertString('Error: '+data.responseText));
-
-				$submit.addClass('inactive');
-				$submit.removeAttr('disabled');
-				$submit.html('Submit');
-
-				$inactive.each( function() {
-					$(this).html('Submit');
-				});
-			}
-		});
+			});
+		} else {
+			var vmsg = e.target.parentElement.querySelector('.validmessage');
+			$(vmsg).stop().fadeIn().css('display','inline-block');
+		}
 	});
 	// END submitting the fix-it form
 

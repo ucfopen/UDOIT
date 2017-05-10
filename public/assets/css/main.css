@@ -520,7 +520,7 @@ div#cached button.btn-success:hover{
 	display: inline-block;
 }
 
-.toolmessage {
+.toolmessage, .validmessage {
 	display: none;
 	position: relative;
 	background-color: #aaa;
@@ -535,7 +535,7 @@ div#cached button.btn-success:hover{
 	margin-left: 5px;
 }
 
-.toolmessage:before{
+.toolmessage:before, .validmessage:before{
 	content:'';
 	position: absolute;
 	left: -19px;
@@ -681,7 +681,15 @@ ul.color-picker {
 
 /* X. FORMS --------------------------- */
 
-.fix-alt { position: relative; }
+.fix-alt { 
+	position: relative;
+	width: 100%; 
+}
+
+.ufixit-form .fix-alt .btn {
+	margin-top: 5px;
+	margin-bottom: 5px;
+}
 
 .fix-success { clear: both; }
 
@@ -690,7 +698,7 @@ p.fix-success { margin-left: 0; }
 .counter {
 	color: #8F8F8F;
 	position: absolute;
-	right: 79px;
+	right: 10px;
 	top: 7px;
 	z-index: 9999;
 }
