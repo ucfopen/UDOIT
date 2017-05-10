@@ -23,4 +23,5 @@
 	<input class="{hash:true,caps:false} form-control" type="text" name="newcontent" placeholder="New heading text" id="<?= $this->e($item_id); ?>-input">
 	<label><input class="remove-heading" type="checkbox" />&nbsp;Delete this Header completely instead</label><br />
 	<button class="submit-content inactive btn btn-default" type="submit">Submit</button>
+	<div class="validmessage instance">Please check that you've entered text for this header</div>
 </div>

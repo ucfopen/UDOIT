@@ -116,7 +116,7 @@ $udoit_tests = [
         [
             'name'      => 'cssTextHasContrast',
             'title'     => 'Insufficient text color contrast with the background',
-            'desc'      => '<p>Text color should be easily viewable and should not be the only indicator of meaning or function. Color balance should have at least a 4.5:1 ratio.</p>',
+            'desc'      => '<p>Text color should be easily viewable and should not be the only indicator of meaning or function. Color balance should have at least a 4.5:1 ratio. Warning: using UFIXIT to fix one section of text may invalidate the contrast in nested sections of text that are not the same color.</p>',
             'resources' => [
                 '<a href="http://webaim.org/blog/wcag-2-0-and-link-colors/">Resource Link</a>',
                 'WCAG Standard <a href="http://www.w3.org/TR/WCAG20/#visual-audio-contrast-contrast">1.4.3</a>',
@@ -167,6 +167,13 @@ $udoit_tests = [
             'example'   => '',
         ],
         [
+            'name'      => 'contentTooLong',
+            'title'     => 'Content length should not exceed 3000 words.',
+            'desc'      => '<p>For content longer than 3000 words, consider splitting it up into multiple documents. This makes it easier for students to process and retain the information.</p>',
+            'resources' => [],
+            'example'   => '',
+        ],
+        [
             'name'      => 'aSuspiciousLinkText',
             'title'     => 'Link text should be descriptive',
             'desc'      => 'Links should be descriptive of the content they\'re linking to, such as "Class Schedule" rather than "schedule.html" or "click here".',
@@ -187,6 +194,13 @@ $udoit_tests = [
             'title'     => 'The text equivalents (e.g., transcripts and/or captions) for embedded content should update when content changes.',
             'desc'      => '',
             'resources' => ['WCAG Standard: <a href="http://www.w3.org/TR/UNDERSTANDING-WCAG20/media-equiv.html">1.2</a>',],
+            'example'   => '',
+        ],
+        [
+            'name'      => 'objectTagDetected',
+            'title'     => 'Multimedia may require plugins to display properly.',
+            'desc'      => 'Multimedia embedded using the "Object" tag may require the user to install a plugin for their web browser. This can create support and access issues for some users. Additionally, users on mobile devices may not be able to view the multimedia content at all. Consider using an alternative format that the user\'s browser can display natively.',
+            'resources' => [],
             'example'   => '',
         ],
         [

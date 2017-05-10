@@ -71,16 +71,25 @@ switch ($main_action) {
         $dbh = include('../lib/db.php');
 
         $sth = $dbh->prepare("
+            ALTER TABLE {$db_reports_table} ADD file TEXT;"
+        );
+        $sth->execute();
+
+        if ( ! $sth->execute()) {
+            error_log("Column already created");
+        }
+
+        $sth = $dbh->prepare("
             INSERT INTO
-                {$db_reports_table}
-                (user_id, course_id, file_path, date_run, errors, suggestions)
+                {$db_reports_table} 
+                (user_id, course_id, file, date_run, errors, suggestions)
             VALUES
-                (:userid, :courseid, :filepath, CURRENT_TIMESTAMP, :errors, :suggestions)"
+                (:userid, :courseid, :file, CURRENT_TIMESTAMP, :errors, :suggestions)"
         );
 
         $sth->bindValue(':userid', $user_id, PDO::PARAM_INT);
         $sth->bindValue(':courseid', $data['course_id'], PDO::PARAM_INT);
-        $sth->bindValue(':filepath', $file, PDO::PARAM_STR);
+        $sth->bindValue(':file', $udoit->getReport(), PDO::PARAM_STR);
         $sth->bindValue(':errors', $udoit->total_results['errors'], PDO::PARAM_STR);
         $sth->bindValue(':suggestions', $udoit->total_results['suggestions'], PDO::PARAM_STR);
 
@@ -94,14 +103,12 @@ switch ($main_action) {
         break;
 
     case 'ufixit':
-        $error_color = filter_input(INPUT_POST, 'errorcolor', FILTER_SANITIZE_STRING, FILTER_REQUIRE_ARRAY);
 
         $data = [
             'base_uri'     => $base_url,
             'content_id'   => filter_input(INPUT_POST, 'contentid', FILTER_SANITIZE_STRING),
             'content_type' => filter_input(INPUT_POST, 'contenttype', FILTER_SANITIZE_STRING),
             'error_html'   => html_entity_decode(filter_input(INPUT_POST, 'errorhtml', FILTER_SANITIZE_FULL_SPECIAL_CHARS)),
-            'error_colors' => empty($error_color) ? '' : $error_color,
             'error_type'   => filter_input(INPUT_POST, 'errortype', FILTER_SANITIZE_STRING),
             'bold'         => (filter_input(INPUT_POST, 'add-bold', FILTER_SANITIZE_STRING) == 'bold'),
             'italic'       => (filter_input(INPUT_POST, 'add-italic', FILTER_SANITIZE_STRING) == 'italic'),
@@ -133,7 +140,7 @@ switch ($main_action) {
 
             case 'cssTextHasContrast':
                 $new_content_array  = filter_input(INPUT_POST, 'newcontent', FILTER_SANITIZE_STRING, FILTER_REQUIRE_ARRAY);
-                $corrected_error = $ufixit->fixCssColor($data['error_colors'], $data['error_html'], $new_content_array, $data['bold'], $data['italic']);
+                $corrected_error = $ufixit->fixCssColor($data['error_html'], $new_content_array, $data['bold'], $data['italic']);
                 break;
 
             case 'cssTextStyleEmphasize':
@@ -151,9 +158,6 @@ switch ($main_action) {
             case 'imgAltIsTooLong':
                 $new_content = filter_input(INPUT_POST, 'newcontent', FILTER_SANITIZE_STRING);
                 $corrected_error = $ufixit->fixAltText($data['error_html'], $new_content);
-
-                $remove_attr = preg_replace("/ data-api-endpoint.*$/s", "", $data['error_html']);
-                $data['error_html'] = $remove_attr;
                 break;
 
             case 'tableDataShouldHaveTh':
