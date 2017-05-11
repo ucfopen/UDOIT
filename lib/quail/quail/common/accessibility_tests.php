@@ -3393,9 +3393,10 @@ class imgHasAlt extends quailTest
 	function check()
 	{
 		foreach ($this->getAllElements('img') as $img) {
-			if (!$img->hasAttribute('alt')
+			if ((!$img->hasAttribute('alt')
 				|| $img->getAttribute('alt') == ''
-				|| $img->getAttribute('alt') == ' ') {
+				|| $img->getAttribute('alt') == ' ') 
+				&& !($img->hasAttribute('aria-label') && strlen($img->getAttribute('aria-label')) > 0) {
 				$this->addReport($img);
 			}
 		}
