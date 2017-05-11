@@ -3396,7 +3396,8 @@ class imgHasAlt extends quailTest
 			if ((!$img->hasAttribute('alt')
 				|| $img->getAttribute('alt') == ''
 				|| $img->getAttribute('alt') == ' ') 
-				&& !($img->hasAttribute('aria-label') && strlen($img->getAttribute('aria-label')) > 0) {
+				&& !($img->hasAttribute('aria-label') && strlen($img->getAttribute('aria-label')) > 0)
+				&& !($img->hasAttribute('aria-labelledby') && strlen($img->getAttribute('aria-labelledby')))) {
 				$this->addReport($img);
 			}
 		}
