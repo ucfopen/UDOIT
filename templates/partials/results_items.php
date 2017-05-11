@@ -72,6 +72,10 @@
 													<div class="ufixit-no-background-color">
 														<?= $group_item->html; ?>
 													</div>
+												<?php elseif ($group_item->type == "tableThShouldHaveScope"): ?>
+													th: <?= $group_item->th; ?>
+													<br><br>
+													<?= $group_item->html; ?>
 												<?php else: ?>
 													<?= $group_item->html; ?>
 												<?php endif; ?>

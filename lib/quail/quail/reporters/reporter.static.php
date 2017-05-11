@@ -93,6 +93,9 @@ class reportStatic extends quailReporter
 						}
 
 						$testResult['text_type']	= $problem->message;
+						if ($testname === "tableThShouldHaveScope") {
+							$testResult['th']	= $problem->message;
+						}
 						$testResult['type']   	= $testname;
 						$testResult['lineNo'] 	= $problem->line;
 

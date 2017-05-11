@@ -6069,12 +6069,17 @@ class tableThShouldHaveScope extends quailTest
 	function check()
 	{
 		foreach ($this->getAllElements('th') as $th) {
+			$node = $th;
+			while ($node->parentNode->tagName != "table") {
+				$node = $node->parentNode;
+			}
+			$table = $node->parentNode;
 			if ($th->hasAttribute('scope')) {
 				if ($th->getAttribute('scope') != 'col' && $th->getAttribute('scope') != 'row') {
-					$this->addReport($th);
+					$this->addReport($table, $th->nodeValue);
 				}
 			} else {
-				$this->addReport($th);
+				$this->addReport($table, $th->nodeValue);
 			}
 		}
 	}
