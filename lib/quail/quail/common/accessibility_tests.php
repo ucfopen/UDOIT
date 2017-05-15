@@ -5636,6 +5636,39 @@ class tableDataShouldHaveTh extends quailTableTest
 	}
 }
 
+/**
+*  Detect if a table or its cells have fixed width
+*/
+class tableHasFixedWidth extends quailTableTest
+{
+	/**
+	*	@var int $default_severity The default severity code for this test.
+	*/
+	var $default_severity = QUAIL_TEST_SUGGESTION;
+
+	/**
+	*	The main check function. This is called by the parent class to actually check content
+	*/
+	function check()
+	{
+		foreach ($this->getAllElements('table') as $table) {
+			$xpath   = new DOMXPath($this->dom);
+			$nodes = $xpath->query('.//*', $table);
+			$style = $this->css->getStyle($table);
+			if (isset($style['width'])) {
+				$this->addReport($table);
+				break;
+			}
+			foreach ($nodes as $node) {
+				$style = $this->css->getStyle($node);
+				if (isset($style['width'])) {
+					$this->addReport($table);
+					break;
+				}
+			}
+		}
+	}
+}
 
 /**
 *  Substitutes for table header labels must be terse.

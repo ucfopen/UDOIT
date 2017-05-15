@@ -98,6 +98,13 @@ $udoit_tests = [
             ',
         ],
         [
+            'name'      => 'tableHasFixedWidth',
+            'title'     => 'Table should not have fixed width',
+            'desc'      => '<p>Tables with fixed widths (or containing cells with fixed widths) might display incorrectly on tablets and phones, running off the side of the page and creating inaccessible content. Try viewing this page on a mobile device, and remove the portions with a fixed width if necessary.</p>',
+            'resources' => [],
+            'example'   => '',
+        ],
+        [
             'name'      => 'tableThShouldHaveScope',
             'title'     => 'No row or column scopes declarations found in headers of the table',
             'desc'      => '<p>Scope declarations in headers organize and define table data by row/column for sighted and <a href="http://en.wikipedia.org/wiki/Screen_reader">screen reader</a> users.</p>',
