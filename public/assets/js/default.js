@@ -809,4 +809,20 @@ $doc.ready(function() {
 	});
 	// END update UFIXIT Preview
 
+	// updates UFIXIT Preview on change of checkbox for removing color
+	$doc.on('change', 'input[name="remove-color"]', function (e) {
+		var $preview = $(e.target).parent().parent().parent().find('div.ufixit-preview-canvas');
+		var bg = $(e.target).parent().parent().parent().find('input.back-color').val();
+		var color = $(e.target).parent().parent().parent().find('input.fore-color').val();
+		$(this).val($(this).prop('checked'));
+		if ($(this).prop('checked')){
+			$preview.css('color', 'black' );
+			$preview.css('background-color', 'white' );
+		} else {
+			$preview.css('color', color );
+			$preview.css('background-color', bg );
+		}
+	});
+	// END update UFIXIT Preview
+
 });

@@ -112,6 +112,7 @@ switch ($main_action) {
             'error_type'   => filter_input(INPUT_POST, 'errortype', FILTER_SANITIZE_STRING),
             'bold'         => (filter_input(INPUT_POST, 'add-bold', FILTER_SANITIZE_STRING) == 'bold'),
             'italic'       => (filter_input(INPUT_POST, 'add-italic', FILTER_SANITIZE_STRING) == 'italic'),
+            'remove_color' => (filter_input(INPUT_POST, 'remove-color', FILTER_SANITIZE_STRING) == 'true'),
             'course_id'    => filter_input(INPUT_POST, 'course_id', FILTER_SANITIZE_NUMBER_INT),
             'api_key'      => $api_key
         ];
@@ -144,7 +145,7 @@ switch ($main_action) {
                 break;
 
             case 'cssTextStyleEmphasize':
-                $corrected_error = $ufixit->fixCssEmphasize($data['error_html'], $data['bold'], $data['italic']);
+                $corrected_error = $ufixit->fixCssEmphasize($data['error_html'], $data['bold'], $data['italic'], $data['remove_color']);
                 break;
 
             case 'headersHaveText':
