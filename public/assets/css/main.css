@@ -304,7 +304,7 @@ h5 + ul {
 	font-size: 11px;
 	font-weight: bold;
 
-	background: rgba(0,0,0,0.3);
+	background: #767676;
 	border-radius: 3px 0 3px 0;
 }
 
@@ -381,7 +381,7 @@ h5 + ul {
 	font-size: 11px;
 	font-weight: bold;
 
-	background: rgba(0,0,0,0.3);
+	background: #767676;
 	border-radius: 3px 0 3px 0;
 }
 
@@ -545,7 +545,7 @@ div#cached button.btn-success:hover{
 .btn-success[disabled]:active,
 .btn-success.disabled.active,
 .btn-success[disabled].active {
-	background: #5cb85c;
+	background: #008a00;
 	opacity: 1;
 }
 
@@ -621,14 +621,24 @@ ul.color-picker {
 .label-danger {
 	background-color: #d4423c;
 }
+
+.label-success {
+	background-color: #008a00
+}
+
 .btn-success {
-	background-color: #006800;
+	background-color: #008a00;
 	border-color: #106800;
 }
 .btn-success.active, .btn-success.focus,
 .btn-success:active, .btn-success:focus,
-.btn-success:hover, .open>.dropdown-toggle.btn-success {
-	background-color: #008a00;
+.btn-success:hover, .open>.dropdown-toggle.btn-success, 
+.btn-success.disabled, .btn-success[disabled], 
+.btn-success.disabled:hover, .btn-success[disabled]:hover, 
+.btn-success.disabled:focus, .btn-success[disabled]:focus, 
+.btn-success.disabled:active, .btn-success[disabled]:active, 
+.btn-success.disabled.active, .btn-success[disabled].active {
+	background-color: #006800;
 }
 /* X. FORMS --------------------------- */
 
