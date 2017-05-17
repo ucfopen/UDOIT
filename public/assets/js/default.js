@@ -741,4 +741,43 @@ $doc.ready(function() {
 		$preview.css('font-style', weight );
 	});
 	// END update UFIXIT Preview
+
+	// updates Unscannable files list on change of checkbox for PDFs
+	$doc.on('change', 'input#filter-pdf', function (e) {
+		$items = $(this).parent().parent().parent().find('.pdf');
+		if ($(this).prop('checked')){
+			$items.show();
+		} else {
+			$items.hide();
+		}
+	});
+	// END update files list
+
+	// updates Unscannable files list on change of checkbox for DOCs
+	$doc.on('change', 'input#filter-doc', function (e) {
+		$items = $(this).parent().parent().parent().find('.doc');
+		$itemsx = $(this).parent().parent().parent().find('.docx');
+		if ($(this).prop('checked')){
+			$items.show();
+			$itemsx.show();
+		} else {
+			$items.hide();
+			$itemsx.hide();
+		}
+	});
+	// END update files list
+
+	// updates Unscannable files list on change of checkbox for PPTs
+	$doc.on('change', 'input#filter-ppt', function (e) {
+		$items = $(this).parent().parent().parent().find('.ppt');
+		$itemsx = $(this).parent().parent().parent().find('.pptx');
+		if ($(this).prop('checked')){
+			$items.show();
+			$itemsx.show();
+		} else {
+			$items.hide();
+			$itemsx.hide();
+		}
+	});
+	// END update files list
 });

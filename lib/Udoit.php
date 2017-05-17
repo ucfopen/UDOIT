@@ -396,7 +396,8 @@ class Udoit {
                     if (in_array($extension, ['pdf', 'doc', 'docx', 'ppt', 'pptx'])){
                         $content_result['unscannable'][] = [
                             'title' => $single->display_name,
-                            'url'   => $single->url
+                            'url'   => $single->url,
+                            'extension' => $extension
                         ];
                     }
                     break;

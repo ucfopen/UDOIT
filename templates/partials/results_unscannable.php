@@ -41,10 +41,25 @@
 			</div>
 		</div>
 
+		<ul id="filters">
+		    <li>
+		        <input type="checkbox" value="pdf" id="filter-pdf" checked/>
+		        <label for="filter-pdf">PDF</label>
+		    </li>
+		    <li>
+		        <input type="checkbox" value="doc" id="filter-doc" checked/>
+		        <label for="filter-doc">DOC</label>
+		    </li>
+		    <li>
+		        <input type="checkbox" value="ppt" id="filter-ppt" checked/>
+		        <label for="filter-ppt">PPT</label>
+		    </li>
+		</ul>
+
 		<div class="list-group no-margin">
 
 			<?php foreach ($items as $item): ?>
-				<a href="<?= $item->url; ?>" class="list-group-item"><?= $item->title; ?></a>
+				<a href="<?= $item->url; ?>" class="list-group-item <?= $item->extension; ?>"><?= $item->title; ?></a>
 			<?php endforeach; ?>
 
 		</div>
