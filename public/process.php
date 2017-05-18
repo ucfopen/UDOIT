@@ -66,6 +66,7 @@ switch ($main_action) {
         $title = filter_input(INPUT_POST, 'context_title', FILTER_SANITIZE_STRING);
         $udoit = new Udoit($data);
         $udoit->buildReport();
+
         $file = $udoit->saveReport($title, "../reports/{$user_id}");
 
         $dbh = include('../lib/db.php');

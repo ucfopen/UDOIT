@@ -91,7 +91,7 @@ ol { list-style-type: none; }
 	display: inline-block !important;
 }
 
-a.list-group-item { display: block!important; }
+span.list-group-item { display: block!important; }
 
 button,
 form,

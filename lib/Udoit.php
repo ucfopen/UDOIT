@@ -294,13 +294,44 @@ class Udoit {
                     $response  = Request::get($url)->send();
                     $the_links = $this->parseLinks($response->headers->toArray()['link']);
 
+                    $directories = [];
 
-                    foreach ($response->body as $thing) {
-                        $content[] = $thing;
+                    foreach ($response->body as $files_body) {
+                        $folder_info = NULL;
+
+                        foreach ($directories as $dir) {
+                            if ($dir->id === $files_body->folder_id) {
+                                $folder_info = $dir;
+                                break;
+                            }
+                        }
+
+                        if (is_null($folder_info)) {
+                            $url_folder = "{$this->base_uri}/api/v1/folders/{$files_body->folder_id}?access_token={$this->api_key}";
+                            $response_folder = Request::get($url_folder)->send();
+
+                            $folder_info = $response_folder->body;
+                            array_push($directories, $folder_info);
+                        }
+
+                        $directory = preg_replace('/^course files/i', 'root', $folder_info->full_name);
+
+                        if ($directory === 'root') {
+                            $directory_url = "{$this->base_uri}courses/{$this->course_id}/files/";
+                        } else {
+                            $directory_url = preg_replace('/^root/i', '', $directory);
+                            $directory_url = preg_replace('/ /', '%20', $directory_url);
+                            $directory_url = "{$this->base_uri}courses/{$this->course_id}/files/folder{$directory_url}";
+                        }
+
+                        $files_body->directory = $directory;
+                        $files_body->directory_url = $directory_url;
+
+                        $content[] = $files_body;
                     }
 
                     if (isset($the_links['next'])) {
-                        $url = $the_links['next'].'&access_token='.$this->api_key;
+                        $url = "{$the_links['next']}&access_token={$this->api_key}";
                     }
 
                 } while (isset($the_links['next']));
@@ -393,10 +424,12 @@ class Udoit {
                         ];
                     }
                     // filters non html files
-                    if (in_array($extension, ['pdf', 'doc', 'docx', 'ppt', 'pptx'])){
+                    if (in_array($extension, ['pdf', 'doc', 'docx', 'ppt', 'pptx'])) {
                         $content_result['unscannable'][] = [
-                            'title' => $single->display_name,
-                            'url'   => $single->url
+                            'title'         => $single->display_name,
+                            'url'           => $single->url,
+                            'directory'     => $single->directory,
+                            'directory_url' => $single->directory_url
                         ];
                     }
                     break;

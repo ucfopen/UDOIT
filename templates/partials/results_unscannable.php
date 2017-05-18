@@ -44,7 +44,9 @@
 		<div class="list-group no-margin">
 
 			<?php foreach ($items as $item): ?>
-				<a href="<?= $item->url; ?>" class="list-group-item"><?= $item->title; ?></a>
+				<span class="list-group-item">
+					<a class="unscannable-file" href="<?= $item->url; ?>"><?= $item->title; ?></a>&nbsp;<small><a class="unscannable-directory" target="_blank" href="<?= $item->directory_url; ?>">Directory: <?= $item->directory; ?> <span class ="glyphicon glyphicon-new-window"></span></a></small>
+				</span>
 			<?php endforeach; ?>
 
 		</div>

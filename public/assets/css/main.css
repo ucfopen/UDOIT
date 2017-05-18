@@ -548,6 +548,26 @@ div#cached button.btn-success:hover{
 	opacity: 1;
 }
 
+.unscannable-file {
+	border-right: 1px solid #ddd;
+	display: inline-block;
+
+	margin-right: 5px;
+	min-width: 150px;
+	
+	padding-left: 5px;
+	padding-right: 5px;
+}
+
+.unscannable-file:hover {
+	background: #f5f5f5;
+}
+
+.unscannable-directory {
+	display: inline-block;
+	color: #777;
+}
+
 ul.color-picker {
 	list-style: none;
 	padding: 0;
