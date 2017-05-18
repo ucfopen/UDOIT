@@ -4,6 +4,15 @@
 # Universal Design Online content Inspection Tool
 UDOIT enables faculty to identify accessibility issues in Canvas by Instructure. Scan a course, generate reports, and provide resources to address common accessibility issues.
 
+## Awards
+
+UDOIT has been recognized by the industry, heres a quick list of the awards it's won.
+
+* 2017 - [Platinum IMS Global Learning Impact Award - Scaling Pedagogical Knowledge and Practice Project Category](https://www.imsglobal.org/lili/awards.html)
+* 2016 - [Campus Technology Innovators - Administration Category](https://campustechnology.com/innovators)
+* 2015 - [Online Learning Consortium Effective Practice Award](https://onlinelearningconsortium.org/about/2015-olc-effective-practice-award-winners/)
+* 2013 - [Instructure's Canvas Grant Award](https://www.canvaslms.com/canvasgrants/past-winners)
+
 ## Licenses
 Please see [UDOIT_Release.pdf](UDOIT_Release.pdf) (distributed with the source code) for more information about licensing.
 
