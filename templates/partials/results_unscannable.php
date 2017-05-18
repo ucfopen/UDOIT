@@ -44,7 +44,11 @@
 		<div class="list-group no-margin">
 
 			<?php foreach ($items as $item): ?>
-				<a href="<?= $item->url; ?>" class="list-group-item"><?= $item->title; ?></a>
+				<div class="list-group-item">
+					<a target="_blank" href="<?= $item->path; ?>">Folder</a> - 
+					<a class="download" href="<?= $item->url; ?>"><?= $item->title; ?></a>
+					<span class="module-location"><?= $item->module; ?></span>
+				</div>
 			<?php endforeach; ?>
 
 		</div>

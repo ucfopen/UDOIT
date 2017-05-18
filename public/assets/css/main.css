@@ -51,6 +51,10 @@ body { padding: 20px 0 0; }
 	padding-left: 26px;
 }
 
+.list-group-item .download, .list-group-item .module-location {
+	color: #555;
+}
+
 .list-group-item .btn{
 	margin: 10px;
 }

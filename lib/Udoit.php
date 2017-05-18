@@ -233,7 +233,7 @@ class Udoit {
         $content      = [];
         $per_page     = 100;
         $page_count   = 1;
-        $base_api_url = "{$this->base_uri}/api/v1/courses/{$this->course_id}/";
+        $base_api_url = "{$this->base_uri}api/v1/courses/{$this->course_id}/";
         $content_result = [
             'items'       => [],
             'amount'      => 0,
@@ -288,12 +288,70 @@ class Udoit {
                 break;
 
             case 'files':
-                $url = "{$this->base_uri}/api/v1/courses/{$this->course_id}/files?page=1&per_page={$per_page}&access_token={$this->api_key}";
+                
+                $folders_url = "{$this->base_uri}api/v1/courses/{$this->course_id}/folders?page=1&per_page={$per_page}&access_token={$this->api_key}";
+                $folder_key = [];
 
+                do {
+                    $response = Request::get($folders_url)->send();
+                    $the_links = $this->parseLinks($response->headers->toArray()['link']);
+
+                    foreach ($response->body as $folder) {
+                        $directory = str_replace('course files', '', $folder->full_name);
+                        $path = "{$this->base_uri}courses/{$this->course_id}/files/folder" . $directory;
+                        $folder_key[$folder->id] = $path;   
+                    }
+
+                    if (isset($the_links['next'])) {
+                        $folders_url = $the_links['next'].'&access_token='.$this->api_key;
+                    }
+
+                } while (isset($the_links['next']));
+
+                $modules_url = "{$this->base_uri}api/v1/courses/{$this->course_id}/modules?page=1&per_page={$per_page}&access_token={$this->api_key}";
+                $module_key = [];
+
+                do {
+                    $response = Request::get($modules_url)->send();
+                    $the_links = $this->parseLinks($response->headers->toArray()['link']);
+
+                    foreach ($response->body as $module) {
+                        $module_id = $module->id;
+                        $module_name = $module->name;
+                        $module_url = "{$this->base_uri}api/v1/courses/{$this->course_id}/modules/{$module_id}/items?page=1&per_page={$per_page}&access_token={$this->api_key}";
+                        
+                        do {
+                            $response = Request::get($module_url)->send();
+                            $the_links = $this->parseLinks($response->headers->toArray()['link']);
+                            foreach ($response->body as $item) {
+                                if ($item->type == "File") {
+                                    if (!isset($module_key[$item->content_id])) {
+                                        $module_key[$item->content_id] = ' | Module(s): ' . $module_name;
+                                    } else {
+                                        $module_key[$item->content_id] = $module_key[$item->content_id] . ', ' . $module_name;
+                                    }
+                                }                            
+                            }
+
+                            if (isset($the_links['next'])) {
+                                $folders_url = $the_links['next'].'&access_token='.$this->api_key;
+                            }
+
+                        } while (isset($the_links['next']));
+
+                    }
+
+                    if (isset($the_links['next'])) {
+                        $folders_url = $the_links['next'].'&access_token='.$this->api_key;
+                    }
+
+                } while (isset($the_links['next']));
+
+                $url = "{$this->base_uri}api/v1/courses/{$this->course_id}/files?page=1&per_page={$per_page}&access_token={$this->api_key}";
+            
                 do {
                     $response  = Request::get($url)->send();
                     $the_links = $this->parseLinks($response->headers->toArray()['link']);
-
 
                     foreach ($response->body as $thing) {
                         $content[] = $thing;
@@ -394,9 +452,13 @@ class Udoit {
                     }
                     // filters non html files
                     if (in_array($extension, ['pdf', 'doc', 'docx', 'ppt', 'pptx'])){
+                        $path = $folder_key[$single->folder_id];
+                        $module = $module_key[$single->id];
                         $content_result['unscannable'][] = [
                             'title' => $single->display_name,
-                            'url'   => $single->url
+                            'url'   => $single->url,
+                            'path'  => $path,
+                            'module'=> $module
                         ];
                     }
                     break;
@@ -418,7 +480,7 @@ class Udoit {
                         'id'      => $single->id,
                         'content' => $single->syllabus_body,
                         'title'   => 'Syllabus',
-                        'url'     => "{$this->base_uri}/courses/{$single->id}/assignments/syllabus"
+                        'url'     => "{$this->base_uri}/courses/{$single->id}assignments/syllabus"
                     ];
                     break;
 
