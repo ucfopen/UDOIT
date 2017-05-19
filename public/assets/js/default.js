@@ -791,6 +791,65 @@ $doc.ready(function() {
 	});
 	// END update UFIXIT Preview on change of foreground color using Color-Picker
 
+	// updates UFIXIT Preview on change of color using lighten and darken buttons
+	$doc.on('click', 'a.color-change', function (e) {
+		var $parent = $(e.target).parent().parent().parent();
+		var $preview = $parent.find('div.ufixit-preview-canvas');
+		var $back = $parent.find('input.back-color');
+		var $fore = $parent.find('input.fore-color');
+		var $threshold = $parent.find('input.threshold');
+		var $error = $parent.find('span.contrast-invalid');
+		var $cr = $parent.parent().find('span.contrast-ratio');
+
+		var threshold = ($threshold.val() === 'text')? 4.5: 3;
+		var startingColor = $(e.target).val();
+		var contrast_ratio = 0;
+		var bgcolor = ($back.length > 0 ? $back.val() : '#fff');
+
+		$preview.css('color', $fore.val());
+		$preview.css('background-color', $back.val());
+		contrast_ratio = contrastRatio( $back.val(), $fore.val() );
+		$cr.html( contrast_ratio.toFixed(2) );
+
+		if (contrast_ratio < threshold) {
+			$error.removeClass('hidden');
+			$fore.css('border-color', 'red');
+			$fore.css('background-color', $fore.val());
+			$back.css('border-color', 'red');
+			$back.css('background-color', $back.val());
+			$parent.parent().find('button.submit-content').prop('disabled',true);
+		} else {
+			$error.addClass('hidden');
+			$fore.css('border-color', '#ccc');
+			$fore.css('background-color', $fore.val());
+			$back.css('border-color', '#ccc');
+			$back.css('background-color', $back.val());
+			$parent.parent().find('button.submit-content').removeAttr('disabled');
+		}
+
+		var foreColor = $fore.val().replace("#","");
+		var backColor = $back.val().replace("#","");
+		var foreRgb = parseRgb(foreColor);
+		var backRgb = parseRgb(backColor);
+		var foreLuma = foreRgb[0] * 0.2126 + foreRgb[1] * 0.7152 + foreRgb[2] * 0.0722;
+		var backLuma = backRgb[0] * 0.2126 + backRgb[1] * 0.7152 + backRgb[2] * 0.0722;
+		var foreText = (foreLuma < 100 ? '#ffffff' : '#000000');
+		var backText = (backLuma < 100 ? '#ffffff' : '#000000');
+		$fore.css('color', foreText);
+		$back.css('color', backText);
+
+		$parent.find('li.color').each(function () {
+			var color = $(this).attr('value');
+
+			if ( contrastRatio(bgcolor, color) < threshold ) {
+				$(this).find('span.invalid-color').removeClass('hidden');
+			} else {
+				$(this).find('span.invalid-color').addClass('hidden');
+			}
+		});
+	});
+	// END update UFIXIT Preview on change of foreground color using lighten and darken buttons
+
 	// updates UFIXIT Preview on change of checkbox for 'bold' styling
 	$doc.on('change', 'input[name="add-bold"]', function (e) {
 		var $preview = $(e.target).parent().parent().parent().parent().find('div.ufixit-preview-canvas');
