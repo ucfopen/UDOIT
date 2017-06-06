@@ -167,6 +167,44 @@ The URL of your UDOIT LTI config depends on your webserver install.  The file is
 * `http://<DOMAIN>/udoit/udoit.xml.php`
 * `http://<DOMAIN>/udoit/public/udoit.xml.php`
 
+## General Troubleshooting
+Navigate to your LTI install page at `https://<domain>/udoit.xml.php` where `domain` is the location of your install. This URL may also look like the list from the section above.
+
+This page will display XML if all of the following are true:
+* You are using the correct install domain
+* The app file permissions are okay
+* PHP is running
+* The SSL certificate is working
+
+Here's an example of a working LTI install page: [https://udoit.herokuapp.com/udoit.xml.php](https://udoit.herokuapp.com/udoit.xml.php)
+
+Turn on PHP tracing on the server to view possible errors.
+
+If you see an issue pertaining to `require_once(__DIR__.'/../vendor/autoload.php');` make sure you've run Composer to install all of the dependencies. In the root UDOIT folder on your server run: 
+```
+$ php composer.phar install
+```
+If you get a warning about Bower not being found, you will need to install Bower on your server and run the above command  again.
+
+The `oauth2response.php` file generates an API key to gain access to the Canvas API.
+If you suspect that there is an authentication problem, first try echoing or error logging the variable `$base_url` from this file to check the URL. 
+
+Whether hosted on your own server or on Heroku, the URL where UDOIT has been installed needs to be designated as an authorized domain for your Google/YouTube API keys.
+
+## FAQs
+
+### How much time will I have to spend maintaining UDOIT?
+UDOIT should require little to no maintenance. It is up to your institution to choose when you update UDOIT to the latest release. UDOIT can be updated by running `git pull` on this repository.
+
+### Does Heroku keep UDOIT updated?
+The `Deploy to Heroku` button installs the latest release of UDOIT when clicked. Your Heroku instance will not be updated automatically when new updates are released. You can either:
+* Use the command line to pull the latest version of UDOIT down to your Heroku instance using the [Heroku CLI](https://devcenter.heroku.com/articles/git)
+* Fork UDOIT here on Github, [link that git repository to your Heroku instance](https://devcenter.heroku.com/articles/github-integration), and set up automatic updates that trigger whenever you update your forked version of UDOIT.
+
+### Which ports will UDOIT need on my server?
+* Allow from world to UDOIT on 80 and 443
+* Allow from UDOIT to Canvas on 443
+
 # Developing and Testing
 
 For quick local development, set `$UDOIT_ENV = ENV_DEV;` in `config/localConfig.php`.  This flag disables authentication and allows you to quickly see a sample test report for most template, js, and css development. Use this along with the quick dev server below.
