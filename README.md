@@ -47,18 +47,11 @@ To start the Heroku deployment process, you can click the button below, please n
 ## System Requirements
 * Apache or Nginx webserver
 * PHP 5.4, 5.5, or 5.6 (some users have modified the code to work on 5.3)
-* Bower
 * MySQL or PostgreSQL
 
 If you're using PHP 5.3:
 
 * Convert all empty array initializations from using the newer `[]` syntax to use the older `array()` syntax.
-* If you have `short_open_tag` disabled, you'll need to change all `<?=` to `<?php echo`
-
-## Installing Bower Dependencies
-[Bower](http://bower.io/) is used to install JavaScript dependencies. Composer automatically runs Bower during install in the next step, so install Bower before continuing.
-
-> Currently there is only one bower library installed. You can also install manually by cloning [JSColor](https://github.com/callumacrae/JSColor) library into `assets/js/vendor/JSColor/`.
 
 ## Installing Composer Dependencies
 UDOIT uses [Composer](https://getcomposer.org/) to install PHP dependencies. So `cd` into your UDOIT directory and run this command before anything else:
@@ -67,7 +60,7 @@ UDOIT uses [Composer](https://getcomposer.org/) to install PHP dependencies. So 
 $ php composer.phar install
 ```
 
-The libraries (other then Quail) that we rely on can be found in `bower.json` and `composer.json`.
+The libraries (other then Quail) that we rely on can be found in `composer.json`.
 
 Please refer to the documentation for these three libraries for additional information.
 
@@ -77,7 +70,7 @@ Make sure the `reports` directory in the root of UDOIT is *writable by your webs
 ## Database Setup
 UDOIT works with MySQL, MariaDB, or PostgreSQL
 
-1. Create a database for UDOIT.  
+1. Create a database for UDOIT.
 2. Create a user with access to your database
 
 ### Database Config
@@ -100,7 +93,7 @@ Edit `config/localConfig.php`:
 
 ### Installing Database Tables
 
-There are only two tables required. To create them, run the creation script below.  You'll need to complete the db steps above first.
+To create the required tables, run the creation script below.  You'll need to complete the db steps above first.
 
 ```
 $ php lib/db_create_tables.php
