@@ -4,25 +4,34 @@
 # Universal Design Online content Inspection Tool
 UDOIT enables faculty to identify accessibility issues in Canvas by Instructure. Scan a course, generate reports, and provide resources to address common accessibility issues.
 
+## Awards
+
+UDOIT has been recognized by the industry, heres a quick list of the awards it's won.
+
+* 2017 - [Platinum IMS Global Learning Impact Award - Established Projects Category](https://www.imsglobal.org/article/ims-global-learning-consortium-announces-2017-award-winners)
+* 2016 - [Campus Technology Innovators - Administration Category](https://campustechnology.com/innovators)
+* 2015 - [Online Learning Consortium Effective Practice Award](https://onlinelearningconsortium.org/about/2015-olc-effective-practice-award-winners/)
+* 2013 - [Instructure's Canvas Grant Award](https://www.canvaslms.com/canvasgrants/past-winners)
+
 ## Licenses
 Please see [UDOIT_Release.pdf](UDOIT_Release.pdf) (distributed with the source code) for more information about licensing.
 
 ### UDOIT
 > Copyright (C) 2014 University of Central Florida, created by Jacob Bates, Eric Colon, Fenel Joseph, and Emily Sachs.
-
+>
 > This program is free software: you can redistribute it and/or modify
 > it under the terms of the GNU General Public License as published by
 > the Free Software Foundation, either version 3 of the License, or
 > (at your option) any later version.
-
+>
 > This program is distributed in the hope that it will be useful,
 > but WITHOUT ANY WARRANTY; without even the implied warranty of
 > MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 > GNU General Public License for more details.
-
+>
 > You should have received a copy of the GNU General Public License
 > along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
+>
 > Primary Contact:  Jacob Bates <jacob.bates@ucf.edu>
 
 ### Quail
@@ -158,9 +167,46 @@ The URL of your UDOIT LTI config depends on your webserver install.  The file is
 * `http://<DOMAIN>/udoit/udoit.xml.php`
 * `http://<DOMAIN>/udoit/public/udoit.xml.php`
 
-# Using UDOIT
-
+## Using UDOIT
 For more information about how to use UDOIT you can read the [UDOIT User Guide](https://lor.instructure.com/resources/6bf40e8d2254428cbbfd213586c84406) created by Clemson University. It can be accessed by importing the pages as modules into an existing course. The guide covers the reasoning behind the accessibility issues that UDOIT addresses as well as detailed descriptions of how to interpret and interact with the results of a scan.
+
+## General Troubleshooting
+Navigate to your LTI install page at `https://<domain>/udoit.xml.php` where `domain` is the location of your install. This URL may also look like the list from the section above.
+
+This page will display XML if all of the following are true:
+* You are using the correct install domain
+* The app file permissions are okay
+* PHP is running
+* The SSL certificate is working
+
+Here's an example of a working LTI install page: [https://udoit.herokuapp.com/udoit.xml.php](https://udoit.herokuapp.com/udoit.xml.php)
+
+Turn on PHP tracing on the server to view possible errors.
+
+If you see an issue pertaining to `require_once(__DIR__.'/../vendor/autoload.php');` make sure you've run Composer to install all of the dependencies. In the root UDOIT folder on your server run: 
+```
+$ php composer.phar install
+```
+If you get a warning about Bower not being found, you will need to install Bower on your server and run the above command  again.
+
+The `oauth2response.php` file generates an API key to gain access to the Canvas API.
+If you suspect that there is an authentication problem, first try echoing or error logging the variable `$base_url` from this file to check the URL. 
+
+Whether hosted on your own server or on Heroku, the URL where UDOIT has been installed needs to be designated as an authorized domain for your Google/YouTube API keys.
+
+## FAQs
+
+### How much time will I have to spend maintaining UDOIT?
+UDOIT should require little to no maintenance. It is up to your institution to choose when you update UDOIT to the latest release. UDOIT can be updated by running `git pull` on this repository.
+
+### Does Heroku keep UDOIT updated?
+The `Deploy to Heroku` button installs the latest release of UDOIT when clicked. Your Heroku instance will not be updated automatically when new updates are released. You can either:
+* Use the command line to pull the latest version of UDOIT down to your Heroku instance using the [Heroku CLI](https://devcenter.heroku.com/articles/git)
+* Fork UDOIT here on Github, [link that git repository to your Heroku instance](https://devcenter.heroku.com/articles/github-integration), and set up automatic updates that trigger whenever you update your forked version of UDOIT.
+
+### Which ports will UDOIT need on my server?
+* Allow from world to UDOIT on 80 and 443
+* Allow from UDOIT to Canvas on 443
 
 # Developing and Testing
 
