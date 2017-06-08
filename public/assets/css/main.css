@@ -616,6 +616,12 @@ ul.color-picker {
 	-webkit-text-stroke: .5px white;
 }
 
+@media (max-width: 1200px) {
+	.invalid-color {
+		display: none;
+	}
+}
+
 /* X. FORMS --------------------------- */
 
 .fix-alt { position: relative; }
