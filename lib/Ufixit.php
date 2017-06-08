@@ -174,11 +174,19 @@ class Ufixit
      * @param bool $submitting_again    - If the user is resubmitting their error fix
      * @return string $fixed_css        - The html with corrected CSS
      */
-    public function fixCssEmphasize($error_html, $bold, $italic, $submitting_again = false)
+    public function fixCssEmphasize($error_html, $bold, $italic, $remove_color, $submitting_again = false)
     {
         preg_match_all('/<(\w+)\s+\w+.*?>/s', $error_html, $matches);
 
-        $this->dom->loadHTML('<?xml encoding="utf-8" ?>' . $error_html );
+        $fixed_css = $error_html;
+
+        if($remove_color) {
+            $fixed_css = preg_replace('/background:\s*([#a-z0-9]*)\s*;*\s*/', '', $fixed_css);
+            $fixed_css = preg_replace('/background-color:\s*([#a-z0-9]*)\s*;*\s*/', '', $fixed_css);
+            $fixed_css = preg_replace('/color:\s*([#a-z0-9]*)\s*;*\s*/', '', $fixed_css);
+        }
+
+        $this->dom->loadHTML('<?xml encoding="utf-8" ?>' . $fixed_css );
 
         $tag = $this->dom->getElementsByTagName( $matches[1][0] )->item(0);
 

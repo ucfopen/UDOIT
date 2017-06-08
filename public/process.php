@@ -108,14 +108,14 @@ switch ($main_action) {
             'base_uri'     => $base_url,
             'content_id'   => filter_input(INPUT_POST, 'contentid', FILTER_SANITIZE_STRING),
             'content_type' => filter_input(INPUT_POST, 'contenttype', FILTER_SANITIZE_STRING),
-            'error_html'   => html_entity_decode(filter_input(INPUT_POST, 'errorhtml', FILTER_SANITIZE_FULL_SPECIAL_CHARS)),
+            'error_html'   => html_entity_decode(filter_input(INPUT_POST, 'errorhtml', FILTER_SANITIZE_FULL_SPECIAL_CHARS), ENT_QUOTES),
             'error_type'   => filter_input(INPUT_POST, 'errortype', FILTER_SANITIZE_STRING),
             'bold'         => (filter_input(INPUT_POST, 'add-bold', FILTER_SANITIZE_STRING) == 'bold'),
             'italic'       => (filter_input(INPUT_POST, 'add-italic', FILTER_SANITIZE_STRING) == 'italic'),
+            'remove_color' => (filter_input(INPUT_POST, 'remove-color', FILTER_SANITIZE_STRING) == 'true'),
             'course_id'    => filter_input(INPUT_POST, 'course_id', FILTER_SANITIZE_NUMBER_INT),
             'api_key'      => $api_key
         ];
-
 
         $ufixit = new Ufixit($data);
 
@@ -144,7 +144,7 @@ switch ($main_action) {
                 break;
 
             case 'cssTextStyleEmphasize':
-                $corrected_error = $ufixit->fixCssEmphasize($data['error_html'], $data['bold'], $data['italic']);
+                $corrected_error = $ufixit->fixCssEmphasize($data['error_html'], $data['bold'], $data['italic'], $data['remove_color']);
                 break;
 
             case 'headersHaveText':

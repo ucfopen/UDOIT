@@ -28,6 +28,8 @@
 		<p>Text</p>
 	</div>
 </div>
+<label><input name="remove-color" type="checkbox" value="false"/>&nbsp;Remove color from this text</label>
 <input type="hidden" class="back-color" value="<?= $group_item->back_color; ?>"></input>
 <input type="hidden" class="fore-color" value="<?= $group_item->fore_color; ?>"></input>
+<br>
 <button class="submit-content btn btn-default clear" type="submit" value="<?= $group_item->type; ?>">Submit</button>
