@@ -96,10 +96,10 @@ Edit `config/localConfig.php`:
 To create the required tables, run the creation script below.  You'll need to complete the db steps above first.
 
 ```
-$ php lib/db_create_tables.php
+$ php composer.phar dbsetup
 ```
 
-The table schema can be found in [lib/db_create_tables.php](lib/db_create_tables.php)
+The table schema can be found in [bin/db_create_tables.php](bin/db_create_tables.php)
 
 ## Configuration and Setup
 If you didn't already make `config/localConfig.php` when you set up the database, do it now.

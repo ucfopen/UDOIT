@@ -22,7 +22,7 @@ require_once('../lib/utils.php');
 
 $dbh = include('../lib/db.php');
 // saves the report to the database
-$sth = $dbh->prepare(" SELECT * FROM {$db_reports_table} WHERE course_id = :courseid ORDER BY date_run DESC");
+$sth = $dbh->prepare(" SELECT id, date_run, errors, suggestions FROM {$db_reports_table} WHERE course_id = :courseid ORDER BY date_run DESC");
 
 session_start();
 

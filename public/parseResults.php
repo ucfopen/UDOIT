@@ -53,18 +53,10 @@ if (isset($post_input['cached_id'])) {
 		}
 
 		$result = $sth->fetchAll(PDO::FETCH_ASSOC);
-		$json = $result[0]['file'];
-
-		if($json != null){
-			$udoit_report = json_decode($json);
-		} else {
-			$file = $result[0]['file_path'];
-			$json         = file_get_contents($file);
-			$udoit_report = json_decode($json);
-		}
+		$udoit_report = json_decode($result[0]['report_json']);
 	}
 
-	if (is_null($udoit_report)) {
+	if (empty($udoit_report)) {
 		$json_error = json_last_error_msg();
 		Utils::exitWithPartialError("Cannot parse this report. JSON error $json_error.");
 	}
