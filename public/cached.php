@@ -27,7 +27,7 @@ UdoitUtils::$canvas_base_url = $_SESSION['base_url'];
 session_write_close();
 
 if (!$sth->execute()) {
-	UdoitUtils::exitWithError('Could not complete database query');
+	UdoitUtils::instance()->exitWithError('Could not complete database query');
 }
 
 $reports = $sth->fetchAll();

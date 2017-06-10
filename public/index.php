@@ -25,17 +25,18 @@ $post_input = filter_input_array(INPUT_POST, FILTER_SANITIZE_STRING);
 $post_input['custom_canvas_user_id'] = filter_input(INPUT_POST, 'custom_canvas_user_id', FILTER_SANITIZE_NUMBER_INT);
 $post_input['custom_canvas_course_id'] = filter_input(INPUT_POST, 'custom_canvas_course_id', FILTER_SANITIZE_NUMBER_INT);
 
+print_r($post_input);
 // verify we have the variables we need from the LTI launch
 $expect = ['oauth_consumer_key','custom_canvas_api_domain','custom_canvas_user_id','custom_canvas_course_id'];
 foreach ($expect as $key) {
 	if(empty($post_input[$key])){
-		UdoitUtils::exitWithPageError("Missing LTI launch information. Please ensure that your instance of UDOIT is installed to Canvas correctly. Missing: {$key}");
+		UdoitUtils::instance()->exitWithPageError("Missing LTI launch information. Please ensure that your instance of UDOIT is installed to Canvas correctly. Missing: {$key}");
 	}
 }
 
 // verify LTI launch
-if ( ! UdoitUtils::verifyBasicLTILaunch()) {
-	UdoitUtils::exitWithPageError('LTI/Oauth verification problem, please ensure that your instance of UDOIT is configured correctly.');
+if ( ! UdoitUtils::instance()->verifyBasicLTILaunch()) {
+	UdoitUtils::instance()->exitWithPageError('LTI/Oauth verification problem, please ensure that your instance of UDOIT is configured correctly.');
 }
 
 // store LTI launch variables
@@ -50,7 +51,7 @@ $_SESSION['launch_params']   = [
 	'context_title'           => $post_input['context_title'],
 ];
 
-$api_key = UdoitUtils::getValidRefreshedApiKey($user_id);
+$api_key = UdoitUtils::instance()->getValidRefreshedApiKey($user_id);
 
 $redirect_to = (!empty($api_key)) ? "scanner.php" : "{$_SESSION['base_url']}/login/oauth2/auth/?client_id={$oauth2_id}&response_type=code&redirect_uri={$oauth2_uri}";
 

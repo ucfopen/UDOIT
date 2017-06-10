@@ -3,7 +3,6 @@
 class UdoitJob {
 
     public static $background_worker_enabled = false;
-    public static $reports_dir = __DIR__.'/../reports';
 
     public static function createJobGroupId(){
         return uniqid('job_', true); // uniqid used to represent a group of jobs (they share this id)
@@ -46,7 +45,7 @@ class UdoitJob {
                     $result = static::finalizeReport($job);
                 }
                 else {
-                    $api_key = UdoitUtils::getValidRefreshedApiKey($job->user_id);
+                    $api_key = UdoitUtils::instance()->getValidRefreshedApiKey($job->user_id);
                     if(empty($api_key)) throw new Exception("No valid api key for job"); // @TODO: mark job as unrunnable
                     $job_data = json_decode($job->data, true);
                     $canvas_api_url = $job_data['base_uri'];
@@ -108,7 +107,7 @@ class UdoitJob {
 
     protected static function combineJobResults($job_group) {
         $totals       = ['errors' => 0, 'warnings' => 0, 'suggestions' => 0];
-        $module_items = [];
+        $module_urls = [];
         $unscannables = [];
         $content = [];
 
@@ -123,23 +122,24 @@ class UdoitJob {
             $totals['warnings']    += $results['total_results']['warnings'];
             $totals['suggestions'] += $results['total_results']['suggestions'];
 
-            if ($content['scan_results']['module_urls']){
-                $module_items = array_merge($module_items, $results['scan_results']['module_urls']);
+
+            if (!empty($results['scan_results']['module_urls'])){
+                $module_urls = array_merge($module_urls, $results['scan_results']['module_urls']);
             }
-            if ($content['scan_results']['unscannable']){
+            if (!empty($results['scan_results']['unscannable'])){
                 $unscannables = array_merge($unscannables , $results['scan_results']['unscannable']);
             }
 
             unset($results['module_urls']);
             unset($results['unscannable']);
 
-            if($results['scan_results']) $content = array_merge($content, $results['scan_results']);
+            $content = array_merge($content, $results['scan_results']);
         }
 
         $content['module_urls'] = [
             'title' => 'modules',
-            'items' => $module_items,
-            'amount' => count($module_items),
+            'items' => $module_urls,
+            'amount' => count($module_urls),
             'time' => 0,
         ];
 

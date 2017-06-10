@@ -30,7 +30,7 @@ if ($UDOIT_ENV !== ENV_PROD && !isset($get_input['report_id'])) {
 
 // @TODO: make sure this user's got a session
 if ( ! isset($get_input['report_id'])) {
-	UdoitUtils::exitWithPartialError('No report requested');
+	UdoitUtils::instance()->exitWithPartialError('No report requested');
 }
 
 $sth = UdoitDB::prepare("SELECT * FROM {$db_reports_table} WHERE id = :report_id");
@@ -38,7 +38,7 @@ $sth->bindValue(':report_id', $get_input['report_id'], PDO::PARAM_INT);
 
 if ( ! $sth->execute()) {
 	error_log(print_r($sth->errorInfo(), true));
-	UdoitUtils::exitWithPartialError('Error searching for report');
+	UdoitUtils::instance()->exitWithPartialError('Error searching for report');
 }
 
 $report_json = $sth->fetch(PDO::FETCH_OBJ)->report_json;
@@ -47,7 +47,7 @@ $report = json_decode($report_json);
 
 if (is_null($report)) {
 	$json_error = json_last_error_msg();
-	UdoitUtils::exitWithPartialError("Cannot parse this report. JSON error $json_error.");
+	UdoitUtils::instance()->exitWithPartialError("Cannot parse this report. JSON error $json_error.");
 }
 
 $results = [

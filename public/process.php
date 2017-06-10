@@ -41,7 +41,7 @@ switch ($main_action) {
 
         // No content selected
         if ($content == 'none') {
-            UdoitUtils::exitWithPartialError('Please select which course content you wish to scan above.');
+            UdoitUtils::instance()->exitWithPartialError('Please select which course content you wish to scan above.');
         }
 
         // common data object
@@ -80,7 +80,7 @@ switch ($main_action) {
             'italic'       => (filter_input(INPUT_POST, 'add-italic', FILTER_SANITIZE_STRING) == 'italic'),
             'remove_color' => (filter_input(INPUT_POST, 'remove-color', FILTER_SANITIZE_STRING) == 'true'),
             'course_id'    => filter_input(INPUT_POST, 'course_id', FILTER_SANITIZE_NUMBER_INT),
-            'api_key'      => UdoitUtils::getLocalApiKey($user_id)
+            'api_key'      => UdoitUtils::instance()->getLocalApiKey($user_id)
         ];
 
         $ufixit = new Ufixit($data);

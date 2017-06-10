@@ -69,7 +69,7 @@
 										<a class="closeError btn" href="#closeError" data-error="<?= $li_id; ?>">Close Issue Source</a>
 										<div class="error-preview">
 											<?php if ($group_item->type == "videosEmbeddedOrLinkedNeedCaptions"): ?>
-												<iframe width="100%" height="300px" src="https://www.youtube.com/embed/<?= UdoitUtils::getYouTubeId($group_item->html); ?>" frameborder="0" allowfullscreen></iframe>
+												<iframe width="100%" height="300px" src="https://www.youtube.com/embed/<?= UdoitUtils::instance()->getYouTubeId($group_item->html); ?>" frameborder="0" allowfullscreen></iframe>
 												<?php else: ?>
 													<?php if ($group_item->type == "cssTextHasContrast" && !isset($group_item->back_color)): ?>
 														<div class="ufixit-no-background-color">

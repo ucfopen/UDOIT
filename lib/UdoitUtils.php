@@ -36,6 +36,13 @@ class UdoitUtils
         '@youtu\.be/\?v=([^"\& ]+)@i',
     ];
 
+    private static $instance;
+
+    public static function instance(){
+        if(!isset(self::$instance)) self::$instance = new UdoitUtils();
+        return self::$instance;
+    }
+
     public static function setupOauth($id, $key, $uri, $consumer_key, $secret){
         self::$canvas_oauth_id = $id;
         self::$canvas_oauth_key = $key;
@@ -44,7 +51,7 @@ class UdoitUtils
         self::$canvas_secret_key = $secret;
     }
 
-    public static function getYouTubeId($link_url)
+    public function getYouTubeId($link_url)
     {
         $matches = null;
         foreach(self::$regex as $pattern) {
@@ -55,21 +62,21 @@ class UdoitUtils
         return null;
     }
 
-    public static function exitWithPageError($error) {
+    public function exitWithPageError($error) {
         $templates = new League\Plates\Engine(__DIR__.'/../templates');
         echo($templates->render('error', ['error' => $error]));
         error_log($error);
         exit();
     }
 
-    public static function exitWithPartialError($error) {
+    public function exitWithPartialError($error) {
         $templates = new League\Plates\Engine(__DIR__.'/../templates');
         echo($templates->render('partials/error', ['error' => $error]));
         error_log($error);
         exit();
     }
 
-    protected static function curlOauthToken($base_url, $post_data) {
+    protected function curlOauthToken($base_url, $post_data) {
         // @TODO - why not use Httpful here?
         $ch = curl_init("{$base_url}/login/oauth2/token");
         curl_setopt($ch, CURLOPT_POST, 1);
@@ -81,7 +88,7 @@ class UdoitUtils
         return json_decode($result);
     }
 
-    public static function getLocalApiKey($user_id){
+    public function getLocalApiKey($user_id){
         global $db_user_table;
         $sth = UdoitDB::prepare("SELECT api_key, canvas_url FROM {$db_user_table} WHERE id = :userid LIMIT 1");
         $sth->bindValue(':userid', $user_id, PDO::PARAM_INT);
@@ -93,18 +100,18 @@ class UdoitUtils
         return false;
     }
 
-    public static function getValidRefreshedApiKey($user_id){
+    public function getValidRefreshedApiKey($user_id){
         // check our db for an existing api key
-        $api_key = UdoitUtils::getLocalApiKey($user_id);
+        $api_key = UdoitUtils::instance()->getLocalApiKey($user_id);
 
         if( ! empty($api_key)){
-            if(UdoitUtils::validateApiKey($user_id, $api_key)) return $api_key;
-            if($api_key = UdoitUtils::refreshApiKey($user_id)) return $api_key;
+            if(UdoitUtils::instance()->validateApiKey($user_id, $api_key)) return $api_key;
+            if($api_key = UdoitUtils::instance()->refreshApiKey($user_id)) return $api_key;
         }
         return false;
     }
 
-    public static function validateApiKey($user_id, $api_key) {
+    public function validateApiKey($user_id, $api_key) {
         global $UDOIT_ENV;
 
         if(empty($user_id) || empty($api_key)) return false;
@@ -120,7 +127,7 @@ class UdoitUtils
     }
 
     // Abstracts retrieving the refresh token from the database for the current user
-    public static function getRefreshToken($user_id)
+    public function getRefreshToken($user_id)
     {
         global $db_user_table;
 
@@ -133,11 +140,11 @@ class UdoitUtils
         return false;
     }
 
-    public static function refreshApiKey($user_id) {
+    public function refreshApiKey($user_id) {
         global $UDOIT_ENV;
         global $db_user_table;
 
-        $refresh_token = self::getRefreshToken($user_id);
+        $refresh_token = $this->getRefreshToken($user_id);
 
         if( ! $refresh_token) return false;
 
@@ -149,10 +156,10 @@ class UdoitUtils
             'refresh_token' => $refresh_token
         ];
 
-        $json_result = static::curlOauthToken(self::$canvas_base_url, $post_data);
+        $json_result = $this->curlOauthToken(self::$canvas_base_url, $post_data);
 
         // update the token in the database
-        if(isset($json_result->access_token) && self::validateApiKey($user_id, $json_result->access_token)){
+        if(isset($json_result->access_token) && $this->validateApiKey($user_id, $json_result->access_token)){
             $sth = UdoitDB::prepare("UPDATE {$db_user_table} set api_key = :api_key, refresh_token = :refresh_token WHERE id = :userid LIMIT 1");
             $sth->bindValue(':userid', $userID, PDO::PARAM_INT);
             $sth->bindValue(':api_key', $json_result->access_token, PDO::PARAM_STR);
@@ -164,7 +171,7 @@ class UdoitUtils
         return false;
     }
 
-    public static function authorizeNewApiKey($base_url, $code) {
+    public function authorizeNewApiKey($base_url, $code) {
         $post_data = [
             'grant_type'    => 'authorization_code',
             'client_id'     => self::$canvas_oauth_id,
@@ -173,10 +180,10 @@ class UdoitUtils
             'code'          => $code
         ];
 
-        return static::curlOauthToken($base_url, $post_data);
+        return $this->curlOauthToken($base_url, $post_data);
     }
 
-    public static function createOrUpdateUser($user_id, $api_key, $refresh_token, $canvas_url){
+    public function createOrUpdateUser($user_id, $api_key, $refresh_token, $canvas_url){
         global $db_user_table;
 
         $sth = UdoitDB::prepare("SELECT * FROM {$db_user_table} WHERE id = :userid AND canvas_url = :canvas_url LIMIT 1");
@@ -198,7 +205,7 @@ class UdoitUtils
         return $sth->execute();
     }
 
-    public static function verifyBasicLTILaunch(){
+    public function verifyBasicLTILaunch(){
         require_once(__DIR__.'/ims-blti/blti.php');
         $context = new BLTI(self::$canvas_consumer_key, self::$canvas_secret_key, false, false);
         return isset($context->valid) && $context->valid;

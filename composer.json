@@ -6,7 +6,7 @@
     "homepage": "https://github.com/ucfopen/UDOIT",
     "license": "GPL-3.0",
     "scripts":{
-        "test": "vendor/phpunit/phpunit/phpunit --exclude-group functional",
+        "test": "vendor/phpunit/phpunit/phpunit --exclude-group functional --coverage-html ./reports --coverage-text",
         "testall": "vendor/phpunit/phpunit/phpunit",
         "lint": "find . -type f -iname \"*.php\" -not -path \"./lib/quail/tests/*\" -not -path \"./vendor/*\" | xargs -n1 php -l",
         "dbsetup" : "php bin/db_create_tables.php",

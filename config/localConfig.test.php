@@ -37,5 +37,5 @@ $debug = false;
 $worker_sleep_seconds = 10;
 
 // send logs into the phpunit output
-$log_handler = new \Monolog\Handler\ErrorLogHandler();
+$log_handler = new \Monolog\Handler\ErrorLogHandler(null, \Monolog\Logger::WARNING);
 $log_handler->setFormatter(new \Monolog\Formatter\LineFormatter(null, null, true, true));

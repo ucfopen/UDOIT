@@ -24,13 +24,22 @@ class UdoitJobTest extends BaseTest{
 
     protected function setUp() {
         $this->exampleDir = vfsStream::setup('exampleDir'); // this resets after every test
-        UdoitJob::$reports_dir = vfsStream::url('exampleDir'); // this resets after every test
+        Mockery::close();
         UdoitDB::setup('test', 'b', 'c', 'd');
-        include(__DIR__.'/../lib/db_create_tables.php');
+        include(__DIR__.'/../bin/db_create_tables.php');
     }
 
     protected function tearDown(){
+        self::setPrivateStaticPropertyValue('UdoitUtils', 'instance', null);
         UdoitDB::disconnect();
+        Mockery::close();
+    }
+
+    // mock UdoitUtils->getValidRefreshedApiKey()
+    protected function mockGetValidRefreshKey(){
+        $mock = new MockObj();
+        $mock->getValidRefreshedApiKey = function(){ return 'test_api_key'; };
+        self::setPrivateStaticPropertyValue('UdoitUtils', 'instance', $mock);
     }
 
     public function testCreateJobGroupID(){
@@ -51,8 +60,10 @@ class UdoitJobTest extends BaseTest{
     }
 
     public function testAddJobToQueueRunsNextJob(){
+        self::mockGetValidRefreshKey();
+
         // create a user (id will be 1)
-        UdoitDB::query("INSERT into users (api_key) VALUES ('sample_api_key')");
+        UdoitDB::query("INSERT into users (api_key, refresh_token) VALUES ('sample_api_key', 'refresh_token')");
 
         // turn off background worker and add a job for this user
         UdoitJob::$background_worker_enabled = false;
@@ -103,9 +114,10 @@ class UdoitJobTest extends BaseTest{
         self::assertFalse($job);
     }
 
-    public function testFinalizeReportProcessesJobsAndWritesReportToFile(){
+    public function testFinalizeReportProcessesJobsAndWritesReportToDB(){
+        self::mockGetValidRefreshKey();
         // create a user (id will be 1)
-        UdoitDB::query("INSERT into users (api_key) VALUES ('sample_api_key')");
+        UdoitDB::query("INSERT into users (api_key, refresh_token) VALUES ('sample_api_key', 'refresh_token')");
 
         // no need to mock http - scan_item 'test' won't try to call the api
         UdoitJob::$background_worker_enabled = false;
@@ -121,38 +133,21 @@ class UdoitJobTest extends BaseTest{
         self::assertEquals('finished', $jobs[2]['status']);
 
         // check the report contents
-        $report_file = json_decode($jobs[2]['results'], 1)['file'];
-        self::assertStringStartsWith('vfs://exampleDir/1/', $report_file);
-        $contents = file_get_contents($report_file);
-        $report = json_decode($contents, true);
+        $report_id = json_decode($jobs[2]['results'], 1)['report_id'];
+        self::assertTrue($report_id > 0);
+
+        $report_row = UdoitDB::query("SELECT * from reports WHERE id = '{$report_id}'")->fetch();
+        $report = json_decode($report_row['report_json'], true);
 
         self::assertArrayHasKey('total_results', $report);
         self::assertArrayHasKey('course', $report);
         self::assertArrayHasKey('content', $report);
-        self::assertEquals('test_course', $report['course']);
     }
 
-    // public function testGetApiKeyFromJob(){
-    //     UdoitDB::query("INSERT into users (api_key) VALUES ('sample_api_key')");
-    //     $job = (object) ['id' => 9, 'user_id' => 1];
-    //     $key = self::callProtectedStaticMethod('UdoitJob', 'getApiKeyFromJob', $job);
-    //     self::assertEquals('sample_api_key', $key);
-    // }
-
-    /**
-     * @expectedException Exception
-     */
-    // public function testGetApiKeyFromJobThrowsWhenTheresNoKey(){
-    //     UdoitDB::query("INSERT into users (api_key) VALUES ('sample_api_key')");
-
-    //     $job = (object) ['id' => 9, 'user_id' => 2];
-    //     // NOTE: using phpunit's @expectedException above ^^^^ self::expectException(Exception::class);
-    //     $key = self::callProtectedStaticMethod('UdoitJob', 'getApiKeyFromJob', $job);
-    //     // nothing after this line will execute
-    // }
 
     public function testUpdateJobStatus(){
-        UdoitDB::query("INSERT into users (api_key) VALUES ('sample_api_key')");
+        self::mockGetValidRefreshKey();
+        UdoitDB::query("INSERT into users (api_key, refresh_token) VALUES ('sample_api_key', 'refresh_token')");
         UdoitJob::$background_worker_enabled = false;
         UdoitJob::addJobToQueue('scan', 1, 'job_3', ['data' => 'data_value', 'scan_item' => 'test']);
         $job = (object) ['id' => 1, 'user_id' => 1];
@@ -165,7 +160,8 @@ class UdoitJobTest extends BaseTest{
     }
 
     public function testFinalizeProperlyCombinesJobResults(){
-        UdoitDB::query("INSERT into users (api_key) VALUES ('sample_api_key')");
+        self::mockGetValidRefreshKey();
+        UdoitDB::query("INSERT into users (api_key, refresh_token) VALUES ('sample_api_key', 'refresh_token')");
         UdoitJob::$background_worker_enabled = false;
         UdoitJob::addJobToQueue('scan', 1, 'job_4', ['data' => 'data_value', 'scan_item' => 'test']);
         UdoitJob::addJobToQueue('scan', 1, 'job_4', ['data2' => 'data_value2', 'scan_item' => 'test']);
@@ -184,10 +180,12 @@ class UdoitJobTest extends BaseTest{
         $res = UdoitDB::query("SELECT * FROM job_queue WHERE job_type = 'finalize_report'")->fetch();
 
         // check the report contents
-        $report_file = json_decode($res['results'], 1)['file'];
-        self::assertStringStartsWith('vfs://exampleDir/1/', $report_file);
-        $contents = file_get_contents($report_file);
-        $report = json_decode($contents, true);
+        $jobs = UdoitDB::query("SELECT * FROM job_queue WHERE job_group = 'job_4'")->fetchAll();
+        $report_id = json_decode($jobs[2]['results'], 1)['report_id'];
+        self::assertTrue($report_id > 0);
+
+        $report_row = UdoitDB::query("SELECT * from reports WHERE id = '{$report_id}'")->fetch();
+        $report = json_decode($report_row['report_json'], true);
 
         self::assertArrayHasKey('total_results', $report);
         self::assertArrayHasKey('content', $report);

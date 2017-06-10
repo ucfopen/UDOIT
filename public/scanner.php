@@ -38,7 +38,7 @@ $post_input['custom_canvas_course_id'] = filter_input(INPUT_POST, 'custom_canvas
 $expect = ['base_url','launch_params',];
 foreach ($expect as $key) {
 	if(empty($_SESSION[$key])){
-		UdoitUtils::exitWithPageError("Missing Session information. Please refresh the page. Missing: {$key}");
+		UdoitUtils::instance()->exitWithPageError("Missing Session information. Please refresh the page. Missing: {$key}");
 	}
 }
 

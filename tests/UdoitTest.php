@@ -25,7 +25,6 @@ class UdoitTest extends BaseTest{
 
     protected function setUp() {
         $this->exampleDir = vfsStream::setup('exampleDir'); // this resets after every test
-        UdoitJob::$reports_dir = vfsStream::url('exampleDir'); // this resets after every test
         Mockery::close();
     }
 
@@ -77,43 +76,13 @@ class UdoitTest extends BaseTest{
 
     }
 
-    public function testApiGetAllCallsMultipleTimesAndReturnsExpectedResults(){
-
-        $body_returns = [
-            ["body_0"],
-            ["body_1"],
-            []
+    public function testGetCoursContentGetsMultipleItems(){
+        $header_to_array_returns = [
+            ['link' => '<test_url2?>; rel="next"'], // first call
+            ['link' => '<test_url3?>; rel="next"'], // second call
+            ['link' => '']
         ];
 
-        $mock_get_result = self::mockGetRequestResult([], $body_returns);
-
-        // overload Httpful\Request::get() to return $mock_get
-        Mockery::mock('overload:Httpful\Request')
-            ->shouldReceive('get')
-            ->andReturn($mock_get_result);
-
-        $result = static::callProtectedStaticMethod(Udoit, 'apiGetAll', 'api_key', 'test_url5?');
-
-        self::assertCount(2, $result);
-        self::assertArraySubset(['body_0', 'body_1'], $result);
-    }
-
-    public function testSaveReportWritesExpectedFile(){
-        $file_name = date('Y_m_d__g:i:s_a').'.json';
-        $reports_dir = vfsStream::url("exampleDir");
-        $file = Udoit::saveReport('report_title', $reports_dir, 'report contents');
-
-        self::assertEquals("vfs://exampleDir/report_title/{$file_name}", $file);
-        self::assertTrue($this->exampleDir->hasChild('report_title'));
-        self::assertEquals(0755, $this->exampleDir->getChild('report_title')->getPermissions());
-
-        self::assertTrue($this->exampleDir->hasChild("report_title/{$file_name}"));
-        self::assertEquals(0755, $this->exampleDir->getChild("report_title/{$file_name}")->getPermissions());
-        self::assertEquals('report contents', $this->exampleDir->getChild("report_title/{$file_name}")->getContent());
-
-    }
-
-    public function testGetCoursContentGetsMultipleItems(){
         $body_returns = [
             [
                 (object) [
@@ -134,7 +103,7 @@ class UdoitTest extends BaseTest{
             []
         ];
 
-        $mock_get_result = self::mockGetRequestResult([], $body_returns);
+        $mock_get_result = self::mockGetRequestResult($header_to_array_returns, $body_returns);
 
         // overload Httpful\Request::get() to return $mock_get
         Mockery::mock('overload:Httpful\Request')

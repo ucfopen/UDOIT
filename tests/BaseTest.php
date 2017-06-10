@@ -85,6 +85,8 @@ class BaseTest extends PHPUnit_Framework_TestCase{
             $called++;
             // mock *$response* from $response = Httpful\Request::get()->send()
             $mock_response = new MockObj();
+
+            $mock_response->status = 200;
             // mock *headers* from Httpful\Request::get()->send()->headers
             $mock_response->headers = new MockObj();
             // mock *toArray()* from Httpful\Request::get()->send()->headers->toArray()
@@ -106,6 +108,10 @@ class BaseTest extends PHPUnit_Framework_TestCase{
                 return $m;
             };
             return $m;
+        };
+
+        $mock_get->addHeader = function() use(&$mock_get){
+            return $mock_get;
         };
 
          return $mock_get;
