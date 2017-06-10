@@ -51,7 +51,7 @@ $this->layout('template', $settings);
 			</div>
 			<form class="form-horizontal no-print" id="udoitForm" action="#" role="form">
 				<input type="hidden" name="main_action" value="udoit">
-				<input type="hidden" name="base_url" value="https://<?= $this->escape($post_input['custom_canvas_api_domain']); ?>/">
+				<input type="hidden" name="base_url" value="<?= $this->escape($base_url); ?>/">
 				<input type="hidden" name="session_course_id" value="<?= $this->escape($launch_params['custom_canvas_course_id']); ?>">
 				<input type="hidden" name="session_context_label" value="<?= $this->escape($launch_params['context_label']); ?>">
 				<input type="hidden" name="session_context_title" value="<?= $this->escape($launch_params['context_title']); ?>">

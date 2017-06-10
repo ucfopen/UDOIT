@@ -17,13 +17,13 @@
 *
 *	Primary Author Contact:  Jacob Bates <jacob.bates@ucf.edu>
 */
-require '../vendor/autoload.php';
 require_once('../config/settings.php');
 
 ini_set('max_execution_time', 300);
 
 // Write to the session now so we can check pdf completion status
 session_start();
+UdoitUtils::$canvas_base_url = $_SESSION['base_url'];
 $_SESSION['pdf_generated'] = false;
 
 $title = filter_input(INPUT_POST, 'context_title', FILTER_SANITIZE_STRING);

@@ -18,20 +18,16 @@
 *	Primary Author Contact:  Jacob Bates <jacob.bates@ucf.edu>
 */
 require_once('../config/settings.php');
-require_once('../lib/utils.php');
 
-$dbh = include('../lib/db.php');
-// saves the report to the database
-$sth = $dbh->prepare(" SELECT * FROM {$db_reports_table} WHERE course_id = :courseid ORDER BY date_run DESC");
+$sth = UdoitDB::prepare("SELECT id, date_run, errors, suggestions FROM {$db_reports_table} WHERE course_id = :courseid ORDER BY date_run DESC");
 
 session_start();
-
 $sth->bindValue(':courseid', $_SESSION['launch_params']['custom_canvas_course_id'], PDO::PARAM_INT);
-
+UdoitUtils::$canvas_base_url = $_SESSION['base_url'];
 session_write_close();
 
 if (!$sth->execute()) {
-	Utils::exitWithError('Could not complete database query');
+	UdoitUtils::exitWithError('Could not complete database query');
 }
 
 $reports = $sth->fetchAll();
@@ -49,5 +45,5 @@ if ($UDOIT_ENV != ENV_PROD) {
 	];
 }
 
-$templates = new League\Plates\Engine('../templates');
+$templates = new League\Plates\Engine(__DIR__.'/../templates');
 echo($templates->render('saved_reports', ['reports' => $reports]));

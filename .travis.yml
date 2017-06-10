@@ -9,6 +9,6 @@ php:
   - '5.4'
   - '5.5'
   - '5.6'
-script: 
-  - 'find . -type f -iname "*.php" -not -path "./lib/quail/tests/*" -not -path "./vendor/*" | xargs -n1 php -l'
-  - './vendor/phpunit/phpunit/phpunit --testsuite "UDOIT"'
+script:
+  - 'composer lint'
+  - 'composer test'

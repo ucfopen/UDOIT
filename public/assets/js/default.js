@@ -61,29 +61,102 @@ function popUpTemplate(noback, callback) {
 	$('#popup').fadeIn(300).css('display','inline-block');
 }
 
-function loader(text) {
+function displayLoader(text) {
 	popUpTemplate(true, function() {
 		$('#popup').addClass('loading_popup');
 		$('#popup').html('<div class="circle-white"></div>');
 	});
 }
 
-/* Builds up the results and adds them to the page */
-function checker() {
-	var main_action = $('input[name="main_action"]').val();
-	var base_url = $('input[name="base_url"]').val();
-	var course_id = $('input[name="session_course_id"]').val();
-	var context_label = $('input[name="session_context_label"]').val();
-	var context_title = $('input[name="session_context_title"]').val();
-	var content = $('.content:not(#allContent):checked').map(function(i, n) { return $(n).val(); }).get();
+function checkScanProgress(jobGroup){
+	// start checking for progress
+	clearInterval(progressTimer);
+	// TODO: add a progress check limit
+	progressTimer = setInterval(function(){
+		$.ajax({
+			url: `progress.php?job_group=${jobGroup}`,
+			dataType: 'json',
+			error: function(xhr, status, error) {
+				clearInterval(progressTimer);
+				killButton();
+				$('#failMsg').fadeIn();
+			},
+			success: function(progressResult){
+				// empty or not an array, error!
+				if(!progressResult.hasOwnProperty('status')){
+					clearInterval(progressTimer);
+					killButton();
+					$('#failMsg').fadeIn();
+					return;
+				}
 
-	if (content.length === 0) {
-		content = 'none';
-	}
+				if(progressResult.status === 'finished'){
+					clearInterval(progressTimer);
+					$('#udoitForm button.submit')
+					.html(`<div id="popup"><div class="circle-white"></div></div>Loading Results`);
+					loadScanResults(progressResult.reportID);
+					return;
+				}
+				else{
+					var running = [];
+					var finished = [];
+					var notRun = [];
+					for (var i = progressResult.jobs.length - 1; i >= 0; i--) {
+						var job = progressResult.jobs[i];
+						switch(job.status){
+							case 'new':
+								notRun.push(job.type);
+								break;
+							case 'finished':
+								finished.push(job.type);
+								break;
+							case 'running':
+								running.push(job.type);
+								break;
+						}
+					}
+					$('#udoitForm button.submit')
+					.html(`<div id="popup"><div class="circle-white"></div></div>Scanning: ${running.join(', ')}... (${notRun.length + running.length} left to scan)`);
+					return;
+				}
+			}
+		});
+	}, 1000);
+}
+
+function loadScanResults(reportID){
+	$.ajax({
+		url: `parseResults.php?report_id=${reportID}`,
+		xhrFields: {withCredentials: true},
+		error: function(xhr, status, error) {
+			// TODO: show error to user
+			clearInterval(progressTimer);
+		},
+		success: function(data){
+			console.log(data);
+			displayScanResults(data)
+		}
+	});
+}
+
+function displayScanResults(results) {
+	//show results
+	$('#scanner').append(`<section id="result">${results}</section>`);
+	killButton(function() {
+		$('#result').fadeIn();
+	});
+
+	jscolor.bind();
+}
+
+/* Builds up the results and adds them to the page */
+function sendScanRequest(main_action, base_url, course_id, context_label, context_title, content) {
+	if (content.length === 0) content = 'none';
 
 	$.ajax({
 		url: 'process.php',
 		type: 'POST',
+		dataType: 'json',
 		data: {
 			main_action: main_action,
 			base_url: base_url,
@@ -92,17 +165,16 @@ function checker() {
 			context_label: context_label,
 			context_title: context_title
 		},
-		success: function(data){
-			clearInterval(progressTimer);
-			$('#scanner').append('<section id="result">'+data+'</section>');
-			killButton(function() {
-				$('#result').fadeIn();
-			});
-
-			jscolor.bind();
+		success: function(resp){
+			if(resp && resp.hasOwnProperty('job_group')){
+				checkScanProgress(resp.job_group);
+			}
+			else{
+				killButton();
+				$('#failMsg').fadeIn();
+			}
 		},
 		error: function(data){
-			clearInterval(progressTimer);
 			killButton();
 			$('#failMsg').fadeIn();
 		}
@@ -216,40 +288,19 @@ $doc.ready(function() {
 	var runScanner = function(e) {
 		e.preventDefault();
 
-		if ($('#result').length > 0) {
-			$('#result').remove();
-		}
-
-		if ($('#failMsg').css('display') == 'block') {
-			$('#failMsg').fadeOut();
-		}
-
+		if ($('#result').length > 0) $('#result').remove();
+		if ($('#failMsg').css('display') == 'block') $('#failMsg').fadeOut();
 		$('#waitMsg').fadeIn();
 
-		loader();
+		var main_action = $('input[name="main_action"]').val();
+		var base_url = $('input[name="base_url"]').val();
+		var course_id = $('input[name="session_course_id"]').val();
+		var context_label = $('input[name="session_context_label"]').val();
+		var context_title = $('input[name="session_context_title"]').val();
+		var content = $('.content:not(#allContent):checked').map(function(i, n) { return $(n).val(); }).get();
 
-		var old = 0;
-
-
-		// start progress checker, this is cleared here or from checker()
-		clearInterval(progressTimer);
-		progressTimer = setInterval(function(){
-			$.ajax({
-				url: 'progress.php',
-				error: function(xhr, status, error) {
-					clearInterval(progressTimer);
-				},
-				success: function(data){
-					// update display if progress state has changed
-					if(data != old) {
-						old = data;
-						$('#udoitForm button.submit').html('<div id="popup"><div class="circle-white"></div></div> Scanning '+data+'...');
-					}
-				}
-			});
-		}, 1000);
-
-		checker();
+		displayLoader();
+		sendScanRequest(main_action, base_url, course_id, context_label, context_title, content);
 
 		return false;
 	};
@@ -527,13 +578,22 @@ $doc.ready(function() {
 	// clicking a result table row to display the cached report
 	$doc.on('click', '#resultsTable tbody tr', function() {
 		var main_action = 'cached';
-		var cached_id   = $(this).attr('id');
+		var reportID = $(this).attr('id');
 
-		$.post('parseResults.php', { main_action: main_action, cached_id: cached_id }, function(data) {
-			$('#resultsTable').fadeOut();
-			$('#cached').append('<div id="result">'+data+'</div>');
-			$('#result').fadeIn();
-		}, 'html');
+		$.ajax({
+			url: `parseResults.php?report_id=${reportID}`,
+			xhrFields: {withCredentials: true},
+			error: function(xhr, status, error) {
+				$('#resultsTable').fadeOut();
+				$('#cached').append('<div id="result">Error Loading Results</div>');
+				$('#result').fadeIn();
+			},
+			success: function(data){
+				$('#resultsTable').fadeOut();
+				$('#cached').append('<div id="result">'+data+'</div>');
+				$('#result').fadeIn();
+			}
+		});
 	});
 	// END clicking a result table row to display the cached report
 
@@ -569,9 +629,9 @@ $doc.ready(function() {
 		$result_html.find('.fix-success').remove();
 
 		var $form = $('<form action="parsePdf.php" method="post">' +
-		  '<input type="hidden" name="result_html" />' +
-		  '<input type="hidden" name="context_title" value="'+ context_title +'"/>' +
-		  '</form>');
+			'<input type="hidden" name="result_html" />' +
+			'<input type="hidden" name="context_title" value="'+ context_title +'"/>' +
+			'</form>');
 
 		$form.find('input[name="result_html"]').val($result_html.html());
 
@@ -607,6 +667,7 @@ $doc.ready(function() {
 
 		$.ajax({
 			url: 'cached.php',
+			xhrFields: {withCredentials: true},
 			type: 'GET',
 			success: function(data) {
 				$('#cached').html(data);

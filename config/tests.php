@@ -2,7 +2,7 @@
 
 /* UDOIT test descriptions and examples */
 /* refer to /quail/guidelines/section508.php to view currently enabled tests */
-$udoit_tests = [
+return [
     'severe' => [
         [
             'name'      => 'aMustContainText',

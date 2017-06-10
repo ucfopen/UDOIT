@@ -54,6 +54,6 @@
     }
   ],
   "scripts": {
-    "postdeploy": "php lib/db_create_tables.php"
+    "postdeploy": "composer dbsetup"
   }
 }

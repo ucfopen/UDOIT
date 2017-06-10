@@ -28,6 +28,9 @@ $db_reports_table = 'reports';
 
 $dsn = "pgsql:host={$db_host};dbname={$db_name};user={$db_user};port={$db_port};sslmode=require;password={$db_password}";
 
+/* Background worker Options */
+$background_worker_enabled = true;
+$worker_sleep_seconds = 10;
 
 /* Disable headings check character count */
 $doc_length       = getenv('DOC_LENGTH')?:1500;
@@ -41,3 +44,13 @@ define( 'GOOGLE_API_KEY', getenv('GOOGLE_API_KEY')?:'');
 
 /* Google Analytics Tracking Code */
 define( 'GA_TRACKING_CODE', '');
+
+// Fix some issues caused by the heroku load balancer
+// The OAUTH signature verification doesn't know it's using https w/o this
+if ( ! empty($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] == 'https') {
+    $_SERVER['HTTPS'] = 'on';
+}
+
+// send logs into the heroku logs
+$log_handler = new \Monolog\Handler\ErrorLogHandler();
+$log_handler->setFormatter(new \Monolog\Formatter\LineFormatter(null, null, true, true));

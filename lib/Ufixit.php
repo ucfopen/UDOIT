@@ -17,7 +17,6 @@
 *
 *   Primary Author Contact:  Jacob Bates <jacob.bates@ucf.edu>
 */
-require_once(__DIR__.'/../vendor/autoload.php');
 require_once(__DIR__.'/quail/quail/quail.php');
 
 use Httpful\Request;

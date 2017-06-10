@@ -18,7 +18,16 @@
 *	Primary Author Contact:  Jacob Bates <jacob.bates@ucf.edu>
 */
 
+// This page is the landing page for LTI launches from canvas
+// It'll verify the launch data, and check to see if we have api keys for the current user
+// if we have one, but it's invalid - it'll attempt to refresh it
+// if refresh
+// if it doesn't, it'll attempt to create them
+
 require_once(__DIR__.'/../config/settings.php');
+
+session_start();
+header('Content-Type: text/html; charset=utf-8');
 
 // Sanitize post parameters
 $post_input = filter_input_array(INPUT_POST, FILTER_SANITIZE_STRING);
@@ -26,32 +35,23 @@ $post_input['custom_canvas_user_id'] = filter_input(INPUT_POST, 'custom_canvas_u
 $post_input['custom_canvas_course_id'] = filter_input(INPUT_POST, 'custom_canvas_course_id', FILTER_SANITIZE_NUMBER_INT);
 
 // verify we have the variables we need from the LTI launch
-$expect = ['oauth_consumer_key','custom_canvas_api_domain','custom_canvas_user_id','custom_canvas_course_id'];
+$expect = ['base_url','launch_params',];
 foreach ($expect as $key) {
-	if(empty($post_input[$key])){
-		UdoitUtils::exitWithPageError("Missing LTI launch information. Please ensure that your instance of UDOIT is installed to Canvas correctly. Missing: {$key}");
+	if(empty($_SESSION[$key])){
+		UdoitUtils::exitWithPageError("Missing Session information. Please refresh the page. Missing: {$key}");
 	}
 }
 
-// verify LTI launch
-if ( ! UdoitUtils::verifyBasicLTILaunch()) {
-	UdoitUtils::exitWithPageError('LTI/Oauth verification problem, please ensure that your instance of UDOIT is configured correctly.');
-}
+UdoitUtils::$canvas_base_url = $_SESSION['base_url'];
 
-// store LTI launch variables
-session_start();
-$user_id                     = $post_input['custom_canvas_user_id'];
-UdoitUtils::$canvas_base_url = "https://{$post_input['custom_canvas_api_domain']}/";
-$_SESSION['base_url']        = UdoitUtils::$canvas_base_url;
-$_SESSION['launch_params']   = [
-	'custom_canvas_user_id'   => $post_input['custom_canvas_user_id'],
-	'custom_canvas_course_id' => $post_input['custom_canvas_course_id'],
-	'context_label'           => $post_input['context_label'],
-	'context_title'           => $post_input['context_title'],
+// display the scanner page
+$template_data = [
+	'base_url'           => $_SESSION['base_url'],
+	'welcome_message'    => $udoit_welcome_message,
+	'disclaimer_message' => $udoit_disclaimer_message,
+	'launch_params'      => $_SESSION['launch_params'],
+	'udoit_tests'        => include(__DIR__.'/../config/tests.php')
 ];
 
-$api_key = UdoitUtils::getValidRefreshedApiKey($user_id);
-
-$redirect_to = (!empty($api_key)) ? "scanner.php" : "{$_SESSION['base_url']}/login/oauth2/auth/?client_id={$oauth2_id}&response_type=code&redirect_uri={$oauth2_uri}";
-
-header("Location: {$redirect_to}");
+$templates = new League\Plates\Engine(__DIR__.'/../templates');
+echo($templates->render('index', $template_data));

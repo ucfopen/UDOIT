@@ -18,71 +18,48 @@
 *	Primary Author Contact:  Jacob Bates <jacob.bates@ucf.edu>
 */
 require_once('../config/settings.php');
-require_once('../lib/utils.php');
 
-$post_input = filter_input_array(INPUT_POST, FILTER_SANITIZE_STRING); // Sanitize $_POST global
+$get_input = filter_input_array(INPUT_GET, FILTER_SANITIZE_STRING);
 
-if ( ! isset($post_input['path'])) {
-	$post_input['path'] = '';
-}
-
-$templates  = new League\Plates\Engine('../templates');
+if ( ! isset($get_input['path'])) $get_input['path'] = '';
 
 // Load the test report in test/dev mode and no other report is selected
-if ($UDOIT_ENV !== ENV_PROD && !isset($post_input['cached_id'])) {
-	$post_input['cached_id'] = 'TEST'; // TEST is the id of the test report
+if ($UDOIT_ENV !== ENV_PROD && !isset($get_input['report_id'])) {
+	$get_input['report_id'] = 'TEST'; // TEST is the id of the test report
 }
 
-if (isset($post_input['cached_id'])) {
-
-	if ($post_input['cached_id'] == 'TEST') {
-		$file = 'reports/test.json';
-		$json = file_get_contents($file);
-		$udoit_report = json_decode($json);
-	}
-	else {
-		$dbh = include('../lib/db.php');
-
-		$sth = $dbh->prepare("SELECT * FROM {$db_reports_table} WHERE id=:cachedid");
-
-		$sth->bindValue(':cachedid', $post_input['cached_id'], PDO::PARAM_INT);
-
-		if ( ! $sth->execute()) {
-			error_log(print_r($sth->errorInfo(), true));
-			Utils::exitWithPartialError('Error searching for report');
-		}
-
-		$result = $sth->fetchAll(PDO::FETCH_ASSOC);
-		$json = $result[0]['file'];
-
-		if($json != null){
-			$udoit_report = json_decode($json);
-		} else {
-			$file = $result[0]['file_path'];
-			$json         = file_get_contents($file);
-			$udoit_report = json_decode($json);
-		}
-	}
-
-	if (is_null($udoit_report)) {
-		$json_error = json_last_error_msg();
-		Utils::exitWithPartialError("Cannot parse this report. JSON error $json_error.");
-	}
-
-} elseif ($post_input['main_action'] === "cached") {
-	Utils::exitWithPartialError('Cannot parse this report. JSON file not found.');
+// @TODO: make sure this user's got a session
+if ( ! isset($get_input['report_id'])) {
+	UdoitUtils::exitWithPartialError('No report requested');
 }
-$issue_count = 0;
+
+$sth = UdoitDB::prepare("SELECT * FROM {$db_reports_table} WHERE id = :report_id");
+$sth->bindValue(':report_id', $get_input['report_id'], PDO::PARAM_INT);
+
+if ( ! $sth->execute()) {
+	error_log(print_r($sth->errorInfo(), true));
+	UdoitUtils::exitWithPartialError('Error searching for report');
+}
+
+$report_json = $sth->fetch(PDO::FETCH_OBJ)->report_json;
+
+$report = json_decode($report_json);
+
+if (is_null($report)) {
+	$json_error = json_last_error_msg();
+	UdoitUtils::exitWithPartialError("Cannot parse this report. JSON error $json_error.");
+}
 
 $results = [
-	'course'              => $udoit_report->course,
-	'error_count'         => $udoit_report->total_results->errors,
-	'suggestion_count'    => $udoit_report->total_results->suggestions,
-	'report_groups'       => $udoit_report->content,
-	'post_path'           => $post_input['path'],
+	'course'              => $report->course,
+	'error_count'         => $report->total_results->errors,
+	'suggestion_count'    => $report->total_results->suggestions,
+	'report_groups'       => $report->content,
+	'post_path'           => $get_input['path'],
 	'fixable_error_types' => ["cssTextHasContrast", "imgNonDecorativeHasAlt", "tableDataShouldHaveTh", "tableThShouldHaveScope", "headersHaveText", "aMustContainText", "imgAltIsDifferent", "imgAltIsTooLong"],
 	'fixable_suggestions' => ["aSuspiciousLinkText", "imgHasAlt", "aLinkTextDoesNotBeginWithRedundantWord", "cssTextStyleEmphasize"]
 
 ];
 
+$templates  = new League\Plates\Engine('../templates');
 echo($templates->render('partials/results', $results));

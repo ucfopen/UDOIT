@@ -17,8 +17,26 @@
 *
 *   Primary Author Contact:  Jacob Bates <jacob.bates@ucf.edu>
 */
-
-// add the default autoloader
-require_once(__DIR__.'/../vendor/autoload.php');
-require_once(__DIR__.'/BaseTest.php');
 require_once(__DIR__.'/../config/settings.php');
+
+if (php_sapi_name() !== "cli"){
+    $logger->addError('This worker can only be run on the command line.');
+    echo('This worker can only be run on the command line.');
+}
+
+while(true)
+{
+    // run the next job
+    UdoitJob::runNextJob();
+
+    // take a nap if there's no more work to do
+    if(UdoitJob::countJobsRemaining() < 1)
+    {
+        $logger->addInfo('Worker Sleeping');
+        UdoitDB::disconnect(); // allow the db to disconnect
+        sleep($worker_sleep_seconds);
+    }
+    else{
+        sleep(1);
+    }
+}

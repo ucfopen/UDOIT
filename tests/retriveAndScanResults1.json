@@ -1,0 +1,44 @@
+{
+    "total_results": {
+        "errors": 0,
+        "warnings": 0,
+        "suggestions": 1
+    },
+    "scan_results": {
+        "module_urls": [],
+        "unscannable": [
+            {
+                "title": "display_name_value.pdf",
+                "url": "url_value"
+            }
+        ],
+        "files": {
+            "title": "files",
+            "items": [
+                {
+                    "id": "id_value",
+                    "name": "display_name_value.html",
+                    "url": "url_value",
+                    "amount": 1,
+                    "error": [],
+                    "warning": [],
+                    "suggestion": [
+                        {
+                            "text_type": null,
+                            "type": "imgHasAlt",
+                            "lineNo": 1,
+                            "severity": "Suggestion",
+                            "severity_num": 3,
+                            "title": "Image elements should have an \"alt\" attribute",
+                            "description": "<p>Alternative Text (Alt Text) is an alternative (non-visual) way to describe the meaning of an image. Please provide a brief (under 100 characters) description of the image for a <a href='http://en.wikipedia.org/wiki/Screen_reader'>screen reader</a> user. Note: It should not be the image file name.</p>",
+                            "path": "None",
+                            "html": "<img src=\"http://url.com/image.jpg\">\n"
+                        }
+                    ]
+                }
+            ],
+            "amount": 1,
+            "time": 0
+        }
+    }
+}

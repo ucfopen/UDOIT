@@ -96,10 +96,10 @@ Edit `config/localConfig.php`:
 To create the required tables, run the creation script below.  You'll need to complete the db steps above first.
 
 ```
-$ php lib/db_create_tables.php
+$ php composer.phar dbsetup
 ```
 
-The table schema can be found in [lib/db_create_tables.php](lib/db_create_tables.php)
+The table schema can be found in [bin/db_create_tables.php](bin/db_create_tables.php)
 
 ## Configuration and Setup
 If you didn't already make `config/localConfig.php` when you set up the database, do it now.
@@ -210,7 +210,7 @@ For quick local development, set `$UDOIT_ENV = ENV_DEV;` in `config/localConfig.
 From the public directory, run:
 
 ```
-$ php -S localhost:8000
+$ php composer.phar start
 ```
 
 Then open [http://localhost:8000 in a browser](http://localhost:8000).
@@ -219,13 +219,19 @@ Then open [http://localhost:8000 in a browser](http://localhost:8000).
 We use phpunit to run unit tests on UDOIT.  To run the tests, type the following command:
 
 ```
+$ php composer.phar test
+```
+
+We included a Dockerfile, docker-compose.yml, and tests script to run your tests in a predictable environment.  To run tests using docker run this command:
+
+```
+$ php composer.phar test:docker
+```
+
+By default, we exclude functional tests that include external APIs.  If you would like to run those tests, run this command:
+
+```
 $ ./vendor/phpunit/phpunit/phpunit
-```
-
-By default, phpunit will run all tests, including the functional tests that require access to outside APIs.  If you would like to exclude those tests, run this command:
-
-```
-$ ./vendor/phpunit/phpunit/phpunit --exclude-group functional
 ```
 
 ## Contributors

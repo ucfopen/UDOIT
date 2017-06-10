@@ -2,4 +2,4 @@ web:
   build: .
   volumes:
     - .:/var/www
-  command: ./composer_depend.sh
+  command: php composer.phar start

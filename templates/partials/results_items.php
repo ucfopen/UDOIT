@@ -59,18 +59,17 @@
 							<?php foreach ($type_group as $index => $group_item): ?>
 								<?php $li_id = "error-{$id}-{$type}-{$index}"; ?>
 								<li id="<?= $li_id; ?>">
-
-									<?php if ( in_array($group_item->type, $fixable_types) ): ?>
-										<p class="fix-success hidden"><span class="label label-success margin-left-small" style="margin-top: -2px;">Done!</span></p>
-									<?php endif; ?>
-									<!-- Print Report -->
-									<?php if ($group_item->html): ?>
-										<a class="viewError btn" href="#viewError" data-error="<?= $li_id; ?>">View the source of this issue</a>
-										<div class="more-info hidden instance">
-											<a class="closeError btn" href="#closeError" data-error="<?= $li_id; ?>">Close Issue Source</a>
-											<div class="error-preview">
-												<?php if ($group_item->type == "videosEmbeddedOrLinkedNeedCaptions"): ?>
-													<iframe width="100%" height="300px" src="https://www.youtube.com/embed/<?= Utils::getYouTubeId($group_item->html); ?>" frameborder="0" allowfullscreen></iframe>
+								<?php if ( in_array($group_item->type, $fixable_types) ): ?>
+									<p class="fix-success hidden"><span class="label label-success margin-left-small" style="margin-top: -2px;">Done!</span></p>
+								<?php endif; ?>
+								<!-- Print Report -->
+								<?php if ($group_item->html): ?>
+									<a class="viewError btn" href="#viewError" data-error="<?= $li_id; ?>">View the source of this issue</a>
+									<div class="more-info hidden instance">
+										<a class="closeError btn" href="#closeError" data-error="<?= $li_id; ?>">Close Issue Source</a>
+										<div class="error-preview">
+											<?php if ($group_item->type == "videosEmbeddedOrLinkedNeedCaptions"): ?>
+												<iframe width="100%" height="300px" src="https://www.youtube.com/embed/<?= UdoitUtils::getYouTubeId($group_item->html); ?>" frameborder="0" allowfullscreen></iframe>
 												<?php else: ?>
 													<?php if ($group_item->type == "cssTextHasContrast" && !isset($group_item->back_color)): ?>
 														<div class="ufixit-no-background-color">
