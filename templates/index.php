@@ -102,7 +102,7 @@ $this->layout('template', $settings);
 					<p><span class="glyphicon glyphicon-warning-sign"></span> Please stay on this page while UDOIT scans your course content.</p>
 				</div>
 
-				<button type="submit" name="course_submit" class="btn btn-block btn-lg btn-success submit">Run scanner</button>
+				<button type="submit" name="course_submit" class="btn btn-block btn-lg btn-success submit">Scan This Course</button>
 
 				<div class="alert alert-danger no-margin margin-top" id="failMsg" style="display: none;"><span class="glyphicon glyphicon-exclamation-sign"></span> UDOIT failed to scan this course.</div>
 			</form>
