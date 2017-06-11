@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "a8317c2b598a8a91db236839c609dba6",
+    "content-hash": "911b6639a51ed71d93f711d1be6118da",
     "packages": [
         {
             "name": "EastDesire/jscolor",
@@ -1724,7 +1724,7 @@
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": {
-        "php": "^5.4.0 || ^5.5.0 || ^5.6.0",
+        "php": "^5.4.0 || ^5.5.0 || ^5.6.0 || ^7.0.0 || ^7.1.0",
         "ext-pdo": "*",
         "ext-gd": "*"
     },
