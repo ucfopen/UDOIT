@@ -17,23 +17,45 @@
 *
 *   Primary Author Contact:  Jacob Bates <jacob.bates@ucf.edu>
 */
-require_once(__DIR__.'/../config/settings.php');
 
-if (php_sapi_name() !== "cli") {
-    $logger->addError('This worker can only be run on the command line.');
-    echo('This worker can only be run on the command line.');
-}
+class PDOStatementMock extends \PDOStatement
+{
 
-while (true) {
-    // run the next job
-    UdoitJob::runNextJob();
+    public $bind_value_calls = [];
+    public $execute_calls = [];
 
-    // take a nap if there's no more work to do
-    if (UdoitJob::countJobsRemaining() < 1) {
-        $logger->addInfo('Worker Sleeping');
-        UdoitDB::disconnect(); // allow the db to disconnect
-        sleep($worker_sleep_seconds);
-    } else {
-        sleep(1);
+    public function bindValue($paramno, $param, $type = null)
+    {
+        $this->bind_value_calls[] = func_get_args();
+    }
+
+    public function execute($bound_input_params = null)
+    {
+        $this->execute_calls[] = func_get_args();
+
+        return true;
+    }
+
+    public function fetchColumn($column_number = null)
+    {
+        return $this->mockFetch();
+    }
+
+    public function fetchObject($class_name = null, $ctor_args = null)
+    {
+        return $this->mockFetch();
+    }
+
+    public function next()
+    {
+        return $this->mockFetch();
+    }
+
+    protected function mockFetch()
+    {
+        $val = PDOMock::$next_fetch_return;
+        PDOMock::$next_fetch_return = null;
+
+        return $val;
     }
 }

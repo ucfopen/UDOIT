@@ -18,7 +18,8 @@
 *   Primary Author Contact:  Jacob Bates <jacob.bates@ucf.edu>
 */
 
-class UdoitDB{
+class UdoitDB
+{
 
     const TEST_EXPIRE_TIME = 5; // 5 seconds, may need to be adjusted
 
@@ -30,7 +31,8 @@ class UdoitDB{
     private static $pdo = null;
     private static $last_test_time = 0;
 
-    public static function setup($db_type, $dsn, $db_user, $db_password){
+    public static function setup($db_type, $dsn, $db_user, $db_password)
+    {
         static::$type = $db_type;
         static::$user = $db_user;
         static::$dsn = $dsn;
@@ -38,10 +40,11 @@ class UdoitDB{
     }
 
     // acts as a pass through for pdo that checks the connection
-    public static function __callStatic($name, $args){
+    public static function __callStatic($name, $args)
+    {
         static::testAndReconnect();
         // test to see if the method exists on pdo
-        if ( ! method_exists(static::$pdo, $name)){
+        if (!method_exists(static::$pdo, $name)) {
             throw new \RuntimeException("{$name} method does not exist on PDO object");
         }
 
@@ -49,49 +52,64 @@ class UdoitDB{
         return call_user_func_array([static::$pdo, $name], $args);
     }
 
-    public static function testAndReconnect($force_test = false){
+    public static function testAndReconnect($force_test = false)
+    {
        // make sure we're still connected
-        if ( ! static::test($force_test)) static::connect();
+        if (!static::test($force_test)) {
+            static::connect();
+        }
     }
 
     // runs a very basic query on the db to verify connection status
-    public static function test($force = false){
-        if(empty(static::$pdo)) return false;
+    public static function test($force = false)
+    {
+        if (empty(static::$pdo)) {
+            return false;
+        }
+
         try {
             $now = time();
             // check if forced or the last test time expired
-            if($force || (static::$last_test_time + self::TEST_EXPIRE_TIME) < $now){
+            if ($force || (static::$last_test_time + self::TEST_EXPIRE_TIME) < $now) {
                 static::$last_test_time = $now;
                 static::$pdo->query('SELECT version()');
             }
+
             return true;
         } catch (\Exception $e) {
             error_log("Database Test Connection Error");
             error_log($e->getMessage());
+
             return false;
         }
     }
 
-    public static function disconnect(){
+    public static function disconnect()
+    {
         static::$pdo = null; // there's no disconnect w/ pdo, it's cleaned up when garbage collected
     }
 
-    protected static function connect(){
+    protected static function connect()
+    {
         try {
-            switch(static::$type) {
+            switch (static::$type) {
                 case 'test':
                     $db = new PDO('sqlite::memory:');
                     break;
+
                 case 'pgsql':
-                    $db =  new static::$dbClass(static::$dsn);
+                    $db = new static::$dbClass(static::$dsn);
                     break;
+
                 case 'mysql':
                     $db = new static::$dbClass(static::$dsn, static::$user, static::$password);
                     break;
+
                 default:
                     throw new \RuntimeException("Database type ".static::$type." not supported.");
                     break;
             }
+
             static::$last_test_time = time();
             static::$pdo = $db;
         } catch (\RuntimeException $e) {

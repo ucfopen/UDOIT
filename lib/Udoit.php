@@ -17,19 +17,20 @@
 *
 *   Primary Author Contact:  Jacob Bates <jacob.bates@ucf.edu>
 */
-require_once(__DIR__.'/../config/settings.php');
-require_once(__DIR__.'/quail/quail/quail.php');
 
 use Httpful\Request;
 
-class Udoit {
+class Udoit
+{
     /**
      * Retrieves an entire group of content by type and scans it
      * @param string api_key - API Key of the user were acting as
      * @param string content_type - The group of content types we'll retrieve EX: 'pages' or 'assignments'
+     *
      * @return array - Results of the scan
      */
-    public static function retrieveAndScan($api_key, $canvas_api_url, $course_id, $content_type){
+    public static function retrieveAndScan($api_key, $canvas_api_url, $course_id, $content_type)
+    {
         $items_with_issues = [];
         $totals = ['errors' => 0, 'warnings' => 0, 'suggestions' => 0];
         $module_urls = [];
@@ -43,8 +44,10 @@ class Udoit {
         $content['amount'] = count($content['items']);
 
         // remove results w/o issues and count the totals
-        foreach ($content['items'] as $item){
-            if ($item['amount'] == 0) continue;
+        foreach ($content['items'] as $item) {
+            if ($item['amount'] == 0) {
+                continue;
+            }
 
             $items_with_issues[]   = $item;
             $totals['errors']      += count($item['error']);
@@ -53,10 +56,10 @@ class Udoit {
         }
 
         // format results
-        if ($content['module_urls']){
+        if ($content['module_urls']) {
             $module_urls = array_merge($module_urls, $content['module_urls']);
         }
-        if ($content['unscannable']){
+        if ($content['unscannable']) {
             $unscannables = array_merge($unscannables, $content['unscannable']);
         }
 
@@ -69,24 +72,28 @@ class Udoit {
                     'title'  => $content_type,
                     'items'  => $items_with_issues,
                     'amount' => $content['amount'],
-                    'time'   => $content['time']
-                ]
-            ]
+                    'time'   => $content['time'],
+                ],
+            ],
         ];
     }
 
     /**
      * Calls the Quail library to generate a UDOIT report
      * @param  array $scanned_content - The items from whatever type of Canvas content was scanned
+     *
      * @return array                  - The report results
      */
-    public static function scanContent(Array $content_items) {
+    public static function scanContent(array $content_items)
+    {
+        require_once(__DIR__.'/quail/quail/quail.php');
         $report = [];
 
         // Runs each item through the Quail accessibility checker
         foreach ($content_items as $item) {
-
-            if (empty($item['content'])) continue;
+            if (empty($item['content'])) {
+                continue;
+            }
 
             $quail  = new quail($item['content'], 'wcag2aaa', 'string', 'static');
             $quail->runCheck();
@@ -99,8 +106,9 @@ class Udoit {
 
             // loop over the items returning from Quail
             foreach ($quail_report['report'] as $quail_issue) {
-
-                if (empty($quail_issue['severity_num'])) continue;
+                if (empty($quail_issue['severity_num'])) {
+                    continue;
+                }
 
                 $issue_count++;
 
@@ -140,9 +148,11 @@ class Udoit {
      * @param  string $api_key - Api key for the user we're acting as
      * @param  string $canvas_api_url - Base uri for your canvas api
      * @param  string $type - The type of course content to be scanned
+     *
      * @return array        - The report results
      */
-    public static function getCourseContent($api_key, $canvas_api_url, $course_id, $type) {
+    public static function getCourseContent($api_key, $canvas_api_url, $course_id, $type)
+    {
         global $logger;
 
         $api_url = "{$canvas_api_url}/api/v1/courses/{$course_id}/";
@@ -162,7 +172,7 @@ class Udoit {
                         'id'      => $c->id,
                         'content' => $c->message,
                         'title'   => $c->title,
-                        'url'     => $c->html_url
+                        'url'     => $c->html_url,
                     ];
                 }
                 break;
@@ -174,7 +184,7 @@ class Udoit {
                         'id'      => $c->id,
                         'content' => $c->description,
                         'title'   => $c->name,
-                        'url'     => $c->html_url
+                        'url'     => $c->html_url,
                     ];
                 }
                 break;
@@ -186,7 +196,7 @@ class Udoit {
                         'id'      => $c->id,
                         'content' => $c->message,
                         'title'   => $c->title,
-                        'url'     => $c->html_url
+                        'url'     => $c->html_url,
                     ];
                 }
                 break;
@@ -194,31 +204,33 @@ class Udoit {
             case 'files':
                 $contents = static::apiGetAllLinks($api_key, "{$api_url}files?");
                 foreach ($contents as $c) {
-                    if (substr($c->display_name, 0, 2) == '._') continue;
+                    if (substr($c->display_name, 0, 2) === '._') {
+                        continue;
+                    }
 
                     $extension = pathinfo($c->filename, PATHINFO_EXTENSION);
 
-                    if($c->size > 50000000) {
+                    if ($c->size > 50000000) {
                         $content_result['unscannable'][] = [
                             'title' => $c->display_name,
                             'url' => $c->url,
-                            'big' => true
-                            ];
+                            'big' => true,
+                        ];
                     } else {
                         if (in_array($extension, ['html', 'htm'])) {
                             $content_result['items'][] = [
                                 'id'      => $c->id,
                                 'content' => Request::get($c->url)->followRedirects()->expectsHtml()->send()->body,
                                 'title'   => $c->display_name,
-                                'url'     => $c->url
+                                'url'     => $c->url,
                             ];
                         }
                         // filters non html files
-                        if (in_array($extension, ['pdf', 'doc', 'docx', 'ppt', 'pptx'])){
+                        if (in_array($extension, ['pdf', 'doc', 'docx', 'ppt', 'pptx'])) {
                             $content_result['unscannable'][] = [
                                 'title' => $c->display_name,
                                 'url'   => $c->url,
-                                'big'   => false
+                                'big'   => false,
                             ];
                         }
                     }
@@ -235,7 +247,7 @@ class Udoit {
                         'id'      => $wiki_page->body->url,
                         'content' => $wiki_page->body->body,
                         'title'   => $wiki_page->body->title,
-                        'url'     => $wiki_page->body->html_url
+                        'url'     => $wiki_page->body->html_url,
                     ];
                 }
                 break;
@@ -254,7 +266,7 @@ class Udoit {
                                 'id'           => $c->id,
                                 'external_url' => $c->external_url,
                                 'title'        => $c->title,
-                                'url'          => $c->html_url
+                                'url'          => $c->html_url,
                             ];
                         }
                     }
@@ -269,7 +281,7 @@ class Udoit {
                         'id'      => $c->id,
                         'content' => $c->syllabus_body,
                         'title'   => 'Syllabus',
-                        'url'     => "{$canvas_api_url}/courses/{$course_id}/assignments/syllabus"
+                        'url'     => "{$canvas_api_url}/courses/{$course_id}/assignments/syllabus",
                     ];
                 }
                 break;
@@ -279,7 +291,8 @@ class Udoit {
     }
 
     // get every page from the Canvas API till there's none left
-    protected static function apiGetAllLinks($api_key, $url){
+    protected static function apiGetAllLinks($api_key, $url)
+    {
         global $logger;
         $limit = 500;
         $per_page = 100;
@@ -289,13 +302,20 @@ class Udoit {
             $req_url = "{$url}page=1&per_page={$per_page}&access_token={$api_key}";
             $logger->addInfo("Requesting {$req_url}");
             $response = Request::get($req_url)->send();
-            if($response->status > 400){
+            if ($response->status > 400) {
                 $logger->addError("Error response from {$req_url}");
                 break;
             }
+
             $links = static::apiParseLinks($response->headers->toArray()['link']);
-            foreach ($response->body as $thing) $results[] = $thing;
-            if (isset($links['next'])) $url = "{$links['next']}&access_token={$api_key}";
+            foreach ($response->body as $thing) {
+                $results[] = $thing;
+            }
+
+            if (isset($links['next'])) {
+                $url = "{$links['next']}&access_token={$api_key}";
+            }
+
             usleep(250000); // 1/4 sec
         } while (isset($links['next']) && $cur_page < $limit);
 
@@ -305,9 +325,11 @@ class Udoit {
     /**
      * Parses pagination links returned from Canvas
      * @param  string $links - The pagination links
+     *
      * @return array         - An array of the separated links
      */
-    protected static function apiParseLinks($links) {
+    protected static function apiParseLinks($links)
+    {
         $links  = explode(',', $links);
         $pretty = [];
 

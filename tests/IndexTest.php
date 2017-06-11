@@ -19,18 +19,21 @@
 */
 class IndexTest extends BaseTest
 {
-    protected function setUp() {
+    protected function setUp()
+    {
         UdoitDB::setup('test', 'b', 'c', 'd');
         include(__DIR__.'/../bin/db_create_tables.php');
         Mockery::close();
     }
 
-    protected function tearDown(){
+    protected function tearDown()
+    {
         UdoitDB::disconnect();
         Mockery::close();
     }
 
-    public function testApiParseLinksParsesLinkHeadersCorrectly() {
+    public function testApiParseLinksParsesLinkHeadersCorrectly()
+    {
         // $_POST = [];
         // $_POST['custom_canvas_user_id'] = 'adff';
         // $_POST['custom_canvas_course_id'] = 'adff';

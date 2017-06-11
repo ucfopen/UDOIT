@@ -30,7 +30,8 @@ class FunctionalTests extends PHPUnit_Framework_TestCase
     * @group functional
     * Tests the youtube api call to make sure a video with captions is detected as having captions
     */
-    public function testYouTubeAPIHasCaptions() {
+    public function testYouTubeAPIHasCaptions()
+    {
         $vid_url = 'https://www.youtube.com/watch?v=zo6aRvf-l_s';
 
         $yt_service = new youtubeService();
@@ -43,7 +44,8 @@ class FunctionalTests extends PHPUnit_Framework_TestCase
     * @group functional
     * Tests the youtube api call to make sure a video without captions is detected as not having captions
     */
-    public function testYouTubeAPINoCaptions() {
+    public function testYouTubeAPINoCaptions()
+    {
         $vid_url = 'https://www.youtube.com/watch?v=nBH89Y0Xj7c';
 
         $yt_service = new youtubeService();

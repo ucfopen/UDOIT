@@ -10,16 +10,16 @@ $oauth2_key = 'test_oauth2_key';
 $oauth2_uri = 'test_oauth2_uri';
 
 /* Disable headings check character count */
-$doc_length ='1500';
+$doc_length = '1500';
 
 /* Tool name for display in Canvas Navigation */
 $canvas_nav_item_name = 'test udoit';
 
 /* Google/YouTube Data Api Key */
-define( 'GOOGLE_API_KEY', 'TEST_API_KEY');
+define('GOOGLE_API_KEY', 'TEST_API_KEY');
 
 /* Google Analytics Tracking Code */
-define( 'GA_TRACKING_CODE', 'TEST_GA_TRACKING');
+define('GA_TRACKING_CODE', 'TEST_GA_TRACKING');
 
 /* Database Config */
 $db_type          = 'test'; // 'mysql' or 'pgsql'

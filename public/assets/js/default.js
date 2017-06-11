@@ -33,7 +33,7 @@ function killButton(callback) {
 				});
 			}
 
-			$('#udoitForm button.submit').removeClass('disabled').html('Scan This Course');
+			$('#udoitForm button.submit').removeClass('disabled').html('Scan This Course Again');
 
 			$('#waitMsg').fadeOut();
 

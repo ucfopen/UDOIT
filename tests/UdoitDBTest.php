@@ -18,94 +18,27 @@
 *   Primary Author Contact:  Jacob Bates <jacob.bates@ucf.edu>
 */
 
-class PDOStatementMock extends \PDOStatement {
+class UdoitDBTest extends BaseTest
+{
 
-    public $bind_value_calls = [];
-    public $execute_calls = [];
-
-    public function bindValue($paramno, $param, $type = NULL){
-        $this->bind_value_calls[] = func_get_args();
+    public static function setUpBeforeClass()
+    {
+        require_once(__DIR__.'/PDOMock.php');
+        require_once(__DIR__.'/PDOStatementMock.php');
     }
 
-    public function execute($bound_input_params = NULL){
-        $this->execute_calls[] = func_get_args();
-        return true;
-    }
-
-    public function fetchColumn($column_number = NULL){
-        return $this->mockFetch();
-    }
-
-    public function fetchObject($class_name = NULL, $ctor_args = NULL){
-        return $this->mockFetch();
-    }
-
-    protected function mockFetch(){
-        $val = PDOMock::$next_fetch_return;
-        PDOMock::$next_fetch_return = null;
-        return $val;
-    }
-
-    public function next() {
-        return $this->mockFetch();
-    }
-}
-
-class PDOMock extends \PDO {
-    public $constructor_args = [];
-    public $query_calls = [];
-    public $prepare_calls = [];
-    public $begin_transaction_calls = [];
-    public $commit_calls = [];
-    public $statements = [];
-    public $query_returns_data = false;
-    public static $next_fetch_return = null;
-
-    public function __construct() {
-        $this->constructor_args = func_get_args();
-    }
-
-    public function query(){
-        $this->query_calls[] = func_get_args();
-        if($this->query_returns_data) return self::$next_fetch_return;
-        return $this->_newStatement();
-    }
-
-    public function prepare($statement, $options = NULL){
-        $this->prepare_calls[] = func_get_args();
-        return $this->_newStatement();
-    }
-
-    public function beginTransaction(){
-        $this->begin_transaction_calls[] = func_get_args();
-    }
-
-    public function commit(){
-        $this->commit_calls[] = func_get_args();
-    }
-
-    public function nextFetchReturns($value){
-        self::$next_fetch_return = $value;
-    }
-
-    protected function _newStatement(){
-        $stmt = new PDOStatementMock();
-        $this->statements[] = $stmt;
-        return $stmt;
-    }
-}
-
-class UdoitDBTest extends BaseTest{
-
-    protected function setUp() {
+    public function setUp()
+    {
         self::setPrivateStaticPropertyValue('UdoitDB', 'dbClass', 'PDOMock');
     }
 
-    protected function tearDown(){
+    public function tearDown()
+    {
         self::clearMockDBConnection();
     }
 
-    public function testMysqlSetup(){
+    public function testMysqlSetup()
+    {
         UdoitDB::setup('mysql', 'b', 'c', 'd');
 
         self::assertEquals('mysql', self::getPrivateStaticPropertyValue('UdoitDB', 'type'));
@@ -114,7 +47,8 @@ class UdoitDBTest extends BaseTest{
         self::assertEquals('d', self::getPrivateStaticPropertyValue('UdoitDB', 'password'));
     }
 
-    public function testPsqlSetup(){
+    public function testPsqlSetup()
+    {
         UdoitDB::setup('pgsql', 'b', 'c', 'd');
 
         self::assertEquals('pgsql', self::getPrivateStaticPropertyValue('UdoitDB', 'type'));
@@ -123,7 +57,8 @@ class UdoitDBTest extends BaseTest{
         self::assertEquals('d', self::getPrivateStaticPropertyValue('UdoitDB', 'password'));
     }
 
-    public function testConnectMysql(){
+    public function testConnectMysql()
+    {
         UdoitDB::setup('mysql', 'b', 'c', 'd');
         UdoitDB::testAndReconnect();
         $pdo = self::getPrivateStaticPropertyValue('UdoitDB', 'pdo');
@@ -131,7 +66,8 @@ class UdoitDBTest extends BaseTest{
         self::assertArraySubset(['b', 'c', 'd'], $pdo->constructor_args);
     }
 
-    public function testConnectPgsql(){
+    public function testConnectPgsql()
+    {
         UdoitDB::setup('pgsql', 'b', 'c', 'd');
         UdoitDB::testAndReconnect();
         $pdo = self::getPrivateStaticPropertyValue('UdoitDB', 'pdo');
@@ -139,7 +75,8 @@ class UdoitDBTest extends BaseTest{
         self::assertArraySubset(['b'], $pdo->constructor_args);
     }
 
-    public function testDisconnect(){
+    public function testDisconnect()
+    {
         UdoitDB::setup('mysql', 'b', 'c', 'd');
         UdoitDB::testAndReconnect();
         self::assertInstanceOf(PDOMock, self::getPrivateStaticPropertyValue('UdoitDB', 'pdo'));
@@ -147,12 +84,14 @@ class UdoitDBTest extends BaseTest{
         self::assertNull(self::getPrivateStaticPropertyValue('UdoitDB', 'pdo'));
     }
 
-    public function testConnectionTestWithoutConnection(){
+    public function testConnectionTestWithoutConnection()
+    {
         UdoitDB::setup('mysql', 'b', 'c', 'd');
         self::assertFalse(UdoitDB::test());
     }
 
-    public function testConnectionTestWithConnectionBeforeTimeoutDoesntRunQuery(){
+    public function testConnectionTestWithConnectionBeforeTimeoutDoesntRunQuery()
+    {
         UdoitDB::setup('mysql', 'b', 'c', 'd');
         self::callProtectedStaticMethod('UdoitDB', 'connect');
 
@@ -161,7 +100,8 @@ class UdoitDBTest extends BaseTest{
         self::assertEmpty($pdo->query_calls);
     }
 
-    public function testConnectionTestWithConnectionBeforeTimeoutWithForceOnDoesRunQuery(){
+    public function testConnectionTestWithConnectionBeforeTimeoutWithForceOnDoesRunQuery()
+    {
         UdoitDB::setup('mysql', 'b', 'c', 'd');
         self::callProtectedStaticMethod('UdoitDB', 'connect');
 
@@ -170,7 +110,8 @@ class UdoitDBTest extends BaseTest{
         self::assertCount(1, $pdo->query_calls);
     }
 
-    public function testConnectionTestWithConnectionAfterTimeoutDoesRunQuery(){
+    public function testConnectionTestWithConnectionAfterTimeoutDoesRunQuery()
+    {
         UdoitDB::setup('mysql', 'b', 'c', 'd');
         self::callProtectedStaticMethod('UdoitDB', 'connect');
         self::setPrivateStaticPropertyValue('UdoitDB', 'last_test_time', 0);
@@ -180,7 +121,8 @@ class UdoitDBTest extends BaseTest{
         self::assertCount(1, $pdo->query_calls);
     }
 
-    public function testPDOPassThroughCallsPDOFunction(){
+    public function testPDOPassThroughCallsPDOFunction()
+    {
         UdoitDB::setup('mysql', 'b', 'c', 'd');
         self::callProtectedStaticMethod('UdoitDB', 'connect');
 
@@ -189,13 +131,12 @@ class UdoitDBTest extends BaseTest{
         self::assertEquals('QUERY VALUE HERE', $pdo->query_calls[0][0]);
     }
 
-    public function testPDOPassThroughWillReconnect(){
+    public function testPDOPassThroughWillReconnect()
+    {
         UdoitDB::setup('mysql', 'b', 'c', 'd');
         self::assertFalse(UdoitDB::test());
 
         UdoitDB::query('QUERY VALUE HERE');
         self::assertTrue(UdoitDB::test());
     }
-
 }
-

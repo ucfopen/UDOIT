@@ -13,9 +13,9 @@ require_once($local_config);
 
 // ADD A DEFAULT LOG HANDLER
 // !! override by creating $log_handler in your config
-if ( ! isset($log_handler)) {
-	$log_handler = new \Monolog\Handler\StreamHandler(__DIR__.'/log.log', \Monolog\Logger::DEBUG);
-	$log_handler->setFormatter(new \Monolog\Formatter\LineFormatter(null, null, true, true));
+if (!isset($log_handler)) {
+    $log_handler = new \Monolog\Handler\StreamHandler(__DIR__.'/log.log', \Monolog\Logger::DEBUG);
+    $log_handler->setFormatter(new \Monolog\Formatter\LineFormatter(null, null, true, true));
 }
 
 // SET UP LOGGER
@@ -37,8 +37,8 @@ UdoitUtils::setupOauth($oauth2_id, $oauth2_key, $oauth2_id, $consumer_key, $shar
 UdoitDB::setup($db_type, $dsn, $db_user, $db_password);
 
 // BACKGROUND WORKER
-if (isset($background_worker_enabled)){
-	UdoitJob::$background_worker_enabled = $background_worker_enabled;
+if (isset($background_worker_enabled)) {
+    UdoitJob::$background_worker_enabled = $background_worker_enabled;
 }
 
 // Prevent Caching on the client

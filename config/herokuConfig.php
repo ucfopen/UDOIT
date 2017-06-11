@@ -40,14 +40,14 @@ $unscannable_suggestion = 'Consider converting these documents to Pages, since t
 $unscannable_suggestion_on = true;
 
 /* Google/YouTube Data Api Key */
-define( 'GOOGLE_API_KEY', getenv('GOOGLE_API_KEY')?:'');
+define('GOOGLE_API_KEY', getenv('GOOGLE_API_KEY')?:'');
 
 /* Google Analytics Tracking Code */
-define( 'GA_TRACKING_CODE', '');
+define('GA_TRACKING_CODE', '');
 
 // Fix some issues caused by the heroku load balancer
 // The OAUTH signature verification doesn't know it's using https w/o this
-if ( ! empty($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] == 'https') {
+if (!empty($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] == 'https') {
     $_SERVER['HTTPS'] = 'on';
 }
 

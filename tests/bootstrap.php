@@ -20,5 +20,6 @@
 
 // add the default autoloader
 require_once(__DIR__.'/../vendor/autoload.php');
+require_once(__DIR__.'/MockObj.php');
 require_once(__DIR__.'/BaseTest.php');
 require_once(__DIR__.'/../config/settings.php');

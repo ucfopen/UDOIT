@@ -1,21 +1,21 @@
 <?php
 /**
-*	Copyright (C) 2014 University of Central Florida, created by Jacob Bates, Eric Colon, Fenel Joseph, and Emily Sachs.
+*   Copyright (C) 2014 University of Central Florida, created by Jacob Bates, Eric Colon, Fenel Joseph, and Emily Sachs.
 *
-*	This program is free software: you can redistribute it and/or modify
-*	it under the terms of the GNU General Public License as published by
-*	the Free Software Foundation, either version 3 of the License, or
-*	(at your option) any later version.
+*   This program is free software: you can redistribute it and/or modify
+*   it under the terms of the GNU General Public License as published by
+*   the Free Software Foundation, either version 3 of the License, or
+*   (at your option) any later version.
 *
-*	This program is distributed in the hope that it will be useful,
-*	but WITHOUT ANY WARRANTY; without even the implied warranty of
-*	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-*	GNU General Public License for more details.
+*   This program is distributed in the hope that it will be useful,
+*   but WITHOUT ANY WARRANTY; without even the implied warranty of
+*   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+*   GNU General Public License for more details.
 *
-*	You should have received a copy of the GNU General Public License
-*	along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*   You should have received a copy of the GNU General Public License
+*   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 *
-*	Primary Author Contact:  Jacob Bates <jacob.bates@ucf.edu>
+*   Primary Author Contact:  Jacob Bates <jacob.bates@ucf.edu>
 */
 
 require_once('../config/settings.php');
@@ -43,19 +43,18 @@ $final_job = $sth->fetch();
 $final_job['results'] = json_decode($final_job['results'], true);
 
 $job_status = [];
-foreach ($jobs as $job)
-{
-	$json = json_decode($job['data'], true);
-	$job_status[] = [
-		'type' => $json['scan_item'],
-		'status' => $job['status']
-	];
+foreach ($jobs as $job) {
+    $json = json_decode($job['data'], true);
+    $job_status[] = [
+        'type' => $json['scan_item'],
+        'status' => $job['status'],
+    ];
 }
 
 $result = [
-	'reportID' => isset($final_job['results']['report_id']) ? $final_job['results']['report_id'] : null,
-	'status' => $final_job['status'],
-	'jobs' => $job_status
+    'reportID' => isset($final_job['results']['report_id']) ? $final_job['results']['report_id'] : null,
+    'status' => $final_job['status'],
+    'jobs' => $job_status,
 ];
 
 echo(json_encode($result));

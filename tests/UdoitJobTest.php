@@ -17,36 +17,40 @@
 *
 *   Primary Author Contact:  Jacob Bates <jacob.bates@ucf.edu>
 */
-use org\bovigo\vfs\vfsStream;
-use org\bovigo\vfs\vfsStreamDirectory;
 
-class UdoitJobTest extends BaseTest{
-
-    protected function setUp() {
-        $this->exampleDir = vfsStream::setup('exampleDir'); // this resets after every test
+class UdoitJobTest extends BaseTest
+{
+    public function setUp()
+    {
         Mockery::close();
         UdoitDB::setup('test', 'b', 'c', 'd');
         include(__DIR__.'/../bin/db_create_tables.php');
     }
 
-    protected function tearDown(){
+    public function tearDown()
+    {
         self::setPrivateStaticPropertyValue('UdoitUtils', 'instance', null);
         UdoitDB::disconnect();
         Mockery::close();
     }
 
     // mock UdoitUtils->getValidRefreshedApiKey()
-    protected function mockGetValidRefreshKey(){
+    public function mockGetValidRefreshKey()
+    {
         $mock = new MockObj();
-        $mock->getValidRefreshedApiKey = function(){ return 'test_api_key'; };
+        $mock->getValidRefreshedApiKey = function () {
+            return 'test_api_key';
+        };
         self::setPrivateStaticPropertyValue('UdoitUtils', 'instance', $mock);
     }
 
-    public function testCreateJobGroupID(){
+    public function testCreateJobGroupID()
+    {
         self::assertStringStartsWith('job_', UdoitJob::createJobGroupId());
     }
 
-    public function testAddJobToQueue(){
+    public function testAddJobToQueue()
+    {
         UdoitJob::$background_worker_enabled = true;
         UdoitJob::addJobToQueue('type', 55, 'job_4', ['data' => 'data_value']);
 
@@ -59,7 +63,8 @@ class UdoitJobTest extends BaseTest{
         self::assertTrue(empty($res['results']));
     }
 
-    public function testAddJobToQueueRunsNextJob(){
+    public function testAddJobToQueueRunsNextJob()
+    {
         self::mockGetValidRefreshKey();
 
         // create a user (id will be 1)
@@ -80,7 +85,8 @@ class UdoitJobTest extends BaseTest{
         self::assertTrue(!empty($res['results']));
     }
 
-    public function testCountJobsRemaining(){
+    public function testCountJobsRemaining()
+    {
         UdoitJob::$background_worker_enabled = true;
 
         self::assertEquals(0, UdoitJob::countJobsRemaining());
@@ -92,7 +98,8 @@ class UdoitJobTest extends BaseTest{
         self::assertEquals(2, UdoitJob::countJobsRemaining());
     }
 
-    public function testGetNextJobChangesStatusToRunning(){
+    public function testGetNextJobChangesStatusToRunning()
+    {
         UdoitJob::$background_worker_enabled = true;
         UdoitJob::addJobToQueue('type', 11, 'job_4', ['data' => 'data_value']);
         UdoitJob::addJobToQueue('type', 22, 'job_5', ['data' => 'data_value']);
@@ -104,17 +111,18 @@ class UdoitJobTest extends BaseTest{
         // make sure it gets the next job because the first is now running
         $job = self::callProtectedStaticMethod('UdoitJob', 'getNextJob');
         self::assertEquals(22, $job->user_id);
-
     }
 
-    public function testGetNextJobHandlesNoJobsGracefully(){
+    public function testGetNextJobHandlesNoJobsGracefully()
+    {
         UdoitJob::$background_worker_enabled = true;
         $job = self::callProtectedStaticMethod('UdoitJob', 'getNextJob');
 
         self::assertFalse($job);
     }
 
-    public function testFinalizeReportProcessesJobsAndWritesReportToDB(){
+    public function testFinalizeReportProcessesJobsAndWritesReportToDB()
+    {
         self::mockGetValidRefreshKey();
         // create a user (id will be 1)
         UdoitDB::query("INSERT into users (api_key, refresh_token) VALUES ('sample_api_key', 'refresh_token')");
@@ -145,7 +153,8 @@ class UdoitJobTest extends BaseTest{
     }
 
 
-    public function testUpdateJobStatus(){
+    public function testUpdateJobStatus()
+    {
         self::mockGetValidRefreshKey();
         UdoitDB::query("INSERT into users (api_key, refresh_token) VALUES ('sample_api_key', 'refresh_token')");
         UdoitJob::$background_worker_enabled = false;
@@ -159,7 +168,8 @@ class UdoitJobTest extends BaseTest{
         self::assertEquals('broken', $jobs[0]['status']);
     }
 
-    public function testFinalizeProperlyCombinesJobResults(){
+    public function testFinalizeProperlyCombinesJobResults()
+    {
         self::mockGetValidRefreshKey();
         UdoitDB::query("INSERT into users (api_key, refresh_token) VALUES ('sample_api_key', 'refresh_token')");
         UdoitJob::$background_worker_enabled = false;
@@ -219,5 +229,4 @@ class UdoitJobTest extends BaseTest{
         self::assertArrayHasKey('items', $report['content']['module_urls']);
         self::assertCount(2, $report['content']['module_urls']['items']);
     }
-
 }

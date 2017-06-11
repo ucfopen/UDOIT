@@ -20,10 +20,10 @@ $unscannable_suggestion_on = true;
 $canvas_nav_item_name = getenv('CANVAS_NAV_ITEM_NAME');
 
 /* Google/YouTube Data Api Key */
-define( 'GOOGLE_API_KEY', '');
+define('GOOGLE_API_KEY', '');
 
 /* Google Analytics Tracking Code */
-define( 'GA_TRACKING_CODE', '');
+define('GA_TRACKING_CODE', '');
 
 /* Database Config */
 $db_type          = 'mysql'; // 'mysql' or 'pgsql'

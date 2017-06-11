@@ -54,6 +54,6 @@
     }
   ],
   "scripts": {
-    "postdeploy": "composer dbsetup"
+    "postdeploy": "composer db-setup"
   }
 }

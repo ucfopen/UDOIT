@@ -4,11 +4,12 @@ cache:
     - $COMPOSER_CACHE_DIR
     - vendor
 install:
-  - 'composer install --no-scripts'
+  - 'composer install'
 php:
   - '5.4'
   - '5.5'
   - '5.6'
 script:
   - 'composer lint'
+  - 'composer sniff-summary'
   - 'composer test'

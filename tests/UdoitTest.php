@@ -18,23 +18,21 @@
 *   Primary Author Contact:  Jacob Bates <jacob.bates@ucf.edu>
 */
 
-use org\bovigo\vfs\vfsStream;
-use org\bovigo\vfs\vfsStreamDirectory;
-
-class UdoitTest extends BaseTest{
-
-    protected function setUp() {
-        $this->exampleDir = vfsStream::setup('exampleDir'); // this resets after every test
+class UdoitTest extends BaseTest
+{
+    public function setUp()
+    {
         Mockery::close();
     }
 
-    protected function tearDown(){
+    public function tearDown()
+    {
         UdoitDB::disconnect();
         Mockery::close();
     }
 
-    public function testApiParseLinksParsesLinkHeadersCorrectly() {
-
+    public function testApiParseLinksParsesLinkHeadersCorrectly()
+    {
         $link_header = '<https://url.com/current>; rel="current",'.
             '<https://url.com/next>; rel="next",'.
             '<https://url.com/first>; rel="first",'.
@@ -48,18 +46,19 @@ class UdoitTest extends BaseTest{
         self::assertEquals('https://url.com/last', $result['last']);
     }
 
-    public function testApiGetAllLinksFollowsLinkHeadersAndReturnsExpectedResults() {
+    public function testApiGetAllLinksFollowsLinkHeadersAndReturnsExpectedResults()
+    {
 
         $header_to_array_returns = [
             ['link' => '<test_url2?>; rel="next"'], // first call
             ['link' => '<test_url3?>; rel="next"'], // second call
-            ['link' => '']
+            ['link' => ''],
         ];
 
         $body_returns = [
             ["body_0_a", "body_0_b"],
             ["body_1_a", "body_1_b"],
-            ["body_2_a", "body_2_b"]
+            ["body_2_a", "body_2_b"],
         ];
 
         $mock_get_result = self::mockGetRequestResult($header_to_array_returns, $body_returns);
@@ -73,14 +72,14 @@ class UdoitTest extends BaseTest{
 
         self::assertCount(6, $result);
         self::assertArraySubset(['body_0_a', 'body_0_b', 'body_1_a', 'body_1_b', 'body_2_a', 'body_2_b'], $result);
-
     }
 
-    public function testGetCoursContentGetsMultipleItems(){
+    public function testGetCoursContentGetsMultipleItems()
+    {
         $header_to_array_returns = [
             ['link' => '<test_url2?>; rel="next"'], // first call
             ['link' => '<test_url3?>; rel="next"'], // second call
-            ['link' => '']
+            ['link' => ''],
         ];
 
         $body_returns = [
@@ -89,18 +88,18 @@ class UdoitTest extends BaseTest{
                     'id' => "id_value",
                     'message' => 'message_value',
                     'title' => 'title_value',
-                    'html_url' => 'url_value'
-                ]
+                    'html_url' => 'url_value',
+                ],
             ],
             [
                 (object) [
                     'id' => "id_value2",
                     'message' => 'message_value2',
                     'title' => 'title_value2',
-                    'html_url' => 'url_value2'
-                ]
+                    'html_url' => 'url_value2',
+                ],
             ],
-            []
+            [],
         ];
 
         $mock_get_result = self::mockGetRequestResult($header_to_array_returns, $body_returns);
@@ -115,10 +114,10 @@ class UdoitTest extends BaseTest{
         self::assertCount(2, $result['items']);
         self::assertEquals('id_value', $result['items'][0]['id']);
         self::assertEquals('id_value2', $result['items'][1]['id']);
-
     }
 
-    public function testGetCoursContentBuildsExpectedReturnStructure(){
+    public function testGetCoursContentBuildsExpectedReturnStructure()
+    {
         $body_returns = [[]];
 
         $mock_get_result = self::mockGetRequestResult([], $body_returns);
@@ -141,17 +140,18 @@ class UdoitTest extends BaseTest{
         self::assertEmpty($result['items']);
     }
 
-    public function testGetCoursContentGetsAnnouncements(){
+    public function testGetCoursContentGetsAnnouncements()
+    {
         $body_returns = [
             [
                 (object) [
                     'id' => "id_value",
                     'message' => 'message_value',
                     'title' => 'title_value',
-                    'html_url' => 'url_value'
-                ]
+                    'html_url' => 'url_value',
+                ],
             ],
-            []
+            [],
         ];
 
         $mock_get_result = self::mockGetRequestResult([], $body_returns);
@@ -178,17 +178,18 @@ class UdoitTest extends BaseTest{
         self::assertEquals('url_value', $result['items'][0]['url']);
     }
 
-    public function testGetCoursContentGetsAssignments(){
+    public function testGetCoursContentGetsAssignments()
+    {
         $body_returns = [
             [
                 (object) [
                     'id' => "id_value",
                     'description' => 'description_value',
                     'name' => 'name_value',
-                    'html_url' => 'url_value'
-                ]
+                    'html_url' => 'url_value',
+                ],
             ],
-            []
+            [],
         ];
 
         $mock_get_result = self::mockGetRequestResult([], $body_returns);
@@ -215,17 +216,18 @@ class UdoitTest extends BaseTest{
         self::assertEquals('url_value', $result['items'][0]['url']);
     }
 
-    public function testGetCoursContentGetsDiscussions(){
+    public function testGetCoursContentGetsDiscussions()
+    {
         $body_returns = [
             [
                 (object) [
                     'id' => "id_value",
                     'message' => 'message_value',
                     'title' => 'title_value',
-                    'html_url' => 'url_value'
-                ]
+                    'html_url' => 'url_value',
+                ],
             ],
-            []
+            [],
         ];
 
         $mock_get_result = self::mockGetRequestResult([], $body_returns);
@@ -253,9 +255,10 @@ class UdoitTest extends BaseTest{
     }
 
 
-    public function testGetCoursContentGetsUnscannableFiles(){
-       $header_to_array_returns = [
-            ['link' => ''] // just one page
+    public function testGetCoursContentGetsUnscannableFiles()
+    {
+        $header_to_array_returns = [
+            ['link' => ''], // just one page
         ];
 
         $body_returns = [
@@ -265,10 +268,10 @@ class UdoitTest extends BaseTest{
                     'filename' => "filename.pdf",
                     'id' => 'id_value',
                     'url' => 'url_value',
-                    'html_url' => 'url_value'
-                ]
+                    'html_url' => 'url_value',
+                ],
             ],
-            []
+            [],
         ];
 
         $mock_get_result = self::mockGetRequestResult($header_to_array_returns, $body_returns);
@@ -291,9 +294,10 @@ class UdoitTest extends BaseTest{
         self::assertEquals('url_value', $result['unscannable'][0]['url']);
     }
 
-    public function testGetCoursContentGetsFiles(){
-       $header_to_array_returns = [
-            ['link' => ''] // just one page
+    public function testGetCoursContentGetsFiles()
+    {
+        $header_to_array_returns = [
+            ['link' => ''], // just one page
         ];
 
         $body_returns = [
@@ -303,11 +307,11 @@ class UdoitTest extends BaseTest{
                     'filename' => "filename.html",
                     'id' => 'id_value',
                     'url' => 'url_value',
-                    'html_url' => 'url_value'
-                ]
+                    'html_url' => 'url_value',
+                ],
             ],
             '<p>some html</p>',
-            []
+            [],
         ];
 
         $mock_get_result = self::mockGetRequestResult($header_to_array_returns, $body_returns);
@@ -335,9 +339,10 @@ class UdoitTest extends BaseTest{
     }
 
 
-    public function testGetCoursContentGetsPages(){
-       $header_to_array_returns = [
-            ['link' => ''] // just one page
+    public function testGetCoursContentGetsPages()
+    {
+        $header_to_array_returns = [
+            ['link' => ''], // just one page
         ];
 
         $body_returns = [
@@ -347,17 +352,16 @@ class UdoitTest extends BaseTest{
                     'filename' => "filename.html",
                     'id' => 'id_value',
                     'url' => 'url_value',
-                    'html_url' => 'url_value'
-                ]
+                    'html_url' => 'url_value',
+                ],
             ],
             (object) [
                 'url' => 'url_value',
                 'body' => 'body_value',
                 'title' => 'title_value',
                 'html_url' => 'html_url_value',
-            ]
-            ,
-            []
+            ],
+            [],
         ];
 
         $mock_get_result = self::mockGetRequestResult($header_to_array_returns, $body_returns);
@@ -384,9 +388,10 @@ class UdoitTest extends BaseTest{
         self::assertEquals('html_url_value', $result['items'][0]['url']);
     }
 
-    public function testGetCoursContentFindsNoVieosInModulesCorrectly(){
-       $header_to_array_returns = [
-            ['link' => ''] // just one page
+    public function testGetCoursContentFindsNoVieosInModulesCorrectly()
+    {
+        $header_to_array_returns = [
+            ['link' => ''], // just one page
         ];
 
         $body_returns = [
@@ -397,12 +402,12 @@ class UdoitTest extends BaseTest{
                             'external_url' => "external_url_value",
                             'id' => 'id_value',
                             'url' => 'url_value',
-                            'title' => 'title_value'
-                        ]
-                    ]
-                ]
+                            'title' => 'title_value',
+                        ],
+                    ],
+                ],
             ],
-            []
+            [],
         ];
 
         $mock_get_result = self::mockGetRequestResult($header_to_array_returns, $body_returns);
@@ -419,9 +424,10 @@ class UdoitTest extends BaseTest{
         self::assertEmpty($result['items']);
     }
 
-    public function testGetCoursContentFindsVideosInModules(){
-       $header_to_array_returns = [
-            ['link' => ''] // just one page
+    public function testGetCoursContentFindsVideosInModules()
+    {
+        $header_to_array_returns = [
+            ['link' => ''], // just one page
         ];
 
         $body_returns = [
@@ -432,24 +438,24 @@ class UdoitTest extends BaseTest{
                             'external_url' => "external_url_value",
                             'id' => 'id_value',
                             'html_url' => 'html_url_value',
-                            'title' => 'title_value'
+                            'title' => 'title_value',
                         ],
                         (object) [
                             'external_url' => "youtube_external_url_value",
                             'id' => 'id_value',
                             'html_url' => 'html_url_value',
-                            'title' => 'title_value'
+                            'title' => 'title_value',
                         ],
                         (object) [
                             'external_url' => "vimeo_external_url_value",
                             'id' => 'id_value',
                             'html_url' => 'html_url_value',
-                            'title' => 'title_value'
-                        ]
-                    ]
-                ]
+                            'title' => 'title_value',
+                        ],
+                    ],
+                ],
             ],
-            []
+            [],
         ];
 
         $mock_get_result = self::mockGetRequestResult($header_to_array_returns, $body_returns);
@@ -482,17 +488,18 @@ class UdoitTest extends BaseTest{
         self::assertEquals('html_url_value', $m_urls[0]['url']);
     }
 
-    public function testGetCoursContentGetsSyllabus(){
-       $header_to_array_returns = [];
+    public function testGetCoursContentGetsSyllabus()
+    {
+        $header_to_array_returns = [];
 
         $body_returns = [
             [
                 (object) [
                     'syllabus_body' => "content_value",
                     'id' => 'id_value',
-                ]
+                ],
             ],
-            []
+            [],
         ];
 
         $mock_get_result = self::mockGetRequestResult($header_to_array_returns, $body_returns);
@@ -520,7 +527,8 @@ class UdoitTest extends BaseTest{
         self::assertEquals('apiurl/courses/course/assignments/syllabus', $result['items'][0]['url']);
     }
 
-    public function testScanContentReturnsNothingWithNoCententToScan(){
+    public function testScanContentReturnsNothingWithNoCententToScan()
+    {
         $content_items = [
             ['content' => ''],
         ];
@@ -528,13 +536,15 @@ class UdoitTest extends BaseTest{
         self::assertEmpty($result);
     }
 
-    public function testScanContentReturnsNothingWithNoItems(){
+    public function testScanContentReturnsNothingWithNoItems()
+    {
         $content_items = [];
         $result = Udoit::scanContent($content_items);
         self::assertEmpty($result);
     }
 
-    public function testScanContentReportsErrors(){
+    public function testScanContentReportsErrors()
+    {
         $content_items = [
             ['content' => '<img src="http://url.com/image.jpg"/>'],
             ['content' => '<img src="http://url.com/image.jpg"/>'],
@@ -580,7 +590,8 @@ class UdoitTest extends BaseTest{
         self::assertEquals('imgHasAlt', $result[0]['suggestion'][0]['type']);
     }
 
-    public function testRetrieveAndScanBuildsBasicResponse(){
+    public function testRetrieveAndScanBuildsBasicResponse()
+    {
         $body_returns = [[]];
 
         $mock_get_result = self::mockGetRequestResult([], $body_returns);
@@ -605,9 +616,10 @@ class UdoitTest extends BaseTest{
         self::assertEquals(0, $result['amount']);
     }
 
-    public function testRetrieveAndScanReturnsFiles(){
-       $header_to_array_returns = [
-            ['link' => ''] // just one page
+    public function testRetrieveAndScanReturnsFiles()
+    {
+        $header_to_array_returns = [
+            ['link' => ''], // just one page
         ];
 
         $body_returns = [
@@ -617,18 +629,18 @@ class UdoitTest extends BaseTest{
                     'filename' => "filename.html",
                     'id' => 'id_value',
                     'url' => 'url_value',
-                    'html_url' => 'url_value'
+                    'html_url' => 'url_value',
                 ],
                 (object) [
                     'display_name' => "display_name_value.pdf",
                     'filename' => "filename.pdf",
                     'id' => 'id_value',
                     'url' => 'url_value',
-                    'html_url' => 'url_value'
-                ]
+                    'html_url' => 'url_value',
+                ],
             ],
             '<img src="http://url.com/image.jpg"/>',
-            []
+            [],
         ];
 
         $mock_get_result = self::mockGetRequestResult($header_to_array_returns, $body_returns);
@@ -671,13 +683,14 @@ class UdoitTest extends BaseTest{
         self::assertArrayHasKey('warning', $res['files']['items'][0]);
         self::assertArrayHasKey('suggestion', $res['files']['items'][0]);
 
-        self::assertCount(1 , $res['files']['items'][0]['suggestion']);
-        self::assertCount(1 , $res['files']['items'][0]['suggestion']);
+        self::assertCount(1, $res['files']['items'][0]['suggestion']);
+        self::assertCount(1, $res['files']['items'][0]['suggestion']);
     }
 
-    public function testRetrieveAndScanReturnsModules(){
-       $header_to_array_returns = [
-            ['link' => ''] // just one page
+    public function testRetrieveAndScanReturnsModules()
+    {
+        $header_to_array_returns = [
+            ['link' => ''], // just one page
         ];
 
         $body_returns = [
@@ -688,24 +701,24 @@ class UdoitTest extends BaseTest{
                             'external_url' => "external_url_value",
                             'id' => 'id_value',
                             'html_url' => 'html_url_value',
-                            'title' => 'title_value'
+                            'title' => 'title_value',
                         ],
                         (object) [
                             'external_url' => "youtube_external_url_value",
                             'id' => 'id_value',
                             'html_url' => 'html_url_value',
-                            'title' => 'title_value'
+                            'title' => 'title_value',
                         ],
                         (object) [
                             'external_url' => "vimeo_external_url_value",
                             'id' => 'id_value',
                             'html_url' => 'html_url_value',
-                            'title' => 'title_value'
-                        ]
-                    ]
-                ]
+                            'title' => 'title_value',
+                        ],
+                    ],
+                ],
             ],
-            []
+            [],
         ];
 
         $mock_get_result = self::mockGetRequestResult($header_to_array_returns, $body_returns);
@@ -733,6 +746,4 @@ class UdoitTest extends BaseTest{
         self::assertArrayHasKey('url', $res['module_urls']['0']);
         self::assertArrayHasKey('title', $res['module_urls']['0']);
     }
-
 }
-

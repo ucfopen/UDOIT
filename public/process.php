@@ -29,7 +29,7 @@ session_write_close();
 $main_action = filter_input(INPUT_POST, 'main_action', FILTER_SANITIZE_STRING);
 switch ($main_action) {
     case 'udoit':
-        if ($UDOIT_ENV != ENV_PROD) {
+        if (ENV_PROD !== $UDOIT_ENV) {
             require 'parseResults.php';
             exit();
         }
@@ -40,7 +40,7 @@ switch ($main_action) {
         $job_group = uniqid('job_', true); // uniqid for this group of jobs
 
         // No content selected
-        if ($content == 'none') {
+        if ('none' === $content) {
             UdoitUtils::instance()->exitWithPartialError('Please select which course content you wish to scan above.');
         }
 
@@ -50,7 +50,7 @@ switch ($main_action) {
             'base_uri'     => $base_url,
             'title'        => $title,
             'course_id'    => $course_id,
-            'scan_item'    => $scan_item
+            'scan_item'    => $scan_item,
         ];
 
         // create an id to group all these jobs together
@@ -69,7 +69,6 @@ switch ($main_action) {
         break;
 
     case 'ufixit':
-
         $data = [
             'base_uri'     => $base_url,
             'content_id'   => filter_input(INPUT_POST, 'contentid', FILTER_SANITIZE_STRING),
@@ -80,12 +79,12 @@ switch ($main_action) {
             'italic'       => (filter_input(INPUT_POST, 'add-italic', FILTER_SANITIZE_STRING) == 'italic'),
             'remove_color' => (filter_input(INPUT_POST, 'remove-color', FILTER_SANITIZE_STRING) == 'true'),
             'course_id'    => filter_input(INPUT_POST, 'course_id', FILTER_SANITIZE_NUMBER_INT),
-            'api_key'      => UdoitUtils::instance()->getLocalApiKey($user_id)
+            'api_key'      => UdoitUtils::instance()->getLocalApiKey($user_id),
         ];
 
         $ufixit = new Ufixit($data);
 
-        if (strtolower($data['content_type']) == 'files') {
+        if (strtolower($data['content_type']) === 'files') {
             $ufixit->curled_file = $ufixit->getFile("root");
 
             if ($ufixit->curled_file == false) {

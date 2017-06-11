@@ -96,7 +96,7 @@ Edit `config/localConfig.php`:
 To create the required tables, run the creation script below.  You'll need to complete the db steps above first.
 
 ```
-$ php composer.phar dbsetup
+$ php composer.phar db-setup
 ```
 
 The table schema can be found in [bin/db_create_tables.php](bin/db_create_tables.php)
@@ -225,7 +225,7 @@ $ php composer.phar test
 We included a Dockerfile, docker-compose.yml, and tests script to run your tests in a predictable environment.  To run tests using docker run this command:
 
 ```
-$ php composer.phar test:docker
+$ php composer.phar test-docker
 ```
 
 By default, we exclude functional tests that include external APIs.  If you would like to run those tests, run this command:

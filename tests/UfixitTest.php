@@ -21,25 +21,29 @@ class UfixitTest extends BaseTest
 {
     protected $data;
 
-    public function setUp () {
+    public function setUp()
+    {
         $this->data = [
-            'api_key'       => '',
-            'base_uri'      => '',
-            'content_id'    => '',
-            'course_id'     => ''
+            'api_key'    => '',
+            'base_uri'   => '',
+            'content_id' => '',
+            'course_id'  => '',
         ];
     }
 
-    public function tearDown () {
+    public function tearDown()
+    {
         unset($data);
     }
 
-    private function checkOutputBuffer() {
+    public function checkOutputBuffer()
+    {
         $buffer         = ob_get_clean();
         $this->assertEquals('', $buffer);
     }
 
-    public function testFixAltText() {
+    public function testFixAltText()
+    {
         $error_html     = '<img src="https://webcourses.ucf.edu/courses/1234567/image.jpg" alt="">';
         $new_content    = 'test';
         $expected       = '<img src="https://webcourses.ucf.edu/courses/1234567/image.jpg" alt="test">';
@@ -52,7 +56,8 @@ class UfixitTest extends BaseTest
         $this->checkOutputBuffer();
     }
 
-    public function testFixCssColorOneColorBold() {
+    public function testFixCssColorOneColorBold()
+    {
         $error_html     = '<span style="color: #ffff00;">Bad Contrasting Text</span>';
         $new_content    = ['#ffffff', '#000000'];
         $expected       = '<span style="background-color: #ffffff; color: #000000; font-weight: bold; font-style: normal;">Bad Contrasting Text</span>';
@@ -67,7 +72,8 @@ class UfixitTest extends BaseTest
         $this->checkOutputBuffer();
     }
 
-    public function testFixCssColorTwoColorsItalic() {
+    public function testFixCssColorTwoColorsItalic()
+    {
         $error_html     = '<span style="color: #ffff00; background: #ffffff;">Bad Contrasting Text</span>';
         $new_content    = ['#000000', '#fffff0'];
         $expected       = '<span style="background-color: #000000; color: #fffff0; font-weight: normal; font-style: italic;">Bad Contrasting Text</span>';
@@ -82,7 +88,8 @@ class UfixitTest extends BaseTest
         $this->checkOutputBuffer();
     }
 
-    public function testFixCssColorTwoColorsBoldItalic() {
+    public function testFixCssColorTwoColorsBoldItalic()
+    {
         $error_html     = '<span style="color: #ffff00; background: #ffffff;">Bad Contrasting Text</span>';
         $new_content    = ['#000000', '#fffff0'];
         $expected       = '<span style="background-color: #000000; color: #fffff0; font-weight: bold; font-style: italic;">Bad Contrasting Text</span>';
@@ -97,7 +104,8 @@ class UfixitTest extends BaseTest
         $this->checkOutputBuffer();
     }
 
-    public function testFixLinkNewText() {
+    public function testFixLinkNewText()
+    {
         $error_html     = '<a href="https://webcourses.ucf.edu/courses/1234567/image.jpg"></a>';
         $new_content    = 'test';
         $expected       = '<a href="https://webcourses.ucf.edu/courses/1234567/image.jpg">test</a>';
@@ -110,7 +118,8 @@ class UfixitTest extends BaseTest
         $this->checkOutputBuffer();
     }
 
-    public function testFixLinkDeleteLink() {
+    public function testFixLinkDeleteLink()
+    {
         $error_html     = '<a href="https://webcourses.ucf.edu/courses/1234567/image.jpg"></a>';
         $new_content    = '';
         $expected       = '';
@@ -123,7 +132,8 @@ class UfixitTest extends BaseTest
         $this->checkOutputBuffer();
     }
 
-    public function testFixHeadingNewHeading() {
+    public function testFixHeadingNewHeading()
+    {
         $error_html     = '<h1></h1>';
         $new_content    = 'Heading Text';
         $expected       = '<h1>Heading Text</h1>';
@@ -136,7 +146,8 @@ class UfixitTest extends BaseTest
         $this->checkOutputBuffer();
     }
 
-    public function testFixHeadingDeleteHeading() {
+    public function testFixHeadingDeleteHeading()
+    {
         $error_html     = '<h2></h2>';
         $new_content    = '';
         $expected       = '';
@@ -149,7 +160,8 @@ class UfixitTest extends BaseTest
         $this->checkOutputBuffer();
     }
 
-    public function testFixTableHeadersRow() {
+    public function testFixTableHeadersRow()
+    {
         $error_html     = '<table><tbody><tr><td>Header One</td><td>Header Two</td></tr><tr><td>1.30</td><td>4.50</td></tr></tbody></table>';
         $sel_header     = 'row';
         $expected       = '<tr>'."\n".'<th scope="col">Header One</th>'."\n".'<th scope="col">Header Two</th>'."\n".'</tr>'."\n";
@@ -162,7 +174,8 @@ class UfixitTest extends BaseTest
         $this->checkOutputBuffer();
     }
 
-    public function testFixTableHeadersCol() {
+    public function testFixTableHeadersCol()
+    {
         $error_html     = '<table><tbody><tr><td>Header One</td><td>Header Two</td></tr><tr><td>Title</td><td>4.50</td></tr></tbody></table>';
         $sel_header     = 'col';
         $expected       = '<tr>'."\n".'<th scope="row">Header One</th>'."\n".'<td>Header Two</td>'."\n".'</tr>'."\n".'<tr>'."\n".'<th scope="row">Title</th>'."\n".'<td>4.50</td>'."\n".'</tr>';
@@ -175,7 +188,8 @@ class UfixitTest extends BaseTest
         $this->checkOutputBuffer();
     }
 
-    public function testFixTableHeadersBoth() {
+    public function testFixTableHeadersBoth()
+    {
         $error_html     = '<table><tbody><tr><td>Header One</td><td>Header Two</td></tr><tr><td>Title</td><td>4.50</td></tr></tbody></table>';
         $sel_header     = 'both';
         $expected       = '<tr>'."\n".'<th scope="col">Header One</th>'."\n".'<th scope="col">Header Two</th>'."\n".'</tr>'."\n".'<tr>'."\n".'<th scope="row">Title</th>'."\n".'<td>4.50</td>'."\n".'</tr>';
@@ -188,7 +202,8 @@ class UfixitTest extends BaseTest
         $this->checkOutputBuffer();
     }
 
-    public function testFixTableThScopes() {
+    public function testFixTableThScopes()
+    {
         $error_html     = '<th>Heading One</th>';
         $new_content    = 'col';
         $expected       = '<th scope="col">Heading One</th>';

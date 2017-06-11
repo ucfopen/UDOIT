@@ -1,8 +1,7 @@
 <?php
 require_once(__DIR__.'/../config/settings.php');
 global $db_type;
-if ($db_type == 'sqlite' || $db_type == 'test')
-{
+if ('sqlite' === $db_type || 'test' === $db_type) {
     // SQLITE (mostly for testing)
     $tables = [
         '
@@ -39,11 +38,10 @@ if ($db_type == 'sqlite' || $db_type == 'test')
                 date_created timestamp with time zone DEFAULT CURRENT_TIMESTAMP,
                 date_completed timestamp with time zone
             );
-        '
+        ',
     ];
 }
-if ($db_type == 'pgsql')
-{
+if ('pgsql' === $db_type) {
     // POSTGRESQL
     $tables = [
         '
@@ -80,11 +78,10 @@ if ($db_type == 'pgsql')
                 date_created timestamp with time zone DEFAULT CURRENT_TIMESTAMP,
                 date_completed timestamp with time zone
             );
-        '
+        ',
     ];
 }
-if ($db_type == 'mysql')
-{
+if ('mysql' === $db_type) {
     // MYSQL
     $tables = [
         '
@@ -125,12 +122,11 @@ if ($db_type == 'mysql')
                 `date_completed` timestamp,
                 PRIMARY KEY (`id`),
             ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
-        '
+        ',
     ];
 }
 
 //  run every query
-foreach ($tables as $sql)
-{
+foreach ($tables as $sql) {
     UdoitDB::query($sql);
 }
