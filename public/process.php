@@ -70,26 +70,21 @@ switch ($main_action) {
 
         $dbh = include('../lib/db.php');
 
-        $sth = $dbh->prepare("
-            ALTER TABLE {$db_reports_table} ADD file TEXT;"
-        );
-        $sth->execute();
-
-        if ( ! $sth->execute()) {
-            error_log("Column already created");
-        }
+        // Quick hack to add report column since we dont have migrations yet
+        $column_type = $db_type == 'mysql' ? 'MEDIUMTEXT' : 'TEXT';
+        $dbh->query("ALTER TABLE {$db_reports_table} ADD report_json {$column_type}");
 
         $sth = $dbh->prepare("
             INSERT INTO
-                {$db_reports_table} 
-                (user_id, course_id, file, date_run, errors, suggestions)
+                {$db_reports_table}
+                (user_id, course_id, report_json, date_run, errors, suggestions)
             VALUES
-                (:userid, :courseid, :file, CURRENT_TIMESTAMP, :errors, :suggestions)"
+                (:userid, :courseid, :report_json, CURRENT_TIMESTAMP, :errors, :suggestions)"
         );
 
         $sth->bindValue(':userid', $user_id, PDO::PARAM_INT);
         $sth->bindValue(':courseid', $data['course_id'], PDO::PARAM_INT);
-        $sth->bindValue(':file', $udoit->getReport(), PDO::PARAM_STR);
+        $sth->bindValue(':report_json', $udoit->getReport(), PDO::PARAM_STR);
         $sth->bindValue(':errors', $udoit->total_results['errors'], PDO::PARAM_STR);
         $sth->bindValue(':suggestions', $udoit->total_results['suggestions'], PDO::PARAM_STR);
 
@@ -98,7 +93,6 @@ switch ($main_action) {
             Utils::exitWithPartialError('Error inserting report into database');
         }
 
-        $udoit_report = json_decode($udoit->getReport());
         require 'parseResults.php';
         break;
 
