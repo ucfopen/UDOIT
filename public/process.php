@@ -93,6 +93,8 @@ switch ($main_action) {
             Utils::exitWithPartialError('Error inserting report into database');
         }
 
+	$udoit_report = json_decode($udoit->getReport());
+
         require 'parseResults.php';
         break;
 
