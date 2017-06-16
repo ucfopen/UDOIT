@@ -47,6 +47,7 @@ To start the Heroku deployment process, you can click the button below, please n
 ## System Requirements
 * Apache or Nginx webserver
 * PHP 5.4, 5.5, or 5.6 (some users have modified the code to work on 5.3)
+  * [GD Graphics Library](http://php.net/manual/en/book.image.php)
 * MySQL or PostgreSQL
 
 If you're using PHP 5.3:
