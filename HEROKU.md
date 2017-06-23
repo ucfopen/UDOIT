@@ -17,6 +17,7 @@ After clicking the Heroku button above:
 2. Give the app a name.
 3. Fill out the `OAUTH2_ID` and `OAUTH2_KEY` fields with dummy data.  (We'll fix it later.)
 4. Fill out the `OAUTH2_URI` field with `https://yourapp.herokuapp.com/oauth2response.php`. (Replace 'yourapp' with the name you gave in step 2.)
+5. Fill out the `CANVAS_NAV_ITEM_NAME` field with the name you would like the app to appear as in the course navigation menu.  This is useful if your instance will be use for a pilot.  The normal value to use here is ***UDOIT***.
 5. Copy and paste your Google/YouTube API key.
 5. Click the Deploy button and wait for the process to complete.
 
@@ -118,7 +119,7 @@ If you need to check that the tables exist, you can connect to Postgres using so
 * `Select * from users;` or `Select * from reports;` will show you their contents
 * `\q` quits the psql terminal
 
-If needed, you can manually run the table creation script: `Heroku run php lib/db_create_tables.php`
+If needed, you can manually run the table creation script: `heroku run composer dbsetup`
 
 ## Table Schema
-The table schema can be found in [lib/db_create_tables.php](lib/db_create_tables.php)
+The table schema can be found in [bin/db_create_tables.php](bin/db_create_tables.php)

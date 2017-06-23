@@ -8,6 +8,7 @@ UDOIT enables faculty to identify accessibility issues in Canvas by Instructure.
 
 UDOIT has been recognized by the industry, heres a quick list of the awards it's won.
 
+* 2017 - [Prudential Productivity Award](http://www.floridataxwatch.org/Events/PrudentialProductivityAwards/2017Winners.aspx)
 * 2017 - [Platinum IMS Global Learning Impact Award - Established Projects Category](https://www.imsglobal.org/article/ims-global-learning-consortium-announces-2017-award-winners)
 * 2016 - [Campus Technology Innovators - Administration Category](https://campustechnology.com/innovators)
 * 2015 - [Online Learning Consortium Effective Practice Award](https://onlinelearningconsortium.org/about/2015-olc-effective-practice-award-winners/)
@@ -47,18 +48,34 @@ To start the Heroku deployment process, you can click the button below, please n
 ## System Requirements
 * Apache or Nginx webserver
 * PHP 5.4, 5.5, or 5.6 (some users have modified the code to work on 5.3)
-* Bower
+  * [GD Graphics Library](http://php.net/manual/en/book.image.php)
 * MySQL or PostgreSQL
 
 If you're using PHP 5.3:
 
 * Convert all empty array initializations from using the newer `[]` syntax to use the older `array()` syntax.
-* If you have `short_open_tag` disabled, you'll need to change all `<?=` to `<?php echo`
 
-## Installing Bower Dependencies
-[Bower](http://bower.io/) is used to install JavaScript dependencies. Composer automatically runs Bower during install in the next step, so install Bower before continuing.
+## Downloading the Source Code
+There are two methods of obtaining the source code and maintaining your installation of UDOIT:  Git Clone or Download ZIP.
 
-> Currently there is only one bower library installed. You can also install manually by cloning [JSColor](https://github.com/callumacrae/JSColor) library into `assets/js/vendor/JSColor/`.
+### The Git Method
+The benefit of this method is that you can update an existing installation of UDOIT by simply using `git pull`.  It also lets you roll back to previous versions if needed.  Follow these steps:
+1. [Install Git](https://git-scm.com/book/en/v2/Getting-Started-Installing-Git) on your server
+2. Navigate to the directory on your server where UDOIT will live
+3. Run `git clone git@github.com:ucfopen/UDOIT.git .` (The ` .` is important.  It tells Git to download the files to the current directory.)
+
+### The ZIP Method
+This method is useful if you don't want to install Git on your server, but if you want to update UDOIT later, you will have to manually overwrite files with the new versions.  Follow these steps:
+1. Go to the [releases page](https://github.com/ucfopen/UDOIT/releases).
+2. The latest release is displayed first.  Scroll down to the Downloads area of that release.
+3. Download either the .zip or .tar.gz, depending on which one you prefer.
+4. Navigate to the directory on your server where UDOIT will live.
+5. Unzip the archive.
+
+## Configuring your Web Server
+The details of configuring a web server with PHP are out of the scope of this README. However, there is an optional configuration step you can take to increase the security of your UDOIT installation.  Without any special web server configuration, UDOIT will work if you place it in the web root of your server.  You can even place it in a subfolder inside your web root with no issues.  If someone tries to access any of your configuration files via a URL, they will only see a blank page.
+
+If you'd like to add a little extra security to your installation, you can configure your web server to point to UDOIT's "public" folder.  Doing this will hide the configuration files so that they are not web accessible.  It will also clean up your URL structure so that you don't need to include the "public" folder in any of the URLs to UDOIT.  See the [LTI Config URL Notes](#lti-config-url-notes) section of this README for examples.
 
 ## Installing Composer Dependencies
 UDOIT uses [Composer](https://getcomposer.org/) to install PHP dependencies. So `cd` into your UDOIT directory and run this command before anything else:
@@ -67,7 +84,7 @@ UDOIT uses [Composer](https://getcomposer.org/) to install PHP dependencies. So 
 $ php composer.phar install
 ```
 
-The libraries (other then Quail) that we rely on can be found in `bower.json` and `composer.json`.
+The libraries (other then Quail) that we rely on can be found in `composer.json`.
 
 Please refer to the documentation for these three libraries for additional information.
 
@@ -77,7 +94,7 @@ Make sure the `reports` directory in the root of UDOIT is *writable by your webs
 ## Database Setup
 UDOIT works with MySQL, MariaDB, or PostgreSQL
 
-1. Create a database for UDOIT.  
+1. Create a database for UDOIT.
 2. Create a user with access to your database
 
 ### Database Config
@@ -100,13 +117,13 @@ Edit `config/localConfig.php`:
 
 ### Installing Database Tables
 
-There are only two tables required. To create them, run the creation script below.  You'll need to complete the db steps above first.
+To create the required tables, run the creation script below.  You'll need to complete the db steps above first.
 
 ```
-$ php lib/db_create_tables.php
+$ php composer.phar dbsetup
 ```
 
-The table schema can be found in [lib/db_create_tables.php](lib/db_create_tables.php)
+The table schema can be found in [bin/db_create_tables.php](bin/db_create_tables.php)
 
 ## Configuration and Setup
 If you didn't already make `config/localConfig.php` when you set up the database, do it now.
@@ -166,6 +183,9 @@ The URL of your UDOIT LTI config depends on your webserver install.  The file is
 * `http://<DOMAIN>/public/udoit.xml.php`
 * `http://<DOMAIN>/udoit/udoit.xml.php`
 * `http://<DOMAIN>/udoit/public/udoit.xml.php`
+
+## Using UDOIT
+For more information about how to use UDOIT you can read the [UDOIT User Guide](https://lor.instructure.com/resources/6bf40e8d2254428cbbfd213586c84406) created by Clemson University. It can be accessed by importing the pages as modules into an existing course. The guide covers the reasoning behind the accessibility issues that UDOIT addresses as well as detailed descriptions of how to interpret and interact with the results of a scan.
 
 ## General Troubleshooting
 Navigate to your LTI install page at `https://<domain>/udoit.xml.php` where `domain` is the location of your install. This URL may also look like the list from the section above.

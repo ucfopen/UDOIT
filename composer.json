@@ -5,6 +5,51 @@
     "keywords": ["instructure", "canvas", "education", "udoit", "ucf", "accessibility", "edtech", "canvas-lms", "instructure", "section-508"],
     "homepage": "https://github.com/ucfopen/UDOIT",
     "license": "GPL-3.0",
+    "scripts":{
+        "dbsetup" : "php bin/db_create_tables.php",
+        "migrate" : "php bin/move_reports_to_db.php"
+    },
+    "repositories"      : [
+        {
+            "type"    : "package",
+            "package" : {
+                "name"    : "EastDesire/jscolor",
+                "version" : "1.4.2",
+                "dist"    : {
+                    "url"  : "https://github.com/EastDesire/jscolor/archive/v1.4.2.zip",
+                    "type": "zip"
+                },
+                "source"  : {
+                    "url"       : "https://github.com/EastDesire/jscolor.git",
+                    "type"      : "git",
+                    "reference" : "tags/v1.4.2"
+                }
+            }
+        }
+    ],
+    "require": {
+        "php": "^5.4.0 || ^5.5.0 || ^5.6.0",
+        "ext-pdo": "*",
+        "ext-gd": "*",
+        "nategood/httpful": "^0.2.20",
+        "zaininnari/html-minifier": "^0.4.2",
+        "mpdf/mpdf": "^6.1.3",
+        "league/plates": "^3.1.1",
+        "monolog/monolog": "^1.21",
+        "mnsami/composer-custom-directory-installer": "1.1.*",
+        "EastDesire/jscolor":"1.4.2"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "4.8.*",
+        "phpspec/prophecy": "1.3.1",
+        "symfony/yaml": "v2.8.9",
+        "heroku/heroku-buildpack-php": "v117"
+    },
+    "extra": {
+        "installer-paths": {
+            "./public/assets/js/vendor/{$name}":["EastDesire/jscolor"]
+        }
+    },
     "authors": [
         {
             "name": "Jacob Bates",
@@ -62,31 +107,5 @@
             "homepage": "https://github.com/cooperfellows",
             "role": "Contributor"
         }
-    ],
-    "scripts": {
-        "post-install-cmd": [
-            "bower install"
-        ],
-        "post-update-cmd": [
-            "bower install"
-        ],
-        "compile": [
-            "bower install"
-        ]
-    },
-    "require": {
-        "php": "^5.4.0 || ^5.5.0 || ^5.6.0",
-        "nategood/httpful": "*",
-        "zaininnari/html-minifier": "dev-master",
-        "mpdf/mpdf": "dev-master",
-        "league/plates": "~3.1",
-        "ext-pdo": "*",
-        "monolog/monolog": "^1.21"
-    },
-    "require-dev": {
-        "phpunit/phpunit": "4.8.*",
-        "phpspec/prophecy": "1.3.1",
-        "symfony/yaml": "v2.8.9",
-        "heroku/heroku-buildpack-php": "*"
-    }
+    ]
 }

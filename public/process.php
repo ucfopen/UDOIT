@@ -70,17 +70,21 @@ switch ($main_action) {
 
         $dbh = include('../lib/db.php');
 
+        // Quick hack to add report column since we dont have migrations yet
+        $column_type = $db_type == 'mysql' ? 'MEDIUMTEXT' : 'TEXT';
+        $dbh->query("ALTER TABLE {$db_reports_table} ADD report_json {$column_type}");
+
         $sth = $dbh->prepare("
             INSERT INTO
                 {$db_reports_table}
-                (user_id, course_id, file_path, date_run, errors, suggestions)
+                (user_id, course_id, report_json, date_run, errors, suggestions)
             VALUES
-                (:userid, :courseid, :filepath, CURRENT_TIMESTAMP, :errors, :suggestions)"
+                (:userid, :courseid, :report_json, CURRENT_TIMESTAMP, :errors, :suggestions)"
         );
 
         $sth->bindValue(':userid', $user_id, PDO::PARAM_INT);
         $sth->bindValue(':courseid', $data['course_id'], PDO::PARAM_INT);
-        $sth->bindValue(':filepath', $file, PDO::PARAM_STR);
+        $sth->bindValue(':report_json', $udoit->getReport(), PDO::PARAM_STR);
         $sth->bindValue(':errors', $udoit->total_results['errors'], PDO::PARAM_STR);
         $sth->bindValue(':suggestions', $udoit->total_results['suggestions'], PDO::PARAM_STR);
 
@@ -89,26 +93,25 @@ switch ($main_action) {
             Utils::exitWithPartialError('Error inserting report into database');
         }
 
-        $udoit_report = json_decode($udoit->getReport());
+	$udoit_report = json_decode($udoit->getReport());
+
         require 'parseResults.php';
         break;
 
     case 'ufixit':
-        $error_color = filter_input(INPUT_POST, 'errorcolor', FILTER_SANITIZE_STRING, FILTER_REQUIRE_ARRAY);
 
         $data = [
             'base_uri'     => $base_url,
             'content_id'   => filter_input(INPUT_POST, 'contentid', FILTER_SANITIZE_STRING),
             'content_type' => filter_input(INPUT_POST, 'contenttype', FILTER_SANITIZE_STRING),
-            'error_html'   => html_entity_decode(filter_input(INPUT_POST, 'errorhtml', FILTER_SANITIZE_FULL_SPECIAL_CHARS)),
-            'error_colors' => empty($error_color) ? '' : $error_color,
+            'error_html'   => html_entity_decode(filter_input(INPUT_POST, 'errorhtml', FILTER_SANITIZE_FULL_SPECIAL_CHARS), ENT_QUOTES),
             'error_type'   => filter_input(INPUT_POST, 'errortype', FILTER_SANITIZE_STRING),
             'bold'         => (filter_input(INPUT_POST, 'add-bold', FILTER_SANITIZE_STRING) == 'bold'),
             'italic'       => (filter_input(INPUT_POST, 'add-italic', FILTER_SANITIZE_STRING) == 'italic'),
+            'remove_color' => (filter_input(INPUT_POST, 'remove-color', FILTER_SANITIZE_STRING) == 'true'),
             'course_id'    => filter_input(INPUT_POST, 'course_id', FILTER_SANITIZE_NUMBER_INT),
             'api_key'      => $api_key
         ];
-
 
         $ufixit = new Ufixit($data);
 
@@ -133,11 +136,11 @@ switch ($main_action) {
 
             case 'cssTextHasContrast':
                 $new_content_array  = filter_input(INPUT_POST, 'newcontent', FILTER_SANITIZE_STRING, FILTER_REQUIRE_ARRAY);
-                $corrected_error = $ufixit->fixCssColor($data['error_colors'], $data['error_html'], $new_content_array, $data['bold'], $data['italic']);
+                $corrected_error = $ufixit->fixCssColor($data['error_html'], $new_content_array, $data['bold'], $data['italic']);
                 break;
 
             case 'cssTextStyleEmphasize':
-                $corrected_error = $ufixit->fixCssEmphasize($data['error_html'], $data['bold'], $data['italic']);
+                $corrected_error = $ufixit->fixCssEmphasize($data['error_html'], $data['bold'], $data['italic'], $data['remove_color']);
                 break;
 
             case 'headersHaveText':
@@ -151,9 +154,6 @@ switch ($main_action) {
             case 'imgAltIsTooLong':
                 $new_content = filter_input(INPUT_POST, 'newcontent', FILTER_SANITIZE_STRING);
                 $corrected_error = $ufixit->fixAltText($data['error_html'], $new_content);
-
-                $remove_attr = preg_replace("/ data-api-endpoint.*$/s", "", $data['error_html']);
-                $data['error_html'] = $remove_attr;
                 break;
 
             case 'tableDataShouldHaveTh':

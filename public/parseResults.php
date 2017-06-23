@@ -37,6 +37,8 @@ if (isset($post_input['cached_id'])) {
 
 	if ($post_input['cached_id'] == 'TEST') {
 		$file = 'reports/test.json';
+		$json = file_get_contents($file);
+		$udoit_report = json_decode($json);
 	}
 	else {
 		$dbh = include('../lib/db.php');
@@ -50,13 +52,11 @@ if (isset($post_input['cached_id'])) {
 			Utils::exitWithPartialError('Error searching for report');
 		}
 
-		$file = $sth->fetch(PDO::FETCH_OBJ)->file_path;
+		$result = $sth->fetchAll(PDO::FETCH_ASSOC);
+		$udoit_report = json_decode($result[0]['report_json']);
 	}
 
-	$json         = file_get_contents($file);
-	$udoit_report = json_decode($json);
-
-	if (is_null($udoit_report)) {
+	if (empty($udoit_report)) {
 		$json_error = json_last_error_msg();
 		Utils::exitWithPartialError("Cannot parse this report. JSON error $json_error.");
 	}

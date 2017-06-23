@@ -12,6 +12,10 @@ $oauth2_uri = '';
 /* Disable headings check character count */
 $doc_length = '1500';
 
+/* Unscannable Suggestion */
+$unscannable_suggestion = 'Consider converting these documents to Pages, since they are easier to update and generally more accessible.';
+$unscannable_suggestion_on = true;
+
 /* Tool name for display in Canvas Navigation */
 $canvas_nav_item_name = getenv('CANVAS_NAV_ITEM_NAME');
 

@@ -1,7 +1,7 @@
 <?php
 
 require_once(__DIR__.'/../config/settings.php');
-$dbh = include(__DIR__.'/db.php');
+$dbh = include(__DIR__.'/../lib/db.php');
 
 if ($db_type == 'pgsql'){
     // POSTGRESQL
@@ -10,7 +10,7 @@ if ($db_type == 'pgsql'){
           id SERIAL PRIMARY KEY,
           user_id integer,
           course_id integer,
-          file_path text,
+          report_json text,
           date_run timestamp with time zone,
           errors integer,
           suggestions integer
@@ -30,7 +30,7 @@ else{
           `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
           `user_id` int(10) unsigned NOT NULL,
           `course_id` int(10) unsigned NOT NULL,
-          `file_path` text NOT NULL,
+          `report_json` MEDIUMTEXT NOT NULL,
           `date_run` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
           `errors` int(10) unsigned NOT NULL,
           `suggestions` int(10) unsigned NOT NULL,
