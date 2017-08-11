@@ -184,6 +184,26 @@ The URL of your UDOIT LTI config depends on your webserver install.  The file is
 * `http://<DOMAIN>/udoit/udoit.xml.php`
 * `http://<DOMAIN>/udoit/public/udoit.xml.php`
 
+## Upgrading UDOIT
+The instructions below are general guidelines for upgrading your installation of UDOIT from one version to the next.  However, the release notes for a particular version might contain specific instructions for that version, and those instructions supersede the ones below.  Since the instructions differ depending on how you installed UDOIT, they are separated by these methods below.
+
+### Heroku
+Install a new  the [HEROKU.md Readme](HEROKU.md).
+
+### Git
+1. In the command line, make sure you're on the Master branch in the root of the UDOIT project.
+2. Run "git pull"
+3. Update your localConfig.php file to include any new fields that may be present in the localConfig.sample.php file
+4. Run "php composer.phar install"
+5. Run "php composer.phar migrate"
+
+### ZIP
+1. Download [the latest version](https://github.com/ucfopen/UDOIT/releases/latest).
+2. Install it to a new directory on your server.
+3. Copy the localConfig.sample.php file into localConfig.php.
+4. Copy values from your old localConfig.php file into your new one, paying attention to any new fields you will need to fill.
+5. Run "php composer.phar install".
+
 ## Using UDOIT
 For more information about how to use UDOIT you can read the [UDOIT User Guide](https://lor.instructure.com/resources/6bf40e8d2254428cbbfd213586c84406) created by Clemson University. It can be accessed by importing the pages as modules into an existing course. The guide covers the reasoning behind the accessibility issues that UDOIT addresses as well as detailed descriptions of how to interpret and interact with the results of a scan.
 
