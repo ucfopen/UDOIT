@@ -96,6 +96,7 @@ UDOIT works with MySQL, MariaDB, or PostgreSQL
 
 1. Create a database for UDOIT.
 2. Create a user with access to your database
+3. Give that user permission to ALTER tables. MySQL uses `GRANT` while Pg requires `OWNER`.
 
 ### Database Config
 If `config/localConfig.php` doesn't exist, create it using a copy of the template:
@@ -224,12 +225,14 @@ If you see an issue pertaining to `require_once(__DIR__.'/../vendor/autoload.php
 ```
 $ php composer.phar install
 ```
-If you get a warning about Bower not being found, you will need to install Bower on your server and run the above command  again.
+If you get a warning about Bower not being found, you will need to install Bower on your server and run the above command again.
 
 The `oauth2response.php` file generates an API key to gain access to the Canvas API.
 If you suspect that there is an authentication problem, first try echoing or error logging the variable `$base_url` from this file to check the URL. 
 
 Whether hosted on your own server or on Heroku, the URL where UDOIT has been installed needs to be designated as an authorized domain for your Google/YouTube API keys.
+
+If database migrations fail, make sure the database user has the ability to alter tables in your udoit database. Give that user permission to ALTER tables. MySQL uses `GRANT` while PostgreSQL requires `OWNER`.
 
 ## FAQs
 
@@ -242,8 +245,8 @@ The `Deploy to Heroku` button installs the latest release of UDOIT when clicked.
 * Fork UDOIT here on Github, [link that git repository to your Heroku instance](https://devcenter.heroku.com/articles/github-integration), and set up automatic updates that trigger whenever you update your forked version of UDOIT.
 
 ### Which ports will UDOIT need on my server?
-* Allow from world to UDOIT on 80 and 443
-* Allow from UDOIT to Canvas on 443
+* Allow inbound traffic from world to UDOIT on 80 and 443
+* Allow outbound traffic from UDOIT to Canvas on 443
 
 # Developing and Testing
 
