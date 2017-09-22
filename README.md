@@ -8,6 +8,7 @@ UDOIT enables faculty to identify accessibility issues in Canvas by Instructure.
 
 UDOIT has been recognized by the industry, heres a quick list of the awards it's won.
 
+* 2017 - [WCET WOW Award](http://wcet.wiche.edu/wow2017)
 * 2017 - [Prudential Productivity Award](http://www.floridataxwatch.org/Events/PrudentialProductivityAwards/2017Winners.aspx)
 * 2017 - [Platinum IMS Global Learning Impact Award - Established Projects Category](https://www.imsglobal.org/article/ims-global-learning-consortium-announces-2017-award-winners)
 * 2016 - [Campus Technology Innovators - Administration Category](https://campustechnology.com/innovators)
