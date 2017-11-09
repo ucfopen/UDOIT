@@ -40,7 +40,9 @@ UDOIT uses Oauth2 to take actions on behalf of the user, so you'll need to ask y
 
 ### Step 5:  Install the UDOIT LTI
 
-1. You can install UDOIT at the sub-account level or the course level.  Either way, start by going to the **settings** area.
+In Canvas, you can install UDOIT at the course or sub-account levels.  
+
+1. Click the **Settings** menu item from any course in Canvas.
 2. Click the **Apps** tab.
 3. Click the **View App Configurations** button.
 4. Click the **Add App** button.

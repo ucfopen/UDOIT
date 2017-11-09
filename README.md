@@ -8,6 +8,8 @@ UDOIT enables faculty to identify accessibility issues in Canvas by Instructure.
 
 UDOIT has been recognized by the industry, heres a quick list of the awards it's won.
 
+* 2017 - [WCET WOW Award](http://wcet.wiche.edu/wow2017)
+* 2017 - [Prudential Productivity Award](http://www.floridataxwatch.org/Events/PrudentialProductivityAwards/2017Winners.aspx)
 * 2017 - [Platinum IMS Global Learning Impact Award - Established Projects Category](https://www.imsglobal.org/article/ims-global-learning-consortium-announces-2017-award-winners)
 * 2016 - [Campus Technology Innovators - Administration Category](https://campustechnology.com/innovators)
 * 2015 - [Online Learning Consortium Effective Practice Award](https://onlinelearningconsortium.org/about/2015-olc-effective-practice-award-winners/)
@@ -47,11 +49,34 @@ To start the Heroku deployment process, you can click the button below, please n
 ## System Requirements
 * Apache or Nginx webserver
 * PHP 5.4, 5.5, or 5.6 (some users have modified the code to work on 5.3)
+  * [GD Graphics Library](http://php.net/manual/en/book.image.php)
 * MySQL or PostgreSQL
 
 If you're using PHP 5.3:
 
 * Convert all empty array initializations from using the newer `[]` syntax to use the older `array()` syntax.
+
+## Downloading the Source Code
+There are two methods of obtaining the source code and maintaining your installation of UDOIT:  Git Clone or Download ZIP.
+
+### The Git Method
+The benefit of this method is that you can update an existing installation of UDOIT by simply using `git pull`.  It also lets you roll back to previous versions if needed.  Follow these steps:
+1. [Install Git](https://git-scm.com/book/en/v2/Getting-Started-Installing-Git) on your server
+2. Navigate to the directory on your server where UDOIT will live
+3. Run `git clone git@github.com:ucfopen/UDOIT.git .` (The ` .` is important.  It tells Git to download the files to the current directory.)
+
+### The ZIP Method
+This method is useful if you don't want to install Git on your server, but if you want to update UDOIT later, you will have to manually overwrite files with the new versions.  Follow these steps:
+1. Go to the [releases page](https://github.com/ucfopen/UDOIT/releases).
+2. The latest release is displayed first.  Scroll down to the Downloads area of that release.
+3. Download either the .zip or .tar.gz, depending on which one you prefer.
+4. Navigate to the directory on your server where UDOIT will live.
+5. Unzip the archive.
+
+## Configuring your Web Server
+The details of configuring a web server with PHP are out of the scope of this README. However, there is an optional configuration step you can take to increase the security of your UDOIT installation.  Without any special web server configuration, UDOIT will work if you place it in the web root of your server.  You can even place it in a subfolder inside your web root with no issues.  If someone tries to access any of your configuration files via a URL, they will only see a blank page.
+
+If you'd like to add a little extra security to your installation, you can configure your web server to point to UDOIT's "public" folder.  Doing this will hide the configuration files so that they are not web accessible.  It will also clean up your URL structure so that you don't need to include the "public" folder in any of the URLs to UDOIT.  See the [LTI Config URL Notes](#lti-config-url-notes) section of this README for examples.
 
 ## Installing Composer Dependencies
 UDOIT uses [Composer](https://getcomposer.org/) to install PHP dependencies. So `cd` into your UDOIT directory and run this command before anything else:
@@ -72,6 +97,7 @@ UDOIT works with MySQL, MariaDB, or PostgreSQL
 
 1. Create a database for UDOIT.
 2. Create a user with access to your database
+3. Give that user permission to ALTER tables. MySQL uses `GRANT` while Pg requires `OWNER`.
 
 ### Database Config
 If `config/localConfig.php` doesn't exist, create it using a copy of the template:
@@ -160,6 +186,26 @@ The URL of your UDOIT LTI config depends on your webserver install.  The file is
 * `http://<DOMAIN>/udoit/udoit.xml.php`
 * `http://<DOMAIN>/udoit/public/udoit.xml.php`
 
+## Upgrading UDOIT
+The instructions below are general guidelines for upgrading your installation of UDOIT from one version to the next.  However, the release notes for a particular version might contain specific instructions for that version, and those instructions supersede the ones below.  Since the instructions differ depending on how you installed UDOIT, they are separated by these methods below.
+
+### Heroku
+Install a new instance of UDOIT using the [HEROKU.md Readme](HEROKU.md).  Then, swap the old one out with the new one in Canvas.
+
+### Git
+1. In the command line, make sure you're on the Master branch in the root of the UDOIT project.
+2. Run `git pull`
+3. Update your localConfig.php file to include any new fields that may be present in the localConfig.sample.php file
+4. Run `php composer.phar install`
+5. Run `php composer.phar migrate`
+
+### ZIP
+1. Download [the latest version](https://github.com/ucfopen/UDOIT/releases/latest).
+2. Install it to a new directory on your server.
+3. Copy the localConfig.sample.php file into localConfig.php.
+4. Copy values from your old localConfig.php file into your new one, paying attention to any new fields you will need to fill.
+5. Run `php composer.phar install`.
+
 ## Using UDOIT
 For more information about how to use UDOIT you can read the [UDOIT User Guide](https://lor.instructure.com/resources/6bf40e8d2254428cbbfd213586c84406) created by Clemson University. It can be accessed by importing the pages as modules into an existing course. The guide covers the reasoning behind the accessibility issues that UDOIT addresses as well as detailed descriptions of how to interpret and interact with the results of a scan.
 
@@ -176,16 +222,18 @@ Here's an example of a working LTI install page: [https://udoit.herokuapp.com/ud
 
 Turn on PHP tracing on the server to view possible errors.
 
-If you see an issue pertaining to `require_once(__DIR__.'/../vendor/autoload.php');` make sure you've run Composer to install all of the dependencies. In the root UDOIT folder on your server run: 
+If you see an issue pertaining to `require_once(__DIR__.'/../vendor/autoload.php');` make sure you've run Composer to install all of the dependencies. In the root UDOIT folder on your server run:
 ```
 $ php composer.phar install
 ```
-If you get a warning about Bower not being found, you will need to install Bower on your server and run the above command  again.
+If you get a warning about Bower not being found, you will need to install Bower on your server and run the above command again.
 
 The `oauth2response.php` file generates an API key to gain access to the Canvas API.
-If you suspect that there is an authentication problem, first try echoing or error logging the variable `$base_url` from this file to check the URL. 
+If you suspect that there is an authentication problem, first try echoing or error logging the variable `$base_url` from this file to check the URL.
 
 Whether hosted on your own server or on Heroku, the URL where UDOIT has been installed needs to be designated as an authorized domain for your Google/YouTube API keys.
+
+If database migrations fail, make sure the database user has the ability to alter tables in your udoit database. Give that user permission to ALTER tables. MySQL uses `GRANT` while PostgreSQL requires `OWNER`.
 
 ## FAQs
 
@@ -198,8 +246,8 @@ The `Deploy to Heroku` button installs the latest release of UDOIT when clicked.
 * Fork UDOIT here on Github, [link that git repository to your Heroku instance](https://devcenter.heroku.com/articles/github-integration), and set up automatic updates that trigger whenever you update your forked version of UDOIT.
 
 ### Which ports will UDOIT need on my server?
-* Allow from world to UDOIT on 80 and 443
-* Allow from UDOIT to Canvas on 443
+* Allow inbound traffic from world to UDOIT on 80 and 443
+* Allow outbound traffic from UDOIT to Canvas on 443
 
 # Developing and Testing
 

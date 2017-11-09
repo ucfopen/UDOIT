@@ -47,7 +47,7 @@ $report_json = $sth->fetch(PDO::FETCH_OBJ)->report_json;
 
 $report = json_decode($report_json);
 
-if (is_null($report)) {
+if (empty($report)) {
     $json_error = json_last_error_msg();
     UdoitUtils::instance()->exitWithPartialError("Cannot parse this report. JSON error {$json_error}.");
 }

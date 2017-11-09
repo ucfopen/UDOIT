@@ -1,6 +1,7 @@
 <?php
+
 require_once(__DIR__.'/../config/settings.php');
-global $db_type;
+$dbh = include(__DIR__.'/../lib/db.php');
 if ('sqlite' === $db_type || 'test' === $db_type) {
     // SQLITE (mostly for testing)
     $tables = [
@@ -41,7 +42,7 @@ if ('sqlite' === $db_type || 'test' === $db_type) {
         ',
     ];
 }
-if ('pgsql' === $db_type) {
+if ($db_type == 'pgsql'){
     // POSTGRESQL
     $tables = [
         '
@@ -81,7 +82,7 @@ if ('pgsql' === $db_type) {
         ',
     ];
 }
-if ('mysql' === $db_type) {
+else {
     // MYSQL
     $tables = [
         '
@@ -112,7 +113,7 @@ if ('mysql' === $db_type) {
         '
             CREATE TABLE IF NOT EXISTS `job_queue` (
                 `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
-                job_group varchar(255) NOT NULL,
+                `job_group` varchar(255) NOT NULL,
                 `user_id` int(10) unsigned NOT NULL,
                 `job_type` varchar(255) NOT NULL,
                 `data` text,

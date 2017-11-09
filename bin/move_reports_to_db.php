@@ -20,50 +20,60 @@
 
 require_once(__DIR__.'/../config/settings.php');
 $dbh = include(__DIR__.'/../lib/db.php');
+$col_to_add = 'report_json';
 
-$rows = $dbh->query("SELECT * FROM {$db_reports_table}")->fetchAll();
+function check_for_column($dbh, $table, $columnName){
+    $rows = $dbh->query("SELECT * FROM {$table}")->fetchAll();
+    return isset($rows[0][$columnName]);
+}
 
-if (!isset($rows[0]['file_path'])) {
+// if 'file_path' col is missing, there's nothing to do
+if(!check_for_column($dbh, $db_reports_table, 'file_path')){
     exit("It looks like this script doesnt need to be run");
 }
 
-if (!isset($rows[0]['report_json'])) {
+// add the column if it's missing
+if(check_for_column($dbh, $db_reports_table, $col_to_add)){
     // Quick hack to add report column since we dont have migrations yet
-    $column_type = $db_type === 'mysql' ? 'MEDIUMTEXT' : 'TEXT';
-    $dbh->query("ALTER TABLE {$db_reports_table} ADD report_json {$column_type}");
+    $column_type = $db_type == 'mysql' ? 'MEDIUMTEXT' : 'TEXT';
+    $dbh->query("ALTER TABLE {$db_reports_table} ADD {$col_to_add} {$column_type}");
 }
 
-$sth = $dbh->prepare("UPDATE {$db_reports_table} set report_json = :report_json WHERE id = :id");
+// exit with warning if the column is still missing
+if(!check_for_column($dbh, $db_reports_table, $col_to_add)){
+    exit("The migration script failed to create a ${col_to_add} column");
+}
+
+// now move the reports from the report files into the database
+$sth = $dbh->prepare("UPDATE {$db_reports_table} set {$col_to_add} = :report_json WHERE id = :id");
 $count_moved = 0;
 
-foreach ($rows as $row) {
-    if (empty($row['file_path'])) {
-        continue;
-    }
+foreach ($rows as $row)
+{
+    if(empty($row['file_path'])) continue;
 
-    $file = __DIR__."/{$row['file_path']}";
-    if (!file_exists($file)) {
+    $file = __DIR__. '/'. $row['file_path'];
+    if( ! file_exists($file)){
         echo("Json file not found {$file} for report id: {$row['id']}\n");
         continue;
     }
 
     $json = file_get_contents($file);
 
-    if (empty($json)) {
-        continue;
-    }
+    if(empty($json)) continue;
 
     $sth->bindValue(':report_json', $json, PDO::PARAM_STR);
     $sth->bindValue(':id', $row['id'], PDO::PARAM_INT);
     $res = $sth->execute();
 
-    if (!$res) {
-        echo("Failed inserting report for {$row['id']}");
+    if(!$res){
+        print_r($sth->errorInfo());
+        echo("Failed inserting report for {$row['id']}\n");
         continue;
     }
 
-    ++$count_moved;
+    $count_moved++;
 }
 
 $dbh->query("ALTER TABLE {$db_reports_table} DROP COLUMN file_path");
-echo("Moved {$count_moved} reports from disk to the database. Feel free to delete the reports directory");
+echo("Moved {$count_moved} reports from disk to the database. Feel free to delete the reports directory\n");
