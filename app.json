@@ -11,8 +11,18 @@
     "508"
   ],
   "website": "http://online.ucf.edu/teach-online/resources/udoit/",
-  "repository": "https://github.com/ucfopen/UDOIT",
+  "repository": "https://github.com/iturgeon/UDOIT/tree/issue/279-heroku-background-worker",
   "success_url": "/",
+  "formation": {
+    "web": {
+      "quantity": 1,
+      "size": "free"
+    },
+    "worker": {
+      "quantity": 1,
+      "size": "free"
+    }
+  },
   "env": {
     "CONSUMER_KEY": {
       "description": "LTI consumer key entered when adding UDOIT LTI to Canvas",
