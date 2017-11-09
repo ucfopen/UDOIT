@@ -19,21 +19,21 @@
 */
 
 require_once(__DIR__.'/../config/settings.php');
-$dbh = include(__DIR__.'/../lib/db.php');
+
 $col_to_add = 'report_json';
 
-function check_for_column($dbh, $table, $columnName){
-    $rows = $dbh->query("SELECT * FROM {$table}")->fetchAll();
+function check_for_column($table, $columnName){
+    $rows = UdoitDB::query("SELECT * FROM {$table}")->fetchAll();
     return isset($rows[0][$columnName]);
 }
 
 // if 'file_path' col is missing, there's nothing to do
-if(!check_for_column($dbh, $db_reports_table, 'file_path')){
+if(!check_for_column($db_reports_table, 'file_path')){
     exit("It looks like this script doesnt need to be run");
 }
 
 // add the column if it's missing
-if(check_for_column($dbh, $db_reports_table, $col_to_add)){
+if(check_for_column($db_reports_table, $col_to_add)){
     // Quick hack to add report column since we dont have migrations yet
     $column_type = $db_type == 'mysql' ? 'MEDIUMTEXT' : 'TEXT';
     $dbh->query("ALTER TABLE {$db_reports_table} ADD {$col_to_add} {$column_type}");
@@ -45,7 +45,7 @@ if(!check_for_column($dbh, $db_reports_table, $col_to_add)){
 }
 
 // now move the reports from the report files into the database
-$sth = $dbh->prepare("UPDATE {$db_reports_table} set {$col_to_add} = :report_json WHERE id = :id");
+$sth = UdoitDB::prepare("UPDATE {$db_reports_table} set {$col_to_add} = :report_json WHERE id = :id");
 $count_moved = 0;
 
 foreach ($rows as $row)
@@ -75,5 +75,5 @@ foreach ($rows as $row)
     $count_moved++;
 }
 
-$dbh->query("ALTER TABLE {$db_reports_table} DROP COLUMN file_path");
+UdoitDB::query("ALTER TABLE {$db_reports_table} DROP COLUMN file_path");
 echo("Moved {$count_moved} reports from disk to the database. Feel free to delete the reports directory\n");

@@ -1,7 +1,8 @@
 <?php
 
 require_once(__DIR__.'/../config/settings.php');
-$dbh = include(__DIR__.'/../lib/db.php');
+global $db_type;
+
 if ('sqlite' === $db_type || 'test' === $db_type) {
     // SQLITE (mostly for testing)
     $tables = [
@@ -42,7 +43,8 @@ if ('sqlite' === $db_type || 'test' === $db_type) {
         ',
     ];
 }
-if ($db_type == 'pgsql'){
+
+if ('pgsql' === $db_type) {
     // POSTGRESQL
     $tables = [
         '
@@ -82,7 +84,8 @@ if ($db_type == 'pgsql'){
         ',
     ];
 }
-else {
+
+if ('mysql' === $db_type) {
     // MYSQL
     $tables = [
         '
