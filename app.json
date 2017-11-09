@@ -13,6 +13,16 @@
   "website": "http://online.ucf.edu/teach-online/resources/udoit/",
   "repository": "https://github.com/ucfopen/UDOIT",
   "success_url": "/",
+  "formation": {
+    "web": {
+      "quantity": 1,
+      "size": "free"
+    },
+    "worker": {
+      "quantity": 1,
+      "size": "free"
+    }
+  },
   "env": {
     "CONSUMER_KEY": {
       "description": "LTI consumer key entered when adding UDOIT LTI to Canvas",
