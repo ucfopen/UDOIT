@@ -24,7 +24,7 @@ class UdoitJobTest extends BaseTest
     {
         Mockery::close();
         UdoitDB::setup('test', 'b', 'c', 'd');
-        include(__DIR__.'/../bin/db_create_tables.php');
+        include(__DIR__.'/../bin/run_database_migrations.php');
     }
 
     public function tearDown()

@@ -1,6 +1,5 @@
 <?php
 
-require_once(__DIR__.'/../config/settings.php');
 global $db_type;
 
 if ('sqlite' === $db_type || 'test' === $db_type) {
@@ -26,21 +25,7 @@ if ('sqlite' === $db_type || 'test' === $db_type) {
                 canvas_url varchar(255),
                 date_created timestamp with time zone DEFAULT CURRENT_TIMESTAMP
             );
-        ',
-
         '
-            CREATE TABLE IF NOT EXISTS job_queue (
-                id integer PRIMARY KEY AUTOINCREMENT,
-                job_group varchar(255),
-                user_id integer,
-                job_type varchar(255),
-                data text,
-                results text,
-                status varchar(255),
-                date_created timestamp with time zone DEFAULT CURRENT_TIMESTAMP,
-                date_completed timestamp with time zone
-            );
-        ',
     ];
 }
 
@@ -67,21 +52,7 @@ if ('pgsql' === $db_type) {
                 canvas_url varchar(255),
                 date_created timestamp with time zone DEFAULT CURRENT_TIMESTAMP
             );
-        ',
-
         '
-            CREATE TABLE IF NOT EXISTS job_queue (
-                id SERIAL PRIMARY KEY,
-                job_group varchar(255),
-                user_id integer,
-                job_type varchar(255),
-                data text,
-                results text,
-                status varchar(255),
-                date_created timestamp with time zone DEFAULT CURRENT_TIMESTAMP,
-                date_completed timestamp with time zone
-            );
-        ',
     ];
 }
 
@@ -111,22 +82,7 @@ if ('mysql' === $db_type) {
                 PRIMARY KEY (`id`),
                 UNIQUE KEY `id` (`id`)
             ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
-        ',
-
         '
-            CREATE TABLE IF NOT EXISTS `job_queue` (
-                `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
-                `job_group` varchar(255) NOT NULL,
-                `user_id` int(10) unsigned NOT NULL,
-                `job_type` varchar(255) NOT NULL,
-                `data` text,
-                `results` text,
-                `status` varchar(255) NOT NULL DEFAULT "new",
-                `date_created` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                `date_completed` timestamp,
-                PRIMARY KEY (`id`),
-            ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
-        ',
     ];
 }
 

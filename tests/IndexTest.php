@@ -22,7 +22,7 @@ class IndexTest extends BaseTest
     protected function setUp()
     {
         UdoitDB::setup('test', 'b', 'c', 'd');
-        include(__DIR__.'/../bin/db_create_tables.php');
+        include(__DIR__.'/../bin/run_database_migrations.php');
         Mockery::close();
     }
 

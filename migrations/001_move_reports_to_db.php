@@ -18,22 +18,25 @@
 *   Primary Author Contact:  Jacob Bates <jacob.bates@ucf.edu>
 */
 
-require_once(__DIR__.'/../config/settings.php');
-
+global $db_reports_table;
+global $db_type;
 $col_to_add = 'report_json';
 
-function check_for_column($table, $columnName){
+$check_for_column = function($table, $columnName){
     $rows = UdoitDB::query("SELECT * FROM {$table}")->fetchAll();
     return isset($rows[0][$columnName]);
-}
+};
 
 // if 'file_path' col is missing, there's nothing to do
-if(!check_for_column($db_reports_table, 'file_path')){
-    exit("It looks like this script doesnt need to be run");
+if(!$check_for_column($db_reports_table, 'file_path')){
+    if (!getenv('UNITTEST')){
+        echo("It looks like this script doesnt need to be run");
+    }
+    return;
 }
 
 // add the column if it's missing
-if(check_for_column($db_reports_table, $col_to_add)){
+if($check_for_column($db_reports_table, $col_to_add)){
     // Quick hack to add report column since we dont have migrations yet
     $column_type = $db_type == 'mysql' ? 'MEDIUMTEXT' : 'TEXT';
     $dbh->query("ALTER TABLE {$db_reports_table} ADD {$col_to_add} {$column_type}");
@@ -41,7 +44,10 @@ if(check_for_column($db_reports_table, $col_to_add)){
 
 // exit with warning if the column is still missing
 if(!check_for_column($dbh, $db_reports_table, $col_to_add)){
-    exit("The migration script failed to create a ${col_to_add} column");
+    if (!getenv('UNITTEST')){
+        echo("The migration script failed to create a ${col_to_add} column");
+    }
+    return;
 }
 
 // now move the reports from the report files into the database

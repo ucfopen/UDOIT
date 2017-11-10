@@ -12,8 +12,8 @@
         "sniff": "./vendor/bin/phpcs --extensions=php .",
         "sniff-errors-only": "./vendor/bin/phpcs -n --extensions=php .",
         "sniff-summary": "./vendor/bin/phpcs --report=summary --extensions=php .",
-        "db-setup" : "php bin/db_create_tables.php",
-        "migrate" : "php bin/move_reports_to_db.php",
+        "db-setup" : "@migrate",
+        "migrate" : "php bin/run_database_migrations.php",
         "start": "php -S localhost:8000 -t public/",
 
         "test-docker": "docker-compose run --rm web php composer.phar test",
