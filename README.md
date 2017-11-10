@@ -273,7 +273,7 @@ $ php composer.phar test
 We included a Dockerfile, docker-compose.yml, and tests script to run your tests in a predictable environment.  To run tests using docker run this command:
 
 ```
-$ php composer.phar test-docker
+$ php composer.phar docker-test
 ```
 
 By default, we exclude functional tests that include external APIs.  If you would like to run those tests, run this command:
