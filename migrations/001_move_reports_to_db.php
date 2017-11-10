@@ -22,31 +22,34 @@ global $db_reports_table;
 global $db_type;
 $col_to_add = 'report_json';
 
-$check_for_column = function($table, $columnName){
+$check_for_column = function ($table, $columnName) {
     $rows = UdoitDB::query("SELECT * FROM {$table}")->fetchAll();
+
     return isset($rows[0][$columnName]);
 };
 
 // if 'file_path' col is missing, there's nothing to do
-if(!$check_for_column($db_reports_table, 'file_path')){
-    if (!getenv('UNITTEST')){
+if (!$check_for_column($db_reports_table, 'file_path')) {
+    if (!getenv('UNITTEST')) {
         echo("It looks like this script doesnt need to be run");
     }
+
     return;
 }
 
 // add the column if it's missing
-if($check_for_column($db_reports_table, $col_to_add)){
+if ($check_for_column($db_reports_table, $col_to_add)) {
     // Quick hack to add report column since we dont have migrations yet
     $column_type = $db_type == 'mysql' ? 'MEDIUMTEXT' : 'TEXT';
     $dbh->query("ALTER TABLE {$db_reports_table} ADD {$col_to_add} {$column_type}");
 }
 
 // exit with warning if the column is still missing
-if(!check_for_column($dbh, $db_reports_table, $col_to_add)){
-    if (!getenv('UNITTEST')){
+if (!check_for_column($dbh, $db_reports_table, $col_to_add)) {
+    if (!getenv('UNITTEST')) {
         echo("The migration script failed to create a ${col_to_add} column");
     }
+
     return;
 }
 
@@ -54,25 +57,28 @@ if(!check_for_column($dbh, $db_reports_table, $col_to_add)){
 $sth = UdoitDB::prepare("UPDATE {$db_reports_table} set {$col_to_add} = :report_json WHERE id = :id");
 $count_moved = 0;
 
-foreach ($rows as $row)
-{
-    if(empty($row['file_path'])) continue;
+foreach ($rows as $row) {
+    if (empty($row['file_path'])) {
+        continue;
+    }
 
-    $file = __DIR__. '/'. $row['file_path'];
-    if( ! file_exists($file)){
+    $file = __DIR__.'/'.$row['file_path'];
+    if (!file_exists($file)) {
         echo("Json file not found {$file} for report id: {$row['id']}\n");
         continue;
     }
 
     $json = file_get_contents($file);
 
-    if(empty($json)) continue;
+    if (empty($json)) {
+        continue;
+    }
 
     $sth->bindValue(':report_json', $json, PDO::PARAM_STR);
     $sth->bindValue(':id', $row['id'], PDO::PARAM_INT);
     $res = $sth->execute();
 
-    if(!$res){
+    if (!$res) {
         print_r($sth->errorInfo());
         echo("Failed inserting report for {$row['id']}\n");
         continue;

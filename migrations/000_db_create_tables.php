@@ -25,7 +25,7 @@ if ('sqlite' === $db_type || 'test' === $db_type) {
                 canvas_url varchar(255),
                 date_created timestamp with time zone DEFAULT CURRENT_TIMESTAMP
             );
-        '
+        ',
     ];
 }
 
@@ -52,7 +52,7 @@ if ('pgsql' === $db_type) {
                 canvas_url varchar(255),
                 date_created timestamp with time zone DEFAULT CURRENT_TIMESTAMP
             );
-        '
+        ',
     ];
 }
 
@@ -82,7 +82,7 @@ if ('mysql' === $db_type) {
                 PRIMARY KEY (`id`),
                 UNIQUE KEY `id` (`id`)
             ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
-        '
+        ',
     ];
 }
 
