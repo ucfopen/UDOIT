@@ -7,7 +7,8 @@
     "license": "GPL-3.0",
     "scripts":{
         "test": "vendor/phpunit/phpunit/phpunit --exclude-group functional --coverage-html ./reports --coverage-text",
-        "test-all": "vendor/phpunit/phpunit/phpunit",
+        "test-no-coverage": "vendor/phpunit/phpunit/phpunit --exclude-group functional",
+        "test-include-functional": "vendor/phpunit/phpunit/phpunit",
         "lint": "./vendor/bin/parallel-lint --exclude vendor --exclude lib/quail .",
         "sniff": "./vendor/bin/phpcs --extensions=php .",
         "sniff-errors-only": "./vendor/bin/phpcs -n --extensions=php .",
@@ -16,11 +17,22 @@
         "migrate" : "php bin/run_database_migrations.php",
         "start": "php -S localhost:8000 -t public/",
 
-        "test-docker": "docker-compose run --rm web php composer.phar test",
-        "test-all-docker": "docker-compose run --rm web php composer.phar test-all",
-        "lint-docker": "docker-compose run --rm web php composer.phar lint",
-        "db-setup-docker": "docker-compose run --rm web php composer.phar db-setup",
-        "start-docker": "docker-compose run --rm web php -S localhost:8000 -t public/"
+        "docker-test": "docker-compose run --rm php71 php composer.phar test",
+        "docker-test-multi": [
+            "@docker-test-no-coverage-php55",
+            "@docker-test-no-coverage-php56",
+            "@docker-test-no-coverage-php70",
+            "@docker-test-no-coverage-php71"
+        ],
+        "docker-test-no-coverage-php55": "docker-compose run --rm php55 php composer.phar test-no-coverage",
+        "docker-test-no-coverage-php56": "docker-compose run --rm php56 php composer.phar test-no-coverage",
+        "docker-test-no-coverage-php70": "docker-compose run --rm php70 php composer.phar test-no-coverage",
+        "docker-test-no-coverage-php71": "docker-compose run --rm php71 php composer.phar test-no-coverage",
+        "docker-test-include-functional": "docker-compose run --rm php71 php composer.phar test-include-functional",
+        "docker-lint": "docker-compose run --rm php71 php composer.phar lint",
+        "docker-db-setup": "docker-compose run --rm php71 php composer.phar db-setup",
+        "docker-start": "docker-compose run --rm php71 php -S localhost:8000 -t public/"
+
     },
     "repositories"      : [
         {
