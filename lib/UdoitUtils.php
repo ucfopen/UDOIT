@@ -236,7 +236,8 @@ class UdoitUtils
     }
 
     // takes an array of report groups and makes sure they are ordered by title
-    public function sortReportGroups(array $report_groups) {
+    public function sortReportGroups(array $report_groups)
+    {
         global $logger;
         // sort the report groups expected order:
         $ordered_report_groups = [
@@ -247,14 +248,13 @@ class UdoitUtils
             'pages'         => null,
             'syllabus'      => null,
             'module_urls'   => null,
-            'unscannable'   => null
+            'unscannable'   => null,
         ];
 
         foreach ($report_groups as $rg) {
             if (!array_key_exists($rg->title, $ordered_report_groups)) {
                 $logger->addWarning("{$rg->title} is an unkown report title, it will be omitted from the report.");
-            }
-            else {
+            } else {
                 // place the known titles at the correct index
                 $ordered_report_groups[$rg->title] = $rg;
             }

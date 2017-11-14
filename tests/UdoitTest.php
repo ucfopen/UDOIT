@@ -590,7 +590,8 @@ class UdoitTest extends BaseTest
         self::assertEquals('imgHasAlt', $result[0]['suggestion'][0]['type']);
     }
 
-    public function testSortReportGroupsReturnsExpectedOrder(){
+    public function testSortReportGroupsReturnsExpectedOrder()
+    {
 
         // an array compatible with sortReportGroups() that's out of order
         $report_json = '[
@@ -612,7 +613,7 @@ class UdoitTest extends BaseTest
             'pages',
             'syllabus',
             'module_urls',
-            'unscannable'
+            'unscannable',
         ];
 
         $testHandler = self::getTestHandler();
