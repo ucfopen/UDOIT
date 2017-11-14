@@ -52,11 +52,13 @@ if (empty($report)) {
     UdoitUtils::instance()->exitWithPartialError("Cannot parse this report. JSON error {$json_error}.");
 }
 
+$ordered_report_groups = UdoitUtils::sortReportGroups($report->content);
+
 $results = [
     'course'              => $report->course,
     'error_count'         => $report->total_results->errors,
     'suggestion_count'    => $report->total_results->suggestions,
-    'report_groups'       => $report->content,
+    'report_groups'       => $ordered_report_groups,
     'post_path'           => $get_input['path'],
     'fixable_error_types' => ["cssTextHasContrast", "imgNonDecorativeHasAlt", "tableDataShouldHaveTh", "tableThShouldHaveScope", "headersHaveText", "aMustContainText", "imgAltIsDifferent", "imgAltIsTooLong"],
     'fixable_suggestions' => ["aSuspiciousLinkText", "imgHasAlt", "aLinkTextDoesNotBeginWithRedundantWord", "cssTextStyleEmphasize"],

@@ -590,6 +590,45 @@ class UdoitTest extends BaseTest
         self::assertEquals('imgHasAlt', $result[0]['suggestion'][0]['type']);
     }
 
+    public function testSortReportGroupsReturnsExpectedOrder(){
+
+        // an array compatible with sortReportGroups() that's out of order
+        $report_json = '[
+            {"title": "discussions", "time": 3},
+            {"title": "syllabus", "time": 6},
+            {"title": "announcements", "time": 1},
+            {"title": "assignments", "time": 2},
+            {"title": "unscannable", "time": 8},
+            {"title": "module_urls", "time": 7},
+            {"title": "files", "time": 4}
+        ]';
+
+        // the order we expect them to be in when finished
+        $expected_key_order = [
+            'announcements',
+            'assignments',
+            'discussions',
+            'files',
+            'pages',
+            'syllabus',
+            'module_urls',
+            'unscannable'
+        ];
+
+        $testHandler = self::getTestHandler();
+
+        $report = json_decode($report_json);
+        $result = UdoitUtils::instance()->sortReportGroups($report);
+
+        // verifty
+        self::assertCount(8, $result);
+        self::assertEquals(array_keys($result), $expected_key_order);
+        self::assertEquals(1, $result['announcements']->time);
+        self::assertEquals(2, $result['assignments']->time);
+        self::assertEquals(4, $result['files']->time);
+        self::assertFalse($testHandler->hasRecordThatContains('is an unkown report title', \Monolog\Logger::WARNING)); // Or another assertions
+    }
+
     public function testRetrieveAndScanBuildsBasicResponse()
     {
         $body_returns = [[]];

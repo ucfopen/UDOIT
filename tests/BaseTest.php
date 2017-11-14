@@ -122,4 +122,21 @@ class BaseTest extends PHPUnit_Framework_TestCase
 
         return $mock_get;
     }
+
+    protected static function getTestHandler() {
+        // get a reference to the test logger
+        global $logger;
+        foreach ($logger->getHandlers() as $handler) {
+          if ($handler instanceof  \Monolog\Handler\TestHandler) {
+            $testHandler = $handler;
+            break;
+          }
+        }
+
+        if (!$testHandler) {
+          throw new \RuntimeException('Oops, not exist "test" handler in monolog.');
+        }
+
+        return $testHandler;
+    }
 }
