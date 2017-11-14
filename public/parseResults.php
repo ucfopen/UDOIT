@@ -52,7 +52,7 @@ if (empty($report)) {
     UdoitUtils::instance()->exitWithPartialError("Cannot parse this report. JSON error {$json_error}.");
 }
 
-$ordered_report_groups = UdoitUtils::sortReportGroups($report->content);
+$ordered_report_groups = UdoitUtils::instance()->sortReportGroups($report->content);
 
 $results = [
     'course'              => $report->course,
