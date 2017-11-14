@@ -592,17 +592,47 @@ class UdoitTest extends BaseTest
 
     public function testSortReportGroupsReturnsExpectedOrder()
     {
-
-        // an array compatible with sortReportGroups() that's out of order
-        $report_json = '[
-            {"title": "discussions", "time": 3},
-            {"title": "syllabus", "time": 6},
-            {"title": "announcements", "time": 1},
-            {"title": "assignments", "time": 2},
-            {"title": "unscannable", "time": 8},
-            {"title": "module_urls", "time": 7},
-            {"title": "files", "time": 4}
-        ]';
+        // an object compatible with sortReportGroups() that's out of order
+        $report_json = '{
+            "content": {
+                "module_urls": {
+                    "title": "module_urls",
+                    "time": 0
+                },
+                "unscannable": {
+                    "title": "unscannable",
+                    "time": 0
+                },
+                "files": {
+                    "title": "files",
+                    "time": 4
+                },
+                "announcements": {
+                    "title": "announcements",
+                    "time": 1
+                },
+                "assignments": {
+                    "title": "assignments",
+                    "time": 2
+                },
+                "discussions": {
+                    "title": "discussions",
+                    "time": 0
+                },
+                "modules": {
+                    "title": "modules",
+                    "time": 0
+                },
+                "pages": {
+                    "title": "pages",
+                    "time": 0
+                },
+                "syllabus": {
+                    "title": "syllabus",
+                    "time": 0
+                }
+            }
+        }';
 
         // the order we expect them to be in when finished
         $expected_key_order = [
@@ -619,7 +649,7 @@ class UdoitTest extends BaseTest
         $testHandler = self::getTestHandler();
 
         $report = json_decode($report_json);
-        $result = UdoitUtils::instance()->sortReportGroups($report);
+        $result = UdoitUtils::instance()->sortReportGroups($report->content);
 
         // verifty
         self::assertCount(8, $result);
@@ -627,7 +657,8 @@ class UdoitTest extends BaseTest
         self::assertEquals(1, $result['announcements']->time);
         self::assertEquals(2, $result['assignments']->time);
         self::assertEquals(4, $result['files']->time);
-        self::assertFalse($testHandler->hasRecordThatContains('is an unkown report title', \Monolog\Logger::WARNING)); // Or another assertions
+
+        self::assertTrue($testHandler->hasRecordThatContains('modules is an unkown report title, it will be omitted from the report.', \Monolog\Logger::WARNING));
     }
 
     public function testRetrieveAndScanBuildsBasicResponse()

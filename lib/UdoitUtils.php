@@ -236,9 +236,10 @@ class UdoitUtils
     }
 
     // takes an array of report groups and makes sure they are ordered by title
-    public function sortReportGroups(array $report_groups)
+    public function sortReportGroups($report_groups)
     {
         global $logger;
+
         // sort the report groups expected order:
         $ordered_report_groups = [
             'announcements' => null,
