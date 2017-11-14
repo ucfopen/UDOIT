@@ -171,6 +171,11 @@ function sendScanRequest(main_action, base_url, course_id, context_label, contex
 			}
 			else{
 				killButton();
+				if(resp && resp.hasOwnProperty('error')){
+					$('#failMsg .msg').hide();
+					$('#failMsg .custom-msg').html(resp.error);
+					$('#failMsg .custom-msg').show();
+				}
 				$('#failMsg').fadeIn();
 			}
 		},
@@ -440,7 +445,7 @@ $doc.ready(function() {
 
 		if ((type == "aMustContainText" || type == "aSuspiciousLinkText" || type == "aLinkTextDoesNotBeginWithRedundantWord") && !removeLink) {
 			var $input = $(this).find('input[name="newcontent"]');
-			var $aSrc = $(this).find('input[name="errorhtml"]'); 
+			var $aSrc = $(this).find('input[name="errorhtml"]');
 			if ($input.val().trim() == ''){
 				valid = false;
 			} else if ($aSrc.val().indexOf($input.val().trim()) >= 0) {

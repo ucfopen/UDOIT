@@ -58,7 +58,6 @@ class UdoitJob
                     $canvas_api_url = $job_data['base_uri'];
                     $result = Udoit::retrieveAndScan($api_key, $canvas_api_url, $job_data['course_id'], $job_data['scan_item']);
                 }
-
                 static::finishJobWithResults($job->id, $result);
             }
         } catch (Exception $e) {
@@ -76,6 +75,8 @@ class UdoitJob
 
     protected static function finalizeReport($job)
     {
+        global $logger;
+        $logger->addInfo("Finalizing Report job_group: {$job->job_group} for course: {$job_data['course_title']} by user: {$job->user_id}");
         $report = static::combineJobResults($job->job_group);
         $report['course'] = $job_data['course_title'];
         $job_data = json_decode($job->data, true);
@@ -117,10 +118,9 @@ class UdoitJob
 
     protected static function combineJobResults($job_group)
     {
-        $totals       = ['errors' => 0, 'warnings' => 0, 'suggestions' => 0];
-        $module_urls  = [];
-        $unscannables = [];
-        $content      = [];
+        $totals = ['errors' => 0, 'warnings' => 0, 'suggestions' => 0];
+        $unscannables_items = [];
+        $content = [];
 
         // combine the data from each job's results
         $sql = "SELECT * FROM job_queue WHERE job_group = '{$job_group}' AND job_type != 'finalize_report'";
@@ -128,39 +128,28 @@ class UdoitJob
         foreach ($rows as $row) {
             $results = json_decode($row['results'], true);
 
+            // collect all the error counts
             $totals['errors']      += $results['total_results']['errors'];
             $totals['warnings']    += $results['total_results']['warnings'];
             $totals['suggestions'] += $results['total_results']['suggestions'];
 
-
-            if (!empty($results['scan_results']['module_urls'])) {
-                $module_urls = array_merge($module_urls, $results['scan_results']['module_urls']);
-            }
-
+            // if unscannables are found, collect them
             if (!empty($results['scan_results']['unscannable'])) {
-                $unscannables = array_merge($unscannables, $results['scan_results']['unscannable']);
+                $unscannables_items = array_merge($unscannables_items, $results['scan_results']['unscannable']);
+                unset($results['scan_results']['unscannable']);
             }
 
-            unset($results['module_urls']);
-            unset($results['unscannable']);
-
+            // merge the scan results
             $content = array_merge($content, $results['scan_results']);
         }
 
-        $content['module_urls'] = [
-            'title' => 'module_urls',
-            'items' => $module_urls,
-            'amount' => count($module_urls),
-            'time' => 0,
-        ];
-
-        $content['unscannable'] = [
-            'title' => 'unscannable',
-            'items' => $unscannables ,
-            'amount' => count($unscannables),
-        ];
-
-        $unscannables;
+        if (!empty($unscannables_items)) {
+            $content['unscannable'] = [
+                'title' => 'unscannable',
+                'items' => $unscannables_items,
+                'amount' => count($unscannables_items),
+            ];
+        }
 
         return [
             'total_results' => $totals,

@@ -26,6 +26,13 @@ $course_title = $_SESSION['launch_params']['context_title'];
 UdoitUtils::$canvas_base_url = $_SESSION['base_url'];
 session_write_close();
 
+// make sure the session hasn't gone stale and lost the launch params
+if (empty($user_id) || empty($base_url)) {
+    global $logger;
+    $logger->addError('Missing data expected in session, forcing user to relaunch lti');
+    exit('{"error": "Your session timed out, please refresh the page and try again."}');
+}
+
 $main_action = filter_input(INPUT_POST, 'main_action', FILTER_SANITIZE_STRING);
 switch ($main_action) {
     case 'udoit':
@@ -41,7 +48,8 @@ switch ($main_action) {
 
         // No content selected
         if ('none' === $content) {
-            UdoitUtils::instance()->exitWithPartialError('Please select which course content you wish to scan above.');
+            $logger->addInfo('no content selected');
+            exit('{"error": "Please select which course content you wish to scan above."}');
         }
 
         // common data object

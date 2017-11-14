@@ -31,43 +31,47 @@ class Udoit
      */
     public static function retrieveAndScan($api_key, $canvas_api_url, $course_id, $content_type)
     {
-        $items_with_issues = [];
+        global $logger;
+
+        $logger->addInfo("Starting retrieveAndScan - course: {$course_id}, content: {$content_type}");
+
+        $items_with_issues = []; // array of content items that the scanner found issues in
         $totals = ['errors' => 0, 'warnings' => 0, 'suggestions' => 0];
-        $module_urls = [];
-        $unscannables = [];
+        $scan_time_start = microtime(true);
 
         $content = static::getCourseContent($api_key, $canvas_api_url, $course_id, $content_type);
 
-        $scan_time_start = microtime(true);
-        $content['items']  = static::scanContent($content['items']);
-        $content['time']   = round($scan_time_start - microtime(true), 2);
-        $content['amount'] = count($content['items']);
+        if ('module_urls' !== $content_type) {
+            // everything except module_urls goes through a content scanner
+            $scanned_items = static::scanContent($content['items']);
 
-        // remove results w/o issues and count the totals
-        foreach ($content['items'] as $item) {
-            if ($item['amount'] == 0) {
-                continue;
+            // remove results w/o issues and count the totals
+            // create a new list of items
+            foreach ($scanned_items as $item) {
+                if ($item['amount'] == 0) {
+                    continue;
+                }
+
+                $items_with_issues[]   = $item;
+                $totals['errors']      += count($item['error']);
+                $totals['warnings']    += count($item['warning']);
+                $totals['suggestions'] += count($item['suggestion']);
             }
-
-            $items_with_issues[]   = $item;
-            $totals['errors']      += count($item['error']);
-            $totals['warnings']    += count($item['warning']);
-            $totals['suggestions'] += count($item['suggestion']);
+        } else {
+            // module_urls skips the scanner, just add them to the items with issues
+            $items_with_issues = $content['items'];
+            $totals['suggestions'] += count($items_with_issues);
         }
 
-        // format results
-        if ($content['module_urls']) {
-            $module_urls = array_merge($module_urls, $content['module_urls']);
-        }
-        if ($content['unscannable']) {
-            $unscannables = array_merge($unscannables, $content['unscannable']);
-        }
+        // caluculate the total run time
+        $content['time']  = round($scan_time_start - microtime(true), 2);
+
+        $logger->addInfo("Finished retrieveAndScan - course: {$course_id}, content: {$content_type}");
 
         return [
             'total_results' => $totals,
             'scan_results' => [
-                'module_urls'  => $module_urls,
-                'unscannable' => $unscannables,
+                'unscannable' => $content['unscannable'],
                 $content_type => [
                     'title'  => $content_type,
                     'items'  => $items_with_issues,
@@ -153,15 +157,12 @@ class Udoit
      */
     public static function getCourseContent($api_key, $canvas_api_url, $course_id, $type)
     {
-        global $logger;
-
         $api_url = "{$canvas_api_url}/api/v1/courses/{$course_id}/";
         $content_result = [
-            'items'       => [],
-            'amount'      => 0,
-            'time'        => microtime(true),
-            'module_urls' => [],
-            'unscannable' => [],
+            'items'       => [], // array of items of this type
+            'amount'      => 0, // count of items
+            'time'        => 0, // total time for the scan
+            'unscannable' => [], // items that couldnt be scanned
         ];
 
         switch ($type) {
@@ -210,29 +211,28 @@ class Udoit
 
                     $extension = pathinfo($c->filename, PATHINFO_EXTENSION);
 
-                    if ($c->size > 50000000) {
+                    if (in_array($extension, ['pdf', 'doc', 'docx', 'ppt', 'pptx'])) {
+                        // not scannable types
+                        $content_result['unscannable'][] = [
+                            'title' => $c->display_name,
+                            'url'   => $c->url,
+                            'big'   => false,
+                        ];
+                    } elseif (!empty($c->size) && $c->size > 50000000) {
+                        // too big to scan
                         $content_result['unscannable'][] = [
                             'title' => $c->display_name,
                             'url' => $c->url,
                             'big' => true,
                         ];
-                    } else {
-                        if (in_array($extension, ['html', 'htm'])) {
-                            $content_result['items'][] = [
-                                'id'      => $c->id,
-                                'content' => Request::get($c->url)->followRedirects()->expectsHtml()->send()->body,
-                                'title'   => $c->display_name,
-                                'url'     => $c->url,
-                            ];
-                        }
-                        // filters non html files
-                        if (in_array($extension, ['pdf', 'doc', 'docx', 'ppt', 'pptx'])) {
-                            $content_result['unscannable'][] = [
-                                'title' => $c->display_name,
-                                'url'   => $c->url,
-                                'big'   => false,
-                            ];
-                        }
+                    } elseif (in_array($extension, ['html', 'htm'])) {
+                        // scannable!
+                        $content_result['items'][] = [
+                            'id'      => $c->id,
+                            'content' => static::apiGet($c->url, $api_key)->followRedirects()->expectsHtml()->send()->body,
+                            'title'   => $c->display_name,
+                            'url'     => $c->url,
+                        ];
                     }
                 }
                 break;
@@ -240,8 +240,7 @@ class Udoit
             case 'pages':
                 $contents = static::apiGetAllLinks($api_key, "{$api_url}pages?");
                 foreach ($contents as $c) {
-                    $url = "{$api_url}pages/{$c->url}?access_token={$api_key}";
-                    $wiki_page = Request::get($url)->send();
+                    $wiki_page = static::apiGet("{$api_url}pages/{$c->url}", $api_key)->send();
 
                     $content_result['items'][] = [
                         'id'      => $wiki_page->body->url,
@@ -252,17 +251,19 @@ class Udoit
                 }
                 break;
 
-            case 'modules':
-                $url = "{$api_url}assignments?";
+            case 'module_urls':
+                $url = "{$api_url}modules?include[]=items&";
                 $search = '/(youtube|vimeo)/';
                 $resp = static::apiGetAllLinks($api_key, $url);
+                $count = 0;
 
                 foreach ($resp as $r) {
                     foreach ($r->items as $c) {
-                        $external_url = isset($c->external_url) ? $c->external_url : '';
+                        $count++;
+                        $external_url = (isset($c->external_url) ? $c->external_url : '');
 
-                        if (preg_match($search, $external_url)) {
-                            $content_result['module_urls'][] = [
+                        if (preg_match($search, $external_url) === 1) {
+                            $content_result['items'][] = [
                                 'id'           => $c->id,
                                 'external_url' => $c->external_url,
                                 'title'        => $c->title,
@@ -271,11 +272,15 @@ class Udoit
                         }
                     }
                 }
+
+                // module_urls is the only one that must count now
+                // todo - just return all items and do the 'scanning' in the scann content function
+                $content_result['amount'] = $count;
                 break;
 
             case 'syllabus':
-                $url = "{$api_url}?include[]=syllabus_body&access_token={$api_key}";
-                $response = Request::get($url)->send();
+                $url = "{$api_url}?include[]=syllabus_body";
+                $response = static::apiGet($url, $api_key)->send();
                 foreach ($response->body as $c) {
                     $content_result['items'][] = [
                         'id'      => $c->id,
@@ -285,9 +290,27 @@ class Udoit
                     ];
                 }
                 break;
+
+            case 'test':
+                // Do nothing, this is reserved for tests that shouldn't do anything
+                break;
+        }
+
+        // if the tasks didn't set the amount, calculate it now
+        if ($content_result['amount'] == 0) {
+            $content_result['amount'] = count($content_result['items']);
         }
 
         return $content_result;
+    }
+
+    // abstraction of Request::get that adds the api key to the header
+    protected static function apiGet($url, $key)
+    {
+        global $logger;
+        $logger->addInfo("Requesting {$url}");
+
+        return Request::get($url)->addHeader('Authorization', "Bearer ${key}");
     }
 
     // get every page from the Canvas API till there's none left
@@ -299,11 +322,9 @@ class Udoit
         $results = [];
 
         do {
-            $req_url = "{$url}page=1&per_page={$per_page}&access_token={$api_key}";
-            $logger->addInfo("Requesting {$req_url}");
-            $response = Request::get($req_url)->send();
+            $response = static::apiGet("{$url}page=1&per_page={$per_page}", $api_key)->send();
             if ($response->status > 400) {
-                $logger->addError("Error response from {$req_url}");
+                $logger->addError("Canvas api responded with an error for {$filtered_url}");
                 break;
             }
 

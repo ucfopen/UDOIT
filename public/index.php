@@ -41,7 +41,7 @@ if (!UdoitUtils::instance()->verifyBasicLTILaunch()) {
 // store LTI launch variables
 session_start();
 $user_id                     = $post_input['custom_canvas_user_id'];
-UdoitUtils::$canvas_base_url = "https://{$post_input['custom_canvas_api_domain']}/";
+UdoitUtils::$canvas_base_url = rtrim("https://{$post_input['custom_canvas_api_domain']}", '/');
 $_SESSION['base_url']        = UdoitUtils::$canvas_base_url;
 $_SESSION['launch_params']   = [
     'custom_canvas_user_id'   => $post_input['custom_canvas_user_id'],

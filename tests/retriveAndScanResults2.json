@@ -2,29 +2,28 @@
     "total_results": {
         "errors": 0,
         "warnings": 0,
-        "suggestions": 0
+        "suggestions": 2
     },
     "scan_results": {
-        "module_urls": [
-            {
-                "id": "id_value",
-                "external_url": "youtube_external_url_value",
-                "title": "title_value",
-                "url": "html_url_value"
-            },
-            {
-                "id": "id_value",
-                "external_url": "vimeo_external_url_value",
-                "title": "title_value",
-                "url": "html_url_value"
-            }
-        ],
-        "unscannable": [],
-        "modules": {
-            "title": "modules",
-            "items": [],
-            "amount": 0,
+        "module_urls": {
+            "title": "module_urls",
+            "items": [
+                {
+                    "id": "id_value",
+                    "external_url": "youtube_external_url_value",
+                    "title": "title_value",
+                    "url": "html_url_value"
+                },
+                {
+                    "id": "id_value",
+                    "external_url": "vimeo_external_url_value",
+                    "title": "title_value",
+                    "url": "html_url_value"
+                }
+            ],
+            "amount": 2,
             "time": 0
-        }
+        },
+        "unscannable": []
     }
 }

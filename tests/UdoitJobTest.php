@@ -170,12 +170,17 @@ class UdoitJobTest extends BaseTest
 
     public function testFinalizeProperlyCombinesJobResults()
     {
+        // set up the api refresh key so job queue will be ok
         self::mockGetValidRefreshKey();
         UdoitDB::query("INSERT into users (api_key, refresh_token) VALUES ('sample_api_key', 'refresh_token')");
         UdoitJob::$background_worker_enabled = false;
+
+        // add 2 scanns for fake test data
+        // setting scan_item to test will bypass all the api fetching that normally happens
         UdoitJob::addJobToQueue('scan', 1, 'job_4', ['data' => 'data_value', 'scan_item' => 'test']);
         UdoitJob::addJobToQueue('scan', 1, 'job_4', ['data2' => 'data_value2', 'scan_item' => 'test']);
 
+        // replace the results of those 2 jobs with our own mock data
         $sth = UdoitDB::prepare("UPDATE job_queue set results = :results WHERE id = :id");
         $sth->bindValue(':results', file_get_contents(__DIR__.'/retriveAndScanResults1.json'));
         $sth->bindValue(":id", 1);
@@ -184,17 +189,27 @@ class UdoitJobTest extends BaseTest
         $sth->bindValue(":id", 2);
         $sth->execute();
 
-        // Causes UdoitJob::combineJobResults to be called
+        // Causes UdoitJob::combineJobResults to be called which will get our mock data out of the database
         UdoitJob::addJobToQueue('finalize_report', 1, 'job_4', ['data' => 'result!', 'course_title' => 'test_course']);
 
-        $res = UdoitDB::query("SELECT * FROM job_queue WHERE job_type = 'finalize_report'")->fetch();
+        // get the resulting report
+        // $res = UdoitDB::query("SELECT * FROM job_queue WHERE job_type = 'finalize_report'")->fetch();
 
-        // check the report contents
+        // get all the jobs that were queued
+        // index 0,1 should be the scans while index 2 should be the finalize_report
         $jobs = UdoitDB::query("SELECT * FROM job_queue WHERE job_group = 'job_4'")->fetchAll();
-        $report_id = json_decode($jobs[2]['results'], 1)['report_id'];
-        self::assertTrue($report_id > 0);
+        self::assertCount(3, $jobs);
+        self::assertEquals('scan', $jobs[0]['job_type']);
+        self::assertEquals('scan', $jobs[1]['job_type']);
+        self::assertEquals('finalize_report', $jobs[2]['job_type']);
 
-        $report_row = UdoitDB::query("SELECT * from reports WHERE id = '{$report_id}'")->fetch();
+        // make sure the finalize_report results have a report_id
+        $finalize_report_results = json_decode($jobs[2]['results'], true);
+        self::assertArrayHasKey('report_id', $finalize_report_results);
+        self::assertTrue($finalize_report_results['report_id'] > 0);
+
+        // get the matching report from the report table
+        $report_row = UdoitDB::query("SELECT * from reports WHERE id = '{$finalize_report_results['report_id']}'")->fetch();
         $report = json_decode($report_row['report_json'], true);
 
         self::assertArrayHasKey('total_results', $report);
@@ -207,7 +222,7 @@ class UdoitJobTest extends BaseTest
         self::assertEquals(0, $report['total_results']['warnings']);
 
         self::assertArrayHasKey('suggestions', $report['total_results']);
-        self::assertEquals(1, $report['total_results']['suggestions']);
+        self::assertEquals(3, $report['total_results']['suggestions']);
 
         // theres 1 unscannable in scan results 1
         self::assertArrayHasKey('unscannable', $report['content']);

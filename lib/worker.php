@@ -20,8 +20,9 @@
 require_once(__DIR__.'/../config/settings.php');
 
 if (php_sapi_name() !== "cli") {
-    $logger->addError('This worker can only be run on the command line.');
-    echo('This worker can only be run on the command line.');
+    $msg = 'This worker can only be run on the command line.';
+    $logger->addError($msg);
+    echo($msg);
 }
 
 while (true) {
@@ -30,7 +31,6 @@ while (true) {
 
     // take a nap if there's no more work to do
     if (UdoitJob::countJobsRemaining() < 1) {
-        $logger->addInfo('Worker Sleeping');
         UdoitDB::disconnect(); // allow the db to disconnect
         sleep($worker_sleep_seconds);
     } else {

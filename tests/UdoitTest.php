@@ -132,7 +132,6 @@ class UdoitTest extends BaseTest
         self::assertArrayHasKey('items', $result);
         self::assertArrayHasKey('amount', $result);
         self::assertArrayHasKey('time', $result);
-        self::assertArrayHasKey('module_urls', $result);
         self::assertArrayHasKey('unscannable', $result);
 
         self::assertEmpty($result['module_urls']);
@@ -430,31 +429,35 @@ class UdoitTest extends BaseTest
             ['link' => ''], // just one page
         ];
 
+        $api_body = '
+        [
+            {
+                "id":1,
+                "items": [
+                    {
+                        "external_url":  "external_url_value",
+                        "id":  "id_value",
+                        "html_url":  "html_url_value",
+                        "title":  "title_value"
+                    },
+                    {
+                        "external_url":  "youtube_external_url_value",
+                        "id":  "id_value",
+                        "html_url":  "html_url_value",
+                        "title":  "title_value"
+                    },
+                    {
+                        "external_url":  "vimeo_external_url_value",
+                        "id":  "id_value",
+                        "html_url":  "html_url_value",
+                        "title":  "title_value"
+                    }
+                ]
+            }
+        ]';
+
         $body_returns = [
-            [
-                (object) [
-                    'items' => [
-                        (object) [
-                            'external_url' => "external_url_value",
-                            'id' => 'id_value',
-                            'html_url' => 'html_url_value',
-                            'title' => 'title_value',
-                        ],
-                        (object) [
-                            'external_url' => "youtube_external_url_value",
-                            'id' => 'id_value',
-                            'html_url' => 'html_url_value',
-                            'title' => 'title_value',
-                        ],
-                        (object) [
-                            'external_url' => "vimeo_external_url_value",
-                            'id' => 'id_value',
-                            'html_url' => 'html_url_value',
-                            'title' => 'title_value',
-                        ],
-                    ],
-                ],
-            ],
+            json_decode($api_body),
             [],
         ];
 
@@ -465,13 +468,12 @@ class UdoitTest extends BaseTest
             ->shouldReceive('get')
             ->andReturn($mock_get_result);
 
-        $result = Udoit::getCourseContent('', '', '', 'modules');
+        $result = Udoit::getCourseContent('', '', '', 'module_urls');
 
-        self::assertCount(2, $result['module_urls']);
+        self::assertCount(2, $result['items']);
         self::assertEmpty($result['unscannable']);
-        self::assertEmpty($result['items']);
 
-        $m_urls = $result['module_urls'];
+        $m_urls = $result['items'];
         self::assertArrayHasKey('id', $m_urls[0]);
         self::assertArrayHasKey('external_url', $m_urls[0]);
         self::assertArrayHasKey('title', $m_urls[0]);
@@ -678,7 +680,6 @@ class UdoitTest extends BaseTest
         self::assertArrayHasKey('items', $result);
         self::assertArrayHasKey('amount', $result);
         self::assertArrayHasKey('time', $result);
-        self::assertArrayHasKey('module_urls', $result);
         self::assertArrayHasKey('unscannable', $result);
 
         self::assertEmpty($result['items']);
@@ -693,23 +694,26 @@ class UdoitTest extends BaseTest
             ['link' => ''], // just one page
         ];
 
+        $api_body = '
+        [
+            {
+                "display_name": "display_name_value.html",
+                "filename": "filename.html",
+                "id": "id_value",
+                "url": "url_value",
+                "html_url": "url_value"
+            },
+            {
+                "display_name": "display_name_value.pdf",
+                "filename": "filename.pdf",
+                "id": "id_value",
+                "url": "url_value",
+                "html_url": "url_value"
+            }
+        ]';
+
         $body_returns = [
-            [
-                (object) [
-                    'display_name' => "display_name_value.html",
-                    'filename' => "filename.html",
-                    'id' => 'id_value',
-                    'url' => 'url_value',
-                    'html_url' => 'url_value',
-                ],
-                (object) [
-                    'display_name' => "display_name_value.pdf",
-                    'filename' => "filename.pdf",
-                    'id' => 'id_value',
-                    'url' => 'url_value',
-                    'html_url' => 'url_value',
-                ],
-            ],
+            json_decode($api_body),
             '<img src="http://url.com/image.jpg"/>',
             [],
         ];
@@ -731,7 +735,6 @@ class UdoitTest extends BaseTest
 
         $res = $result['scan_results'];
 
-        self::assertArrayHasKey('module_urls', $res);
         self::assertCount(1, $res['unscannable']);
         self::assertArrayHasKey('unscannable', $res);
         self::assertCount(1, $res['unscannable']);
@@ -764,31 +767,35 @@ class UdoitTest extends BaseTest
             ['link' => ''], // just one page
         ];
 
+        $api_body = '
+        [
+            {
+                "id":1,
+                "items": [
+                    {
+                        "external_url":  "external_url_value",
+                        "id":  "id_value",
+                        "html_url":  "html_url_value",
+                        "title":  "title_value"
+                    },
+                    {
+                        "external_url":  "youtube_external_url_value",
+                        "id":  "id_value",
+                        "html_url":  "html_url_value",
+                        "title":  "title_value"
+                    },
+                    {
+                        "external_url":  "vimeo_external_url_value",
+                        "id":  "id_value",
+                        "html_url":  "html_url_value",
+                        "title":  "title_value"
+                    }
+                ]
+            }
+        ]';
+
         $body_returns = [
-            [
-                (object) [
-                    'items' => [
-                        (object) [
-                            'external_url' => "external_url_value",
-                            'id' => 'id_value',
-                            'html_url' => 'html_url_value',
-                            'title' => 'title_value',
-                        ],
-                        (object) [
-                            'external_url' => "youtube_external_url_value",
-                            'id' => 'id_value',
-                            'html_url' => 'html_url_value',
-                            'title' => 'title_value',
-                        ],
-                        (object) [
-                            'external_url' => "vimeo_external_url_value",
-                            'id' => 'id_value',
-                            'html_url' => 'html_url_value',
-                            'title' => 'title_value',
-                        ],
-                    ],
-                ],
-            ],
+            json_decode($api_body),
             [],
         ];
 
@@ -799,22 +806,30 @@ class UdoitTest extends BaseTest
             ->shouldReceive('get')
             ->andReturn($mock_get_result);
 
-        $result = Udoit::retrieveAndScan('', '', '', 'modules');
+        $result = Udoit::retrieveAndScan('', '', '', 'module_urls');
 
-        self::assertEquals(0, $result['totals']['errors']);
-        self::assertEquals(0, $result['totals']['warnings']);
-        self::assertEquals(0, $result['totals']['suggestions']);
+        // make sure the totals we expect to see are calculated
+        self::assertArrayHasKey('total_results', $result);
+        self::assertEquals(0, $result['total_results']['errors']);
+        self::assertEquals(0, $result['total_results']['warnings']);
+        self::assertEquals(2, $result['total_results']['suggestions']);
 
         $res = $result['scan_results'];
 
-        self::assertArrayHasKey('module_urls', $res);
-        self::assertCount(2, $res['module_urls']);
+        // make sure only the items with videos are in items
+        self::assertCount(2, $res['module_urls']['items']);
+
+        // make sure unscannable doesnt have anything but exists
         self::assertArrayHasKey('unscannable', $res);
         self::assertCount(0, $res['unscannable']);
 
-        self::assertArrayHasKey('id', $res['module_urls']['0']);
-        self::assertArrayHasKey('external_url', $res['module_urls']['0']);
-        self::assertArrayHasKey('url', $res['module_urls']['0']);
-        self::assertArrayHasKey('title', $res['module_urls']['0']);
+        // make sure amount reflects the total number of items scanned
+        self::assertEquals(3, $res['module_urls']['amount']);
+
+        // verify that a module_urls item has the expected keys
+        self::assertArrayHasKey('id', $res['module_urls']['items'][0]);
+        self::assertArrayHasKey('external_url', $res['module_urls']['items'][0]);
+        self::assertArrayHasKey('url', $res['module_urls']['items'][0]);
+        self::assertArrayHasKey('title', $res['module_urls']['items'][0]);
     }
 }
