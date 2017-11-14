@@ -37,6 +37,13 @@ body { padding: 20px 0 0; }
 	        user-select: none;
 }
 
+.udoit-version {
+	position: absolute;
+	top: 4px;
+	right: 6px;
+	font-size: .8em;
+}
+
 .collapse-header {
 	padding:10px;
 	cursor:pointer;
@@ -681,9 +688,9 @@ ul.color-picker {
 
 /* X. FORMS --------------------------- */
 
-.fix-alt { 
+.fix-alt {
 	position: relative;
-	width: 100%; 
+	width: 100%;
 }
 
 .ufixit-form .fix-alt .btn {

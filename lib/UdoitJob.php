@@ -148,7 +148,7 @@ class UdoitJob
         }
 
         $content['module_urls'] = [
-            'title' => 'modules',
+            'title' => 'module_urls',
             'items' => $module_urls,
             'amount' => count($module_urls),
             'time' => 0,

@@ -33,6 +33,7 @@
 		<div class="container">
 			<header id="mainHeader" class="navbar navbar-default center">
 				<h1 class="logo">UDOIT</h1>
+				<div class="udoit-version">v.<?= UDOIT_VERSION ?></div>
 			</header>
 
 			<?= $this->section('content'); ?>
@@ -47,14 +48,13 @@
 
 		<?php if (trim(GA_TRACKING_CODE) !== ''): ?>
 			<script>
-			  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
-			  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
-			  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
-			  })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+				(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+				(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+				m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+				})(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
 
-			  ga('create', '<?= GA_TRACKING_CODE; ?>', 'auto');
-			  ga('send', 'pageview');
-
+				ga('create', '<?= GA_TRACKING_CODE; ?>', 'auto');
+				ga('send', 'pageview');
 			</script>
 		<?php endif; ?>
 	</body>
