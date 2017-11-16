@@ -495,11 +495,9 @@ class UdoitTest extends BaseTest
         $header_to_array_returns = [];
 
         $body_returns = [
-            [
-                (object) [
-                    'syllabus_body' => "content_value",
-                    'id' => 'id_value',
-                ],
+            (object) [
+                'syllabus_body' => "content_value",
+                'id' => 'id_value',
             ],
             [],
         ];
