@@ -129,7 +129,7 @@ class UdoitUtils
         }
 
         // @TODO use self
-        $url = self::$canvas_base_url."api/v1/users/{$user_id}/profile";
+        $url = self::$canvas_base_url."/api/v1/users/{$user_id}/profile";
         $resp = Httpful\Request::get($url)
             ->addHeader('Authorization', "Bearer {$api_key}")
             ->send();
