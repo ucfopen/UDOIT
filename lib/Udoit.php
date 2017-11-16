@@ -229,7 +229,7 @@ class Udoit
                         // scannable!
                         $content_result['items'][] = [
                             'id'      => $c->id,
-                            'content' => static::apiGet($c->url, $api_key)->followRedirects()->expectsHtml()->send()->body,
+                            'content' => static::apiGet($c->url)->followRedirects()->expectsHtml()->send()->body,
                             'title'   => $c->display_name,
                             'url'     => $c->url,
                         ];
@@ -281,10 +281,10 @@ class Udoit
             case 'syllabus':
                 $url = "{$api_url}?include[]=syllabus_body";
                 $response = static::apiGet($url, $api_key)->send();
-                foreach ($response->body as $c) {
+                if (!empty($response->body->syllabus_body)) {
                     $content_result['items'][] = [
-                        'id'      => $c->id,
-                        'content' => $c->syllabus_body,
+                        'id'      => $response->body->id,
+                        'content' => $response->body->syllabus_body,
                         'title'   => 'Syllabus',
                         'url'     => "{$canvas_api_url}/courses/{$course_id}/assignments/syllabus",
                     ];
@@ -305,12 +305,17 @@ class Udoit
     }
 
     // abstraction of Request::get that adds the api key to the header
-    protected static function apiGet($url, $key)
+    protected static function apiGet($url, $key = null)
     {
         global $logger;
         $logger->addInfo("Requesting {$url}");
+        $req = Request::get($url);
 
-        return Request::get($url)->addHeader('Authorization', "Bearer ${key}");
+        if(!empty($key)){
+            $req->addHeader('Authorization', "Bearer ${key}");
+        }
+
+        return $req;
     }
 
     // get every page from the Canvas API till there's none left
