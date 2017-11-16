@@ -311,7 +311,7 @@ class Udoit
         $logger->addInfo("Requesting {$url}");
         $req = Request::get($url);
 
-        if(!empty($key)){
+        if (!empty($key)) {
             $req->addHeader('Authorization', "Bearer ${key}");
         }
 
