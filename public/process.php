@@ -70,8 +70,14 @@ switch ($main_action) {
             UdoitJob::addJobToQueue('scan', $user_id, $job_group_id, $data);
         }
 
+        // RUN NOW if the background worker isn't enabled
+        if (!UdoitJob::$background_worker_enabled) {
+            $limit = 50;
+            while (!UdoitJob::isJobGroupReadyToFinalize($job_group_id) && $limit--) {
+                UdoitJob::runNextJob();
+            }
+        }
         // add a job to combine the results from all the jobs
-        UdoitJob::addJobToQueue('finalize_report', $user_id, $job_group_id, $common_data);
 
         echo(json_encode(['job_group' => $job_group_id]));
         break;

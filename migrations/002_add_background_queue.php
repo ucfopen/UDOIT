@@ -15,7 +15,8 @@ if ('sqlite' === $db_type || 'test' === $db_type) {
                 results text,
                 status varchar(255),
                 date_created timestamp with time zone DEFAULT CURRENT_TIMESTAMP,
-                date_completed timestamp with time zone
+                date_completed timestamp with time zone,
+                report_id integer
             );
         ',
     ];
@@ -34,7 +35,8 @@ if ('pgsql' === $db_type) {
                 results text,
                 status varchar(255),
                 date_created timestamp with time zone DEFAULT CURRENT_TIMESTAMP,
-                date_completed timestamp with time zone
+                date_completed timestamp with time zone,
+                report_id integer
             );
         ',
     ];
@@ -54,6 +56,7 @@ if ('mysql' === $db_type) {
                 `status` varchar(255) NOT NULL DEFAULT "new",
                 `date_created` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
                 `date_completed` timestamp,
+                report_id int(10),
                 PRIMARY KEY (`id`),
             ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
         ',

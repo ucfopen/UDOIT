@@ -63,39 +63,73 @@ class UdoitJobTest extends BaseTest
         self::assertTrue(empty($res['results']));
     }
 
-    public function testAddJobToQueueRunsNextJob()
-    {
-        self::mockGetValidRefreshKey();
-
-        // create a user (id will be 1)
-        UdoitDB::query("INSERT into users (api_key, refresh_token) VALUES ('sample_api_key', 'refresh_token')");
-
-        // turn off background worker and add a job for this user
-        UdoitJob::$background_worker_enabled = false;
-        UdoitJob::addJobToQueue('type_2', 1, 'job_5', ['data2' => 'data_value2']);
-
-        // expect the job to have been run
-        $res = UdoitDB::query("SELECT * FROM job_queue")->fetch();
-
-        self::assertEquals(1, $res['user_id']);
-        self::assertEquals('type_2', $res['job_type']);
-        self::assertEquals('{"data2":"data_value2"}', $res['data']);
-        self::assertEquals('job_5', $res['job_group']);
-        self::assertEquals('finished', $res['status']);
-        self::assertTrue(!empty($res['results']));
-    }
-
     public function testCountJobsRemaining()
     {
         UdoitJob::$background_worker_enabled = true;
 
         self::assertEquals(0, UdoitJob::countJobsRemaining());
 
-        UdoitJob::addJobToQueue('type', 55, 'job_4', ['data' => 'data_value']);
+        UdoitJob::addJobToQueue('type', 55, 'job_count_jobs_remain', ['data' => 'data_value']);
         self::assertEquals(1, UdoitJob::countJobsRemaining());
 
-        UdoitJob::addJobToQueue('type', 55, 'job_4', ['data2' => 'data_value2']);
+        UdoitJob::addJobToQueue('type', 55, 'job_count_jobs_remain', ['data2' => 'data_value2']);
         self::assertEquals(2, UdoitJob::countJobsRemaining());
+
+        UdoitJob::addJobToQueue('type', 55, 'job_count_jobs_remain', ['data2' => 'data_value2']);
+        self::assertEquals(3, UdoitJob::countJobsRemaining());
+
+        // change status to running
+        $sql = "UPDATE job_queue SET status = 'running' where id = '1'";
+        UdoitDB::query($sql)->execute();
+
+        self::assertEquals(2, UdoitJob::countJobsRemaining());
+
+        // change status to finished
+        $sql = "UPDATE job_queue SET status = 'finished' where id = '1'";
+        UdoitDB::query($sql)->execute();
+
+        self::assertEquals(2, UdoitJob::countJobsRemaining());
+
+        // change status to finished
+        $sql = "UPDATE job_queue SET status = 'finished'";
+        UdoitDB::query($sql)->execute();
+
+        self::assertEquals(0, UdoitJob::countJobsRemaining());
+    }
+
+    public function testIsJobGroupReadyToFinalize()
+    {
+        UdoitJob::$background_worker_enabled = true;
+        UdoitJob::addJobToQueue('scan', 1, 'job_ready_to_finalize', ['data2' => 'data_value2']);
+        UdoitJob::addJobToQueue('scan', 1, 'job_ready_to_finalize', ['data2' => 'data_value2']);
+        self::assertEquals(2, UdoitJob::countJobsRemaining());
+
+        $ready = self::callProtectedStaticMethod('UdoitJob', 'isJobGroupReadyToFinalize', 'job_ready_to_finalize');
+        self::assertFalse($ready);
+
+        // change status to finished
+        $sql = "UPDATE job_queue SET status = 'finished' where id = '1'";
+        UdoitDB::query($sql)->execute();
+        self::assertEquals(1, UdoitJob::countJobsRemaining());
+
+        $ready = self::callProtectedStaticMethod('UdoitJob', 'isJobGroupReadyToFinalize', 'job_ready_to_finalize');
+        self::assertFalse($ready);
+
+        // change status to finished
+        $sql = "UPDATE job_queue SET status = 'finished' where id = '2'";
+        UdoitDB::query($sql)->execute();
+        self::assertEquals(0, UdoitJob::countJobsRemaining());
+
+        $ready = self::callProtectedStaticMethod('UdoitJob', 'isJobGroupReadyToFinalize', 'job_ready_to_finalize');
+        self::assertTrue($ready);
+
+        // change status to error
+        $sql = "UPDATE job_queue SET status = 'error' where id = '2'";
+        UdoitDB::query($sql)->execute();
+        self::assertEquals(0, UdoitJob::countJobsRemaining());
+
+        $ready = self::callProtectedStaticMethod('UdoitJob', 'isJobGroupReadyToFinalize', 'job_ready_to_finalize');
+        self::assertTrue($ready);
     }
 
     public function testGetNextJobChangesStatusToRunning()
@@ -121,6 +155,27 @@ class UdoitJobTest extends BaseTest
         self::assertFalse($job);
     }
 
+    public function testGetNextJobHandlesJobsOutOfOrder()
+    {
+        UdoitJob::$background_worker_enabled = true;
+        UdoitJob::addJobToQueue('type', 11, 'job_5', ['data' => 'data_value']);
+        UdoitJob::addJobToQueue('type', 22, 'job_5', ['data' => 'data_value']);
+        UdoitJob::addJobToQueue('type', 33, 'job_5', ['data' => 'data_value']);
+
+        // change status to finished for middle job
+        $sql = "UPDATE job_queue SET status = 'finished' where id = '2'";
+        UdoitDB::query($sql)->execute();
+
+        // should get first job
+        $job = self::callProtectedStaticMethod('UdoitJob', 'getNextJob');
+        self::assertEquals(11, $job->user_id);
+
+        // should get last job
+        $job = self::callProtectedStaticMethod('UdoitJob', 'getNextJob');
+        self::assertEquals(33, $job->user_id);
+    }
+
+
     public function testFinalizeReportProcessesJobsAndWritesReportToDB()
     {
         self::mockGetValidRefreshKey();
@@ -129,10 +184,13 @@ class UdoitJobTest extends BaseTest
 
         // no need to mock http - scan_item 'test' won't try to call the api
         UdoitJob::$background_worker_enabled = false;
-        UdoitJob::addJobToQueue('scan', 1, 'job_3', ['data' => 'data_value', 'scan_item' => 'test']);
+        UdoitJob::addJobToQueue('scan', 1, 'job_4', ['data' => 'data_value', 'scan_item' => 'test']);
         UdoitJob::addJobToQueue('scan', 1, 'job_4', ['data' => 'data_value', 'scan_item' => 'test']);
         UdoitJob::addJobToQueue('scan', 1, 'job_4', ['data2' => 'data_value2', 'scan_item' => 'test']);
-        UdoitJob::addJobToQueue('finalize_report', 1, 'job_4', ['data' => 'result!', 'course_title' => 'test_course']);
+
+        UdoitJob::runNextJob();
+        UdoitJob::runNextJob();
+        UdoitJob::runNextJob();
 
         $jobs = UdoitDB::query("SELECT * FROM job_queue WHERE job_group = 'job_4'")->fetchAll();
         self::assertCount(3, $jobs);
@@ -141,15 +199,15 @@ class UdoitJobTest extends BaseTest
         self::assertEquals('finished', $jobs[2]['status']);
 
         // check the report contents
-        $report_id = json_decode($jobs[2]['results'], 1)['report_id'];
-        self::assertTrue($report_id > 0);
-
-        $report_row = UdoitDB::query("SELECT * from reports WHERE id = '{$report_id}'")->fetch();
-        $report = json_decode($report_row['report_json'], true);
+        $reports = UdoitDB::query("SELECT * FROM reports")->fetchAll();
+        self::assertCount(1, $reports);
+        $report = json_decode($reports[0]['report_json'], true);
 
         self::assertArrayHasKey('total_results', $report);
         self::assertArrayHasKey('course', $report);
         self::assertArrayHasKey('content', $report);
+        self::assertArrayHasKey('job_group', $report);
+        self::assertEquals('job_4', $report['job_group']);
     }
 
 
@@ -179,9 +237,10 @@ class UdoitJobTest extends BaseTest
         // setting scan_item to test will bypass all the api fetching that normally happens
         UdoitJob::addJobToQueue('scan', 1, 'job_4', ['data' => 'data_value', 'scan_item' => 'test']);
         UdoitJob::addJobToQueue('scan', 1, 'job_4', ['data2' => 'data_value2', 'scan_item' => 'test']);
+        UdoitJob::addJobToQueue('scan', 1, 'job_4', ['data2' => 'data_value2', 'scan_item' => 'test']);
 
-        // replace the results of those 2 jobs with our own mock data
-        $sth = UdoitDB::prepare("UPDATE job_queue set results = :results WHERE id = :id");
+        // replace the results of the first 2 jobs with our own mock data
+        $sth = UdoitDB::prepare("UPDATE job_queue set results = :results, status = 'finished' WHERE id = :id");
         $sth->bindValue(':results', file_get_contents(__DIR__.'/retriveAndScanResults1.json'));
         $sth->bindValue(":id", 1);
         $sth->execute();
@@ -189,11 +248,7 @@ class UdoitJobTest extends BaseTest
         $sth->bindValue(":id", 2);
         $sth->execute();
 
-        // Causes UdoitJob::combineJobResults to be called which will get our mock data out of the database
-        UdoitJob::addJobToQueue('finalize_report', 1, 'job_4', ['data' => 'result!', 'course_title' => 'test_course']);
-
-        // get the resulting report
-        // $res = UdoitDB::query("SELECT * FROM job_queue WHERE job_type = 'finalize_report'")->fetch();
+        UdoitJob::runNextJob();
 
         // get all the jobs that were queued
         // index 0,1 should be the scans while index 2 should be the finalize_report
@@ -201,16 +256,14 @@ class UdoitJobTest extends BaseTest
         self::assertCount(3, $jobs);
         self::assertEquals('scan', $jobs[0]['job_type']);
         self::assertEquals('scan', $jobs[1]['job_type']);
-        self::assertEquals('finalize_report', $jobs[2]['job_type']);
-
-        // make sure the finalize_report results have a report_id
-        $finalize_report_results = json_decode($jobs[2]['results'], true);
-        self::assertArrayHasKey('report_id', $finalize_report_results);
-        self::assertTrue($finalize_report_results['report_id'] > 0);
+        self::assertEquals('scan', $jobs[2]['job_type']);
 
         // get the matching report from the report table
-        $report_row = UdoitDB::query("SELECT * from reports WHERE id = '{$finalize_report_results['report_id']}'")->fetch();
+        $report_row = UdoitDB::query("SELECT * from reports")->fetch();
         $report = json_decode($report_row['report_json'], true);
+
+        self::assertArrayHasKey('job_group', $report);
+        self::assertEquals('job_4', $report['job_group']);
 
         self::assertArrayHasKey('total_results', $report);
         self::assertArrayHasKey('content', $report);

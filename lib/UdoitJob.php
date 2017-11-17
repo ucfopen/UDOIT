@@ -26,11 +26,6 @@ class UdoitJob
         $sth->bindValue(':data', json_encode($data));
         $sth->bindValue(':job_type', $type);
         $sth->execute();
-
-        // RUN NOW if the background worker isn't enabled
-        if (!static::$background_worker_enabled) {
-            static::runNextJob();
-        }
     }
 
     public static function countJobsRemaining()
@@ -47,25 +42,19 @@ class UdoitJob
 
         try {
             if ($job = static::getNextJob()) {
-                if ('finalize_report' === $job->job_type) {
-                    if (static::isJobGroupReadyToFinalize($job->job_group)) {
-                        $result = static::finalizeReport($job);
-                    } else {
-                        // the job group isn't complete yet, try again
-                        self::updateJobStatus($job_record, 'new');
-
-                        return false;
-                    }
-                } else {
-                    $api_key = UdoitUtils::instance()->getValidRefreshedApiKey($job->user_id);
-                    if (empty($api_key)) {
-                        throw new Exception("No valid api key for job"); // @TODO: mark job as unrunnable
-                    }
-                    $job_data = json_decode($job->data, true);
-                    $canvas_api_url = $job_data['base_uri'];
-                    $result = Udoit::retrieveAndScan($api_key, $canvas_api_url, $job_data['course_id'], $job_data['scan_item']);
+                $api_key = UdoitUtils::instance()->getValidRefreshedApiKey($job->user_id);
+                if (empty($api_key)) {
+                    throw new Exception("No valid api key for job"); // @TODO: mark job as unrunnable
                 }
+                $job_data = json_decode($job->data, true);
+                $canvas_api_url = $job_data['base_uri'];
+                $result = Udoit::retrieveAndScan($api_key, $canvas_api_url, $job_data['course_id'], $job_data['scan_item']);
+
                 static::finishJobWithResults($job->id, $result);
+
+                if (static::isJobGroupReadyToFinalize($job->job_group)) {
+                    static::finalizeReport($job->job_group);
+                }
             }
         } catch (Exception $e) {
             $job_failed = true;
@@ -87,7 +76,6 @@ class UdoitJob
         FROM job_queue
         WHERE
             status NOT IN ('finished', 'error')
-            and job_type != 'finalize_report'
             and job_group = :group_id";
 
         $sth = UdoitDB::prepare($sql);
@@ -102,12 +90,14 @@ class UdoitJob
         return $sth->fetchColumn() == 0;
     }
 
-    protected static function finalizeReport($job)
+    protected static function finalizeReport($job_group)
     {
         global $logger;
-        $logger->addInfo("Finalizing Report job_group: {$job->job_group} for course: {$job_data['course_title']} by user: {$job->user_id}");
-        $report = static::combineJobResults($job->job_group);
+        $logger->addInfo("Finalizing Report job_group: {$job_group}");
+        $report = static::combineJobResults($job_group);
+        $report['job_group'] = $job_group;
         $report['course'] = $job_data['course_title'];
+        // @TODO: deal with course_id inside combineResults
         $job_data = json_decode($job->data, true);
 
         // create a record of the report
@@ -142,6 +132,18 @@ class UdoitJob
             $report_id = UdoitDB::lastInsertId();
         }
 
+        // set the report_id column for all the jobs in the group
+        $sql = "UPDATE job_queue SET report_id = :report_id WHERE job_group = :job_group";
+        $sth = UdoitDB::prepare($sql);
+        $sth->bindValue(':report_id', $report_id);
+        $sth->bindValue(':job_group', $job_group);
+        $sth->execute();
+
+        if (!$sth->execute()) {
+            error_log(print_r($sth->errorInfo(), true));
+            throw new Exception('Error setting report id');
+        }
+
         return ['report_id' => $report_id ];
     }
 
@@ -152,7 +154,7 @@ class UdoitJob
         $content = [];
 
         // combine the data from each job's results
-        $sql = "SELECT * FROM job_queue WHERE job_group = '{$job_group}' AND job_type != 'finalize_report'";
+        $sql = "SELECT * FROM job_queue WHERE job_group = '{$job_group}'";
         $rows = UdoitDB::query($sql)->fetchAll();
         foreach ($rows as $row) {
             $results = json_decode($row['results'], true);

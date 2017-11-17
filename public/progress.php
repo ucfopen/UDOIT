@@ -27,21 +27,14 @@ session_write_close();
 
 $job_group = filter_input(INPUT_GET, 'job_group', FILTER_SANITIZE_STRING);
 
-// get the non-finalize jobs
-$sth = UdoitDB::prepare("SELECT id, data, job_type, status FROM job_queue WHERE job_type != 'finalize_report' AND job_group = :job_group AND user_id = :user_id");
+// get the jobs
+$sth = UdoitDB::prepare("SELECT id, data, job_type, status, report_id FROM job_queue WHERE job_group = :job_group AND user_id = :user_id");
 $sth->bindValue(":job_group", $job_group);
 $sth->bindValue(":user_id", $user_id);
 $sth->execute();
 $jobs = $sth->fetchAll();
 
-// get the finalize job (this is done in 2 queries so we don't have to retrieve the results from the non-final jobs)
-$sth = UdoitDB::prepare("SELECT * FROM job_queue WHERE job_type = 'finalize_report' AND job_group = :job_group AND user_id = :user_id");
-$sth->bindValue(":job_group", $job_group);
-$sth->bindValue(":user_id", $user_id);
-$sth->execute();
-$final_job = $sth->fetch();
-$final_job['results'] = json_decode($final_job['results'], true);
-
+// combine data
 $job_status = [];
 foreach ($jobs as $job) {
     $json = json_decode($job['data'], true);
@@ -52,8 +45,8 @@ foreach ($jobs as $job) {
 }
 
 $result = [
-    'reportID' => isset($final_job['results']['report_id']) ? $final_job['results']['report_id'] : null,
-    'status' => $final_job['status'],
+    'reportID' => isset($jobs[0]['report_id']) ? $jobs[0]['report_id'] : null,
+    'status' => isset($jobs[0]['report_id']) ? 'finished' : 'new',
     'jobs' => $job_status,
 ];
 
