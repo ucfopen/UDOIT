@@ -48,7 +48,14 @@ class UdoitJob
         try {
             if ($job = static::getNextJob()) {
                 if ('finalize_report' === $job->job_type) {
-                    $result = static::finalizeReport($job);
+                    if (static::isJobGroupReadyToFinalize($job->job_group)) {
+                        $result = static::finalizeReport($job);
+                    } else {
+                        // the job group isn't complete yet, try again
+                        self::updateJobStatus($job_record, 'new');
+
+                        return false;
+                    }
                 } else {
                     $api_key = UdoitUtils::instance()->getValidRefreshedApiKey($job->user_id);
                     if (empty($api_key)) {
@@ -71,6 +78,28 @@ class UdoitJob
         }
 
         return $job_failed;
+    }
+
+    protected static function isJobGroupReadyToFinalize($groupId)
+    {
+        $sql = "
+        SELECT count(*)
+        FROM job_queue
+        WHERE
+            status NOT IN ('finished', 'error')
+            and job_type != 'finalize_report'
+            and job_group = :group_id";
+
+        $sth = UdoitDB::prepare($sql);
+        $sth->bindValue(':group_id', $groupId);
+
+        if (!$sth->execute()) {
+            error_log(print_r($sth->errorInfo(), true));
+
+            return false;
+        }
+
+        return $sth->fetchColumn() == 0;
     }
 
     protected static function finalizeReport($job)
@@ -162,10 +191,11 @@ class UdoitJob
         // it's important that this claims the next job, not allowing other processes to grab it.
         // we LOCK this row using 'FOR UPDATE' then update it's status so other queries don't find it
         UdoitDB::beginTransaction();
-        $sql = "SELECT * FROM job_queue WHERE status = 'new'";
+        $sql = "SELECT * FROM job_queue WHERE status = 'new' ORDER BY id";
         if ('test' !== UdoitDB::$type) {
             $sql .= " FOR UPDATE"; // SQLITE doesn't support SELECT... FOR UPDATE
         }
+        $sql .= " LIMIT 1";
         if (!($query = UdoitDB::query($sql))) {
             return false; // return false if theres nothing
         }
