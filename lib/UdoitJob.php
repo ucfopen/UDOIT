@@ -87,7 +87,7 @@ class UdoitJob
         UdoitDB::query($sql);
     }
 
-    protected static function isJobGroupReadyToFinalize($groupId)
+    public static function isJobGroupReadyToFinalize($groupId)
     {
         $sql = "
         SELECT count(*)

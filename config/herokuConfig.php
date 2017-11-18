@@ -1,6 +1,6 @@
 <?php
 
-$debug            = (getenv("DEBUG")) ?: false;
+$debug            = (getenv("DEBUG")) == 'true';
 
 /* Oauth 1.0 Settings (For use when installing the app in Canvas) */
 $consumer_key     = getenv('CONSUMER_KEY');
@@ -29,11 +29,11 @@ $db_reports_table = 'reports';
 $dsn = "pgsql:host={$db_host};dbname={$db_name};user={$db_user};port={$db_port};sslmode=require;password={$db_password}";
 
 /* Background worker Options */
-$background_worker_enabled = true;
+$background_worker_enabled = (getenv("WORKER_ENABLED")) == 'true';
 $background_worker_sleep_seconds = 7;
 
 /* Disable headings check character count */
-$doc_length       = getenv('DOC_LENGTH')?:1500;
+$doc_length = getenv('DOC_LENGTH')?:1500;
 
 /*Unscannable Suggestion */
 $unscannable_suggestion = 'Consider converting these documents to Pages, since they are easier to update and generally more accessible.';

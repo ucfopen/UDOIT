@@ -17,7 +17,7 @@ $unscannable_suggestion = 'Consider converting these documents to Pages, since t
 $unscannable_suggestion_on = true;
 
 /* Tool name for display in Canvas Navigation */
-$canvas_nav_item_name = getenv('CANVAS_NAV_ITEM_NAME');
+$canvas_nav_item_name = (getenv('CANVAS_NAV_ITEM_NAME')) ?: 'UDOIT';
 
 /* Google/YouTube Data Api Key */
 define('GOOGLE_API_KEY', '');
