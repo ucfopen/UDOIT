@@ -4,6 +4,9 @@
 # Universal Design Online content Inspection Tool
 UDOIT enables faculty to identify accessibility issues in Canvas by Instructure. Scan a course, generate reports, and provide resources to address common accessibility issues.
 
+In late 2013, the proposal submitted by UCF's Center for Distributed Learning won Instructure, Inc.’s Canvas Grant in the higher education category. The $10,000 grant was awarded to UCF – CDL to take an existing tool and further develop this solution into what is now known as UDOIT.
+
+
 ## Awards
 
 UDOIT has been recognized by the industry, heres a quick list of the awards it's won.
@@ -16,9 +19,8 @@ UDOIT has been recognized by the industry, heres a quick list of the awards it's
 * 2013 - [Instructure's Canvas Grant Award](https://www.canvaslms.com/canvasgrants/past-winners)
 
 ## Licenses
-Please see [UDOIT_Release.pdf](UDOIT_Release.pdf) (distributed with the source code) for more information about licensing.
+UDOIT is distributed under the [GNU GPL v3 license](LICENSE).
 
-### UDOIT
 > Copyright (C) 2014 University of Central Florida, created by Jacob Bates, Eric Colon, Fenel Joseph, and Emily Sachs.
 >
 > This program is free software: you can redistribute it and/or modify
@@ -36,8 +38,9 @@ Please see [UDOIT_Release.pdf](UDOIT_Release.pdf) (distributed with the source c
 >
 > Primary Contact:  Jacob Bates <jacob.bates@ucf.edu>
 
-### Quail
-UDOIT uses the [QUAIL PHP library](https://code.google.com/p/quail-lib/), which has been heavily customized to suit the needs of UDOIT. This library requires distribution of tools developed with their library under the [GNU General Public License version 3](http://www.gnu.org/licenses/gpl.html)
+UDOIT includes a modified [QUAIL library](https://code.google.com/p/quail-lib/). QUAIL requires derrivitives to be distributed under the [GNU General Public License version 3](LICENSE)
+
+UDOIT includes a [Composer](https://getcomposer.org) binary which is distributed under the [MIT license](https://github.com/composer/composer/blob/master/LICENSE)
 
 # Installing UDOIT
 UDOIT can be installed on your own existing servers, but we've also configured an easy install to a free Heroku server.
@@ -300,7 +303,7 @@ Add contributors here and dont forget composer.json!)
 * [Fenel Joseph](https://github.com/feneljoseph)
 * [Ian Turgeon](https://github.com/iturgeon)
 * Joe Fauvel
-* John Raible
+* [John Raible](https://github.com/rebelaide)
 * [Kevin Baugh](https://github.com/loraxx753)
 
 ### Special Thanks
