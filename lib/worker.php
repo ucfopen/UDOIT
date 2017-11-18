@@ -31,8 +31,9 @@ while (true) {
 
     // take a nap if there's no more work to do
     if (UdoitJob::countJobsRemaining() < 1) {
+        UdoitJob::expireOldJobs();
         UdoitDB::disconnect(); // allow the db to disconnect
-        sleep($worker_sleep_seconds);
+        sleep($background_worker_sleep_seconds);
     } else {
         sleep(1);
     }

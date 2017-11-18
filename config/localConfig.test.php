@@ -34,7 +34,11 @@ $dsn = "{$db_type}:host={$db_host};port={$db_port};dbname={$db_name}";
 
 $debug = false;
 
-$worker_sleep_seconds = 10;
+// added in v2.3.0
+// Background worker Options (See Background Workers in Readme)
+$background_worker_enabled = false;
+$background_job_expire_time = 20; // after x Minutes, mark job as expired
+$background_worker_sleep_seconds = 1;
 
 // send logs into the phpunit output
 $log_handler = new \Monolog\Handler\TestHandler(null, \Monolog\Logger::WARNING);

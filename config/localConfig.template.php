@@ -38,9 +38,11 @@ $dsn              = "{$db_type}:host={$db_host};port={$db_port};dbname={$db_name
 
 $debug = false;
 
-/* Background worker Options (See Background Workers in Readme) */
+// added in v2.3.0
+// Background worker Options (See Background Workers in Readme)
 $background_worker_enabled = false;
-$worker_sleep_seconds = 10;
+$background_job_expire_time = 20; // after x Minutes, mark job as expired
+$background_worker_sleep_seconds = 7;
 
 // OVERRIDE the default of ENV_PROD
 // $UDOIT_ENV = ENV_PROD;

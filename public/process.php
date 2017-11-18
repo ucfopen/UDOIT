@@ -64,6 +64,9 @@ switch ($main_action) {
         // create an id to group all these jobs together
         $job_group_id = UdoitJob::createJobGroupId();
 
+        // expire old jobs to make sure old jobs don't clog up the queue
+        UdoitJob::expireOldJobs();
+
         // split up the items we're scanning into multiple jobs
         foreach ($content as $scan_item) {
             $data = array_merge($common_data, ['scan_item' => $scan_item]);

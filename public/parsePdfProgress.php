@@ -17,6 +17,7 @@
 *
 *   Primary Author Contact:  Jacob Bates <jacob.bates@ucf.edu>
 */
+require_once('../config/settings.php');
 session_start();
 UdoitUtils::$canvas_base_url = $_SESSION['base_url'];
 echo($_SESSION['pdf_generated']);

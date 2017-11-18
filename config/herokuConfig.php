@@ -30,7 +30,7 @@ $dsn = "pgsql:host={$db_host};dbname={$db_name};user={$db_user};port={$db_port};
 
 /* Background worker Options */
 $background_worker_enabled = true;
-$worker_sleep_seconds = 10;
+$background_worker_sleep_seconds = 7;
 
 /* Disable headings check character count */
 $doc_length       = getenv('DOC_LENGTH')?:1500;

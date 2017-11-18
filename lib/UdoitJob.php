@@ -53,7 +53,7 @@ class UdoitJob
                 static::finishJobWithResults($job->id, $result);
 
                 if (static::isJobGroupReadyToFinalize($job->job_group)) {
-                    static::finalizeReport($job->job_group);
+                    static::finalizeReport($job->job_group, $job_data);
                 }
             }
         } catch (Exception $e) {
@@ -67,6 +67,24 @@ class UdoitJob
         }
 
         return $job_failed;
+    }
+
+    public static function expireOldJobs()
+    {
+        global $background_job_expire_time;
+        $time = 20;
+        switch (UdoitDB::$type) {
+            case 'pgsql':
+            case 'mysql':
+                $sql = "UPDATE job_queue SET status = 'expired' WHERE date_created < (now() - INTERVAL {$background_job_expire_time} MINUTE)";
+                break;
+
+            case 'test':
+                $sql = "UPDATE job_queue SET status = 'expired' WHERE date_created < datetime('now', '-{$background_job_expire_time} minutes')";
+                break;
+        }
+
+        UdoitDB::query($sql);
     }
 
     protected static function isJobGroupReadyToFinalize($groupId)
@@ -90,15 +108,15 @@ class UdoitJob
         return $sth->fetchColumn() == 0;
     }
 
-    protected static function finalizeReport($job_group)
+    protected static function finalizeReport($job_group, $job_data)
     {
         global $logger;
         $logger->addInfo("Finalizing Report job_group: {$job_group}");
         $report = static::combineJobResults($job_group);
-        $report['job_group'] = $job_group;
-        $report['course'] = $job_data['course_title'];
-        // @TODO: deal with course_id inside combineResults
-        $job_data = json_decode($job->data, true);
+
+        // add some jobdata info
+        $report['course']    = $job_data['course_title'];
+        $report['course_id'] = $job_data['course_id'];
 
         // create a record of the report
         global $db_reports_table;
@@ -106,7 +124,7 @@ class UdoitJob
             INSERT INTO {$db_reports_table}
                 (user_id, course_id, report_json, errors, suggestions)
             VALUES
-                (:userid, :courseid, :report_json, :errors, :suggestions)";
+                (:user_id, :course_id, :report_json, :errors, :suggestions)";
 
         // if using postgres, ask to get the id back since lastInsertId won't work
         if ('pgsql' === UdoitDB::$type) {
@@ -114,8 +132,8 @@ class UdoitJob
         }
 
         $sth = UdoitDB::prepare($sql);
-        $sth->bindValue(':userid', $job->user_id, PDO::PARAM_INT);
-        $sth->bindValue(':courseid', $job_data['course_id'], PDO::PARAM_INT);
+        $sth->bindValue(':user_id', $report['user_id'], PDO::PARAM_INT);
+        $sth->bindValue(':course_id', $report['course_id'], PDO::PARAM_INT);
         $sth->bindValue(':report_json', json_encode($report), PDO::PARAM_STR);
         $sth->bindValue(':errors', $report['total_results']['errors'], PDO::PARAM_STR);
         $sth->bindValue(':suggestions', $report['total_results']['suggestions'], PDO::PARAM_STR);
@@ -155,9 +173,9 @@ class UdoitJob
 
         // combine the data from each job's results
         $sql = "SELECT * FROM job_queue WHERE job_group = '{$job_group}'";
-        $rows = UdoitDB::query($sql)->fetchAll();
-        foreach ($rows as $row) {
-            $results = json_decode($row['results'], true);
+        $jobs = UdoitDB::query($sql)->fetchAll();
+        foreach ($jobs as $job) {
+            $results = json_decode($job['results'], true);
 
             // collect all the error counts
             $totals['errors']      += $results['total_results']['errors'];
@@ -183,6 +201,10 @@ class UdoitJob
         }
 
         return [
+            'course'        => null,
+            'course_id'     => null,
+            'user_id'       => $job['user_id'],
+            'job_group'     => $job_group,
             'total_results' => $totals,
             'content'       => $content,
         ];
