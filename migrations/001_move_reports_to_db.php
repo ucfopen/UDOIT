@@ -25,14 +25,16 @@ $col_to_add = 'report_json';
 $check_for_column = function ($table, $columnName) {
     global $db_type;
 
-    if('test' === $db_type) return false;
+    if ('test' === $db_type) {
+        return false;
+    }
 
     $sql =  "SELECT column_name
         FROM information_schema.columns
         WHERE table_name='{$table}'
         AND column_name='{$columnName}'";
 
-    if($rows = UdoitDB::query($sql)){
+    if ($rows = UdoitDB::query($sql)) {
         $rows = $rows->fetchAll();
     }
 
