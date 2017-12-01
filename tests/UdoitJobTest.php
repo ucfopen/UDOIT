@@ -23,7 +23,11 @@ class UdoitJobTest extends BaseTest
     public function setUp()
     {
         Mockery::close();
-        UdoitDB::setup('test', 'b', 'c', 'd');
+        global $db_type, $dsn, $db_user, $db_password;
+        UdoitDB::setup($db_type, $dsn, $db_user, $db_password);
+        UdoitDB::query("DROP table users");
+        UdoitDB::query("DROP table reports");
+        UdoitDB::query("DROP table job_queue");
         include(__DIR__.'/../bin/run_database_migrations.php');
     }
 
@@ -59,8 +63,20 @@ class UdoitJobTest extends BaseTest
 
         // Let's change the date on a job
         $time = $background_job_expire_time + 1;
-        $sql = "UPDATE job_queue SET date_created = datetime('now', '-{$time} minutes') where id = '1'";
+
+        switch (UdoitDB::$type) {
+            case 'pgsql':
+            case 'mysql':
+                $sql = "UPDATE job_queue SET date_created = (now() - INTERVAL {$time} MINUTE)  where id = '1'";
+                break;
+
+            case 'test':
+                $sql = "UPDATE job_queue SET date_created = datetime('now', '-{$time} minutes')  where id = '1'";
+                break;
+        }
+
         UdoitDB::query($sql);
+
 
         // expiring old jobs should remove one of the jobs
         UdoitJob::expireOldJobs();

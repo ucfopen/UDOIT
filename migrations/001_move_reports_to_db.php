@@ -23,9 +23,20 @@ global $db_type;
 $col_to_add = 'report_json';
 
 $check_for_column = function ($table, $columnName) {
-    $rows = UdoitDB::query("SELECT * FROM {$table}")->fetchAll();
+    global $db_type;
 
-    return isset($rows[0][$columnName]);
+    if('test' === $db_type) return false;
+
+    $sql =  "SELECT column_name
+        FROM information_schema.columns
+        WHERE table_name='{$table}'
+        AND column_name='{$columnName}'";
+
+    if($rows = UdoitDB::query($sql)){
+        $rows = $rows->fetchAll();
+    }
+
+    return isset($rows[0]['column_name']);
 };
 
 // if 'file_path' col is missing, there's nothing to do
