@@ -658,7 +658,7 @@ class UdoitTest extends BaseTest
         self::assertEquals(2, $result['assignments']->time);
         self::assertEquals(4, $result['files']->time);
 
-        self::assertTrue($testHandler->hasRecordThatContains('modules is an unkown report title, it will be omitted from the report.', \Monolog\Logger::WARNING));
+        self::assertTrue($testHandler->hasRecordThatContains('modules is an unknown report title, it will be omitted from the report.', \Monolog\Logger::WARNING));
     }
 
     public function testRetrieveAndScanBuildsBasicResponse()

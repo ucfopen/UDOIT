@@ -64,7 +64,7 @@ class Udoit
         }
 
         // caluculate the total run time
-        $content['time']  = round($scan_time_start - microtime(true), 2);
+        $content['time']  = round(microtime(true) - $scan_time_start, 2);
 
         $logger->addInfo("Finished retrieveAndScan - course: {$course_id}, content: {$content_type}");
 

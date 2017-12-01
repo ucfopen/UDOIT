@@ -214,13 +214,27 @@ class UdoitJob
     {
         // it's important that this claims the next job, not allowing other processes to grab it.
         // we LOCK this row using 'FOR UPDATE' then update it's status so other queries don't find it
+        global $logger;
+
         UdoitDB::beginTransaction();
         $sql = "SELECT * FROM job_queue WHERE status = 'new' ORDER BY id";
-        if ('test' !== UdoitDB::$type) {
-            $sql .= " FOR UPDATE"; // SQLITE doesn't support SELECT... FOR UPDATE
+
+        // MySQL and Postgres are strict about the order, but are opposite of each other
+        switch (UdoitDB::$type){
+            case 'mysql':
+                $sql .= ' LIMIT 1 FOR UPDATE';
+                break;
+            case 'pgsql':
+                $sql .= ' FOR UPDATE LIMIT 1';
+                break;
+            default:
+                // We don't know if other db types will support row locking
+                $sql .= ' LIMIT 1';
         }
-        $sql .= " LIMIT 1";
+        
         if (!($query = UdoitDB::query($sql))) {
+            $logger->addError('Error locking job, rolling back db.  Error contents:\r\n'.print_r(UdoitDB::errorInfo(), true));
+            UdoitDB::rollBack();
             return false; // return false if theres nothing
         }
 

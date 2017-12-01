@@ -214,7 +214,7 @@ class UdoitUtils
         $sth->execute();
 
         if ($result = $sth->fetchObject()) {
-            $sth = UdoitDB::prepare("UPDATE {$db_user_table} SET api_key = :api_key, refresh_token = :refresh_token WHERE id = :userid");
+            $sth = UdoitDB::prepare("UPDATE {$db_user_table} SET api_key = :api_key, refresh_token = :refresh_token, canvas_url = :canvas_url WHERE id = :userid");
         } else {
             $sth = UdoitDB::prepare("INSERT INTO {$db_user_table} (id, api_key, refresh_token, canvas_url, date_created) VALUES (:userid, :api_key, :refresh_token, :canvas_url, CURRENT_TIMESTAMP)");
         }
@@ -254,7 +254,7 @@ class UdoitUtils
 
         foreach ($report_groups as $rg) {
             if (!array_key_exists($rg->title, $ordered_report_groups)) {
-                $logger->addWarning("{$rg->title} is an unkown report title, it will be omitted from the report.");
+                $logger->addWarning("{$rg->title} is an unknown report title, it will be omitted from the report.");
             } else {
                 // place the known titles at the correct index
                 $ordered_report_groups[$rg->title] = $rg;
