@@ -141,6 +141,7 @@ class UdoitUtils
     public function getRefreshToken($user_id)
     {
         global $db_user_table;
+        global $UDOIT_ENV;
 
         if (ENV_PROD !== $UDOIT_ENV) {
             return "test-token"; // return false for testing
