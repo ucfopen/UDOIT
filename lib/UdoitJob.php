@@ -220,7 +220,7 @@ class UdoitJob
         $sql = "SELECT * FROM job_queue WHERE status = 'new' ORDER BY id";
 
         // MySQL and Postgres are strict about the order, but are opposite of each other
-        switch (UdoitDB::$type){
+        switch (UdoitDB::$type) {
             case 'mysql':
                 $sql .= ' LIMIT 1 FOR UPDATE';
                 break;
@@ -231,10 +231,11 @@ class UdoitJob
                 // We don't know if other db types will support row locking
                 $sql .= ' LIMIT 1';
         }
-        
+
         if (!($query = UdoitDB::query($sql))) {
             $logger->addError('Error locking job, rolling back db.  Error contents:\r\n'.print_r(UdoitDB::errorInfo(), true));
             UdoitDB::rollBack();
+
             return false; // return false if theres nothing
         }
 

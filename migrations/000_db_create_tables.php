@@ -2,6 +2,7 @@
 
 global $db_type;
 
+
 if ('sqlite' === $db_type || 'test' === $db_type) {
     // SQLITE (mostly for testing)
     $tables = [
@@ -21,8 +22,6 @@ if ('sqlite' === $db_type || 'test' === $db_type) {
             CREATE TABLE IF NOT EXISTS users (
                 id integer CONSTRAINT users_pk PRIMARY KEY AUTOINCREMENT,
                 api_key varchar(255),
-                refresh_token varchar(255),
-                canvas_url varchar(255),
                 date_created timestamp with time zone DEFAULT CURRENT_TIMESTAMP
             );
         ',
@@ -48,8 +47,6 @@ if ('pgsql' === $db_type) {
             CREATE TABLE IF NOT EXISTS users (
                 id integer CONSTRAINT users_pk PRIMARY KEY,
                 api_key varchar(255),
-                refresh_token varchar(255),
-                canvas_url varchar(255),
                 date_created timestamp with time zone DEFAULT CURRENT_TIMESTAMP
             );
         ',
@@ -76,8 +73,6 @@ if ('mysql' === $db_type) {
             CREATE TABLE IF NOT EXISTS `users` (
                 `id` int(10) unsigned NOT NULL,
                 `api_key` varchar(255) NOT NULL,
-                `refresh_token` varchar(255) NOT NULL,
-                `canvas_url` varchar(255) NOT NULL,
                 `date_created` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
                 PRIMARY KEY (`id`),
                 UNIQUE KEY `id` (`id`)
