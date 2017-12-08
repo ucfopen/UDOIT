@@ -2,7 +2,7 @@
 
 /* UDOIT test descriptions and examples */
 /* refer to /quail/guidelines/section508.php to view currently enabled tests */
-$udoit_tests = [
+return [
     'severe' => [
         [
             'name'      => 'aMustContainText',
@@ -11,13 +11,13 @@ $udoit_tests = [
             'resources' => [
                 '<a href="http://guides.instructure.com/s/2204/m/4152/l/65824-how-do-i-create-a-hyperlink-in-the-rich-content-editor">Canvas Tutorial</a>',
                 '<a href="http://www.w3.org/TR/UNDERSTANDING-WCAG20/navigation-mechanisms.html">WCAG Guidelines</a>',
-                'WCAG Standard <a href="http://www.w3.org/TR/WCAG20/#navigation-mechanisms-refs">2.4.4</a>'
+                'WCAG Standard <a href="http://www.w3.org/TR/WCAG20/#navigation-mechanisms-refs">2.4.4</a>',
             ],
             'example'   => '
                 <p class="text-danger">Incorrect</p>
-                <pre><code>'. htmlspecialchars('<a href="http://example.com/document.pdf"></a>') .'</code></pre>
+                <pre><code>'.htmlspecialchars('<a href="http://example.com/document.pdf"></a>').'</code></pre>
                 <p class="text-success">Correct</p>
-                <pre><code>'. htmlspecialchars('<a href="http://example.com">read the document</a>') .'</code></pre>
+                <pre><code>'.htmlspecialchars('<a href="http://example.com">read the document</a>').'</code></pre>
             ',
         ],
         [
@@ -30,9 +30,9 @@ $udoit_tests = [
             ],
             'example'   => '
                 <p class="text-danger">Incorrect</p>
-                <pre>'. htmlspecialchars('<img src="dog.jpg">') .'</pre>
+                <pre>'.htmlspecialchars('<img src="dog.jpg">').'</pre>
                 <p class="text-success">Correct</p>
-                <pre>'. htmlspecialchars('<img src="dog.jpg" alt="A photograph of a dog">') .'</pre>
+                <pre>'.htmlspecialchars('<img src="dog.jpg" alt="A photograph of a dog">').'</pre>
             ',
         ],
         [
@@ -45,11 +45,11 @@ $udoit_tests = [
             ],
             'example'   => '
                 <p class="text-danger">Incorrect</p>
-                <pre>'. htmlspecialchars('<img src="dog.jpg" alt="dog.jpg">') .'</pre>
-                <pre>'. htmlspecialchars('<img src="http://website.com/dog.jpg" alt="http://website.com/dog.jpg">') .'</pre>
+                <pre>'.htmlspecialchars('<img src="dog.jpg" alt="dog.jpg">').'</pre>
+                <pre>'.htmlspecialchars('<img src="http://website.com/dog.jpg" alt="http://website.com/dog.jpg">').'</pre>
                 <p class="text-success">Correct</p>
-                <pre>'. htmlspecialchars('<img src="dog.jpg" alt="A photograph of a dog">') .'</pre>
-                <pre>'. htmlspecialchars('<img src="http://website.com/dog.jpg" alt="A photograph of a dog">') .'</pre>
+                <pre>'.htmlspecialchars('<img src="dog.jpg" alt="A photograph of a dog">').'</pre>
+                <pre>'.htmlspecialchars('<img src="http://website.com/dog.jpg" alt="A photograph of a dog">').'</pre>
             ',
         ],
         [
@@ -58,13 +58,13 @@ $udoit_tests = [
             'desc'      => '<p>Alternative Text (Alt Text) is an alternative (non-visual) way to describe the meaning of an image. Please provide a brief (under 100 characters) description of the image for a <a href="http://en.wikipedia.org/wiki/Screen_reader">screen reader</a> user. Note: It should not be the image file name.</p>',
             'resources' => [
                 '<a href="http://teach.ucf.edu/resources/document-formatting-guidelines/images/#about">Resource on Alternative Text</a>',
-                'WCAG Standard: <a href="http://www.w3.org/TR/WCAG20/#text-equiv-all">1.1.1</a>'
+                'WCAG Standard: <a href="http://www.w3.org/TR/WCAG20/#text-equiv-all">1.1.1</a>',
             ],
             'example'   => '
                 <p class="text-danger">Incorrect</p>
-                <pre>'. htmlspecialchars('<img src="http://placehold.it/img.jpg" alt="I am alt text that is just way too long, look at me being way too long and being a hassle!">') .'</pre>
+                <pre>'.htmlspecialchars('<img src="http://placehold.it/img.jpg" alt="I am alt text that is just way too long, look at me being way too long and being a hassle!">').'</pre>
                 <p class="text-success">Correct</p>
-                <pre>'. htmlspecialchars('<img src="http://placehold.it/img.jpg" alt="Short and sweet description">') .'</pre>
+                <pre>'.htmlspecialchars('<img src="http://placehold.it/img.jpg" alt="Short and sweet description">').'</pre>
             ',
         ],
         [
@@ -73,13 +73,13 @@ $udoit_tests = [
             'desc'      => '<p>Alternative Text (Alt Text) is an alternative (non-visual) way to describe the meaning of an image. Please provide a brief (under 100 characters) description of the image for a <a href="http://en.wikipedia.org/wiki/Screen_reader">screen reader</a> user. Note: It should not be the image file name.</p>',
             'resources' => [
                 '<a href="http://teach.ucf.edu/resources/document-formatting-guidelines/images/#about">Resource on Alternative Text</a>',
-                'WCAG Standard: <a href="http://www.w3.org/TR/WCAG20/#text-equiv-all">1.1.1</a>'
+                'WCAG Standard: <a href="http://www.w3.org/TR/WCAG20/#text-equiv-all">1.1.1</a>',
             ],
             'example'   => '
                 <p class="text-danger">Incorrect</p>
-                <pre>'. htmlspecialchars('<a href="http://google.com"><img src="http://placehold.it/img.jpg" alt=" "></a>') .'</pre>
+                <pre>'.htmlspecialchars('<a href="http://google.com"><img src="http://placehold.it/img.jpg" alt=" "></a>').'</pre>
                 <p class="text-success">Correct</p>
-                <pre>'. htmlspecialchars('<a href="http://google.com"><img src="http://placehold.it/img.jpg" alt="Alt text"></a>') .'</pre>
+                <pre>'.htmlspecialchars('<a href="http://google.com"><img src="http://placehold.it/img.jpg" alt="Alt text"></a>').'</pre>
             ',
         ],
         [
@@ -92,9 +92,9 @@ $udoit_tests = [
             ],
             'example'   => '
                 <p class="text-danger">Incorrect</p>
-                <pre>'. htmlspecialchars('<table><tr><td>Header One</td><td>Header Two</td></tr><tr><td>1.30</td><td>4.50</td></tr></table>') .'</pre>
+                <pre>'.htmlspecialchars('<table><tr><td>Header One</td><td>Header Two</td></tr><tr><td>1.30</td><td>4.50</td></tr></table>').'</pre>
                 <p class="text-success">Correct</p>
-                <pre>'. htmlspecialchars('<table><tr><th>Header One</th><th>Header Two</th></tr><tr><td>1.30</td><td>4.50</td></tr></table>') .'</pre>
+                <pre>'.htmlspecialchars('<table><tr><th>Header One</th><th>Header Two</th></tr><tr><td>1.30</td><td>4.50</td></tr></table>').'</pre>
             ',
         ],
         [
@@ -107,10 +107,10 @@ $udoit_tests = [
             ],
             'example'   => '
                 <p class="text-danger">Incorrect</p>
-                <pre><code>'. htmlspecialchars('<table>'."\n\t".'<tr>'."\n\t\t".'<th>Heading 1</th>'."\n\t\t".'<th>Heading 2</th>'."\n\t".'</tr>'."\n\t".'<tr>'."\n\t\t".'<td>Cell 1</td>'."\n\t\t".'<td>Cell 2</td>'."\n\t".'</tr>'."\n".'</table>') .'</code></pre>
+                <pre><code>'.htmlspecialchars('<table>'."\n\t".'<tr>'."\n\t\t".'<th>Heading 1</th>'."\n\t\t".'<th>Heading 2</th>'."\n\t".'</tr>'."\n\t".'<tr>'."\n\t\t".'<td>Cell 1</td>'."\n\t\t".'<td>Cell 2</td>'."\n\t".'</tr>'."\n".'</table>').'</code></pre>
                 <p class="text-success">Correct</p>
-                <pre><code>'. htmlspecialchars('<table>'."\n\t".'<tr>'."\n\t\t".'<th scope="col">Heading 1</th>'."\n\t\t".'<th scope="col">Heading 2</th>'."\n\t".'</tr>'."\n\t".'<tr>'."\n\t\t".'<td>Cell 1</td>'."\n\t\t".'<td>Cell 2</td>'."\n\t".'</tr>'."\n".'</table>') .'</code></pre>
-                <pre><code>'. htmlspecialchars('<table>'."\n\t".'<tr>'."\n\t\t".'<th scope="row">Heading 1</th>'."\n\t\t".'<td>Cell 1</td>'."\n\t".'</tr>'."\n\t".'<tr>'."\n\t\t".'<th scope="row">Heading 2</th>'."\n\t\t".'<td>Cell 2</td>'."\n\t".'</tr>'."\n".'</table>') .'</code></pre>
+                <pre><code>'.htmlspecialchars('<table>'."\n\t".'<tr>'."\n\t\t".'<th scope="col">Heading 1</th>'."\n\t\t".'<th scope="col">Heading 2</th>'."\n\t".'</tr>'."\n\t".'<tr>'."\n\t\t".'<td>Cell 1</td>'."\n\t\t".'<td>Cell 2</td>'."\n\t".'</tr>'."\n".'</table>').'</code></pre>
+                <pre><code>'.htmlspecialchars('<table>'."\n\t".'<tr>'."\n\t\t".'<th scope="row">Heading 1</th>'."\n\t\t".'<td>Cell 1</td>'."\n\t".'</tr>'."\n\t".'<tr>'."\n\t\t".'<th scope="row">Heading 2</th>'."\n\t\t".'<td>Cell 2</td>'."\n\t".'</tr>'."\n".'</table>').'</code></pre>
             ',
         ],
         [
@@ -137,9 +137,9 @@ $udoit_tests = [
             ],
             'example'   => '
                 <p class="text-danger">Incorrect</p>
-                <pre><code>'. htmlspecialchars('<object src="widget.html" title=""></object>') .'</code></pre>
+                <pre><code>'.htmlspecialchars('<object src="widget.html" title=""></object>').'</code></pre>
                 <p class="text-success">Correct</p>
-                <pre><code>'. htmlspecialchars('<object src="widget.html" title="A small web widget">A widget of stock prices. <a href="widget.html">Access this widget.</a></object>') .'</code></pre>
+                <pre><code>'.htmlspecialchars('<object src="widget.html" title="A small web widget">A widget of stock prices. <a href="widget.html">Access this widget.</a></object>').'</code></pre>
             ',
         ],
     ],
@@ -180,20 +180,20 @@ $udoit_tests = [
             'resources' => [
                 '<a href="http://guides.instructure.com/s/2204/m/4152/l/65824-how-do-i-create-a-hyperlink-in-the-rich-content-editor">Canvas Tutorial</a>',
                 '<a href="http://www.w3.org/TR/UNDERSTANDING-WCAG20/navigation-mechanisms.html">WCAG Guidelines</a>',
-                'WCAG Standard <a href="http://www.w3.org/TR/WCAG20/#navigation-mechanisms-refs">2.4.4</a>'
+                'WCAG Standard <a href="http://www.w3.org/TR/WCAG20/#navigation-mechanisms-refs">2.4.4</a>',
             ],
             'example'   => '
                 <p class="text-danger">Incorrect</p>
-                <pre><code>'. htmlspecialchars('<a href="http://example.com/document.pdf">click here!</a>') .'</code></pre>
+                <pre><code>'.htmlspecialchars('<a href="http://example.com/document.pdf">click here!</a>').'</code></pre>
                 <p class="text-success">Correct</p>
-                <pre><code>'. htmlspecialchars('<a href="http://example.com">read the document</a>') .'</code></pre>
+                <pre><code>'.htmlspecialchars('<a href="http://example.com">read the document</a>').'</code></pre>
             ',
         ],
         [
             'name'      => 'objectTextUpdatesWhenObjectChanges',
             'title'     => 'The text equivalents (e.g., transcripts and/or captions) for embedded content should update when content changes.',
             'desc'      => '',
-            'resources' => ['WCAG Standard: <a href="http://www.w3.org/TR/UNDERSTANDING-WCAG20/media-equiv.html">1.2</a>',],
+            'resources' => ['WCAG Standard: <a href="http://www.w3.org/TR/UNDERSTANDING-WCAG20/media-equiv.html">1.2</a>'],
             'example'   => '',
         ],
         [
@@ -212,9 +212,9 @@ $udoit_tests = [
             ],
             'example'   => '
                 <p class="text-danger">Incorrect</p>
-                <pre><code>'. htmlspecialchars('<h1></h1>') .'</code></pre>
+                <pre><code>'.htmlspecialchars('<h1></h1>').'</code></pre>
                 <p class="text-success">Correct</p>
-                <pre><code>'. htmlspecialchars('<h1>Title</h1>') .'</code></pre>
+                <pre><code>'.htmlspecialchars('<h1>Title</h1>').'</code></pre>
             ',
         ],
         [
@@ -234,9 +234,9 @@ $udoit_tests = [
             'resources' => [],
             'example'   => '
                 <p class="text-danger">Incorrect</p>
-                <pre><code>'. htmlspecialchars('<p><strong>Header 1</strong></p>') .'</code></pre>
+                <pre><code>'.htmlspecialchars('<p><strong>Header 1</strong></p>').'</code></pre>
                 <p class="text-success">Correct</p>
-                <pre><code>'. htmlspecialchars('<h1>Header 1</h1>') .'</code></pre>
+                <pre><code>'.htmlspecialchars('<h1>Header 1</h1>').'</code></pre>
             ',
         ],
         [
@@ -244,7 +244,7 @@ $udoit_tests = [
             'title'     => 'Avoid using color alone for emphasis',
             'desc'      => '<p>When emphasizing text, you may use color with sufficient contrast as long as you also apply some other form of emphasis, such as bold or italics. This ensures that screen reader users are aware of the text\'s importance.</p>',
             'resources' => [
-                '<a href="https://www.w3.org/TR/WCAG20-TECHS/H49.html">Resource Link</a>'
+                '<a href="https://www.w3.org/TR/WCAG20-TECHS/H49.html">Resource Link</a>',
             ],
             'example'   => '
                 <p>This example shows how to use the em and strong elements to emphasize text. The em and strong elements were designed to indicate structural emphasis that may be rendered in a variety of ways (font style changes, speech inflection changes, etc.).</p>

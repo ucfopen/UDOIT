@@ -21,7 +21,7 @@ body { padding: 20px 0 0; }
 .container { width: auto; }
 
 .logo {
-	background: url('../img/udoit_logo.png') no-repeat center;
+	background: url('../img/udoit_logo.svg') no-repeat center;
 	background-size: 228px 80px;
 	color: transparent;
 	display: inline-block;
@@ -35,6 +35,14 @@ body { padding: 20px 0 0; }
 	   -moz-user-select: none;
 	     -o-user-select: none;
 	        user-select: none;
+}
+
+.udoit-version {
+	position: absolute;
+	top: 4px;
+	right: 6px;
+	font-size: .8em;
+	color: #999;
 }
 
 .collapse-header {
@@ -681,9 +689,9 @@ ul.color-picker {
 
 /* X. FORMS --------------------------- */
 
-.fix-alt { 
+.fix-alt {
 	position: relative;
-	width: 100%; 
+	width: 100%;
 }
 
 .ufixit-form .fix-alt .btn {

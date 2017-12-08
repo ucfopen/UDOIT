@@ -1,6 +1,6 @@
 <?php
 
-$debug            = (getenv("DEBUG")) ?: false;
+$debug            = (getenv("DEBUG")) == 'true';
 
 /* Oauth 1.0 Settings (For use when installing the app in Canvas) */
 $consumer_key     = getenv('CONSUMER_KEY');
@@ -28,16 +28,29 @@ $db_reports_table = 'reports';
 
 $dsn = "pgsql:host={$db_host};dbname={$db_name};user={$db_user};port={$db_port};sslmode=require;password={$db_password}";
 
+/* Background worker Options */
+$background_worker_enabled = (getenv("WORKER_ENABLED")) == 'true';
+$background_worker_sleep_seconds = 7;
 
 /* Disable headings check character count */
-$doc_length       = getenv('DOC_LENGTH')?:1500;
+$doc_length = getenv('DOC_LENGTH')?:1500;
 
 /*Unscannable Suggestion */
 $unscannable_suggestion = 'Consider converting these documents to Pages, since they are easier to update and generally more accessible.';
 $unscannable_suggestion_on = true;
 
 /* Google/YouTube Data Api Key */
-define( 'GOOGLE_API_KEY', getenv('GOOGLE_API_KEY')?:'');
+define('GOOGLE_API_KEY', getenv('GOOGLE_API_KEY')?:'');
 
 /* Google Analytics Tracking Code */
-define( 'GA_TRACKING_CODE', '');
+define('GA_TRACKING_CODE', '');
+
+// Fix some issues caused by the heroku load balancer
+// The OAUTH signature verification doesn't know it's using https w/o this
+if (!empty($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] == 'https') {
+    $_SERVER['HTTPS'] = 'on';
+}
+
+// send logs into the heroku logs
+$log_handler = new \Monolog\Handler\ErrorLogHandler();
+$log_handler->setFormatter(new \Monolog\Formatter\LineFormatter(null, null, true, true));
