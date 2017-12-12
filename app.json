@@ -11,7 +11,7 @@
     "508"
   ],
   "website": "http://online.ucf.edu/teach-online/resources/udoit/",
-  "repository": "https://github.com/iturgeon/UDOIT/tree/issue/279-heroku-background-worker",
+  "repository": "https://github.com/ucfopen/UDOIT/tree/dev/v2.3.0",
   "success_url": "/",
   "formation": {
     "web": {
