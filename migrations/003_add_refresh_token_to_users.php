@@ -43,11 +43,11 @@ if ('pgsql' === $db_type) {
     // POSTGRESQL
     $queries = [
         [
-            'isRequired' => $check_for_column('users', 'refresh_token'),
+            'isRequired' => !$check_for_column('users', 'refresh_token'),
             'sql' => 'ALTER TABLE users ADD refresh_token VARCHAR(255)',
         ],
         [
-            'isRequired' => $check_for_column('users', 'canvas_url'),
+            'isRequired' => !$check_for_column('users', 'canvas_url'),
             'sql' => 'ALTER TABLE users ADD canvas_url VARCHAR(255)',
         ],
     ];
