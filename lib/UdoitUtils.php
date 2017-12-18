@@ -180,10 +180,10 @@ class UdoitUtils
 
         // update the token in the database
         if (isset($json_result->access_token) && $this->validateApiKey($user_id, $json_result->access_token)) {
-            $sth = UdoitDB::prepare("UPDATE {$db_user_table} set api_key = :api_key, refresh_token = :refresh_token WHERE id = :userid LIMIT 1");
-            $sth->bindValue(':userid', $userID, PDO::PARAM_INT);
+            $sth = UdoitDB::prepare("UPDATE {$db_user_table} SET api_key = :api_key, refresh_token = :refresh_token WHERE id = :userid");
+            $sth->bindValue(':userid', $user_id, PDO::PARAM_INT);
             $sth->bindValue(':api_key', $json_result->access_token, PDO::PARAM_STR);
-            $sth->bindValue(':refresh_token', $json_result->refresh_token, PDO::PARAM_STR);
+            $sth->bindValue(':refresh_token', $refresh_token, PDO::PARAM_STR);
             $sth->execute();
 
             return $json_result->access_token;
