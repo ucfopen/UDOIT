@@ -168,8 +168,7 @@ switch ($main_action) {
                 break;
 
             case 'files':
-                $file_info = $ufixit->uploadFixedFiles($corrected_error, $data['error_html']);
-                print_r(json_encode($file_info));
+                $ufixit->uploadFixedFiles($corrected_error, $data['error_html']);
                 break;
 
             case 'pages':

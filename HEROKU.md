@@ -124,4 +124,9 @@ If you need to check that the tables exist, you can connect to Postgres using so
 If needed, you can manually run the table creation script: `heroku run composer dbsetup`
 
 ## Table Schema
-The table schema can be found in [bin/db_create_tables.php](bin/db_create_tables.php)
+The table schema can be found in [migrations/](migrations/)
+
+# FAQ
+
+## Why aren't my scans completing?
+If you are using the free tier, you may need to manually turn on the worker dyno.  You can do this by going to the [Heroku Control Panel](https://dashboard.heroku.com/apps), selecting your instance of UDOIT, clicking **Configure Dynos**, clicking the pencil icon next to the **Worker** dyno, clicking the slider to the **on** position, then clicking **Confirm**.
