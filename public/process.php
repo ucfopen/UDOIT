@@ -96,7 +96,7 @@ switch ($main_action) {
             'italic'       => (filter_input(INPUT_POST, 'add-italic', FILTER_SANITIZE_STRING) == 'italic'),
             'remove_color' => (filter_input(INPUT_POST, 'remove-color', FILTER_SANITIZE_STRING) == 'true'),
             'course_id'    => filter_input(INPUT_POST, 'course_id', FILTER_SANITIZE_NUMBER_INT),
-            'api_key'      => UdoitUtils::instance()->getLocalApiKey($user_id),
+            'api_key'      => UdoitUtils::instance()->getValidRefreshedApiKey($user_id),
         ];
 
         $ufixit = new Ufixit($data);
