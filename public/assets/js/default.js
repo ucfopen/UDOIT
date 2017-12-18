@@ -263,6 +263,17 @@ function ufixitCssTextHasContrast( $issueContainer ) {
 
 // END update UFIXIT Preview on load
 $doc.ready(function() {
+	// Resize iFrame
+	var default_height = $(document).height();
+    default_height = default_height > 500 ? default_height : 500;
+
+    // IE 8 & 9 only support string data, so send objects as string
+    parent.postMessage(JSON.stringify({
+      subject: "lti.frameResize",
+      height: default_height
+    }), "*");
+    // END Resize iFrame
+
 	// content checkboxes
 	var content_checked = true;
 
