@@ -10,8 +10,8 @@
     "Instructure",
     "508"
   ],
-  "website": "http://online.ucf.edu/teach-online/resources/udoit/",
-  "repository": "https://github.com/ucfopen/UDOIT/tree/dev/v2-3-0",
+  "website": "https://cdl.ucf.edu/initiatives/udoit/",
+  "repository": "https://github.com/ucfopen/UDOIT",
   "success_url": "/",
   "formation": {
     "web": {
