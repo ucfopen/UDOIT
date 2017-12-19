@@ -117,6 +117,7 @@ function checkScanProgress(jobGroup){
 					}
 					$('#udoitForm button.submit')
 					.html(`<div id="popup"><div class="circle-white"></div></div>Scanning: ${running.join(', ')}... (${notRun.length + running.length} left to scan)`);
+					resizeFrame();
 					return;
 				}
 			}
@@ -144,6 +145,7 @@ function displayScanResults(results) {
 	$('#scanner').append(`<section id="result">${results}</section>`);
 	killButton(function() {
 		$('#result').fadeIn();
+		resizeFrame();
 	});
 
 	jscolor.bind();
@@ -261,6 +263,7 @@ function ufixitCssTextHasContrast( $issueContainer ) {
 	});
 }
 
+// resize containing iframe height
 function resizeFrame(){
 	var default_height = $(document).height();
     default_height = default_height > 500 ? default_height : 500;
@@ -271,6 +274,11 @@ function resizeFrame(){
       height: default_height
     }), "*");
 }
+
+// update iframe height on resize
+$doc.on('resize', function(){
+	resizeFrame();
+});
 
 // END update UFIXIT Preview on load
 $doc.ready(function() {
@@ -309,7 +317,7 @@ $doc.ready(function() {
 		if ($('#result').length > 0) $('#result').remove();
 		if ($('#failMsg').css('display') == 'block') $('#failMsg').fadeOut();
 		$('#waitMsg').fadeIn();
-
+		resizeFrame();
 		var main_action = $('input[name="main_action"]').val();
 		var base_url = $('input[name="base_url"]').val();
 		var course_id = $('input[name="session_course_id"]').val();
@@ -333,11 +341,14 @@ $doc.ready(function() {
 		if ($errorItem.parent().find('.errorSummary').is(':visible')) {
 			$errorItem.parent().find('.errorSummary').slideUp(function() {
 				$errorItem.children('button span').removeClass('glyphicon-minus').addClass('glyphicon-plus');
+				resizeFrame();
 			});
 		}
 		else {
 			$(this).children('button span').removeClass('glyphicon-plus').addClass('glyphicon-minus');
-			$errorItem.parent().find('.errorSummary').slideDown();
+			$errorItem.parent().find('.errorSummary').slideDown(function(){
+				resizeFrame();
+			});
 		}
 	});
 	// END result panel collapsing
