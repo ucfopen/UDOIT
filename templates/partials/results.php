@@ -33,6 +33,11 @@
 <div class="errorWrapper">
 	<?php
 		foreach ($report_groups as $group) {
+			// skip if the title is missing
+			if (empty($group->title)) {
+				continue;
+			}
+
 			switch ($group->title) {
 				case "announcements":
 				case "assignments":

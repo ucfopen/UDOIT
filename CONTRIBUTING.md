@@ -47,7 +47,7 @@ If you are outside of UCF, you will need to fork the UDOIT project in order to w
 
 ### Dev Branches
 
-* Naming Convention: `dev/v1.2.10` - a new one for every upcoming release version
+* Naming Convention: `dev/v1-2-10` - a new one for every upcoming release version. (Note: Hyphens are used instead of periods to preserve compatibility with the Heroku button.)
 * Issue branches merge into this branch (never master)
 * When this dev branch is ready for release, it is merged into master and deleted
 
@@ -81,8 +81,8 @@ This section is mainly for the project managers, but is here for documentation p
     release        ◄── merge         ◄── merge
 
   	tags:          branches:        branches:
-    v0.0.3   ◄──   dev/v0.0.3  ◄──  issue/123-fix-broken-links + issue/211
-    v0.0.2   ◄──   dev/v0.0.2  ◄──  issue/251-rename-all-the-files + issue/222 + issue/12221
-    v0.0.1   ◄──   dev/v0.0.1  ◄──  issue/121-get-logins-working-again
+    v0.0.3   ◄──   dev/v0-0-3  ◄──  issue/123-fix-broken-links + issue/211
+    v0.0.2   ◄──   dev/v0-0-2  ◄──  issue/251-rename-all-the-files + issue/222 + issue/12221
+    v0.0.1   ◄──   dev/v0-0-1  ◄──  issue/121-get-logins-working-again
 
 ```

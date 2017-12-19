@@ -10,9 +10,19 @@
     "Instructure",
     "508"
   ],
-  "website": "http://online.ucf.edu/teach-online/resources/udoit/",
+  "website": "https://cdl.ucf.edu/initiatives/udoit/",
   "repository": "https://github.com/ucfopen/UDOIT",
   "success_url": "/",
+  "formation": {
+    "web": {
+      "quantity": 1,
+      "size": "free"
+    },
+    "worker": {
+      "quantity": 1,
+      "size": "free"
+    }
+  },
   "env": {
     "CONSUMER_KEY": {
       "description": "LTI consumer key entered when adding UDOIT LTI to Canvas",
@@ -43,6 +53,10 @@
     "CANVAS_NAV_ITEM_NAME" : {
       "description": "The text displayed in the canvas navigation menu to launch this app",
       "value": "UDOIT"
+    },
+    "WORKER_ENABLED": {
+      "description": "Enable the background worker (requires you turn on the worker dyno).",
+      "value": "true"
     }
   },
   "addons": [
@@ -54,6 +68,6 @@
     }
   ],
   "scripts": {
-    "postdeploy": "composer dbsetup"
+    "postdeploy": "composer db-setup"
   }
 }

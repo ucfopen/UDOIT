@@ -40,7 +40,7 @@
 			<div class="list-group no-margin">
 
 				<?php foreach ($items as $item): ?>
-					<a href="<?= $item->url; ?>" class="list-group-item"><?= $item->title; ?> (<?= $item->external_url; ?>)</a>
+					<a href="<?= $item->url; ?>" target="_blank" class="list-group-item"><?= $item->title; ?> (<?= $item->external_url; ?>)</a>
 				<?php endforeach; ?>
 
 			</div>
