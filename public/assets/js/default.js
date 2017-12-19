@@ -261,9 +261,7 @@ function ufixitCssTextHasContrast( $issueContainer ) {
 	});
 }
 
-// END update UFIXIT Preview on load
-$doc.ready(function() {
-	// Resize iFrame
+function resizeFrame(){
 	var default_height = $(document).height();
     default_height = default_height > 500 ? default_height : 500;
 
@@ -272,7 +270,11 @@ $doc.ready(function() {
       subject: "lti.frameResize",
       height: default_height
     }), "*");
-    // END Resize iFrame
+}
+
+// END update UFIXIT Preview on load
+$doc.ready(function() {
+	resizeFrame();
 
 	// content checkboxes
 	var content_checked = true;
