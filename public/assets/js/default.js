@@ -265,7 +265,7 @@ function ufixitCssTextHasContrast( $issueContainer ) {
 
 // resize containing iframe height
 function resizeFrame(){
-	var default_height = $(document).height();
+	var default_height = $('body').height() + 50;
     default_height = default_height > 500 ? default_height : 500;
 
     // IE 8 & 9 only support string data, so send objects as string
@@ -341,7 +341,8 @@ $doc.ready(function() {
 		if ($errorItem.parent().find('.errorSummary').is(':visible')) {
 			$errorItem.parent().find('.errorSummary').slideUp(function() {
 				$errorItem.children('button span').removeClass('glyphicon-minus').addClass('glyphicon-plus');
-				resizeFrame();
+				setTimeout(resizeFrame, 200);
+				//resizeFrame();
 			});
 		}
 		else {
@@ -361,6 +362,7 @@ $doc.ready(function() {
 		$(this).addClass('hidden');
 		$error.find('div.more-info').removeClass('hidden');
 		$error.find('a.closeError').first().focus();
+		resizeFrame();
 	});
 	// END view error source
 
@@ -372,6 +374,7 @@ $doc.ready(function() {
 		$error.find('div.more-info').addClass('hidden');
 		$error.find('a.viewError').removeClass('hidden');
 		$error.find('a.viewError').focus();
+		resizeFrame();
 	});
 	// END close error source
 
@@ -384,6 +387,7 @@ $doc.ready(function() {
 			$(this).data('clicked', true);
 			$(this).parent().find('.warning-info').removeClass('hidden');
 		}
+		resizeFrame();
 	})
 	// END view warning info
 
@@ -437,8 +441,14 @@ $doc.ready(function() {
 			default:
 				break;
 		}
+		resizeFrame();
 	});
 
+	// resize after bootstrap tabs are finished showing
+	$('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
+		resizeFrame();
+	});
+	
 	// submitting the ufixit form
 	$doc.on('submit', '#scanner .ufixit-form', function(e) {
 		e.preventDefault();
@@ -515,6 +525,7 @@ $doc.ready(function() {
 			values.push({ name: 'context_title', value: $('input[name="session_context_title"]').val() });
 
 			$parent.find('.alert').remove();
+			resizeFrame();
 			$.ajax({
 				url: 'process.php',
 				type: 'POST',
@@ -574,6 +585,7 @@ $doc.ready(function() {
 					$inactive.each( function() {
 						$(this).html('Submit');
 					});
+					resizeFrame();
 				},
 				error: function(data) {
 					$parent.append(buildAlertString('Error: '+data.responseText));
@@ -585,11 +597,13 @@ $doc.ready(function() {
 					$inactive.each( function() {
 						$(this).html('Submit');
 					});
+					resizeFrame();
 				}
 			});
 		} else {
 			var vmsg = e.target.parentElement.querySelector('.validmessage');
 			$(vmsg).stop().fadeIn().css('display','inline-block');
+			resizeFrame();
 		}
 	});
 	// END submitting the fix-it form
@@ -616,11 +630,14 @@ $doc.ready(function() {
 				$('#resultsTable').fadeOut();
 				$('#cached').append('<div id="result">Error Loading Results</div>');
 				$('#result').fadeIn();
+				resizeFrame();
 			},
 			success: function(data){
 				$('#resultsTable').fadeOut();
 				$('#cached').append('<div id="result">'+data+'</div>');
-				$('#result').fadeIn();
+				$('#result').fadeIn(function(){
+					resizeFrame();
+				});
 			}
 		});
 	});
@@ -630,6 +647,7 @@ $doc.ready(function() {
 	$doc.on('click', '#backToResults', function() {
 		$('#resultsTable').fadeIn();
 		$('#result').remove();
+		resizeFrame();
 	});
 	// END clicking the back button on a cached report
 
@@ -700,6 +718,7 @@ $doc.ready(function() {
 			type: 'GET',
 			success: function(data) {
 				$('#cached').html(data);
+				resizeFrame();
 			},
 			error: function() {
 				$('#cached').append(buildAlertString('Error displaying cached reports.'));
