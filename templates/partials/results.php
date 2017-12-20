@@ -23,6 +23,24 @@
 	<small><?= $this->e($error_count); ?> errors, <?= $suggestion_count; ?> suggestions</small>
 </h1>
 
+<div id="errorTotalSummary">
+	<div id="summaryContainer" class="panel panel-default">
+		<h2 class="panel-heading">
+			<button class="btn btn-xs btn-default btn-toggle pull-left no-print margin-right-small"><span class="glyphicon glyphicon-plus"></span></button>
+			Error Summary
+		</h2>
+		<div class="panel-body">
+			<table>
+				<?php foreach($error_summary as $item => $data): ?>
+					<tr>
+						<th scope="row"><span class="label <?= $data->severity ?>"><?= $data->count ?></span></th><td><?= $item ?></td>
+					</tr>
+				<?php endforeach; ?>
+			</table>
+		</div>
+	</div>
+</div>
+
 <p>
 	<?php if ( ! empty($post_path)): ?>
 		<button class="btn btn-default btn-xs no-print" id="backToResults">Back to cached reports</button>
