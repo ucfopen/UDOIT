@@ -22,14 +22,13 @@
 	Report for <?= $this->e($course); ?><br>
 	<small><?= $this->e($error_count); ?> errors, <?= $suggestion_count; ?> suggestions</small>
 </h1>
-
 <div id="errorTotalSummary">
 	<div id="summaryContainer" class="panel panel-default">
-		<h2 class="panel-heading">
+		<div class="panel-heading clearfix">
 			<button class="btn btn-xs btn-default btn-toggle pull-left no-print margin-right-small"><span class="glyphicon glyphicon-plus"></span></button>
-			Error Summary
-		</h2>
-		<div class="panel-body">
+			<h2>Error Summary</h2>
+		</div>
+		<div class="errorSummary panel-body">
 			<table>
 				<?php foreach($error_summary as $item => $data): ?>
 					<tr>

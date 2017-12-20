@@ -134,7 +134,6 @@ function loadScanResults(reportID){
 			clearInterval(progressTimer);
 		},
 		success: function(data){
-			console.log(data);
 			displayScanResults(data)
 		}
 	});
@@ -335,9 +334,12 @@ $doc.ready(function() {
 	$doc.on('click', '#udoitForm button.submit', runScanner);
 
 	// result panel collapsing
-	$doc.on('click', '.errorItem .panel-heading .btn-toggle', function() {
+	$doc.on('click', '.panel-heading .btn-toggle', function() {
+		console.log("clicky");
 		$(this).children('button span').removeClass('glyphicon-minus').addClass('glyphicon-plus');
+		console.log("icon change");
 		var $errorItem = $(this).parent();
+		console.log("Parent", $errorItem);
 		if ($errorItem.parent().find('.errorSummary').is(':visible')) {
 			$errorItem.parent().find('.errorSummary').slideUp(function() {
 				$errorItem.children('button span').removeClass('glyphicon-minus').addClass('glyphicon-plus');

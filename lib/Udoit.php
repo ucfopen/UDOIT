@@ -57,6 +57,7 @@ class Udoit
                 $totals['errors']      += count($item['error']);
                 $totals['warnings']    += count($item['warning']);
                 $totals['suggestions'] += count($item['suggestion']);
+                
                 // build error summary
                 $combined_issues = array_merge($item['error'], $item['warning'], $item['suggestion']);
                 foreach($combined_issues as $issue) {

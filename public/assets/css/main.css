@@ -292,10 +292,6 @@ h5 {
 }
 
 
-#errorTotalSummary .panel-body {
-	display: none;
-}
-
 #errorTotalSummary table td {
 	padding: 0px 15px;
 }
