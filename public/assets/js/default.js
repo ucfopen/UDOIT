@@ -335,11 +335,8 @@ $doc.ready(function() {
 
 	// result panel collapsing
 	$doc.on('click', '.panel-heading .btn-toggle', function() {
-		console.log("clicky");
 		$(this).children('button span').removeClass('glyphicon-minus').addClass('glyphicon-plus');
-		console.log("icon change");
 		var $errorItem = $(this).parent();
-		console.log("Parent", $errorItem);
 		if ($errorItem.parent().find('.errorSummary').is(':visible')) {
 			$errorItem.parent().find('.errorSummary').slideUp(function() {
 				$errorItem.children('button span').removeClass('glyphicon-minus').addClass('glyphicon-plus');
