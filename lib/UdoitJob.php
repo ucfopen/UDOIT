@@ -189,13 +189,16 @@ class UdoitJob
                 unset($results['scan_results']['unscannable']);
             }
 
-            foreach($results['scan_results']['error_summary'] as $item => $data) {
-                if(!isset($error_summary[$item])) {
-                    $error_summary[$item] = $data;
-                } else {
-                    $error_summary[$item]->count += $data->count;
-                }
+            if(is_array($results['scan_results']['error_summary']) || is_object($results['scan_results']['error_summary'])) {
+                foreach($results['scan_results']['error_summary'] as $item => $data) {
+                    if(!isset($error_summary[$item])) {
+                        $error_summary[$item] = $data;
+                    } else {
+                     $error_summary[$item]->count += $data->count;
+                    }
+                }    
             }
+            
             // merge the scan results
             $content = array_merge($content, $results['scan_results']);
         }
