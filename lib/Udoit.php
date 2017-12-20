@@ -36,7 +36,7 @@ class Udoit
         $logger->addInfo("Starting retrieveAndScan - course: {$course_id}, content: {$content_type}");
 
         $items_with_issues = []; // array of content items that the scanner found issues in
-        $totals = ['errors' => 0, 'warnings' => 0, 'suggestions' => 0];
+        $totals = ['errors' => 0, 'warnings' => 0, 'suggestions' => 0);
         $scan_time_start = microtime(true);
 
         $content = static::getCourseContent($api_key, $canvas_api_url, $course_id, $content_type);
@@ -62,7 +62,7 @@ class Udoit
             $items_with_issues = $content['items'];
             $totals['suggestions'] += count($items_with_issues);
         }
-
+        
         // caluculate the total run time
         $content['time']  = round(microtime(true) - $scan_time_start, 2);
 

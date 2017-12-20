@@ -20,7 +20,7 @@
 ?>
 <h1 class="text-center">
 	Report for <?= $this->e($course); ?><br>
-	<small><?= $this->e($error_count); ?> errors, <?= $suggestion_count; ?> suggestions</small>
+	<small><?= $this->e($error_count); ?> errors, <?= $suggestion_count; ?> suggestions, <?= $unscannable_count; ?> unscannable files</small>
 </h1>
 
 <p>
