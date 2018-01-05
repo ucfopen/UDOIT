@@ -15,7 +15,7 @@ $oauth2_uri       = getenv('OAUTH2_URI');
 $canvas_nav_item_name = getenv('CANVAS_NAV_ITEM_NAME');
 
 /* File Scan Size Limit */
-$file_scan_size_limit = getenv('SCAN_FILE_SIZE_LIMIT') ?: 50000000;
+$file_scan_size_limit = getenv('SCAN_FILE_SIZE_LIMIT') ?: 52428800;
 
 /* Database Config */
 
