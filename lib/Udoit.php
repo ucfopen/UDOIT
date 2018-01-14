@@ -203,6 +203,7 @@ class Udoit
                 break;
 
             case 'files':
+                global $upload_max_size;
                 $contents = static::apiGetAllLinks($api_key, "{$api_url}files?");
                 foreach ($contents as $c) {
                     if (substr($c->display_name, 0, 2) === '._') {
@@ -218,7 +219,7 @@ class Udoit
                             'url'   => $c->url,
                             'big'   => false,
                         ];
-                    } elseif (!empty($c->size) && $c->size > 50000000) {
+                    } elseif (!empty($c->size) && $c->size > $upload_max_size) {
                         // too big to scan
                         $content_result['unscannable'][] = [
                             'title' => $c->display_name,
