@@ -35,6 +35,9 @@ $background_worker_sleep_seconds = 7;
 /* Disable headings check character count */
 $doc_length = getenv('DOC_LENGTH')?:1500;
 
+/* File Upload */
+$upload_max_size  = 50000000;
+
 /*Unscannable Suggestion */
 $unscannable_suggestion = 'Consider converting these documents to Pages, since they are easier to update and generally more accessible.';
 $unscannable_suggestion_on = true;

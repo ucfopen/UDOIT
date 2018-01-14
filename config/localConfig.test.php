@@ -32,6 +32,9 @@ $db_user_table    = 'users';
 $db_reports_table = 'reports';
 $dsn = "{$db_type}:host={$db_host};port={$db_port};dbname={$db_name}";
 
+/* File Upload */
+$upload_max_size  = 50000000;
+
 $debug = false;
 
 // added in v2.3.0
