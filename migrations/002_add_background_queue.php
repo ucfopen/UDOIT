@@ -52,7 +52,7 @@ if ('mysql' === $db_type) {
                 `user_id` int(10) unsigned NOT NULL,
                 `job_type` varchar(255) NOT NULL,
                 `data` text,
-                `results` text,
+                `results` mediumtext,
                 `status` varchar(255) NOT NULL DEFAULT "new",
                 `date_created` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
                 `date_completed` timestamp,

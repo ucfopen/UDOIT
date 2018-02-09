@@ -51,10 +51,10 @@ if (!$check_for_column($db_reports_table, 'file_path')) {
 }
 
 // add the column if it's missing
-if ($check_for_column($db_reports_table, $col_to_add)) {
+if (!$check_for_column($db_reports_table, $col_to_add)) {
     // Quick hack to add report column since we dont have migrations yet
     $column_type = $db_type == 'mysql' ? 'MEDIUMTEXT' : 'TEXT';
-    $dbh->query("ALTER TABLE {$db_reports_table} ADD {$col_to_add} {$column_type}");
+    UdoitDB::query("ALTER TABLE {$db_reports_table} ADD {$col_to_add} {$column_type}");
 }
 
 // exit with warning if the column is still missing
@@ -64,6 +64,11 @@ if (!check_for_column($dbh, $db_reports_table, $col_to_add)) {
     }
 
     return;
+}
+
+// Grab all rows from the reports table
+if ($rows = UdoidDB::query('SELECT * FROM reports')) {
+    $rows = $rows->fetchAll();
 }
 
 // now move the reports from the report files into the database
