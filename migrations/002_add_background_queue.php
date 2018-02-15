@@ -24,6 +24,7 @@ if ('sqlite' === $db_type || 'test' === $db_type) {
 
 if ('pgsql' === $db_type) {
     // POSTGRESQL
+    echo("Creating job_queue in PostgreSQL\r\n");
     $queries = [
         '
             CREATE TABLE IF NOT EXISTS job_queue (
@@ -44,6 +45,7 @@ if ('pgsql' === $db_type) {
 
 if ('mysql' === $db_type) {
     // MYSQL
+    echo("Creating job_queue in MySQL\r\n");
     $queries = [
         '
             CREATE TABLE IF NOT EXISTS `job_queue` (
