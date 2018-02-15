@@ -186,7 +186,7 @@ class UdoitJob
             // if the scan results array is empty for some reason,
             // make sure it's an empty array and continue.
             if (empty($results['scan_results'])) {
-                $content = array();
+                $results['scan_results'] = array();
             }
 
             // if unscannables are found, collect them
