@@ -24,6 +24,7 @@ if ('sqlite' === $db_type || 'test' === $db_type) {
 
 if ('pgsql' === $db_type) {
     // POSTGRESQL
+    echo("Creating job_queue in PostgreSQL\r\n");
     $queries = [
         '
             CREATE TABLE IF NOT EXISTS job_queue (
@@ -44,6 +45,7 @@ if ('pgsql' === $db_type) {
 
 if ('mysql' === $db_type) {
     // MYSQL
+    echo("Creating job_queue in MySQL\r\n");
     $queries = [
         '
             CREATE TABLE IF NOT EXISTS `job_queue` (
@@ -52,7 +54,7 @@ if ('mysql' === $db_type) {
                 `user_id` int(10) unsigned NOT NULL,
                 `job_type` varchar(255) NOT NULL,
                 `data` text,
-                `results` text,
+                `results` mediumtext,
                 `status` varchar(255) NOT NULL DEFAULT "new",
                 `date_created` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
                 `date_completed` timestamp,

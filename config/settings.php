@@ -2,7 +2,7 @@
 define('ENV_TEST', 'test');
 define('ENV_PROD', 'prod');
 define('ENV_DEV', 'dev');
-define('UDOIT_VERSION', '2.3.0');
+define('UDOIT_VERSION', '2.3.1');
 
 // SET UP AUTOLOADER (uses autoload rules from composer)
 require_once(__DIR__.'/../vendor/autoload.php');
@@ -32,7 +32,7 @@ ini_set("display_errors", ($UDOIT_ENV == ENV_PROD ? 0 : 1));
 isset($UDOIT_ENV) || $UDOIT_ENV = ENV_PROD; // !! override in your localConfig.php
 
 // SET UP OAUTH
-UdoitUtils::setupOauth($oauth2_id, $oauth2_key, $oauth2_id, $consumer_key, $shared_secret);
+UdoitUtils::setupOauth($oauth2_id, $oauth2_key, $oauth2_uri, $consumer_key, $shared_secret);
 
 // SET UP DATABASE
 UdoitDB::setup($db_type, $dsn, $db_user, $db_password);

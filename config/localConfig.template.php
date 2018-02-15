@@ -13,7 +13,7 @@ $oauth2_uri = ''; // EX: https://udoit.my-org.edu/oauth2response.php or https://
 $doc_length = '1500';
 
 /* Unscannable Suggestion */
-$unscannable_suggestion = 'Consider converting these documents to Pages, since they are easier to update and generally more accessible.';
+$unscannable_suggestion = 'Consider converting these documents to Pages, since they are easier to update, easier to view on mobile devices, and generally more accessible.';
 $unscannable_suggestion_on = true;
 
 /* Tool name for display in Canvas Navigation */

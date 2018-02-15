@@ -90,10 +90,14 @@ class UdoitUtils
         $sth = UdoitDB::prepare("SELECT api_key, canvas_url FROM {$db_user_table} WHERE id = :userid LIMIT 1");
         $sth->bindValue(':userid', $user_id, PDO::PARAM_INT);
         $sth->execute();
-        if ($result = $sth->fetchObject()) {
-            self::$canvas_base_url = $result->canvas_url;
 
-            return $result->api_key;
+        if ($result = $sth->fetchObject()) {
+            if (empty($result->canvas_url)) {
+                return false;
+            } else {
+                self::$canvas_base_url = $result->canvas_url;
+                return $result->api_key;
+            }            
         }
 
         return false;
@@ -209,11 +213,13 @@ class UdoitUtils
     {
         global $db_user_table;
 
-        $sth = UdoitDB::prepare("SELECT * FROM {$db_user_table} WHERE id = :userid AND canvas_url = :canvas_url LIMIT 1");
+        // Try to find the user first
+        // Note:  We're not looking for a matching Canvas URL because the id field is unique
+        $sth = UdoitDB::prepare("SELECT * FROM {$db_user_table} WHERE id = :userid LIMIT 1");
         $sth->bindValue(':userid', $user_id, PDO::PARAM_INT);
-        $sth->bindValue(':canvas_url', $canvas_url, PDO::PARAM_STR);
         $sth->execute();
 
+        // If we found the user, update them.  Otherwise, insert a new one.
         if ($result = $sth->fetchObject()) {
             $sth = UdoitDB::prepare("UPDATE {$db_user_table} SET api_key = :api_key, refresh_token = :refresh_token, canvas_url = :canvas_url WHERE id = :userid");
         } else {

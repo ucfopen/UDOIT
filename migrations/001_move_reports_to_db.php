@@ -44,26 +44,34 @@ $check_for_column = function ($table, $columnName) {
 // if 'file_path' col is missing, there's nothing to do
 if (!$check_for_column($db_reports_table, 'file_path')) {
     if (!getenv('UNITTEST')) {
-        echo("It looks like this script doesnt need to be run");
+        echo("No need to migrate old reports, continuing...\r\n");
     }
 
     return;
 }
 
 // add the column if it's missing
-if ($check_for_column($db_reports_table, $col_to_add)) {
+if (!$check_for_column($db_reports_table, $col_to_add)) {
     // Quick hack to add report column since we dont have migrations yet
+    echo("Adding report_json column.\r\n");
     $column_type = $db_type == 'mysql' ? 'MEDIUMTEXT' : 'TEXT';
-    $dbh->query("ALTER TABLE {$db_reports_table} ADD {$col_to_add} {$column_type}");
+    UdoitDB::query("ALTER TABLE {$db_reports_table} ADD {$col_to_add} {$column_type}");
 }
 
 // exit with warning if the column is still missing
 if (!check_for_column($dbh, $db_reports_table, $col_to_add)) {
     if (!getenv('UNITTEST')) {
-        echo("The migration script failed to create a ${col_to_add} column");
+        echo("The migration script failed to create a ${col_to_add} column\r\n");
     }
 
     return;
+}
+
+echo("Migrating old reports from disk to database.\r\n");
+
+// Grab all rows from the reports table
+if ($rows = UdoidDB::query('SELECT * FROM reports')) {
+    $rows = $rows->fetchAll();
 }
 
 // now move the reports from the report files into the database
@@ -77,7 +85,7 @@ foreach ($rows as $row) {
 
     $file = __DIR__.'/'.$row['file_path'];
     if (!file_exists($file)) {
-        echo("Json file not found {$file} for report id: {$row['id']}\n");
+        echo("Json file not found {$file} for report id: {$row['id']}\r\n");
         continue;
     }
 
@@ -93,7 +101,7 @@ foreach ($rows as $row) {
 
     if (!$res) {
         print_r($sth->errorInfo());
-        echo("Failed inserting report for {$row['id']}\n");
+        echo("Failed inserting report for {$row['id']}\r\n");
         continue;
     }
 
@@ -101,4 +109,4 @@ foreach ($rows as $row) {
 }
 
 UdoitDB::query("ALTER TABLE {$db_reports_table} DROP COLUMN file_path");
-echo("Moved {$count_moved} reports from disk to the database. Feel free to delete the reports directory\n");
+echo("Moved {$count_moved} reports from disk to the database. Feel free to delete the reports directory\r\n");
