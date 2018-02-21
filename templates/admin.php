@@ -31,10 +31,10 @@ $this->layout('template', $settings);
 ?>
 <ul class="nav nav-tabs nav-justified" role="tablist">
 	<li role="presentation" class="active"><a href="#all" role="tab" data-toggle="tab">All Reports</a></li>
-	<li role="presentation"><a href="#numbycourse" role="tab" data-toggle="tab">Issues By Course</a></li>
-	<li role="presentation"><a href="#activity" role="tab" data-toggle="tab">User Activity</a></li>
-	<li role="presentation"><a href="#growth" role="tab" data-toggle="tab">User Growth</a></li>
-	<li role="presentation"><a href="#useradmin" role="tab" data-toggle="tab">User Admin</a></li>
+	<li role="presentation"><a href="#issues-per-course" role="tab" data-toggle="tab">Issues Per Course</a></li>
+	<li role="presentation"><a href="#scans-per-user" role="tab" data-toggle="tab">Scans Per User</a></li>
+	<li role="presentation"><a href="#user-growth" role="tab" data-toggle="tab">User Growth</a></li>
+	<li role="presentation"><a href="#user-admin" role="tab" data-toggle="tab">User Admin</a></li>
 </ul>
 <main id="contentWrapper" role="main">
 	<div class="tab-content">
@@ -47,17 +47,22 @@ $this->layout('template', $settings);
 				</div>
 			</div>
 		</div>
-		<div class="tab-pane" id="numbycourse" role="tabpanel">
-			<p>numerrors</p>
+		<div class="tab-pane" id="issues-per-course" role="tabpanel">
+			<p>Issues Per Course</p>
 		</div>
-		<div class="tab-pane" id="activity" role="tabpanel">
-			<p>activity</p>
+		<div class="tab-pane" id="scans-per-user" role="tabpanel">
+			<p>Scans per user</p>
 		</div>
-		<div class="tab-pane" id="growth" role="tabpanel">
-			<p>growth</p>
+		<div class="tab-pane" id="user-growth" role="tabpanel">
+			<p>User Growth</p>
 		</div>
-		<div class="tab-pane" id="useradmin" role="tabpanel">
-			<p>useradmin</p>
+		<div class="tab-pane" id="user-admin" role="tabpanel">
+			<p>User Admin</p>
+			<?php
+			// TODO:  Make this into an AJAX call with maybe a user name search field
+			$results = UdoitStats::instance()->getAllUsers();
+			print_r($results);
+			?>
 		</div>
 	</div>
 </main>
