@@ -56,6 +56,11 @@ echo('<?xml version="1.0" encoding="UTF-8"?>');
 			<lticm:property name="text"><?= $canvas_nav_item_name ? $canvas_nav_item_name : 'UDOIT' ?></lticm:property>
 			<lticm:property name="enabled">true</lticm:property>
 		</lticm:options>
+		<lticm:options name="account_navigation">
+			<lticm:property name="enabled">true</lticm:property>
+			<lticm:property name="url"><?= $launch ?>admin.php</lticm:property>
+			<lticm:property name="text"><?= $canvas_nav_item_name ? $canvas_nav_item_name : 'UDOIT' ?> Admin</lticm:property>
+		</lticm:options>
 	</blti:extensions>
 	<cartridge_bundle identifierref="BLTI001_Bundle"/>
 	<cartridge_icon identifierref="BLTI001_Icon"/>
