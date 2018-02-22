@@ -20,32 +20,21 @@
 
 require_once(__DIR__.'/../config/settings.php');
 
-// Sanitize post parameters
-$post_input = filter_input_array(INPUT_POST, FILTER_SANITIZE_STRING);
-$post_input['custom_canvas_user_id'] = filter_input(INPUT_POST, 'custom_canvas_user_id', FILTER_SANITIZE_NUMBER_INT);
+session_start();
+header('Content-Type: text/html; charset=utf-8');
 
-$expect = ['oauth_consumer_key', 'custom_canvas_api_domain', 'custom_canvas_user_id'];
+// verify we have the variables we need from the LTI launch
+$expect = ['base_url', 'launch_params', ];
 foreach ($expect as $key) {
-    if (empty($post_input[$key])) {
-        UdoitUtils::instance()->exitWithPageError("Missing LTI launch information. Please ensure that your instance of UDOIT is installed to Canvas correctly. Missing: {$key}");
+    if (empty($_SESSION[$key])) {
+        UdoitUtils::instance()->exitWithPageError("Missing Session information. Please refresh the page. Missing: {$key}");
     }
 }
 
-// verify LTI launch
-if (!UdoitUtils::instance()->verifyBasicLTILaunch()) {
-    UdoitUtils::instance()->exitWithPageError('LTI/Oauth verification problem, please ensure that your instance of UDOIT is configured correctly.');
+// If Administrator is not found in the user's list of roles, kick them out with an error
+if (strpos($_SESSION['launch_params']['ext_roles'], 'Administrator') === false) {
+    UdoitUtils::instance()->exitWithPageError("Insufficient permissions to continue.  Please contact your LMS Administrator.");
 }
-
-// store LTI launch variables
-session_start();
-$user_id                     = $post_input['custom_canvas_user_id'];
-UdoitUtils::$canvas_base_url = rtrim("https://{$post_input['custom_canvas_api_domain']}", '/');
-$_SESSION['base_url']        = UdoitUtils::$canvas_base_url;
-$_SESSION['launch_params']   = [
-    'custom_canvas_user_id'         => $post_input['custom_canvas_user_id'],
-    'custom_canvas_user_login_id'   => $post_input['custom_canvas_user_login_id'],
-    'context_title'                 => $post_input['context_title'],
-];
 
 //TODO: Log each user that accesses the admin interface
 
