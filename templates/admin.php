@@ -22,7 +22,7 @@ $settings = [
 	'footer_scripts' => [
 		"//code.jquery.com/jquery-2.1.1.min.js",
 		"//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js",
-		"assets/js/default.js?cachebuster=".time(),
+		"assets/js/admin.js?cachebuster=".time(),
 	]
 ];
 
@@ -48,21 +48,52 @@ $this->layout('template', $settings);
 			</div>
 		</div>
 		<div class="tab-pane" id="issues-per-course" role="tabpanel">
-			<p>Issues Per Course</p>
+			<div class="panel panel-default">
+				<div class="panel-body">
+					<h2>Issues Per Course</h2>
+				</div>
+			</div>
 		</div>
 		<div class="tab-pane" id="scans-per-user" role="tabpanel">
-			<p>Scans per user</p>
+			<div class="panel panel-default">
+				<div class="panel-body">
+					<h2>Scans per user</h2>
+				</div>
+			</div>
 		</div>
 		<div class="tab-pane" id="user-growth" role="tabpanel">
-			<p>User Growth</p>
+			<div class="panel panel-default">
+				<div class="panel-body">
+					<h2>User Growth</h2>
+					<form id="user-growth-pull" class="admin-form" action="#" role="form">
+						<label for="user-growth-grain">Granularity: 
+							<select id="user-growth-grain" name="grain">
+								<option value="day" selected>Day</option>
+								<option value="week">Week</option>
+								<option value="month">Month</option>
+								<option value="year">Year</option>
+							</select>
+						</label>
+						<label for="user-growth-start-date">Start Date: 
+							<input type="date" name="startdate" id="user-growth-start-date" required pattern="[0-9]{4}-[0-9]{2}-[0-9]{2}"/>
+						</label>
+						<label for="user-growth-end-date">End Date: 
+							<input type="date" name="enddate" id="user-growth-end-date" required pattern="[0-9]{4}-[0-9]{2}-[0-9]{2}"/>
+						</label>
+						<input type="submit" class="btn btn-default" name="user-growth-submit" value="Generate Report" />
+					</form>
+				</div>
+			</div>
+			<div id="user-growth-results" class="stat-results"></div>
 		</div>
 		<div class="tab-pane" id="user-admin" role="tabpanel">
-			<p>User Admin</p>
-			<?php
-			// TODO:  Make this into an AJAX call with maybe a user name search field
-			$results = UdoitStats::instance()->getAllUsers();
-			print_r($results);
-			?>
+			<div class="panel panel-default">
+				<div class="panel-body">
+					<h2>User Admin</h2>
+					<button id="user-pull" class="btn btn-default">Generate Report</button>
+					<div id="user-results" class="stat-results"></div>
+				</div>
+			</div>
 		</div>
 	</div>
 </main>

@@ -52,6 +52,13 @@ $_SESSION['launch_params']   = [
     'ext_roles'               => $post_input['ext_roles'],
 ];
 
+// Figure out if they're an Admin and set the session variable accordingly
+if (strpos($_SESSION['launch_params']['ext_roles'], 'Administrator') !== false) {
+    $_SESSION['is_admin'] = true;
+} else {
+    $_SESSION['is_admin'] = false;
+}
+
 // Default to scanner if no destination is specified
 if (isset($_GET['d'])) {
     $_SESSION['destination'] = filter_input(INPUT_GET, 'd', FILTER_SANITIZE_STRING);

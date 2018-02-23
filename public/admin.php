@@ -32,7 +32,7 @@ foreach ($expect as $key) {
 }
 
 // If Administrator is not found in the user's list of roles, kick them out with an error
-if (strpos($_SESSION['launch_params']['ext_roles'], 'Administrator') === false) {
+if (!$_SESSION['is_admin']) {
     UdoitUtils::instance()->exitWithPageError("Insufficient permissions to continue.  Please contact your LMS Administrator.");
 }
 

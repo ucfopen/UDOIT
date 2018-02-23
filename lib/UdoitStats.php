@@ -84,7 +84,7 @@ class UdoitStats
     /**
      * Gets every user in the database.
      */
-    public function getAllUsers()
+    public function getUsers()
     {
     	//TODO:  Paginate this by adding a page parameter and modifying the query
     	global $db_user_table;
@@ -92,7 +92,7 @@ class UdoitStats
     	$sth = UdoitDB::prepare("SELECT id, date_created, canvas_url FROM {$db_user_table}");    	
 
     	if ($sth->execute()) {
-    		return $sth->fetchAll();
+    		return $sth->fetchAll(PDO::FETCH_ASSOC);
     	} else {
     		return false;
     	}

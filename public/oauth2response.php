@@ -48,4 +48,4 @@ if ($_SESSION['destination'] === 'admin') {
     $redirect_to = 'scanner.php';
 }
 
-header('Location: {$redirect_to}');
+header("Location: {$redirect_to}");
