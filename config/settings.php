@@ -32,7 +32,7 @@ ini_set("display_errors", ($UDOIT_ENV == ENV_PROD ? 0 : 1));
 isset($UDOIT_ENV) || $UDOIT_ENV = ENV_PROD; // !! override in your localConfig.php
 
 // SET UP OAUTH
-UdoitUtils::setupOauth($oauth2_id, $oauth2_key, $oauth2_uri, $consumer_key, $shared_secret);
+UdoitUtils::setupOauth($oauth2_id, $oauth2_key, $oauth2_uri, $consumer_key, $shared_secret, $curl_ssl_verify);
 
 // SET UP DATABASE
 UdoitDB::setup($db_type, $dsn, $db_user, $db_password);

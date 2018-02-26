@@ -48,3 +48,7 @@ $background_worker_sleep_seconds = 7;
 // $UDOIT_ENV = ENV_PROD;
 // $UDOIT_ENV = ENV_DEV;
 // $UDOIT_ENV = ENV_TEST;
+
+// Sets CURLOPT_SSL_VERIFYPEER and CURLOPT_SSL_VERIFYHOST
+// This should be true for production environments
+$curl_ssl_verify = true;

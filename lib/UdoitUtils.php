@@ -25,6 +25,7 @@ class UdoitUtils
     public static $canvas_consumer_key;
     public static $canvas_secret_key;
     public static $canvas_base_url;
+    public static $curl_ssl_verify;
     public static $regex = [
         '@youtube\.com/embed/([^"\& ]+)@i',
         '@youtube\.com/v/([^"\& ]+)@i',
@@ -47,13 +48,14 @@ class UdoitUtils
         return self::$instance;
     }
 
-    public static function setupOauth($id, $key, $uri, $consumer_key, $secret)
+    public static function setupOauth($id, $key, $uri, $consumer_key, $secret, $curl_ssl_verify = true)
     {
         self::$canvas_oauth_id = $id;
         self::$canvas_oauth_key = $key;
         self::$canvas_oauth_uri = $uri;
         self::$canvas_consumer_key = $consumer_key;
         self::$canvas_secret_key = $secret;
+        self::$curl_ssl_verify = $curl_ssl_verify;
     }
 
     public function getYouTubeId($link_url)
@@ -127,6 +129,7 @@ class UdoitUtils
         if (empty($user_id) || empty($api_key)) {
             return false;
         }
+
         // return false for testing
         if (ENV_PROD !== $UDOIT_ENV) {
             return false;
@@ -278,6 +281,10 @@ class UdoitUtils
         curl_setopt($ch, CURLOPT_POST, 1);
         curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($post_data));
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+        // Ignore SSL certificates when specified in local config
+        // (E.g. when Canvas instance does not have trusted SSL certificates)
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, $curl_ssl_verify);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, $curl_ssl_verify);
         $result = curl_exec($ch);
         curl_close($ch);
 
