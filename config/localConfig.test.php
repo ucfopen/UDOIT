@@ -34,15 +34,15 @@ $dsn = "{$db_type}:host={$db_host};port={$db_port};dbname={$db_name}";
 
 $debug = false;
 
-// Sets CURLOPT_SSL_VERIFYPEER and CURLOPT_SSL_VERIFYHOST
-// This should be true for production environments
-$curl_ssl_verify = false;
-
 // added in v2.3.0
 // Background worker Options (See Background Workers in Readme)
 $background_worker_enabled = false;
 $background_job_expire_time = 20; // after x Minutes, mark job as expired
 $background_worker_sleep_seconds = 1;
+
+// Sets CURLOPT_SSL_VERIFYPEER and CURLOPT_SSL_VERIFYHOST
+// This should be true for production environments
+$curl_ssl_verify = false;
 
 // send logs into the phpunit output
 $log_handler = new \Monolog\Handler\TestHandler(null, \Monolog\Logger::WARNING);
