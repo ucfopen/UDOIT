@@ -34,6 +34,10 @@ $dsn = "{$db_type}:host={$db_host};port={$db_port};dbname={$db_name}";
 
 $debug = false;
 
+// Sets CURLOPT_SSL_VERIFYPEER and CURLOPT_SSL_VERIFYHOST
+// This should be true for production environments
+$curl_ssl_verify = false;
+
 // added in v2.3.0
 // Background worker Options (See Background Workers in Readme)
 $background_worker_enabled = false;
