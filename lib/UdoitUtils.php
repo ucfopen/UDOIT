@@ -96,10 +96,10 @@ class UdoitUtils
         if ($result = $sth->fetchObject()) {
             if (empty($result->canvas_url)) {
                 return false;
-            } else {
-                self::$canvas_base_url = $result->canvas_url;
-                return $result->api_key;
-            }            
+            }
+            self::$canvas_base_url = $result->canvas_url;
+
+            return $result->api_key;
         }
 
         return false;
