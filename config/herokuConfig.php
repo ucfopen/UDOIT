@@ -54,3 +54,7 @@ if (!empty($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PRO
 // send logs into the heroku logs
 $log_handler = new \Monolog\Handler\ErrorLogHandler();
 $log_handler->setFormatter(new \Monolog\Formatter\LineFormatter(null, null, true, true));
+
+// Sets CURLOPT_SSL_VERIFYPEER and CURLOPT_SSL_VERIFYHOST
+// This should be true for production environments
+$curl_ssl_verify = true;
