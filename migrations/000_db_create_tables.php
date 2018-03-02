@@ -30,6 +30,7 @@ if ('sqlite' === $db_type || 'test' === $db_type) {
 
 if ('pgsql' === $db_type) {
     // POSTGRESQL
+    echo("Setting up tables in PostgreSQL\r\n");
     $tables = [
         '
             CREATE TABLE IF NOT EXISTS reports (
@@ -55,6 +56,7 @@ if ('pgsql' === $db_type) {
 
 if ('mysql' === $db_type) {
     // MYSQL
+    echo("Setting up tables in MySQL\r\n");
     $tables = [
         '
             CREATE TABLE IF NOT EXISTS `reports` (
