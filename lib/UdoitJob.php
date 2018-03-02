@@ -169,8 +169,8 @@ class UdoitJob
     {
         global $logger;
         $totals = ['errors' => 0, 'warnings' => 0, 'suggestions' => 0];
-        $unscannables_items = array();
-        $content = array();
+        $unscannables_items = [];
+        $content = [];
 
         // combine the data from each job's results
         $sql = "SELECT * FROM job_queue WHERE job_group = '{$job_group}'";
@@ -186,7 +186,7 @@ class UdoitJob
             // if the scan results array is empty for some reason,
             // make sure it's an empty array and continue.
             if (empty($results['scan_results'])) {
-                $results['scan_results'] = array();
+                $results['scan_results'] = [];
             }
 
             // if unscannables are found, collect them
