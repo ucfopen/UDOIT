@@ -17,11 +17,29 @@
 *
 *	Primary Author Contact:  Jacob Bates <jacob.bates@ucf.edu>
 */
+global $file_scan_size_limit;
 ?>
 <h1 class="text-center">
 	Report for <?= $this->e($course); ?><br>
 	<small><?= $this->e($error_count); ?> errors, <?= $suggestion_count; ?> suggestions</small>
 </h1>
+<div id="errorTotalSummary">
+	<div id="summaryContainer" class="panel panel-default">
+		<div class="panel-heading clearfix">
+			<button class="btn btn-xs btn-default btn-toggle pull-left no-print margin-right-small"><span class="glyphicon glyphicon-plus"></span></button>
+			<h2>Error Summary</h2>
+		</div>
+		<div class="errorSummary panel-body">
+			<table>
+				<?php foreach($error_summary as $item => $data): ?>
+					<tr>
+						<th scope="row"><span class="label <?= $data->severity ?>"><?= $data->count ?></span></th><td><?= $item ?></td>
+					</tr>
+				<?php endforeach; ?>
+			</table>
+		</div>
+	</div>
+</div>
 
 <p>
 	<?php if ( ! empty($post_path)): ?>
@@ -51,7 +69,11 @@
 					echo($this->fetch('partials/results_module_urls', ['items' => $group->items, 'time' => $group->time, 'out_of_items' => $group->amount]));
 					break;
 				case "unscannable":
-					echo($this->fetch('partials/results_unscannable', ['items' => $group->items, 'out_of_items' => $group->amount]));
+					$base = log($file_scan_size_limit, 1024);
+					$suffixes = array('', 'k', 'm', 'g', 't');
+					$size_str = round(pow(1024, $base - floor($base)), 2) . ' ' . $suffixes[floor($base)] . "b";
+
+					echo($this->fetch('partials/results_unscannable', ['items' => $group->items, 'out_of_items' => $group->amount, 'size_limit' =>  $size_str]));
 					break;
 			}
 		}

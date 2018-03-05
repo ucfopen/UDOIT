@@ -37,6 +37,7 @@ class Udoit
 
         $items_with_issues = []; // array of content items that the scanner found issues in
         $totals = ['errors' => 0, 'warnings' => 0, 'suggestions' => 0];
+        $error_summary = [];
         $scan_time_start = microtime(true);
 
         $content = static::getCourseContent($api_key, $canvas_api_url, $course_id, $content_type);
@@ -56,6 +57,20 @@ class Udoit
                 $totals['errors']      += count($item['error']);
                 $totals['warnings']    += count($item['warning']);
                 $totals['suggestions'] += count($item['suggestion']);
+                
+                // build error summary
+                $combined_issues = array_merge($item['error'], $item['warning'], $item['suggestion']);
+                foreach($combined_issues as $issue) {
+                    $title = $issue['title'];
+                    $severity = $issue['severity_num'];
+                    if(!isset($error_summary[$title])) {
+                        $error_summary[$title] = new stdClass();
+                        $error_summary[$title]->count = 1;
+                        $error_summary[$title]->severity = $severity == 3 ? 'label-primary' : 'label-danger';
+                    } else {
+                        $error_summary[$title]->count++;
+                    }
+                }
             }
         } else {
             // module_urls skips the scanner, just add them to the items with issues
@@ -72,6 +87,7 @@ class Udoit
             'total_results' => $totals,
             'scan_results' => [
                 'unscannable' => $content['unscannable'],
+                'error_summary' => $error_summary,
                 $content_type => [
                     'title'  => $content_type,
                     'items'  => $items_with_issues,
@@ -218,7 +234,7 @@ class Udoit
                             'url'   => $c->url,
                             'big'   => false,
                         ];
-                    } elseif (!empty($c->size) && $c->size > 50000000) {
+                    } elseif (!empty($c->size) && $c->size > $file_scan_size_limit) {
                         // too big to scan
                         $content_result['unscannable'][] = [
                             'title' => $c->display_name,

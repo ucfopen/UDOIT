@@ -14,6 +14,9 @@ $oauth2_uri       = getenv('OAUTH2_URI');
 /* Tool name for display in Canvas Navigation */
 $canvas_nav_item_name = getenv('CANVAS_NAV_ITEM_NAME');
 
+/* File Scan Size Limit */
+$file_scan_size_limit = getenv('SCAN_FILE_SIZE_LIMIT') ?: 52428800;
+
 /* Database Config */
 
 $db_url           = parse_url(getenv('DATABASE_URL'));
@@ -54,3 +57,7 @@ if (!empty($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PRO
 // send logs into the heroku logs
 $log_handler = new \Monolog\Handler\ErrorLogHandler();
 $log_handler->setFormatter(new \Monolog\Formatter\LineFormatter(null, null, true, true));
+
+// Sets CURLOPT_SSL_VERIFYPEER and CURLOPT_SSL_VERIFYHOST
+// This should be true for production environments
+$curl_ssl_verify = true;

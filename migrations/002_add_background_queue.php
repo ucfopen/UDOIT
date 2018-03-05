@@ -57,7 +57,7 @@ if ('mysql' === $db_type) {
                 `results` mediumtext,
                 `status` varchar(255) NOT NULL DEFAULT "new",
                 `date_created` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                `date_completed` timestamp,
+                `date_completed` timestamp NULL,
                 report_id int(10),
                 PRIMARY KEY (`id`)
             ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
