@@ -171,6 +171,7 @@ class UdoitJob
         $totals = ['errors' => 0, 'warnings' => 0, 'suggestions' => 0];
         $unscannables_items = [];
         $content = [];
+        $error_summary = [];
 
         // combine the data from each job's results
         $sql = "SELECT * FROM job_queue WHERE job_group = '{$job_group}'";
@@ -195,7 +196,16 @@ class UdoitJob
                 unset($results['scan_results']['unscannable']);
             }
 
-            
+            if(is_array($results['scan_results']['error_summary']) || is_object($results['scan_results']['error_summary'])) {
+                foreach($results['scan_results']['error_summary'] as $item => $data) {
+                    if(!isset($error_summary[$item])) {
+                        $error_summary[$item] = $data;
+                    } else {
+                     $error_summary[$item]->count += $data->count;
+                    }
+                }
+            }
+
             // merge the scan results
             $content = array_merge($content, $results['scan_results']);
         }
@@ -214,6 +224,7 @@ class UdoitJob
             'user_id'       => $job['user_id'],
             'job_group'     => $job_group,
             'total_results' => $totals,
+            'error_summary' => $error_summary,
             'content'       => $content,
         ];
     }
