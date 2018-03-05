@@ -57,7 +57,7 @@ global $unscannable_suggestion;
 					<hr>
 					<a class="unscannable-warning view-warning">
 						<span class="glyphicon glyphicon-info-sign"></span>
-						Warning: Large File (>50mb)
+						Warning: Large File (> <?= $size_limit; ?>)
 					</a>
 					<div class="warning-info hidden">
 						Users with slow internet connections (such as modem or 2G cellular data) may have trouble downloading files larger than 50mb in a reasonable amount of time. Consider reducing the size of this file.
