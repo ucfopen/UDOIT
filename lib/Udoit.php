@@ -234,7 +234,7 @@ class Udoit
                             'url'   => $c->url,
                             'big'   => false,
                         ];
-                    } elseif (!empty($c->size) && $c->size > 50000000) {
+                    } elseif (!empty($c->size) && $c->size > $file_scan_size_limit) {
                         // too big to scan
                         $content_result['unscannable'][] = [
                             'title' => $c->display_name,

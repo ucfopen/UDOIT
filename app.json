@@ -57,6 +57,10 @@
     "WORKER_ENABLED": {
       "description": "Enable the background worker (requires you turn on the worker dyno).",
       "value": "true"
+    },
+    "SCAN_FILE_SIZE_LIMIT": {
+      "description": "Max file size to scan, anything larger gets set as unscannable.",
+      "value": "50000000"
     }
   },
   "addons": [

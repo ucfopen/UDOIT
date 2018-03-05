@@ -167,6 +167,7 @@ class UdoitJob
 
     protected static function combineJobResults($job_group)
     {
+        global $logger;
         $totals = ['errors' => 0, 'warnings' => 0, 'suggestions' => 0];
         $unscannables_items = [];
         $content = [];
@@ -182,6 +183,12 @@ class UdoitJob
             $totals['errors']      += $results['total_results']['errors'];
             $totals['warnings']    += $results['total_results']['warnings'];
             $totals['suggestions'] += $results['total_results']['suggestions'];
+
+            // if the scan results array is empty for some reason,
+            // make sure it's an empty array and continue.
+            if (empty($results['scan_results'])) {
+                $results['scan_results'] = [];
+            }
 
             // if unscannables are found, collect them
             if (!empty($results['scan_results']['unscannable'])) {

@@ -40,6 +40,10 @@ $background_worker_enabled = false;
 $background_job_expire_time = 20; // after x Minutes, mark job as expired
 $background_worker_sleep_seconds = 1;
 
+// Sets CURLOPT_SSL_VERIFYPEER and CURLOPT_SSL_VERIFYHOST
+// This should be true for production environments
+$curl_ssl_verify = true;
+
 // send logs into the phpunit output
 $log_handler = new \Monolog\Handler\TestHandler(null, \Monolog\Logger::WARNING);
 $log_handler->setFormatter(new \Monolog\Formatter\LineFormatter(null, null, true, true));
