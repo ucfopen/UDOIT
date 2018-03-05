@@ -23,6 +23,23 @@ global $file_scan_size_limit;
 	Report for <?= $this->e($course); ?><br>
 	<small><?= $this->e($error_count); ?> errors, <?= $suggestion_count; ?> suggestions</small>
 </h1>
+<div id="errorTotalSummary">
+	<div id="summaryContainer" class="panel panel-default">
+		<div class="panel-heading clearfix">
+			<button class="btn btn-xs btn-default btn-toggle pull-left no-print margin-right-small"><span class="glyphicon glyphicon-plus"></span></button>
+			<h2>Error Summary</h2>
+		</div>
+		<div class="errorSummary panel-body">
+			<table>
+				<?php foreach($error_summary as $item => $data): ?>
+					<tr>
+						<th scope="row"><span class="label <?= $data->severity ?>"><?= $data->count ?></span></th><td><?= $item ?></td>
+					</tr>
+				<?php endforeach; ?>
+			</table>
+		</div>
+	</div>
+</div>
 
 <p>
 	<?php if ( ! empty($post_path)): ?>
