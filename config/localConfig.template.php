@@ -13,12 +13,14 @@ $oauth2_uri = ''; // EX: https://udoit.my-org.edu/oauth2response.php or https://
 $doc_length = '1500';
 
 /* Unscannable Suggestion */
-$unscannable_suggestion = 'Consider converting these documents to Pages, since they are easier to update and generally more accessible.';
+$unscannable_suggestion = 'Consider converting these documents to Pages, since they are easier to update, easier to view on mobile devices, and generally more accessible.';
 $unscannable_suggestion_on = true;
 
 /* Tool name for display in Canvas Navigation */
 $canvas_nav_item_name = (getenv('CANVAS_NAV_ITEM_NAME')) ?: 'UDOIT';
 
+/* File Scan Size Limit */
+$file_scan_size_limit = getenv('SCAN_FILE_SIZE_LIMIT') ?: 52428800;
 /* Google/YouTube Data Api Key */
 define('GOOGLE_API_KEY', '');
 
@@ -48,3 +50,7 @@ $background_worker_sleep_seconds = 7;
 // $UDOIT_ENV = ENV_PROD;
 // $UDOIT_ENV = ENV_DEV;
 // $UDOIT_ENV = ENV_TEST;
+
+// Sets CURLOPT_SSL_VERIFYPEER and CURLOPT_SSL_VERIFYHOST
+// This should be true for production environments
+$curl_ssl_verify = true;

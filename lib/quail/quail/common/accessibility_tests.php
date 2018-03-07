@@ -5724,12 +5724,14 @@ class tableDataShouldHaveTh extends quailTableTest
 			foreach ($table->childNodes as $child) {
 				if ($this->propertyIsEqual($child, 'tagName', 'tbody') || $this->propertyIsEqual($child, 'tagName', 'thead')) {
 					foreach ($child->childNodes as $tr) {
-						foreach ($tr->childNodes as $th) {
-							if ($this->propertyIsEqual($th, 'tagName', 'th')) {
-								break 3;
-							} else {
-								$this->addReport($table);
-								break 3;
+						if (!is_null($tr->childNodes)) {
+							foreach ($tr->childNodes as $th) {
+								if ($this->propertyIsEqual($th, 'tagName', 'th')) {
+									break 3;
+								} else {
+									$this->addReport($table);
+									break 3;
+								}
 							}
 						}
 					}

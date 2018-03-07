@@ -41,6 +41,7 @@ if ('sqlite' === $db_type || 'test' === $db_type) {
 
 if ('pgsql' === $db_type) {
     // POSTGRESQL
+    echo("Adding refresh_token and canvas_url fields in PostgreSQL\r\n");
     $queries = [
         [
             'isRequired' => !$check_for_column('users', 'refresh_token'),
@@ -55,6 +56,7 @@ if ('pgsql' === $db_type) {
 
 if ('mysql' === $db_type) {
     // MYSQL
+    echo("Adding refresh_token and canvas_url fields in MySQL\r\n");
     $queries = [
         [
             'isRequired' => !$check_for_column('users', 'refresh_token'),
