@@ -62,7 +62,7 @@ class Udoit
             $items_with_issues = $content['items'];
             $totals['suggestions'] += count($items_with_issues);
         }
-        
+
         // caluculate the total run time
         $content['time']  = round(microtime(true) - $scan_time_start, 2);
 
