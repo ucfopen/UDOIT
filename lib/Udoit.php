@@ -213,10 +213,19 @@ class Udoit
 
                     if (in_array($extension, ['pdf', 'doc', 'docx', 'ppt', 'pptx'])) {
                         // not scannable types
-                        // 
+                        // get full_name from folder information for folder url
+                        $path = str_replace('course files', '', static::apiGet("{$api_url}folders/{$c->folder_id}", $api_key)->send()->body->full_name);
+                        // only prepend 'folder' if the current path is not in the root folder
+                        if(!empty($path)) {
+                            $path = "folder" . $folder_path;
+                        }
+                        // prepend canvas url
+                        $path = "{$canvas_api_url}/courses/{$course_id}/files/" . $folder_path;
+
                         $content_result['unscannable'][] = [
                             'title' => $c->display_name,
                             'url'   => $c->url,
+                            'path'  => $path,
                             'big'   => false,
                         ];
                     } elseif (!empty($c->size) && $c->size > $file_scan_size_limit) {
