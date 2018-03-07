@@ -217,11 +217,11 @@ class Udoit
                         // get full_name from folder information for folder url
                         $path = str_replace('course files', '', static::apiGet("{$api_url}folders/{$c->folder_id}", $api_key)->send()->body->full_name);
                         // only prepend 'folder' if the current path is not in the root folder
-                        if(!empty($path)) {
-                            $path = "folder" . $path;
+                        if (!empty($path)) {
+                            $path = "folder".$path;
                         }
                         // prepend canvas url
-                        $path = "{$canvas_api_url}/courses/{$course_id}/files/" . $path;
+                        $path = "{$canvas_api_url}/courses/{$course_id}/files/".$path;
 
                         // gets all modules
                         unset($module);
@@ -233,7 +233,7 @@ class Udoit
                                 // check if item in module matches current item
                                 if ($i->title == $c->display_name) {
                                     // if no previous contained modules, prepend " | Module(s): "
-                                    if(!isset($module)) {
+                                    if (!isset($module)) {
                                         $module = " | Module(s): ";
                                     }
                                     $module .= $m->name;
