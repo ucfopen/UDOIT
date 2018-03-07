@@ -58,6 +58,7 @@ $results = [
     'course'              => $report->course,
     'error_count'         => $report->total_results->errors,
     'suggestion_count'    => $report->total_results->suggestions,
+    'unscannable_count'   => $report->content->unscannable->amount,
     'report_groups'       => $ordered_report_groups,
     'post_path'           => $get_input['path'],
     'fixable_error_types' => ["cssTextHasContrast", "imgNonDecorativeHasAlt", "tableDataShouldHaveTh", "tableThShouldHaveScope", "headersHaveText", "aMustContainText", "imgAltIsDifferent", "imgAltIsTooLong"],
