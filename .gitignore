@@ -11,3 +11,5 @@ config/localConfig.php
 vendor
 reports
 assets/js/vendor/
+
+config/log.log

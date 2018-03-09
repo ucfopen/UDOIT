@@ -33,7 +33,7 @@ function killButton(callback) {
 				});
 			}
 
-			$('#udoitForm button.submit').removeClass('disabled').html('Run scanner');
+			$('#udoitForm button.submit').removeClass('disabled').html('Scan This Course Again');
 
 			$('#waitMsg').fadeOut();
 
@@ -61,29 +61,104 @@ function popUpTemplate(noback, callback) {
 	$('#popup').fadeIn(300).css('display','inline-block');
 }
 
-function loader(text) {
+function displayLoader(text) {
 	popUpTemplate(true, function() {
 		$('#popup').addClass('loading_popup');
 		$('#popup').html('<div class="circle-white"></div>');
 	});
 }
 
-/* Builds up the results and adds them to the page */
-function checker() {
-	var main_action = $('input[name="main_action"]').val();
-	var base_url = $('input[name="base_url"]').val();
-	var course_id = $('input[name="session_course_id"]').val();
-	var context_label = $('input[name="session_context_label"]').val();
-	var context_title = $('input[name="session_context_title"]').val();
-	var content = $('.content:not(#allContent):checked').map(function(i, n) { return $(n).val(); }).get();
+function checkScanProgress(jobGroup){
+	// start checking for progress
+	clearInterval(progressTimer);
+	// TODO: add a progress check limit
+	progressTimer = setInterval(function(){
+		$.ajax({
+			url: `progress.php?job_group=${jobGroup}`,
+			dataType: 'json',
+			error: function(xhr, status, error) {
+				clearInterval(progressTimer);
+				killButton();
+				$('#failMsg').fadeIn();
+			},
+			success: function(progressResult){
+				// empty or not an array, error!
+				if(!progressResult.hasOwnProperty('status')){
+					clearInterval(progressTimer);
+					killButton();
+					$('#failMsg').fadeIn();
+					return;
+				}
 
-	if (content.length === 0) {
-		content = 'none';
-	}
+				if(progressResult.status === 'finished'){
+					clearInterval(progressTimer);
+					$('#udoitForm button.submit')
+					.html(`<div id="popup"><div class="circle-white"></div></div>Loading Results`);
+					loadScanResults(progressResult.reportID);
+					return;
+				}
+				else{
+					var running = [];
+					var finished = [];
+					var notRun = [];
+					for (var i = progressResult.jobs.length - 1; i >= 0; i--) {
+						var job = progressResult.jobs[i];
+						switch(job.status){
+							case 'new':
+								notRun.push(job.type);
+								break;
+							case 'finished':
+								finished.push(job.type);
+								break;
+							case 'running':
+								running.push(job.type);
+								break;
+						}
+					}
+					$('#udoitForm button.submit')
+					.html(`<div id="popup"><div class="circle-white"></div></div>Scanning: ${running.join(', ')}... (${notRun.length + running.length} left to scan)`);
+					resizeFrame();
+					return;
+				}
+			}
+		});
+	}, 1000);
+}
+
+function loadScanResults(reportID){
+	$.ajax({
+		url: `parseResults.php?report_id=${reportID}`,
+		xhrFields: {withCredentials: true},
+		error: function(xhr, status, error) {
+			// TODO: show error to user
+			clearInterval(progressTimer);
+		},
+		success: function(data){
+			console.log(data);
+			displayScanResults(data)
+		}
+	});
+}
+
+function displayScanResults(results) {
+	//show results
+	$('#scanner').append(`<section id="result">${results}</section>`);
+	killButton(function() {
+		$('#result').fadeIn();
+		resizeFrame();
+	});
+
+	jscolor.bind();
+}
+
+/* Builds up the results and adds them to the page */
+function sendScanRequest(main_action, base_url, course_id, context_label, context_title, content) {
+	if (content.length === 0) content = 'none';
 
 	$.ajax({
 		url: 'process.php',
 		type: 'POST',
+		dataType: 'json',
 		data: {
 			main_action: main_action,
 			base_url: base_url,
@@ -92,17 +167,21 @@ function checker() {
 			context_label: context_label,
 			context_title: context_title
 		},
-		success: function(data){
-			clearInterval(progressTimer);
-			$('#scanner').append('<section id="result">'+data+'</section>');
-			killButton(function() {
-				$('#result').fadeIn();
-			});
-
-			jscolor.bind();
+		success: function(resp){
+			if(resp && resp.hasOwnProperty('job_group')){
+				checkScanProgress(resp.job_group);
+			}
+			else{
+				killButton();
+				if(resp && resp.hasOwnProperty('error')){
+					$('#failMsg .msg').hide();
+					$('#failMsg .custom-msg').html(resp.error);
+					$('#failMsg .custom-msg').show();
+				}
+				$('#failMsg').fadeIn();
+			}
 		},
 		error: function(data){
-			clearInterval(progressTimer);
 			killButton();
 			$('#failMsg').fadeIn();
 		}
@@ -113,6 +192,8 @@ function checker() {
 function ufixitCssTextStyleEmphasize( $issueContainer ) {
 	var $back = $issueContainer.find('input.back-color');
 	var $fore = $issueContainer.find('input.fore-color');
+	var bold = $issueContainer.find('input[name="add-bold"]').val();
+	var italic = $issueContainer.find('input[name="add-italic"]').val();
 
 	var bgcolor = '#fff';
 
@@ -121,7 +202,7 @@ function ufixitCssTextStyleEmphasize( $issueContainer ) {
 	}
 
 	var $preview = $issueContainer.find('div.ufixit-preview-canvas');
-	$preview.attr('style', 'color: ' + $fore.val() + '; background-color: ' + bgcolor + ';' );
+	$preview.attr('style', 'color: ' + $fore.val() + '; background-color: ' + bgcolor + '; font-weight: ' + bold + '; font-style: ' + italic + '; ');
 }
 // END update UFIXIT Preview on load
 
@@ -130,6 +211,8 @@ function ufixitCssTextHasContrast( $issueContainer ) {
 	var $back = $issueContainer.find('input.back-color');
 	var $fore = $issueContainer.find('input.fore-color');
 	var $threshold = $issueContainer.find('input.threshold');
+	var bold = $issueContainer.find('input[name="add-bold"]').val();
+	var italic = $issueContainer.find('input[name="add-italic"]').val();
 
 	var $error = $issueContainer.find('span.contrast-invalid');
 	var $cr = $issueContainer.find('span.contrast-ratio');
@@ -148,7 +231,7 @@ function ufixitCssTextHasContrast( $issueContainer ) {
 
 	var $preview = $issueContainer.find('div.ufixit-preview-canvas');
 
-	$preview.attr('style', 'color: ' + $fore.val() + '; background-color: ' + bgcolor + ';' );
+	$preview.attr('style', 'color: ' + $fore.val() + '; background-color: ' + bgcolor + '; font-weight: ' + bold + '; font-style: ' + italic + '; ');
 
 	if (contrast_ratio < threshold) {
 		$error.removeClass('hidden');
@@ -180,8 +263,27 @@ function ufixitCssTextHasContrast( $issueContainer ) {
 	});
 }
 
+// resize containing iframe height
+function resizeFrame(){
+	var default_height = $('body').height() + 50;
+    default_height = default_height > 500 ? default_height : 500;
+
+    // IE 8 & 9 only support string data, so send objects as string
+    parent.postMessage(JSON.stringify({
+      subject: "lti.frameResize",
+      height: default_height
+    }), "*");
+}
+
+// update iframe height on resize
+$doc.on('resize', function(){
+	resizeFrame();
+});
+
 // END update UFIXIT Preview on load
 $doc.ready(function() {
+	resizeFrame();
+
 	// content checkboxes
 	var content_checked = true;
 
@@ -212,40 +314,19 @@ $doc.ready(function() {
 	var runScanner = function(e) {
 		e.preventDefault();
 
-		if ($('#result').length > 0) {
-			$('#result').remove();
-		}
-
-		if ($('#failMsg').css('display') == 'block') {
-			$('#failMsg').fadeOut();
-		}
-
+		if ($('#result').length > 0) $('#result').remove();
+		if ($('#failMsg').css('display') == 'block') $('#failMsg').fadeOut();
 		$('#waitMsg').fadeIn();
+		resizeFrame();
+		var main_action = $('input[name="main_action"]').val();
+		var base_url = $('input[name="base_url"]').val();
+		var course_id = $('input[name="session_course_id"]').val();
+		var context_label = $('input[name="session_context_label"]').val();
+		var context_title = $('input[name="session_context_title"]').val();
+		var content = $('.content:not(#allContent):checked').map(function(i, n) { return $(n).val(); }).get();
 
-		loader();
-
-		var old = 0;
-
-
-		// start progress checker, this is cleared here or from checker()
-		clearInterval(progressTimer);
-		progressTimer = setInterval(function(){
-			$.ajax({
-				url: 'progress.php',
-				error: function(xhr, status, error) {
-					clearInterval(progressTimer);
-				},
-				success: function(data){
-					// update display if progress state has changed
-					if(data != old) {
-						old = data;
-						$('#udoitForm button.submit').html('<div id="popup"><div class="circle-white"></div></div> Scanning '+data+'...');
-					}
-				}
-			});
-		}, 1000);
-
-		checker();
+		displayLoader();
+		sendScanRequest(main_action, base_url, course_id, context_label, context_title, content);
 
 		return false;
 	};
@@ -260,11 +341,15 @@ $doc.ready(function() {
 		if ($errorItem.parent().find('.errorSummary').is(':visible')) {
 			$errorItem.parent().find('.errorSummary').slideUp(function() {
 				$errorItem.children('button span').removeClass('glyphicon-minus').addClass('glyphicon-plus');
+				setTimeout(resizeFrame, 200);
+				//resizeFrame();
 			});
 		}
 		else {
 			$(this).children('button span').removeClass('glyphicon-plus').addClass('glyphicon-minus');
-			$errorItem.parent().find('.errorSummary').slideDown();
+			$errorItem.parent().find('.errorSummary').slideDown(function(){
+				resizeFrame();
+			});
 		}
 	});
 	// END result panel collapsing
@@ -277,6 +362,7 @@ $doc.ready(function() {
 		$(this).addClass('hidden');
 		$error.find('div.more-info').removeClass('hidden');
 		$error.find('a.closeError').first().focus();
+		resizeFrame();
 	});
 	// END view error source
 
@@ -288,8 +374,22 @@ $doc.ready(function() {
 		$error.find('div.more-info').addClass('hidden');
 		$error.find('a.viewError').removeClass('hidden');
 		$error.find('a.viewError').focus();
+		resizeFrame();
 	});
 	// END close error source
+
+	//view warning info
+	$doc.on('click', '.view-warning', function(e){
+		if($(this).data('clicked')){
+			$(this).data('clicked', false);
+			$(this).parent().find('.warning-info').addClass('hidden');
+		} else {
+			$(this).data('clicked', true);
+			$(this).parent().find('.warning-info').removeClass('hidden');
+		}
+		resizeFrame();
+	})
+	// END view warning info
 
 	// print button
 	$doc.on('click', '#print', function() {
@@ -341,115 +441,170 @@ $doc.ready(function() {
 			default:
 				break;
 		}
+		resizeFrame();
 	});
 
+	// resize after bootstrap tabs are finished showing
+	$('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
+		resizeFrame();
+	});
+	
 	// submitting the ufixit form
 	$doc.on('submit', '#scanner .ufixit-form', function(e) {
 		e.preventDefault();
 
-		// Change button text from 'Submit' to 'Working'
-		var $submit = $(this).find('button.submit-content');
-		var $parent = $(this).parent();
-		var values = $(this).serializeArray();
-		var errorsRemaining = -1;
+		var valid = true;
+		var type = $(this).find('input[name="errortype"]').val();
+		var removeHeading = $(this).find('.remove-heading').is(':checked');
+		var removeLink = $(this).find('.remove-link').is(':checked');
 
-		if ( $submit.html() === '<div class="circle-black"></div> Waiting for UFIXIT to Finish' ) {
-			return;
+		if (type == "headersHaveText" && !removeHeading) {
+			var $input = $(this).find('input[name="newcontent"]');
+			if ($input.val().trim() == ''){
+				valid = false;
+			}
 		}
 
-		$submit.removeClass('inactive');
-		$submit.prop('disabled',true);
-		$submit.html('<div class="circle-black"></div> Working');
+		if (type == "imgAltIsDifferent" || type == "imgAltIsTooLong" || type == "imgHasAlt" || type == "imgNonDecorativeHasAlt") {
+			var $input = $(this).find('input[name="newcontent"]');
+			var $imgSrc = $(this).find('input[name="errorhtml"]');
+			if ($input.val().trim() == ''){
+				valid = false;
+			} else if ($imgSrc.val().indexOf($input.val().trim()) >= 0) {
+				valid = false;
+			} else if ($input.val().match(/jpg|JPG|png|PNG|gif|GIF|jpeg|JPEG$/)) {
+				valid = false;
+			}
+		}
 
-		var $targetPanel = $(this).parent().parent().parent().parent().parent().parent().parent();
+		if ((type == "aMustContainText" || type == "aSuspiciousLinkText" || type == "aLinkTextDoesNotBeginWithRedundantWord") && !removeLink) {
+			var $input = $(this).find('input[name="newcontent"]');
+			var $aSrc = $(this).find('input[name="errorhtml"]');
+			if ($input.val().trim() == ''){
+				valid = false;
+			} else if ($aSrc.val().indexOf($input.val().trim()) >= 0) {
+				valid = false;
+			} else if ($input.val().trim().toLowerCase().match(/^(go to|link to|go here|link|click here|click|more|here)$/)) {
+				valid = false;
+			}
+		}
 
-		var $reportURL = $targetPanel.find('a.report-url');
-		var $reportID = $targetPanel.find('input[name="contentid"]');
+		if (valid == true){
 
-		var $inactive = $targetPanel.find('button.submit-content.inactive');
+			var vmsg = e.target.parentElement.querySelector('.validmessage');
+			$(vmsg).stop().fadeOut();
 
-		$inactive.each( function() {
-			$(this).html('<div class="circle-black"></div> Waiting for UFIXIT to Finish');
-		});
+			// Change button text from 'Submit' to 'Working'
+			var $submit = $(this).find('button.submit-content');
+			var $parent = $(this).parent();
+			var values = $(this).serializeArray();
+			var errorsRemaining = -1;
 
-		values.push({ name: 'base_url', value: $('input[name="base_url"]').val() });
-		values.push({ name: 'course_id', value: $('input[name="session_course_id"]').val() });
-		values.push({ name: 'context_label', value: $('input[name="session_context_label"]').val() });
-		values.push({ name: 'context_title', value: $('input[name="session_context_title"]').val() });
+			if ( $submit.html() === '<div class="circle-black"></div> Waiting for UFIXIT to Finish' ) {
+				return;
+			}
 
-		$parent.find('.alert').remove();
-		$.ajax({
-			url: 'process.php',
-			type: 'POST',
-			data: values,
-			success: function(data) {
-				if (data == 'Missing content') {
-					$parent.append(buildAlertString('Please enter alt text.'));
-				} else if (data == 'Incorrect table scope') {
-					$parent.append(buildAlertString('You should enter "col" or "row" for th scopes.'));
-				} else {
-					$parent.removeClass('in');
+			$submit.removeClass('inactive');
+			$submit.prop('disabled',true);
+			$submit.html('<div class="circle-black"></div> Working');
 
-					$parent.find('input[name="submittingagain"]').val('Yes');
+			var $targetPanel = $(this).parent().parent().parent().parent().parent().parent().parent();
 
-					$parent.find('button').removeClass('hidden');
-					$parent.find('.fix-success').removeClass('hidden');
-					$parent.find('.viewError').addClass('hidden');
-					$parent.find('.more-info').addClass('hidden');
-					$parent.find('.ufixit-form').addClass('hidden');
+			var $reportURL = $targetPanel.find('a.report-url');
+			var $reportID = $targetPanel.find('input[name="contentid"]');
+
+			var $inactive = $targetPanel.find('button.submit-content.inactive');
+
+			$inactive.each( function() {
+				$(this).html('<div class="circle-black"></div> Waiting for UFIXIT to Finish');
+			});
+
+			values.push({ name: 'base_url', value: $('input[name="base_url"]').val() });
+			values.push({ name: 'course_id', value: $('input[name="session_course_id"]').val() });
+			values.push({ name: 'context_label', value: $('input[name="session_context_label"]').val() });
+			values.push({ name: 'context_title', value: $('input[name="session_context_title"]').val() });
+
+			$parent.find('.alert').remove();
+			resizeFrame();
+			$.ajax({
+				url: 'process.php',
+				type: 'POST',
+				data: values,
+				success: function(data) {
+					if (data == 'Missing content') {
+						$parent.append(buildAlertString('Please enter alt text.'));
+					} else if (data == 'Incorrect table scope') {
+						$parent.append(buildAlertString('You should enter "col" or "row" for th scopes.'));
+					} else {
+						$parent.removeClass('in');
+
+						$parent.find('input[name="submittingagain"]').val('Yes');
+
+						$parent.find('button').removeClass('hidden');
+						$parent.find('.fix-success').removeClass('hidden');
+						$parent.find('.viewError').addClass('hidden');
+						$parent.find('.more-info').addClass('hidden');
+						$parent.find('.ufixit-form').addClass('hidden');
 
 
-					errorsRemaining = $parent.parent().parent().find('.fix-success.hidden').length;
-					if ( errorsRemaining == 0 ) {
-						$parent.parent().parent().parent().find('.badge-error').addClass('badge-success');
-						$parent.parent().parent().parent().find('h5').removeClass('text-danger').addClass('text-success');
+						errorsRemaining = $parent.parent().parent().find('.fix-success.hidden').length;
+						if ( errorsRemaining == 0 ) {
+							$parent.parent().parent().parent().find('.badge-error').addClass('badge-success');
+							$parent.parent().parent().parent().find('h5').removeClass('text-danger').addClass('text-success');
+						}
 					}
-				}
 
-				// Ensure we were looking at a file before we try to parse the file
-				// response from the server
-				for(var prop in values){
-					if(values.hasOwnProperty(prop)){
-						if(values[prop].name == "contenttype" && values[prop].value == "files") {
-							try {
-								var newFile = JSON.parse(data);
-
-								if ( values[1]['value'] == 'files' ) {
-									$reportURL.attr('href', newFile.url);
-
-									$reportID.each( function() {
-										$(this).attr('value', newFile.id);
-									});
-								}
-							} catch(e){
+					// Ensure we were looking at a file before we try to parse the file
+					// response from the server
+					for(var prop in values){
+						if(values.hasOwnProperty(prop)){
+							if(values[prop].name == "contenttype" && values[prop].value == "files") {
 								try {
-									console.log('Failed to parse JSON response during a File based UFIXIT attempt!')
-								} catch(e){}
+									var newFile = JSON.parse(data);
+
+									if ( values[1]['value'] == 'files' ) {
+										$reportURL.attr('href', newFile.url);
+
+										$reportID.each( function() {
+											$(this).attr('value', newFile.id);
+										});
+									}
+								} catch(e){
+									try {
+										console.log('Failed to parse JSON response during a File based UFIXIT attempt!')
+									} catch(e){}
+								}
 							}
 						}
 					}
+
+					$submit.addClass('inactive');
+					$submit.removeAttr('disabled');
+					$submit.html('Submit');
+
+					$inactive.each( function() {
+						$(this).html('Submit');
+					});
+					resizeFrame();
+				},
+				error: function(data) {
+					$parent.append(buildAlertString('Error: '+data.responseText));
+
+					$submit.addClass('inactive');
+					$submit.removeAttr('disabled');
+					$submit.html('Submit');
+
+					$inactive.each( function() {
+						$(this).html('Submit');
+					});
+					resizeFrame();
 				}
-
-				$submit.addClass('inactive');
-				$submit.removeAttr('disabled');
-				$submit.html('Submit');
-
-				$inactive.each( function() {
-					$(this).html('Submit');
-				});
-			},
-			error: function(data) {
-				$parent.append(buildAlertString('Error: '+data.responseText));
-
-				$submit.addClass('inactive');
-				$submit.removeAttr('disabled');
-				$submit.html('Submit');
-
-				$inactive.each( function() {
-					$(this).html('Submit');
-				});
-			}
-		});
+			});
+		} else {
+			var vmsg = e.target.parentElement.querySelector('.validmessage');
+			$(vmsg).stop().fadeIn().css('display','inline-block');
+			resizeFrame();
+		}
 	});
 	// END submitting the fix-it form
 
@@ -466,13 +621,25 @@ $doc.ready(function() {
 	// clicking a result table row to display the cached report
 	$doc.on('click', '#resultsTable tbody tr', function() {
 		var main_action = 'cached';
-		var cached_id   = $(this).attr('id');
+		var reportID = $(this).attr('id');
 
-		$.post('parseResults.php', { main_action: main_action, cached_id: cached_id }, function(data) {
-			$('#resultsTable').fadeOut();
-			$('#cached').append('<div id="result">'+data+'</div>');
-			$('#result').fadeIn();
-		}, 'html');
+		$.ajax({
+			url: `parseResults.php?report_id=${reportID}`,
+			xhrFields: {withCredentials: true},
+			error: function(xhr, status, error) {
+				$('#resultsTable').fadeOut();
+				$('#cached').append('<div id="result">Error Loading Results</div>');
+				$('#result').fadeIn();
+				resizeFrame();
+			},
+			success: function(data){
+				$('#resultsTable').fadeOut();
+				$('#cached').append('<div id="result">'+data+'</div>');
+				$('#result').fadeIn(function(){
+					resizeFrame();
+				});
+			}
+		});
 	});
 	// END clicking a result table row to display the cached report
 
@@ -480,6 +647,7 @@ $doc.ready(function() {
 	$doc.on('click', '#backToResults', function() {
 		$('#resultsTable').fadeIn();
 		$('#result').remove();
+		resizeFrame();
 	});
 	// END clicking the back button on a cached report
 
@@ -508,9 +676,9 @@ $doc.ready(function() {
 		$result_html.find('.fix-success').remove();
 
 		var $form = $('<form action="parsePdf.php" method="post">' +
-		  '<input type="hidden" name="result_html" />' +
-		  '<input type="hidden" name="context_title" value="'+ context_title +'"/>' +
-		  '</form>');
+			'<input type="hidden" name="result_html" />' +
+			'<input type="hidden" name="context_title" value="'+ context_title +'"/>' +
+			'</form>');
 
 		$form.find('input[name="result_html"]').val($result_html.html());
 
@@ -546,9 +714,11 @@ $doc.ready(function() {
 
 		$.ajax({
 			url: 'cached.php',
+			xhrFields: {withCredentials: true},
 			type: 'GET',
 			success: function(data) {
 				$('#cached').html(data);
+				resizeFrame();
 			},
 			error: function() {
 				$('#cached').append(buildAlertString('Error displaying cached reports.'));
@@ -615,11 +785,13 @@ $doc.ready(function() {
 
 		if (contrast_ratio < threshold) {
 			$error.removeClass('hidden');
-			$fore.attr('style','border-color: red;');
+			$fore.css('border-color', 'red');
+			$fore.css('background-color', $fore.val());
 			$parent.parent().find('button.submit-content').prop('disabled',true);
 		} else {
 			$error.addClass('hidden');
-			$fore.attr('style','');
+			$fore.css('border-color', '#ccc');
+			$fore.css('background-color', $fore.val());
 			$parent.parent().find('button.submit-content').removeAttr('disabled');
 		}
 
@@ -657,11 +829,13 @@ $doc.ready(function() {
 
 		if (contrast_ratio < threshold) {
 			$error.removeClass('hidden');
-			$fore.attr('style','border-color: red;');
+			$fore.css('border-color', 'red');
+			$fore.css('background-color', $fore.val());
 			$parent.parent().find('button.submit-content').prop('disabled',true);
 		} else {
 			$error.addClass('hidden');
-			$fore.attr('style','');
+			$fore.css('border-color', '#ccc');
+			$fore.css('background-color', $fore.val());
 			$parent.parent().find('button.submit-content').removeAttr('disabled');
 		}
 
@@ -698,11 +872,13 @@ $doc.ready(function() {
 
 		if (contrast_ratio < threshold) {
 			$error.removeClass('hidden');
-			$fore.attr('style','border-color: red;');
+			$fore.css('border-color', 'red');
+			$fore.css('background-color', $fore.val());
 			$parent.find('button.submit-content').prop('disabled',true);
 		} else {
 			$error.addClass('hidden');
-			$fore.attr('style','');
+			$fore.css('border-color', '#ccc');
+			$fore.css('background-color', $fore.val());
 			$parent.find('button.submit-content').removeAttr('disabled');
 		}
 
@@ -724,11 +900,70 @@ $doc.ready(function() {
 	});
 	// END update UFIXIT Preview on change of foreground color using Color-Picker
 
+	// updates UFIXIT Preview on change of color using lighten and darken buttons
+	$doc.on('click', 'a.color-change', function (e) {
+		var $parent = $(e.target).parent().parent().parent();
+		var $preview = $parent.find('div.ufixit-preview-canvas');
+		var $back = $parent.find('input.back-color');
+		var $fore = $parent.find('input.fore-color');
+		var $threshold = $parent.find('input.threshold');
+		var $error = $parent.find('span.contrast-invalid');
+		var $cr = $parent.parent().find('span.contrast-ratio');
+
+		var threshold = ($threshold.val() === 'text')? 4.5: 3;
+		var startingColor = $(e.target).val();
+		var contrast_ratio = 0;
+		var bgcolor = ($back.length > 0 ? $back.val() : '#fff');
+
+		$preview.css('color', $fore.val());
+		$preview.css('background-color', $back.val());
+		contrast_ratio = contrastRatio( $back.val(), $fore.val() );
+		$cr.html( contrast_ratio.toFixed(2) );
+
+		if (contrast_ratio < threshold) {
+			$error.removeClass('hidden');
+			$fore.css('border-color', 'red');
+			$fore.css('background-color', $fore.val());
+			$back.css('border-color', 'red');
+			$back.css('background-color', $back.val());
+			$parent.parent().find('button.submit-content').prop('disabled',true);
+		} else {
+			$error.addClass('hidden');
+			$fore.css('border-color', '#ccc');
+			$fore.css('background-color', $fore.val());
+			$back.css('border-color', '#ccc');
+			$back.css('background-color', $back.val());
+			$parent.parent().find('button.submit-content').removeAttr('disabled');
+		}
+
+		var foreColor = $fore.val().replace("#","");
+		var backColor = $back.val().replace("#","");
+		var foreRgb = parseRgb(foreColor);
+		var backRgb = parseRgb(backColor);
+		var foreLuma = foreRgb[0] * 0.2126 + foreRgb[1] * 0.7152 + foreRgb[2] * 0.0722;
+		var backLuma = backRgb[0] * 0.2126 + backRgb[1] * 0.7152 + backRgb[2] * 0.0722;
+		var foreText = (foreLuma < 100 ? '#ffffff' : '#000000');
+		var backText = (backLuma < 100 ? '#ffffff' : '#000000');
+		$fore.css('color', foreText);
+		$back.css('color', backText);
+
+		$parent.find('li.color').each(function () {
+			var color = $(this).attr('value');
+
+			if ( contrastRatio(bgcolor, color) < threshold ) {
+				$(this).find('span.invalid-color').removeClass('hidden');
+			} else {
+				$(this).find('span.invalid-color').addClass('hidden');
+			}
+		});
+	});
+	// END update UFIXIT Preview on change of foreground color using lighten and darken buttons
+
 	// updates UFIXIT Preview on change of checkbox for 'bold' styling
 	$doc.on('change', 'input[name="add-bold"]', function (e) {
 		var $preview = $(e.target).parent().parent().parent().parent().find('div.ufixit-preview-canvas');
 		var weight = (e.target.checked ? 'bold' : 'normal');
-
+		$(e.target).val(weight);
 		$preview.css('font-weight', weight );
 	});
 	// END update UFIXIT Preview
@@ -737,7 +972,7 @@ $doc.ready(function() {
 	$doc.on('change', 'input[name="add-italic"]', function (e) {
 		var $preview = $(e.target).parent().parent().parent().parent().find('div.ufixit-preview-canvas');
 		var weight = (e.target.checked ? 'italic' : 'normal');
-
+		$(e.target).val(weight);
 		$preview.css('font-style', weight );
 	});
 	// END update UFIXIT Preview
@@ -749,6 +984,22 @@ $doc.ready(function() {
 			tab.click();	
 		}
 	});
+
+	// updates UFIXIT Preview on change of checkbox for removing color
+	$doc.on('change', 'input[name="remove-color"]', function (e) {
+		var $preview = $(e.target).parent().parent().parent().find('div.ufixit-preview-canvas');
+		var bg = $(e.target).parent().parent().parent().find('input.back-color').val();
+		var color = $(e.target).parent().parent().parent().find('input.fore-color').val();
+		$(this).val($(this).prop('checked'));
+		if ($(this).prop('checked')){
+			$preview.css('color', 'black' );
+			$preview.css('background-color', 'white' );
+		} else {
+			$preview.css('color', color );
+			$preview.css('background-color', bg );
+		}
+	});
+	// END update UFIXIT Preview
 
 });
 

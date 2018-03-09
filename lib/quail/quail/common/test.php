@@ -666,6 +666,7 @@ class quailColorTest extends quailTest {
 						'gray' => '808080',
 						'green' => '008000',
 						'greenyellow' => 'adff2f',
+						'grey' => '808080',
 						'honeydew' => 'f0fff0',
 						'hotpink' => 'ff69b4',
 						'indianred' => 'cd5c5c',
@@ -825,7 +826,7 @@ class quailColorTest extends quailTest {
 	}
 
 	/**
-	*	Converts multiple color or backround styles into a simple hex string
+	*	Converts multiple color or background styles into a simple hex string
 	*	@param string $color The color attribute to convert (this can also be a multi-value css background value)
 	*	@return string A standard CSS hex value for the color
 	*/
@@ -846,10 +847,12 @@ class quailColorTest extends quailTest {
 			if(strlen($color) == 7) {
 				return str_replace('#', '', $color);
 			}
-			elseif (strlen($color == 4)) {
+			elseif (strlen($color) == 4) {
 				return substr($color, 1, 1).substr($color, 1, 1).
 					   substr($color, 2, 1).substr($color, 2, 1).
 					   substr($color, 3, 1).substr($color, 3, 1);
+			} else {
+				return "000000";
 			}
 		}
 		//Named Color
