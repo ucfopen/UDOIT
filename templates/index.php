@@ -51,7 +51,7 @@ $this->layout('template', $settings);
 			</div>
 			<form class="form-horizontal no-print" id="udoitForm" action="#" role="form">
 				<input type="hidden" name="main_action" value="udoit">
-				<input type="hidden" name="base_url" value="https://<?= $this->escape($post_input['custom_canvas_api_domain']); ?>/">
+				<input type="hidden" name="base_url" value="<?= $this->escape($base_url); ?>/">
 				<input type="hidden" name="session_course_id" value="<?= $this->escape($launch_params['custom_canvas_course_id']); ?>">
 				<input type="hidden" name="session_context_label" value="<?= $this->escape($launch_params['context_label']); ?>">
 				<input type="hidden" name="session_context_title" value="<?= $this->escape($launch_params['context_title']); ?>">
@@ -91,7 +91,7 @@ $this->layout('template', $settings);
 						</div>
 
 						<div class="checkbox">
-							<label><input id="moduleUrls" type="checkbox" value="modules" class="content" name="content[]" checked> Module URLs</label>
+							<label><input id="moduleUrls" type="checkbox" value="module_urls" class="content" name="content[]" checked> Module URLs</label>
 						</div>
 					</div>
 				</div>
@@ -102,9 +102,11 @@ $this->layout('template', $settings);
 					<p><span class="glyphicon glyphicon-warning-sign"></span> Please stay on this page while UDOIT scans your course content.</p>
 				</div>
 
-				<button type="submit" name="course_submit" class="btn btn-block btn-lg btn-success submit">Run scanner</button>
+				<button type="submit" name="course_submit" class="btn btn-block btn-lg btn-success submit">Scan This Course</button>
 
-				<div class="alert alert-danger no-margin margin-top" id="failMsg" style="display: none;"><span class="glyphicon glyphicon-exclamation-sign"></span> UDOIT failed to scan this course.</div>
+				<div class="alert alert-danger no-margin margin-top" id="failMsg" style="display: none;">
+					<span class="glyphicon glyphicon-exclamation-sign"></span> <span class="msg">UDOIT failed to scan this course.</span><span class="custom-msg"></span>
+				</div>
 			</form>
 		</div>
 		<div class="tab-pane" id="cached" role="tabpanel">

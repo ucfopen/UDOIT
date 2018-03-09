@@ -17,6 +17,7 @@ After clicking the Heroku button above:
 2. Give the app a name.
 3. Fill out the `OAUTH2_ID` and `OAUTH2_KEY` fields with dummy data.  (We'll fix it later.)
 4. Fill out the `OAUTH2_URI` field with `https://yourapp.herokuapp.com/oauth2response.php`. (Replace 'yourapp' with the name you gave in step 2.)
+5. Fill out the `CANVAS_NAV_ITEM_NAME` field with the name you would like the app to appear as in the course navigation menu.  This is useful if your instance will be use for a pilot.  The normal value to use here is ***UDOIT***.
 5. Copy and paste your Google/YouTube API key.
 5. Click the Deploy button and wait for the process to complete.
 
@@ -39,15 +40,17 @@ UDOIT uses Oauth2 to take actions on behalf of the user, so you'll need to ask y
 
 ### Step 5:  Install the UDOIT LTI
 
-1. You can install UDOIT at the sub-account level or the course level.  Either way, start by going to the **settings** area.
+In Canvas, you can install UDOIT at the course or sub-account levels.  
+
+1. Click the **Settings** menu item from any course in Canvas.
 2. Click the **Apps** tab.
 3. Click the **View App Configurations** button.
 4. Click the **Add App** button.
 5. Under **Configuration Type**, choose **By URL**.
 6. In the **Name** field, enter `UDOIT`.
-7. In the **Consumer Key** field, copy the value from OAUTH2_ID
-8. In the **Shared Secret** field, copy the value from OAUTH2_KEY
-9. In the **Config URL** field, paste value from OAUTH2_URI.
+7. In the **Consumer Key** field, copy the value from CONSUMER_KEY
+8. In the **Shared Secret** field, copy the value from SHARED_SECRET
+9.In the **Config URL** field, insert https://yourapp.herokuapp.com/udoit.xml.php (Replace yourapp with the name of your UDOIT instance on Heroku.)
 10. Finish by clicking **Submit**.
 
 UDOIT should now be available in the course navigation menu.
@@ -118,7 +121,12 @@ If you need to check that the tables exist, you can connect to Postgres using so
 * `Select * from users;` or `Select * from reports;` will show you their contents
 * `\q` quits the psql terminal
 
-If needed, you can manually run the table creation script: `Heroku run php lib/db_create_tables.php`
+If needed, you can manually run the table creation script: `heroku run composer dbsetup`
 
 ## Table Schema
-The table schema can be found in [lib/db_create_tables.php](lib/db_create_tables.php)
+The table schema can be found in [migrations/](migrations/)
+
+# FAQ
+
+## Why aren't my scans completing?
+If you are using the free tier, you may need to manually turn on the worker dyno.  You can do this by going to the [Heroku Control Panel](https://dashboard.heroku.com/apps), selecting your instance of UDOIT, clicking **Configure Dynos**, clicking the pencil icon next to the **Worker** dyno, clicking the slider to the **on** position, then clicking **Confirm**.

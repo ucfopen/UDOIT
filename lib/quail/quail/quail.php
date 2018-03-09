@@ -613,6 +613,8 @@ class quailReportItem {
 		}
 
 		$result_dom = new DOMDocument();
+		$result_dom->formatOutput = true;
+		$result_dom->preserveWhiteSpace = false;
 
 		try {
 			$result_element = $result_dom->importNode($this->element, true);

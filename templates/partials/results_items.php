@@ -50,15 +50,18 @@
 				<!-- End Error group header -->
 
 				<div id="<?= $collapse_id; ?>" class="collapse in fade margin-top-small">
-					<ol>
+					<?php if ($type == "contentTooLong"): ?>
 						<?php foreach ($type_group as $index => $group_item): ?>
-							<?php $li_id = "error-{$id}-{$type}-{$index}"; ?>
-							<li id="<?= $li_id; ?>">
-
+							<?= $group_item->text_type; ?>
+						<?php endforeach; ?>
+					<?php else: ?>
+						<ol>
+							<?php foreach ($type_group as $index => $group_item): ?>
+								<?php $li_id = "error-{$id}-{$type}-{$index}"; ?>
+								<li id="<?= $li_id; ?>">
 								<?php if ( in_array($group_item->type, $fixable_types) ): ?>
 									<p class="fix-success hidden"><span class="label label-success margin-left-small" style="margin-top: -2px;">Done!</span></p>
 								<?php endif; ?>
-
 								<!-- Print Report -->
 								<?php if ($group_item->html): ?>
 									<a class="viewError btn" href="#viewError" data-error="<?= $li_id; ?>">View the source of this issue</a>
@@ -66,93 +69,94 @@
 										<a class="closeError btn" href="#closeError" data-error="<?= $li_id; ?>">Close Issue Source</a>
 										<div class="error-preview">
 											<?php if ($group_item->type == "videosEmbeddedOrLinkedNeedCaptions"): ?>
-												<iframe width="100%" height="300px" src="https://www.youtube.com/embed/<?= Utils::getYouTubeId($group_item->html); ?>" frameborder="0" allowfullscreen></iframe>
-											<?php else: ?>
-												<?php if ($group_item->type == "cssTextHasContrast" && !isset($group_item->back_color)): ?>
-													<div class="ufixit-no-background-color">
-														<?= $group_item->html; ?>
-													</div>
+												<iframe width="100%" height="300px" src="https://www.youtube.com/embed/<?= UdoitUtils::instance()->getYouTubeId($group_item->html); ?>" frameborder="0" allowfullscreen></iframe>
 												<?php else: ?>
-													<?= $group_item->html; ?>
+													<?php if ($group_item->type == "cssTextHasContrast" && !isset($group_item->back_color)): ?>
+														<div class="ufixit-no-background-color">
+															<?= $group_item->html; ?>
+														</div>
+													<?php else: ?>
+														<?= $group_item->html; ?>
+													<?php endif; ?>
 												<?php endif; ?>
-											<?php endif; ?>
+											</div>
+											<pre class="error-source"><code class="html"><strong>Line <?= $group_item->lineNo; ?></strong>: <?= $this->e($group_item->html); ?></code></pre>
+											<a class="closeError btn" href="#closeError" data-error="<?= $li_id; ?>">Close Issue Source</a>
 										</div>
-										<pre class="error-source"><code class="html"><strong>Line <?= $group_item->lineNo; ?></strong>: <?= $this->e($group_item->html); ?></code></pre>
-										<a class="closeError btn" href="#closeError" data-error="<?= $li_id; ?>">Close Issue Source</a>
-									</div>
-								<?php endif; ?>
+									<?php endif; ?>
 
-								<?php if (empty($post_path) && in_array($group_item->type, $fixable_types)): ?>
-									<div>
-										<button class="fix-this no-print btn btn-success instance" value="<?= $group_item->type; ?>">U FIX IT!</button>
-										<div class="toolmessage instance">UFIXIT is disabled because this is an old report. Rescan the course to use UFIXIT.</div>
-									</div>
-									<form class="ufixit-form form-horizontal no-print hidden instance" action="#" role="form">
-										<input type="hidden" name="main_action" value="ufixit">
-										<input type="hidden" name="contenttype" value="<?= $content_group; ?>">
-										<input type="hidden" name="contentid" value="<?= $id; ?>">
-										<input type="hidden" name="errorhtml" value="<?= $this->e($group_item->html); ?>">
-										<input type="hidden" name="errortype" value="<?= $group_item->type; ?>">
-										<input type="hidden" name="reporttype" value="error">
-										<input type="hidden" name="reporttype" value="suggestion">
-										<input type="hidden" name="errortype" value="<?= $group_item->type; ?>">
-										<input type="hidden" name="submittingagain" value="">
+									<?php if (empty($post_path) && in_array($group_item->type, $fixable_types)): ?>
+										<div>
+											<button class="fix-this no-print btn btn-success instance" value="<?= $group_item->type; ?>">U FIX IT!</button>
+											<div class="toolmessage instance">UFIXIT is disabled because this is an old report. Rescan the course to use UFIXIT.</div>
+										</div>
+										<form class="ufixit-form form-horizontal no-print hidden instance" action="#" role="form">
+											<input type="hidden" name="main_action" value="ufixit">
+											<input type="hidden" name="contenttype" value="<?= $content_group; ?>">
+											<input type="hidden" name="contentid" value="<?= $id; ?>">
+											<input type="hidden" name="errorhtml" value="<?= $this->e($group_item->html); ?>">
+											<input type="hidden" name="errortype" value="<?= $group_item->type; ?>">
+											<input type="hidden" name="reporttype" value="error">
+											<input type="hidden" name="reporttype" value="suggestion">
+											<input type="hidden" name="errortype" value="<?= $group_item->type; ?>">
+											<input type="hidden" name="submittingagain" value="">
 
-										<?php
-											$result_template = '';
-											switch ($group_item->type){
-												case "aSuspiciousLinkText":
-												case "aLinkTextDoesNotBeginWithRedundantWord":
-													$result_template = 'link';
-													break;
+											<?php
+												$result_template = '';
+												switch ($group_item->type){
+													case "aSuspiciousLinkText":
+													case "aLinkTextDoesNotBeginWithRedundantWord":
+														$result_template = 'link';
+														break;
 
-												case "cssTextStyleEmphasize":
-													$result_template = 'text_style';
-													break;
+													case "cssTextStyleEmphasize":
+														$result_template = 'text_style';
+														break;
 
-												case "cssTextHasContrast":
-													$result_template = 'contrast';
-													break;
+													case "cssTextHasContrast":
+														$result_template = 'contrast';
+														break;
 
-												case "headersHaveText":
-													$result_template = 'header_text';
-													break;
+													case "headersHaveText":
+														$result_template = 'header_text';
+														break;
 
-												case "aMustContainText":
-												case "aSuspiciousLinkText":
-												case "aLinkTextDoesNotBeginWithRedundantWord":
-													$result_template = 'link_text';
-													break;
+													case "aMustContainText":
+													case "aSuspiciousLinkText":
+													case "aLinkTextDoesNotBeginWithRedundantWord":
+														$result_template = 'link_text';
+														break;
 
-												case "imgHasAlt":
-												case "imgNonDecorativeHasAlt":
-												case "imgAltIsDifferent":
-												case "imgAltIsTooLong":
-													$result_template = 'image_alt';
-													break;
+													case "imgHasAlt":
+													case "imgNonDecorativeHasAlt":
+													case "imgAltIsDifferent":
+													case "imgAltIsTooLong":
+														$result_template = 'image_alt';
+														break;
 
-												case "tableDataShouldHaveTh":
-													$result_template = 'table_header';
-													break;
+													case "tableDataShouldHaveTh":
+														$result_template = 'table_header';
+														break;
 
-												case "tableThShouldHaveScope":
-													$result_template = 'table_header_scope';
-													break;
+													case "tableThShouldHaveScope":
+														$result_template = 'table_header_scope';
+														break;
 
-												case "aSuspiciousLinkText":
-													$result_template = 'suspicious_link_text';
-													break;
-											}
+													case "aSuspiciousLinkText":
+														$result_template = 'suspicious_link_text';
+														break;
+												}
 
-											if ( ! empty($result_template)) {
-												echo($this->fetch("partials/result_item/{$result_template}", ['group_item' => $group_item]));
-											}
-										?>
-									</form>
-								<?php endif; # if (empty($post_path) && in_array($group_item->type, $fixable_types)): ?>
-							</li>
-						<?php endforeach; # foreach ($type_group as $group_item):  ?>
-					</ol>
+												if ( ! empty($result_template)) {
+													echo($this->fetch("partials/result_item/{$result_template}", ['group_item' => $group_item, 'item_id' => $li_id]));
+												}
+											?>
+										</form>
+									<?php endif; # if (empty($post_path) && in_array($group_item->type, $fixable_types)): ?>
+								</li>
+							<?php endforeach; # foreach ($type_group as $group_item):  ?>
+						</ol>
+					<?php endif; # For errors other than content length?>
 				</div>
 			</li>
 		<?php endforeach; # foreach ($error_types as $type_group):?>
