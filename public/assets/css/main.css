@@ -67,7 +67,8 @@ body { padding: 20px 0 0; }
 	margin: 0;
 }
 
-.list-group-item .btn:hover{
+.list-group-item .viewError.btn:hover,
+.list-group-item .closeError.btn:hover{
 	background-color: #ccc;
 }
 
@@ -185,7 +186,7 @@ h3 a { color: inherit; }
 
 .content-title .proc-time{
 	font-size: 40%;
-	color: #aaaaaa;
+	color: #767676;
 	position: absolute;
 	bottom: 7px;
 	right: 0;
@@ -305,6 +306,21 @@ ul.li_border li {
 	padding: 10px;
 }
 
+ul#filters {
+	list-style: none;
+	padding-left: 10px;
+}
+
+ul#filters li {
+	float: left;
+	padding-right: 10px;
+}
+
+ul#filters li:last-of-type {
+	float: none;
+	padding-right: 10px;
+}
+
 .delete_li { float: right; }
 
 /*h5 { display: inline-block; }*/
@@ -383,7 +399,7 @@ h5 + ul {
 	font-size: 11px;
 	font-weight: bold;
 
-	background: rgba(0,0,0,0.3);
+	background: #767676;
 	border-radius: 3px 0 3px 0;
 }
 
@@ -460,7 +476,7 @@ h5 + ul {
 	font-size: 11px;
 	font-weight: bold;
 
-	background: rgba(0,0,0,0.3);
+	background: #767676;
 	border-radius: 3px 0 3px 0;
 }
 
@@ -568,18 +584,18 @@ div#cached button.btn-success:hover{
 }
 
 .badge-error {
-  	background-color: #CA8A89;
+  	background-color: #A94442;
   	float: left !important;
   	margin-right: 6px;
   	font-size: 12px;
 }
 
 .panel-info .badge-error {
-	background-color: #4A94B9;
+	background-color: #31708f;
 }
 
 .panel-info .text-danger {
-	color: #4A94B9;
+	color: #0080a8;
 }
 
 .badge-suggestion {
@@ -624,7 +640,7 @@ div#cached button.btn-success:hover{
 .btn-success[disabled]:active,
 .btn-success.disabled.active,
 .btn-success[disabled].active {
-	background: #5cb85c;
+	background: #008a00;
 	opacity: 1;
 }
 
@@ -694,6 +710,30 @@ ul.color-picker {
 	font-weight: 900;
 
 	-webkit-text-stroke: .5px white;
+}
+
+/* Core bootstrap styles that don't meet WCAG2.0AA Requirements get overriden here */
+.label-danger {
+	background-color: #d4423c;
+}
+
+.label-success {
+	background-color: #008a00
+}
+
+.btn-success {
+	background-color: #008a00;
+	border-color: #106800;
+}
+.btn-success.active, .btn-success.focus,
+.btn-success:active, .btn-success:focus,
+.btn-success:hover, .open>.dropdown-toggle.btn-success, 
+.btn-success.disabled, .btn-success[disabled], 
+.btn-success.disabled:hover, .btn-success[disabled]:hover, 
+.btn-success.disabled:focus, .btn-success[disabled]:focus, 
+.btn-success.disabled:active, .btn-success[disabled]:active, 
+.btn-success.disabled.active, .btn-success[disabled].active {
+	background-color: #006800;
 }
 
 @media (max-width: 1200px) {

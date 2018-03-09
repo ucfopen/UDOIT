@@ -976,6 +976,53 @@ $doc.ready(function() {
 	});
 	// END update UFIXIT Preview
 
+	// updates Unscannable files list on change of checkbox for PDFs
+	$doc.on('change', 'input#filter-pdf', function (e) {
+		$items = $(this).parent().parent().parent().find('.pdf');
+		if ($(this).prop('checked')){
+			$items.show();
+		} else {
+			$items.hide();
+		}
+	});
+	// END update files list
+
+	// updates Unscannable files list on change of checkbox for DOCs
+	$doc.on('change', 'input#filter-doc', function (e) {
+		$items = $(this).parent().parent().parent().find('.doc');
+		$itemsx = $(this).parent().parent().parent().find('.docx');
+		if ($(this).prop('checked')){
+			$items.show();
+			$itemsx.show();
+		} else {
+			$items.hide();
+			$itemsx.hide();
+		}
+	});
+	// END update files list
+
+	// updates Unscannable files list on change of checkbox for PPTs
+	$doc.on('change', 'input#filter-ppt', function (e) {
+		$items = $(this).parent().parent().parent().find('.ppt');
+		$itemsx = $(this).parent().parent().parent().find('.pptx');
+		if ($(this).prop('checked')){
+			$items.show();
+			$itemsx.show();
+		} else {
+			$items.hide();
+			$itemsx.hide();
+		}
+	});
+	// END update files list
+
+	$doc.on('keypress', '.nav-tabs li[role="presentation"]', function (e) {
+	  	var tab = (e.target || e.srcElement);
+		if((e.keyCode == 32)){
+			e.preventDefault();
+			tab.click();	
+		}
+	});
+
 	// updates UFIXIT Preview on change of checkbox for removing color
 	$doc.on('change', 'input[name="remove-color"]', function (e) {
 		var $preview = $(e.target).parent().parent().parent().find('div.ufixit-preview-canvas');
@@ -993,3 +1040,4 @@ $doc.ready(function() {
 	// END update UFIXIT Preview
 
 });
+
