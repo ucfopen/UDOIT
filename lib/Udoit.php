@@ -60,10 +60,10 @@ class Udoit
 
                 // build error summary
                 $combined_issues = array_merge($item['error'], $item['warning'], $item['suggestion']);
-                foreach($combined_issues as $issue) {
+                foreach ($combined_issues as $issue) {
                     $title = $issue['title'];
                     $severity = $issue['severity_num'];
-                    if(!isset($error_summary[$title])) {
+                    if (!isset($error_summary[$title])) {
                         $error_summary[$title] = new stdClass();
                         $error_summary[$title]->count = 1;
                         $error_summary[$title]->severity = $severity == 3 ? 'label-primary' : 'label-danger';
