@@ -8,15 +8,84 @@
     "content": {
         "announcements": {
             "title": "announcements",
-            "items": [],
-            "amount": 0,
-            "time": 0.24
+            "items": [
+                {
+                    "id": 4392414,
+                    "name": "In Class Quiz 4 and Second Chance to Previous Quizzes ",
+                    "url": "https://webcourses.ucf.edu/courses/1250664/discussion_topics/4392414",
+                    "amount": 1,
+                    "error": [],
+                    "warning": [],
+                    "suggestion": [
+                        {
+                            "colors": [
+                                "#0000ff"
+                            ],
+                            "fore_color": "#0000ff",
+                            "text_type": "text",
+                            "type": "cssTextStyleEmphasize",
+                            "lineNo": 5,
+                            "severity": "Suggestion",
+                            "severity_num": 3,
+                            "title": "Avoid using color alone for emphasis",
+                            "description": "<p>When emphasizing text, you may use color with sufficient contrast as long as you also apply some other form of emphasis, such as bold or italics. This ensures that screen reader users are aware of the text's importance.</p>",
+                            "path": "None",
+                            "html": "<span style=\"color: #0000ff; text-decoration: underline;\">nirmal.ghimire@ucf.edu</span>\n"
+                        }
+                    ]
+                },
+                {
+                    "id": 4348457,
+                    "name": "In-Class Quiz 1 ",
+                    "url": "https://webcourses.ucf.edu/courses/1250664/discussion_topics/4348457",
+                    "amount": 1,
+                    "error": [],
+                    "warning": [],
+                    "suggestion": [
+                        {
+                            "text_type": null,
+                            "type": "noHeadings",
+                            "lineNo": 0,
+                            "severity": "Suggestion",
+                            "severity_num": 3,
+                            "title": "Consider adding headings to your document to create more structure",
+                            "description": "<p>If appropriate, add headings to the page to organize the content for sighted and <a href='http://en.wikipedia.org/wiki/Screen_reader'>screen reader</a> users. The headings should represent an accurate outline of the content</p>",
+                            "path": "None",
+                            "html": ""
+                        }
+                    ]
+                }
+            ],
+            "amount": 8,
+            "time": 1.81
         },
         "assignments": {
             "title": "assignments",
-            "items": [],
-            "amount": 12,
-            "time": 1.01
+            "items": [
+                {
+                    "id": 5165863,
+                    "name": "Week 1 Essay Assignment",
+                    "url": "https://webcourses.ucf.edu/courses/1256540/assignments/5165863",
+                    "amount": 1,
+                    "error": [
+                        {
+                            "text_type": null,
+                            "type": "headersHaveText",
+                            "lineNo": 1,
+                            "severity": "Error",
+                            "severity_num": 1,
+                            "title": "Headings should contain text",
+                            "description": "<p>Sighted and <a href='http://en.wikipedia.org/wiki/Screen_reader'>screen reader</a> users depend on headings to organize the content on the page. Headings should not be empty and should represent an accurate outline of the content</p>",
+                            "path": "None",
+                            "html": "<h2></h2>\n"
+                        }
+                    ],
+                    "warning": [],
+                    "suggestion": []
+                }
+            ],
+            "amount": 2,
+            "time": 1
         },
         "discussions": {
             "title": "discussions",
@@ -1360,7 +1429,30 @@
             "title": "modules",
             "items": [],
             "amount": 0,
-            "time": 0.27
+            "time": 0.29
+        },
+        "module_urls": {
+            "title": "module_urls",
+            "items": [
+                {
+                    "id": 10087882,
+                    "external_url": "https://www.youtube.com/watch?v=eYG0ZuTv5rs",
+                    "title": "Excellent Documentary about stress and social hierarchies",
+                    "url": "https://webcourses.ucf.edu/api/v1/courses/1207234/module_item_redirect/10087882"
+                }
+            ],
+            "amount": 1,
+            "time": 0.47
+        },
+        "unscannable": {
+            "title": "unscannable",
+            "items": [
+                {
+                    "title": "How to Use UDOIT",
+                    "url": "https://fake.com//files/00000000/download?download_frd=1&verifier=555"
+                }
+            ],
+            "amount": 1
         }
     }
 }

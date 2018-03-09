@@ -17,10 +17,11 @@
 *
 *	Primary Author Contact:  Jacob Bates <jacob.bates@ucf.edu>
 */
+global $file_scan_size_limit;
 ?>
 <h1 class="text-center">
 	Report for <?= $this->e($course); ?><br>
-	<small><?= $this->e($error_count); ?> errors, <?= $suggestion_count; ?> suggestions</small>
+	<small><?= $this->e($error_count); ?> errors, <?= $suggestion_count; ?> suggestions, <?= $unscannable_count; ?> unscannable files</small>
 </h1>
 
 <p>
@@ -33,6 +34,11 @@
 <div class="errorWrapper">
 	<?php
 		foreach ($report_groups as $group) {
+			// skip if the title is missing
+			if (empty($group->title)) {
+				continue;
+			}
+
 			switch ($group->title) {
 				case "announcements":
 				case "assignments":
@@ -46,7 +52,11 @@
 					echo($this->fetch('partials/results_module_urls', ['items' => $group->items, 'time' => $group->time, 'out_of_items' => $group->amount]));
 					break;
 				case "unscannable":
-					echo($this->fetch('partials/results_unscannable', ['items' => $group->items, 'out_of_items' => $group->amount]));
+					$base = log($file_scan_size_limit, 1024);
+					$suffixes = array('', 'k', 'm', 'g', 't');
+					$size_str = round(pow(1024, $base - floor($base)), 2) . ' ' . $suffixes[floor($base)] . "b";
+
+					echo($this->fetch('partials/results_unscannable', ['items' => $group->items, 'out_of_items' => $group->amount, 'size_limit' =>  $size_str]));
 					break;
 			}
 		}
