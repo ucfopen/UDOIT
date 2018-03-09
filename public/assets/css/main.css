@@ -288,6 +288,19 @@ h5 {
 
 .errorWrapper .errorSummary .panel:last-child { margin-bottom: 0; }
 
+#errorTotalSummary table {
+	margin: 0px 30px;
+}
+
+#errorTotalSummary table td {
+	padding: 0px 15px;
+}
+
+#errorTotalSummary h2 {
+	font-size: 24px;
+	margin-bottom: 0px;
+}
+
 ul.li_border li {
 	border-bottom: 1px solid black;
 	padding: 10px;
