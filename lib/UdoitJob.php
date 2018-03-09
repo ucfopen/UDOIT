@@ -201,7 +201,7 @@ class UdoitJob
                     if(!isset($error_summary[$item])) {
                         $error_summary[$item] = $data;
                     } else {
-                     $error_summary[$item]->count += $data->count;
+                        $error_summary[$item][count] += $data[count];
                     }
                 }
             }
