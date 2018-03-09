@@ -293,6 +293,21 @@ ul.li_border li {
 	padding: 10px;
 }
 
+ul#filters {
+	list-style: none;
+	padding-left: 10px;
+}
+
+ul#filters li {
+	float: left;
+	padding-right: 10px;
+}
+
+ul#filters li:last-of-type {
+	float: none;
+	padding-right: 10px;
+}
+
 .delete_li { float: right; }
 
 /*h5 { display: inline-block; }*/

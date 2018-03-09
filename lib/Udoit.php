@@ -214,9 +214,10 @@ class Udoit
                     if (in_array($extension, ['pdf', 'doc', 'docx', 'ppt', 'pptx'])) {
                         // not scannable types
                         $content_result['unscannable'][] = [
-                            'title' => $c->display_name,
-                            'url'   => $c->url,
-                            'big'   => false,
+                            'title'     => $c->display_name,
+                            'url'       => $c->url,
+                            'extension' => $extension,
+                            'big'       => false,
                         ];
                     } elseif (!empty($c->size) && $c->size > $file_scan_size_limit) {
                         // too big to scan
