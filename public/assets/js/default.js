@@ -977,6 +977,14 @@ $doc.ready(function() {
 	});
 	// END update UFIXIT Preview
 
+	$doc.on('keypress', '.nav-tabs li[role="presentation"]', function (e) {
+	  	var tab = (e.target || e.srcElement);
+		if((e.keyCode == 32)){
+			e.preventDefault();
+			tab.click();	
+		}
+	});
+
 	// updates UFIXIT Preview on change of checkbox for removing color
 	$doc.on('change', 'input[name="remove-color"]', function (e) {
 		var $preview = $(e.target).parent().parent().parent().find('div.ufixit-preview-canvas');
@@ -994,3 +1002,4 @@ $doc.ready(function() {
 	// END update UFIXIT Preview
 
 });
+
