@@ -268,7 +268,7 @@ Then open [http://localhost:8000 in a browser](http://localhost:8000).
 
 ## Docker
 
-To setup a Docker environment, follow the steps outlined in the [DOCKER.md Readme](DOCKER.md).
+To setup the Docker environment, follow the steps outlined in the [DOCKER.md Readme](DOCKER.md).
 
 ## Running Tests
 We use phpunit to run unit tests on UDOIT.  To run the tests, type the following command:
