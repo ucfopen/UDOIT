@@ -52,7 +52,7 @@ function buildAlertString(text){
  * The callback parameter takes in a function to be fired once the popup is made*/
 function popUpTemplate(noback, callback) {
 	if(!noback) { popUpBack() };
-	$('#udoitForm button.submit').addClass('disabled').html('<div id="popup"></div> Beginning scan...');
+	$('#udoitForm button.submit').addClass('disabled').html('<div id="popup"></div>Scanning...');
 
 	$('#popup').hide();
 	// NEED TO MAKE THESE PARAMETERS AS WELL.

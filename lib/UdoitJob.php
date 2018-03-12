@@ -216,6 +216,8 @@ class UdoitJob
                 'items' => $unscannables_items,
                 'amount' => count($unscannables_items),
             ];
+        } else {
+            $content['unscannable'] = ['amount' => 0];
         }
 
         return [

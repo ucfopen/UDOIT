@@ -339,6 +339,10 @@ h5 + ul {
 	vertical-align: top;
 }
 
+#popup .circle-white {
+	margin-right: 10px;
+}
+
 #loginForm p {
 	clear:both;
 	padding: 5px 0 0 30px;
