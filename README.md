@@ -266,6 +266,10 @@ $ php composer.phar start
 
 Then open [http://localhost:8000 in a browser](http://localhost:8000).
 
+## Docker
+
+To setup a Docker environment, follow the steps outlined in the [DOCKER.md Readme](DOCKER.md).
+
 ## Running Tests
 We use phpunit to run unit tests on UDOIT.  To run the tests, type the following command:
 
@@ -305,6 +309,7 @@ Add contributors here and dont forget composer.json!)
 * Joe Fauvel
 * [John Raible](https://github.com/rebelaide)
 * [Kevin Baugh](https://github.com/loraxx753)
+* [Sean Hernandez](https://github.com/seanlh)
 
 ### Special Thanks
 
