@@ -92,4 +92,4 @@ password: udoit
 
 ## Customization
 
-Docker-Compose allows you to change build images, exposed ports, local file linkages, MySQL user accounts, etc. all inside the `docker-compose.yml` file.
+Docker-Compose allows you to change build images, exposed ports, local file linkages, MySQL user accounts, etc. inside the `docker-compose.yml` file.
