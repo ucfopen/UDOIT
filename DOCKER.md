@@ -26,7 +26,7 @@ $ docker-machine ip udoit
 
 ### NGINX Configuration
 
-Configure [NGINX](../docker/nginx.conf)'s server name to point to the machine's IP address by replacing both instances of
+Configure [NGINX](docker/nginx.conf)'s server name to point to the machine's IP address by replacing both instances of
 
 ```
 localhost
