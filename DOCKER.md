@@ -1,30 +1,95 @@
 # UDOIT for Docker
 
 ## Installation Prerequisites
+
 * [Docker](https://docs.docker.com/install/)
 * [Docker Compose](https://docs.docker.com/compose/install/)
 * [Docker Machine](https://docs.docker.com/machine/install-machine/)
 
-## Create and configure docker-machine
-1. Create a docker-machine for UDOIT `docker-machine create udoit`
-2. Set your environment to the newly created machine `docker-machine env udoit`
-3. Configure your shell `eval $(docker-machine env test)`
-4. Save your docker-machine's IP address `docker-machine ip udoit` (E.g. 192.168.99.100)
+## Host Configuration
 
-## Configure the web-server
-1. Open [docker/nginx.conf](docker/nginx.conf) and replace both instances of `localhost` with the saved docker-machine IP address
-2. Generate a self-signed SSL certificate and place the components `domain.crt` and `domain.key` within the [docker](docker) folder
+### Setup Docker-Machine
 
-## Start the docker-compose containers
-1. Navigate to the root of the local version of this repository and type `docker-compose up -d` in order to start all the services (nginx, MySQL, and PHP 7.1) required in detached mode.
-2. Navigate to `https://<ip_address>` using the previously saved IP address to verify everything works correctly.
+Create a docker-machine for UDOIT, get the environment commands for the new machine, and connect your shell to it:
 
-### More information on docker-compose
-* The included docker-compose.yml exposes ports 80 and 443 for HTTP and HTTPS requests. 
-* Port 3306 is also exposed to allow for easy debugging of the included MySQL server (you can disable this in the docker-compose file). You may access the MySQL server on that port using the following information:
+```
+$ docker-machine create udoit
+$ docker-machine env udoit
+$ eval $(docker-machine env udoit)
+```
+
+Then, save the IP address for the newly created docker-machine (E.g. `192.168.99.100`):
+
+```
+$ docker-machine ip udoit
+```
+
+### NGINX Configuration
+
+Configure [NGINX](../docker/nginx.conf)'s server name to point to the machine's IP address by replacing both instances of
+
+```
+localhost
+```
+
+with
+
+```
+<your_ip_address>
+```
+
+Generate SSL certificates according to the naming scheme located in the nginx.conf file (`nginx.key` and `nginx.crt`) or use your own SSL certificates:
+
+```
+$ sudo openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout docker/nginx.key -out docker/nginx.crt
+```
+
+## Start Services using Docker-Compose
+
+Start PHP, MySQL, and NGINX:
+
+```
+$ docker-compose up -d
+```
+
+Verify everything works by navigating to
+
+```
+https://<your_ip_address>
+```
+
+The included `docker-compose.yml` automatically builds the latest images of PHP 7.1-FPM, MySQL, and NGINX.
+
+## Development
+
+### PHP
+
+Execute PHP commands on the server using `docker-compose`:
+
+```
+$ docker-compose exec php bash
+```
+
+Exit by pressing `Ctrl+P` then `Ctrl+Q`
+
+### MySQL
+
+You may access the MySQL database using either `root` or the preconfigured `udoit` user on `<your_ip_address>` and port `3306`.
+
 #### Root access (not advised)
-username: `root`
-password: `root`
-#### User access
-username: `udoit`
-password: `udoit`
+
+```
+username: root
+password: udoit
+```
+
+#### User access (recommended)
+
+```
+username: udoit
+password: udoit
+```
+
+## Customization
+
+Docker-Compose allows you to change build images, exposed ports, local file linkages, MySQL user accounts, etc. all inside the `docker-compose.yml` file.
