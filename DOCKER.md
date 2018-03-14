@@ -6,7 +6,7 @@
 * [Docker Compose](https://docs.docker.com/compose/install/)
 * [Docker Machine](https://docs.docker.com/machine/install-machine/)
 
-***Note: For general configuration setup, refer to the [README.md](README.md).***
+***Note: This guide assumes you have followed the [Installation Guide located in the README.md](README.md#installing-udoit).***
 
 ## Host Configuration
 
