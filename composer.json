@@ -18,7 +18,7 @@
         "migrate" : "php bin/run_database_migrations.php",
         "start": "php -S localhost:8000 -t public/",
 
-        "docker-test": "docker-compose run --rm php71 php composer.phar test",
+        "docker-test": "docker-compose --file docker/docker-compose.yml run --rm php71 php composer.phar test",
         "docker-test-multi": [
             "@docker-test-no-coverage-php55",
             "@docker-test-no-coverage-php56",
