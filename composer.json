@@ -18,21 +18,21 @@
         "migrate" : "php bin/run_database_migrations.php",
         "start": "php -S localhost:8000 -t public/",
 
-        "docker-test": "docker-compose run --rm php71 php composer.phar test",
+        "docker-test": "docker-compose --file docker/docker-compose.yml run --rm php71 php composer.phar test",
         "docker-test-multi": [
             "@docker-test-no-coverage-php55",
             "@docker-test-no-coverage-php56",
             "@docker-test-no-coverage-php70",
             "@docker-test-no-coverage-php71"
         ],
-        "docker-test-no-coverage-php55": "docker-compose run --rm php55 php composer.phar test-no-coverage",
-        "docker-test-no-coverage-php56": "docker-compose run --rm php56 php composer.phar test-no-coverage",
-        "docker-test-no-coverage-php70": "docker-compose run --rm php70 php composer.phar test-no-coverage",
-        "docker-test-no-coverage-php71": "docker-compose run --rm php71 php composer.phar test-no-coverage",
-        "docker-test-include-functional": "docker-compose run --rm php71 php composer.phar test-include-functional",
-        "docker-lint": "docker-compose run --rm php71 php composer.phar lint",
-        "docker-db-setup": "docker-compose run --rm php71 php composer.phar db-setup",
-        "docker-start": "docker-compose run --rm php71 php -S localhost:8000 -t public/"
+        "docker-test-no-coverage-php55": "docker-compose --file docker/docker-compose.yml run --rm php55 php composer.phar test-no-coverage",
+        "docker-test-no-coverage-php56": "docker-compose --file docker/docker-compose.yml run --rm php56 php composer.phar test-no-coverage",
+        "docker-test-no-coverage-php70": "docker-compose --file docker/docker-compose.yml run --rm php70 php composer.phar test-no-coverage",
+        "docker-test-no-coverage-php71": "docker-compose --file docker/docker-compose.yml run --rm php71 php composer.phar test-no-coverage",
+        "docker-test-include-functional": "docker-compose --file docker/docker-compose.yml run --rm php71 php composer.phar test-include-functional",
+        "docker-lint": "docker-compose --file docker/docker-compose.yml run --rm php71 php composer.phar lint",
+        "docker-db-setup": "docker-compose --file docker/docker-compose.yml run --rm php71 php composer.phar db-setup",
+        "docker-start": "docker-compose --file docker/docker-compose.yml run --rm php71 php -S localhost:8000 -t public/"
 
     },
     "repositories"      : [
@@ -145,6 +145,11 @@
         {
             "name": "Cooper Fellows",
             "homepage": "https://github.com/cooperfellows",
+            "role": "Contributor"
+        },
+        {
+            "name": "Sean Hernandez",
+            "homepage": "https://github.com/seanlh",
             "role": "Contributor"
         }
     ]
