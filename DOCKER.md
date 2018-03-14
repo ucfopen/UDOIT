@@ -6,6 +6,8 @@
 * [Docker Compose](https://docs.docker.com/compose/install/)
 * [Docker Machine](https://docs.docker.com/machine/install-machine/)
 
+***Note: For general configuration setup, refer to the [README.md](README.md).***
+
 ## Host Configuration
 
 ### Setup Docker-Machine
