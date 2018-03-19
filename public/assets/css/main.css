@@ -103,7 +103,7 @@ body { padding: 20px 0 0; }
 	border-bottom-right-radius: 4px;
 }
 
-#unscannable a.list-group-item {
+#unscannable .item-container .list-group-item {
 	border: none;
 	padding: 10px 20px;
 	cursor: pointer;
