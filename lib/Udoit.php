@@ -226,6 +226,7 @@ class Udoit
                     }
 
                     $extension = pathinfo($c->filename, PATHINFO_EXTENSION);
+                    global $file_scan_size_limit;
 
                     if (in_array($extension, ['pdf', 'doc', 'docx', 'ppt', 'pptx'])) {
                         // not scannable types
