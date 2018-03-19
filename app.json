@@ -61,6 +61,10 @@
     "SCAN_FILE_SIZE_LIMIT": {
       "description": "Max file size to scan, anything larger gets set as unscannable.",
       "value": "50000000"
+    },
+    "ALT_TEXT_LENGTH_LIMIT": {
+      "description": "Maximum character length for alt-text before the item gets flagged as a warning.",
+      "value": "125"
     }
   },
   "addons": [

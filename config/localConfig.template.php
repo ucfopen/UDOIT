@@ -22,6 +22,9 @@ $canvas_nav_item_name = (getenv('CANVAS_NAV_ITEM_NAME')) ?: 'UDOIT';
 /* File Scan Size Limit */
 $file_scan_size_limit = getenv('SCAN_FILE_SIZE_LIMIT') ?: 52428800;
 
+/* Alt Text Length Limit */
+$alt_text_length_limit = getenv('ALT_TEXT_LENGTH_LIMIT') ?: 125;
+
 /* Google/YouTube Data Api Key */
 define('GOOGLE_API_KEY', '');
 

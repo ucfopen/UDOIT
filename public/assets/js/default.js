@@ -609,7 +609,7 @@ $doc.ready(function() {
 
 	// counting down the new alt text input
 	$doc.on('keyup', '.fix-alt input', function() {
-		var left = 100 - $(this).val().length;
+		var left = $(this).parent().find('.form-control').attr('maxlength') - $(this).val().length;
 		if (left < 0) {
 			left = 0;
 		}

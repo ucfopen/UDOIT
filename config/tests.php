@@ -23,7 +23,7 @@ return [
         [
             'name'      => 'imgHasAlt',
             'title'     => 'No Alternative Text found',
-            'desc'      => '<p>Alternative Text (Alt Text) is an alternative (non-visual) way to describe the meaning of an image. Please provide a brief (under 100 characters) description of the image for a <a href="http://en.wikipedia.org/wiki/Screen_reader">screen reader</a> user. Note: It should not be the image file name.</p>',
+            'desc'      => '<p>Alternative Text (Alt Text) is an alternative (non-visual) way to describe the meaning of an image. Please provide a brief description of the image for a <a href="http://en.wikipedia.org/wiki/Screen_reader">screen reader</a> user. Note: It should not be the image file name.</p>',
             'resources' => [
                 'UCF CDL: <a href="https://cdl.ucf.edu/teach/accessibility/text/">Text Formatting and Document Organization</a>',
                 'WCAG Standard: <a href="http://www.w3.org/TR/WCAG20/#text-equiv-all">1.1.1</a>',
@@ -38,7 +38,7 @@ return [
         [
             'name'      => 'imgAltIsDifferent',
             'title'     => 'Alternative Text should not be the image filename',
-            'desc'      => '<p>Alternative Text (Alt Text) is an alternative (non-visual) way to describe the meaning of an image. Please provide a brief (under 100 characters) description of the image for a <a href="http://en.wikipedia.org/wiki/Screen_reader">screen reader</a> user. Note: It should not be the image file name.</p>',
+            'desc'      => '<p>Alternative Text (Alt Text) is an alternative (non-visual) way to describe the meaning of an image. Please provide a brief description of the image for a <a href="http://en.wikipedia.org/wiki/Screen_reader">screen reader</a> user. Note: It should not be the image file name.</p>',
             'resources' => [
                 'UCF CDL: <a href="https://cdl.ucf.edu/teach/accessibility/text/">Text Formatting and Document Organization</a>',
                 'WCAG Standard: <a href="http://www.w3.org/TR/WCAG20/#text-equiv-all">1.1.1</a>',
@@ -54,8 +54,8 @@ return [
         ],
         [
             'name'      => 'imgAltIsTooLong',
-            'title'     => 'Alternative Text is more than 100 characters',
-            'desc'      => '<p>Alternative Text (Alt Text) is an alternative (non-visual) way to describe the meaning of an image. Please provide a brief (under 100 characters) description of the image for a <a href="http://en.wikipedia.org/wiki/Screen_reader">screen reader</a> user. Note: It should not be the image file name.</p>',
+            'title'     => 'Alternative Text is more than the maximum allowed characters',
+            'desc'      => '<p>Alternative Text (Alt Text) is an alternative (non-visual) way to describe the meaning of an image. Please provide a brief description of the image for a <a href="http://en.wikipedia.org/wiki/Screen_reader">screen reader</a> user. Note: It should not be the image file name.</p>',
             'resources' => [
                 'UCF CDL: <a href="https://cdl.ucf.edu/teach/accessibility/text/">Text Formatting and Document Organization</a>',
                 'WCAG Standard: <a href="http://www.w3.org/TR/WCAG20/#text-equiv-all">1.1.1</a>',
@@ -70,7 +70,7 @@ return [
         [
             'name'      => 'imgAltNotEmptyInAnchor',
             'title'     => 'Alt text for all img elements used as source anchors should not be empty',
-            'desc'      => '<p>Alternative Text (Alt Text) is an alternative (non-visual) way to describe the meaning of an image. Please provide a brief (under 100 characters) description of the image for a <a href="http://en.wikipedia.org/wiki/Screen_reader">screen reader</a> user. Note: It should not be the image file name.</p>',
+            'desc'      => '<p>Alternative Text (Alt Text) is an alternative (non-visual) way to describe the meaning of an image. Please provide a brief description of the image for a <a href="http://en.wikipedia.org/wiki/Screen_reader">screen reader</a> user. Note: It should not be the image file name.</p>',
             'resources' => [
                 'UCF CDL: <a href="https://cdl.ucf.edu/teach/accessibility/text/">Text Formatting and Document Organization</a>',
                 'WCAG Standard: <a href="http://www.w3.org/TR/WCAG20/#text-equiv-all">1.1.1</a>',
