@@ -48,11 +48,26 @@ global $unscannable_suggestion;
 			</div>
 		</div>
 
+		<ul id="filters">
+		    <li>
+		        <input type="checkbox" value="pdf" id="filter-pdf" checked/>
+		        <label for="filter-pdf">PDF</label>
+		    </li>
+		    <li>
+		        <input type="checkbox" value="doc" id="filter-doc" checked/>
+		        <label for="filter-doc">DOC</label>
+		    </li>
+		    <li>
+		        <input type="checkbox" value="ppt" id="filter-ppt" checked/>
+		        <label for="filter-ppt">PPT</label>
+		    </li>
+		</ul>
+
 		<div id="unscannable" class="list-group no-margin">
 
 			<?php foreach ($items as $item): ?>
 				<div class="item-container">
-					<div class="list-group-item">
+					<div class="list-group-item <?= $item->extension; ?>">
 						<a target="_blank" href="<?= $item->path; ?>">Folder</a> - 
 						<a class="download" href="<?= $item->url; ?>"><?= $item->title; ?></a>
 						<span class="module-location"><?= $item->module; ?></span>

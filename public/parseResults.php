@@ -53,12 +53,14 @@ if (empty($report)) {
 }
 
 $ordered_report_groups = UdoitUtils::instance()->sortReportGroups($report->content);
-
+file_put_contents("php://stdout", print_r($report, true));
 $results = [
     'course'              => $report->course,
     'error_count'         => $report->total_results->errors,
     'suggestion_count'    => $report->total_results->suggestions,
+    'unscannable_count'   => $report->content->unscannable->amount,
     'report_groups'       => $ordered_report_groups,
+    'error_summary'       => $report->error_summary,
     'post_path'           => $get_input['path'],
     'fixable_error_types' => ["cssTextHasContrast", "imgNonDecorativeHasAlt", "tableDataShouldHaveTh", "tableThShouldHaveScope", "headersHaveText", "aMustContainText", "imgAltIsDifferent", "imgAltIsTooLong"],
     'fixable_suggestions' => ["aSuspiciousLinkText", "imgHasAlt", "aLinkTextDoesNotBeginWithRedundantWord", "cssTextStyleEmphasize"],

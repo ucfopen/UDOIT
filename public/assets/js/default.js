@@ -52,7 +52,7 @@ function buildAlertString(text){
  * The callback parameter takes in a function to be fired once the popup is made*/
 function popUpTemplate(noback, callback) {
 	if(!noback) { popUpBack() };
-	$('#udoitForm button.submit').addClass('disabled').html('<div id="popup"></div> Beginning scan...');
+	$('#udoitForm button.submit').addClass('disabled').html('<div id="popup"></div>Scanning...');
 
 	$('#popup').hide();
 	// NEED TO MAKE THESE PARAMETERS AS WELL.
@@ -134,7 +134,6 @@ function loadScanResults(reportID){
 			clearInterval(progressTimer);
 		},
 		success: function(data){
-			console.log(data);
 			displayScanResults(data)
 		}
 	});
@@ -335,7 +334,7 @@ $doc.ready(function() {
 	$doc.on('click', '#udoitForm button.submit', runScanner);
 
 	// result panel collapsing
-	$doc.on('click', '.errorItem .panel-heading .btn-toggle', function() {
+	$doc.on('click', '.panel-heading .btn-toggle', function() {
 		$(this).children('button span').removeClass('glyphicon-minus').addClass('glyphicon-plus');
 		var $errorItem = $(this).parent();
 		if ($errorItem.parent().find('.errorSummary').is(':visible')) {
@@ -610,7 +609,7 @@ $doc.ready(function() {
 
 	// counting down the new alt text input
 	$doc.on('keyup', '.fix-alt input', function() {
-		var left = 100 - $(this).val().length;
+		var left = $(this).parent().find('.form-control').attr('maxlength') - $(this).val().length;
 		if (left < 0) {
 			left = 0;
 		}
@@ -977,6 +976,53 @@ $doc.ready(function() {
 	});
 	// END update UFIXIT Preview
 
+	// updates Unscannable files list on change of checkbox for PDFs
+	$doc.on('change', 'input#filter-pdf', function (e) {
+		$items = $(this).parent().parent().parent().find('.pdf');
+		if ($(this).prop('checked')){
+			$items.show();
+		} else {
+			$items.hide();
+		}
+	});
+	// END update files list
+
+	// updates Unscannable files list on change of checkbox for DOCs
+	$doc.on('change', 'input#filter-doc', function (e) {
+		$items = $(this).parent().parent().parent().find('.doc');
+		$itemsx = $(this).parent().parent().parent().find('.docx');
+		if ($(this).prop('checked')){
+			$items.show();
+			$itemsx.show();
+		} else {
+			$items.hide();
+			$itemsx.hide();
+		}
+	});
+	// END update files list
+
+	// updates Unscannable files list on change of checkbox for PPTs
+	$doc.on('change', 'input#filter-ppt', function (e) {
+		$items = $(this).parent().parent().parent().find('.ppt');
+		$itemsx = $(this).parent().parent().parent().find('.pptx');
+		if ($(this).prop('checked')){
+			$items.show();
+			$itemsx.show();
+		} else {
+			$items.hide();
+			$itemsx.hide();
+		}
+	});
+	// END update files list
+
+	$doc.on('keypress', '.nav-tabs li[role="presentation"]', function (e) {
+	  	var tab = (e.target || e.srcElement);
+		if((e.keyCode == 32)){
+			e.preventDefault();
+			tab.click();	
+		}
+	});
+
 	// updates UFIXIT Preview on change of checkbox for removing color
 	$doc.on('change', 'input[name="remove-color"]', function (e) {
 		var $preview = $(e.target).parent().parent().parent().find('div.ufixit-preview-canvas');
@@ -994,3 +1040,4 @@ $doc.ready(function() {
 	// END update UFIXIT Preview
 
 });
+
