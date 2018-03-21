@@ -66,8 +66,8 @@ global $unscannable_suggestion;
 		<div id="unscannable" class="list-group no-margin">
 
 			<?php foreach ($items as $item): ?>
-				<div class="item-container">
-					<div class="list-group-item <?= $item->extension; ?>">
+				<div class="item-container <?= $item->extension; ?>">
+					<div class="list-group-item">
 						<a target="_blank" href="<?= $item->path; ?>">Folder</a> - 
 						<a class="download" href="<?= $item->url; ?>"><?= $item->title; ?></a>
 						<span class="module-location"><?= $item->module; ?></span>
