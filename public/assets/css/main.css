@@ -59,6 +59,10 @@ body { padding: 20px 0 0; }
 	padding-left: 26px;
 }
 
+.list-group-item .download, .list-group-item .module-location {
+	color: #555;
+}
+
 .list-group-item .btn{
 	margin: 10px;
 }
@@ -81,25 +85,12 @@ body { padding: 20px 0 0; }
 	border-top: 1px solid #ddd;
 }
 
-#unscannable .item-container:first-child {
-	border: solid 1px #ddd;
-	border-top-left-radius: 4px;
-	border-top-right-radius: 4px;
-}
-
 #unscannable .item-container {
 	border: solid 1px #ddd;
-	border-top: none;
+	border-radius: 4px;
 }
 
-#unscannable .item-container:last-child {
-	border: solid 1px #ddd;
-	border-top: none;
-	border-bottom-left-radius: 4px;
-	border-bottom-right-radius: 4px;
-}
-
-#unscannable a.list-group-item {
+#unscannable .item-container .list-group-item {
 	border: none;
 	padding: 10px 20px;
 	cursor: pointer;
