@@ -249,9 +249,9 @@ class Udoit
                             foreach ($items as $i) {
                                 // check if item in module matches current item
                                 if ($i->title == $c->display_name) {
-                                    // if no previous contained modules, prepend " | Module(s): "
+                                    // if no previous contained modules, prepend "In Module(s): "
                                     if (!isset($module)) {
-                                        $module = " | Module(s): ";
+                                        $module = "<span style=\"font-weight: bold\">In Module(s): </span>";
                                     }
                                     $module .= $m->name;
                                 }

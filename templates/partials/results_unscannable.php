@@ -68,8 +68,9 @@ global $unscannable_suggestion;
 			<?php foreach ($items as $item): ?>
 				<div class="item-container <?= $item->extension; ?>">
 					<div class="list-group-item">
-						<a target="_blank" href="<?= $item->path; ?>">Folder</a> - 
-						<a class="download" href="<?= $item->url; ?>"><?= $item->title; ?></a>
+						<a class="btn btn-default glyphicon glyphicon-download" target="_blank" href="<?= $item->url; ?>" title="Download" aria-label="Download"></a>
+						<a class="btn btn-default glyphicon glyphicon-folder-open" target="_blank" href="<?= $item->path; ?>" title="View Folder" aria-label="View Folder"></a>
+						<span class="filename"><?= $item->title; ?></span>
 						<span class="module-location"><?= $item->module; ?></span>
 					</div>
 					<?php if($item->big == true): ?>
