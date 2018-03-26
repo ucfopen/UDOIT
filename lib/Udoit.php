@@ -243,17 +243,19 @@ class Udoit
                         // gets all modules
                         unset($module);
                         $modules = static::apiGet("{$api_url}modules", $api_key)->send()->body;
-                        foreach ($modules as $m) {
-                            // gets all items in current module
-                            $items = static::apiGet($m->items_url, $api_key)->send()->body;
-                            foreach ($items as $i) {
-                                // check if item in module matches current item
-                                if ($i->title == $c->display_name) {
-                                    // if no previous contained modules, prepend "In Module(s): "
-                                    if (!isset($module)) {
-                                        $module = "<span style=\"font-weight: bold\">In Module(s): </span>";
+                        if (is_array($modules) || is_object($modules)) {
+                            foreach ($modules as $m) {
+                                // gets all items in current module
+                                $items = static::apiGet($m->items_url, $api_key)->send()->body;
+                                foreach ($items as $i) {
+                                    // check if item in module matches current item
+                                    if ($i->title == $c->display_name) {
+                                        // if no previous contained modules, prepend "In Module(s): "
+                                        if (!isset($module)) {
+                                            $module = "<span style=\"font-weight: bold\">In Module(s): </span>";
+                                        }
+                                        $module .= $m->name;
                                     }
-                                    $module .= $m->name;
                                 }
                             }
                         }
