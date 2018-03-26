@@ -44,17 +44,23 @@ $dsn              = "{$db_type}:host={$db_host};port={$db_port};dbname={$db_name
 
 $debug = false;
 
+/* Background worker Options (See Background Workers in Readme) */
 // added in v2.3.0
-// Background worker Options (See Background Workers in Readme)
 $background_worker_enabled = false;
 $background_job_expire_time = 20; // after x Minutes, mark job as expired
 $background_worker_sleep_seconds = 7;
 
-// OVERRIDE the default of ENV_PROD
-// $UDOIT_ENV = ENV_PROD;
-// $UDOIT_ENV = ENV_DEV;
-// $UDOIT_ENV = ENV_TEST;
+/* Set the Environment (default value is 'ENV_DEV' */
+// Valid values are 'ENV_PROD', 'ENV_DEV', or 'ENV_TEST'
+// If '$UDOIT_ENV' is not 'ENV_PROD' UDOIT is loaded with
+    // set display errors to 1
+    // add test reports to 'View Old Reports' page in UDOIT
+    // doesn't validate Canvas tokens
+    // returns "test-token" when getting refresh token for Canvas
+    // Course Scanner doesn't scan, simply contains already loaded test reports
+// $UDOIT_ENV = ENV_PROD; // default
 
+/* Ignore SSL Certificates */
+// For use while developing with self-signed SSL Certificates
 // Sets CURLOPT_SSL_VERIFYPEER and CURLOPT_SSL_VERIFYHOST
-// This should be true for production environments
-$curl_ssl_verify = true;
+$curl_ssl_verify = true; // This should be true for production environments
