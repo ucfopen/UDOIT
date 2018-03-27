@@ -27,7 +27,7 @@ class Ufixit
      * Array of annoying characters to filter out of strings
      * @var array
      */
-    public $annoying_entities = ["\r", "&nbsp;", "&amp;", "%2F", "%22"];
+    public $annoying_entities = ["\r", "&nbsp;", "&amp;", "%2F", "%22", "&lt;", "&gt;", "&quot;", "&lsquo;", "&rsquo;", "&sbquo;", "&ldquo;", "&rdquo;", "&bdquo;"];
 
     /**
      * The API key needed to communicate with Canvas
@@ -69,7 +69,7 @@ class Ufixit
      * Array of replacements for the annoying entities
      * @var array
      */
-    public $entity_replacements = ["", " ", "&", "/", ""];
+    public $entity_replacements = ["", " ", "&", "/", "", "<", ">", "\"", "‘", "’", "‚", "“", "”", "„"];
 
     /**
      * A file pointer
