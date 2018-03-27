@@ -20,12 +20,10 @@
 
         "docker-test": "docker-compose --file docker/docker-compose.yml run --rm php71 php composer.phar test",
         "docker-test-multi": [
-            "@docker-test-no-coverage-php55",
             "@docker-test-no-coverage-php56",
             "@docker-test-no-coverage-php70",
             "@docker-test-no-coverage-php71"
         ],
-        "docker-test-no-coverage-php55": "docker-compose --file docker/docker-compose.yml run --rm php55 php composer.phar test-no-coverage",
         "docker-test-no-coverage-php56": "docker-compose --file docker/docker-compose.yml run --rm php56 php composer.phar test-no-coverage",
         "docker-test-no-coverage-php70": "docker-compose --file docker/docker-compose.yml run --rm php70 php composer.phar test-no-coverage",
         "docker-test-no-coverage-php71": "docker-compose --file docker/docker-compose.yml run --rm php71 php composer.phar test-no-coverage",
@@ -54,7 +52,7 @@
         }
     ],
     "require": {
-        "php": "^5.4.0 || ^5.5.0 || ^5.6.0 || ^7.0.0 || ^7.1.0",
+        "php": "^5.6.0 || ^7.0.0 || ^7.1.0",
         "ext-pdo": "*",
         "ext-gd": "*",
         "nategood/httpful": "^0.2.20",
