@@ -11,3 +11,9 @@ config/localConfig.php
 vendor
 reports
 assets/js/vendor/
+
+config/log.log
+
+docker/nginx.conf
+docker/nginx.crt
+docker/nginx.key

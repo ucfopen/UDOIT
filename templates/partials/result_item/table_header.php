@@ -19,14 +19,14 @@
 */
 ?>
 <hr>
-<p>Select which part of the table to convert to a header</p>
 <div class="input-group">
-	<select class="form-control" name="newcontent">
+	<label for="<?= $this->e($item_id); ?>-input" class="control-label sr-only">Select which part of the table to convert to a header</label>
+	<select class="form-control" name="newcontent" id="<?= $this->e($item_id); ?>-input">
 		<option value="row">The first row</option>
 		<option value="col">The first column</option>
 		<option value="both">Both the first row and column</option>
 	</select>
 	<span class="input-group-btn">
-		<button class="submit-content btn btn-default" type="submit">Submit</button>
+		<button class="submit-content inactive btn btn-default" type="submit">Submit</button>
 	</span>
 </div>

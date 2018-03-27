@@ -18,12 +18,13 @@
 *	Primary Author Contact:  Jacob Bates <jacob.bates@ucf.edu>
 */
 ?>
+<label for="<?= $this->e($item_id); ?>-input" class="control-label sr-only">Select which part of the table to convert to a header</label>
 <div class="input-group">
-	<select class="form-control" name="newcontent">
+	<select class="form-control" name="newcontent" id="<?= $this->e($item_id); ?>-input">
 		<option value="col">col</option>
 		<option value="row">row</option>
 	</select>
 	<span class="input-group-btn">
-		<button class="submit-content btn btn-default" type="submit">Submit</button>
+		<button class="submit-content inactive btn btn-default" type="submit">Submit</button>
 	</span>
 </div>

@@ -17,11 +17,12 @@
 *
 *	Primary Author Contact:  Jacob Bates <jacob.bates@ucf.edu>
 */
+global $alt_text_length_limit;
 ?>
 <div class="fix-alt input-group">
-	<span class="counter">100</span>
-	<input class="form-control" type="text" name="newcontent" maxlength="100" placeholder="New alt text">
-	<span class="input-group-btn">
-		<button class="submit-content btn btn-default" type="submit">Submit</button>
-	</span>
+	<label for="<?= $this->e($item_id); ?>-input" class="control-label sr-only">Provide New Alt Text For This Image</label>
+	<span class="counter"><?= $alt_text_length_limit; ?></span>
+	<input class="form-control" type="text" name="newcontent" maxlength="<?= $alt_text_length_limit; ?>" placeholder="New alt text" id="<?= $this->e($item_id); ?>-input">
+	<button class="submit-content inactive btn btn-default" type="submit">Submit</button>
+	<div class="validmessage instance">Please check that you've entered new alt text and that it isn't a filename</div>
 </div>

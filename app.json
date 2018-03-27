@@ -10,9 +10,19 @@
     "Instructure",
     "508"
   ],
-  "website": "http://online.ucf.edu/teach-online/resources/udoit/",
-  "repository": "https://github.com/ucfcdl/UDOIT",
+  "website": "https://cdl.ucf.edu/initiatives/udoit/",
+  "repository": "https://github.com/ucfopen/UDOIT",
   "success_url": "/",
+  "formation": {
+    "web": {
+      "quantity": 1,
+      "size": "free"
+    },
+    "worker": {
+      "quantity": 1,
+      "size": "free"
+    }
+  },
   "env": {
     "CONSUMER_KEY": {
       "description": "LTI consumer key entered when adding UDOIT LTI to Canvas",
@@ -39,6 +49,22 @@
     "USE_HEROKU_CONFIG": {
       "description": "needed to use the Heroku configuration",
       "value": "true"
+    },
+    "CANVAS_NAV_ITEM_NAME" : {
+      "description": "The text displayed in the canvas navigation menu to launch this app",
+      "value": "UDOIT"
+    },
+    "WORKER_ENABLED": {
+      "description": "Enable the background worker (requires you turn on the worker dyno).",
+      "value": "true"
+    },
+    "SCAN_FILE_SIZE_LIMIT": {
+      "description": "Max file size to scan, anything larger gets set as unscannable.",
+      "value": "50000000"
+    },
+    "ALT_TEXT_LENGTH_LIMIT": {
+      "description": "Maximum character length for alt-text before the item gets flagged as a warning.",
+      "value": "125"
     }
   },
   "addons": [
@@ -46,13 +72,10 @@
   ],
   "buildpacks": [
     {
-      "url": "https://github.com/heroku/heroku-buildpack-nodejs"
-    },
-    {
       "url": "https://github.com/heroku/heroku-buildpack-php"
     }
   ],
   "scripts": {
-    "postdeploy": "php lib/db_create_tables.php"
+    "postdeploy": "composer db-setup"
   }
 }

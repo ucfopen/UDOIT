@@ -17,9 +17,12 @@
 *
 *	Primary Author Contact:  Jacob Bates <jacob.bates@ucf.edu>
 */
-?>
-<h2 class="content-title">Unscannable <small><?= $out_of_items; ?> files</small></h2>
 
+global $unscannable_suggestion_on;
+global $unscannable_suggestion;
+?>
+
+<h2 class="content-title">Unscannable <small><?= $out_of_items; ?> files</small></h2>
 <div class="errorItem panel panel-default">
 	<div class="panel-heading clearfix">
 		<button class="btn btn-xs btn-default btn-toggle pull-left no-print margin-right-small"><span class="glyphicon glyphicon-plus"></span></button>
@@ -30,9 +33,13 @@
 	<div class="errorSummary panel-body">
 		<div class="panel panel-info">
 			<div class="panel-body">
+				<?php if($unscannable_suggestion_on): ?>
+					<p><strong><?= $unscannable_suggestion; ?></strong></p>
+				<?php endif; ?>
+
 				<p>Due to the nature of UDOIT, the content in these files cannot be scanned for accessibility problems. Please visit the following resources to read about accessibility for these file types.</p>
 
-				<ul class="list-unstyled no-margin">
+				<ul class="list-unstyled">
 					<li><a href="http://webaim.org/techniques/word/" target="blank">http://webaim.org/techniques/word/</a></li>
 					<li><a href="http://webaim.org/techniques/powerpoint/" target="blank">http://webaim.org/techniques/powerpoint/</a></li>
 					<li><a href="http://webaim.org/techniques/acrobat/" target="blank">http://webaim.org/techniques/acrobat/</a></li>
@@ -41,10 +48,42 @@
 			</div>
 		</div>
 
-		<div class="list-group no-margin">
+		<ul id="filters">
+		    <li>
+		        <input type="checkbox" value="pdf" id="filter-pdf" checked/>
+		        <label for="filter-pdf">PDF</label>
+		    </li>
+		    <li>
+		        <input type="checkbox" value="doc" id="filter-doc" checked/>
+		        <label for="filter-doc">DOC</label>
+		    </li>
+		    <li>
+		        <input type="checkbox" value="ppt" id="filter-ppt" checked/>
+		        <label for="filter-ppt">PPT</label>
+		    </li>
+		</ul>
+
+		<div id="unscannable" class="list-group no-margin">
 
 			<?php foreach ($items as $item): ?>
-				<a href="<?= $item->url; ?>" class="list-group-item"><?= $item->title; ?></a>
+				<div class="item-container <?= $item->extension; ?>">
+					<div class="list-group-item">
+						<a class="btn btn-default glyphicon glyphicon-download" target="_blank" href="<?= $item->url; ?>" title="Download" aria-label="Download"></a>
+						<a class="btn btn-default glyphicon glyphicon-folder-open" target="_blank" href="<?= $item->path; ?>" title="View Folder" aria-label="View Folder"></a>
+						<span class="filename"><?= $item->title; ?></span>
+						<span class="module-location"><?= $item->module; ?></span>
+					</div>
+					<?php if($item->big == true): ?>
+					<hr>
+					<a class="unscannable-warning view-warning">
+						<span class="glyphicon glyphicon-info-sign"></span>
+						Warning: Large File (> <?= $size_limit; ?>)
+					</a>
+					<div class="warning-info hidden">
+						Users with slow internet connections (such as modem or 2G cellular data) may have trouble downloading files larger than 50mb in a reasonable amount of time. Consider reducing the size of this file.
+					</div>
+					<?php endif; ?>
+				</div>
 			<?php endforeach; ?>
 
 		</div>
