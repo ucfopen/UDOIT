@@ -64,7 +64,7 @@ body { padding: 20px 0 0; }
 	margin: 0 10px;
 }
 
-.list-group-item .btn{
+.list-group-item .btn.glyphicon {
 	color: #337ab7;
 }
 
