@@ -59,7 +59,7 @@ if (!$check_for_column($db_reports_table, $col_to_add)) {
 }
 
 // exit with warning if the column is still missing
-if (!check_for_column($dbh, $db_reports_table, $col_to_add)) {
+if (!$check_for_column($db_reports_table, $col_to_add)) {
     if (!getenv('UNITTEST')) {
         echo("The migration script failed to create a ${col_to_add} column\r\n");
     }
