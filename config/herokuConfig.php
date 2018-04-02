@@ -48,6 +48,9 @@ $unscannable_suggestion_on = true;
 /* Google/YouTube Data Api Key */
 define('GOOGLE_API_KEY', getenv('GOOGLE_API_KEY')?:'');
 
+/* Vimeo API Key */
+define('VIMEO_API_KEY', '');
+
 /* Google Analytics Tracking Code */
 define('GA_TRACKING_CODE', '');
 

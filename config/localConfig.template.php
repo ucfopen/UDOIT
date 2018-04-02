@@ -28,6 +28,9 @@ $alt_text_length_limit = getenv('ALT_TEXT_LENGTH_LIMIT') ?: 125;
 /* Google/YouTube Data Api Key */
 define('GOOGLE_API_KEY', '');
 
+/* Vimeo API Key */
+define('VIMEO_API_KEY', '');
+
 /* Google Analytics Tracking Code */
 define('GA_TRACKING_CODE', '');
 
