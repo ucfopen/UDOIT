@@ -3104,7 +3104,7 @@ class videoEmbedChecked extends quailTest
 	*/
 	function check()
 	{
-		$search = '/(vimeo)/';
+		$search = '/(dailymotion)/';
 
 		foreach ($this->getAllElements('iframe') as $iframe) {
 			if (preg_match($search, $iframe->getAttribute('src'))) {
@@ -6380,14 +6380,18 @@ class videosEmbeddedOrLinkedNeedCaptions extends quailTest
 	*	@var array $services The services that this test will need. We're using
 	*	the youtube library.
 	*/
-	var $services = ['youtube' => 'media/youtube'];
+	var $services = [
+		'youtube' => 'media/youtube',
+		'vimeo' => 'media/vimeo'
+	];
 
 	/**
 	*	The main check function. This is called by the parent class to actually check content
 	*/
 	function check()
 	{
-		$search = '/(youtube|youtu.be)/';
+		$search_youtube = '/(youtube|youtu.be)/';
+		$search_vimeo = '/(vimeo)/';
 
 		foreach ($this->getAllElements(array('a', 'embed', 'iframe')) as $video) {
 			$attr = ($video->tagName == 'a')
@@ -6395,13 +6399,16 @@ class videosEmbeddedOrLinkedNeedCaptions extends quailTest
 					 : 'src';
 
 			if ($video->hasAttribute($attr)) {
-				foreach ($this->services as $service) {
-					$attr_val = $video->getAttribute($attr);
-					if ( preg_match($search, $attr_val) ){
-						if ($service->captionsMissing($attr_val)) {
-							$this->addReport($video);
-						}
-					}
+				$attr_val = $video->getAttribute($attr);
+				if ( preg_match($search_youtube, $attr_val) ) {
+					$service = 'youtube';
+				}
+				elseif ( preg_match($search_vimeo, $attr_val) ) {
+					$service = 'vimeo';
+				}
+
+				if ($this->services[$service]->captionsMissing($attr_val)) {
+					$this->addReport($video);
 				}
 			}
 		}

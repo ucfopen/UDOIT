@@ -27,6 +27,9 @@ define('GOOGLE_API_KEY', 'TEST_API_KEY');
 /* Google Analytics Tracking Code */
 define('GA_TRACKING_CODE', 'TEST_GA_TRACKING');
 
+/* Vimeo API Key */
+define('VIMEO_API_KEY', 'TEST_VIMEO_KEY');
+
 /* Database Config */
 $db_type          = 'test'; // 'mysql' or 'pgsql'
 $db_host          = ''; // localhost or ip
