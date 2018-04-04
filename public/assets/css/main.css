@@ -62,6 +62,7 @@ body { padding: 20px 0 0; }
 .list-group-item .filename, .list-group-item .module-location {
 	color: #555;
 	margin: 0 10px;
+	order: 2;
 }
 
 .list-group-item .btn.glyphicon {
@@ -95,6 +96,12 @@ body { padding: 20px 0 0; }
 	border: none;
 	padding: 10px 20px;
 	cursor: pointer;
+	display: inline-flex;
+	align-items: center;
+}
+
+#unscannable .btn {
+	margin-right: 6px;
 }
 
 .unscannable-warning {
@@ -280,37 +287,25 @@ h5 {
 
 .errorWrapper .errorSummary .panel:last-child { margin-bottom: 0; }
 
-#errorTotalSummary table {
-	margin: 0px 30px;
-}
-
-#errorTotalSummary table td {
-	padding: 0px 15px;
-}
-
-#errorTotalSummary h2 {
-	font-size: 24px;
-	margin-bottom: 0px;
-}
-
 ul.li_border li {
 	border-bottom: 1px solid black;
 	padding: 10px;
 }
 
-ul#filters {
-	list-style: none;
-	padding-left: 10px;
+.filters .control-label {
+	padding-top: 0px;
 }
 
-ul#filters li {
-	float: left;
-	padding-right: 10px;
+.filters label {
+	margin-right: 10px;
 }
 
-ul#filters li:last-of-type {
-	float: none;
-	padding-right: 10px;
+.filters label:last-child {
+	margin-right: 0px;
+}
+
+.filters input {
+	margin-right: 4px;
 }
 
 .delete_li { float: right; }

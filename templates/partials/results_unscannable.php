@@ -48,30 +48,33 @@ global $unscannable_suggestion;
 			</div>
 		</div>
 
-		<ul id="filters">
-		    <li>
-		        <input type="checkbox" value="pdf" id="filter-pdf" checked/>
-		        <label for="filter-pdf">PDF</label>
-		    </li>
-		    <li>
-		        <input type="checkbox" value="doc" id="filter-doc" checked/>
-		        <label for="filter-doc">DOC</label>
-		    </li>
-		    <li>
-		        <input type="checkbox" value="ppt" id="filter-ppt" checked/>
-		        <label for="filter-ppt">PPT</label>
-		    </li>
-		</ul>
+		<form class="form-horizontal no-print" id="udoitForm" action="#" role="form">
+			<div class="form-group filters">
+				<span class="col-sm-2 control-label"><strong>Filters:</strong></span>
+				<div class="col-sm-10">
+					<label for="filter-pdf"><input type="checkbox" id="filter-pdf" value="pdf" checked="">PDF</label>
+					<label for="filter-doc"><input type="checkbox" id="filter-doc" value="doc" checked="">DOC</label>
+					<label for="filter-ppt"><input type="checkbox" id="filter-ppt" value="ppt" checked="">PPT</label>
+				</div>
+			</div>
+		</form>
 
 		<div id="unscannable" class="list-group no-margin">
 
 			<?php foreach ($items as $item): ?>
 				<div class="item-container <?= $item->extension; ?>">
 					<div class="list-group-item">
+						<span class="filename"><?= $item->title; ?></span>
+						<span class="module-location">
+							<?php if (count($item->modules) > 0): ?>
+								<strong>In Modules: </strong>
+							<?php endif; ?>
+							<?php foreach ($item->modules as $module): ?>
+								<?= $module; ?><?php if ($module !== end($item->modules)): ?>,<?php endif; ?>
+							<?php endforeach; ?>
+						</span>
 						<a class="btn btn-default glyphicon glyphicon-download" target="_blank" href="<?= $item->url; ?>" title="Download" aria-label="Download"></a>
 						<a class="btn btn-default glyphicon glyphicon-folder-open" target="_blank" href="<?= $item->path; ?>" title="View Folder" aria-label="View Folder"></a>
-						<span class="filename"><?= $item->title; ?></span>
-						<span class="module-location"><?= $item->module; ?></span>
 					</div>
 					<?php if($item->big == true): ?>
 					<hr>

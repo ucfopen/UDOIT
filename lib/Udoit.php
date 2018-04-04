@@ -36,8 +36,9 @@ class Udoit
         $logger->addInfo("Starting retrieveAndScan - course: {$course_id}, content: {$content_type}");
 
         $items_with_issues = []; // array of content items that the scanner found issues in
-        $totals = ['errors' => 0, 'warnings' => 0, 'suggestions' => 0];
+        $totals = ['errors' => 0, 'suggestions' => 0];
         $error_summary = [];
+        $suggestion_summary = [];
         $scan_time_start = microtime(true);
 
         $content = static::getCourseContent($api_key, $canvas_api_url, $course_id, $content_type);
@@ -49,26 +50,27 @@ class Udoit
             // remove results w/o issues and count the totals
             // create a new list of items
             foreach ($scanned_items as $item) {
-                if ($item['amount'] == 0) {
-                    continue;
-                }
-
                 $items_with_issues[]   = $item;
                 $totals['errors']      += count($item['error']);
-                $totals['warnings']    += count($item['warning']);
                 $totals['suggestions'] += count($item['suggestion']);
 
-                // build error summary
-                $combined_issues = array_merge($item['error'], $item['warning'], $item['suggestion']);
-                foreach ($combined_issues as $issue) {
+                foreach ($item['error'] as $issue) {
                     $title = $issue['title'];
-                    $severity = $issue['severity_num'];
                     if (!isset($error_summary[$title])) {
                         $error_summary[$title] = new stdClass();
                         $error_summary[$title]->count = 1;
-                        $error_summary[$title]->severity = $severity == 3 ? 'label-primary' : 'label-danger';
                     } else {
                         $error_summary[$title]->count++;
+                    }
+                }
+
+                foreach ($item['suggestion'] as $suggestion) {
+                    $title = $issue['title'];
+                    if (!isset($suggestion_summary[$title])) {
+                        $suggestion_summary[$title] = new stdClass();
+                        $suggestion_summary[$title]->count = 1;
+                    } else {
+                        $suggestion_summary[$title]->count++;
                     }
                 }
             }
@@ -88,6 +90,7 @@ class Udoit
             'scan_results' => [
                 'unscannable' => $content['unscannable'],
                 'error_summary' => $error_summary,
+                'suggestion_summary' => $suggestion_summary,
                 $content_type => [
                     'title'  => $content_type,
                     'items'  => $items_with_issues,
@@ -240,31 +243,27 @@ class Udoit
                         // prepend canvas url
                         $path = "{$canvas_api_url}/courses/{$course_id}/files/".$path;
 
-                        // gets all modules
-                        unset($module);
-                        $modules = static::apiGet("{$api_url}modules", $api_key)->send()->body;
-                        if (is_array($modules) || is_object($modules)) {
-                            foreach ($modules as $m) {
-                                // gets all items in current module
+                        // saves modules item is in for unscannable section
+                        unset($modules);
+                        $modules = [];
+                        $all_modules = static::apiGet("{$api_url}modules", $api_key)->send()->body;
+                        if (is_array($all_modules) || is_object($all_modules)) {
+                            foreach ($all_modules as $m) {
                                 $items = static::apiGet($m->items_url, $api_key)->send()->body;
                                 foreach ($items as $i) {
-                                    // check if item in module matches current item
                                     if ($i->title == $c->display_name) {
-                                        // if no previous contained modules, prepend "In Module(s): "
-                                        if (!isset($module)) {
-                                            $module = "<span style=\"font-weight: bold\">In Module(s): </span>";
-                                        }
-                                        $module .= $m->name;
+                                        $modules[] = $m->name;
                                     }
                                 }
                             }
                         }
+                        $modules = array_unique($modules);
 
                         $content_result['unscannable'][] = [
                             'title'     => $c->display_name,
                             'url'       => $c->url,
                             'path'      => $path,
-                            'module'    => $module,
+                            'modules'    => $modules,
                             'extension' => $extension,
                             'big'       => false,
                         ];
