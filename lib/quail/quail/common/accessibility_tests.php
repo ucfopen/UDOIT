@@ -6394,10 +6394,7 @@ class videosEmbeddedOrLinkedNeedCaptions extends quailTest
 		$search_vimeo = '/(vimeo)/';
 
 		foreach ($this->getAllElements(array('a', 'embed', 'iframe')) as $video) {
-			$attr = ($video->tagName == 'a')
-					 ? 'href'
-					 : 'src';
-
+			$attr = ($video->tagName == 'a') ? 'href' : 'src';
 			if ($video->hasAttribute($attr)) {
 				$attr_val = $video->getAttribute($attr);
 				if ( preg_match($search_youtube, $attr_val) ) {
@@ -6406,8 +6403,7 @@ class videosEmbeddedOrLinkedNeedCaptions extends quailTest
 				elseif ( preg_match($search_vimeo, $attr_val) ) {
 					$service = 'vimeo';
 				}
-
-				if ($this->services[$service]->captionsMissing($attr_val)) {
+				if (isset($service) && $this->services[$service]->captionsMissing($attr_val)) {
 					$this->addReport($video);
 				}
 			}
