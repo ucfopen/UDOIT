@@ -6349,20 +6349,27 @@ class svgContainsTitle extends quailTest
 }
 
 /**
-*	HTML5 video tags have captions. There's unfortunately no way to test for captions yet...
+*	HTML5 video tags have captions.
 *	@link http://quail-lib.org/test-info/videoProvidesCaptions
 */
-class videoProvidesCaptions extends quailTagTest
+class videoProvidesCaptions extends quailTest
 {
 	/**
 	*	@var int $default_severity The default severity code for this test.
 	*/
-	var $default_severity = QUAIL_TEST_SUGGESTION;
+	var $default_severity = QUAIL_TEST_SEVERE;
 
 	/**
-	*	@var string $tag The tag this test will fire on
+	*	The main check function. This is called by the parent class to actually check content
 	*/
-	var $tag = 'video';
+	function check()
+	{
+		foreach ($this->getAllElements(array('video')) as $video) {
+			if (!$this->elementHasChild($video, 'track')) {
+				$this->addReport($video);
+			}
+		}
+	}
 }
 
 /**
