@@ -50,6 +50,10 @@ class Udoit
             // remove results w/o issues and count the totals
             // create a new list of items
             foreach ($scanned_items as $item) {
+                if ($item['amount'] == 0) {
+                    continue;
+                }
+
                 $items_with_issues[]   = $item;
                 $totals['errors']      += count($item['error']);
                 $totals['suggestions'] += count($item['suggestion']);
