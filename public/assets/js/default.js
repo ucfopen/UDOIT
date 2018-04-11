@@ -481,7 +481,9 @@ $doc.ready(function() {
 			var $aSrc = $(this).find('input[name="errorhtml"]');
 			if ($input.val().trim() == ''){
 				valid = false;
-			} else if ($aSrc.val().indexOf($input.val().trim()) >= 0) {
+			} else if ($input.val().trim().toLowerCase().includes("http://")
+				|| $input.val().trim().toLowerCase().includes("www.")
+				|| $input.val().trim().toLowerCase().includes(".com")) {
 				valid = false;
 			} else if ($input.val().trim().toLowerCase().match(/^(go to|link to|go here|link|click here|click|more|here)$/)) {
 				valid = false;
