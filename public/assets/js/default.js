@@ -19,6 +19,7 @@
 
 var progressTimer = null;
 var $doc = $(document); // hold a jquery doc reference
+var tempElement = null; // hold elements to be re-added to DOM after removal
 
 /* Fades out and destroys the popup window and background. */
 function killButton(callback) {
@@ -360,6 +361,8 @@ $doc.ready(function() {
 
 		$(this).addClass('hidden');
 		$error.find('div.more-info').removeClass('hidden');
+		if(tempElement !== null)
+			tempElement.appendTo($error.find('div.more-info .error-preview'));
 		$error.find('a.closeError').first().focus();
 		resizeFrame();
 	});
@@ -371,6 +374,7 @@ $doc.ready(function() {
 		var $error = $('#'+errorId);
 
 		$error.find('div.more-info').addClass('hidden');
+		tempElement = $error.find('div.more-info .error-preview iframe').detach();
 		$error.find('a.viewError').removeClass('hidden');
 		$error.find('a.viewError').focus();
 		resizeFrame();
