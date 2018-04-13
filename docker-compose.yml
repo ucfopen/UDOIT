@@ -5,7 +5,7 @@ services:
     image: nginx:stable-alpine
     volumes:
         - ./docker/etc/nginx:/etc/nginx
-        - ./docker/var:/var
+        - ./docker/var/ssl:/var/ssl
         - .:/var/www/html
     ports:
         - "80:80"
