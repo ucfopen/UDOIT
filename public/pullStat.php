@@ -30,26 +30,24 @@ function respond_and_die($data, $http_code=200)
 {
     http_response_code($http_code);
 
-    echo(json_encode($data));
-
-    die();
+    die(json_encode($data));
 }
 
-function respond_with_error($http_code, $message)
+function respond_with_error($http_code, $data)
 {
     $response = [
-        'status'  => 'error',
-        'message' => $message,
+        'success' => false,
+        'data' => $data,
     ];
 
     respond_and_die($response, $http_code);
 }
 
-function respond_with_success($message)
+function respond_with_success($data)
 {
     $response = [
-        'status'  => 'error',
-        'message' => $message,
+        'success' => true,
+        'data' => $data,
     ];
 
     respond_and_die($response, 200);
@@ -60,14 +58,14 @@ $expect = ['base_url', 'launch_params', 'is_admin'];
 foreach ($expect as $key) {
     if (empty($_SESSION[$key])) {
         // Set response to 401 (Unauthorized)
-        respond_with_error(401, "Missing LTI launch information. Please ensure that your instance of UDOIT is installed to Canvas correctly. Missing: {$key}")
+        respond_with_error(401, "Missing LTI launch information. Please ensure that your instance of UDOIT is installed to Canvas correctly. Missing: {$key}");
     }
 }
 
 // If Administrator is not found in the user's list of roles, kick them out with an error
 if (!$_SESSION['is_admin']) {
     // Set response to 403 (Forbidden)
-    respond_with_error(403, 'Insufficient permissions to continue.  Please contact your LMS Administrator.')
+    respond_with_error(403, 'Insufficient permissions to continue.  Please contact your LMS Administrator.');
 }
 
 // Verify we have the minimum GET parameters we need
@@ -109,5 +107,5 @@ switch ($get_input['stat']) {
         break;
 
     default:
-        respond_with_error(400, "Stat {$get_input['stat']} does not exist.")
+        respond_with_error(400, "Stat {$get_input['stat']} does not exist.");
 }

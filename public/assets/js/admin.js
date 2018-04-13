@@ -18,13 +18,13 @@
 */
 
 function json_tableify(data) {
-	var table = document.createElement('table');
-	var tbody = document.createElement('tbody');
-	var columns = addAllColumnHeaders(data, table);
-	for (var i=0, maxi=data.length; i < maxi; ++i) {
-		var tr = document.createElement('tr');
-		for (var j=0, maxj=columns.length; j < maxj ; ++j) {
-			var td = document.createElement('td');
+	let table = document.createElement('table');
+	let tbody = document.createElement('tbody');
+	let columns = addAllColumnHeaders(data, table);
+	for (let i=0, maxi=data.length; i < maxi; ++i) {
+		let tr = document.createElement('tr');
+		for (let j=0, maxj=columns.length; j < maxj ; ++j) {
+			let td = document.createElement('td');
 			cellValue = data[i][columns[j]];
 			td.appendChild(document.createTextNode(data[i][columns[j]] || ''));
 			tr.appendChild(td);
@@ -38,13 +38,13 @@ function json_tableify(data) {
 }
 
 function addAllColumnHeaders(data, table){
-	var columnSet = [],
+	let columnSet = [],
 	thead = document.createElement('thead');
 	tr = document.createElement('tr');
-	for (var key in data[0]) {
+	for (let key in data[0]) {
 		if (data[0].hasOwnProperty(key) && columnSet.indexOf(key)===-1) {
 			columnSet.push(key);
-			var th = document.createElement('th');
+			let th = document.createElement('th');
 			th.appendChild(document.createTextNode(key));
 			tr.appendChild(th);
 		}
@@ -56,20 +56,21 @@ function addAllColumnHeaders(data, table){
 
 $('#user-growth-pull').on('submit', function(evt){
 	evt.preventDefault();
-	var formvals = $(this).serialize();
+	let formvals = $(this).serialize();
 	
-	var request = $.ajax({
+	let request = $.ajax({
 		url: 'pullStat.php?stat=usergrowth&'+formvals,
+		method: 'GET',
 		dataType: 'json',
 		success: function(msg){
-			var table = json_tableify(msg.data);
+			let table = json_tableify(msg.data);
 			$(table).addClass('table table-striped');
 
 			$('#user-growth-results').append(table);
 		},
 		error: function(xhr, status, error){
 			response = JSON.parse(xhr.responseText);
-			$('#user-growth-results').html(response.message);
+			$('#user-growth-results').html(response.data);
 		}
 	});
 });
@@ -78,18 +79,20 @@ $('#user-pull').click( function(){
 	// TODO: Add throbber
 	$('#user-results').empty();
 
-	var request = $.ajax({
+	let request = $.ajax({
 		url: 'pullStat.php?stat=users',
+		method: 'GET',
 		dataType: 'json',
 		success: function(msg){
-			var table = json_tableify(msg.data);
+			console.log(msg);
+			let table = json_tableify(msg.data);
 			$(table).addClass('table table-striped');
 
 			$('#user-results').append(table);
 		},
 		error: function(xhr, status, error){
 			response = JSON.parse(xhr.responseText);
-			$('#user-results').html(response.message);
+			$('#user-results').html(response.data);
 		}
 	});
 });
