@@ -149,7 +149,6 @@ a.closeError {
 
 h2 {
 	margin-top: 0;
-
 	color: #332312;
 }
 
@@ -519,10 +518,13 @@ h5 + ul {
 
 /* X. PANELS -------------------------- */
 
+.panel-heading h2 {
+	margin: 0;
+}
+
 .panel-title {
 	line-height: 22px;
-/*	margin-left: 6px;
-*/}
+}
 
 .panel-danger .list-group-item { border-color: #ebccd1; }
 

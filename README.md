@@ -171,7 +171,7 @@ In order for UDOIT to scan YouTube videos for closed captioning, you will need t
 In order for UDOIT to scan Vimeo videos for closed captioning, you will need to create a Vimeo API key. Follow the instructions below:
 
 1. [Create a new App on Vimeo Developer API](https://developer.vimeo.com/apps/new?source=getting-started), please note you must have a Vimeo Developer account.
-2. On your applications "Authentication" page, Generate a new Access Token
+2. On your applications "Authentication" page, Generate a new Access Token.  (Select the `Public` and `Private` checkboxes for Scopes.)
 
 ### Installing the LTI in Canvas
 Log into Canvas to add UDOIT:
