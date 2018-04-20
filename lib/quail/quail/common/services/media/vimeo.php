@@ -46,10 +46,10 @@ class vimeoService extends mediaService
 	}
 
 	/**
-	*	Checks to see if the provided link URL is a YouTube video. If so, it returns
+	*	Checks to see if the provided link URL is a Vimeo video. If so, it returns
 	*	the video code, if not, it returns null.
 	*	@param string $link_url The URL to the video or video resource
-	*	@return mixed FALSE if it's not a YouTube video, or a string video ID if it is
+	*	@return mixed FALSE if it's not a Vimeo video, or a string video ID if it is
 	*/
 	private function isVimeoVideo($link_url)
 	{
