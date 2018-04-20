@@ -69,7 +69,7 @@ class Udoit
                 }
 
                 foreach ($item['suggestion'] as $suggestion) {
-                    $title = $issue['title'];
+                    $title = $suggestion['title'];
                     if (!isset($suggestion_summary[$title])) {
                         $suggestion_summary[$title] = new stdClass();
                         $suggestion_summary[$title]->count = 1;
