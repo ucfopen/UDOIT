@@ -79,6 +79,10 @@ ol { list-style-type: none; }
 	line-height: 1;
 }
 
+.errorSummary .badge-error {
+	margin-right: 10px;
+}
+
 .instance {
 	display: none;
 }

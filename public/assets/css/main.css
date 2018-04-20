@@ -576,9 +576,9 @@ div#cached button.btn-success:hover{
 	height: 0;
 }
 
-.badge-error {
+.errorSummary .badge-error {
   	background-color: #A94442;
-  	float: left !important;
+  	float: left;
   	margin-right: 6px;
   	font-size: 12px;
 }
@@ -591,15 +591,8 @@ div#cached button.btn-success:hover{
 	color: #0080a8;
 }
 
-.badge-suggestion {
-  	background-color: #7DA9BE;
-  	float: left !important;
-  	margin-right: 6px;
-  	font-size: 12px;
-}
-
-.badge-success {
-	background-color: #3c763d !important;
+.errorSummary .badge.badge-success {
+	background-color: #3c763d;
 }
 
 .errorWrapper p, .errorWrapper ul {
