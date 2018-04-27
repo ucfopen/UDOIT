@@ -760,10 +760,3 @@ p.fix-success { margin-left: 0; }
 	top: 7px;
 	z-index: 9999;
 }
-
-/* Admin Panel ------------------------ */
-
-.admin-form label, .admin-form>input{
-	display: inline-block;
-	margin-right: 20px;
-}

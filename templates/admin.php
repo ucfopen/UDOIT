@@ -30,70 +30,110 @@ $this->layout('template', $settings);
 
 ?>
 <ul class="nav nav-tabs nav-justified" role="tablist">
-	<li role="presentation" class="active"><a href="#all" role="tab" data-toggle="tab">All Reports</a></li>
-	<li role="presentation"><a href="#issues-per-course" role="tab" data-toggle="tab">Issues Per Course</a></li>
-	<li role="presentation"><a href="#scans-per-user" role="tab" data-toggle="tab">Scans Per User</a></li>
+	<li role="presentation" class="active"><a href="#all" role="tab" data-toggle="tab">Scans</a></li>
+	<li role="presentation"><a href="#user-admin" role="tab" data-toggle="tab">Users</a></li>
 	<li role="presentation"><a href="#user-growth" role="tab" data-toggle="tab">User Growth</a></li>
-	<li role="presentation"><a href="#user-admin" role="tab" data-toggle="tab">User Admin</a></li>
 </ul>
 <main id="contentWrapper" role="main">
 	<div class="tab-content">
 		<div class="tab-pane active" id="all" role="tabpanel">
 			<div class="panel panel-default">
 				<div class="panel-body">
-					<h2>Viewing All Reports</h2>
-
-					<p>form goes here</p>
+					<div class="container">
+						<form id="scans-pull" role="form">
+							<div class="form-group col-md-12">
+								<h2>Scans</h2>
+							</div>
+							<div class="form-group col-md-3">
+								<label for="scans-start-date">Start Date</label>
+								<input type="date" class="form-control" id="scans-start-date" name="startdate" pattern="[0-9]{4}-[0-9]{2}-[0-9]{2}" />
+							</div>
+							<div class="form-group col-md-3">
+								<label for="scans-end-date">End Date</label>
+								<input type="date" class="form-control" id="scans-end-date" name="enddate" pattern="[0-9]{4}-[0-9]{2}-[0-9]{2}" />
+							</div>
+							<div class="form-group col-md-6">
+								<label for="order-by">Order By</label>
+								<select class="form-control" id="order-by" name="orderby">
+									<option value="mostrecent">Most Recent</option>
+									<option value="leastrecent">Least Recent</option>
+									<option value="mosterrors">Most Errors</option>
+									<option value="leasterrors">Least Errors</option>
+								</select>
+							</div>
+							<div class="form-group col-md-2">
+								<label class="sr-only" for="scans-term-id">Term ID</label>
+								<input type="number" class="form-control" id="scans-term-id" name="termid" placeholder="Term ID" />
+							</div>
+							<div class="form-group col-md-2">
+								<label class="sr-only" for="scans-course-id">Course ID</label>
+								<input type="number" class="form-control" id="scans-course-id" name="courseid" placeholder="Course ID" />
+							</div>
+							<div class="form-group col-md-2">
+								<label class="sr-only" for="scans-user-id">User ID</label>
+								<input type="number" class="form-control" id="scans-user-id" name="userid" placeholder="User ID" />
+							</div>
+							<div class="col-md-6 checkbox">
+								<label for="scans-latest-only" class="form-check-label">
+									<input type="checkbox" id="scans-latest-only" name="latestonly">Only include the most recent scan per course
+								</label>
+							</div>
+							<div class="col-md-12">
+								<button type="submit" class="btn btn-success pull-left" id="scans-submit" name="scans-submit">Display Results</button>
+								<button type="button" class="btn btn-primary pull-right hidden" id="scans-csv">Get .csv</button>
+							</div>
+						</form>
+					</div>
 				</div>
 			</div>
-		</div>
-		<div class="tab-pane" id="issues-per-course" role="tabpanel">
-			<div class="panel panel-default">
-				<div class="panel-body">
-					<h2>Issues Per Course</h2>
-				</div>
-			</div>
-		</div>
-		<div class="tab-pane" id="scans-per-user" role="tabpanel">
-			<div class="panel panel-default">
-				<div class="panel-body">
-					<h2>Scans per user</h2>
-				</div>
-			</div>
-		</div>
-		<div class="tab-pane" id="user-growth" role="tabpanel">
-			<div class="panel panel-default">
-				<div class="panel-body">
-					<h2>User Growth</h2>
-					<form id="user-growth-pull" class="admin-form" action="#" role="form">
-						<label for="user-growth-grain">Granularity: 
-							<select id="user-growth-grain" name="grain">
-								<option value="day" selected>Day</option>
-								<option value="week">Week</option>
-								<option value="month">Month</option>
-								<option value="year">Year</option>
-							</select>
-						</label>
-						<label for="user-growth-start-date">Start Date: 
-							<input type="date" name="startdate" id="user-growth-start-date" required pattern="[0-9]{4}-[0-9]{2}-[0-9]{2}"/>
-						</label>
-						<label for="user-growth-end-date">End Date: 
-							<input type="date" name="enddate" id="user-growth-end-date" required pattern="[0-9]{4}-[0-9]{2}-[0-9]{2}"/>
-						</label>
-						<input type="submit" class="btn btn-default" name="user-growth-submit" value="Generate Report" />
-					</form>
-				</div>
-			</div>
-			<div id="user-growth-results" class="stat-results"></div>
+			<div id="scans-results" class="stat-results"></div>
 		</div>
 		<div class="tab-pane" id="user-admin" role="tabpanel">
 			<div class="panel panel-default">
 				<div class="panel-body">
-					<h2>User Admin</h2>
-					<button id="user-pull" class="btn btn-default">Generate Report</button>
-					<div id="user-results" class="stat-results"></div>
+					<div class="container">
+						<h2>Users</h2>
+						<button class="btn btn-success" id="user-pull">Display Results</button>
+						<button type="button" class="btn btn-primary pull-right hidden" id="user-csv">Get .csv</button>
+					</div>
 				</div>
 			</div>
+			<div id="user-results" class="stat-results"></div>
+		</div>
+		<div class="tab-pane" id="user-growth" role="tabpanel">
+			<div class="panel panel-default">
+				<div class="panel-body">
+					<div class="container">
+						<form id="user-growth-pull" role="form">
+							<div class="form-group col-md-12">
+								<h2>User Growth</h2>
+							</div>
+							<div class="form-group col-md-6">
+								<label for="user-growth-start-date">Start Date</label>
+								<input type="date" class="form-control" id="user-growth-start-date" name="startdate" pattern="[0-9]{4}-[0-9]{2}-[0-9]{2}" />
+							</div>
+							<div class="form-group col-md-6">
+								<label for="user-growth-end-date">End Date</label>
+								<input type="date" class="form-control" id="user-growth-end-date" name="enddate" pattern="[0-9]{4}-[0-9]{2}-[0-9]{2}" />
+							</div>
+							<div class="form-group col-md-12">
+								<label for="user-growth-grain">Granularity</label>
+								<select class="form-control" id="user-growth-grain" name="grain">
+									<option value="day" selected>Day</option>
+									<option value="week">Week</option>
+									<option value="month">Month</option>
+									<option value="year">Year</option>
+								</select>
+							</div>
+							<div class="col-md-12">
+								<button class="btn btn-success">Display Results</button>
+								<button type="button" class="btn btn-primary pull-right hidden" id="user-growth-csv">Get .csv</button>
+							</div>
+						</form>
+					</div>
+				</div>
+			</div>
+			<div id="user-growth-results" class="stat-results"></div>
 		</div>
 	</div>
 </main>
