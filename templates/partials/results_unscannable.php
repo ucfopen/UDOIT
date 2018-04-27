@@ -48,16 +48,39 @@ global $unscannable_suggestion;
 			</div>
 		</div>
 
+		<form class="form-horizontal no-print" id="udoitForm" action="#" role="form">
+			<div class="form-group filters">
+				<span class="col-sm-2 control-label"><strong>Filters:</strong></span>
+				<div class="col-sm-10">
+					<label for="filter-pdf"><input type="checkbox" id="filter-pdf" value="pdf" checked="">PDF</label>
+					<label for="filter-doc"><input type="checkbox" id="filter-doc" value="doc" checked="">DOC</label>
+					<label for="filter-ppt"><input type="checkbox" id="filter-ppt" value="ppt" checked="">PPT</label>
+				</div>
+			</div>
+		</form>
+
 		<div id="unscannable" class="list-group no-margin">
 
 			<?php foreach ($items as $item): ?>
-				<div class="item-container">
-					<a class="list-group-item" href="<?= $item->url; ?>"><?= $item->title; ?></a>
+				<div class="item-container <?= $item->extension; ?>">
+					<div class="list-group-item">
+						<span class="filename"><?= $item->title; ?></span>
+						<span class="module-location">
+							<?php if (count($item->modules) > 0): ?>
+								<strong>In Modules: </strong>
+							<?php endif; ?>
+							<?php foreach ($item->modules as $module): ?>
+								<?= $module; ?><?php if ($module !== end($item->modules)): ?>,<?php endif; ?>
+							<?php endforeach; ?>
+						</span>
+						<a class="btn btn-default glyphicon glyphicon-download" target="_blank" href="<?= $item->url; ?>" title="Download" aria-label="Download"></a>
+						<a class="btn btn-default glyphicon glyphicon-folder-open" target="_blank" href="<?= $item->path; ?>" title="View Folder" aria-label="View Folder"></a>
+					</div>
 					<?php if($item->big == true): ?>
 					<hr>
 					<a class="unscannable-warning view-warning">
 						<span class="glyphicon glyphicon-info-sign"></span>
-						Warning: Large File (>50mb)
+						Warning: Large File (> <?= $size_limit; ?>)
 					</a>
 					<div class="warning-info hidden">
 						Users with slow internet connections (such as modem or 2G cellular data) may have trouble downloading files larger than 50mb in a reasonable amount of time. Consider reducing the size of this file.

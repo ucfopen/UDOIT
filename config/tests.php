@@ -11,7 +11,7 @@ return [
             'resources' => [
                 '<a href="http://guides.instructure.com/s/2204/m/4152/l/65824-how-do-i-create-a-hyperlink-in-the-rich-content-editor">Canvas Tutorial</a>',
                 '<a href="http://www.w3.org/TR/UNDERSTANDING-WCAG20/navigation-mechanisms.html">WCAG Guidelines</a>',
-                'WCAG Standard <a href="http://www.w3.org/TR/WCAG20/#navigation-mechanisms-refs">2.4.4</a>',
+                'WCAG Standard: <a href="http://www.w3.org/TR/WCAG20/#navigation-mechanisms-refs">2.4.4</a>',
             ],
             'example'   => '
                 <p class="text-danger">Incorrect</p>
@@ -23,9 +23,9 @@ return [
         [
             'name'      => 'imgHasAlt',
             'title'     => 'No Alternative Text found',
-            'desc'      => '<p>Alternative Text (Alt Text) is an alternative (non-visual) way to describe the meaning of an image. Please provide a brief (under 100 characters) description of the image for a <a href="http://en.wikipedia.org/wiki/Screen_reader">screen reader</a> user. Note: It should not be the image file name.</p>',
+            'desc'      => '<p>Alternative Text (Alt Text) is an alternative (non-visual) way to describe the meaning of an image. Please provide a brief description of the image for a <a href="http://en.wikipedia.org/wiki/Screen_reader">screen reader</a> user. Note: It should not be the image file name.</p>',
             'resources' => [
-                '<a href="http://teach.ucf.edu/resources/document-formatting-guidelines/images/#about">Resource on Alternative Text</a>',
+                'UCF CDL: <a href="https://cdl.ucf.edu/teach/accessibility/text/">Text Formatting and Document Organization</a>',
                 'WCAG Standard: <a href="http://www.w3.org/TR/WCAG20/#text-equiv-all">1.1.1</a>',
             ],
             'example'   => '
@@ -38,9 +38,9 @@ return [
         [
             'name'      => 'imgAltIsDifferent',
             'title'     => 'Alternative Text should not be the image filename',
-            'desc'      => '<p>Alternative Text (Alt Text) is an alternative (non-visual) way to describe the meaning of an image. Please provide a brief (under 100 characters) description of the image for a <a href="http://en.wikipedia.org/wiki/Screen_reader">screen reader</a> user. Note: It should not be the image file name.</p>',
+            'desc'      => '<p>Alternative Text (Alt Text) is an alternative (non-visual) way to describe the meaning of an image. Please provide a brief description of the image for a <a href="http://en.wikipedia.org/wiki/Screen_reader">screen reader</a> user. Note: It should not be the image file name.</p>',
             'resources' => [
-                '<a href="http://teach.ucf.edu/resources/document-formatting-guidelines/images/#about">Resource on Alternative Text</a>',
+                'UCF CDL: <a href="https://cdl.ucf.edu/teach/accessibility/text/">Text Formatting and Document Organization</a>',
                 'WCAG Standard: <a href="http://www.w3.org/TR/WCAG20/#text-equiv-all">1.1.1</a>',
             ],
             'example'   => '
@@ -54,10 +54,10 @@ return [
         ],
         [
             'name'      => 'imgAltIsTooLong',
-            'title'     => 'Alternative Text is more than 100 characters',
-            'desc'      => '<p>Alternative Text (Alt Text) is an alternative (non-visual) way to describe the meaning of an image. Please provide a brief (under 100 characters) description of the image for a <a href="http://en.wikipedia.org/wiki/Screen_reader">screen reader</a> user. Note: It should not be the image file name.</p>',
+            'title'     => 'Alternative Text is more than the maximum allowed characters',
+            'desc'      => '<p>Alternative Text (Alt Text) is an alternative (non-visual) way to describe the meaning of an image. Please provide a brief description of the image for a <a href="http://en.wikipedia.org/wiki/Screen_reader">screen reader</a> user. Note: It should not be the image file name.</p>',
             'resources' => [
-                '<a href="http://teach.ucf.edu/resources/document-formatting-guidelines/images/#about">Resource on Alternative Text</a>',
+                'UCF CDL: <a href="https://cdl.ucf.edu/teach/accessibility/text/">Text Formatting and Document Organization</a>',
                 'WCAG Standard: <a href="http://www.w3.org/TR/WCAG20/#text-equiv-all">1.1.1</a>',
             ],
             'example'   => '
@@ -70,9 +70,9 @@ return [
         [
             'name'      => 'imgAltNotEmptyInAnchor',
             'title'     => 'Alt text for all img elements used as source anchors should not be empty',
-            'desc'      => '<p>Alternative Text (Alt Text) is an alternative (non-visual) way to describe the meaning of an image. Please provide a brief (under 100 characters) description of the image for a <a href="http://en.wikipedia.org/wiki/Screen_reader">screen reader</a> user. Note: It should not be the image file name.</p>',
+            'desc'      => '<p>Alternative Text (Alt Text) is an alternative (non-visual) way to describe the meaning of an image. Please provide a brief description of the image for a <a href="http://en.wikipedia.org/wiki/Screen_reader">screen reader</a> user. Note: It should not be the image file name.</p>',
             'resources' => [
-                '<a href="http://teach.ucf.edu/resources/document-formatting-guidelines/images/#about">Resource on Alternative Text</a>',
+                'UCF CDL: <a href="https://cdl.ucf.edu/teach/accessibility/text/">Text Formatting and Document Organization</a>',
                 'WCAG Standard: <a href="http://www.w3.org/TR/WCAG20/#text-equiv-all">1.1.1</a>',
             ],
             'example'   => '
@@ -87,7 +87,7 @@ return [
             'title'     => 'No table headers found',
             'desc'      => '<p>Add a table header because it provides a description of the table structure for sighted and <a href="http://en.wikipedia.org/wiki/Screen_reader">screen reader</a> users.</p>',
             'resources' => [
-                '<a href="http://online.ucf.edu/teach-online/develop/document-formatting-guidelines/tables/">Resource Link</a>',
+                'UCF CDL: <a href="https://cdl.ucf.edu/teach/accessibility/text/">Text Formatting and Document Organization</a>',
                 'WCAG Standard: <a href="http://www.w3.org/TR/WCAG20/#content-structure-separation-programmatic">1.3.1</a>',
             ],
             'example'   => '
@@ -102,7 +102,7 @@ return [
             'title'     => 'No row or column scopes declarations found in headers of the table',
             'desc'      => '<p>Scope declarations in headers organize and define table data by row/column for sighted and <a href="http://en.wikipedia.org/wiki/Screen_reader">screen reader</a> users.</p>',
             'resources' => [
-                '<a href="http://online.ucf.edu/teach-online/develop/document-formatting-guidelines/tables/">Resource Link</a>',
+                'UCF CDL: <a href="https://cdl.ucf.edu/teach/accessibility/text/">Text Formatting and Document Organization</a>',
                 'WCAG Standard: <a href="http://www.w3.org/TR/WCAG20-TECHS/H63.html">1.3.1</a>',
             ],
             'example'   => '
@@ -118,8 +118,8 @@ return [
             'title'     => 'Insufficient text color contrast with the background',
             'desc'      => '<p>Text color should be easily viewable and should not be the only indicator of meaning or function. Color balance should have at least a 4.5:1 ratio. Warning: using UFIXIT to fix one section of text may invalidate the contrast in nested sections of text that are not the same color.</p>',
             'resources' => [
-                '<a href="http://webaim.org/blog/wcag-2-0-and-link-colors/">Resource Link</a>',
-                'WCAG Standard <a href="http://www.w3.org/TR/WCAG20/#visual-audio-contrast-contrast">1.4.3</a>',
+                'WebAIM: <a href="http://webaim.org/blog/wcag-2-0-and-link-colors/">WCAG 2.0 and Link Colors</a>',
+                'WCAG Standard: <a href="http://www.w3.org/TR/WCAG20/#visual-audio-contrast-contrast">1.4.3</a>',
             ],
             'example'   => '
                 <p class="text-danger">Incorrect</p>
@@ -149,7 +149,7 @@ return [
             'title'     => 'Avoid the use of animated GIF’s',
             'desc'      => '<p>Animated GIFs may cause seizures if they flash more than 3 times per second. A recommendation is to use an alternative format to deliver the content.</p>',
             'resources' => [
-                '<a href="http://webaim.org/techniques/images/#seizures">Resource Link</a>',
+                'WebAIM: <a href="http://webaim.org/techniques/images/#seizures">Accessible Images</a>',
                 'WCAG Standard: <a href="http://www.w3.org/TR/WCAG20/#seizure-does-not-violate">2.3.1</a>',
             ],
             'example'   => '',
@@ -162,7 +162,7 @@ return [
                 '<a href="https://support.google.com/youtube/answer/2734796?hl=en">Adding Captions to Youtube</a>',
                 '<a href="http://guides.instructure.com/m/4152/l/98632-how-do-i-create-captions-for-new-or-uploaded-videos-in-canvas">Creating Captions for Video Uploaded to Canvas</a>',
                 'CDL Video hosted video: CDL Video will caption video if a transcript is provided',
-                'WCAG Standard <a href="http://www.w3.org/TR/WCAG20/#media-equiv-captions">1.2.2</a>',
+                'WCAG Standard: <a href="http://www.w3.org/TR/WCAG20/#media-equiv-captions">1.2.2</a>',
             ],
             'example'   => '',
         ],
@@ -180,7 +180,7 @@ return [
             'resources' => [
                 '<a href="http://guides.instructure.com/s/2204/m/4152/l/65824-how-do-i-create-a-hyperlink-in-the-rich-content-editor">Canvas Tutorial</a>',
                 '<a href="http://www.w3.org/TR/UNDERSTANDING-WCAG20/navigation-mechanisms.html">WCAG Guidelines</a>',
-                'WCAG Standard <a href="http://www.w3.org/TR/WCAG20/#navigation-mechanisms-refs">2.4.4</a>',
+                'WCAG Standard: <a href="http://www.w3.org/TR/WCAG20/#navigation-mechanisms-refs">2.4.4</a>',
             ],
             'example'   => '
                 <p class="text-danger">Incorrect</p>
@@ -222,7 +222,7 @@ return [
             'title'     => 'Consider adding headings to your document to create more structure',
             'desc'      => '<p>If appropriate, add headings to the page to organize the content for sighted and <a href="http://en.wikipedia.org/wiki/Screen_reader">screen reader</a> users. The headings should represent an accurate outline of the content</p>',
             'resources' => [
-                '<a href="http://online.ucf.edu/teach-online/develop/document-formatting-guidelines/headings/">Resource Link</a>',
+                'UCF CDL: <a href="https://cdl.ucf.edu/teach/accessibility/text/">Text Formatting and Document Organization</a>',
                 'WCAG standard <a href="http://www.w3.org/TR/WCAG20/#content-structure-separation-programmatic">1.3.1</a> and <a href="http://www.w3.org/TR/WCAG20/#content-structure-separation-sequence">1.3.2</a>',
             ],
             'example'   => '',
@@ -244,7 +244,7 @@ return [
             'title'     => 'Avoid using color alone for emphasis',
             'desc'      => '<p>When emphasizing text, you may use color with sufficient contrast as long as you also apply some other form of emphasis, such as bold or italics. This ensures that screen reader users are aware of the text\'s importance.</p>',
             'resources' => [
-                '<a href="https://www.w3.org/TR/WCAG20-TECHS/H49.html">Resource Link</a>',
+                'WCAG 2.0 Technique: <a href="https://www.w3.org/TR/WCAG20-TECHS/H49.html">H49: Using semantic markup to mark emphasized or special text</a>',
             ],
             'example'   => '
                 <p>This example shows how to use the em and strong elements to emphasize text. The em and strong elements were designed to indicate structural emphasis that may be rendered in a variety of ways (font style changes, speech inflection changes, etc.).</p>

@@ -26,8 +26,13 @@
 		<link rel="icon" type="image/png" href="favicon.ico">
 		<link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css">
 		<link href='//fonts.googleapis.com/css?family=Sonsie+One' rel='stylesheet' type='text/css'>
+<<<<<<< HEAD
 		<link href="assets/css/main.css?cachebuster=<?= time() ?>" type="text/css" rel="stylesheet" media="screen">
 		<link href="assets/css/print.css" type="text/css" rel="stylesheet" media="print">
+=======
+		<link href="assets/css/main.css?v=<?= UDOIT_VERSION ?>" type="text/css" rel="stylesheet" media="screen">
+		<link href="assets/css/print.css?v=<?= UDOIT_VERSION ?>" type="text/css" rel="stylesheet" media="print">
+>>>>>>> dev/v2-3-3
 	</head>
 	<body>
 		<div class="container">

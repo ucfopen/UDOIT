@@ -167,6 +167,12 @@ In order for UDOIT to scan YouTube videos for closed captioning, you will need t
 3. Enable ***YouTube Data API V3***
 4. Create an ***API key*** credential.
 
+### Vimeo API Key
+In order for UDOIT to scan Vimeo videos for closed captioning, you will need to create a Vimeo API key. Follow the instructions below:
+
+1. [Create a new App on Vimeo Developer API](https://developer.vimeo.com/apps/new?source=getting-started), please note you must have a Vimeo Developer account.
+2. On your applications "Authentication" page, Generate a new Access Token
+
 ### Installing the LTI in Canvas
 Log into Canvas to add UDOIT:
 
@@ -266,6 +272,10 @@ $ php composer.phar start
 
 Then open [http://localhost:8000 in a browser](http://localhost:8000).
 
+## Docker
+
+To setup the Docker environment, follow the steps outlined in the [DOCKER.md Readme](DOCKER.md).
+
 ## Running Tests
 We use phpunit to run unit tests on UDOIT.  To run the tests, type the following command:
 
@@ -305,6 +315,7 @@ Add contributors here and dont forget composer.json!)
 * Joe Fauvel
 * [John Raible](https://github.com/rebelaide)
 * [Kevin Baugh](https://github.com/loraxx753)
+* [Sean Hernandez](https://github.com/seanlh)
 
 ### Special Thanks
 
