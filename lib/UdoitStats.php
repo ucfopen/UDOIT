@@ -42,14 +42,20 @@ class UdoitStats
     public function getReports($latest, $order_by, $get_data = null)
     {
         global $db_reports_table;
+        global $db_type;
 
         // TODO: Implement max query size and never-ending scroll functionality
         // Setup table headers and query
-        $query = "SELECT $db_reports_table.course_id AS 'Course ID', "
-                ."user_id AS 'User ID', "
-                ."date_run AS 'Date Run', "
-                ."errors AS 'Errors', "
-                ."suggestions AS 'Suggestions'\n"
+        if ('mysql' == $db_type) {
+            $date_format = "DATE_FORMAT(date_run, '%Y-%m-%d') AS \"Date Run\", ";
+        } elseif ('pgsql' == $db_type) {
+            $date_format = "TO_CHAR(date_run, 'Month dd, YYYY HH:MI:SS AM TZ') AS \"Date Run\", ";
+        }
+        $query = "SELECT $db_reports_table.course_id AS \"Course ID\", "
+                ."user_id AS \"User ID\", "
+                .$date_format
+                ."errors AS \"Errors\", "
+                ."suggestions AS \"Suggestions\"\n"
                 ."FROM $db_reports_table\n";
         // Only select most recent scans per course from database
         // Must prepend before conditional clauses below
@@ -66,7 +72,7 @@ class UdoitStats
         $prepend_word = "WHERE"; // Switches to AND after the first clause for subsequent conditions
         // These parameters can be in any order, unlike $latest and $order_by
         foreach ($get_data as $key => $value) {
-            if (empty($value)) {
+            if (!isset($value)) {
                 continue;
             }
             switch ($key) {
@@ -115,12 +121,34 @@ class UdoitStats
         }
 
         $sth = UdoitDB::prepare($query);
-        if (!empty($get_data['start_date'])) {
+        if (isset($get_data['start_date'])) {
             $sth->bindValue(':startdate', $get_data['start_date']->format('Y-m-d'), PDO::PARAM_STR);
         }
-        if (!empty($get_data['end_date'])) {
+        if (isset($get_data['end_date'])) {
             $sth->bindValue(':enddate', $get_data['end_date']->format('Y-m-d'), PDO::PARAM_STR);
         }
+
+        if ($sth->execute()) {
+            return $sth->fetchAll(PDO::FETCH_ASSOC);
+        }
+
+        return false;
+    }
+
+    /**
+     * Gets every user in the database.
+     *
+     * @return Associative array of results, false on error
+     */
+    public function getReportJsons()
+    {
+        //TODO:  Paginate this by adding a page parameter and modifying the query
+        global $db_reports_table;
+
+        $query = "SELECT report_json\n"
+                ."FROM $db_reports_table\n";
+
+        $sth = UdoitDB::prepare($query);
 
         if ($sth->execute()) {
             return $sth->fetchAll(PDO::FETCH_ASSOC);
@@ -139,11 +167,17 @@ class UdoitStats
         //TODO:  Paginate this by adding a page parameter and modifying the query
         global $db_user_table;
         global $db_reports_table;
+        global $db_type;
 
-        $query = "SELECT $db_user_table.id as 'User ID', "
-                ."COUNT(reports.user_id) AS 'Number of Scans', "
-                ."date_created AS 'Date Created', "
-                ."canvas_url AS 'Canvas URL'\n"
+        if ('mysql' == $db_type) {
+            $date_format = "DATE_FORMAT(date_created, '%Y-%m-%d') AS \"Date Created\", ";
+        } elseif ('pgsql' == $db_type) {
+            $date_format = "TO_CHAR(date_created, 'Month dd, YYYY HH:MI:SS AM TZ') AS \"Date Created\", ";
+        }
+        $query = "SELECT $db_user_table.id as \"User ID\", "
+                ."COUNT(reports.user_id) AS \"Number of Scans\", "
+                .$date_format
+                ."canvas_url AS \"Canvas URL\"\n"
                 ."FROM $db_user_table\n"
                 ."LEFT JOIN $db_reports_table ON($db_user_table.id = user_id)\n"
                 ."GROUP BY $db_user_table.id\n";
@@ -168,46 +202,68 @@ class UdoitStats
     public function countNewUsers($grain, $startDate, $endDate)
     {
         global $db_user_table;
+        global $db_type;
 
         // Set up the date format to group the results properly
         // TODO: Make sure this is compatible with Postgres (using to_char) and sqlite
         switch ($grain) {
             case 'day':
-                $date_format = 'DATE_FORMAT(date_created, \'%Y-%m-%d\')';
+                if ('mysql' == $db_type) {
+                    $date_format = 'DATE_FORMAT(date_created, \'%Y-%m-%d\')';
+                } elseif ('pgsql' == $db_type) {
+                    $date_format = 'TO_CHAR(date_created, \'Month dd, YYYY\')';
+                }
                 break;
 
             case 'week':
-                $date_format = 'DATE_FORMAT(date_created, \'%X-%V\')';
+                if ('mysql' == $db_type) {
+                    $date_format = 'DATE_FORMAT(date_created, \'%X-%V\')';
+                } elseif ('pgsql' == $db_type) {
+                    $date_format = 'TO_CHAR(date_created, \'Wth "W"eek of Month\')';
+                }
                 break;
 
             case 'month':
-                $date_format = 'DATE_FORMAT(date_created, \'%Y-%m\')';
+                if ('mysql' == $db_type) {
+                    $date_format = 'DATE_FORMAT(date_created, \'%Y-%m\')';
+                } elseif ('pgsql' == $db_type) {
+                    $date_format = 'TO_CHAR(date_created, \'Month YYYY\')';
+                }
                 break;
 
             case 'year':
-                $date_format = 'DATE_FORMAT(date_created, \'%Y\')';
+                if ('mysql' == $db_type) {
+                    $date_format = 'DATE_FORMAT(date_created, \'%Y\')';
+                } elseif ('pgsql' == $db_type) {
+                    $date_format = 'TO_CHAR(date_created, \'YYYY\')';
+                }
                 break;
 
             default: // Default to 'day'
-                $date_format = 'DATE_FORMAT(date_created, \'%Y-%m-%d\')';
+                if ('mysql' == $db_type) {
+                    $date_format = 'DATE_FORMAT(date_created, \'%Y-%m-%d\')';
+                } elseif ('pgsql' == $db_type) {
+                    $date_format = 'TO_CHAR(date_created, \'Month dd, YYYY\')';
+                }
         }
 
-        $query = "SELECT COUNT(1) AS 'Number of New Users', {$date_format} AS Date\n"
+        $query = "SELECT COUNT(1) AS \"Number of New Users\", {$date_format} AS \"Date\"\n"
                 ."FROM $db_user_table\n";
         $prepend_word = "WHERE";
-        if (!empty($startDate)) {
+        if (isset($startDate)) {
             $query .= $prepend_word." DATE(date_created) >= :startdate\n";
             $prepend_word = "AND";
         }
-        if (!empty($endDate)) {
+        if (isset($endDate)) {
             $query .= $prepend_word." DATE(date_created) <= :enddate\n";
         }
         $query .= "GROUP BY {$date_format}";
+
         $sth = UdoitDB::prepare($query);
-        if (!empty($startDate)) {
+        if (isset($startDate)) {
             $sth->bindValue(':startdate', $startDate->format('Y-m-d'), PDO::PARAM_STR);
         }
-        if (!empty($endDate)) {
+        if (isset($endDate)) {
             $sth->bindValue(':enddate', $endDate->format('Y-m-d'), PDO::PARAM_STR);
         }
 

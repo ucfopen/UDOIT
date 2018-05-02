@@ -26,7 +26,7 @@ function json_tableify(data) {
 		for (let j=0, maxj=columns.length; j < maxj ; ++j) {
 			let td = document.createElement('td');
 			cellValue = data[i][columns[j]];
-			td.appendChild(document.createTextNode(data[i][columns[j]] || ''));
+			td.appendChild(document.createTextNode(data[i][columns[j]]));
 			tr.appendChild(td);
 		}
 		tbody.appendChild(tr);
@@ -119,6 +119,15 @@ $('#scans-pull').on('submit', function(evt){
 	let formvals = $(this).serialize();
 	$('#scans-results').empty();
 
+	// build throbber
+	// let throbber = document.createElement('div');
+	// throbber.className = 'circle-white';
+	// change inner html to throbber
+	$('#scans-submit').empty();
+	$('#scans-submit').append('<span class="circle-white" style="display: inline-block; height: 16px; width: 16px;"></span> Loading...');
+	// button.innterHTML = "";
+	// $('#scans-submit').append('<div class="circle-white" id="scans-throbber"></div>Fetching...');
+
 	let request = $.ajax({
 		url: 'api/stats.php?stat=scans&'+formvals,
 		method: 'GET',
@@ -128,14 +137,43 @@ $('#scans-pull').on('submit', function(evt){
 			$(table).addClass('table table-striped');
 
 			$('#scans-results').append(table);
+
 			$('#scans-csv').removeClass('hidden');
 			$('#scans-csv').click(function(){
 				tableToCSV('#scans-results', "UDOIT_Scans.csv");
 			});
+
+			$('#scans-submit').empty();
+			$('#scans-submit').append('Update Results');
 		},
 		error: function(xhr, status, error){
 			response = JSON.parse(xhr.responseText);
 			$('#scans-results').html(response.data);
+		}
+	});
+});
+
+$('#errors-common-pull').click(function(){
+	// TODO: Add throbber
+	$('#errors-common-results').empty();
+
+	let request = $.ajax({
+		url: 'api/stats.php?stat=errors',
+		method: 'GET',
+		dataType: 'json',
+		success: function(msg){
+			let table = json_tableify(msg.data);
+			$(table).addClass('table table-striped');
+
+			$('#errors-common-results').append(table);
+			$('#errors-common-csv').removeClass('hidden');
+			$('#errors-common-csv').click(function(){
+				tableToCSV('#errors-common-results', "UDOIT_Errors.csv");
+			});
+		},
+		error: function(xhr, status, error){
+			response = JSON.parse(xhr.responseText);
+			$('#user-results').html(response.data);
 		}
 	});
 });
@@ -188,6 +226,26 @@ $('#user-growth-pull').on('submit', function(evt){
 		error: function(xhr, status, error){
 			response = JSON.parse(xhr.responseText);
 			$('#user-growth-results').html(response.data);
+		}
+	});
+});
+
+$(document).ready(function(){
+	let request = $.ajax({
+		url: 'api/stats.php?stat=termslist',
+		method: 'GET',
+		dataType: 'json',
+		success: function(msg){
+			$.each(msg.data, function(i, term){
+				let option = document.createElement('option');
+				option.innerHTML = term.name;
+				option.value = term.id;
+				$('#scans-term-id').append(option);
+			});
+		},
+		error: function(xhr, status, error){
+			response = JSON.parse(xhr.responseText);
+			$('#scans-term-id').html(response.data);
 		}
 	});
 });

@@ -30,13 +30,14 @@ $this->layout('template', $settings);
 
 ?>
 <ul class="nav nav-tabs nav-justified" role="tablist">
-	<li role="presentation" class="active"><a href="#all" role="tab" data-toggle="tab">Scans</a></li>
+	<li role="presentation" class="active"><a href="#scans-all" role="tab" data-toggle="tab">Scans</a></li>
+	<li role="presentation"><a href="#errors-common" role="tab" data-toggle="tab">Errors</a></li>
 	<li role="presentation"><a href="#user-admin" role="tab" data-toggle="tab">Users</a></li>
 	<li role="presentation"><a href="#user-growth" role="tab" data-toggle="tab">User Growth</a></li>
 </ul>
 <main id="contentWrapper" role="main">
 	<div class="tab-content">
-		<div class="tab-pane active" id="all" role="tabpanel">
+		<div class="tab-pane active" id="scans-all" role="tabpanel">
 			<div class="panel panel-default">
 				<div class="panel-body">
 					<div class="container">
@@ -62,8 +63,10 @@ $this->layout('template', $settings);
 								</select>
 							</div>
 							<div class="form-group col-md-2">
-								<label class="sr-only" for="scans-term-id">Term ID</label>
-								<input type="number" class="form-control" id="scans-term-id" name="termid" placeholder="Term ID" />
+								<label class="sr-only" for="scans-term-id">Term</label>
+								<select class="form-control" id="scans-term-id" name="termid">
+									<option selected value="">All Terms</option>
+								</select>
 							</div>
 							<div class="form-group col-md-2">
 								<label class="sr-only" for="scans-course-id">Course ID</label>
@@ -87,6 +90,18 @@ $this->layout('template', $settings);
 				</div>
 			</div>
 			<div id="scans-results" class="stat-results"></div>
+		</div>
+		<div class="tab-pane" id="errors-common" role="tabpanel">
+			<div class="panel panel-default">
+				<div class="panel-body">
+					<div class="container">
+						<h2>Most Common Errors</h2>
+						<button class="btn btn-success" id="errors-common-pull">Display Results</button>
+						<button type="button" class="btn btn-primary pull-right hidden" id="errors-common-csv">Get .csv</button>
+					</div>
+				</div>
+			</div>
+			<div id="errors-common-results" class="stat-results"></div>
 		</div>
 		<div class="tab-pane" id="user-admin" role="tabpanel">
 			<div class="panel panel-default">

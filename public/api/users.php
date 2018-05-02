@@ -21,7 +21,7 @@
 require_once(__DIR__.'/includes.php');
 
 // Verify we have the minimum GET parameters we need
-if (empty($_GET['action'])) {
+if (!isset($_GET['action'])) {
     // Set response to 400 (Bad Request)
     respond_with_error(400, 'Request is missing the deauth parameter.  Please contact your administrator.');
 }

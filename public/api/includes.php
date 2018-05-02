@@ -28,10 +28,19 @@ function respond_with_success($data)
     respond_and_die($response);
 }
 
+function sanitize_id($data)
+{
+    if (empty($data) && '0' !== $data) {
+        return null;
+    }
+
+    return filter_var($data, FILTER_SANITIZE_NUMBER_INT);
+}
+
 // Verify we have the variables we need from the LTI launch
 $expect = ['base_url', 'launch_params', 'is_admin'];
 foreach ($expect as $key) {
-    if (empty($_SESSION[$key])) {
+    if (!isset($_SESSION[$key])) {
         // Set response to 401 (Unauthorized)
         respond_with_error(401, "Missing LTI launch information. Please ensure that your instance of UDOIT is installed to Canvas correctly. Missing: {$key}");
     }

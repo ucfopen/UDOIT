@@ -98,7 +98,7 @@ class UdoitDB
                     break;
 
                 case 'pgsql':
-                    $db = new static::$dbClass(static::$dsn);
+                    $db = new static::$dbClass(static::$dsn, static::$user, static::$password);
                     break;
 
                 case 'mysql':

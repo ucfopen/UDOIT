@@ -18,23 +18,24 @@
 *   Primary Author Contact:  Jacob Bates <jacob.bates@ucf.edu>
 */
 
+use Httpful\Request;
+
 require_once(__DIR__.'/includes.php');
 
 // Verify we have the minimum GET parameters we need
-if (empty($_GET['stat'])) {
+if (!isset($_GET['stat'])) {
     // Set response to 400 (Bad Request)
     respond_with_error(400, 'Request is missing the stat parameter.  Please contact your administrator.');
 }
 
 switch ($_GET['stat']) {
     case 'scans':
-        $start_date = empty($_GET['startdate']) ? null : new DateTime($_GET['startdate']);
-        $end_date = empty($_GET['enddate']) ? null : new DateTime($_GET['enddate']);
-
-        $term_id = filter_var($_GET['termid'], FILTER_VALIDATE_INT) ? filter_var($_GET['termid'], FILTER_SANITIZE_NUMBER_INT) : null;
-        $course_id = filter_var($_GET['courseid'], FILTER_VALIDATE_INT) ? filter_var($_GET['courseid'], FILTER_SANITIZE_NUMBER_INT) : null;
-        $user_id = filter_var($_GET['userid'], FILTER_VALIDATE_INT) ? filter_var($_GET['userid'], FILTER_SANITIZE_NUMBER_INT) : null;
-        $latest = empty($_GET['latestonly']) ? false : true;
+        $start_date = !empty($_GET['startdate']) ? new DateTime($_GET['startdate']) : null;
+        $end_date = !empty($_GET['enddate']) ? new DateTime($_GET['enddate']) : null;
+        $term_id = sanitize_id($_GET['termid']);
+        $course_id = sanitize_id($_GET['courseid']);
+        $user_id = sanitize_id($_GET['userid']);
+        $latest = isset($_GET['latestonly']) ? true : false;
 
         $results = UdoitStats::instance()->getReports($latest, $_GET['orderby'],
             $get_data = [
@@ -46,19 +47,89 @@ switch ($_GET['stat']) {
             ]
         );
         if (false === $results) {
-            respond_with_error(500, "Error retrieving Users from database.");
+            respond_with_error(500, "Error retrieving Scans from database.");
         }
+        // Add Term, Course Name, and User Name columns
+        for ($i = 0; $i < count($results); $i++) {
+            $api_key = UdoitUtils::instance()->getValidRefreshedApiKey($_SESSION['launch_params']['custom_canvas_user_id']);
+            $course_req_url = $_SESSION['base_url'].'/api/v1/courses/'.$results[$i]['Course ID'].'?include[]=term';
+            $user_req_url = $_SESSION['base_url'].'/api/v1/users/'.$results[$i]['User ID'].'/profile';
+
+            $course = Request::get($course_req_url)->addHeader('Authorization', "Bearer ${api_key}")->send()->body;
+            $user = Request::get($user_req_url)->addHeader('Authorization', "Bearer ${api_key}")->send()->body;
+
+            $results[$i] = [
+                'Term (ID)' => $course->term->name." ({$course->term->id})",
+                'Course (ID)' => $course->name." ({$course->id})",
+                'User (ID)' => $user->name." ({$user->id})",
+            ] + $results[$i];
+
+            unset($results[$i]['Course ID']); // Remove Course ID because we're adding Course Name instead
+            unset($results[$i]['User ID']); // Remove User ID because we're adding User Name instead
+        }
+
         respond_with_success($results);
+        break;
+    
+    case 'errors':
+        $results = UdoitStats::instance()->getReportJsons();
+        if (false === $results) {
+            respond_with_error(500, "Error retrieving Scans from database.");
+        }
+
+        foreach ($results as $result) {
+            $reports[] = json_decode($result['report_json'], true);
+        }
+
+        // Count errors
+        foreach ($reports as $report) {
+            foreach ($report['error_summary'] as $error => $value) {
+                if (!isset($errors_count[$error])) {
+                    $errors_count[$error] = $value['count'];
+                    continue;
+                }
+                $errors_count[$error] += $value['count'];
+            }
+        }
+        arsort($errors_count); // Sort in descending order
+
+        // Format to make compatible with current json_tableify function
+        foreach ($errors_count as $error => $count) {
+            $errors[] = [
+                'Error' => $error,
+                'Count' => $count,
+            ];
+        }
+
+        respond_with_success($errors);
+
         break;
 
     case 'usergrowth':
-        $startDate = empty($_GET['startdate']) ? null : new DateTime($_GET['startdate']);
-        $endDate = empty($_GET['enddate']) ? null : new DateTime($_GET['enddate']);
+        $startDate = !empty($_GET['startdate']) ? new DateTime($_GET['startdate']) : null;
+        $endDate = !empty($_GET['enddate']) ? new DateTime($_GET['enddate']) : null;
         $results = UdoitStats::instance()->countNewUsers($_GET['grain'], $startDate, $endDate);
         if (false === $results) {
-            respond_with_error(500, "Error retrieving Users from database.");
+            respond_with_error(500, "Error retrieving User Growth from database.");
         }
+
         respond_with_success($results);
+        break;
+
+    case 'termslist':
+        $user_id = $_SESSION['launch_params']['custom_canvas_user_id'];
+        $api_key = UdoitUtils::instance()->getValidRefreshedApiKey($_SESSION['launch_params']['custom_canvas_user_id']);
+        $request = $_SESSION['base_url'].'/api/v1/accounts/'.$user_id.'/terms';
+        $results = Request::get($request)->addHeader('Authorization', "Bearer ${api_key}")->send()->body->enrollment_terms;
+        if (false === $results) {
+            respond_with_error(500, "Error retrieving Terms from database.");
+        }
+
+        for ($i = 0; $i < count($results); $i++) {
+            $terms[$i] = ['name' => $results[$i]->name, 'id' => $results[$i]->id];
+        }
+
+        respond_with_success($terms);
         break;
 
     default:
