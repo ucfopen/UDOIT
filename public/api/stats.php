@@ -49,24 +49,6 @@ switch ($_GET['stat']) {
         if (false === $results) {
             respond_with_error(500, "Error retrieving Scans from database.");
         }
-        // Add Term, Course Name, and User Name columns
-        for ($i = 0; $i < count($results); $i++) {
-            $api_key = UdoitUtils::instance()->getValidRefreshedApiKey($_SESSION['launch_params']['custom_canvas_user_id']);
-            $course_req_url = $_SESSION['base_url'].'/api/v1/courses/'.$results[$i]['Course ID'].'?include[]=term';
-            $user_req_url = $_SESSION['base_url'].'/api/v1/users/'.$results[$i]['User ID'].'/profile';
-
-            $course = Request::get($course_req_url)->addHeader('Authorization', "Bearer ${api_key}")->send()->body;
-            $user = Request::get($user_req_url)->addHeader('Authorization', "Bearer ${api_key}")->send()->body;
-
-            $results[$i] = [
-                'Term (ID)' => $course->term->name." ({$course->term->id})",
-                'Course (ID)' => $course->name." ({$course->id})",
-                'User (ID)' => $user->name." ({$user->id})",
-            ] + $results[$i];
-
-            unset($results[$i]['Course ID']); // Remove Course ID because we're adding Course Name instead
-            unset($results[$i]['User ID']); // Remove User ID because we're adding User Name instead
-        }
 
         respond_with_success($results);
         break;
@@ -130,6 +112,23 @@ switch ($_GET['stat']) {
         }
 
         respond_with_success($terms);
+        break;
+
+    case 'coursename':
+        if (empty($_GET['id'])) {
+            respond_with_error(400, "Request is missing the {$key} parameter.");
+        }
+
+        $course_id = sanitize_id($_GET['id']);
+        $api_key = UdoitUtils::instance()->getValidRefreshedApiKey($_SESSION['launch_params']['custom_canvas_user_id']);
+        $course_req_url = $_SESSION['base_url'].'/api/v1/courses/'.$course_id;
+        $course = Request::get($course_req_url)->addHeader('Authorization', "Bearer ${api_key}")->send()->body;
+
+        if (false === $results) {
+            respond_with_error(500, "Error retrieving Course from database.");
+        }
+
+        respond_with_success($course->name);
         break;
 
     default:

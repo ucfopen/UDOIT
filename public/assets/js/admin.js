@@ -55,11 +55,11 @@ function addAllColumnHeaders(data, table){
 }
 
 function addDeauthButton(data, table){
-	// append header
+	// Append header
 	let th = document.createElement('th');
 	th.innerHTML = "Force Reauthorization";
 	table.tHead.rows[0].appendChild(th);
-	// append body
+	// Append body
 	for(i = 1; i < table.rows.length; i++) {
 		let td = document.createElement('td');
 		let button = document.createElement('button');
@@ -72,7 +72,6 @@ function addDeauthButton(data, table){
 				method: 'GET',
 				dataType: 'json',
 				success: function(msg){
-					// button.className = "btn btn-success btn-sm";
 					button.disabled = "disabled";
 					button.innerHTML = "Deauthorized";
 				},
@@ -119,14 +118,8 @@ $('#scans-pull').on('submit', function(evt){
 	let formvals = $(this).serialize();
 	$('#scans-results').empty();
 
-	// build throbber
-	// let throbber = document.createElement('div');
-	// throbber.className = 'circle-white';
-	// change inner html to throbber
 	$('#scans-submit').empty();
 	$('#scans-submit').append('<span class="circle-white" style="display: inline-block; height: 16px; width: 16px;"></span> Loading...');
-	// button.innterHTML = "";
-	// $('#scans-submit').append('<div class="circle-white" id="scans-throbber"></div>Fetching...');
 
 	let request = $.ajax({
 		url: 'api/stats.php?stat=scans&'+formvals,
@@ -145,6 +138,34 @@ $('#scans-pull').on('submit', function(evt){
 
 			$('#scans-submit').empty();
 			$('#scans-submit').append('Update Results');
+
+			// Lazy load Term (ID), Course, and User and update table
+			var loadCourses = function(i) {
+				if(msg.data.length == i) {
+					return;
+				}
+
+				$.ajax({
+					url: 'api/stats.php?stat=coursename&id='+msg.data[i]['Course (ID)'],
+					method: 'GET',
+					dataType: 'json',
+					success: function(msg2){
+						msg.data[i]['Course (ID)'] = msg2.data + ' (' + msg.data[i]['Course (ID)'] + ')';
+						$('#scans-results').empty();
+						table = json_tableify(msg.data);
+						$(table).addClass('table table-striped');
+						$('#scans-results').append(table);
+					},
+					error: function(xhr, status, error){
+						response = JSON.parse(xhr.responseText);
+						console.log(response);
+					},
+					complete: function(){
+						loadCourses(++i);
+					}
+				});
+			}
+			loadCourses(0);
 		},
 		error: function(xhr, status, error){
 			response = JSON.parse(xhr.responseText);
@@ -154,8 +175,10 @@ $('#scans-pull').on('submit', function(evt){
 });
 
 $('#errors-common-pull').click(function(){
-	// TODO: Add throbber
 	$('#errors-common-results').empty();
+
+	$('#errors-common-pull').empty();
+	$('#errors-common-pull').append('<span class="circle-white" style="display: inline-block; height: 16px; width: 16px;"></span> Loading...');
 
 	let request = $.ajax({
 		url: 'api/stats.php?stat=errors',
@@ -170,6 +193,9 @@ $('#errors-common-pull').click(function(){
 			$('#errors-common-csv').click(function(){
 				tableToCSV('#errors-common-results', "UDOIT_Errors.csv");
 			});
+
+			$('#errors-common-pull').empty();
+			$('#errors-common-pull').append('Update Results');
 		},
 		error: function(xhr, status, error){
 			response = JSON.parse(xhr.responseText);
@@ -179,8 +205,10 @@ $('#errors-common-pull').click(function(){
 });
 
 $('#user-pull').click(function(){
-	// TODO: Add throbber
 	$('#user-results').empty();
+
+	$('#user-pull').empty();
+	$('#user-pull').append('<span class="circle-white" style="display: inline-block; height: 16px; width: 16px;"></span> Loading...');
 
 	let request = $.ajax({
 		url: 'api/users.php?action=list',
@@ -196,6 +224,9 @@ $('#user-pull').click(function(){
 			$('#user-csv').click(function(){
 				tableToCSV('#user-results', "UDOIT_Users.csv");
 			});
+
+			$('#user-pull').empty();
+			$('#user-pull').append('Update Results');
 		},
 		error: function(xhr, status, error){
 			response = JSON.parse(xhr.responseText);
@@ -209,6 +240,9 @@ $('#user-growth-pull').on('submit', function(evt){
 	let formvals = $(this).serialize();
 	$('#user-growth-results').empty();
 
+	$('#user-growth-submit').empty();
+	$('#user-growth-submit').append('<span class="circle-white" style="display: inline-block; height: 16px; width: 16px;"></span> Loading...');
+
 	let request = $.ajax({
 		url: 'api/stats.php?stat=usergrowth&'+formvals,
 		method: 'GET',
@@ -216,12 +250,16 @@ $('#user-growth-pull').on('submit', function(evt){
 		success: function(msg){
 			let table = json_tableify(msg.data);
 			$(table).addClass('table table-striped');
-
 			$('#user-growth-results').append(table);
+
 			$('#user-growth-csv').removeClass('hidden');
 			$('#user-growth-csv').click(function(){
 				tableToCSV('#user-growth-results', "UDOIT_User_Growth.csv");
 			});
+
+			$('#user-growth-submit').empty();
+			$('#user-growth-submit').append('Update Results');
+
 		},
 		error: function(xhr, status, error){
 			response = JSON.parse(xhr.responseText);

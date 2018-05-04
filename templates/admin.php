@@ -141,7 +141,7 @@ $this->layout('template', $settings);
 								</select>
 							</div>
 							<div class="col-md-12">
-								<button class="btn btn-success">Display Results</button>
+								<button class="btn btn-success" id="user-growth-submit">Display Results</button>
 								<button type="button" class="btn btn-primary pull-right hidden" id="user-growth-csv">Get .csv</button>
 							</div>
 						</form>

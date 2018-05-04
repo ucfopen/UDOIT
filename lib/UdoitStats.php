@@ -51,8 +51,9 @@ class UdoitStats
         } elseif ('pgsql' == $db_type) {
             $date_format = "TO_CHAR(date_run, 'Month dd, YYYY HH:MI:SS AM TZ') AS \"Date Run\", ";
         }
-        $query = "SELECT $db_reports_table.course_id AS \"Course ID\", "
-                ."user_id AS \"User ID\", "
+        $query = "SELECT '' AS \"Term (ID)\", "
+                ."$db_reports_table.course_id AS \"Course (ID)\", "
+                ."user_id AS \"User (ID)\", "
                 .$date_format
                 ."errors AS \"Errors\", "
                 ."suggestions AS \"Suggestions\"\n"
@@ -147,6 +148,12 @@ class UdoitStats
 
         $query = "SELECT report_json\n"
                 ."FROM $db_reports_table\n";
+        // Only select most recent scans per course from database
+        $query .= "INNER JOIN (\n"
+                ."SELECT MAX(date_run) as MaxDate\n"
+                ."FROM $db_reports_table\n"
+                .") tm "
+                ."ON date_run = tm.MaxDate\n";
 
         $sth = UdoitDB::prepare($query);
 
