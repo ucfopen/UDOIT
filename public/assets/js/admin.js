@@ -64,7 +64,7 @@ function addDeauthButton(data, table){
 		let td = document.createElement('td');
 		let button = document.createElement('button');
 		button.className = "btn btn-danger btn-sm";
-		button.innerHTML = 'Deauthorize';
+		button.innerHTML = 'Force Reauthorize';
 		button.value = data[i - 1]["User ID"];
 		button.onclick = function() {
 			let request = $.ajax({
@@ -140,17 +140,19 @@ $('#scans-pull').on('submit', function(evt){
 			$('#scans-submit').append('Update Results');
 
 			// Lazy load Term (ID), Course, and User and update table
+			// TODO: Make this more modular, I just couldn't get it to work outside of this function
 			var loadCourses = function(i) {
 				if(msg.data.length == i) {
 					return;
 				}
 
 				$.ajax({
-					url: 'api/stats.php?stat=coursename&id='+msg.data[i]['Course (ID)'],
+					url: 'api/stats.php?stat=courseinfo&id='+msg.data[i]['Course (ID)'],
 					method: 'GET',
 					dataType: 'json',
 					success: function(msg2){
-						msg.data[i]['Course (ID)'] = msg2.data + ' (' + msg.data[i]['Course (ID)'] + ')';
+						msg.data[i]['Term (ID)'] = msg2.data['Term'];
+						msg.data[i]['Course (ID)'] = msg2.data['Course'] + ' (' + msg.data[i]['Course (ID)'] + ')';
 						$('#scans-results').empty();
 						table = json_tableify(msg.data);
 						$(table).addClass('table table-striped');
@@ -166,6 +168,32 @@ $('#scans-pull').on('submit', function(evt){
 				});
 			}
 			loadCourses(0);
+			var loadUsers = function(i) {
+				if(msg.data.length == i) {
+					return;
+				}
+
+				$.ajax({
+					url: 'api/stats.php?stat=username&id='+msg.data[i]['User (ID)'],
+					method: 'GET',
+					dataType: 'json',
+					success: function(msg2){
+						msg.data[i]['User (ID)'] = msg2.data + ' (' + msg.data[i]['User (ID)'] + ')';
+						$('#scans-results').empty();
+						table = json_tableify(msg.data);
+						$(table).addClass('table table-striped');
+						$('#scans-results').append(table);
+					},
+					error: function(xhr, status, error){
+						response = JSON.parse(xhr.responseText);
+						console.log(response);
+					},
+					complete: function(){
+						loadUsers(++i);
+					}
+				});
+			}
+			loadUsers(0);
 		},
 		error: function(xhr, status, error){
 			response = JSON.parse(xhr.responseText);

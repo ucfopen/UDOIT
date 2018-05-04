@@ -114,21 +114,41 @@ switch ($_GET['stat']) {
         respond_with_success($terms);
         break;
 
-    case 'coursename':
+    case 'courseinfo':
         if (empty($_GET['id'])) {
             respond_with_error(400, "Request is missing the {$key} parameter.");
         }
 
         $course_id = sanitize_id($_GET['id']);
         $api_key = UdoitUtils::instance()->getValidRefreshedApiKey($_SESSION['launch_params']['custom_canvas_user_id']);
-        $course_req_url = $_SESSION['base_url'].'/api/v1/courses/'.$course_id;
-        $course = Request::get($course_req_url)->addHeader('Authorization', "Bearer ${api_key}")->send()->body;
+        $request = $_SESSION['base_url'].'/api/v1/courses/'.$course_id.'?include[]=term';
+        $course = Request::get($request)->addHeader('Authorization', "Bearer ${api_key}")->send()->body;
 
-        if (false === $results) {
+        if (false === $course) {
             respond_with_error(500, "Error retrieving Course from database.");
         }
 
-        respond_with_success($course->name);
+        respond_with_success([
+            'Term' => $course->term->name,
+            'Course' => $course->name,
+        ]);
+        break;
+
+    case 'username':
+        if (empty($_GET['id'])) {
+            respond_with_error(400, "Request is missing the {$key} parameter.");
+        }
+
+        $id = sanitize_id($_GET['id']);
+        $api_key = UdoitUtils::instance()->getValidRefreshedApiKey($_SESSION['launch_params']['custom_canvas_user_id']);
+        $request = $_SESSION['base_url'].'/api/v1/users/'.$id.'/profile';
+        $result = Request::get($request)->addHeader('Authorization', "Bearer ${api_key}")->send()->body->name;
+
+        if (false === $result) {
+            respond_with_error(500, "Error retrieving Course from database.");
+        }
+
+        respond_with_success($result);
         break;
 
     default:
