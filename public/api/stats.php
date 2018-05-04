@@ -76,7 +76,7 @@ switch ($_GET['stat']) {
 
         $errors = [];
 
-        if(!empty($errors_count)) {
+        if (!empty($errors_count)) {
             arsort($errors_count); // Sort in descending order
 
             // Format to make compatible with current json_tableify function

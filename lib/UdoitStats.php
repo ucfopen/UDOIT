@@ -104,12 +104,17 @@ class UdoitStats
         }
 
         // Can only append these parameters at the end of the SQL query
+        if ('mysql' == $db_type) {
+            $date_order = "DATE(date_run)";
+        } elseif ('pgsql' == $db_type) {
+            $date_order = "date_run";
+        }
         switch ($order_by) {
             case 'mostrecent':
-                $query .= "ORDER BY DATE(date_run) DESC\n";
+                $query .= "ORDER BY $date_order DESC\n";
                 break;
             case 'leastrecent':
-                $query .= "ORDER BY DATE(date_run) ASC\n";
+                $query .= "ORDER BY $date_order ASC\n";
                 break;
             case 'mosterrors':
                 $query .= "ORDER BY errors DESC\n";
@@ -118,7 +123,7 @@ class UdoitStats
                 $query .= "ORDER BY errors ASC\n";
                 break;
             default: // Default to 'mostrecent'
-                $query .= "ORDER BY DATE(date_run) DESC\n";
+                $query .= "ORDER BY $date_order DESC\n";
         }
 
         $sth = UdoitDB::prepare($query);
