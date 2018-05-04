@@ -73,14 +73,19 @@ switch ($_GET['stat']) {
                 $errors_count[$error] += $value['count'];
             }
         }
-        arsort($errors_count); // Sort in descending order
 
-        // Format to make compatible with current json_tableify function
-        foreach ($errors_count as $error => $count) {
-            $errors[] = [
-                'Error' => $error,
-                'Count' => $count,
-            ];
+        $errors = [];
+
+        if(!empty($errors_count)) {
+            arsort($errors_count); // Sort in descending order
+
+            // Format to make compatible with current json_tableify function
+            foreach ($errors_count as $error => $count) {
+                $errors[] = [
+                    'Error' => $error,
+                    'Count' => $count,
+                ];
+            }
         }
 
         respond_with_success($errors);

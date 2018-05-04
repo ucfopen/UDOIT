@@ -51,7 +51,7 @@ class UdoitStats
         } elseif ('pgsql' == $db_type) {
             $date_format = "TO_CHAR(date_run, 'Month dd, YYYY HH:MI:SS AM TZ') AS \"Date Run\", ";
         }
-        $query = "SELECT '' AS \"Term (ID)\", "
+        $query = "SELECT '' AS \"Term\", "
                 ."$db_reports_table.course_id AS \"Course (ID)\", "
                 ."user_id AS \"User (ID)\", "
                 .$date_format
@@ -150,8 +150,9 @@ class UdoitStats
                 ."FROM $db_reports_table\n";
         // Only select most recent scans per course from database
         $query .= "INNER JOIN (\n"
-                ."SELECT MAX(date_run) as MaxDate\n"
+                ."SELECT course_id, MAX(date_run) as MaxDate\n"
                 ."FROM $db_reports_table\n"
+                ."GROUP BY course_id\n"
                 .") tm "
                 ."ON date_run = tm.MaxDate\n";
 

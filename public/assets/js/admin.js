@@ -17,6 +17,8 @@
 *   Primary Author Contact:  Jacob Bates <jacob.bates@ucf.edu>
 */
 
+var tableData;
+
 function json_tableify(data) {
 	let table = document.createElement('table');
 	let tbody = document.createElement('tbody');
@@ -52,6 +54,59 @@ function addAllColumnHeaders(data, table){
 	thead.appendChild(tr);
 	table.appendChild(thead);
 	return columnSet;
+}
+
+var loadCourses = function(i) {
+	if(tableData.length == i) {
+		return;
+	}
+
+	$.ajax({
+		url: 'api/stats.php?stat=courseinfo&id='+tableData[i]['Course (ID)'],
+		method: 'GET',
+		dataType: 'json',
+		success: function(msg2){
+			tableData[i]['Term'] = msg2.data['Term'];
+			tableData[i]['Course (ID)'] = msg2.data['Course'] + ' (' + tableData[i]['Course (ID)'] + ')';
+			$('#scans-results').empty();
+			table = json_tableify(tableData);
+			$(table).addClass('table table-striped');
+			$('#scans-results').append(table);
+		},
+		error: function(xhr, status, error){
+			response = JSON.parse(xhr.responseText);
+			console.log(response);
+		},
+		complete: function(){
+			loadCourses(++i);
+		}
+	});
+}
+
+var loadUsers = function(i) {
+	if(tableData.length == i) {
+		return;
+	}
+
+	$.ajax({
+		url: 'api/stats.php?stat=username&id='+tableData[i]['User (ID)'],
+		method: 'GET',
+		dataType: 'json',
+		success: function(msg2){
+			tableData[i]['User (ID)'] = msg2.data + ' (' + tableData[i]['User (ID)'] + ')';
+			$('#scans-results').empty();
+			table = json_tableify(tableData);
+			$(table).addClass('table table-striped');
+			$('#scans-results').append(table);
+		},
+		error: function(xhr, status, error){
+			response = JSON.parse(xhr.responseText);
+			console.log(response);
+		},
+		complete: function(){
+			loadUsers(++i);
+		}
+	});
 }
 
 function addDeauthButton(data, table){
@@ -139,61 +194,9 @@ $('#scans-pull').on('submit', function(evt){
 			$('#scans-submit').empty();
 			$('#scans-submit').append('Update Results');
 
-			// Lazy load Term (ID), Course, and User and update table
-			// TODO: Make this more modular, I just couldn't get it to work outside of this function
-			var loadCourses = function(i) {
-				if(msg.data.length == i) {
-					return;
-				}
-
-				$.ajax({
-					url: 'api/stats.php?stat=courseinfo&id='+msg.data[i]['Course (ID)'],
-					method: 'GET',
-					dataType: 'json',
-					success: function(msg2){
-						msg.data[i]['Term (ID)'] = msg2.data['Term'];
-						msg.data[i]['Course (ID)'] = msg2.data['Course'] + ' (' + msg.data[i]['Course (ID)'] + ')';
-						$('#scans-results').empty();
-						table = json_tableify(msg.data);
-						$(table).addClass('table table-striped');
-						$('#scans-results').append(table);
-					},
-					error: function(xhr, status, error){
-						response = JSON.parse(xhr.responseText);
-						console.log(response);
-					},
-					complete: function(){
-						loadCourses(++i);
-					}
-				});
-			}
-			loadCourses(0);
-			var loadUsers = function(i) {
-				if(msg.data.length == i) {
-					return;
-				}
-
-				$.ajax({
-					url: 'api/stats.php?stat=username&id='+msg.data[i]['User (ID)'],
-					method: 'GET',
-					dataType: 'json',
-					success: function(msg2){
-						msg.data[i]['User (ID)'] = msg2.data + ' (' + msg.data[i]['User (ID)'] + ')';
-						$('#scans-results').empty();
-						table = json_tableify(msg.data);
-						$(table).addClass('table table-striped');
-						$('#scans-results').append(table);
-					},
-					error: function(xhr, status, error){
-						response = JSON.parse(xhr.responseText);
-						console.log(response);
-					},
-					complete: function(){
-						loadUsers(++i);
-					}
-				});
-			}
-			loadUsers(0);
+			tableData = msg.data;
+			loadCourses(0); // Lazy load term and course name
+			loadUsers(0); // Lazy load User name
 		},
 		error: function(xhr, status, error){
 			response = JSON.parse(xhr.responseText);
