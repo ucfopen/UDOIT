@@ -14,6 +14,12 @@ $oauth2_uri       = getenv('OAUTH2_URI');
 /* Tool name for display in Canvas Navigation */
 $canvas_nav_item_name = getenv('CANVAS_NAV_ITEM_NAME');
 
+/* File Scan Size Limit */
+$file_scan_size_limit = getenv('SCAN_FILE_SIZE_LIMIT') ?: 52428800;
+
+/* Alt Text Length Limit */
+$alt_text_length_limit = getenv('ALT_TEXT_LENGTH_LIMIT') ?: 125;
+
 /* Database Config */
 
 $db_url           = parse_url(getenv('DATABASE_URL'));
@@ -42,6 +48,9 @@ $unscannable_suggestion_on = true;
 /* Google/YouTube Data Api Key */
 define('GOOGLE_API_KEY', getenv('GOOGLE_API_KEY')?:'');
 
+/* Vimeo API Key */
+define('VIMEO_API_KEY', '');
+
 /* Google Analytics Tracking Code */
 define('GA_TRACKING_CODE', '');
 
@@ -54,3 +63,7 @@ if (!empty($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PRO
 // send logs into the heroku logs
 $log_handler = new \Monolog\Handler\ErrorLogHandler();
 $log_handler->setFormatter(new \Monolog\Formatter\LineFormatter(null, null, true, true));
+
+// Sets CURLOPT_SSL_VERIFYPEER and CURLOPT_SSL_VERIFYHOST
+// This should be true for production environments
+$curl_ssl_verify = true;

@@ -36,7 +36,9 @@ class Udoit
         $logger->addInfo("Starting retrieveAndScan - course: {$course_id}, content: {$content_type}");
 
         $items_with_issues = []; // array of content items that the scanner found issues in
-        $totals = ['errors' => 0, 'warnings' => 0, 'suggestions' => 0];
+        $totals = ['errors' => 0, 'suggestions' => 0];
+        $error_summary = [];
+        $suggestion_summary = [];
         $scan_time_start = microtime(true);
 
         $content = static::getCourseContent($api_key, $canvas_api_url, $course_id, $content_type);
@@ -54,8 +56,27 @@ class Udoit
 
                 $items_with_issues[]   = $item;
                 $totals['errors']      += count($item['error']);
-                $totals['warnings']    += count($item['warning']);
                 $totals['suggestions'] += count($item['suggestion']);
+
+                foreach ($item['error'] as $issue) {
+                    $title = $issue['title'];
+                    if (!isset($error_summary[$title])) {
+                        $error_summary[$title] = new stdClass();
+                        $error_summary[$title]->count = 1;
+                    } else {
+                        $error_summary[$title]->count++;
+                    }
+                }
+
+                foreach ($item['suggestion'] as $suggestion) {
+                    $title = $suggestion['title'];
+                    if (!isset($suggestion_summary[$title])) {
+                        $suggestion_summary[$title] = new stdClass();
+                        $suggestion_summary[$title]->count = 1;
+                    } else {
+                        $suggestion_summary[$title]->count++;
+                    }
+                }
             }
         } else {
             // module_urls skips the scanner, just add them to the items with issues
@@ -72,6 +93,8 @@ class Udoit
             'total_results' => $totals,
             'scan_results' => [
                 'unscannable' => $content['unscannable'],
+                'error_summary' => $error_summary,
+                'suggestion_summary' => $suggestion_summary,
                 $content_type => [
                     'title'  => $content_type,
                     'items'  => $items_with_issues,
@@ -210,15 +233,45 @@ class Udoit
                     }
 
                     $extension = pathinfo($c->filename, PATHINFO_EXTENSION);
+                    global $file_scan_size_limit;
 
                     if (in_array($extension, ['pdf', 'doc', 'docx', 'ppt', 'pptx'])) {
                         // not scannable types
+                        // get folder path
+                        // get full_name from folder information for folder url
+                        $path = str_replace('course files', '', static::apiGet("{$api_url}folders/{$c->folder_id}", $api_key)->send()->body->full_name);
+                        // only prepend 'folder' if the current path is not in the root folder
+                        if (!empty($path)) {
+                            $path = "folder".$path;
+                        }
+                        // prepend canvas url
+                        $path = "{$canvas_api_url}/courses/{$course_id}/files/".$path;
+
+                        // saves modules item is in for unscannable section
+                        unset($modules);
+                        $modules = [];
+                        $all_modules = static::apiGet("{$api_url}modules", $api_key)->send()->body;
+                        if (is_array($all_modules) || is_object($all_modules)) {
+                            foreach ($all_modules as $m) {
+                                $items = static::apiGet($m->items_url, $api_key)->send()->body;
+                                foreach ($items as $i) {
+                                    if ($i->title == $c->display_name) {
+                                        $modules[] = $m->name;
+                                    }
+                                }
+                            }
+                        }
+                        $modules = array_unique($modules);
+
                         $content_result['unscannable'][] = [
-                            'title' => $c->display_name,
-                            'url'   => $c->url,
-                            'big'   => false,
+                            'title'     => $c->display_name,
+                            'url'       => $c->url,
+                            'path'      => $path,
+                            'modules'    => $modules,
+                            'extension' => $extension,
+                            'big'       => false,
                         ];
-                    } elseif (!empty($c->size) && $c->size > 50000000) {
+                    } elseif (!empty($c->size) && $c->size > $file_scan_size_limit) {
                         // too big to scan
                         $content_result['unscannable'][] = [
                             'title' => $c->display_name,

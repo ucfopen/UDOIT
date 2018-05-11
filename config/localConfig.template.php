@@ -19,8 +19,17 @@ $unscannable_suggestion_on = true;
 /* Tool name for display in Canvas Navigation */
 $canvas_nav_item_name = (getenv('CANVAS_NAV_ITEM_NAME')) ?: 'UDOIT';
 
+/* File Scan Size Limit */
+$file_scan_size_limit = getenv('SCAN_FILE_SIZE_LIMIT') ?: 52428800;
+
+/* Alt Text Length Limit */
+$alt_text_length_limit = getenv('ALT_TEXT_LENGTH_LIMIT') ?: 125;
+
 /* Google/YouTube Data Api Key */
 define('GOOGLE_API_KEY', '');
+
+/* Vimeo API Key */
+define('VIMEO_API_KEY', '');
 
 /* Google Analytics Tracking Code */
 define('GA_TRACKING_CODE', '');
@@ -38,13 +47,22 @@ $dsn              = "{$db_type}:host={$db_host};port={$db_port};dbname={$db_name
 
 $debug = false;
 
-// added in v2.3.0
-// Background worker Options (See Background Workers in Readme)
+/* Background worker Options (See Background Workers in Readme) */
 $background_worker_enabled = false;
 $background_job_expire_time = 20; // after x Minutes, mark job as expired
 $background_worker_sleep_seconds = 7;
 
-// OVERRIDE the default of ENV_PROD
-// $UDOIT_ENV = ENV_PROD;
-// $UDOIT_ENV = ENV_DEV;
-// $UDOIT_ENV = ENV_TEST;
+/* Set the Environment (default value is 'ENV_DEV' */
+// Valid values are 'ENV_PROD', 'ENV_DEV', or 'ENV_TEST'
+// If '$UDOIT_ENV' is not 'ENV_PROD' UDOIT is loaded with
+    // set display errors to 1
+    // add test reports to 'View Old Reports' page in UDOIT
+    // doesn't validate Canvas tokens
+    // returns "test-token" when getting refresh token for Canvas
+    // Course Scanner doesn't scan, simply contains already loaded test reports
+// $UDOIT_ENV = ENV_PROD; // default
+
+/* Ignore SSL Certificates */
+// For use while developing with self-signed SSL Certificates
+// Sets CURLOPT_SSL_VERIFYPEER and CURLOPT_SSL_VERIFYHOST
+$curl_ssl_verify = true; // This should be true for production environments

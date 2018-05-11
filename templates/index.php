@@ -23,7 +23,7 @@ $settings = [
 		"//code.jquery.com/jquery-2.1.1.min.js",
 		"//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js",
 		"assets/js/vendor/jscolor/jscolor.js",
-		"assets/js/default.js?cachebuster=".time(),
+		"assets/js/default.js?v=".UDOIT_VERSION,
 		"assets/js/contrast.js",
 	]
 ];

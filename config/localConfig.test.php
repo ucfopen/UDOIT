@@ -15,11 +15,20 @@ $doc_length = '1500';
 /* Tool name for display in Canvas Navigation */
 $canvas_nav_item_name = 'test udoit';
 
+/* File Scan Size Limit */
+$file_scan_size_limit = getenv('SCAN_FILE_SIZE_LIMIT') ?: 52428800;
+
+/* Alt Text Length Limit */
+$alt_text_length_limit = getenv('ALT_TEXT_LENGTH_LIMIT') ?: 125;
+
 /* Google/YouTube Data Api Key */
 define('GOOGLE_API_KEY', 'TEST_API_KEY');
 
 /* Google Analytics Tracking Code */
 define('GA_TRACKING_CODE', 'TEST_GA_TRACKING');
+
+/* Vimeo API Key */
+define('VIMEO_API_KEY', 'TEST_VIMEO_KEY');
 
 /* Database Config */
 $db_type          = 'test'; // 'mysql' or 'pgsql'
@@ -39,6 +48,10 @@ $debug = false;
 $background_worker_enabled = false;
 $background_job_expire_time = 20; // after x Minutes, mark job as expired
 $background_worker_sleep_seconds = 1;
+
+// Sets CURLOPT_SSL_VERIFYPEER and CURLOPT_SSL_VERIFYHOST
+// This should be true for production environments
+$curl_ssl_verify = true;
 
 // send logs into the phpunit output
 $log_handler = new \Monolog\Handler\TestHandler(null, \Monolog\Logger::WARNING);

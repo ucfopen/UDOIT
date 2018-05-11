@@ -14,7 +14,7 @@ RUN apk upgrade --update && apk add --no-cache \
 	pdo_mysql \
 	pdo_pgsql
 
-RUN pecl install xdebug && \
+RUN pecl install xdebug-2.5.5 && \
 	docker-php-ext-enable xdebug
 
 WORKDIR /var/www

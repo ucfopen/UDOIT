@@ -169,8 +169,10 @@ class UdoitJob
     {
         global $logger;
         $totals = ['errors' => 0, 'warnings' => 0, 'suggestions' => 0];
-        $unscannables_items = array();
-        $content = array();
+        $unscannables_items = [];
+        $content = [];
+        $error_summary = [];
+        $suggestion_summary = [];
 
         // combine the data from each job's results
         $sql = "SELECT * FROM job_queue WHERE job_group = '{$job_group}'";
@@ -180,13 +182,12 @@ class UdoitJob
 
             // collect all the error counts
             $totals['errors']      += $results['total_results']['errors'];
-            $totals['warnings']    += $results['total_results']['warnings'];
             $totals['suggestions'] += $results['total_results']['suggestions'];
 
             // if the scan results array is empty for some reason,
             // make sure it's an empty array and continue.
             if (empty($results['scan_results'])) {
-                $results['scan_results'] = array();
+                $results['scan_results'] = [];
             }
 
             // if unscannables are found, collect them
@@ -195,7 +196,28 @@ class UdoitJob
                 unset($results['scan_results']['unscannable']);
             }
 
-            
+            // collect errors
+            if (is_array($results['scan_results']['error_summary']) || is_object($results['scan_results']['error_summary'])) {
+                foreach ($results['scan_results']['error_summary'] as $item => $data) {
+                    if (!isset($error_summary[$item])) {
+                        $error_summary[$item] = $data;
+                    } else {
+                        $error_summary[$item][count] += $data[count];
+                    }
+                }
+            }
+
+            // collect suggestions
+            if (is_array($results['scan_results']['suggestion_summary']) || is_object($results['scan_results']['suggestion_summary'])) {
+                foreach ($results['scan_results']['suggestion_summary'] as $item => $data) {
+                    if (!isset($suggestion_summary[$item])) {
+                        $suggestion_summary[$item] = $data;
+                    } else {
+                        $suggestion_summary[$item][count] += $data[count];
+                    }
+                }
+            }
+
             // merge the scan results
             $content = array_merge($content, $results['scan_results']);
         }
@@ -206,15 +228,19 @@ class UdoitJob
                 'items' => $unscannables_items,
                 'amount' => count($unscannables_items),
             ];
+        } else {
+            $content['unscannable'] = ['amount' => 0];
         }
 
         return [
-            'course'        => null,
-            'course_id'     => null,
-            'user_id'       => $job['user_id'],
-            'job_group'     => $job_group,
-            'total_results' => $totals,
-            'content'       => $content,
+            'course'             => null,
+            'course_id'          => null,
+            'user_id'            => $job['user_id'],
+            'job_group'          => $job_group,
+            'total_results'      => $totals,
+            'error_summary'      => $error_summary,
+            'suggestion_summary' => $suggestion_summary,
+            'content'            => $content,
         ];
     }
 
