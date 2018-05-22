@@ -391,6 +391,12 @@ class Udoit
             }
 
             $links = static::apiParseLinks($response->headers->toArray()['link']);
+
+            if( empty($response->body) ) {
+                $logger->addError("Canvas API returned empty body for {$filtered_url}");
+                break;
+            }
+
             foreach ($response->body as $thing) {
                 $results[] = $thing;
             }
