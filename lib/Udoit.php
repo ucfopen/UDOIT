@@ -226,6 +226,14 @@ class Udoit
                 break;
 
             case 'files':
+		// Gather all modules out here so we can attach them to files later
+                $all_modules = static::apiGet("{$api_url}modules", $api_key)->send()->body;
+                if (is_array($all_modules) || is_object($all_modules)) {
+                    foreach ($all_modules as $m) {
+                        $m->items = static::apiGet($m->items_url, $api_key)->send()->body;
+                    }
+                }
+
                 $contents = static::apiGetAllLinks($api_key, "{$api_url}files?");
                 foreach ($contents as $c) {
                     if (substr($c->display_name, 0, 2) === '._') {
@@ -250,14 +258,10 @@ class Udoit
                         // saves modules item is in for unscannable section
                         unset($modules);
                         $modules = [];
-                        $all_modules = static::apiGet("{$api_url}modules", $api_key)->send()->body;
-                        if (is_array($all_modules) || is_object($all_modules)) {
-                            foreach ($all_modules as $m) {
-                                $items = static::apiGet($m->items_url, $api_key)->send()->body;
-                                foreach ($items as $i) {
-                                    if ($i->title == $c->display_name) {
-                                        $modules[] = $m->name;
-                                    }
+                        foreach ($all_modules as $m) {
+                            foreach ($m->items as $i) {
+                                if ($i->title == $c->display_name) {
+                                    $modules[] = $m->name;
                                 }
                             }
                         }
