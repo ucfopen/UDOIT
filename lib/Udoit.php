@@ -24,10 +24,12 @@ class Udoit
 {
     /**
      * Retrieves an entire group of content by type and scans it
-     * @param string api_key - API Key of the user were acting as
-     * @param string content_type - The group of content types we'll retrieve EX: 'pages' or 'assignments'
+     * @param string $api_key        API Key of the user were acting as
+     * @param string $canvas_api_url The base URL of the Canvas API
+     * @param string $course_id      The Canvas course id
+     * @param string $content_type   The group of content types we'll retrieve EX: 'pages' or 'assignments'
      *
-     * @return array - Results of the scan
+     * @return array Results of the scan
      */
     public static function retrieveAndScan($api_key, $canvas_api_url, $course_id, $content_type)
     {
@@ -107,9 +109,9 @@ class Udoit
 
     /**
      * Calls the Quail library to generate a UDOIT report
-     * @param  array $scanned_content - The items from whatever type of Canvas content was scanned
+     * @param  array $content_items The items from whatever type of Canvas content was scanned
      *
-     * @return array                  - The report results
+     * @return array The report results
      */
     public static function scanContent(array $content_items)
     {
@@ -172,11 +174,12 @@ class Udoit
 
     /**
      * Communicates with the Canvas API to retrieve course content
-     * @param  string $api_key - Api key for the user we're acting as
-     * @param  string $canvas_api_url - Base uri for your canvas api
-     * @param  string $type - The type of course content to be scanned
+     * @param string $api_key        Api key for the user we're acting as
+     * @param string $canvas_api_url Base uri for your canvas api
+     * @param string $course_id      The canvas course id
+     * @param string $type           The type of course content to be scanned
      *
-     * @return array        - The report results
+     * @return array The report results
      */
     public static function getCourseContent($api_key, $canvas_api_url, $course_id, $type)
     {
@@ -361,7 +364,13 @@ class Udoit
         return $content_result;
     }
 
-    // abstraction of Request::get that adds the api key to the header
+    /**
+    * An abstraction of Request::get that adds the api key to the header
+    * @param string $url The Canvas API URL
+    * @param string $key The Canvas API key
+    *
+    * @return The results of the request
+    **/
     protected static function apiGet($url, $key = null)
     {
         global $logger;
@@ -375,7 +384,13 @@ class Udoit
         return $req;
     }
 
-    // get every page from the Canvas API till there's none left
+    /**
+    * Gets every page from the Canvas API till there's none left
+    * @param string $api_key The Canvas API Key
+    * @param string $url     The Canvas API URL
+    *
+    * @return The results of the request
+    **/
     protected static function apiGetAllLinks($api_key, $url)
     {
         global $logger;
@@ -392,7 +407,7 @@ class Udoit
 
             $links = static::apiParseLinks($response->headers->toArray()['link']);
 
-            if( empty($response->body) ) {
+            if (empty($response->body)) {
                 $logger->addError("Canvas API returned empty body for {$filtered_url}");
                 break;
             }
@@ -413,9 +428,9 @@ class Udoit
 
     /**
      * Parses pagination links returned from Canvas
-     * @param  string $links - The pagination links
+     * @param  string $links The pagination links
      *
-     * @return array         - An array of the separated links
+     * @return array An array of the separated links
      */
     protected static function apiParseLinks($links)
     {
