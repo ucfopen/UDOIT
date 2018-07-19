@@ -226,7 +226,7 @@ class Udoit
                 break;
 
             case 'files':
-		// Gather all modules out here so we can attach them to files later
+                // Gather all modules out here so we can attach them to files later
                 $all_modules = static::apiGet("{$api_url}modules", $api_key)->send()->body;
                 if (is_array($all_modules) || is_object($all_modules)) {
                     foreach ($all_modules as $m) {
