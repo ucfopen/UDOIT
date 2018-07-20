@@ -257,11 +257,22 @@ class UdoitTest extends BaseTest
     public function testGetCoursContentGetsUnscannableFiles()
     {
         $header_to_array_returns = [
-            ['link' => ''], // just one page
+            ['link' => ''],
         ];
 
         $body_returns = [
-            [
+            [ // Modules list
+                (object) [
+                    'name' => "Test Module",
+                    'items_url' => "something/that/doesnt/matter",
+                ],
+            ],
+            [ // Only a single item in the module
+                (object) [
+                    'title' => "display_name_value.pdf",
+                ],
+            ],
+            [ // Only a single file
                 (object) [
                     'display_name' => "display_name_value.pdf",
                     'filename' => "filename.pdf",
@@ -274,6 +285,7 @@ class UdoitTest extends BaseTest
         ];
 
         $mock_get_result = self::mockGetRequestResult($header_to_array_returns, $body_returns);
+        
 
         // overload Httpful\Request::get() to return $mock_get
         Mockery::mock('overload:Httpful\Request')
@@ -300,7 +312,8 @@ class UdoitTest extends BaseTest
         ];
 
         $body_returns = [
-            [
+            [], // We don't care about modules, no modules means no items
+            [ // An HTML file since we aren't testing unscannable files
                 (object) [
                     'display_name' => "display_name_value.html",
                     'filename' => "filename.html",
@@ -309,7 +322,7 @@ class UdoitTest extends BaseTest
                     'html_url' => 'url_value',
                 ],
             ],
-            '<p>some html</p>',
+            '<p>some html</p>', // Getting the html contents of the file
             [],
         ];
 
@@ -711,8 +724,9 @@ class UdoitTest extends BaseTest
         ]';
 
         $body_returns = [
-            json_decode($api_body),
-            '<img src="http://url.com/image.jpg"/>',
+            [], // We don't care about Modules here
+            json_decode($api_body), // one HTML file and one unscannable file
+            '<img src="http://url.com/image.jpg"/>', // Contents of the HTML file
             [],
         ];
 
@@ -729,11 +743,10 @@ class UdoitTest extends BaseTest
 
         self::assertEquals(0, $result['total_results']['errors']);
         self::assertEquals(0, $result['total_results']['warnings']);
-        self::assertEquals(1, $result['total_results']['suggestions']);
+        self::assertEquals(1, $result['total_results']['suggestions']); // This should be its own test
 
         $res = $result['scan_results'];
 
-        self::assertCount(1, $res['unscannable']);
         self::assertArrayHasKey('unscannable', $res);
         self::assertCount(1, $res['unscannable']);
 
@@ -755,7 +768,6 @@ class UdoitTest extends BaseTest
         self::assertArrayHasKey('warning', $res['files']['items'][0]);
         self::assertArrayHasKey('suggestion', $res['files']['items'][0]);
 
-        self::assertCount(1, $res['files']['items'][0]['suggestion']);
         self::assertCount(1, $res['files']['items'][0]['suggestion']);
     }
 

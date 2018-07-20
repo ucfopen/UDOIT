@@ -202,7 +202,7 @@ class UdoitJob
                     if (!isset($error_summary[$item])) {
                         $error_summary[$item] = $data;
                     } else {
-                        $error_summary[$item][count] += $data[count];
+                        $error_summary[$item]['count'] += $data['count'];
                     }
                 }
             }
@@ -213,7 +213,7 @@ class UdoitJob
                     if (!isset($suggestion_summary[$item])) {
                         $suggestion_summary[$item] = $data;
                     } else {
-                        $suggestion_summary[$item][count] += $data[count];
+                        $suggestion_summary[$item]['count'] += $data['count'];
                     }
                 }
             }

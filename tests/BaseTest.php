@@ -76,6 +76,10 @@ class BaseTest extends PHPUnit_Framework_TestCase
      * both arguments incriment the return value on each call
      * First call returns $header_to_array_returns[0] and body_returns[0]
      * Yea, this is pretty cryptic and nested, mocking chained function calls php is gnarly
+     *
+     * @param array $header_to_array_returns Headers that should be returned with the request(s)
+     * @param array $body_returns            Bodies that should be returned with the requests(s)
+     *
      * @return Object Mock Get Object created by Request::get()
      */
     protected static function mockGetRequestResult(array $header_to_array_returns, array $body_returns)
