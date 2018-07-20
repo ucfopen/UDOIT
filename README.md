@@ -51,13 +51,9 @@ To start the Heroku deployment process, you can click the button below, please n
 
 ## System Requirements
 * Apache or Nginx webserver
-* PHP 5.4, 5.5, 5.6, 7.0, 7.1 (some users have modified the code to work on 5.3)
+* PHP 5.6, 7.0, 7.1, 7.2
   * [GD Graphics Library](http://php.net/manual/en/book.image.php)
 * MySQL or PostgreSQL
-
-If you're using PHP 5.3:
-
-* Convert all empty array initializations from using the newer `[]` syntax to use the older `array()` syntax.
 
 ## Downloading the Source Code
 There are two methods of obtaining the source code and maintaining your installation of UDOIT:  Git Clone or Download ZIP.
