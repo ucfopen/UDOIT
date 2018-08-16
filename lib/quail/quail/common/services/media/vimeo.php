@@ -14,7 +14,10 @@ class vimeoService extends mediaService
 	/**
 	*	@var array An array of regular expressions to extract the Vimeo item code
 	*/
-	var $regex = array('@vimeo\.com/video/([^"\&\? ]+)@i');
+	var $regex = array(
+		'@vimeo\.com/video/([^"\&\? ]+)@i', 
+		'@vimeo\.com/([^"\&\? ]+)@i',
+		);
 
 	/**
 	*	@var string The service point to request caption data from Vimeo
