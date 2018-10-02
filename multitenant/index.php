@@ -56,7 +56,7 @@ $rows = multitenant_get_institutes();
         </div>
         <div class="row">
             <div class="col-sm-8">
-                <h2>Institutes</h2>
+                <h2>Canvas Accounts</h2>
                 <table class="table institute-table">
                     <thead class="thead">
                         <tr>
@@ -69,7 +69,10 @@ $rows = multitenant_get_institutes();
                     <tbody>
                         <?php foreach ($rows as $i => $row) : ?>
                         <tr class="row<?php print $i ?>">
-                            <th scope="row"><?php print $row->domain ?></th>
+                            <th scope="row">
+                                <a href="#"><i class="fa fa-eye"></i></a>
+                                <?php print $row->domain ?>
+                            </th>
                             <td><span class="pass d-none"><?php print $row->consumer_key ?></span>
                                 <span class="pass-stars">* * * *</span></td>
                             <td><span class="pass d-none"><?php print $row->shared_secret ?></span>
@@ -77,6 +80,10 @@ $rows = multitenant_get_institutes();
                             <td class="text-right"><a href="index.php?action=delete&domain=<?php print $row->domain ?>"><i class="fa fa-times"></i></a></td>
                         </tr>
                         <?php endforeach; ?>
+
+                        <?php if (empty($rows)) : ?>
+                            <tr class="row0"><td colspan="99"><em>No institutes have been added. Use the <strong>Add a New Account</strong> form to add Canvas accounts.</em></td></tr>
+                        <?php endif; ?>
                     </tbody>
                 </table>
             </div>
@@ -111,9 +118,10 @@ $rows = multitenant_get_institutes();
 
 <script>
     (function ($) {
-        $('.institute-table tr').click(function(e) {
-            $('.pass', this).toggleClass('d-none');
-            $('.pass-stars', this).toggleClass('d-none');
+        $('.institute-table tr a .fa-eye').click(function(e) {
+            var row = $(this).closest('tr');
+            $('.pass', row).toggleClass('d-none');
+            $('.pass-stars', row).toggleClass('d-none');
         });
     })(jQuery);
 </script>
