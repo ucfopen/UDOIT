@@ -1,20 +1,14 @@
 <?php
 
 /*
- * localConfig is used by an institute to connect a single Canvas account to a single UDOIT instance.
+ * Multi-tenant localConfig is used by organizations that want to connect multiple Canvas instances to a single UDOIT.
  *
- * To use multi-tenant (multiple Canvas accounts to a single UDOIT instance) use localConfig.multitenant.template.php.
+ * To use multi-tenant you will need to request a global developer key from Instructure.
  */
 
 /*********************
  * REQUIRED SETTINGS
  *********************/
-
-/*
- * LTI App Oauth 1.0 Settings (For use when installing the app in Canvas)
- */
-$consumer_key  = NULL;
-$shared_secret = NULL;
 
 /*
  * Canvas Developer Key Oauth 2.0 Settings
@@ -66,6 +60,12 @@ $UDOIT_ENV = ENV_DEV; // default
  * These are all set to a standard default that should not need to be changed in most cases.
  *
  *********************/
+
+/*
+ * The consumer key and shared secret will need to be generated per institute for multi-tenant instances.
+ */
+$consumer_key  = NULL;
+$shared_secret = NULL;
 
 /* Disable headings check character count */
 $doc_length = '1500';

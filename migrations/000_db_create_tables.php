@@ -1,7 +1,10 @@
 <?php
 
 global $db_type;
+global $consumer_key;
+global $shared_secret;
 
+$use_multitenant = ($consumer_key === NULL && $shared_secret === NULL);
 
 if ('sqlite' === $db_type || 'test' === $db_type) {
     // SQLITE (mostly for testing)
@@ -26,6 +29,18 @@ if ('sqlite' === $db_type || 'test' === $db_type) {
             );
         ',
     ];
+
+    if ($use_multitenant) {
+        $tables[] = '
+            CREATE TABLE IF NOT EXISTS institutes (
+                domain varchar(255),
+                consumer_key varchar(255),
+                shared_secret varchar(255),
+                date_created timestamp with time zone DEFAULT CURRENT_TIMESTAMP
+            );
+        ';
+    }
+
 }
 
 if ('pgsql' === $db_type) {
@@ -52,6 +67,17 @@ if ('pgsql' === $db_type) {
             );
         ',
     ];
+
+    if ($use_multitenant) {
+        $tables[] = '
+            CREATE TABLE IF NOT EXISTS institutes (
+                domain varchar(255),
+                consumer_key varchar(255),
+                shared_secret varchar(255),
+                date_created timestamp with time zone DEFAULT CURRENT_TIMESTAMP
+            );
+        ';
+    }
 }
 
 if ('mysql' === $db_type) {
@@ -81,6 +107,19 @@ if ('mysql' === $db_type) {
             ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
         ',
     ];
+
+    if ($use_multitenant) {
+        $tables[] = '
+            CREATE TABLE IF NOT EXISTS institutes (
+                `domain` varchar(255) NOT NULL,
+                `consumer_key` varchar(255) NOT NULL,
+                `shared_secret` varchar(255) NOT NULL,
+                `date_created` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                PRIMARY KEY (`domain`),
+                UNIQUE KEY `domain` (`domain`)
+            ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+        ';
+    }
 }
 
 //  run every query
