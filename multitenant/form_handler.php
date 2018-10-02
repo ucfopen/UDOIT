@@ -3,6 +3,21 @@
 require_once('../config/settings.php');
 session_start();
 
+/**
+ * Verify that .htaccess and .htpasswd files exist. Very basic security check, but it offers a reminder to the end user.
+ */
+function multitenant_check_security() {
+    $secure = FALSE;
+
+    if (file_exists('.htaccess')) {
+        if (file_exists('.htpasswd')) {
+            $secure = TRUE;
+        }
+    }
+
+    return $secure;
+}
+
 function multitenant_handle_request() {
     $get_vars = filter_input_array(INPUT_GET, FILTER_SANITIZE_STRING);
     $action = isset($get_vars['action']) ? $get_vars['action'] : NULL;

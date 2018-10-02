@@ -8,6 +8,8 @@
 
 require_once('form_handler.php');
 
+$page_secure = multitenant_check_security();
+
 if (!empty($_GET)) {
     multitenant_handle_request();
 }
@@ -32,6 +34,15 @@ $rows = multitenant_get_institutes();
                     <?php print multitenant_print_messages(); ?>
                 </div>
             </div>
+        <?php endif; ?>
+
+        <?php if (!$page_secure) : ?>
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="alert alert-danger">Your admin page is not secured. Please follow the README in the
+                    <em>/multitenant</em> directory to set up basic authentication for this page.</div>
+            </div>
+        </div>
         <?php endif; ?>
 
         <div class="row">
