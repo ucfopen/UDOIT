@@ -274,8 +274,9 @@ class UdoitUtils
         return $ordered_report_groups;
     }
 
-    public function checkMultitenant($domain) {
-        $result = UdoitDB::query('SELECT * FROM institutes WHERE domain = "' . $domain . '"')->fetchObject();
+    public function checkMultitenant($domain)
+    {
+        $result = UdoitDB::query('SELECT * FROM institutes WHERE domain = "'.$domain.'"')->fetchObject();
         if (!empty($result)) {
             self::$canvas_consumer_key = $result->consumer_key;
             self::$canvas_secret_key = $result->shared_secret;

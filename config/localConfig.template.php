@@ -13,8 +13,8 @@
 /*
  * LTI App Oauth 1.0 Settings (For use when installing the app in Canvas)
  */
-$consumer_key  = NULL;
-$shared_secret = NULL;
+$consumer_key  = null;
+$shared_secret = null;
 
 /*
  * Canvas Developer Key Oauth 2.0 Settings

@@ -64,8 +64,8 @@ $UDOIT_ENV = ENV_DEV; // default
 /*
  * The consumer key and shared secret will need to be generated per institute for multi-tenant instances.
  */
-$consumer_key  = NULL;
-$shared_secret = NULL;
+$consumer_key  = null;
+$shared_secret = null;
 
 /* Disable headings check character count */
 $doc_length = '1500';

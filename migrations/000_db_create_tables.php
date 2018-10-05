@@ -4,7 +4,7 @@ global $db_type;
 global $consumer_key;
 global $shared_secret;
 
-$use_multitenant = ($consumer_key === NULL && $shared_secret === NULL);
+$use_multitenant = ($consumer_key === null && $shared_secret === null);
 
 if ('sqlite' === $db_type || 'test' === $db_type) {
     // SQLITE (mostly for testing)
@@ -40,7 +40,6 @@ if ('sqlite' === $db_type || 'test' === $db_type) {
             );
         ';
     }
-
 }
 
 if ('pgsql' === $db_type) {

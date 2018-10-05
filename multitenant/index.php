@@ -28,7 +28,7 @@ $rows = multitenant_get_institutes();
 </head>
 <body>
     <div class="main-container container">
-        <?php if (!empty($_SESSION['messages'])): ?>
+        <?php if (!empty($_SESSION['messages'])) : ?>
             <div class="row">
                 <div class="col-sm-12">
                     <?php print multitenant_print_messages(); ?>

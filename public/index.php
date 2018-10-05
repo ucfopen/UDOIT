@@ -34,7 +34,7 @@ foreach ($expect as $key) {
 }
 
 // Get LTI consumer key and secret from DB if instance is multitenant.
-if ($consumer_key === NULL && $shared_secret === NULL) {
+if (null === $consumer_key && null === $shared_secret) {
     UdoitUtils::instance()->checkMultitenant($post_input['custom_canvas_api_domain']);
 }
 
