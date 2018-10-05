@@ -60,7 +60,7 @@ function multitenant_institute_insert($domain)
         $data = [
             'domain' => $domain,
             'consumer_key' => multitenant_generate_consumer_key($domain),
-            'shared_secret' => multitenante_generate_shared_secret($domain),
+            'shared_secret' => multitenant_generate_shared_secret($domain),
         ];
 
         UdoitDB::prepare('INSERT INTO institutes (domain, consumer_key, shared_secret, date_created) VALUES (:domain, :consumer_key, :shared_secret, now())')
@@ -75,7 +75,7 @@ function multitenant_generate_consumer_key($domain)
     return 'udoit.'.str_replace(['.instructure.com', '.instructure.edu'], '', $domain);
 }
 
-function multitenante_generate_shared_secret($domain)
+function multitenant_generate_shared_secret($domain)
 {
     return uniqid('udoit');
 }
