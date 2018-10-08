@@ -17,6 +17,9 @@ $statusCheck['index'] = false;
 $statusCheck['xml'] = false;
 $statusCheck['dev_key'] = false;
 
+$index = \Httpful\Request::get($server_link / "/index.php")->send();
+print_r($index);
+
 //index
 try {
 	//$index = Requests::get($server_link . "/index.php", array(), $options);
