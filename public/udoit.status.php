@@ -1,56 +1,89 @@
 <?php
+/**
+*	Copyright (C) 2014 University of Central Florida, created by Jacob Bates, Eric Colon, Fenel Joseph, and Emily Sachs.
+*
+*	This program is free software: you can redistribute it and/or modify
+*	it under the terms of the GNU General Public License as published by
+*	the Free Software Foundation, either version 3 of the License, or
+*	(at your option) any later version.
+*
+*	This program is distributed in the hope that it will be useful,
+*	but WITHOUT ANY WARRANTY; without even the implied warranty of
+*	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+*	GNU General Public License for more details.
+*
+*	You should have received a copy of the GNU General Public License
+*	along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*
+*	Primary Author Contact:  Jacob Bates <jacob.bates@ucf.edu>
+*/
+
 header('Content-Type: application/json');
 
 require_once('../config/settings.php');
 use Httpful\Request;
 
-
-$options = ['verify' => false];
-
+// lti server
 $server_link = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https:" : "http:") . '//'.$_SERVER['HTTP_HOST'].dirname($_SERVER['PHP_SELF']);
+
+//canvas url
+$sth = UdoitDB::prepare("SELECT canvas_url from users limit 1;");
+$sth->execute();
+$url = $sth->fetch();
+$canvas_url = $url[0];
 
 $status['tool'] = "UDOIT";
 $status['url'] = $server_link;
-$status['base_url'] = $api_uri;
+$status['base_url'] = $canvas_url;
 
 $statusCheck['index'] = false;
 $statusCheck['xml'] = false;
 $statusCheck['dev_key'] = false;
+$statusCheck['db'] = false;
 
-$index = \Httpful\Request::get($server_link / "/index.php")->send();
-print_r($index);
+
 
 //index
 try {
-	//$index = Requests::get($server_link . "/index.php", array(), $options);
-	$index = \Httpful\Request::get($server_link / "/index.php")->send();
-	print_r($index);
-	// if (strpos($index->body, 'Zapt') !== false) {
- //    		$statusCheck['index'] = true;
-	// }
+	$index = \Httpful\Request::get($server_link . "/index.php")->send();
+	if (strpos($index->body, 'Missing LTI launch information') !== false) {
+		$statusCheck['index'] = true;
+	}
 } catch (Exception $e) {
 	error_log("Index check failed");
 }
 
 //xml
 try {
-	$xml = Requests::get($server_link . "/zapt.xml.php", array(), $options);
-	if (strpos($xml->body, 'Zapt DOCX/HTML Import') !== false) {
+
+	$xml = Httpful\Request::get($server_link . "/udoit.xml.php")->send();
+	if (strpos($xml->body, 'UDOIT') !== false) {
     		$statusCheck['xml'] = true;
 	}
 } catch (Exception $e) {
 	error_log("XML check failed");
 }
 
-//API KEY
+
+//check db connection
 try {
-	$url = $api_uri . '/api/v1/users/self/?access_token=' . $api_key;
-	$api = Requests::get($url, array(), $options);
-	if ( ($api->success) && (strpos($api->body, 'Invalid access token.') !== true) ) {
-    		$statusCheck['api_key'] = true;
-	}
+	$udb = UdoitDB::prepare("SELECT 1")->execute();
+	if ( $udb )  {
+                $statusCheck['db'] = true;
+        }
 } catch (Exception $e) {
-	error_log("API Key check failed");
+	error_log("Database connection check failed");
+}
+
+//check dev key
+try {
+	$dev_key_url = $canvas_url . "/login/oauth2/auth?client_id=" . $oauth2_id . "&response_type=code&redirect_uri=" . $oauth2_uri;
+ 	$dev = Httpful\Request::get($dev_key_url)->send();
+    if ($dev->status == 200) {
+            $statusCheck['dev_key'] = true;
+        }
+} catch (Exception $e) {
+	error_log("Dev Key check failed");
 }
 
 //Return false if false is anywhere in the health checks. True argument is strict typing
@@ -58,6 +91,7 @@ $status['healthy'] = !in_array(false, $statusCheck, true);
 
 
 $status['checks'] = $statusCheck;
+
 
 $statusJSON = json_encode($status);
 echo $statusJSON;
