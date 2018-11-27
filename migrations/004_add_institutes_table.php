@@ -1,8 +1,6 @@
 <?php
 
 global $db_type;
-global $consumer_key;
-global $shared_secret;
 
 if ('sqlite' === $db_type || 'test' === $db_type) {
     // SQLITE (mostly for testing)
