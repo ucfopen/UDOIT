@@ -279,8 +279,9 @@ class UdoitUtils
         global $db_institutes_table;
         
         $sth = UdoitDB::prepare("SELECT * FROM {$db_institutes_table} WHERE domain = :domain");
-        $sth->bindValue(':domain', $domain);
-        $result = $sth->execute()->fetchObject();
+        $sth->bindValue(':domain', $domain, PDO::PARAM_STR);
+        $sth->execute();
+        $result = $sth->fetchObject();
 
         if (!empty($result)) {
             self::$canvas_consumer_key = $result->consumer_key;
