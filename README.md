@@ -157,8 +157,7 @@ After you receive your Developer Key from your Canvas admin, edit the following 
 
 ### Multitenant UDOIT
 A single instance of UDOIT can be configured to work with multiple Canvas accounts. We call this multitenancy.
-To set up multitenancy follow the steps above, with the few exceptions outlined in [multitenant/README.md]
-
+To set up multitenancy follow the steps above, but use the config template file `localConfig.multitenant.template.php`.
 
 
 ### Google/YouTube API Key

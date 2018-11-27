@@ -17,6 +17,3 @@ config/log.log
 docker/nginx.conf
 docker/nginx.crt
 docker/nginx.key
-
-multitenant/.htaccess
-multitenant/.htpasswd
