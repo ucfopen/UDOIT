@@ -276,7 +276,12 @@ class UdoitUtils
 
     public function checkMultitenant($domain)
     {
-        $result = UdoitDB::query('SELECT * FROM institutes WHERE domain = "'.$domain.'"')->fetchObject();
+        global $db_institutes_table;
+        
+        $sth = UdoitDB::prepare("SELECT * FROM {$db_institutes_table} WHERE domain = :domain");
+        $sth->bindValue(':domain', $domain);
+        $result = $sth->execute()->fetchObject();
+
         if (!empty($result)) {
             self::$canvas_consumer_key = $result->consumer_key;
             self::$canvas_secret_key = $result->shared_secret;
