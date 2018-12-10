@@ -14,7 +14,7 @@ class vimeoService extends mediaService
 	/**
 	*	@var string A regular expression to extract the Vimeo item code
 	*/
-	var $regex = '@vimeo\.com/.*([0-9]{9})@i';
+	var $regex = '@vimeo\.com/[^0-9]*([0-9]{8,9})@i';
 
 	/**
 	*	@var string The service point to request caption data from Vimeo
@@ -56,11 +56,8 @@ class vimeoService extends mediaService
 	private function isVimeoVideo($link_url)
 	{
 		$matches = null;
-		error_log("Verifying link {$link_url} is a valid video...");
 		if(preg_match($this->regex, trim($link_url), $matches)) {
-			error_log('Matched regex!');
 			$response = Request::head($link_url)->send();
-			error_log("Response code is ".(string)$response->code);
 			if($response->code === 200) {
 				return $matches[1];
 			}
