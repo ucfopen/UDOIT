@@ -69,7 +69,7 @@
 										<a class="closeError btn" href="#closeError" data-error="<?= $li_id; ?>">Close Issue Source</a>
 										<div class="error-preview">
 											<?php if ($group_item->type == "videosEmbeddedOrLinkedNeedCaptions"): ?>
-												<?= $group_item ?>
+												<?= serialize($group_item) ?>
 												<?php else: ?>
 													<?php if ($group_item->type == "cssTextHasContrast" && !isset($group_item->back_color)): ?>
 														<div class="ufixit-no-background-color">
