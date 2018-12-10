@@ -24,7 +24,7 @@ class vimeoService extends mediaService
 	/**
 	*	Checks to see if a video is missing caption information in Vimeo
 	*	@param string $link_url The URL to the video or video resource
-	*	@return bool TRUE if captions are missing, FALSE if captions exists
+	*	@return bool TRUE if captions are missing, FALSE if captions exists or not a video
 	*/
 	function captionsMissing($link_url)
 	{
