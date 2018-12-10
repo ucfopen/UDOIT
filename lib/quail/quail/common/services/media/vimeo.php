@@ -60,7 +60,7 @@ class vimeoService extends mediaService
 		if(preg_match($this->regex, trim($link_url), $matches)) {
 			error_log('Matched regex!');
 			$respose = Request::head($link_url)->send();
-			error_log("Response code is {$response->code}");
+			error_log("Response code is ".(string)$response->code;
 			if($response->code === 200) {
 				return $matches[1];
 			}
