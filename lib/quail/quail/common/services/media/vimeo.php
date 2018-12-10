@@ -12,12 +12,9 @@ use Httpful\Request;
 class vimeoService extends mediaService
 {
 	/**
-	*	@var array An array of regular expressions to extract the Vimeo item code
+	*	@var string A regular expression to extract the Vimeo item code
 	*/
-	var $regex = array(
-		'@vimeo\.com/video/([^"\&\? ]+)@i', 
-		'@vimeo\.com/([^"\&\? ]+)@i',
-		);
+	var $regex = '@vimeo\.com/.*([0-9]{9})@i';
 
 	/**
 	*	@var string The service point to request caption data from Vimeo
@@ -43,6 +40,8 @@ class vimeoService extends mediaService
 					return false;
 				}
 			}
+		} else {
+			return false;
 		}
 
 		return true;
@@ -57,8 +56,9 @@ class vimeoService extends mediaService
 	private function isVimeoVideo($link_url)
 	{
 		$matches = null;
-		foreach($this->regex as $pattern) {
-			if(preg_match($pattern, trim($link_url), $matches)) {
+		if(preg_match(regex, trim($link_url), $matches)) {
+			$respose = Request::head($link_url)->send();
+			if($response->code === 200) {
 				return $matches[1];
 			}
 		}
