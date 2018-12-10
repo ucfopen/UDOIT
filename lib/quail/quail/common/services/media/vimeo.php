@@ -57,7 +57,7 @@ class vimeoService extends mediaService
 	{
 		$matches = null;
 		error_log("Verifying link {$link_url} is a valid video...");
-		if(preg_match($regex, trim($link_url), $matches)) {
+		if(preg_match($this->regex, trim($link_url), $matches)) {
 			error_log('Matched regex!');
 			$respose = Request::head($link_url)->send();
 			error_log("Response code is {$response}");
