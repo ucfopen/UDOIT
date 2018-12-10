@@ -28,8 +28,7 @@ class vimeoService extends mediaService
 	*/
 	function captionsMissing($link_url)
 	{
-		return false;
-		/*$url = $this->search_url;
+		$url = $this->search_url;
 		$api_key = constant( 'VIMEO_API_KEY' );
 
 		if( $vimeo_id = $this->isVimeoVideo($link_url) ) {
@@ -45,7 +44,7 @@ class vimeoService extends mediaService
 			return false;
 		}
 
-		return true;*/
+		return true;
 	}
 
 	/**
