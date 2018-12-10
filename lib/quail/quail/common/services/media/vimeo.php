@@ -14,7 +14,7 @@ class vimeoService extends mediaService
 	/**
 	*	@var string A regular expression to extract the Vimeo item code
 	*/
-	var $regex = '@vimeo\.com/[^0-9]*([0-9]{8,9})@i';
+	var $regex = '@vimeo\.com/[^0-9]*([0-9]{7,9})@i';
 
 	/**
 	*	@var string The service point to request caption data from Vimeo
@@ -24,7 +24,7 @@ class vimeoService extends mediaService
 	/**
 	*	Checks to see if a video is missing caption information in Vimeo
 	*	@param string $link_url The URL to the video or video resource
-	*	@return bool TRUE if captions are missing, FALSE if captions exists or not a video
+	*   @return int 0 if captions are missing, 1 if video is private, 2 if captions exist or not a video
 	*/
 	function captionsMissing($link_url)
 	{
@@ -35,16 +35,14 @@ class vimeoService extends mediaService
 			$url = $url.$vimeo_id.'/texttracks';
 			$response = Request::get($url)->addHeader('Authorization', "Bearer $api_key")->send();
 
-			if ( isset($response->body->total) ) {
-				if ($response->body->total > 0) {
-					return false;
-				}
+			if($response->code === 400) {
+				return 1;
+			} else if($response->code === 200 && $response->body->total === 0) {
+				return 0;
 			}
-		} else {
-			return false;
 		}
 
-		return true;
+		return 2;
 	}
 
 	/**
@@ -57,10 +55,11 @@ class vimeoService extends mediaService
 	{
 		$matches = null;
 		if(preg_match($this->regex, trim($link_url), $matches)) {
-			$response = Request::head($link_url)->send();
+			/*$response = Request::head($link_url)->send();
 			if($response->code === 200) {
 				return $matches[1];
-			}
+			}*/
+			return $matches[1];
 		}
 		return false;
 	}

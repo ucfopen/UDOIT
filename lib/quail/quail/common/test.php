@@ -68,7 +68,7 @@ class quailTest {
 	var $lang = 'en';
 
 	/**
-	*	@var array Services this test will be using. Services are loaded and then 
+	*	@var array Services this test will be using. Services are loaded and then
 	*			   a class is built to replace the service name in this array.
 	*/
 	var $services = array();
@@ -138,13 +138,15 @@ class quailTest {
 	*	@param object $element The DOMElement object that pertains to this report
 	*	@param string $message An additional message to add to the report
 	*	@param bool $pass Whether or not this report passed
+	*   @param object $state Extra information about the error state
 	*/
-	function addReport($element = null, $message = null, $pass = null)
+	function addReport($element = null, $message = null, $pass = null, $state = null)
 	{
 		$report          = new quailReportItem();
 		$report->element = $element;
 		$report->message = $message;
 		$report->pass    = $pass;
+		$report->state   = $state;
 		$report->line    = $report->getLine();
 		$this->report[]  = $report;
 	}
@@ -383,7 +385,7 @@ class quailTest {
 			}
 		}
 		else {
-			if(trim($element->nodeValue) != '' || 
+			if(trim($element->nodeValue) != '' ||
 				($element->hasAttribute('alt') && trim($element->getAttribute('alt')) != '')) {
 					return true;
 			}
@@ -554,8 +556,8 @@ class inputHasLabel extends quailTest {
 				$labels[$label->getAttribute('for')] = $label;
 			else {
 				foreach($label->childNodes as $child) {
-					if(property_exists($child, 'tagName') && 
-					   $child->tagName == $this->tag && 
+					if(property_exists($child, 'tagName') &&
+					   $child->tagName == $this->tag &&
 					   ($child->getAttribute('type') == $this->type || $this->no_type)) {
 							$input_in_label[$child->getAttribute('name')] = $child;
 					}
@@ -603,7 +605,7 @@ class inputTabIndex extends quailTest {
 		foreach($this->getAllElements($this->tag) as $element) {
 			if(($element->getAttribute('type') == $this->type)
 					&& (!($element->hasAttribute('tabindex'))
-						 || !is_numeric($element->getAttribute('tabindex')))) 
+						 || !is_numeric($element->getAttribute('tabindex'))))
 				$this->addReport($element);
 		}
 	}
