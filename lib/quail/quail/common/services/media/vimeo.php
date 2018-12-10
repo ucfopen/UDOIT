@@ -56,11 +56,11 @@ class vimeoService extends mediaService
 	private function isVimeoVideo($link_url)
 	{
 		$matches = null;
-		$logger->addInfo("Verifying link {$link_url} is a valid video...");
+		error_log("Verifying link {$link_url} is a valid video...");
 		if(preg_match($regex, trim($link_url), $matches)) {
-			$logger->addInfo('Matched regex!');
+			error_log('Matched regex!');
 			$respose = Request::head($link_url)->send();
-			$logger->addInfo("Response code is {$response}");
+			error_log("Response code is {$response}");
 			if($response->code === 200) {
 				return $matches[1];
 			}
