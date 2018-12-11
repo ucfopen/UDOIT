@@ -6406,7 +6406,7 @@ class videosEmbeddedOrLinkedNeedCaptions extends quailTest
 				if (isset($service)) {
 					$captionState = $this->services[$service]->captionsMissing($attr_val);
 					if($captionState != 2) {
-						$this->addReport($video, null, null, $captionState);
+						$this->addReport($video, null, null, $captionState, ($captionState == 1));
 					}
 				}
 			}
