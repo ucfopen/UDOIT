@@ -131,7 +131,7 @@ class UdoitJob
             $sql .= ' RETURNING id';
         }
 
-        error_log("Adding to db in finalizeReport report ".serialize($report));
+        //error_log("Adding to db in finalizeReport report ".serialize($report));
 
         $sth = UdoitDB::prepare($sql);
         $sth->bindValue(':user_id', $report['user_id'], PDO::PARAM_INT);

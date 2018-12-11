@@ -149,6 +149,7 @@ class quailTest {
 		$report->state   = $state;
 		$report->line    = $report->getLine();
 		$this->report[]  = $report;
+		error_log("addReport produced ".serialize($report));
 	}
 
 	/**

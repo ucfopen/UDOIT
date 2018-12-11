@@ -127,7 +127,7 @@ class Udoit
             $quail  = new quail($item['content'], 'wcag2aaa', 'string', 'static');
             $quail->runCheck();
             $quail_report = $quail->getReport();
-            error_log("initial quail report set as ".serialize($quail_report));
+            //error_log("initial quail report set as ".serialize($quail_report));
 
             $issue_count = 0;
             $errors      = [];
@@ -143,7 +143,7 @@ class Udoit
 
                 $issue_count++;
                 $state = $quail_issue['state'];
-                error_log("state in the issue is set as ".serialize($state));
+                //error_log("state in the issue is set as ".serialize($state));
 
                 switch ((int) $quail_issue['severity_num']) {
                     case 1:
@@ -170,7 +170,7 @@ class Udoit
                 'suggestion' => $suggestions,
             ];
 
-            error_log("Quail report made in scanContent with summary ".serialize($quail_summary));
+            //error_log("Quail report made in scanContent with summary ".serialize($quail_summary));
 
             $report[] = $quail_summary;
         }
