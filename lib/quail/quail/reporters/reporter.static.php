@@ -68,7 +68,6 @@ class reportStatic extends quailReporter
 			if (is_array($test)) {
 				foreach ($test as $k => $problem) {
 					$testResult           = [];
-					error_log("in reporter.static, problem info is ".serialize($problem));
 					if (is_object($problem)) {
 						$testResult['text_type']	= $problem->message;
 						if ($testname === "cssTextHasContrast" || $testname === "cssTextStyleEmphasize") {
@@ -108,8 +107,10 @@ class reportStatic extends quailReporter
 						$testResult['description']  = $description;
 						$testResult['path']         = count($this->path) > 1 ? $this->path[1] : "None";
 						$testResult['html']	        = $problem->getHtml();
+						$testResult['state']        = $problem['state'];
 					}
 
+					error_log("Adding test result ".serialize($testResult));
 					$output[] = $testResult;
 				}
 			}
