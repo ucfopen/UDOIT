@@ -68,21 +68,21 @@ class reportStatic extends quailReporter
 			if (is_array($test)) {
 				foreach ($test as $k => $problem) {
 					$testResult           = [];
-
+					error_log("in reporter.static, problem info is ".serialize($problem))
 					if (is_object($problem)) {
 						$testResult['text_type']	= $problem->message;
 						if ($testname === "cssTextHasContrast" || $testname === "cssTextStyleEmphasize") {
 							$styleValue = $problem->message;
-						
+
 							$hexColors  = [];
 							$styleMatches = [];
 							$weightMatches = [];
-							
+
 							preg_match_all("/(#[0-9a-f]{6}|#[0-9a-f]{3})/", $styleValue, $hexColors);
 							preg_match("/font-style:\s([a-z]*);/", $styleValue, $styleMatches);
 							preg_match("/font-weight:\s([a-z]*);/", $styleValue, $weightMatches);
 							$hexColors = array_unique($hexColors[0]);
-								
+
 							$testResult['colors'] = $hexColors;
 							$testResult['back_color'] = $hexColors[0];
 							$testResult['fore_color'] = $hexColors[1];
@@ -92,7 +92,7 @@ class reportStatic extends quailReporter
 								$testResult['font-weight'] = "bold";
 							}
 							$testResult['text_type']	= preg_replace('/(?=:).+/', '', $problem->message);
-							
+
 						}
 
 						$testResult['type']   	= $testname;
