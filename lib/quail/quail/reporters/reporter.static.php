@@ -112,7 +112,7 @@ class reportStatic extends quailReporter
 								break;
 
 							default:
-							error_log("testname is ".serialize($testname));
+								error_log("testname is ".serialize($testname));
 								$testResult['description']  = $description;
 								break;
 						}
