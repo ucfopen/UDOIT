@@ -66,6 +66,7 @@ class reportStatic extends quailReporter
 			}
 
 			if (is_array($test)) {
+				$test_count = 0;
 				foreach ($test as $k => $problem) {
 					$testResult           = [];
 					if (is_object($problem)) {
@@ -104,15 +105,15 @@ class reportStatic extends quailReporter
 						//Edit description for certain cases
 						switch($testname) {
 							case 'videosEmbeddedOrLinkedNeedCaptions':
-								if($problem->manual == true) {
-									$testResult['description']  = $description.'check for stuff';
+								if($problem->manual == true || $test_count > 0) {
+									if($problem->manual == true) $test_count++;
+									$testResult['description']  = $description.$test_count.' items require manual verification because UDOIT was unable to detect captions. This is most likely due to the video being unlisted, private, or deleted.';
 								} else {
-									$testResult['description']  = $description.'nothing to check for';
+									$testResult['description']  = $description;
 								}
 								break;
 
 							default:
-								error_log("testname is ".serialize($testname));
 								$testResult['description']  = $description;
 								break;
 						}

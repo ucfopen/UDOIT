@@ -34,7 +34,7 @@
 			}
 		?>
 		<?php foreach ($tmp_types as $type => $type_group): ?>
-			<?php $heading_data = $type_group[0]; ?>
+			<?php $heading_data = end($type_group); ?>
 			<?php $collapse_id = "collapse-{$id}-{$type}"; ?>
 			<li class="list-group-item">
 
@@ -45,7 +45,7 @@
 					</h5>
 				</div>
 				<?php if (isset($heading_data->description)): ?>
-					<div class="error-desc"><p><?= serialize($type_group); ?></p></div>
+					<div class="error-desc"><p><?= $heading_data->description; ?></p></div>
 				<?php endif; ?>
 				<!-- End Error group header -->
 
