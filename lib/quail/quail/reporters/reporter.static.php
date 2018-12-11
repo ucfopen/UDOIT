@@ -102,8 +102,8 @@ class reportStatic extends quailReporter
 						}
 
 						//Set description for certain cases
-						/*switch($problem->type) {
-							case '':
+						switch($problem->type) {
+							case 'videosEmbeddedOrLinkedNeedCaptions':
 								if($problem->manual == true) {
 									$testResult['description']  = $description.'check for stuff';
 								} else {
@@ -112,9 +112,11 @@ class reportStatic extends quailReporter
 								break;
 
 							default:
+							error_log("Type was ".$problem->type);
 								$testResult['description']  = $description;
-						}*/
-						$testResult['description']  = $description;
+								break;
+						}
+						//$testResult['description']  = $description;
 
 						$testResult['severity']     = $severityLevel;
 						$testResult['severity_num'] = $severityNumber;
