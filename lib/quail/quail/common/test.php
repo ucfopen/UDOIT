@@ -139,14 +139,16 @@ class quailTest {
 	*	@param string $message An additional message to add to the report
 	*	@param bool $pass Whether or not this report passed
 	*   @param object $state Extra information about the error state
+	*   @param bool $manual Whether the report needs a manual check
 	*/
-	function addReport($element = null, $message = null, $pass = null, $state = null)
+	function addReport($element = null, $message = null, $pass = null, $state = null, $manual = null)
 	{
 		$report          = new quailReportItem();
 		$report->element = $element;
 		$report->message = $message;
 		$report->pass    = $pass;
 		$report->state   = $state;
+		$report->manual  = $manual;
 		$report->line    = $report->getLine();
 		$this->report[]  = $report;
 	}
