@@ -713,11 +713,11 @@ ul.color-picker {
 }
 .btn-success.active, .btn-success.focus,
 .btn-success:active, .btn-success:focus,
-.btn-success:hover, .open>.dropdown-toggle.btn-success, 
-.btn-success.disabled, .btn-success[disabled], 
-.btn-success.disabled:hover, .btn-success[disabled]:hover, 
-.btn-success.disabled:focus, .btn-success[disabled]:focus, 
-.btn-success.disabled:active, .btn-success[disabled]:active, 
+.btn-success:hover, .open>.dropdown-toggle.btn-success,
+.btn-success.disabled, .btn-success[disabled],
+.btn-success.disabled:hover, .btn-success[disabled]:hover,
+.btn-success.disabled:focus, .btn-success[disabled]:focus,
+.btn-success.disabled:active, .btn-success[disabled]:active,
 .btn-success.disabled.active, .btn-success[disabled].active {
 	background-color: #006800;
 }
@@ -754,4 +754,8 @@ p.fix-success { margin-left: 0; }
 	right: 10px;
 	top: 7px;
 	z-index: 9999;
+}
+
+.manual-notification {
+	display: inline;
 }

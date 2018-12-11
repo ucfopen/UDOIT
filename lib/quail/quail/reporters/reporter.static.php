@@ -107,7 +107,7 @@ class reportStatic extends quailReporter
 							case 'videosEmbeddedOrLinkedNeedCaptions':
 								if($problem->manual == true || $test_count > 0) {
 									if($problem->manual == true) $test_count++;
-									$testResult['description']  = $description."⚠ ".$test_count.' items require manual verification because UDOIT was unable to detect captions. This is most likely due to the video being unlisted, private, or deleted.';
+									$testResult['description']  = $description."<p>⚠ ".$test_count.' items require manual verification because UDOIT was unable to detect captions. This is most likely due to the video being unlisted, private, or deleted.</p>';
 								} else {
 									$testResult['description']  = $description;
 								}

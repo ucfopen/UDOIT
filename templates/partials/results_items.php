@@ -66,7 +66,7 @@
 								<?php if ($group_item->html): ?>
 									<a class="viewError btn" href="#viewError" data-error="<?= $li_id; ?>">View the source of this issue</a>
 									<?php if($group_item->manual == true): ?>
-										<p>⚠ Manual verification required.</p>
+										<p class="manual-notification">⚠ Manual verification required.</p>
 									<?php endif; ?>
 									<div class="more-info hidden instance">
 										<a class="closeError btn" href="#closeError" data-error="<?= $li_id; ?>">Close Issue Source</a>
