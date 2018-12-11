@@ -107,7 +107,7 @@ class reportStatic extends quailReporter
 								if($problem->manual == true) {
 									$testResult['description']  = $description.'check for stuff';
 								} else {
-									$testResult['description']  = $description;
+									$testResult['description']  = $description.'nothing to check for';
 								}
 								break;
 
