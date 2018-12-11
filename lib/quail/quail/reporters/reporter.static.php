@@ -104,7 +104,7 @@ class reportStatic extends quailReporter
 						$testResult['severity']     = $severityLevel;
 						$testResult['severity_num'] = $severityNumber;
 						$testResult['title']        = $title;
-						$testResult['description']  = $description;
+						$testResult['description']  = $description.'yeet yeet this is a test';
 						$testResult['path']         = count($this->path) > 1 ? $this->path[1] : "None";
 						$testResult['html']	        = $problem->getHtml();
 						$testResult['state']        = $problem->state;
