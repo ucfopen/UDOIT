@@ -33,7 +33,7 @@ class youtubeService extends mediaService
 	/**
 	*	Checks to see if a video is missing caption information in YouTube
 	*	@param string $link_url The URL to the video or video resource
-	*	@return bool TRUE if captions are missing, FALSE if captions exists
+	*	@return int 0 if captions are missing, 1 if video is private, 2 if captions exist or not a video
 	*/
 	function captionsMissing($link_url)
 	{
@@ -47,19 +47,19 @@ class youtubeService extends mediaService
 			// If the video was pulled due to copyright violations, is unlisted, or is unavailable, the items array will be empty.
 			// Another error will result in this case
 			if( empty($response->body->items) ) {
-				return true;
+				return 1;
 			}
 
 			foreach ( $response->body->items as $track ) {
 				if ( $track->snippet->trackKind != 'ASR' ) {
-					return false;
+					return 2;
 				}
 			}
 
-			return true;
+			return 0;
 		}
 
-		return false;
+		return 2;
 
 	}
 
