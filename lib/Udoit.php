@@ -169,6 +169,8 @@ class Udoit
                 'state'      => $state,
             ];
 
+            error_log("Quail report made in scanContent with state {$quail_summary['state']}");
+
             $report[] = $quail_summary;
         }
 
