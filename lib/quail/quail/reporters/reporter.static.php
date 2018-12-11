@@ -102,7 +102,7 @@ class reportStatic extends quailReporter
 						}
 
 						//Set description for certain cases
-						switch($problem->type) {
+						/*switch($problem->type) {
 							case '':
 								if($problem->manual == true) {
 									$testResult['description']  = $description.'check for stuff';
@@ -113,7 +113,8 @@ class reportStatic extends quailReporter
 
 							default:
 								$testResult['description']  = $description;
-						}
+						}*/
+						$testResult['description']  = $description;
 
 						$testResult['severity']     = $severityLevel;
 						$testResult['severity_num'] = $severityNumber;
