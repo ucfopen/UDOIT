@@ -101,10 +101,23 @@ class reportStatic extends quailReporter
 							$testResult['element'] = $problem->element->tagName;
 						}
 
+						//Set description for certain cases
+						switch($problem->type) {
+							case '':
+								if($problem->manual == true) {
+									$testResult['description']  = $description.'check for stuff';
+								} else {
+									$testResult['description']  = $description;
+								}
+								break;
+
+							default:
+								$testResult['description']  = $description;
+						}
+
 						$testResult['severity']     = $severityLevel;
 						$testResult['severity_num'] = $severityNumber;
 						$testResult['title']        = $title;
-						$testResult['description']  = $description.'yeet yeet this is a test';
 						$testResult['path']         = count($this->path) > 1 ? $this->path[1] : "None";
 						$testResult['html']	        = $problem->getHtml();
 						$testResult['state']        = $problem->state;
