@@ -110,7 +110,6 @@ class reportStatic extends quailReporter
 						$testResult['state']        = $problem->state;
 					}
 
-					error_log("Adding test result ".serialize($testResult));
 					$output[] = $testResult;
 				}
 			}

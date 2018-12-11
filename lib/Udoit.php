@@ -127,7 +127,6 @@ class Udoit
             $quail  = new quail($item['content'], 'wcag2aaa', 'string', 'static');
             $quail->runCheck();
             $quail_report = $quail->getReport();
-            //error_log("initial quail report set as ".serialize($quail_report));
 
             $issue_count = 0;
             $errors      = [];
@@ -169,8 +168,6 @@ class Udoit
                 'warning'    => $warnings,
                 'suggestion' => $suggestions,
             ];
-
-            //error_log("Quail report made in scanContent with summary ".serialize($quail_summary));
 
             $report[] = $quail_summary;
         }

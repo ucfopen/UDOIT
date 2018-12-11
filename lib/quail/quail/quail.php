@@ -141,7 +141,6 @@ class quail {
 		$this->guideline_name = $guideline;
 		$this->reporter_name = $reporter;
 		$this->value = $value;
-		error_log("Quail object constructed as: ".serialize($this));
 	}
 
 	/**
