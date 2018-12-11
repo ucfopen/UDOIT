@@ -68,7 +68,7 @@ class reportStatic extends quailReporter
 			if (is_array($test)) {
 				foreach ($test as $k => $problem) {
 					$testResult           = [];
-					error_log("in reporter.static, problem info is ".serialize($problem))
+					error_log("in reporter.static, problem info is ".serialize($problem));
 					if (is_object($problem)) {
 						$testResult['text_type']	= $problem->message;
 						if ($testname === "cssTextHasContrast" || $testname === "cssTextStyleEmphasize") {
