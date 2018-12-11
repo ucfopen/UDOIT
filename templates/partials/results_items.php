@@ -45,7 +45,7 @@
 					</h5>
 				</div>
 				<?php if (isset($heading_data->description)): ?>
-					<div class="error-desc"><p><?= $heading_data->description; ?></p></div>
+					<div class="error-desc"><p><?= serialize($type_group); ?></p></div>
 				<?php endif; ?>
 				<!-- End Error group header -->
 
