@@ -70,6 +70,9 @@
 									<?php endif; ?>
 									<div class="more-info hidden instance">
 										<a class="closeError btn" href="#closeError" data-error="<?= $li_id; ?>">Close Issue Source</a>
+										<?php if($group_item->manual == true): ?>
+											<p class="manual-notification">⚠️ Manual verification required.</p>
+										<?php endif; ?>
 										<div class="error-preview">
 											<?php if ($group_item->type == "videosEmbeddedOrLinkedNeedCaptions"): ?>
 												<?= $group_item->html ?>
