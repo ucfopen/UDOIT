@@ -132,6 +132,7 @@ class Udoit
             $errors      = [];
             $warnings    = [];
             $suggestions = [];
+            $state       = null;
 
             // loop over the items returning from Quail
             foreach ($quail_report['report'] as $quail_issue) {
@@ -140,6 +141,7 @@ class Udoit
                 }
 
                 $issue_count++;
+                $state = $quail_issue['state'];
 
                 switch ((int) $quail_issue['severity_num']) {
                     case 1:
@@ -164,6 +166,7 @@ class Udoit
                 'error'      => $errors,
                 'warning'    => $warnings,
                 'suggestion' => $suggestions,
+                'state'      => $state,
             ];
 
             $report[] = $quail_summary;
