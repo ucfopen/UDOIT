@@ -101,7 +101,7 @@ class reportStatic extends quailReporter
 							$testResult['element'] = $problem->element->tagName;
 						}
 
-						//Set description for certain cases
+						//Edit description for certain cases
 						switch($problem->type) {
 							case 'videosEmbeddedOrLinkedNeedCaptions':
 								if($problem->manual == true) {
@@ -112,7 +112,7 @@ class reportStatic extends quailReporter
 								break;
 
 							default:
-							error_log("Type was ".$problem->type);
+							error_log("Info available is ".serialize($problem));
 								$testResult['description']  = $description;
 								break;
 						}
