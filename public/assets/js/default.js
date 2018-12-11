@@ -360,7 +360,7 @@ $doc.ready(function() {
 
 		$(this).addClass('hidden');
 		$error.find('div.more-info').removeClass('hidden');
-		$error.find('p').addClass('hidden');
+		$error.find('p').first().addClass('hidden');
 		$error.find('a.closeError').first().focus();
 		resizeFrame();
 	});
@@ -372,7 +372,7 @@ $doc.ready(function() {
 		var $error = $('#'+errorId);
 
 		$error.find('div.more-info').addClass('hidden');
-		$error.find('p').removeClass('hidden');
+		$error.find('p').first().removeClass('hidden');
 		$error.find('a.viewError').removeClass('hidden');
 		$error.find('a.viewError').focus();
 		resizeFrame();
