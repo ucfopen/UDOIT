@@ -360,6 +360,7 @@ $doc.ready(function() {
 
 		$(this).addClass('hidden');
 		$error.find('div.more-info').removeClass('hidden');
+		$error.find('p').addClass('hidden');
 		$error.find('a.closeError').first().focus();
 		resizeFrame();
 	});
@@ -371,6 +372,7 @@ $doc.ready(function() {
 		var $error = $('#'+errorId);
 
 		$error.find('div.more-info').addClass('hidden');
+		$error.find('p').removeClass('hidden');
 		$error.find('a.viewError').removeClass('hidden');
 		$error.find('a.viewError').focus();
 		resizeFrame();
@@ -447,7 +449,7 @@ $doc.ready(function() {
 	$('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
 		resizeFrame();
 	});
-	
+
 	// submitting the ufixit form
 	$doc.on('submit', '#scanner .ufixit-form', function(e) {
 		e.preventDefault();
@@ -1019,7 +1021,7 @@ $doc.ready(function() {
 	  	var tab = (e.target || e.srcElement);
 		if((e.keyCode == 32)){
 			e.preventDefault();
-			tab.click();	
+			tab.click();
 		}
 	});
 
