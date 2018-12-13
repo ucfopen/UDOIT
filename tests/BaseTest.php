@@ -78,22 +78,31 @@ class BaseTest extends PHPUnit_Framework_TestCase
      * Yea, this is pretty cryptic and nested, mocking chained function calls php is gnarly
      *
      * @param array $header_to_array_returns Headers that should be returned with the request(s)
-     * @param array $body_returns            Bodies that should be returned with the requests(s)
+     * @param array $body_returns            Bodies that should be returned with the request(s)
+     * @param array $status_returns          (Optional) Statuses that should be returned with the request(s),
+     *                                           default is 200.
      *
      * @return Object Mock Get Object created by Request::get()
      */
-    protected static function mockGetRequestResult(array $header_to_array_returns, array $body_returns)
+    protected static function mockGetRequestResult(array $header_to_array_returns, array $body_returns, array $status_returns = null)
     {
         $called = -1;
         // mock *get()* from Httpful\Request::get()
         $mock_get = new MockObj();
         // mock *send()* from Httpful\Request::get()->send()
-        $mock_get->send = $mock_send = function () use (&$called, $header_to_array_returns, $body_returns) {
+        $mock_get->send = $mock_send = function () use (&$called, $header_to_array_returns, $body_returns, $status_returns) {
             $called++;
             // mock *$response* from $response = Httpful\Request::get()->send()
             $mock_response = new MockObj();
 
-            $mock_response->status = 200;
+            if($status_returns != null) {
+                $mock_response->status = $status_returns[$called];
+                $mock_response->code = $status_returns[$called];
+            } else {
+                $mock_response->status = 200;
+                $mock_response->code = 200;
+            }
+
             // mock *headers* from Httpful\Request::get()->send()->headers
             $mock_response->headers = new MockObj();
             // mock *toArray()* from Httpful\Request::get()->send()->headers->toArray()
