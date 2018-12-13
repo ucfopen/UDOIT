@@ -44,9 +44,8 @@ class youtubeService extends mediaService
 			$url = $url.$youtube_id.'&key='.$api_key;
 			$response = Request::get($url)->send();
 
-			// If the video was pulled due to copyright violations, is unlisted, or is unavailable, the items array will be empty.
-			// Another error will result in this case
-			if( empty($response->body->items) ) {
+			// If the video was pulled due to copyright violations, is unlisted, or is unavailable, the reponse header will be 404
+			if( $response->code === 404) {
 				return 1;
 			}
 			// Looks through the captions and checks if any were not auto-generated
