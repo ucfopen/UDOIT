@@ -35,9 +35,11 @@ class vimeoService extends mediaService
 			$url = $url.$vimeo_id.'/texttracks';
 			$response = Request::get($url)->addHeader('Authorization', "Bearer $api_key")->send();
 
-			if($response->code === 400) {
+			// Response header code is used to determine if video exists, doesn't exist, or is unaccessible
+			// 400 means a video is private, 404 means a video doesn't exist, and 200 means the video exists
+			if($response->code === 400 ) {
 				return 1;
-			} else if($response->code === 200 && $response->body->total === 0) {
+			} else if(($response->code === 200) && $response->body->total === 0) {
 				return 0;
 			}
 		}
@@ -55,10 +57,6 @@ class vimeoService extends mediaService
 	{
 		$matches = null;
 		if(preg_match($this->regex, trim($link_url), $matches)) {
-			/*$response = Request::head($link_url)->send();
-			if($response->code === 200) {
-				return $matches[1];
-			}*/
 			return $matches[1];
 		}
 		return false;

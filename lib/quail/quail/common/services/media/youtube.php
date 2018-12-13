@@ -49,7 +49,7 @@ class youtubeService extends mediaService
 			if( empty($response->body->items) ) {
 				return 1;
 			}
-
+			// Looks through the captions and checks if any were not auto-generated
 			foreach ( $response->body->items as $track ) {
 				if ( $track->snippet->trackKind != 'ASR' ) {
 					return 2;
