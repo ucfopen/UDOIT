@@ -58,7 +58,8 @@ class FunctionalTests extends PHPUnit_Framework_TestCase
     * @group functional
     * Tests the Vimeo API call to make sure the API key is valid and working
     */
-    public function testVimeoAPIKey() {
+    public function testVimeoAPIKey()
+    {
         $url = 'https://api.vimeo.com/videos/27246366/texttracks';
         $response = Request::get($url)->addHeader('Authorization', 'Bearer '.constant('VIMEO_API_KEY'))->send();
         $this->assertSame($response->code, 200);
@@ -68,8 +69,8 @@ class FunctionalTests extends PHPUnit_Framework_TestCase
     * @group functional
     * Tests the YouTube API call to make sure the API key is valid and working
     */
-    public function testYouTubeAPIKey() {
-
+    public function testYouTubeAPIKey()
+    {
         $url = 'https://www.googleapis.com/youtube/v3/captions?part=snippet&videoId=YbJOTdZBX1g&key='.constant('GOOGLE_API_KEY');
         $response = Request::get($url)->send();
         $this->assertSame($response->code, 200);

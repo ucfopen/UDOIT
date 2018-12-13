@@ -74,7 +74,8 @@ class UdoitTest extends BaseTest
         self::assertArraySubset(['body_0_a', 'body_0_b', 'body_1_a', 'body_1_b', 'body_2_a', 'body_2_b'], $result);
     }
 
-    public function testGetCaptionsVimeo() {
+    public function testGetCaptionsVimeo()
+    {
 
         require_once('lib/quail/quail/common/services/media/vimeo.php');
         $vimeo = new vimeoService();
@@ -92,10 +93,10 @@ class UdoitTest extends BaseTest
 
         // Bodies returned from API calls
         $bodies = [
-            (object)[],             // private
-            (object)[],             // nonexistent
-            (object)['total' => 1], // video with captions
-            (object)['total' => 0], // video with no captions
+            (object) [],             // private
+            (object) [],             // nonexistent
+            (object) ['total' => 1], // video with captions
+            (object) ['total' => 0], // video with no captions
         ];
 
         // Statuses returned from API calls
@@ -121,12 +122,13 @@ class UdoitTest extends BaseTest
             ->shouldReceive('get')
             ->andReturn($api_responses);
 
-        foreach($urls as $url) {
+        foreach ($urls as $url) {
             self::assertSame($vimeo->captionsMissing($url[0]), $url[1]);
         }
     }
 
-    public function testGetCaptionsYoutube() {
+    public function testGetCaptionsYoutube()
+    {
 
         require_once('lib/quail/quail/common/services/media/youtube.php');
         $youtube = new youtubeService();
@@ -144,20 +146,20 @@ class UdoitTest extends BaseTest
 
         // Bodies returned from API calls
         $bodies = [
-            (object)[],             // private
-            (object)[],             // nonexistent
-            (object)['items' => [   // video with captions
-                (object)['snippet' =>
-                    (object)['trackKind' => 'ASR'],
+            (object) [],             // private
+            (object) [],             // nonexistent
+            (object) ['items' => [   // video with captions
+                (object) ['snippet' =>
+                    (object) ['trackKind' => 'ASR'],
                     ],
-                (object)['snippet' =>
-                    (object)['trackKind' => 'standard'],
+                (object) ['snippet' =>
+                    (object) ['trackKind' => 'standard'],
                     ],
                 ],
             ],
-            (object)['items' => [   // video without captions
-                (object)['snippet' =>
-                    (object)['trackKind' => 'ASR'],
+            (object) ['items' => [   // video without captions
+                (object) ['snippet' =>
+                    (object) ['trackKind' => 'ASR'],
                     ],
                 ],
             ],
@@ -186,7 +188,7 @@ class UdoitTest extends BaseTest
             ->shouldReceive('get')
             ->andReturn($api_responses);
 
-        foreach($urls as $url) {
+        foreach ($urls as $url) {
             self::assertSame($youtube->captionsMissing($url[0]), $url[1]);
         }
     }

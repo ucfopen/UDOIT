@@ -95,7 +95,7 @@ class BaseTest extends PHPUnit_Framework_TestCase
             // mock *$response* from $response = Httpful\Request::get()->send()
             $mock_response = new MockObj();
 
-            if($status_returns != null) {
+            if (null != $status_returns) {
                 $mock_response->status = $status_returns[$called];
                 $mock_response->code = $status_returns[$called];
             } else {
