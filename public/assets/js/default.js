@@ -447,7 +447,7 @@ $doc.ready(function() {
 	$('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
 		resizeFrame();
 	});
-	
+
 	// submitting the ufixit form
 	$doc.on('submit', '#scanner .ufixit-form', function(e) {
 		e.preventDefault();
@@ -482,8 +482,20 @@ $doc.ready(function() {
 			if ($input.val().trim() == ''){
 				valid = false;
 			} else if ($input.val().trim().toLowerCase().includes("http://")
+				|| $input.val().trim().toLowerCase().includes("https://")
 				|| $input.val().trim().toLowerCase().includes("www.")
-				|| $input.val().trim().toLowerCase().includes(".com")) {
+				|| $input.val().trim().toLowerCase().includes(".com")
+				|| $input.val().trim().toLowerCase().includes(".net")
+				|| $input.val().trim().toLowerCase().includes(".org")
+				|| $input.val().trim().toLowerCase().includes(".edu")
+				|| $input.val().trim().toLowerCase().includes(".info")
+				|| $input.val().trim().toLowerCase().includes(".de")
+				|| $input.val().trim().toLowerCase().includes(".cn")
+				|| $input.val().trim().toLowerCase().includes(".uk")
+				|| $input.val().trim().toLowerCase().includes(".nl")
+				|| $input.val().trim().toLowerCase().includes(".eu")
+				|| $input.val().trim().toLowerCase().includes(".ru")
+				) {
 				valid = false;
 			} else if ($input.val().trim().toLowerCase().match(/^(go to|link to|go here|link|click here|click|more|here)$/)) {
 				valid = false;
@@ -1021,7 +1033,7 @@ $doc.ready(function() {
 	  	var tab = (e.target || e.srcElement);
 		if((e.keyCode == 32)){
 			e.preventDefault();
-			tab.click();	
+			tab.click();
 		}
 	});
 
