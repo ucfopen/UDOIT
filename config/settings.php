@@ -2,6 +2,7 @@
 define('ENV_TEST', 'test');
 define('ENV_PROD', 'prod');
 define('ENV_DEV', 'dev');
+
 define('UDOIT_VERSION', '2.4.0');
 
 // SET UP AUTOLOADER (uses autoload rules from composer)

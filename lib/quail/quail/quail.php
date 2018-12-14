@@ -141,7 +141,6 @@ class quail {
 		$this->guideline_name = $guideline;
 		$this->reporter_name = $reporter;
 		$this->value = $value;
-
 	}
 
 	/**
@@ -395,6 +394,7 @@ class quail {
 		}
 
 		$this->guideline = new $classname($this->dom, $this->css, $this->path, $options, $this->domain, $this->options['cms_mode']);
+		//error_log("runCheck completed, quail object is now: ".serialize($this));
 	}
 
 	/**
@@ -586,6 +586,11 @@ class quailReportItem {
 	*	@var bool For document-level tests, this says whether the test passed or not
 	*/
 	var $pass;
+
+	/**
+	*   @var object For issues with more than two possible states, this contains information about the state
+	*/
+	var $state;
 
 	/**
 	*	Returns the line number of the report item. Unfortunately we can't use getLineNo
