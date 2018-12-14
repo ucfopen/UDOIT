@@ -110,7 +110,7 @@ class UdoitTest extends BaseTest
         // URLs to test and the expected function response
         $urls = [
             ['https://vimeo.com/278000241', 1], // private
-            ['https://vimeo.com/27800024', 2],  // nonexistent
+            ['https://vimeo.com/27800024', 1],  // nonexistent
             ['https://vimeo.com/305804024', 2], // video with captions
             ['https://vimeo.com/303668864', 0], // video with no captions
             ['https://vimeo.com/video/123', 2], // malformed (no API call)
@@ -163,6 +163,7 @@ class UdoitTest extends BaseTest
                     ],
                 ],
             ],
+            (object) [],              // video with no captions or autocaptions
         ];
 
         // Statuses returned from API calls
@@ -171,6 +172,7 @@ class UdoitTest extends BaseTest
             404, // nonexistent
             200, // video with captions
             200, // video with no captions
+            404, // video with no captions or autocaptions
         ];
 
         // URLs to test and the expected response
@@ -179,6 +181,7 @@ class UdoitTest extends BaseTest
             ['https://www.youtube.com/watch?v=XNh9C6S4-6P', 1], // nonexistent
             ['https://www.youtube.com/watch?v=NTfOnGZUZDk', 2], // video with captions
             ['https://www.youtube.com/watch?v=UKS_of5MUj0', 0], // video with no captions
+            ['https://www.youtube.com/watch?v=XBBwbGq6Z6Q', 1], // video with no captions or autocaptions
             ['https://www.youtube.com/', 2],                    // malformed (no API call)
             ['https://www.youtube.com/lol', 2],                 // malformed (no API call)
         ];
