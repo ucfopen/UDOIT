@@ -30,7 +30,7 @@ if( isEmpty(constant( 'GOOGLE_API_KEY' )) ){
     $logger->addWarning('Google API Key empty. Videos will be marked for manual inspection.');
 }
 if( isEmpty(constant( 'VIMEO_API_KEY' )) ){
-    $logger->addWarning('Vimeo API Key empty, Videos will be marked for manual inspection.');
+    $logger->addWarning('Vimeo API Key empty. Videos will be marked for manual inspection.');
 }
 
 
