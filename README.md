@@ -247,6 +247,12 @@ If database migrations fail, make sure the database user has the ability to alte
 
 ## FAQs
 
+### How do I get in touch with you if I have questions?
+There are a few different ways you can get in touch with us, depending on what you're most comfortable with:
+* [Canvas Community](https://community.canvaslms.com/groups/accessibility) - The easiest option is to comment on the blog post for your version of UDOIT.
+* [Slack](https://ucf-open-slackin.herokuapp.com/) - We have channels for all of our open source projects, including UDOIT.
+* Email - If you're more comfortable with email, you can contact me directly at [jacob.bates@ucf.edu](mailto:jacob.bates@ucf.edu).
+
 ### How much time will I have to spend maintaining UDOIT?
 UDOIT should require little to no maintenance. It is up to your institution to choose when you update UDOIT to the latest release. UDOIT can be updated by running `git pull` on this repository.
 

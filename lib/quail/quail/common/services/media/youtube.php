@@ -40,6 +40,12 @@ class youtubeService extends mediaService
 		$url = $this->search_url;
 		$api_key = constant( 'GOOGLE_API_KEY' );
 
+		// If the API key is blank, flag the video for manual inspection
+		$key_trimmed = trim($api_key);
+		if( empty($key_trimmed) ){
+			return 1;
+		}
+
 		if( $youtube_id = $this->isYouTubeVideo($link_url) ) {
 			$url = $url.$youtube_id.'&key='.$api_key;
 			$response = Request::get($url)->send();
