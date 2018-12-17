@@ -20,6 +20,20 @@
 
 require_once(__DIR__.'/../config/settings.php');
 
+// Log the absence of video API keys
+function isEmpty($teststr){
+    $trimstr = trim($teststr);
+    return empty($trimstr);
+}
+global $logger;
+if( isEmpty(constant( 'GOOGLE_API_KEY' )) ){
+    $logger->addWarning('Google API Key empty. Videos will be marked for manual inspection.');
+}
+if( isEmpty(constant( 'VIMEO_API_KEY' )) ){
+    $logger->addWarning('Vimeo API Key empty, Videos will be marked for manual inspection.');
+}
+
+
 // Sanitize post parameters
 $post_input = filter_input_array(INPUT_POST, FILTER_SANITIZE_STRING);
 $post_input['custom_canvas_user_id'] = filter_input(INPUT_POST, 'custom_canvas_user_id', FILTER_SANITIZE_NUMBER_INT);
