@@ -2,7 +2,7 @@
 
 // include_once('../config/localConfig.php');
 
-/** 
+/**
 *    QUAIL - QUAIL Accessibility Information Library
 *    Copyright (C) 2009 Kevin Miller
 *
@@ -1106,7 +1106,7 @@ class checkboxLabelIsNearby extends quailTest
 	}
 }
 
-/** 
+/**
 * Test counts words for all text elements on page and suggests content chunking for pages longer than 3000 words.
 */
 class contentTooLong extends quailTest
@@ -1241,7 +1241,7 @@ class cssTextHasContrast extends quailColorTest
 
 					if (isset($style['font-weight'])) {
 						preg_match_all('!\d+!', $style['font-weight'], $matches);
-						
+
 						if (count($matches) > 0) {
 							if ($matches >= 700) {
 								$bold = true;
@@ -1361,7 +1361,7 @@ class cssTextStyleEmphasize extends quailColorTest
 
 				if (isset($style['font-weight'])) {
 					preg_match_all('!\d+!', $style['font-weight'], $matches);
-					
+
 					if (count($matches) > 0) {
 						if ($matches >= 700) {
 							$bold = true;
@@ -2991,7 +2991,7 @@ class noHeadings extends quailTest
 	function check()
 	{
 		global $doc_length;
-		
+
 		$elements = $this->getAllElements('p');
 
 		$document_string = "";
@@ -6349,20 +6349,27 @@ class svgContainsTitle extends quailTest
 }
 
 /**
-*	HTML5 video tags have captions. There's unfortunately no way to test for captions yet...
+*	HTML5 video tags have captions.
 *	@link http://quail-lib.org/test-info/videoProvidesCaptions
 */
-class videoProvidesCaptions extends quailTagTest
+class videoProvidesCaptions extends quailTest
 {
 	/**
 	*	@var int $default_severity The default severity code for this test.
 	*/
-	var $default_severity = QUAIL_TEST_SUGGESTION;
+	var $default_severity = QUAIL_TEST_SEVERE;
 
 	/**
-	*	@var string $tag The tag this test will fire on
+	*	The main check function. This is called by the parent class to actually check content
 	*/
-	var $tag = 'video';
+	function check()
+	{
+		foreach ($this->getAllElements(array('video')) as $video) {
+			if (!$this->elementHasChild($video, 'track')) {
+				$this->addReport($video);
+			}
+		}
+	}
 }
 
 /**
@@ -6403,8 +6410,11 @@ class videosEmbeddedOrLinkedNeedCaptions extends quailTest
 				elseif ( preg_match($search_vimeo, $attr_val) ) {
 					$service = 'vimeo';
 				}
-				if (isset($service) && $this->services[$service]->captionsMissing($attr_val)) {
-					$this->addReport($video);
+				if (isset($service)) {
+					$captionState = $this->services[$service]->captionsMissing($attr_val);
+					if($captionState != 2) {
+						$this->addReport($video, null, null, $captionState, ($captionState == 1));
+					}
 				}
 			}
 		}

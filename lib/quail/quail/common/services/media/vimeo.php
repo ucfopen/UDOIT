@@ -12,12 +12,9 @@ use Httpful\Request;
 class vimeoService extends mediaService
 {
 	/**
-	*	@var array An array of regular expressions to extract the Vimeo item code
+	*	@var string A regular expression to extract the Vimeo item code
 	*/
-	var $regex = array(
-		'@vimeo\.com/video/([^"\&\? ]+)@i', 
-		'@vimeo\.com/([^"\&\? ]+)@i',
-		);
+	var $regex = '@vimeo\.com/[^0-9]*([0-9]{7,9})@i';
 
 	/**
 	*	@var string The service point to request caption data from Vimeo
@@ -27,7 +24,7 @@ class vimeoService extends mediaService
 	/**
 	*	Checks to see if a video is missing caption information in Vimeo
 	*	@param string $link_url The URL to the video or video resource
-	*	@return bool TRUE if captions are missing, FALSE if captions exists
+	*   @return int 0 if captions are missing, 1 if video is private, 2 if captions exist or not a video
 	*/
 	function captionsMissing($link_url)
 	{
@@ -38,14 +35,16 @@ class vimeoService extends mediaService
 			$url = $url.$vimeo_id.'/texttracks';
 			$response = Request::get($url)->addHeader('Authorization', "Bearer $api_key")->send();
 
-			if ( isset($response->body->total) ) {
-				if ($response->body->total > 0) {
-					return false;
-				}
+			// Response header code is used to determine if video exists, doesn't exist, or is unaccessible
+			// 400 means a video is private, 404 means a video doesn't exist, and 200 means the video exists
+			if($response->code === 400 || $response->code === 404) {
+				return 1;
+			} else if(($response->code === 200) && $response->body->total === 0) {
+				return 0;
 			}
 		}
 
-		return true;
+		return 2;
 	}
 
 	/**
@@ -57,10 +56,8 @@ class vimeoService extends mediaService
 	private function isVimeoVideo($link_url)
 	{
 		$matches = null;
-		foreach($this->regex as $pattern) {
-			if(preg_match($pattern, trim($link_url), $matches)) {
-				return $matches[1];
-			}
+		if(preg_match($this->regex, trim($link_url), $matches)) {
+			return $matches[1];
 		}
 		return false;
 	}
