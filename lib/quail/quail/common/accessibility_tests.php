@@ -1371,7 +1371,14 @@ class cssTextStyleEmphasize extends quailColorTest
 							}
 						}
 					}
-				} else if ($element->tagName === "strong") {
+				} else if ($element->tagName === "strong"
+					|| $this->getElementAncestor($element, 'strong')
+					|| (isset($element->nodeValue)
+						&& isset($element->firstChild->nodeValue)
+						&& $element->nodeValue == $element->firstChild->nodeValue
+						&& is_object($element->firstChild)
+						&& property_exists($element->firstChild, 'tagName')
+						&& $element->firstChild->tagName === 'strong')) {
 					$bold = true;
 					$style['font-weight'] = "bold";
 				} else {
