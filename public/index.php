@@ -19,17 +19,21 @@
 */
 
 require_once(__DIR__.'/../config/settings.php');
+global $logger;
 
 // Log the absence of video API keys
-function isEmpty($teststr){
+function isEmpty($teststr)
+{
     $trimstr = trim($teststr);
+
     return empty($trimstr);
 }
-global $logger;
-if( isEmpty(constant( 'GOOGLE_API_KEY' )) ){
+
+if (isEmpty(constant('GOOGLE_API_KEY'))) {
     $logger->addWarning('Google API Key empty. Videos will be marked for manual inspection.');
 }
-if( isEmpty(constant( 'VIMEO_API_KEY' )) ){
+
+if (isEmpty(constant('VIMEO_API_KEY'))) {
     $logger->addWarning('Vimeo API Key empty. Videos will be marked for manual inspection.');
 }
 
