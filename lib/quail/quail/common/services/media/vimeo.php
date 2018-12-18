@@ -31,6 +31,12 @@ class vimeoService extends mediaService
 		$url = $this->search_url;
 		$api_key = constant( 'VIMEO_API_KEY' );
 
+		// If the API key is blank, flag the video for manual inspection
+		$key_trimmed = trim($api_key);
+		if( empty($key_trimmed) ){
+			return 1;
+		}
+
 		if( $vimeo_id = $this->isVimeoVideo($link_url) ) {
 			$url = $url.$vimeo_id.'/texttracks';
 			$response = Request::get($url)->addHeader('Authorization', "Bearer $api_key")->send();
