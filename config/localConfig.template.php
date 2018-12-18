@@ -34,6 +34,9 @@ define('VIMEO_API_KEY', '');
 /* Google Analytics Tracking Code */
 define('GA_TRACKING_CODE', '');
 
+/* Timezone that will be used when displaying old reports to the user (optional) */
+// date_default_timezone_set('America/New_York');
+
 /* Database Config */
 $db_type          = 'mysql'; // 'mysql' or 'pgsql'
 $db_host          = ''; // localhost or some other domain/ip
