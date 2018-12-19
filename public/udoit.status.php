@@ -80,7 +80,7 @@ try {
 try {
     $dev_key_url = $canvas_url."/login/oauth2/auth?client_id=".$oauth2_id."&response_type=code&redirect_uri=".$oauth2_uri;
      $dev = Httpful\Request::get($dev_key_url)->send();
-    if ($dev->status == 200) {
+    if ($dev->code < 400) {
         $statusCheck['dev_key'] = true;
     }
 } catch (Exception $e) {
