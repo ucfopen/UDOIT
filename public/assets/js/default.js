@@ -19,7 +19,6 @@
 
 var progressTimer = null;
 var $doc = $(document); // hold a jquery doc reference
-var tempElement = null; // hold elements to be re-added to DOM after removal
 
 /* Fades out and destroys the popup window and background. */
 function killButton(callback) {
@@ -375,7 +374,7 @@ $doc.ready(function() {
 		let tmpElement = null
 
 		$error.find('div.more-info').addClass('hidden');
-		
+
 		if($vidiframe.length > 0){
 			tmpElement = $vidiframe.detach();
 			tmpElement.appendTo($error.find('div.more-info .error-preview'));
