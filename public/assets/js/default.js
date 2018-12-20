@@ -356,13 +356,11 @@ $doc.ready(function() {
 
 	// view error source
 	$doc.on('click', '.viewError', function(e) {
-		var errorId = e.target.dataset.error;
-		var $error = $('#'+errorId);
+		let errorId = e.target.dataset.error;
+		let $error = $('#'+errorId);
 
 		$(this).addClass('hidden');
 		$error.find('div.more-info').removeClass('hidden');
-		if(tempElement !== null)
-			tempElement.appendTo($error.find('div.more-info .error-preview'));
 		$error.find('p').first().addClass('hidden');
 		$error.find('a.closeError').first().focus();
 		resizeFrame();
@@ -371,16 +369,16 @@ $doc.ready(function() {
 
 	// close error source
 	$doc.on('click', '.closeError', function(e) {
-		var errorId = e.target.dataset.error;
-		var $error = $('#'+errorId);
-		var $vidiframe = $error.find('div.more-info .error-preview iframe')
+		let errorId = e.target.dataset.error;
+		let $error = $('#'+errorId);
+		let $vidiframe = $error.find('div.more-info .error-preview iframe')
+		let tmpElement = null
 
 		$error.find('div.more-info').addClass('hidden');
-		
+		console.log("Video frame length = "+$vidiframe.length);
 		if($vidiframe.length > 0){
-			tempElement = $vidiframe.detach();
-		}else{
-			tempElement = null;
+			tmpElement = $vidiframe.detach();
+			tmpElement.appendTo($error.find('div.more-info .error-preview'));
 		}
 		
 		$error.find('p').first().removeClass('hidden');
