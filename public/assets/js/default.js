@@ -373,9 +373,16 @@ $doc.ready(function() {
 	$doc.on('click', '.closeError', function(e) {
 		var errorId = e.target.dataset.error;
 		var $error = $('#'+errorId);
+		var $vidiframe = $error.find('div.more-info .error-preview iframe')
 
 		$error.find('div.more-info').addClass('hidden');
-		tempElement = $error.find('div.more-info .error-preview iframe').detach();
+		
+		if($vidiframe.length > 0){
+			tempElement = $vidiframe.detach();
+		}else{
+			tempElement = null;
+		}
+		
 		$error.find('p').first().removeClass('hidden');
 		$error.find('a.viewError').removeClass('hidden');
 		$error.find('a.viewError').focus();
