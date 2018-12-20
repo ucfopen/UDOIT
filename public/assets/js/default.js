@@ -361,7 +361,7 @@ $doc.ready(function() {
 
 		$(this).addClass('hidden');
 		$error.find('div.more-info').removeClass('hidden');
-		$error.find('p').first().addClass('hidden');
+		$error.find('p.manual-notification').first().addClass('hidden');
 		$error.find('a.closeError').first().focus();
 		resizeFrame();
 	});
@@ -375,13 +375,13 @@ $doc.ready(function() {
 		let tmpElement = null
 
 		$error.find('div.more-info').addClass('hidden');
-		console.log("Video frame length = "+$vidiframe.length);
+		
 		if($vidiframe.length > 0){
 			tmpElement = $vidiframe.detach();
 			tmpElement.appendTo($error.find('div.more-info .error-preview'));
 		}
 		
-		$error.find('p').first().removeClass('hidden');
+		$error.find('p.manual-notification').first().removeClass('hidden');
 		$error.find('a.viewError').removeClass('hidden');
 		$error.find('a.viewError').focus();
 		resizeFrame();
