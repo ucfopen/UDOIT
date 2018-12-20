@@ -43,7 +43,15 @@
       "value": "https://your.herokuapp.com/oauth2response.php"
     },
     "GOOGLE_API_KEY": {
-      "description": "add a google api key for youtube video support",
+      "description": "Google API key for caption detection support",
+      "required": false
+    },
+    "VIMEO_API_KEY": {
+      "description": "Vimeo API key for caption detection support",
+      "required": false
+    },
+    "GA_TRACKING_CODE": {
+      "description": "Google Analytics tracking code",
       "required": false
     },
     "USE_HEROKU_CONFIG": {

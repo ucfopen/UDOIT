@@ -48,6 +48,7 @@ global $unscannable_suggestion;
 			</div>
 		</div>
 
+		<?php if (!empty($items[0]->extension)): ?>
 		<form class="form-horizontal no-print" id="udoitForm" action="#" role="form">
 			<div class="form-group filters">
 				<span class="col-sm-2 control-label"><strong>Filters:</strong></span>
@@ -58,13 +59,15 @@ global $unscannable_suggestion;
 				</div>
 			</div>
 		</form>
+		<?php endif; ?>
 
 		<div id="unscannable" class="list-group no-margin">
 
 			<?php foreach ($items as $item): ?>
-				<div class="item-container <?= $item->extension; ?>">
+				<div class="item-container<?= ' '.$item->extension; ?>">
 					<div class="list-group-item">
 						<span class="filename"><?= $item->title; ?></span>
+						<?php if (!empty($item->modules)): ?>
 						<span class="module-location">
 							<?php if (count($item->modules) > 0): ?>
 								<strong>In Modules: </strong>
@@ -73,8 +76,11 @@ global $unscannable_suggestion;
 								<?= $module; ?><?php if ($module !== end($item->modules)): ?>,<?php endif; ?>
 							<?php endforeach; ?>
 						</span>
+						<?php endif; ?>
+						<?php if (!empty($item->url) && !empty($item->path)): ?>
 						<a class="btn btn-default glyphicon glyphicon-download" target="_blank" href="<?= $item->url; ?>" title="Download" aria-label="Download"></a>
 						<a class="btn btn-default glyphicon glyphicon-folder-open" target="_blank" href="<?= $item->path; ?>" title="View Folder" aria-label="View Folder"></a>
+						<?php endif; ?>
 					</div>
 					<?php if($item->big == true): ?>
 					<hr>

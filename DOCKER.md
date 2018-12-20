@@ -28,13 +28,13 @@ $ docker-machine ip udoit
 
 ### NGINX Configuration
 
-If `docker/nginx.conf` doesn't exist, create it using a copy of the template:
+If `docker/etc/nginx/nginx.conf` doesn't exist, create it using a copy of the template:
 
 ```
-$ cp docker/nginx.template.conf docker/nginx.conf
+$ cp docker/etc/nginx/nginx.template.conf docker/etc/nginx/nginx.conf
 ```
 
-Edit `docker/nginx.conf`' to point to the UDOIT docker-machine's IP address by replacing both instances of
+Edit `docker/etc/nginx/nginx.conf`' to point to the UDOIT docker-machine's IP address by replacing both instances of
 
 ```
 localhost
@@ -49,7 +49,7 @@ with
 Generate SSL certificates according to the naming scheme located in the nginx.conf file (`nginx.key` and `nginx.crt`) or use your own SSL certificates:
 
 ```
-$ sudo openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout docker/nginx.key -out docker/nginx.crt
+$ sudo openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout docker/var/ssl/nginx.key -out docker/var/ssl/nginx.crt
 ```
 
 ## Start Services using Docker-Compose

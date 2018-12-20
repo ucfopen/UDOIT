@@ -363,6 +363,7 @@ $doc.ready(function() {
 		$error.find('div.more-info').removeClass('hidden');
 		if(tempElement !== null)
 			tempElement.appendTo($error.find('div.more-info .error-preview'));
+		$error.find('p').first().addClass('hidden');
 		$error.find('a.closeError').first().focus();
 		resizeFrame();
 	});
@@ -375,6 +376,7 @@ $doc.ready(function() {
 
 		$error.find('div.more-info').addClass('hidden');
 		tempElement = $error.find('div.more-info .error-preview iframe').detach();
+		$error.find('p').first().removeClass('hidden');
 		$error.find('a.viewError').removeClass('hidden');
 		$error.find('a.viewError').focus();
 		resizeFrame();
@@ -451,7 +453,7 @@ $doc.ready(function() {
 	$('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
 		resizeFrame();
 	});
-	
+
 	// submitting the ufixit form
 	$doc.on('submit', '#scanner .ufixit-form', function(e) {
 		e.preventDefault();
@@ -1023,7 +1025,7 @@ $doc.ready(function() {
 	  	var tab = (e.target || e.srcElement);
 		if((e.keyCode == 32)){
 			e.preventDefault();
-			tab.click();	
+			tab.click();
 		}
 	});
 

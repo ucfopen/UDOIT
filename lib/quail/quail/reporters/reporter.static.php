@@ -66,23 +66,23 @@ class reportStatic extends quailReporter
 			}
 
 			if (is_array($test)) {
+				$test_count = 0;
 				foreach ($test as $k => $problem) {
 					$testResult           = [];
-
 					if (is_object($problem)) {
 						$testResult['text_type']	= $problem->message;
 						if ($testname === "cssTextHasContrast" || $testname === "cssTextStyleEmphasize") {
 							$styleValue = $problem->message;
-						
+
 							$hexColors  = [];
 							$styleMatches = [];
 							$weightMatches = [];
-							
+
 							preg_match_all("/(#[0-9a-f]{6}|#[0-9a-f]{3})/", $styleValue, $hexColors);
 							preg_match("/font-style:\s([a-z]*);/", $styleValue, $styleMatches);
 							preg_match("/font-weight:\s([a-z]*);/", $styleValue, $weightMatches);
 							$hexColors = array_unique($hexColors[0]);
-								
+
 							$testResult['colors'] = $hexColors;
 							$testResult['back_color'] = $hexColors[0];
 							$testResult['fore_color'] = $hexColors[1];
@@ -92,7 +92,7 @@ class reportStatic extends quailReporter
 								$testResult['font-weight'] = "bold";
 							}
 							$testResult['text_type']	= preg_replace('/(?=:).+/', '', $problem->message);
-							
+
 						}
 
 						$testResult['type']   	= $testname;
@@ -102,12 +102,30 @@ class reportStatic extends quailReporter
 							$testResult['element'] = $problem->element->tagName;
 						}
 
+						//Edit description for certain cases
+						switch($testname) {
+							case 'videosEmbeddedOrLinkedNeedCaptions':
+								if($problem->manual == true || $test_count > 0) {
+									if($problem->manual == true) $test_count++;
+									$testResult['description']  = $description."<p>⚠️ ".$test_count.' items require manual verification because UDOIT was unable to detect captions. This is most likely due to the video being unlisted, private, or deleted.</p>';
+								} else {
+									$testResult['description']  = $description;
+								}
+								break;
+
+							default:
+								$testResult['description']  = $description;
+								break;
+						}
+						//$testResult['description']  = $description;
+
 						$testResult['severity']     = $severityLevel;
 						$testResult['severity_num'] = $severityNumber;
 						$testResult['title']        = $title;
-						$testResult['description']  = $description;
 						$testResult['path']         = count($this->path) > 1 ? $this->path[1] : "None";
 						$testResult['html']	        = $problem->getHtml();
+						$testResult['state']        = $problem->state;
+						$testResult['manual']       = $problem->manual;
 					}
 
 					$output[] = $testResult;

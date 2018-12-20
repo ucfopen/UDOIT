@@ -2,7 +2,7 @@
 
 // include_once('../config/localConfig.php');
 
-/** 
+/**
 *    QUAIL - QUAIL Accessibility Information Library
 *    Copyright (C) 2009 Kevin Miller
 *
@@ -1106,7 +1106,7 @@ class checkboxLabelIsNearby extends quailTest
 	}
 }
 
-/** 
+/**
 * Test counts words for all text elements on page and suggests content chunking for pages longer than 3000 words.
 */
 class contentTooLong extends quailTest
@@ -1241,7 +1241,7 @@ class cssTextHasContrast extends quailColorTest
 
 					if (isset($style['font-weight'])) {
 						preg_match_all('!\d+!', $style['font-weight'], $matches);
-						
+
 						if (count($matches) > 0) {
 							if ($matches >= 700) {
 								$bold = true;
@@ -1361,7 +1361,7 @@ class cssTextStyleEmphasize extends quailColorTest
 
 				if (isset($style['font-weight'])) {
 					preg_match_all('!\d+!', $style['font-weight'], $matches);
-					
+
 					if (count($matches) > 0) {
 						if ($matches >= 700) {
 							$bold = true;
@@ -1371,7 +1371,14 @@ class cssTextStyleEmphasize extends quailColorTest
 							}
 						}
 					}
-				} else if ($element->tagName === "strong") {
+				} else if ($element->tagName === "strong"
+					|| $this->getElementAncestor($element, 'strong')
+					|| (isset($element->nodeValue)
+						&& isset($element->firstChild->nodeValue)
+						&& $element->nodeValue == $element->firstChild->nodeValue
+						&& is_object($element->firstChild)
+						&& property_exists($element->firstChild, 'tagName')
+						&& $element->firstChild->tagName === 'strong')) {
 					$bold = true;
 					$style['font-weight'] = "bold";
 				} else {
@@ -2991,7 +2998,7 @@ class noHeadings extends quailTest
 	function check()
 	{
 		global $doc_length;
-		
+
 		$elements = $this->getAllElements('p');
 
 		$document_string = "";
@@ -6410,8 +6417,11 @@ class videosEmbeddedOrLinkedNeedCaptions extends quailTest
 				elseif ( preg_match($search_vimeo, $attr_val) ) {
 					$service = 'vimeo';
 				}
-				if (isset($service) && $this->services[$service]->captionsMissing($attr_val)) {
-					$this->addReport($video);
+				if (isset($service)) {
+					$captionState = $this->services[$service]->captionsMissing($attr_val);
+					if($captionState != 2) {
+						$this->addReport($video, null, null, $captionState, ($captionState == 1));
+					}
 				}
 			}
 		}
