@@ -491,7 +491,21 @@ $doc.ready(function() {
 			var $aSrc = $(this).find('input[name="errorhtml"]');
 			if ($input.val().trim() == ''){
 				valid = false;
-			} else if ($aSrc.val().indexOf($input.val().trim()) >= 0) {
+			} else if ($input.val().trim().toLowerCase().includes("http://")
+				|| $input.val().trim().toLowerCase().includes("https://")
+				|| $input.val().trim().toLowerCase().includes("www.")
+				|| $input.val().trim().toLowerCase().includes(".com")
+				|| $input.val().trim().toLowerCase().includes(".net")
+				|| $input.val().trim().toLowerCase().includes(".org")
+				|| $input.val().trim().toLowerCase().includes(".edu")
+				|| $input.val().trim().toLowerCase().includes(".info")
+				|| $input.val().trim().toLowerCase().includes(".de")
+				|| $input.val().trim().toLowerCase().includes(".cn")
+				|| $input.val().trim().toLowerCase().includes(".uk")
+				|| $input.val().trim().toLowerCase().includes(".nl")
+				|| $input.val().trim().toLowerCase().includes(".eu")
+				|| $input.val().trim().toLowerCase().includes(".ru")
+				) {
 				valid = false;
 			} else if ($input.val().trim().toLowerCase().match(/^(go to|link to|go here|link|click here|click|more|here)$/)) {
 				valid = false;
