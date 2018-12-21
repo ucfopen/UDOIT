@@ -34,7 +34,7 @@
 			}
 		?>
 		<?php foreach ($tmp_types as $type => $type_group): ?>
-			<?php $heading_data = $type_group[0]; ?>
+			<?php $heading_data = end($type_group); ?>
 			<?php $collapse_id = "collapse-{$id}-{$type}"; ?>
 			<li class="list-group-item">
 
@@ -65,8 +65,14 @@
 								<!-- Print Report -->
 								<?php if ($group_item->html): ?>
 									<a class="viewError btn" href="#viewError" data-error="<?= $li_id; ?>">View the source of this issue</a>
+									<?php if($group_item->manual == true): ?>
+										<p class="manual-notification">⚠️ Manual verification required.</p>
+									<?php endif; ?>
 									<div class="more-info hidden instance">
 										<a class="closeError btn" href="#closeError" data-error="<?= $li_id; ?>">Close Issue Source</a>
+										<?php if($group_item->manual == true): ?>
+											<p class="manual-notification">⚠️ Manual verification required.</p>
+										<?php endif; ?>
 										<div class="error-preview">
 											<?php if ($group_item->type == "videosEmbeddedOrLinkedNeedCaptions"): ?>
 												<?= $group_item->html ?>
