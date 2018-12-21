@@ -155,11 +155,6 @@ After you receive your Developer Key from your Canvas admin, edit the following 
 * `$oauth2_key`: The Secret your Canvas admin gives you
 * `$oauth2_uri`: The Redirect URI you provided to your Canvas admin
 
-### Multitenant UDOIT
-A single instance of UDOIT can be configured to work with multiple Canvas accounts. We call this multitenancy.
-To set up multitenancy follow the steps above, but use the config template file `localConfig.multitenant.template.php`.
-
-
 ### Google/YouTube API Key
 In order for UDOIT to scan YouTube videos for closed captioning, you will need to create a YouTube Data API key.  Follow the instructions below:
 
