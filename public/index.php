@@ -51,6 +51,12 @@ foreach ($expect as $key) {
     }
 }
 
+// Get LTI consumer key and secret from DB if instance is multitenant.
+if (null === $consumer_key && null === $shared_secret) {
+    UdoitUtils::instance()->checkMultitenant($post_input['custom_canvas_api_domain']);
+}
+
+
 // verify LTI launch
 if (!UdoitUtils::instance()->verifyBasicLTILaunch()) {
     UdoitUtils::instance()->exitWithPageError('LTI/Oauth verification problem, please ensure that your instance of UDOIT is configured correctly.');
