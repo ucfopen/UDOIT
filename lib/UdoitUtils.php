@@ -274,21 +274,6 @@ class UdoitUtils
         return $ordered_report_groups;
     }
 
-    public function checkMultitenant($domain)
-    {
-        global $db_institutes_table;
-        
-        $sth = UdoitDB::prepare("SELECT * FROM {$db_institutes_table} WHERE domain = :domain");
-        $sth->bindValue(':domain', $domain, PDO::PARAM_STR);
-        $sth->execute();
-        $result = $sth->fetchObject();
-
-        if (!empty($result)) {
-            self::$canvas_consumer_key = $result->consumer_key;
-            self::$canvas_secret_key = $result->shared_secret;
-        }
-    }
-
     protected function curlOauthToken($base_url, $post_data)
     {
         // @TODO - why not use Httpful here?

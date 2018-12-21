@@ -2,6 +2,7 @@
 
 global $db_type;
 
+
 if ('sqlite' === $db_type || 'test' === $db_type) {
     // SQLITE (mostly for testing)
     $tables = [

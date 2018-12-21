@@ -1,29 +1,29 @@
 <?php
 
-/*
- * localConfig is used by an institute to connect a single Canvas account to a single UDOIT instance.
- *
- * To use multi-tenant (multiple Canvas accounts to a single UDOIT instance) use localConfig.multitenant.template.php.
- */
+/* LTI App Oauth 1.0 Settings (For use when installing the app in Canvas) */
+$consumer_key  = '';
+$shared_secret = '';
 
-/*********************
- * REQUIRED SETTINGS
- *********************/
-
-/*
- * LTI App Oauth 1.0 Settings (For use when installing the app in Canvas)
- */
-$consumer_key  = null;
-$shared_secret = null;
-
-/*
- * Canvas Developer Key Oauth 2.0 Settings
- *
- * Multi-tenant instances will need a global Canvas developer ID and key
- */
-$oauth2_id  = ''; // UDOIT global developer ID
-$oauth2_key = ''; // UDOIT global developer Key
+/* Canvas Developer Key Oauth 2.0 Settings */
+$oauth2_id  = ''; // Provided by your Canvas Admin
+$oauth2_key = ''; // Provided by your Canvas Admin
 $oauth2_uri = ''; // EX: https://udoit.my-org.edu/oauth2response.php or https://udoit.my-org.edu/udoit/public/oauth2response.php
+
+/* Disable headings check character count */
+$doc_length = '1500';
+
+/* Unscannable Suggestion */
+$unscannable_suggestion = 'Consider converting these documents to Pages, since they are easier to update, easier to view on mobile devices, and generally more accessible.';
+$unscannable_suggestion_on = true;
+
+/* Tool name for display in Canvas Navigation */
+$canvas_nav_item_name = (getenv('CANVAS_NAV_ITEM_NAME')) ?: 'UDOIT';
+
+/* File Scan Size Limit */
+$file_scan_size_limit = getenv('SCAN_FILE_SIZE_LIMIT') ?: 52428800;
+
+/* Alt Text Length Limit */
+$alt_text_length_limit = getenv('ALT_TEXT_LENGTH_LIMIT') ?: 125;
 
 /* Google/YouTube Data Api Key */
 define('GOOGLE_API_KEY', '');
@@ -47,46 +47,20 @@ $dsn              = "{$db_type}:host={$db_host};port={$db_port};dbname={$db_name
 
 $debug = false;
 
-/* Set the Environment
- * Valid values are 'ENV_PROD', 'ENV_DEV' (default), or 'ENV_TEST'
- *
- * ENV_DEV and ENV_TEST behaviors:
- *  - set display errors to 1
- *  - add test reports to 'View Old Reports' page in UDOIT
- *  - No Canvas token validation
- *  - Returns "test-token" when getting refresh token for Canvas
- *  - Course Scanner doesn't scan, simply contains already loaded test reports
- */
-$UDOIT_ENV = ENV_DEV; // default
-
-
-/*********************
- * ADVANCED SETTINGS
- *
- * These are all set to a standard default that should not need to be changed in most cases.
- *
- *********************/
-
-/* Disable headings check character count */
-$doc_length = '1500';
-
-/* Unscannable Suggestion */
-$unscannable_suggestion = 'Consider converting these documents to Pages, since they are easier to update, easier to view on mobile devices, and generally more accessible.';
-$unscannable_suggestion_on = true;
-
-/* Tool name for display in Canvas Navigation */
-$canvas_nav_item_name = (getenv('CANVAS_NAV_ITEM_NAME')) ?: 'UDOIT';
-
-/* File Scan Size Limit */
-$file_scan_size_limit = getenv('SCAN_FILE_SIZE_LIMIT') ?: 52428800;
-
-/* Alt Text Length Limit */
-$alt_text_length_limit = getenv('ALT_TEXT_LENGTH_LIMIT') ?: 125;
-
 /* Background worker Options (See Background Workers in Readme) */
 $background_worker_enabled = false;
 $background_job_expire_time = 20; // after x Minutes, mark job as expired
 $background_worker_sleep_seconds = 7;
+
+/* Set the Environment (default value is 'ENV_DEV' */
+// Valid values are 'ENV_PROD', 'ENV_DEV', or 'ENV_TEST'
+// If '$UDOIT_ENV' is not 'ENV_PROD' UDOIT is loaded with
+    // set display errors to 1
+    // add test reports to 'View Old Reports' page in UDOIT
+    // doesn't validate Canvas tokens
+    // returns "test-token" when getting refresh token for Canvas
+    // Course Scanner doesn't scan, simply contains already loaded test reports
+// $UDOIT_ENV = ENV_PROD; // default
 
 /* Ignore SSL Certificates */
 // For use while developing with self-signed SSL Certificates
