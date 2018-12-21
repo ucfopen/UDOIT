@@ -1,17 +1,16 @@
 version: '3.3'
 
 services:
-  web:
+  nginx:
     image: nginx:stable-alpine
     volumes:
-        - ./docker/nginx.conf:/etc/nginx/nginx.conf
-        - ./docker/nginx.crt:/var/ssl/nginx.crt
-        - ./docker/nginx.key:/var/ssl/nginx.key
+        - ./docker/etc/nginx:/etc/nginx
+        - ./docker/var/ssl:/var/ssl
         - .:/var/www/html
     ports:
         - "80:80"
         - "443:443"
-  db:
+  mysql:
     image: mysql:latest
     volumes:
       - dbdata:/var/lib/mysql

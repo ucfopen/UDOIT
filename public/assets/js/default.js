@@ -355,11 +355,12 @@ $doc.ready(function() {
 
 	// view error source
 	$doc.on('click', '.viewError', function(e) {
-		var errorId = e.target.dataset.error;
-		var $error = $('#'+errorId);
+		let errorId = e.target.dataset.error;
+		let $error = $('#'+errorId);
 
 		$(this).addClass('hidden');
 		$error.find('div.more-info').removeClass('hidden');
+		$error.find('p.manual-notification').first().addClass('hidden');
 		$error.find('a.closeError').first().focus();
 		resizeFrame();
 	});
@@ -367,10 +368,19 @@ $doc.ready(function() {
 
 	// close error source
 	$doc.on('click', '.closeError', function(e) {
-		var errorId = e.target.dataset.error;
-		var $error = $('#'+errorId);
+		let errorId = e.target.dataset.error;
+		let $error = $('#'+errorId);
+		let $vidiframe = $error.find('div.more-info .error-preview iframe')
+		let tmpElement = null
 
 		$error.find('div.more-info').addClass('hidden');
+
+		if($vidiframe.length > 0){
+			tmpElement = $vidiframe.detach();
+			tmpElement.appendTo($error.find('div.more-info .error-preview'));
+		}
+		
+		$error.find('p.manual-notification').first().removeClass('hidden');
 		$error.find('a.viewError').removeClass('hidden');
 		$error.find('a.viewError').focus();
 		resizeFrame();
