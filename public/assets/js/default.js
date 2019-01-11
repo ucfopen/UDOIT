@@ -22,7 +22,7 @@ var $doc = $(document); // hold a jquery doc reference
 
 /* Escapes special characters for use in jquery selectors. */
 function escapeSelector(sel){
-	return sel.replace( /(:|\.|\[|\]|,|=|@)/g, "\\$1" );
+	return sel.replace( /(:|\.|\[|\]|,|=|@|\|)/g, "\\$1" );
 }
 
 /* Fades out and destroys the popup window and background. */
