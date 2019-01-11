@@ -373,7 +373,7 @@ $doc.ready(function() {
 
 	// close error source
 	$doc.on('click', '.closeError', function(e) {
-		let errorId = e.target.dataset.error;
+		let errorId = escapeSelector(e.target.dataset.error);
 		let $error = $('#'+errorId);
 		let $vidiframe = $error.find('div.more-info .error-preview iframe')
 		let tmpElement = null
