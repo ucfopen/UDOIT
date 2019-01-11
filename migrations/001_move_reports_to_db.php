@@ -70,7 +70,7 @@ if (!$check_for_column($db_reports_table, $col_to_add)) {
 echo("Migrating old reports from disk to database.\r\n");
 
 // Grab all rows from the reports table
-if ($rows = UdoidDB::query('SELECT * FROM reports')) {
+if ($rows = UdoitDB::query('SELECT * FROM reports')) {
     $rows = $rows->fetchAll();
 }
 
