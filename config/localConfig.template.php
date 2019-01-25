@@ -47,6 +47,9 @@ $db_job_queue_table = 'job_queue';
 
 $dsn                = "{$db_type}:host={$db_host};port={$db_port};dbname={$db_name}";
 
+/* Add key/value options to passed directly to the PDO object */
+$db_options = [];
+
 $debug = false;
 
 /* Background worker Options (See Background Workers in Readme) */
