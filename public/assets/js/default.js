@@ -20,6 +20,11 @@
 var progressTimer = null;
 var $doc = $(document); // hold a jquery doc reference
 
+/* Escapes special characters for use in jquery selectors. */
+function escapeSelector(sel){
+	return sel.replace( /(:|\.|\[|\]|,|=|@|\|)/g, "\\$1" );
+}
+
 /* Fades out and destroys the popup window and background. */
 function killButton(callback) {
 	var $popup = $('#popup');
@@ -355,7 +360,7 @@ $doc.ready(function() {
 
 	// view error source
 	$doc.on('click', '.viewError', function(e) {
-		let errorId = e.target.dataset.error;
+		let errorId = escapeSelector(e.target.dataset.error);
 		let $error = $('#'+errorId);
 
 		$(this).addClass('hidden');
@@ -368,7 +373,7 @@ $doc.ready(function() {
 
 	// close error source
 	$doc.on('click', '.closeError', function(e) {
-		let errorId = e.target.dataset.error;
+		let errorId = escapeSelector(e.target.dataset.error);
 		let $error = $('#'+errorId);
 		let $vidiframe = $error.find('div.more-info .error-preview iframe')
 		let tmpElement = null
