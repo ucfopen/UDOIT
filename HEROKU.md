@@ -1,5 +1,5 @@
 # Heroku Button
-If you wish to install Heroku using the one-click deployment process, please click the purple "Deploy to Heroku" button in the [repositories main README](https://github.com/ucfopen/UDOIT).
+If you wish to install Heroku using the one-click deployment process, please click the purple "Deploy to Heroku" button in the [repository home page](https://github.com/ucfopen/UDOIT#installing-udoit).
 
 ## Installation Instructions
 Installing UDOIT using the Heroku button is very easy, but still requires some setup.  If you prefer to watch a video demonstrating the process step-by-step, watch the [UDOIT Installation CanvasLIVE video](https://www.youtube.com/watch?v=g1LgnErkvsA).

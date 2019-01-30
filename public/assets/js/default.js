@@ -20,6 +20,11 @@
 var progressTimer = null;
 var $doc = $(document); // hold a jquery doc reference
 
+/* Escapes special characters for use in jquery selectors. */
+function escapeSelector(sel){
+	return sel.replace( /(:|\.|\[|\]|,|=|@|\|)/g, "\\$1" );
+}
+
 /* Fades out and destroys the popup window and background. */
 function killButton(callback) {
 	var $popup = $('#popup');
@@ -355,12 +360,12 @@ $doc.ready(function() {
 
 	// view error source
 	$doc.on('click', '.viewError', function(e) {
-		var errorId = e.target.dataset.error;
-		var $error = $('#'+errorId);
+		let errorId = escapeSelector(e.target.dataset.error);
+		let $error = $('#'+errorId);
 
 		$(this).addClass('hidden');
 		$error.find('div.more-info').removeClass('hidden');
-		$error.find('p').first().addClass('hidden');
+		$error.find('p.manual-notification').first().addClass('hidden');
 		$error.find('a.closeError').first().focus();
 		resizeFrame();
 	});
@@ -368,11 +373,19 @@ $doc.ready(function() {
 
 	// close error source
 	$doc.on('click', '.closeError', function(e) {
-		var errorId = e.target.dataset.error;
-		var $error = $('#'+errorId);
+		let errorId = escapeSelector(e.target.dataset.error);
+		let $error = $('#'+errorId);
+		let $vidiframe = $error.find('div.more-info .error-preview iframe')
+		let tmpElement = null
 
 		$error.find('div.more-info').addClass('hidden');
-		$error.find('p').first().removeClass('hidden');
+
+		if($vidiframe.length > 0){
+			tmpElement = $vidiframe.detach();
+			tmpElement.appendTo($error.find('div.more-info .error-preview'));
+		}
+		
+		$error.find('p.manual-notification').first().removeClass('hidden');
 		$error.find('a.viewError').removeClass('hidden');
 		$error.find('a.viewError').focus();
 		resizeFrame();
@@ -483,7 +496,21 @@ $doc.ready(function() {
 			var $aSrc = $(this).find('input[name="errorhtml"]');
 			if ($input.val().trim() == ''){
 				valid = false;
-			} else if ($aSrc.val().indexOf($input.val().trim()) >= 0) {
+			} else if ($input.val().trim().toLowerCase().includes("http://")
+				|| $input.val().trim().toLowerCase().includes("https://")
+				|| $input.val().trim().toLowerCase().includes("www.")
+				|| $input.val().trim().toLowerCase().includes(".com")
+				|| $input.val().trim().toLowerCase().includes(".net")
+				|| $input.val().trim().toLowerCase().includes(".org")
+				|| $input.val().trim().toLowerCase().includes(".edu")
+				|| $input.val().trim().toLowerCase().includes(".info")
+				|| $input.val().trim().toLowerCase().includes(".de")
+				|| $input.val().trim().toLowerCase().includes(".cn")
+				|| $input.val().trim().toLowerCase().includes(".uk")
+				|| $input.val().trim().toLowerCase().includes(".nl")
+				|| $input.val().trim().toLowerCase().includes(".eu")
+				|| $input.val().trim().toLowerCase().includes(".ru")
+				) {
 				valid = false;
 			} else if ($input.val().trim().toLowerCase().match(/^(go to|link to|go here|link|click here|click|more|here)$/)) {
 				valid = false;
