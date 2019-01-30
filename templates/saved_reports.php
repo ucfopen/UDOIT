@@ -18,13 +18,6 @@
 *	Primary Author Contact:  Jacob Bates <jacob.bates@ucf.edu>
 */
 
-function convertToLocalTime($strTime)
-{
-	$dt = new DateTime($strTime, new DateTimeZone('UTC'));
-	$dt->setTimeZone(new DateTimeZone(date_default_timezone_get()));
-	return $dt->format('F jS, Y \a\t g:ia');
-}
-
 ?>
 <div id="resultsTable" class="table-responsive">
 	<table class="table table-bordered table-hover no-margin">

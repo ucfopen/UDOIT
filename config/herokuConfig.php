@@ -54,9 +54,6 @@ define('VIMEO_API_KEY', getenv('VIMEO_API_KEY')?:'');
 /* Google Analytics Tracking Code */
 define('GA_TRACKING_CODE', getenv('GA_TRACKING_CODE')?:'');
 
-/* Timezone that will be used when displaying old reports to the user */
-date_default_timezone_set(getenv('DISPLAY_TIMEZONE')?:'UTC');
-
 // Fix some issues caused by the heroku load balancer
 // The OAUTH signature verification doesn't know it's using https w/o this
 if (!empty($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] == 'https') {

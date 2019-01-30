@@ -73,10 +73,6 @@
     "ALT_TEXT_LENGTH_LIMIT": {
       "description": "Maximum character length for alt-text before the item gets flagged as a warning.",
       "value": "125"
-    },
-    "DISPLAY_TIMEZONE": {
-      "description": "The timezone used when displaying old reports to the user. (Note: Keep your database timezone set to UTC.)",
-      "value": "America/New_York"
     }
   },
   "addons": [
