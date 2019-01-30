@@ -747,6 +747,20 @@ $doc.ready(function() {
 			success: function(data) {
 				$('#cached').html(data);
 				resizeFrame();
+				// Convert all timestamps to pretty time in local timezone
+				$.each($("#resultsTable table tbody td:first-child"), function(key, value){
+					let options = {
+						month: 'long',
+						day: 'numeric',
+						year: 'numeric',
+						hour: 'numeric',
+						minute: 'numeric'
+					};
+					let origString = $(value).text();
+					let origDate = new Date(origString);
+					let newString = origDate.toLocaleDateString("en-us", options);
+					$(value).text(newString);
+				});
 			},
 			error: function() {
 				$('#cached').append(buildAlertString('Error displaying cached reports.'));
