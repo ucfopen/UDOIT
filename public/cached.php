@@ -19,7 +19,7 @@
 */
 require_once('../config/settings.php');
 
-$sth = UdoitDB::prepare("SELECT id, date_run, errors, suggestions FROM {$db_reports_table} WHERE course_id = :courseid ORDER BY date_run DESC");
+$sth = UdoitDB::prepare("SELECT id, DATE_FORMAT(date_run, \"%Y-%m-%dT%TZ\"), errors, suggestions FROM {$db_reports_table} WHERE course_id = :courseid ORDER BY date_run DESC");
 
 session_start();
 $sth->bindValue(':courseid', $_SESSION['launch_params']['custom_canvas_course_id'], PDO::PARAM_INT);
