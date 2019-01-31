@@ -747,15 +747,29 @@ $doc.ready(function() {
 			success: function(data) {
 				$('#cached').html(data);
 				resizeFrame();
+
+				let localTime = new Date();
+				// Grab the timezone offset and swap the sign since JS does things backwards
+				let tz = (localTime.getTimezoneOffset()/60)*-1;
+				let tzStr = "";
+				if (tz > 0) {
+					tzStr = " (GMT+" + tz + ")";
+				} else {
+					tzStr = " (GMT" + tz + ")";
+				}
+
+				$("#resultsTable table thead tr th:first-child").append(tzStr);
+
 				// Convert all timestamps to pretty time in local timezone
+				let options = {
+					month: 'long',
+					day: 'numeric',
+					year: 'numeric',
+					hour: 'numeric',
+					minute: 'numeric'
+				};
+
 				$.each($("#resultsTable table tbody td:first-child"), function(key, value){
-					let options = {
-						month: 'long',
-						day: 'numeric',
-						year: 'numeric',
-						hour: 'numeric',
-						minute: 'numeric'
-					};
 					let origString = $(value).text();
 					let origDate = new Date(origString);
 					let newString = origDate.toLocaleDateString("en-us", options);
