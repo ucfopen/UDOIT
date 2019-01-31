@@ -20,6 +20,11 @@
 var progressTimer = null;
 var $doc = $(document); // hold a jquery doc reference
 
+/* Escapes special characters for use in jquery selectors. */
+function escapeSelector(sel){
+	return sel.replace( /(:|\.|\[|\]|,|=|@|\|)/g, "\\$1" );
+}
+
 /* Fades out and destroys the popup window and background. */
 function killButton(callback) {
 	var $popup = $('#popup');
@@ -355,11 +360,12 @@ $doc.ready(function() {
 
 	// view error source
 	$doc.on('click', '.viewError', function(e) {
-		var errorId = e.target.dataset.error;
-		var $error = $('#'+errorId);
+		let errorId = escapeSelector(e.target.dataset.error);
+		let $error = $('#'+errorId);
 
 		$(this).addClass('hidden');
 		$error.find('div.more-info').removeClass('hidden');
+		$error.find('p.manual-notification').first().addClass('hidden');
 		$error.find('a.closeError').first().focus();
 		resizeFrame();
 	});
@@ -367,10 +373,19 @@ $doc.ready(function() {
 
 	// close error source
 	$doc.on('click', '.closeError', function(e) {
-		var errorId = e.target.dataset.error;
-		var $error = $('#'+errorId);
+		let errorId = escapeSelector(e.target.dataset.error);
+		let $error = $('#'+errorId);
+		let $vidiframe = $error.find('div.more-info .error-preview iframe')
+		let tmpElement = null
 
 		$error.find('div.more-info').addClass('hidden');
+
+		if($vidiframe.length > 0){
+			tmpElement = $vidiframe.detach();
+			tmpElement.appendTo($error.find('div.more-info .error-preview'));
+		}
+		
+		$error.find('p.manual-notification').first().removeClass('hidden');
 		$error.find('a.viewError').removeClass('hidden');
 		$error.find('a.viewError').focus();
 		resizeFrame();
@@ -447,7 +462,7 @@ $doc.ready(function() {
 	$('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
 		resizeFrame();
 	});
-	
+
 	// submitting the ufixit form
 	$doc.on('submit', '#scanner .ufixit-form', function(e) {
 		e.preventDefault();
@@ -481,7 +496,21 @@ $doc.ready(function() {
 			var $aSrc = $(this).find('input[name="errorhtml"]');
 			if ($input.val().trim() == ''){
 				valid = false;
-			} else if ($aSrc.val().indexOf($input.val().trim()) >= 0) {
+			} else if ($input.val().trim().toLowerCase().includes("http://")
+				|| $input.val().trim().toLowerCase().includes("https://")
+				|| $input.val().trim().toLowerCase().includes("www.")
+				|| $input.val().trim().toLowerCase().includes(".com")
+				|| $input.val().trim().toLowerCase().includes(".net")
+				|| $input.val().trim().toLowerCase().includes(".org")
+				|| $input.val().trim().toLowerCase().includes(".edu")
+				|| $input.val().trim().toLowerCase().includes(".info")
+				|| $input.val().trim().toLowerCase().includes(".de")
+				|| $input.val().trim().toLowerCase().includes(".cn")
+				|| $input.val().trim().toLowerCase().includes(".uk")
+				|| $input.val().trim().toLowerCase().includes(".nl")
+				|| $input.val().trim().toLowerCase().includes(".eu")
+				|| $input.val().trim().toLowerCase().includes(".ru")
+				) {
 				valid = false;
 			} else if ($input.val().trim().toLowerCase().match(/^(go to|link to|go here|link|click here|click|more|here)$/)) {
 				valid = false;
@@ -718,6 +747,34 @@ $doc.ready(function() {
 			success: function(data) {
 				$('#cached').html(data);
 				resizeFrame();
+
+				let localTime = new Date();
+				// Grab the timezone offset and swap the sign since JS does things backwards
+				let tz = (localTime.getTimezoneOffset()/60)*-1;
+				let tzStr = "";
+				if (tz > 0) {
+					tzStr = " (GMT+" + tz + ")";
+				} else {
+					tzStr = " (GMT" + tz + ")";
+				}
+
+				$("#resultsTable table thead tr th:first-child").append(tzStr);
+
+				// Convert all timestamps to pretty time in local timezone
+				let options = {
+					month: 'long',
+					day: 'numeric',
+					year: 'numeric',
+					hour: 'numeric',
+					minute: 'numeric'
+				};
+
+				$.each($("#resultsTable table tbody td:first-child"), function(key, value){
+					let origString = $(value).text();
+					let origDate = new Date(origString);
+					let newString = origDate.toLocaleDateString("en-us", options);
+					$(value).text(newString);
+				});
 			},
 			error: function() {
 				$('#cached').append(buildAlertString('Error displaying cached reports.'));
@@ -1019,7 +1076,7 @@ $doc.ready(function() {
 	  	var tab = (e.target || e.srcElement);
 		if((e.keyCode == 32)){
 			e.preventDefault();
-			tab.click();	
+			tab.click();
 		}
 	});
 

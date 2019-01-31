@@ -49,10 +49,10 @@ $unscannable_suggestion_on = true;
 define('GOOGLE_API_KEY', getenv('GOOGLE_API_KEY')?:'');
 
 /* Vimeo API Key */
-define('VIMEO_API_KEY', '');
+define('VIMEO_API_KEY', getenv('VIMEO_API_KEY')?:'');
 
 /* Google Analytics Tracking Code */
-define('GA_TRACKING_CODE', '');
+define('GA_TRACKING_CODE', getenv('GA_TRACKING_CODE')?:'');
 
 // Fix some issues caused by the heroku load balancer
 // The OAUTH signature verification doesn't know it's using https w/o this

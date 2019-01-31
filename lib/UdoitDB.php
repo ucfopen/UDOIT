@@ -99,10 +99,12 @@ class UdoitDB
 
                 case 'pgsql':
                     $db = new static::$dbClass(static::$dsn, static::$user, static::$password);
+                    $db->query("SET TIME ZONE 'UTC'");
                     break;
 
                 case 'mysql':
                     $db = new static::$dbClass(static::$dsn, static::$user, static::$password);
+                    $db->query("SET time_zone = '+00:00'");
                     break;
 
                 default:

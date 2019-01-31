@@ -51,13 +51,9 @@ To start the Heroku deployment process, you can click the button below, please n
 
 ## System Requirements
 * Apache or Nginx webserver
-* PHP 5.4, 5.5, 5.6, 7.0, 7.1 (some users have modified the code to work on 5.3)
+* PHP 5.6, 7.0, 7.1, 7.2
   * [GD Graphics Library](http://php.net/manual/en/book.image.php)
 * MySQL or PostgreSQL
-
-If you're using PHP 5.3:
-
-* Convert all empty array initializations from using the newer `[]` syntax to use the older `array()` syntax.
 
 ## Downloading the Source Code
 There are two methods of obtaining the source code and maintaining your installation of UDOIT:  Git Clone or Download ZIP.
@@ -166,12 +162,21 @@ In order for UDOIT to scan YouTube videos for closed captioning, you will need t
 2. Create a project.
 3. Enable ***YouTube Data API V3***
 4. Create an ***API key*** credential.
+5. Add the key to `config/localConfig.php` in the `define('GOOGLE_API_KEY', '');` statement.  For example, if your API key is `heythisisanapikey`, that line should look like `define('GOOGLE_API_KEY', 'heythisisanapikey');` when you're done.
+
+If you do not provide a Google API key, a warning log will be recorded in `config/log.log` and all YouTube videos will be marked for manual inspection by the user.
 
 ### Vimeo API Key
 In order for UDOIT to scan Vimeo videos for closed captioning, you will need to create a Vimeo API key. Follow the instructions below:
 
 1. [Create a new App on Vimeo Developer API](https://developer.vimeo.com/apps/new?source=getting-started), please note you must have a Vimeo Developer account.
-2. On your applications "Authentication" page, Generate a new Access Token
+2. On your applications "Authentication" page, Generate a new Access Token.  (Select the `Public` and `Private` checkboxes for Scopes.)
+3. Add the key to `config/localConfig.php` in the `define('VIMEO_API_KEY', '');` statement.  For example, if your API key is `heythisisanapikey`, that line should look like `define('VIMEO_API_KEY', 'heythisisanapikey');` when you're done.
+
+If you do not provide a Vimeo API key, a warning log will be recorded in `config/log.log` and all Vimeo videos will be marked for manual inspection by the user.
+
+### Google Analytics
+If you would like to use Google Analytics for tracking usage of UDOIT, create a new tracking code and add it to `config/localConfig.php` in the `define('GA_TRACKING_CODE', '');` statement.  For example, if your tracking code is `UA-12345678-1`, that line should look like `define('GA_TRACKING_CODE', 'UA-12345678-1');` when you're done.
 
 ### Installing the LTI in Canvas
 Log into Canvas to add UDOIT:
@@ -190,10 +195,10 @@ Log into Canvas to add UDOIT:
 #### LTI Config URL Notes
 The URL of your UDOIT LTI config depends on your webserver install.  The file is located the `public` directory. The examples below should give you are some possible values:
 
-* `http://<DOMAIN>/udoit.xml.php`
-* `http://<DOMAIN>/public/udoit.xml.php`
-* `http://<DOMAIN>/udoit/udoit.xml.php`
-* `http://<DOMAIN>/udoit/public/udoit.xml.php`
+* `https://<DOMAIN>/udoit.xml.php`
+* `https://<DOMAIN>/public/udoit.xml.php`
+* `https://<DOMAIN>/udoit/udoit.xml.php`
+* `https://<DOMAIN>/udoit/public/udoit.xml.php`
 
 ## Upgrading UDOIT
 The instructions below are general guidelines for upgrading your installation of UDOIT from one version to the next.  However, the release notes for a particular version might contain specific instructions for that version, and those instructions supersede the ones below.  Since the instructions differ depending on how you installed UDOIT, they are separated by these methods below.
@@ -245,6 +250,12 @@ Whether hosted on your own server or on Heroku, the URL where UDOIT has been ins
 If database migrations fail, make sure the database user has the ability to alter tables in your udoit database. Give that user permission to ALTER tables. MySQL uses `GRANT` while PostgreSQL requires `OWNER`.
 
 ## FAQs
+
+### How do I get in touch with you if I have questions?
+There are a few different ways you can get in touch with us, depending on what you're most comfortable with:
+* [Canvas Community](https://community.canvaslms.com/groups/accessibility) - The easiest option is to comment on the blog post for your version of UDOIT.
+* [Slack](https://ucf-open-slackin.herokuapp.com/) - We have channels for all of our open source projects, including UDOIT.
+* Email - If you're more comfortable with email, you can contact me directly at [jacob.bates@ucf.edu](mailto:jacob.bates@ucf.edu).
 
 ### How much time will I have to spend maintaining UDOIT?
 UDOIT should require little to no maintenance. It is up to your institution to choose when you update UDOIT to the latest release. UDOIT can be updated by running `git pull` on this repository.

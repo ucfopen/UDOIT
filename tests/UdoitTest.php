@@ -74,6 +74,128 @@ class UdoitTest extends BaseTest
         self::assertArraySubset(['body_0_a', 'body_0_b', 'body_1_a', 'body_1_b', 'body_2_a', 'body_2_b'], $result);
     }
 
+    public function testGetCaptionsVimeo()
+    {
+
+        require_once('lib/quail/quail/common/services/media/vimeo.php');
+        $vimeo = new vimeoService();
+
+        // These arrays represent how the API will respond to requests
+        // Note: These arrays should be of the same length and order
+
+        // Headers returned from API calls
+        $headers = [
+            [], // private
+            [], // nonexistent
+            [], // video with captions
+            [], // video with no captions
+        ];
+
+        // Bodies returned from API calls
+        $bodies = [
+            (object) [],             // private
+            (object) [],             // nonexistent
+            (object) ['total' => 1], // video with captions
+            (object) ['total' => 0], // video with no captions
+        ];
+
+        // Statuses returned from API calls
+        $statuses = [
+            400, // private
+            404, // nonexistent
+            200, // video with captions
+            200, // video with no captions
+        ];
+
+        // URLs to test and the expected function response
+        $urls = [
+            ['https://vimeo.com/278000241', 1], // private
+            ['https://vimeo.com/27800024', 1],  // nonexistent
+            ['https://vimeo.com/305804024', 2], // video with captions
+            ['https://vimeo.com/303668864', 0], // video with no captions
+            ['https://vimeo.com/video/123', 2], // malformed (no API call)
+            ['https://vimeo.com/', 2],          // malformed (no API call)
+        ];
+
+        $api_responses = self::mockGetRequestResult($headers, $bodies, $statuses);
+        Mockery::mock('overload:Httpful\Request')
+            ->shouldReceive('get')
+            ->andReturn($api_responses);
+
+        foreach ($urls as $url) {
+            self::assertSame($vimeo->captionsMissing($url[0]), $url[1]);
+        }
+    }
+
+    public function testGetCaptionsYoutube()
+    {
+
+        require_once('lib/quail/quail/common/services/media/youtube.php');
+        $youtube = new youtubeService();
+
+        // These arrays represent how the API will respond to requests
+        // Note: These arrays should be of the same length and order
+
+        // Headers returned from API calls
+        $headers = [
+            [], // private
+            [], // nonexistent
+            [], // video with captions
+            [], // video with no captions
+        ];
+
+        // Bodies returned from API calls
+        $bodies = [
+            (object) [],             // private
+            (object) [],             // nonexistent
+            (object) ['items' => [   // video with captions
+                (object) ['snippet' =>
+                    (object) ['trackKind' => 'ASR'],
+                    ],
+                (object) ['snippet' =>
+                    (object) ['trackKind' => 'standard'],
+                    ],
+                ],
+            ],
+            (object) ['items' => [   // video without captions
+                (object) ['snippet' =>
+                    (object) ['trackKind' => 'ASR'],
+                    ],
+                ],
+            ],
+            (object) [],              // video with no captions or autocaptions
+        ];
+
+        // Statuses returned from API calls
+        $statuses = [
+            404, // private
+            404, // nonexistent
+            200, // video with captions
+            200, // video with no captions
+            404, // video with no captions or autocaptions
+        ];
+
+        // URLs to test and the expected response
+        $urls = [
+            ['https://www.youtube.com/watch?v=XNh9C6S4-6M', 1], // private
+            ['https://www.youtube.com/watch?v=XNh9C6S4-6P', 1], // nonexistent
+            ['https://www.youtube.com/watch?v=NTfOnGZUZDk', 2], // video with captions
+            ['https://www.youtube.com/watch?v=UKS_of5MUj0', 0], // video with no captions
+            ['https://www.youtube.com/watch?v=XBBwbGq6Z6Q', 1], // video with no captions or autocaptions
+            ['https://www.youtube.com/', 2],                    // malformed (no API call)
+            ['https://www.youtube.com/lol', 2],                 // malformed (no API call)
+        ];
+
+        $api_responses = self::mockGetRequestResult($headers, $bodies, $statuses);
+        Mockery::mock('overload:Httpful\Request')
+            ->shouldReceive('get')
+            ->andReturn($api_responses);
+
+        foreach ($urls as $url) {
+            self::assertSame($youtube->captionsMissing($url[0]), $url[1]);
+        }
+    }
+
     public function testGetCoursContentGetsMultipleItems()
     {
         $header_to_array_returns = [
@@ -257,11 +379,22 @@ class UdoitTest extends BaseTest
     public function testGetCoursContentGetsUnscannableFiles()
     {
         $header_to_array_returns = [
-            ['link' => ''], // just one page
+            ['link' => ''],
         ];
 
         $body_returns = [
-            [
+            [ // Modules list
+                (object) [
+                    'name' => "Test Module",
+                    'items_url' => "something/that/doesnt/matter",
+                ],
+            ],
+            [ // Only a single item in the module
+                (object) [
+                    'title' => "display_name_value.pdf",
+                ],
+            ],
+            [ // Only a single file
                 (object) [
                     'display_name' => "display_name_value.pdf",
                     'filename' => "filename.pdf",
@@ -274,6 +407,7 @@ class UdoitTest extends BaseTest
         ];
 
         $mock_get_result = self::mockGetRequestResult($header_to_array_returns, $body_returns);
+
 
         // overload Httpful\Request::get() to return $mock_get
         Mockery::mock('overload:Httpful\Request')
@@ -300,7 +434,8 @@ class UdoitTest extends BaseTest
         ];
 
         $body_returns = [
-            [
+            [], // We don't care about modules, no modules means no items
+            [ // An HTML file since we aren't testing unscannable files
                 (object) [
                     'display_name' => "display_name_value.html",
                     'filename' => "filename.html",
@@ -309,7 +444,7 @@ class UdoitTest extends BaseTest
                     'html_url' => 'url_value',
                 ],
             ],
-            '<p>some html</p>',
+            '<p>some html</p>', // Getting the html contents of the file
             [],
         ];
 
@@ -711,8 +846,9 @@ class UdoitTest extends BaseTest
         ]';
 
         $body_returns = [
-            json_decode($api_body),
-            '<img src="http://url.com/image.jpg"/>',
+            [], // We don't care about Modules here
+            json_decode($api_body), // one HTML file and one unscannable file
+            '<img src="http://url.com/image.jpg"/>', // Contents of the HTML file
             [],
         ];
 
@@ -729,11 +865,10 @@ class UdoitTest extends BaseTest
 
         self::assertEquals(0, $result['total_results']['errors']);
         self::assertEquals(0, $result['total_results']['warnings']);
-        self::assertEquals(1, $result['total_results']['suggestions']);
+        self::assertEquals(1, $result['total_results']['suggestions']); // This should be its own test
 
         $res = $result['scan_results'];
 
-        self::assertCount(1, $res['unscannable']);
         self::assertArrayHasKey('unscannable', $res);
         self::assertCount(1, $res['unscannable']);
 
@@ -755,7 +890,6 @@ class UdoitTest extends BaseTest
         self::assertArrayHasKey('warning', $res['files']['items'][0]);
         self::assertArrayHasKey('suggestion', $res['files']['items'][0]);
 
-        self::assertCount(1, $res['files']['items'][0]['suggestion']);
         self::assertCount(1, $res['files']['items'][0]['suggestion']);
     }
 
