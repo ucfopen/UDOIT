@@ -97,7 +97,7 @@ class UdoitDBTest extends BaseTest
 
         self::assertTrue(UdoitDB::test());
         $pdo = self::getPrivateStaticPropertyValue('UdoitDB', 'pdo');
-        self::assertEmpty($pdo->query_calls);
+        self::assertCount(1, $pdo->query_calls);
     }
 
     public function testConnectionTestWithConnectionBeforeTimeoutWithForceOnDoesRunQuery()
@@ -107,7 +107,7 @@ class UdoitDBTest extends BaseTest
 
         self::assertTrue(UdoitDB::test(true));
         $pdo = self::getPrivateStaticPropertyValue('UdoitDB', 'pdo');
-        self::assertCount(1, $pdo->query_calls);
+        self::assertCount(2, $pdo->query_calls);
     }
 
     public function testConnectionTestWithConnectionAfterTimeoutDoesRunQuery()
@@ -118,7 +118,7 @@ class UdoitDBTest extends BaseTest
 
         self::assertTrue(UdoitDB::test());
         $pdo = self::getPrivateStaticPropertyValue('UdoitDB', 'pdo');
-        self::assertCount(1, $pdo->query_calls);
+        self::assertCount(2, $pdo->query_calls);
     }
 
     public function testPDOPassThroughCallsPDOFunction()
@@ -128,7 +128,7 @@ class UdoitDBTest extends BaseTest
 
         UdoitDB::query('QUERY VALUE HERE');
         $pdo = self::getPrivateStaticPropertyValue('UdoitDB', 'pdo');
-        self::assertEquals('QUERY VALUE HERE', $pdo->query_calls[0][0]);
+        self::assertEquals('QUERY VALUE HERE', $pdo->query_calls[1][0]);
     }
 
     public function testPDOPassThroughWillReconnect()
