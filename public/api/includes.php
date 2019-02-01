@@ -1,5 +1,6 @@
 <?php
 require_once(__DIR__.'/../../config/settings.php');
+global $logger;
 
 session_start();
 header('Content-type: text/json');
@@ -12,6 +13,7 @@ function respond_and_die($data, $http_code = 200)
 
 function respond_with_error($http_code, $data)
 {
+    $logger->addError('API Error '.$http_code.': '$data);
     $response = [
         'success' => false,
         'data' => $data,

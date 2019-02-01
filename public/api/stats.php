@@ -22,8 +22,6 @@ use Httpful\Request;
 
 require_once(__DIR__.'/includes.php');
 
-global $logger;
-
 // Verify we have the minimum GET parameters we need
 if (!isset($_GET['stat'])) {
     // Set response to 400 (Bad Request)
@@ -106,19 +104,26 @@ switch ($_GET['stat']) {
         break;
 
     case 'termslist':
-        $logger->addInfo('Fetching term list for user '.$user_id);
+        //TODO: Fix this to go off of the account id rather than the user id, which doesn't work
+        $logger->addInfo('Fetching term list for account '.$user_id);
         $user_id = $_SESSION['launch_params']['custom_canvas_user_id'];
         $api_key = UdoitUtils::instance()->getValidRefreshedApiKey($_SESSION['launch_params']['custom_canvas_user_id']);
         $request = $_SESSION['base_url'].'/api/v1/accounts/'.$user_id.'/terms';
-        $results = Request::get($request)->addHeader('Authorization', "Bearer ${api_key}")->send()->body->enrollment_terms;
+        $results = Request::get($request)->addHeader('Authorization', "Bearer ${api_key}")->send();
+
         if (false === $results) {
-            $logger->addError('Error retrieving term list from database for user '.$user_id);
             respond_with_error(500, 'Error retrieving Terms from database.');
         }
 
-        $logger->addInfo(print_r($results));
+        if (isset($results->body->enrollment_terms)) {
+            $terms = $results->body->enrollment_terms;
+        } elseif (isset($results->body->errors)) {
+            respond_with_error(500, 'Error retrieving Terms from database: '.$results->body->errors[0]->message);
+        }
 
-        for ($i = 0; $i < count($results); $i++) {
+        $logger->addInfo(print_r($terms, true));
+
+        for ($i = 0; $i < count($terms); $i++) {
             $terms[$i] = ['name' => $results[$i]->name, 'id' => $results[$i]->id];
         }
 
