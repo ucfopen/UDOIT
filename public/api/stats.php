@@ -105,7 +105,7 @@ switch ($_GET['stat']) {
 
     case 'termslist':
         //TODO: Fix this to go off of the account id rather than the user id, which doesn't work
-        $logger->addInfo('Fetching term list for root account.';
+        $logger->addInfo('Fetching term list for root account.');
         $acct_id = $_SESSION['launch_params']['custom_canvas_root_account_id'];
         $api_key = UdoitUtils::instance()->getValidRefreshedApiKey($_SESSION['launch_params']['custom_canvas_user_id']);
         $request = $_SESSION['base_url'].'/api/v1/accounts/'.$acct_id.'/terms';
