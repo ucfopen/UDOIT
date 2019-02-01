@@ -13,6 +13,7 @@ function respond_and_die($data, $http_code = 200)
 
 function respond_with_error($http_code, $data)
 {
+    global $logger;
     $logger->addError('API Error '.$http_code.': '.$data);
     $response = [
         'success' => false,
