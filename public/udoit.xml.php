@@ -48,6 +48,7 @@ echo('<?xml version="1.0" encoding="UTF-8"?>');
 		<lticm:property name="domain"><?= $_SERVER['SERVER_NAME'] ?></lticm:property>
 		<lticm:options name="custom_fields">
 			<lticm:property name="canvas_api_domain">$Canvas.api.domain</lticm:property>
+			<lticm:property name="canvas_root_account_id">$Canvas.rootAccount.id</lticm:property>
 		</lticm:options>
 		<lticm:options name="course_navigation">
 			<lticm:property name="url"><?= $launch ?>?d=scanner</lticm:property>

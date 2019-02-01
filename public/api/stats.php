@@ -105,20 +105,20 @@ switch ($_GET['stat']) {
 
     case 'termslist':
         //TODO: Fix this to go off of the account id rather than the user id, which doesn't work
-        $logger->addInfo('Fetching term list for account '.$user_id);
-        $user_id = $_SESSION['launch_params']['custom_canvas_user_id'];
+        $logger->addInfo('Fetching term list for root account.';
+        $acct_id = $_SESSION['launch_params']['custom_canvas_root_account_id'];
         $api_key = UdoitUtils::instance()->getValidRefreshedApiKey($_SESSION['launch_params']['custom_canvas_user_id']);
-        $request = $_SESSION['base_url'].'/api/v1/accounts/'.$user_id.'/terms';
+        $request = $_SESSION['base_url'].'/api/v1/accounts/'.$acct_id.'/terms';
         $results = Request::get($request)->addHeader('Authorization', "Bearer ${api_key}")->send();
 
         if (false === $results) {
-            respond_with_error(500, 'Error retrieving Terms from database.');
+            respond_with_error(500, 'Error retrieving terms for root account.');
         }
 
         if (isset($results->body->enrollment_terms)) {
             $terms = $results->body->enrollment_terms;
         } elseif (isset($results->body->errors)) {
-            respond_with_error(500, 'Error retrieving Terms from database: '.$results->body->errors[0]->message);
+            respond_with_error(500, 'Error retrieving terms for root account: '.$results->body->errors[0]->message);
         }
 
         $logger->addInfo(print_r($terms, true));

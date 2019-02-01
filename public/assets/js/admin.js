@@ -314,7 +314,7 @@ $(document).ready(function(){
 		},
 		error: function(xhr, status, error){
 			response = JSON.parse(xhr.responseText);
-			$('#scans-term-id').html(response.data);
+			$('#scans-results').html(response.data);
 		}
 	});
 });

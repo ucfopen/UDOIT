@@ -42,6 +42,7 @@ if (isEmpty(constant('VIMEO_API_KEY'))) {
 $post_input = filter_input_array(INPUT_POST, FILTER_SANITIZE_STRING);
 $post_input['custom_canvas_user_id'] = filter_input(INPUT_POST, 'custom_canvas_user_id', FILTER_SANITIZE_NUMBER_INT);
 $post_input['custom_canvas_course_id'] = filter_input(INPUT_POST, 'custom_canvas_course_id', FILTER_SANITIZE_NUMBER_INT);
+$post_input['custom_canvas_root_account_id'] = filter_input(INPUT_POST, 'custom_canvas_root_account_id', FILTER_SANITIZE_NUMBER_INT);
 
 // verify we have the variables we need from the LTI launch
 $expect = ['oauth_consumer_key', 'custom_canvas_api_domain', 'custom_canvas_user_id', 'ext_roles', ];
@@ -88,6 +89,9 @@ $api_key = UdoitUtils::instance()->getValidRefreshedApiKey($user_id);
 
 if (!empty($api_key)) {
     if ($_SESSION['destination'] === 'admin') {
+        if (empty($post_input['custom_canvas_root_account_id'])) {
+            UdoitUtils::instance()->exitWithPageError("Missing LTI launch information. Please ensure that your instance of UDOIT is installed to Canvas correctly. Missing: custom_canvas_root_account_id");
+        }
         $redirect_to = 'admin.php';
     } elseif ($_SESSION['destination'] === 'scanner') {
         if (empty($post_input['custom_canvas_course_id'])) {
