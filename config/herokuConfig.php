@@ -31,6 +31,7 @@ $db_user          = $db_url['user'];
 $db_password      = $db_url['pass'];
 $db_user_table    = 'users';
 $db_reports_table = 'reports';
+$db_job_queue_table='job_queue';
 
 $dsn = "pgsql:host={$db_host};dbname={$db_name};user={$db_user};port={$db_port};sslmode=require;password={$db_password}";
 

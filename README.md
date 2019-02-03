@@ -115,6 +115,7 @@ Edit `config/localConfig.php`:
 * `$db_name` -  The database name that contains the tables
 * `$db_user_table` - Default is 'users', no change needed unless you change the table names
 * `$db_reports_table`: - Default is 'reports', no change needed unless you change the table names
+* `$db_job_queue_table`: - Default is 'job_queue', no change needed unless you change the table names
 
 ### Installing Database Tables
 
