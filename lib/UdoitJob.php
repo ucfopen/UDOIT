@@ -115,6 +115,8 @@ class UdoitJob
     protected static function finalizeReport($job_group, $job_data)
     {
         global $logger;
+        global $db_reports_table;
+        global $db_job_queue_table;
         $logger->addInfo("Finalizing Report job_group: {$job_group}");
         $report = static::combineJobResults($job_group);
 
@@ -123,7 +125,6 @@ class UdoitJob
         $report['course_id'] = $job_data['course_id'];
 
         // create a record of the report
-        global $db_reports_table;
         $sql = "
             INSERT INTO {$db_reports_table}
                 (user_id, course_id, report_json, errors, suggestions)
@@ -155,7 +156,6 @@ class UdoitJob
         }
 
         // set the report_id column for all the jobs in the group
-        global $db_job_queue_table;
         $sql = "UPDATE {$db_job_queue_table} SET report_id = :report_id WHERE job_group = :job_group";
         $sth = UdoitDB::prepare($sql);
         $sth->bindValue(':report_id', $report_id);

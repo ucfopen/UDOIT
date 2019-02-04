@@ -31,17 +31,17 @@ define('GA_TRACKING_CODE', 'TEST_GA_TRACKING');
 define('VIMEO_API_KEY', 'TEST_VIMEO_KEY');
 
 /* Database Config */
-$db_type          = 'test'; // 'mysql' or 'pgsql'
-$db_host          = ''; // localhost or ip
-$db_port          = '';
-$db_user          = '';
-$db_password      = '';
-$db_name          = '';
-$db_user_table    = 'users';
-$db_reports_table = 'reports';
-$db_job_queue_table='job_queue';
+$db_type            = 'test'; // 'mysql' or 'pgsql'
+$db_host            = ''; // localhost or ip
+$db_port            = '';
+$db_user            = '';
+$db_password        = '';
+$db_name            = '';
+$db_user_table      = 'users';
+$db_reports_table   = 'reports';
+$db_job_queue_table = 'job_queue';
 
-$dsn = "{$db_type}:host={$db_host};port={$db_port};dbname={$db_name}";
+$dsn                = "{$db_type}:host={$db_host};port={$db_port};dbname={$db_name}";
 
 $debug = false;
 
