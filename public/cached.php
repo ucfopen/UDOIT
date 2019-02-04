@@ -18,8 +18,29 @@
 *   Primary Author Contact:  Jacob Bates <jacob.bates@ucf.edu>
 */
 require_once('../config/settings.php');
+global $logger;
 
-$sth = UdoitDB::prepare("SELECT id, date_run, errors, suggestions FROM {$db_reports_table} WHERE course_id = :courseid ORDER BY date_run DESC");
+$logger->addInfo('Loading saved reports');
+
+switch (UdoitDB::$type) {
+    case 'sqlite':
+    case 'test':
+        $sth = UdoitDB::prepare("SELECT id, strftime('YYYY-MM-DDTHH:MM:SSZ', date_run) as date, errors, suggestions FROM {$db_reports_table} WHERE course_id = :courseid ORDER BY date_run DESC");
+        break;
+
+    case 'pgsql':
+        $sth = UdoitDB::prepare("SELECT id, to_char(date_run, 'YYYY-MM-DD\"T\"HH24:MI:SS\"Z\"') as date, errors, suggestions FROM {$db_reports_table} WHERE course_id = :courseid ORDER BY date_run DESC");
+        break;
+
+    case 'mysql':
+        $sth = UdoitDB::prepare("SELECT id, DATE_FORMAT(date_run, \"%Y-%m-%dT%TZ\") as date, errors, suggestions FROM {$db_reports_table} WHERE course_id = :courseid ORDER BY date_run DESC");
+        break;
+
+    default:
+        $logger->addError('Unable to load reports: No database type specified');
+        UdoitUtils::instance()->exitWithPageError('Unable to load reports: No database type specified.');
+        break;
+}
 
 session_start();
 $sth->bindValue(':courseid', $_SESSION['launch_params']['custom_canvas_course_id'], PDO::PARAM_INT);
@@ -27,7 +48,8 @@ UdoitUtils::$canvas_base_url = $_SESSION['base_url'];
 session_write_close();
 
 if (!$sth->execute()) {
-    UdoitUtils::instance()->exitWithError('Could not complete database query');
+    $logger->addError('Error loading saved reports: '.$sth->errorInfo());
+    UdoitUtils::instance()->exitWithPartialError('Could not complete database query');
 }
 
 $reports = $sth->fetchAll();
