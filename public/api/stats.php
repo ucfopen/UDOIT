@@ -123,10 +123,10 @@ switch ($_GET['stat']) {
         $logger->addInfo(print_r($terms, true));
 
         for ($i = 0; $i < count($terms); $i++) {
-            $terms[$i] = ['name' => $results[$i]->name, 'id' => $results[$i]->id];
+            $return_terms[$i] = ['name' => $terms[$i]->name, 'id' => $terms[$i]->id];
         }
 
-        respond_with_success($terms);
+        respond_with_success($return_terms);
         break;
 
     case 'courseinfo':
