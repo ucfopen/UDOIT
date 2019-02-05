@@ -86,7 +86,7 @@ class UdoitStats
                     break;
 
                 case 'term_id':
-                    continue; // TODO: Implement Term ID functionality
+                    break; // TODO: Implement Term ID functionality
 
                 case 'course_id':
                     $query .= $prepend_word." $db_reports_table.course_id = $value\n";
