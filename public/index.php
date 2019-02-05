@@ -63,12 +63,13 @@ $user_id                     = $post_input['custom_canvas_user_id'];
 UdoitUtils::$canvas_base_url = rtrim("https://{$post_input['custom_canvas_api_domain']}", '/');
 $_SESSION['base_url']        = UdoitUtils::$canvas_base_url;
 $_SESSION['launch_params']   = [
-    'custom_canvas_user_id'   => $post_input['custom_canvas_user_id'],
-    'custom_canvas_course_id' => $post_input['custom_canvas_course_id'],
+    'custom_canvas_user_id'         => $post_input['custom_canvas_user_id'],
+    'custom_canvas_course_id'       => $post_input['custom_canvas_course_id'],
     'custom_canvas_user_login_id'   => $post_input['custom_canvas_user_login_id'],
-    'context_label'           => $post_input['context_label'],
-    'context_title'           => $post_input['context_title'],
-    'ext_roles'               => $post_input['ext_roles'],
+    'custom_canvas_root_account_id' => $post_input['custom_canvas_root_account_id'],
+    'context_label'                 => $post_input['context_label'],
+    'context_title'                 => $post_input['context_title'],
+    'ext_roles'                     => $post_input['ext_roles'],
 ];
 
 // Figure out if they're an Admin and set the session variable accordingly
