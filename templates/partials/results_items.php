@@ -32,16 +32,6 @@
 				}
 				$tmp_types[$tmp_item->type][] = $tmp_item;
 			}
-
-			function stripScripts($origHTML) {
-				$dom = new DOMDocument();
-				$dom->loadHTML($origHTML);
-				$scripts = $dom->getElementsByTagName('script');
-				foreach ($scripts as $script) {
-					$script->parentNode->removeChild($script);
-				}
-				return $dom->saveHTML();
-			}
 		?>
 		<?php foreach ($tmp_types as $type => $type_group): ?>
 			<?php $heading_data = end($type_group); ?>
