@@ -100,7 +100,7 @@ class UdoitDB
                     break;
 
                 case 'pgsql':
-                    $db = new static::$dbClass(static::$dsn, static::$user, static::$password);
+                    $db = new static::$dbClass(static::$dsn, static::$user, static::$password, static::$options);
                     $db->query("SET TIME ZONE 'UTC'");
                     break;
 
