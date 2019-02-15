@@ -32,6 +32,16 @@
 				}
 				$tmp_types[$tmp_item->type][] = $tmp_item;
 			}
+
+			function stripScripts($origHTML) {
+				$dom = new DOMDocument();
+				$dom->loadHTML($origHTML);
+				$scripts = $dom->getElementsByTagName('script');
+				foreach ($scripts as $script) {
+					$script->parentNode->removeChild($script);
+				}
+				return $dom->saveHTML();
+			}
 		?>
 		<?php foreach ($tmp_types as $type => $type_group): ?>
 			<?php $heading_data = end($type_group); ?>
@@ -75,14 +85,14 @@
 										<?php endif; ?>
 										<div class="error-preview">
 											<?php if ($group_item->type == "videosEmbeddedOrLinkedNeedCaptions"): ?>
-												<?= $group_item->html ?>
+												<?= stripScripts($group_item->html) ?>
 												<?php else: ?>
 													<?php if ($group_item->type == "cssTextHasContrast" && !isset($group_item->back_color)): ?>
 														<div class="ufixit-no-background-color">
-															<?= $group_item->html; ?>
+															<?= stripScripts($group_item->html) ?>
 														</div>
 													<?php else: ?>
-														<?= $group_item->html; ?>
+														<?= stripScripts($group_item->html) ?>
 													<?php endif; ?>
 												<?php endif; ?>
 											</div>
