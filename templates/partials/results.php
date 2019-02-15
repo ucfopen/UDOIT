@@ -18,16 +18,6 @@
 *	Primary Author Contact:  Jacob Bates <jacob.bates@ucf.edu>
 */
 global $file_scan_size_limit;
-
-function stripScripts($origHTML) {
-	$dom = new DOMDocument();
-	$dom->loadHTML($origHTML);
-	$scripts = $dom->getElementsByTagName('script');
-	foreach ($scripts as $script) {
-		$script->parentNode->removeChild($script);
-	}
-	return $dom->saveHTML();
-}
 ?>
 <h1 class="text-center">
 	Report for <?= $this->e($course); ?><br>
