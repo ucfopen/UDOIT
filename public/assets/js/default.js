@@ -144,8 +144,20 @@ function loadScanResults(reportID){
 	});
 }
 
+function stripScripts(origString) {
+	let div = document.createElement('div');
+	div.innerHTML = origString;
+	let scripts = div.getElementsByTagName('script');
+	let i = scripts.length;
+	while (i--) {
+		scripts[i].parentNode.removeChild(scripts[i]);
+	}
+	return div.innerHTML;
+}
+
 function displayScanResults(results) {
 	//show results
+	results = stripScripts(results);
 	$('#scanner').append(`<section id="result">${results}</section>`);
 	killButton(function() {
 		$('#result').fadeIn();

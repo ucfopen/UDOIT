@@ -75,14 +75,14 @@
 										<?php endif; ?>
 										<div class="error-preview">
 											<?php if ($group_item->type == "videosEmbeddedOrLinkedNeedCaptions"): ?>
-												<?= stripScripts($group_item->html) ?>
+												<?= $group_item->html ?>
 												<?php else: ?>
 													<?php if ($group_item->type == "cssTextHasContrast" && !isset($group_item->back_color)): ?>
 														<div class="ufixit-no-background-color">
-															<?= stripScripts($group_item->html) ?>
+															<?= $group_item->html; ?>
 														</div>
 													<?php else: ?>
-														<?= stripScripts($group_item->html) ?>
+														<?= $group_item->html; ?>
 													<?php endif; ?>
 												<?php endif; ?>
 											</div>
