@@ -28,7 +28,7 @@ session_write_close();
 $job_group = filter_input(INPUT_GET, 'job_group', FILTER_SANITIZE_STRING);
 
 // get the jobs
-$sth = UdoitDB::prepare("SELECT id, data, job_type, status, report_id FROM job_queue WHERE job_group = :job_group AND user_id = :user_id");
+$sth = UdoitDB::prepare("SELECT id, data, job_type, status, report_id FROM {$db_job_queue_table} WHERE job_group = :job_group AND user_id = :user_id");
 $sth->bindValue(":job_group", $job_group);
 $sth->bindValue(":user_id", $user_id);
 $sth->execute();

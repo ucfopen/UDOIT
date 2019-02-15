@@ -22,17 +22,18 @@ $alt_text_length_limit = getenv('ALT_TEXT_LENGTH_LIMIT') ?: 125;
 
 /* Database Config */
 
-$db_url           = parse_url(getenv('DATABASE_URL'));
-$db_type          = 'pgsql';
-$db_host          = $db_url['host'];
-$db_port          = $db_url['port'];
-$db_name          = substr($db_url['path'], 1);
-$db_user          = $db_url['user'];
-$db_password      = $db_url['pass'];
-$db_user_table    = 'users';
-$db_reports_table = 'reports';
+$db_url             = parse_url(getenv('DATABASE_URL'));
+$db_type            = 'pgsql';
+$db_host            = $db_url['host'];
+$db_port            = $db_url['port'];
+$db_name            = substr($db_url['path'], 1);
+$db_user            = $db_url['user'];
+$db_password        = $db_url['pass'];
+$db_user_table      = 'users';
+$db_reports_table   = 'reports';
+$db_job_queue_table = 'job_queue';
 
-$dsn = "pgsql:host={$db_host};dbname={$db_name};user={$db_user};port={$db_port};sslmode=require;password={$db_password}";
+$dsn                = "pgsql:host={$db_host};dbname={$db_name};user={$db_user};port={$db_port};sslmode=require;password={$db_password}";
 
 /* Background worker Options */
 $background_worker_enabled = (getenv("WORKER_ENABLED")) == 'true';

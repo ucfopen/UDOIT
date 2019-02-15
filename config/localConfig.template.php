@@ -35,15 +35,20 @@ define('VIMEO_API_KEY', '');
 define('GA_TRACKING_CODE', '');
 
 /* Database Config */
-$db_type          = 'mysql'; // 'mysql' or 'pgsql'
-$db_host          = ''; // localhost or some other domain/ip
-$db_port          = '3306';
-$db_user          = '';
-$db_password      = '';
-$db_name          = '';
-$db_user_table    = 'users';
-$db_reports_table = 'reports';
-$dsn              = "{$db_type}:host={$db_host};port={$db_port};dbname={$db_name}";
+$db_type            = 'mysql'; // 'mysql' or 'pgsql'
+$db_host            = ''; // localhost or some other domain/ip
+$db_port            = '3306';
+$db_user            = '';
+$db_password        = '';
+$db_name            = '';
+$db_user_table      = 'users';
+$db_reports_table   = 'reports';
+$db_job_queue_table = 'job_queue';
+
+$dsn                = "{$db_type}:host={$db_host};port={$db_port};dbname={$db_name}";
+
+/* Add key/value options to passed directly to the PDO object */
+$db_options = [];
 
 $debug = false;
 

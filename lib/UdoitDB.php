@@ -28,15 +28,17 @@ class UdoitDB
     private static $user;
     private static $dsn;
     private static $password;
+    private static $options;
     private static $pdo = null;
     private static $last_test_time = 0;
 
-    public static function setup($db_type, $dsn, $db_user, $db_password)
+    public static function setup($db_type, $dsn, $db_user, $db_password, $db_options = [])
     {
         static::$type = $db_type;
         static::$user = $db_user;
         static::$dsn = $dsn;
         static::$password = $db_password;
+        static::$options = $db_options;
     }
 
     // acts as a pass through for pdo that checks the connection
@@ -103,7 +105,7 @@ class UdoitDB
                     break;
 
                 case 'mysql':
-                    $db = new static::$dbClass(static::$dsn, static::$user, static::$password);
+                    $db = new static::$dbClass(static::$dsn, static::$user, static::$password, static::$options);
                     $db->query("SET time_zone = '+00:00'");
                     break;
 
