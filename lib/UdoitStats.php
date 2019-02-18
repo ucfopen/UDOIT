@@ -148,7 +148,6 @@ class UdoitStats
      */
     public function getReportJsons()
     {
-        //TODO:  Paginate this by adding a page parameter and modifying the query
         global $db_reports_table;
 
         $query = "SELECT report_json\n"
@@ -175,9 +174,8 @@ class UdoitStats
      *
      * @return Associative array of results, false on error
      */
-    public function getUsers()
+    public function getUsers($number_items, $offset)
     {
-        //TODO:  Paginate this by adding a page parameter and modifying the query
         global $db_user_table;
         global $db_reports_table;
         global $db_type;
@@ -193,7 +191,8 @@ class UdoitStats
                 ."canvas_url AS \"Canvas URL\"\n"
                 ."FROM $db_user_table\n"
                 ."LEFT JOIN $db_reports_table ON($db_user_table.id = user_id)\n"
-                ."GROUP BY $db_user_table.id\n";
+                ."GROUP BY $db_user_table.id\n"
+                ."OFFSET $offset ROWS FETCH NEXT $number_items ROWS ONLY\n";
 
         $sth = UdoitDB::prepare($query);
 

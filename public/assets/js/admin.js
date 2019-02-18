@@ -242,7 +242,7 @@ $('#user-pull').click(function(){
 	$('#user-pull').append('<span class="circle-white" style="display: inline-block; height: 16px; width: 16px;"></span> Loading...');
 
 	let request = $.ajax({
-		url: 'api/users.php?action=list',
+		url: `api/users.php?action=list&number_items=${$('input[name=number_items]').val()}&offset=${$('input[name=offset]').val()}`,
 		method: 'GET',
 		dataType: 'json',
 		success: function(msg){
