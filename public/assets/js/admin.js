@@ -242,7 +242,7 @@ $('#user-pull').click(function(){
 	$('#user-pull').append('<span class="circle-white" style="display: inline-block; height: 16px; width: 16px;"></span> Loading...');
 
 	let request = $.ajax({
-		url: `api/users.php?action=list&number_items=${$('input[name=number_items] :selected').val()}&offset=${$('input[name=offset]').val()}`,
+		url: `api/users.php?action=list&number_items=${$('#pagination-number :selected').val()}&offset=${$('#pagination-offset').val()}`,
 		method: 'GET',
 		dataType: 'json',
 		success: function(msg){
