@@ -97,7 +97,6 @@ $this->layout('template', $settings);
 					<div class="container">
 						<h2>Most Common Errors</h2>
 						<button class="btn btn-success" id="errors-common-pull">Display Results</button>
-					</div>
 						<button type="button" class="btn btn-primary pull-right hidden" id="errors-common-csv">Get .csv</button>
 					</div>
 				</div>
