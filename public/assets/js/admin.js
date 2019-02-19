@@ -169,6 +169,49 @@ function tableToCSV(html, filename) {
     downloadCSV(csv.join("\n"), filename);
 }
 
+function populateUsers(button_offset) {
+	$('#user-results').empty();
+
+	$('#user-pull').empty();
+	$('#user-pull').append('<span class="circle-white" style="display: inline-block; height: 16px; width: 16px;"></span> Loading...');
+
+	let number_items = $('#pagination-number :selected').val();
+	let offset = ($('#pagination-offset').val() + button_offset);
+	if(offset < 1) {
+		offset = 0;
+	} else {
+		offset *= number_items;
+	}
+
+	let request = $.ajax({
+		url: `api/users.php?action=list&number_items=${number_items}&offset=${offset}`,
+		method: 'GET',
+		dataType: 'json',
+		success: function(msg){
+			let table = json_tableify(msg.data);
+			table = addDeauthButton(msg.data, table);
+			$(table).addClass('table table-striped');
+
+			$('#user-results').append(table);
+			$('#user-csv').removeClass('hidden');
+			$('#user-csv').click(function(){
+				tableToCSV('#user-results', "UDOIT_Users.csv");
+			});
+
+			$('#user-pull').empty();
+			$('#user-pull').append('Update Results');
+
+			let page = $('#pagination-offset').val() + button_offset;
+			if(page < 0) page = 0;
+			$('#pagination-offset').val(page);
+		},
+		error: function(xhr, status, error){
+			response = JSON.parse(xhr.responseText);
+			$('#user-results').html(response.data);
+		}
+	});
+}
+
 $('#scans-pull').on('submit', function(evt){
 	evt.preventDefault();
 	let formvals = $(this).serialize();
@@ -236,39 +279,11 @@ $('#errors-common-pull').click(function(){
 	});
 });
 
-$('#user-pull').click(function(){
-	$('#user-results').empty();
+$('#user-pull').click(populateUsers(0));
 
-	$('#user-pull').empty();
-	$('#user-pull').append('<span class="circle-white" style="display: inline-block; height: 16px; width: 16px;"></span> Loading...');
+$('#page-left').click(populateUsers(-1));
 
-	let number_items = $('#pagination-number :selected').val();
-	let offset = $('#pagination-offset').val() * number_items;
-
-	let request = $.ajax({
-		url: `api/users.php?action=list&number_items=${number_items}&offset=${offset}`,
-		method: 'GET',
-		dataType: 'json',
-		success: function(msg){
-			let table = json_tableify(msg.data);
-			table = addDeauthButton(msg.data, table);
-			$(table).addClass('table table-striped');
-
-			$('#user-results').append(table);
-			$('#user-csv').removeClass('hidden');
-			$('#user-csv').click(function(){
-				tableToCSV('#user-results', "UDOIT_Users.csv");
-			});
-
-			$('#user-pull').empty();
-			$('#user-pull').append('Update Results');
-		},
-		error: function(xhr, status, error){
-			response = JSON.parse(xhr.responseText);
-			$('#user-results').html(response.data);
-		}
-	});
-});
+$('#page-right').click(populateUsers(1));
 
 $('#user-growth-pull').on('submit', function(evt){
 	evt.preventDefault();

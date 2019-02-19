@@ -114,8 +114,8 @@ $this->layout('template', $settings);
 							<option value="25">25</option>
 							<option value="50">50</option>
 						</select>
-						<input type="number" name="offset" id="pagination-offset">
 						<button type="button" id="page-left"><</button>
+						<input type="number" name="offset" id="pagination-offset" value="0">
 						<button type="button" id="page-right">></button>
 						<button type="button" class="btn btn-primary pull-right hidden" id="user-csv">Get .csv</button>
 					</div>
