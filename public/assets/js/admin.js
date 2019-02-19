@@ -243,7 +243,7 @@ $('#user-pull').click(function(){
 	$('#user-pull').append('<span class="circle-white" style="display: inline-block; height: 16px; width: 16px;"></span> Loading...');
 
 	let number_items = $('#pagination-number :selected').val();
-	let offset = ($('#pagination-offset').val() - 1) * number_items;
+	let offset = $('#pagination-offset').val() * number_items;
 
 	let request = $.ajax({
 		url: `api/users.php?action=list&number_items=${number_items}&offset=${offset}`,

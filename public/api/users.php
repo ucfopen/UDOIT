@@ -34,12 +34,12 @@ switch ($_GET['action']) {
         break;
 
     case 'list':
-        if(isset($_GET['number_items'])) {
+        if(isset($_GET['number_items']) && $_GET['number_items'] >= 0) {
             $number_items = $_GET['number_items'];
         } else {
             $number_items = 'NULL';
         }
-        if(isset($_GET['offset'])) {
+        if(isset($_GET['offset']) && $_GET['offset'] >= 0) {
             $offset = $_GET['offset'];
         } else {
             $offset = '0';
