@@ -203,6 +203,7 @@ function populateUsers(button_offset) {
 
 			let page = $('#pagination-offset').val() + button_offset;
 			if(page < 0) page = 0;
+			$('#pagination-offset').empty();
 			$('#pagination-offset').val(page);
 		},
 		error: function(xhr, status, error){
@@ -281,9 +282,9 @@ $('#errors-common-pull').click(function(){
 
 $('#user-pull').click(function(){populateUsers(0)});
 
-// $('#page-left').click(populateUsers(-1));
+$('#page-left').click(function(){populateUsers(-1)});
 
-// $('#page-right').click(populateUsers(1));
+$('#page-right').click(function(){populateUsers(1)});
 
 $('#user-growth-pull').on('submit', function(evt){
 	evt.preventDefault();
