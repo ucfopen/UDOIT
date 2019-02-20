@@ -279,7 +279,7 @@ $('#errors-common-pull').click(function(){
 	});
 });
 
-$('#user-pull').click(populateUsers(0));
+$('#user-pull').click(function(){populateUsers(0)});
 
 // $('#page-left').click(populateUsers(-1));
 
