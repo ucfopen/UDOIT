@@ -170,7 +170,6 @@ function tableToCSV(html, filename) {
 }
 
 function populateUsers(button_offset) {
-	$('#user-results').empty();
 
 	$('#user-pull').empty();
 	$('#user-pull').append('<span class="circle-white" style="display: inline-block; height: 16px; width: 16px;"></span> Loading...');
@@ -190,9 +189,14 @@ function populateUsers(button_offset) {
 		success: function(msg){
 			let total_pages = Math.ceil(parseInt(msg.data[0]['user_count']) / number_items);
 			let page = parseInt($('#pagination-offset').val()) + button_offset;
-			if(page < 1) page = 1;
+			if(page < 1) {
+				page = 1;
+				return;
+			}
 			$('#total-pages').text(total_pages.toString());
 			if(page <= total_pages) {
+				$('#user-results').empty();
+
 				let request2 = $.ajax({
 					url: `api/users.php?action=list&number_items=${number_items}&offset=${offset}`,
 					method: 'GET',
@@ -218,6 +222,9 @@ function populateUsers(button_offset) {
 						$('#user-results').html(response.data);
 					}
 				});
+			} else {
+				$('#user-pull').empty();
+				$('#user-pull').append('Update Results');
 			}
 		},
 		error: function(xhr, status, error){
