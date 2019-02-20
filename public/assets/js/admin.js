@@ -179,6 +179,7 @@ function populateUsers(button_offset) {
 		method: 'GET',
 		dataType: 'json',
 		success: function(msg){
+			let number_items = parseInt($('#pagination-number :selected').val());
 			let total_pages = Math.ceil(parseInt(msg.data[0]['user_count']) / number_items);
 			if($('#pagination-offset').val() < 1) {
 				$('#pagination-offset').val(1);
@@ -193,7 +194,6 @@ function populateUsers(button_offset) {
 				return;
 			}
 
-			let number_items = parseInt($('#pagination-number :selected').val());
 			let offset = (parseInt($('#pagination-offset').val()) + button_offset - 1);
 			if(offset < 1) {
 				offset = 0;
