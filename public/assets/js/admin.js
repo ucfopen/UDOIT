@@ -203,7 +203,7 @@ function populateUsers(button_offset) {
 
 			let page = $('#pagination-offset').val() + button_offset;
 			if(page < 0) page = 0;
-			$('#pagination-offset').empty();
+			$('#pagination-offset').val('');
 			$('#pagination-offset').val(page);
 		},
 		error: function(xhr, status, error){
