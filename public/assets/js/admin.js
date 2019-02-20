@@ -188,7 +188,7 @@ function populateUsers(button_offset) {
 		method: 'GET',
 		dataType: 'json',
 		success: function(msg){
-			let total_pages = Math.ciel(parseInt(msg.data[0]['user_count']) / number_items);
+			let total_pages = Math.ceil(parseInt(msg.data[0]['user_count']) / number_items);
 			let page = parseInt($('#pagination-offset').val()) + button_offset;
 			if(page < 1) page = 1;
 			$('#total-pages').text(total_pages.toString());
