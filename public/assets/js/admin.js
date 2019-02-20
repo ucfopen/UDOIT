@@ -175,8 +175,8 @@ function populateUsers(button_offset) {
 	$('#user-pull').empty();
 	$('#user-pull').append('<span class="circle-white" style="display: inline-block; height: 16px; width: 16px;"></span> Loading...');
 
-	let number_items = $('input#pagination-number :selected').val();
-	let offset = ($('input#pagination-offset').val() + button_offset);
+	let number_items = $('#pagination-number :selected').val();
+	let offset = ($('#pagination-offset').val() + button_offset);
 	if(offset < 1) {
 		offset = 0;
 	} else {
@@ -201,7 +201,7 @@ function populateUsers(button_offset) {
 			$('#user-pull').empty();
 			$('#user-pull').append('Update Results');
 
-			let page = $('input#pagination-offset').val() + button_offset;
+			let page = $('#pagination-offset').val() + button_offset;
 			if(page < 0) page = 0;
 			$('input#pagination-offset').val(page);
 		},
