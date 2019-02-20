@@ -174,14 +174,6 @@ function populateUsers(button_offset) {
 	$('#user-pull').empty();
 	$('#user-pull').append('<span class="circle-white" style="display: inline-block; height: 16px; width: 16px;"></span> Loading...');
 
-	let number_items = parseInt($('#pagination-number :selected').val());
-	let offset = (parseInt($('#pagination-offset').val()) + button_offset - 1);
-	if(offset < 1) {
-		offset = 0;
-	} else {
-		offset *= number_items;
-	}
-
 	let request1 = $.ajax({
 		url: 'api/users.php?action=user_count',
 		method: 'GET',
@@ -193,12 +185,22 @@ function populateUsers(button_offset) {
 			} else if($('#pagination-offset').val() > total_pages) {
 				$('#pagination-offset').val(total_pages)
 			}
+
 			let page = parseInt($('#pagination-offset').val()) + button_offset;
 			if(page < 1) {
 				$('#user-pull').empty();
 				$('#user-pull').append('Update Results');
 				return;
 			}
+
+			let number_items = parseInt($('#pagination-number :selected').val());
+			let offset = (parseInt($('#pagination-offset').val()) + button_offset - 1);
+			if(offset < 1) {
+				offset = 0;
+			} else {
+				offset *= number_items;
+			}
+
 			$('#total-pages').text(total_pages.toString());
 			if(page <= total_pages) {
 				$('#user-results').empty();
