@@ -175,7 +175,7 @@ function populateUsers(button_offset) {
 	$('#user-pull').empty();
 	$('#user-pull').append('<span class="circle-white" style="display: inline-block; height: 16px; width: 16px;"></span> Loading...');
 
-	let number_items = $('#pagination-number :selected').val();
+	let number_items = $('#pagination-number').val();
 	let offset = ($('#pagination-offset').val() + button_offset);
 	if(offset < 1) {
 		offset = 0;
