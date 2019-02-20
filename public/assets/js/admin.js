@@ -176,6 +176,7 @@ function gotoPageUsers(index) {
 
 function generateLinksUsers(pages) {
 	let navigation = $('.user-navigation-links');
+	navigation.empty();
 	for(let i=1; i<=pages; i++) {
 		let link = "<a href=\"javascript:gotoPageUsers(" + i.toString() + ")\">" + i.toString() + "</a>";
 
@@ -221,7 +222,7 @@ function populateUsers(button_offset) {
 						let table = json_tableify(msg.data);
 						table = addDeauthButton(msg.data, table);
 						$(table).addClass('table table-striped');
-						$('#user-results').append(table);
+						$('#user-results > div:nth-child(1)').after(table);
 						$('#user-csv').removeClass('hidden');
 						$('#user-csv').click(function(){
 							tableToCSV('#user-results', "UDOIT_Users.csv");
