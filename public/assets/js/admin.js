@@ -212,7 +212,7 @@ function populateUsers(button_offset) {
 			}
 
 			if(page <= total_pages) {
-				$('#user-results').empty();
+				$('#user-results table').remove();
 				let request2 = $.ajax({
 					url: `api/users.php?action=list&number_items=${number_items}&offset=${offset}`,
 					method: 'GET',
@@ -221,8 +221,6 @@ function populateUsers(button_offset) {
 						let table = json_tableify(msg.data);
 						table = addDeauthButton(msg.data, table);
 						$(table).addClass('table table-striped');
-
-						$('#user-results').append();
 						$('#user-results').append(table);
 						$('#user-csv').removeClass('hidden');
 						$('#user-csv').click(function(){
