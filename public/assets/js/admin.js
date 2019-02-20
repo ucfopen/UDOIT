@@ -190,13 +190,13 @@ function populateUsers(button_offset) {
 			let total_pages = Math.ceil(parseInt(msg.data[0]['user_count']) / number_items);
 			let page = parseInt($('#pagination-offset').val()) + button_offset;
 			if(page < 1) {
-				page = 1;
+				$('#user-pull').empty();
+				$('#user-pull').append('Update Results');
 				return;
 			}
 			$('#total-pages').text(total_pages.toString());
 			if(page <= total_pages) {
 				$('#user-results').empty();
-
 				let request2 = $.ajax({
 					url: `api/users.php?action=list&number_items=${number_items}&offset=${offset}`,
 					method: 'GET',
