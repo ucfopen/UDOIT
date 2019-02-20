@@ -172,6 +172,7 @@ function tableToCSV(html, filename) {
 function gotoPageUsers(index) {
 	user_page_index = index;
 	populateUsers(0);
+	return false;
 }
 
 function generateLinksUsers(pages) {
@@ -205,6 +206,8 @@ function populateUsers(button_offset) {
 				return;
 			}
 
+			if(page > total_pages) page = total_pages;
+
 			let offset = page - 1;
 			if(offset < 1) {
 				offset = 0;
@@ -212,37 +215,32 @@ function populateUsers(button_offset) {
 				offset *= number_items;
 			}
 
-			if(page <= total_pages) {
-				$('#user-results table').remove();
-				let request2 = $.ajax({
-					url: `api/users.php?action=list&number_items=${number_items}&offset=${offset}`,
-					method: 'GET',
-					dataType: 'json',
-					success: function(msg){
-						let table = json_tableify(msg.data);
-						table = addDeauthButton(msg.data, table);
-						$(table).addClass('table table-striped');
-						$('#user-results > div:nth-child(1)').after(table);
-						$('#user-csv').removeClass('hidden');
-						$('#user-csv').click(function(){
-							tableToCSV('#user-results', "UDOIT_Users.csv");
-						});
+			$('#user-results table').remove();
+			let request2 = $.ajax({
+				url: `api/users.php?action=list&number_items=${number_items}&offset=${offset}`,
+				method: 'GET',
+				dataType: 'json',
+				success: function(msg){
+					let table = json_tableify(msg.data);
+					table = addDeauthButton(msg.data, table);
+					$(table).addClass('table table-striped');
+					$('#user-results > div:nth-child(1)').after(table);
+					$('#user-csv').removeClass('hidden');
+					$('#user-csv').click(function(){
+						tableToCSV('#user-results', "UDOIT_Users.csv");
+					});
 
-						$('#user-pull').empty();
-						$('#user-pull').append('Update Results');
+					$('#user-pull').empty();
+					$('#user-pull').append('Update Results');
 
-						user_page_index += button_offset;
-						generateLinksUsers(total_pages);
-					},
-					error: function(xhr, status, error){
-						response = JSON.parse(xhr.responseText);
-						$('#user-results').html(response.data);
-					}
-				});
-			} else {
-				$('#user-pull').empty();
-				$('#user-pull').append('Update Results');
-			}
+					user_page_index += button_offset;
+					generateLinksUsers(total_pages);
+				},
+				error: function(xhr, status, error){
+					response = JSON.parse(xhr.responseText);
+					$('#user-results').html(response.data);
+				}
+			});
 		},
 		error: function(xhr, status, error){
 			response = JSON.parse(xhr.responseText);
