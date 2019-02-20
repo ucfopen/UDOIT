@@ -181,6 +181,8 @@ function populateUsers(button_offset) {
 		success: function(msg){
 			let number_items = parseInt($('#pagination-number :selected').val());
 			let total_pages = Math.ceil(parseInt(msg.data[0]['user_count']) / number_items);
+			$('#total-pages').text(total_pages.toString());
+
 			if($('#pagination-offset').val() < 1) {
 				$('#pagination-offset').val(1);
 			} else if($('#pagination-offset').val() > total_pages) {
@@ -201,7 +203,6 @@ function populateUsers(button_offset) {
 				offset *= number_items;
 			}
 
-			$('#total-pages').text(total_pages.toString());
 			if(page <= total_pages) {
 				$('#user-results').empty();
 				let request2 = $.ajax({
