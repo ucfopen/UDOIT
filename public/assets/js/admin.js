@@ -179,7 +179,7 @@ function generateLinksUsers(pages) {
 	let navigation = $('.user-navigation-links');
 	navigation.empty();
 	for(let i=1; i<=pages; i++) {
-		let link = "<a href=\"javascript:gotoPageUsers(" + i.toString() + ")\">" + i.toString() + "</a>";
+		let link = "<a class=\"mr-2\" href=\"javascript:gotoPageUsers(" + i.toString() + ")\">" + i.toString() + "</a>";
 
 		navigation.append(link);
 	}
@@ -215,6 +215,7 @@ function populateUsers(button_offset) {
 				offset *= number_items;
 			}
 
+			$('.user-navigation').addClass('hidden');
 			$('#user-results table').remove();
 			let request2 = $.ajax({
 				url: `api/users.php?action=list&number_items=${number_items}&offset=${offset}`,
