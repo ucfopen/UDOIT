@@ -22,7 +22,7 @@ $settings = [
 	'footer_scripts' => [
 		"//code.jquery.com/jquery-2.1.1.min.js",
 		"//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js",
-		"assets/js/admin.js?cachebuster=1"/*.time()*/,
+		"assets/js/admin.js?cachebuster=".time(),
 	]
 ];
 
@@ -109,20 +109,23 @@ $this->layout('template', $settings);
 					<div class="container">
 						<h2>Users</h2>
 						<button class="btn btn-success" id="user-pull">Display Results</button>
-						<select name="number_items" id="pagination-number">
+						<select name="number_items" id="user-pagination-number">
 							<option value="10">10</option>
 							<option value="25">25</option>
 							<option value="50">50</option>
 						</select>
-						<button type="button" id="page-left"><</button>
-						<input type="number" name="offset" id="pagination-offset" value="1">
-						<button type="button" id="page-right">></button>
-						<span id="total-pages"></span>
 						<button type="button" class="btn btn-primary pull-right hidden" id="user-csv">Get .csv</button>
 					</div>
 				</div>
 			</div>
-			<div id="user-results" class="stat-results"></div>
+			<div id="user-results" class="stat-results">
+				<div class="pull-right">
+					<button type="button" id="user-page-left"><</button>
+					<input type="number" name="offset" id="user-pagination-offset" value="1">
+					<button type="button" id="user-page-right">></button>
+					<span id="user-total-pages"></span>
+				</div>
+			</div>
 		</div>
 		<div class="tab-pane" id="user-growth" role="tabpanel">
 			<div class="panel panel-default">

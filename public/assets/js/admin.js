@@ -179,24 +179,24 @@ function populateUsers(button_offset) {
 		method: 'GET',
 		dataType: 'json',
 		success: function(msg){
-			let number_items = parseInt($('#pagination-number :selected').val());
+			let number_items = parseInt($('#user-pagination-number :selected').val());
 			let total_pages = Math.ceil(parseInt(msg.data[0]['user_count']) / number_items);
-			$('#total-pages').text(total_pages.toString());
+			$('#user-total-pages').text(total_pages.toString());
 
-			if($('#pagination-offset').val() < 1) {
-				$('#pagination-offset').val(1);
-			} else if($('#pagination-offset').val() > total_pages) {
-				$('#pagination-offset').val(total_pages)
+			if($('#user-pagination-offset').val() < 1) {
+				$('#user-pagination-offset').val(1);
+			} else if($('#user-pagination-offset').val() > total_pages) {
+				$('#user-pagination-offset').val(total_pages)
 			}
 
-			let page = parseInt($('#pagination-offset').val()) + button_offset;
+			let page = parseInt($('#user-pagination-offset').val()) + button_offset;
 			if(page < 1) {
 				$('#user-pull').empty();
 				$('#user-pull').append('Update Results');
 				return;
 			}
 
-			let offset = (parseInt($('#pagination-offset').val()) + button_offset - 1);
+			let offset = (parseInt($('#user-pagination-offset').val()) + button_offset - 1);
 			if(offset < 1) {
 				offset = 0;
 			} else {
@@ -223,7 +223,7 @@ function populateUsers(button_offset) {
 						$('#user-pull').empty();
 						$('#user-pull').append('Update Results');
 
-						$('input#pagination-offset').val(page);
+						$('input#user-pagination-offset').val(page);
 					},
 					error: function(xhr, status, error){
 						response = JSON.parse(xhr.responseText);
@@ -313,9 +313,9 @@ $('#errors-common-pull').click(function(){
 
 $('#user-pull').click(function(){populateUsers(0)});
 
-$('#page-left').click(function(){populateUsers(-1)});
+$('#user-page-left').click(function(){populateUsers(-1)});
 
-$('#page-right').click(function(){populateUsers(1)});
+$('#user-page-right').click(function(){populateUsers(1)});
 
 $('#user-growth-pull').on('submit', function(evt){
 	evt.preventDefault();
