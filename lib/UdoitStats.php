@@ -190,8 +190,9 @@ class UdoitStats
                 .$date_format
                 ."canvas_url AS \"Canvas URL\"\n"
                 ."FROM $db_user_table\n"
-                ."LEFT JOIN $db_reports_table ON($db_user_table.id = user_id)\n"
+                ."LEFT JOIN $db_reports_table ON($db_user_table.id = $db_reports_table.user_id)\n"
                 ."GROUP BY $db_user_table.id\n"
+                ."ORDER BY $db_user_table.id\n"
                 ."OFFSET $offset ROWS FETCH NEXT $number_items ROWS ONLY\n";
 
         $sth = UdoitDB::prepare($query);
