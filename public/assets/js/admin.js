@@ -183,34 +183,50 @@ function populateUsers(button_offset) {
 		offset *= number_items;
 	}
 
-	let request = $.ajax({
-		url: `api/users.php?action=list&number_items=${number_items}&offset=${offset}`,
+	let request1 = $.ajax({
+		url: 'api/users.php?action=user_count',
 		method: 'GET',
 		dataType: 'json',
 		success: function(msg){
-			console.log(msg);
-			let table = json_tableify(msg.data);
-			table = addDeauthButton(msg.data, table);
-			$(table).addClass('table table-striped');
-
-			$('#user-results').append(table);
-			$('#user-csv').removeClass('hidden');
-			$('#user-csv').click(function(){
-				tableToCSV('#user-results', "UDOIT_Users.csv");
-			});
-
-			$('#user-pull').empty();
-			$('#user-pull').append('Update Results');
-
+			let total_pages = Math.ciel(parseInt(msg.data[0]['user_count']) / number_items);
 			let page = parseInt($('#pagination-offset').val()) + button_offset;
 			if(page < 1) page = 1;
-			$('input#pagination-offset').val(page);
+			$('#total-pages').text(total_pages.toString());
+			if(page <= total_pages) {
+				let request2 = $.ajax({
+					url: `api/users.php?action=list&number_items=${number_items}&offset=${offset}`,
+					method: 'GET',
+					dataType: 'json',
+					success: function(msg){
+						let table = json_tableify(msg.data);
+						table = addDeauthButton(msg.data, table);
+						$(table).addClass('table table-striped');
+
+						$('#user-results').append(table);
+						$('#user-csv').removeClass('hidden');
+						$('#user-csv').click(function(){
+							tableToCSV('#user-results', "UDOIT_Users.csv");
+						});
+
+						$('#user-pull').empty();
+						$('#user-pull').append('Update Results');
+
+						$('input#pagination-offset').val(page);
+					},
+					error: function(xhr, status, error){
+						response = JSON.parse(xhr.responseText);
+						$('#user-results').html(response.data);
+					}
+				});
+			}
 		},
 		error: function(xhr, status, error){
 			response = JSON.parse(xhr.responseText);
 			$('#user-results').html(response.data);
 		}
 	});
+
+
 }
 
 $('#scans-pull').on('submit', function(evt){

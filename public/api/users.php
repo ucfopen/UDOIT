@@ -51,6 +51,14 @@ switch ($_GET['action']) {
         respond_with_success($results);
         break;
 
+    case 'user_count':
+        $results = UdoitStats::instance()->getUserCount();
+        if (false === $results) {
+            respond_with_error(500, "Error retrieving Users from database.");
+        }
+        respond_with_success($results);
+        break;
+
     default:
         respond_with_error(400, "Stat {$_GET['action']} does not exist.");
 }

@@ -117,6 +117,7 @@ $this->layout('template', $settings);
 						<button type="button" id="page-left"><</button>
 						<input type="number" name="offset" id="pagination-offset" value="1">
 						<button type="button" id="page-right">></button>
+						<span id="total-pages"></span>
 						<button type="button" class="btn btn-primary pull-right hidden" id="user-csv">Get .csv</button>
 					</div>
 				</div>

@@ -189,11 +189,25 @@ class UdoitStats
                 ."COUNT(reports.user_id) AS \"Number of Scans\", "
                 .$date_format
                 ."canvas_url AS \"Canvas URL\"\n"
-                ."count(*) OVER() AS user_count\n"
                 ."FROM $db_user_table\n"
                 ."LEFT JOIN $db_reports_table ON($db_user_table.id = user_id)\n"
                 ."GROUP BY $db_user_table.id\n"
                 ."OFFSET $offset ROWS FETCH NEXT $number_items ROWS ONLY\n";
+
+        $sth = UdoitDB::prepare($query);
+
+        if ($sth->execute()) {
+            return $sth->fetchAll(PDO::FETCH_ASSOC);
+        }
+
+        return false;
+    }
+
+    public function getUserCount()
+    {
+        global $db_user_table;
+
+        $query = "SELECT COUNT(*) AS \"user_count\" FROM $db_user_table\n";
 
         $sth = UdoitDB::prepare($query);
 
