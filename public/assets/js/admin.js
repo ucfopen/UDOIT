@@ -179,7 +179,7 @@ function generateLinksUsers(pages) {
 	let navigation = $('.user-navigation-links');
 	navigation.empty();
 	for(let i=1; i<=pages; i++) {
-		let link = "<a class=\"mr-2\" href=\"javascript:gotoPageUsers(" + i.toString() + ")\">" + i.toString() + "</a>";
+		let link = "<a class=\"col-xs-1\" href=\"javascript:gotoPageUsers(" + i.toString() + ")\">" + i.toString() + "</a>";
 
 		navigation.append(link);
 	}
