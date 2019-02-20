@@ -189,6 +189,7 @@ class UdoitStats
                 ."COUNT(reports.user_id) AS \"Number of Scans\", "
                 .$date_format
                 ."canvas_url AS \"Canvas URL\"\n"
+                ."count(*) OVER() AS user_count\n"
                 ."FROM $db_user_table\n"
                 ."LEFT JOIN $db_reports_table ON($db_user_table.id = user_id)\n"
                 ."GROUP BY $db_user_table.id\n"

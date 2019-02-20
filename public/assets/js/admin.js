@@ -188,6 +188,7 @@ function populateUsers(button_offset) {
 		method: 'GET',
 		dataType: 'json',
 		success: function(msg){
+			console.log(msg);
 			let table = json_tableify(msg.data);
 			table = addDeauthButton(msg.data, table);
 			$(table).addClass('table table-striped');
