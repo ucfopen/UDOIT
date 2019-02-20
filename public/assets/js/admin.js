@@ -18,7 +18,7 @@
 */
 
 var tableData;
-var page_index = 0;
+var user_page_index = 1;
 
 function json_tableify(data) {
 	let table = document.createElement('table');
@@ -169,6 +169,21 @@ function tableToCSV(html, filename) {
     downloadCSV(csv.join("\n"), filename);
 }
 
+function gotoPageUsers(index) {
+	user_page_index = index;
+	populateUsers(0);
+}
+
+function generateLinksUsers(pages) {
+	let navigation = $('.user-navigation-links');
+	for(let i=1; i<=pages; i++) {
+		let link = "<a href=\"javascript:gotoPageUsers(" + i.toString() + ")\">" + i.toString() + "</a>";
+
+		navigation.append(link);
+	}
+	$('.user-navigation').removeClass('hidden');
+}
+
 function populateUsers(button_offset) {
 
 	$('#user-pull').empty();
@@ -181,22 +196,15 @@ function populateUsers(button_offset) {
 		success: function(msg){
 			let number_items = parseInt($('#user-pagination-number :selected').val());
 			let total_pages = Math.ceil(parseInt(msg.data[0]['user_count']) / number_items);
-			$('#user-total-pages').text(total_pages.toString());
 
-			if($('#user-pagination-offset').val() < 1) {
-				$('#user-pagination-offset').val(1);
-			} else if($('#user-pagination-offset').val() > total_pages) {
-				$('#user-pagination-offset').val(total_pages)
-			}
-
-			let page = parseInt($('#user-pagination-offset').val()) + button_offset;
+			let page = user_page_index + button_offset;
 			if(page < 1) {
 				$('#user-pull').empty();
 				$('#user-pull').append('Update Results');
 				return;
 			}
 
-			let offset = (parseInt($('#user-pagination-offset').val()) + button_offset - 1);
+			let offset = page - 1;
 			if(offset < 1) {
 				offset = 0;
 			} else {
@@ -214,6 +222,7 @@ function populateUsers(button_offset) {
 						table = addDeauthButton(msg.data, table);
 						$(table).addClass('table table-striped');
 
+						$('#user-results').append();
 						$('#user-results').append(table);
 						$('#user-csv').removeClass('hidden');
 						$('#user-csv').click(function(){
@@ -223,7 +232,8 @@ function populateUsers(button_offset) {
 						$('#user-pull').empty();
 						$('#user-pull').append('Update Results');
 
-						$('input#user-pagination-offset').val(page);
+						user_page_index += button_offset;
+						generateLinksUsers(total_pages);
 					},
 					error: function(xhr, status, error){
 						response = JSON.parse(xhr.responseText);
@@ -313,9 +323,9 @@ $('#errors-common-pull').click(function(){
 
 $('#user-pull').click(function(){populateUsers(0)});
 
-$('#user-page-left').click(function(){populateUsers(-1)});
+$('.user-page-left').click(function(){populateUsers(-1)});
 
-$('#user-page-right').click(function(){populateUsers(1)});
+$('.user-page-right').click(function(){populateUsers(1)});
 
 $('#user-growth-pull').on('submit', function(evt){
 	evt.preventDefault();

@@ -119,11 +119,15 @@ $this->layout('template', $settings);
 				</div>
 			</div>
 			<div id="user-results" class="stat-results">
-				<div class="pull-right">
-					<button type="button" id="user-page-left"><</button>
-					<input type="number" name="offset" id="user-pagination-offset" value="1">
-					<button type="button" id="user-page-right">></button>
-					<span id="user-total-pages"></span>
+				<div class="user-navigation pull-right hidden">
+					<button type="button" class="user-page-left"><</button>
+					<div class="user-navigation-links"></div>
+					<button type="button" class="user-page-right">></button>
+				</div>
+				<div class="user-navigation pull-right hidden">
+					<button type="button" class="user-page-left"><</button>
+					<div class="user-navigation-links"></div>
+					<button type="button" class="user-page-right">></button>
 				</div>
 			</div>
 		</div>
