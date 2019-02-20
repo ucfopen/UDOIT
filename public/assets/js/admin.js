@@ -188,6 +188,11 @@ function populateUsers(button_offset) {
 		dataType: 'json',
 		success: function(msg){
 			let total_pages = Math.ceil(parseInt(msg.data[0]['user_count']) / number_items);
+			if($('#pagination-offset').val() < 1) {
+				$('#pagination-offset').val(1);
+			} else if($('#pagination-offset').val() > total_pages) {
+				$('#pagination-offset').val(total_pages)
+			}
 			let page = parseInt($('#pagination-offset').val()) + button_offset;
 			if(page < 1) {
 				$('#user-pull').empty();
