@@ -281,9 +281,9 @@ $('#errors-common-pull').click(function(){
 
 $('#user-pull').click(populateUsers(0));
 
-$('#page-left').click(populateUsers(-1));
+// $('#page-left').click(populateUsers(-1));
 
-$('#page-right').click(populateUsers(1));
+// $('#page-right').click(populateUsers(1));
 
 $('#user-growth-pull').on('submit', function(evt){
 	evt.preventDefault();
