@@ -183,7 +183,7 @@ function generateLinksUsers(pages) {
 			text = '<strong>' + text + '</strong>';
 		}
 
-		let link = "<a class=\"col-xs-1\" href=\"#\">" + text + "</a>";
+		let link = "<a class=\"btn-xs\" href=\"#\">" + text + "</a>";
 
 		navigation.append(link);
 		navigation.each(function(j, obj) {
