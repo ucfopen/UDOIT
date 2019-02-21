@@ -179,7 +179,12 @@ function generateLinksUsers(pages) {
 	let navigation = $('.user-navigation-links');
 	navigation.empty();
 	for(let i=1; i<=pages; i++) {
-		let link = "<a class=\"col-xs-1" + (i==user_page_index ? " font-weight-bold" : '') + "\" href=\"javascript:gotoPageUsers(" + i.toString() + ")\">" + i.toString() + "</a>";
+		let text = i.toString();
+		if(i==user_page_index) {
+			text = '<strong>' + text + '</strong>';
+		}
+
+		let link = "<a class=\"col-xs-1\" href=\"javascript:gotoPageUsers(" + i.toString() + ")\">" + i.toString() + "</a>";
 
 		navigation.append(link);
 	}
