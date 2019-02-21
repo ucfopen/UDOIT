@@ -183,9 +183,10 @@ function generateLinksUsers(pages) {
 			text = '<strong>' + text + '</strong>';
 		}
 
-		let link = "<a class=\"col-xs-1\" href=\"#\" onclick=\"function(e){e.preventDefault();gotoPageUsers(" + i.toString() + ");return false;}\">" + text + "</a>";
+		let link = "<a class=\"col-xs-1\" href=\"#\">" + text + "</a>";
 
 		navigation.append(link);
+		navigation.children().last().click(function(e){e.preventDefault();gotoPageUsers(i);return false;});
 	}
 	$('.user-navigation').removeClass('hidden');
 }
