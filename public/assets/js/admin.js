@@ -176,6 +176,7 @@ function gotoPageUsers(index) {
 
 function generateLinksUsers(pages) {
 	let navigation = $('.user-navigation-links');
+	console.log(navigation);
 	navigation.empty();
 	for(let i=1; i<=pages; i++) {
 		let text = i.toString();
@@ -186,7 +187,7 @@ function generateLinksUsers(pages) {
 		let link = "<a class=\"col-xs-1\" href=\"#\">" + text + "</a>";
 
 		navigation.append(link);
-		navigation.children().last().click(function(e){e.preventDefault();gotoPageUsers(i);console.log('yeet' + i.toString());return false;});
+		navigation.children().last().click(function(e){e.preventDefault();gotoPageUsers(i);return false;});
 	}
 	$('.user-navigation').removeClass('hidden');
 }
