@@ -184,7 +184,7 @@ function generateLinksUsers(pages) {
 			text = '<strong>' + text + '</strong>';
 		}
 
-		let link = "<a class=\"col-xs-1\" href=\"javascript:gotoPageUsers(" + i.toString() + ")\">" + i.toString() + "</a>";
+		let link = "<a class=\"col-xs-1\" href=\"javascript:gotoPageUsers(" + i.toString() + ")\">" + text + "</a>";
 
 		navigation.append(link);
 	}
