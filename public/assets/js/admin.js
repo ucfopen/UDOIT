@@ -172,7 +172,6 @@ function tableToCSV(html, filename) {
 function gotoPageUsers(index) {
 	user_page_index = index;
 	populateUsers(0);
-	return false;
 }
 
 function generateLinksUsers(pages) {
@@ -184,7 +183,7 @@ function generateLinksUsers(pages) {
 			text = '<strong>' + text + '</strong>';
 		}
 
-		let link = "<a class=\"col-xs-1\" href=\"javascript:gotoPageUsers(" + i.toString() + ")\">" + text + "</a>";
+		let link = "<a class=\"col-xs-1\" href=\"#\" onclick=\"gotoPageUsers(" + i.toString() + ");return false;\">" + text + "</a>";
 
 		navigation.append(link);
 	}
