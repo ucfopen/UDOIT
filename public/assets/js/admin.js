@@ -186,7 +186,7 @@ function generateLinksUsers(pages) {
 		let link = "<a class=\"col-xs-1\" href=\"#\">" + text + "</a>";
 
 		navigation.append(link);
-		navigation.children().last().click(function(e){e.preventDefault();gotoPageUsers(i);return false;});
+		navigation.children().last().click(function(e){e.preventDefault();gotoPageUsers(i);console.log('yeet' + i.toString());return false;});
 	}
 	$('.user-navigation').removeClass('hidden');
 }
