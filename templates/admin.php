@@ -121,12 +121,12 @@ $this->layout('template', $settings);
 			<div id="user-results" class="stat-results">
 				<div class="user-navigation pull-right hidden">
 					<button type="button" class="user-page-right pull-right">></button>
-					<div class="user-navigation-links pull-right"></div>
+					<div class="user-navigation-links pull-right container-fluid"></div>
 					<button type="button" class="user-page-left pull-right"><</button>
 				</div>
 				<div class="user-navigation pull-right hidden">
 					<button type="button" class="user-page-right pull-right">></button>
-					<div class="user-navigation-links pull-right"></div>
+					<div class="user-navigation-links pull-right container-fluid"></div>
 					<button type="button" class="user-page-left pull-right"><</button>
 				</div>
 			</div>
