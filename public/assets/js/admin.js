@@ -239,7 +239,7 @@ function populateUsers(button_offset) {
 					$('#user-pull').empty();
 					$('#user-pull').append('Update Results');
 
-					user_page_index += button_offset;
+					user_page_index = page;
 					generateLinksUsers(total_pages);
 				},
 				error: function(xhr, status, error){
