@@ -186,7 +186,7 @@ function generateLinksUsers(pages) {
 		let link = "<a class=\"col-xs-1\" href=\"#\">" + text + "</a>";
 
 		navigation.append(link);
-		navigation.each(function(i, obj) {
+		navigation.each(function(j, obj) {
 			$(this).children().last().click(function(e){e.preventDefault();gotoPageUsers(i);return false;});
 		});
 	}
