@@ -217,7 +217,7 @@ function generateLinksUsers(total_pages) {
 	navigation.empty();
 
 	if(total_pages < 10) {
-		makeLinks(1, pages, navigation);
+		makeLinks(1, total_pages, navigation);
 	} else {
 		let link_page = Math.ceil(user_page_index / 7) - 1;
 		if(link_page == 0) {
