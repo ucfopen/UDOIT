@@ -174,10 +174,8 @@ function gotoPageUsers(index) {
 	populateUsers(0);
 }
 
-function generateLinksUsers(pages) {
-	let navigation = $('.user-navigation-links');
-	navigation.empty();
-	for(let i=1; i<=pages; i++) {
+function makeLinks(start_index, stop_index, element) {
+	for(let i=start_index; i<=stop_index; i++) {
 		let text = i.toString();
 		if(i==user_page_index) {
 			text = '<strong>' + text + '</strong>';
@@ -185,11 +183,57 @@ function generateLinksUsers(pages) {
 
 		let link = "<a class=\"btn-xs\" href=\"#\">" + text + "</a>";
 
-		navigation.append(link);
-		navigation.each(function(j, obj) {
+		element.append(link);
+		element.each(function(j, obj) {
 			$(this).children().last().click(function(e){e.preventDefault();gotoPageUsers(i);return false;});
 		});
 	}
+}
+
+function makeLinksBeginning(dot_index, element) {
+	element.append("<a class=\"btn-xs\" href=\"#\">1</a>");
+	element.each(function(j, obj) {
+		$(this).children().last().click(function(e){e.preventDefault();gotoPageUsers(1);return false;});
+	});
+	element.append("<a class=\"btn-xs\" href=\"#\">...</a>");
+	element.each(function(j, obj) {
+		$(this).children().last().click(function(e){e.preventDefault();gotoPageUsers(dot_index);return false;});
+	});
+}
+
+function makeLinksEnd(dot_index, end_index, element) {
+	element.append("<a class=\"btn-xs\" href=\"#\">...</a>");
+	element.each(function(j, obj) {
+		$(this).children().last().click(function(e){e.preventDefault();gotoPageUsers(dot_index);return false;});
+	});
+	element.append("<a class=\"btn-xs\" href=\"#\">" + end_index.toString() + "</a>");
+	element.each(function(j, obj) {
+		$(this).children().last().click(function(e){e.preventDefault();gotoPageUsers(end_index);return false;});
+	});
+}
+
+function generateLinksUsers(total_pages) {
+	let navigation = $('.user-navigation-links');
+	navigation.empty();
+
+	if(total_pages < 10) {
+		makeLinks(1, pages, navigation);
+	} else {
+		let link_page = Math.ceil(user_page_index / 7) - 1;
+		if(link_page == 0) {
+			makeLinks(1, 7,  navigation);
+		} else {
+			makeLinksBeginning((link_page * 7) - 1 , navigation);
+		}
+
+		if(user_page_index > (total_pages - 7)) {
+			makeLinks(total_pages - 6, total_pages, navigation);
+		} else {
+			makeLinks((link_page * 7) + 1, (link_page + 1) * 7, navigation);
+			makeLinksEnd((link_page * 7) + 8, total_pages, navigation);
+		}
+	}
+
 	$('.user-navigation').removeClass('hidden');
 }
 
