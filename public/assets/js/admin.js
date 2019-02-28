@@ -229,7 +229,7 @@ function generateLinksUsers(total_pages) {
 				makeLinks(total_pages - 6, total_pages, navigation);
 			} else {
 				makeLinks((link_page * 7) + 1, (link_page + 1) * 7, navigation);
-				makeLinksEnd((link_page * 7) + 8, total_pages, navigation);
+				makeLinksEnd((link_page * 7) + 9, total_pages, navigation);
 			}
 		}
 	}
