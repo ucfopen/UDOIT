@@ -215,7 +215,6 @@ function makeLinksEnd(dot_index, end_index, element) {
 function generateLinksUsers(total_pages) {
 	let navigation = $('.user-navigation-links');
 	navigation.empty();
-
 	if(total_pages < 10) {
 		makeLinks(1, total_pages, navigation);
 	} else {
@@ -224,10 +223,11 @@ function generateLinksUsers(total_pages) {
 			makeLinks(1, 7,  navigation);
 			makeLinksEnd(8, total_pages, navigation);
 		} else {
-			makeLinksBeginning(link_page * 7, navigation);
 			if(user_page_index > (total_pages - 7)) {
+				makeLinksBeginning(total_pages - 6, navigation);
 				makeLinks(total_pages - 6, total_pages, navigation);
 			} else {
+				makeLinksBeginning(link_page * 7, navigation);
 				makeLinks((link_page * 7) + 1, (link_page + 1) * 7, navigation);
 				makeLinksEnd((link_page * 7) + 8, total_pages, navigation);
 			}
