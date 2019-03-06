@@ -119,14 +119,12 @@ switch ($_GET['stat']) {
         break;
 
     case 'usergrowth':
-        error_log('offset at 0 is: ' . $offset);
+        error_log('info: '.$_GET['offset']);
 
         $startDate = !empty($_GET['startdate']) ? new DateTime($_GET['startdate']) : null;
         $endDate = !empty($_GET['enddate']) ? new DateTime($_GET['enddate']) : null;
         $number_items = (isset($_GET['number_items']) && $_GET['number_items'] >= 0) ? filter_var($_GET['number_items'], FILTER_SANITIZE_NUMBER_INT) : 'NULL';
         $offset = (isset($_GET['offset']) && $_GET['offset'] >= 0) ? filter_var($_GET['offset'], FILTER_SANITIZE_NUMBER_INT) : '0';
-
-        error_log('offset at 1 is: ' . $offset);
 
         $results = UdoitStats::instance()->countNewUsers($_GET['grain'], $startDate, $endDate, $number_items, $offset);
         if (false === $results) {
