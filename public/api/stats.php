@@ -119,7 +119,7 @@ switch ($_GET['stat']) {
         break;
 
     case 'usergrowth':
-        error_log('info: '.$_GET['offset']);
+        error_log('info: type is '.gettype($_GET['offset']));
 
         $startDate = !empty($_GET['startdate']) ? new DateTime($_GET['startdate']) : null;
         $endDate = !empty($_GET['enddate']) ? new DateTime($_GET['enddate']) : null;
