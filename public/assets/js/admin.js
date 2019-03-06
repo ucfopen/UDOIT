@@ -181,7 +181,7 @@ function gotoPage(index, target) {
 function makeLinks(start_index, stop_index, element, target) {
 	for(let i=start_index; i<=stop_index; i++) {
 		let text = i.toString();
-		if(i==users_page_index) {
+		if(i==page_index[target]) {
 			text = '<strong>' + text + '</strong>';
 		}
 		let link = "<a class=\"btn-xs\" href=\"#\">" + text + "</a>";
