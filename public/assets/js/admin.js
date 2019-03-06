@@ -358,7 +358,7 @@ $('.scans-page-left').click(function(){
 
 $('.scans-page-right').click(function(){populateTable(1, 'scans')});
 
-$('#errors-common-pull').click(function(){
+$('#errors-common-submit').click(function(){
 	$('#errors-common-results').empty();
 
 	$('#errors-common-pull').empty();

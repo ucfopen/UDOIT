@@ -128,6 +128,8 @@ switch ($_GET['stat']) {
             respond_with_error(500, "Error retrieving User Growth from database.");
         }
 
+        error_log($results);
+
         respond_with_success($results);
         break;
 
