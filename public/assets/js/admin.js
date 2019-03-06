@@ -240,7 +240,7 @@ function generateLinks(total_pages, target) {
 	if(total_pages < 10) {
 		makeLinks(1, total_pages, navigation, target);
 	} else {
-		let link_page = Math.ceil(users_page_index / 7) - 1;
+		let link_page = Math.ceil(page_index[target] / 7) - 1;
 		if(link_page == 0) {
 			makeLinks(1, 7,  navigation, target);
 			makeLinksEnd(8, total_pages, navigation, target);
