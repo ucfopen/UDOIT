@@ -374,6 +374,8 @@ class UdoitStats
         }
         $query .= "GROUP BY {$date_format} ORDER BY {$date_format} OFFSET $offset ROWS FETCH NEXT $number_items ROWS ONLY";
 
+        error_log($query);
+
         $sth = UdoitDB::prepare($query);
         if (isset($startDate)) {
             $sth->bindValue(':startdate', $startDate->format('Y-m-d'), PDO::PARAM_STR);
