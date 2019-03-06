@@ -63,7 +63,6 @@ switch ($_GET['stat']) {
         $user_id = sanitize_id($_GET['userid']);
         $latest = isset($_GET['latestonly']) ? true : false;
 
-
         $results = UdoitStats::instance()->getReportsCount($latest, $_GET['orderby'],
             $get_data = [
                 'start_date'    => $start_date,

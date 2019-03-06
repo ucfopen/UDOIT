@@ -206,8 +206,6 @@ class UdoitStats
             $prepend_word = "AND"; // Only needs to run after first iteration (currently always runs)
         }
 
-        error_log($query);
-
         $sth = UdoitDB::prepare($query);
         if (isset($get_data['start_date'])) {
             $sth->bindValue(':startdate', $get_data['start_date']->format('Y-m-d'), PDO::PARAM_STR);
