@@ -130,6 +130,8 @@ class UdoitStats
 
         $query .= "OFFSET $offset ROWS FETCH NEXT $number_items ROWS ONLY\n";
 
+        trigger_error($query);
+
         $sth = UdoitDB::prepare($query);
         if (isset($get_data['start_date'])) {
             $sth->bindValue(':startdate', $get_data['start_date']->format('Y-m-d'), PDO::PARAM_STR);
