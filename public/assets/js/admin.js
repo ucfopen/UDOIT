@@ -215,27 +215,8 @@ function makeLinksEnd(dot_index, end_index, element, target) {
 }
 
 function generateLinks(total_pages, target) {
-	let parent = false;
-	let navigation = false;
-	switch(target) {
-		case "user":
-			parent = $('.user-navigation');
-			navigation = $('.user-navigation-links');
-			break;
-
-		case "user-growth":
-			parent = $('.user-growth-navigation');
-			navigation = $('.user-growth-navigation-links');
-			break;
-
-		case "scans":
-			parent = $('.scans-navigation');
-			navigation = $('.scans-navigation-links');
-			break;
-
-		default:
-			return;
-	}
+	let parent = $('.' + target + '-navigation');
+	let navigation = $('.' + target + '-navigation-links');
 	navigation.empty();
 	if(total_pages < 10) {
 		makeLinks(1, total_pages, navigation, target);
@@ -339,17 +320,17 @@ function populateTable(button_offset, target, formvals=null) {
 						tableToCSV('#' + target + '-results', "UDOIT_" + filename + ".csv");
 					});
 
-					refresh_button.empty();
-					refresh_button.append('Update Results');
-
-					page_index[target] = page;
-					generateLinks(total_pages, target);
-
 					if(target === 'scans') {
 						tableData = msg.data;
 						loadCourses(0); // Lazy load term and course name
 						loadUsers(0); // Lazy load User name
 					}
+
+					page_index[target] = page;
+					generateLinks(total_pages, target);
+
+					refresh_button.empty();
+					refresh_button.append('Update Results');
 				},
 				error: function(xhr, status, error){
 					response = JSON.parse(xhr.responseText);
