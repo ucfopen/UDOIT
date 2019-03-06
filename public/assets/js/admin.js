@@ -245,7 +245,7 @@ function generateLinks(total_pages, target) {
 			makeLinks(1, 7,  navigation, target);
 			makeLinksEnd(8, total_pages, navigation, target);
 		} else {
-			if(users_page_index > (total_pages - 7)) {
+			if(page_index[target] > (total_pages - 7)) {
 				makeLinksBeginning(total_pages - 7, navigation, target);
 				makeLinks(total_pages - 6, total_pages, navigation, target);
 			} else {
