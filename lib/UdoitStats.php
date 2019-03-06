@@ -130,8 +130,6 @@ class UdoitStats
 
         $query .= "OFFSET $offset ROWS FETCH NEXT $number_items ROWS ONLY\n";
 
-        error_log($query);
-
         $sth = UdoitDB::prepare($query);
         if (isset($get_data['start_date'])) {
             $sth->bindValue(':startdate', $get_data['start_date']->format('Y-m-d'), PDO::PARAM_STR);
@@ -374,9 +372,8 @@ class UdoitStats
         if (isset($endDate)) {
             $query .= $prepend_word." DATE(date_created) <= :enddate\n";
         }
-        $query .= "GROUP BY {$date_format} ORDER BY {$date_format} OFFSET $offset ROWS FETCH NEXT $number_items ROWS ONLY";
 
-        error_log($query);
+        $query .= "GROUP BY {$date_format} ORDER BY {$date_format} OFFSET $offset ROWS FETCH NEXT $number_items ROWS ONLY";
 
         $sth = UdoitDB::prepare($query);
         if (isset($startDate)) {

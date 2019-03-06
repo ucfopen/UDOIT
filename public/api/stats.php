@@ -122,7 +122,7 @@ switch ($_GET['stat']) {
         $startDate = !empty($_GET['startdate']) ? new DateTime($_GET['startdate']) : null;
         $endDate = !empty($_GET['enddate']) ? new DateTime($_GET['enddate']) : null;
         $number_items = !empty($_GET['number_items']) ? $_GET['number_items'] : null;
-        $offset = !empty($_GET['number_items']) ? $_GET['number_items'] : null;
+        $offset = !empty($_GET['offset']) ? $_GET['offset'] : null;
         $results = UdoitStats::instance()->countNewUsers($_GET['grain'], $startDate, $endDate, $number_items, $offset);
         if (false === $results) {
             respond_with_error(500, "Error retrieving User Growth from database.");
