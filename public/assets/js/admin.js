@@ -18,9 +18,11 @@
 */
 
 var tableData;
-var scans_page_index = 1;
-var user_page_index = 1;
-var user_growth_page_index = 1;
+var page_index = {
+	'scans': 1,
+	'user': 1,
+	'user-growth': 1
+}
 
 function json_tableify(data) {
 	let table = document.createElement('table');
@@ -172,22 +174,8 @@ function tableToCSV(html, filename) {
 }
 
 function gotoPage(index, target) {
-	switch(target) {
-		case "user":
-			user_page_index = index;
-			populateTable(0, 'user');
-
-		case "user-growth":
-			user_growth_page_index = index;
-			populateTable(0, 'user-growth');
-
-		case "scans":
-			scans_page_index = index;
-			populateTable(0, 'scans');
-
-		default:
-			return;
-	}
+	page_index[target] = index;
+	populateTable(0, target);
 }
 
 function makeLinks(start_index, stop_index, element, target) {
@@ -231,14 +219,17 @@ function generateLinks(total_pages, target) {
 		case "user":
 			let parent = $('.user-navigation');
 			let navigation = parent.$('.user-navigation-links');
+			break;
 
 		case "user-growth":
 			let parent = $('.user-growth-navigation');
 			let navigation = parent.$('.user-growth-navigation-links');
+			break;
 
 		case "scans":
 			let parent = $('.scans-navigation');
 			let navigation = parent.$('.scans-navigation-links');
+			break;
 
 		default:
 			return;
@@ -274,6 +265,7 @@ function populateTable(button_offset, target, formvals=null) {
 				return `api/users.php?action=list&number_items=${number_items}&offset=${offset}`;
 			};
 			let filename = 'Users';
+			break;
 
 		case 'user-growth':
 			let api1 = 'api/stats.php?stat=usergrowthcount&'+formvals;
@@ -281,6 +273,7 @@ function populateTable(button_offset, target, formvals=null) {
 				return `api/stats.php?stat=usergrowth&number_items=${number_items}&offset=${offset}&`+formvals;
 			};
 			let filename = 'User_Growth';
+			break;
 
 		case 'scans':
 			let api1 = 'api/stats.php?stat=scanscount&'+formvals;
@@ -288,6 +281,7 @@ function populateTable(button_offset, target, formvals=null) {
 				return `api/stats.php?stat=scans&number_items=${number_items}&offset=${offset}&`+formvals;
 			};
 			let filename = 'Scans';
+			break;
 
 		default:
 			return;
@@ -308,7 +302,7 @@ function populateTable(button_offset, target, formvals=null) {
 			let number_items = parseInt($('#' + target + '-pagination-number :selected').val());
 			let total_pages = Math.ceil(parseInt(msg.data[0]['count']) / number_items);
 
-			let page = window[target + '_page_index'] + button_offset;
+			let page = page_index[target] + button_offset;
 			if(page < 1) {
 				refresh_button.empty();
 				refresh_button.append('Update Results');
@@ -343,7 +337,7 @@ function populateTable(button_offset, target, formvals=null) {
 					refresh_button.empty();
 					refresh_button.append('Update Results');
 
-					window[target + '_page_index'] = page;
+					page_index[target] = page;
 					generateLinks(total_pages, 'users');
 
 					if(target === 'scans') {
