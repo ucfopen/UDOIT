@@ -388,7 +388,7 @@ $('#errors-common-pull').click(function(){
 	});
 });
 
-$('#user-pull').click(function(){populateTable(0, 'user')});
+$('#user-submit').click(function(){populateTable(0, 'user')});
 
 $('.user-page-left').click(function(){populateTable(-1, 'user')});
 
