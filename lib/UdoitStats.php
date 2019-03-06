@@ -130,11 +130,6 @@ class UdoitStats
 
         $query .= "OFFSET $offset ROWS FETCH NEXT $number_items ROWS ONLY\n";
 
-        //error_reporting(E_ALL);
-        //ini_set('display_errors', '1');
-        // trigger_error($query);
-        error_log($query);
-
         $sth = UdoitDB::prepare($query);
         if (isset($get_data['start_date'])) {
             $sth->bindValue(':startdate', $get_data['start_date']->format('Y-m-d'), PDO::PARAM_STR);
@@ -164,7 +159,7 @@ class UdoitStats
         global $db_reports_table;
         global $db_type;
 
-        $query = "SELECT COUNT(*) AS \"count\""
+        $query = "SELECT COUNT(*) AS \"count\" "
                 ."FROM $db_reports_table\n";
         // Only select most recent scans per course from database
         // Must prepend before conditional clauses below
@@ -209,29 +204,6 @@ class UdoitStats
                     $logger->addWarning("Unexpected key '$key' in GET data.");
             }
             $prepend_word = "AND"; // Only needs to run after first iteration (currently always runs)
-        }
-
-        // Can only append these parameters at the end of the SQL query
-        if ('mysql' == $db_type) {
-            $date_order = "DATE(date_run)";
-        } elseif ('pgsql' == $db_type) {
-            $date_order = "date_run";
-        }
-        switch ($order_by) {
-            case 'mostrecent':
-                $query .= "ORDER BY $date_order DESC\n";
-                break;
-            case 'leastrecent':
-                $query .= "ORDER BY $date_order ASC\n";
-                break;
-            case 'mosterrors':
-                $query .= "ORDER BY errors DESC\n";
-                break;
-            case 'leasterrors':
-                $query .= "ORDER BY errors ASC\n";
-                break;
-            default: // Default to 'mostrecent'
-                $query .= "ORDER BY $date_order DESC\n";
         }
 
         error_log($query);
