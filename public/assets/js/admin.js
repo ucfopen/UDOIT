@@ -215,20 +215,22 @@ function makeLinksEnd(dot_index, end_index, element, target) {
 }
 
 function generateLinks(total_pages, target) {
+	let parent = false;
+	let navigation = false;
 	switch(target) {
 		case "user":
-			let parent = $('.user-navigation');
-			let navigation = parent.$('.user-navigation-links');
+			parent = $('.user-navigation');
+			navigation = parent.$('.user-navigation-links');
 			break;
 
 		case "user-growth":
-			let parent = $('.user-growth-navigation');
-			let navigation = parent.$('.user-growth-navigation-links');
+			parent = $('.user-growth-navigation');
+			navigation = parent.$('.user-growth-navigation-links');
 			break;
 
 		case "scans":
-			let parent = $('.scans-navigation');
-			let navigation = parent.$('.scans-navigation-links');
+			parent = $('.scans-navigation');
+			navigation = parent.$('.scans-navigation-links');
 			break;
 
 		default:
@@ -258,9 +260,9 @@ function generateLinks(total_pages, target) {
 }
 
 function populateTable(button_offset, target, formvals=null) {
-	let api1 = '';
-	let api2 = '';
-	let filename = '';
+	let api1 = false;
+	let api2 = false;
+	let filename = false;
 	switch(target) {
 		case 'user':
 			api1 = 'api/users.php?action=user_count';
