@@ -159,13 +159,13 @@ class UdoitStats
         global $db_reports_table;
         global $db_type;
 
-        $query = "SELECT COUNT(DISTINCT ) AS \"count\""
+        $query = "SELECT COUNT(*) AS \"count\""
                 ."FROM $db_reports_table\n";
         // Only select most recent scans per course from database
         // Must prepend before conditional clauses below
         if ($latest) {
             $query .= "INNER JOIN (\n"
-                 ."SELECT course_id\n"
+                 ."SELECT course_id, MAX(date_run) as MaxDate\n"
                  ."FROM $db_reports_table\n"
                  ."GROUP BY course_id\n"
                  .") tm "
