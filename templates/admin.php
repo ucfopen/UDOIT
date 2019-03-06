@@ -83,13 +83,29 @@ $this->layout('template', $settings);
 							</div>
 							<div class="col-md-12">
 								<button type="submit" class="btn btn-success pull-left" id="scans-submit" name="scans-submit">Display Results</button>
+								<select name="number_items" id="scans-pagination-number">
+									<option value="10">10</option>
+									<option value="25">25</option>
+									<option value="50">50</option>
+								</select>
 								<button type="button" class="btn btn-primary pull-right hidden" id="scans-csv">Get .csv</button>
 							</div>
 						</form>
 					</div>
 				</div>
 			</div>
-			<div id="scans-results" class="stat-results"></div>
+			<div id="scans-results" class="stat-results">
+				<div class="scans-navigation pull-right hidden">
+					<button type="button" class="scans-page-right pull-right">></button>
+					<div class="scans-navigation-links pull-right"></div>
+					<button type="button" class="scans-page-left pull-right"><</button>
+				</div>
+				<div class="scans-navigation pull-right hidden">
+					<button type="button" class="scans-page-right pull-right">></button>
+					<div class="scans-navigation-links pull-right"></div>
+					<button type="button" class="scans-page-left pull-right"><</button>
+				</div>
+			</div>
 		</div>
 		<div class="tab-pane" id="errors-common" role="tabpanel">
 			<div class="panel panel-default">
@@ -158,13 +174,29 @@ $this->layout('template', $settings);
 							</div>
 							<div class="col-md-12">
 								<button class="btn btn-success" id="user-growth-submit">Display Results</button>
+								<select name="number_items" id="user-growth-pagination-number">
+									<option value="10">10</option>
+									<option value="25">25</option>
+									<option value="50">50</option>
+								</select>
 								<button type="button" class="btn btn-primary pull-right hidden" id="user-growth-csv">Get .csv</button>
 							</div>
 						</form>
 					</div>
 				</div>
 			</div>
-			<div id="user-growth-results" class="stat-results"></div>
+			<div id="user-growth-results" class="stat-results">
+				<div class="user-growth-navigation pull-right hidden">
+					<button type="button" class="user-growth-page-right pull-right">></button>
+					<div class="user-growth-navigation-links pull-right"></div>
+					<button type="button" class="user-growth-page-left pull-right"><</button>
+				</div>
+				<div class="user-growth-navigation pull-right hidden">
+					<button type="button" class="user-growth-page-right pull-right">></button>
+					<div class="user-growth-navigation-links pull-right"></div>
+					<button type="button" class="user-growth-page-left pull-right"><</button>
+				</div>
+			</div>
 		</div>
 	</div>
 </main>

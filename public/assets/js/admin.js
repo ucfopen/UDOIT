@@ -18,7 +18,9 @@
 */
 
 var tableData;
+var scans_page_index = 1;
 var user_page_index = 1;
+var user_growth_page_index = 1;
 
 function json_tableify(data) {
 	let table = document.createElement('table');
@@ -169,91 +171,147 @@ function tableToCSV(html, filename) {
     downloadCSV(csv.join("\n"), filename);
 }
 
-function gotoPageUsers(index) {
-	user_page_index = index;
-	populateUsers(0);
+function gotoPage(index, target) {
+	switch(target) {
+		case "user":
+			user_page_index = index;
+			populateTable(0, 'user');
+
+		case "user-growth":
+			user_growth_page_index = index;
+			populateTable(0, 'user-growth');
+
+		case "scans":
+			scans_page_index = index;
+			populateTable(0, 'scans');
+
+		default:
+			return;
+	}
 }
 
-function makeLinks(start_index, stop_index, element) {
+function makeLinks(start_index, stop_index, element, target) {
 	for(let i=start_index; i<=stop_index; i++) {
 		let text = i.toString();
-		if(i==user_page_index) {
+		if(i==users_page_index) {
 			text = '<strong>' + text + '</strong>';
 		}
-
 		let link = "<a class=\"btn-xs\" href=\"#\">" + text + "</a>";
-
 		element.append(link);
 		element.each(function(j, obj) {
-			$(this).children().last().click(function(e){e.preventDefault();gotoPageUsers(i);return false;});
+			$(this).children().last().click(function(e){e.preventDefault();gotoPage(i, target);return false;});
 		});
 	}
 }
 
-function makeLinksBeginning(dot_index, element) {
+function makeLinksBeginning(dot_index, element, target) {
 	element.append("<a class=\"btn-xs\" href=\"#\">1</a>");
 	element.each(function(j, obj) {
-		$(this).children().last().click(function(e){e.preventDefault();gotoPageUsers(1);return false;});
+		$(this).children().last().click(function(e){e.preventDefault();gotoPage(1, target);return false;});
 	});
 	element.append("<a class=\"btn-xs\" href=\"#\">...</a>");
 	element.each(function(j, obj) {
-		$(this).children().last().click(function(e){e.preventDefault();gotoPageUsers(dot_index);return false;});
+		$(this).children().last().click(function(e){e.preventDefault();gotoPage(dot_index, target);return false;});
 	});
 }
 
-function makeLinksEnd(dot_index, end_index, element) {
+function makeLinksEnd(dot_index, end_index, element, target) {
 	element.append("<a class=\"btn-xs\" href=\"#\">...</a>");
 	element.each(function(j, obj) {
-		$(this).children().last().click(function(e){e.preventDefault();gotoPageUsers(dot_index);return false;});
+		$(this).children().last().click(function(e){e.preventDefault();gotoPage(dot_index, target);return false;});
 	});
 	element.append("<a class=\"btn-xs\" href=\"#\">" + end_index.toString() + "</a>");
 	element.each(function(j, obj) {
-		$(this).children().last().click(function(e){e.preventDefault();gotoPageUsers(end_index);return false;});
+		$(this).children().last().click(function(e){e.preventDefault();gotoPage(end_index, target);return false;});
 	});
 }
 
-function generateLinksUsers(total_pages) {
-	let navigation = $('.user-navigation-links');
+function generateLinks(total_pages, target) {
+	switch(target) {
+		case "user":
+			let parent = $('.user-navigation');
+			let navigation = parent.$('.user-navigation-links');
+
+		case "user-growth":
+			let parent = $('.user-growth-navigation');
+			let navigation = parent.$('.user-growth-navigation-links');
+
+		case "scans":
+			let parent = $('.scans-navigation');
+			let navigation = parent.$('.scans-navigation-links');
+
+		default:
+			return;
+	}
 	navigation.empty();
 	if(total_pages < 10) {
-		makeLinks(1, total_pages, navigation);
+		makeLinks(1, total_pages, navigation, target);
 	} else {
-		let link_page = Math.ceil(user_page_index / 7) - 1;
+		let link_page = Math.ceil(users_page_index / 7) - 1;
 		if(link_page == 0) {
-			makeLinks(1, 7,  navigation);
-			makeLinksEnd(8, total_pages, navigation);
+			makeLinks(1, 7,  navigation, target);
+			makeLinksEnd(8, total_pages, navigation, target);
 		} else {
-			if(user_page_index > (total_pages - 7)) {
-				makeLinksBeginning(total_pages - 7, navigation);
-				makeLinks(total_pages - 6, total_pages, navigation);
+			if(users_page_index > (total_pages - 7)) {
+				makeLinksBeginning(total_pages - 7, navigation, target);
+				makeLinks(total_pages - 6, total_pages, navigation, target);
 			} else {
-				makeLinksBeginning(link_page * 7, navigation);
-				makeLinks((link_page * 7) + 1, (link_page + 1) * 7, navigation);
-				makeLinksEnd((link_page * 7) + 8, total_pages, navigation);
+				makeLinksBeginning(link_page * 7, navigation, target);
+				makeLinks((link_page * 7) + 1, (link_page + 1) * 7, navigation, target);
+				makeLinksEnd((link_page * 7) + 8, total_pages, navigation, target);
 			}
 		}
 	}
 
-	$('.user-navigation').removeClass('hidden');
+	parent.removeClass('hidden');
 }
 
-function populateUsers(button_offset) {
+function populateTable(button_offset, target, formvals=null) {
+	switch(target) {
+		case 'user':
+			let api1 = 'api/users.php?action=user_count';
+			let api2 = function(number_items, offset) {
+				return `api/users.php?action=list&number_items=${number_items}&offset=${offset}`;
+			};
+			let filename = 'Users';
 
-	$('#user-pull').empty();
-	$('#user-pull').append('<span class="circle-white" style="display: inline-block; height: 16px; width: 16px;"></span> Loading...');
+		case 'user-growth':
+			let api1 = 'api/stats.php?stat=usergrowthcount&'+formvals;
+			let api2 = function(number_items, offset) {
+				return `api/stats.php?stat=usergrowth&number_items=${number_items}&offset=${offset}&`+formvals;
+			};
+			let filename = 'User_Growth';
+
+		case 'scans':
+			let api1 = 'api/stats.php?stat=scanscount&'+formvals;
+			let api2 = function(number_items, offset) {
+				return `api/stats.php?stat=scans&number_items=${number_items}&offset=${offset}&`+formvals;
+			};
+			let filename = 'Scans';
+
+		default:
+			return;
+	}
+
+	let refresh_button = $('#' + target + '-pull');
+	let csv = $('#' + target + '-csv');
+	let result_element = $('#user-results');
+
+	refresh_button.empty();
+	refresh_button.append('<span class="circle-white" style="display: inline-block; height: 16px; width: 16px;"></span> Loading...');
 
 	let request1 = $.ajax({
-		url: 'api/users.php?action=user_count',
+		url: api1,
 		method: 'GET',
 		dataType: 'json',
 		success: function(msg){
-			let number_items = parseInt($('#user-pagination-number :selected').val());
-			let total_pages = Math.ceil(parseInt(msg.data[0]['user_count']) / number_items);
+			let number_items = parseInt($('#' + target + '-pagination-number :selected').val());
+			let total_pages = Math.ceil(parseInt(msg.data[0]['count']) / number_items);
 
-			let page = user_page_index + button_offset;
+			let page = window[target + '_page_index'] + button_offset;
 			if(page < 1) {
-				$('#user-pull').empty();
-				$('#user-pull').append('Update Results');
+				refresh_button.empty();
+				refresh_button.append('Update Results');
 				return;
 			}
 
@@ -266,79 +324,59 @@ function populateUsers(button_offset) {
 				offset *= number_items;
 			}
 
-			$('.user-navigation').addClass('hidden');
-			$('#user-results table').remove();
+			$('.' + target + '-navigation').addClass('hidden');
+			$('#' + target + '-results table').remove();
 			let request2 = $.ajax({
-				url: `api/users.php?action=list&number_items=${number_items}&offset=${offset}`,
+				url: api2(number_items, offset),
 				method: 'GET',
 				dataType: 'json',
 				success: function(msg){
 					let table = json_tableify(msg.data);
-					table = addDeauthButton(msg.data, table);
+					if(target === 'user') table = addDeauthButton(msg.data, table);
 					$(table).addClass('table table-striped');
-					$('#user-results > div:nth-child(1)').after(table);
-					$('#user-csv').removeClass('hidden');
-					$('#user-csv').click(function(){
-						tableToCSV('#user-results', "UDOIT_Users.csv");
+					$('#' + target + '-results > div:nth-child(1)').after(table);
+					csv.removeClass('hidden');
+					csv.click(function(){
+						tableToCSV('#' + target + '-results', "UDOIT_" + filename + ".csv");
 					});
 
-					$('#user-pull').empty();
-					$('#user-pull').append('Update Results');
+					refresh_button.empty();
+					refresh_button.append('Update Results');
 
-					user_page_index = page;
-					generateLinksUsers(total_pages);
+					window[target + '_page_index'] = page;
+					generateLinks(total_pages, 'users');
+
+					if(target === 'scans') {
+						tableData = msg.data;
+						loadCourses(0); // Lazy load term and course name
+						loadUsers(0); // Lazy load User name
+					}
 				},
 				error: function(xhr, status, error){
 					response = JSON.parse(xhr.responseText);
-					$('#user-results').html(response.data);
+					result_element.html(response.data);
 				}
 			});
 		},
 		error: function(xhr, status, error){
 			response = JSON.parse(xhr.responseText);
-			$('#user-results').html(response.data);
+			result_element.html(response.data);
 		}
 	});
-
-
 }
 
 $('#scans-pull').on('submit', function(evt){
 	evt.preventDefault();
 	let formvals = $(this).serialize();
-	$('#scans-results').empty();
-
-	$('#scans-submit').empty();
-	$('#scans-submit').append('<span class="circle-white" style="display: inline-block; height: 16px; width: 16px;"></span> Loading...');
-
-	let request = $.ajax({
-		url: 'api/stats.php?stat=scans&'+formvals,
-		method: 'GET',
-		dataType: 'json',
-		success: function(msg){
-			let table = json_tableify(msg.data);
-			$(table).addClass('table table-striped');
-
-			$('#scans-results').append(table);
-
-			$('#scans-csv').removeClass('hidden');
-			$('#scans-csv').click(function(){
-				tableToCSV('#scans-results', "UDOIT_Scans.csv");
-			});
-
-			$('#scans-submit').empty();
-			$('#scans-submit').append('Update Results');
-
-			tableData = msg.data;
-			loadCourses(0); // Lazy load term and course name
-			loadUsers(0); // Lazy load User name
-		},
-		error: function(xhr, status, error){
-			response = JSON.parse(xhr.responseText);
-			$('#scans-results').html(response.data);
-		}
-	});
+	populateTable(0, 'scans', formvals);
 });
+
+$('.scans-page-left').click(function(){
+	let formvals = $(this).serialize();
+	populateTable(-1, 'scans', formvals);
+});
+
+$('.scans-page-right').click(function(){populateTable(1, 'scans')});
 
 $('#errors-common-pull').click(function(){
 	$('#errors-common-results').empty();
@@ -370,43 +408,26 @@ $('#errors-common-pull').click(function(){
 	});
 });
 
-$('#user-pull').click(function(){populateUsers(0)});
+$('#user-pull').click(function(){populateTable(0, 'user')});
 
-$('.user-page-left').click(function(){populateUsers(-1)});
+$('.user-page-left').click(function(){populateTable(-1, 'user')});
 
-$('.user-page-right').click(function(){populateUsers(1)});
+$('.user-page-right').click(function(){populateTable(1, 'user')});
 
 $('#user-growth-pull').on('submit', function(evt){
 	evt.preventDefault();
 	let formvals = $(this).serialize();
-	$('#user-growth-results').empty();
+	populateTable(0, 'user-growth', formvals);
+});
 
-	$('#user-growth-submit').empty();
-	$('#user-growth-submit').append('<span class="circle-white" style="display: inline-block; height: 16px; width: 16px;"></span> Loading...');
+$('.user-growth-page-left').click(function(){
+	let formvals = $(this).serialize();
+	populateTable(-1, 'user-growth', formvals);
+});
 
-	let request = $.ajax({
-		url: 'api/stats.php?stat=usergrowth&'+formvals,
-		method: 'GET',
-		dataType: 'json',
-		success: function(msg){
-			let table = json_tableify(msg.data);
-			$(table).addClass('table table-striped');
-			$('#user-growth-results').append(table);
-
-			$('#user-growth-csv').removeClass('hidden');
-			$('#user-growth-csv').click(function(){
-				tableToCSV('#user-growth-results', "UDOIT_User_Growth.csv");
-			});
-
-			$('#user-growth-submit').empty();
-			$('#user-growth-submit').append('Update Results');
-
-		},
-		error: function(xhr, status, error){
-			response = JSON.parse(xhr.responseText);
-			$('#user-growth-results').html(response.data);
-		}
-	});
+$('.user-growth-page-right').click(function(){
+	let formvals = $(this).serialize();
+	populateTable(1, 'user-growth', formvals);
 });
 
 $(document).ready(function(){
