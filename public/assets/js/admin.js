@@ -294,7 +294,7 @@ function populateTable(button_offset, target, formvals=null) {
 
 	let refresh_button = $('#' + target + '-pull');
 	let csv = $('#' + target + '-csv');
-	let result_element = $('#user-results');
+	let result_element = $('#' + target + '-results');
 
 	refresh_button.empty();
 	refresh_button.append('<span class="circle-white" style="display: inline-block; height: 16px; width: 16px;"></span> Loading...');
@@ -343,7 +343,7 @@ function populateTable(button_offset, target, formvals=null) {
 					refresh_button.append('Update Results');
 
 					page_index[target] = page;
-					generateLinks(total_pages, 'users');
+					generateLinks(total_pages, targer);
 
 					if(target === 'scans') {
 						tableData = msg.data;
