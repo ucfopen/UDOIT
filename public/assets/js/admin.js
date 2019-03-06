@@ -343,7 +343,7 @@ function populateTable(button_offset, target, formvals=null) {
 					refresh_button.append('Update Results');
 
 					page_index[target] = page;
-					generateLinks(total_pages, targer);
+					generateLinks(total_pages, target);
 
 					if(target === 'scans') {
 						tableData = msg.data;
