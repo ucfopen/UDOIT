@@ -292,7 +292,7 @@ function populateTable(button_offset, target, formvals=null) {
 			return;
 	}
 
-	let refresh_button = $('#' + target + '-pull');
+	let refresh_button = $('#' + target + '-submit');
 	let csv = $('#' + target + '-csv');
 	let result_element = $('#' + target + '-results');
 
@@ -304,7 +304,6 @@ function populateTable(button_offset, target, formvals=null) {
 		method: 'GET',
 		dataType: 'json',
 		success: function(msg){
-			console.log(msg.data);
 			let number_items = parseInt($('#' + target + '-pagination-number :selected').val());
 			let total_pages = Math.ceil(parseInt(msg.data[0]['count']) / number_items);
 

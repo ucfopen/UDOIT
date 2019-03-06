@@ -112,7 +112,7 @@ $this->layout('template', $settings);
 				<div class="panel-body">
 					<div class="container">
 						<h2>Most Common Errors</h2>
-						<button class="btn btn-success" id="errors-common-pull">Display Results</button>
+						<button class="btn btn-success" id="errors-common-submit">Display Results</button>
 						<button type="button" class="btn btn-primary pull-right hidden" id="errors-common-csv">Get .csv</button>
 					</div>
 				</div>
@@ -124,7 +124,7 @@ $this->layout('template', $settings);
 				<div class="panel-body">
 					<div class="container">
 						<h2>Users</h2>
-						<button class="btn btn-success" id="user-pull">Display Results</button>
+						<button class="btn btn-success" id="user-submit">Display Results</button>
 						<select name="number_items" id="user-pagination-number">
 							<option value="10">10</option>
 							<option value="25">25</option>
