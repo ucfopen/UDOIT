@@ -319,6 +319,8 @@ class UdoitStats
         global $db_user_table;
         global $db_type;
 
+        error_log('offset at 2 is: ' . $offset);
+
         // Set up the date format to group the results properly
         // TODO: Make sure this is compatible with Postgres (using to_char) and sqlite
         switch ($grain) {
@@ -375,7 +377,7 @@ class UdoitStats
 
         $query .= "GROUP BY {$date_format} ORDER BY {$date_format} OFFSET $offset ROWS FETCH NEXT $number_items ROWS ONLY";
 
-        error_log($query);
+        error_log('offset at 3 is: ' . $offset);
 
         $sth = UdoitDB::prepare($query);
         if (isset($startDate)) {
