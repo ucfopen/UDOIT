@@ -73,10 +73,10 @@ var loadCourses = function(i) {
 		success: function(msg2){
 			tableData[i]['Term'] = msg2.data['Term'];
 			tableData[i]['Course (ID)'] = msg2.data['Course'] + ' (' + tableData[i]['Course (ID)'] + ')';
-			$('#scans-results').empty();
+			$('#scans-results table').remove();
 			table = json_tableify(tableData);
 			$(table).addClass('table table-striped');
-			$('#scans-results').append(table);
+			$('#scans-results > div:nth-child(1)').after(table);
 		},
 		error: function(xhr, status, error){
 			response = JSON.parse(xhr.responseText);
@@ -99,10 +99,10 @@ var loadUsers = function(i) {
 		dataType: 'json',
 		success: function(msg2){
 			tableData[i]['User (ID)'] = msg2.data + ' (' + tableData[i]['User (ID)'] + ')';
-			$('#scans-results').empty();
+			$('#scans-results table').remove();
 			table = json_tableify(tableData);
 			$(table).addClass('table table-striped');
-			$('#scans-results').append(table);
+			$('#scans-results > div:nth-child(1)').after(table);
 		},
 		error: function(xhr, status, error){
 			response = JSON.parse(xhr.responseText);
