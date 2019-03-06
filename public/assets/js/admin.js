@@ -220,17 +220,17 @@ function generateLinks(total_pages, target) {
 	switch(target) {
 		case "user":
 			parent = $('.user-navigation');
-			navigation = parent.$('.user-navigation-links');
+			navigation = $('.user-navigation-links');
 			break;
 
 		case "user-growth":
 			parent = $('.user-growth-navigation');
-			navigation = parent.$('.user-growth-navigation-links');
+			navigation = $('.user-growth-navigation-links');
 			break;
 
 		case "scans":
 			parent = $('.scans-navigation');
-			navigation = parent.$('.scans-navigation-links');
+			navigation = $('.scans-navigation-links');
 			break;
 
 		default:
