@@ -36,8 +36,8 @@ switch ($_GET['stat']) {
         $course_id = sanitize_id($_GET['courseid']);
         $user_id = sanitize_id($_GET['userid']);
         $latest = isset($_GET['latestonly']) ? true : false;
-        $number_items = isset($_GET['number_items']) ? $_GET['number_items'] : null;
-        $offset = isset($_GET['offset']) ? $_GET['offset'] : null;
+        $number_items = (isset($_GET['number_items']) && $_GET['number_items'] >= 0) ? filter_var($_GET['number_items'], FILTER_SANITIZE_NUMBER_INT) : 'NULL';
+        $offset = (isset($_GET['offset']) && $_GET['offset'] >= 0) ? filter_var($_GET['offset'], FILTER_SANITIZE_NUMBER_INT) : '0';$offset = '0';
 
         $results = UdoitStats::instance()->getReports($latest, $_GET['orderby'], $number_items, $offset,
             $get_data = [
@@ -121,8 +121,8 @@ switch ($_GET['stat']) {
     case 'usergrowth':
         $startDate = !empty($_GET['startdate']) ? new DateTime($_GET['startdate']) : null;
         $endDate = !empty($_GET['enddate']) ? new DateTime($_GET['enddate']) : null;
-        $number_items = !empty($_GET['number_items']) ? $_GET['number_items'] : null;
-        $offset = !empty($_GET['offset']) ? $_GET['offset'] : null;
+        $number_items = (isset($_GET['number_items']) && $_GET['number_items'] >= 0) ? filter_var($_GET['number_items'], FILTER_SANITIZE_NUMBER_INT) : 'NULL';
+        $offset = (isset($_GET['offset']) && $_GET['offset'] >= 0) ? filter_var($_GET['offset'], FILTER_SANITIZE_NUMBER_INT) : '0';$offset = '0';
         $results = UdoitStats::instance()->countNewUsers($_GET['grain'], $startDate, $endDate, $number_items, $offset);
         if (false === $results) {
             respond_with_error(500, "Error retrieving User Growth from database.");
