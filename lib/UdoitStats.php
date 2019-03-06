@@ -130,7 +130,10 @@ class UdoitStats
 
         $query .= "OFFSET $offset ROWS FETCH NEXT $number_items ROWS ONLY\n";
 
-        trigger_error($query);
+        //error_reporting(E_ALL);
+        //ini_set('display_errors', '1');
+        // trigger_error($query);
+        error_log($query);
 
         $sth = UdoitDB::prepare($query);
         if (isset($get_data['start_date'])) {
