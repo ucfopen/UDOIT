@@ -258,29 +258,32 @@ function generateLinks(total_pages, target) {
 }
 
 function populateTable(button_offset, target, formvals=null) {
+	let api1 = '';
+	let api2 = '';
+	let filename = '';
 	switch(target) {
 		case 'user':
-			let api1 = 'api/users.php?action=user_count';
-			let api2 = function(number_items, offset) {
+			api1 = 'api/users.php?action=user_count';
+			api2 = function(number_items, offset) {
 				return `api/users.php?action=list&number_items=${number_items}&offset=${offset}`;
 			};
-			let filename = 'Users';
+			filename = 'Users';
 			break;
 
 		case 'user-growth':
-			let api1 = 'api/stats.php?stat=usergrowthcount&'+formvals;
-			let api2 = function(number_items, offset) {
+			api1 = 'api/stats.php?stat=usergrowthcount&'+formvals;
+			api2 = function(number_items, offset) {
 				return `api/stats.php?stat=usergrowth&number_items=${number_items}&offset=${offset}&`+formvals;
 			};
-			let filename = 'User_Growth';
+			filename = 'User_Growth';
 			break;
 
 		case 'scans':
-			let api1 = 'api/stats.php?stat=scanscount&'+formvals;
-			let api2 = function(number_items, offset) {
+			api1 = 'api/stats.php?stat=scanscount&'+formvals;
+			api2 = function(number_items, offset) {
 				return `api/stats.php?stat=scans&number_items=${number_items}&offset=${offset}&`+formvals;
 			};
-			let filename = 'Scans';
+			filename = 'Scans';
 			break;
 
 		default:
