@@ -82,7 +82,7 @@ $this->layout('template', $settings);
 								</label>
 							</div>
 							<div class="col-md-12">
-								<button type="submit" class="btn btn-success pull-left" id="scans-submit" name="scans-submit">Display Results</button>
+								<button type="submit" class="btn btn-success" id="scans-submit" name="scans-submit">Display Results</button>
 								<select name="number_items" id="scans-pagination-number">
 									<option value="10">10</option>
 									<option value="25">25</option>
