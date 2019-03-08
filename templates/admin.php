@@ -97,16 +97,16 @@ $this->layout('template', $settings);
 			<div id="scans-results" class="stat-results container">
 				<div class="text-center">
 					<div class="scans-navigation btn-group hidden">
-						<button type="button" class="scans-page-left btn-md pull-left">></button>
+						<button type="button" class="scans-page-left btn-md pull-left"><</button>
 						<div class="scans-navigation-links pull-left"></div>
-						<button type="button" class="scans-page-right btn-md pull-left"><</button>
+						<button type="button" class="scans-page-right btn-md pull-left">></button>
 					</div>
 				</div>
 				<div class="text-center">
 					<div class="scans-navigation btn-group hidden">
-						<button type="button" class="scans-page-left btn-md pull-left">></button>
+						<button type="button" class="scans-page-left btn-md pull-left"><</button>
 						<div class="scans-navigation-links pull-left"></div>
-						<button type="button" class="scans-page-right btn-md pull-left"><</button>
+						<button type="button" class="scans-page-right btn-md pull-left">></button>
 					</div>
 				</div>
 			</div>
@@ -141,16 +141,16 @@ $this->layout('template', $settings);
 			<div id="user-results" class="stat-results container">
 				<div class="text-center">
 					<div class="user-navigation btn-group hidden">
-						<button type="button" class="user-page-left btn-md pull-left">></button>
+						<button type="button" class="user-page-left btn-md pull-left"><</button>
 						<div class="user-navigation-links pull-left"></div>
-						<button type="button" class="user-page-right btn-md pull-left"><</button>
+						<button type="button" class="user-page-right btn-md pull-left">></button>
 					</div>
 				</div>
 				<div class="text-center">
 					<div class="user-navigation btn-group hidden">
-						<button type="button" class="user-page-left btn-md pull-left">></button>
+						<button type="button" class="user-page-left btn-md pull-left"><</button>
 						<div class="user-navigation-links pull-left"></div>
-						<button type="button" class="user-page-right btn-md pull-left"><</button>
+						<button type="button" class="user-page-right btn-md pull-left">></button>
 					</div>
 				</div>
 			</div>
@@ -196,16 +196,16 @@ $this->layout('template', $settings);
 			<div id="user-growth-results" class="stat-results container">
 				<div class="text-center">
 					<div class="user-growth-navigation btn-group hidden">
-						<button type="button" class="user-growth-page-left btn-md pull-left">></button>
+						<button type="button" class="user-growth-page-left btn-md pull-left"><</button>
 						<div class="user-growth-navigation-links pull-left"></div>
-						<button type="button" class="user-growth-page-right btn-md pull-left"><</button>
+						<button type="button" class="user-growth-page-right btn-md pull-left">></button>
 					</div>
 				</div>
 				<div class="text-center">
 					<div class="user-growth-navigation btn-group hidden">
-						<button type="button" class="user-growth-page-left btn-md pull-left">></button>
+						<button type="button" class="user-growth-page-left btn-md pull-left"><</button>
 						<div class="user-growth-navigation-links pull-left"></div>
-						<button type="button" class="user-growth-page-right btn-md pull-left"><</button>
+						<button type="button" class="user-growth-page-right btn-md pull-left">></button>
 					</div>
 				</div>
 			</div>

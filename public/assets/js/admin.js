@@ -184,7 +184,7 @@ function makeLinks(start_index, stop_index, element, target) {
 		if(i==page_index[target]) {
 			text = '<strong>' + text + '</strong>';
 		}
-		let link = "<a class=\"btn-md\" href=\"#\">" + text + "</a>";
+		let link = "<a class=\"btn-xs\" href=\"#\">" + text + "</a>";
 		element.append(link);
 		element.each(function(j, obj) {
 			$(this).children().last().click(function(e){e.preventDefault();gotoPage(i, target);return false;});
