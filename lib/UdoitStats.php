@@ -87,9 +87,6 @@ class UdoitStats
                     $query .= $prepend_word." DATE(date_run) <= :enddate\n";
                     break;
 
-                case 'term_id':
-                    break; // TODO: Implement Term ID functionality
-
                 case 'course_id':
                     $query .= $prepend_word." $db_reports_table.course_id = $value\n";
                     break;
@@ -187,9 +184,6 @@ class UdoitStats
                 case 'end_date':
                     $query .= $prepend_word." DATE(date_run) <= :enddate\n";
                     break;
-
-                case 'term_id':
-                    break; // TODO: Implement Term ID functionality
 
                 case 'course_id':
                     $query .= $prepend_word." $db_reports_table.course_id = $value\n";

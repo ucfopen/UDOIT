@@ -62,17 +62,11 @@ $this->layout('template', $settings);
 									<option value="leasterrors">Least Errors</option>
 								</select>
 							</div>
-							<div class="form-group col-md-2">
-								<label class="sr-only" for="scans-term-id">Term</label>
-								<select class="form-control" id="scans-term-id" name="termid">
-									<option selected value="">All Terms</option>
-								</select>
-							</div>
-							<div class="form-group col-md-2">
+							<div class="form-group col-md-3">
 								<label class="sr-only" for="scans-course-id">Course ID</label>
 								<input type="number" class="form-control" id="scans-course-id" name="courseid" placeholder="Course ID" />
 							</div>
-							<div class="form-group col-md-2">
+							<div class="form-group col-md-3">
 								<label class="sr-only" for="scans-user-id">User ID</label>
 								<input type="number" class="form-control" id="scans-user-id" name="userid" placeholder="User ID" />
 							</div>

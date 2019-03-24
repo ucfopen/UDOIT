@@ -409,23 +409,3 @@ $('.user-growth-page-right').click(function(){
 	let formvals = $(this).serialize();
 	populateTable(1, 'user-growth', formvals);
 });
-
-$(document).ready(function(){
-	let request = $.ajax({
-		url: 'api/stats.php?stat=termslist',
-		method: 'GET',
-		dataType: 'json',
-		success: function(msg){
-			$.each(msg.data, function(i, term){
-				let option = document.createElement('option');
-				option.innerHTML = term.name;
-				option.value = term.id;
-				$('#scans-term-id').append(option);
-			});
-		},
-		error: function(xhr, status, error){
-			response = JSON.parse(xhr.responseText);
-			$('#scans-results').html(response.data);
-		}
-	});
-});

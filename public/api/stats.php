@@ -32,7 +32,6 @@ switch ($_GET['stat']) {
     case 'scans':
         $start_date = !empty($_GET['startdate']) ? new DateTime($_GET['startdate']) : null;
         $end_date = !empty($_GET['enddate']) ? new DateTime($_GET['enddate']) : null;
-        $term_id = sanitize_id($_GET['termid']);
         $course_id = sanitize_id($_GET['courseid']);
         $user_id = sanitize_id($_GET['userid']);
         $latest = isset($_GET['latestonly']) ? true : false;
@@ -43,7 +42,6 @@ switch ($_GET['stat']) {
             $get_data = [
                 'start_date'    => $start_date,
                 'end_date'      => $end_date,
-                'term_id'       => $term_id,
                 'course_id'     => $course_id,
                 'user_id'       => $user_id,
             ]
@@ -58,7 +56,6 @@ switch ($_GET['stat']) {
     case 'scanscount':
         $start_date = !empty($_GET['startdate']) ? new DateTime($_GET['startdate']) : null;
         $end_date = !empty($_GET['enddate']) ? new DateTime($_GET['enddate']) : null;
-        $term_id = sanitize_id($_GET['termid']);
         $course_id = sanitize_id($_GET['courseid']);
         $user_id = sanitize_id($_GET['userid']);
         $latest = isset($_GET['latestonly']) ? true : false;
@@ -67,7 +64,6 @@ switch ($_GET['stat']) {
             $get_data = [
                 'start_date'    => $start_date,
                 'end_date'      => $end_date,
-                'term_id'       => $term_id,
                 'course_id'     => $course_id,
                 'user_id'       => $user_id,
             ]
@@ -141,32 +137,6 @@ switch ($_GET['stat']) {
         }
 
         respond_with_success($results);
-        break;
-
-    case 'termslist':
-        $acct_id = $_SESSION['launch_params']['custom_canvas_root_account_id'];
-        $logger->addInfo('Fetching term list for root account id '.$acct_id);
-        $api_key = UdoitUtils::instance()->getValidRefreshedApiKey($_SESSION['launch_params']['custom_canvas_user_id']);
-        $request = $_SESSION['base_url'].'/api/v1/accounts/'.$acct_id.'/terms';
-        $results = Request::get($request)->addHeader('Authorization', "Bearer ${api_key}")->send();
-
-        if (false === $results) {
-            respond_with_error(500, 'Error retrieving terms for root account.');
-        }
-
-        if (isset($results->body->enrollment_terms)) {
-            $terms = $results->body->enrollment_terms;
-        } elseif (isset($results->body->errors)) {
-            respond_with_error(500, 'Error retrieving terms for root account: '.$results->body->errors[0]->message);
-        }
-
-        $logger->addInfo(print_r($terms, true));
-
-        for ($i = 0; $i < count($terms); $i++) {
-            $return_terms[$i] = ['name' => $terms[$i]->name, 'id' => $terms[$i]->id];
-        }
-
-        respond_with_success($return_terms);
         break;
 
     case 'courseinfo':
