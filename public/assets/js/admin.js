@@ -331,16 +331,19 @@ function populateTable(button_offset, target, formvals=null) {
 
 					refresh_button.empty();
 					refresh_button.append('Update Results');
+					resizeFrame();
 				},
 				error: function(xhr, status, error){
 					response = JSON.parse(xhr.responseText);
 					result_element.html(response.data);
+					resizeFrame();
 				}
 			});
 		},
 		error: function(xhr, status, error){
 			response = JSON.parse(xhr.responseText);
 			result_element.html(response.data);
+			resizeFrame();
 		}
 	});
 }
@@ -380,10 +383,12 @@ $('#errors-common-submit').click(function(){
 
 			$('#errors-common-pull').empty();
 			$('#errors-common-pull').append('Update Results');
+			resizeFrame();
 		},
 		error: function(xhr, status, error){
 			response = JSON.parse(xhr.responseText);
 			$('#user-results').html(response.data);
+			resizeFrame();
 		}
 	});
 });
@@ -408,4 +413,9 @@ $('.user-growth-page-left').click(function(){
 $('.user-growth-page-right').click(function(){
 	let formvals = $(this).serialize();
 	populateTable(1, 'user-growth', formvals);
+});
+
+// update iframe height on resize
+$doc.on('resize', function(){
+	resizeFrame();
 });
