@@ -18,6 +18,11 @@
 */
 
 var tableData;
+var page_index = {
+	'scans': 1,
+	'user': 1,
+	'user-growth': 1
+}
 
 function json_tableify(data) {
 	let table = document.createElement('table');
@@ -68,10 +73,10 @@ var loadCourses = function(i) {
 		success: function(msg2){
 			tableData[i]['Term'] = msg2.data['Term'];
 			tableData[i]['Course (ID)'] = msg2.data['Course'] + ' (' + tableData[i]['Course (ID)'] + ')';
-			$('#scans-results').empty();
+			$('#scans-results table').remove();
 			table = json_tableify(tableData);
 			$(table).addClass('table table-striped');
-			$('#scans-results').append(table);
+			$('#scans-results > div:nth-child(1)').after(table);
 		},
 		error: function(xhr, status, error){
 			response = JSON.parse(xhr.responseText);
@@ -94,10 +99,10 @@ var loadUsers = function(i) {
 		dataType: 'json',
 		success: function(msg2){
 			tableData[i]['User (ID)'] = msg2.data + ' (' + tableData[i]['User (ID)'] + ')';
-			$('#scans-results').empty();
+			$('#scans-results table').remove();
 			table = json_tableify(tableData);
 			$(table).addClass('table table-striped');
-			$('#scans-results').append(table);
+			$('#scans-results > div:nth-child(1)').after(table);
 		},
 		error: function(xhr, status, error){
 			response = JSON.parse(xhr.responseText);
@@ -168,44 +173,192 @@ function tableToCSV(html, filename) {
     downloadCSV(csv.join("\n"), filename);
 }
 
-$('#scans-pull').on('submit', function(evt){
-	evt.preventDefault();
-	let formvals = $(this).serialize();
-	$('#scans-results').empty();
+function gotoPage(index, target) {
+	page_index[target] = index;
+	populateTable(0, target);
+}
 
-	$('#scans-submit').empty();
-	$('#scans-submit').append('<span class="circle-white" style="display: inline-block; height: 16px; width: 16px;"></span> Loading...');
+function makeLinks(start_index, stop_index, element, target) {
+	for(let i=start_index; i<=stop_index; i++) {
+		let text = i.toString();
+		if(i==page_index[target]) {
+			text = '<strong>' + text + '</strong>';
+		}
+		let link = "<a class=\"btn-xs\" href=\"#\">" + text + "</a>";
+		element.append(link);
+		element.each(function(j, obj) {
+			$(this).children().last().click(function(e){e.preventDefault();gotoPage(i, target);return false;});
+		});
+	}
+}
 
-	let request = $.ajax({
-		url: 'api/stats.php?stat=scans&'+formvals,
+function makeLinksBeginning(dot_index, element, target) {
+	element.append("<a class=\"btn-xs\" href=\"#\">1</a>");
+	element.each(function(j, obj) {
+		$(this).children().last().click(function(e){e.preventDefault();gotoPage(1, target);return false;});
+	});
+	element.append("<a class=\"btn-xs\" href=\"#\">...</a>");
+	element.each(function(j, obj) {
+		$(this).children().last().click(function(e){e.preventDefault();gotoPage(dot_index, target);return false;});
+	});
+}
+
+function makeLinksEnd(dot_index, end_index, element, target) {
+	element.append("<a class=\"btn-xs\" href=\"#\">...</a>");
+	element.each(function(j, obj) {
+		$(this).children().last().click(function(e){e.preventDefault();gotoPage(dot_index, target);return false;});
+	});
+	element.append("<a class=\"btn-xs\" href=\"#\">" + end_index.toString() + "</a>");
+	element.each(function(j, obj) {
+		$(this).children().last().click(function(e){e.preventDefault();gotoPage(end_index, target);return false;});
+	});
+}
+
+function generateLinks(total_pages, target) {
+	let parent = $('.' + target + '-navigation');
+	let navigation = $('.' + target + '-navigation-links');
+	navigation.empty();
+	if(total_pages < 10) {
+		makeLinks(1, total_pages, navigation, target);
+	} else {
+		let link_page = Math.ceil(page_index[target] / 7) - 1;
+		if(link_page == 0) {
+			makeLinks(1, 7,  navigation, target);
+			makeLinksEnd(8, total_pages, navigation, target);
+		} else {
+			if(page_index[target] > (total_pages - 7)) {
+				makeLinksBeginning(total_pages - 7, navigation, target);
+				makeLinks(total_pages - 6, total_pages, navigation, target);
+			} else {
+				makeLinksBeginning(link_page * 7, navigation, target);
+				makeLinks((link_page * 7) + 1, (link_page + 1) * 7, navigation, target);
+				makeLinksEnd((link_page * 7) + 8, total_pages, navigation, target);
+			}
+		}
+	}
+
+	parent.removeClass('hidden');
+}
+
+function populateTable(button_offset, target, formvals=null) {
+	let api1 = false;
+	let api2 = false;
+	let filename = false;
+	switch(target) {
+		case 'user':
+			api1 = 'api/users.php?action=user_count';
+			api2 = function(number_items, offset) {
+				return `api/users.php?action=list&number_items=${number_items}&offset=${offset}`;
+			};
+			filename = 'Users';
+			break;
+
+		case 'user-growth':
+			api1 = 'api/stats.php?stat=usergrowthcount&'+formvals;
+			api2 = function(number_items, offset) {
+				return `api/stats.php?stat=usergrowth&number_items=${number_items}&offset=${offset}&`+formvals;
+			};
+			filename = 'User_Growth';
+			break;
+
+		case 'scans':
+			api1 = 'api/stats.php?stat=scanscount&'+formvals;
+			api2 = function(number_items, offset) {
+				return `api/stats.php?stat=scans&number_items=${number_items}&offset=${offset}&`+formvals;
+			};
+			filename = 'Scans';
+			break;
+
+		default:
+			return;
+	}
+
+	let refresh_button = $('#' + target + '-submit');
+	let csv = $('#' + target + '-csv');
+	let result_element = $('#' + target + '-results');
+
+	refresh_button.empty();
+	refresh_button.append('<span class="circle-white" style="display: inline-block; height: 16px; width: 16px;"></span> Loading...');
+
+	let request1 = $.ajax({
+		url: api1,
 		method: 'GET',
 		dataType: 'json',
 		success: function(msg){
-			let table = json_tableify(msg.data);
-			$(table).addClass('table table-striped');
+			let number_items = parseInt($('#' + target + '-pagination-number :selected').val());
+			let total_pages = Math.ceil(parseInt(msg.data[0]['count']) / number_items);
 
-			$('#scans-results').append(table);
+			let page = page_index[target] + button_offset;
+			if(page < 1) {
+				refresh_button.empty();
+				refresh_button.append('Update Results');
+				return;
+			}
 
-			$('#scans-csv').removeClass('hidden');
-			$('#scans-csv').click(function(){
-				tableToCSV('#scans-results', "UDOIT_Scans.csv");
+			if(page > total_pages) page = total_pages;
+
+			let offset = page - 1;
+			if(offset < 1) {
+				offset = 0;
+			} else {
+				offset *= number_items;
+			}
+
+			$('.' + target + '-navigation').addClass('hidden');
+			$('#' + target + '-results table').remove();
+			let request2 = $.ajax({
+				url: api2(number_items, offset),
+				method: 'GET',
+				dataType: 'json',
+				success: function(msg){
+					let table = json_tableify(msg.data);
+					if(target === 'user') table = addDeauthButton(msg.data, table);
+					$(table).addClass('table table-striped');
+					$('#' + target + '-results > div:nth-child(1)').after(table);
+					csv.removeClass('hidden');
+					csv.click(function(){
+						tableToCSV('#' + target + '-results', "UDOIT_" + filename + ".csv");
+					});
+
+					if(target === 'scans') {
+						tableData = msg.data;
+						loadCourses(0); // Lazy load term and course name
+						loadUsers(0); // Lazy load User name
+					}
+
+					page_index[target] = page;
+					generateLinks(total_pages, target);
+
+					refresh_button.empty();
+					refresh_button.append('Update Results');
+				},
+				error: function(xhr, status, error){
+					response = JSON.parse(xhr.responseText);
+					result_element.html(response.data);
+				}
 			});
-
-			$('#scans-submit').empty();
-			$('#scans-submit').append('Update Results');
-
-			tableData = msg.data;
-			loadCourses(0); // Lazy load term and course name
-			loadUsers(0); // Lazy load User name
 		},
 		error: function(xhr, status, error){
 			response = JSON.parse(xhr.responseText);
-			$('#scans-results').html(response.data);
+			result_element.html(response.data);
 		}
 	});
+}
+
+$('#scans-pull').on('submit', function(evt){
+	evt.preventDefault();
+	let formvals = $(this).serialize();
+	populateTable(0, 'scans', formvals);
 });
 
-$('#errors-common-pull').click(function(){
+$('.scans-page-left').click(function(){
+	let formvals = $(this).serialize();
+	populateTable(-1, 'scans', formvals);
+});
+
+$('.scans-page-right').click(function(){populateTable(1, 'scans')});
+
+$('#errors-common-submit').click(function(){
 	$('#errors-common-results').empty();
 
 	$('#errors-common-pull').empty();
@@ -235,68 +388,26 @@ $('#errors-common-pull').click(function(){
 	});
 });
 
-$('#user-pull').click(function(){
-	$('#user-results').empty();
+$('#user-submit').click(function(){populateTable(0, 'user')});
 
-	$('#user-pull').empty();
-	$('#user-pull').append('<span class="circle-white" style="display: inline-block; height: 16px; width: 16px;"></span> Loading...');
+$('.user-page-left').click(function(){populateTable(-1, 'user')});
 
-	let request = $.ajax({
-		url: 'api/users.php?action=list',
-		method: 'GET',
-		dataType: 'json',
-		success: function(msg){
-			let table = json_tableify(msg.data);
-			table = addDeauthButton(msg.data, table);
-			$(table).addClass('table table-striped');
-
-			$('#user-results').append(table);
-			$('#user-csv').removeClass('hidden');
-			$('#user-csv').click(function(){
-				tableToCSV('#user-results', "UDOIT_Users.csv");
-			});
-
-			$('#user-pull').empty();
-			$('#user-pull').append('Update Results');
-		},
-		error: function(xhr, status, error){
-			response = JSON.parse(xhr.responseText);
-			$('#user-results').html(response.data);
-		}
-	});
-});
+$('.user-page-right').click(function(){populateTable(1, 'user')});
 
 $('#user-growth-pull').on('submit', function(evt){
 	evt.preventDefault();
 	let formvals = $(this).serialize();
-	$('#user-growth-results').empty();
+	populateTable(0, 'user-growth', formvals);
+});
 
-	$('#user-growth-submit').empty();
-	$('#user-growth-submit').append('<span class="circle-white" style="display: inline-block; height: 16px; width: 16px;"></span> Loading...');
+$('.user-growth-page-left').click(function(){
+	let formvals = $(this).serialize();
+	populateTable(-1, 'user-growth', formvals);
+});
 
-	let request = $.ajax({
-		url: 'api/stats.php?stat=usergrowth&'+formvals,
-		method: 'GET',
-		dataType: 'json',
-		success: function(msg){
-			let table = json_tableify(msg.data);
-			$(table).addClass('table table-striped');
-			$('#user-growth-results').append(table);
-
-			$('#user-growth-csv').removeClass('hidden');
-			$('#user-growth-csv').click(function(){
-				tableToCSV('#user-growth-results', "UDOIT_User_Growth.csv");
-			});
-
-			$('#user-growth-submit').empty();
-			$('#user-growth-submit').append('Update Results');
-
-		},
-		error: function(xhr, status, error){
-			response = JSON.parse(xhr.responseText);
-			$('#user-growth-results').html(response.data);
-		}
-	});
+$('.user-growth-page-right').click(function(){
+	let formvals = $(this).serialize();
+	populateTable(1, 'user-growth', formvals);
 });
 
 $(document).ready(function(){

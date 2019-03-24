@@ -34,7 +34,18 @@ switch ($_GET['action']) {
         break;
 
     case 'list':
-        $results = UdoitStats::instance()->getUsers();
+        $number_items = (isset($_GET['number_items']) && $_GET['number_items'] >= 0) ? filter_var($_GET['number_items'], FILTER_SANITIZE_NUMBER_INT) : 'NULL';
+        $offset = (isset($_GET['offset']) && $_GET['offset'] >= 0) ? filter_var($_GET['offset'], FILTER_SANITIZE_NUMBER_INT) : '0';$offset = '0';
+
+        $results = UdoitStats::instance()->getUsers($number_items, $offset);
+        if (false === $results) {
+            respond_with_error(500, "Error retrieving Users from database.");
+        }
+        respond_with_success($results);
+        break;
+
+    case 'user_count':
+        $results = UdoitStats::instance()->getUserCount();
         if (false === $results) {
             respond_with_error(500, "Error retrieving Users from database.");
         }

@@ -82,21 +82,41 @@ $this->layout('template', $settings);
 								</label>
 							</div>
 							<div class="col-md-12">
-								<button type="submit" class="btn btn-success pull-left" id="scans-submit" name="scans-submit">Display Results</button>
+								<button type="submit" class="btn btn-success" id="scans-submit" name="scans-submit">Display Results</button>
+								<select name="number_items" id="scans-pagination-number">
+									<option value="10">10</option>
+									<option value="25">25</option>
+									<option value="50">50</option>
+								</select>
 								<button type="button" class="btn btn-primary pull-right hidden" id="scans-csv">Get .csv</button>
 							</div>
 						</form>
 					</div>
 				</div>
 			</div>
-			<div id="scans-results" class="stat-results"></div>
+			<div id="scans-results" class="stat-results container">
+				<div class="text-center">
+					<div class="scans-navigation btn-group hidden">
+						<button type="button" class="scans-page-left btn-md pull-left"><</button>
+						<div class="scans-navigation-links pull-left"></div>
+						<button type="button" class="scans-page-right btn-md pull-left">></button>
+					</div>
+				</div>
+				<div class="text-center">
+					<div class="scans-navigation btn-group hidden">
+						<button type="button" class="scans-page-left btn-md pull-left"><</button>
+						<div class="scans-navigation-links pull-left"></div>
+						<button type="button" class="scans-page-right btn-md pull-left">></button>
+					</div>
+				</div>
+			</div>
 		</div>
 		<div class="tab-pane" id="errors-common" role="tabpanel">
 			<div class="panel panel-default">
 				<div class="panel-body">
 					<div class="container">
 						<h2>Most Common Errors</h2>
-						<button class="btn btn-success" id="errors-common-pull">Display Results</button>
+						<button class="btn btn-success" id="errors-common-submit">Display Results</button>
 						<button type="button" class="btn btn-primary pull-right hidden" id="errors-common-csv">Get .csv</button>
 					</div>
 				</div>
@@ -108,12 +128,32 @@ $this->layout('template', $settings);
 				<div class="panel-body">
 					<div class="container">
 						<h2>Users</h2>
-						<button class="btn btn-success" id="user-pull">Display Results</button>
+						<button class="btn btn-success" id="user-submit">Display Results</button>
+						<select name="number_items" id="user-pagination-number">
+							<option value="10">10</option>
+							<option value="25">25</option>
+							<option value="50">50</option>
+						</select>
 						<button type="button" class="btn btn-primary pull-right hidden" id="user-csv">Get .csv</button>
 					</div>
 				</div>
 			</div>
-			<div id="user-results" class="stat-results"></div>
+			<div id="user-results" class="stat-results container">
+				<div class="text-center">
+					<div class="user-navigation btn-group hidden">
+						<button type="button" class="user-page-left btn-md pull-left"><</button>
+						<div class="user-navigation-links pull-left"></div>
+						<button type="button" class="user-page-right btn-md pull-left">></button>
+					</div>
+				</div>
+				<div class="text-center">
+					<div class="user-navigation btn-group hidden">
+						<button type="button" class="user-page-left btn-md pull-left"><</button>
+						<div class="user-navigation-links pull-left"></div>
+						<button type="button" class="user-page-right btn-md pull-left">></button>
+					</div>
+				</div>
+			</div>
 		</div>
 		<div class="tab-pane" id="user-growth" role="tabpanel">
 			<div class="panel panel-default">
@@ -142,13 +182,33 @@ $this->layout('template', $settings);
 							</div>
 							<div class="col-md-12">
 								<button class="btn btn-success" id="user-growth-submit">Display Results</button>
+								<select name="number_items" id="user-growth-pagination-number">
+									<option value="10">10</option>
+									<option value="25">25</option>
+									<option value="50">50</option>
+								</select>
 								<button type="button" class="btn btn-primary pull-right hidden" id="user-growth-csv">Get .csv</button>
 							</div>
 						</form>
 					</div>
 				</div>
 			</div>
-			<div id="user-growth-results" class="stat-results"></div>
+			<div id="user-growth-results" class="stat-results container">
+				<div class="text-center">
+					<div class="user-growth-navigation btn-group hidden">
+						<button type="button" class="user-growth-page-left btn-md pull-left"><</button>
+						<div class="user-growth-navigation-links pull-left"></div>
+						<button type="button" class="user-growth-page-right btn-md pull-left">></button>
+					</div>
+				</div>
+				<div class="text-center">
+					<div class="user-growth-navigation btn-group hidden">
+						<button type="button" class="user-growth-page-left btn-md pull-left"><</button>
+						<div class="user-growth-navigation-links pull-left"></div>
+						<button type="button" class="user-growth-page-right btn-md pull-left">></button>
+					</div>
+				</div>
+			</div>
 		</div>
 	</div>
 </main>

@@ -36,8 +36,10 @@ switch ($_GET['stat']) {
         $course_id = sanitize_id($_GET['courseid']);
         $user_id = sanitize_id($_GET['userid']);
         $latest = isset($_GET['latestonly']) ? true : false;
+        $number_items = (isset($_GET['number_items']) && $_GET['number_items'] >= 0) ? filter_var($_GET['number_items'], FILTER_SANITIZE_NUMBER_INT) : 'NULL';
+        $offset = (isset($_GET['offset']) && $_GET['offset'] >= 0) ? filter_var($_GET['offset'], FILTER_SANITIZE_NUMBER_INT) : '0';$offset = '0';
 
-        $results = UdoitStats::instance()->getReports($latest, $_GET['orderby'],
+        $results = UdoitStats::instance()->getReports($latest, $_GET['orderby'], $number_items, $offset,
             $get_data = [
                 'start_date'    => $start_date,
                 'end_date'      => $end_date,
@@ -52,7 +54,31 @@ switch ($_GET['stat']) {
 
         respond_with_success($results);
         break;
-    
+
+    case 'scanscount':
+        $start_date = !empty($_GET['startdate']) ? new DateTime($_GET['startdate']) : null;
+        $end_date = !empty($_GET['enddate']) ? new DateTime($_GET['enddate']) : null;
+        $term_id = sanitize_id($_GET['termid']);
+        $course_id = sanitize_id($_GET['courseid']);
+        $user_id = sanitize_id($_GET['userid']);
+        $latest = isset($_GET['latestonly']) ? true : false;
+
+        $results = UdoitStats::instance()->getReportsCount($latest, $_GET['orderby'],
+            $get_data = [
+                'start_date'    => $start_date,
+                'end_date'      => $end_date,
+                'term_id'       => $term_id,
+                'course_id'     => $course_id,
+                'user_id'       => $user_id,
+            ]
+        );
+        if (false === $results) {
+            respond_with_error(500, "Error retrieving Scans from database.");
+        }
+
+        respond_with_success($results);
+        break;
+
     case 'errors':
         $results = UdoitStats::instance()->getReportJsons();
         if (false === $results) {
@@ -95,7 +121,21 @@ switch ($_GET['stat']) {
     case 'usergrowth':
         $startDate = !empty($_GET['startdate']) ? new DateTime($_GET['startdate']) : null;
         $endDate = !empty($_GET['enddate']) ? new DateTime($_GET['enddate']) : null;
-        $results = UdoitStats::instance()->countNewUsers($_GET['grain'], $startDate, $endDate);
+        $number_items = (isset($_GET['number_items']) && $_GET['number_items'] >= 0) ? filter_var($_GET['number_items'], FILTER_SANITIZE_NUMBER_INT) : 'NULL';
+        $offset = (isset($_GET['offset']) && $_GET['offset'] >= 0) ? filter_var($_GET['offset'], FILTER_SANITIZE_NUMBER_INT) : '0';
+
+        $results = UdoitStats::instance()->countNewUsers($_GET['grain'], $startDate, $endDate, $number_items, $offset);
+        if (false === $results) {
+            respond_with_error(500, "Error retrieving User Growth from database.");
+        }
+
+        respond_with_success($results);
+        break;
+
+    case 'usergrowthcount':
+        $startDate = !empty($_GET['startdate']) ? new DateTime($_GET['startdate']) : null;
+        $endDate = !empty($_GET['enddate']) ? new DateTime($_GET['enddate']) : null;
+        $results = UdoitStats::instance()->countNewUsersCount($_GET['grain'], $startDate, $endDate);
         if (false === $results) {
             respond_with_error(500, "Error retrieving User Growth from database.");
         }
