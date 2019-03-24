@@ -17,6 +17,8 @@
 *   Primary Author Contact:  Jacob Bates <jacob.bates@ucf.edu>
 */
 
+var $doc = $(document); // hold a jquery doc reference
+
 var tableData;
 var page_index = {
 	'scans': 1,
@@ -413,6 +415,10 @@ $('.user-growth-page-left').click(function(){
 $('.user-growth-page-right').click(function(){
 	let formvals = $(this).serialize();
 	populateTable(1, 'user-growth', formvals);
+});
+
+$('.nav-tabs').click(function(){
+	setTimeout(resizeFrame, 50);
 });
 
 // update iframe height on resize
