@@ -35,7 +35,7 @@ switch ($_GET['action']) {
 
     case 'list':
         $number_items = (isset($_GET['number_items']) && $_GET['number_items'] >= 0) ? filter_var($_GET['number_items'], FILTER_SANITIZE_NUMBER_INT) : 'NULL';
-        $offset = (isset($_GET['offset']) && $_GET['offset'] >= 0) ? filter_var($_GET['offset'], FILTER_SANITIZE_NUMBER_INT) : '0';$offset = '0';
+        $offset = (isset($_GET['offset']) && $_GET['offset'] >= 0) ? filter_var($_GET['offset'], FILTER_SANITIZE_NUMBER_INT) : '0';
 
         $results = UdoitStats::instance()->getUsers($number_items, $offset);
         if (false === $results) {

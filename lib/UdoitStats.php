@@ -446,7 +446,7 @@ class UdoitStats
                 }
         }
 
-        $query = "SELECT COUNT(DISTINCT " . $date_format . ") AS \"count\" FROM $db_user_table\n";
+        $query = "SELECT COUNT(DISTINCT ".$date_format.") AS \"count\" FROM $db_user_table\n";
         $prepend_word = "WHERE";
         if (isset($startDate)) {
             $query .= $prepend_word." DATE(date_created) >= :startdate\n";
