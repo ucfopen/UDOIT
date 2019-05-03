@@ -6,11 +6,11 @@ cache:
 install:
   - 'composer install'
 php:
-  - '5.6'
   - '7.0'
   - '7.1'
   - '7.2'
 script:
   - 'composer lint'
   - 'composer sniff-summary'
+  - 'composer sniff-errors-only'
   - 'composer test'
