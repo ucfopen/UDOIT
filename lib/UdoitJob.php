@@ -19,8 +19,7 @@ class UdoitJob
             INSERT INTO {$db_job_queue_table}
                 (user_id, job_group, job_type, data, status)
             VALUES
-                (:user_id, :job_group, :job_type, :data, 'new')"
-        );
+                (:user_id, :job_group, :job_type, :data, 'new')");
 
         $sth->bindValue(':user_id', $user_id);
         $sth->bindValue(':job_group', $group_id);
