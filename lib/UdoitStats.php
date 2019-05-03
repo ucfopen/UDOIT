@@ -87,9 +87,6 @@ class UdoitStats
                     $query .= $prepend_word." DATE(date_run) <= :enddate\n";
                     break;
 
-                case 'term_id':
-                    break; // TODO: Implement Term ID functionality
-
                 case 'course_id':
                     $query .= $prepend_word." $db_reports_table.course_id = $value\n";
                     break;
@@ -187,9 +184,6 @@ class UdoitStats
                 case 'end_date':
                     $query .= $prepend_word." DATE(date_run) <= :enddate\n";
                     break;
-
-                case 'term_id':
-                    break; // TODO: Implement Term ID functionality
 
                 case 'course_id':
                     $query .= $prepend_word." $db_reports_table.course_id = $value\n";
@@ -446,7 +440,7 @@ class UdoitStats
                 }
         }
 
-        $query = "SELECT COUNT(DISTINCT " . $date_format . ") AS \"count\" FROM $db_user_table\n";
+        $query = "SELECT COUNT(DISTINCT ".$date_format.") AS \"count\" FROM $db_user_table\n";
         $prepend_word = "WHERE";
         if (isset($startDate)) {
             $query .= $prepend_word." DATE(date_created) >= :startdate\n";

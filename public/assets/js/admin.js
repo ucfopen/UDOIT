@@ -17,6 +17,8 @@
 *   Primary Author Contact:  Jacob Bates <jacob.bates@ucf.edu>
 */
 
+var $doc = $(document); // hold a jquery doc reference
+
 var tableData;
 var page_index = {
 	'scans': 1,
@@ -331,16 +333,19 @@ function populateTable(button_offset, target, formvals=null) {
 
 					refresh_button.empty();
 					refresh_button.append('Update Results');
+					resizeFrame();
 				},
 				error: function(xhr, status, error){
 					response = JSON.parse(xhr.responseText);
 					result_element.html(response.data);
+					resizeFrame();
 				}
 			});
 		},
 		error: function(xhr, status, error){
 			response = JSON.parse(xhr.responseText);
 			result_element.html(response.data);
+			resizeFrame();
 		}
 	});
 }
@@ -380,10 +385,12 @@ $('#errors-common-submit').click(function(){
 
 			$('#errors-common-pull').empty();
 			$('#errors-common-pull').append('Update Results');
+			resizeFrame();
 		},
 		error: function(xhr, status, error){
 			response = JSON.parse(xhr.responseText);
 			$('#user-results').html(response.data);
+			resizeFrame();
 		}
 	});
 });
@@ -410,22 +417,11 @@ $('.user-growth-page-right').click(function(){
 	populateTable(1, 'user-growth', formvals);
 });
 
-$(document).ready(function(){
-	let request = $.ajax({
-		url: 'api/stats.php?stat=termslist',
-		method: 'GET',
-		dataType: 'json',
-		success: function(msg){
-			$.each(msg.data, function(i, term){
-				let option = document.createElement('option');
-				option.innerHTML = term.name;
-				option.value = term.id;
-				$('#scans-term-id').append(option);
-			});
-		},
-		error: function(xhr, status, error){
-			response = JSON.parse(xhr.responseText);
-			$('#scans-results').html(response.data);
-		}
-	});
+$('.nav-tabs').click(function(){
+	setTimeout(resizeFrame, 50);
+});
+
+// update iframe height on resize
+$doc.on('resize', function(){
+	resizeFrame();
 });
