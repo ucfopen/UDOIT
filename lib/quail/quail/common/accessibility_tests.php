@@ -3498,6 +3498,40 @@ class imgHasAlt extends quailTest
 			if (!$img->hasAttribute('alt')
 				|| $img->getAttribute('alt') == ''
 				|| $img->getAttribute('alt') == ' ') {
+				if(!($img->hasAttribute('data-decorative')
+					&& $img->getAttribute('data-decorative') == 'true')) {
+					$this->addReport($img);
+				}
+			}
+			if($img->hasAttribute('data-decorative')
+				&& $img->getAttribute('data-decorative') == 'true'
+				&& !($img->hasAttribute('alt') && trim($img->getAttribute('alt')) != )) {
+
+			}
+		}
+
+	}
+}
+
+/**
+*  Decorative imgs should not have an alt attribute
+*/
+class imgHasAltDeco extends quailTest
+{
+	/**
+	*	@var int $default_severity The default severity code for this test.
+	*/
+	var $default_severity = QUAIL_TEST_MODERATE;
+
+	/**
+	*	The main check function. This is called by the parent class to actually check content
+	*/
+	function check()
+	{
+		foreach ($this->getAllElements('img') as $img) {
+			if($img->hasAttribute('data-decorative')
+				&& $img->getAttribute('data-decorative') == 'true'
+				&& (!($img->hasAttribute('alt') && trim($img->getAttribute('alt')) != ''))) {
 				$this->addReport($img);
 			}
 		}
