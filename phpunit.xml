@@ -7,16 +7,20 @@
 			<file>tests/UdoitTest.php</file>
 			<file>tests/IndexTest.php</file>
 			<file>tests/FunctionalTests.php</file>
+            <file>tests/UdoitStatsTest.php</file>
 		</testsuite>
 	</testsuites>
 	<php>
 		<env name="UNITTEST" value="true"/>
 	</php>
 	<filter>
-		<blacklist>
-				<directory>./lib/quail</directory>
-				<directory>./vendor</directory>
-				<directory>./tests</directory>
-		</blacklist>
+		<whitelist>
+            <directory suffix=".php">./</directory>
+            <exclude>
+                <directory>./lib/quail</directory>
+                <directory>./vendor</directory>
+                <directory>./tests</directory>
+            </exclude>
+		</whitelist>
 	</filter>
 </phpunit>

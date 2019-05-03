@@ -41,7 +41,7 @@ class UdoitStats
      *
      * @return  array   data         Data returned by the database query
      */
-    public function getReports($latest, $order_by, $number_items, $offset, $get_data = null)
+    public function getReports($latest, $order_by, $number_items, $offset, $get_data = [])
     {
         global $db_reports_table;
         global $db_type;
@@ -154,7 +154,7 @@ class UdoitStats
      *
      * @return  array   data        Data returned by the database query
      */
-    public function getReportsCount($latest, $order_by, $get_data = null)
+    public function getReportsCount($latest, $order_by, $get_data = [])
     {
         global $db_reports_table;
         global $db_type;

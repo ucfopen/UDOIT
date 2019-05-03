@@ -24,7 +24,7 @@
 // That requires rewriting and restructuring the project, so we're compromising for now.
 require_once('lib/quail/quail/common/services/media/youtube.php');
 
-class FunctionalTests extends PHPUnit_Framework_TestCase
+class FunctionalTests extends PHPUnit\Framework\TestCase
 {
     /**
     * @group functional

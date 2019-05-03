@@ -23,6 +23,12 @@ class PDOStatementMock extends \PDOStatement
 
     public $bind_value_calls = [];
     public $execute_calls = [];
+    private $force_fail = false;
+
+    public function __construct($force_fail)
+    {
+        $this->force_fail = $force_fail;
+    }
 
     public function bindValue($paramno, $param, $type = null)
     {
@@ -33,7 +39,12 @@ class PDOStatementMock extends \PDOStatement
     {
         $this->execute_calls[] = func_get_args();
 
-        return true;
+        return !$this->force_fail;
+    }
+
+    public function fetchAll($how = null, $class_name = null, $ctor_args = null)
+    {
+        return $this->mockFetch();
     }
 
     public function fetchColumn($column_number = null)

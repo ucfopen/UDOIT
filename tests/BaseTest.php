@@ -18,7 +18,7 @@
 *   Primary Author Contact:  Jacob Bates <jacob.bates@ucf.edu>
 */
 
-class BaseTest extends PHPUnit_Framework_TestCase
+class BaseTest extends PHPUnit\Framework\TestCase
 {
 
     protected static function getPrivateStaticPropertyValue($class, $prop)
