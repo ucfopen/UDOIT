@@ -38,7 +38,6 @@ class UdoitJobTest extends BaseTest
         Mockery::close();
     }
 
-    // mock UdoitUtils->getValidRefreshedApiKey()
     public function mockGetValidRefreshKey()
     {
         $mock = new MockObj();

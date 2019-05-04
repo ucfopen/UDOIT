@@ -18,7 +18,7 @@
 *   Primary Author Contact:  Jacob Bates <jacob.bates@ucf.edu>
 */
 
-class BaseTest extends PHPUnit_Framework_TestCase
+class BaseTest extends PHPUnit\Framework\TestCase
 {
 
     protected static function getPrivateStaticPropertyValue($class, $prop)
@@ -80,7 +80,7 @@ class BaseTest extends PHPUnit_Framework_TestCase
      * @param array $header_to_array_returns Headers that should be returned with the request(s)
      * @param array $body_returns            Bodies that should be returned with the request(s)
      * @param array $status_returns          (Optional) Statuses that should be returned with the request(s),
-     *                                           default is 200.
+     *                                       default is 200.
      *
      * @return Object Mock Get Object created by Request::get()
      */

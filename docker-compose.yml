@@ -10,17 +10,28 @@ services:
     ports:
         - "80:80"
         - "443:443"
-  mysql:
-    image: mysql:latest
-    volumes:
-      - dbdata:/var/lib/mysql
-    environment:
-      MYSQL_ROOT_PASSWORD: root
-      MYSQL_DATABASE: udoit
-      MYSQL_USER: udoit
-      MYSQL_PASSWORD: udoit
+  # Uncomment this block and comment the next db block
+  # to use MySQL instead of Postgres
+  # db:
+  #   image: mysql:latest
+  #   volumes:
+  #     - dbdata:/var/lib/mysql
+  #   environment:
+  #     MYSQL_ROOT_PASSWORD: root
+  #     MYSQL_DATABASE: udoit
+  #     MYSQL_USER: udoit
+  #     MYSQL_PASSWORD: udoit
+  #   ports:
+  #     - "3306:3306"
+  db:
+    image: postgres:alpine
+    restart: always
     ports:
-      - "3306:3306"
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: udoit
+      POSTGRES_PASSWORD: udoit
+      POSTGRES_DB: udoit
   php:
     build:
       context: .

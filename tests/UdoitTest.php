@@ -38,7 +38,7 @@ class UdoitTest extends BaseTest
             '<https://url.com/first>; rel="first",'.
             '<https://url.com/last>; rel="last"';
 
-        $result = static::callProtectedStaticMethod(Udoit, 'apiParseLinks', $link_header);
+        $result = static::callProtectedStaticMethod('Udoit', 'apiParseLinks', $link_header);
 
         self::assertEquals('https://url.com/current', $result['current']);
         self::assertEquals('https://url.com/next', $result['next']);
@@ -68,7 +68,7 @@ class UdoitTest extends BaseTest
             ->shouldReceive('get')
             ->andReturn($mock_get_result);
 
-        $result = static::callProtectedStaticMethod(Udoit, 'apiGetAllLinks', 'api_key', 'test_url1?');
+        $result = static::callProtectedStaticMethod('Udoit', 'apiGetAllLinks', 'api_key', 'test_url1?');
 
         self::assertCount(6, $result);
         self::assertArraySubset(['body_0_a', 'body_0_b', 'body_1_a', 'body_1_b', 'body_2_a', 'body_2_b'], $result);
