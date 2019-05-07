@@ -3503,11 +3503,6 @@ class imgHasAlt extends quailTest
 					$this->addReport($img);
 				}
 			}
-			if($img->hasAttribute('data-decorative')
-				&& $img->getAttribute('data-decorative') == 'true'
-				&& !($img->hasAttribute('alt') && trim($img->getAttribute('alt')) != )) {
-
-			}
 		}
 
 	}
