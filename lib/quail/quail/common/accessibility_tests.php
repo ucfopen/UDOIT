@@ -3499,7 +3499,7 @@ class imgHasAlt extends quailTest
 				|| $img->getAttribute('alt') == ''
 				|| $img->getAttribute('alt') == ' ') {
 				if(!($img->hasAttribute('data-decorative')
-					&& $img->getAttribute('data-decorative') == true)) {
+					&& $img->getAttribute('data-decorative') == 'true')) {
 					$this->addReport($img);
 				}
 			}
@@ -3526,7 +3526,8 @@ class imgHasAltDeco extends quailTest
 		foreach ($this->getAllElements('img') as $img) {
 			if($img->hasAttribute('data-decorative')
 				&& $img->getAttribute('data-decorative') == 'true'
-				&& (!($img->hasAttribute('alt') && trim($img->getAttribute('alt')) != ''))) {
+				&& $img->hasAttribute('alt')
+				&& trim($img->getAttribute('alt') != '')) {
 				$this->addReport($img);
 			}
 		}
