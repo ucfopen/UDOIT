@@ -3499,7 +3499,7 @@ class imgHasAlt extends quailTest
 				|| $img->getAttribute('alt') == ''
 				|| $img->getAttribute('alt') == ' ') {
 				if(!($img->hasAttribute('data-decorative')
-					&& $img->getAttribute('data-decorative') == 'true')) {
+					&& $img->getAttribute('data-decorative') == true)) {
 					$this->addReport($img);
 				}
 			}
