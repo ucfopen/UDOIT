@@ -22,7 +22,7 @@ return [
         ],
         [
             'name'      => 'imgHasAlt',
-            'title'     => 'No Alternative Text found',
+            'title'     => 'Alternative text found on decorative image.',
             'desc'      => '<p>Alternative Text (Alt Text) is an alternative (non-visual) way to describe the meaning of an image. Please provide a brief description of the image for a <a href="http://en.wikipedia.org/wiki/Screen_reader">screen reader</a> user. Note: It should not be the image file name.</p>',
             'resources' => [
                 'UCF CDL: <a href="https://cdl.ucf.edu/teach/accessibility/text/">Text Formatting and Document Organization</a>',
@@ -33,6 +33,21 @@ return [
                 <pre>'.htmlspecialchars('<img src="dog.jpg">').'</pre>
                 <p class="text-success">Correct</p>
                 <pre>'.htmlspecialchars('<img src="dog.jpg" alt="A photograph of a dog">').'</pre>
+            ',
+        ],
+        [
+            'name'      => 'imgHasAltDeco',
+            'title'     => 'No Alternative Text found',
+            'desc'      => '<p>Decorative images should have empty alternative text. This image was marked as decorative in the Rich Content Editor, but the ALT attribute contains text.</p>',
+            'resources' => [
+                'UCF CDL: <a href="https://cdl.ucf.edu/teach/accessibility/text/">Text Formatting and Document Organization</a>',
+                'WCAG Standard: <a href="http://www.w3.org/TR/WCAG20/#text-equiv-all">1.1.1</a>',
+            ],
+            'example'   => '
+                <p class="text-danger">Incorrect</p>
+                <pre>'.htmlspecialchars('<img src="dog.jpg" alt="A photograph of a dog">').'</pre>
+                <p class="text-success">Correct</p>
+                <pre>'.htmlspecialchars('<img src="dog.jpg" alt="" data-decorative="true" >').'</pre>
             ',
         ],
         [
