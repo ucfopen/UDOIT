@@ -115,7 +115,11 @@ class Ufixit
 
         foreach ($imgs as $img) {
             $img->setAttribute('alt', $new_content);
-            $img->setAttribute('data-decorative', $make_decorative ? 'true' : 'false');
+            if($make_decorative) {
+                $img->setAttribute('data-decorative', 'true');
+            } else {
+                $img->removeAttribute('data-decorative');
+            }
             $removed_endpoint = $img->removeAttribute('data-api-endpoint');
             $removed_endpoint = $img->removeAttribute('data-api-returntype');
             $fixed_img = $this->dom->saveHTML($img);
