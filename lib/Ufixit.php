@@ -458,7 +458,7 @@ class Ufixit
         $fixed_img = null;
 
         foreach ($imgs as $img) {
-            $img->setAttribute('alt', "");
+            $img->setAttribute('alt', "test");
             $img->setAttribute('data-decorative', 'true');
             $removed_endpoint = $img->removeAttribute('data-api-endpoint');
             $removed_endpoint = $img->removeAttribute('data-api-returntype');
