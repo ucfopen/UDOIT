@@ -427,11 +427,11 @@ $doc.ready(function() {
 
 	// make decorative button
 	$('.makedeco').click(function(){
-		var altInput = $(this).parent().find('.form-control')
+		var $altInput = $(this).parent().find('.form-control')
 		if($(this).is(':checked')) {
-			altInput.disabled = true;
+			$altInput.disabled = true;
 		} else {
-			altInput.disabled = false;
+			$altInput.disabled = false;
 		}
 	});
 	// END make decorative button
@@ -490,16 +490,20 @@ $doc.ready(function() {
 			}
 		}
 
-		if (type == "imgAltIsDifferent" || type == "imgAltIsTooLong" || type == "imgHasAlt" || type == "imgNonDecorativeHasAlt") {
+		if (type == "imgAltIsDifferent" || type == "imgAltIsTooLong" || type == "imgHasAlt" || type == "imgNonDecorativeHasAlt" || type == "imgHasAltDeco") {
 			var $input = $(this).find('input[name="newcontent"]');
 			var $imgSrc = $(this).find('input[name="errorhtml"]');
-			if ($input.val().trim() == ''){
-				valid = false;
-			} else if ($imgSrc.val().indexOf($input.val().trim()) >= 0) {
-				valid = false;
-			} else if ($input.val().match(/jpg|JPG|png|PNG|gif|GIF|jpeg|JPEG$/)) {
-				valid = false;
+			var makeDeco = $(this).find('input[name="makedeco"]').value == 'true';
+			if(!makeDeco) {
+				if ($input.val().trim() == ''){
+					valid = false;
+				} else if ($imgSrc.val().indexOf($input.val().trim()) >= 0) {
+					valid = false;
+				} else if ($input.val().match(/jpg|JPG|png|PNG|gif|GIF|jpeg|JPEG$/)) {
+					valid = false;
+				}
 			}
+
 		}
 
 		if ((type == "aMustContainText" || type == "aSuspiciousLinkText" || type == "aLinkTextDoesNotBeginWithRedundantWord") && !removeLink) {
