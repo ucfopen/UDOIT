@@ -178,6 +178,7 @@ switch ($main_action) {
 
             case 'pages':
                 $ufixit->uploadFixedPages($corrected_error, $data['error_html']);
+                error_log('HTML being put in is: '.$corrected_error);
                 break;
 
             case 'syllabus':

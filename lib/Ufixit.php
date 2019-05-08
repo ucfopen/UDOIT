@@ -448,7 +448,7 @@ class Ufixit
      * Marks images as decorative
      * @param string $error_html     - The bad html that needs to be fixed
      *
-     * @return string $fixed_img     - The image with new alt text
+     * @return string $fixed_img     - The image with no alt text and data-decorative set to true
      */
     public function makeImgDecorative($error_html)
     {
@@ -458,7 +458,7 @@ class Ufixit
         $fixed_img = null;
 
         foreach ($imgs as $img) {
-            $img->setAttribute('alt', "emptystring");
+            $img->setAttribute('alt', "");
             $img->setAttribute('data-decorative', 'true');
             $removed_endpoint = $img->removeAttribute('data-api-endpoint');
             $removed_endpoint = $img->removeAttribute('data-api-returntype');
