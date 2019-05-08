@@ -445,6 +445,30 @@ class Ufixit
     }
 
     /**
+     * Marks images as decorative
+     * @param string $error_html     - The bad html that needs to be fixed
+     *
+     * @return string $fixed_img     - The image with new alt text
+     */
+    public function makeImgDecorative($error_html)
+    {
+        $this->dom->loadHTML("<?xml encoding=\"utf-8\" ?>{$error_html}");
+
+        $imgs = $this->dom->getElementsByTagName('img');
+        $fixed_img = null;
+
+        foreach ($imgs as $img) {
+            $img->setAttribute('alt', "");
+            $img->setAttribute('data-decorative', 'true');
+            $removed_endpoint = $img->removeAttribute('data-api-endpoint');
+            $removed_endpoint = $img->removeAttribute('data-api-returntype');
+            $fixed_img = $this->dom->saveHTML($img);
+        }
+
+        return $fixed_img;
+    }
+
+    /**
      * Renames an element and preserves its attributes
      * @param  object $node - The DOMElement object you wish to rename
      * @param  string $name - The new name for the element

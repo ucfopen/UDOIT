@@ -23,6 +23,8 @@ global $alt_text_length_limit;
 	<label for="<?= $this->e($item_id); ?>-input" class="control-label sr-only">Provide New Alt Text For This Image</label>
 	<span class="counter"><?= $alt_text_length_limit; ?></span>
 	<input class="form-control" type="text" name="newcontent" maxlength="<?= $alt_text_length_limit; ?>" placeholder="New alt text" id="<?= $this->e($item_id); ?>-input">
+    <label for="<?= $this->e($item_id); ?>-makedeco" class="control-label sr-only">Mark This Image As Decorative And Clear Alt Text</label>
+    <input type="checkbox" class="makedeco" name="makedeco" id="<?= $this->e($item_id); ?>-makedeco">Mark image as decorative and clear alt text<br>
 	<button class="submit-content inactive btn btn-default" type="submit">Submit</button>
 	<div class="validmessage instance">Please check that you've entered new alt text and that it isn't a filename</div>
 </div>

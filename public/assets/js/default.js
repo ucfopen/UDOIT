@@ -384,7 +384,7 @@ $doc.ready(function() {
 			tmpElement = $vidiframe.detach();
 			tmpElement.appendTo($error.find('div.more-info .error-preview'));
 		}
-		
+
 		$error.find('p.manual-notification').first().removeClass('hidden');
 		$error.find('a.viewError').removeClass('hidden');
 		$error.find('a.viewError').focus();
@@ -424,6 +424,17 @@ $doc.ready(function() {
 		var msg = event.target.parentElement.querySelector('.toolmessage');
 		$(msg).stop().fadeOut();
 	});
+
+	// make decorative button
+	$('.makedeco').click(function(){
+		var altInput = $(this).parent().find('.form-control')
+		if($(this).is(':checked')) {
+			altInput.disabled = true;
+		} else {
+			altInput.disabled = false;
+		}
+	}):
+	// END make decorative button
 
 	// the "U FIX IT" button
 	$doc.on('click', '#scanner button.fix-this', function() {

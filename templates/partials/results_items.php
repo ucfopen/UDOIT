@@ -134,6 +134,7 @@
 														break;
 
 													case "imgHasAlt":
+													case "imgHasAltDeco":
 													case "imgNonDecorativeHasAlt":
 													case "imgAltIsDifferent":
 													case "imgAltIsTooLong":
