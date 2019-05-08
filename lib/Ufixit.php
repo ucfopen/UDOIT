@@ -458,6 +458,7 @@ class Ufixit
         $fixed_img = null;
 
         foreach ($imgs as $img) {
+            error_log('___break___|');
             $img->setAttribute('alt', "test");
             $img->setAttribute('data-decorative', 'true');
             $removed_endpoint = $img->removeAttribute('data-api-endpoint');
@@ -465,8 +466,22 @@ class Ufixit
             $fixed_img = $this->dom->saveHTML($img);
         }
 
+        error_log($fixed_img);
+
         return $fixed_img;
     }
+
+    $this->dom->loadHTML("<?xml encoding=\"utf-8\" ?>{$error_html}");
+
+        $imgs = $this->dom->getElementsByTagName('img');
+        $fixed_img = null;
+
+        foreach ($imgs as $img) {
+            $img->setAttribute('alt', $new_content);
+            $removed_endpoint = $img->removeAttribute('data-api-endpoint');
+            $removed_endpoint = $img->removeAttribute('data-api-returntype');
+            $fixed_img = $this->dom->saveHTML($img);
+        }
 
     /**
      * Renames an element and preserves its attributes
