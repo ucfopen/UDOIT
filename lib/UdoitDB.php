@@ -41,7 +41,13 @@ class UdoitDB
         static::$options = $db_options;
     }
 
-    // acts as a pass through for pdo that checks the connection
+    /**
+     * Acts as a pass through for pdo that checks the connection
+     * @param string $name Name of the method to access from PDO
+     * @param array  $args Arguments for the method
+     *
+     * @return array The results of the PDO call
+     */
     public static function __callStatic($name, $args)
     {
         static::testAndReconnect();
@@ -62,7 +68,12 @@ class UdoitDB
         }
     }
 
-    // runs a very basic query on the db to verify connection status
+    /**
+     * Runs a very basic query on the db to verify connection status
+     * @param boolean $force (Optional) Ignore the expire time and force the check to happen
+     *
+     * @return boolean       Whether the connection is active and valid
+     */
     public static function test($force = false)
     {
         if (empty(static::$pdo)) {

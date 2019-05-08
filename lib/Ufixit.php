@@ -103,7 +103,7 @@ class Ufixit
      * @param bool $make_decorative  - If the image should be marked as decorative
      * @param bool $submitting_again - If the user is resubmitting their error fix
      *
-     * @return string $fixed_img     - The image with new alt text
+     * @return string $fixed_img       The image with new alt text
      */
     public function fixAltText($error_html, $new_content, $make_decorative,
         $submitting_again = false)
@@ -130,14 +130,13 @@ class Ufixit
 
     /**
      * Fixes CSS contrast errors
-     * @param array $error_colors       - The color(s) that need to be replaced
-     * @param string $error_html        - The bad html that needs to be fixed
-     * @param string|array $new_content - The new CSS color(s) from the user
-     * @param bool $bold                - Boolean whether resulting text should be stylized bold
-     * @param bool $italic              - Boolean whether resulting text should be stylized italicised
-     * @param bool $submitting_again    - If the user is resubmitting their error fix
+     * @param string       $error_html       The bad html that needs to be fixed
+     * @param string|array $new_content      The new CSS color(s) from the user
+     * @param bool         $bold             Boolean whether resulting text should be stylized bold
+     * @param bool         $italic           Boolean whether resulting text should be stylized italicised
+     * @param bool         $submitting_again If the user is resubmitting their error fix
      *
-     * @return string $fixed_css        - The html with corrected CSS
+     * @return string $fixed_css             The html with corrected CSS
      */
     public function fixCssColor($error_html, $new_content, $bold, $italic, $submitting_again = false)
     {
@@ -173,15 +172,15 @@ class Ufixit
         return $fixed_css;
     }
 
-        /**
+    /**
      * Adds font styles to colored text for emphasis
-     * @param string $error_html        - The bad html that needs to be fixed
-     * @param string|array $new_content - The new CSS color(s) from the user
-     * @param bool $bold                - Boolean whether resulting text should be stylized bold
-     * @param bool $italic              - Boolean whether resulting text should be stylized italicised
-     * @param bool $submitting_again    - If the user is resubmitting their error fix
+     * @param string $error_html       The bad html that needs to be fixed
+     * @param bool   $bold             Whether resulting text should be stylized bold
+     * @param bool   $italic           Whether resulting text should be stylized italicised
+     * @param bool   $remove_color     Whether the foreground and background colors should be stripped
+     * @param bool   $submitting_again If the user is resubmitting their error fix
      *
-     * @return string $fixed_css        - The html with corrected CSS
+     * @return string $fixed_css             The html with corrected CSS
      */
     public function fixCssEmphasize($error_html, $bold, $italic, $remove_color, $submitting_again = false)
     {
@@ -216,13 +215,13 @@ class Ufixit
         return $fixed_css;
     }
 
-       /**
+    /**
      * Fixes Empty HTML Links
-     * @param string $error_html        - The bad html that needs to be fixed
-     * @param string|array $new_content - The new Heading text from the user
-     * @param bool $submitting_again    - If the user is resubmitting their error fix
+     * @param string       $error_html       The bad html that needs to be fixed
+     * @param string|array $new_content      The new Heading text from the user
+     * @param bool         $submitting_again If the user is resubmitting their error fix
      *
-     * @return string $fixed_css        - The html with corrected Link
+     * @return string $fixed_css             The html with corrected Link
      */
     public function fixLink($error_html, $new_content, $submitting_again = false)
     {
@@ -245,13 +244,13 @@ class Ufixit
         return $fixed_link;
     }
 
-        /**
+    /**
      * Fixes Empty HTML Headers
-     * @param string $error_html        - The bad html that needs to be fixed
-     * @param string|array $new_content - The new Heading text from the user
-     * @param bool $submitting_again    - If the user is resubmitting their error fix
+     * @param string       $error_html       The bad html that needs to be fixed
+     * @param string|array $new_content      The new Heading text from the user
+     * @param bool         $submitting_again If the user is resubmitting their error fix
      *
-     * @return string $fixed_heading        - The html with corrected Heading
+     * @return string $fixed_heading         The html with corrected Heading
      */
     public function fixHeading($error_html, $new_content, $submitting_again = false)
     {
@@ -278,11 +277,11 @@ class Ufixit
 
     /**
      * Fixes table headers by changing td elements to th (and adding proper scope, of course)
-     * @param  string  $error_html       - The unmodified table without proper headings
-     * @param  string  $selected_header  - The selected table row or column
-     * @param  boolean $submitting_again - If the user is resubmitting their error fix
+     * @param string  $error_html       The unmodified table without proper headings
+     * @param string  $selected_header  The selected table row or column
+     * @param boolean $submitting_again If the user is resubmitting their error fix
      *
-     * @return array   $new_data         - Array of the corrected error and the original table row/column
+     * @return array $new_data          Array of the corrected error and the original table row/column
      */
     public function fixTableHeaders($error_html, $selected_header, $submitting_again = false)
     {
@@ -370,11 +369,11 @@ class Ufixit
 
     /**
      * Fixes table th scope errors
-     * @param string $error_html     - The color(s) that need to be replaced
-     * @param string $new_content    - The new CSS color(s) from the user
-     * @param bool $submitting_again - If the user is resubmitting their error fix
+     * @param string $error_html       The color(s) that need to be replaced
+     * @param string $new_content      The new CSS color(s) from the user
+     * @param bool   $submitting_again If the user is resubmitting their error fix
      *
-     * @return string $fixed_ths     - The html with corrected th scopes
+     * @return string $fixed_th        The html with corrected th scopes
      */
     public function fixTableThScopes($error_html, $new_content, $submitting_again = false)
     {
@@ -392,7 +391,9 @@ class Ufixit
 
     /**
      * We need to get files from a course first before we can modify them
-     * @return [type] [description]
+     * @param int $start_id The ID of the folder to grab
+     *
+     * @return object|boolean The file or false on error
      */
     public function getFile($start_id)
     {
@@ -453,10 +454,10 @@ class Ufixit
 
     /**
      * Renames an element and preserves its attributes
-     * @param  object $node - The DOMElement object you wish to rename
-     * @param  string $name - The new name for the element
+     * @param object $node The DOMElement object you wish to rename
+     * @param string $name The new name for the element
      *
-     * @return object       - The renamed DOMElement
+     * @return object      The renamed DOMElement
      */
     public function renameElement($node, $name)
     {
@@ -476,7 +477,8 @@ class Ufixit
             $attribute = $attributes->item(0);
 
             if (!is_null($attribute->namespaceURI)) {
-                $renamed->setAttributeNS('http://www.w3.org/2000/xmlns/',
+                $renamed->setAttributeNS(
+                    'http://www.w3.org/2000/xmlns/',
                     'xmlns:'.$attribute->prefix,
                     $attribute->namespaceURI
                 );
@@ -492,11 +494,11 @@ class Ufixit
 
      /**
      * Replaces problematic content in html with resolved html
-     * @param  string $html      - html from page being edited
-     * @param  string $error     - original html of error being fixed
-     * @param  string $corrected - resulting html or error after fix
+     * @param string $html      html from page being edited
+     * @param string $error     original html of error being fixed
+     * @param string $corrected resulting html or error after fix
      *
-     * @return string $html      - html after corrected html has replaced error html
+     * @return string $html     html after corrected html has replaced error html
      */
     public function replaceContent($html, $error, $corrected)
     {
@@ -510,8 +512,8 @@ class Ufixit
 
     /**
      * Uploads fixed assignments
-     * @param string $corrected_error - The html that has been fixed
-     * @param string $error_html      - The html to be fixed
+     * @param string $corrected_error The html that has been fixed
+     * @param string $error_html      The html to be fixed
      */
     public function uploadFixedAssignments($corrected_error, $error_html)
     {
@@ -527,8 +529,8 @@ class Ufixit
 
     /**
      * Uploads fixed discussions (announcements are also discussions)
-     * @param string $corrected_error - The html that has been fixed
-     * @param string $error_html      - The html to be fixed
+     * @param string $corrected_error The html that has been fixed
+     * @param string $error_html      The html to be fixed
      */
     public function uploadFixedDiscussions($corrected_error, $error_html)
     {
@@ -543,11 +545,11 @@ class Ufixit
     }
 
     /**
-     * [uploadFixedFiles description]
-     * @param  [type] $corrected_error    [description]
-     * @param  [type] $error_html         [description]
+     * Uploads fixed files to the course
+     * @param string $corrected_error The html that has been fixed
+     * @param string $error_html      The html to be fixed
      *
-     * @return [type]                     [description]
+     * @return array                  The ID and URL of the resulting file
      */
     public function uploadFixedFiles($corrected_error, $error_html)
     {
@@ -625,8 +627,8 @@ class Ufixit
 
     /**
      * Uploads fixed pages
-     * @param string $corrected_error - The html that has been fixed
-     * @param string $error_html      - The html to be fixed
+     * @param string $corrected_error The html that has been fixed
+     * @param string $error_html      The html to be fixed
      */
     public function uploadFixedPages($corrected_error, $error_html)
     {
@@ -650,8 +652,8 @@ class Ufixit
 
     /**
      * Uploads the fixed course syllabus
-     * @param string $corrected_error - The html that has been fixed
-     * @param string $error_html      - The html to be fixed
+     * @param string $corrected_error The html that has been fixed
+     * @param string $error_html      The html to be fixed
      */
     public function uploadFixedSyllabus($corrected_error, $error_html)
     {

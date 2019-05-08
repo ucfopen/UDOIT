@@ -21,70 +21,70 @@
 class UdoitStatsTest extends BaseTest
 {
 
-    public static function setUpBeforeClass() {
-
+    public static function setUpBeforeClass()
+    {
         require_once(__DIR__.'/PDOMock.php');
         require_once(__DIR__.'/PDOStatementMock.php');
     }
 
-    public function setUp() {
-
+    public function setUp()
+    {
         Mockery::close();
         self::setPrivateStaticPropertyValue('UdoitDB', 'dbClass', 'PDOMock');
     }
 
-    public function tearDown() {
-
+    public function tearDown()
+    {
         Mockery::close();
         self::clearMockDBConnection();
     }
 
-    public function testInstance() {
-
+    public function testInstance()
+    {
         $result = UdoitStats::instance();
         self::assertInstanceOf('UdoitStats', $result);
     }
 
-    public function testGetReports() {
-
+    public function testGetReports()
+    {
         UdoitDB::setup('mysql', 'b', 'c', 'd', ['a' => 'b']);
         $test = new UdoitStats();
 
-        $result = $test->getReports(False, "", "", "0");
+        $result = $test->getReports(false, "", "", "0");
         self::assertTrue($result === null);
 
-        $result = $test->getReports(True, "", "", "0");
+        $result = $test->getReports(true, "", "", "0");
         self::assertTrue($result === null);
 
-        $result = $test->getReports(False, "", "", "0", ['' => '', 'term_id' => '', 'user_id' => '1']);
+        $result = $test->getReports(false, "", "", "0", ['' => '', 'term_id' => '', 'user_id' => '1']);
         self::assertTrue($result === null);
 
         UdoitDB::setForceFail(true);
-        $result = $test->getReports(False, "", "", "0");
+        $result = $test->getReports(false, "", "", "0");
         self::assertTrue($result === false);
     }
 
-    public function testGetReportsCount() {
-
+    public function testGetReportsCount()
+    {
         UdoitDB::setup('mysql', 'b', 'c', 'd', ['a' => 'b']);
         $test = new UdoitStats();
 
-        $result = $test->getReportsCount(False, "");
+        $result = $test->getReportsCount(false, "");
         self::assertTrue($result === null);
 
-        $result = $test->getReportsCount(True, "");
+        $result = $test->getReportsCount(true, "");
         self::assertTrue($result === null);
 
-        $result = $test->getReportsCount(False, "", ['' => '', 'term_id' => '', 'user_id' => '1']);
+        $result = $test->getReportsCount(false, "", ['' => '', 'term_id' => '', 'user_id' => '1']);
         self::assertTrue($result === null);
 
         UdoitDB::setForceFail(true);
-        $result = $test->getReportsCount(False, "");
+        $result = $test->getReportsCount(false, "");
         self::assertTrue($result === false);
     }
 
-    public function testGetReportJsons() {
-
+    public function testGetReportJsons()
+    {
         UdoitDB::setup('mysql', 'b', 'c', 'd', ['a' => 'b']);
         $test = new UdoitStats();
 
@@ -96,8 +96,8 @@ class UdoitStatsTest extends BaseTest
         self::assertTrue($result === false);
     }
 
-    public function testGetUsers() {
-
+    public function testGetUsers()
+    {
         UdoitDB::setup('mysql', 'b', 'c', 'd', ['a' => 'b']);
         $test = new UdoitStats();
 
@@ -109,8 +109,8 @@ class UdoitStatsTest extends BaseTest
         self::assertTrue($result === false);
     }
 
-    public function testGetUserCount() {
-
+    public function testGetUserCount()
+    {
         UdoitDB::setup('mysql', 'b', 'c', 'd', ['a' => 'b']);
         $test = new UdoitStats();
 
@@ -122,8 +122,8 @@ class UdoitStatsTest extends BaseTest
         self::assertTrue($result === false);
     }
 
-    public function testCountNewUsers() {
-
+    public function testCountNewUsers()
+    {
         UdoitDB::setup('mysql', 'b', 'c', 'd', ['a' => 'b']);
         $test = new UdoitStats();
         $date = new DateTime();
@@ -139,8 +139,8 @@ class UdoitStatsTest extends BaseTest
         self::assertTrue($result === false);
     }
 
-    public function testCountNewUsersCount() {
-
+    public function testCountNewUsersCount()
+    {
         UdoitDB::setup('mysql', 'b', 'c', 'd', ['a' => 'b']);
         $test = new UdoitStats();
         $date = new DateTime();

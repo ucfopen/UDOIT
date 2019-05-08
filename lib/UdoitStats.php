@@ -33,13 +33,13 @@ class UdoitStats
     /**
      * Gets a list of reports (scans)
      *
-     * @param   bool    latest       Whether to only include the latest scan per Course ID or not
-     * @param   string  order_by     How the report is ordered (most recent, least recent, most errors, least errors)
-     * @param   string  number_items The number of elements to be returned
-     * @param   string  offset       Offset from 0 to start getting elements from
-     * @param   array   get_data     (Optional) GET parameters for SQL querying
+     * @param bool   $latest       Whether to only include the latest scan per Course ID or not
+     * @param string $order_by     How the report is ordered (most recent, least recent, most errors, least errors)
+     * @param string $number_items The number of elements to be returned
+     * @param string $offset       Offset from 0 to start getting elements from
+     * @param array  $get_data     (Optional) GET parameters for SQL querying
      *
-     * @return  array   data         Data returned by the database query
+     * @return array|boolean       Data returned by the database query or false on error
      */
     public function getReports($latest, $order_by, $number_items, $offset, $get_data = [])
     {
@@ -145,11 +145,11 @@ class UdoitStats
     /**
      * Gets the count of reports (scans)
      *
-     * @param   bool    latest      Whether to only include the latest scan per Course ID or not
-     * @param   string  order_by    How the report is ordered (most recent, least recent, most errors, least errors)
-     * @param   array   get_data    (Optional) GET parameters for SQL querying
+     * @param bool   $latest   Whether to only include the latest scan per Course ID or not
+     * @param string $order_by How the report is ordered (most recent, least recent, most errors, least errors)
+     * @param array  $get_data (Optional) GET parameters for SQL querying
      *
-     * @return  array   data        Data returned by the database query
+     * @return array|boolean   Data returned by the database query
      */
     public function getReportsCount($latest, $order_by, $get_data = [])
     {
@@ -218,7 +218,7 @@ class UdoitStats
     /**
      * Gets every user in the database.
      *
-     * @return Associative array of results, false on error
+     * @return array|boolean Results from database or false on error
      */
     public function getReportJsons()
     {
@@ -245,8 +245,10 @@ class UdoitStats
 
     /**
      * Gets every user in the database.
+     * @param int $number_items How many items to fetch
+     * @param int $offset       Which item to start fetching from
      *
-     * @return Associative array of results, false on error
+     * @return array|boolean Results from database or false on error
      */
     public function getUsers($number_items, $offset)
     {
@@ -281,7 +283,7 @@ class UdoitStats
     /**
      * Gets the number of users in the database.
      *
-     * @return Associative array of results, false on error
+     * @return array|boolean Results from database or false on error
      */
     public function getUserCount()
     {
@@ -300,13 +302,13 @@ class UdoitStats
 
     /**
      * Tallys up number of new users per period defined by grain.
-     * @param   string  grain        (Optional) How granular the tally is.  Accepted values: day (default), week, month, year
-     * @param   string  startDate    (Optional) (DateTime) Earliest date of report to include
-     * @param   string  endDate      (Optional) (DateTime) Latest date of report to include
-     * @param   string  number_items (Optional) Number of items to return (for pagination)
-     * @param   string  offset       (Optional) Offset from 0 to start returning items from (for pagination)
+     * @param string $grain        (Optional) How granular the tally is.  Accepted values: day (default), week, month, year
+     * @param string $startDate    (Optional) (DateTime) Earliest date of report to include
+     * @param string $endDate      (Optional) (DateTime) Latest date of report to include
+     * @param string $number_items (Optional) Number of items to return (for pagination)
+     * @param string $offset       (Optional) Offset from 0 to start returning items from (for pagination)
      *
-     * @return array data
+     * @return array|boolean        Counts of users grouped by the grain.  False on error.
      */
     public function countNewUsers($grain, $startDate, $endDate, $number_items, $offset)
     {
@@ -386,11 +388,11 @@ class UdoitStats
 
     /**
      * Gets the count of periods defined by grain.
-     * @param   string  grain       (Optional) How granular the tally is.  Accepted values: day (default), week, month, year
-     * @param   string  startDate   (Optional) (DateTime) Earliest date of report to include
-     * @param   string  endDate     (Optional) (DateTime) Latest date of report to include
+     * @param string $grain     (Optional) How granular the tally is.  Accepted values: day (default), week, month, year
+     * @param string $startDate (Optional) (DateTime) Earliest date of report to include
+     * @param string $endDate   (Optional) (DateTime) Latest date of report to include
      *
-     * @return array data
+     * @return array|boolean    Number of new users created each grain.  False on error.
      */
     public function countNewUsersCount($grain, $startDate, $endDate)
     {

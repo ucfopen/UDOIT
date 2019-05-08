@@ -7,7 +7,7 @@
 			<file>tests/UdoitTest.php</file>
 			<file>tests/IndexTest.php</file>
 			<file>tests/FunctionalTests.php</file>
-            <file>tests/UdoitStatsTest.php</file>
+			<file>tests/UdoitStatsTest.php</file>
 		</testsuite>
 	</testsuites>
 	<php>
@@ -15,12 +15,12 @@
 	</php>
 	<filter>
 		<whitelist>
-            <directory suffix=".php">./</directory>
-            <exclude>
-                <directory>./lib/quail</directory>
-                <directory>./vendor</directory>
-                <directory>./tests</directory>
-            </exclude>
+			<directory suffix=".php">./</directory>
+			<exclude>
+				<directory>./lib/quail</directory>
+				<directory>./vendor</directory>
+				<directory>./tests</directory>
+			</exclude>
 		</whitelist>
 	</filter>
 </phpunit>
