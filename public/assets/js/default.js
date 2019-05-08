@@ -427,7 +427,7 @@ $doc.ready(function() {
 
 	// make decorative button
 	$doc.on('click', '.makedeco', function() {
-		$(this).parent().find('.form-control').prop('disabled', $(this).is(':checked'));
+		$(this).parent().parent().parent().find('.form-control').prop('disabled', $(this).is(':checked'));
 	});
 	// END make decorative button
 
