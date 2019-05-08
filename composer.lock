@@ -4,8 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "931c8b553080bcf95e25e74db791b066",
-    "content-hash": "a189255175f3fce5e44bfb857739a983",
+    "hash": "20da16c439ccd88f5dc3f95967572aee",
+    "content-hash": "22a0c6338d58028754d6ae18b210a073",
     "packages": [
         {
             "name": "EastDesire/jscolor",
@@ -515,12 +515,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/djoos/Symfony-coding-standard.git",
-                "reference": "19cb6f30babb2cf6285967e67f14d1cb9c8c09f5"
+                "reference": "2a8358b3a17dcb9f3e2889b70a257106aa37f6f4"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/djoos/Symfony-coding-standard/zipball/19cb6f30babb2cf6285967e67f14d1cb9c8c09f5",
-                "reference": "19cb6f30babb2cf6285967e67f14d1cb9c8c09f5",
+                "url": "https://api.github.com/repos/djoos/Symfony-coding-standard/zipball/2a8358b3a17dcb9f3e2889b70a257106aa37f6f4",
+                "reference": "2a8358b3a17dcb9f3e2889b70a257106aa37f6f4",
                 "shasum": ""
             },
             "require": {
@@ -560,7 +560,7 @@
                 "phpcs",
                 "symfony"
             ],
-            "time": "2019-04-29 13:28:49"
+            "time": "2019-05-08 08:31:28"
         },
         {
             "name": "hamcrest/hamcrest-php",
@@ -2335,7 +2335,7 @@
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": {
-        "php": "~7.0.0 || ~7.1.0 || ~7.2.0",
+        "php": "~7.1.0 || ~7.2.0",
         "ext-pdo": "*",
         "ext-gd": "*"
     },
