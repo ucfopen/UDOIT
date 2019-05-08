@@ -142,6 +142,7 @@ switch ($main_action) {
                 if(filter_input(INPUT_POST, 'makedeco', FILTER_SANITIZE_STRING) == 'true') {
                     $corrected_error = $ufixit->makeImgDecorative($data['error_html']);
                 } else {
+                    error_log('not detected');
                     $new_content = filter_input(INPUT_POST, 'newcontent', FILTER_SANITIZE_STRING);
                     $corrected_error = $ufixit->fixAltText($data['error_html'], $new_content);
                 }

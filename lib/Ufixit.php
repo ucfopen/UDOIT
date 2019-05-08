@@ -459,7 +459,7 @@ class Ufixit
 
         foreach ($imgs as $img) {
             error_log('___break___|');
-            $img->setAttribute('alt', "test");
+            $img->setAttribute('alt', 'test');
             $img->setAttribute('data-decorative', 'true');
             $removed_endpoint = $img->removeAttribute('data-api-endpoint');
             $removed_endpoint = $img->removeAttribute('data-api-returntype');
