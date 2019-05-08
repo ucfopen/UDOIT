@@ -471,18 +471,6 @@ class Ufixit
         return $fixed_img;
     }
 
-    $this->dom->loadHTML("<?xml encoding=\"utf-8\" ?>{$error_html}");
-
-        $imgs = $this->dom->getElementsByTagName('img');
-        $fixed_img = null;
-
-        foreach ($imgs as $img) {
-            $img->setAttribute('alt', $new_content);
-            $removed_endpoint = $img->removeAttribute('data-api-endpoint');
-            $removed_endpoint = $img->removeAttribute('data-api-returntype');
-            $fixed_img = $this->dom->saveHTML($img);
-        }
-
     /**
      * Renames an element and preserves its attributes
      * @param  object $node - The DOMElement object you wish to rename
