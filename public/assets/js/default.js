@@ -426,7 +426,7 @@ $doc.ready(function() {
 	});
 
 	// make decorative button
-	$('.makedeco').click(function(){
+	$doc.on('click', '.makedeco', function() {
 		var $altInput = $(this).parent().find('.form-control')
 		if($(this).is(':checked')) {
 			$altInput.disabled = true;
