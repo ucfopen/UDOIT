@@ -433,7 +433,7 @@ $doc.ready(function() {
 		} else {
 			altInput.disabled = false;
 		}
-	}):
+	});
 	// END make decorative button
 
 	// the "U FIX IT" button
