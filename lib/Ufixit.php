@@ -466,8 +466,6 @@ class Ufixit
             $fixed_img = $this->dom->saveHTML($img);
         }
 
-        error_log($fixed_img);
-
         return $fixed_img;
     }
 

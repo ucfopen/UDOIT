@@ -139,8 +139,7 @@ switch ($main_action) {
             case 'imgNonDecorativeHasAlt':
             case 'imgAltIsDifferent':
             case 'imgAltIsTooLong':
-                error_log('input was: '.filter_input(INPUT_POST, 'makedeco', FILTER_SANITIZE_STRING));
-                if(filter_input(INPUT_POST, 'makedeco', FILTER_SANITIZE_STRING) == 'true') {
+                if(filter_input(INPUT_POST, 'makedeco', FILTER_SANITIZE_STRING) == 'on') {
                     $corrected_error = $ufixit->makeImgDecorative($data['error_html']);
                 } else {
                     $new_content = filter_input(INPUT_POST, 'newcontent', FILTER_SANITIZE_STRING);
