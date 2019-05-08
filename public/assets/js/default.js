@@ -427,12 +427,7 @@ $doc.ready(function() {
 
 	// make decorative button
 	$doc.on('click', '.makedeco', function() {
-		var $altInput = $(this).parent().find('.form-control')
-		if($(this).is(':checked')) {
-			$altInput.disabled = true;
-		} else {
-			$altInput.disabled = false;
-		}
+		$(this).parent().find('.form-control').prop('disabled', $(this).is(':checked'));
 	});
 	// END make decorative button
 
