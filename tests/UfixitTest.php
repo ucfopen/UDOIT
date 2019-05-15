@@ -50,9 +50,13 @@ class UfixitTest extends BaseTest
 
         ob_start();
         $temp           = new Ufixit($this->data);
-        $output         = $temp->fixAltText($error_html, $new_content);
-
+        $output         = $temp->fixAltText($error_html, $new_content, false);
         $this->assertEquals($expected, $output);
+        $expected       = '<img src="https://webcourses.ucf.edu/courses/1234567/image.jpg" alt="" data-decorative="true">';
+        $output         = $temp->fixAltText($error_html, "", true);
+        $this->assertEquals($expected, $output);
+
+
         $this->checkOutputBuffer();
     }
 

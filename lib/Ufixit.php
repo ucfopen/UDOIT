@@ -100,11 +100,12 @@ class Ufixit
      * Fixes alt text for images
      * @param string $error_html       The bad html that needs to be fixed
      * @param string $new_content      The new content from the user
+     * @param bool   $make_decorative  If the image should be marked as decorative
      * @param bool   $submitting_again If the user is resubmitting their error fix
      *
      * @return string $fixed_img       The image with new alt text
      */
-    public function fixAltText($error_html, $new_content, $submitting_again = false)
+    public function fixAltText($error_html, $new_content, $make_decorative, $submitting_again = false)
     {
         $this->dom->loadHTML("<?xml encoding=\"utf-8\" ?>{$error_html}");
 
@@ -113,6 +114,11 @@ class Ufixit
 
         foreach ($imgs as $img) {
             $img->setAttribute('alt', $new_content);
+            if ($make_decorative) {
+                $img->setAttribute('data-decorative', 'true');
+            } else {
+                $img->removeAttribute('data-decorative');
+            }
             $removed_endpoint = $img->removeAttribute('data-api-endpoint');
             $removed_endpoint = $img->removeAttribute('data-api-returntype');
             $fixed_img = $this->dom->saveHTML($img);

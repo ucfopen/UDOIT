@@ -135,11 +135,16 @@ switch ($main_action) {
                 break;
 
             case 'imgHasAlt':
+            case 'imgHasAltDeco':
             case 'imgNonDecorativeHasAlt':
             case 'imgAltIsDifferent':
             case 'imgAltIsTooLong':
-                $new_content = filter_input(INPUT_POST, 'newcontent', FILTER_SANITIZE_STRING);
-                $corrected_error = $ufixit->fixAltText($data['error_html'], $new_content);
+                if (filter_input(INPUT_POST, 'makedeco', FILTER_SANITIZE_STRING) == 'on') {
+                    $corrected_error = $ufixit->fixAltText($data['error_html'], "", true);
+                } else {
+                    $new_content = filter_input(INPUT_POST, 'newcontent', FILTER_SANITIZE_STRING);
+                    $corrected_error = $ufixit->fixAltText($data['error_html'], $new_content, false);
+                }
                 break;
 
             case 'tableDataShouldHaveTh':

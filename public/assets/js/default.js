@@ -384,7 +384,7 @@ $doc.ready(function() {
 			tmpElement = $vidiframe.detach();
 			tmpElement.appendTo($error.find('div.more-info .error-preview'));
 		}
-		
+
 		$error.find('p.manual-notification').first().removeClass('hidden');
 		$error.find('a.viewError').removeClass('hidden');
 		$error.find('a.viewError').focus();
@@ -424,6 +424,12 @@ $doc.ready(function() {
 		var msg = event.target.parentElement.querySelector('.toolmessage');
 		$(msg).stop().fadeOut();
 	});
+
+	// make decorative button
+	$doc.on('click', '.makedeco', function() {
+		$(this).parent().parent().parent().find('.form-control').prop('disabled', $(this).is(':checked'));
+	});
+	// END make decorative button
 
 	// the "U FIX IT" button
 	$doc.on('click', '#scanner button.fix-this', function() {
@@ -479,16 +485,20 @@ $doc.ready(function() {
 			}
 		}
 
-		if (type == "imgAltIsDifferent" || type == "imgAltIsTooLong" || type == "imgHasAlt" || type == "imgNonDecorativeHasAlt") {
+		if (type == "imgAltIsDifferent" || type == "imgAltIsTooLong" || type == "imgHasAlt" || type == "imgNonDecorativeHasAlt" || type == "imgHasAltDeco") {
 			var $input = $(this).find('input[name="newcontent"]');
 			var $imgSrc = $(this).find('input[name="errorhtml"]');
-			if ($input.val().trim() == ''){
-				valid = false;
-			} else if ($imgSrc.val().indexOf($input.val().trim()) >= 0) {
-				valid = false;
-			} else if ($input.val().match(/jpg|JPG|png|PNG|gif|GIF|jpeg|JPEG$/)) {
-				valid = false;
+			var makeDeco = $(this).find('input[name="makedeco"]').is(':checked');
+			if(!makeDeco) {
+				if ($input.val().trim() == ''){
+					valid = false;
+				} else if ($imgSrc.val().indexOf($input.val().trim()) >= 0) {
+					valid = false;
+				} else if ($input.val().match(/jpg|JPG|png|PNG|gif|GIF|jpeg|JPEG$/)) {
+					valid = false;
+				}
 			}
+
 		}
 
 		if ((type == "aMustContainText" || type == "aSuspiciousLinkText" || type == "aLinkTextDoesNotBeginWithRedundantWord") && !removeLink) {
