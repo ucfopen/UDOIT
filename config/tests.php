@@ -22,7 +22,7 @@ return [
         ],
         [
             'name'      => 'imgHasAlt',
-            'title'     => 'Alternative text found on decorative image.',
+            'title'     => 'No Alternative Text found.',
             'desc'      => '<p>Alternative Text (Alt Text) is an alternative (non-visual) way to describe the meaning of an image. Please provide a brief description of the image for a <a href="http://en.wikipedia.org/wiki/Screen_reader">screen reader</a> user. Note: It should not be the image file name.</p>',
             'resources' => [
                 'UCF CDL: <a href="https://cdl.ucf.edu/teach/accessibility/text/">Text Formatting and Document Organization</a>',
@@ -37,8 +37,8 @@ return [
         ],
         [
             'name'      => 'imgHasAltDeco',
-            'title'     => 'No Alternative Text found',
-            'desc'      => '<p>Decorative images should have empty alternative text. This image was marked as decorative in the Rich Content Editor, but the ALT attribute contains text.</p>',
+            'title'     => 'Decorative images should have empty alternative text.',
+            'desc'      => '<p>This image was marked as decorative in the Rich Content Editor, but the ALT attribute contains text. Please remove the alternative text.</p>',
             'resources' => [
                 'UCF CDL: <a href="https://cdl.ucf.edu/teach/accessibility/text/">Text Formatting and Document Organization</a>',
                 'WCAG Standard: <a href="http://www.w3.org/TR/WCAG20/#text-equiv-all">1.1.1</a>',
