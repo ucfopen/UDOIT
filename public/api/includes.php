@@ -49,6 +49,11 @@ foreach ($expect as $key) {
     }
 }
 
+// If the feature has been disabled, deny access.
+if (!$admin_panel_enabled) {
+    respond_with_error(403, 'This feature has been disabled. Please contact your UDOIT administrator.');
+}
+
 // If Administrator is not found in the user's list of roles, kick them out with an error
 if (!$_SESSION['is_admin']) {
     // Set response to 403 (Forbidden)

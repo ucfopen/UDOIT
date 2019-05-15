@@ -30,6 +30,7 @@ foreach ($expect as $key) {
         UdoitUtils::instance()->exitWithPageError("Missing Session information. Please refresh the page. Missing: {$key}");
     }
 }
+
 // If the feature has been disabled, deny access.
 if (!$admin_panel_enabled) {
     UdoitUtils::instance()->exitWithPageError("This feature has been disabled. Please contact your UDOIT administrator.");
