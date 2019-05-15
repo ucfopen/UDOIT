@@ -73,6 +73,10 @@
     "ALT_TEXT_LENGTH_LIMIT": {
       "description": "Maximum character length for alt-text before the item gets flagged as a warning.",
       "value": "125"
+    },
+    "ADMIN_PANEL_ENABLED": {
+      "description": "Enable the Admin Panel feature.  False disables access and removes the block from the configuration XML.",
+      "value": "false"
     }
   },
   "addons": [
