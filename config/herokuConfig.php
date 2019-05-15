@@ -68,3 +68,6 @@ $log_handler->setFormatter(new \Monolog\Formatter\LineFormatter(null, null, true
 // Sets CURLOPT_SSL_VERIFYPEER and CURLOPT_SSL_VERIFYHOST
 // This should be true for production environments
 $curl_ssl_verify = true;
+
+// Admin panel.  False disables access and removes block from XML.
+$admin_panel_enabled = (getenv("ADMIN_PANEL_ENABLED")) == 'true';
