@@ -74,14 +74,14 @@ $curl_ssl_verify = true; // This should be true for production environments
 
 
 /* Admin Panel
- * 
+ *
  * True adds a Admin Navigation placement to the XML. Allows for generating
  * statistics about usage of UDOIT. Also allows for user administration.
- * 
+ *
  * False disables access and removes block from XML. Use this setting if you
  * are in a multitenant environment, as the 2.5.0 release of UDOIT does not
  * separate data between instances of Canvas.
- * 
+ *
  * Default false
  */
 $admin_panel_enabled = false;
