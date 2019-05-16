@@ -13,13 +13,13 @@ class UdoitJob
     public static function addJobToQueue($type, $user_id, $group_id, array $data)
     {
 
+        global $db_job_queue_table;
         // create insert query
         $sth = UdoitDB::prepare("
-            INSERT INTO job_queue
+            INSERT INTO {$db_job_queue_table}
                 (user_id, job_group, job_type, data, status)
             VALUES
-                (:user_id, :job_group, :job_type, :data, 'new')"
-        );
+                (:user_id, :job_group, :job_type, :data, 'new')");
 
         $sth->bindValue(':user_id', $user_id);
         $sth->bindValue(':job_group', $group_id);
@@ -30,7 +30,8 @@ class UdoitJob
 
     public static function countJobsRemaining()
     {
-        $sql = "SELECT COUNT(*) FROM job_queue WHERE status = 'new'";
+        global $db_job_queue_table;
+        $sql = "SELECT COUNT(*) FROM {$db_job_queue_table} WHERE status = 'new'";
         $query = UdoitDB::query($sql);
 
         return $query ? (int) $query->fetchColumn() : 0;
@@ -72,15 +73,16 @@ class UdoitJob
     public static function expireOldJobs()
     {
         global $background_job_expire_time;
+        global $db_job_queue_table;
         $time = 20;
         switch (UdoitDB::$type) {
             case 'pgsql':
             case 'mysql':
-                $sql = "UPDATE job_queue SET status = 'expired' WHERE date_created < (now() - INTERVAL {$background_job_expire_time} MINUTE)";
+                $sql = "UPDATE {$db_job_queue_table} SET status = 'expired' WHERE date_created < (now() - INTERVAL {$background_job_expire_time} MINUTE)";
                 break;
 
             case 'test':
-                $sql = "UPDATE job_queue SET status = 'expired' WHERE date_created < datetime('now', '-{$background_job_expire_time} minutes')";
+                $sql = "UPDATE {$db_job_queue_table} SET status = 'expired' WHERE date_created < datetime('now', '-{$background_job_expire_time} minutes')";
                 break;
         }
 
@@ -89,9 +91,10 @@ class UdoitJob
 
     public static function isJobGroupReadyToFinalize($groupId)
     {
+        global $db_job_queue_table;
         $sql = "
         SELECT count(*)
-        FROM job_queue
+        FROM {$db_job_queue_table}
         WHERE
             status NOT IN ('finished', 'error')
             and job_group = :group_id";
@@ -111,6 +114,8 @@ class UdoitJob
     protected static function finalizeReport($job_group, $job_data)
     {
         global $logger;
+        global $db_reports_table;
+        global $db_job_queue_table;
         $logger->addInfo("Finalizing Report job_group: {$job_group}");
         $report = static::combineJobResults($job_group);
 
@@ -119,7 +124,6 @@ class UdoitJob
         $report['course_id'] = $job_data['course_id'];
 
         // create a record of the report
-        global $db_reports_table;
         $sql = "
             INSERT INTO {$db_reports_table}
                 (user_id, course_id, report_json, errors, suggestions)
@@ -151,7 +155,7 @@ class UdoitJob
         }
 
         // set the report_id column for all the jobs in the group
-        $sql = "UPDATE job_queue SET report_id = :report_id WHERE job_group = :job_group";
+        $sql = "UPDATE {$db_job_queue_table} SET report_id = :report_id WHERE job_group = :job_group";
         $sth = UdoitDB::prepare($sql);
         $sth->bindValue(':report_id', $report_id);
         $sth->bindValue(':job_group', $job_group);
@@ -168,6 +172,7 @@ class UdoitJob
     protected static function combineJobResults($job_group)
     {
         global $logger;
+        global $db_job_queue_table;
         $totals = ['errors' => 0, 'warnings' => 0, 'suggestions' => 0];
         $unscannables_items = [];
         $content = [];
@@ -175,7 +180,7 @@ class UdoitJob
         $suggestion_summary = [];
 
         // combine the data from each job's results
-        $sql = "SELECT * FROM job_queue WHERE job_group = '{$job_group}'";
+        $sql = "SELECT * FROM {$db_job_queue_table} WHERE job_group = '{$job_group}'";
         $jobs = UdoitDB::query($sql)->fetchAll();
         foreach ($jobs as $job) {
             $results = json_decode($job['results'], true);
@@ -249,9 +254,10 @@ class UdoitJob
         // it's important that this claims the next job, not allowing other processes to grab it.
         // we LOCK this row using 'FOR UPDATE' then update it's status so other queries don't find it
         global $logger;
+        global $db_job_queue_table;
 
         UdoitDB::beginTransaction();
-        $sql = "SELECT * FROM job_queue WHERE status = 'new' ORDER BY id";
+        $sql = "SELECT * FROM {$db_job_queue_table} WHERE status = 'new' ORDER BY id";
 
         // MySQL and Postgres are strict about the order, but are opposite of each other
         switch (UdoitDB::$type) {
@@ -274,7 +280,7 @@ class UdoitJob
         }
 
         $job = $query->fetchObject();
-        $sql = "UPDATE job_queue SET status = 'running' WHERE id = '{$job->id}' AND status = 'new'";
+        $sql = "UPDATE {$db_job_queue_table} SET status = 'running' WHERE id = '{$job->id}' AND status = 'new'";
         UdoitDB::query($sql);
         UdoitDB::commit();
 
@@ -283,7 +289,8 @@ class UdoitJob
 
     protected static function finishJobWithResults($job_id, $result)
     {
-        $sql = "UPDATE job_queue SET status = :status, results = :results, date_completed = CURRENT_TIMESTAMP WHERE id = :job_id";
+        global $db_job_queue_table;
+        $sql = "UPDATE {$db_job_queue_table} SET status = :status, results = :results, date_completed = CURRENT_TIMESTAMP WHERE id = :job_id";
         $sth = UdoitDB::prepare($sql);
         $sth->bindValue(':job_id', $job_id);
         $sth->bindValue(':status', 'finished');
@@ -293,7 +300,8 @@ class UdoitJob
 
     protected static function updateJobStatus($job, $status)
     {
-        $sql = "UPDATE job_queue SET status = '{$status}' WHERE id = {$job->id}";
+        global $db_job_queue_table;
+        $sql = "UPDATE {$db_job_queue_table} SET status = '{$status}' WHERE id = {$job->id}";
         UdoitDB::query($sql);
     }
 }

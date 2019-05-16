@@ -35,15 +35,20 @@ define('VIMEO_API_KEY', '');
 define('GA_TRACKING_CODE', '');
 
 /* Database Config */
-$db_type          = 'mysql'; // 'mysql' or 'pgsql'
-$db_host          = ''; // localhost or some other domain/ip
-$db_port          = '3306';
-$db_user          = '';
-$db_password      = '';
-$db_name          = '';
-$db_user_table    = 'users';
-$db_reports_table = 'reports';
-$dsn              = "{$db_type}:host={$db_host};port={$db_port};dbname={$db_name}";
+$db_type            = 'mysql'; // 'mysql' or 'pgsql'
+$db_host            = ''; // localhost or some other domain/ip
+$db_port            = '3306';
+$db_user            = '';
+$db_password        = '';
+$db_name            = '';
+$db_user_table      = 'users';
+$db_reports_table   = 'reports';
+$db_job_queue_table = 'job_queue';
+
+$dsn                = "{$db_type}:host={$db_host};port={$db_port};dbname={$db_name}";
+
+/* Add key/value options to passed directly to the PDO object */
+$db_options = [];
 
 $debug = false;
 
@@ -66,3 +71,17 @@ $background_worker_sleep_seconds = 7;
 // For use while developing with self-signed SSL Certificates
 // Sets CURLOPT_SSL_VERIFYPEER and CURLOPT_SSL_VERIFYHOST
 $curl_ssl_verify = true; // This should be true for production environments
+
+
+/* Admin Panel
+ *
+ * True adds a Admin Navigation placement to the XML. Allows for generating
+ * statistics about usage of UDOIT. Also allows for user administration.
+ *
+ * False disables access and removes block from XML. Use this setting if you
+ * are in a multitenant environment, as the 2.5.0 release of UDOIT does not
+ * separate data between instances of Canvas.
+ *
+ * Default false
+ */
+$admin_panel_enabled = false;

@@ -29,10 +29,16 @@ class PDOMock extends \PDO
     public $statements = [];
     public $query_returns_data = false;
     public static $next_fetch_return = null;
+    private $force_fail = false;
 
     public function __construct()
     {
         $this->constructor_args = func_get_args();
+    }
+
+    public function setForceFail($value = false)
+    {
+        $this->force_fail = (is_bool($value) ? $value : false);
     }
 
     public function query()
@@ -69,7 +75,7 @@ class PDOMock extends \PDO
 
     protected function _newStatement()
     {
-        $stmt = new PDOStatementMock();
+        $stmt = new PDOStatementMock($this->force_fail);
         $this->statements[] = $stmt;
 
         return $stmt;

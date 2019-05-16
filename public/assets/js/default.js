@@ -144,8 +144,20 @@ function loadScanResults(reportID){
 	});
 }
 
+function stripScripts(origString) {
+	let div = document.createElement('div');
+	div.innerHTML = origString;
+	let scripts = div.getElementsByTagName('script');
+	let i = scripts.length;
+	while (i--) {
+		scripts[i].parentNode.removeChild(scripts[i]);
+	}
+	return div.innerHTML;
+}
+
 function displayScanResults(results) {
 	//show results
+	results = stripScripts(results);
 	$('#scanner').append(`<section id="result">${results}</section>`);
 	killButton(function() {
 		$('#result').fadeIn();
@@ -267,18 +279,6 @@ function ufixitCssTextHasContrast( $issueContainer ) {
 	});
 }
 
-// resize containing iframe height
-function resizeFrame(){
-	var default_height = $('body').height() + 50;
-    default_height = default_height > 500 ? default_height : 500;
-
-    // IE 8 & 9 only support string data, so send objects as string
-    parent.postMessage(JSON.stringify({
-      subject: "lti.frameResize",
-      height: default_height
-    }), "*");
-}
-
 // update iframe height on resize
 $doc.on('resize', function(){
 	resizeFrame();
@@ -384,7 +384,7 @@ $doc.ready(function() {
 			tmpElement = $vidiframe.detach();
 			tmpElement.appendTo($error.find('div.more-info .error-preview'));
 		}
-		
+
 		$error.find('p.manual-notification').first().removeClass('hidden');
 		$error.find('a.viewError').removeClass('hidden');
 		$error.find('a.viewError').focus();
@@ -424,6 +424,12 @@ $doc.ready(function() {
 		var msg = event.target.parentElement.querySelector('.toolmessage');
 		$(msg).stop().fadeOut();
 	});
+
+	// make decorative button
+	$doc.on('click', '.makedeco', function() {
+		$(this).parent().parent().parent().find('.form-control').prop('disabled', $(this).is(':checked'));
+	});
+	// END make decorative button
 
 	// the "U FIX IT" button
 	$doc.on('click', '#scanner button.fix-this', function() {
@@ -479,16 +485,20 @@ $doc.ready(function() {
 			}
 		}
 
-		if (type == "imgAltIsDifferent" || type == "imgAltIsTooLong" || type == "imgHasAlt" || type == "imgNonDecorativeHasAlt") {
+		if (type == "imgAltIsDifferent" || type == "imgAltIsTooLong" || type == "imgHasAlt" || type == "imgNonDecorativeHasAlt" || type == "imgHasAltDeco") {
 			var $input = $(this).find('input[name="newcontent"]');
 			var $imgSrc = $(this).find('input[name="errorhtml"]');
-			if ($input.val().trim() == ''){
-				valid = false;
-			} else if ($imgSrc.val().indexOf($input.val().trim()) >= 0) {
-				valid = false;
-			} else if ($input.val().match(/jpg|JPG|png|PNG|gif|GIF|jpeg|JPEG$/)) {
-				valid = false;
+			var makeDeco = $(this).find('input[name="makedeco"]').is(':checked');
+			if(!makeDeco) {
+				if ($input.val().trim() == ''){
+					valid = false;
+				} else if ($imgSrc.val().indexOf($input.val().trim()) >= 0) {
+					valid = false;
+				} else if ($input.val().match(/jpg|JPG|png|PNG|gif|GIF|jpeg|JPEG$/)) {
+					valid = false;
+				}
 			}
+
 		}
 
 		if ((type == "aMustContainText" || type == "aSuspiciousLinkText" || type == "aLinkTextDoesNotBeginWithRedundantWord") && !removeLink) {
@@ -747,6 +757,34 @@ $doc.ready(function() {
 			success: function(data) {
 				$('#cached').html(data);
 				resizeFrame();
+
+				let localTime = new Date();
+				// Grab the timezone offset and swap the sign since JS does things backwards
+				let tz = (localTime.getTimezoneOffset()/60)*-1;
+				let tzStr = "";
+				if (tz > 0) {
+					tzStr = " (GMT+" + tz + ")";
+				} else {
+					tzStr = " (GMT" + tz + ")";
+				}
+
+				$("#resultsTable table thead tr th:first-child").append(tzStr);
+
+				// Convert all timestamps to pretty time in local timezone
+				let options = {
+					month: 'long',
+					day: 'numeric',
+					year: 'numeric',
+					hour: 'numeric',
+					minute: 'numeric'
+				};
+
+				$.each($("#resultsTable table tbody td:first-child"), function(key, value){
+					let origString = $(value).text();
+					let origDate = new Date(origString);
+					let newString = origDate.toLocaleDateString("en-us", options);
+					$(value).text(newString);
+				});
 			},
 			error: function() {
 				$('#cached').append(buildAlertString('Error displaying cached reports.'));

@@ -28,18 +28,26 @@ class UdoitDB
     private static $user;
     private static $dsn;
     private static $password;
+    private static $options;
     private static $pdo = null;
     private static $last_test_time = 0;
 
-    public static function setup($db_type, $dsn, $db_user, $db_password)
+    public static function setup($db_type, $dsn, $db_user, $db_password, $db_options = [])
     {
         static::$type = $db_type;
         static::$user = $db_user;
         static::$dsn = $dsn;
         static::$password = $db_password;
+        static::$options = $db_options;
     }
 
-    // acts as a pass through for pdo that checks the connection
+    /**
+     * Acts as a pass through for pdo that checks the connection
+     * @param string $name Name of the method to access from PDO
+     * @param array  $args Arguments for the method
+     *
+     * @return array The results of the PDO call
+     */
     public static function __callStatic($name, $args)
     {
         static::testAndReconnect();
@@ -60,7 +68,12 @@ class UdoitDB
         }
     }
 
-    // runs a very basic query on the db to verify connection status
+    /**
+     * Runs a very basic query on the db to verify connection status
+     * @param boolean $force (Optional) Ignore the expire time and force the check to happen
+     *
+     * @return boolean       Whether the connection is active and valid
+     */
     public static function test($force = false)
     {
         if (empty(static::$pdo)) {
@@ -98,11 +111,13 @@ class UdoitDB
                     break;
 
                 case 'pgsql':
-                    $db = new static::$dbClass(static::$dsn);
+                    $db = new static::$dbClass(static::$dsn, static::$user, static::$password, static::$options);
+                    $db->query("SET TIME ZONE 'UTC'");
                     break;
 
                 case 'mysql':
-                    $db = new static::$dbClass(static::$dsn, static::$user, static::$password);
+                    $db = new static::$dbClass(static::$dsn, static::$user, static::$password, static::$options);
+                    $db->query("SET time_zone = '+00:00'");
                     break;
 
                 default:

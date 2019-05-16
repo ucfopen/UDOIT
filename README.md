@@ -51,7 +51,7 @@ To start the Heroku deployment process, you can click the button below, please n
 
 ## System Requirements
 * Apache or Nginx webserver
-* PHP 5.6, 7.0, 7.1, 7.2
+* PHP 7.1, 7.2 (Not yet compatible with 7.3.  See issue #422)
   * [GD Graphics Library](http://php.net/manual/en/book.image.php)
 * MySQL or PostgreSQL
 
@@ -115,6 +115,7 @@ Edit `config/localConfig.php`:
 * `$db_name` -  The database name that contains the tables
 * `$db_user_table` - Default is 'users', no change needed unless you change the table names
 * `$db_reports_table`: - Default is 'reports', no change needed unless you change the table names
+* `$db_job_queue_table`: - Default is 'job_queue', no change needed unless you change the table names
 
 ### Installing Database Tables
 
@@ -177,6 +178,9 @@ If you do not provide a Vimeo API key, a warning log will be recorded in `config
 
 ### Google Analytics
 If you would like to use Google Analytics for tracking usage of UDOIT, create a new tracking code and add it to `config/localConfig.php` in the `define('GA_TRACKING_CODE', '');` statement.  For example, if your tracking code is `UA-12345678-1`, that line should look like `define('GA_TRACKING_CODE', 'UA-12345678-1');` when you're done.
+
+### Admin Panel
+As of 2.5.0, the admin panel is still an experimental feature.  Consider it a first draft of what we'd like it to be.  It lets you view reports across your institution, generate statistics about reports and user growth, and administer user accounts.  This feature is disabled by default.  To enable it, change `$admin_panel_enabled` to `true`.
 
 ### Installing the LTI in Canvas
 Log into Canvas to add UDOIT:

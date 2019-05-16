@@ -144,7 +144,13 @@ class UdoitUtils
         return isset($resp->body->id);
     }
 
-    // Abstracts retrieving the refresh token from the database for the current user
+    /**
+     * Abstracts retrieving the refresh token from the database for the current user
+     *
+     * @param int $user_id ID of Canvas user for which to obtain a refresh token
+     *
+     * @return string|boolean The token if successful, and false if unsuccessful
+     */
     public function getRefreshToken($user_id)
     {
         global $db_user_table;
@@ -245,7 +251,13 @@ class UdoitUtils
         return isset($context->valid) && $context->valid;
     }
 
-    // takes an array of report groups and makes sure they are ordered by title
+    /**
+     * Takes an array of report groups and makes sure they are ordered by title
+     *
+     * @param array $report_groups Report groups to sort
+     *
+     * @return array An ordered list of report groups
+     */
     public function sortReportGroups($report_groups)
     {
         global $logger;

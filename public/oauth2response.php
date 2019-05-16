@@ -42,4 +42,10 @@ if (!isset($new_key->access_token) || !isset($new_key->refresh_token)) {
 
 UdoitUtils::instance()->createOrUpdateUser($canvas_user_id, $new_key->access_token, $new_key->refresh_token, $canvas_uri);
 
-header('Location: scanner.php');
+if ($_SESSION['destination'] === 'admin') {
+    $redirect_to = 'admin.php';
+} elseif ($_SESSION['destination'] === 'scanner') {
+    $redirect_to = 'scanner.php';
+}
+
+header("Location: {$redirect_to}");

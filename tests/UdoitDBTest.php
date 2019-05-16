@@ -39,12 +39,13 @@ class UdoitDBTest extends BaseTest
 
     public function testMysqlSetup()
     {
-        UdoitDB::setup('mysql', 'b', 'c', 'd');
+        UdoitDB::setup('mysql', 'b', 'c', 'd', ['a' => 'b']);
 
         self::assertEquals('mysql', self::getPrivateStaticPropertyValue('UdoitDB', 'type'));
         self::assertEquals('b', self::getPrivateStaticPropertyValue('UdoitDB', 'dsn'));
         self::assertEquals('c', self::getPrivateStaticPropertyValue('UdoitDB', 'user'));
         self::assertEquals('d', self::getPrivateStaticPropertyValue('UdoitDB', 'password'));
+        self::assertEquals(['a' => 'b'], self::getPrivateStaticPropertyValue('UdoitDB', 'options'));
     }
 
     public function testPsqlSetup()
@@ -59,11 +60,11 @@ class UdoitDBTest extends BaseTest
 
     public function testConnectMysql()
     {
-        UdoitDB::setup('mysql', 'b', 'c', 'd');
+        UdoitDB::setup('mysql', 'b', 'c', 'd', ['a' => 'b']);
         UdoitDB::testAndReconnect();
         $pdo = self::getPrivateStaticPropertyValue('UdoitDB', 'pdo');
-        self::assertInstanceOf(PDOMock, $pdo);
-        self::assertArraySubset(['b', 'c', 'd'], $pdo->constructor_args);
+        self::assertInstanceOf('PDOMock', $pdo);
+        self::assertArraySubset(['b', 'c', 'd', ['a' => 'b']], $pdo->constructor_args);
     }
 
     public function testConnectPgsql()
@@ -71,7 +72,7 @@ class UdoitDBTest extends BaseTest
         UdoitDB::setup('pgsql', 'b', 'c', 'd');
         UdoitDB::testAndReconnect();
         $pdo = self::getPrivateStaticPropertyValue('UdoitDB', 'pdo');
-        self::assertInstanceOf(PDOMock, $pdo);
+        self::assertInstanceOf('PDOMock', $pdo);
         self::assertArraySubset(['b'], $pdo->constructor_args);
     }
 
@@ -79,7 +80,7 @@ class UdoitDBTest extends BaseTest
     {
         UdoitDB::setup('mysql', 'b', 'c', 'd');
         UdoitDB::testAndReconnect();
-        self::assertInstanceOf(PDOMock, self::getPrivateStaticPropertyValue('UdoitDB', 'pdo'));
+        self::assertInstanceOf('PDOMock', self::getPrivateStaticPropertyValue('UdoitDB', 'pdo'));
         UdoitDB::disconnect();
         self::assertNull(self::getPrivateStaticPropertyValue('UdoitDB', 'pdo'));
     }
@@ -97,7 +98,7 @@ class UdoitDBTest extends BaseTest
 
         self::assertTrue(UdoitDB::test());
         $pdo = self::getPrivateStaticPropertyValue('UdoitDB', 'pdo');
-        self::assertEmpty($pdo->query_calls);
+        self::assertCount(1, $pdo->query_calls);
     }
 
     public function testConnectionTestWithConnectionBeforeTimeoutWithForceOnDoesRunQuery()
@@ -107,7 +108,7 @@ class UdoitDBTest extends BaseTest
 
         self::assertTrue(UdoitDB::test(true));
         $pdo = self::getPrivateStaticPropertyValue('UdoitDB', 'pdo');
-        self::assertCount(1, $pdo->query_calls);
+        self::assertCount(2, $pdo->query_calls);
     }
 
     public function testConnectionTestWithConnectionAfterTimeoutDoesRunQuery()
@@ -118,7 +119,7 @@ class UdoitDBTest extends BaseTest
 
         self::assertTrue(UdoitDB::test());
         $pdo = self::getPrivateStaticPropertyValue('UdoitDB', 'pdo');
-        self::assertCount(1, $pdo->query_calls);
+        self::assertCount(2, $pdo->query_calls);
     }
 
     public function testPDOPassThroughCallsPDOFunction()
@@ -128,7 +129,7 @@ class UdoitDBTest extends BaseTest
 
         UdoitDB::query('QUERY VALUE HERE');
         $pdo = self::getPrivateStaticPropertyValue('UdoitDB', 'pdo');
-        self::assertEquals('QUERY VALUE HERE', $pdo->query_calls[0][0]);
+        self::assertEquals('QUERY VALUE HERE', $pdo->query_calls[1][0]);
     }
 
     public function testPDOPassThroughWillReconnect()
