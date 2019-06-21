@@ -48,14 +48,22 @@ echo('<?xml version="1.0" encoding="UTF-8"?>');
 		<lticm:property name="domain"><?= $_SERVER['SERVER_NAME'] ?></lticm:property>
 		<lticm:options name="custom_fields">
 			<lticm:property name="canvas_api_domain">$Canvas.api.domain</lticm:property>
+			<lticm:property name="canvas_root_account_id">$Canvas.rootAccount.id</lticm:property>
 		</lticm:options>
 		<lticm:options name="course_navigation">
-			<lticm:property name="url"><?= $launch ?></lticm:property>
+			<lticm:property name="url"><?= $launch ?>?d=scanner</lticm:property>
 			<lticm:property name="default">enabled</lticm:property>
 			<lticm:property name="visibility">admins</lticm:property>
 			<lticm:property name="text"><?= $canvas_nav_item_name ? $canvas_nav_item_name : 'UDOIT' ?></lticm:property>
 			<lticm:property name="enabled">true</lticm:property>
 		</lticm:options>
+<?php if ($admin_panel_enabled): ?>
+		<lticm:options name="account_navigation">
+			<lticm:property name="enabled">true</lticm:property>
+			<lticm:property name="url"><?= $launch ?>?d=admin</lticm:property>
+			<lticm:property name="text"><?= $canvas_nav_item_name ? $canvas_nav_item_name : 'UDOIT' ?> Admin</lticm:property>
+		</lticm:options>
+<?php endif; ?>
 	</blti:extensions>
 	<cartridge_bundle identifierref="BLTI001_Bundle"/>
 	<cartridge_icon identifierref="BLTI001_Icon"/>

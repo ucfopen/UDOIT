@@ -17,8 +17,6 @@
 *
 *   Primary Author Contact:  Jacob Bates <jacob.bates@ucf.edu>
 */
-require_once(__DIR__.'/../vendor/autoload.php');
-require_once(__DIR__.'/quail/quail/quail.php');
 
 use Httpful\Request;
 use zz\Html\HTMLMinify;
@@ -29,7 +27,7 @@ class Ufixit
      * Array of annoying characters to filter out of strings
      * @var array
      */
-    public $annoying_entities = ["\r", "&nbsp;", "&amp;", "%2F", "%22"];
+    public $annoying_entities = ["\r", "&nbsp;", "&amp;", "%2F", "%22", "&lt;", "&gt;", "&quot;", "&lsquo;", "&rsquo;", "&sbquo;", "&ldquo;", "&rdquo;", "&bdquo;"];
 
     /**
      * The API key needed to communicate with Canvas
@@ -71,7 +69,7 @@ class Ufixit
      * Array of replacements for the annoying entities
      * @var array
      */
-    public $entity_replacements = ["", " ", "&", "/", ""];
+    public $entity_replacements = ["", " ", "&", "/", "", "<", ">", "\"", "‘", "’", "‚", "“", "”", "„"];
 
     /**
      * A file pointer
@@ -81,7 +79,7 @@ class Ufixit
 
     /**
      * How many times str_replace should do the job
-     * @var integer
+     * @var int
      */
     public $replacement_count = 1;
 
@@ -100,60 +98,72 @@ class Ufixit
 
     /**
      * Fixes alt text for images
-     * @param string $error_html     - The bad html that needs to be fixed
-     * @param string $new_content    - The new content from the user
-     * @param bool $submitting_again - If the user is resubmitting their error fix
-     * @return string $fixed_img     - The image with new alt text
+     * @param string $error_html       The bad html that needs to be fixed
+     * @param string $new_content      The new content from the user
+     * @param bool   $make_decorative  If the image should be marked as decorative
+     * @param bool   $submitting_again If the user is resubmitting their error fix
+     *
+     * @return string $fixed_img       The image with new alt text
      */
-    public function fixAltText($error_html, $new_content, $submitting_again = false)
+    public function fixAltText($error_html, $new_content, $make_decorative, $submitting_again = false)
     {
-        $this->dom->loadHTML('<?xml encoding="utf-8" ?>' . $error_html);
+        $this->dom->loadHTML("<?xml encoding=\"utf-8\" ?>{$error_html}");
 
         $imgs = $this->dom->getElementsByTagName('img');
         $fixed_img = null;
 
         foreach ($imgs as $img) {
             $img->setAttribute('alt', $new_content);
+            if ($make_decorative) {
+                $img->setAttribute('data-decorative', 'true');
+            } else {
+                $img->removeAttribute('data-decorative');
+            }
+            $removed_endpoint = $img->removeAttribute('data-api-endpoint');
+            $removed_endpoint = $img->removeAttribute('data-api-returntype');
             $fixed_img = $this->dom->saveHTML($img);
         }
-
-        $remove_attr = preg_replace("/ data-api-endpoint.+?>/", "", $fixed_img);
-        $fixed_img = $remove_attr;
 
         return $fixed_img;
     }
 
     /**
      * Fixes CSS contrast errors
-     * @param array $error_colors       - The color(s) that need to be replaced
-     * @param string $error_html        - The bad html that needs to be fixed
-     * @param string|array $new_content - The new CSS color(s) from the user
-     * @param bool $bold                - Boolean whether resulting text should be stylized bold
-     * @param bool $italic              - Boolean whether resulting text should be stylized italicised
-     * @param bool $submitting_again    - If the user is resubmitting their error fix
-     * @return string $fixed_css        - The html with corrected CSS
+     * @param string       $error_html       The bad html that needs to be fixed
+     * @param string|array $new_content      The new CSS color(s) from the user
+     * @param bool         $bold             Boolean whether resulting text should be stylized bold
+     * @param bool         $italic           Boolean whether resulting text should be stylized italicised
+     * @param bool         $submitting_again If the user is resubmitting their error fix
+     *
+     * @return string $fixed_css             The html with corrected CSS
      */
-    public function fixCssColor($error_colors, $error_html, $new_content, $bold, $italic, $submitting_again = false)
+    public function fixCssColor($error_html, $new_content, $bold, $italic, $submitting_again = false)
     {
         preg_match_all('/<(\w+)\s+\w+.*?>/s', $error_html, $matches);
 
         $fixed_css = $error_html;
 
-        for ($i = 0; $i < count($error_colors); $i++) {
-            $fixed_css = str_replace($error_colors[$i], $new_content[$i], $fixed_css);
-        }
+        $fixed_css = preg_replace('/background:\s*([#a-z0-9]*)\s*;*\s*/', '', $fixed_css);
+        $fixed_css = preg_replace('/background-color:\s*([#a-z0-9]*)\s*;*\s*/', '', $fixed_css);
+        $fixed_css = preg_replace('/color:\s*([#a-z0-9]*)\s*;*\s*/', '', $fixed_css);
+        $fixed_css = preg_replace('/font-weight:\s*([a-z0-9]*)\s*;*\s*/', '', $fixed_css);
+        $fixed_css = preg_replace('/font-style:\s*([a-z0-9]*)\s*;*\s*/', '', $fixed_css);
+        $fixed_css = preg_replace('/style="/', 'style="background-color: '.$new_content[0].'; color: '.$new_content[1].';', $fixed_css);
 
-        $this->dom->loadHTML('<?xml encoding="utf-8" ?>' . $fixed_css );
+        $this->dom->loadHTML('<?xml encoding="utf-8" ?>'.$fixed_css);
 
-        $tag = $this->dom->getElementsByTagName( $matches[1][0] )->item(0);
+        $tag = $this->dom->getElementsByTagName($matches[1][0])->item(0);
 
         if ($bold) {
             $tag->setAttribute('style', $tag->getAttribute('style').' font-weight: bold;');
-
+        } else {
+            $tag->setAttribute('style', $tag->getAttribute('style').' font-weight: normal;');
         }
 
         if ($italic) {
             $tag->setAttribute('style', $tag->getAttribute('style').' font-style: italic;');
+        } else {
+            $tag->setAttribute('style', $tag->getAttribute('style').' font-style: normal;');
         }
 
         $fixed_css = $this->dom->saveHTML($tag);
@@ -161,30 +171,42 @@ class Ufixit
         return $fixed_css;
     }
 
-        /**
+    /**
      * Adds font styles to colored text for emphasis
-     * @param string $error_html        - The bad html that needs to be fixed
-     * @param string|array $new_content - The new CSS color(s) from the user
-     * @param bool $bold                - Boolean whether resulting text should be stylized bold
-     * @param bool $italic              - Boolean whether resulting text should be stylized italicised
-     * @param bool $submitting_again    - If the user is resubmitting their error fix
-     * @return string $fixed_css        - The html with corrected CSS
+     * @param string $error_html       The bad html that needs to be fixed
+     * @param bool   $bold             Whether resulting text should be stylized bold
+     * @param bool   $italic           Whether resulting text should be stylized italicised
+     * @param bool   $remove_color     Whether the foreground and background colors should be stripped
+     * @param bool   $submitting_again If the user is resubmitting their error fix
+     *
+     * @return string $fixed_css             The html with corrected CSS
      */
-    public function fixCssEmphasize($error_html, $new_content, $bold, $italic, $submitting_again = false)
+    public function fixCssEmphasize($error_html, $bold, $italic, $remove_color, $submitting_again = false)
     {
         preg_match_all('/<(\w+)\s+\w+.*?>/s', $error_html, $matches);
 
-        $this->dom->loadHTML('<?xml encoding="utf-8" ?>' . $error_html );
+        $fixed_css = $error_html;
 
-        $tag = $this->dom->getElementsByTagName( $matches[1][0] )->item(0);
+        if ($remove_color) {
+            $fixed_css = preg_replace('/background:\s*([#a-z0-9]*)\s*;*\s*/', '', $fixed_css);
+            $fixed_css = preg_replace('/background-color:\s*([#a-z0-9]*)\s*;*\s*/', '', $fixed_css);
+            $fixed_css = preg_replace('/color:\s*([#a-z0-9]*)\s*;*\s*/', '', $fixed_css);
+        }
+
+        $this->dom->loadHTML('<?xml encoding="utf-8" ?>'.$fixed_css);
+
+        $tag = $this->dom->getElementsByTagName($matches[1][0])->item(0);
 
         if ($bold) {
             $tag->setAttribute('style', $tag->getAttribute('style').' font-weight: bold;');
-
+        } else {
+            $tag->setAttribute('style', $tag->getAttribute('style').' font-weight: normal;');
         }
 
         if ($italic) {
             $tag->setAttribute('style', $tag->getAttribute('style').' font-style: italic;');
+        } else {
+            $tag->setAttribute('style', $tag->getAttribute('style').' font-style: normal;');
         }
 
         $fixed_css = $this->dom->saveHTML($tag);
@@ -192,25 +214,26 @@ class Ufixit
         return $fixed_css;
     }
 
-       /**
+    /**
      * Fixes Empty HTML Links
-     * @param string $error_html        - The bad html that needs to be fixed
-     * @param string|array $new_content - The new Heading text from the user
-     * @param bool $submitting_again    - If the user is resubmitting their error fix
-     * @return string $fixed_css        - The html with corrected Link
+     * @param string       $error_html       The bad html that needs to be fixed
+     * @param string|array $new_content      The new Heading text from the user
+     * @param bool         $submitting_again If the user is resubmitting their error fix
+     *
+     * @return string $fixed_css             The html with corrected Link
      */
     public function fixLink($error_html, $new_content, $submitting_again = false)
     {
         $fixed_link = '';
-        if ($new_content == '') {
+        if ('' === $new_content) {
             return $fixed_link;
         }
 
-        $this->dom->loadHTML('<?xml encoding="utf-8" ?>' . $error_html);
+        $this->dom->loadHTML('<?xml encoding="utf-8" ?>'.$error_html);
 
         $tag = $this->dom->getElementsByTagName('a')->item(0);
 
-        $linkText = $this->dom->createTextNode( htmlspecialchars($new_content) );
+        $linkText = $this->dom->createTextNode(htmlspecialchars($new_content));
 
         $tag->nodeValue = "";
         $tag->appendChild($linkText);
@@ -220,28 +243,29 @@ class Ufixit
         return $fixed_link;
     }
 
-        /**
+    /**
      * Fixes Empty HTML Headers
-     * @param string $error_html        - The bad html that needs to be fixed
-     * @param string|array $new_content - The new Heading text from the user
-     * @param bool $submitting_again    - If the user is resubmitting their error fix
-     * @return string $fixed_heading        - The html with corrected Heading
+     * @param string       $error_html       The bad html that needs to be fixed
+     * @param string|array $new_content      The new Heading text from the user
+     * @param bool         $submitting_again If the user is resubmitting their error fix
+     *
+     * @return string $fixed_heading         The html with corrected Heading
      */
     public function fixHeading($error_html, $new_content, $submitting_again = false)
     {
         $fixed_heading = '';
-        if ($new_content == '') {
+        if ('' === $new_content) {
             return $fixed_heading;
         }
 
-        $matches = array();
+        $matches = [];
         preg_match('/h[0-6]/i', $error_html, $matches);
 
-        $this->dom->loadHTML('<?xml encoding="utf-8" ?>' . $error_html);
+        $this->dom->loadHTML('<?xml encoding="utf-8" ?>'.$error_html);
 
-        $tag = $this->dom->getElementsByTagName( $matches[0] )->item(0);
+        $tag = $this->dom->getElementsByTagName($matches[0])->item(0);
 
-        $headingText = $this->dom->createTextNode( htmlspecialchars($new_content) );
+        $headingText = $this->dom->createTextNode(htmlspecialchars($new_content));
 
         $tag->appendChild($headingText);
 
@@ -277,20 +301,20 @@ class Ufixit
 
     /**
      * Fixes table headers by changing td elements to th (and adding proper scope, of course)
-     * @param  string  $error_html       - The unmodified table without proper headings
-     * @param  string  $selected_header  - The selected table row or column
-     * @param  boolean $submitting_again - If the user is resubmitting their error fix
-     * @return array   $new_data         - Array of the corrected error and the original table row/column
+     * @param string  $error_html       The unmodified table without proper headings
+     * @param string  $selected_header  The selected table row or column
+     * @param boolean $submitting_again If the user is resubmitting their error fix
+     *
+     * @return array $new_data          Array of the corrected error and the original table row/column
      */
     public function fixTableHeaders($error_html, $selected_header, $submitting_again = false)
     {
-
         $new_data = [
             'old'   => '',
-            'fixed' => ''
+            'fixed' => '',
         ];
 
-        $this->dom->loadHTML('<?xml encoding="utf-8" ?>' . $error_html);
+        $this->dom->loadHTML('<?xml encoding="utf-8" ?>'.$error_html);
 
         switch ($selected_header) {
             case 'col':
@@ -308,8 +332,8 @@ class Ufixit
 
                     $new_data['fixed'] .= $this->dom->saveHTML($tr);
                 }
-
                 break;
+
             case 'row':
                 $tr              = $this->dom->getElementsByTagName('tr')->item(0);
                 $new_data['old'] = $this->dom->saveHTML($tr);
@@ -325,8 +349,8 @@ class Ufixit
                 }
 
                 $new_data['fixed'] = $this->dom->saveHTML($tr);
-
                 break;
+
             case 'both':
                 $first = true;
                 $trs   = $this->dom->getElementsByTagName('tr');
@@ -369,14 +393,15 @@ class Ufixit
 
     /**
      * Fixes table th scope errors
-     * @param string $error_html     - The color(s) that need to be replaced
-     * @param string $new_content    - The new CSS color(s) from the user
-     * @param bool $submitting_again - If the user is resubmitting their error fix
-     * @return string $fixed_ths     - The html with corrected th scopes
+     * @param string $error_html       The color(s) that need to be replaced
+     * @param string $new_content      The new CSS color(s) from the user
+     * @param bool   $submitting_again If the user is resubmitting their error fix
+     *
+     * @return string $fixed_th        The html with corrected th scopes
      */
     public function fixTableThScopes($error_html, $new_content, $submitting_again = false)
     {
-        $this->dom->loadHTML('<?xml encoding="utf-8" ?>' . $error_html);
+        $this->dom->loadHTML('<?xml encoding="utf-8" ?>'.$error_html);
 
         $ths = $this->dom->getElementsByTagName('th');
 
@@ -390,7 +415,9 @@ class Ufixit
 
     /**
      * We need to get files from a course first before we can modify them
-     * @return [type] [description]
+     * @param int $start_id The ID of the folder to grab
+     *
+     * @return object|boolean The file or false on error
      */
     public function getFile($start_id)
     {
@@ -400,7 +427,7 @@ class Ufixit
         $folder      = Request::get($folder_uri)->send();
         $curled_file = [];
 
-        if ($start_id == "root") {
+        if ("root" === $start_id) {
             $start_id = $folder->body->id;
         }
 
@@ -422,7 +449,7 @@ class Ufixit
                 foreach ($files->body as $file) {
                     $mac_check = (substr($file->display_name, 0, 2)); // Don't capture mac files, ._
 
-                    if ($mac_check !== "._" and $file->id == $this->content_id) {
+                    if ("._" !== $mac_check and $this->content_id == $file->id) {
                         $curled_file['id'] = $file->id;
                         $curled_file['name'] = $file->display_name;
                         $curled_file['parent_folder_path'] = $folder_name;
@@ -434,17 +461,14 @@ class Ufixit
 
                 $page_num++;
             }
-
         } //if there are files in the current folder
 
         if ($num_folders > 0) {
             $subfolders = Request::get($this->base_uri."/api/v1/folders/".$start_id."/folders?access_token=".$this->api_key)->send();
 
             foreach ($subfolders->body as $subfolder) {
-                $foo = $this->getFile($subfolder->id);
-
-                if ($foo !== false) {
-                    return $foo;
+                if ($file = $this->getFile($subfolder->id)) {
+                    return $file;
                 }
             }
         } //if there are subfolders
@@ -454,9 +478,10 @@ class Ufixit
 
     /**
      * Renames an element and preserves its attributes
-     * @param  object $node - The DOMElement object you wish to rename
-     * @param  string $name - The new name for the element
-     * @return object       - The renamed DOMElement
+     * @param object $node The DOMElement object you wish to rename
+     * @param string $name The new name for the element
+     *
+     * @return object      The renamed DOMElement
      */
     public function renameElement($node, $name)
     {
@@ -476,9 +501,11 @@ class Ufixit
             $attribute = $attributes->item(0);
 
             if (!is_null($attribute->namespaceURI)) {
-                $renamed->setAttributeNS('http://www.w3.org/2000/xmlns/',
-                                         'xmlns:'.$attribute->prefix,
-                                         $attribute->namespaceURI);
+                $renamed->setAttributeNS(
+                    'http://www.w3.org/2000/xmlns/',
+                    'xmlns:'.$attribute->prefix,
+                    $attribute->namespaceURI
+                );
             }
 
             $renamed->setAttributeNode($attribute);
@@ -491,10 +518,11 @@ class Ufixit
 
      /**
      * Replaces problematic content in html with resolved html
-     * @param  string $html      - html from page being edited
-     * @param  string $error     - original html of error being fixed
-     * @param  string $corrected - resulting html or error after fix
-     * @return string $html      - html after corrected html has replaced error html
+     * @param string $html      html from page being edited
+     * @param string $error     original html of error being fixed
+     * @param string $corrected resulting html or error after fix
+     *
+     * @return string $html     html after corrected html has replaced error html
      */
     public function replaceContent($html, $error, $corrected)
     {
@@ -508,8 +536,8 @@ class Ufixit
 
     /**
      * Uploads fixed assignments
-     * @param string $corrected_error - The html that has been fixed
-     * @param string $error_html      - The html to be fixed
+     * @param string $corrected_error The html that has been fixed
+     * @param string $error_html      The html to be fixed
      */
     public function uploadFixedAssignments($corrected_error, $error_html)
     {
@@ -525,8 +553,8 @@ class Ufixit
 
     /**
      * Uploads fixed discussions (announcements are also discussions)
-     * @param string $corrected_error - The html that has been fixed
-     * @param string $error_html      - The html to be fixed
+     * @param string $corrected_error The html that has been fixed
+     * @param string $error_html      The html to be fixed
      */
     public function uploadFixedDiscussions($corrected_error, $error_html)
     {
@@ -541,10 +569,11 @@ class Ufixit
     }
 
     /**
-     * [uploadFixedFiles description]
-     * @param  [type] $corrected_error    [description]
-     * @param  [type] $error_html         [description]
-     * @return [type]                     [description]
+     * Uploads fixed files to the course
+     * @param string $corrected_error The html that has been fixed
+     * @param string $error_html      The html to be fixed
+     *
+     * @return array                  The ID and URL of the resulting file
      */
     public function uploadFixedFiles($corrected_error, $error_html)
     {
@@ -576,7 +605,7 @@ class Ufixit
             'size'               => filesize($file),
             'content_type'       => "text/html",
             'parent_folder_path' => $this->curled_file['parent_folder_path'],
-            'on_duplicate'       => "overwrite"
+            'on_duplicate'       => "overwrite",
         ];
 
         $uri = $this->base_uri."/api/v1/courses/".$this->course_id."/files?&access_token=".$this->api_key;
@@ -587,7 +616,7 @@ class Ufixit
         $upload_uri = $response->upload_url;
 
         //send everything again
-        $post_data = (array)$response->upload_params;
+        $post_data = (array) $response->upload_params;
 
         $f = fopen($file, "r");
         $post_data['file'] = fread($f, filesize($file));
@@ -598,7 +627,7 @@ class Ufixit
         preg_match('/Location\: (.*)\\n/', $response->raw_headers, $matches);
 
         //error
-        if ( ! isset($matches[1])) {
+        if (!isset($matches[1])) {
             error_log(print_r($response, true));
         }
 
@@ -622,16 +651,15 @@ class Ufixit
 
     /**
      * Uploads fixed pages
-     * @param string $corrected_error - The html that has been fixed
-     * @param string $error_html      - The html to be fixed
+     * @param string $corrected_error The html that has been fixed
+     * @param string $error_html      The html to be fixed
      */
     public function uploadFixedPages($corrected_error, $error_html)
     {
         // get the current page content
         $get_uri = "{$this->base_uri}/api/v1/courses/{$this->course_id}/pages/{$this->content_id}?access_token={$this->api_key}";
         $page_resp = Request::get($get_uri)->send();
-        if($page_resp->hasErrors() || ! $page_resp->hasBody())
-        {
+        if ($page_resp->hasErrors() || !$page_resp->hasBody()) {
             throw new \Exception("Error getting page to update: course: {$this->course_id} page: {$this->content_id}");
         }
 
@@ -641,16 +669,15 @@ class Ufixit
         $put_uri  = "{$this->base_uri}/api/v1/courses/{$this->course_id}/pages/{$this->content_id}?&access_token={$this->api_key}";
         $put_resp = Request::put($put_uri)->body(['wiki_page[body]' => $html])->sendsType(\Httpful\Mime::FORM)->send();
 
-        if($put_resp->hasErrors() || ! $put_resp->hasBody())
-        {
+        if ($put_resp->hasErrors() || !$put_resp->hasBody()) {
             throw new \Exception("Error updating: course: {$this->course_id} page: {$this->content_id}");
         }
     }
 
     /**
      * Uploads the fixed course syllabus
-     * @param string $corrected_error - The html that has been fixed
-     * @param string $error_html      - The html to be fixed
+     * @param string $corrected_error The html that has been fixed
+     * @param string $error_html      The html to be fixed
      */
     public function uploadFixedSyllabus($corrected_error, $error_html)
     {
