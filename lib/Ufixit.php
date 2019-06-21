@@ -277,15 +277,15 @@ class Ufixit
         /**
      * Makes stylized p elements into headings
      * @param string       $error_html       - The bad html that needs to be fixed
-     * @param string|array      $new_content - The chosen heading level from the user
+     * @param string|array $new_content      - The chosen heading level from the user
      * @param bool         $submitting_again - If the user is resubmitting their error fix
      *
-     * @return string $fixed_heading        - The html with corrected Heading
+     * @return string $fixed_heading         - The html with corrected Heading
      */
     public function makeHeading($error_html, $new_content, $submitting_again = false)
     {
         $fixed_heading = '';
-        if ($new_content == '') {
+        if ('' == $new_content) {
             return $fixed_heading;
         }
 
