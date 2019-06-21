@@ -114,20 +114,25 @@
 													case "aLinkTextDoesNotBeginWithRedundantWord":
 														$result_template = 'link';
 														break;
+
 													case "cssTextStyleEmphasize":
 														$result_template = 'text_style';
 														break;
+
 													case "cssTextHasContrast":
 														$result_template = 'contrast';
 														break;
+
 													case "headersHaveText":
 														$result_template = 'header_text';
 														break;
+
 													case "aMustContainText":
 													case "aSuspiciousLinkText":
 													case "aLinkTextDoesNotBeginWithRedundantWord":
 														$result_template = 'link_text';
 														break;
+
 													case "imgHasAlt":
 													case "imgHasAltDeco":
 													case "imgNonDecorativeHasAlt":
@@ -135,16 +140,20 @@
 													case "imgAltIsTooLong":
 														$result_template = 'image_alt';
 														break;
+
 													case "tableDataShouldHaveTh":
 														$result_template = 'table_header';
 														break;
+
 													case "tableThShouldHaveScope":
 														$result_template = 'table_header_scope';
 														break;
+
 													case "aSuspiciousLinkText":
 														$result_template = 'suspicious_link_text';
 														break;
 												}
+
 												if ( ! empty($result_template)) {
 													echo($this->fetch("partials/result_item/{$result_template}", ['group_item' => $group_item, 'item_id' => $li_id]));
 												}

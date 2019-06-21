@@ -18,30 +18,39 @@
 *   Primary Author Contact:  Jacob Bates <jacob.bates@ucf.edu>
 */
 require_once('../config/settings.php');
+
 $get_input = filter_input_array(INPUT_GET, FILTER_SANITIZE_STRING);
+
 if (!isset($get_input['path'])) {
     $get_input['path'] = '';
 }
+
 // Load the test report in test/dev mode and no other report is selected
 if (ENV_PROD !== $UDOIT_ENV && !isset($get_input['report_id'])) {
     $get_input['report_id'] = 'TEST'; // TEST is the id of the test report
 }
+
 // @TODO: make sure this user's got a session
 if (!isset($get_input['report_id'])) {
     UdoitUtils::instance()->exitWithPartialError('No report requested');
 }
+
 $sth = UdoitDB::prepare("SELECT * FROM {$db_reports_table} WHERE id = :report_id");
 $sth->bindValue(':report_id', $get_input['report_id'], PDO::PARAM_INT);
+
 if (!$sth->execute()) {
     error_log(print_r($sth->errorInfo(), true));
     UdoitUtils::instance()->exitWithPartialError('Error searching for report');
 }
+
 $report_json = $sth->fetch(PDO::FETCH_OBJ)->report_json;
+
 $report = json_decode($report_json);
 if (empty($report)) {
     $json_error = json_last_error_msg();
     UdoitUtils::instance()->exitWithPartialError("Cannot parse this report. JSON error {$json_error}.");
 }
+
 $ordered_report_groups = UdoitUtils::instance()->sortReportGroups($report->content);
 $results = [
     'course'              => $report->course,
@@ -55,5 +64,6 @@ $results = [
     'fixable_error_types' => ["cssTextHasContrast", "imgNonDecorativeHasAlt", "tableDataShouldHaveTh", "tableThShouldHaveScope", "headersHaveText", "aMustContainText", "imgAltIsDifferent", "imgAltIsTooLong", "imgHasAltDeco"],
     'fixable_suggestions' => ["aSuspiciousLinkText", "imgHasAlt", "aLinkTextDoesNotBeginWithRedundantWord", "cssTextStyleEmphasize"],
 ];
+
 $templates  = new League\Plates\Engine('../templates');
 echo($templates->render('partials/results', $results));

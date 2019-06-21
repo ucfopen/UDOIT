@@ -20,6 +20,7 @@
 class UfixitTest extends BaseTest
 {
     protected $data;
+
     public function setUp()
     {
         $this->data = [
@@ -29,15 +30,18 @@ class UfixitTest extends BaseTest
             'course_id'  => '',
         ];
     }
+
     public function tearDown()
     {
         unset($data);
     }
+
     public function checkOutputBuffer()
     {
         $buffer         = ob_get_clean();
         $this->assertEquals('', $buffer);
     }
+
     public function testFixAltText()
     {
         $error_html     = '<img src="https://webcourses.ucf.edu/courses/1234567/image.jpg" alt="">';
@@ -52,6 +56,7 @@ class UfixitTest extends BaseTest
         $this->assertEquals($expected, $output);
         $this->checkOutputBuffer();
     }
+
     public function testFixCssColorOneColorBold()
     {
         $error_html     = '<span style="color: #ffff00;">Bad Contrasting Text</span>';
@@ -65,6 +70,7 @@ class UfixitTest extends BaseTest
         $this->assertEquals($expected, $output);
         $this->checkOutputBuffer();
     }
+
     public function testFixCssColorTwoColorsItalic()
     {
         $error_html     = '<span style="color: #ffff00; background: #ffffff;">Bad Contrasting Text</span>';
@@ -78,6 +84,7 @@ class UfixitTest extends BaseTest
         $this->assertEquals($expected, $output);
         $this->checkOutputBuffer();
     }
+
     public function testFixCssColorTwoColorsBoldItalic()
     {
         $error_html     = '<span style="color: #ffff00; background: #ffffff;">Bad Contrasting Text</span>';
@@ -91,6 +98,7 @@ class UfixitTest extends BaseTest
         $this->assertEquals($expected, $output);
         $this->checkOutputBuffer();
     }
+
     public function testFixLinkNewText()
     {
         $error_html     = '<a href="https://webcourses.ucf.edu/courses/1234567/image.jpg"></a>';
@@ -102,6 +110,7 @@ class UfixitTest extends BaseTest
         $this->assertEquals($expected, $output);
         $this->checkOutputBuffer();
     }
+
     public function testFixLinkDeleteLink()
     {
         $error_html     = '<a href="https://webcourses.ucf.edu/courses/1234567/image.jpg"></a>';
@@ -113,6 +122,7 @@ class UfixitTest extends BaseTest
         $this->assertEquals($expected, $output);
         $this->checkOutputBuffer();
     }
+
     public function testFixHeadingNewHeading()
     {
         $error_html     = '<h1></h1>';
@@ -124,6 +134,7 @@ class UfixitTest extends BaseTest
         $this->assertEquals($expected, $output);
         $this->checkOutputBuffer();
     }
+
     public function testFixHeadingDeleteHeading()
     {
         $error_html     = '<h2></h2>';
@@ -135,6 +146,7 @@ class UfixitTest extends BaseTest
         $this->assertEquals($expected, $output);
         $this->checkOutputBuffer();
     }
+
     public function testFixTableHeadersRow()
     {
         $error_html     = '<table><tbody><tr><td>Header One</td><td>Header Two</td></tr><tr><td>1.30</td><td>4.50</td></tr></tbody></table>';
@@ -146,6 +158,7 @@ class UfixitTest extends BaseTest
         $this->assertEquals($expected, $output['fixed']);
         $this->checkOutputBuffer();
     }
+
     public function testFixTableHeadersCol()
     {
         $error_html     = '<table><tbody><tr><td>Header One</td><td>Header Two</td></tr><tr><td>Title</td><td>4.50</td></tr></tbody></table>';
@@ -157,6 +170,7 @@ class UfixitTest extends BaseTest
         $this->assertEquals($expected, $output['fixed']);
         $this->checkOutputBuffer();
     }
+
     public function testFixTableHeadersBoth()
     {
         $error_html     = '<table><tbody><tr><td>Header One</td><td>Header Two</td></tr><tr><td>Title</td><td>4.50</td></tr></tbody></table>';
@@ -168,6 +182,7 @@ class UfixitTest extends BaseTest
         $this->assertEquals($expected, $output['fixed']);
         $this->checkOutputBuffer();
     }
+
     public function testFixTableThScopes()
     {
         $error_html     = '<th>Heading One</th>';

@@ -146,12 +146,12 @@ switch ($main_action) {
                     $corrected_error = $ufixit->fixAltText($data['error_html'], $new_content, false);
                 }
                 break;
-                
+
             case 'pNotUsedAsHeader':
                 $new_content = filter_input(INPUT_POST, 'newcontent', FILTER_SANITIZE_STRING);
                 $corrected_error = $ufixit->makeHeading($data['error_html'], $new_content);
                 break;
-                
+
             case 'tableDataShouldHaveTh':
                 // fixing table headers is a special case...
                 $new_content = filter_input(INPUT_POST, 'newcontent', FILTER_SANITIZE_STRING);
