@@ -284,6 +284,17 @@ $doc.on('resize', function(){
 	resizeFrame();
 });
 
+<<<<<<< HEAD
+=======
+// Open error-preview links in new tab
+$doc.ready(function(){
+	$('body').on('click', '.error-preview > a', function(){
+		window.open($(this).attr('href'));
+		return false;
+	});
+});
+
+>>>>>>> ce66233... Requested feature is complete
 // END update UFIXIT Preview on load
 $doc.ready(function() {
 	resizeFrame();
