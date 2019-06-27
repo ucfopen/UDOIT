@@ -117,6 +117,7 @@ class Udoit
     {
         require_once(__DIR__.'/quail/quail/quail.php');
         $report = [];
+        global $logger;
 
         // Runs each item through the Quail accessibility checker
         foreach ($content_items as $item) {
@@ -142,7 +143,7 @@ class Udoit
 
                 $issue_count++;
                 $state = $quail_issue['state'];
-                //error_log("state in the issue is set as ".serialize($state));
+                $logger->addError("state in the issue is set as ".serialize($state));
 
                 switch ((int) $quail_issue['severity_num']) {
                     case 1:

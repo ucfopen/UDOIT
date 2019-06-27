@@ -552,6 +552,7 @@ class Ufixit
      */
     public function uploadFixedFiles($corrected_error, $error_html)
     {
+        global $logger;
         $error_html      = HTMLMinify::minify(str_replace($this->annoying_entities, $this->entity_replacements, $error_html), ['doctype' => 'html5']);
         $corrected_error = HTMLMinify::minify(str_replace($this->annoying_entities, $this->entity_replacements, $corrected_error), ['doctype' => 'html5']);
         $html            = HTMLMinify::minify($this->curled_file['html'], ['doctype' => 'html5']);
@@ -603,7 +604,7 @@ class Ufixit
 
         //error
         if (!isset($matches[1])) {
-            error_log(print_r($response, true));
+            $logger->addError(print_r($response, true));
         }
 
         $confirm_uri = $matches[1];

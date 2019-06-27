@@ -76,6 +76,9 @@ class UdoitDB
      */
     public static function test($force = false)
     {
+
+        global $logger;
+
         if (empty(static::$pdo)) {
             return false;
         }
@@ -90,9 +93,8 @@ class UdoitDB
 
             return true;
         } catch (\Exception $e) {
-            error_log("Database Test Connection Error");
-            error_log($e->getMessage());
-
+            $logger->addError("Database Test Connection Error");
+            $logger->addError($e->getMessage());
             return false;
         }
     }
@@ -104,6 +106,8 @@ class UdoitDB
 
     protected static function connect()
     {
+        global $logger;
+
         try {
             switch (static::$type) {
                 case 'test':
@@ -128,8 +132,8 @@ class UdoitDB
             static::$last_test_time = time();
             static::$pdo = $db;
         } catch (\RuntimeException $e) {
-            error_log("Database Connection Error");
-            error_log($e->getMessage());
+            $logger->addError("Database Connection Error");
+            $logger->addError($e->getMessage());
             echo('Database Connection error');
             exit();
         }

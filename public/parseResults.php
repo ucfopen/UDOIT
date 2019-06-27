@@ -20,6 +20,7 @@
 require_once('../config/settings.php');
 
 $get_input = filter_input_array(INPUT_GET, FILTER_SANITIZE_STRING);
+global $logger;
 
 if (!isset($get_input['path'])) {
     $get_input['path'] = '';
@@ -39,7 +40,7 @@ $sth = UdoitDB::prepare("SELECT * FROM {$db_reports_table} WHERE id = :report_id
 $sth->bindValue(':report_id', $get_input['report_id'], PDO::PARAM_INT);
 
 if (!$sth->execute()) {
-    error_log(print_r($sth->errorInfo(), true));
+    $logger->addError(print_r($sth->errorInfo(), true));
     UdoitUtils::instance()->exitWithPartialError('Error searching for report');
 }
 
