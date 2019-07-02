@@ -19,6 +19,7 @@
 */
 
 require_once(__DIR__.'/../config/settings.php');
+
 global $logger;
 
 function isEmpty($teststr)

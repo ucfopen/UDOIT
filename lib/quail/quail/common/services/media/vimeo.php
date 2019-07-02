@@ -53,6 +53,49 @@ class vimeoService extends mediaService
 		return 2;
 	}
 
+	function captionsLanguage($link_url)
+	{
+		$url = $this->search_url;
+		$api_key = constant( 'VIMEO_API_KEY' );
+
+		if(!empty(constant( 'COURSE_LANGUAGE' ))) {
+			$courseLanguage = constant( 'COURSE_LANGUAGE' );
+		}
+
+		else {
+			$courseLanguage = 'LOL';
+		}
+
+		// If the API key is blank, flag the video for manual inspection
+		$key_trimmed = trim($api_key);
+		if( empty($key_trimmed) ){
+			return 1;
+		}
+
+		if( $vimeo_id = $this->isVimeoVideo($link_url) ) {
+			$url = $url.$vimeo_id.'/texttracks';
+			$response = Request::get($url)->addHeader('Authorization', "Bearer $api_key")->send();
+
+			// Response header code is used to determine if video exists, doesn't exist, or is unaccessible
+			// 400 means a video is private, 404 means a video doesn't exist, and 200 means the video exists
+			if($response->code === 400 || $response->code === 404) {
+				return 1;
+			} else if(($response->code === 200) && $response->body->total === 0) {
+				return 2;
+			}
+
+			foreach ( $response->body->data as $track) {
+				if( $track->language === $courseLanguage ) {
+					return 2;
+				}
+			}
+
+			return 0;
+		}
+
+		return 2;
+	}
+
 	/**
 	*	Checks to see if the provided link URL is a Vimeo video. If so, it returns
 	*	the video code, if not, it returns null.

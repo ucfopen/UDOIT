@@ -55,6 +55,9 @@ define('VIMEO_API_KEY', getenv('VIMEO_API_KEY')?:'');
 /* Google Analytics Tracking Code */
 define('GA_TRACKING_CODE', getenv('GA_TRACKING_CODE')?:'');
 
+/* Course Language */
+define('COURSE_LANGUAGE', getenv('CANVAS_COURSE_LANGUAGE')?:'');
+
 // Fix some issues caused by the heroku load balancer
 // The OAUTH signature verification doesn't know it's using https w/o this
 if (!empty($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] == 'https') {

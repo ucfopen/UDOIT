@@ -32,7 +32,6 @@
 *  If 2 adjacent links have the same destination then this error will be generated.
 */
 
-
 /**
 *  There are no adjacent text and image links having the same destination.
 *  This objective of this technique is to avoid unnecessary duplication that occurs when adjacent text and iconic versions of a link are contained in a document.
@@ -6449,6 +6448,52 @@ class videosEmbeddedOrLinkedNeedCaptions extends quailTest
 				}
 				if (isset($service)) {
 					$captionState = $this->services[$service]->captionsMissing($attr_val);
+					if($captionState != 2) {
+						$this->addReport($video, null, null, $captionState, ($captionState == 1));
+					}
+				}
+			}
+		}
+	}
+}
+/**
+*	Videos with manual captions should have some that match the course language
+*/
+class videoCaptionsAreCorrectLanguage extends quailTest
+{
+	/**
+	*	@var int $default_severity The default severity code for this test.
+	*/
+	var $default_severity = QUAIL_TEST_SUGGESTION;
+
+	/**
+	*	@var array $services The services that this test will need.
+	*/
+	var $services = [
+		'youtube' => 'media/youtube',
+		'vimeo' => 'media/vimeo'
+	];
+
+	/**
+	*	The main check function. This is called by the parent class to actually check content
+	*/
+	function check()
+	{
+		$search_youtube = '/(youtube|youtu.be)/';
+		$search_vimeo = '/(vimeo)/';
+
+		foreach ($this->getAllElements(array('a', 'embed', 'iframe')) as $video) {
+			$attr = ($video->tagName == 'a') ? 'href' : 'src';
+			if ($video->hasAttribute($attr)) {
+				$attr_val = $video->getAttribute($attr);
+				if ( preg_match($search_youtube, $attr_val) ) {
+					$service = 'youtube';
+				}
+				elseif ( preg_match($search_vimeo, $attr_val) ) {
+					$service = 'vimeo';
+				}
+				if (isset($service)) {
+					$captionState = $this->services[$service]->captionsLanguage($attr_val);
 					if($captionState != 2) {
 						$this->addReport($video, null, null, $captionState, ($captionState == 1));
 					}

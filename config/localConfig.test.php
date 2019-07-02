@@ -30,6 +30,9 @@ define('GA_TRACKING_CODE', 'TEST_GA_TRACKING');
 /* Vimeo API Key */
 define('VIMEO_API_KEY', 'TEST_VIMEO_KEY');
 
+/* Course Language */
+define('COURSE_LANGUAGE', 'TEST_COURSE_LANGUAGE');
+
 /* Database Config */
 $db_type            = 'test'; // 'mysql' or 'pgsql'
 $db_host            = ''; // localhost or ip
