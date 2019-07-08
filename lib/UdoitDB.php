@@ -95,6 +95,7 @@ class UdoitDB
         } catch (\Exception $e) {
             $logger->addError("Database Test Connection Error");
             $logger->addError($e->getMessage());
+            
             return false;
         }
     }
