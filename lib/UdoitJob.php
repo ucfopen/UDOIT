@@ -163,7 +163,7 @@ class UdoitJob
         $sth->execute();
 
         if (!$sth->execute()) {
-            $logger->addError($sth->errorInfo(), true));
+            $logger->addError($sth->errorInfo(), true);
             throw new Exception('Error setting report id');
         }
 
