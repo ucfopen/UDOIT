@@ -48,7 +48,7 @@ class UdoitUtils
         return self::$instance;
     }
 
-    public static function setupOauth($id, $key, $uri, $consumer_key, $secret, $curl_ssl_verify = true)
+    public static function setupOauth($id, $key, $uri, $consumer_key, $secret, $curl_ssl_verify = true, $enforce_scopes = false, $scopes = [])
     {
         self::$canvas_oauth_id = $id;
         self::$canvas_oauth_key = $key;
@@ -56,6 +56,8 @@ class UdoitUtils
         self::$canvas_consumer_key = $consumer_key;
         self::$canvas_secret_key = $secret;
         self::$curl_ssl_verify = $curl_ssl_verify;
+        self::$canvas_enforce_scopes = $enforce_scopes;
+        self::$canvas_scopes = $scopes;
     }
 
     public function getYouTubeId($link_url)
@@ -214,6 +216,13 @@ class UdoitUtils
             'client_secret' => self::$canvas_oauth_key,
             'code'          => $code,
         ];
+
+        if (true === self::$canvas_enforce_scopes) {
+            // if we are enforcing scopes we need to take our predefined scope array
+            // and implode it to be a long string with spaces between each scope
+            // and then URL encode it.
+            $post_data['scope'] = urlencode(implode(" ", $canvas_scopes));
+        }
 
         return $this->curlOauthToken($base_url, $post_data);
     }
