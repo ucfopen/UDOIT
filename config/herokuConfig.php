@@ -10,6 +10,7 @@ $shared_secret    = getenv('SHARED_SECRET');
 $oauth2_id        = getenv('OAUTH2_ID');
 $oauth2_key       = getenv('OAUTH2_KEY');
 $oauth2_uri       = getenv('OAUTH2_URI');
+$oauth2_enforce_scopes = (getenv('OAUTH2_ENFORCE_SCOPES')) == 'true';
 
 /* Tool name for display in Canvas Navigation */
 $canvas_nav_item_name = getenv('CANVAS_NAV_ITEM_NAME');

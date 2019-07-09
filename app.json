@@ -42,6 +42,10 @@
       "description": "Full url to your oauth2responce.php file",
       "value": "https://your.herokuapp.com/oauth2response.php"
     },
+    "OAUTH2_ENFORCE_SCOPES": {
+      "description": "Set to true if you have a scoped developer key",
+      "value": "false"
+    },
     "GOOGLE_API_KEY": {
       "description": "Google API key for caption detection support",
       "required": false

@@ -211,6 +211,8 @@ class UdoitUtils
 
     public function authorizeNewApiKey($base_url, $code)
     {
+        global $logger;
+
         $post_data = [
             'grant_type'    => 'authorization_code',
             'client_id'     => self::$canvas_oauth_id,
@@ -225,6 +227,8 @@ class UdoitUtils
             // and then URL encode it.
             $post_data['scope'] = urlencode(implode(" ", $canvas_scopes));
         }
+
+        $logger->addInfo("scopes = ".$post_data['scope']);
 
         return $this->curlOauthToken($base_url, $post_data);
     }
