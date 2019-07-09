@@ -37,23 +37,30 @@ isset($UDOIT_ENV) || $UDOIT_ENV = ENV_PROD; // !! override in your localConfig.p
 
 // SET UP OAUTH
 $oauth2_scopes = [
-  'url:GET|/api/v1/courses/:id',
-  'url:POST|/api/v1/courses/:course_id/files',
-  'url:PUT|/api/v1/courses/:id',
-  'url:GET|/api/v1/courses/:course_id/assignments',
-  'url:GET|/api/v1/courses/:course_id/assignments/:id',
-  'url:PUT|/api/v1/courses/:course_id/assignments/:id',
-  'url:GET|/api/v1/courses/:course_id/discussion_topics',
-  'url:GET|/api/v1/courses/:course_id/discussion_topics/:topic_id',
-  'url:PUT|/api/v1/courses/:course_id/discussion_topics/:topic_id',
-  'url:GET|/api/v1/courses/:course_id/folders/:id',
-  'url:GET|/api/v1/folders/:id/files',
-  'url:GET|/api/v1/folders/:id/folders',
-  'url:GET|/api/v1/courses/:course_id/modules',
-  'url:GET|/api/v1/courses/:course_id/pages',
-  'url:GET|/api/v1/courses/:course_id/pages/:url',
-  'url:PUT|/api/v1/courses/:course_id/pages/:url',
-  'url:GET|/api/v1/users/:user_id/profile',
+    // courses
+    'url:GET|/api/v1/courses/:id',
+    'url:POST|/api/v1/courses/:course_id/files',
+    'url:PUT|/api/v1/courses/:id',
+    // assigments
+    'url:GET|/api/v1/courses/:course_id/assignments',
+    'url:GET|/api/v1/courses/:course_id/assignments/:id',
+    'url:PUT|/api/v1/courses/:course_id/assignments/:id',
+    // discussion topics
+    'url:GET|/api/v1/courses/:course_id/discussion_topics',
+    'url:GET|/api/v1/courses/:course_id/discussion_topics/:topic_id',
+    'url:PUT|/api/v1/courses/:course_id/discussion_topics/:topic_id',
+    // files
+    'url:GET|/api/v1/courses/:course_id/folders/:id',
+    'url:GET|/api/v1/folders/:id/folders',
+    'url:GET|/api/v1/folders/:id/files',
+    // modules
+    'url:GET|/api/v1/courses/:course_id/modules',
+    // pages
+    'url:GET|/api/v1/courses/:course_id/pages',
+    'url:GET|/api/v1/courses/:course_id/pages/:url',
+    'url:PUT|/api/v1/courses/:course_id/pages/:url',
+    // users
+    'url:GET|/api/v1/users/:user_id/profile',
 ];
 UdoitUtils::setupOauth($oauth2_id, $oauth2_key, $oauth2_uri, $consumer_key, $shared_secret, $curl_ssl_verify, $oauth2_enforce_scopes, $oauth2_scopes);
 

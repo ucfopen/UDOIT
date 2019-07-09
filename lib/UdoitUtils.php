@@ -225,7 +225,7 @@ class UdoitUtils
             // if we are enforcing scopes we need to take our predefined scope array
             // and implode it to be a long string with spaces between each scope
             // and then URL encode it.
-            $post_data['scope'] = urlencode(implode(" ", $canvas_scopes));
+            $post_data['scope'] = urlencode(implode(" ", self::$canvas_scopes));
         }
 
         $logger->addInfo("scopes = ".$post_data['scope']);
