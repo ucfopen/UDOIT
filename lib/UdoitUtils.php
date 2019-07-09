@@ -26,6 +26,8 @@ class UdoitUtils
     public static $canvas_secret_key;
     public static $canvas_base_url;
     public static $curl_ssl_verify;
+    public static $canvas_enforce_scopes;
+    public static $canvas_scopes;
     public static $regex = [
         '@youtube\.com/embed/([^"\& ]+)@i',
         '@youtube\.com/v/([^"\& ]+)@i',
