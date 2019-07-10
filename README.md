@@ -150,6 +150,33 @@ UDOIT uses Oauth2 to take actions on behalf of the user, so you'll need to ask y
  * If you did a normal install into the web root of your server, it would be `https://www.example.com/public/oauth2response.php`. (Replace 'www.example.com' with the url of your UDOIT server.)
 * ***Icon URL:*** The URL of the UDOIT icon.  This is `https://www.example.com/public/assets/img/udoit_icon.png`.  (Replace 'www.example.com' with the url of your UDOIT server.)
 
+#### Scoped Developer Keys
+If youd like to use this option youll need set these following scopes on your developer key.
+* Courses
+	* url:GET|/api/v1/courses/:id
+	* url:POST|/api/v1/courses/:course_id/files
+	* url:PUT|/api/v1/courses/:id
+* Assignment
+	* url:GET|/api/v1/courses/:course_id/assignments
+	* url:GET|/api/v1/courses/:course_id/assignments/:id
+	* url:PUT|/api/v1/courses/:course_id/assignments/:id
+* Discussion Topics
+	* url:GET|/api/v1/courses/:course_id/discussion_topics
+	* url:GET|/api/v1/courses/:course_id/discussion_topics/:topic_id
+	* url:PUT|/api/v1/courses/:course_id/discussion_topics/:topic_id
+* Files
+	* url:GET|/api/v1/courses/:course_id/folders/:id
+	* url:GET|/api/v1/folders/:id/folders
+	* url:GET|/api/v1/folders/:id/files
+* Modules
+	* url:GET|/api/v1/courses/:course_id/modules
+* Pages
+	* url:GET|/api/v1/courses/:course_id/pages
+	* url:GET|/api/v1/courses/:course_id/pages/:url
+	* url:PUT|/api/v1/courses/:course_id/pages/:url
+* Users
+	* url:GET|/api/v1/users/:user_id/profile
+
 After you receive your Developer Key from your Canvas admin, edit the following variables in `config/localConfig.php`:
 
 * `$oauth2_id`: The Client_ID yoru Canvas admin gives you

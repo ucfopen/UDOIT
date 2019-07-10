@@ -15,7 +15,8 @@ After clicking the Heroku button above:
 
 1. Create an account (if you don't have one already).
 2. Give the app a name.
-3. Fill out the `OAUTH2_ID` and `OAUTH2_KEY` fields with dummy data.  (We'll fix it later.)
+2. Set `OAUTH2_ENFORCE_SCOPES` to true if have a scoped developer key
+3. Fill out the `OAUTH2_ID` and `OAUTH2_KEY` fields with dummy data. (We'll fix it later.)
 4. Fill out the `OAUTH2_URI` field with `https://yourapp.herokuapp.com/oauth2response.php`. (Replace 'yourapp' with the name you gave in step 2.)
 5. Fill out the `CANVAS_NAV_ITEM_NAME` field with the name you would like the app to appear as in the course navigation menu.  This is useful if your instance will be use for a pilot.  The normal value to use here is ***UDOIT***.
 6. (optional) Copy and paste your Google/YouTube API key into the `GOOGLE_API_KEY` field.
@@ -32,6 +33,33 @@ UDOIT uses Oauth2 to take actions on behalf of the user, so you'll need to ask y
 * ***Redirect URI:*** This is the URI of the `oauth2response.php` file in the UDOIT directory.
  * This should be `https://yourapp.herokuapp.com/oauth2response.php`. (Replace 'yourapp' with the name of your UDOIT instance on Heroku.)
 * ***Icon URL:*** The URL of the UDOIT icon.  This is `https://yourapp.herokuapp.com/assets/img/udoit_icon.png`.  (Replace ***yourapp*** with the name of your UDOIT instance on Heroku.)
+
+#### Scoped Developer Keys
+If youd like to use this option youll need set these following scopes on your developer key.
+* Courses
+	* url:GET|/api/v1/courses/:id
+	* url:POST|/api/v1/courses/:course_id/files
+	* url:PUT|/api/v1/courses/:id
+* Assignment
+	* url:GET|/api/v1/courses/:course_id/assignments
+	* url:GET|/api/v1/courses/:course_id/assignments/:id
+	* url:PUT|/api/v1/courses/:course_id/assignments/:id
+* Discussion Topics
+	* url:GET|/api/v1/courses/:course_id/discussion_topics
+	* url:GET|/api/v1/courses/:course_id/discussion_topics/:topic_id
+	* url:PUT|/api/v1/courses/:course_id/discussion_topics/:topic_id
+* Files
+	* url:GET|/api/v1/courses/:course_id/folders/:id
+	* url:GET|/api/v1/folders/:id/folders
+	* url:GET|/api/v1/folders/:id/files
+* Modules
+	* url:GET|/api/v1/courses/:course_id/modules
+* Pages
+	* url:GET|/api/v1/courses/:course_id/pages
+	* url:GET|/api/v1/courses/:course_id/pages/:url
+	* url:PUT|/api/v1/courses/:course_id/pages/:url
+* Users
+	* url:GET|/api/v1/users/:user_id/profile
 
 ### Step 4:  Add your Developer Key to UDOIT
 1. In Heroku, click the 'Manage App' button for your install of UDOIT.
