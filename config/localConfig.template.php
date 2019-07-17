@@ -12,9 +12,6 @@ $oauth2_uri = ''; // EX: https://udoit.my-org.edu/oauth2response.php or https://
 /* Disable headings check character count */
 $doc_length = '1500';
 
-/* Default course language */
-$default_locale = '';
-
 /* Unscannable Suggestion */
 $unscannable_suggestion = 'Consider converting these documents to Pages, since they are easier to update, easier to view on mobile devices, and generally more accessible.';
 $unscannable_suggestion_on = true;

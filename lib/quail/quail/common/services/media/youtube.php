@@ -82,7 +82,7 @@ class youtubeService extends mediaService
 		}
 
 		else {
-			$courseLanguage = 'LOL';
+			$courseLanguage = 'en';
 		}
 
 		$foundManual = false;

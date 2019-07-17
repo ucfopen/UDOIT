@@ -63,7 +63,7 @@ class vimeoService extends mediaService
 		}
 
 		else {
-			$courseLanguage = 'LOL';
+			$courseLanguage = 'en';
 		}
 
 		// If the API key is blank, flag the video for manual inspection
