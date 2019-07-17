@@ -21,8 +21,9 @@ After clicking the Heroku button above:
 6. (optional) Copy and paste your Google/YouTube API key into the `GOOGLE_API_KEY` field.
 7. (optional) Copy and paste your Vimeo API key into the `VIMEO_API_KEY` field.
 8. (optional) If you have a Google Analytics account, you can paste your site tracking code into the `GA_TRACKING_CODE` field.
-9. (optional) If you would like to enable the Admin Panel, change the `ADMIN_PANEL_ENABLED` field to `true`.
-8. Click the Deploy button and wait for the process to complete.
+9. (optional) Add the ISO 639-1 Code corresponding to your course language to the `CANVAS_COURSE_LANGUAGE` field.
+10. (optional) If you would like to enable the Admin Panel, change the `ADMIN_PANEL_ENABLED` field to `true`.
+11. Click the Deploy button and wait for the process to complete.
 
 ### Step 3:  Request a Developer Key
 UDOIT uses Oauth2 to take actions on behalf of the user, so you'll need to ask your Canvas administrator to generate a Developer Key for you.  (If you are an admin, go to your institution's account administration page in Canvas and click on 'Developer Keys'.)  Here is the information you need to provide them:
@@ -43,7 +44,7 @@ UDOIT uses Oauth2 to take actions on behalf of the user, so you'll need to ask y
 
 ### Step 5:  Install the UDOIT LTI
 
-In Canvas, you can install UDOIT at the course or sub-account levels.  
+In Canvas, you can install UDOIT at the course or sub-account levels.
 
 1. Click the **Settings** menu item from any course in Canvas.
 2. Click the **Apps** tab.
