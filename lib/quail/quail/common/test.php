@@ -68,7 +68,7 @@ class quailTest {
 	var $lang = 'en';
 
 	/**
-	*	@var array Services this test will be using. Services are loaded and then 
+	*	@var array Services this test will be using. Services are loaded and then
 	*			   a class is built to replace the service name in this array.
 	*/
 	var $services = array();
@@ -138,13 +138,17 @@ class quailTest {
 	*	@param object $element The DOMElement object that pertains to this report
 	*	@param string $message An additional message to add to the report
 	*	@param bool $pass Whether or not this report passed
+	*   @param object $state Extra information about the error state
+	*   @param bool $manual Whether the report needs a manual check
 	*/
-	function addReport($element = null, $message = null, $pass = null)
+	function addReport($element = null, $message = null, $pass = null, $state = null, $manual = null)
 	{
 		$report          = new quailReportItem();
 		$report->element = $element;
 		$report->message = $message;
 		$report->pass    = $pass;
+		$report->state   = $state;
+		$report->manual  = $manual;
 		$report->line    = $report->getLine();
 		$this->report[]  = $report;
 	}
@@ -200,8 +204,10 @@ class quailTest {
 	function getAllElements($tags = null, $options = false, $value = true) {
 		if(!is_array($tags))
 			$tags = array($tags);
-		if($options !== false)
-			$tags = htmlElements::getElementsByOption($options, $value);
+		if($options !== false) {
+			$temp = new htmlElements();
+			$tags = $temp->getElementsByOption($options, $value);
+		}
 		$result = array();
 
 		if(!is_array($tags))
@@ -381,7 +387,7 @@ class quailTest {
 			}
 		}
 		else {
-			if(trim($element->nodeValue) != '' || 
+			if(trim($element->nodeValue) != '' ||
 				($element->hasAttribute('alt') && trim($element->getAttribute('alt')) != '')) {
 					return true;
 			}
@@ -552,8 +558,8 @@ class inputHasLabel extends quailTest {
 				$labels[$label->getAttribute('for')] = $label;
 			else {
 				foreach($label->childNodes as $child) {
-					if(property_exists($child, 'tagName') && 
-					   $child->tagName == $this->tag && 
+					if(property_exists($child, 'tagName') &&
+					   $child->tagName == $this->tag &&
 					   ($child->getAttribute('type') == $this->type || $this->no_type)) {
 							$input_in_label[$child->getAttribute('name')] = $child;
 					}
@@ -601,7 +607,7 @@ class inputTabIndex extends quailTest {
 		foreach($this->getAllElements($this->tag) as $element) {
 			if(($element->getAttribute('type') == $this->type)
 					&& (!($element->hasAttribute('tabindex'))
-						 || !is_numeric($element->getAttribute('tabindex')))) 
+						 || !is_numeric($element->getAttribute('tabindex'))))
 				$this->addReport($element);
 		}
 	}
@@ -666,6 +672,7 @@ class quailColorTest extends quailTest {
 						'gray' => '808080',
 						'green' => '008000',
 						'greenyellow' => 'adff2f',
+						'grey' => '808080',
 						'honeydew' => 'f0fff0',
 						'hotpink' => 'ff69b4',
 						'indianred' => 'cd5c5c',
@@ -825,7 +832,7 @@ class quailColorTest extends quailTest {
 	}
 
 	/**
-	*	Converts multiple color or backround styles into a simple hex string
+	*	Converts multiple color or background styles into a simple hex string
 	*	@param string $color The color attribute to convert (this can also be a multi-value css background value)
 	*	@return string A standard CSS hex value for the color
 	*/
@@ -846,10 +853,12 @@ class quailColorTest extends quailTest {
 			if(strlen($color) == 7) {
 				return str_replace('#', '', $color);
 			}
-			elseif (strlen($color == 4)) {
+			elseif (strlen($color) == 4) {
 				return substr($color, 1, 1).substr($color, 1, 1).
 					   substr($color, 2, 1).substr($color, 2, 1).
 					   substr($color, 3, 1).substr($color, 3, 1);
+			} else {
+				return "000000";
 			}
 		}
 		//Named Color

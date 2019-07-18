@@ -19,13 +19,17 @@
 */
 ?>
 <div>
-	<label><input name="add-bold" type="checkbox" value="bold" />&nbsp;Make this text <span style="font-weight: 900;">bold</span></label>
+	<label><input name="add-bold" type="checkbox" value="<?= $group_item->font_weight; ?>" <?php echo ($group_item->font_weight == "bold" ? 'checked' : '');?>/>&nbsp;Make this text <span style="font-weight: 900;">bold</span></label>
 	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-	<label><input name="add-italic" type="checkbox" value="italic" />&nbsp;Make this text <span style="font-style: italic;">italicized</span></label>
+	<label><input name="add-italic" type="checkbox" value="<?= $group_item->font_style; ?>" <?php echo ($group_item->font_style == "italic" ? 'checked' : '');?>/>&nbsp;Make this text <span style="font-style: italic;">italicized</span></label>
 </div>
 <div class="ufixit-preview">
 	<div class="ufixit-preview-canvas" name="load-preview">
 		<p>Text</p>
 	</div>
 </div>
+<label><input name="remove-color" type="checkbox" value="false"/>&nbsp;Remove color from this text</label>
+<input type="hidden" class="back-color" value="<?= $group_item->back_color; ?>"></input>
+<input type="hidden" class="fore-color" value="<?= $group_item->fore_color; ?>"></input>
+<br>
 <button class="submit-content btn btn-default clear" type="submit" value="<?= $group_item->type; ?>">Submit</button>

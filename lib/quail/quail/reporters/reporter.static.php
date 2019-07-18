@@ -66,33 +66,35 @@ class reportStatic extends quailReporter
 			}
 
 			if (is_array($test)) {
+				$test_count = 0;
 				foreach ($test as $k => $problem) {
 					$testResult           = [];
-
 					if (is_object($problem)) {
+						$testResult['text_type']	= $problem->message;
 						if ($testname === "cssTextHasContrast" || $testname === "cssTextStyleEmphasize") {
-							foreach ($problem->element->attributes as $name) {
-								if ($name->name === "style") {
-									$styleValue = $name->value;
-									$hexColors  = [];
+							$styleValue = $problem->message;
 
-									preg_match_all("/(#[0-9a-f]{6}|#[0-9a-f]{3})/", $styleValue, $hexColors);
+							$hexColors  = [];
+							$styleMatches = [];
+							$weightMatches = [];
 
-									$hexColors = array_unique($hexColors[0]);
-								}
-							}
+							preg_match_all("/(#[0-9a-f]{6}|#[0-9a-f]{3})/", $styleValue, $hexColors);
+							preg_match("/font-style:\s([a-z]*);/", $styleValue, $styleMatches);
+							preg_match("/font-weight:\s([a-z]*);/", $styleValue, $weightMatches);
+							$hexColors = array_unique($hexColors[0]);
 
 							$testResult['colors'] = $hexColors;
-
-							if ( sizeof($hexColors) === 1 ) {
-								$testResult['fore_color'] = $hexColors[0];
-							} else {
-								$testResult['back_color'] = $hexColors[0];
-								$testResult['fore_color'] = $hexColors[1];
+							$testResult['back_color'] = $hexColors[0];
+							$testResult['fore_color'] = $hexColors[1];
+							$testResult['font_style'] = $styleMatches[1];
+							$testResult['font_weight'] = $weightMatches[1];
+							if($testResult['font-weight'] === "bolder"){
+								$testResult['font-weight'] = "bold";
 							}
+							$testResult['text_type']	= preg_replace('/(?=:).+/', '', $problem->message);
+
 						}
 
-						$testResult['text_type']	= $problem->message;
 						$testResult['type']   	= $testname;
 						$testResult['lineNo'] 	= $problem->line;
 
@@ -100,12 +102,30 @@ class reportStatic extends quailReporter
 							$testResult['element'] = $problem->element->tagName;
 						}
 
+						//Edit description for certain cases
+						switch($testname) {
+							case 'videosEmbeddedOrLinkedNeedCaptions':
+								if($problem->manual == true || $test_count > 0) {
+									if($problem->manual == true) $test_count++;
+									$testResult['description']  = $description."<p>⚠️ ".$test_count.' items require manual verification because UDOIT was unable to detect captions. This is most likely due to the video being unlisted, private, or deleted.</p>';
+								} else {
+									$testResult['description']  = $description;
+								}
+								break;
+
+							default:
+								$testResult['description']  = $description;
+								break;
+						}
+						//$testResult['description']  = $description;
+
 						$testResult['severity']     = $severityLevel;
 						$testResult['severity_num'] = $severityNumber;
 						$testResult['title']        = $title;
-						$testResult['description']  = $description;
 						$testResult['path']         = count($this->path) > 1 ? $this->path[1] : "None";
 						$testResult['html']	        = $problem->getHtml();
+						$testResult['state']        = $problem->state;
+						$testResult['manual']       = $problem->manual;
 					}
 
 					$output[] = $testResult;
