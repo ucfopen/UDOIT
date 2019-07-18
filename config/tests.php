@@ -182,7 +182,7 @@ return [
         ],
         [
             'name'      => 'videoCaptionsAreCorrectLanguage',
-            'title'     => '<a href="http://webaim.org/techniques/captions/">closed captions</a> do not match course language.',
+            'title'     => '<a href="http://webaim.org/techniques/captions/">Closed captions</a> do not match course language.',
             'desc'      => '<p>Closed captions that match the course language should be included in the video to provide dialogue to users who are hearing impaired.  (Please note that videos that have been removed, deleted, or are Unlisted will also cause this error, and will need to be manually verified.)</p>',
             'resources' => [
                 '<a href="https://support.google.com/youtube/answer/2734796?hl=en">Adding Captions to Youtube</a>',
