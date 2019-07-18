@@ -262,7 +262,7 @@ class UdoitStats
             $date_format = "TO_CHAR(date_created, 'Month dd, YYYY HH:MI:SS AM TZ') AS \"Date Created\", ";
         }
         $query = "SELECT $db_user_table.id as \"User ID\", "
-                ."COUNT(reports.user_id) AS \"Number of Scans\", "
+                ."COUNT($db_reports_table.user_id) AS \"Number of Scans\", "
                 .$date_format
                 ."canvas_url AS \"Canvas URL\"\n"
                 ."FROM $db_user_table\n"
