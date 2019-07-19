@@ -1,10 +1,26 @@
-<phpunit bootstrap='tests/bootstrap.php'>
-  <testsuites>
-    <testsuite name="UDOIT">
-      <file>tests/UfixitTest.php</file>
-    </testsuite>
-    <testsuite>
-    	<file>tests/FunctionalTests.php</file>
-    </testsuite>
-  </testsuites>
+<phpunit bootstrap='tests/bootstrap.php' backupGlobals="false">
+	<testsuites>
+		<testsuite name="UDOIT">
+			<file>tests/UdoitJobTest.php</file>
+			<file>tests/UdoitDBTest.php</file>
+			<file>tests/UfixitTest.php</file>
+			<file>tests/UdoitTest.php</file>
+			<file>tests/IndexTest.php</file>
+			<file>tests/FunctionalTests.php</file>
+			<file>tests/UdoitStatsTest.php</file>
+		</testsuite>
+	</testsuites>
+	<php>
+		<env name="UNITTEST" value="true"/>
+	</php>
+	<filter>
+		<whitelist>
+			<directory suffix=".php">./</directory>
+			<exclude>
+				<directory>./lib/quail</directory>
+				<directory>./vendor</directory>
+				<directory>./tests</directory>
+			</exclude>
+		</whitelist>
+	</filter>
 </phpunit>

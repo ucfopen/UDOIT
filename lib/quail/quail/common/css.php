@@ -258,16 +258,24 @@ class quailCSS {
 			return array();
 		}
 		$style = $this->getNodeStyle($element);
-		$style = $this->walkUpTreeForInheritance($element, $style);
-
+		if(isset($style['background-color']) || isset($style['color'])){
+			$style = $this->walkUpTreeForInheritance($element, $style);
+		}
 		if($element->hasAttribute('style')) {
 			$inline_styles = explode(';', $element->getAttribute('style'));
 			foreach($inline_styles as $inline_style) {
 				$s = explode(':', $inline_style);
+
 				if(isset($s[1])){	// Edit:  Make sure the style attribute doesn't have a trailing ;
 					$style[trim($s[0])] = trim(strtolower($s[1]));
 				}
 			}
+		}
+		if($element->tagName === "strong"){
+			$style['font-weight'] = "bold";
+		}
+		if($element->tagName === "em"){
+			$style['font-style'] = "italic";
 		}
 		if(!is_array($style)) {
 			return array();
@@ -316,6 +324,7 @@ class quailCSS {
 	*/
 	private function getNodeStyle($element) {
 		$style = array();
+
 		if($element->hasAttribute('quail_style_index')) {
 			$style = $this->style_index[$element->getAttribute('quail_style_index')];
 		}
@@ -323,6 +332,17 @@ class quailCSS {
 		if($element->hasAttribute('bgcolor') &&  in_array($element->tagName, $this->deprecated_style_elements)) {
 			$style['background-color'] = $element->getAttribute('bgcolor');
 		}
+		if($element->hasAttribute('style')) {
+			$inline_styles = explode(';', $element->getAttribute('style'));
+			foreach($inline_styles as $inline_style) {
+				$s = explode(':', $inline_style);
+
+				if(isset($s[1])){	// Edit:  Make sure the style attribute doesn't have a trailing ;
+					$style[trim($s[0])] = trim(strtolower($s[1]));
+				}
+			}
+		}
+
 		return $style;
 	}
 
@@ -336,11 +356,22 @@ class quailCSS {
 	private function walkUpTreeForInheritance($element, $style) {
 		while(property_exists($element->parentNode, 'tagName')) {
 			$parent_style = $this->getNodeStyle($element->parentNode);
-
 			if(is_array($parent_style)) {
 				foreach($parent_style as $k => $v) {
 					if(!isset($style[$k]) /*|| in_array($style[$k]['value'], $this->inheritance_strings)*/) {
 						$style[$k] = $v;
+					}
+
+					if((!isset($style['background-color'])) || strtolower($style['background-color']) == strtolower("#FFFFFF")){
+						if($k == 'background-color'){
+							$style['background-color'] = $v;
+						}
+					}
+
+					if((!isset($style['color'])) || strtolower($style['color']) == strtolower("#000000")){
+						if($k == 'color'){
+							$style['color'] = $v;
+						}
 					}
 				}
 			}

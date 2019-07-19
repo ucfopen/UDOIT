@@ -10,9 +10,19 @@
     "Instructure",
     "508"
   ],
-  "website": "http://online.ucf.edu/teach-online/resources/udoit/",
+  "website": "https://cdl.ucf.edu/initiatives/udoit/",
   "repository": "https://github.com/ucfopen/UDOIT",
   "success_url": "/",
+  "formation": {
+    "web": {
+      "quantity": 1,
+      "size": "free"
+    },
+    "worker": {
+      "quantity": 1,
+      "size": "free"
+    }
+  },
   "env": {
     "CONSUMER_KEY": {
       "description": "LTI consumer key entered when adding UDOIT LTI to Canvas",
@@ -33,7 +43,15 @@
       "value": "https://your.herokuapp.com/oauth2response.php"
     },
     "GOOGLE_API_KEY": {
-      "description": "add a google api key for youtube video support",
+      "description": "Google API key for caption detection support",
+      "required": false
+    },
+    "VIMEO_API_KEY": {
+      "description": "Vimeo API key for caption detection support",
+      "required": false
+    },
+    "GA_TRACKING_CODE": {
+      "description": "Google Analytics tracking code",
       "required": false
     },
     "USE_HEROKU_CONFIG": {
@@ -43,6 +61,22 @@
     "CANVAS_NAV_ITEM_NAME" : {
       "description": "The text displayed in the canvas navigation menu to launch this app",
       "value": "UDOIT"
+    },
+    "WORKER_ENABLED": {
+      "description": "Enable the background worker (requires you turn on the worker dyno).",
+      "value": "true"
+    },
+    "SCAN_FILE_SIZE_LIMIT": {
+      "description": "Max file size to scan, anything larger gets set as unscannable.",
+      "value": "50000000"
+    },
+    "ALT_TEXT_LENGTH_LIMIT": {
+      "description": "Maximum character length for alt-text before the item gets flagged as a warning.",
+      "value": "125"
+    },
+    "ADMIN_PANEL_ENABLED": {
+      "description": "Enable the Admin Panel feature.  False disables access and removes the block from the configuration XML.",
+      "value": "false"
     }
   },
   "addons": [
@@ -50,13 +84,10 @@
   ],
   "buildpacks": [
     {
-      "url": "https://github.com/heroku/heroku-buildpack-nodejs"
-    },
-    {
       "url": "https://github.com/heroku/heroku-buildpack-php"
     }
   ],
   "scripts": {
-    "postdeploy": "php lib/db_create_tables.php"
+    "postdeploy": "composer db-setup"
   }
 }
