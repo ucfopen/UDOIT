@@ -24,7 +24,6 @@ global $file_scan_size_limit;
 <small><?= $this->e($error_count); ?> error<?php if($error_count != 1): ?>s<?php endif; ?>, <?= $suggestion_count; ?> suggestion<?php if($suggestion_count != 1): ?>s<?php endif; ?>, <?= $unscannable_count; ?> unscannable file<?php if($unscannable_count != 1): ?>s<?php endif; ?></small>
 </h1>
 
-<?php if( !empty($error_summary) ): ?>
 <div id="errorTotalSummary">
 	<div id="summaryContainer" class="panel panel-default">
 		<div class="panel-heading clearfix">
@@ -32,6 +31,7 @@ global $file_scan_size_limit;
 			<h2>Report Summary</h2>
 		</div>
 		<div class="errorSummary panel-body" style="display: block;">
+			<?php if( !empty($error_summary) ): ?>
 			<div class="panel panel-danger">
 				<div class="panel-heading">
 					<h4 class="panel-title"><span class="badge"><?= $this->e($error_count); ?></span> Errors</h4>
@@ -44,6 +44,8 @@ global $file_scan_size_limit;
 					<?php endforeach; ?>
 				</ul>
 			</div>
+			<?php endif; ?>
+			<?php if( !empty($suggestion_summary) ): ?>
 			<div class="panel panel-info">
 				<div class="panel-heading">
 					<h4 class="panel-title"><span class="badge"><?= $this->e($suggestion_count); ?></span> Suggestions</h4>
@@ -56,10 +58,10 @@ global $file_scan_size_limit;
 					<?php endforeach; ?>
 				</ul>
 			</div>
+			<?php endif; ?>
 		</div>
 	</div>
 </div>
-<?php endif; ?>
 
 <p>
 	<?php if ( ! empty($post_path)): ?>

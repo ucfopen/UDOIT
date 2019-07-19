@@ -97,6 +97,28 @@ $this->layout('template', $settings);
 					</div>
 				</div>
 
+				<div class="form-group">
+					<span class="col-sm-2 control-label"><strong>Select what your report will show:</strong></span>
+
+					<div class="col-sm-10">
+
+						<div class="checkbox">
+							<label><input id="allReport" type="checkbox" value="all" id="allReport" class="report" name="report[]" checked> All</label>
+						</div>
+
+						<hr />
+
+						<div class="checkbox">
+							<label><input id="errors" type="checkbox" value="errors" class="report" name="report[]" checked> Errors</label>
+						</div>
+
+						<div class="checkbox">
+							<label><input id="suggestions" type="checkbox" value="suggestions" class="report" name="report[]" checked> Suggestions</label>
+						</div>
+					</div>
+
+				</div>
+
 				<hr />
 
 				<div id="waitMsg" class="alert alert-warning" style="display: none;">
