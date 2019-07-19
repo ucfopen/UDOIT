@@ -373,9 +373,9 @@ class UdoitStats
             $query .= $prepend_word." DATE(date_created) <= :enddate\n";
         }
 
-        if('mysql' == $db_type) {
+        if ('mysql' == $db_type) {
             $limit_format = "LIMIT $offset, $number_items";
-        } else if('pgsql' == $db_type) {
+        } else if ('pgsql' == $db_type) {
             $limit_format = "OFFSET $offset ROWS FETCH NEXT $number_items ROWS ONLY";
         }
 
