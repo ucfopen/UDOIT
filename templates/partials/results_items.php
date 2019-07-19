@@ -75,7 +75,7 @@
 										<?php endif; ?>
 										<div class="error-preview">
 											<?php if ($group_item->type == "videosEmbeddedOrLinkedNeedCaptions"): ?>
-												<iframe width="100%" height="300px" src="https://www.youtube.com/embed/<?= Utils::getYouTubeId($group_item->html); ?>" frameborder="0" allowfullscreen></iframe>
+												<?= $group_item->html ?>
 											<?php else: ?>
 												<?php if ($group_item->type == "cssTextHasContrast" && !isset($group_item->back_color)): ?>
 													<div class="ufixit-no-background-color">
