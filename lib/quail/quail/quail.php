@@ -141,7 +141,6 @@ class quail {
 		$this->guideline_name = $guideline;
 		$this->reporter_name = $reporter;
 		$this->value = $value;
-
 	}
 
 	/**
@@ -395,6 +394,7 @@ class quail {
 		}
 
 		$this->guideline = new $classname($this->dom, $this->css, $this->path, $options, $this->domain, $this->options['cms_mode']);
+		//error_log("runCheck completed, quail object is now: ".serialize($this));
 	}
 
 	/**
@@ -588,6 +588,11 @@ class quailReportItem {
 	var $pass;
 
 	/**
+	*   @var object For issues with more than two possible states, this contains information about the state
+	*/
+	var $state;
+
+	/**
 	*	Returns the line number of the report item. Unfortunately we can't use getLineNo
 	*	if we are before PHP 5.3, so if not we try to get the line number through a more
 	*	circuitous way.
@@ -613,6 +618,8 @@ class quailReportItem {
 		}
 
 		$result_dom = new DOMDocument();
+		$result_dom->formatOutput = true;
+		$result_dom->preserveWhiteSpace = false;
 
 		try {
 			$result_element = $result_dom->importNode($this->element, true);

@@ -1,9 +1,8 @@
 <?php
 
 // include_once('../config/localConfig.php');
-	
 
-/** 
+/**
 *    QUAIL - QUAIL Accessibility Information Library
 *    Copyright (C) 2009 Kevin Miller
 *
@@ -1108,6 +1107,37 @@ class checkboxLabelIsNearby extends quailTest
 }
 
 /**
+* Test counts words for all text elements on page and suggests content chunking for pages longer than 3000 words.
+*/
+class contentTooLong extends quailTest
+{
+	/**
+	*	@var int $default_severity The default severity code for this test.
+	*/
+	var $default_severity = QUAIL_TEST_SUGGESTION;
+
+	/**
+	*	The main check function. This is called by the parent class to actually check content
+	*/
+	function check()
+	{
+		$pageText = '';
+		$wordCount = 0;
+		foreach ($this->getAllElements(null, 'text') as $element) {
+			$text = $element->nodeValue;
+			if($text != null){
+				$pageText = $pageText . $text;
+			}
+		}
+		$wordCount = str_word_count($pageText);
+		if($wordCount > 3000){
+			$this->addReport(null, "<p id='wc'>Word Count: " . $wordCount . "</p>", false);
+		}
+
+	}
+}
+
+/**
 *  Document must be readable when stylesheets are not applied.
 *  This error will be generated for each link element that has a rel attribute with a value of "stylesheet".
 *	@link http://quail-lib.org/test-info/cssDocumentMakesSenseStyleTurnedOff
@@ -1134,7 +1164,7 @@ class cssDocumentMakesSenseStyleTurnedOff extends quailTest
 }
 
 /**
-*	Checks that all color and background elements has stufficient contrast.
+*	Checks that all color and background elements have sufficient contrast.
 *
 *	@link http://quail-lib.org/test-info/cssTextHasContrast
 */
@@ -1151,7 +1181,7 @@ class cssTextHasContrast extends quailColorTest
 	var $default_background = '#ffffff';
 
 	/**
-	*	@var string $default_background The default background color
+	*	@var string $default_color The default color
 	*/
 	var $default_color = '#000000';
 
@@ -1169,52 +1199,86 @@ class cssTextHasContrast extends quailColorTest
 		}
 
 		$xpath   = new DOMXPath($this->dom);
-		$entries = $xpath->query('//*');
+		/**
+		* Selects all nodes that have a style attribute OR 'strong' OR 'em' elements that:
+		* Contain only the text in their text nodes
+		* OR 	 Have text nodes AND text nodes that are not equal to the string-value of the context node
+		* OR 	 Have a text node descendant that equals the string-value of the context node and has no style attributes
+		*/
+		$entries = $xpath->query('//*[(text() = . or ( ./*[text() != .]) or (.//*[text() = . and not(@style)])) and ((@style) or (name() = "strong") or (name() = "em"))]');
+
 
 		foreach ($entries as $element) {
 			$style = $this->css->getStyle($element);
 
-			if (!isset($style['background-color'])) {
-				$style['background-color'] = $this->default_background;
-			}
-
-			if ((isset($style['background']) || isset($style['background-color'])) && isset($style['color']) && $element->nodeValue) {
-				$background = (isset($style['background-color'])) ? $style['background-color'] : $style['background'];
-
-				if (!$background || $this->options['css_only_use_default']) {
-					$background = $this->default_background;
+			if(isset($style['background-color']) || isset($style['color'])){
+				if (!isset($style['background-color'])) {
+					$style['background-color'] = $this->default_background;
 				}
 
-				$luminosity = $this->getLuminosity($style['color'], $background);
-				$font_size = 0;
-				$bold = false;
-
-				if (isset($style['font-size'])) {
-					preg_match_all('!\d+!', $style['font-size'], $matches);
-					$font_size = $matches[0][0];
+				if (!isset($style['color'])) {
+					$style['color'] = $this->default_color;
 				}
 
-				if (isset($style['font-weight'])) {
-					preg_match_all('!\d+!', $style['font-weight'], $matches);
-					
-					if (count($matches) > 0) {
-						if ($matches >= 700) {
-							$bold = true;
-						} else {
-							if ($style['font-weight'] === 'bold' || $style['font-weight'] === 'bolder') {
+				if ((isset($style['background']) || isset($style['background-color'])) && isset($style['color']) && $element->nodeValue) {
+					$background = (isset($style['background-color'])) ? $style['background-color'] : $style['background'];
+					if (!$background || $this->options['css_only_use_default']) {
+						$background = $this->default_background;
+					}
+
+					$style['color'] = '#' . $this->convertColor($style['color']);
+					$style['background-color'] = '#' . $this->convertColor($background);
+
+					$luminosity = $this->getLuminosity($style['color'], $background);
+					$font_size = 0;
+					$bold = false;
+					$italic = false;
+
+					if (isset($style['font-size'])) {
+						preg_match_all('!\d+!', $style['font-size'], $matches);
+						$font_size = $matches[0][0];
+					}
+
+					if (isset($style['font-weight'])) {
+						preg_match_all('!\d+!', $style['font-weight'], $matches);
+
+						if (count($matches) > 0) {
+							if ($matches >= 700) {
 								$bold = true;
+							} else {
+								if ($style['font-weight'] === 'bold' || $style['font-weight'] === 'bolder') {
+									$bold = true;
+								}
 							}
 						}
+					} else if ($element->tagName === "strong") {
+						$bold = true;
+						$style['font-weight'] = "bold";
+					} else {
+						$style['font-weight'] = "normal";
 					}
-				}
 
-				if ($element->tagName === 'h1' || $element->tagName === 'h2' || $element->tagName === 'h3' || $element->tagName === 'h4' || $element->tagName === 'h5' || $element->tagName === 'h6' || $font_size >= 18 || $font_size >= 14 && $bold) {
-					if ($luminosity < 3) {
-						$this->addReport($element, 'heading');
+					if (isset($style['font-style'])) {
+						if($style['font-style'] === "italic") {
+							$italic = true;
+						}
+					} else if ($element->tagName === "em") {
+						$italic = true;
+						$style['font-style'] = "italic";
+					} else {
+						$style['font-style'] = "normal";
 					}
-				} else {
-					if ($luminosity < 4.5) {
-						$this->addReport($element, 'text');
+
+					if ($element->tagName === 'h1' || $element->tagName === 'h2' || $element->tagName === 'h3' || $element->tagName === 'h4' || $element->tagName === 'h5' || $element->tagName === 'h6' || $font_size >= 18 || $font_size >= 14 && $bold) {
+						if ($luminosity < 3) {
+							$message = 'heading: background-color: ' . $background . '; color:' . $style["color"] . '; font-style: ' . $style['font-style'] . '; font-weight: '  . $style['font-weight'] . '; ';
+							$this->addReport($element, $message);
+						}
+					} else {
+						if ($luminosity < 4.5) {
+							$message = 'text: background-color: ' . $background . '; color:' . $style["color"] . '; font-style: ' . $style['font-style'] . '; font-weight: '  . $style['font-weight'] . '; ';
+							$this->addReport($element, $message);
+						}
 					}
 				}
 			}
@@ -1223,7 +1287,7 @@ class cssTextHasContrast extends quailColorTest
 }
 
 /**
-*	Checks that all color and background elements has stufficient contrast.
+*	Checks that all color and background elements are also bold or italicized.
 *
 *	@link http://quail-lib.org/test-info/cssTextHasContrast
 */
@@ -1240,7 +1304,7 @@ class cssTextStyleEmphasize extends quailColorTest
 	var $default_background = '#ffffff';
 
 	/**
-	*	@var string $default_background The default background color
+	*	@var string $default_color The default color
 	*/
 	var $default_color = '#000000';
 
@@ -1258,14 +1322,22 @@ class cssTextStyleEmphasize extends quailColorTest
 		}
 
 		$xpath   = new DOMXPath($this->dom);
-		$entries = $xpath->query('//*');
+		/**
+		* Selects all nodes that have a style attribute OR 'strong' OR 'em' elements that:
+		* Contain only the text in their text nodes
+		* OR 	 Have text nodes AND text nodes that are not equal to the string-value of the context node
+		* OR 	 Have a text node descendant that equals the string-value of the context node and has no style attributes
+		*/
+		$entries = $xpath->query('//*[(text() = . or ( ./*[text() != .]) or (.//*[text() = . and not(@style)])) and ((@style) or (name() = "strong") or (name() = "em"))]');
 
 		foreach ($entries as $element) {
+
 			$style = $this->css->getStyle($element);
 
 			if (!isset($style['background-color'])) {
 				$style['background-color'] = $this->default_background;
 			}
+
 
 			if ((isset($style['background']) || isset($style['background-color'])) && isset($style['color']) && $element->nodeValue) {
 				$background = (isset($style['background-color'])) ? $style['background-color'] : $style['background'];
@@ -1274,9 +1346,13 @@ class cssTextStyleEmphasize extends quailColorTest
 					$background = $this->default_background;
 				}
 
+				$style['color'] = '#' . $this->convertColor($style['color']);
+				$style['background-color'] = '#' . $this->convertColor($background);
+
 				$luminosity = $this->getLuminosity($style['color'], $background);
 				$font_size = 0;
 				$bold = false;
+				$italic = false;
 
 				if (isset($style['font-size'])) {
 					preg_match_all('!\d+!', $style['font-size'], $matches);
@@ -1285,7 +1361,7 @@ class cssTextStyleEmphasize extends quailColorTest
 
 				if (isset($style['font-weight'])) {
 					preg_match_all('!\d+!', $style['font-weight'], $matches);
-					
+
 					if (count($matches) > 0) {
 						if ($matches >= 700) {
 							$bold = true;
@@ -1295,15 +1371,40 @@ class cssTextStyleEmphasize extends quailColorTest
 							}
 						}
 					}
+				} else if ($element->tagName === "strong"
+					|| $this->getElementAncestor($element, 'strong')
+					|| (isset($element->nodeValue)
+						&& isset($element->firstChild->nodeValue)
+						&& $element->nodeValue == $element->firstChild->nodeValue
+						&& is_object($element->firstChild)
+						&& property_exists($element->firstChild, 'tagName')
+						&& $element->firstChild->tagName === 'strong')) {
+					$bold = true;
+					$style['font-weight'] = "bold";
+				} else {
+					$style['font-weight'] = "normal";
+				}
+
+				if (isset($style['font-style'])) {
+					if($style['font-style'] === "italic") {
+						$italic = true;
+					}
+				} else if ($element->tagName === "em") {
+					$italic = true;
+					$style['font-style'] = "italic";
+				} else {
+					$style['font-style'] = "normal";
 				}
 
 				if ($element->tagName === 'h1' || $element->tagName === 'h2' || $element->tagName === 'h3' || $element->tagName === 'h4' || $element->tagName === 'h5' || $element->tagName === 'h6' || $font_size >= 18 || $font_size >= 14 && $bold) {
-					if ($luminosity >= 3 && !$bold) {
-						$this->addReport($element, 'heading');
+					if ($luminosity >= 3 && !$bold && !$italic) {
+						$message = 'heading: background-color: ' . $background . '; color:' . $style["color"] . '; font-style: ' . $style['font-style'] . '; font-weight: '  . $style['font-weight'] . '; ';
+						$this->addReport($element, $message);
 					}
 				} else {
-					if ($luminosity >= 4.5 && !$bold) {
-						$this->addReport($element, 'text');
+					if ($luminosity >= 4.5 && !$bold && !$italic) {
+						$message = 'text: background-color: ' . $background . '; color:' . $style["color"] . '; font-style: ' . $style['font-style'] . '; font-weight: '  . $style['font-weight'] . '; ';
+						$this->addReport($element, $message);
 					}
 				}
 			}
@@ -2897,7 +2998,7 @@ class noHeadings extends quailTest
 	function check()
 	{
 		global $doc_length;
-		
+
 		$elements = $this->getAllElements('p');
 
 		$document_string = "";
@@ -3010,7 +3111,7 @@ class videoEmbedChecked extends quailTest
 	*/
 	function check()
 	{
-		$search = '/(vimeo)/';
+		$search = '/(dailymotion)/';
 
 		foreach ($this->getAllElements('iframe') as $iframe) {
 			if (preg_match($search, $iframe->getAttribute('src'))) {
@@ -3228,7 +3329,8 @@ class imgAltIsTooLong extends quailTest
 	function check()
 	{
 		foreach ($this->getAllElements('img') as $img) {
-			if ($img->hasAttribute('alt') && strlen($img->getAttribute('alt')) > 100)
+			global $alt_text_length_limit;
+			if ($img->hasAttribute('alt') && strlen($img->getAttribute('alt')) > $alt_text_length_limit)
 				$this->addReport($img);
 		}
 
@@ -3396,6 +3498,36 @@ class imgHasAlt extends quailTest
 			if (!$img->hasAttribute('alt')
 				|| $img->getAttribute('alt') == ''
 				|| $img->getAttribute('alt') == ' ') {
+				if(!($img->hasAttribute('data-decorative')
+					&& $img->getAttribute('data-decorative') == 'true')) {
+					$this->addReport($img);
+				}
+			}
+		}
+
+	}
+}
+
+/**
+*  Decorative imgs should not have an alt attribute
+*/
+class imgHasAltDeco extends quailTest
+{
+	/**
+	*	@var int $default_severity The default severity code for this test.
+	*/
+	var $default_severity = QUAIL_TEST_SEVERE;
+
+	/**
+	*	The main check function. This is called by the parent class to actually check content
+	*/
+	function check()
+	{
+		foreach ($this->getAllElements('img') as $img) {
+			if($img->hasAttribute('data-decorative')
+				&& $img->getAttribute('data-decorative') == 'true'
+				&& $img->hasAttribute('alt')
+				&& trim($img->getAttribute('alt') != '')) {
 				$this->addReport($img);
 			}
 		}
@@ -3930,7 +4062,8 @@ class inputImageAltIsShort extends quailTest
 	function check()
 	{
 		foreach ($this->getAllElements('input') as $input) {
-			if ($input->getAttribute('type') == 'image' && strlen($input->getAttribute('alt')) > 100)
+			global $alt_text_length_limit;
+			if ($input->getAttribute('type') == 'image' && strlen($input->getAttribute('alt')) > $alt_text_length_limit)
 				$this->addReport($input);
 		}
 	}
@@ -4822,6 +4955,23 @@ class objectShouldHaveLongDescription extends quailTagTest
 }
 
 /**
+*  Objects may not be properly viewable on mobile devices.
+*  This test adds a suggestion to consider mobile users when relying on objects for multimedia content.
+*/
+class objectTagDetected extends quailTagTest
+{
+	/**
+	*	@var int $default_severity The default severity code for this test.
+	*/
+	var $default_severity = QUAIL_TEST_SUGGESTION;
+
+	/**
+	*	@var string $tag The tag this test will fire on
+	*/
+	var $tag = 'object';
+}
+
+/**
 *  Text equivalents for object should be updated if object changes.
 *  If an object element contains a codebase attribute then the codebase attribute value must be null or whitespace.
 *	@link http://quail-lib.org/test-info/objectTextUpdatesWhenObjectChanges
@@ -5612,12 +5762,14 @@ class tableDataShouldHaveTh extends quailTableTest
 			foreach ($table->childNodes as $child) {
 				if ($this->propertyIsEqual($child, 'tagName', 'tbody') || $this->propertyIsEqual($child, 'tagName', 'thead')) {
 					foreach ($child->childNodes as $tr) {
-						foreach ($tr->childNodes as $th) {
-							if ($this->propertyIsEqual($th, 'tagName', 'th')) {
-								break 3;
-							} else {
-								$this->addReport($table);
-								break 3;
+						if (!is_null($tr->childNodes)) {
+							foreach ($tr->childNodes as $th) {
+								if ($this->propertyIsEqual($th, 'tagName', 'th')) {
+									break 3;
+								} else {
+									$this->addReport($table);
+									break 3;
+								}
 							}
 						}
 					}
@@ -6239,20 +6391,27 @@ class svgContainsTitle extends quailTest
 }
 
 /**
-*	HTML5 video tags have captions. There's unfortunately no way to test for captions yet...
+*	HTML5 video tags have captions.
 *	@link http://quail-lib.org/test-info/videoProvidesCaptions
 */
-class videoProvidesCaptions extends quailTagTest
+class videoProvidesCaptions extends quailTest
 {
 	/**
 	*	@var int $default_severity The default severity code for this test.
 	*/
-	var $default_severity = QUAIL_TEST_SUGGESTION;
+	var $default_severity = QUAIL_TEST_SEVERE;
 
 	/**
-	*	@var string $tag The tag this test will fire on
+	*	The main check function. This is called by the parent class to actually check content
 	*/
-	var $tag = 'video';
+	function check()
+	{
+		foreach ($this->getAllElements(array('video')) as $video) {
+			if (!$this->elementHasChild($video, 'track')) {
+				$this->addReport($video);
+			}
+		}
+	}
 }
 
 /**
@@ -6270,27 +6429,33 @@ class videosEmbeddedOrLinkedNeedCaptions extends quailTest
 	*	@var array $services The services that this test will need. We're using
 	*	the youtube library.
 	*/
-	var $services = ['youtube' => 'media/youtube'];
+	var $services = [
+		'youtube' => 'media/youtube',
+		'vimeo' => 'media/vimeo'
+	];
 
 	/**
 	*	The main check function. This is called by the parent class to actually check content
 	*/
 	function check()
 	{
-		$search = '/(youtube|youtu.be)/';
+		$search_youtube = '/(youtube|youtu.be)/';
+		$search_vimeo = '/(vimeo)/';
 
 		foreach ($this->getAllElements(array('a', 'embed', 'iframe')) as $video) {
-			$attr = ($video->tagName == 'a')
-					 ? 'href'
-					 : 'src';
-
+			$attr = ($video->tagName == 'a') ? 'href' : 'src';
 			if ($video->hasAttribute($attr)) {
-				foreach ($this->services as $service) {
-					$attr_val = $video->getAttribute($attr);
-					if ( preg_match($search, $attr_val) ){
-						if ($service->captionsMissing($attr_val)) {
-							$this->addReport($video);
-						}
+				$attr_val = $video->getAttribute($attr);
+				if ( preg_match($search_youtube, $attr_val) ) {
+					$service = 'youtube';
+				}
+				elseif ( preg_match($search_vimeo, $attr_val) ) {
+					$service = 'vimeo';
+				}
+				if (isset($service)) {
+					$captionState = $this->services[$service]->captionsMissing($attr_val);
+					if($captionState != 2) {
+						$this->addReport($video, null, null, $captionState, ($captionState == 1));
 					}
 				}
 			}

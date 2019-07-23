@@ -17,12 +17,16 @@
 *
 *	Primary Author Contact:  Jacob Bates <jacob.bates@ucf.edu>
 */
+global $alt_text_length_limit;
 ?>
 <div class="fix-alt input-group">
 	<label for="<?= $this->e($item_id); ?>-input" class="control-label sr-only">Provide New Alt Text For This Image</label>
-	<span class="counter">100</span>
-	<input class="form-control" type="text" name="newcontent" maxlength="100" placeholder="New alt text" id="<?= $this->e($item_id); ?>-input">
-	<span class="input-group-btn">
-		<button class="submit-content inactive btn btn-default" type="submit">Submit</button>
-	</span>
+	<span class="counter"><?= $alt_text_length_limit; ?></span>
+	<input class="form-control" type="text" name="newcontent" maxlength="<?= $alt_text_length_limit; ?>" placeholder="New alt text" id="<?= $this->e($item_id); ?>-input">
+    <label for="<?= $this->e($item_id); ?>-makedeco" class="control-label sr-only">Mark This Image As Decorative And Clear Alt Text</label>
+    <div class="checkbox">
+        <label><input type="checkbox" class="makedeco" name="makedeco" id="<?= $this->e($item_id); ?>-makedeco"> Mark image as decorative and clear alt text</label>
+    </div>
+	<button class="submit-content inactive btn btn-default" type="submit">Submit</button>
+	<div class="validmessage instance">Please check that you've entered new alt text and that it isn't a filename</div>
 </div>

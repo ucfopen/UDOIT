@@ -15,14 +15,14 @@ class youtubeService extends mediaService
 	*	@var array An array of regular expressions to extract the YouTube item code
 	*/
 	var $regex = array(
-		'@youtube\.com/embed/([^"\& ]+)@i',
-	    '@youtube\.com/v/([^"\& ]+)@i',
-	    '@youtube\.com/watch\?v=([^"\& ]+)@i',
-	    '@youtube\.com/\?v=([^"\& ]+)@i',
-	    '@youtu\.be/([^"\& ]+)@i',
-	    '@youtu\.be/v/([^"\& ]+)@i',
-	    '@youtu\.be/watch\?v=([^"\& ]+)@i',
-	    '@youtu\.be/\?v=([^"\& ]+)@i',
+		'@youtube\.com/embed/([^"\&\? ]+)@i',
+	    '@youtube\.com/v/([^"\&\? ]+)@i',
+	    '@youtube\.com/watch\?v=([^"\&\? ]+)@i',
+	    '@youtube\.com/\?v=([^"\&\? ]+)@i',
+	    '@youtu\.be/([^"\&\? ]+)@i',
+	    '@youtu\.be/v/([^"\&\? ]+)@i',
+	    '@youtu\.be/watch\?v=([^"\&\? ]+)@i',
+	    '@youtu\.be/\?v=([^"\&\? ]+)@i',
 		);
 
 	/**
@@ -33,33 +33,38 @@ class youtubeService extends mediaService
 	/**
 	*	Checks to see if a video is missing caption information in YouTube
 	*	@param string $link_url The URL to the video or video resource
-	*	@return bool TRUE if captions are missing, FALSE if captions exists
+	*	@return int 0 if captions are missing, 1 if video is private, 2 if captions exist or not a video
 	*/
 	function captionsMissing($link_url)
 	{
 		$url = $this->search_url;
 		$api_key = constant( 'GOOGLE_API_KEY' );
 
+		// If the API key is blank, flag the video for manual inspection
+		$key_trimmed = trim($api_key);
+		if( empty($key_trimmed) ){
+			return 1;
+		}
+
 		if( $youtube_id = $this->isYouTubeVideo($link_url) ) {
 			$url = $url.$youtube_id.'&key='.$api_key;
 			$response = Request::get($url)->send();
 
-			// If the video was pulled due to copyright violations, is unlisted, or is unavailable, the items array will be empty.
-			// Another error will result in this case
-			if( empty($response->body->items) ) {
-				return true;
+			// If the video was pulled due to copyright violations, is unlisted, or is unavailable, the reponse header will be 404
+			if( $response->code === 404) {
+				return 1;
 			}
-
+			// Looks through the captions and checks if any were not auto-generated
 			foreach ( $response->body->items as $track ) {
 				if ( $track->snippet->trackKind != 'ASR' ) {
-					return false;
+					return 2;
 				}
 			}
 
-			return true;
+			return 0;
 		}
 
-		return false;
+		return 2;
 
 	}
 
