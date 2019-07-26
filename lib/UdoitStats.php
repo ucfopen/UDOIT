@@ -266,7 +266,7 @@ class UdoitStats
             $limit_format = "OFFSET $offset ROWS FETCH NEXT $number_items ROWS ONLY\n";
         }
         $query = "SELECT $db_user_table.id as \"User ID\", "
-                ."COUNT(reports.user_id) AS \"Number of Scans\", "
+                ."COUNT($db_reports_table.user_id) AS \"Number of Scans\", "
                 .$date_format
                 ."canvas_url AS \"Canvas URL\"\n"
                 ."FROM $db_user_table\n"
