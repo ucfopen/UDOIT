@@ -124,7 +124,7 @@ If you need to check that the tables exist, you can connect to Postgres using so
 * `Select * from users;` or `Select * from reports;` will show you their contents
 * `\q` quits the psql terminal
 
-If needed, you can manually run the table creation script: `heroku run composer dbsetup`
+If needed, you can manually run the table creation script: `heroku run composer db-setup`
 
 ## Table Schema
 The table schema can be found in [migrations/](migrations/)
