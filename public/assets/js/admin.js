@@ -318,7 +318,7 @@ function populateTable(button_offset, target, formvals=null) {
 					$(table).addClass('table table-striped');
 					$('#' + target + '-results > div:nth-child(1)').after(table);
 					csv.removeClass('hidden');
-					csv.click(function(){
+					csv.unbind('click').click(function(){
 						tableToCSV('#' + target + '-results', "UDOIT_" + filename + ".csv");
 					});
 
@@ -379,7 +379,7 @@ $('#errors-common-submit').click(function(){
 
 			$('#errors-common-results').append(table);
 			$('#errors-common-csv').removeClass('hidden');
-			$('#errors-common-csv').click(function(){
+			$('#errors-common-csv').unbind('click').click(function(){
 				tableToCSV('#errors-common-results', "UDOIT_Errors.csv");
 			});
 
