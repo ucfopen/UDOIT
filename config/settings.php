@@ -3,7 +3,7 @@ define('ENV_TEST', 'test');
 define('ENV_PROD', 'prod');
 define('ENV_DEV', 'dev');
 
-define('UDOIT_VERSION', '2.6.0-440-1');
+define('UDOIT_VERSION', '2.6.0');
 
 // SET UP AUTOLOADER (uses autoload rules from composer)
 require_once(__DIR__.'/../vendor/autoload.php');
