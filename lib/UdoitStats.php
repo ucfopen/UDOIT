@@ -105,8 +105,10 @@ class UdoitStats
         // Can only append these parameters at the end of the SQL query
         if ('mysql' == $db_type) {
             $date_order = "DATE(date_run)";
+            $limit_format = "LIMIT $offset, $number_items\n";
         } elseif ('pgsql' == $db_type) {
             $date_order = "date_run";
+            $limit_format = "OFFSET $offset ROWS FETCH NEXT $number_items ROWS ONLY\n";
         }
         switch ($order_by) {
             case 'mostrecent':
@@ -125,7 +127,7 @@ class UdoitStats
                 $query .= "ORDER BY $date_order DESC\n";
         }
 
-        $query .= "OFFSET $offset ROWS FETCH NEXT $number_items ROWS ONLY\n";
+        $query .= $limit_format;
 
         $sth = UdoitDB::prepare($query);
         if (isset($get_data['start_date'])) {
@@ -258,8 +260,10 @@ class UdoitStats
 
         if ('mysql' == $db_type) {
             $date_format = "DATE_FORMAT(date_created, '%Y-%m-%d') AS \"Date Created\", ";
+            $limit_format = "LIMIT $offset, $number_items\n";
         } elseif ('pgsql' == $db_type) {
             $date_format = "TO_CHAR(date_created, 'Month dd, YYYY HH:MI:SS AM TZ') AS \"Date Created\", ";
+            $limit_format = "OFFSET $offset ROWS FETCH NEXT $number_items ROWS ONLY\n";
         }
         $query = "SELECT $db_user_table.id as \"User ID\", "
                 ."COUNT($db_reports_table.user_id) AS \"Number of Scans\", "
@@ -269,7 +273,7 @@ class UdoitStats
                 ."LEFT JOIN $db_reports_table ON($db_user_table.id = $db_reports_table.user_id)\n"
                 ."GROUP BY $db_user_table.id\n"
                 ."ORDER BY $db_user_table.id\n"
-                ."OFFSET $offset ROWS FETCH NEXT $number_items ROWS ONLY\n";
+                .$limit_format;
 
         $sth = UdoitDB::prepare($query);
 
@@ -369,7 +373,13 @@ class UdoitStats
             $query .= $prepend_word." DATE(date_created) <= :enddate\n";
         }
 
-        $query .= "GROUP BY {$date_format} ORDER BY {$date_format} OFFSET $offset ROWS FETCH NEXT $number_items ROWS ONLY";
+        if ('mysql' == $db_type) {
+            $limit_format = "LIMIT $offset, $number_items";
+        } else if ('pgsql' == $db_type) {
+            $limit_format = "OFFSET $offset ROWS FETCH NEXT $number_items ROWS ONLY";
+        }
+
+        $query .= "GROUP BY {$date_format} ORDER BY {$date_format} {$limit_format}";
 
         $sth = UdoitDB::prepare($query);
         if (isset($startDate)) {
