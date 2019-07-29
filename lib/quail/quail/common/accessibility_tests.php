@@ -6493,7 +6493,7 @@ class videoCaptionsAreCorrectLanguage extends quailTest
 					$service = 'vimeo';
 				}
 				if (isset($service)) {
-					$captionState = $this->services[$service]->captionsLanguage($attr_val);
+					$captionState = $this->services[$service]->captionsLanguage($attr_val, $this->course_locale);
 					if($captionState != 2) {
 						$this->addReport($video, null, null, $captionState, ($captionState == 1));
 					}

@@ -67,6 +67,11 @@ class quail {
 	var $domain;
 
 	/**
+	*	@var string The locale/language of the Canvas course
+	*/
+	var $course_locale;
+
+	/**
 	*	@var string The name of the guideline
 	*/
 	var $guideline_name = 'wcag';
@@ -129,8 +134,9 @@ class quail {
 	*	@param string $type The type of the request (either file, uri, or string)
 	*	@param string $reporter The name of the reporter to use
 	*	@param string $domain The domain of the translation language to use
+	*	@param string $course_locale The locale/language of the Canvas course
 	*/
-	function __construct($value, $guideline = 'wcag2aaa', $type = 'string', $reporter = 'static', $domain = 'en')
+	function __construct($value, $guideline = 'wcag2aaa', $type = 'string', $reporter = 'static', $domain = 'en', $course_locale = 'en')
 	{
 		$this->dom = new DOMDocument();
 		$this->type = $type;
@@ -141,6 +147,7 @@ class quail {
 		$this->guideline_name = $guideline;
 		$this->reporter_name = $reporter;
 		$this->value = $value;
+		$this->course_locale = $course_locale;
 	}
 
 	/**
@@ -377,8 +384,9 @@ class quail {
 	/**
 	*	Starts running automated checks. Loads the CSS file parser
 	*	and the guideline object.
+	*	@param string $course_locale The locale/language of the Canvas course
 	*/
-	function runCheck($options = null)
+	function runCheck($options = null, $course_locale)
 	{
 		$this->prepareDOM();
 
@@ -393,7 +401,7 @@ class quail {
 			require_once('guidelines/'. $this->guideline_name .'.php');
 		}
 
-		$this->guideline = new $classname($this->dom, $this->css, $this->path, $options, $this->domain, $this->options['cms_mode']);
+		$this->guideline = new $classname($this->dom, $this->css, $this->path, $options, $this->domain, $this->options['cms_mode'], $this->course_locale);
 		//error_log("runCheck completed, quail object is now: ".serialize($this));
 	}
 
@@ -675,6 +683,11 @@ class quailGuideline {
 	var $translations;
 
 	/**
+	*	@var string The locale/language of the Canvas course
+	*/
+	var $course_locale;
+
+	/**
 	*	@var bool Whether we are running in CMS mode
 	*/
 	var $cms_mode = false;
@@ -689,16 +702,18 @@ class quailGuideline {
 	*	@param object $dom The current DOMDocument object
 	*	@param object $css The current QuailCSS object
 	*	@param string $path The current path
+	*	@param string $course_locale The locale/language of the Canvas course
 	*/
 
-	function __construct(&$dom, &$css, &$path, $arg = null, $domain = 'en', $cms_mode = false)
+	function __construct(&$dom, &$css, &$path, $arg = null, $domain = 'en', $cms_mode = false, $course_locale)
 	{
 		$this->dom = &$dom;
 		$this->css = &$css;
 		$this->path = &$path;
 		$this->cms_mode = $cms_mode;
+		$this->course_locale = $course_locale;
 		$this->loadTranslations($domain);
-		$this->run($arg, $domain);
+		$this->run($arg, $domain, $course_locale);
 	}
 
 	/**
@@ -744,8 +759,9 @@ class quailGuideline {
 	}
 	/**
 	*	Iterates through each test string, makes a new test object, and runs it against the current DOM
+	*	@param string $course_locale The locale/language of the Canvas course
 	*/
-	function run($arg = null, $language = 'en')
+	function run($arg = null, $language = 'en', $course_locale = 'en')
 	{
 		foreach ($this->tests as $testname => $options) {
 			if (is_numeric($testname) && !is_array($options)) {
@@ -753,7 +769,7 @@ class quailGuideline {
 			}
 
 			if (class_exists($testname) && $this->dom) {
-				$$testname = new $testname($this->dom, $this->css, $this->path, $language, $arg);
+				$$testname = new $testname($this->dom, $this->css, $this->path, $language, $arg, $course_locale);
 
 				if (!$this->cms_mode || ($$testname->cms && $this->cms_mode)) {
 					$this->report[$testname] = $$testname->getReport();

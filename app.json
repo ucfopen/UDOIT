@@ -78,10 +78,6 @@
       "description": "Enable the Admin Panel feature.  False disables access and removes the block from the configuration XML.",
       "value": "false"
     },
-    "CANVAS_COURSE_LANGUAGE": {
-      "description": "The ISO 639-1 language code for the Canvas course. Defaults to English (en) if not set.",
-      "required": false
-    },
   },
   "addons": [
     "heroku-postgresql:hobby-dev"

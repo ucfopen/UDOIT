@@ -1,4 +1,4 @@
-<?php
+<?php session_start();
 /**
 *   Copyright (C) 2014 University of Central Florida, created by Jacob Bates, Eric Colon, Fenel Joseph, and Emily Sachs.
 *
@@ -286,6 +286,22 @@ class UdoitUtils
         return $ordered_report_groups;
     }
 
+    public function getCourseLocale($api_key, $course_id)
+    {
+        global $logger;
+
+        $logger->addError("Course ID is ");
+        $logger->addError($course_id);
+
+        //Grab course locale from canvas
+        $url = self::$canvas_base_url."/api/v1/courses/{$course_id}";
+        $resp = Httpful\Request::get($url)
+            ->addHeader('Authorization', "Bearer {$api_key}")
+            ->send();
+
+        return $resp->body->locale;
+    }
+
     protected function curlOauthToken($base_url, $post_data)
     {
         // @TODO - why not use Httpful here?
@@ -302,4 +318,5 @@ class UdoitUtils
 
         return json_decode($result);
     }
+
 }

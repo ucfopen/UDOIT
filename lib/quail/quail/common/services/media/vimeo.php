@@ -53,23 +53,25 @@ class vimeoService extends mediaService
 		return 2;
 	}
 
-	function captionsLanguage($link_url)
+	/**
+	*	Checks to see if a video is missing caption information in YouTube
+	*	@param string $link_url The URL to the video or video resource
+	*	@param string $course_locale The locale/language of the Canvas course
+	*	@return int 0 if captions are manual and wrong language, 1 if video is private, 2 if there are no captions or if manually generated and correct language
+	*/
+	function captionsLanguage($link_url, $course_locale)
 	{
 		$url = $this->search_url;
 		$api_key = constant( 'VIMEO_API_KEY' );
-
-		if(!empty(constant( 'COURSE_LANGUAGE' ))) {
-			$courseLanguage = constant( 'COURSE_LANGUAGE' );
-		}
-
-		else {
-			$courseLanguage = 'en';
-		}
 
 		// If the API key is blank, flag the video for manual inspection
 		$key_trimmed = trim($api_key);
 		if( empty($key_trimmed) ){
 			return 1;
+		}
+		// If for whatever reason course_locale is blank, set it to English
+		if($course_locale === '') {
+			$course_locale = 'en';
 		}
 
 		if( $vimeo_id = $this->isVimeoVideo($link_url) ) {
@@ -85,7 +87,7 @@ class vimeoService extends mediaService
 			}
 
 			foreach ( $response->body->data as $track) {
-				if( $track->language === $courseLanguage ) {
+				if( substr($track->language,0,2) === $course_locale ) {
 					return 2;
 				}
 			}

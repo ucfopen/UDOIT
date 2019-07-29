@@ -70,20 +70,13 @@ class youtubeService extends mediaService
 	/**
 	*	Checks to see if a video is missing caption information in YouTube
 	*	@param string $link_url The URL to the video or video resource
-	*	@return int 0 if captions are manual and wrong language, 1 if video is private, 2 if captions are 	            auto-generated or manually generated and correct language
+	*	@param string $course_locale The locale/language of the Canvas course
+	*	@return int 0 if captions are manual and wrong language, 1 if video is private, 2 if captions are auto-generated or manually generated and correct language
 	*/
-	function captionsLanguage($link_url)
+	function captionsLanguage($link_url, $course_locale)
 	{
 		$url = $this->search_url;
 		$api_key = constant( 'GOOGLE_API_KEY' );
-
-		if(!empty(constant( 'COURSE_LANGUAGE' ))) {
-			$courseLanguage = constant( 'COURSE_LANGUAGE' );
-		}
-
-		else {
-			$courseLanguage = 'en';
-		}
 
 		$foundManual = false;
 
@@ -91,6 +84,11 @@ class youtubeService extends mediaService
 		$key_trimmed = trim($api_key);
 		if( empty($key_trimmed) ){
 			return 1;
+		}
+
+		// If for whatever reason course_locale is blank, set it to English
+		if($course_locale === '') {
+			$course_locale = 'en';
 		}
 
 		if( $youtube_id = $this->isYouTubeVideo($link_url) ) {
@@ -108,7 +106,7 @@ class youtubeService extends mediaService
 					$foundManual = true;
 				}
 
-				if( $track->snippet->language == $courseLanguage && $track->snippet->trackKind != 'ASR' ) {
+				if( substr($track->snippet->language,0,2) == $course_locale && $track->snippet->trackKind != 'ASR' ) {
 					return 2;
 				}
 
