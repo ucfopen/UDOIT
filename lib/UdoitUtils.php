@@ -318,5 +318,4 @@ class UdoitUtils
 
         return json_decode($result);
     }
-
 }

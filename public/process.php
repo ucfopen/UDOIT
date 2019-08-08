@@ -62,7 +62,7 @@ switch ($main_action) {
             'title'        => $title,
             'course_id'    => $course_id,
             'scan_item'    => $scan_item,
-            'course_locale'=> $course_locale
+            'course_locale' => $course_locale,
         ];
 
         // create an id to group all these jobs together
