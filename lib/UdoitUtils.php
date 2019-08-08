@@ -286,13 +286,16 @@ class UdoitUtils
         return $ordered_report_groups;
     }
 
+    /**
+     * Takes a canvas api key and course ID and returns the course locale
+     *
+     * @param string $api_key   The Canvas api key
+     * @param int    $course_id The ID of the Canvas course
+     *
+     * @return array An ordered list of report groups
+     */
     public function getCourseLocale($api_key, $course_id)
     {
-        global $logger;
-
-        $logger->addError("Course ID is ");
-        $logger->addError($course_id);
-
         //Grab course locale from canvas
         $url = self::$canvas_base_url."/api/v1/courses/{$course_id}";
         $resp = Httpful\Request::get($url)
