@@ -676,7 +676,7 @@ class quailGuideline {
 	var $report;
 
 	/**
-	*	@var array An array of report objects
+	*	@var string The type of severity the user would like to see on report
 	*/
 	var $report_type;
 
@@ -700,6 +700,7 @@ class quailGuideline {
 	*	@param object $dom The current DOMDocument object
 	*	@param object $css The current QuailCSS object
 	*	@param string $path The current path
+	*	@param string $report_type The type of severity the user would like to see on report
 	*/
 
 	function __construct(&$dom, &$css, &$path, $arg = null, $domain = 'en', $cms_mode = false, $report_type = 'all')
@@ -759,8 +760,6 @@ class quailGuideline {
 	*/
 	function run($arg = null, $language = 'en')
 	{
-		global $logger;
-
 		foreach ($this->tests as $testname => $options) {
 			if (is_numeric($testname) && !is_array($options)) {
 				$testname = $options;
@@ -771,9 +770,6 @@ class quailGuideline {
 
 				if ((!$this->cms_mode || ($$testname->cms && $this->cms_mode)) && $this->correctSeverity($$testname->default_severity)) {
 					$this->report[$testname] = $$testname->getReport();
-
-					$logger->addError("Adding test of severity");
-					$logger->addError($$testname->default_severity);
 				}
 
 				$this->severity[$testname] = $$testname->default_severity;
@@ -783,7 +779,10 @@ class quailGuideline {
 			}
 		}
 	}
-
+	/**
+	*	Checks that the severity of the test matches what the user wants to see on their report
+	*	@return bool Whether or not to run the test
+	*/
 	function correctSeverity($severity)
 	{
 		if($this->report_type == 'all') {
