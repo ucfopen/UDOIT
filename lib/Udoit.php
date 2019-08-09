@@ -136,35 +136,26 @@ class Udoit
             $suggestions = [];
             $state       = null;
 
-            //$report_type = "suggestions";
-
             // loop over the items returning from Quail
             foreach ($quail_report['report'] as $quail_issue) {
                 if (empty($quail_issue['severity_num'])) {
                     continue;
                 }
 
+                $issue_count++;
                 $state = $quail_issue['state'];
 
                 switch ((int) $quail_issue['severity_num']) {
                     case 1:
-                        if($report_type == "errors" || $report_type == "all") {
-                            $errors[] = $quail_issue;
-                            $issue_count++;
-                        }
+                        $errors[] = $quail_issue;
                         break;
+
                     case 2:
-                        if($report_type == "suggestions" || $report_type == "all") {
-                            $warnings[] = $quail_issue;
-                            $issue_count++;
-                        }
+                        $warnings[] = $quail_issue;
                         break;
 
                     case 3:
-                        if($report_type == "suggestions" || $report_type == "all") {
-                            $suggestions[] = $quail_issue;
-                            $issue_count++;
-                        }
+                        $suggestions[] = $quail_issue;
                         break;
                 }
             }
