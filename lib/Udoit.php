@@ -113,6 +113,7 @@ class Udoit
      * Calls the Quail library to generate a UDOIT report
      * @param  array  $content_items The items from whatever type of Canvas content was scanned
      * @param  string $report_type   The type of severity the user would like to see on report
+     *
      * @return array  The report results
      */
     public static function scanContent(array $content_items, $report_type)
