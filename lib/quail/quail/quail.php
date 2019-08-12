@@ -781,6 +781,7 @@ class quailGuideline {
 	}
 	/**
 	*	Checks that the severity of the test matches what the user wants to see on their report
+	*	@param int $severity The severity of the test
 	*	@return bool Whether or not to run the test
 	*/
 	function correctSeverity($severity)
@@ -801,7 +802,7 @@ class quailGuideline {
 
 	/**
 	*	Returns all the Report variable
-	*	@reutrn mixed Look to your report to see what it returns
+	*	@return mixed Look to your report to see what it returns
 	*/
 	function getReport()
 	{

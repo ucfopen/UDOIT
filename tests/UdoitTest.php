@@ -667,7 +667,7 @@ class UdoitTest extends BaseTest
         $content_items = [
             ['content' => ''],
         ];
-        $result = Udoit::scanContent($content_items,"all");
+        $result = Udoit::scanContent($content_items, "all");
         self::assertEmpty($result);
     }
 
@@ -859,7 +859,7 @@ class UdoitTest extends BaseTest
             ->shouldReceive('get')
             ->andReturn($mock_get_result);
 
-        $result = Udoit::retrieveAndScan('', '', '', 'files','all');
+        $result = Udoit::retrieveAndScan('', '', '', 'files', 'all');
 
         self::assertArrayHasKey('scan_results', $result);
 
@@ -938,7 +938,7 @@ class UdoitTest extends BaseTest
             ->shouldReceive('get')
             ->andReturn($mock_get_result);
 
-        $result = Udoit::retrieveAndScan('', '', '', 'module_urls','all');
+        $result = Udoit::retrieveAndScan('', '', '', 'module_urls', 'all');
 
         // make sure the totals we expect to see are calculated
         self::assertArrayHasKey('total_results', $result);
