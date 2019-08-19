@@ -24,6 +24,7 @@ global $file_scan_size_limit;
 <small><?= $this->e($error_count); ?> error<?php if($error_count != 1): ?>s<?php endif; ?>, <?= $suggestion_count; ?> suggestion<?php if($suggestion_count != 1): ?>s<?php endif; ?>, <?= $unscannable_count; ?> unscannable file<?php if($unscannable_count != 1): ?>s<?php endif; ?></small>
 </h1>
 
+<?php if( !empty($error_summary) || !empty($suggestion_summary) ): ?>
 <div id="errorTotalSummary">
 	<div id="summaryContainer" class="panel panel-default">
 		<div class="panel-heading clearfix">
@@ -62,6 +63,7 @@ global $file_scan_size_limit;
 		</div>
 	</div>
 </div>
+<?php endif; ?>
 
 <p>
 	<?php if ( ! empty($post_path)): ?>
