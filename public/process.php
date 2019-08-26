@@ -45,6 +45,7 @@ switch ($main_action) {
         $title     = filter_input(INPUT_POST, 'context_title', FILTER_SANITIZE_STRING);
         $course_id = filter_input(INPUT_POST, 'course_id', FILTER_SANITIZE_NUMBER_INT);
         $job_group = uniqid('job_', true); // uniqid for this group of jobs
+        $flag = filter_input(INPUT_POST, 'unpublished_flag', FILTER_DEFAULT);
 
         // No content selected
         if ('none' === $content) {
@@ -59,6 +60,7 @@ switch ($main_action) {
             'title'        => $title,
             'course_id'    => $course_id,
             'scan_item'    => $scan_item,
+            'flag'         => $flag,
         ];
 
         // create an id to group all these jobs together

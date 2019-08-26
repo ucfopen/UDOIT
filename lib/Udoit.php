@@ -31,7 +31,7 @@ class Udoit
      *
      * @return array Results of the scan
      */
-    public static function retrieveAndScan($api_key, $canvas_api_url, $course_id, $content_type)
+    public static function retrieveAndScan($api_key, $canvas_api_url, $course_id, $content_type, $flag)
     {
         global $logger;
 
@@ -43,7 +43,7 @@ class Udoit
         $suggestion_summary = [];
         $scan_time_start = microtime(true);
 
-        $content = static::getCourseContent($api_key, $canvas_api_url, $course_id, $content_type);
+        $content = static::getCourseContent($api_key, $canvas_api_url, $course_id, $content_type, $flag);
 
         if ('module_urls' !== $content_type) {
             // everything except module_urls goes through a content scanner
@@ -184,8 +184,10 @@ class Udoit
      *
      * @return array The report results
      */
-    public static function getCourseContent($api_key, $canvas_api_url, $course_id, $type)
+    public static function getCourseContent($api_key, $canvas_api_url, $course_id, $type, $flag)
     {
+        global $logger;
+
         $api_url = "{$canvas_api_url}/api/v1/courses/{$course_id}/";
         $content_result = [
             'items'       => [], // array of items of this type
@@ -194,40 +196,48 @@ class Udoit
             'unscannable' => [], // items that couldnt be scanned
         ];
 
+        // If flag is set to 0, filter out unpublished content
+
         switch ($type) {
             case 'announcements':
                 $contents = static::apiGetAllLinks($api_key, "{$api_url}discussion_topics?&only_announcements=true");
                 foreach ($contents as $c) {
-                    $content_result['items'][] = [
-                        'id'      => $c->id,
-                        'content' => $c->message,
-                        'title'   => $c->title,
-                        'url'     => $c->html_url,
-                    ];
+                    if(($flag) || $c->published == "true") {
+                        $content_result['items'][] = [
+                            'id'      => $c->id,
+                            'content' => $c->message,
+                            'title'   => $c->title,
+                            'url'     => $c->html_url,
+                        ];
+                    }
                 }
                 break;
 
             case 'assignments':
                 $contents = static::apiGetAllLinks($api_key, "{$api_url}assignments?");
                 foreach ($contents as $c) {
-                    $content_result['items'][] = [
-                        'id'      => $c->id,
-                        'content' => $c->description,
-                        'title'   => $c->name,
-                        'url'     => $c->html_url,
-                    ];
+                    if(($flag) || $c->published == "true") {
+                        $content_result['items'][] = [
+                            'id'      => $c->id,
+                            'content' => $c->description,
+                            'title'   => $c->name,
+                            'url'     => $c->html_url,
+                        ];
+                    }
                 }
                 break;
 
             case 'discussions':
                 $contents = static::apiGetAllLinks($api_key, "{$api_url}discussion_topics?");
                 foreach ($contents as $c) {
-                    $content_result['items'][] = [
-                        'id'      => $c->id,
-                        'content' => $c->message,
-                        'title'   => $c->title,
-                        'url'     => $c->html_url,
-                    ];
+                    if(($flag) || $c->published == "true") {
+                        $content_result['items'][] = [
+                            'id'      => $c->id,
+                            'content' => $c->message,
+                            'title'   => $c->title,
+                            'url'     => $c->html_url,
+                        ];
+                    }
                 }
                 break;
 
@@ -303,14 +313,16 @@ class Udoit
             case 'pages':
                 $contents = static::apiGetAllLinks($api_key, "{$api_url}pages?");
                 foreach ($contents as $c) {
-                    $wiki_page = static::apiGet("{$api_url}pages/{$c->url}", $api_key)->send();
+                    if(($flag) || $c->published == "true") {
+                        $wiki_page = static::apiGet("{$api_url}pages/{$c->url}", $api_key)->send();
 
-                    $content_result['items'][] = [
-                        'id'      => $wiki_page->body->url,
-                        'content' => $wiki_page->body->body,
-                        'title'   => $wiki_page->body->title,
-                        'url'     => $wiki_page->body->html_url,
-                    ];
+                        $content_result['items'][] = [
+                            'id'      => $wiki_page->body->url,
+                            'content' => $wiki_page->body->body,
+                            'title'   => $wiki_page->body->title,
+                            'url'     => $wiki_page->body->html_url,
+                        ];
+                    }
                 }
                 break;
 

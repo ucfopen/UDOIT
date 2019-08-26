@@ -168,7 +168,7 @@ function displayScanResults(results) {
 }
 
 /* Builds up the results and adds them to the page */
-function sendScanRequest(main_action, base_url, course_id, context_label, context_title, content) {
+function sendScanRequest(main_action, base_url, course_id, context_label, context_title, content, unpublished_flag) {
 	if (content.length === 0) content = 'none';
 
 	$.ajax({
@@ -181,7 +181,8 @@ function sendScanRequest(main_action, base_url, course_id, context_label, contex
 			content: content,
 			course_id: course_id,
 			context_label: context_label,
-			context_title: context_title
+			context_title: context_title,
+			unpublished_flag: unpublished_flag,
 		},
 		success: function(resp){
 			if(resp && resp.hasOwnProperty('job_group')){
@@ -328,9 +329,10 @@ $doc.ready(function() {
 		var context_label = $('input[name="session_context_label"]').val();
 		var context_title = $('input[name="session_context_title"]').val();
 		var content = $('.content:not(#allContent):checked').map(function(i, n) { return $(n).val(); }).get();
+		var unpublished_flag = $('#unpubCheckbox').is(":checked") ? 1 : 0;
 
 		displayLoader();
-		sendScanRequest(main_action, base_url, course_id, context_label, context_title, content);
+		sendScanRequest(main_action, base_url, course_id, context_label, context_title, content, unpublished_flag);
 
 		return false;
 	};
