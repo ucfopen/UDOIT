@@ -252,60 +252,62 @@ class Udoit
 
                 $contents = static::apiGetAllLinks($api_key, "{$api_url}files?");
                 foreach ($contents as $c) {
-                    if (substr($c->display_name, 0, 2) === '._') {
-                        continue;
-                    }
-
-                    $extension = pathinfo($c->filename, PATHINFO_EXTENSION);
-                    global $file_scan_size_limit;
-
-                    if (in_array($extension, ['pdf', 'doc', 'docx', 'ppt', 'pptx'])) {
-                        // not scannable types
-                        // get folder path
-                        // get full_name from folder information for folder url
-                        $path = str_replace('course files', '', static::apiGet("{$api_url}folders/{$c->folder_id}", $api_key)->send()->body->full_name);
-                        // only prepend 'folder' if the current path is not in the root folder
-                        if (!empty($path)) {
-                            $path = "folder".$path;
+                    if(($flag) || $c->locked == "false") {
+                        if (substr($c->display_name, 0, 2) === '._') {
+                            continue;
                         }
-                        // prepend canvas url
-                        $path = "{$canvas_api_url}/courses/{$course_id}/files/".$path;
 
-                        // saves modules item is in for unscannable section
-                        unset($modules);
-                        $modules = [];
-                        foreach ($all_modules as $m) {
-                            foreach ($m->items as $i) {
-                                if ($i->title == $c->display_name) {
-                                    $modules[] = $m->name;
+                        $extension = pathinfo($c->filename, PATHINFO_EXTENSION);
+                        global $file_scan_size_limit;
+
+                        if (in_array($extension, ['pdf', 'doc', 'docx', 'ppt', 'pptx'])) {
+                            // not scannable types
+                            // get folder path
+                            // get full_name from folder information for folder url
+                            $path = str_replace('course files', '', static::apiGet("{$api_url}folders/{$c->folder_id}", $api_key)->send()->body->full_name);
+                            // only prepend 'folder' if the current path is not in the root folder
+                            if (!empty($path)) {
+                                $path = "folder".$path;
+                            }
+                            // prepend canvas url
+                            $path = "{$canvas_api_url}/courses/{$course_id}/files/".$path;
+
+                            // saves modules item is in for unscannable section
+                            unset($modules);
+                            $modules = [];
+                            foreach ($all_modules as $m) {
+                                foreach ($m->items as $i) {
+                                    if ($i->title == $c->display_name) {
+                                        $modules[] = $m->name;
+                                    }
                                 }
                             }
-                        }
-                        $modules = array_unique($modules);
+                            $modules = array_unique($modules);
 
-                        $content_result['unscannable'][] = [
-                            'title'     => $c->display_name,
-                            'url'       => $c->url,
-                            'path'      => $path,
-                            'modules'    => $modules,
-                            'extension' => $extension,
-                            'big'       => false,
-                        ];
-                    } elseif (!empty($c->size) && $c->size > $file_scan_size_limit) {
-                        // too big to scan
-                        $content_result['unscannable'][] = [
-                            'title' => $c->display_name,
-                            'url' => $c->url,
-                            'big' => true,
-                        ];
-                    } elseif (in_array($extension, ['html', 'htm'])) {
-                        // scannable!
-                        $content_result['items'][] = [
-                            'id'      => $c->id,
-                            'content' => static::apiGet($c->url)->followRedirects()->expectsHtml()->send()->body,
-                            'title'   => $c->display_name,
-                            'url'     => $c->url,
-                        ];
+                            $content_result['unscannable'][] = [
+                                'title'     => $c->display_name,
+                                'url'       => $c->url,
+                                'path'      => $path,
+                                'modules'    => $modules,
+                                'extension' => $extension,
+                                'big'       => false,
+                            ];
+                        } elseif (!empty($c->size) && $c->size > $file_scan_size_limit) {
+                            // too big to scan
+                            $content_result['unscannable'][] = [
+                                'title' => $c->display_name,
+                                'url' => $c->url,
+                                'big' => true,
+                            ];
+                        } elseif (in_array($extension, ['html', 'htm'])) {
+                            // scannable!
+                            $content_result['items'][] = [
+                                'id'      => $c->id,
+                                'content' => static::apiGet($c->url)->followRedirects()->expectsHtml()->send()->body,
+                                'title'   => $c->display_name,
+                                'url'     => $c->url,
+                            ];
+                        }
                     }
                 }
                 break;
@@ -334,16 +336,18 @@ class Udoit
 
                 foreach ($resp as $r) {
                     foreach ($r->items as $c) {
-                        $count++;
-                        $external_url = (isset($c->external_url) ? $c->external_url : '');
+                        if(($flag) || $c->published == "true") {
+                            $count++;
+                            $external_url = (isset($c->external_url) ? $c->external_url : '');
 
-                        if (preg_match($search, $external_url) === 1) {
-                            $content_result['items'][] = [
-                                'id'           => $c->id,
-                                'external_url' => $c->external_url,
-                                'title'        => $c->title,
-                                'url'          => $c->html_url,
-                            ];
+                            if (preg_match($search, $external_url) === 1) {
+                                $content_result['items'][] = [
+                                    'id'           => $c->id,
+                                    'external_url' => $c->external_url,
+                                    'title'        => $c->title,
+                                    'url'          => $c->html_url,
+                                ];
+                            }
                         }
                     }
                 }
@@ -356,13 +360,15 @@ class Udoit
             case 'syllabus':
                 $url = "{$api_url}?include[]=syllabus_body";
                 $response = static::apiGet($url, $api_key)->send();
-                if (!empty($response->body->syllabus_body)) {
-                    $content_result['items'][] = [
-                        'id'      => $response->body->id,
-                        'content' => $response->body->syllabus_body,
-                        'title'   => 'Syllabus',
-                        'url'     => "{$canvas_api_url}/courses/{$course_id}/assignments/syllabus",
-                    ];
+                if(($flag) || $response->body->published == "true") {
+                    if (!empty($response->body->syllabus_body)) {
+                        $content_result['items'][] = [
+                            'id'      => $response->body->id,
+                            'content' => $response->body->syllabus_body,
+                            'title'   => 'Syllabus',
+                            'url'     => "{$canvas_api_url}/courses/{$course_id}/assignments/syllabus",
+                        ];
+                    }
                 }
                 break;
 
