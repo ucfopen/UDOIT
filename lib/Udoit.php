@@ -28,10 +28,11 @@ class Udoit
      * @param string $canvas_api_url The base URL of the Canvas API
      * @param string $course_id      The Canvas course id
      * @param string $content_type   The group of content types we'll retrieve EX: 'pages' or 'assignments'
+     * @param int    $content_flag   A flag indicating whether to scan unpublished content
      *
      * @return array Results of the scan
      */
-    public static function retrieveAndScan($api_key, $canvas_api_url, $course_id, $content_type, $flag)
+    public static function retrieveAndScan($api_key, $canvas_api_url, $course_id, $content_type, $content_flag)
     {
         global $logger;
 
@@ -43,7 +44,7 @@ class Udoit
         $suggestion_summary = [];
         $scan_time_start = microtime(true);
 
-        $content = static::getCourseContent($api_key, $canvas_api_url, $course_id, $content_type, $flag);
+        $content = static::getCourseContent($api_key, $canvas_api_url, $course_id, $content_type, $content_flag);
 
         if ('module_urls' !== $content_type) {
             // everything except module_urls goes through a content scanner
@@ -181,10 +182,11 @@ class Udoit
      * @param string $canvas_api_url Base uri for your canvas api
      * @param string $course_id      The canvas course id
      * @param string $type           The type of course content to be scanned
+     * @param int    $content_flag   A flag indicating whether to scan unpublished content
      *
      * @return array The report results
      */
-    public static function getCourseContent($api_key, $canvas_api_url, $course_id, $type, $flag)
+    public static function getCourseContent($api_key, $canvas_api_url, $course_id, $type, $content_flag)
     {
         global $logger;
 
@@ -202,7 +204,7 @@ class Udoit
             case 'announcements':
                 $contents = static::apiGetAllLinks($api_key, "{$api_url}discussion_topics?&only_announcements=true");
                 foreach ($contents as $c) {
-                    if(($flag) || $c->published == "true") {
+                    if (($content_flag) || $c->published == "true") {
                         $content_result['items'][] = [
                             'id'      => $c->id,
                             'content' => $c->message,
@@ -216,7 +218,7 @@ class Udoit
             case 'assignments':
                 $contents = static::apiGetAllLinks($api_key, "{$api_url}assignments?");
                 foreach ($contents as $c) {
-                    if(($flag) || $c->published == "true") {
+                    if (($content_flag) || $c->published == "true") {
                         $content_result['items'][] = [
                             'id'      => $c->id,
                             'content' => $c->description,
@@ -230,7 +232,7 @@ class Udoit
             case 'discussions':
                 $contents = static::apiGetAllLinks($api_key, "{$api_url}discussion_topics?");
                 foreach ($contents as $c) {
-                    if(($flag) || $c->published == "true") {
+                    if (($content_flag) || $c->published == "true") {
                         $content_result['items'][] = [
                             'id'      => $c->id,
                             'content' => $c->message,
@@ -252,7 +254,7 @@ class Udoit
 
                 $contents = static::apiGetAllLinks($api_key, "{$api_url}files?");
                 foreach ($contents as $c) {
-                    if(($flag) || $c->locked == "false") {
+                    if (($content_flag) || $c->locked != 1) {
                         if (substr($c->display_name, 0, 2) === '._') {
                             continue;
                         }
@@ -315,7 +317,7 @@ class Udoit
             case 'pages':
                 $contents = static::apiGetAllLinks($api_key, "{$api_url}pages?");
                 foreach ($contents as $c) {
-                    if(($flag) || $c->published == "true") {
+                    if (($content_flag) || $c->published == "true") {
                         $wiki_page = static::apiGet("{$api_url}pages/{$c->url}", $api_key)->send();
 
                         $content_result['items'][] = [
@@ -336,7 +338,7 @@ class Udoit
 
                 foreach ($resp as $r) {
                     foreach ($r->items as $c) {
-                        if(($flag) || $c->published == "true") {
+                        if (($content_flag) || $c->published == "true") {
                             $count++;
                             $external_url = (isset($c->external_url) ? $c->external_url : '');
 
@@ -360,7 +362,7 @@ class Udoit
             case 'syllabus':
                 $url = "{$api_url}?include[]=syllabus_body";
                 $response = static::apiGet($url, $api_key)->send();
-                if(($flag) || $response->body->published == "true") {
+                if (($content_flag) || $response->body->published == "true") {
                     if (!empty($response->body->syllabus_body)) {
                         $content_result['items'][] = [
                             'id'      => $response->body->id,
