@@ -97,16 +97,6 @@ $this->layout('template', $settings);
 
 						<br />
 
-						<!-- <div class="btn-group btn-toggle"> 
-    						<button class="btn btn-lg btn-default">ON</button>
-    						<button class="btn btn-lg btn-primary active">OFF</button>
-  						</div> -->
-
-  						<!-- <form>
-  							<label for="flip-checkbox-1">Use unpublished content:</label>
-  							<input type="checkbox" data-role="flipswitch" name="flip-checkbox-1" id="flip-checkbox-1">
-  						</form> -->
-
   						<div class="checkbox">
   							<label><input id="unpubCheckbox" type="checkbox" checked>Use unpublished content</label>
   						</div>
