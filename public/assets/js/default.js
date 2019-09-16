@@ -363,6 +363,14 @@ $doc.ready(function() {
 		let errorId = escapeSelector(e.target.dataset.error);
 		let $error = $('#'+errorId);
 
+		console.log(errorId);
+
+		let preview = $error.find('div.error-preview');
+
+		if(preview.find('img').css( "float" )=="right"){
+			console.log("Image has float right property");
+		}
+
 		$(this).addClass('hidden');
 		$error.find('div.more-info').removeClass('hidden');
 		$error.find('p.manual-notification').first().addClass('hidden');
