@@ -370,8 +370,8 @@ $doc.ready(function() {
 		if(preview.find('img').css( "float" )=="right"){
 			// let styling = preview.find('img').css();
 			// console.log(styling);
-			// preview.find('img').removeAttr("style");
-			preview.find('img').css("float","none");
+			preview.find('img').removeAttr("style");
+			//preview.find('img').css("float","none");
 		}
 
 		$(this).addClass('hidden');
