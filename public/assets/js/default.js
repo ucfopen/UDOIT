@@ -362,16 +362,11 @@ $doc.ready(function() {
 	$doc.on('click', '.viewError', function(e) {
 		let errorId = escapeSelector(e.target.dataset.error);
 		let $error = $('#'+errorId);
-
-		console.log(errorId);
-
 		let preview = $error.find('div.error-preview');
 
+		//Float right breaks preview styling, so we remove it
 		if(preview.find('img').css( "float" )=="right"){
-			// let styling = preview.find('img').css();
-			// console.log(styling);
 			preview.find('img').removeAttr("style");
-			//preview.find('img').css("float","none");
 		}
 
 		$(this).addClass('hidden');
