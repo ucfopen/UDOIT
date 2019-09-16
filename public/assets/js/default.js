@@ -368,7 +368,10 @@ $doc.ready(function() {
 		let preview = $error.find('div.error-preview');
 
 		if(preview.find('img').css( "float" )=="right"){
-			console.log("Image has float right property");
+			// let styling = preview.find('img').css();
+			// console.log(styling);
+			// preview.find('img').removeAttr("style");
+			preview.find('img').css("float","none");
 		}
 
 		$(this).addClass('hidden');
