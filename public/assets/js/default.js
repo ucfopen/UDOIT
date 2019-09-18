@@ -362,7 +362,7 @@ $doc.ready(function() {
 	$doc.on('click', '.viewError', function(e) {
 		let errorId = escapeSelector(e.target.dataset.error);
 		let $error = $('#'+errorId);
-		let preview = $error.find('error-preview');
+		let preview = $error.find('div.error-preview');
 
 		if(preview.includes('img')){
 			console.log("Image exists");
