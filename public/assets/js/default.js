@@ -365,7 +365,7 @@ $doc.ready(function() {
 		let preview = $error.find('div.error-preview');
 
 		if(preview.find('img') != 'undefined'){
-			console.log("Image exists");
+			preview.find('img').css({"max-height": "100%", "max-width": "100%"});
 		}
 
 		$(this).addClass('hidden');
