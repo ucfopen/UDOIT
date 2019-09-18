@@ -364,6 +364,7 @@ $doc.ready(function() {
 		let $error = $('#'+errorId);
 		let preview = $error.find('div.error-preview');
 
+		// If the error preview contains an image, make sure it isn't too big
 		if(preview.find('img') != 'undefined'){
 			preview.find('img').css({"max-height": "100%", "max-width": "100%"});
 		}
