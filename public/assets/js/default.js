@@ -364,7 +364,7 @@ $doc.ready(function() {
 		let $error = $('#'+errorId);
 		let preview = $error.find('div.error-preview');
 
-		if(preview.includes('img')){
+		if(preview.find('img') != 'undefined'){
 			console.log("Image exists");
 		}
 
