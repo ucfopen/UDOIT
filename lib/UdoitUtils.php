@@ -302,6 +302,9 @@ class UdoitUtils
             ->addHeader('Authorization', "Bearer {$api_key}")
             ->send();
 
+        global $logger;
+        $logger->addInfo('Course Locale Response Object is '.print_r($resp, true));
+
         return $resp->body->locale;
     }
 
