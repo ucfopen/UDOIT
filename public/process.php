@@ -47,8 +47,18 @@ switch ($main_action) {
         $job_group = uniqid('job_', true); // uniqid for this group of jobs
         $user_id = $_SESSION['launch_params']['custom_canvas_user_id'];
         $api_key = UdoitUtils::instance()->getValidRefreshedApiKey($user_id);
-        $course_locale = substr(UdoitUtils::instance()->getCourseLocale($api_key, $course_id), 0, 2);
-        $logger->addInfo('Course Locale set to '.$course_locale);
+        $course_locale_raw = UdoitUtils::instance()->getCourseLocale($api_key, $course_id);
+
+        if($course_locale_raw === false ||
+        !ctype_space($course_locale_raw) ||
+        $course_locale_raw == ''){
+            $course_locale = 'en';
+            $logger->addWarning('No course locale received, defaulting to en');
+        } else {
+            $course_locale = substr($course_locale_raw, 0, 2);
+            $logger->addInfo('Course Locale set to '.$course_locale);
+        }
+        
 
         // No content selected
         if ('none' === $content) {

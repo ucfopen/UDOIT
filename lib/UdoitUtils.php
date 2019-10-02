@@ -302,10 +302,11 @@ class UdoitUtils
             ->addHeader('Authorization', "Bearer {$api_key}")
             ->send();
 
-        global $logger;
-        $logger->addInfo('Course Locale Response Object is '.print_r($resp, true));
+        if(isset($resp->body->locale)){
+            return $resp->body->locale;
+        }
 
-        return $resp->body->locale;
+        return false;
     }
 
     protected function curlOauthToken($base_url, $post_data)
