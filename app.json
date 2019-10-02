@@ -77,7 +77,7 @@
     "ADMIN_PANEL_ENABLED": {
       "description": "Enable the Admin Panel feature.  False disables access and removes the block from the configuration XML.",
       "value": "false"
-    },
+    }
   },
   "addons": [
     "heroku-postgresql:hobby-dev"

@@ -51,12 +51,15 @@ class youtubeService extends mediaService
 			$response = Request::get($url)->send();
 
 			// If the video was pulled due to copyright violations, is unlisted, or is unavailable, the reponse header will be 404
-			if( $response->code === 404) {
+			if( $response->code === 404 ) {
 				return 1;
 			}
 
-			global $logger;
-			$logger->addInfo('YouTube Response:'.print_r($response, true));
+			// If the daily limit has been exceeded for our API key or there was some other error
+			if( $response->code === 403 ) {
+				global $logger;
+				$logger->addError('YouTube API Error: '.$response->body->error->errors[0]->message);
+			}
 
 			// Looks through the captions and checks if any were not auto-generated
 			foreach ( $response->body->items as $track ) {
