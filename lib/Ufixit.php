@@ -274,6 +274,32 @@ class Ufixit
         return $fixed_heading;
     }
 
+        /**
+     * Makes stylized p elements into headings
+     * @param string       $error_html       - The bad html that needs to be fixed
+     * @param string|array $new_content      - The chosen heading level from the user
+     * @param bool         $submitting_again - If the user is resubmitting their error fix
+     *
+     * @return string $fixed_heading         - The html with corrected Heading
+     */
+    public function makeHeading($error_html, $new_content, $submitting_again = false)
+    {
+        $fixed_heading = '';
+        if ('' == $new_content) {
+            return $fixed_heading;
+        }
+
+        $this->dom->loadHTML('<?xml encoding="utf-8" ?>'.$error_html);
+
+        $p = $this->dom->getElementsByTagName('p')->item(0);
+
+        $tag = $this->renameElement($p, $new_content);
+
+        $fixed_heading = $this->dom->saveHTML($tag);
+
+        return $fixed_heading;
+    }
+
     /**
      * Fixes table headers by changing td elements to th (and adding proper scope, of course)
      * @param string  $error_html       The unmodified table without proper headings
