@@ -54,6 +54,10 @@ class youtubeService extends mediaService
 			if( $response->code === 404) {
 				return 1;
 			}
+
+			global $logger;
+			$logger->addInfo('YouTube Response:'.print_r($response, true));
+
 			// Looks through the captions and checks if any were not auto-generated
 			foreach ( $response->body->items as $track ) {
 				if ( $track->snippet->trackKind != 'ASR' ) {
