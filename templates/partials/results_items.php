@@ -152,6 +152,10 @@
 													case "aSuspiciousLinkText":
 														$result_template = 'suspicious_link_text';
 														break;
+
+													case "pNotUsedAsHeader":
+														$result_template = 'make_heading';
+														break;
 												}
 
 												if ( ! empty($result_template)) {

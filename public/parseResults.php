@@ -62,7 +62,7 @@ $results = [
     'suggestion_summary'  => $report->suggestion_summary,
     'post_path'           => $get_input['path'],
     'fixable_error_types' => ["cssTextHasContrast", "imgNonDecorativeHasAlt", "tableDataShouldHaveTh", "tableThShouldHaveScope", "headersHaveText", "aMustContainText", "imgAltIsDifferent", "imgAltIsTooLong", "imgHasAltDeco"],
-    'fixable_suggestions' => ["aSuspiciousLinkText", "imgHasAlt", "aLinkTextDoesNotBeginWithRedundantWord", "cssTextStyleEmphasize"],
+    'fixable_suggestions' => ["aSuspiciousLinkText", "imgHasAlt", "aLinkTextDoesNotBeginWithRedundantWord", "cssTextStyleEmphasize", "pNotUsedAsHeader"],
 ];
 
 $templates  = new League\Plates\Engine('../templates');
