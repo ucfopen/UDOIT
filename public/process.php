@@ -48,6 +48,7 @@ switch ($main_action) {
         $user_id = $_SESSION['launch_params']['custom_canvas_user_id'];
         $api_key = UdoitUtils::instance()->getValidRefreshedApiKey($user_id);
         $course_locale = substr(UdoitUtils::instance()->getCourseLocale($api_key, $course_id), 0, 2);
+        $logger->addInfo('Course Locale set to '.$course_locale);
 
         // No content selected
         if ('none' === $content) {
