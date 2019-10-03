@@ -151,7 +151,7 @@ UDOIT uses Oauth2 to take actions on behalf of the user, so you'll need to ask y
 * ***Icon URL:*** The URL of the UDOIT icon.  This is `https://www.example.com/public/assets/img/udoit_icon.png`.  (Replace 'www.example.com' with the url of your UDOIT server.)
 
 #### Scoped Developer Keys
-If youd like to use this option youll need set these following scopes on your developer key.
+If you'd like to use this option, you'll need set the following scopes for your developer key.
 * Courses
 	* url:GET|/api/v1/courses/:id
 	* url:POST|/api/v1/courses/:course_id/files

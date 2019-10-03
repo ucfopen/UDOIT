@@ -15,15 +15,15 @@ After clicking the Heroku button above:
 
 1. Create an account (if you don't have one already).
 2. Give the app a name.
-2. Set `OAUTH2_ENFORCE_SCOPES` to true if have a scoped developer key
-3. Fill out the `OAUTH2_ID` and `OAUTH2_KEY` fields with dummy data. (We'll fix it later.)
-4. Fill out the `OAUTH2_URI` field with `https://yourapp.herokuapp.com/oauth2response.php`. (Replace 'yourapp' with the name you gave in step 2.)
-5. Fill out the `CANVAS_NAV_ITEM_NAME` field with the name you would like the app to appear as in the course navigation menu.  This is useful if your instance will be use for a pilot.  The normal value to use here is ***UDOIT***.
-6. (optional) Copy and paste your Google/YouTube API key into the `GOOGLE_API_KEY` field.
-7. (optional) Copy and paste your Vimeo API key into the `VIMEO_API_KEY` field.
-8. (optional) If you have a Google Analytics account, you can paste your site tracking code into the `GA_TRACKING_CODE` field.
-9. (optional) If you would like to enable the Admin Panel, change the `ADMIN_PANEL_ENABLED` field to `true`.
-8. Click the Deploy button and wait for the process to complete.
+3. Set `OAUTH2_ENFORCE_SCOPES` to true if you have a scoped developer key.
+4. Fill out the `OAUTH2_ID` and `OAUTH2_KEY` fields with dummy data. (We'll fix it later.)
+5. Fill out the `OAUTH2_URI` field with `https://yourapp.herokuapp.com/oauth2response.php`. (Replace 'yourapp' with the name you gave in step 2.)
+6. Fill out the `CANVAS_NAV_ITEM_NAME` field with the name you would like the app to appear as in the course navigation menu.  This is useful if your instance will be use for a pilot.  The normal value to use here is ***UDOIT***.
+7. (optional) Copy and paste your Google/YouTube API key into the `GOOGLE_API_KEY` field.
+8. (optional) Copy and paste your Vimeo API key into the `VIMEO_API_KEY` field.
+9. (optional) If you have a Google Analytics account, you can paste your site tracking code into the `GA_TRACKING_CODE` field.
+10. (optional) If you would like to enable the Admin Panel, change the `ADMIN_PANEL_ENABLED` field to `true`.
+11. Click the Deploy button and wait for the process to complete.
 
 ### Step 3:  Request a Developer Key
 UDOIT uses Oauth2 to take actions on behalf of the user, so you'll need to ask your Canvas administrator to generate a Developer Key for you.  (If you are an admin, go to your institution's account administration page in Canvas and click on 'Developer Keys'.)  Here is the information you need to provide them:
@@ -35,7 +35,7 @@ UDOIT uses Oauth2 to take actions on behalf of the user, so you'll need to ask y
 * ***Icon URL:*** The URL of the UDOIT icon.  This is `https://yourapp.herokuapp.com/assets/img/udoit_icon.png`.  (Replace ***yourapp*** with the name of your UDOIT instance on Heroku.)
 
 #### Scoped Developer Keys
-If youd like to use this option youll need set these following scopes on your developer key.
+If you'd like to use this option, you'll need set the following scopes for your developer key.
 * Courses
 	* url:GET|/api/v1/courses/:id
 	* url:POST|/api/v1/courses/:course_id/files
