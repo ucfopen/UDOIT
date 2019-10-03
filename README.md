@@ -152,19 +152,20 @@ UDOIT uses Oauth2 to take actions on behalf of the user, so you'll need to ask y
 
 #### Scoped Developer Keys
 If you'd like to use this option, you'll need set the following scopes for your developer key.
-* Courses
-	* url:GET|/api/v1/courses/:id
-	* url:POST|/api/v1/courses/:course_id/files
-	* url:PUT|/api/v1/courses/:id
-* Assignment
+* Assignments
 	* url:GET|/api/v1/courses/:course_id/assignments
 	* url:GET|/api/v1/courses/:course_id/assignments/:id
 	* url:PUT|/api/v1/courses/:course_id/assignments/:id
+* Courses
+	* url:PUT|/api/v1/courses/:id
+	* url:GET|/api/v1/courses/:id
+	* url:POST|/api/v1/courses/:course_id/files
 * Discussion Topics
 	* url:GET|/api/v1/courses/:course_id/discussion_topics
 	* url:GET|/api/v1/courses/:course_id/discussion_topics/:topic_id
 	* url:PUT|/api/v1/courses/:course_id/discussion_topics/:topic_id
 * Files
+	* url:GET|/api/v1/courses/:course_id/files
 	* url:GET|/api/v1/courses/:course_id/folders/:id
 	* url:GET|/api/v1/folders/:id/folders
 	* url:GET|/api/v1/folders/:id/files
