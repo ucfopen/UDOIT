@@ -6481,9 +6481,6 @@ class videoCaptionsAreCorrectLanguage extends quailTest
 	{
 		$search_youtube = '/(youtube|youtu.be)/';
 		$search_vimeo = '/(vimeo)/';
-		global $logger;
-
-		$logger->addError(sizeof($this->getAllElements(array('a', 'embed', 'iframe'))));
 
 		foreach ($this->getAllElements(array('a', 'embed', 'iframe')) as $video) {
 			$attr = ($video->tagName == 'a') ? 'href' : 'src';
