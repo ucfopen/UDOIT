@@ -84,6 +84,7 @@ class youtubeService extends mediaService
 	{
 		$url = $this->search_url;
 		$api_key = constant( 'GOOGLE_API_KEY' );
+		global $logger;
 
 		$foundManual = false;
 
@@ -118,6 +119,7 @@ class youtubeService extends mediaService
 				}
 
 			}
+			
 			//If we found any manual captions and have not returned, then none are the correct language
 			if( $foundManual === true ){
 				return 0;
