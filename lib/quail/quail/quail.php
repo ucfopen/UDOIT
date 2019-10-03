@@ -380,7 +380,6 @@ class quail {
 	*/
 	function runCheck($options = null)
 	{
-		global $logger;
 		$this->prepareDOM();
 
 		if (!$this->isValid()) {

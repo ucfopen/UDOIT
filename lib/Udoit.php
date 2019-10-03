@@ -117,7 +117,6 @@ class Udoit
     {
         require_once(__DIR__.'/quail/quail/quail.php');
         $report = [];
-        global $logger;
 
         // Runs each item through the Quail accessibility checker
         foreach ($content_items as $item) {
