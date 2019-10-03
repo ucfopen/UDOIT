@@ -394,7 +394,6 @@ class quail {
 		}
 
 		$this->guideline = new $classname($this->dom, $this->css, $this->path, $options, $this->domain, $this->options['cms_mode']);
-		//error_log("runCheck completed, quail object is now: ".serialize($this));
 	}
 
 	/**

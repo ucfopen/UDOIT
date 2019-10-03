@@ -142,7 +142,6 @@ class Udoit
 
                 $issue_count++;
                 $state = $quail_issue['state'];
-                //error_log("state in the issue is set as ".serialize($state));
 
                 switch ((int) $quail_issue['severity_num']) {
                     case 1:

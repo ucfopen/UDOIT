@@ -92,6 +92,7 @@ class UdoitJob
     public static function isJobGroupReadyToFinalize($groupId)
     {
         global $db_job_queue_table;
+        global $logger;
         $sql = "
         SELECT count(*)
         FROM {$db_job_queue_table}
@@ -103,7 +104,7 @@ class UdoitJob
         $sth->bindValue(':group_id', $groupId);
 
         if (!$sth->execute()) {
-            error_log(print_r($sth->errorInfo(), true));
+            $logger->addError(print_r($sth->errorInfo(), true));
 
             return false;
         }
@@ -143,7 +144,7 @@ class UdoitJob
         $sth->bindValue(':suggestions', $report['total_results']['suggestions'], PDO::PARAM_STR);
 
         if (!$sth->execute()) {
-            error_log(print_r($sth->errorInfo(), true));
+            $logger->addError(print_r($sth->errorInfo(), true));
             throw new Exception('Error inserting report into database');
         }
 
@@ -162,7 +163,7 @@ class UdoitJob
         $sth->execute();
 
         if (!$sth->execute()) {
-            error_log(print_r($sth->errorInfo(), true));
+            $logger->addError(print_r($sth->errorInfo(), true));
             throw new Exception('Error setting report id');
         }
 
