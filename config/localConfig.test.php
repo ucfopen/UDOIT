@@ -33,6 +33,9 @@ define('VIMEO_API_KEY', 'TEST_VIMEO_KEY');
 /* Course Language */
 define('COURSE_LANGUAGE', 'TEST_COURSE_LANGUAGE');
 
+/* Flag for API Caching */
+define('USE_API_CACHING', 'false');
+
 /* Database Config */
 $db_type            = 'test'; // 'mysql' or 'pgsql'
 $db_host            = ''; // localhost or ip

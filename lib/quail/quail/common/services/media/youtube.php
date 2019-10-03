@@ -28,7 +28,7 @@ class youtubeService extends mediaService
 	/**
 	*	@var string The service point to request caption data from YouTube
 	*/
-	var $search_url = 'https://www.googleapis.com/youtube/v3/captions?part=snippet&videoId=FcnrUf35LmQ&fields=items(snippet(trackKind,language))&key=';
+	var $search_url = 'https://www.googleapis.com/youtube/v3/captions?part=snippet&fields=items(snippet(trackKind,language))&videoId=';
 
 	/**
 	*	Checks to see if a video is missing caption information in YouTube
@@ -49,8 +49,7 @@ class youtubeService extends mediaService
 
 		if( $youtube_id = $this->isYouTubeVideo($link_url) ) {
 			$url = $url.$youtube_id.'&key='.$api_key;
-			$response = Request::get($url)->send();
-			$logger->addError("Making request to youtube");
+			$response = UdoitUtils::instance()->checkApiCache($url, $link_url);
 
 			// If the video was pulled due to copyright violations, is unlisted, or is unavailable, the reponse header will be 404
 			if( $response->code === 404 ) {
@@ -103,8 +102,7 @@ class youtubeService extends mediaService
 
 		if( $youtube_id = $this->isYouTubeVideo($link_url) ) {
 			$url = $url.$youtube_id.'&key='.$api_key;
-			$response = Request::get($url)->send();
-			$logger->addError("Making request to youtube");
+			$response = UdoitUtils::instance()->checkApiCache($url, $link_url);
 
 			// If the video was pulled due to copyright violations, is unlisted, or is unavailable, the response header will be 404
 			if( $response->code == 404) {

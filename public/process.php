@@ -50,7 +50,7 @@ switch ($main_action) {
         $course_locale_raw = UdoitUtils::instance()->getCourseLocale($api_key, $course_id);
 
         if (false === $course_locale_raw ||
-        !ctype_space($course_locale_raw) ||
+        ctype_space($course_locale_raw) ||
         '' == $course_locale_raw) {
             $course_locale = 'en';
             $logger->addWarning('No course locale received, defaulting to en');
@@ -59,7 +59,6 @@ switch ($main_action) {
             $logger->addInfo('Course Locale set to '.$course_locale);
         }
         
-
         // No content selected
         if ('none' === $content) {
             $logger->addInfo('no content selected');

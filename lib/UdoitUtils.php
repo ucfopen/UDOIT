@@ -1,4 +1,5 @@
 <?php session_start();
+use Httpful\Request;
 /**
 *   Copyright (C) 2014 University of Central Florida, created by Jacob Bates, Eric Colon, Fenel Joseph, and Emily Sachs.
 *
@@ -307,6 +308,29 @@ class UdoitUtils
         }
 
         return false;
+    }
+
+    public function checkApiCache($api_url, $video_url, $api_key = NULL)
+    {
+        global $logger;
+        // Check if session var
+            // If so, grab response object from session var aka 'cache'
+            if(isset($_SESSION[$video_url]) && constant('USE_API_CACHING') != 'false') {
+                $response = $_SESSION[$video_url];
+                $logger->addInfo("Cached api response used");
+            } else {
+                // Else, make api call and cache response in a session var
+                if($api_key == NULL) {
+                    $response = Request::get($api_url)->send();
+                } else {
+                    // Vimeo requires the key be added as a header 
+                    $response = Request::get($api_url)->addHeader('Authorization', "Bearer $api_key")->send();
+                }
+                $_SESSION[$video_url] = $response;
+            }
+
+        // Return response 
+        return $response;
     }
 
     protected function curlOauthToken($base_url, $post_data)

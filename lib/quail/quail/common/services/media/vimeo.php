@@ -39,7 +39,7 @@ class vimeoService extends mediaService
 
 		if( $vimeo_id = $this->isVimeoVideo($link_url) ) {
 			$url = $url.$vimeo_id.'/texttracks';
-			$response = Request::get($url)->addHeader('Authorization', "Bearer $api_key")->send();
+			$response = UdoitUtils::instance()->checkApiCache($url, $link_url, $api_key);
 
 			// Response header code is used to determine if video exists, doesn't exist, or is unaccessible
 			// 400 means a video is private, 404 means a video doesn't exist, and 200 means the video exists
@@ -76,7 +76,7 @@ class vimeoService extends mediaService
 
 		if( $vimeo_id = $this->isVimeoVideo($link_url) ) {
 			$url = $url.$vimeo_id.'/texttracks';
-			$response = Request::get($url)->addHeader('Authorization', "Bearer $api_key")->send();
+			$response = UdoitUtils::instance()->checkApiCache($url, $link_url, $api_key);
 
 			// Response header code is used to determine if video exists, doesn't exist, or is unaccessible
 			// 400 means a video is private, 404 means a video doesn't exist, and 200 means the video exists
