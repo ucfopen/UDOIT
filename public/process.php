@@ -49,9 +49,9 @@ switch ($main_action) {
         $api_key = UdoitUtils::instance()->getValidRefreshedApiKey($user_id);
         $course_locale_raw = UdoitUtils::instance()->getCourseLocale($api_key, $course_id);
 
-        if($course_locale_raw === false ||
+        if (false === $course_locale_raw ||
         !ctype_space($course_locale_raw) ||
-        $course_locale_raw == ''){
+        '' == $course_locale_raw) {
             $course_locale = 'en';
             $logger->addWarning('No course locale received, defaulting to en');
         } else {

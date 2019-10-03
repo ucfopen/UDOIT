@@ -302,7 +302,7 @@ class UdoitUtils
             ->addHeader('Authorization', "Bearer {$api_key}")
             ->send();
 
-        if(isset($resp->body->locale)){
+        if (isset($resp->body->locale)) {
             return $resp->body->locale;
         }
 
