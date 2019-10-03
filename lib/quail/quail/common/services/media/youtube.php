@@ -28,7 +28,7 @@ class youtubeService extends mediaService
 	/**
 	*	@var string The service point to request caption data from YouTube
 	*/
-	var $search_url = 'https://www.googleapis.com/youtube/v3/captions?part=snippet&videoId=';
+	var $search_url = 'https://www.googleapis.com/youtube/v3/captions?part=snippet&videoId=FcnrUf35LmQ&fields=items(snippet(trackKind,language))&key=';
 
 	/**
 	*	Checks to see if a video is missing caption information in YouTube
@@ -116,7 +116,7 @@ class youtubeService extends mediaService
 				global $logger;
 				$logger->addError('YouTube API Error: '.$response->body->error->errors[0]->message);
 			}
-			
+
 			// Looks through the captions and checks if they are of the correct language
 			foreach ( $response->body->items as $track) {
 				//If the track was manually generated, set the flag to true
