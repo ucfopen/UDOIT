@@ -294,6 +294,14 @@ $doc.on('resize', function(){
 	resizeFrame();
 });
 
+// Open error-preview links in new tab
+$doc.ready(function(){
+	$('body').on('click', '.error-preview > a', function(){
+		window.open($(this).attr('href'));
+		return false;
+	});
+});
+
 // END update UFIXIT Preview on load
 $doc.ready(function() {
 	resizeFrame();
