@@ -168,8 +168,17 @@ function displayScanResults(results) {
 }
 
 /* Builds up the results and adds them to the page */
-function sendScanRequest(main_action, base_url, course_id, context_label, context_title, content) {
-	if (content.length === 0) content = 'none';
+function sendScanRequest(main_action, base_url, course_id, context_label, context_title, content, report_types) {
+	if (content.length === 0)
+		content.push('none');
+
+	if (report_types.length === 0) {
+		report_type = 'none';
+	} else if(report_types.length === 2) {
+		report_type = 'all';
+	} else {
+		report_type = report_types[0];
+	}
 
 	$.ajax({
 		url: 'process.php',
@@ -181,7 +190,8 @@ function sendScanRequest(main_action, base_url, course_id, context_label, contex
 			content: content,
 			course_id: course_id,
 			context_label: context_label,
-			context_title: context_title
+			context_title: context_title,
+			report_type: report_type
 		},
 		success: function(resp){
 			if(resp && resp.hasOwnProperty('job_group')){
@@ -312,8 +322,9 @@ $doc.ready(function() {
 
 	$('.content:not(#allContent)').click(function() {
 		var $content_checkboxes = $(this).parent().parent().parent().find('.content:not(#allContent):checked');
+		var $all_checkboxes = $(this).parent().parent().parent().find('.content:not(#allContent)');
 
-		if ($content_checkboxes.length == 5) {
+		if ($content_checkboxes.length == $all_checkboxes.length) {
 			$('#allContent').prop('checked', true);
 			content_checked = true;
 		} else {
@@ -322,6 +333,34 @@ $doc.ready(function() {
 		}
 	});
 	// END content checkboxes
+
+	// report checkboxes
+	var report_checked = true;
+
+	$('#allReport').click(function() {
+		var $report_checkboxes = $(this).parent().parent().parent().find('.report:not(#allReport)');
+		if (report_checked) {
+			$report_checkboxes.prop('checked', false);
+			report_checked = false;
+		} else {
+			$report_checkboxes.prop('checked', true);
+			report_checked = true;
+		}
+	});
+
+	$('.report:not(#allReport)').click(function() {
+		var $report_checkboxes = $(this).parent().parent().parent().find('.report:not(#allReport):checked');
+		var $all_checkboxes = $(this).parent().parent().parent().find('.report:not(#allReport)');
+
+		if ($report_checkboxes.length == $all_checkboxes.length) {
+			$('#allReport').prop('checked', true);
+			report_checked = true;
+		} else {
+			$('#allReport').prop('checked', false);
+			report_checked = false;
+		}
+	});
+	// END report checkboxes
 
 	var runScanner = function(e) {
 		e.preventDefault();
@@ -336,9 +375,10 @@ $doc.ready(function() {
 		var context_label = $('input[name="session_context_label"]').val();
 		var context_title = $('input[name="session_context_title"]').val();
 		var content = $('.content:not(#allContent):checked').map(function(i, n) { return $(n).val(); }).get();
+		var report_types = $('.report:not(#allReport):checked').map(function(i, n) { return $(n).val(); }).get();
 
 		displayLoader();
-		sendScanRequest(main_action, base_url, course_id, context_label, context_title, content);
+		sendScanRequest(main_action, base_url, course_id, context_label, context_title, content, report_types);
 
 		return false;
 	};

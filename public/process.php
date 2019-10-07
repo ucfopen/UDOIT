@@ -24,7 +24,9 @@ $base_url     = $_SESSION['base_url'];
 $user_id      = $_SESSION['launch_params']['custom_canvas_user_id'];
 $course_title = $_SESSION['launch_params']['context_title'];
 UdoitUtils::$canvas_base_url = $_SESSION['base_url'];
+
 session_write_close();
+
 
 // make sure the session hasn't gone stale and lost the launch params
 if (empty($user_id) || empty($base_url)) {
@@ -41,15 +43,23 @@ switch ($main_action) {
             exit();
         }
 
+        global $logger;
+
         $content   = filter_input(INPUT_POST, 'content', FILTER_DEFAULT, FILTER_REQUIRE_ARRAY);
+        $report_type = filter_input(INPUT_POST, 'report_type', FILTER_SANITIZE_STRING);
         $title     = filter_input(INPUT_POST, 'context_title', FILTER_SANITIZE_STRING);
         $course_id = filter_input(INPUT_POST, 'course_id', FILTER_SANITIZE_NUMBER_INT);
         $job_group = uniqid('job_', true); // uniqid for this group of jobs
 
         // No content selected
-        if ('none' === $content) {
+        if ('none' === $content[0]) {
             $logger->addInfo('no content selected');
             exit('{"error": "Please select which course content you wish to scan above."}');
+        }
+        // No report types selected
+        if ('none' === $report_type) {
+            $logger->addInfo('no report items selected');
+            exit('{"error": "Please select what you would like to see on your report"}');
         }
 
         // common data object
@@ -59,6 +69,7 @@ switch ($main_action) {
             'title'        => $title,
             'course_id'    => $course_id,
             'scan_item'    => $scan_item,
+            'report_type'  => $report_type,
         ];
 
         // create an id to group all these jobs together

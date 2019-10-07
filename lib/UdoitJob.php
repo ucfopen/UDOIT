@@ -1,4 +1,4 @@
-<?php
+<?php session_start();
 
 class UdoitJob
 {
@@ -49,7 +49,7 @@ class UdoitJob
                 }
                 $job_data = json_decode($job->data, true);
                 $canvas_api_url = $job_data['base_uri'];
-                $result = Udoit::retrieveAndScan($api_key, $canvas_api_url, $job_data['course_id'], $job_data['scan_item']);
+                $result = Udoit::retrieveAndScan($api_key, $canvas_api_url, $job_data['course_id'], $job_data['scan_item'], $job_data['report_type']);
 
                 static::finishJobWithResults($job->id, $result);
 

@@ -28,14 +28,16 @@ class Udoit
      * @param string $canvas_api_url The base URL of the Canvas API
      * @param string $course_id      The Canvas course id
      * @param string $content_type   The group of content types we'll retrieve EX: 'pages' or 'assignments'
+     * @param string $report_type    The type of severity the user would like to see on report
      *
      * @return array Results of the scan
      */
-    public static function retrieveAndScan($api_key, $canvas_api_url, $course_id, $content_type)
+    public static function retrieveAndScan($api_key, $canvas_api_url, $course_id, $content_type, $report_type)
     {
         global $logger;
+        session_start();
 
-        $logger->addInfo("Starting retrieveAndScan - course: {$course_id}, content: {$content_type}");
+        $logger->addInfo("Starting retrieveAndScan - course: {$course_id}, content: {$content_type}, report_type: {$report_type}");
 
         $items_with_issues = []; // array of content items that the scanner found issues in
         $totals = ['errors' => 0, 'suggestions' => 0];
@@ -47,7 +49,7 @@ class Udoit
 
         if ('module_urls' !== $content_type) {
             // everything except module_urls goes through a content scanner
-            $scanned_items = static::scanContent($content['items']);
+            $scanned_items = static::scanContent($content['items'], $report_type);
 
             // remove results w/o issues and count the totals
             // create a new list of items
@@ -109,14 +111,16 @@ class Udoit
 
     /**
      * Calls the Quail library to generate a UDOIT report
-     * @param  array $content_items The items from whatever type of Canvas content was scanned
+     * @param  array  $content_items The items from whatever type of Canvas content was scanned
+     * @param  string $report_type   The type of severity the user would like to see on report
      *
-     * @return array The report results
+     * @return array  The report results
      */
-    public static function scanContent(array $content_items)
+    public static function scanContent(array $content_items, $report_type)
     {
         require_once(__DIR__.'/quail/quail/quail.php');
         $report = [];
+        global $logger;
 
         // Runs each item through the Quail accessibility checker
         foreach ($content_items as $item) {
@@ -124,7 +128,7 @@ class Udoit
                 continue;
             }
 
-            $quail  = new quail($item['content'], 'wcag2aaa', 'string', 'static');
+            $quail  = new quail($item['content'], 'wcag2aaa', 'string', 'static', 'en', $report_type);
             $quail->runCheck();
             $quail_report = $quail->getReport();
 
