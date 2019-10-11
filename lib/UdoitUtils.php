@@ -310,12 +310,21 @@ class UdoitUtils
         return false;
     }
 
+    /**
+     * Checks to see if api call has been cached or needs to be made and returns the response object
+     *
+     * @param string $api_url   The url of the api endpoint 
+     * @param string $video_url The url of the video which is used as session var identifier
+     * @param string $api_key   The api key for the endpoint being called
+     *
+     * @return object The httpful response object 
+     */
     public function checkApiCache($api_url, $video_url, $api_key = NULL)
     {
         global $logger;
-        // Check if session var
+        // Check if session var exists
             // If so, grab response object from session var aka 'cache'
-            if(isset($_SESSION[$video_url]) && constant('USE_API_CACHING') != 'false') {
+            if(isset($_SESSION[$video_url]) && constant( 'USE_API_CACHING' ) != 'false') {
                 $response = $_SESSION[$video_url];
                 $logger->addInfo("Cached api response used");
             } else {
