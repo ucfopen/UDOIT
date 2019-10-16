@@ -288,6 +288,7 @@ class UdoitUtils
         foreach ($report_groups as $rg) {
             if (!array_key_exists($rg->title, $ordered_report_groups)) {
                 $logger->addWarning("{$rg->title} is an unknown report title, it will be omitted from the report.");
+                $logger->addInfo("Contents of the unknown report:".print_r($rg, true));
             } else {
                 // place the known titles at the correct index
                 $ordered_report_groups[$rg->title] = $rg;

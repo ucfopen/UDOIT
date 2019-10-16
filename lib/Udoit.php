@@ -186,6 +186,7 @@ class Udoit
      */
     public static function getCourseContent($api_key, $canvas_api_url, $course_id, $type)
     {
+        global $logger;
         $api_url = "{$canvas_api_url}/api/v1/courses/{$course_id}/";
         $content_result = [
             'items'       => [], // array of items of this type
@@ -351,6 +352,13 @@ class Udoit
                         'title'   => 'Syllabus',
                         'url'     => "{$canvas_api_url}/courses/{$course_id}/assignments/syllabus",
                     ];
+                } else {
+                    $logger->addInfo("(Syllabus) Raw Response Body: ".print_r($response->body, true));
+                    if (isset($response->body->errors) && count($response->body->errors) > 0) {
+                        foreach ($response->body->errors as $error) {
+                            $logger->addError("Canvas API responded with an error for {$url}: $error->message");
+                        }
+                    }
                 }
                 break;
 
