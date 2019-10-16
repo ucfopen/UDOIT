@@ -50,6 +50,7 @@ $oauth2_scopes = [
     'url:GET|/api/v1/courses/:course_id/discussion_topics/:topic_id',
     'url:PUT|/api/v1/courses/:course_id/discussion_topics/:topic_id',
     // files
+    'url:GET|/api/v1/courses/:course_id/files',
     'url:GET|/api/v1/courses/:course_id/folders/:id',
     'url:GET|/api/v1/folders/:id/folders',
     'url:GET|/api/v1/folders/:id/files',
