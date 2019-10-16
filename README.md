@@ -301,6 +301,9 @@ The `Deploy to Heroku` button installs the latest release of UDOIT when clicked.
 * Allow inbound traffic from world to UDOIT on 80 and 443
 * Allow outbound traffic from UDOIT to Canvas on 443
 
+### Why am I recieving a "Due to LMS limitations, UDOIT is unable to scan this section." error?
+When an institution installs UDOIT and uses a scoped developer key, certain features of the Canvas API are unavailable to UDOIT, including retrieving content from the Syllabus tool.  This limitation does not affect UDOIT installations that use a non-scoped developer key.  For more information, refer to the "Canvas API Includes" section of the <a href="https://canvas.instructure.com/doc/api/file.developer_keys.html">Canvas API Documentation</a>.
+
 # Developing and Testing
 
 For quick local development, set `$UDOIT_ENV = ENV_DEV;` in `config/localConfig.php`.  This flag disables authentication and allows you to quickly see a sample test report for most template, js, and css development. Use this along with the quick dev server below.

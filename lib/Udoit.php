@@ -91,18 +91,30 @@ class Udoit
 
         $logger->addInfo("Finished retrieveAndScan - course: {$course_id}, content: {$content_type}");
 
+        $content_return = [
+            'title'  => $content_type,
+            'items'  => $items_with_issues,
+            'amount' => $content['amount'],
+            'time'   => $content['time'],
+        ];
+
+        // If there was an api error, and it's set to true, pass it up
+        if (isset($content['api_error']) && $content['api_error']) {
+            $content_return['api_error'] = $content['api_error'];
+        }
+
+        // If there was a scope error, and it's set to true, pass it up
+        if (isset($content['scope_error']) && $content['scope_error']) {
+            $content_return['scope_error'] = $content['scope_error'];
+        }
+
         return [
             'total_results' => $totals,
             'scan_results' => [
                 'unscannable' => $content['unscannable'],
                 'error_summary' => $error_summary,
                 'suggestion_summary' => $suggestion_summary,
-                $content_type => [
-                    'title'  => $content_type,
-                    'items'  => $items_with_issues,
-                    'amount' => $content['amount'],
-                    'time'   => $content['time'],
-                ],
+                $content_type => $content_return,
             ],
         ];
     }
@@ -345,20 +357,26 @@ class Udoit
             case 'syllabus':
                 $url = "{$api_url}?include[]=syllabus_body";
                 $response = static::apiGet($url, $api_key)->send();
-                if (!empty($response->body->syllabus_body)) {
+
+                if (isset($response->body->syllabus_body)) {
+                    $logger->addInfo("Syllabus body found, adding to report.");
                     $content_result['items'][] = [
                         'id'      => $response->body->id,
                         'content' => $response->body->syllabus_body,
                         'title'   => 'Syllabus',
                         'url'     => "{$canvas_api_url}/courses/{$course_id}/assignments/syllabus",
                     ];
-                } else {
-                    $logger->addInfo("(Syllabus) Raw Response Body: ".print_r($response->body, true));
-                    if (isset($response->body->errors) && count($response->body->errors) > 0) {
-                        foreach ($response->body->errors as $error) {
-                            $logger->addError("Canvas API responded with an error for {$url}: $error->message");
-                        }
+                } elseif (isset($response->body->errors) && count($response->body->errors) > 0) {
+                    foreach ($response->body->errors as $error) {
+                        $logger->addError("Canvas API responded with an error for {$url}: $error->message");
                     }
+                    // Report this error back to the user.
+                    $content_result['api_error'] = true;
+                } else {
+                    // This is likely caused by a scoped developer key not having sufficient scopes
+                    // Or it could be due to a limitation in canvas that doesn't allow includes for scoped keys
+                    $logger->addError("Unable to scan Syllabus due to scoped developer key.  Displaying message to user.");
+                    $content_result['scope_error'] = true;
                 }
                 break;
 
