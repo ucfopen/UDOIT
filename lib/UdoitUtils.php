@@ -26,6 +26,8 @@ class UdoitUtils
     public static $canvas_secret_key;
     public static $canvas_base_url;
     public static $curl_ssl_verify;
+    public static $canvas_enforce_scopes;
+    public static $canvas_scopes;
     public static $regex = [
         '@youtube\.com/embed/([^"\& ]+)@i',
         '@youtube\.com/v/([^"\& ]+)@i',
@@ -48,7 +50,7 @@ class UdoitUtils
         return self::$instance;
     }
 
-    public static function setupOauth($id, $key, $uri, $consumer_key, $secret, $curl_ssl_verify = true)
+    public static function setupOauth($id, $key, $uri, $consumer_key, $secret, $curl_ssl_verify = true, $enforce_scopes = false, $scopes = [])
     {
         self::$canvas_oauth_id = $id;
         self::$canvas_oauth_key = $key;
@@ -56,6 +58,8 @@ class UdoitUtils
         self::$canvas_consumer_key = $consumer_key;
         self::$canvas_secret_key = $secret;
         self::$curl_ssl_verify = $curl_ssl_verify;
+        self::$canvas_enforce_scopes = $enforce_scopes;
+        self::$canvas_scopes = $scopes;
     }
 
     public function getYouTubeId($link_url)
@@ -219,6 +223,13 @@ class UdoitUtils
             'code'          => $code,
         ];
 
+        if (true === self::$canvas_enforce_scopes) {
+            // if we are enforcing scopes we need to take our predefined scope array
+            // and implode it to be a long string with spaces between each scope
+            // and then URL encode it.
+            $post_data['scope'] = urlencode(implode(" ", self::$canvas_scopes));
+        }
+
         return $this->curlOauthToken($base_url, $post_data);
     }
 
@@ -281,6 +292,7 @@ class UdoitUtils
         foreach ($report_groups as $rg) {
             if (!array_key_exists($rg->title, $ordered_report_groups)) {
                 $logger->addWarning("{$rg->title} is an unknown report title, it will be omitted from the report.");
+                $logger->addInfo("Contents of the unknown report:".print_r($rg, true));
             } else {
                 // place the known titles at the correct index
                 $ordered_report_groups[$rg->title] = $rg;

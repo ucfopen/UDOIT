@@ -20,7 +20,11 @@
 ?>
 <h2 class="content-title"><?= ucfirst($content_group->title); ?> <small> <strong><?= count($content_group->items); ?> of <?= $out_of_items; ?> have issues.</strong></small> <span class="proc-time">process time: <?= $time; ?>s</span></h2>
 
-<?php if (empty($content_group->items)): ?>
+<?php if (isset($content_group->api_error)): ?>
+	<div class="alert alert-danger"><span class="glyphicon glyphicon-exclamation-sign"></span> There was an error when scanning this section.</div>
+<?php elseif (isset($content_group->scope_error)): ?>
+	<div class="alert alert-danger"><span class="glyphicon glyphicon-exclamation-sign"></span> Due to LMS limitations, UDOIT is unable to scan this section. <a href="https://github.com/ucfopen/UDOIT#faqs" target="_blank">Read our FAQ</a> for more information.</div>
+<?php elseif (empty($content_group->items)): ?>
 	<div class="alert alert-success"><span class="glyphicon glyphicon-ok"></span> No problems were detected in <?= ucfirst($content_group->title); ?>!</div>
 <?php else: ?>
 	<?php foreach ($content_group->items as $item): ?>
