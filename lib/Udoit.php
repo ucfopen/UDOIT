@@ -85,7 +85,7 @@ class Udoit
             }
         } else {
             // module_urls skips the scanner, just add them to the items with issues
-            if( 'suggestions' !== $report_type ){
+            if( 'errors' !== $report_type ){
                 $items_with_issues = $content['items'];
                 $totals['suggestions'] += count($items_with_issues);
             }
