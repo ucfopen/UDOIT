@@ -58,14 +58,14 @@ $this->layout('template', $settings);
 				<input type="hidden" name="session_context_title" value="<?= $this->escape($launch_params['context_title']); ?>">
 
 				<div class="form-group">
-					<span class="col-sm-2 control-label"><strong>Select content:</strong></span>
+					<span class="col-sm-2 control-label"><strong>Content:</strong></span>
 
 					<div class="col-sm-10">
 						<div class="checkbox">
-							<label><input id="allContent" type="checkbox" value="all" id="allContent" class="content" name="content[]" checked> All</label>
+							<label><input id="allContent" type="checkbox" value="all" id="allContent" class="content" name="content[]" checked>Select All</label>
 						</div>
 
-						<hr />
+						<br />
 
 						<div class="checkbox">
 							<label><input id="courseAnnouncements" type="checkbox" value="announcements" class="content" name="content[]" checked> Announcements</label>
@@ -108,6 +108,30 @@ $this->layout('template', $settings);
 				</div>
 
 				<hr />
+
+				<div class="form-group">
+					<span class="col-sm-2 control-label"><strong>Scan for:</strong></span>
+
+					<div class="col-sm-10">
+
+						<div class="checkbox">
+							<label><input id="allReport" type="checkbox" value="all" id="allReport" class="report" name="report[]" checked>Select All</label>
+						</div>
+
+						<br />
+
+						<div class="checkbox">
+							<label><input id="errors" type="checkbox" value="errors" class="report" name="report[]" checked> Errors</label>
+						</div>
+
+						<div class="checkbox">
+							<label><input id="suggestions" type="checkbox" value="suggestions" class="report" name="report[]" checked> Suggestions</label>
+						</div>
+					</div>
+
+				</div>
+
+				<br />
 
 				<div id="waitMsg" class="alert alert-warning" style="display: none;">
 					<p><span class="glyphicon glyphicon-warning-sign"></span> Please stay on this page while UDOIT scans your course content.</p>

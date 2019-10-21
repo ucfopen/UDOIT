@@ -87,6 +87,11 @@ class quail {
 	var $guideline;
 
 	/**
+	*	@var string The type of severity the user would like to see on report
+	*/
+	var $report_type;
+
+	/**
 	*	@var string The base URL for any request of type URI
 	*/
 	var $base_url;
@@ -130,7 +135,7 @@ class quail {
 	*	@param string $reporter The name of the reporter to use
 	*	@param string $domain The domain of the translation language to use
 	*/
-	function __construct($value, $guideline = 'wcag2aaa', $type = 'string', $reporter = 'static', $domain = 'en')
+	function __construct($value, $guideline = 'wcag2aaa', $type = 'string', $reporter = 'static', $domain = 'en', $report_type = 'all')
 	{
 		$this->dom = new DOMDocument();
 		$this->type = $type;
@@ -141,6 +146,7 @@ class quail {
 		$this->guideline_name = $guideline;
 		$this->reporter_name = $reporter;
 		$this->value = $value;
+		$this->report_type = $report_type;
 	}
 
 	/**
@@ -393,8 +399,7 @@ class quail {
 			require_once('guidelines/'. $this->guideline_name .'.php');
 		}
 
-		$this->guideline = new $classname($this->dom, $this->css, $this->path, $options, $this->domain, $this->options['cms_mode']);
-		//error_log("runCheck completed, quail object is now: ".serialize($this));
+		$this->guideline = new $classname($this->dom, $this->css, $this->path, $options, $this->domain, $this->options['cms_mode'], $this->report_type);
 	}
 
 	/**
@@ -670,6 +675,11 @@ class quailGuideline {
 	var $report;
 
 	/**
+	*	@var string The type of severity the user would like to see on report
+	*/
+	var $report_type;
+
+	/**
 	*	@var array An array of translations for all this guideline's tests
 	*/
 	var $translations;
@@ -689,14 +699,16 @@ class quailGuideline {
 	*	@param object $dom The current DOMDocument object
 	*	@param object $css The current QuailCSS object
 	*	@param string $path The current path
+	*	@param string $report_type The type of severity the user would like to see on report
 	*/
 
-	function __construct(&$dom, &$css, &$path, $arg = null, $domain = 'en', $cms_mode = false)
+	function __construct(&$dom, &$css, &$path, $arg = null, $domain = 'en', $cms_mode = false, $report_type = 'all')
 	{
 		$this->dom = &$dom;
 		$this->css = &$css;
 		$this->path = &$path;
 		$this->cms_mode = $cms_mode;
+		$this->report_type = $report_type;
 		$this->loadTranslations($domain);
 		$this->run($arg, $domain);
 	}
@@ -755,7 +767,7 @@ class quailGuideline {
 			if (class_exists($testname) && $this->dom) {
 				$$testname = new $testname($this->dom, $this->css, $this->path, $language, $arg);
 
-				if (!$this->cms_mode || ($$testname->cms && $this->cms_mode)) {
+				if ((!$this->cms_mode || ($$testname->cms && $this->cms_mode)) && $this->correctSeverity($$testname->default_severity)) {
 					$this->report[$testname] = $$testname->getReport();
 				}
 
@@ -766,10 +778,30 @@ class quailGuideline {
 			}
 		}
 	}
+	/**
+	*	Checks that the severity of the test matches what the user wants to see on their report
+	*	@param int $severity The severity of the test
+	*	@return bool Whether or not to run the test
+	*/
+	function correctSeverity($severity)
+	{
+		if($this->report_type == 'all') {
+			return true;
+		} else if($this->report_type == 'errors') {
+			if($severity == 1 || $severity == 2) {
+				return true;
+			}
+		} else if($this->report_type == "suggestions") {
+			if($severity == 3) {
+				return true;
+			}
+		}
+		return false;
+	}
 
 	/**
 	*	Returns all the Report variable
-	*	@reutrn mixed Look to your report to see what it returns
+	*	@return mixed Look to your report to see what it returns
 	*/
 	function getReport()
 	{

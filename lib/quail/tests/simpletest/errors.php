@@ -229,13 +229,14 @@ class SimpleErrorQueue {
  *    @access public
  */
 function SimpleTestErrorHandler($severity, $message, $filename = null, $line = null, $super_globals = null, $mask = null) {
+    global $logger;
     $severity = $severity & error_reporting();
     if ($severity) {
         restore_error_handler();
         if (IsNotCausedBySimpleTest($message) && IsNotTimeZoneNag($message)) {
             if (ini_get('log_errors')) {
                 $label = SimpleErrorQueue::getSeverityAsString($severity);
-                error_log("$label: $message in $filename on line $line");
+                $logger->addError("$label: $message in $filename on line $line");
             }
             $queue = SimpleTest::getContext()->get('SimpleErrorQueue');
             $queue->add($severity, $message, $filename, $line);
