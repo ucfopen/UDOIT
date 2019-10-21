@@ -85,8 +85,10 @@ class Udoit
             }
         } else {
             // module_urls skips the scanner, just add them to the items with issues
-            $items_with_issues = $content['items'];
-            $totals['suggestions'] += count($items_with_issues);
+            if( 'suggestions' !== $report_type ){
+                $items_with_issues = $content['items'];
+                $totals['suggestions'] += count($items_with_issues);
+            }
         }
 
         // caluculate the total run time

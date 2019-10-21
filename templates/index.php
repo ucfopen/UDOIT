@@ -98,7 +98,7 @@ $this->layout('template', $settings);
 						<br />
 
   						<div class="checkbox">
-  							<label><input id="unpubCheckbox" type="checkbox" checked>Use unpublished content</label>
+  							<label><input id="unpubCheckbox" type="checkbox" checked>Include unpublished content</label>
   						</div>
 
   						<br />
