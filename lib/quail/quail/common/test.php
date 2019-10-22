@@ -68,6 +68,11 @@ class quailTest {
 	var $lang = 'en';
 
 	/**
+	*	@var string The locale/language of the Canvas course
+	*/
+	var $course_locale;
+
+	/**
 	*	@var array Services this test will be using. Services are loaded and then
 	*			   a class is built to replace the service name in this array.
 	*/
@@ -85,13 +90,15 @@ class quailTest {
 	*	@param array $path The path of this request
 	*	@param string $language_domain The langauge domain to user
 	*	@param mixed $options Any additional options passed by QUAIL.
+	*	@param string $course_locale The locale/language of the Canvas course
 	*/
-	function __construct(&$dom, &$css, &$path, $language_domain = 'en', $options = null) {
+	function __construct(&$dom, &$css, &$path, $language_domain = 'en', $options = null, $course_locale = 'en') {
 		$this->dom = $dom;
 		$this->css = $css;
 		$this->path = $path;
 		$this->lang = $language_domain;
 		$this->options = $options;
+		$this->course_locale = $course_locale;
 		$this->report = array();
 		$this->loadServices();
 		$this->check();

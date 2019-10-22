@@ -1,4 +1,4 @@
-<?php
+<?php session_start();
 
 require_once('mediaService.php');
 // require_once('../config/localConfig.php');
@@ -28,7 +28,7 @@ class youtubeService extends mediaService
 	/**
 	*	@var string The service point to request caption data from YouTube
 	*/
-	var $search_url = 'https://www.googleapis.com/youtube/v3/captions?part=snippet&videoId=';
+	var $search_url = 'https://www.googleapis.com/youtube/v3/captions?part=snippet&fields=items(snippet(trackKind,language))&videoId=';
 
 	/**
 	*	Checks to see if a video is missing caption information in YouTube
@@ -39,6 +39,7 @@ class youtubeService extends mediaService
 	{
 		$url = $this->search_url;
 		$api_key = constant( 'GOOGLE_API_KEY' );
+		global $logger;
 
 		// If the API key is blank, flag the video for manual inspection
 		$key_trimmed = trim($api_key);
@@ -48,12 +49,19 @@ class youtubeService extends mediaService
 
 		if( $youtube_id = $this->isYouTubeVideo($link_url) ) {
 			$url = $url.$youtube_id.'&key='.$api_key;
-			$response = Request::get($url)->send();
+			$response = UdoitUtils::instance()->checkApiCache($url, $link_url);
 
 			// If the video was pulled due to copyright violations, is unlisted, or is unavailable, the reponse header will be 404
-			if( $response->code === 404) {
+			if( $response->code === 404 ) {
 				return 1;
 			}
+
+			// If the daily limit has been exceeded for our API key or there was some other error
+			if( $response->code === 403 ) {
+				global $logger;
+				$logger->addError('YouTube API Error: '.$response->body->error->errors[0]->message);
+			}
+
 			// Looks through the captions and checks if any were not auto-generated
 			foreach ( $response->body->items as $track ) {
 				if ( $track->snippet->trackKind != 'ASR' ) {
@@ -65,7 +73,68 @@ class youtubeService extends mediaService
 		}
 
 		return 2;
+	}
 
+	/**
+	*	Checks to see if a video is missing caption information in YouTube
+	*	@param string $link_url The URL to the video or video resource
+	*	@param string $course_locale The locale/language of the Canvas course
+	*	@return int 0 if captions are manual and wrong language, 1 if video is private, 2 if captions are auto-generated or manually generated and correct language
+	*/
+	function captionsLanguage($link_url, $course_locale)
+	{
+		$url = $this->search_url;
+		$api_key = constant( 'GOOGLE_API_KEY' );
+		global $logger;
+
+		$foundManual = false;
+
+		// If the API key is blank, flag the video for manual inspection
+		$key_trimmed = trim($api_key);
+		if( empty($key_trimmed) ){
+			return 1;
+		}
+
+		// If for whatever reason course_locale is blank, set it to English
+		if($course_locale === '') {
+			$course_locale = 'en';
+		}
+
+		if( $youtube_id = $this->isYouTubeVideo($link_url) ) {
+			$url = $url.$youtube_id.'&key='.$api_key;
+			$response = UdoitUtils::instance()->checkApiCache($url, $link_url);
+
+			// If the video was pulled due to copyright violations, is unlisted, or is unavailable, the response header will be 404
+			if( $response->code == 404) {
+				return 1;
+			}
+
+			// If the daily limit has been exceeded for our API key or there was some other error
+			if( $response->code === 403 ) {
+				global $logger;
+				$logger->addError('YouTube API Error: '.$response->body->error->errors[0]->message);
+			}
+
+			// Looks through the captions and checks if they are of the correct language
+			foreach ( $response->body->items as $track) {
+				//If the track was manually generated, set the flag to true
+				if( $track->snippet->trackKind != 'ASR' ){
+					$foundManual = true;
+				}
+
+				if( substr($track->snippet->language,0,2) == $course_locale && $track->snippet->trackKind != 'ASR' ) {
+					return 2;
+				}
+
+			}
+
+			//If we found any manual captions and have not returned, then none are the correct language
+			if( $foundManual === true ){
+				return 0;
+			}
+		}
+
+			return 2;
 	}
 
 	/**

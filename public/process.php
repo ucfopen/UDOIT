@@ -50,6 +50,20 @@ switch ($main_action) {
         $title     = filter_input(INPUT_POST, 'context_title', FILTER_SANITIZE_STRING);
         $course_id = filter_input(INPUT_POST, 'course_id', FILTER_SANITIZE_NUMBER_INT);
         $job_group = uniqid('job_', true); // uniqid for this group of jobs
+        $user_id = $_SESSION['launch_params']['custom_canvas_user_id'];
+        $api_key = UdoitUtils::instance()->getValidRefreshedApiKey($user_id);
+        $course_locale_raw = UdoitUtils::instance()->getCourseLocale($api_key, $course_id);
+
+        if (false === $course_locale_raw ||
+        ctype_space($course_locale_raw) ||
+        '' == $course_locale_raw) {
+            $course_locale = 'en';
+            $logger->addWarning('No course locale received, defaulting to en');
+        } else {
+            $course_locale = substr($course_locale_raw, 0, 2);
+            $logger->addInfo('Course Locale set to '.$course_locale);
+        }
+        
         $flag = filter_input(INPUT_POST, 'unpublished_flag', FILTER_DEFAULT);
 
         // No content selected
@@ -70,6 +84,7 @@ switch ($main_action) {
             'title'        => $title,
             'course_id'    => $course_id,
             'scan_item'    => $scan_item,
+            'course_locale' => $course_locale,
             'report_type'  => $report_type,
             'flag'         => $flag,
         ];

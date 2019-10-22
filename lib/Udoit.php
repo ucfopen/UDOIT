@@ -30,10 +30,11 @@ class Udoit
      * @param string $content_type   The group of content types we'll retrieve EX: 'pages' or 'assignments'
      * @param string $report_type    The type of severity the user would like to see on report
      * @param int    $content_flag   A flag indicating whether to scan unpublished content
-     *
+     * @param string $course_locale  The locale/language of the Canvas course
+     * 
      * @return array Results of the scan
      */
-    public static function retrieveAndScan($api_key, $canvas_api_url, $course_id, $content_type, $report_type, $content_flag)
+    public static function retrieveAndScan($api_key, $canvas_api_url, $course_id, $content_type, $report_type, $content_flag, $course_locale)
     {
         global $logger;
         session_start();
@@ -50,7 +51,7 @@ class Udoit
 
         if ('module_urls' !== $content_type) {
             // everything except module_urls goes through a content scanner
-            $scanned_items = static::scanContent($content['items'], $report_type);
+            $scanned_items = static::scanContent($content['items'], $report_type, $course_locale);
 
             // remove results w/o issues and count the totals
             // create a new list of items
@@ -116,10 +117,11 @@ class Udoit
      * Calls the Quail library to generate a UDOIT report
      * @param  array  $content_items The items from whatever type of Canvas content was scanned
      * @param  string $report_type   The type of severity the user would like to see on report
+     * @param  string $course_locale The locale/language of the Canvas course
      *
      * @return array  The report results
      */
-    public static function scanContent(array $content_items, $report_type)
+    public static function scanContent(array $content_items, $report_type, $course_locale)
     {
         require_once(__DIR__.'/quail/quail/quail.php');
         $report = [];
@@ -131,8 +133,8 @@ class Udoit
                 continue;
             }
 
-            $quail  = new quail($item['content'], 'wcag2aaa', 'string', 'static', 'en', $report_type);
-            $quail->runCheck();
+            $quail  = new quail($item['content'], 'wcag2aaa', 'string', 'static', 'en', $report_type, $course_locale);
+            $quail->runCheck(null, $course_locale);
             $quail_report = $quail->getReport();
 
             $issue_count = 0;
