@@ -73,17 +73,21 @@ class UdoitUtils
 
     public function exitWithPageError($error)
     {
+        global $logger;
         $templates = new League\Plates\Engine(__DIR__.'/../templates');
         echo($templates->render('error', ['error' => $error]));
-        error_log($error);
+        $logger->addError($error);
+
         exit();
     }
 
     public function exitWithPartialError($error)
     {
+        global $logger;
         $templates = new League\Plates\Engine(__DIR__.'/../templates');
         echo($templates->render('partials/error', ['error' => $error]));
-        error_log($error);
+        $logger->addError($error);
+
         exit();
     }
 
