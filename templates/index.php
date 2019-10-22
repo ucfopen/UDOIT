@@ -94,7 +94,17 @@ $this->layout('template', $settings);
 						<div class="checkbox">
 							<label><input id="moduleUrls" type="checkbox" value="module_urls" class="content" name="content[]" checked> Module URLs</label>
 						</div>
+
+						<br />
+
+  						<div class="checkbox">
+  							<label><input id="unpubCheckbox" type="checkbox" checked>Include unpublished content</label>
+  						</div>
+
+  						<br />
+
 					</div>
+
 				</div>
 
 				<hr />
@@ -127,7 +137,7 @@ $this->layout('template', $settings);
 					<p><span class="glyphicon glyphicon-warning-sign"></span> Please stay on this page while UDOIT scans your course content.</p>
 				</div>
 
-				<button type="submit" name="course_submit" class="btn btn-block btn-lg btn-success submit">Scan This Course</button>
+				<button type="submit" id="course_submit" name="course_submit" class="btn btn-block btn-lg btn-success submit">Scan This Course</button>
 
 				<div class="alert alert-danger no-margin margin-top" id="failMsg" style="display: none;">
 					<span class="glyphicon glyphicon-exclamation-sign"></span> <span class="msg">UDOIT failed to scan this course.</span><span class="custom-msg"></span>
