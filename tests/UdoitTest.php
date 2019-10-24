@@ -568,31 +568,35 @@ class UdoitTest extends BaseTest
         [
             {
                 "id":1,
-                "items": [
-                    {
-                        "external_url":  "external_url_value",
-                        "id":  "id_value",
-                        "html_url":  "html_url_value",
-                        "title":  "title_value"
-                    },
-                    {
-                        "external_url":  "youtube_external_url_value",
-                        "id":  "id_value",
-                        "html_url":  "html_url_value",
-                        "title":  "title_value"
-                    },
-                    {
-                        "external_url":  "vimeo_external_url_value",
-                        "id":  "id_value",
-                        "html_url":  "html_url_value",
-                        "title":  "title_value"
-                    }
-                ]
+                "items_url": "items_url_value"
+            }
+        ]';
+
+        $items = '
+        [
+            {
+                "external_url":  "external_url_value",
+                "id":  "id_value",
+                "html_url":  "html_url_value",
+                "title":  "title_value"
+            },
+            {
+                "external_url":  "youtube_external_url_value",
+                "id":  "id_value",
+                "html_url":  "html_url_value",
+                "title":  "title_value"
+            },
+            {
+                "external_url":  "vimeo_external_url_value",
+                "id":  "id_value",
+                "html_url":  "html_url_value",
+                "title":  "title_value"
             }
         ]';
 
         $body_returns = [
             json_decode($api_body),
+            json_decode($items),
             [],
         ];
 
@@ -903,31 +907,34 @@ class UdoitTest extends BaseTest
         [
             {
                 "id":1,
-                "items": [
-                    {
-                        "external_url":  "external_url_value",
-                        "id":  "id_value",
-                        "html_url":  "html_url_value",
-                        "title":  "title_value"
-                    },
-                    {
-                        "external_url":  "youtube_external_url_value",
-                        "id":  "id_value",
-                        "html_url":  "html_url_value",
-                        "title":  "title_value"
-                    },
-                    {
-                        "external_url":  "vimeo_external_url_value",
-                        "id":  "id_value",
-                        "html_url":  "html_url_value",
-                        "title":  "title_value"
-                    }
-                ]
+                "items_url": "items_url_value"
+            }
+        ]';
+
+        $items = '[
+            {
+                "external_url":  "external_url_value",
+                "id":  "id_value",
+                "html_url":  "html_url_value",
+                "title":  "title_value"
+            },
+            {
+                "external_url":  "youtube_external_url_value",
+                "id":  "id_value",
+                "html_url":  "html_url_value",
+                "title":  "title_value"
+            },
+            {
+                "external_url":  "vimeo_external_url_value",
+                "id":  "id_value",
+                "html_url":  "html_url_value",
+                "title":  "title_value"
             }
         ]';
 
         $body_returns = [
             json_decode($api_body),
+            json_decode($items),
             [],
         ];
 

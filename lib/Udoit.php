@@ -328,16 +328,21 @@ class Udoit
                 break;
 
             case 'module_urls':
-                $url = "{$api_url}modules?include[]=items&";
+                $url = "{$api_url}modules";
                 $search = '/(youtube|vimeo)/';
-                $resp = static::apiGetAllLinks($api_key, $url);
+                $resp = static::apiGet($url, $api_key)->send()->body;
                 $count = 0;
 
+                //For each module
                 foreach ($resp as $r) {
-                    foreach ($r->items as $c) {
+                    // Grab item data from item url
+                    $items_url = $r->items_url;
+                    $items = static::apiGet($items_url, $api_key)->send()->body;
+
+                    foreach ($items as $c) {
                         $count++;
                         $external_url = (isset($c->external_url) ? $c->external_url : '');
-
+                        
                         if (preg_match($search, $external_url) === 1) {
                             $content_result['items'][] = [
                                 'id'           => $c->id,
