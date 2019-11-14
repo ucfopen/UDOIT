@@ -329,7 +329,7 @@ class UdoitUtils
         // Check if session var exists
             // If so, grab response object from session var aka 'cache'
             if(isset($_SESSION[$video_url]) && constant( 'USE_API_CACHING' ) != 'false') {
-                $response = $_SESSION[$video_url];
+                $response = json_decode($_SESSION[$video_url]);
                 $logger->addInfo("Cached api response used");
             } else {
                 // Else, make api call and cache response in a session var
@@ -342,7 +342,8 @@ class UdoitUtils
                 $_SESSION[$video_url] = $response;
             }
 
-        // Return response 
+        // Return response
+        $logger->addError(json_encode($response)); 
         return $response;
     }
 
