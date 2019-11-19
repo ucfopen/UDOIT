@@ -112,7 +112,7 @@ class youtubeService extends mediaService
 			// If the daily limit has been exceeded for our API key or there was some other error
 			if( $response['code'] === 403 ) {
 				global $logger;
-				$logger->addError('YouTube API Error: '.$response->body->error->errors[0]->message);
+				$logger->addError('YouTube API Error: '.$response['body']->error->errors[0]->message);
 			}
 
 			// Looks through the captions and checks if they are of the correct language

@@ -63,7 +63,6 @@ class vimeoService extends mediaService
 	{
 		$url = $this->search_url;
 		$api_key = constant( 'VIMEO_API_KEY' );
-		global $logger;
 
 		// If the API key is blank, flag the video for manual inspection
 		$key_trimmed = trim($api_key);
@@ -79,9 +78,6 @@ class vimeoService extends mediaService
 			$url = $url.$vimeo_id.'/texttracks';
 			$response = UdoitUtils::instance()->checkApiCache($url, $link_url, $api_key);
 
-			$logger->addError("Response code is");
-			$logger->addError($response['code']);
-
 			// Response header code is used to determine if video exists, doesn't exist, or is unaccessible
 			// 400 means a video is private, 404 means a video doesn't exist, and 200 means the video exists
 			if($response['code'] === 400 || $response['code'] === 404) {
@@ -91,8 +87,6 @@ class vimeoService extends mediaService
 			}
 
 			foreach ($response['body']->data as $track) {
-				$logger->addError("track language is");
-				$logger->addError($track->language);
 				if( substr($track->language,0,2) === $course_locale ) {
 					return 2;
 				}
