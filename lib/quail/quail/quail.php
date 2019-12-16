@@ -67,6 +67,11 @@ class quail {
 	var $domain;
 
 	/**
+	*	@var string The locale/language of the Canvas course
+	*/
+	var $course_locale;
+
+	/**
 	*	@var string The name of the guideline
 	*/
 	var $guideline_name = 'wcag';
@@ -85,6 +90,11 @@ class quail {
 	*	@var object The central guideline object
 	*/
 	var $guideline;
+
+	/**
+	*	@var string The type of severity the user would like to see on report
+	*/
+	var $report_type;
 
 	/**
 	*	@var string The base URL for any request of type URI
@@ -129,8 +139,9 @@ class quail {
 	*	@param string $type The type of the request (either file, uri, or string)
 	*	@param string $reporter The name of the reporter to use
 	*	@param string $domain The domain of the translation language to use
+	*	@param string $course_locale The locale/language of the Canvas course
 	*/
-	function __construct($value, $guideline = 'wcag2aaa', $type = 'string', $reporter = 'static', $domain = 'en')
+	function __construct($value, $guideline = 'wcag2aaa', $type = 'string', $reporter = 'static', $domain = 'en', $report_type = 'all', $course_locale = 'en')
 	{
 		$this->dom = new DOMDocument();
 		$this->type = $type;
@@ -141,6 +152,8 @@ class quail {
 		$this->guideline_name = $guideline;
 		$this->reporter_name = $reporter;
 		$this->value = $value;
+		$this->report_type = $report_type;
+		$this->course_locale = $course_locale;
 	}
 
 	/**
@@ -377,8 +390,9 @@ class quail {
 	/**
 	*	Starts running automated checks. Loads the CSS file parser
 	*	and the guideline object.
+	*	@param string $course_locale The locale/language of the Canvas course
 	*/
-	function runCheck($options = null)
+	function runCheck($options = null, $course_locale)
 	{
 		$this->prepareDOM();
 
@@ -393,8 +407,7 @@ class quail {
 			require_once('guidelines/'. $this->guideline_name .'.php');
 		}
 
-		$this->guideline = new $classname($this->dom, $this->css, $this->path, $options, $this->domain, $this->options['cms_mode']);
-		//error_log("runCheck completed, quail object is now: ".serialize($this));
+		$this->guideline = new $classname($this->dom, $this->css, $this->path, $options, $this->domain, $this->options['cms_mode'], $this->report_type, $this->course_locale);
 	}
 
 	/**
@@ -670,9 +683,19 @@ class quailGuideline {
 	var $report;
 
 	/**
+	*	@var string The type of severity the user would like to see on report
+	*/
+	var $report_type;
+
+	/**
 	*	@var array An array of translations for all this guideline's tests
 	*/
 	var $translations;
+
+	/**
+	*	@var string The locale/language of the Canvas course
+	*/
+	var $course_locale;
 
 	/**
 	*	@var bool Whether we are running in CMS mode
@@ -689,16 +712,20 @@ class quailGuideline {
 	*	@param object $dom The current DOMDocument object
 	*	@param object $css The current QuailCSS object
 	*	@param string $path The current path
+	*	@param string $report_type The type of severity the user would like to see on report
+	*	@param string $course_locale The locale/language of the Canvas course
 	*/
 
-	function __construct(&$dom, &$css, &$path, $arg = null, $domain = 'en', $cms_mode = false)
+	function __construct(&$dom, &$css, &$path, $arg = null, $domain = 'en', $cms_mode = false, $report_type = 'all', $course_locale)
 	{
 		$this->dom = &$dom;
 		$this->css = &$css;
 		$this->path = &$path;
 		$this->cms_mode = $cms_mode;
+		$this->report_type = $report_type;
+		$this->course_locale = $course_locale;
 		$this->loadTranslations($domain);
-		$this->run($arg, $domain);
+		$this->run($arg, $domain, $course_locale);
 	}
 
 	/**
@@ -744,8 +771,9 @@ class quailGuideline {
 	}
 	/**
 	*	Iterates through each test string, makes a new test object, and runs it against the current DOM
+	*	@param string $course_locale The locale/language of the Canvas course
 	*/
-	function run($arg = null, $language = 'en')
+	function run($arg = null, $language = 'en', $course_locale = 'en')
 	{
 		foreach ($this->tests as $testname => $options) {
 			if (is_numeric($testname) && !is_array($options)) {
@@ -753,9 +781,9 @@ class quailGuideline {
 			}
 
 			if (class_exists($testname) && $this->dom) {
-				$$testname = new $testname($this->dom, $this->css, $this->path, $language, $arg);
+				$$testname = new $testname($this->dom, $this->css, $this->path, $language, $arg, $course_locale);
 
-				if (!$this->cms_mode || ($$testname->cms && $this->cms_mode)) {
+				if ((!$this->cms_mode || ($$testname->cms && $this->cms_mode)) && $this->correctSeverity($$testname->default_severity)) {
 					$this->report[$testname] = $$testname->getReport();
 				}
 
@@ -766,10 +794,30 @@ class quailGuideline {
 			}
 		}
 	}
+	/**
+	*	Checks that the severity of the test matches what the user wants to see on their report
+	*	@param int $severity The severity of the test
+	*	@return bool Whether or not to run the test
+	*/
+	function correctSeverity($severity)
+	{
+		if($this->report_type == 'all') {
+			return true;
+		} else if($this->report_type == 'errors') {
+			if($severity == 1 || $severity == 2) {
+				return true;
+			}
+		} else if($this->report_type == "suggestions") {
+			if($severity == 3) {
+				return true;
+			}
+		}
+		return false;
+	}
 
 	/**
 	*	Returns all the Report variable
-	*	@reutrn mixed Look to your report to see what it returns
+	*	@return mixed Look to your report to see what it returns
 	*/
 	function getReport()
 	{

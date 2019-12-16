@@ -72,7 +72,7 @@ If you'd like to use this option, you'll need set the following scopes for your 
 
 ### Step 5:  Install the UDOIT LTI
 
-In Canvas, you can install UDOIT at the course or sub-account levels.  
+In Canvas, you can install UDOIT at the course or sub-account levels.
 
 1. Click the **Settings** menu item from any course in Canvas.
 2. Click the **Apps** tab.

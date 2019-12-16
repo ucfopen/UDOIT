@@ -180,7 +180,7 @@ If you'd like to use this option, you'll need set the following scopes for your 
 
 After you receive your Developer Key from your Canvas admin, edit the following variables in `config/localConfig.php`:
 
-* `$oauth2_id`: The Client_ID yoru Canvas admin gives you
+* `$oauth2_id`: The Client_ID your Canvas admin gives you
 * `$oauth2_key`: The Secret your Canvas admin gives you
 * `$oauth2_uri`: The Redirect URI you provided to your Canvas admin
 

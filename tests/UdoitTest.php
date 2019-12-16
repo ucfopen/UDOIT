@@ -231,7 +231,7 @@ class UdoitTest extends BaseTest
             ->shouldReceive('get')
             ->andReturn($mock_get_result);
 
-        $result = Udoit::getCourseContent('', '', '', 'announcements');
+        $result = Udoit::getCourseContent('', '', '', 'announcements', 1);
 
         self::assertCount(2, $result['items']);
         self::assertEquals('id_value', $result['items'][0]['id']);
@@ -249,7 +249,7 @@ class UdoitTest extends BaseTest
             ->shouldReceive('get')
             ->andReturn($mock_get_result);
 
-        $result = Udoit::getCourseContent('', '', '', 'announcements');
+        $result = Udoit::getCourseContent('', '', '', 'announcements', 1);
 
         self::assertArrayHasKey('items', $result);
         self::assertArrayHasKey('amount', $result);
@@ -282,7 +282,7 @@ class UdoitTest extends BaseTest
             ->shouldReceive('get')
             ->andReturn($mock_get_result);
 
-        $result = Udoit::getCourseContent('', '', '', 'announcements');
+        $result = Udoit::getCourseContent('', '', '', 'announcements', 1);
 
         self::assertEmpty($result['module_urls']);
         self::assertEmpty($result['unscannable']);
@@ -320,7 +320,7 @@ class UdoitTest extends BaseTest
             ->shouldReceive('get')
             ->andReturn($mock_get_result);
 
-        $result = Udoit::getCourseContent('', '', '', 'assignments');
+        $result = Udoit::getCourseContent('', '', '', 'assignments', 1);
 
         self::assertEmpty($result['module_urls']);
         self::assertEmpty($result['unscannable']);
@@ -358,7 +358,7 @@ class UdoitTest extends BaseTest
             ->shouldReceive('get')
             ->andReturn($mock_get_result);
 
-        $result = Udoit::getCourseContent('', '', '', 'discussions');
+        $result = Udoit::getCourseContent('', '', '', 'discussions', 1);
 
         self::assertEmpty($result['module_urls']);
         self::assertEmpty($result['unscannable']);
@@ -414,7 +414,7 @@ class UdoitTest extends BaseTest
             ->shouldReceive('get')
             ->andReturn($mock_get_result);
 
-        $result = Udoit::getCourseContent('', '', '', 'files');
+        $result = Udoit::getCourseContent('', '', '', 'files', 1);
 
         self::assertEmpty($result['module_urls']);
         self::assertCount(1, $result['unscannable']);
@@ -455,7 +455,7 @@ class UdoitTest extends BaseTest
             ->shouldReceive('get')
             ->andReturn($mock_get_result);
 
-        $result = Udoit::getCourseContent('', '', '', 'files');
+        $result = Udoit::getCourseContent('', '', '', 'files', 1);
 
         self::assertEmpty($result['module_urls']);
         self::assertEmpty($result['unscannable']);
@@ -505,7 +505,7 @@ class UdoitTest extends BaseTest
             ->shouldReceive('get')
             ->andReturn($mock_get_result);
 
-        $result = Udoit::getCourseContent('', '', '', 'pages');
+        $result = Udoit::getCourseContent('', '', '', 'pages', 1);
 
         self::assertEmpty($result['module_urls']);
         self::assertEmpty($result['unscannable']);
@@ -551,7 +551,7 @@ class UdoitTest extends BaseTest
             ->shouldReceive('get')
             ->andReturn($mock_get_result);
 
-        $result = Udoit::getCourseContent('', '', '', 'modules');
+        $result = Udoit::getCourseContent('', '', '', 'modules', 1);
 
         self::assertEmpty($result['module_urls']);
         self::assertEmpty($result['unscannable']);
@@ -607,7 +607,7 @@ class UdoitTest extends BaseTest
             ->shouldReceive('get')
             ->andReturn($mock_get_result);
 
-        $result = Udoit::getCourseContent('', '', '', 'module_urls');
+        $result = Udoit::getCourseContent('', '', '', 'module_urls', 1);
 
         self::assertCount(2, $result['items']);
         self::assertEmpty($result['unscannable']);
@@ -648,7 +648,7 @@ class UdoitTest extends BaseTest
             ->shouldReceive('get')
             ->andReturn($mock_get_result);
 
-        $result = Udoit::getCourseContent('key', 'apiurl', 'course', 'syllabus');
+        $result = Udoit::getCourseContent('key', 'apiurl', 'course', 'syllabus', 1);
 
 
         self::assertEmpty($result['module_urls']);
@@ -671,14 +671,14 @@ class UdoitTest extends BaseTest
         $content_items = [
             ['content' => ''],
         ];
-        $result = Udoit::scanContent($content_items);
+        $result = Udoit::scanContent($content_items, 'all', 'en');
         self::assertEmpty($result);
     }
 
     public function testScanContentReturnsNothingWithNoItems()
     {
         $content_items = [];
-        $result = Udoit::scanContent($content_items);
+        $result = Udoit::scanContent($content_items, 'all', 'en');
         self::assertEmpty($result);
     }
 
@@ -689,7 +689,7 @@ class UdoitTest extends BaseTest
             ['content' => '<img src="http://url.com/image.jpg"/>'],
         ];
 
-        $result = Udoit::scanContent($content_items);
+        $result = Udoit::scanContent($content_items, 'all', 'en');
 
         self::assertCount(2, $result);
 
@@ -811,7 +811,7 @@ class UdoitTest extends BaseTest
             ->shouldReceive('get')
             ->andReturn($mock_get_result);
 
-        $result = Udoit::getCourseContent('', '', '', 'announcements');
+        $result = Udoit::getCourseContent('', '', '', 'announcements', 1);
 
 
         self::assertArrayHasKey('items', $result);
@@ -863,7 +863,7 @@ class UdoitTest extends BaseTest
             ->shouldReceive('get')
             ->andReturn($mock_get_result);
 
-        $result = Udoit::retrieveAndScan('', '', '', 'files');
+        $result = Udoit::retrieveAndScan('', '', '', 'files', 'all', 1, 'en');
 
         self::assertArrayHasKey('scan_results', $result);
 
@@ -945,7 +945,7 @@ class UdoitTest extends BaseTest
             ->shouldReceive('get')
             ->andReturn($mock_get_result);
 
-        $result = Udoit::retrieveAndScan('', '', '', 'module_urls');
+        $result = Udoit::retrieveAndScan('', '', '', 'module_urls', 'all', 1, 'en');
 
         // make sure the totals we expect to see are calculated
         self::assertArrayHasKey('total_results', $result);
