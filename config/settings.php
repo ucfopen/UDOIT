@@ -56,6 +56,7 @@ $oauth2_scopes = [
     'url:GET|/api/v1/folders/:id/files',
     // modules
     'url:GET|/api/v1/courses/:course_id/modules',
+    'url:GET|/api/v1/courses/:course_id/modules/:module_id/items',
     // pages
     'url:GET|/api/v1/courses/:course_id/pages',
     'url:GET|/api/v1/courses/:course_id/pages/:url',
