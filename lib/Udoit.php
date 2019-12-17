@@ -356,21 +356,34 @@ class Udoit
 
                 //For each module
                 foreach ($resp as $r) {
-                    // Grab item data from item url
-                    $items_url = $r->items_url;
-                    $items = static::apiGet($items_url, $api_key)->send()->body;
+                    // Skip the module if it's unpublished and the user selected that option
+                    if (($content_flag) || $r->published == "true") {
+                        // Grab item data from item url
+                        $items_url = $r->items_url;
+                        $items = static::apiGet($items_url, $api_key)->send()->body;
 
-                    foreach ($items as $c) {
-                        $count++;
-                        $external_url = (isset($c->external_url) ? $c->external_url : '');
-                        
-                        if (preg_match($search, $external_url) === 1) {
-                            $content_result['items'][] = [
-                                'id'           => $c->id,
-                                'external_url' => $c->external_url,
-                                'title'        => $c->title,
-                                'url'          => $c->html_url,
-                            ];
+                        if (isset($items->errors) && count($items->errors) > 0) {
+                            foreach ($items->errors as $error) {
+                                $logger->addError("Canvas API responded with an error for {$items_url}: $error->message");
+                            }
+                            break;
+                        }
+
+                        foreach ($items as $c) {
+                            // Skip the item if it's unpublished and the user selected that option
+                            if (($content_flag) || $c->published == "true") {
+                                $count++;
+                                $external_url = (isset($c->external_url) ? $c->external_url : '');
+                                
+                                if (preg_match($search, $external_url) === 1) {
+                                    $content_result['items'][] = [
+                                        'id'           => $c->id,
+                                        'external_url' => $c->external_url,
+                                        'title'        => $c->title,
+                                        'url'          => $c->html_url,
+                                    ];
+                                }
+                            }
                         }
                     }
                 }
@@ -384,27 +397,25 @@ class Udoit
                 $url = "{$api_url}?include[]=syllabus_body";
                 $response = static::apiGet($url, $api_key)->send();
 
-                if (($content_flag) || $response->body->published == "true") {
-                    if (isset($response->body->syllabus_body)) {
-                        $logger->addInfo("Syllabus body found, adding to report.");
-                        $content_result['items'][] = [
-                            'id'      => $response->body->id,
-                            'content' => $response->body->syllabus_body,
-                            'title'   => 'Syllabus',
-                            'url'     => "{$canvas_api_url}/courses/{$course_id}/assignments/syllabus",
-                        ];
-                    } elseif (isset($response->body->errors) && count($response->body->errors) > 0) {
-                        foreach ($response->body->errors as $error) {
-                            $logger->addError("Canvas API responded with an error for {$url}: $error->message");
-                        }
-                        // Report this error back to the user.
-                        $content_result['api_error'] = true;
-                    } else {
-                        // This is likely caused by a scoped developer key not having sufficient scopes
-                        // Or it could be due to a limitation in canvas that doesn't allow includes for scoped keys
-                        $logger->addError("Unable to scan Syllabus due to scoped developer key.  Displaying message to user.");
-                        $content_result['scope_error'] = true;
+                if (isset($response->body->syllabus_body)) {
+                    $logger->addInfo("Syllabus body found, adding to report.");
+                    $content_result['items'][] = [
+                        'id'      => $response->body->id,
+                        'content' => $response->body->syllabus_body,
+                        'title'   => 'Syllabus',
+                        'url'     => "{$canvas_api_url}/courses/{$course_id}/assignments/syllabus",
+                    ];
+                } elseif (isset($response->body->errors) && count($response->body->errors) > 0) {
+                    foreach ($response->body->errors as $error) {
+                        $logger->addError("Canvas API responded with an error for {$url}: $error->message");
                     }
+                    // Report this error back to the user.
+                    $content_result['api_error'] = true;
+                } else {
+                    // This is likely caused by a scoped developer key not having sufficient scopes
+                    // Or it could be due to a limitation in canvas that doesn't allow includes for scoped keys
+                    $logger->addError("Unable to scan Syllabus due to scoped developer key.  Displaying message to user.");
+                    $content_result['scope_error'] = true;
                 }
                 break;
 
