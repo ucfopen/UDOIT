@@ -31,7 +31,7 @@ class Udoit
      * @param string $report_type    The type of severity the user would like to see on report
      * @param int    $content_flag   A flag indicating whether to scan unpublished content
      * @param string $course_locale  The locale/language of the Canvas course
-     * 
+     *
      * @return array Results of the scan
      */
     public static function retrieveAndScan($api_key, $canvas_api_url, $course_id, $content_type, $report_type, $content_flag, $course_locale)
@@ -86,7 +86,7 @@ class Udoit
             }
         } else {
             // module_urls skips the scanner, just add them to the items with issues
-            if( 'errors' !== $report_type ){
+            if ('errors' !== $report_type) {
                 $items_with_issues = $content['items'];
                 $totals['suggestions'] += count($items_with_issues);
             }
@@ -492,6 +492,7 @@ class Udoit
 
             usleep(250000); // 1/4 sec
         } while (isset($links['next']) && $cur_page < $limit);
+        
         return $results;
     }
 
