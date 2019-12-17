@@ -168,7 +168,7 @@ function displayScanResults(results) {
 }
 
 /* Builds up the results and adds them to the page */
-function sendScanRequest(main_action, base_url, course_id, context_label, context_title, content, report_types) {
+function sendScanRequest(main_action, base_url, course_id, context_label, context_title, content, report_types, unpublished_flag) {
 	if (content.length === 0)
 		content.push('none');
 
@@ -191,6 +191,7 @@ function sendScanRequest(main_action, base_url, course_id, context_label, contex
 			course_id: course_id,
 			context_label: context_label,
 			context_title: context_title,
+			unpublished_flag: unpublished_flag,
 			report_type: report_type
 		},
 		success: function(resp){
@@ -375,10 +376,11 @@ $doc.ready(function() {
 		var context_label = $('input[name="session_context_label"]').val();
 		var context_title = $('input[name="session_context_title"]').val();
 		var content = $('.content:not(#allContent):checked').map(function(i, n) { return $(n).val(); }).get();
+		var unpublished_flag = $('#unpubCheckbox').is(":checked") ? 1 : 0;
 		var report_types = $('.report:not(#allReport):checked').map(function(i, n) { return $(n).val(); }).get();
 
 		displayLoader();
-		sendScanRequest(main_action, base_url, course_id, context_label, context_title, content, report_types);
+		sendScanRequest(main_action, base_url, course_id, context_label, context_title, content, report_types, unpublished_flag);
 
 		return false;
 	};

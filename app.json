@@ -62,6 +62,10 @@
       "description": "needed to use the Heroku configuration",
       "value": "true"
     },
+    "USE_API_CACHING": {
+      "description": "Flag to indicate whether or not to use the api caching feature",
+      "required": false
+    },
     "CANVAS_NAV_ITEM_NAME" : {
       "description": "The text displayed in the canvas navigation menu to launch this app",
       "value": "UDOIT"

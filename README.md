@@ -186,6 +186,7 @@ If you'd like to use this option, you'll need set the following scopes for your 
 	* url:GET|/api/v1/folders/:id/files
 * Modules
 	* url:GET|/api/v1/courses/:course_id/modules
+	* url:GET|/api/v1/courses/:course_id/modules/:module_id/items
 * Pages
 	* url:GET|/api/v1/courses/:course_id/pages
 	* url:GET|/api/v1/courses/:course_id/pages/:url

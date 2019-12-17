@@ -35,6 +35,9 @@ define('VIMEO_API_KEY', '');
 /* Google Analytics Tracking Code */
 define('GA_TRACKING_CODE', '');
 
+/* Flag for API Caching */
+define('USE_API_CACHING', '');
+
 /* Database Config */
 $db_type            = 'mysql'; // 'mysql' or 'pgsql'
 $db_host            = ''; // localhost or some other domain/ip
