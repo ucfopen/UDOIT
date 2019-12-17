@@ -5,9 +5,10 @@ $consumer_key  = '';
 $shared_secret = '';
 
 /* Canvas Developer Key Oauth 2.0 Settings */
-$oauth2_id  = ''; // Provided by your Canvas Admin
-$oauth2_key = ''; // Provided by your Canvas Admin
-$oauth2_uri = ''; // EX: https://udoit.my-org.edu/oauth2response.php or https://udoit.my-org.edu/udoit/public/oauth2response.php
+$oauth2_id             = '';    // Provided by your Canvas Admin
+$oauth2_key            = '';    // Provided by your Canvas Admin
+$oauth2_uri            = '';    // EX: https://udoit.my-org.edu/oauth2response.php or https://udoit.my-org.edu/udoit/public/oauth2response.php
+$oauth2_enforce_scopes = false; // Set to true if you have a scoped developer key.
 
 /* Disable headings check character count */
 $doc_length = '1500';

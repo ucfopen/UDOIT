@@ -97,18 +97,30 @@ class Udoit
 
         $logger->addInfo("Finished retrieveAndScan - course: {$course_id}, content: {$content_type}");
 
+        $content_return = [
+            'title'  => $content_type,
+            'items'  => $items_with_issues,
+            'amount' => $content['amount'],
+            'time'   => $content['time'],
+        ];
+
+        // If there was an api error, and it's set to true, pass it up
+        if (isset($content['api_error']) && $content['api_error']) {
+            $content_return['api_error'] = $content['api_error'];
+        }
+
+        // If there was a scope error, and it's set to true, pass it up
+        if (isset($content['scope_error']) && $content['scope_error']) {
+            $content_return['scope_error'] = $content['scope_error'];
+        }
+
         return [
             'total_results' => $totals,
             'scan_results' => [
                 'unscannable' => $content['unscannable'],
                 'error_summary' => $error_summary,
                 'suggestion_summary' => $suggestion_summary,
-                $content_type => [
-                    'title'  => $content_type,
-                    'items'  => $items_with_issues,
-                    'amount' => $content['amount'],
-                    'time'   => $content['time'],
-                ],
+                $content_type => $content_return,
             ],
         ];
     }
@@ -196,7 +208,6 @@ class Udoit
     public static function getCourseContent($api_key, $canvas_api_url, $course_id, $type, $content_flag)
     {
         global $logger;
-
         $api_url = "{$canvas_api_url}/api/v1/courses/{$course_id}/";
         $content_result = [
             'items'       => [], // array of items of this type
@@ -338,24 +349,40 @@ class Udoit
                 break;
 
             case 'module_urls':
-                $url = "{$api_url}modules?include[]=items&";
+                $url = "{$api_url}modules";
                 $search = '/(youtube|vimeo)/';
-                $resp = static::apiGetAllLinks($api_key, $url);
+                $resp = static::apiGet($url, $api_key)->send()->body;
                 $count = 0;
 
+                //For each module
                 foreach ($resp as $r) {
-                    foreach ($r->items as $c) {
-                        if (($content_flag) || $c->published == "true") {
-                            $count++;
-                            $external_url = (isset($c->external_url) ? $c->external_url : '');
+                    // Skip the module if it's unpublished and the user selected that option
+                    if (($content_flag) || $r->published == "true") {
+                        // Grab item data from item url
+                        $items_url = $r->items_url;
+                        $items = static::apiGet($items_url, $api_key)->send()->body;
 
-                            if (preg_match($search, $external_url) === 1) {
-                                $content_result['items'][] = [
-                                    'id'           => $c->id,
-                                    'external_url' => $c->external_url,
-                                    'title'        => $c->title,
-                                    'url'          => $c->html_url,
-                                ];
+                        if (isset($items->errors) && count($items->errors) > 0) {
+                            foreach ($items->errors as $error) {
+                                $logger->addError("Canvas API responded with an error for {$items_url}: $error->message");
+                            }
+                            break;
+                        }
+
+                        foreach ($items as $c) {
+                            // Skip the item if it's unpublished and the user selected that option
+                            if (($content_flag) || $c->published == "true") {
+                                $count++;
+                                $external_url = (isset($c->external_url) ? $c->external_url : '');
+                                
+                                if (preg_match($search, $external_url) === 1) {
+                                    $content_result['items'][] = [
+                                        'id'           => $c->id,
+                                        'external_url' => $c->external_url,
+                                        'title'        => $c->title,
+                                        'url'          => $c->html_url,
+                                    ];
+                                }
                             }
                         }
                     }
@@ -369,15 +396,26 @@ class Udoit
             case 'syllabus':
                 $url = "{$api_url}?include[]=syllabus_body";
                 $response = static::apiGet($url, $api_key)->send();
-                if (($content_flag) || $response->body->published == "true") {
-                    if (!empty($response->body->syllabus_body)) {
-                        $content_result['items'][] = [
-                            'id'      => $response->body->id,
-                            'content' => $response->body->syllabus_body,
-                            'title'   => 'Syllabus',
-                            'url'     => "{$canvas_api_url}/courses/{$course_id}/assignments/syllabus",
-                        ];
+
+                if (isset($response->body->syllabus_body)) {
+                    $logger->addInfo("Syllabus body found, adding to report.");
+                    $content_result['items'][] = [
+                        'id'      => $response->body->id,
+                        'content' => $response->body->syllabus_body,
+                        'title'   => 'Syllabus',
+                        'url'     => "{$canvas_api_url}/courses/{$course_id}/assignments/syllabus",
+                    ];
+                } elseif (isset($response->body->errors) && count($response->body->errors) > 0) {
+                    foreach ($response->body->errors as $error) {
+                        $logger->addError("Canvas API responded with an error for {$url}: $error->message");
                     }
+                    // Report this error back to the user.
+                    $content_result['api_error'] = true;
+                } else {
+                    // This is likely caused by a scoped developer key not having sufficient scopes
+                    // Or it could be due to a limitation in canvas that doesn't allow includes for scoped keys
+                    $logger->addError("Unable to scan Syllabus due to scoped developer key.  Displaying message to user.");
+                    $content_result['scope_error'] = true;
                 }
                 break;
 
@@ -430,15 +468,17 @@ class Udoit
 
         do {
             $response = static::apiGet("{$url}page=1&per_page={$per_page}", $api_key)->send();
-            if ($response->status > 400) {
-                $logger->addError("Canvas api responded with an error for {$filtered_url}");
+            if (isset($response->body->errors) && count($response->body->errors) > 0) {
+                foreach ($response->body->errors as $error) {
+                    $logger->addError("Canvas API responded with an error for {$url}: $error->message");
+                }
                 break;
             }
 
             $links = static::apiParseLinks($response->headers->toArray()['link']);
 
             if (empty($response->body)) {
-                $logger->addError("Canvas API returned empty body for {$filtered_url}");
+                $logger->addError("Canvas API returned empty body for {$url}");
                 break;
             }
 
@@ -452,7 +492,7 @@ class Udoit
 
             usleep(250000); // 1/4 sec
         } while (isset($links['next']) && $cur_page < $limit);
-
+        
         return $results;
     }
 
