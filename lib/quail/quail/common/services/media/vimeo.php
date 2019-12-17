@@ -43,9 +43,9 @@ class vimeoService extends mediaService
 
 			// Response header code is used to determine if video exists, doesn't exist, or is unaccessible
 			// 400 means a video is private, 404 means a video doesn't exist, and 200 means the video exists
-			if($response->code === 400 || $response->code === 404) {
+			if($response['code'] === 400 || $response['code'] === 404) {
 				return 1;
-			} else if(($response->code === 200) && $response->body->total === 0) {
+			} else if(($response['code'] === 200) && $response['body']->total === 0) {
 				return 0;
 			}
 		}
@@ -80,13 +80,13 @@ class vimeoService extends mediaService
 
 			// Response header code is used to determine if video exists, doesn't exist, or is unaccessible
 			// 400 means a video is private, 404 means a video doesn't exist, and 200 means the video exists
-			if($response->code === 400 || $response->code === 404) {
+			if($response['code'] === 400 || $response['code'] === 404) {
 				return 1;
-			} else if(($response->code === 200) && $response->body->total === 0) {
+			} else if(($response['code'] === 200) && $response['body']->total === 0) {
 				return 2;
 			}
 
-			foreach ( $response->body->data as $track) {
+			foreach ($response['body']->data as $track) {
 				if( substr($track->language,0,2) === $course_locale ) {
 					return 2;
 				}

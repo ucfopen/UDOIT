@@ -52,18 +52,18 @@ class youtubeService extends mediaService
 			$response = UdoitUtils::instance()->checkApiCache($url, $link_url);
 
 			// If the video was pulled due to copyright violations, is unlisted, or is unavailable, the reponse header will be 404
-			if( $response->code === 404 ) {
+			if( $response['code'] === 404 ) {
 				return 1;
 			}
 
 			// If the daily limit has been exceeded for our API key or there was some other error
-			if( $response->code === 403 ) {
+			if( $response['code'] === 403 ) {
 				global $logger;
 				$logger->addError('YouTube API Error: '.$response->body->error->errors[0]->message);
 			}
 
 			// Looks through the captions and checks if any were not auto-generated
-			foreach ( $response->body->items as $track ) {
+			foreach ( $response['body']->items as $track ) {
 				if ( $track->snippet->trackKind != 'ASR' ) {
 					return 2;
 				}
@@ -105,18 +105,18 @@ class youtubeService extends mediaService
 			$response = UdoitUtils::instance()->checkApiCache($url, $link_url);
 
 			// If the video was pulled due to copyright violations, is unlisted, or is unavailable, the response header will be 404
-			if( $response->code == 404) {
+			if( $response['code'] == 404) {
 				return 1;
 			}
 
 			// If the daily limit has been exceeded for our API key or there was some other error
-			if( $response->code === 403 ) {
+			if( $response['code'] === 403 ) {
 				global $logger;
-				$logger->addError('YouTube API Error: '.$response->body->error->errors[0]->message);
+				$logger->addError('YouTube API Error: '.$response['body']->error->errors[0]->message);
 			}
 
 			// Looks through the captions and checks if they are of the correct language
-			foreach ( $response->body->items as $track) {
+			foreach ( $response['body']->items as $track) {
 				//If the track was manually generated, set the flag to true
 				if( $track->snippet->trackKind != 'ASR' ){
 					$foundManual = true;

@@ -339,6 +339,7 @@ class UdoitUtils
     public function checkApiCache($api_url, $video_url, $api_key = null)
     {
         global $logger;
+        $response = [];
         // Check if session var exists
         // If so, grab response object from session var aka 'cache'
         if (isset($_SESSION[$video_url]) && constant('USE_API_CACHING') != 'false') {
@@ -347,14 +348,15 @@ class UdoitUtils
         } else {
             // Else, make api call and cache response in a session var
             if (null == $api_key) {
-                $response = Request::get($api_url)->send();
+                $resp = Request::get($api_url)->send();
             } else {
                 // Vimeo requires the key be added as a header
-                $response = Request::get($api_url)->addHeader('Authorization', "Bearer $api_key")->send();
+                $resp = Request::get($api_url)->addHeader('Authorization', "Bearer $api_key")->send();
             }
+            $response['code'] = $resp->code;
+            $response['body'] = $resp->body;
             $_SESSION[$video_url] = $response;
         }
-
         // Return response
         return $response;
     }
