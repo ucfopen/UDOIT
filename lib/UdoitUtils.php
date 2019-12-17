@@ -1,5 +1,6 @@
 <?php session_start();
 use Httpful\Request;
+
 /**
 *   Copyright (C) 2014 University of Central Florida, created by Jacob Bates, Eric Colon, Fenel Joseph, and Emily Sachs.
 *
@@ -317,33 +318,33 @@ class UdoitUtils
     /**
      * Checks to see if api call has been cached or needs to be made and returns the response object
      *
-     * @param string $api_url   The url of the api endpoint 
+     * @param string $api_url   The url of the api endpoint
      * @param string $video_url The url of the video which is used as session var identifier
      * @param string $api_key   The api key for the endpoint being called
      *
-     * @return object The httpful response object 
+     * @return object The httpful response object
      */
-    public function checkApiCache($api_url, $video_url, $api_key = NULL)
+    public function checkApiCache($api_url, $video_url, $api_key = null)
     {
         global $logger;
         $response = [];
         // Check if session var exists
-            // If so, grab response object from session var aka 'cache'
-            if(isset($_SESSION[$video_url]) && constant( 'USE_API_CACHING' ) != 'false') {
-                $response = $_SESSION[$video_url];
-                $logger->addInfo("Cached api response used");
+        // If so, grab response object from session var aka 'cache'
+        if (isset($_SESSION[$video_url]) && constant('USE_API_CACHING') != 'false') {
+            $response = $_SESSION[$video_url];
+            $logger->addInfo("Cached api response used");
+        } else {
+            // Else, make api call and cache response in a session var
+            if (null == $api_key) {
+                $resp = Request::get($api_url)->send();
             } else {
-                // Else, make api call and cache response in a session var
-                if($api_key == NULL) {
-                    $resp = Request::get($api_url)->send();
-                } else {
-                    // Vimeo requires the key be added as a header 
-                    $resp = Request::get($api_url)->addHeader('Authorization', "Bearer $api_key")->send();
-                }
-                $response['code'] = $resp->code;
-                $response['body'] = $resp->body;
-                $_SESSION[$video_url] = $response;
+                // Vimeo requires the key be added as a header
+                $resp = Request::get($api_url)->addHeader('Authorization', "Bearer $api_key")->send();
             }
+            $response['code'] = $resp->code;
+            $response['body'] = $resp->body;
+            $_SESSION[$video_url] = $response;
+        }
         // Return response
         return $response;
     }
