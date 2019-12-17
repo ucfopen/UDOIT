@@ -150,6 +150,21 @@ UDOIT uses Oauth2 to take actions on behalf of the user, so you'll need to ask y
  * If you did a normal install into the web root of your server, it would be `https://www.example.com/public/oauth2response.php`. (Replace 'www.example.com' with the url of your UDOIT server.)
 * ***Icon URL:*** The URL of the UDOIT icon.  This is `https://www.example.com/public/assets/img/udoit_icon.png`.  (Replace 'www.example.com' with the url of your UDOIT server.)
 
+Your Canvas administrator will perform the following tasks:
+1. Navigate to your institution's ***Account Admin panel*** in Canvas.
+2. Click on the ***Developer Keys*** menu option.
+3. Click the ***+ Developer Key*** button and select the ***API Key*** option.
+4. Enter the data provided above into the form, leaving the ***Redirect URI (Legacy)*** and ***Vendor Code (LTI 2)*** fields blank.
+5. (Optional) If you would like to Enforce Scopes on this developer key, which limits this Developer Key to only allow access to the functions UDOIT requires, enable the option and check the boxes outlined in the [Scoped Developer Keys](#scoped-developer-keys) section below.
+6. Click ***Save Key***
+7. Find the new Developer Key in the list, and send the values from the ***Details*** column to the person requesting the key.  The top value is the ***Oauth2 ID***, and the value revealed by clicking on the ***Show Key*** button is the ***Oauth2 Key***.
+
+After you receive your Developer Key from your Canvas admin, edit the following variables in `config/localConfig.php`:
+
+* `$oauth2_id`: The ***Oauth2 ID*** your Canvas admin gives you
+* `$oauth2_key`: The ***Oauth2 Key*** your Canvas admin gives you
+* `$oauth2_uri`: The ***Redirect URI*** you provided to your Canvas admin
+
 #### Scoped Developer Keys
 If you'd like to use this option, you'll need set the following scopes for your developer key.
 * Assignments
@@ -178,12 +193,6 @@ If you'd like to use this option, you'll need set the following scopes for your 
 	* url:PUT|/api/v1/courses/:course_id/pages/:url
 * Users
 	* url:GET|/api/v1/users/:user_id/profile
-
-After you receive your Developer Key from your Canvas admin, edit the following variables in `config/localConfig.php`:
-
-* `$oauth2_id`: The Client_ID your Canvas admin gives you
-* `$oauth2_key`: The Secret your Canvas admin gives you
-* `$oauth2_uri`: The Redirect URI you provided to your Canvas admin
 
 ### Google/YouTube API Key
 In order for UDOIT to scan YouTube videos for closed captioning, you will need to create a YouTube Data API key.  Follow the instructions below:
