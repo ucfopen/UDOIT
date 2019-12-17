@@ -345,16 +345,16 @@ class UdoitUtils
                 $logger->addInfo("Cached api response used");
             } else {
                 // Else, make api call and cache response in a session var
-                if($api_key == NULL) {
+                if (null == $api_key) {
                     $response = Request::get($api_url)->send();
                 } else {
-                    // Vimeo requires the key be added as a header 
+                    // Vimeo requires the key be added as a header
                     $response = Request::get($api_url)->addHeader('Authorization', "Bearer $api_key")->send();
                 }
                 $_SESSION[$video_url] = $response;
             }
 
-        // Return response 
+        // Return response
         return $response;
     }
 
