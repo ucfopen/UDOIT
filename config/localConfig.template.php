@@ -17,6 +17,9 @@ $doc_length = '1500';
 $unscannable_suggestion = 'Consider converting these documents to Pages, since they are easier to update, easier to view on mobile devices, and generally more accessible.';
 $unscannable_suggestion_on = true;
 
+/* Assigning which file types won't be scanned */
+$unscannable_file_types = ['pdf', 'doc', 'docx', 'ppt', 'pptx'];
+
 /* Tool name for display in Canvas Navigation */
 $canvas_nav_item_name = (getenv('CANVAS_NAV_ITEM_NAME')) ?: 'UDOIT';
 

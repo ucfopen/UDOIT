@@ -12,6 +12,9 @@ $oauth2_uri = 'test_oauth2_uri';
 /* Disable headings check character count */
 $doc_length = '1500';
 
+/* Assigning which file types won't be scanned */
+$unscannable_file_types = ['pdf', 'doc', 'docx', 'ppt', 'pptx'];
+
 /* Tool name for display in Canvas Navigation */
 $canvas_nav_item_name = 'test udoit';
 

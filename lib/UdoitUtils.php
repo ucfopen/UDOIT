@@ -360,7 +360,7 @@ class UdoitUtils
         // Return response
         return $response;
     }
-
+    
     protected function curlOauthToken($base_url, $post_data)
     {
         // @TODO - why not use Httpful here?

@@ -43,9 +43,12 @@ $background_worker_sleep_seconds = 7;
 /* Disable headings check character count */
 $doc_length = getenv('DOC_LENGTH')?:1500;
 
-/*Unscannable Suggestion */
+/* Unscannable Suggestion */
 $unscannable_suggestion = 'Consider converting these documents to Pages, since they are easier to update and generally more accessible.';
 $unscannable_suggestion_on = true;
+
+/* Assigning which file types won't be scanned */
+$unscannable_file_types = ['pdf', 'doc', 'docx', 'ppt', 'pptx'];
 
 /* Google/YouTube Data Api Key */
 define('GOOGLE_API_KEY', getenv('GOOGLE_API_KEY')?:'');
