@@ -1104,6 +1104,18 @@ $doc.ready(function() {
 		}
 	});
 
+	$doc.on('click', '#unscannable-button', function(e) {
+		$checkboxes = $(this).parent().parent().parent().parent().parent().find('input[id^="filter"]');
+		for (var i = 0; i < $checkboxes.length; i++){
+			$filetype = '.'.concat($checkboxes[i].value);
+			$items = $(this).parent().parent().parent().parent().parent().find($filetype);
+
+			if($items.length == 0) {
+				console.log("No " + $checkboxes[i].value + " found");
+			}
+		}
+	});
+
 	// END update files list
 	$doc.on('keypress', '.nav-tabs li[role="presentation"]', function (e) {
 	  	var tab = (e.target || e.srcElement);
