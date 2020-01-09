@@ -1111,7 +1111,7 @@ $doc.ready(function() {
 			$items = $(this).parent().parent().parent().parent().parent().find($filetype);
 
 			if($items.length == 0) {
-				console.log("No " + $checkboxes[i].value + " found");
+				$checkboxes[i].parentElement.style.display = "none";
 			}
 		}
 	});
