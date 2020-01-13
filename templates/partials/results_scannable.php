@@ -31,7 +31,10 @@
 		<?php if ($item->amount > 0): ?>
 			<div class="errorItem panel panel-default">
 				<div class="panel-heading clearfix">
-					<button class="btn btn-xs btn-default btn-toggle pull-left no-print margin-right-small"><span class="glyphicon glyphicon-plus"></span></button>
+					<button class="btn btn-xs btn-default btn-toggle pull-left no-print margin-right-small">
+						<span class="glyphicon glyphicon-plus"></span>
+						<span class="sr-only"><span>Expand</span> <?= $content_group->title . ': ' . $item->name; ?></span>
+					</button>
 
 					<h3 class="plus pull-left"><a class="report-url" href="<?= $item->url; ?>" target="_blank"><?= $item->name; ?>&nbsp;<small><span class ="glyphicon glyphicon-new-window"></span></small></a></h3>
 

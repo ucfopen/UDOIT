@@ -390,7 +390,8 @@ $doc.ready(function() {
 
 	// result panel collapsing
 	$doc.on('click', '.panel-heading .btn-toggle', function() {
-		$(this).children('button span').removeClass('glyphicon-minus').addClass('glyphicon-plus');
+		$('span.glyphicon', this).removeClass('glyphicon-minus').addClass('glyphicon-plus');
+		$('span.sr-only span', this).text('Expand');
 		var $errorItem = $(this).parent();
 		if ($errorItem.parent().find('.errorSummary').is(':visible')) {
 			$errorItem.parent().find('.errorSummary').slideUp(function() {
@@ -400,7 +401,8 @@ $doc.ready(function() {
 			});
 		}
 		else {
-			$(this).children('button span').removeClass('glyphicon-plus').addClass('glyphicon-minus');
+			$('span.glyphicon', this).removeClass('glyphicon-plus').addClass('glyphicon-minus');
+			$('span.sr-only span', this).text('Collapse');
 			$errorItem.parent().find('.errorSummary').slideDown(function(){
 				resizeFrame();
 			});
