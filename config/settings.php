@@ -11,6 +11,9 @@ require_once(__DIR__.'/../vendor/autoload.php');
 // Initialize db_options. This may be overridden in the local config
 $db_options = [];
 
+// Initialize session cookie options. This may be overridden in the local config.
+$session_cookie_options = [];
+
 // LOAD LOCAL, TEST or HEROKU CONFIG
 $local_config = getenv('USE_HEROKU_CONFIG') ? 'herokuConfig.php' : 'localConfig.php';
 $local_config = getenv('UNITTEST') ? 'localConfig.test.php' : $local_config;
@@ -34,6 +37,9 @@ ini_set("display_errors", ($UDOIT_ENV == ENV_PROD ? 0 : 1));
 
 // SET DEFAULT ENVIRONMENT
 isset($UDOIT_ENV) || $UDOIT_ENV = ENV_PROD; // !! override in your localConfig.php
+
+// SET UP PHP SESSION COOKIE SAMESITE SESSIONS
+UdoitUtils::setupSession($session_cookie_options);
 
 // SET UP OAUTH
 $oauth2_scopes = [

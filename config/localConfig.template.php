@@ -10,6 +10,15 @@ $oauth2_key            = '';    // Provided by your Canvas Admin
 $oauth2_uri            = '';    // EX: https://udoit.my-org.edu/oauth2response.php or https://udoit.my-org.edu/udoit/public/oauth2response.php
 $oauth2_enforce_scopes = false; // Set to true if you have a scoped developer key.
 
+/* Set session cookie options 
+ * expire - The cookie expiration time in seconds (0 means it does not expire)
+ * path - The path of the application
+ */
+$session_cookie_options = [
+    'expire' => 0,
+    'path' => '/'
+];
+
 /* Disable headings check character count */
 $doc_length = '1500';
 
