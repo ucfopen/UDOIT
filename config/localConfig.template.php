@@ -10,13 +10,17 @@ $oauth2_key            = '';    // Provided by your Canvas Admin
 $oauth2_uri            = '';    // EX: https://udoit.my-org.edu/oauth2response.php or https://udoit.my-org.edu/udoit/public/oauth2response.php
 $oauth2_enforce_scopes = false; // Set to true if you have a scoped developer key.
 
-/* Set session cookie options 
+/* Set session cookie options
  * expire - The cookie expiration time in seconds (0 means it does not expire)
- * path - The path of the application
+ * path - which application on this domain the cookie is visible to
+ *
  */
 $session_cookie_options = [
-    'expire' => 0,
-    'path' => '/'
+    'expire' => getenv('SESSION_COOKIE_EXPIRE') ?: 0,
+    'path' => getenv('SESSION_COOKIE_PATH') ?: '/',
+    'domain' => getenv('SESSION_COOKIE_DOMAIN') ?: null,
+    'secure' => getenv('SESSION_COOKIE_SECURE') ?: true,
+    'httponly' => getenv('SESSION_COOKIE_HTTPONLY') ?: false,
 ];
 
 /* Disable headings check character count */

@@ -64,34 +64,6 @@ class UdoitUtils
         self::$canvas_scopes = $scopes;
     }
 
-    /**
-     * Support samesite cookie flag in both PHP < 7.3 and > PHP >= 7.3
-     * @param array $options
-     *
-     * @return void
-     */
-    public static function setupSession($options)
-    {
-        $expire = isset($options['expire']) ? $options['expire'] : 0;
-        $path = isset($options['path']) ? $options['path'] : '/';
-        $domain = isset($options['domain']) ? $options['domain'] : null;
-        $secure = isset($options['secure']) ? $options['secure'] : true;
-        $httponly = isset($options['httponly']) ? $options['httponly'] : false;
-
-        if (PHP_VERSION_ID < 70300) {
-            session_set_cookie_params($expire, "$path; samesite=None", $domain, $secure, $httponly);
-        } else {
-            session_set_cookie_params([
-                'expires' => $expire,
-                'path' => $path,
-                'domain' => $domain,
-                'samesite' => 'None',
-                'secure' => $secure,
-                'httponly' => $httponly,
-            ]);
-        }
-    }
-
     public function getYouTubeId($link_url)
     {
         $matches = null;
