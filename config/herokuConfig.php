@@ -12,6 +12,15 @@ $oauth2_key       = getenv('OAUTH2_KEY');
 $oauth2_uri       = getenv('OAUTH2_URI');
 $oauth2_enforce_scopes = (getenv('OAUTH2_ENFORCE_SCOPES')) == 'true';
 
+/* Set session cookie options */
+$session_cookie_options = [
+    'expire' => getenv('SESSION_COOKIE_EXPIRE') ?: 0,
+    'path' => getenv('SESSION_COOKIE_PATH') ?: '/',
+    'domain' => getenv('SESSION_COOKIE_DOMAIN') ?: null,
+    'secure' => getenv('SESSION_COOKIE_SECURE') ?: true,
+    'httponly' => getenv('SESSION_COOKIE_HTTPONLY') ?: false,
+];
+
 /* Tool name for display in Canvas Navigation */
 $canvas_nav_item_name = getenv('CANVAS_NAV_ITEM_NAME');
 
