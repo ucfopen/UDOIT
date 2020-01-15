@@ -28,7 +28,10 @@ global $file_scan_size_limit;
 <div id="errorTotalSummary">
 	<div id="summaryContainer" class="panel panel-default">
 		<div class="panel-heading clearfix">
-			<button class="btn btn-xs btn-default btn-toggle pull-left no-print margin-right-small"><span class="glyphicon glyphicon-minus"></span></button>
+			<button class="btn btn-xs btn-default btn-toggle pull-left no-print margin-right-small">
+				<span class="glyphicon glyphicon-plus"></span>
+				<span class="sr-only"><span>Expand</span> Error Summary</span>
+			</button>
 			<h2>Report Summary</h2>
 		</div>
 		<div class="errorSummary panel-body" style="display: block;">
