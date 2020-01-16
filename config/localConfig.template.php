@@ -5,9 +5,25 @@ $consumer_key  = '';
 $shared_secret = '';
 
 /* Canvas Developer Key Oauth 2.0 Settings */
-$oauth2_id  = ''; // Provided by your Canvas Admin
-$oauth2_key = ''; // Provided by your Canvas Admin
-$oauth2_uri = ''; // EX: https://udoit.my-org.edu/oauth2response.php or https://udoit.my-org.edu/udoit/public/oauth2response.php
+$oauth2_id             = '';    // Provided by your Canvas Admin
+$oauth2_key            = '';    // Provided by your Canvas Admin
+$oauth2_uri            = '';    // EX: https://udoit.my-org.edu/oauth2response.php or https://udoit.my-org.edu/udoit/public/oauth2response.php
+$oauth2_enforce_scopes = false; // Set to true if you have a scoped developer key.
+
+/* Set session cookie options
+ * expire - the cookie expiration time in seconds (0 means it does not expire)
+ * path - the applications on this domain to which the cookie is visible
+ * domain - the domain to which this cookie is visible
+ * secure - 'true' to send the cookie only over secure connections
+ * httponly - 'true' to set the 'httponly' flag when setting the cookie
+ */
+$session_cookie_options = [
+    'expire' => getenv('SESSION_COOKIE_EXPIRE') ?: 0,
+    'path' => getenv('SESSION_COOKIE_PATH') ?: '/',
+    'domain' => getenv('SESSION_COOKIE_DOMAIN') ?: null,
+    'secure' => getenv('SESSION_COOKIE_SECURE') ?: true,
+    'httponly' => getenv('SESSION_COOKIE_HTTPONLY') ?: false,
+];
 
 /* Disable headings check character count */
 $doc_length = '1500';
@@ -33,6 +49,9 @@ define('VIMEO_API_KEY', '');
 
 /* Google Analytics Tracking Code */
 define('GA_TRACKING_CODE', '');
+
+/* Flag for API Caching */
+define('USE_API_CACHING', '');
 
 /* Database Config */
 $db_type            = 'mysql'; // 'mysql' or 'pgsql'

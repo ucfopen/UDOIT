@@ -54,6 +54,7 @@ To start the Heroku deployment process, you can click the button below, please n
 * PHP 7.1, 7.2 (Not yet compatible with 7.3.  See issue #422)
   * [GD Graphics Library](http://php.net/manual/en/book.image.php)
 * MySQL or PostgreSQL
+* Git (If you are using [The Git Method](#the-git-method) below) or if you plan on contributing to UDOIT
 
 ## Downloading the Source Code
 There are two methods of obtaining the source code and maintaining your installation of UDOIT:  Git Clone or Download ZIP.
@@ -81,7 +82,7 @@ If you'd like to add a little extra security to your installation, you can confi
 UDOIT uses [Composer](https://getcomposer.org/) to install PHP dependencies. So `cd` into your UDOIT directory and run this command before anything else:
 
 ```
-$ php composer.phar install
+$ php composer.phar install --no-dev
 ```
 
 The libraries (other then Quail) that we rely on can be found in `composer.json`.
@@ -150,11 +151,49 @@ UDOIT uses Oauth2 to take actions on behalf of the user, so you'll need to ask y
  * If you did a normal install into the web root of your server, it would be `https://www.example.com/public/oauth2response.php`. (Replace 'www.example.com' with the url of your UDOIT server.)
 * ***Icon URL:*** The URL of the UDOIT icon.  This is `https://www.example.com/public/assets/img/udoit_icon.png`.  (Replace 'www.example.com' with the url of your UDOIT server.)
 
+Your Canvas administrator will perform the following tasks:
+1. Navigate to your institution's ***Account Admin panel*** in Canvas.
+2. Click on the ***Developer Keys*** menu option.
+3. Click the ***+ Developer Key*** button and select the ***API Key*** option.
+4. Enter the data provided above into the form, leaving the ***Redirect URI (Legacy)*** and ***Vendor Code (LTI 2)*** fields blank.
+5. (Optional) If you would like to Enforce Scopes on this developer key, which limits this Developer Key to only allow access to the functions UDOIT requires, enable the option and check the boxes outlined in the [Scoped Developer Keys](#scoped-developer-keys) section below.
+6. Click ***Save Key***
+7. Find the new Developer Key in the list, and send the values from the ***Details*** column to the person requesting the key.  The top value is the ***Oauth2 ID***, and the value revealed by clicking on the ***Show Key*** button is the ***Oauth2 Key***.
+
 After you receive your Developer Key from your Canvas admin, edit the following variables in `config/localConfig.php`:
 
-* `$oauth2_id`: The Client_ID yoru Canvas admin gives you
-* `$oauth2_key`: The Secret your Canvas admin gives you
-* `$oauth2_uri`: The Redirect URI you provided to your Canvas admin
+* `$oauth2_id`: The ***Oauth2 ID*** your Canvas admin gives you
+* `$oauth2_key`: The ***Oauth2 Key*** your Canvas admin gives you
+* `$oauth2_uri`: The ***Redirect URI*** you provided to your Canvas admin
+
+#### Scoped Developer Keys
+If you'd like to use this option, you'll need set the following scopes for your developer key.
+* Assignments
+	* url:GET|/api/v1/courses/:course_id/assignments
+	* url:GET|/api/v1/courses/:course_id/assignments/:id
+	* url:PUT|/api/v1/courses/:course_id/assignments/:id
+* Courses
+	* url:PUT|/api/v1/courses/:id
+	* url:GET|/api/v1/courses/:id
+	* url:POST|/api/v1/courses/:course_id/files
+* Discussion Topics
+	* url:GET|/api/v1/courses/:course_id/discussion_topics
+	* url:GET|/api/v1/courses/:course_id/discussion_topics/:topic_id
+	* url:PUT|/api/v1/courses/:course_id/discussion_topics/:topic_id
+* Files
+	* url:GET|/api/v1/courses/:course_id/files
+	* url:GET|/api/v1/courses/:course_id/folders/:id
+	* url:GET|/api/v1/folders/:id/folders
+	* url:GET|/api/v1/folders/:id/files
+* Modules
+	* url:GET|/api/v1/courses/:course_id/modules
+	* url:GET|/api/v1/courses/:course_id/modules/:module_id/items
+* Pages
+	* url:GET|/api/v1/courses/:course_id/pages
+	* url:GET|/api/v1/courses/:course_id/pages/:url
+	* url:PUT|/api/v1/courses/:course_id/pages/:url
+* Users
+	* url:GET|/api/v1/users/:user_id/profile
 
 ### Google/YouTube API Key
 In order for UDOIT to scan YouTube videos for closed captioning, you will need to create a YouTube Data API key.  Follow the instructions below:
@@ -272,6 +311,9 @@ The `Deploy to Heroku` button installs the latest release of UDOIT when clicked.
 ### Which ports will UDOIT need on my server?
 * Allow inbound traffic from world to UDOIT on 80 and 443
 * Allow outbound traffic from UDOIT to Canvas on 443
+
+### Why am I recieving a "Due to LMS limitations, UDOIT is unable to scan this section." error?
+When an institution installs UDOIT and uses a scoped developer key, certain features of the Canvas API are unavailable to UDOIT, including retrieving content from the Syllabus tool.  This limitation does not affect UDOIT installations that use a non-scoped developer key.  For more information, refer to the "Canvas API Includes" section of the <a href="https://canvas.instructure.com/doc/api/file.developer_keys.html">Canvas API Documentation</a>.
 
 # Developing and Testing
 

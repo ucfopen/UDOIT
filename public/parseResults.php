@@ -20,6 +20,7 @@
 require_once('../config/settings.php');
 
 $get_input = filter_input_array(INPUT_GET, FILTER_SANITIZE_STRING);
+global $logger;
 
 if (!isset($get_input['path'])) {
     $get_input['path'] = '';
@@ -39,14 +40,13 @@ $sth = UdoitDB::prepare("SELECT * FROM {$db_reports_table} WHERE id = :report_id
 $sth->bindValue(':report_id', $get_input['report_id'], PDO::PARAM_INT);
 
 if (!$sth->execute()) {
-    error_log(print_r($sth->errorInfo(), true));
+    $logger->addError(print_r($sth->errorInfo(), true));
     UdoitUtils::instance()->exitWithPartialError('Error searching for report');
 }
 
 $report_json = $sth->fetch(PDO::FETCH_OBJ)->report_json;
 
 $report = json_decode($report_json);
-
 if (empty($report)) {
     $json_error = json_last_error_msg();
     UdoitUtils::instance()->exitWithPartialError("Cannot parse this report. JSON error {$json_error}.");
@@ -63,8 +63,7 @@ $results = [
     'suggestion_summary'  => $report->suggestion_summary,
     'post_path'           => $get_input['path'],
     'fixable_error_types' => ["cssTextHasContrast", "imgNonDecorativeHasAlt", "tableDataShouldHaveTh", "tableThShouldHaveScope", "headersHaveText", "aMustContainText", "imgAltIsDifferent", "imgAltIsTooLong", "imgHasAltDeco"],
-    'fixable_suggestions' => ["aSuspiciousLinkText", "imgHasAlt", "aLinkTextDoesNotBeginWithRedundantWord", "cssTextStyleEmphasize"],
-
+    'fixable_suggestions' => ["aSuspiciousLinkText", "imgHasAlt", "aLinkTextDoesNotBeginWithRedundantWord", "cssTextStyleEmphasize", "pNotUsedAsHeader"],
 ];
 
 $templates  = new League\Plates\Engine('../templates');
