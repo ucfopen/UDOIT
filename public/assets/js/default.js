@@ -1104,6 +1104,7 @@ $doc.ready(function() {
 		}
 	});
 
+	// Hides checkboxes for any configured unscannable filetypes not currently present in the course
 	$doc.on('click', '#unscannable-button', function(e) {
 		$checkboxes = $(this).parent().parent().parent().parent().parent().find('input[id^="filter"]');
 		for (var i = 0; i < $checkboxes.length; i++){
