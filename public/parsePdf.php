@@ -30,7 +30,7 @@ $title = filter_input(INPUT_POST, 'context_title', FILTER_SANITIZE_STRING);
 $result_html = filter_input(INPUT_POST, 'result_html', FILTER_UNSAFE_RAW);
 
 // Write the pdf
-$pdf = new Mpdf();
+$pdf = new \Mpdf\Mpdf();
 $html = zz\Html\HTMLMinify::minify($result_html);
 $pdf->SetHeader("Scanned on ".date("m/d/Y")." at ".date("g:i a"));
 $pdf->SetFooter("Page {PAGENO} / {nb}");
