@@ -25,6 +25,7 @@ ini_set('max_execution_time', 300);
 session_start();
 UdoitUtils::$canvas_base_url = $_SESSION['base_url'];
 $_SESSION['pdf_generated'] = false;
+global $logger;
 
 $title = filter_input(INPUT_POST, 'context_title', FILTER_SANITIZE_STRING);
 $result_html = filter_input(INPUT_POST, 'result_html', FILTER_UNSAFE_RAW);
@@ -32,6 +33,8 @@ $result_html = filter_input(INPUT_POST, 'result_html', FILTER_UNSAFE_RAW);
 // Write the pdf
 $pdf = new \Mpdf\Mpdf();
 $html = zz\Html\HTMLMinify::minify($result_html);
+$logger->addError($result_html);
+$logger->addError($html);
 $pdf->SetHeader("Scanned on ".date("m/d/Y")." at ".date("g:i a"));
 $pdf->SetFooter("Page {PAGENO} / {nb}");
 $pdf->WriteHTML('<link rel="stylesheet" href="assets/css/pdf.css" type="text/css">', 1);
