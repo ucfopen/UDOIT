@@ -112,6 +112,14 @@ class reportStatic extends quailReporter
 									$testResult['description']  = $description;
 								}
 								break;
+							case 'videoCaptionsAreCorrectLanguage':
+								if($problem->manual == true || $test_count > 0) {
+									if($problem->manual == true) $test_count++;
+									$testResult['description']  = $description."<p>⚠️ ".$test_count.' items require manual verification because UDOIT was unable to detect captions. This is most likely due to the video being unlisted, private, or deleted.</p>';
+								} else {
+									$testResult['description']  = $description;
+								}
+								break;
 
 							default:
 								$testResult['description']  = $description;

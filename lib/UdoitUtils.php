@@ -1,4 +1,6 @@
-<?php
+<?php session_start();
+use Httpful\Request;
+
 /**
 *   Copyright (C) 2014 University of Central Florida, created by Jacob Bates, Eric Colon, Fenel Joseph, and Emily Sachs.
 *
@@ -26,6 +28,8 @@ class UdoitUtils
     public static $canvas_secret_key;
     public static $canvas_base_url;
     public static $curl_ssl_verify;
+    public static $canvas_enforce_scopes;
+    public static $canvas_scopes;
     public static $regex = [
         '@youtube\.com/embed/([^"\& ]+)@i',
         '@youtube\.com/v/([^"\& ]+)@i',
@@ -48,7 +52,7 @@ class UdoitUtils
         return self::$instance;
     }
 
-    public static function setupOauth($id, $key, $uri, $consumer_key, $secret, $curl_ssl_verify = true)
+    public static function setupOauth($id, $key, $uri, $consumer_key, $secret, $curl_ssl_verify = true, $enforce_scopes = false, $scopes = [])
     {
         self::$canvas_oauth_id = $id;
         self::$canvas_oauth_key = $key;
@@ -56,6 +60,8 @@ class UdoitUtils
         self::$canvas_consumer_key = $consumer_key;
         self::$canvas_secret_key = $secret;
         self::$curl_ssl_verify = $curl_ssl_verify;
+        self::$canvas_enforce_scopes = $enforce_scopes;
+        self::$canvas_scopes = $scopes;
     }
 
     public function getYouTubeId($link_url)
@@ -72,17 +78,21 @@ class UdoitUtils
 
     public function exitWithPageError($error)
     {
+        global $logger;
         $templates = new League\Plates\Engine(__DIR__.'/../templates');
         echo($templates->render('error', ['error' => $error]));
-        error_log($error);
+        $logger->addError($error);
+
         exit();
     }
 
     public function exitWithPartialError($error)
     {
+        global $logger;
         $templates = new League\Plates\Engine(__DIR__.'/../templates');
         echo($templates->render('partials/error', ['error' => $error]));
-        error_log($error);
+        $logger->addError($error);
+
         exit();
     }
 
@@ -215,6 +225,13 @@ class UdoitUtils
             'code'          => $code,
         ];
 
+        if (true === self::$canvas_enforce_scopes) {
+            // if we are enforcing scopes we need to take our predefined scope array
+            // and implode it to be a long string with spaces between each scope
+            // and then URL encode it.
+            $post_data['scope'] = urlencode(implode(" ", self::$canvas_scopes));
+        }
+
         return $this->curlOauthToken($base_url, $post_data);
     }
 
@@ -277,6 +294,7 @@ class UdoitUtils
         foreach ($report_groups as $rg) {
             if (!array_key_exists($rg->title, $ordered_report_groups)) {
                 $logger->addWarning("{$rg->title} is an unknown report title, it will be omitted from the report.");
+                $logger->addInfo("Contents of the unknown report:".print_r($rg, true));
             } else {
                 // place the known titles at the correct index
                 $ordered_report_groups[$rg->title] = $rg;
@@ -284,6 +302,63 @@ class UdoitUtils
         }
 
         return $ordered_report_groups;
+    }
+
+    /**
+     * Takes a canvas api key and course ID and returns the course locale
+     *
+     * @param string $api_key   The Canvas api key
+     * @param int    $course_id The ID of the Canvas course
+     *
+     * @return array An ordered list of report groups
+     */
+    public function getCourseLocale($api_key, $course_id)
+    {
+        //Grab course locale from canvas
+        $url = self::$canvas_base_url."/api/v1/courses/{$course_id}";
+        $resp = Httpful\Request::get($url)
+            ->addHeader('Authorization', "Bearer {$api_key}")
+            ->send();
+
+        if (isset($resp->body->locale)) {
+            return $resp->body->locale;
+        }
+
+        return false;
+    }
+
+    /**
+     * Checks to see if api call has been cached or needs to be made and returns the response object
+     *
+     * @param string $api_url   The url of the api endpoint
+     * @param string $video_url The url of the video which is used as session var identifier
+     * @param string $api_key   The api key for the endpoint being called
+     *
+     * @return object The httpful response object
+     */
+    public function checkApiCache($api_url, $video_url, $api_key = null)
+    {
+        global $logger;
+        $response = [];
+        // Check if session var exists
+        // If so, grab response object from session var aka 'cache'
+        if (isset($_SESSION[$video_url]) && constant('USE_API_CACHING') != 'false') {
+            $response = $_SESSION[$video_url];
+            $logger->addInfo("Cached api response used");
+        } else {
+            // Else, make api call and cache response in a session var
+            if (null == $api_key) {
+                $resp = Request::get($api_url)->send();
+            } else {
+                // Vimeo requires the key be added as a header
+                $resp = Request::get($api_url)->addHeader('Authorization', "Bearer $api_key")->send();
+            }
+            $response['code'] = $resp->code;
+            $response['body'] = $resp->body;
+            $_SESSION[$video_url] = $response;
+        }
+        // Return response
+        return $response;
     }
 
     protected function curlOauthToken($base_url, $post_data)
