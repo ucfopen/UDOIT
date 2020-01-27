@@ -490,19 +490,22 @@ $doc.ready(function() {
 
 		$this.hide();
 
-		var $contentForm = $issueContainer.find('form')[0].focus();
-		console.log($contentForm[0]);
-
-		console.log($(document.activeElement));
-
+		var $contentForm = $issueContainer.find('form');
+	
 		if ($contentForm.is(':visible')) {
 			$contentForm.removeClass('show');
 			$contentForm.addClass('hidden');
+			console.log('removing visibility');
 		}
 		else {
 			$contentForm.removeClass('hidden');
 			$contentForm.addClass('show');
+			console.log('adding visibility');
+			$contentForm.focus();
+			console.log($(document.activeElement));
 		}
+
+
 
 		switch ( $this.val() ) {
 			case 'cssTextHasContrast':
