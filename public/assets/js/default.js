@@ -490,7 +490,7 @@ $doc.ready(function() {
 
 		$this.hide();
 
-		var $contentForm = $issueContainer.find('form');
+		var $contentForm = $issueContainer.find('form').focus();
 		console.log($contentForm);
 
 		if ($contentForm.is(':visible')) {
@@ -502,7 +502,6 @@ $doc.ready(function() {
 			$contentForm.addClass('show');
 		}
 
-		$contentForm.focus();
 		if($contentForm.is(":focus")) {
 			console.log ("focus shifted");
 		}
