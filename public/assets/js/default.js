@@ -491,7 +491,9 @@ $doc.ready(function() {
 		$this.hide();
 
 		var $contentForm = $issueContainer.find('form')[0].focus();
-		console.log($contentForm);
+		console.log($contentForm[0]);
+
+		console.log($(document.activeElement));
 
 		if ($contentForm.is(':visible')) {
 			$contentForm.removeClass('show');
@@ -501,8 +503,6 @@ $doc.ready(function() {
 			$contentForm.removeClass('hidden');
 			$contentForm.addClass('show');
 		}
-
-		console.log($(document.activeElement));
 
 		switch ( $this.val() ) {
 			case 'cssTextHasContrast':
