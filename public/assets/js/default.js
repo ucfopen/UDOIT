@@ -490,7 +490,7 @@ $doc.ready(function() {
 
 		$this.hide();
 
-		var $contentForm = $issueContainer.find('form').focus();
+		var $contentForm = $issueContainer.find('form')[0].focus();
 		console.log($contentForm);
 
 		if ($contentForm.is(':visible')) {
