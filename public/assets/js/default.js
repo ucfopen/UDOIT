@@ -503,6 +503,9 @@ $doc.ready(function() {
 		}
 
 		$contentForm.focus();
+		if($contentForm.is(":focus")) {
+			console.log ("focus shifted");
+		}
 
 		switch ( $this.val() ) {
 			case 'cssTextHasContrast':
