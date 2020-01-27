@@ -502,6 +502,8 @@ $doc.ready(function() {
 			$contentForm.addClass('show');
 		}
 
+		$contentForm.focus();
+
 		switch ( $this.val() ) {
 			case 'cssTextHasContrast':
 				ufixitCssTextHasContrast( $issueContainer );
