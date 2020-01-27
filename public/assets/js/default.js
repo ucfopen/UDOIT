@@ -488,11 +488,10 @@ $doc.ready(function() {
 		var $this = $(this)
 		var $issueContainer = $this.parent().parent();
 
-		console.log($issueContainer);
-
 		$this.hide();
 
 		var $contentForm = $issueContainer.find('form');
+		console.log($contentForm);
 
 		if ($contentForm.is(':visible')) {
 			$contentForm.removeClass('show');
