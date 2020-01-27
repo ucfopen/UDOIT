@@ -502,9 +502,7 @@ $doc.ready(function() {
 			$contentForm.addClass('show');
 		}
 
-		if($contentForm.is(":focus")) {
-			console.log ("focus shifted");
-		}
+		console.log($(document.activeElement));
 
 		switch ( $this.val() ) {
 			case 'cssTextHasContrast':
