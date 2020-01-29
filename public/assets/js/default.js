@@ -501,7 +501,7 @@ $doc.ready(function() {
 			$contentForm.removeClass('hidden');
 			$contentForm.addClass('show');
 			console.log('adding visibility');
-			$contentForm.focus();
+			$contentForm.addClass('focus');
 			console.log($(document.activeElement));
 		}
 
