@@ -500,7 +500,7 @@ $doc.ready(function() {
 		else {
 			$contentForm.removeClass('hidden');
 			$contentForm.addClass('show');
-			$contentForm.find('input').focus();
+			$contentForm.find('input').first().focus();
 			console.log('adding visibility');
 			console.log($(document.activeElement));
 		}
