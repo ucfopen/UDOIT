@@ -5,6 +5,14 @@ define('ENV_DEV', 'dev');
 
 define('UDOIT_VERSION', '2.6.0');
 
+// Initialize db_options. This may be overridden in the local config
+$db_options = [];
+
+// LOAD LOCAL, TEST or HEROKU CONFIG
+$local_config = getenv('USE_HEROKU_CONFIG') ? 'herokuConfig.php' : 'localConfig.php';
+$local_config = getenv('UNITTEST') ? 'localConfig.test.php' : $local_config;
+require_once($local_config);
+
 // SET UP PHP SESSION COOKIE SAMESITE SESSIONS
 $expire = isset($session_cookie_options['expire']) ? $session_cookie_options['expire'] : 0;
 $path = isset($session_cookie_options['path']) ? $session_cookie_options['path'] : '/';
@@ -26,15 +34,7 @@ if (PHP_VERSION_ID < 70300) {
 }
 
 // SET UP AUTOLOADER (uses autoload rules from composer)
-require_once(__DIR__.'/../vendor/autoload.php');
-
-// Initialize db_options. This may be overridden in the local config
-$db_options = [];
-
-// LOAD LOCAL, TEST or HEROKU CONFIG
-$local_config = getenv('USE_HEROKU_CONFIG') ? 'herokuConfig.php' : 'localConfig.php';
-$local_config = getenv('UNITTEST') ? 'localConfig.test.php' : $local_config;
-require_once($local_config);
+require_once(__DIR__ . '/../vendor/autoload.php');
 
 // ADD A DEFAULT LOG HANDLER
 // !! override by creating $log_handler in your config
