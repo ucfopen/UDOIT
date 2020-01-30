@@ -491,15 +491,19 @@ $doc.ready(function() {
 		$this.hide();
 
 		var $contentForm = $issueContainer.find('form');
-		console.log($contentForm.focus());
-	
+		
 		if ($contentForm.is(':visible')) {
 			$contentForm.removeClass('show');
 			$contentForm.addClass('hidden');
+
 		}
 		else {
 			$contentForm.removeClass('hidden');
 			$contentForm.addClass('show');
+			$savedTabIndex = $contentForm.attr('tabindex')
+			$contentForm.attr('tabindex', '-1')
+			$contentForm.focus()
+			$contentForm.attr('tabindex', $savedTabIndex);
 		}
 
 
