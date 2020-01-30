@@ -34,7 +34,7 @@ if (PHP_VERSION_ID < 70300) {
 }
 
 // SET UP AUTOLOADER (uses autoload rules from composer)
-require_once(__DIR__ . '/../vendor/autoload.php');
+require_once(__DIR__.'/../vendor/autoload.php');
 
 // ADD A DEFAULT LOG HANDLER
 // !! override by creating $log_handler in your config
