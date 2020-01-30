@@ -491,17 +491,15 @@ $doc.ready(function() {
 		$this.hide();
 
 		var $contentForm = $issueContainer.find('form');
+		console.log($contentForm.focus());
 	
 		if ($contentForm.is(':visible')) {
 			$contentForm.removeClass('show');
 			$contentForm.addClass('hidden');
-			console.log('removing visibility');
 		}
 		else {
 			$contentForm.removeClass('hidden');
 			$contentForm.addClass('show');
-			console.log($contentForm.find('input').first());
-			console.log($(document.activeElement));
 		}
 
 
