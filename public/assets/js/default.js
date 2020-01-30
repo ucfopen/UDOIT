@@ -500,10 +500,12 @@ $doc.ready(function() {
 		else {
 			$contentForm.removeClass('hidden');
 			$contentForm.addClass('show');
-			$savedTabIndex = $contentForm.attr('tabindex')
-			$contentForm.attr('tabindex', '-1')
-			$contentForm.focus()
+			$savedTabIndex = $contentForm.attr('tabindex');
+			$contentForm.attr('tabindex', '-1');
+			$contentForm.focus();
 			$contentForm.attr('tabindex', $savedTabIndex);
+
+			console.log($(document.activeElement));
 		}
 
 
