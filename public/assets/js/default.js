@@ -501,11 +501,11 @@ $doc.ready(function() {
 			$contentForm.removeClass('hidden');
 			$contentForm.addClass('show');
 			$savedTabIndex = $contentForm.attr('tabindex');
+			// Setting tabindex to -1 so that we can focus on the form
 			$contentForm.attr('tabindex', '-1');
 			$contentForm.focus();
+			// Reverting tab index to original value now that we have focus
 			$contentForm.attr('tabindex', $savedTabIndex);
-
-			console.log($(document.activeElement));
 		}
 
 
