@@ -12,6 +12,11 @@ $domain = isset($session_cookie_options['domain']) ? $session_cookie_options['do
 $secure = isset($session_cookie_options['secure']) ? $session_cookie_options['secure'] : true;
 $httponly = isset($session_cookie_options['httponly']) ? $session_cookie_options['httponly'] : false;
 
+// LOAD LOCAL, TEST or HEROKU CONFIG
+$local_config = getenv('USE_HEROKU_CONFIG') ? 'herokuConfig.php' : 'localConfig.php';
+$local_config = getenv('UNITTEST') ? 'localConfig.test.php' : $local_config;
+require_once($local_config);
+
 if (PHP_VERSION_ID < 70300) {
     session_set_cookie_params($expire, "$path; samesite=None", $domain, $secure, $httponly);
 } else {
@@ -30,11 +35,6 @@ require_once(__DIR__.'/../vendor/autoload.php');
 
 // Initialize db_options. This may be overridden in the local config
 $db_options = [];
-
-// LOAD LOCAL, TEST or HEROKU CONFIG
-$local_config = getenv('USE_HEROKU_CONFIG') ? 'herokuConfig.php' : 'localConfig.php';
-$local_config = getenv('UNITTEST') ? 'localConfig.test.php' : $local_config;
-require_once($local_config);
 
 // ADD A DEFAULT LOG HANDLER
 // !! override by creating $log_handler in your config
