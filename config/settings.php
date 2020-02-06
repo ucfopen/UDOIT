@@ -12,6 +12,19 @@ $domain = isset($session_cookie_options['domain']) ? $session_cookie_options['do
 $secure = isset($session_cookie_options['secure']) ? $session_cookie_options['secure'] : true;
 $httponly = isset($session_cookie_options['httponly']) ? $session_cookie_options['httponly'] : false;
 
+// ADD A DEFAULT LOG HANDLER
+// !! override by creating $log_handler in your config
+if (!isset($log_handler)) {
+    $log_handler = new \Monolog\Handler\StreamHandler(__DIR__.'/log.log', \Monolog\Logger::DEBUG);
+    $log_handler->setFormatter(new \Monolog\Formatter\LineFormatter(null, null, true, true));
+}
+
+// SET UP LOGGER
+$logger = new \Monolog\Logger('udoit');
+$logger->pushHandler($log_handler);
+\Monolog\ErrorHandler::register($logger);
+
+
 // LOAD LOCAL, TEST or HEROKU CONFIG
 $local_config = getenv('USE_HEROKU_CONFIG') ? 'herokuConfig.php' : 'localConfig.php';
 $local_config = getenv('UNITTEST') ? 'localConfig.test.php' : $local_config;
@@ -35,18 +48,6 @@ require_once(__DIR__.'/../vendor/autoload.php');
 
 // Initialize db_options. This may be overridden in the local config
 $db_options = [];
-
-// ADD A DEFAULT LOG HANDLER
-// !! override by creating $log_handler in your config
-if (!isset($log_handler)) {
-    $log_handler = new \Monolog\Handler\StreamHandler(__DIR__.'/log.log', \Monolog\Logger::DEBUG);
-    $log_handler->setFormatter(new \Monolog\Formatter\LineFormatter(null, null, true, true));
-}
-
-// SET UP LOGGER
-$logger = new \Monolog\Logger('udoit');
-$logger->pushHandler($log_handler);
-\Monolog\ErrorHandler::register($logger);
 
 // SET UP ERROR REPORTING
 error_reporting(E_ALL & ~E_NOTICE);
