@@ -5,13 +5,6 @@ define('ENV_DEV', 'dev');
 
 define('UDOIT_VERSION', '2.6.0');
 
-// SET UP PHP SESSION COOKIE SAMESITE SESSIONS
-$expire = isset($session_cookie_options['expire']) ? $session_cookie_options['expire'] : 0;
-$path = isset($session_cookie_options['path']) ? $session_cookie_options['path'] : '/';
-$domain = isset($session_cookie_options['domain']) ? $session_cookie_options['domain'] : null;
-$secure = isset($session_cookie_options['secure']) ? $session_cookie_options['secure'] : true;
-$httponly = isset($session_cookie_options['httponly']) ? $session_cookie_options['httponly'] : false;
-
 // ADD A DEFAULT LOG HANDLER
 // !! override by creating $log_handler in your config
 if (!isset($log_handler)) {
@@ -24,11 +17,17 @@ $logger = new \Monolog\Logger('udoit');
 $logger->pushHandler($log_handler);
 \Monolog\ErrorHandler::register($logger);
 
-
 // LOAD LOCAL, TEST or HEROKU CONFIG
 $local_config = getenv('USE_HEROKU_CONFIG') ? 'herokuConfig.php' : 'localConfig.php';
 $local_config = getenv('UNITTEST') ? 'localConfig.test.php' : $local_config;
 require_once($local_config);
+
+// SET UP PHP SESSION COOKIE SAMESITE SESSIONS
+$expire = isset($session_cookie_options['expire']) ? $session_cookie_options['expire'] : 0;
+$path = isset($session_cookie_options['path']) ? $session_cookie_options['path'] : '/';
+$domain = isset($session_cookie_options['domain']) ? $session_cookie_options['domain'] : null;
+$secure = isset($session_cookie_options['secure']) ? $session_cookie_options['secure'] : true;
+$httponly = isset($session_cookie_options['httponly']) ? $session_cookie_options['httponly'] : false;
 
 if (PHP_VERSION_ID < 70300) {
     session_set_cookie_params($expire, "$path; samesite=None", $domain, $secure, $httponly);
