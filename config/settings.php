@@ -55,6 +55,8 @@ ini_set("display_errors", ($UDOIT_ENV == ENV_PROD ? 0 : 1));
 // SET DEFAULT ENVIRONMENT
 isset($UDOIT_ENV) || $UDOIT_ENV = ENV_PROD; // !! override in your localConfig.php
 
+// CHECK FOR SAFARI
+UdoitUtils::checkSafari();
 
 // SET UP OAUTH
 $oauth2_scopes = [

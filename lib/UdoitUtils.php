@@ -361,8 +361,26 @@ class UdoitUtils
         return $response;
     }
 
+    /**
+     * Check for Safari and redirect to set cookies at top level
+     * rather than in an iframe.
+     *
+     * @return void
+     */
+    public static function checkSafari()
+    {
+        if (stripos($_SERVER['HTTP_USER_AGENT'], 'safari') >= 0) {
+            if (count($_COOKIE) === 0) {
+                header('Location: safari_fix.php');
+                exit;
+            }
+        }
+    }
+
     protected function curlOauthToken($base_url, $post_data)
     {
+        global $curl_ssl_verify;
+        
         // @TODO - why not use Httpful here?
         $ch = curl_init("{$base_url}/login/oauth2/token");
         curl_setopt($ch, CURLOPT_POST, 1);
