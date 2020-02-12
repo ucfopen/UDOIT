@@ -31,7 +31,7 @@ if (isset($get['redirect'])) {
         'value' => 'fixed',
     ]);
 
-    exit("<script>window.history.back(); </script>");
+    exit("<script>window.history.back(2); </script>");
 }
 ?>
 <!DOCTYPE html>
