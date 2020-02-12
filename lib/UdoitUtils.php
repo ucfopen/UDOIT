@@ -367,7 +367,7 @@ class UdoitUtils
      *
      * @return void
      */
-    public function checkSafari()
+    public static function checkSafari()
     {
         if (stripos($_SERVER['HTTP_USER_AGENT'], 'safari') >= 0) {
             if (count($_COOKIE) === 0) {
