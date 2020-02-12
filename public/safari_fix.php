@@ -39,10 +39,10 @@ if (isset($get['redirect'])) {
 <head>
     <title>UDOIT on Safari</title>
     <script>
-        let launchBtn = document.getElementByID("launch-btn");
+        let launchBtn = document.getElementById("launch-btn");
         launchBtn.onclick = function(evt){
             //Display setup complete message
-            let msg = document.getElementByID("msg");
+            let msg = document.getElementById("msg");
             msg.innerHTML = "Setup complete!  Please refresh this page to use U<strong>DO</strong>IT.";
 
             //Hide the setup button
