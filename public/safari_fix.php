@@ -41,13 +41,14 @@ if (isset($get['redirect'])) {
     <script>
         window.onload = (event) => {
             let launchBtn = document.getElementById("launch-btn");
-            launchBtn.onclick = (click_evt) => {
+            launchBtn.onclick = (evt) => {
                 //Display setup complete message
                 let msg = document.getElementById("msg");
                 msg.innerHTML = "Setup complete!  Please refresh this page to use U<strong>DO</strong>IT.";
 
                 //Hide the setup button
-                click_evt.target.style.display = "none";
+                let launchBtn = document.getElementById("launch-btn");
+                launchBtn.classList.add("hidden");
             }
         }
     </script>
@@ -71,6 +72,11 @@ if (isset($get['redirect'])) {
             color: #333;
             font-size: 1.4em;
             text-decoration: none;
+        }
+
+        .hidden {
+            display: none;
+            visibility: hidden;
         }
     </style>
     <div class="wrapper">
