@@ -17,6 +17,7 @@
 *
 *   Primary Author Contact:  Jacob Bates <jacob.bates@ucf.edu>
 */
+error_reporting(E_ALL);
 require_once(__DIR__.'/../config/settings.php');
 
 if (php_sapi_name() !== "cli") {
