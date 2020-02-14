@@ -373,6 +373,8 @@ Add contributors here and dont forget composer.json!)
 * [John Raible](https://github.com/rebelaide)
 * [Kevin Baugh](https://github.com/loraxx753)
 * [Sean Hernandez](https://github.com/seanlh)
+* [Ethan Finlay](https://github.com/atarisafari)
+* [Kenny G Perez](https://github.com/kennygperez)
 
 ### Special Thanks
 
