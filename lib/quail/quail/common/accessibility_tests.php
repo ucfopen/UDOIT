@@ -5756,23 +5756,21 @@ class tableDataShouldHaveTh extends quailTableTest
 
 	function check()
 	{
-		$tables = $this->getAllElements('table');
-
-		foreach ($tables as $table) {
+		foreach ($this->getAllElements('table') as $table) {
 			foreach ($table->childNodes as $child) {
-				// If $child is thead, tbody, tfoot, or tr then we can evaluate
+				// If $child is thead, tbody, or tr then we can evaluate
 				if (
 					$this->propertyIsEqual($child, 'tagName', 'thead') ||
 					$this->propertyIsEqual($child, 'tagName', 'tbody')
 				)
-					$rowContainer = $child;
+					$trWrapper = $child;
 				elseif ($this->propertyIsEqual($child, 'tagName', 'tr'))
-					$rowContainer = $table;
+					$trWrapper = $table;
 				else continue;
 
-				if (!$this->doRowsContainTH($rowContainer)) $this->addReport($table);
+				if (!$this->doRowsContainTH($trWrapper)) $this->addReport($table);
 
-				break 1;
+				break;
 			}
 		}
 	}
@@ -5781,11 +5779,13 @@ class tableDataShouldHaveTh extends quailTableTest
 	 *	Helper function
 	 */
 
-	function doRowsContainTH($rowContainer) {
-		if (is_null($rowContainer) || is_null($rowContainer->childNodes)) return false;
+	function doRowsContainTH($trWrapper) {
+		if (is_null($trWrapper) || is_null($trWrapper->childNodes)) return false;
 
-		foreach ($rowContainer->childNodes as $row) {
-			foreach ($row->childNodes as $column) {
+		foreach ($trWrapper->childNodes as $tr) {
+			if (is_null($tr) || is_null($tr->childNodes)) continue;
+
+			foreach ($tr->childNodes as $column) {
 				if ($this->propertyIsEqual($column, 'tagName', 'th'))
 					return true;
 			}
@@ -6227,7 +6227,9 @@ class tableThShouldHaveScope extends quailTest
 	*/
 	function check()
 	{
-		// @see https://www.w3.org/WAI/EO/Drafts/tutorials/tables/scope/
+		/**
+		 * @see https://www.w3.org/WAI/EO/Drafts/tutorials/tables/scope/
+		 */
 		$SUPPORTED_SCOPE_VALUES = [
 			'row',
 			'col',
@@ -6236,11 +6238,10 @@ class tableThShouldHaveScope extends quailTest
 		];
 
 		foreach ($this->getAllElements('th') as $th) {
-			if ($th->hasAttribute('scope')) {
-				if (!in_array(strtolower($th->getAttribute('scope')), $SUPPORTED_SCOPE_VALUES, TRUE)) {
-					$this->addReport($th);
-				}
-			} else {
+			if (
+				!$th->hasAttribute('scope') ||
+				!in_array(strtolower($th->getAttribute('scope')), $SUPPORTED_SCOPE_VALUES, TRUE)
+			) {
 				$this->addReport($th);
 			}
 		}
