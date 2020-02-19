@@ -30,17 +30,7 @@ class UdoitUtils
     public static $curl_ssl_verify;
     public static $canvas_enforce_scopes;
     public static $canvas_scopes;
-    public static $regex = [
-        '@youtube\.com/embed/([^"\& ]+)@i',
-        '@youtube\.com/v/([^"\& ]+)@i',
-        '@youtube\.com/watch\?v=([^"\& ]+)@i',
-        '@youtube\.com/\?v=([^"\& ]+)@i',
-        '@youtu\.be/([^"\& ]+)@i',
-        '@youtu\.be/v/([^"\& ]+)@i',
-        '@youtu\.be/watch\?v=([^"\& ]+)@i',
-        '@youtu\.be/\?v=([^"\& ]+)@i',
-    ];
-
+    
     private static $instance;
 
     public static function instance()
@@ -62,18 +52,6 @@ class UdoitUtils
         self::$curl_ssl_verify = $curl_ssl_verify;
         self::$canvas_enforce_scopes = $enforce_scopes;
         self::$canvas_scopes = $scopes;
-    }
-
-    public function getYouTubeId($link_url)
-    {
-        $matches = null;
-        foreach (self::$regex as $pattern) {
-            if (preg_match($pattern, $link_url, $matches)) {
-                return $matches[1];
-            }
-        }
-
-        return null;
     }
 
     public function exitWithPageError($error)
