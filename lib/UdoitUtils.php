@@ -375,7 +375,7 @@ class UdoitUtils
             $chrome_position = stripos($_SERVER['HTTP_USER_AGENT'], 'chrome');
             $safari_position = stripos($_SERVER['HTTP_USER_AGENT'], 'safari');
 
-            if ($safari_position !== false && $chrome_position === false) {
+            if (false !== $safari_position && false === $chrome_position) {
                 if (count($_COOKIE) === 0) {
                     header('Location: safari_fix.php');
                     exit;
@@ -392,11 +392,13 @@ class UdoitUtils
     public static function isLoadingXMLSettings()
     {
         $current_file = basename($_SERVER['PHP_SELF']);
-        if ($current_file == 'udoit.xml.php') {
-            return true;
+        if ('udoit.xml.php' == $current_file) {
+            $returnVal = true;
         } else {
-            return false;
+            $returnVal = false;
         }
+
+        return $returnVal;
     }
 
     protected function curlOauthToken($base_url, $post_data)
