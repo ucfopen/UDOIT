@@ -384,6 +384,21 @@ class UdoitUtils
         }
     }
 
+    /**
+     * See if we're loading the udoit.xml.php file
+     *
+     * @return boolean
+     */
+    public static function isLoadingXMLSettings()
+    {
+        $current_file = basename($_SERVER['PHP_SELF']);
+        if ($current_file == 'udoit.xml.php') {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
     protected function curlOauthToken($base_url, $post_data)
     {
         global $curl_ssl_verify;
