@@ -363,19 +363,40 @@ class UdoitUtils
 
     /**
      * Check for Safari and redirect to set cookies at top level
-     * rather than in an iframe.
+     * rather than in an iframe.  Since Chrome and other browsers
+     * have Safari in their user agent strings, but Safari does
+     * not, we see if Chrome comes first.
      *
      * @return void
      */
     public static function checkSafari()
     {
-        if (isset($_SERVER['HTTP_USER_AGENT'])) {
-            if (stripos($_SERVER['HTTP_USER_AGENT'], 'safari') >= 0) {
-                if (count($_COOKIE) === 0) {
-                    header('Location: safari_fix.php');
-                    exit;
-                }
+        if (!chromeComesBeforeSafariInUserAgentString()) {
+            if (count($_COOKIE) === 0) {
+                header('Location: safari_fix.php');
+                exit;
             }
+        }
+    }
+
+    /**
+     * Since Chrome and other browsers have Safari in their user
+     * agent strings, but Safari does not, we see if Chrome comes first.
+     *
+     * @return boolean
+     */
+    protected function chromeComesBeforeSafariInUserAgentString()
+    {
+        if (isset($_SERVER['HTTP_USER_AGENT'])) {
+            $chrome_position = stripos($_SERVER['HTTP_USER_AGENT'], 'chrome') ?? -1;
+            $safari_position = stripos($_SERVER['HTTP_USER_AGENT'], 'safari');
+            if ($chrome_position > $safari_position) {
+                return true;
+            } else {
+                return false;
+            }
+        } else {
+            return false;
         }
     }
 
