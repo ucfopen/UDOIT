@@ -372,9 +372,10 @@ class UdoitUtils
     public static function checkSafari()
     {
         if (isset($_SERVER['HTTP_USER_AGENT'])) {
-            $chrome_position = stripos($_SERVER['HTTP_USER_AGENT'], 'chrome') ?? -1;
+            $chrome_position = stripos($_SERVER['HTTP_USER_AGENT'], 'chrome');
             $safari_position = stripos($_SERVER['HTTP_USER_AGENT'], 'safari');
-            if ($safari_position > $chrome_position) {
+
+            if ($safari_position !== false && $chrome_position === false) {
                 if (count($_COOKIE) === 0) {
                     header('Location: safari_fix.php');
                     exit;
