@@ -371,32 +371,15 @@ class UdoitUtils
      */
     public static function checkSafari()
     {
-        if (!$this->chromeComesBeforeSafariInUserAgentString()) {
-            if (count($_COOKIE) === 0) {
-                header('Location: safari_fix.php');
-                exit;
-            }
-        }
-    }
-
-    /**
-     * Since Chrome and other browsers have Safari in their user
-     * agent strings, but Safari does not, we see if Chrome comes first.
-     *
-     * @return boolean
-     */
-    protected function chromeComesBeforeSafariInUserAgentString()
-    {
         if (isset($_SERVER['HTTP_USER_AGENT'])) {
             $chrome_position = stripos($_SERVER['HTTP_USER_AGENT'], 'chrome') ?? -1;
             $safari_position = stripos($_SERVER['HTTP_USER_AGENT'], 'safari');
-            if ($chrome_position > $safari_position) {
-                return true;
-            } else {
-                return false;
+            if ($safari_position > $chrome_position) {
+                if (count($_COOKIE) === 0) {
+                    header('Location: safari_fix.php');
+                    exit;
+                }
             }
-        } else {
-            return false;
         }
     }
 
