@@ -363,20 +363,42 @@ class UdoitUtils
 
     /**
      * Check for Safari and redirect to set cookies at top level
-     * rather than in an iframe.
+     * rather than in an iframe.  Since Chrome and other browsers
+     * have Safari in their user agent strings, but Safari does
+     * not, we see if Chrome comes first.
      *
      * @return void
      */
     public static function checkSafari()
     {
         if (isset($_SERVER['HTTP_USER_AGENT'])) {
-            if (stripos($_SERVER['HTTP_USER_AGENT'], 'safari') >= 0) {
+            $chrome_position = stripos($_SERVER['HTTP_USER_AGENT'], 'chrome');
+            $safari_position = stripos($_SERVER['HTTP_USER_AGENT'], 'safari');
+
+            if (false !== $safari_position && false === $chrome_position) {
                 if (count($_COOKIE) === 0) {
                     header('Location: safari_fix.php');
                     exit;
                 }
             }
         }
+    }
+
+    /**
+     * See if we're loading the udoit.xml.php file
+     *
+     * @return boolean
+     */
+    public static function isLoadingXMLSettings()
+    {
+        $current_file = basename($_SERVER['PHP_SELF']);
+        if ('udoit.xml.php' == $current_file) {
+            $returnVal = true;
+        } else {
+            $returnVal = false;
+        }
+
+        return $returnVal;
     }
 
     protected function curlOauthToken($base_url, $post_data)
