@@ -371,7 +371,7 @@ class UdoitUtils
      */
     public static function checkSafari()
     {
-        if (!chromeComesBeforeSafariInUserAgentString()) {
+        if (!$this->chromeComesBeforeSafariInUserAgentString()) {
             if (count($_COOKIE) === 0) {
                 header('Location: safari_fix.php');
                 exit;
