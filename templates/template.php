@@ -28,6 +28,7 @@
 		<link href='//fonts.googleapis.com/css?family=Sonsie+One' rel='stylesheet' type='text/css'>
 		<link href="assets/css/main.css?v=<?= UDOIT_VERSION ?>" type="text/css" rel="stylesheet" media="screen">
 		<link href="assets/css/print.css?v=<?= UDOIT_VERSION ?>" type="text/css" rel="stylesheet" media="print">
+		<link href="assets/css/results_filter.css?v=<?= UDOIT_VERSION ?>" type="text/css" rel="stylesheet">
 	</head>
 	<body>
 		<div class="container">

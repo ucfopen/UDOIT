@@ -1,0 +1,130 @@
+body {
+    min-height: 1200px;
+}
+section#result {
+    display: none !important;
+}
+
+.results-wrapper .save-pdf-wrapper {
+    text-align: right;
+    margin: 0 0 20px 20px;
+    clear: both;
+}
+.results-wrapper h1 {
+    margin: 20px 0;
+    padding: 20px;
+    border-top: 1px solid #DDD;
+    border-bottom: 1px solid #DDD;
+}
+.results-wrapper #summary .errorSummary {
+    padding: 0;
+}
+.results-wrapper .results-panes {
+    border-left: 1px solid #DDD;
+}
+.results-wrapper .results-tabs li a {
+    border-bottom: 1px solid #DDD;
+    font-size: 1.3em;
+    text-transform: capitalize;
+}
+.results-wrapper .results-tabs li.active a {
+    background-color: #555;
+    border-bottom: 0;
+}
+.results-wrapper .select-all-filter {
+    float: right;
+    margin-top: 4px;
+}
+.results-wrapper .issue-filter {
+    float: right;
+}
+.results-wrapper .switch {
+  position: relative;
+  display: inline-block;
+  width: 30px;
+  height: 17px;
+}
+
+/* Hide default HTML checkbox */
+.results-wrapper .switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+/* The slider */
+.results-wrapper .switch .slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #ccc;
+  -webkit-transition: .4s;
+  transition: .4s;
+}
+
+.results-wrapper .switch .slider:before {
+  position: absolute;
+  content: "";
+  height: 13px;
+  width: 13px;
+  left: 2px;
+  bottom: 2px;
+  background-color: white;
+  -webkit-transition: .4s;
+  transition: .4s;
+}
+
+.results-wrapper .switch input:checked + .slider {
+  background-color: #444;
+}
+
+.results-wrapper .switch input:focus + .slider {
+  box-shadow: 0 0 1px #444;
+}
+
+.results-wrapper .switch input:checked + .slider:before {
+  -webkit-transform: translateX(13px);
+  -ms-transform: translateX(13px);
+  transform: translateX(13px);
+}
+
+/* Rounded sliders */
+.results-wrapper .switch .slider.round {
+  border-radius: 17px;
+}
+
+.results-wrapper .switch .slider.round:before {
+  border-radius: 50%;
+}
+
+.results-wrapper .hiding {
+    display: none;
+}
+
+.results-wrapper .errorSummary .panel-danger {
+    margin-bottom: 20px !important;
+}
+
+/* Hiding issue counts within a content type, since they'll change as we filter */
+.results-wrapper .errorSummary .panel h4.panel-title > .badge {
+    display: none;
+}
+.results-wrapper .errorItem > .panel-heading .label {
+    margin: 0 4px;
+}
+
+.results-wrapper .results-tabs li a .badge {
+    float: right;
+    margin-top: 3px;
+    color: #FFF;
+    border: 1px solid #FFF;
+}
+.results-wrapper .results-tabs li a .count-error {
+    background-color: #d4423c;
+}
+.results-wrapper .results-tabs li a .count-suggest {
+    background-color: #31708f;
+}
