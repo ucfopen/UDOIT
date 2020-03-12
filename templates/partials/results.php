@@ -29,8 +29,8 @@ global $file_scan_size_limit;
 	<div id="summaryContainer" class="panel panel-default">
 		<div class="panel-heading clearfix">
 			<button class="btn btn-xs btn-default btn-toggle pull-left no-print margin-right-small">
-				<span class="glyphicon glyphicon-plus"></span>
-				<span class="sr-only"><span>Expand</span> Error Summary</span>
+				<span class="glyphicon glyphicon-minus"></span>
+				<span class="sr-only"><span>Collapse</span> Error Summary</span>
 			</button>
 			<h2>Report Summary</h2>
 		</div>

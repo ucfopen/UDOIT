@@ -491,15 +491,24 @@ $doc.ready(function() {
 		$this.hide();
 
 		var $contentForm = $issueContainer.find('form');
-
+		
 		if ($contentForm.is(':visible')) {
 			$contentForm.removeClass('show');
 			$contentForm.addClass('hidden');
+
 		}
 		else {
 			$contentForm.removeClass('hidden');
 			$contentForm.addClass('show');
+			$savedTabIndex = $contentForm.attr('tabindex');
+			// Setting tabindex to -1 so that we can focus on the form
+			$contentForm.attr('tabindex', '-1');
+			$contentForm.focus();
+			// Reverting tab index to original value now that we have focus
+			$contentForm.attr('tabindex', $savedTabIndex);
 		}
+
+
 
 		switch ( $this.val() ) {
 			case 'cssTextHasContrast':

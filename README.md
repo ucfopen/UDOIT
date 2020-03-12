@@ -165,6 +165,7 @@ After you receive your Developer Key from your Canvas admin, edit the following 
 * `$oauth2_id`: The ***Oauth2 ID*** your Canvas admin gives you
 * `$oauth2_key`: The ***Oauth2 Key*** your Canvas admin gives you
 * `$oauth2_uri`: The ***Redirect URI*** you provided to your Canvas admin
+* `$oauth2_enforce_scopes`: Set to ***true*** if you are using [Scoped Developer Keys](#scoped-developer-keys).
 
 #### Scoped Developer Keys
 If you'd like to use this option, you'll need set the following scopes for your developer key.
@@ -373,6 +374,8 @@ Add contributors here and dont forget composer.json!)
 * [John Raible](https://github.com/rebelaide)
 * [Kevin Baugh](https://github.com/loraxx753)
 * [Sean Hernandez](https://github.com/seanlh)
+* [Ethan Finlay](https://github.com/atarisafari)
+* [Kenny G Perez](https://github.com/kennygperez)
 
 ### Special Thanks
 
