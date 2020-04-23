@@ -38,7 +38,7 @@ UDOIT is distributed under the [GNU GPL v3 license](LICENSE).
 >
 > Primary Contact:  Jacob Bates <jacob.bates@ucf.edu>
 
-UDOIT includes a modified [QUAIL library](https://code.google.com/p/quail-lib/). QUAIL requires derrivitives to be distributed under the [GNU General Public License version 3](LICENSE)
+UDOIT includes a modified [QUAIL library](https://code.google.com/p/quail-lib/). QUAIL requires derivitives to be distributed under the [GNU General Public License version 3](LICENSE)
 
 UDOIT includes a [Composer](https://getcomposer.org) binary which is distributed under the [MIT license](https://github.com/composer/composer/blob/master/LICENSE)
 
