@@ -84,3 +84,8 @@ $curl_ssl_verify = true;
 
 // Admin panel.  False disables access and removes block from XML.
 $admin_panel_enabled = (getenv("ADMIN_PANEL_ENABLED")) == 'true';
+
+// Footer content.
+$footer_enabled = (getenv('FOOTER_ENABLED')) == 'true';
+$footer_youtube_tos_link = getenv('YOUTUBE_TOS_LINK') ?: 'https://www.youtube.com/t/terms';
+$footer_google_privacy_policy_link = getenv('GOOGLE_PRIVACY_POLICY_LINK') ?: 'http://www.google.com/policies/privacy';
