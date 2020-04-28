@@ -23,7 +23,7 @@ global $footer_google_privacy_policy_link;
 ?>
 <footer id="mainFooter" class="center">
 	<ul>
-		<li><a href="<?= $footer_youtube_tos_link ?>">YouTube Terms of Service</a></li>
-		<li><a href="<?= $footer_google_privacy_policy_link ?>">Google Privacy Policy</a></li>
+		<li><a href="<?= $footer_youtube_tos_link ?>" target="_blank">YouTube Terms of Service</a></li>
+		<li><a href="<?= $footer_google_privacy_policy_link ?>" target="_blank">Google Privacy Policy</a></li>
 	</ul>
 </footer>
