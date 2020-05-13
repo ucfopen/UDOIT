@@ -29,7 +29,7 @@ global $logger;
 $server_link = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https:" : "http:").'//'.$_SERVER['HTTP_HOST'].dirname($_SERVER['PHP_SELF']);
 
 //canvas url
-$sth = UdoitDB::prepare("SELECT canvas_url from users limit 1;");
+$sth = UdoitDB::prepare("SELECT canvas_url from users where canvas_url <> '' and canvas_url is not null limit 1;");
 $sth->execute();
 $url = $sth->fetch();
 $canvas_url = $url[0];
