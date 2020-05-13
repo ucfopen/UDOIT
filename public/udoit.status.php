@@ -89,7 +89,7 @@ try {
 
 //check YouTube API Key
 try {
-    $url = 'https://www.googleapis.com/youtube/v3/captions?part=snippet&videoId=YbJOTdZBX1g&key='.constant('GOOGLE_API_KEY');
+    $url = 'https://www.googleapis.com/youtube/v3/videos?part=snippet&id=YbJOTdZBX1g&key='.constant('GOOGLE_API_KEY');
     $response = Httpful\Request::get($url)->send();
     if ($response->code == 200) {
         $statusCheck['youtube_api'] = true;
