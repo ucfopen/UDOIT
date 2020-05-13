@@ -85,6 +85,18 @@
     "ADMIN_PANEL_ENABLED": {
       "description": "Enable the Admin Panel feature.  False disables access and removes the block from the configuration XML.",
       "value": "false"
+    },
+    "FOOTER_ENABLED": {
+      "description": "True enables the footer.",
+      "value": "true"
+    },
+    "YOUTUBE_TOS_LINK" : {
+      "description": "The link to the YouTube Terms of Service.",
+      "value": "https://www.youtube.com/t/terms"
+    },
+    "GOOGLE_PRIVACY_POLICY_LINK" : {
+      "description": "The link to the Google Privacy Policy.",
+      "value": "http://www.google.com/policies/privacy"
     }
   },
   "addons": [

@@ -88,11 +88,8 @@ switch ($_GET['stat']) {
         }
 
         foreach ($results as $result) {
-            $reports[] = json_decode($result['report_json'], true);
-        }
+            $report = json_decode($result['report_json'], true);
 
-        // Count errors
-        foreach ($reports as $report) {
             foreach ($report['error_summary'] as $error => $value) {
                 if (!isset($errors_count[$error])) {
                     $errors_count[$error] = $value['count'];

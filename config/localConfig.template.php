@@ -104,3 +104,13 @@ $curl_ssl_verify = true; // This should be true for production environments
  * Default false
  */
 $admin_panel_enabled = false;
+
+
+/* Footer
+ * Setting $footer_enabled to true shows a footer at the bottom of the UDOIT
+ * interface that contains a link to the YouTube Terms of Service and Google
+ * Privacy Policy.
+*/
+$footer_enabled = true;
+$footer_youtube_tos_link = 'https://www.youtube.com/t/terms';
+$footer_google_privacy_policy_link = 'http://www.google.com/policies/privacy';
