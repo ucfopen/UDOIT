@@ -173,7 +173,7 @@ class UfixitTest extends BaseTest
 
     public function testFixTableHeadersBoth()
     {
-        $error_html     = '<table><tbody><tr><td>Header One</td><td>Header Two</td></tr><tr><td>Title</td><td>4.50</td></tr></tbody></table>';
+        $error_html     = "<table><tbody>\n<tr>\n<td>Header One</td>\n<td>Header Two</td>\n</tr>\n<tr>\n<td>Title</td>\n<td>4.50</td>\n</tr>\n</tbody></table>";
         $sel_header     = 'both';
         $expected       = '<tr>'."\n".'<th scope="col">Header One</th>'."\n".'<th scope="col">Header Two</th>'."\n".'</tr>'."\n".'<tr>'."\n".'<th scope="row">Title</th>'."\n".'<td>4.50</td>'."\n".'</tr>';
         ob_start();

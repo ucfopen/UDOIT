@@ -326,8 +326,9 @@ class Ufixit
                     $new_data['old'] .= $this->dom->saveHTML($tr);
 
                     // Add a newline between each output so it matches the original
-                    if($arrkey < $last_item)
+                    if ($arrkey < $last_item) {
                         $new_data['old'] .= "\n";
+                    }
                 }
 
                 foreach ($trs as $tr) {
@@ -367,8 +368,9 @@ class Ufixit
                     $new_data['old'] .= $this->dom->saveHTML($tr);
 
                     // Add a newline between each output so it matches the original
-                    if($arrkey < $last_item)
+                    if ($arrkey < $last_item) {
                         $new_data['old'] .= "\n";
+                    }
                 }
 
                 foreach ($trs as $tr) {
@@ -395,7 +397,7 @@ class Ufixit
                     $td->setAttribute('scope', 'row');
 
                     // Add a newline before every export of a row (First is skipped)
-                    $new_data['fixed'] .= "\n" . $this->dom->saveHTML($tr);
+                    $new_data['fixed'] .= "\n".$this->dom->saveHTML($tr);
                 }
 
                 break;
