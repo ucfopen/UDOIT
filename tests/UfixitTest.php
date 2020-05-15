@@ -149,9 +149,9 @@ class UfixitTest extends BaseTest
 
     public function testFixTableHeadersRow()
     {
-        $error_html     = '<table><tbody><tr><td>Header One</td><td>Header Two</td></tr><tr><td>1.30</td><td>4.50</td></tr></tbody></table>';
+        $error_html     = "<table><tbody>\n<tr>\n<td>Header One</td>\n<td>Header Two</td>\n</tr>\n<tr>\n<td>1.30</td>\n<td>4.50</td>\n</tr>\n</tbody></table>";
         $sel_header     = 'row';
-        $expected       = '<tr>'."\n".'<th scope="col">Header One</th>'."\n".'<th scope="col">Header Two</th>'."\n".'</tr>'."\n";
+        $expected       = '<tr>'."\n".'<th scope="col">Header One</th>'."\n".'<th scope="col">Header Two</th>'."\n".'</tr>';
         ob_start();
         $temp           = new Ufixit($this->data);
         $output         = $temp->fixTableHeaders($error_html, $sel_header);
@@ -161,7 +161,7 @@ class UfixitTest extends BaseTest
 
     public function testFixTableHeadersCol()
     {
-        $error_html     = '<table><tbody><tr><td>Header One</td><td>Header Two</td></tr><tr><td>Title</td><td>4.50</td></tr></tbody></table>';
+        $error_html     = "<table><tbody>\n<tr>\n<td>Header One</td>\n<td>Header Two</td>\n</tr>\n<tr>\n<td>Title</td>\n<td>4.50</td>\n</tr>\n</tbody></table>";
         $sel_header     = 'col';
         $expected       = '<tr>'."\n".'<th scope="row">Header One</th>'."\n".'<td>Header Two</td>'."\n".'</tr>'."\n".'<tr>'."\n".'<th scope="row">Title</th>'."\n".'<td>4.50</td>'."\n".'</tr>';
         ob_start();

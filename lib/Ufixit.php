@@ -331,13 +331,18 @@ class Ufixit
                     }
                 }
 
-                foreach ($trs as $tr) {
+                foreach ($trs as $arrkey => $tr) {
                     $td = $tr->getElementsByTagName('td')->item(0);
                     $td = $this->renameElement($td, 'th');
 
                     $td->setAttribute('scope', 'row');
 
                     $new_data['fixed'] .= $this->dom->saveHTML($tr);
+
+                    // Add a newline between each output so it matches the original
+                    if ($arrkey < $last_item) {
+                        $new_data['fixed'] .= "\n";
+                    }
                 }
 
                 break;
