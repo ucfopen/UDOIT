@@ -39,7 +39,7 @@ if (PHP_VERSION_ID < 70300) {
     session_set_cookie_params($expire, "$path; samesite=None", $domain, $secure, $httponly);
 } else {
     session_set_cookie_params([
-        'expires' => $expire,
+        'expire' => $expire,
         'path' => $path,
         'domain' => $domain,
         'samesite' => 'None',

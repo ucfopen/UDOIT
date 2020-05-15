@@ -310,25 +310,25 @@ class Ufixit
      */
     public function fixTableHeaders($error_html, $selected_header, $submitting_again = false)
     {
-        global $logger;
-
         $new_data = [
             'old'   => '',
             'fixed' => '',
         ];
 
-        $logger->addInfo("fixTableHeaders - Original HTML: ".$error_html);
         $this->dom->loadHTML('<?xml encoding="utf-8" ?>'.$error_html, LIBXML_HTML_NODEFDTD);
 
         switch ($selected_header) {
             case 'col':
                 $trs = $this->dom->getElementsByTagName('tr');
-                $logger->addInfo("fixTableHeaders/col - all TRs: " . print_r($trs, true));
 
-                foreach ($trs as $tr) {
+                $last_item = $trs->length - 1;
+                foreach ($trs as $arrkey => $tr) {
                     $new_data['old'] .= $this->dom->saveHTML($tr);
+
+                    // Add a newline between each output so it matches the original
+                    if($arrkey < $last_item)
+                        $new_data['old'] .= "\n";
                 }
-                $logger->addInfo("fixTableHeaders/col - new_data[old]: " . $new_data['old']);
 
                 foreach ($trs as $tr) {
                     $td = $tr->getElementsByTagName('td')->item(0);
@@ -338,7 +338,7 @@ class Ufixit
 
                     $new_data['fixed'] .= $this->dom->saveHTML($tr);
                 }
-                $logger->addInfo("fixTableHeaders/col - new_data[fixed]: " . $new_data['fixed']);
+
                 break;
 
             case 'row':
@@ -361,12 +361,15 @@ class Ufixit
             case 'both':
                 $first = true;
                 $trs   = $this->dom->getElementsByTagName('tr');
-                $logger->addInfo("fixTableHeaders/both - all TRs: " . print_r($trs, true));
 
-                foreach ($trs as $tr) {
+                $last_item = $trs->length - 1;
+                foreach ($trs as $arrkey => $tr) {
                     $new_data['old'] .= $this->dom->saveHTML($tr);
+
+                    // Add a newline between each output so it matches the original
+                    if($arrkey < $last_item)
+                        $new_data['old'] .= "\n";
                 }
-                $logger->addInfo("fixTableHeaders/both - new_data[old]: " . $new_data['old']);
 
                 foreach ($trs as $tr) {
                     if ($first) {
@@ -391,9 +394,9 @@ class Ufixit
 
                     $td->setAttribute('scope', 'row');
 
-                    $new_data['fixed'] .= $this->dom->saveHTML($tr);
+                    // Add a newline before every export of a row (First is skipped)
+                    $new_data['fixed'] .= "\n" . $this->dom->saveHTML($tr);
                 }
-                $logger->addInfo("fixTableHeaders/both - new_data[fixed]: " . $new_data['fixed']);
 
                 break;
         }
