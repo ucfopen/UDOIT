@@ -107,7 +107,7 @@ class Ufixit
      */
     public function fixAltText($error_html, $new_content, $make_decorative, $submitting_again = false)
     {
-        $this->dom->loadHTML("<?xml encoding=\"utf-8\" ?>{$error_html}");
+        $this->dom->loadHTML("<?xml encoding=\"utf-8\" ?>{$error_html}", LIBXML_HTML_NODEFDTD);
 
         $imgs = $this->dom->getElementsByTagName('img');
         $fixed_img = null;
@@ -150,7 +150,7 @@ class Ufixit
         $fixed_css = preg_replace('/font-style:\s*([a-z0-9]*)\s*;*\s*/', '', $fixed_css);
         $fixed_css = preg_replace('/style="/', 'style="background-color: '.$new_content[0].'; color: '.$new_content[1].';', $fixed_css);
 
-        $this->dom->loadHTML('<?xml encoding="utf-8" ?>'.$fixed_css);
+        $this->dom->loadHTML('<?xml encoding="utf-8" ?>'.$fixed_css, LIBXML_HTML_NODEFDTD);
 
         $tag = $this->dom->getElementsByTagName($matches[1][0])->item(0);
 
@@ -193,7 +193,7 @@ class Ufixit
             $fixed_css = preg_replace('/color:\s*([#a-z0-9]*)\s*;*\s*/', '', $fixed_css);
         }
 
-        $this->dom->loadHTML('<?xml encoding="utf-8" ?>'.$fixed_css);
+        $this->dom->loadHTML('<?xml encoding="utf-8" ?>'.$fixed_css, LIBXML_HTML_NODEFDTD);
 
         $tag = $this->dom->getElementsByTagName($matches[1][0])->item(0);
 
@@ -229,7 +229,7 @@ class Ufixit
             return $fixed_link;
         }
 
-        $this->dom->loadHTML('<?xml encoding="utf-8" ?>'.$error_html);
+        $this->dom->loadHTML('<?xml encoding="utf-8" ?>'.$error_html, LIBXML_HTML_NODEFDTD);
 
         $tag = $this->dom->getElementsByTagName('a')->item(0);
 
@@ -261,7 +261,7 @@ class Ufixit
         $matches = [];
         preg_match('/h[0-6]/i', $error_html, $matches);
 
-        $this->dom->loadHTML('<?xml encoding="utf-8" ?>'.$error_html);
+        $this->dom->loadHTML('<?xml encoding="utf-8" ?>'.$error_html, LIBXML_HTML_NODEFDTD);
 
         $tag = $this->dom->getElementsByTagName($matches[0])->item(0);
 
@@ -289,7 +289,7 @@ class Ufixit
             return $fixed_heading;
         }
 
-        $this->dom->loadHTML('<?xml encoding="utf-8" ?>'.$error_html);
+        $this->dom->loadHTML('<?xml encoding="utf-8" ?>'.$error_html, LIBXML_HTML_NODEFDTD);
 
         $p = $this->dom->getElementsByTagName('p')->item(0);
 
@@ -315,7 +315,7 @@ class Ufixit
             'fixed' => '',
         ];
 
-        $this->dom->loadHTML('<?xml encoding="utf-8" ?>'.$error_html);
+        $this->dom->loadHTML('<?xml encoding="utf-8" ?>'.$error_html, LIBXML_HTML_NODEFDTD);
 
         switch ($selected_header) {
             case 'col':
@@ -402,7 +402,7 @@ class Ufixit
      */
     public function fixTableThScopes($error_html, $new_content, $submitting_again = false)
     {
-        $this->dom->loadHTML('<?xml encoding="utf-8" ?>'.$error_html);
+        $this->dom->loadHTML('<?xml encoding="utf-8" ?>'.$error_html, LIBXML_HTML_NODEFDTD);
 
         $ths = $this->dom->getElementsByTagName('th');
 
