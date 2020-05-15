@@ -178,6 +178,9 @@ class quail {
 		if($this->type == 'file' || $this->type == 'uri') {
 			$this->value = @file_get_contents($this->value);
 		}
+
+		//Remove all whitespace to avoid issues with them being detected as child tags
+		$this->value = preg_replace("/\>\s+\</gm", "><", $this->value);
 	}
 
 	/**
