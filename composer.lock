@@ -4,8 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "d2d4fb95b32d988cf628c41d657eaefd",
-    "content-hash": "46d83a30a6a654403241549a649649fc",
+    "hash": "3b9434f1a326b7c1e7466714403c237e",
+    "content-hash": "a33ce5ab7b57850ba5ddc878d352954f",
     "packages": [
         {
             "name": "EastDesire/jscolor",
@@ -819,6 +819,7 @@
             ],
             "description": "This tool check syntax of PHP files about 20x faster than serial check.",
             "homepage": "https://github.com/JakubOnderka/PHP-Parallel-Lint",
+            "abandoned": "php-parallel-lint/php-parallel-lint",
             "time": "2015-12-15 10:42:16"
         },
         {
@@ -2403,7 +2404,7 @@
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": {
-        "php": "~7.1.0 || ~7.2.0 || ~7.3.0",
+        "php": "~7.2.0 || ~7.3.0",
         "ext-pdo": "*",
         "ext-gd": "*"
     },
