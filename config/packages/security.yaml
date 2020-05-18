@@ -1,23 +1,52 @@
 security:
-    # https://symfony.com/doc/current/security.html#where-do-users-come-from-user-providers
+    encoders:
+        Symfony\Component\Security\Core\User\UserInterface: sha512
     providers:
-        users_in_memory: { memory: null }
+        users:
+            entity:
+                class: 'App\Entity\User'
+                property: 'username'
+
     firewalls:
         dev:
             pattern: ^/(_(profiler|wdt)|css|images|js)/
             security: false
-        main:
-            anonymous: lazy
-            provider: users_in_memory
 
-            # activate different ways to authenticate
-            # https://symfony.com/doc/current/security.html#firewalls-authentication
+        authorize:
+            pattern: ^/authorize
+            anonymous: true
+            guard:
+                authenticators: 
+                    - App\Security\DevAuthenticator
+                    - App\Security\OauthAuthenticator
+                entry_point: App\Security\DevAuthenticator
+            
+        oauthResponse: 
+            pattern: ^/authorize/check
+            anonymous: true
+            stateless: true
 
-            # https://symfony.com/doc/current/security/impersonating_user.html
-            # switch_user: true
+        dashboard:
+            pattern: ^/dashboard
+            provider: users
+            guard:  
+                authenticators:
+                    - App\Security\SessionAuthenticator
+                    - App\Security\TokenAuthenticator
+                entry_point: App\Security\TokenAuthenticator
+        
+        api:
+           pattern: ^/api
+           provider: users
+           guard:
+                authenticators:
+                    - App\Security\SessionAuthenticator
+                    - App\Security\TokenAuthenticator
+                entry_point: App\Security\TokenAuthenticator
 
     # Easy way to control access for large sections of your site
     # Note: Only the *first* access control that matches will be used
     access_control:
-        # - { path: ^/admin, roles: ROLE_ADMIN }
-        # - { path: ^/profile, roles: ROLE_USER }
+        - { path: ^/profile, roles: ROLE_USER }
+        #- { path: ^/api/login, roles: IS_AUTHENTICATED_ANONYMOUSLY }
+        #- { path: ^/api, roles: IS_AUTHENTICATED_FULLY }

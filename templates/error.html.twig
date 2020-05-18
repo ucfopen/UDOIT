@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Application Error</title>
+        <style type="text/css">
+        body {
+            padding: 0;
+            margin: 0;
+        }
+        h1.title {
+            background-color: #333;
+            color: #FFF;
+            padding: 20px;
+            margin: 0 0 20px 0;
+            text-align: center;
+        }
+        .message {
+            padding: 20px;
+            margin: 20px;
+            border: 1px solid #555;
+            font-size: 2em;
+        }
+        .message.error {
+            color: #990000;
+            border-color: #990000;
+        }
+        .message.info {
+            color: #4488DD;
+            border-color: #4488DD;
+        }
+        </style>
+    </head>
+    <body>
+        <h1 class="title">{{ page_title }}</h1>
+
+        {% for message in messages %}
+            <div class="message {{ message.type }}">
+                {{ message.body }}
+            </div>
+        {% endfor %}
+    </body>
+</html>

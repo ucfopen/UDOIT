@@ -1,0 +1,12 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Hello ToolController!{% endblock %}
+
+{% block body %}
+<div class="tool-wrapper" data-username="{{ user.username }}">
+    <h1>Tool Starter Page</h1>
+    {{ dump(user.apiKey) }}
+    {{ dump(clientToken) }}
+    {{ dump(institution.developerKey) }}
+</div>
+{% endblock %}
