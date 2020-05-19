@@ -1,10 +1,9 @@
 {
     "_readme": [
         "This file locks the dependencies of your project to a known state",
-        "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
+        "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "hash": "3ce4104c9f8bf93194b948c54248df1b",
     "content-hash": "45eab183a50f7a57b66cad27d67073d3",
     "packages": [
         {
@@ -18,8 +17,7 @@
             "dist": {
                 "type": "zip",
                 "url": "https://github.com/EastDesire/jscolor/archive/v1.4.2.zip",
-                "reference": "tags/v1.4.2",
-                "shasum": null
+                "reference": "tags/v1.4.2"
             },
             "type": "library"
         },
@@ -82,7 +80,7 @@
                 "HTML minify",
                 "php"
             ],
-            "time": "2019-02-24 18:52:13"
+            "time": "2019-02-24T18:52:13+00:00"
         },
         {
             "name": "league/plates",
@@ -134,7 +132,7 @@
                 "templating",
                 "views"
             ],
-            "time": "2015-07-09 02:14:40"
+            "time": "2015-07-09T02:14:40+00:00"
         },
         {
             "name": "mnsami/composer-custom-directory-installer",
@@ -186,7 +184,7 @@
                 "composer-installer",
                 "composer-plugin"
             ],
-            "time": "2016-05-25 08:26:02"
+            "time": "2016-05-25T08:26:02+00:00"
         },
         {
             "name": "monolog/monolog",
@@ -264,7 +262,7 @@
                 "logging",
                 "psr-3"
             ],
-            "time": "2019-12-20 14:15:16"
+            "time": "2019-12-20T14:15:16+00:00"
         },
         {
             "name": "mpdf/mpdf",
@@ -333,7 +331,7 @@
                 "php",
                 "utf-8"
             ],
-            "time": "2019-11-28 09:39:33"
+            "time": "2019-11-28T09:39:33+00:00"
         },
         {
             "name": "myclabs/deep-copy",
@@ -381,7 +379,7 @@
                 "object",
                 "object graph"
             ],
-            "time": "2020-01-17 21:11:47"
+            "time": "2020-01-17T21:11:47+00:00"
         },
         {
             "name": "nategood/httpful",
@@ -431,7 +429,7 @@
                 "rest",
                 "restful"
             ],
-            "time": "2015-10-26 16:11:30"
+            "time": "2015-10-26T16:11:30+00:00"
         },
         {
             "name": "paragonie/random_compat",
@@ -476,7 +474,7 @@
                 "pseudorandom",
                 "random"
             ],
-            "time": "2018-07-02 15:55:56"
+            "time": "2018-07-02T15:55:56+00:00"
         },
         {
             "name": "psr/log",
@@ -523,7 +521,7 @@
                 "psr",
                 "psr-3"
             ],
-            "time": "2020-03-23 09:12:05"
+            "time": "2020-03-23T09:12:05+00:00"
         },
         {
             "name": "setasign/fpdi",
@@ -584,7 +582,7 @@
                 "fpdi",
                 "pdf"
             ],
-            "time": "2020-04-28 12:40:35"
+            "time": "2020-04-28T12:40:35+00:00"
         }
     ],
     "packages-dev": [
@@ -640,7 +638,7 @@
                 "constructor",
                 "instantiate"
             ],
-            "time": "2015-06-14 21:17:01"
+            "time": "2015-06-14T21:17:01+00:00"
         },
         {
             "name": "escapestudios/symfony2-coding-standard",
@@ -693,7 +691,7 @@
                 "phpcs",
                 "symfony"
             ],
-            "time": "2020-01-22 10:27:47"
+            "time": "2020-01-22T10:27:47+00:00"
         },
         {
             "name": "hamcrest/hamcrest-php",
@@ -738,7 +736,7 @@
             "keywords": [
                 "test"
             ],
-            "time": "2015-05-11 14:41:42"
+            "time": "2015-05-11T14:41:42+00:00"
         },
         {
             "name": "heroku/heroku-buildpack-php",
@@ -782,7 +780,7 @@
                 "nginx",
                 "php"
             ],
-            "time": "2017-03-27 23:33:27"
+            "time": "2017-03-27T23:33:27+00:00"
         },
         {
             "name": "jakub-onderka/php-parallel-lint",
@@ -830,7 +828,7 @@
             "description": "This tool check syntax of PHP files about 20x faster than serial check.",
             "homepage": "https://github.com/JakubOnderka/PHP-Parallel-Lint",
             "abandoned": "php-parallel-lint/php-parallel-lint",
-            "time": "2015-12-15 10:42:16"
+            "time": "2015-12-15T10:42:16+00:00"
         },
         {
             "name": "mockery/mockery",
@@ -895,7 +893,7 @@
                 "test double",
                 "testing"
             ],
-            "time": "2019-02-12 16:07:13"
+            "time": "2019-02-12T16:07:13+00:00"
         },
         {
             "name": "phar-io/manifest",
@@ -950,7 +948,7 @@
                 }
             ],
             "description": "Component for reading phar.io manifest information from a PHP Archive (PHAR)",
-            "time": "2017-03-05 18:14:27"
+            "time": "2017-03-05T18:14:27+00:00"
         },
         {
             "name": "phar-io/version",
@@ -997,7 +995,7 @@
                 }
             ],
             "description": "Library for handling version information and constraints",
-            "time": "2017-03-05 17:38:23"
+            "time": "2017-03-05T17:38:23+00:00"
         },
         {
             "name": "phpdocumentor/reflection-common",
@@ -1046,7 +1044,7 @@
                 "reflection",
                 "static analysis"
             ],
-            "time": "2020-04-27 09:25:28"
+            "time": "2020-04-27T09:25:28+00:00"
         },
         {
             "name": "phpdocumentor/reflection-docblock",
@@ -1099,7 +1097,7 @@
                 }
             ],
             "description": "With this component, a library can provide support for annotations via DocBlocks or otherwise retrieve information that is embedded in a DocBlock.",
-            "time": "2020-02-22 12:28:44"
+            "time": "2020-02-22T12:28:44+00:00"
         },
         {
             "name": "phpdocumentor/type-resolver",
@@ -1145,7 +1143,7 @@
                 }
             ],
             "description": "A PSR-5 based resolver of Class names, Types and Structural Element Names",
-            "time": "2020-02-18 18:59:58"
+            "time": "2020-02-18T18:59:58+00:00"
         },
         {
             "name": "phpspec/prophecy",
@@ -1208,7 +1206,7 @@
                 "spy",
                 "stub"
             ],
-            "time": "2020-03-05 15:02:03"
+            "time": "2020-03-05T15:02:03+00:00"
         },
         {
             "name": "phpunit/php-code-coverage",
@@ -1271,7 +1269,7 @@
                 "testing",
                 "xunit"
             ],
-            "time": "2018-05-28 11:49:20"
+            "time": "2018-05-28T11:49:20+00:00"
         },
         {
             "name": "phpunit/php-file-iterator",
@@ -1318,7 +1316,7 @@
                 "filesystem",
                 "iterator"
             ],
-            "time": "2017-11-27 13:52:08"
+            "time": "2017-11-27T13:52:08+00:00"
         },
         {
             "name": "phpunit/php-text-template",
@@ -1359,7 +1357,7 @@
             "keywords": [
                 "template"
             ],
-            "time": "2015-06-21 13:50:34"
+            "time": "2015-06-21T13:50:34+00:00"
         },
         {
             "name": "phpunit/php-timer",
@@ -1408,7 +1406,7 @@
             "keywords": [
                 "timer"
             ],
-            "time": "2019-06-07 04:22:29"
+            "time": "2019-06-07T04:22:29+00:00"
         },
         {
             "name": "phpunit/php-token-stream",
@@ -1457,7 +1455,7 @@
             "keywords": [
                 "tokenizer"
             ],
-            "time": "2019-09-17 06:23:10"
+            "time": "2019-09-17T06:23:10+00:00"
         },
         {
             "name": "phpunit/phpunit",
@@ -1537,7 +1535,7 @@
                 "testing",
                 "xunit"
             ],
-            "time": "2018-03-26 07:36:48"
+            "time": "2018-03-26T07:36:48+00:00"
         },
         {
             "name": "phpunit/phpunit-mock-objects",
@@ -1594,7 +1592,7 @@
                 "xunit"
             ],
             "abandoned": true,
-            "time": "2018-02-15 05:27:38"
+            "time": "2018-02-15T05:27:38+00:00"
         },
         {
             "name": "sebastian/code-unit-reverse-lookup",
@@ -1639,7 +1637,7 @@
             ],
             "description": "Looks up which function or method a line of code belongs to",
             "homepage": "https://github.com/sebastianbergmann/code-unit-reverse-lookup/",
-            "time": "2017-03-04 06:30:41"
+            "time": "2017-03-04T06:30:41+00:00"
         },
         {
             "name": "sebastian/comparator",
@@ -1703,7 +1701,7 @@
                 "compare",
                 "equality"
             ],
-            "time": "2018-02-01 13:46:46"
+            "time": "2018-02-01T13:46:46+00:00"
         },
         {
             "name": "sebastian/diff",
@@ -1759,7 +1757,7 @@
                 "unidiff",
                 "unified diff"
             ],
-            "time": "2019-02-04 06:01:07"
+            "time": "2019-02-04T06:01:07+00:00"
         },
         {
             "name": "sebastian/environment",
@@ -1809,7 +1807,7 @@
                 "environment",
                 "hhvm"
             ],
-            "time": "2017-07-01 08:51:00"
+            "time": "2017-07-01T08:51:00+00:00"
         },
         {
             "name": "sebastian/exporter",
@@ -1876,7 +1874,7 @@
                 "export",
                 "exporter"
             ],
-            "time": "2019-09-14 09:02:43"
+            "time": "2019-09-14T09:02:43+00:00"
         },
         {
             "name": "sebastian/global-state",
@@ -1927,7 +1925,7 @@
             "keywords": [
                 "global state"
             ],
-            "time": "2017-04-27 15:39:26"
+            "time": "2017-04-27T15:39:26+00:00"
         },
         {
             "name": "sebastian/object-enumerator",
@@ -1974,7 +1972,7 @@
             ],
             "description": "Traverses array structures and object graphs to enumerate all referenced objects",
             "homepage": "https://github.com/sebastianbergmann/object-enumerator/",
-            "time": "2017-08-03 12:35:26"
+            "time": "2017-08-03T12:35:26+00:00"
         },
         {
             "name": "sebastian/object-reflector",
@@ -2019,7 +2017,7 @@
             ],
             "description": "Allows reflection of object attributes, including inherited and non-public ones",
             "homepage": "https://github.com/sebastianbergmann/object-reflector/",
-            "time": "2017-03-29 09:07:27"
+            "time": "2017-03-29T09:07:27+00:00"
         },
         {
             "name": "sebastian/recursion-context",
@@ -2072,7 +2070,7 @@
             ],
             "description": "Provides functionality to recursively process PHP variables",
             "homepage": "http://www.github.com/sebastianbergmann/recursion-context",
-            "time": "2017-03-03 06:23:57"
+            "time": "2017-03-03T06:23:57+00:00"
         },
         {
             "name": "sebastian/resource-operations",
@@ -2114,7 +2112,7 @@
             ],
             "description": "Provides a list of PHP built-in functions that operate on resources",
             "homepage": "https://www.github.com/sebastianbergmann/resource-operations",
-            "time": "2015-07-28 20:34:47"
+            "time": "2015-07-28T20:34:47+00:00"
         },
         {
             "name": "sebastian/version",
@@ -2157,7 +2155,7 @@
             ],
             "description": "Library that helps with managing the version number of Git-hosted PHP projects",
             "homepage": "https://github.com/sebastianbergmann/version",
-            "time": "2016-10-03 07:35:21"
+            "time": "2016-10-03T07:35:21+00:00"
         },
         {
             "name": "squizlabs/php_codesniffer",
@@ -2208,7 +2206,7 @@
                 "phpcs",
                 "standards"
             ],
-            "time": "2018-07-26 23:47:18"
+            "time": "2018-07-26T23:47:18+00:00"
         },
         {
             "name": "symfony/polyfill-ctype",
@@ -2266,7 +2264,7 @@
                 "polyfill",
                 "portable"
             ],
-            "time": "2020-05-12 16:14:59"
+            "time": "2020-05-12T16:14:59+00:00"
         },
         {
             "name": "symfony/yaml",
@@ -2315,7 +2313,7 @@
             ],
             "description": "Symfony Yaml Component",
             "homepage": "https://symfony.com",
-            "time": "2016-07-17 09:06:15"
+            "time": "2016-07-17T09:06:15+00:00"
         },
         {
             "name": "theseer/tokenizer",
@@ -2355,7 +2353,7 @@
                 }
             ],
             "description": "A small library for converting tokenized PHP source code into XML and potentially other formats",
-            "time": "2019-06-13 22:48:21"
+            "time": "2019-06-13T22:48:21+00:00"
         },
         {
             "name": "webmozart/assert",
@@ -2403,7 +2401,7 @@
                 "check",
                 "validate"
             ],
-            "time": "2020-04-18 12:12:48"
+            "time": "2020-04-18T12:12:48+00:00"
         }
     ],
     "aliases": [],
@@ -2418,5 +2416,6 @@
         "ext-pdo": "*",
         "ext-gd": "*"
     },
-    "platform-dev": []
+    "platform-dev": [],
+    "plugin-api-version": "1.1.0"
 }
