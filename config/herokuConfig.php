@@ -14,7 +14,7 @@ $oauth2_enforce_scopes = (getenv('OAUTH2_ENFORCE_SCOPES')) == 'true';
 
 /* Set session cookie options */
 $session_cookie_options = [
-    'expire' => getenv('SESSION_COOKIE_EXPIRE') ?: 0,
+    'lifetime' => getenv('SESSION_COOKIE_LIFETIME') ?: 0,
     'path' => getenv('SESSION_COOKIE_PATH') ?: '/',
     'domain' => getenv('SESSION_COOKIE_DOMAIN') ?: null,
     'secure' => getenv('SESSION_COOKIE_SECURE') ?: true,
