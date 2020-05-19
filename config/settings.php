@@ -29,17 +29,17 @@ $logger->pushHandler($log_handler);
 \Monolog\ErrorHandler::register($logger);
 
 // SET UP PHP SESSION COOKIE SAMESITE SESSIONS
-$expire = isset($session_cookie_options['expire']) ? $session_cookie_options['expire'] : 0;
+$lifetime = isset($session_cookie_options['lifetime']) ? $session_cookie_options['lifetime'] : 0;
 $path = isset($session_cookie_options['path']) ? $session_cookie_options['path'] : '/';
 $domain = isset($session_cookie_options['domain']) ? $session_cookie_options['domain'] : null;
 $secure = isset($session_cookie_options['secure']) ? $session_cookie_options['secure'] : true;
 $httponly = isset($session_cookie_options['httponly']) ? $session_cookie_options['httponly'] : false;
 
 if (PHP_VERSION_ID < 70300) {
-    session_set_cookie_params($expire, "$path; samesite=None", $domain, $secure, $httponly);
+    session_set_cookie_params($lifetime, "$path; samesite=None", $domain, $secure, $httponly);
 } else {
     session_set_cookie_params([
-        'expire' => $expire,
+        'lifetime' => $lifetime,
         'path' => $path,
         'domain' => $domain,
         'samesite' => 'None',
