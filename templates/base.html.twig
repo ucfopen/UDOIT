@@ -10,7 +10,10 @@
     <body>
         {% block body %}{% endblock %}
         {% block javascripts %}
-            {{ encore_entry_script_tags('tool') }}
+            <!-- {{ encore_entry_script_tags('tool') }-->
+            <!-- Include the compiled script-->
+             <script type="text/javascript" src="{{ asset('build/js/app.js') }}"></script>
+            
         {% endblock %}
     </body>
 </html>
