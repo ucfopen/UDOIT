@@ -23,7 +23,7 @@ Encore
      * Each entry will result in one JavaScript file (e.g. app.js)
      * and one CSS file (e.g. app.css) if your JavaScript imports CSS.
      */
-    .addEntry('tool', './assets/js/app.js')
+    // .addEntry('tool', './assets/js/app.js')
     //.addEntry('page1', './assets/js/page1.js')
     //.addEntry('page2', './assets/js/page2.js')
 
@@ -58,6 +58,9 @@ Encore
 
     // enables .js and .jsx support
     .enableReactPreset()
+
+    // uncomment to define the assets of the project
+    .addEntry('js/app', './assets/js/app.js');
 
     // uncomment if you use TypeScript
     //.enableTypeScriptLoader()
