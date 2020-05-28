@@ -4,16 +4,13 @@
         <meta charset="UTF-8">
         <title>{% block title %}Welcome!{% endblock %}</title>
         {% block stylesheets %}
-            {{ encore_entry_link_tags('tool') }}
+            
         {% endblock %}
     </head>
     <body>
         {% block body %}{% endblock %}
         {% block javascripts %}
-            <!-- {{ encore_entry_script_tags('tool') }-->
-            <!-- Include the compiled script-->
              <script type="text/javascript" src="{{ asset('build/js/app.js') }}"></script>
-            
         {% endblock %}
     </body>
 </html>
