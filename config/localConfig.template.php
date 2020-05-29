@@ -11,14 +11,14 @@ $oauth2_uri            = '';    // EX: https://udoit.my-org.edu/oauth2response.p
 $oauth2_enforce_scopes = false; // Set to true if you have a scoped developer key.
 
 /* Set session cookie options
- * expire - the cookie expiration time in seconds (0 means it does not expire)
+ * lifetime - the cookie lifetime in seconds (0 means "until the browser is closed")
  * path - the applications on this domain to which the cookie is visible
  * domain - the domain to which this cookie is visible
  * secure - 'true' to send the cookie only over secure connections
  * httponly - 'true' to set the 'httponly' flag when setting the cookie
  */
 $session_cookie_options = [
-    'expire' => getenv('SESSION_COOKIE_EXPIRE') ?: 0,
+    'lifetime' => getenv('SESSION_COOKIE_LIFETIME') ?: 0,
     'path' => getenv('SESSION_COOKIE_PATH') ?: '/',
     'domain' => getenv('SESSION_COOKIE_DOMAIN') ?: null,
     'secure' => getenv('SESSION_COOKIE_SECURE') ?: true,
