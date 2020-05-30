@@ -52,11 +52,11 @@
         }
     ],
     "require": {
-        "php": "~7.1.0 || ~7.2.0",
+        "php": "~7.2.0 || ~7.3.0",
         "ext-pdo": "*",
         "ext-gd": "*",
         "nategood/httpful": "~0.2.20",
-        "zaininnari/html-minifier": "~0.4.2",
+        "deruli/html-minifier": "~0.5.1",
         "mpdf/mpdf": "8.0.4",
         "league/plates": "~3.1.1",
         "monolog/monolog": "~1.21",

@@ -17,6 +17,8 @@
 *
 *	Primary Author Contact:  Jacob Bates <jacob.bates@ucf.edu>
 */
+
+global $footer_enabled;
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -39,8 +41,10 @@
 
 			<?= $this->section('content'); ?>
 
+			<?php if ($footer_enabled): ?>
+				<?= $this->fetch('partials/footer'); ?>
+			<?php endif; ?>
 		</div>
-
 
 		<?php if ($footer_scripts): ?>
 			<?php foreach($footer_scripts as $script): ?>

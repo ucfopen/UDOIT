@@ -6,6 +6,52 @@ UDOIT enables faculty to identify accessibility issues in Canvas by Instructure.
 
 In late 2013, the proposal submitted by UCF's Center for Distributed Learning won Instructure, Inc.’s Canvas Grant in the higher education category. The $10,000 grant was awarded to UCF – CDL to take an existing tool and further develop this solution into what is now known as UDOIT.
 
+## What Does UDOIT Look For?
+
+### Errors
+
+| Internal Name | What condition triggers it to produce an error in the resulting report |
+| ------------- | ---------------------------------------------------------------------- |
+| imgAltIsDifferent | If the attribute is the same as the file name. |
+| imgAltIsTooLong | If the alt attribute is too long (configurable, default 120 characters). |
+| imgAltNotPlaceHolder | If the alt attribute is one of these strings:  'nbsp', '&amp;nbsp;', 'spacer', 'image', 'img', 'photo' |
+| imgAltNotEmptyInAnchor | Triggers if the alt attribute is empty on an image in an anchor tag. |
+| imgHasLongDesc | If the image has an alt attribute and long description that contain the exact same text. |
+| imgHasAltDeco | If the image is marked as decorative, but does not have an empty alt attribute. |
+| objectMustContainText | If an object tag does not contain a text equivalent. |
+| embedHasAssociatedNoEmbed | If an embed tag does not have a text equivalent contained in a noembed tag. |
+| tableDataShouldHaveTh | If a table does not have any table header (th) tags. |
+| tableThShouldHaveScope | If a table header (th) tag does not have a scope attribute that is set to "row" or "col". |
+| basefontIsNotUsed | If a "basefont" tag exists in the page. |
+| fontIsNotUsed | If a "font" tag exists in the page. |
+| blinkIsNotUsed | If a "blink" tag exists in the page. |
+| marqueeIsNotUsed | If a "marquee" tag exists in the page. |
+| aMustContainText | If a link does not contain any text. |
+| cssTextHasContrast | If text has less than a 4.5:1 contrast ratio between the foreground and background. |
+| headersHaveText | If a header tag does not contain text. |
+| videoProvidesCaptions | If a video tag does not have a caption track tag. |
+| videosEmbeddedOrLinkedNeedCaptions | If a YouTube or Vimeo video does not have human-generated captions. |
+
+### Suggestions
+
+| Internal Name | What condition triggers it to produce a suggestion in the resulting report |
+| ------------- | -------------------------------------------------------------------------- |
+| imgHasAlt | If an image does not have an alt attribute at all |
+| inputImageNotDecorative | If an input of type "image" exists on the page. |
+| contentTooLong | If the page is over 5000 characters long (configurable). |
+| aLinksToSoundFilesNeedTranscripts | If a link to a sound file exists on the page. |
+| aLinksToMultiMediaRequireTranscript | If a link to a video file exists on the page. |
+| objectShouldHaveLongDescription | If an "object" tag exists on the page. |
+| objectTagDetected | If an "object" tag exists on the page. |
+| pNotUsedAsHeader | If a paragraph tag that is not the child of a table is bolded, underlined, or has a font tag wrapped around it.  This catches a bolded line of text being used instead of a heading. |
+| preShouldNotBeUsedForTabularLayout | If a "pre" tag contains a carriage return. |
+| objectInterfaceIsAccessible | If an "object" tag exists in the page. |
+| imgGifNoFlicker | If a GIF image contains any frame delays at all, which might cause it to flicker. |
+| aSuspiciousLinkText | If a link consists entirely of the following strings: 'click here', 'click', 'more', 'here'. |
+| noHeadings | If a page does not contain any headings. |
+| cssTextStyleEmphasize | If colored text is not emphasized as bold or italicized. |
+| videoEmbedChecked | If an iframe, link, or object tag linking to a Dailymotion video exists on the page. |
+| videoCaptionsAreCorrectLanguage | If a YouTube or Vimeo video has human-generated captions, but they do not match the set language of the course. |
 
 ## Awards
 
@@ -38,7 +84,7 @@ UDOIT is distributed under the [GNU GPL v3 license](LICENSE).
 >
 > Primary Contact:  Jacob Bates <jacob.bates@ucf.edu>
 
-UDOIT includes a modified [QUAIL library](https://code.google.com/p/quail-lib/). QUAIL requires derrivitives to be distributed under the [GNU General Public License version 3](LICENSE)
+UDOIT includes a modified [QUAIL library](https://code.google.com/p/quail-lib/). QUAIL requires derivitives to be distributed under the [GNU General Public License version 3](LICENSE)
 
 UDOIT includes a [Composer](https://getcomposer.org) binary which is distributed under the [MIT license](https://github.com/composer/composer/blob/master/LICENSE)
 
@@ -51,9 +97,9 @@ To start the Heroku deployment process, you can click the button below, please n
 
 ## System Requirements
 * Apache or Nginx webserver
-* PHP 7.1, 7.2 (Not yet compatible with 7.3.  See issue #422)
+* PHP 7.2, 7.3
   * [GD Graphics Library](http://php.net/manual/en/book.image.php)
-* MySQL or PostgreSQL
+* MySQL, MariaDB or PostgreSQL
 * Git (If you are using [The Git Method](#the-git-method) below) or if you plan on contributing to UDOIT
 
 ## Downloading the Source Code
