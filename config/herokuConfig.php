@@ -12,6 +12,15 @@ $oauth2_key       = getenv('OAUTH2_KEY');
 $oauth2_uri       = getenv('OAUTH2_URI');
 $oauth2_enforce_scopes = (getenv('OAUTH2_ENFORCE_SCOPES')) == 'true';
 
+/* Set session cookie options */
+$session_cookie_options = [
+    'lifetime' => getenv('SESSION_COOKIE_LIFETIME') ?: 0,
+    'path' => getenv('SESSION_COOKIE_PATH') ?: '/',
+    'domain' => getenv('SESSION_COOKIE_DOMAIN') ?: null,
+    'secure' => getenv('SESSION_COOKIE_SECURE') ?: true,
+    'httponly' => getenv('SESSION_COOKIE_HTTPONLY') ?: false,
+];
+
 /* Tool name for display in Canvas Navigation */
 $canvas_nav_item_name = getenv('CANVAS_NAV_ITEM_NAME');
 
@@ -78,3 +87,8 @@ $curl_ssl_verify = true;
 
 // Admin panel.  False disables access and removes block from XML.
 $admin_panel_enabled = (getenv("ADMIN_PANEL_ENABLED")) == 'true';
+
+// Footer content.
+$footer_enabled = (getenv('FOOTER_ENABLED')) == 'true';
+$footer_youtube_tos_link = getenv('YOUTUBE_TOS_LINK') ?: 'https://www.youtube.com/t/terms';
+$footer_google_privacy_policy_link = getenv('GOOGLE_PRIVACY_POLICY_LINK') ?: 'http://www.google.com/policies/privacy';

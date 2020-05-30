@@ -3,7 +3,7 @@ define('ENV_TEST', 'test');
 define('ENV_PROD', 'prod');
 define('ENV_DEV', 'dev');
 
-define('UDOIT_VERSION', '2.6.0');
+define('UDOIT_VERSION', '2.7.0');
 
 // SET UP AUTOLOADER (uses autoload rules from composer)
 require_once(__DIR__.'/../vendor/autoload.php');
@@ -28,12 +28,38 @@ $logger = new \Monolog\Logger('udoit');
 $logger->pushHandler($log_handler);
 \Monolog\ErrorHandler::register($logger);
 
+// SET UP PHP SESSION COOKIE SAMESITE SESSIONS
+$lifetime = isset($session_cookie_options['lifetime']) ? $session_cookie_options['lifetime'] : 0;
+$path = isset($session_cookie_options['path']) ? $session_cookie_options['path'] : '/';
+$domain = isset($session_cookie_options['domain']) ? $session_cookie_options['domain'] : null;
+$secure = isset($session_cookie_options['secure']) ? $session_cookie_options['secure'] : true;
+$httponly = isset($session_cookie_options['httponly']) ? $session_cookie_options['httponly'] : false;
+
+if (PHP_VERSION_ID < 70300) {
+    session_set_cookie_params($lifetime, "$path; samesite=None", $domain, $secure, $httponly);
+} else {
+    session_set_cookie_params([
+        'lifetime' => $lifetime,
+        'path' => $path,
+        'domain' => $domain,
+        'samesite' => 'None',
+        'secure' => $secure,
+        'httponly' => $httponly,
+    ]);
+}
+
 // SET UP ERROR REPORTING
 error_reporting(E_ALL & ~E_NOTICE);
 ini_set("display_errors", ($UDOIT_ENV == ENV_PROD ? 0 : 1));
 
 // SET DEFAULT ENVIRONMENT
 isset($UDOIT_ENV) || $UDOIT_ENV = ENV_PROD; // !! override in your localConfig.php
+
+// CHECK FOR SAFARI
+if (!UdoitUtils::isLoadingXMLSettings()) {
+    UdoitUtils::checkSafari();
+}
+
 
 // SET UP OAUTH
 $oauth2_scopes = [

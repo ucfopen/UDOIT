@@ -90,6 +90,8 @@ UDOIT should now be available in the course navigation menu.
 
 # Manual Deploy on Heroku
 
+**Warning: Recommended for advanced users only**
+
 You can use our configuration to launch a new Heroku app using [Heroku's app-setups api](https://devcenter.heroku.com/articles/setting-up-apps-using-the-heroku-platform-api).
 
 You'll have to set some env settings. Peek at [app.json](app.json) for any env vars that don't have `"required": false` set. Our config vars are covered in [Configure section](#configure)
@@ -109,7 +111,7 @@ curl -n -X POST https://api.heroku.com/app-setups \
 
 Read the result to make sure it returned an id, not an error.
 
-Check your Heroku dashboard or run `heroku apps` to see if a new app shows up.  If all goes well, it should be running.
+Check your Heroku dashboard or install the [Heroku CLI](https://devcenter.heroku.com/articles/heroku-cli) and run `heroku apps` to see if a new app shows up.  If all goes well, it should be running.
 
 
 ## Configure
@@ -154,10 +156,66 @@ If you need to check that the tables exist, you can connect to Postgres using so
 * `Select * from users;` or `Select * from reports;` will show you their contents
 * `\q` quits the psql terminal
 
-If needed, you can manually run the table creation script: `heroku run composer dbsetup`
+If needed, you can manually run the table creation script: `heroku run composer db-setup`
 
 ## Table Schema
 The table schema can be found in [migrations/](migrations/)
+
+# Upgrade an Existing Heroku Installation
+
+When it comes time to update UDOIT to the latest version, you probably don't want to have to start over from scratch using the Heroku Button (as explained above).  Luckily, there's a procedure for upgrading an existing installation, which allows you to keep your existing database, settings, and URL.
+
+## First Time Setup
+
+This process takes a while to set up the first time, but is very fast after that.  On your computer:
+
+1. Install [Git](https://git-scm.com/downloads)
+2. [Configure Git](https://git-scm.com/book/en/v2/Getting-Started-First-Time-Git-Setup)
+3. Install [Heroku CLI](https://devcenter.heroku.com/articles/heroku-cli) and follow the instructions to get your account set up.
+4. Clone the UDOIT Git repository.  If you are using a command line interface, navigate to a directory where you would like the code to live and run this command:  `git clone git@github.com:ucfopen/UDOIT.git`.  This will create a folder called `UDOIT` that contains the latest version.
+5. In your command line interface, navigate into the newly-created `UDOIT` folder.
+6. Run `heroku git:remote --app your-heroku-instance`, replacing `your-heroku-instance` with your actual heroku instance name.  For example, if your UDOIT instance resides at `https://udoit-pcu.herokuapp.com`, you would run `heroku git:remote --app udoit-pcu`.  This adds your Heroku instance as a ***remote*** called `heroku` in the Git repository so that you can push updates to it in the future.
+
+## Pushing Updates to Heroku
+
+Now that your computer is set up, you only need to follow these steps each time you would like to update your instance of UDOIT:
+
+1. In your command line interface, navigate to the `UDOIT` directory on your computer.
+2. Run `git checkout master` to make sure we're on the master branch, which represents the latest version of UDOIT.
+3. Run `git pull` to update your local copy of UDOIT from the official GitHub repository.
+4. Run `git push heroku master:master` to deploy the new version to your UDOIT instance.
+5. Run `heroku run --app your-heroku-instance "php composer.phar migrate"` to update the database structure for your UDOIT instance. (Remember to replace `your-heroku-instance` with your Heroku instance name.)
+6. Log into the Heroku website and click on your UDOIT instance.
+7. Click **Settings**
+8. Under the **Config Vars** heading, click **Reveal Config Vars**.
+9. Compare them to the `env` section of [app.json](app.json), and add any missing variables to Heroku.
+
+UDOIT should now be up to date with the latest release!
+
+## Dealing with Multiple Heroku Instances
+
+### First Time Setup (Test Instance)
+
+The sections above assume you only have a single Heroku instance.  However, we recommend you always have two instances:  one for testing and one for production.  That way, you can test out the deploy on your test instance without risking any downtime on your production instance.  If you don't have a test instance, just use the [Heroku Button](#heroku-button) to create one.  Assuming you set everything up for your production instance in the [First Time Setup](#first-time-setup) section above, here's how to set up your testing instance (sometimes called "staging" or "QA"):
+
+1. In your command line interface, navigate to the `UDOIT` directory on your computer.
+2. Run `heroku git:remote --remote test --app your-heroku-test-instance`, replacing `your-heroku-test-instance` with your actual heroku test instance name.  For example, if your UDOIT instance resides at `https://udoit-pcu-test.herokuapp.com`, you would run `heroku git:remote --remote test --app udoit-pcu-test`.  This adds your Heroku test instance as a ***remote*** called `test` in the Git repository so that you can push updates to it in the future.
+
+Feel free to name the remote anything you want.  It doesn't have to be `test`; it could be `staging` or `qa` or `blah`.  It's best to make it something descriptive, though.
+
+### Pushing Updates to the Test Instance
+
+Now that you have the connection to the test instance set up, here's how to push an update to it:
+
+1. In your command line interface, navigate to the `UDOIT` directory on your computer.
+2. Run `git checkout master` to make sure we're on the master branch, which represents the latest version of UDOIT.
+3. Run `git pull` to update your local copy of UDOIT from the official GitHub repository.
+4. Run `git push test master:master` to deploy the new version to your UDOIT test instance.
+5. Run `heroku run --app your-heroku-test-instance "php composer.phar migrate"` to update the database structure for your UDOIT test instance.  (Remember to replace `your-heroku-test-instance` with your Heroku test instance name.)
+6. Log into the Heroku website and click on your UDOIT test instance.
+7. Click **Settings**
+8. Under the **Config Vars** heading, click **Reveal Config Vars**.
+9. Compare them to the `env` section of [app.json](app.json), and add any missing variables to Heroku.
 
 # FAQ
 

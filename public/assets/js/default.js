@@ -390,7 +390,8 @@ $doc.ready(function() {
 
 	// result panel collapsing
 	$doc.on('click', '.panel-heading .btn-toggle', function() {
-		$(this).children('button span').removeClass('glyphicon-minus').addClass('glyphicon-plus');
+		$('span.glyphicon', this).removeClass('glyphicon-minus').addClass('glyphicon-plus');
+		$('span.sr-only span', this).text('Expand');
 		var $errorItem = $(this).parent();
 		if ($errorItem.parent().find('.errorSummary').is(':visible')) {
 			$errorItem.parent().find('.errorSummary').slideUp(function() {
@@ -400,7 +401,8 @@ $doc.ready(function() {
 			});
 		}
 		else {
-			$(this).children('button span').removeClass('glyphicon-plus').addClass('glyphicon-minus');
+			$('span.glyphicon', this).removeClass('glyphicon-plus').addClass('glyphicon-minus');
+			$('span.sr-only span', this).text('Collapse');
 			$errorItem.parent().find('.errorSummary').slideDown(function(){
 				resizeFrame();
 			});
@@ -489,15 +491,24 @@ $doc.ready(function() {
 		$this.hide();
 
 		var $contentForm = $issueContainer.find('form');
-
+		
 		if ($contentForm.is(':visible')) {
 			$contentForm.removeClass('show');
 			$contentForm.addClass('hidden');
+
 		}
 		else {
 			$contentForm.removeClass('hidden');
 			$contentForm.addClass('show');
+			$savedTabIndex = $contentForm.attr('tabindex');
+			// Setting tabindex to -1 so that we can focus on the form
+			$contentForm.attr('tabindex', '-1');
+			$contentForm.focus();
+			// Reverting tab index to original value now that we have focus
+			$contentForm.attr('tabindex', $savedTabIndex);
 		}
+
+
 
 		switch ( $this.val() ) {
 			case 'cssTextHasContrast':

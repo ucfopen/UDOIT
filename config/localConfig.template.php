@@ -10,6 +10,21 @@ $oauth2_key            = '';    // Provided by your Canvas Admin
 $oauth2_uri            = '';    // EX: https://udoit.my-org.edu/oauth2response.php or https://udoit.my-org.edu/udoit/public/oauth2response.php
 $oauth2_enforce_scopes = false; // Set to true if you have a scoped developer key.
 
+/* Set session cookie options
+ * lifetime - the cookie lifetime in seconds (0 means "until the browser is closed")
+ * path - the applications on this domain to which the cookie is visible
+ * domain - the domain to which this cookie is visible
+ * secure - 'true' to send the cookie only over secure connections
+ * httponly - 'true' to set the 'httponly' flag when setting the cookie
+ */
+$session_cookie_options = [
+    'lifetime' => getenv('SESSION_COOKIE_LIFETIME') ?: 0,
+    'path' => getenv('SESSION_COOKIE_PATH') ?: '/',
+    'domain' => getenv('SESSION_COOKIE_DOMAIN') ?: null,
+    'secure' => getenv('SESSION_COOKIE_SECURE') ?: true,
+    'httponly' => getenv('SESSION_COOKIE_HTTPONLY') ?: false,
+];
+
 /* Disable headings check character count */
 $doc_length = '1500';
 
@@ -92,3 +107,13 @@ $curl_ssl_verify = true; // This should be true for production environments
  * Default false
  */
 $admin_panel_enabled = false;
+
+
+/* Footer
+ * Setting $footer_enabled to true shows a footer at the bottom of the UDOIT
+ * interface that contains a link to the YouTube Terms of Service and Google
+ * Privacy Policy.
+*/
+$footer_enabled = true;
+$footer_youtube_tos_link = 'https://www.youtube.com/t/terms';
+$footer_google_privacy_policy_link = 'http://www.google.com/policies/privacy';
