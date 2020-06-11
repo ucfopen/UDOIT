@@ -39,6 +39,20 @@ class CourseRepository extends ServiceEntityRepository
         ;
     }
 
+    /**
+     * Gets list of all courses in an institution.
+     * @param $institutionId
+     * @return int|mixed|string
+     */
+    public function findCoursesInInstitution($institutionId) {
+        return $this->createQueryBuilder('c')
+            ->where('c.institution = :institutionId')
+            ->orderBy('c.title', 'ASC')
+            ->setParameter('institutionId', $institutionId)
+            ->getQuery()
+            ->getResult();
+    }
+
     /*
     public function findOneBySomeField($value): ?Course
     {

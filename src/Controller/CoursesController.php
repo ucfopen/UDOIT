@@ -4,6 +4,7 @@
 namespace App\Controller;
 
 
+use App\Entity\Course;
 use App\Entity\Issue;
 use App\Entity\Report;
 use App\Response\ApiResponse;
@@ -25,12 +26,20 @@ class CoursesController extends AbstractController
      * @return ApiResponse
      */
     public function getCourses() {
-        // Scan course
-        $res = new ApiResponse();
-        $data = array(new Issue(), new Issue(), new Issue());
-        $res->setData($data);
+        // TODO: Assert user has permissions to perform action
+        // TODO: Get Institution from auth_token
+        $institutionId = 123456789;
 
-        return new JsonResponse($res);
+        // Get Courses
+        $repository = $this->getDoctrine()->getRepository(Course::class);
+        $courses = $repository->findCoursesInInstitution($institutionId);
+
+        // Construct API Response
+        $apiResponse = new ApiResponse();
+        $apiResponse->setData($courses);
+        $jsonResponse = new JsonResponse($apiResponse);
+        $jsonResponse->setEncodingOptions($jsonResponse->getEncodingOptions() | JSON_PRETTY_PRINT);
+        return $jsonResponse;
     }
 
     /**
@@ -38,7 +47,8 @@ class CoursesController extends AbstractController
      * @param $courseId ID of requested course
      * @return \Symfony\Component\HttpFoundation\Response
      */
-    public function getCourseScan($courseId) {
+    public function getNewReport($courseId) {
+        // TODO: Assert user has permissions to perform action
         // TODO: Perform course scan here, return newly created report id
         $reportId = 1;
 
@@ -46,7 +56,7 @@ class CoursesController extends AbstractController
         $repository = $this->getDoctrine()->getRepository(Report::class);
         $report = $repository->find($reportId);
 
-        // Construct Api Response
+        // Construct API Response
         $apiResponse = new ApiResponse();
         $apiResponse->setData($report);
         $jsonResponse = new JsonResponse($apiResponse);
