@@ -28,6 +28,7 @@ class CoursesController extends AbstractController
     public function getCourses() {
         // TODO: Assert user has permissions to perform action
         // TODO: Get Institution from auth_token
+        // TODO: Handle Exceptions
         $institutionId = 123456789;
 
         // Get Courses
@@ -39,29 +40,6 @@ class CoursesController extends AbstractController
         $apiResponse->setData($courses);
         $jsonResponse = new JsonResponse($apiResponse);
         $jsonResponse->setEncodingOptions($jsonResponse->getEncodingOptions() | JSON_PRETTY_PRINT);
-        return $jsonResponse;
-    }
-
-    /**
-     * @Route("/{courseId}", methods={"GET"}, name="one_course")
-     * @param $courseId ID of requested course
-     * @return \Symfony\Component\HttpFoundation\Response
-     */
-    public function getNewReport($courseId) {
-        // TODO: Assert user has permissions to perform action
-        // TODO: Perform course scan here, return newly created report id
-        $reportId = 1;
-
-        // Get Report
-        $repository = $this->getDoctrine()->getRepository(Report::class);
-        $report = $repository->find($reportId);
-
-        // Construct API Response
-        $apiResponse = new ApiResponse();
-        $apiResponse->setData($report);
-        $jsonResponse = new JsonResponse($apiResponse);
-        $jsonResponse->setEncodingOptions($jsonResponse->getEncodingOptions() | JSON_PRETTY_PRINT);
-
         return $jsonResponse;
     }
 }

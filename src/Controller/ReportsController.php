@@ -22,6 +22,8 @@ class ReportsController extends AbstractController
      * @param $courseId
      */
     public function allReports($courseId) {
+        // TODO: Assert user has permissions to perform action
+        // TODO: Handle Exceptions
         // Get Reports
         $repository = $this->getDoctrine()->getRepository(Report::class);
         $reports = $repository->findAllInCourse($courseId);
@@ -40,6 +42,8 @@ class ReportsController extends AbstractController
      * @param $reportId
      */
     public function oneReport($reportId) {
+        // TODO: Assert user has permissions to perform action
+        // TODO: Handle Exceptions
         // Get Report
         $repository = $this->getDoctrine()->getRepository(Report::class);
         $report = $repository->find($reportId);
@@ -59,6 +63,8 @@ class ReportsController extends AbstractController
      * @return \Symfony\Component\HttpFoundation\Response
      */
     public function pdfReport($courseId, $reportId) {
+        // TODO: Assert user has permissions to perform action
+        // TODO: Handle Exceptions
         return $this->render('course_api/index.html.twig', [
             'controller_name' => sprintf("Course (%s) PDF Reports: %s", $courseId, $reportId)
         ]);
