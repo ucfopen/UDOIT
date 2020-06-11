@@ -55,6 +55,7 @@ class Report implements \JsonSerializable
      */
     private $contentItems;
 
+    private $serializeIssues = false;
 
     // Constructor
     public function __construct()
@@ -73,13 +74,16 @@ class Report implements \JsonSerializable
      */
     public function jsonSerialize()
     {
-        return [
-            "courseId" =>$this->course->getId(),
+        $arr =  [
             "created" => $this->created,
             "errors" => $this->errors,
-            "suggestions" => $this->suggestions,
-            "contentItems" => $this->getContentItemsGrouped()
+            "suggestions" => $this->suggestions
         ];
+        if($this->serializeIssues) {
+            $arr["contentItems"] = $this->getContentItemsGrouped();
+        }
+
+        return $arr;
     }
 
 
@@ -221,5 +225,21 @@ class Report implements \JsonSerializable
         }
 
         return $this;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isSerializeIssues(): bool
+    {
+        return $this->serializeIssues;
+    }
+
+    /**
+     * @param bool $serializeIssues
+     */
+    public function setSerializeIssues(bool $serializeIssues): void
+    {
+        $this->serializeIssues = $serializeIssues;
     }
 }

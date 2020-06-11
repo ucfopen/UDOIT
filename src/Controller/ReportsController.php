@@ -36,6 +36,7 @@ class ReportsController extends AbstractController
         return $jsonResponse;
     }
 
+
     /**
      * @Route("/{reportId}", methods={"GET"}, name="specific_report")
      * @param $courseId
@@ -47,6 +48,7 @@ class ReportsController extends AbstractController
         // Get Report
         $repository = $this->getDoctrine()->getRepository(Report::class);
         $report = $repository->find($reportId);
+        $report->setSerializeIssues(true);
 
         // Construct Response
         $apiResponse = new ApiResponse();

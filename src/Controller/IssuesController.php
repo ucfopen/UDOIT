@@ -31,6 +31,7 @@ class IssuesController extends AbstractController
         // Get Report
         $repository = $this->getDoctrine()->getRepository(Report::class);
         $report = $repository->find($reportId);
+        $report->setSerializeIssues(true);
 
         // Construct API Response
         $apiResponse = new ApiResponse();
