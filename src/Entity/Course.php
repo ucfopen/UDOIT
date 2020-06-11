@@ -9,8 +9,9 @@ use Doctrine\ORM\Mapping as ORM;
 /**
  * @ORM\Entity(repositoryClass="App\Repository\CourseRepository")
  */
-class Course
+class Course implements \JsonSerializable
 {
+    // Private Members
     /**
      * @ORM\Id()
      * @ORM\GeneratedValue()
@@ -64,12 +65,36 @@ class Course
      */
     private $reports;
 
+
+    // Constructor
     public function __construct()
     {
         $this->reports = new ArrayCollection();
         $this->contentItems = new ArrayCollection();
     }
 
+
+    // Public Methods
+
+    /**
+     * Serializes Course with basic information needed by front-end.
+     * @return array|mixed
+     */
+    public function jsonSerialize()
+    {
+        return [
+            "id" => $this->id,
+            "title" => $this->title,
+            "lmsAccountId" => $this->lmsAccountId,
+            "lmsCourseId" => $this->lmsCourseId,
+            "lastUpdate" => $this->lastUpdated,
+            "active" => $this->active,
+            "dirty" => $this->dirty
+        ];
+    }
+
+
+    // Getters and Setters
     public function getId(): ?int
     {
         return $this->id;
@@ -220,5 +245,4 @@ class Course
 
         return $this;
     }
-
 }

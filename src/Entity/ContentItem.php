@@ -9,8 +9,9 @@ use Doctrine\ORM\Mapping as ORM;
 /**
  * @ORM\Entity(repositoryClass="App\Repository\ContentItemRepository")
  */
-class ContentItem
+class ContentItem implements \JsonSerializable
 {
+    // Private Members
     /**
      * @ORM\Id()
      * @ORM\GeneratedValue()
@@ -28,6 +29,11 @@ class ContentItem
      * @ORM\Column(type="string", length=255)
      */
     private $contentType;
+
+    /**
+     * @ORM\Column(type="string", length=255)
+     */
+    private $contentTypePlural;
 
     /**
      * @ORM\Column(type="string", length=512)
@@ -66,11 +72,37 @@ class ContentItem
      */
     private $title;
 
+    /**
+     * @ORM\ManyToMany(targetEntity="App\Entity\Report", mappedBy="contentItems")
+     */
+    private $reports;
+
+
+    // Constructor
     public function __construct()
     {
         $this->issues = new ArrayCollection();
+        $this->reports = new ArrayCollection();
     }
 
+
+    // Public Methods
+
+    /**
+     * Serializes ContentItem into JSON.
+     * @return array|mixed
+     */
+    public function jsonSerialize()
+    {
+        return [
+            "id" => $this->id,
+            "title" => $this->title,
+            "issues" => $this->issues->toArray()
+        ];
+    }
+
+
+    // Getters and Setters
     public function getId(): ?int
     {
         return $this->id;
@@ -199,6 +231,47 @@ class ContentItem
     public function setTitle(string $title): self
     {
         $this->title = $title;
+
+        return $this;
+    }
+
+
+    public function getContentTypePlural(): ?string
+    {
+        return $this->contentTypePlural;
+    }
+
+    public function setContentTypePlural(string $contentTypePlural): self
+    {
+        $this->contentTypePlural = $contentTypePlural;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|Report[]
+     */
+    public function getReports(): Collection
+    {
+        return $this->reports;
+    }
+
+    public function addReport(Report $report): self
+    {
+        if (!$this->reports->contains($report)) {
+            $this->reports[] = $report;
+            $report->addContentItem($this);
+        }
+
+        return $this;
+    }
+
+    public function removeReport(Report $report): self
+    {
+        if ($this->reports->contains($report)) {
+            $this->reports->removeElement($report);
+            $report->removeContentItem($this);
+        }
 
         return $this;
     }
