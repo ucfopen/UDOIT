@@ -11,6 +11,7 @@ use App\Response\ApiResponse;
 use App\Response\ReportResponse;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Validator\Constraints\Json;
 
@@ -22,12 +23,11 @@ use Symfony\Component\Validator\Constraints\Json;
 class CoursesController extends AbstractController
 {
     /**
-     * @Route("/", methods={"GET"}, name="all_courses")
+     * @Route("/", methods={"GET"}, name="get_courses")
      * @return ApiResponse
      */
-    public function getCourses() {
-        // TODO: Assert user has permissions to perform action
-        // TODO: Get Institution from auth_token
+    public function getCourses(Request $request) {
+        // TODO: Get Institution from auth_token?
         // TODO: Handle Exceptions
         $institutionId = 123456789;
 
