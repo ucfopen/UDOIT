@@ -2,6 +2,10 @@
 
 {% block title %} Symfony React Starter {% endblock %}
 
+{% block stylesheets %}
+        {{ encore_entry_link_tags('app') }}
+{% endblock %}
+
 {% block body %}
 
 <div id="root"></div>
