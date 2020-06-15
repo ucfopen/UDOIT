@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom'
 import WelcomePage from './Components/WelcomePage'
 import Header from './Components/Header'
 import Issue from './Components/Issue'
+import ScanCheckbox from './Components/ScanCheckbox'
 // import '@instructure/canvas-theme'
 import classes from '../css/app.scss';
 
@@ -19,18 +20,20 @@ class App extends React.Component {
 
     loadIssues()
 
-    return(
-      <div>
-        {items}
+    return (
+      <div className={`${classes.app}`}>
+        <Header/>
+        <WelcomePage/>
+        <Issue
+          issueTitle = "test"
+          severity = "warning"
+          description = "test"
+          url = "test.test"
+          sectionTitle = "test"
+        />
+        <ScanCheckbox></ScanCheckbox>
       </div>
     )
-
-    // return (
-    //   <div className={`${classes.app}`}>
-    //     <Header/>
-    //     <WelcomePage/>
-    //   </div>
-    // )
   }
 }
 

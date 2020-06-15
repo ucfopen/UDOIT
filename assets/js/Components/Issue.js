@@ -6,11 +6,12 @@ class Issue extends React.Component {
     super(props);
 
     this.state = {
-      issueTitle: '',
-      severity: '',
-      description: '',
-      url: '',
-      sectionTitle: ''
+      issueTitle: null,
+      severity: null,
+      description: null,
+      url: null,
+      sectionTitle: null,
+      hasUFIXIT: null
     }
   }
 

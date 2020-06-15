@@ -1,11 +1,12 @@
 import React from 'react';
 import { CheckboxGroup } from '@instructure/ui-elements';
+import { Checkbox } from '@instructure/ui-checkbox';
 
 class ScanCheckbox extends React.Component {
   render() {
     return (
       <div>
-        <p>UFIXIT</p>
+        <Checkbox label="clickMe" value="medium" defaultChecked/>
       </div>
     )
   }

@@ -7,7 +7,6 @@ class Header extends React.Component {
     return (
       <div className={`${classes.headerContainer}`}>
         <img className={`${classes.logo}`} src={Logo}></img>
-        <p>Testingggg</p>
       </div>
     )
   }
