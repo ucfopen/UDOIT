@@ -3,8 +3,14 @@
 namespace App\Services;
 
 use Symfony\Component\HttpFoundation\RequestStack;
+use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
 class BasicLtiService {
+
+    const CANVAS_TEST_LTI_RESPONSE_URL = 'https://canvas.test.instructure.com';
+    const CANVAS_BETA_LTI_RESPONSE_URL = 'https://canvas.beta.instructure.com';
+    const CANVAS_PROD_LTI_RESPONSE_URL = 'https://canvas.instructure.com';
+
     private $message = '';
     private $instConsumerKey = '';
     private $instSharedSecret = '';
@@ -13,9 +19,50 @@ class BasicLtiService {
     /** @var Request $request */
     private $request;
 
-    public function __construct(RequestStack $requestStack)
+    /** @var SessionService $session */
+    private $session;
+
+    /** @var UtilityService $util */
+    private $util;
+
+    public function __construct(RequestStack $requestStack, SessionInterface $session, UtilityService $util)
     {
         $this->request = $requestStack->getCurrentRequest();
+        $this->session = $session;
+        $this->util = $util;
+    }
+
+    public function getAuthenticationResponseUrl()
+    {
+        $baseUrl = $this->getBaseUrlByEnv();
+        //$redirectUri = $this->
+
+        return "{$baseUrl}/api/lti/authorize_redirect?";
+    }
+
+    public function getBaseUrlByEnv() 
+    {
+        if (UtilityService::CANVAS_LMS === $this->util->getLmsId()) {
+            $issuer = $this->request->request->get('iss');
+            if (!$issuer) {
+                $this->util->exitWithMessage('Missing LTI configuration. Please contact your system administrator. ERROR: missing issuer');
+            }
+
+            if (strpos($issuer, '.test.') !== false) {
+                return self::CANVAS_TEST_LTI_RESPONSE_URL;
+            }
+            else if (strpos($issuer, '.beta.') !== false) {
+                return self::CANVAS_BETA_LTI_RESPONSE_URL;
+            }
+
+            return self::CANVAS_PROD_LTI_RESPONSE_URL;
+        }
+        else {
+
+        }
+
+        // default to Canvas Prod
+        return self::CANVAS_PROD_LTI_RESPONSE_URL;
     }
 
     public function isValid($consumerKey, $sharedSecret)

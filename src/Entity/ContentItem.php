@@ -2,14 +2,16 @@
 
 namespace App\Entity;
 
+use App\Services\UtilityService;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use JsonSerializable;
 
 /**
  * @ORM\Entity(repositoryClass="App\Repository\ContentItemRepository")
  */
-class ContentItem
+class ContentItem implements JsonSerializable
 {
     /**
      * @ORM\Id()
@@ -50,13 +52,6 @@ class ContentItem
     private $issues;
 
     /**
-     * Not saved to the DB, but useful in storing the value while we scan.
-     *
-     * @var string
-     */
-    private $body;
-
-    /**
      * @ORM\Column(type="boolean")
      */
     private $active;
@@ -65,6 +60,13 @@ class ContentItem
      * @ORM\Column(type="string", length=255)
      */
     private $title;
+
+    /**
+     * Not saved to the DB, but useful in storing the HTML while we scan.
+     *
+     * @var string
+     */
+    private $body;
 
     public function __construct()
     {
@@ -100,12 +102,12 @@ class ContentItem
         return $this;
     }
 
-    public function getLmsContentId(): ?int
+    public function getLmsContentId(): ?string
     {
         return $this->lmsContentId;
     }
 
-    public function setLmsContentId(int $lmsContentId): self
+    public function setLmsContentId(string $lmsContentId): self
     {
         $this->lmsContentId = $lmsContentId;
 
@@ -201,5 +203,46 @@ class ContentItem
         $this->title = $title;
 
         return $this;
+    }
+
+    public function update($lmsContent): self
+    {
+        try {
+            $updatedDate = new \DateTime($lmsContent['updated'], UtilityService::$timezone);
+            $this->setUpdated($updatedDate);
+            $this->setTitle($lmsContent['title']);
+            $this->setActive(true);
+            $this->setBody($lmsContent['body']);
+        }
+        catch (\Exception $e) {
+            // add error to flash bag.
+        }
+
+        return $this;
+    }
+
+    public function __toString()
+    {
+        return \json_encode($this->jsonSerialize());
+    }
+
+    public function jsonSerialize()
+    {
+        $issueIds = [];
+        foreach ($this->getIssues() as $issue) {
+            $issueIds[] = $issue->getId();
+        }
+
+        return [
+            'id' => $this->getId(),
+            'title' => $this->getTitle(),
+            'courseId' => $this->getCourse()->getId(),
+            'contentType' => $this->getContentType(),
+            'lmsContentId' => $this->getLmsContentId(),
+            'updated' => $this->getUpdated(),
+            'isActive' => $this->getActive(),
+            'issues' => $issueIds,
+            // 'body' => $this->getBody(),
+        ];
     }
 }

@@ -3,6 +3,7 @@
 namespace App\Repository;
 
 use App\Entity\ContentItem;
+use App\Entity\Course;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Common\Persistence\ManagerRegistry;
 
@@ -17,6 +18,16 @@ class ContentItemRepository extends ServiceEntityRepository
     public function __construct(ManagerRegistry $registry)
     {
         parent::__construct($registry, ContentItem::class);
+    }
+
+    public function setCourseContentInactive(Course $course)
+    {
+        $em = $this->getEntityManager();
+        
+        $query = $em->createQuery('UPDATE App\Entity\ContentItem c SET c.active=0 WHERE c.course=:course')
+            ->setParameter(':course', $course);
+        
+        return $query->execute();            
     }
 
     // /**

@@ -2,6 +2,8 @@
 
 namespace App\Lms;
 
+use App\Entity\Course;
+
 interface LmsInterface {
     public function getId();
     public function getLmsDomain();
@@ -9,6 +11,7 @@ interface LmsInterface {
     public function getLmsUserId();
     public function getLmsAccountId();
     public function getLmsRootAccountId();
-    public function getUserProfile();
+    public function testApiConnection();
     public function getCourseContentUrls($courseId);
+    public function getCourseContent(Course $course);
 }

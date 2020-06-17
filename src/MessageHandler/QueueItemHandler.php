@@ -2,19 +2,26 @@
 
 namespace App\MessageHandler;
 
+use App\Entity\ContentItem;
 use App\Entity\Course;
 use App\Entity\Report;
 use App\Message\QueueItemInterface;
+use App\Services\UtilityService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Messenger\Handler\MessageHandlerInterface;
 
 class QueueItemHandler implements MessageHandlerInterface
 {
+    /** @var EntityManagerInterface $entityManager */
     private $entityManager;
 
-    public function __construct(EntityManagerInterface $entityManager)
+    /** @var UtilityService $util */
+    private $util;
+
+    public function __construct(EntityManagerInterface $entityManager, UtilityService $util)
     {
         $this->entityManager = $entityManager;
+        $this->util = $util;
     }
 
     public function __invoke(QueueItemInterface $item)
@@ -36,9 +43,15 @@ class QueueItemHandler implements MessageHandlerInterface
         // create new Report entity
         $report = new Report();
         $report->setCourse($course);
+        $report->setCreated(new \DateTime('now'));
+        
+        $this->entityManager->persist($report);
+        $this->entityManager->flush();
 
-        // get content via LMS content API, filtering 
-        $this->getUpdatedLmsContent($report);
+        // get content via LMS content API
+        $contentItems = $this->getUpdatedLmsContent($report);
+        
+        
 
         // continue if report has content to scan
 
@@ -57,19 +70,38 @@ class QueueItemHandler implements MessageHandlerInterface
 
     protected function getUpdatedLmsContent(Report $report)
     {
-        $lmsContent = [];
+        $oldContentItems = [];
+        $updatedContentItems = [];
+        $course = $report->getCourse();
+
+        // mark all contentItems as inactive.
+        /** @var ContentItemRepository $contentItemRepo */
+        $contentItemRepo = $this->entityManager->getRepository(ContentItem::class);
+        $contentItemRepo->setCourseContentInactive($course);
 
         // use LMS API to get all content for this course
+        // we mark content as active when it's updated.
+        $lms = $this->util->getLms();
+        
+        /** @var ContentItem[] $lmsContent */
+        $contentItems = $lms->getCourseContent($course);
 
         // filter out any content that was updated older than the course 'last_updated'
+        foreach ($contentItems as $ind => $contentItem) {
+            
+            // skip content that hasn't been updated since last check
+            if ($contentItem->getUpdated() < $course->getLastUpdated()) {
+                foreach ($contentItem->getIssues() as $issue) {
+                    $issue->addReport($report);
+                }
+                
+                unset($contentItems[$ind]);
+            }
+        }
 
-        // find contentItems that match LMS content
+        $this->entityManager->flush();
 
-        // create new contentItems for new content
-
-        // mark contentItems as inactive if they don't show up in the LMS content
-
-        // add contentItems to report
+        return $contentItems;
     }
 
 
