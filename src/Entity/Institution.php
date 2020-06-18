@@ -11,6 +11,7 @@ use Doctrine\ORM\Mapping as ORM;
  */
 class Institution
 {
+    // Private Members
     /**
      * @ORM\Id()
      * @ORM\GeneratedValue()
@@ -90,12 +91,56 @@ class Institution
 
     private $encodedKey = 'niLb/WbAODNi7E4ccHHa/pPU3Bd9h6z1NXmjA981D4o=';
 
+
+    // Constructor
     public function __construct()
     {
         $this->courses = new ArrayCollection();
         $this->users = new ArrayCollection();
     }
 
+
+    // Public Methods
+    public function encryptDeveloperKey(): self
+    {
+        $this->setDeveloperKey($this->developerKey);
+
+        return $this;
+    }
+
+
+    // Private Methods
+    /**
+     * @param $data
+     *
+     * @return string
+     */
+    private function encryptData($data)
+    {
+        $key   = base64_decode($this->encodedKey);
+        $nonce = random_bytes(SODIUM_CRYPTO_SECRETBOX_NONCEBYTES);
+        $encrypted_data = sodium_crypto_secretbox($data, $nonce, $key);
+
+        return base64_encode($nonce . $encrypted_data);
+    }
+
+    /**
+     * @param $encrypted
+     *
+     * @return bool|string
+     */
+    private function decryptData($encrypted)
+    {
+        $key     = base64_decode($this->encodedKey);
+        $decoded = base64_decode($encrypted);
+        $nonce   = mb_substr($decoded, 0, SODIUM_CRYPTO_SECRETBOX_NONCEBYTES, '8bit');
+        $encrypted_text = mb_substr($decoded, SODIUM_CRYPTO_SECRETBOX_NONCEBYTES, NULL, '8bit');
+     
+        return sodium_crypto_secretbox_open($encrypted_text, $nonce, $key);
+    }
+
+
+    // Getters and Setters
     public function getId(): ?int
     {
         return $this->id;
@@ -305,41 +350,5 @@ class Institution
         }
 
         return $this;
-    }
-
-    public function encryptDeveloperKey(): self
-    {
-        $this->setDeveloperKey($this->developerKey);
-
-        return $this;
-    }
-
-    /**
-     * @param $data
-     *
-     * @return string
-     */
-    private function encryptData($data)
-    {
-        $key   = base64_decode($this->encodedKey);
-        $nonce = random_bytes(SODIUM_CRYPTO_SECRETBOX_NONCEBYTES);
-        $encrypted_data = sodium_crypto_secretbox($data, $nonce, $key);
-
-        return base64_encode($nonce . $encrypted_data);
-    }
-
-    /**
-     * @param $encrypted
-     *
-     * @return bool|string
-     */
-    private function decryptData($encrypted)
-    {
-        $key     = base64_decode($this->encodedKey);
-        $decoded = base64_decode($encrypted);
-        $nonce   = mb_substr($decoded, 0, SODIUM_CRYPTO_SECRETBOX_NONCEBYTES, '8bit');
-        $encrypted_text = mb_substr($decoded, SODIUM_CRYPTO_SECRETBOX_NONCEBYTES, NULL, '8bit');
-     
-        return sodium_crypto_secretbox_open($encrypted_text, $nonce, $key);
     }
 }

@@ -10,8 +10,9 @@ use JsonSerializable;
 /**
  * @ORM\Entity(repositoryClass="App\Repository\CourseRepository")
  */
-class Course implements JsonSerializable
+class Course implements \JsonSerializable
 {
+    // Private Members
     /**
      * @ORM\Id()
      * @ORM\GeneratedValue()
@@ -65,12 +66,36 @@ class Course implements JsonSerializable
      */
     private $reports;
 
+
+    // Constructor
     public function __construct()
     {
         $this->reports = new ArrayCollection();
         $this->contentItems = new ArrayCollection();
     }
 
+
+    // Public Methods
+
+    /**
+     * Serializes Course with basic information needed by front-end.
+     * @return array|mixed
+     */
+    public function jsonSerialize()
+    {
+        return [
+            "id" => $this->id,
+            "title" => $this->title,
+            "lmsAccountId" => $this->lmsAccountId,
+            "lmsCourseId" => $this->lmsCourseId,
+            "lastUpdate" => $this->lastUpdated,
+            "active" => $this->active,
+            "dirty" => $this->dirty
+        ];
+    }
+
+
+    // Getters and Setters
     public function getId(): ?int
     {
         return $this->id;
@@ -221,16 +246,4 @@ class Course implements JsonSerializable
 
         return $this;
     }
-
-    public function jsonSerialize()
-    {
-        return [
-            'title' => $this->getTitle(),
-            'lmsAccountId' => $this->getLmsAccountId(),
-            'lmsCourseId' => $this->getLmsCourseId(),
-            'lastUpdated' => $this->getLastUpdated(),
-            'contentItems' => $this->getContentItems(),
-        ];
-    }
-
 }
