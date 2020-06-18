@@ -15,6 +15,10 @@ class SummaryPage extends React.Component {
   componentDidMount() {
     // TODO Fetch issues from API then set state
 
+    list = [
+      
+    ]
+
     //this.setState({
       // Set state
     //});

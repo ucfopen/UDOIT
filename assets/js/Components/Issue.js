@@ -6,29 +6,30 @@ class Issue extends React.Component {
     super(props);
 
     this.state = {
+      id: null,
       issueTitle: null,
       severity: null,
       description: null,
+      type: null,
       url: null,
       sectionTitle: null,
-      hasUFIXIT: null
+      hasUFIXIT: null,
+      sourceHtml: null
     }
   }
 
   componentDidMount() {
     this.setState({
-      issueTitle: this.props.issueTitle,
       severity: this.props.severity,
       description: this.props.description,
-      url: this.props.url,
-      sectionTitle: this.props.sectionTitle
+      title: this.props.title
     })
   }
 
   render() {
     return (
       <div>
-        <p>{this.state.issueTitle}</p>
+        <p>{this.state.title}</p>
         <p>{this.state.severity}</p>
         <p>{this.state.description}</p>
       </div>

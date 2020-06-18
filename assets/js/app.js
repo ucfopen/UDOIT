@@ -4,7 +4,7 @@ import WelcomePage from './Components/WelcomePage'
 import Header from './Components/Header'
 import Issue from './Components/Issue'
 import ScanCheckbox from './Components/ScanCheckbox'
-// import '@instructure/canvas-theme'
+import ContentPiece from './Components/ContentPiece'
 import classes from '../css/app.scss';
 
 class App extends React.Component {
@@ -22,7 +22,7 @@ class App extends React.Component {
 
     return (
       <div className={`${classes.app}`}>
-        <Header/>
+        {/* <Header/>
         <WelcomePage/>
         <Issue
           issueTitle = "test"
@@ -31,7 +31,8 @@ class App extends React.Component {
           url = "test.test"
           sectionTitle = "test"
         />
-        <ScanCheckbox></ScanCheckbox>
+        <ScanCheckbox></ScanCheckbox> */}
+        <ContentPiece/>
       </div>
     )
   }
