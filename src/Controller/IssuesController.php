@@ -52,8 +52,6 @@ class IssuesController extends AbstractController
                 throw new \Exception(sprintf("Issue with ID %s could not be found", $issueId));
             }
             $apiResponse->setData($issueRequest);
-
-            //TODO: Fix Issue here
         }
         catch(\Exception $e) {
             // TODO: Handle Exception

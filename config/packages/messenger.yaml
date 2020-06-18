@@ -5,11 +5,11 @@ framework:
 
         transports:
             # https://symfony.com/doc/current/messenger.html#transport-configuration
-            async_priority_high: 
-                dsn: '%env(MESSENGER_TRANSPORT_DSN)%'
-                options: 
-                    table_name: 'queue'
-                    queue_name: 'priority_high'
+            # async_priority_high: 
+            #     dsn: '%env(MESSENGER_TRANSPORT_DSN)%'
+            #     options: 
+            #         table_name: 'queue'
+            #         queue_name: 'priority_high'
             async_priority_low: 
                 dsn: '%env(MESSENGER_TRANSPORT_DSN)%'
                 options: 
@@ -20,5 +20,5 @@ framework:
 
         routing:
             # Route your messages to the transports
-            'App\Message\PriorityQueueItem': async_priority_high
+            # 'App\Message\PriorityQueueItem': async_priority_high
             'App\Message\BackgroundQueueItem': async_priority_low

@@ -90,20 +90,17 @@
     "doctrine/reflection": {
         "version": "v1.1.0"
     },
-    "easycorp/easy-log-handler": {
-        "version": "1.0",
-        "recipe": {
-            "repo": "github.com/symfony/recipes",
-            "branch": "master",
-            "version": "1.0",
-            "ref": "70062abc2cd58794d2a90274502f81b55cd9951b"
-        },
-        "files": [
-            "config/packages/dev/easy_log_handler.yaml"
-        ]
+    "doctrine/sql-formatter": {
+        "version": "1.1.0"
     },
     "egulias/email-validator": {
         "version": "2.1.17"
+    },
+    "firebase/php-jwt": {
+        "version": "v5.2.0"
+    },
+    "fproject/php-jwt": {
+        "version": "4.0.5"
     },
     "guzzlehttp/guzzle": {
         "version": "6.5.2"
@@ -114,8 +111,8 @@
     "guzzlehttp/psr7": {
         "version": "1.6.1"
     },
-    "jdorn/sql-formatter": {
-        "version": "v1.2.17"
+    "imsglobal/lti-1p3-tool": {
+        "version": "dev-master"
     },
     "knpuniversity/oauth2-client-bundle": {
         "version": "1.20",
@@ -129,29 +126,11 @@
             "config/packages/knpu_oauth2_client.yaml"
         ]
     },
-    "lcobucci/jwt": {
-        "version": "3.3.1"
-    },
     "league/oauth2-client": {
         "version": "2.4.1"
     },
-    "lexik/jwt-authentication-bundle": {
-        "version": "2.5",
-        "recipe": {
-            "repo": "github.com/symfony/recipes",
-            "branch": "master",
-            "version": "2.5",
-            "ref": "5b2157bcd5778166a5696e42f552ad36529a07a6"
-        },
-        "files": [
-            "config/packages/lexik_jwt_authentication.yaml"
-        ]
-    },
     "monolog/monolog": {
         "version": "2.0.2"
-    },
-    "namshi/jose": {
-        "version": "7.2.3"
     },
     "nikic/php-parser": {
         "version": "v4.3.0"
@@ -173,6 +152,9 @@
     },
     "phpdocumentor/type-resolver": {
         "version": "1.1.0"
+    },
+    "phpseclib/phpseclib": {
+        "version": "2.0.27"
     },
     "psr/cache": {
         "version": "1.0.1"
@@ -451,6 +433,9 @@
     },
     "symfony/polyfill-php73": {
         "version": "v1.14.0"
+    },
+    "symfony/polyfill-php80": {
+        "version": "v1.17.0"
     },
     "symfony/process": {
         "version": "v5.0.5"

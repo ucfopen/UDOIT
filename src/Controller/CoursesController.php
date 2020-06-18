@@ -27,8 +27,6 @@ class CoursesController extends AbstractController
      * @return ApiResponse
      */
     public function getCourses(Request $request) {
-        // TODO: Get Institution from auth_token?
-        // TODO: Handle Exceptions
         $institutionId = 123456789;
 
         // Get Courses

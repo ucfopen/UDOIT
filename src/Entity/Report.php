@@ -189,6 +189,11 @@ class Report implements \JsonSerializable
         return $this;
     }
 
+    /**
+     * Undocumented function
+     *
+     * @return Course|null
+     */
     public function getCourse(): ?Course
     {
         return $this->course;

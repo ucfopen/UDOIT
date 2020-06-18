@@ -16,9 +16,6 @@ class TranslationsController extends AbstractController
      * @Route("/translations/{lang}", methods={"GET"}, name="get_translation")
      */
     public function getTranslation(Request $request, $lang) {
-        // TODO: Assert user has permissions to perform action
-        // TODO: Handle exceptions
-        // TODO: Evaluate language and find strings
         $apiResponse = new ApiResponse();
         try {
             // TODO: Validate language and return strings

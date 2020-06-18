@@ -7,12 +7,13 @@ use App\Services\BasicLtiService;
 use App\Services\UtilityService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpClient\HttpClient;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\Routing\Annotation\Route;
 
-class OauthController extends AbstractController
+class AuthController extends AbstractController
 {
     /** @var UtilityService $util */
     private $util;
@@ -22,6 +23,35 @@ class OauthController extends AbstractController
     private $request;
     /** @var BasicLtiService $ltiService */
     private $ltiService;
+
+    /**
+     * @Route("/lti/authorize", name="lti_authorize")
+     */
+    public function ltiAuthorize(
+        Request $request,
+        SessionInterface $session,
+        UtilityService $util,
+        BasicLtiService $ltiService
+    ) {
+        $this->request = $request;
+        $this->session = $session;
+        $this->util = $util;
+        $this->ltiService = $ltiService;
+        
+        $this->saveRequestToSession();
+
+        return $this->redirect($ltiService->getAuthenticationResponseUrl());
+
+        //return new JsonResponse($this->session->all());
+    }
+
+    /**
+     * @Route("/lti/authorize/check", name="lti_authorize_check")
+     */
+    public function ltiAuthorizeCheck()
+    {
+
+    }
 
     /**
      * @Route("/authorize", name="authorize")
@@ -63,7 +93,7 @@ class OauthController extends AbstractController
         }
 
         $developerId = $institution->getDeveloperId();
-        $redirectUri = $this->getRedirectUri();
+        $redirectUri = $this->getOauthRedirectUri();
         $scopes = $util->getLms()->getScopes();
         $oauthUri = "{$this->session->get('base_url')}/login/oauth2/auth/?client_id={$developerId}&scopes={$scopes}&response_type=code&redirect_uri={$redirectUri}";
 
@@ -85,7 +115,7 @@ class OauthController extends AbstractController
         $this->session = $session;
         $this->util = $util;
         $this->ltiService = $ltiService;
-    
+
         if (!empty($request->query->get('error'))) {
             $util->exitWithMessage('Authentication problem: Access Denied. ' . $request->query->get('error'));
         }
@@ -133,11 +163,11 @@ class OauthController extends AbstractController
         }
 
         $tokenHeader = ["Authorization: Bearer " . $apiKey];
-        $this->session->set('token_header', $tokenHeader);
+        $this->session->set('tokenHeader', $tokenHeader);
         
         try {
             $lms = $this->util->getLms();
-            $profile = $lms->getUserProfile();
+            $profile = $lms->testApiConnection();
 
             if (empty($profile)) {
                 throw new \Exception('Access token is invalid or expired.');
@@ -151,7 +181,7 @@ class OauthController extends AbstractController
                 return false;
             }
 
-            $profile = $lms->getUserProfile();
+            $profile = $lms->testApiConnection();
 
             if (!$profile) {
                 return false;
@@ -176,7 +206,7 @@ class OauthController extends AbstractController
             'query' => [
                 'grant_type'    => 'refresh_token',
                 'client_id'     => $institution->getDeveloperId(),
-                'redirect_uri'  => $this->getRedirectUri(),
+                'redirect_uri'  => $this->getOauthRedirectUri(),
                 'client_secret' => $institution->getDeveloperKey(),
                 'refresh_token' => $refreshToken,
             ],
@@ -220,10 +250,6 @@ class OauthController extends AbstractController
 
             foreach ($postParams as $key => $val) {
                 $this->session->set($key, $val);
-
-                if ('custom_lms_api_domain' === $key) {
-                    $this->session->set('base_url', rtrim("https://{$val}", '/'));
-                }
             }
         } catch (\Exception $e) {
             print_r($e->getMessage());
@@ -232,9 +258,9 @@ class OauthController extends AbstractController
         return;
     }
 
-    private function getRedirectUri()
+    private function getOauthRedirectUri()
     {
-        return $this->request->server->get('APP_REDIRECT_URL');
+        return $this->request->server->get('APP_OAUTH_REDIRECT_URL');
     }
 
     private function updateUser($apiKey)
@@ -262,7 +288,7 @@ class OauthController extends AbstractController
             'query' => [
                 'grant_type'    => 'authorization_code',
                 'client_id'     => $institution->getDeveloperId(),
-                'redirect_uri'  => $this->getRedirectUri(),
+                'redirect_uri'  => $this->getOauthRedirectUri(),
                 'client_secret' => $institution->getDeveloperKey(),
                 'code'          => $code,
             ],

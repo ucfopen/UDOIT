@@ -1,7 +1,8 @@
 <?php
 
-namespace App\Lms;
+namespace App\Lms\D2l;
 
+use App\Entity\Course;
 use App\Lms\LmsInterface;
 
 //class D2lLms implements LmsInterface {
@@ -46,12 +47,17 @@ class D2lLms {
         
     }
 
-    public function getUserProfile()
+    public function testApiConnection()
     {
 
     }
 
     public function getCourseContentUrls($courseId)
+    {
+
+    }
+
+    public function getCourseContent(Course $course)
     {
 
     }
