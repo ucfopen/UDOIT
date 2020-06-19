@@ -9,8 +9,9 @@ use Doctrine\ORM\Mapping as ORM;
 /**
  * @ORM\Entity(repositoryClass="App\Repository\ReportRepository")
  */
-class Report
+class Report implements \JsonSerializable
 {
+    // Private Members
     /**
      * @ORM\Id()
      * @ORM\GeneratedValue()
@@ -45,17 +46,68 @@ class Report
     private $suggestions;
 
     /**
-     * @ORM\ManyToMany(targetEntity="App\Entity\Issue", mappedBy="report")
+     * @ORM\ManyToMany(targetEntity="App\Entity\Issue", mappedBy="reports")
      */
     private $issues;
 
+    /**
+     * @ORM\ManyToMany(targetEntity="App\Entity\ContentItem", inversedBy="reports")
+     */
+    private $contentItems;
+
+    private $serializeIssues = false;
+
+    // Constructor
     public function __construct()
     {
         $this->queue_items = new ArrayCollection();
         $this->queueItems = new ArrayCollection();
         $this->issues = new ArrayCollection();
+        $this->contentItems = new ArrayCollection();
     }
 
+
+    // Public Methods
+    /**
+     * Serializes Report Class into list of ContentItem with issues, grouped by content type.
+     * @return array|mixed
+     */
+    public function jsonSerialize()
+    {
+        $arr =  [
+            "created" => $this->created,
+            "errors" => $this->errors,
+            "suggestions" => $this->suggestions
+        ];
+        if($this->serializeIssues) {
+            $arr["contentItems"] = $this->getContentItemsGrouped();
+        }
+
+        return $arr;
+    }
+
+
+    // Private Methods
+
+    /**
+     * Creates new array of ContentItem grouped by contentType.
+     * @return array
+     */
+    private function getContentItemsGrouped() {
+        $groupedContentItems = array();
+        foreach ($this->contentItems as $contentItem) {
+            $contentTypePlural = $contentItem->getContentTypePlural();
+            if(!array_key_exists($contentTypePlural, $groupedContentItems)) {
+                $groupedContentItems[$contentTypePlural] = array();
+            }
+            array_push($groupedContentItems[$contentTypePlural], $contentItem);
+        }
+        ksort($groupedContentItems);
+        return $groupedContentItems;
+    }
+
+
+    // Getters and Setters
     public function getId(): ?int
     {
         return $this->id;
@@ -137,6 +189,11 @@ class Report
         return $this;
     }
 
+    /**
+     * Undocumented function
+     *
+     * @return Course|null
+     */
     public function getCourse(): ?Course
     {
         return $this->course;
@@ -147,5 +204,47 @@ class Report
         $this->course = $course;
 
         return $this;
+    }
+
+    /**
+     * @return Collection|ContentItem[]
+     */
+    public function getContentItems(): Collection
+    {
+        return $this->contentItems;
+    }
+
+    public function addContentItem(ContentItem $contentItem): self
+    {
+        if (!$this->contentItems->contains($contentItem)) {
+            $this->contentItems[] = $contentItem;
+        }
+
+        return $this;
+    }
+
+    public function removeContentItem(ContentItem $contentItem): self
+    {
+        if ($this->contentItems->contains($contentItem)) {
+            $this->contentItems->removeElement($contentItem);
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isSerializeIssues(): bool
+    {
+        return $this->serializeIssues;
+    }
+
+    /**
+     * @param bool $serializeIssues
+     */
+    public function setSerializeIssues(bool $serializeIssues): void
+    {
+        $this->serializeIssues = $serializeIssues;
     }
 }

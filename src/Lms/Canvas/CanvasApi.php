@@ -1,115 +1,25 @@
 <?php
 
-namespace App\Lms;
+namespace App\Lms\Canvas;
 
-use App\Entity\Course;
-use App\Lms\LmsInterface;
+use App\Lms\LmsResponse;
 use Symfony\Component\HttpClient\HttpClient;
-use Symfony\Contracts\HttpClient\HttpClientInterface;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
-class CanvasLms implements LmsInterface {
-    /** @var SessionInterface $session */
-    private $session;
+class CanvasApi {
 
-    private $lmsDomain;
-    private $lmsAccountId;
-    private $lmsCourseId;
-    private $lmsRootAccountId;
-    private $lmsUserId;
-    private $lmsResponse;
-    private $baseUrl;
-
-    /** @var HttpClientInterface $httpClient */
-    private $httpClient;
+    protected $session;
+    protected $baseUrl;
+    protected $httpClient;
 
     public function __construct(SessionInterface $session)
     {
         $this->session = $session;
-        $headerToken = $this->session->get('token_header');
+        $headerToken = $this->session->get('tokenHeader');
         $this->httpClient = HttpClient::create([
             'headers' => $headerToken,
         ]);
         $this->baseUrl = $this->session->get('base_url');
-    }
-
-    public function getId() 
-    {
-        return 'canvas';
-    }
-
-    public function getLmsDomain()
-    {
-        if (!isset($this->lmsDomain)) {
-            $this->lmsDomain = $this->session->get('custom_canvas_api_domain');
-        }
-        return $this->lmsDomain;
-    }
-
-    public function getLmsAccountId()
-    {
-        if (!isset($this->lmsAccountId)) {
-            $this->lmsAccountId = $this->session->get('custom_canvas_account_id');
-        }
-        return $this->lmsAccountId;
-    }
-
-    public function getLmsCourseId()
-    {
-        if (!isset($this->lmsCourseId)) {
-            $this->lmsCourseId = $this->session->get('custom_canvas_course_id');
-        }
-        return $this->lmsCourseId;
-    }
-
-    public function getLmsUserId()
-    {
-        if (!isset($this->lmsUserId)) {
-            $this->lmsUserId = $this->session->get('custom_canvas_user_id');
-        }
-        return $this->lmsUserId;
-    }
-
-    public function getScopes()
-    {
-        $scopes = [
-            //'url:get:api/v1/accounts',
-        ];
-
-        return implode(' ', $scopes);
-    }
-
-    public function getLmsRootAccountId()
-    {
-        if (!isset($this->lmsRootAccountId)) {
-            $this->lmsRootAccountId = $this->session->get('custom_canvas_root_account_id');
-        }
-        return $this->lmsRootAccountId;
-    }
-
-    public function getUserProfile()
-    {
-        $url = 'users/self';
-        $response = $this->apiGet($url);
-
-        if (!$response || !empty($response->getErrors())) {
-            return false;
-        }
-
-        return $response->getContent();
-    }
-
-    public function getCourseContentUrls($courseId)
-    {
-        return [
-            'syllabus' => "/api/v1/courses/{$courseId}",
-            'assignment' => "/api/v1/courses/{$courseId}/assignments",
-            'discussion_topic' => "/api/v1/courses/{$courseId}/discussion_topics",
-            'file' => "/api/v1/courses/{$courseId}/files",
-            'module' => "/api/v1/courses/{$courseId}/modules",
-            'page' => "/api/v1/courses/{$courseId}/pages",
-            'quiz' => "/api/v1/courses/{$courseId}/quizzes",
-        ];
     }
 
     /**
@@ -123,6 +33,8 @@ class CanvasLms implements LmsInterface {
      */
     public function apiGet($url, $options = [], $perPage = 100, $lmsResponse = null)
     {
+        
+
         if (!$lmsResponse) {
             $lmsResponse = new LmsResponse();
         }
@@ -141,9 +53,11 @@ class CanvasLms implements LmsInterface {
 
         $response = $this->httpClient->request('GET', $url, $options);
         $lmsResponse->setResponse($response);
-        
+
         $content = $lmsResponse->getContent();
         if (!empty($content['errors'])) {
+            // If error is invalid token, refresh API token and try again 
+
             foreach ($content['errors'] as $error) {
                 $lmsResponse->setError($error['message']);
             }
@@ -185,16 +99,14 @@ class CanvasLms implements LmsInterface {
 
     private function apiPost()
     {
-
     }
 
     private function apiPut()
     {
-
     }
 
     private function apiDelete()
     {
-
     }
+
 }

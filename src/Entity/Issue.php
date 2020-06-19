@@ -9,8 +9,9 @@ use Doctrine\ORM\Mapping as ORM;
 /**
  * @ORM\Entity(repositoryClass="App\Repository\IssueRepository")
  */
-class Issue
+class Issue implements \JsonSerializable
 {
+    // Private Members
     /**
      * @ORM\Id()
      * @ORM\GeneratedValue()
@@ -47,13 +48,33 @@ class Issue
     /**
      * @ORM\ManyToMany(targetEntity="App\Entity\Report", inversedBy="issues")
      */
-    private $report;
+    private $reports;
 
+
+    // Constructor
     public function __construct()
     {
-        $this->report = new ArrayCollection();
+        $this->reports = new ArrayCollection();
     }
 
+
+    // Public Methods
+
+    /**
+     * Serializes Issue into JSON.
+     * @return array|mixed
+     */
+    public function jsonSerialize()
+    {
+        return [
+            "id" => $this->id,
+            "scanRuleId" => $this->scanRuleId,
+            "type" => $this->type,
+            "sourceHtml" => $this->html
+        ];
+    }
+
+    // Getters and Setters
     public function getId(): ?int
     {
         return $this->id;
@@ -122,15 +143,15 @@ class Issue
     /**
      * @return Collection|Report[]
      */
-    public function getReport(): Collection
+    public function getReports(): Collection
     {
-        return $this->report;
+        return $this->reports;
     }
 
     public function addReport(Report $report): self
     {
-        if (!$this->report->contains($report)) {
-            $this->report[] = $report;
+        if (!$this->reports->contains($report)) {
+            $this->reports[] = $report;
         }
 
         return $this;
@@ -138,8 +159,8 @@ class Issue
 
     public function removeReport(Report $report): self
     {
-        if ($this->report->contains($report)) {
-            $this->report->removeElement($report);
+        if ($this->reports->contains($report)) {
+            $this->reports->removeElement($report);
         }
 
         return $this;

@@ -2,15 +2,18 @@
 
 namespace App\Entity;
 
+use App\Services\UtilityService;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use JsonSerializable;
 
 /**
  * @ORM\Entity(repositoryClass="App\Repository\ContentItemRepository")
  */
-class ContentItem
+class ContentItem implements \JsonSerializable
 {
+    // Private Members
     /**
      * @ORM\Id()
      * @ORM\GeneratedValue()
@@ -28,6 +31,11 @@ class ContentItem
      * @ORM\Column(type="string", length=255)
      */
     private $contentType;
+
+    /**
+     * @ORM\Column(type="string", length=255)
+     */
+    private $contentTypePlural;
 
     /**
      * @ORM\Column(type="string", length=512)
@@ -50,13 +58,6 @@ class ContentItem
     private $issues;
 
     /**
-     * Not saved to the DB, but useful in storing the value while we scan.
-     *
-     * @var string
-     */
-    private $body;
-
-    /**
      * @ORM\Column(type="boolean")
      */
     private $active;
@@ -66,11 +67,45 @@ class ContentItem
      */
     private $title;
 
+    /**
+     * @ORM\ManyToMany(targetEntity="App\Entity\Report", mappedBy="contentItems")
+     */
+    private $reports;
+
+
+    /*
+     * Not saved to the DB, but useful in storing the HTML while we scan.
+     *
+     * @var string
+     */
+    private $body;
+
+
+    // Constructor
     public function __construct()
     {
         $this->issues = new ArrayCollection();
+        $this->reports = new ArrayCollection();
     }
 
+
+    // Public Methods
+
+    /**
+     * Serializes ContentItem into JSON.
+     * @return array|mixed
+     */
+    public function jsonSerialize()
+    {
+        return [
+            "id" => $this->id,
+            "title" => $this->title,
+            "issues" => $this->issues->toArray()
+        ];
+    }
+
+
+    // Getters and Setters
     public function getId(): ?int
     {
         return $this->id;
@@ -100,12 +135,12 @@ class ContentItem
         return $this;
     }
 
-    public function getLmsContentId(): ?int
+    public function getLmsContentId(): ?string
     {
         return $this->lmsContentId;
     }
 
-    public function setLmsContentId(int $lmsContentId): self
+    public function setLmsContentId(string $lmsContentId): self
     {
         $this->lmsContentId = $lmsContentId;
 
@@ -201,5 +236,76 @@ class ContentItem
         $this->title = $title;
 
         return $this;
+    }
+
+
+    public function getContentTypePlural(): ?string
+    {
+        return $this->contentTypePlural;
+    }
+
+    public function setContentTypePlural(string $contentTypePlural): self
+    {
+        $this->contentTypePlural = $contentTypePlural;
+    }
+    
+    public function update($lmsContent): self
+    {
+        try {
+            $updatedDate = new \DateTime($lmsContent['updated'], UtilityService::$timezone);
+            $this->setUpdated($updatedDate);
+            $this->setTitle($lmsContent['title']);
+            $this->setActive(true);
+            $this->setBody($lmsContent['body']);
+        }
+        catch (\Exception $e) {
+            // add error to flash bag.
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|Report[]
+     */
+    public function getReports(): Collection
+    {
+        return $this->reports;
+    }
+
+    public function addReport(Report $report): self
+    {
+        if (!$this->reports->contains($report)) {
+            $this->reports[] = $report;
+            $report->addContentItem($this);
+        }
+
+        return $this;
+    }
+
+    public function removeReport(Report $report): self
+    {
+        if ($this->reports->contains($report)) {
+            $this->reports->removeElement($report);
+            $report->removeContentItem($this);
+        }
+
+        return $this;
+    }
+
+    public function __toString()
+    {
+        $array = [
+            'id' => $this->getId(),
+            'title' => $this->getTitle(),
+            'courseId' => $this->getCourse()->getId(),
+            'contentType' => $this->getContentType(),
+            'lmsContentId' => $this->getLmsContentId(),
+            'updated' => $this->getUpdated(),
+            'isActive' => $this->getActive(),
+            'issues' => $issueIds,
+            // 'body' => $this->getBody(),
+        ];
+        return \json_encode($array);
     }
 }

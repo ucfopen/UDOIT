@@ -12,7 +12,22 @@ security:
             pattern: ^/(_(profiler|wdt)|css|images|js)/
             security: false
 
-        authorize:
+        ltiAuthorize:
+            pattern: ^/lti/authorize
+            stateless: false
+            anonymous: true
+            guard:
+                authenticators:
+                    - App\Security\DevAuthenticator
+        ltiResponse:
+            pattern: ^/lti/authorize/check
+            stateless: false
+            anonymous: true
+            guard:
+                authenticators:
+                    - App\Security\DevAuthenticator
+
+        oauthAuthorize:
             pattern: ^/authorize
             anonymous: true
             guard:
@@ -20,11 +35,10 @@ security:
                     - App\Security\DevAuthenticator
                     - App\Security\OauthAuthenticator
                 entry_point: App\Security\DevAuthenticator
-            
         oauthResponse: 
             pattern: ^/authorize/check
             anonymous: true
-            stateless: true
+            stateless: false
 
         dashboard:
             pattern: ^/dashboard
@@ -48,5 +62,7 @@ security:
     # Note: Only the *first* access control that matches will be used
     access_control:
         - { path: ^/profile, roles: ROLE_USER }
+        - { path: ^/lti/authorize, roles: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/lti/authorize/check, roles: IS_AUTHENTICATED_ANONYMOUSLY }
         #- { path: ^/api/login, roles: IS_AUTHENTICATED_ANONYMOUSLY }
         #- { path: ^/api, roles: IS_AUTHENTICATED_FULLY }

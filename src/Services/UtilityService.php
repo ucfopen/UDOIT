@@ -2,8 +2,8 @@
 
 namespace App\Services;
 
-use App\Lms\CanvasLms;
-use App\Lms\D2lLms;
+use App\Lms\Canvas\CanvasLms;
+use App\Lms\D2l\D2lLms;
 use App\Entity\Course;
 use App\Entity\Institution;
 use App\Entity\User;
@@ -21,6 +21,8 @@ class UtilityService {
     const ENV_PROD = 'prod';
     const CANVAS_LMS = 'canvas';
     const D2L_LMS = 'd2l';
+
+    public static $timezone;
 
     /** @var Request $request */
     private $request;
@@ -43,18 +45,27 @@ class UtilityService {
     private $activeLms;
     private $env;
 
+    private $canvasLms;
+    private $d2lLms;
+
     private $messages = [];
 
     public function __construct(
         SessionInterface $session,
         RequestStack $requestStack,
         ManagerRegistry $doctrine,
-        Environment $twig)
+        Environment $twig,
+        CanvasLms $canvasLms,
+        D2lLms $d2lLms)
     {
         $this->session = $session;
         $this->request = $requestStack->getCurrentRequest();
         $this->twig = $twig;
         $this->doctrine = $doctrine;
+        $this->canvasLms = $canvasLms;
+        $this->d2lLms = $d2lLms;
+
+        self::$timezone = new \DateTimeZone('GMT');
     }
 
     public function getLmsId()
@@ -78,9 +89,9 @@ class UtilityService {
         if (!isset($this->activeLms)) {
             $lmsId = $this->getLmsId();
             if (self::CANVAS_LMS === $lmsId) {
-                $this->activeLms = new CanvasLms($this->session);
+                $this->activeLms = $this->canvasLms;
             } elseif (self::D2L_LMS === $lmsId) {
-                $this->activeLms = new D2lLms();
+                $this->activeLms = $this->d2lLms;
             } else {
                 // handle other LMS classes
             }

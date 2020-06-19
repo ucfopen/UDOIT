@@ -21,6 +21,11 @@ class LmsResponse {
     private $headers = [];
     private $errors = [];
 
+    public function __construct($contentType = '')
+    {
+        $this->contentType = $contentType;
+    }
+
     public function getHeaders()
     {
         return $this->headers;

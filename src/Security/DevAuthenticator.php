@@ -29,7 +29,6 @@ class DevAuthenticator extends AbstractGuardAuthenticator
 
     public function supports(Request $request)
     {
-        // continue ONLY if the current ROUTE matches the check ROUTE
         return UtilityService::ENV_DEV === $request->server->get('APP_ENV');
     }
 
@@ -45,24 +44,24 @@ class DevAuthenticator extends AbstractGuardAuthenticator
 
     public function getUser($credentials, UserProviderInterface $userProvider)
     {
-        if (UtilityService::CANVAS_LMS === $this->util->getLmsId()) {
-            $this->request->request->set('oauth_consumer_key', 'cidilabs.app');
-            $this->request->request->set('oauth_signature_method', 'HMAC-SHA1');
-            $this->request->request->set('oauth_timestamp', '1550077942');
-            $this->request->request->set('oauth_nonce', '1233213232123123123');
-            $this->request->request->set('oauth_version', '1.0');
-            $this->request->request->set('custom_lms_user_id', '2027');
-            $this->request->request->set('custom_lms_course_id', '2084');
-            $this->request->request->set('custom_lms_account_id', '608');
-            $this->request->request->set('custom_lms_root_account_id', '1');
-            $this->request->request->set('custom_lms_api_domain', 'cidilabs.instructure.com');
-            $this->request->request->set('lti_message_type', 'basic-lti-launch-request');
-            $this->request->request->set('lti_version', 'LTI-1p0');
-            $this->request->request->set('resource_link_id', '123123123123123123123');
-            $this->request->request->set('context_label', 'CIDILABS APP');
-            $this->request->request->set('context_title', 'CIDILABS DEV APP');
-            $this->request->request->set('oauth_signature', '4NQwSrSrMCxFyYhuiRFCsuRU7aM=');
-        }
+        // if (UtilityService::CANVAS_LMS === $this->util->getLmsId()) {
+        //     $this->request->request->set('oauth_consumer_key', 'cidilabs.app');
+        //     $this->request->request->set('oauth_signature_method', 'HMAC-SHA1');
+        //     $this->request->request->set('oauth_timestamp', '1550077942');
+        //     $this->request->request->set('oauth_nonce', '1233213232123123123');
+        //     $this->request->request->set('oauth_version', '1.0');
+        //     $this->request->request->set('custom_lms_user_id', '2027');
+        //     $this->request->request->set('custom_lms_course_id', '2084');
+        //     $this->request->request->set('custom_lms_account_id', '608');
+        //     $this->request->request->set('custom_lms_root_account_id', '1');
+        //     $this->request->request->set('custom_lms_api_domain', 'cidilabs.instructure.com');
+        //     $this->request->request->set('lti_message_type', 'basic-lti-launch-request');
+        //     $this->request->request->set('lti_version', 'LTI-1p0');
+        //     $this->request->request->set('resource_link_id', '123123123123123123123');
+        //     $this->request->request->set('context_label', 'CIDILABS APP');
+        //     $this->request->request->set('context_title', 'CIDILABS DEV APP');
+        //     $this->request->request->set('oauth_signature', '4NQwSrSrMCxFyYhuiRFCsuRU7aM=');
+        // }
 
         return null;
     }

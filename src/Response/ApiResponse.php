@@ -14,7 +14,6 @@ class ApiResponse implements \JsonSerializable
     public function __construct()
     {        
         $this->session = new Session();
-        $this->session->start();
     }
 
     public function getMessages()
