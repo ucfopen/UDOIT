@@ -4,6 +4,7 @@
 namespace App\Controller;
 
 
+use App\Entity\Course;
 use App\Entity\Issue;
 use App\Entity\Report;
 use App\Request\IssueRequest;
@@ -23,19 +24,34 @@ class IssuesController extends AbstractController
 {
     // Routes
     /**
-     * Creates report and redirects route to GET report
+     * Gets new report of a course. Redirects the URL to the courses/{courseId}/reports/{reportId} endpoint.
      * @Route("/", methods={"GET"}, name="get_issues")
      * @param $courseId ID of requested course
      * @return \Symfony\Component\HttpFoundation\Response
      */
     public function getNewReport(Request $request, $courseId) {
         // TODO: Perform course scan here, return newly created report id
-        $reportId = 1;
-        $params = ['request' => $request, 'courseId' => $courseId, 'reportId' => $reportId];
+        $report = $this->getRandomReport($courseId); //TODO: Replace with actual report ID!!
+        $params = ['request' => $request, 'courseId' => $courseId, 'reportId' => $report->getId()];
         return $this->redirectToRoute('get_report', $params);
     }
 
     /**
+     * Gets a random existing report from a course. Only for development.
+     * TODO: Remove as soon as we are ready to scan new courses.
+     * @param $courseId
+     * @return Report
+     */
+    private function getRandomReport($courseId) : Report {
+        $repository = $this->getDoctrine()->getRepository(Course::class);
+        $course = $repository->find($courseId);
+        $reports = $course->getReports()->toArray();
+        $randomNum = rand(0, sizeof($reports));
+        return $reports[$randomNum];
+    }
+
+    /**
+     * UFIXIT endpoint. Takes an array of updates for future changes in the course.
      * @Route("/{issueId}", methods={"PUT"}, name="put_issue")
      * @param $courseId
      * @param $issueId

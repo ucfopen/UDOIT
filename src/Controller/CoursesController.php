@@ -20,7 +20,7 @@ use Symfony\Component\Validator\Constraints\Json;
  * @package App\Controller
  * @Route("/courses")
  */
-class CoursesController extends AbstractController
+class CoursesController extends ApiAuthController
 {
     /**
      * @Route("/", methods={"GET"}, name="get_courses")

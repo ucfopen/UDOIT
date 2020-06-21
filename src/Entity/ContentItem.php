@@ -33,11 +33,6 @@ class ContentItem implements \JsonSerializable
     private $contentType;
 
     /**
-     * @ORM\Column(type="string", length=255)
-     */
-    private $contentTypePlural;
-
-    /**
      * @ORM\Column(type="string", length=512)
      */
     private $lmsContentId;
@@ -105,6 +100,28 @@ class ContentItem implements \JsonSerializable
     }
 
 
+    public function __toString()
+    {
+        $issueIds = [];
+        foreach ($this->getIssues() as $issue) {
+            $issueIds[] = $issue->getId();
+        }
+
+        $array = [
+            'id' => $this->getId(),
+            'title' => $this->getTitle(),
+            'courseId' => $this->getCourse()->getId(),
+            'contentType' => $this->getContentType(),
+            'lmsContentId' => $this->getLmsContentId(),
+            'updated' => $this->getUpdated(),
+            'isActive' => $this->getActive(),
+            'issues' => $issueIds
+            // 'body' => $this->getBody(),
+        ];
+        return \json_encode($array);
+    }
+
+
     // Getters and Setters
     public function getId(): ?int
     {
@@ -119,6 +136,7 @@ class ContentItem implements \JsonSerializable
     public function setCourse(?Course $course): self
     {
         $this->course = $course;
+        $course->addContentItem($this);
 
         return $this;
     }
@@ -237,17 +255,6 @@ class ContentItem implements \JsonSerializable
 
         return $this;
     }
-
-
-    public function getContentTypePlural(): ?string
-    {
-        return $this->contentTypePlural;
-    }
-
-    public function setContentTypePlural(string $contentTypePlural): self
-    {
-        $this->contentTypePlural = $contentTypePlural;
-    }
     
     public function update($lmsContent): self
     {
@@ -293,19 +300,4 @@ class ContentItem implements \JsonSerializable
         return $this;
     }
 
-    public function __toString()
-    {
-        $array = [
-            'id' => $this->getId(),
-            'title' => $this->getTitle(),
-            'courseId' => $this->getCourse()->getId(),
-            'contentType' => $this->getContentType(),
-            'lmsContentId' => $this->getLmsContentId(),
-            'updated' => $this->getUpdated(),
-            'isActive' => $this->getActive(),
-            'issues' => $issueIds,
-            // 'body' => $this->getBody(),
-        ];
-        return \json_encode($array);
-    }
 }

@@ -96,11 +96,11 @@ class Report implements \JsonSerializable
     private function getContentItemsGrouped() {
         $groupedContentItems = array();
         foreach ($this->contentItems as $contentItem) {
-            $contentTypePlural = $contentItem->getContentTypePlural();
-            if(!array_key_exists($contentTypePlural, $groupedContentItems)) {
-                $groupedContentItems[$contentTypePlural] = array();
+            $contentType = $contentItem->getContentType();
+            if(!array_key_exists($contentType, $groupedContentItems)) {
+                $groupedContentItems[$contentType] = array();
             }
-            array_push($groupedContentItems[$contentTypePlural], $contentItem);
+            array_push($groupedContentItems[$contentType], $contentItem);
         }
         ksort($groupedContentItems);
         return $groupedContentItems;
@@ -202,6 +202,7 @@ class Report implements \JsonSerializable
     public function setCourse(?Course $course): self
     {
         $this->course = $course;
+        $course->addReport($this);
 
         return $this;
     }
