@@ -14,25 +14,32 @@ use Symfony\Component\Routing\Annotation\Route;
 /**
  * Class ReportsController
  * @package App\Controller
- * @Route("/courses/{courseId}/reports")
+ * @Route("inst/{institutionId}/courses/{courseId}/reports")
  */
-class ReportsController extends AbstractController
+class ReportsController extends ApiController
 {
-    // Routes
     /**
      * @Route("/", methods={"GET"}, name="get_reports")
+     * @param Request $request
+     * @param $institutionId
      * @param $courseId
+     * @return JsonResponse
      */
-    public function allReports(Request $request, $courseId) {
+    public function getAllReports(Request $request, $courseId) {
         $apiResponse = new ApiResponse();
         try {
-            // Get Reports
+            // Check if user has course access FIXME: Uncomment when front end is handling auth
+//            if(!$this->userHasCourseAccess($courseId)) {
+//                throw new \Exception("You do not have permission to access the specified course.");
+//            }
+
             $repository = $this->getDoctrine()->getRepository(Report::class);
             $reports = $repository->findAllInCourse($courseId);
+
             $apiResponse->setData($reports);
         }
         catch (\Exception $e) {
-            // TODO: Handle Exception
+            $apiResponse->setData($e->getMessage());
         }
 
         // Construct Response
@@ -47,20 +54,29 @@ class ReportsController extends AbstractController
      * @param $courseId
      * @param $reportId
      */
-    public function oneReport(Request $request, $reportId) {
+    public function getOneReport(Request $request, $courseId, $reportId) {
         $apiResponse = new ApiResponse();
-        // Get Report
         try {
+            // Check if user has access to course FIXME: Uncomment when front end is handling auth
+//            if(!$this->userHasCourseAccess($courseId)) {
+//                throw new \Exception("You do not have permission to access the specified course.");
+//            }
+
+            // Get Report
             $repository = $this->getDoctrine()->getRepository(Report::class);
             $report = $repository->find($reportId);
+
+            // Check if Report is null
             if(is_null($report)) {
                 throw new \Exception(sprintf("Report with ID %s does not exist", $reportId));
             }
+
+            // Set Data
             $report->setSerializeIssues(true);
             $apiResponse->setData($report);
         }
         catch(\Exception $e) {
-            // TODO: Handle Exception
+            $apiResponse->setData($e->getMessage());
         }
 
         // Construct Response
@@ -75,16 +91,32 @@ class ReportsController extends AbstractController
      * @param $reportId
      * @return \Symfony\Component\HttpFoundation\Response
      */
-    public function pdfReport(Request $request, $courseId, $reportId) {
+    public function getPdfReport(Request $request, $courseId, $reportId) {
         $apiResponse = new ApiResponse();
         try {
-            // TODO: Validate language and return strings
+            // Check if user has course access
+            if(!$this->userHasCourseAccess($courseId)) {
+                throw new \Exception("You do not have permission to access the specified course.");
+            }
+
+            // Get Report
+            $repository = $this->getDoctrine()->getRepository(Report::class);
+            $report = $repository->find($reportId);
+
+            // Check if Report is null
+            if(is_null($report)) {
+                throw new \Exception(sprintf("Report with ID %s does not exist", $reportId));
+            }
+
+            // TODO: Generate PDF Here
+
             $apiResponse->setData(["status" => "This API endpoint is under construction."]);
         }
         catch(Exception $e) {
-
+            $apiResponse->setData($e->getMessage());
         }
 
+        // Construct response
         $jsonResponse = new JsonResponse($apiResponse);
         $jsonResponse->setEncodingOptions($jsonResponse->getEncodingOptions() | JSON_PRETTY_PRINT);
         return $jsonResponse;

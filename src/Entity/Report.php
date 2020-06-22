@@ -50,12 +50,13 @@ class Report implements \JsonSerializable
      */
     private $issues;
 
-    /**
-     * @ORM\ManyToMany(targetEntity="App\Entity\ContentItem", inversedBy="reports")
-     */
-    private $contentItems;
 
     private $serializeIssues = false;
+
+    /**
+     * @ORM\Column(type="boolean")
+     */
+    private $ready;
 
     // Constructor
     public function __construct()
@@ -63,47 +64,30 @@ class Report implements \JsonSerializable
         $this->queue_items = new ArrayCollection();
         $this->queueItems = new ArrayCollection();
         $this->issues = new ArrayCollection();
-        $this->contentItems = new ArrayCollection();
     }
 
 
     // Public Methods
     /**
-     * Serializes Report Class into list of ContentItem with issues, grouped by content type.
+     *
      * @return array|mixed
      */
     public function jsonSerialize()
     {
-        $arr =  [
-            "created" => $this->created,
-            "errors" => $this->errors,
-            "suggestions" => $this->suggestions
+        $result = [
+            "id" => $this->id,
+            "ready" => $this->ready
         ];
-        if($this->serializeIssues) {
-            $arr["contentItems"] = $this->getContentItemsGrouped();
-        }
+        if($this->ready) {
+            $result["created"] = $this->created;
+            $result["errors"] = $this->errors;
+            $result["suggestions"] = $this->suggestions;
 
-        return $arr;
-    }
-
-
-    // Private Methods
-
-    /**
-     * Creates new array of ContentItem grouped by contentType.
-     * @return array
-     */
-    private function getContentItemsGrouped() {
-        $groupedContentItems = array();
-        foreach ($this->contentItems as $contentItem) {
-            $contentType = $contentItem->getContentType();
-            if(!array_key_exists($contentType, $groupedContentItems)) {
-                $groupedContentItems[$contentType] = array();
+            if($this->serializeIssues) {
+                $result["issues"] = $this->issues->toArray();
             }
-            array_push($groupedContentItems[$contentType], $contentItem);
         }
-        ksort($groupedContentItems);
-        return $groupedContentItems;
+        return $result;
     }
 
 
@@ -207,31 +191,6 @@ class Report implements \JsonSerializable
         return $this;
     }
 
-    /**
-     * @return Collection|ContentItem[]
-     */
-    public function getContentItems(): Collection
-    {
-        return $this->contentItems;
-    }
-
-    public function addContentItem(ContentItem $contentItem): self
-    {
-        if (!$this->contentItems->contains($contentItem)) {
-            $this->contentItems[] = $contentItem;
-        }
-
-        return $this;
-    }
-
-    public function removeContentItem(ContentItem $contentItem): self
-    {
-        if ($this->contentItems->contains($contentItem)) {
-            $this->contentItems->removeElement($contentItem);
-        }
-
-        return $this;
-    }
 
     /**
      * @return bool
@@ -247,5 +206,17 @@ class Report implements \JsonSerializable
     public function setSerializeIssues(bool $serializeIssues): void
     {
         $this->serializeIssues = $serializeIssues;
+    }
+
+    public function getReady(): ?bool
+    {
+        return $this->ready;
+    }
+
+    public function setReady(bool $ready): self
+    {
+        $this->ready = $ready;
+
+        return $this;
     }
 }

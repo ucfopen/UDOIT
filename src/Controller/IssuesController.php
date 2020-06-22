@@ -18,38 +18,10 @@ use Symfony\Component\Serializer\Serializer;
 /**
  * Class IssuesController
  * @package App\Controller
- * @Route("/courses/{courseId}/issues")
+ * @Route("inst/{instId}/courses/{courseId}/issues")
  */
-class IssuesController extends AbstractController
+class IssuesController extends ApiController
 {
-    // Routes
-    /**
-     * Gets new report of a course. Redirects the URL to the courses/{courseId}/reports/{reportId} endpoint.
-     * @Route("/", methods={"GET"}, name="get_issues")
-     * @param $courseId ID of requested course
-     * @return \Symfony\Component\HttpFoundation\Response
-     */
-    public function getNewReport(Request $request, $courseId) {
-        // TODO: Perform course scan here, return newly created report id
-        $report = $this->getRandomReport($courseId); //TODO: Replace with actual report ID!!
-        $params = ['request' => $request, 'courseId' => $courseId, 'reportId' => $report->getId()];
-        return $this->redirectToRoute('get_report', $params);
-    }
-
-    /**
-     * Gets a random existing report from a course. Only for development.
-     * TODO: Remove as soon as we are ready to scan new courses.
-     * @param $courseId
-     * @return Report
-     */
-    private function getRandomReport($courseId) : Report {
-        $repository = $this->getDoctrine()->getRepository(Course::class);
-        $course = $repository->find($courseId);
-        $reports = $course->getReports()->toArray();
-        $randomNum = rand(0, sizeof($reports));
-        return $reports[$randomNum];
-    }
-
     /**
      * UFIXIT endpoint. Takes an array of updates for future changes in the course.
      * @Route("/{issueId}", methods={"PUT"}, name="put_issue")
@@ -60,17 +32,30 @@ class IssuesController extends AbstractController
     public function fixIssue(Request $request, $courseId, $issueId) {
         $apiResponse = new ApiResponse();
         try {
+//            // Check if user has access to course FIXME: Uncomment when front end is handling auth
+//            if(!$this->userHasCourseAccess($courseId)) {
+//                throw new \Exception("You do not have permission to access the specified course.");
+//            }
+
+            // Get Request Info
             $requestBody = json_decode($request->getContent( ), true);
             $issueRequest = new IssueRequest($issueId, $requestBody["scanRuleId"], $requestBody["data"]);
+
+            // Get Issue
             $repository = $this->getDoctrine()->getRepository(Issue::class);
             $issue = $repository->find($issueId);
+
+            // Check if Issue exists
             if(is_null($issue)) {
                 throw new \Exception(sprintf("Issue with ID %s could not be found", $issueId));
             }
+
+            // TODO: Make fix here
+
             $apiResponse->setData($issueRequest);
         }
         catch(\Exception $e) {
-            // TODO: Handle Exception
+            $apiResponse->setData($e->getMessage());
         }
 
         // Format Response JSON

@@ -62,11 +62,6 @@ class ContentItem implements \JsonSerializable
      */
     private $title;
 
-    /**
-     * @ORM\ManyToMany(targetEntity="App\Entity\Report", mappedBy="contentItems")
-     */
-    private $reports;
-
 
     /*
      * Not saved to the DB, but useful in storing the HTML while we scan.
@@ -80,9 +75,7 @@ class ContentItem implements \JsonSerializable
     public function __construct()
     {
         $this->issues = new ArrayCollection();
-        $this->reports = new ArrayCollection();
     }
-
 
     // Public Methods
 
@@ -92,33 +85,19 @@ class ContentItem implements \JsonSerializable
      */
     public function jsonSerialize()
     {
-        return [
-            "id" => $this->id,
-            "title" => $this->title,
-            "issues" => $this->issues->toArray()
-        ];
-    }
-
-
-    public function __toString()
-    {
-        $issueIds = [];
-        foreach ($this->getIssues() as $issue) {
-            $issueIds[] = $issue->getId();
-        }
-
-        $array = [
+        return $array = [
             'id' => $this->getId(),
             'title' => $this->getTitle(),
-            'courseId' => $this->getCourse()->getId(),
             'contentType' => $this->getContentType(),
             'lmsContentId' => $this->getLmsContentId(),
             'updated' => $this->getUpdated(),
-            'isActive' => $this->getActive(),
-            'issues' => $issueIds
-            // 'body' => $this->getBody(),
+            'isActive' => $this->getActive()
         ];
-        return \json_encode($array);
+    }
+
+    public function __toString()
+    {
+        return \json_encode($this->jsonSerialize());
     }
 
 
@@ -271,33 +250,4 @@ class ContentItem implements \JsonSerializable
 
         return $this;
     }
-
-    /**
-     * @return Collection|Report[]
-     */
-    public function getReports(): Collection
-    {
-        return $this->reports;
-    }
-
-    public function addReport(Report $report): self
-    {
-        if (!$this->reports->contains($report)) {
-            $this->reports[] = $report;
-            $report->addContentItem($this);
-        }
-
-        return $this;
-    }
-
-    public function removeReport(Report $report): self
-    {
-        if ($this->reports->contains($report)) {
-            $this->reports->removeElement($report);
-            $report->removeContentItem($this);
-        }
-
-        return $this;
-    }
-
 }

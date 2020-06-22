@@ -67,8 +67,9 @@ class Issue implements \JsonSerializable
     public function jsonSerialize()
     {
         return [
-            "type" => $this->getContentItem()->getContentType(),
             "id" => $this->id,
+            "status" => $this->status,
+            "contentItemId" => $this->contentItem->getId(),
             "scanRuleId" => $this->scanRuleId,
             "type" => $this->type,
             "sourceHtml" => $this->html

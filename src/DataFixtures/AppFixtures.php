@@ -29,8 +29,8 @@ class AppFixtures extends Fixture
         $this->loadInstitutions();
         $this->loadUsers();
         $this->loadCourses();
-        $this->loadReports();
         $this->loadContentItems();
+        $this->loadReports();
         $this->loadIssues();
         $this->loadQueueItems();
         
@@ -136,26 +136,6 @@ class AppFixtures extends Fixture
         $this->manager->flush();
     }
 
-    private function loadReports() {
-        foreach($this->courses as $course) {
-            $reportCount = rand(1, 10);
-            for($i = 0; $i < $reportCount; $i++) {
-                $report = new Report();
-                $report->setCourse($course);
-                $report->setErrors(0);
-                $report->setSuggestions(0);
-                $report->setSuggestions(0);
-                $report->setCreated(date_sub(new DateTime(),
-                    date_interval_create_from_date_string($i . " days")));
-
-                $this->manager->persist($report);
-                $this->reports[] = $report;
-            }
-        }
-        echo sprintf("\tLoaded %s reports into database.\n", sizeof($this->reports));
-        $this->manager->flush();
-    }
-
     private function loadContentItems()
     {
         $contentTypes = ['assignment', 'quiz', 'page', 'announcement', 'module'];
@@ -172,10 +152,6 @@ class AppFixtures extends Fixture
                     $item->setActive(true);
                     $item->setTitle($type . " " . $i);
 
-                    foreach($course->getReports() as $report) {
-                        $item->addReport($report);
-                    }
-
                     $this->manager->persist($item);
                     $this->contentItems[] = $item;
                 }
@@ -185,6 +161,31 @@ class AppFixtures extends Fixture
         echo sprintf("\tLoaded %s content items into database.\n", sizeof($this->contentItems));
     }
 
+    private function loadReports() {
+        foreach($this->courses as $course) {
+            $reportCount = rand(1, 10);
+            for($i = 0; $i < $reportCount; $i++) {
+                $report = new Report();
+                $report->setCourse($course);
+                $report->setErrors(0);
+                $report->setSuggestions(0);
+                $report->setSuggestions(0);
+                $report->setCreated(date_sub(new DateTime(),
+                    date_interval_create_from_date_string($i . " days")));
+                if($i === 0) {
+                    $report->setReady(false);
+                }
+                else {
+                    $report->setReady(true);
+                }
+
+                $this->manager->persist($report);
+                $this->reports[] = $report;
+            }
+        }
+        echo sprintf("\tLoaded %s reports into database.\n", sizeof($this->reports));
+        $this->manager->flush();
+    }
 
 
     private function loadIssues() {
@@ -201,7 +202,7 @@ class AppFixtures extends Fixture
         ];
         foreach($this->courses as $course) {
             foreach($course->getContentItems() as $contentItem) {
-                foreach($contentItem->getReports() as $report) {
+                foreach($course->getReports() as $report) {
                     $issueCount = rand(0, 4);
                     for ($i = 0; $i < $issueCount; $i++) {
                         $issue = new Issue();
