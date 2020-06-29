@@ -18,7 +18,7 @@ class ContentPiece extends React.Component {
 
   componentDidMount() {
     // TODO Fetch issues from API then set state
-
+    
     var data = [
         {
             "id": 12345,
