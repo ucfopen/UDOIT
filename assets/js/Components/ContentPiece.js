@@ -19,6 +19,15 @@ class ContentPiece extends React.Component {
 
   componentDidMount() {
     // TODO Fetch issues from API then set state
+      // TODO Fetch issues from API then set state
+      fetch('http://API/route')
+      .then( res => res.json())
+      .then((data) => {
+        this.setState({
+          issues: data
+        });
+      })
+      .catch(console.log);
 
     // The list of issues for the piece of content
     var data = [

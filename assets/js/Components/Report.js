@@ -25,15 +25,15 @@ class Report extends React.Component {
   }
 
   componentDidMount() {
-    // TODO Fetch report using ID from DB
-
-    list = [
-      
-    ]
-
-    //this.setState({
-      // Set state
-    //});
+    // TODO Fetch issues from API then set state
+    fetch('http://API/route')
+    .then( res => res.json())
+    .then((data) => {
+      this.setState({
+        //Set state for the content sections
+      });
+    })
+    .catch(console.log);
   }
 
   render() {
