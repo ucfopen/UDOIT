@@ -7,6 +7,8 @@ import ScanCheckbox from './Components/ScanCheckbox'
 import ContentPiece from './Components/ContentPiece'
 import classes from '../css/app.scss';
 
+import '@instructure/canvas-theme';
+
 class App extends React.Component {
   constructor(props) {
     super(props);
