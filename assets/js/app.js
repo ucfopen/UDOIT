@@ -15,26 +15,23 @@ class App extends React.Component {
       "items": []
     }
   }
+
   render() {
-    const items = [];
-
-    loadIssues()
-
     return (
       <div className={`${classes.app}`}>
-        {/* <Header/>
-        <WelcomePage/>
-        <Issue
-          issueTitle = "test"
-          severity = "warning"
-          description = "test"
-          url = "test.test"
-          sectionTitle = "test"
-        />
-        <ScanCheckbox></ScanCheckbox> */}
-        <ContentPiece/>
+        <Display isLoggedIn={false}/>
       </div>
     )
+  }
+}
+
+const Display = (props) => {
+  const isLoggedIn = props.isLoggedIn;
+
+  if(isLoggedIn) {
+    // return scan page
+  } else {
+    return <WelcomePage/>
   }
 }
 
