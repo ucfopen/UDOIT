@@ -1,5 +1,6 @@
 import React from 'react';
 
+// The main UDOIT issue class
 class Issue extends React.Component {
   
   constructor(props) {

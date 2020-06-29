@@ -19,6 +19,7 @@ class App extends React.Component {
   render() {
     return (
       <div className={`${classes.app}`}>
+        <Header/>
         <Display isLoggedIn={false}/>
       </div>
     )

@@ -1,7 +1,7 @@
 import React from 'react';
 
 const API = '';
-
+// The report which contains all the issues found while scanning the course
 class Report extends React.Component {
 
   constructor(props) {

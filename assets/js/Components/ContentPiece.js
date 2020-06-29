@@ -3,6 +3,7 @@ import Issue from '../Components/Issue';
 
 const API = '';
 
+// This class represents a piece of content such as a specific page, assignment, etc
 class ContentPiece extends React.Component {
 
   constructor(props) {
@@ -18,7 +19,8 @@ class ContentPiece extends React.Component {
 
   componentDidMount() {
     // TODO Fetch issues from API then set state
-    
+
+    // The list of issues for the piece of content
     var data = [
         {
             "id": 12345,
