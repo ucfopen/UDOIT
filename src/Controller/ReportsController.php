@@ -114,13 +114,16 @@ class ReportsController extends ApiController
                 throw new \Exception(sprintf("Report with ID %s does not exist", $reportId));
             }
 
+            // Generate Twig Template
             $html = $this->renderView(
                     'report.html.twig',
                         ['report' => $report]
             );
 
+            // Generate PDF
             $mPdf = new Mpdf();
             $mPdf->WriteHTML($html);
+
             return new PdfResponse(
                 $mPdf->Output(),
                 array(
@@ -137,25 +140,4 @@ class ReportsController extends ApiController
             return $jsonResponse;
         }
     }
-
-
-
-    //            // Get Twig Template from folder path
-//            $folderPath = "/Users/kurtvolmar/Cidi/";
-//            $fileName = "map.pdf";
-//            $filePath = $folderPath . $fileName;
-//            $response = new BinaryFileResponse();
-//            $response->setContent($pdf);
-//            $mimeTypeGuesser = new FileinfoMimeTypeGuesser();
-//            // Guess mimetype or set type manually
-//            if($mimeTypeGuesser->isGuesserSupported()){
-//                $response->headers->set('Content-Type', $mimeTypeGuesser->guessMimeType($filePath));
-//            }else{
-//                $response->headers->set('Content-Type', 'text/plain');
-//            }
-    // Set content disposition inline of the file
-//            $response->setContentDisposition(
-//                ResponseHeaderBag::DISPOSITION_ATTACHMENT,
-//                $fileName
-//            );
 }
