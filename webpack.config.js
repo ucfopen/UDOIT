@@ -24,6 +24,13 @@ Encore
     .autoProvidejQuery()
 
     .enableReactPreset()
+
+    .configureBabel(function(babelConfig) {
+
+        //This is needed.
+    
+        babelConfig.plugins = ["transform-object-rest-spread","transform-class-properties"]
+    })
 ;
 
 module.exports = Encore.getWebpackConfig();
