@@ -35,7 +35,9 @@ class OauthAuthenticator extends AbstractGuardAuthenticator
 
     public function getCredentials(Request $request)
     {
-        return $request->request->all();
+        print('<pre>' . print_r($request->query) . '</pre>');
+        exit;
+        return $request->query;
     }
 
     public function getUser($postParams, UserProviderInterface $userProvider)
@@ -44,7 +46,7 @@ class OauthAuthenticator extends AbstractGuardAuthenticator
             // TODO: add more extensive check
             $this->util->exitWithMessage('Authentication problem: No POST parameters were provided by the LMS.');
         }
-        
+
         // verify we have the variables we need from the LTI launch
         $expect = ['oauth_consumer_key', 'custom_lms_api_domain', 'custom_lms_user_id'];
         foreach ($expect as $key) {

@@ -62,6 +62,8 @@ class AuthController extends AbstractController
         UtilityService $util,
         BasicLtiService $ltiService)
     {
+        print("YARG");
+        exit;
         $this->request = $request;
         $this->session = $session;
         $this->util = $util;

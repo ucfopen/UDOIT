@@ -32,9 +32,9 @@ security:
             anonymous: true
             guard:
                 authenticators: 
-                    - App\Security\DevAuthenticator
                     - App\Security\OauthAuthenticator
-                entry_point: App\Security\DevAuthenticator
+                entry_point: App\Security\OauthAuthenticator
+
         oauthResponse: 
             pattern: ^/authorize/check
             anonymous: true

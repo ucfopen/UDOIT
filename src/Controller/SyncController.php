@@ -56,17 +56,17 @@ class SyncController extends AbstractController
 
         // add courses to the messenger
         foreach ($courses as $course) {
+            // Set Course to Dirty
+            $course->setDirty(true);
+            $this->getDoctrine()->getManager()->flush();
+
             if ($isPriority) {
                 $this->dispatchMessage(new PriorityQueueItem($course, 'refreshContent'));
             }
             else {
                 $this->dispatchMessage(new BackgroundQueueItem($course, 'refreshContent'));
             }
-            
-            $course->setDirty(true);
         }
-
-        $this->getDoctrine()->getManager()->flush();
 
         return count($courses);
     }

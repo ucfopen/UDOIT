@@ -250,4 +250,10 @@ class ContentItem implements \JsonSerializable
 
         return $this;
     }
+
+    public function clearIssues() {
+        foreach($this->issues as $issue) {
+            $this->removeIssue($issue);
+        }
+    }
 }
