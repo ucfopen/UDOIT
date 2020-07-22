@@ -7,24 +7,28 @@ class WelcomePage extends React.Component {
   render() {
     return (
       <div>
-        <Heading><b>Welcome to UDOIT</b></Heading>
         <div className={`${classes.welcomeContainer}`}>
-
-          <p>
+          <p className={`${classes.paragraph}`}>
+          <Heading><b>Welcome to UDOIT</b></Heading>
+          <br></br>
           The Universal Design Online content Inspection Tool (UDOIT) will scan your course content, generate a report and provide instructions
           on how to correct accessibility issues. <b>This content should be customizable by the institution.</b>
+          <br></br><br></br>
+          <a href="">What does UDOIT Look For?</a>
           </p>
 
-          <p>
-          <b>Please Note!</b> This tool is meant to be used as a guide, not a certification. It only cehcks for common accessibility issues, and
-          is not comprehensive; a ckean report in UDOIT does not necessarily mean that your course is fully accessible. Likewise, the tool may
+          <p className={`${classes.paragraph}`}>
+          <b>Please Note!</b><br></br><br></br>This tool is meant to be used as a guide, not a certification. It only checks for common accessibility issues, and
+          is not comprehensive; a clean report in UDOIT does not necessarily mean that your course is fully accessible. Likewise, the tool may
           indicate a possible accessibility issue where one does not exist.
+          
           </p>
         </div>
 
-        <a href="">What does UDOIT Look For?</a>
         <hr></hr>
-        <Button color="primary" margin="small" textAlign="center">Scan Now</Button>
+        <div className={`${classes.buttonContainer}`}>
+          <Button color="primary" margin="small" textAlign="center">Scan Course</Button>
+        </div>
       </div>
     )
   }

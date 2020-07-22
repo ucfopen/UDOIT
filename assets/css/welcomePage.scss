@@ -3,3 +3,18 @@
     flex-direction: row;
     // flex-wrap: wrap;
 }
+
+.buttonContainer {
+    display: flex;
+    justify-content: center;
+}
+
+.paragraph {
+    width: 30%;
+    text-align: justify;
+    margin-right: 8%;
+    margin-left: 8%;
+    margin-bottom: 3%;
+    margin-top: 3%;
+    font-size: 16px;
+}

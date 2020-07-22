@@ -20,7 +20,7 @@ class App extends React.Component {
     return (
       <div className={`${classes.app}`}>
         <Header/>
-        <Display isLoggedIn={true}/>
+        <Display isLoggedIn={false}/>
       </div>
     )
   }
