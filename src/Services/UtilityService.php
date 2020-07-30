@@ -113,6 +113,11 @@ class UtilityService {
         return $this->env;
     }
 
+    private function prex($var) {
+        print('<pre>' . print_r($var, true) . '</pre>');
+        exit;
+    }
+
     /**
      * Get institution before the user is authenticated.
      * Once the user is authenticated we should use $user->getInstitution().
@@ -126,19 +131,19 @@ class UtilityService {
                 $this->institution = $institution;
             }
             else {
-                $domain = $this->session->get('custom_lms_api_domain');
-                
+                $domain = $this->session->get('lms_api_domain');
+
                 if ($domain) {
-                    $institution = $this->doctrine->getRepository(Institution::class)
+                    $institution = $this
+                        ->doctrine
+                        ->getRepository(Institution::class)
                         ->findOneBy(['lmsDomain' => $domain]);
                 }
-                
                 if ($institution) {
                     $this->institution = $institution;
                 }
             }
         }
-
         return $this->institution;
     }
 

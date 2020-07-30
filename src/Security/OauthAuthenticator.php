@@ -35,20 +35,20 @@ class OauthAuthenticator extends AbstractGuardAuthenticator
 
     public function getCredentials(Request $request)
     {
-        print('<pre>' . print_r($request->query) . '</pre>');
-        exit;
-        return $request->query;
+        return $request->query->all();
     }
 
     public function getUser($postParams, UserProviderInterface $userProvider)
     {
+
         if (empty($postParams)) {
             // TODO: add more extensive check
             $this->util->exitWithMessage('Authentication problem: No POST parameters were provided by the LMS.');
         }
 
         // verify we have the variables we need from the LTI launch
-        $expect = ['oauth_consumer_key', 'custom_lms_api_domain', 'custom_lms_user_id'];
+//        $expect = ['oauth_consumer_key', 'lms_api_domain', 'lms_user_id'];
+        $expect = ['lms_api_domain', 'lms_user_id'];
         foreach ($expect as $key) {
             if (empty($postParams[$key])) {
                 $this->util->exitWithMessage('Missing LTI launch information. Missing: ' . $key);
@@ -56,11 +56,11 @@ class OauthAuthenticator extends AbstractGuardAuthenticator
         }
 
         //$username = $this->getUserName();
-        $lmsUserId = (isset($postParams['custom_lms_user_id'])) ? $postParams['custom_lms_user_id'] : false;
-        $lmsDomain = (isset($postParams['custom_lms_api_domain'])) ? $postParams['custom_lms_api_domain'] : false;
-        $consumerKey = (isset($postParams['oauth_consumer_key'])) ? $postParams['oauth_consumer_key'] : false;
+        $lmsUserId = (isset($postParams['lms_user_id'])) ? $postParams['lms_user_id'] : false;
+        $lmsDomain = (isset($postParams['lms_api_domain'])) ? $postParams['lms_api_domain'] : false;
+//        $consumerKey = (isset($postParams['oauth_consumer_key'])) ? $postParams['oauth_consumer_key'] : false;
         
-        if (!$lmsUserId || !$lmsDomain || !$consumerKey) {
+        if (!$lmsUserId || !$lmsDomain) {
             return null;    
         }
         $userName = "{$lmsDomain}||{$lmsUserId}";
@@ -71,7 +71,11 @@ class OauthAuthenticator extends AbstractGuardAuthenticator
 
     public function checkCredentials($postParams, UserInterface $user)
     {
-        return !empty($user->getApiKey());
+//        return !empty($user->getApiKey());
+        /*
+         * Not every user will already have an API Key. How should we handle that here?
+         */
+        return true;
     }
 
     /**

@@ -24,33 +24,9 @@ class AuthController extends AbstractController
     /** @var BasicLtiService $ltiService */
     private $ltiService;
 
-    /**
-     * @Route("/lti/authorize", name="lti_authorize")
-     */
-    public function ltiAuthorize(
-        Request $request,
-        SessionInterface $session,
-        UtilityService $util,
-        BasicLtiService $ltiService
-    ) {
-        $this->request = $request;
-        $this->session = $session;
-        $this->util = $util;
-        $this->ltiService = $ltiService;
-        
-        $this->saveRequestToSession();
-
-        return $this->redirect($ltiService->getAuthenticationResponseUrl());
-
-        //return new JsonResponse($this->session->all());
-    }
-
-    /**
-     * @Route("/lti/authorize/check", name="lti_authorize_check")
-     */
-    public function ltiAuthorizeCheck()
-    {
-
+    private function prex($var) {
+        print('<pre>' . print_r($var, true) . '</pre>');
+        exit;
     }
 
     /**
@@ -62,8 +38,6 @@ class AuthController extends AbstractController
         UtilityService $util,
         BasicLtiService $ltiService)
     {
-        print("YARG");
-        exit;
         $this->request = $request;
         $this->session = $session;
         $this->util = $util;
@@ -94,12 +68,13 @@ class AuthController extends AbstractController
             return $this->redirectToRoute('dashboard');
         }
 
-        $developerId = $institution->getDeveloperId();
+        $apiClientId = $institution->getApiClientId();
         $redirectUri = $this->getOauthRedirectUri();
         $scopes = $util->getLms()->getScopes();
-        $oauthUri = "{$this->session->get('base_url')}/login/oauth2/auth/?client_id={$developerId}&scopes={$scopes}&response_type=code&redirect_uri={$redirectUri}";
 
-        return $this->redirect($oauthUri);       
+        $oauthUri = "https://{$this->session->get('lms_api_domain')}/login/oauth2/auth/?client_id={$apiClientId}&scopes={$scopes}&response_type=code&redirect_uri={$redirectUri}";
+
+        return $this->redirect($oauthUri);
     }
 
     /**
@@ -132,7 +107,6 @@ class AuthController extends AbstractController
         if (!isset($newKey['access_token']) || !isset($newKey['refresh_token'])) {
             $util->exitWithMessage('Authentication problem: Missing access token. Please contact support.');
         }
-
         $this->updateUser($newKey);
         $this->session->set('apiKey', $newKey['access_token']);
         $this->session->set('tokenHeader', ["Authorization: Bearer " . $newKey['access_token']]);
@@ -198,7 +172,7 @@ class AuthController extends AbstractController
         $user = $this->getUser();
         $refreshToken = $user->getRefreshToken();
         $institution = $user->getInstitution();
-        $baseUrl = $this->session->get('base_url');
+        $baseUrl = $this->session->get('lms_api_domain');
 
         if (empty($refreshToken)) {
             return false;
@@ -207,9 +181,9 @@ class AuthController extends AbstractController
         $options = [
             'query' => [
                 'grant_type'    => 'refresh_token',
-                'client_id'     => $institution->getDeveloperId(),
+                'client_id'     => $institution->getApiClientId(),
                 'redirect_uri'  => $this->getOauthRedirectUri(),
-                'client_secret' => $institution->getDeveloperKey(),
+                'client_secret' => $institution->getApiClientSecret(),
                 'refresh_token' => $refreshToken,
             ],
             'verify_host' => false,
@@ -217,7 +191,7 @@ class AuthController extends AbstractController
         ];
 
         $client = HttpClient::create();
-        $requestUrl = "{$baseUrl}/login/oauth2/token";
+        $requestUrl = "https://{$baseUrl}/login/oauth2/token";
         $response = $client->request('POST', $requestUrl, $options);
         $contentStr = $response->getContent(false);
         $newKey = \json_decode($contentStr, true);
@@ -284,14 +258,14 @@ class AuthController extends AbstractController
     private function authorizeNewApiKey()
     {
         $institution = $this->util->getPreauthenticatedInstitution();
-        $baseUrl = $this->session->get('base_url');
+        $baseUrl = $this->session->get('lms_api_domain');
         $code = $this->request->query->get('code');
         $options = [
             'query' => [
                 'grant_type'    => 'authorization_code',
-                'client_id'     => $institution->getDeveloperId(),
+                'client_id'     => $institution->getApiClientId(),
                 'redirect_uri'  => $this->getOauthRedirectUri(),
-                'client_secret' => $institution->getDeveloperKey(),
+                'client_secret' => $institution->getApiClientSecret(),
                 'code'          => $code,
             ],
             'verify_host' => false,
@@ -299,7 +273,7 @@ class AuthController extends AbstractController
         ];
 
         $client = HttpClient::create();
-        $requestUrl = "{$baseUrl}/login/oauth2/token";
+        $requestUrl = "https://{$baseUrl}/login/oauth2/token";
         $response = $client->request('POST', $requestUrl, $options);
         $contentStr = $response->getContent(false);
 

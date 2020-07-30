@@ -35,7 +35,6 @@ class LtiController extends AbstractController
         $this->request = $request;
         $this->session = $session;
         $this->util = $util;
-
         $this->saveRequestToSession();
 
         return $this->redirect($this->getAuthenticationResponseUrl());
@@ -49,10 +48,12 @@ class LtiController extends AbstractController
         SessionInterface $session,
         UtilityService $util
     ) {
+
         $this->request = $request;
         $this->session = $session;
         $this->util = $util;
         $this->saveRequestToSession();
+        $clientId = $this->session->get('client_id');
 
         $jwt = $this->session->get('id_token');
         if (!$jwt) {
@@ -62,16 +63,17 @@ class LtiController extends AbstractController
         // Create token from JWT and public JWKs
         $jwks = $this->getPublicJwks();
         $publicKey = JWK::parseKeySet($jwks);
+        JWT::$leeway = 60;
         $token = JWT::decode($jwt, $publicKey, ['RS256']);
 
         // Issuer should match previously defined issuer
         $this->claimMatchOrExit('iss', $this->session->get('iss'), $token->iss);
 
         // Audience should include the client id
-        $this->claimMatchOrExit('aud', $this->session->get('client_id'), $token->aud);
+        $this->claimMatchOrExit('aud', $clientId, $token->aud);
 
         // Authorized Party should include the client id
-        $this->claimMatchOrExit('azp', $this->session->get('client_id'), $token->azp);
+        $this->claimMatchOrExit('azp', $clientId, $token->azp);
 
         // Expiration should be after the current time
         if(date('U') >= $token->exp) {
@@ -79,7 +81,16 @@ class LtiController extends AbstractController
         }
         // Id token must contain a nonce. Should verify that nonce has not been received within a certain time window
 
-        return $this->redirectToRoute('authorize', (array) $token);
+        // Add Token to Session
+        $this->saveTokenToSession($token);
+
+        return $this->redirectToRoute(
+            'authorize',
+            [
+                'lms_api_domain' => $this->session->get('lms_api_domain'),
+                'lms_user_id' => $this->session->get('lms_user_id')
+            ]
+        );
     }
 
     private function claimMatchOrExit($claimType, $sessionClaim, $tokenClaim) {
@@ -92,6 +103,17 @@ class LtiController extends AbstractController
             return true;
         }
         $this->util->exitWithMessage(sprintf('The "%s" provided does not match the expected value: %s.', $claimType, $sessionClaim));
+    }
+
+    private function saveTokenToSession($token) {
+        try {
+            $customFields = (array) $token->{'https://purl.imsglobal.org/spec/lti/claim/custom'};
+            foreach ($customFields as $key => $val) {
+                $this->session->set($key, $val);
+            }
+        } catch (\Exception $e) {
+            print_r($e->getMessage());
+        }
     }
 
     private function saveRequestToSession()
