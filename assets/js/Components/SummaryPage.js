@@ -2,6 +2,7 @@ import React from 'react';
 import classes from '../../css/summaryPage.scss';
 import { Heading } from '@instructure/ui-elements';
 import { Button } from '@instructure/ui-buttons'
+import { Table } from '@instructure/ui-table'
 
 const API = '';
 
@@ -86,24 +87,115 @@ class SummaryPage extends React.Component {
             />
         )} */}
         </div>
-        {/* <br></br> */}
+
+        {/* Total Counts */}
         <div className={`${classes.rowcentered}`}>
           <div className={`${classes.numberContainer}`}>
-            <Heading>31</Heading>
+            <Heading level="h2">31</Heading>
             <br></br>
-            <Heading>Errors</Heading>
+            <Heading level="h3">Errors</Heading>
           </div>
           <div className={`${classes.numberContainer}`}>
-            <Heading>14</Heading>
+            <Heading level="h2">14</Heading>
             <br></br>
-            <Heading>Suggestions</Heading>
+            <Heading level="h3">Suggestions</Heading>
           </div>
           <div className={`${classes.numberContainer}`}>
-            <Heading>2</Heading>
+            <Heading level="h2">2</Heading>
             <br></br>
-            <Heading>Unscannable Files</Heading>
+            <Heading level="h3">Unscannable Files</Heading>
           </div>
         </div>
+
+        {/* Summary Tables */}
+        <div className={`${classes.rowcentered}`}>
+          {/* Content */}
+          <div className={`${classes.tableContainer}`}>
+          <Table
+            caption='Content'
+            layout="auto"
+            hover={true}
+          >
+            <Table.Head>
+                  <Table.Row>
+                      <Table.ColHeader id="content">
+                        Content
+                      </Table.ColHeader>
+                  </Table.Row>
+            </Table.Head>
+            <Table.Body>
+              <Table.Row>
+                <Table.Cell>
+                  <a href="">Announcements</a>
+                </Table.Cell>
+              </Table.Row>
+              <Table.Row>
+                <Table.Cell>
+                  <a href="">Assignments</a>
+                </Table.Cell>
+              </Table.Row>
+              <Table.Row>
+                <Table.Cell>
+                  <a href="">Discussions</a>
+                </Table.Cell>
+              </Table.Row>
+              <Table.Row>
+                <Table.Cell>
+                  <a href="">Pages</a>
+                </Table.Cell>
+              </Table.Row>
+              <Table.Row>
+                <Table.Cell>
+                  <a href="">Syllabus</a>
+                </Table.Cell>
+              </Table.Row>
+              <Table.Row>
+                <Table.Cell>
+                  <a href="">Module URLs</a>
+                </Table.Cell>
+              </Table.Row>
+              <Table.Row>
+                <Table.Cell>
+                  <a href="">Files</a>
+                </Table.Cell>
+              </Table.Row>
+            </Table.Body>
+          </Table>
+          </div>
+          {/* Errors */}
+          <div className={`${classes.tableContainer}`}>
+          <Table
+            caption='Content'
+            layout="auto"
+            hover={true}
+          >
+            <Table.Head>
+              <Table.Row>
+                  <Table.ColHeader id="content">
+                    Errors
+                  </Table.ColHeader>
+              </Table.Row>
+            </Table.Head>
+          </Table>
+          </div>
+          {/* Suggestions */}
+          <div className={`${classes.tableContainer}`}>
+          <Table
+            caption='Content'
+            layout="auto"
+            hover={true}
+          >
+            <Table.Head>
+                  <Table.Row>
+                      <Table.ColHeader id="content">
+                        Suggestions
+                      </Table.ColHeader>
+                  </Table.Row>
+            </Table.Head>
+          </Table>
+          </div>
+        </div>
+
       </div>
     )
   }

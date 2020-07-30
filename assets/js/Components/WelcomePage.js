@@ -1,6 +1,7 @@
 import React from 'react';
 import { Heading } from '@instructure/ui-elements'
 import classes from '../../css/welcomePage.scss';
+import { ProgressCircle } from '@instructure/ui-progress'
 
 class WelcomePage extends React.Component {
   render() {
