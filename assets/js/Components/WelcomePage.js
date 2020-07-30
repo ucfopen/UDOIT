@@ -1,6 +1,5 @@
 import React from 'react';
 import { Heading } from '@instructure/ui-elements'
-import { Button } from '@instructure/ui-buttons'
 import classes from '../../css/welcomePage.scss';
 
 class WelcomePage extends React.Component {
@@ -26,9 +25,6 @@ class WelcomePage extends React.Component {
         </div>
 
         <hr></hr>
-        <div className={`${classes.buttonContainer}`}>
-          <Button color="primary" margin="small" textAlign="center">Scan Course</Button>
-        </div>
       </div>
     )
   }

@@ -28,8 +28,8 @@ class HeaderTabs extends React.Component {
         <Tabs
         variant="secondary"
         onRequestTabChange={this.handleTabChange}
-        minHeight="10rem"
-        maxHeight="10rem"
+        minHeight="10vh"
+        maxHeight="100vh"
         >
         <Tabs.Panel renderTitle="Summary" isSelected={selectedIndex === 0}>
             <SummaryPage/>

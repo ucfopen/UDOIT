@@ -1,0 +1,15 @@
+.summaryContainer {
+    display: flex;
+    flex-direction: column;
+    // justify-content: space-between;
+    // width: 80%;
+    height: 100vh;
+    // width: 100vh;
+    // flex-wrap: wrap;
+}
+
+.row {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+}
