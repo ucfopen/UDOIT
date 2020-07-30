@@ -3,6 +3,7 @@ import classes from '../../css/summaryPage.scss';
 import { Heading } from '@instructure/ui-elements';
 import { Button } from '@instructure/ui-buttons'
 import { Table } from '@instructure/ui-table'
+import { Pill } from '@instructure/ui-pill'
 
 const API = '';
 
@@ -126,7 +127,21 @@ class SummaryPage extends React.Component {
             <Table.Body>
               <Table.Row>
                 <Table.Cell>
-                  <a href="">Announcements</a>
+                  <div className={`${classes.row}`}>
+                    <a href="">Announcements</a>
+                    <Pill
+                    color="alert"
+                    margin="x-small"
+                    >
+                      1 Suggestion
+                    </Pill>
+                    <Pill
+                    color="danger"
+                    margin="x-small"
+                    >
+                      2 Errors
+                    </Pill>
+                  </div>
                 </Table.Cell>
               </Table.Row>
               <Table.Row>

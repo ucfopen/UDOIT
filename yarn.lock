@@ -1656,6 +1656,23 @@
     no-scroll "^2.1.0"
     prop-types "^15"
 
+"@instructure/ui-pill@^7.1.2":
+  version "7.1.2"
+  resolved "https://registry.yarnpkg.com/@instructure/ui-pill/-/ui-pill-7.1.2.tgz#87b68edee5e58652727a00d261bd2e385806b392"
+  integrity sha512-Te2NghqMc4ILc19hEJj+PwuZkNlpScAxjyyWXSU/6VwysbL1JEd0YTP2UU4lgBApFpiX1Cj6s1c16Qiuj042Tg==
+  dependencies:
+    "@babel/runtime" "^7.9.2"
+    "@instructure/console" "^7.1.2"
+    "@instructure/ui-react-utils" "^7.1.2"
+    "@instructure/ui-testable" "^7.1.2"
+    "@instructure/ui-themeable" "^7.1.2"
+    "@instructure/ui-tooltip" "^7.1.2"
+    "@instructure/ui-truncate-text" "^7.1.2"
+    "@instructure/ui-utils" "^7.1.2"
+    "@instructure/ui-view" "^7.1.2"
+    classnames "^2"
+    prop-types "^15"
+
 "@instructure/ui-popover@^6.26.0":
   version "6.26.0"
   resolved "https://registry.yarnpkg.com/@instructure/ui-popover/-/ui-popover-6.26.0.tgz#88ed4f5122f1ce7b2f73ccf4ee1860f504e9cb10"
@@ -2284,6 +2301,38 @@
     "@instructure/ui-testable" "^7.1.1"
     "@instructure/ui-themeable" "^7.1.1"
     "@instructure/uid" "^7.1.1"
+    prop-types "^15"
+
+"@instructure/ui-tooltip@^7.1.2":
+  version "7.1.2"
+  resolved "https://registry.yarnpkg.com/@instructure/ui-tooltip/-/ui-tooltip-7.1.2.tgz#42a46c5c94e84375dd9544e806ce236593beed10"
+  integrity sha512-0YBluM8QpT4qCfHzpDWheohZd7GkxsPT1j1BnsfdqXUziCyn48kcgJ90GztaHk6+zZM5xiLCDYE0oEM/mS31ag==
+  dependencies:
+    "@babel/runtime" "^7.9.2"
+    "@instructure/ui-popover" "^7.1.2"
+    "@instructure/ui-position" "^7.1.2"
+    "@instructure/ui-prop-types" "^7.1.2"
+    "@instructure/ui-react-utils" "^7.1.2"
+    "@instructure/ui-testable" "^7.1.2"
+    "@instructure/ui-themeable" "^7.1.2"
+    "@instructure/uid" "^7.1.2"
+    prop-types "^15"
+
+"@instructure/ui-truncate-text@^7.1.2":
+  version "7.1.2"
+  resolved "https://registry.yarnpkg.com/@instructure/ui-truncate-text/-/ui-truncate-text-7.1.2.tgz#93c3d30cf8728d54b315a3183209b325a0e3396f"
+  integrity sha512-J7er7qpBsmASzY7V4125HJa8zfrdbPRrT4wgRx4ibk3TtaRB9ALaDFg8FtzO76J2VVh5bfjI/niqcVLhXbrgeg==
+  dependencies:
+    "@babel/runtime" "^7.9.2"
+    "@instructure/console" "^7.1.2"
+    "@instructure/debounce" "^7.1.2"
+    "@instructure/ui-dom-utils" "^7.1.2"
+    "@instructure/ui-react-utils" "^7.1.2"
+    "@instructure/ui-testable" "^7.1.2"
+    "@instructure/ui-themeable" "^7.1.2"
+    "@instructure/ui-utils" "^7.1.2"
+    classnames "^2"
+    escape-html "^1"
     prop-types "^15"
 
 "@instructure/ui-utils@^6.26.0":
