@@ -87,10 +87,22 @@ class SummaryPage extends React.Component {
         )} */}
         </div>
         {/* <br></br> */}
-        <div className={`${classes.row}`}>
-          <Heading>31 Errors</Heading>
-          <Heading>14 Suggestions</Heading>
-          <Heading>2 Unscannable Files</Heading>
+        <div className={`${classes.rowcentered}`}>
+          <div className={`${classes.numberContainer}`}>
+            <Heading>31</Heading>
+            <br></br>
+            <Heading>Errors</Heading>
+          </div>
+          <div className={`${classes.numberContainer}`}>
+            <Heading>14</Heading>
+            <br></br>
+            <Heading>Suggestions</Heading>
+          </div>
+          <div className={`${classes.numberContainer}`}>
+            <Heading>2</Heading>
+            <br></br>
+            <Heading>Unscannable Files</Heading>
+          </div>
         </div>
       </div>
     )

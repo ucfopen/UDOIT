@@ -13,3 +13,14 @@
     flex-direction: row;
     justify-content: space-between;
 }
+
+.rowcentered {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+}
+
+.numberContainer {
+    text-align: center;
+    margin: 30px;
+}
