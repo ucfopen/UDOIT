@@ -73,7 +73,7 @@ class OauthAuthenticator extends AbstractGuardAuthenticator
     {
 //        return !empty($user->getApiKey());
         /*
-         * Not every user will already have an API Key. How should we handle that here?
+         * FIXME: Not every user will already have an API Key. How should we handle that here?
          */
         return true;
     }

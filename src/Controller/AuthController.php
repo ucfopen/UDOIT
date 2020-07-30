@@ -24,10 +24,6 @@ class AuthController extends AbstractController
     /** @var BasicLtiService $ltiService */
     private $ltiService;
 
-    private function prex($var) {
-        print('<pre>' . print_r($var, true) . '</pre>');
-        exit;
-    }
 
     /**
      * @Route("/authorize", name="authorize")
@@ -243,7 +239,6 @@ class AuthController extends AbstractController
     {
         $user = $this->util->getPreauthenticatedUser();
         $user->setApiKey($apiKey['access_token']);
-
         if (isset($apiKey['refresh_token'])) {
             $user->setRefreshToken($apiKey['refresh_token']);
         }

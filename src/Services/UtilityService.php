@@ -113,11 +113,6 @@ class UtilityService {
         return $this->env;
     }
 
-    private function prex($var) {
-        print('<pre>' . print_r($var, true) . '</pre>');
-        exit;
-    }
-
     /**
      * Get institution before the user is authenticated.
      * Once the user is authenticated we should use $user->getInstitution().
