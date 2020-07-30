@@ -4,6 +4,7 @@ import { Heading } from '@instructure/ui-elements';
 import { Button } from '@instructure/ui-buttons'
 import { Table } from '@instructure/ui-table'
 import { Pill } from '@instructure/ui-pill'
+import { Badge } from '@instructure/ui-badge'
 
 const API = '';
 
@@ -92,12 +93,12 @@ class SummaryPage extends React.Component {
         {/* Total Counts */}
         <div className={`${classes.rowcentered}`}>
           <div className={`${classes.numberContainer}`}>
-            <Heading level="h2">31</Heading>
+            <Heading level="h2">10</Heading>
             <br></br>
             <Heading level="h3">Errors</Heading>
           </div>
           <div className={`${classes.numberContainer}`}>
-            <Heading level="h2">14</Heading>
+            <Heading level="h2">3</Heading>
             <br></br>
             <Heading level="h3">Suggestions</Heading>
           </div>
@@ -109,7 +110,7 @@ class SummaryPage extends React.Component {
         </div>
 
         {/* Summary Tables */}
-        <div className={`${classes.rowcentered}`}>
+        <div className={`${classes.row}`}>
           {/* Content */}
           <div className={`${classes.tableContainer}`}>
           <Table
@@ -147,6 +148,18 @@ class SummaryPage extends React.Component {
               <Table.Row>
                 <Table.Cell>
                   <a href="">Assignments</a>
+                  <Pill
+                    color="alert"
+                    margin="x-small"
+                    >
+                      2 Suggestions
+                    </Pill>
+                    <Pill
+                    color="danger"
+                    margin="x-small"
+                    >
+                      8 Errors
+                    </Pill>
                 </Table.Cell>
               </Table.Row>
               <Table.Row>
@@ -177,10 +190,11 @@ class SummaryPage extends React.Component {
             </Table.Body>
           </Table>
           </div>
+
           {/* Errors */}
           <div className={`${classes.tableContainer}`}>
           <Table
-            caption='Content'
+            caption='Errors'
             layout="auto"
             hover={true}
           >
@@ -191,22 +205,62 @@ class SummaryPage extends React.Component {
                   </Table.ColHeader>
               </Table.Row>
             </Table.Head>
+
+            <Table.Body>
+              <Table.Row>
+                <Table.Cell>
+                  <div className={`${classes.row}`}>
+                    <a href="">Alternative Text should not be the image filename</a>
+
+                    <Badge standalone variant="danger" count={5} countUntil={10} margin="0 small 0 0" />
+                  </div>
+                </Table.Cell>
+              </Table.Row>
+              <Table.Row>
+                <Table.Cell>
+                  <a href="">No Table Headers Found</a>
+
+                  <Badge standalone variant="danger" count={5} countUntil={10} margin="0 small 0 0" />
+                </Table.Cell>
+              </Table.Row>
+            </Table.Body>
+            
           </Table>
           </div>
           {/* Suggestions */}
           <div className={`${classes.tableContainer}`}>
           <Table
-            caption='Content'
+            caption='Suggestions'
             layout="auto"
             hover={true}
           >
             <Table.Head>
-                  <Table.Row>
-                      <Table.ColHeader id="content">
-                        Suggestions
-                      </Table.ColHeader>
-                  </Table.Row>
+              <Table.Row>
+                  <Table.ColHeader id="content">
+                    Suggestions
+                  </Table.ColHeader>
+              </Table.Row>
             </Table.Head>
+
+            <Table.Body>
+              <Table.Row>
+                <Table.Cell>
+                  <div className={`${classes.row}`}>
+                    <a href="">Avoid use of animated gifs</a>
+
+                    <Badge standalone count={1} countUntil={10} margin="0 small 0 0" />
+                  </div>
+                </Table.Cell>
+              </Table.Row>
+              <Table.Row>
+                <Table.Cell>
+                  <a href="">Image elements</a>
+
+                  <Badge standalone count={2} countUntil={10} margin="0 small 0 0" />
+                </Table.Cell>
+              </Table.Row>
+            </Table.Body>
+            
           </Table>
           </div>
         </div>
