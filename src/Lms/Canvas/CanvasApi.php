@@ -19,7 +19,7 @@ class CanvasApi {
         $this->httpClient = HttpClient::create([
             'headers' => $headerToken,
         ]);
-        $this->baseUrl = $this->session->get('base_url');
+        $this->baseUrl = $this->session->get('lms_api_domain');
     }
 
     /**
@@ -48,7 +48,7 @@ class CanvasApi {
         }
 
         if (strpos($url, $this->baseUrl) === false) {
-            $url = "{$this->baseUrl}/api/v1/{$url}";
+            $url = "https://{$this->baseUrl}/api/v1/{$url}";
         }
 
         $response = $this->httpClient->request('GET', $url, $options);

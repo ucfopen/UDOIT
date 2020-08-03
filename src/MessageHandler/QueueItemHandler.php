@@ -44,28 +44,40 @@ class QueueItemHandler implements MessageHandlerInterface
         $report = new Report();
         $report->setCourse($course);
         $report->setCreated(new \DateTime('now'));
+        $report->setReady(false);
         
         $this->entityManager->persist($report);
         $this->entityManager->flush();
 
         // get content via LMS content API
         $contentItems = $this->getUpdatedLmsContent($report);
-        
-        
+//        $contentItems = $course->getContentItems(); // FIXME: REMOVE AND USE PREVIOUS LINE
 
         // continue if report has content to scan
+        foreach ($contentItems as $contentItem) {
+            // get additional content for each content item
 
-        // get additional content for each content item
+            // clear out old issues for a content item
+             $contentItem->clearIssues();
 
-        // run PhpAlly on content
-        
-        // clear out old issues for a content item
+            // run PhpAlly on content
 
-        // create new issues for a content item
+            // create new issues for a content item
+            foreach ($contentItem->getIssues() as $issue) {
+                $report->addIssue($issue);
+            }
+        }
 
         // save report to DB
+        $report->setReady(true);
+        $this->entityManager->persist($report);
+        $this->entityManager->flush();
 
         // mark course as clean
+        $course->setLastUpdated(new \DateTime());
+        $course->setDirty(false);
+        $this->entityManager->persist($course);
+        $this->entityManager->flush();
     }
 
     protected function getUpdatedLmsContent(Report $report)

@@ -11,8 +11,7 @@ use Doctrine\Common\Persistence\ManagerRegistry;
  * @method Course|null findOneBy(array $criteria, array $orderBy = null)
  * @method Course[]    findAll()
  * @method Course[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
- * @method Course[]    findCoursesNeedingUpdate($maxAge)
- */
+\\ */
 class CourseRepository extends ServiceEntityRepository
 {
     public function __construct(ManagerRegistry $registry)

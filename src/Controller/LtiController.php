@@ -4,7 +4,8 @@ namespace App\Controller;
 
 use App\Lms\Canvas\CanvasLms;
 use App\Services\UtilityService;
-use Firebase\JWT\JWT;
+use Firebase\JWT\JWK;
+use \Firebase\JWT\JWT;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpClient\HttpClient;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -12,6 +13,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\Routing\Annotation\Route;
+use function GuzzleHttp\Promise\queue;
 
 class LtiController extends AbstractController
 {
@@ -33,15 +35,9 @@ class LtiController extends AbstractController
         $this->request = $request;
         $this->session = $session;
         $this->util = $util;
-
         $this->saveRequestToSession();
 
-        // print_r($this->session->all());
-        // exit;
-
         return $this->redirect($this->getAuthenticationResponseUrl());
-
-        //return new JsonResponse($this->session->all());
     }
 
     /**
@@ -52,37 +48,72 @@ class LtiController extends AbstractController
         SessionInterface $session,
         UtilityService $util
     ) {
+
         $this->request = $request;
         $this->session = $session;
         $this->util = $util;
-
         $this->saveRequestToSession();
+        $clientId = $this->session->get('client_id');
 
-        $idToken = $this->session->get('id_token');
-        if (!$idToken) {
+        $jwt = $this->session->get('id_token');
+        if (!$jwt) {
             $this->util->exitWithMessage('ID token not received from Canvas.');
         }
 
-        list($headerEnc, $payloadEnc, $signature) = explode('.', $idToken);
+        // Create token from JWT and public JWKs
+        $jwks = $this->getPublicJwks();
+        $publicKey = JWK::parseKeySet($jwks);
+        JWT::$leeway = 60;
+        $token = JWT::decode($jwt, $publicKey, ['RS256']);
 
-        $header = \json_decode(base64_decode($headerEnc));
-        // print "<hr/>";
-        // print_r(base64_decode($payload));
-        // print "<hr/>";
-        //print_r(base64_decode($signature));
-        //print_r($this->session->all());
-        //exit;
+        // Issuer should match previously defined issuer
+        $this->claimMatchOrExit('iss', $this->session->get('iss'), $token->iss);
 
-        if (!isset($header->kid)) {
-            $this->util->exitWithMessage('Public key missing in the LTI response header.');
+        // Audience should include the client id
+        $this->claimMatchOrExit('aud', $clientId, $token->aud);
+
+        // Authorized Party should include the client id
+        $this->claimMatchOrExit('azp', $clientId, $token->azp);
+
+        // Expiration should be after the current time
+        if(date('U') >= $token->exp) {
+            $this->util->exitWithMessage(sprintf('The "exp" provided is before the current time.'));
         }
+        // Id token must contain a nonce. Should verify that nonce has not been received within a certain time window
 
-        $keys = $this->getPublicJwk();
+        // Add Token to Session
+        $this->saveTokenToSession($token);
 
-        //$token = JWT::decode($idToken, $keys, ['RS256']);
-        
+        return $this->redirectToRoute(
+            'authorize',
+            [
+                'lms_api_domain' => $this->session->get('lms_api_domain'),
+                'lms_user_id' => $this->session->get('lms_user_id')
+            ]
+        );
+    }
 
-        return new JsonResponse($this->session->all());
+    private function claimMatchOrExit($claimType, $sessionClaim, $tokenClaim) {
+        if(is_array($tokenClaim)) {
+            if(in_array($sessionClaim, $tokenClaim)) {
+                return true;
+            }
+        }
+        else if($sessionClaim == $tokenClaim) {
+            return true;
+        }
+        $this->util->exitWithMessage(sprintf('The "%s" provided does not match the expected value: %s.', $claimType, $sessionClaim));
+    }
+
+    private function saveTokenToSession($token) {
+        try {
+            $customFields = (array) $token->{'https://purl.imsglobal.org/spec/lti/claim/custom'};
+            foreach ($customFields as $key => $val) {
+                $this->session->set($key, $val);
+            }
+        } catch (\Exception $e) {
+            print_r($e->getMessage());
+        }
     }
 
     private function saveRequestToSession()
@@ -103,11 +134,12 @@ class LtiController extends AbstractController
     protected function getAuthenticationResponseUrl()
     {
         $baseUrl = $this->getBaseUrl();
+
         $params = [
+            'lti_message_hint' => $this->session->get('lti_message_hint'),
             'client_id' => $this->session->get('client_id'),
             'redirect_uri' => $this->getLtiRedirectUri(),
             'login_hint' => $this->session->get('login_hint'),
-            'lti_message_hint' => $this->session->get('lti_message_hint'),
             'state' => 'state123',
             'scope' => 'openid',
             'response_type' => 'id_token',
@@ -116,7 +148,6 @@ class LtiController extends AbstractController
             'prompt' => 'none',
         ];
         $queryStr = http_build_query($params);
-
         return "{$baseUrl}/api/lti/authorize_redirect?{$queryStr}";
     }
 
@@ -142,7 +173,7 @@ class LtiController extends AbstractController
         return CanvasLms::CANVAS_PROD_BASE_URL;
     }
 
-    protected function getPublicJwk()
+    protected function getPublicJwks()
     {
         if (UtilityService::CANVAS_LMS !== $this->util->getLmsId()) {
             return 'D2L JWK';
@@ -153,8 +184,7 @@ class LtiController extends AbstractController
         $response = $httpClient->request('GET', $url);
 
         $keys = $response->toArray();
-
-        return isset($keys['keys']) ? $keys['keys'] : $keys;
+        return $keys;
     }
 
     protected function getLtiRedirectUri()
