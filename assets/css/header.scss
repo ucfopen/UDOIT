@@ -1,9 +1,15 @@
 .headerContainer {
     display: flex;
-    flex-direction: row;
+    // flex-direction: row;
+    flex-wrap: wrap;
+    margin-bottom: 2%;
 }
 
 .logo {
     height: 100px;
     width: 300px;
+}
+
+hr {
+    flex: 0 0 100%;
 }
