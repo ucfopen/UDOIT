@@ -26,7 +26,7 @@ class DashboardController extends AbstractController
         $clientToken = base64_encode($user->getUsername());
         $institution = $user->getInstitution();
 
-        return $this->render('tool/index.html.twig', [
+        return $this->render('default/index.html.twig', [
             'user' => $user,
             'clientToken' => $clientToken,
             'institution' => $institution,

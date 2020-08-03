@@ -1,14 +1,41 @@
-/*
- * Welcome to your app's main JavaScript file!
- *
- * We recommend including the built version of this JavaScript file
- * (and its CSS file) in your base layout (base.html.twig).
- */
+import React from 'react'
+import ReactDOM from 'react-dom'
+import WelcomePage from './Components/WelcomePage'
+import Header from './Components/Header'
+import Issue from './Components/Issue'
+import ScanCheckbox from './Components/ScanCheckbox'
+import ContentPiece from './Components/ContentPiece'
+import classes from '../css/app.scss';
 
-// any CSS you import will output into a single css file (app.css in this case)
-import '../css/app.css';
+import '@instructure/canvas-theme';
 
-// Need jQuery? Install it with "yarn add jquery", then uncomment to import it.
-// import $ from 'jquery';
+class App extends React.Component {
+  constructor(props) {
+    super(props);
 
-console.log('Hello Webpack Encore! Edit me in assets/js/app.js');
+    this.state = {
+      "items": []
+    }
+  }
+
+  render() {
+    return (
+      <div className={`${classes.app}`}>
+        <Header/>
+        <Display isLoggedIn={false}/>
+      </div>
+    )
+  }
+}
+
+const Display = (props) => {
+  const isLoggedIn = props.isLoggedIn;
+
+  if(isLoggedIn) {
+    // return scan page
+  } else {
+    return <WelcomePage/>
+  }
+}
+
+ReactDOM.render(<App/>, document.getElementById('root'));
