@@ -68,6 +68,8 @@ class Issue implements \JsonSerializable
     {
         return [
             "id" => $this->id,
+            "status" => $this->status,
+            "contentItemId" => $this->contentItem->getId(),
             "scanRuleId" => $this->scanRuleId,
             "type" => $this->type,
             "sourceHtml" => $this->html

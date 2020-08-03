@@ -1,0 +1,286 @@
+{
+  "lang": "English",
+  "yarg": "I am party",
+  "translations": {
+    "app_title": "Welcome to UDOIT",
+    "app_description": "The Universal Design Online content Inspection Tool (UDOIT) was created by the Center for Distributed Learning at the University of Central Florida. UDOIT will scan your course content, generate a report and provide instructions on how to correct accessibility issues. Funding for UDOIT was provided by a Canvas Grant awarded in 2014.\n\nPlease Note: This tool is meant to be used as a guide, not a certification. It only checks for common accessibility issues, and is not comprehensive; a clean report in UDOIT does not necessarily mean that your course is fully accessible. Likewise, the tool may indicate a possible accessibility issue where one does not exist.",
+    "look_for": {
+      "header": {
+        "more_info": "More info",
+        "resources": "Resources",
+        "incorrect": "Incorrect",
+        "correct": "Correct",
+        "errors": [
+          {
+            "error": "Links should contain text",
+            "description": "Because many users of <a href=\"https://en.wikipedia.org/wiki/Screen_reader\">screen readers</a> use links to navigate the page, providing links with no text (or with images that have empty \"alt\" attributes and no other readable text) hinders these users.",
+            "resources": [
+              "<a href=\"https://guides.instructure.com/m/4152/l/719751\">Canvas Tutorial</a>",
+              "<a href=\"https://www.w3.org/TR/UNDERSTANDING-WCAG20/navigation-mechanisms.html\">WCAG Guidelines</a>",
+              "<a href=\"https://www.w3.org/TR/WCAG20/#navigation-mechanisms-refs\">WCAG Standard: 2.4.4</a>"
+            ],
+            "incorrect": [
+              "<a href=\"http://example.com/document.pdf\"></a>"
+            ],
+            "correct": [
+              "<a href=\"http://example.com\">read the document</a>"
+            ]
+          },
+          {
+            "error": "No Alternative Text found",
+            "description": "Alternative Text (Alt Text) is an alternative (non-visual) way to describe the meaning of an image. Please provide a brief description of the image for a screen reader user. Note: It should not be the image file name.",
+            "resources": [
+              "<a href=\"https://cdl.ucf.edu/teach/accessibility/text/\">UCF CDL: Text Formatting and Document Organization</a>",
+              "<a href=\"https://www.w3.org/TR/WCAG20/#text-equiv-all\">WCAG Standard: 1.1.1</a>"
+            ],
+            "incorrect": [
+              "<img src=\"dog.jpg\">"
+            ],
+            "correct": [
+              "<img src=\"dog.jpg\" alt=\"A photograph of a dog\">"
+            ]
+          },
+          {
+            "error": "Decorative images should have empty alternative text.",
+            "description": "This image was marked as decorative in the Rich Content Editor, but the ALT attribute contains text. Please remove the alternative text.",
+            "resources": [
+              "<a href=\"https://cdl.ucf.edu/teach/accessibility/text/\">UCF CDL: Text Formatting and Document Organization</a>",
+              "<a href=\"https://www.w3.org/TR/WCAG20/#text-equiv-all\">WCAG Standard: 1.1.1</a>"
+            ],
+            "incorrect": [
+              "<img src=\"dog.jpg\">"
+            ],
+            "correct": [
+              "<img src=\"dog.jpg\" alt=\"A photograph of a dog\">"
+            ]
+          },
+          {
+            "error": "Alternative Text should not be the image filename",
+            "description": "Alternative Text (Alt Text) is an alternative (non-visual) way to describe the meaning of an image. Please provide a brief description of the image for a screen reader user. Note: It should not be the image file name.",
+            "resources": [
+              "<a href=\"https://cdl.ucf.edu/teach/accessibility/text/\">UCF CDL: Text Formatting and Document Organization</a>",
+              "<a href=\"https://www.w3.org/TR/WCAG20/#text-equiv-all\">WCAG Standard: 1.1.1</a>"
+            ],
+            "incorrect": [
+              "<img src=\"dog.jpg\">",
+              "<img src=\"http://website.com/dog.jpg\" alt=\"http://website.com/dog.jpg\">"
+            ],
+            "correct": [
+              "<img src=\"dog.jpg\" alt=\"A photograph of a dog\">",
+              "<img src=\"http://website.com/dog.jpg\" alt=\"A photograph of a dog\">"
+            ]
+          },
+          {
+            "error": "Alternative Text is more than the maximum allowed characters",
+            "description": "Alternative Text (Alt Text) is an alternative (non-visual) way to describe the meaning of an image. Please provide a brief description of the image for a screen reader user. Note: It should not be the image file name.",
+            "resources": [
+              "<a href=\"https://cdl.ucf.edu/teach/accessibility/text/\">UCF CDL: Text Formatting and Document Organization</a>",
+              "<a href=\"https://www.w3.org/TR/WCAG20/#text-equiv-all\">WCAG Standard: 1.1.1</a>"
+            ],
+            "incorrect": [
+              "<img src=\"http://placehold.it/img.jpg\" alt=\"I am alt text that is just way too long, look at me being way too long and being a hassle!\">"
+            ],
+            "correct": [
+              "<img src=\"http://placehold.it/img.jpg\" alt=\"Short and sweet description\">"
+            ]
+          },
+          {
+            "error": "Alt text for all img elements used as source anchors should not be empty",
+            "description": "Alternative Text (Alt Text) is an alternative (non-visual) way to describe the meaning of an image. Please provide a brief description of the image for a screen reader user. Note: It should not be the image file name.",
+            "resources": [
+              "<a href=\"https://cdl.ucf.edu/teach/accessibility/text/\">UCF CDL: Text Formatting and Document Organization</a>",
+              "<a href=\"https://www.w3.org/TR/WCAG20/#text-equiv-all\">WCAG Standard: 1.1.1</a>"
+            ],
+            "incorrect": [
+              "<a href=\"http://google.com\"><img src=\"http://placehold.it/img.jpg\" alt=\" \"></a>\n"
+            ],
+            "correct": [
+              "<a href=\"http://google.com\"><img src=\"http://placehold.it/img.jpg\" alt=\"Alt text\"></a>"
+            ]
+          },
+          {
+            "error": "No table headers found",
+            "description": "Add a table header because it provides a description of the table structure for sighted and screen reader users.",
+            "resources": [
+              "<a href=\"https://cdl.ucf.edu/teach/accessibility/text/\">UCF CDL: Text Formatting and Document Organization</a>",
+              "<a href=\"https://www.w3.org/TR/WCAG20/#content-structure-separation-programmatic\">WCAG Standard: 1.3.1</a>"
+            ],
+            "incorrect": [
+              "<table><tr><td>Header One</td><td>Header Two</td></tr><tr><td>1.30</td><td>4.50</td></tr></table>"
+            ],
+            "correct": [
+              "<table><tr><th>Header One</th><th>Header Two</th></tr><tr><td>1.30</td><td>4.50</td></tr></table>"
+            ]
+          },
+          {
+            "error": "No row or column scopes declarations found in headers of the table",
+            "description": "Scope declarations in headers organize and define table data by row/column for sighted and screen reader users.",
+            "resources": [
+              "<a href=\"https://cdl.ucf.edu/teach/accessibility/text/\">UCF CDL: Text Formatting and Document Organization</a>",
+              "<a href=\"https://www.w3.org/TR/WCAG20/#content-structure-separation-programmatic\">WCAG Standard: 1.3.1</a>"
+            ],
+            "incorrect": [
+              "<table>\n\t<tr>\n\t\t<th>Heading 1</th>\n\t\t<th>Heading 2</th>\n\t</tr>\n\t<tr>\n\t\t<td>Cell 1</td>\n\t\t<td>Cell 2</td>\n\t</tr>\n</table>"
+            ],
+            "correct": [
+              "<table>\n\t<tr>\n\t\t<th scope=\"col\">Heading 1</th>\n\t\t<th scope=\"col\">Heading 2</th>\n\t</tr>\n\t<tr>\n\t\t<td>Cell 1</td>\n\t\t<td>Cell 2</td>\n\t</tr>\n</table>",
+              "<table>\n\t<tr>\n\t\t<th scope=\"row\">Heading 1</th>\n\t\t<td>Cell 1</td>\n\t</tr>\n\t<tr>\n\t\t<th scope=\"row\">Heading 2</th>\n\t\t<td>Cell 2</td>\n\t</tr>\n</table>"
+            ]
+          },
+          {
+            "error": "Insufficient text color contrast with the background",
+            "description": "Text color should be easily viewable and should not be the only indicator of meaning or function. Color balance should have at least a 4.5:1 ratio. Warning: using UFIXIT to fix one section of text may invalidate the contrast in nested sections of text that are not the same color.",
+            "resources": [
+              "<a href=\"https://webaim.org/blog/wcag-2-0-and-link-colors/\">WebAIM: WCAG 2.0 and Link Colors</a>",
+              "<a href=\"https://www.w3.org/TR/WCAG20/#visual-audio-contrast-contrast\">WCAG Standard: 1.4.3</a>"
+            ],
+            "incorrect": [
+              "Bad contrasting text"
+            ],
+            "correct": [
+              "Good contrasting text"
+            ]
+          },
+          {
+            "error": "Multimedia objects should have text equivalents (e.g., transcripts).",
+            "description": "Multimedia objects should be accompanied by a link to a transcript of the content.",
+            "resources": [
+              "<a href=\"https://www.w3.org/TR/WCAG20/#media-equiv\">WCAG Standard: 1.2.1</a>"
+            ],
+            "incorrect": [
+              "<object src=\"widget.html\" title=\"\"></object>\n"
+            ],
+            "correct": [
+              "<object src=\"widget.html\" title=\"A small web widget\">A widget of stock prices. <a href=\"widget.html\">Access this widget.</a></object>"
+            ]
+          }
+        ],
+        "suggestions": [
+          {
+            "suggestion": "Avoid the use of animated GIF’s",
+            "description": "Animated GIFs may cause seizures if they flash more than 3 times per second. A recommendation is to use an alternative format to deliver the content.",
+            "resources": [
+              "<a href=\"https://webaim.org/techniques/images/#seizures\">WebAIM: Accessible Images</a>",
+              "<a href=\"https://www.w3.org/TR/WCAG20/#seizure-does-not-violate\">WCAG Standard: 2.3.1</a>"
+            ]
+          },
+          {
+            "suggestion": "No closed captions found.",
+            "description": "Closed captions should be included in the video to provide dialogue to users who are hearing impaired. (Please note that videos that have been removed, deleted, or are Unlisted will also cause this error, and will need to be manually verified.)",
+            "resources": [
+              "<a href=\"https://support.google.com/youtube/answer/2734796?hl=en\">Adding Captions to Youtube</a>",
+              "<a href=\"https://guides.instructure.com/m/4152/l/719744\">Creating Captions for Video Uploaded to Canvas</a>",
+              "<a href=\"https://www.w3.org/TR/WCAG20/#media-equiv-captions\">WCAG Standard: 1.2.2\n</a>"
+            ]
+          },
+          {
+            "suggestion": "Closed captions do not match course language.",
+            "description": "Closed captions that match the course language should be included in the video to provide dialogue to users who are hearing impaired. (Please note that videos that have been removed, deleted, or are Unlisted will also cause this error, and will need to be manually verified.)",
+            "resources": [
+              "<a href=\"https://support.google.com/youtube/answer/2734796?hl=en\">Adding Captions to Youtube</a>",
+              "<a href=\"https://guides.instructure.com/m/4152/l/719744\">Creating Captions for Video Uploaded to Canvas</a>",
+              "<a href=\"https://www.w3.org/TR/WCAG20/#media-equiv-captions\">WCAG Standard: 1.2.2\n</a>"
+            ]
+          },
+          {
+            "suggestion": "Content length should not exceed 3000 words.",
+            "description": "For content longer than 3000 words, consider splitting it up into multiple documents. This makes it easier for students to process and retain the information."
+          },
+          {
+            "suggestion": "Link text should be descriptive",
+            "description": "Links should be descriptive of the content they're linking to, such as \"Class Schedule\" rather than \"schedule.html\" or \"click here\".",
+            "resources": [
+              "<a href=\"https://guides.instructure.com/m/4152/l/719751\">Canvas Tutorial</a>",
+              "<a href=\"https://www.w3.org/TR/UNDERSTANDING-WCAG20/navigation-mechanisms.html\">WCAG Guidelines</a>",
+              "<a href=\"https://www.w3.org/TR/WCAG20/#navigation-mechanisms-refs\">WCAG Standard: 2.4.4</a>"
+            ],
+            "incorrect": [
+              "<a href=\"http://example.com/document.pdf\">click here!</a>"
+            ],
+            "correct": [
+              "<a href=\"http://example.com\">read the document</a>"
+            ]
+          },
+          {
+            "suggestion": "The text equivalents (e.g., transcripts and/or captions) for embedded content should update when content changes.",
+            "resources": [
+              "<a href=\"https://www.w3.org/TR/UNDERSTANDING-WCAG20/media-equiv.html\">WCAG Standard: 1.2</a>"
+            ]
+          },
+          {
+            "suggestion": "Headings should contain text",
+            "description": "Sighted and screen reader users depend on headings to organize the content on the page. Headings should not be empty and should represent an accurate outline of the content",
+            "resources": [
+              "<a href=\"https://www.w3.org/TR/WCAG20-TECHS/H42.html\">Using H1-H6 to Identify Headings Article</a>",
+              "<a href=\"https://www.w3.org/TR/UNDERSTANDING-WCAG20/navigation-mechanisms.html\">WCAG Guidelines</a>",
+              "<a href=\"https://www.w3.org/TR/WCAG20/#navigation-mechanisms-refs\">WCAG Standard: 2.4.4</a>"
+            ],
+            "incorrect": [
+              "<h1></h1>"
+            ],
+            "correct": [
+              "<h1>Title</h1>"
+            ]
+          },
+          {
+            "suggestion": "Consider adding headings to your document to create more structure",
+            "description": "If appropriate, add headings to the page to organize the content for sighted and screen reader users. The headings should represent an accurate outline of the content",
+            "resources": [
+              "<a href=\"https://cdl.ucf.edu/teach/accessibility/text/\">UCF CDL: Text Formatting and Document Organization</a>",
+              "WCAG standard <a href=\"https://www.w3.org/TR/WCAG20/#content-structure-separation-programmatic\">1.3.1</a> and <a href=\"https://www.w3.org/TR/WCAG20/#content-structure-separation-sequence\">1.3.2</a>"
+            ]
+          },
+          {
+            "suggestion": "Avoid using styles for document structure",
+            "description": "Bold and Italics are used to emphasize text, whereas headings are used to define the structure of the document. Headings like h1-h6 are extremely useful for non-sighted users to navigate the structure of the page, and formatting a paragraph to just be big or bold, while it might visually look like a heading, does not make it one.",
+            "incorrect": [
+              "<p><strong>Header 1</strong></p>",
+              "<h1>Header 1</h1>"
+            ]
+          },
+          {
+            "suggestion": "Avoid using color alone for emphasis",
+            "description": "When emphasizing text, you may use color with sufficient contrast as long as you also apply some other form of emphasis, such as bold or italics. This ensures that screen reader users are aware of the text's importance.",
+            "resources": [
+              "<a href=\"https://www.w3.org/TR/WCAG20-TECHS/H49.html\">WCAG 2.0 Technique: H49: Using semantic markup to mark emphasized or special text</>"
+            ]
+          }
+        ]
+      }
+    },
+    "filters": {
+      "content": "Content",
+      "content_filters": {
+        "select_all": "Select All",
+        "announcements": "Announcements",
+        "assignments": "Assignments",
+        "discussions": "Discussions",
+        "files": "Files",
+        "pages": "Pages",
+        "syllabus": "Syllabus",
+        "module_urls": "Module URLs",
+        "include_unpublished": "Include Unpublished content"
+      },
+      "scan_for": "Scan for",
+      "scan_filters": {
+        "select_all": "Select All",
+        "errors": "Errors",
+        "suggestions": "Suggestions"
+      }
+    },
+    "scan_course": "Scan This Course",
+    "scanning": "Scanning",
+    "scanning_message":"Please stay on this page while UDOIT scans your course content.",
+    "scan_course_again": "Scan This Course Again",
+    "report_for": "Report for ",
+    "errors": "Errors",
+    "suggestions": "Suggestions",
+    "unscannable_files": "Unscannable Files",
+    "summary": "Summary",
+    "save_pdf": "Save report as PDF",
+    "youtube_terms": "<a href=\"https://www.youtube.com/t/terms\">YouTube Terms of Service</a>",
+    "google_privacy": "<a href=\"https://www.youtube.com/t/terms\">Google Privacy Policy</a>",
+    "saved_reports": "Saved reports for this course",
+    "date_time": "Date & Time (GMT-6)"
+  }
+}

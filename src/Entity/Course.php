@@ -90,7 +90,8 @@ class Course implements \JsonSerializable
             "lmsCourseId" => $this->lmsCourseId,
             "lastUpdate" => $this->lastUpdated,
             "active" => $this->active,
-            "dirty" => $this->dirty
+            "dirty" => $this->dirty,
+            "contentItems" => $this->contentItems->toArray()
         ];
     }
 
