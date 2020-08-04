@@ -1,6 +1,6 @@
 import React from 'react';
 import classes from '../../css/contentPage.scss';
-import { Heading } from '@instructure/ui-elements';
+import { Heading } from '@instructure/ui-heading'
 import { Button } from '@instructure/ui-buttons'
 import { Table } from '@instructure/ui-table'
 import { TextInput } from '@instructure/ui-text-input'

@@ -1,6 +1,6 @@
 import React from 'react';
 import classes from '../../css/summaryPage.scss';
-import { Heading } from '@instructure/ui-elements';
+import { Heading } from '@instructure/ui-heading'
 import { Button } from '@instructure/ui-buttons'
 import { Table } from '@instructure/ui-table'
 import { Pill } from '@instructure/ui-pill'

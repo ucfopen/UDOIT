@@ -5,6 +5,8 @@ import Header from './Components/Header'
 import HeaderTabs from './Components/HeaderTabs'
 import classes from '../css/app.scss';
 import { Button } from '@instructure/ui-buttons'
+import { Provider } from 'react-redux'
+import { createStore } from 'redux'
 
 import '@instructure/canvas-theme';
 
