@@ -1,12 +1,11 @@
 import React from 'react'
 import ReactDOM from 'react-dom'
-import WelcomePage from './Components/WelcomePage'
-import Header from './Components/Header'
-import HeaderTabs from './Components/HeaderTabs'
-import classes from '../css/app.scss';
+import WelcomePage from './WelcomePage'
+import Header from './Header'
+import HeaderTabs from './HeaderTabs'
+import classes from '../../css/app.scss'
 import { Button } from '@instructure/ui-buttons'
-import { Provider } from 'react-redux'
-import { createStore } from 'redux'
+
 
 import '@instructure/canvas-theme';
 
@@ -53,4 +52,4 @@ const Display = (props) => {
   }
 }
 
-ReactDOM.render(<App/>, document.getElementById('root'));
+export default App;
