@@ -81,10 +81,18 @@ class CanvasLms implements LmsInterface {
     public function getScopes()
     {
         $scopes = [
-            'url:GET|/api/v1/accounts'
+            'url:GET|/api/v1/accounts',
+            'url:GET|/api/v1/courses/:course_id/assignments',
+            'url:GET|/api/v1/announcements',
+            'url:GET|/api/v1/courses/:course_id/discussion_topics',
+            'url:GET|/api/v1/courses/:course_id/files',
+            'url:GET|/api/v1/courses/:course_id/modules',
+            'url:GET|/api/v1/courses/:course_id/pages',
+            'url:GET|/api/v1/courses/:id',
+            'url:GET|/api/v1/courses'
         ];
 
-        return implode('%20', $scopes);
+        return implode(' ', $scopes);
     }
 
     public function getLmsRootAccountId()
@@ -110,7 +118,7 @@ class CanvasLms implements LmsInterface {
     public function getCourseContentUrls($courseId)
     {
         return [
-            'syllabus' =>           "courses/{$courseId}?include[]=syllabus_body",
+            'syllabus' =>           "courses/{$courseId}?include[]=syllabus_body,",
             'announcements' =>      "courses/{$courseId}/discussion_topics?only_announcements=true",
             'assignment' =>         "courses/{$courseId}/assignments",
             'discussion_topic' =>   "courses/{$courseId}/discussion_topics",
@@ -137,8 +145,8 @@ class CanvasLms implements LmsInterface {
             $response = $this->canvasApi->apiGet($url);
 
             if ($response->getErrors()) {
-                // add errors to flash bag
-                print "HERE";
+                // TODO: add errors to flash bag
+
             }
             else {
                 if ('syllabus' === $contentType) {
@@ -174,7 +182,6 @@ class CanvasLms implements LmsInterface {
 
         // push any updates made to content items to DB
         $this->entityManager->flush();
-
         return $contentItems;
     }
 
@@ -187,7 +194,10 @@ class CanvasLms implements LmsInterface {
                 $out['id'] = $lmsContent['id'];
                 $out['title'] = $lmsContent['name'];
                 $out['updated'] = 'now';
-                $out['body'] = $lmsContent['syllabus_body'];
+                // FIXME: Figure out why syllabus_body is not being pulled in from API Call
+                if(array_key_exists('syllabus_body', $lmsContent)) {
+                    $out['body'] = $lmsContent['syllabus_body'];
+                }
                 break;
                 
             case 'page':

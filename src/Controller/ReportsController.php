@@ -21,7 +21,7 @@ use Twig\Environment;
 /**
  * Class ReportsController
  * @package App\Controller
- * @Route("inst/{institutionId}/courses/{courseId}/reports")
+ * @Route("/courses/{courseId}/reports")
  */
 class ReportsController extends ApiController
 {

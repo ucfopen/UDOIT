@@ -18,7 +18,7 @@ use Symfony\Component\Serializer\Serializer;
 /**
  * Class IssuesController
  * @package App\Controller
- * @Route("inst/{instId}/courses/{courseId}/issues")
+ * @Route("/courses/{courseId}/issues")
  */
 class IssuesController extends ApiController
 {

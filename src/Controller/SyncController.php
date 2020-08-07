@@ -26,10 +26,9 @@ class SyncController extends AbstractController
     {
         $this->util = $util;
         $response = new ApiResponse();
-        
         if ($course->isActive() && !$course->isDirty()) {
             $count = $this->createApiRequests([$course], true);
-            $this->addFlash('message', 'Sync started.');
+            $this->addFlash('message', sprintf('Sync started on %s course(s).', $count));
         }
 
         return new JsonResponse($response);
@@ -50,11 +49,15 @@ class SyncController extends AbstractController
         return new JsonResponse($count);
     }
 
+    /**
+     * Adds Course Refresh request to the Message Queue
+     * @param $courses
+     * @param bool $isPriority
+     * @return int
+     */
     protected function createApiRequests($courses, $isPriority = false)
     {
-        $lms = $this->util->getLms();
-
-        // add courses to the messenger
+        // Add courses to the Messenger Queue.
         foreach ($courses as $course) {
             // Set Course to Dirty
             $course->setDirty(true);
