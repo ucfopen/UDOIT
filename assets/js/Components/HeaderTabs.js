@@ -35,7 +35,7 @@ class HeaderTabs extends React.Component {
             <SummaryPage/>
         </Tabs.Panel>
         <Tabs.Panel renderTitle="Content" isSelected={selectedIndex === 1}>
-            <ContentPage></ContentPage>
+          <ContentPage></ContentPage>
         </Tabs.Panel>
         <Tabs.Panel renderTitle="Files" isSelected={selectedIndex === 2}>
             <HeaderTabs/>
