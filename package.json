@@ -3,7 +3,7 @@
         "@babel/preset-react": "^7.9.4",
         "@symfony/webpack-encore": "^0.28.2",
         "babel-plugin-transform-class-properties": "^6.24.1",
-        "babel-plugin-transform-object-rest-spread": "^6.26.0",
+        "babel-plugin-transform-object-rest-spread": "^7.0.0",
         "babel-preset-react": "^6.24.1",
         "core-js": "^3.0.0",
         "cssnano": "^4.1.10",
