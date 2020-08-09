@@ -18,11 +18,18 @@ class TranslationsController extends AbstractController
     public function getTranslation(Request $request, $lang) {
         $apiResponse = new ApiResponse();
         try {
-            // TODO: Validate language and return strings
-            $apiResponse->setData(["language" => $lang, "status" => "This API endpoint is under construction."]);
+            $filepath = "../translations/" . $lang . ".json";
+            if(file_exists($filepath)) {
+                $file = fopen($filepath, "r");
+                $translation = fread($file, filesize($filepath));
+                $apiResponse->setData(json_decode($translation));
+            }
+            else {
+                throw new \Exception(sprintf("Translation for language %s cannot be found.", $lang));
+            }
         }
         catch(Exception $e) {
-
+            $apiResponse->setData($e->getMessage());
         }
 
         $jsonResponse = new JsonResponse($apiResponse);

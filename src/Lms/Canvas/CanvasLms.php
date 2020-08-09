@@ -49,7 +49,7 @@ class CanvasLms implements LmsInterface {
     public function getLmsDomain()
     {
         if (!isset($this->lmsDomain)) {
-            $this->lmsDomain = $this->session->get('custom_canvas_api_domain');
+            $this->lmsDomain = $this->session->get('lms_api_domain');
         }
         return $this->lmsDomain;
     }
@@ -81,10 +81,10 @@ class CanvasLms implements LmsInterface {
     public function getScopes()
     {
         $scopes = [
-            //'url:get:api/v1/accounts',
+            'url:GET|/api/v1/accounts'
         ];
 
-        return implode(' ', $scopes);
+        return implode('%20', $scopes);
     }
 
     public function getLmsRootAccountId()

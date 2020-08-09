@@ -114,6 +114,18 @@
     "imsglobal/lti-1p3-tool": {
         "version": "dev-master"
     },
+    "knplabs/knp-snappy": {
+        "version": "v1.2.1"
+    },
+    "knplabs/knp-snappy-bundle": {
+        "version": "1.5",
+        "recipe": {
+            "repo": "github.com/symfony/recipes-contrib",
+            "branch": "master",
+            "version": "1.5",
+            "ref": "c81bdcf4a9d4e7b1959071457f9608631865d381"
+        }
+    },
     "knpuniversity/oauth2-client-bundle": {
         "version": "1.20",
         "recipe": {
@@ -131,6 +143,12 @@
     },
     "monolog/monolog": {
         "version": "2.0.2"
+    },
+    "mpdf/mpdf": {
+        "version": "v8.0.6"
+    },
+    "myclabs/deep-copy": {
+        "version": "1.9.5"
     },
     "nikic/php-parser": {
         "version": "v4.3.0"
@@ -165,6 +183,9 @@
     "psr/event-dispatcher": {
         "version": "1.0.0"
     },
+    "psr/http-client": {
+        "version": "1.0.1"
+    },
     "psr/http-message": {
         "version": "1.0.1"
     },
@@ -188,6 +209,9 @@
         "files": [
             "config/packages/sensio_framework_extra.yaml"
         ]
+    },
+    "setasign/fpdi": {
+        "version": "v2.3.3"
     },
     "symfony/apache-pack": {
         "version": "1.0",
@@ -615,4 +639,3 @@
         "version": "3.2.1"
     }
 }
-

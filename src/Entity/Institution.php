@@ -91,6 +91,16 @@ class Institution
 
     private $encodedKey = 'niLb/WbAODNi7E4ccHHa/pPU3Bd9h6z1NXmjA981D4o=';
 
+    /**
+     * @ORM\Column(type="string", nullable=true)
+     */
+    private $apiClientId;
+
+    /**
+     * @ORM\Column(type="string", length=255, nullable=true)
+     */
+    private $apiClientSecret;
+
 
     // Constructor
     public function __construct()
@@ -348,6 +358,30 @@ class Institution
                 $user->setInstitution(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getApiClientId(): ?string
+    {
+        return $this->apiClientId;
+    }
+
+    public function setApiClientId(?int $apiClientId): self
+    {
+        $this->apiClientId = $apiClientId;
+
+        return $this;
+    }
+
+    public function getApiClientSecret(): ?string
+    {
+        return $this->apiClientSecret;
+    }
+
+    public function setApiClientSecret(?string $apiClientSecret): self
+    {
+        $this->apiClientSecret = $apiClientSecret;
 
         return $this;
     }

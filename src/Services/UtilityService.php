@@ -126,19 +126,19 @@ class UtilityService {
                 $this->institution = $institution;
             }
             else {
-                $domain = $this->session->get('custom_lms_api_domain');
-                
+                $domain = $this->session->get('lms_api_domain');
+
                 if ($domain) {
-                    $institution = $this->doctrine->getRepository(Institution::class)
+                    $institution = $this
+                        ->doctrine
+                        ->getRepository(Institution::class)
                         ->findOneBy(['lmsDomain' => $domain]);
                 }
-                
                 if ($institution) {
                     $this->institution = $institution;
                 }
             }
         }
-
         return $this->institution;
     }
 

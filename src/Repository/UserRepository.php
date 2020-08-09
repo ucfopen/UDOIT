@@ -19,6 +19,12 @@ class UserRepository extends ServiceEntityRepository
         parent::__construct($registry, User::class);
     }
 
+    public function findByApiKey($apiKey) : User {
+        return $this->createQueryBuilder('u')
+            ->where('u.api_key = apiKey')
+            ->setParameter('apiKey', $apiKey);
+    }
+
     // /**
     //  * @return User[] Returns an array of User objects
     //  */
