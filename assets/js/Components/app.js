@@ -5,6 +5,8 @@ import Header from './Header'
 import HeaderTabs from './HeaderTabs'
 import classes from '../../css/app.scss'
 import { Button } from '@instructure/ui-buttons'
+import { connect } from 'react-redux';
+import getScanResults from '../Actions'
 
 
 import '@instructure/canvas-theme';
@@ -17,6 +19,8 @@ class App extends React.Component {
       "items": [],
       "isLoggedIn": false
     }
+
+    this.props.getScanResults();
 
     this.handleClick = this.handleClick.bind(this);
   }
@@ -52,4 +56,14 @@ const Display = (props) => {
   }
 }
 
-export default App;
+const mapDispatchToProps = dispatch => {
+  return {
+    getScanResults: () => dispatch(getScanResults()),
+    
+  }
+}
+
+export default connect(
+  null,
+  mapDispatchToProps
+)(App);

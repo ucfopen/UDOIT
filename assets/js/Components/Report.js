@@ -1,6 +1,5 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import getScanResults from '../Actions'
 import Issue from './Issue';
 
 const API = '';
@@ -13,7 +12,7 @@ class Report extends React.Component {
 
   componentDidMount() {
     // Do something
-    this.props.getScanResults();
+    
   }
 
   render() {
@@ -36,14 +35,6 @@ const mapStateToProps = state => {
   }
 }
 
-const mapDispatchToProps = dispatch => {
-  return {
-    getScanResults: () => dispatch(getScanResults()),
-    
-  }
-}
-
 export default connect(
   mapStateToProps,
-  mapDispatchToProps
 )(Report);

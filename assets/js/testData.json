@@ -1,0 +1,65 @@
+{
+    "messages":[],
+    "errors":[],
+    "data":[
+        {
+            "id":1111,
+            "institution": "institution",
+            "courseId": 1111,
+            "courseTitle": "Course Title",
+            "created": "*DATETIME*",
+            "errors": 1,
+            "suggestions": 2,
+            "report": {
+                "announcements": [
+                    {
+                        "id": 12345,
+                        "title": "Content Title",
+                        "issues": [
+                            {
+                                "id": 12345,
+                                "scanRuleId": "Scan Rule Id",
+                                "title": "Issue Title",
+                                "description": "Issue Description",
+                                "type": "error",
+                                "uFixIt": true,
+                                "sourceHtml": "<div>Source HTML</div>"
+                            },
+                            {
+                                "id": 23456,
+                                "title": "Issue Title",
+                                "scanRuleId": "Scan Rule Id",
+                                "description": "Issue Description",
+                                "type": "suggestion",
+                                "uFixIt": false,
+                                "sourceHtml": "<div>Source HTML</div>"
+                            }
+                        ]
+                    },
+                    {
+                        "id": 12346,
+                        "title": "Content Title",
+                        "issues": [
+                            {
+                                "id": 34567,
+                                "title": "Issue Title",
+                                "scanRuleId": "Scan Rule Id",
+                                "description": "Issue Description",
+                                "type": "error",
+                                "uFixIt": true,
+                                "sourceHtml": "<div>Source HTML</div>"
+                            }
+                        ]
+                    }
+                ],
+                "assignments": [],
+                "discussions": [],
+                "files": [],
+                "pages": [],
+                "syllabus": [],
+                "moduleUrls": []
+            }
+        }
+    ],
+    "html":""
+}

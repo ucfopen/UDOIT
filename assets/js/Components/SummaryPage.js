@@ -5,6 +5,7 @@ import { Button } from '@instructure/ui-buttons'
 import { Table } from '@instructure/ui-table'
 import { Pill } from '@instructure/ui-pill'
 import { Badge } from '@instructure/ui-badge'
+import { connect } from 'react-redux';
 
 const API = '';
 
@@ -39,32 +40,9 @@ class SummaryPage extends React.Component {
       // })
       // .catch(console.log);
 
-    // The list of issues for the piece of content
-    var data = [
-        {
-            "id": 12345,
-            "scanRuleId": "Scan Rule Id",
-            "title": "Issue 1 Title",
-            "description": "Issue 1 Description",
-            "type": "error",
-            "uFixIt": true,
-            "sourceHtml": "<div>Source HTML</div>"
-        },
-        {
-            "id": 23456,
-            "title": "Issue 2 Title",
-            "scanRuleId": "Scan Rule Id",
-            "description": "Issue 2 Description",
-            "type": "suggestion",
-            "uFixIt": false,
-            "sourceHtml": "<div>Source HTML</div>"
-        }
-    ]
-
     var date = new Date().toLocaleString();
 
     this.setState({
-      issues: data,
       dateTime: date,
     });
   }
@@ -82,12 +60,6 @@ class SummaryPage extends React.Component {
 
         <div className={`${classes.row}`}>
           <p>{this.state.dateTime}</p>
-        {/* {this.state.issues.map(x => <Issue key={x.id}
-            title={x.title}
-            description={x.description}s
-            severity={x.severity}
-            />
-        )} */}
         </div>
 
         {/* Total Counts */}
@@ -270,4 +242,13 @@ class SummaryPage extends React.Component {
   }
 }
 
-export default SummaryPage;
+const mapStateToProps = state => {
+  return {
+    issueList: state.issueList
+  }
+}
+
+export default connect(
+  mapStateToProps,
+)
+(SummaryPage);
