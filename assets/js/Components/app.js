@@ -19,7 +19,7 @@ class App extends React.Component {
       "items": [],
       "isLoggedIn": false
     }
-
+    //
     this.props.getScanResults();
 
     this.handleClick = this.handleClick.bind(this);
