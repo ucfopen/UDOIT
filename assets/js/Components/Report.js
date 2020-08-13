@@ -1,4 +1,7 @@
 import React from 'react';
+import { connect } from 'react-redux';
+import getScanResults from '../Actions'
+import Issue from './Issue';
 
 const API = '';
 // The report which contains all the issues found while scanning the course
@@ -6,43 +9,41 @@ class Report extends React.Component {
 
   constructor(props) {
     super(props);
-
-    this.state = {
-      id: null,
-      createdAt: null,
-      errors: null,
-      suggestions: null,
-      sections: {
-        announcements: [],
-        assignments: [],
-        discussions: [],
-        files: [],
-        pages: [],
-        syllabus: [],
-        moduleUrls: []
-      }
-    }
   }
 
   componentDidMount() {
-    // TODO Fetch issues from API then set state
-    fetch('http://API/route')
-    .then( res => res.json())
-    .then((data) => {
-      this.setState({
-        //Set state for the content sections
-      });
-    })
-    .catch(console.log);
+    // Do something
+    this.props.getScanResults();
   }
 
   render() {
     return (
       <div>
-        <p>Report</p>
+          {this.props.issueList.map(x => <Issue key={x.id}
+            title={x.title}
+            description={x.description}s
+            severity={x.severity}
+            />
+        )}
       </div>
     )
   }
 }
 
-export default Report;
+const mapStateToProps = state => {
+  return {
+    issueList: state.issueList
+  }
+}
+
+const mapDispatchToProps = dispatch => {
+  return {
+    getScanResults: () => dispatch(getScanResults()),
+    
+  }
+}
+
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(Report);
