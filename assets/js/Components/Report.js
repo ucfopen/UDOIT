@@ -1,6 +1,7 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import Issue from './Issue';
+import { getIssuesFromSection } from '../selectors'
 
 const API = '';
 // The report which contains all the issues found while scanning the course

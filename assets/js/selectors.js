@@ -1,5 +1,4 @@
 // Data selectors
-
-function getIssuesFromSection(state, section) {
+export const getIssuesFromSection = (state, section) => {
     return state.issueList.data.report[section];
 }
