@@ -8,7 +8,6 @@ export const getCountsFromSection = (state, section) => {
     let errorCount = 0, suggestionCount = 0;
     
     for(var i = 0; i < sectionInfo.length; i++) {
-        console.log(sectionInfo[i]);
         errorCount += sectionInfo[i].issues.filter(issue => issue.type == "error").length;
         suggestionCount += sectionInfo[i].issues.filter(issue => issue.type == "suggestion").length;
     }
@@ -21,5 +20,5 @@ export const getErrorTypes = (state) => {
 }
 
 export const getSuggestionTypes = (state) => {
-    
+
 }

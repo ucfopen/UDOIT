@@ -14,8 +14,6 @@ class Report extends React.Component {
 
   componentDidMount() {
     // Do something
-    console.log(this.props.counts);
-    console.log(this.props.issueList)
   }
 
   render() {
