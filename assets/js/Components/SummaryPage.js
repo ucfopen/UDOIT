@@ -6,8 +6,7 @@ import { Table } from '@instructure/ui-table'
 import { Pill } from '@instructure/ui-pill'
 import { Badge } from '@instructure/ui-badge'
 import { connect } from 'react-redux';
-import { getIssuesFromSection } from '../selectors';
-import { getCountsFromSection } from '../selectors';
+import { getIssuesFromSection, getErrorTypes, getCountsFromSection } from '../selectors';
 
 const API = '';
 
@@ -43,6 +42,8 @@ class SummaryPage extends React.Component {
       // .catch(console.log);
 
     var date = new Date().toLocaleString();
+
+    console.log(this.props.errorTypes);
 
     this.setState({
       dateTime: date,
@@ -184,7 +185,7 @@ class SummaryPage extends React.Component {
               <Table.Row>
                 <Table.Cell>
                   <div className={`${classes.row}`}>
-                    <a href="">Alternative Text should not be the image filename</a>
+                    <a href="">{this.props.errorTypes[0][0]}</a>
 
                     <Badge standalone variant="danger" count={1} countUntil={10} margin="0 small 0 0" />
                   </div>
@@ -192,7 +193,7 @@ class SummaryPage extends React.Component {
               </Table.Row>
               <Table.Row>
                 <Table.Cell>
-                  <a href="">No Table Headers Found</a>
+                  <a href="">{this.props.errorTypes[0][1]}</a>
 
                   <Badge standalone variant="danger" count={1} countUntil={10} margin="0 small 0 0" />
                 </Table.Cell>
@@ -220,7 +221,7 @@ class SummaryPage extends React.Component {
               <Table.Row>
                 <Table.Cell>
                   <div className={`${classes.row}`}>
-                    <a href="">Avoid use of animated gifs</a>
+                    <a href="">{this.props.errorTypes[1][0]}</a>
 
                     <Badge standalone count={1} countUntil={10} margin="0 small 0 0" />
                   </div>
@@ -250,7 +251,8 @@ const mapStateToProps = state => {
     errorCountTotal: state.issueList.data[0].errors,
     suggestionCountTotal: state.issueList.data[0].suggestions,
     unscannableCountTotal: state.issueList.data[0].unscannable,
-    announcementCounts: getCountsFromSection(state, "announcements")
+    announcementCounts: getCountsFromSection(state, "announcements"),
+    errorTypes: getErrorTypes(state, "announcements"),
   }
 }
 
