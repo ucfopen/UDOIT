@@ -6,6 +6,8 @@ import { Table } from '@instructure/ui-table'
 import { Pill } from '@instructure/ui-pill'
 import { Badge } from '@instructure/ui-badge'
 import { connect } from 'react-redux';
+import { getIssuesFromSection } from '../selectors';
+import { getCountsFromSection } from '../selectors';
 
 const API = '';
 
@@ -65,17 +67,17 @@ class SummaryPage extends React.Component {
         {/* Total Counts */}
         <div className={`${classes.rowcentered}`}>
           <div className={`${classes.numberContainer}`}>
-            <Heading level="h2">10</Heading>
+            <Heading level="h2">{this.props.errorCountTotal}</Heading>
             <br></br>
             <Heading level="h3">Errors</Heading>
           </div>
           <div className={`${classes.numberContainer}`}>
-            <Heading level="h2">3</Heading>
+            <Heading level="h2">{this.props.suggestionCountTotal}</Heading>
             <br></br>
             <Heading level="h3">Suggestions</Heading>
           </div>
           <div className={`${classes.numberContainer}`}>
-            <Heading level="h2">2</Heading>
+            <Heading level="h2">{this.props.unscannableCountTotal}</Heading>
             <br></br>
             <Heading level="h3">Unscannable Files</Heading>
           </div>
@@ -106,13 +108,13 @@ class SummaryPage extends React.Component {
                     color="alert"
                     margin="x-small"
                     >
-                      1 Suggestion
+                      {this.props.announcementCounts.suggestionCount} Suggestion
                     </Pill>
                     <Pill
                     color="danger"
                     margin="x-small"
                     >
-                      2 Errors
+                      {this.props.announcementCounts.errorCount} Errors
                     </Pill>
                   </div>
                 </Table.Cell>
@@ -120,7 +122,7 @@ class SummaryPage extends React.Component {
               <Table.Row>
                 <Table.Cell>
                   <a href="">Assignments</a>
-                  <Pill
+                  {/* <Pill
                     color="alert"
                     margin="x-small"
                     >
@@ -131,7 +133,7 @@ class SummaryPage extends React.Component {
                     margin="x-small"
                     >
                       8 Errors
-                    </Pill>
+                    </Pill> */}
                 </Table.Cell>
               </Table.Row>
               <Table.Row>
@@ -244,7 +246,11 @@ class SummaryPage extends React.Component {
 
 const mapStateToProps = state => {
   return {
-    issueList: state.issueList
+    issueList: state.issueList,
+    errorCountTotal: state.issueList.data[0].errors,
+    suggestionCountTotal: state.issueList.data[0].suggestions,
+    unscannableCountTotal: state.issueList.data[0].unscannable,
+    announcementCounts: getCountsFromSection(state, "announcements")
   }
 }
 

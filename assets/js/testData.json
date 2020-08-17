@@ -8,8 +8,9 @@
             "courseId": 1111,
             "courseTitle": "Course Title",
             "created": "*DATETIME*",
-            "errors": 1,
-            "suggestions": 2,
+            "errors": 2,
+            "suggestions": 1,
+            "unscannable": 0,
             "report": {
                 "announcements": [
                     {

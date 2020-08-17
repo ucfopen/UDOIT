@@ -1,6 +1,7 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import Issue from './Issue';
+import { getCountsFromSection } from '../selectors'
 import { getIssuesFromSection } from '../selectors'
 
 const API = '';
@@ -13,7 +14,8 @@ class Report extends React.Component {
 
   componentDidMount() {
     // Do something
-    
+    console.log(this.props.counts);
+    console.log(this.props.issueList)
   }
 
   render() {
@@ -32,7 +34,8 @@ class Report extends React.Component {
 
 const mapStateToProps = state => {
   return {
-    issueList: state.issueList
+    issueList: getIssuesFromSection(state, "announcements")[0].issues,
+    counts: getCountsFromSection(state, "announcements")
   }
 }
 
