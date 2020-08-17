@@ -20,7 +20,7 @@
                             {
                                 "id": 12345,
                                 "scanRuleId": "Scan Rule Id",
-                                "title": "Issue Title",
+                                "title": "Alternative Text should not be the image filename",
                                 "description": "Issue Description",
                                 "type": "error",
                                 "uFixIt": true,
@@ -28,7 +28,7 @@
                             },
                             {
                                 "id": 23456,
-                                "title": "Issue Title",
+                                "title": "Avoid use of animated gifs",
                                 "scanRuleId": "Scan Rule Id",
                                 "description": "Issue Description",
                                 "type": "suggestion",
@@ -43,7 +43,7 @@
                         "issues": [
                             {
                                 "id": 34567,
-                                "title": "Issue Title",
+                                "title": "No Table Headers Found",
                                 "scanRuleId": "Scan Rule Id",
                                 "description": "Issue Description",
                                 "type": "error",
