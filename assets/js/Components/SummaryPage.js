@@ -186,7 +186,7 @@ class SummaryPage extends React.Component {
                   <div className={`${classes.row}`}>
                     <a href="">Alternative Text should not be the image filename</a>
 
-                    <Badge standalone variant="danger" count={5} countUntil={10} margin="0 small 0 0" />
+                    <Badge standalone variant="danger" count={1} countUntil={10} margin="0 small 0 0" />
                   </div>
                 </Table.Cell>
               </Table.Row>
@@ -194,7 +194,7 @@ class SummaryPage extends React.Component {
                 <Table.Cell>
                   <a href="">No Table Headers Found</a>
 
-                  <Badge standalone variant="danger" count={5} countUntil={10} margin="0 small 0 0" />
+                  <Badge standalone variant="danger" count={1} countUntil={10} margin="0 small 0 0" />
                 </Table.Cell>
               </Table.Row>
             </Table.Body>
@@ -227,11 +227,11 @@ class SummaryPage extends React.Component {
                 </Table.Cell>
               </Table.Row>
               <Table.Row>
-                <Table.Cell>
+                {/* <Table.Cell>
                   <a href="">Image elements</a>
 
                   <Badge standalone count={2} countUntil={10} margin="0 small 0 0" />
-                </Table.Cell>
+                </Table.Cell> */}
               </Table.Row>
             </Table.Body>
             
