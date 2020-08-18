@@ -7,6 +7,8 @@ import { Pill } from '@instructure/ui-pill'
 import { Badge } from '@instructure/ui-badge'
 import { connect } from 'react-redux';
 import { getIssuesFromSection, getErrorTypes, getCountsFromSection } from '../selectors';
+import moment from 'moment';
+import Clock from './Clock'
 
 const API = '';
 
@@ -41,12 +43,11 @@ class SummaryPage extends React.Component {
       // })
       // .catch(console.log);
 
-    var date = new Date().toLocaleString();
-
-    console.log(this.props.errorTypes);
+    var date = new Date();
 
     this.setState({
-      dateTime: date,
+      date: date.toLocaleDateString(),
+      time: date.toLocaleTimeString(),
     });
   }
 
@@ -62,23 +63,26 @@ class SummaryPage extends React.Component {
         </div>
 
         <div className={`${classes.row}`}>
-          <p>{this.state.dateTime}</p>
+          <p>
+            {this.state.date}
+            <Clock></Clock>
+          </p>
         </div>
 
         {/* Total Counts */}
         <div className={`${classes.rowcentered}`}>
           <div className={`${classes.numberContainer}`}>
-            <Heading level="h2">{this.props.errorCountTotal}</Heading>
+            <Heading level="h2" children={this.props.errorCountTotal}></Heading>
             <br></br>
             <Heading level="h3">Errors</Heading>
           </div>
           <div className={`${classes.numberContainer}`}>
-            <Heading level="h2">{this.props.suggestionCountTotal}</Heading>
+            <Heading level="h2" children={this.props.suggestionCountTotal}></Heading>
             <br></br>
             <Heading level="h3">Suggestions</Heading>
           </div>
           <div className={`${classes.numberContainer}`}>
-            <Heading level="h2">{this.props.unscannableCountTotal}</Heading>
+            <Heading level="h2" children={this.props.unscannableCountTotal}></Heading>
             <br></br>
             <Heading level="h3">Unscannable Files</Heading>
           </div>

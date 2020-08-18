@@ -47,12 +47,12 @@ const Display = (props) => {
   if(isLoggedIn) {
     return <HeaderTabs/>
   } else {
-    return [<div>
+    return <div>
       <WelcomePage/>
       <div className={`${classes.buttonContainer}`}>
           <Button onClick={props.action} color="primary" margin="small" textAlign="center">Scan Course</Button>
       </div>
-    </div>];
+    </div>;
   }
 }
 
