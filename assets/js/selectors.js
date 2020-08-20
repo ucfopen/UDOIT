@@ -16,30 +16,15 @@ export const getCountsFromSection = (state, section) => {
     return {errorCount, suggestionCount}
 }
 
-export const getErrorTypes = (state, section) => {
+export const getIssueTypes = (state, section, type) => {
     let sectionInfo = getIssuesFromSection(state, section);
-    let errorTypes = []
+    let issueTypes = []
 
     for(var i = 0; i < sectionInfo.length; i++) {
-        console.log(Array.isArray(sectionInfo[i].issues))
-        for(var j = 0; j < sectionInfo[i].issues.length; j++) {
-            let temp = sectionInfo[i].issues[j];
-
-            if(temp.type === "error") {
-                errorTypes.push(temp)
-            }
-        }
+        issueTypes = issueTypes.concat(sectionInfo[i].issues.filter(issue => issue.type === type));
     }
 
-    return errorTypes;
+    return issueTypes;
 }
 
-export const getSuggestionTypes = (state, section) => {
-    let sectionInfo = getIssuesFromSection(state, section);
-    let suggestionTypes = []
 
-    for(var i = 0; i < sectionInfo.length; i++) {
-        errorCount += sectionInfo[i].issues.filter(issue => issue.type == "error").length;
-        suggestionCount += sectionInfo[i].issues.filter(issue => issue.type == "suggestion").length;
-    }
-}

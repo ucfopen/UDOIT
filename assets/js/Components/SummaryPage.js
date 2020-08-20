@@ -6,7 +6,7 @@ import { Table } from '@instructure/ui-table'
 import { Pill } from '@instructure/ui-pill'
 import { Badge } from '@instructure/ui-badge'
 import { connect } from 'react-redux';
-import { getIssuesFromSection, getErrorTypes, getCountsFromSection } from '../selectors';
+import { getIssuesFromSection, getIssueTypes, getCountsFromSection } from '../selectors';
 import moment from 'moment';
 import Clock from './Clock'
 
@@ -222,7 +222,7 @@ class SummaryPage extends React.Component {
               <Table.Row>
                 <Table.Cell>
                   <div className={`${classes.row}`}>
-                    <a href="">{this.props.errorTypes[1].title}</a>
+                    <a href="">{this.props.suggestionTypes[0].title}</a>
 
                     <Badge standalone count={1} countUntil={10} margin="0 small 0 0" />
                   </div>
@@ -253,7 +253,8 @@ const mapStateToProps = state => {
     suggestionCountTotal: state.issueList.data[0].suggestions,
     unscannableCountTotal: state.issueList.data[0].unscannable,
     announcementCounts: getCountsFromSection(state, "announcements"),
-    errorTypes: getErrorTypes(state, "announcements"),
+    errorTypes: getIssueTypes(state, "announcements", "error"),
+    suggestionTypes: getIssueTypes(state, "announcements", "suggestion"),
   }
 }
 
