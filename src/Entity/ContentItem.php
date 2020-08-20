@@ -90,7 +90,7 @@ class ContentItem implements \JsonSerializable
             'title' => $this->getTitle(),
             'contentType' => $this->getContentType(),
             'lmsContentId' => $this->getLmsContentId(),
-            'updated' => $this->getUpdated(),
+            'updated' => $this->getUpdated()->format('c'),
             'isActive' => $this->getActive()
         ];
     }

@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\Entity\Course;
 use App\Message\BackgroundQueueItem;
 use App\Message\PriorityQueueItem;
+use App\MessageHandler\QueueItemHandler;
 use App\Repository\CourseRepository;
 use App\Response\ApiResponse;
 use App\Services\UtilityService;
@@ -20,15 +21,28 @@ class SyncController extends AbstractController
     protected $util;
 
     /**
-     * @Route("/sync/{course}", name="request_sync")
+     * @Route("/sync/{courseId}", name="request_sync")
      */
-    public function requestSync(Course $course, UtilityService $util)
+    public function requestSync(int $courseId, UtilityService $util)
     {
         $this->util = $util;
-        $response = new ApiResponse();
-        if ($course->isActive() && !$course->isDirty()) {
-            $count = $this->createApiRequests([$course], true);
-            $this->addFlash('message', sprintf('Sync started on %s course(s).', $count));
+
+        // If Course Exists Process Scan
+        $repository = $this->getDoctrine()->getRepository(Course::class);
+        $course = $repository->find($courseId);
+        if($course) {
+
+            $response = new ApiResponse();
+            if ($course->isActive() && !$course->isDirty()) {
+                $count = $this->createApiRequests([$course], true);
+                $this->addFlash('message', "Sync started on {$count} course(s)");
+            }
+            else {
+                $this->addFlash('error', "A course scan is in progress, or the course is inactive.");
+            }
+        }
+        else {
+            $this->addFlash('error', "Course with ID {$courseId} could not be found.");
         }
 
         return new JsonResponse($response);

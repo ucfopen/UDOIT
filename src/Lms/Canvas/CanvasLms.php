@@ -65,7 +65,7 @@ class CanvasLms implements LmsInterface {
     public function getLmsCourseId()
     {
         if (!isset($this->lmsCourseId)) {
-            $this->lmsCourseId = $this->session->get('custom_canvas_course_id');
+            $this->lmsCourseId = $this->session->get('lms_course_id');
         }
         return $this->lmsCourseId;
     }
@@ -73,7 +73,7 @@ class CanvasLms implements LmsInterface {
     public function getLmsUserId()
     {
         if (!isset($this->lmsUserId)) {
-            $this->lmsUserId = $this->session->get('custom_canvas_user_id');
+            $this->lmsUserId = $this->session->get('lms_user_id');
         }
         return $this->lmsUserId;
     }

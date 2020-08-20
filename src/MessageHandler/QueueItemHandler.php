@@ -62,7 +62,6 @@ class QueueItemHandler implements MessageHandlerInterface
             // Scan Content Items with PHP Ally and associate new issues/suggestions.
             $this->scanContentItems($contentItems, $report);
 
-
             // Set Report as Ready and update.
             $report->setReady(true);
             $this->entityManager->persist($report);
@@ -82,7 +81,7 @@ class QueueItemHandler implements MessageHandlerInterface
      * @param Course $course
      * @return ContentItem[]|void
      */
-    protected function getUpdatedLmsContent(Course $course)
+    protected function getUpdatedLmsContent(Course $course) : array
     {
         // mark all contentItems as inactive.
         /** @var ContentItemRepository $contentItemRepo */
@@ -96,7 +95,12 @@ class QueueItemHandler implements MessageHandlerInterface
         /** @var ContentItem[] $lmsContent */
         $contentItems = $lms->getCourseContent($course);
 
-        $courseLastUpdated = $course->getLastUpdated();
+        $this->entityManager->flush();
+
+        return $this->filterOldContentItems($contentItems, $course->getLastUpdated());
+    }
+
+    public static function filterOldContentItems(array $contentItems, $courseLastUpdated) : array {
 
         // filter out any content that was updated older than the course 'last_updated'
         foreach ($contentItems as $ind => $contentItem) {
@@ -105,8 +109,6 @@ class QueueItemHandler implements MessageHandlerInterface
                 unset($contentItems[$ind]);
             }
         }
-
-        $this->entityManager->flush();
 
         return $contentItems;
     }

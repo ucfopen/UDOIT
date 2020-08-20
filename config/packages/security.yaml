@@ -16,26 +16,21 @@ security:
             pattern: ^/lti/authorize
             stateless: false
             anonymous: true
-            guard:
-                authenticators:
-                    - App\Security\DevAuthenticator
+
         ltiResponse:
             pattern: ^/lti/authorize/check
             stateless: false
             anonymous: true
-            guard:
-                authenticators:
-                    - App\Security\DevAuthenticator
 
         oauthAuthorize:
             pattern: ^/authorize
             anonymous: true
             guard:
-                authenticators: 
+                authenticators:
                     - App\Security\OauthAuthenticator
                 entry_point: App\Security\OauthAuthenticator
 
-        oauthResponse: 
+        oauthResponse:
             pattern: ^/authorize/check
             anonymous: true
             stateless: false
