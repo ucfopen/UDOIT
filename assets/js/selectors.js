@@ -21,7 +21,14 @@ export const getErrorTypes = (state, section) => {
     let errorTypes = []
 
     for(var i = 0; i < sectionInfo.length; i++) {
-        errorTypes.push(sectionInfo[i].issues.map(issue => issue.title));
+        console.log(Array.isArray(sectionInfo[i].issues))
+        for(var j = 0; j < sectionInfo[i].issues.length; j++) {
+            let temp = sectionInfo[i].issues[j];
+
+            if(temp.type === "error") {
+                errorTypes.push(temp)
+            }
+        }
     }
 
     return errorTypes;

@@ -63,10 +63,7 @@ class SummaryPage extends React.Component {
         </div>
 
         <div className={`${classes.row}`}>
-          <p>
-            {this.state.date}
             <Clock></Clock>
-          </p>
         </div>
 
         {/* Total Counts */}
@@ -189,7 +186,7 @@ class SummaryPage extends React.Component {
               <Table.Row>
                 <Table.Cell>
                   <div className={`${classes.row}`}>
-                    <a href="">{this.props.errorTypes[0][0]}</a>
+                    <a href="">{this.props.errorTypes[0].title}</a>
 
                     <Badge standalone variant="danger" count={1} countUntil={10} margin="0 small 0 0" />
                   </div>
@@ -197,7 +194,7 @@ class SummaryPage extends React.Component {
               </Table.Row>
               <Table.Row>
                 <Table.Cell>
-                  <a href="">{this.props.errorTypes[0][1]}</a>
+                  <a href="">{this.props.errorTypes[1].title}</a>
 
                   <Badge standalone variant="danger" count={1} countUntil={10} margin="0 small 0 0" />
                 </Table.Cell>
@@ -225,7 +222,7 @@ class SummaryPage extends React.Component {
               <Table.Row>
                 <Table.Cell>
                   <div className={`${classes.row}`}>
-                    <a href="">{this.props.errorTypes[1][0]}</a>
+                    <a href="">{this.props.errorTypes[1].title}</a>
 
                     <Badge standalone count={1} countUntil={10} margin="0 small 0 0" />
                   </div>
