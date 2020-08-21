@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\Entity\User;
 use App\Lms\Canvas\CanvasLms;
 use App\Services\UtilityService;
 use Firebase\JWT\JWK;
@@ -85,6 +86,14 @@ class LtiController extends AbstractController
 
         // Add Token to Session
         $this->saveTokenToSession($token);
+
+        $user = $this->util->getPreauthenticatedUser();
+        if($user) {
+            $apiKey = $user->getApiKey();
+            if($apiKey) {
+                return $this->redirectToRoute('dashboard');
+            }
+        }
 
         return $this->redirectToRoute(
             'authorize',
