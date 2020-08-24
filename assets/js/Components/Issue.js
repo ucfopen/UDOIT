@@ -30,9 +30,9 @@ class Issue extends React.Component {
   render() {
     return (
       <div>
-        <p>{this.state.title}</p>
-        <p>{this.state.severity}</p>
-        <p>{this.state.description}</p>
+        {this.state.title}
+        {this.state.severity}
+        {this.state.description}
       </div>
     )
   }

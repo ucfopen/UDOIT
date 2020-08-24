@@ -1,4 +1,8 @@
 import React from 'react';
+import { connect } from 'react-redux';
+import Issue from './Issue';
+import { getCountsFromSection } from '../selectors'
+import { getIssuesFromSection } from '../selectors'
 
 const API = '';
 // The report which contains all the issues found while scanning the course
@@ -6,43 +10,33 @@ class Report extends React.Component {
 
   constructor(props) {
     super(props);
-
-    this.state = {
-      id: null,
-      createdAt: null,
-      errors: null,
-      suggestions: null,
-      sections: {
-        announcements: [],
-        assignments: [],
-        discussions: [],
-        files: [],
-        pages: [],
-        syllabus: [],
-        moduleUrls: []
-      }
-    }
   }
 
   componentDidMount() {
-    // TODO Fetch issues from API then set state
-    fetch('http://API/route')
-    .then( res => res.json())
-    .then((data) => {
-      this.setState({
-        //Set state for the content sections
-      });
-    })
-    .catch(console.log);
+    // Do something
   }
 
   render() {
     return (
       <div>
-        <p>Report</p>
+          {this.props.issueList.map(x => <Issue key={x.id}
+            title={x.title}
+            description={x.description}s
+            severity={x.severity}
+            />
+        )}
       </div>
     )
   }
 }
 
-export default Report;
+const mapStateToProps = state => {
+  return {
+    issueList: getIssuesFromSection(state, "announcements")[0].issues,
+    counts: getCountsFromSection(state, "announcements")
+  }
+}
+
+export default connect(
+  mapStateToProps,
+)(Report);

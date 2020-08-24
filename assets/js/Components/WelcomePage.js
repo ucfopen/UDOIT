@@ -1,5 +1,5 @@
 import React from 'react';
-import { Heading } from '@instructure/ui-elements'
+import { Heading } from '@instructure/ui-heading'
 import classes from '../../css/welcomePage.scss';
 import { ProgressCircle } from '@instructure/ui-progress'
 

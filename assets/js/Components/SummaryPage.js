@@ -1,10 +1,14 @@
 import React from 'react';
 import classes from '../../css/summaryPage.scss';
-import { Heading } from '@instructure/ui-elements';
+import { Heading } from '@instructure/ui-heading'
 import { Button } from '@instructure/ui-buttons'
 import { Table } from '@instructure/ui-table'
 import { Pill } from '@instructure/ui-pill'
 import { Badge } from '@instructure/ui-badge'
+import { connect } from 'react-redux';
+import { getIssuesFromSection, getErrorTypes, getCountsFromSection } from '../selectors';
+import moment from 'moment';
+import Clock from './Clock'
 
 const API = '';
 
@@ -39,33 +43,11 @@ class SummaryPage extends React.Component {
       // })
       // .catch(console.log);
 
-    // The list of issues for the piece of content
-    var data = [
-        {
-            "id": 12345,
-            "scanRuleId": "Scan Rule Id",
-            "title": "Issue 1 Title",
-            "description": "Issue 1 Description",
-            "type": "error",
-            "uFixIt": true,
-            "sourceHtml": "<div>Source HTML</div>"
-        },
-        {
-            "id": 23456,
-            "title": "Issue 2 Title",
-            "scanRuleId": "Scan Rule Id",
-            "description": "Issue 2 Description",
-            "type": "suggestion",
-            "uFixIt": false,
-            "sourceHtml": "<div>Source HTML</div>"
-        }
-    ]
-
-    var date = new Date().toLocaleString();
+    var date = new Date();
 
     this.setState({
-      issues: data,
-      dateTime: date,
+      date: date.toLocaleDateString(),
+      time: date.toLocaleTimeString(),
     });
   }
 
@@ -81,29 +63,26 @@ class SummaryPage extends React.Component {
         </div>
 
         <div className={`${classes.row}`}>
-          <p>{this.state.dateTime}</p>
-        {/* {this.state.issues.map(x => <Issue key={x.id}
-            title={x.title}
-            description={x.description}s
-            severity={x.severity}
-            />
-        )} */}
+          <p>
+            {this.state.date}
+            <Clock></Clock>
+          </p>
         </div>
 
         {/* Total Counts */}
         <div className={`${classes.rowcentered}`}>
           <div className={`${classes.numberContainer}`}>
-            <Heading level="h2">10</Heading>
+            <Heading level="h2" children={this.props.errorCountTotal}></Heading>
             <br></br>
             <Heading level="h3">Errors</Heading>
           </div>
           <div className={`${classes.numberContainer}`}>
-            <Heading level="h2">3</Heading>
+            <Heading level="h2" children={this.props.suggestionCountTotal}></Heading>
             <br></br>
             <Heading level="h3">Suggestions</Heading>
           </div>
           <div className={`${classes.numberContainer}`}>
-            <Heading level="h2">2</Heading>
+            <Heading level="h2" children={this.props.unscannableCountTotal}></Heading>
             <br></br>
             <Heading level="h3">Unscannable Files</Heading>
           </div>
@@ -134,13 +113,13 @@ class SummaryPage extends React.Component {
                     color="alert"
                     margin="x-small"
                     >
-                      1 Suggestion
+                      {this.props.announcementCounts.suggestionCount} Suggestion
                     </Pill>
                     <Pill
                     color="danger"
                     margin="x-small"
                     >
-                      2 Errors
+                      {this.props.announcementCounts.errorCount} Errors
                     </Pill>
                   </div>
                 </Table.Cell>
@@ -148,7 +127,7 @@ class SummaryPage extends React.Component {
               <Table.Row>
                 <Table.Cell>
                   <a href="">Assignments</a>
-                  <Pill
+                  {/* <Pill
                     color="alert"
                     margin="x-small"
                     >
@@ -159,7 +138,7 @@ class SummaryPage extends React.Component {
                     margin="x-small"
                     >
                       8 Errors
-                    </Pill>
+                    </Pill> */}
                 </Table.Cell>
               </Table.Row>
               <Table.Row>
@@ -210,17 +189,17 @@ class SummaryPage extends React.Component {
               <Table.Row>
                 <Table.Cell>
                   <div className={`${classes.row}`}>
-                    <a href="">Alternative Text should not be the image filename</a>
+                    <a href="">{this.props.errorTypes[0][0]}</a>
 
-                    <Badge standalone variant="danger" count={5} countUntil={10} margin="0 small 0 0" />
+                    <Badge standalone variant="danger" count={1} countUntil={10} margin="0 small 0 0" />
                   </div>
                 </Table.Cell>
               </Table.Row>
               <Table.Row>
                 <Table.Cell>
-                  <a href="">No Table Headers Found</a>
+                  <a href="">{this.props.errorTypes[0][1]}</a>
 
-                  <Badge standalone variant="danger" count={5} countUntil={10} margin="0 small 0 0" />
+                  <Badge standalone variant="danger" count={1} countUntil={10} margin="0 small 0 0" />
                 </Table.Cell>
               </Table.Row>
             </Table.Body>
@@ -246,18 +225,18 @@ class SummaryPage extends React.Component {
               <Table.Row>
                 <Table.Cell>
                   <div className={`${classes.row}`}>
-                    <a href="">Avoid use of animated gifs</a>
+                    <a href="">{this.props.errorTypes[1][0]}</a>
 
                     <Badge standalone count={1} countUntil={10} margin="0 small 0 0" />
                   </div>
                 </Table.Cell>
               </Table.Row>
               <Table.Row>
-                <Table.Cell>
+                {/* <Table.Cell>
                   <a href="">Image elements</a>
 
                   <Badge standalone count={2} countUntil={10} margin="0 small 0 0" />
-                </Table.Cell>
+                </Table.Cell> */}
               </Table.Row>
             </Table.Body>
             
@@ -270,4 +249,18 @@ class SummaryPage extends React.Component {
   }
 }
 
-export default SummaryPage;
+const mapStateToProps = state => {
+  return {
+    issueList: state.issueList,
+    errorCountTotal: state.issueList.data[0].errors,
+    suggestionCountTotal: state.issueList.data[0].suggestions,
+    unscannableCountTotal: state.issueList.data[0].unscannable,
+    announcementCounts: getCountsFromSection(state, "announcements"),
+    errorTypes: getErrorTypes(state, "announcements"),
+  }
+}
+
+export default connect(
+  mapStateToProps,
+)
+(SummaryPage);

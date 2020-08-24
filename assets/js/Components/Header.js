@@ -1,5 +1,5 @@
 import React from 'react';
-import Logo from '../../udoit_logo.png';
+import Logo from '../../mediaAssets/udoit_logo.png';
 import classes from '../../css/header.scss';
 
 class Header extends React.Component {

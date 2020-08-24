@@ -2,6 +2,7 @@ import React from 'react';
 import { Tabs } from '@instructure/ui-tabs'
 import SummaryPage from './SummaryPage'
 import ContentPage from './ContentPage';
+import Report from './Report';
 
 class HeaderTabs extends React.Component {
 
@@ -35,10 +36,10 @@ class HeaderTabs extends React.Component {
             <SummaryPage/>
         </Tabs.Panel>
         <Tabs.Panel renderTitle="Content" isSelected={selectedIndex === 1}>
-            <ContentPage></ContentPage>
+          <ContentPage></ContentPage>
         </Tabs.Panel>
         <Tabs.Panel renderTitle="Files" isSelected={selectedIndex === 2}>
-            <HeaderTabs/>
+            <Report/>
         </Tabs.Panel>
         </Tabs>
       </div>
