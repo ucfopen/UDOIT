@@ -90,7 +90,7 @@ class ContentItem implements \JsonSerializable
             'title' => $this->getTitle(),
             'contentType' => $this->getContentType(),
             'lmsContentId' => $this->getLmsContentId(),
-            'updated' => $this->getUpdated(),
+            'updated' => $this->getUpdated()->format('c'),
             'isActive' => $this->getActive()
         ];
     }
@@ -249,11 +249,5 @@ class ContentItem implements \JsonSerializable
         }
 
         return $this;
-    }
-
-    public function clearIssues() {
-        foreach($this->issues as $issue) {
-            $this->removeIssue($issue);
-        }
     }
 }

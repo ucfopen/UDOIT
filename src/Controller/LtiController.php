@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\Entity\User;
 use App\Lms\Canvas\CanvasLms;
 use App\Services\UtilityService;
 use Firebase\JWT\JWK;
@@ -32,9 +33,11 @@ class LtiController extends AbstractController
         SessionInterface $session,
         UtilityService $util
     ) {
+
         $this->request = $request;
         $this->session = $session;
         $this->util = $util;
+
         $this->saveRequestToSession();
 
         return $this->redirect($this->getAuthenticationResponseUrl());
@@ -48,10 +51,10 @@ class LtiController extends AbstractController
         SessionInterface $session,
         UtilityService $util
     ) {
-
         $this->request = $request;
         $this->session = $session;
         $this->util = $util;
+
         $this->saveRequestToSession();
         $clientId = $this->session->get('client_id');
 
@@ -84,11 +87,20 @@ class LtiController extends AbstractController
         // Add Token to Session
         $this->saveTokenToSession($token);
 
+        $user = $this->util->getPreauthenticatedUser();
+        if($user) {
+            $apiKey = $user->getApiKey();
+            if($apiKey) {
+                return $this->redirectToRoute('dashboard');
+            }
+        }
+
         return $this->redirectToRoute(
             'authorize',
             [
                 'lms_api_domain' => $this->session->get('lms_api_domain'),
-                'lms_user_id' => $this->session->get('lms_user_id')
+                'lms_user_id' => $this->session->get('lms_user_id'),
+                'lms_course_id' => $this->session->get('lms_course_id')
             ]
         );
     }
@@ -154,19 +166,20 @@ class LtiController extends AbstractController
     protected function getBaseUrl()
     {
         if (UtilityService::CANVAS_LMS === $this->util->getLmsId()) {
-            $issuer = $this->session->get('iss');
-            if (!$issuer) {
+            $issuer = ($this->session->has('iss') ? $this->session->get('iss') : null);
+            if (is_null($issuer)) {
                 $this->util->exitWithMessage('Missing LTI configuration. Please contact your system administrator. ERROR: missing issuer');
             }
 
             if (strpos($issuer, '.test.') !== false) {
                 return CanvasLms::CANVAS_TEST_BASE_URL;
-            } else if (strpos($issuer, '.beta.') !== false) {
+            }
+            else if (strpos($issuer, '.beta.') !== false) {
                 return CanvasLms::CANVAS_BETA_BASE_URL;
             }
 
             return CanvasLms::CANVAS_PROD_BASE_URL;
-        } else {
+
         }
 
         // default to Canvas Prod

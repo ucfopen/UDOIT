@@ -1,10 +1,13 @@
 import React from 'react'
 import ReactDOM from 'react-dom'
-import WelcomePage from './Components/WelcomePage'
-import Header from './Components/Header'
-import HeaderTabs from './Components/HeaderTabs'
-import classes from '../css/app.scss';
+import WelcomePage from './WelcomePage'
+import Header from './Header'
+import HeaderTabs from './HeaderTabs'
+import classes from '../../css/app.scss'
 import { Button } from '@instructure/ui-buttons'
+import { connect } from 'react-redux';
+import getScanResults from '../Actions'
+
 
 import '@instructure/canvas-theme';
 
@@ -16,6 +19,8 @@ class App extends React.Component {
       "items": [],
       "isLoggedIn": false
     }
+    //
+    this.props.getScanResults();
 
     this.handleClick = this.handleClick.bind(this);
   }
@@ -42,13 +47,23 @@ const Display = (props) => {
   if(isLoggedIn) {
     return <HeaderTabs/>
   } else {
-    return [<div>
+    return <div>
       <WelcomePage/>
       <div className={`${classes.buttonContainer}`}>
           <Button onClick={props.action} color="primary" margin="small" textAlign="center">Scan Course</Button>
       </div>
-    </div>];
+    </div>;
   }
 }
 
-ReactDOM.render(<App/>, document.getElementById('root'));
+const mapDispatchToProps = dispatch => {
+  return {
+    getScanResults: () => dispatch(getScanResults()),
+    
+  }
+}
+
+export default connect(
+  null,
+  mapDispatchToProps
+)(App);
