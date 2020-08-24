@@ -8,8 +8,8 @@
             "courseId": 1111,
             "courseTitle": "Course Title",
             "created": "*DATETIME*",
-            "errors": 2,
-            "suggestions": 1,
+            "errors": 3,
+            "suggestions": 2,
             "unscannable": 0,
             "report": {
                 "announcements": [
@@ -27,7 +27,7 @@
                                 "sourceHtml": "<div>Source HTML</div>"
                             },
                             {
-                                "id": 23456,
+                                "id": 23458,
                                 "title": "Avoid use of animated gifs",
                                 "scanRuleId": "Scan Rule Id",
                                 "description": "Issue Description",
@@ -53,8 +53,54 @@
                         ]
                     }
                 ],
-                "assignments": [],
-                "discussions": [],
+                "assignments": [{
+                    "id": 12345,
+                    "title": "Content Title",
+                    "issues": [
+                        {
+                            "id": 12345,
+                            "scanRuleId": "Scan Rule Id",
+                            "title": "Alternative Text should not be the image filename",
+                            "description": "Issue Description",
+                            "type": "error",
+                            "uFixIt": true,
+                            "sourceHtml": "<div>Source HTML</div>"
+                        },
+                        {
+                            "id": 23458,
+                            "title": "Avoid use of animated gifs",
+                            "scanRuleId": "Scan Rule Id",
+                            "description": "Issue Description",
+                            "type": "suggestion",
+                            "uFixIt": false,
+                            "sourceHtml": "<div>Source HTML</div>"
+                        }
+                    ]
+                }],
+                "discussions": [{
+                    "id": 12345,
+                    "title": "Content Title",
+                    "issues": [
+                        {
+                            "id": 12345,
+                            "scanRuleId": "Scan Rule Id",
+                            "title": "Alternative Text should not be the image filename",
+                            "description": "Issue Description",
+                            "type": "error",
+                            "uFixIt": true,
+                            "sourceHtml": "<div>Source HTML</div>"
+                        },
+                        {
+                            "id": 23458,
+                            "title": "Avoid use of animated gifs",
+                            "scanRuleId": "Scan Rule Id",
+                            "description": "Issue Description",
+                            "type": "suggestion",
+                            "uFixIt": false,
+                            "sourceHtml": "<div>Source HTML</div>"
+                        }
+                    ]
+                }],
                 "files": [],
                 "pages": [],
                 "syllabus": [],

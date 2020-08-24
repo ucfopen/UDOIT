@@ -6,7 +6,7 @@ import { Table } from '@instructure/ui-table'
 import { Pill } from '@instructure/ui-pill'
 import { Badge } from '@instructure/ui-badge'
 import { connect } from 'react-redux';
-import { getIssuesFromSection, getIssueTypes, getCountsFromSection } from '../selectors';
+import { getIssueFrequency, getIssueTypes, getCountsFromSection } from '../selectors';
 import moment from 'moment';
 import Clock from './Clock'
 
@@ -54,6 +54,9 @@ class SummaryPage extends React.Component {
 
 
   render() {
+    const errorKeys = Object.keys(this.props.errorTypes);
+    const suggestionKeys = Object.keys(this.props.suggestionTypes);
+
     return (
       <div className={`${classes.summaryContainer}`}>
         <div className={`${classes.row}`}>
@@ -186,17 +189,17 @@ class SummaryPage extends React.Component {
               <Table.Row>
                 <Table.Cell>
                   <div className={`${classes.row}`}>
-                    <a href="">{this.props.errorTypes[0].title}</a>
+                    <a href="">{errorKeys[0]}</a>
 
-                    <Badge standalone variant="danger" count={1} countUntil={10} margin="0 small 0 0" />
+                    <Badge standalone variant="danger" count={this.props.errorTypes[errorKeys[0]].count} countUntil={10} margin="0 small 0 0" />
                   </div>
                 </Table.Cell>
               </Table.Row>
               <Table.Row>
                 <Table.Cell>
-                  <a href="">{this.props.errorTypes[1].title}</a>
+                  <a href="">{errorKeys[1]}</a>
 
-                  <Badge standalone variant="danger" count={1} countUntil={10} margin="0 small 0 0" />
+                  <Badge standalone variant="danger" count={this.props.errorTypes[errorKeys[1]].count} countUntil={10} margin="0 small 0 0" />
                 </Table.Cell>
               </Table.Row>
             </Table.Body>
@@ -222,9 +225,9 @@ class SummaryPage extends React.Component {
               <Table.Row>
                 <Table.Cell>
                   <div className={`${classes.row}`}>
-                    <a href="">{this.props.suggestionTypes[0].title}</a>
+                    <a href="">{suggestionKeys[0]}</a>
 
-                    <Badge standalone count={1} countUntil={10} margin="0 small 0 0" />
+                    <Badge standalone count={this.props.suggestionTypes[suggestionKeys[0]].count} countUntil={10} margin="0 small 0 0" />
                   </div>
                 </Table.Cell>
               </Table.Row>
@@ -253,8 +256,8 @@ const mapStateToProps = state => {
     suggestionCountTotal: state.issueList.data[0].suggestions,
     unscannableCountTotal: state.issueList.data[0].unscannable,
     announcementCounts: getCountsFromSection(state, "announcements"),
-    errorTypes: getIssueTypes(state, "announcements", "error"),
-    suggestionTypes: getIssueTypes(state, "announcements", "suggestion"),
+    errorTypes: getIssueFrequency(state, "error"),
+    suggestionTypes: getIssueFrequency(state, "suggestion"),
   }
 }
 
