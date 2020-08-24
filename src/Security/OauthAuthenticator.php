@@ -35,31 +35,38 @@ class OauthAuthenticator extends AbstractGuardAuthenticator
 
     public function getCredentials(Request $request)
     {
-        return $request->query->all();
+        $postParams = $request->query->all();
+
+        // check if user ID matches what is in the session. 
+        // If it doesn't, remove it from the post params.
+        $sessionLmsUserId = $request->getSession()->get('lms_user_id');
+        $postLmsUserId = $request->query->get('lms_user_id');
+        
+        if ($sessionLmsUserId !== $postLmsUserId) {
+            unset($postParams['lms_user_id']);
+        }
+
+        return $postParams;
     }
 
     public function getUser($postParams, UserProviderInterface $userProvider)
     {
-
         if (empty($postParams)) {
             // TODO: add more extensive check
             $this->util->exitWithMessage('Authentication problem: No POST parameters were provided by the LMS.');
         }
 
-        // verify we have the variables we need from the LTI launch
-//        $expect = ['oauth_consumer_key', 'lms_api_domain', 'lms_user_id'];
-        $expect = ['lms_api_domain', 'lms_user_id'];
+        // verify we have the variables we need for oauth
+        $expect = ['lms_api_domain'];
         foreach ($expect as $key) {
             if (empty($postParams[$key])) {
                 $this->util->exitWithMessage('Missing LTI launch information. Missing: ' . $key);
             }
         }
 
-        //$username = $this->getUserName();
-        $lmsUserId = (isset($postParams['lms_user_id'])) ? $postParams['lms_user_id'] : false;
         $lmsDomain = (isset($postParams['lms_api_domain'])) ? $postParams['lms_api_domain'] : false;
-//        $consumerKey = (isset($postParams['oauth_consumer_key'])) ? $postParams['oauth_consumer_key'] : false;
-        
+        $lmsUserId = (isset($postParams['lms_user_id'])) ? $postParams['lms_user_id'] : false;
+
         if (!$lmsUserId || !$lmsDomain) {
             return null;    
         }

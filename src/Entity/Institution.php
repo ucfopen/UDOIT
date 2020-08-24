@@ -376,12 +376,12 @@ class Institution
 
     public function getApiClientSecret(): ?string
     {
-        return $this->apiClientSecret;
+        return $this->decryptData($this->apiClientSecret);
     }
 
     public function setApiClientSecret(?string $apiClientSecret): self
     {
-        $this->apiClientSecret = $apiClientSecret;
+        $this->apiClientSecret = $this->encryptData($apiClientSecret);
 
         return $this;
     }
