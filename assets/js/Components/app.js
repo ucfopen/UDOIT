@@ -23,6 +23,7 @@ class App extends React.Component {
     this.props.getScanResults();
 
     this.handleClick = this.handleClick.bind(this);
+    this.loadSettings();
   }
 
   handleClick() {
@@ -38,6 +39,18 @@ class App extends React.Component {
         <Display isLoggedIn={this.state.isLoggedIn} action={this.handleClick}/>
       </div>
     )
+  }
+
+  loadSettings() {
+    const settingsElement = document.querySelector(
+      'body > script#toolSettings[type="application/json"]'
+    );
+
+    window.toolSettings = {};
+
+    if (settingsElement !== null) {
+      window.toolSettings = JSON.parse(settingsElement.textContent);
+    }
   }
 }
 

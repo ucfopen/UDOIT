@@ -79,7 +79,7 @@ class CoursesController extends ApiController
 
             $apiResponse->setData($course);
 
-        } catch(Exception $e) {
+        } catch(\Exception $e) {
             $apiResponse->setData($e->getMessage());
         }
 

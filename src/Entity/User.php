@@ -3,12 +3,13 @@
 namespace App\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
+use JsonSerializable;
 use Symfony\Component\Security\Core\User\UserInterface;
 
 /**
  * @ORM\Entity(repositoryClass="App\Repository\UserRepository")
  */
-class User implements UserInterface, \Serializable
+class User implements UserInterface, \Serializable, JsonSerializable
 {
     /**
      * @ORM\Id()
@@ -222,6 +223,17 @@ class User implements UserInterface, \Serializable
             $this->username,
             $this->lmsUserId
         ) = unserialize($serialized);
+    }
+
+    public function jsonSerialize()
+    {
+        return [
+            'id' => $this->id,
+            'username' => $this->username,
+            'lmsUserId' => $this->lmsUserId,
+            'roles' => $this->getRoles(),
+            'institution' => $this->getInstitution(),
+        ];
     }
 
     /**

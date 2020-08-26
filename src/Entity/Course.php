@@ -247,4 +247,9 @@ class Course implements \JsonSerializable
 
         return $this;
     }
+
+    public function getLatestReport(): Report
+    {
+        return $this->reports->last();
+    }
 }
