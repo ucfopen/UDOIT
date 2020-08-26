@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\Entity\Course;
 use App\Services\UtilityService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -21,15 +22,23 @@ class DashboardController extends AbstractController
         $this->request = $request;
         $this->session = $session;
         $this->util = $util;
+        $data = [];
 
-        $user = $this->getUser();
-        $clientToken = base64_encode($user->getUsername());
-        $institution = $user->getInstitution();
+        $user = $data['user'] = $this->getUser();
+        $data['clientToken'] = base64_encode($user->getUsername());
 
+        if ($courseId = $session->get('lms_course_id')) {
+            $repository = $this->getDoctrine()->getRepository(Course::class);
+            /** @var Course $course */
+            $course = $data['course'] = $repository->find($courseId);
+
+            if ($course) {
+                $data['report'] = $course->getLatestReport();
+            }
+        }
+    
         return $this->render('default/index.html.twig', [
-            'user' => $user,
-            'clientToken' => $clientToken,
-            'institution' => $institution,
+            'data' => \json_encode($data),
         ]);
     }
 

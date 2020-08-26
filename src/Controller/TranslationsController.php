@@ -28,8 +28,8 @@ class TranslationsController extends AbstractController
                 throw new \Exception(sprintf("Translation for language %s cannot be found.", $lang));
             }
         }
-        catch(Exception $e) {
-            $apiResponse->setData($e->getMessage());
+        catch(\Exception $e) {
+            $apiResponse->addError($e->getMessage());
         }
 
         $jsonResponse = new JsonResponse($apiResponse);

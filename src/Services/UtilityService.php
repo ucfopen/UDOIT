@@ -126,7 +126,9 @@ class UtilityService {
                 $this->institution = $institution;
             }
             else {
-                $domain = $this->session->get('lms_api_domain');
+                //$domain = $this->session->get('lms_api_domain');
+                $domain = $this->session->get('lmsdomain');
+                $domain = str_replace(['.beta.', '.test.'], '.', $domain);
 
                 if ($domain) {
                     $institution = $this
