@@ -17,7 +17,7 @@ class App extends React.Component {
 
     this.state = {
       "items": [],
-      "isLoggedIn": false
+      "hasReport": false
     }
     //
     this.props.getScanResults();
@@ -28,7 +28,7 @@ class App extends React.Component {
 
   handleClick() {
     this.setState(state => ({
-      isLoggedIn: !state.isLoggedIn
+      hasReport: !state.hasReport
     }));
   }
 
@@ -36,7 +36,7 @@ class App extends React.Component {
     return (
       <div className={`${classes.app}`}>
         <Header/>
-        <Display isLoggedIn={this.state.isLoggedIn} action={this.handleClick}/>
+        <Display hasReport={this.state.hasReport} action={this.handleClick}/>
       </div>
     )
   }
@@ -55,9 +55,9 @@ class App extends React.Component {
 }
 
 const Display = (props) => {
-  const isLoggedIn = props.isLoggedIn;
+  const hasReport = props.hasReport;
 
-  if(isLoggedIn) {
+  if(hasReport) {
     return <HeaderTabs/>
   } else {
     return <div>
