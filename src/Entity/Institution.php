@@ -5,11 +5,12 @@ namespace App\Entity;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use JsonSerializable;
 
 /**
  * @ORM\Entity(repositoryClass="App\Repository\InstitutionRepository")
  */
-class Institution
+class Institution implements JsonSerializable
 {
     // Private Members
     /**
@@ -376,13 +377,26 @@ class Institution
 
     public function getApiClientSecret(): ?string
     {
-        return $this->apiClientSecret;
+        return $this->decryptData($this->apiClientSecret);
     }
 
     public function setApiClientSecret(?string $apiClientSecret): self
     {
-        $this->apiClientSecret = $apiClientSecret;
+        $this->apiClientSecret = $this->encryptData($apiClientSecret);
 
         return $this;
+    }
+
+    public function jsonSerialize()
+    {
+        return [
+            'id' => $this->id,
+            'title' => $this->title,
+            'lmsDomain' => $this->lmsDomain,
+            'lmsId' => $this->lmsId,
+            'created' => $this->getCreated(),
+            'status' => $this->getStatus(),
+            'vanityUrl' => $this->vanityUrl,
+        ];
     }
 }

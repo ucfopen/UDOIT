@@ -15,16 +15,12 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Serializer\Serializer;
 
-/**
- * Class IssuesController
- * @package App\Controller
- * @Route("inst/{instId}/courses/{courseId}/issues")
- */
+
 class IssuesController extends ApiController
 {
     /**
      * UFIXIT endpoint. Takes an array of updates for future changes in the course.
-     * @Route("/{issueId}", methods={"PUT"}, name="put_issue")
+     * @Route("/api/courses/{courseId}/issues/{issueId}", methods={"PUT"}, name="put_issue")
      * @param $courseId
      * @param $issueId
      * @return \Symfony\Component\HttpFoundation\Response
@@ -32,10 +28,10 @@ class IssuesController extends ApiController
     public function fixIssue(Request $request, $courseId, $issueId) {
         $apiResponse = new ApiResponse();
         try {
-//            // Check if user has access to course FIXME: Uncomment when front end is handling auth
-//            if(!$this->userHasCourseAccess($courseId)) {
-//                throw new \Exception("You do not have permission to access the specified course.");
-//            }
+            // Check if user has access to course
+            if(!$this->userHasCourseAccess($courseId)) {
+                throw new \Exception("You do not have permission to access the specified course.");
+            }
 
             // Get Request Info
             $requestBody = json_decode($request->getContent( ), true);

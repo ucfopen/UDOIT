@@ -76,16 +76,14 @@ class Report implements \JsonSerializable
     {
         $result = [
             "id" => $this->id,
-            "ready" => $this->ready
+            "ready" => $this->ready,
+            "created" => $this->created->format('c'),
+            "errors" => $this->errors,
+            "suggestions" => $this->suggestions
         ];
-        if($this->ready) {
-            $result["created"] = $this->created;
-            $result["errors"] = $this->errors;
-            $result["suggestions"] = $this->suggestions;
 
-            if($this->serializeIssues) {
-                $result["issues"] = $this->issues->toArray();
-            }
+        if($this->serializeIssues) {
+            $result["issues"] = $this->issues->toArray();
         }
         return $result;
     }

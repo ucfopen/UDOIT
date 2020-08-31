@@ -126,7 +126,9 @@ class UtilityService {
                 $this->institution = $institution;
             }
             else {
-                $domain = $this->session->get('lms_api_domain');
+                //$domain = $this->session->get('lms_api_domain');
+                $domain = $this->session->get('lmsdomain');
+                $domain = str_replace(['.beta.', '.test.'], '.', $domain);
 
                 if ($domain) {
                     $institution = $this
@@ -158,8 +160,8 @@ class UtilityService {
             if ($userId = $this->session->get('userId')) {
                 $this->user = $this->doctrine->getRepository(User::class)->find($userId);
             } else {
-                $domain = $this->session->get('custom_canvas_api_domain');
-                $userId = $this->session->get('custom_canvas_user_id');
+                $domain = $this->session->get('lms_api_domain');
+                $userId = $this->session->get('lms_user_id');
 
                 if ($domain && $userId) {
                     $this->user = $this->doctrine->getRepository(User::class)
@@ -184,8 +186,8 @@ class UtilityService {
 
     public function createUser()
     {
-        $domain = $this->session->get('custom_lms_api_domain');
-        $userId = $this->session->get('custom_lms_user_id');
+        $domain = $this->session->get('lms_api_domain');
+        $userId = $this->session->get('lms_user_id');
         $institution = $this->getPreauthenticatedInstitution();
         $date = new DateTime();
 

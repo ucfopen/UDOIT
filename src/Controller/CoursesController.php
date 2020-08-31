@@ -10,6 +10,7 @@ use App\Entity\Issue;
 use App\Entity\Report;
 use App\Response\ApiResponse;
 use App\Response\ReportResponse;
+use App\Services\UtilityService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -17,27 +18,22 @@ use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Validator\Constraints\Json;
 
-/**
- * Class CoursesController
- * @package App\Controller
- * @Route("inst/{institutionId}/courses")
- */
+
 class CoursesController extends ApiController
 {
     /**
-     * @Route("/", name="get_courses")
+     * @Route("/api/courses/", name="get_courses")
      * @param Request $request
-     * @param $institutionId
      * @return JsonResponse
      */
-    public function getAllCourses(Request $request, $institutionId) {
-//        // Get Institution Data from User Object FIXME: Uncomment when front end handling authorization, and del
-//        $user = $this->getUser();
-//        $institution = $user->getInstitution();
-
-        // Get Institution FIXME: Delete when above is uncommented
-        $repository = $this->getDoctrine()->getRepository(Institution::class);
-        $institution = $repository->find($institutionId);
+    public function getAllCourses(
+        Request $request,
+        SessionInterface $session,
+        UtilityService $util
+    ) {
+        // Get Institution Data from User Object FIXME: Uncomment when front end handling authorization, and del
+        $user = $this->getUser();
+        $institution = $user->getInstitution();
 
         // Get Courses
         $courses = $institution->getCourses()->toArray();
@@ -51,20 +47,26 @@ class CoursesController extends ApiController
     }
 
     /**
-     * @Route("/{courseId}", methods={"GET"}, name="get_course")
+     * @Route("/api/courses/{courseId}", methods={"GET"}, name="get_course")
      * @param Request $request
+     * @param int $courseId
+     * @return JsonResponse
      * @throws \Exception
      */
-    public function getCourse(Request $request, $institutionId, $courseId) {
+    public function getCourse(
+        Request $request,
+        SessionInterface $session,
+        UtilityService $util,
+        int $courseId
+    ) {
         $apiResponse = new ApiResponse();
         try {
             // Check if user has access to course FIXME: Uncomment when front end is handling auth
-//            if(!$this->userHasCourseAccess($courseId)) {
-//                throw new \Exception("You do not have permission to access the specified course.");
-//            }
-//            $user = $this->getUser();
-//            $institution = $user->getInstitution();
-//            $institutionId = $institution->getId();
+            if(!$this->userHasCourseAccess($courseId)) {
+                throw new \Exception("You do not have permission to access the specified course.");
+            }
+            $user = $this->getUser();
+            $institution = $user->getInstitution();
 
             // Get Course
             $repository = $this->getDoctrine()->getRepository(Course::class);
@@ -77,7 +79,7 @@ class CoursesController extends ApiController
 
             $apiResponse->setData($course);
 
-        } catch(Exception $e) {
+        } catch(\Exception $e) {
             $apiResponse->setData($e->getMessage());
         }
 
