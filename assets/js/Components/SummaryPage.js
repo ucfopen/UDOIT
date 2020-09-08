@@ -9,6 +9,7 @@ import { connect } from 'react-redux';
 import { getIssueFrequency, getIssueTypes, getCountsFromSection } from '../selectors';
 import moment from 'moment';
 import Clock from './Clock'
+import SortableTable from './SortableTable'
 
 const API = '';
 
@@ -49,6 +50,8 @@ class SummaryPage extends React.Component {
       date: date.toLocaleDateString(),
       time: date.toLocaleTimeString(),
     });
+
+    console.log(this.props.errorTypes)
   }
 
 
@@ -90,6 +93,65 @@ class SummaryPage extends React.Component {
 
         {/* Summary Tables */}
         <div className={`${classes.row}`}>
+        <SortableTable
+    caption="Top rated movies"
+    headers={[
+      {
+        id: 'Rank',
+        text: 'Rank',
+      },
+      {
+        id: 'Title',
+        text: 'Title',
+      },
+      {
+        id: 'Year',
+        text: 'Year',
+      },
+      {
+        id: 'Rating',
+        text: 'Rating',
+        renderCell: (rating) => rating.toFixed(1),
+      },
+    ]}
+    rows={[
+      {
+        id: '1',
+        Rank: 1,
+        Title: 'The Shawshank Redemption',
+        Year: 1994,
+        Rating: 9.3,
+      },
+      {
+        id: '2',
+        Rank: 2,
+        Title: 'The Godfather',
+        Year: 1972,
+        Rating: 9.2,
+      },
+      {
+        id: '3',
+        Rank: 3,
+        Title: 'The Godfather: Part II',
+        Year: 1974,
+        Rating: 9.0,
+      },
+      {
+        id: '4',
+        Rank: 4,
+        Title: 'The Dark Knight',
+        Year: 2008,
+        Rating: 9.0,
+      },
+      {
+        id: '5',
+        Rank: 5,
+        Title: '12 Angry Men',
+        Year: 1957,
+        Rating: 8.9,
+      },
+    ]}
+  />
           {/* Content */}
           <div className={`${classes.tableContainer}`}>
           <Table
