@@ -6,7 +6,6 @@ use App\Services\UtilityService;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
-use JsonSerializable;
 
 /**
  * @ORM\Entity(repositoryClass="App\Repository\ContentItemRepository")
@@ -20,6 +19,11 @@ class ContentItem implements \JsonSerializable
      * @ORM\Column(type="integer")
      */
     private $id;
+
+    /**
+     * @ORM\Column(type="string", length=255)
+     */
+    private $title;
 
     /**
      * @ORM\ManyToOne(targetEntity="App\Entity\Course", inversedBy="contentItems")
@@ -58,18 +62,9 @@ class ContentItem implements \JsonSerializable
     private $active;
 
     /**
-     * @ORM\Column(type="string", length=255)
-     */
-    private $title;
-
-
-    /*
-     * Not saved to the DB, but useful in storing the HTML while we scan.
-     *
-     * @var string
+     * @ORM\Column(type="text", nullable=true)
      */
     private $body;
-
 
     // Constructor
     public function __construct()
@@ -167,6 +162,18 @@ class ContentItem implements \JsonSerializable
 
         return $this;
     }
+    
+    public function getBody(): ?string
+    {
+        return $this->body;
+    }
+
+    public function setBody(?string $body): self
+    {
+        $this->body = $body;
+
+        return $this;
+    }
 
     /**
      * @return Collection|Issue[]
@@ -195,18 +202,6 @@ class ContentItem implements \JsonSerializable
                 $issue->setContentItem(null);
             }
         }
-
-        return $this;
-    }
-
-    public function getBody(): ?string
-    {
-        return $this->body;
-    }
-
-    public function setBody(?string $body): self
-    {
-        $this->body = $body;
 
         return $this;
     }
@@ -245,7 +240,7 @@ class ContentItem implements \JsonSerializable
             $this->setBody($lmsContent['body']);
         }
         catch (\Exception $e) {
-            // add error to flash bag.
+            
         }
 
         return $this;

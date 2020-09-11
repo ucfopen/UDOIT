@@ -5,7 +5,7 @@ namespace App\Repository;
 use App\Entity\ContentItem;
 use App\Entity\Issue;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
-use Doctrine\Common\Persistence\ManagerRegistry;
+use Doctrine\Persistence\ManagerRegistry;
 
 /**
  * @method Issue|null find($id, $lockMode = null, $lockVersion = null)
@@ -20,12 +20,13 @@ class IssueRepository extends ServiceEntityRepository
         parent::__construct($registry, Issue::class);
     }
 
-    public function setContentItemIssuesInactive(ContentItem $contentItem) {
+    public function deleteContentItemIssues(ContentItem $contentItem)
+    {
+        //$this->getEntityManager()->createQuery('DELETE App\Entity\Issue i WHERE i.contentItem =')
         $this->getEntityManager()->createQueryBuilder()
-            ->update('App:Issue', 'i')
-            ->set('i.status', 0)
-            ->where('i.contentItem = :contentItemId')
-            ->setParameter('contentItemId', $contentItem->getId())
+            ->delete(Issue::class, 'i')
+            ->where('i.contentItem = :contentItem')
+            ->setParameter('contentItem', $contentItem)
             ->getQuery()
             ->getResult();
     }

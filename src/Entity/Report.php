@@ -58,6 +58,12 @@ class Report implements \JsonSerializable
      */
     private $ready;
 
+    /**
+     * @ORM\ManyToOne(targetEntity=User::class, inversedBy="reports")
+     * @ORM\JoinColumn(nullable=false)
+     */
+    private $author;
+
     // Constructor
     public function __construct()
     {
@@ -119,26 +125,40 @@ class Report implements \JsonSerializable
         return $this;
     }
 
-    public function getErrors(): ?int
+    public function getErrors(): int
     {
-        return $this->errors;
+        return ($this->errors) ?: 0;
     }
 
-    public function setErrors(?int $errors): self
+    public function setErrors(int $errors): self
     {
         $this->errors = $errors;
 
         return $this;
     }
 
-    public function getSuggestions(): ?int
+    public function getSuggestions(): int
     {
-        return $this->suggestions;
+        return ($this->suggestions) ?: 0;
     }
 
-    public function setSuggestions(?int $suggestions): self
+    public function setSuggestions(int $suggestions): self
     {
         $this->suggestions = $suggestions;
+
+        return $this;
+    }
+
+    public function addToErrorCount()
+    {
+        $this->errors++;
+
+        return $this;
+    }
+
+    public function addToSuggestionCount()
+    {
+        $this->suggestions++;
 
         return $this;
     }
@@ -156,6 +176,13 @@ class Report implements \JsonSerializable
         if (!$this->issues->contains($issue)) {
             $this->issues[] = $issue;
             $issue->addReport($this);
+            
+            if ($issue->getType() === Issue::$issueError) {
+                $this->addToErrorCount();
+            }
+            else {
+                $this->addToSuggestionCount();
+            }
         }
 
         return $this;
@@ -214,6 +241,18 @@ class Report implements \JsonSerializable
     public function setReady(bool $ready): self
     {
         $this->ready = $ready;
+
+        return $this;
+    }
+
+    public function getAuthor(): ?User
+    {
+        return $this->author;
+    }
+
+    public function setAuthor(?User $author): self
+    {
+        $this->author = $author;
 
         return $this;
     }
