@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Entity\User;
 use App\Lms\Canvas\CanvasLms;
+use App\Services\LmsApiService;
 use App\Services\UtilityService;
 use Firebase\JWT\JWK;
 use \Firebase\JWT\JWT;
@@ -79,21 +80,13 @@ class LtiController extends AbstractController
         $this->claimMatchOrExit('azp', $clientId, $token->azp);
 
         // Expiration should be after the current time
-        if(date('U') >= $token->exp) {
+        if (date('U') >= $token->exp) {
             $this->util->exitWithMessage(sprintf('The "exp" provided is before the current time.'));
         }
         // Id token must contain a nonce. Should verify that nonce has not been received within a certain time window
 
         // Add Token to Session
         $this->saveTokenToSession($token);
-
-        $user = $this->util->getPreauthenticatedUser();
-        if($user) {
-            $apiKey = $user->getApiKey();
-            if($apiKey) {
-                return $this->redirectToRoute('dashboard');
-            }
-        }
 
         return $this->redirectToRoute(
             'authorize',
@@ -145,7 +138,7 @@ class LtiController extends AbstractController
 
     protected function getAuthenticationResponseUrl()
     {
-        $baseUrl = $this->getBaseUrl();
+        $baseUrl = $this->session->get('iss');
 
         $params = [
             'lti_message_hint' => $this->session->get('lti_message_hint'),
@@ -160,40 +153,15 @@ class LtiController extends AbstractController
             'prompt' => 'none',
         ];
         $queryStr = http_build_query($params);
+
         return "{$baseUrl}/api/lti/authorize_redirect?{$queryStr}";
-    }
-
-    protected function getBaseUrl()
-    {
-        if (UtilityService::CANVAS_LMS === $this->util->getLmsId()) {
-            $issuer = ($this->session->has('iss') ? $this->session->get('iss') : null);
-            if (is_null($issuer)) {
-                $this->util->exitWithMessage('Missing LTI configuration. Please contact your system administrator. ERROR: missing issuer');
-            }
-
-            if (strpos($issuer, '.test.') !== false) {
-                return CanvasLms::CANVAS_TEST_BASE_URL;
-            }
-            else if (strpos($issuer, '.beta.') !== false) {
-                return CanvasLms::CANVAS_BETA_BASE_URL;
-            }
-
-            return CanvasLms::CANVAS_PROD_BASE_URL;
-
-        }
-
-        // default to Canvas Prod
-        return CanvasLms::CANVAS_PROD_BASE_URL;
     }
 
     protected function getPublicJwks()
     {
-        if (UtilityService::CANVAS_LMS !== $this->util->getLmsId()) {
-            return 'D2L JWK';
-        }
-
         $httpClient = HttpClient::create();
-        $url = $this->getBaseUrl() . '/api/lti/security/jwks';
+        /* URL may be different for other LMSes */
+        $url = $this->session->get('iss') . '/api/lti/security/jwks';
         $response = $httpClient->request('GET', $url);
 
         $keys = $response->toArray();

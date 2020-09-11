@@ -36,9 +36,9 @@ class OauthAuthenticator extends AbstractGuardAuthenticator
 
     public function supports(Request $request)
     {
-        if(!$this->security->getUser()) {
-            return false;
-        }
+        // if(!$this->security->getUser()) {
+        //     return false;
+        // }
 
         return true;
     }
@@ -52,7 +52,7 @@ class OauthAuthenticator extends AbstractGuardAuthenticator
         $sessionLmsUserId = $request->getSession()->get('lms_user_id');
         $postLmsUserId = $request->query->get('lms_user_id');
         
-        if ($sessionLmsUserId !== $postLmsUserId) {
+        if ($sessionLmsUserId != $postLmsUserId) {
             unset($postParams['lms_user_id']);
         }
 

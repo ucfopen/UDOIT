@@ -8,6 +8,7 @@ use App\Message\PriorityQueueItem;
 use App\MessageHandler\QueueItemHandler;
 use App\Repository\CourseRepository;
 use App\Response\ApiResponse;
+use App\Services\LmsApiService;
 use App\Services\UtilityService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -23,18 +24,17 @@ class SyncController extends AbstractController
     /**
      * @Route("/sync/{courseId}", name="request_sync")
      */
-    public function requestSync(int $courseId, UtilityService $util)
+    public function requestSync(int $courseId, LmsApiService $lmsApi)
     {
-        $this->util = $util;
-
         // If Course Exists Process Scan
         $repository = $this->getDoctrine()->getRepository(Course::class);
         $course = $repository->find($courseId);
-        if($course) {
+        $user = $this->getUser();
 
+        if($course) {
             $response = new ApiResponse();
             if ($course->isActive() && !$course->isDirty()) {
-                $count = $this->createApiRequests([$course], true);
+                $count = $lmsApi->createApiRequests([$course], $user, true);
                 $this->addFlash('message', "Sync started on {$count} course(s)");
             }
             else {
@@ -51,40 +51,15 @@ class SyncController extends AbstractController
     /**
      * @Route("/cron/sync", name="cron_sync")
      */
-    public function cronSync(UtilityService $util)
+    public function cronSync(LmsApiService $lmsApi)
     {
-        $this->util = $util;
-
         /** @var CourseRepository $courseRepository */
         $courseRepository = $this->getDoctrine()->getRepository(Course::class);
         $courses = $courseRepository->findCoursesNeedingUpdate($this->maxAge);
-        $count = $this->createApiRequests($courses);
+        $user = $this->getUser();
+
+        $count = $lmsApi->createApiRequests($courses, $user);
 
         return new JsonResponse($count);
-    }
-
-    /**
-     * Adds Course Refresh request to the Message Queue
-     * @param $courses
-     * @param bool $isPriority
-     * @return int
-     */
-    protected function createApiRequests($courses, $isPriority = false)
-    {
-        // Add courses to the Messenger Queue.
-        foreach ($courses as $course) {
-            // Set Course to Dirty
-            $course->setDirty(true);
-            $this->getDoctrine()->getManager()->flush();
-
-            if ($isPriority) {
-                $this->dispatchMessage(new PriorityQueueItem($course, 'refreshContent'));
-            }
-            else {
-                $this->dispatchMessage(new BackgroundQueueItem($course, 'refreshContent'));
-            }
-        }
-
-        return count($courses);
     }
 }

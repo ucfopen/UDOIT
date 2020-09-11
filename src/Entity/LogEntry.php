@@ -7,7 +7,7 @@ use Doctrine\ORM\Mapping as ORM;
 /**
  * @ORM\Entity(repositoryClass="App\Repository\LogEntryRepository")
  */
-class LogEntry
+class LogEntry implements \JsonSerializable
 {
     /**
      * @ORM\Id()
@@ -40,6 +40,11 @@ class LogEntry
      * @ORM\Column(type="datetime")
      */
     private $created;
+
+    /**
+     * @ORM\Column(type="boolean", nullable=true)
+     */
+    private $status;
 
     public function getId(): ?int
     {
@@ -99,10 +104,34 @@ class LogEntry
         return $this->created;
     }
 
-    public function setCreated(\DateTimeInterface $created): self
+    public function setCreated(\DateTimeInterface $created = null): self
     {
+        if (!$created) {
+            $created = new \DateTime();
+        }
         $this->created = $created;
 
         return $this;
+    }
+
+    public function getStatus(): ?bool
+    {
+        return $this->status;
+    }
+
+    public function setStatus(?bool $status): self
+    {
+        $this->status = $status;
+
+        return $this;
+    }
+
+    public function jsonSerialize()
+    {
+        return [
+            'message' => $this->getMessage(),
+            'severity' => $this->getSeverity(),
+            'course' => (!empty($this->course)) ? $this->course->getTitle() : null,
+        ];
     }
 }

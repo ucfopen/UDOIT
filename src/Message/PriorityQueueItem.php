@@ -3,16 +3,19 @@
 namespace App\Message;
 
 use App\Entity\Course;
+use App\Entity\User;
 
 class PriorityQueueItem implements QueueItemInterface
 {
     private $courseId;
+    private $userId;
     private $task;
     private $data;
 
-    public function __construct(Course $course, $task, $data = [])
+    public function __construct(Course $course, User $user, $task, $data = [])
     {
         $this->courseId = $course->getId();
+        $this->userId = $user->getId();
         $this->task = $task;
         $this->data = $data;
     }
@@ -20,6 +23,11 @@ class PriorityQueueItem implements QueueItemInterface
     public function getCourseId()
     {
         return $this->courseId;
+    }
+
+    public function getUserId()
+    {
+        return $this->userId;
     }
 
     public function getTask()

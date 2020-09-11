@@ -5,7 +5,7 @@ namespace App\Repository;
 use App\Entity\ContentItem;
 use App\Entity\Course;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
-use Doctrine\Common\Persistence\ManagerRegistry;
+use Doctrine\Persistence\ManagerRegistry;
 
 /**
  * @method ContentItem|null find($id, $lockMode = null, $lockVersion = null)
@@ -28,6 +28,52 @@ class ContentItemRepository extends ServiceEntityRepository
             ->setParameter(':course', $course);
         
         return $query->execute();            
+    }
+
+    public function getUpdatedContentItems(Course $course)
+    {
+        $lastUpdated = $course->getLastUpdated();
+
+        if (!$lastUpdated) {
+            return $this->createQueryBuilder('c')
+                ->andWhere('c.course = :course')
+                ->andWhere('c.active = 1')
+                ->setParameter('course', $course)
+                ->getQuery()
+                ->getResult(); 
+        }
+
+        return $this->createQueryBuilder('c')
+            ->andWhere('c.course = :course')
+            ->andWhere('c.updated >= :updated')
+            ->andWhere('c.active = 1')
+            ->setParameter('course', $course)
+            ->setParameter('updated', $lastUpdated)
+            ->getQuery()
+            ->getResult();            
+    }
+
+    /**
+     * Get all content items that haven't changed since the course was last updated.
+     *
+     * @param Course $course
+     * @return \App\Entity\ContentItem[]
+     */
+    public function getUnchangedContentItems(Course $course)
+    {
+        $lastUpdated = $course->getLastUpdated();
+        if (!$lastUpdated) {
+            return [];
+        }
+
+        return $this->createQueryBuilder('c')
+            ->andWhere('c.course = :course')
+            ->andWhere('c.updated < :updated')
+            ->andWhere('c.active = 1')
+            ->setParameter('course', $course)
+            ->setParameter('updated', $lastUpdated)
+            ->getQuery()
+            ->getResult();
     }
 
     // /**

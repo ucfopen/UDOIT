@@ -3,7 +3,8 @@
 namespace App\Controller;
 
 use App\Entity\Institution;
-use App\Services\BasicLtiService;
+use App\Entity\User;
+use App\Services\LmsApiService;
 use App\Services\UtilityService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpClient\HttpClient;
@@ -21,9 +22,8 @@ class AuthController extends AbstractController
     private $session;
     /** @var Request $request */
     private $request;
-    /** @var BasicLtiService $ltiService */
-    private $ltiService;
-
+    /** @var LmsApiService $lmsApi */
+    private $lmsApi;
 
     /**
      * @Route("/authorize", name="authorize")
@@ -32,41 +32,28 @@ class AuthController extends AbstractController
         Request $request,
         SessionInterface $session,
         UtilityService $util,
-        BasicLtiService $ltiService)
+        LmsApiService $lmsApi)
     {
         $this->request = $request;
         $this->session = $session;
         $this->util = $util;
-        $this->ltiService = $ltiService;
-
-        // save .env values to session
-        $env = $util->getEnv();
-        $lmsId = $util->getLmsId();
+        $this->lmsApi = $lmsApi;
 
         $user = $this->getUser();
-
-        if (!$lmsId) {
-            $util->exitWithMessage('Missing LMS ID.');
+        if (!empty($user) && $this->lmsApi->validateApiKey($user)) {
+            return $this->redirectToRoute('dashboard');
         }
         
         $this->saveRequestToSession();
         
-        $institution = $this->util->getPreauthenticatedInstitution();
+        $institution = $this->getInstitutionFromSession();
         if (!$institution) {
             $util->exitWithMessage('No institution found with this domain.');
         }
 
-        if (UtilityService::ENV_DEV !== $env) {
-            $this->verifyBasicLtiLaunch($institution);        
-        }
-
-        if (!empty($user) && $this->validateApiKey()) {
-            return $this->redirectToRoute('dashboard');
-        }
-
         $apiClientId = $institution->getApiClientId();
-        $redirectUri = $this->getOauthRedirectUri();
-        $scopes = $util->getLms()->getScopes();
+        $redirectUri = $this->lmsApi->getOauthRedirectUri();
+        $scopes = $lmsApi->getLms()->getScopes();
 
         $oauthUri = "https://{$this->session->get('lms_api_domain')}/login/oauth2/auth/?client_id={$apiClientId}&scopes={$scopes}&response_type=code&redirect_uri={$redirectUri}";
 
@@ -82,12 +69,12 @@ class AuthController extends AbstractController
         Request $request,
         SessionInterface $session,
         UtilityService $util,
-        BasicLtiService $ltiService
+        LmsApiService $lmsApi
     ) {
         $this->request = $request;
         $this->session = $session;
         $this->util = $util;
-        $this->ltiService = $ltiService;
+        $this->lmsApi = $lmsApi;
 
         if (!empty($request->query->get('error'))) {
             $util->exitWithMessage('Authentication problem: Access Denied. ' . $request->query->get('error'));
@@ -97,13 +84,15 @@ class AuthController extends AbstractController
             $util->exitWithMessage('Authentication problem: No code was returned from the LMS.');
         }
 
-        $newKey = $this->authorizeNewApiKey();
+        $user = $this->getUserFromSession();
+        $newKey = $this->requestApiKeyFromLms();
 
         // It should have access_token and refresh_token
         if (!isset($newKey['access_token']) || !isset($newKey['refresh_token'])) {
             $util->exitWithMessage('Authentication problem: Missing access token. Please contact support.');
         }
-        $this->updateUser($newKey);
+        
+        $this->lmsApi->updateUserToken($user, $newKey);
         $this->session->set('apiKey', $newKey['access_token']);
         $this->session->set('tokenHeader', ["Authorization: Bearer " . $newKey['access_token']]);
 
@@ -125,96 +114,6 @@ class AuthController extends AbstractController
         return new Response('Updated.');
     }
 
-    private function validateApiKey()
-    {
-        $user = $this->getUser();
-        $apiKey = $user->getApiKey();
-
-        if (empty($apiKey)) {
-            return false;
-        }
-
-        $tokenHeader = ["Authorization: Bearer " . $apiKey];
-        $this->session->set('tokenHeader', $tokenHeader);
-        
-        try {
-            $lms = $this->util->getLms();
-            $profile = $lms->testApiConnection();
-
-            if (empty($profile)) {
-                throw new \Exception('Access token is invalid or expired.');
-            }
-
-            return true;
-        }
-        catch (\Exception $e) {
-            $refreshed = $this->refreshApiKey();
-            if (!$refreshed) {
-                return false;
-            }
-
-            $profile = $lms->testApiConnection();
-
-            if (!$profile) {
-                return false;
-            }
-
-            return true;
-        }    
-    }
-
-    private function refreshApiKey()
-    {
-        $user = $this->getUser();
-        $refreshToken = $user->getRefreshToken();
-        $institution = $user->getInstitution();
-        $baseUrl = $this->session->get('lms_api_domain');
-
-        if (empty($refreshToken)) {
-            return false;
-        }
-
-        $options = [
-            'query' => [
-                'grant_type'    => 'refresh_token',
-                'client_id'     => $institution->getApiClientId(),
-                'redirect_uri'  => $this->getOauthRedirectUri(),
-                'client_secret' => $institution->getApiClientSecret(),
-                'refresh_token' => $refreshToken,
-            ],
-            'verify_host' => false,
-            'verify_peer' => false,
-        ];
-
-        $client = HttpClient::create();
-        $requestUrl = "https://{$baseUrl}/login/oauth2/token";
-        $response = $client->request('POST', $requestUrl, $options);
-        $contentStr = $response->getContent(false);
-        $newKey = \json_decode($contentStr, true);
-
-        // update the token in the database
-        if (isset($newKey['access_token'])) {
-            $this->updateUser($newKey);
-
-            return true;
-        }
-        else {
-            return false;
-        }
-    }
-
-    private function verifyBasicLtiLaunch(Institution $institution)
-    {
-        $consumerKey = $institution->getConsumerKey();
-        $sharedSecret = $institution->getSharedSecret();
-
-        if (!$this->ltiService->isValid($consumerKey, $sharedSecret)) {
-            $this->util->exitWithMessage($this->ltiService->getMessage());
-        }
-
-        return true;
-    }
-
     private function saveRequestToSession()
     {
         try {
@@ -230,36 +129,21 @@ class AuthController extends AbstractController
         return;
     }
 
-    private function getOauthRedirectUri()
+    /**
+     * Finish authorization process by requesting a token from LMS
+     *
+     * @return void
+     */
+    protected function requestApiKeyFromLms()
     {
-        return $this->request->server->get('APP_OAUTH_REDIRECT_URL');
-    }
-
-    private function updateUser($apiKey)
-    {
-        $user = $this->util->getPreauthenticatedUser();
-        $user->setApiKey($apiKey['access_token']);
-        if (isset($apiKey['refresh_token'])) {
-            $user->setRefreshToken($apiKey['refresh_token']);
-        }
-
-        $now = new \DateTime();
-        $user->setLastLogin($now);
-
-        $this->getDoctrine()->getManager()->merge($user);
-        $this->getDoctrine()->getManager()->flush();
-    }
-
-    private function authorizeNewApiKey()
-    {
-        $institution = $this->util->getPreauthenticatedInstitution();
-        $baseUrl = $this->session->get('lms_api_domain');
+        $institution = $this->getInstitutionFromSession();
+        $baseUrl = $institution->getLmsDomain();
         $code = $this->request->query->get('code');
         $options = [
             'query' => [
                 'grant_type'    => 'authorization_code',
                 'client_id'     => $institution->getApiClientId(),
-                'redirect_uri'  => $this->getOauthRedirectUri(),
+                'redirect_uri'  => $this->lmsApi->getOauthRedirectUri(),
                 'client_secret' => $institution->getApiClientSecret(),
                 'code'          => $code,
             ],
@@ -273,5 +157,81 @@ class AuthController extends AbstractController
         $contentStr = $response->getContent(false);
 
         return \json_decode($contentStr, true);
+    }
+
+    /**
+     * Get institution before the user is authenticated.
+     * Once the user is authenticated we should use $user->getInstitution().
+     *
+     * @return Institution
+     */
+    public function getInstitutionFromSession()
+    {
+        $institution = null;
+
+        if (!($institution = $this->session->get('institution'))) {
+            $rawDomain = $this->session->get('lms_api_domain');
+            $domain = str_replace(['.beta.', '.test.'], '.', $rawDomain);
+
+            if ($domain) {
+                $institution = $this
+                    ->getDoctrine()
+                    ->getRepository(Institution::class)
+                    ->findOneBy(['lmsDomain' => $domain]);
+            }
+        }
+
+        return $institution;
+    }
+
+    public function createUser()
+    {
+        $domain = $this->session->get('lms_api_domain');
+        $userId = $this->session->get('lms_user_id');
+        $institution = $this->getInstitutionFromSession();
+        $date = new \DateTime();
+
+        $user = new User();
+        $user->setUsername("{$domain}||{$userId}");
+        $user->setLmsUserId($userId);
+        $user->setInstitution($institution);
+        $user->setCreated($date);
+        $user->setLastLogin($date);
+
+        $this->getDoctrine()->getManager()->persist($user);
+        $this->getDoctrine()->getManager()->flush();
+
+        $this->session->set('userId', $user->getId());
+
+        return $user;
+    }
+
+    /**
+     * Returns User object, creates a new user if doesn't exist.
+     *
+     * @return User
+     */
+    public function getUserFromSession()
+    {
+        if ($userId = $this->session->get('userId')) {
+            return $this->getDoctrine()->getRepository(User::class)->find($userId);
+        } 
+        else {
+            $domain = $this->session->get('lms_api_domain');
+            $userId = $this->session->get('lms_user_id');
+
+            if ($domain && $userId) {
+                $user = $this->getDoctrine()->getRepository(User::class)
+                    ->findOneBy(['username' => "{$domain}||{$userId}"]);
+            }
+        }
+
+        if (empty($user)) {
+            $user = $this->createUser();
+        }
+
+        $this->session->set('userId', $user->getId());
+
+        return $user;
     }
 }

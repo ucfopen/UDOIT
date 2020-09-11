@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\Course;
+use App\Services\LmsApiService;
 use App\Services\UtilityService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -11,34 +12,56 @@ use Symfony\Component\Routing\Annotation\Route;
 
 class DashboardController extends AbstractController
 {
+    /** @var UtilityService $util */
+    protected $util;
+
+    /** @var LmsApiService $lmsApi */
+    protected $lmsApi;
+
     /**
      * @Route("/dashboard", name="dashboard")
      */
     public function index(
-        Request $request,
-        SessionInterface $session,
-        UtilityService $util)
+        UtilityService $util,
+        LmsApiService $lmsApi)
     {
-        $this->request = $request;
-        $this->session = $session;
         $this->util = $util;
-        $data = [];
+        $this->lmsApi = $lmsApi;
 
-        $user = $data['user'] = $this->getUser();
-        $data['clientToken'] = base64_encode($user->getUsername());
+        $user = $this->getUser();
 
-        if ($courseId = $session->get('lms_course_id')) {
+        // TODO: Handle no user
+
+        $clientToken = base64_encode($user->getUsername());
+
+        if ($lmsCourseId = $this->get('session')->get('lms_course_id')) {
             $repository = $this->getDoctrine()->getRepository(Course::class);
             /** @var Course $course */
-            $course = $data['course'] = $repository->find($courseId);
+            $course = $repository->findOneBy(['lmsCourseId' => $lmsCourseId]);
 
             if ($course) {
-                $data['report'] = $course->getLatestReport();
+                $activeReport = $course->getLatestReport();
+            }
+            else {
+                $institution = $user->getInstitution();
+                $course = $this->util->createCourse($institution, $lmsCourseId);
+                $activeReport = false;
+            }
+
+            // TODO: Sync content
+            if ($course) {
+                $this->lmsApi->createApiRequests([$course], $user, true);
             }
         }
     
         return $this->render('default/index.html.twig', [
-            'data' => \json_encode($data),
+            'data' => [
+                'user' => $user,
+                'course' => $course,
+                'report' => $activeReport,
+                'clientToken' => $clientToken,
+                'messages' => $this->util->getUnreadMessages(true),
+            ],
         ]);
     }
 

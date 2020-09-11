@@ -4,7 +4,9 @@ namespace App\Controller;
 
 use App\Repository\ContentItemRepository;
 use App\Repository\CourseRepository;
+use App\Services\PhpAllyService;
 use App\Services\UtilityService;
+use CidiLabs\PhpAlly\PhpAlly;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Annotation\Route;
@@ -14,23 +16,20 @@ class TestController extends AbstractController
     /**
      * @Route("/test", name="test")
      */
-    public function index(UtilityService $util, CourseRepository $courseRepo, ContentItemRepository $contentItemRepo)
+    public function index(UtilityService $util, CourseRepository $courseRepo, ContentItemRepository $contentItemRepo, PhpAllyService $phpAllyService)
     {
         $out = [];
         
-        $lms = $util->getLms();
-        $course = $courseRepo->find(1);
+        //$course = $courseRepo->find(59);
         //$out['content'] = $lms->getCourseContent($course);
 
-        $contentItemRepo->setCourseContentInactive($course);
+        //$contentItems = $contentItemRepo->getUpdatedContentItems($course);
+        //$item = reset($contentItems);
+        $item = $contentItemRepo->find(97);
 
-        // $entityManager = $this->getDoctrine()->getManager(); 
-        // $entityManager->createQuery(
-        //     'UPDATE App\Entity\ContentItem SET active=0 WHERE course=:course'
-        // )
-        //     ->setParameter('course', $course)
-        //     ->execute();
+        //$ruleIds = $phpAllyService->getRules();
+        $report = $phpAllyService->scanHtml($item);
 
-        return new JsonResponse($out);
+        return new JsonResponse($report);
     }
 }
