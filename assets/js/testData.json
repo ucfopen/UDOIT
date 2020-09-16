@@ -8,14 +8,14 @@
             "courseId": 1111,
             "courseTitle": "Course Title",
             "created": "*DATETIME*",
-            "errors": 3,
-            "suggestions": 2,
+            "errors": 4,
+            "suggestions": 3,
             "unscannable": 0,
             "report": {
                 "announcements": [
                     {
                         "id": 12345,
-                        "title": "Content Title",
+                        "title": "Content Title 1",
                         "issues": [
                             {
                                 "id": 12345,
@@ -29,6 +29,15 @@
                             {
                                 "id": 23458,
                                 "title": "Avoid use of animated gifs",
+                                "scanRuleId": "Scan Rule Id",
+                                "description": "Issue Description",
+                                "type": "suggestion",
+                                "uFixIt": false,
+                                "sourceHtml": "<div>Source HTML</div>"
+                            },
+                            {
+                                "id": 234584,
+                                "title": "Testing 1",
                                 "scanRuleId": "Scan Rule Id",
                                 "description": "Issue Description",
                                 "type": "suggestion",

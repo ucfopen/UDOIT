@@ -1,9 +1,7 @@
 const issueListReducer = (state = [], action) => {
     switch(action.type) {
         case "GET_SCAN_RESULTS":
-            state = action.payload;
-
-            return state;
+            return action.payload;
 
         default:
             return state;

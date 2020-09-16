@@ -6,7 +6,7 @@ import { Table } from '@instructure/ui-table'
 import { Pill } from '@instructure/ui-pill'
 import { Badge } from '@instructure/ui-badge'
 import { connect } from 'react-redux';
-import { getIssueFrequency, getIssueTypes, getCountsFromSection } from '../selectors';
+import { getIssueFrequency, getFilteredContent, getCountsFromSection } from '../selectors';
 import moment from 'moment';
 import Clock from './Clock'
 import SortableTable from './SortableTable'
@@ -34,32 +34,19 @@ class SummaryPage extends React.Component {
   }
 
   componentDidMount() {
-    // TODO Fetch issues from API then set state
-      // fetch('http://API/route')
-      // .then( res => res.json())
-      // .then((data) => {
-      //   this.setState({
-      //     issues: data
-      //   });
-      // })
-      // .catch(console.log);
-
+  
     var date = new Date();
 
     this.setState({
       date: date.toLocaleDateString(),
       time: date.toLocaleTimeString(),
     });
-
-    console.log(this.props.errorTypes)
   }
 
 
 
   render() {
-    const errorKeys = Object.keys(this.props.errorTypes);
-    const suggestionKeys = Object.keys(this.props.suggestionTypes);
-
+    console.log(this.props.filteredContent);
     return (
       <div className={`${classes.summaryContainer}`}>
         <div className={`${classes.row}`}>
@@ -93,65 +80,6 @@ class SummaryPage extends React.Component {
 
         {/* Summary Tables */}
         <div className={`${classes.row}`}>
-        <SortableTable
-    caption="Top rated movies"
-    headers={[
-      {
-        id: 'Rank',
-        text: 'Rank',
-      },
-      {
-        id: 'Title',
-        text: 'Title',
-      },
-      {
-        id: 'Year',
-        text: 'Year',
-      },
-      {
-        id: 'Rating',
-        text: 'Rating',
-        renderCell: (rating) => rating.toFixed(1),
-      },
-    ]}
-    rows={[
-      {
-        id: '1',
-        Rank: 1,
-        Title: 'The Shawshank Redemption',
-        Year: 1994,
-        Rating: 9.3,
-      },
-      {
-        id: '2',
-        Rank: 2,
-        Title: 'The Godfather',
-        Year: 1972,
-        Rating: 9.2,
-      },
-      {
-        id: '3',
-        Rank: 3,
-        Title: 'The Godfather: Part II',
-        Year: 1974,
-        Rating: 9.0,
-      },
-      {
-        id: '4',
-        Rank: 4,
-        Title: 'The Dark Knight',
-        Year: 2008,
-        Rating: 9.0,
-      },
-      {
-        id: '5',
-        Rank: 5,
-        Title: '12 Angry Men',
-        Year: 1957,
-        Rating: 8.9,
-      },
-    ]}
-  />
           {/* Content */}
           <div className={`${classes.tableContainer}`}>
           <Table
@@ -246,26 +174,18 @@ class SummaryPage extends React.Component {
                   </Table.ColHeader>
               </Table.Row>
             </Table.Head>
-
             <Table.Body>
-              <Table.Row>
-                <Table.Cell>
-                  <div className={`${classes.row}`}>
-                    <a href="">{errorKeys[0]}</a>
-
-                    <Badge standalone variant="danger" count={this.props.errorTypes[errorKeys[0]].count} countUntil={10} margin="0 small 0 0" />
-                  </div>
-                </Table.Cell>
-              </Table.Row>
-              <Table.Row>
-                <Table.Cell>
-                  <a href="">{errorKeys[1]}</a>
-
-                  <Badge standalone variant="danger" count={this.props.errorTypes[errorKeys[1]].count} countUntil={10} margin="0 small 0 0" />
-                </Table.Cell>
-              </Table.Row>
+              {this.props.errorTypes.map(function (issue, id) {
+                return (
+                  <Table.Row>
+                    <Table.Cell key={id}>
+                      <a href="">{issue.title}</a>
+                      <Badge standalone variant="danger" count={issue.count} countUntil={10} margin="0 small 0 0" />
+                    </Table.Cell>
+                  </Table.Row>
+                )
+              })}
             </Table.Body>
-            
           </Table>
           </div>
           {/* Suggestions */}
@@ -284,22 +204,16 @@ class SummaryPage extends React.Component {
             </Table.Head>
 
             <Table.Body>
-              <Table.Row>
-                <Table.Cell>
-                  <div className={`${classes.row}`}>
-                    <a href="">{suggestionKeys[0]}</a>
-
-                    <Badge standalone count={this.props.suggestionTypes[suggestionKeys[0]].count} countUntil={10} margin="0 small 0 0" />
-                  </div>
-                </Table.Cell>
-              </Table.Row>
-              <Table.Row>
-                {/* <Table.Cell>
-                  <a href="">Image elements</a>
-
-                  <Badge standalone count={2} countUntil={10} margin="0 small 0 0" />
-                </Table.Cell> */}
-              </Table.Row>
+              {this.props.suggestionTypes.map(function (issue, id) {
+                return (
+                  <Table.Row>
+                    <Table.Cell key={id}>
+                      <a href="">{issue.title}</a>
+                      <Badge standalone count={issue.count} countUntil={10} margin="0 small 0 0" />
+                    </Table.Cell>
+                  </Table.Row>
+                )
+              })}
             </Table.Body>
             
           </Table>
@@ -320,6 +234,7 @@ const mapStateToProps = state => {
     announcementCounts: getCountsFromSection(state, "announcements"),
     errorTypes: getIssueFrequency(state, "error"),
     suggestionTypes: getIssueFrequency(state, "suggestion"),
+    filteredContent: getFilteredContent(state),
   }
 }
 
