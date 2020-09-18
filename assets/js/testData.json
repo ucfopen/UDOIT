@@ -24,7 +24,8 @@
                                 "description": "Issue Description",
                                 "type": "error",
                                 "uFixIt": true,
-                                "sourceHtml": "<div>Source HTML</div>"
+                                "sourceHtml": "<div>Source HTML</div>",
+                                "status": "not fixed"
                             },
                             {
                                 "id": 23458,
@@ -33,7 +34,8 @@
                                 "description": "Issue Description",
                                 "type": "suggestion",
                                 "uFixIt": false,
-                                "sourceHtml": "<div>Source HTML</div>"
+                                "sourceHtml": "<div>Source HTML</div>",
+                                "status": "not fixed"
                             },
                             {
                                 "id": 234584,
@@ -42,7 +44,8 @@
                                 "description": "Issue Description",
                                 "type": "suggestion",
                                 "uFixIt": false,
-                                "sourceHtml": "<div>Source HTML</div>"
+                                "sourceHtml": "<div>Source HTML</div>",
+                                "status": "not fixed"
                             }
                         ]
                     },
@@ -57,7 +60,8 @@
                                 "description": "Issue Description",
                                 "type": "error",
                                 "uFixIt": true,
-                                "sourceHtml": "<div>Source HTML</div>"
+                                "sourceHtml": "<div>Source HTML</div>",
+                                "status": "not fixed"
                             }
                         ]
                     }
@@ -67,22 +71,24 @@
                     "title": "Content Title",
                     "issues": [
                         {
-                            "id": 12345,
+                            "id": 1234511,
                             "scanRuleId": "Scan Rule Id",
                             "title": "Alternative Text should not be the image filename",
                             "description": "Issue Description",
                             "type": "error",
                             "uFixIt": true,
-                            "sourceHtml": "<div>Source HTML</div>"
+                            "sourceHtml": "<div>Source HTML</div>",
+                            "status": "not fixed"
                         },
                         {
-                            "id": 23458,
+                            "id": 2345811,
                             "title": "Avoid use of animated gifs",
                             "scanRuleId": "Scan Rule Id",
                             "description": "Issue Description",
                             "type": "suggestion",
                             "uFixIt": false,
-                            "sourceHtml": "<div>Source HTML</div>"
+                            "sourceHtml": "<div>Source HTML</div>",
+                            "status": "fixed"
                         }
                     ]
                 }],
@@ -91,22 +97,24 @@
                     "title": "Content Title",
                     "issues": [
                         {
-                            "id": 12345,
+                            "id": 12345134,
                             "scanRuleId": "Scan Rule Id",
                             "title": "Alternative Text should not be the image filename",
                             "description": "Issue Description",
                             "type": "error",
                             "uFixIt": true,
-                            "sourceHtml": "<div>Source HTML</div>"
+                            "sourceHtml": "<div>Source HTML</div>",
+                            "status": "not fixed"
                         },
                         {
-                            "id": 23458,
+                            "id": 234583123,
                             "title": "Avoid use of animated gifs",
                             "scanRuleId": "Scan Rule Id",
                             "description": "Issue Description",
                             "type": "suggestion",
                             "uFixIt": false,
-                            "sourceHtml": "<div>Source HTML</div>"
+                            "sourceHtml": "<div>Source HTML</div>",
+                            "status": "not fixed"
                         }
                     ]
                 }],

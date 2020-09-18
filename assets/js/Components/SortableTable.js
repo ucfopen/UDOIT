@@ -2,6 +2,7 @@ import React from 'react';
 import { Responsive } from '@instructure/ui-responsive'
 import { Table } from '@instructure/ui-table'
 
+
 class SortableTable extends React.Component {
     constructor (props) {
       super(props)
@@ -48,11 +49,11 @@ class SortableTable extends React.Component {
       return (
         <Responsive
           query={{
-            small: { maxWidth: '40rem' },
-            large: { minWidth: '41rem' },
+            // small: { maxWidth: '40rem' },
+            large: { minWidth: '1rem' },
           }}
           props={{
-            small: { layout: 'stacked' },
+            // small: { layout: 'stacked' },
             large: { layout: 'auto' },
           }}
         >

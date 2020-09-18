@@ -74,7 +74,8 @@ export const getFilteredContent = (state) => {
                     // Loop through the issues
                     for(var issue of issues) {
                         if((state.visibilityFilters.issueTypes === "SHOW_ALL" || state.visibilityFilters.issueTypes.includes(issue.type))
-                        && (state.visibilityFilters.issueTitles === "SHOW_ALL" || state.visibilityFilters.issueTitles.includes(issue.title))) {
+                        && (state.visibilityFilters.issueTitles === "SHOW_ALL" || state.visibilityFilters.issueTitles.includes(issue.title))
+                        && (state.visibilityFilters.status === "SHOW_ALL" || state.visibilityFilters.status.includes(issue.status))) {
                             issue.contentTitle = contentPiece.title;
                             issue.section = section;
                             filteredList.push(issue);
@@ -86,7 +87,7 @@ export const getFilteredContent = (state) => {
         }
     }
 
-    console.log(filteredList);
+    return filteredList;
 }
 
 // Helpers

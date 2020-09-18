@@ -20,7 +20,13 @@ class App extends React.Component {
     }
     // Dispatching initialization actions
     this.props.getScanResults();
-    this.props.setVisibilityFilter();
+    this.props.setVisibilityFilter({
+      sections: "SHOW_ALL",
+      content: "SHOW_ALL",
+      issueTypes: "SHOW_ALL",
+      issueTitles: "SHOW_ALL",
+      status: ["fixed"]
+  });
 
     this.handleClick = this.handleClick.bind(this);
     this.loadSettings();
@@ -72,12 +78,7 @@ const Display = (props) => {
 const mapDispatchToProps = dispatch => {
   return {
     getScanResults: () => dispatch(getScanResults()),
-    setVisibilityFilter: () => dispatch(setVisibilityFilter({
-      sections: ["announcements"],
-      content: ["Content Title 1"],
-      issueTypes: ["error"],
-      issueTitles: "SHOW_ALL"
-  })),
+    setVisibilityFilter: (filter) => dispatch(setVisibilityFilter(filter)),
   }
 }
 
