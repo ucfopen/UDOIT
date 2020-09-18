@@ -4,7 +4,6 @@ namespace App\Lms\Canvas;
 
 use App\Lms\LmsResponse;
 use Symfony\Component\HttpClient\HttpClient;
-use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
 class CanvasApi {
 
@@ -12,14 +11,12 @@ class CanvasApi {
     protected $baseUrl;
     protected $httpClient;
 
-    public function __construct(SessionInterface $session)
+    public function __construct($baseUrl, $apiToken)
     {
-        $this->session = $session;
-        $headerToken = $this->session->get('tokenHeader');
         $this->httpClient = HttpClient::create([
-            'headers' => $headerToken,
+            'headers' => ["Authorization: Bearer " . $apiToken],
         ]);
-        $this->baseUrl = $this->session->get('lms_api_domain');
+        $this->baseUrl = $baseUrl;
     }
 
     /**
@@ -32,8 +29,7 @@ class CanvasApi {
      * @return LmsResponse
      */
     public function apiGet($url, $options = [], $perPage = 100, $lmsResponse = null)
-    {
-        
+    {      
 
         if (!$lmsResponse) {
             $lmsResponse = new LmsResponse();

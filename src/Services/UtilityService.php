@@ -6,13 +6,15 @@ use App\Lms\Canvas\CanvasLms;
 use App\Lms\D2l\D2lLms;
 use App\Entity\Course;
 use App\Entity\Institution;
+use App\Entity\LogEntry;
 use App\Entity\User;
 use App\Lms\LmsInterface;
 use DateTime;
-use Doctrine\Common\Persistence\ManagerRegistry;
+use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
+use Symfony\Component\Security\Core\Security;
 use Twig\Environment;
 
 class UtilityService {
@@ -24,80 +26,34 @@ class UtilityService {
 
     public static $timezone;
 
-    /** @var Request $request */
-    private $request;
     /** @var SessionInterface $session */
     private $session;
+
     /** @var Environment $twig */
     private $twig;
+    
     /** @var ManagerRegistry */
     private $doctrine;
+
+    /** @var Security $security */
+    private $security;
     
-    /** @var Institution $institution */
-    private $institution;
-    /** @var Course $course */
-    private $course;
-    /** @var User $user */
-    private $user;
-
-    private $lmsId;
-    /** @var LmsInterface $lms */
-    private $activeLms;
     private $env;
-
-    private $canvasLms;
-    private $d2lLms;
 
     private $messages = [];
 
     public function __construct(
         SessionInterface $session,
-        RequestStack $requestStack,
         ManagerRegistry $doctrine,
         Environment $twig,
-        CanvasLms $canvasLms,
-        D2lLms $d2lLms)
+        Security $security)
     {
         $this->session = $session;
-        $this->request = $requestStack->getCurrentRequest();
         $this->twig = $twig;
         $this->doctrine = $doctrine;
-        $this->canvasLms = $canvasLms;
-        $this->d2lLms = $d2lLms;
+        $this->security = $security;
 
         self::$timezone = new \DateTimeZone('GMT');
-    }
-
-    public function getLmsId()
-    {        
-        if (!isset($this->lmsId)) {
-            $this->lmsId = $this->session->get('lms_id');
-        }
-        if (!isset($this->lmsId)) {
-            $this->lmsId = $_ENV['APP_LMS'];
-
-            if ($this->lmsId) {
-                $this->session->set('lms_id', $this->lmsId);
-            }
-        }
-
-        return $this->lmsId; 
-    }
-
-    public function getLms()
-    {
-        if (!isset($this->activeLms)) {
-            $lmsId = $this->getLmsId();
-            if (self::CANVAS_LMS === $lmsId) {
-                $this->activeLms = $this->canvasLms;
-            } elseif (self::D2L_LMS === $lmsId) {
-                $this->activeLms = $this->d2lLms;
-            } else {
-                // handle other LMS classes
-            }
-        }
-
-        return $this->activeLms;
     }
 
     public function getEnv()
@@ -113,113 +69,80 @@ class UtilityService {
         return $this->env;
     }
 
-    /**
-     * Get institution before the user is authenticated.
-     * Once the user is authenticated we should use $user->getInstitution().
-     *
-     * @return Institution
-     */
-    public function getPreauthenticatedInstitution()
-    {
-        if (!isset($this->institution)) {
-            if ($institution = $this->session->get('institution')) {
-                $this->institution = $institution;
-            }
-            else {
-                //$domain = $this->session->get('lms_api_domain');
-                $domain = $this->session->get('lmsdomain');
-                $domain = str_replace(['.beta.', '.test.'], '.', $domain);
-
-                if ($domain) {
-                    $institution = $this
-                        ->doctrine
-                        ->getRepository(Institution::class)
-                        ->findOneBy(['lmsDomain' => $domain]);
-                }
-                if ($institution) {
-                    $this->institution = $institution;
-                }
-            }
-        }
-        return $this->institution;
-    }
-
     public function getInstitutionById($id)
     {
         return $this->doctrine->getRepository(Institution::class)->find($id);
     }
 
-    /**
-     * Returns User object, creates a new user if doesn't exist.
-     *
-     * @return UserInterface
-     */
-    public function getPreauthenticatedUser()
+    public function getCourseById($id)
     {
-        if (!isset($this->user)) {
-            if ($userId = $this->session->get('userId')) {
-                $this->user = $this->doctrine->getRepository(User::class)->find($userId);
-            } else {
-                $domain = $this->session->get('lms_api_domain');
-                $userId = $this->session->get('lms_user_id');
-
-                if ($domain && $userId) {
-                    $this->user = $this->doctrine->getRepository(User::class)
-                        ->findOneBy(['username' => "{$domain}||{$userId}"]);
-                }
-            }
-
-            if (!empty($this->user)) {
-                $this->session->set('userId', $this->user->getId());
-            } else {
-                $this->createUser();
-            }
-        }
-
-        return $this->user;
+        return $this->doctrine->getRepository(Course::class)->find($id);
     }
 
-    public function getCourse()
+    public function createCourse(Institution $institution, $lmsCourseId)
     {
+        $course = new Course();
+        $course->setInstitution($institution);
+        $course->setLmsCourseId($lmsCourseId);
+        $course->setTitle("New Course: ID#{$lmsCourseId}");
+        $course->setActive(true);
+        $course->setDirty(false);
 
-    }
-
-    public function createUser()
-    {
-        $domain = $this->session->get('lms_api_domain');
-        $userId = $this->session->get('lms_user_id');
-        $institution = $this->getPreauthenticatedInstitution();
-        $date = new DateTime();
-
-        $user = new User();
-        $user->setUsername("{$domain}||{$userId}");
-        $user->setLmsUserId($userId);
-        $user->setInstitution($institution);
-        $user->setCreated($date);
-        $user->setLastLogin($date);
-
-        $this->doctrine->getManager()->persist($user);
+        $this->doctrine->getManager()->persist($course);
         $this->doctrine->getManager()->flush();
 
-        $this->user = $user;
-        $this->session->set('userId', $user->getId());
+        return $course;
     }
 
-    public function setMessage($msg, $msgType = 'info') 
+    public function getUnreadMessages($markAsRead = true)
     {
-        $this->messages[] = [
-            'type' => $msgType,
-            'body' => (gettype($msg) === 'string') ? $msg : \json_encode($msg),
-        ];
+        $user = $this->security->getUser();
+        
+        $messages = $this->doctrine->getRepository(LogEntry::class)->findBy(['user' => $user, 'status' => false]);
+
+        if ($markAsRead) {
+            foreach ($messages as $msg) {
+                $msg->setStatus(true);
+            }
+
+            $this->doctrine->getManager()->flush();
+        }
+
+        return $messages;
     }
 
-    public function exitWithMessage($msg, $msgType = 'error') 
+    public function createMessage($msg, $severity = 'notice', Course $course = null, User $user = null, $hideFromUser = false)
     {
-        $this->setMessage($msg, $msgType);
+        if (!$user) {
+            $user = $this->security->getUser();
+        }
+
+        if (is_array($msg) || is_object($msg)) {
+            $msg = \json_encode($msg);
+        }
+        
+        $message = new LogEntry();
+        $message->setMessage($msg);
+        $message->setSeverity($severity);
+        $message->setUser($user);
+        $message->setStatus($hideFromUser);
+        $message->setCreated($this->getCurrentTime());
+        
+        if ($course) {
+            $message->setCourse($course);
+        }
+
+        $this->doctrine->getManager()->persist($message);
+        $this->doctrine->getManager()->flush();
+    }
+
+    public function exitWithMessage($msg, $severity = 'error', Course $course = null) 
+    {        
+        $this->createMessage($msg, $severity, $course);
 
         print $this->twig->render('error.html.twig', [
             'page_title' => 'Application Error',
-            'messages' => $this->messages,
+            'messages' => $this->getUnreadMessages(true),
         ]);
 
         exit;
@@ -242,5 +165,10 @@ class UtilityService {
         $encrypted_text = mb_substr($encrypted_data, SODIUM_CRYPTO_SECRETBOX_NONCEBYTES, NULL, '8bit');
 
         return sodium_crypto_secretbox_open($encrypted_text, $nonce, $this->encryption_key);
+    }
+
+    public function getCurrentTime() 
+    {
+        return new \DateTime('now', self::$timezone);
     }
 }

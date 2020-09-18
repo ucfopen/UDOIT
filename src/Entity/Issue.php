@@ -11,6 +11,9 @@ use Doctrine\ORM\Mapping as ORM;
  */
 class Issue implements \JsonSerializable
 {
+    static $issueError = 'error';
+    static $issueSuggestion = 'suggestion';
+
     // Private Members
     /**
      * @ORM\Id()
@@ -49,6 +52,21 @@ class Issue implements \JsonSerializable
      * @ORM\ManyToMany(targetEntity="App\Entity\Report", inversedBy="issues")
      */
     private $reports;
+
+    /**
+     * @ORM\ManyToOne(targetEntity=User::class)
+     */
+    private $fixedBy;
+
+    /**
+     * @ORM\Column(type="datetime", nullable=true)
+     */
+    private $fixedOn;
+
+    /**
+     * @ORM\Column(type="text", nullable=true)
+     */
+    private $previewHtml;
 
 
     // Constructor
@@ -164,6 +182,42 @@ class Issue implements \JsonSerializable
         if ($this->reports->contains($report)) {
             $this->reports->removeElement($report);
         }
+
+        return $this;
+    }
+
+    public function getFixedBy(): ?User
+    {
+        return $this->fixedBy;
+    }
+
+    public function setFixedBy(?User $fixedBy): self
+    {
+        $this->fixedBy = $fixedBy;
+
+        return $this;
+    }
+
+    public function getFixedOn(): ?\DateTimeInterface
+    {
+        return $this->fixedOn;
+    }
+
+    public function setFixedOn(?\DateTimeInterface $fixedOn): self
+    {
+        $this->fixedOn = $fixedOn;
+
+        return $this;
+    }
+
+    public function getPreviewHtml(): ?string
+    {
+        return $this->previewHtml;
+    }
+
+    public function setPreviewHtml(?string $previewHtml): self
+    {
+        $this->previewHtml = $previewHtml;
 
         return $this;
     }

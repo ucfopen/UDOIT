@@ -29,7 +29,6 @@ class App extends React.Component {
   });
 
     this.handleClick = this.handleClick.bind(this);
-    this.loadSettings();
   }
 
   handleClick() {
@@ -39,6 +38,8 @@ class App extends React.Component {
   }
 
   render() {
+    this.loadSettings();
+    
     return (
       <div className={`${classes.app}`}>
         <Header/>

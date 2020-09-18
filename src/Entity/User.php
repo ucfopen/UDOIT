@@ -2,6 +2,8 @@
 
 namespace App\Entity;
 
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use JsonSerializable;
 use Symfony\Component\Security\Core\User\UserInterface;
@@ -61,6 +63,16 @@ class User implements UserInterface, \Serializable, JsonSerializable
     private $lastLogin;
 
     private $encodedKey = 'niLb/WbAODNi7E4ccHHa/pPU3Bd9h6z1NXmjA981D4o=';
+
+    /**
+     * @ORM\OneToMany(targetEntity=Report::class, mappedBy="author")
+     */
+    private $reports;
+
+    public function __construct()
+    {
+        $this->reports = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
@@ -263,5 +275,36 @@ class User implements UserInterface, \Serializable, JsonSerializable
         $encrypted_text = mb_substr($decoded, SODIUM_CRYPTO_SECRETBOX_NONCEBYTES, NULL, '8bit');
 
         return sodium_crypto_secretbox_open($encrypted_text, $nonce, $key);
+    }
+
+    /**
+     * @return Collection|Report[]
+     */
+    public function getReports(): Collection
+    {
+        return $this->reports;
+    }
+
+    public function addReport(Report $report): self
+    {
+        if (!$this->reports->contains($report)) {
+            $this->reports[] = $report;
+            $report->setAuthor($this);
+        }
+
+        return $this;
+    }
+
+    public function removeReport(Report $report): self
+    {
+        if ($this->reports->contains($report)) {
+            $this->reports->removeElement($report);
+            // set the owning side to null (unless already changed)
+            if ($report->getAuthor() === $this) {
+                $report->setAuthor(null);
+            }
+        }
+
+        return $this;
     }
 }

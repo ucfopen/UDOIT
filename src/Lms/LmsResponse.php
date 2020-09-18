@@ -12,7 +12,7 @@ use Symfony\Contracts\HttpClient\ResponseInterface;
  * responses for those requests.
  */
 
-class LmsResponse {
+class LmsResponse implements \JsonSerializable {
 
     private $contentString = '';
     private $contentArray = [];
@@ -79,10 +79,12 @@ class LmsResponse {
         $this->contentType = (is_array($headers['content-type'])) ? $headers['content-type'][0] : false;
     }
 
-    // public function __toString()
-    // {
-        
-    // }
-
-
+    public function jsonSerialize()
+    {
+        return [
+            'content' => $this->getContent(),
+            'errors' => $this->errors,
+            'headers' => $this->headers,
+        ];
+    }
 }

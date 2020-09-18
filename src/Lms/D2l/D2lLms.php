@@ -3,10 +3,11 @@
 namespace App\Lms\D2l;
 
 use App\Entity\Course;
+use App\Entity\User;
 use App\Lms\LmsInterface;
 
-//class D2lLms implements LmsInterface {
-class D2lLms {
+class D2lLms implements LmsInterface {
+
     public function __construct()
     {
         
@@ -14,51 +15,20 @@ class D2lLms {
 
     public function getId() 
     {
-
+        return 'd2l';
     }
 
-    public function getSharedSecret()
+    public function testApiConnection(User $user)
     {
-        
+        return true;
     }
 
-    public function getLmsDomain()
+    public function updateCourseContent(Course $course, User $user)
     {
-        
+        return true;
     }
-
-    public function getLmsAccountId()
+    public function updateCourseData(Course $course, User $user)
     {
-        
-    }
-
-    public function getLmsCourseId()
-    {
-        
-    }
-
-    public function getLmsUserId()
-    {
-        
-    }
-
-    public function getLmsRootAccountId()
-    {
-        
-    }
-
-    public function testApiConnection()
-    {
-
-    }
-
-    public function getCourseContentUrls($courseId)
-    {
-
-    }
-
-    public function getCourseContent(Course $course)
-    {
-
+        return true;
     }
 }

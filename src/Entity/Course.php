@@ -88,13 +88,12 @@ class Course implements \JsonSerializable
             "title" => $this->title,
             "lmsAccountId" => $this->lmsAccountId,
             "lmsCourseId" => $this->lmsCourseId,
-            "lastUpdate" => $this->lastUpdated->format('c'),
+            "lastUpdated" => (!empty($this->lastUpdated)) ? $this->lastUpdated->format('c') : false,
             "active" => $this->active,
             "dirty" => $this->dirty,
-            "contentItems" => $this->contentItems->toArray()
+            "contentItems" => (!empty($this->contentItems)) ? $this->contentItems->toArray() : [],
         ];
     }
-
 
     // Getters and Setters
     public function getId(): ?int
@@ -248,8 +247,8 @@ class Course implements \JsonSerializable
         return $this;
     }
 
-    public function getLatestReport(): Report
+    public function getLatestReport(): ?Report
     {
-        return $this->reports->last();
+        return $this->reports->last() ?: null;
     }
 }
