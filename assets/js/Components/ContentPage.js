@@ -30,7 +30,7 @@ class ContentPage extends React.Component {
   toggleFixedErrorsFilter = () => {
     // Modify visibility filters
     let visibilityFilters = Object.assign({}, this.props.visibilityFilters);
-    if(this.state.notFixedErrorsOnly === true) {
+    if(this.state.notFixedErrorsOnly === false) {
       visibilityFilters.status = ["not fixed"]
     } else {
       visibilityFilters.status = "SHOW_ALL"
@@ -51,7 +51,7 @@ class ContentPage extends React.Component {
               
             </TextInput>
 
-            <Checkbox label="Hide fixed errors" value="small" variant="toggle" size="small" onChange={() => this.toggleFixedErrors()} checked={this.state.fixedErrorsOnly}/>
+            <Checkbox label="Hide fixed errors" value="small" variant="toggle" size="small" onChange={() => this.toggleFixedErrors()} checked={this.state.notFixedErrorsOnly}/>
           </div>
 
           <br></br>
