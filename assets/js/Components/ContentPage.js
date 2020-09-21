@@ -40,7 +40,7 @@ class ContentPage extends React.Component {
   }
 
   render() {
-    const headers = [{id: "status", text: "Status"},{id: "title", text: "Issue"}, {id: "type", text: "Content Type"}, {id: "contentTitle", text: "Content Title"}];
+    const headers = [{id: "status", text: "Status"},{id: "title", text: "Issue"}, {id: "type", text: "Content Type"}, {id: "contentTitle", text: "Content Title"}, {id: "section", text: "Section"}];
     return (
       <div>
         <div className={`${classes.summaryContainer}`}>
