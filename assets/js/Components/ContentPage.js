@@ -5,23 +5,38 @@ import { TextInput } from '@instructure/ui-text-input'
 import { Checkbox } from '@instructure/ui-checkbox'
 import SortableTable from './SortableTable'
 import { getFilteredContent } from '../selectors';
+import { setVisibilityFilter } from '../Actions'
 
 class ContentPage extends React.Component {
   constructor(props) {
     super(props);
 
     this.state = {
-      fixedErrorsOnly: false
+      notFixedErrorsOnly: false
     }
 
   }
 
+  componentDidUpdate() {
+    console.log(this.state.notFixedErrorsOnly)
+  }
+
   toggleFixedErrors = () => {
     this.setState({
-      fixedErrorsOnly: !this.state.fixedErrorsOnly
-    }), () => {
-      // Modify visibility filters
+      notFixedErrorsOnly: !this.state.notFixedErrorsOnly
+    }), this.toggleFixedErrorsFilter(), console.log(this.props.filteredContent)
+  }
+
+  toggleFixedErrorsFilter = () => {
+    // Modify visibility filters
+    let visibilityFilters = Object.assign({}, this.props.visibilityFilters);
+    if(this.state.notFixedErrorsOnly === true) {
+      visibilityFilters.status = ["not fixed"]
+    } else {
+      visibilityFilters.status = "SHOW_ALL"
     }
+
+    this.props.setVisibilityFilter(visibilityFilters);
   }
 
   render() {
