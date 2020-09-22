@@ -9,7 +9,7 @@
             "courseTitle": "Course Title",
             "created": "*DATETIME*",
             "errors": 4,
-            "suggestions": 3,
+            "suggestions": 4,
             "unscannable": 0,
             "report": {
                 "announcements": [
