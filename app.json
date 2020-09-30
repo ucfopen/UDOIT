@@ -42,6 +42,10 @@
       "description": "Full url to your oauth2responce.php file",
       "value": "https://your.herokuapp.com/oauth2response.php"
     },
+    "OAUTH2_ENFORCE_SCOPES": {
+      "description": "Set to true if you have a scoped developer key",
+      "value": "false"
+    },
     "GOOGLE_API_KEY": {
       "description": "Google API key for caption detection support",
       "required": false
@@ -57,6 +61,10 @@
     "USE_HEROKU_CONFIG": {
       "description": "needed to use the Heroku configuration",
       "value": "true"
+    },
+    "USE_API_CACHING": {
+      "description": "Flag to indicate whether or not to use the api caching feature",
+      "required": false
     },
     "CANVAS_NAV_ITEM_NAME" : {
       "description": "The text displayed in the canvas navigation menu to launch this app",
@@ -77,6 +85,18 @@
     "ADMIN_PANEL_ENABLED": {
       "description": "Enable the Admin Panel feature.  False disables access and removes the block from the configuration XML.",
       "value": "false"
+    },
+    "FOOTER_ENABLED": {
+      "description": "True enables the footer.",
+      "value": "true"
+    },
+    "YOUTUBE_TOS_LINK" : {
+      "description": "The link to the YouTube Terms of Service.",
+      "value": "https://www.youtube.com/t/terms"
+    },
+    "GOOGLE_PRIVACY_POLICY_LINK" : {
+      "description": "The link to the Google Privacy Policy.",
+      "value": "http://www.google.com/policies/privacy"
     }
   },
   "addons": [

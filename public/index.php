@@ -19,6 +19,7 @@
 */
 
 require_once(__DIR__.'/../config/settings.php');
+
 global $logger;
 
 function isEmpty($teststr)
@@ -101,7 +102,16 @@ if (!empty($api_key)) {
         $redirect_to = 'scanner.php';
     }
 } else {
-    $redirect_to = "{$_SESSION['base_url']}/login/oauth2/auth/?client_id={$oauth2_id}&response_type=code&redirect_uri={$oauth2_uri}";
+    $scopes_encoded = '';
+
+    if (true === $oauth2_enforce_scopes) {
+        // if we are enforcing scopes we need to take our predefined scope array
+        // and implode it to be a long string with spaces between each scope
+        // and then URL encode it.
+        $scopes_encoded = '&scope='.urlencode(implode(" ", $oauth2_scopes));
+    }
+
+    $redirect_to = "{$_SESSION['base_url']}/login/oauth2/auth/?client_id={$oauth2_id}&response_type=code&redirect_uri={$oauth2_uri}{$scopes_encoded}";
 }
 
 header("Location: {$redirect_to}");
