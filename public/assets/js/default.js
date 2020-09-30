@@ -421,6 +421,11 @@ $doc.ready(function() {
 			preview.find('img').removeAttr("style");
 		}
 
+		// If the error preview contains an image, make sure it isn't too big
+		if(preview.find('img') != 'undefined'){
+			preview.find('img').css({"height": "auto", "max-width": "100%"});
+		}
+
 		$(this).addClass('hidden');
 		$error.find('div.more-info').removeClass('hidden');
 		$error.find('p.manual-notification').first().addClass('hidden');
