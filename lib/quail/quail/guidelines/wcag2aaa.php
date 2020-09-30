@@ -180,6 +180,7 @@ class Wcag2aaaGuideline extends quailGuideline
 		'videoEmbedChecked',
 		'videoProvidesCaptions',
 		'videosEmbeddedOrLinkedNeedCaptions',
+		'videoCaptionsAreCorrectLanguage',
 	];
 }
 /*@}*/

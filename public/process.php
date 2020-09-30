@@ -24,7 +24,9 @@ $base_url     = $_SESSION['base_url'];
 $user_id      = $_SESSION['launch_params']['custom_canvas_user_id'];
 $course_title = $_SESSION['launch_params']['context_title'];
 UdoitUtils::$canvas_base_url = $_SESSION['base_url'];
+
 session_write_close();
+
 
 // make sure the session hasn't gone stale and lost the launch params
 if (empty($user_id) || empty($base_url)) {
@@ -41,15 +43,38 @@ switch ($main_action) {
             exit();
         }
 
+        global $logger;
+
         $content   = filter_input(INPUT_POST, 'content', FILTER_DEFAULT, FILTER_REQUIRE_ARRAY);
+        $report_type = filter_input(INPUT_POST, 'report_type', FILTER_SANITIZE_STRING);
         $title     = filter_input(INPUT_POST, 'context_title', FILTER_SANITIZE_STRING);
         $course_id = filter_input(INPUT_POST, 'course_id', FILTER_SANITIZE_NUMBER_INT);
         $job_group = uniqid('job_', true); // uniqid for this group of jobs
+        $user_id = $_SESSION['launch_params']['custom_canvas_user_id'];
+        $api_key = UdoitUtils::instance()->getValidRefreshedApiKey($user_id);
+        $course_locale_raw = UdoitUtils::instance()->getCourseLocale($api_key, $course_id);
+
+        if (false === $course_locale_raw ||
+        ctype_space($course_locale_raw) ||
+        '' == $course_locale_raw) {
+            $course_locale = 'en';
+            $logger->addWarning('No course locale received, defaulting to en');
+        } else {
+            $course_locale = substr($course_locale_raw, 0, 2);
+            $logger->addInfo('Course Locale set to '.$course_locale);
+        }
+        
+        $flag = filter_input(INPUT_POST, 'unpublished_flag', FILTER_DEFAULT);
 
         // No content selected
-        if ('none' === $content) {
+        if ('none' === $content[0]) {
             $logger->addInfo('no content selected');
             exit('{"error": "Please select which course content you wish to scan above."}');
+        }
+        // No report types selected
+        if ('none' === $report_type) {
+            $logger->addInfo('no report items selected');
+            exit('{"error": "Please select what you would like to see on your report"}');
         }
 
         // common data object
@@ -59,6 +84,9 @@ switch ($main_action) {
             'title'        => $title,
             'course_id'    => $course_id,
             'scan_item'    => $scan_item,
+            'course_locale' => $course_locale,
+            'report_type'  => $report_type,
+            'flag'         => $flag,
         ];
 
         // create an id to group all these jobs together
@@ -145,6 +173,11 @@ switch ($main_action) {
                     $new_content = filter_input(INPUT_POST, 'newcontent', FILTER_SANITIZE_STRING);
                     $corrected_error = $ufixit->fixAltText($data['error_html'], $new_content, false);
                 }
+                break;
+
+            case 'pNotUsedAsHeader':
+                $new_content = filter_input(INPUT_POST, 'newcontent', FILTER_SANITIZE_STRING);
+                $corrected_error = $ufixit->makeHeading($data['error_html'], $new_content);
                 break;
 
             case 'tableDataShouldHaveTh':

@@ -6,6 +6,52 @@ UDOIT enables faculty to identify accessibility issues in Canvas by Instructure.
 
 In late 2013, the proposal submitted by UCF's Center for Distributed Learning won Instructure, Inc.’s Canvas Grant in the higher education category. The $10,000 grant was awarded to UCF – CDL to take an existing tool and further develop this solution into what is now known as UDOIT.
 
+## What Does UDOIT Look For?
+
+### Errors
+
+| Internal Name | What condition triggers it to produce an error in the resulting report |
+| ------------- | ---------------------------------------------------------------------- |
+| imgAltIsDifferent | If the attribute is the same as the file name. |
+| imgAltIsTooLong | If the alt attribute is too long (configurable, default 120 characters). |
+| imgAltNotPlaceHolder | If the alt attribute is one of these strings:  'nbsp', '&amp;nbsp;', 'spacer', 'image', 'img', 'photo' |
+| imgAltNotEmptyInAnchor | Triggers if the alt attribute is empty on an image in an anchor tag. |
+| imgHasLongDesc | If the image has an alt attribute and long description that contain the exact same text. |
+| imgHasAltDeco | If the image is marked as decorative, but does not have an empty alt attribute. |
+| objectMustContainText | If an object tag does not contain a text equivalent. |
+| embedHasAssociatedNoEmbed | If an embed tag does not have a text equivalent contained in a noembed tag. |
+| tableDataShouldHaveTh | If a table does not have any table header (th) tags. |
+| tableThShouldHaveScope | If a table header (th) tag does not have a scope attribute that is set to "row" or "col". |
+| basefontIsNotUsed | If a "basefont" tag exists in the page. |
+| fontIsNotUsed | If a "font" tag exists in the page. |
+| blinkIsNotUsed | If a "blink" tag exists in the page. |
+| marqueeIsNotUsed | If a "marquee" tag exists in the page. |
+| aMustContainText | If a link does not contain any text. |
+| cssTextHasContrast | If text has less than a 4.5:1 contrast ratio between the foreground and background. |
+| headersHaveText | If a header tag does not contain text. |
+| videoProvidesCaptions | If a video tag does not have a caption track tag. |
+| videosEmbeddedOrLinkedNeedCaptions | If a YouTube or Vimeo video does not have human-generated captions. |
+
+### Suggestions
+
+| Internal Name | What condition triggers it to produce a suggestion in the resulting report |
+| ------------- | -------------------------------------------------------------------------- |
+| imgHasAlt | If an image does not have an alt attribute at all |
+| inputImageNotDecorative | If an input of type "image" exists on the page. |
+| contentTooLong | If the page is over 5000 characters long (configurable). |
+| aLinksToSoundFilesNeedTranscripts | If a link to a sound file exists on the page. |
+| aLinksToMultiMediaRequireTranscript | If a link to a video file exists on the page. |
+| objectShouldHaveLongDescription | If an "object" tag exists on the page. |
+| objectTagDetected | If an "object" tag exists on the page. |
+| pNotUsedAsHeader | If a paragraph tag that is not the child of a table is bolded, underlined, or has a font tag wrapped around it.  This catches a bolded line of text being used instead of a heading. |
+| preShouldNotBeUsedForTabularLayout | If a "pre" tag contains a carriage return. |
+| objectInterfaceIsAccessible | If an "object" tag exists in the page. |
+| imgGifNoFlicker | If a GIF image contains any frame delays at all, which might cause it to flicker. |
+| aSuspiciousLinkText | If a link consists entirely of the following strings: 'click here', 'click', 'more', 'here'. |
+| noHeadings | If a page does not contain any headings. |
+| cssTextStyleEmphasize | If colored text is not emphasized as bold or italicized. |
+| videoEmbedChecked | If an iframe, link, or object tag linking to a Dailymotion video exists on the page. |
+| videoCaptionsAreCorrectLanguage | If a YouTube or Vimeo video has human-generated captions, but they do not match the set language of the course. |
 
 ## Awards
 
@@ -38,7 +84,7 @@ UDOIT is distributed under the [GNU GPL v3 license](LICENSE).
 >
 > Primary Contact:  Jacob Bates <jacob.bates@ucf.edu>
 
-UDOIT includes a modified [QUAIL library](https://code.google.com/p/quail-lib/). QUAIL requires derrivitives to be distributed under the [GNU General Public License version 3](LICENSE)
+UDOIT includes a modified [QUAIL library](https://code.google.com/p/quail-lib/). QUAIL requires derivitives to be distributed under the [GNU General Public License version 3](LICENSE)
 
 UDOIT includes a [Composer](https://getcomposer.org) binary which is distributed under the [MIT license](https://github.com/composer/composer/blob/master/LICENSE)
 
@@ -51,9 +97,10 @@ To start the Heroku deployment process, you can click the button below, please n
 
 ## System Requirements
 * Apache or Nginx webserver
-* PHP 7.1, 7.2 (Not yet compatible with 7.3.  See issue #422)
+* PHP 7.2, 7.3
   * [GD Graphics Library](http://php.net/manual/en/book.image.php)
-* MySQL or PostgreSQL
+* MySQL, MariaDB or PostgreSQL
+* Git (If you are using [The Git Method](#the-git-method) below) or if you plan on contributing to UDOIT
 
 ## Downloading the Source Code
 There are two methods of obtaining the source code and maintaining your installation of UDOIT:  Git Clone or Download ZIP.
@@ -81,7 +128,7 @@ If you'd like to add a little extra security to your installation, you can confi
 UDOIT uses [Composer](https://getcomposer.org/) to install PHP dependencies. So `cd` into your UDOIT directory and run this command before anything else:
 
 ```
-$ php composer.phar install
+$ php composer.phar install --no-dev
 ```
 
 The libraries (other then Quail) that we rely on can be found in `composer.json`.
@@ -150,11 +197,50 @@ UDOIT uses Oauth2 to take actions on behalf of the user, so you'll need to ask y
  * If you did a normal install into the web root of your server, it would be `https://www.example.com/public/oauth2response.php`. (Replace 'www.example.com' with the url of your UDOIT server.)
 * ***Icon URL:*** The URL of the UDOIT icon.  This is `https://www.example.com/public/assets/img/udoit_icon.png`.  (Replace 'www.example.com' with the url of your UDOIT server.)
 
+Your Canvas administrator will perform the following tasks:
+1. Navigate to your institution's ***Account Admin panel*** in Canvas.
+2. Click on the ***Developer Keys*** menu option.
+3. Click the ***+ Developer Key*** button and select the ***API Key*** option.
+4. Enter the data provided above into the form, leaving the ***Redirect URI (Legacy)*** and ***Vendor Code (LTI 2)*** fields blank.
+5. (Optional) If you would like to Enforce Scopes on this developer key, which limits this Developer Key to only allow access to the functions UDOIT requires, enable the option and check the boxes outlined in the [Scoped Developer Keys](#scoped-developer-keys) section below.
+6. Click ***Save Key***
+7. Find the new Developer Key in the list, and send the values from the ***Details*** column to the person requesting the key.  The top value is the ***Oauth2 ID***, and the value revealed by clicking on the ***Show Key*** button is the ***Oauth2 Key***.
+
 After you receive your Developer Key from your Canvas admin, edit the following variables in `config/localConfig.php`:
 
-* `$oauth2_id`: The Client_ID yoru Canvas admin gives you
-* `$oauth2_key`: The Secret your Canvas admin gives you
-* `$oauth2_uri`: The Redirect URI you provided to your Canvas admin
+* `$oauth2_id`: The ***Oauth2 ID*** your Canvas admin gives you
+* `$oauth2_key`: The ***Oauth2 Key*** your Canvas admin gives you
+* `$oauth2_uri`: The ***Redirect URI*** you provided to your Canvas admin
+* `$oauth2_enforce_scopes`: Set to ***true*** if you are using [Scoped Developer Keys](#scoped-developer-keys).
+
+#### Scoped Developer Keys
+If you'd like to use this option, you'll need set the following scopes for your developer key.
+* Assignments
+	* url:GET|/api/v1/courses/:course_id/assignments
+	* url:GET|/api/v1/courses/:course_id/assignments/:id
+	* url:PUT|/api/v1/courses/:course_id/assignments/:id
+* Courses
+	* url:PUT|/api/v1/courses/:id
+	* url:GET|/api/v1/courses/:id
+	* url:POST|/api/v1/courses/:course_id/files
+* Discussion Topics
+	* url:GET|/api/v1/courses/:course_id/discussion_topics
+	* url:GET|/api/v1/courses/:course_id/discussion_topics/:topic_id
+	* url:PUT|/api/v1/courses/:course_id/discussion_topics/:topic_id
+* Files
+	* url:GET|/api/v1/courses/:course_id/files
+	* url:GET|/api/v1/courses/:course_id/folders/:id
+	* url:GET|/api/v1/folders/:id/folders
+	* url:GET|/api/v1/folders/:id/files
+* Modules
+	* url:GET|/api/v1/courses/:course_id/modules
+	* url:GET|/api/v1/courses/:course_id/modules/:module_id/items
+* Pages
+	* url:GET|/api/v1/courses/:course_id/pages
+	* url:GET|/api/v1/courses/:course_id/pages/:url
+	* url:PUT|/api/v1/courses/:course_id/pages/:url
+* Users
+	* url:GET|/api/v1/users/:user_id/profile
 
 ### Google/YouTube API Key
 In order for UDOIT to scan YouTube videos for closed captioning, you will need to create a YouTube Data API key.  Follow the instructions below:
@@ -273,6 +359,9 @@ The `Deploy to Heroku` button installs the latest release of UDOIT when clicked.
 * Allow inbound traffic from world to UDOIT on 80 and 443
 * Allow outbound traffic from UDOIT to Canvas on 443
 
+### Why am I recieving a "Due to LMS limitations, UDOIT is unable to scan this section." error?
+When an institution installs UDOIT and uses a scoped developer key, certain features of the Canvas API are unavailable to UDOIT, including retrieving content from the Syllabus tool.  This limitation does not affect UDOIT installations that use a non-scoped developer key.  For more information, refer to the "Canvas API Includes" section of the <a href="https://canvas.instructure.com/doc/api/file.developer_keys.html">Canvas API Documentation</a>.
+
 # Developing and Testing
 
 For quick local development, set `$UDOIT_ENV = ENV_DEV;` in `config/localConfig.php`.  This flag disables authentication and allows you to quickly see a sample test report for most template, js, and css development. Use this along with the quick dev server below.
@@ -331,6 +420,8 @@ Add contributors here and dont forget composer.json!)
 * [John Raible](https://github.com/rebelaide)
 * [Kevin Baugh](https://github.com/loraxx753)
 * [Sean Hernandez](https://github.com/seanlh)
+* [Ethan Finlay](https://github.com/atarisafari)
+* [Kenny G Perez](https://github.com/kennygperez)
 
 ### Special Thanks
 

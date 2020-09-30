@@ -196,13 +196,34 @@ h5 {
 	padding: 0;
 }
 
-#mainHeader, #contentWrapper {
+#mainHeader, #contentWrapper, #mainFooter {
 	background: #ffffff;
 	border: 1px solid #c1c7cf;
 	border-radius: 4px;
 	box-shadow: 0 2px 1px rgba(0,0,0,0.1);
 	margin-bottom: 20px;
 	padding: 20px;
+}
+
+#mainFooter ul{
+	list-style-type: none;
+	margin: 0;
+	padding: 0;
+}
+
+#mainFooter li {
+	display: inline-block;
+	padding: 0px 20px 0 0;
+	margin: 0;
+}
+
+#mainFooter li:not(:first-child){
+	border-left: 1px solid black;
+	padding: 0px 22px;
+}
+
+#mainFooter li:last-child{
+	padding-right: 0px;
 }
 
 #contentWrapper {

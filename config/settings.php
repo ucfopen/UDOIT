@@ -3,7 +3,7 @@ define('ENV_TEST', 'test');
 define('ENV_PROD', 'prod');
 define('ENV_DEV', 'dev');
 
-define('UDOIT_VERSION', '2.5.0');
+define('UDOIT_VERSION', '2.7.0');
 
 // SET UP AUTOLOADER (uses autoload rules from composer)
 require_once(__DIR__.'/../vendor/autoload.php');
@@ -28,6 +28,26 @@ $logger = new \Monolog\Logger('udoit');
 $logger->pushHandler($log_handler);
 \Monolog\ErrorHandler::register($logger);
 
+// SET UP PHP SESSION COOKIE SAMESITE SESSIONS
+$lifetime = isset($session_cookie_options['lifetime']) ? $session_cookie_options['lifetime'] : 0;
+$path = isset($session_cookie_options['path']) ? $session_cookie_options['path'] : '/';
+$domain = isset($session_cookie_options['domain']) ? $session_cookie_options['domain'] : null;
+$secure = isset($session_cookie_options['secure']) ? $session_cookie_options['secure'] : true;
+$httponly = isset($session_cookie_options['httponly']) ? $session_cookie_options['httponly'] : false;
+
+if (PHP_VERSION_ID < 70300) {
+    session_set_cookie_params($lifetime, "$path; samesite=None", $domain, $secure, $httponly);
+} else {
+    session_set_cookie_params([
+        'lifetime' => $lifetime,
+        'path' => $path,
+        'domain' => $domain,
+        'samesite' => 'None',
+        'secure' => $secure,
+        'httponly' => $httponly,
+    ]);
+}
+
 // SET UP ERROR REPORTING
 error_reporting(E_ALL & ~E_NOTICE);
 ini_set("display_errors", ($UDOIT_ENV == ENV_PROD ? 0 : 1));
@@ -35,8 +55,42 @@ ini_set("display_errors", ($UDOIT_ENV == ENV_PROD ? 0 : 1));
 // SET DEFAULT ENVIRONMENT
 isset($UDOIT_ENV) || $UDOIT_ENV = ENV_PROD; // !! override in your localConfig.php
 
+// CHECK FOR SAFARI
+if (!UdoitUtils::isLoadingXMLSettings()) {
+    UdoitUtils::checkSafari();
+}
+
+
 // SET UP OAUTH
-UdoitUtils::setupOauth($oauth2_id, $oauth2_key, $oauth2_uri, $consumer_key, $shared_secret, $curl_ssl_verify);
+$oauth2_scopes = [
+    // assigments
+    'url:GET|/api/v1/courses/:course_id/assignments',
+    'url:GET|/api/v1/courses/:course_id/assignments/:id',
+    'url:PUT|/api/v1/courses/:course_id/assignments/:id',
+    // courses
+    'url:PUT|/api/v1/courses/:id',
+    'url:GET|/api/v1/courses/:id',
+    'url:POST|/api/v1/courses/:course_id/files',
+    // discussion topics
+    'url:GET|/api/v1/courses/:course_id/discussion_topics',
+    'url:GET|/api/v1/courses/:course_id/discussion_topics/:topic_id',
+    'url:PUT|/api/v1/courses/:course_id/discussion_topics/:topic_id',
+    // files
+    'url:GET|/api/v1/courses/:course_id/files',
+    'url:GET|/api/v1/courses/:course_id/folders/:id',
+    'url:GET|/api/v1/folders/:id/folders',
+    'url:GET|/api/v1/folders/:id/files',
+    // modules
+    'url:GET|/api/v1/courses/:course_id/modules',
+    'url:GET|/api/v1/courses/:course_id/modules/:module_id/items',
+    // pages
+    'url:GET|/api/v1/courses/:course_id/pages',
+    'url:GET|/api/v1/courses/:course_id/pages/:url',
+    'url:PUT|/api/v1/courses/:course_id/pages/:url',
+    // users
+    'url:GET|/api/v1/users/:user_id/profile',
+];
+UdoitUtils::setupOauth($oauth2_id, $oauth2_key, $oauth2_uri, $consumer_key, $shared_secret, $curl_ssl_verify, $oauth2_enforce_scopes, $oauth2_scopes);
 
 // SET UP DATABASE
 UdoitDB::setup($db_type, $dsn, $db_user, $db_password, $db_options);
