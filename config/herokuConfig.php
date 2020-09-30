@@ -57,7 +57,7 @@ $unscannable_suggestion = 'Consider converting these documents to Pages, since t
 $unscannable_suggestion_on = true;
 
 /* Assigning which file types won't be scanned */
-$unscannable_file_types = ['pdf', 'doc', 'docx', 'ppt', 'pptx'];
+$unscannable_file_types = ['pdf', 'doc', 'docx', 'ppt', 'pptx', 'xls', 'xlsx', 'swf'];
 
 /* Google/YouTube Data Api Key */
 define('GOOGLE_API_KEY', getenv('GOOGLE_API_KEY')?:'');

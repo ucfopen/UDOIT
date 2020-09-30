@@ -33,7 +33,7 @@ $unscannable_suggestion = 'Consider converting these documents to Pages, since t
 $unscannable_suggestion_on = true;
 
 /* Assigning which file types won't be scanned */
-$unscannable_file_types = ['pdf', 'doc', 'docx', 'ppt', 'pptx'];
+$unscannable_file_types = ['pdf', 'doc', 'docx', 'ppt', 'pptx', 'xls', 'xlsx', 'swf'];
 
 /* Tool name for display in Canvas Navigation */
 $canvas_nav_item_name = (getenv('CANVAS_NAV_ITEM_NAME')) ?: 'UDOIT';
