@@ -423,7 +423,7 @@ $doc.ready(function() {
 
 		// If the error preview contains an image, make sure it isn't too big
 		if(preview.find('img') != 'undefined'){
-			preview.find('img').css({"max-height": "100%", "max-width": "100%"});
+			preview.find('img').css({"height": "auto", "max-width": "100%"});
 		}
 
 		$(this).addClass('hidden');
