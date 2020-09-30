@@ -25,7 +25,8 @@ class App extends React.Component {
       content: "SHOW_ALL",
       issueTypes: "SHOW_ALL",
       issueTitles: "SHOW_ALL",
-      status: "SHOW_ALL"
+      status: "SHOW_ALL",
+      search_term: "SHOW_ALL"
   });
 
     this.handleClick = this.handleClick.bind(this);

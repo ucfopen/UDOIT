@@ -39,6 +39,16 @@ class ContentPage extends React.Component {
     this.props.setVisibilityFilter(visibilityFilters);
   }
 
+  handleTextChange = (e) => {
+    console.log(e.target.value)
+    // Modify visibility filters
+    let visibilityFilters = Object.assign({}, this.props.visibilityFilters);
+    visibilityFilters.search_term = e.target.value;
+
+    // Set search term filter
+    this.props.setVisibilityFilter(visibilityFilters);
+  };
+
   render() {
     const headers = [{id: "status", text: "Status"},{id: "title", text: "Issue"}, {id: "type", text: "Content Type"}, {id: "contentTitle", text: "Content Title"}, {id: "section", text: "Section"}];
     return (
@@ -47,11 +57,12 @@ class ContentPage extends React.Component {
           <div className={`${classes.row}`}>
             <TextInput
             renderLabel="Search"
-            placeholder="Keyword">
+            placeholder="Keyword"
+            onChange = {this.handleTextChange}>
               
             </TextInput>
 
-            <Checkbox label="Hide fixed errors" value="small" variant="toggle" size="small" onChange={() => this.toggleFixedErrors()} checked={this.state.notFixedErrorsOnly}/>
+            <Checkbox label="Hide fixed issues" value="small" variant="toggle" size="small" onChange={() => this.toggleFixedErrors()} checked={this.state.notFixedErrorsOnly}/>
           </div>
 
           <br></br>

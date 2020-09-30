@@ -9,6 +9,14 @@ const sectionNames = [
     "moduleUrls"
 ]
 
+const searchTermFields = [
+    "status",
+    "title",
+    "type",
+    "contentTitle",
+    "section"
+]
+
 // Selectors
 export const getIssueFrequency = (state, type) => {
     let issueTypes = []
@@ -73,11 +81,13 @@ export const getFilteredContent = (state) => {
                     console.log(issues);
                     // Loop through the issues
                     for(var issue of issues) {
+                        issue.contentTitle = contentPiece.title;
+                        issue.section = section;
+
                         if((state.visibilityFilters.issueTypes === "SHOW_ALL" || state.visibilityFilters.issueTypes.includes(issue.type))
                         && (state.visibilityFilters.issueTitles === "SHOW_ALL" || state.visibilityFilters.issueTitles.includes(issue.title))
-                        && (state.visibilityFilters.status === "SHOW_ALL" || state.visibilityFilters.status.includes(issue.status))) {
-                            issue.contentTitle = contentPiece.title;
-                            issue.section = section;
+                        && (state.visibilityFilters.status === "SHOW_ALL" || state.visibilityFilters.status.includes(issue.status))
+                        && (state.visibilityFilters.search_term === "SHOW_ALL" || matchesKeywordSearch(state.visibilityFilters.search_term, issue))) {
                             filteredList.push(issue);
                         }
                     }
@@ -92,3 +102,6 @@ export const getFilteredContent = (state) => {
 
 // Helpers
 
+const matchesKeywordSearch = (search_term, issue) => {
+    return true;
+}

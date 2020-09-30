@@ -3,7 +3,8 @@ const defaultState = {
     content: "SHOW_ALL",
     issueTypes: "SHOW_ALL",
     issueTitles: "SHOW_ALL",
-    status: "SHOW_ALL"
+    status: "SHOW_ALL",
+    search_term: "SHOW_ALL"
 }
 
 const visibilityFiltersReducer = (state = defaultState, action) => {
