@@ -183,7 +183,7 @@ return [
         [
             'name'      => 'videoUnlistedOrNotFound',
             'title'     => 'Video is Unlisted or Not Found',
-            'desc'      => '<p>We were unable to determine whether this video has captions because it is Unlisted, has been deleted, or has been removed due to copyright violations. Please manually verify that this video has captions.</p>',
+            'desc'      => '<p>We were unable to determine whether this video has captions because it is unlisted, is private, has been deleted, or has been removed due to copyright violations. Please manually verify that this video has captions.</p>',
             'resources' => [],
             'example'   => '',
         ],
