@@ -4,7 +4,7 @@
   font-size: 1.2em;
 }
 
-.ucf-accordion .accordion-control {
+.ucf-accordion .ucf-accordion-control {
   box-sizing: border-box;
   display: block;
   background-color: #f2f2f2;
@@ -16,33 +16,33 @@
   transition: background-color 0.2s ease-in;
 }
 
-.ucf-accordion .accordion-control:focus,
-.ucf-accordion .accordion-control:hover {
+.ucf-accordion .ucf-accordion-control:focus,
+.ucf-accordion .ucf-accordion-control:hover {
   background-color: #e6e6e6;
   cursor: pointer;
 }
 
-.ucf-accordion .accordion-control:after {
+.ucf-accordion .ucf-accordion-control:after {
   float: right;
   width: 20px;
   text-align: center;
   font-weight: bold;
 }
 
-.ucf-accordion .accordion-control[aria-expanded="true"] {
+.ucf-accordion .ucf-accordion-control[aria-expanded="true"] {
   border-color: #1e7bc8;
   background-color: #0078bd;
   color: white;
 }
-.ucf-accordion .accordion-control[aria-expanded="true"]:after {
+.ucf-accordion .ucf-accordion-control[aria-expanded="true"]:after {
   content:'\2013';
 }
 
-.ucf-accordion .accordion-control[aria-expanded="false"]:after {
+.ucf-accordion .ucf-accordion-control[aria-expanded="false"]:after {
   content:'+';
 }
 
-.ucf-accordion .accordion-content {
+.ucf-accordion .ucf-accordion-content {
   display: none;
   padding: 10px;
   border: 1px solid #c7cdd1;
