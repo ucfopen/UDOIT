@@ -63,7 +63,7 @@ $this->layout('template', $settings);
 				<input type="hidden" name="session_context_title" value="<?= $this->escape($launch_params['context_title']); ?>">
 
 				<div class="row">
-					<div class="col-sm-4">
+					<div class="col-sm-6 col-md-4 col-md-offset-2">
 						<div class="form-group welcome-toggle">
 							<span class="col-sm-4 control-label"><strong>Content:</strong></span>
 
@@ -115,7 +115,7 @@ $this->layout('template', $settings);
 						</div>
 					</div>
 
-					<div class="col-sm-4">
+					<div class="col-sm-6 col-md-4">
 						<div class="form-group welcome-toggle">
 							<span class="col-sm-4 control-label"><strong>Scan for:</strong></span>
 
@@ -137,7 +137,10 @@ $this->layout('template', $settings);
 							</div>
 						</div>
 					</div>
-					<div class="col-sm-4">
+					
+				</div>
+				<div class="row">
+					<div class="col-sm-12 col-md-8 col-md-offset-2">
 						<button type="submit" id="course_submit" name="course_submit" class="btn btn-block btn-lg btn-success submit">Scan This Course</button>
 
 						<div id="waitMsg" class="alert alert-warning" style="display: none;">
