@@ -181,6 +181,13 @@ return [
             'example'   => '',
         ],
         [
+            'name'      => 'videoUnlistedOrNotFound',
+            'title'     => 'Video is Unlisted or Not Found',
+            'desc'      => '<p>We were unable to determine whether this video has captions because it is unlisted, is private, has been deleted, or has been removed due to copyright violations. Please manually verify that this video has captions.</p>',
+            'resources' => [],
+            'example'   => '',
+        ],
+        [
             'name'      => 'videoCaptionsAreCorrectLanguage',
             'title'     => '<a href="http://webaim.org/techniques/captions/">Closed captions</a> do not match course language.',
             'desc'      => '<p>Closed captions that match the course language should be included in the video to provide dialogue to users who are hearing impaired.  (Please note that videos that have been removed, deleted, or are Unlisted will also cause this error, and will need to be manually verified.)</p>',
