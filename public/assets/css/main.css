@@ -780,3 +780,10 @@ p.fix-success { margin-left: 0; }
 .manual-notification {
 	display: inline;
 }
+
+/* Customizations that affect Bootstrap styles */
+.col-sm-12.col-md-8.col-md-offset-2.course_submit_container {
+	padding-left: 0;
+    padding-right: 0;
+    margin-bottom: 20px;
+}
