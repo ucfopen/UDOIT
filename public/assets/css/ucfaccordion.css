@@ -1,0 +1,50 @@
+.ucf-accordion h3 {
+  margin: 2px 0 0 0;
+  text-align: left;
+  font-size: 1.2em;
+}
+
+.ucf-accordion .accordion-control {
+  box-sizing: border-box;
+  display: block;
+  background-color: #f2f2f2;
+  width: 100%;
+  border: 1px solid #c7cdd1;
+  color: #333;
+  text-decoration: none !important;
+  padding: 10px;
+  transition: background-color 0.2s ease-in;
+}
+
+.ucf-accordion .accordion-control:focus,
+.ucf-accordion .accordion-control:hover {
+  background-color: #e6e6e6;
+  cursor: pointer;
+}
+
+.ucf-accordion .accordion-control:after {
+  float: right;
+  width: 20px;
+  text-align: center;
+  font-weight: bold;
+}
+
+.ucf-accordion .accordion-control[aria-expanded="true"] {
+  border-color: #1e7bc8;
+  background-color: #0078bd;
+  color: white;
+}
+.ucf-accordion .accordion-control[aria-expanded="true"]:after {
+  content:'\2013';
+}
+
+.ucf-accordion .accordion-control[aria-expanded="false"]:after {
+  content:'+';
+}
+
+.ucf-accordion .accordion-content {
+  display: none;
+  padding: 10px;
+  border: 1px solid #c7cdd1;
+  border-top: none;
+}
