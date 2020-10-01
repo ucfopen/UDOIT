@@ -131,7 +131,7 @@ class vimeoService extends mediaService
 	private function isVimeoVideo($link_url)
 	{
 		$matches = null;
-		if(preg_match($this->regex, trim($link_url), $matches)) {
+		if( preg_match($this->regex, trim($link_url), $matches) === 1) {
 			return $matches[1];
 		}
 		return false;

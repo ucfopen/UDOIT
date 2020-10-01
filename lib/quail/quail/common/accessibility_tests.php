@@ -6440,9 +6440,9 @@ class videosEmbeddedOrLinkedNeedCaptions extends quailTest
 			$attr = ($video->tagName == 'a') ? 'href' : 'src';
 			if ($video->hasAttribute($attr)) {
 				$attr_val = $video->getAttribute($attr);
-				if ( preg_match($search_youtube, $attr_val) ) {
+				if ( preg_match($search_youtube, $attr_val) === 1) {
 					$service = 'youtube';
-				} elseif ( preg_match($search_vimeo, $attr_val) ) {
+				} elseif ( preg_match($search_vimeo, $attr_val) === 1) {
 					$service = 'vimeo';
 				}
 				if (isset($service)) {
@@ -6491,9 +6491,9 @@ class videoCaptionsAreCorrectLanguage extends quailTest
 			$attr = ($video->tagName == 'a') ? 'href' : 'src';
 			if ($video->hasAttribute($attr)) {
 				$attr_val = $video->getAttribute($attr);
-				if ( preg_match($search_youtube, $attr_val) ) {
+				if ( preg_match($search_youtube, $attr_val) === 1) {
 					$service = 'youtube';
-				} elseif ( preg_match($search_vimeo, $attr_val) ) {
+				} elseif ( preg_match($search_vimeo, $attr_val) === 1) {
 					$service = 'vimeo';
 				}
 				if (isset($service)) {
@@ -6546,9 +6546,9 @@ class videoUnlistedOrNotFound extends quailTest
 
 			if ($video->hasAttribute($attr)) {
 				$attr_val = $video->getAttribute($attr);
-				if ( preg_match($search_youtube, $attr_val) ) {
+				if ( preg_match($search_youtube, $attr_val) === 1 ) {
 					$service = 'youtube';
-				} elseif ( preg_match($search_vimeo, $attr_val) ) {
+				} elseif ( preg_match($search_vimeo, $attr_val) === 1 ) {
 					$service = 'vimeo';
 				}
 				if (isset($service)) {

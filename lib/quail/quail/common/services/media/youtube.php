@@ -171,7 +171,7 @@ class youtubeService extends mediaService
 	{
 		$matches = null;
 		foreach($this->regex as $pattern) {
-			if(preg_match($pattern, trim($link_url), $matches)) {
+			if( preg_match($pattern, trim($link_url), $matches) === 1) {
 				return $matches[1];
 			}
 		}
