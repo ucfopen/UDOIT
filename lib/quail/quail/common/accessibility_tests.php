@@ -6433,20 +6433,25 @@ class videosEmbeddedOrLinkedNeedCaptions extends quailTest
 	*/
 	function check()
 	{
-		$search_youtube = '/(youtube|youtu.be)/';
+		$search_youtube = '/(youtube|youtu\.be)/';
 		$search_vimeo = '/(vimeo)/';
 
 		foreach ($this->getAllElements(array('a', 'embed', 'iframe')) as $video) {
 			$attr = ($video->tagName == 'a') ? 'href' : 'src';
 			if ($video->hasAttribute($attr)) {
 				$attr_val = $video->getAttribute($attr);
-				if ( preg_match($search_youtube, $attr_val) ) {
+				if ( preg_match($search_youtube, $attr_val) === 1) {
 					$service = 'youtube';
-				}
-				elseif ( preg_match($search_vimeo, $attr_val) ) {
+				} elseif ( preg_match($search_vimeo, $attr_val) === 1) {
 					$service = 'vimeo';
 				}
 				if (isset($service)) {
+					if($service == 'youtube' || $service == 'vimeo') {
+						// Skip this test if the video us unlisted, private, or deleted
+						if($this->services[$service]->videoUnavailable($attr_val)) {
+							continue;
+						}
+					}
 					$captionState = $this->services[$service]->captionsMissing($attr_val);
 					if($captionState != 2) {
 						$this->addReport($video, null, null, $captionState, ($captionState == 1));
@@ -6479,20 +6484,25 @@ class videoCaptionsAreCorrectLanguage extends quailTest
 	*/
 	function check()
 	{
-		$search_youtube = '/(youtube|youtu.be)/';
+		$search_youtube = '/(youtube|youtu\.be)/';
 		$search_vimeo = '/(vimeo)/';
 
 		foreach ($this->getAllElements(array('a', 'embed', 'iframe')) as $video) {
 			$attr = ($video->tagName == 'a') ? 'href' : 'src';
 			if ($video->hasAttribute($attr)) {
 				$attr_val = $video->getAttribute($attr);
-				if ( preg_match($search_youtube, $attr_val) ) {
+				if ( preg_match($search_youtube, $attr_val) === 1) {
 					$service = 'youtube';
-				}
-				elseif ( preg_match($search_vimeo, $attr_val) ) {
+				} elseif ( preg_match($search_vimeo, $attr_val) === 1) {
 					$service = 'vimeo';
 				}
 				if (isset($service)) {
+					if($service == 'youtube' || $service == 'vimeo') {
+						// Skip this test if the video us unlisted, private, or deleted
+						if($this->services[$service]->videoUnavailable($attr_val)) {
+							continue;
+						}
+					}
 					$captionState = $this->services[$service]->captionsLanguage($attr_val, $this->course_locale);
 					if($captionState != 2) {
 						$this->addReport($video, null, null, $captionState, ($captionState == 1));
@@ -6501,6 +6511,56 @@ class videoCaptionsAreCorrectLanguage extends quailTest
 			}
 		}
 	}
+}
+
+/**
+*	If a video is unlisted, the YouTube API will pretend that the video is not found, so we can't check for captions
+*/
+
+class videoUnlistedOrNotFound extends quailTest 
+{
+	/**
+	*	@var int $default_severity The default severity code for this test.
+	*/
+	var $default_severity = QUAIL_TEST_SUGGESTION;
+
+	/**
+	*	@var array $services The services that this test will need.
+	*/
+	var $services = [
+		'youtube' => 'media/youtube',
+		'vimeo' => 'media/vimeo'
+	];
+
+	/**
+	*	The main check function. This is called by the parent class to actually check content
+	*/
+	function check()
+	{
+		$search_youtube = '/(youtube|youtu\.be)/';
+		$search_vimeo = '/(vimeo)/';
+
+		foreach ($this->getAllElements(array('a', 'embed', 'iframe')) as $video) {
+			$attr = ($video->tagName == 'a') ? 'href' : 'src';
+
+			if ($video->hasAttribute($attr)) {
+				$attr_val = $video->getAttribute($attr);
+				if ( preg_match($search_youtube, $attr_val) === 1 ) {
+					$service = 'youtube';
+				} elseif ( preg_match($search_vimeo, $attr_val) === 1 ) {
+					$service = 'vimeo';
+				}
+				if (isset($service)) {
+					if($service == 'youtube' || $service == 'vimeo') {
+						if ($this->services[$service]->videoUnavailable($attr_val)) {
+							$this->addReport($video);
+						}
+					}
+				}
+			}
+		}
+	}
+
 }
 
 /**
