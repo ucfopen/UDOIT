@@ -6555,7 +6555,7 @@ class videoUnlistedOrNotFound extends quailTest
 				}
 				if (isset($service)) {
 					if($service == 'youtube' || $service == 'vimeo') {
-						if ($service->videoUnavailable($attr_val)) {
+						if ($this->services[$service]->videoUnavailable($attr_val)) {
 							$this->addReport($video);
 						}
 					}
