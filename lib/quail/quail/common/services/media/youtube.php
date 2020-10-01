@@ -149,9 +149,9 @@ class youtubeService extends mediaService
 
 		if( $youtube_id = $this->isYouTubeVideo($link_url) ) {
 			$url = $url.$youtube_id.'&key='.$api_key;
-			$response = Request::get($url)->send();
+			$response = UdoitUtils::instance()->checkApiCache($url, $link_url);
 
-			if( !empty($response->body->error) ) {
+			if( !empty($response->body->error) || $response['code'] === 404) {
 				return true;
 			}
 
@@ -159,7 +159,6 @@ class youtubeService extends mediaService
 		}
 
 		return true;
-
 	}
 
 	/**

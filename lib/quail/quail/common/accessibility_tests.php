@@ -6447,7 +6447,7 @@ class videosEmbeddedOrLinkedNeedCaptions extends quailTest
 					$service = 'vimeo';
 				}
 				if (isset($service)) {
-					if($service == 'youtube')
+					if($service == 'youtube' || $service == 'vimeo')
 					{
 						if($this->services[$service]->videoUnavailable($attr_val))
 						{
