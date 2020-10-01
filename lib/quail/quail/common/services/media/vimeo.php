@@ -119,7 +119,7 @@ class vimeoService extends mediaService
 			return false;
 		}
 
-		return true;
+		return false;
 	}
 
 	/**

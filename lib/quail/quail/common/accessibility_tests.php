@@ -6433,7 +6433,7 @@ class videosEmbeddedOrLinkedNeedCaptions extends quailTest
 	*/
 	function check()
 	{
-		$search_youtube = '/(youtube|youtu.be)/';
+		$search_youtube = '/(youtube|youtu\.be)/';
 		$search_vimeo = '/(vimeo)/';
 
 		foreach ($this->getAllElements(array('a', 'embed', 'iframe')) as $video) {
@@ -6484,7 +6484,7 @@ class videoCaptionsAreCorrectLanguage extends quailTest
 	*/
 	function check()
 	{
-		$search_youtube = '/(youtube|youtu.be)/';
+		$search_youtube = '/(youtube|youtu\.be)/';
 		$search_vimeo = '/(vimeo)/';
 
 		foreach ($this->getAllElements(array('a', 'embed', 'iframe')) as $video) {
@@ -6537,8 +6537,7 @@ class videoUnlistedOrNotFound extends quailTest
 	*/
 	function check()
 	{
-		global $logger;
-		$search_youtube = '/(youtube|youtu.be)/';
+		$search_youtube = '/(youtube|youtu\.be)/';
 		$search_vimeo = '/(vimeo)/';
 
 		foreach ($this->getAllElements(array('a', 'embed', 'iframe')) as $video) {
@@ -6553,7 +6552,6 @@ class videoUnlistedOrNotFound extends quailTest
 				}
 				if (isset($service)) {
 					if($service == 'youtube' || $service == 'vimeo') {
-						$logger->addInfo("Checking if {$attr_val} from service {$service} is available.");
 						if ($this->services[$service]->videoUnavailable($attr_val)) {
 							$this->addReport($video);
 						}

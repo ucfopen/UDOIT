@@ -158,7 +158,7 @@ class youtubeService extends mediaService
 			return false;
 		}
 
-		return true;
+		return false;
 	}
 
 	/**
