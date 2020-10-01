@@ -63,83 +63,6 @@ $this->layout('template', $settings);
 				<input type="hidden" name="session_context_title" value="<?= $this->escape($launch_params['context_title']); ?>">
 
 				<div class="row">
-					<div class="col-sm-6 col-md-4 col-md-offset-2">
-						<div class="form-group welcome-toggle">
-							<span class="col-sm-4 control-label"><strong>Content:</strong></span>
-
-							<div class="col-sm-8">
-								<div class="checkbox">
-									<label><input id="allContent" type="checkbox" value="all" id="allContent" class="content" name="content[]" checked>Select All</label>
-								</div>
-
-								<br />
-
-								<div class="checkbox">
-									<label><input id="courseAnnouncements" type="checkbox" value="announcements" class="content" name="content[]" checked> Announcements</label>
-								</div>
-
-								<div class="checkbox">
-									<label><input id="courseAssignments" type="checkbox" value="assignments" class="content" name="content[]" checked> Assignments</label>
-								</div>
-
-								<div class="checkbox">
-									<label><input id="courseDiscussions" type="checkbox" value="discussions" class="content" class="content" name="content[]" checked> Discussions</label>
-								</div>
-
-								<div class="checkbox">
-									<label><input id="courseFiles" type="checkbox" value="files" class="content" name="content[]" checked> Files</label>
-								</div>
-
-								<div class="checkbox">
-									<label><input id="coursePages" type="checkbox" value="pages" class="content" name="content[]" checked> Pages</label>
-								</div>
-
-								<div class="checkbox">
-									<label><input id="courseSyllabus" type="checkbox" value="syllabus" class="content" name="content[]" checked> Syllabus</label>
-								</div>
-
-								<div class="checkbox">
-									<label><input id="moduleUrls" type="checkbox" value="module_urls" class="content" name="content[]" checked> Module URLs</label>
-								</div>
-
-								<br />
-
-								<div class="checkbox">
-									<label><input id="unpubCheckbox" type="checkbox" checked>Include unpublished content</label>
-								</div>
-
-								<br />
-
-							</div>
-
-						</div>
-					</div>
-
-					<div class="col-sm-6 col-md-4">
-						<div class="form-group welcome-toggle">
-							<span class="col-sm-4 control-label"><strong>Scan for:</strong></span>
-
-							<div class="col-sm-8">
-
-								<div class="checkbox">
-									<label><input id="allReport" type="checkbox" value="all" id="allReport" class="report" name="report[]" checked>Select All</label>
-								</div>
-
-								<br />
-
-								<div class="checkbox">
-									<label><input id="errors" type="checkbox" value="errors" class="report" name="report[]" checked> Errors</label>
-								</div>
-
-								<div class="checkbox">
-									<label><input id="suggestions" type="checkbox" value="suggestions" class="report" name="report[]" checked> Suggestions</label>
-								</div>
-							</div>
-						</div>
-					</div>
-					
-				</div>
-				<div class="row">
 					<div class="col-sm-12 col-md-8 col-md-offset-2">
 						<button type="submit" id="course_submit" name="course_submit" class="btn btn-block btn-lg btn-success submit">Scan This Course</button>
 
@@ -149,6 +72,86 @@ $this->layout('template', $settings);
 
 						<div class="alert alert-danger no-margin margin-top" id="failMsg" style="display: none;">
 							<span class="glyphicon glyphicon-exclamation-sign"></span> <span class="msg">UDOIT failed to scan this course.</span><span class="custom-msg"></span>
+						</div>
+					</div>
+				</div>
+				<div class="row panel-body">
+					<div class="col-sm-12 col-md-8 col-md-offset-2">
+						<div class="row">
+							<div class="col-sm-6">
+								<div class="form-group welcome-toggle">
+									<span class="col-sm-4 control-label"><strong>Content:</strong></span>
+
+									<div class="col-sm-8">
+										<div class="checkbox">
+											<label><input id="allContent" type="checkbox" value="all" id="allContent" class="content" name="content[]" checked>Select All</label>
+										</div>
+
+										<br />
+
+										<div class="checkbox">
+											<label><input id="courseAnnouncements" type="checkbox" value="announcements" class="content" name="content[]" checked> Announcements</label>
+										</div>
+
+										<div class="checkbox">
+											<label><input id="courseAssignments" type="checkbox" value="assignments" class="content" name="content[]" checked> Assignments</label>
+										</div>
+
+										<div class="checkbox">
+											<label><input id="courseDiscussions" type="checkbox" value="discussions" class="content" class="content" name="content[]" checked> Discussions</label>
+										</div>
+
+										<div class="checkbox">
+											<label><input id="courseFiles" type="checkbox" value="files" class="content" name="content[]" checked> Files</label>
+										</div>
+
+										<div class="checkbox">
+											<label><input id="coursePages" type="checkbox" value="pages" class="content" name="content[]" checked> Pages</label>
+										</div>
+
+										<div class="checkbox">
+											<label><input id="courseSyllabus" type="checkbox" value="syllabus" class="content" name="content[]" checked> Syllabus</label>
+										</div>
+
+										<div class="checkbox">
+											<label><input id="moduleUrls" type="checkbox" value="module_urls" class="content" name="content[]" checked> Module URLs</label>
+										</div>
+
+										<br />
+
+										<div class="checkbox">
+											<label><input id="unpubCheckbox" type="checkbox" checked>Include unpublished content</label>
+										</div>
+
+										<br />
+
+									</div>
+
+								</div>
+							</div>
+
+							<div class="col-sm-6">
+								<div class="form-group welcome-toggle">
+									<span class="col-sm-4 control-label"><strong>Scan for:</strong></span>
+
+									<div class="col-sm-8">
+
+										<div class="checkbox">
+											<label><input id="allReport" type="checkbox" value="all" id="allReport" class="report" name="report[]" checked>Select All</label>
+										</div>
+
+										<br />
+
+										<div class="checkbox">
+											<label><input id="errors" type="checkbox" value="errors" class="report" name="report[]" checked> Errors</label>
+										</div>
+
+										<div class="checkbox">
+											<label><input id="suggestions" type="checkbox" value="suggestions" class="report" name="report[]" checked> Suggestions</label>
+										</div>
+									</div>
+								</div>
+							</div>
 						</div>
 					</div>
 				</div>
