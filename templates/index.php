@@ -27,7 +27,8 @@ $settings = [
 		"assets/js/resize.js?v=" . UDOIT_VERSION,
 		"assets/js/default.js?v=" . UDOIT_VERSION,
 		"assets/js/contrast.js",
-		"assets/js/results_filter.js?v=" . UDOIT_VERSION
+		"assets/js/results_filter.js?v=" . UDOIT_VERSION,
+		"assets/js/ucfaccordion.js?v=" . UDOIT_VERSION
 	]
 ];
 
@@ -61,7 +62,7 @@ $this->layout('template', $settings);
 				<input type="hidden" name="session_course_id" value="<?= $this->escape($launch_params['custom_canvas_course_id']); ?>">
 				<input type="hidden" name="session_context_label" value="<?= $this->escape($launch_params['context_label']); ?>">
 				<input type="hidden" name="session_context_title" value="<?= $this->escape($launch_params['context_title']); ?>">
-
+				<h2 class="sr-only">Scanning Controls</h2>
 				<div class="row">
 					<div class="col-sm-12 col-md-8 col-md-offset-2 course_submit_container">
 						<button type="submit" id="course_submit" name="course_submit" class="btn btn-block btn-lg btn-success submit">Scan This Course</button>
@@ -76,86 +77,85 @@ $this->layout('template', $settings);
 					</div>
 				</div>
 				<div class="row">
-					<div class="col-sm-12 col-md-8 col-md-offset-2 panel panel-default">
-						<div class="row panel-heading">
-							<button class="btn btn-xs btn-default btn-toggle pull-left no-print margin-right-small">
-								<span class="glyphicon glyphicon-plus"></span>
-								<span class="sr-only">Expand course content selection.</span>
-							</button>
+					<div class="col-sm-12 col-md-8 col-md-offset-2 ucf-accordion" aria-label="Accordion Control Group">
+						<h3>
+							<a href="#" role="button" aria-controls="ucf-accordion-content-1" aria-expanded="false" class="ucf-accordion-control">
+								Scanning Options
+							</a>
+						</h3>
+						<div aria-hidden="true" id="ucf-accordion-content-1" class="ucf-accordion-content">
+							<div class="row">
+								<div class="col-sm-6">
+									<div class="form-group">
+										<span class="col-sm-4 control-label"><strong>Content:</strong></span>
 
-							<h3 class="plus pull-left">Select content to scan</h3>
-						</div>
-						<div class="row errorSummary panel-body">
-							<div class="col-sm-6">
-								<div class="form-group welcome-toggle">
-									<span class="col-sm-4 control-label"><strong>Content:</strong></span>
+										<div class="col-sm-8">
+											<div class="checkbox">
+												<label><input id="allContent" type="checkbox" value="all" id="allContent" class="content" name="content[]" checked>Select All</label>
+											</div>
 
-									<div class="col-sm-8">
-										<div class="checkbox">
-											<label><input id="allContent" type="checkbox" value="all" id="allContent" class="content" name="content[]" checked>Select All</label>
+											<br />
+
+											<div class="checkbox">
+												<label><input id="courseAnnouncements" type="checkbox" value="announcements" class="content" name="content[]" checked> Announcements</label>
+											</div>
+
+											<div class="checkbox">
+												<label><input id="courseAssignments" type="checkbox" value="assignments" class="content" name="content[]" checked> Assignments</label>
+											</div>
+
+											<div class="checkbox">
+												<label><input id="courseDiscussions" type="checkbox" value="discussions" class="content" class="content" name="content[]" checked> Discussions</label>
+											</div>
+
+											<div class="checkbox">
+												<label><input id="courseFiles" type="checkbox" value="files" class="content" name="content[]" checked> Files</label>
+											</div>
+
+											<div class="checkbox">
+												<label><input id="coursePages" type="checkbox" value="pages" class="content" name="content[]" checked> Pages</label>
+											</div>
+
+											<div class="checkbox">
+												<label><input id="courseSyllabus" type="checkbox" value="syllabus" class="content" name="content[]" checked> Syllabus</label>
+											</div>
+
+											<div class="checkbox">
+												<label><input id="moduleUrls" type="checkbox" value="module_urls" class="content" name="content[]" checked> Module URLs</label>
+											</div>
+
+											<br />
+
+											<div class="checkbox">
+												<label><input id="unpubCheckbox" type="checkbox" checked>Include unpublished content</label>
+											</div>
+
+											<br />
+
 										</div>
-
-										<br />
-
-										<div class="checkbox">
-											<label><input id="courseAnnouncements" type="checkbox" value="announcements" class="content" name="content[]" checked> Announcements</label>
-										</div>
-
-										<div class="checkbox">
-											<label><input id="courseAssignments" type="checkbox" value="assignments" class="content" name="content[]" checked> Assignments</label>
-										</div>
-
-										<div class="checkbox">
-											<label><input id="courseDiscussions" type="checkbox" value="discussions" class="content" class="content" name="content[]" checked> Discussions</label>
-										</div>
-
-										<div class="checkbox">
-											<label><input id="courseFiles" type="checkbox" value="files" class="content" name="content[]" checked> Files</label>
-										</div>
-
-										<div class="checkbox">
-											<label><input id="coursePages" type="checkbox" value="pages" class="content" name="content[]" checked> Pages</label>
-										</div>
-
-										<div class="checkbox">
-											<label><input id="courseSyllabus" type="checkbox" value="syllabus" class="content" name="content[]" checked> Syllabus</label>
-										</div>
-
-										<div class="checkbox">
-											<label><input id="moduleUrls" type="checkbox" value="module_urls" class="content" name="content[]" checked> Module URLs</label>
-										</div>
-
-										<br />
-
-										<div class="checkbox">
-											<label><input id="unpubCheckbox" type="checkbox" checked>Include unpublished content</label>
-										</div>
-
-										<br />
 
 									</div>
-
 								</div>
-							</div>
 
-							<div class="col-sm-6">
-								<div class="form-group welcome-toggle">
-									<span class="col-sm-4 control-label"><strong>Scan for:</strong></span>
+								<div class="col-sm-6">
+									<div class="form-group">
+										<span class="col-sm-4 control-label"><strong>Scan for:</strong></span>
 
-									<div class="col-sm-8">
+										<div class="col-sm-8">
 
-										<div class="checkbox">
-											<label><input id="allReport" type="checkbox" value="all" id="allReport" class="report" name="report[]" checked>Select All</label>
-										</div>
+											<div class="checkbox">
+												<label><input id="allReport" type="checkbox" value="all" id="allReport" class="report" name="report[]" checked>Select All</label>
+											</div>
 
-										<br />
+											<br />
 
-										<div class="checkbox">
-											<label><input id="errors" type="checkbox" value="errors" class="report" name="report[]" checked> Errors</label>
-										</div>
+											<div class="checkbox">
+												<label><input id="errors" type="checkbox" value="errors" class="report" name="report[]" checked> Errors</label>
+											</div>
 
-										<div class="checkbox">
-											<label><input id="suggestions" type="checkbox" value="suggestions" class="report" name="report[]" checked> Suggestions</label>
+											<div class="checkbox">
+												<label><input id="suggestions" type="checkbox" value="suggestions" class="report" name="report[]" checked> Suggestions</label>
+											</div>
 										</div>
 									</div>
 								</div>

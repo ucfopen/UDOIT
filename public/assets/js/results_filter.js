@@ -26,6 +26,7 @@ var ResultsFilter = {
         if ($('.welcome-toggle-btn .glyphicon-minus').length) {
             $('.welcome-toggle-btn').click();
         }
+        ucfCloseAllAccordions();
     },
     scanContent: function() {
         let _this = this;
