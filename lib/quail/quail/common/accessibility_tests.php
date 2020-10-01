@@ -6447,10 +6447,9 @@ class videosEmbeddedOrLinkedNeedCaptions extends quailTest
 					$service = 'vimeo';
 				}
 				if (isset($service)) {
-					if($service == 'youtube' || $service == 'vimeo')
-					{
-						if($this->services[$service]->videoUnavailable($attr_val))
-						{
+					if($service == 'youtube' || $service == 'vimeo') {
+						// Skip this test if the video us unlisted, private, or deleted
+						if($this->services[$service]->videoUnavailable($attr_val)) {
 							continue;
 						}
 					}
@@ -6500,6 +6499,12 @@ class videoCaptionsAreCorrectLanguage extends quailTest
 					$service = 'vimeo';
 				}
 				if (isset($service)) {
+					if($service == 'youtube' || $service == 'vimeo') {
+						// Skip this test if the video us unlisted, private, or deleted
+						if($this->services[$service]->videoUnavailable($attr_val)) {
+							continue;
+						}
+					}
 					$captionState = $this->services[$service]->captionsLanguage($attr_val, $this->course_locale);
 					if($captionState != 2) {
 						$this->addReport($video, null, null, $captionState, ($captionState == 1));
@@ -6522,27 +6527,34 @@ class videoUnlistedOrNotFound extends quailTest
 	var $default_severity = QUAIL_TEST_SUGGESTION;
 
 	/**
-	*	@var array $services The services that this test will need. We're using
-	*	the youtube library.
+	*	@var array $services The services that this test will need.
 	*/
-	var $services = ['youtube' => 'media/youtube'];
+	var $services = [
+		'youtube' => 'media/youtube',
+		'vimeo' => 'media/vimeo'
+	];
 
 	/**
 	*	The main check function. This is called by the parent class to actually check content
 	*/
 	function check()
 	{
-		$search = '/(youtube|youtu.be)/';
+		$search_youtube = '/(youtube|youtu.be)/';
+		$search_vimeo = '/(vimeo)/';
 
 		foreach ($this->getAllElements(array('a', 'embed', 'iframe')) as $video) {
-			$attr = ($video->tagName == 'a')
-					 ? 'href'
-					 : 'src';
+			$attr = ($video->tagName == 'a') ? 'href' : 'src';
 
 			if ($video->hasAttribute($attr)) {
-				foreach ($this->services as $service) {
-					$attr_val = $video->getAttribute($attr);
-					if ( preg_match($search, $attr_val) ){
+				$attr_val = $video->getAttribute($attr);
+				if ( preg_match($search_youtube, $attr_val) ) {
+					$service = 'youtube';
+				}
+				elseif ( preg_match($search_vimeo, $attr_val) ) {
+					$service = 'vimeo';
+				}
+				if (isset($service)) {
+					if($service == 'youtube' || $service == 'vimeo') {
 						if ($service->videoUnavailable($attr_val)) {
 							$this->addReport($video);
 						}
