@@ -49,7 +49,7 @@
   border-top: none;
 }
 
-.ucf-accordion .ucf-accordion-control[aria-hidden="false"] {
+.ucf-accordion .ucf-accordion-content[aria-hidden="false"] {
   border-bottom-left-radius: 6px;
   border-bottom-right-radius: 6px;
 }
