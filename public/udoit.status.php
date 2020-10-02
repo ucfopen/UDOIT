@@ -29,7 +29,7 @@ global $logger;
 $server_link = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https:" : "http:").'//'.$_SERVER['HTTP_HOST'].dirname($_SERVER['PHP_SELF']);
 
 //canvas url
-$sth = UdoitDB::prepare("SELECT canvas_url from users limit 1;");
+$sth = UdoitDB::prepare("SELECT canvas_url from users where canvas_url <> '' and canvas_url is not null limit 1;");
 $sth->execute();
 $url = $sth->fetch();
 $canvas_url = $url[0];
@@ -89,7 +89,7 @@ try {
 
 //check YouTube API Key
 try {
-    $url = 'https://www.googleapis.com/youtube/v3/captions?part=snippet&videoId=YbJOTdZBX1g&key='.constant('GOOGLE_API_KEY');
+    $url = 'https://www.googleapis.com/youtube/v3/videos?part=snippet&id=YbJOTdZBX1g&key='.constant('GOOGLE_API_KEY');
     $response = Httpful\Request::get($url)->send();
     if ($response->code == 200) {
         $statusCheck['youtube_api'] = true;

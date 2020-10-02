@@ -20,11 +20,12 @@
 
 global $unscannable_suggestion_on;
 global $unscannable_suggestion;
+global $unscannable_file_types;
 ?>
 
 <h2 class="content-title">Unscannable <small><?= $out_of_items; ?> files</small></h2>
 <div class="errorItem panel panel-default">
-	<div class="panel-heading clearfix">
+	<div class="panel-heading clearfix" id="unscannable-button">
 		<button class="btn btn-xs btn-default btn-toggle pull-left no-print margin-right-small"><span class="glyphicon glyphicon-plus"></span></button>
 
 		<h3 class="plus pull-left">UDOIT is unable to scan these files</h3>
@@ -53,9 +54,13 @@ global $unscannable_suggestion;
 			<div class="form-group filters">
 				<span class="col-sm-2 control-label"><strong>Filters:</strong></span>
 				<div class="col-sm-10">
-					<label for="filter-pdf"><input type="checkbox" id="filter-pdf" value="pdf" checked="">PDF</label>
-					<label for="filter-doc"><input type="checkbox" id="filter-doc" value="doc" checked="">DOC</label>
-					<label for="filter-ppt"><input type="checkbox" id="filter-ppt" value="ppt" checked="">PPT</label>
+					<?php 
+					//Iterating through file types
+					foreach($unscannable_file_types as $filetype) {
+						$str = $filetype;
+						echo '<label for="filter-'.$filetype.'"><input type="checkbox" id="filter-'.$filetype.'" value="'.$filetype.'" checked="">'.strtoupper($filetype).'</label>';
+					}
+					?>
 				</div>
 			</div>
 		</form>

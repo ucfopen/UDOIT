@@ -163,6 +163,7 @@ class quail {
 	function prepareDOM()
 	{
 		$this->prepareValue();
+		$this->value = preg_replace("/\>\s+\</m", "><", $this->value);
 		$this->is_valid = @$this->dom->loadHTML('<?xml encoding="utf-8" ?>' . $this->value);
 		$this->prepareBaseUrl($this->value, $this->type);
 	}

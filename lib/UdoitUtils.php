@@ -30,17 +30,7 @@ class UdoitUtils
     public static $curl_ssl_verify;
     public static $canvas_enforce_scopes;
     public static $canvas_scopes;
-    public static $regex = [
-        '@youtube\.com/embed/([^"\& ]+)@i',
-        '@youtube\.com/v/([^"\& ]+)@i',
-        '@youtube\.com/watch\?v=([^"\& ]+)@i',
-        '@youtube\.com/\?v=([^"\& ]+)@i',
-        '@youtu\.be/([^"\& ]+)@i',
-        '@youtu\.be/v/([^"\& ]+)@i',
-        '@youtu\.be/watch\?v=([^"\& ]+)@i',
-        '@youtu\.be/\?v=([^"\& ]+)@i',
-    ];
-
+    
     private static $instance;
 
     public static function instance()
@@ -62,18 +52,6 @@ class UdoitUtils
         self::$curl_ssl_verify = $curl_ssl_verify;
         self::$canvas_enforce_scopes = $enforce_scopes;
         self::$canvas_scopes = $scopes;
-    }
-
-    public function getYouTubeId($link_url)
-    {
-        $matches = null;
-        foreach (self::$regex as $pattern) {
-            if (preg_match($pattern, $link_url, $matches)) {
-                return $matches[1];
-            }
-        }
-
-        return null;
     }
 
     public function exitWithPageError($error)
@@ -361,8 +339,50 @@ class UdoitUtils
         return $response;
     }
 
+    /**
+     * Check for Safari and redirect to set cookies at top level
+     * rather than in an iframe.  Since Chrome and other browsers
+     * have Safari in their user agent strings, but Safari does
+     * not, we see if Chrome comes first.
+     *
+     * @return void
+     */
+    public static function checkSafari()
+    {
+        if (isset($_SERVER['HTTP_USER_AGENT'])) {
+            $chrome_position = stripos($_SERVER['HTTP_USER_AGENT'], 'chrome');
+            $safari_position = stripos($_SERVER['HTTP_USER_AGENT'], 'safari');
+
+            if (false !== $safari_position && false === $chrome_position) {
+                if (count($_COOKIE) === 0) {
+                    header('Location: safari_fix.php');
+                    exit;
+                }
+            }
+        }
+    }
+
+    /**
+     * See if we're loading the udoit.xml.php file
+     *
+     * @return boolean
+     */
+    public static function isLoadingXMLSettings()
+    {
+        $current_file = basename($_SERVER['PHP_SELF']);
+        if ('udoit.xml.php' == $current_file) {
+            $returnVal = true;
+        } else {
+            $returnVal = false;
+        }
+
+        return $returnVal;
+    }
+
     protected function curlOauthToken($base_url, $post_data)
     {
+        global $curl_ssl_verify;
+        
         // @TODO - why not use Httpful here?
         $ch = curl_init("{$base_url}/login/oauth2/token");
         curl_setopt($ch, CURLOPT_POST, 1);

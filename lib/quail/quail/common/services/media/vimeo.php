@@ -99,6 +99,30 @@ class vimeoService extends mediaService
 	}
 
 	/**
+	*	Checks to see if a video is unlisted, deleted, or private
+	*	@param string $link_url The URL to the video or video resource
+	*	@return bool TRUE if video is unavailable, FALSE if available
+	*/
+	function videoUnavailable($link_url)
+	{
+		$url = $this->search_url;
+		$api_key = constant( 'VIMEO_API_KEY' );
+
+		if( $vimeo_id = $this->isVimeoVideo($link_url) ) {
+			$url = $url.$vimeo_id.'/texttracks';
+			$response = UdoitUtils::instance()->checkApiCache($url, $link_url, $api_key);
+
+			if( $response['code'] === 400 || $response['code'] === 404 ) {
+				return true;
+			}
+
+			return false;
+		}
+
+		return false;
+	}
+
+	/**
 	*	Checks to see if the provided link URL is a Vimeo video. If so, it returns
 	*	the video code, if not, it returns null.
 	*	@param string $link_url The URL to the video or video resource
@@ -107,7 +131,7 @@ class vimeoService extends mediaService
 	private function isVimeoVideo($link_url)
 	{
 		$matches = null;
-		if(preg_match($this->regex, trim($link_url), $matches)) {
+		if( preg_match($this->regex, trim($link_url), $matches) === 1) {
 			return $matches[1];
 		}
 		return false;
