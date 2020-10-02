@@ -48,3 +48,8 @@
   border: 1px solid #c7cdd1;
   border-top: none;
 }
+
+.ucf-accordion .ucf-accordion-control[aria-hidden="false"] {
+  border-bottom-left-radius: 6px;
+  border-bottom-right-radius: 6px;
+}
