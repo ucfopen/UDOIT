@@ -64,19 +64,6 @@ $this->layout('template', $settings);
 				<input type="hidden" name="session_context_title" value="<?= $this->escape($launch_params['context_title']); ?>">
 				<h2 class="sr-only">Scanning Controls</h2>
 				<div class="row">
-					<div class="col-sm-12 col-md-8 col-md-offset-2 course_submit_container">
-						<button type="submit" id="course_submit" name="course_submit" class="btn btn-block btn-lg btn-success submit">Scan This Course</button>
-
-						<div id="waitMsg" class="alert alert-warning" style="display: none;">
-							<p><span class="glyphicon glyphicon-warning-sign"></span> Please stay on this page while UDOIT scans your course content.</p>
-						</div>
-
-						<div class="alert alert-danger no-margin margin-top" id="failMsg" style="display: none;">
-							<span class="glyphicon glyphicon-exclamation-sign"></span> <span class="msg">UDOIT failed to scan this course.</span><span class="custom-msg"></span>
-						</div>
-					</div>
-				</div>
-				<div class="row">
 					<div class="col-sm-12 col-md-8 col-md-offset-2 ucf-accordion" aria-label="Accordion Control Group">
 						<h3>
 							<a href="#" role="button" aria-controls="ucf-accordion-content-1" aria-expanded="false" class="ucf-accordion-control">
@@ -160,6 +147,19 @@ $this->layout('template', $settings);
 									</div>
 								</div>
 							</div>
+						</div>
+					</div>
+				</div>
+				<div class="row">
+					<div class="col-sm-12 col-md-8 col-md-offset-2 course_submit_container">
+						<button type="submit" id="course_submit" name="course_submit" class="btn btn-block btn-lg btn-success submit">Scan This Course</button>
+
+						<div id="waitMsg" class="alert alert-warning" style="display: none;">
+							<p><span class="glyphicon glyphicon-warning-sign"></span> Please stay on this page while UDOIT scans your course content.</p>
+						</div>
+
+						<div class="alert alert-danger no-margin margin-top" id="failMsg" style="display: none;">
+							<span class="glyphicon glyphicon-exclamation-sign"></span> <span class="msg">UDOIT failed to scan this course.</span><span class="custom-msg"></span>
 						</div>
 					</div>
 				</div>

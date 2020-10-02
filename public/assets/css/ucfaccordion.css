@@ -31,9 +31,6 @@
 }
 
 .ucf-accordion .ucf-accordion-control[aria-expanded="true"] {
-  border-color: #1e7bc8;
-  background-color: #0078bd;
-  color: white;
   border-bottom-left-radius: 0px;
   border-bottom-right-radius: 0px;
 }
