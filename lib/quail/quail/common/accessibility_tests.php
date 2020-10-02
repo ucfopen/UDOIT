@@ -5756,34 +5756,42 @@ class tableDataShouldHaveTh extends quailTableTest
 
 	function check()
 	{
-		// Remember: We only need to check the first tr in a table and only if there's a single th in there
 		foreach ($this->getAllElements('table') as $table) {
 			foreach ($table->childNodes as $child) {
-				if ($this->propertyIsEqual($child, 'tagName', 'tbody') || $this->propertyIsEqual($child, 'tagName', 'thead')) {
-					foreach ($child->childNodes as $tr) {
-						if (!is_null($tr->childNodes)) {
-							foreach ($tr->childNodes as $th) {
-								if ($this->propertyIsEqual($th, 'tagName', 'th')) {
-									break 3;
-								} else {
-									$this->addReport($table);
-									break 3;
-								}
-							}
-						}
-					}
-				} elseif ($this->propertyIsEqual($child, 'tagName', 'tr')) {
-					foreach ($child->childNodes as $th) {
-						if ($this->propertyIsEqual($th, 'tagName', 'th')) {
-							break 2;
-						} else {
-							$this->addReport($table);
-							break 2;
-						}
-					}
-				}
+				// If $child is thead, tbody, or tr then we can evaluate
+				if (
+					$this->propertyIsEqual($child, 'tagName', 'thead') ||
+					$this->propertyIsEqual($child, 'tagName', 'tbody')
+				)
+					$trWrapper = $child;
+				elseif ($this->propertyIsEqual($child, 'tagName', 'tr'))
+					$trWrapper = $table;
+				else continue;
+
+				if (!$this->doRowsContainTH($trWrapper)) $this->addReport($table);
+
+				break;
 			}
 		}
+	}
+
+	/**
+	 *	Helper function
+	 */
+
+	function doRowsContainTH($trWrapper) {
+		if (is_null($trWrapper) || is_null($trWrapper->childNodes)) return false;
+
+		foreach ($trWrapper->childNodes as $tr) {
+			if (is_null($tr) || is_null($tr->childNodes)) continue;
+
+			foreach ($tr->childNodes as $column) {
+				if ($this->propertyIsEqual($column, 'tagName', 'th'))
+					return true;
+			}
+		}
+
+		return false;
 	}
 }
 
@@ -6219,12 +6227,21 @@ class tableThShouldHaveScope extends quailTest
 	*/
 	function check()
 	{
+		/**
+		 * @see https://www.w3.org/WAI/EO/Drafts/tutorials/tables/scope/
+		 */
+		$SUPPORTED_SCOPE_VALUES = [
+			'row',
+			'col',
+			'rowgroup',
+			'colgroup'
+		];
+
 		foreach ($this->getAllElements('th') as $th) {
-			if ($th->hasAttribute('scope')) {
-				if ($th->getAttribute('scope') != 'col' && $th->getAttribute('scope') != 'row') {
-					$this->addReport($th);
-				}
-			} else {
+			if (
+				!$th->hasAttribute('scope') ||
+				!in_array(strtolower($th->getAttribute('scope')), $SUPPORTED_SCOPE_VALUES, TRUE)
+			) {
 				$this->addReport($th);
 			}
 		}
