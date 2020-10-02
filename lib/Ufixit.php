@@ -87,11 +87,11 @@ class Ufixit
      * Options to pass to HTMLMinify when it is run
      * @var array
      */
-    public $htmlminify_options = array(
+    public $htmlminify_options = [
         'doctype' => HTMLMinify::DOCTYPE_HTML5,
         'optimizationLevel' => HTMLMinify::OPTIMIZATION_ADVANCED,
-        'removeDuplicateAttribute' => false
-    );
+        'removeDuplicateAttribute' => false,
+    ];
 
     /**
      * The class constructor
@@ -567,7 +567,7 @@ class Ufixit
         $count = 0;
         $html = str_replace($error, $corrected, html_entity_decode($html), $count);
 
-        if ($count === 0) {
+        if (0 === $count) {
             $logger->addError("No replacement occurred.\nOld: \n".$error."\nNew:\n".$corrected."\nContext:\n".$html);
         }
 
