@@ -361,6 +361,8 @@ class Ufixit
                     }
                 }
 
+                //TODO: Move $tr out of <tbody> and into a new <thead> above <tbody>
+
                 $new_data['fixed'] = $this->dom->saveHTML($tr);
                 break;
 
@@ -546,10 +548,18 @@ class Ufixit
      */
     public function replaceContent($html, $error, $corrected)
     {
+        global $logger;
+
         $error      = HTMLMinify::minify(str_replace($this->annoying_entities, $this->entity_replacements, $error), ['doctype' => 'html5']);
         $corrected  = HTMLMinify::minify(str_replace($this->annoying_entities, $this->entity_replacements, $corrected), ['doctype' => 'html5']);
         $html       = HTMLMinify::minify(str_replace($this->annoying_entities, $this->entity_replacements, htmlentities($html)), ['doctype' => 'html5']);
-        $html       = str_replace($error, $corrected, html_entity_decode($html));
+
+        $count = 0;
+        $html = str_replace($error, $corrected, html_entity_decode($html), $count);
+
+        if ($count === 0) {
+            $logger->addError("No replacement occurred.  Old: \n".$error."\n New: \n".$corrected);
+        }
 
         return $html;
     }
