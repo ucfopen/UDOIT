@@ -558,7 +558,7 @@ class Ufixit
         $html = str_replace($error, $corrected, html_entity_decode($html), $count);
 
         if ($count === 0) {
-            $logger->addError("No replacement occurred.  Old: \n".$error."\n New: \n".$corrected);
+            $logger->addError("No replacement occurred.\nOld: \n".$error."\nNew:\n".$corrected."\nContext:\n".$html);
         }
 
         return $html;
