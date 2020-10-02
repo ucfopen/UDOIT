@@ -20,6 +20,8 @@ function ucfAccordionClickHandler(e) {
 		$('#' + accordionContent).attr('aria-hidden', "true");
 		$('#' + accordionContent).css('display', 'none');
 	}
+
+	setTimeout(resizeFrame, 200);
 }
 
 function ucfAccordionToggle() {
@@ -65,10 +67,19 @@ function ucfCloseAccordion(accordionIndex) {
 	}
 }
 
+function ucfOpenAccordion(accordionIndex) {
+	if ( ($(ucfAccordionButtons[accordionIndex]).attr('aria-expanded')) != 'true' ) {
+		$(ucfAccordionButtons[accordionIndex]).click();
+	}
+}
+
 // All code that needs to run when the window is completely done loading should go here
 window.addEventListener('load', accordionWindowLoadedCallback);
 function accordionWindowLoadedCallback(evt){
 	// Initialize accordions if they exist
 	ucfAccordionButtons = $('.ucf-accordion h3>a');
 	ucfAccordionToggle();
+
+	// Open the first accordion by default
+	ucfOpenAccordion(0);
 }
