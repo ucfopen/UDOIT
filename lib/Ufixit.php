@@ -84,6 +84,16 @@ class Ufixit
     public $replacement_count = 1;
 
     /**
+     * Options to pass to HTMLMinify when it is run
+     * @var array
+     */
+    public $htmlminify_options = [
+        'doctype' => HTMLMinify::DOCTYPE_HTML5,
+        'optimizationLevel' => HTMLMinify::OPTIMIZATION_ADVANCED,
+        'removeDuplicateAttribute' => false,
+    ];
+
+    /**
      * The class constructor
      * @param array $data - Array of POST data
      */
@@ -361,6 +371,8 @@ class Ufixit
                     }
                 }
 
+                //TODO: Move $tr out of <tbody> and into a new <thead> above <tbody>
+
                 $new_data['fixed'] = $this->dom->saveHTML($tr);
                 break;
 
@@ -546,10 +558,18 @@ class Ufixit
      */
     public function replaceContent($html, $error, $corrected)
     {
-        $error      = HTMLMinify::minify(str_replace($this->annoying_entities, $this->entity_replacements, $error), ['doctype' => 'html5']);
-        $corrected  = HTMLMinify::minify(str_replace($this->annoying_entities, $this->entity_replacements, $corrected), ['doctype' => 'html5']);
-        $html       = HTMLMinify::minify(str_replace($this->annoying_entities, $this->entity_replacements, htmlentities($html)), ['doctype' => 'html5']);
-        $html       = str_replace($error, $corrected, html_entity_decode($html));
+        global $logger;
+
+        $error      = HTMLMinify::minify(str_replace($this->annoying_entities, $this->entity_replacements, $error), $this->htmlminify_options);
+        $corrected  = HTMLMinify::minify(str_replace($this->annoying_entities, $this->entity_replacements, $corrected), $this->htmlminify_options);
+        $html       = HTMLMinify::minify(str_replace($this->annoying_entities, $this->entity_replacements, htmlentities($html)), $this->htmlminify_options);
+
+        $count = 0;
+        $html = str_replace($error, $corrected, html_entity_decode($html), $count);
+
+        if (0 === $count) {
+            $logger->addError("No replacement occurred.\nOld: \n".$error."\nNew:\n".$corrected."\nContext:\n".$html);
+        }
 
         return $html;
     }
@@ -598,9 +618,9 @@ class Ufixit
     public function uploadFixedFiles($corrected_error, $error_html)
     {
         global $logger;
-        $error_html      = HTMLMinify::minify(str_replace($this->annoying_entities, $this->entity_replacements, $error_html), ['doctype' => 'html5']);
-        $corrected_error = HTMLMinify::minify(str_replace($this->annoying_entities, $this->entity_replacements, $corrected_error), ['doctype' => 'html5']);
-        $html            = HTMLMinify::minify($this->curled_file['html'], ['doctype' => 'html5']);
+        $error_html      = HTMLMinify::minify(str_replace($this->annoying_entities, $this->entity_replacements, $error_html), $this->htmlminify_options);
+        $corrected_error = HTMLMinify::minify(str_replace($this->annoying_entities, $this->entity_replacements, $corrected_error), $this->htmlminify_options);
+        $html            = HTMLMinify::minify($this->curled_file['html'], $this->htmlminify_options);
 
         $html = str_replace($error_html, $corrected_error, $html);
 

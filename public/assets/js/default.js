@@ -165,6 +165,10 @@ function displayScanResults(results) {
 	});
 
 	jscolor.bind();
+	
+	if (typeof ResultsFilter != 'undefined') {
+		ResultsFilter.init();
+	}
 }
 
 /* Builds up the results and adds them to the page */
@@ -414,6 +418,17 @@ $doc.ready(function() {
 	$doc.on('click', '.viewError', function(e) {
 		let errorId = escapeSelector(e.target.dataset.error);
 		let $error = $('#'+errorId);
+		let preview = $error.find('div.error-preview');
+
+		//Float right breaks preview styling, so we remove it
+		if(preview.find('img').css( "float" )=="right"){
+			preview.find('img').removeAttr("style");
+		}
+
+		// If the error preview contains an image, make sure it isn't too big
+		if(preview.find('img') != 'undefined'){
+			preview.find('img').css({"height": "auto", "max-width": "100%"});
+		}
 
 		$(this).addClass('hidden');
 		$error.find('div.more-info').removeClass('hidden');
@@ -757,7 +772,7 @@ $doc.ready(function() {
 		$save.find('div.circle-black').removeClass('hidden');
 		$save.find('span.glyphicon').fadeOut(200);
 
-		var $result_html = $('#result').clone();
+		var $result_html = (typeof ResultsFilter != 'undefined') ? ResultsFilter.oldHtml : $('#result').clone();
 		var context_title = $('input[name="session_context_title"]').val();
 
 		$result_html.find('button').remove();
@@ -1104,45 +1119,31 @@ $doc.ready(function() {
 	});
 	// END update UFIXIT Preview
 
-	// updates Unscannable files list on change of checkbox for PDFs
-	$doc.on('change', 'input#filter-pdf', function (e) {
-		$items = $(this).parent().parent().parent().parent().parent().find('.pdf');
+	// Filters which unscannable items get displayed
+	$doc.on('change', 'input[id^="filter"]', function(e) {
+		var filetype = '.'.concat(e.target.id.substring(7,));
+		$items = $(this).parent().parent().parent().parent().parent().find(filetype);
 		if ($(this).prop('checked')){
 			$items.show();
 		} else {
 			$items.hide();
 		}
 	});
-	// END update files list
 
-	// updates Unscannable files list on change of checkbox for DOCs
-	$doc.on('change', 'input#filter-doc', function (e) {
-		$items = $(this).parent().parent().parent().parent().parent().find('.doc');
-		$itemsx = $(this).parent().parent().parent().parent().parent().find('.docx');
-		if ($(this).prop('checked')){
-			$items.show();
-			$itemsx.show();
-		} else {
-			$items.hide();
-			$itemsx.hide();
+	// Hides checkboxes for any configured unscannable filetypes not currently present in the course
+	$doc.on('click', '#unscannable-button', function(e) {
+		$checkboxes = $(this).parent().parent().parent().parent().parent().find('input[id^="filter"]');
+		for (var i = 0; i < $checkboxes.length; i++){
+			$filetype = '.'.concat($checkboxes[i].value);
+			$items = $(this).parent().parent().parent().parent().parent().find($filetype);
+
+			if($items.length == 0) {
+				$checkboxes[i].parentElement.style.display = "none";
+			}
 		}
 	});
-	// END update files list
 
-	// updates Unscannable files list on change of checkbox for PPTs
-	$doc.on('change', 'input#filter-ppt', function (e) {
-		$items = $(this).parent().parent().parent().parent().parent().find('.ppt');
-		$itemsx = $(this).parent().parent().parent().parent().parent().find('.pptx');
-		if ($(this).prop('checked')){
-			$items.show();
-			$itemsx.show();
-		} else {
-			$items.hide();
-			$itemsx.hide();
-		}
-	});
 	// END update files list
-
 	$doc.on('keypress', '.nav-tabs li[role="presentation"]', function (e) {
 	  	var tab = (e.target || e.srcElement);
 		if((e.keyCode == 32)){

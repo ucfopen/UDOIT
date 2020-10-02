@@ -279,8 +279,9 @@ class Udoit
 
                         $extension = pathinfo($c->filename, PATHINFO_EXTENSION);
                         global $file_scan_size_limit;
+                        global $unscannable_file_types;
 
-                        if (in_array($extension, ['pdf', 'doc', 'docx', 'ppt', 'pptx'])) {
+                        if (in_array($extension, $unscannable_file_types)) {
                             // not scannable types
                             // get folder path
                             // get full_name from folder information for folder url

@@ -5756,34 +5756,42 @@ class tableDataShouldHaveTh extends quailTableTest
 
 	function check()
 	{
-		// Remember: We only need to check the first tr in a table and only if there's a single th in there
 		foreach ($this->getAllElements('table') as $table) {
 			foreach ($table->childNodes as $child) {
-				if ($this->propertyIsEqual($child, 'tagName', 'tbody') || $this->propertyIsEqual($child, 'tagName', 'thead')) {
-					foreach ($child->childNodes as $tr) {
-						if (!is_null($tr->childNodes)) {
-							foreach ($tr->childNodes as $th) {
-								if ($this->propertyIsEqual($th, 'tagName', 'th')) {
-									break 3;
-								} else {
-									$this->addReport($table);
-									break 3;
-								}
-							}
-						}
-					}
-				} elseif ($this->propertyIsEqual($child, 'tagName', 'tr')) {
-					foreach ($child->childNodes as $th) {
-						if ($this->propertyIsEqual($th, 'tagName', 'th')) {
-							break 2;
-						} else {
-							$this->addReport($table);
-							break 2;
-						}
-					}
-				}
+				// If $child is thead, tbody, or tr then we can evaluate
+				if (
+					$this->propertyIsEqual($child, 'tagName', 'thead') ||
+					$this->propertyIsEqual($child, 'tagName', 'tbody')
+				)
+					$trWrapper = $child;
+				elseif ($this->propertyIsEqual($child, 'tagName', 'tr'))
+					$trWrapper = $table;
+				else continue;
+
+				if (!$this->doRowsContainTH($trWrapper)) $this->addReport($table);
+
+				break;
 			}
 		}
+	}
+
+	/**
+	 *	Helper function
+	 */
+
+	function doRowsContainTH($trWrapper) {
+		if (is_null($trWrapper) || is_null($trWrapper->childNodes)) return false;
+
+		foreach ($trWrapper->childNodes as $tr) {
+			if (is_null($tr) || is_null($tr->childNodes)) continue;
+
+			foreach ($tr->childNodes as $column) {
+				if ($this->propertyIsEqual($column, 'tagName', 'th'))
+					return true;
+			}
+		}
+
+		return false;
 	}
 }
 
@@ -6219,12 +6227,21 @@ class tableThShouldHaveScope extends quailTest
 	*/
 	function check()
 	{
+		/**
+		 * @see https://www.w3.org/WAI/EO/Drafts/tutorials/tables/scope/
+		 */
+		$SUPPORTED_SCOPE_VALUES = [
+			'row',
+			'col',
+			'rowgroup',
+			'colgroup'
+		];
+
 		foreach ($this->getAllElements('th') as $th) {
-			if ($th->hasAttribute('scope')) {
-				if ($th->getAttribute('scope') != 'col' && $th->getAttribute('scope') != 'row') {
-					$this->addReport($th);
-				}
-			} else {
+			if (
+				!$th->hasAttribute('scope') ||
+				!in_array(strtolower($th->getAttribute('scope')), $SUPPORTED_SCOPE_VALUES, TRUE)
+			) {
 				$this->addReport($th);
 			}
 		}
@@ -6433,20 +6450,25 @@ class videosEmbeddedOrLinkedNeedCaptions extends quailTest
 	*/
 	function check()
 	{
-		$search_youtube = '/(youtube|youtu.be)/';
+		$search_youtube = '/(youtube|youtu\.be)/';
 		$search_vimeo = '/(vimeo)/';
 
 		foreach ($this->getAllElements(array('a', 'embed', 'iframe')) as $video) {
 			$attr = ($video->tagName == 'a') ? 'href' : 'src';
 			if ($video->hasAttribute($attr)) {
 				$attr_val = $video->getAttribute($attr);
-				if ( preg_match($search_youtube, $attr_val) ) {
+				if ( preg_match($search_youtube, $attr_val) === 1) {
 					$service = 'youtube';
-				}
-				elseif ( preg_match($search_vimeo, $attr_val) ) {
+				} elseif ( preg_match($search_vimeo, $attr_val) === 1) {
 					$service = 'vimeo';
 				}
 				if (isset($service)) {
+					if($service == 'youtube' || $service == 'vimeo') {
+						// Skip this test if the video us unlisted, private, or deleted
+						if($this->services[$service]->videoUnavailable($attr_val)) {
+							continue;
+						}
+					}
 					$captionState = $this->services[$service]->captionsMissing($attr_val);
 					if($captionState != 2) {
 						$this->addReport($video, null, null, $captionState, ($captionState == 1));
@@ -6479,20 +6501,25 @@ class videoCaptionsAreCorrectLanguage extends quailTest
 	*/
 	function check()
 	{
-		$search_youtube = '/(youtube|youtu.be)/';
+		$search_youtube = '/(youtube|youtu\.be)/';
 		$search_vimeo = '/(vimeo)/';
 
 		foreach ($this->getAllElements(array('a', 'embed', 'iframe')) as $video) {
 			$attr = ($video->tagName == 'a') ? 'href' : 'src';
 			if ($video->hasAttribute($attr)) {
 				$attr_val = $video->getAttribute($attr);
-				if ( preg_match($search_youtube, $attr_val) ) {
+				if ( preg_match($search_youtube, $attr_val) === 1) {
 					$service = 'youtube';
-				}
-				elseif ( preg_match($search_vimeo, $attr_val) ) {
+				} elseif ( preg_match($search_vimeo, $attr_val) === 1) {
 					$service = 'vimeo';
 				}
 				if (isset($service)) {
+					if($service == 'youtube' || $service == 'vimeo') {
+						// Skip this test if the video us unlisted, private, or deleted
+						if($this->services[$service]->videoUnavailable($attr_val)) {
+							continue;
+						}
+					}
 					$captionState = $this->services[$service]->captionsLanguage($attr_val, $this->course_locale);
 					if($captionState != 2) {
 						$this->addReport($video, null, null, $captionState, ($captionState == 1));
@@ -6501,6 +6528,56 @@ class videoCaptionsAreCorrectLanguage extends quailTest
 			}
 		}
 	}
+}
+
+/**
+*	If a video is unlisted, the YouTube API will pretend that the video is not found, so we can't check for captions
+*/
+
+class videoUnlistedOrNotFound extends quailTest 
+{
+	/**
+	*	@var int $default_severity The default severity code for this test.
+	*/
+	var $default_severity = QUAIL_TEST_SUGGESTION;
+
+	/**
+	*	@var array $services The services that this test will need.
+	*/
+	var $services = [
+		'youtube' => 'media/youtube',
+		'vimeo' => 'media/vimeo'
+	];
+
+	/**
+	*	The main check function. This is called by the parent class to actually check content
+	*/
+	function check()
+	{
+		$search_youtube = '/(youtube|youtu\.be)/';
+		$search_vimeo = '/(vimeo)/';
+
+		foreach ($this->getAllElements(array('a', 'embed', 'iframe')) as $video) {
+			$attr = ($video->tagName == 'a') ? 'href' : 'src';
+
+			if ($video->hasAttribute($attr)) {
+				$attr_val = $video->getAttribute($attr);
+				if ( preg_match($search_youtube, $attr_val) === 1 ) {
+					$service = 'youtube';
+				} elseif ( preg_match($search_vimeo, $attr_val) === 1 ) {
+					$service = 'vimeo';
+				}
+				if (isset($service)) {
+					if($service == 'youtube' || $service == 'vimeo') {
+						if ($this->services[$service]->videoUnavailable($attr_val)) {
+							$this->addReport($video);
+						}
+					}
+				}
+			}
+		}
+	}
+
 }
 
 /**
