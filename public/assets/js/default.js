@@ -165,6 +165,10 @@ function displayScanResults(results) {
 	});
 
 	jscolor.bind();
+	
+	if (typeof ResultsFilter != 'undefined') {
+		ResultsFilter.init();
+	}
 }
 
 /* Builds up the results and adds them to the page */
@@ -768,7 +772,7 @@ $doc.ready(function() {
 		$save.find('div.circle-black').removeClass('hidden');
 		$save.find('span.glyphicon').fadeOut(200);
 
-		var $result_html = $('#result').clone();
+		var $result_html = (typeof ResultsFilter != 'undefined') ? ResultsFilter.oldHtml : $('#result').clone();
 		var context_title = $('input[name="session_context_title"]').val();
 
 		$result_html.find('button').remove();
