@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Repository\ContentItemRepository;
 use App\Repository\CourseRepository;
+use App\Services\LmsApiService;
 use App\Services\PhpAllyService;
 use App\Services\UtilityService;
 use CidiLabs\PhpAlly\PhpAlly;
@@ -16,20 +17,22 @@ class TestController extends AbstractController
     /**
      * @Route("/test", name="test")
      */
-    public function index(UtilityService $util, CourseRepository $courseRepo, ContentItemRepository $contentItemRepo, PhpAllyService $phpAllyService)
+    public function index(UtilityService $util, 
+        CourseRepository $courseRepo, 
+        ContentItemRepository $contentItemRepo, 
+        PhpAllyService $phpAllyService,
+        LmsApiService $lmsApi)
     {
         $out = [];
         
-        //$course = $courseRepo->find(59);
-        //$out['content'] = $lms->getCourseContent($course);
+        $course = $courseRepo->find(59);
+        
+        
+        $item = $contentItemRepo->find(93);
 
-        //$contentItems = $contentItemRepo->getUpdatedContentItems($course);
-        //$item = reset($contentItems);
-        $item = $contentItemRepo->find(97);
+        $lmsApi->postContentItemToLms($item);
 
-        //$ruleIds = $phpAllyService->getRules();
-        $report = $phpAllyService->scanHtml($item);
 
-        return new JsonResponse($report);
+        return new JsonResponse($item);
     }
 }

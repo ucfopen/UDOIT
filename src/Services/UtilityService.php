@@ -11,6 +11,7 @@ use App\Entity\User;
 use App\Lms\LmsInterface;
 use DateTime;
 use Doctrine\Persistence\ManagerRegistry;
+use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
@@ -37,6 +38,9 @@ class UtilityService {
 
     /** @var Security $security */
     private $security;
+
+    /** @var ParameterBagInterface */
+    private $paramBag;
     
     private $env;
 
@@ -46,12 +50,14 @@ class UtilityService {
         SessionInterface $session,
         ManagerRegistry $doctrine,
         Environment $twig,
-        Security $security)
+        Security $security,
+        ParameterBagInterface $paramBag)
     {
         $this->session = $session;
         $this->twig = $twig;
         $this->doctrine = $doctrine;
         $this->security = $security;
+        $this->paramBag = $paramBag;
 
         self::$timezone = new \DateTimeZone('GMT');
     }
@@ -170,5 +176,16 @@ class UtilityService {
     public function getCurrentTime() 
     {
         return new \DateTime('now', self::$timezone);
+    }
+
+    public function getTempPath()
+    {
+        $tmpPath = $this->paramBag->get('kernel.project_dir') . '/tmp';
+
+        if (!file_exists($tmpPath)) {
+            mkdir($tmpPath);
+        }
+
+        return $tmpPath;
     }
 }

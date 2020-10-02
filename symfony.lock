@@ -2,6 +2,9 @@
     "cidilabs/phpally": {
         "version": "dev-master"
     },
+    "deruli/html-minifier": {
+        "version": "0.5.1"
+    },
     "doctrine/annotations": {
         "version": "1.0",
         "recipe": {

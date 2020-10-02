@@ -19,11 +19,11 @@ class ReportRepository extends ServiceEntityRepository
         parent::__construct($registry, Report::class);
     }
 
-    public function findAllInCourse($courseId) {
+    public function findAllInCourse($course) {
         return  $this->createQueryBuilder('r')
-            ->where('r.course = :courseId')
+            ->where('r.course = :course')
             ->orderBy('r.created', 'DESC')
-            ->setParameter('courseId', $courseId)
+            ->setParameter('course', $course)
             ->getQuery()
             ->getResult();
     }

@@ -24,3 +24,6 @@ yarn-error.log
 /.vscode/
 /.idea/
 .idea/*
+
+###> Temp folder ###
+/tmp/

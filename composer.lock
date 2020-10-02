@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "cbd299ff39e01b79f93aa91d921e8138",
+    "content-hash": "4bf50f945a6ea286e3bb316d0b03d6e1",
     "packages": [
         {
             "name": "cidilabs/phpally",
@@ -110,6 +110,67 @@
             ],
             "description": "Composer plugin that provides efficient querying for installed package versions (no runtime IO)",
             "time": "2020-08-25T05:50:16+00:00"
+        },
+        {
+            "name": "deruli/html-minifier",
+            "version": "0.5.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/derUli/html-minifier.git",
+                "reference": "c07f1a732fb27e27e438ad2010c0af48461dc1c1"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/derUli/html-minifier/zipball/c07f1a732fb27e27e438ad2010c0af48461dc1c1",
+                "reference": "c07f1a732fb27e27e438ad2010c0af48461dc1c1",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.3.0"
+            },
+            "require-dev": {
+                "satooshi/php-coveralls": "v2.0.0"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-0": {
+                    "zz": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "BSD-3-Clause"
+            ],
+            "authors": [
+                {
+                    "name": "Google inc",
+                    "homepage": "http://www.chromium.org/blink",
+                    "role": "Author"
+                },
+                {
+                    "name": "zaininnari",
+                    "homepage": "https://github.com/zaininnari/",
+                    "role": "Developer"
+                },
+                {
+                    "name": "raivisdejus",
+                    "homepage": "https://github.com/raivisdejus/",
+                    "role": "Developer"
+                },
+                {
+                    "name": "derUli",
+                    "homepage": "https://github.com/derUli/",
+                    "role": "Developer"
+                }
+            ],
+            "description": "The Blink HTMLTokenizer ported to PHP. Fork by derUli.",
+            "homepage": "https://github.com/derUli/html-minifier",
+            "keywords": [
+                "Blink",
+                "HTML minify",
+                "php"
+            ],
+            "time": "2019-02-24T18:52:13+00:00"
         },
         {
             "name": "doctrine/annotations",
