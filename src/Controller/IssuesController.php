@@ -1,57 +1,69 @@
 <?php
 
-
 namespace App\Controller;
 
-
-use App\Entity\Course;
 use App\Entity\Issue;
-use App\Entity\Report;
-use App\Request\IssueRequest;
 use App\Response\ApiResponse;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use App\Services\PhpAllyService;
+use App\Services\UfixitService;
+use App\Services\UtilityService;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\Serializer\Serializer;
-
 
 class IssuesController extends ApiController
 {
     /**
      * UFIXIT endpoint. Takes an array of updates for future changes in the course.
-     * @Route("/api/courses/{courseId}/issues/{issueId}", methods={"PUT"}, name="put_issue")
-     * @param $courseId
-     * @param $issueId
+     * 
+     * @Route("/api/issues/{issue}/fix", methods={"POST","GET"}, name="fix_issue")
+     * @param Issue $issue
      * @return \Symfony\Component\HttpFoundation\Response
      */
-    public function fixIssue(Request $request, $courseId, $issueId) {
+    public function fixIssue(Request $request, UfixitService $ufixit, PhpAllyService $phpAlly, UtilityService $util, Issue $issue) {
         $apiResponse = new ApiResponse();
+        $user = $this->getUser();
+
         try {
             // Check if user has access to course
-            if(!$this->userHasCourseAccess($courseId)) {
-                throw new \Exception("You do not have permission to access the specified course.");
+            $course = $issue->getContentItem()->getCourse();
+            if(!$this->userHasCourseAccess($course)) {
+                throw new \Exception("You do not have permission to access this issue.");
             }
 
-            // Get Request Info
-            $requestBody = json_decode($request->getContent( ), true);
-            $issueRequest = new IssueRequest($issueId, $requestBody["scanRuleId"], $requestBody["data"]);
+            // Get fixed content
+            //$fixedHtml = $request->request->get('html');
+            // for testing
+            $fixedHtml = $request->query->get('html');
 
-            // Get Issue
-            $repository = $this->getDoctrine()->getRepository(Issue::class);
-            $issue = $repository->find($issueId);
-
-            // Check if Issue exists
-            if(is_null($issue)) {
-                throw new \Exception(sprintf("Issue with ID %s could not be found", $issueId));
+            // Run fixed content through PhpAlly to validate it
+            $report = $phpAlly->scanHtml($fixedHtml);
+            if ($issues = $report->getIssues()) {
+                $apiResponse->addData('issues', $issues);
+            }
+            if ($errors = $report->getErrors()) {
+                $apiResponse->addData('errors', $errors);
             }
 
-            // TODO: Make fix here
+            if (!empty($issues) || !empty($errors)) {
+                throw new \Exception('Updated content does not pass all UDOIT tests.');
+            }
 
-            $apiResponse->setData($issueRequest);
+            // Save content to LMS
+            $ufixit->saveContentToLms($issue, $fixedHtml);
+
+            // Update issue
+            $issue->setStatus(true);
+            $issue->setFixedBy($user);
+            $issue->setFixedOn($util->getCurrentTime());
+            $this->getDoctrine()->getManager()->flush();
+
+            // Create response
+            $apiResponse->addMessage('Your fix has been saved.');
+            $apiResponse->setData(['issue' => $issue]);
         }
         catch(\Exception $e) {
-            $apiResponse->setData($e->getMessage());
+            $apiResponse->addError($e->getMessage());
         }
 
         // Format Response JSON

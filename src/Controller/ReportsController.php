@@ -3,7 +3,7 @@
 
 namespace App\Controller;
 
-
+use App\Entity\Course;
 use App\Entity\Report;
 use App\Response\ApiResponse;
 use App\Services\UtilityService;
@@ -29,7 +29,7 @@ class ReportsController extends ApiController
     private $util;
 
     /**
-     * @Route("/api/courses/{courseId}/reports", methods={"GET"}, name="get_reports")
+     * @Route("/api/courses/{course}/reports", methods={"GET"}, name="get_reports")
      * @param Request $request
      * @param $courseId
      * @return JsonResponse
@@ -38,7 +38,7 @@ class ReportsController extends ApiController
         Request $request,
         SessionInterface $session,
         UtilityService $util,
-        int $courseId
+        Course $course
     ) {
         $this->request = $request;
         $this->session = $session;
@@ -47,54 +47,55 @@ class ReportsController extends ApiController
         $apiResponse = new ApiResponse();
         try {
             // Check if user has course access
-            if(!$this->userHasCourseAccess($courseId)) {
+            if(!$this->userHasCourseAccess($course)) {
                 throw new \Exception("You do not have permission to access the specified course.");
             }
 
+            /** @var ReportRepository $repository */
             $repository = $this->getDoctrine()->getRepository(Report::class);
-            $reports = $repository->findAllInCourse($courseId);
+            $reports = $repository->findAllInCourse($course);
 
             $apiResponse->setData($reports);
         }
         catch (\Exception $e) {
-
+            $apiResponse->addError($e->getMessage());
         }
 
         // Construct Response
-        $jsonResponse = new JsonResponse($apiResponse);
-        $jsonResponse->setEncodingOptions($jsonResponse->getEncodingOptions() | JSON_PRETTY_PRINT);
-        return $jsonResponse;
+        return new JsonResponse($apiResponse);
     }
 
 
     /**
-     * @Route("/api/courses/{courseId}/reports/{reportId}", methods={"GET"}, name="get_report")
+     * @Route("/api/courses/{course}/reports/{report}", methods={"GET"}, name="get_report")
      * @param $courseId
      * @param $reportId
      */
     public function getOneReport(
-        Request $request,
-        SessionInterface $session,
-        UtilityService $util,
-        int $courseId,
-        int $reportId
+        Course $course,
+        Report $report
     ) {
-        $this->request = $request;
-        $this->session = $session;
-        $this->util = $util;
-
         $apiResponse = new ApiResponse();
         try {
-            $report = $this->getReportById($courseId, $reportId);
+            // Check if user has course access
+            if (!$this->userHasCourseAccess($course)) {
+                throw new \Exception("You do not have permission to access the specified course.");
+            }
+
+            if ($report->getCourse()->getId() != $course->getId()) {
+                throw new \Exception('Invalid report ID. This report does not belong to the given course.');
+            }
+
+            $report->setIncludeIssues(true);
+            
             $apiResponse->setData($report);
-
-        } catch(\Exception $e) {
-
         }
+        catch (\Exception $e) {
+            $apiResponse->addError($e->getMessage());
+        }
+
         // Construct Response
-        $jsonResponse = new JsonResponse($apiResponse);
-        $jsonResponse->setEncodingOptions($jsonResponse->getEncodingOptions() | JSON_PRETTY_PRINT);
-        return $jsonResponse;
+        return new JsonResponse($apiResponse);
     }
 
     /**
@@ -136,37 +137,11 @@ class ReportsController extends ApiController
                 )
             );
         }
-        catch(Exception $e) {
+        catch(\Exception $e) {
             $apiResponse = new ApiResponse();
             $jsonResponse = new JsonResponse($apiResponse);
             $jsonResponse->setEncodingOptions($jsonResponse->getEncodingOptions() | JSON_PRETTY_PRINT);
             return $jsonResponse;
         }
-    }
-
-    private function getReportById(int $courseId, int $reportId) {
-        // Check if user has course access
-        if(!$this->userHasCourseAccess($courseId)) {
-            $this->session->getFlashBag()->add('error', 'You do not have permission to access the specified course.');
-            throw new \Exception();
-        }
-
-        // Get Report
-        $repository = $this->getDoctrine()->getRepository(Report::class);
-        $report = $repository->find($reportId);
-
-        // Check if Report is null
-        if(is_null($report)) {
-            $this->session->getFlashBag()->add('error', sprintf('Report with ID %s does not exist or you do not have access to it.', $reportId));
-            throw new \Exception();
-        }
-        elseif($report->getCourse()->getId() != $courseId) {
-            $this->session->getFlashBag()->add('error', sprintf('You do not have access to this Report.', $reportId));
-            throw new \Exception();
-        }
-
-        $report->setSerializeIssues(true);
-
-        return $report;
     }
 }

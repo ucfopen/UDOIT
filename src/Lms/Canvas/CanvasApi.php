@@ -4,6 +4,8 @@ namespace App\Lms\Canvas;
 
 use App\Lms\LmsResponse;
 use Symfony\Component\HttpClient\HttpClient;
+use Symfony\Component\Mime\Part\DataPart;
+use Symfony\Component\Mime\Part\Multipart\FormDataPart;
 
 class CanvasApi {
 
@@ -30,6 +32,7 @@ class CanvasApi {
      */
     public function apiGet($url, $options = [], $perPage = 100, $lmsResponse = null)
     {      
+        $links = [];
 
         if (!$lmsResponse) {
             $lmsResponse = new LmsResponse();
@@ -58,51 +61,117 @@ class CanvasApi {
                 $lmsResponse->setError($error['message']);
             }
         }
+        if (!empty($content['message'])) {
+            $lmsResponse->setError($content['message']);
+        }
 
-        $this->lmsResponse = $lmsResponse;
+        $headers = $response->getHeaders(false);
 
-        // #Parse header information from body response
-        // $header_size = curl_getinfo($ch, CURLINFO_HEADER_SIZE);
-        // $header = substr($result, 0, $header_size);
-        // $body = substr($result, $header_size);
-        // $data = json_decode($body, $return_array);
-        // curl_close($ch);
+        if (isset($headers['link'][0])) {
+            $links = explode(',', $headers['link'][0]);
 
-        // #Parse Link Information
-        // $header_info = $this->httpParseHeaders($header);
-        // if (isset($header_info['Link'])) {
-        //     $links = explode(',', $header_info['Link']);
-        //     foreach ($links as $value) {
-        //         if (preg_match('/^\s*<(.*?)>;\s*rel="(.*?)"/', $value, $match)) {
-        //             $links[$match[2]] = $match[1];
-        //         }
-        //     }
-        // }
-        // #Check for Pagination
-        // if (isset($links['next'])) {
-        //     // Remove the API url so it is not added again in the get call
-        //     $next_link = str_replace('https://' . $this->domain . '/api/v1/', '', $links['next']);
-        //     $next_data = $this->curlGet($next_link, $return_array);
-        //     $data = array_merge($data, $next_data);
-
-        //     return $data;
-        // } else {
-        //     return $data;
-        // }
+            foreach ($links as $value) {
+                if (preg_match('/^\s*<(.*?)>;\s*rel="(.*?)"/', $value, $match)) {
+                    $links[$match[2]] = $match[1];
+                }
+            }
+        }
+        
+        if (isset($links['next'])) {
+            $this->apiGet($links['next'], $options, $perPage, $lmsResponse); 
+        }
 
         return $lmsResponse;
     }
 
-    private function apiPost()
+    public function apiPost($url, $options, $sendAuthorized = true) 
     {
+        $lmsResponse = new LmsResponse();
+
+        if (strpos($url, 'https://') === false) {
+            $url = "https://{$this->baseUrl}/api/v1/{$url}";
+        }
+
+        if ($sendAuthorized) {
+            $response = $this->httpClient->request('POST', $url, $options);
+        }
+        else {
+            $client = HttpClient::create();
+            $response = $client->request('POST', $url, $options);
+        }
+        $lmsResponse->setResponse($response);
+
+        $content = $lmsResponse->getContent();
+        if (!empty($content['errors'])) {
+            // TODO: If error is invalid token, refresh API token and try again 
+
+            foreach ($content['errors'] as $error) {
+                $lmsResponse->setError($error['message']);
+            }
+        }
+
+        return $lmsResponse;
     }
 
-    private function apiPut()
+    /**
+     * Posts a file to Canvas
+     *
+     * @param string $url
+     * @param array $options
+     * @param string $filepath
+     * 
+     * @return LmsResponse
+     */
+    public function apiFilePost($url, $options, $filepath)
     {
+        $fileResponse = $this->apiGet($url);
+        $file = $fileResponse->getContent();
+
+        // TODO: handle failed call
+
+        $endpointOptions = [
+            'name' => $file['filename'],
+            'parent_folder_id' => $file['folder_id'],            
+        ];
+        
+        $endpointResponse = $this->apiPost($options['postUrl'], ['query' => $endpointOptions], true);
+        $endpointContent = $endpointResponse->getContent();
+        
+        // TODO: handle failed call
+        
+        $formFields = $endpointContent['upload_params'];
+        $formFields['file'] = DataPart::fromPath($filepath);
+        $formData = new FormDataPart($formFields);
+        
+        $fileResponse = $this->apiPost($endpointContent['upload_url'], [
+            'headers' => $formData->getPreparedHeaders()->toArray(),
+            'body' => $formData->bodyToIterable(),
+        ], false);
+        
+        return $fileResponse;
     }
 
-    private function apiDelete()
+    public function apiPut($url, $options)
     {
+        $lmsResponse = new LmsResponse();
+
+        if (strpos($url, 'https://') === false) {
+            $url = "https://{$this->baseUrl}/api/v1/{$url}";
+        }
+
+        $response = $this->httpClient->request('PUT', $url, $options);
+        $lmsResponse->setResponse($response);
+
+        $content = $lmsResponse->getContent();
+        if (!empty($content['errors'])) {
+            // TODO: If error is invalid token, refresh API token and try again 
+
+            foreach ($content['errors'] as $error) {
+                $lmsResponse->setError($error['message']);
+            }
+        }
+
+        return $lmsResponse;
     }
 
 }

@@ -51,7 +51,7 @@ class Report implements \JsonSerializable
     private $issues;
 
 
-    private $serializeIssues = false;
+    private $includeIssues = false;
 
     /**
      * @ORM\Column(type="boolean")
@@ -88,9 +88,10 @@ class Report implements \JsonSerializable
             "suggestions" => $this->suggestions
         ];
 
-        if($this->serializeIssues) {
-            $result["issues"] = $this->issues->toArray();
+        if($this->includeIssues) {
+            $result += $this->getAdditionalData();
         }
+
         return $result;
     }
 
@@ -218,19 +219,11 @@ class Report implements \JsonSerializable
 
 
     /**
-     * @return bool
+     * @param bool $includeIssues
      */
-    public function isSerializeIssues(): bool
+    public function setIncludeIssues(bool $includeIssues): void
     {
-        return $this->serializeIssues;
-    }
-
-    /**
-     * @param bool $serializeIssues
-     */
-    public function setSerializeIssues(bool $serializeIssues): void
-    {
-        $this->serializeIssues = $serializeIssues;
+        $this->includeIssues = $includeIssues;
     }
 
     public function getReady(): ?bool
@@ -255,5 +248,29 @@ class Report implements \JsonSerializable
         $this->author = $author;
 
         return $this;
+    }
+
+    public function getAdditionalData()
+    {
+        $issues = [];
+        $contentItems = [];
+        $fixedCount = 0;
+
+        /** @var Issue $issue */
+        foreach ($this->issues as $issue) {
+            $contentItem = $issue->getContentItem();
+            $contentItems[$contentItem->getId()] = $contentItem;
+            $issues[$issue->getId()] = $issue;
+
+            if (!empty($issue->getFixedOn())) {
+                $fixedCount++;
+            }
+        }
+
+        return [
+            'issues' => $issues,
+            'contentItems' => $contentItems,
+            'fixed' => $fixedCount,
+        ];
     }
 }

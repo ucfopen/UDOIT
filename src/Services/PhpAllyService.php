@@ -14,7 +14,7 @@ class PhpAllyService {
         $this->phpAlly = new PhpAlly();    
     }
 
-    public function scanHtml(ContentItem $contentItem)
+    public function scanContentItem(ContentItem $contentItem)
     {
         $html = $contentItem->getBody();
         if (!$html) {
@@ -25,6 +25,11 @@ class PhpAllyService {
         //$ruleIds = ['AnchorMustContainText'];
         
         return $this->phpAlly->checkMany($html, $ruleIds);
+    }
+
+    public function scanHtml($html)
+    {
+        return $this->phpAlly->checkMany($html, $this->getRules());
     }
 
     public function getRules()

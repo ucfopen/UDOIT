@@ -36,7 +36,7 @@ class CoursesController extends ApiController
         $institution = $user->getInstitution();
 
         // Get Courses
-        $courses = $institution->getCourses()->toArray();
+        $courses = $institution->getCourses();
 
         // Construct API Response
         $apiResponse = new ApiResponse();
@@ -80,7 +80,7 @@ class CoursesController extends ApiController
             $apiResponse->setData($course);
 
         } catch(\Exception $e) {
-            $apiResponse->setData($e->getMessage());
+            $apiResponse->addError($e->getMessage());
         }
 
         // Construct Response

@@ -183,6 +183,31 @@ class LmsApiService {
     }
 
     /**
+     * Refresh content item data from the LMS
+     *
+     * @param ContentItem $contentItem
+     * @return void
+     */
+    public function refreshContentItemFromLms(ContentItem $contentItem)
+    {
+        $lms = $this->getLms();
+        $lms->updateContentItem($contentItem);
+        $this->doctrine->getManager()->flush();
+    }
+
+    /**
+     * Post the content from the content item back to the LMS
+     *
+     * @param ContentItem $contentItem
+     * @return void
+     */
+    public function postContentItemToLms(ContentItem $contentItem) 
+    {
+        $lms = $this->getLms();
+        $response = $lms->postContentItem($contentItem);
+    }
+
+    /**
      * Create new report
      *
      * @param Course $course
@@ -212,17 +237,11 @@ class LmsApiService {
      */
     private function scanContentItems(array $contentItems, Report $report)
     {
-        /** @var \App\Repository\IssueRepository $issueRepo */
-        $issueRepo = $this->doctrine->getManager()->getRepository(Issue::class);
-
         // Scan each update content item for issues
         /** @var \App\Entity\ContentItem $contentItem */
         foreach ($contentItems as $contentItem) {
-            // delete previous Issues
-            //$issueRepo->deleteContentItemIssues($contentItem);
-
             // Scan Content Item with PHPAlly
-            $phpAllyReport = $this->phpAlly->scanHtml($contentItem);
+            $phpAllyReport = $this->phpAlly->scanContentItem($contentItem);
             if ($phpAllyReport) {
                 // Add Issues to report
                 foreach ($phpAllyReport->getIssues() as $issue) {
