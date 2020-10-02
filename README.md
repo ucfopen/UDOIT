@@ -135,8 +135,12 @@ The libraries (other then Quail) that we rely on can be found in `composer.json`
 
 Please refer to the documentation for these three libraries for additional information.
 
-## Storage for Reports
-Make sure the `reports` directory in the root of UDOIT is *writable by your webserver*.  UDOIT saves generated reports here for easy retrieval.  You may have to change the user, group, or permissions to get this working (sorry we can't be more specific, it varies greatly depending on your environment).
+## Folder permissions
+After [Insalling Dependencies](#installing-composer-dependencies), the following directories need to be made writable by your webserver:
+* `vendor/mpdf/mpdf/ttfontdata`
+* `vendor/mpdf/mpdf/tmp`
+* `public/reports`
+* `config`
 
 ## Database Setup
 UDOIT works with MySQL, MariaDB, or PostgreSQL
