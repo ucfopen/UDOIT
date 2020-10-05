@@ -38,6 +38,8 @@ if ('mysql' === $db_type) {
     ];
 }
 
+echo ("Updating `users` and `reports` tables to handle larger user IDs for Canvas trusted accounts.\r\n");
+
 //  run every query
 foreach ($queries as $query) {
     UdoitDB::query($query['sql']);
