@@ -1,0 +1,44 @@
+<?php
+
+global $db_type;
+
+if ('sqlite' === $db_type || 'test' === $db_type) {
+    // SQLITE (mostly for testing)
+    $queries = [
+        [
+            'sql' => 'ALTER TABLE users CHANGE id id BIGINT(20)',
+        ],
+        [
+            'sql' => 'ALTER TABLE reports CHANGE user_id user_id BIGINT(20)',
+        ],
+    ];
+}
+
+if ('pgsql' === $db_type) {
+    // POSTGRESQL
+    $queries = [
+        [
+            'sql' => 'ALTER TABLE users CHANGE id id BIGINT(20)',
+        ],
+        [
+            'sql' => 'ALTER TABLE reports CHANGE user_id user_id BIGINT(20)',
+        ],
+    ];
+}
+
+if ('mysql' === $db_type) {
+    // MYSQL
+    $queries = [
+        [
+            'sql' => 'ALTER TABLE users CHANGE id id BIGINT(20) UNSIGNED NOT NULL',
+        ],
+        [
+            'sql' => 'ALTER TABLE reports CHANGE user_id user_id BIGINT(20) UNSIGNED NOT NULL',
+        ],
+    ];
+}
+
+//  run every query
+foreach ($queries as $query) {
+    UdoitDB::query($query['sql']);
+}
