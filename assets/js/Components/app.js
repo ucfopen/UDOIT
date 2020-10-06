@@ -6,6 +6,7 @@ import classes from '../../css/app.scss'
 import { Button } from '@instructure/ui-buttons'
 import { connect } from 'react-redux'
 import { getScanResults, setVisibilityFilter } from '../Actions'
+import { getReportDetails } from '../selectors'
 
 
 import '@instructure/canvas-theme';
@@ -27,7 +28,9 @@ class App extends React.Component {
       issueTitles: "SHOW_ALL",
       status: "SHOW_ALL",
       search_term: "SHOW_ALL"
-  });
+    });
+
+    console.log(this.props.testing);
 
     this.handleClick = this.handleClick.bind(this);
   }
@@ -84,7 +87,13 @@ const mapDispatchToProps = dispatch => {
   }
 }
 
+const mapStateToProps = state => {
+  return {
+    testing: getReportDetails(state)
+  }
+}
+
 export default connect(
-  null,
+  mapStateToProps,
   mapDispatchToProps
 )(App);

@@ -1,12 +1,14 @@
+import issueListReducer from "./Reducers/issueList";
+
 // Constants
 const sectionNames = [
-    "announcements",
-    "assignments",
-    "files",
-    "pages",
-    "discussions",
+    "announcement",
+    "assignment",
+    "file",
+    "page",
+    "discussion",
     "syllabus",
-    "moduleUrls"
+    "moduleUrl"
 ]
 
 const searchTermFields = [
@@ -17,6 +19,10 @@ const searchTermFields = [
     "section"
 ]
 
+export const getContentById = (state, contentId) => {
+    return Object.assign({}, state.contentList[contentId]);
+}
+
 // Selectors
 export const getIssueFrequency = (state, type) => {
     let issueTypes = []
@@ -26,8 +32,35 @@ export const getIssueFrequency = (state, type) => {
     return issueTypes;
 }
 
-export const getIssuesFromSection = (state, section) => {
-    return state.issueList.data[0].report[section];
+export const getReportDetails = (state) => {
+
+    const issueDictionary = {}
+    const issueFrequency = {"error": {}, "suggestion": {}}
+
+    sectionNames.forEach(section => {issueDictionary[section] = {"error": 0, "suggestion": 0}})
+
+    Object.keys(state.issueList).forEach(function(key, index) {
+        // key: the name of the object key
+        // index: the ordinal position of the key within the object 
+        let currentIssue = state.issueList[key];
+
+        //Look up the piece of content that the issue refers to 
+        let currentContent = state.contentList[currentIssue.contentItemId];
+        // Add it to the appropriate content type
+        issueDictionary[currentContent.contentType][currentIssue.type] += 1;
+
+        
+        if(currentIssue.scanRuleId in issueFrequency[currentIssue.type]) {
+            issueFrequency[currentIssue.type][currentIssue.scanRuleId]["count"] += 1;
+        } else {
+            issueFrequency[currentIssue.type][currentIssue.scanRuleId] = {"count": 1}
+        }    
+    });
+
+    return {
+        issueDictionary,
+        issueFrequency
+    }
 }
 
 export const getCountsFromSection = (state, section) => {
@@ -66,34 +99,34 @@ export const getIssueTypes = (state, section, type, issueTypes) => {
 
 // Filters content based on multiple parameters
 export const getFilteredContent = (state) => {
-    let filteredList = [];
+    var filteredList = [];
+    var issueList = Object.assign({}, state.issueList);
+    
+    // Loop through the issues
+    for (const [key, value] of Object.entries(issueList)) {
+        var issue = Object.assign({}, value)
+        // Check if we are interested in this issue severity, aka "type"
+        if(state.visibilityFilters.issueTypes === "SHOW_ALL" || state.visibilityFilters.issueTypes.includes(issue.type)) {
+            // Check if we are interested in issues with this title
+            if(state.visibilityFilters.issueTitles === "SHOW_ALL" || state.visibilityFilters.issueTitles.includes(issue.scanRuleId)) {
+                // Check if we are interested in the issue based on whether it is fixed or not
+                issue.status = (issue.status === false ? "Not Fixed" : "Fixed")
+                if(state.visibilityFilters.status === "SHOW_ALL" || state.visibilityFilters.status.includes(issue.status)){
+                    // Get information about the content the issue refers to
+                    var contentPiece = getContentById(state, issue.contentItemId);
 
-    // Loop through the content sections
-    for(var section of sectionNames) {
-        if(state.visibilityFilters.sections === "SHOW_ALL" || state.visibilityFilters.sections.includes(section)) { 
-            // Get the content for that section
-            var contentList = state.issueList.data[0].report[section];
-            
-            // Loop through the content
-            for(var contentPiece of contentList) {
-                if(state.visibilityFilters.content === "SHOW_ALL" || state.visibilityFilters.content.includes(contentPiece.title)) {
-                    var issues = contentPiece.issues;
-                    console.log(issues);
-                    // Loop through the issues
-                    for(var issue of issues) {
-                        issue.contentTitle = contentPiece.title;
-                        issue.section = section;
-
-                        if((state.visibilityFilters.issueTypes === "SHOW_ALL" || state.visibilityFilters.issueTypes.includes(issue.type))
-                        && (state.visibilityFilters.issueTitles === "SHOW_ALL" || state.visibilityFilters.issueTitles.includes(issue.title))
-                        && (state.visibilityFilters.status === "SHOW_ALL" || state.visibilityFilters.status.includes(issue.status))
-                        && (state.visibilityFilters.search_term === "SHOW_ALL" || matchesKeywordSearch(state.visibilityFilters.search_term, issue))) {
+                    // Check if we are interesteed in this piece of content
+                    if(state.visibilityFilters.content === "SHOW_ALL" || state.visibilityFilters.content.includes(contentPiece.title)) {
+                        // Check if we are interested in this type of content
+                        if(state.visibilityFilters.sections === "SHOW_ALL" || state.visibilityFilters.sections.includes(contentPiece.contentType)) {
+                            issue.contentTitle = contentPiece.title;
+                            issue.contentType = contentPiece.contentType
                             filteredList.push(issue);
                         }
                     }
-
                 }
             }
+
         }
     }
 

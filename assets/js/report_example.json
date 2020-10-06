@@ -7,10 +7,11 @@
     "created": "2020-09-18T16:40:12+00:00",
     "errors": 130,
     "suggestions": 9,
+    "unscannable": 3,
     "issues": {
       "15165": {
         "id": 15165,
-        "status": false,
+        "status": true,
         "contentItemId": 48,
         "scanRuleId": "ContentTooLong",
         "type": "suggestion",

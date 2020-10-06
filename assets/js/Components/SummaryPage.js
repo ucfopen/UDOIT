@@ -6,7 +6,7 @@ import { Table } from '@instructure/ui-table'
 import { Pill } from '@instructure/ui-pill'
 import { Badge } from '@instructure/ui-badge'
 import { connect } from 'react-redux';
-import { getIssueFrequency, getFilteredContent, getCountsFromSection } from '../selectors';
+import { getIssueFrequency, getFilteredContent, getCountsFromSection, getReportDetails } from '../selectors';
 import moment from 'moment';
 import Clock from './Clock'
 import SortableTable from './SortableTable'
@@ -41,12 +41,13 @@ class SummaryPage extends React.Component {
       date: date.toLocaleDateString(),
       time: date.toLocaleTimeString(),
     });
+
   }
 
 
 
   render() {
-    console.log(this.props.filteredContent);
+    const reportDetails = this.props.reportDetails;
     return (
       <div className={`${classes.summaryContainer}`}>
         <div className={`${classes.row}`}>
@@ -103,13 +104,13 @@ class SummaryPage extends React.Component {
                     color="alert"
                     margin="x-small"
                     >
-                      {this.props.announcementCounts.suggestionCount} Suggestion
+                      {this.props.reportDetails["issueDictionary"]["announcement"].suggestion} Suggestions
                     </Pill>
                     <Pill
                     color="danger"
                     margin="x-small"
                     >
-                      {this.props.announcementCounts.errorCount} Errors
+                      {this.props.reportDetails["issueDictionary"]["announcement"].error} Errors
                     </Pill>
                   </div>
                 </Table.Cell>
@@ -175,12 +176,12 @@ class SummaryPage extends React.Component {
               </Table.Row>
             </Table.Head>
             <Table.Body>
-              {this.props.errorTypes.map(function (issue, id) {
+              {Object.keys(this.props.reportDetails.issueFrequency.error).map(function (key, id) {
                 return (
-                  <Table.Row>
+                  <Table.Row key={key}>
                     <Table.Cell key={id}>
-                      <a href="">{issue.title}</a>
-                      <Badge standalone variant="danger" count={issue.count} countUntil={10} margin="0 small 0 0" />
+                      <a href="">{key}</a>
+                      <Badge standalone variant="danger" count={reportDetails.issueFrequency.error[key].count} countUntil={10} margin="0 small 0 0" />
                     </Table.Cell>
                   </Table.Row>
                 )
@@ -204,12 +205,12 @@ class SummaryPage extends React.Component {
             </Table.Head>
 
             <Table.Body>
-              {this.props.suggestionTypes.map(function (issue, id) {
+              {Object.keys(this.props.reportDetails.issueFrequency.suggestion).map(function (key, id) {
                 return (
-                  <Table.Row>
+                  <Table.Row key={key}>
                     <Table.Cell key={id}>
-                      <a href="">{issue.title}</a>
-                      <Badge standalone count={issue.count} countUntil={10} margin="0 small 0 0" />
+                      <a href="">{key}</a>
+                      <Badge standalone count={reportDetails.issueFrequency.suggestion[key].count} countUntil={10} margin="0 small 0 0" />
                     </Table.Cell>
                   </Table.Row>
                 )
@@ -228,13 +229,10 @@ class SummaryPage extends React.Component {
 const mapStateToProps = state => {
   return {
     issueList: state.issueList,
-    errorCountTotal: state.issueList.data[0].errors,
-    suggestionCountTotal: state.issueList.data[0].suggestions,
-    unscannableCountTotal: state.issueList.data[0].unscannable,
-    announcementCounts: getCountsFromSection(state, "announcements"),
-    errorTypes: getIssueFrequency(state, "error"),
-    suggestionTypes: getIssueFrequency(state, "suggestion"),
-    filteredContent: getFilteredContent(state),
+    reportDetails: getReportDetails(state),
+    errorCountTotal: state.report.errors,
+    suggestionCountTotal: state.report.suggestions,
+    unscannableCountTotal: state.report.unscannable,
   }
 }
 

@@ -18,7 +18,7 @@ const defaultFilter = {
 // Action Creators
 export const getScanResults = () => ({
     type: GET_SCAN_RESULTS,
-    payload: data
+    payload: newData
 });
 
 export const setVisibilityFilter = (filter = defaultFilter) => ({
