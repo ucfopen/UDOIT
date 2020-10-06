@@ -118,28 +118,52 @@ class SummaryPage extends React.Component {
               <Table.Row>
                 <Table.Cell>
                   <a href="">Assignments</a>
-                  {/* <Pill
+                  <Pill
                     color="alert"
                     margin="x-small"
                     >
-                      2 Suggestions
+                      {this.props.reportDetails["issueDictionary"]["assignment"].suggestion} Suggestions
                     </Pill>
                     <Pill
                     color="danger"
                     margin="x-small"
                     >
-                      8 Errors
-                    </Pill> */}
+                      {this.props.reportDetails["issueDictionary"]["assignment"].error} Errors
+                  </Pill>
                 </Table.Cell>
               </Table.Row>
               <Table.Row>
                 <Table.Cell>
                   <a href="">Discussions</a>
+                  <Pill
+                    color="alert"
+                    margin="x-small"
+                    >
+                      {this.props.reportDetails["issueDictionary"]["discussion"].suggestion} Suggestions
+                    </Pill>
+                    <Pill
+                    color="danger"
+                    margin="x-small"
+                    >
+                      {this.props.reportDetails["issueDictionary"]["discussion"].error} Errors
+                  </Pill>
                 </Table.Cell>
               </Table.Row>
               <Table.Row>
                 <Table.Cell>
                   <a href="">Pages</a>
+                  <Pill
+                    color="alert"
+                    margin="x-small"
+                    >
+                      {this.props.reportDetails["issueDictionary"]["page"].suggestion} Suggestions
+                    </Pill>
+                    <Pill
+                    color="danger"
+                    margin="x-small"
+                    >
+                      {this.props.reportDetails["issueDictionary"]["page"].error} Errors
+                  </Pill>
                 </Table.Cell>
               </Table.Row>
               <Table.Row>

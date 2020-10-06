@@ -1,6 +1,5 @@
 // Imports
-import data from '../testData.json';
-import newData from '../report_example.json';
+import data from '../report_example.json';
 
 // Action Types
 const GET_SCAN_RESULTS = 'GET_SCAN_RESULTS';
@@ -18,7 +17,7 @@ const defaultFilter = {
 // Action Creators
 export const getScanResults = () => ({
     type: GET_SCAN_RESULTS,
-    payload: newData
+    payload: data
 });
 
 export const setVisibilityFilter = (filter = defaultFilter) => ({
