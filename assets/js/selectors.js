@@ -94,13 +94,14 @@ export const getIssueTypes = (state, section, type, issueTypes) => {
             }
         }
     }
-
 }
 
 // Filters content based on multiple parameters
 export const getFilteredContent = (state) => {
     var filteredList = [];
     var issueList = Object.assign({}, state.issueList);
+
+    console.log("hello?");
     
     // Loop through the issues
     for (const [key, value] of Object.entries(issueList)) {
