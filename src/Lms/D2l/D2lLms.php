@@ -40,6 +40,6 @@ class D2lLms implements LmsInterface {
 
     public function postContentItem(ContentItem $contentItem)
     {
-        
+        return true;
     }
 }

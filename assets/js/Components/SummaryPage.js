@@ -6,9 +6,10 @@ import { Table } from '@instructure/ui-table'
 import { Pill } from '@instructure/ui-pill'
 import { Badge } from '@instructure/ui-badge'
 import { connect } from 'react-redux';
-import { getIssuesFromSection, getErrorTypes, getCountsFromSection } from '../selectors';
+import { getIssueFrequency, getFilteredContent, getCountsFromSection, getReportDetails } from '../selectors';
 import moment from 'moment';
 import Clock from './Clock'
+import SortableTable from './SortableTable'
 
 const API = '';
 
@@ -33,27 +34,20 @@ class SummaryPage extends React.Component {
   }
 
   componentDidMount() {
-    // TODO Fetch issues from API then set state
-      // fetch('http://API/route')
-      // .then( res => res.json())
-      // .then((data) => {
-      //   this.setState({
-      //     issues: data
-      //   });
-      // })
-      // .catch(console.log);
-
+  
     var date = new Date();
 
     this.setState({
       date: date.toLocaleDateString(),
       time: date.toLocaleTimeString(),
     });
+
   }
 
 
 
   render() {
+    const reportDetails = this.props.reportDetails;
     return (
       <div className={`${classes.summaryContainer}`}>
         <div className={`${classes.row}`}>
@@ -63,10 +57,7 @@ class SummaryPage extends React.Component {
         </div>
 
         <div className={`${classes.row}`}>
-          <p>
-            {this.state.date}
             <Clock></Clock>
-          </p>
         </div>
 
         {/* Total Counts */}
@@ -113,13 +104,13 @@ class SummaryPage extends React.Component {
                     color="alert"
                     margin="x-small"
                     >
-                      {this.props.announcementCounts.suggestionCount} Suggestion
+                      {this.props.reportDetails["issueDictionary"]["announcement"].suggestion} Suggestions
                     </Pill>
                     <Pill
                     color="danger"
                     margin="x-small"
                     >
-                      {this.props.announcementCounts.errorCount} Errors
+                      {this.props.reportDetails["issueDictionary"]["announcement"].error} Errors
                     </Pill>
                   </div>
                 </Table.Cell>
@@ -127,28 +118,52 @@ class SummaryPage extends React.Component {
               <Table.Row>
                 <Table.Cell>
                   <a href="">Assignments</a>
-                  {/* <Pill
+                  <Pill
                     color="alert"
                     margin="x-small"
                     >
-                      2 Suggestions
+                      {this.props.reportDetails["issueDictionary"]["assignment"].suggestion} Suggestions
                     </Pill>
                     <Pill
                     color="danger"
                     margin="x-small"
                     >
-                      8 Errors
-                    </Pill> */}
+                      {this.props.reportDetails["issueDictionary"]["assignment"].error} Errors
+                  </Pill>
                 </Table.Cell>
               </Table.Row>
               <Table.Row>
                 <Table.Cell>
                   <a href="">Discussions</a>
+                  <Pill
+                    color="alert"
+                    margin="x-small"
+                    >
+                      {this.props.reportDetails["issueDictionary"]["discussion"].suggestion} Suggestions
+                    </Pill>
+                    <Pill
+                    color="danger"
+                    margin="x-small"
+                    >
+                      {this.props.reportDetails["issueDictionary"]["discussion"].error} Errors
+                  </Pill>
                 </Table.Cell>
               </Table.Row>
               <Table.Row>
                 <Table.Cell>
                   <a href="">Pages</a>
+                  <Pill
+                    color="alert"
+                    margin="x-small"
+                    >
+                      {this.props.reportDetails["issueDictionary"]["page"].suggestion} Suggestions
+                    </Pill>
+                    <Pill
+                    color="danger"
+                    margin="x-small"
+                    >
+                      {this.props.reportDetails["issueDictionary"]["page"].error} Errors
+                  </Pill>
                 </Table.Cell>
               </Table.Row>
               <Table.Row>
@@ -184,26 +199,18 @@ class SummaryPage extends React.Component {
                   </Table.ColHeader>
               </Table.Row>
             </Table.Head>
-
             <Table.Body>
-              <Table.Row>
-                <Table.Cell>
-                  <div className={`${classes.row}`}>
-                    <a href="">{this.props.errorTypes[0][0]}</a>
-
-                    <Badge standalone variant="danger" count={1} countUntil={10} margin="0 small 0 0" />
-                  </div>
-                </Table.Cell>
-              </Table.Row>
-              <Table.Row>
-                <Table.Cell>
-                  <a href="">{this.props.errorTypes[0][1]}</a>
-
-                  <Badge standalone variant="danger" count={1} countUntil={10} margin="0 small 0 0" />
-                </Table.Cell>
-              </Table.Row>
+              {Object.keys(this.props.reportDetails.issueFrequency.error).map(function (key, id) {
+                return (
+                  <Table.Row key={key}>
+                    <Table.Cell key={id}>
+                      <a href="">{key}</a>
+                      <Badge standalone variant="danger" count={reportDetails.issueFrequency.error[key].count} countUntil={10} margin="0 small 0 0" />
+                    </Table.Cell>
+                  </Table.Row>
+                )
+              })}
             </Table.Body>
-            
           </Table>
           </div>
           {/* Suggestions */}
@@ -222,22 +229,16 @@ class SummaryPage extends React.Component {
             </Table.Head>
 
             <Table.Body>
-              <Table.Row>
-                <Table.Cell>
-                  <div className={`${classes.row}`}>
-                    <a href="">{this.props.errorTypes[1][0]}</a>
-
-                    <Badge standalone count={1} countUntil={10} margin="0 small 0 0" />
-                  </div>
-                </Table.Cell>
-              </Table.Row>
-              <Table.Row>
-                {/* <Table.Cell>
-                  <a href="">Image elements</a>
-
-                  <Badge standalone count={2} countUntil={10} margin="0 small 0 0" />
-                </Table.Cell> */}
-              </Table.Row>
+              {Object.keys(this.props.reportDetails.issueFrequency.suggestion).map(function (key, id) {
+                return (
+                  <Table.Row key={key}>
+                    <Table.Cell key={id}>
+                      <a href="">{key}</a>
+                      <Badge standalone count={reportDetails.issueFrequency.suggestion[key].count} countUntil={10} margin="0 small 0 0" />
+                    </Table.Cell>
+                  </Table.Row>
+                )
+              })}
             </Table.Body>
             
           </Table>
@@ -252,11 +253,10 @@ class SummaryPage extends React.Component {
 const mapStateToProps = state => {
   return {
     issueList: state.issueList,
-    errorCountTotal: state.issueList.data[0].errors,
-    suggestionCountTotal: state.issueList.data[0].suggestions,
-    unscannableCountTotal: state.issueList.data[0].unscannable,
-    announcementCounts: getCountsFromSection(state, "announcements"),
-    errorTypes: getErrorTypes(state, "announcements"),
+    reportDetails: getReportDetails(state),
+    errorCountTotal: state.report.errors,
+    suggestionCountTotal: state.report.suggestions,
+    unscannableCountTotal: state.report.unscannable,
   }
 }
 

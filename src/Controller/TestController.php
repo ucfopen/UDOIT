@@ -17,22 +17,20 @@ class TestController extends AbstractController
     /**
      * @Route("/test", name="test")
      */
-    public function index(UtilityService $util, 
-        CourseRepository $courseRepo, 
-        ContentItemRepository $contentItemRepo, 
-        PhpAllyService $phpAllyService,
-        LmsApiService $lmsApi)
+    public function index(UtilityService $util, CourseRepository $courseRepo, ContentItemRepository $contentItemRepo, PhpAllyService $phpAllyService)
     {
         $out = [];
         
-        $course = $courseRepo->find(59);
-        
-        
-        $item = $contentItemRepo->find(93);
+        //$course = $courseRepo->find(59);
+        //$out['content'] = $lms->getCourseContent($course);
 
-        $lmsApi->postContentItemToLms($item);
+        //$contentItems = $contentItemRepo->getUpdatedContentItems($course);
+        //$item = reset($contentItems);
+        $item = $contentItemRepo->find(97);
 
+        //$ruleIds = $phpAllyService->getRules();
+        $report = $phpAllyService->scanHtml($item);
 
-        return new JsonResponse($item);
+        return new JsonResponse($report);
     }
 }

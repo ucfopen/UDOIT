@@ -1,17 +1,28 @@
 // Imports
-import data from '../testData.json';
+import data from '../report_example.json';
 
 // Action Types
 const GET_SCAN_RESULTS = 'GET_SCAN_RESULTS';
+const SET_VISBILITY_FILTER = 'SET_VISIBILITY_FILTER'
 
-// Action Creators
-function getScanResults() {
-    return {
-        type: GET_SCAN_RESULTS,
-        payload: data
-    }
+const defaultFilter = {
+    sections: "SHOW_ALL",
+    content: "SHOW_ALL",
+    issueTypes: "SHOW_ALL",
+    issueTitles: "SHOW_ALL",
+    status: "SHOW_ALL",
+    search_term: "SHOW_ALL"
 }
 
-export default getScanResults;
+// Action Creators
+export const getScanResults = () => ({
+    type: GET_SCAN_RESULTS,
+    payload: data
+});
+
+export const setVisibilityFilter = (filter = defaultFilter) => ({
+    type: SET_VISBILITY_FILTER,
+    filter: filter 
+});
 
 

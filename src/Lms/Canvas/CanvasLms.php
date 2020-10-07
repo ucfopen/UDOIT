@@ -125,7 +125,7 @@ class CanvasLms implements LmsInterface {
             'file' =>               "courses/{$courseId}/files",
             //'module' =>             "courses/{$courseId}/modules",
             'page' =>               "courses/{$courseId}/pages",
-            //'quiz' =>               "courses/{$courseId}/quizzes",
+            'quiz' =>               "courses/{$courseId}/quizzes",
         ];
     }
 

@@ -18,7 +18,7 @@
     "scripts": {
         "dev-server": "encore dev-server",
         "dev": "encore dev",
-        "watch": "encore dev --watch",
+        "watch": "yarn install && encore dev --watch",
         "build": "encore production --progress"
     },
     "dependencies": {
@@ -30,6 +30,7 @@
         "@instructure/ui-navigation": "^7.1.1",
         "@instructure/ui-pill": "^7.1.2",
         "@instructure/ui-progress": "^7.1.2",
+        "@instructure/ui-responsive": "^7.1.3",
         "@instructure/ui-table": "^7.1.2",
         "@instructure/ui-tabs": "^7.1.1",
         "@instructure/ui-text-input": "^7.1.2",

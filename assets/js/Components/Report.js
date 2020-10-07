@@ -1,8 +1,7 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import Issue from './Issue';
-import { getCountsFromSection } from '../selectors'
-import { getIssuesFromSection } from '../selectors'
+import { TextInput } from '@instructure/ui-text-input'
 
 const API = '';
 // The report which contains all the issues found while scanning the course
@@ -19,12 +18,12 @@ class Report extends React.Component {
   render() {
     return (
       <div>
-          {this.props.issueList.map(x => <Issue key={x.id}
-            title={x.title}
-            description={x.description}s
-            severity={x.severity}
-            />
-        )}
+        <TextInput
+            renderLabel="Search"
+            placeholder="Keyword"
+            onChange={(event, value) => { console.log(value) }}>
+              
+            </TextInput>
       </div>
     )
   }
@@ -32,8 +31,6 @@ class Report extends React.Component {
 
 const mapStateToProps = state => {
   return {
-    issueList: getIssuesFromSection(state, "announcements")[0].issues,
-    counts: getCountsFromSection(state, "announcements")
   }
 }
 

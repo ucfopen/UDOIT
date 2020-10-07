@@ -72,7 +72,6 @@ class ContentItem implements \JsonSerializable
     private $filePath;
 
 
-
     // Constructor
     public function __construct()
     {
