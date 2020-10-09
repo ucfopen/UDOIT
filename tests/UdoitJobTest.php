@@ -66,7 +66,7 @@ class UdoitJobTest extends BaseTest
         switch (UdoitDB::$type) {
             case 'pgsql':
             case 'mysql':
-                $sql = "UPDATE job_queue SET date_created = (now() - INTERVAL {$time} MINUTE)  where id = '1'";
+                $sql = "UPDATE job_queue SET date_created = (now() - INTERVAL '{$time}' MINUTE)  where id = '1'";
                 break;
 
             case 'test':
