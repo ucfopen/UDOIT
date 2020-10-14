@@ -1,5 +1,3 @@
-import issueListReducer from "./Reducers/issueList";
-
 // Constants
 const sectionNames = [
     "announcement",
@@ -100,8 +98,6 @@ export const getIssueTypes = (state, section, type, issueTypes) => {
 export const getFilteredContent = (state) => {
     var filteredList = [];
     var issueList = Object.assign({}, state.issueList);
-
-    console.log("hello?");
     
     // Loop through the issues
     for (const [key, value] of Object.entries(issueList)) {

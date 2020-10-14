@@ -1,9 +1,6 @@
 import React from 'react';
-import { connect } from 'react-redux';
-import Issue from './Issue';
 import { TextInput } from '@instructure/ui-text-input'
 import { Checkbox } from '@instructure/ui-checkbox'
-import { setVisibilityFilter, getScanResults } from '../Actions'
 
 const API = '';
 // The report which contains all the issues found while scanning the course
@@ -24,10 +21,7 @@ class Report extends React.Component {
   }
 
   handleChange = () => {
-    console.log(this.state);
-    this.setState({
-      checkBoxBool: !this.state.checkBoxBool
-    }, console.log(this.state))
+    this.props.getScanResults()
   }
 
   updateVisibilityFilters = () => {
