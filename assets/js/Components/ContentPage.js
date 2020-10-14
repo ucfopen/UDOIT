@@ -14,7 +14,6 @@ class ContentPage extends React.Component {
       filteredIssues: [],
       activeIssue: null
     }
-
   }
 
   componentDidMount() {
