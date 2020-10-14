@@ -5,13 +5,20 @@ import { Button } from '@instructure/ui-buttons'
 import { Table } from '@instructure/ui-table'
 import { Pill } from '@instructure/ui-pill'
 import { Badge } from '@instructure/ui-badge'
-import { connect } from 'react-redux';
-import { getIssueFrequency, getFilteredContent, getCountsFromSection, getReportDetails } from '../selectors';
 import moment from 'moment';
 import Clock from './Clock'
 import SortableTable from './SortableTable'
 
-const API = '';
+// Constants
+const sectionNames = [
+  "announcement",
+  "assignment",
+  "file",
+  "page",
+  "discussion",
+  "syllabus",
+  "moduleUrl"
+]
 
 class SummaryPage extends React.Component {
 
@@ -27,12 +34,6 @@ class SummaryPage extends React.Component {
     }
   }
 
-  getDateFormat = (event, { index, id }) => {
-    this.setState({
-      selectedIndex: index
-    })
-  }
-
   componentDidMount() {
   
     var date = new Date();
@@ -44,10 +45,98 @@ class SummaryPage extends React.Component {
 
   }
 
+  getDateFormat = (event, { index, id }) => {
+    this.setState({
+      selectedIndex: index
+    })
+  }
 
+  getContentById = (state, contentId) => {
+    return Object.assign({}, state.contentList[contentId]);
+  }
+
+
+  getIssueFrequency = (state, type) => {
+      let issueTypes = []
+
+      sectionNames.forEach(section => getIssueTypes(state, section, type, issueTypes));
+
+      return issueTypes;
+  }
+
+  getReportDetails = (report) => {
+
+    const issueDictionary = {}
+    const issueFrequency = {"error": {}, "suggestion": {}}
+    const issueList = report.data.issues;
+    const contentList = report.data.contentItems;
+
+    sectionNames.forEach(section => {issueDictionary[section] = {"error": 0, "suggestion": 0}})
+
+    Object.keys(issueList).forEach(function(key, index) {
+        // key: the name of the object key
+        // index: the ordinal position of the key within the object 
+        let currentIssue = issueList[key];
+
+        //Look up the piece of content that the issue refers to 
+        let currentContent = contentList[currentIssue.contentItemId];
+        // Add it to the appropriate content type
+        issueDictionary[currentContent.contentType][currentIssue.type] += 1;
+
+        
+        if(currentIssue.scanRuleId in issueFrequency[currentIssue.type]) {
+            issueFrequency[currentIssue.type][currentIssue.scanRuleId]["count"] += 1;
+        } else {
+            issueFrequency[currentIssue.type][currentIssue.scanRuleId] = {"count": 1}
+        }    
+    });
+
+    return {
+        issueDictionary,
+        issueFrequency
+    }
+  }
+
+  getCountsFromSection = (state, section) => {
+    let sectionInfo = getIssuesFromSection(state, section);
+    let errorCount = 0, suggestionCount = 0;
+    
+    for(var i = 0; i < sectionInfo.length; i++) {
+        errorCount += sectionInfo[i].issues.filter(issue => issue.type == "error").length;
+        suggestionCount += sectionInfo[i].issues.filter(issue => issue.type == "suggestion").length;
+    }
+
+    return {errorCount, suggestionCount}
+  }
+
+  getIssueTypes = (state, section, type, issueTypes) => {
+    let sectionInfo = getIssuesFromSection(state, section);
+
+    for(var i = 0; i < sectionInfo.length; i++) {
+        for(var j = 0; j < sectionInfo[i].issues.length; j++) {
+            let issue = sectionInfo[i].issues[j];
+
+            if(issue.type === type) {
+                var obj = issueTypes.find(element => element.title == issue.title);
+            
+                if(obj === undefined) {
+                    issue.count = 1;
+                    issueTypes.push(issue);
+                } else {
+                    obj.count += 1;
+                }
+            }
+        }
+    }
+  }
 
   render() {
-    const reportDetails = this.props.reportDetails;
+    const report = this.props.report;
+    const reportDetails = this.getReportDetails(report);
+    const errorCountTotal = report.data.errors;
+    const suggestionCountTotal = report.data.suggestions;
+    const unscannableCountTotal = report.data.unscannable;
+    
     return (
       <div className={`${classes.summaryContainer}`}>
         <div className={`${classes.row}`}>
@@ -63,17 +152,17 @@ class SummaryPage extends React.Component {
         {/* Total Counts */}
         <div className={`${classes.rowcentered}`}>
           <div className={`${classes.numberContainer}`}>
-            <Heading level="h2" children={this.props.errorCountTotal}></Heading>
+            <Heading level="h2" children={errorCountTotal}></Heading>
             <br></br>
             <Heading level="h3">Errors</Heading>
           </div>
           <div className={`${classes.numberContainer}`}>
-            <Heading level="h2" children={this.props.suggestionCountTotal}></Heading>
+            <Heading level="h2" children={suggestionCountTotal}></Heading>
             <br></br>
             <Heading level="h3">Suggestions</Heading>
           </div>
           <div className={`${classes.numberContainer}`}>
-            <Heading level="h2" children={this.props.unscannableCountTotal}></Heading>
+            <Heading level="h2" children={unscannableCountTotal}></Heading>
             <br></br>
             <Heading level="h3">Unscannable Files</Heading>
           </div>
@@ -104,13 +193,13 @@ class SummaryPage extends React.Component {
                     color="alert"
                     margin="x-small"
                     >
-                      {this.props.reportDetails["issueDictionary"]["announcement"].suggestion} Suggestions
+                      {reportDetails["issueDictionary"]["announcement"].suggestion} Suggestions
                     </Pill>
                     <Pill
                     color="danger"
                     margin="x-small"
                     >
-                      {this.props.reportDetails["issueDictionary"]["announcement"].error} Errors
+                      {reportDetails["issueDictionary"]["announcement"].error} Errors
                     </Pill>
                   </div>
                 </Table.Cell>
@@ -122,13 +211,13 @@ class SummaryPage extends React.Component {
                     color="alert"
                     margin="x-small"
                     >
-                      {this.props.reportDetails["issueDictionary"]["assignment"].suggestion} Suggestions
+                      {reportDetails["issueDictionary"]["assignment"].suggestion} Suggestions
                     </Pill>
                     <Pill
                     color="danger"
                     margin="x-small"
                     >
-                      {this.props.reportDetails["issueDictionary"]["assignment"].error} Errors
+                      {reportDetails["issueDictionary"]["assignment"].error} Errors
                   </Pill>
                 </Table.Cell>
               </Table.Row>
@@ -139,13 +228,13 @@ class SummaryPage extends React.Component {
                     color="alert"
                     margin="x-small"
                     >
-                      {this.props.reportDetails["issueDictionary"]["discussion"].suggestion} Suggestions
+                      {reportDetails["issueDictionary"]["discussion"].suggestion} Suggestions
                     </Pill>
                     <Pill
                     color="danger"
                     margin="x-small"
                     >
-                      {this.props.reportDetails["issueDictionary"]["discussion"].error} Errors
+                      {reportDetails["issueDictionary"]["discussion"].error} Errors
                   </Pill>
                 </Table.Cell>
               </Table.Row>
@@ -156,13 +245,13 @@ class SummaryPage extends React.Component {
                     color="alert"
                     margin="x-small"
                     >
-                      {this.props.reportDetails["issueDictionary"]["page"].suggestion} Suggestions
+                      {reportDetails["issueDictionary"]["page"].suggestion} Suggestions
                     </Pill>
                     <Pill
                     color="danger"
                     margin="x-small"
                     >
-                      {this.props.reportDetails["issueDictionary"]["page"].error} Errors
+                      {reportDetails["issueDictionary"]["page"].error} Errors
                   </Pill>
                 </Table.Cell>
               </Table.Row>
@@ -200,7 +289,7 @@ class SummaryPage extends React.Component {
               </Table.Row>
             </Table.Head>
             <Table.Body>
-              {Object.keys(this.props.reportDetails.issueFrequency.error).map(function (key, id) {
+              {Object.keys(reportDetails.issueFrequency.error).map(function (key, id) {
                 return (
                   <Table.Row key={key}>
                     <Table.Cell key={id}>
@@ -229,7 +318,7 @@ class SummaryPage extends React.Component {
             </Table.Head>
 
             <Table.Body>
-              {Object.keys(this.props.reportDetails.issueFrequency.suggestion).map(function (key, id) {
+              {Object.keys(reportDetails.issueFrequency.suggestion).map(function (key, id) {
                 return (
                   <Table.Row key={key}>
                     <Table.Cell key={id}>
@@ -250,17 +339,4 @@ class SummaryPage extends React.Component {
   }
 }
 
-const mapStateToProps = state => {
-  return {
-    issueList: state.issueList,
-    reportDetails: getReportDetails(state),
-    errorCountTotal: state.report.errors,
-    suggestionCountTotal: state.report.suggestions,
-    unscannableCountTotal: state.report.unscannable,
-  }
-}
-
-export default connect(
-  mapStateToProps,
-)
-(SummaryPage);
+export default SummaryPage;

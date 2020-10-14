@@ -1,5 +1,3 @@
-import issueListReducer from "./Reducers/issueList";
-
 // Constants
 const sectionNames = [
     "announcement",
@@ -94,7 +92,6 @@ export const getIssueTypes = (state, section, type, issueTypes) => {
             }
         }
     }
-
 }
 
 // Filters content based on multiple parameters
