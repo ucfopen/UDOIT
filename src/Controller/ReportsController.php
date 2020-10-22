@@ -84,8 +84,7 @@ class ReportsController extends ApiController
             }
             
             $report = $course->getLatestReport();
-            $report->setIncludeIssues(true);
-            $apiResponse->setData($report);
+            $apiResponse->setData($report->toArray(true));
         } catch (\Exception $e) {
             $apiResponse->addMessage($e->getMessage());
         }
@@ -113,10 +112,8 @@ class ReportsController extends ApiController
             if ($report->getCourse()->getId() != $course->getId()) {
                 throw new \Exception('Invalid report ID. This report does not belong to the given course.');
             }
-
-            $report->setIncludeIssues(true);
             
-            $apiResponse->setData($report);
+            $apiResponse->setData($report->toArray(true));
         }
         catch (\Exception $e) {
             $apiResponse->addError($e->getMessage());

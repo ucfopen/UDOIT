@@ -1,6 +1,7 @@
 import React from 'react';
 import Logo from '../../mediaAssets/udoit_logo.png';
-import classes from '../../css/header.scss';
+import Classes from '../../css/header.scss';
+import { View } from '@instructure/ui-view';
 
 class Header extends React.Component {
   
@@ -12,12 +13,9 @@ class Header extends React.Component {
 
   render() {
     return (
-      <div>
-        <div className={`${classes.headerContainer}`}>
-          <img className={`${classes.logo}`} src={Logo}></img>
-        </div>
-        <hr></hr>
-      </div>
+      <View padding="small 0" as="div">
+          <img className={`${Classes.logo}`} src={Logo}></img>
+      </View>
     )
   }
 }

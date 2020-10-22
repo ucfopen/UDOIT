@@ -41,13 +41,13 @@ class DashboardController extends AbstractController
 
             if ($course) {
                 $activeReport = $course->getLatestReport();
-                $activeReport->setIncludeIssues(true);
+                $reportArr = $activeReport->toArray(true);
                 $reports = $course->getReports();
             }
             else {
                 $institution = $user->getInstitution();
                 $course = $this->util->createCourse($institution, $lmsCourseId);
-                $activeReport = false;
+                $reportArr = false;
             }
 
             if ($course) {
@@ -57,7 +57,7 @@ class DashboardController extends AbstractController
 
         return $this->render('default/index.html.twig', [
             'data' => [
-                'report' => $activeReport,
+                'report' => $reportArr,
                 'reports' => $reports->toArray(),
                 'settings' => $this->getSettings($course),
                 'messages' => $this->util->getUnreadMessages(true),

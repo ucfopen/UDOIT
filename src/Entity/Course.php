@@ -221,10 +221,6 @@ class Course implements \JsonSerializable
      */
     public function getReports(): Collection
     {
-        foreach ($this->reports as $report) {
-            $report->setIncludeIssues(false);
-        }
-
         return $this->reports;
     }
 
