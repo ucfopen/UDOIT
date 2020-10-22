@@ -4,10 +4,10 @@ import Header from './Header'
 import { Tabs } from '@instructure/ui-tabs'
 import SummaryPage from './SummaryPage'
 import ContentPage from './ContentPage';
-import classes from '../../css/app.scss'
+import Classes from '../../css/app.scss'
 import { Button } from '@instructure/ui-buttons'
-import data from'../report_example.json';
-
+import { View } from '@instructure/ui-view'
+import Api from '../Services/Api';
 
 import '@instructure/canvas-theme';
 
@@ -15,121 +15,157 @@ class App extends React.Component {
   constructor(props) {
     super(props);
 
+    this.hasNewReport = false;
+    this.appFilters = {};
+    this.settings = {};
+    this.reportHistory = [];
+    this.messages = [];
+
     this.state = {
-      "hasReport": false,
-      "report": {},
-      "filters": { 
-        sections: "SHOW_ALL",
-        content: "SHOW_ALL",
-        issueTypes: "SHOW_ALL",
-        issueTitles: "SHOW_ALL",
-        status: "SHOW_ALL",
-        search_term: "SHOW_ALL"
-      },
-      "settings": {},
-      "navigation": {
-        "tabIndex": 0,
-        "showSettings": true,
-        "showAbout": ''
-      },
-      "reportHistory": [],
-      "messages": []
+      report: null,
+      navigation: {
+        tabIndex: 0,
+        showSettings: false,
+        showAbout: false
+      }
     }
 
-    this.handleClick = this.handleClick.bind(this);
-    this.handleTabChange = this.handleTabChange.bind(this)
-    this.handleFilters = this.handleFilters.bind(this)
+    this.handleNavigation = this.handleNavigation.bind(this);
+    this.handleAppFilters = this.handleAppFilters.bind(this);
+    this.t = this.t.bind(this);
+  }
+
+  render() {    
+    const tabIndex = this.state.navigation.tabIndex;
+
+    if (this.state.report) {
+      return (
+        <View as="div">
+          <Header/>
+          <Tabs
+            onRequestTabChange={this.handleTabChange}
+            key="mainTabs"
+          >
+            <Tabs.Panel renderTitle={this.t('label.summary')} isSelected={tabIndex === 0} key="summaryTab">
+              <SummaryPage 
+                report={this.state.report} 
+                settings={this.settings} 
+                navigation={this.state.navigation}
+                handleAppFilters={this.handleAppFilters}
+                handleNavigation={this.handleNavigation} 
+                t={this.t}
+                key="summaryPage"></SummaryPage>
+            </Tabs.Panel>
+            <Tabs.Panel renderTitle={this.t('label.content')} isSelected={tabIndex === 1} key="contentTab">
+              <ContentPage 
+                report={this.state.report} 
+                settings={this.settings} 
+                appFilters={this.appFilters} 
+                navigation={this.state.navigation}
+                handleAppFilters={this.handleAppFilters} 
+                handleNavigation={this.handleNavigation}
+                t={this.t}
+                key="contentPage"></ContentPage>
+            </Tabs.Panel>
+            <Tabs.Panel renderTitle={this.t('label.plural.file')} isSelected={tabIndex === 2} key="filesTab">
+              FILES
+              {/* <Files/> */}
+            </Tabs.Panel>
+          </Tabs>
+        </View>
+      );
+    }
+    else {
+      return (
+        <div>
+          <Header key="welcomeHeader" />
+          <WelcomePage key="welcomePage" />
+          <div className={Classes.buttonContainer}>
+            <Button onClick={this.closeAboutScreen} color="primary" margin="small" textAlign="center">Continue</Button>
+          </div>
+       </div>
+      );
+    }
   }
 
   componentDidMount() {
-    this.getScanResults();
+    if (Object.keys(this.settings).length === 0) {
+      this.getSettings();
+    }
+
+    this.checkForReport();
   }
 
-  render() {
-    this.loadSettings();
-    
-    return (
-      <div className={`${classes.app}`}>
-        <Header/>
-        <Display hasReport={this.state.hasReport} action={this.handleClick} tabIndex={this.state.navigation.tabIndex} 
-        handleTabChange={this.handleTabChange} report={this.state.report} settings={this.state.settings} filters={this.state.filters}
-        handleFilters={this.handleFilters}/>
-      </div>
-    )
+  componentDidUpdate() {}
+
+  t(key) {
+    return (this.settings.labels[key]) ? this.settings.labels[key] : key;
   }
 
-  loadSettings() {
+  closeAboutScreen(e) {
+    console.log('e', e);
+  }
+
+  checkForReport() {
+    if (!this.hasNewReport) {
+      var intervalId = setInterval(() => {
+        let api = new Api(this.settings);
+        api.getReport()
+          .then((response) => response.json())
+          .then((data) => {
+            if (data.messages) {
+              data.messages.map((msg) => {
+                console.log(msg);
+              })
+            }
+            if (data.data && data.data.id) {
+              this.hasNewReport = true;
+              clearInterval(intervalId);
+              this.setState({ report: data.data });
+            }
+          });
+      }, 2000);
+    }
+    else {
+      clearInterval(intervalId);
+    }
+  }
+
+  getSettings() {
     const settingsElement = document.querySelector(
       'body > script#toolSettings[type="application/json"]'
     );
 
-    window.toolSettings = {};
-
     if (settingsElement !== null) {
-      window.toolSettings = JSON.parse(settingsElement.textContent);
+      let data = JSON.parse(settingsElement.textContent);
+      
+      if (data) {
+        this.messages = data.messages;
+        this.reportHistory = data.reports;
+        this.settings = data.settings;
+        this.setState({report: data.report});
+      }
+    }
+    else {
+      // show error message
     }
   }
 
-  getScanResults = () => {
-    this.setState({ report: data }, () => {
-      console.log(this.state);
-    }); 
-  }
-
-  handleClick() {
-    this.setState(state => ({
-      hasReport: !state.hasReport
-    }));
-  }
-
-  handleTabChange = (event, { index, id }) => { 
+  handleTabChange = (event, {index, id}) => {
     this.setState(prevState => ({
-      navigation: {                   // object that we want to update
-          ...prevState.navigation,    // keep all other key-value pairs
-          tabIndex: index       // update the value of specific key
+      navigation: {
+        ...prevState.navigation,
+        tabIndex: index
       }
     }));
+  };
+
+  handleNavigation = (nav) => { 
+    this.setState({navigation: nav});
   }
 
-  handleFilters = (newFilter) => {
-    this.setState({
-      filters: newFilter
-    })
-  }
-}
-
-const Display = (props) => {
-  const hasReport = props.hasReport;
-  const tabIndex = props.tabIndex;
-
-  if(hasReport) {
-    return (
-      <div>
-        <Tabs
-        variant="secondary"
-        onRequestTabChange={props.handleTabChange}
-        minHeight="10vh"
-        maxHeight="100vh"
-        >
-        <Tabs.Panel renderTitle="Summary" isSelected={tabIndex === 0}>
-            <SummaryPage report={props.report} settings={props.settings} handleNavigation={props.handleTabChange}></SummaryPage>
-        </Tabs.Panel>
-        <Tabs.Panel renderTitle="Content" isSelected={tabIndex === 1}>
-          <ContentPage report={props.report} settings={props.settings} filters={props.filters} handleFilters={props.handleFilters}></ContentPage>
-        </Tabs.Panel>
-        <Tabs.Panel renderTitle="Files" isSelected={tabIndex === 2}>
-          {/* <Files/> */}
-        </Tabs.Panel>
-        </Tabs>
-      </div>
-    )
-  } else {
-    return <div>
-      <WelcomePage/>
-      <div className={`${classes.buttonContainer}`}>
-          <Button onClick={props.action} color="primary" margin="small" textAlign="center">Scan Course</Button>
-      </div>
-    </div>;
+  handleAppFilters = (filters) => {
+    this.appFilters = filters;
   }
 }
 

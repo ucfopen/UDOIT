@@ -23,7 +23,6 @@ use Twig\Environment;
 
 class ReportsController extends ApiController
 {
-
     private $request;
     private $session;
     private $util;
@@ -65,11 +64,39 @@ class ReportsController extends ApiController
         return new JsonResponse($apiResponse);
     }
 
+    /**
+     * @Route("/api/courses/{course}/reports/latest", methods={"GET"}, name="get_latest_report")
+     * @param Course $course
+     * 
+     * @return JsonResponse
+     */
+    public function getLatestReport(Course $course)
+    {
+        $apiResponse = new ApiResponse();
+        try {
+            // Check if user has course access
+            if (!$this->userHasCourseAccess($course)) {
+                throw new \Exception("You do not have permission to access the specified course.");
+            }
+
+            if ($course->isDirty()) {
+                throw new \Exception('Course syncing...');
+            }
+            
+            $report = $course->getLatestReport();
+            $apiResponse->setData($report->toArray(true));
+        } catch (\Exception $e) {
+            $apiResponse->addMessage($e->getMessage());
+        }
+
+        // Construct Response
+        return new JsonResponse($apiResponse);
+    }
 
     /**
      * @Route("/api/courses/{course}/reports/{report}", methods={"GET"}, name="get_report")
-     * @param $courseId
-     * @param $reportId
+     * @param Course $course
+     * @param Report $report
      */
     public function getOneReport(
         Course $course,
@@ -85,10 +112,8 @@ class ReportsController extends ApiController
             if ($report->getCourse()->getId() != $course->getId()) {
                 throw new \Exception('Invalid report ID. This report does not belong to the given course.');
             }
-
-            $report->setIncludeIssues(true);
             
-            $apiResponse->setData($report);
+            $apiResponse->setData($report->toArray(true));
         }
         catch (\Exception $e) {
             $apiResponse->addError($e->getMessage());
@@ -99,7 +124,7 @@ class ReportsController extends ApiController
     }
 
     /**
-     * @Route("/api/courses/{courseId}/reports/{reportId}/pdf", methods={"GET"}, name="get_report_pdf")
+     * @Route("/api/courses/{course}/reports/{report}/pdf", methods={"GET"}, name="get_report_pdf")
      * @param $courseId
      * @param $reportId
      * @return \Symfony\Component\HttpFoundation\Response
@@ -108,17 +133,14 @@ class ReportsController extends ApiController
         Request $request,
         SessionInterface $session,
         UtilityService $util,
-        int $courseId,
-        int $reportId
+        Course $course,
+        Report $report
     ) {
         $this->request = $request;
         $this->session = $session;
         $this->util = $util;
 
         try {
-            // Check if user has course access
-            $report = $this->getReportById($courseId, $reportId);
-
             // Generate Twig Template
             $html = $this->renderView(
                     'report.html.twig',

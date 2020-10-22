@@ -7,12 +7,6 @@
 {% endblock %}
 
 {% block body %}
-
 <div id="root"></div>
-
-<div class="messages">
-<h4 class="message">Messages</h4>
-<textarea style="width:90%; height:200px;">{{ data.messages|json_encode(constant('JSON_PRETTY_PRINT')) }}</textarea>
-</div>
-
+<div class="messages"></div>
 {% endblock %}

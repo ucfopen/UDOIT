@@ -188,4 +188,26 @@ class UtilityService {
 
         return $tmpPath;
     }
+
+    public function getTranslation($lang = 'en')
+    {
+        $translation = [];
+
+        try {
+            $filepath = "../translations/" . $lang . ".json";
+            if (file_exists($filepath)) {
+                $file = fopen($filepath, "r");
+                $json = fread($file, filesize($filepath));
+                
+                 $translation = \json_decode($json);
+            } else {
+                throw new \Exception("Translation for language `{$lang}` cannot be found.");
+            }
+        } 
+        catch (\Exception $e) {
+            $this->createMessage($e->getMessage(), 'error');
+        }
+
+        return $translation;
+    }
 }

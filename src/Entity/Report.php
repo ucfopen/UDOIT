@@ -80,6 +80,11 @@ class Report implements \JsonSerializable
      */
     public function jsonSerialize()
     {
+        return $this->toArray();
+    }
+
+    public function toArray($includeIssues = false) 
+    {
         $result = [
             "id" => $this->id,
             "ready" => $this->ready,
@@ -88,7 +93,7 @@ class Report implements \JsonSerializable
             "suggestions" => $this->suggestions
         ];
 
-        if($this->includeIssues) {
+        if ($includeIssues) {
             $result += $this->getAdditionalData();
         }
 

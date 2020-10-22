@@ -291,12 +291,12 @@ class Institution implements JsonSerializable
 
     public function getMetadata(): ?string
     {
-        return $this->metadata;
+        return \json_decode($this->metadata, true);
     }
 
     public function setMetadata(?string $metadata): self
     {
-        $this->metadata = $metadata;
+        $this->metadata = \json_encode($metadata);
 
         return $this;
     }

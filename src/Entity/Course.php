@@ -91,7 +91,7 @@ class Course implements \JsonSerializable
             "lastUpdated" => (!empty($this->lastUpdated)) ? $this->lastUpdated->format('c') : false,
             "active" => $this->active,
             "dirty" => $this->dirty,
-            "contentItems" => (!empty($this->contentItems)) ? $this->contentItems->toArray() : [],
+            //"contentItems" => (!empty($this->contentItems)) ? $this->contentItems->toArray() : [],
         ];
     }
 

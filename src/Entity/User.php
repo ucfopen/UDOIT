@@ -244,7 +244,7 @@ class User implements UserInterface, \Serializable, JsonSerializable
             'username' => $this->username,
             'lmsUserId' => $this->lmsUserId,
             'roles' => $this->getRoles(),
-            'institution' => $this->getInstitution(),
+            //'institution' => $this->getInstitution(),
         ];
     }
 

@@ -86,13 +86,13 @@ class ContentItem implements \JsonSerializable
      */
     public function jsonSerialize()
     {
-        return $array = [
+        return [
             'id' => $this->getId(),
             'title' => $this->getTitle(),
             'contentType' => $this->getContentType(),
             'lmsContentId' => $this->getLmsContentId(),
             'updated' => $this->getUpdated()->format('c'),
-            //'active' => $this->getActive()
+            'status' => $this->getActive(),
         ];
     }
 
