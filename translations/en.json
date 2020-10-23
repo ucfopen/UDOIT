@@ -40,8 +40,8 @@
   "button.get_started": "Get Started",
   "button.save_pdf": "Save PDF",
 
-  "form.hide_fixed": "Hide Fixed Issues",
-  "form.hide_unpublished": "Hide Unpublished Content",
+  "label.hide_fixed": "Hide Fixed Issues",
+  "label.hide_unpublished": "Hide Unpublished Content",
 
   "rule.label.AnchorLinksToMultiMediaRequireTranscript": "Anchor Links To MultiMedia Require Transcripts",
   "rule.label.AnchorLinksToSoundFilesNeedTranscripts": "Anchor Links To Sound Files Need Transcripts",

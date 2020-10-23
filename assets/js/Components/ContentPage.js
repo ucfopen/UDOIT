@@ -5,6 +5,7 @@ import SortableTable from './SortableTable'
 import ContentPageForm from './ContentPageForm'
 import ContentTrayForm from './ContentTrayForm'
 import { View } from '@instructure/ui-view'
+import { Tag } from '@instructure/ui-tag'
 
 class ContentPage extends React.Component {
   constructor(props) {
@@ -18,10 +19,10 @@ class ContentPage extends React.Component {
       searchTerm: '',
       filters: {
         contentTypes: [],
-        hideUnpublishedContentItems: true,
         issueTypes: [],
         issueTitles: [],
         hideFixed: true,
+        hideUnpublishedContentItems: true,
       },
       tableSettings: {
         sortBy: 'scanRuleLabel',
@@ -161,6 +162,9 @@ class ContentPage extends React.Component {
           handleTrayToggle={this.handleTrayToggle} 
           searchTerm={this.state.searchTerm}
           t={this.props.t} />
+        <View as="div" key="filterTags">
+          {this.renderFilterTags()}
+        </View>
         <SortableTable
           caption="Issue Table"
           headers = {headers}
@@ -200,6 +204,66 @@ class ContentPage extends React.Component {
       issueTitles: [],
       hideFixed: false,
     };
+  }
+
+  renderFilterTags() {
+    let tags = [];
+
+    for (const contentType of this.state.filters.contentTypes) {
+      //let label = this.props.t('label.content_type') + ': ' + this.props.t(`label.plural.${id}`);
+      const id = `contentTypes||${contentType}`;
+      tags.push({ id: id, label: this.props.t(`label.plural.${contentType}`)});
+    }
+
+    for (const issueType of this.state.filters.issueTypes) {
+      const id = `issueTypes||${issueType}`
+      tags.push({ id: id, label: this.props.t(`label.plural.${issueType}`)});
+    }
+
+    for (const ruleId of this.state.filters.issueTitles) {
+      const id = `issueTitles||${ruleId}`
+      tags.push({ id: id, label: this.props.t(`rule.label.${ruleId}`) });
+    }
+
+    if (this.state.filters.hideFixed) {
+      tags.push({ id: `hideFixed||true`, label: this.props.t(`label.hide_fixed`)});
+    }
+    if (this.state.filters.hideUnpublishedContentItems) {
+      tags.push({ id: `hideUnpublishedContentItems||true`, label: this.props.t(`label.hide_unpublished`) });
+    }
+
+    return tags.map((tag) => (
+      <Tag margin="0 small small 0" 
+        text={tag.label} 
+        dismissible={true} 
+        onClick={(e) => this.handleTagClick(tag.id, e)}
+        key={tag.id} />
+    ));
+  }
+
+  handleTagClick(tagId, e) {
+    let [filterType, filterId] = tagId.split('||');
+    let results = null;
+
+    switch (filterType) {
+      case 'contentTypes':
+        results = this.state.filters.contentTypes.filter((val) => filterId !== val);
+        break;
+      case 'issueTypes':
+        results = this.state.filters.issueTypes.filter((val) => filterId !== val);
+        break;
+      case 'issueTitles':
+        results = this.state.filters.issueTitles.filter((val) => filterId !== val);
+        break;
+      case 'hideFixed':
+        results = false;
+        break;
+      case 'hideUnpublishedContentItems':
+        results = false;
+        break;
+    }
+
+    this.handleFilter({ [filterType]: results });
   }
 }
 

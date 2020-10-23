@@ -75,14 +75,15 @@ class SummaryPage extends React.Component {
   render() {
     const report = this.props.report;
     this.processReportData(report);
-    const reportDate = new Date(report.created);
+    const date = new Date(report.created);
+    const dateParts = date.toISOString().split('T');
 
     return (
       <View as="div" padding="small 0">
         <Flex alignItems="start">
           <Flex.Item shouldGrow shouldShrink>
-            <Heading>{this.props.t('label.summary')}</Heading>        
-            <View as="div" margin="small 0">{reportDate.toDateString()}</View>
+            <Heading>{this.props.t('label.summary')} <Pill>{dateParts[0]}</Pill></Heading>        
+            <View as="div" margin="small 0"></View>
           </Flex.Item>
           <Flex.Item>
             <Button onClick={this.handleTabSwitch} color="primary" textAlign="center" >{this.props.t('button.get_started')}</Button>
@@ -91,7 +92,7 @@ class SummaryPage extends React.Component {
 
         {/* Total Counts */}
         <View as="div" margin="medium">
-          <MetricGroup>
+          <MetricGroup lineHeight="2">
             <Metric renderLabel={this.props.t('label.plural.error')} renderValue={report.errors} />
             <Metric renderLabel={this.props.t('label.plural.suggestion')} renderValue={report.suggestions} />
             <Metric renderLabel={this.props.t('label.fixed')} renderValue={report.fixed} />
