@@ -1,7 +1,6 @@
 import React from 'react'
 import WelcomePage from './WelcomePage'
 import Header from './Header'
-import UfixitModal from './UfixitModal'
 import Ufixit from '../Services/UFIXIT'
 import { Tabs } from '@instructure/ui-tabs'
 import SummaryPage from './SummaryPage'
@@ -105,15 +104,6 @@ const Display = (props) => {
   const tabIndex = props.tabIndex;
   const ufixitService = new Ufixit();
 
-  let testIssue = {
-    "id": 15320,
-    "status": false,
-    "contentItemId": 84,
-    "scanRuleId": "aTagHasNoLink",
-    "type": "error",
-    "sourceHtml": <a href="">Learn More About the Rich Content Editor</a>
-  }
-
   if(hasReport) {
     return (
       <div>
@@ -130,14 +120,6 @@ const Display = (props) => {
           <ContentPage report={props.report} settings={props.settings} filters={props.filters} handleFilters={props.handleFilters}></ContentPage>
         </Tabs.Panel>
         <Tabs.Panel renderTitle="Files" isSelected={tabIndex === 2}>
-          <UfixitModal
-          activeIssue={testIssue}
-          index={2}
-          totalCount={18}
-          ufixitService={ufixitService}
-          >
-
-          </UfixitModal>
         </Tabs.Panel>
         </Tabs>
       </div>
