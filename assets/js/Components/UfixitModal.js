@@ -24,7 +24,7 @@ class UfixitModal extends React.Component {
           <Modal.Header>
               <Heading>Review Issue</Heading>
 
-              <p>Issue {this.props.index} of {this.props.totalCount} | Status = {this.props.activeIssue.status}</p>
+              <p>Issue {this.props.index} of {this.props.totalCount} | Status = {this.props.activeIssue.status === false ? 'Unreviewed' : 'Reviewed'}</p>
           </Modal.Header>
 
           <Modal.Body>
