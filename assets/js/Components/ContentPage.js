@@ -41,7 +41,8 @@ class ContentPage extends React.Component {
     visibilityFilters.search_term = e.target.value;
     
     // // Set search term filter
-    this.props.handleFilters(visibilityFilters);
+    // this.props.handleFilters(visibilityFilters);
+    console.log(e.target.value);
   };
 
   getContentById = (contentList, contentId) => {

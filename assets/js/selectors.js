@@ -95,7 +95,7 @@ export const getIssueTypes = (state, section, type, issueTypes) => {
 }
 
 // Filters content based on multiple parameters
-export const getFilteredContent = (state) => {
+export const getFilteredContent = (report) => {
     var filteredList = [];
     var issueList = Object.assign({}, state.issueList);
     
