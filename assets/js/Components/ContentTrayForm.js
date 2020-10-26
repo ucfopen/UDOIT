@@ -10,7 +10,7 @@ import IssueRuleSelect from './IssueRuleSelect';
 const contentTypes = [
   'announcement',
   'assignment',
-  'discussion',
+  'discussion_topic',
   'file',
   'page',  
   'quiz',

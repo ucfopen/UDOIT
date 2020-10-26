@@ -34,6 +34,7 @@
         "@instructure/ui-navigation": "^7.1.1",
         "@instructure/ui-pagination": "^7.2.4",
         "@instructure/ui-pill": "^7.1.2",
+        "@instructure/ui-position": "^7.2.4",
         "@instructure/ui-progress": "^7.1.2",
         "@instructure/ui-responsive": "^7.1.3",
         "@instructure/ui-table": "^7.1.2",

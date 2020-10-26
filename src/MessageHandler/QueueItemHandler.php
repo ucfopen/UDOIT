@@ -42,7 +42,7 @@ class QueueItemHandler implements MessageHandlerInterface
         $courseId = $item->getCourseId();
         $courseRepository = $this->entityManager->getRepository(Course::class);  
         $course = $courseRepository->find($courseId);
-
+        
         switch ($task) {
             case 'refreshContent':
                 $this->lmsApi->refreshLmsContent($course, $user);

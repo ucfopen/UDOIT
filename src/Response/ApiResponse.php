@@ -39,9 +39,14 @@ class ApiResponse implements \JsonSerializable
         $this->errors[] = $error;
     }
 
-    public function addMessage($msg)
+    public function addMessage($msg, $severity = 'info', $timeout = 10000, $visible = true)
     {
-        $this->messages[] = $msg;
+        $this->messages[] = [
+            'message' => $msg,
+            'severity' => $severity,
+            'timeout' => $timeout,
+            'visible' => $visible,
+        ];
     }
 
     public function setData($data)

@@ -1,13 +1,13 @@
 import React from 'react';
 import { Button } from '@instructure/ui-buttons'
-import { IconCheckLine, IconInfoBorderlessLine, IconNoLine } from '@instructure/ui-icons'
+import { IconCheckLine, IconInfoBorderlessLine, IconEndLine } from '@instructure/ui-icons'
 import SortableTable from './SortableTable'
-import ContentPageForm from './ContentPageForm'
-import ContentTrayForm from './ContentTrayForm'
+import FilePageForm from './FilePageForm'
+import FileTrayForm from './FileTrayForm'
 import { View } from '@instructure/ui-view'
 import { Tag } from '@instructure/ui-tag'
 
-class ContentPage extends React.Component {
+class FilePage extends React.Component {
   constructor(props) {
     super(props);
 
@@ -18,14 +18,11 @@ class ContentPage extends React.Component {
       trayOpen: false,
       searchTerm: '',
       filters: {
-        contentTypes: [],
-        issueTypes: [],
-        issueTitles: [],
-        hideFixed: true,
-        hideUnpublishedContentItems: true,
+        fileTypes: [],
+        hideFixed: true
       },
       tableSettings: {
-        sortBy: 'scanRuleLabel',
+        sortBy: 'filename',
         ascending: true,
         pageNum: 0,
       }
@@ -38,11 +35,6 @@ class ContentPage extends React.Component {
   }
 
   componentDidMount() {
-    if (Object.keys(this.props.appFilters).length > 0) {
-      const newFilters = Object.assign({}, this.resetFilters(), this.props.appFilters);
-      this.props.handleAppFilters({});
-      this.setState({ filters: newFilters });
-    }
   }
 
   handleSearchTerm = (e, val) => {
@@ -57,7 +49,7 @@ class ContentPage extends React.Component {
     this.setState({
       filters: Object.assign({}, this.state.filters, filter),
       tableSettings: {
-        sortBy: 'scanRuleLabel',
+        sortBy: 'filename',
         ascending: true,
         pageNum: 0,
       }
@@ -129,7 +121,7 @@ class ContentPage extends React.Component {
       }
 
       const status = (issue.status) ? <IconCheckLine color="success" /> : 
-        ('error' === issue.type) ? <IconNoLine color="error" /> : <IconInfoBorderlessLine color="alert" />;
+        ('error' === issue.type) ? <IconEndLine color="error" /> : <IconInfoBorderlessLine color="alert" />;
 
       filteredList.push(
         {

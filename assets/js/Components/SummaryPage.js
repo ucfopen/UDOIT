@@ -8,6 +8,7 @@ import { View } from '@instructure/ui-view'
 import { Flex } from '@instructure/ui-flex'
 import { MetricGroup, Metric } from '@instructure/ui-metric'
 import { Link } from '@instructure/ui-link'
+import { IconInfoBorderlessLine, IconNoLine } from '@instructure/ui-icons'
 
 const contentTypes = [
   "announcement",
@@ -24,12 +25,6 @@ class SummaryPage extends React.Component {
   constructor(props) {
     super(props);
 
-    this.contentResults = {};
-    this.issueResults = {
-      error: [],
-      suggestion: []
-    };
-
     this.handleContentTypeLink = this.handleContentTypeLink.bind(this);
     this.handleIssueTypeLink = this.handleIssueTypeLink.bind(this);
     this.handleTabSwitch = this.handleTabSwitch.bind(this);
@@ -41,10 +36,20 @@ class SummaryPage extends React.Component {
       suggestion: {}
     };
 
+    this.contentResults = {};
+    this.issueResults = {
+      error: [],
+      suggestion: []
+    };
+
     if (report && report.issues) {
       for (let issueId in report.issues) {
         const issue = report.issues[issueId];
         const contentItem = report.contentItems[issue.contentItemId];
+
+        if (issue.status) {
+          continue;
+        }
 
         if (contentItem && contentItem.contentType) {
           if (!this.contentResults[contentItem.contentType]) {
@@ -62,13 +67,16 @@ class SummaryPage extends React.Component {
         issueResults[issue.type][issue.scanRuleId]++;
       }
 
+      
       for (const type in issueResults) {
         for (const ruleId in issueResults[type]) {
           this.issueResults[type].push([ruleId, issueResults[type][ruleId]]);
         }
       }
+
       this.issueResults.error.sort((a, b) => (a[1] > b[1]) ? -1 : 1 );
       this.issueResults.suggestion.sort((a, b) => (a[1] > b[1]) ? -1 : 1);
+      
     }
   }
 
@@ -157,7 +165,8 @@ class SummaryPage extends React.Component {
                   <Table.Head>
                     <Table.Row>
                         <Table.ColHeader id="issuesError">
-                          {this.props.t(`label.plural.${issueType}`)}
+                          {('error' === issueType ) ? <IconNoLine color="error" /> : <IconInfoBorderlessLine color="alert" />}
+                          <View padding="x-small">{this.props.t(`label.plural.${issueType}`)}</View>
                         </Table.ColHeader>
                     </Table.Row>
                   </Table.Head>
