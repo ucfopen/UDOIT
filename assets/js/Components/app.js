@@ -8,8 +8,7 @@ import Classes from '../../css/app.scss'
 import { Button } from '@instructure/ui-buttons'
 import { View } from '@instructure/ui-view'
 import Api from '../Services/Api';
-
-import '@instructure/canvas-theme';
+import MessageTray from './MessageTray'
 
 class App extends React.Component {
   constructor(props) {
@@ -32,6 +31,8 @@ class App extends React.Component {
 
     this.handleNavigation = this.handleNavigation.bind(this);
     this.handleAppFilters = this.handleAppFilters.bind(this);
+    this.clearMessages = this.clearMessages.bind(this);
+    this.addMessage = this.addMessage.bind(this);
     this.t = this.t.bind(this);
   }
 
@@ -41,7 +42,8 @@ class App extends React.Component {
     if (this.state.report) {
       return (
         <View as="div">
-          <Header/>
+          <Header />
+          <MessageTray messages={this.messages} t={this.t} clearMessages={this.clearMessages} />          
           <Tabs
             onRequestTabChange={this.handleTabChange}
             key="mainTabs"
@@ -114,9 +116,14 @@ class App extends React.Component {
           .then((response) => response.json())
           .then((data) => {
             if (data.messages) {
-              data.messages.map((msg) => {
-                console.log(msg);
-              })
+              data.messages.forEach((msg) => {
+                if (msg.visible) {
+                  this.addMessage(msg);
+                }
+                else {
+                  console.log('message', msg);
+                }
+              });
             }
             if (data.data && data.data.id) {
               this.hasNewReport = true;
@@ -166,6 +173,14 @@ class App extends React.Component {
 
   handleAppFilters = (filters) => {
     this.appFilters = filters;
+  }
+
+  addMessage = (msg) => {
+    this.messages.push(msg);
+  }
+
+  clearMessages = () => {
+    this.messages = [];
   }
 }
 

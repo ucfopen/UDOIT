@@ -59,7 +59,7 @@ class IssuesController extends ApiController
             $this->getDoctrine()->getManager()->flush();
 
             // Create response
-            $apiResponse->addMessage('Your fix has been saved.');
+            $apiResponse->addMessage('Your fix has been saved.', 'success');
             $apiResponse->setData(['issue' => $issue]);
         }
         catch(\Exception $e) {

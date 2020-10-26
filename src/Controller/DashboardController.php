@@ -52,6 +52,7 @@ class DashboardController extends AbstractController
 
             if ($course) {
                 $this->lmsApi->createApiRequests([$course], $user, true);
+                $this->util->createMessage('Content scan in progress...', 'info', $course, $user);
             }
         }
 

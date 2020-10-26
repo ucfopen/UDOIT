@@ -40,7 +40,7 @@ class IssueRuleSelect extends React.Component {
     const { selectedOptionIds } = this.state
     return this.props.options.filter(option => (
       selectedOptionIds.indexOf(option.id) === -1 // ignore selected options removed from list
-      && option.label.toLowerCase().startsWith(value.toLowerCase())
+      && option.label.toLowerCase().includes(value.toLowerCase())
     ))
   }
 

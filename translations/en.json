@@ -6,7 +6,7 @@
   "label.plural.page": "Pages",
   "label.plural.assignment": "Assignments",
   "label.plural.announcement": "Announcements",
-  "label.plural.discussion": "Discussions",
+  "label.plural.discussion_topic": "Discussions",
   "label.plural.file": "Files",
   "label.plural.quiz": "Quizzes",
   "label.plural.syllabus": "Syllabus",
@@ -16,7 +16,7 @@
   "label.page": "Page",
   "label.assignment": "Assignment",
   "label.announcement": "Announcement",
-  "label.discussion": "Discussion Topic",
+  "label.discussion_topic": "Discussion",
   "label.file": "File",
   "label.quiz": "Quiz",
   "label.syllabus": "Syllabus",
@@ -36,12 +36,16 @@
   "label.issue_type": "Issue Severity",
   "label.filter": "Filter",
   "label.plural.filter": "Filters",
+  "label.close": "Close",
 
   "button.get_started": "Get Started",
   "button.save_pdf": "Save PDF",
 
-  "form.hide_fixed": "Hide Fixed Issues",
-  "form.hide_unpublished": "Hide Unpublished Content",
+  "msg.no_permissions": "You do not have permission to access the specified course.",
+  "msg.course_scanning": "Course scanning...",
+
+  "label.hide_fixed": "Hide Fixed Issues",
+  "label.hide_unpublished": "Hide Unpublished Content",
 
   "rule.label.AnchorLinksToMultiMediaRequireTranscript": "Anchor Links To MultiMedia Require Transcripts",
   "rule.label.AnchorLinksToSoundFilesNeedTranscripts": "Anchor Links To Sound Files Need Transcripts",

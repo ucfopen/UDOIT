@@ -76,17 +76,23 @@ class ReportsController extends ApiController
         try {
             // Check if user has course access
             if (!$this->userHasCourseAccess($course)) {
-                throw new \Exception("You do not have permission to access the specified course.");
+                throw new \Exception('msg.no_permissions'); //"You do not have permission to access the specified course.");
             }
 
             if ($course->isDirty()) {
-                throw new \Exception('Course syncing...');
+                throw new \Exception('msg.course_scanning');
             }
             
             $report = $course->getLatestReport();
             $apiResponse->setData($report->toArray(true));
+            $apiResponse->addMessage('Scan complete. No new content found.', 'success');
         } catch (\Exception $e) {
-            $apiResponse->addMessage($e->getMessage());
+            if ('msg.course_scanning' === $e->getMessage()) {
+                $apiResponse->addMessage($e->getMessage(), 'info', 0, false);
+            }
+            else {
+                $apiResponse->addMessage($e->getMessage(), 'alert', 0);
+            }
         }
 
         // Construct Response
