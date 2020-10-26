@@ -1,5 +1,4 @@
 import React from 'react';
-import Ufixit from '../Services/UFIXIT'
 import { Modal } from '@instructure/ui-modal'
 import { Heading } from '@instructure/ui-heading'
 import { Button } from '@instructure/ui-buttons'
@@ -20,7 +19,7 @@ class UfixitModal extends React.Component {
       <div>
         <Modal
         open="true"
-        size="auto">
+        size="large">
           <Modal.Header>
               <Heading>Review Issue</Heading>
 
@@ -32,7 +31,7 @@ class UfixitModal extends React.Component {
           </Modal.Body>
 
           <Modal.Footer>
-            <Button>Close</Button>
+            <Button color="alert">Close</Button>
             <Button>Previous Issue</Button>
             <Button>Next Issue</Button>
           </Modal.Footer>

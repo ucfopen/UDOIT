@@ -1,7 +1,6 @@
 import React from 'react'
 import WelcomePage from './WelcomePage'
 import Header from './Header'
-import Ufixit from '../Services/UFIXIT'
 import { Tabs } from '@instructure/ui-tabs'
 import SummaryPage from './SummaryPage'
 import ContentPage from './ContentPage';
@@ -102,7 +101,6 @@ class App extends React.Component {
 const Display = (props) => {
   const hasReport = props.hasReport;
   const tabIndex = props.tabIndex;
-  const ufixitService = new Ufixit();
 
   if(hasReport) {
     return (

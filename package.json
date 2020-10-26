@@ -35,6 +35,7 @@
         "@instructure/ui-responsive": "^7.1.3",
         "@instructure/ui-table": "^7.1.2",
         "@instructure/ui-tabs": "^7.1.1",
+        "@instructure/ui-text-area": "^7.3.0",
         "@instructure/ui-text-input": "^7.1.2",
         "axios": "^0.19.2",
         "moment": "^2.27.0",
