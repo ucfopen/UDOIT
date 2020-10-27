@@ -20,7 +20,8 @@ class UfixitModal extends React.Component {
         <div>
           <Modal
           open={this.props.open}
-          size="large">
+          size="large"
+          label="A form for fixing the current issue">
             <Modal.Header>
                 <Heading>Review Issue</Heading>
                 
@@ -32,7 +33,7 @@ class UfixitModal extends React.Component {
             </Modal.Body>
   
             <Modal.Footer>
-              <Button color="alert" onClick={this.props.handleCloseButton}>Close</Button>
+              <Button color="danger" onClick={this.props.handleCloseButton}>Close</Button>
               <Button>Previous Issue</Button>
               <Button>Next Issue</Button>
             </Modal.Footer>
