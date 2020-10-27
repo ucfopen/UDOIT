@@ -49,7 +49,16 @@
         "scanRuleId": "ParagraphNotUsedAsHeader",
         "type": "suggestion",
         "sourceHtml": "\u003Cp\u003E\u003Cstrong\u003EGoogle \u003Ca href=\u0022https://google.com\u0022\u003ESerch\u003C/a\u003E\u003Ca href=\u0022https://google.com\u0022\u003EGoogle\u003C/a\u003E \u003C/strong\u003E\u003C/p\u003E"
+      },
+      "15322":{
+        "id": 15322,
+        "status": false,
+        "contentItemId": 84,
+        "scanRuleId": "aTagHasNoLink",
+        "type": "error",
+        "sourceHtml": "<a href=''>Learn More About the Rich Content Editor</a>"
       }
+    
     },
     "contentItems": {
       "48": {

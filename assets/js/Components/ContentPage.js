@@ -2,7 +2,10 @@ import React from 'react';
 import classes from '../../css/contentPage.scss';
 import { TextInput } from '@instructure/ui-text-input'
 import { Checkbox } from '@instructure/ui-checkbox'
-import SortableTable from './SortableTable'
+import UfixitModal from './UfixitModal';
+import Ufixit from '../Services/UFIXIT';
+import SortableTable from './SortableTable';
+import { Button } from '@instructure/ui-buttons'
 
 class ContentPage extends React.Component {
   constructor(props) {
@@ -12,13 +15,33 @@ class ContentPage extends React.Component {
       notFixedErrorsOnly: false,
       textInputValue: "",
       filteredIssues: [],
-      activeIssue: null
+      activeIssue: null,
+      modalOpen: false,
+      activeIndex: 0
     }
+
+    this.handleReviewButton = this.handleReviewButton.bind(this);
+    this.handleCloseButton = this.handleCloseButton.bind(this);
   }
 
   componentDidMount() {
     this.setState({
       filteredIssues: this.getFilteredContent(this.props.report, this.props.filters)
+    })
+  }
+
+  // Opens the modal with the appropriate form based on the issue passed in
+  handleReviewButton = (activeIssue, activeIndex) => {
+    this.setState({
+      modalOpen: true,
+      activeIssue: activeIssue,
+      activeIndex: activeIndex
+    })
+  }
+
+  handleCloseButton = () => {
+    this.setState({
+      modalOpen: false
     })
   }
 
@@ -86,8 +109,20 @@ class ContentPage extends React.Component {
 
   render() {
     const headers = [{id: "status", text: "Status"},{id: "scanRuleId", text: "Issue"}, {id: "contentType", text: "Content Type"}, {id: "contentTitle", text: "Content Title"}, {id: "type", text: "Severity"}];
+    const UfixitService = new Ufixit();
     return (
       <div>
+        <Button onClick={() => this.handleReviewButton(this.state.filteredIssues[0], 1)}>Testing</Button>
+        <UfixitModal
+        open={this.state.modalOpen}
+        activeIssue={this.state.activeIssue}
+        index={this.state.activeIndex}
+        ufixitService={UfixitService}
+        totalCount={this.state.filteredIssues.length}
+        handleCloseButton={this.handleCloseButton}
+        >
+
+        </UfixitModal>
         <div className={`${classes.summaryContainer}`}>
           <div className={`${classes.row}`}>
             <TextInput
