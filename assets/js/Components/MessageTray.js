@@ -13,11 +13,12 @@ class MessageTray extends React.Component {
   }
 
   render() {
+    console.log('msgs', this.props.messages);
     return (
       <View as="div">
         {this.props.messages.map((msg, i) => 
           <Alert variant={msg.severity} 
-            timeout={(msg.timeout) ? 10000 : 0} 
+            timeout={msg.timeout} 
             renderCloseButtonLabel={this.props.t('label.close')} 
             onDismiss={this.props.clearMessages}
             margin="small large"

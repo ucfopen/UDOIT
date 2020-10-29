@@ -276,6 +276,7 @@ class Report implements \JsonSerializable
             'issues' => $issues,
             'contentItems' => $contentItems,
             'fixed' => $fixedCount,
+            'files' => $this->getCourse()->getFileItems(),
         ];
     }
 }

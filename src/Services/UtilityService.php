@@ -210,4 +210,13 @@ class UtilityService {
 
         return $translation;
     }
+
+    public function getUnscannableFileMimeClasses()
+    {
+        return [
+            'pdf',
+            'ppt',
+            'doc',
+        ];
+    }
 }

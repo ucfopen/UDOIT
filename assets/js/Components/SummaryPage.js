@@ -132,7 +132,7 @@ class SummaryPage extends React.Component {
                         <Flex.Item shouldGrow shouldShrink>
                           <Link 
                             isWithinText={false}
-                            onClick={() => this.handleContentTypeLink(key)}>{this.props.t(`label.plural.${key}`)}</Link>
+                            onClick={() => this.handleContentTypeLink(key)}>{this.props.t(`content.plural.${key}`)}</Link>
                         </Flex.Item>
                         <Flex.Item>
                           <Link onClick={() => this.handleIssueTypeLink(key, 'suggestion')}>

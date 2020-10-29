@@ -5,6 +5,8 @@ namespace App\Controller;
 
 use App\Entity\Course;
 use App\Entity\Report;
+use App\Repository\ContentItemRepository;
+use App\Repository\FileItemRepository;
 use App\Response\ApiResponse;
 use App\Services\UtilityService;
 use Knp\Bundle\SnappyBundle\Snappy\Response\PdfResponse;
@@ -70,7 +72,7 @@ class ReportsController extends ApiController
      * 
      * @return JsonResponse
      */
-    public function getLatestReport(Course $course)
+    public function getLatestReport(FileItemRepository $fileItemRepo, Course $course)
     {
         $apiResponse = new ApiResponse();
         try {
@@ -83,9 +85,11 @@ class ReportsController extends ApiController
                 throw new \Exception('msg.course_scanning');
             }
             
-            $report = $course->getLatestReport();
-            $apiResponse->setData($report->toArray(true));
-            $apiResponse->addMessage('Scan complete. No new content found.', 'success');
+            $report = $course->getLatestReport()->toArray(true);
+            $report['files'] = $fileItemRepo->findByCourse($course);
+
+            $apiResponse->setData($report);
+            $apiResponse->addMessage('Scan complete. No new content found.', 'success', 5000);
         } catch (\Exception $e) {
             if ('msg.course_scanning' === $e->getMessage()) {
                 $apiResponse->addMessage($e->getMessage(), 'info', 0, false);

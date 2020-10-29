@@ -26,7 +26,7 @@ class AuthController extends AbstractController
     private $lmsApi;
 
     /**
-     * @Route("/authorize", name="authorize")
+     * @Route("/authorize/oauth", name="authorize")
      */
     public function authorize(
         Request $request,
@@ -54,7 +54,6 @@ class AuthController extends AbstractController
         $apiClientId = $institution->getApiClientId();
         $redirectUri = $this->lmsApi->getOauthRedirectUri();
         $scopes = $lmsApi->getLms()->getScopes();
-
         $oauthUri = "https://{$this->session->get('lms_api_domain')}/login/oauth2/auth/?client_id={$apiClientId}&scopes={$scopes}&response_type=code&redirect_uri={$redirectUri}";
 
         return $this->redirect($oauthUri);

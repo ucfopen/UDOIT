@@ -3,8 +3,11 @@
 namespace App\Controller;
 
 use App\Entity\Course;
+use App\Repository\ContentItemRepository;
+use App\Repository\FileItemRepository;
 use App\Services\LmsApiService;
 use App\Services\UtilityService;
+use App\Services\ContentService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
@@ -23,11 +26,13 @@ class DashboardController extends AbstractController
      */
     public function index(
         UtilityService $util,
-        LmsApiService $lmsApi)
+        LmsApiService $lmsApi,
+        FileItemRepository $fileItemRepo)
     {
         $this->util = $util;
         $this->lmsApi = $lmsApi;
         $reports = [];
+        $reportArr = false;
 
         $user = $this->getUser();
 
@@ -41,25 +46,27 @@ class DashboardController extends AbstractController
 
             if ($course) {
                 $activeReport = $course->getLatestReport();
-                $reportArr = $activeReport->toArray(true);
-                $reports = $course->getReports();
+                if ($activeReport) {
+                    $reportArr = $activeReport->toArray(true);
+                    $reportArr['files'] = $fileItemRepo->findByCourse($course);
+                    $reports = $course->getReports()->toArray();
+                }
             }
             else {
                 $institution = $user->getInstitution();
                 $course = $this->util->createCourse($institution, $lmsCourseId);
-                $reportArr = false;
             }
 
             if ($course) {
                 $this->lmsApi->createApiRequests([$course], $user, true);
-                $this->util->createMessage('Content scan in progress...', 'info', $course, $user);
+                // $this->util->createMessage('Content scan in progress...', 'info', $course, $user);
             }
         }
 
         return $this->render('default/index.html.twig', [
             'data' => [
                 'report' => $reportArr,
-                'reports' => $reports->toArray(),
+                'reports' => $reports,
                 'settings' => $this->getSettings($course),
                 'messages' => $this->util->getUnreadMessages(true),
             ],

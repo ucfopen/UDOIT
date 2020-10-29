@@ -66,11 +66,6 @@ class ContentItem implements \JsonSerializable
      */
     private $body;
 
-    /**
-     * @ORM\Column(type="string", length=255, nullable=true)
-     */
-    private $filePath;
-
 
     // Constructor
     public function __construct()
@@ -249,18 +244,6 @@ class ContentItem implements \JsonSerializable
         catch (\Exception $e) {
             
         }
-
-        return $this;
-    }
-
-    public function getFilePath(): ?string
-    {
-        return $this->filePath;
-    }
-
-    public function setFilePath(?string $filePath): self
-    {
-        $this->filePath = $filePath;
 
         return $this;
     }

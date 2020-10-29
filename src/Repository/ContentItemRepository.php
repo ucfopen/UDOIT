@@ -22,8 +22,7 @@ class ContentItemRepository extends ServiceEntityRepository
 
     public function setCourseContentInactive(Course $course)
     {
-        $em = $this->getEntityManager();
-        
+        $em = $this->getEntityManager();        
         $query = $em->createQuery('UPDATE App\Entity\ContentItem c SET c.active=0 WHERE c.course=:course')
             ->setParameter(':course', $course);
         
@@ -72,6 +71,25 @@ class ContentItemRepository extends ServiceEntityRepository
             ->andWhere('c.active = 1')
             ->setParameter('course', $course)
             ->setParameter('updated', $lastUpdated)
+            ->getQuery()
+            ->getResult();
+    }
+
+    /**
+     * Find content items by content type
+     *
+     * @param Course $course
+     * @param [type] $contentType
+     * @return \App\Entity\ContentItem[]
+     */
+    public function findByContentType(Course $course, $contentType)
+    {
+        return $this->createQueryBuilder('c')
+            ->andWhere('c.course = :course')
+            ->andWhere('c.active = 1')
+            ->andWhere('c.contentType = :contentType')
+            ->setParameter('course', $course)
+            ->setParameter('contentType', $contentType)
             ->getQuery()
             ->getResult();
     }
