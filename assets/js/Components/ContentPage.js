@@ -6,6 +6,8 @@ import ContentPageForm from './ContentPageForm'
 import ContentTrayForm from './ContentTrayForm'
 import { View } from '@instructure/ui-view'
 import { Tag } from '@instructure/ui-tag'
+import UfixitModal from './UfixitModal';
+import Ufixit from '../Services/UFIXIT';
 
 class ContentPage extends React.Component {
   constructor(props) {
@@ -16,6 +18,8 @@ class ContentPage extends React.Component {
     this.state = {
       activeIssue: null,
       trayOpen: false,
+      modalOpen: false,
+      activeIndex: 0,
       searchTerm: '',
       filters: {
         contentTypes: [],
@@ -47,6 +51,21 @@ class ContentPage extends React.Component {
 
   handleSearchTerm = (e, val) => {
     this.setState({searchTerm: val, filteredIssues: []});
+  }
+
+  // Opens the modal with the appropriate form based on the issue passed in
+  handleReviewButton = (activeIssue, activeIndex) => {
+    this.setState({
+      modalOpen: true,
+      activeIssue: activeIssue,
+      activeIndex: activeIndex
+    })
+  }
+
+  handleCloseButton = () => {
+    this.setState({
+      modalOpen: false
+    })
   }
 
   handleTrayToggle = (e, val) => {
@@ -154,6 +173,7 @@ class ContentPage extends React.Component {
       {id: "action", text: "", alignText: "end"}
     ];
     const filteredIssues = this.getFilteredContent();
+    const UfixitService = new Ufixit();
 
     return (
       <View as="div" key="contentPageFormWrapper">
@@ -182,6 +202,14 @@ class ContentPage extends React.Component {
           handleTrayToggle={this.handleTrayToggle} 
           t={this.props.t}
           key="contentTrayForm" />
+        <UfixitModal
+          open={this.state.modalOpen}
+          activeIssue={this.state.activeIssue}
+          index={this.state.activeIndex}
+          ufixitService={UfixitService}
+          totalCount={this.state.filteredIssues.length}
+          handleCloseButton={this.handleCloseButton}
+          />
       </View>
     )
   }

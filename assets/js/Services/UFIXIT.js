@@ -18,6 +18,7 @@ export default class Ufixit {
                 return <AltTextShouldNotBeFileName activeIssue={activeIssue}></AltTextShouldNotBeFileName>
             case 'videoProvidesCaptions':
                 return <VideoProvidesCaptions activeIssue={activeIssue}></VideoProvidesCaptions>
+            default: return(<div><p>Issue Form Not Located</p></div>)
         }
     }
 }
