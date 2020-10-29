@@ -9,6 +9,7 @@ import { Button } from '@instructure/ui-buttons'
 import { View } from '@instructure/ui-view'
 import Api from '../Services/Api';
 import MessageTray from './MessageTray'
+import FilesPage from './FilesPage'
 
 class App extends React.Component {
   constructor(props) {
@@ -70,8 +71,13 @@ class App extends React.Component {
                 key="contentPage"></ContentPage>
             </Tabs.Panel>
             <Tabs.Panel renderTitle={this.t('label.plural.file')} isSelected={tabIndex === 2} key="filesTab">
-              FILES
-              {/* <Files/> */}
+              <FilesPage
+                report={this.state.report}
+                settings={this.settings}
+                navigation={this.state.navigation}
+                handleNavigation={this.handleNavigation}
+                t={this.t}
+                key="filesPage"></FilesPage>
             </Tabs.Panel>
           </Tabs>
         </View>
@@ -117,17 +123,16 @@ class App extends React.Component {
           .then((data) => {
             if (data.messages) {
               data.messages.forEach((msg) => {
+                console.log('message', msg);
                 if (msg.visible) {
                   this.addMessage(msg);
-                }
-                else {
-                  console.log('message', msg);
                 }
               });
             }
             if (data.data && data.data.id) {
               this.hasNewReport = true;
               clearInterval(intervalId);
+              console.log('report', data.data);
               this.setState({ report: data.data });
             }
           });

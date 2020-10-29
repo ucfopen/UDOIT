@@ -23,7 +23,7 @@ security:
             anonymous: true
 
         oauthAuthorize:
-            pattern: ^/authorize
+            pattern: /authorize/oauth
             anonymous: true
             guard:
                 authenticators:
@@ -31,7 +31,7 @@ security:
                 entry_point: App\Security\OauthAuthenticator
 
         oauthResponse:
-            pattern: ^/authorize/check
+            pattern: /authorize/check
             anonymous: true
             stateless: false
 

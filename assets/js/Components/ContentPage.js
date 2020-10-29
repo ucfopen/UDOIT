@@ -154,7 +154,7 @@ class ContentPage extends React.Component {
         {
           status,
           scanRuleLabel: this.props.t(`rule.label.${issue.scanRuleId}`),
-          contentType: this.props.t(`label.${contentItem.contentType}`),
+          contentType: this.props.t(`content.${contentItem.contentType}`),
           contentTitle: contentItem.title,
           action: <Button onClick={this.handleReviewClick} textAlign="center" >{this.props.t('label.review')}</Button>
         }
@@ -240,7 +240,7 @@ class ContentPage extends React.Component {
     for (const contentType of this.state.filters.contentTypes) {
       //let label = this.props.t('label.content_type') + ': ' + this.props.t(`label.plural.${id}`);
       const id = `contentTypes||${contentType}`;
-      tags.push({ id: id, label: this.props.t(`label.plural.${contentType}`)});
+      tags.push({ id: id, label: this.props.t(`content.plural.${contentType}`)});
     }
 
     for (const issueType of this.state.filters.issueTypes) {

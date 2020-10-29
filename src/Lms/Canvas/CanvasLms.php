@@ -4,9 +4,11 @@ namespace App\Lms\Canvas;
 
 use App\Entity\ContentItem;
 use App\Entity\Course;
+use App\Entity\FileItem;
 use App\Entity\User;
 use App\Lms\LmsInterface;
 use App\Repository\ContentItemRepository;
+use App\Repository\FileItemRepository;
 use App\Services\UtilityService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Security\Core\Security;
@@ -18,6 +20,9 @@ class CanvasLms implements LmsInterface {
 
     /** @var ContentItemRepository $contentItemRepo */
     private $contentItemRepo;
+
+    /** @var FileItemRepository $fileItemRepo */
+    private $fileItemRepo;
     
     /** @var EntityManagerInterface $entityManager */
     private $entityManager;
@@ -30,11 +35,13 @@ class CanvasLms implements LmsInterface {
 
     public function __construct(
         ContentItemRepository $contentItemRepo,
+        FileItemRepository $fileItemRepo,
         EntityManagerInterface $entityManager,
         UtilityService $util,
         Security $security)
     {
         $this->contentItemRepo = $contentItemRepo;
+        $this->fileItemRepo = $fileItemRepo;
         $this->entityManager = $entityManager;
         $this->util = $util;
         $this->security = $security;
@@ -133,13 +140,13 @@ class CanvasLms implements LmsInterface {
      * Get content from Canvas and update content items
      *
      * @param Course $course
+     * @param User $user
      * 
      * @return ContentItem[]
      */
     public function updateCourseContent(Course $course, User $user) 
     {
         $content = $contentItems = [];
-        //$courseUpdated = $course->getLastUpdated();
         $urls = $this->getCourseContentUrls($course->getLmsCourseId());
         $apiDomain = $this->getApiDomain($user);
         $apiToken = $this->getApiToken($user);
@@ -161,8 +168,15 @@ class CanvasLms implements LmsInterface {
                 }
 
                 foreach ($contentList as $content) {
+                    if (('file' === $contentType) && (in_array($content['mime_class'], $this->util->getUnscannableFileMimeClasses()))) {
+                        $this->updateFileItem($course, $content);
+                        continue;
+                    }
+
                     $lmsContent = $this->normalizeLmsContent($contentType, $content);
-                    if (!$lmsContent) { continue; }
+                    if (!$lmsContent) {
+                        continue; 
+                    }
 
                     /* get page content */
                     if ('page' === $contentType) {
@@ -176,10 +190,8 @@ class CanvasLms implements LmsInterface {
                     }
 
                     /* get HTML file content */
-                    if ('file' === $contentType) {
-                        if ('html' === $content['mime_class']) {
-                            $lmsContent['body'] = file_get_contents($content['url']);
-                        }
+                    if (('file' === $contentType) && ('html' === $content['mime_class'])) {
+                        $lmsContent['body'] = file_get_contents($content['url']);
                     }
 
                     $contentItem = $this->contentItemRepo->findOneBy([
@@ -196,10 +208,10 @@ class CanvasLms implements LmsInterface {
                         $this->entityManager->persist($contentItem);
                     }
 
-                    /* compare syllabus body to see if it's updated */
+                    // /* compare syllabus body to see if it's updated */
                     if ('syllabus' === $contentType) {
                         if ($contentItem->getBody() === $lmsContent['body']) {
-                            continue;
+                            $lmsContent['updated'] = $contentItem->getUpdated()->format('c');
                         }
                     }
 
@@ -213,6 +225,26 @@ class CanvasLms implements LmsInterface {
         $this->entityManager->flush();
 
         return $contentItems;
+    }
+
+    public function updateFileItem(Course $course, $file)
+    {
+        $fileItem = $this->fileItemRepo->findOneBy([
+            'lmsFileId' => $file['id'],
+            'course' => $course,
+        ]);
+
+        if (!$fileItem) {
+            $fileItem = new FileItem();
+            $fileItem->setCourse($course)
+                ->setFileName($file['filename'])
+                ->setFileType($file['mime_class'])
+                ->setLmsFileId($file['id']);
+            $this->entityManager->persist($fileItem);
+        }
+
+        $fileItem->update($file);
+        $this->entityManager->flush();
     }
 
     public function updateContentItem(ContentItem $contentItem) {
@@ -347,10 +379,18 @@ class CanvasLms implements LmsInterface {
             //     break;
 
             case 'file':
+                if ('html' !== $lmsContent['mime_class']) {
+                    break;
+                }
+
                 $out['id'] = $lmsContent['id'];
                 $out['title'] = $lmsContent['display_name'];
                 $out['updated'] = $lmsContent['updated_at'];
                 $out['body'] = '';
+
+                if (isset($lmsContent['mime_class'])) {
+                    $out['fileType'] = $lmsContent['mime_class'];
+                }
 
                 break;
         }

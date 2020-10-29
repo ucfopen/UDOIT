@@ -153,12 +153,12 @@ class LmsApiService {
 
         /* Step 2: Get list of changed content items */
         $contentItems = $contentItemRepo->getUpdatedContentItems($course);
-
+        
         /* Only continue if the new content needs to be scanned (not all files) */
         foreach ($contentItems as $contentItem) {
             if ($contentItem->getBody() != '') {
                 $hasContent = true;
-                continue;
+                break;
             }
         }
 

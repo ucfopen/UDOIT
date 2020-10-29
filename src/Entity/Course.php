@@ -66,12 +66,18 @@ class Course implements \JsonSerializable
      */
     private $reports;
 
+    /**
+     * @ORM\OneToMany(targetEntity=FileItem::class, mappedBy="course")
+     */
+    private $fileItems;
+
 
     // Constructor
     public function __construct()
     {
         $this->reports = new ArrayCollection();
         $this->contentItems = new ArrayCollection();
+        $this->fileItems = new ArrayCollection();
     }
 
 
@@ -250,5 +256,36 @@ class Course implements \JsonSerializable
     public function getLatestReport(): ?Report
     {
         return $this->reports->last() ?: null;
+    }
+
+    /**
+     * @return Collection|FileItem[]
+     */
+    public function getFileItems(): Collection
+    {
+        return $this->fileItems;
+    }
+
+    public function addFileItem(FileItem $fileItem): self
+    {
+        if (!$this->fileItems->contains($fileItem)) {
+            $this->fileItems[] = $fileItem;
+            $fileItem->setCourse($this);
+        }
+
+        return $this;
+    }
+
+    public function removeFileItem(FileItem $fileItem): self
+    {
+        if ($this->fileItems->contains($fileItem)) {
+            $this->fileItems->removeElement($fileItem);
+            // set the owning side to null (unless already changed)
+            if ($fileItem->getCourse() === $this) {
+                $fileItem->setCourse(null);
+            }
+        }
+
+        return $this;
     }
 }
