@@ -11,8 +11,6 @@ class SortableTable extends React.Component {
   
     handleSort = (event, { id }) => {
       const { sortBy, ascending } = this.props.tableSettings;
-  
-      console.log('Sort ID', id);
 
       if (['status', 'action'].includes(id)) {
         return;
@@ -30,31 +28,16 @@ class SortableTable extends React.Component {
   
     render() {
       const { caption, headers, rows } = this.props
+      const start = (this.props.tableSettings.pageNum * this.rowsPerPage)
       const { sortBy, ascending } = this.props.tableSettings
-      const direction = ascending ? 'ascending' : 'descending'
-      
-      const sortedRows = [...(rows || [])].sort((a, b) => {
-        if (a[sortBy].toLowerCase() < b[sortBy].toLowerCase()) {
-          return -1
-        }
-        if (a[sortBy].toLowerCase() > b[sortBy].toLowerCase()) {
-          return 1
-        }
-        return 0
-      });
-  
-      if (!ascending) {
-        sortedRows.reverse();
-      }
-
-      const start = (this.props.tableSettings.pageNum * this.rowsPerPage);
-      let pagedRows = sortedRows.slice(start, (start + this.rowsPerPage));
-      let pagination = this.renderPagination();
+      const direction = (ascending) ? 'ascending': 'descending'
+      let pagedRows = rows.slice(start, (start + this.rowsPerPage))
+      let pagination = this.renderPagination()
 
       return (
         <View as="div">
           <Table
-            caption={`${caption}: sorted by ${sortBy} in ${direction} order`}
+            caption={caption}
             // {...this.props}
           >
             <Table.Head renderSortLabel="Sort by">
@@ -74,9 +57,9 @@ class SortableTable extends React.Component {
             <Table.Body>
               {pagedRows.map((row) => (
                 <Table.Row key={row.id}>
-                  {headers.map(({ id, renderCell, alignText }) => (
+                  {headers.map(({ id, renderCell, alignText, format }) => (
                     <Table.Cell key={id} textAlign={alignText ? alignText : 'start'}>
-                      {renderCell ? renderCell(row[id]) : row[id]}
+                      {renderCell ? renderCell(row[id]) : (format) ? format(row[id]) : row[id]}
                     </Table.Cell>
                   ))}
                 </Table.Row>

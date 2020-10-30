@@ -102,7 +102,7 @@ class ContentTrayForm extends React.Component {
   }
 
   renderContentTypeCheckboxes() {
-    return contentTypes.map((type) => <Checkbox label={this.props.t(`label.plural.${type}`)} value={type} key={type} />);
+    return contentTypes.map((type) => <Checkbox label={this.props.t(`content.plural.${type}`)} value={type} key={type} />);
   }
 
   renderIssueTypeCheckboxes() {
