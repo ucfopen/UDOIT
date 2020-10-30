@@ -111,6 +111,7 @@ class FilesPage extends React.Component {
           status,
           fileName: file.fileName,
           fileType: file.fileType.toUpperCase(),
+          fileSize: file.fileSize,
           action: <Button onClick={this.handleReviewClick} textAlign="center" >{this.props.t('label.review')}</Button>
         }
       );
@@ -124,6 +125,7 @@ class FilesPage extends React.Component {
       {id: "status", text: '', alignText: "center"},
       {id: "fileName", text: this.props.t('label.file_name')}, 
       {id: "fileType", text: this.props.t('label.content_type')}, 
+      {id: "fileSize", text: this.props.t('label.file_size'), format: this.formatFileSize},
       {id: "action", text: "", alignText: "end"}
     ];
     const filteredFiles = this.getFilteredFiles();
@@ -202,6 +204,18 @@ class FilesPage extends React.Component {
     }
 
     this.handleFilter({ [filterType]: results });
+  }
+
+  formatFileSize(size) {
+    size = Number(size);
+    if (size > 1000000) {
+      return (Math.round(size / 100000) / 10) + ' MB';
+    }
+    if (size > 1000) {
+      return (Math.round(size / 100) / 10) + ' KB';
+    }
+
+    return size;
   }
 }
 

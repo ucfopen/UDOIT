@@ -7,7 +7,6 @@ import ContentTrayForm from './ContentTrayForm'
 import { View } from '@instructure/ui-view'
 import { Tag } from '@instructure/ui-tag'
 import UfixitModal from './UfixitModal';
-import Ufixit from '../Services/UFIXIT';
 
 class ContentPage extends React.Component {
   constructor(props) {
@@ -19,7 +18,7 @@ class ContentPage extends React.Component {
       activeIssue: null,
       trayOpen: false,
       modalOpen: false,
-      activeIndex: 0,
+      activeIndex: -1,
       searchTerm: '',
       filters: {
         contentTypes: [],
@@ -39,6 +38,7 @@ class ContentPage extends React.Component {
     this.handleSearchTerm = this.handleSearchTerm.bind(this);
     this.handleTableSettings = this.handleTableSettings.bind(this);
     this.handleFilter = this.handleFilter.bind(this);
+    this.handleActiveIssue = this.handleActiveIssue.bind(this);
   }
 
   componentDidMount() {
@@ -54,11 +54,10 @@ class ContentPage extends React.Component {
   }
 
   // Opens the modal with the appropriate form based on the issue passed in
-  handleReviewButton = (activeIssue, activeIndex) => {
+  handleReviewClick = (activeIssue) => {
     this.setState({
       modalOpen: true,
-      activeIssue: activeIssue,
-      activeIndex: activeIndex
+      activeIssue: activeIssue
     })
   }
 
@@ -79,7 +78,15 @@ class ContentPage extends React.Component {
         sortBy: 'scanRuleLabel',
         ascending: true,
         pageNum: 0,
-      }
+      },
+      activeIndex: -1,
+    })
+  }
+
+  handleActiveIssue(newIssue, newIndex) {
+    this.setState({
+      activeIssue: newIssue,
+      activeIndex: Number(newIndex)
     })
   }
 
@@ -95,14 +102,15 @@ class ContentPage extends React.Component {
 
   getFilteredContent = () => {
     const report = this.props.report;
-    const filters = this.state.filters;    
+    const filters = this.state.filters;
+    const { sortBy, ascending } = this.state.tableSettings 
     
-    var filteredList = [];
-    var issueList = Object.assign({}, report.issues);
+    let filteredList = [];
+    let issueList = Object.assign({}, report.issues);
     
     // Loop through the issues
     issueLoop: for (const [key, value] of Object.entries(issueList)) {
-      var issue = Object.assign({}, value)
+      let issue = Object.assign({}, value)
       // Check if we are interested in this issue severity, aka "type"
       if (filters.issueTypes.length !== 0 && !filters.issueTypes.includes(issue.type)) {
         continue;
@@ -152,13 +160,29 @@ class ContentPage extends React.Component {
 
       filteredList.push(
         {
+          issue,
           status,
           scanRuleLabel: this.props.t(`rule.label.${issue.scanRuleId}`),
           contentType: this.props.t(`content.${contentItem.contentType}`),
           contentTitle: contentItem.title,
-          action: <Button onClick={this.handleReviewClick} textAlign="center" >{this.props.t('label.review')}</Button>
+          action: <Button key={`reviewButton${key}`} 
+            onClick={() => this.handleReviewClick(issue)} 
+            textAlign="center" >{this.props.t('label.review')}</Button>
         }
       );
+    }
+
+    filteredList.sort((a, b) => {
+      if (isNaN(a[sortBy]) || isNaN(b[sortBy])) {
+        return (a[sortBy].toLowerCase() < b[sortBy].toLowerCase()) ? -1 : 1;
+      }
+      else {
+        return (Number(a[sortBy]) < Number(b[sortBy])) ? -1 : 1;
+      }
+    });
+
+    if (!ascending) {
+      filteredList.reverse();
     }
 
     return filteredList;
@@ -172,8 +196,7 @@ class ContentPage extends React.Component {
       {id: "contentTitle", text: this.props.t('label.content_title')}, 
       {id: "action", text: "", alignText: "end"}
     ];
-    const filteredIssues = this.getFilteredContent();
-    const UfixitService = new Ufixit();
+    const filteredRows = this.getFilteredContent();
 
     return (
       <View as="div" key="contentPageFormWrapper">
@@ -188,28 +211,30 @@ class ContentPage extends React.Component {
         <SortableTable
           caption="Issue Table"
           headers = {headers}
-          rows = {filteredIssues}
+          rows = {filteredRows}
           filters = {this.state.filters}
           tableSettings = {this.state.tableSettings}
           handleFilter = {this.handleFilter}
           handleTableSettings = {this.handleTableSettings}
           key="contentTable" />
-        <ContentTrayForm
+        {this.state.trayOpen && <ContentTrayForm
           filters={this.state.filters}
           handleFilter={this.handleFilter}
           trayOpen={this.state.trayOpen}
           report={this.props.report}
           handleTrayToggle={this.handleTrayToggle} 
           t={this.props.t}
-          key="contentTrayForm" />
-        <UfixitModal
+          key="contentTrayForm" />}
+        {this.state.modalOpen && <UfixitModal
           open={this.state.modalOpen}
           activeIssue={this.state.activeIssue}
-          index={this.state.activeIndex}
-          ufixitService={UfixitService}
-          totalCount={this.state.filteredIssues.length}
+          activeIndex={this.state.activeIndex}
+          filteredRows={filteredRows}
           handleCloseButton={this.handleCloseButton}
-          />
+          handleActiveIssue={this.handleActiveIssue}
+          t={this.props.t}
+          key="ufixitModal"
+          />}
       </View>
     )
   }
