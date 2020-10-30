@@ -39,6 +39,7 @@ class ContentPage extends React.Component {
     this.handleSearchTerm = this.handleSearchTerm.bind(this);
     this.handleTableSettings = this.handleTableSettings.bind(this);
     this.handleFilter = this.handleFilter.bind(this);
+    this.handleIssueChange = this.handleIssueChange.bind(this);
   }
 
   componentDidMount() {
@@ -87,6 +88,30 @@ class ContentPage extends React.Component {
     this.setState({
       tableSettings: Object.assign({}, this.state.tableSettings, setting)
     });
+  }
+
+  // Handler for the previous and next buttons on the modal
+  // Will wrap around if the index goes out of bounds
+  handleissueChange = (index, direction, issues) => {
+    let issueLength = issues.length;
+
+    if(direction === "previous") {
+      let newIndex = index - 1;
+      if(newIndex < 0) {
+        newIndex = issueLength - 1;
+      }
+
+    } else if(direction === "next") {
+      let newIndex = index + 1;
+
+      if(newIndex > (issueLength - 1)) {
+        newIndex = 0;
+      }
+    }
+
+    this.setState({
+      activeIssue: Object.assign({}, issues[newIndex])
+    })
   }
 
   getContentById = (contentList, contentId) => {
