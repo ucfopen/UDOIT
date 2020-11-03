@@ -1,4 +1,5 @@
 import React from 'react';
+import Classes from '../../css/ContentPreview.scss'
 import { Modal } from '@instructure/ui-modal'
 import { Heading } from '@instructure/ui-heading'
 import { Button } from '@instructure/ui-buttons'
@@ -102,14 +103,14 @@ class UfixitModal extends React.Component {
                 <View as="div">
                   <Text weight="bold">{this.props.t('label.preview')}</Text>
                   <View as="div" shadow="resting" padding="small" margin="x-small 0">
-                    <div className="previewWindow" dangerouslySetInnerHTML={{__html: activeIssue.previewHtml}} />
+                    <div className={Classes.previewWindow}  dangerouslySetInnerHTML={{__html: activeIssue.previewHtml}} />
                   </View>
                   <Link margin="0 0 x-small 0" isWithinText={false} onClick={this.handleCodeToggle}>{this.props.t('label.view_source')}</Link>
                   {this.state.showSourceCode && 
                     <CodeEditor margin="x-small 0" label={this.props.t('label.code_preview')} language="html" readOnly={true} value={activeIssue.sourceHtml} />
                   }
                 </View>
-                <View as="div" margin="medium 0">
+                <View as="div" margin="medium 0 0 0">
                   <Text weight="bold">{this.props.t('label.source')}</Text>
                   {activeContentItem && 
                     <View as="div" padding="small 0">                    

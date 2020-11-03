@@ -26,7 +26,6 @@ export default class Ufixit {
   returnIssueForm(activeIssue) {
     if (activeIssue) {
       if (UfixitForms.hasOwnProperty(activeIssue.scanRuleId)) {
-        console.log('activeIssue', activeIssue)
         return UfixitForms[activeIssue.scanRuleId]
       }
     }

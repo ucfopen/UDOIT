@@ -197,10 +197,6 @@ class ContentPage extends React.Component {
       {id: "action", text: "", alignText: "end"}
     ];
     const filteredRows = this.getFilteredContent();
-    console.log('issue', this.state.activeIssue);
-    if (this.state.activeIssue) {
-      console.log('content', this.getContentById(this.state.activeIssue.contentItemId))
-    }
     const activeContentItem = (this.state.activeIssue) ? this.getContentById(this.state.activeIssue.contentItemId) : null
 
     return (

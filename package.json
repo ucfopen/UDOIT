@@ -41,6 +41,7 @@
         "@instructure/ui-position": "^7.2.4",
         "@instructure/ui-progress": "^7.1.2",
         "@instructure/ui-responsive": "^7.1.3",
+        "@instructure/ui-spinner": "^7.3.0",
         "@instructure/ui-table": "^7.1.2",
         "@instructure/ui-tabs": "^7.1.1",
         "@instructure/ui-text": "^7.3.0",

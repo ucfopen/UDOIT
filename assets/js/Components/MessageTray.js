@@ -1,21 +1,32 @@
 import React from 'react'
 import { View } from '@instructure/ui-view'
 import { Alert } from '@instructure/ui-alerts'
+import { Spinner } from '@instructure/ui-spinner'
 
 class MessageTray extends React.Component {
 
   constructor(props) {
-    super(props);
+    super(props)
   }
 
   componentDidMount() {
-    this.props.clearMessages();
+    this.props.clearMessages()
   }
 
   render() {
-    console.log('msgs', this.props.messages);
+    
     return (
-      <View as="div">
+      <View as="div" padding="small">
+        {!this.props.hasNewReport && 
+          <Alert variant="info"
+            renderCloseButtonLabel={this.props.t('label.close')}
+            onDismiss={this.props.clearMessages}
+            margin="small large"
+            key={`msgContentLoading`}>
+            {this.props.t('label.content_loading_msg')}
+            <Spinner size="x-small" margin="0 small" renderTitle="Loading" />
+          </Alert>
+        }
         {this.props.messages.map((msg, i) => 
           <Alert variant={msg.severity} 
             timeout={msg.timeout} 

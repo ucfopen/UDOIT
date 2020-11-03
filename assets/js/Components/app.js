@@ -4,7 +4,6 @@ import Header from './Header'
 import { Tabs } from '@instructure/ui-tabs'
 import SummaryPage from './SummaryPage'
 import ContentPage from './ContentPage';
-import Classes from '../../css/app.scss'
 import { Button } from '@instructure/ui-buttons'
 import { View } from '@instructure/ui-view'
 import Api from '../Services/Api';
@@ -13,38 +12,53 @@ import FilesPage from './FilesPage'
 
 class App extends React.Component {
   constructor(props) {
-    super(props);
+    super(props)
 
-    this.hasNewReport = false;
-    this.appFilters = {};
-    this.settings = {};
-    this.reportHistory = [];
-    this.messages = [];
+    this.hasNewReport = false
+    this.initialReport = null
+    this.appFilters = {}
+    this.settings = {}
+    this.reportHistory = []
+    this.messages = []
+
+    this.getSettings();
 
     this.state = {
-      report: null,
+      report: this.initialReport,
       navigation: {
         tabIndex: 0,
         showSettings: false,
-        showAbout: false
+        showAbout: false,
+        showWelcome: true,
       }
     }
 
-    this.handleNavigation = this.handleNavigation.bind(this);
-    this.handleAppFilters = this.handleAppFilters.bind(this);
-    this.clearMessages = this.clearMessages.bind(this);
-    this.addMessage = this.addMessage.bind(this);
-    this.t = this.t.bind(this);
+    this.handleNavigation = this.handleNavigation.bind(this)
+    this.handleAppFilters = this.handleAppFilters.bind(this)
+    this.clearMessages = this.clearMessages.bind(this)
+    this.addMessage = this.addMessage.bind(this)
+    this.hideWelcome = this.hideWelcome.bind(this)
+    this.t = this.t.bind(this)
   }
 
   render() {    
-    const tabIndex = this.state.navigation.tabIndex;
+    const tabIndex = this.state.navigation.tabIndex
 
-    if (this.state.report) {
+    if (this.state.navigation.showWelcome) {
       return (
         <View as="div">
           <Header />
-          <MessageTray messages={this.messages} t={this.t} clearMessages={this.clearMessages} />          
+          <MessageTray messages={this.messages} t={this.t} clearMessages={this.clearMessages} hasNewReport={this.hasNewReport} />
+          <WelcomePage key="welcomePage" handleContinueBtn={this.hideWelcome} t={this.t} 
+            hasNewReport={this.hasNewReport} />
+        </View>
+      );
+    }
+    else {
+      return (
+        <View as="div">
+          <Header />
+          <MessageTray messages={this.messages} t={this.t} clearMessages={this.clearMessages} hasNewReport={this.hasNewReport} />          
           <Tabs
             onRequestTabChange={this.handleTabChange}
             key="mainTabs"
@@ -81,40 +95,31 @@ class App extends React.Component {
             </Tabs.Panel>
           </Tabs>
         </View>
-      );
-    }
-    else {
-      return (
-        <div>
-          <Header key="welcomeHeader" />
-          <WelcomePage key="welcomePage" />
-          <div className={Classes.buttonContainer}>
-            <Button onClick={this.closeAboutScreen} color="primary" margin="small" textAlign="center">Continue</Button>
-          </div>
-       </div>
-      );
+      )
     }
   }
 
   componentDidMount() {
-    if (Object.keys(this.settings).length === 0) {
-      this.getSettings();
-    }
+    console.log('mounted')
+    if (this.initialReport) {
+      console.log('has report')
+      this.setState({report: this.initialReport})
 
-    this.checkForReport();
+      if (this.state.navigation.showWelcome) {
+        console.log('hiding')
+        this.hideWelcome()
+      }
+    }
+    this.checkForNewReport()
   }
 
   componentDidUpdate() {}
 
   t(key) {
-    return (this.settings.labels[key]) ? this.settings.labels[key] : key;
+    return (this.settings.labels[key]) ? this.settings.labels[key] : key
   }
 
-  closeAboutScreen(e) {
-    console.log('e', e);
-  }
-
-  checkForReport() {
+  checkForNewReport() {
     if (!this.hasNewReport) {
       var intervalId = setInterval(() => {
         let api = new Api(this.settings);
@@ -146,16 +151,19 @@ class App extends React.Component {
   getSettings() {
     const settingsElement = document.querySelector(
       'body > script#toolSettings[type="application/json"]'
-    );
+    )
 
     if (settingsElement !== null) {
-      let data = JSON.parse(settingsElement.textContent);
+      let data = JSON.parse(settingsElement.textContent)
       
       if (data) {
-        this.messages = data.messages;
-        this.reportHistory = data.reports;
-        this.settings = data.settings;
-        this.setState({report: data.report});
+        this.messages = data.messages
+        this.reportHistory = data.reports
+        this.settings = data.settings
+        
+        if (data.report) {
+          this.initialReport = data.report
+        }
       }
     }
     else {
@@ -186,6 +194,15 @@ class App extends React.Component {
 
   clearMessages = () => {
     this.messages = [];
+  }
+
+  hideWelcome() {
+    this.setState(prevState => ({
+      navigation: {
+        ...prevState.navigation,
+        showWelcome: false
+      }
+    }));
   }
 }
 
