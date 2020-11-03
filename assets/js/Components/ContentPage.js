@@ -96,8 +96,8 @@ class ContentPage extends React.Component {
     });
   }
 
-  getContentById = (contentList, contentId) => {
-    return Object.assign({}, contentList[contentId]);
+  getContentById = (contentId) => {
+    return Object.assign({}, this.props.report.contentItems[contentId]);
   }
 
   getFilteredContent = () => {
@@ -127,7 +127,7 @@ class ContentPage extends React.Component {
       }
 
       // Get information about the content the issue refers to
-      var contentItem = this.getContentById(report.contentItems, issue.contentItemId);
+      var contentItem = this.getContentById(issue.contentItemId);
 
       // Check if we are showing unpublished content items
       if (filters.hideUnpublishedContentItems && !contentItem.status) {
@@ -197,6 +197,11 @@ class ContentPage extends React.Component {
       {id: "action", text: "", alignText: "end"}
     ];
     const filteredRows = this.getFilteredContent();
+    console.log('issue', this.state.activeIssue);
+    if (this.state.activeIssue) {
+      console.log('content', this.getContentById(this.state.activeIssue.contentItemId))
+    }
+    const activeContentItem = (this.state.activeIssue) ? this.getContentById(this.state.activeIssue.contentItemId) : null
 
     return (
       <View as="div" key="contentPageFormWrapper">
@@ -230,6 +235,7 @@ class ContentPage extends React.Component {
           activeIssue={this.state.activeIssue}
           activeIndex={this.state.activeIndex}
           filteredRows={filteredRows}
+          activeContentItem={activeContentItem}
           handleCloseButton={this.handleCloseButton}
           handleActiveIssue={this.handleActiveIssue}
           t={this.props.t}

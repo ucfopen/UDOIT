@@ -3,18 +3,27 @@ import { Modal } from '@instructure/ui-modal'
 import { Heading } from '@instructure/ui-heading'
 import { Button } from '@instructure/ui-buttons'
 import { View } from '@instructure/ui-view'
+import { Pill } from '@instructure/ui-pill'
 import { Flex } from '@instructure/ui-flex'
 import { CloseButton} from '@instructure/ui-buttons'
 import { Text } from '@instructure/ui-text'
+import { Link } from '@instructure/ui-link'
 import { TruncateText } from '@instructure/ui-truncate-text'
 import { InlineList } from '@instructure/ui-list'
+import { IconExternalLinkLine } from '@instructure/ui-icons'
+import { CodeEditor } from '@instructure/ui-code-editor'
 import Ufixit from '../Services/Ufixit';
 
 class UfixitModal extends React.Component {
 
   constructor(props) {
     super(props);
+
+    this.state = {
+      showSourceCode: false,
+    }
     
+    this.handleCodeToggle = this.handleCodeToggle.bind(this)
   }
 
   findActiveIndex() {
@@ -42,12 +51,22 @@ class UfixitModal extends React.Component {
     this.props.handleActiveIssue(this.props.filteredRows[newIndex].issue, newIndex)
   }
   
+  handleCodeToggle(e) {
+    this.setState({showSourceCode: !this.state.showSourceCode})
+  }
+
+  handleOpenContent(e) {
+    this.s
+  }
+
   render() {
     const ufixitService = new Ufixit()
-    const { activeIssue } = this.props
+    const { activeIssue, activeContentItem } = this.props
 
     let activeIndex = this.findActiveIndex();
     const UfixitForm = ufixitService.returnIssueForm(activeIssue)
+
+    console.log('content', activeContentItem)
     
     return (
       <View>
@@ -59,7 +78,7 @@ class UfixitModal extends React.Component {
           <Modal.Header padding="0 medium">
             <Flex>
               <Flex.Item shouldGrow shouldShrink>
-                <Heading>{this.props.t('label.review_issue')}</Heading>
+                <Heading>{this.props.t(`rule.label.${activeIssue.scanRuleId}`)}</Heading>
               </Flex.Item>
               <Flex.Item>
                 <CloseButton
@@ -72,15 +91,38 @@ class UfixitModal extends React.Component {
             </Flex> 
           </Modal.Header>
           <Modal.Body padding="small medium">
-            <View padding="small 0 0 0">
-              <Text weight="bold" margin="small 0">{this.props.t(`rule.label.${activeIssue.scanRuleId}`)}</Text>
+            <View padding="0">
               <Text as="p">
                 <TruncateText maxLines={2}>{this.props.t(`rule.desc.${activeIssue.scanRuleId}`)}</TruncateText>
               </Text>
             </View>
-            <Flex>
-              <Flex.Item><UfixitForm activeIssue={activeIssue} /></Flex.Item>
-              <Flex.Item>Preview Goes Here</Flex.Item>
+            <Flex justifyItems="space-between" alignItems="start">
+              <Flex.Item width="50%" padding="medium 0"><UfixitForm activeIssue={activeIssue} /></Flex.Item>
+              <Flex.Item width="50%" padding="medium 0">
+                <View as="div">
+                  <Text weight="bold">{this.props.t('label.preview')}</Text>
+                  <View as="div" shadow="resting" padding="small" margin="x-small 0">
+                    <div className="previewWindow" dangerouslySetInnerHTML={{__html: activeIssue.previewHtml}} />
+                  </View>
+                  <Link margin="0 0 x-small 0" isWithinText={false} onClick={this.handleCodeToggle}>{this.props.t('label.view_source')}</Link>
+                  {this.state.showSourceCode && 
+                    <CodeEditor margin="x-small 0" label={this.props.t('label.code_preview')} language="html" readOnly={true} value={activeIssue.sourceHtml} />
+                  }
+                </View>
+                <View as="div" margin="medium 0">
+                  <Text weight="bold">{this.props.t('label.source')}</Text>
+                  {activeContentItem && 
+                    <View as="div" padding="small 0">                    
+                      <Pill>{activeContentItem.contentType}</Pill> {activeContentItem.title}
+                      <View as="div">
+                        <Link onClick={this.handleOpenContent} isWithinText={false} margin="small 0" renderIcon={<IconExternalLinkLine />} iconPlacement="end">
+                          {this.props.t('label.open_in_canvas')}
+                        </Link>
+                      </View>
+                    </View>
+                  }
+                </View>
+              </Flex.Item>
             </Flex>
             <View as="div" borderWidth="small 0 0 0" padding="small 0 0 0">
               <InlineList delimiter="pipe">
