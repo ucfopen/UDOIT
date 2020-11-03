@@ -74,6 +74,7 @@ class FilesPage extends React.Component {
   getFilteredFiles = () => {
     const report = this.props.report;
     const filters = this.state.filters;    
+    const { sortBy, ascending } = this.state.tableSettings 
     
     var filteredList = [];
     var fileList = Object.assign({}, report.files);
@@ -115,6 +116,19 @@ class FilesPage extends React.Component {
           action: <Button onClick={this.handleReviewClick} textAlign="center" >{this.props.t('label.review')}</Button>
         }
       );
+    }
+
+    filteredList.sort((a, b) => {
+      if (isNaN(a[sortBy]) || isNaN(b[sortBy])) {
+        return (a[sortBy].toLowerCase() < b[sortBy].toLowerCase()) ? -1 : 1;
+      }
+      else {
+        return (Number(a[sortBy]) < Number(b[sortBy])) ? -1 : 1;
+      }
+    });
+
+    if (!ascending) {
+      filteredList.reverse();
     }
 
     return filteredList;

@@ -8,6 +8,7 @@ import HeadersHaveText from '../Components/Forms/HeadersHaveText'
 import ImageAltIsDifferent from '../Components/Forms/ImageAltIsDifferent'
 import ImageAltIsTooLong from '../Components/Forms/ImageAltIsTooLong'
 import ImageAltNotEmptyInAnchor from '../Components/Forms/ImageAltNotEmptyInAnchor'
+import UfixitReviewOnly from '../Components/Forms/UfixitReviewOnly'
 
 const UfixitForms = {
   AnchorMustContainText,
@@ -30,6 +31,6 @@ export default class Ufixit {
       }
     }
 
-    return null
+    return UfixitReviewOnly
   }
 }

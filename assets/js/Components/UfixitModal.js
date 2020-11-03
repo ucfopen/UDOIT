@@ -98,8 +98,9 @@ class UfixitModal extends React.Component {
               </Text>
             </View>
             <Flex justifyItems="space-between" alignItems="start">
-              <Flex.Item width="50%" padding="medium 0"><UfixitForm activeIssue={activeIssue} /></Flex.Item>
-              <Flex.Item width="50%" padding="medium 0">
+              <Flex.Item width="50%" padding="medium 0" overflowY="auto">
+                <UfixitForm activeIssue={activeIssue} t={this.props.t} /></Flex.Item>
+              <Flex.Item width="50%" padding="medium 0" overflowY="auto">
                 <View as="div">
                   <Text weight="bold">{this.props.t('label.preview')}</Text>
                   <View as="div" shadow="resting" padding="small" margin="x-small 0">

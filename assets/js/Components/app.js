@@ -100,13 +100,10 @@ class App extends React.Component {
   }
 
   componentDidMount() {
-    console.log('mounted')
     if (this.initialReport) {
-      console.log('has report')
       this.setState({report: this.initialReport})
 
       if (this.state.navigation.showWelcome) {
-        console.log('hiding')
         this.hideWelcome()
       }
     }

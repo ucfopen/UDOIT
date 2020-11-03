@@ -1,5 +1,12 @@
 .previewWindow {
+    max-height: 300px;
+    overflow: auto;
+
     img {
         max-width: 100%;
+    }
+    p {
+        padding: 0;
+        margin: 0;
     }
 }
