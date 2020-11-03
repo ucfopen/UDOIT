@@ -90,7 +90,8 @@ class Issue implements \JsonSerializable
             "contentItemId" => $this->contentItem->getId(),
             "scanRuleId" => $this->scanRuleId,
             "type" => $this->type,
-            "sourceHtml" => $this->html
+            "sourceHtml" => $this->html,
+            "previewHtml" => $this->previewHtml,
         ];
     }
 
