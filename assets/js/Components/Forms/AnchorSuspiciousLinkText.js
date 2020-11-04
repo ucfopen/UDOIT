@@ -64,26 +64,26 @@ export default class AnchorSuspiciousLinkText extends React.Component {
     const UFixitApi = new Api()
 
     return (
-      <View>
-        {this.renderAlert()}
-        <Flex direction="column" justifyItems="start">
-          <Flex.Item margin="small">
-            <Text weight="bold">Anchor Text</Text>
-          </Flex.Item>
-          <Flex.Item margin="small">
-            <TextInput
-              renderLabel={<ScreenReaderContent>Anchor Text</ScreenReaderContent>}
-              display="inline-block"
-              placeholder="New anchor text"
-              width="25rem"
-              onChange={this.handleInput}
-            />
-          </Flex.Item>
-          <Flex.Item margin="small">
-            <Button color="primary" onClick={this.handleButton}>Save Changes</Button>
-          </Flex.Item>
-        </Flex>
+      <View display="block" textAlign="start">
+        <View display="block" margin="medium">
+          {this.renderAlert()}
+        </View>
+        <View display="block" margin="medium">
+          <Text weight="bold">Anchor Text</Text>
+        </View>
+        <View display="block" margin="medium">
+          <TextInput
+            renderLabel={<ScreenReaderContent>Anchor Text</ScreenReaderContent>}
+            display="inline-block"
+            placeholder="New anchor text"
+            width="25rem"
+            onChange={this.handleInput}
+          />
+        </View>
+        <View display="block" margin="medium">
+          <Button color="primary" onClick={this.handleButton}>Save Changes</Button>
+        </View>
       </View>
-    );
+  );
   }
 }
