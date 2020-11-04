@@ -13,6 +13,7 @@ import { TruncateText } from '@instructure/ui-truncate-text'
 import { InlineList } from '@instructure/ui-list'
 import { IconExternalLinkLine } from '@instructure/ui-icons'
 import { CodeEditor } from '@instructure/ui-code-editor'
+import { Checkbox } from '@instructure/ui-checkbox'
 import Ufixit from '../Services/Ufixit';
 
 class UfixitModal extends React.Component {
@@ -127,14 +128,22 @@ class UfixitModal extends React.Component {
               </Flex.Item>
             </Flex>
             <View as="div" borderWidth="small 0 0 0" padding="small 0 0 0">
-              <InlineList delimiter="pipe">
-                <InlineList.Item>
+              <Flex justifyItems="space-between" shouldGrow shouldShrink>
+                <Flex.Item>
                   {this.props.t('label.issue')} {(activeIndex + 1)} {this.props.t('label.of')} {this.props.filteredRows.length}
-                </InlineList.Item>
-                <InlineList.Item>
-                  Status = {activeIssue.status === false ? 'Unreviewed' : 'Reviewed'}
-                </InlineList.Item>
-              </InlineList>
+                  {/* <InlineList delimiter="pipe">
+                    <InlineList.Item>
+                      {this.props.t('label.issue')} {(activeIndex + 1)} {this.props.t('label.of')} {this.props.filteredRows.length}
+                    </InlineList.Item>
+                    <InlineList.Item>
+                      Status = {activeIssue.status ? 'Reviewed' : 'Unreviewed'}
+                    </InlineList.Item>
+                  </InlineList> */}
+                </Flex.Item>
+                <Flex.Item>
+                  <Checkbox onChange={this.handleReviewToggle} label="Reviewed" checked={activeIssue.status} />
+                </Flex.Item>
+              </Flex>
             </View>
           </Modal.Body>
 
