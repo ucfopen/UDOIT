@@ -6,6 +6,7 @@ import FilesPageForm from './FilesPageForm'
 import FilesTrayForm from './FilesTrayForm'
 import { View } from '@instructure/ui-view'
 import { Tag } from '@instructure/ui-tag'
+import FilesModal from './FilesModal'
 
 const fileTypes = [
   'pdf',
@@ -20,7 +21,9 @@ class FilesPage extends React.Component {
 
     this.state = {
       activeFile: null,
+      activeIndex: -1,
       trayOpen: false,
+      modalOpen: false,
       searchTerm: '',
       filters: {
         fileTypes: [],
@@ -33,10 +36,12 @@ class FilesPage extends React.Component {
       }
     }
 
-    this.handleTrayToggle = this.handleTrayToggle.bind(this);
-    this.handleSearchTerm = this.handleSearchTerm.bind(this);
-    this.handleTableSettings = this.handleTableSettings.bind(this);
-    this.handleFilter = this.handleFilter.bind(this);
+    this.handleTrayToggle = this.handleTrayToggle.bind(this)
+    this.handleSearchTerm = this.handleSearchTerm.bind(this)
+    this.handleTableSettings = this.handleTableSettings.bind(this)
+    this.handleFilter = this.handleFilter.bind(this)
+    this.handleReviewClick = this.handleReviewClick.bind(this)
+    this.handleActiveFile = this.handleActiveFile.bind(this)
   }
 
   componentDidMount() {
@@ -67,8 +72,25 @@ class FilesPage extends React.Component {
     });
   }
 
-  getFileById = (contentList, contentId) => {
-    return Object.assign({}, contentList[contentId]);
+  handleActiveFile(newFile, newIndex) {
+    this.setState({
+      activeFile: newFile,
+      activeIndex: Number(newIndex)
+    })
+  }
+
+  handleReviewClick(activeFile) {
+    console.log('activefile', activeFile)
+    this.setState({
+      modalOpen: true,
+      activeFile: activeFile
+    })
+  }
+
+  handleCloseButton = () => {
+    this.setState({
+      modalOpen: false
+    })
   }
 
   getFilteredFiles = () => {
@@ -76,12 +98,12 @@ class FilesPage extends React.Component {
     const filters = this.state.filters;    
     const { sortBy, ascending } = this.state.tableSettings 
     
-    var filteredList = [];
-    var fileList = Object.assign({}, report.files);
+    let filteredList = [];
+    let fileList = Object.assign({}, report.files);
     
     // Loop through the files
     fileLoop: for (const [key, value] of Object.entries(fileList)) {
-      var file = Object.assign({}, value)
+      let file = Object.assign({}, value)
       // Check if we are interested in this file type
       if (filters.fileTypes.length !== 0 && !filters.fileTypes.includes(file.fileType)) {
         continue;
@@ -110,13 +132,18 @@ class FilesPage extends React.Component {
       filteredList.push(
         {
           status,
+          file,
           fileName: file.fileName,
           fileType: file.fileType.toUpperCase(),
           fileSize: file.fileSize,
-          action: <Button onClick={this.handleReviewClick} textAlign="center" >{this.props.t('label.review')}</Button>
+          action: <Button 
+            key={`reviewButton${key}`}
+            onClick={() => this.handleReviewClick(file)}
+            textAlign="center" >{this.props.t('label.review')}</Button>
         }
       );
     }
+
 
     filteredList.sort((a, b) => {
       if (isNaN(a[sortBy]) || isNaN(b[sortBy])) {
@@ -163,7 +190,7 @@ class FilesPage extends React.Component {
           handleFilter = {this.handleFilter}
           handleTableSettings = {this.handleTableSettings}
           key="filesTable" />
-        <FilesTrayForm
+        {this.state.trayOpen && <FilesTrayForm
           trayOpen={this.state.trayOpen}
           report={this.props.report}
           handleTrayToggle={this.handleTrayToggle} 
@@ -171,7 +198,17 @@ class FilesPage extends React.Component {
           filters={this.state.filters}
           fileTypes={fileTypes}
           t={this.props.t}
-          key="filesTrayForm" />
+          key="filesTrayForm" />}
+        {this.state.modalOpen && <FilesModal
+          open={this.state.modalOpen}
+          activeFile={this.state.activeFile}
+          activeIndex={this.state.activeIndex}
+          filteredRows={filteredFiles}
+          handleCloseButton={this.handleCloseButton}
+          handleActiveFile={this.handleActiveFile}
+          t={this.props.t}
+          key="filesModal" />
+        }
       </View>
     )
   }

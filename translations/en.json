@@ -113,7 +113,7 @@
   "rule.desc.AnchorSuspiciousLinkText": "Anchor Has Suspicious Link Text description text goes here",
   "rule.desc.BaseFontIsNotUsed": "Base Font Is Not Used description text goes here",
   "rule.desc.BlinkIsNotUsed": "Blink Is Not Used description text goes here",
-  "rule.desc.ContentTooLong": "Content Length Should Not Exceed 3000 Words description text goes here",
+  "rule.desc.ContentTooLong": "For content longer than 3000 words, consider splitting it up into multiple documents. This makes it easier for students to process and retain the information.",
   "rule.desc.CssTextHasContrast": "Insufficient Text Color Contrast With the Background description text goes here",
   "rule.desc.CssTextStyleEmphasize": "Css Text Style Emphasized description text goes here",
   "rule.desc.DocumentReadingDirection": "Document Reading Direction description text goes here",
@@ -143,6 +143,10 @@
   "rule.desc.VideoEmbedCheck": " description text goes here",
   "rule.desc.VideoProvidesCaptions": "Multimedia Objects Should Have a Text Equivalent description text goes here",
   "rule.desc.VideosEmbeddedOrLinkedNeedCaptions": " description text goes here",
+
+  "file.desc.pdf": "PDF description goes here",
+  "file.desc.doc": "DOC description goes here",
+  "file.desc.ppt": "PPT description goes here",
 
   "translations": {
     "look_for": {

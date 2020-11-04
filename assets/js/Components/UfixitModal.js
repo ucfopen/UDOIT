@@ -57,7 +57,7 @@ class UfixitModal extends React.Component {
   }
 
   handleOpenContent(e) {
-    this.s
+    console.log('Opening content in Canvas')
   }
 
   render() {
@@ -98,7 +98,7 @@ class UfixitModal extends React.Component {
               </Text>
             </View>
             <Flex justifyItems="space-between" alignItems="start">
-              <Flex.Item width="50%" padding="medium 0" overflowY="auto">
+              <Flex.Item width="46%" padding="medium 0" overflowY="auto">
                 <UfixitForm activeIssue={activeIssue} t={this.props.t} /></Flex.Item>
               <Flex.Item width="50%" padding="medium 0" overflowY="auto">
                 <View as="div">

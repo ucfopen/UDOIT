@@ -2,7 +2,6 @@ import React from 'react'
 import { View } from '@instructure/ui-view'
 import { Text } from '@instructure/ui-text'
 import { TextInput } from '@instructure/ui-text-input'
-import { Flex } from '@instructure/ui-flex'
 import { Button } from '@instructure/ui-buttons'
 import { ScreenReaderContent } from '@instructure/ui-a11y-content'
 import { Alert } from '@instructure/ui-alerts'
@@ -64,25 +63,17 @@ export default class AnchorSuspiciousLinkText extends React.Component {
     const UFixitApi = new Api()
 
     return (
-      <View>
+      <View as="div" padding="0 small 0 0">
         {this.renderAlert()}
-        <Flex direction="column" justifyItems="start">
-          <Flex.Item margin="small">
-            <Text weight="bold">Anchor Text</Text>
-          </Flex.Item>
-          <Flex.Item margin="small">
-            <TextInput
-              renderLabel={<ScreenReaderContent>Anchor Text</ScreenReaderContent>}
-              display="inline-block"
-              placeholder="New anchor text"
-              width="25rem"
-              onChange={this.handleInput}
-            />
-          </Flex.Item>
-          <Flex.Item margin="small">
-            <Button color="primary" onClick={this.handleButton}>Save Changes</Button>
-          </Flex.Item>
-        </Flex>
+        <TextInput
+          renderLabel="Anchor Text"
+          display="block"
+          placeholder="New anchor text"
+          onChange={this.handleInput}
+        />
+        <View as="div" padding="small 0">
+          <Button color="primary" onClick={this.handleButton}>Save Changes</Button>
+        </View>
       </View>
     );
   }
