@@ -2,7 +2,6 @@ import React from 'react'
 import { View } from '@instructure/ui-view'
 import { Text } from '@instructure/ui-text'
 import { TextInput } from '@instructure/ui-text-input'
-import { Flex } from '@instructure/ui-flex'
 import { Button } from '@instructure/ui-buttons'
 import { ScreenReaderContent } from '@instructure/ui-a11y-content'
 import { Alert } from '@instructure/ui-alerts'
@@ -64,13 +63,14 @@ export default class AnchorMustContainText extends React.Component {
     const UFixitApi = new Api()
 
     return (
-      <View>
-        {this.renderAlert()}
-        <Flex direction="column" justifyItems="start">
-          <Flex.Item margin="small">
+        <View display="block" textAlign="start">
+          <View display="block" margin="medium">
+            {this.renderAlert()}
+          </View>
+          <View display="block" margin="medium">
             <Text weight="bold">Anchor Text</Text>
-          </Flex.Item>
-          <Flex.Item margin="small">
+          </View>
+          <View display="block" margin="medium">
             <TextInput
               renderLabel={<ScreenReaderContent>Anchor Text</ScreenReaderContent>}
               display="inline-block"
@@ -78,12 +78,11 @@ export default class AnchorMustContainText extends React.Component {
               width="25rem"
               onChange={this.handleInput}
             />
-          </Flex.Item>
-          <Flex.Item margin="small">
+          </View>
+          <View display="block" margin="medium">
             <Button color="primary" onClick={this.handleButton}>Save Changes</Button>
-          </Flex.Item>
-        </Flex>
-      </View>
+          </View>
+        </View>
     );
   }
 }
