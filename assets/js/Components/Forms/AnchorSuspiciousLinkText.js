@@ -75,6 +75,6 @@ export default class AnchorSuspiciousLinkText extends React.Component {
           <Button color="primary" onClick={this.handleButton}>Save Changes</Button>
         </View>
       </View>
-    );
+  );
   }
 }

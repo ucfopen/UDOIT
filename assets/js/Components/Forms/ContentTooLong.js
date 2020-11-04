@@ -2,7 +2,6 @@ import React from 'react'
 import { View } from '@instructure/ui-view'
 import { Text } from '@instructure/ui-text'
 import { TextArea } from '@instructure/ui-text-area'
-import { Flex } from '@instructure/ui-flex'
 import { Button } from '@instructure/ui-buttons'
 import { ScreenReaderContent } from '@instructure/ui-a11y-content'
 import { Alert } from '@instructure/ui-alerts'
@@ -73,29 +72,29 @@ export default class ContentTooLong extends React.Component {
     const UFixitApi = new Api()
 
     return (
-      <View>
-        {this.renderAlert()}
-        <Flex direction="column" justifyItems="start">
-          <Flex.Item margin="small">
-            <Text weight="bold">Shortened Content</Text>
-          </Flex.Item>
-          <Flex.Item margin="small">
-            <TextArea
-              renderLabel={<ScreenReaderContent>Shortened Content</ScreenReaderContent>}
-              display="inline-block"
-              value={this.state.textInputValue}
-              width="25rem"
-              onChange={this.handleInput}
-            />
-          </Flex.Item>
-          <Flex.Item margin="small">
-            <Text>Current character count: {this.state.characterCount}</Text>
-          </Flex.Item>
-          <Flex.Item margin="small">
-            <Button color="primary" onClick={this.handleButton}>Save Changes</Button>
-          </Flex.Item>
-        </Flex>
+      <View display="block" textAlign="start">
+        <View display="block" margin="medium">
+          {this.renderAlert()}
+        </View>
+        <View display="block" margin="medium">
+          <Text weight="bold">Shortened Content</Text>
+        </View>
+        <View display="block" margin="medium">
+          <TextArea
+            renderLabel={<ScreenReaderContent>Shortened Content</ScreenReaderContent>}
+            display="inline-block"
+            value={this.state.textInputValue}
+            width="25rem"
+            onChange={this.handleInput}
+          />  
+        </View>
+        <View display="block" margin="medium">
+          <Text>Current character count: {this.state.characterCount}</Text>
+        </View>
+        <View display="block" margin="medium">
+          <Button color="primary" onClick={this.handleButton}>Save Changes</Button>
+        </View>
       </View>
-    );
+  );
   }
 }
