@@ -27,3 +27,5 @@ yarn-error.log
 
 ###> Temp folder ###
 /tmp/
+
+.DS_Store
