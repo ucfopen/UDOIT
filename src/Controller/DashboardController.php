@@ -26,47 +26,49 @@ class DashboardController extends AbstractController
      */
     public function index(
         UtilityService $util,
-        LmsApiService $lmsApi,
-        FileItemRepository $fileItemRepo)
+        LmsApiService $lmsApi)
     {
         $this->util = $util;
         $this->lmsApi = $lmsApi;
-        $reports = [];
         $reportArr = false;
 
         $user = $this->getUser();
 
         // TODO: Handle no user
-        
+        if (!$user) {
+            $this->util->exitWithMessage('User authentication failed.');
+        }
 
-        if ($lmsCourseId = $this->get('session')->get('lms_course_id')) {
-            $repository = $this->getDoctrine()->getRepository(Course::class);
-            /** @var Course $course */
-            $course = $repository->findOneBy(['lmsCourseId' => $lmsCourseId]);
+        $lmsCourseId = $this->get('session')->get('lms_course_id');
+        if (!$lmsCourseId) {
+            $this->util->exitWithMessage('Missing LMS course ID.');
+        }
 
-            if ($course) {
-                $activeReport = $course->getLatestReport();
-                if ($activeReport) {
-                    $reportArr = $activeReport->toArray(true);
-                    $reportArr['files'] = $fileItemRepo->findByCourse($course);
-                    $reports = $course->getReports()->toArray();
-                }
-            }
-            else {
-                $institution = $user->getInstitution();
-                $course = $this->util->createCourse($institution, $lmsCourseId);
-            }
+        $courseRepo = $this->getDoctrine()->getRepository(Course::class);
+        /** @var Course $course */
+        $course = $courseRepo->findOneBy(['lmsCourseId' => $lmsCourseId]);
 
-            if ($course) {
-                $this->lmsApi->createApiRequests([$course], $user, true);
-                // $this->util->createMessage('Content scan in progress...', 'info', $course, $user);
+        if ($course) {
+            $activeReport = $course->getLatestReport();
+            
+            if ($activeReport) {
+                $reportArr = $activeReport->toArray();
+                $reportArr['issues'] = $course->getActiveIssues();
+                $reportArr['contentItems'] = $course->getContentItems();
+                $reportArr['files'] = $course->getFileItems();
             }
         }
+        else {
+            $institution = $user->getInstitution();
+            $course = $this->util->createCourse($institution, $lmsCourseId);
+        }
+
+        /* Add this course to the queue for scanning */
+        $this->lmsApi->addCoursesToBeScanned([$course], $user, true);
 
         return $this->render('default/index.html.twig', [
             'data' => [
-                'report' => $reportArr,
-                'reports' => $reports,
+                'report' => $reportArr,                
                 'settings' => $this->getSettings($course),
                 'messages' => $this->util->getUnreadMessages(true),
             ],

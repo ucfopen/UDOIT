@@ -53,7 +53,7 @@ class IssuesController extends ApiController
             $ufixit->saveContentToLms($issue, $fixedHtml);
 
             // Update issue
-            $issue->setStatus(true);
+            $issue->setStatus(Issue::$issueStatusFixed);
             $issue->setFixedBy($user);
             $issue->setFixedOn($util->getCurrentTime());
             $this->getDoctrine()->getManager()->flush();
@@ -70,5 +70,17 @@ class IssuesController extends ApiController
         $jsonResponse = new JsonResponse($apiResponse);
         $jsonResponse->setEncodingOptions($jsonResponse->getEncodingOptions() | JSON_PRETTY_PRINT);
         return $jsonResponse;
+    }
+
+    /**
+     * Mark issue as resolved/reviewed
+     * 
+     * @Route("/api/issues/{issue}/resolve", methods={"POST","GET"}, name="fix_issue")
+     * @param Issue $issue
+     * @return \Symfony\Component\HttpFoundation\Response
+     */
+    public function markAsReviewed(Request $request, UfixitService $ufixit, PhpAllyService $phpAlly, UtilityService $util, Issue $issue)
+    {
+
     }
 }

@@ -1,5 +1,5 @@
 import React from 'react';
-import Logo from '../../mediaAssets/udoit_logo.png';
+import Logo from '../../mediaAssets/logo_salmon.png';
 import Classes from '../../css/header.scss';
 import { View } from '@instructure/ui-view';
 
@@ -13,7 +13,7 @@ class Header extends React.Component {
 
   render() {
     return (
-      <View padding="small 0" as="div">
+      <View as="div">
           <img className={`${Classes.logo}`} src={Logo}></img>
       </View>
     )

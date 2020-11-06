@@ -39,6 +39,7 @@ class ContentPage extends React.Component {
     this.handleTableSettings = this.handleTableSettings.bind(this);
     this.handleFilter = this.handleFilter.bind(this);
     this.handleActiveIssue = this.handleActiveIssue.bind(this);
+    this.handleIssueSave = this.handleIssueSave.bind(this)
   }
 
   componentDidMount() {
@@ -95,6 +96,16 @@ class ContentPage extends React.Component {
       tableSettings: Object.assign({}, this.state.tableSettings, setting)
     });
   }
+
+  handleIssueSave(newIssue) {
+    console.log('saved issue', newIssue)
+
+    // TODO: update active issue
+    this.setState({activeIssue: newIssue})
+
+    // send updated issue to app
+    this.props.handleReportUpdate(newIssue)
+  }  
 
   getContentById = (contentId) => {
     return Object.assign({}, this.props.report.contentItems[contentId]);
@@ -234,6 +245,7 @@ class ContentPage extends React.Component {
           activeContentItem={activeContentItem}
           handleCloseButton={this.handleCloseButton}
           handleActiveIssue={this.handleActiveIssue}
+          handleIssueSave={this.handleIssueSave}
           t={this.props.t}
           key="ufixitModal"
           />}

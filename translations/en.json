@@ -31,7 +31,7 @@
   "label.suggestion": "Suggestion",
   "label.error": "Error",
   "label.unscannable": "Unscannable Files",
-  "label.fixed": "Fixed",
+  "label.fixed": "Issues Fixed",
   "label.review": "Review",
   "label.issue": "Issue",
   "label.status": "Status",
@@ -69,6 +69,8 @@
   "label.continue": "Continue",
   "label.content_loading_msg": "The course content is being reviewed.",
   "label.review_only": "This issue cannot be fixed within UDOIT. You can fix the issue in Canvas, or mark this as reviewed to hide this issue in the future.",
+  "label.manually_resolved": "Manually Resolved",
+  "label.files_reviewed": "Files Reviewed",
 
   "rule.label.AnchorLinksToMultiMediaRequireTranscript": "Anchor Links To MultiMedia Require Transcripts",
   "rule.label.AnchorLinksToSoundFilesNeedTranscripts": "Anchor Links To Sound Files Need Transcripts",

@@ -22,11 +22,10 @@ class IssueRepository extends ServiceEntityRepository
 
     public function deleteContentItemIssues(ContentItem $contentItem)
     {
-        //$this->getEntityManager()->createQuery('DELETE App\Entity\Issue i WHERE i.contentItem =')
         $this->getEntityManager()->createQueryBuilder()
             ->delete(Issue::class, 'i')
-            ->where('i.contentItem = :contentItem')
-            ->setParameter('contentItem', $contentItem)
+            ->where('i.contentItem = ?1 AND i.status = ?2')
+            ->setParameters([1 => $contentItem, 2 => Issue::$issueStatusActive])
             ->getQuery()
             ->getResult();
     }

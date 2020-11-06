@@ -39,10 +39,12 @@ class App extends React.Component {
     this.addMessage = this.addMessage.bind(this)
     this.hideWelcome = this.hideWelcome.bind(this)
     this.t = this.t.bind(this)
+    this.handleIssueSave = this.handleIssueSave.bind(this)
   }
 
   render() {    
     const tabIndex = this.state.navigation.tabIndex
+    console.log('render', this.state)
 
     if (this.state.navigation.showWelcome) {
       return (
@@ -81,6 +83,7 @@ class App extends React.Component {
                 navigation={this.state.navigation}
                 handleAppFilters={this.handleAppFilters} 
                 handleNavigation={this.handleNavigation}
+                handleIssueSave={this.handleIssueSave}
                 t={this.t}
                 key="contentPage"></ContentPage>
             </Tabs.Panel>
@@ -123,6 +126,7 @@ class App extends React.Component {
         api.getReport()
           .then((response) => response.json())
           .then((data) => {
+            console.log('data', data)
             if (data.messages) {
               data.messages.forEach((msg) => {
                 console.log('message', msg);
@@ -155,11 +159,11 @@ class App extends React.Component {
       
       if (data) {
         this.messages = data.messages
-        this.reportHistory = data.reports
         this.settings = data.settings
         
         if (data.report) {
           this.initialReport = data.report
+          console.log('init report', data.report)
         }
       }
     }
@@ -199,7 +203,11 @@ class App extends React.Component {
         ...prevState.navigation,
         showWelcome: false
       }
-    }));
+    }))
+  }
+
+  handleIssueSave(newIssue) {
+    console.log('app - new issue', newIssue)
   }
 }
 

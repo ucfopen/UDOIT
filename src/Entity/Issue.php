@@ -13,6 +13,9 @@ class Issue implements \JsonSerializable
 {
     static $issueError = 'error';
     static $issueSuggestion = 'suggestion';
+    static $issueStatusActive = 0;
+    static $issueStatusFixed = 1;
+    static $issueStatusResolved = 2;
 
     // Private Members
     /**
@@ -44,14 +47,9 @@ class Issue implements \JsonSerializable
     private $type;
 
     /**
-     * @ORM\Column(type="boolean")
+     * @ORM\Column(type="smallint")
      */
     private $status;
-
-    /**
-     * @ORM\ManyToMany(targetEntity="App\Entity\Report", inversedBy="issues")
-     */
-    private $reports;
 
     /**
      * @ORM\ManyToOne(targetEntity=User::class)
@@ -149,40 +147,14 @@ class Issue implements \JsonSerializable
         return $this;
     }
 
-    public function getStatus(): ?bool
+    public function getStatus(): ?int
     {
         return $this->status;
     }
 
-    public function setStatus(bool $status): self
+    public function setStatus(int $status): self
     {
         $this->status = $status;
-
-        return $this;
-    }
-
-    /**
-     * @return Collection|Report[]
-     */
-    public function getReports(): Collection
-    {
-        return $this->reports;
-    }
-
-    public function addReport(Report $report): self
-    {
-        if (!$this->reports->contains($report)) {
-            $this->reports[] = $report;
-        }
-
-        return $this;
-    }
-
-    public function removeReport(Report $report): self
-    {
-        if ($this->reports->contains($report)) {
-            $this->reports->removeElement($report);
-        }
 
         return $this;
     }

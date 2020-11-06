@@ -59,26 +59,20 @@ export default class ImageAltIsDifferent extends React.Component {
   }
 
   render() {
-    const UFixitApi = new Api()
-
     return (
-        <View display="block" textAlign="start">
-          <View display="block" margin="medium">
+        <View display="block" textAlign="start" margin="0 small 0 0">
+          <View display="block">
             {this.renderAlert()}
           </View>
-          <View display="block" margin="medium">
-            <Text weight="bold">Alternative Text</Text>
-          </View>
-          <View display="block" margin="medium">
+          <View display="block">
             <TextInput
-              renderLabel={<ScreenReaderContent>Alternative Text</ScreenReaderContent>}
-              display="inline-block"
+              renderLabel="Alternative Text"
+              display="block"
               placeholder="New alternative text"
-              width="30rem"
               onChange={this.handleInput}
             />
           </View>
-          <View display="block" margin="medium">
+          <View display="block" margin="small 0">
             <Button color="primary" onClick={this.handleButton}>Save Changes</Button>
           </View>
         </View>

@@ -11,7 +11,7 @@ import { Text } from '@instructure/ui-text'
 import { Link } from '@instructure/ui-link'
 import { TruncateText } from '@instructure/ui-truncate-text'
 import { InlineList } from '@instructure/ui-list'
-import { IconExternalLinkLine } from '@instructure/ui-icons'
+import { IconExternalLinkLine, IconCheckMarkLine } from '@instructure/ui-icons'
 import { CodeEditor } from '@instructure/ui-code-editor'
 import { Checkbox } from '@instructure/ui-checkbox'
 import Ufixit from '../Services/Ufixit';
@@ -26,6 +26,7 @@ class UfixitModal extends React.Component {
     }
     
     this.handleCodeToggle = this.handleCodeToggle.bind(this)
+    this.handleReviewToggle = this.handleReviewToggle.bind(this)
   }
 
   findActiveIndex() {
@@ -52,6 +53,14 @@ class UfixitModal extends React.Component {
     }
     this.props.handleActiveIssue(this.props.filteredRows[newIndex].issue, newIndex)
   }
+
+  handleReviewToggle() {
+    let activeIssue = Object.assign({}, this.props.activeIssue)
+    activeIssue.status = !activeIssue.status
+    activeIssue.ignored = (activeIssue.ignored) ? !activeIssue.ignored : true
+
+    this.props.handleActiveIssue(activeIssue, this.props.activeIndex)
+  }
   
   handleCodeToggle(e) {
     this.setState({showSourceCode: !this.state.showSourceCode})
@@ -68,8 +77,6 @@ class UfixitModal extends React.Component {
     let activeIndex = this.findActiveIndex();
     const UfixitForm = ufixitService.returnIssueForm(activeIssue)
 
-    console.log('content', activeContentItem)
-    
     return (
       <View>
         {this.props.open &&
@@ -100,9 +107,13 @@ class UfixitModal extends React.Component {
             </View>
             <Flex justifyItems="space-between" alignItems="start">
               <Flex.Item width="46%" padding="medium 0" overflowY="auto">
-                <UfixitForm activeIssue={activeIssue} t={this.props.t} /></Flex.Item>
+                <UfixitForm activeIssue={activeIssue} t={this.props.t} handleIssueSave={this.props.handleIssueSave} />
+                {/* <View as="div" borderWidth="small 0 0 0" padding="large 0" margin="large 0">
+                  <Button color="secondary">Mark as Reviewed</Button>
+                </View>   */}
+              </Flex.Item>
               <Flex.Item width="50%" padding="medium 0" overflowY="auto">
-                <View as="div">
+                <View as="div" padding="x-small">
                   <Text weight="bold">{this.props.t('label.preview')}</Text>
                   <View as="div" shadow="resting" padding="small" margin="x-small 0">
                     <div className={Classes.previewWindow}  dangerouslySetInnerHTML={{__html: activeIssue.previewHtml}} />
@@ -112,7 +123,7 @@ class UfixitModal extends React.Component {
                     <CodeEditor margin="x-small 0" label={this.props.t('label.code_preview')} language="html" readOnly={true} value={activeIssue.sourceHtml} />
                   }
                 </View>
-                <View as="div" margin="medium 0 0 0">
+                <View as="div" margin="medium 0 0 0" padding="x-small">
                   <Text weight="bold">{this.props.t('label.source')}</Text>
                   {activeContentItem && 
                     <View as="div" padding="small 0">                    
@@ -130,15 +141,18 @@ class UfixitModal extends React.Component {
             <View as="div" borderWidth="small 0 0 0" padding="small 0 0 0">
               <Flex justifyItems="space-between" shouldGrow shouldShrink>
                 <Flex.Item>
-                  {this.props.t('label.issue')} {(activeIndex + 1)} {this.props.t('label.of')} {this.props.filteredRows.length}
-                  {/* <InlineList delimiter="pipe">
+                  {/* {this.props.t('label.issue')} {(activeIndex + 1)} {this.props.t('label.of')} {this.props.filteredRows.length} */}
+                  <InlineList delimiter="pipe">
                     <InlineList.Item>
                       {this.props.t('label.issue')} {(activeIndex + 1)} {this.props.t('label.of')} {this.props.filteredRows.length}
                     </InlineList.Item>
-                    <InlineList.Item>
-                      Status = {activeIssue.status ? 'Reviewed' : 'Unreviewed'}
-                    </InlineList.Item>
-                  </InlineList> */}
+                    {activeIssue.status && 
+                      <InlineList.Item>
+                        <IconCheckMarkLine color="success" />
+                        <View margin="0 small">{this.props.t('label.resolved')}</View>
+                      </InlineList.Item>
+                    }
+                  </InlineList>
                 </Flex.Item>
                 <Flex.Item>
                   <Checkbox onChange={this.handleReviewToggle} label="Reviewed" checked={activeIssue.status} />

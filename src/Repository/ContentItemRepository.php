@@ -29,11 +29,17 @@ class ContentItemRepository extends ServiceEntityRepository
         return $query->execute();            
     }
 
+    public function removeInactiveContentItems() 
+    {
+        return $this->getEntityManager()
+            ->createQuery('DELETE App\Entity\ContentItem ci WHERE ci.active = 0')->execute();
+    }
+
     public function getUpdatedContentItems(Course $course)
     {
-        $lastUpdated = $course->getLastUpdated();
+        $latestReport = $course->getLatestReport();
 
-        if (!$lastUpdated) {
+        if (!$latestReport) {
             return $this->createQueryBuilder('c')
                 ->andWhere('c.course = :course')
                 ->andWhere('c.active = 1')
@@ -47,7 +53,7 @@ class ContentItemRepository extends ServiceEntityRepository
             ->andWhere('c.updated >= :updated')
             ->andWhere('c.active = 1')
             ->setParameter('course', $course)
-            ->setParameter('updated', $lastUpdated)
+            ->setParameter('updated', $latestReport->getCreated())
             ->getQuery()
             ->getResult();            
     }

@@ -34,7 +34,7 @@ class SyncController extends AbstractController
         if($course) {
             $response = new ApiResponse();
             if ($course->isActive() && !$course->isDirty()) {
-                $count = $lmsApi->createApiRequests([$course], $user, true);
+                $count = $lmsApi->addCoursesToBeScanned([$course], $user, true);
                 $this->addFlash('message', "Sync started on {$count} course(s)");
             }
             else {
@@ -58,7 +58,7 @@ class SyncController extends AbstractController
         $courses = $courseRepository->findCoursesNeedingUpdate($this->maxAge);
         $user = $this->getUser();
 
-        $count = $lmsApi->createApiRequests($courses, $user);
+        $count = $lmsApi->addCoursesToBeScanned($courses, $user);
 
         return new JsonResponse($count);
     }

@@ -204,6 +204,7 @@ class CanvasLms implements LmsInterface {
                         $contentItem = new ContentItem();
                         $contentItem->setCourse($course)
                             ->setLmsContentId($lmsContent['id'])
+                            ->setActive(true)
                             ->setContentType($contentType);
                         $this->entityManager->persist($contentItem);
                     }
@@ -337,10 +338,13 @@ class CanvasLms implements LmsInterface {
                 $out['id'] = $lmsContent['id'];
                 $out['title'] = $lmsContent['name'];
                 $out['updated'] = 'now';
+                $out['status'] = false;
                 
                 if(array_key_exists('syllabus_body', $lmsContent)) {
                     $out['body'] = $lmsContent['syllabus_body'];
+                    $out['status'] = true;
                 }
+                
                 break;
                 
             case 'page':
@@ -348,6 +352,7 @@ class CanvasLms implements LmsInterface {
                 $out['title'] = $lmsContent['title'];
                 $out['updated'] = $lmsContent['updated_at'];
                 $out['body'] = (!empty($lmsContent['body'])) ? $lmsContent['body'] : '';
+                $out['status'] = $lmsContent['published'];
 
                 break;
 
@@ -359,6 +364,8 @@ class CanvasLms implements LmsInterface {
                 $out['title'] = $lmsContent['name'];
                 $out['updated'] = $lmsContent['updated_at'];
                 $out['body'] = $lmsContent['description'];
+                $out['status'] = $lmsContent['published'];
+
                 break;
 
             case 'discussion_topic':
@@ -368,6 +375,7 @@ class CanvasLms implements LmsInterface {
                     $out['title'] = $lmsContent['title'];
                     $out['updated'] = $lmsContent['posted_at'];
                     $out['body'] = $lmsContent['message'];
+                    $out['status'] = $lmsContent['published'];
                 }
                 break;
 
@@ -387,6 +395,7 @@ class CanvasLms implements LmsInterface {
                 $out['title'] = $lmsContent['display_name'];
                 $out['updated'] = $lmsContent['updated_at'];
                 $out['body'] = '';
+                $out['status'] = !$lmsContent['hidden'];
 
                 if (isset($lmsContent['mime_class'])) {
                     $out['fileType'] = $lmsContent['mime_class'];
