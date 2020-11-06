@@ -59,8 +59,6 @@ export default class ImageAltIsDifferent extends React.Component {
   }
 
   render() {
-    const UFixitApi = new Api()
-
     return (
         <View display="block" textAlign="start" margin="0 small 0 0">
           <View display="block">

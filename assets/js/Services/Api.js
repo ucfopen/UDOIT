@@ -10,7 +10,7 @@ export default class Api {
         };
         this.settings = settings;
 
-        if (settings.apiUrl) {
+        if (settings && settings.apiUrl) {
             this.apiUrl = settings.apiUrl;
         }
     }

@@ -173,10 +173,10 @@ class LmsApiService {
             $this->scanContentItems($contentItems);
 
             /* Step 6: Create report from all active issues */
-            $report = $this->createReport($course, $user);
+            $this->createReport($course, $user);
 
             /* Step 6: Cleanup. Remove inactive content items */
-
+            $contentItemRepo->removeInactiveContentItems();
         }
 
         /* Save last_updated date on course */
@@ -299,9 +299,8 @@ class LmsApiService {
                     $this->createIssue($issue, $contentItem);
                 }
             }
-
-            $this->doctrine->getManager()->flush();
         }
+        $this->doctrine->getManager()->flush();
     }
 
     public function createIssue(PhpAllyIssue $issue, ContentItem $contentItem)

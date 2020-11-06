@@ -13,6 +13,7 @@ import { TruncateText } from '@instructure/ui-truncate-text'
 import { InlineList } from '@instructure/ui-list'
 import { IconExternalLinkLine, IconCheckMarkLine } from '@instructure/ui-icons'
 import { CodeEditor } from '@instructure/ui-code-editor'
+import { Checkbox } from '@instructure/ui-checkbox'
 import Ufixit from '../Services/Ufixit';
 
 class UfixitModal extends React.Component {
@@ -148,7 +149,7 @@ class UfixitModal extends React.Component {
                     {activeIssue.status && 
                       <InlineList.Item>
                         <IconCheckMarkLine color="success" />
-                        <Text margin="0 small">{activeIssue.ignored ? 'Reviewed' : 'Fixed'}</Text>
+                        <View margin="0 small">{this.props.t('label.resolved')}</View>
                       </InlineList.Item>
                     }
                   </InlineList>

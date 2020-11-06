@@ -57,7 +57,12 @@ class ContentItem implements \JsonSerializable
     private $issues;
 
     /**
-     * @ORM\Column(type="boolean", nullable=true)
+     * @ORM\Column(type="boolean")
+     */
+    private $published;
+
+    /**
+     * @ORM\Column(type="boolean")
      */
     private $active;
 
@@ -87,7 +92,7 @@ class ContentItem implements \JsonSerializable
             'contentType' => $this->getContentType(),
             'lmsContentId' => $this->getLmsContentId(),
             'updated' => $this->getUpdated()->format('c'),
-            'status' => $this->getActive(),
+            'status' => $this->isPublished(),
         ];
     }
 
@@ -207,7 +212,19 @@ class ContentItem implements \JsonSerializable
         return $this;
     }
 
-    public function getActive(): ?bool
+    public function isPublished(): ?bool
+    {
+        return $this->published;
+    }
+
+    public function setPublished(bool $published): self
+    {
+        $this->published = $published;
+
+        return $this;
+    }
+    
+    public function isActive(): ?bool
     {
         return $this->active;
     }
@@ -234,12 +251,13 @@ class ContentItem implements \JsonSerializable
     public function update($lmsContent): self
     {
         // try {
-            $updatedDate = new \DateTime($lmsContent['updated'], UtilityService::$timezone);
-            
-            $this->setUpdated($updatedDate);
-            $this->setTitle($lmsContent['title']);
-            $this->setActive($lmsContent['active']);
-            $this->setBody($lmsContent['body']);
+        $updatedDate = new \DateTime($lmsContent['updated'], UtilityService::$timezone);
+        
+        $this->setUpdated($updatedDate);
+        $this->setTitle($lmsContent['title']);
+        $this->setPublished($lmsContent['status']);
+        $this->setActive(true);
+        $this->setBody($lmsContent['body']);
         // }
         // catch (\Exception $e) {
             

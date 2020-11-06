@@ -16,7 +16,7 @@ class MessageTray extends React.Component {
   render() {
     
     return (
-      <View as="div" padding="small">
+      <View as="div">
         {!this.props.hasNewReport && 
           <Alert variant="info"
             renderCloseButtonLabel={this.props.t('label.close')}
