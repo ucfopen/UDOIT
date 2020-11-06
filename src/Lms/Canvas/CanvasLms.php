@@ -337,10 +337,13 @@ class CanvasLms implements LmsInterface {
                 $out['id'] = $lmsContent['id'];
                 $out['title'] = $lmsContent['name'];
                 $out['updated'] = 'now';
+                $out['active'] = false;
                 
                 if(array_key_exists('syllabus_body', $lmsContent)) {
                     $out['body'] = $lmsContent['syllabus_body'];
+                    $out['active'] = true;
                 }
+                
                 break;
                 
             case 'page':
@@ -348,6 +351,7 @@ class CanvasLms implements LmsInterface {
                 $out['title'] = $lmsContent['title'];
                 $out['updated'] = $lmsContent['updated_at'];
                 $out['body'] = (!empty($lmsContent['body'])) ? $lmsContent['body'] : '';
+                $out['active'] = $lmsContent['published'];
 
                 break;
 
@@ -359,6 +363,8 @@ class CanvasLms implements LmsInterface {
                 $out['title'] = $lmsContent['name'];
                 $out['updated'] = $lmsContent['updated_at'];
                 $out['body'] = $lmsContent['description'];
+                $out['active'] = $lmsContent['published'];
+
                 break;
 
             case 'discussion_topic':
@@ -368,6 +374,7 @@ class CanvasLms implements LmsInterface {
                     $out['title'] = $lmsContent['title'];
                     $out['updated'] = $lmsContent['posted_at'];
                     $out['body'] = $lmsContent['message'];
+                    $out['active'] = $lmsContent['published'];
                 }
                 break;
 
@@ -387,6 +394,7 @@ class CanvasLms implements LmsInterface {
                 $out['title'] = $lmsContent['display_name'];
                 $out['updated'] = $lmsContent['updated_at'];
                 $out['body'] = '';
+                $out['active'] = true;
 
                 if (isset($lmsContent['mime_class'])) {
                     $out['fileType'] = $lmsContent['mime_class'];

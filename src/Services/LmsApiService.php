@@ -104,7 +104,7 @@ class LmsApiService {
      * 
      * @return int
      */
-    public function createApiRequests($courses, User $user, $isPriority = false)
+    public function addCoursesToBeScanned($courses, User $user, $isPriority = false)
     {
         // Add courses to the Messenger Queue.
         foreach ($courses as $course) {
@@ -138,7 +138,7 @@ class LmsApiService {
         $hasContent = false;
         $lms = $this->getLms($user);
 
-        /** @var ContentItemRepository $contentItemRepo */
+        /** @var \App\Repository\ContentItemRepository $contentItemRepo */
         $contentItemRepo = $this->doctrine->getManager()->getRepository(ContentItem::class);
 
         /* Step 1: Update content
@@ -163,16 +163,19 @@ class LmsApiService {
         }
 
         if ($hasContent) {
-            /* Step 3: Create a new report */
-            $report = $this->createReport($course, $user);
+            // /* Step 3: Create a new report */
+            // $report = $this->createReport($course, $user);
 
-            /* Step 4: Link unchanged issues to new report */
-            $this->linkUnchangedIssuesToReport($report);
+            /* Step 4: Delete issues for updated content items */
+            $this->deleteContentItemIssues($contentItems);
 
             /* Step 5: Process the updated content with PhpAlly and link to report */
-            $this->scanContentItems($contentItems, $report);
+            $this->scanContentItems($contentItems);
 
-            /* Step 6: Cleanup. Remove content item HTML. (optional) */
+            /* Step 6: Create report from all active issues */
+            $report = $this->createReport($course, $user);
+
+            /* Step 6: Cleanup. Remove inactive content items */
 
         }
 
@@ -216,12 +219,59 @@ class LmsApiService {
      */
     public function createReport(Course $course, User $user) 
     {
+        $contentFixed = $contentResolved = $filesReviewed = $errors = $suggestions = 0;
+        $scanRules = [];
+
+        /** @var \App\Entity\ContentItem[] $contentItems */
+        $contentItems = $course->getContentItems();
+
+        foreach ($contentItems as $contentItem) {
+            /** @var \App\Entity\Issue[] $issues */
+            $issues = $contentItem->getIssues();
+
+            foreach ($issues as $issue) {
+                if (Issue::$issueError === $issue->getType()) {
+                    $errors++;
+                }
+                else {
+                    $suggestions++;
+                }
+
+                if (Issue::$issueStatusFixed === $issue->getStatus()) {
+                    $contentFixed++;
+                }
+                if (Issue::$issueStatusResolved === $issue->getStatus()) {
+                    $contentResolved++;
+                }
+
+                /* Scan rule data */
+                $ruleId = $issue->getScanRuleId();
+                if (!isset($scanRules[$ruleId])) {
+                    $scanRules[$ruleId] = 0;
+                }
+
+                $scanRules[$ruleId]++;
+            }
+        }
+
+        /** @var \App\Entity\FileItem[] $fileItems */
+        $fileItems = $course->getFileItems();
+        foreach ($fileItems as $file) {
+            if ($file->getReviewed()) {
+                $filesReviewed++;
+            }
+        }
+
         $report = new Report();
         $report->setCreated($this->util->getCurrentTime());
         $report->setReady(false);
         $report->setCourse($course);
-        $report->setErrors(0);
-        $report->setSuggestions(0);
+        $report->setErrors($errors);
+        $report->setSuggestions($suggestions);
+        $report->setContentFixed($contentFixed);
+        $report->setContentResolved($contentResolved);
+        $report->setFilesReviewed($filesReviewed);
+        $report->setData(\json_encode(['scanRules' => $scanRules]));
         $report->setAuthor($user);
 
         $this->doctrine->getManager()->persist($report);
@@ -235,7 +285,7 @@ class LmsApiService {
      * @param array $contentItems
      * @param Report $report
      */
-    private function scanContentItems(array $contentItems, Report $report)
+    private function scanContentItems(array $contentItems)
     {
         // Scan each update content item for issues
         /** @var \App\Entity\ContentItem $contentItem */
@@ -246,10 +296,7 @@ class LmsApiService {
                 // Add Issues to report
                 foreach ($phpAllyReport->getIssues() as $issue) {
                     // Create issue entity 
-                    $issueEntity = $this->createIssue($issue, $contentItem);
-
-                    // Add issue entity to report
-                    $report->addIssue($issueEntity);
+                    $this->createIssue($issue, $contentItem);
                 }
             }
 
@@ -262,7 +309,7 @@ class LmsApiService {
         $issueEntity = new Issue();
 
         $issueEntity->setType($issue->getType());
-        $issueEntity->setStatus(false);
+        $issueEntity->setStatus(Issue::$issueStatusActive);
         $issueEntity->setContentItem($contentItem);
         $issueEntity->setScanRuleId($issue->getRuleId());
         $issueEntity->setHtml($issue->getHtml());
@@ -273,27 +320,14 @@ class LmsApiService {
         return $issueEntity;
     }
 
-    /**
-     * All content that was not 
-     *
-     * @param Report $report
-     * @return void
-     */
-    private function linkUnchangedIssuesToReport(Report $report)
+    private function deleteContentItemIssues($contentItems)
     {
-        /** @var ContentItemRepository $contentItemRepo */
-        $contentItemRepo = $this->doctrine->getManager()->getRepository(ContentItem::class);
+        /** @var \App\Repository\IssueRepository $issueRepo */
+        $issueRepo = $this->doctrine->getManager()->getRepository(Issue::class);
 
-        /* loop through content items */
-        $course = $report->getCourse();
-
-        foreach ($contentItemRepo->getUnchangedContentItems($course) as $contentItem) {
-            /* Link all issues for the content item to the new report */
-            foreach ($contentItem->getIssues() as $issue) {
-                $report->addIssue($issue);
-            }
+        foreach ($contentItems as $contentItem) {
+            $issueRepo->deleteContentItemIssues($contentItem);
         }
-        $this->doctrine->getManager()->flush();
     }
 
     /**

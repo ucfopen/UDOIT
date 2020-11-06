@@ -46,14 +46,6 @@ class Report implements \JsonSerializable
     private $suggestions;
 
     /**
-     * @ORM\ManyToMany(targetEntity="App\Entity\Issue", mappedBy="reports")
-     */
-    private $issues;
-
-
-    private $includeIssues = false;
-
-    /**
      * @ORM\Column(type="boolean")
      */
     private $ready;
@@ -63,6 +55,21 @@ class Report implements \JsonSerializable
      * @ORM\JoinColumn(nullable=false)
      */
     private $author;
+
+    /**
+     * @ORM\Column(type="integer", nullable=true)
+     */
+    private $contentFixed;
+
+    /**
+     * @ORM\Column(type="integer", nullable=true)
+     */
+    private $contentResolved;
+
+    /**
+     * @ORM\Column(type="integer", nullable=true)
+     */
+    private $filesReviewed;
 
     // Constructor
     public function __construct()
@@ -83,19 +90,18 @@ class Report implements \JsonSerializable
         return $this->toArray();
     }
 
-    public function toArray($includeIssues = false) 
+    public function toArray() 
     {
         $result = [
             "id" => $this->id,
             "ready" => $this->ready,
             "created" => $this->created->format('c'),
-            "errors" => $this->errors,
-            "suggestions" => $this->suggestions
+            "errors" => $this->getErrors(),
+            "suggestions" => $this->getSuggestions(),
+            "contentFixed" => $this->getContentFixed(),
+            'contentResolved' => $this->getContentResolved(),
+            'filesReviewed' => $this->getFilesReviewed(),
         ];
-
-        if ($includeIssues) {
-            $result += $this->getAdditionalData();
-        }
 
         return $result;
     }
@@ -170,41 +176,6 @@ class Report implements \JsonSerializable
     }
 
     /**
-     * @return Collection|Issue[]
-     */
-    public function getIssues(): Collection
-    {
-        return $this->issues;
-    }
-
-    public function addIssue(Issue $issue): self
-    {
-        if (!$this->issues->contains($issue)) {
-            $this->issues[] = $issue;
-            $issue->addReport($this);
-            
-            if ($issue->getType() === Issue::$issueError) {
-                $this->addToErrorCount();
-            }
-            else {
-                $this->addToSuggestionCount();
-            }
-        }
-
-        return $this;
-    }
-
-    public function removeIssue(Issue $issue): self
-    {
-        if ($this->issues->contains($issue)) {
-            $this->issues->removeElement($issue);
-            $issue->removeReport($this);
-        }
-
-        return $this;
-    }
-
-    /**
      * Undocumented function
      *
      * @return Course|null
@@ -255,28 +226,39 @@ class Report implements \JsonSerializable
         return $this;
     }
 
-    public function getAdditionalData()
+    public function getContentFixed(): ?int
     {
-        $issues = [];
-        $contentItems = [];
-        $fixedCount = 0;
+        return $this->contentFixed;
+    }
 
-        /** @var Issue $issue */
-        foreach ($this->issues as $issue) {
-            $contentItem = $issue->getContentItem();
-            $contentItems[$contentItem->getId()] = $contentItem;
-            $issues[$issue->getId()] = $issue;
+    public function setContentFixed(?int $contentFixed): self
+    {
+        $this->contentFixed = $contentFixed;
 
-            if (!empty($issue->getFixedOn())) {
-                $fixedCount++;
-            }
-        }
+        return $this;
+    }
 
-        return [
-            'issues' => $issues,
-            'contentItems' => $contentItems,
-            'fixed' => $fixedCount,
-            'files' => $this->getCourse()->getFileItems(),
-        ];
+    public function getContentResolved(): ?int
+    {
+        return $this->contentResolved;
+    }
+
+    public function setContentResolved(?int $contentResolved): self
+    {
+        $this->contentResolved = $contentResolved;
+
+        return $this;
+    }
+
+    public function getFilesReviewed(): ?int
+    {
+        return $this->filesReviewed;
+    }
+
+    public function setFilesReviewed(?int $filesReviewed): self
+    {
+        $this->filesReviewed = $filesReviewed;
+
+        return $this;
     }
 }

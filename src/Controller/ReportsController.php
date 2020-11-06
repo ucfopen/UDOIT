@@ -75,6 +75,8 @@ class ReportsController extends ApiController
     public function getLatestReport(FileItemRepository $fileItemRepo, Course $course)
     {
         $apiResponse = new ApiResponse();
+        $reportArr = false;
+
         try {
             // Check if user has course access
             if (!$this->userHasCourseAccess($course)) {
@@ -85,10 +87,16 @@ class ReportsController extends ApiController
                 throw new \Exception('msg.course_scanning');
             }
             
-            $report = $course->getLatestReport()->toArray(true);
-            $report['files'] = $fileItemRepo->findByCourse($course);
+            $report = $course->getLatestReport();
 
-            $apiResponse->setData($report);
+            if ($report) {
+                $reportArr = $report->toArray();
+                $reportArr['files'] = $course->getFileItems();
+                $reportArr['issues'] = $course->getActiveIssues();
+                $reportArr['contentItems'] = $course->getContentItems();
+            }
+
+            $apiResponse->setData($reportArr);
             $apiResponse->addMessage('Scan complete. No new content found.', 'success', 5000);
         } catch (\Exception $e) {
             if ('msg.course_scanning' === $e->getMessage()) {

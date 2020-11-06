@@ -192,11 +192,17 @@ class Course implements \JsonSerializable
     }
 
     /**
-     * @return Collection|ContentItem[]
+     * @return ContentItem[]
      */
-    public function getContentItems(): Collection
+    public function getContentItems(): Array
     {
-        return $this->contentItems;
+        $contentItems = [];
+
+        foreach ($this->contentItems as $item) {
+            $contentItems[$item->getId()] = $item;
+        }
+
+        return $contentItems;
     }
 
     public function addContentItem(ContentItem $contentItem): self
@@ -259,11 +265,17 @@ class Course implements \JsonSerializable
     }
 
     /**
-     * @return Collection|FileItem[]
+     * @return FileItem[]
      */
-    public function getFileItems(): Collection
+    public function getFileItems(): Array
     {
-        return $this->fileItems;
+        $files = [];
+
+        foreach ($this->fileItems as $file) {
+            $files[$file->getId()] = $file;
+        }
+
+        return $files;
     }
 
     public function addFileItem(FileItem $fileItem): self
@@ -287,5 +299,23 @@ class Course implements \JsonSerializable
         }
 
         return $this;
+    }
+
+    public function getActiveIssues()
+    {
+        $activeIssues = [];
+
+        foreach ($this->getContentItems() as $contentItem) {
+            /** @var \App\Entity\Issue[] $issues */
+            $issues = $contentItem->getIssues();
+
+            foreach ($issues as $issue) {
+                if (Issue::$issueStatusActive === $issue->getStatus()) {
+                    $activeIssues[$issue->getId()] = $issue;
+                }
+            }
+        }
+
+        return $activeIssues;
     }
 }

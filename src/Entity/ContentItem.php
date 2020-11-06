@@ -57,7 +57,7 @@ class ContentItem implements \JsonSerializable
     private $issues;
 
     /**
-     * @ORM\Column(type="boolean")
+     * @ORM\Column(type="boolean", nullable=true)
      */
     private $active;
 
@@ -233,17 +233,17 @@ class ContentItem implements \JsonSerializable
     
     public function update($lmsContent): self
     {
-        try {
+        // try {
             $updatedDate = new \DateTime($lmsContent['updated'], UtilityService::$timezone);
             
             $this->setUpdated($updatedDate);
             $this->setTitle($lmsContent['title']);
-            $this->setActive(true);
+            $this->setActive($lmsContent['active']);
             $this->setBody($lmsContent['body']);
-        }
-        catch (\Exception $e) {
+        // }
+        // catch (\Exception $e) {
             
-        }
+        // }
 
         return $this;
     }
