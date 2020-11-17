@@ -71,6 +71,7 @@
   "label.review_only": "This issue cannot be fixed within UDOIT. You can fix the issue in Canvas, or mark this as reviewed to hide this issue in the future.",
   "label.manually_resolved": "Manually Resolved",
   "label.files_reviewed": "Files Reviewed",
+  "label.resolved": "Resolved",
 
   "rule.label.AnchorLinksToMultiMediaRequireTranscript": "Anchor Links To MultiMedia Require Transcripts",
   "rule.label.AnchorLinksToSoundFilesNeedTranscripts": "Anchor Links To Sound Files Need Transcripts",

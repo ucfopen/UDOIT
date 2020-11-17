@@ -112,7 +112,7 @@ class UfixitModal extends React.Component {
                   <Button color="secondary">Mark as Reviewed</Button>
                 </View>   */}
               </Flex.Item>
-              <Flex.Item width="50%" padding="medium 0" overflowY="auto">
+              <Flex.Item width="50%" padding="0" overflowY="auto">
                 <View as="div" padding="x-small">
                   <Text weight="bold">{this.props.t('label.preview')}</Text>
                   <View as="div" shadow="resting" padding="small" margin="x-small 0">
@@ -123,10 +123,10 @@ class UfixitModal extends React.Component {
                     <CodeEditor margin="x-small 0" label={this.props.t('label.code_preview')} language="html" readOnly={true} value={activeIssue.sourceHtml} />
                   }
                 </View>
-                <View as="div" margin="medium 0 0 0" padding="x-small">
+                <View as="div" margin="medium 0 0 0" padding="0 x-small">
                   <Text weight="bold">{this.props.t('label.source')}</Text>
                   {activeContentItem && 
-                    <View as="div" padding="small 0">                    
+                    <View as="div" padding="small 0 0 0">                    
                       <Pill>{activeContentItem.contentType}</Pill> {activeContentItem.title}
                       <View as="div">
                         <Link onClick={this.handleOpenContent} isWithinText={false} margin="small 0" renderIcon={<IconExternalLinkLine />} iconPlacement="end">
@@ -155,7 +155,7 @@ class UfixitModal extends React.Component {
                   </InlineList>
                 </Flex.Item>
                 <Flex.Item>
-                  <Checkbox onChange={this.handleReviewToggle} label="Reviewed" checked={activeIssue.status} />
+                  <Checkbox onChange={this.handleReviewToggle} label={this.props.t('label.resolved')} checked={activeIssue.status} />
                 </Flex.Item>
               </Flex>
             </View>

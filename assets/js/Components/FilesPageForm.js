@@ -14,7 +14,7 @@ class FilesPageForm extends React.Component {
 
   render() {
     return (
-      <Flex justifyItems="space-between" padding="medium 0" key="filesPageForm">
+      <Flex justifyItems="space-between" padding="0 0 medium 0" key="filesPageForm">
         <Flex.Item>
           <TextInput
             renderLabel={<ScreenReaderContent>Search Term</ScreenReaderContent>}
