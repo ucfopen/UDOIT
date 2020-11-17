@@ -107,7 +107,7 @@ class UfixitModal extends React.Component {
             </View>
             <Flex justifyItems="space-between" alignItems="start">
               <Flex.Item width="46%" padding="medium 0" overflowY="auto">
-                <UfixitForm activeIssue={activeIssue} t={this.props.t} handleIssueSave={this.props.handleIssueSave} />
+                <UfixitForm activeIssue={activeIssue} t={this.props.t} handleIssueSave={this.props.handleIssueSave}/>
                 {/* <View as="div" borderWidth="small 0 0 0" padding="large 0" margin="large 0">
                   <Button color="secondary">Mark as Reviewed</Button>
                 </View>   */}
