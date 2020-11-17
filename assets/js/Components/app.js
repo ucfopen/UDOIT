@@ -215,9 +215,9 @@ class App extends React.Component {
   handleIssueUpdate(newIssue){
     let report = Object.assign({}, this.state.report)
 
-    report.data.issues[contentID] = newIssue
+    report.data.issues[newIssue.id] = newIssue
 
-    console.log(report.data.issues[contentID])
+    console.log(report.data.issues[newIssue.id])
 
     this.setState({
       report: report
