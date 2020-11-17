@@ -40,6 +40,7 @@ class App extends React.Component {
     this.hideWelcome = this.hideWelcome.bind(this)
     this.t = this.t.bind(this)
     this.handleIssueSave = this.handleIssueSave.bind(this)
+    this.handleIssueUpdate = this.handleIssueUpdate.bind(this)
   }
 
   render() {    
@@ -84,6 +85,7 @@ class App extends React.Component {
                 handleAppFilters={this.handleAppFilters} 
                 handleNavigation={this.handleNavigation}
                 handleIssueSave={this.handleIssueSave}
+                handleIssueUpdate={this.handleIssueUpdate}
                 t={this.t}
                 key="contentPage"></ContentPage>
             </Tabs.Panel>
@@ -209,6 +211,19 @@ class App extends React.Component {
   handleIssueSave(newIssue) {
     console.log('app - new issue', newIssue)
   }
+
+  handleIssueUpdate(newIssue){
+    let report = Object.assign({}, this.state.report)
+
+    report.data.issues[contentID] = newIssue
+
+    console.log(report.data.issues[contentID])
+
+    this.setState({
+      report: report
+    })
+  }
+  
 }
 
 export default App;

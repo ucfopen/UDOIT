@@ -104,14 +104,14 @@ class ContentPage extends React.Component {
     this.setState({activeIssue: newIssue})
 
     // send updated issue to app
-    this.props.handleReportUpdate(newIssue)
+    this.props.handleIssueUpdate(newIssue)
   }  
 
   getContentById = (contentId) => {
     return Object.assign({}, this.props.report.contentItems[contentId]);
   }
 
-  getFilteredContent = () => {
+  getFilteredContent = () => { 
     const report = this.props.report;
     const filters = this.state.filters;
     const { sortBy, ascending } = this.state.tableSettings 
