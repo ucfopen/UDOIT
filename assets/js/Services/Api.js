@@ -5,7 +5,8 @@ export default class Api {
         this.endpoints = {
             getReport: '/api/courses/{course}/reports/{report}',
             getReportHistory: '/api/courses/{course}/reports',
-            postIssue: '/api/issues/{issue}/fix',
+            saveIssue: '/api/issues/{issue}/save',
+            resolveIssue: '/api/issues/{issue}/resolve',
             postFile: '',
         };
         this.settings = settings;
@@ -47,8 +48,37 @@ export default class Api {
         });
     }
 
-    postIssue() {
+    saveIssue(issue) {
+        const authToken = this.getAuthToken()
 
+        let url = `${this.apiUrl}${this.endpoints.saveIssue}`
+        url = url.replace('{issue}', issue.id)
+
+        return fetch(url, {
+            method: 'POST',
+            cache: 'no-cache',
+            headers: {
+                'X-AUTH-TOKEN': authToken,
+            },
+            body: issue.newHtml
+        })
+    }
+
+    resolveIssue(issue) {
+        const authToken = this.getAuthToken()
+
+        let url = `${this.apiUrl}${this.endpoints.resolveIssue}`
+        url = url.replace('{issue}', issue.id)
+
+        return fetch(url, {
+            method: 'POST',
+            cache: 'no-cache',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-AUTH-TOKEN': authToken,
+            },
+            body: JSON.stringify({status: issue.status, newHtml: issue.newHtml}),
+        })
     }
 
     postFile() {

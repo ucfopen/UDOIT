@@ -1,5 +1,4 @@
-import AnchorMustContainText from '../Components/Forms/AnchorMustContainText'
-import AnchorSuspiciousLinkText from '../Components/Forms/AnchorSuspiciousLinkText'
+import AnchorText from '../Components/Forms/AnchorText'
 import BaseFontIsNotUsed from '../Components/Forms/BaseFontIsNotUsed'
 import ContentTooLong from '../Components/Forms/ContentTooLong'
 import CssTextHasContrast from '../Components/Forms/CssTextHasContrast'
@@ -11,8 +10,8 @@ import ImageAltNotEmptyInAnchor from '../Components/Forms/ImageAltNotEmptyInAnch
 import UfixitReviewOnly from '../Components/Forms/UfixitReviewOnly'
 
 const UfixitForms = {
-  AnchorMustContainText,
-  AnchorSuspiciousLinkText,
+  AnchorMustContainText: AnchorText,
+  AnchorSuspiciousLinkText: AnchorText,
   BaseFontIsNotUsed,
   ContentTooLong,
   CssTextHasContrast,

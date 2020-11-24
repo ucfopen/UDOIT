@@ -301,7 +301,7 @@ class CanvasLms implements LmsInterface {
             return $fileResponse;
         }
 
-        return $canvasApi->apiPut($url, ['query' => $options]);
+        return $canvasApi->apiPut($url, ['body' => $options]);
     }
 
     public function postFile(ContentItem $contentItem) 

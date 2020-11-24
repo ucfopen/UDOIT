@@ -20,6 +20,7 @@ class App extends React.Component {
     this.settings = {}
     this.reportHistory = []
     this.messages = []
+    this.newReportInterval = 5000
 
     this.getSettings();
 
@@ -40,7 +41,6 @@ class App extends React.Component {
     this.hideWelcome = this.hideWelcome.bind(this)
     this.t = this.t.bind(this)
     this.handleIssueSave = this.handleIssueSave.bind(this)
-    this.handleIssueUpdate = this.handleIssueUpdate.bind(this)
   }
 
   render() {    
@@ -124,7 +124,7 @@ class App extends React.Component {
   checkForNewReport() {
     if (!this.hasNewReport) {
       var intervalId = setInterval(() => {
-        let api = new Api(this.settings);
+        let api = new Api(this.settings)
         api.getReport()
           .then((response) => response.json())
           .then((data) => {
@@ -144,7 +144,7 @@ class App extends React.Component {
               this.setState({ report: data.data });
             }
           });
-      }, 2000);
+      }, this.newReportInterval);
     }
     else {
       clearInterval(intervalId);
@@ -209,21 +209,13 @@ class App extends React.Component {
   }
 
   handleIssueSave(newIssue) {
-    console.log('app - new issue', newIssue)
+    const { report } = this.state
+
+    if (report && report.issues && report.issues[newIssue.id]) {
+      report.issues[newIssue.id] = newIssue
+      this.setState({report})
+    }
   }
-
-  handleIssueUpdate(newIssue){
-    let report = Object.assign({}, this.state.report)
-
-    report.data.issues[newIssue.id] = newIssue
-
-    console.log(report.data.issues[newIssue.id])
-
-    this.setState({
-      report: report
-    })
-  }
-  
 }
 
 export default App;
