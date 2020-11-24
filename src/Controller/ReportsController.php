@@ -72,7 +72,7 @@ class ReportsController extends ApiController
      * 
      * @return JsonResponse
      */
-    public function getLatestReport(FileItemRepository $fileItemRepo, Course $course)
+    public function getLatestReport(Course $course)
     {
         $apiResponse = new ApiResponse();
         $reportArr = false;

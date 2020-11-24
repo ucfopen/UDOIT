@@ -16,11 +16,10 @@ class IssuesController extends ApiController
     /**
      * UFIXIT endpoint. Takes an array of updates for future changes in the course.
      * 
-     * @Route("/api/issues/{issue}/fix", methods={"POST","GET"}, name="fix_issue")
+     * @Route("/api/issues/{issue}/save", name="save_issue")
      * @param Issue $issue
-     * @return \Symfony\Component\HttpFoundation\Response
      */
-    public function fixIssue(Request $request, UfixitService $ufixit, PhpAllyService $phpAlly, UtilityService $util, Issue $issue) {
+    public function saveIssue(Request $request, UfixitService $ufixit, PhpAllyService $phpAlly, UtilityService $util, Issue $issue) {
         $apiResponse = new ApiResponse();
         $user = $this->getUser();
 
@@ -31,13 +30,16 @@ class IssuesController extends ApiController
                 throw new \Exception("You do not have permission to access this issue.");
             }
 
-            // Get fixed content
-            //$fixedHtml = $request->request->get('html');
-            // for testing
-            $fixedHtml = $request->query->get('html');
+            // Get updated issue
+            $newHtml = $request->getContent();
+            
+            // Check if new HTML is different from original HTML
+            if ($issue->getHtml() === $newHtml) {
+                throw new \Exception('form.error.same_html');
+            }
 
             // Run fixed content through PhpAlly to validate it
-            $report = $phpAlly->scanHtml($fixedHtml);
+            $report = $phpAlly->scanHtml($newHtml);
             if ($issues = $report->getIssues()) {
                 $apiResponse->addData('issues', $issues);
             }
@@ -46,21 +48,22 @@ class IssuesController extends ApiController
             }
 
             if (!empty($issues) || !empty($errors)) {
-                throw new \Exception('Updated content does not pass all UDOIT tests.');
+                throw new \Exception('form.error.fails_tests');
             }
 
             // Save content to LMS
-            $ufixit->saveContentToLms($issue, $fixedHtml);
+            $lmsResponse = $ufixit->saveContentToLms($issue, $newHtml);
 
             // Update issue
             $issue->setStatus(Issue::$issueStatusFixed);
             $issue->setFixedBy($user);
             $issue->setFixedOn($util->getCurrentTime());
+            $issue->setNewHtml($newHtml);
             $this->getDoctrine()->getManager()->flush();
 
             // Create response
-            $apiResponse->addMessage('Your fix has been saved.', 'success');
-            $apiResponse->setData(['issue' => $issue]);
+            $apiResponse->addMessage('form.msg.success_saved', 'success');
+            $apiResponse->setData(['status' => $issue->getStatus(), 'pending' => false]);
         }
         catch(\Exception $e) {
             $apiResponse->addError($e->getMessage());
@@ -81,6 +84,47 @@ class IssuesController extends ApiController
      */
     public function markAsReviewed(Request $request, UfixitService $ufixit, PhpAllyService $phpAlly, UtilityService $util, Issue $issue)
     {
+        $apiResponse = new ApiResponse();
+        $user = $this->getUser();
 
+        try {
+            // Check if user has access to course
+            $course = $issue->getContentItem()->getCourse();
+            if (!$this->userHasCourseAccess($course)) {
+                throw new \Exception("You do not have permission to access this issue.");
+            }
+
+            // Get updated issue
+            $issueUpdate = \json_decode($request->getContent(), true);
+            $issue->setStatus(($issueUpdate['status']) ? Issue::$issueStatusResolved : Issue::$issueStatusActive);
+
+            // Update HTML with data-udoit attribute
+            //$newHtml = $this->getResolvedHtml($issue);
+
+            // Save content to LMS
+            $ufixit->saveContentToLms($issue, $issueUpdate['newHtml']);
+
+            // Update issue
+            $issue->setStatus(Issue::$issueStatusResolved);
+            $issue->setFixedBy($user);
+            $issue->setFixedOn($util->getCurrentTime());
+            //$this->getDoctrine()->getManager()->flush();
+
+            // Create response
+            $apiResponse->addMessage('form.msg.success_resolved', 'success');
+            $apiResponse->setData(['status' => $issue->getStatus(), 'pending' => false]);
+        } catch (\Exception $e) {
+            $apiResponse->addError($e->getMessage());
+        }
+
+        // Format Response JSON
+        $jsonResponse = new JsonResponse($apiResponse);
+        $jsonResponse->setEncodingOptions($jsonResponse->getEncodingOptions() | JSON_PRETTY_PRINT);
+        return $jsonResponse;
+    }
+
+    protected function getResolvedHtml(Issue $issue)
+    {
+        return $issue->getHtml();
     }
 }

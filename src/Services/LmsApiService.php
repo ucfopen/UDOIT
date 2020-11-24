@@ -207,7 +207,7 @@ class LmsApiService {
     public function postContentItemToLms(ContentItem $contentItem) 
     {
         $lms = $this->getLms();
-        $response = $lms->postContentItem($contentItem);
+        return $lms->postContentItem($contentItem);
     }
 
     /**

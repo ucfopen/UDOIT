@@ -66,6 +66,11 @@ class Issue implements \JsonSerializable
      */
     private $previewHtml;
 
+    /**
+     * @ORM\Column(type="text", nullable=true)
+     */
+    private $newHtml;
+
 
     // Constructor
     public function __construct()
@@ -191,6 +196,18 @@ class Issue implements \JsonSerializable
     public function setPreviewHtml(?string $previewHtml): self
     {
         $this->previewHtml = $previewHtml;
+
+        return $this;
+    }
+
+    public function getNewHtml(): ?string
+    {
+        return $this->newHtml;
+    }
+
+    public function setNewHtml(?string $newHtml): self
+    {
+        $this->newHtml = $newHtml;
 
         return $this;
     }
