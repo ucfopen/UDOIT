@@ -4,7 +4,6 @@ import { View } from '@instructure/ui-view'
 import { Text } from '@instructure/ui-text'
 import { TextArea } from '@instructure/ui-text-area'
 import { Button } from '@instructure/ui-buttons'
-import { Alert } from '@instructure/ui-alerts'
 import Html from '../../Services/Html';
 
 
@@ -14,8 +13,6 @@ export default class ImageAltIsDifferent extends React.Component {
 
     this.state = {
       textInputValue: Html.getAttribute(this.props.activeIssue.sourceHtml, "alt"),
-      showSuccessAlert: false,
-      showFailureAlert: false,
       isDecorative: this.elementIsDecorative(this.props.activeIssue.sourceHtml),
       characterCount: Html.getAttribute(this.props.activeIssue.sourceHtml, "alt").length,
       sourceHtml: this.props.activeIssue.sourceHtml,
@@ -27,7 +24,6 @@ export default class ImageAltIsDifferent extends React.Component {
     this.handleButton = this.handleButton.bind(this)
     this.handleInput = this.handleInput.bind(this)
     this.handleCheckbox = this.handleCheckbox.bind(this)
-    this.resetAlertState = this.resetAlertState.bind(this)
   }
 
   handleButton() {
@@ -55,7 +51,6 @@ export default class ImageAltIsDifferent extends React.Component {
 
         this.setState({
             sourceHtml: htmlString,
-            showSuccessAlert: true,
             textInputErrors: this.formErrors
         })
 
@@ -134,45 +129,11 @@ export default class ImageAltIsDifferent extends React.Component {
     return false
   }
 
-  resetAlertState() {
-    this.setState({
-      showFailureAlert: false,
-      showSuccessAlert: false
-    })
-  }
-
-  renderAlert(){
-    if(this.state.showSuccessAlert) {
-      return <Alert
-      variant="success"
-      renderCloseButtonLabel="Close"
-      margin="small"
-      transition="none"
-      onDismiss={this.resetAlertState}
-      >
-        Your changes have been submitted
-      </Alert>
-    } else if(this.state.showFailureAlert) {
-      return <Alert
-      variant="error"
-      renderCloseButtonLabel="Close"
-      margin="small"
-      transition="none"
-      onDismiss={this.resetAlertState}
-    >
-      Please fix warnings before submitting changes
-    </Alert>
-    }
-  }
-
   render() {
     const htmlElement = Html.toElement(this.state.sourceHtml)
 
     return (
         <View textAlign="start">
-          <View display="block" margin="medium">
-            {this.renderAlert()}
-          </View>
           <View display="block" margin="medium">
             <Text weight="bold">Alternative Text</Text>
           </View>
