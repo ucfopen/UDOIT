@@ -122,7 +122,7 @@ export default class ImageAltIsDifferent extends React.Component {
 
   elementIsDecorative(htmlString) {
     let element = Html.toElement(htmlString)
-    let decorativeAttribute = element.getAttribute("decorative")
+    let decorativeAttribute = Html.getAttribute(element, "decorative")
 
     if(decorativeAttribute === null) {
       return false
