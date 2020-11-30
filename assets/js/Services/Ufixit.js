@@ -1,13 +1,12 @@
+import AltText from '../Components/Forms/AltText'
 import AnchorText from '../Components/Forms/AnchorText'
 import BaseFontIsNotUsed from '../Components/Forms/BaseFontIsNotUsed'
 import ContentTooLong from '../Components/Forms/ContentTooLong'
 import CssTextHasContrast from '../Components/Forms/CssTextHasContrast'
 import CssTextStyleEmphasize from '../Components/Forms/CssTextStyleEmphasize'
 import HeadersHaveText from '../Components/Forms/HeadersHaveText'
-import ImageAltIsDifferent from '../Components/Forms/ImageAltIsDifferent'
-import ImageAltIsTooLong from '../Components/Forms/ImageAltIsTooLong'
-import ImageAltNotEmptyInAnchor from '../Components/Forms/ImageAltNotEmptyInAnchor'
 import UfixitReviewOnly from '../Components/Forms/UfixitReviewOnly'
+
 
 const UfixitForms = {
   AnchorMustContainText: AnchorText,
@@ -17,9 +16,9 @@ const UfixitForms = {
   CssTextHasContrast,
   CssTextStyleEmphasize,
   HeadersHaveText,
-  ImageAltIsDifferent,
-  ImageAltIsTooLong,
-  ImageAltNotEmptyInAnchor
+  ImageAltIsDifferent: AltText,
+  ImageAltIsTooLong: AltText,
+  ImageAltNotEmptyInAnchor: AltText
 }
 
 export default class Ufixit {
