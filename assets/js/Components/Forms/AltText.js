@@ -45,7 +45,8 @@ export default class ImageAltIsDifferent extends React.Component {
         this.setState({ textInputErrors: this.formErrors })
     } else {
         let element = Html.toElement(this.state.sourceHtml)
-        element.setAttribute("alt", this.state.textInputValue);
+
+        element = Html.setAttribute(element, "alt", this.state.textInputValue)
 
         let htmlString = Html.toString(element)
 
@@ -77,15 +78,13 @@ export default class ImageAltIsDifferent extends React.Component {
     let element = Html.toElement(this.state.sourceHtml)
 
     if(this.state.isDecorative) {
-      element.setAttribute("decorative", "false")
+      element = Html.setAttribute(element, "decorative", "false")
     } else {
-      element.setAttribute("decorative", "true")
+        element = Html.setAttribute(element, "decorative", "true")
     }
 
-    let htmlString = Html.toString(element);
-
     this.setState({
-      sourceHtml: htmlString,
+      sourceHtml: Html.toString(element),
       isDecorative: !this.state.isDecorative
     })
   }
