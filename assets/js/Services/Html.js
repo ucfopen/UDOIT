@@ -10,14 +10,6 @@ class Html {
     return element.outerHTML
   }
 
-  getAltText(element) {
-    if(element) {
-      return element.getAttribute("alt");
-    } else {
-      return "Add alt text here"
-    }
-  }
-
   getInnerText(element) {
     if ('string' === typeof element) {
       element = this.toElement(element)

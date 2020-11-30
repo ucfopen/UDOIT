@@ -13,11 +13,11 @@ export default class ImageAltIsDifferent extends React.Component {
     super(props)
 
     this.state = {
-      textInputValue: Html.getAltText(Html.toElement(this.props.activeIssue.sourceHtml)),
+      textInputValue: Html.getAttribute(this.props.activeIssue.sourceHtml, "alt"),
       showSuccessAlert: false,
       showFailureAlert: false,
       isDecorative: this.elementIsDecorative(this.props.activeIssue.sourceHtml),
-      characterCount: Html.getAltText(Html.toElement(this.props.activeIssue.sourceHtml)).length,
+      characterCount: Html.getAttribute(this.props.activeIssue.sourceHtml, "alt").length,
       sourceHtml: this.props.activeIssue.sourceHtml,
       textInputErrors: []
     }
@@ -184,7 +184,7 @@ export default class ImageAltIsDifferent extends React.Component {
               display="inline-block"
               width="25rem"
               onChange={this.handleInput}
-              defaultValue={Html.getAltText(htmlElement)}
+              defaultValue={Html.getAttribute(htmlElement, "alt")}
               id="textInputValue"
               messages={this.state.textInputErrors}
             />  
