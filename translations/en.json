@@ -73,6 +73,12 @@
   "label.files_reviewed": "Files Reviewed",
   "label.resolved": "Resolved",
 
+  "form.alt.text": "New Alt Text",
+  "form.alt.mark_decorative": "Mark image as decorative",
+  "form.alt.msg.text_empty": "Alt text cannot be empty",
+  "form.alt.msg.text_too_long": "Alt text is too long",
+  "form.alt.msg.text_has_file_extension": "Alt text cannot contain file extensions",
+  "form.alt.msg.text_matches_filename": "Alt text cannot match file name",
   "form.anchor.link_text": "New Link Text",
   "form.anchor.delete_link": "Delete this link completely instead",
   "form.anchor.msg.text_descriptive": "This text is not descriptive",
