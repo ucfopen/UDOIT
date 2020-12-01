@@ -57,6 +57,20 @@ class Html {
 
     return element
   }
+
+  removeAttribute(element, name) {
+    if ('string' === typeof element) {
+      element = this.toElement(element)
+    }
+
+    if (!element) {
+      return null
+    }
+
+    element.removeAttribute(name)
+
+    return element
+  }
 }
 
 export default new Html()

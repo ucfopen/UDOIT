@@ -74,6 +74,7 @@
   "label.resolved": "Resolved",
 
   "form.alt.text": "New Alt Text",
+  "form.alt.char_count": "Current character count",
   "form.alt.mark_decorative": "Mark image as decorative",
   "form.alt.msg.text_empty": "Alt text cannot be empty",
   "form.alt.msg.text_too_long": "Alt text is too long",
@@ -85,6 +86,7 @@
   "form.anchor.msg.text_empty": "Link text cannot be empty",
   "form.submit": "Save",
   "form.processing": "Processing",
+  "form.msg.success_saved": "Successfully saved.",
 
   "rule.label.AnchorLinksToMultiMediaRequireTranscript": "Anchor Links To MultiMedia Require Transcripts",
   "rule.label.AnchorLinksToSoundFilesNeedTranscripts": "Anchor Links To Sound Files Need Transcripts",
