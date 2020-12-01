@@ -2,7 +2,9 @@
 
 namespace App\Controller;
 
+use App\Entity\Course;
 use App\Entity\Issue;
+use App\Entity\Report;
 use App\Response\ApiResponse;
 use App\Services\PhpAllyService;
 use App\Services\UfixitService;
@@ -53,6 +55,7 @@ class IssuesController extends ApiController
 
             // Save content to LMS
             $lmsResponse = $ufixit->saveContentToLms($issue, $newHtml);
+            // TODO: check lmsResponse for errors
 
             // Update issue
             $issue->setStatus(Issue::$issueStatusFixed);
@@ -61,18 +64,22 @@ class IssuesController extends ApiController
             $issue->setNewHtml($newHtml);
             $this->getDoctrine()->getManager()->flush();
 
+            // Update report stats
+            $report = $this->getUpdatedReport($course);
+
             // Create response
             $apiResponse->addMessage('form.msg.success_saved', 'success');
-            $apiResponse->setData(['status' => $issue->getStatus(), 'pending' => false]);
+            $apiResponse->addLogMessages($util->getUnreadMessages());
+            $apiResponse->setData([
+                'issue' => ['status' => $issue->getStatus(), 'pending' => false],
+                'report' => $report,
+            ]);
         }
         catch(\Exception $e) {
             $apiResponse->addError($e->getMessage());
         }
 
-        // Format Response JSON
-        $jsonResponse = new JsonResponse($apiResponse);
-        $jsonResponse->setEncodingOptions($jsonResponse->getEncodingOptions() | JSON_PRETTY_PRINT);
-        return $jsonResponse;
+        return new JsonResponse($apiResponse);
     }
 
     /**
@@ -82,7 +89,7 @@ class IssuesController extends ApiController
      * @param Issue $issue
      * @return \Symfony\Component\HttpFoundation\Response
      */
-    public function markAsReviewed(Request $request, UfixitService $ufixit, PhpAllyService $phpAlly, UtilityService $util, Issue $issue)
+    public function markAsReviewed(Request $request, UfixitService $ufixit, UtilityService $util, Issue $issue)
     {
         $apiResponse = new ApiResponse();
         $user = $this->getUser();
@@ -98,33 +105,63 @@ class IssuesController extends ApiController
             $issueUpdate = \json_decode($request->getContent(), true);
             $issue->setStatus(($issueUpdate['status']) ? Issue::$issueStatusResolved : Issue::$issueStatusActive);
 
-            // Update HTML with data-udoit attribute
-            //$newHtml = $this->getResolvedHtml($issue);
-
             // Save content to LMS
-            $ufixit->saveContentToLms($issue, $issueUpdate['newHtml']);
+            $lmsResponse = $ufixit->saveContentToLms($issue, $issueUpdate['newHtml']);
+            // TODO: check lmsResponse for errors
 
             // Update issue
-            $issue->setStatus(Issue::$issueStatusResolved);
             $issue->setFixedBy($user);
             $issue->setFixedOn($util->getCurrentTime());
-            //$this->getDoctrine()->getManager()->flush();
+            $this->getDoctrine()->getManager()->flush();
 
             // Create response
-            $apiResponse->addMessage('form.msg.success_resolved', 'success');
+            if ($issue->getStatus() === Issue::$issueStatusResolved) {
+                $apiResponse->addMessage('form.msg.success_resolved', 'success');
+            }
+            else {
+                $apiResponse->addMessage('form.msg.success_usresolved', 'success');
+            }
+            $apiResponse->addLogMessages($util->getUnreadMessages());
             $apiResponse->setData(['status' => $issue->getStatus(), 'pending' => false]);
         } catch (\Exception $e) {
             $apiResponse->addError($e->getMessage());
         }
 
-        // Format Response JSON
-        $jsonResponse = new JsonResponse($apiResponse);
-        $jsonResponse->setEncodingOptions($jsonResponse->getEncodingOptions() | JSON_PRETTY_PRINT);
-        return $jsonResponse;
+        return new JsonResponse($apiResponse);
     }
 
-    protected function getResolvedHtml(Issue $issue)
+    public function getUpdatedReport(Course $course)
     {
-        return $issue->getHtml();
+        $errors = $suggestions = $fixed = $resolved = 0;
+
+        $report = $course->getLatestReport();
+        /** @var \App\Entity\Issue[] $issues */
+        $issues = $course->getAllIssues();
+
+        foreach ($issues as $issue) {
+            if ('error' === $issue->getType()) {
+                $errors++;
+            } else {
+                $suggestions++;
+            }
+
+            if ($issue->getStatus() === Issue::$issueStatusFixed) {
+                $fixed++;
+            } else if ($issue->getStatus() === Issue::$issueStatusResolved) {
+                $resolved++;
+            }
+        }
+
+        // TODO: handle reviewed files
+
+        $report->setErrors($errors);
+        $report->setSuggestions($suggestions);
+        $report->setContentFixed($fixed);
+        $report->setContentResolved($resolved);
+
+        $this->getDoctrine()->getManager()->flush();
+
+        return $report;
     }
+
 }

@@ -36,6 +36,7 @@ class UfixitModal extends React.Component {
     this.clearMessages = this.clearMessages.bind(this)
     this.handleIssueSave = this.handleIssueSave.bind(this)
     this.handleIssueResolve = this.handleIssueResolve.bind(this)
+    this.handleOpenContent = this.handleOpenContent.bind(this)
   }
 
   findActiveIndex() {
@@ -68,7 +69,8 @@ class UfixitModal extends React.Component {
   }
 
   handleOpenContent(e) {
-    console.log('Opening content in Canvas')
+    const contentItem = this.props.activeContentItem
+    window.open(contentItem.url, '_blank', 'noopener,noreferrer')
   }
 
   render() {
@@ -180,8 +182,8 @@ class UfixitModal extends React.Component {
   }
 
   highlightHtml(activeIssue) {
-    const html = (activeIssue.newHtml) ? activeIssue.newHtml : activeIssue.sourceHtml
-    const highlighted = `<span class="highlighted" style="display:inline-block; background-color: yellow; padding:3px 5px;">${html}</span>`
+    const html = (activeIssue.newHtml) ? activeIssue.newHtml : Html.toString(Html.toElement(activeIssue.sourceHtml))
+    const highlighted = `<span class="highlighted" style="display:inline-block; border:5px dashed #F1F155;">${html}</span>`
 
     return activeIssue.previewHtml.replace(activeIssue.sourceHtml, highlighted)
   }
@@ -222,7 +224,8 @@ class UfixitModal extends React.Component {
     api.saveIssue(issue)
       .then((responseStr) => responseStr.json())
       .then((response) => {
-        const newIssue = {...issue, ...response.data}
+        const newIssue = {...issue, ...response.data.issue}
+        const newReport = response.data.report
         
         // set messages 
         response.messages.forEach((msg) => this.addMessage(msg))
@@ -230,8 +233,8 @@ class UfixitModal extends React.Component {
         // update activeIssue
         this.props.handleActiveIssue(newIssue)
 
-        // update report.issues
-        this.props.handleIssueSave(newIssue)
+        // update report
+        this.props.handleIssueSave(newIssue, newReport)
       })
 
     // update activeIssue

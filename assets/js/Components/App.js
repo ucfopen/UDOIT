@@ -208,13 +208,15 @@ class App extends React.Component {
     }))
   }
 
-  handleIssueSave(newIssue) {
-    const { report } = this.state
+  handleIssueSave(newIssue, newReport) {
+    let { report } = this.state
+    report = {...report, ...newReport}
 
     if (report && report.issues && report.issues[newIssue.id]) {
       report.issues[newIssue.id] = newIssue
-      this.setState({report})
     }
+
+    this.setState({ report })
   }
 }
 
