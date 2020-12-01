@@ -176,7 +176,7 @@ class LmsApiService {
             $this->createReport($course, $user);
 
             /* Step 6: Cleanup. Remove inactive content items */
-            $contentItemRepo->removeInactiveContentItems();
+            //$contentItemRepo->removeInactiveContentItems();
         }
 
         /* Save last_updated date on course */
@@ -202,7 +202,7 @@ class LmsApiService {
      * Post the content from the content item back to the LMS
      *
      * @param ContentItem $contentItem
-     * @return void
+     * @return \App\Lms\LmsResponse
      */
     public function postContentItemToLms(ContentItem $contentItem) 
     {

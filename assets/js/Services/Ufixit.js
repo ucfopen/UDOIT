@@ -18,7 +18,10 @@ const UfixitForms = {
   HeadersHaveText,
   ImageAltIsDifferent: AltText,
   ImageAltIsTooLong: AltText,
-  ImageAltNotEmptyInAnchor: AltText
+  ImageAltNotEmptyInAnchor: AltText,
+  ImageHasAlt: AltText,
+  ImageHasAltDecorative: AltText,
+
 }
 
 export default class Ufixit {
@@ -28,6 +31,8 @@ export default class Ufixit {
         return UfixitForms[activeIssue.scanRuleId]
       }
     }
+
+    console.log('activeIssue', activeIssue)
 
     return UfixitReviewOnly
   }

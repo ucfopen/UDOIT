@@ -173,7 +173,7 @@ class CanvasLms implements LmsInterface {
                         continue;
                     }
 
-                    $lmsContent = $this->normalizeLmsContent($contentType, $content);
+                    $lmsContent = $this->normalizeLmsContent($course, $contentType, $content);
                     if (!$lmsContent) {
                         continue; 
                     }
@@ -265,7 +265,7 @@ class CanvasLms implements LmsInterface {
         }
         else {
             $apiContent = $response->getContent();
-            $lmsContent = $this->normalizeLmsContent($contentType, $apiContent);
+            $lmsContent = $this->normalizeLmsContent($contentItem->getCourse(), $contentType, $apiContent);
 
             /* get HTML file content */
             if ('file' === $contentType) {
@@ -329,9 +329,11 @@ class CanvasLms implements LmsInterface {
         return $lmsContentTypeUrls[$contentType];
     }
 
-    public function normalizeLmsContent($contentType, $lmsContent)
+    public function normalizeLmsContent(Course $course, $contentType, $lmsContent)
     {
         $out = [];
+        $domainName = $course->getInstitution()->getLmsDomain();
+        $baseUrl = "https://{$domainName}/courses/{$course->getLmsCourseId()}";
 
         switch ($contentType) {
             case 'syllabus':
@@ -339,6 +341,7 @@ class CanvasLms implements LmsInterface {
                 $out['title'] = $lmsContent['name'];
                 $out['updated'] = 'now';
                 $out['status'] = false;
+                $out['url'] = $baseUrl;
                 
                 if(array_key_exists('syllabus_body', $lmsContent)) {
                     $out['body'] = $lmsContent['syllabus_body'];
@@ -353,6 +356,7 @@ class CanvasLms implements LmsInterface {
                 $out['updated'] = $lmsContent['updated_at'];
                 $out['body'] = (!empty($lmsContent['body'])) ? $lmsContent['body'] : '';
                 $out['status'] = $lmsContent['published'];
+                $out['url'] = "{$baseUrl}/pages/{$lmsContent['url']}";
 
                 break;
 
@@ -365,6 +369,7 @@ class CanvasLms implements LmsInterface {
                 $out['updated'] = $lmsContent['updated_at'];
                 $out['body'] = $lmsContent['description'];
                 $out['status'] = $lmsContent['published'];
+                $out['url'] = "{$baseUrl}/assignments/{$lmsContent['id']}";
 
                 break;
 
@@ -376,6 +381,7 @@ class CanvasLms implements LmsInterface {
                     $out['updated'] = $lmsContent['posted_at'];
                     $out['body'] = $lmsContent['message'];
                     $out['status'] = $lmsContent['published'];
+                    $out['url'] = "{$baseUrl}/discussion_topics/{$lmsContent['id']}";
                 }
                 break;
 
@@ -396,6 +402,7 @@ class CanvasLms implements LmsInterface {
                 $out['updated'] = $lmsContent['updated_at'];
                 $out['body'] = '';
                 $out['status'] = !$lmsContent['hidden'];
+                $out['url'] = "{$baseUrl}/files?preview={$lmsContent['id']}";
 
                 if (isset($lmsContent['mime_class'])) {
                     $out['fileType'] = $lmsContent['mime_class'];

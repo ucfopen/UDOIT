@@ -71,6 +71,11 @@ class ContentItem implements \JsonSerializable
      */
     private $body;
 
+    /**
+     * @ORM\Column(type="string", length=255, nullable=true)
+     */
+    private $url;
+
 
     // Constructor
     public function __construct()
@@ -93,6 +98,7 @@ class ContentItem implements \JsonSerializable
             'lmsContentId' => $this->getLmsContentId(),
             'updated' => $this->getUpdated()->format('c'),
             'status' => $this->isPublished(),
+            'url' => $this->getUrl(),
         ];
     }
 
@@ -257,11 +263,25 @@ class ContentItem implements \JsonSerializable
         $this->setTitle($lmsContent['title']);
         $this->setPublished($lmsContent['status']);
         $this->setActive(true);
-        $this->setBody($lmsContent['body']);
+        $this->setBody(UtilityService::normalizeHtml($lmsContent['body']));
+        $this->setUrl($lmsContent['url']);
+        
         // }
         // catch (\Exception $e) {
             
         // }
+
+        return $this;
+    }
+
+    public function getUrl(): ?string
+    {
+        return $this->url;
+    }
+
+    public function setUrl(?string $url): self
+    {
+        $this->url = $url;
 
         return $this;
     }

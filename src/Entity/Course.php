@@ -318,4 +318,15 @@ class Course implements \JsonSerializable
 
         return $activeIssues;
     }
+
+    public function getAllIssues()
+    {
+        $allIssues = [];
+
+        foreach ($this->getContentItems() as $contentItem) {
+            $allIssues = array_merge($allIssues, $contentItem->getIssues()->toArray());
+        }
+
+        return $allIssues;
+    }
 }

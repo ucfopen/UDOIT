@@ -193,15 +193,6 @@ class Report implements \JsonSerializable
         return $this;
     }
 
-
-    /**
-     * @param bool $includeIssues
-     */
-    public function setIncludeIssues(bool $includeIssues): void
-    {
-        $this->includeIssues = $includeIssues;
-    }
-
     public function getReady(): ?bool
     {
         return $this->ready;
