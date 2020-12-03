@@ -8,7 +8,7 @@ import { Spinner } from '@instructure/ui-spinner'
 import Html from '../../Services/Html';
 
 
-export default class ImageAltIsDifferent extends React.Component {
+export default class AltText extends React.Component {
   constructor(props) {
     super(props)
 

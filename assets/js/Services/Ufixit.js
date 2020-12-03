@@ -4,8 +4,8 @@ import BaseFontIsNotUsed from '../Components/Forms/BaseFontIsNotUsed'
 import ContentTooLong from '../Components/Forms/ContentTooLong'
 import CssTextHasContrast from '../Components/Forms/CssTextHasContrast'
 import CssTextStyleEmphasize from '../Components/Forms/CssTextStyleEmphasize'
-import HeadersHaveText from '../Components/Forms/HeadersHaveText'
 import UfixitReviewOnly from '../Components/Forms/UfixitReviewOnly'
+import HeaderForm from '../Components/Forms/HeaderForm'
 
 
 const UfixitForms = {
@@ -15,13 +15,13 @@ const UfixitForms = {
   ContentTooLong,
   CssTextHasContrast,
   CssTextStyleEmphasize,
-  HeadersHaveText,
+  HeadersHaveText: HeaderForm,
   ImageAltIsDifferent: AltText,
   ImageAltIsTooLong: AltText,
   ImageAltNotEmptyInAnchor: AltText,
   ImageHasAlt: AltText,
   ImageHasAltDecorative: AltText,
-
+  ParagraphNotUsedAsHeader: HeaderForm
 }
 
 export default class Ufixit {
