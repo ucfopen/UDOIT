@@ -154,7 +154,7 @@ class UfixitModal extends React.Component {
                     <InlineList.Item>
                       {this.props.t('label.issue')} {(activeIndex + 1)} {this.props.t('label.of')} {this.props.filteredRows.length}
                     </InlineList.Item>
-                    {activeIssue.status && 
+                    {activeIssue.status && !activeIssue.pending && 
                       <InlineList.Item>
                         <IconCheckMarkLine color="success" />
                         <View margin="0 small">{this.props.t('label.resolved')}</View>
@@ -170,11 +170,11 @@ class UfixitModal extends React.Component {
           </Modal.Body>
 
           <Modal.Footer>
-            <Button margin="0 small" onClick={this.props.handleCloseButton}>Close</Button>
+            <Button margin="0 small" onClick={this.props.handleCloseButton}>{this.props.t('label.close')}</Button>
             <Button margin="0 0 0 x-small"
-              onClick={() => this.handleIssueChange(activeIndex - 1)}>Previous Issue</Button>
-            <Button margin="0 0 0 x-small" 
-              onClick={() => this.handleIssueChange(activeIndex + 1)}>Next Issue</Button>
+              onClick={() => this.handleIssueChange(activeIndex - 1)}>{this.props.t('label.previous_issue')}</Button>
+            <Button margin="0 0 0 x-small"
+              onClick={() => this.handleIssueChange(activeIndex + 1)}>{this.props.t('label.next_issue')}</Button>
           </Modal.Footer>
         </Modal>
         }
@@ -202,7 +202,8 @@ class UfixitModal extends React.Component {
     api.resolveIssue(activeIssue)
       .then((responseStr) => responseStr.json())
       .then((response) => {
-        const newIssue = { ...activeIssue, ...response.data }
+        const newIssue = { ...activeIssue, ...response.data.issue }
+        const newReport = response.data.report
 
         // set messages 
         response.messages.forEach((msg) => this.addMessage(msg))
@@ -211,7 +212,7 @@ class UfixitModal extends React.Component {
         this.props.handleActiveIssue(newIssue)
 
         // update report.issues
-        this.props.handleIssueSave(newIssue)
+        this.props.handleIssueSave(newIssue, newReport)
       })
 
     activeIssue.pending = true

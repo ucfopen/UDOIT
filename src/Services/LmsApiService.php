@@ -227,21 +227,21 @@ class LmsApiService {
 
         foreach ($contentItems as $contentItem) {
             /** @var \App\Entity\Issue[] $issues */
-            $issues = $contentItem->getIssues();
+            $issues = $contentItem->getIssues()->toArray();
 
             foreach ($issues as $issue) {
-                if (Issue::$issueError === $issue->getType()) {
-                    $errors++;
-                }
-                else {
-                    $suggestions++;
-                }
-
                 if (Issue::$issueStatusFixed === $issue->getStatus()) {
                     $contentFixed++;
                 }
-                if (Issue::$issueStatusResolved === $issue->getStatus()) {
+                else if (Issue::$issueStatusResolved === $issue->getStatus()) {
                     $contentResolved++;
+                }
+                else {
+                    if (Issue::$issueError === $issue->getType()) {
+                        $errors++;
+                    } else {
+                        $suggestions++;
+                    }
                 }
 
                 /* Scan rule data */
@@ -313,6 +313,8 @@ class LmsApiService {
         $issueEntity->setScanRuleId($issue->getRuleId());
         $issueEntity->setHtml($issue->getHtml());
         $issueEntity->setPreviewHtml($issue->getPreview());
+        
+        $contentItem->addIssue($issueEntity);
 
         $this->doctrine->getManager()->persist($issueEntity);
 

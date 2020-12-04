@@ -89,15 +89,24 @@ class ReportsController extends ApiController
             
             $report = $course->getLatestReport();
 
-            if ($report) {
-                $reportArr = $report->toArray();
-                $reportArr['files'] = $course->getFileItems();
-                $reportArr['issues'] = $course->getActiveIssues();
-                $reportArr['contentItems'] = $course->getContentItems();
+            if (!$report) {
+                throw new \Exception('msg.no_report_created');
+            }
+            
+            $reportArr = $report->toArray();
+            $reportArr['files'] = $course->getFileItems();
+            $reportArr['issues'] = $course->getActiveIssues();
+            $reportArr['contentItems'] = $course->getContentItems();
+            $apiResponse->setData($reportArr);
+
+            $prevReport = $course->getPreviousReport();
+            if ($prevReport && ($prevReport->getIssueCount() == $report->getIssueCount())) {
+                $apiResponse->addMessage('msg.no_new_content', 'success', 5000);
+            }
+            else {
+                $apiResponse->addMessage('msg.new_content', 'success', 5000);
             }
 
-            $apiResponse->setData($reportArr);
-            $apiResponse->addMessage('Scan complete. No new content found.', 'success', 5000);
         } catch (\Exception $e) {
             if ('msg.course_scanning' === $e->getMessage()) {
                 $apiResponse->addMessage($e->getMessage(), 'info', 0, false);

@@ -57,6 +57,8 @@
 
   "msg.no_permissions": "You do not have permission to access the specified course.",
   "msg.course_scanning": "Course scanning...",
+  "msg.no_new_content": "Course scan complete. No new content found.",
+  "msg.new_content": "Course scan complete. New content has been added.",
 
   "label.hide_fixed": "Hide Fixed Issues",
   "label.hide_unpublished": "Hide Unpublished Content",
@@ -64,6 +66,7 @@
   "label.hide_unpublished_files": "Hide Unpublished Files",
   "label.preview": "Preview",
   "label.source": "Source",
+  "label.download": "Download",
   "label.view_source": "View HTML",
   "label.open_in_canvas": "View In Canvas",
   "label.continue": "Continue",
@@ -72,6 +75,18 @@
   "label.manually_resolved": "Manually Resolved",
   "label.files_reviewed": "Files Reviewed",
   "label.resolved": "Resolved",
+  "label.reviewed": "Reviewed",
+  "label.previous_issue": "Previous Issue",
+  "label.next_issue": "Next Issue",
+  "label.previous_file": "Previous File",
+  "label.next_file": "Next File",
+  "label.upload": "Upload",
+  "label.replace": "Replace File",
+  "label.replace.desc": "Replace the current version of this file here.",
+
+  "label.file.drag_drop": "Drag a file here, or",
+  "label.file.browse_files": "Choose a file to upload",
+  "label.file.upload": "Upload a File",
 
   "form.alt.text": "New Alt Text",
   "form.alt.char_count": "Current character count",
@@ -87,6 +102,10 @@
   "form.submit": "Save",
   "form.processing": "Processing",
   "form.msg.success_saved": "Successfully saved.",
+  "form.msg.success_resolved": "Issue marked resolved.",
+  "form.msg.success_unresolved": "Issue marked unresolved.",
+  "form.msg.success_reviewed": "File marked reviewed.",
+  "form.msg.success_unreviewed": "File marked unreviewed.",
 
   "rule.label.AnchorLinksToMultiMediaRequireTranscript": "Anchor Links To MultiMedia Require Transcripts",
   "rule.label.AnchorLinksToSoundFilesNeedTranscripts": "Anchor Links To Sound Files Need Transcripts",
@@ -162,7 +181,7 @@
   "rule.desc.VideoProvidesCaptions": "Multimedia Objects Should Have a Text Equivalent description text goes here",
   "rule.desc.VideosEmbeddedOrLinkedNeedCaptions": " description text goes here",
 
-  "file.desc.pdf": "PDF description goes here",
+  "file.desc.pdf": "<h3>PDF Accessibility</h3><h4>Heading Text</h4><p>PDF description goes here.  PDF description goes here. P D F description goes here. PDF description goes here. PDF description goes here. P D F description goes here. PDF description goes here.</p><h4>Heading Text</h4><p>PDF description goes here. PDF description goes here. P D F description goes here. PDF description goes here. PDF description goes here. PDF description goes here. P D F description goes here. PDF description goes here. PDF description goes here. P D F description goes here. </p><p>Learn more at WebAIM.org: <a href='https://webaim.org' target='_blank'>PDF Accessibility</a></p>",
   "file.desc.doc": "DOC description goes here",
   "file.desc.ppt": "PPT description goes here",
 

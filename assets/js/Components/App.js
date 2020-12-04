@@ -41,6 +41,7 @@ class App extends React.Component {
     this.hideWelcome = this.hideWelcome.bind(this)
     this.t = this.t.bind(this)
     this.handleIssueSave = this.handleIssueSave.bind(this)
+    this.handleFileSave = this.handleFileSave.bind(this)
   }
 
   render() {    
@@ -95,6 +96,7 @@ class App extends React.Component {
                 settings={this.settings}
                 navigation={this.state.navigation}
                 handleNavigation={this.handleNavigation}
+                handleFileSave={this.handleFileSave}
                 t={this.t}
                 key="filesPage"></FilesPage>
             </Tabs.Panel>
@@ -162,6 +164,8 @@ class App extends React.Component {
       if (data) {
         this.messages = data.messages
         this.settings = data.settings
+        console.log('settings', data.settings)
+        console.log('messages', data.messages)
         
         if (data.report) {
           this.initialReport = data.report
@@ -192,7 +196,8 @@ class App extends React.Component {
   }
 
   addMessage = (msg) => {
-    this.messages.push(msg);
+    console.log('msg', msg)
+    this.messages.push(msg)
   }
 
   clearMessages = () => {
@@ -214,6 +219,17 @@ class App extends React.Component {
 
     if (report && report.issues && report.issues[newIssue.id]) {
       report.issues[newIssue.id] = newIssue
+    }
+
+    this.setState({ report })
+  }
+
+  handleFileSave(newFile, newReport) {
+    let { report } = this.state
+    report = { ...report, ...newReport }
+
+    if (report && report.files && report.files[newFile.id]) {
+      report.files[newFile.id] = newFile
     }
 
     this.setState({ report })
