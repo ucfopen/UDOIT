@@ -131,6 +131,7 @@ class FilesPage extends React.Component {
 
       filteredList.push(
         {
+          id: file.id,
           status,
           file,
           fileName: file.fileName,

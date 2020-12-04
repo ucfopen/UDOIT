@@ -38,13 +38,12 @@ class SortableTable extends React.Component {
         <View as="div">
           <Table
             caption={caption}
-            // {...this.props}
           >
             <Table.Head renderSortLabel="Sort by">
-              <Table.Row>
+              <Table.Row key="sortableTableHeader">
                 {(headers || []).map(({ id, text }) => (
                   <Table.ColHeader
-                    key={id}
+                    key={`header${id}`}
                     id={id}
                     onRequestSort={this.handleSort}
                     sortDirection={id === sortBy ? direction : 'none'}
@@ -56,9 +55,9 @@ class SortableTable extends React.Component {
             </Table.Head>
             <Table.Body>
               {pagedRows.map((row) => (
-                <Table.Row key={row.id}>
+                <Table.Row key={`row${row.id}`}>
                   {headers.map(({ id, renderCell, alignText, format }) => (
-                    <Table.Cell key={id} textAlign={alignText ? alignText : 'start'}>
+                    <Table.Cell key={`row${row.id}cell${id}`} textAlign={alignText ? alignText : 'start'}>
                       {renderCell ? renderCell(row[id]) : (format) ? format(row[id]) : row[id]}
                     </Table.Cell>
                   ))}
@@ -78,7 +77,7 @@ class SortableTable extends React.Component {
     renderPagination() {
       const pageCount = this.rowsPerPage && Math.ceil(this.props.rows.length / this.rowsPerPage);
       const pages = Array.from(Array(pageCount)).map((v, i) => <Pagination.Page
-        key={i}
+        key={`page${i}`}
         onClick={() => this.setPage(i)}
         current={i === this.props.tableSettings.pageNum}>
         {i + 1}
