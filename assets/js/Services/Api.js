@@ -7,6 +7,7 @@ export default class Api {
             getReportHistory: '/api/courses/{course}/reports',
             saveIssue: '/api/issues/{issue}/save',
             resolveIssue: '/api/issues/{issue}/resolve',
+            reviewFile: '/api/files/{file}/review',
             postFile: '',
         };
         this.settings = settings;
@@ -78,6 +79,23 @@ export default class Api {
                 'X-AUTH-TOKEN': authToken,
             },
             body: JSON.stringify({status: issue.status, newHtml: issue.newHtml}),
+        })
+    }
+
+    reviewFile(file) {
+        const authToken = this.getAuthToken()
+
+        let url = `${this.apiUrl}${this.endpoints.reviewFile}`
+        url = url.replace('{file}', file.id)
+
+        return fetch(url, {
+            method: 'POST',
+            cache: 'no-cache',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-AUTH-TOKEN': authToken,
+            },
+            body: JSON.stringify({ reviewed: file.reviewed }),
         })
     }
 

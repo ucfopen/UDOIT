@@ -165,7 +165,7 @@ class FilesPage extends React.Component {
     const headers = [
       {id: "status", text: '', alignText: "center"},
       {id: "fileName", text: this.props.t('label.file_name')}, 
-      {id: "fileType", text: this.props.t('label.content_type')}, 
+      {id: "fileType", text: this.props.t('label.file_type')}, 
       {id: "fileSize", text: this.props.t('label.file_size'), format: this.formatFileSize},
       {id: "action", text: "", alignText: "end"}
     ];
@@ -204,8 +204,10 @@ class FilesPage extends React.Component {
           activeFile={this.state.activeFile}
           activeIndex={this.state.activeIndex}
           filteredRows={filteredFiles}
+          settings={this.props.settings}
           handleCloseButton={this.handleCloseButton}
           handleActiveFile={this.handleActiveFile}
+          handleFileSave={this.props.handleFileSave}
           t={this.props.t}
           key="filesModal" />
         }

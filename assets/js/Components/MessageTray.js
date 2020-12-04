@@ -34,7 +34,7 @@ class MessageTray extends React.Component {
             onDismiss={this.props.clearMessages}
             margin="small large"
             key={`msg${i}`}>
-            {msg.message}
+            {this.props.t(msg.message)}
           </Alert>)}
       </View>
     )

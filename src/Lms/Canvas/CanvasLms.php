@@ -240,9 +240,14 @@ class CanvasLms implements LmsInterface {
             $fileItem->setCourse($course)
                 ->setFileName($file['filename'])
                 ->setFileType($file['mime_class'])
-                ->setLmsFileId($file['id']);
+                ->setLmsFileId($file['id'])
+                ->setDownloadUrl($file['url']);
             $this->entityManager->persist($fileItem);
         }
+
+        $domainName = $course->getInstitution()->getLmsDomain();
+        $lmsUrl = "https://{$domainName}/courses/{$course->getLmsCourseId()}/files?preview={$file['id']}";
+        $fileItem->setLmsUrl($lmsUrl);
 
         $fileItem->update($file);
         $this->entityManager->flush();
