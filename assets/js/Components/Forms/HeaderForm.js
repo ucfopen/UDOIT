@@ -119,7 +119,7 @@ export default class HeaderForm extends React.Component {
                     <View as="span" display="inline-block" margin="small" padding="small">
                         <SimpleSelect
                         renderLabel={this.props.t('form.header.heading_level')}
-                        assistiveText="Use arrow keys to navigate options."
+                        assistiveText={this.props.t('form.header.assistive_text')}
                         value={this.state.selectedValue}
                         onChange={this.handleSelect}
                         width="100%"
