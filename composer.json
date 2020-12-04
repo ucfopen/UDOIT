@@ -60,7 +60,7 @@
         "mpdf/mpdf": "8.0.4",
         "league/plates": "~3.1.1",
         "monolog/monolog": "~1.21",
-        "mnsami/composer-custom-directory-installer": "1.1.*",
+        "mnsami/composer-custom-directory-installer": "2.0.*",
         "eastdesire/jscolor":"1.4.2"
     },
     "require-dev": {
