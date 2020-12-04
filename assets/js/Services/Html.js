@@ -71,6 +71,36 @@ class Html {
 
     return element
   }
+
+  getTagName(element) {
+    if ('string' === typeof element) {
+      element = this.toElement(element)
+    }
+
+    if (!element) {
+      return null
+    }
+
+    return element.tagName;
+  }
+
+  removeTag(element, name) {
+    if ('string' === typeof element) {
+      element = this.toElement(element)
+    }
+
+    if (!element) {
+      return null
+    }
+
+    let outerTag = RegExp('<'.concat(name).concat('>'))
+
+    element.innerHTML = element.innerHTML.replace(outerTag, "")
+
+    console.log(element)
+
+    return element
+  }
 }
 
 export default new Html()
