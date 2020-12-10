@@ -87,6 +87,8 @@
   "label.file.drag_drop": "Drag a file here, or",
   "label.file.browse_files": "Choose a file to upload",
   "label.file.upload": "Upload a File",
+  "label.file.new_file": "New File",
+  "label.file.submit": "Submit",
 
   "form.alt.text": "New Alt Text",
   "form.alt.char_count": "Current character count",
@@ -112,6 +114,7 @@
   "form.msg.success_unresolved": "Issue marked unresolved.",
   "form.msg.success_reviewed": "File marked reviewed.",
   "form.msg.success_unreviewed": "File marked unreviewed.",
+  "form.msg.success_replaced": "File replaced.",
 
   "rule.label.AnchorLinksToMultiMediaRequireTranscript": "Anchor Links To MultiMedia Require Transcripts",
   "rule.label.AnchorLinksToSoundFilesNeedTranscripts": "Anchor Links To Sound Files Need Transcripts",

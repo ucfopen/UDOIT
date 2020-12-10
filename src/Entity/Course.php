@@ -315,11 +315,14 @@ class Course implements \JsonSerializable
     /**
      * @return FileItem[]
      */
-    public function getFileItems(): Array
+    public function getFileItems($activeOnly = true): Array
     {
         $files = [];
 
         foreach ($this->fileItems as $file) {
+            if ($activeOnly && !$file->isActive()) {
+                continue;
+            }
             $files[$file->getId()] = $file;
         }
 

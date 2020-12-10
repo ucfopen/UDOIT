@@ -3,14 +3,9 @@
 namespace App\Controller;
 
 use App\Entity\Course;
-use App\Repository\ContentItemRepository;
-use App\Repository\FileItemRepository;
 use App\Services\LmsApiService;
 use App\Services\UtilityService;
-use App\Services\ContentService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\Routing\Annotation\Route;
 
 class DashboardController extends AbstractController
@@ -33,8 +28,6 @@ class DashboardController extends AbstractController
         $reportArr = false;
 
         $user = $this->getUser();
-
-        // TODO: Handle no user
         if (!$user) {
             $this->util->exitWithMessage('User authentication failed.');
         }
@@ -48,23 +41,21 @@ class DashboardController extends AbstractController
         /** @var Course $course */
         $course = $courseRepo->findOneBy(['lmsCourseId' => $lmsCourseId]);
 
-        if ($course) {
-            $activeReport = $course->getLatestReport();
-            
-            if ($activeReport) {
-                $reportArr = $activeReport->toArray();
-                $reportArr['issues'] = $course->getActiveIssues();
-                $reportArr['contentItems'] = $course->getContentItems();
-                $reportArr['files'] = $course->getFileItems();
-            }
-        }
-        else {
+        if (!$course) {
             $institution = $user->getInstitution();
             $course = $this->util->createCourse($institution, $lmsCourseId);
         }
 
         /* Add this course to the queue for scanning */
         $this->lmsApi->addCoursesToBeScanned([$course], $user, true);
+
+        $activeReport = $course->getLatestReport();        
+        if ($activeReport) {
+            $reportArr = $activeReport->toArray();
+            $reportArr['issues'] = $course->getActiveIssues();
+            $reportArr['contentItems'] = $course->getContentItems();
+            $reportArr['files'] = $course->getFileItems();
+        }
 
         return $this->render('default/index.html.twig', [
             'data' => [

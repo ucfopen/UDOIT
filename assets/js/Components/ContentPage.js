@@ -161,6 +161,7 @@ class ContentPage extends React.Component {
 
       filteredList.push(
         {
+          id: issue.id,
           issue,
           status,
           scanRuleLabel: this.props.t(`rule.label.${issue.scanRuleId}`),

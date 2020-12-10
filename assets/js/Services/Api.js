@@ -8,7 +8,7 @@ export default class Api {
             saveIssue: '/api/issues/{issue}/save',
             resolveIssue: '/api/issues/{issue}/resolve',
             reviewFile: '/api/files/{file}/review',
-            postFile: '',
+            postFile: '/api/files/{file}/post',
         };
         this.settings = settings;
 
@@ -99,7 +99,24 @@ export default class Api {
         })
     }
 
-    postFile() {
+    postFile(activeFile, fileObj) {
+        const authToken = this.getAuthToken()
 
+        let url = `${this.apiUrl}${this.endpoints.postFile}`
+        url = url.replace('{file}', activeFile.id)
+
+        let formData = new FormData()
+        formData.append('file', fileObj)
+        
+        console.log('postFile', fileObj)
+
+        return fetch(url, {
+            method: 'POST',
+            cache: 'no-cache',
+            headers: {
+                'X-AUTH-TOKEN': authToken,
+            },
+            body: formData,
+        })
     }
 }

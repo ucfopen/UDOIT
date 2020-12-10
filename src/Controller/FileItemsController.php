@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Entity\FileItem;
 use App\Response\ApiResponse;
+use App\Services\LmsPostService;
 use App\Services\UtilityService;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -12,7 +13,7 @@ use Symfony\Component\Routing\Annotation\Route;
 class FileItemsController extends ApiController
 {
     /**
-     * @Route("/api/files/{file}/review", name="file_item")
+     * @Route("/api/files/{file}/review", name="review_file")
      */
     public function reviewFile(FileItem $file, Request $request, UtilityService $util)
     {
@@ -46,6 +47,48 @@ class FileItemsController extends ApiController
             $apiResponse->addLogMessages($util->getUnreadMessages());
             $apiResponse->setData([
                 'file' => ['reviewed' => $file->getReviewed(), 'pending' => false],
+                'report' => $report,
+            ]);
+        } catch (\Exception $e) {
+            $apiResponse->addError($e->getMessage());
+        }
+
+        return new JsonResponse($apiResponse);
+    }
+
+    /**
+     * @Route("/api/files/{file}/post", methods={"POST"}, name="file_post")
+     */
+    public function postFile(FileItem $file, Request $request, UtilityService $util, LmsPostService $lmsPost)
+    {
+        $apiResponse = new ApiResponse();
+        $user = $this->getUser();
+
+        try {
+            // Check if user has access to course
+            $course = $file->getCourse();
+            if (!$this->userHasCourseAccess($course)) {
+                throw new \Exception("You do not have permission to access this issue.");
+            }
+
+            $uploadedFile = $request->files->get('file');
+
+            // Save content to LMS
+            $lmsResponse = $lmsPost->saveFileToLms($file, $uploadedFile);
+
+            $apiResponse->setData($lmsResponse);
+
+            // Update report stats
+            $report = $course->getUpdatedReport();
+
+            $this->getDoctrine()->getManager()->flush();
+
+            // Create response
+            $apiResponse->addMessage('form.msg.success_replaced', 'success', 5000);
+            
+            $apiResponse->addLogMessages($util->getUnreadMessages());
+            $apiResponse->setData([
+                'file' => ['pending' => false],
                 'report' => $report,
             ]);
         } catch (\Exception $e) {

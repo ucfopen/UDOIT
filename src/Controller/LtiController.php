@@ -2,20 +2,14 @@
 
 namespace App\Controller;
 
-use App\Entity\User;
-use App\Lms\Canvas\CanvasLms;
-use App\Services\LmsApiService;
 use App\Services\UtilityService;
 use Firebase\JWT\JWK;
 use \Firebase\JWT\JWT;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpClient\HttpClient;
-use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\Routing\Annotation\Route;
-use function GuzzleHttp\Promise\queue;
 
 class LtiController extends AbstractController
 {

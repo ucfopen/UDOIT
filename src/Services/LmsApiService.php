@@ -2,20 +2,13 @@
 
 namespace App\Services;
 
-use App\Entity\ContentItem;
 use App\Entity\User;
 use App\Entity\Course;
-use App\Entity\Issue;
-use App\Entity\Report;
 use App\Lms\Canvas\CanvasLms;
 use App\Lms\D2l\D2lLms;
 use App\Message\BackgroundQueueItem;
 use App\Message\PriorityQueueItem;
-use CidiLabs\PhpAlly\PhpAllyIssue;
-use CidiLabs\PhpAlly\PhpAllyReport;
 use Doctrine\Persistence\ManagerRegistry;
-use Symfony\Component\HttpClient\HttpClient;
-use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\Messenger\MessageBusInterface;
 
@@ -26,17 +19,8 @@ class LmsApiService {
     /** @var SessionInterface $session */
     protected $session;
 
-    /** @var Request $request */
-    private $request;
-    
     /** @var MesageBusInterface $bus */
     protected $bus;
-
-    /** @var ManagerRegistry $doctrine */
-    protected $doctrine;
-
-    /** @var UtilityService $util */
-    protected $util;
 
     /** @var CanvasLms $canvasLms */
     private $canvasLms;
@@ -44,25 +28,17 @@ class LmsApiService {
     /** @var D2lLms $d2lLms */
     private $d2lLms;
 
-    /** @var PhpAllyService $phpAllyService */
-    private $phpAlly;
 
     public function __construct(
         SessionInterface $session,
-        RequestStack $requestStack,
         MessageBusInterface $bus, 
-        ManagerRegistry $doctrine, 
-        UtilityService $util,
+        ManagerRegistry $doctrine,
         CanvasLms $canvasLms,
-        D2lLms $d2lLms,
-        PhpAllyService $phpAlly)
+        D2lLms $d2lLms)
     {
         $this->session = $session;
-        $this->request = $requestStack->getCurrentRequest();
         $this->bus = $bus;
-        $this->doctrine = $doctrine;        
-        $this->util = $util;
-        $this->phpAlly = $phpAlly;
+        $this->doctrine = $doctrine;  
 
         $this->canvasLms = $canvasLms;
         $this->d2lLms = $d2lLms;
@@ -122,309 +98,4 @@ class LmsApiService {
         return count($courses);
     }
 
-    /**
-     * Course Refresh has these steps:
-     * 1) Update course structure
-     * 2) Find any updated content
-     * 3) Create new report
-     * 4) Link unchanged issues to new report
-     * 5) Process updated content
-     * 
-     * @param Course $course
-     * @param User $user
-     */
-    public function refreshLmsContent(Course $course, User $user)
-    {
-        $hasContent = false;
-        $lms = $this->getLms($user);
-
-        /** @var \App\Repository\ContentItemRepository $contentItemRepo */
-        $contentItemRepo = $this->doctrine->getManager()->getRepository(ContentItem::class);
-
-        /* Step 1: Update content
-        /* Update course status */
-        $lms->updateCourseData($course, $user);
-        
-        /* Mark content items as inactive */
-        $contentItemRepo->setCourseContentInactive($course);
-
-        /* Update content items from LMS */
-        $lms->updateCourseContent($course, $user);
-
-        /* Step 2: Get list of changed content items */
-        $contentItems = $contentItemRepo->getUpdatedContentItems($course);
-        
-        /* Only continue if the new content needs to be scanned (not all files) */
-        foreach ($contentItems as $contentItem) {
-            if ($contentItem->getBody() != '') {
-                $hasContent = true;
-                break;
-            }
-        }
-
-        if ($hasContent) {
-            // /* Step 3: Create a new report */
-            // $report = $this->createReport($course, $user);
-
-            /* Step 4: Delete issues for updated content items */
-            $this->deleteContentItemIssues($contentItems);
-
-            /* Step 5: Process the updated content with PhpAlly and link to report */
-            $this->scanContentItems($contentItems);
-
-            /* Step 6: Create report from all active issues */
-            $this->createReport($course, $user);
-
-            /* Step 6: Cleanup. Remove inactive content items */
-            //$contentItemRepo->removeInactiveContentItems();
-        }
-
-        /* Save last_updated date on course */
-        $course->setLastUpdated($this->util->getCurrentTime());
-        $course->setDirty(false);
-        $this->doctrine->getManager()->flush();
-    }
-
-    /**
-     * Refresh content item data from the LMS
-     *
-     * @param ContentItem $contentItem
-     * @return void
-     */
-    public function refreshContentItemFromLms(ContentItem $contentItem)
-    {
-        $lms = $this->getLms();
-        $lms->updateContentItem($contentItem);
-        $this->doctrine->getManager()->flush();
-    }
-
-    /**
-     * Post the content from the content item back to the LMS
-     *
-     * @param ContentItem $contentItem
-     * @return \App\Lms\LmsResponse
-     */
-    public function postContentItemToLms(ContentItem $contentItem) 
-    {
-        $lms = $this->getLms();
-        return $lms->postContentItem($contentItem);
-    }
-
-    /**
-     * Create new report
-     *
-     * @param Course $course
-     * @param User $user
-     * @return Report
-     */
-    public function createReport(Course $course, User $user) 
-    {
-        $contentFixed = $contentResolved = $filesReviewed = $errors = $suggestions = 0;
-        $scanRules = [];
-
-        /** @var \App\Entity\ContentItem[] $contentItems */
-        $contentItems = $course->getContentItems();
-
-        foreach ($contentItems as $contentItem) {
-            /** @var \App\Entity\Issue[] $issues */
-            $issues = $contentItem->getIssues()->toArray();
-
-            foreach ($issues as $issue) {
-                if (Issue::$issueStatusFixed === $issue->getStatus()) {
-                    $contentFixed++;
-                }
-                else if (Issue::$issueStatusResolved === $issue->getStatus()) {
-                    $contentResolved++;
-                }
-                else {
-                    if (Issue::$issueError === $issue->getType()) {
-                        $errors++;
-                    } else {
-                        $suggestions++;
-                    }
-                }
-
-                /* Scan rule data */
-                $ruleId = $issue->getScanRuleId();
-                if (!isset($scanRules[$ruleId])) {
-                    $scanRules[$ruleId] = 0;
-                }
-
-                $scanRules[$ruleId]++;
-            }
-        }
-
-        /** @var \App\Entity\FileItem[] $fileItems */
-        $fileItems = $course->getFileItems();
-        foreach ($fileItems as $file) {
-            if ($file->getReviewed()) {
-                $filesReviewed++;
-            }
-        }
-
-        $report = new Report();
-        $report->setCreated($this->util->getCurrentTime());
-        $report->setReady(false);
-        $report->setCourse($course);
-        $report->setErrors($errors);
-        $report->setSuggestions($suggestions);
-        $report->setContentFixed($contentFixed);
-        $report->setContentResolved($contentResolved);
-        $report->setFilesReviewed($filesReviewed);
-        $report->setData(\json_encode(['scanRules' => $scanRules]));
-        $report->setAuthor($user);
-
-        $this->doctrine->getManager()->persist($report);
-        $this->doctrine->getManager()->flush();
-
-        return $report;
-    }
-
-    /**
-     * Performs PHPAlly scan on each Content Item.
-     * @param array $contentItems
-     * @param Report $report
-     */
-    private function scanContentItems(array $contentItems)
-    {
-        // Scan each update content item for issues
-        /** @var \App\Entity\ContentItem $contentItem */
-        foreach ($contentItems as $contentItem) {
-            // Scan Content Item with PHPAlly
-            $phpAllyReport = $this->phpAlly->scanContentItem($contentItem);
-            if ($phpAllyReport) {
-                // Add Issues to report
-                foreach ($phpAllyReport->getIssues() as $issue) {
-                    // Create issue entity 
-                    $this->createIssue($issue, $contentItem);
-                }
-            }
-        }
-        $this->doctrine->getManager()->flush();
-    }
-
-    public function createIssue(PhpAllyIssue $issue, ContentItem $contentItem)
-    {
-        $issueEntity = new Issue();
-
-        $issueEntity->setType($issue->getType());
-        $issueEntity->setStatus(Issue::$issueStatusActive);
-        $issueEntity->setContentItem($contentItem);
-        $issueEntity->setScanRuleId($issue->getRuleId());
-        $issueEntity->setHtml($issue->getHtml());
-        $issueEntity->setPreviewHtml($issue->getPreview());
-        
-        $contentItem->addIssue($issueEntity);
-
-        $this->doctrine->getManager()->persist($issueEntity);
-
-        return $issueEntity;
-    }
-
-    private function deleteContentItemIssues($contentItems)
-    {
-        /** @var \App\Repository\IssueRepository $issueRepo */
-        $issueRepo = $this->doctrine->getManager()->getRepository(Issue::class);
-
-        foreach ($contentItems as $contentItem) {
-            $issueRepo->deleteContentItemIssues($contentItem);
-        }
-    }
-
-    /**
-     * Returns true if API key has been validated.
-     *
-     * @param User $user
-     * @return bool
-     */
-    public function validateApiKey(User $user)
-    {
-        $apiKey = $user->getApiKey();
-
-        if (empty($apiKey)) {
-            return false;
-        }
-
-        try {
-            $lms = $this->getLms();
-            $profile = $lms->testApiConnection($user);
-
-            if (empty($profile)) {
-                throw new \Exception('Access token is invalid or expired.');
-            }
-
-            return true;
-        } catch (\Exception $e) {
-            $refreshed = $this->refreshApiKey($user);
-            if (!$refreshed) {
-                return false;
-            }
-
-            $profile = $lms->testApiConnection($user);
-
-            if (!$profile) {
-                return false;
-            }
-
-            return true;
-        }
-    }
-
-    public function refreshApiKey(User $user)
-    {
-        $refreshToken = $user->getRefreshToken();
-        $institution = $user->getInstitution();
-        $baseUrl = $institution->getLmsDomain();
-
-        if (empty($refreshToken)) {
-            return false;
-        }
-
-        $options = [
-            'query' => [
-                'grant_type'    => 'refresh_token',
-                'client_id'     => $institution->getApiClientId(),
-                'redirect_uri'  => $this->getOauthRedirectUri(),
-                'client_secret' => $institution->getApiClientSecret(),
-                'refresh_token' => $refreshToken,
-            ],
-            'verify_host' => false,
-            'verify_peer' => false,
-        ];
-
-        $client = HttpClient::create();
-        $requestUrl = "https://{$baseUrl}/login/oauth2/token";
-        $response = $client->request('POST', $requestUrl, $options);
-        $contentStr = $response->getContent(false);
-        $newKey = \json_decode($contentStr, true);
-
-        // update the token in the database
-        if (isset($newKey['access_token'])) {
-            $this->updateUserToken($user, $newKey);
-
-            return true;
-        } else {
-            return false;
-        }
-    }
-
-    public function updateUserToken(User $user, $apiKey)
-    {
-        if (!empty($apiKey['access_token'])) {
-            $user->setApiKey($apiKey['access_token']);
-        }
-        if (isset($apiKey['refresh_token'])) {
-            $user->setRefreshToken($apiKey['refresh_token']);
-        }
-
-        $now = new \DateTime();
-        $user->setLastLogin($now);
-
-        $this->doctrine->getManager()->flush();
-    }
-
-    public function getOauthRedirectUri()
-    {
-        return $this->request->server->get('APP_OAUTH_REDIRECT_URL');
-    }
 }
