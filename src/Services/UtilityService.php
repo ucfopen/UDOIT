@@ -242,6 +242,7 @@ class UtilityService {
             'pdf',
             'ppt',
             'doc',
+            'xls',
         ];
     }
 }

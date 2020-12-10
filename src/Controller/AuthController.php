@@ -5,10 +5,10 @@ namespace App\Controller;
 use App\Entity\Institution;
 use App\Entity\User;
 use App\Services\LmsApiService;
+use App\Services\LmsUserService;
 use App\Services\UtilityService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpClient\HttpClient;
-use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
@@ -22,7 +22,7 @@ class AuthController extends AbstractController
     private $session;
     /** @var Request $request */
     private $request;
-    /** @var LmsApiService $lmsApi */
+    /** @var LmsUserService $lmsApi */
     private $lmsApi;
 
     /**
@@ -32,15 +32,16 @@ class AuthController extends AbstractController
         Request $request,
         SessionInterface $session,
         UtilityService $util,
+        LmsUserService $lmsUser,
         LmsApiService $lmsApi)
     {
         $this->request = $request;
         $this->session = $session;
         $this->util = $util;
-        $this->lmsApi = $lmsApi;
+        $this->lmsUser = $lmsUser;
 
         $user = $this->getUser();
-        if (!empty($user) && $this->lmsApi->validateApiKey($user)) {
+        if (!empty($user) && $this->lmsUser->validateApiKey($user)) {
             return $this->redirectToRoute('dashboard');
         }
         
@@ -52,7 +53,7 @@ class AuthController extends AbstractController
         }
 
         $apiClientId = $institution->getApiClientId();
-        $redirectUri = $this->lmsApi->getOauthRedirectUri();
+        $redirectUri = $lmsUser->getOauthRedirectUri();
         $scopes = $lmsApi->getLms()->getScopes();
         $oauthUri = "https://{$this->session->get('lms_api_domain')}/login/oauth2/auth/?client_id={$apiClientId}&scopes={$scopes}&response_type=code&redirect_uri={$redirectUri}";
 
@@ -68,12 +69,12 @@ class AuthController extends AbstractController
         Request $request,
         SessionInterface $session,
         UtilityService $util,
-        LmsApiService $lmsApi
+        LmsUserService $lmsUser
     ) {
         $this->request = $request;
         $this->session = $session;
         $this->util = $util;
-        $this->lmsApi = $lmsApi;
+        $this->lmsUser = $lmsUser;
 
         if (!empty($request->query->get('error'))) {
             $util->exitWithMessage('Authentication problem: Access Denied. ' . $request->query->get('error'));
@@ -91,9 +92,9 @@ class AuthController extends AbstractController
             $util->exitWithMessage('Authentication problem: Missing access token. Please contact support.');
         }
         
-        $this->lmsApi->updateUserToken($user, $newKey);
-        $this->session->set('apiKey', $newKey['access_token']);
-        $this->session->set('tokenHeader', ["Authorization: Bearer " . $newKey['access_token']]);
+        $lmsUser->updateUserToken($user, $newKey);
+        $session->set('apiKey', $newKey['access_token']);
+        $session->set('tokenHeader', ["Authorization: Bearer " . $newKey['access_token']]);
 
         return $this->redirectToRoute('dashboard');
     }
@@ -142,7 +143,7 @@ class AuthController extends AbstractController
             'query' => [
                 'grant_type'    => 'authorization_code',
                 'client_id'     => $institution->getApiClientId(),
-                'redirect_uri'  => $this->lmsApi->getOauthRedirectUri(),
+                'redirect_uri'  => $this->lmsUser->getOauthRedirectUri(),
                 'client_secret' => $institution->getApiClientSecret(),
                 'code'          => $code,
             ],

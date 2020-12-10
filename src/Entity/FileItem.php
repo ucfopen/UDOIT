@@ -88,6 +88,11 @@ class FileItem implements \JsonSerializable
      */
     private $reviewedOn;
 
+    /**
+     * @ORM\Column(type="boolean")
+     */
+    private $active;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -218,8 +223,9 @@ class FileItem implements \JsonSerializable
         $updatedDate = new \DateTime($file['updated_at'], UtilityService::$timezone);
 
         $this->setUpdated($updatedDate);
+        $this->setActive(true);
         $this->setFileName($file['display_name']);
-        $this->setStatus(true);
+        $this->setStatus($file['locked']);
         $this->setFileType($file['mime_class']);
         $this->setFileSize($file['size']);
         $this->setHidden($file['hidden']);
@@ -241,6 +247,7 @@ class FileItem implements \JsonSerializable
             'lmsFileId' => $this->getLmsFileId(),
             'updated' => $this->getUpdated()->format('c'),
             'status' => $this->getStatus(),
+            'active' => $this->isActive(),
             'fileSize' => $this->getFileSize(),
             'hidden' => $this->getHidden(),
             'reviewed' => $this->getReviewed(),
@@ -293,6 +300,18 @@ class FileItem implements \JsonSerializable
     public function setReviewedOn(?\DateTimeInterface $reviewedOn): self
     {
         $this->reviewedOn = $reviewedOn;
+
+        return $this;
+    }
+
+    public function isActive(): ?bool
+    {
+        return $this->active;
+    }
+
+    public function setActive(bool $active): self
+    {
+        $this->active = $active;
 
         return $this;
     }

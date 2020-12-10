@@ -15,6 +15,7 @@ import { FileDrop } from '@instructure/ui-file-drop'
 import MessageTray from './MessageTray';
 
 import Api from '../Services/Api'
+import { Spinner } from '@instructure/ui-spinner'
 
 class FilesModal extends React.Component {
 
@@ -22,9 +23,9 @@ class FilesModal extends React.Component {
     super(props);
 
     this.state = {
-      showSourceCode: false,
+      replaceFileObj: null
     }
-
+    
     this.modalMessages = []
 
     this.addMessage = this.addMessage.bind(this)
@@ -32,6 +33,17 @@ class FilesModal extends React.Component {
     this.handleFileResolve = this.handleFileResolve.bind(this)
     this.handleFileChange = this.handleFileChange.bind(this)
     this.handleOpenContent = this.handleOpenContent.bind(this)
+    this.handleDropAccept = this.handleDropAccept.bind(this)
+    this.handleDropReject = this.handleDropReject.bind(this)
+    this.handleFilePost = this.handleFilePost.bind(this)
+  }
+
+  componentDidUpdate(prevProps, prevState) {
+    if (prevProps.activeFile.id !== this.props.activeFile.id) {
+      this.setState({
+        replaceFileObj: null
+      })
+    }
   }
 
   findActiveIndex() {
@@ -106,8 +118,8 @@ class FilesModal extends React.Component {
                     <Text as="p">{this.props.t('label.replace.desc')}</Text>
                     <FileDrop
                       accept={activeFile.fileType}
-                      onDropAccepted={([file]) => { console.log(`File accepted ${file.name}`) }}
-                      onDropRejected={([file]) => { console.log(`File rejected ${file.name}`) }}
+                      onDropAccepted={this.handleDropAccept}
+                      onDropRejected={this.handleDropReject}
                       renderLabel={
                         <View as="div" textAlign="center" padding="large">
                           <IconUploadSolid />
@@ -121,6 +133,16 @@ class FilesModal extends React.Component {
                       margin="x-small"
                     />
                   </View>
+                  {this.state.replaceFileObj &&
+                    <View as="div" margin="x-small">
+                      <View as="div">
+                        <Text weight="bold">{this.props.t('label.file.new_file')}: </Text>
+                        <Text padding="0 x-small">{this.state.replaceFileObj.name}</Text>
+                      </View>
+                      <Button color="primary" margin="small 0" onClick={this.handleFilePost}
+                        interaction={(activeFile.pending) ? 'disabled' : 'enabled'}>{this.props.t('label.file.submit')}</Button>
+                    </View>
+                  }
                 </Flex.Item>
                 <Flex.Item width="50%" padding="0" overflowY="auto">
                   <View as="div">
@@ -147,7 +169,11 @@ class FilesModal extends React.Component {
                     </InlineList>
                   </Flex.Item>
                   <Flex.Item>
-                    <Checkbox onChange={this.handleFileResolve} label={this.props.t('label.reviewed')} checked={activeFile.reviewed ? true : false} />
+                    {activeFile.pending && <Spinner size="x-small" margin="0 small" renderTitle="Loading" />}
+                  </Flex.Item>
+                  <Flex.Item>
+                    <Checkbox onChange={this.handleFileResolve} label={this.props.t('label.reviewed')} 
+                      checked={activeFile.reviewed ? true : false} disabled={activeFile.pending} />
                   </Flex.Item>
                 </Flex>
               </View>
@@ -163,6 +189,47 @@ class FilesModal extends React.Component {
           </Modal>
         }
       </View>)
+  }
+
+  handleDropAccept([file]) {
+    let activeFile = Object.assign({}, this.props.activeFile)
+    if (activeFile.pending) {
+      return
+    }
+
+    this.setState({ replaceFileObj: file })
+  }
+
+  handleDropReject([file]) {
+    console.log(`File rejected: ${file.name}`)
+    this.addMessage({severity: 'warning', message: this.props.t('msg.file.replace.file_type'), timeout: 5000})
+    this.forceUpdate()
+  }
+
+  handleFilePost() {
+    let activeFile = Object.assign({}, this.props.activeFile)
+    if (activeFile.pending) {
+      return
+    }
+
+    let api = new Api(this.props.settings)
+    api.postFile(activeFile, this.state.replaceFileObj)
+      .then((responsStr) => responsStr.json())
+      .then((response) => {
+        const newFile = { ...activeFile, ...response.data.file }
+
+        // set messages 
+        response.messages.forEach((msg) => this.addMessage(msg))
+
+        // update activeFile
+        this.props.handleActiveFile(newFile)
+
+        // update report.files
+        this.props.handleFileSave(newFile)
+      })
+
+    activeFile.pending = true
+    this.props.handleActiveFile(activeFile)
   }
 
   handleFileResolve() {

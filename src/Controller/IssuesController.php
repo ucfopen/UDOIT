@@ -6,6 +6,7 @@ use App\Entity\Course;
 use App\Entity\Issue;
 use App\Entity\Report;
 use App\Response\ApiResponse;
+use App\Services\LmsPostService;
 use App\Services\PhpAllyService;
 use App\Services\UfixitService;
 use App\Services\UtilityService;
@@ -16,12 +17,12 @@ use Symfony\Component\Routing\Annotation\Route;
 class IssuesController extends ApiController
 {
     /**
-     * UFIXIT endpoint. Takes an array of updates for future changes in the course.
+     * Save change to issue HTML to LMS
      * 
      * @Route("/api/issues/{issue}/save", name="save_issue")
      * @param Issue $issue
      */
-    public function saveIssue(Request $request, UfixitService $ufixit, PhpAllyService $phpAlly, UtilityService $util, Issue $issue) {
+    public function saveIssue(Request $request, LmsPostService $lmsPost, PhpAllyService $phpAlly, UtilityService $util, Issue $issue) {
         $apiResponse = new ApiResponse();
         $user = $this->getUser();
 
@@ -54,7 +55,7 @@ class IssuesController extends ApiController
             }
 
             // Save content to LMS
-            $lmsResponse = $ufixit->saveContentToLms($issue, $newHtml);
+            $lmsPost->saveContentToLms($issue, $newHtml);
             // TODO: check lmsResponse for errors
 
             // Update issue
@@ -90,7 +91,7 @@ class IssuesController extends ApiController
      * @param Issue $issue
      * @return \Symfony\Component\HttpFoundation\Response
      */
-    public function markAsReviewed(Request $request, UfixitService $ufixit, UtilityService $util, Issue $issue)
+    public function markAsReviewed(Request $request, LmsPostService $lmsPost, UtilityService $util, Issue $issue)
     {
         $apiResponse = new ApiResponse();
         $user = $this->getUser();
@@ -107,7 +108,7 @@ class IssuesController extends ApiController
             $issue->setStatus(($issueUpdate['status']) ? Issue::$issueStatusResolved : Issue::$issueStatusActive);
 
             // Save content to LMS
-            $lmsResponse = $ufixit->saveContentToLms($issue, $issueUpdate['newHtml']);
+            $lmsPost->saveContentToLms($issue, $issueUpdate['newHtml']);
             // TODO: check lmsResponse for errors
 
             // Update issue

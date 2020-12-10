@@ -11,6 +11,7 @@ use App\Repository\ContentItemRepository;
 use App\Repository\FileItemRepository;
 use App\Services\UtilityService;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\Security\Core\Security;
 
 class CanvasLms implements LmsInterface {
@@ -241,7 +242,8 @@ class CanvasLms implements LmsInterface {
                 ->setFileName($file['filename'])
                 ->setFileType($file['mime_class'])
                 ->setLmsFileId($file['id'])
-                ->setDownloadUrl($file['url']);
+                ->setDownloadUrl($file['url'])
+                ->setActive(true);
             $this->entityManager->persist($fileItem);
         }
 
@@ -293,7 +295,7 @@ class CanvasLms implements LmsInterface {
         $options = $this->createLmsPostOptions($contentItem);
         
         if ('file' === $contentItem->getContentType()) {
-            $filepath = $this->util->getTempPath() . '/' . $contentItem->getId();
+            $filepath = $this->util->getTempPath() . '/content.' . $contentItem->getId();
 
             $fileResponse = $canvasApi->apiFilePost($url, $options, $filepath);
             $fileObj = $fileResponse->getContent();
@@ -309,9 +311,27 @@ class CanvasLms implements LmsInterface {
         return $canvasApi->apiPut($url, ['body' => $options]);
     }
 
-    public function postFile(ContentItem $contentItem) 
+    public function postFileItem(FileItem $file) 
     {
+        $user = $this->security->getUser();
+        $apiDomain = $this->getApiDomain($user);
+        $apiToken = $this->getApiToken($user);
+        $canvasApi = new CanvasApi($apiDomain, $apiToken);
+        $url = "courses/{$file->getCourse()->getLmsCourseId()}/files/{$file->getLmsFileId()}";
+        $filepath = $this->util->getTempPath() . '/file.' . $file->getId();
+        $options = [
+            'postUrl' => "courses/{$file->getCourse()->getLmsCourseId()}/files"
+        ];
 
+        $fileResponse = $canvasApi->apiFilePost($url, $options, $filepath);
+        $fileObj = $fileResponse->getContent();
+
+        if (isset($fileObj['id'])) {
+            $file->setLmsFileId($fileObj['id']);
+            $this->entityManager->flush();
+        }
+
+        return $fileResponse;
     }
 
     public function getContentTypeUrl(ContentItem $contentItem)

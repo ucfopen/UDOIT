@@ -121,36 +121,6 @@ class ReportsController extends ApiController
     }
 
     /**
-     * @Route("/api/courses/{course}/reports/{report}", methods={"GET"}, name="get_report")
-     * @param Course $course
-     * @param Report $report
-     */
-    public function getOneReport(
-        Course $course,
-        Report $report
-    ) {
-        $apiResponse = new ApiResponse();
-        try {
-            // Check if user has course access
-            if (!$this->userHasCourseAccess($course)) {
-                throw new \Exception("You do not have permission to access the specified course.");
-            }
-
-            if ($report->getCourse()->getId() != $course->getId()) {
-                throw new \Exception('Invalid report ID. This report does not belong to the given course.');
-            }
-            
-            $apiResponse->setData($report->toArray(true));
-        }
-        catch (\Exception $e) {
-            $apiResponse->addError($e->getMessage());
-        }
-
-        // Construct Response
-        return new JsonResponse($apiResponse);
-    }
-
-    /**
      * @Route("/api/courses/{course}/reports/{report}/pdf", methods={"GET"}, name="get_report_pdf")
      * @param $courseId
      * @param $reportId

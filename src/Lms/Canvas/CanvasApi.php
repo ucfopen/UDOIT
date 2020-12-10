@@ -130,7 +130,7 @@ class CanvasApi {
         // TODO: handle failed call
 
         $endpointOptions = [
-            'name' => $file['filename'],
+            'name' => urldecode($file['filename']),
             'parent_folder_id' => $file['folder_id'],            
         ];
         

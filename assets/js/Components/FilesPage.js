@@ -12,7 +12,7 @@ const fileTypes = [
   'pdf',
   'doc',
   'ppt',
-  //'xls',
+  'xls',
 ]
 
 class FilesPage extends React.Component {
