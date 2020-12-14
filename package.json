@@ -41,6 +41,7 @@
         "@instructure/ui-pill": "^7.3.0",
         "@instructure/ui-position": "^7.3.0",
         "@instructure/ui-progress": "^7.3.0",
+        "@instructure/ui-radio-input": "^7.3.2",
         "@instructure/ui-responsive": "^7.3.0",
         "@instructure/ui-spinner": "^7.3.0",
         "@instructure/ui-table": "^7.3.0",
