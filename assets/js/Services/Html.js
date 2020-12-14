@@ -101,6 +101,29 @@ class Html {
 
     return element
   }
+
+  renameElement(element, newName) {
+    if ('string' === typeof element) {
+      element = this.toElement(element)
+    }
+
+    if (!element) {
+      return null
+    }
+
+    var obj = element.attributes
+    var attributes = Array.prototype.slice.call(obj)
+    var newElement = document.createElement(newName)
+
+    // Add attributes to new element
+    attributes.forEach(function(attribute) {
+      newElement = this.setAttribute(newElement, attribute.nodeName, attribute.nodeValue)
+    }.bind(this))
+
+    newElement.innerHTML = element.innerHTML
+    
+    return newElement
+  }
 }
 
 export default new Html()

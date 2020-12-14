@@ -32,16 +32,15 @@ export default class HeaderForm extends React.Component {
 
     componentDidUpdate(prevProps, prevState) {
         if (prevProps.activeIssue !== this.props.activeIssue) {
-          const html = (this.props.activeIssue.newHtml) ? this.props.activeIssue.newHtml : this.props.activeIssue.sourceHtml
-          let altText = Html.getAttribute(html, 'alt')
-          altText = (typeof altText === 'string') ? altText : ''
-    
-          this.setState({
-            textInputValue: altText,
-            isDecorative: this.elementIsDecorative(html),
-            characterCount: altText.length,
-            textInputErrors: [],
-          })
+            const html = (this.props.activeIssue.newHtml) ? this.props.activeIssue.newHtml : this.props.activeIssue.sourceHtml
+            let element = Html.toElement(html)
+            this.tagName = Html.getTagName(element)
+        
+            this.setState({
+                textInputValue: element.innerHTML,
+                selectedValue: (this.tagName === 'P') ? 'H1' : this.tagName,
+                removeBold: false
+            })
         }
     }
 
