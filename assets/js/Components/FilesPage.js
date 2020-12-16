@@ -173,7 +173,7 @@ class FilesPage extends React.Component {
     const filteredFiles = this.getFilteredFiles();
 
     return (
-      <View as="div" key="filesPageFormWrapper">
+      <View as="div" key="filesPageFormWrapper" padding="small 0">
         <FilesPageForm 
           handleSearchTerm={this.handleSearchTerm} 
           handleTrayToggle={this.handleTrayToggle} 

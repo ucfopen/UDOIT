@@ -9,6 +9,7 @@ export default class Api {
             resolveIssue: '/api/issues/{issue}/resolve',
             reviewFile: '/api/files/{file}/review',
             postFile: '/api/files/{file}/post',
+            pdf: '/api/courses/{course}/reports/pdf',
         };
         this.settings = settings;
 
@@ -39,6 +40,22 @@ export default class Api {
 
         let url = `${this.apiUrl}${this.endpoints.getReport}`;
         url = url.replace('{course}', courseId).replace('{report}', reportId);
+
+        return fetch(url, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-AUTH-TOKEN': authToken,
+            },
+        });
+    }
+
+    getReportHistory() {
+        const courseId = this.getCourseId();
+        const authToken = this.getAuthToken();
+
+        let url = `${this.apiUrl}${this.endpoints.getReportHistory}`;
+        url = url.replace('{course}', courseId);
 
         return fetch(url, {
             method: 'GET',
@@ -118,5 +135,9 @@ export default class Api {
             },
             body: formData,
         })
+    }
+
+    getPdfReport() {
+        
     }
 }

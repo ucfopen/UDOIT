@@ -21,6 +21,7 @@ const UfixitForms = {
   ImageAltNotEmptyInAnchor: AltText,
   ImageHasAlt: AltText,
   ImageHasAltDecorative: AltText,
+  ImageAltNotPlaceholder: AltText,
   ParagraphNotUsedAsHeader: HeaderForm
 }
 

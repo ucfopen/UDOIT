@@ -95,7 +95,7 @@ class Report implements \JsonSerializable
         $result = [
             "id" => $this->id,
             "ready" => $this->ready,
-            "created" => $this->created->format('c'),
+            "created" => $this->created->format($_ENV['DATE_FORMAT']),
             "errors" => $this->getErrors(),
             "suggestions" => $this->getSuggestions(),
             "contentFixed" => $this->getContentFixed(),

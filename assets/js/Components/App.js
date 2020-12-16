@@ -1,12 +1,13 @@
 import React from 'react'
+import '@instructure/canvas-theme'
 import WelcomePage from './WelcomePage'
 import Header from './Header'
-import { Tabs } from '@instructure/ui-tabs'
 import SummaryPage from './SummaryPage'
-import ContentPage from './ContentPage';
-import { Button } from '@instructure/ui-buttons'
+import ContentPage from './ContentPage'
+import ReportsPage from './ReportsPage'
+import AboutModal from './AboutModal'
 import { View } from '@instructure/ui-view'
-import Api from '../Services/Api';
+import Api from '../Services/Api'
 import MessageTray from './MessageTray'
 import FilesPage from './FilesPage'
 
@@ -26,98 +27,94 @@ class App extends React.Component {
 
     this.state = {
       report: this.initialReport,
-      navigation: {
-        tabIndex: 0,
-        showSettings: false,
-        showAbout: false,
-        showWelcome: true,
-      }
+      navigation: 'welcome',
+      modal: null
     }
 
     this.handleNavigation = this.handleNavigation.bind(this)
+    this.handleModal = this.handleModal.bind(this)
     this.handleAppFilters = this.handleAppFilters.bind(this)
     this.clearMessages = this.clearMessages.bind(this)
     this.addMessage = this.addMessage.bind(this)
-    this.hideWelcome = this.hideWelcome.bind(this)
     this.t = this.t.bind(this)
     this.handleIssueSave = this.handleIssueSave.bind(this)
     this.handleFileSave = this.handleFileSave.bind(this)
   }
 
   render() {    
-    const tabIndex = this.state.navigation.tabIndex
     console.log('render', this.state)
 
-    if (this.state.navigation.showWelcome) {
-      return (
-        <View as="div">
-          <Header />
-          <MessageTray messages={this.messages} t={this.t} clearMessages={this.clearMessages} hasNewReport={this.hasNewReport} />
-          <WelcomePage key="welcomePage" handleContinueBtn={this.hideWelcome} t={this.t} 
+    return (
+      <View as="div">
+        <Header
+          t={this.t}
+          settings={this.settings}
+          hasNewReport={this.hasNewReport}
+          navigation={this.state.navigation}
+          handleNavigation={this.handleNavigation} 
+          handleModal={this.handleModal} />
+
+        <MessageTray messages={this.messages} t={this.t} clearMessages={this.clearMessages} hasNewReport={this.hasNewReport} />
+
+        {('welcome' === this.state.navigation) && 
+          <WelcomePage 
+            key="welcomePage" 
+            handleNavigation={this.handleNavigation} 
+            t={this.t}
             hasNewReport={this.hasNewReport} />
-        </View>
-      );
-    }
-    else {
-      return (
-        <View as="div">
-          <Header />
-          <MessageTray messages={this.messages} t={this.t} clearMessages={this.clearMessages} hasNewReport={this.hasNewReport} />          
-          <Tabs
-            onRequestTabChange={this.handleTabChange}
-            key="mainTabs"
-          >
-            <Tabs.Panel renderTitle={this.t('label.summary')} isSelected={tabIndex === 0} key="summaryTab">
-              <SummaryPage 
-                report={this.state.report} 
-                settings={this.settings} 
-                navigation={this.state.navigation}
-                handleAppFilters={this.handleAppFilters}
-                handleNavigation={this.handleNavigation} 
-                t={this.t}
-                key="summaryPage"></SummaryPage>
-            </Tabs.Panel>
-            <Tabs.Panel renderTitle={this.t('label.content')} isSelected={tabIndex === 1} key="contentTab">
-              <ContentPage 
-                report={this.state.report} 
-                settings={this.settings} 
-                appFilters={this.appFilters} 
-                navigation={this.state.navigation}
-                handleAppFilters={this.handleAppFilters} 
-                handleNavigation={this.handleNavigation}
-                handleIssueSave={this.handleIssueSave}
-                handleIssueUpdate={this.handleIssueUpdate}
-                t={this.t}
-                key="contentPage"></ContentPage>
-            </Tabs.Panel>
-            <Tabs.Panel renderTitle={this.t('label.plural.file')} isSelected={tabIndex === 2} key="filesTab">
-              <FilesPage
-                report={this.state.report}
-                settings={this.settings}
-                navigation={this.state.navigation}
-                handleNavigation={this.handleNavigation}
-                handleFileSave={this.handleFileSave}
-                t={this.t}
-                key="filesPage"></FilesPage>
-            </Tabs.Panel>
-          </Tabs>
-        </View>
-      )
-    }
+        }
+        {('summary' === this.state.navigation) &&
+          <SummaryPage
+            report={this.state.report}
+            settings={this.settings}
+            handleAppFilters={this.handleAppFilters}
+            handleNavigation={this.handleNavigation}
+            t={this.t}
+            key="summaryPage"></SummaryPage>
+        }
+        {('content' === this.state.navigation) &&
+          <ContentPage
+            report={this.state.report}
+            settings={this.settings}
+            appFilters={this.appFilters}
+            handleAppFilters={this.handleAppFilters}
+            handleNavigation={this.handleNavigation}
+            handleIssueSave={this.handleIssueSave}
+            handleIssueUpdate={this.handleIssueUpdate}
+            t={this.t}
+            key="contentPage"></ContentPage>
+        }
+        {('files' === this.state.navigation) &&
+          <FilesPage
+            report={this.state.report}
+            settings={this.settings}
+            handleNavigation={this.handleNavigation}
+            handleFileSave={this.handleFileSave}
+            t={this.t}
+            key="filesPage"></FilesPage>
+        }
+        {('reports' === this.state.navigation) &&
+          <ReportsPage
+            t={this.t}
+            settings={this.settings}
+            handleNavigation={this.handleNavigation}
+          />
+        }
+        {('about' === this.state.modal) &&
+          <AboutModal t={this.t}
+            settings={this.settings}
+            handleModal={this.handleModal} />
+        }
+      </View>
+    )
   }
 
   componentDidMount() {
     if (this.initialReport) {
-      this.setState({report: this.initialReport})
-
-      if (this.state.navigation.showWelcome) {
-        this.hideWelcome()
-      }
+      this.setState({report: this.initialReport, navigation: 'summary'})
     }
     this.checkForNewReport()
   }
-
-  componentDidUpdate() {}
 
   t(key) {
     return (this.settings.labels[key]) ? this.settings.labels[key] : key
@@ -174,21 +171,16 @@ class App extends React.Component {
       }
     }
     else {
-      // show error message
+      this.addMessage({message: 'Settings failed to load.', severity: 'warning', timeout: 5000})
     }
   }
 
-  handleTabChange = (event, {index, id}) => {
-    this.setState(prevState => ({
-      navigation: {
-        ...prevState.navigation,
-        tabIndex: index
-      }
-    }));
-  };
+  handleNavigation(navigation) { 
+    this.setState({navigation})
+  }
 
-  handleNavigation = (nav) => { 
-    this.setState({navigation: nav});
+  handleModal(modal) {
+    this.setState({modal})
   }
 
   handleAppFilters = (filters) => {
@@ -202,15 +194,6 @@ class App extends React.Component {
 
   clearMessages = () => {
     this.messages = [];
-  }
-
-  hideWelcome() {
-    this.setState(prevState => ({
-      navigation: {
-        ...prevState.navigation,
-        showWelcome: false
-      }
-    }))
   }
 
   handleIssueSave(newIssue, newReport) {
@@ -236,4 +219,4 @@ class App extends React.Component {
   }
 }
 
-export default App;
+export default App

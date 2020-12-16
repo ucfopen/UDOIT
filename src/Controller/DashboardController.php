@@ -6,6 +6,7 @@ use App\Entity\Course;
 use App\Services\LmsApiService;
 use App\Services\UtilityService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\Routing\Annotation\Route;
 
 class DashboardController extends AbstractController
@@ -16,15 +17,20 @@ class DashboardController extends AbstractController
     /** @var LmsApiService $lmsApi */
     protected $lmsApi;
 
+    /** @var SessionInterface $session */
+    protected $session;
+
     /**
      * @Route("/dashboard", name="dashboard")
      */
     public function index(
         UtilityService $util,
+        SessionInterface $session,
         LmsApiService $lmsApi)
     {
         $this->util = $util;
         $this->lmsApi = $lmsApi;
+        $this->session = $session;
         $reportArr = false;
 
         $user = $this->getUser();
@@ -90,6 +96,7 @@ class DashboardController extends AbstractController
             'user' => $user,
             'course' => $course,
             'institution' => $institution,
+            'roles' => $this->session->get('roles'),
             'language' => $lang,
             'labels' => $this->util->getTranslation($lang),
             'excludedRuleIds' => $excludedRuleIds,

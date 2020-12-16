@@ -1,39 +1,35 @@
-{%  extends 'base.html.twig' %}
-
-{% block title %}Report PDF{% endblock %}
+{% block title %}{{ course.getTitle() }} - {{ report.getCreated()|date('Y-m-d') }}{% endblock %}
 
 {% block body %}
-    {% set course = report.getCourse() %}
     {% set contentItems = course.getContentItems() %}
-    {% set issues = report.getIssues() %}
 
-    <h1>UDOIT Accessibility Report</h1>
+    <h1>UDOIT</h1>
     <h2>{{ course.getTitle() }}</h2>
     <h3>Errors: {{ report.getErrors() }}</h3>
     <h3>Suggestions: {{ report.getSuggestions() }}</h3>
-    <p>Scanned {{ report.getCreated().date }}</p>
+    <p>Scanned {{ report.getCreated()|date('Y-m-d') }}</p>
 
     {% for contentItem in contentItems %}
-        {% set contentItemId = contentItem.getId() %}
-        <hr>
-        <h3>{{ contentItem.getTitle() }}</h3>
+        {% set issues =  contentItem.getIssues() %}
+        {% set errors =  issues|filter(issue => issue.getType == "error") %}
+        {% set suggestions =  issues|filter(issue => issue.getType == "suggestion") %}
 
-        {% set contentItemIssues =  issues|filter(issue => issue.getContentItem().getId() == contentItemId) %}
-        {% set errors =  contentItemIssues|filter(issue => issue.getType == "error") %}
-        {% set suggestions =  contentItemIssues|filter(issue => issue.getType == "suggestion") %}
+        {% if issues|length > 0 %}
+            <hr>
+            <h3>{{ contentItem.getTitle() }}</h3>
+            {% if errors|length > 0 %}
+                <h4>Errors [{{ errors|length }}]</h4>
+                {% for error in errors %}
+                    <h5>Scan Rule: {{ error.getScanRuleId() }}</h5>
+                {% endfor %}
+            {% endif %}
 
-        {% if errors|length > 0 %}
-            <h4>Errors [{{ errors|length }}]</h4>
-            {% for error in errors %}
-                <h5>Scan Rule: {{ error.getScanRuleId() }}</h5>
-            {% endfor %}
-        {% endif %}
-
-        {% if suggestions|length > 0 %}
-            <h4>Suggestions [{{ suggestions|length }}]</h4>
-            {% for suggestion in suggestions %}
-                <h5>Scan Rule: {{ suggestion.getScanRuleId() }}</h5>
-            {% endfor %}
+            {% if suggestions|length > 0 %}
+                <h4>Suggestions [{{ suggestions|length }}]</h4>
+                {% for suggestion in suggestions %}
+                    <h5>Scan Rule: {{ suggestion.getScanRuleId() }}</h5>
+                {% endfor %}
+            {% endif %}
         {% endif %}
     {% endfor %}
 
