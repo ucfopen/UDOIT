@@ -6,6 +6,7 @@ import CssTextHasContrast from '../Components/Forms/CssTextHasContrast'
 import CssTextStyleEmphasize from '../Components/Forms/CssTextStyleEmphasize'
 import UfixitReviewOnly from '../Components/Forms/UfixitReviewOnly'
 import HeaderForm from '../Components/Forms/HeaderForm'
+import TableHeaders from '../Components/Forms/TableHeaders'
 
 
 const UfixitForms = {
@@ -21,7 +22,9 @@ const UfixitForms = {
   ImageAltNotEmptyInAnchor: AltText,
   ImageHasAlt: AltText,
   ImageHasAltDecorative: AltText,
-  ParagraphNotUsedAsHeader: HeaderForm
+  ParagraphNotUsedAsHeader: HeaderForm,
+  TableDataShouldHaveTableHeader: TableHeaders,
+  TableDataShouldHaveScope: TableHeaders,
 }
 
 export default class Ufixit {

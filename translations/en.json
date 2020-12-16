@@ -115,6 +115,10 @@
   "form.msg.success_reviewed": "File marked reviewed.",
   "form.msg.success_unreviewed": "File marked unreviewed.",
   "form.msg.success_replaced": "File replaced.",
+  "form.table.column_label": "Column Header",
+  "form.table.row_label": "Row Header",
+  "form.table.both_label": "Both",
+  "form.table.selection_description": "Select direction for table header(s)",
 
   "rule.label.AnchorLinksToMultiMediaRequireTranscript": "Anchor Links To MultiMedia Require Transcripts",
   "rule.label.AnchorLinksToSoundFilesNeedTranscripts": "Anchor Links To Sound Files Need Transcripts",
