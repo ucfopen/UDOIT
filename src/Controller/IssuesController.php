@@ -78,7 +78,7 @@ class IssuesController extends ApiController
             ]);
         }
         catch(\Exception $e) {
-            $apiResponse->addError($e->getMessage());
+            $apiResponse->addMessage($e->getMessage(), 'error');
         }
 
         return new JsonResponse($apiResponse);

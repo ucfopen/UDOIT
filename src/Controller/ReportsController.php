@@ -121,27 +121,37 @@ class ReportsController extends ApiController
     }
 
     /**
-     * @Route("/api/courses/{course}/reports/{report}/pdf", methods={"GET"}, name="get_report_pdf")
-     * @param $courseId
-     * @param $reportId
+     * @Route("/api/courses/{course}/reports/pdf", methods={"GET"}, name="get_report_pdf")
+     * @param Course $course
      * @return \Symfony\Component\HttpFoundation\Response
      */
     public function getPdfReport(
         Request $request,
         SessionInterface $session,
         UtilityService $util,
-        Course $course,
-        Report $report
+        Course $course
     ) {
         $this->request = $request;
         $this->session = $session;
         $this->util = $util;
 
         try {
+            /** @var User $user */
+            $user = $this->getUser();
+            /** @var \App\Entity\Institution $institution */
+            $institution = $user->getInstitution();
+          
+            $metadata = $institution->getMetadata();
+            $lang = (!empty($metadata['lang'])) ? $metadata['lang'] : $_ENV['DEFAULT_LANG'];
+            
             // Generate Twig Template
             $html = $this->renderView(
-                    'report.html.twig',
-                        ['report' => $report]
+                'report.html.twig',
+                [
+                    'course' => $course,
+                    'report' => $course->getLatestReport(),
+                    'labels' => $this->util->getTranslation($lang),
+                ]
             );
 
             // Generate PDF
@@ -158,9 +168,9 @@ class ReportsController extends ApiController
         }
         catch(\Exception $e) {
             $apiResponse = new ApiResponse();
-            $jsonResponse = new JsonResponse($apiResponse);
-            $jsonResponse->setEncodingOptions($jsonResponse->getEncodingOptions() | JSON_PRETTY_PRINT);
-            return $jsonResponse;
+            $apiResponse->addMessage($e->getMessage());
+            
+            return new JsonResponse($apiResponse);
         }
     }
 }

@@ -110,6 +110,14 @@ class LtiController extends AbstractController
             foreach ($customFields as $key => $val) {
                 $this->session->set($key, $val);
             }
+
+            $roleFields = (array) $token->{'https://purl.imsglobal.org/spec/lti/claim/roles'};
+            $roles = [];
+            foreach ($roleFields as $role) {
+                $roleArr = explode('#', $role);
+                $roles[] = trim($roleArr[1]);
+            }
+            $this->session->set('roles', array_values(array_unique($roles)));
         } catch (\Exception $e) {
             print_r($e->getMessage());
         }

@@ -25,6 +25,7 @@ const UfixitForms = {
   ParagraphNotUsedAsHeader: HeaderForm,
   TableDataShouldHaveTableHeader: TableHeaders,
   TableDataShouldHaveScope: TableHeaders,
+  ImageAltNotPlaceholder: AltText,
 }
 
 export default class Ufixit {

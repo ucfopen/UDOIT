@@ -202,7 +202,7 @@ class ContentPage extends React.Component {
     const activeContentItem = (this.state.activeIssue) ? this.getContentById(this.state.activeIssue.contentItemId) : null
 
     return (
-      <View as="div" key="contentPageFormWrapper">
+      <View as="div" key="contentPageFormWrapper" padding="small 0">
         <ContentPageForm 
           handleSearchTerm={this.handleSearchTerm} 
           handleTrayToggle={this.handleTrayToggle} 

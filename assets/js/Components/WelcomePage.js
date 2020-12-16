@@ -8,7 +8,9 @@ class WelcomePage extends React.Component {
   render() {
     return (
       <View as="div">
-        <AboutPage t={this.props.t} />
+        <View as="div" borderWidth="small 0 small 0">
+          <AboutPage t={this.props.t} />
+        </View>
         <View as="div" textAlign="center" padding="medium">
           <Button onClick={this.props.handleContinueBtn} color="primary"
             interaction={this.props.hasNewReport ? 'enabled' : 'disabled'}>

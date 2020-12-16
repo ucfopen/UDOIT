@@ -77,7 +77,7 @@ class LmsFetchService {
         /* Step 2: Get list of changed content items */
         $contentItems = $contentItemRepo->getUpdatedContentItems($course);
 
-        /* Only continue if the new content needs to be scanned (not all files) */
+        /* Step 3: Only continue if the new content needs to be scanned (not all files) */
         foreach ($contentItems as $contentItem) {
             if ($contentItem->getBody() != '') {
                 $hasContent = true;
@@ -86,17 +86,14 @@ class LmsFetchService {
         }
 
         if ($hasContent) {
-            // /* Step 3: Create a new report */
-            // $report = $this->createReport($course, $user);
-
             /* Step 4: Delete issues for updated content items */
             $this->deleteContentItemIssues($contentItems);
 
             /* Step 5: Process the updated content with PhpAlly and link to report */
             $this->scanContentItems($contentItems);
 
-            /* Step 6: Create report from all active issues */
-            $this->createReport($course, $user);
+            /* Step 6: Update report from all active issues */
+            $this->updateReport($course, $user);
 
             /* Step 6: Cleanup. Remove inactive content items */
             //$contentItemRepo->removeInactiveContentItems();
@@ -122,13 +119,13 @@ class LmsFetchService {
     }
 
     /**
-     * Create new report
+     * Update report, or create new one for a new day
      *
      * @param Course $course
      * @param User $user
      * @return Report
      */
-    public function createReport(Course $course, User $user)
+    public function updateReport(Course $course, User $user)
     {
         $contentFixed = $contentResolved = $filesReviewed = $errors = $suggestions = 0;
         $scanRules = [];
@@ -171,19 +168,28 @@ class LmsFetchService {
             }
         }
 
-        $report = new Report();
-        $report->setCreated($this->util->getCurrentTime());
+        $latestReport = $course->getLatestReport();
+        $now = $this->util->getCurrentTime();
+
+        if ($latestReport && ($now->format('m/d/y') === $latestReport->getCreated()->format('m/d/y'))) {
+            $report = $latestReport;
+        }
+        else {
+            $report = new Report();
+            $report->setAuthor($user);
+            $report->setCourse($course);
+            $this->doctrine->getManager()->persist($report);
+        }
+
+        $report->setCreated($now);
         $report->setReady(false);
-        $report->setCourse($course);
         $report->setErrors($errors);
         $report->setSuggestions($suggestions);
         $report->setContentFixed($contentFixed);
         $report->setContentResolved($contentResolved);
         $report->setFilesReviewed($filesReviewed);
         $report->setData(\json_encode(['scanRules' => $scanRules]));
-        $report->setAuthor($user);
 
-        $this->doctrine->getManager()->persist($report);
         $this->doctrine->getManager()->flush();
 
         return $report;

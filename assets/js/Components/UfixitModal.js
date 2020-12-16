@@ -230,7 +230,9 @@ class UfixitModal extends React.Component {
         
         // set messages 
         response.messages.forEach((msg) => this.addMessage(msg))
-
+        
+        newIssue.pending = false
+        
         // update activeIssue
         this.props.handleActiveIssue(newIssue)
 

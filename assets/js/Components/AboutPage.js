@@ -12,7 +12,7 @@ class AboutPage extends React.Component {
 
   render() {
     return (
-      <View as="div" margin="small 0" padding="medium 0" borderWidth="small 0 small 0">
+      <View as="div" margin="small 0" padding="medium 0">
         <Heading >{this.props.t('about.title')}</Heading>
         <Flex justifyItems="start" alignItems="start">
           <Flex.Item width="50%" padding="0 medium 0 0">

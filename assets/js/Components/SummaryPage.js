@@ -25,9 +25,8 @@ class SummaryPage extends React.Component {
   constructor(props) {
     super(props);
 
-    this.handleContentTypeLink = this.handleContentTypeLink.bind(this);
-    this.handleIssueTypeLink = this.handleIssueTypeLink.bind(this);
-    this.handleTabSwitch = this.handleTabSwitch.bind(this);
+    this.handleContentTypeLink = this.handleContentTypeLink.bind(this)
+    this.handleIssueTypeLink = this.handleIssueTypeLink.bind(this)
   }
 
   processReportData(report) {
@@ -93,7 +92,7 @@ class SummaryPage extends React.Component {
             <View as="div" margin="small 0"></View>
           </Flex.Item>
           <Flex.Item>
-            <Button onClick={this.handleTabSwitch} color="primary" textAlign="center" >{this.props.t('button.get_started')}</Button>
+            <Button onClick={() => this.props.handleNavigation('content')} color="primary" textAlign="center" >{this.props.t('button.get_started')}</Button>
           </Flex.Item>
         </Flex>        
 
@@ -203,23 +202,17 @@ class SummaryPage extends React.Component {
 
   handleContentTypeLink(type) {
     this.props.handleAppFilters({contentTypes: [type]});
-    this.handleTabSwitch();
+    this.props.handleNavigation('content');
   }
 
   handleIssueTypeLink(contentType, issueType) {
     this.props.handleAppFilters({contentTypes: [contentType], issueTypes: [issueType]});
-    this.handleTabSwitch();
+    this.props.handleNavigation('content');
   }
 
   handleIssueTitleLink(ruleId) {
     this.props.handleAppFilters({issueTitles: [ruleId]});
-    this.handleTabSwitch();
-  }
-
-  handleTabSwitch() {
-    let nav = this.props.navigation;
-    nav.tabIndex = 1;
-    this.props.handleNavigation(nav);
+    this.props.handleNavigation('content');
   }
 }
 
