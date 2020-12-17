@@ -18,10 +18,12 @@ class Header extends React.Component {
       showPopover: false
     }
 
-    this.handlePdfDownload = this.handlePdfDownload.bind(this)
+    this.getPdfUrl = this.getPdfUrl.bind(this)
   }
 
   render() {
+    const pdfUrl = this.getPdfUrl()
+
     return (
       <AppNav
         screenReaderLabel={this.props.t('menu.udoit')}
@@ -41,7 +43,7 @@ class Header extends React.Component {
             <Menu.Item onClick={() => this.props.handleNavigation('reports')}>{this.props.t('menu.reports')}</Menu.Item>
             {/* <Menu.Item onClick={() => this.handleMoreNav('settings')}>{this.props.t('menu.settings')}</Menu.Item> */}
             <Menu.Separator />
-            <Menu.Item onClick={this.handlePdfDownload}>{this.props.t('menu.download_pdf')}</Menu.Item>
+            <Menu.Item href={pdfUrl}>{this.props.t('menu.download_pdf')}</Menu.Item>
           </Menu>
         }
         >
@@ -65,10 +67,9 @@ class Header extends React.Component {
     )
   }
 
-  handlePdfDownload() {
-    console.log(this.props.settings)
+  getPdfUrl() {
     let api = new Api(this.props.settings)
-    api.getPdfReport()
+    return api.getPdfUrl()
   }
 }
 

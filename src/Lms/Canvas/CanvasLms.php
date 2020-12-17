@@ -119,7 +119,6 @@ class CanvasLms implements LmsInterface {
         $course->setTitle($content['name']);
         $course->setLmsAccountId($content['account_id']);
         $course->setActive(true);
-        $course->setDirty(true);
         
         $this->entityManager->flush();        
     }

@@ -1,36 +1,114 @@
-{% block title %}{{ course.getTitle() }} - {{ report.getCreated()|date('Y-m-d') }}{% endblock %}
+<html>
+<body>
+<style>
+table {
+    width: 100%;
+    padding: 0;
+    margin: 0;
+}
+td, th {
+    padding: 10px;
+}
+
+.issue-table {
+    margin: 10px 0 0 0;
+}
+.issue-table thead th {
+    border-bottom: 1px solid #666;
+}
+.issue-table tbody td {
+    border-bottom: 1px solid #CFCFCF;
+}
+.issue-table th {
+    text-align: left;
+}
+.issue-table td.key {
+    width: 90%;
+}
+.issue-table td.count {
+    text-align: center;
+}
+.content-item {
+    background-color: #F8F8F8;
+    padding: 20px;
+    margin: 30px 0;
+}
+.item-title {
+    text-transform: uppercase;
+}
+</style>
+{% block title %}<h1 style="text-align: center">UDOIT Report</h1>{% endblock %}
 
 {% block body %}
-    {% set contentItems = course.getContentItems() %}
-
-    <h1>UDOIT</h1>
     <h2>{{ course.getTitle() }}</h2>
-    <h3>Errors: {{ report.getErrors() }}</h3>
-    <h3>Suggestions: {{ report.getSuggestions() }}</h3>
-    <p>Scanned {{ report.getCreated()|date('Y-m-d') }}</p>
-
-    {% for contentItem in contentItems %}
-        {% set issues =  contentItem.getIssues() %}
-        {% set errors =  issues|filter(issue => issue.getType == "error") %}
-        {% set suggestions =  issues|filter(issue => issue.getType == "suggestion") %}
-
-        {% if issues|length > 0 %}
-            <hr>
-            <h3>{{ contentItem.getTitle() }}</h3>
-            {% if errors|length > 0 %}
-                <h4>Errors [{{ errors|length }}]</h4>
-                {% for error in errors %}
-                    <h5>Scan Rule: {{ error.getScanRuleId() }}</h5>
+    <small>{{ report.getCreated()|date('Y-m-d') }}</small>
+    <br/>
+    <br/>
+    <hr/>
+    <table width="100%" style="text-align: center">
+        <thead>
+            <tr>
+                <th>{{ labels['label.plural.error'] }}</th>
+                <th>{{ labels['label.plural.suggestion'] }}</th>
+                <th>{{ labels['label.content_fixed'] }}</th>
+                <th>{{ labels['label.content_resolved'] }}</th>
+                <th>{{ labels['label.files_reviewed'] }}</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>{{ report.errors }}</td>
+                <td>{{ report.suggestions }}</td>
+                <td>{{ report.contentFixed }}</td>
+                <td>{{ report.contentResolved }}</td>
+                <td>{{ report.filesReviewed }}</td>
+            </tr>
+        </tbody>
+    </table>    
+    <hr/>
+    <br/>
+    {% for row in content %}
+        <div class="content-item">
+            <div>
+                <div class="item-title"><strong>{{ row.title }}</strong></div>
+                <em><small>{{ row.type }}</small></em>             
+            </div>
+            {% if row.issues.error %}
+            <table class="error-table issue-table">
+                <thead>
+                    <tr>
+                        <th>{{ labels['label.plural.error']}}</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                {% for key, count in row.issues.error %}
+                    <tr>
+                        <td class="key">{{ labels["rule.label.#{key}"] }}</td>
+                        <td class="count">{{ count }}</td>
+                    </tr>
                 {% endfor %}
+            </table>
             {% endif %}
 
-            {% if suggestions|length > 0 %}
-                <h4>Suggestions [{{ suggestions|length }}]</h4>
-                {% for suggestion in suggestions %}
-                    <h5>Scan Rule: {{ suggestion.getScanRuleId() }}</h5>
+            {% if row.issues.suggestion %}
+            <table class="suggestion-table issue-table">
+                <thead>
+                    <tr>
+                        <th>{{ labels['label.plural.suggestion']}}</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                {% for key, count in row.issues.suggestion %}
+                    <tr>
+                        <td class="key">{{ labels["rule.label.#{key}"] }}</td>
+                        <td class="count">{{ count }}</td>
+                    </tr>
                 {% endfor %}
+            </table>
             {% endif %}
-        {% endif %}
+        </div>
     {% endfor %}
 
 {% endblock %}
+</body>
+</html>

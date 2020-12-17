@@ -22,7 +22,6 @@ class PhpAllyService {
         }
 
         $ruleIds = $this->getRules();
-        //$ruleIds = ['AnchorMustContainText'];
         
         return $this->phpAlly->checkMany($html, $ruleIds);
     }
