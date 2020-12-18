@@ -82,7 +82,7 @@
   "label.source": "Source",
   "label.download": "Download",
   "label.view_source": "View HTML",
-  "label.open_in_canvas": "View In Canvas",
+  "label.open_in_lms": "View In LMS",
   "label.continue": "Continue",
   "label.content_loading_msg": "The course content is being reviewed.",
   "label.review_only": "This issue cannot be fixed within UDOIT. You can fix the issue in Canvas, or mark this as reviewed to hide this issue in the future.",
@@ -98,6 +98,7 @@
   "label.replace": "Replace File",
   "label.replace.desc": "Replace the current version of this file here.",
   "label.loading_reports": "Loading report history",
+  "label.btn.udoit_details": "What does UDOIT look for?",
 
   "label.file.drag_drop": "Drag a file here, or",
   "label.file.browse_files": "Choose a file to upload",

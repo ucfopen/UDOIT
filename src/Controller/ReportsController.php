@@ -182,7 +182,7 @@ class ReportsController extends ApiController
             $mPdf = new Mpdf();
             $mPdf->WriteHTML($html);
 
-            return $mPdf->Output(); //'udoit_report.pdf', \Mpdf\Output\Destination::DOWNLOAD);
+            return $mPdf->Output('udoit_report.pdf', \Mpdf\Output\Destination::DOWNLOAD);
         }
         catch(\Exception $e) {
             $apiResponse = new ApiResponse();

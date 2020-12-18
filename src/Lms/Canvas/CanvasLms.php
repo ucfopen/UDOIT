@@ -5,14 +5,16 @@ namespace App\Lms\Canvas;
 use App\Entity\ContentItem;
 use App\Entity\Course;
 use App\Entity\FileItem;
+use App\Entity\Institution;
 use App\Entity\User;
 use App\Lms\LmsInterface;
 use App\Repository\ContentItemRepository;
 use App\Repository\FileItemRepository;
+use App\Services\LmsUserService;
 use App\Services\UtilityService;
 use Doctrine\ORM\EntityManagerInterface;
 use DOMDocument;
-use Symfony\Component\HttpFoundation\File\UploadedFile;
+use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\Security\Core\Security;
 
 class CanvasLms implements LmsInterface {
@@ -35,52 +37,28 @@ class CanvasLms implements LmsInterface {
     /** @var Security $security */
     private $security;
 
+    /** @var SessionInterface $session */
+    private $session;
+
     public function __construct(
         ContentItemRepository $contentItemRepo,
         FileItemRepository $fileItemRepo,
         EntityManagerInterface $entityManager,
         UtilityService $util,
-        Security $security)
+        Security $security,
+        SessionInterface $session)
     {
         $this->contentItemRepo = $contentItemRepo;
         $this->fileItemRepo = $fileItemRepo;
         $this->entityManager = $entityManager;
         $this->util = $util;
         $this->security = $security;
+        $this->session = $session;
     }
 
     public function getId() 
     {
         return 'canvas';
-    }
-
-    public function getScopes()
-    {
-        $scopes = [
-            'url:GET|/api/v1/accounts',
-            'url:GET|/api/v1/courses/:course_id/assignments',
-            'url:GET|/api/v1/announcements',
-            'url:GET|/api/v1/courses/:course_id/discussion_topics',
-            'url:GET|/api/v1/courses/:course_id/files',
-            'url:GET|/api/v1/courses/:course_id/modules',
-            'url:GET|/api/v1/courses/:course_id/pages',
-            'url:GET|/api/v1/courses/:id',
-            'url:GET|/api/v1/courses'
-        ];
-
-        return implode(' ', $scopes);
-    }
-
-    public function getApiDomain(User $user) 
-    {
-        $institution = $user->getInstitution();
-
-        return $institution->getLmsDomain();
-    }
-
-    public function getApiToken(User $user) 
-    {
-        return $user->getApiKey();
     }
 
     public function testApiConnection(User $user)
@@ -121,20 +99,6 @@ class CanvasLms implements LmsInterface {
         $course->setActive(true);
         
         $this->entityManager->flush();        
-    }
-
-    protected function getCourseContentUrls($courseId)
-    {
-        return [
-            'syllabus' =>           "courses/{$courseId}?include[]=syllabus_body",
-            'announcement' =>       "courses/{$courseId}/discussion_topics?only_announcements=true",
-            'assignment' =>         "courses/{$courseId}/assignments",
-            'discussion_topic' =>   "courses/{$courseId}/discussion_topics",
-            'file' =>               "courses/{$courseId}/files",
-            //'module' =>             "courses/{$courseId}/modules",
-            'page' =>               "courses/{$courseId}/pages",
-            'quiz' =>               "courses/{$courseId}/quizzes",
-        ];
     }
 
     /**
@@ -334,9 +298,71 @@ class CanvasLms implements LmsInterface {
         }
 
         return $fileResponse;
+    }    
+
+    public function getOauthUri(Institution $institution) 
+    {
+        $query = [
+            'client_id' => $institution->getApiClientId(),
+            'scopes' => $this->getScopes(),
+            'response_type' => 'code',
+            'redirect_uri' => LmsUserService::getOauthRedirectUri(),
+        ];
+        
+        $apiDomain = $this->session->get('lms_api_domain');
+        
+        return $apiDomain . '?' . http_build_query($query);
     }
 
-    public function getContentTypeUrl(ContentItem $contentItem)
+
+
+
+
+
+
+    /**********************
+     * PROTECTED FUNCTIONS 
+     **********************/
+
+    protected function createLmsPostOptions(ContentItem $contentItem)
+    {
+        $options = [];
+        $contentType = $contentItem->getContentType();
+        $html = $contentItem->getBody();
+
+        switch ($contentType) {
+            case 'syllabus':
+                $options['course[syllabus_body]'] = $html;
+                break;
+
+            case 'page':
+                $options['wiki_page[body]'] = $html;
+                break;
+
+            case 'assignment':
+                $options['assignment[description]'] = $html;
+                break;
+
+            case 'discussion_topic':
+            case 'announcement':
+                $options['message'] = $html;
+                break;
+
+            case 'file':
+                $lmsCourseId = $contentItem->getCourse()->getLmsCourseId();
+                $options['postUrl'] = "courses/{$lmsCourseId}/files";
+                $options['body'] = $html;
+                break;
+
+                // case 'module':
+                // break;
+
+        }
+
+        return $options;
+    }
+    
+    protected function getContentTypeUrl(ContentItem $contentItem)
     {
         $contentType = $contentItem->getContentType();
         $lmsCourseId = $contentItem->getCourse()->getLmsCourseId();
@@ -356,7 +382,7 @@ class CanvasLms implements LmsInterface {
         return $lmsContentTypeUrls[$contentType];
     }
 
-    public function normalizeLmsContent(Course $course, $contentType, $lmsContent)
+    protected function normalizeLmsContent(Course $course, $contentType, $lmsContent)
     {
         $out = [];
         $domainName = $course->getInstitution()->getLmsDomain();
@@ -369,14 +395,14 @@ class CanvasLms implements LmsInterface {
                 $out['updated'] = 'now';
                 $out['status'] = false;
                 $out['url'] = $baseUrl;
-                
-                if(array_key_exists('syllabus_body', $lmsContent)) {
+
+                if (array_key_exists('syllabus_body', $lmsContent)) {
                     $out['body'] = $lmsContent['syllabus_body'];
                     $out['status'] = true;
                 }
-                
+
                 break;
-                
+
             case 'page':
                 $out['id'] = $lmsContent['url'];
                 $out['title'] = $lmsContent['title'];
@@ -408,15 +434,15 @@ class CanvasLms implements LmsInterface {
                 $out['body'] = $lmsContent['message'];
                 $out['status'] = $lmsContent['published'];
                 $out['url'] = "{$baseUrl}/discussion_topics/{$lmsContent['id']}";
-                
+
                 break;
 
-            // case 'module':
-            //     $out['id'] = $lmsContent['id'];
-            //     $out['title'] = $lmsContent['name'];
-            //     $out['updated'] = 'now';
-            //     $out['body'] = '';
-            //     break;
+                // case 'module':
+                //     $out['id'] = $lmsContent['id'];
+                //     $out['title'] = $lmsContent['name'];
+                //     $out['updated'] = 'now';
+                //     $out['body'] = '';
+                //     break;
 
             case 'file':
                 if ('html' !== $lmsContent['mime_class']) {
@@ -440,42 +466,47 @@ class CanvasLms implements LmsInterface {
         return $out;
     }   
 
-    public function createLmsPostOptions(ContentItem $contentItem)
+    protected function getCourseContentUrls($courseId)
     {
-        $options = [];
-        $contentType = $contentItem->getContentType();
-        $html = $contentItem->getBody();
-        
-        switch ($contentType) {
-            case 'syllabus':
-                $options['course[syllabus_body]'] = $html;
-            break;
-                
-            case 'page':
-                $options['wiki_page[body]'] = $html;
-            break;
+        return [
+            'syllabus' =>           "courses/{$courseId}?include[]=syllabus_body",
+            'announcement' =>       "courses/{$courseId}/discussion_topics?only_announcements=true",
+            'assignment' =>         "courses/{$courseId}/assignments",
+            'discussion_topic' =>   "courses/{$courseId}/discussion_topics",
+            'file' =>               "courses/{$courseId}/files",
+            //'module' =>             "courses/{$courseId}/modules",
+            'page' =>               "courses/{$courseId}/pages",
+            'quiz' =>               "courses/{$courseId}/quizzes",
+        ];
+    }
 
-            case 'assignment':
-                $options['assignment[description]'] = $html;
-            break;
+    protected function getScopes()
+    {
+        $scopes = [
+            'url:GET|/api/v1/accounts',
+            'url:GET|/api/v1/courses/:course_id/assignments',
+            'url:GET|/api/v1/announcements',
+            'url:GET|/api/v1/courses/:course_id/discussion_topics',
+            'url:GET|/api/v1/courses/:course_id/files',
+            'url:GET|/api/v1/courses/:course_id/modules',
+            'url:GET|/api/v1/courses/:course_id/pages',
+            'url:GET|/api/v1/courses/:id',
+            'url:GET|/api/v1/courses'
+        ];
 
-            case 'discussion_topic':
-            case 'announcement':
-                $options['message'] = $html;
-            break;
+        return implode(' ', $scopes);
+    }
 
-            case 'file':
-                $lmsCourseId = $contentItem->getCourse()->getLmsCourseId();
-                $options['postUrl'] = "courses/{$lmsCourseId}/files";
-                $options['body'] = $html;
-            break;
+    protected function getApiDomain(User $user)
+    {
+        $institution = $user->getInstitution();
 
-            // case 'module':
-            // break;
+        return $institution->getLmsDomain();
+    }
 
-        }
-
-        return $options;
+    protected function getApiToken(User $user)
+    {
+        return $user->getApiKey();
     }
 
     protected function compareContent($content1, $content2)
