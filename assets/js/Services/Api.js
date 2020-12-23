@@ -7,7 +7,9 @@ export default class Api {
             getReportHistory: '/api/courses/{course}/reports',
             saveIssue: '/api/issues/{issue}/save',
             resolveIssue: '/api/issues/{issue}/resolve',
-            postFile: '',
+            reviewFile: '/api/files/{file}/review',
+            postFile: '/api/files/{file}/post',
+            pdf: '/api/courses/{course}/reports/pdf',
         };
         this.settings = settings;
 
@@ -38,6 +40,22 @@ export default class Api {
 
         let url = `${this.apiUrl}${this.endpoints.getReport}`;
         url = url.replace('{course}', courseId).replace('{report}', reportId);
+
+        return fetch(url, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-AUTH-TOKEN': authToken,
+            },
+        });
+    }
+
+    getReportHistory() {
+        const courseId = this.getCourseId();
+        const authToken = this.getAuthToken();
+
+        let url = `${this.apiUrl}${this.endpoints.getReportHistory}`;
+        url = url.replace('{course}', courseId);
 
         return fetch(url, {
             method: 'GET',
@@ -81,7 +99,45 @@ export default class Api {
         })
     }
 
-    postFile() {
+    reviewFile(file) {
+        const authToken = this.getAuthToken()
 
+        let url = `${this.apiUrl}${this.endpoints.reviewFile}`
+        url = url.replace('{file}', file.id)
+
+        return fetch(url, {
+            method: 'POST',
+            cache: 'no-cache',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-AUTH-TOKEN': authToken,
+            },
+            body: JSON.stringify({ reviewed: file.reviewed }),
+        })
+    }
+
+    postFile(activeFile, fileObj) {
+        const authToken = this.getAuthToken()
+
+        let url = `${this.apiUrl}${this.endpoints.postFile}`
+        url = url.replace('{file}', activeFile.id)
+
+        let formData = new FormData()
+        formData.append('file', fileObj)
+        
+        console.log('postFile', fileObj)
+
+        return fetch(url, {
+            method: 'POST',
+            cache: 'no-cache',
+            headers: {
+                'X-AUTH-TOKEN': authToken,
+            },
+            body: formData,
+        })
+    }
+
+    getPdfReport() {
+        
     }
 }

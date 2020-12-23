@@ -12,7 +12,7 @@ const fileTypes = [
   'pdf',
   'doc',
   'ppt',
-  //'xls',
+  'xls',
 ]
 
 class FilesPage extends React.Component {
@@ -131,6 +131,7 @@ class FilesPage extends React.Component {
 
       filteredList.push(
         {
+          id: file.id,
           status,
           file,
           fileName: file.fileName,
@@ -165,14 +166,14 @@ class FilesPage extends React.Component {
     const headers = [
       {id: "status", text: '', alignText: "center"},
       {id: "fileName", text: this.props.t('label.file_name')}, 
-      {id: "fileType", text: this.props.t('label.content_type')}, 
+      {id: "fileType", text: this.props.t('label.file_type')}, 
       {id: "fileSize", text: this.props.t('label.file_size'), format: this.formatFileSize},
       {id: "action", text: "", alignText: "end"}
     ];
     const filteredFiles = this.getFilteredFiles();
 
     return (
-      <View as="div" key="filesPageFormWrapper">
+      <View as="div" key="filesPageFormWrapper" padding="small 0">
         <FilesPageForm 
           handleSearchTerm={this.handleSearchTerm} 
           handleTrayToggle={this.handleTrayToggle} 
@@ -204,8 +205,10 @@ class FilesPage extends React.Component {
           activeFile={this.state.activeFile}
           activeIndex={this.state.activeIndex}
           filteredRows={filteredFiles}
+          settings={this.props.settings}
           handleCloseButton={this.handleCloseButton}
           handleActiveFile={this.handleActiveFile}
+          handleFileSave={this.props.handleFileSave}
           t={this.props.t}
           key="filesModal" />
         }

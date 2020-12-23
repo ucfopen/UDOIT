@@ -95,7 +95,7 @@ class Report implements \JsonSerializable
         $result = [
             "id" => $this->id,
             "ready" => $this->ready,
-            "created" => $this->created->format('c'),
+            "created" => $this->created->format($_ENV['DATE_FORMAT']),
             "errors" => $this->getErrors(),
             "suggestions" => $this->getSuggestions(),
             "contentFixed" => $this->getContentFixed(),
@@ -175,6 +175,11 @@ class Report implements \JsonSerializable
         return $this;
     }
 
+    public function getIssueCount()
+    {
+        return ($this->getSuggestions() + $this->getErrors() + $this->getContentFixed() + $this->getContentResolved());
+    }
+
     /**
      * Undocumented function
      *
@@ -219,7 +224,7 @@ class Report implements \JsonSerializable
 
     public function getContentFixed(): ?int
     {
-        return $this->contentFixed;
+        return ($this->contentFixed) ?: 0;
     }
 
     public function setContentFixed(?int $contentFixed): self
@@ -231,7 +236,7 @@ class Report implements \JsonSerializable
 
     public function getContentResolved(): ?int
     {
-        return $this->contentResolved;
+        return ($this->contentResolved) ?: 0;
     }
 
     public function setContentResolved(?int $contentResolved): self
@@ -243,7 +248,7 @@ class Report implements \JsonSerializable
 
     public function getFilesReviewed(): ?int
     {
-        return $this->filesReviewed;
+        return ($this->filesReviewed) ?: 0;
     }
 
     public function setFilesReviewed(?int $filesReviewed): self
