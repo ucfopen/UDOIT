@@ -118,7 +118,7 @@
   "form.anchor.msg.text_empty": "Link text cannot be empty",
   "form.header.assistive_text": "Use arrow keys to navigate options.",
   "form.header.heading_level": "Select heading level",
-  "form.header.heading_level_options": ["H1", "H2", "H3", "H4", "H5", "H6"],
+  "form.header.heading_level_options": ["H2", "H3", "H4"],
   "form.header.msg.text_empty": "Header text cannot be empty",
   "form.header.remove_header": "Delete header instead",
   "form.header.text": "New Header Text",
