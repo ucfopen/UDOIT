@@ -122,6 +122,8 @@
   "form.header.msg.text_empty": "Header text cannot be empty",
   "form.header.remove_header": "Delete header instead",
   "form.header.text": "New Header Text",
+  "form.header.use_text": "Use text editor",
+  "form.header.use_code": "Use code editor",
   "form.submit": "Save",
   "form.processing": "Processing",
   "form.msg.success_saved": "Successfully saved.",
