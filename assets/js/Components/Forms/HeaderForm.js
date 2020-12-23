@@ -43,12 +43,15 @@ export default class HeaderForm extends React.Component {
             let element = Html.toElement(html)
             this.tagName = Html.getTagName(element)
         
-            this.setState({
+            this.state = {
+                codeInputValue: element.innerHTML,
                 textInputValue: element.innerText,
                 selectedValue: (this.tagName === 'P') ? 'H2' : this.tagName,
                 deleteHeader: false,
                 useHtmlEditor: false
-            })
+            }
+
+            this.formErrors = []
         }
     }
 
