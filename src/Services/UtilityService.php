@@ -73,7 +73,12 @@ class UtilityService {
 
         try {
             $dom = new DOMDocument('1.0', 'utf-8');
-            $dom->loadHTML('<?xml encoding="utf-8" ?>' . $html, LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD);
+            if (strpos($html, '<?xml encoding="utf-8"') !== false) {
+                $dom->loadHTML($html, LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD);    
+            }
+            else {
+                $dom->loadHTML('<?xml encoding="utf-8" ?>' . $html, LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD);
+            }
             $dom->preserveWhiteSpace = false;
 
             if ($dom->hasChildNodes()) {
@@ -242,6 +247,19 @@ class UtilityService {
             'pdf',
             'ppt',
             'doc',
+            'xls',
         ];
+    }
+
+    public function getDateFormat() 
+    {
+        $format = $this->session->get('date_format');
+        
+        if (!isset($format)) {
+            $format = $_ENV['DATE_FORMAT'];
+            $this->session->set('date_format', $format);
+        }
+
+        return $format;
     }
 }

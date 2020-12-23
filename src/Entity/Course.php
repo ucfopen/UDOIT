@@ -259,19 +259,70 @@ class Course implements \JsonSerializable
         return $this;
     }
 
+    public function getPreviousReport(): ?Report
+    {
+        $reports = $this->reports->toArray();
+        $count = count($reports);
+        
+        return ($count > 1) ? $reports[$count-2] : null;
+    }
+    
     public function getLatestReport(): ?Report
     {
         return $this->reports->last() ?: null;
     }
 
+
+    public function getUpdatedReport()
+    {
+        $errors = $suggestions = $fixed = $resolved = $filesReviewed = 0;
+
+        $report = $this->getLatestReport();
+        /** @var \App\Entity\Issue[] $issues */
+        $issues = $this->getAllIssues();
+
+        foreach ($issues as $issue) {
+            if ($issue->getStatus() === Issue::$issueStatusFixed) {
+                $fixed++;
+            } else if ($issue->getStatus() === Issue::$issueStatusResolved) {
+                $resolved++;
+            } else {
+                if ('error' === $issue->getType()
+                ) {
+                    $errors++;
+                } else {
+                    $suggestions++;
+                }
+            }
+        }
+
+        $files = $this->getFileItems();
+        foreach ($files as $file) {
+            if ($file->getReviewed()) {
+                $filesReviewed++;
+            }
+        }
+
+        $report->setErrors($errors);
+        $report->setSuggestions($suggestions);
+        $report->setContentFixed($fixed);
+        $report->setContentResolved($resolved);
+        $report->setFilesReviewed($filesReviewed);
+        
+        return $report;
+    }
+
     /**
      * @return FileItem[]
      */
-    public function getFileItems(): Array
+    public function getFileItems($activeOnly = true): Array
     {
         $files = [];
 
         foreach ($this->fileItems as $file) {
+            if ($activeOnly && !$file->isActive()) {
+                continue;
+            }
             $files[$file->getId()] = $file;
         }
 

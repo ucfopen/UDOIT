@@ -2,14 +2,10 @@
 
 namespace App\MessageHandler;
 
-use App\Entity\ContentItem;
 use App\Entity\Course;
-use App\Entity\Issue;
-use App\Entity\Report;
 use App\Entity\User;
 use App\Message\QueueItemInterface;
-use App\Services\LmsApiService;
-use App\Services\UtilityService;
+use App\Services\LmsFetchService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Messenger\Handler\MessageHandlerInterface;
 
@@ -18,17 +14,13 @@ class QueueItemHandler implements MessageHandlerInterface
     /** @var EntityManagerInterface $entityManager */
     private $entityManager;
 
-    /** @var UtilityService $util */
-    private $util;
+    /** @var LmsFetchService $lmsFetch */
+    private $lmsFetch;
 
-    /** @var LmsApiService $lmsApi */
-    private $lmsApi;
-
-    public function __construct(EntityManagerInterface $entityManager, UtilityService $util, LmsApiService $lmsApi)
+    public function __construct(EntityManagerInterface $entityManager, LmsFetchService $lmsFetch)
     {
         $this->entityManager = $entityManager;
-        $this->util = $util;
-        $this->lmsApi = $lmsApi;
+        $this->lmsFetch = $lmsFetch;
     }
 
     public function __invoke(QueueItemInterface $item)
@@ -45,7 +37,7 @@ class QueueItemHandler implements MessageHandlerInterface
         
         switch ($task) {
             case 'refreshContent':
-                $this->lmsApi->refreshLmsContent($course, $user);
+                $this->lmsFetch->refreshLmsContent($course, $user);
         }
     }
 }

@@ -68,6 +68,31 @@ class FileItem implements \JsonSerializable
      */
     private $reviewed;
 
+    /**
+     * @ORM\Column(type="string", length=255, nullable=true)
+     */
+    private $lmsUrl;
+
+    /**
+     * @ORM\Column(type="string", length=255, nullable=true)
+     */
+    private $downloadUrl;
+
+    /**
+     * @ORM\ManyToOne(targetEntity=User::class)
+     */
+    private $reviewedBy;
+
+    /**
+     * @ORM\Column(type="datetime", nullable=true)
+     */
+    private $reviewedOn;
+
+    /**
+     * @ORM\Column(type="boolean")
+     */
+    private $active;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -198,8 +223,9 @@ class FileItem implements \JsonSerializable
         $updatedDate = new \DateTime($file['updated_at'], UtilityService::$timezone);
 
         $this->setUpdated($updatedDate);
+        $this->setActive(true);
         $this->setFileName($file['display_name']);
-        $this->setStatus(true);
+        $this->setStatus($file['locked']);
         $this->setFileType($file['mime_class']);
         $this->setFileSize($file['size']);
         $this->setHidden($file['hidden']);
@@ -221,9 +247,72 @@ class FileItem implements \JsonSerializable
             'lmsFileId' => $this->getLmsFileId(),
             'updated' => $this->getUpdated()->format('c'),
             'status' => $this->getStatus(),
+            'active' => $this->isActive(),
             'fileSize' => $this->getFileSize(),
             'hidden' => $this->getHidden(),
             'reviewed' => $this->getReviewed(),
+            'downloadUrl' => $this->getDownloadUrl(),
+            'lmsUrl' => $this->getLmsUrl(),
         ];
+    }
+
+    public function getLmsUrl(): ?string
+    {
+        return $this->lmsUrl;
+    }
+
+    public function setLmsUrl(?string $url): self
+    {
+        $this->lmsUrl = $url;
+
+        return $this;
+    }
+
+    public function getDownloadUrl(): ?string
+    {
+        return $this->downloadUrl;
+    }
+
+    public function setDownloadUrl(?string $url): self
+    {
+        $this->downloadUrl = $url;
+
+        return $this;
+    }
+
+    public function getReviewedBy(): ?User
+    {
+        return $this->reviewedBy;
+    }
+
+    public function setReviewedBy(?User $reviewedBy): self
+    {
+        $this->reviewedBy = $reviewedBy;
+
+        return $this;
+    }
+
+    public function getReviewedOn(): ?\DateTimeInterface
+    {
+        return $this->reviewedOn;
+    }
+
+    public function setReviewedOn(?\DateTimeInterface $reviewedOn): self
+    {
+        $this->reviewedOn = $reviewedOn;
+
+        return $this;
+    }
+
+    public function isActive(): ?bool
+    {
+        return $this->active;
+    }
+
+    public function setActive(bool $active): self
+    {
+        $this->active = $active;
+
+        return $this;
     }
 }

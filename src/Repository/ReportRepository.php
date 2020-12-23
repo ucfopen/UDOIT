@@ -22,7 +22,7 @@ class ReportRepository extends ServiceEntityRepository
     public function findAllInCourse($course) {
         return  $this->createQueryBuilder('r')
             ->where('r.course = :course')
-            ->orderBy('r.created', 'DESC')
+            ->orderBy('r.created', 'ASC')
             ->setParameter('course', $course)
             ->getQuery()
             ->getResult();

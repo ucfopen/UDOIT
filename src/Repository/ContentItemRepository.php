@@ -38,7 +38,7 @@ class ContentItemRepository extends ServiceEntityRepository
     public function getUpdatedContentItems(Course $course)
     {
         $latestReport = $course->getLatestReport();
-
+        
         if (!$latestReport) {
             return $this->createQueryBuilder('c')
                 ->andWhere('c.course = :course')
@@ -50,7 +50,7 @@ class ContentItemRepository extends ServiceEntityRepository
 
         return $this->createQueryBuilder('c')
             ->andWhere('c.course = :course')
-            ->andWhere('c.updated >= :updated')
+            ->andWhere('c.updated > :updated')
             ->andWhere('c.active = 1')
             ->setParameter('course', $course)
             ->setParameter('updated', $latestReport->getCreated())

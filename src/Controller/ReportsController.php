@@ -89,15 +89,24 @@ class ReportsController extends ApiController
             
             $report = $course->getLatestReport();
 
-            if ($report) {
-                $reportArr = $report->toArray();
-                $reportArr['files'] = $course->getFileItems();
-                $reportArr['issues'] = $course->getActiveIssues();
-                $reportArr['contentItems'] = $course->getContentItems();
+            if (!$report) {
+                throw new \Exception('msg.no_report_created');
+            }
+            
+            $reportArr = $report->toArray();
+            $reportArr['files'] = $course->getFileItems();
+            $reportArr['issues'] = $course->getActiveIssues();
+            $reportArr['contentItems'] = $course->getContentItems();
+            $apiResponse->setData($reportArr);
+
+            $prevReport = $course->getPreviousReport();
+            if ($prevReport && ($prevReport->getIssueCount() == $report->getIssueCount())) {
+                $apiResponse->addMessage('msg.no_new_content', 'success', 5000);
+            }
+            else {
+                $apiResponse->addMessage('msg.new_content', 'success', 5000);
             }
 
-            $apiResponse->setData($reportArr);
-            $apiResponse->addMessage('Scan complete. No new content found.', 'success', 5000);
         } catch (\Exception $e) {
             if ('msg.course_scanning' === $e->getMessage()) {
                 $apiResponse->addMessage($e->getMessage(), 'info', 0, false);
@@ -112,57 +121,37 @@ class ReportsController extends ApiController
     }
 
     /**
-     * @Route("/api/courses/{course}/reports/{report}", methods={"GET"}, name="get_report")
+     * @Route("/api/courses/{course}/reports/pdf", methods={"GET"}, name="get_report_pdf")
      * @param Course $course
-     * @param Report $report
-     */
-    public function getOneReport(
-        Course $course,
-        Report $report
-    ) {
-        $apiResponse = new ApiResponse();
-        try {
-            // Check if user has course access
-            if (!$this->userHasCourseAccess($course)) {
-                throw new \Exception("You do not have permission to access the specified course.");
-            }
-
-            if ($report->getCourse()->getId() != $course->getId()) {
-                throw new \Exception('Invalid report ID. This report does not belong to the given course.');
-            }
-            
-            $apiResponse->setData($report->toArray(true));
-        }
-        catch (\Exception $e) {
-            $apiResponse->addError($e->getMessage());
-        }
-
-        // Construct Response
-        return new JsonResponse($apiResponse);
-    }
-
-    /**
-     * @Route("/api/courses/{course}/reports/{report}/pdf", methods={"GET"}, name="get_report_pdf")
-     * @param $courseId
-     * @param $reportId
      * @return \Symfony\Component\HttpFoundation\Response
      */
     public function getPdfReport(
         Request $request,
         SessionInterface $session,
         UtilityService $util,
-        Course $course,
-        Report $report
+        Course $course
     ) {
         $this->request = $request;
         $this->session = $session;
         $this->util = $util;
 
         try {
+            /** @var User $user */
+            $user = $this->getUser();
+            /** @var \App\Entity\Institution $institution */
+            $institution = $user->getInstitution();
+          
+            $metadata = $institution->getMetadata();
+            $lang = (!empty($metadata['lang'])) ? $metadata['lang'] : $_ENV['DEFAULT_LANG'];
+            
             // Generate Twig Template
             $html = $this->renderView(
-                    'report.html.twig',
-                        ['report' => $report]
+                'report.html.twig',
+                [
+                    'course' => $course,
+                    'report' => $course->getLatestReport(),
+                    'labels' => $this->util->getTranslation($lang),
+                ]
             );
 
             // Generate PDF
@@ -179,9 +168,9 @@ class ReportsController extends ApiController
         }
         catch(\Exception $e) {
             $apiResponse = new ApiResponse();
-            $jsonResponse = new JsonResponse($apiResponse);
-            $jsonResponse->setEncodingOptions($jsonResponse->getEncodingOptions() | JSON_PRETTY_PRINT);
-            return $jsonResponse;
+            $apiResponse->addMessage($e->getMessage());
+            
+            return new JsonResponse($apiResponse);
         }
     }
 }

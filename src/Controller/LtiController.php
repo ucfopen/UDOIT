@@ -2,20 +2,14 @@
 
 namespace App\Controller;
 
-use App\Entity\User;
-use App\Lms\Canvas\CanvasLms;
-use App\Services\LmsApiService;
 use App\Services\UtilityService;
 use Firebase\JWT\JWK;
 use \Firebase\JWT\JWT;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpClient\HttpClient;
-use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\Routing\Annotation\Route;
-use function GuzzleHttp\Promise\queue;
 
 class LtiController extends AbstractController
 {
@@ -116,6 +110,14 @@ class LtiController extends AbstractController
             foreach ($customFields as $key => $val) {
                 $this->session->set($key, $val);
             }
+
+            $roleFields = (array) $token->{'https://purl.imsglobal.org/spec/lti/claim/roles'};
+            $roles = [];
+            foreach ($roleFields as $role) {
+                $roleArr = explode('#', $role);
+                $roles[] = trim($roleArr[1]);
+            }
+            $this->session->set('roles', array_values(array_unique($roles)));
         } catch (\Exception $e) {
             print_r($e->getMessage());
         }

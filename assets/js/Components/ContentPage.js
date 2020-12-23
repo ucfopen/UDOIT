@@ -161,6 +161,7 @@ class ContentPage extends React.Component {
 
       filteredList.push(
         {
+          id: issue.id,
           issue,
           status,
           scanRuleLabel: this.props.t(`rule.label.${issue.scanRuleId}`),
@@ -201,7 +202,7 @@ class ContentPage extends React.Component {
     const activeContentItem = (this.state.activeIssue) ? this.getContentById(this.state.activeIssue.contentItemId) : null
 
     return (
-      <View as="div" key="contentPageFormWrapper">
+      <View as="div" key="contentPageFormWrapper" padding="small 0">
         <ContentPageForm 
           handleSearchTerm={this.handleSearchTerm} 
           handleTrayToggle={this.handleTrayToggle} 
