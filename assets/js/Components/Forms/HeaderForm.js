@@ -1,10 +1,13 @@
 import React from 'react'
+import { CodeEditor } from '@instructure/ui-code-editor'
 import { Checkbox } from '@instructure/ui-checkbox';
 import { View } from '@instructure/ui-view'
-import { TextArea } from '@instructure/ui-text-area'
+import { Text } from '@instructure/ui-text'
+import { TextInput } from '@instructure/ui-text-input'
 import { Button } from '@instructure/ui-buttons'
 import { Spinner } from '@instructure/ui-spinner'
 import { SimpleSelect } from '@instructure/ui-simple-select'
+import { CondensedButton } from '@instructure/ui-buttons'
 import Html from '../../Services/Html';
 
 
@@ -17,76 +20,106 @@ export default class HeaderForm extends React.Component {
         this.tagName = Html.getTagName(element)
 
         this.state = {
-            textInputValue: element.innerHTML,
-            selectedValue: (this.tagName === 'P') ? 'H1' : this.tagName,
-            removeBold: false
+            codeInputValue: element.innerHTML,
+            textInputValue: element.innerText,
+            selectedValue: (this.tagName === 'P') ? 'H2' : this.tagName,
+            deleteHeader: false,
+            useHtmlEditor: false
         }
 
         this.formErrors = []
 
-        this.handleInput = this.handleInput.bind(this)
+        this.handleCodeInput = this.handleCodeInput.bind(this)
+        this.handleTextInput = this.handleTextInput.bind(this)
         this.handleSelect = this.handleSelect.bind(this)
-        this.handleButton = this.handleButton.bind(this)
+        this.handleSubmit = this.handleSubmit.bind(this)
         this.handleCheckbox = this.handleCheckbox.bind(this)
+        this.handleToggle = this.handleToggle.bind(this)
     }
 
     componentDidUpdate(prevProps, prevState) {
         if (prevProps.activeIssue !== this.props.activeIssue) {
-          const html = (this.props.activeIssue.newHtml) ? this.props.activeIssue.newHtml : this.props.activeIssue.sourceHtml
-          let altText = Html.getAttribute(html, 'alt')
-          altText = (typeof altText === 'string') ? altText : ''
-    
-          this.setState({
-            textInputValue: altText,
-            isDecorative: this.elementIsDecorative(html),
-            characterCount: altText.length,
-            textInputErrors: [],
-          })
+            const html = (this.props.activeIssue.newHtml) ? this.props.activeIssue.newHtml : this.props.activeIssue.sourceHtml
+            let element = Html.toElement(html)
+            this.tagName = Html.getTagName(element)
+        
+            this.setState({
+                textInputValue: element.innerText,
+                selectedValue: (this.tagName === 'P') ? 'H2' : this.tagName,
+                deleteHeader: false,
+                useHtmlEditor: false
+            })
         }
     }
+
 
     handleCheckbox() {
         this.setState({
-            removeBold: !this.state.removeBold
+            deleteHeader: !this.state.deleteHeader
+        }, () => {
+            console.log(this.state.deleteHeader)
+            let issue = this.props.activeIssue
+            issue.newHtml = this.processHtml()
+            this.props.handleActiveIssue(issue)
         })
     }
 
-    handleInput(event) {
-        console.log(event.target.value)
+    handleCodeInput(value) {
+        this.setState({
+            codeInputValue: value
+        }, () => {
+            let issue = this.props.activeIssue
+            issue.newHtml = this.processHtml()
+            this.props.handleActiveIssue(issue)
+        })
+    }
 
+    handleTextInput(event) {
         this.setState({
             textInputValue: event.target.value
+        }, () => {
+            let issue = this.props.activeIssue
+            issue.newHtml = this.processHtml()
+            this.props.handleActiveIssue(issue)
         })
     }
 
+    
     handleSelect = (e, { id, value }) => {
-        this.setState({ selectedValue: value })
-
-        console.log(value)
+        this.setState({ selectedValue: value }, () => {
+            let issue = this.props.activeIssue
+            issue.newHtml = this.processHtml()
+            this.props.handleActiveIssue(issue)
+        })
     }
 
-    handleButton() {
-        let newHeader = document.createElement(this.state.selectedValue)
-        newHeader.innerHTML = this.state.textInputValue
-
+    handleSubmit() {
         this.formErrors = []
 
-        this.checkTextNotEmpty()
+        if(!this.state.deleteHeader && !this.state.useHtmlEditor) {
+            this.checkTextNotEmpty()
+        }
+        
 
         if (this.formErrors.length > 0) {
             this.setState({ textInputErrors: this.formErrors })
-          } else {
-            if(this.state.removeBold) {
-                newHeader = Html.removeTag(newHeader, 'strong')
-                newHeader = Html.removeTag(newHeader, 'b')
-            }
-    
-            console.log(newHeader)
+        } 
+        
+        else {
             let issue = this.props.activeIssue
-            issue.newHtml = Html.toString(newHeader)
-    
+            issue.newHtml = this.processHtml()
             this.props.handleIssueSave(issue)
         }
+    }
+
+    handleToggle() {
+        this.setState({
+            useHtmlEditor: !this.state.useHtmlEditor
+        }, () => {
+            let issue = this.props.activeIssue
+            issue.newHtml = this.processHtml()
+            this.props.handleActiveIssue(issue)
+        })
     }
 
     checkTextNotEmpty() {
@@ -94,6 +127,24 @@ export default class HeaderForm extends React.Component {
         if (text === '') {
           this.formErrors.push({ text: this.props.t('form.header.msg.text_empty'), type: 'error' })
         }
+    }
+
+    processHtml() {
+
+        if(this.state.deleteHeader) {
+            return ''
+        }
+
+        let newHeader = document.createElement(this.state.selectedValue)
+        let newHtml = (this.state.useHtmlEditor) ? this.state.codeInputValue : this.state.textInputValue
+
+        newHeader.innerHTML = newHtml
+        newHeader = Html.removeTag(newHeader, 'strong')
+        newHeader = Html.removeTag(newHeader, 'b')
+        newHeader = Html.removeTag(newHeader, 'i')
+        
+
+        return Html.toString(newHeader)
     }
 
     render() {
@@ -104,22 +155,44 @@ export default class HeaderForm extends React.Component {
 
         return (
             <View as="div" padding="x-small">
+                <View position="absolute" insetInlineEnd="10%">
+                    <CondensedButton color="primary" onClick={this.handleToggle}>
+                        {this.state.useHtmlEditor ? this.props.t('form.header.use_text') : this.props.t('form.header.use_code')}
+                    </CondensedButton>
+                </View>
                 <View>
-                    <TextArea
-                    label={this.props.t('form.header.text')}
-                    display="inline-block"
-                    width="100%"
-                    onChange={this.handleInput}
-                    value={this.state.textInputValue}
-                    id="textInputValue"
-                    messages={this.formErrors}
-                    />
+                    {!this.state.useHtmlEditor &&
+                        <TextInput
+                        renderLabel={this.props.t('form.header.text')}
+                        display="inline-block"
+                        width="100%"
+                        onChange={this.handleTextInput}
+                        value={this.state.textInputValue}
+                        id="textInputValue"
+                        messages={this.formErrors}
+                        /> 
+                    }
+
+                    {this.state.useHtmlEditor &&
+                        [
+                        <Text weight="bold">{this.props.t('form.header.text')}</Text>,
+                        
+                        <CodeEditor
+                        renderLabel={this.props.t('form.header.text')}
+                        value={this.state.codeInputValue}
+                        language='html'
+                        options={{ lineNumbers: false }}
+                        onChange={this.handleCodeInput}
+                        />
+                        ] 
+                    }
                 </View>
                 <View as="div" margin="small 0">
                     <View as="span" display="inline-block" margin="small" padding="small">
                         <SimpleSelect
                         renderLabel={this.props.t('form.header.heading_level')}
                         assistiveText={this.props.t('form.header.assistive_text')}
+                        assistiveText="yee"
                         value={this.state.selectedValue}
                         onChange={this.handleSelect}
                         width="100%"
@@ -138,11 +211,11 @@ export default class HeaderForm extends React.Component {
                     </View>
     
                     <View as="span" display="inline-block" margin="small" padding="small">
-                        <Checkbox label={this.props.t('form.header.remove_bold')} onChange={this.handleCheckbox} checked={this.state.removeBold}/>
+                        <Checkbox label={this.props.t('form.header.remove_header')} onChange={this.handleCheckbox} checked={this.state.deleteHeader}/>
                     </View>
                 </View>
                 <View as="div" margin="small 0">
-                    <Button color="primary" onClick={this.handleButton} interaction={(canSubmit) ? 'enabled' : 'disabled'}>
+                    <Button color="primary" onClick={this.handleSubmit} interaction={(canSubmit) ? 'enabled' : 'disabled'}>
                         {pending && <Spinner size="x-small" renderTitle={buttonLabel} />}
                         {this.props.t(buttonLabel)}
                     </Button>
