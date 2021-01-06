@@ -138,7 +138,7 @@ class UfixitModal extends React.Component {
                       <Pill>{activeContentItem.contentType}</Pill> {activeContentItem.title}
                       <View as="div">
                         <Link onClick={this.handleOpenContent} isWithinText={false} margin="small 0" renderIcon={<IconExternalLinkLine />} iconPlacement="end">
-                          {this.props.t('label.open_in_canvas')}
+                          {this.props.t('label.open_in_lms')}
                         </Link>
                       </View>
                     </View>

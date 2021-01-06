@@ -208,6 +208,13 @@ class LmsFetchService {
             // Scan Content Item with PHPAlly
             $phpAllyReport = $this->phpAlly->scanContentItem($contentItem);
             if ($phpAllyReport) {
+                // TODO: Do something with report errors
+                if (count($phpAllyReport->getErrors())) {
+                    foreach ($phpAllyReport->getErrors() as $error) {
+                        $this->util->createMessage($error, 'error', $contentItem->getCourse());
+                    }
+                }
+
                 // Add Issues to report
                 foreach ($phpAllyReport->getIssues() as $issue) {
                     // Create issue entity 

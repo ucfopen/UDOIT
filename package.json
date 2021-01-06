@@ -51,6 +51,7 @@
         "@instructure/ui-text": "^7.3.0",
         "@instructure/ui-text-area": "^7.3.0",
         "@instructure/ui-text-input": "^7.3.0",
+        "@instructure/ui-toggle-details": "^7.3.2",
         "@instructure/ui-tray": "^7.3.0",
         "@reactchartjs/react-chart.js": "^1.0.0-rc.3",
         "axios": "^0.19.2",

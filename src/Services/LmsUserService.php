@@ -21,6 +21,11 @@ class LmsUserService {
         $this->doctrine = $doctrine;
     }
 
+    public static function getOauthRedirectUri()
+    {
+        return $_ENV['APP_OAUTH_REDIRECT_URL'];
+    }
+
     /**
      * Returns true if API key has been validated.
      *
@@ -74,7 +79,7 @@ class LmsUserService {
             'query' => [
                 'grant_type'    => 'refresh_token',
                 'client_id'     => $institution->getApiClientId(),
-                'redirect_uri'  => $this->getOauthRedirectUri(),
+                'redirect_uri'  => self::getOauthRedirectUri(),
                 'client_secret' => $institution->getApiClientSecret(),
                 'refresh_token' => $refreshToken,
             ],
@@ -111,10 +116,5 @@ class LmsUserService {
         $user->setLastLogin($now);
 
         $this->doctrine->getManager()->flush();
-    }
-
-    public function getOauthRedirectUri()
-    {
-        return $_ENV['APP_OAUTH_REDIRECT_URL'];
     }
 }

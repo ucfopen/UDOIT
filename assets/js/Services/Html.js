@@ -7,6 +7,9 @@ class Html {
   }
 
   toString(element) {
+    if (!element) {
+      return ''
+    }
     return element.outerHTML
   }
 
