@@ -60,6 +60,20 @@ class D2lLms implements LmsInterface {
         return '';
     }
 
+
+    public function getAccountData(User $user, $accountId)
+    {
+        $accounts = [];
+
+        return $accounts;
+    }
+
+    public function getCourseUrl(Course $course, User $user)
+    {
+        return '';
+    }
+    
+
     protected function getScopes()
     {
         $scopes = [

@@ -1,9 +1,9 @@
 {% extends 'base.html.twig' %}
 
-{% block title %} UDOIT {% endblock %}
+{% block title %} UDOIT Admin {% endblock %}
 
 {% block stylesheets %}
-        {{ encore_entry_link_tags('app') }}
+    {{ encore_entry_link_tags('admin') }}
 {% endblock %}
 
 {% block body %}
@@ -12,5 +12,5 @@
 
 {% block javascripts %}
 <script type="application/json" id="toolSettings">{{ data|json_encode(constant('JSON_PRETTY_PRINT'))|raw }}</script>
-<script type="text/javascript" src="{{ asset('build/app.js') }}"></script>
+<script type="text/javascript" src="{{ asset('build/admin.js') }}"></script>
 {% endblock %}

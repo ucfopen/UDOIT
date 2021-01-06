@@ -71,6 +71,11 @@ class Course implements \JsonSerializable
      */
     private $fileItems;
 
+    /**
+     * @ORM\Column(type="integer", nullable=true)
+     */
+    private $lmsTermId;
+
 
     // Constructor
     public function __construct()
@@ -165,6 +170,14 @@ class Course implements \JsonSerializable
         $this->lmsAccountId = $lms_account_id;
 
         return $this;
+    }
+
+    public function getLmsAccountName(): ?string
+    {
+        $lmsAccountId = $this->getLmsAccountId();
+        $account = $this->getInstitution()->getAccountData($lmsAccountId);
+
+        return (!empty($account)) ? $account['name'] : '';
     }
 
     public function getLmsCourseId(): ?string
@@ -387,5 +400,17 @@ class Course implements \JsonSerializable
     protected function sortContentItems(ContentItem $a, ContentItem $b) 
     {
         return (strtolower($a->getTitle()) > strtolower($b->getTitle())) ? 1 : -1;
+    }
+
+    public function getLmsTermId(): ?int
+    {
+        return $this->lmsTermId;
+    }
+
+    public function setLmsTermId(?int $lmsTermId): self
+    {
+        $this->lmsTermId = $lmsTermId;
+
+        return $this;
     }
 }

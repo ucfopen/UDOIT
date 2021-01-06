@@ -289,12 +289,12 @@ class Institution implements JsonSerializable
         return $this;
     }
 
-    public function getMetadata(): ?string
+    public function getMetadata(): ?array
     {
         return \json_decode($this->metadata, true);
     }
 
-    public function setMetadata(?string $metadata): self
+    public function setMetadata(array $metadata): self
     {
         $this->metadata = \json_encode($metadata);
 
@@ -398,5 +398,24 @@ class Institution implements JsonSerializable
             'status' => $this->getStatus(),
             'vanityUrl' => $this->vanityUrl,
         ];
+    }
+
+    public function getAccountData($accountId) 
+    {
+        $metadata = $this->getMetadata();
+        
+        return isset($metadata['accounts'][$accountId]) 
+            ? $metadata['accounts'][$accountId] : false;
+    }
+
+    public function setAccountData($accountId, $accountData)
+    {
+        $metadata = $this->getMetadata();
+        $accounts = isset($metadata['accounts']) ? $metadata['accounts'] : [];
+
+        $accounts[$accountId] = $accountData;
+        $metadata['accounts'] = $accounts;
+        
+        $this->setMetadata($metadata);
     }
 }

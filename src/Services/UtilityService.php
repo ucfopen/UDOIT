@@ -115,21 +115,6 @@ class UtilityService {
         return $this->doctrine->getRepository(Course::class)->find($id);
     }
 
-    public function createCourse(Institution $institution, $lmsCourseId)
-    {
-        $course = new Course();
-        $course->setInstitution($institution);
-        $course->setLmsCourseId($lmsCourseId);
-        $course->setTitle("New Course: ID#{$lmsCourseId}");
-        $course->setActive(true);
-        $course->setDirty(false);
-
-        $this->doctrine->getManager()->persist($course);
-        $this->doctrine->getManager()->flush();
-
-        return $course;
-    }
-
     public function getUnreadMessages($markAsRead = true)
     {
         $user = $this->security->getUser();

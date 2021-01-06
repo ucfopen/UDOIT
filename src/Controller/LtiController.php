@@ -2,6 +2,9 @@
 
 namespace App\Controller;
 
+use App\Entity\Institution;
+use App\Entity\User;
+use App\Services\LmsUserService;
 use App\Services\UtilityService;
 use Firebase\JWT\JWK;
 use \Firebase\JWT\JWT;
@@ -82,17 +85,23 @@ class LtiController extends AbstractController
         // Add Token to Session
         $this->saveTokenToSession($token);
 
-        return $this->redirectToRoute(
-            'authorize',
-            [
-                'lms_api_domain' => $this->session->get('lms_api_domain'),
-                'lms_user_id' => $this->session->get('lms_user_id'),
-                'lms_course_id' => $this->session->get('lms_course_id')
-            ]
-        );
+        // Add user to session
+        $this->saveUserToSession();
+
+        if (isset($token->{'https://purl.imsglobal.org/spec/lti/claim/target_link_uri'})) {
+            return $this->redirect($token->{'https://purl.imsglobal.org/spec/lti/claim/target_link_uri'});
+        }
+
+        return $this->redirectToRoute('dashboard');
     }
 
-    private function claimMatchOrExit($claimType, $sessionClaim, $tokenClaim) {
+
+    /***********************
+     * PROTECTED FUNCTIONS
+     ***********************/
+
+    protected function claimMatchOrExit($claimType, $sessionClaim, $tokenClaim)
+    {
         if(is_array($tokenClaim)) {
             if(in_array($sessionClaim, $tokenClaim)) {
                 return true;
@@ -104,7 +113,8 @@ class LtiController extends AbstractController
         $this->util->exitWithMessage(sprintf('The "%s" provided does not match the expected value: %s.', $claimType, $sessionClaim));
     }
 
-    private function saveTokenToSession($token) {
+    protected function saveTokenToSession($token) 
+    {
         try {
             $customFields = (array) $token->{'https://purl.imsglobal.org/spec/lti/claim/custom'};
             foreach ($customFields as $key => $val) {
@@ -117,13 +127,13 @@ class LtiController extends AbstractController
                 $roleArr = explode('#', $role);
                 $roles[] = trim($roleArr[1]);
             }
-            $this->session->set('roles', array_values(array_unique($roles)));
+            $this->session->set('roles', array_values(array_unique($roles)));                
         } catch (\Exception $e) {
             print_r($e->getMessage());
         }
     }
 
-    private function saveRequestToSession()
+    protected function saveRequestToSession()
     {
         try {
             $postParams = $this->request->request->all();
@@ -173,5 +183,78 @@ class LtiController extends AbstractController
     protected function getLtiRedirectUri()
     {
         return $this->request->server->get('APP_LTI_REDIRECT_URL');
+    }
+
+    /**
+     * Get institution before the user is authenticated.
+     * Once the user is authenticated we should use $user->getInstitution().
+     *
+     * @return \App\Entity\Institution
+     */
+    protected function getInstitutionFromSession()
+    {
+        $institution = null;
+        
+        if (!$this->getUser()) {
+            $rawDomain = $this->session->get('lms_api_domain');
+            $domain = str_replace(['.beta.', '.test.'], '.', $rawDomain);
+
+            if ($domain) {
+                $institution = $this
+                    ->getDoctrine()
+                    ->getRepository(Institution::class)
+                    ->findOneBy(['lmsDomain' => $domain]);
+            }
+        }
+
+        return $institution;
+    }
+
+    protected function createUser()
+    {
+        $domain = $this->session->get('lms_api_domain');
+        $userId = $this->session->get('lms_user_id');
+        $institution = $this->getInstitutionFromSession();
+        $date = new \DateTime();
+
+        $user = new User();
+        $user->setUsername("{$domain}||{$userId}");
+        $user->setLmsUserId($userId);
+        $user->setInstitution($institution);
+        $user->setCreated($date);
+        $user->setLastLogin($date);
+
+        $this->getDoctrine()->getManager()->persist($user);
+        $this->getDoctrine()->getManager()->flush();
+
+        return $user;
+    }
+
+    /**
+     * Returns User object, creates a new user if doesn't exist.
+     *
+     * @return User
+     */
+    protected function saveUserToSession()
+    {
+        $user = null;
+
+        if ($this->session->get('userId')) {
+            return;
+        } else {
+            $domain = $this->session->get('lms_api_domain');
+            $userId = $this->session->get('lms_user_id');
+
+            if ($domain && $userId) {
+                $user = $this->getDoctrine()->getRepository(User::class)
+                    ->findOneBy(['username' => "{$domain}||{$userId}"]);
+            }
+        }
+
+        if (empty($user)) {
+            $user = $this->createUser();
+        }
+
+        $this->session->set('userId', $user->getId());
     }
 }

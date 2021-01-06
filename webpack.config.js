@@ -12,6 +12,7 @@ Encore
     .setPublicPath('build')
     
     .addEntry('app', './assets/js/index.js')
+    .addEntry('admin', './assets/js/admin.js')
     
     .disableSingleRuntimeChunk()
     .cleanupOutputBeforeBuild()

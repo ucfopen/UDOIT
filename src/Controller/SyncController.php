@@ -21,32 +21,33 @@ class SyncController extends AbstractController
     /** @var UtilityService $util */
     protected $util;
 
-    // /**
-    //  * @Route("/sync/{courseId}", name="request_sync")
-    //  */
-    // public function requestSync(int $courseId, LmsApiService $lmsApi)
-    // {
-    //     // If Course Exists Process Scan
-    //     $repository = $this->getDoctrine()->getRepository(Course::class);
-    //     $course = $repository->find($courseId);
-    //     $user = $this->getUser();
+    /**
+     * @Route("/api/sync/{course}", name="request_sync")
+     */
+    public function requestSync(Course $course, LmsApiService $lmsApi)
+    {
+        $response = new ApiResponse();
+        $user = $this->getUser();
 
-    //     if($course) {
-    //         $response = new ApiResponse();
-    //         if ($course->isActive() && !$course->isDirty()) {
-    //             $count = $lmsApi->addCoursesToBeScanned([$course], $user, true);
-    //             $this->addFlash('message', "Sync started on {$count} course(s)");
-    //         }
-    //         else {
-    //             $this->addFlash('error', "A course scan is in progress, or the course is inactive.");
-    //         }
-    //     }
-    //     else {
-    //         $this->addFlash('error', "Course with ID {$courseId} could not be found.");
-    //     }
+        if($course) {
+            if ($course->isActive()) {
+                if (!$course->isDirty()) {
+                    $lmsApi->addCoursesToBeScanned([$course], $user, true);
+                    $response->setData(1);
+                }
+            }
+            else {
+                $response->setData(0);
+                $response->addMessage('msg.sync.course_inactive', 'error');
+            }
+        }
+        else {
+            $response->setData(0);
+            $response->addMessage('msg.sync.failed', 'error');
+        }
 
-    //     return new JsonResponse($response);
-    // }
+        return new JsonResponse($response);
+    }
 
     /**
      * @Route("/cron/sync", name="cron_sync")
