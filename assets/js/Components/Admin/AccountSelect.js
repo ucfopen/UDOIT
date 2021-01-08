@@ -32,7 +32,7 @@ class AccountSelect extends React.Component {
       let termOptions = this.getTermOptions()
 
       return (
-        <View as="div" margin="large 0" textAlign="end" padding="0 0 large 0" borderWidth="0 0 small 0">
+        <View as="div" margin="large 0" padding="0 0 large 0" borderWidth="0 0 small 0">
           <FormFieldGroup 
             description={<ScreenReaderContent>{this.props.t('label.admin.select_form')}</ScreenReaderContent>}
             layout="columns"
@@ -78,8 +78,8 @@ class AccountSelect extends React.Component {
       let termName = this.getTermName()
 
       return (
-        <View as="div" textAlign="end" margin="0 0 medium 0">
-          <InlineList delimiter="none" itemSpacing="x-small">
+        <View as="div" margin="0 0 medium 0">
+          <InlineList delimiter="none" itemSpacing="xx-small">
             {accountName && 
               <InlineList.Item>
                 <Text size="small" weight="bold">{this.props.t('label.admin.account')} </Text> 
@@ -90,7 +90,7 @@ class AccountSelect extends React.Component {
                 {termName}</InlineList.Item>}
             {(accountName || termName) && 
               <InlineList.Item>
-                <IconButton onClick={this.handleEditClick} withBackground={false} withBorder={false} screenReaderLabel={this.props.t('label.edit')}>
+                <IconButton size="small" withBorder={false} withBackground={false} onClick={this.handleEditClick} screenReaderLabel={this.props.t('label.edit')}>
                   <IconEditLine />
                 </IconButton>
               </InlineList.Item>

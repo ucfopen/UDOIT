@@ -37,9 +37,13 @@ class AdminHeader extends React.Component {
           isSelected={('reports' === this.props.navigation)}
           onClick={() => this.props.handleNavigation('reports')} />
         <AppNav.Item
+          renderLabel={this.props.t('label.admin.users')}
+          isSelected={('users' === this.props.navigation)}
+          onClick={() => this.props.handleNavigation('users')} />
+        {/* <AppNav.Item
           renderLabel={this.props.t('label.admin.settings')}
           isSelected={('settings' === this.props.navigation)}
-          onClick={() => this.props.handleNavigation('settings')} />
+          onClick={() => this.props.handleNavigation('settings')} /> */}
 
       </AppNav>
     )

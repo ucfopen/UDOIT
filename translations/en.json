@@ -103,6 +103,7 @@
   "label.replace.desc": "Replace the current version of this file here.",
   "label.loading": "Loading",
   "label.loading_reports": "Loading report history",
+  "label.loading_users": "Loading users",
   "label.btn.udoit_details": "What does UDOIT look for?",
 
   "label.file.drag_drop": "Drag a file here, or",
@@ -113,6 +114,7 @@
 
   "label.admin.courses": "Courses",
   "label.admin.reports": "Reports",
+  "label.admin.users": "Users",
   "label.admin.settings": "Settings",
   "label.admin.logo": "Admin",
   "label.admin.account": "Account",
@@ -125,7 +127,11 @@
   "label.admin.course_name": "Course Name",
   "label.admin.account_name": "Account Name",
   "label.admin.no_subaccounts": "No sub-accounts",
-
+  "label.admin.id": "LMS ID",
+  "label.admin.name": "Name",
+  "label.admin.created": "Created",
+  "label.admin.last_login": "Last Login",
+  
   "form.alt.text": "New Alt Text",
   "form.alt.char_count": "Current character count",
   "form.alt.mark_decorative": "Mark image as decorative",

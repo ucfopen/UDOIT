@@ -2,12 +2,13 @@ import React from 'react'
 import '@instructure/canvas-theme'
 import AdminHeader from './AdminHeader'
 import CoursesPage from './CoursesPage'
-//import ReportsPage from './ReportsPage'
+import ReportsPage from './ReportsPage'
+import SettingsPage from './SettingsPage'
+import UsersPage from './UsersPage'
 import AccountSelect from './AccountSelect'
 import { View } from '@instructure/ui-view'
 import Api from '../../Services/Api'
 import MessageTray from '../MessageTray'
-import FilesPage from '../FilesPage'
 
 import { Text } from '@instructure/ui-text'
 import { Spinner } from '@instructure/ui-spinner'
@@ -58,7 +59,7 @@ class AdminApp extends React.Component {
 
         <MessageTray messages={this.messages} t={this.t} clearMessages={this.clearMessages} hasNewReport={true} />
 
-        {('settings' !== this.state.navigation) &&
+        {(['courses', 'reports'].includes(this.state.navigation)) &&
           <AccountSelect
             settings={this.settings}
             accountId={this.state.accountId}
@@ -90,18 +91,29 @@ class AdminApp extends React.Component {
             handleCourseUpdate={this.handleCourseUpdate}
             key="adminCoursePage"></CoursesPage>
         }
-        {/* {('reports' === this.state.navigation) &&
-                    <ReportsPage
-                        t={this.t}
-                        settings={this.settings}
-                        handleNavigation={this.handleNavigation}
-                    />
-                }
-                {('settings' === this.state.modal) &&
-                    <SettingsPage t={this.t}
-                        settings={this.settings}
-                        handleNavigation={this.handlenavigation} />
-                } */}
+        {(!this.state.loadingCourses) && ('reports' === this.state.navigation) &&
+          <ReportsPage
+            t={this.t}
+            settings={this.settings}
+            accountId={this.state.accountId}
+            termId={this.state.termId}
+            key="adminReportsPage"
+          />
+        }
+        {(!this.state.loadingCourses) && ('users' === this.state.navigation) &&
+          <UsersPage
+            t={this.t}
+            settings={this.settings}
+            accountId={this.state.accountId}
+            termId={this.state.termId}
+            key="adminUsersPage"
+          />
+        }
+        {('settings' === this.state.navigation) &&
+          <SettingsPage t={this.t}
+            settings={this.settings}
+            handleNavigation={this.handlenavigation} />
+        }
       </View>
     )
   }

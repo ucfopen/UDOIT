@@ -12,7 +12,9 @@ export default class Api {
             reportPdf: '/download/courses/{course}/reports/pdf',
             adminCourses: '/api/admin/courses/account/{account}/term/{term}',
             scanCourse: '/api/sync/{course}',
-            getAdminReport: '/api/admin/courses/{course}/reports/latest',
+            adminReport: '/api/admin/courses/{course}/reports/latest',
+            adminReportHistory: '/api/admin/reports/account/{account}/term/{term}', 
+            adminUser: '/api/admin/users',           
         }
         this.settings = settings;
 
@@ -34,6 +36,7 @@ export default class Api {
     }
 
     getReport(reportId) {
+        const courseId = this.getCourseId();
         const authToken = this.getAuthToken();
 
         if (!reportId) {
@@ -150,7 +153,23 @@ export default class Api {
     getAdminCourses(accountId, termId) {
         const authToken = this.getAuthToken();
 
-        let url = `${this.apiUrl}${this.endpoints.adminCourses}`;
+        let url = `${this.apiUrl}${this.endpoints.adminCourses}`
+        url = url.replace('{account}', accountId)
+            .replace('{term}', termId)
+
+        return fetch(url, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-AUTH-TOKEN': authToken,
+            },
+        });
+    }
+
+    getAdminReportHistory(accountId, termId) {
+        const authToken = this.getAuthToken();
+
+        let url = `${this.apiUrl}${this.endpoints.adminReportHistory}`
         url = url.replace('{account}', accountId)
             .replace('{term}', termId)
 
@@ -165,7 +184,7 @@ export default class Api {
 
     getAdminReport(courseId) {
         const authToken = this.getAuthToken()
-        let url = `${this.apiUrl}${this.endpoints.getAdminReport}`
+        let url = `${this.apiUrl}${this.endpoints.adminReport}`
         url = url.replace('{course}', courseId)
 
         return fetch(url, {
@@ -175,6 +194,19 @@ export default class Api {
                 'X-AUTH-TOKEN': authToken,
             },
         });
+    }
+
+    getAdminUser() {
+        const authToken = this.getAuthToken()
+        let url = `${this.apiUrl}${this.endpoints.adminUser}`
+
+        return fetch(url, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-AUTH-TOKEN': authToken,
+            },
+        })
     }
 
     scanCourse(courseId)

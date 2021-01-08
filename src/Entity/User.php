@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+use App\Services\UtilityService;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
@@ -25,6 +26,11 @@ class User implements UserInterface, \Serializable, JsonSerializable
      * @ORM\Column(type="string", length=180, unique=true)
      */
     private $username;
+
+    /**
+     * @ORM\Column(type="string", length=255, nullable=true)
+     */
+    private $name;
 
     /**
      * @ORM\Column(type="json", nullable=true)
@@ -68,6 +74,7 @@ class User implements UserInterface, \Serializable, JsonSerializable
      * @ORM\OneToMany(targetEntity=Report::class, mappedBy="author")
      */
     private $reports;
+
 
     public function __construct()
     {
@@ -239,11 +246,16 @@ class User implements UserInterface, \Serializable, JsonSerializable
 
     public function jsonSerialize()
     {
+        $dateFormat = $_ENV['DATE_FORMAT'];
+
         return [
-            'id' => $this->id,
-            'username' => $this->username,
-            'lmsUserId' => $this->lmsUserId,
+            'id' => $this->getId(),
+            'username' => $this->getUsername(),
+            'name' => $this->getName(),
+            'lmsUserId' => $this->getLmsUserId(),
             'roles' => $this->getRoles(),
+            'lastLogin' => $this->getLastLogin()->format($dateFormat),
+            'created' => $this->getCreated()->format($dateFormat),
             //'institution' => $this->getInstitution(),
         ];
     }
@@ -304,6 +316,18 @@ class User implements UserInterface, \Serializable, JsonSerializable
                 $report->setAuthor(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getName(): ?string
+    {
+        return $this->name;
+    }
+
+    public function setName(?string $name): self
+    {
+        $this->name = $name;
 
         return $this;
     }

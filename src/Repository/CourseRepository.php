@@ -68,9 +68,9 @@ class CourseRepository extends ServiceEntityRepository
             ->andWhere('c.active = 1')
             ->setParameter('institution', $institution);
 
-        if (!empty($subAccountIds)) {
+        if (!empty($accountIds)) {
             $qb->andWhere('c.lmsAccountId IN (:ids)')
-                ->setParameter('ids', $subAccountIds);
+                ->setParameter('ids', $accountIds);
         }
 
         if ($termId) {

@@ -127,8 +127,13 @@ class LtiController extends AbstractController
                 $roleArr = explode('#', $role);
                 $roles[] = trim($roleArr[1]);
             }
-            $this->session->set('roles', array_values(array_unique($roles)));                
-        } catch (\Exception $e) {
+            $this->session->set('roles', array_values(array_unique($roles)));  
+            
+            if (isset($token->name)) {
+                $this->session->set('lms_user_name', $token->name);
+            }
+        } 
+        catch (\Exception $e) {
             print_r($e->getMessage());
         }
     }
@@ -223,6 +228,10 @@ class LtiController extends AbstractController
         $user->setInstitution($institution);
         $user->setCreated($date);
         $user->setLastLogin($date);
+
+        if ($this->session->has('lms_user_name')) {
+            $user->setName($this->session->get('lms_user_name'));
+        }
 
         $this->getDoctrine()->getManager()->persist($user);
         $this->getDoctrine()->getManager()->flush();

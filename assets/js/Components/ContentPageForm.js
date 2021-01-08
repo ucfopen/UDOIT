@@ -26,12 +26,13 @@ class ContentPageForm extends React.Component {
             key="contentSearchTermInput" />
         </Flex.Item>
         <Flex.Item>
-          <Button
-            renderIcon={IconFilterLine}
-            screenReaderLabel="Open Filters Tray"
-            onClick={this.props.handleTrayToggle}>
-            {this.props.t('label.filter')}
-          </Button>
+          {this.props.handleTrayToggle && 
+            <Button
+              renderIcon={IconFilterLine}
+              screenReaderLabel="Open Filters Tray"
+              onClick={this.props.handleTrayToggle}>
+              {this.props.t('label.filter')}
+            </Button>}
         </Flex.Item>
       </Flex>
     );
