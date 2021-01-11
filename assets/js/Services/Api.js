@@ -9,7 +9,7 @@ export default class Api {
             resolveIssue: '/api/issues/{issue}/resolve',
             reviewFile: '/api/files/{file}/review',
             postFile: '/api/files/{file}/post',
-            pdf: '/api/courses/{course}/reports/pdf',
+            reportPdf: '/download/courses/{course}/reports/pdf',
         };
         this.settings = settings;
 
@@ -137,7 +137,11 @@ export default class Api {
         })
     }
 
-    getPdfReport() {
-        
+    getPdfUrl() {
+        const courseId = this.getCourseId()
+        const authToken = this.getAuthToken()
+        let url = `${this.apiUrl}${this.endpoints.reportPdf}?auth_token=${authToken}`
+
+        return url.replace('{course}', courseId)
     }
 }

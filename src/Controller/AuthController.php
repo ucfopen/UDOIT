@@ -52,17 +52,13 @@ class AuthController extends AbstractController
             $util->exitWithMessage('No institution found with this domain.');
         }
 
-        $apiClientId = $institution->getApiClientId();
-        $redirectUri = $lmsUser->getOauthRedirectUri();
-        $scopes = $lmsApi->getLms()->getScopes();
-        $oauthUri = "https://{$this->session->get('lms_api_domain')}/login/oauth2/auth/?client_id={$apiClientId}&scopes={$scopes}&response_type=code&redirect_uri={$redirectUri}";
+        $oauthUri = $lmsApi->getLms()->getOauthUri($institution);
 
         return $this->redirect($oauthUri);
     }
 
     /**
-     * Previously called oauthresponse.php, this handles the reply from 
-     * Canvas.
+     * Previously called oauthresponse.php, this handles the reply from the LMS.
      * @Route("/authorize/check", name="authorize_check")
      */
     public function authorizeCheck(
@@ -143,7 +139,7 @@ class AuthController extends AbstractController
             'query' => [
                 'grant_type'    => 'authorization_code',
                 'client_id'     => $institution->getApiClientId(),
-                'redirect_uri'  => $this->lmsUser->getOauthRedirectUri(),
+                'redirect_uri'  => LmsUserService::getOauthRedirectUri(),
                 'client_secret' => $institution->getApiClientSecret(),
                 'code'          => $code,
             ],

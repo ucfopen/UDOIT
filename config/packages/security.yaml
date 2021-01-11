@@ -52,6 +52,13 @@ security:
                     - App\Security\SessionAuthenticator
                     - App\Security\TokenAuthenticator
                 entry_point: App\Security\TokenAuthenticator
+        download:
+           pattern: ^/download
+           provider: users
+           guard:
+                authenticators:
+                    - App\Security\TokenAuthenticator
+                entry_point: App\Security\TokenAuthenticator                
 
         test:
            pattern: ^/test

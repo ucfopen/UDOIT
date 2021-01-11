@@ -198,7 +198,10 @@ class Course implements \JsonSerializable
     {
         $contentItems = [];
 
-        foreach ($this->contentItems as $item) {
+        $items = $this->contentItems->toArray();
+        usort($items, [$this, 'sortContentItems']);
+
+        foreach ($items as $item) {
             $contentItems[$item->getId()] = $item;
         }
 
@@ -379,5 +382,10 @@ class Course implements \JsonSerializable
         }
 
         return $allIssues;
+    }
+
+    protected function sortContentItems(ContentItem $a, ContentItem $b) 
+    {
+        return (strtolower($a->getTitle()) > strtolower($b->getTitle())) ? 1 : -1;
     }
 }

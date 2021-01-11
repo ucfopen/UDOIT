@@ -198,7 +198,7 @@ class Report implements \JsonSerializable
         return $this;
     }
 
-    public function getReady(): ?bool
+    public function isReady(): ?bool
     {
         return $this->ready;
     }

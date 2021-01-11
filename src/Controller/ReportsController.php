@@ -16,6 +16,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\Mime\FileinfoMimeTypeGuesser;
 use Symfony\Component\Routing\Annotation\Route;
@@ -83,14 +84,14 @@ class ReportsController extends ApiController
                 throw new \Exception('msg.no_permissions'); //"You do not have permission to access the specified course.");
             }
 
-            if ($course->isDirty()) {
-                throw new \Exception('msg.course_scanning');
-            }
-            
             $report = $course->getLatestReport();
 
             if (!$report) {
                 throw new \Exception('msg.no_report_created');
+            }
+
+            if ($course->isDirty()) {
+                throw new \Exception('msg.course_scanning');
             }
             
             $reportArr = $report->toArray();
@@ -121,7 +122,7 @@ class ReportsController extends ApiController
     }
 
     /**
-     * @Route("/api/courses/{course}/reports/pdf", methods={"GET"}, name="get_report_pdf")
+     * @Route("/download/courses/{course}/reports/pdf", methods={"GET"}, name="get_report_pdf")
      * @param Course $course
      * @return \Symfony\Component\HttpFoundation\Response
      */
@@ -144,13 +145,36 @@ class ReportsController extends ApiController
             $metadata = $institution->getMetadata();
             $lang = (!empty($metadata['lang'])) ? $metadata['lang'] : $_ENV['DEFAULT_LANG'];
             
+            $content = [];
+            foreach ($course->getContentItems() as $item) {
+                $issues = $item->getIssues();
+
+                if (count($issues)) {
+                    $issueCount = ['error' => [], 'suggestion' => []];
+                    foreach ($issues as $issue) {
+                        if (!isset($issueCount[$issue->getType()][$issue->getScanRuleId()])) {
+                            $issueCount[$issue->getType()][$issue->getScanRuleId()] = 0;
+                        }
+                        $issueCount[$issue->getType()][$issue->getScanRuleId()]++;
+                    }
+
+                    $content[] = [
+                        'title' => $item->getTitle(),
+                        'type' => $item->getContentType(),
+                        'issues' => $issueCount,
+                    ];
+                }
+            }
+
+
             // Generate Twig Template
             $html = $this->renderView(
                 'report.html.twig',
                 [
                     'course' => $course,
                     'report' => $course->getLatestReport(),
-                    'labels' => $this->util->getTranslation($lang),
+                    'content' => $content,
+                    'labels' => (array) $this->util->getTranslation($lang),
                 ]
             );
 
@@ -158,13 +182,7 @@ class ReportsController extends ApiController
             $mPdf = new Mpdf();
             $mPdf->WriteHTML($html);
 
-            return new PdfResponse(
-                $mPdf->Output(),
-                array(
-                    'Content-Type'          => 'application/pdf',
-                    'Content-Disposition'   => 'attachment; filename="file.pdf"'
-                )
-            );
+            return $mPdf->Output('udoit_report.pdf', \Mpdf\Output\Destination::DOWNLOAD);
         }
         catch(\Exception $e) {
             $apiResponse = new ApiResponse();

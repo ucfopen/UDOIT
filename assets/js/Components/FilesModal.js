@@ -110,7 +110,7 @@ class FilesModal extends React.Component {
                       {this.props.t('label.download')}
                     </Link>
                     <Link onClick={this.handleOpenContent} isWithinText={false} renderIcon={<IconExternalLinkLine />} iconPlacement="start">
-                      {this.props.t('label.open_in_canvas')}
+                      {this.props.t('label.open_in_lms')}
                     </Link>
                   </View>
                   <View as="div" padding="small 0">
