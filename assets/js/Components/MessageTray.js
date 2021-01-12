@@ -29,7 +29,7 @@ class MessageTray extends React.Component {
         }
         {this.props.messages.map((msg, i) => 
           <Alert variant={msg.severity} 
-            timeout={msg.timeout} 
+            timeout={(msg.timeout) ? msg.timeout : 0} 
             renderCloseButtonLabel={this.props.t('label.close')} 
             onDismiss={this.props.clearMessages}
             margin="small large"

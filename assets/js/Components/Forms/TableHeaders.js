@@ -11,8 +11,13 @@ export default class TableHeaders extends React.Component {
   constructor(props) {
     super(props)
 
+    this.radioOptions = [
+      'column',
+      'row',
+      'both'
+    ]
     this.state = {
-      selectedValue: this.props.t('form.table.both_label'),
+      selectedValue: 'column',
       replaceHeaders: (this.props.activeIssue.scanRuleId === 'TableDataShouldHaveTableHeader'),
     }
 
@@ -24,7 +29,7 @@ export default class TableHeaders extends React.Component {
     if (prevProps.activeIssue !== this.props.activeIssue) {
 
       this.setState({
-        selectedValue: 'Both',
+        selectedValue: 'column',
         replaceHeaders: (this.props.activeIssue.scanRuleId === 'TableDataShouldHaveTableHeader'),
       })
     }
@@ -34,14 +39,15 @@ export default class TableHeaders extends React.Component {
     this.setState({
       selectedValue: value
     }, () => {
-      console.log(this.state.selectedValue)
+      let issue = this.props.activeIssue
+      issue.newHtml = this.fixHeaders()
+      this.props.handleActiveIssue(issue)
     })
   }
 
   handleSubmit() {
     let issue = this.props.activeIssue
     issue.newHtml = this.fixHeaders()
-
     this.props.handleIssueSave(issue)
   }
 
@@ -50,7 +56,7 @@ export default class TableHeaders extends React.Component {
     let first = true 
 
     switch(this.state.selectedValue) {
-      case this.props.t('form.table.column_label'):
+      case 'column':
         for (var i = 0, row; row = table.rows[i]; i++) {
           if(first) {
             for (var j = 0, col; col = row.cells[j]; j++) {
@@ -74,7 +80,7 @@ export default class TableHeaders extends React.Component {
         
         break
 
-      case this.props.t('form.table.row_label'): 
+      case 'row': 
         for (var i = 0, row; row = table.rows[i]; i++) {
           if(first) {
             for (var j = 0, col; col = row.cells[j]; j++) {
@@ -97,7 +103,7 @@ export default class TableHeaders extends React.Component {
 
         break
 
-      case this.props.t('form.table.both_label'):
+      case 'both':
         for (var i = 0, row; row = table.rows[i]; i++) {
           if(first) {
             for (var j = 0, col; col = row.cells[j]; j++) {
@@ -123,10 +129,6 @@ export default class TableHeaders extends React.Component {
             }
           }
         }
-  
-        break
-
-      default:
         break
     }
 
@@ -134,22 +136,16 @@ export default class TableHeaders extends React.Component {
   }
 
   render() {
-    const inputs = [
-      {value: this.props.t('form.table.column_label'), label: this.props.t('form.table.column_label') },
-      {value: this.props.t('form.table.row_label'), label: this.props.t('form.table.row_label') },
-      {value: this.props.t('form.table.both_label'), label: this.props.t('form.table.both_label') }
-    ]
-
     const pending = (this.props.activeIssue && this.props.activeIssue.pending)
     const buttonLabel = (pending) ? 'form.processing' : 'form.submit'
     const canSubmit = (!pending && !this.props.activeIssue.status)
 
     return (
-      <View as="div" padding="x-small">
+      <View as="div" padding="0 x-small">
         {this.state.replaceHeaders &&
           <View as="div" margin="small 0">
             <RadioInputGroup onChange={this.handleChange} name="" defaultValue="foo" description={this.props.t('form.table.selection_description')}>
-              {inputs.map(input => <RadioInput key={input.value} value={input.value} label={input.label} />)}
+              {this.radioOptions.map(input => <RadioInput key={input} value={input} label={this.props.t(`form.table.${input}`)} />)}
             </RadioInputGroup>
           </View>
         }

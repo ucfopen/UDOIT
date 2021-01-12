@@ -159,9 +159,9 @@
   "form.msg.success_reviewed": "File marked reviewed.",
   "form.msg.success_unreviewed": "File marked unreviewed.",
   "form.msg.success_replaced": "File replaced.",
-  "form.table.column_label": "Column Header",
-  "form.table.row_label": "Row Header",
-  "form.table.both_label": "Both",
+  "form.table.column": "Column Header",
+  "form.table.row": "Row Header",
+  "form.table.both": "Both",
   "form.table.selection_description": "Select direction for table header(s)",
   "form.error.fails_tests": "Submission fails tests.",
 

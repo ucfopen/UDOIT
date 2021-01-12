@@ -24,7 +24,7 @@ const UfixitForms = {
   ImageHasAltDecorative: AltText,
   ParagraphNotUsedAsHeader: HeaderForm,
   TableDataShouldHaveTableHeader: TableHeaders,
-  TableDataShouldHaveScope: TableHeaders,
+  TableHeaderShouldHaveScope: TableHeaders,
   ImageAltNotPlaceholder: AltText,
 }
 
