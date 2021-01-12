@@ -3,6 +3,7 @@
 namespace App\Repository;
 
 use App\Entity\Course;
+use App\Entity\User;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
@@ -50,6 +51,34 @@ class CourseRepository extends ServiceEntityRepository
             ->setParameter('institutionId', $institutionId)
             ->getQuery()
             ->getResult();
+    }
+
+    public function findCoursesByAccount(User $user, $accountId, $termId = null)
+    {
+        $accountIds = [$accountId];
+        $institution = $user->getInstitution();
+        
+        $account = $institution->getAccountData($accountId);
+        if ($account) {
+            $accountIds = array_merge($accountIds, array_keys($account['subAccounts']));
+        }
+
+        $qb = $this->createQueryBuilder('c')
+            ->andWhere('c.institution = :institution')
+            ->andWhere('c.active = 1')
+            ->setParameter('institution', $institution);
+
+        if (!empty($accountIds)) {
+            $qb->andWhere('c.lmsAccountId IN (:ids)')
+                ->setParameter('ids', $accountIds);
+        }
+
+        if ($termId) {
+            $qb->andWhere('c.lmsTermId = :term')
+                ->setParameter('term', $termId);
+        }
+
+        return $qb->getQuery()->getResult();
     }
 
     /*

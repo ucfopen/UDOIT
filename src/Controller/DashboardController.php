@@ -3,7 +3,9 @@
 namespace App\Controller;
 
 use App\Entity\Course;
+use App\Entity\Institution;
 use App\Services\LmsApiService;
+use App\Services\LmsUserService;
 use App\Services\UtilityService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
@@ -14,9 +16,6 @@ class DashboardController extends AbstractController
     /** @var UtilityService $util */
     protected $util;
 
-    /** @var LmsApiService $lmsApi */
-    protected $lmsApi;
-
     /** @var SessionInterface $session */
     protected $session;
 
@@ -26,16 +25,19 @@ class DashboardController extends AbstractController
     public function index(
         UtilityService $util,
         SessionInterface $session,
-        LmsApiService $lmsApi)
+        LmsApiService $lmsApi,
+        LmsUserService $lmsUser)
     {
         $this->util = $util;
-        $this->lmsApi = $lmsApi;
         $this->session = $session;
         $reportArr = false;
 
         $user = $this->getUser();
         if (!$user) {
             $this->util->exitWithMessage('User authentication failed.');
+        }
+        if (!$lmsUser->validateApiKey($user)) {
+            return $this->redirectToRoute('authorize');
         }
 
         $lmsCourseId = $this->get('session')->get('lms_course_id');
@@ -49,11 +51,11 @@ class DashboardController extends AbstractController
 
         if (!$course) {
             $institution = $user->getInstitution();
-            $course = $this->util->createCourse($institution, $lmsCourseId);
+            $course = $this->createCourse($institution, $lmsCourseId);
         }
 
         /* Add this course to the queue for scanning */
-        $this->lmsApi->addCoursesToBeScanned([$course], $user, true);
+        $lmsApi->addCoursesToBeScanned([$course], $user, true);
 
         $activeReport = $course->getLatestReport();        
         if ($activeReport) {
@@ -101,6 +103,21 @@ class DashboardController extends AbstractController
             'labels' => $this->util->getTranslation($lang),
             'excludedRuleIds' => $excludedRuleIds,
         ];
+    }
+
+    protected function createCourse(Institution $institution, $lmsCourseId)
+    {
+        $course = new Course();
+        $course->setInstitution($institution);
+        $course->setLmsCourseId($lmsCourseId);
+        $course->setTitle("New Course: ID#{$lmsCourseId}");
+        $course->setActive(true);
+        $course->setDirty(false);
+
+        $this->getDoctrine()->getManager()->persist($course);
+        $this->getDoctrine()->getManager()->flush();
+
+        return $course;
     }
 
 }

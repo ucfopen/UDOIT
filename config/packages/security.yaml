@@ -17,23 +17,12 @@ security:
             stateless: false
             anonymous: true
 
-        ltiResponse:
-            pattern: ^/lti/authorize/check
-            stateless: false
-            anonymous: true
-
         oauthAuthorize:
-            pattern: /authorize/oauth
-            anonymous: true
+            pattern: ^/authorize
+            provider: users
             guard:
                 authenticators:
-                    - App\Security\OauthAuthenticator
-                entry_point: App\Security\OauthAuthenticator
-
-        oauthResponse:
-            pattern: /authorize/check
-            anonymous: true
-            stateless: false
+                    - App\Security\SessionAuthenticator
 
         dashboard:
             pattern: ^/dashboard
@@ -59,6 +48,13 @@ security:
                 authenticators:
                     - App\Security\TokenAuthenticator
                 entry_point: App\Security\TokenAuthenticator                
+
+        admin:
+            pattern: ^/admin
+            provider: users
+            guard:
+                authenticators:
+                    - App\Security\SessionAuthenticator
 
         test:
            pattern: ^/test

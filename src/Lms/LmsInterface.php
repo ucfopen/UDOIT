@@ -18,4 +18,6 @@ interface LmsInterface {
     public function postContentItem(ContentItem $contentItem);
     public function postFileItem(FileItem $file);
     public function getOauthUri(Institution $institution);
+    public function getAccountData(User $user, $accountId);
+    public function getCourseUrl(Course $course, User $user);
 }

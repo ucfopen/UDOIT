@@ -10,7 +10,12 @@ export default class Api {
             reviewFile: '/api/files/{file}/review',
             postFile: '/api/files/{file}/post',
             reportPdf: '/download/courses/{course}/reports/pdf',
-        };
+            adminCourses: '/api/admin/courses/account/{account}/term/{term}',
+            scanCourse: '/api/sync/{course}',
+            adminReport: '/api/admin/courses/{course}/reports/latest',
+            adminReportHistory: '/api/admin/reports/account/{account}/term/{term}', 
+            adminUser: '/api/admin/users',           
+        }
         this.settings = settings;
 
         if (settings && settings.apiUrl) {
@@ -143,5 +148,79 @@ export default class Api {
         let url = `${this.apiUrl}${this.endpoints.reportPdf}?auth_token=${authToken}`
 
         return url.replace('{course}', courseId)
+    }
+
+    getAdminCourses(accountId, termId) {
+        const authToken = this.getAuthToken();
+
+        let url = `${this.apiUrl}${this.endpoints.adminCourses}`
+        url = url.replace('{account}', accountId)
+            .replace('{term}', termId)
+
+        return fetch(url, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-AUTH-TOKEN': authToken,
+            },
+        });
+    }
+
+    getAdminReportHistory(accountId, termId) {
+        const authToken = this.getAuthToken();
+
+        let url = `${this.apiUrl}${this.endpoints.adminReportHistory}`
+        url = url.replace('{account}', accountId)
+            .replace('{term}', termId)
+
+        return fetch(url, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-AUTH-TOKEN': authToken,
+            },
+        });
+    }
+
+    getAdminReport(courseId) {
+        const authToken = this.getAuthToken()
+        let url = `${this.apiUrl}${this.endpoints.adminReport}`
+        url = url.replace('{course}', courseId)
+
+        return fetch(url, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-AUTH-TOKEN': authToken,
+            },
+        });
+    }
+
+    getAdminUser() {
+        const authToken = this.getAuthToken()
+        let url = `${this.apiUrl}${this.endpoints.adminUser}`
+
+        return fetch(url, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-AUTH-TOKEN': authToken,
+            },
+        })
+    }
+
+    scanCourse(courseId)
+    {
+        const authToken = this.getAuthToken()
+        let url = `${this.apiUrl}${this.endpoints.scanCourse}`
+        url = url.replace('{course}', courseId)
+
+        return fetch(url, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-AUTH-TOKEN': authToken,
+            },
+        })
     }
 }

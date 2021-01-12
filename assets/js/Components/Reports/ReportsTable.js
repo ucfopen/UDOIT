@@ -53,6 +53,11 @@ class ReportsTable extends React.Component {
       { id: "contentResolved", text: this.props.t('label.content_resolved') },
       { id: "filesReviewed", text: this.props.t('label.files_reviewed')}
     ];
+
+    if (this.props.isAdmin) {
+      headers.push({ id: "count", text: this.props.t('label.admin.courses') })
+    }
+
     const rows = this.getContent();
     
     return (

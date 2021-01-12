@@ -26,7 +26,7 @@ class AuthController extends AbstractController
     private $lmsApi;
 
     /**
-     * @Route("/authorize/oauth", name="authorize")
+     * @Route("/authorize", name="authorize")
      */
     public function authorize(
         Request $request,
@@ -41,13 +41,10 @@ class AuthController extends AbstractController
         $this->lmsUser = $lmsUser;
 
         $user = $this->getUser();
-        if (!empty($user) && $this->lmsUser->validateApiKey($user)) {
-            return $this->redirectToRoute('dashboard');
-        }
+                
+        //$this->saveRequestToSession();
         
-        $this->saveRequestToSession();
-        
-        $institution = $this->getInstitutionFromSession();
+        $institution = $user->getInstitution();
         if (!$institution) {
             $util->exitWithMessage('No institution found with this domain.');
         }
@@ -80,7 +77,7 @@ class AuthController extends AbstractController
             $util->exitWithMessage('Authentication problem: No code was returned from the LMS.');
         }
 
-        $user = $this->getUserFromSession();
+        $user = $this->getUser();
         $newKey = $this->requestApiKeyFromLms();
 
         // It should have access_token and refresh_token
@@ -92,7 +89,9 @@ class AuthController extends AbstractController
         $session->set('apiKey', $newKey['access_token']);
         $session->set('tokenHeader', ["Authorization: Bearer " . $newKey['access_token']]);
 
-        return $this->redirectToRoute('dashboard');
+        $destination = $session->get('destination', 'dashboard');
+
+        return $this->redirectToRoute($destination);
     }
 
     /**
@@ -132,7 +131,8 @@ class AuthController extends AbstractController
      */
     protected function requestApiKeyFromLms()
     {
-        $institution = $this->getInstitutionFromSession();
+        $user = $this->getUser();
+        $institution = $user->getInstitution();
         $baseUrl = $institution->getLmsDomain();
         $code = $this->request->query->get('code');
         $options = [
@@ -153,81 +153,5 @@ class AuthController extends AbstractController
         $contentStr = $response->getContent(false);
 
         return \json_decode($contentStr, true);
-    }
-
-    /**
-     * Get institution before the user is authenticated.
-     * Once the user is authenticated we should use $user->getInstitution().
-     *
-     * @return Institution
-     */
-    public function getInstitutionFromSession()
-    {
-        $institution = null;
-
-        if (!($institution = $this->session->get('institution'))) {
-            $rawDomain = $this->session->get('lms_api_domain');
-            $domain = str_replace(['.beta.', '.test.'], '.', $rawDomain);
-
-            if ($domain) {
-                $institution = $this
-                    ->getDoctrine()
-                    ->getRepository(Institution::class)
-                    ->findOneBy(['lmsDomain' => $domain]);
-            }
-        }
-
-        return $institution;
-    }
-
-    public function createUser()
-    {
-        $domain = $this->session->get('lms_api_domain');
-        $userId = $this->session->get('lms_user_id');
-        $institution = $this->getInstitutionFromSession();
-        $date = new \DateTime();
-
-        $user = new User();
-        $user->setUsername("{$domain}||{$userId}");
-        $user->setLmsUserId($userId);
-        $user->setInstitution($institution);
-        $user->setCreated($date);
-        $user->setLastLogin($date);
-
-        $this->getDoctrine()->getManager()->persist($user);
-        $this->getDoctrine()->getManager()->flush();
-
-        $this->session->set('userId', $user->getId());
-
-        return $user;
-    }
-
-    /**
-     * Returns User object, creates a new user if doesn't exist.
-     *
-     * @return User
-     */
-    public function getUserFromSession()
-    {
-        if ($userId = $this->session->get('userId')) {
-            return $this->getDoctrine()->getRepository(User::class)->find($userId);
-        } 
-        else {
-            $domain = $this->session->get('lms_api_domain');
-            $userId = $this->session->get('lms_user_id');
-
-            if ($domain && $userId) {
-                $user = $this->getDoctrine()->getRepository(User::class)
-                    ->findOneBy(['username' => "{$domain}||{$userId}"]);
-            }
-        }
-
-        if (empty($user)) {
-            $user = $this->createUser();
-        }
-
-        $this->session->set('userId', $user->getId());
-
-        return $user;
     }
 }

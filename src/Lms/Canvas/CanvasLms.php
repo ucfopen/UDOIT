@@ -7,6 +7,7 @@ use App\Entity\Course;
 use App\Entity\FileItem;
 use App\Entity\Institution;
 use App\Entity\User;
+use App\Lms\LmsAccountData;
 use App\Lms\LmsInterface;
 use App\Repository\ContentItemRepository;
 use App\Repository\FileItemRepository;
@@ -79,7 +80,7 @@ class CanvasLms implements LmsInterface {
 
     public function updateCourseData(Course $course, User $user)
     {
-        $url = "courses/{$course->getLmsCourseId()}";
+        $url = "courses/{$course->getLmsCourseId()}?include[]=term";
         $apiDomain = $this->getApiDomain($user);
         $apiToken = $this->getApiToken($user);
 
@@ -97,6 +98,10 @@ class CanvasLms implements LmsInterface {
         $course->setTitle($content['name']);
         $course->setLmsAccountId($content['account_id']);
         $course->setActive(true);
+
+        if (isset($content['term']['id'])) {
+            $course->setLmsTermId($content['term']['id']);
+        }
         
         $this->entityManager->flush();        
     }
@@ -304,25 +309,170 @@ class CanvasLms implements LmsInterface {
     {
         $query = [
             'client_id' => $institution->getApiClientId(),
-            'scopes' => $this->getScopes(),
+            'scope' => $this->getScopes(),
             'response_type' => 'code',
             'redirect_uri' => LmsUserService::getOauthRedirectUri(),
         ];
         
         $apiDomain = $this->session->get('lms_api_domain');
         
-        return $apiDomain . '?' . http_build_query($query);
+        return 'https://' . $apiDomain . '/login/oauth2/auth?' . http_build_query($query);
     }
 
+    public function getAccountData(User $user, $accountId) 
+    {
+        $accounts = [];
+
+        $topAcct = $this->getAccountInfo($user, $accountId);
+        $accounts[$accountId] = [
+            'id' => $topAcct['id'],
+            'name' => $topAcct['name'],
+            'parentId' => $topAcct['parent_account_id'],
+            'subAccounts' => [],
+        ];
+
+        $subaccounts = $this->getSubAccounts($user, $accountId);
+        usort($subaccounts, [$this, 'sortSubAccounts']);
+        
+        foreach ($subaccounts as $sub) {
+            $accounts[$sub['id']] = [
+                'id' => $sub['id'],
+                'name' => $sub['name'],
+                'parentId' => $sub['parent_account_id'],
+                'subAccounts' => [],
+            ];
+        
+            foreach ($accounts as $ind => $account) {
+                if ($sub['parent_account_id'] == $account['id']) {
+                    $accounts[$ind]['subAccounts'][$sub['id']] = $sub['name'];
+                }
+                if (isset($account['subAccounts'][$sub['parent_account_id']])) {
+                    $accounts[$ind]['subAccounts'][$sub['id']] = $sub['name'];
+                }
+            }
+        }
+
+        $rootAccountId = !empty($topAcct['root_account_id']) ? $topAcct['root_account_id'] : $topAcct['id'];
+        $terms = $this->getAccountTerms($user, $rootAccountId, true);
+
+        $institution = $user->getInstitution();
+        $metadata = $institution->getMetadata();
+
+        $metadata['terms'] = $terms;
+        $metadata['rootAccountId'] = $rootAccountId;
+
+        if (isset($metadata['accounts'])) {
+            $metadata['accounts'] = array_merge($metadata['accounts'], $accounts);
+        }
+        else {
+            $metadata['accounts'] = $accounts;
+        }
+        
+        $institution->setMetadata($metadata);
+        $this->entityManager->flush();
+
+        return $accounts[$accountId];
 
 
+        // $accountData = new LmsAccountData($accountId);
+        
+        // $this->getAccountInfo($user, $accountData);
+        // $this->getSubAccounts($user, $accountData);
+        // $this->getAccountTerms($user, $accountData);
 
+        // $user->getInstitution()->setAccountData($accountId, $accountData);
+        // $this->entityManager->flush();
+        
+        // return $accountData;
+    }
 
+    public function getAccountTerms(User $user, $accountId, $isRoot = false)
+    {
+        $terms = [];
+
+        if (!$isRoot) {
+            $account = $this->getAccountInfo($user, $accountId);
+            $rootAccountId = $account['root_account_id'];
+        }
+        else {
+            $rootAccountId = $accountId;
+        }
+
+        $url = "accounts/${rootAccountId}/terms";
+        $apiDomain = $this->getApiDomain($user);
+        $apiToken = $this->getApiToken($user);
+
+        $canvasApi = new CanvasApi($apiDomain, $apiToken);
+        $response = $canvasApi->apiGet($url);
+
+        if (!$response || !empty($response->getErrors())) {
+            foreach ($response->getErrors() as $error) {
+                $this->util->createMessage($error, 'error', null, $user);
+            }
+            return;
+        }
+        $content = $response->getContent();
+        
+        if (isset($content['enrollment_terms'])) {
+            foreach ($content['enrollment_terms'] as $term) {
+                $terms[$term['id']] = $term['name'];
+            }
+        }
+
+        ksort($terms, SORT_NUMERIC);
+
+        return $terms;
+    }
+
+    public function getCourseUrl(Course $course, User $user)
+    {
+        $domain = $this->getApiDomain($user);
+
+        return "https://{$domain}/courses/{$course->getLmsCourseId()}";
+    }
 
 
     /**********************
      * PROTECTED FUNCTIONS 
      **********************/
+
+    protected function getAccountInfo(User $user, $accountId) 
+    {
+        $url = "accounts/${accountId}";
+        $apiDomain = $this->getApiDomain($user);
+        $apiToken = $this->getApiToken($user);
+
+        $canvasApi = new CanvasApi($apiDomain, $apiToken);
+        $response = $canvasApi->apiGet($url);
+
+        if (!$response || !empty($response->getErrors())) {
+            foreach ($response->getErrors() as $error) {
+                $this->util->createMessage($error, 'error', null, $user);
+            }
+            return;
+        }
+        
+        return $response->getContent();
+    }
+
+    protected function getSubAccounts(User $user, $accountId) 
+    {
+        $url = "accounts/${accountId}/sub_accounts?recursive=true";
+        $apiDomain = $this->getApiDomain($user);
+        $apiToken = $this->getApiToken($user);
+
+        $canvasApi = new CanvasApi($apiDomain, $apiToken);
+        $response = $canvasApi->apiGet($url);
+
+        if (!$response || !empty($response->getErrors())) {
+            foreach ($response->getErrors() as $error) {
+                $this->util->createMessage($error, 'error', null, $user);
+            }
+            return;
+        }
+
+        return $response->getContent();
+    }
 
     protected function createLmsPostOptions(ContentItem $contentItem)
     {
@@ -521,5 +671,10 @@ class CanvasLms implements LmsInterface {
         } catch (\Exception $ex) {
             $this->util->createMessage($ex->getMessage());
         }
+    }
+
+    protected function sortSubAccounts($a, $b) 
+    {
+        return ($a['id'] > $b['id']) ? 1: -1;
     }
 }

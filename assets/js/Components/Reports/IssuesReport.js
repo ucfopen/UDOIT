@@ -45,6 +45,9 @@ class IssuesReport extends React.Component {
 
       data.datasets[0].data.push(report.errors)
       data.datasets[1].data.push(report.suggestions)
+
+      data.datasets[0].data.push(report.errors)
+      data.datasets[1].data.push(report.suggestions)
     }
 
     return data

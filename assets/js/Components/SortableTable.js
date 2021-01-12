@@ -46,6 +46,7 @@ class SortableTable extends React.Component {
                     key={`header${id}`}
                     id={id}
                     onRequestSort={this.handleSort}
+                    textAlign="start"
                     sortDirection={id === sortBy ? direction : 'none'}
                   >
                     {text}

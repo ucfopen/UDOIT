@@ -39,10 +39,11 @@ class LmsUserService {
         if (empty($apiKey)) {
             return false;
         }
-
+        
         try {
             $lms = $this->lmsApi->getLms();
             $profile = $lms->testApiConnection($user);
+
 
             if (empty($profile)) {
                 throw new \Exception('Access token is invalid or expired.');
