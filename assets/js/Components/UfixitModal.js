@@ -222,22 +222,50 @@ class UfixitModal extends React.Component {
   handleIssueSave(issue) {
     // send issue obj to PHP
     let api = new Api(this.props.settings)
+
     api.saveIssue(issue)
       .then((responseStr) => responseStr.json())
       .then((response) => {
-        const newIssue = {...issue, ...response.data.issue}
-        const newReport = response.data.report
-        
-        // set messages 
-        response.messages.forEach((msg) => this.addMessage(msg))
-        
-        newIssue.pending = false
-        
-        // update activeIssue
-        this.props.handleActiveIssue(newIssue)
+        if (response.data.failed) {
+          console.log('response', response)
+          response.messages.forEach((msg) => this.addMessage(msg))
+          
+          if (Array.isArray(response.data.issues)) {
+            response.data.issues.forEach((issue) => {
+              this.addMessage({
+                severity: 'error',
+                message: this.props.t(`form.error.${issue.ruleId}`)
+              })
+            })
+          }
 
-        // update report
-        this.props.handleIssueSave(newIssue, newReport)
+          if (Array.isArray(response.data.errors)) {
+            response.data.errors.forEach((error) => {
+              this.addMessage({
+                severity: 'error',
+                message: error
+              })
+            })
+          }
+
+          // update activeIssue
+          issue.pending = false
+          this.props.handleActiveIssue(issue)
+        }
+        else {
+          // set messages 
+          response.messages.forEach((msg) => this.addMessage(msg))
+
+          if (response.data.issue) {
+            const newIssue = {...issue, ...response.data.issue}
+            newIssue.pending = false
+
+            // update activeIssue
+            this.props.handleActiveIssue(newIssue)
+            
+            this.props.handleIssueSave(newIssue, response.data.report)
+          }
+        }
       })
 
     // update activeIssue

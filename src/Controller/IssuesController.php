@@ -51,6 +51,7 @@ class IssuesController extends ApiController
             }
 
             if (!empty($issues) || !empty($errors)) {
+                $apiResponse->addData('failed', true);
                 throw new \Exception('form.error.fails_tests');
             }
 
