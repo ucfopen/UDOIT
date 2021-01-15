@@ -195,7 +195,6 @@ export default class HeaderForm extends React.Component {
                         <SimpleSelect
                         renderLabel={this.props.t('form.header.heading_level')}
                         assistiveText={this.props.t('form.header.assistive_text')}
-                        assistiveText="yee"
                         value={this.state.selectedValue}
                         onChange={this.handleSelect}
                         width="100%"
