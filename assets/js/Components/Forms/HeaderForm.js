@@ -24,7 +24,8 @@ export default class HeaderForm extends React.Component {
             textInputValue: element.innerText,
             selectedValue: (this.tagName === 'P') ? 'H2' : this.tagName,
             deleteHeader: false,
-            useHtmlEditor: false
+            useHtmlEditor: false,
+            textInputErrors: []
         }
 
         this.formErrors = []
@@ -109,6 +110,7 @@ export default class HeaderForm extends React.Component {
         } 
         
         else {
+            this.setState({ textInputErrors: []})
             let issue = this.props.activeIssue
             issue.newHtml = this.processHtml()
             this.props.handleIssueSave(issue)
