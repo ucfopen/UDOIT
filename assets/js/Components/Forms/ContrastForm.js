@@ -37,6 +37,22 @@ export default class ContrastForm extends React.Component {
     this.handleSubmit = this.handleSubmit.bind(this)
   }
 
+  componentDidUpdate(prevProps, prevState) {
+    if (prevProps.activeIssue !== this.props.activeIssue) {
+        let element = Html.toElement(this.props.activeIssue.sourceHtml)
+
+        this.state = {
+          backgroundColor: Contrast.rgb2hex(element.style.backgroundColor),
+          textColor: Contrast.rgb2hex(element.style.color),
+          useBold: false,
+          useItalics: false,
+          textInputErrors: []
+        }
+    
+        this.formErrors = []
+    }
+  }
+
   handleInputBackground(event, value) {
     this.setState({
       backgroundColor: value
