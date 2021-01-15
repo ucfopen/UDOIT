@@ -39,7 +39,7 @@ export default class ContrastForm extends React.Component {
 
   componentDidUpdate(prevProps, prevState) {
     if (prevProps.activeIssue !== this.props.activeIssue) {
-        let element = Html.toElement(this.props.activeIssue.sourceHtml)
+        let element = Html.toElement((this.props.activeIssue.newHtml) ? this.props.activeIssue.newHtml : this.props.activeIssue.sourceHtml)
 
         this.state = {
           backgroundColor: Contrast.rgb2hex(element.style.backgroundColor),
