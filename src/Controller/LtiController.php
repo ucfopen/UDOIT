@@ -150,6 +150,8 @@ class LtiController extends AbstractController
             $output["custom_fields"] = [
                 "lms_id" => 'canvas',
                 "lms_user_id" => "\$Canvas.user.id",
+                "lms_course_id" => "\$Canvas.course.id",
+                "lms_account_id" => "\$Canvas.account.id",
                 "lms_api_domain" => "\$Canvas.api.domain"
             ];
         }
