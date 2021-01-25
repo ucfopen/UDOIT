@@ -124,9 +124,15 @@ class LtiController extends AbstractController
                         "placements" => [
                             [
                                 "text" => $appName,
-                                "placement" => "user_navigation",
+                                "placement" => "course_navigation",
                                 "message_type" => "LtiResourceLinkRequest",
                                 "target_link_uri" => "{$baseUrl}/dashboard"
+                            ],
+                            [
+                                "text" => $appName,
+                                "placement" => "account_navigation",
+                                "message_type" => "LtiResourceLinkRequest",
+                                "target_link_uri" => "{$baseUrl}/admin"
                             ]
                         ]
                     ],
