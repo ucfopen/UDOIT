@@ -7,6 +7,7 @@ import CssTextStyleEmphasize from '../Components/Forms/CssTextStyleEmphasize'
 import UfixitReviewOnly from '../Components/Forms/UfixitReviewOnly'
 import HeaderForm from '../Components/Forms/HeaderForm'
 import TableHeaders from '../Components/Forms/TableHeaders'
+import Video from '../Components/Forms/Video'
 
 
 const UfixitForms = {
@@ -26,6 +27,8 @@ const UfixitForms = {
   TableDataShouldHaveTableHeader: TableHeaders,
   TableHeaderShouldHaveScope: TableHeaders,
   ImageAltNotPlaceholder: AltText,
+  VideoCaptionsMatchCourseLanguage: Video,
+  VideosEmbeddedOrLinkedNeedCaptions: Video
 }
 
 export default class Ufixit {

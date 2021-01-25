@@ -24,7 +24,7 @@ export default class HeaderForm extends React.Component {
             textInputValue: element.innerText,
             selectedValue: (this.tagName === 'P') ? 'H2' : this.tagName,
             deleteHeader: false,
-            useHtmlEditor: false
+            // useHtmlEditor: false
         }
 
         this.formErrors = []
@@ -34,7 +34,7 @@ export default class HeaderForm extends React.Component {
         this.handleSelect = this.handleSelect.bind(this)
         this.handleSubmit = this.handleSubmit.bind(this)
         this.handleCheckbox = this.handleCheckbox.bind(this)
-        this.handleToggle = this.handleToggle.bind(this)
+        // this.handleToggle = this.handleToggle.bind(this)
     }
 
     componentDidUpdate(prevProps, prevState) {
@@ -48,7 +48,7 @@ export default class HeaderForm extends React.Component {
                 textInputValue: element.innerText,
                 selectedValue: (this.tagName === 'P') ? 'H2' : this.tagName,
                 deleteHeader: false,
-                useHtmlEditor: false
+                // useHtmlEditor: false
             }
 
             this.formErrors = []
@@ -99,7 +99,11 @@ export default class HeaderForm extends React.Component {
     handleSubmit() {
         this.formErrors = []
 
-        if(!this.state.deleteHeader && !this.state.useHtmlEditor) {
+        // if(!this.state.deleteHeader && !this.state.useHtmlEditor) {
+        //     this.checkTextNotEmpty()
+        // }
+
+        if(!this.state.deleteHeader) {
             this.checkTextNotEmpty()
         }
         
@@ -115,15 +119,15 @@ export default class HeaderForm extends React.Component {
         }
     }
 
-    handleToggle() {
-        this.setState({
-            useHtmlEditor: !this.state.useHtmlEditor
-        }, () => {
-            let issue = this.props.activeIssue
-            issue.newHtml = this.processHtml()
-            this.props.handleActiveIssue(issue)
-        })
-    }
+    // handleToggle() {
+    //     this.setState({
+    //         useHtmlEditor: !this.state.useHtmlEditor
+    //     }, () => {
+    //         let issue = this.props.activeIssue
+    //         issue.newHtml = this.processHtml()
+    //         this.props.handleActiveIssue(issue)
+    //     })
+    // }
 
     checkTextNotEmpty() {
         const text = this.state.textInputValue.trim().toLowerCase()
@@ -139,7 +143,8 @@ export default class HeaderForm extends React.Component {
         }
 
         let newHeader = document.createElement(this.state.selectedValue)
-        let newHtml = (this.state.useHtmlEditor) ? this.state.codeInputValue : this.state.textInputValue
+        // let newHtml = (this.state.useHtmlEditor) ? this.state.codeInputValue : this.state.textInputValue
+        let newHtml = this.state.textInputValue
 
         newHeader.innerHTML = newHtml
         newHeader = Html.removeTag(newHeader, 'strong')
@@ -159,9 +164,9 @@ export default class HeaderForm extends React.Component {
         return (
             <View as="div" padding="x-small">
                 <View position="absolute" insetInlineEnd="10%">
-                    <CondensedButton color="primary" onClick={this.handleToggle}>
+                    {/* <CondensedButton color="primary" onClick={this.handleToggle}>
                         {this.state.useHtmlEditor ? this.props.t('form.header.use_text') : this.props.t('form.header.use_code')}
-                    </CondensedButton>
+                    </CondensedButton> */}
                 </View>
                 <View>
                     {!this.state.useHtmlEditor &&
@@ -176,7 +181,7 @@ export default class HeaderForm extends React.Component {
                         /> 
                     }
 
-                    {this.state.useHtmlEditor &&
+                    {/* {this.state.useHtmlEditor &&
                         [
                         <Text weight="bold">{this.props.t('form.header.text')}</Text>,
                         
@@ -188,7 +193,7 @@ export default class HeaderForm extends React.Component {
                         onChange={this.handleCodeInput}
                         />
                         ] 
-                    }
+                    } */}
                 </View>
                 <View as="div" margin="small 0">
                     <View as="span" display="inline-block" margin="small" padding="small">
