@@ -10,6 +10,7 @@ use Firebase\JWT\JWK;
 use \Firebase\JWT\JWT;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpClient\HttpClient;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\Routing\Annotation\Route;
@@ -93,6 +94,64 @@ class LtiController extends AbstractController
         }
 
         return $this->redirectToRoute('dashboard');
+    }
+
+    /**
+     * @Route("/lti/config/{lms}", name="lti_config")
+     */
+    public function ltiConfig($lms = 'canvas', Request $request)
+    {
+        $baseUrl = $request->server->get('APP_LTI_BASE_URL');
+        $baseDomain = str_replace('https://', '', $baseUrl);
+        $appName = $request->server->get('APP_LTI_NAME');
+        $platform = 'canvas.instructure.com';
+
+        // if ('...' === $lms) {
+        //     $platform = '...';
+        // }
+
+        $output = [
+            "title" => $appName,
+            "scopes" => [],
+            "extensions" => [
+                [
+                    "domain" => $baseDomain,
+                    "tool_id" => "cidilabs_udoit3",
+                    "platform" => $platform,
+                    "settings" => [
+                        "text" => $appName,
+                        "platform" => $platform,
+                        "placements" => [
+                            [
+                                "text" => $appName,
+                                "placement" => "user_navigation",
+                                "message_type" => "LtiResourceLinkRequest",
+                                "target_link_uri" => "{$baseUrl}/dashboard"
+                            ]
+                        ]
+                    ],
+                    "privacy_level" => "public",
+                ]
+            ],
+            "public_jwk" => [],
+            "description" => "User settings for UDOIT 3.x",
+            "public_jwk_url" => "https://canvas.instructure.com/api/lti/security/jwks",
+            "target_link_uri" => "{$baseUrl}/dashboard",
+            "oidc_initiation_url" => "{$baseUrl}/lti/authorize"
+        ];
+
+        if ('canvas' === $lms) {
+            $output["custom_fields"] = [
+                "lms_id" => 'canvas',
+                "lms_user_id" => "\$Canvas.user.id",
+                "lms_api_domain" => "\$Canvas.api.domain"
+            ];
+        }
+        else {
+            // D2L custom fields
+        }
+
+        return new JsonResponse($output);
     }
 
 
