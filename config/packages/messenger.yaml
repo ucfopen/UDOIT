@@ -21,7 +21,7 @@ framework:
         routing:
             # Route your messages to the transports
             ## php bin/console messenger:consume async_priority_high -vv
-            #'App\Message\PriorityQueueItem': async_priority_high
-            #'App\Message\BackgroundQueueItem': async_priority_low
-            'App\Message\PriorityQueueItem': sync
-            'App\Message\BackgroundQueueItem': sync
+            'App\Message\PriorityQueueItem': async_priority_high
+            'App\Message\BackgroundQueueItem': async_priority_low
+            #'App\Message\PriorityQueueItem': sync
+            #'App\Message\BackgroundQueueItem': sync
