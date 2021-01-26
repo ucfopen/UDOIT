@@ -135,6 +135,14 @@ class AuthController extends AbstractController
         $institution = $user->getInstitution();
         $baseUrl = $institution->getLmsDomain();
         $code = $this->request->query->get('code');
+        $clientSecret = $institution->getApiClientSecret();
+
+        if (empty($clientSecret)) {
+            $institution->encryptDeveloperKey();
+            $this->getDoctrine()->getManager()->flush();
+            $clientSecret = $institution->getApiClientSecret();
+        }
+
         $options = [
             'query' => [
                 'grant_type'    => 'authorization_code',

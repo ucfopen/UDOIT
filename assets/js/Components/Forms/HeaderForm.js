@@ -24,7 +24,8 @@ export default class HeaderForm extends React.Component {
             textInputValue: element.innerText,
             selectedValue: (this.tagName === 'P') ? 'H2' : this.tagName,
             deleteHeader: false,
-            // useHtmlEditor: false
+            useHtmlEditor: false,
+            textInputErrors: []
         }
 
         this.formErrors = []
@@ -113,6 +114,7 @@ export default class HeaderForm extends React.Component {
         } 
         
         else {
+            this.setState({ textInputErrors: []})
             let issue = this.props.activeIssue
             issue.newHtml = this.processHtml()
             this.props.handleIssueSave(issue)
@@ -200,7 +202,6 @@ export default class HeaderForm extends React.Component {
                         <SimpleSelect
                         renderLabel={this.props.t('form.header.heading_level')}
                         assistiveText={this.props.t('form.header.assistive_text')}
-                        assistiveText="yee"
                         value={this.state.selectedValue}
                         onChange={this.handleSelect}
                         width="100%"

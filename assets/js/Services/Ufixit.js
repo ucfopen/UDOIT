@@ -2,8 +2,7 @@ import AltText from '../Components/Forms/AltText'
 import AnchorText from '../Components/Forms/AnchorText'
 import BaseFontIsNotUsed from '../Components/Forms/BaseFontIsNotUsed'
 import ContentTooLong from '../Components/Forms/ContentTooLong'
-import CssTextHasContrast from '../Components/Forms/CssTextHasContrast'
-import CssTextStyleEmphasize from '../Components/Forms/CssTextStyleEmphasize'
+import ContrastForm from '../Components/Forms/ContrastForm'
 import UfixitReviewOnly from '../Components/Forms/UfixitReviewOnly'
 import HeaderForm from '../Components/Forms/HeaderForm'
 import TableHeaders from '../Components/Forms/TableHeaders'
@@ -15,8 +14,8 @@ const UfixitForms = {
   AnchorSuspiciousLinkText: AnchorText,
   BaseFontIsNotUsed,
   ContentTooLong,
-  CssTextHasContrast,
-  CssTextStyleEmphasize,
+  CssTextHasContrast: ContrastForm,
+  CssTextStyleEmphasize: ContrastForm,
   HeadersHaveText: HeaderForm,
   ImageAltIsDifferent: AltText,
   ImageAltIsTooLong: AltText,
