@@ -165,7 +165,7 @@
   "form.table.selection_description": "Select direction for table header(s)",
   "form.error.fails_tests": "Submission fails tests.",
 
-  "rule.label.AnchorLinksToMultiMediaRequireTranscript": "Anchor Links To MultiMedia Require Transcripts",
+  "rule.label.AnchorLinksToMultiMediaRequireTranscript": "<p>All links should make sense out of context. Many non-sighted users skip from link-to-link to navigate a page, and links which do not make sense on their own can make the page difficult to navigate.</p><h4>Example</h4><h5>Wrong</h5><p><code>To know more about me, visit my &lt;a href='page.html'&gt;page&lt;/a&gt;.</code></p><h5>Right</h5><p><code>To know more about me, &lt;a href='page.html'&gt;visit my page&lt;/a&gt;.</code></p>",
   "rule.label.AnchorLinksToSoundFilesNeedTranscripts": "Anchor Links To Sound Files Need Transcripts",
   "rule.label.AnchorMustContainText": "Links should contain text",
   "rule.label.AnchorSuspiciousLinkText": "Anchor Has Suspicious Link Text",
