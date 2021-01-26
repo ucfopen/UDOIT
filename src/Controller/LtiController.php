@@ -101,7 +101,7 @@ class LtiController extends AbstractController
      */
     public function ltiConfig($lms = 'canvas', Request $request)
     {
-        $baseUrl = $request->server->get('APP_LTI_BASE_URL');
+        $baseUrl = $request->server->get('BASE_URL');
         $baseDomain = str_replace('https://', '', $baseUrl);
         $appName = $request->server->get('APP_LTI_NAME');
         $platform = 'canvas.instructure.com';
