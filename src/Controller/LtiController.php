@@ -254,7 +254,7 @@ class LtiController extends AbstractController
 
     protected function getLtiRedirectUri()
     {
-        return $this->request->server->get('APP_LTI_REDIRECT_URL');
+        return $this->request->server->get('BASE_URL') . $this->request->server->get('APP_LTI_REDIRECT_PATH');
     }
 
     /**
