@@ -39,6 +39,7 @@ class App extends React.Component {
     this.t = this.t.bind(this)
     this.handleIssueSave = this.handleIssueSave.bind(this)
     this.handleFileSave = this.handleFileSave.bind(this)
+    this.handleManualScan = this.handleManualScan.bind(this)
   }
 
   render() {    
@@ -81,6 +82,7 @@ class App extends React.Component {
             handleNavigation={this.handleNavigation}
             handleIssueSave={this.handleIssueSave}
             handleIssueUpdate={this.handleIssueUpdate}
+            handleManualScan={this.handleManualScan}
             t={this.t}
             key="contentPage"></ContentPage>
         }
@@ -148,6 +150,28 @@ class App extends React.Component {
     else {
       clearInterval(intervalId);
     }
+  }
+
+  handleManualScan() {
+    let api = new Api(this.settings)
+        api.getReport()
+          .then((response) => response.json())
+          .then((data) => {
+            console.log('data', data)
+            if (data.messages) {
+              data.messages.forEach((msg) => {
+                console.log('message', msg);
+                if (msg.visible) {
+                  this.addMessage(msg);
+                }
+              });
+            }
+            if (data.data && data.data.id) {
+              this.hasNewReport = true;
+              console.log('report', data.data);
+              this.setState({ report: data.data });
+            }
+          });
   }
 
   getSettings() {

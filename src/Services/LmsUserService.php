@@ -23,7 +23,7 @@ class LmsUserService {
 
     public static function getOauthRedirectUri()
     {
-        return $_ENV['APP_OAUTH_REDIRECT_URL'];
+        return $_ENV['BASE_URL'] . $_ENV['APP_OAUTH_REDIRECT_PATH'];
     }
 
     /**

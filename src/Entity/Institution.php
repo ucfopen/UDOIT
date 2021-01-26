@@ -114,7 +114,8 @@ class Institution implements JsonSerializable
     // Public Methods
     public function encryptDeveloperKey(): self
     {
-        $this->setDeveloperKey($this->developerKey);
+        //$this->setDeveloperKey($this->developerKey);
+        $this->setApiClientSecret($this->apiClientSecret);
 
         return $this;
     }

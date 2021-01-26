@@ -101,7 +101,7 @@ class LtiController extends AbstractController
      */
     public function ltiConfig($lms = 'canvas', Request $request)
     {
-        $baseUrl = $request->server->get('APP_LTI_BASE_URL');
+        $baseUrl = $request->server->get('BASE_URL');
         $baseDomain = str_replace('https://', '', $baseUrl);
         $appName = $request->server->get('APP_LTI_NAME');
         $platform = 'canvas.instructure.com';
@@ -124,9 +124,15 @@ class LtiController extends AbstractController
                         "placements" => [
                             [
                                 "text" => $appName,
-                                "placement" => "user_navigation",
+                                "placement" => "course_navigation",
                                 "message_type" => "LtiResourceLinkRequest",
                                 "target_link_uri" => "{$baseUrl}/dashboard"
+                            ],
+                            [
+                                "text" => $appName,
+                                "placement" => "account_navigation",
+                                "message_type" => "LtiResourceLinkRequest",
+                                "target_link_uri" => "{$baseUrl}/admin"
                             ]
                         ]
                     ],
@@ -144,6 +150,8 @@ class LtiController extends AbstractController
             $output["custom_fields"] = [
                 "lms_id" => 'canvas',
                 "lms_user_id" => "\$Canvas.user.id",
+                "lms_course_id" => "\$Canvas.course.id",
+                "lms_account_id" => "\$Canvas.account.id",
                 "lms_api_domain" => "\$Canvas.api.domain"
             ];
         }
@@ -246,7 +254,7 @@ class LtiController extends AbstractController
 
     protected function getLtiRedirectUri()
     {
-        return $this->request->server->get('APP_LTI_REDIRECT_URL');
+        return $this->request->server->get('BASE_URL') . $this->request->server->get('APP_LTI_REDIRECT_PATH');
     }
 
     /**
