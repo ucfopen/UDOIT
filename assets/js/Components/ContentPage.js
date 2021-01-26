@@ -238,6 +238,7 @@ class ContentPage extends React.Component {
           handleCloseButton={this.handleCloseButton}
           handleActiveIssue={this.handleActiveIssue}
           handleIssueSave={this.props.handleIssueSave}
+          handleManualScan={this.props.handleManualScan}
           t={this.props.t}
           key="ufixitModal"
           />}

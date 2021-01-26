@@ -116,7 +116,8 @@ class UfixitModal extends React.Component {
                   <UfixitForm activeIssue={activeIssue} t={this.props.t} 
                     handleIssueSave={this.handleIssueSave}
                     addMessage={this.addMessage} 
-                    handleActiveIssue={this.props.handleActiveIssue} />
+                    handleActiveIssue={this.props.handleActiveIssue}
+                    handleManualScan={this.props.handleManualScan} />
                 </View>
               </Flex.Item>
               <Flex.Item width="50%" padding="0" overflowY="auto">

@@ -159,6 +159,7 @@
   "form.header.text": "New Header Text",
   "form.header.use_text": "Use text editor",
   "form.header.use_code": "Use HTML editor",
+  "form.scan": "Scan Content",
   "form.submit": "Save",
   "form.processing": "Processing",
   "form.msg.success_saved": "Successfully saved.",
