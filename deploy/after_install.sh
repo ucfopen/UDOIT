@@ -25,8 +25,10 @@ else
     echo -e "\nnewrelic.appname = \"UDOIT 3 Staging\"" >> /etc/php.d/newrelic.ini
 fi
 
-# run yarn build
-yarn build
+# compile JS
+yarn install
+yarn run encore dev
+
 
 # start queue monitor
 sudo /bin/supervisord

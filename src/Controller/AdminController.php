@@ -291,13 +291,15 @@ class AdminController extends ApiController
 
     protected function getCourseData(Course $course, User $user)
     {
+        $updatedDate = $course->getLastUpdated();
+
         return [
             'id' => $course->getId(),
             'title' => $course->getTitle(),
             'accountId' => $course->getLmsAccountId(),
             'accountName' => $course->getLmsAccountName(),
             'report' => $course->getLatestReport(),
-            'lastUpdated' => $course->getLastUpdated()->format($this->util->getDateFormat()),
+            'lastUpdated' => !empty($updatedDate) ? $updatedDate->format($this->util->getDateFormat()) : '-',
             'publicUrl' => $this->lms->getCourseUrl($course, $user),
         ];
     }
