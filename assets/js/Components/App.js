@@ -113,11 +113,20 @@ class App extends React.Component {
     if (this.initialReport) {
       this.setState({report: this.initialReport, navigation: 'summary'})
     }
-    this.checkForNewReport()
+    this.scanCourse()
+      .then((response) => {
+        this.checkForNewReport()
+      })
   }
 
   t(key) {
     return (this.settings.labels[key]) ? this.settings.labels[key] : key
+  }
+
+  scanCourse() {
+    let api = new Api(this.settings)
+    
+    return api.scanCourse()
   }
 
   checkForNewReport() {
