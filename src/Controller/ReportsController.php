@@ -84,14 +84,14 @@ class ReportsController extends ApiController
                 throw new \Exception('msg.no_permissions'); //"You do not have permission to access the specified course.");
             }
 
+            if ($course->isDirty()) {
+                throw new \Exception('msg.course_scanning');
+            }
+
             $report = $course->getLatestReport();
 
             if (!$report) {
                 throw new \Exception('msg.no_report_created');
-            }
-
-            if ($course->isDirty()) {
-                throw new \Exception('msg.course_scanning');
             }
             
             $reportArr = $report->toArray();
