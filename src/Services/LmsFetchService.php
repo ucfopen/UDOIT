@@ -91,13 +91,10 @@ class LmsFetchService {
 
             /* Step 5: Process the updated content with PhpAlly and link to report */
             $this->scanContentItems($contentItems);
-
-            /* Step 6: Update report from all active issues */
-            $this->updateReport($course, $user);
-
-            /* Step 6: Cleanup. Remove inactive content items */
-            //$contentItemRepo->removeInactiveContentItems();
         }
+        
+        /* Step 6: Update report from all active issues */
+        $this->updateReport($course, $user);
 
         /* Save last_updated date on course */
         $course->setLastUpdated($this->util->getCurrentTime());

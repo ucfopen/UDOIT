@@ -141,7 +141,12 @@ class App extends React.Component {
               data.messages.forEach((msg) => {
                 console.log('message', msg);
                 if (msg.visible) {
-                  this.addMessage(msg);
+                  this.addMessage(msg)
+                }
+                if ('msg.no_report_created' === msg.message) {
+                  this.addMessage(msg)
+                  clearInterval(intervalId)
+                  this.setState({ report: null })
                 }
               });
             }
