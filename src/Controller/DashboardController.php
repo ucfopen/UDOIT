@@ -55,7 +55,7 @@ class DashboardController extends AbstractController
         }
 
         /* Add this course to the queue for scanning */
-        $lmsApi->addCoursesToBeScanned([$course], $user, true);
+        //$lmsApi->addCoursesToBeScanned([$course], $user, true);
 
         $activeReport = $course->getLatestReport();        
         if ($activeReport) {
