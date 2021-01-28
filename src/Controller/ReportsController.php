@@ -179,7 +179,7 @@ class ReportsController extends ApiController
             );
 
             // Generate PDF
-            $mPdf = new Mpdf();
+            $mPdf = new Mpdf(['tempDir' => '/tmp']);
             $mPdf->WriteHTML($html);
 
             return $mPdf->Output('udoit_report.pdf', \Mpdf\Output\Destination::DOWNLOAD);
