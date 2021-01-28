@@ -27,6 +27,9 @@ class LmsFetchService {
     /** @var UtilityService $util */
     protected $util;
 
+    const ISSUE_TYPE_SUGGESTION = 'suggestion';
+    const ISSUE_TYPE_ERROR = 'error';
+
     public function __construct(
         LmsApiService $lmsApi,
         PhpAllyService $phpAlly,
@@ -92,7 +95,7 @@ class LmsFetchService {
             /* Step 5: Process the updated content with PhpAlly and link to report */
             $this->scanContentItems($contentItems);
         }
-        
+
         /* Step 6: Update report from all active issues */
         $this->updateReport($course, $user);
 
@@ -225,8 +228,21 @@ class LmsFetchService {
     public function createIssue(PhpAllyIssue $issue, ContentItem $contentItem)
     {
         $issueEntity = new Issue();
+        $meta = $contentItem->getCourse()->getInstitution()->getMetadata();
+        $issueType = self::ISSUE_TYPE_ERROR;
 
-        $issueEntity->setType($issue->getType());
+        if (isset($meta['SUGGESTION_RULES'])) {
+            if (isset($meta['SUGGESTION_RULES'][$issue->getRuleId()])) {
+                $issueType = self::ISSUE_TYPE_SUGGESTION;
+            }
+        }
+        if (isset($_ENV['PHPALLY_SUGGESTION_RULES'])) {
+            if (strpos($_ENV['PHPALLY_SUGGESTION_RULES'], $issue->getRuleId()) !== false) {
+                $issueType = self::ISSUE_TYPE_SUGGESTION;
+            }
+        }
+
+        $issueEntity->setType($issueType);
         $issueEntity->setStatus(Issue::$issueStatusActive);
         $issueEntity->setContentItem($contentItem);
         $issueEntity->setScanRuleId($issue->getRuleId());
