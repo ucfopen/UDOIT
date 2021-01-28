@@ -128,7 +128,7 @@ class App extends React.Component {
   scanCourse() {
     let api = new Api(this.settings)
     
-    return api.scanCourse()
+    return api.scanCourse(this.settings.course.id)
   }
 
   checkForNewReport() {
