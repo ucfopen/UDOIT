@@ -104,6 +104,7 @@ class LtiController extends AbstractController
         $baseUrl = $request->server->get('BASE_URL');
         $baseDomain = str_replace('https://', '', $baseUrl);
         $appName = $request->server->get('APP_LTI_NAME');
+        $adminName = $request->server->get('ADMIN_LTI_NAME');
         $platform = 'canvas.instructure.com';
 
         // if ('...' === $lms) {
@@ -129,7 +130,7 @@ class LtiController extends AbstractController
                                 "target_link_uri" => "{$baseUrl}/dashboard"
                             ],
                             [
-                                "text" => $appName,
+                                "text" => $adminName,
                                 "placement" => "account_navigation",
                                 "message_type" => "LtiResourceLinkRequest",
                                 "target_link_uri" => "{$baseUrl}/admin"
@@ -244,8 +245,8 @@ class LtiController extends AbstractController
     protected function getPublicJwks()
     {
         $httpClient = HttpClient::create();
-        /* URL may be different for other LMSes */
-        $url = $this->session->get('iss') . '/api/lti/security/jwks';
+        /* URL will be different for other LMSes */
+        $url = 'https://canvas.instructure.com/api/lti/security/jwks';
         $response = $httpClient->request('GET', $url);
 
         $keys = $response->toArray();
