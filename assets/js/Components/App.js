@@ -40,11 +40,10 @@ class App extends React.Component {
     this.handleIssueSave = this.handleIssueSave.bind(this)
     this.handleFileSave = this.handleFileSave.bind(this)
     this.handleManualScan = this.handleManualScan.bind(this)
+    this.handleCourseRescan = this.handleCourseRescan.bind(this)
   }
 
   render() {    
-    console.log('render', this.state)
-
     return (
       <View as="div">
         <Header
@@ -53,6 +52,7 @@ class App extends React.Component {
           hasNewReport={this.hasNewReport}
           navigation={this.state.navigation}
           handleNavigation={this.handleNavigation} 
+          handleCourseRescan={this.handleCourseRescan}
           handleModal={this.handleModal} />
 
         <MessageTray messages={this.messages} t={this.t} clearMessages={this.clearMessages} hasNewReport={this.hasNewReport} />
@@ -129,6 +129,17 @@ class App extends React.Component {
     let api = new Api(this.settings)
     
     return api.scanCourse(this.settings.course.id)
+  }
+
+  handleCourseRescan() {
+    if (this.hasNewReport) {
+      this.hasNewReport = false
+      this.scanCourse()
+        .then((response) => {
+          this.checkForNewReport()
+        })
+    }
+    this.forceUpdate()
   }
 
   checkForNewReport() {

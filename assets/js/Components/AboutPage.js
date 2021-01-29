@@ -80,7 +80,7 @@ class AboutPage extends React.Component {
             <View as="div" margin="small 0">
               {rules.map((rule) => {
                 return (
-                  <View as="div" margin="small 0" background="primary" padding="small" shadow="above">
+                  <View as="div" margin="small 0" background="primary" padding="small" shadow="above" key={`rule.${rule}`}>
                     <Heading level="h4">{this.props.t(`rule.label.${rule}`)}</Heading>
                     <Text as="p">{ReactHtmlParser(this.props.t(`rule.desc.${rule}`))}</Text>
                   </View>
