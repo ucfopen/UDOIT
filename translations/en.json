@@ -68,6 +68,7 @@
   "menu.reports": "Reports",
   "menu.admin": "Admin",
   "menu.download_pdf": "Download PDF",
+  "menu.scan_course": "Rescan Course",
 
   "msg.no_permissions": "You do not have permission to access the specified course.",
   "msg.course_scanning": "Course scanning...",
