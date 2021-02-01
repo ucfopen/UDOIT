@@ -105,6 +105,8 @@
   "label.loading_reports": "Loading report history",
   "label.loading_users": "Loading users",
   "label.btn.udoit_details": "What does UDOIT look for?",
+  "label.btn.hide_details": "Hide details",
+  "label.btn.show_details": "Show details",
 
   "label.file.drag_drop": "Drag a file here, or",
   "label.file.browse_files": "Choose a file to upload",
