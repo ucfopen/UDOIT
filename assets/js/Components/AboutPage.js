@@ -4,6 +4,7 @@ import { View } from '@instructure/ui-view'
 import { Flex } from '@instructure/ui-flex'
 import { Text } from '@instructure/ui-text'
 import { ToggleDetails } from '@instructure/ui-toggle-details'
+import ReactHtmlParser from 'react-html-parser'
 
 class AboutPage extends React.Component {
 
@@ -81,7 +82,7 @@ class AboutPage extends React.Component {
                 return (
                   <View as="div" margin="small 0" background="primary" padding="small" shadow="above">
                     <Heading level="h4">{this.props.t(`rule.label.${rule}`)}</Heading>
-                    <Text as="p">{this.props.t(`rule.desc.${rule}`)}</Text>
+                    <Text as="p">{ReactHtmlParser(this.props.t(`rule.desc.${rule}`))}</Text>
                   </View>
                 )
               })}
