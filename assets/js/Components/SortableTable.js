@@ -38,6 +38,7 @@ class SortableTable extends React.Component {
         <View as="div">
           <Table
             caption={caption}
+            hover={true}
           >
             <Table.Head renderSortLabel="Sort by">
               <Table.Row key="sortableTableHeader">
@@ -58,8 +59,8 @@ class SortableTable extends React.Component {
               {pagedRows.map((row) => (
                 <Table.Row key={`row${row.id}`}>
                   {headers.map(({ id, renderCell, alignText, format }) => (
-                    <Table.Cell key={`row${row.id}cell${id}`} textAlign={alignText ? alignText : 'start'}>
-                      {renderCell ? renderCell(row[id]) : (format) ? format(row[id]) : row[id]}
+                    <Table.Cell key={`row${row.id}cell${id}`} textAlign={alignText ? alignText : 'start'} onClick={(row.onClick) ? row.onClick : null}>
+                      {renderCell ? renderCell(row[id]) : (format) ? format(row[id]) : <View as="div" cursor={(row.onClick) ? 'pointer' : 'auto'}>{row[id]}</View>}
                     </Table.Cell>
                   ))}
                 </Table.Row>

@@ -140,7 +140,8 @@ class FilesPage extends React.Component {
           action: <Button 
             key={`reviewButton${key}`}
             onClick={() => this.handleReviewClick(file)}
-            textAlign="center" >{this.props.t('label.review')}</Button>
+            textAlign="center" >{this.props.t('label.review')}</Button>,
+          onClick: () => this.handleReviewClick(file),
         }
       );
     }

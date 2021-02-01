@@ -169,7 +169,8 @@ class ContentPage extends React.Component {
           contentTitle: contentItem.title,
           action: <Button key={`reviewButton${key}`} 
             onClick={() => this.handleReviewClick(issue)} 
-            textAlign="center" >{this.props.t('label.review')}</Button>
+            textAlign="center" >{this.props.t('label.review')}</Button>,
+          onClick: () => this.handleReviewClick(issue),
         }
       );
     }
