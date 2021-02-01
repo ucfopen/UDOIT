@@ -39,10 +39,7 @@ class App extends React.Component {
     this.t = this.t.bind(this)
     this.handleIssueSave = this.handleIssueSave.bind(this)
     this.handleFileSave = this.handleFileSave.bind(this)
-<<<<<<< HEAD
     this.handleManualScan = this.handleManualScan.bind(this)
-=======
->>>>>>> e0a69eb36d9eca45b5936451797469161324bf5a
     this.handleCourseRescan = this.handleCourseRescan.bind(this)
   }
 
