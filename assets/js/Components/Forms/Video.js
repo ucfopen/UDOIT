@@ -15,7 +15,7 @@ export default class Video extends React.Component {
         const canSubmit = (!pending && !this.props.activeIssue.status)
 
         return(
-            <View as="div" textAlign="center" margin="small 0" >
+            <View as="div" textAlign="center" margin="x-large" padding="x-large">
                 <Button color="primary" onClick={this.props.handleManualScan} interaction={(canSubmit) ? 'enabled' : 'disabled'}>
                     {pending && <Spinner size="x-small" renderTitle={buttonLabel} />}
                     {this.props.t(buttonLabel)}
