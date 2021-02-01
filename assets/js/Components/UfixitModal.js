@@ -9,12 +9,13 @@ import { Flex } from '@instructure/ui-flex'
 import { CloseButton} from '@instructure/ui-buttons'
 import { Text } from '@instructure/ui-text'
 import { Link } from '@instructure/ui-link'
-import { TruncateText } from '@instructure/ui-truncate-text'
 import { InlineList } from '@instructure/ui-list'
 import { IconExternalLinkLine, IconCheckMarkLine } from '@instructure/ui-icons'
 import { CodeEditor } from '@instructure/ui-code-editor'
 import { Checkbox } from '@instructure/ui-checkbox'
-import MessageTray from './MessageTray';
+import ReactHtmlParser from 'react-html-parser'
+import MessageTray from './MessageTray'
+import { ToggleDetails } from '@instructure/ui-toggle-details'
 
 import Ufixit from '../Services/Ufixit'
 import Api from '../Services/Api'
@@ -27,6 +28,7 @@ class UfixitModal extends React.Component {
 
     this.state = {
       showSourceCode: false,
+      expandDetails: true,
     }
 
     this.modalMessages = []
@@ -37,6 +39,7 @@ class UfixitModal extends React.Component {
     this.handleIssueSave = this.handleIssueSave.bind(this)
     this.handleIssueResolve = this.handleIssueResolve.bind(this)
     this.handleOpenContent = this.handleOpenContent.bind(this)
+    this.handleDetailsToggle = this.handleDetailsToggle.bind(this)
   }
 
   findActiveIndex() {
@@ -105,10 +108,16 @@ class UfixitModal extends React.Component {
           </Modal.Header>
           <Modal.Body padding="small medium">
             <MessageTray messages={this.modalMessages} clearMessages={this.clearMessages} t={this.props.t} hasNewReport={true} />
-            <View padding="0 x-small">
-              <Text as="p">
-                <TruncateText maxLines={2}>{this.props.t(`rule.desc.${activeIssue.scanRuleId}`)}</TruncateText>
-              </Text>
+            <View as="div" margin="small">
+                    <ToggleDetails
+                    summary={this.state.expandDetails ? (this.props.t('label.btn.hide_details')) : (this.props.t('label.btn.show_details'))}
+                    expanded={this.state.expandDetails}
+                    fluidWidth={true}
+                    onToggle={this.handleDetailsToggle}>
+                    <View as="div" margin="small 0">
+                      {ReactHtmlParser(this.props.t(`rule.desc.${activeIssue.scanRuleId}`))}
+                    </View>
+                  </ToggleDetails>
             </View>
             <Flex justifyItems="space-between" alignItems="start">
               <Flex.Item width="46%" padding="0" overflowY="auto">
@@ -186,7 +195,7 @@ class UfixitModal extends React.Component {
     const html = (activeIssue.newHtml) ? activeIssue.newHtml : Html.toString(Html.toElement(activeIssue.sourceHtml))
     const highlighted = `<span class="highlighted" style="display:inline-block; border:5px dashed #F1F155;">${html}</span>`
 
-    return activeIssue.previewHtml.replace(activeIssue.sourceHtml, highlighted)
+    return activeIssue.sourceHtml.replace(activeIssue.sourceHtml, highlighted)
   }
 
   handleIssueResolve() {
@@ -272,6 +281,10 @@ class UfixitModal extends React.Component {
     // update activeIssue
     issue.pending = true
     this.props.handleActiveIssue(issue)
+  }
+
+  handleDetailsToggle() {
+    this.setState({expandDetails: !this.state.expandDetails})
   }
   
   addMessage = (msg) => {
