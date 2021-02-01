@@ -9,14 +9,12 @@ import { Flex } from '@instructure/ui-flex'
 import { CloseButton} from '@instructure/ui-buttons'
 import { Text } from '@instructure/ui-text'
 import { Link } from '@instructure/ui-link'
-import { TruncateText } from '@instructure/ui-truncate-text'
 import { InlineList } from '@instructure/ui-list'
 import { IconExternalLinkLine, IconCheckMarkLine } from '@instructure/ui-icons'
 import { CodeEditor } from '@instructure/ui-code-editor'
 import { Checkbox } from '@instructure/ui-checkbox'
 import ReactHtmlParser from 'react-html-parser'
 import MessageTray from './MessageTray'
-import { Popover } from '@instructure/ui-popover'
 import { ToggleDetails } from '@instructure/ui-toggle-details'
 
 import Ufixit from '../Services/Ufixit'
@@ -30,7 +28,7 @@ class UfixitModal extends React.Component {
 
     this.state = {
       showSourceCode: false,
-      expandDetails: false,
+      expandDetails: true,
     }
 
     this.modalMessages = []
