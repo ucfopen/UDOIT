@@ -31,10 +31,10 @@ class SyncController extends AbstractController
 
         if($course) {
             if ($course->isActive()) {
-                if (!$course->isDirty()) {
+                //if (!$course->isDirty()) {
                     $lmsApi->addCoursesToBeScanned([$course], $user, true);
                     $response->setData(1);
-                }
+                //}
             }
             else {
                 $response->setData(0);

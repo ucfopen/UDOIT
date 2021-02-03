@@ -72,7 +72,7 @@ class UtilityService {
         }
 
         try {
-            $dom = new DOMDocument('1.0', 'utf-8');
+            $dom = new DOMDocument();
             if (strpos($html, '<?xml encoding="utf-8"') !== false) {
                 $dom->loadHTML($html, LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD);    
             }
@@ -83,7 +83,7 @@ class UtilityService {
 
             if ($dom->hasChildNodes()) {
                 foreach ($dom->childNodes as $node) {
-                    $out[] = $dom->saveXML($node);
+                    $out[] = $dom->saveHTML($node);
                 }
             }
         }

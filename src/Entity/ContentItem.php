@@ -182,7 +182,7 @@ class ContentItem implements \JsonSerializable
 
     public function setBody(?string $body): self
     {
-        $this->body = $body;
+        $this->body = UtilityService::normalizeHtml($body);
 
         return $this;
     }
@@ -263,7 +263,7 @@ class ContentItem implements \JsonSerializable
         $this->setTitle($lmsContent['title']);
         $this->setPublished($lmsContent['status']);
         $this->setActive(true);
-        $this->setBody(UtilityService::normalizeHtml($lmsContent['body']));
+        $this->setBody($lmsContent['body']);
         $this->setUrl($lmsContent['url']);
         
         // }
