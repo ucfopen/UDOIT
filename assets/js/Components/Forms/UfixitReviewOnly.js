@@ -9,8 +9,8 @@ class UfixitReviewOnly extends React.Component {
 
     render() {
         return (
-            <View as="div">
-                <Text>{this.props.t('label.review_only')}</Text>
+            <View as="div" margin="small small">
+                <Text lineHeight="double">{this.props.t('label.review_only')}</Text>
             </View>
         )
     }
