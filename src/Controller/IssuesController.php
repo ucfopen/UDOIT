@@ -70,9 +70,15 @@ class IssuesController extends ApiController
             
             $this->getDoctrine()->getManager()->flush();
 
-            // Create response
-            $apiResponse->addMessage('form.msg.success_saved', 'success');
-            $apiResponse->addLogMessages($util->getUnreadMessages());
+            // Add messages to response
+            $unreadMessages = $util->getUnreadMessages();
+            if (empty($unreadMessages)) {
+                $apiResponse->addMessage('form.msg.success_saved', 'success');
+            }
+            else {
+                $apiResponse->addLogMessages($unreadMessages);
+            }
+
             $apiResponse->setData([
                 'issue' => ['status' => $issue->getStatus(), 'pending' => false],
                 'report' => $report,

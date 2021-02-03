@@ -196,7 +196,7 @@ class CanvasLms implements LmsInterface {
 
         // push any updates made to content items to DB
         $this->entityManager->flush();
-
+        
         return $contentItems;
     }
 
@@ -253,6 +253,7 @@ class CanvasLms implements LmsInterface {
             }
 
             $contentItem->update($lmsContent);
+            $this->entityManager->flush();
         }
     }
 
@@ -266,8 +267,7 @@ class CanvasLms implements LmsInterface {
         $options = $this->createLmsPostOptions($contentItem);
         
         if ('file' === $contentItem->getContentType()) {
-            $filepath = $this->util->getTempPath() . '/content.' . $contentItem->getId();
-
+            $filepath = $this->util->getTempPath() . '/content.' . $contentItem->getId() . '.html';
             $fileResponse = $canvasApi->apiFilePost($url, $options, $filepath);
             $fileObj = $fileResponse->getContent();
             
@@ -667,7 +667,7 @@ class CanvasLms implements LmsInterface {
 
             $doc2 = new DOMDocument();
             $doc2->loadXML($content2);
-            return ($doc1->saveXml() == $doc2->saveXml());
+            return ($doc1->saveHTML() == $doc2->saveHTML());
         } catch (\Exception $ex) {
             $this->util->createMessage($ex->getMessage());
         }
