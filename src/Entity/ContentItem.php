@@ -182,7 +182,7 @@ class ContentItem implements \JsonSerializable
 
     public function setBody(?string $body): self
     {
-        $this->body = UtilityService::normalizeHtml($body);
+        $this->body = $body;
 
         return $this;
     }
