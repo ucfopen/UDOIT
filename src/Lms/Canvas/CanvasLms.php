@@ -242,8 +242,13 @@ class CanvasLms implements LmsInterface {
         $response = $canvasApi->apiGet($url);
 
         if ($response->getErrors()) {
-            $this->util->createMessage('Error retrieving content. Failed API Call: ' . $url, 'error', 
-                $contentItem->getCourse(), $user);
+            $log = '';
+            foreach ($response->getErrors() as $err) {
+                $log .= ' | Msg: ' . $err;
+            }
+
+            $this->util->createMessage('Error retrieving content. Please try again.', 'error', $contentItem->getCourse(), $user);
+            $this->util->createMessage($log, 'error', $contentItem->getCourse(), $user, true);
         }
         else {
             $apiContent = $response->getContent();

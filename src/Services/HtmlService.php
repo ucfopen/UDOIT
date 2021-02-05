@@ -28,11 +28,28 @@ class HtmlService {
         }
     }
 
-    public function clean($html)
+    public function tidy($html)
     {
         return htmLawed($html, [
-            'tidy' => 1,
+            'tidy' => -1,
         ]);
+    }
+
+    public function domClean($html) 
+    {
+        if (!$this->isValid($html)) {
+            return;
+        }
+
+        $out = [];
+
+        if ($this->dom->hasChildNodes()) {
+            foreach ($this->dom->childNodes as $node) {
+                $out[] = $this->dom->saveHTML($node);
+            }
+        }
+
+        return implode('', $out);
     }
 
     public function compare()

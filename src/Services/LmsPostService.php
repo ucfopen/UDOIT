@@ -93,10 +93,22 @@ class LmsPostService {
     {
         $error = $issue->getHtml();
         $corrected = $issue->getNewHtml();
-        $html = $contentItem->getBody();
+        $body = $contentItem->getBody();
+        
+        // If issue HTML is not found in body HTML: 
+
+        // 1. Try tidying the error through the DOM
+        if (strpos($body, $error) === false) {
+            $error = $this->html->domClean($error);
+                
+            // 2. Try running error through Tidy (HTMLawed)
+            if (strpos($body, $error) === false) {
+                $error = $this->html->tidy($error);
+            }
+        }
 
         $cnt = 0;
-        $replaced = str_replace($error, $corrected, $html, $cnt);
+        $replaced = str_replace($error, $corrected, $body, $cnt);
 
         if ($cnt) {
             $contentItem->setBody($replaced);
