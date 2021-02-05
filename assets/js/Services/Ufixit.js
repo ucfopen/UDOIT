@@ -1,7 +1,6 @@
 import AltText from '../Components/Forms/AltText'
 import AnchorText from '../Components/Forms/AnchorText'
 import BaseFontIsNotUsed from '../Components/Forms/BaseFontIsNotUsed'
-import ContentTooLong from '../Components/Forms/ContentTooLong'
 import ContrastForm from '../Components/Forms/ContrastForm'
 import UfixitReviewOnly from '../Components/Forms/UfixitReviewOnly'
 import HeaderForm from '../Components/Forms/HeaderForm'
@@ -13,7 +12,6 @@ const UfixitForms = {
   AnchorMustContainText: AnchorText,
   AnchorSuspiciousLinkText: AnchorText,
   BaseFontIsNotUsed,
-  ContentTooLong,
   CssTextHasContrast: ContrastForm,
   CssTextStyleEmphasize: ContrastForm,
   HeadersHaveText: HeaderForm,
