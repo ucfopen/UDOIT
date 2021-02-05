@@ -117,6 +117,9 @@
     "guzzlehttp/psr7": {
         "version": "1.6.1"
     },
+    "htmlawed/htmlawed": {
+        "version": "1.1.22"
+    },
     "imsglobal/lti-1p3-tool": {
         "version": "dev-master"
     },
@@ -166,7 +169,7 @@
         "version": "2.2.3"
     },
     "php": {
-        "version": "7.2"
+        "version": "7.4"
     },
     "phpdocumentor/reflection-common": {
         "version": "2.0.0"

@@ -8,7 +8,6 @@ use App\Entity\Report;
 use App\Response\ApiResponse;
 use App\Services\LmsPostService;
 use App\Services\PhpAllyService;
-use App\Services\UfixitService;
 use App\Services\UtilityService;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -22,7 +21,13 @@ class IssuesController extends ApiController
      * @Route("/api/issues/{issue}/save", name="save_issue")
      * @param Issue $issue
      */
-    public function saveIssue(Request $request, LmsPostService $lmsPost, PhpAllyService $phpAlly, UtilityService $util, Issue $issue) {
+    public function saveIssue(
+        Request $request, 
+        LmsPostService $lmsPost, 
+        PhpAllyService $phpAlly, 
+        UtilityService $util, 
+        Issue $issue) 
+    {
         $apiResponse = new ApiResponse();
         $user = $this->getUser();
 
@@ -45,25 +50,24 @@ class IssuesController extends ApiController
             $report = $phpAlly->scanHtml($newHtml);
             if ($issues = $report->getIssues()) {
                 $apiResponse->addData('issues', $issues);
+                $apiResponse->addData('failed', 1);
+                throw new \Exception('form.error.fails_tests');
             }
             if ($errors = $report->getErrors()) {
                 $apiResponse->addData('errors', $errors);
-            }
-
-            if (!empty($issues) || !empty($errors)) {
-                $apiResponse->addData('failed', true);
+                $apiResponse->addData('failed', 1);
                 throw new \Exception('form.error.fails_tests');
             }
-
-            // Save content to LMS
-            $lmsPost->saveContentToLms($issue, $newHtml);
-            // TODO: check lmsResponse for errors
 
             // Update issue
             $issue->setStatus(Issue::$issueStatusFixed);
             $issue->setFixedBy($user);
             $issue->setFixedOn($util->getCurrentTime());
             $issue->setNewHtml($newHtml);
+            $this->getDoctrine()->getManager()->flush();
+
+            // Save content to LMS
+            $lmsPost->saveContentToLms($issue);
 
             // Update report stats
             $report = $course->getUpdatedReport();

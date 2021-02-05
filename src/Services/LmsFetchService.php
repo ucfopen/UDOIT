@@ -111,12 +111,12 @@ class LmsFetchService {
      * @param ContentItem $contentItem
      * @return void
      */
-    public function refreshContentItemFromLms(ContentItem $contentItem)
-    {
-        $lms = $this->lmsApi->getLms();
-        $lms->updateContentItem($contentItem);
-        $this->doctrine->getManager()->flush();
-    }
+    // public function refreshContentItemFromLms(ContentItem $contentItem)
+    // {
+    //     $lms = $this->lmsApi->getLms();
+    //     $lms->updateContentItem($contentItem);
+    //     $this->doctrine->getManager()->flush();
+    // }
 
     /**
      * Update report, or create new one for a new day
@@ -211,7 +211,8 @@ class LmsFetchService {
                 // TODO: Do something with report errors
                 if (count($phpAllyReport->getErrors())) {
                     foreach ($phpAllyReport->getErrors() as $error) {
-                        $this->util->createMessage($error, 'error', $contentItem->getCourse());
+                        $msg = $error . ', item = #' . $contentItem->getId();
+                        $this->util->createMessage($msg, 'error', $contentItem->getCourse());
                     }
                 }
 
