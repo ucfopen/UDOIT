@@ -11,10 +11,10 @@ use App\Lms\LmsAccountData;
 use App\Lms\LmsInterface;
 use App\Repository\ContentItemRepository;
 use App\Repository\FileItemRepository;
+use App\Services\HtmlService;
 use App\Services\LmsUserService;
 use App\Services\UtilityService;
 use Doctrine\ORM\EntityManagerInterface;
-use DOMDocument;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\Security\Core\Security;
 
@@ -41,13 +41,17 @@ class CanvasLms implements LmsInterface {
     /** @var SessionInterface $session */
     private $session;
 
+    /** @var App\Services\HtmlService */
+    private $html;
+
     public function __construct(
         ContentItemRepository $contentItemRepo,
         FileItemRepository $fileItemRepo,
         EntityManagerInterface $entityManager,
         UtilityService $util,
         Security $security,
-        SessionInterface $session)
+        SessionInterface $session,
+        HtmlService $html)
     {
         $this->contentItemRepo = $contentItemRepo;
         $this->fileItemRepo = $fileItemRepo;
@@ -55,6 +59,7 @@ class CanvasLms implements LmsInterface {
         $this->util = $util;
         $this->security = $security;
         $this->session = $session;
+        $this->html = $html;
     }
 
     public function getId() 
@@ -182,8 +187,7 @@ class CanvasLms implements LmsInterface {
                     // some content types don't have an updated date, so we'll compare content
                     // to find out if content has changed.
                     if (in_array($contentType, ['syllabus', 'discussion_topic', 'announcement'])) {
-                        $newBody = $this->util->normalizeHtml($lmsContent['body']);
-                        if ($contentItem->getBody() === $newBody) {
+                        if ($contentItem->getBody() === $lmsContent['body']) {
                             $lmsContent['updated'] = $contentItem->getUpdated()->format('c');
                         }
                     }
@@ -238,8 +242,13 @@ class CanvasLms implements LmsInterface {
         $response = $canvasApi->apiGet($url);
 
         if ($response->getErrors()) {
-            $this->util->createMessage('Error retrieving content. Failed API Call: ' . $url, 'error', 
-                $contentItem->getCourse(), $user);
+            $log = '';
+            foreach ($response->getErrors() as $err) {
+                $log .= ' | Msg: ' . $err;
+            }
+
+            $this->util->createMessage('Error retrieving content. Please try again.', 'error', $contentItem->getCourse(), $user);
+            $this->util->createMessage($log, 'error', $contentItem->getCourse(), $user, true);
         }
         else {
             $apiContent = $response->getContent();
@@ -657,20 +666,6 @@ class CanvasLms implements LmsInterface {
     protected function getApiToken(User $user)
     {
         return $user->getApiKey();
-    }
-
-    protected function compareContent($content1, $content2)
-    {
-        try {
-            $doc1 = new DOMDocument();
-            $doc1->loadXML($content1);
-
-            $doc2 = new DOMDocument();
-            $doc2->loadXML($content2);
-            return ($doc1->saveHTML() == $doc2->saveHTML());
-        } catch (\Exception $ex) {
-            $this->util->createMessage($ex->getMessage());
-        }
     }
 
     protected function sortSubAccounts($a, $b) 

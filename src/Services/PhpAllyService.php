@@ -8,10 +8,17 @@ use CidiLabs\PhpAlly\PhpAlly;
 class PhpAllyService {
     
     protected $phpAlly;
+
+    /** @var App\Service\HtmlService */
+    protected $htmlService;
+
+    protected $util;
     
-    public function __construct()
+    public function __construct(HtmlService $htmlService, UtilityService $util)
     {
         $this->phpAlly = new PhpAlly();    
+        $this->htmlService = $htmlService;
+        $this->util = $util;
     }
 
     public function scanContentItem(ContentItem $contentItem)
@@ -21,6 +28,10 @@ class PhpAllyService {
             return;
         }
 
+        if (!$this->htmlService->isValid($html)) {
+            $html = $this->htmlService->tidy($html);
+        }
+
         $ruleIds = $this->getRules();
         
         return $this->phpAlly->checkMany($html, $ruleIds);
@@ -28,6 +39,10 @@ class PhpAllyService {
 
     public function scanHtml($html)
     {
+        if (!$this->htmlService->isValid($html)) {
+            $html = $this->htmlService->tidy($html);
+        }
+        
         return $this->phpAlly->checkMany($html, $this->getRules());
     }
 

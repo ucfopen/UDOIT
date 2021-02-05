@@ -111,12 +111,12 @@ class LmsFetchService {
      * @param ContentItem $contentItem
      * @return void
      */
-    public function refreshContentItemFromLms(ContentItem $contentItem)
-    {
-        $lms = $this->lmsApi->getLms();
-        $lms->updateContentItem($contentItem);
-        $this->doctrine->getManager()->flush();
-    }
+    // public function refreshContentItemFromLms(ContentItem $contentItem)
+    // {
+    //     $lms = $this->lmsApi->getLms();
+    //     $lms->updateContentItem($contentItem);
+    //     $this->doctrine->getManager()->flush();
+    // }
 
     /**
      * Update report, or create new one for a new day
@@ -205,21 +205,28 @@ class LmsFetchService {
         // Scan each update content item for issues
         /** @var \App\Entity\ContentItem $contentItem */
         foreach ($contentItems as $contentItem) {
-            // Scan Content Item with PHPAlly
-            $phpAllyReport = $this->phpAlly->scanContentItem($contentItem);
-            if ($phpAllyReport) {
-                // TODO: Do something with report errors
-                if (count($phpAllyReport->getErrors())) {
-                    foreach ($phpAllyReport->getErrors() as $error) {
-                        $this->util->createMessage($error, 'error', $contentItem->getCourse());
+            try {
+                // Scan Content Item with PHPAlly
+                $phpAllyReport = $this->phpAlly->scanContentItem($contentItem);
+
+                if ($phpAllyReport) {
+                    // TODO: Do something with report errors
+                    if (count($phpAllyReport->getErrors())) {
+                        foreach ($phpAllyReport->getErrors() as $error) {
+                            $msg = $error . ', item = #' . $contentItem->getId();
+                            $this->util->createMessage($msg, 'error', $contentItem->getCourse(), null, true);
+                        }
+                    }
+
+                    // Add Issues to report
+                    foreach ($phpAllyReport->getIssues() as $issue) {
+                        // Create issue entity 
+                        $this->createIssue($issue, $contentItem);
                     }
                 }
-
-                // Add Issues to report
-                foreach ($phpAllyReport->getIssues() as $issue) {
-                    // Create issue entity 
-                    $this->createIssue($issue, $contentItem);
-                }
+            }
+            catch (\Exception $e) {
+                $this->util->createMessage($e->getMessage(), 'error', null, null, true);
             }
         }
         $this->doctrine->getManager()->flush();
