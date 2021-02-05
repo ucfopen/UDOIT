@@ -61,9 +61,11 @@ class CanvasApi {
                 $lmsResponse->setError($error['message']);
             }
         }
-        if (!empty($content['message'])) {
-            $lmsResponse->setError($content['message']);
-        }
+        // ** Not sure what this was for, but it's picking up discussion topics as an error.
+        // ** Removing for now
+        // if (!empty($content['message'])) {
+        //     $lmsResponse->setError($content['message']);
+        // }
 
         $headers = $response->getHeaders(false);
 

@@ -29,10 +29,8 @@ class PhpAllyService {
         }
 
         if (!$this->htmlService->isValid($html)) {
-            $html = $this->htmlService->clean($html);
+            $html = $this->htmlService->tidy($html);
         }
-
-        $this->util->createMessage($contentItem->getId());
 
         $ruleIds = $this->getRules();
         
@@ -42,7 +40,7 @@ class PhpAllyService {
     public function scanHtml($html)
     {
         if (!$this->htmlService->isValid($html)) {
-            $html = $this->htmlService->clean($html);
+            $html = $this->htmlService->tidy($html);
         }
         
         return $this->phpAlly->checkMany($html, $this->getRules());
