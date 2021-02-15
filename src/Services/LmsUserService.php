@@ -69,8 +69,7 @@ class LmsUserService {
     public function refreshApiKey(User $user)
     {
         $refreshToken = $user->getRefreshToken();
-        $institution = $user->getInstitution();
-        $baseUrl = $institution->getLmsDomain();
+        $institution = $user->getInstitution();;
 
         if (empty($refreshToken)) {
             return false;
@@ -89,7 +88,7 @@ class LmsUserService {
         ];
 
         $client = HttpClient::create();
-        $requestUrl = "https://{$baseUrl}/login/oauth2/token";
+        $requestUrl = $this->lmsApi->getLms()->getOauthTokenUri($institution);
         $response = $client->request('POST', $requestUrl, $options);
         $contentStr = $response->getContent(false);
         $newKey = \json_decode($contentStr, true);
