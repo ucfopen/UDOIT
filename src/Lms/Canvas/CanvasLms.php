@@ -84,6 +84,13 @@ class CanvasLms implements LmsInterface {
         return "{$baseUrl}/api/lti/authorize_redirect?{$queryStr}";
     }
 
+    public function getKeysetUrl()
+    {
+        return 'https://canvas.instructure.com/api/lti/security/jwks';
+    }
+
+    public function saveTokenToSession($token)
+    {}
 
     /**
      * ********************
@@ -99,10 +106,9 @@ class CanvasLms implements LmsInterface {
             'response_type' => 'code',
             'redirect_uri' => LmsUserService::getOauthRedirectUri(),
         ];
+        $baseUrl = $institution->getLmsDomain();
 
-        $apiDomain = $this->session->get('lms_api_domain');
-
-        return 'https://' . $apiDomain . '/login/oauth2/auth?' . http_build_query($query);
+        return "https://{$baseUrl}/login/oauth2/auth?" . http_build_query($query);
     }
 
     public function getOauthTokenUri(Institution $institution)

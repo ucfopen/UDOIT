@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Entity\Institution;
 use App\Entity\User;
+use App\Services\LmsApiService;
 use App\Services\LmsUserService;
 use App\Services\UtilityService;
 use Firebase\JWT\JWK;
@@ -23,6 +24,8 @@ class LtiController extends AbstractController
     private $session;
     /** @var Request $request */
     private $request;
+    /** @var App\Services\LmsApiService $lmsApi */
+    private $lmsApi;
 
     /**
      * @Route("/lti/authorize", name="lti_authorize")
@@ -30,16 +33,18 @@ class LtiController extends AbstractController
     public function ltiAuthorize(
         Request $request,
         SessionInterface $session,
-        UtilityService $util
+        UtilityService $util,
+        LmsApiService $lmsApi
     ) {
 
         $this->request = $request;
         $this->session = $session;
         $this->util = $util;
+        $this->lmsApi = $lmsApi;
 
         $this->saveRequestToSession();
 
-        return $this->redirect($this->getAuthenticationResponseUrl());
+        return $this->redirect($this->getLtiAuthResponseUrl());
     }
 
     /**
@@ -48,11 +53,13 @@ class LtiController extends AbstractController
     public function ltiAuthorizeCheck(
         Request $request,
         SessionInterface $session,
-        UtilityService $util
+        UtilityService $util,
+        LmsApiService $lmsApi
     ) {
         $this->request = $request;
         $this->session = $session;
         $this->util = $util;
+        $this->lmsApi = $lmsApi;
 
         $this->saveRequestToSession();
         $clientId = $this->session->get('client_id');
@@ -74,14 +81,13 @@ class LtiController extends AbstractController
         // Audience should include the client id
         $this->claimMatchOrExit('aud', $clientId, $token->aud);
 
-        // Authorized Party should include the client id
-        $this->claimMatchOrExit('azp', $clientId, $token->azp);
-
         // Expiration should be after the current time
         if (date('U') >= $token->exp) {
             $this->util->exitWithMessage(sprintf('The "exp" provided is before the current time.'));
         }
+        
         // Id token must contain a nonce. Should verify that nonce has not been received within a certain time window
+        $this->claimMatchOrExit('nonce', 'nonce', $token->nonce);
 
         // Add Token to Session
         $this->saveTokenToSession($token);
@@ -153,7 +159,7 @@ class LtiController extends AbstractController
                 "lms_user_id" => "\$Canvas.user.id",
                 "lms_course_id" => "\$Canvas.course.id",
                 "lms_account_id" => "\$Canvas.account.id",
-                "lms_api_domain" => "\$Canvas.api.domain"
+                "lms_api_domain" => "\$Canvas.api.domain",
             ];
         }
         else {
@@ -184,22 +190,30 @@ class LtiController extends AbstractController
     protected function saveTokenToSession($token) 
     {
         try {
-            $customFields = (array) $token->{'https://purl.imsglobal.org/spec/lti/claim/custom'};
-            foreach ($customFields as $key => $val) {
-                $this->session->set($key, $val);
+            $lms = $this->lmsApi->getLms();
+            
+            if (!empty($token->{'https://purl.imsglobal.org/spec/lti/claim/custom'})) {
+                $customFields = (array) $token->{'https://purl.imsglobal.org/spec/lti/claim/custom'};
+                foreach ($customFields as $key => $val) {
+                    $this->session->set($key, $val);
+                }
             }
 
-            $roleFields = (array) $token->{'https://purl.imsglobal.org/spec/lti/claim/roles'};
             $roles = [];
-            foreach ($roleFields as $role) {
-                $roleArr = explode('#', $role);
-                $roles[] = trim($roleArr[1]);
+            if (!empty($token->{'https://purl.imsglobal.org/spec/lti/claim/roles'})) {
+                $roleFields = (array) $token->{'https://purl.imsglobal.org/spec/lti/claim/roles'};
+                foreach ($roleFields as $role) {
+                    $roleArr = explode('#', $role);
+                    $roles[] = trim($roleArr[1]);
+                }
             }
             $this->session->set('roles', array_values(array_unique($roles)));  
             
             if (isset($token->name)) {
                 $this->session->set('lms_user_name', $token->name);
             }
+
+            $lms->saveTokenToSession($token);
         } 
         catch (\Exception $e) {
             print_r($e->getMessage());
@@ -221,14 +235,25 @@ class LtiController extends AbstractController
         return;
     }
 
-    protected function getAuthenticationResponseUrl()
+    protected function getPublicJwks()
     {
-        $baseUrl = $this->session->get('iss');
+        $httpClient = HttpClient::create();
+        /* URL will be different for other LMSes */
+        $url = $this->lmsApi->getLms()->getKeysetUrl();
+        $response = $httpClient->request('GET', $url);
 
+        $keys = $response->toArray();
+        return $keys;
+    }
+
+    protected function getLtiAuthResponseUrl()
+    {
+        $lms = $this->lmsApi->getLms();
+        $server = $this->request->server;
+        
         $params = [
             'lti_message_hint' => $this->session->get('lti_message_hint'),
             'client_id' => $this->session->get('client_id'),
-            'redirect_uri' => $this->getLtiRedirectUri(),
             'login_hint' => $this->session->get('login_hint'),
             'state' => 'state123',
             'scope' => 'openid',
@@ -236,26 +261,10 @@ class LtiController extends AbstractController
             'response_mode' => 'form_post',
             'nonce' => 'nonce',
             'prompt' => 'none',
+            'redirect_uri' => $server->get('BASE_URL') . $server->get('APP_LTI_REDIRECT_PATH'),
         ];
-        $queryStr = http_build_query($params);
 
-        return "{$baseUrl}/api/lti/authorize_redirect?{$queryStr}";
-    }
-
-    protected function getPublicJwks()
-    {
-        $httpClient = HttpClient::create();
-        /* URL will be different for other LMSes */
-        $url = 'https://canvas.instructure.com/api/lti/security/jwks';
-        $response = $httpClient->request('GET', $url);
-
-        $keys = $response->toArray();
-        return $keys;
-    }
-
-    protected function getLtiRedirectUri()
-    {
-        return $this->request->server->get('BASE_URL') . $this->request->server->get('APP_LTI_REDIRECT_PATH');
+        return $lms->getLtiAuthUrl($params);
     }
 
     /**
@@ -270,7 +279,10 @@ class LtiController extends AbstractController
         
         if (!$this->getUser()) {
             $rawDomain = $this->session->get('lms_api_domain');
-            $domain = str_replace(['.beta.', '.test.'], '.', $rawDomain);
+            if (empty($rawDomain)) {
+                $rawDomain = $this->session->get('iss');
+            }
+            $domain = str_replace(['.beta.', '.test.'], '.', str_replace('https://', '', $rawDomain));
 
             if ($domain) {
                 $institution = $this
@@ -285,7 +297,7 @@ class LtiController extends AbstractController
 
     protected function createUser()
     {
-        $domain = $this->session->get('lms_api_domain');
+        $domain = $this->session->get('iss');
         $userId = $this->session->get('lms_user_id');
         $institution = $this->getInstitutionFromSession();
         $date = new \DateTime();
@@ -319,7 +331,7 @@ class LtiController extends AbstractController
         if ($this->session->get('userId')) {
             return;
         } else {
-            $domain = $this->session->get('lms_api_domain');
+            $domain = $this->session->get('iss');
             $userId = $this->session->get('lms_user_id');
 
             if ($domain && $userId) {

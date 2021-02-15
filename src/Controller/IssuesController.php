@@ -98,7 +98,7 @@ class IssuesController extends ApiController
     /**
      * Mark issue as resolved/reviewed
      * 
-     * @Route("/api/issues/{issue}/resolve", methods={"POST","GET"}, name="fix_issue")
+     * @Route("/api/issues/{issue}/resolve", methods={"POST","GET"}, name="resolve_issue")
      * @param Issue $issue
      * @return \Symfony\Component\HttpFoundation\Response
      */
@@ -116,15 +116,16 @@ class IssuesController extends ApiController
 
             // Get updated issue
             $issueUpdate = \json_decode($request->getContent(), true);
-            $issue->setStatus(($issueUpdate['status']) ? Issue::$issueStatusResolved : Issue::$issueStatusActive);
-
-            // Save content to LMS
-            $lmsPost->saveContentToLms($issue, $issueUpdate['newHtml']);
-            // TODO: check lmsResponse for errors
 
             // Update issue
+            $issue->setStatus(($issueUpdate['status']) ? Issue::$issueStatusResolved : Issue::$issueStatusActive);
             $issue->setFixedBy($user);
             $issue->setFixedOn($util->getCurrentTime());
+            $issue->setNewHtml($issueUpdate['newHtml']);
+            $this->getDoctrine()->getManager()->flush();
+
+            // Save content to LMS
+            $lmsPost->saveContentToLms($issue);
 
             // Update report stats
             $report = $course->getUpdatedReport();

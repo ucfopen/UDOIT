@@ -49,12 +49,12 @@ class User implements UserInterface, \Serializable, JsonSerializable
     private $lmsUserId;
 
     /**
-     * @ORM\Column(type="string", length=255, nullable=true)
+     * @ORM\Column(type="string", length=2048, nullable=true)
      */
     private $apiKey;
 
     /**
-     * @ORM\Column(type="string", length=255, nullable=true)
+     * @ORM\Column(type="string", length=512, nullable=true)
      */
     private $refreshToken;
 
