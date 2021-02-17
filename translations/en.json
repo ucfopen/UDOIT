@@ -26,6 +26,8 @@
   "content.syllabus": "Syllabus",
   "content.module_url": "Module URL",
   "label.file": "File",
+  "label.correct": "Correct",
+  "label.incorrect": "Incorrect",
   "label.plural.file": "Files",
   "label.content": "Content",
   "label.summary": "Summary",
