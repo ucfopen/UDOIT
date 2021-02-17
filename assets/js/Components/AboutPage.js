@@ -21,46 +21,6 @@ class AboutPage extends React.Component {
   }
 
   render() {
-    const rules = [
-      'AnchorMustContainText',
-      'AnchorLinksToMultiMediaRequireTranscript',
-      'AnchorLinksToSoundFilesNeedTranscripts',
-      'AnchorMustContainText',
-      'AnchorSuspiciousLinkText',
-      'BaseFontIsNotUsed',
-      'BlinkIsNotUsed',
-      'ContentTooLong',
-      'CssTextHasContrast',
-      'CssTextStyleEmphasize',
-      'DocumentReadingDirection',
-      'EmbedHasAssociatedNoEmbed',
-      'FontIsNotUsed',
-      'HeadersHaveText',
-      'ImageAltIsDifferent',
-      'ImageAltIsTooLong',
-      'ImageAltNotEmptyInAnchor',
-      'ImageAltNotPlaceholder',
-      'ImageGifNoFlicker',
-      'ImageHasAlt',
-      'ImageHasAltDecorative',
-      'ImageHasLongDescription',
-      'InputImageNotDecorative',
-      'MarqueeIsNotUsed',
-      'NoHeadings',
-      'ObjectInterfaceIsAccessible',
-      'ObjectMustContainText',
-      'ObjectShouldHaveLongDescription',
-      'ObjectTagDetected',
-      'ParagraphNotUsedAsHeader',
-      'PreShouldNotBeUsedForTabularValues',
-      'TableDataShouldHaveTableHeader',
-      'TableHeaderShouldHaveScope',
-      'VideoCaptionsMatchCourseLanguage',
-      'VideoEmbedCheck',
-      'VideoProvidesCaptions',
-      'VideosEmbeddedOrLinkedNeedCaptions',
-    ]
-
     const translations = this.props.t('translations')
     const errors = translations.look_for.header.errors
     const suggestions = translations.look_for.header.suggestions
