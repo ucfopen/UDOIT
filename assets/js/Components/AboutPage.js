@@ -84,7 +84,7 @@ class AboutPage extends React.Component {
             fluidWidth={true}
             onToggle={this.handleDetailsToggle}>
             <View as="div" margin="small 0">
-            <Text color="danger" weight="bold">{translations.errors}</Text><br/>
+            <Text color="danger" weight="bold">{this.props.t('label.plural.error')}</Text><br/>
               {errors.map((rule) => {
                 return (
                   <ToggleDetails key={rule.error} summary={rule.error}>
@@ -139,7 +139,7 @@ class AboutPage extends React.Component {
               })}
             </View>
             <View as="div" margin="small 0">
-            <Text color="brand" weight="bold">{translations.suggestions}</Text><br/>
+            <Text color="brand" weight="bold">{this.props.t('label.plural.suggestion')}</Text><br/>
               {suggestions.map((rule) => {
                 return (
                   <ToggleDetails key={rule.error} summary={rule.suggestion}>
@@ -161,7 +161,7 @@ class AboutPage extends React.Component {
                       {rule.incorrect && 
                       <View>
                         <Text color="danger" weight="bold">
-                        {translations.look_for.header.incorrect}:
+                        {this.props.t('label.incorrect')}:
                       </Text> 
                       <List>
                         {rule.incorrect.map((example) => {
@@ -177,7 +177,7 @@ class AboutPage extends React.Component {
                       {rule.correct && 
                       <View>
                         <Text color="success" weight="bold">
-                        {translations.look_for.header.correct}:
+                        {this.props.t('label.correct')}:
                       </Text> 
                       <List>
                         {rule.correct.map((example) => {
