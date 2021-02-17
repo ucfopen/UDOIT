@@ -127,6 +127,18 @@ class Html {
     
     return newElement
   }
+
+  prepareLink(element) {
+    if ('string' === typeof element) {
+      element = this.toElement(element)
+    }
+
+    if (!element) {
+      return null
+    }
+
+    return this.setAttribute(element, "target", "_blank")
+  }
 }
 
 export default new Html()
