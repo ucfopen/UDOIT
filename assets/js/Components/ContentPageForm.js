@@ -23,7 +23,7 @@ class ContentPageForm extends React.Component {
             placeholder="Keyword..."
             onChange={this.props.handleSearchTerm}
             value={this.props.searchTerm}
-            key="contentSearchTermInput" />
+          />
         </Flex.Item>
         <Flex.Item>
           {this.props.handleTrayToggle && 

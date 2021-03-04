@@ -134,7 +134,7 @@ class CoursesPage extends React.Component {
           tableSettings = {this.state.tableSettings}
           handleFilter = {this.handleFilter}
           handleTableSettings = {this.handleTableSettings}
-          key="coursesTable" />
+        />
         {this.state.trayOpen && <AdminTrayForm
           filters={this.state.filters}
           handleFilter={this.handleFilter}
@@ -142,7 +142,7 @@ class CoursesPage extends React.Component {
           trayOpen={this.state.trayOpen}
           handleTrayToggle={this.handleTrayToggle} 
           t={this.props.t}
-          key="coursesTrayForm" />}        
+          />}        
       </View>
     )
   }

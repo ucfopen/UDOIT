@@ -190,7 +190,7 @@ class FilesPage extends React.Component {
           tableSettings = {this.state.tableSettings}
           handleFilter = {this.handleFilter}
           handleTableSettings = {this.handleTableSettings}
-          key="filesTable" />
+        />
         {this.state.trayOpen && <FilesTrayForm
           trayOpen={this.state.trayOpen}
           report={this.props.report}
@@ -199,7 +199,7 @@ class FilesPage extends React.Component {
           filters={this.state.filters}
           fileTypes={fileTypes}
           t={this.props.t}
-          key="filesTrayForm" />}
+          />}
         {this.state.modalOpen && <FilesModal
           open={this.state.modalOpen}
           activeFile={this.state.activeFile}
@@ -210,7 +210,7 @@ class FilesPage extends React.Component {
           handleActiveFile={this.handleActiveFile}
           handleFileSave={this.props.handleFileSave}
           t={this.props.t}
-          key="filesModal" />
+          />
         }
       </View>
     )
