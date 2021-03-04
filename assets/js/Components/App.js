@@ -16,14 +16,12 @@ class App extends React.Component {
     super(props)
 
     this.hasNewReport = false
-    this.initialReport = null
+    this.initialReport = props.report
     this.appFilters = {}
-    this.settings = {}
+    this.settings = props.settings
     this.reportHistory = []
-    this.messages = []
+    this.messages = props.messages
     this.newReportInterval = 5000
-
-    this.getSettings();
 
     this.state = {
       report: this.initialReport,
@@ -197,31 +195,6 @@ class App extends React.Component {
               this.setState({ report: data.data });
             }
           });
-  }
-
-  getSettings() {
-    const settingsElement = document.querySelector(
-      'body > script#toolSettings[type="application/json"]'
-    )
-
-    if (settingsElement !== null) {
-      let data = JSON.parse(settingsElement.textContent)
-      
-      if (data) {
-        this.messages = data.messages
-        this.settings = data.settings
-        console.log('settings', data.settings)
-        console.log('messages', data.messages)
-        
-        if (data.report) {
-          this.initialReport = data.report
-          console.log('init report', data.report)
-        }
-      }
-    }
-    else {
-      this.addMessage({message: 'Settings failed to load.', severity: 'warning', timeout: 5000})
-    }
   }
 
   handleNavigation(navigation) { 
