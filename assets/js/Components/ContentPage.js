@@ -213,7 +213,7 @@ class ContentPage extends React.Component {
           {this.renderFilterTags()}
         </View>
         <SortableTable
-          caption="Issue Table"
+          caption={this.props.t('content_page.issues.table.caption')}
           headers = {this.headers}
           rows = {filteredRows}
           filters = {this.state.filters}

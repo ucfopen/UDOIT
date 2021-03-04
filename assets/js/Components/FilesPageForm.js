@@ -19,15 +19,15 @@ class FilesPageForm extends React.Component {
           <TextInput
             renderLabel={<ScreenReaderContent>Search Term</ScreenReaderContent>}
             renderBeforeInput={<IconSearchLine inline={false} />}
-            placeholder="Keyword..."
+            placeholder={this.props.t('placeholder.keyword')}
             onChange={this.props.handleSearchTerm}
             value={this.props.searchTerm}
-            key="filesSearchTermInput" />
+          />
         </Flex.Item>
         <Flex.Item>
           <Button
             renderIcon={IconFilterLine}
-            screenReaderLabel="Open Filters Tray"
+            screenReaderLabel={this.props.t('open_filters_tray')}
             onClick={this.props.handleTrayToggle}>
             {this.props.t('label.filter')}
           </Button>

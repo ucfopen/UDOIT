@@ -184,7 +184,7 @@ class FilesPage extends React.Component {
           {this.renderFilterTags()}
         </View>
         <SortableTable
-          caption="Files Table"
+          caption={this.props.t('files_page.table.caption')}
           headers = {this.headers}
           rows = {filteredFiles}
           filters = {this.state.filters}

@@ -152,7 +152,7 @@ export default class TableHeaders extends React.Component {
 
         <View as="div" margin="small 0">
           <Button color="primary" onClick={this.handleSubmit} interaction={(canSubmit) ? 'enabled' : 'disabled'}>
-              {pending && <Spinner size="x-small" renderTitle="Submit" />}
+              {pending && <Spinner size="x-small" renderTitle={this.props.t('spinner.submit')} />}
               {this.props.t(buttonLabel)}
           </Button>
         </View>

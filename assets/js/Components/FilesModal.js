@@ -95,7 +95,7 @@ class FilesModal extends React.Component {
                   <CloseButton
                     placement="end"
                     offset="small"
-                    screenReaderLabel="Close"
+                    screenReaderLabel={this.props.t('srlabel.close')}
                     onClick={this.props.handleCloseButton}
                   />
                 </Flex.Item>
