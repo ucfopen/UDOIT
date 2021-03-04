@@ -19,6 +19,14 @@ class FilesPage extends React.Component {
   constructor(props) {
     super(props);
 
+    this.headers = [
+      {id: "status", text: '', alignText: "center"},
+      {id: "fileName", text: this.props.t('label.file_name')}, 
+      {id: "fileType", text: this.props.t('label.file_type')}, 
+      {id: "fileSize", text: this.props.t('label.file_size'), format: this.formatFileSize},
+      {id: "action", text: "", alignText: "end"}
+    ];
+
     this.state = {
       activeFile: null,
       activeIndex: -1,
@@ -163,13 +171,6 @@ class FilesPage extends React.Component {
   }
 
   render() {
-    const headers = [
-      {id: "status", text: '', alignText: "center"},
-      {id: "fileName", text: this.props.t('label.file_name')}, 
-      {id: "fileType", text: this.props.t('label.file_type')}, 
-      {id: "fileSize", text: this.props.t('label.file_size'), format: this.formatFileSize},
-      {id: "action", text: "", alignText: "end"}
-    ];
     const filteredFiles = this.getFilteredFiles();
 
     return (
@@ -184,7 +185,7 @@ class FilesPage extends React.Component {
         </View>
         <SortableTable
           caption="Files Table"
-          headers = {headers}
+          headers = {this.headers}
           rows = {filteredFiles}
           filters = {this.state.filters}
           tableSettings = {this.state.tableSettings}
