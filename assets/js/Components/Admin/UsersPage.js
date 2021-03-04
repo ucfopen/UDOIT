@@ -10,6 +10,15 @@ class UsersPage extends React.Component {
   constructor(props) {
     super(props);
 
+    this.headers = [
+      { id: "lmsUserName", text: this.props.t('label.admin.name') },
+      { id: "lmsUserId", text: this.props.t('label.admin.id') },
+      { id: "created", text: this.props.t('label.admin.created') },
+      { id: "lastLogin", text: this.props.t('label.admin.last_login') },
+      // { id: "reportCount", text: this.props.t('label.reports') },
+      { id: "action", text: "", alignText: "end" }
+    ];
+
     this.state = {
       users: [],
       searchTerm: '',
@@ -71,14 +80,6 @@ class UsersPage extends React.Component {
   }
 
   render() {
-    const headers = [
-      { id: "lmsUserName", text: this.props.t('label.admin.name') },
-      { id: "lmsUserId", text: this.props.t('label.admin.id') },
-      { id: "created", text: this.props.t('label.admin.created') },
-      { id: "lastLogin", text: this.props.t('label.admin.last_login') },
-      // { id: "reportCount", text: this.props.t('label.reports') },
-      { id: "action", text: "", alignText: "end" }
-    ];
     const filteredRows = this.getFilteredContent();
 
     if (filteredRows.length === 0) {
@@ -103,7 +104,7 @@ class UsersPage extends React.Component {
             t={this.props.t} />
           <SortableTable
             caption="Users Table"
-            headers={headers}
+            headers={this.headers}
             rows={filteredRows}
             filters={null}
             tableSettings={this.state.tableSettings}

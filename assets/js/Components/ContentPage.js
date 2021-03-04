@@ -13,6 +13,13 @@ class ContentPage extends React.Component {
     super(props);
 
     this.filteredIssues = [];
+    this.headers = [
+      {id: "status", text: '', alignText: "center"},
+      {id: "scanRuleLabel", text: this.props.t('label.issue')}, 
+      {id: "contentType", text: this.props.t('label.content_type')}, 
+      {id: "contentTitle", text: this.props.t('label.content_title')}, 
+      {id: "action", text: "", alignText: "end"}
+    ];
 
     this.state = {
       activeIssue: null,
@@ -192,13 +199,6 @@ class ContentPage extends React.Component {
   }
 
   render() {
-    const headers = [
-      {id: "status", text: '', alignText: "center"},
-      {id: "scanRuleLabel", text: this.props.t('label.issue')}, 
-      {id: "contentType", text: this.props.t('label.content_type')}, 
-      {id: "contentTitle", text: this.props.t('label.content_title')}, 
-      {id: "action", text: "", alignText: "end"}
-    ];
     const filteredRows = this.getFilteredContent();
     const activeContentItem = (this.state.activeIssue) ? this.getContentById(this.state.activeIssue.contentItemId) : null
 
@@ -214,7 +214,7 @@ class ContentPage extends React.Component {
         </View>
         <SortableTable
           caption="Issue Table"
-          headers = {headers}
+          headers = {this.headers}
           rows = {filteredRows}
           filters = {this.state.filters}
           tableSettings = {this.state.tableSettings}
