@@ -6,6 +6,45 @@ import { Text } from '@instructure/ui-text'
 import { ToggleDetails } from '@instructure/ui-toggle-details'
 import ReactHtmlParser from 'react-html-parser'
 
+const rules = [
+  'AnchorMustContainText',
+  'AnchorLinksToMultiMediaRequireTranscript',
+  'AnchorLinksToSoundFilesNeedTranscripts',
+  'AnchorMustContainText',
+  'AnchorSuspiciousLinkText',
+  'BaseFontIsNotUsed',
+  'BlinkIsNotUsed',
+  'ContentTooLong',
+  'CssTextHasContrast',
+  'CssTextStyleEmphasize',
+  'DocumentReadingDirection',
+  'EmbedHasAssociatedNoEmbed',
+  'FontIsNotUsed',
+  'HeadersHaveText',
+  'ImageAltIsDifferent',
+  'ImageAltIsTooLong',
+  'ImageAltNotEmptyInAnchor',
+  'ImageAltNotPlaceholder',
+  'ImageGifNoFlicker',
+  'ImageHasAlt',
+  'ImageHasAltDecorative',
+  'ImageHasLongDescription',
+  'InputImageNotDecorative',
+  'MarqueeIsNotUsed',
+  'NoHeadings',
+  'ObjectInterfaceIsAccessible',
+  'ObjectMustContainText',
+  'ObjectShouldHaveLongDescription',
+  'ObjectTagDetected',
+  'ParagraphNotUsedAsHeader',
+  'PreShouldNotBeUsedForTabularValues',
+  'TableDataShouldHaveTableHeader',
+  'TableHeaderShouldHaveScope',
+  'VideoCaptionsMatchCourseLanguage',
+  'VideoEmbedCheck',
+  'VideoProvidesCaptions',
+  'VideosEmbeddedOrLinkedNeedCaptions',
+]
 class AboutPage extends React.Component {
 
   constructor(props) {
@@ -19,45 +58,6 @@ class AboutPage extends React.Component {
   }
 
   render() {
-    const rules = [
-      'AnchorMustContainText',
-      'AnchorLinksToMultiMediaRequireTranscript',
-      'AnchorLinksToSoundFilesNeedTranscripts',
-      'AnchorMustContainText',
-      'AnchorSuspiciousLinkText',
-      'BaseFontIsNotUsed',
-      'BlinkIsNotUsed',
-      'ContentTooLong',
-      'CssTextHasContrast',
-      'CssTextStyleEmphasize',
-      'DocumentReadingDirection',
-      'EmbedHasAssociatedNoEmbed',
-      'FontIsNotUsed',
-      'HeadersHaveText',
-      'ImageAltIsDifferent',
-      'ImageAltIsTooLong',
-      'ImageAltNotEmptyInAnchor',
-      'ImageAltNotPlaceholder',
-      'ImageGifNoFlicker',
-      'ImageHasAlt',
-      'ImageHasAltDecorative',
-      'ImageHasLongDescription',
-      'InputImageNotDecorative',
-      'MarqueeIsNotUsed',
-      'NoHeadings',
-      'ObjectInterfaceIsAccessible',
-      'ObjectMustContainText',
-      'ObjectShouldHaveLongDescription',
-      'ObjectTagDetected',
-      'ParagraphNotUsedAsHeader',
-      'PreShouldNotBeUsedForTabularValues',
-      'TableDataShouldHaveTableHeader',
-      'TableHeaderShouldHaveScope',
-      'VideoCaptionsMatchCourseLanguage',
-      'VideoEmbedCheck',
-      'VideoProvidesCaptions',
-      'VideosEmbeddedOrLinkedNeedCaptions',
-    ]
 
     return (
       <View as="div" margin="small 0" padding="medium 0">
