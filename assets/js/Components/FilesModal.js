@@ -206,7 +206,6 @@ class FilesModal extends React.Component {
   }
 
   handleDropReject([file]) {
-    console.log(`File rejected: ${file.name}`)
     this.addMessage({severity: 'warning', message: this.props.t('msg.file.replace.file_type'), timeout: 5000})
     this.forceUpdate()
   }

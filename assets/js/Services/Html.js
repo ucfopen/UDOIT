@@ -110,9 +110,7 @@ class Html {
     let outerTag = RegExp('<'.concat(name).concat('>'))
 
     element.innerHTML = element.innerHTML.replace(outerTag, "")
-
-    console.log(element)
-
+    
     return element
   }
 

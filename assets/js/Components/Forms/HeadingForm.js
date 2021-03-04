@@ -61,7 +61,6 @@ export default class HeadingForm extends React.Component {
         this.setState({
             deleteHeader: !this.state.deleteHeader
         }, () => {
-            console.log(this.state.deleteHeader)
             let issue = this.props.activeIssue
             issue.newHtml = this.processHtml()
             this.props.handleActiveIssue(issue)

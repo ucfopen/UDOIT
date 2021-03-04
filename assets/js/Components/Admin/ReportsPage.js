@@ -74,7 +74,6 @@ class ReportsPage extends React.Component {
     api.getAdminReportHistory(this.props.accountId, this.props.termId)
       .then((responseStr) => responseStr.json())
       .then((response) => {
-        console.log('Admin Reports', response.data)
         this.setState({ reports: response.data })
       })
   }

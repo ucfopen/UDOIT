@@ -65,9 +65,6 @@ export default class ImageAltNotEmptyInAnchor extends React.Component {
   handleInput(event){
     let fileRegex = /([a-zA-Z0-9\s_\\.\-\(\):])+(.png|.jpg|.jpeg)$/i
 
-    console.log(event.target.value)
-    console.log(event.target.value.match(fileRegex))
-
     this.setState({
       textInputValue: event.target.value,
       characterCount: event.target.value.length,
@@ -108,7 +105,6 @@ export default class ImageAltNotEmptyInAnchor extends React.Component {
     let element = this.createElementFromHTML(htmlString)
     let decorativeAttribute = element.getAttribute("decorative")
 
-    console.log(decorativeAttribute)
     if(decorativeAttribute === null) {
       return false
     } else if(decorativeAttribute === "true") {
@@ -128,7 +124,6 @@ export default class ImageAltNotEmptyInAnchor extends React.Component {
   }
 
   createStringFromHtml(element) {
-    console.log(element.outerHTML)
     return element.outerHTML
   }
 

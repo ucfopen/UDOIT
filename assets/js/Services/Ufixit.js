@@ -36,8 +36,6 @@ export default class Ufixit {
       }
     }
 
-    console.log('activeIssue', activeIssue)
-
     return UfixitReviewOnly
   }
 }

@@ -131,7 +131,6 @@ class UsersPage extends React.Component {
     api.getAdminUser()
       .then((responseStr) => responseStr.json())
       .then((response) => {
-        console.log('Admin Users', response.data)
         this.setState({ users: response.data })
       })
   }
