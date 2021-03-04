@@ -64,7 +64,7 @@ class ReportsTable extends React.Component {
       <View as="div" key="reportsTableWrapper">
         <Heading as="h3" level="h4" margin="small 0">{this.props.t('label.report_history')}</Heading>
         <SortableTable
-          caption="UDOIT Reports"
+          caption={this.props.t('udoit.reports.table.caption')}
           headers={this.headers}
           rows={rows}
           tableSettings={this.state.tableSettings}

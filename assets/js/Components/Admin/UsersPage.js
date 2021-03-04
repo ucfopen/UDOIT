@@ -103,7 +103,7 @@ class UsersPage extends React.Component {
             searchTerm={this.state.searchTerm}
             t={this.props.t} />
           <SortableTable
-            caption="Users Table"
+            caption={this.props.t('srlabel.users.table.caption')}
             headers={this.headers}
             rows={filteredRows}
             filters={null}

@@ -23,7 +23,7 @@ class IssueRuleSelect extends React.Component {
 
   getOptionsChangedMessage (newOptions) {
     let message = newOptions.length !== this.state.filteredOptions.length
-      ? `${newOptions.length} options available.` // options changed, announce new total
+      ? `${newOptions.length} ${this.props.t('options.available')}.` // options changed, announce new total
       : null // options haven't changed, don't announce
     if (message && newOptions.length > 0) {
       // options still available
@@ -114,7 +114,7 @@ class IssueRuleSelect extends React.Component {
       filteredOptions: this.filterOptions(''),
       inputValue: '',
       isShowingOptions: false,
-      announcement: `${option.label} selected. List collapsed.`
+      announcement: `${option.label} ${this.props.t('label.selected.list_collapsed')}.`
     }))
 
     this.props.handleIssueTitleChange([...this.state.selectedOptionIds, id])
@@ -168,7 +168,7 @@ class IssueRuleSelect extends React.Component {
       <Tag
         dismissible
         key={id}
-        title={`Remove ${this.getOptionById(id).label}`}
+        title={`${this.props.t('remove.label')} ${this.getOptionById(id).label}`}
         text={this.getOptionById(id).label}
         margin="x-small 0 0 0"
         onClick={(e) => this.dismissTag(e, id)}
@@ -190,7 +190,7 @@ class IssueRuleSelect extends React.Component {
       <View as="div" padding="small 0">
         <Select
           renderLabel={this.props.t('label.plural.issue')}
-          assistiveText="Type or use arrow keys to navigate options. Multiple selections allowed."
+          assistiveText={this.props.t('srlabel.multi_select.help')}
           inputValue={inputValue}
           isShowingOptions={isShowingOptions}
           inputRef={(el) => this.inputRef = el}

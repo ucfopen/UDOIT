@@ -128,7 +128,7 @@ class CoursesPage extends React.Component {
           {this.renderFilterTags()}
         </View>
         <SortableTable
-          caption="Courses Table"
+          caption={this.props.t('srlabel.courses.table')}
           headers = {this.headers}
           rows = {filteredRows}
           filters = {this.state.filters}
