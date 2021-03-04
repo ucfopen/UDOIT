@@ -80,7 +80,6 @@ class FilesPage extends React.Component {
   }
 
   handleReviewClick(activeFile) {
-    console.log('activefile', activeFile)
     this.setState({
       modalOpen: true,
       activeFile: activeFile

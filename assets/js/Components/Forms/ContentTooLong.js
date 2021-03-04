@@ -31,8 +31,6 @@ export default class ContentTooLong extends React.Component {
   }
 
   handleButton() {
-    console.log(this.state.textInputValue)
-    
     //Submit input value via api call
 
     // Alert for success
@@ -45,8 +43,6 @@ export default class ContentTooLong extends React.Component {
   }
 
   handleInput(event){
-    console.log(event.target.value)
-
     this.setState({
       textInputValue: event.target.value,
       characterCount: event.target.value.length

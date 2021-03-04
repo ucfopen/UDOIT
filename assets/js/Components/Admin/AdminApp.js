@@ -55,8 +55,6 @@ class AdminApp extends React.Component {
   }
 
   render() {
-    console.log('state', this.state)
-
     return (
       <View as="div">
         <AdminHeader
@@ -138,8 +136,6 @@ class AdminApp extends React.Component {
     api.getAdminCourses(accountId, termId)
       .then((response) => response.json())
       .then((data) => {
-        console.log('data', data)
-
         let courses = {}
         if (Array.isArray(data.data)) {
           data.data.forEach(course => {
@@ -161,7 +157,6 @@ class AdminApp extends React.Component {
   }
 
   addMessage = (msg) => {
-    console.log('msg', msg)
     this.messages.push(msg)
   }
 

@@ -259,7 +259,6 @@ class CoursesPage extends React.Component {
 
           if (data.data && data.data.id) {
             clearInterval(intervalId)
-            console.log('course', data.data)
             this.props.handleCourseUpdate(data.data)
           }
         })

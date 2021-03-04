@@ -147,10 +147,8 @@ class App extends React.Component {
         api.getReport()
           .then((response) => response.json())
           .then((data) => {
-            console.log('data', data)
             if (data.messages) {
               data.messages.forEach((msg) => {
-                console.log('message', msg);
                 if (msg.visible) {
                   this.addMessage(msg)
                 }
@@ -164,7 +162,6 @@ class App extends React.Component {
             if (data.data && data.data.id) {
               this.hasNewReport = true;
               clearInterval(intervalId);
-              console.log('report', data.data);
               this.setState({ report: data.data });
             }
           });
@@ -180,10 +177,8 @@ class App extends React.Component {
         api.getReport()
           .then((response) => response.json())
           .then((data) => {
-            console.log('data', data)
             if (data.messages) {
               data.messages.forEach((msg) => {
-                console.log('message', msg);
                 if (msg.visible) {
                   this.addMessage(msg);
                 }
@@ -191,7 +186,6 @@ class App extends React.Component {
             }
             if (data.data && data.data.id) {
               this.hasNewReport = true;
-              console.log('report', data.data);
               this.setState({ report: data.data });
             }
           });
@@ -210,7 +204,6 @@ class App extends React.Component {
   }
 
   addMessage = (msg) => {
-    console.log('msg', msg)
     this.messages.push(msg)
   }
 
