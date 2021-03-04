@@ -69,7 +69,7 @@ class ReportsTable extends React.Component {
           rows={rows}
           tableSettings={this.state.tableSettings}
           handleTableSettings={this.handleTableSettings}
-          key="reportsTable" />
+        />
       </View>
     )
   }

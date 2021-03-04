@@ -220,7 +220,7 @@ class ContentPage extends React.Component {
           tableSettings = {this.state.tableSettings}
           handleFilter = {this.handleFilter}
           handleTableSettings = {this.handleTableSettings}
-          key="contentTable" />
+        />
         {this.state.trayOpen && <ContentTrayForm
           filters={this.state.filters}
           handleFilter={this.handleFilter}
@@ -228,7 +228,7 @@ class ContentPage extends React.Component {
           report={this.props.report}
           handleTrayToggle={this.handleTrayToggle} 
           t={this.props.t}
-          key="contentTrayForm" />}
+        />}
         {this.state.modalOpen && <UfixitModal
           open={this.state.modalOpen}
           activeIssue={this.state.activeIssue}
@@ -241,7 +241,6 @@ class ContentPage extends React.Component {
           handleIssueSave={this.props.handleIssueSave}
           handleManualScan={this.props.handleManualScan}
           t={this.props.t}
-          key="ufixitModal"
           />}
       </View>
     )
