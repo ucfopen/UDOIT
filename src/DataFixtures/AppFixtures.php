@@ -33,7 +33,7 @@ class AppFixtures extends Fixture
         $this->loadReports();
         $this->loadIssues();
         $this->loadQueueItems();
-        
+
         $manager->flush();
     }
 
@@ -51,7 +51,7 @@ class AppFixtures extends Fixture
         $inst1->setCreated(new DateTime('now'));
         $inst1->setStatus(1);
         $inst1->setVanityUrl("canvas.cidilabs.com");
-        
+
         $this->manager->persist($inst1);
         $this->institutions[] = $inst1;
 
@@ -151,6 +151,7 @@ class AppFixtures extends Fixture
                     $item->setUpdated(new \DateTime());
                     $item->setActive(true);
                     $item->setTitle($type . " " . $i);
+                    $item->setPublished(true);
 
                     $this->manager->persist($item);
                     $this->contentItems[] = $item;

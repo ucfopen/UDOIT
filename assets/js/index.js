@@ -1,8 +1,8 @@
 import React from 'react'
 import ReactDOM from 'react-dom'
 import App from './Components/App'
+import getInitialData from './getInitialData'
 
-ReactDOM.render(
-    <App />,
-    document.getElementById('root')
-)
+const data = getInitialData()
+
+ReactDOM.render(<App {...data} />, document.getElementById('root'))

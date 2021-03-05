@@ -17,10 +17,20 @@ class AdminApp extends React.Component {
   constructor(props) {
     super(props)
 
-    this.settings = {}
-    this.messages = []
+    this.settings = props.settings
+    this.messages = props.messages
 
-    this.getSettings()
+    if(this.settings) {
+      if(this.settings.account) {
+        this.settings.accountId = this.settings.account.id
+      }
+      if(this.settings.terms) {
+        const termIds = Object.keys(this.settings.terms)
+        termIds.sort()
+        this.settings.termId = termIds.shift()
+      }
+    }
+    
 
     this.state = {
       courses: {},
@@ -121,33 +131,6 @@ class AdminApp extends React.Component {
 
   t(key) {
     return (this.settings.labels[key]) ? this.settings.labels[key] : key
-  }
-
-  getSettings() {
-    const settingsElement = document.querySelector(
-      'body > script#toolSettings[type="application/json"]'
-    )
-
-    if (settingsElement !== null) {
-      let data = JSON.parse(settingsElement.textContent)
-
-      if (data) {
-        console.log('settings', data.settings)
-        console.log('messages', data.messages)
-
-        this.messages = data.messages
-        this.settings = data.settings
-
-        this.settings.accountId = this.settings.account.id
-
-        const termIds = Object.keys(this.settings.terms)
-        termIds.sort()
-        this.settings.termId = termIds.shift()
-      }
-    }
-    else {
-      this.addMessage({ message: 'Settings failed to load.', severity: 'warning', timeout: 5000 })
-    }
   }
 
   loadCourses(accountId, termId, isMounted) {
