@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+use App\Services\HtmlService;
 use App\Services\UtilityService;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -178,11 +179,12 @@ class ContentItem implements \JsonSerializable
     public function getBody(): ?string
     {
         return $this->body;
+        // return html_entity_decode($this->body, ENT_QUOTES);
     }
 
     public function setBody(?string $body): self
     {
-        $this->body = $body;
+        $this->body = HtmlService::clean($body);
 
         return $this;
     }
@@ -258,7 +260,7 @@ class ContentItem implements \JsonSerializable
     {
         // try {
         $updatedDate = new \DateTime($lmsContent['updated'], UtilityService::$timezone);
-        
+
         $this->setUpdated($updatedDate);
         $this->setTitle($lmsContent['title']);
         $this->setPublished($lmsContent['status']);

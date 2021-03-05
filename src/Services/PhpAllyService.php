@@ -23,25 +23,17 @@ class PhpAllyService {
 
     public function scanContentItem(ContentItem $contentItem)
     {
-        $html = $contentItem->getBody();
+        $html = HtmlService::clean($contentItem->getBody());
         if (!$html) {
             return;
         }
-
-        if (!$this->htmlService->isValid($html)) {
-            $html = $this->htmlService->tidy($html);
-        }
-
-        $ruleIds = $this->getRules();
         
-        return $this->phpAlly->checkMany($html, $ruleIds);
+        return $this->phpAlly->checkMany($html, $this->getRules());
     }
 
     public function scanHtml($html)
     {
-        if (!$this->htmlService->isValid($html)) {
-            $html = $this->htmlService->tidy($html);
-        }
+        $html = HtmlService::clean($html);
         
         return $this->phpAlly->checkMany($html, $this->getRules());
     }

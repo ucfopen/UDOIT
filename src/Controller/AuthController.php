@@ -38,11 +38,17 @@ class AuthController extends AbstractController
         $this->session = $session;
         $this->util = $util;
 
-        $user = $this->getUser();        
+        $user = $this->getUser();
+        if (!$user) {
+            $this->util->exitWithMessage('User authentication failed.');
+        }
+
         $institution = $user->getInstitution();
         if (!$institution) {
             $util->exitWithMessage('No institution found with this domain.');
         }
+
+        $session->set('oauthAttempted', true);
 
         $oauthUri = $lmsApi->getLms()->getOauthUri($institution);
 

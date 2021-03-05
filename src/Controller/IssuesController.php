@@ -59,10 +59,7 @@ class IssuesController extends ApiController
                 throw new \Exception('form.error.fails_tests');
             }
 
-            // Update issue
-            $issue->setStatus(Issue::$issueStatusFixed);
-            $issue->setFixedBy($user);
-            $issue->setFixedOn($util->getCurrentTime());
+            // Update issue HTML
             $issue->setNewHtml($newHtml);
             $this->getDoctrine()->getManager()->flush();
 
@@ -71,7 +68,11 @@ class IssuesController extends ApiController
 
             // Update report stats
             $report = $course->getUpdatedReport();
-            
+
+            // Update issue status
+            $issue->setStatus(Issue::$issueStatusFixed);
+            $issue->setFixedBy($user);
+            $issue->setFixedOn($util->getCurrentTime());
             $this->getDoctrine()->getManager()->flush();
 
             // Add messages to response

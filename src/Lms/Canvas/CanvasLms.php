@@ -132,7 +132,7 @@ class CanvasLms implements LmsInterface {
             return false;
         }
 
-        return ($response->getContent());
+        return ($response->getStatusCode() < 400);
     }
 
     /**
@@ -287,6 +287,12 @@ class CanvasLms implements LmsInterface {
         $domainName = $course->getInstitution()->getLmsDomain();
         $lmsUrl = "https://{$domainName}/courses/{$course->getLmsCourseId()}/files?preview={$file['id']}";
         $fileItem->setLmsUrl($lmsUrl);
+
+        // normalize file keys
+        $file['fileName'] = $file['filename'];
+        $file['fileType'] = $file['mime_class'];
+        $file['status'] = $file['locked'];
+        $file['fileSize'] = $file['size'];
 
         $fileItem->update($file);
         $this->entityManager->flush();
