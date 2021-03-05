@@ -5,55 +5,65 @@ namespace App\Services;
 use DOMDocument;
 
 class HtmlService {
-    protected $dom;
-    protected $util;
 
-    public function __construct(UtilityService $util)
+    public static function clean($html)
     {
-        $this->util = $util;  
-        $this->dom = new DOMDocument('1.0', 'utf-8');
+        if (empty($html)) {
+            return $html;
+        }
+
+        //return self::tidy($html);
+        return self::dom(self::tidy($html));
     }
 
-    public function isValid($html) 
+    public static function tidy($html)
     {
         try {
-            if (strpos($html, '<?xml encoding="utf-8"') !== false) {
-                return $this->dom->loadHTML($html, LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD);
-            } else {
-                return $this->dom->loadHTML('<?xml encoding="utf-8" ?>' . $html, LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD);
+            $tidy = new \Tidy();
+            $options = [
+                'output-html' => true,
+                'show-errors' => 0,
+                'wrap' => 0,
+                'doctype' => 'omit',
+                'drop-empty-elements' => false,
+                'drop-empty-paras' => false,
+            ];
+
+            if (strpos($html, '<html') === false) {
+                $options['show-body-only'] = true;
             }
+
+            return $tidy->repairString($html, $options, 'utf8');
+            // $tidy->parseString($html, $options, 'utf8');
+            // $tidy->cleanRepair();
+            // return $tidy;
         }
         catch (\Exception $e) {
-            return false;
+            return $html;
         }
     }
 
-    public function tidy($html)
+    public static function dom($html) 
     {
-        return htmLawed($html, [
-            'tidy' => -1,
-        ]);
-    }
+        try {
+            $dom = new DOMDocument('1.0', 'utf-8');
+            $out = [];
 
-    public function domClean($html) 
-    {
-        if (!$this->isValid($html)) {
-            return;
-        }
-
-        $out = [];
-
-        if ($this->dom->hasChildNodes()) {
-            foreach ($this->dom->childNodes as $node) {
-                $out[] = $this->dom->saveHTML($node);
+            if (strpos($html, '<?xml encoding="utf-8"') !== false) {
+                $dom->loadHTML($html, LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD);
+            } else {
+                $dom->loadHTML('<?xml encoding="utf-8" ?>' . $html, LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD);
             }
+
+            if ($dom->hasChildNodes()) {
+                foreach ($dom->childNodes as $node) {
+                    $out[] = $dom->saveHTML($node);
+                }
+            }
+
+            return str_replace(['<?xml encoding="utf-8" ?>', '<?xml version="1.0" encoding="utf-8"?>'], '', implode('', $out));
+        } catch (\Exception $e) {
+            return $html;
         }
-
-        return implode('', $out);
-    }
-
-    public function compare()
-    {
-
     }
 }
