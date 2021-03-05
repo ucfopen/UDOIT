@@ -74,4 +74,4 @@ class ResolutionsReport extends React.Component {
   }
 }
 
-export default IssuesReport
+export default ResolutionsReport

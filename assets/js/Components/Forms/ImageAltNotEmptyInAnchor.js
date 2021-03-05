@@ -197,7 +197,7 @@ export default class ImageAltNotEmptyInAnchor extends React.Component {
             />  
           </View>
           <View display="inline-block" margin="medium">
-            <Text>{this.props.t('char.count.current')} {this.state.characterCount}</Text>
+            <Text>{this.props.t('char.count.current')} {this.state.characterCount} {this.props.t('content_length_too_long.of')} 150 {this.props.t('content_length_too_long.chars')}</Text>
           </View>
           <View display="inline-block">
             <Checkbox label="Mark as Decorative" value="medium" checked={this.state.isDecorative} onChange={this.handleCheckbox}/>

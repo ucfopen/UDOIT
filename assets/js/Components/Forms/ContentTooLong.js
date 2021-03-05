@@ -85,7 +85,7 @@ export default class ContentTooLong extends React.Component {
           />  
         </View>
         <View display="block" margin="medium">
-          <Text>{this.props.t('content_length_too_long.current_char_count')} {this.state.characterCount}</Text>
+          <Text>{this.props.t('content_length_too_long.current_char_count')} {this.state.characterCount} {this.props.t('content_length_too_long.of')} 150 {this.props.t('content_length_too_long.chars')}</Text>
         </View>
         <View display="block" margin="medium">
           <Button color="primary" onClick={this.handleButton}>{this.props.t('button.save.changes')}</Button>
