@@ -27,10 +27,21 @@ class Html {
       element = this.toElement(element)
     }
 
-    // TODO: add logic to handle multiple text nodes, children elements, etc
-    const textNode = document.createTextNode(newText)
-    element.innerText = ''
-    element.appendChild(textNode)
+    const children = element.childNodes
+    const textNodeFound = false
+
+    children.forEach(function(node, index) {
+      if(node.nodeType === Node.TEXT_NODE) {
+        node.nodeValue = newText
+        textNodeFound = true
+      }
+    })
+
+    if(!textNodeFound) {
+      const textNode = document.createTextNode(newText)
+      element.appendChild(textNode)
+    }
+    
 
     return element
   }
