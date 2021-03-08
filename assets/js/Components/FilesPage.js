@@ -169,6 +169,7 @@ class FilesPage extends React.Component {
       {id: "fileName", text: this.props.t('label.file_name')}, 
       {id: "fileType", text: this.props.t('label.file_type')}, 
       {id: "fileSize", text: this.props.t('label.file_size'), format: this.formatFileSize},
+      {id: "updated", text: this.props.t('label.updated_at')},
       {id: "action", text: "", alignText: "end"}
     ];
     const filteredFiles = this.getFilteredFiles();
