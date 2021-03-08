@@ -6,6 +6,7 @@ import FilesPageForm from './FilesPageForm'
 import FilesTrayForm from './FilesTrayForm'
 import { View } from '@instructure/ui-view'
 import { Tag } from '@instructure/ui-tag'
+import { ScreenReaderContent } from '@instructure/ui-a11y-content'
 import FilesModal from './FilesModal'
 
 const fileTypes = [
@@ -127,7 +128,18 @@ class FilesPage extends React.Component {
         }
       }
 
-      const status = (file.reviewed) ? <IconCheckLine color="success" /> : <IconEyeLine color="alert" />;
+      let status
+      if (file.reviewed) {
+        status = <>
+          <ScreenReaderContent>{t('table.suggestion')}</ScreenReaderContent>
+          <IconCheckLine color="success" /> 
+        </>
+      } else {
+        status = <>
+          <ScreenReaderContent>{t('table.error')}</ScreenReaderContent>
+          <IconInfoBorderlessLine color="alert" />
+        </>
+      }
 
       filteredList.push(
         {
