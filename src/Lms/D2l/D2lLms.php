@@ -296,21 +296,11 @@ class D2lLms implements LmsInterface {
         $options = $this->createLmsPostOptions($contentItem);
 
         if ('file' === $contentItem->getContentType()) {
-            $filepath = $this->util->getTempPath() . '/content.' . $contentItem->getId() . '.html';
-            $fileResponse = $this->d2lApi->apiFilePost($url, $options, $filepath);
-
-        //     $fileObj = $fileResponse->getContent();
-
-        //     if (isset($fileObj['id'])) {
-        //         $contentItem->setLmsContentId($fileObj['id']);
-        //         $this->entityManager->flush();
-        //     }
-
-        //     return $fileResponse;
-            return;
+            $lmsResponse = $this->d2lApi->apiFilePut($url, $options);
         }
-
-        $lmsResponse = $this->d2lApi->apiPut($url, ['body' => \json_encode($options)]);
+        else {
+            $lmsResponse = $this->d2lApi->apiPut($url, ['body' => \json_encode($options)]);
+        }
 
         if ($errors = $lmsResponse->getErrors()) {
             foreach ($errors as $error) {
@@ -469,7 +459,6 @@ class D2lLms implements LmsInterface {
 
         $url = $this->getContentItemApiUrl($contentItem);
         $content = $this->d2lApi->apiGet($url)->getContent();
-// print \json_encode($content);
 
         switch ($contentType) {
             // case 'overview':
@@ -484,9 +473,16 @@ class D2lLms implements LmsInterface {
             case 'module':
                 $content['Description'] = $richTextInput;
                 break;
-            // case 'file':
-            //     $options[''] = $html;
-            //     break;
+            case 'file':
+                $courseId = $contentItem->getCourse()->getLmsCourseId();
+                $topicId = $contentItem->getLmsContentId();
+                $options = $this->getApiContent('topic', $courseId, $topicId);
+                
+                if (is_array($options)) {
+                    $options['body'] = $content;
+                    $content = $options;
+                }
+                break;
             case 'quiz.instruction':
             case 'quiz.description':
             case 'quiz.header':

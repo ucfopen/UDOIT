@@ -51,20 +51,20 @@ class LmsPostService {
             return;
         }
 
-        // Save file to temp folder
-        if ('file' === $contentItem->getContentType()) {
-            $path = $this->util->getTempPath();
-            $success = file_put_contents("{$path}/content.{$contentItem->getId()}.html", $contentItem->getBody());
+        // // Save file to temp folder
+        // if ('file' === $contentItem->getContentType()) {
+        //     $path = $this->util->getTempPath();
+        //     $success = file_put_contents("{$path}/content.{$contentItem->getId()}.html", $contentItem->getBody());
 
-            if (!$success) {
-                $this->util->createMessage(
-                    'Content failed to save locally. Please contact an administrator.',
-                    'error',
-                    $contentItem->getCourse()
-                );
-                return;
-            }
-        }
+        //     if (!$success) {
+        //         $this->util->createMessage(
+        //             'Content failed to save locally. Please contact an administrator.',
+        //             'error',
+        //             $contentItem->getCourse()
+        //         );
+        //         return;
+        //     }
+        // }
 
         return $lms->postContentItem($contentItem);
     }

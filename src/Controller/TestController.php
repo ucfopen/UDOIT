@@ -7,6 +7,7 @@ use App\Entity\Institution;
 use App\Entity\Issue;
 use App\Services\HtmlService;
 use App\Services\LmsApiService;
+use App\Services\LmsPostService;
 use App\Services\PhpAllyService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
@@ -52,26 +53,16 @@ class TestController extends AbstractController
     }
 
     /**
-     * @Route("/test/content/{item}", name="test")
+     * @Route("/api/test/content/{item}", name="test")
      */
-    public function testContentItem(HtmlService $html, PhpAllyService $phpAlly, ContentItem $item)
+    public function testContentItem(LmsApiService $lmsApi, ContentItem $item)
     {
-        $htmlStr = $item->getBody();
-        HtmlService::clean($htmlStr);
+        $lms = $lmsApi->getLms();
+        $response = $lms->postContentItem($item);
 
-        print "<h1>Content Item</h1>";
-        // echo "<textarea style='width:100%; height:100px'>" . $htmlStr.  "</textarea>";
-        // echo "<textarea style='width:100%; height:100px'>" . $html->clean($htmlStr) . "</textarea>";
-
-        // print "Valid: " . ($html($htmlStr) ? 'true' : 'false');
-        // print "Valid Clean: " . ($html->isValid($html->clean($htmlStr)) ? 'true' : 'false');
-
-        $report = $phpAlly->scanContentItem($item);
-        //$report = $phpAlly->scanHtml($htmlStr);
-        print \json_encode(count($report->getIssues()));
-        print "\nErrors: " . \json_encode(count($report->getErrors()));
-        
+        print_r($response);
         exit;
+        
         return $this->render('test/index.html.twig', [
             'controller_name' => 'TestController',
         ]);
