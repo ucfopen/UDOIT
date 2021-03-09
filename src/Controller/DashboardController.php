@@ -25,7 +25,6 @@ class DashboardController extends AbstractController
     public function index(
         UtilityService $util,
         SessionInterface $session,
-        LmsApiService $lmsApi,
         LmsUserService $lmsUser)
     {
         $this->util = $util;
@@ -37,6 +36,10 @@ class DashboardController extends AbstractController
             $this->util->exitWithMessage('User authentication failed.');
         }
         if (!$lmsUser->validateApiKey($user)) {
+            if ($this->session->get('oauthAttempted', false)) {
+                $this->util->exitWithMessage('API authentication failed. Contact your administrator.');
+            }
+
             return $this->redirectToRoute('authorize');
         }
 

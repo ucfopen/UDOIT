@@ -20,6 +20,7 @@ class LmsResponse implements \JsonSerializable {
     private $responses = [];
     private $headers = [];
     private $errors = [];
+    private $statusCode = null;
 
     public function __construct($contentType = '')
     {
@@ -51,7 +52,7 @@ class LmsResponse implements \JsonSerializable {
         $results = \json_decode($content, true);
 
         if ($results === null) {
-            $this->contentString .= $results;
+            $this->contentString .= $content;
         }
         else {            
             $this->contentArray = array_merge($this->contentArray, $results);
@@ -68,6 +69,16 @@ class LmsResponse implements \JsonSerializable {
         $this->errors[] = $error;
     }
 
+    public function getStatusCode()
+    {
+        return $this->statusCode;
+    }
+
+    public function setStatusCode($status)
+    {
+        $this->statusCode = $status;
+    }
+
     public function setResponse(ResponseInterface $response)
     {
         $this->responses[] = $response;
@@ -76,7 +87,8 @@ class LmsResponse implements \JsonSerializable {
 
         $this->setContent($content);
         $this->setHeader($headers);
-        $this->contentType = (is_array($headers['content-type'])) ? $headers['content-type'][0] : false;
+        $this->setStatusCode($response->getStatusCode());
+        $this->contentType = (isset($headers['content-type'][0])) ? $headers['content-type'][0] : false;
     }
 
     public function jsonSerialize()

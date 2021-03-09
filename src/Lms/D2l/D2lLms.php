@@ -18,6 +18,22 @@ use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\Security\Core\Security;
 
 class D2lLms implements LmsInterface {
+
+    const ACTIVITYTYPE_MODULE = 0;
+    const ACTIVITYTYPE_FILE = 1;
+    const ACTIVITYTYPE_LINK = 2;
+    const ACTIVITYTYPE_DROPBOX = 3;
+    const ACTIVITYTYPE_QUIZ = 4;
+    const ACTIVITYTYPE_DISCUSSION_FORUM = 5;
+    const ACTIVITYTYPE_DISCUSSION_TOPIC = 6;
+    const ACTIVITYTYPE_LTI = 7;
+    const ACTIVITYTYPE_CHAT = 8;
+    const ACTIVITYTYPE_SCHEDULE = 9;
+    const ACTIVITYTYPE_CHECKLIST = 10;
+    const ACTIVITYTYPE_SELF_ASSESSMENT = 11;
+    const ACTIVITYTYPE_SURVEY = 12;
+    const ACTIVITYTYPE_ONLINE_ROOM = 13;
+
     /** @var ContentItemRepository $contentItemRepo */
     private $contentItemRepo;
 
@@ -38,6 +54,8 @@ class D2lLms implements LmsInterface {
 
     /** @var App\Services\HtmlService */
     private $html;
+
+    private $d2lApi;
 
     public function __construct(
         ContentItemRepository $contentItemRepo,
@@ -70,7 +88,18 @@ class D2lLms implements LmsInterface {
     
     public function testApiConnection(User $user)
     {
-        return true;
+        $this->setD2lApi($user);
+
+        $version = $this->getProductVersion('lp');
+        $url = "lp/{$version}/users/whoami";
+        
+        $response = $this->d2lApi->apiGet($url);
+
+        if (!$response || !empty($response->getErrors())) {
+            return false;
+        }
+
+        return ($response->getStatusCode() < 400);
     }
 
     public function getOauthUri(Institution $institution)
@@ -129,39 +158,208 @@ class D2lLms implements LmsInterface {
      * Course Functions
      * ****************
      */
+    public function updateCourseData(Course $course, User $user)
+    {
+        $this->setD2lApi($user);
+
+        $version = $this->getProductVersion('lp');
+        $url = "lp/{$version}/courses/{$course->getLmsCourseId()}";
+
+        $response = $this->d2lApi->apiGet($url);
+
+        if (!$response || !empty($response->getErrors())) {
+            foreach ($response->getErrors() as $error) {
+                $this->util->createMessage($error, 'error', $course, $user);
+            }
+            return;
+        }
+        $content = $response->getContent();
+
+        $course->setTitle($content['Name']);
+        $course->setActive(true);
+
+        if (isset($content['Department'])) {
+            $course->setLmsAccountId($content['Department']['Identifier']);
+        }
+
+        if (isset($content['Semester']['Identifier'])) {
+            $course->setLmsTermId($content['Semester']['Identifier']);
+        }
+
+        $this->entityManager->flush();  
+    }
 
     public function updateCourseContent(Course $course, User $user)
     {
-        return true;
+        $lmsItems = $contentItems = [];
+
+        $this->setD2lApi($user);
+
+        // get overview
+        $overview = $this->getCourseOverview($course);
+        if ($overview) {
+            $lmsItems[] = $overview;
+        }
+
+        // get table of contents
+        $tocItems = $this->getTableOfContents($course);
+        if (!empty($tocItems)) {
+            $lmsItems = array_merge($lmsItems, $tocItems);
+        }
+
+        foreach ($lmsItems as $lmsContent) {
+            if (empty($lmsContent)) {
+                continue;
+            }
+            if (isset($lmsContent['fileName'])) {
+                $this->updateFileItem($course, $lmsContent);
+            }
+            else {
+                $contentItems[] = $this->createContentItem($lmsContent, $course);
+            }
+        }
+
+        // push any updates made to content items to DB
+        $this->entityManager->flush();
+
+        return $contentItems;
     }
-    public function updateCourseData(Course $course, User $user)
-    {
-        return true;
-    }
+    
 
     public function updateContentItem(ContentItem $contentItem)
     {
-        return true;
-    }
+        $user = $this->security->getUser();
+        $this->setD2lApi($user);
 
-    public function updateFileItem(Course $course, $file) 
-    {
-        return true;
+        $url = $this->getContentItemApiUrl($contentItem);
+        $response = $this->d2lApi->apiGet($url);
+
+        if ($response->getErrors()) {
+            $log = '';
+            foreach ($response->getErrors() as $err) {
+                $log .= ' | Msg: ' . $err;
+            }
+
+            $this->util->createMessage('Error retrieving content. Please try again.', 'error', $contentItem->getCourse(), $user);
+            $this->util->createMessage($log, 'error', $contentItem->getCourse(), $user, true);
+        } 
+        else {
+            $content = $response->getContent();
+
+            switch ($contentItem->getContentType()) {
+                case 'file':
+                    $contentItem->setBody($content);
+                    break;
+                case 'link':
+                    $contentItem->setBody($content['Url']);
+                    break;
+                case 'dropbox':
+                    $contentItem->setBody($content['CustomInstructions']['Html']);
+                    break;
+                case 'quiz.instruction':
+                    $contentItem->setBody($content['Instructions']['Text']['Html']);
+                    break;
+                case 'quiz.description':
+                    $contentItem->setBody($content['Description']['Text']['Html']);
+                    break;
+                case 'quiz.header':
+                    $contentItem->setBody($content['Header']['Text']['Html']);
+                    break;
+                case 'quiz.footer':
+                    $contentItem->setBody($content['Footer']['Text']['Html']);
+                    break;
+                case 'discussion.forum':
+                    // $contentItem->setBody($content['']);
+                    break;
+                case 'discussion.topic':
+                    //$contentItem->setBody($content['']);
+                    break;
+                case 'checklist':
+                    $contentItem->setBody(['Description']['Html']);
+                    break;
+                case 'survey':
+                    $contentItem->setBody(['Description']['Text']['Html']);
+                    break;
+                default:
+            }
+
+            $this->entityManager->flush();
+        }
     }
 
     public function postContentItem(ContentItem $contentItem)
     {
-        return true;
+        $user = $this->security->getUser();
+        $this->setD2lApi($user);
+
+        $url = $this->getContentItemApiUrl($contentItem); 
+        $options = $this->createLmsPostOptions($contentItem);
+
+        if ('file' === $contentItem->getContentType()) {
+            $filepath = $this->util->getTempPath() . '/content.' . $contentItem->getId() . '.html';
+            $fileResponse = $this->d2lApi->apiFilePost($url, $options, $filepath);
+
+        //     $fileObj = $fileResponse->getContent();
+
+        //     if (isset($fileObj['id'])) {
+        //         $contentItem->setLmsContentId($fileObj['id']);
+        //         $this->entityManager->flush();
+        //     }
+
+        //     return $fileResponse;
+            return;
+        }
+
+        $lmsResponse = $this->d2lApi->apiPut($url, ['body' => \json_encode($options)]);
+
+        if ($errors = $lmsResponse->getErrors()) {
+            foreach ($errors as $error) {
+                $this->util->createMessage(\json_encode($error));
+            }
+        }
+
+        return $lmsResponse;
+    }
+
+    public function getCourseUrl(Course $course, User $user)
+    {
+        return "https://{$this->baseUrl}/d2l/home/{$course->getLmsCourseId()}";
+    }
+
+    /*
+     * **************
+     * FILE ITEMS
+     * **************
+     */
+    public function updateFileItem(Course $course, $file)
+    {
+        $fileItem = $this->fileItemRepo->findOneBy([
+            'lmsFileId' => $file['id'],
+            'course' => $course,
+        ]);
+
+        if (!$fileItem) {
+            $domainName = $course->getInstitution()->getLmsDomain();
+            $lmsUrl = "https://{$domainName}/d2l/le/content/{$course->getLmsCourseId()}/viewContent/{$file['id']}/View";
+            
+            $fileItem = new FileItem();
+            $fileItem->setCourse($course)
+                ->setFileName($file['fileName'])
+                ->setFileType($file['fileType'])
+                ->setLmsFileId($file['id'])
+                ->setDownloadUrl($file['url'])
+                ->setLmsUrl($lmsUrl)
+                ->setActive(true);
+            $this->entityManager->persist($fileItem);
+        }
+
+        $fileItem->update($file);
+        $this->entityManager->flush();
     }
 
     public function postFileItem(FileItem $file)
     {
         return true;
-    }
-
-    public function getCourseUrl(Course $course, User $user)
-    {
-        return '';
     }
 
 
@@ -179,10 +377,43 @@ class D2lLms implements LmsInterface {
     }
 
 
+    /**
+     * *******************
+     * PROTECTED FUNCTIONS
+     * *******************
+     */
+
+    protected function setD2lApi(User $user) 
+    {
+        $apiDomain = $this->getApiDomain($user);
+        $apiToken = $this->getApiToken($user);
+        
+        $this->d2lApi = new D2lApi($apiDomain, $apiToken);
+    }
+
+    protected function getProductVersion($productCode = null) 
+    {
+        $versions = [
+            'lp' => '1.30',
+            'le' => '1.51',
+        ];
+
+        if ($productCode) {
+            return $versions[$productCode];
+        }
+
+        return $versions;
+    }
+
     protected function getScopes()
     {
         $scopes = [
-            'Core:*:*'
+            'core:*:*',
+            'content:*:*',
+            'quizzing:*:*',
+            'discussions:*:*',
+            'checklists:*:*',
+            'surveys:*:*',
         ];
 
         return implode(' ', $scopes);
@@ -228,157 +459,130 @@ class D2lLms implements LmsInterface {
 
     protected function createLmsPostOptions(ContentItem $contentItem)
     {
-        // $options = [];
-        // $contentType = $contentItem->getContentType();
-        // $html = $contentItem->getBody();
+        $contentType = $contentItem->getContentType();
+        $html = $contentItem->getBody();
 
-        // switch ($contentType) {
-        //     case 'syllabus':
-        //         $options['course[syllabus_body]'] = $html;
-        //         break;
-
-        //     case 'page':
-        //         $options['wiki_page[body]'] = $html;
-        //         break;
-
-        //     case 'assignment':
-        //         $options['assignment[description]'] = $html;
-        //         break;
-
-        //     case 'discussion_topic':
-        //     case 'announcement':
-        //         $options['message'] = $html;
-        //         break;
-
-        //     case 'file':
-        //         $lmsCourseId = $contentItem->getCourse()->getLmsCourseId();
-        //         $options['postUrl'] = "courses/{$lmsCourseId}/files";
-        //         $options['body'] = $html;
-        //         break;
-
-        //         // case 'module':
-        //         // break;
-
-        // }
-
-        // return $options;
-    }
-
-    protected function getContentTypeUrl(ContentItem $contentItem)
-    {
-        // $contentType = $contentItem->getContentType();
-        // $lmsCourseId = $contentItem->getCourse()->getLmsCourseId();
-        // $lmsContentId = $contentItem->getLmsContentId();
-
-        // $lmsContentTypeUrls = [
-        //     'announcement' => "courses/{$lmsCourseId}/discussion_topics/{$lmsContentId}",
-        //     'assignment' => "courses/{$lmsCourseId}/assignments/{$lmsContentId}",
-        //     'discussion_topic' => "courses/{$lmsCourseId}/discussion_topics/{$lmsContentId}",
-        //     'file' => "courses/{$lmsCourseId}/files/{$lmsContentId}",
-        //     'module' => "courses/{$lmsCourseId}/modules/{$lmsContentId}",
-        //     'page' => "courses/{$lmsCourseId}/pages/{$lmsContentId}",
-        //     'syllabus' => "courses/{$lmsCourseId}?include[]=syllabus_body",
-        // ];
-
-        // return $lmsContentTypeUrls[$contentType];
-    }
-
-    protected function normalizeLmsContent(Course $course, $contentType, $lmsContent)
-    {
-        // $out = [];
-        // $domainName = $course->getInstitution()->getLmsDomain();
-        // $baseUrl = "https://{$domainName}/courses/{$course->getLmsCourseId()}";
-
-        // switch ($contentType) {
-        //     case 'syllabus':
-        //         $out['id'] = $lmsContent['id'];
-        //         $out['title'] = $lmsContent['name'];
-        //         $out['updated'] = 'now';
-        //         $out['status'] = false;
-        //         $out['url'] = $baseUrl;
-
-        //         if (array_key_exists('syllabus_body', $lmsContent)) {
-        //             $out['body'] = $lmsContent['syllabus_body'];
-        //             $out['status'] = true;
-        //         }
-
-        //         break;
-
-        //     case 'page':
-        //         $out['id'] = $lmsContent['url'];
-        //         $out['title'] = $lmsContent['title'];
-        //         $out['updated'] = $lmsContent['updated_at'];
-        //         $out['body'] = (!empty($lmsContent['body'])) ? $lmsContent['body'] : '';
-        //         $out['status'] = $lmsContent['published'];
-        //         $out['url'] = "{$baseUrl}/pages/{$lmsContent['url']}";
-
-        //         break;
-
-        //     case 'assignment':
-        //         $out['id'] = $lmsContent['id'];
-        //         if (!empty($lmsContent['quiz_id'])) {
-        //             $out['id'] = $lmsContent['quiz_id'];
-        //         }
-        //         $out['title'] = $lmsContent['name'];
-        //         $out['updated'] = $lmsContent['updated_at'];
-        //         $out['body'] = $lmsContent['description'];
-        //         $out['status'] = $lmsContent['published'];
-        //         $out['url'] = "{$baseUrl}/assignments/{$lmsContent['id']}";
-
-        //         break;
-
-        //     case 'discussion_topic':
-        //     case 'announcement':
-        //         $out['id'] = $lmsContent['id'];
-        //         $out['title'] = $lmsContent['title'];
-        //         $out['updated'] = 'now';
-        //         $out['body'] = $lmsContent['message'];
-        //         $out['status'] = $lmsContent['published'];
-        //         $out['url'] = "{$baseUrl}/discussion_topics/{$lmsContent['id']}";
-
-        //         break;
-
-        //         // case 'module':
-        //         //     $out['id'] = $lmsContent['id'];
-        //         //     $out['title'] = $lmsContent['name'];
-        //         //     $out['updated'] = 'now';
-        //         //     $out['body'] = '';
-        //         //     break;
-
-        //     case 'file':
-        //         if ('html' !== $lmsContent['mime_class']) {
-        //             break;
-        //         }
-
-        //         $out['id'] = $lmsContent['id'];
-        //         $out['title'] = $lmsContent['display_name'];
-        //         $out['updated'] = $lmsContent['updated_at'];
-        //         $out['body'] = '';
-        //         $out['status'] = !$lmsContent['hidden'];
-        //         $out['url'] = "{$baseUrl}/files?preview={$lmsContent['id']}";
-
-        //         if (isset($lmsContent['mime_class'])) {
-        //             $out['fileType'] = $lmsContent['mime_class'];
-        //         }
-
-        //         break;
-        // }
-
-        // return $out;
-    }
-
-    protected function getCourseContentUrls($courseId)
-    {
-        return [
-            // 'syllabus' =>           "courses/{$courseId}?include[]=syllabus_body",
-            // 'announcement' =>       "courses/{$courseId}/discussion_topics?only_announcements=true",
-            // 'assignment' =>         "courses/{$courseId}/assignments",
-            // 'discussion_topic' =>   "courses/{$courseId}/discussion_topics",
-            // 'file' =>               "courses/{$courseId}/files",
-            // //'module' =>             "courses/{$courseId}/modules",
-            // 'page' =>               "courses/{$courseId}/pages",
-            // 'quiz' =>               "courses/{$courseId}/quizzes",
+        $richTextInput = [
+            'Type' => 'Html',
+            'Content' => $html,
         ];
+
+        $url = $this->getContentItemApiUrl($contentItem);
+        $content = $this->d2lApi->apiGet($url)->getContent();
+// print \json_encode($content);
+
+        switch ($contentType) {
+            // case 'overview':
+            //     $options[''] = $html;
+            //     break;
+            case 'dropbox':
+                $content['CustomInstructions'] = $richTextInput;
+                break;
+            case 'topic':
+                $content['Description'] = $richTextInput;
+                break;
+            case 'module':
+                $content['Description'] = $richTextInput;
+                break;
+            // case 'file':
+            //     $options[''] = $html;
+            //     break;
+            case 'quiz.instruction':
+            case 'quiz.description':
+            case 'quiz.header':
+            case 'quiz.footer':
+                $quizKeys = [
+                    'quiz.instruction' => 'Instructions',
+                    'quiz.description' => 'Description',
+                    'quiz.footer' => 'Footer',
+                    'quiz.header' => 'Header',
+                ];
+
+                $content = $this->convertQuizReadDataToQuizData($content);
+                $content[$quizKeys[$contentType]]['Text'] = $richTextInput;
+                break;
+            case 'checklist':
+                $content['Description']['Text'] = $richTextInput;
+                break;
+            case 'survey':
+                $content['Description']['Text'] = $richTextInput;
+                break;
+        }
+
+        return $content;
+    }
+
+    protected function richTextInput($content) 
+    {
+        $type = (!empty($content['Html'])) ? 'Html' : 'Text';
+
+        return [
+            'Type' => $type,
+            'Content' => $content[$type],
+        ];
+    }
+
+    protected function convertQuizReadDataToQuizData($content)
+    {
+        unset($content['QuizId']);
+
+        $content['Description']['Text'] = $this->richTextInput($content['Description']['Text']);
+        //$content['Description']['IsDisplayed'] = !empty($content['Description']['Text']['Html']);
+        
+        $content['Instructions']['Text'] = $this->richTextInput($content['Instructions']['Text']);
+        //$content['Instructions']['IsDisplayed'] = !empty($content['Instructions']['Text']['Html']);
+        
+        $content['Footer']['Text'] = $this->richTextInput($content['Footer']['Text']);
+        //$content['Footer']['IsDisplayed'] = !empty($content['Footer']['Text']['Html']);
+        
+        $content['Header']['Text'] = $this->richTextInput($content['Header']['Text']);
+        //$content['Header']['IsDisplayed'] = !empty($content['Header']['Text']['Html']);
+        
+        $content['NumberOfAttemptsAllowed'] = $content['AttemptsAllowed']['NumberOfAttemptsAllowed'];
+        unset($content['AttemptsAllowed']);
+        unset($content['ActivityId']);
+
+        return $content;
+    }
+
+    protected function getContentItemApiUrl(ContentItem $contentItem)
+    {
+        $contentType = $contentItem->getContentType();
+        $lmsCourseId = $contentItem->getCourse()->getLmsCourseId();
+        $lmsContentId = $contentItem->getLmsContentId();
+            
+        return $this->getApiContentUrl($contentType, $lmsCourseId, $lmsContentId);
+    }
+
+    protected function getApiContentUrl($contentType, $lmsCourseId, $lmsContentId)
+    {
+        $leCode = $this->getProductVersion('le');
+
+        $contentTypeParts = explode('.', $contentType);
+        if (count($contentTypeParts) > 1) {
+            $contentType = reset($contentTypeParts);
+        }
+
+        $lmsContentTypeUrls = [
+            'checklist' => "le/{$leCode}/{$lmsCourseId}/checklists/{$lmsContentId}",
+            'dropbox' => "le/{$leCode}/{$lmsCourseId}/dropbox/folders/{$lmsContentId}",
+            'file' => "le/{$leCode}/{$lmsCourseId}/content/topics/{$lmsContentId}/file",
+            'module' => "le/{$leCode}/{$lmsCourseId}/content/modules/{$lmsContentId}",
+            'overview' => "le/{$leCode}/{$lmsCourseId}/overview",
+            'survey' => "le/{$leCode}/{$lmsCourseId}/surveys/{$lmsContentId}",
+            'topic' => "le/{$leCode}/{$lmsCourseId}/content/topics/{$lmsContentId}",
+            'quiz' => "le/{$leCode}/{$lmsCourseId}/quizzes/{$lmsContentId}",
+        ];
+
+        return $lmsContentTypeUrls[$contentType];
+    }
+
+    protected function getApiContent($contentType, $lmsCourseId, $lmsContentId)
+    {
+        $url = $this->getApiContentUrl($contentType, $lmsCourseId, $lmsContentId);
+        $response = $this->d2lApi->apiGet($url);
+        
+        return $response->getContent();
     }
 
     protected function getApiDomain(User $user)
@@ -393,8 +597,337 @@ class D2lLms implements LmsInterface {
         return $user->getApiKey();
     }
 
-    protected function sortSubAccounts($a, $b)
+    protected function getCourseOverview(Course $course)
     {
-        return ($a['id'] > $b['id']) ? 1 : -1;
+        $leCode = $this->getProductVersion('le');
+        $url = "le/{$leCode}/{$course->getLmsCourseId()}/overview";
+        $lmsDomain = $course->getInstitution()->getLmsDomain();
+        $baseUrl = "https://{$lmsDomain}/d2l/home/{$course->getLmsCourseId()}";
+
+        $response = $this->d2lApi->apiGet($url);
+        $lmsContent = $response->getContent();
+
+        if (empty($lmsContent)) {
+            return null;
+        }
+
+        return [
+            'id' => $course->getLmsCourseId(),
+            'title' => 'Overview',
+            'updated' => 'now',
+            'status' => true,
+            'url' => $baseUrl,
+            'body' => $lmsContent['Description']['Html'],
+            'contentType' => 'overview',
+        ];
+    }
+
+    protected function getTableOfContents(Course $course)
+    {
+        $lmsItems = [];
+
+        $leCode = $this->getProductVersion('le');
+        $url = "le/{$leCode}/{$course->getLmsCourseId()}/content/toc";
+
+        $response = $this->d2lApi->apiGet($url);
+        $content = $response->getContent();
+
+        if (isset($content['Modules'])) {
+            foreach ($content['Modules'] as $module) {
+                if (isset($module['Title'])) {
+                    $lmsItems = array_merge($lmsItems, $this->getItemsFromModule($module, $course));
+                }
+            }
+        }
+
+        return $lmsItems;
+    }
+
+    protected function getItemsFromModule($module, Course $course)
+    {
+        $lmsItems = [];
+
+        $domainName = $course->getInstitution()->getLmsDomain();
+        $contentUrl = "https://{$domainName}/d2l/le/content/{$course->getLmsCourseId()}/Home";
+        
+        // add module if description not empty
+        if (!empty($module['Description']['Html'])) {
+            $lmsItems[] = [
+                'id' => $module['ModuleId'],
+                'title' => $module['Title'],
+                'contentType' => 'module',
+                'updated' => 'now',
+                'status' => true,
+                'url' => $contentUrl,
+                'body' =>  $module['Description']['Html'],
+            ];
+        }
+
+        foreach ($module['Modules'] as $submodule) {
+            $lmsItems = array_merge($lmsItems, $this->getItemsFromModule($submodule, $course));
+        }
+
+        foreach ($module['Topics'] as $topic) {
+            $topicUrl = "https://{$domainName}/d2l/le/content/{$course->getLmsCourseId()}/viewContent/{$topic['TopicId']}/View";
+                
+            if (!empty($topic['Description']['Html'])) {
+                $lmsItems[] = [
+                    'id' => $topic['TopicId'],
+                    'title' => $topic['Title'],
+                    'contentType' => 'topic',
+                    'updated' => 'now',
+                    'status' => true,
+                    'url' => $topicUrl,
+                    'body' => $topic['Description']['Html'],
+                ];
+            }
+
+            $topicLmsItems = $this->getItemsFromTopic($topic, $course);            
+            foreach ($topicLmsItems as $topicLmsItem) {
+                if (!empty($topicLmsItem)) {
+                    $topicLmsItem += [
+                        'updated' => 'now',
+                        'status' => true,
+                        'url' => $topicUrl,
+                    ];
+                    $lmsItems[] = $topicLmsItem;
+                }
+            }
+        }
+
+        return $lmsItems;
+    }
+
+    protected function getItemsFromTopic($topic, Course $course)
+    {
+        $lmsItems = [];
+
+        if (!isset($topic['ActivityType'])) {
+            return false;
+        }
+
+        switch ($topic['ActivityType']) {
+            case self::ACTIVITYTYPE_FILE:
+                if (strpos($topic['Url'], '.htm')) {
+                    $lmsItems[] = $this->handleHtmlFileActivity($topic, $course);
+                }        
+                else {
+                    $lmsItems[] = $this->handleOtherFileActivity($topic, $course);
+                }        
+                break;
+            case self::ACTIVITYTYPE_LINK:
+                $lmsItems[] = $this->handleLinkActivity($topic, $course);
+                break;
+            case self::ACTIVITYTYPE_DROPBOX:
+                $lmsItems[] = $this->handleDropboxActivity($topic, $course);
+                break;
+            case self::ACTIVITYTYPE_QUIZ:
+                $lmsItems = $this->handleQuizActivity($topic, $course);
+                break;
+            // case self::ACTIVITYTYPE_DISCUSSION_FORUM:
+            //     $lmsItems[] = $this->handleDiscussionForumActivity($topic, $course);
+            //     break;
+            case self::ACTIVITYTYPE_DISCUSSION_TOPIC:
+                $lmsItems[] = $this->handleDiscussionTopicActivity($topic, $course);
+                break;
+            case self::ACTIVITYTYPE_CHECKLIST:
+                $lmsItems[] = $this->handleChecklistActivity($topic, $course);
+                break;
+            case self::ACTIVITYTYPE_SURVEY:
+                $lmsItems[] = $this->handleSurveyActivity($topic, $course);
+                break;
+            default:
+        }
+
+        return $lmsItems;
+    }
+
+    protected function handleOtherFileActivity($topic, Course $course) 
+    {
+        $urlParts = explode('/', $topic['Url']);
+        $fileName = end($urlParts);
+        $fileParts = explode('.', $fileName);
+        $fileType = end($fileParts);
+        $domain = $course->getInstitution()->getLmsDomain();
+        
+        return [
+            'updated' => $topic['LastModifiedDate'],
+            'id' => $topic['TopicId'],
+            'title' => $topic['Title'],
+            'fileName' => $fileName,
+            'fileType' => $fileType,
+            'fileSize' => null,
+            'status' => !$topic['IsLocked'],
+            'hidden' => $topic['IsHidden'],
+            'url' => "https://{$domain}{$topic['Url']}",
+        ];
+    }
+
+    protected function handleHtmlFileActivity($topic, Course $course)
+    {
+        $content = $this->getApiContent('file', $course->getLmsCourseId(), $topic['TopicId']);
+        
+        if (empty($content)) {
+            return false;
+        }
+
+        return [
+            'id' => $topic['TopicId'],
+            'title' => $topic['Title'],
+            'contentType' => 'file',
+            'body' => $content,
+        ];
+    }
+
+    protected function handleLinkActivity($topic, Course $course)
+    {
+        return [
+            'id' => $topic['TopicId'],
+            'title' => $topic['Title'],
+            'contentType' => 'link',
+            'body' => $topic['Url'],
+        ];
+    }
+
+    protected function handleDropboxActivity($topic, Course $course)
+    {
+        $content = $this->getApiContent('dropbox', $course->getLmsCourseId(), $topic['ToolItemId']);
+
+        if (empty($content['CustomInstructions']['Html'])) {
+            return false;
+        }
+
+        if (!empty($content['Attachments'])) {
+            foreach ($content['Attachments'] as $attachment) {
+                // $file = [
+
+                // ];
+                // $this->updateFileItem($course, $file);
+            }
+        }
+
+        return [
+            'id' => $topic['ToolItemId'],
+            'title' => $topic['Title'],
+            'contentType' => 'dropbox',
+            'body' => $content['CustomInstructions']['Html'],
+        ];
+    }
+
+    protected function handleQuizActivity($topic, Course $course)
+    {
+        $quizItems = [];
+        $quiz = $this->getApiContent('quiz', $course->getLmsCourseId(), $topic['ToolItemId']);
+
+        if (!empty($quiz['Instructions']['Text']['Html'])) {
+            $quizItems[] = [
+                'id' => $quiz['QuizId'],
+                'title' => $quiz['Name'],
+                'contentType' => 'quiz.instruction',
+                'body' => $quiz['Instructions']['Text']['Html'],
+            ];
+        }
+
+        if (!empty($quiz['Description']['Text']['Html'])) {
+            $quizItems[] = [
+                'id' => $quiz['QuizId'],
+                'title' => $quiz['Name'],
+                'contentType' => 'quiz.description',
+                'body' => $quiz['Description']['Text']['Html'],
+            ];
+        }
+
+        if (!empty($quiz['Header']['Text']['Html'])) {
+            $quizItems[] = [
+                'id' => $quiz['QuizId'],
+                'title' => $quiz['Name'],
+                'contentType' => 'quiz.header',
+                'body' => $quiz['Header']['Text']['Html'],
+            ];
+        }
+
+        if (!empty($quiz['Footer']['Text']['Html'])) {
+            $quizItems[] = [
+                'id' => $quiz['QuizId'],
+                'title' => $quiz['Name'],
+                'contentType' => 'quiz.footer',
+                'body' => $quiz['Footer']['Text']['Html'],
+            ];
+        }
+
+        return $quizItems;
+    }
+
+    protected function handleDiscussionTopicActivity($topic, Course $course)
+    {
+        
+    }
+
+    protected function handleChecklistActivity($topic, Course $course)
+    {
+        $content = $this->getApiContent('file', $course->getLmsCourseId(), $topic['ToolItemId']);
+
+        if (empty($content['Description']['Html'])) {
+            return false;
+        }
+
+        return [
+            'id' => $topic['ToolItemId'],
+            'title' => $topic['Title'],
+            'contentType' => 'checklist',
+            'body' => $content['Description']['Html'],
+        ];
+    }
+
+    protected function handleSurveyActivity($topic, Course $course)
+    {
+        $content = $this->getApiContent('file', $course->getLmsCourseId(), $topic['ToolItemId']);
+
+        if (empty($content['Description']['Text']['Html'])) {
+            return false;
+        }
+
+        return [
+            'id' => $topic['ToolItemId'],
+            'title' => $topic['Title'],
+            'contentType' => 'survey',
+            'body' => $content['Description']['Text']['Html'],
+        ];
+    }
+
+    protected function createContentItem($lmsContent, Course $course) 
+    {
+        $contentItem = $this->contentItemRepo->findOneBy([
+            'contentType' => $lmsContent['contentType'],
+            'lmsContentId' => $lmsContent['id'],
+            'course' => $course,
+        ]);
+
+        if (!$contentItem) {
+            $contentItem = new ContentItem();
+            $contentItem->setCourse($course)
+                ->setLmsContentId($lmsContent['id'])
+                ->setTitle($lmsContent['title'])
+                ->setPublished($lmsContent['status'])
+                ->setActive(true)
+                ->setUpdated($this->util->getCurrentTime())
+                ->setContentType($lmsContent['contentType']);
+            $this->entityManager->persist($contentItem);
+            $this->entityManager->flush();
+        }
+
+        // some content types don't have an updated date, so we'll compare content
+        // to find out if content has changed.
+        if (in_array($lmsContent['contentType'], ['overview'])) {
+            if ($contentItem->getBody() === $lmsContent['body']) {
+                if ($contentItem->getUpdated()) {
+                    $lmsContent['updated'] = $contentItem->getUpdated()->format('c');
+                }
+            }
+        }
+
+        $contentItem->update($lmsContent);
+        
+        return $contentItem;
     }
 }
