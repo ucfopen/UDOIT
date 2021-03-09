@@ -1,0 +1,16 @@
+stages:
+  - test
+  - js-test
+  # todo - setup php tests
+
+include:
+  - template: Security/SAST.gitlab-ci.yml
+
+js-test:
+  before_script:
+    - curl -o- -L https://yarnpkg.com/install.sh | bash
+    - export PATH="$HOME/.yarn/bin:$HOME/.config/yarn/global/node_modules/.bin:$PATH"
+    - yarn install
+  image: node:15.8.0
+  script:
+    - yarn test

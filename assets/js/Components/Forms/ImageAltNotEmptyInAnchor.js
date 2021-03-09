@@ -65,9 +65,6 @@ export default class ImageAltNotEmptyInAnchor extends React.Component {
   handleInput(event){
     let fileRegex = /([a-zA-Z0-9\s_\\.\-\(\):])+(.png|.jpg|.jpeg)$/i
 
-    console.log(event.target.value)
-    console.log(event.target.value.match(fileRegex))
-
     this.setState({
       textInputValue: event.target.value,
       characterCount: event.target.value.length,
@@ -108,7 +105,6 @@ export default class ImageAltNotEmptyInAnchor extends React.Component {
     let element = this.createElementFromHTML(htmlString)
     let decorativeAttribute = element.getAttribute("decorative")
 
-    console.log(decorativeAttribute)
     if(decorativeAttribute === null) {
       return false
     } else if(decorativeAttribute === "true") {
@@ -128,7 +124,6 @@ export default class ImageAltNotEmptyInAnchor extends React.Component {
   }
 
   createStringFromHtml(element) {
-    console.log(element.outerHTML)
     return element.outerHTML
   }
 
@@ -143,22 +138,22 @@ export default class ImageAltNotEmptyInAnchor extends React.Component {
     if(this.state.showSuccessAlert) {
       return <Alert
       variant="success"
-      renderCloseButtonLabel="Close"
+      renderCloseButtonLabel={this.props.t('srlabel.close')}
       margin="small"
       transition="none"
       onDismiss={this.resetAlertState}
       >
-        Your changes have been submitted
+        {this.props.t('changes.submitted')}
       </Alert>
     } else if(this.state.showFailureAlert) {
       return <Alert
       variant="error"
-      renderCloseButtonLabel="Close"
+      renderCloseButtonLabel={this.props.t('srlabel.close')}
       margin="small"
       transition="none"
       onDismiss={this.resetAlertState}
     >
-      Please fix warnings before submitting changes
+      {this.props.t('changes.please_fix')}
     </Alert>
     }
   }
@@ -166,7 +161,7 @@ export default class ImageAltNotEmptyInAnchor extends React.Component {
   renderCharacterWarning(){
     if(this.state.showCharacterWarning) {
       return <Alert variant="warning" margin="small">
-        Max character count exceeeded 
+        {this.props.t('max_char.exceeded')} 
       </Alert>
     }
   }
@@ -174,7 +169,7 @@ export default class ImageAltNotEmptyInAnchor extends React.Component {
   renderFileExtensionWarning(){
     if(this.state.showFileExtensionWarning) {
       return <Alert variant="warning" margin="small">
-        Alt text cannot have file extensions (.jpg, .png, etc)
+        {this.props.t('alt_text.file_ext.no')}
       </Alert>
     }
   }
@@ -189,12 +184,12 @@ export default class ImageAltNotEmptyInAnchor extends React.Component {
             {this.renderAlert()}
           </View>
           <View display="block" margin="medium">
-            <Text weight="bold">Alternative Text</Text>
+            <Text weight="bold">{this.props.t('alt_text')}</Text>
           </View>
           <View display="block" margin="medium">
           
             <TextArea
-              renderLabel={<ScreenReaderContent>Shortened Alternative Text</ScreenReaderContent>}
+              renderLabel={<ScreenReaderContent>{this.props.t('alt_text.shortened')}</ScreenReaderContent>}
               display="inline-block"
               width="25rem"
               onChange={this.handleInput}
@@ -202,13 +197,13 @@ export default class ImageAltNotEmptyInAnchor extends React.Component {
             />  
           </View>
           <View display="inline-block" margin="medium">
-            <Text>Current character count: {this.state.characterCount}</Text>
+            <Text>{this.props.t('char.count.current')} {this.state.characterCount} {this.props.t('content_length_too_long.of')} 150 {this.props.t('content_length_too_long.chars')}</Text>
           </View>
           <View display="inline-block">
             <Checkbox label="Mark as Decorative" value="medium" checked={this.state.isDecorative} onChange={this.handleCheckbox}/>
           </View>
           <View display="block" margin="medium">
-            <Button color="primary" onClick={this.handleButton}>Save Changes</Button>
+            <Button color="primary" onClick={this.handleButton}>{this.props.t('button.save.changes')}</Button>
           </View>
           <View display="inline-block">
             {this.renderCharacterWarning()}

@@ -14,6 +14,18 @@ class CoursesPage extends React.Component {
   constructor(props) {
     super(props);
 
+    this.headers = [
+      { id: "courseName", text: this.props.t('label.admin.course_name') }, 
+      { id: "accountName", text: this.props.t('label.admin.account_name') }, 
+      { id: "lastUpdated", text: this.props.t('label.admin.last_updated') },
+      { id: "errors", text: this.props.t('label.plural.error') }, 
+      { id: "suggestions", text: this.props.t('label.plural.suggestion') }, 
+      { id: "contentFixed", text: this.props.t('label.content_fixed') }, 
+      { id: "contentResolved", text: this.props.t('label.content_resolved') }, 
+      { id: "filesReviewed", text: this.props.t('label.files_reviewed') }, 
+      { id: "action", text: "", alignText: "end" }
+    ];
+
     this.filteredIssues = [];
 
     this.state = {
@@ -103,17 +115,6 @@ class CoursesPage extends React.Component {
   }
 
   render() {
-    const headers = [
-      { id: "courseName", text: this.props.t('label.admin.course_name') }, 
-      { id: "accountName", text: this.props.t('label.admin.account_name') }, 
-      { id: "lastUpdated", text: this.props.t('label.admin.last_updated') },
-      { id: "errors", text: this.props.t('label.plural.error') }, 
-      { id: "suggestions", text: this.props.t('label.plural.suggestion') }, 
-      { id: "contentFixed", text: this.props.t('label.content_fixed') }, 
-      { id: "contentResolved", text: this.props.t('label.content_resolved') }, 
-      { id: "filesReviewed", text: this.props.t('label.files_reviewed') }, 
-      { id: "action", text: "", alignText: "end" }
-    ];
     const filteredRows = this.getFilteredContent();
 
     return (
@@ -127,14 +128,14 @@ class CoursesPage extends React.Component {
           {this.renderFilterTags()}
         </View>
         <SortableTable
-          caption="Courses Table"
-          headers = {headers}
+          caption={this.props.t('srlabel.courses.table')}
+          headers = {this.headers}
           rows = {filteredRows}
           filters = {this.state.filters}
           tableSettings = {this.state.tableSettings}
           handleFilter = {this.handleFilter}
           handleTableSettings = {this.handleTableSettings}
-          key="coursesTable" />
+        />
         {this.state.trayOpen && <AdminTrayForm
           filters={this.state.filters}
           handleFilter={this.handleFilter}
@@ -142,7 +143,7 @@ class CoursesPage extends React.Component {
           trayOpen={this.state.trayOpen}
           handleTrayToggle={this.handleTrayToggle} 
           t={this.props.t}
-          key="coursesTrayForm" />}        
+          />}        
       </View>
     )
   }
@@ -259,7 +260,6 @@ class CoursesPage extends React.Component {
 
           if (data.data && data.data.id) {
             clearInterval(intervalId)
-            console.log('course', data.data)
             this.props.handleCourseUpdate(data.data)
           }
         })

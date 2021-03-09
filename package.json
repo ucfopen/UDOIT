@@ -1,17 +1,24 @@
 {
     "devDependencies": {
+        "@babel/plugin-proposal-class-properties": "^7.13.0",
+        "@babel/plugin-proposal-object-rest-spread": "^7.13.8",
+        "@babel/plugin-transform-runtime": "^7.13.9",
+        "@babel/preset-env": "^7.13.9",
         "@babel/preset-react": "^7.12.5",
         "@symfony/webpack-encore": "^0.28.2",
-        "babel-plugin-transform-class-properties": "^6.24.1",
-        "babel-plugin-transform-object-rest-spread": ">7.0.0-beta",
-        "babel-preset-react": "^6.24.1",
+        "@testing-library/jest-dom": "^5.11.9",
+        "@testing-library/react": "^11.2.5",
+        "@testing-library/user-event": "^12.8.1",
         "core-js": "^3.7.0",
         "cssnano": "^4.1.10",
+        "jest": "^26.6.3",
+        "msw": "^0.27.0",
         "node-sass": "^4.14.1",
         "postcss-loader": "^3.0.0",
         "regenerator-runtime": "^0.13.7",
         "sass-loader": "^7.0.1",
-        "webpack-notifier": "^1.10.1"
+        "webpack-notifier": "^1.10.1",
+        "whatwg-fetch": "^3.6.2"
     },
     "license": "UNLICENSED",
     "private": true,
@@ -19,7 +26,11 @@
         "dev-server": "encore dev-server",
         "dev": "encore dev",
         "watch": "yarn install && encore dev --watch",
-        "build": "encore production --progress"
+        "build": "encore production --progress",
+        "test": "IGNORE_CONSOLE_ERRORS=1 IGNORE_CONSOLE_WARNINGS=1 jest",
+        "test:noErrors": "IGNORE_CONSOLE_ERRORS=1 jest",
+        "test:noWarns": "IGNORE_CONSOLE_WARNINGS=1 jest",
+        "test:noIgnore": "jest"
     },
     "dependencies": {
         "@instructure/canvas-theme": "^7.3.0",

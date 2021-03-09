@@ -3,7 +3,7 @@ import { View } from '@instructure/ui-view'
 import { Heading } from '@instructure/ui-heading'
 import { Line } from '@reactchartjs/react-chart.js'
 
-class IssuesReport extends React.Component {
+class ResolutionsReport extends React.Component {
   constructor(props) {
     super(props)
   }
@@ -74,4 +74,4 @@ class IssuesReport extends React.Component {
   }
 }
 
-export default IssuesReport
+export default ResolutionsReport

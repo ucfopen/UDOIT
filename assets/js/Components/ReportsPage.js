@@ -68,7 +68,6 @@ class ReportsPage extends React.Component {
     api.getReportHistory()
       .then((responseStr) => responseStr.json())
       .then((response) => {
-        console.log('reports', response.data)
         this.setState({reports: response.data})
       })
   }

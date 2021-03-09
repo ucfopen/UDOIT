@@ -16,14 +16,12 @@ class App extends React.Component {
     super(props)
 
     this.hasNewReport = false
-    this.initialReport = null
+    this.initialReport = props.report
     this.appFilters = {}
-    this.settings = {}
+    this.settings = props.settings
     this.reportHistory = []
-    this.messages = []
+    this.messages = props.messages
     this.newReportInterval = 5000
-
-    this.getSettings();
 
     this.state = {
       report: this.initialReport,
@@ -59,7 +57,6 @@ class App extends React.Component {
 
         {('welcome' === this.state.navigation) && 
           <WelcomePage 
-            key="welcomePage" 
             handleNavigation={this.handleNavigation} 
             t={this.t}
             hasNewReport={this.hasNewReport} />
@@ -70,8 +67,7 @@ class App extends React.Component {
             settings={this.settings}
             handleAppFilters={this.handleAppFilters}
             handleNavigation={this.handleNavigation}
-            t={this.t}
-            key="summaryPage"></SummaryPage>
+            t={this.t} />
         }
         {('content' === this.state.navigation) &&
           <ContentPage
@@ -83,8 +79,7 @@ class App extends React.Component {
             handleIssueSave={this.handleIssueSave}
             handleIssueUpdate={this.handleIssueUpdate}
             handleManualScan={this.handleManualScan}
-            t={this.t}
-            key="contentPage"></ContentPage>
+            t={this.t} />
         }
         {('files' === this.state.navigation) &&
           <FilesPage
@@ -92,8 +87,7 @@ class App extends React.Component {
             settings={this.settings}
             handleNavigation={this.handleNavigation}
             handleFileSave={this.handleFileSave}
-            t={this.t}
-            key="filesPage"></FilesPage>
+            t={this.t} />
         }
         {('reports' === this.state.navigation) &&
           <ReportsPage
@@ -149,10 +143,8 @@ class App extends React.Component {
         api.getReport()
           .then((response) => response.json())
           .then((data) => {
-            console.log('data', data)
             if (data.messages) {
               data.messages.forEach((msg) => {
-                console.log('message', msg);
                 if (msg.visible) {
                   this.addMessage(msg)
                 }
@@ -166,7 +158,6 @@ class App extends React.Component {
             if (data.data && data.data.id) {
               this.hasNewReport = true;
               clearInterval(intervalId);
-              console.log('report', data.data);
               this.setState({ report: data.data });
             }
           });
@@ -182,10 +173,8 @@ class App extends React.Component {
         api.getReport()
           .then((response) => response.json())
           .then((data) => {
-            console.log('data', data)
             if (data.messages) {
               data.messages.forEach((msg) => {
-                console.log('message', msg);
                 if (msg.visible) {
                   this.addMessage(msg);
                 }
@@ -193,35 +182,9 @@ class App extends React.Component {
             }
             if (data.data && data.data.id) {
               this.hasNewReport = true;
-              console.log('report', data.data);
               this.setState({ report: data.data });
             }
           });
-  }
-
-  getSettings() {
-    const settingsElement = document.querySelector(
-      'body > script#toolSettings[type="application/json"]'
-    )
-
-    if (settingsElement !== null) {
-      let data = JSON.parse(settingsElement.textContent)
-      
-      if (data) {
-        this.messages = data.messages
-        this.settings = data.settings
-        console.log('settings', data.settings)
-        console.log('messages', data.messages)
-        
-        if (data.report) {
-          this.initialReport = data.report
-          console.log('init report', data.report)
-        }
-      }
-    }
-    else {
-      this.addMessage({message: 'Settings failed to load.', severity: 'warning', timeout: 5000})
-    }
   }
 
   handleNavigation(navigation) { 
@@ -237,7 +200,6 @@ class App extends React.Component {
   }
 
   addMessage = (msg) => {
-    console.log('msg', msg)
     this.messages.push(msg)
   }
 
