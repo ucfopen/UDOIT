@@ -6,6 +6,7 @@ import ContentPageForm from './ContentPageForm'
 import ContentTrayForm from './ContentTrayForm'
 import { View } from '@instructure/ui-view'
 import { Tag } from '@instructure/ui-tag'
+import { ScreenReaderContent } from '@instructure/ui-a11y-content'
 import UfixitModal from './UfixitModal';
 
 class ContentPage extends React.Component {
@@ -163,8 +164,23 @@ class ContentPage extends React.Component {
         }
       }
 
-      const status = (issue.status) ? <IconCheckLine color="success" /> : 
-        ('error' === issue.type) ? <IconNoLine color="error" /> : <IconInfoBorderlessLine color="alert" />;
+      let status
+      if (issue.status) {
+        status = <>
+          <ScreenReaderContent>{t('table.suggestion')}</ScreenReaderContent>
+          <IconCheckLine color="success" /> 
+        </>
+      } else if('error' === issue.type) {
+        status = <>
+          <ScreenReaderContent>{t('table.error')}</ScreenReaderContent>
+          <IconNoLine color="error" />
+        </>
+      } else {
+        status = <>
+          <ScreenReaderContent>{t('table.error')}</ScreenReaderContent>
+          <IconInfoBorderlessLine color="alert" />
+        </>
+      }
 
       filteredList.push(
         {
