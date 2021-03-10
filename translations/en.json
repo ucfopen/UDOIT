@@ -70,6 +70,7 @@
   "label.file_name": "File Name",
   "label.file_type": "File Type",
   "label.file_size": "File Size",
+  "label.file_updated": "Last Updated",
   "label.mime.pdf": "PDF",
   "label.mime.doc": "MS Word",
   "label.mime.ppt": "MS PowerPoint",
