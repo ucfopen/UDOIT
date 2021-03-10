@@ -25,7 +25,7 @@ class FilesPage extends React.Component {
       {id: "fileName", text: this.props.t('label.file_name')}, 
       {id: "fileType", text: this.props.t('label.file_type')}, 
       {id: "fileSize", text: this.props.t('label.file_size'), format: this.formatFileSize},
-      {id: "updated", text: this.props.t('label.updated_at')},
+      {id: "updated", text: this.props.t('label.file_updated'), format: this.formatDate},
       {id: "action", text: "", alignText: "end"}
     ];
 
@@ -157,6 +157,7 @@ class FilesPage extends React.Component {
           fileName: file.fileName,
           fileType: file.fileType.toUpperCase(),
           fileSize: file.fileSize,
+          updated: file.updated,
           action: <Button 
             key={`reviewButton${key}`}
             onClick={() => this.handleReviewClick(file)}
@@ -184,7 +185,7 @@ class FilesPage extends React.Component {
   }
 
   render() {
-    const filteredFiles = this.getFilteredFiles();
+    const filteredFiles = this.getFilteredFiles()
 
     return (
       <View as="div" key="filesPageFormWrapper" padding="small 0">
@@ -285,6 +286,12 @@ class FilesPage extends React.Component {
     }
 
     return size;
+  }
+
+  formatDate(date) {
+    let parts = date.split('T')
+
+    return parts[0]
   }
 }
 
