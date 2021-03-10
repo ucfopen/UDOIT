@@ -28,7 +28,7 @@ class Html {
     }
 
     const children = element.childNodes
-    const textNodeFound = false
+    let textNodeFound = false
 
     children.forEach(function(node, index) {
       if(node.nodeType === Node.TEXT_NODE) {
@@ -143,6 +143,9 @@ class Html {
     }
 
     if (!element) {
+      return null
+    }
+    if ('a' !== element.tagName) {
       return null
     }
 

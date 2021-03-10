@@ -109,6 +109,7 @@ class UsersPage extends React.Component {
             filters={null}
             tableSettings={this.state.tableSettings}
             handleTableSettings={this.handleTableSettings}
+            t={this.props.t}
           />
         </View>
       )

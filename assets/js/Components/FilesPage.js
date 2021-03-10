@@ -1,6 +1,6 @@
 import React from 'react';
 import { Button } from '@instructure/ui-buttons'
-import { IconCheckLine, IconEyeLine } from '@instructure/ui-icons'
+import { IconCheckLine, IconInfoBorderlessLine, IconEyeLine } from '@instructure/ui-icons'
 import SortableTable from './SortableTable'
 import FilesPageForm from './FilesPageForm'
 import FilesTrayForm from './FilesTrayForm'
@@ -139,13 +139,13 @@ class FilesPage extends React.Component {
       let status
       if (file.reviewed) {
         status = <>
-          <ScreenReaderContent>{t('table.suggestion')}</ScreenReaderContent>
+          <ScreenReaderContent>{this.props.t('table.suggestion')}</ScreenReaderContent>
           <IconCheckLine color="success" /> 
         </>
       } else {
         status = <>
-          <ScreenReaderContent>{t('table.error')}</ScreenReaderContent>
-          <IconInfoBorderlessLine color="alert" />
+          <ScreenReaderContent>{this.props.t('table.error')}</ScreenReaderContent>
+          <IconEyeLine color="alert" />
         </>
       }
 
@@ -204,6 +204,7 @@ class FilesPage extends React.Component {
           tableSettings = {this.state.tableSettings}
           handleFilter = {this.handleFilter}
           handleTableSettings = {this.handleTableSettings}
+          t={this.props.t}
         />
         {this.state.trayOpen && <FilesTrayForm
           trayOpen={this.state.trayOpen}

@@ -12,6 +12,8 @@ export default class AltText extends React.Component {
   constructor(props) {
     super(props)
 
+    this.maxLength = 150
+
     let altText = Html.getAttribute(this.props.activeIssue.sourceHtml, "alt")
     altText = (typeof altText === 'string') ? altText : ''
 
@@ -97,7 +99,7 @@ export default class AltText extends React.Component {
 
   checkTextLength() {
     const text = this.state.textInputValue.trim().toLowerCase()
-    if (text.length > 120) {
+    if (text.length > this.maxLength) {
       this.formErrors.push({ text: this.props.t('form.alt.msg.text_too_long'), type: 'error' })
     }
   }
@@ -143,11 +145,12 @@ export default class AltText extends React.Component {
             messages={this.state.textInputErrors}
           />
         </View>
-        <View as="div" textAlign="end" padding="x-small 0">
+        <View as="div" textAlign="end" padding="x-small 0 0 0">
           <Text size="small" weight="light">
-            {this.props.t('form.alt.char_count')}: {this.state.characterCount}</Text>
+            {this.state.characterCount} {this.props.t('form.alt.of')} {this.maxLength} {this.props.t('form.alt.chars')}
+          </Text>
         </View>
-        <View as="div" margin="small 0">
+        <View as="div" margin="0 0 small 0">
           <Checkbox label={this.props.t('form.alt.mark_decorative')} 
             checked={this.state.isDecorative} 
             onChange={this.handleCheckbox} />
