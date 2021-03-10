@@ -135,6 +135,7 @@ class CoursesPage extends React.Component {
           tableSettings = {this.state.tableSettings}
           handleFilter = {this.handleFilter}
           handleTableSettings = {this.handleTableSettings}
+          t={this.props.t}
         />
         {this.state.trayOpen && <AdminTrayForm
           filters={this.state.filters}
