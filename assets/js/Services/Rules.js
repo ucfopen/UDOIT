@@ -17,7 +17,6 @@ const rules = [
     'ImageAltIsTooLong',
     'ImageAltNotEmptyInAnchor',
     'ImageAltNotPlaceholder',
-    'ImageGifNoFlicker',
     'ImageHasAlt',
     'ImageHasAltDecorative',
     'ImageHasLongDescription',
