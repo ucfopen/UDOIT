@@ -52,7 +52,7 @@ class ContentTrayForm extends React.Component {
               <CloseButton
                 placement="end"
                 offset="small"
-                screenReaderLabel="Close"
+                screenReaderLabel={this.props.t('srlabel.close')}
                 onClick={this.props.handleTrayToggle}
               />
             </Flex.Item>
@@ -71,14 +71,14 @@ class ContentTrayForm extends React.Component {
               label={this.props.t('label.hide_fixed')} 
               checked={this.props.filters.hideFixed}
               onChange={this.handleHideFixed}
-              key="hideFixedCheckbox" />
+            />
           </View>
           <View as="div" padding="small 0 medium 0">
             <Checkbox 
               label={this.props.t('label.hide_unpublished')} 
               onChange={this.handleUnpublishedContent}
               checked={this.props.filters.hideUnpublishedContentItems}
-              key="hideUnpublishedCheckbox" />
+            />
           </View>
           <View as="div" padding="small 0">
             <CheckboxGroup

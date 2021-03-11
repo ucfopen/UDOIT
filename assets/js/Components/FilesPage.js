@@ -6,6 +6,7 @@ import FilesPageForm from './FilesPageForm'
 import FilesTrayForm from './FilesTrayForm'
 import { View } from '@instructure/ui-view'
 import { Tag } from '@instructure/ui-tag'
+import { ScreenReaderContent } from '@instructure/ui-a11y-content'
 import FilesModal from './FilesModal'
 
 const fileTypes = [
@@ -18,6 +19,15 @@ const fileTypes = [
 class FilesPage extends React.Component {
   constructor(props) {
     super(props);
+
+    this.headers = [
+      {id: "status", text: '', alignText: "center"},
+      {id: "fileName", text: this.props.t('label.file_name')}, 
+      {id: "fileType", text: this.props.t('label.file_type')}, 
+      {id: "fileSize", text: this.props.t('label.file_size'), format: this.formatFileSize},
+      {id: "updated", text: this.props.t('label.updated_at')},
+      {id: "action", text: "", alignText: "end"}
+    ];
 
     this.state = {
       activeFile: null,
@@ -80,7 +90,6 @@ class FilesPage extends React.Component {
   }
 
   handleReviewClick(activeFile) {
-    console.log('activefile', activeFile)
     this.setState({
       modalOpen: true,
       activeFile: activeFile
@@ -127,7 +136,18 @@ class FilesPage extends React.Component {
         }
       }
 
-      const status = (file.reviewed) ? <IconCheckLine color="success" /> : <IconEyeLine color="alert" />;
+      let status
+      if (file.reviewed) {
+        status = <>
+          <ScreenReaderContent>{t('table.suggestion')}</ScreenReaderContent>
+          <IconCheckLine color="success" /> 
+        </>
+      } else {
+        status = <>
+          <ScreenReaderContent>{t('table.error')}</ScreenReaderContent>
+          <IconInfoBorderlessLine color="alert" />
+        </>
+      }
 
       filteredList.push(
         {
@@ -164,13 +184,6 @@ class FilesPage extends React.Component {
   }
 
   render() {
-    const headers = [
-      {id: "status", text: '', alignText: "center"},
-      {id: "fileName", text: this.props.t('label.file_name')}, 
-      {id: "fileType", text: this.props.t('label.file_type')}, 
-      {id: "fileSize", text: this.props.t('label.file_size'), format: this.formatFileSize},
-      {id: "action", text: "", alignText: "end"}
-    ];
     const filteredFiles = this.getFilteredFiles();
 
     return (
@@ -184,14 +197,14 @@ class FilesPage extends React.Component {
           {this.renderFilterTags()}
         </View>
         <SortableTable
-          caption="Files Table"
-          headers = {headers}
+          caption={this.props.t('files_page.table.caption')}
+          headers = {this.headers}
           rows = {filteredFiles}
           filters = {this.state.filters}
           tableSettings = {this.state.tableSettings}
           handleFilter = {this.handleFilter}
           handleTableSettings = {this.handleTableSettings}
-          key="filesTable" />
+        />
         {this.state.trayOpen && <FilesTrayForm
           trayOpen={this.state.trayOpen}
           report={this.props.report}
@@ -200,7 +213,7 @@ class FilesPage extends React.Component {
           filters={this.state.filters}
           fileTypes={fileTypes}
           t={this.props.t}
-          key="filesTrayForm" />}
+          />}
         {this.state.modalOpen && <FilesModal
           open={this.state.modalOpen}
           activeFile={this.state.activeFile}
@@ -211,7 +224,7 @@ class FilesPage extends React.Component {
           handleActiveFile={this.handleActiveFile}
           handleFileSave={this.props.handleFileSave}
           t={this.props.t}
-          key="filesModal" />
+          />
         }
       </View>
     )

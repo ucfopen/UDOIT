@@ -33,7 +33,7 @@ class FilesTrayForm extends React.Component {
               <CloseButton
                 placement="end"
                 offset="small"
-                screenReaderLabel="Close"
+                screenReaderLabel={this.props.t('srlabel.close')}
                 onClick={this.props.handleTrayToggle}
               />
             </Flex.Item>
@@ -52,14 +52,14 @@ class FilesTrayForm extends React.Component {
               label={this.props.t('label.hide_reviewed')} 
               checked={this.props.filters.hideReviewed}
               onChange={this.handleHideReviewed}
-              key="hideReviewedCheckbox" />
+            />
           </View>
           <View as="div" padding="small 0 medium 0">
             <Checkbox 
               label={this.props.t('label.hide_unpublished_files')} 
               onChange={this.handleUnpublishedFiles}
               checked={this.props.filters.hideUnpublishedFiles}
-              key="hideUnpublishedFilesCheckbox" />
+            />
           </View>
         </View> 
       </Tray>

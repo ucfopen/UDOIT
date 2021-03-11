@@ -100,7 +100,7 @@ class UfixitModal extends React.Component {
         <Modal
           open={this.props.open}
           size="large"
-          label="A form for fixing the current issue">
+          label={this.props.t('ufixit.modal.label')}>
           <Modal.Header padding="0 medium">
             <Flex>
               <Flex.Item shouldGrow shouldShrink>
@@ -182,12 +182,10 @@ class UfixitModal extends React.Component {
                   <Text weight="bold">{this.props.t('label.source')}</Text>
                   {activeContentItem && 
                     <View as="div" padding="small 0 0 0">                    
-                      <Pill>{activeContentItem.contentType}</Pill> {activeContentItem.title}
-                      <View as="div">
-                        <Link onClick={this.handleOpenContent} isWithinText={false} margin="small 0" renderIcon={<IconExternalLinkLine />} iconPlacement="end">
-                          {this.props.t('label.open_in_lms')}
+                      <Pill>{activeContentItem.contentType}</Pill>
+                      <Link onClick={this.handleOpenContent} isWithinText={false} margin="small" renderIcon={<IconExternalLinkLine />} iconPlacement="end">
+                          {activeContentItem.title}
                         </Link>
-                      </View>
                     </View>
                   }
                 </View>
@@ -275,7 +273,6 @@ class UfixitModal extends React.Component {
       .then((responseStr) => responseStr.json())
       .then((response) => {
         if (response.data.failed) {
-          console.log('response', response)
           response.messages.forEach((msg) => this.addMessage(msg))
           
           if (Array.isArray(response.data.issues)) {

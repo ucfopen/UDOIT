@@ -129,8 +129,6 @@ export default class Api {
 
         let formData = new FormData()
         formData.append('file', fileObj)
-        
-        console.log('postFile', fileObj)
 
         return fetch(url, {
             method: 'POST',

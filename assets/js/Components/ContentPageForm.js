@@ -20,16 +20,16 @@ class ContentPageForm extends React.Component {
           <TextInput
             renderLabel={<ScreenReaderContent>Search Term</ScreenReaderContent>}
             renderBeforeInput={<IconSearchLine inline={false} />}
-            placeholder="Keyword..."
+            placeholder={this.props.t('placeholder.keyword')}
             onChange={this.props.handleSearchTerm}
             value={this.props.searchTerm}
-            key="contentSearchTermInput" />
+          />
         </Flex.Item>
         <Flex.Item>
           {this.props.handleTrayToggle && 
             <Button
               renderIcon={IconFilterLine}
-              screenReaderLabel="Open Filters Tray"
+              screenReaderLabel={this.props.t('srlabel.open_filters_tray')}
               onClick={this.props.handleTrayToggle}>
               {this.props.t('label.filter')}
             </Button>}
