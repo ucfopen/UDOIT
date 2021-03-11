@@ -145,11 +145,20 @@ class Html {
     if (!element) {
       return null
     }
-    if ('a' !== element.tagName) {
-      return null
+
+    if (element.nodeName === 'A') {
+      element = this.setAttribute(element, "target", "_blank")
     }
 
-    return this.setAttribute(element, "target", "_blank")
+    let children = Array.from(element.childNodes)
+
+    children.forEach(function(child) {
+      if (child.nodeName === 'A') {
+        child = this.setAttribute(child, "target", "_blank")
+      }
+    }.bind(this))
+
+    return element;
   }
 }
 
