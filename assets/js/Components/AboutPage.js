@@ -140,7 +140,7 @@ class AboutPage extends React.Component {
             <Text color="brand" weight="bold">{this.props.t('label.plural.suggestion')}</Text><br/>
               {suggestions.map((rule) => {
                 return (
-                  <ToggleDetails key={rule.error} summary={rule.suggestion}>
+                  <ToggleDetails key={rule.suggestion} summary={rule.suggestion}>
                     <View as="div" margin="small 0" background="primary" padding="small" shadow="above">
                       <Heading level="h4">{rule.suggestion}</Heading>
                       <Text as="p">{ReactHtmlParser(rule.description)}</Text>

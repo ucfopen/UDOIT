@@ -1,6 +1,6 @@
 import React from 'react';
 import { Button } from '@instructure/ui-buttons'
-import { IconCheckLine, IconEyeLine } from '@instructure/ui-icons'
+import { IconCheckLine, IconInfoBorderlessLine, IconEyeLine } from '@instructure/ui-icons'
 import SortableTable from './SortableTable'
 import FilesPageForm from './FilesPageForm'
 import FilesTrayForm from './FilesTrayForm'
@@ -25,7 +25,7 @@ class FilesPage extends React.Component {
       {id: "fileName", text: this.props.t('label.file_name')}, 
       {id: "fileType", text: this.props.t('label.file_type')}, 
       {id: "fileSize", text: this.props.t('label.file_size'), format: this.formatFileSize},
-      {id: "updated", text: this.props.t('label.updated_at')},
+      {id: "updated", text: this.props.t('label.file_updated'), format: this.formatDate},
       {id: "action", text: "", alignText: "end"}
     ];
 
@@ -139,13 +139,13 @@ class FilesPage extends React.Component {
       let status
       if (file.reviewed) {
         status = <>
-          <ScreenReaderContent>{t('table.suggestion')}</ScreenReaderContent>
+          <ScreenReaderContent>{this.props.t('table.suggestion')}</ScreenReaderContent>
           <IconCheckLine color="success" /> 
         </>
       } else {
         status = <>
-          <ScreenReaderContent>{t('table.error')}</ScreenReaderContent>
-          <IconInfoBorderlessLine color="alert" />
+          <ScreenReaderContent>{this.props.t('table.error')}</ScreenReaderContent>
+          <IconEyeLine color="alert" />
         </>
       }
 
@@ -157,6 +157,7 @@ class FilesPage extends React.Component {
           fileName: file.fileName,
           fileType: file.fileType.toUpperCase(),
           fileSize: file.fileSize,
+          updated: file.updated,
           action: <Button 
             key={`reviewButton${key}`}
             onClick={() => this.handleReviewClick(file)}
@@ -184,7 +185,7 @@ class FilesPage extends React.Component {
   }
 
   render() {
-    const filteredFiles = this.getFilteredFiles();
+    const filteredFiles = this.getFilteredFiles()
 
     return (
       <View as="div" key="filesPageFormWrapper" padding="small 0">
@@ -204,6 +205,7 @@ class FilesPage extends React.Component {
           tableSettings = {this.state.tableSettings}
           handleFilter = {this.handleFilter}
           handleTableSettings = {this.handleTableSettings}
+          t={this.props.t}
         />
         {this.state.trayOpen && <FilesTrayForm
           trayOpen={this.state.trayOpen}
@@ -284,6 +286,12 @@ class FilesPage extends React.Component {
     }
 
     return size;
+  }
+
+  formatDate(date) {
+    let parts = date.split('T')
+
+    return parts[0]
   }
 }
 

@@ -167,17 +167,17 @@ class ContentPage extends React.Component {
       let status
       if (issue.status) {
         status = <>
-          <ScreenReaderContent>{t('table.suggestion')}</ScreenReaderContent>
+          <ScreenReaderContent>{this.props.t('table.suggestion')}</ScreenReaderContent>
           <IconCheckLine color="success" /> 
         </>
       } else if('error' === issue.type) {
         status = <>
-          <ScreenReaderContent>{t('table.error')}</ScreenReaderContent>
+          <ScreenReaderContent>{this.props.t('table.error')}</ScreenReaderContent>
           <IconNoLine color="error" />
         </>
       } else {
         status = <>
-          <ScreenReaderContent>{t('table.error')}</ScreenReaderContent>
+          <ScreenReaderContent>{this.props.t('table.error')}</ScreenReaderContent>
           <IconInfoBorderlessLine color="alert" />
         </>
       }
@@ -236,6 +236,7 @@ class ContentPage extends React.Component {
           tableSettings = {this.state.tableSettings}
           handleFilter = {this.handleFilter}
           handleTableSettings = {this.handleTableSettings}
+          t={this.props.t}
         />
         {this.state.trayOpen && <ContentTrayForm
           filters={this.state.filters}
