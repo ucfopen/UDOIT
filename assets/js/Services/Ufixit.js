@@ -4,6 +4,7 @@ import BaseFontIsNotUsed from '../Components/Forms/BaseFontIsNotUsed'
 import ContrastForm from '../Components/Forms/ContrastForm'
 import UfixitReviewOnly from '../Components/Forms/UfixitReviewOnly'
 import HeadingForm from '../Components/Forms/HeadingForm'
+import HeadingEmptyForm from '../Components/Forms/HeadingEmptyForm'
 import TableHeaders from '../Components/Forms/TableHeaders'
 import Video from '../Components/Forms/Video'
 
@@ -14,7 +15,7 @@ const UfixitForms = {
   BaseFontIsNotUsed,
   CssTextHasContrast: ContrastForm,
   CssTextStyleEmphasize: ContrastForm,
-  HeadersHaveText: HeadingForm,
+  HeadersHaveText: HeadingEmptyForm,
   ImageAltIsDifferent: AltText,
   ImageAltIsTooLong: AltText,
   ImageAltNotEmptyInAnchor: AltText,
