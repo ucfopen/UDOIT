@@ -17,8 +17,6 @@ export default class HeadingStyleForm extends React.Component {
 
         let element = Html.toElement(this.props.activeIssue.sourceHtml)
 
-        console.log(element.outerHTML)
-
         this.tagName = Html.getTagName(element)
 
         this.state = {
@@ -118,7 +116,6 @@ export default class HeadingStyleForm extends React.Component {
             this.setState({ textInputErrors: []})
             let issue = this.props.activeIssue
             issue.newHtml = this.processHtml()
-            console.log(issue.newHtml)
             this.props.handleIssueSave(issue)
         }
     }
@@ -146,8 +143,6 @@ export default class HeadingStyleForm extends React.Component {
 
         newHeader.innerHTML = element.innerHTML
 
-        console.log(newHeader.outerHTML)
-
         if(this.state.removeStyling) {
             newHeader = Html.removeTag(newHeader, 'strong')
             newHeader = Html.removeTag(newHeader, 'b')
@@ -157,15 +152,12 @@ export default class HeadingStyleForm extends React.Component {
         } else {
             newHeader = Html.setInnerText(newHeader.firstChild, this.state.textInputValue)
         }
-
-        console.log(newHeader)
         
         return Html.toString(newHeader)
     }
 
     render() {
-        // const options = this.props.t('form.heading.heading_level_options')
-        const options = ["H2", "H3", "H4"]
+        const options = this.props.t('form.heading.heading_level_options')
         const pending = (this.props.activeIssue && this.props.activeIssue.pending)
         const buttonLabel = (pending) ? 'form.processing' : 'form.submit'
         const canSubmit = (!pending && !this.props.activeIssue.status)
