@@ -5,6 +5,7 @@ namespace App\Security;
 use App\Entity\User; // your user entity
 use App\Services\UtilityService;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
@@ -60,7 +61,12 @@ class SessionAuthenticator extends AbstractGuardAuthenticator
 
     public function start(Request $request, AuthenticationException $exception = null) 
     {
+        $data = [
+            // you might translate this message
+            'message' => 'Authentication Required'
+        ];
 
+        return new JsonResponse($data, Response::HTTP_UNAUTHORIZED);
     }
 
     public function supportsRememberMe()

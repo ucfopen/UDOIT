@@ -8,26 +8,33 @@ use CidiLabs\PhpAlly\PhpAlly;
 class PhpAllyService {
     
     protected $phpAlly;
+
+    /** @var App\Service\HtmlService */
+    protected $htmlService;
+
+    protected $util;
     
-    public function __construct()
+    public function __construct(HtmlService $htmlService, UtilityService $util)
     {
         $this->phpAlly = new PhpAlly();    
+        $this->htmlService = $htmlService;
+        $this->util = $util;
     }
 
     public function scanContentItem(ContentItem $contentItem)
     {
-        $html = $contentItem->getBody();
+        $html = HtmlService::clean($contentItem->getBody());
         if (!$html) {
             return;
         }
-
-        $ruleIds = $this->getRules();
         
-        return $this->phpAlly->checkMany($html, $ruleIds);
+        return $this->phpAlly->checkMany($html, $this->getRules());
     }
 
     public function scanHtml($html)
     {
+        $html = HtmlService::clean($html);
+        
         return $this->phpAlly->checkMany($html, $this->getRules());
     }
 

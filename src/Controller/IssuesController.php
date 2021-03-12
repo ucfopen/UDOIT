@@ -8,7 +8,6 @@ use App\Entity\Report;
 use App\Response\ApiResponse;
 use App\Services\LmsPostService;
 use App\Services\PhpAllyService;
-use App\Services\UfixitService;
 use App\Services\UtilityService;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -22,7 +21,13 @@ class IssuesController extends ApiController
      * @Route("/api/issues/{issue}/save", name="save_issue")
      * @param Issue $issue
      */
-    public function saveIssue(Request $request, LmsPostService $lmsPost, PhpAllyService $phpAlly, UtilityService $util, Issue $issue) {
+    public function saveIssue(
+        Request $request, 
+        LmsPostService $lmsPost, 
+        PhpAllyService $phpAlly, 
+        UtilityService $util, 
+        Issue $issue) 
+    {
         $apiResponse = new ApiResponse();
         $user = $this->getUser();
 
@@ -45,34 +50,40 @@ class IssuesController extends ApiController
             $report = $phpAlly->scanHtml($newHtml);
             if ($issues = $report->getIssues()) {
                 $apiResponse->addData('issues', $issues);
+                $apiResponse->addData('failed', 1);
+                throw new \Exception('form.error.fails_tests');
             }
             if ($errors = $report->getErrors()) {
                 $apiResponse->addData('errors', $errors);
-            }
-
-            if (!empty($issues) || !empty($errors)) {
-                $apiResponse->addData('failed', true);
+                $apiResponse->addData('failed', 1);
                 throw new \Exception('form.error.fails_tests');
             }
 
-            // Save content to LMS
-            $lmsPost->saveContentToLms($issue, $newHtml);
-            // TODO: check lmsResponse for errors
-
-            // Update issue
-            $issue->setStatus(Issue::$issueStatusFixed);
-            $issue->setFixedBy($user);
-            $issue->setFixedOn($util->getCurrentTime());
+            // Update issue HTML
             $issue->setNewHtml($newHtml);
+            $this->getDoctrine()->getManager()->flush();
+
+            // Save content to LMS
+            $lmsPost->saveContentToLms($issue);
 
             // Update report stats
             $report = $course->getUpdatedReport();
-            
+
+            // Update issue status
+            $issue->setStatus(Issue::$issueStatusFixed);
+            $issue->setFixedBy($user);
+            $issue->setFixedOn($util->getCurrentTime());
             $this->getDoctrine()->getManager()->flush();
 
-            // Create response
-            $apiResponse->addMessage('form.msg.success_saved', 'success');
-            $apiResponse->addLogMessages($util->getUnreadMessages());
+            // Add messages to response
+            $unreadMessages = $util->getUnreadMessages();
+            if (empty($unreadMessages)) {
+                $apiResponse->addMessage('form.msg.success_saved', 'success');
+            }
+            else {
+                $apiResponse->addLogMessages($unreadMessages);
+            }
+
             $apiResponse->setData([
                 'issue' => ['status' => $issue->getStatus(), 'pending' => false],
                 'report' => $report,
@@ -88,7 +99,7 @@ class IssuesController extends ApiController
     /**
      * Mark issue as resolved/reviewed
      * 
-     * @Route("/api/issues/{issue}/resolve", methods={"POST","GET"}, name="fix_issue")
+     * @Route("/api/issues/{issue}/resolve", methods={"POST","GET"}, name="resolve_issue")
      * @param Issue $issue
      * @return \Symfony\Component\HttpFoundation\Response
      */
@@ -106,15 +117,16 @@ class IssuesController extends ApiController
 
             // Get updated issue
             $issueUpdate = \json_decode($request->getContent(), true);
-            $issue->setStatus(($issueUpdate['status']) ? Issue::$issueStatusResolved : Issue::$issueStatusActive);
-
-            // Save content to LMS
-            $lmsPost->saveContentToLms($issue, $issueUpdate['newHtml']);
-            // TODO: check lmsResponse for errors
 
             // Update issue
+            $issue->setStatus(($issueUpdate['status']) ? Issue::$issueStatusResolved : Issue::$issueStatusActive);
             $issue->setFixedBy($user);
             $issue->setFixedOn($util->getCurrentTime());
+            $issue->setNewHtml($issueUpdate['newHtml']);
+            $this->getDoctrine()->getManager()->flush();
+
+            // Save content to LMS
+            $lmsPost->saveContentToLms($issue);
 
             // Update report stats
             $report = $course->getUpdatedReport();

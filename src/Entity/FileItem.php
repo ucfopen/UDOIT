@@ -220,15 +220,16 @@ class FileItem implements \JsonSerializable
 
     public function update($file): self
     {
-        $updatedDate = new \DateTime($file['updated_at'], UtilityService::$timezone);
+        $updatedDate = new \DateTime($file['updated'], UtilityService::$timezone);
 
         $this->setUpdated($updatedDate);
         $this->setActive(true);
-        $this->setFileName($file['display_name']);
-        $this->setStatus($file['locked']);
-        $this->setFileType($file['mime_class']);
-        $this->setFileSize($file['size']);
+        $this->setFileName($file['fileName']);
+        $this->setStatus($file['status']);
+        $this->setFileType($file['fileType']);
+        $this->setFileSize($file['fileSize']);
         $this->setHidden($file['hidden']);
+        $this->setDownloadUrl($file['url']);
         $this->setMetadata(\json_encode($file));
 
         return $this;

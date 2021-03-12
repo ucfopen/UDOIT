@@ -43,16 +43,6 @@ class Institution implements JsonSerializable
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
      */
-    private $consumerKey;
-
-    /**
-     * @ORM\Column(type="string", length=255, nullable=true)
-     */
-    private $sharedSecret;
-
-    /**
-     * @ORM\Column(type="string", length=255, nullable=true)
-     */
     private $developerId;
 
     /**
@@ -202,30 +192,6 @@ class Institution implements JsonSerializable
     public function setLmsAccountId(?string $lms_account_id): self
     {
         $this->lmsAccountId = $lms_account_id;
-
-        return $this;
-    }
-
-    public function getConsumerKey(): ?string
-    {
-        return $this->consumerKey;
-    }
-
-    public function setConsumerKey(?string $consumer_key): self
-    {
-        $this->consumerKey = $consumer_key;
-
-        return $this;
-    }
-
-    public function getSharedSecret(): ?string
-    {
-        return $this->sharedSecret;
-    }
-
-    public function setSharedSecret(?string $shared_secret): self
-    {
-        $this->sharedSecret = $shared_secret;
 
         return $this;
     }

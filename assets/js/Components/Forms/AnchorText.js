@@ -98,7 +98,7 @@ export default class AnchorText extends React.Component {
         </View>
         <View as="div" margin="small 0">
           <Button color="primary" onClick={this.handleSubmit} interaction={(canSubmit) ? 'enabled' : 'disabled'}>
-            {pending && <Spinner size="x-small" renderTitle={buttonLabel} />}
+            {pending && <Spinner size="x-small" renderTitle={this.props.t(buttonLabel)} />}
             {this.props.t(buttonLabel)}
           </Button>
         </View>

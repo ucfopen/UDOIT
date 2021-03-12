@@ -11,10 +11,10 @@ use App\Lms\LmsAccountData;
 use App\Lms\LmsInterface;
 use App\Repository\ContentItemRepository;
 use App\Repository\FileItemRepository;
+use App\Services\HtmlService;
 use App\Services\LmsUserService;
 use App\Services\UtilityService;
 use Doctrine\ORM\EntityManagerInterface;
-use DOMDocument;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\Security\Core\Security;
 
@@ -41,13 +41,17 @@ class CanvasLms implements LmsInterface {
     /** @var SessionInterface $session */
     private $session;
 
+    /** @var App\Services\HtmlService */
+    private $html;
+
     public function __construct(
         ContentItemRepository $contentItemRepo,
         FileItemRepository $fileItemRepo,
         EntityManagerInterface $entityManager,
         UtilityService $util,
         Security $security,
-        SessionInterface $session)
+        SessionInterface $session,
+        HtmlService $html)
     {
         $this->contentItemRepo = $contentItemRepo;
         $this->fileItemRepo = $fileItemRepo;
@@ -55,12 +59,65 @@ class CanvasLms implements LmsInterface {
         $this->util = $util;
         $this->security = $security;
         $this->session = $session;
+        $this->html = $html;
     }
 
     public function getId() 
     {
         return 'canvas';
     }
+
+    /**
+     * ********************
+     * LTI Authentication
+     * ********************
+     */
+
+    public function getLtiAuthUrl($globalParams)
+    {
+        $baseUrl = $this->session->get('iss');
+
+        $lmsParams = [];
+        $params = array_merge($globalParams, $lmsParams);
+        $queryStr = http_build_query($params);
+
+        return "{$baseUrl}/api/lti/authorize_redirect?{$queryStr}";
+    }
+
+    public function getKeysetUrl()
+    {
+        return 'https://canvas.instructure.com/api/lti/security/jwks';
+    }
+
+    public function saveTokenToSession($token)
+    {}
+
+    /**
+     * ********************
+     * OAuth Authentication
+     * ********************
+     */
+
+    public function getOauthUri(Institution $institution)
+    {
+        $query = [
+            'client_id' => $institution->getApiClientId(),
+            'scope' => $this->getScopes(),
+            'response_type' => 'code',
+            'redirect_uri' => LmsUserService::getOauthRedirectUri(),
+        ];
+        $baseUrl = $institution->getLmsDomain();
+
+        return "https://{$baseUrl}/login/oauth2/auth?" . http_build_query($query);
+    }
+
+    public function getOauthTokenUri(Institution $institution)
+    {
+        $baseUrl = $institution->getLmsDomain();
+
+        return "https://{$baseUrl}/login/oauth2/token";
+    }
+
 
     public function testApiConnection(User $user)
     {
@@ -75,8 +132,14 @@ class CanvasLms implements LmsInterface {
             return false;
         }
 
-        return ($response->getContent());
+        return ($response->getStatusCode() < 400);
     }
+
+    /**
+     * ****************
+     * Course Functions
+     * ****************
+     */
 
     public function updateCourseData(Course $course, User $user)
     {
@@ -175,6 +238,7 @@ class CanvasLms implements LmsInterface {
                         $contentItem->setCourse($course)
                             ->setLmsContentId($lmsContent['id'])
                             ->setActive(true)
+                            ->setUpdated($this->util->getCurrentTime())
                             ->setContentType($contentType);
                         $this->entityManager->persist($contentItem);
                     }
@@ -182,9 +246,10 @@ class CanvasLms implements LmsInterface {
                     // some content types don't have an updated date, so we'll compare content
                     // to find out if content has changed.
                     if (in_array($contentType, ['syllabus', 'discussion_topic', 'announcement'])) {
-                        $newBody = $this->util->normalizeHtml($lmsContent['body']);
-                        if ($contentItem->getBody() === $newBody) {
-                            $lmsContent['updated'] = $contentItem->getUpdated()->format('c');
+                        if ($contentItem->getBody() === $lmsContent['body']) {
+                            if ($contentItem->getUpdated()) {
+                                $lmsContent['updated'] = $contentItem->getUpdated()->format('c');
+                            }
                         }
                     }
 
@@ -196,9 +261,10 @@ class CanvasLms implements LmsInterface {
 
         // push any updates made to content items to DB
         $this->entityManager->flush();
-
+        
         return $contentItems;
     }
+
 
     public function updateFileItem(Course $course, $file)
     {
@@ -222,6 +288,12 @@ class CanvasLms implements LmsInterface {
         $lmsUrl = "https://{$domainName}/courses/{$course->getLmsCourseId()}/files?preview={$file['id']}";
         $fileItem->setLmsUrl($lmsUrl);
 
+        // normalize file keys
+        $file['fileName'] = $file['filename'];
+        $file['fileType'] = $file['mime_class'];
+        $file['status'] = $file['locked'];
+        $file['fileSize'] = $file['size'];
+
         $fileItem->update($file);
         $this->entityManager->flush();
     }
@@ -238,8 +310,13 @@ class CanvasLms implements LmsInterface {
         $response = $canvasApi->apiGet($url);
 
         if ($response->getErrors()) {
-            $this->util->createMessage('Error retrieving content. Failed API Call: ' . $url, 'error', 
-                $contentItem->getCourse(), $user);
+            $log = '';
+            foreach ($response->getErrors() as $err) {
+                $log .= ' | Msg: ' . $err;
+            }
+
+            $this->util->createMessage('Error retrieving content. Please try again.', 'error', $contentItem->getCourse(), $user);
+            $this->util->createMessage($log, 'error', $contentItem->getCourse(), $user, true);
         }
         else {
             $apiContent = $response->getContent();
@@ -253,6 +330,7 @@ class CanvasLms implements LmsInterface {
             }
 
             $contentItem->update($lmsContent);
+            $this->entityManager->flush();
         }
     }
 
@@ -266,8 +344,7 @@ class CanvasLms implements LmsInterface {
         $options = $this->createLmsPostOptions($contentItem);
         
         if ('file' === $contentItem->getContentType()) {
-            $filepath = $this->util->getTempPath() . '/content.' . $contentItem->getId();
-
+            $filepath = $this->util->getTempPath() . '/content.' . $contentItem->getId() . '.html';
             $fileResponse = $canvasApi->apiFilePost($url, $options, $filepath);
             $fileObj = $fileResponse->getContent();
             
@@ -303,21 +380,20 @@ class CanvasLms implements LmsInterface {
         }
 
         return $fileResponse;
-    }    
-
-    public function getOauthUri(Institution $institution) 
-    {
-        $query = [
-            'client_id' => $institution->getApiClientId(),
-            'scope' => $this->getScopes(),
-            'response_type' => 'code',
-            'redirect_uri' => LmsUserService::getOauthRedirectUri(),
-        ];
-        
-        $apiDomain = $this->session->get('lms_api_domain');
-        
-        return 'https://' . $apiDomain . '/login/oauth2/auth?' . http_build_query($query);
     }
+
+    public function getCourseUrl(Course $course, User $user)
+    {
+        $domain = $this->getApiDomain($user);
+
+        return "https://{$domain}/courses/{$course->getLmsCourseId()}";
+    }
+    
+    /**
+     * ******************
+     * Account Functions
+     * ******************
+     */
 
     public function getAccountData(User $user, $accountId) 
     {
@@ -372,18 +448,6 @@ class CanvasLms implements LmsInterface {
         $this->entityManager->flush();
 
         return $accounts[$accountId];
-
-
-        // $accountData = new LmsAccountData($accountId);
-        
-        // $this->getAccountInfo($user, $accountData);
-        // $this->getSubAccounts($user, $accountData);
-        // $this->getAccountTerms($user, $accountData);
-
-        // $user->getInstitution()->setAccountData($accountId, $accountData);
-        // $this->entityManager->flush();
-        
-        // return $accountData;
     }
 
     public function getAccountTerms(User $user, $accountId, $isRoot = false)
@@ -424,13 +488,7 @@ class CanvasLms implements LmsInterface {
         return $terms;
     }
 
-    public function getCourseUrl(Course $course, User $user)
-    {
-        $domain = $this->getApiDomain($user);
-
-        return "https://{$domain}/courses/{$course->getLmsCourseId()}";
-    }
-
+    
 
     /**********************
      * PROTECTED FUNCTIONS 
@@ -657,20 +715,6 @@ class CanvasLms implements LmsInterface {
     protected function getApiToken(User $user)
     {
         return $user->getApiKey();
-    }
-
-    protected function compareContent($content1, $content2)
-    {
-        try {
-            $doc1 = new DOMDocument();
-            $doc1->loadXML($content1);
-
-            $doc2 = new DOMDocument();
-            $doc2->loadXML($content2);
-            return ($doc1->saveXml() == $doc2->saveXml());
-        } catch (\Exception $ex) {
-            $this->util->createMessage($ex->getMessage());
-        }
     }
 
     protected function sortSubAccounts($a, $b) 

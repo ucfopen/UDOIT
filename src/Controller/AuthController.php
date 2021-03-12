@@ -22,7 +22,7 @@ class AuthController extends AbstractController
     private $session;
     /** @var Request $request */
     private $request;
-    /** @var LmsUserService $lmsApi */
+    /** @var LmsApiService $lmsApi */
     private $lmsApi;
 
     /**
@@ -32,22 +32,23 @@ class AuthController extends AbstractController
         Request $request,
         SessionInterface $session,
         UtilityService $util,
-        LmsUserService $lmsUser,
         LmsApiService $lmsApi)
     {
         $this->request = $request;
         $this->session = $session;
         $this->util = $util;
-        $this->lmsUser = $lmsUser;
 
         $user = $this->getUser();
-                
-        //$this->saveRequestToSession();
-        
+        if (!$user) {
+            $this->util->exitWithMessage('User authentication failed.');
+        }
+
         $institution = $user->getInstitution();
         if (!$institution) {
             $util->exitWithMessage('No institution found with this domain.');
         }
+
+        $session->set('oauthAttempted', true);
 
         $oauthUri = $lmsApi->getLms()->getOauthUri($institution);
 
@@ -62,12 +63,13 @@ class AuthController extends AbstractController
         Request $request,
         SessionInterface $session,
         UtilityService $util,
-        LmsUserService $lmsUser
+        LmsUserService $lmsUser,
+        LmsApiService $lmsApi
     ) {
         $this->request = $request;
         $this->session = $session;
         $this->util = $util;
-        $this->lmsUser = $lmsUser;
+        $this->lmsApi = $lmsApi;
 
         if (!empty($request->query->get('error'))) {
             $util->exitWithMessage('Authentication problem: Access Denied. ' . $request->query->get('error'));
@@ -109,21 +111,6 @@ class AuthController extends AbstractController
         return new Response('Updated.');
     }
 
-    private function saveRequestToSession()
-    {
-        try {
-            $postParams = $this->request->request->all();
-
-            foreach ($postParams as $key => $val) {
-                $this->session->set($key, $val);
-            }
-        } catch (\Exception $e) {
-            print_r($e->getMessage());
-        }
-
-        return;
-    }
-
     /**
      * Finish authorization process by requesting a token from LMS
      *
@@ -133,7 +120,6 @@ class AuthController extends AbstractController
     {
         $user = $this->getUser();
         $institution = $user->getInstitution();
-        $baseUrl = $institution->getLmsDomain();
         $code = $this->request->query->get('code');
         $clientSecret = $institution->getApiClientSecret();
 
@@ -144,7 +130,7 @@ class AuthController extends AbstractController
         }
 
         $options = [
-            'query' => [
+            'body' => [
                 'grant_type'    => 'authorization_code',
                 'client_id'     => $institution->getApiClientId(),
                 'redirect_uri'  => LmsUserService::getOauthRedirectUri(),
@@ -156,7 +142,7 @@ class AuthController extends AbstractController
         ];
 
         $client = HttpClient::create();
-        $requestUrl = "https://{$baseUrl}/login/oauth2/token";
+        $requestUrl = $this->lmsApi->getLms()->getOauthTokenUri($institution);
         $response = $client->request('POST', $requestUrl, $options);
         $contentStr = $response->getContent(false);
 

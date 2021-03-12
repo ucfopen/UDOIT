@@ -57,7 +57,6 @@ class App extends React.Component {
 
         {('welcome' === this.state.navigation) && 
           <WelcomePage 
-            key="welcomePage" 
             handleNavigation={this.handleNavigation} 
             t={this.t}
             hasNewReport={this.hasNewReport} />
@@ -68,8 +67,7 @@ class App extends React.Component {
             settings={this.settings}
             handleAppFilters={this.handleAppFilters}
             handleNavigation={this.handleNavigation}
-            t={this.t}
-            key="summaryPage"></SummaryPage>
+            t={this.t} />
         }
         {('content' === this.state.navigation) &&
           <ContentPage
@@ -81,8 +79,7 @@ class App extends React.Component {
             handleIssueSave={this.handleIssueSave}
             handleIssueUpdate={this.handleIssueUpdate}
             handleManualScan={this.handleManualScan}
-            t={this.t}
-            key="contentPage"></ContentPage>
+            t={this.t} />
         }
         {('files' === this.state.navigation) &&
           <FilesPage
@@ -90,8 +87,7 @@ class App extends React.Component {
             settings={this.settings}
             handleNavigation={this.handleNavigation}
             handleFileSave={this.handleFileSave}
-            t={this.t}
-            key="filesPage"></FilesPage>
+            t={this.t} />
         }
         {('reports' === this.state.navigation) &&
           <ReportsPage
@@ -147,10 +143,8 @@ class App extends React.Component {
         api.getReport()
           .then((response) => response.json())
           .then((data) => {
-            console.log('data', data)
             if (data.messages) {
               data.messages.forEach((msg) => {
-                console.log('message', msg);
                 if (msg.visible) {
                   this.addMessage(msg)
                 }
@@ -164,7 +158,6 @@ class App extends React.Component {
             if (data.data && data.data.id) {
               this.hasNewReport = true;
               clearInterval(intervalId);
-              console.log('report', data.data);
               this.setState({ report: data.data });
             }
           });
@@ -180,10 +173,8 @@ class App extends React.Component {
         api.getReport()
           .then((response) => response.json())
           .then((data) => {
-            console.log('data', data)
             if (data.messages) {
               data.messages.forEach((msg) => {
-                console.log('message', msg);
                 if (msg.visible) {
                   this.addMessage(msg);
                 }
@@ -191,7 +182,6 @@ class App extends React.Component {
             }
             if (data.data && data.data.id) {
               this.hasNewReport = true;
-              console.log('report', data.data);
               this.setState({ report: data.data });
             }
           });
@@ -210,7 +200,6 @@ class App extends React.Component {
   }
 
   addMessage = (msg) => {
-    console.log('msg', msg)
     this.messages.push(msg)
   }
 

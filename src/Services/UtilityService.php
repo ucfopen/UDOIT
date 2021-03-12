@@ -11,7 +11,6 @@ use App\Entity\User;
 use App\Lms\LmsInterface;
 use DateTime;
 use Doctrine\Persistence\ManagerRegistry;
-use DOMDocument;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Request;
@@ -45,8 +44,6 @@ class UtilityService {
     
     private $env;
 
-    private $messages = [];
-
     public function __construct(
         SessionInterface $session,
         ManagerRegistry $doctrine,
@@ -62,36 +59,7 @@ class UtilityService {
 
         self::$timezone = new \DateTimeZone('GMT');
     }
-
-    public static function normalizeHtml($html) 
-    {
-        $out = [];
-
-        if (empty($html)) {
-            return '';
-        }
-
-        try {
-            $dom = new DOMDocument('1.0', 'utf-8');
-            if (strpos($html, '<?xml encoding="utf-8"') !== false) {
-                $dom->loadHTML($html, LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD);    
-            }
-            else {
-                $dom->loadHTML('<?xml encoding="utf-8" ?>' . $html, LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD);
-            }
-            $dom->preserveWhiteSpace = false;
-
-            if ($dom->hasChildNodes()) {
-                foreach ($dom->childNodes as $node) {
-                    $out[] = $dom->saveXML($node);
-                }
-            }
-        }
-        catch (\Exception $e) {}
-
-        return implode('', $out);
-    }
-
+   
     public function getEnv()
     {
         if (!isset($this->env)) {
@@ -132,7 +100,7 @@ class UtilityService {
         return $messages;
     }
 
-    public function createMessage($msg, $severity = 'notice', Course $course = null, User $user = null, $hideFromUser = false)
+    public function createMessage($msg, $severity = 'info', Course $course = null, User $user = null, $hideFromUser = false)
     {
         if (!$user) {
             $user = $this->security->getUser();

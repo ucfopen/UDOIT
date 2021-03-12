@@ -40,8 +40,8 @@ class SortableTable extends React.Component {
             caption={caption}
             hover={true}
           >
-            <Table.Head renderSortLabel="Sort by">
-              <Table.Row key="sortableTableHeader">
+            <Table.Head renderSortLabel={this.props.t('sortable_table.sort_by')}>
+              <Table.Row>
                 {(headers || []).map(({ id, text }) => (
                   <Table.ColHeader
                     key={`header${id}`}
@@ -90,8 +90,8 @@ class SortableTable extends React.Component {
           as="nav"
           margin="small"
           variant="compact"
-          labelNext="Next Page"
-          labelPrev="Previous Page"
+          labelNext={this.props.t('sortable_table.next_page')}
+          labelPrev={this.props.t('sortable_table.prev_page')}
         >
           {pages}
         </Pagination>

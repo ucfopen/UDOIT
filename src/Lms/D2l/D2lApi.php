@@ -1,13 +1,13 @@
 <?php
 
-namespace App\Lms\Canvas;
+namespace App\Lms\D2l;
 
 use App\Lms\LmsResponse;
 use Symfony\Component\HttpClient\HttpClient;
 use Symfony\Component\Mime\Part\DataPart;
 use Symfony\Component\Mime\Part\Multipart\FormDataPart;
 
-class CanvasApi {
+class D2lApi {
 
     protected $session;
     protected $baseUrl;
@@ -30,57 +30,24 @@ class CanvasApi {
      * 
      * @return LmsResponse
      */
-    public function apiGet($url, $options = [], $perPage = 100, $lmsResponse = null)
+    public function apiGet($url, $options = [], $lmsResponse = null)
     {      
-        $links = [];
-
         if (!$lmsResponse) {
             $lmsResponse = new LmsResponse();
         }
 
-        if (!strpos($url, 'per_page')) {
-            if (strpos($url, '?')) {
-                $url .= '&per_page=' . $perPage;
-            } else {
-                $url .= '?per_page=' . $perPage;
-            }
-        }
-
         if (strpos($url, $this->baseUrl) === false) {
-            $url = "https://{$this->baseUrl}/api/v1/{$url}";
+            $url = "https://{$this->baseUrl}/d2l/api/{$url}";
         }
 
         $response = $this->httpClient->request('GET', $url, $options);
         $lmsResponse->setResponse($response);
-
         $content = $lmsResponse->getContent();
+        
         if (!empty($content['errors'])) {
-            // If error is invalid token, refresh API token and try again 
-
             foreach ($content['errors'] as $error) {
                 $lmsResponse->setError($error['message']);
             }
-        }
-        // ** Not sure what this was for, but it's picking up discussion topics as an error.
-        // ** Removing for now
-        // if (!empty($content['message'])) {
-        //     $lmsResponse->setError($content['message']);
-        // }
-
-        $headers = $response->getHeaders(false);
-
-        if (isset($headers['link'][0])) {
-            $links = explode(',', $headers['link'][0]);
-
-            foreach ($links as $value) {
-                if (preg_match('/^\s*<(.*?)>;\s*rel="(.*?)"/', $value, $match)) {
-                    $links[$match[2]] = $match[1];
-                }
-            }
-        }
-        
-        if (isset($links['next'])) {
-            $this->apiGet($links['next'], $options, $perPage, $lmsResponse); 
         }
 
         return $lmsResponse;
@@ -116,7 +83,7 @@ class CanvasApi {
     }
 
     /**
-     * Posts a file to Canvas
+     * Posts a file to D2L
      *
      * @param string $url
      * @param array $options
@@ -128,24 +95,17 @@ class CanvasApi {
     {
         $fileResponse = $this->apiGet($url);
         $file = $fileResponse->getContent();
-
-        // TODO: handle failed call
-
-        $endpointOptions = [
-            'name' => urldecode($file['filename']),
-            'parent_folder_id' => $file['folder_id'],            
-        ];
-        
-        $endpointResponse = $this->apiPost($options['postUrl'], ['query' => $endpointOptions], true);
-        $endpointContent = $endpointResponse->getContent();
         
         // TODO: handle failed call
         
-        $formFields = $endpointContent['upload_params'];
+        $formFields = $file;
         $formFields['file'] = DataPart::fromPath($filepath);
         $formData = new FormDataPart($formFields);
         
-        $fileResponse = $this->apiPost($endpointContent['upload_url'], [
+        print $formData->toString();
+        exit;
+
+        $fileResponse = $this->apiPost($url, [
             'headers' => $formData->getPreparedHeaders()->toArray(),
             'body' => $formData->bodyToIterable(),
         ], false);
@@ -158,7 +118,7 @@ class CanvasApi {
         $lmsResponse = new LmsResponse();
 
         if (strpos($url, 'https://') === false) {
-            $url = "https://{$this->baseUrl}/api/v1/{$url}";
+            $url = "https://{$this->baseUrl}/d2l/api/{$url}";
         }
 
         $response = $this->httpClient->request('PUT', $url, $options);
@@ -171,6 +131,9 @@ class CanvasApi {
             foreach ($content['errors'] as $error) {
                 $lmsResponse->setError($error['message']);
             }
+        }
+        else if ($lmsResponse->getStatusCode() >= 400) {
+            $lmsResponse->setError($content);
         }
 
         return $lmsResponse;

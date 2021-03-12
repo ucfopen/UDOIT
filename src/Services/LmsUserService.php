@@ -15,10 +15,14 @@ class LmsUserService {
     /** @var ManagerRegistry $doctrine */
     protected $doctrine;
 
-    public function __construct(LmsApiService $lmsApi, ManagerRegistry $doctrine)
+    /** @var UtilityService $util */
+    protected $util;
+
+    public function __construct(LmsApiService $lmsApi, ManagerRegistry $doctrine, UtilityService $util)
     {
         $this->lmsApi = $lmsApi;
         $this->doctrine = $doctrine;
+        $this->util = $util;
     }
 
     public static function getOauthRedirectUri()
@@ -39,45 +43,40 @@ class LmsUserService {
         if (empty($apiKey)) {
             return false;
         }
-        
-        try {
+
+        try {        
             $lms = $this->lmsApi->getLms();
-            $profile = $lms->testApiConnection($user);
+            $status = $lms->testApiConnection($user);
 
-
-            if (empty($profile)) {
-                throw new \Exception('Access token is invalid or expired.');
+            if ($status) {
+                return true;
             }
 
-            return true;
-        } catch (\Exception $e) {
             $refreshed = $this->refreshApiKey($user);
             if (!$refreshed) {
                 return false;
             }
 
-            $profile = $lms->testApiConnection($user);
-
-            if (!$profile) {
-                return false;
-            }
-
-            return true;
+            return ($lms->testApiConnection($user));
+        } 
+        catch (\Exception $e) {
+            $this->util->createMessage('LMS authentication error: ' . $e->getMessage());
+            
+            return false;
         }
     }
 
     public function refreshApiKey(User $user)
     {
         $refreshToken = $user->getRefreshToken();
-        $institution = $user->getInstitution();
-        $baseUrl = $institution->getLmsDomain();
+        $institution = $user->getInstitution();;
 
         if (empty($refreshToken)) {
             return false;
         }
 
         $options = [
-            'query' => [
+            'body' => [
                 'grant_type'    => 'refresh_token',
                 'client_id'     => $institution->getApiClientId(),
                 'redirect_uri'  => self::getOauthRedirectUri(),
@@ -89,7 +88,7 @@ class LmsUserService {
         ];
 
         $client = HttpClient::create();
-        $requestUrl = "https://{$baseUrl}/login/oauth2/token";
+        $requestUrl = $this->lmsApi->getLms()->getOauthTokenUri($institution);
         $response = $client->request('POST', $requestUrl, $options);
         $contentStr = $response->getContent(false);
         $newKey = \json_decode($contentStr, true);

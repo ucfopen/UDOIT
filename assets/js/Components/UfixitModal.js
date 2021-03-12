@@ -21,6 +21,8 @@ import Ufixit from '../Services/Ufixit'
 import Api from '../Services/Api'
 import Html from '../Services/Html'
 
+import Pretty from 'pretty'
+
 class UfixitModal extends React.Component {
 
   constructor(props) {
@@ -28,7 +30,7 @@ class UfixitModal extends React.Component {
 
     this.state = {
       showSourceCode: false,
-      expandDetails: true,
+      expandExample: false,
     }
 
     this.modalMessages = []
@@ -39,7 +41,7 @@ class UfixitModal extends React.Component {
     this.handleIssueSave = this.handleIssueSave.bind(this)
     this.handleIssueResolve = this.handleIssueResolve.bind(this)
     this.handleOpenContent = this.handleOpenContent.bind(this)
-    this.handleDetailsToggle = this.handleDetailsToggle.bind(this)
+    this.handleExampleToggle = this.handleExampleToggle.bind(this)
   }
 
   findActiveIndex() {
@@ -84,13 +86,21 @@ class UfixitModal extends React.Component {
     const UfixitForm = ufixitService.returnIssueForm(activeIssue)
     const highlightedPreview = this.highlightHtml(activeIssue)
 
+    let showExample = false
+    if (!this.props.t(`rule.example.${activeIssue.scanRuleId}`).includes('rule.example')) {
+      showExample = true
+    }
+
+    let code = (activeIssue.newHtml) ? activeIssue.newHtml : activeIssue.sourceHtml
+    code = Pretty(code)
+
     return (
       <View>
         {this.props.open &&
         <Modal
           open={this.props.open}
           size="large"
-          label="A form for fixing the current issue">
+          label={this.props.t('ufixit.modal.label')}>
           <Modal.Header padding="0 medium">
             <Flex>
               <Flex.Item shouldGrow shouldShrink>
@@ -109,15 +119,22 @@ class UfixitModal extends React.Component {
           <Modal.Body padding="small medium">
             <MessageTray messages={this.modalMessages} clearMessages={this.clearMessages} t={this.props.t} hasNewReport={true} />
             <View as="div" margin="small">
-                    <ToggleDetails
-                    summary={this.state.expandDetails ? (this.props.t('label.btn.hide_details')) : (this.props.t('label.btn.show_details'))}
-                    expanded={this.state.expandDetails}
-                    fluidWidth={true}
-                    onToggle={this.handleDetailsToggle}>
-                    <View as="div" margin="small 0">
-                      {ReactHtmlParser(this.props.t(`rule.desc.${activeIssue.scanRuleId}`))}
-                    </View>
-                  </ToggleDetails>
+              <View as="div" margin="small 0">
+                <Text lineHeight="default">
+                  {ReactHtmlParser(this.props.t(`rule.desc.${activeIssue.scanRuleId}`))}
+                </Text>
+              </View>
+              {showExample &&
+                <ToggleDetails
+                  summary={this.state.expandExample ? (this.props.t('label.btn.hide_example')) : (this.props.t('label.btn.show_example'))}
+                  expanded={this.state.expandExample}
+                  fluidWidth={true}
+                  onToggle={this.handleExampleToggle}>
+                  <View as="div" margin="small 0">
+                    {ReactHtmlParser(this.props.t(`rule.example.${activeIssue.scanRuleId}`))}
+                  </View>
+                </ToggleDetails>
+              }
             </View>
             <Flex justifyItems="space-between" alignItems="start">
               <Flex.Item width="46%" padding="0" overflowY="auto">
@@ -131,26 +148,44 @@ class UfixitModal extends React.Component {
               </Flex.Item>
               <Flex.Item width="50%" padding="0" overflowY="auto">
                 <View as="div" padding="x-small">
-                  <Text weight="bold">{this.props.t('label.preview')}</Text>
-                  <View as="div" shadow="resting" padding="small" margin="x-small 0">
-                    <div className={Classes.previewWindow}  dangerouslySetInnerHTML={{__html: highlightedPreview}} />
+                  <InlineList delimiter="pipe">
+                    <InlineList.Item>
+                      {this.state.showSourceCode ?
+                        <Link isWithinText={false} onClick={this.handleCodeToggle}>
+                          {this.props.t('label.preview')}</Link>
+                        : 
+                        <Text weight="bold">{this.props.t('label.preview')}</Text> 
+                      }
+                    </InlineList.Item>
+                    <InlineList.Item>
+                      {this.state.showSourceCode ?
+                        <Text weight="bold">{this.props.t('label.view_source')}</Text>
+                        :
+                        <Link isWithinText={false} onClick={this.handleCodeToggle}>
+                          {this.props.t('label.view_source')}</Link>
+                      }
+                    </InlineList.Item>
+                  </InlineList>
+                  <View as="div" shadow="resting" padding="small" margin="x-small 0" height="250px" overflowY="auto">
+                    {this.state.showSourceCode ?
+                      <CodeEditor margin="x-small 0" label={this.props.t('label.code_preview')} language="html" readOnly={true}
+                        value={code}
+                        options={{ lineNumbers: true }} />
+                      :
+                      <div className={Classes.previewWindow}>
+                        {ReactHtmlParser(highlightedPreview)}
+                      </div>
+                    }
                   </View>
-                  <Link margin="0 0 x-small 0" isWithinText={false} onClick={this.handleCodeToggle}>{this.props.t('label.view_source')}</Link>
-                  {this.state.showSourceCode && 
-                    <CodeEditor margin="x-small 0" label={this.props.t('label.code_preview')} language="html" readOnly={true} 
-                      value={(activeIssue.newHtml) ? activeIssue.newHtml : activeIssue.sourceHtml} />
-                  }
                 </View>
                 <View as="div" margin="medium 0 0 0" padding="0 x-small">
                   <Text weight="bold">{this.props.t('label.source')}</Text>
                   {activeContentItem && 
                     <View as="div" padding="small 0 0 0">                    
-                      <Pill>{activeContentItem.contentType}</Pill> {activeContentItem.title}
-                      <View as="div">
-                        <Link onClick={this.handleOpenContent} isWithinText={false} margin="small 0" renderIcon={<IconExternalLinkLine />} iconPlacement="end">
-                          {this.props.t('label.open_in_lms')}
+                      <Pill>{activeContentItem.contentType}</Pill>
+                      <Link onClick={this.handleOpenContent} isWithinText={false} margin="small" renderIcon={<IconExternalLinkLine />} iconPlacement="end">
+                          {activeContentItem.title}
                         </Link>
-                      </View>
                     </View>
                   }
                 </View>
@@ -173,7 +208,8 @@ class UfixitModal extends React.Component {
                   </InlineList>
                 </Flex.Item>
                 <Flex.Item>
-                  <Checkbox onChange={this.handleIssueResolve} label={this.props.t('label.resolved')} checked={activeIssue.status ? true: false} />
+                  <Checkbox onChange={this.handleIssueResolve} label={this.props.t('label.mark_resolved')} 
+                    checked={!!activeIssue.status} disabled={!!activeIssue.status} />
                 </Flex.Item>
               </Flex>
             </View>
@@ -237,7 +273,6 @@ class UfixitModal extends React.Component {
       .then((responseStr) => responseStr.json())
       .then((response) => {
         if (response.data.failed) {
-          console.log('response', response)
           response.messages.forEach((msg) => this.addMessage(msg))
           
           if (Array.isArray(response.data.issues)) {
@@ -283,8 +318,8 @@ class UfixitModal extends React.Component {
     this.props.handleActiveIssue(issue)
   }
 
-  handleDetailsToggle() {
-    this.setState({expandDetails: !this.state.expandDetails})
+  handleExampleToggle() {
+    this.setState({expandExample: !this.state.expandExample})
   }
   
   addMessage = (msg) => {

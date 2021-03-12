@@ -33,6 +33,7 @@ class FilesModal extends React.Component {
     this.handleFileResolve = this.handleFileResolve.bind(this)
     this.handleFileChange = this.handleFileChange.bind(this)
     this.handleOpenContent = this.handleOpenContent.bind(this)
+    this.handleDownloadContent = this.handleDownloadContent.bind(this)
     this.handleDropAccept = this.handleDropAccept.bind(this)
     this.handleDropReject = this.handleDropReject.bind(this)
     this.handleFilePost = this.handleFilePost.bind(this)
@@ -75,6 +76,10 @@ class FilesModal extends React.Component {
     window.open(this.props.activeFile.lmsUrl, '_blank', 'noopener,noreferrer')
   }
 
+  handleDownloadContent(e) {
+    window.open(this.props.activeFile.downloadUrl, '_blank', 'download')
+  }
+
   render() {
     const { activeFile } = this.props
     let activeIndex = this.findActiveIndex()
@@ -95,7 +100,7 @@ class FilesModal extends React.Component {
                   <CloseButton
                     placement="end"
                     offset="small"
-                    screenReaderLabel="Close"
+                    screenReaderLabel={this.props.t('srlabel.close')}
                     onClick={this.props.handleCloseButton}
                   />
                 </Flex.Item>
@@ -106,7 +111,7 @@ class FilesModal extends React.Component {
               <Flex justifyItems="space-between" alignItems="start">
                 <Flex.Item width="46%" padding="0" overflowY="auto">
                   <View as="div" margin="small 0" padding="small 0 medium 0" borderWidth="0 0 small 0">
-                    <Link href={activeFile.downloadUrl} margin="0 large 0 0" isWithinText={false} renderIcon={<IconDownloadLine />} iconPlacement="start">
+                    <Link onClick={this.handleDownloadContent} margin="0 large 0 0" isWithinText={false} renderIcon={<IconDownloadLine />} iconPlacement="start">
                       {this.props.t('label.download')}
                     </Link>
                     <Link onClick={this.handleOpenContent} isWithinText={false} renderIcon={<IconExternalLinkLine />} iconPlacement="start">
@@ -201,7 +206,6 @@ class FilesModal extends React.Component {
   }
 
   handleDropReject([file]) {
-    console.log(`File rejected: ${file.name}`)
     this.addMessage({severity: 'warning', message: this.props.t('msg.file.replace.file_type'), timeout: 5000})
     this.forceUpdate()
   }

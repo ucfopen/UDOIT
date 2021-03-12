@@ -55,8 +55,6 @@ class AdminApp extends React.Component {
   }
 
   render() {
-    console.log('state', this.state)
-
     return (
       <View as="div">
         <AdminHeader
@@ -99,7 +97,7 @@ class AdminApp extends React.Component {
             termId={this.state.termId}
             addMessage={this.addMessage}
             handleCourseUpdate={this.handleCourseUpdate}
-            key="adminCoursePage"></CoursesPage>
+          />
         }
         {(!this.state.loadingCourses) && ('reports' === this.state.navigation) &&
           <ReportsPage
@@ -107,7 +105,6 @@ class AdminApp extends React.Component {
             settings={this.settings}
             accountId={this.state.accountId}
             termId={this.state.termId}
-            key="adminReportsPage"
           />
         }
         {(!this.state.loadingCourses) && ('users' === this.state.navigation) &&
@@ -116,7 +113,6 @@ class AdminApp extends React.Component {
             settings={this.settings}
             accountId={this.state.accountId}
             termId={this.state.termId}
-            key="adminUsersPage"
           />
         }
         {('settings' === this.state.navigation) &&
@@ -138,8 +134,6 @@ class AdminApp extends React.Component {
     api.getAdminCourses(accountId, termId)
       .then((response) => response.json())
       .then((data) => {
-        console.log('data', data)
-
         let courses = {}
         if (Array.isArray(data.data)) {
           data.data.forEach(course => {
@@ -161,7 +155,6 @@ class AdminApp extends React.Component {
   }
 
   addMessage = (msg) => {
-    console.log('msg', msg)
     this.messages.push(msg)
   }
 

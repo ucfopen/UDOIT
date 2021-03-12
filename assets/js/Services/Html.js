@@ -27,10 +27,20 @@ class Html {
       element = this.toElement(element)
     }
 
-    // TODO: add logic to handle multiple text nodes, children elements, etc
-    const textNode = document.createTextNode(newText)
-    element.innerText = ''
-    element.appendChild(textNode)
+    const children = element.childNodes
+    let textNodeFound = false
+
+    children.forEach(function (node, index) {
+      if (node.nodeType === Node.TEXT_NODE) {
+        node.nodeValue = newText
+        textNodeFound = true
+      }
+    })
+
+    if (!textNodeFound) {
+      const textNode = document.createTextNode(newText)
+      element.appendChild(textNode)
+    }
 
     return element
   }
@@ -42,8 +52,8 @@ class Html {
 
     if (!element) {
       return null
-    } 
-    
+    }
+
     return element.getAttribute(name)
   }
 
@@ -84,7 +94,7 @@ class Html {
       return null
     }
 
-    return element.tagName;
+    return element.tagName
   }
 
   removeTag(element, name) {
@@ -98,9 +108,7 @@ class Html {
 
     let outerTag = RegExp('<'.concat(name).concat('>'))
 
-    element.innerHTML = element.innerHTML.replace(outerTag, "")
-
-    console.log(element)
+    element.innerHTML = element.innerHTML.replace(outerTag, '')
 
     return element
   }
@@ -119,13 +127,34 @@ class Html {
     var newElement = document.createElement(newName)
 
     // Add attributes to new element
-    attributes.forEach(function(attribute) {
-      newElement = this.setAttribute(newElement, attribute.nodeName, attribute.nodeValue)
-    }.bind(this))
+    attributes.forEach(
+      function (attribute) {
+        newElement = this.setAttribute(
+          newElement,
+          attribute.nodeName,
+          attribute.nodeValue
+        )
+      }.bind(this)
+    )
 
     newElement.innerHTML = element.innerHTML
-    
+
     return newElement
+  }
+
+  prepareLink(element) {
+    if ('string' === typeof element) {
+      element = this.toElement(element)
+    }
+
+    if (!element) {
+      return null
+    }
+    if ('a' !== element.tagName && !element.href) {
+      return null
+    }
+
+    return this.setAttribute(element, 'target', '_blank')
   }
 }
 

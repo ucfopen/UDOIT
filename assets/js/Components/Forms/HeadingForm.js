@@ -11,7 +11,7 @@ import { CondensedButton } from '@instructure/ui-buttons'
 import Html from '../../Services/Html';
 
 
-export default class HeaderForm extends React.Component {
+export default class HeadingForm extends React.Component {
     constructor(props) {
         super(props)
 
@@ -61,7 +61,6 @@ export default class HeaderForm extends React.Component {
         this.setState({
             deleteHeader: !this.state.deleteHeader
         }, () => {
-            console.log(this.state.deleteHeader)
             let issue = this.props.activeIssue
             issue.newHtml = this.processHtml()
             this.props.handleActiveIssue(issue)
@@ -134,7 +133,7 @@ export default class HeaderForm extends React.Component {
     checkTextNotEmpty() {
         const text = this.state.textInputValue.trim().toLowerCase()
         if (text === '') {
-          this.formErrors.push({ text: this.props.t('form.header.msg.text_empty'), type: 'error' })
+          this.formErrors.push({ text: this.props.t('form.heading.msg.text_empty'), type: 'error' })
         }
     }
 
@@ -158,7 +157,7 @@ export default class HeaderForm extends React.Component {
     }
 
     render() {
-        const options = this.props.t('form.header.heading_level_options')
+        const options = this.props.t('form.heading.heading_level_options')
         const pending = (this.props.activeIssue && this.props.activeIssue.pending)
         const buttonLabel = (pending) ? 'form.processing' : 'form.submit'
         const canSubmit = (!pending && !this.props.activeIssue.status)
@@ -173,7 +172,7 @@ export default class HeaderForm extends React.Component {
                 <View>
                     {!this.state.useHtmlEditor &&
                         <TextInput
-                        renderLabel={this.props.t('form.header.text')}
+                        renderLabel={this.props.t('form.heading.text')}
                         display="inline-block"
                         width="100%"
                         onChange={this.handleTextInput}
@@ -200,8 +199,8 @@ export default class HeaderForm extends React.Component {
                 <View as="div" margin="small 0">
                     <View as="span" display="inline-block" margin="small" padding="small">
                         <SimpleSelect
-                        renderLabel={this.props.t('form.header.heading_level')}
-                        assistiveText={this.props.t('form.header.assistive_text')}
+                        renderLabel={this.props.t('form.heading.heading_level')}
+                        assistiveText={this.props.t('form.heading.assistive_text')}
                         value={this.state.selectedValue}
                         onChange={this.handleSelect}
                         width="100%"
@@ -220,7 +219,7 @@ export default class HeaderForm extends React.Component {
                     </View>
     
                     <View as="span" display="inline-block" margin="small" padding="small">
-                        <Checkbox label={this.props.t('form.header.remove_header')} onChange={this.handleCheckbox} checked={this.state.deleteHeader}/>
+                        <Checkbox label={this.props.t('form.heading.remove_header')} onChange={this.handleCheckbox} checked={this.state.deleteHeader}/>
                     </View>
                 </View>
                 <View as="div" margin="small 0">

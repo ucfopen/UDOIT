@@ -6,8 +6,8 @@
         "ext-ctype": "*",
         "ext-iconv": "*",
         "cidilabs/phpally": "dev-master",
-        "deruli/html-minifier": "^0.5.1",
         "firebase/php-jwt": "^5.2",
+        "htmlawed/htmlawed": "^1.1",
         "imsglobal/lti-1p3-tool": "dev-master",
         "knplabs/knp-snappy-bundle": "^1.7",
         "knpuniversity/oauth2-client-bundle": "^1.34",
@@ -40,7 +40,7 @@
         "symfony/yaml": "5.0.*"
     },
     "require-dev": {
-        "doctrine/doctrine-fixtures-bundle": "^3.3",
+        "doctrine/doctrine-fixtures-bundle": "^3.4",
         "symfony/debug-pack": "*",
         "symfony/maker-bundle": "^1.0",
         "symfony/phpunit-bridge": "^5.1",

@@ -215,7 +215,9 @@ class Course implements \JsonSerializable
         usort($items, [$this, 'sortContentItems']);
 
         foreach ($items as $item) {
-            $contentItems[$item->getId()] = $item;
+            if ($item->isActive()) {
+                $contentItems[$item->getId()] = $item;
+            }
         }
 
         return $contentItems;
@@ -373,12 +375,14 @@ class Course implements \JsonSerializable
         $activeIssues = [];
 
         foreach ($this->getContentItems() as $contentItem) {
-            /** @var \App\Entity\Issue[] $issues */
-            $issues = $contentItem->getIssues();
+            if ($contentItem->isActive()) {
+                /** @var \App\Entity\Issue[] $issues */
+                $issues = $contentItem->getIssues();
 
-            foreach ($issues as $issue) {
-                if (Issue::$issueStatusActive === $issue->getStatus()) {
-                    $activeIssues[$issue->getId()] = $issue;
+                foreach ($issues as $issue) {
+                    if (Issue::$issueStatusActive === $issue->getStatus()) {
+                        $activeIssues[$issue->getId()] = $issue;
+                    }
                 }
             }
         }

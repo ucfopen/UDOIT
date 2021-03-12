@@ -31,8 +31,6 @@ export default class ContentTooLong extends React.Component {
   }
 
   handleButton() {
-    console.log(this.state.textInputValue)
-    
     //Submit input value via api call
 
     // Alert for success
@@ -45,8 +43,6 @@ export default class ContentTooLong extends React.Component {
   }
 
   handleInput(event){
-    console.log(event.target.value)
-
     this.setState({
       textInputValue: event.target.value,
       characterCount: event.target.value.length
@@ -61,7 +57,7 @@ export default class ContentTooLong extends React.Component {
       margin="small"
       transition="none"
     >
-      Your changes have been submitted
+      {this.props.t('content_length_too_long.changes.submitted')}
     </Alert>
     } else if(this.state.showFailureAlert) {
 
@@ -81,7 +77,7 @@ export default class ContentTooLong extends React.Component {
         </View>
         <View display="block" margin="medium">
           <TextArea
-            renderLabel={<ScreenReaderContent>Shortened Content</ScreenReaderContent>}
+            renderLabel={<ScreenReaderContent>{this.props.t('content_length_too_long.shortened_content')}</ScreenReaderContent>}
             display="inline-block"
             value={this.state.textInputValue}
             width="25rem"
@@ -89,10 +85,10 @@ export default class ContentTooLong extends React.Component {
           />  
         </View>
         <View display="block" margin="medium">
-          <Text>Current character count: {this.state.characterCount}</Text>
+          <Text>{this.props.t('content_length_too_long.current_char_count')} {this.state.characterCount} {this.props.t('content_length_too_long.of')} 150 {this.props.t('content_length_too_long.chars')}</Text>
         </View>
         <View display="block" margin="medium">
-          <Button color="primary" onClick={this.handleButton}>Save Changes</Button>
+          <Button color="primary" onClick={this.handleButton}>{this.props.t('button.save.changes')}</Button>
         </View>
       </View>
   );

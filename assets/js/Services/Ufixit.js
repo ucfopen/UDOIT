@@ -1,10 +1,9 @@
 import AltText from '../Components/Forms/AltText'
 import AnchorText from '../Components/Forms/AnchorText'
 import BaseFontIsNotUsed from '../Components/Forms/BaseFontIsNotUsed'
-import ContentTooLong from '../Components/Forms/ContentTooLong'
 import ContrastForm from '../Components/Forms/ContrastForm'
 import UfixitReviewOnly from '../Components/Forms/UfixitReviewOnly'
-import HeaderForm from '../Components/Forms/HeaderForm'
+import HeadingForm from '../Components/Forms/HeadingForm'
 import TableHeaders from '../Components/Forms/TableHeaders'
 import Video from '../Components/Forms/Video'
 
@@ -13,16 +12,15 @@ const UfixitForms = {
   AnchorMustContainText: AnchorText,
   AnchorSuspiciousLinkText: AnchorText,
   BaseFontIsNotUsed,
-  ContentTooLong,
   CssTextHasContrast: ContrastForm,
   CssTextStyleEmphasize: ContrastForm,
-  HeadersHaveText: HeaderForm,
+  HeadersHaveText: HeadingForm,
   ImageAltIsDifferent: AltText,
   ImageAltIsTooLong: AltText,
   ImageAltNotEmptyInAnchor: AltText,
   ImageHasAlt: AltText,
   ImageHasAltDecorative: AltText,
-  ParagraphNotUsedAsHeader: HeaderForm,
+  ParagraphNotUsedAsHeader: HeadingForm,
   TableDataShouldHaveTableHeader: TableHeaders,
   TableHeaderShouldHaveScope: TableHeaders,
   ImageAltNotPlaceholder: AltText,
@@ -37,8 +35,6 @@ export default class Ufixit {
         return UfixitForms[activeIssue.scanRuleId]
       }
     }
-
-    console.log('activeIssue', activeIssue)
 
     return UfixitReviewOnly
   }
