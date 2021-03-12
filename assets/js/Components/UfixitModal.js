@@ -29,13 +29,13 @@ class UfixitModal extends React.Component {
     super(props);
 
     this.state = {
-      showSourceCode: false,
+      windowContents: 'preview',
       expandExample: false,
     }
 
     this.modalMessages = []
     
-    this.handleCodeToggle = this.handleCodeToggle.bind(this)
+    this.handleWindowToggle = this.handleWindowToggle.bind(this)
     this.addMessage = this.addMessage.bind(this)
     this.clearMessages = this.clearMessages.bind(this)
     this.handleIssueSave = this.handleIssueSave.bind(this)
@@ -69,8 +69,8 @@ class UfixitModal extends React.Component {
     this.props.handleActiveIssue(this.props.filteredRows[newIndex].issue, newIndex)
   }
   
-  handleCodeToggle(e) {
-    this.setState({showSourceCode: !this.state.showSourceCode})
+  handleWindowToggle(val) {
+    this.setState({windowContents: val})
   }
 
   handleOpenContent(e) {
@@ -84,7 +84,8 @@ class UfixitModal extends React.Component {
 
     let activeIndex = this.findActiveIndex();
     const UfixitForm = ufixitService.returnIssueForm(activeIssue)
-    const highlightedPreview = this.highlightHtml(activeIssue)
+    const highlightedHtml = this.highlightHtml(activeIssue)
+    const contextHtml = (highlightedHtml) ? ReactHtmlParser(highlightedHtml, { preprocessNodes: Html.processStaticHtml }) : 'N/A'
 
     let showExample = false
     if (!this.props.t(`rule.example.${activeIssue.scanRuleId}`).includes('rule.example')) {
@@ -150,38 +151,52 @@ class UfixitModal extends React.Component {
                 <View as="div" padding="x-small">
                   <InlineList delimiter="pipe">
                     <InlineList.Item>
-                      {this.state.showSourceCode ?
-                        <Link isWithinText={false} onClick={this.handleCodeToggle}>
-                          {this.props.t('label.preview')}</Link>
-                        : 
+                      {('preview' === this.state.windowContents) ?
                         <Text weight="bold">{this.props.t('label.preview')}</Text> 
+                        :
+                        <Link isWithinText={false} onClick={() => this.handleWindowToggle('preview')}>
+                          {this.props.t('label.preview')}</Link>
                       }
                     </InlineList.Item>
                     <InlineList.Item>
-                      {this.state.showSourceCode ?
+                      {('context' === this.state.windowContents) ?
+                        <Text weight="bold">{this.props.t('label.context')}</Text>
+                        :
+                        <Link isWithinText={false} onClick={() => this.handleWindowToggle('context')}>
+                          {this.props.t('label.context')}</Link>
+                      }
+                    </InlineList.Item>
+                    <InlineList.Item>
+                      {('html' === this.state.windowContents) ?
                         <Text weight="bold">{this.props.t('label.view_source')}</Text>
                         :
-                        <Link isWithinText={false} onClick={this.handleCodeToggle}>
+                        <Link isWithinText={false} onClick={() => this.handleWindowToggle('html')}>
                           {this.props.t('label.view_source')}</Link>
                       }
                     </InlineList.Item>
                   </InlineList>
-                  <View as="div" shadow="resting" padding="small" margin="x-small 0" height="250px" overflowY="auto">
-                    {this.state.showSourceCode ?
+                  <View as="div" shadow="resting" padding="small" margin="x-small 0 0 0" height="200px" overflowY="auto">
+                    {('preview' === this.state.windowContents) &&
+                      <div className={Classes.previewWindow}>
+                        {ReactHtmlParser(code, { preprocessNodes: Html.processStaticHtml })}
+                      </div>                      
+                    }
+                    {('context' === this.state.windowContents) &&
+                      <div className={Classes.previewWindow}>
+                        {contextHtml}
+                      </div>
+                    }
+                    {('html' === this.state.windowContents) &&
                       <CodeEditor margin="x-small 0" label={this.props.t('label.code_preview')} language="html" readOnly={true}
                         value={code}
                         options={{ lineNumbers: true }} />
-                      :
-                      <div className={Classes.previewWindow}>
-                        {ReactHtmlParser(highlightedPreview)}
-                      </div>
                     }
                   </View>
                 </View>
-                <View as="div" margin="medium 0 0 0" padding="0 x-small">
-                  <Text weight="bold">{this.props.t('label.source')}</Text>
+                <View as="div" padding="0 x-small">
+                  {/* <Text weight="bold">{this.props.t('label.source')}</Text> */}
                   {activeContentItem && 
-                    <View as="div" padding="small 0 0 0">                    
+                    <View as="div">                    
                       <Pill>{activeContentItem.contentType}</Pill>
                       <Link onClick={this.handleOpenContent} isWithinText={false} margin="small" renderIcon={<IconExternalLinkLine />} iconPlacement="end">
                           {activeContentItem.title}
@@ -231,7 +246,7 @@ class UfixitModal extends React.Component {
     const html = (activeIssue.newHtml) ? activeIssue.newHtml : Html.toString(Html.toElement(activeIssue.sourceHtml))
     const highlighted = `<span class="highlighted" style="display:inline-block; border:5px dashed #F1F155;">${html}</span>`
 
-    return activeIssue.sourceHtml.replace(activeIssue.sourceHtml, highlighted)
+    return activeIssue.previewHtml.replace(activeIssue.sourceHtml, highlighted)
   }
 
   handleIssueResolve() {

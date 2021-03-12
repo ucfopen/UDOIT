@@ -178,6 +178,8 @@ class Contrast {
         var l2 = this.relativeLuminance(this.parseRgb( fore ));
         var ratio = (Math.max(l1, l2) + 0.05) / (Math.min(l1, l2) + 0.05);
         
+        ratio = Math.round((ratio * 100)) / 100;
+        
         return ratio || 1;
         }
 

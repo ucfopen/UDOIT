@@ -1,4 +1,8 @@
 class Html {
+  constructor() {
+    this.processStaticHtml = this.processStaticHtml.bind(this)
+  }
+
   toElement(htmlString) {
     let tmp = document.createElement('template')
     tmp.innerHTML = htmlString.trim()
@@ -150,6 +154,27 @@ class Html {
     }
 
     return this.setAttribute(element, "target", "_blank")
+  }
+
+  processStaticHtml(nodes) {
+    const baseUrl = document.referrer.endsWith('/') ? document.referrer.slice(0, -1) : document.referrer
+    
+    for (let node of nodes) {
+      if (('tag' === node.type) && ('a' === node.name)) {
+        node.attribs.target = '_blank'
+      }
+      if (('tag' === node.type) && ('img' === node.name)) {
+        if (node.attribs.src && node.attribs.src.startsWith('/')) {
+          node.attribs.src = `${baseUrl}${node.attribs.src}`
+        }
+      }
+
+      if (Array.isArray(node.children) && node.children.length > 0) {
+        node.children = this.processStaticHtml(node.children)
+      }
+    }
+
+    return nodes    
   }
 }
 

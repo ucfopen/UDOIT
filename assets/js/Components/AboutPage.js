@@ -88,13 +88,13 @@ class AboutPage extends React.Component {
                   <ToggleDetails key={rule.error} summary={rule.error}>
                     <View as="div" margin="small 0" background="primary" padding="small" shadow="above">
                       <Heading level="h4">{rule.error}</Heading>
-                      <Text as="p">{ReactHtmlParser(rule.description)}</Text>
+                      <Text as="p">{ReactHtmlParser(rule.description, { preprocessNodes: Html.processStaticHtml })}</Text>
                       {rule.resources &&
                       <List>
                         {rule.resources.map((resource) => {
                           return (
                             <List.Item key={resource}>
-                              {ReactHtmlParser(Html.prepareLink(resource).outerHTML)}
+                              {ReactHtmlParser(resource, { preprocessNodes: Html.processStaticHtml })}
                             </List.Item>
                           )
                         })}
@@ -143,14 +143,14 @@ class AboutPage extends React.Component {
                   <ToggleDetails key={rule.suggestion} summary={rule.suggestion}>
                     <View as="div" margin="small 0" background="primary" padding="small" shadow="above">
                       <Heading level="h4">{rule.suggestion}</Heading>
-                      <Text as="p">{ReactHtmlParser(rule.description)}</Text>
+                      <Text as="p">{ReactHtmlParser(rule.description, { preprocessNodes: Html.processStaticHtml })}</Text>
 
                       {rule.resources &&
                       <List>
                         {rule.resources.map((resource) => {
                           return (
                             <List.Item key={resource}>
-                              {ReactHtmlParser(Html.prepareLink(resource).outerHTML)}
+                              {ReactHtmlParser(resource, { preprocessNodes: Html.processStaticHtml })}
                             </List.Item>
                           )
                         })}
