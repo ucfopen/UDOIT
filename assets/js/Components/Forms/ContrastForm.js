@@ -132,9 +132,8 @@ export default class ContrastForm extends React.Component {
   }
 
   render() {
-    const pending = (this.props.activeIssue && this.props.activeIssue.pending)
+    const pending = (this.props.activeIssue && (this.props.activeIssue.pending == '1'))
     const buttonLabel = (pending) ? 'form.processing' : 'form.submit'
-    const canSubmit = (!pending && !this.props.activeIssue.status)
 
     return (
       <View as="div" padding="0 x-small">
@@ -200,8 +199,8 @@ export default class ContrastForm extends React.Component {
         </View>
 
         <View as="div" margin="medium 0">
-          <Button color="primary" onClick={this.handleSubmit} interaction={(canSubmit) ? 'enabled' : 'disabled'}>
-              {pending && <Spinner size="x-small" renderTitle={buttonLabel} />}
+          <Button color="primary" onClick={this.handleSubmit} interaction={(!pending) ? 'enabled' : 'disabled'}>
+              {('1' == pending) && <Spinner size="x-small" renderTitle={buttonLabel} />}
               {this.props.t(buttonLabel)}
           </Button>
         </View>
