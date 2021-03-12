@@ -143,6 +143,8 @@ export default class HeadingStyleForm extends React.Component {
 
         newHeader.innerHTML = element.innerHTML
 
+        console.log(newHeader.outerHTML)
+
         if(this.state.removeStyling) {
             newHeader = Html.removeTag(newHeader, 'strong')
             newHeader = Html.removeTag(newHeader, 'b')
@@ -150,8 +152,16 @@ export default class HeadingStyleForm extends React.Component {
 
             newHeader = Html.setInnerText(newHeader, this.state.textInputValue)
         } else {
-            newHeader = Html.setInnerText(newHeader.firstChild, this.state.textInputValue)
+            let curNode = newHeader
+
+            while(curNode.firstChild.nodeType === Node.ELEMENT_NODE) {
+                curNode = curNode.firstChild
+            }
+
+            newHeader = Html.setInnerText(curNode, this.state.textInputValue)
         }
+
+        console.log(newHeader)
         
         return Html.toString(newHeader)
     }
