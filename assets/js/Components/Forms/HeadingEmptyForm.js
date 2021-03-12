@@ -11,7 +11,7 @@ import { CondensedButton } from '@instructure/ui-buttons'
 import Html from '../../Services/Html';
 
 
-export default class HeadingForm extends React.Component {
+export default class HeadingEmptyForm extends React.Component {
     constructor(props) {
         super(props)
 
@@ -128,7 +128,6 @@ export default class HeadingForm extends React.Component {
     }
 
     processHtml() {
-
         if(this.state.deleteHeader) {
             return ''
         }
@@ -137,12 +136,8 @@ export default class HeadingForm extends React.Component {
         // let newHtml = (this.state.useHtmlEditor) ? this.state.codeInputValue : this.state.textInputValue
         let newHtml = this.state.textInputValue
 
-        newHeader.innerHTML = newHtml
-        newHeader = Html.removeTag(newHeader, 'strong')
-        newHeader = Html.removeTag(newHeader, 'b')
-        newHeader = Html.removeTag(newHeader, 'i')
+        newHeader = Html.setInnerText(newHeader, this.state.textInputValue)
         
-
         return Html.toString(newHeader)
     }
 

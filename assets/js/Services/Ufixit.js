@@ -5,6 +5,7 @@ import ContrastForm from '../Components/Forms/ContrastForm'
 import UfixitReviewOnly from '../Components/Forms/UfixitReviewOnly'
 import HeadingForm from '../Components/Forms/HeadingForm'
 import HeadingEmptyForm from '../Components/Forms/HeadingEmptyForm'
+import HeadingStyleForm from '../Components/Forms/HeadingStyleForm'
 import TableHeaders from '../Components/Forms/TableHeaders'
 import Video from '../Components/Forms/Video'
 
