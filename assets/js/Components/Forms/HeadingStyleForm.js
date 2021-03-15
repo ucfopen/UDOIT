@@ -18,6 +18,7 @@ export default class HeadingStyleForm extends React.Component {
         let element = Html.toElement(this.props.activeIssue.sourceHtml)
 
         this.tagName = Html.getTagName(element)
+        this.styleTags = ["STRONG", "B", "I", "EM", "MARK", "SMALL", "DEL", "INS", "SUB", "SUP"]
 
         this.state = {
             codeInputValue: element.innerHTML,
@@ -42,14 +43,17 @@ export default class HeadingStyleForm extends React.Component {
         if (prevProps.activeIssue !== this.props.activeIssue) {
             const html = (this.props.activeIssue.newHtml) ? this.props.activeIssue.newHtml : this.props.activeIssue.sourceHtml
             let element = Html.toElement(html)
+
             this.tagName = Html.getTagName(element)
+            this.styleTags = ["STRONG", "B", "I", "EM", "MARK", "SMALL", "DEL", "INS", "SUB", "SUP"]
         
             this.state = {
                 codeInputValue: element.innerHTML,
                 textInputValue: element.innerText,
                 selectedValue: (this.tagName === 'P') ? 'H2' : this.tagName,
-                deleteHeader: false,
-                // useHtmlEditor: false
+                removeStyling: false,
+                useHtmlEditor: false,
+                textInputErrors: []
             }
 
             this.formErrors = []
@@ -143,8 +147,6 @@ export default class HeadingStyleForm extends React.Component {
 
         newHeader.innerHTML = element.innerHTML
 
-        console.log(newHeader.outerHTML)
-
         if(this.state.removeStyling) {
             newHeader = Html.removeTag(newHeader, 'strong')
             newHeader = Html.removeTag(newHeader, 'b')
@@ -154,15 +156,13 @@ export default class HeadingStyleForm extends React.Component {
         } else {
             let curNode = newHeader
 
-            while(curNode.firstChild.nodeType === Node.ELEMENT_NODE) {
+            while(this.styleTags.includes(curNode.firstChild.nodeName)) {
                 curNode = curNode.firstChild
             }
 
-            newHeader = Html.setInnerText(curNode, this.state.textInputValue)
+            curNode = Html.setInnerText(curNode, this.state.textInputValue)
         }
 
-        console.log(newHeader)
-        
         return Html.toString(newHeader)
     }
 
