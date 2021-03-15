@@ -1,5 +1,9 @@
 class Html {
   toElement(htmlString) {
+    if ('string' !== typeof htmlString) {
+      return htmlString
+    }
+
     let tmp = document.createElement('template')
     tmp.innerHTML = htmlString.trim()
 
@@ -83,6 +87,55 @@ class Html {
     element.removeAttribute(name)
 
     return element
+  }
+
+  getClasses(element) {
+    if ('string' === typeof element) {
+      element = this.toElement(element)
+    }
+
+    if (!element) {
+      return []
+    }
+
+    let classes = element.getAttribute('class')
+
+    return (classes) ? classes.split(' ') : []
+  }
+
+  addClass(element, className) {
+    if ('string' === typeof element) {
+      element = this.toElement(element)
+    }
+
+    if (!element) {
+      return null
+    }
+
+    let classes = this.getClasses(element)
+    classes.push(className)
+    let uniqueClasses = [...new Set(classes)]
+
+    element.setAttribute('class', uniqueClasses.join(' '))
+
+    return element;
+  }
+
+  removeClass(element, className) {
+    if ('string' === typeof element) {
+      element = this.toElement(element)
+    }
+
+    if (!element) {
+      return null
+    }
+
+    let classes = this.getClasses(element)
+    classes = classes.filter(item => item !== className)
+
+    element.setAttribute('class', classes.join(' '))
+
+    return element;
   }
 
   getTagName(element) {
