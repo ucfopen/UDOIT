@@ -30,10 +30,18 @@ class Html {
     const children = element.childNodes
     let textNodeFound = false
 
+    console.log(children)
+
     children.forEach(function(node, index) {
       if(node.nodeType === Node.TEXT_NODE) {
-        node.nodeValue = newText
-        textNodeFound = true
+        if(textNodeFound != true) {
+          node.nodeValue = newText
+          textNodeFound = true
+        } else {
+          // TODO: add support for multiple text nodes
+          node.nodeValue = ''
+        }
+        
       }
     })
 
