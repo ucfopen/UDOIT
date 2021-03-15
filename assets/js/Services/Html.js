@@ -35,17 +35,16 @@ class Html {
     let textNodeFound = false
 
     children.forEach(function(node, index) {
-      if(node.nodeType === Node.TEXT_NODE) {
+      if (node.nodeType === Node.TEXT_NODE) {
         node.nodeValue = newText
         textNodeFound = true
       }
     })
 
-    if(!textNodeFound) {
+    if (!textNodeFound) {
       const textNode = document.createTextNode(newText)
       element.appendChild(textNode)
     }
-    
 
     return element
   }
@@ -57,8 +56,8 @@ class Html {
 
     if (!element) {
       return null
-    } 
-    
+    }
+
     return element.getAttribute(name)
   }
 
@@ -99,7 +98,7 @@ class Html {
       return null
     }
 
-    return element.tagName;
+    return element.tagName
   }
 
   removeTag(element, name) {
@@ -132,12 +131,18 @@ class Html {
     var newElement = document.createElement(newName)
 
     // Add attributes to new element
-    attributes.forEach(function(attribute) {
-      newElement = this.setAttribute(newElement, attribute.nodeName, attribute.nodeValue)
-    }.bind(this))
+    attributes.forEach(
+      function (attribute) {
+        newElement = this.setAttribute(
+          newElement,
+          attribute.nodeName,
+          attribute.nodeValue
+        )
+      }.bind(this)
+    )
 
     newElement.innerHTML = element.innerHTML
-    
+
     return newElement
   }
 

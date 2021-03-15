@@ -83,8 +83,6 @@ class UfixitModal extends React.Component {
     const ufixitService = new Ufixit()
     const { activeIssue, activeContentItem } = this.props
 
-console.log('issue', activeIssue);
-
     let activeIndex = this.findActiveIndex();
     const UfixitForm = ufixitService.returnIssueForm(activeIssue)
     const highlightedHtml = this.highlightHtml(activeIssue)
