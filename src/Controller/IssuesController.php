@@ -119,15 +119,11 @@ class IssuesController extends ApiController
             // Get updated issue
             $issueUpdate = \json_decode($request->getContent(), true);
 
-            // Update issue
-            $issue->setStatus(($issueUpdate['status']) ? Issue::$issueStatusResolved : Issue::$issueStatusActive);
-            $issue->setFixedBy($user);
-            $issue->setFixedOn($util->getCurrentTime());
             $issue->setNewHtml($issueUpdate['newHtml']);
             $this->getDoctrine()->getManager()->flush();
 
             // Save content to LMS
-            $lmsPost->saveContentToLms($issue);
+            $response = $lmsPost->saveContentToLms($issue);
 
             // Add messages to response
             $unreadMessages = $util->getUnreadMessages();
