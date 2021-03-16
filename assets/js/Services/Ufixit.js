@@ -2,7 +2,6 @@ import AltText from '../Components/Forms/AltText'
 import AnchorText from '../Components/Forms/AnchorText'
 import ContrastForm from '../Components/Forms/ContrastForm'
 import UfixitReviewOnly from '../Components/Forms/UfixitReviewOnly'
-import HeadingForm from '../Components/Forms/HeadingForm'
 import HeadingEmptyForm from '../Components/Forms/HeadingEmptyForm'
 import HeadingStyleForm from '../Components/Forms/HeadingStyleForm'
 import TableHeaders from '../Components/Forms/TableHeaders'
@@ -20,7 +19,7 @@ const UfixitForms = {
   ImageAltNotEmptyInAnchor: AltText,
   ImageHasAlt: AltText,
   ImageHasAltDecorative: AltText,
-  ParagraphNotUsedAsHeader: HeadingForm,
+  ParagraphNotUsedAsHeader: HeadingStyleForm,
   TableDataShouldHaveTableHeader: TableHeaders,
   TableHeaderShouldHaveScope: TableHeaders,
   ImageAltNotPlaceholder: AltText,
