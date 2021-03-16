@@ -118,33 +118,39 @@ class IssuesController extends ApiController
             // Get updated issue
             $issueUpdate = \json_decode($request->getContent(), true);
 
-            // Update issue
-            $issue->setStatus(($issueUpdate['status']) ? Issue::$issueStatusResolved : Issue::$issueStatusActive);
-            $issue->setFixedBy($user);
-            $issue->setFixedOn($util->getCurrentTime());
             $issue->setNewHtml($issueUpdate['newHtml']);
             $this->getDoctrine()->getManager()->flush();
 
             // Save content to LMS
-            $lmsPost->saveContentToLms($issue);
+            $response = $lmsPost->saveContentToLms($issue);
 
-            // Update report stats
-            $report = $course->getUpdatedReport();
+            // Add messages to response
+            $unreadMessages = $util->getUnreadMessages();
 
-            $this->getDoctrine()->getManager()->flush();
+            if (empty($unreadMessages)) {
+                // Update issue
+                $issue->setStatus(($issueUpdate['status']) ? Issue::$issueStatusResolved : Issue::$issueStatusActive);
+                $issue->setFixedBy($user);
+                $issue->setFixedOn($util->getCurrentTime());
 
-            // Create response
-            if ($issue->getStatus() === Issue::$issueStatusResolved) {
-                $apiResponse->addMessage('form.msg.success_resolved', 'success');
-            }
-            else {
-                $apiResponse->addMessage('form.msg.success_unresolved', 'success');
-            }
-            $apiResponse->addLogMessages($util->getUnreadMessages());
-            $apiResponse->setData([
-                'issue' => ['status' => $issue->getStatus(), 'pending' => false],
-                'report' => $report
-            ]);
+                // Update report stats
+                $report = $course->getUpdatedReport();
+
+                $this->getDoctrine()->getManager()->flush();
+
+                if ($issue->getStatus() == Issue::$issueStatusResolved) {
+                    $apiResponse->addMessage('form.msg.success_resolved', 'success');
+                } else {
+                    $apiResponse->addMessage('form.msg.success_unresolved', 'success');
+                }
+
+                $apiResponse->setData([
+                    'issue' => ['status' => $issue->getStatus(), 'pending' => false],
+                    'report' => $report
+                ]);
+            } else {
+                $apiResponse->addLogMessages($unreadMessages);
+            }            
         } catch (\Exception $e) {
             $apiResponse->addError($e->getMessage());
         }

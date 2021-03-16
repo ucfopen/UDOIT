@@ -127,9 +127,8 @@ export default class AltText extends React.Component {
   }
 
   render() {
-    const pending = (this.props.activeIssue && this.props.activeIssue.pending)
+    const pending = (this.props.activeIssue && (this.props.activeIssue.pending == '1'))
     const buttonLabel = (pending) ? 'form.processing' : 'form.submit'
-    const canSubmit = (!pending && !this.props.activeIssue.status)
 
     return (
       <View as="div" padding="x-small">
@@ -156,8 +155,8 @@ export default class AltText extends React.Component {
             onChange={this.handleCheckbox} />
         </View>
         <View as="div" margin="small 0">
-          <Button color="primary" onClick={this.handleButton} interaction={(canSubmit) ? 'enabled' : 'disabled'}>
-            {pending && <Spinner size="x-small" renderTitle={this.props.t(buttonLabel)} />}
+          <Button color="primary" onClick={this.handleButton} interaction={(!pending) ? 'enabled' : 'disabled'}>
+            {('1' == pending) && <Spinner size="x-small" renderTitle={this.props.t(buttonLabel)} />}
             {this.props.t(buttonLabel)}
           </Button>
         </View>

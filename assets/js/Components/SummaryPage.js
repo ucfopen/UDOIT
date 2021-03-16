@@ -101,7 +101,7 @@ class SummaryPage extends React.Component {
           <MetricGroup lineHeight="2">
             <Metric renderLabel={this.props.t('label.plural.error')} renderValue={report.errors} />
             <Metric renderLabel={this.props.t('label.plural.suggestion')} renderValue={report.suggestions} />
-            <Metric renderLabel={this.props.t('label.fixed')} renderValue={report.contentFixed} />
+            <Metric renderLabel={this.props.t('label.plural.fixed')} renderValue={report.contentFixed} />
             <Metric renderLabel={this.props.t('label.manually_resolved')} renderValue={report.contentResolved} />
             <Metric renderLabel={this.props.t('label.files_reviewed')} renderValue={report.filesReviewed} />
           </MetricGroup>

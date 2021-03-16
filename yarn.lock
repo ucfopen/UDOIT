@@ -3581,6 +3581,13 @@
   dependencies:
     "@babel/runtime" "^7.9.2"
 
+"@instructure/uid@^7.4.0":
+  version "7.4.0"
+  resolved "https://registry.yarnpkg.com/@instructure/uid/-/uid-7.4.0.tgz#0bf2eb117e9eed2bf5be6f11422b5702202efb66"
+  integrity sha512-gJfu7IJU6vWz16zKrVZl8pyInulvL2SMSwQK5oE57FGWHAGLATkwAX5P0IssqXrc1NfBM18cyYH7+OmBT/kBqQ==
+  dependencies:
+    "@babel/runtime" "^7.9.2"
+
 "@istanbuljs/load-nyc-config@^1.0.0":
   version "1.1.0"
   resolved "https://registry.yarnpkg.com/@istanbuljs/load-nyc-config/-/load-nyc-config-1.1.0.tgz#fd3db1d59ecf7cf121e80650bb86712f9b55eced"
@@ -3756,12 +3763,6 @@
     slash "^3.0.0"
     source-map "^0.6.1"
     write-file-atomic "^3.0.0"
-"@instructure/uid@^7.4.0":
-  version "7.4.0"
-  resolved "https://registry.yarnpkg.com/@instructure/uid/-/uid-7.4.0.tgz#0bf2eb117e9eed2bf5be6f11422b5702202efb66"
-  integrity sha512-gJfu7IJU6vWz16zKrVZl8pyInulvL2SMSwQK5oE57FGWHAGLATkwAX5P0IssqXrc1NfBM18cyYH7+OmBT/kBqQ==
-  dependencies:
-    "@babel/runtime" "^7.9.2"
 
 "@jest/types@^24.9.0":
   version "24.9.0"
@@ -8458,6 +8459,11 @@ js-beautify@^1.6.12:
     mkdirp "^1.0.4"
     nopt "^5.0.0"
 
+js-levenshtein@^1.1.6:
+  version "1.1.6"
+  resolved "https://registry.yarnpkg.com/js-levenshtein/-/js-levenshtein-1.1.6.tgz#c6cee58eb3550372df8deb85fad5ce66ce01d59d"
+  integrity sha512-X2BB11YZtrRqY4EnQcLX5Rh373zbK4alC1FW7D7MBhL2gtcC17cTnr6DmfHZeS0s2rTHjUTMMHfG7gO8SSdw+g==
+
 "js-tokens@^3.0.0 || ^4.0.0", js-tokens@^4.0.0:
   version "4.0.0"
   resolved "https://registry.yarnpkg.com/js-tokens/-/js-tokens-4.0.0.tgz#19203fb59991df98e3a287050d4647cdeaf32499"
@@ -10351,6 +10357,16 @@ pretty-format@^24.9.0:
     ansi-regex "^4.0.0"
     ansi-styles "^3.2.0"
     react-is "^16.8.4"
+
+pretty-format@^26.0.0, pretty-format@^26.6.2:
+  version "26.6.2"
+  resolved "https://registry.yarnpkg.com/pretty-format/-/pretty-format-26.6.2.tgz#e35c2705f14cb7fe2fe94fa078345b444120fc93"
+  integrity sha512-7AeGuCYNGmycyQbCqd/3PWH4eOoX/OiCa0uphp57NVTeAGdJGaAliecxwBDHYQCIvrW7aDBZCYeNTP/WX69mkg==
+  dependencies:
+    "@jest/types" "^26.6.2"
+    ansi-regex "^5.0.0"
+    ansi-styles "^4.0.0"
+    react-is "^17.0.1"
 
 pretty@^2.0.0:
   version "2.0.0"

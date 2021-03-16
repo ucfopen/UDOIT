@@ -136,9 +136,8 @@ export default class TableHeaders extends React.Component {
   }
 
   render() {
-    const pending = (this.props.activeIssue && this.props.activeIssue.pending)
+    const pending = (this.props.activeIssue && (this.props.activeIssue.pending == '1'))
     const buttonLabel = (pending) ? 'form.processing' : 'form.submit'
-    const canSubmit = (!pending && !this.props.activeIssue.status)
 
     return (
       <View as="div" padding="0 x-small">
@@ -151,8 +150,8 @@ export default class TableHeaders extends React.Component {
         }
 
         <View as="div" margin="small 0">
-          <Button color="primary" onClick={this.handleSubmit} interaction={(canSubmit) ? 'enabled' : 'disabled'}>
-              {pending && <Spinner size="x-small" renderTitle={this.props.t('spinner.submit')} />}
+          <Button color="primary" onClick={this.handleSubmit} interaction={(!pending) ? 'enabled' : 'disabled'}>
+              {('1' == pending) && <Spinner size="x-small" renderTitle={this.props.t(buttonLabel)} />}
               {this.props.t(buttonLabel)}
           </Button>
         </View>
