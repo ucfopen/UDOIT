@@ -50,7 +50,6 @@ class Html {
       element.appendChild(textNode)
     }
     
-
     return element
   }
 

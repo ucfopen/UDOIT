@@ -1,6 +1,5 @@
 import AltText from '../Components/Forms/AltText'
 import AnchorText from '../Components/Forms/AnchorText'
-import BaseFontIsNotUsed from '../Components/Forms/BaseFontIsNotUsed'
 import ContrastForm from '../Components/Forms/ContrastForm'
 import UfixitReviewOnly from '../Components/Forms/UfixitReviewOnly'
 import HeadingForm from '../Components/Forms/HeadingForm'
@@ -13,7 +12,6 @@ import Video from '../Components/Forms/Video'
 const UfixitForms = {
   AnchorMustContainText: AnchorText,
   AnchorSuspiciousLinkText: AnchorText,
-  BaseFontIsNotUsed,
   CssTextHasContrast: ContrastForm,
   CssTextStyleEmphasize: ContrastForm,
   HeadersHaveText: HeadingEmptyForm,
