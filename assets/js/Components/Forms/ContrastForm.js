@@ -2,10 +2,10 @@ import React from 'react'
 import { Button } from '@instructure/ui-buttons'
 import { Spinner } from '@instructure/ui-spinner'
 import { View } from '@instructure/ui-view'
-import { Flex } from '@instructure/ui-flex'
 import { TextInput } from '@instructure/ui-text-input'
 import { Checkbox } from '@instructure/ui-checkbox'
-import { CondensedButton } from '@instructure/ui-buttons'
+import { IconButton } from '@instructure/ui-buttons'
+import { IconArrowOpenDownSolid, IconArrowOpenUpSolid } from '@instructure/ui-icons'
 import Html from '../../Services/Html'
 import Contrast from '../../Services/Contrast'
 
@@ -37,19 +37,25 @@ export default class ContrastForm extends React.Component {
     this.handleSubmit = this.handleSubmit.bind(this)
   }
 
+  componentDidMount(prevProps, prevState) {
+    this.updatePreview()
+  }
+
   componentDidUpdate(prevProps, prevState) {
     if (prevProps.activeIssue !== this.props.activeIssue) {
-        let element = Html.toElement((this.props.activeIssue.newHtml) ? this.props.activeIssue.newHtml : this.props.activeIssue.sourceHtml)
+      let element = Html.toElement((this.props.activeIssue.newHtml) ? this.props.activeIssue.newHtml : this.props.activeIssue.sourceHtml)
 
-        this.state = {
-          backgroundColor: Contrast.rgb2hex(element.style.backgroundColor),
-          textColor: Contrast.rgb2hex(element.style.color),
-          useBold: false,
-          useItalics: false,
-          textInputErrors: []
-        }
+      this.state = {
+        backgroundColor: Contrast.rgb2hex(element.style.backgroundColor),
+        textColor: Contrast.rgb2hex(element.style.color),
+        useBold: false,
+        useItalics: false,
+        textInputErrors: []
+      }
+  
+      this.formErrors = []
     
-        this.formErrors = []
+      this.updatePreview()
     }
   }
 
@@ -126,66 +132,62 @@ export default class ContrastForm extends React.Component {
   }
 
   render() {
-    const pending = (this.props.activeIssue && this.props.activeIssue.pending)
+    const pending = (this.props.activeIssue && (this.props.activeIssue.pending == '1'))
     const buttonLabel = (pending) ? 'form.processing' : 'form.submit'
-    const canSubmit = (!pending && !this.props.activeIssue.status)
 
     return (
-      <View>
-        <Flex alignItems="end" justifyItems="space-between" width="300px">
-          <Flex.Item>
-            <TextInput
+      <View as="div" padding="0 x-small">
+        <View as="div" padding="x-small 0">
+          <TextInput
             renderLabel={this.props.t('form.contrast.replace_background')}
             placeholder={this.state.backgroundColor}
             value={this.state.backgroundColor}
             onChange={this.handleInputBackground}
-            width="200px"
-            />
-          </Flex.Item>
-
-          <Flex.Item>
-            <div style={{...{backgroundColor: this.state.backgroundColor},...{width: '60px'},...{height: '60px'},...{borderRadius: '50%'},...{opacity: 1.0}}}>
-              <h1>&nbsp;</h1>
-            </div>
-          </Flex.Item>
-        </Flex>
-
-        <CondensedButton color="primary" margin="xx-small" onClick={this.handleLightenBackground}>
-            {this.props.t('form.contrast.lighten')}
-        </CondensedButton>
-
-        <CondensedButton color="primary" margin="xx-small" onClick={this.handleDarkenBackground}>
-            {this.props.t('form.contrast.darken')}
-        </CondensedButton>
-
-
-        <Flex alignItems="end" justifyItems="space-between" width="300px">
-          <Flex.Item>
-            <TextInput
+            renderBeforeInput={
+              <div style={{ boxShadow: '0 0 5px 0 #CCC', backgroundColor: this.state.backgroundColor, width: '20px', height: '20px', opacity: 1.0 }}></div>
+            }
+            renderAfterInput={
+              <View>
+                <IconButton withBackground={false} withBorder={false} 
+                  onClick={this.handleDarkenBackground}
+                  screenReaderLabel={this.props.t('form.contrast.darken')}>
+                  <IconArrowOpenDownSolid color="primary" size="x-small" />
+                </IconButton>
+                <IconButton withBackground={false} withBorder={false}
+                  onClick={this.handleLightenBackground}
+                  screenReaderLabel={this.props.t('form.contrast.lighten')}>
+                  <IconArrowOpenUpSolid color="primary" size="x-small" />
+                </IconButton>          
+              </View>
+            }
+          />
+        </View>
+        <View as="div" padding="x-small 0">
+          <TextInput
             renderLabel={this.props.t('form.contrast.replace_text')}
             placeholder={this.state.textColor}
             value={this.state.textColor}
             onChange={this.handleInputText}
-            width="200px"
             messages={this.state.textInputErrors}
-            />
-          </Flex.Item>
-
-          <Flex.Item>
-            <div style={{...{backgroundColor: this.state.textColor},...{width: '60px'},...{height: '60px'},...{borderRadius: '50%'}}}>
-              <h1>&nbsp;</h1>
-            </div>
-          </Flex.Item>
-        </Flex>
-
-        <CondensedButton color="primary" margin="xx-small" onClick={this.handleLightenText}>
-            {this.props.t('form.contrast.lighten')}
-        </CondensedButton>
-
-        <CondensedButton color="primary" margin="xx-small" onClick={this.handleDarkenText}>
-            {this.props.t('form.contrast.darken')}
-        </CondensedButton>
-
+            renderBeforeInput={
+              <div style={{ boxShadow: '0 0 5px 0 #CCC', backgroundColor: this.state.textColor, width: '20px', height: '20px', opacity: 1.0 }}></div>
+            }
+            renderAfterInput={
+              <View>
+                <IconButton withBackground={false} withBorder={false}
+                  onClick={this.handleDarkenText}
+                  screenReaderLabel={this.props.t('form.contrast.darken')}>
+                  <IconArrowOpenDownSolid color="primary" size="x-small" />
+                </IconButton>
+                <IconButton withBackground={false} withBorder={false}
+                  onClick={this.handleLightenText}
+                  screenReaderLabel={this.props.t('form.contrast.lighten')}>
+                  <IconArrowOpenUpSolid color="primary" size="x-small" />
+                </IconButton>
+              </View>
+            }
+          />
+        </View>
         <View as="div" margin="small 0">
           <Checkbox label={this.props.t('form.contrast.bolden_text')} onChange={this.handleBoldToggle}>
           </Checkbox>
@@ -197,13 +199,13 @@ export default class ContrastForm extends React.Component {
         </View>
 
         <View as="div" margin="medium 0">
-          <Button color="primary" onClick={this.handleSubmit} interaction={(canSubmit) ? 'enabled' : 'disabled'}>
-              {pending && <Spinner size="x-small" renderTitle={buttonLabel} />}
+          <Button color="primary" onClick={this.handleSubmit} interaction={(!pending) ? 'enabled' : 'disabled'}>
+              {('1' == pending) && <Spinner size="x-small" renderTitle={buttonLabel} />}
               {this.props.t(buttonLabel)}
           </Button>
         </View>
         
-        </View>
+      </View>
     );
   }
 
@@ -244,11 +246,7 @@ export default class ContrastForm extends React.Component {
       }
     }
 
-    if(this.formErrors.length > 0) {
-      this.setState({ textInputErrors: this.formErrors })
-    } else {
-      this.setState({ textInputErrors: []})
-    }
+    this.setState({ textInputErrors: this.formErrors })
 
     issue.newHtml = this.processHtml()
     this.props.handleActiveIssue(issue)

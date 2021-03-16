@@ -64,12 +64,14 @@ export default class AltText extends React.Component {
 
       if (this.state.isDecorative) {
         element = Html.setAttribute(element, "data-decorative", "true")
+        element = Html.addClass(element, 'phpally-ignore')
         element = Html.setAttribute(element, 'alt', '')
       } else {
         element = Html.removeAttribute(element, "data-decorative")
+        element = Html.removeClass(element, 'phpally-ignore')
         element = Html.setAttribute(element, "alt", this.state.textInputValue)
       }
-  
+
       let issue = this.props.activeIssue
       issue.newHtml = Html.toString(element)
 
@@ -122,14 +124,18 @@ export default class AltText extends React.Component {
 
   elementIsDecorative(htmlString) {
     const decorativeAttribute = Html.getAttribute(htmlString, "data-decorative")
+    const classes = Html.getClasses(htmlString)
 
-    return (decorativeAttribute === 'true')
+    if (Html.getTagName(htmlString) !== 'img') {
+      return false
+    }
+
+    return (decorativeAttribute || (classes.includes('phpally-ignore')))
   }
 
   render() {
-    const pending = (this.props.activeIssue && this.props.activeIssue.pending)
+    const pending = (this.props.activeIssue && (this.props.activeIssue.pending == '1'))
     const buttonLabel = (pending) ? 'form.processing' : 'form.submit'
-    const canSubmit = (!pending && !this.props.activeIssue.status)
 
     return (
       <View as="div" padding="x-small">
@@ -156,8 +162,8 @@ export default class AltText extends React.Component {
             onChange={this.handleCheckbox} />
         </View>
         <View as="div" margin="small 0">
-          <Button color="primary" onClick={this.handleButton} interaction={(canSubmit) ? 'enabled' : 'disabled'}>
-            {pending && <Spinner size="x-small" renderTitle={this.props.t(buttonLabel)} />}
+          <Button color="primary" onClick={this.handleButton} interaction={(!pending) ? 'enabled' : 'disabled'}>
+            {('1' == pending) && <Spinner size="x-small" renderTitle={this.props.t(buttonLabel)} />}
             {this.props.t(buttonLabel)}
           </Button>
         </View>
