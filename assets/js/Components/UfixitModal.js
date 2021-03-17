@@ -359,6 +359,7 @@ class UfixitModal extends React.Component {
             this.props.handleIssueSave(newIssue, response.data.report)
           }
           else {
+            issue.pending = false
             this.props.handleActiveIssue(issue)
           }
         }

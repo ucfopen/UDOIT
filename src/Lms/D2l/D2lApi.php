@@ -53,34 +53,34 @@ class D2lApi {
         return $lmsResponse;
     }
 
-    public function apiPost($url, $options, $sendAuthorized = true) 
-    {
-        $lmsResponse = new LmsResponse();
+    // public function apiPost($url, $options, $sendAuthorized = true) 
+    // {
+    //     $lmsResponse = new LmsResponse();
 
-        if (strpos($url, 'https://') === false) {
-            $url = "https://{$this->baseUrl}/api/v1/{$url}";
-        }
+    //     if (strpos($url, 'https://') === false) {
+    //         $url = "https://{$this->baseUrl}/d2l/api/{$url}";
+    //     }
 
-        if ($sendAuthorized) {
-            $response = $this->httpClient->request('POST', $url, $options);
-        }
-        else {
-            $client = HttpClient::create();
-            $response = $client->request('POST', $url, $options);
-        }
-        $lmsResponse->setResponse($response);
+    //     if ($sendAuthorized) {
+    //         $response = $this->httpClient->request('POST', $url, $options);
+    //     }
+    //     else {
+    //         $client = HttpClient::create();
+    //         $response = $client->request('POST', $url, $options);
+    //     }
+    //     $lmsResponse->setResponse($response);
 
-        $content = $lmsResponse->getContent();
-        if (!empty($content['errors'])) {
-            // TODO: If error is invalid token, refresh API token and try again 
+    //     $content = $lmsResponse->getContent();
+    //     if (!empty($content['errors'])) {
+    //         // TODO: If error is invalid token, refresh API token and try again 
 
-            foreach ($content['errors'] as $error) {
-                $lmsResponse->setError($error['message']);
-            }
-        }
+    //         foreach ($content['errors'] as $error) {
+    //             $lmsResponse->setError($error['message']);
+    //         }
+    //     }
 
-        return $lmsResponse;
-    }
+    //     return $lmsResponse;
+    // }
 
     /**
      * Posts a file to D2L
@@ -91,24 +91,26 @@ class D2lApi {
      * 
      * @return LmsResponse
      */
-    public function apiFilePost($url, $options, $filepath)
+    public function apiFilePut($url, $options)
     {
-        $fileResponse = $this->apiGet($url);
-        $file = $fileResponse->getContent();
-        
-        // TODO: handle failed call
-        
-        $formFields = $file;
-        $formFields['file'] = DataPart::fromPath($filepath);
-        $formData = new FormDataPart($formFields);
-        
-        print $formData->toString();
-        exit;
+        $formFields = [];
 
-        $fileResponse = $this->apiPost($url, [
-            'headers' => $formData->getPreparedHeaders()->toArray(),
-            'body' => $formData->bodyToIterable(),
-        ], false);
+        $fileContent = $options['body'];
+        unset($options['body']);
+        
+        $formFields[] = new DataPart(\json_encode($options, JSON_UNESCAPED_SLASHES), null, 'application/json');
+        $formFields['file'] = new DataPart($fileContent);
+        $formData = new FormDataPart($formFields);
+// print_r($formData->bodyToString());
+// exit;
+        $headers = $formData->getPreparedHeaders()->toArray();
+        $headers[] = 'Content-Length: ' . strlen($formData->bodyToString());
+// print_r($headers);
+// exit;
+        $fileResponse = $this->apiPut($url, [
+            'headers' => $headers,
+            'body' => $formData->bodyToString(),
+        ]);
         
         return $fileResponse;
     }

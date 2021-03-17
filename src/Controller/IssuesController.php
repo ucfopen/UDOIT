@@ -47,7 +47,7 @@ class IssuesController extends ApiController
             }
 
             // Run fixed content through PhpAlly to validate it
-            $report = $phpAlly->scanHtml($newHtml);
+            $report = $phpAlly->scanHtml($newHtml, [$issue->getScanRuleId()]);
             if ($issues = $report->getIssues()) {
                 $apiResponse->addData('issues', $issues);
                 $apiResponse->addData('failed', 1);
@@ -72,7 +72,7 @@ class IssuesController extends ApiController
                 $apiResponse->addMessage('form.msg.success_saved', 'success');
 
                 // Update issue status
-                $issue->setHtml($newHtml);
+                //$issue->setHtml($newHtml);
                 $issue->setStatus(Issue::$issueStatusFixed);
                 $issue->setFixedBy($user);
                 $issue->setFixedOn($util->getCurrentTime());

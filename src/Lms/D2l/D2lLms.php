@@ -296,21 +296,11 @@ class D2lLms implements LmsInterface {
         $options = $this->createLmsPostOptions($contentItem);
 
         if ('file' === $contentItem->getContentType()) {
-            $filepath = $this->util->getTempPath() . '/content.' . $contentItem->getId() . '.html';
-            $fileResponse = $this->d2lApi->apiFilePost($url, $options, $filepath);
-
-        //     $fileObj = $fileResponse->getContent();
-
-        //     if (isset($fileObj['id'])) {
-        //         $contentItem->setLmsContentId($fileObj['id']);
-        //         $this->entityManager->flush();
-        //     }
-
-        //     return $fileResponse;
-            return;
+            $lmsResponse = $this->d2lApi->apiFilePut($url, $options);
         }
-
-        $lmsResponse = $this->d2lApi->apiPut($url, ['body' => \json_encode($options)]);
+        else {
+            $lmsResponse = $this->d2lApi->apiPut($url, ['body' => \json_encode($options)]);
+        }
 
         if ($errors = $lmsResponse->getErrors()) {
             foreach ($errors as $error) {
@@ -469,7 +459,6 @@ class D2lLms implements LmsInterface {
 
         $url = $this->getContentItemApiUrl($contentItem);
         $content = $this->d2lApi->apiGet($url)->getContent();
-// print \json_encode($content);
 
         switch ($contentType) {
             // case 'overview':
@@ -484,9 +473,41 @@ class D2lLms implements LmsInterface {
             case 'module':
                 $content['Description'] = $richTextInput;
                 break;
-            // case 'file':
-            //     $options[''] = $html;
-            //     break;
+            case 'file':
+                $courseId = $contentItem->getCourse()->getLmsCourseId();
+                $topicId = $contentItem->getLmsContentId();
+                $options = $this->getApiContent('topic', $courseId, $topicId);
+
+                $richTextInput = [
+                    'Type' => 'Html',
+                    'Content' => $options['Description']['Html'],
+                ];
+                // if (is_array($options)) {
+                //     $options['body'] = $content;
+                //     $content = $options;
+                // }
+
+                $content = [
+                    'IsHidden' => isset($options['IsHidden']) ? $options['IsHidden'] : false,
+                    'IsLocked' => isset($options['IsLocked']) ? $options['IsLocked'] : false,
+                    'ShortTitle' => !empty($options['ShortTitle']) ? $options['ShortTitle'] : "",
+                    'Type' => 1, 
+                    'Url' => $options['Url'],
+                    'StartDate' => !empty($options['StartDate']) ? $options['StartDate'] : null,
+                    'DueDate' => !empty($options['DueDate']) ? $options['DueDate'] : null,
+                    'EndDate' => !empty($options['EndDate']) ? $options['EndDate'] : null,
+                    'TopicType' => $options['TopicType'],
+                    'Title' => $options['Title'],
+                    'OpenAsExternalResource' => !empty($options['OpenAsExternalResource']) ? $options['OpenAsExternalResource'] : null,
+                    'Description' => $richTextInput,
+                    'MajorUpdate' => null,
+                    'MajorUpdateText' => null,
+                    'ResetCompletionTracking' => null,
+                    'Duration' => null,
+                    'body' => $html,
+                ];
+                
+                break;
             case 'quiz.instruction':
             case 'quiz.description':
             case 'quiz.header':
