@@ -38,10 +38,18 @@ class Html {
     const children = element.childNodes
     let textNodeFound = false
 
+    console.log(children)
+
     children.forEach(function(node, index) {
-      if (node.nodeType === Node.TEXT_NODE) {
-        node.nodeValue = newText
-        textNodeFound = true
+      if(node.nodeType === Node.TEXT_NODE) {
+        if(textNodeFound != true) {
+          node.nodeValue = newText
+          textNodeFound = true
+        } else {
+          // TODO: add support for multiple text nodes
+          node.nodeValue = ''
+        }
+        
       }
     })
 
@@ -49,7 +57,7 @@ class Html {
       const textNode = document.createTextNode(newText)
       element.appendChild(textNode)
     }
-
+    
     return element
   }
 
@@ -207,11 +215,20 @@ class Html {
     if (!element) {
       return null
     }
-    if ('a' !== element.tagName) {
-      return null
+
+    if (element.nodeName === 'A') {
+      element = this.setAttribute(element, "target", "_blank")
     }
 
-    return this.setAttribute(element, "target", "_blank")
+    let children = Array.from(element.childNodes)
+
+    children.forEach(function(child) {
+      if (child.nodeName === 'A') {
+        child = this.setAttribute(child, "target", "_blank")
+      }
+    }.bind(this))
+
+    return element;
   }
 
   processStaticHtml(nodes) {

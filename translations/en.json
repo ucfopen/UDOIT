@@ -222,7 +222,7 @@
   "rule.label.DocumentReadingDirection": "Document Reading Direction",
   "rule.label.EmbedHasAssociatedNoEmbed": "Embed Has Associated No Embed",
   "rule.label.FontIsNotUsed": "Font Tag Should Not Be Used",
-  "rule.label.HeadersHaveText": "Headings Have Text",
+  "rule.label.HeadersHaveText": "Headings Must Have Text",
   "rule.label.ImageAltIsDifferent": "Alternative Text Should Not Be the Image Filename",
   "rule.label.ImageAltIsTooLong": "Alternative Text Is More Than the Maximum Allowed Characters",
   "rule.label.ImageAltNotEmptyInAnchor": "Alt Text For Images Within Links Should Not Be Empty",
