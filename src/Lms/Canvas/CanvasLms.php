@@ -291,8 +291,9 @@ class CanvasLms implements LmsInterface {
         // normalize file keys
         $file['fileName'] = $file['filename'];
         $file['fileType'] = $file['mime_class'];
-        $file['status'] = $file['locked'];
+        $file['status'] = !$file['locked'];
         $file['fileSize'] = $file['size'];
+        $file['updated'] = $file['updated_at'];
 
         $fileItem->update($file);
         $this->entityManager->flush();
