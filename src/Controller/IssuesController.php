@@ -72,7 +72,7 @@ class IssuesController extends ApiController
                 $apiResponse->addMessage('form.msg.success_saved', 'success');
 
                 // Update issue status
-                //$issue->setHtml($newHtml);
+                $issue->setHtml($newHtml);
                 $issue->setStatus(Issue::$issueStatusFixed);
                 $issue->setFixedBy($user);
                 $issue->setFixedOn($util->getCurrentTime());

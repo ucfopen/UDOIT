@@ -277,11 +277,11 @@ class UfixitModal extends React.Component {
 
     if (activeIssue.status) {
       activeIssue.status = false
-      activeIssue.newHtml = Html.toString(Html.setAttribute(activeIssue.sourceHtml, 'data-udoit-resolved', ''))
+      activeIssue.newHtml = Html.toString(Html.removeClass(activeIssue.sourceHtml, 'phpally-ignore'))
     }
     else {
       activeIssue.status = 2
-      activeIssue.newHtml = Html.toString(Html.setAttribute(activeIssue.sourceHtml, 'data-udoit-resolved', activeIssue.scanRuleId))
+      activeIssue.newHtml = Html.toString(Html.addClass(activeIssue.sourceHtml, 'phpally-ignore'))
     }
     
     let api = new Api(this.props.settings)
@@ -297,6 +297,8 @@ class UfixitModal extends React.Component {
 
           // update activeIssue
           newIssue.pending = false
+          newIssue.sourceHtml = newIssue.newHtml
+          newIssue.newHtml = ''
           this.props.handleActiveIssue(newIssue)
 
           // update report.issues

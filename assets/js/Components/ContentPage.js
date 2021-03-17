@@ -165,21 +165,31 @@ class ContentPage extends React.Component {
       }
 
       let status
-      if (issue.status) {
+      if (issue.status == 2) {
         status = <>
-          <ScreenReaderContent>{this.props.t('table.suggestion')}</ScreenReaderContent>
-          <IconCheckLine color="success" /> 
+          <ScreenReaderContent>{this.props.t('label.resolved')}</ScreenReaderContent>
+          <IconCheckLine color="brand" /> 
         </>
-      } else if('error' === issue.type) {
+      }
+      else if (issue.status == 1) {
         status = <>
-          <ScreenReaderContent>{this.props.t('table.error')}</ScreenReaderContent>
-          <IconNoLine color="error" />
+          <ScreenReaderContent>{this.props.t('label.fixed')}</ScreenReaderContent>
+          <IconCheckLine color="success" />
         </>
-      } else {
-        status = <>
-          <ScreenReaderContent>{this.props.t('table.error')}</ScreenReaderContent>
-          <IconInfoBorderlessLine color="alert" />
-        </>
+      } 
+      else {
+        if ('error' === issue.type) {
+          status = <>
+            <ScreenReaderContent>{this.props.t('label.error')}</ScreenReaderContent>
+            <IconNoLine color="error" />
+          </>
+        } 
+        else {
+          status = <>
+            <ScreenReaderContent>{this.props.t('label.suggestion')}</ScreenReaderContent>
+            <IconInfoBorderlessLine color="alert" />
+          </>
+        }
       }
 
       filteredList.push(
