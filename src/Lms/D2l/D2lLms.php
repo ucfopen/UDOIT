@@ -477,11 +477,36 @@ class D2lLms implements LmsInterface {
                 $courseId = $contentItem->getCourse()->getLmsCourseId();
                 $topicId = $contentItem->getLmsContentId();
                 $options = $this->getApiContent('topic', $courseId, $topicId);
+
+                $richTextInput = [
+                    'Type' => 'Html',
+                    'Content' => $options['Description']['Html'],
+                ];
+                // if (is_array($options)) {
+                //     $options['body'] = $content;
+                //     $content = $options;
+                // }
+
+                $content = [
+                    'IsHidden' => isset($options['IsHidden']) ? $options['IsHidden'] : false,
+                    'IsLocked' => isset($options['IsLocked']) ? $options['IsLocked'] : false,
+                    'ShortTitle' => !empty($options['ShortTitle']) ? $options['ShortTitle'] : "",
+                    'Type' => 1, 
+                    'Url' => $options['Url'],
+                    'StartDate' => !empty($options['StartDate']) ? $options['StartDate'] : null,
+                    'DueDate' => !empty($options['DueDate']) ? $options['DueDate'] : null,
+                    'EndDate' => !empty($options['EndDate']) ? $options['EndDate'] : null,
+                    'TopicType' => $options['TopicType'],
+                    'Title' => $options['Title'],
+                    'OpenAsExternalResource' => !empty($options['OpenAsExternalResource']) ? $options['OpenAsExternalResource'] : null,
+                    'Description' => $richTextInput,
+                    'MajorUpdate' => null,
+                    'MajorUpdateText' => null,
+                    'ResetCompletionTracking' => null,
+                    'Duration' => null,
+                    'body' => $html,
+                ];
                 
-                if (is_array($options)) {
-                    $options['body'] = $content;
-                    $content = $options;
-                }
                 break;
             case 'quiz.instruction':
             case 'quiz.description':

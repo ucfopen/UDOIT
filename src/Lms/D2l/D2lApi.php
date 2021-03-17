@@ -98,13 +98,15 @@ class D2lApi {
         $fileContent = $options['body'];
         unset($options['body']);
         
-        $formFields[] = new DataPart(\json_encode($options), null, 'application/json');
+        $formFields[] = new DataPart(\json_encode($options, JSON_UNESCAPED_SLASHES), null, 'application/json');
         $formFields['file'] = new DataPart($fileContent);
         $formData = new FormDataPart($formFields);
-
+// print_r($formData->bodyToString());
+// exit;
         $headers = $formData->getPreparedHeaders()->toArray();
         $headers[] = 'Content-Length: ' . strlen($formData->bodyToString());
-
+// print_r($headers);
+// exit;
         $fileResponse = $this->apiPut($url, [
             'headers' => $headers,
             'body' => $formData->bodyToString(),

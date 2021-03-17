@@ -31,11 +31,15 @@ class PhpAllyService {
         return $this->phpAlly->checkMany($html, $this->getRules());
     }
 
-    public function scanHtml($html)
+    public function scanHtml($html, $rules = [])
     {
         $html = HtmlService::clean($html);
+
+        if (empty($rules)) {
+            $rules = $this->getRules();
+        }
         
-        return $this->phpAlly->checkMany($html, $this->getRules());
+        return $this->phpAlly->checkMany($html, $rules);
     }
 
     public function getRules()
