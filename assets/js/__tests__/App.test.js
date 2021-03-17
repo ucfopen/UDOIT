@@ -8,6 +8,6 @@ it('renders the App component', async () => {
   const { getByText } = renderComponent(
     <App settings={settings} messages={noMessages} />
   )
-  const button = getByText('label.continue')
+  const button = getByText('Continue')
   expect(button).toBeInTheDocument()
 })

@@ -5,22 +5,21 @@ import { Spinner } from '@instructure/ui-spinner'
 
 export default class Video extends React.Component {
 
-    constructor(props) {
-        super(props)
-    }
+  constructor(props) {
+    super(props)
+  }
 
-    render() {
-        const pending = (this.props.activeIssue && this.props.activeIssue.pending)
-        const buttonLabel = (pending) ? 'form.processing' : 'form.scan'
-        const canSubmit = (!pending && !this.props.activeIssue.status)
+  render() {
+    const pending = (this.props.activeIssue && (this.props.activeIssue.pending == '1'))
+    const buttonLabel = (pending) ? 'form.processing' : 'form.scan'
 
-        return(
-            <View as="div" textAlign="center" margin="x-large" padding="x-large">
-                <Button color="primary" onClick={this.props.handleManualScan} interaction={(canSubmit) ? 'enabled' : 'disabled'}>
-                    {pending && <Spinner size="x-small" renderTitle={buttonLabel} />}
-                    {this.props.t(buttonLabel)}
-                </Button>
-            </View>
-        );
-    }
+    return (
+      <View as="div" textAlign="center" margin="x-large" padding="x-large">
+        <Button color="primary" onClick={this.props.handleManualScan} interaction={(!pending) ? 'enabled' : 'disabled'}>
+          {('1' == pending) && <Spinner size="x-small" renderTitle={buttonLabel} />}
+          {this.props.t(buttonLabel)}
+        </Button>
+      </View>
+    );
+  }
 }
