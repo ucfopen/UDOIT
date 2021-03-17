@@ -19,6 +19,10 @@ class HtmlService {
     public static function tidy($html)
     {
         try {
+            if (!class_exists('tidy')) {
+                return $html;
+            }
+
             $tidy = new \Tidy();
             $options = [
                 'output-html' => true,
@@ -46,6 +50,10 @@ class HtmlService {
     public static function dom($html) 
     {
         try {
+            if (!class_exists('domdocument')) {
+                return $html;
+            }
+
             $dom = new DOMDocument('1.0', 'utf-8');
             $out = [];
 
