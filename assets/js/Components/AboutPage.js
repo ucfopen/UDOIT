@@ -88,11 +88,7 @@ class AboutPage extends React.Component {
                   <ToggleDetails key={rule.error} summary={rule.error}>
                     <View as="div" margin="small 0" background="primary" padding="small" shadow="above">
                       <Heading level="h4">{rule.error}</Heading>
-<<<<<<< HEAD
-                      <Text as="p">{ReactHtmlParser(Html.prepareLink(rule.description).outerHTML)}</Text>
-=======
                       <Text as="p">{ReactHtmlParser(rule.description, { preprocessNodes: Html.processStaticHtml })}</Text>
->>>>>>> master
                       {rule.resources &&
                       <List>
                         {rule.resources.map((resource) => {
@@ -147,11 +143,7 @@ class AboutPage extends React.Component {
                   <ToggleDetails key={rule.suggestion} summary={rule.suggestion}>
                     <View as="div" margin="small 0" background="primary" padding="small" shadow="above">
                       <Heading level="h4">{rule.suggestion}</Heading>
-<<<<<<< HEAD
-                      <Text as="p">{ReactHtmlParser(Html.prepareLink(rule.description).outerHTML)}</Text>
-=======
                       <Text as="p">{ReactHtmlParser(rule.description, { preprocessNodes: Html.processStaticHtml })}</Text>
->>>>>>> master
 
                       {rule.resources &&
                       <List>
