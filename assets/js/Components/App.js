@@ -211,8 +211,9 @@ class App extends React.Component {
     let { report } = this.state
     report = {...report, ...newReport}
 
-    if (report && report.issues && report.issues[newIssue.id]) {
-      report.issues[newIssue.id] = newIssue
+    if (report && Array.isArray(report.issues)) {
+      report.issues = report.issues.filter(issue => (issue.id != newIssue.id))
+      report.issues.push(newIssue)
     }
 
     this.setState({ report })
@@ -222,8 +223,9 @@ class App extends React.Component {
     let { report } = this.state
     report = { ...report, ...newReport }
 
-    if (report && report.files && report.files[newFile.id]) {
-      report.files[newFile.id] = newFile
+    if (report && Array.isArray(report.files)) {
+      report.files = report.files.filter(file => (file.id != newFile.id))
+      report.files.push(newFile)
     }
 
     this.setState({ report })

@@ -7,35 +7,31 @@ import { View } from '@instructure/ui-view'
 import { Heading } from '@instructure/ui-heading'
 import IssueRuleSelect from './IssueRuleSelect';
 
-const contentTypes = [
-  'announcement',
-  'assignment',
-  'discussion_topic',
-  'file',
-  'page',  
-  'quiz',
-  'syllabus',  
-];
-
 const issueTypes = [
   'error',
   'suggestion'
-];
+]
+
+const issueStatus = [
+  'active',
+  'fixed',
+  'resolved'
+]
 
 class ContentTrayForm extends React.Component {
 
   constructor(props) {
     super(props);
 
-    this.handleContentTypeChange = this.handleContentTypeChange.bind(this);
-    this.handleHideFixed = this.handleHideFixed.bind(this);
-    this.handleUnpublishedContent = this.handleUnpublishedContent.bind(this);
-    this.handleIssueTypeChange = this.handleIssueTypeChange.bind(this);
-    this.handleIssueTitleChange = this.handleIssueTitleChange.bind(this);
+    this.handleContentTypeChange = this.handleContentTypeChange.bind(this)
+    this.handleIssueStatusChange = this.handleIssueStatusChange.bind(this)
+    this.handleUnpublishedContent = this.handleUnpublishedContent.bind(this)
+    this.handleIssueTypeChange = this.handleIssueTypeChange.bind(this)
+    this.handleIssueTitleChange = this.handleIssueTitleChange.bind(this)
   }
 
   render() {
-
+console.log('render', this.props.filters)
     return (
       <Tray
         label={this.props.t('label.plural.filter')}
@@ -66,19 +62,14 @@ class ContentTrayForm extends React.Component {
               {this.renderContentTypeCheckboxes()}
             </CheckboxGroup>
           </View>
-          <View as="div" padding="medium 0 0 0">
-            <Checkbox 
-              label={this.props.t('label.hide_fixed')} 
-              checked={this.props.filters.hideFixed}
-              onChange={this.handleHideFixed}
-            />
-          </View>
-          <View as="div" padding="small 0 medium 0">
-            <Checkbox 
-              label={this.props.t('label.hide_unpublished')} 
-              onChange={this.handleUnpublishedContent}
-              checked={this.props.filters.hideUnpublishedContentItems}
-            />
+          <View as="div" padding="small 0">
+            <CheckboxGroup
+              name="IssueStatus"
+              description={this.props.t('label.issue_status')}
+              value={this.props.filters.issueStatus}
+              onChange={this.handleIssueStatusChange}>
+              {this.renderIssueStatusCheckboxes()}
+            </CheckboxGroup>
           </View>
           <View as="div" padding="small 0">
             <CheckboxGroup
@@ -89,7 +80,14 @@ class ContentTrayForm extends React.Component {
               {this.renderIssueTypeCheckboxes()}
             </CheckboxGroup>
           </View>
-          <View as="div" padding="medium 0">
+          <View as="div" padding="small 0">
+            <Checkbox
+              label={this.props.t('label.hide_unpublished')}
+              onChange={this.handleUnpublishedContent}
+              checked={this.props.filters.hideUnpublishedContentItems}
+            />
+          </View>
+          <View as="div" padding="small 0">
             <IssueRuleSelect 
               options={this.getRuleOptions()} 
               t={this.props.t}
@@ -102,7 +100,11 @@ class ContentTrayForm extends React.Component {
   }
 
   renderContentTypeCheckboxes() {
-    return contentTypes.map((type) => <Checkbox label={this.props.t(`content.plural.${type}`)} value={type} key={type} />);
+    return this.props.settings.contentTypes.map((type) => <Checkbox label={this.props.t(`content.plural.${type}`)} value={type} key={type} />);
+  }
+  
+  renderIssueStatusCheckboxes() {
+    return issueStatus.map((status, ind) => <Checkbox label={this.props.t(`label.filter.${status}`)} value={ind} key={`status.${status}`} />)
   }
 
   renderIssueTypeCheckboxes() {
@@ -111,6 +113,11 @@ class ContentTrayForm extends React.Component {
 
   handleContentTypeChange(values) {
     this.props.handleFilter({contentTypes: values});
+  }
+
+  handleIssueStatusChange(values) {
+    values = values.map(x => +x)
+    this.props.handleFilter({issueStatus: values})
   }
 
   handleIssueTypeChange(values) {
@@ -123,10 +130,6 @@ class ContentTrayForm extends React.Component {
 
   handleUnpublishedContent(e) {
     this.props.handleFilter({ hideUnpublishedContentItems: !this.props.filters.hideUnpublishedContentItems });
-  }
-
-  handleHideFixed(e) {
-    this.props.handleFilter({ hideFixed: !this.props.filters.hideFixed });
   }
 
   getRuleOptions() {

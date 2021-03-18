@@ -19,16 +19,21 @@ class DashboardController extends AbstractController
     /** @var SessionInterface $session */
     protected $session;
 
+    /** @var LmsApiService $lmsApi */
+    protected $lmsApi;
+
     /**
      * @Route("/dashboard", name="dashboard")
      */
     public function index(
         UtilityService $util,
         SessionInterface $session,
-        LmsUserService $lmsUser)
+        LmsUserService $lmsUser,
+        LmsApiService $lmsApi)
     {
         $this->util = $util;
         $this->session = $session;
+        $this->lmsApi = $lmsApi;
         $reportArr = false;
 
         $user = $this->getUser();
@@ -92,6 +97,8 @@ class DashboardController extends AbstractController
         $lang = (!empty($metadata['lang'])) ? $metadata['lang'] : $_ENV['DEFAULT_LANG'];
         $excludedRuleIds = (!empty($metadata['excludedRuleIds'])) ? $metadata['excludedRuleIds'] : $_ENV['PHPALLY_EXCLUDED_RULES'];
 
+        $lms = $this->lmsApi->getLms();
+
         return [
             'apiUrl' => !empty($_ENV['BASE_URL']) ? $_ENV['BASE_URL'] : false,
             'clientToken' => $clientToken,
@@ -102,6 +109,7 @@ class DashboardController extends AbstractController
             'language' => $lang,
             'labels' => $this->util->getTranslation($lang),
             'excludedRuleIds' => $excludedRuleIds,
+            'contentTypes' => $lms->getContentTypes(),
         ];
     }
 
