@@ -38,9 +38,6 @@ class HtmlService {
             }
 
             return $tidy->repairString($html, $options, 'utf8');
-            // $tidy->parseString($html, $options, 'utf8');
-            // $tidy->cleanRepair();
-            // return $tidy;
         }
         catch (\Exception $e) {
             return $html;

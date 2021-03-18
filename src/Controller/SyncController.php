@@ -3,18 +3,15 @@
 namespace App\Controller;
 
 use App\Entity\Course;
-use App\Message\BackgroundQueueItem;
-use App\Message\PriorityQueueItem;
-use App\MessageHandler\QueueItemHandler;
 use App\Repository\CourseRepository;
 use App\Response\ApiResponse;
 use App\Services\LmsApiService;
+use App\Services\LmsFetchService;
 use App\Services\UtilityService;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Annotation\Route;
 
-class SyncController extends AbstractController
+class SyncController extends ApiController
 {
     protected $maxAge = '1D';
 
@@ -24,26 +21,50 @@ class SyncController extends AbstractController
     /**
      * @Route("/api/sync/{course}", name="request_sync")
      */
-    public function requestSync(Course $course, LmsApiService $lmsApi)
+    public function requestSync(Course $course, LmsFetchService $lmsFetch)
     {
         $response = new ApiResponse();
         $user = $this->getUser();
+        $reportArr = false;
 
-        if($course) {
-            if ($course->isActive()) {
-                //if (!$course->isDirty()) {
-                    $lmsApi->addCoursesToBeScanned([$course], $user, true);
-                    $response->setData(1);
-                //}
+        try {
+            if (!$this->userHasCourseAccess($course)) {
+                throw new \Exception('msg.no_permissions');
             }
-            else {
+            if ($course->isDirty()) {
+                throw new \Exception('msg.course_scanning');
+            }
+            if (!$course->isActive()) {
                 $response->setData(0);
-                $response->addMessage('msg.sync.course_inactive', 'error');
+                throw new \Exception('msg.sync.course_inactive', 'error');
             }
-        }
-        else {
-            $response->setData(0);
-            $response->addMessage('msg.sync.failed', 'error');
+
+            $lmsFetch->refreshLmsContent($course, $user);
+            
+            $report = $course->getLatestReport();
+
+            if (!$report) {
+                throw new \Exception('msg.no_report_created');
+            }
+
+            $reportArr = $report->toArray();
+            $reportArr['files'] = $course->getFileItems();
+            $reportArr['issues'] = $course->getAllIssues();
+            $reportArr['contentItems'] = $course->getContentItems();
+            $response->setData($reportArr);
+
+            $prevReport = $course->getPreviousReport();
+            if ($prevReport && ($prevReport->getIssueCount() == $report->getIssueCount())) {
+                $response->addMessage('msg.no_new_content', 'success', 5000);
+            } else {
+                $response->addMessage('msg.new_content', 'success', 5000);
+            }
+        } catch (\Exception $e) {
+            if ('msg.course_scanning' === $e->getMessage()) {
+                $response->addMessage($e->getMessage(), 'info', 0, false);
+            } else {
+                $response->addMessage($e->getMessage(), 'alert', 0);
+            }
         }
 
         return new JsonResponse($response);
