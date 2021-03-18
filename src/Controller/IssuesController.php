@@ -158,4 +158,35 @@ class IssuesController extends ApiController
 
         return new JsonResponse($apiResponse);
     }
+
+    /**
+     * Rescan an issue in PhpAlly
+     * 
+     * @Route("/api/issues/{issue}/scan", name="save_issue")
+     * @param Issue $issue
+     */
+    public function scanIssue(Issue $issue, PhpAllyService $phpAlly, UtilityService $util)
+    {
+        $apiResponse = new ApiResponse();
+
+        $report = $phpAlly->scanHtml($issue->getHtml(), [$issue->getScanRuleId()]);
+        $reportIssues = $report->getIssues();
+
+        if (empty($reportIssues)) {
+            $issue->setStatus(Issue::$issueStatusFixed);
+            $issue->setFixedBy($this->getUser());
+            $issue->setFixedOn($util->getCurrentTime());
+            $this->getDoctrine()->getManager()->flush();
+        }
+
+        // Add messages to response
+        $unreadMessages = $util->getUnreadMessages();
+        if (empty($unreadMessages)) {
+            $apiResponse->setData($issue);    
+        } else {
+            $apiResponse->addLogMessages($unreadMessages);
+        }         
+
+        return new JsonResponse($apiResponse);
+    }
 }
