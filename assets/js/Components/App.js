@@ -39,6 +39,7 @@ class App extends React.Component {
     this.handleFileSave = this.handleFileSave.bind(this)
     this.handleManualScan = this.handleManualScan.bind(this)
     this.handleCourseRescan = this.handleCourseRescan.bind(this)
+    this.handleNewReport = this.handleNewReport.bind(this)
   }
 
   render() {    
@@ -110,9 +111,8 @@ class App extends React.Component {
       this.setState({report: this.initialReport, navigation: 'summary'})
     }
     this.scanCourse()
-      .then((response) => {
-        this.checkForNewReport()
-      })
+      .then((response) => response.json())
+      .then(this.handleNewReport)
   }
 
   t(key) {
@@ -120,8 +120,7 @@ class App extends React.Component {
   }
 
   scanCourse() {
-    let api = new Api(this.settings)
-    
+    let api = new Api(this.settings)    
     return api.scanCourse(this.settings.course.id)
   }
 
@@ -129,42 +128,27 @@ class App extends React.Component {
     if (this.hasNewReport) {
       this.hasNewReport = false
       this.scanCourse()
-        .then((response) => {
-          this.checkForNewReport()
-        })
+        .then((response) => response.json())
+        .then(this.handleNewReport)
     }
     this.forceUpdate()
   }
 
-  checkForNewReport() {
-    if (!this.hasNewReport) {
-      var intervalId = setInterval(() => {
-        let api = new Api(this.settings)
-        api.getReport()
-          .then((response) => response.json())
-          .then((data) => {
-            if (data.messages) {
-              data.messages.forEach((msg) => {
-                if (msg.visible) {
-                  this.addMessage(msg)
-                }
-                if ('msg.no_report_created' === msg.message) {
-                  this.addMessage(msg)
-                  clearInterval(intervalId)
-                  this.setState({ report: null })
-                }
-              });
-            }
-            if (data.data && data.data.id) {
-              this.hasNewReport = true;
-              clearInterval(intervalId);
-              this.setState({ report: data.data });
-            }
-          });
-      }, this.newReportInterval);
+  handleNewReport(data) {
+    if (data.messages) {
+      data.messages.forEach((msg) => {
+        if (msg.visible) {
+          this.addMessage(msg)
+        }
+        if ('msg.no_report_created' === msg.message) {
+          this.addMessage(msg)
+          this.setState({ report: null })
+        }
+      });
     }
-    else {
-      clearInterval(intervalId);
+    if (data.data && data.data.id) {
+      this.hasNewReport = true;
+      this.setState({ report: data.data });
     }
   }
 
