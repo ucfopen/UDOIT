@@ -13,6 +13,10 @@ class ContentPageForm extends React.Component {
 
   }
 
+  focus = () => {
+    this.filterButton.focus()
+  }
+
   render() {
     return (
       <Flex justifyItems="space-between" padding="0 0 medium 0" key="contentPageForm">
@@ -30,7 +34,9 @@ class ContentPageForm extends React.Component {
             <Button
               renderIcon={IconFilterLine}
               screenReaderLabel={this.props.t('srlabel.open_filters_tray')}
-              onClick={this.props.handleTrayToggle}>
+              onClick={this.props.handleTrayToggle}
+              elementRef={(node) => this.filterButton = node}
+              >
               {this.props.t('label.filter')}
             </Button>}
         </Flex.Item>
