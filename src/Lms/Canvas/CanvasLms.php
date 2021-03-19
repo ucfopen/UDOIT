@@ -489,6 +489,18 @@ class CanvasLms implements LmsInterface {
         return $terms;
     }
 
+    public function getContentTypes()
+    {
+        return [
+            'syllabus',
+            'page',
+            'assignment',
+            'quiz',
+            'discussion_topic',
+            'announcement',
+            'file',
+        ];
+    }
     
 
     /**********************

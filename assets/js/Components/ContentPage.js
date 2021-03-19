@@ -9,6 +9,12 @@ import { Tag } from '@instructure/ui-tag'
 import { ScreenReaderContent } from '@instructure/ui-a11y-content'
 import UfixitModal from './UfixitModal';
 
+const issueStatusKeys = [
+  'active',
+  'fixed',
+  'resolved'
+]
+
 class ContentPage extends React.Component {
   constructor(props) {
     super(props);
@@ -17,8 +23,8 @@ class ContentPage extends React.Component {
     this.headers = [
       {id: "status", text: '', alignText: "center"},
       {id: "scanRuleLabel", text: this.props.t('label.issue')}, 
-      {id: "contentType", text: this.props.t('label.content_type')}, 
-      {id: "contentTitle", text: this.props.t('label.content_title')}, 
+      {id: "contentType", text: this.props.t('label.header.type')}, 
+      {id: "contentTitle", text: this.props.t('label.header.title')}, 
       {id: "action", text: "", alignText: "end"}
     ];
 
@@ -32,7 +38,7 @@ class ContentPage extends React.Component {
         contentTypes: [],
         issueTypes: [],
         issueTitles: [],
-        hideFixed: true,
+        issueStatus: [0],
         hideUnpublishedContentItems: true,
       },
       tableSettings: {
@@ -130,8 +136,8 @@ class ContentPage extends React.Component {
         continue;
       }
 
-      // Check if we are showing fixed as well as not fixed
-      if (filters.hideFixed && issue.status) {
+      // Check if we are filtering by issue status
+      if (filters.issueStatus.length !== 0 && !filters.issueStatus.includes(issue.status)) {
         continue;
       }
 
@@ -255,6 +261,7 @@ class ContentPage extends React.Component {
           report={this.props.report}
           handleTrayToggle={this.handleTrayToggle} 
           t={this.props.t}
+          settings={this.props.settings}
         />}
         {this.state.modalOpen && <UfixitModal
           open={this.state.modalOpen}
@@ -289,7 +296,7 @@ class ContentPage extends React.Component {
       hideUnpublishedContentItems: false,
       issueTypes: [],
       issueTitles: [],
-      hideFixed: false,
+      issueStatus: [0],
     };
   }
 
@@ -297,7 +304,6 @@ class ContentPage extends React.Component {
     let tags = [];
 
     for (const contentType of this.state.filters.contentTypes) {
-      //let label = this.props.t('label.content_type') + ': ' + this.props.t(`label.plural.${id}`);
       const id = `contentTypes||${contentType}`;
       tags.push({ id: id, label: this.props.t(`content.plural.${contentType}`)});
     }
@@ -312,9 +318,11 @@ class ContentPage extends React.Component {
       tags.push({ id: id, label: this.props.t(`rule.label.${ruleId}`) });
     }
 
-    if (this.state.filters.hideFixed) {
-      tags.push({ id: `hideFixed||true`, label: this.props.t(`label.hide_fixed`)});
+    for (const statusVal of this.state.filters.issueStatus) {
+      const id = `issueStatus||${statusVal}`
+      tags.push({ id: id, label: this.props.t(`label.filter.${issueStatusKeys[statusVal]}`) });
     }
+
     if (this.state.filters.hideUnpublishedContentItems) {
       tags.push({ id: `hideUnpublishedContentItems||true`, label: this.props.t(`label.hide_unpublished`) });
     }
@@ -342,8 +350,8 @@ class ContentPage extends React.Component {
       case 'issueTitles':
         results = this.state.filters.issueTitles.filter((val) => filterId !== val);
         break;
-      case 'hideFixed':
-        results = false;
+      case 'issueStatus':
+        results = this.state.filters.issueStatus.filter((val) => filterId != val);
         break;
       case 'hideUnpublishedContentItems':
         results = false;

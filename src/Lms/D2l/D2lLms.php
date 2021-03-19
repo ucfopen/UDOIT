@@ -316,6 +316,23 @@ class D2lLms implements LmsInterface {
         return "https://{$this->baseUrl}/d2l/home/{$course->getLmsCourseId()}";
     }
 
+    public function getContentTypes()
+    {
+        return [
+            'file',
+            'link',
+            'dropbox',
+            'quiz.instruction',
+            'quiz.description',
+            'quiz.header',
+            'quiz.footer',
+            'discussion.forum',
+            'discussion.topic',
+            'checklist',
+            'survey',
+        ];
+    }
+
     /*
      * **************
      * FILE ITEMS

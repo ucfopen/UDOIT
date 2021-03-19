@@ -24,4 +24,5 @@ interface LmsInterface {
     public function getOauthTokenUri(Institution $institution);
     public function getKeysetUrl();
     public function saveTokenToSession($token);
+    public function getContentTypes();
 }
