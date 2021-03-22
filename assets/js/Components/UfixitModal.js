@@ -93,7 +93,13 @@ class UfixitModal extends React.Component {
       showExample = true
     }
 
-    let code = (activeIssue.newHtml) ? activeIssue.newHtml : activeIssue.sourceHtml
+    let code 
+    const sourceCode = (activeIssue.newHtml) ? activeIssue.newHtml : activeIssue.sourceHtml
+    if (sourceCode.length > 3000) {
+      code = '<span>Not Available</span>'
+    } else {
+      code = sourceCode
+    }
     code = Pretty(code)
 
     return (
@@ -266,7 +272,7 @@ class UfixitModal extends React.Component {
     const html = (activeIssue.newHtml) ? activeIssue.newHtml : Html.toString(Html.toElement(activeIssue.sourceHtml))
     const highlighted = `<span class="highlighted" style="display:inline-block; border:5px dashed #F1F155;">${html}</span>`
 
-    return activeIssue.previewHtml.replace(activeIssue.sourceHtml, highlighted)
+    return activeIssue.previewHtml ? activeIssue.previewHtml.replace(activeIssue.sourceHtml, highlighted) : '<span>Not Available</span>'
   }
 
   handleIssueResolve() {
