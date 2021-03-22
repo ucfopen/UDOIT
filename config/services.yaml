@@ -6,6 +6,7 @@
 parameters:
     app.lms: '%env(resolve:APP_LMS)%'
     app.env: '%env(resolve:APP_ENV)%'
+    app.use_development_auth: '%env(resolve:USE_DEVELOPMENT_AUTH)%'
 
 services:
     # default configuration for services in *this* file
