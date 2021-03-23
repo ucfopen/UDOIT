@@ -22,8 +22,7 @@ touch /var/www/html/public/.user.ini
 
 # add New Relic appname
 if [ "$DEPLOYMENT_GROUP_NAME" == "Udoit3Prod" ]
-then
-    
+then    
     echo -e "\nnewrelic.appname = \"UDOIT 3 Production\"" >> /var/www/html/public/.user.ini
 else
     echo -e "\nnewrelic.appname = \"UDOIT 3 Staging\"" >> /var/www/html/public/.user.ini

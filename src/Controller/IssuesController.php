@@ -162,7 +162,7 @@ class IssuesController extends ApiController
     /**
      * Rescan an issue in PhpAlly
      * 
-     * @Route("/api/issues/{issue}/scan", name="save_issue")
+     * @Route("/api/issues/{issue}/scan", name="scan_issue")
      * @param Issue $issue
      */
     public function scanIssue(Issue $issue, PhpAllyService $phpAlly, UtilityService $util)
