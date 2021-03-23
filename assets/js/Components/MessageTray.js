@@ -1,10 +1,10 @@
 import React from 'react'
-import { View } from '@instructure/ui-view'
 import { Alert } from '@instructure/ui-alerts'
 import { Spinner } from '@instructure/ui-spinner'
 
-class MessageTray extends React.Component {
+import Classes from '../../css/app.scss'
 
+class MessageTray extends React.Component {
   constructor(props) {
     super(props)
   }
@@ -14,11 +14,11 @@ class MessageTray extends React.Component {
   }
 
   render() {
-    
     return (
-      <View as="div">
-        {!this.props.hasNewReport && 
-          <Alert variant="info"
+      <div className={Classes.messagesTray}>
+        {!this.props.hasNewReport && (
+          <Alert
+            variant="info"
             renderCloseButtonLabel={this.props.t('label.close')}
             onDismiss={this.props.clearMessages}
             margin="small large"
@@ -26,17 +26,20 @@ class MessageTray extends React.Component {
             {this.props.t('label.content_loading_msg')}
             <Spinner size="x-small" margin="0 small" renderTitle="Loading" />
           </Alert>
-        }
-        {this.props.messages.map((msg, i) => 
-          <Alert variant={msg.severity} 
-            timeout={(msg.timeout) ? msg.timeout : 0} 
-            renderCloseButtonLabel={this.props.t('label.close')} 
+        )}
+        {this.props.messages.map((msg, i) => (
+          <Alert
+            variant={msg.severity}
+            timeout={msg.timeout ? msg.timeout : 0}
+            renderCloseButtonLabel={this.props.t('label.close')}
             onDismiss={this.props.clearMessages}
             margin="small large"
-            key={`msg${i}`}>
+            key={`msg${i}`}
+          >
             {this.props.t(msg.message)}
-          </Alert>)}
-      </View>
+          </Alert>
+        ))}
+      </div>
     )
   }
 }
