@@ -193,7 +193,9 @@ class FilesPage extends React.Component {
           handleSearchTerm={this.handleSearchTerm} 
           handleTrayToggle={this.handleTrayToggle} 
           searchTerm={this.state.searchTerm}
-          t={this.props.t} />
+          t={this.props.t} 
+          ref={(node) => this.filesPageForm = node}
+        />
         <View as="div" key="filterFileTags">
           {this.renderFilterTags()}
         </View>
@@ -251,29 +253,43 @@ class FilesPage extends React.Component {
       tags.push({ id: `hideReviewed||true`, label: this.props.t(`label.hide_reviewed`)});
     }
 
-    return tags.map((tag) => (
+    return tags.map((tag, i) => (
       <Tag margin="0 small small 0" 
         text={tag.label} 
         dismissible={true} 
         onClick={(e) => this.handleTagClick(tag.id, e)}
-        key={tag.id} />
+        key={i} 
+        elementRef={(node) => this[`tag${i}`] = node}
+      />
     ));
   }
 
   handleTagClick(tagId, e) {
     let [filterType, filterId] = tagId.split('||');
     let results = null;
+    let index = 0
 
     switch (filterType) {
       case 'fileTypes':
+        index += this.state.filters.fileTypes.findIndex((val) => filterId == val)
         results = this.state.filters.fileTypes.filter((val) => filterId !== val);
         break;
       case 'hideReviewed':
+        index = this.state.filters.fileTypes.length
         results = false;
         break;
     }
 
     this.handleFilter({ [filterType]: results });
+    if (index - 1 >= 0) {
+      setTimeout(() => {
+        this[`tag${index - 1}`].focus()
+      })
+    } else {
+      setTimeout(() => {
+        this.filesPageForm.focus()
+      })
+    }
   }
 
   formatFileSize(size) {

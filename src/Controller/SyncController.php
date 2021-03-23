@@ -36,7 +36,7 @@ class SyncController extends ApiController
             }
             if (!$course->isActive()) {
                 $response->setData(0);
-                throw new \Exception('msg.sync.course_inactive', 'error');
+                throw new \Exception('msg.sync.course_inactive');
             }
 
             $lmsFetch->refreshLmsContent($course, $user);
@@ -63,7 +63,7 @@ class SyncController extends ApiController
             if ('msg.course_scanning' === $e->getMessage()) {
                 $response->addMessage($e->getMessage(), 'info', 0, false);
             } else {
-                $response->addMessage($e->getMessage(), 'alert', 0);
+                $response->addMessage($e->getMessage(), 'error', 0);
             }
         }
 

@@ -240,8 +240,10 @@ class ContentPage extends React.Component {
           handleSearchTerm={this.handleSearchTerm} 
           handleTrayToggle={this.handleTrayToggle} 
           searchTerm={this.state.searchTerm}
-          t={this.props.t} />
-        <View as="div" key="filterTags">
+          t={this.props.t} 
+          ref={(node) => this.contentPageForm = node}
+        />
+        <View as="div">
           {this.renderFilterTags()}
         </View>
         <SortableTable
@@ -327,38 +329,59 @@ class ContentPage extends React.Component {
       tags.push({ id: `hideUnpublishedContentItems||true`, label: this.props.t(`label.hide_unpublished`) });
     }
 
-    return tags.map((tag) => (
+    return tags.map((tag, i) => {
+      return (
       <Tag margin="0 small small 0" 
         text={tag.label} 
         dismissible={true} 
         onClick={(e) => this.handleTagClick(tag.id, e)}
-        key={tag.id} />
-    ));
+        key={i} 
+        elementRef={(node) => this[`tag${i}`] = node}
+      />
+    )});
   }
 
   handleTagClick(tagId, e) {
     let [filterType, filterId] = tagId.split('||');
     let results = null;
+    let index = 0
 
     switch (filterType) {
       case 'contentTypes':
+        index += this.state.filters.contentTypes.findIndex((val) => filterId == val)
         results = this.state.filters.contentTypes.filter((val) => filterId !== val);
         break;
       case 'issueTypes':
+        index = this.state.filters.contentTypes.length
+        index += this.state.filters.issueTypes.findIndex((val) => filterId == val)
         results = this.state.filters.issueTypes.filter((val) => filterId !== val);
         break;
       case 'issueTitles':
+        index = this.state.filters.contentTypes.length + this.state.filters.issueTypes.length
+        index += this.state.filters.issueTitles.findIndex((val) => filterId == val)
         results = this.state.filters.issueTitles.filter((val) => filterId !== val);
         break;
       case 'issueStatus':
+        index = this.state.filters.contentTypes.length + this.state.filters.issueTypes.length + this.state.filters.issueTitles.length
+        index += this.state.filters.issueStatus.findIndex((val) => filterId == val)
         results = this.state.filters.issueStatus.filter((val) => filterId != val);
         break;
       case 'hideUnpublishedContentItems':
+        index = this.state.filters.contentTypes.length + this.state.filters.issueTypes.length + this.state.filters.issueTitles.length + this.state.filters.issueStatus.length
         results = false;
         break;
     }
 
     this.handleFilter({ [filterType]: results });
+    if (index - 1 >= 0) {
+      setTimeout(() => {
+        this[`tag${index - 1}`].focus()
+      })
+    } else {
+      setTimeout(() => {
+        this.contentPageForm.focus()
+      })
+    }
   }
 }
 
