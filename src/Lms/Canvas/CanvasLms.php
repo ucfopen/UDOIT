@@ -345,7 +345,19 @@ class CanvasLms implements LmsInterface {
         $options = $this->createLmsPostOptions($contentItem);
         
         if ('file' === $contentItem->getContentType()) {
+            // Save file to temp folder
             $filepath = $this->util->getTempPath() . '/content.' . $contentItem->getId() . '.html';
+            $success = file_put_contents($filepath, $contentItem->getBody());
+
+            if (!$success) {
+                $this->util->createMessage(
+                    'Content failed to save locally. Please contact an administrator.',
+                    'error',
+                    $contentItem->getCourse()
+                );
+                return;
+            }
+            
             $fileResponse = $canvasApi->apiFilePost($url, $options, $filepath);
             $fileObj = $fileResponse->getContent();
             
