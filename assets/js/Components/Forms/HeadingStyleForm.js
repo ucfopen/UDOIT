@@ -1,13 +1,9 @@
 import React from 'react'
-import { CodeEditor } from '@instructure/ui-code-editor'
 import { Checkbox } from '@instructure/ui-checkbox';
 import { View } from '@instructure/ui-view'
-import { Text } from '@instructure/ui-text'
-import { TextInput } from '@instructure/ui-text-input'
 import { Button } from '@instructure/ui-buttons'
 import { Spinner } from '@instructure/ui-spinner'
 import { SimpleSelect } from '@instructure/ui-simple-select'
-import { CondensedButton } from '@instructure/ui-buttons'
 import Html from '../../Services/Html';
 
 
@@ -44,7 +40,6 @@ export default class HeadingStyleForm extends React.Component {
             let element = Html.toElement(html)
 
             this.tagName = Html.getTagName(element)
-            this.styleTags = ["STRONG", "B", "I", "EM", "MARK", "SMALL", "DEL", "INS", "SUB", "SUP"]
         
             this.state = {
                 codeInputValue: element.innerHTML,
@@ -82,6 +77,8 @@ export default class HeadingStyleForm extends React.Component {
 
     
     handleSelect = (e, { id, value }) => {
+        this.formErrors = []
+
         this.setState({ selectedValue: value }, () => {
             let issue = this.props.activeIssue
             issue.newHtml = this.processHtml()
@@ -110,37 +107,31 @@ export default class HeadingStyleForm extends React.Component {
     }
 
     checkSelectNotEmpty() {
-        if (this.state.selectedValue === '') {
+        if (this.state.selectedValue === '' && !this.state.removeStyling) {
           this.formErrors.push({ text: this.props.t('form.heading.msg.select_heading'), type: 'error' })
         }
     }
 
     processHtml() {
         let newHeader
+        const element = Html.toElement(this.props.activeIssue.sourceHtml)
+
         if (this.state.selectedValue) {
             newHeader = document.createElement(this.state.selectedValue)
+            newHeader.innerHTML = element.innerHTML
+
+            for (let styleTag of this.styleTags) {
+                newHeader = Html.removeTag(newHeader, styleTag)
+            }
         }
         else {
-            newHeader = document.createElement('p')
-        }
-        let element = Html.toElement(this.props.activeIssue.sourceHtml)
+            newHeader = element
 
-        newHeader.innerHTML = element.innerHTML
-
-        if(this.state.removeStyling) {
-            newHeader = Html.removeTag(newHeader, 'strong')
-            newHeader = Html.removeTag(newHeader, 'b')
-            newHeader = Html.removeTag(newHeader, 'i')
-
-            newHeader = Html.setInnerText(newHeader, this.state.textInputValue)
-        } else {
-            let curNode = newHeader
-
-            while(this.styleTags.includes(curNode.firstChild.nodeName)) {
-                curNode = curNode.firstChild
+            if (this.state.removeStyling) {
+                for (let styleTag of this.styleTags) {
+                    newHeader = Html.removeTag(newHeader, styleTag)
+                }
             }
-
-            curNode = Html.setInnerText(curNode, this.state.textInputValue)
         }
 
         return Html.toString(newHeader)
@@ -153,23 +144,13 @@ export default class HeadingStyleForm extends React.Component {
 
         return (
             <View as="div" padding="x-small">
-                <View>
-                    <TextInput
-                        renderLabel={this.props.t('form.heading.text')}
-                        display="inline-block"
-                        width="100%"
-                        onChange={this.handleTextInput}
-                        value={this.state.textInputValue}
-                        id="textInputValue"
-                        messages={this.formErrors}
-                        /> 
-                </View>
                 <View as="div" margin="small 0">
                     <SimpleSelect
                     renderLabel={this.props.t('form.heading.heading_level')}
                     assistiveText={this.props.t('form.heading.assistive_text')}
                     value={this.state.selectedValue}
                     onChange={this.handleSelect}
+                    messages={this.formErrors}
                     width="100%"
                     >
                         <SimpleSelect.Option

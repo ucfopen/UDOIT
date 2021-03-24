@@ -1,13 +1,9 @@
 import React from 'react'
-import { CodeEditor } from '@instructure/ui-code-editor'
 import { Checkbox } from '@instructure/ui-checkbox';
 import { View } from '@instructure/ui-view'
-import { Text } from '@instructure/ui-text'
 import { TextInput } from '@instructure/ui-text-input'
 import { Button } from '@instructure/ui-buttons'
 import { Spinner } from '@instructure/ui-spinner'
-import { SimpleSelect } from '@instructure/ui-simple-select'
-import { CondensedButton } from '@instructure/ui-buttons'
 import Html from '../../Services/Html';
 
 
@@ -88,10 +84,6 @@ export default class HeadingEmptyForm extends React.Component {
     handleSubmit() {
         this.formErrors = []
 
-        // if(!this.state.deleteHeader && !this.state.useHtmlEditor) {
-        //     this.checkTextNotEmpty()
-        // }
-
         if(!this.state.deleteHeader) {
             this.checkTextNotEmpty()
         }
@@ -109,16 +101,6 @@ export default class HeadingEmptyForm extends React.Component {
             this.props.handleIssueSave(issue)
         }
     }
-
-    // handleToggle() {
-    //     this.setState({
-    //         useHtmlEditor: !this.state.useHtmlEditor
-    //     }, () => {
-    //         let issue = this.props.activeIssue
-    //         issue.newHtml = this.processHtml()
-    //         this.props.handleActiveIssue(issue)
-    //     })
-    // }
 
     checkTextNotEmpty() {
         const text = this.state.textInputValue.trim().toLowerCase()
