@@ -2,5 +2,7 @@
   background-color: white;
   position: sticky;
   top: 5px;
-  z-index: 9999999;
+  // This number matches the stacking-topmost theme for z-index
+  // which allows for the menu dropdown to render over the messagesTray
+  z-index: 9999;
 }
