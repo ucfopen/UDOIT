@@ -195,6 +195,8 @@
   "form.heading.heading_level": "Select heading level",
   "form.heading.heading_level_options": ["H2", "H3", "H4"],
   "form.heading.msg.text_empty": "Heading text cannot be empty",
+  "form.heading.msg.select_heading": "Heading level cannot be empty",
+  "form.heading.remove_styling": "Remove styling instead",
   "form.heading.remove_header": "Delete heading instead",
   "form.heading.text": "New Heading Text",
   "form.heading.use_text": "Use text editor",

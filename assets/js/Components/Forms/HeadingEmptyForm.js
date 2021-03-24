@@ -142,20 +142,13 @@ export default class HeadingEmptyForm extends React.Component {
     }
 
     render() {
-        const pending = (this.props.activeIssue && this.props.activeIssue.pending)
+        const pending = (this.props.activeIssue && (this.props.activeIssue.pending == '1'))
         const buttonLabel = (pending) ? 'form.processing' : 'form.submit'
-        const canSubmit = (!pending && !this.props.activeIssue.status)
 
         return (
             <View as="div" padding="x-small">
-                <View position="absolute" insetInlineEnd="10%">
-                    {/* <CondensedButton color="primary" onClick={this.handleToggle}>
-                        {this.state.useHtmlEditor ? this.props.t('form.header.use_text') : this.props.t('form.header.use_code')}
-                    </CondensedButton> */}
-                </View>
                 <View>
-                    {!this.state.useHtmlEditor &&
-                        <TextInput
+                    <TextInput
                         renderLabel={this.props.t('form.heading.text')}
                         display="inline-block"
                         width="100%"
@@ -163,30 +156,16 @@ export default class HeadingEmptyForm extends React.Component {
                         value={this.state.textInputValue}
                         id="textInputValue"
                         messages={this.formErrors}
+                        interaction={(this.state.deleteHeader) ? 'disabled' : 'enabled'}
                         /> 
-                    }
-
-                    {/* {this.state.useHtmlEditor &&
-                        [
-                        <Text weight="bold">{this.props.t('form.header.text')}</Text>,
-                        
-                        <CodeEditor
-                        renderLabel={this.props.t('form.header.text')}
-                        value={this.state.codeInputValue}
-                        language='html'
-                        options={{ lineNumbers: false }}
-                        onChange={this.handleCodeInput}
-                        />
-                        ] 
-                    } */}
                 </View>
-                <View as="div" margin="small 0">
-                    <View as="span" display="inline-block" margin="small" padding="small">
+                <View as="div" margin="x-small 0">
+                    <View as="span" display="inline-block">
                         <Checkbox label={this.props.t('form.heading.remove_header')} onChange={this.handleCheckbox} checked={this.state.deleteHeader}/>
                     </View>
                 </View>
                 <View as="div" margin="small 0">
-                    <Button color="primary" onClick={this.handleSubmit} interaction={(canSubmit) ? 'enabled' : 'disabled'}>
+                    <Button color="primary" onClick={this.handleSubmit} interaction={(!pending) ? 'enabled' : 'disabled'}>
                         {pending && <Spinner size="x-small" renderTitle={buttonLabel} />}
                         {this.props.t(buttonLabel)}
                     </Button>
