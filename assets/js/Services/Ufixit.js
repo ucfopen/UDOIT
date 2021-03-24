@@ -7,7 +7,6 @@ import HeadingStyleForm from '../Components/Forms/HeadingStyleForm'
 import TableHeaders from '../Components/Forms/TableHeaders'
 import Video from '../Components/Forms/Video'
 
-
 const UfixitForms = {
   AnchorMustContainText: AnchorText,
   AnchorSuspiciousLinkText: AnchorText,
@@ -24,7 +23,7 @@ const UfixitForms = {
   TableHeaderShouldHaveScope: TableHeaders,
   ImageAltNotPlaceholder: AltText,
   VideoCaptionsMatchCourseLanguage: Video,
-  VideosEmbeddedOrLinkedNeedCaptions: Video
+  VideosEmbeddedOrLinkedNeedCaptions: Video,
 }
 
 export default class Ufixit {

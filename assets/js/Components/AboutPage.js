@@ -7,45 +7,6 @@ import { ToggleDetails } from '@instructure/ui-toggle-details'
 import { List } from '@instructure/ui-list'
 import Html from '../Services/Html'
 import ReactHtmlParser from 'react-html-parser'
-
-const rules = [
-  'AnchorMustContainText',
-  'AnchorLinksToMultiMediaRequireTranscript',
-  'AnchorLinksToSoundFilesNeedTranscripts',
-  'AnchorMustContainText',
-  'AnchorSuspiciousLinkText',
-  'BaseFontIsNotUsed',
-  'BlinkIsNotUsed',
-  'ContentTooLong',
-  'CssTextHasContrast',
-  'CssTextStyleEmphasize',
-  'DocumentReadingDirection',
-  'EmbedHasAssociatedNoEmbed',
-  'FontIsNotUsed',
-  'HeadersHaveText',
-  'ImageAltIsDifferent',
-  'ImageAltIsTooLong',
-  'ImageAltNotEmptyInAnchor',
-  'ImageAltNotPlaceholder',
-  'ImageHasAlt',
-  'ImageHasAltDecorative',
-  'ImageHasLongDescription',
-  'InputImageNotDecorative',
-  'MarqueeIsNotUsed',
-  'NoHeadings',
-  'ObjectInterfaceIsAccessible',
-  'ObjectMustContainText',
-  'ObjectShouldHaveLongDescription',
-  'ObjectTagDetected',
-  'ParagraphNotUsedAsHeader',
-  'PreShouldNotBeUsedForTabularValues',
-  'TableDataShouldHaveTableHeader',
-  'TableHeaderShouldHaveScope',
-  'VideoCaptionsMatchCourseLanguage',
-  'VideoEmbedCheck',
-  'VideoProvidesCaptions',
-  'VideosEmbeddedOrLinkedNeedCaptions',
-]
 class AboutPage extends React.Component {
 
   constructor(props) {
