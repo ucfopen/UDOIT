@@ -1,13 +1,9 @@
 import React from 'react'
-import { CodeEditor } from '@instructure/ui-code-editor'
 import { Checkbox } from '@instructure/ui-checkbox';
 import { View } from '@instructure/ui-view'
-import { Text } from '@instructure/ui-text'
-import { TextInput } from '@instructure/ui-text-input'
 import { Button } from '@instructure/ui-buttons'
 import { Spinner } from '@instructure/ui-spinner'
 import { SimpleSelect } from '@instructure/ui-simple-select'
-import { CondensedButton } from '@instructure/ui-buttons'
 import Html from '../../Services/Html';
 
 
@@ -23,7 +19,7 @@ export default class HeadingStyleForm extends React.Component {
         this.state = {
             codeInputValue: element.innerHTML,
             textInputValue: element.innerText,
-            selectedValue: (this.tagName === 'P') ? 'H2' : this.tagName,
+            selectedValue: (this.tagName.startsWith('H')) ? this.tagName : '',
             removeStyling: false,
             useHtmlEditor: false,
             textInputErrors: []
@@ -31,7 +27,6 @@ export default class HeadingStyleForm extends React.Component {
 
         this.formErrors = []
 
-        this.handleCodeInput = this.handleCodeInput.bind(this)
         this.handleTextInput = this.handleTextInput.bind(this)
         this.handleSelect = this.handleSelect.bind(this)
         this.handleSubmit = this.handleSubmit.bind(this)
@@ -45,12 +40,11 @@ export default class HeadingStyleForm extends React.Component {
             let element = Html.toElement(html)
 
             this.tagName = Html.getTagName(element)
-            this.styleTags = ["STRONG", "B", "I", "EM", "MARK", "SMALL", "DEL", "INS", "SUB", "SUP"]
         
             this.state = {
                 codeInputValue: element.innerHTML,
                 textInputValue: element.innerText,
-                selectedValue: (this.tagName === 'P') ? 'H2' : this.tagName,
+                selectedValue: (this.tagName.startsWith('H')) ? this.tagName : '',
                 removeStyling: false,
                 useHtmlEditor: false,
                 textInputErrors: []
@@ -71,16 +65,6 @@ export default class HeadingStyleForm extends React.Component {
         })
     }
 
-    handleCodeInput(value) {
-        this.setState({
-            codeInputValue: value
-        }, () => {
-            let issue = this.props.activeIssue
-            issue.newHtml = this.processHtml()
-            this.props.handleActiveIssue(issue)
-        })
-    }
-
     handleTextInput(event) {
         this.setState({
             textInputValue: event.target.value
@@ -93,6 +77,8 @@ export default class HeadingStyleForm extends React.Component {
 
     
     handleSelect = (e, { id, value }) => {
+        this.formErrors = []
+
         this.setState({ selectedValue: value }, () => {
             let issue = this.props.activeIssue
             issue.newHtml = this.processHtml()
@@ -103,12 +89,8 @@ export default class HeadingStyleForm extends React.Component {
     handleSubmit() {
         this.formErrors = []
 
-        // if(!this.state.deleteHeader && !this.state.useHtmlEditor) {
-        //     this.checkTextNotEmpty()
-        // }
-
-        if(!this.state.deleteHeader) {
-            this.checkTextNotEmpty()
+        if(!this.state.removeStyling) {
+            this.checkSelectNotEmpty()
         }
         
 
@@ -124,43 +106,32 @@ export default class HeadingStyleForm extends React.Component {
         }
     }
 
-    // handleToggle() {
-    //     this.setState({
-    //         useHtmlEditor: !this.state.useHtmlEditor
-    //     }, () => {
-    //         let issue = this.props.activeIssue
-    //         issue.newHtml = this.processHtml()
-    //         this.props.handleActiveIssue(issue)
-    //     })
-    // }
-
-    checkTextNotEmpty() {
-        const text = this.state.textInputValue.trim().toLowerCase()
-        if (text === '') {
-          this.formErrors.push({ text: this.props.t('form.heading.msg.text_empty'), type: 'error' })
+    checkSelectNotEmpty() {
+        if (this.state.selectedValue === '' && !this.state.removeStyling) {
+          this.formErrors.push({ text: this.props.t('form.heading.msg.select_heading'), type: 'error' })
         }
     }
 
     processHtml() {
-        let newHeader = document.createElement(this.state.selectedValue)
-        let element = Html.toElement(this.props.activeIssue.sourceHtml)
+        let newHeader
+        const element = Html.toElement(this.props.activeIssue.sourceHtml)
 
-        newHeader.innerHTML = element.innerHTML
+        if (this.state.selectedValue) {
+            newHeader = document.createElement(this.state.selectedValue)
+            newHeader.innerHTML = element.innerHTML
 
-        if(this.state.removeStyling) {
-            newHeader = Html.removeTag(newHeader, 'strong')
-            newHeader = Html.removeTag(newHeader, 'b')
-            newHeader = Html.removeTag(newHeader, 'i')
-
-            newHeader = Html.setInnerText(newHeader, this.state.textInputValue)
-        } else {
-            let curNode = newHeader
-
-            while(this.styleTags.includes(curNode.firstChild.nodeName)) {
-                curNode = curNode.firstChild
+            for (let styleTag of this.styleTags) {
+                newHeader = Html.removeTag(newHeader, styleTag)
             }
+        }
+        else {
+            newHeader = element
 
-            curNode = Html.setInnerText(curNode, this.state.textInputValue)
+            if (this.state.removeStyling) {
+                for (let styleTag of this.styleTags) {
+                    newHeader = Html.removeTag(newHeader, styleTag)
+                }
+            }
         }
 
         return Html.toString(newHeader)
@@ -168,72 +139,44 @@ export default class HeadingStyleForm extends React.Component {
 
     render() {
         const options = this.props.t('form.heading.heading_level_options')
-        const pending = (this.props.activeIssue && this.props.activeIssue.pending)
+        const pending = (this.props.activeIssue && (this.props.activeIssue.pending == '1'))
         const buttonLabel = (pending) ? 'form.processing' : 'form.submit'
-        const canSubmit = (!pending && !this.props.activeIssue.status)
 
         return (
             <View as="div" padding="x-small">
-                <View position="absolute" insetInlineEnd="10%">
-                    {/* <CondensedButton color="primary" onClick={this.handleToggle}>
-                        {this.state.useHtmlEditor ? this.props.t('form.header.use_text') : this.props.t('form.header.use_code')}
-                    </CondensedButton> */}
-                </View>
-                <View>
-                    {!this.state.useHtmlEditor &&
-                        <TextInput
-                        renderLabel={this.props.t('form.heading.text')}
-                        display="inline-block"
-                        width="100%"
-                        onChange={this.handleTextInput}
-                        value={this.state.textInputValue}
-                        id="textInputValue"
-                        messages={this.formErrors}
-                        /> 
-                    }
-
-                    {/* {this.state.useHtmlEditor &&
-                        [
-                        <Text weight="bold">{this.props.t('form.header.text')}</Text>,
-                        
-                        <CodeEditor
-                        renderLabel={this.props.t('form.header.text')}
-                        value={this.state.codeInputValue}
-                        language='html'
-                        options={{ lineNumbers: false }}
-                        onChange={this.handleCodeInput}
-                        />
-                        ] 
-                    } */}
-                </View>
                 <View as="div" margin="small 0">
-                    <View as="span" display="inline-block" margin="small" padding="small">
-                        <SimpleSelect
-                        renderLabel={this.props.t('form.heading.heading_level')}
-                        assistiveText={this.props.t('form.heading.assistive_text')}
-                        value={this.state.selectedValue}
-                        onChange={this.handleSelect}
-                        width="100%"
+                    <SimpleSelect
+                    renderLabel={this.props.t('form.heading.heading_level')}
+                    assistiveText={this.props.t('form.heading.assistive_text')}
+                    value={this.state.selectedValue}
+                    onChange={this.handleSelect}
+                    messages={this.formErrors}
+                    width="100%"
+                    >
+                        <SimpleSelect.Option
+                            key="opt-empty"
+                            id="opt-empty"
+                            value=""
                         >
-                            {options.map((opt, index) => (
-                                <SimpleSelect.Option
-                                key={index}
-                                id={`opt-${index}`}
-                                value={opt}
-                                >
-                                { opt }
-                                </SimpleSelect.Option>
-                            ))}
+                            -- Choose --
+                        </SimpleSelect.Option>
+                        {options.map((opt, index) => (
+                            <SimpleSelect.Option
+                            key={index}
+                            id={`opt-${index}`}
+                            value={opt}
+                            >
+                            { opt }
+                            </SimpleSelect.Option>
+                        ))}
+                    </SimpleSelect>
+                </View>
 
-                        </SimpleSelect>
-                    </View>
-    
-                    <View as="span" display="inline-block" margin="small" padding="small">
-                        <Checkbox label={this.props.t('form.heading.remove_header')} onChange={this.handleCheckbox} checked={this.state.deleteHeader}/>
-                    </View>
+                <View as="div" margin="small 0">
+                    <Checkbox label={this.props.t('form.heading.remove_styling')} onChange={this.handleCheckbox} checked={this.state.removeStyling}/>
                 </View>
                 <View as="div" margin="small 0">
-                    <Button color="primary" onClick={this.handleSubmit} interaction={(canSubmit) ? 'enabled' : 'disabled'}>
+                    <Button color="primary" onClick={this.handleSubmit} interaction={(!pending) ? 'enabled' : 'disabled'}>
                         {pending && <Spinner size="x-small" renderTitle={buttonLabel} />}
                         {this.props.t(buttonLabel)}
                     </Button>

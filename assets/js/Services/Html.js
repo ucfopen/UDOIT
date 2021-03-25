@@ -171,7 +171,7 @@ class Html {
       return null
     }
 
-    let outerTag = RegExp('<'.concat(name).concat('>'))
+    let outerTag = RegExp('<'.concat(name.toLowerCase()).concat('>'))
 
     element.innerHTML = element.innerHTML.replace(outerTag, "")
     

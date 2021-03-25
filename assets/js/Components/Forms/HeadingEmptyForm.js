@@ -1,13 +1,9 @@
 import React from 'react'
-import { CodeEditor } from '@instructure/ui-code-editor'
 import { Checkbox } from '@instructure/ui-checkbox';
 import { View } from '@instructure/ui-view'
-import { Text } from '@instructure/ui-text'
 import { TextInput } from '@instructure/ui-text-input'
 import { Button } from '@instructure/ui-buttons'
 import { Spinner } from '@instructure/ui-spinner'
-import { SimpleSelect } from '@instructure/ui-simple-select'
-import { CondensedButton } from '@instructure/ui-buttons'
 import Html from '../../Services/Html';
 
 
@@ -88,10 +84,6 @@ export default class HeadingEmptyForm extends React.Component {
     handleSubmit() {
         this.formErrors = []
 
-        // if(!this.state.deleteHeader && !this.state.useHtmlEditor) {
-        //     this.checkTextNotEmpty()
-        // }
-
         if(!this.state.deleteHeader) {
             this.checkTextNotEmpty()
         }
@@ -109,16 +101,6 @@ export default class HeadingEmptyForm extends React.Component {
             this.props.handleIssueSave(issue)
         }
     }
-
-    // handleToggle() {
-    //     this.setState({
-    //         useHtmlEditor: !this.state.useHtmlEditor
-    //     }, () => {
-    //         let issue = this.props.activeIssue
-    //         issue.newHtml = this.processHtml()
-    //         this.props.handleActiveIssue(issue)
-    //     })
-    // }
 
     checkTextNotEmpty() {
         const text = this.state.textInputValue.trim().toLowerCase()
@@ -142,20 +124,13 @@ export default class HeadingEmptyForm extends React.Component {
     }
 
     render() {
-        const pending = (this.props.activeIssue && this.props.activeIssue.pending)
+        const pending = (this.props.activeIssue && (this.props.activeIssue.pending == '1'))
         const buttonLabel = (pending) ? 'form.processing' : 'form.submit'
-        const canSubmit = (!pending && !this.props.activeIssue.status)
 
         return (
             <View as="div" padding="x-small">
-                <View position="absolute" insetInlineEnd="10%">
-                    {/* <CondensedButton color="primary" onClick={this.handleToggle}>
-                        {this.state.useHtmlEditor ? this.props.t('form.header.use_text') : this.props.t('form.header.use_code')}
-                    </CondensedButton> */}
-                </View>
                 <View>
-                    {!this.state.useHtmlEditor &&
-                        <TextInput
+                    <TextInput
                         renderLabel={this.props.t('form.heading.text')}
                         display="inline-block"
                         width="100%"
@@ -163,30 +138,16 @@ export default class HeadingEmptyForm extends React.Component {
                         value={this.state.textInputValue}
                         id="textInputValue"
                         messages={this.formErrors}
+                        interaction={(this.state.deleteHeader) ? 'disabled' : 'enabled'}
                         /> 
-                    }
-
-                    {/* {this.state.useHtmlEditor &&
-                        [
-                        <Text weight="bold">{this.props.t('form.header.text')}</Text>,
-                        
-                        <CodeEditor
-                        renderLabel={this.props.t('form.header.text')}
-                        value={this.state.codeInputValue}
-                        language='html'
-                        options={{ lineNumbers: false }}
-                        onChange={this.handleCodeInput}
-                        />
-                        ] 
-                    } */}
                 </View>
-                <View as="div" margin="small 0">
-                    <View as="span" display="inline-block" margin="small" padding="small">
+                <View as="div" margin="x-small 0">
+                    <View as="span" display="inline-block">
                         <Checkbox label={this.props.t('form.heading.remove_header')} onChange={this.handleCheckbox} checked={this.state.deleteHeader}/>
                     </View>
                 </View>
                 <View as="div" margin="small 0">
-                    <Button color="primary" onClick={this.handleSubmit} interaction={(canSubmit) ? 'enabled' : 'disabled'}>
+                    <Button color="primary" onClick={this.handleSubmit} interaction={(!pending) ? 'enabled' : 'disabled'}>
                         {pending && <Spinner size="x-small" renderTitle={buttonLabel} />}
                         {this.props.t(buttonLabel)}
                     </Button>
