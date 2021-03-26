@@ -177,6 +177,7 @@ class IssuesController extends ApiController
             $issue->setFixedBy($this->getUser());
             $issue->setFixedOn($util->getCurrentTime());
             $this->getDoctrine()->getManager()->flush();
+            $apiResponse->addMessage('form.msg.success_resolved', 'success');
         }
 
         // Add messages to response

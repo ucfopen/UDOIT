@@ -173,9 +173,9 @@ class App extends React.Component {
     })
   }
 
-  handleManualScan() {
+  handleManualScan(issueId) {
     let api = new Api(this.settings)
-        api.getReport()
+        api.scanIssue(issueId)
           .then((response) => response.json())
           .then((data) => {
             if (data.messages) {
@@ -186,7 +186,11 @@ class App extends React.Component {
               });
             }
             if (data.data && data.data.id) {
-              this.setState({ report: data.data, hasNewReport: true });
+              const report = {...this.state.report }
+              // doing this to prevent mutating the report in the state
+              report.issues = {...report.issues}
+              report.issues[data.data.id] = data.data              
+              this.setState({ report, hasNewReport: true });
             }
           });
   }
