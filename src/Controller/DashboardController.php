@@ -50,7 +50,7 @@ class DashboardController extends AbstractController
 
         $lmsCourseId = $this->get('session')->get('lms_course_id');
         if($this->isUiDevelopment() && !isset($lmsCourseId)) {
-          $lmsCourseId = 396;
+          $lmsCourseId = 616;
         }
         if (!$lmsCourseId) {
             $this->util->exitWithMessage('Missing LMS course ID.');
