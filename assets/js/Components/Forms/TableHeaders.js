@@ -16,6 +16,7 @@ export default class TableHeaders extends React.Component {
       'row',
       'both'
     ]
+    
     this.state = {
       selectedValue: 'column',
       replaceHeaders: (this.props.activeIssue.scanRuleId === 'TableDataShouldHaveTableHeader'),
@@ -40,15 +41,20 @@ export default class TableHeaders extends React.Component {
       selectedValue: value
     }, () => {
       let issue = this.props.activeIssue
-      issue.newHtml = this.fixHeaders()
+      {this.state.replaceHeaders ? issue.newHtml = this.fixHeaders() : issue.newHtml = this.addScope(this.props.activeIssue.sourceHtml, this.state.selectedValue)}
       this.props.handleActiveIssue(issue)
     })
   }
 
   handleSubmit() {
     let issue = this.props.activeIssue
-    issue.newHtml = this.fixHeaders()
+    {this.state.replaceHeaders ? issue.newHtml = this.fixHeaders() : issue.newHtml = this.addScope(this.props.activeIssue.sourceHtml, this.state.selectedValue)}
     this.props.handleIssueSave(issue)
+  }
+
+  addScope(html, scope) {
+    console.log(Html.setAttribute(html, "scope", scope).outerHTML)
+    return Html.setAttribute(html, "scope", scope).outerHTML
   }
 
   fixHeaders() {
@@ -63,8 +69,8 @@ export default class TableHeaders extends React.Component {
               if(this.state.replaceHeaders) {
                 row.cells[j].outerHTML = Html.renameElement(row.cells[j].outerHTML, 'th').outerHTML
               }
-    
-              row.cells[j].outerHTML = Html.setAttribute(row.cells[j], "scope", "col").outerHTML
+
+              row.cells[j].outerHTML = this.addScope(row.cells[j], "col")
             }  
 
             first = false
@@ -97,7 +103,7 @@ export default class TableHeaders extends React.Component {
             row.cells[0].outerHTML = Html.renameElement(row.cells[0].outerHTML, 'th').outerHTML
           }
 
-          row.cells[0].outerHTML = Html.setAttribute(row.cells[0], "scope", "row").outerHTML
+          row.cells[0].outerHTML = this.addScope(row.cells[0], "row")
           
         }
 
@@ -112,7 +118,7 @@ export default class TableHeaders extends React.Component {
               }
               
               if(row.cells[j].tagName === 'TH') {
-                row.cells[j].outerHTML = Html.setAttribute(row.cells[j], "scope", "col").outerHTML
+                row.cells[j].outerHTML = this.addScope(row.cells[j], "col")
               }
             }  
 
@@ -125,7 +131,7 @@ export default class TableHeaders extends React.Component {
             }
   
             if(row.cells[0].tagName === 'TH') {
-              row.cells[0].outerHTML = Html.setAttribute(row.cells[0], "scope", "row").outerHTML
+              row.cells[0].outerHTML = this.addScope(row.cells[0], "row")
             }
           }
         }
@@ -141,14 +147,14 @@ export default class TableHeaders extends React.Component {
 
     return (
       <View as="div" padding="0 x-small">
-        {this.state.replaceHeaders &&
-          <View as="div" margin="small 0">
-            <RadioInputGroup onChange={this.handleChange} name="" defaultValue="foo" description={this.props.t('form.table.selection_description')}>
-              {this.radioOptions.map(input => <RadioInput key={input} value={input} label={this.props.t(`form.table.${input}`)} />)}
-            </RadioInputGroup>
-          </View>
-        }
-
+        
+        <View as="div" margin="small 0">
+          <RadioInputGroup onChange={this.handleChange} name="" defaultValue="foo" 
+          description={this.state.replaceHeaders ? this.props.t('form.table.selection_description') : this.props.t('form.table.selection_description_scope')}>
+            {this.radioOptions.map(input => <RadioInput key={input} value={input} label={this.props.t(`form.table.${input}`)} />)}
+          </RadioInputGroup>
+        </View>
+        
         <View as="div" margin="small 0">
           <Button color="primary" onClick={this.handleSubmit} interaction={(!pending) ? 'enabled' : 'disabled'}>
               {('1' == pending) && <Spinner size="x-small" renderTitle={this.props.t(buttonLabel)} />}
