@@ -64,6 +64,17 @@ class ContentPage extends React.Component {
     }
   }
 
+  static getDerivedStateFromProps(props, state) {
+    const stateActiveIssue = state.activeIssue
+    const propsActiveIssue = stateActiveIssue && props.report.issues[stateActiveIssue.id]
+    if(propsActiveIssue && propsActiveIssue.status !== stateActiveIssue.status) {
+      return {
+        activeIssue: propsActiveIssue
+      }
+    }
+    return null
+  }
+
   handleSearchTerm = (e, val) => {
     this.setState({searchTerm: val, filteredIssues: []});
   }

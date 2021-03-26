@@ -12,6 +12,7 @@ export default class Api {
             reportPdf: '/download/courses/{course}/reports/pdf',
             adminCourses: '/api/admin/courses/account/{account}/term/{term}',
             scanCourse: '/api/sync/{course}',
+            scanIssue: '/api/issues/{issue}/scan',
             adminReport: '/api/admin/courses/{course}/reports/latest',
             adminReportHistory: '/api/admin/reports/account/{account}/term/{term}', 
             adminUser: '/api/admin/users',           
@@ -212,6 +213,21 @@ export default class Api {
         const authToken = this.getAuthToken()
         let url = `${this.apiUrl}${this.endpoints.scanCourse}`
         url = url.replace('{course}', courseId)
+
+        return fetch(url, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-AUTH-TOKEN': authToken,
+            },
+        })
+    }
+
+    scanIssue(issueId)
+    {
+        const authToken = this.getAuthToken()
+        let url = `${this.apiUrl}${this.endpoints.scanIssue}`
+        url = url.replace('{issue}', issueId)
 
         return fetch(url, {
             method: 'GET',
