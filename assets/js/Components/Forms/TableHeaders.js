@@ -41,19 +41,18 @@ export default class TableHeaders extends React.Component {
       selectedValue: value
     }, () => {
       let issue = this.props.activeIssue
-      {this.state.replaceHeaders ? issue.newHtml = this.fixHeaders() : issue.newHtml = this.addScope(this.props.activeIssue.sourceHtml, this.state.selectedValue)}
+      issue.newHtml = (this.state.replaceHeaders) ? this.fixHeaders() : this.addScope(this.props.activeIssue.sourceHtml, this.state.selectedValue)
       this.props.handleActiveIssue(issue)
     })
   }
 
   handleSubmit() {
     let issue = this.props.activeIssue
-    {this.state.replaceHeaders ? issue.newHtml = this.fixHeaders() : issue.newHtml = this.addScope(this.props.activeIssue.sourceHtml, this.state.selectedValue)}
+    issue.newHtml = (this.state.replaceHeaders) ? this.fixHeaders() : this.addScope(this.props.activeIssue.sourceHtml, this.state.selectedValue)
     this.props.handleIssueSave(issue)
   }
 
   addScope(html, scope) {
-    console.log(Html.setAttribute(html, "scope", scope).outerHTML)
     return Html.setAttribute(html, "scope", scope).outerHTML
   }
 
