@@ -12,12 +12,13 @@ export default class TableHeaders extends React.Component {
     super(props)
 
     this.radioOptions = [
-      'column',
+      'col',
       'row',
       'both'
     ]
+
     this.state = {
-      selectedValue: 'column',
+      selectedValue: 'col',
       replaceHeaders: (this.props.activeIssue.scanRuleId === 'TableDataShouldHaveTableHeader'),
     }
 
@@ -29,7 +30,7 @@ export default class TableHeaders extends React.Component {
     if (prevProps.activeIssue !== this.props.activeIssue) {
 
       this.setState({
-        selectedValue: 'column',
+        selectedValue: 'col',
         replaceHeaders: (this.props.activeIssue.scanRuleId === 'TableDataShouldHaveTableHeader'),
       })
     }
@@ -40,15 +41,20 @@ export default class TableHeaders extends React.Component {
       selectedValue: value
     }, () => {
       let issue = this.props.activeIssue
-      issue.newHtml = this.fixHeaders()
+      {this.state.replaceHeaders ? issue.newHtml = this.fixHeaders() : issue.newHtml = this.addScope(this.props.activeIssue.sourceHtml, this.state.selectedValue)}
       this.props.handleActiveIssue(issue)
     })
   }
 
   handleSubmit() {
     let issue = this.props.activeIssue
-    issue.newHtml = this.fixHeaders()
+    {this.state.replaceHeaders ? issue.newHtml = this.fixHeaders() : issue.newHtml = this.addScope(this.props.activeIssue.sourceHtml, this.state.selectedValue)}
     this.props.handleIssueSave(issue)
+  }
+
+  addScope(html, scope) {
+    console.log(Html.setAttribute(html, "scope", scope).outerHTML)
+    return Html.setAttribute(html, "scope", scope).outerHTML
   }
 
   fixHeaders() {
@@ -56,15 +62,15 @@ export default class TableHeaders extends React.Component {
     let first = true 
 
     switch(this.state.selectedValue) {
-      case 'column':
+      case 'col':
         for (var i = 0, row; row = table.rows[i]; i++) {
           if(first) {
             for (var j = 0, col; col = row.cells[j]; j++) {
               if(this.state.replaceHeaders) {
                 row.cells[j].outerHTML = Html.renameElement(row.cells[j].outerHTML, 'th').outerHTML
               }
-    
-              row.cells[j].outerHTML = Html.setAttribute(row.cells[j], "scope", "col").outerHTML
+
+              row.cells[j].outerHTML = this.addScope(row.cells[j], "col")
             }  
 
             first = false
@@ -97,7 +103,7 @@ export default class TableHeaders extends React.Component {
             row.cells[0].outerHTML = Html.renameElement(row.cells[0].outerHTML, 'th').outerHTML
           }
 
-          row.cells[0].outerHTML = Html.setAttribute(row.cells[0], "scope", "row").outerHTML
+          row.cells[0].outerHTML = this.addScope(row.cells[0], "row")
           
         }
 
@@ -112,7 +118,7 @@ export default class TableHeaders extends React.Component {
               }
               
               if(row.cells[j].tagName === 'TH') {
-                row.cells[j].outerHTML = Html.setAttribute(row.cells[j], "scope", "col").outerHTML
+                row.cells[j].outerHTML = this.addScope(row.cells[j], "col")
               }
             }  
 
@@ -125,7 +131,7 @@ export default class TableHeaders extends React.Component {
             }
   
             if(row.cells[0].tagName === 'TH') {
-              row.cells[0].outerHTML = Html.setAttribute(row.cells[0], "scope", "row").outerHTML
+              row.cells[0].outerHTML = this.addScope(row.cells[0], "row")
             }
           }
         }
@@ -138,17 +144,18 @@ export default class TableHeaders extends React.Component {
   render() {
     const pending = (this.props.activeIssue && (this.props.activeIssue.pending == '1'))
     const buttonLabel = (pending) ? 'form.processing' : 'form.submit'
+    const radioOptions = this.state.replaceHeaders ? this.radioOptions : this.radioOptions.slice(0, 2);
 
     return (
       <View as="div" padding="0 x-small">
-        {this.state.replaceHeaders &&
-          <View as="div" margin="small 0">
-            <RadioInputGroup onChange={this.handleChange} name="" defaultValue="foo" description={this.props.t('form.table.selection_description')}>
-              {this.radioOptions.map(input => <RadioInput key={input} value={input} label={this.props.t(`form.table.${input}`)} />)}
-            </RadioInputGroup>
-          </View>
-        }
-
+        
+        <View as="div" margin="small 0">
+          <RadioInputGroup onChange={this.handleChange} name="" defaultValue="foo" 
+          description={this.state.replaceHeaders ? this.props.t('form.table.selection_description') : this.props.t('form.table.selection_description_scope')}>
+            {radioOptions.map(input => <RadioInput key={input} value={input} label={this.props.t(`form.table.${input}`)} />)}
+          </RadioInputGroup>
+        </View>
+        
         <View as="div" margin="small 0">
           <Button color="primary" onClick={this.handleSubmit} interaction={(!pending) ? 'enabled' : 'disabled'}>
               {('1' == pending) && <Spinner size="x-small" renderTitle={this.props.t(buttonLabel)} />}
