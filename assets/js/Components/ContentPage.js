@@ -70,6 +70,7 @@ class ContentPage extends React.Component {
 
   // Opens the modal with the appropriate form based on the issue passed in
   handleReviewClick = (activeIssue) => {
+    if (!this.props.disableReview) return;
     this.setState({
       modalOpen: true,
       activeIssue: activeIssue
@@ -206,9 +207,15 @@ class ContentPage extends React.Component {
           scanRuleLabel: this.props.t(`rule.label.${issue.scanRuleId}`),
           contentType: this.props.t(`content.${contentItem.contentType}`),
           contentTitle: contentItem.title,
-          action: <Button key={`reviewButton${key}`} 
-            onClick={() => this.handleReviewClick(issue)} 
-            textAlign="center" >{this.props.t('label.review')}</Button>,
+          action: (
+            <Button key={`reviewButton${key}`} 
+              onClick={() => this.handleReviewClick(issue)} 
+              textAlign="center"
+              disabled={!this.props.disableReview}
+            >
+                {this.props.t('label.review')}
+            </Button>
+          ),
           onClick: () => this.handleReviewClick(issue),
         }
       );

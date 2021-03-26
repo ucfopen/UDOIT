@@ -15,7 +15,6 @@ class App extends React.Component {
   constructor(props) {
     super(props)
 
-    this.hasNewReport = false
     this.initialReport = props.report
     this.appFilters = {}
     this.settings = props.settings
@@ -26,7 +25,9 @@ class App extends React.Component {
     this.state = {
       report: this.initialReport,
       navigation: 'welcome',
-      modal: null
+      modal: null,
+      syncComplete: false,
+      hasNewReport: false,
     }
 
     this.handleNavigation = this.handleNavigation.bind(this)
@@ -48,19 +49,19 @@ class App extends React.Component {
         <Header
           t={this.t}
           settings={this.settings}
-          hasNewReport={this.hasNewReport}
+          hasNewReport={this.state.hasNewReport}
           navigation={this.state.navigation}
           handleNavigation={this.handleNavigation} 
           handleCourseRescan={this.handleCourseRescan}
           handleModal={this.handleModal} />
 
-        <MessageTray messages={this.messages} t={this.t} clearMessages={this.clearMessages} hasNewReport={this.hasNewReport} />
+        <MessageTray messages={this.messages} t={this.t} clearMessages={this.clearMessages} hasNewReport={this.state.syncComplete} />
 
         {('welcome' === this.state.navigation) && 
           <WelcomePage 
             handleNavigation={this.handleNavigation} 
             t={this.t}
-            hasNewReport={this.hasNewReport} />
+            hasNewReport={this.state.hasNewReport} />
         }
         {('summary' === this.state.navigation) &&
           <SummaryPage
@@ -80,6 +81,7 @@ class App extends React.Component {
             handleIssueSave={this.handleIssueSave}
             handleIssueUpdate={this.handleIssueUpdate}
             handleManualScan={this.handleManualScan}
+            disableReview={this.disableReview()}
             t={this.t} />
         }
         {('files' === this.state.navigation) &&
@@ -124,9 +126,13 @@ class App extends React.Component {
     return api.scanCourse(this.settings.course.id)
   }
 
+  disableReview = () => {
+    return this.state.syncComplete && !this.state.disableReview
+  }
+
   handleCourseRescan() {
-    if (this.hasNewReport) {
-      this.hasNewReport = false
+    if (this.state.hasNewReport) {
+      this.setState({ hasNewReport: false, syncComplete: false })
       this.scanCourse()
         .then((response) => response.json())
         .then(this.handleNewReport)
@@ -135,6 +141,9 @@ class App extends React.Component {
   }
 
   handleNewReport(data) {
+    let report = this.state.report
+    let hasNewReport = this.state.hasNewReport
+    let disableReview = this.state.disableReview
     if (data.messages) {
       data.messages.forEach((msg) => {
         if (msg.visible) {
@@ -142,14 +151,26 @@ class App extends React.Component {
         }
         if ('msg.no_report_created' === msg.message) {
           this.addMessage(msg)
-          this.setState({ report: null })
+          report = null
+          // no report, do not do any review actions
+          disableReview = true
+        }
+        if ("msg.sync.course_inactive" === msg.message) {
+          // course scan failed, issues may be outdated
+          disableReview = true
         }
       });
     }
     if (data.data && data.data.id) {
-      this.hasNewReport = true;
-      this.setState({ report: data.data });
+      report = data.data
+      hasNewReport = true
     }
+    this.setState({ 
+      syncComplete: true, 
+      hasNewReport, 
+      report,
+      disableReview, 
+    })
   }
 
   handleManualScan() {
@@ -165,8 +186,7 @@ class App extends React.Component {
               });
             }
             if (data.data && data.data.id) {
-              this.hasNewReport = true;
-              this.setState({ report: data.data });
+              this.setState({ report: data.data, hasNewReport: true });
             }
           });
   }
