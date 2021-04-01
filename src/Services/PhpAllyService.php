@@ -60,6 +60,6 @@ class PhpAllyService {
     protected function getDbExcludedRules()
     {
         // TODO: To be implemented with the admin section
-        return ['VideoCaptionsMatchCourseLanguage', 'VideoEmbedCheck', 'VideoProvidesCaptions', 'VideosEmbeddedOrLinkedNeedCaptions'];
+        return [];
     }
 }
