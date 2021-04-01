@@ -47,9 +47,9 @@ class PhpAllyService {
         $allRules = $this->phpAlly->getRuleIds();
 
         $envExclusions = $this->getEnvExcludedRules();
-        // $dbExclusions = $this->getDbExcludedRules();
+        $dbExclusions = $this->getDbExcludedRules();
 
-        return array_values(array_diff($allRules, $envExclusions));
+        return array_values(array_diff($allRules, $envExclusions, $dbExclusions));
     }
 
     protected function getEnvExcludedRules()
@@ -60,6 +60,6 @@ class PhpAllyService {
     protected function getDbExcludedRules()
     {
         // TODO: To be implemented with the admin section
-        return ['VideoCaptionsMatchCourseLanguage', 'VideoEmbedCheck', 'VideoProvidesCaptions', 'VideosEmbeddedOrLinkedNeedCaptions'];
+        return [];
     }
 }
