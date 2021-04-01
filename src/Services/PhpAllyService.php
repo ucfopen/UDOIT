@@ -47,9 +47,9 @@ class PhpAllyService {
         $allRules = $this->phpAlly->getRuleIds();
 
         $envExclusions = $this->getEnvExcludedRules();
-        $dbExclusions = $this->getDbExcludedRules();
+        // $dbExclusions = $this->getDbExcludedRules();
 
-        return array_values(array_diff($allRules, $envExclusions, $dbExclusions));
+        return array_values(array_diff($allRules, $envExclusions));
     }
 
     protected function getEnvExcludedRules()

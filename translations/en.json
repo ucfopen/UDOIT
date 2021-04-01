@@ -248,10 +248,10 @@
   "rule.label.PreShouldNotBeUsedForTabularValues": "\"Pre\" Elements Should Not Be Used for Tabular Data",
   "rule.label.TableDataShouldHaveTableHeader": "No Table Headers Found",
   "rule.label.TableHeaderShouldHaveScope": "No Row or Column Scope Declarations Found in Table Headers",
-  "rule.label.VideoCaptionsMatchCourseLanguage": "",
-  "rule.label.VideoEmbedCheck": "",
+  "rule.label.VideoCaptionsMatchCourseLanguage": "Closed captions do not match course language",
+  "rule.label.VideoEmbedCheck": "Avoid use of DailyMotion videos",
   "rule.label.VideoProvidesCaptions": "Multimedia Objects Should Have a Text Equivalent",
-  "rule.label.VideosEmbeddedOrLinkedNeedCaptions": "",
+  "rule.label.VideosEmbeddedOrLinkedNeedCaptions": "No closed captions found",
 
   "rule.desc.AnchorLinksToMultiMediaRequireTranscript": "<p>Multimedia objects should be accompanied by a link to a transcript of the content.</p>",
   "rule.desc.AnchorLinksToSoundFilesNeedTranscripts": "<p>Links to a sound file should be followed by a link to a transcript of the file.</p>",
