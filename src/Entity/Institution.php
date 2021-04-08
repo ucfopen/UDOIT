@@ -41,16 +41,6 @@ class Institution implements JsonSerializable
     private $lmsAccountId;
 
     /**
-     * @ORM\Column(type="string", length=255, nullable=true)
-     */
-    private $developerId;
-
-    /**
-     * @ORM\Column(type="string", length=255, nullable=true)
-     */
-    private $developerKey;
-
-    /**
      * @ORM\Column(type="datetime")
      */
     private $created;
@@ -104,7 +94,6 @@ class Institution implements JsonSerializable
     // Public Methods
     public function encryptDeveloperKey(): self
     {
-        //$this->setDeveloperKey($this->developerKey);
         $this->setApiClientSecret($this->apiClientSecret);
 
         return $this;
@@ -192,30 +181,6 @@ class Institution implements JsonSerializable
     public function setLmsAccountId(?string $lms_account_id): self
     {
         $this->lmsAccountId = $lms_account_id;
-
-        return $this;
-    }
-
-    public function getDeveloperId(): ?string
-    {
-        return $this->developerId;
-    }
-
-    public function setDeveloperId(?string $developer_id): self
-    {
-        $this->developerId = $developer_id;
-
-        return $this;
-    }
-
-    public function getDeveloperKey(): ?string
-    {
-        return $this->decryptData($this->developerKey);
-    }
-
-    public function setDeveloperKey(?string $developer_key): self
-    {
-        $this->developerKey = $this->encryptData($developer_key);
 
         return $this;
     }

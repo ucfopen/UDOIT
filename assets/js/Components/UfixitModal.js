@@ -129,7 +129,7 @@ class UfixitModal extends React.Component {
             <View as="div" margin="small">
               <View as="div" margin="small 0">
                 <Text lineHeight="default">
-                  {ReactHtmlParser(this.props.t(`rule.desc.${activeIssue.scanRuleId}`))}
+                  {ReactHtmlParser(this.props.t(`rule.desc.${activeIssue.scanRuleId}`), { preprocessNodes: Html.processStaticHtml })}
                 </Text>
               </View>
               {showExample &&
@@ -139,7 +139,7 @@ class UfixitModal extends React.Component {
                   fluidWidth={true}
                   onToggle={this.handleExampleToggle}>
                   <View as="div" margin="small 0">
-                    {ReactHtmlParser(this.props.t(`rule.example.${activeIssue.scanRuleId}`))}
+                    {ReactHtmlParser(this.props.t(`rule.example.${activeIssue.scanRuleId}`), { preprocessNodes: Html.processStaticHtml })}
                   </View>
                 </ToggleDetails>
               }
