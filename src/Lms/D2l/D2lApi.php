@@ -91,25 +91,19 @@ class D2lApi {
      * 
      * @return LmsResponse
      */
-    public function apiFilePut($url, $options)
+    public function apiFilePut($url, $filepath)
     {
         $formFields = [];
 
-        $fileContent = $options['body'];
-        unset($options['body']);
-        
-        $formFields[] = new DataPart(\json_encode($options, JSON_UNESCAPED_SLASHES), null, 'application/json');
-        $formFields['file'] = new DataPart($fileContent);
+        $formFields['file'] = DataPart::fromPath($filepath);
         $formData = new FormDataPart($formFields);
-// print_r($formData->bodyToString());
-// exit;
+
         $headers = $formData->getPreparedHeaders()->toArray();
-        $headers[] = 'Content-Length: ' . strlen($formData->bodyToString());
-// print_r($headers);
-// exit;
+        $headers[] = 'Content-Length: ' . mb_strlen($formData->bodyToString(), '8bit');
+
         $fileResponse = $this->apiPut($url, [
             'headers' => $headers,
-            'body' => $formData->bodyToString(),
+            'body' => $formData->bodyToIterable(),
         ]);
         
         return $fileResponse;
@@ -122,6 +116,10 @@ class D2lApi {
         if (strpos($url, 'https://') === false) {
             $url = "https://{$this->baseUrl}/d2l/api/{$url}";
         }
+
+// print "URL: {$url}\n<br/>";
+// print_r($options);
+// exit;
 
         $response = $this->httpClient->request('PUT', $url, $options);
         $lmsResponse->setResponse($response);
