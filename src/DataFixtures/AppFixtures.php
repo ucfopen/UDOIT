@@ -44,10 +44,6 @@ class AppFixtures extends Fixture
     $inst1->setLmsDomain("cidilabs.instructure.com");
     $inst1->setLmsId('canvas');
     $inst1->setLmsAccountId('608');
-    $inst1->setConsumerKey("cidilabs.app");
-    $inst1->setSharedSecret("udoit5c5395996a388");
-    $inst1->setDeveloperId("84530000000000016");
-    $inst1->setDeveloperKey('EufAkQwGdFgeLaFHlcggrF8WaVfeNH6IreasFYVd8Pu1Z5vyLdDUwgZ4FlwWuBy0');
     $inst1->setCreated(new DateTime('now'));
     $inst1->setStatus(1);
     $inst1->setVanityUrl("canvas.cidilabs.com");
@@ -63,10 +59,6 @@ class AppFixtures extends Fixture
       $inst->setLmsDomain("cidilabs{$i}.instructure.com");
       $inst->setLmsId('canvas');
       $inst->setLmsAccountId($randNum);
-      $inst->setConsumerKey("cidi.app.{$randNum}");
-      $inst->setSharedSecret("cidisecret{$randNum}");
-      $inst->setDeveloperId("8453000000000000{$randNum}");
-      $inst->setDeveloperKey('1234567890123456789012345678901234567890');
       $inst->setCreated(new DateTime('now'));
       $inst->setStatus(1);
       $inst->setVanityUrl("canvas{$i}.cidilabs.com");
