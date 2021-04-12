@@ -17,7 +17,7 @@ class ReportsTable extends React.Component {
     ];
 
     if (this.props.isAdmin) {
-      headers.push({ id: "count", text: this.props.t('label.admin.courses') })
+      this.headers.push({ id: "count", text: this.props.t('label.admin.courses') })
     }
 
     this.state = {
