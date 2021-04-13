@@ -62,7 +62,6 @@ class FileItemsController extends ApiController
     public function postFile(FileItem $file, Request $request, UtilityService $util, LmsPostService $lmsPost)
     {
         $apiResponse = new ApiResponse();
-        $user = $this->getUser();
 
         try {
             // Check if user has access to course
