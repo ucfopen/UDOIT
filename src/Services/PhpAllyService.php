@@ -27,8 +27,13 @@ class PhpAllyService {
         if (!$html) {
             return;
         }
+
+        $options = [
+            'backgroundColor' => !empty($_ENV['BACKGROUND_COLOR']) ? $_ENV['BACKGROUND_COLOR'] : '#ffffff',
+            'textColor' => !empty($_ENV['TEXT_COLOR']) ? $_ENV['TEXT_COLOR'] : '#000000',
+        ];
         
-        return $this->phpAlly->checkMany($html, $this->getRules());
+        return $this->phpAlly->checkMany($html, $this->getRules(), $options);
     }
 
     public function scanHtml($html, $rules = [])
@@ -38,8 +43,13 @@ class PhpAllyService {
         if (empty($rules)) {
             $rules = $this->getRules();
         }
+
+        $options = [
+            'backgroundColor' => !empty($_ENV['BACKGROUND_COLOR']) ? $_ENV['BACKGROUND_COLOR'] : '#ffffff',
+            'textColor' => !empty($_ENV['TEXT_COLOR']) ? $_ENV['TEXT_COLOR'] : '#000000',
+        ];
         
-        return $this->phpAlly->checkMany($html, $rules);
+        return $this->phpAlly->checkMany($html, $rules, $options);
     }
 
     public function getRules()
