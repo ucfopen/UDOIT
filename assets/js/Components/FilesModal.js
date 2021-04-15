@@ -148,6 +148,18 @@ class FilesModal extends React.Component {
                         interaction={(activeFile.pending) ? 'disabled' : 'enabled'}>{this.props.t('label.file.submit')}</Button>
                     </View>
                   }
+                  <View as="div" background="secondary" padding="medium" margin="small 0 0 x-small">
+                    <Text as="div" weight="bold">{this.props.t('label.manual_review')}</Text>
+                    <Text as="div" lineHeight="default">{this.props.t('label.reviewed_description')}</Text>
+                    <View as="div" padding="small 0 0 0">
+                      {activeFile.pending ?
+                        <Spinner renderTitle={this.props.t('form.processing')} size="x-small" />
+                        :
+                        <Checkbox onChange={this.handleFileResolve} label={this.props.t('label.mark_reviewed')} 
+                          checked={activeFile.reviewed ? true : false} disabled={activeFile.pending} />
+                      }
+                    </View>
+                  </View>
                 </Flex.Item>
                 <Flex.Item width="50%" padding="0" overflowY="auto">
                   <View as="div">
@@ -157,10 +169,12 @@ class FilesModal extends React.Component {
                   </View>
                 </Flex.Item>
               </Flex>
-              <View as="div" borderWidth="small 0 0 0" padding="small 0 0 0">
-                <Flex justifyItems="space-between" shouldGrow shouldShrink>
+            </Modal.Body>
+
+            <Modal.Footer>
+              <View width="100%">
+                <Flex as="div" justifyItems="space-between" shouldGrow shouldShrink>
                   <Flex.Item>
-                    {/* {this.props.t('label.issue')} {(activeIndex + 1)} {this.props.t('label.of')} {this.props.filteredRows.length} */}
                     <InlineList delimiter="pipe">
                       <InlineList.Item>
                         {this.props.t('label.file')} {(activeIndex + 1)} {this.props.t('label.of')} {this.props.filteredRows.length}
@@ -174,22 +188,14 @@ class FilesModal extends React.Component {
                     </InlineList>
                   </Flex.Item>
                   <Flex.Item>
-                    {activeFile.pending && <Spinner size="x-small" margin="0 small" renderTitle="Loading" />}
-                  </Flex.Item>
-                  <Flex.Item>
-                    <Checkbox onChange={this.handleFileResolve} label={this.props.t('label.reviewed')} 
-                      checked={activeFile.reviewed ? true : false} disabled={activeFile.pending} />
+                    <Button margin="0 small" onClick={this.props.handleCloseButton}>{this.props.t('label.close')}</Button>
+                    <Button margin="0 0 0 x-small"
+                      onClick={() => this.handleFileChange(activeIndex - 1)}>{this.props.t('label.previous_file')}</Button>
+                    <Button margin="0 0 0 x-small"
+                    onClick={() => this.handleFileChange(activeIndex + 1)}>{this.props.t('label.next_file')}</Button>
                   </Flex.Item>
                 </Flex>
               </View>
-            </Modal.Body>
-
-            <Modal.Footer>
-              <Button margin="0 small" onClick={this.props.handleCloseButton}>{this.props.t('label.close')}</Button>
-              <Button margin="0 0 0 x-small"
-                onClick={() => this.handleFileChange(activeIndex - 1)}>{this.props.t('label.previous_file')}</Button>
-              <Button margin="0 0 0 x-small"
-              onClick={() => this.handleFileChange(activeIndex + 1)}>{this.props.t('label.next_file')}</Button>
             </Modal.Footer>
           </Modal>
         }
