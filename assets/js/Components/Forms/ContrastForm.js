@@ -16,8 +16,8 @@ export default class ContrastForm extends React.Component {
     let element = Html.toElement(this.props.activeIssue.sourceHtml)
 
     this.state = {
-      backgroundColor: Contrast.rgb2hex(element.style.backgroundColor),
-      textColor: Contrast.rgb2hex(element.style.color),
+      backgroundColor: element.style.backgroundColor ? Contrast.rgb2hex(element.style.backgroundColor) : this.props.settings.backgroundColor,
+      textColor: element.style.color ? Contrast.rgb2hex(element.style.color) : this.props.settings.textColor,
       useBold: false,
       useItalics: false,
       textInputErrors: []
@@ -46,8 +46,8 @@ export default class ContrastForm extends React.Component {
       let element = Html.toElement((this.props.activeIssue.newHtml) ? this.props.activeIssue.newHtml : this.props.activeIssue.sourceHtml)
 
       this.setState({
-        backgroundColor: Contrast.rgb2hex(element.style.backgroundColor),
-        textColor: Contrast.rgb2hex(element.style.color),
+        backgroundColor: element.style.backgroundColor ? Contrast.rgb2hex(element.style.backgroundColor) : this.props.settings.backgroundColor,
+        textColor: element.style.color ? Contrast.rgb2hex(element.style.color) : this.props.settings.textColor,
         useBold: false,
         useItalics: false,
         textInputErrors: []
