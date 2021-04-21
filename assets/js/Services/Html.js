@@ -231,8 +231,12 @@ class Html {
     return element;
   }
 
-  processStaticHtml(nodes) {
-    const baseUrl = document.referrer.endsWith('/') ? document.referrer.slice(0, -1) : document.referrer
+  processStaticHtml(nodes, settings) {    
+    let baseUrl = document.referrer.endsWith('/') ? document.referrer.slice(0, -1) : document.referrer
+    
+    if (settings) {
+      baseUrl = `https://${settings.institution.lmsDomain}`
+    }
     
     for (let node of nodes) {
       if (('tag' === node.type) && ('a' === node.name)) {
