@@ -6,20 +6,20 @@ use App\Entity\Institution;
 use App\Entity\User;
 use App\Services\LmsApiService;
 use App\Services\LmsUserService;
+use App\Services\SessionService;
 use App\Services\UtilityService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpClient\HttpClient;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\Routing\Annotation\Route;
 
 class AuthController extends AbstractController
 {
     /** @var UtilityService $util */
     private $util;
-    /** @var SessionInterface $session */
-    private $session;
+    /** @var SessionService $sessionService */
+    private $sessionService;
     /** @var Request $request */
     private $request;
     /** @var LmsApiService $lmsApi */
@@ -30,12 +30,12 @@ class AuthController extends AbstractController
      */
     public function authorize(
         Request $request,
-        SessionInterface $session,
+        SessionService $sessionService,
         UtilityService $util,
         LmsApiService $lmsApi)
     {
         $this->request = $request;
-        $this->session = $session;
+        $this->session = $sessionService->getSession();
         $this->util = $util;
 
         $user = $this->getUser();
@@ -48,7 +48,7 @@ class AuthController extends AbstractController
             $util->exitWithMessage('No institution found with this domain.');
         }
 
-        $session->set('oauthAttempted', true);
+        $this->session->set('oauthAttempted', true);
 
         $oauthUri = $lmsApi->getLms()->getOauthUri($institution);
 
@@ -61,13 +61,13 @@ class AuthController extends AbstractController
      */
     public function authorizeCheck(
         Request $request,
-        SessionInterface $session,
+        SessionService $sessionService,
         UtilityService $util,
         LmsUserService $lmsUser,
         LmsApiService $lmsApi
     ) {
         $this->request = $request;
-        $this->session = $session;
+        $this->session = $sessionService->getSession();
         $this->util = $util;
         $this->lmsApi = $lmsApi;
 
@@ -88,10 +88,10 @@ class AuthController extends AbstractController
         }
         
         $lmsUser->updateUserToken($user, $newKey);
-        $session->set('apiKey', $newKey['access_token']);
-        $session->set('tokenHeader', ["Authorization: Bearer " . $newKey['access_token']]);
+        $this->session->set('apiKey', $newKey['access_token']);
+        $this->session->set('tokenHeader', ["Authorization: Bearer " . $newKey['access_token']]);
 
-        $destination = $session->get('destination', 'dashboard');
+        $destination = $this->session->get('destination', 'dashboard');
 
         return $this->redirectToRoute($destination);
     }

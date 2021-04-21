@@ -10,9 +10,9 @@ use App\Repository\UserRepository;
 use App\Response\ApiResponse;
 use App\Services\LmsApiService;
 use App\Services\LmsUserService;
+use App\Services\SessionService;
 use App\Services\UtilityService;
 use Symfony\Component\HttpFoundation\JsonResponse;
-use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\Routing\Annotation\Route;
 
 class AdminController extends ApiController
@@ -30,12 +30,12 @@ class AdminController extends ApiController
      */
     public function index(
         UtilityService $util,
-        SessionInterface $session,
+        SessionService $sessionService,
         LmsApiService $lmsApi,
         LmsUserService $lmsUser)
     {
         $this->util = $util;
-        $this->session = $session;
+        $this->session = $sessionService->getSession();
         $this->lmsApi = $lmsApi;
         $this->lmsUser = $lmsUser;
 

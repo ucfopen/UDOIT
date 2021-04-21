@@ -12,9 +12,9 @@ use App\Repository\ContentItemRepository;
 use App\Repository\FileItemRepository;
 use App\Services\HtmlService;
 use App\Services\LmsUserService;
+use App\Services\SessionService;
 use App\Services\UtilityService;
 use Doctrine\ORM\EntityManagerInterface;
-use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\Security\Core\Security;
 
 class D2lLms implements LmsInterface {
@@ -49,8 +49,8 @@ class D2lLms implements LmsInterface {
     /** @var Security $security */
     private $security;
 
-    /** @var SessionInterface $session */
-    private $session;
+    /** @var SessionService $sessionService */
+    private $sessionService;
 
     /** @var App\Services\HtmlService */
     private $html;
@@ -63,7 +63,7 @@ class D2lLms implements LmsInterface {
         EntityManagerInterface $entityManager,
         UtilityService $util,
         Security $security,
-        SessionInterface $session,
+        SessionService $sessionService,
         HtmlService $html
     ) {
         $this->contentItemRepo = $contentItemRepo;
@@ -71,7 +71,7 @@ class D2lLms implements LmsInterface {
         $this->entityManager = $entityManager;
         $this->util = $util;
         $this->security = $security;
-        $this->session = $session;
+        $this->sessionService = $sessionService;
         $this->html = $html;
     }
 
@@ -126,7 +126,8 @@ class D2lLms implements LmsInterface {
      */
     public function getLtiAuthUrl($globalParams)
     {
-        $baseUrl = $this->session->get('iss');
+        $session = $this->sessionService->getSession();
+        $baseUrl = $session->get('iss');
 
         $lmsParams = [];
         $params = array_merge($globalParams, $lmsParams);
@@ -137,19 +138,23 @@ class D2lLms implements LmsInterface {
 
     public function getKeysetUrl()
     {
-        return $this->session->get('iss') . '/d2l/.well-known/jwks';
+        $session = $this->sessionService->getSession();
+        
+        return $session->get('iss') . '/d2l/.well-known/jwks';
     }
 
     public function saveTokenToSession($token)
     {
+        $session = $this->sessionService->getSession();
+
         $contextFields = (array) $token->{'https://purl.imsglobal.org/spec/lti/claim/context'};
         foreach ($contextFields as $key => $val) {
-            $this->session->set('lms_course_' . $key, $val);
+            $session->set('lms_course_' . $key, $val);
         }
 
         $brightspaceFields = (array) $token->{'http://www.brightspace.com'};
         foreach ($brightspaceFields as $key => $val) {
-            $this->session->set('lms_' . $key, $val);
+            $session->set('lms_' . $key, $val);
         }
     }
 

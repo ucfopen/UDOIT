@@ -13,9 +13,9 @@ use App\Repository\ContentItemRepository;
 use App\Repository\FileItemRepository;
 use App\Services\HtmlService;
 use App\Services\LmsUserService;
+use App\Services\SessionService;
 use App\Services\UtilityService;
 use Doctrine\ORM\EntityManagerInterface;
-use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\Security\Core\Security;
 
 class CanvasLms implements LmsInterface {
@@ -38,8 +38,8 @@ class CanvasLms implements LmsInterface {
     /** @var Security $security */
     private $security;
 
-    /** @var SessionInterface $session */
-    private $session;
+    /** @var SessionService $sessionService */
+    private $sessionService;
 
     /** @var App\Services\HtmlService */
     private $html;
@@ -50,7 +50,7 @@ class CanvasLms implements LmsInterface {
         EntityManagerInterface $entityManager,
         UtilityService $util,
         Security $security,
-        SessionInterface $session,
+        SessionService $sessionService,
         HtmlService $html)
     {
         $this->contentItemRepo = $contentItemRepo;
@@ -58,7 +58,7 @@ class CanvasLms implements LmsInterface {
         $this->entityManager = $entityManager;
         $this->util = $util;
         $this->security = $security;
-        $this->session = $session;
+        $this->sessionService = $sessionService;
         $this->html = $html;
     }
 
@@ -75,7 +75,8 @@ class CanvasLms implements LmsInterface {
 
     public function getLtiAuthUrl($globalParams)
     {
-        $baseUrl = $this->session->get('iss');
+        $session = $this->sessionService->getSession();
+        $baseUrl = $session->get('iss');
 
         $lmsParams = [];
         $params = array_merge($globalParams, $lmsParams);

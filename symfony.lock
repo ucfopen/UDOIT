@@ -29,6 +29,9 @@
     "doctrine/dbal": {
         "version": "v2.10.1"
     },
+    "doctrine/deprecations": {
+        "version": "v0.5.3"
+    },
     "doctrine/doctrine-bundle": {
         "version": "2.0",
         "recipe": {
@@ -99,8 +102,8 @@
     "firebase/php-jwt": {
         "version": "v5.2.0"
     },
-    "fproject/php-jwt": {
-        "version": "4.0.5"
+    "friendsofphp/proxy-manager-lts": {
+        "version": "v1.0.3"
     },
     "guzzlehttp/guzzle": {
         "version": "6.5.2"
@@ -113,9 +116,6 @@
     },
     "htmlawed/htmlawed": {
         "version": "1.1.22"
-    },
-    "imsglobal/lti-1p3-tool": {
-        "version": "dev-master"
     },
     "knplabs/knp-snappy": {
         "version": "v1.2.1"
@@ -162,9 +162,6 @@
     "ocramius/package-versions": {
         "version": "1.4.2"
     },
-    "ocramius/proxy-manager": {
-        "version": "2.2.3"
-    },
     "php": {
         "version": "7.4"
     },
@@ -176,9 +173,6 @@
     },
     "phpdocumentor/type-resolver": {
         "version": "1.1.0"
-    },
-    "phpseclib/phpseclib": {
-        "version": "2.0.27"
     },
     "psr/cache": {
         "version": "1.0.1"
@@ -218,6 +212,9 @@
     },
     "setasign/fpdi": {
         "version": "v2.3.3"
+    },
+    "symfony/amqp-messenger": {
+        "version": "v5.2.4"
     },
     "symfony/apache-pack": {
         "version": "1.0",
@@ -285,6 +282,9 @@
     },
     "symfony/doctrine-bridge": {
         "version": "v5.0.5"
+    },
+    "symfony/doctrine-messenger": {
+        "version": "v5.2.5"
     },
     "symfony/dom-crawler": {
         "version": "v5.0.5"
@@ -355,9 +355,6 @@
         "version": "v5.0.5"
     },
     "symfony/http-kernel": {
-        "version": "v5.0.5"
-    },
-    "symfony/inflector": {
         "version": "v5.0.5"
     },
     "symfony/intl": {
@@ -470,6 +467,9 @@
     "symfony/polyfill-php80": {
         "version": "v1.17.0"
     },
+    "symfony/polyfill-uuid": {
+        "version": "v1.22.1"
+    },
     "symfony/process": {
         "version": "v5.0.5"
     },
@@ -484,6 +484,9 @@
     },
     "symfony/proxy-manager-bridge": {
         "version": "v5.0.11"
+    },
+    "symfony/redis-messenger": {
+        "version": "v5.2.4"
     },
     "symfony/routing": {
         "version": "4.2",
@@ -577,6 +580,9 @@
     "symfony/twig-pack": {
         "version": "v1.0.0"
     },
+    "symfony/uid": {
+        "version": "v5.2.6"
+    },
     "symfony/validator": {
         "version": "4.3",
         "recipe": {
@@ -640,9 +646,6 @@
     },
     "twig/twig": {
         "version": "v3.0.3"
-    },
-    "webimpress/safe-writer": {
-        "version": "2.1.0"
     },
     "webmozart/assert": {
         "version": "1.7.0"

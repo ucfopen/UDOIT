@@ -6,6 +6,7 @@ use App\Entity\Institution;
 use App\Entity\User;
 use App\Services\LmsApiService;
 use App\Services\LmsUserService;
+use App\Services\SessionService;
 use App\Services\UtilityService;
 use Firebase\JWT\JWK;
 use \Firebase\JWT\JWT;
@@ -13,14 +14,13 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpClient\HttpClient;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\Routing\Annotation\Route;
 
 class LtiController extends AbstractController
 {
     /** @var UtilityService $util */
     private $util;
-    /** @var SessionInterface $session */
+    /** @var UserSession $session */
     private $session;
     /** @var Request $request */
     private $request;
@@ -32,13 +32,13 @@ class LtiController extends AbstractController
      */
     public function ltiAuthorize(
         Request $request,
-        SessionInterface $session,
+        SessionService $sessionService,
         UtilityService $util,
         LmsApiService $lmsApi
     ) {
 
         $this->request = $request;
-        $this->session = $session;
+        $this->session = $sessionService->getSession();
         $this->util = $util;
         $this->lmsApi = $lmsApi;
 
@@ -52,14 +52,16 @@ class LtiController extends AbstractController
      */
     public function ltiAuthorizeCheck(
         Request $request,
-        SessionInterface $session,
+        SessionService $sessionService,
         UtilityService $util,
         LmsApiService $lmsApi
     ) {
         $this->request = $request;
-        $this->session = $session;
         $this->util = $util;
         $this->lmsApi = $lmsApi;
+
+        $state = $request->request->get('state');
+        $this->session = $sessionService->getSession($state);
 
         $this->saveRequestToSession();
         $clientId = $this->session->get('client_id');
@@ -96,10 +98,12 @@ class LtiController extends AbstractController
         $this->saveUserToSession();
 
         if (isset($token->{'https://purl.imsglobal.org/spec/lti/claim/target_link_uri'})) {
-            return $this->redirect($token->{'https://purl.imsglobal.org/spec/lti/claim/target_link_uri'});
+            $redirectUrl = $token->{'https://purl.imsglobal.org/spec/lti/claim/target_link_uri'} . '?auth_token=' . $this->session->getUuid();
+            return $this->redirect($redirectUrl);
         }
 
-        return $this->redirectToRoute('dashboard');
+        return $this->redirectToRoute('dashboard', 
+            ['auth_token' => $this->session->getUuid()]);
     }
 
     /**
@@ -107,7 +111,7 @@ class LtiController extends AbstractController
      */
     public function dev_lti_authorize(
       Request $request,
-      SessionInterface $session,
+      SessionService $sessionService,
       UtilityService $util
     ) {
       if ($this->getParameter('app.use_development_auth') != 'YES') {
@@ -123,7 +127,7 @@ class LtiController extends AbstractController
         $lmsCourseId = 396;
       }
       $this->request = $request;
-      $this->session = $session;
+      $this->session = $sessionService->getSession();
       $this->util = $util;
       $this->session->set('userId', $userId);
       $this->session->set('lms_course_id', $lmsCourseId);
@@ -259,6 +263,8 @@ class LtiController extends AbstractController
             foreach ($postParams as $key => $val) {
                 $this->session->set($key, $val);
             }
+
+            $this->getDoctrine()->getManager()->flush();
         } catch (\Exception $e) {
             print_r($e->getMessage());
         }
@@ -286,7 +292,7 @@ class LtiController extends AbstractController
             'lti_message_hint' => $this->session->get('lti_message_hint'),
             'client_id' => $this->session->get('client_id'),
             'login_hint' => $this->session->get('login_hint'),
-            'state' => 'state123',
+            'state' => $this->session->getUuid(),
             'scope' => 'openid',
             'response_type' => 'id_token',
             'response_mode' => 'form_post',
@@ -376,5 +382,6 @@ class LtiController extends AbstractController
         }
 
         $this->session->set('userId', $user->getId());
+        $this->getDoctrine()->getManager()->flush();
     }
 }
