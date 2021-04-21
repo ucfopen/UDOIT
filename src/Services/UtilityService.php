@@ -207,11 +207,13 @@ class UtilityService {
 
     public function getDateFormat() 
     {
-        $format = $this->session->get('date_format');
+        $session = $this->sessionService->getSession();
+        $format = $session->get('date_format');
         
         if (!isset($format)) {
             $format = $_ENV['DATE_FORMAT'];
-            $this->session->set('date_format', $format);
+            $session->set('date_format', $format);
+            $this->doctrine->getManager()->flush();
         }
 
         return $format;
