@@ -9,15 +9,14 @@ use App\Lms\D2l\D2lLms;
 use App\Message\BackgroundQueueItem;
 use App\Message\PriorityQueueItem;
 use Doctrine\Persistence\ManagerRegistry;
-use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\Messenger\MessageBusInterface;
 
 class LmsApiService {
     const CANVAS_LMS = 'canvas';
     const D2L_LMS = 'd2l';
 
-    /** @var SessionInterface $session */
-    protected $session;
+    /** @var SessionService $sessionService */
+    protected $sessionService;
 
     /** @var MesageBusInterface $bus */
     protected $bus;
@@ -30,13 +29,13 @@ class LmsApiService {
 
 
     public function __construct(
-        SessionInterface $session,
+        SessionService $sessionService,
         MessageBusInterface $bus, 
         ManagerRegistry $doctrine,
         CanvasLms $canvasLms,
         D2lLms $d2lLms)
     {
-        $this->session = $session;
+        $this->sessionService = $sessionService;
         $this->bus = $bus;
         $this->doctrine = $doctrine;  
 
@@ -46,10 +45,12 @@ class LmsApiService {
 
     public function getLmsId(?User $user = null)
     {
+        $session = $this->sessionService->getSession();
+
         if ($user) {
             return $user->getInstitution()->getLmsId();
         }
-        if ($lmsId = $this->session->get('lms_id')) {
+        if ($lmsId = $session->get('lms_id')) {
             return $lmsId;
         }
         

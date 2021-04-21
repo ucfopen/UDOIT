@@ -4,11 +4,12 @@ namespace App\Controller;
 
 use App\Entity\Course;
 use App\Entity\Institution;
+use App\Entity\UserSession;
 use App\Services\LmsApiService;
 use App\Services\LmsUserService;
+use App\Services\SessionService;
 use App\Services\UtilityService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\Routing\Annotation\Route;
 
 class DashboardController extends AbstractController
@@ -16,7 +17,7 @@ class DashboardController extends AbstractController
     /** @var UtilityService $util */
     protected $util;
 
-    /** @var SessionInterface $session */
+    /** @var UserSession $session */
     protected $session;
 
     /** @var LmsApiService $lmsApi */
@@ -27,12 +28,12 @@ class DashboardController extends AbstractController
      */
     public function index(
         UtilityService $util,
-        SessionInterface $session,
+        SessionService $sessionService,
         LmsUserService $lmsUser,
         LmsApiService $lmsApi)
     {
         $this->util = $util;
-        $this->session = $session;
+        $this->session = $sessionService->getSession();
         $this->lmsApi = $lmsApi;
         $reportArr = false;
 
@@ -48,7 +49,7 @@ class DashboardController extends AbstractController
             return $this->redirectToRoute('authorize');
         }
 
-        $lmsCourseId = $this->get('session')->get('lms_course_id');
+        $lmsCourseId = $this->session->get('lms_course_id');
         if($this->isUiDevelopment() && !isset($lmsCourseId)) {
           $lmsCourseId = 616;
         }
@@ -94,7 +95,7 @@ class DashboardController extends AbstractController
         $user = $this->getUser();
         /** @var \App\Entity\Institution $institution */
         $institution = $user->getInstitution();
-        $clientToken = base64_encode($user->getUsername());
+        $clientToken = $this->session->getUuid();
 
         $metadata = $institution->getMetadata();
         $lang = (!empty($metadata['lang'])) ? $metadata['lang'] : $_ENV['DEFAULT_LANG'];

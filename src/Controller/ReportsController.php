@@ -8,6 +8,7 @@ use App\Entity\Report;
 use App\Repository\ContentItemRepository;
 use App\Repository\FileItemRepository;
 use App\Response\ApiResponse;
+use App\Services\SessionService;
 use App\Services\UtilityService;
 use Knp\Bundle\SnappyBundle\Snappy\Response\PdfResponse;
 use Knp\Snappy\Pdf;
@@ -17,7 +18,6 @@ use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\Mime\FileinfoMimeTypeGuesser;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\ResponseHeaderBag;
@@ -27,7 +27,6 @@ use Twig\Environment;
 class ReportsController extends ApiController
 {
     private $request;
-    private $session;
     private $util;
 
     /**
@@ -38,12 +37,10 @@ class ReportsController extends ApiController
      */
     public function getAllReports(
         Request $request,
-        SessionInterface $session,
         UtilityService $util,
         Course $course
     ) {
         $this->request = $request;
-        $this->session = $session;
         $this->util = $util;
 
         $apiResponse = new ApiResponse();
@@ -128,12 +125,10 @@ class ReportsController extends ApiController
      */
     public function getPdfReport(
         Request $request,
-        SessionInterface $session,
         UtilityService $util,
         Course $course
     ) {
         $this->request = $request;
-        $this->session = $session;
         $this->util = $util;
 
         try {

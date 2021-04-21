@@ -3,6 +3,7 @@
 namespace App\Security;
 
 use App\Entity\User; // your user entity
+use App\Services\SessionService;
 use App\Services\UtilityService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -21,22 +22,34 @@ class SessionAuthenticator extends AbstractGuardAuthenticator
     private $request;
     private $router;
     private $em;
+    private $sessionService;
 
-    public function __construct(RequestStack $requestStack, EntityManagerInterface $em, UtilityService $util)
+    public function __construct(
+        RequestStack $requestStack, 
+        EntityManagerInterface $em, 
+        UtilityService $util,
+        SessionService $sessionService)
     {
         $this->request = $requestStack->getCurrentRequest();
         $this->util = $util;
         $this->em = $em;
+        $this->sessionService = $sessionService;
     }
 
     public function supports(Request $request)
     {
-        return !empty($request->getSession()->get('userId'));
+
+        // print json_encode($this->sessionService->getSession());
+        // exit;
+        return $this->sessionService->hasSession();
     }
 
     public function getCredentials(Request $request)
     {
-        return $request->getSession()->get('userId');
+        $session = $this->sessionService->getSession();
+
+
+        return $session->get('userId');
     }
 
     public function checkCredentials($credentials, UserInterface $user) 
@@ -63,7 +76,7 @@ class SessionAuthenticator extends AbstractGuardAuthenticator
     {
         $data = [
             // you might translate this message
-            'message' => 'Authentication Required'
+            'message' => 'Session authentication failed.'
         ];
 
         return new JsonResponse($data, Response::HTTP_UNAUTHORIZED);

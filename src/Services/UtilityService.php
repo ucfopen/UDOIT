@@ -14,7 +14,6 @@ use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\Security\Core\Security;
 use Twig\Environment;
 
@@ -27,8 +26,8 @@ class UtilityService {
 
     public static $timezone;
 
-    /** @var SessionInterface $session */
-    private $session;
+    /** @var SessionService $sessionService */
+    private $sessionService;
 
     /** @var Environment $twig */
     private $twig;
@@ -45,13 +44,13 @@ class UtilityService {
     private $env;
 
     public function __construct(
-        SessionInterface $session,
+        SessionService $sessionService,
         ManagerRegistry $doctrine,
         Environment $twig,
         Security $security,
         ParameterBagInterface $paramBag)
     {
-        $this->session = $session;
+        $this->sessionService = $sessionService;
         $this->twig = $twig;
         $this->doctrine = $doctrine;
         $this->security = $security;
@@ -62,12 +61,14 @@ class UtilityService {
    
     public function getEnv()
     {
+        $session = $this->sessionService->getSession();
+
         if (!isset($this->env)) {
-            $this->env = $this->session->get('app_env');
+            $this->env = $session->get('app_env');
         }
         if (!isset($this->env)) {
             $this->env = $_ENV['APP_ENV'];
-            $this->session->set('app_env', $_ENV['APP_ENV']);
+            $session->set('app_env', $_ENV['APP_ENV']);
         }
 
         return $this->env;
