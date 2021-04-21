@@ -10,23 +10,10 @@ use App\Services\LmsApiService;
 use App\Services\LmsPostService;
 use App\Services\PhpAllyService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\Routing\Annotation\Route;
 
 class TestController extends AbstractController
 {
-    /**
-     * @Route("/test/oauth/{institution}", name="testOauth")
-     */
-    public function testOauth(Institution $institution, LmsApiService $lmsApi, SessionInterface $session)
-    {
-        $oauthUri = $lmsApi->getLms()->getOauthUri($institution);
-
-        return $this->redirect($oauthUri);
-
-    }
-
-
     /**
      * @Route("/test/issue/{issue}", name="test")
      */

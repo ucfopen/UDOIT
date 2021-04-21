@@ -30,8 +30,6 @@ security:
             guard:  
                 authenticators:
                     - App\Security\SessionAuthenticator
-                    - App\Security\TokenAuthenticator
-                entry_point: App\Security\TokenAuthenticator
         
         api:
            pattern: ^/api
@@ -39,15 +37,12 @@ security:
            guard:
                 authenticators:
                     - App\Security\SessionAuthenticator
-                    - App\Security\TokenAuthenticator
-                entry_point: App\Security\TokenAuthenticator
         download:
            pattern: ^/download
            provider: users
            guard:
                 authenticators:
-                    - App\Security\TokenAuthenticator
-                entry_point: App\Security\TokenAuthenticator                
+                    - App\Security\SessionAuthenticator               
 
         admin:
             pattern: ^/admin
