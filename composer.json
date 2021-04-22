@@ -53,7 +53,7 @@
         "php": "~7.3.0 || ~7.4.0",
         "ext-pdo": "*",
         "ext-gd": "*",
-        "nategood/httpful": "~0.2.20",
+        "nategood/httpful": "~0.3.2",
         "deruli/html-minifier": "~0.5.1",
         "mpdf/mpdf": "8.0.4",
         "league/plates": "~3.1.1",
