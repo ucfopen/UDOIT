@@ -172,7 +172,7 @@ return [
     'suggestion' => [
         [
             'name'      => 'imgGifNoFlicker',
-            'title'     => 'Avoid the use of animated GIF’s',
+            'title'     => 'Avoid using flickering animated GIFs',
             'desc'      => '<p>Animated GIFs may cause seizures if they flash more than 3 times per second. A recommendation is to use an alternative format to deliver the content.</p>',
             'resources' => [
                 'WebAIM: <a href="http://webaim.org/techniques/images/#seizures">Accessible Images</a>',
