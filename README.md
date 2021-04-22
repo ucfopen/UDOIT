@@ -185,7 +185,7 @@ If you didn't already make `config/localConfig.php` when you set up the database
 Please refer to the [Canvas API Policy](http://www.canvaslms.com/policies/api-policy) before using this application, as it makes heavy use of the Canvas API.
 
 ### LTI Security
-UDOIT uses the security processes built into the LTI specification to ensure that users are only accessing UDOIT from within your instance of Canvas.  There are two values that need to be set in order for this security process to work.  These values should be different from each other.  You will use them again when you are installing the LTI in Canvas.
+UDOIT uses the trust built into the LTI v1.1 specification to authorize usage from within your LMS.  LTI v1.1 requires a strong key and secret for this security process to work. You will need the key and secret when setting up the LTI tool in the LMS.
 
 Edit `config/localConfig.php`:
 
@@ -247,7 +247,7 @@ If you'd like to use this option, you'll need set the following scopes for your 
 	* url:GET|/api/v1/users/:user_id/profile
 
 ### Google/YouTube API Key
-In order for UDOIT to scan YouTube videos for closed captioning, you will need to create a YouTube Data API key.  Follow the instructions below:
+To allow UDOIT to scan YouTube videos for closed captioning, you will need to create a YouTube Data API key.  Follow the instructions below:
 
 1. Go to the [Google Developer Console](https://console.developers.google.com).
 2. Create a project.
@@ -258,7 +258,7 @@ In order for UDOIT to scan YouTube videos for closed captioning, you will need t
 If you do not provide a Google API key, a warning log will be recorded in `config/log.log` and all YouTube videos will be marked for manual inspection by the user.
 
 ### Vimeo API Key
-In order for UDOIT to scan Vimeo videos for closed captioning, you will need to create a Vimeo API key. Follow the instructions below:
+To allow UDOIT to scan Vimeo videos for closed captioning, you will need to create a Vimeo API key. Follow the instructions below:
 
 1. [Create a new App on Vimeo Developer API](https://developer.vimeo.com/apps/new?source=getting-started), please note you must have a Vimeo Developer account.
 2. On your applications "Authentication" page, Generate a new Access Token.  (Select the `Public` and `Private` checkboxes for Scopes.)
@@ -273,7 +273,7 @@ If you would like to use Google Analytics for tracking usage of UDOIT, create a 
 As of 2.5.0, the admin panel is still an experimental feature.  Consider it a first draft of what we'd like it to be.  It lets you view reports across your institution, generate statistics about reports and user growth, and administer user accounts.  This feature is disabled by default.  To enable it, change `$admin_panel_enabled` to `true`.
 
 ### Installing the LTI in Canvas
-Log into Canvas to add UDOIT:
+Log in to Canvas to add UDOIT:
 
 1. You can install UDOIT at the sub-account level or the course level.  Either way, start by going to the **settings** area.
 2. Click the **Apps** tab.
