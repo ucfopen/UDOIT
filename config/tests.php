@@ -22,29 +22,24 @@ return [
         ],
         [
             'name'      => 'videosEmbeddedOrLinkedNeedCaptions',
-            'title'     => 'No <a href="http://webaim.org/techniques/captions/">closed captions</a> found.',
+            'title'     => 'No <a href="http://webaim.org/techniques/captions/">closed captions</a> found in YouTube or Vimeo video.',
             'desc'      => '<p>Closed captions should be included in the video to provide dialogue to users who are hearing impaired.  (Please note that videos that have been removed, deleted, or are Unlisted will also cause this error, and will need to be manually verified.)</p>',
             'resources' => [
                 '<a href="https://support.google.com/youtube/answer/2734796?hl=en">Adding Captions to Youtube</a>',
-                '<a href="http://guides.instructure.com/m/4152/l/98632-how-do-i-create-captions-for-new-or-uploaded-videos-in-canvas">Creating Captions for Video Uploaded to Canvas</a>',
+                '<a href="https://vimeo.zendesk.com/hc/en-us/articles/224968828-Captions-and-subtitles">Captions and subtitles in Vimeo</a>',
                 'WCAG Standard: <a href="http://www.w3.org/TR/WCAG20/#media-equiv-captions">1.2.2</a>',
             ],
             'example'   => '',
         ],
         [
-            'name'      => 'imgHasAlt',
-            'title'     => 'No Alternative Text found.',
-            'desc'      => '<p>Alternative Text (Alt Text) is an alternative (non-visual) way to describe the meaning of an image. Please provide a brief description of the image for a <a href="http://en.wikipedia.org/wiki/Screen_reader">screen reader</a> user. Note: It should not be the image file name.</p>',
+            'name'      => 'videoProvidesCaptions',
+            'title'     => 'No <a href="http://webaim.org/techniques/captions/">closed captions</a> found in media comment.',
+            'desc'      => '<p>Closed captions should be included in the video to provide dialogue to users who are hearing impaired.</p>',
             'resources' => [
-                'UCF CDL: <a href="https://cdl.ucf.edu/teach/accessibility/text/">Text Formatting and Document Organization</a>',
-                'WCAG Standard: <a href="http://www.w3.org/TR/WCAG20/#text-equiv-all">1.1.1</a>',
+                '<a href="http://guides.instructure.com/m/4152/l/98632-how-do-i-create-captions-for-new-or-uploaded-videos-in-canvas">Creating Captions for Video Uploaded to Canvas</a>',
+                'WCAG Standard: <a href="http://www.w3.org/TR/WCAG20/#media-equiv-captions">1.2.2</a>',
             ],
-            'example'   => '
-                <p class="text-danger">Incorrect</p>
-                <pre>'.htmlspecialchars('<img src="dog.jpg">').'</pre>
-                <p class="text-success">Correct</p>
-                <pre>'.htmlspecialchars('<img src="dog.jpg" alt="A photograph of a dog">').'</pre>
-            ',
+            'example'   => '',
         ],
         [
             'name'      => 'imgHasAltDeco',
@@ -155,6 +150,20 @@ return [
             ',
         ],
         [
+            'name'      => 'headersHaveText',
+            'title'     => 'Headings should contain text',
+            'desc'      => '<p>Sighted and <a href="http://en.wikipedia.org/wiki/Screen_reader">screen reader</a> users depend on headings to organize the content on the page. Headings should not be empty and should represent an accurate outline of the content</p>',
+            'resources' => [
+                'Using H1-H6 to Identify Headings <a href="http://www.w3.org/TR/WCAG20-TECHS/H42.html">Article</a>',
+            ],
+            'example'   => '
+                <p class="text-danger">Incorrect</p>
+                <pre><code>'.htmlspecialchars('<h1></h1>').'</code></pre>
+                <p class="text-success">Correct</p>
+                <pre><code>'.htmlspecialchars('<h1>Title</h1>').'</code></pre>
+            ',
+        ],
+        [
             'name'      => 'objectMustContainText',
             'title'     => 'Multimedia objects should have text equivalents (e.g., transcripts).',
             'desc'      => '<p>Multimedia objects should be accompanied by a link to a transcript of the content.</p>',
@@ -170,6 +179,21 @@ return [
         ],
     ],
     'suggestion' => [
+        [
+            'name'      => 'imgHasAlt',
+            'title'     => 'Image elements should have an "alt" attribute',
+            'desc'      => '<p>Alternative Text (Alt Text) is an alternative (non-visual) way to describe the meaning of an image. Please provide a brief description of the image for a <a href="http://en.wikipedia.org/wiki/Screen_reader">screen reader</a> user. Note: It should not be the image file name.</p>',
+            'resources' => [
+                'UCF CDL: <a href="https://cdl.ucf.edu/teach/accessibility/text/">Text Formatting and Document Organization</a>',
+                'WCAG Standard: <a href="http://www.w3.org/TR/WCAG20/#text-equiv-all">1.1.1</a>',
+            ],
+            'example'   => '
+                <p class="text-danger">Incorrect</p>
+                <pre>'.htmlspecialchars('<img src="dog.jpg">').'</pre>
+                <p class="text-success">Correct</p>
+                <pre>'.htmlspecialchars('<img src="dog.jpg" alt="A photograph of a dog">').'</pre>
+            ',
+        ],
         [
             'name'      => 'imgGifNoFlicker',
             'title'     => 'Avoid using flickering animated GIFs',
@@ -222,13 +246,6 @@ return [
             ',
         ],
         [
-            'name'      => 'objectTextUpdatesWhenObjectChanges',
-            'title'     => 'The text equivalents (e.g., transcripts and/or captions) for embedded content should update when content changes.',
-            'desc'      => '',
-            'resources' => ['WCAG Standard: <a href="http://www.w3.org/TR/UNDERSTANDING-WCAG20/media-equiv.html">1.2</a>'],
-            'example'   => '',
-        ],
-        [
             'name'      => 'objectTagDetected',
             'title'     => 'Multimedia may require plugins to display properly.',
             'desc'      => 'Multimedia embedded using the "Object" tag may require the user to install a plugin for their web browser. This can create support and access issues for some users. Additionally, users on mobile devices may not be able to view the multimedia content at all. Consider using an alternative format that the user\'s browser can display natively.',
@@ -236,18 +253,18 @@ return [
             'example'   => '',
         ],
         [
-            'name'      => 'headersHaveText',
-            'title'     => 'Headings should contain text',
-            'desc'      => '<p>Sighted and <a href="http://en.wikipedia.org/wiki/Screen_reader">screen reader</a> users depend on headings to organize the content on the page. Headings should not be empty and should represent an accurate outline of the content</p>',
-            'resources' => [
-                'Using H1-H6 to Identify Headings <a href="http://www.w3.org/TR/WCAG20-TECHS/H42.html">Article</a>',
-            ],
-            'example'   => '
-                <p class="text-danger">Incorrect</p>
-                <pre><code>'.htmlspecialchars('<h1></h1>').'</code></pre>
-                <p class="text-success">Correct</p>
-                <pre><code>'.htmlspecialchars('<h1>Title</h1>').'</code></pre>
-            ',
+            'name'      => 'objectShouldHaveLongDescription',
+            'title'     => 'An object might require a long description.',
+            'desc'      => 'Objects might require a long description, especially if their content is complicated.',
+            'resources' => [],
+            'example'   => '',
+        ],
+        [
+            'name'      => 'objectInterfaceIsAccessible',
+            'title'     => 'Interfaces within objects should be accessible.',
+            'desc'      => 'Object content should be assessed for accessibility. Objects cannot be checked using automated tools, this should be reviewed manually.',
+            'resources' => [],
+            'example'   => '',
         ],
         [
             'name'      => 'noHeadings',
