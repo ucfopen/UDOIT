@@ -21,6 +21,17 @@ return [
             ',
         ],
         [
+            'name'      => 'videosEmbeddedOrLinkedNeedCaptions',
+            'title'     => 'No <a href="http://webaim.org/techniques/captions/">closed captions</a> found.',
+            'desc'      => '<p>Closed captions should be included in the video to provide dialogue to users who are hearing impaired.  (Please note that videos that have been removed, deleted, or are Unlisted will also cause this error, and will need to be manually verified.)</p>',
+            'resources' => [
+                '<a href="https://support.google.com/youtube/answer/2734796?hl=en">Adding Captions to Youtube</a>',
+                '<a href="http://guides.instructure.com/m/4152/l/98632-how-do-i-create-captions-for-new-or-uploaded-videos-in-canvas">Creating Captions for Video Uploaded to Canvas</a>',
+                'WCAG Standard: <a href="http://www.w3.org/TR/WCAG20/#media-equiv-captions">1.2.2</a>',
+            ],
+            'example'   => '',
+        ],
+        [
             'name'      => 'imgHasAlt',
             'title'     => 'No Alternative Text found.',
             'desc'      => '<p>Alternative Text (Alt Text) is an alternative (non-visual) way to describe the meaning of an image. Please provide a brief description of the image for a <a href="http://en.wikipedia.org/wiki/Screen_reader">screen reader</a> user. Note: It should not be the image file name.</p>',
@@ -166,17 +177,6 @@ return [
             'resources' => [
                 'WebAIM: <a href="http://webaim.org/techniques/images/#seizures">Accessible Images</a>',
                 'WCAG Standard: <a href="http://www.w3.org/TR/WCAG20/#seizure-does-not-violate">2.3.1</a>',
-            ],
-            'example'   => '',
-        ],
-        [
-            'name'      => 'videosEmbeddedOrLinkedNeedCaptions',
-            'title'     => 'No <a href="http://webaim.org/techniques/captions/">closed captions</a> found.',
-            'desc'      => '<p>Closed captions should be included in the video to provide dialogue to users who are hearing impaired.  (Please note that videos that have been removed, deleted, or are Unlisted will also cause this error, and will need to be manually verified.)</p>',
-            'resources' => [
-                '<a href="https://support.google.com/youtube/answer/2734796?hl=en">Adding Captions to Youtube</a>',
-                '<a href="http://guides.instructure.com/m/4152/l/98632-how-do-i-create-captions-for-new-or-uploaded-videos-in-canvas">Creating Captions for Video Uploaded to Canvas</a>',
-                'WCAG Standard: <a href="http://www.w3.org/TR/WCAG20/#media-equiv-captions">1.2.2</a>',
             ],
             'example'   => '',
         ],
