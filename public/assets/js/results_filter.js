@@ -159,7 +159,7 @@ var ResultsFilter = {
         $('#summary', this.context).append(errorSummary);
     },
     moveReportTitle: function() {
-        let reportTitle = $('section#result h1').clone(true);
+        let reportTitle = $('section#result h1').first().clone(true);
         $(this.container).prepend(reportTitle);
     },
     moveReportPdfButton: function() {

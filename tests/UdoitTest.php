@@ -20,12 +20,12 @@
 
 class UdoitTest extends BaseTest
 {
-    public function setUp()
+    public function setUp(): void
     {
         Mockery::close();
     }
 
-    public function tearDown()
+    public function tearDown(): void
     {
         UdoitDB::disconnect();
         Mockery::close();
