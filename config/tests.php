@@ -36,7 +36,6 @@ return [
             'title'     => 'No <a href="http://webaim.org/techniques/captions/">closed captions</a> found in media comment.',
             'desc'      => '<p>Closed captions should be included in the video to provide dialogue to users who are hearing impaired.</p>',
             'resources' => [
-                '<a href="http://guides.instructure.com/m/4152/l/98632-how-do-i-create-captions-for-new-or-uploaded-videos-in-canvas">Creating Captions for Video Uploaded to Canvas</a>',
                 'WCAG Standard: <a href="http://www.w3.org/TR/WCAG20/#media-equiv-captions">1.2.2</a>',
             ],
             'example'   => '',
