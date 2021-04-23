@@ -1,4 +1,8 @@
-<phpunit bootstrap='tests/bootstrap.php' backupGlobals="false">
+<phpunit 
+	bootstrap='tests/bootstrap.php'
+	backupGlobals="false"
+	convertWarningsToExceptions="false"
+	convertDeprecationsToExceptions="false">
 	<testsuites>
 		<testsuite name="UDOIT">
 			<file>tests/UdoitJobTest.php</file>

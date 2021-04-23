@@ -229,7 +229,7 @@ class quail {
 			$path = dirname($absolute_url['path']);
 		}
 
-		if ($relative{0} == '/') {
+		if ($relative[0] == '/') {
 		    $c_parts = array_filter(explode('/', $relative));
 		} else {
 			$a_parts = array_filter(explode('/', $path));

@@ -20,7 +20,7 @@
 
 class UdoitJobTest extends BaseTest
 {
-    public function setUp()
+    public function setUp(): void
     {
         Mockery::close();
         global $db_type, $dsn, $db_user, $db_password;
@@ -31,7 +31,7 @@ class UdoitJobTest extends BaseTest
         include(__DIR__.'/../bin/run_database_migrations.php');
     }
 
-    public function tearDown()
+    public function tearDown(): void
     {
         self::setPrivateStaticPropertyValue('UdoitUtils', 'instance', null);
         UdoitDB::disconnect();
@@ -66,7 +66,7 @@ class UdoitJobTest extends BaseTest
         switch (UdoitDB::$type) {
             case 'pgsql':
             case 'mysql':
-                $sql = "UPDATE job_queue SET date_created = (now() - INTERVAL {$time} MINUTE)  where id = '1'";
+                $sql = "UPDATE job_queue SET date_created = (now() - INTERVAL '{$time}' MINUTE)  where id = '1'";
                 break;
 
             case 'test':

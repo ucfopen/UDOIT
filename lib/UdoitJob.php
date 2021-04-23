@@ -78,7 +78,7 @@ class UdoitJob
         switch (UdoitDB::$type) {
             case 'pgsql':
             case 'mysql':
-                $sql = "UPDATE {$db_job_queue_table} SET status = 'expired' WHERE date_created < (now() - INTERVAL {$background_job_expire_time} MINUTE)";
+                $sql = "UPDATE {$db_job_queue_table} SET status = 'expired' WHERE date_created < (now() - INTERVAL '{$background_job_expire_time}' MINUTE)";
                 break;
 
             case 'test':

@@ -1,4 +1,4 @@
-FROM php:7.1-alpine
+FROM php:7.4-alpine
 
 RUN apk upgrade --update && apk add --no-cache \
 	autoconf \

@@ -1,24 +1,18 @@
 version: '2'
 
 services:
-  php56:
+  php73:
     build:
       context: .
-      dockerfile: php56.Dockerfile
+      dockerfile: php73.Dockerfile
     volumes:
       - ../:/var/www
+    command: php composer.phar start
 
-  php70:
+  php74:
     build:
       context: .
-      dockerfile: php70.Dockerfile
-    volumes:
-      - ../:/var/www
-
-  php71:
-    build:
-      context: .
-      dockerfile: php71.Dockerfile
+      dockerfile: php74.Dockerfile
     volumes:
       - ../:/var/www
     command: php composer.phar start

@@ -21,7 +21,7 @@ class UfixitTest extends BaseTest
 {
     protected $data;
 
-    public function setUp()
+    public function setUp(): void
     {
         $this->data = [
             'api_key'    => '',
@@ -31,7 +31,7 @@ class UfixitTest extends BaseTest
         ];
     }
 
-    public function tearDown()
+    public function tearDown(): void
     {
         unset($data);
     }
