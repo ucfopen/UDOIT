@@ -130,12 +130,10 @@ class vimeoService extends mediaService
 	*/
 	private function isVimeoVideo($link_url)
 	{
-		global $logger;
 		$matches = null;
 		if( preg_match($this->regex, trim($link_url), $matches) === 1) {
 			return $matches[1];
 		}
-		$logger->addWarning('Non-Vimeo URL was filtered out of the Vimeo check. '.$link_url);
 		return false;
 	}
 }

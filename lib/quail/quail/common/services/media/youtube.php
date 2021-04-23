@@ -170,14 +170,12 @@ class youtubeService extends mediaService
 	*/
 	private function isYouTubeVideo($link_url)
 	{
-		global $logger;
 		$matches = null;
 		foreach($this->regex as $pattern) {
 			if( preg_match($pattern, trim($link_url), $matches) === 1) {
 				return $matches[1];
 			}
 		}
-		$logger->addWarning('Non-YouTube URL was filtered out of the YouTube check. '.$link_url);
 		return false;
 	}
 }
