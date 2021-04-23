@@ -7,9 +7,9 @@
     "version": "2.3.4",
     "license": "GPL-3.0",
     "scripts":{
-        "test": "vendor/phpunit/phpunit/phpunit --exclude-group functional --coverage-html ./reports --coverage-text",
-        "test-no-coverage": "vendor/phpunit/phpunit/phpunit --exclude-group functional",
-        "test-include-functional": "vendor/phpunit/phpunit/phpunit",
+        "test": "vendor/phpunit/phpunit/phpunit --exclude-group functional --coverage-html ./reports --coverage-text tests/",
+        "test-no-coverage": "vendor/phpunit/phpunit/phpunit --exclude-group functional tests/",
+        "test-include-functional": "vendor/phpunit/phpunit/phpunit tests/",
         "lint": "./vendor/bin/parallel-lint --exclude vendor --exclude lib/quail .",
         "sniff": "./vendor/bin/phpcs --extensions=php .",
         "sniff-errors-only": "./vendor/bin/phpcs -n --extensions=php .",
