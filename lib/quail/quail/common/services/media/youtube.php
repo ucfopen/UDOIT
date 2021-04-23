@@ -23,6 +23,7 @@ class youtubeService extends mediaService
 	    '@youtu\.be/v/([0-9a-zA-Z_-]+)@i',
 	    '@youtu\.be/watch\?v=([0-9a-zA-Z_-]+)@i',
 	    '@youtu\.be/\?v=([0-9a-zA-Z_-]+)@i',
+		'@youtube-nocookie\.com/embed/([0-9a-zA-Z_-]+)@i',
 		);
 
 	/**
