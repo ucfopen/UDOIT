@@ -46,18 +46,19 @@ class IssuesController extends ApiController
                 throw new \Exception('form.error.same_html');
             }
 
-            // Run fixed content through PhpAlly to validate it
-            $report = $phpAlly->scanHtml($newHtml, [$issue->getScanRuleId()]);
-            if ($issues = $report->getIssues()) {
-                $apiResponse->addData('issues', $issues);
-                $apiResponse->addData('failed', 1);
-                throw new \Exception('form.error.fails_tests');
-            }
-            if ($errors = $report->getErrors()) {
-                $apiResponse->addData('errors', $errors);
-                $apiResponse->addData('failed', 1);
-                throw new \Exception('form.error.fails_tests');
-            }
+            // // Run fixed content through PhpAlly to validate it
+            // $report = $phpAlly->scanHtml($newHtml, [$issue->getScanRuleId()]);
+            // if ($issues = $report->getIssues()) {
+            //     $apiResponse->addData('issues', $issues);
+            //     $apiResponse->addData('failed', 1);
+            //     throw new \Exception('form.error.fails_tests');
+            // }
+            // if ($errors = $report->getErrors()) {
+            //     $apiResponse->addData('errors', $errors);
+            //     $apiResponse->addData('failed', 1);
+            //     throw new \Exception('form.error.fails_tests');
+            // }
+
 
             // Update issue HTML
             $issue->setNewHtml($newHtml);
