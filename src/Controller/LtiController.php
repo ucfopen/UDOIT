@@ -148,10 +148,9 @@ class LtiController extends AbstractController
         $adminName = $request->server->get('ADMIN_LTI_NAME');
         $platform = 'canvas.instructure.com';
 
-        // if ('...' === $lms) {
-        //     $platform = '...';
-        // }
-
+        $customAppName = $request->query->get('tool_title');
+        $default = $request->query->get('default');
+        
         $output = [
             "title" => $appName,
             "scopes" => [],
@@ -165,16 +164,19 @@ class LtiController extends AbstractController
                         "platform" => $platform,
                         "placements" => [
                             [
-                                "text" => $appName,
+                                "text" => ($customAppName) ? $customAppName : $appName,
                                 "placement" => "course_navigation",
                                 "message_type" => "LtiResourceLinkRequest",
-                                "target_link_uri" => "{$baseUrl}/dashboard"
+                                "target_link_uri" => "{$baseUrl}/dashboard",
+                                "enabled" => true,
+                                "default" => ($default) ? $default : 'disabled',
                             ],
                             [
                                 "text" => $adminName,
                                 "placement" => "account_navigation",
                                 "message_type" => "LtiResourceLinkRequest",
-                                "target_link_uri" => "{$baseUrl}/admin"
+                                "target_link_uri" => "{$baseUrl}/admin",
+                                "enabled" => true,
                             ]
                         ]
                     ],

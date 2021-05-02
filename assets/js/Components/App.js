@@ -61,6 +61,7 @@ class App extends React.Component {
           <WelcomePage 
             handleNavigation={this.handleNavigation} 
             t={this.t}
+            settings={this.settings}
             hasNewReport={this.state.hasNewReport} />
         }
         {('summary' === this.state.navigation) &&

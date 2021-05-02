@@ -37,7 +37,7 @@ class AboutModal extends React.Component {
           </Flex>
         </Modal.Header>
         <Modal.Body padding="small medium">
-          <AboutPage t={this.props.t} />
+          <AboutPage t={this.props.t} settings={this.props.settings} />
         </Modal.Body>
       </Modal>
     )

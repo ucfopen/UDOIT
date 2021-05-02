@@ -86,7 +86,7 @@ class UfixitModal extends React.Component {
     let activeIndex = this.findActiveIndex();
     const UfixitForm = ufixitService.returnIssueForm(activeIssue)
     const highlightedHtml = this.highlightHtml(activeIssue)
-    const contextHtml = (highlightedHtml) ? ReactHtmlParser(highlightedHtml, { preprocessNodes: Html.processStaticHtml }) : 'N/A'
+    const contextHtml = (highlightedHtml) ? ReactHtmlParser(highlightedHtml, { preprocessNodes: (nodes) => Html.processStaticHtml(nodes, this.props.settings) }) : 'N/A'
 
     let showExample = false
     if (!this.props.t(`rule.example.${activeIssue.scanRuleId}`).includes('rule.example')) {
@@ -122,7 +122,7 @@ class UfixitModal extends React.Component {
             <View as="div" margin="small">
               <View as="div" margin="small 0">
                 <Text lineHeight="default">
-                  {ReactHtmlParser(this.props.t(`rule.desc.${activeIssue.scanRuleId}`), { preprocessNodes: Html.processStaticHtml })}
+                  {ReactHtmlParser(this.props.t(`rule.desc.${activeIssue.scanRuleId}`), { preprocessNodes: (nodes) => Html.processStaticHtml(nodes, this.props.settings) })}
                 </Text>
               </View>
               {showExample &&
@@ -132,7 +132,7 @@ class UfixitModal extends React.Component {
                   fluidWidth={true}
                   onToggle={this.handleExampleToggle}>
                   <View as="div" margin="small 0">
-                    {ReactHtmlParser(this.props.t(`rule.example.${activeIssue.scanRuleId}`), { preprocessNodes: Html.processStaticHtml })}
+                  {ReactHtmlParser(this.props.t(`rule.example.${activeIssue.scanRuleId}`), { preprocessNodes: (nodes) => Html.processStaticHtml(nodes, this.props.settings) })}
                   </View>
                 </ToggleDetails>
               }
@@ -190,7 +190,7 @@ class UfixitModal extends React.Component {
                   <View as="div" shadow="resting" padding="small" margin="x-small 0 0 0" height="200px" overflowY="auto">
                     {('preview' === this.state.windowContents) &&
                       <div className={Classes.previewWindow}>
-                        {ReactHtmlParser(code, { preprocessNodes: Html.processStaticHtml })}
+                        {ReactHtmlParser(code, { preprocessNodes: (nodes) => Html.processStaticHtml(nodes, this.props.settings) })}
                       </div>                      
                     }
                     {('context' === this.state.windowContents) &&

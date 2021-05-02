@@ -273,17 +273,17 @@ class D2lLms implements LmsInterface {
                 case 'quiz.footer':
                     $contentItem->setBody($content['Footer']['Text']['Html']);
                     break;
-                case 'discussion.forum':
-                    // $contentItem->setBody($content['']);
+                case 'discussion_forum':
+                    $contentItem->setBody($content['Description']['Html']);
                     break;
-                case 'discussion.topic':
-                    //$contentItem->setBody($content['']);
+                case 'discussion_topic':
+                    //$contentItem->setBody($content['Description']['Html']);
                     break;
                 case 'checklist':
-                    $contentItem->setBody(['Description']['Html']);
+                    $contentItem->setBody($content['Description']['Html']);
                     break;
                 case 'survey':
-                    $contentItem->setBody(['Description']['Text']['Html']);
+                    $contentItem->setBody($content['Description']['Text']['Html']);
                     break;
                 default:
             }
@@ -344,10 +344,12 @@ class D2lLms implements LmsInterface {
             'quiz.description',
             'quiz.header',
             'quiz.footer',
-            'discussion.forum',
-            'discussion.topic',
+            'discussion_forum',
+            'discussion_topic',
             'checklist',
-            'survey',
+            'survey.description',
+            'survey.submission',
+            'survey.footer',
         ];
     }
 
@@ -509,39 +511,7 @@ class D2lLms implements LmsInterface {
                 $content['Description'] = $richTextInput;
                 break;
             case 'file':
-                $courseId = $contentItem->getCourse()->getLmsCourseId();
-                $topicId = $contentItem->getLmsContentId();
-                $options = $this->getApiContent('topic', $courseId, $topicId);
-
-                $richTextInput = [
-                    'Type' => 'Html',
-                    'Content' => $options['Description']['Html'],
-                ];
-                // if (is_array($options)) {
-                //     $options['body'] = $content;
-                //     $content = $options;
-                // }
-
-                $content = [
-                    'IsHidden' => isset($options['IsHidden']) ? $options['IsHidden'] : false,
-                    'IsLocked' => isset($options['IsLocked']) ? $options['IsLocked'] : false,
-                    'ShortTitle' => !empty($options['ShortTitle']) ? $options['ShortTitle'] : "",
-                    'Type' => 1, 
-                    'Url' => $options['Url'],
-                    'StartDate' => !empty($options['StartDate']) ? $options['StartDate'] : null,
-                    'DueDate' => !empty($options['DueDate']) ? $options['DueDate'] : null,
-                    'EndDate' => !empty($options['EndDate']) ? $options['EndDate'] : null,
-                    'TopicType' => $options['TopicType'],
-                    'Title' => $options['Title'],
-                    'OpenAsExternalResource' => !empty($options['OpenAsExternalResource']) ? $options['OpenAsExternalResource'] : null,
-                    'Description' => $richTextInput,
-                    'MajorUpdate' => null,
-                    'MajorUpdateText' => null,
-                    'ResetCompletionTracking' => null,
-                    'Duration' => null,
-                    'body' => $html,
-                ];
-                
+                // file is saved on disk, so nothing is required here
                 break;
             case 'quiz.instruction':
             case 'quiz.description':
@@ -558,10 +528,44 @@ class D2lLms implements LmsInterface {
                 $content[$quizKeys[$contentType]]['Text'] = $richTextInput;
                 break;
             case 'checklist':
-                $content['Description']['Text'] = $richTextInput;
+                $content['Description'] = $richTextInput;
                 break;
-            case 'survey':
-                $content['Description']['Text'] = $richTextInput;
+            case 'survey.description':
+            case 'survey.submission':
+            case 'survey.footer':
+                if ('survey.description' === $contentType) {
+                    $content['Description']['Text'] = $richTextInput;
+                }
+                else {
+                    $content['Description']['Text'] = [
+                        'Type' => 'Html',
+                        'Content' => $content['Description']['Text']['Html'],
+                    ];
+                }
+
+                if ('survey.submission' === $contentType) {
+                    $content['Submission'] = $richTextInput;
+                } else {
+                    $content['Submission'] = [
+                        'Type' => 'Html',
+                        'Content' => $content['Submission']['Html'],
+                    ];
+                }
+                
+                if ('survey.footer' === $contentType) {
+                    $content['Footer']['Text'] = $richTextInput;
+                } else {
+                    $content['Footer']['Text'] = [
+                        'Type' => 'Html',
+                        'Content' => $content['Footer']['Text']['Html'],
+                    ];
+                }
+                break;
+            case 'discussion_forum':
+                $content['Description']['Html'] = $html;
+                break;
+            case 'discussion_topic':
+                $content['Description'] = $richTextInput;
                 break;
         }
 
@@ -628,6 +632,7 @@ class D2lLms implements LmsInterface {
             'survey' => "le/{$leCode}/{$lmsCourseId}/surveys/{$lmsContentId}",
             'topic' => "le/{$leCode}/{$lmsCourseId}/content/topics/{$lmsContentId}",
             'quiz' => "le/{$leCode}/{$lmsCourseId}/quizzes/{$lmsContentId}",
+            'discussion_forum' => "le/{$leCode}/{$lmsCourseId}/discussions/forums/{$lmsContentId}",
         ];
 
         return $lmsContentTypeUrls[$contentType];
@@ -780,17 +785,17 @@ class D2lLms implements LmsInterface {
             case self::ACTIVITYTYPE_QUIZ:
                 $lmsItems = $this->handleQuizActivity($topic, $course);
                 break;
-            // case self::ACTIVITYTYPE_DISCUSSION_FORUM:
-            //     $lmsItems[] = $this->handleDiscussionForumActivity($topic, $course);
-            //     break;
-            case self::ACTIVITYTYPE_DISCUSSION_TOPIC:
-                $lmsItems[] = $this->handleDiscussionTopicActivity($topic, $course);
+            case self::ACTIVITYTYPE_DISCUSSION_FORUM:
+                $lmsItems[] = $this->handleDiscussionForumActivity($topic, $course);
                 break;
+            case self::ACTIVITYTYPE_DISCUSSION_TOPIC:
+                // $lmsItems[] = $this->handleDiscussionTopicActivity($topic, $course);
+                // break;
             case self::ACTIVITYTYPE_CHECKLIST:
                 $lmsItems[] = $this->handleChecklistActivity($topic, $course);
                 break;
             case self::ACTIVITYTYPE_SURVEY:
-                $lmsItems[] = $this->handleSurveyActivity($topic, $course);
+                $lmsItems = $this->handleSurveyActivity($topic, $course);
                 break;
             default:
         }
@@ -914,6 +919,18 @@ class D2lLms implements LmsInterface {
         return $quizItems;
     }
 
+    protected function handleDiscussionForumActivity($forum, Course $course)
+    {
+        $content = $this->getApiContent('discussion_forum', $course->getLmsCourseId(), $forum['ToolItemId']);
+
+        return [
+            'id' => $forum['ToolItemId'],
+            'title' => $forum['Title'],
+            'contentType' => 'discussion_forum',
+            'body' => !empty($content['Description']['Html']) ? $content['Description']['Html'] : '',
+        ];
+    }
+
     protected function handleDiscussionTopicActivity($topic, Course $course)
     {
         
@@ -921,11 +938,13 @@ class D2lLms implements LmsInterface {
 
     protected function handleChecklistActivity($topic, Course $course)
     {
-        $content = $this->getApiContent('file', $course->getLmsCourseId(), $topic['ToolItemId']);
+        $content = $this->getApiContent('checklist', $course->getLmsCourseId(), $topic['ToolItemId']);
 
         if (empty($content['Description']['Html'])) {
             return false;
         }
+
+        // TODO: get checklist items and categories
 
         return [
             'id' => $topic['ToolItemId'],
@@ -937,18 +956,35 @@ class D2lLms implements LmsInterface {
 
     protected function handleSurveyActivity($topic, Course $course)
     {
-        $content = $this->getApiContent('file', $course->getLmsCourseId(), $topic['ToolItemId']);
+        $items = [];
+        $content = $this->getApiContent('survey', $course->getLmsCourseId(), $topic['ToolItemId']);
 
-        if (empty($content['Description']['Text']['Html'])) {
-            return false;
+        if (!empty($content['Description']['Text']['Html'])) {
+            $items[] = [
+                'id' => $topic['ToolItemId'],
+                'title' => $topic['Title'],
+                'contentType' => 'survey.description',
+                'body' => $content['Description']['Text']['Html'],
+            ];
         }
-
-        return [
-            'id' => $topic['ToolItemId'],
-            'title' => $topic['Title'],
-            'contentType' => 'survey',
-            'body' => $content['Description']['Text']['Html'],
-        ];
+        if (!empty($content['Submission']['Html'])) {
+            $items[] = [
+                'id' => $topic['ToolItemId'],
+                'title' => $topic['Title'],
+                'contentType' => 'survey.submission',
+                'body' => $content['Submission']['Html'],
+            ];
+        }
+        if (!empty($content['Footer']['Text']['Html'])) {
+            $items[] = [
+                'id' => $topic['ToolItemId'],
+                'title' => $topic['Title'],
+                'contentType' => 'survey.footer',
+                'body' => $content['Footer']['Text']['Html'],
+            ];
+        }
+        
+        return $items;
     }
 
     protected function createContentItem($lmsContent, Course $course) 

@@ -49,13 +49,13 @@ class AboutPage extends React.Component {
                   <ToggleDetails key={rule.error} summary={rule.error}>
                     <View as="div" margin="small 0" background="primary" padding="small" shadow="above">
                       <Heading level="h4">{rule.error}</Heading>
-                      <Text as="p">{ReactHtmlParser(rule.description, { preprocessNodes: Html.processStaticHtml })}</Text>
+                      <Text as="p">{ReactHtmlParser(rule.description, { preprocessNodes: (nodes) => Html.processStaticHtml(nodes, this.props.settings) })}</Text>
                       {rule.resources &&
                       <List>
                         {rule.resources.map((resource) => {
                           return (
                             <List.Item key={resource}>
-                              {ReactHtmlParser(resource, { preprocessNodes: Html.processStaticHtml })}
+                              {ReactHtmlParser(resource, { preprocessNodes: (nodes) => Html.processStaticHtml(nodes, this.props.settings) })}
                             </List.Item>
                           )
                         })}
@@ -104,14 +104,14 @@ class AboutPage extends React.Component {
                   <ToggleDetails key={rule.suggestion} summary={rule.suggestion}>
                     <View as="div" margin="small 0" background="primary" padding="small" shadow="above">
                       <Heading level="h4">{rule.suggestion}</Heading>
-                      <Text as="p">{ReactHtmlParser(rule.description, { preprocessNodes: Html.processStaticHtml })}</Text>
+                      <Text as="p">{ReactHtmlParser(rule.description, { preprocessNodes: (nodes) => Html.processStaticHtml(nodes, this.props.settings) })}</Text>
 
                       {rule.resources &&
                       <List>
                         {rule.resources.map((resource) => {
                           return (
                             <List.Item key={resource}>
-                              {ReactHtmlParser(resource, { preprocessNodes: Html.processStaticHtml })}
+                              {ReactHtmlParser(resource, { preprocessNodes: (nodes) => Html.processStaticHtml(nodes, this.props.settings) })}
                             </List.Item>
                           )
                         })}

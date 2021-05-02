@@ -2,8 +2,6 @@
 
 namespace App\Response;
 
-use Symfony\Component\HttpFoundation\Session\Session;
-
 class ApiResponse implements \JsonSerializable
 {
     protected $messages = [];
@@ -11,26 +9,13 @@ class ApiResponse implements \JsonSerializable
     protected $data = [];
     protected $html = '';
 
-    public function __construct()
-    {        
-        $this->session = new Session();
-    }
-
     public function getMessages()
     {
-        // pull messages from user flashbag
-        $newMessages = $this->session->getFlashBag()->get('message', []);
-        $this->messages = array_merge($this->messages, $newMessages);
-
         return $this->messages;
     }
 
     public function getErrors()
     {
-        // pull errors from user flashbag
-        $newErrors = $this->session->getFlashBag()->get('error', []);
-        $this->errors = array_merge($this->errors, $newErrors);
-
         return $this->errors;
     }
 
