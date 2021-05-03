@@ -71,6 +71,10 @@ class Issue implements \JsonSerializable
      */
     private $newHtml;
 
+    /**
+     * @ORM\Column(type="text", nullable=true)
+     */
+    private $metadata;
 
     // Constructor
     public function __construct()
@@ -95,6 +99,7 @@ class Issue implements \JsonSerializable
             "type" => $this->type,
             "sourceHtml" => $this->html,
             "previewHtml" => $this->previewHtml,
+            "metadata" => $this->metadata,
         ];
     }
 
@@ -211,4 +216,17 @@ class Issue implements \JsonSerializable
 
         return $this;
     }
+
+    public function getMetadata(): ?string
+    {
+        return $this->metadata;
+    }
+
+    public function setMetadata(?string $metadata): self
+    {
+        $this->metadata = $metadata;
+
+        return $this;
+    }
+
 }

@@ -13,11 +13,18 @@ export default class ContrastForm extends React.Component {
   constructor(props) {
     super(props)
 
-    let element = Html.toElement(this.props.activeIssue.sourceHtml)
+    let metadata = null
+
+    try{
+      metadata = JSON.parse(this.props.activeIssue.metadata)
+    } catch(error){
+      console.log(error)
+    }
+
 
     this.state = {
-      backgroundColor: element.style.backgroundColor ? Contrast.rgb2hex(element.style.backgroundColor) : this.props.settings.backgroundColor,
-      textColor: element.style.color ? Contrast.rgb2hex(element.style.color) : this.props.settings.textColor,
+      backgroundColor: metadata ? Contrast.rgb2hex(metadata.backgroundColor) : this.props.settings.backgroundColor,
+      textColor: metadata ? Contrast.rgb2hex(metadata.color) : this.props.settings.textColor,
       useBold: false,
       useItalics: false,
       textInputErrors: []
@@ -43,19 +50,39 @@ export default class ContrastForm extends React.Component {
 
   componentDidUpdate(prevProps, prevState) {
     if (prevProps.activeIssue !== this.props.activeIssue) {
-      let element = Html.toElement((this.props.activeIssue.newHtml) ? this.props.activeIssue.newHtml : this.props.activeIssue.sourceHtml)
+      if(this.props.activeIssue.newHtml) {
+        let element = Html.toElement((this.props.activeIssue.newHtml))
 
-      this.setState({
-        backgroundColor: element.style.backgroundColor ? Contrast.rgb2hex(element.style.backgroundColor) : this.props.settings.backgroundColor,
-        textColor: element.style.color ? Contrast.rgb2hex(element.style.color) : this.props.settings.textColor,
-        useBold: false,
-        useItalics: false,
-        textInputErrors: []
-      })
+        this.setState({
+          backgroundColor: element.style.backgroundColor ? Contrast.rgb2hex(element.style.backgroundColor) : this.props.settings.backgroundColor,
+          textColor: element.style.color ? Contrast.rgb2hex(element.style.color) : this.props.settings.textColor,
+          useBold: false,
+          useItalics: false,
+          textInputErrors: []
+        })
+      }
+
+      else {
+        let metadata = null
+
+        try{
+          metadata = JSON.parse(this.props.activeIssue.metadata)
+        } catch(error){
+          console.log(error)
+        }
+
   
-      this.formErrors = []
-    
-      this.updatePreview()
+        this.setState({
+          backgroundColor: metadata ? Contrast.rgb2hex(metadata.backgroundColor) : this.props.settings.backgroundColor,
+          textColor: metadata ? Contrast.rgb2hex(metadata.color) : this.props.settings.textColor,
+          useBold: false,
+          useItalics: false,
+          textInputErrors: []
+        },() => {
+          this.formErrors = []
+          this.updatePreview()
+        })
+      }
     }
   }
 
