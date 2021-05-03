@@ -15,7 +15,8 @@ export default class Api {
             scanIssue: '/api/issues/{issue}/scan',
             adminReport: '/api/admin/courses/{course}/reports/latest',
             adminReportHistory: '/api/admin/reports/account/{account}/term/{term}', 
-            adminUser: '/api/admin/users',           
+            adminUser: '/api/admin/users',          
+            updateUser: '/api/users/{user}' 
         }
         this.settings = settings;
 
@@ -235,6 +236,23 @@ export default class Api {
                 'Content-Type': 'application/json',
                 'X-AUTH-TOKEN': authToken,
             },
+        })
+    }
+
+    updateUser(user) {
+        const authToken = this.getAuthToken()
+        let url = `${this.apiUrl}${this.endpoints.updateUser}`
+
+        url = url.replace('{user}', user.id)
+
+        return fetch(url, {
+            method: 'PUT',
+            cache: 'no-cache',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-AUTH-TOKEN': authToken,
+            },
+            body: JSON.stringify(user),
         })
     }
 }

@@ -97,14 +97,16 @@ class SummaryPage extends React.Component {
         </Flex>        
 
         {/* Total Counts */}
-        <View as="div" margin="medium">
-          <MetricGroup lineHeight="2">
-            <Metric renderLabel={this.props.t('label.plural.error')} renderValue={report.errors} />
-            <Metric renderLabel={this.props.t('label.plural.suggestion')} renderValue={report.suggestions} />
-            <Metric renderLabel={this.props.t('label.plural.fixed')} renderValue={report.contentFixed} />
-            <Metric renderLabel={this.props.t('label.manually_resolved')} renderValue={report.contentResolved} />
-            <Metric renderLabel={this.props.t('label.files_reviewed')} renderValue={report.filesReviewed} />
-          </MetricGroup>
+        <View as="div" padding="large 0 xx-large 0">
+          <View as="div" margin="large">
+            <MetricGroup lineHeight="2">
+              <Metric renderLabel={this.props.t('label.plural.error')} renderValue={report.errors} />
+              <Metric renderLabel={this.props.t('label.plural.suggestion')} renderValue={report.suggestions} />
+              <Metric renderLabel={this.props.t('label.plural.fixed')} renderValue={report.contentFixed} />
+              <Metric renderLabel={this.props.t('label.manually_resolved')} renderValue={report.contentResolved} />
+              <Metric renderLabel={this.props.t('label.files_reviewed')} renderValue={report.filesReviewed} />
+            </MetricGroup>
+          </View>
         </View>
 
         {/* Summary Tables */}
