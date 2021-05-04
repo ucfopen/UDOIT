@@ -25,25 +25,22 @@ class AboutPage extends React.Component {
     const suggestions = translations.look_for.header.suggestions
 
     return (
-      <View as="div" margin="small 0" padding="medium 0">
-        <Heading level="h3">{this.props.t('about.title')}</Heading>
-        <Flex justifyItems="start" alignItems="start">
-          <Flex.Item width="50%" padding="0 medium 0 0">
-            <Text weight="light" as="p" lineHeight="default">{this.props.t('about.description')}</Text>
-          </Flex.Item>
-          <Flex.Item width="50%" padding="0 0 0 medium">
-            <Text as="strong">{this.props.t('about.disclaimer_title')}</Text>
-            <Text as="p" weight="light" lineHeight="default">{this.props.t('about.disclaimer')}</Text>
-          </Flex.Item>
-        </Flex>
+      <View as="div">
+        <View as="div">
+          <Text as="p" lineHeight="default">{this.props.t('about.description')}</Text>
+        </View>
+        <View as="div" margin="large 0">
+          <Text as="strong">{this.props.t('about.disclaimer_title')}</Text>
+          <Text as="p" weight="normal" lineHeight="default">{this.props.t('about.disclaimer')}</Text>
+        </View>
         <View as="div" margin="medium 0" display="inline-block">
           <ToggleDetails
             summary={this.props.t('label.btn.udoit_details')}
             expanded={this.state.expandDetails}
             fluidWidth={true}
             onToggle={this.handleDetailsToggle}>
-            <View as="div" margin="small 0">
-            <Text color="danger" weight="bold">{this.props.t('label.plural.error')}</Text><br/>
+            <View as="div" margin="small large">
+              <Text color="danger" weight="bold">{this.props.t('label.plural.error')}</Text><br/>
               {errors.map((rule) => {
                 return (
                   <ToggleDetails key={rule.error} summary={rule.error}>
@@ -97,8 +94,8 @@ class AboutPage extends React.Component {
                 )
               })}
             </View>
-            <View as="div" margin="small 0">
-            <Text color="brand" weight="bold">{this.props.t('label.plural.suggestion')}</Text><br/>
+            <View as="div" margin="small large">
+              <Text color="brand" weight="bold">{this.props.t('label.plural.suggestion')}</Text><br/>
               {suggestions.map((rule) => {
                 return (
                   <ToggleDetails key={rule.suggestion} summary={rule.suggestion}>

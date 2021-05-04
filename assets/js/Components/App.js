@@ -110,9 +110,14 @@ class App extends React.Component {
   }
 
   componentDidMount() {
-    if (this.initialReport) {
-      this.setState({report: this.initialReport, navigation: 'summary'})
+    if (this.settings.user && Array.isArray(this.settings.user.roles)) {
+      if (this.settings.user.roles.includes('ROLE_ADVANCED_USER')) {
+        if (this.initialReport) {
+          this.setState({report: this.initialReport, navigation: 'summary'})
+        }
+      }
     }
+    
     this.scanCourse()
       .then((response) => response.json())
       .then(this.handleNewReport)
