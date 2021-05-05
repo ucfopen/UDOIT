@@ -72,7 +72,7 @@ class Issue implements \JsonSerializable
     private $newHtml;
 
     /**
-     * @ORM\Column(type="text", nullable=true)
+     * @ORM\Column(type="json", nullable=true)
      */
     private $metadata;
 

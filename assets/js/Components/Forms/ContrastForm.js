@@ -14,17 +14,25 @@ export default class ContrastForm extends React.Component {
     super(props)
 
     let metadata = null
+    let backgroundColor
+    let textColor
 
     try{
       metadata = JSON.parse(this.props.activeIssue.metadata)
+
+      backgroundColor = Contrast.rgb2hex(metadata.backgroundColor)
+      textColor = Contrast.rgb2hex(metadata.color)
     } catch(error){
       console.log(error)
+
+      let element = Html.toElement(this.props.activeIssue.sourceHtml)
+      backgroundColor = element.style.backgroundColor ? Contrast.rgb2hex(element.style.backgroundColor) : this.props.settings.backgroundColor
+      textColor = element.style.color ? Contrast.rgb2hex(element.style.color) : this.props.settings.textColor
     }
 
-
     this.state = {
-      backgroundColor: metadata ? Contrast.rgb2hex(metadata.backgroundColor) : this.props.settings.backgroundColor,
-      textColor: metadata ? Contrast.rgb2hex(metadata.color) : this.props.settings.textColor,
+      backgroundColor: backgroundColor,
+      textColor: textColor,
       useBold: false,
       useItalics: false,
       textInputErrors: []
@@ -50,16 +58,14 @@ export default class ContrastForm extends React.Component {
 
   componentDidUpdate(prevProps, prevState) {
     if (prevProps.activeIssue !== this.props.activeIssue) {
+
+      let backgroundColor
+      let textColor
+      
       if(this.props.activeIssue.newHtml) {
         let element = Html.toElement((this.props.activeIssue.newHtml))
-
-        this.setState({
-          backgroundColor: element.style.backgroundColor ? Contrast.rgb2hex(element.style.backgroundColor) : this.props.settings.backgroundColor,
-          textColor: element.style.color ? Contrast.rgb2hex(element.style.color) : this.props.settings.textColor,
-          useBold: false,
-          useItalics: false,
-          textInputErrors: []
-        })
+        backgroundColor = element.style.backgroundColor ? Contrast.rgb2hex(element.style.backgroundColor) : this.props.settings.backgroundColor
+        textColor = element.style.color ? Contrast.rgb2hex(element.style.color) : this.props.settings.textColor
       }
 
       else {
@@ -67,22 +73,25 @@ export default class ContrastForm extends React.Component {
 
         try{
           metadata = JSON.parse(this.props.activeIssue.metadata)
+          backgroundColor = Contrast.rgb2hex(metadata.backgroundColor)
+          textColor = Contrast.rgb2hex(metadata.color)
         } catch(error){
           console.log(error)
+          backgroundColor = this.props.settings.backgroundColor
+          textColor = this.props.settings.textColor
         }
-
-  
-        this.setState({
-          backgroundColor: metadata ? Contrast.rgb2hex(metadata.backgroundColor) : this.props.settings.backgroundColor,
-          textColor: metadata ? Contrast.rgb2hex(metadata.color) : this.props.settings.textColor,
-          useBold: false,
-          useItalics: false,
-          textInputErrors: []
-        },() => {
-          this.formErrors = []
-          this.updatePreview()
-        })
       }
+
+      this.setState({
+        backgroundColor: backgroundColor,
+        textColor: textColor,
+        useBold: false,
+        useItalics: false,
+        textInputErrors: []
+      },() => {
+        this.formErrors = []
+        this.updatePreview()
+      })
     }
   }
 
