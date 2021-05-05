@@ -104,7 +104,7 @@ console.log('render', this.props.filters)
   }
   
   renderIssueStatusCheckboxes() {
-    return issueStatus.map((status, ind) => <Checkbox label={this.props.t(`label.filter.${status}`)} value={ind} key={`status.${status}`} />)
+    return issueStatus.map((status) => <Checkbox label={this.props.t(`label.filter.${status}`)} value={status} key={`status.${status}`} />)
   }
 
   renderIssueTypeCheckboxes() {
@@ -116,7 +116,6 @@ console.log('render', this.props.filters)
   }
 
   handleIssueStatusChange(values) {
-    values = values.map(x => +x)
     this.props.handleFilter({issueStatus: values})
   }
 
