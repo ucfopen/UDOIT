@@ -30,7 +30,7 @@ class CanvasApi {
      * 
      * @return LmsResponse
      */
-    public function apiGet($url, $options = [], $perPage = 100, $lmsResponse = null)
+    public function apiGet($url, $options = [], $perPage = 100, LmsResponse $lmsResponse = null)
     {      
         $links = [];
 
@@ -52,20 +52,18 @@ class CanvasApi {
 
         $response = $this->httpClient->request('GET', $url, $options);
         $lmsResponse->setResponse($response);
-
         $content = $lmsResponse->getContent();
-        if (!empty($content['errors'])) {
-            // If error is invalid token, refresh API token and try again 
 
+        // If error is invalid token, refresh API token and try again 
+        if ($lmsResponse->getStatusCode() >= 400) {
+            throw new \Exception('Failed API call', $lmsResponse->getStatusCode());
+        }
+
+        if (!empty($content['errors'])) {
             foreach ($content['errors'] as $error) {
                 $lmsResponse->setError($error['message']);
             }
         }
-        // ** Not sure what this was for, but it's picking up discussion topics as an error.
-        // ** Removing for now
-        // if (!empty($content['message'])) {
-        //     $lmsResponse->setError($content['message']);
-        // }
 
         $headers = $response->getHeaders(false);
 

@@ -39,30 +39,24 @@ class LmsUserService {
     public function validateApiKey(User $user)
     {
         $apiKey = $user->getApiKey();
+        $lms = $this->lmsApi->getLms();
 
         if (empty($apiKey)) {
             return false;
-        }
+        }        
 
         try {        
-            $lms = $this->lmsApi->getLms();
-            $status = $lms->testApiConnection($user);
-
-            if ($status) {
-                return true;
-            }
-
-            $refreshed = $this->refreshApiKey($user);
-            if (!$refreshed) {
-                return false;
-            }
-
-            return ($lms->testApiConnection($user));
+            return $lms->testApiConnection($user);
         } 
         catch (\Exception $e) {
-            $this->util->createMessage('LMS authentication error: ' . $e->getMessage());
-            
-            return false;
+            $this->refreshApiKey($user);
+        }
+
+        try {
+            return $lms->testApiConnection($user);
+        }
+        catch (\Exception $e) {
+            $this->util->exitWithMessage($e->getMessage());
         }
     }
 
