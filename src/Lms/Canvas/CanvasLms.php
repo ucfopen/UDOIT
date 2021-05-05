@@ -128,10 +128,6 @@ class CanvasLms implements LmsInterface {
         $canvasApi = new CanvasApi($apiDomain, $apiToken);
         $response = $canvasApi->apiGet($url);
 
-        if (!$response || !empty($response->getErrors())) {
-            return false;
-        }
-
         return ($response->getStatusCode() < 400);
     }
 

@@ -62,6 +62,7 @@ class FileItemsController extends ApiController
     public function postFile(FileItem $file, Request $request, UtilityService $util, LmsPostService $lmsPost)
     {
         $apiResponse = new ApiResponse();
+        $user = $this->getUser();
 
         try {
             // Check if user has access to course
@@ -73,7 +74,7 @@ class FileItemsController extends ApiController
             $uploadedFile = $request->files->get('file');
 
             // Save content to LMS
-            $lmsResponse = $lmsPost->saveFileToLms($file, $uploadedFile);
+            $lmsResponse = $lmsPost->saveFileToLms($file, $uploadedFile, $user);
 
             $apiResponse->setData($lmsResponse);
 

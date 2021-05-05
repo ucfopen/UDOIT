@@ -65,7 +65,7 @@ class IssuesController extends ApiController
             $this->getDoctrine()->getManager()->flush();
 
             // Save content to LMS
-            $lmsPost->saveContentToLms($issue);
+            $lmsPost->saveContentToLms($issue, $user);
 
             // Add messages to response
             $unreadMessages = $util->getUnreadMessages();
@@ -124,7 +124,7 @@ class IssuesController extends ApiController
             $this->getDoctrine()->getManager()->flush();
 
             // Save content to LMS
-            $response = $lmsPost->saveContentToLms($issue);
+            $response = $lmsPost->saveContentToLms($issue, $user);
 
             // Add messages to response
             $unreadMessages = $util->getUnreadMessages();

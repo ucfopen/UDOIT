@@ -18,6 +18,8 @@ class LmsFetchService {
     /** @var App\Services\LmsApiService $lmsApi */
     protected $lmsApi;
 
+    protected $lmsUser;
+
     /** @var PhpAllyService $phpAllyService */
     private $phpAlly;
 
@@ -32,12 +34,14 @@ class LmsFetchService {
 
     public function __construct(
         LmsApiService $lmsApi,
+        LmsUserService $lmsUser,
         PhpAllyService $phpAlly,
         ManagerRegistry $doctrine,
         UtilityService $util
     )
     {
         $this->lmsApi = $lmsApi;
+        $this->lmsUser = $lmsUser;
         $this->phpAlly = $phpAlly;
         $this->doctrine = $doctrine;
         $this->util = $util;
@@ -58,6 +62,8 @@ class LmsFetchService {
     {
         $hasContent = false;
         $lms = $this->lmsApi->getLms($user);
+
+        $this->lmsUser->validateApiKey($user);
 
         /** @var \App\Repository\ContentItemRepository $contentItemRepo */
         $contentItemRepo = $this->doctrine->getManager()->getRepository(ContentItem::class);
