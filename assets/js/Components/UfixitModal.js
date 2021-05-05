@@ -67,6 +67,7 @@ class UfixitModal extends React.Component {
     if (newIndex > (this.props.filteredRows.length - 1)) {
       newIndex = 0
     }
+    this.clearMessages()
     this.props.handleActiveIssue(this.props.filteredRows[newIndex].issue, newIndex)
   }
   
@@ -272,11 +273,12 @@ class UfixitModal extends React.Component {
     let sourceCode = (activeIssue.newHtml) ? activeIssue.newHtml : activeIssue.sourceHtml
     let code = sourceCode
 
-    if (sourceCode.length > 3000) {
+    if (sourceCode.length === 0 || sourceCode.length > 3000) {
       code = '<span>Not Available</span>'
     } else {
         let element = Html.toElement(sourceCode)
-        if(element.tagName === 'TH') {
+        
+        if(element && element.tagName === 'TH') {
           code = activeIssue.previewHtml
         }
     }
