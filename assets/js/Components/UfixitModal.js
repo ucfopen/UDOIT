@@ -251,7 +251,7 @@ class UfixitModal extends React.Component {
                   <Button margin="0 small" onClick={this.props.handleCloseButton}>{this.props.t('label.close')}</Button>
                   <Button margin="0 0 0 x-small"
                     onClick={() => this.handleIssueChange(activeIndex - 1)}>{this.props.t('label.previous_issue')}</Button>
-                  <Button margin="0 0 0 x-small"
+                  <Button color="primary" margin="0 0 0 x-small"
                     onClick={() => this.handleIssueChange(activeIndex + 1)}>{this.props.t('label.next_issue')}</Button>
                 </Flex.Item>
               </Flex>            
