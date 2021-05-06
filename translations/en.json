@@ -206,7 +206,7 @@
   "form.contrast.replace_text": "Text color",
   "form.heading.assistive_text": "Use arrow keys to navigate options.",
   "form.heading.heading_level": "Select heading level",
-  "form.heading.heading_level_options": ["H2", "H3", "H4"],
+  "form.heading.heading_level_options": ["H2", "H3", "H4", "H5", "H6"],
   "form.heading.msg.text_empty": "Heading text cannot be empty",
   "form.heading.msg.select_heading": "Heading level cannot be empty",
   "form.heading.remove_styling": "Remove styling",
