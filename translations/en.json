@@ -229,6 +229,7 @@
   "form.table.selection_description": "Select direction for table header(s)",
   "form.table.selection_description_scope": "Select scope for table header",
   "form.error.fails_tests": "Submission fails tests.",
+  "form.error.same_html": "These changes have already been submitted",
 
   "rule.label.AnchorLinksToMultiMediaRequireTranscript": "Links To MultiMedia Require Transcripts",
   "rule.label.AnchorLinksToSoundFilesNeedTranscripts": "Links To Sound Files Need Transcripts",
