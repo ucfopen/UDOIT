@@ -1,10 +1,10 @@
 import React from 'react'
 import { Heading } from '@instructure/ui-heading'
 import { View } from '@instructure/ui-view'
-import { Flex } from '@instructure/ui-flex'
 import { Text } from '@instructure/ui-text'
 import { ToggleDetails } from '@instructure/ui-toggle-details'
 import { List } from '@instructure/ui-list'
+import { IconInfoBorderlessLine, IconNoLine } from '@instructure/ui-icons'
 import Html from '../Services/Html'
 import ReactHtmlParser from 'react-html-parser'
 class AboutPage extends React.Component {
@@ -40,7 +40,9 @@ class AboutPage extends React.Component {
             fluidWidth={true}
             onToggle={this.handleDetailsToggle}>
             <View as="div" margin="small large">
-              <Text color="danger" weight="bold">{this.props.t('label.plural.error')}</Text><br/>
+              <IconNoLine color="error" />
+              <View padding="x-small"><Text weight="bold">{this.props.t('label.plural.error')}</Text><br/></View>
+              
               {errors.map((rule) => {
                 return (
                   <ToggleDetails key={rule.error} summary={rule.error}>
@@ -95,7 +97,8 @@ class AboutPage extends React.Component {
               })}
             </View>
             <View as="div" margin="small large">
-              <Text color="brand" weight="bold">{this.props.t('label.plural.suggestion')}</Text><br/>
+              <IconInfoBorderlessLine color="alert" />
+              <View padding="x-small"><Text weight="bold">{this.props.t('label.plural.suggestion')}</Text><br/></View>
               {suggestions.map((rule) => {
                 return (
                   <ToggleDetails key={rule.suggestion} summary={rule.suggestion}>
