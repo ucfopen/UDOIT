@@ -38,7 +38,7 @@ class ContentPage extends React.Component {
         contentTypes: [],
         issueTypes: [],
         issueTitles: [],
-        issueStatus: [0],
+        issueStatus: ['active'],
         hideUnpublishedContentItems: true,
       },
       tableSettings: {
@@ -149,7 +149,7 @@ class ContentPage extends React.Component {
       }
 
       // Check if we are filtering by issue status
-      if (filters.issueStatus.length !== 0 && !filters.issueStatus.includes(issue.status)) {
+      if (filters.issueStatus.length !== 0 && !filters.issueStatus.includes(issueStatusKeys[issue.status])) {
         continue;
       }
 
@@ -316,7 +316,7 @@ class ContentPage extends React.Component {
       hideUnpublishedContentItems: false,
       issueTypes: [],
       issueTitles: [],
-      issueStatus: [0],
+      issueStatus: ['active'],
     };
   }
 
@@ -340,7 +340,7 @@ class ContentPage extends React.Component {
 
     for (const statusVal of this.state.filters.issueStatus) {
       const id = `issueStatus||${statusVal}`
-      tags.push({ id: id, label: this.props.t(`label.filter.${issueStatusKeys[statusVal]}`) });
+      tags.push({ id: id, label: this.props.t(`label.filter.${statusVal}`) });
     }
 
     if (this.state.filters.hideUnpublishedContentItems) {
