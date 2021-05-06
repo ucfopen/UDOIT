@@ -1,5 +1,6 @@
 import React from 'react';
 import { Checkbox, CheckboxGroup } from '@instructure/ui-checkbox'
+import { SimpleSelect } from '@instructure/ui-simple-select'
 import { CloseButton } from '@instructure/ui-buttons'
 import { Flex } from '@instructure/ui-flex'
 import { Tray } from '@instructure/ui-tray'
@@ -11,10 +12,14 @@ class AdminTrayForm extends React.Component {
   constructor(props) {
     super(props);
 
-    this.handleSubaccountChange = this.handleSubaccountChange.bind(this);
+    this.handleAccountSelect = this.handleAccountSelect.bind(this)
+    this.handleTermSelect = this.handleTermSelect.bind(this)
+    this.handleIncludeSubaccount = this.handleIncludeSubaccount.bind(this)
   }
 
   render() {
+    let accountOptions = this.getAccountOptions()
+    let termOptions = this.getTermOptions()
 
     return (
       <Tray
@@ -38,32 +43,89 @@ class AdminTrayForm extends React.Component {
             </Flex.Item>
           </Flex> 
           <View as="div" padding="small 0">
-            <CheckboxGroup 
-              name="SubAccounts"
-              description={ this.props.t('label.admin.subaccounts')}
-              value={this.props.filters.subAccounts}
-              onChange={this.handleSubaccountChange}>
-              {this.renderSubaccountCheckboxes()}
-            </CheckboxGroup>
+            <SimpleSelect
+              renderLabel={this.props.t('label.admin.account')}
+              value={`${this.props.filters.accountId}`}
+              onChange={this.handleAccountSelect}
+              isInline={true}
+            >
+              {accountOptions.map((opt, ind) => (
+                <SimpleSelect.Option
+                  key={`acct${ind}`}
+                  id={`${opt.id}`}
+                  value={`${opt.id}`}>
+                  {opt.name}
+                </SimpleSelect.Option>
+              ))}
+            </SimpleSelect>
+          </View>
+          <View as="div" padding="small 0">
+            <SimpleSelect
+              renderLabel={this.props.t('label.admin.term')}
+              value={`${this.props.filters.termId}`}
+              onChange={this.handleTermSelect}
+              isInline={true}
+            >
+              {termOptions.map((opt, ind) => (
+                <SimpleSelect.Option
+                  key={`term${ind}`}
+                  id={`${opt.id}`}
+                  value={`${opt.id}`}>
+                  {opt.name}
+                </SimpleSelect.Option>
+              ))}
+            </SimpleSelect>
+          </View>
+          <View as="div" padding="small 0">
+            <Checkbox label={this.props.t('label.admin.include_subaccounts')} value="on" 
+              checked={this.props.filters.includeSubaccounts}
+              onChange={this.handleIncludeSubaccount} />
           </View>
         </View> 
       </Tray>
     );
   }
 
-  renderSubaccountCheckboxes() {
-    const subAccounts = this.props.settings.account.subAccounts;
-    
-    if (Array.isArray(subAccounts)) {
-      return <View>{this.props.t('label.admin.no_subaccounts')}</View>
+  getAccountOptions() {
+    let options = []
+    options.push({
+      id: this.props.settings.account.id,
+      name: this.props.settings.account.name
+    })
+
+    for (const [key, val] of Object.entries(this.props.settings.account.subAccounts)) {
+      options.push({
+        id: key,
+        name: val
+      })
     }
 
-    return Object.entries(subAccounts).map(([key, val]) => 
-      <Checkbox label={val} value={key} key={key} />);
+    return options
   }
 
-  handleSubaccountChange(values) {
-    this.props.handleFilter({subAccounts: values});
+  getTermOptions() {
+    let options = []
+
+    for (const [key, val] of Object.entries(this.props.settings.terms)) {
+      options.push({
+        id: key,
+        name: val,
+      })
+    }
+
+    return options
+  }
+
+  handleAccountSelect(e, val) {
+    this.props.handleFilter({ accountId: val.value })
+  }
+
+  handleTermSelect(e, val) {
+    this.props.handleFilter({ termId: val.value })
+  }
+
+  handleIncludeSubaccount(e) {
+    this.props.handleFilter({ includeSubaccounts: e.target.checked })
   }
 }
 

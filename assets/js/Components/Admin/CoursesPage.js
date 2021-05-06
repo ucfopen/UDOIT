@@ -31,9 +31,6 @@ class CoursesPage extends React.Component {
     this.state = {
       trayOpen: false,
       searchTerm: '',
-      filters: {
-        subAccounts: [],
-      },
       tableSettings: {
         sortBy: 'courseName',
         ascending: true,
@@ -49,10 +46,11 @@ class CoursesPage extends React.Component {
   }
 
   getFilteredContent() {
-    const { filters, searchTerm } = this.state
+    const { searchTerm } = this.state
     const { sortBy, ascending } = this.state.tableSettings 
     const courses = Object.values(this.props.courses)
-    
+    const { filters } = this.props
+
     let filteredList = [];
 
     for (const course of courses) {
@@ -60,10 +58,8 @@ class CoursesPage extends React.Component {
         continue
       }
 
-      if (filters.subAccounts && filters.subAccounts.length > 0) {
-        if (!filters.subAccounts.includes(course.accountId)) {
-          continue
-        }
+      if (!filters.includeSubaccounts && (filters.accountId != course.accountId)) {
+        continue
       }
       
       // Filter by search term
@@ -131,15 +127,15 @@ class CoursesPage extends React.Component {
           caption={this.props.t('srlabel.courses.table')}
           headers = {this.headers}
           rows = {filteredRows}
-          filters = {this.state.filters}
+          filters = {this.props.filters}
           tableSettings = {this.state.tableSettings}
           handleFilter = {this.handleFilter}
           handleTableSettings = {this.handleTableSettings}
           t={this.props.t}
         />
         {this.state.trayOpen && <AdminTrayForm
-          filters={this.state.filters}
-          handleFilter={this.handleFilter}
+          filters={this.props.filters}
+          handleFilter={this.props.handleFilter}
           settings={this.props.settings}
           trayOpen={this.state.trayOpen}
           handleTrayToggle={this.handleTrayToggle} 
@@ -149,42 +145,40 @@ class CoursesPage extends React.Component {
     )
   }
 
-  resetFilters() {
-    return {subAccounts:[]};
-  }
-
   renderFilterTags() {
     let tags = [];
 
     const subAccounts = this.props.settings.account.subAccounts
+    const terms = this.props.settings.terms
+    const selectedAccountId = this.props.filters.accountId
+    const selectedTermId = this.props.filters.termId
 
-    for (const subAccountId of this.state.filters.subAccounts) {
-      if (subAccounts && subAccounts[subAccountId]) {
-        const id = `subAccounts||${subAccountId}`
-        tags.push({ id: id, label: subAccounts[subAccountId]})
-      }
+    if (selectedAccountId == this.props.settings.account.id) {
+      const id = `subAccounts||${selectedAccountId}`
+      const label = `${this.props.t('label.admin.account')}: ${this.props.settings.account.name}`
+      tags.push({ id: id, label: label })
+    }
+
+    if (subAccounts && subAccounts[selectedAccountId]) {
+      const id = `subAccounts||${selectedAccountId}`
+      const label = `${this.props.t('label.admin.account')}: ${subAccounts[selectedAccountId]}`
+      tags.push({ id: id, label: label})
+    }
+
+    if (terms && terms[selectedTermId]) {
+      const id = `terms||${selectedTermId}`
+      const label = `${this.props.t('label.admin.term')}: ${terms[selectedTermId]}`
+      tags.push({ id: id, label: label })
     }
 
     return tags.map((tag) => (
       <Tag margin="0 small small 0" 
         text={tag.label} 
-        dismissible={true} 
-        onClick={(e) => this.handleTagClick(tag.id, e)}
+        readOnly={true}
+        dismissible={false} 
+        //onClick={(e) => this.handleTagClick(tag.id, e)}
         key={tag.id} />
     ));
-  }
-
-  handleTagClick(tagId, e) {
-    let [filterType, filterId] = tagId.split('||');
-    let results = null;
-
-    switch (filterType) {
-      case 'subAccounts':
-        results = this.state.filters.subAccounts.filter((val) => filterId !== val);
-        break;
-    }
-
-    this.handleFilter({ [filterType]: results });
   }
 
   handleSearchTerm = (e, val) => {
@@ -197,7 +191,7 @@ class CoursesPage extends React.Component {
 
   handleFilter = (filter) => {
     this.setState({
-      filters: Object.assign({}, this.state.filters, filter),
+      filters: Object.assign({}, this.props.filters, filter),
       tableSettings: {
         sortBy: 'courseName',
         ascending: true,

@@ -5,7 +5,6 @@ import CoursesPage from './CoursesPage'
 import ReportsPage from './ReportsPage'
 import SettingsPage from './SettingsPage'
 import UsersPage from './UsersPage'
-import AccountSelect from './AccountSelect'
 import { View } from '@instructure/ui-view'
 import Api from '../../Services/Api'
 import MessageTray from '../MessageTray'
@@ -31,11 +30,13 @@ class AdminApp extends React.Component {
       }
     }
     
-
     this.state = {
       courses: {},
-      accountId: this.settings.accountId,
-      termId: this.settings.termId,
+      filters: {
+        accountId: this.settings.accountId,
+        termId: this.settings.termId,
+        includeSubaccounts: true,
+      },
       accountData: [],
       navigation: 'courses',
       modal: null,
@@ -46,8 +47,7 @@ class AdminApp extends React.Component {
     this.clearMessages = this.clearMessages.bind(this)
     this.addMessage = this.addMessage.bind(this)
     this.t = this.t.bind(this)
-    this.handleAccountSelect = this.handleAccountSelect.bind(this)
-    this.handleTermSelect = this.handleTermSelect.bind(this)
+    this.handleFilter = this.handleFilter.bind(this)
     this.handleCourseUpdate = this.handleCourseUpdate.bind(this)
     this.loadCourses = this.loadCourses.bind(this)
 
@@ -67,18 +67,6 @@ class AdminApp extends React.Component {
 
         <MessageTray messages={this.messages} t={this.t} clearMessages={this.clearMessages} hasNewReport={true} />
 
-        {(['courses', 'reports'].includes(this.state.navigation)) &&
-          <AccountSelect
-            settings={this.settings}
-            accountId={this.state.accountId}
-            termId={this.state.termId}
-            t={this.t}
-            handleAccountSelect={this.handleAccountSelect}
-            handleTermSelect={this.handleTermSelect}
-            loadCourses={this.loadCourses}
-          />
-        }
-
         {(this.state.loadingCourses) &&
           <View as="div" padding="small 0">
             <View as="div" textAlign="center" padding="medium">
@@ -92,19 +80,21 @@ class AdminApp extends React.Component {
           <CoursesPage
             settings={this.settings}
             t={this.t}
-            accountId={this.state.accountId}
+            filters={this.state.filters}
             courses={this.state.courses}
-            termId={this.state.termId}
             addMessage={this.addMessage}
             handleCourseUpdate={this.handleCourseUpdate}
+            handleFilter={this.handleFilter}
+            loadCourses={this.loadCourses}
           />
         }
         {(!this.state.loadingCourses) && ('reports' === this.state.navigation) &&
           <ReportsPage
             t={this.t}
             settings={this.settings}
-            accountId={this.state.accountId}
-            termId={this.state.termId}
+            filters={this.state.filters}
+            handleFilter={this.handleFilter}
+            loadCourses={this.loadCourses}
           />
         }
         {(!this.state.loadingCourses) && ('users' === this.state.navigation) &&
@@ -141,6 +131,7 @@ class AdminApp extends React.Component {
           })
           this.setState({courses})
         }
+
         
         this.setState({loadingCourses: false})
       })
@@ -162,12 +153,12 @@ class AdminApp extends React.Component {
     this.messages = [];
   }
   
-  handleAccountSelect(accountId) {
-    this.setState({accountId})
-  }
-
-  handleTermSelect(termId) {
-    this.setState({termId})
+  handleFilter(newFilter) {
+    const filters = Object.assign(this.state.filters, newFilter)
+    this.setState({ filters }, () => {
+      this.loadCourses(this.state.filters.accountId, this.state.filters.termId, true)
+    })
+    
   }
 
   handleCourseUpdate(course) {

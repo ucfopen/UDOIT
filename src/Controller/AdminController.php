@@ -124,7 +124,9 @@ class AdminController extends ApiController
             }
         }
 
-        $endDate->setTime(23, 59,0);            
+        if ($endDate) {
+            $endDate->setTime(23, 59,0);            
+        }
 
         // Populate all dates with a report
         foreach ($rows as $courseId => $reports) {
@@ -243,7 +245,29 @@ class AdminController extends ApiController
 
         // Construct Response
         return new JsonResponse($apiResponse);        
+    }
 
+    /**
+     * @Route("/api/admin/accounts", methods={"GET"}, name="admin_update_accounts")
+     * 
+     * @return JsonResponse
+     */
+    public function getUpdatedAccounts()
+    {
+        $apiResponse = new ApiResponse();
+
+        $lms = $this->lmsApi->getLms();
+
+        /** @var User $user */
+        $user = $this->getUser();
+
+        if (!($accountId = $this->session->get('lms_account_id'))) {
+            $this->util->exitWithMessage('Account ID not found.');
+        }
+
+        $apiResponse->setData($lms->getAccountData($user, $accountId));
+
+        return $this->json($apiResponse);
     }
 
     /** PROTECTED FUNCTIONS **/
