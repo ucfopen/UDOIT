@@ -261,6 +261,7 @@ class LmsFetchService {
         $issueEntity->setScanRuleId($issue->getRuleId());
         $issueEntity->setHtml($issue->getHtml());
         $issueEntity->setPreviewHtml($issue->getPreview());
+        $issueEntity->setMetadata($issue->getMetadata());
 
         $contentItem->addIssue($issueEntity);
 
