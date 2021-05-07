@@ -2,8 +2,8 @@ import React from 'react'
 import { View } from '@instructure/ui-view'
 import { Flex } from '@instructure/ui-flex'
 import { Text } from '@instructure/ui-text'
-import { Heading } from '@instructure/ui-heading'
-import { IconDownloadLine } from '@instructure/ui-icons'
+import { IconFilterLine } from '@instructure/ui-icons'
+import { Button } from '@instructure/ui-buttons'
 
 import Api from '../../Services/Api'
 import { Spinner } from '@instructure/ui-spinner'
@@ -17,24 +17,18 @@ class ReportsPage extends React.Component {
     super(props)
 
     this.state = {
-      reports: []
+      reports: null
     }
   }
 
   componentDidMount() {
-    if (this.state.reports.length === 0) {
+    if (this.state.reports === null) {
       this.getReportHistory()
     }
   }
 
   render() {
-    let reports = Object.values(this.state.reports)
-
-    for (let report of reports) {
-      report.id = report.created
-    }
-
-    if (this.state.reports.length === 0) {
+    if (this.state.reports === null) {
       return (
         <View as="div" padding="small 0">
           <View as="div" textAlign="center" padding="medium">
@@ -43,10 +37,38 @@ class ReportsPage extends React.Component {
           </View>
         </View>
       )
-    } else {
-      return (
-        <View as="div" padding="small 0">
-          {/* <Heading>{this.props.t('label.reports')}</Heading> */}
+    } 
+
+    let reports = Object.values(this.state.reports)
+
+    for (let report of reports) {
+      report.id = report.created
+    }
+
+    return (
+      <View as="div" padding="small 0">
+        <Flex justifyItems="space-between" padding="0 0 medium 0" key="reportsHeader">
+          <Flex.Item>
+            <View as="div" key="filterTags">
+              {this.props.renderFilterTags()}
+            </View>
+          </Flex.Item>
+          <Flex.Item>
+            {this.props.handleTrayToggle &&
+              <Button
+                renderIcon={IconFilterLine}
+                screenReaderLabel={this.props.t('srlabel.open_filters_tray')}
+                onClick={this.props.handleTrayToggle}
+                elementRef={(node) => this.filterButton = node}
+              >
+                {this.props.t('label.filter')}
+              </Button>}
+          </Flex.Item>
+        </Flex>
+        {(reports.length === 0) ? 
+          <View as="div">{this.props.t('label.admin.no_results')}</View>
+          : 
+          <>
           <View as="div" margin="0 0 large 0">
             <Flex justifyItems="space-between" alignItems="start">
               <Flex.Item width="48%" padding="0">
@@ -64,17 +86,24 @@ class ReportsPage extends React.Component {
               isAdmin={true}
             />
           </View>
-        </View>
-      )
-    }
+          </>
+        }
+      </View>
+    )
   }
 
   getReportHistory() {
     const api = new Api(this.props.settings)
-    api.getAdminReportHistory(this.props.accountId, this.props.termId)
+    api.getAdminReportHistory(this.props.filters.accountId, this.props.filters.termId)
       .then((responseStr) => responseStr.json())
       .then((response) => {
-        this.setState({ reports: response.data })
+        if (!Array.isArray(response.data)) {
+          this.setState({ reports: response.data })
+        }
+        else {
+          this.setState({ reports: {} })
+        }
+        
       })
   }
 }

@@ -1,11 +1,8 @@
 import React from 'react';
 import { Button } from '@instructure/ui-buttons'
-import { IconCheckLine, IconInfoBorderlessLine, IconNoLine } from '@instructure/ui-icons'
 import SortableTable from '../SortableTable'
 import ContentPageForm from '../ContentPageForm'
-import AdminTrayForm from './AdminTrayForm'
 import { View } from '@instructure/ui-view'
-import { Tag } from '@instructure/ui-tag'
 import Api from '../../Services/Api'
 import { Link } from '@instructure/ui-link'
 import { Spinner } from '@instructure/ui-spinner';
@@ -29,7 +26,6 @@ class CoursesPage extends React.Component {
     this.filteredIssues = [];
 
     this.state = {
-      trayOpen: false,
       searchTerm: '',
       tableSettings: {
         sortBy: 'courseName',
@@ -38,7 +34,6 @@ class CoursesPage extends React.Component {
       }
     }
 
-    this.handleTrayToggle = this.handleTrayToggle.bind(this);
     this.handleSearchTerm = this.handleSearchTerm.bind(this);
     this.handleTableSettings = this.handleTableSettings.bind(this);
     this.handleFilter = this.handleFilter.bind(this);
@@ -117,76 +112,32 @@ class CoursesPage extends React.Component {
       <View as="div" key="coursesPageFormWrapper" padding="small 0">
         <ContentPageForm 
           handleSearchTerm={this.handleSearchTerm} 
-          handleTrayToggle={this.handleTrayToggle} 
+          handleTrayToggle={this.props.handleTrayToggle} 
           searchTerm={this.state.searchTerm}
           t={this.props.t} />
         <View as="div" key="filterTags">
-          {this.renderFilterTags()}
+          {this.props.renderFilterTags()}
         </View>
-        <SortableTable
-          caption={this.props.t('srlabel.courses.table')}
-          headers = {this.headers}
-          rows = {filteredRows}
-          filters = {this.props.filters}
-          tableSettings = {this.state.tableSettings}
-          handleFilter = {this.handleFilter}
-          handleTableSettings = {this.handleTableSettings}
-          t={this.props.t}
-        />
-        {this.state.trayOpen && <AdminTrayForm
-          filters={this.props.filters}
-          handleFilter={this.props.handleFilter}
-          settings={this.props.settings}
-          trayOpen={this.state.trayOpen}
-          handleTrayToggle={this.handleTrayToggle} 
-          t={this.props.t}
-          />}        
+        {(filteredRows.length === 0) ? 
+          <View as="div">{this.props.t('label.admin.no_results')}</View>
+          : 
+          <SortableTable
+            caption={this.props.t('srlabel.courses.table')}
+            headers = {this.headers}
+            rows = {filteredRows}
+            filters = {this.props.filters}
+            tableSettings = {this.state.tableSettings}
+            handleFilter = {this.handleFilter}
+            handleTableSettings = {this.handleTableSettings}
+            t={this.props.t}
+          />        
+        }
       </View>
     )
   }
 
-  renderFilterTags() {
-    let tags = [];
-
-    const subAccounts = this.props.settings.account.subAccounts
-    const terms = this.props.settings.terms
-    const selectedAccountId = this.props.filters.accountId
-    const selectedTermId = this.props.filters.termId
-
-    if (selectedAccountId == this.props.settings.account.id) {
-      const id = `subAccounts||${selectedAccountId}`
-      const label = `${this.props.t('label.admin.account')}: ${this.props.settings.account.name}`
-      tags.push({ id: id, label: label })
-    }
-
-    if (subAccounts && subAccounts[selectedAccountId]) {
-      const id = `subAccounts||${selectedAccountId}`
-      const label = `${this.props.t('label.admin.account')}: ${subAccounts[selectedAccountId]}`
-      tags.push({ id: id, label: label})
-    }
-
-    if (terms && terms[selectedTermId]) {
-      const id = `terms||${selectedTermId}`
-      const label = `${this.props.t('label.admin.term')}: ${terms[selectedTermId]}`
-      tags.push({ id: id, label: label })
-    }
-
-    return tags.map((tag) => (
-      <Tag margin="0 small small 0" 
-        text={tag.label} 
-        readOnly={true}
-        dismissible={false} 
-        //onClick={(e) => this.handleTagClick(tag.id, e)}
-        key={tag.id} />
-    ));
-  }
-
   handleSearchTerm = (e, val) => {
     this.setState({ searchTerm: val });
-  }
-
-  handleTrayToggle = (e, val) => {
-    this.setState({ trayOpen: !this.state.trayOpen });
   }
 
   handleFilter = (filter) => {

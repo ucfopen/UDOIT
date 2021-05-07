@@ -183,6 +183,7 @@
   "label.admin.created": "Created",
   "label.admin.last_login": "Last Login",
   "label.admin.include_subaccounts": "Include courses from sub-accounts",
+  "label.admin.no_results": "No results found for this account and term.",
 
   "form.alt.text": "New Alt Text",
   "form.alt.char_count": "Current character count",

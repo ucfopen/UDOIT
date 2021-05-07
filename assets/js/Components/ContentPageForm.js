@@ -1,6 +1,5 @@
 import React from 'react';
 import { TextInput } from '@instructure/ui-text-input'
-import { Checkbox } from '@instructure/ui-checkbox'
 import { Button } from '@instructure/ui-buttons'
 import { IconSearchLine, IconFilterLine } from '@instructure/ui-icons'
 import { Flex } from '@instructure/ui-flex'

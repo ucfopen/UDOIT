@@ -8,6 +8,8 @@ import UsersPage from './UsersPage'
 import { View } from '@instructure/ui-view'
 import Api from '../../Services/Api'
 import MessageTray from '../MessageTray'
+import AdminTrayForm from '../Admin/AdminTrayForm'
+import { Tag } from '@instructure/ui-tag'
 
 import { Text } from '@instructure/ui-text'
 import { Spinner } from '@instructure/ui-spinner'
@@ -41,6 +43,7 @@ class AdminApp extends React.Component {
       navigation: 'courses',
       modal: null,
       loadingCourses: true,
+      trayOpen: false,
     }
 
     this.handleNavigation = this.handleNavigation.bind(this)
@@ -50,6 +53,8 @@ class AdminApp extends React.Component {
     this.handleFilter = this.handleFilter.bind(this)
     this.handleCourseUpdate = this.handleCourseUpdate.bind(this)
     this.loadCourses = this.loadCourses.bind(this)
+    this.handleTrayToggle = this.handleTrayToggle.bind(this)
+    this.renderFilterTags = this.renderFilterTags.bind(this)
 
     this.loadCourses(this.settings.accountId, this.settings.termId)
   }
@@ -86,6 +91,8 @@ class AdminApp extends React.Component {
             handleCourseUpdate={this.handleCourseUpdate}
             handleFilter={this.handleFilter}
             loadCourses={this.loadCourses}
+            handleTrayToggle={this.handleTrayToggle}
+            renderFilterTags={this.renderFilterTags}
           />
         }
         {(!this.state.loadingCourses) && ('reports' === this.state.navigation) &&
@@ -95,6 +102,8 @@ class AdminApp extends React.Component {
             filters={this.state.filters}
             handleFilter={this.handleFilter}
             loadCourses={this.loadCourses}
+            handleTrayToggle={this.handleTrayToggle}
+            renderFilterTags={this.renderFilterTags}
           />
         }
         {(!this.state.loadingCourses) && ('users' === this.state.navigation) &&
@@ -110,6 +119,14 @@ class AdminApp extends React.Component {
             settings={this.settings}
             handleNavigation={this.handlenavigation} />
         }
+        {this.state.trayOpen && <AdminTrayForm
+          filters={this.state.filters}
+          handleFilter={this.handleFilter}
+          settings={this.settings}
+          trayOpen={this.state.trayOpen}
+          handleTrayToggle={this.handleTrayToggle}
+          t={this.t}
+        />}
       </View>
     )
   }
@@ -167,6 +184,44 @@ class AdminApp extends React.Component {
     this.setState({courses})
   }
 
+  handleTrayToggle = (e, val) => {
+    this.setState({ trayOpen: !this.state.trayOpen });
+  }
+
+  renderFilterTags() {
+    let tags = [];
+
+    const subAccounts = this.settings.account.subAccounts
+    const terms = this.settings.terms
+    const selectedAccountId = this.state.filters.accountId
+    const selectedTermId = this.state.filters.termId
+
+    if (selectedAccountId == this.settings.account.id) {
+      const id = `subAccounts||${selectedAccountId}`
+      const label = `${this.t('label.admin.account')}: ${this.settings.account.name}`
+      tags.push({ id: id, label: label })
+    }
+
+    if (subAccounts && subAccounts[selectedAccountId]) {
+      const id = `subAccounts||${selectedAccountId}`
+      const label = `${this.t('label.admin.account')}: ${subAccounts[selectedAccountId]}`
+      tags.push({ id: id, label: label })
+    }
+
+    if (terms && terms[selectedTermId]) {
+      const id = `terms||${selectedTermId}`
+      const label = `${this.t('label.admin.term')}: ${terms[selectedTermId]}`
+      tags.push({ id: id, label: label })
+    }
+
+    return tags.map((tag) => (
+      <Tag margin="0 small small 0"
+        text={tag.label}
+        readOnly={true}
+        dismissible={false}
+        key={tag.id} />
+    ));
+  }
 }
 
 export default AdminApp
