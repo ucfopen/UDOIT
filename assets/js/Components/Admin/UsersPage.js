@@ -2,6 +2,7 @@ import React from 'react'
 import SortableTable from '../SortableTable'
 import ContentPageForm from '../ContentPageForm'
 import { View } from '@instructure/ui-view'
+import { Button } from '@instructure/ui-buttons'
 import Api from '../../Services/Api'
 import { Spinner } from '@instructure/ui-spinner'
 import { Text } from '@instructure/ui-text'
@@ -30,7 +31,8 @@ class UsersPage extends React.Component {
     }
 
     this.handleSearchTerm = this.handleSearchTerm.bind(this);
-    this.handleTableSettings = this.handleTableSettings.bind(this);
+    this.handleTableSettings = this.handleTableSettings.bind(this)
+    this.handleUserDeauthorize = this.handleUserDeauthorize.bind(this)
   }
 
   componentDidMount() {
@@ -53,6 +55,17 @@ class UsersPage extends React.Component {
         }
       }
 
+      let btnLabel = this.props.t('label.admin.deauthorized')
+      if (user.hasApiKey) {
+        btnLabel = this.props.t('label.admin.force_reauthorize')
+      }
+
+      const action = <Button key={`userActionButton${user.id}`}
+        onClick={() => this.handleUserDeauthorize(user)}
+        interaction={(user.hasApiKey) ? 'enabled' : 'disabled'}>
+          {btnLabel}
+        </Button>
+
       filteredList.push({
         id: user.id,
         user,
@@ -60,6 +73,7 @@ class UsersPage extends React.Component {
         lmsUserName: user.name,
         lastLogin: user.lastLogin,
         created: user.created,
+        action: action
       })
     }
 
@@ -124,6 +138,24 @@ class UsersPage extends React.Component {
     this.setState({
       tableSettings: Object.assign({}, this.state.tableSettings, setting)
     });
+  }
+
+  handleUserDeauthorize = (user) => {
+    const api = new Api(this.props.settings)
+
+    user.hasApiKey = false
+
+    api.updateUser(user)
+      .then((responseStr) => responseStr.json())
+      .then((response) => {
+        let users = this.state.users
+        console.log('response', response);
+        if (response && response.id) {
+          const ind = users.findIndex((el) => { el.id === response.id })
+          users[ind] = response
+          this.setState({users})
+        }
+      })
   }
 
   getUsers() {

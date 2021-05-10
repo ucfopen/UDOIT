@@ -46,7 +46,7 @@ class DashboardController extends AbstractController
                 $this->util->exitWithMessage('API authentication failed. Contact your administrator.');
             }
 
-            return $this->redirectToRoute('authorize');
+            return $this->redirectToRoute('authorize', ['auth_token' => $this->session->getUuid()]);
         }
 
         $lmsCourseId = $this->session->get('lms_course_id');

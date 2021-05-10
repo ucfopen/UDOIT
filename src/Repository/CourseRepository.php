@@ -53,13 +53,13 @@ class CourseRepository extends ServiceEntityRepository
             ->getResult();
     }
 
-    public function findCoursesByAccount(User $user, $accountId, $termId = null)
+    public function findCoursesByAccount(User $user, $accountId, $termId = null, $includeSubaccounts = true)
     {
         $accountIds = [$accountId];
         $institution = $user->getInstitution();
         
         $account = $institution->getAccountData($accountId);
-        if ($account) {
+        if ($account && $includeSubaccounts) {
             $accountIds = array_merge($accountIds, array_keys($account['subAccounts']));
         }
 

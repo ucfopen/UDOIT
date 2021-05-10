@@ -39,15 +39,14 @@ class SessionAuthenticator extends AbstractGuardAuthenticator
     public function supports(Request $request)
     {
 
-        // print json_encode($this->sessionService->getSession());
-        // exit;
+        //print json_encode($this->sessionService->getSession());
+        
         return $this->sessionService->hasSession();
     }
 
     public function getCredentials(Request $request)
     {
         $session = $this->sessionService->getSession();
-
 
         return $session->get('userId');
     }

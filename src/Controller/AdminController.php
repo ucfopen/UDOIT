@@ -13,6 +13,7 @@ use App\Services\LmsUserService;
 use App\Services\SessionService;
 use App\Services\UtilityService;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
 class AdminController extends ApiController
@@ -45,7 +46,7 @@ class AdminController extends ApiController
         }
         if (!$lmsUser->validateApiKey($user)) {
             $this->session->set('destination', 'admin');
-            return $this->redirectToRoute('authorize');
+            return $this->redirectToRoute('authorize', ['auth_token' => $this->session->getUuid()]);
         }
 
         return $this->render('admin/index.html.twig', [
@@ -91,12 +92,14 @@ class AdminController extends ApiController
         $accountId,
         $termId,
         CourseRepository $courseRepo,
-        UtilityService $util)
+        UtilityService $util,
+        Request $request)
     {
         $apiResponse = new ApiResponse();
         $results = $rows = [];
         $user = $this->getUser();
-        $courses = $courseRepo->findCoursesByAccount($user, $accountId, $termId);
+        $includeSubaccounts = $request->query->get('subaccounts');
+        $courses = $courseRepo->findCoursesByAccount($user, $accountId, $termId, $includeSubaccounts);
         $startDate = new \DateTime('today');
         $endDate = null;
         $oneDay = new \DateInterval('P1D');
@@ -283,7 +286,7 @@ class AdminController extends ApiController
         $user = $this->getUser();
         /** @var \App\Entity\Institution $institution */
         $institution = $user->getInstitution();
-        $clientToken = base64_encode($user->getUsername());
+        $clientToken = $this->session->getUuid();
 
         $metadata = $institution->getMetadata();
         $lang = (!empty($metadata['lang'])) ? $metadata['lang'] : $_ENV['DEFAULT_LANG'];

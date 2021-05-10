@@ -210,7 +210,7 @@ class UtilityService {
         $session = $this->sessionService->getSession();
         $format = $session->get('date_format');
         
-        if (!isset($format)) {
+        if (empty($format)) {
             $format = $_ENV['DATE_FORMAT'];
             $session->set('date_format', $format);
             $this->doctrine->getManager()->flush();

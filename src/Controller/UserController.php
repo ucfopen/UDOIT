@@ -21,6 +21,11 @@ class UserController extends AbstractController
             $user->setRoles($userVals['roles']);
         }
 
+        if (empty($userVals['hasApiKey'])) {
+            $user->setApiKey('');
+            $user->setRefreshToken('');
+        }
+
         $this->getDoctrine()->getManager()->flush();
 
         return $this->json($user);

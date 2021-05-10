@@ -183,7 +183,7 @@ class User implements UserInterface, \Serializable, JsonSerializable
 
     public function setApiKey(?string $apiKey): self
     {
-        $this->apiKey = $this->encryptData($apiKey);
+        $this->apiKey = !empty($apiKey) ? $this->encryptData($apiKey) : '';
 
         return $this;
     }
@@ -247,6 +247,7 @@ class User implements UserInterface, \Serializable, JsonSerializable
     public function jsonSerialize()
     {
         $dateFormat = $_ENV['DATE_FORMAT'];
+        $apiKey = $this->getApiKey();
 
         return [
             'id' => $this->getId(),
@@ -256,6 +257,7 @@ class User implements UserInterface, \Serializable, JsonSerializable
             'roles' => $this->getRoles(),
             'lastLogin' => $this->getLastLogin()->format($dateFormat),
             'created' => $this->getCreated()->format($dateFormat),
+            'hasApiKey' => !empty($apiKey),
             //'institution' => $this->getInstitution(),
         ];
     }

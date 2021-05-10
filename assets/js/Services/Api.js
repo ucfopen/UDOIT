@@ -166,12 +166,16 @@ export default class Api {
         });
     }
 
-    getAdminReportHistory(accountId, termId) {
+    getAdminReportHistory(filters) {
         const authToken = this.getAuthToken();
 
         let url = `${this.apiUrl}${this.endpoints.adminReportHistory}`
-        url = url.replace('{account}', accountId)
-            .replace('{term}', termId)
+        url = url.replace('{account}', filters.accountId)
+            .replace('{term}', filters.termId)
+        
+        if (filters.includeSubaccounts) {
+            url += '?subaccounts=true'
+        }
 
         return fetch(url, {
             method: 'GET',

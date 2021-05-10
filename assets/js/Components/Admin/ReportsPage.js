@@ -94,7 +94,7 @@ class ReportsPage extends React.Component {
 
   getReportHistory() {
     const api = new Api(this.props.settings)
-    api.getAdminReportHistory(this.props.filters.accountId, this.props.filters.termId)
+    api.getAdminReportHistory(this.props.filters)
       .then((responseStr) => responseStr.json())
       .then((response) => {
         if (!Array.isArray(response.data)) {

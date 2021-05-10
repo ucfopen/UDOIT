@@ -47,7 +47,7 @@ class WelcomePage extends React.Component {
     api.updateUser(user)    
       .then((response) => response.json())
       .then((data) => {
-        console.log('user', data)
+        this.props.settings.user = data
       })
 
   }
