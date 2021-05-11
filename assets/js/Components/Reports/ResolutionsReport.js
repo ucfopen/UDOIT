@@ -28,22 +28,22 @@ class ResolutionsReport extends React.Component {
           label: this.props.t('label.content_fixed'),
           data: [],
           fill: false,
-          backgroundColor: '#69C',
-          borderColor: '#69C',
+          backgroundColor: '#00AC18',
+          borderColor: '#00AC18',
         },
         {
           label: this.props.t('label.content_resolved'),
           data: [],
           fill: false,
-          backgroundColor: '#C66',
-          borderColor: '#C66',
+          backgroundColor: '#008EE2',
+          borderColor: '#008EE2',
         },
         {
           label: this.props.t('label.files_reviewed'),
           data: [],
           fill: false,
-          backgroundColor: '#6C6',
-          borderColor: '#6C6',
+          backgroundColor: '#8B969E',
+          borderColor: '#8B969E',
         }
       ]
     }

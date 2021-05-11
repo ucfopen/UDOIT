@@ -62,9 +62,9 @@ class UserSession implements JsonSerializable
         return $this;
     }
 
-    public function get($key)
+    public function get($key, $defaultVal = '')
     {
-        return !empty($this->data[$key]) ? $this->data[$key] : null;
+        return !empty($this->data[$key]) ? $this->data[$key] : $defaultVal;
     }
 
     public function set($key, $val): self

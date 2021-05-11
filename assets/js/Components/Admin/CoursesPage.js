@@ -1,11 +1,8 @@
 import React from 'react';
 import { Button } from '@instructure/ui-buttons'
-import { IconCheckLine, IconInfoBorderlessLine, IconNoLine } from '@instructure/ui-icons'
 import SortableTable from '../SortableTable'
 import ContentPageForm from '../ContentPageForm'
-import AdminTrayForm from './AdminTrayForm'
 import { View } from '@instructure/ui-view'
-import { Tag } from '@instructure/ui-tag'
 import Api from '../../Services/Api'
 import { Link } from '@instructure/ui-link'
 import { Spinner } from '@instructure/ui-spinner';
@@ -29,11 +26,7 @@ class CoursesPage extends React.Component {
     this.filteredIssues = [];
 
     this.state = {
-      trayOpen: false,
       searchTerm: '',
-      filters: {
-        subAccounts: [],
-      },
       tableSettings: {
         sortBy: 'courseName',
         ascending: true,
@@ -41,7 +34,6 @@ class CoursesPage extends React.Component {
       }
     }
 
-    this.handleTrayToggle = this.handleTrayToggle.bind(this);
     this.handleSearchTerm = this.handleSearchTerm.bind(this);
     this.handleTableSettings = this.handleTableSettings.bind(this);
     this.handleFilter = this.handleFilter.bind(this);
@@ -49,10 +41,11 @@ class CoursesPage extends React.Component {
   }
 
   getFilteredContent() {
-    const { filters, searchTerm } = this.state
+    const { searchTerm } = this.state
     const { sortBy, ascending } = this.state.tableSettings 
     const courses = Object.values(this.props.courses)
-    
+    const { filters } = this.props
+
     let filteredList = [];
 
     for (const course of courses) {
@@ -60,10 +53,8 @@ class CoursesPage extends React.Component {
         continue
       }
 
-      if (filters.subAccounts && filters.subAccounts.length > 0) {
-        if (!filters.subAccounts.includes(course.accountId)) {
-          continue
-        }
+      if (!filters.includeSubaccounts && (filters.accountId != course.accountId)) {
+        continue
       }
       
       // Filter by search term
@@ -121,83 +112,37 @@ class CoursesPage extends React.Component {
       <View as="div" key="coursesPageFormWrapper" padding="small 0">
         <ContentPageForm 
           handleSearchTerm={this.handleSearchTerm} 
-          handleTrayToggle={this.handleTrayToggle} 
+          handleTrayToggle={this.props.handleTrayToggle} 
           searchTerm={this.state.searchTerm}
           t={this.props.t} />
         <View as="div" key="filterTags">
-          {this.renderFilterTags()}
+          {this.props.renderFilterTags()}
         </View>
-        <SortableTable
-          caption={this.props.t('srlabel.courses.table')}
-          headers = {this.headers}
-          rows = {filteredRows}
-          filters = {this.state.filters}
-          tableSettings = {this.state.tableSettings}
-          handleFilter = {this.handleFilter}
-          handleTableSettings = {this.handleTableSettings}
-          t={this.props.t}
-        />
-        {this.state.trayOpen && <AdminTrayForm
-          filters={this.state.filters}
-          handleFilter={this.handleFilter}
-          settings={this.props.settings}
-          trayOpen={this.state.trayOpen}
-          handleTrayToggle={this.handleTrayToggle} 
-          t={this.props.t}
-          />}        
+        {(filteredRows.length === 0) ? 
+          <View as="div">{this.props.t('label.admin.no_results')}</View>
+          : 
+          <SortableTable
+            caption={this.props.t('srlabel.courses.table')}
+            headers = {this.headers}
+            rows = {filteredRows}
+            filters = {this.props.filters}
+            tableSettings = {this.state.tableSettings}
+            handleFilter = {this.handleFilter}
+            handleTableSettings = {this.handleTableSettings}
+            t={this.props.t}
+          />        
+        }
       </View>
     )
-  }
-
-  resetFilters() {
-    return {subAccounts:[]};
-  }
-
-  renderFilterTags() {
-    let tags = [];
-
-    const subAccounts = this.props.settings.account.subAccounts
-
-    for (const subAccountId of this.state.filters.subAccounts) {
-      if (subAccounts && subAccounts[subAccountId]) {
-        const id = `subAccounts||${subAccountId}`
-        tags.push({ id: id, label: subAccounts[subAccountId]})
-      }
-    }
-
-    return tags.map((tag) => (
-      <Tag margin="0 small small 0" 
-        text={tag.label} 
-        dismissible={true} 
-        onClick={(e) => this.handleTagClick(tag.id, e)}
-        key={tag.id} />
-    ));
-  }
-
-  handleTagClick(tagId, e) {
-    let [filterType, filterId] = tagId.split('||');
-    let results = null;
-
-    switch (filterType) {
-      case 'subAccounts':
-        results = this.state.filters.subAccounts.filter((val) => filterId !== val);
-        break;
-    }
-
-    this.handleFilter({ [filterType]: results });
   }
 
   handleSearchTerm = (e, val) => {
     this.setState({ searchTerm: val });
   }
 
-  handleTrayToggle = (e, val) => {
-    this.setState({ trayOpen: !this.state.trayOpen });
-  }
-
   handleFilter = (filter) => {
     this.setState({
-      filters: Object.assign({}, this.state.filters, filter),
+      filters: Object.assign({}, this.props.filters, filter),
       tableSettings: {
         sortBy: 'courseName',
         ascending: true,

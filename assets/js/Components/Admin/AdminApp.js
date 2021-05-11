@@ -5,10 +5,11 @@ import CoursesPage from './CoursesPage'
 import ReportsPage from './ReportsPage'
 import SettingsPage from './SettingsPage'
 import UsersPage from './UsersPage'
-import AccountSelect from './AccountSelect'
 import { View } from '@instructure/ui-view'
 import Api from '../../Services/Api'
 import MessageTray from '../MessageTray'
+import AdminTrayForm from '../Admin/AdminTrayForm'
+import { Tag } from '@instructure/ui-tag'
 
 import { Text } from '@instructure/ui-text'
 import { Spinner } from '@instructure/ui-spinner'
@@ -31,25 +32,29 @@ class AdminApp extends React.Component {
       }
     }
     
-
     this.state = {
       courses: {},
-      accountId: this.settings.accountId,
-      termId: this.settings.termId,
+      filters: {
+        accountId: this.settings.accountId,
+        termId: this.settings.termId,
+        includeSubaccounts: true,
+      },
       accountData: [],
       navigation: 'courses',
       modal: null,
       loadingCourses: true,
+      trayOpen: false,
     }
 
     this.handleNavigation = this.handleNavigation.bind(this)
     this.clearMessages = this.clearMessages.bind(this)
     this.addMessage = this.addMessage.bind(this)
     this.t = this.t.bind(this)
-    this.handleAccountSelect = this.handleAccountSelect.bind(this)
-    this.handleTermSelect = this.handleTermSelect.bind(this)
+    this.handleFilter = this.handleFilter.bind(this)
     this.handleCourseUpdate = this.handleCourseUpdate.bind(this)
     this.loadCourses = this.loadCourses.bind(this)
+    this.handleTrayToggle = this.handleTrayToggle.bind(this)
+    this.renderFilterTags = this.renderFilterTags.bind(this)
 
     this.loadCourses(this.settings.accountId, this.settings.termId)
   }
@@ -67,18 +72,6 @@ class AdminApp extends React.Component {
 
         <MessageTray messages={this.messages} t={this.t} clearMessages={this.clearMessages} hasNewReport={true} />
 
-        {(['courses', 'reports'].includes(this.state.navigation)) &&
-          <AccountSelect
-            settings={this.settings}
-            accountId={this.state.accountId}
-            termId={this.state.termId}
-            t={this.t}
-            handleAccountSelect={this.handleAccountSelect}
-            handleTermSelect={this.handleTermSelect}
-            loadCourses={this.loadCourses}
-          />
-        }
-
         {(this.state.loadingCourses) &&
           <View as="div" padding="small 0">
             <View as="div" textAlign="center" padding="medium">
@@ -92,19 +85,25 @@ class AdminApp extends React.Component {
           <CoursesPage
             settings={this.settings}
             t={this.t}
-            accountId={this.state.accountId}
+            filters={this.state.filters}
             courses={this.state.courses}
-            termId={this.state.termId}
             addMessage={this.addMessage}
             handleCourseUpdate={this.handleCourseUpdate}
+            handleFilter={this.handleFilter}
+            loadCourses={this.loadCourses}
+            handleTrayToggle={this.handleTrayToggle}
+            renderFilterTags={this.renderFilterTags}
           />
         }
         {(!this.state.loadingCourses) && ('reports' === this.state.navigation) &&
           <ReportsPage
             t={this.t}
             settings={this.settings}
-            accountId={this.state.accountId}
-            termId={this.state.termId}
+            filters={this.state.filters}
+            handleFilter={this.handleFilter}
+            loadCourses={this.loadCourses}
+            handleTrayToggle={this.handleTrayToggle}
+            renderFilterTags={this.renderFilterTags}
           />
         }
         {(!this.state.loadingCourses) && ('users' === this.state.navigation) &&
@@ -120,6 +119,14 @@ class AdminApp extends React.Component {
             settings={this.settings}
             handleNavigation={this.handlenavigation} />
         }
+        {this.state.trayOpen && <AdminTrayForm
+          filters={this.state.filters}
+          handleFilter={this.handleFilter}
+          settings={this.settings}
+          trayOpen={this.state.trayOpen}
+          handleTrayToggle={this.handleTrayToggle}
+          t={this.t}
+        />}
       </View>
     )
   }
@@ -141,6 +148,7 @@ class AdminApp extends React.Component {
           })
           this.setState({courses})
         }
+
         
         this.setState({loadingCourses: false})
       })
@@ -162,12 +170,12 @@ class AdminApp extends React.Component {
     this.messages = [];
   }
   
-  handleAccountSelect(accountId) {
-    this.setState({accountId})
-  }
-
-  handleTermSelect(termId) {
-    this.setState({termId})
+  handleFilter(newFilter) {
+    const filters = Object.assign(this.state.filters, newFilter)
+    this.setState({ filters }, () => {
+      this.loadCourses(this.state.filters.accountId, this.state.filters.termId, true)
+    })
+    
   }
 
   handleCourseUpdate(course) {
@@ -176,6 +184,44 @@ class AdminApp extends React.Component {
     this.setState({courses})
   }
 
+  handleTrayToggle = (e, val) => {
+    this.setState({ trayOpen: !this.state.trayOpen });
+  }
+
+  renderFilterTags() {
+    let tags = [];
+
+    const subAccounts = this.settings.account.subAccounts
+    const terms = this.settings.terms
+    const selectedAccountId = this.state.filters.accountId
+    const selectedTermId = this.state.filters.termId
+
+    if (selectedAccountId == this.settings.account.id) {
+      const id = `subAccounts||${selectedAccountId}`
+      const label = `${this.t('label.admin.account')}: ${this.settings.account.name}`
+      tags.push({ id: id, label: label })
+    }
+
+    if (subAccounts && subAccounts[selectedAccountId]) {
+      const id = `subAccounts||${selectedAccountId}`
+      const label = `${this.t('label.admin.account')}: ${subAccounts[selectedAccountId]}`
+      tags.push({ id: id, label: label })
+    }
+
+    if (terms && terms[selectedTermId]) {
+      const id = `terms||${selectedTermId}`
+      const label = `${this.t('label.admin.term')}: ${terms[selectedTermId]}`
+      tags.push({ id: id, label: label })
+    }
+
+    return tags.map((tag) => (
+      <Tag margin="0 small small 0"
+        text={tag.label}
+        readOnly={true}
+        dismissible={false}
+        key={tag.id} />
+    ));
+  }
 }
 
 export default AdminApp

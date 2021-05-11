@@ -13,6 +13,7 @@ use App\Services\LmsUserService;
 use App\Services\SessionService;
 use App\Services\UtilityService;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
 class AdminController extends ApiController
@@ -45,7 +46,7 @@ class AdminController extends ApiController
         }
         if (!$lmsUser->validateApiKey($user)) {
             $this->session->set('destination', 'admin');
-            return $this->redirectToRoute('authorize');
+            return $this->redirectToRoute('authorize', ['auth_token' => $this->session->getUuid()]);
         }
 
         return $this->render('admin/index.html.twig', [
@@ -91,12 +92,14 @@ class AdminController extends ApiController
         $accountId,
         $termId,
         CourseRepository $courseRepo,
-        UtilityService $util)
+        UtilityService $util,
+        Request $request)
     {
         $apiResponse = new ApiResponse();
         $results = $rows = [];
         $user = $this->getUser();
-        $courses = $courseRepo->findCoursesByAccount($user, $accountId, $termId);
+        $includeSubaccounts = $request->query->get('subaccounts');
+        $courses = $courseRepo->findCoursesByAccount($user, $accountId, $termId, $includeSubaccounts);
         $startDate = new \DateTime('today');
         $endDate = null;
         $oneDay = new \DateInterval('P1D');
@@ -124,7 +127,9 @@ class AdminController extends ApiController
             }
         }
 
-        $endDate->setTime(23, 59,0);            
+        if ($endDate) {
+            $endDate->setTime(23, 59,0);            
+        }
 
         // Populate all dates with a report
         foreach ($rows as $courseId => $reports) {
@@ -243,7 +248,29 @@ class AdminController extends ApiController
 
         // Construct Response
         return new JsonResponse($apiResponse);        
+    }
 
+    /**
+     * @Route("/api/admin/accounts", methods={"GET"}, name="admin_update_accounts")
+     * 
+     * @return JsonResponse
+     */
+    public function getUpdatedAccounts()
+    {
+        $apiResponse = new ApiResponse();
+
+        $lms = $this->lmsApi->getLms();
+
+        /** @var User $user */
+        $user = $this->getUser();
+
+        if (!($accountId = $this->session->get('lms_account_id'))) {
+            $this->util->exitWithMessage('Account ID not found.');
+        }
+
+        $apiResponse->setData($lms->getAccountData($user, $accountId));
+
+        return $this->json($apiResponse);
     }
 
     /** PROTECTED FUNCTIONS **/
@@ -259,7 +286,7 @@ class AdminController extends ApiController
         $user = $this->getUser();
         /** @var \App\Entity\Institution $institution */
         $institution = $user->getInstitution();
-        $clientToken = base64_encode($user->getUsername());
+        $clientToken = $this->session->getUuid();
 
         $metadata = $institution->getMetadata();
         $lang = (!empty($metadata['lang'])) ? $metadata['lang'] : $_ENV['DEFAULT_LANG'];
