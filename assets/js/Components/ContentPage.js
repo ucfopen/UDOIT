@@ -139,45 +139,48 @@ class ContentPage extends React.Component {
     // Loop through the issues
     issueLoop: for (const [key, value] of Object.entries(issueList)) {
       let issue = Object.assign({}, value)
-      // Check if we are interested in this issue severity, aka "type"
-      if (filters.issueTypes.length !== 0 && !filters.issueTypes.includes(issue.type)) {
-        continue;
-      }
-  
-      // Check if we are interested in issues with this rule title
-      if (filters.issueTitles.length !== 0 && !filters.issueTitles.includes(issue.scanRuleId)) {
-        continue;
-      }
 
-      // Check if we are filtering by issue status
-      if (filters.issueStatus.length !== 0 && !filters.issueStatus.includes(issueStatusKeys[issue.status])) {
-        continue;
-      }
+      if (!this.state.activeIssue || (issue.id !== this.state.activeIssue.id)) {
+        // Check if we are interested in this issue severity, aka "type"
+        if (filters.issueTypes.length !== 0 && !filters.issueTypes.includes(issue.type)) {
+          continue;
+        }
+    
+        // Check if we are interested in issues with this rule title
+        if (filters.issueTitles.length !== 0 && !filters.issueTitles.includes(issue.scanRuleId)) {
+          continue;
+        }
 
-      // Get information about the content the issue refers to
-      var contentItem = this.getContentById(issue.contentItemId);
+        // Check if we are filtering by issue status
+        if (filters.issueStatus.length !== 0 && !filters.issueStatus.includes(issueStatusKeys[issue.status])) {
+          continue;
+        }
 
-      // Check if we are showing unpublished content items
-      if (filters.hideUnpublishedContentItems && !contentItem.status) {
-        continue;
-      }
+        // Get information about the content the issue refers to
+        var contentItem = this.getContentById(issue.contentItemId);
 
-      // Check if we are filtering by content type
-      if (filters.contentTypes.length !== 0 && !filters.contentTypes.includes(contentItem.contentType)) {
-        continue;
-      }
+        // Check if we are showing unpublished content items
+        if (filters.hideUnpublishedContentItems && !contentItem.status) {
+          continue;
+        }
 
-      // Filter by search term
-      if (!issue.keywords) {
-        issue.keywords = this.createKeywords(issue, contentItem);
-      }
-      if (this.state.searchTerm !== '') {
-        const searchTerms = this.state.searchTerm.toLowerCase().split(' ');
-        
-        if (Array.isArray(searchTerms)) {
-          for (let term of searchTerms) {
-            if (!issue.keywords.includes(term)) {
-              continue issueLoop;
+        // Check if we are filtering by content type
+        if (filters.contentTypes.length !== 0 && !filters.contentTypes.includes(contentItem.contentType)) {
+          continue;
+        }
+
+        // Filter by search term
+        if (!issue.keywords) {
+          issue.keywords = this.createKeywords(issue, contentItem);
+        }
+        if (this.state.searchTerm !== '') {
+          const searchTerms = this.state.searchTerm.toLowerCase().split(' ');
+          
+          if (Array.isArray(searchTerms)) {
+            for (let term of searchTerms) {
+              if (!issue.keywords.includes(term)) {
+                continue issueLoop;
+              }
             }
           }
         }
