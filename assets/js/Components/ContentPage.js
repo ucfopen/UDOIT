@@ -1,6 +1,7 @@
 import React from 'react';
 import { Button } from '@instructure/ui-buttons'
 import { IconCheckLine, IconInfoBorderlessLine, IconNoLine } from '@instructure/ui-icons'
+import { Billboard } from '@instructure/ui-billboard'
 import SortableTable from './SortableTable'
 import ContentPageForm from './ContentPageForm'
 import ContentTrayForm from './ContentTrayForm'
@@ -296,6 +297,14 @@ class ContentPage extends React.Component {
           handleManualScan={this.props.handleManualScan}
           t={this.props.t}
           />}
+
+        {filteredRows.length === 0 && 
+            <Billboard
+            size="medium"
+            heading={this.props.t('label.no_results_header')}
+            margin="small"
+            message={this.props.t('label.no_results_message')}
+        />}
       </View>
     )
   }

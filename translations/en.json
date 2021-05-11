@@ -92,6 +92,8 @@
   "label.about": "About UDOIT",
   "label.reports": "Reports",
   "label.report_history": "History",
+  "label.no_results_header": "No results found",
+  "label.no_results_message": "Try changing the filters or searching with a different keyword",
 
   "label.date": "Date",
   "label.content_fixed": "Content Fixed",

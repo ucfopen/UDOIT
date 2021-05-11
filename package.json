@@ -36,6 +36,7 @@
         "@instructure/canvas-theme": "^7.5.0",
         "@instructure/ui-alerts": "^7.5.0",
         "@instructure/ui-badge": "^7.5.0",
+        "@instructure/ui-billboard": "^8.4.0",
         "@instructure/ui-buttons": "^7.5.0",
         "@instructure/ui-checkbox": "^7.5.0",
         "@instructure/ui-code-editor": "^7.5.0",
