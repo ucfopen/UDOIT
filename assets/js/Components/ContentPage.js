@@ -140,6 +140,9 @@ class ContentPage extends React.Component {
     issueLoop: for (const [key, value] of Object.entries(issueList)) {
       let issue = Object.assign({}, value)
 
+      // Get information about the content the issue refers to
+      var contentItem = this.getContentById(issue.contentItemId);
+
       if (!this.state.activeIssue || (issue.id !== this.state.activeIssue.id)) {
         // Check if we are interested in this issue severity, aka "type"
         if (filters.issueTypes.length !== 0 && !filters.issueTypes.includes(issue.type)) {
@@ -155,9 +158,6 @@ class ContentPage extends React.Component {
         if (filters.issueStatus.length !== 0 && !filters.issueStatus.includes(issueStatusKeys[issue.status])) {
           continue;
         }
-
-        // Get information about the content the issue refers to
-        var contentItem = this.getContentById(issue.contentItemId);
 
         // Check if we are showing unpublished content items
         if (filters.hideUnpublishedContentItems && !contentItem.status) {
