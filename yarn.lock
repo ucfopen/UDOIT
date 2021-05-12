@@ -2243,7 +2243,7 @@
     "@instructure/ui-svg-images" "^7.5.0"
     prop-types "^15"
 
-"@instructure/ui-img@8.4.0", "@instructure/ui-img@^8.4.0":
+"@instructure/ui-img@8.4.0":
   version "8.4.0"
   resolved "https://registry.yarnpkg.com/@instructure/ui-img/-/ui-img-8.4.0.tgz#b4f24b8f02b8857c7ff02a81b7e39962e52edcb6"
   integrity sha512-2Qav9M3lSHbQiHdh0ZDcZ08mni0XLlKorYWVLpwEDYuqrO4SvqB4ECpJerwX8LeozLxJH0V+K4u0TvnHYs902g==
