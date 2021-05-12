@@ -13,11 +13,11 @@ import { IconInfoBorderlessLine, IconNoLine } from '@instructure/ui-icons'
 const contentTypes = [
   "announcement",
   "assignment",
-  "file",
-  "page",
   "discussion",
-  "syllabus",
-  "moduleUrl"
+  "file",
+  "moduleUrl",
+  "page",
+  "syllabus"
 ]
 
 class SummaryPage extends React.Component {
