@@ -2,7 +2,7 @@ import React from 'react'
 import { View } from '@instructure/ui-view'
 import { TextInput } from '@instructure/ui-text-input'
 import { Button } from '@instructure/ui-buttons'
-import { Alert } from '@instructure/ui-alerts'
+import { IconCheckMarkLine } from '@instructure/ui-icons'
 import { Checkbox } from '@instructure/ui-checkbox'
 import { Spinner } from '@instructure/ui-spinner'
 import Html from '../../Services/Html'
@@ -12,10 +12,12 @@ export default class AnchorText extends React.Component {
   constructor(props) {
     super(props)
 
+    const html = (props.activeIssue.newHtml) ? props.activeIssue.newHtml : props.activeIssue.sourceHtml
+
     this.state = {
-      textInputValue: Html.getInnerText(props.activeIssue.sourceHtml),
+      textInputValue: Html.getInnerText(html),
       textInputErrors: [],
-      deleteLink: false,
+      deleteLink: (!props.activeIssue.newHtml && (props.activeIssue.status === 1)), // newHtml is empty (deleted) and status is fixed
     }
 
     this.formErrors = []
@@ -31,7 +33,7 @@ export default class AnchorText extends React.Component {
       this.setState({
         textInputValue: Html.getInnerText(html),
         textInputErrors: [],
-        deleteLink: false,
+        deleteLink: (!this.props.activeIssue.newHtml && (this.props.activeIssue.status === 1)),
       })
     }
   }
@@ -100,6 +102,12 @@ export default class AnchorText extends React.Component {
             {('1' == pending) && <Spinner size="x-small" renderTitle={this.props.t(buttonLabel)} />}
             {this.props.t(buttonLabel)}
           </Button>
+          {this.props.activeIssue.recentlyUpdated &&
+            <View margin="0 small">
+              <IconCheckMarkLine color="success" />
+              <View margin="0 x-small">{this.props.t('label.fixed')}</View>
+            </View>
+          }
         </View>
       </View>
     );
