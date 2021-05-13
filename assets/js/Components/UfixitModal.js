@@ -232,16 +232,16 @@ class UfixitModal extends React.Component {
                     {activeIssue.status && !activeIssue.pending &&
                       <InlineList.Item>
                         {('1' == activeIssue.status) &&
-                          <View margin="0 small">
+                          <Pill color="success" margin="0 small">
                             <IconCheckMarkLine color="success" />
                             <View margin="0 x-small">{this.props.t('label.fixed')}</View>
-                          </View>
+                          </Pill>
                         }
                         {('2' == activeIssue.status) &&
-                          <View margin="0 small">
+                          <Pill color="info" margin="0 small">
                             <IconCheckMarkLine color="brand" />
                             <View margin="0 x-small">{this.props.t('label.resolved')}</View>
-                          </View>
+                          </Pill>
                         }
                       </InlineList.Item>
                     }
@@ -371,6 +371,7 @@ class UfixitModal extends React.Component {
           if (response.data.issue) {
             const newIssue = {...issue, ...response.data.issue}
             newIssue.pending = false
+            newIssue.recentlyUpdated = true
 
             // update activeIssue
             this.props.handleActiveIssue(newIssue)

@@ -1,6 +1,7 @@
 import React from 'react'
 import { Checkbox } from '@instructure/ui-checkbox';
 import { View } from '@instructure/ui-view'
+import { IconCheckMarkLine } from '@instructure/ui-icons'
 import { Text } from '@instructure/ui-text'
 import { TextArea } from '@instructure/ui-text-area'
 import { Button } from '@instructure/ui-buttons'
@@ -16,10 +17,12 @@ export default class AltText extends React.Component {
 
     let altText = Html.getAttribute(this.props.activeIssue.sourceHtml, "alt")
     altText = (typeof altText === 'string') ? altText : ''
+    
+    const html = (this.props.activeIssue.newHtml) ? this.props.activeIssue.newHtml : this.props.activeIssue.sourceHtml
 
     this.state = {
       textInputValue: altText,
-      isDecorative: this.elementIsDecorative(this.props.activeIssue.sourceHtml),
+      isDecorative: (this.elementIsDecorative(html) === 'true'),
       characterCount: altText.length,
       textInputErrors: []
     }
@@ -39,11 +42,31 @@ export default class AltText extends React.Component {
 
       this.setState({
         textInputValue: altText,
-        isDecorative: this.elementIsDecorative(html),
+        isDecorative: (this.elementIsDecorative(html) === 'true'),
         characterCount: altText.length,
         textInputErrors: [],
       })
     }
+  }
+
+  handleHtmlUpdate() {
+    const html = (this.props.activeIssue.newHtml) ? this.props.activeIssue.newHtml : this.props.activeIssue.sourceHtml
+    let element = Html.toElement(html)
+
+    if (this.state.isDecorative) {
+      element = Html.setAttribute(element, "data-decorative", "true")
+      element = Html.addClass(element, 'phpally-ignore')
+      element = Html.setAttribute(element, 'alt', '')
+    } else {
+      element = Html.removeAttribute(element, "data-decorative")
+      element = Html.removeClass(element, 'phpally-ignore')
+      element = Html.setAttribute(element, "alt", this.state.textInputValue)
+    }
+
+    let issue = this.props.activeIssue
+    issue.newHtml = Html.toString(element)
+    this.props.handleActiveIssue(issue)
+  
   }
 
   handleButton() {
@@ -55,27 +78,11 @@ export default class AltText extends React.Component {
       this.checkForFileExtensions()
       this.checkFileName()
     }
-
+    
     if (this.formErrors.length > 0) {
       this.setState({ textInputErrors: this.formErrors })
     } else {
-      const html = (this.props.activeIssue.newHtml) ? this.props.activeIssue.newHtml : this.props.activeIssue.sourceHtml
-      let element = Html.toElement(html)
-
-      if (this.state.isDecorative) {
-        element = Html.setAttribute(element, "data-decorative", "true")
-        element = Html.addClass(element, 'phpally-ignore')
-        element = Html.setAttribute(element, 'alt', '')
-      } else {
-        element = Html.removeAttribute(element, "data-decorative")
-        element = Html.removeClass(element, 'phpally-ignore')
-        element = Html.setAttribute(element, "alt", this.state.textInputValue)
-      }
-
-      let issue = this.props.activeIssue
-      issue.newHtml = Html.toString(element)
-
-      this.props.handleIssueSave(issue)
+      this.props.handleIssueSave(this.props.activeIssue)
     }
   }
 
@@ -83,13 +90,13 @@ export default class AltText extends React.Component {
     this.setState({
       textInputValue: event.target.value,
       characterCount: event.target.value.length
-    })
+    }, () => this.handleHtmlUpdate())
   }
 
   handleCheckbox() {
     this.setState({
       isDecorative: !this.state.isDecorative
-    })
+    }, () => this.handleHtmlUpdate())
   }
 
   checkTextNotEmpty() {
@@ -126,7 +133,7 @@ export default class AltText extends React.Component {
     const decorativeAttribute = Html.getAttribute(htmlString, "data-decorative")
     const classes = Html.getClasses(htmlString)
 
-    if (Html.getTagName(htmlString) !== 'img') {
+    if (Html.getTagName(htmlString) !== 'IMG') {
       return false
     }
 
@@ -166,6 +173,12 @@ export default class AltText extends React.Component {
             {('1' == pending) && <Spinner size="x-small" renderTitle={this.props.t(buttonLabel)} />}
             {this.props.t(buttonLabel)}
           </Button>
+          {this.props.activeIssue.recentlyUpdated &&
+            <View margin="0 small">
+              <IconCheckMarkLine color="success" />
+              <View margin="0 x-small">{this.props.t('label.fixed')}</View>
+            </View>
+          }
         </View>
       </View>
     );
