@@ -23,9 +23,9 @@ class ContentPage extends React.Component {
     this.filteredIssues = [];
     this.headers = [
       {id: "status", text: '', alignText: "center"},
-      {id: "scanRuleLabel", text: this.props.t('label.issue')}, 
-      {id: "contentType", text: this.props.t('label.header.type')}, 
-      {id: "contentTitle", text: this.props.t('label.header.title')}, 
+      { id: "contentTitle", text: this.props.t('label.header.title') },
+      { id: "contentType", text: this.props.t('label.header.type') },
+      { id: "scanRuleLabel", text: this.props.t('label.issue') },
       {id: "action", text: "", alignText: "end"}
     ];
 
@@ -40,10 +40,10 @@ class ContentPage extends React.Component {
         issueTypes: [],
         issueTitles: [],
         issueStatus: ['active'],
-        hideUnpublishedContentItems: true,
+        hideUnpublishedContentItems: false,
       },
       tableSettings: {
-        sortBy: 'scanRuleLabel',
+        sortBy: 'contentTitle',
         ascending: true,
         pageNum: 0,
       }
@@ -140,47 +140,47 @@ class ContentPage extends React.Component {
     issueLoop: for (const [key, value] of Object.entries(issueList)) {
       let issue = Object.assign({}, value)
 
-      if (!this.state.activeIssue || (issue.id !== this.state.activeIssue.id)) {
-        // Check if we are interested in this issue severity, aka "type"
-        if (filters.issueTypes.length !== 0 && !filters.issueTypes.includes(issue.type)) {
-          continue;
-        }
-    
-        // Check if we are interested in issues with this rule title
-        if (filters.issueTitles.length !== 0 && !filters.issueTitles.includes(issue.scanRuleId)) {
-          continue;
-        }
+      // Check if we are interested in this issue severity, aka "type"
+      if (filters.issueTypes.length !== 0 && !filters.issueTypes.includes(issue.type)) {
+        continue;
+      }
+  
+      // Check if we are interested in issues with this rule title
+      if (filters.issueTitles.length !== 0 && !filters.issueTitles.includes(issue.scanRuleId)) {
+        continue;
+      }
 
-        // Check if we are filtering by issue status
+      // Check if we are filtering by issue status
+      if (!issue.recentlyUpdated) {
         if (filters.issueStatus.length !== 0 && !filters.issueStatus.includes(issueStatusKeys[issue.status])) {
           continue;
         }
+      }
 
-        // Get information about the content the issue refers to
-        var contentItem = this.getContentById(issue.contentItemId);
+      // Get information about the content the issue refers to
+      var contentItem = this.getContentById(issue.contentItemId)
 
-        // Check if we are showing unpublished content items
-        if (filters.hideUnpublishedContentItems && !contentItem.status) {
-          continue;
-        }
+      // Check if we are showing unpublished content items
+      if (filters.hideUnpublishedContentItems && !contentItem.status) {
+        continue;
+      }
 
-        // Check if we are filtering by content type
-        if (filters.contentTypes.length !== 0 && !filters.contentTypes.includes(contentItem.contentType)) {
-          continue;
-        }
+      // Check if we are filtering by content type
+      if (filters.contentTypes.length !== 0 && !filters.contentTypes.includes(contentItem.contentType)) {
+        continue;
+      }
 
-        // Filter by search term
-        if (!issue.keywords) {
-          issue.keywords = this.createKeywords(issue, contentItem);
-        }
-        if (this.state.searchTerm !== '') {
-          const searchTerms = this.state.searchTerm.toLowerCase().split(' ');
-          
-          if (Array.isArray(searchTerms)) {
-            for (let term of searchTerms) {
-              if (!issue.keywords.includes(term)) {
-                continue issueLoop;
-              }
+      // Filter by search term
+      if (!issue.keywords) {
+        issue.keywords = this.createKeywords(issue, contentItem);
+      }
+      if (this.state.searchTerm !== '') {
+        const searchTerms = this.state.searchTerm.toLowerCase().split(' ');
+        
+        if (Array.isArray(searchTerms)) {
+          for (let term of searchTerms) {
+            if (!issue.keywords.includes(term)) {
+              continue issueLoop;
             }
           }
         }

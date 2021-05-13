@@ -245,7 +245,7 @@
   "rule.label.BlinkIsNotUsed": "Blink Tag Should Not Be Used",
   "rule.label.ContentTooLong": "Content Length Should Not Exceed 3000 Words",
   "rule.label.CssTextHasContrast": "Insufficient Text Color Contrast With the Background",
-  "rule.label.CssTextStyleEmphasize": "Css Text Style Emphasized",
+  "rule.label.CssTextStyleEmphasize": "Avoid Using Color Alone for Emphasis",
   "rule.label.DocumentReadingDirection": "Document Reading Direction",
   "rule.label.EmbedHasAssociatedNoEmbed": "Embed Has Associated No Embed",
   "rule.label.FontIsNotUsed": "Font Tag Should Not Be Used",
@@ -280,7 +280,7 @@
   "rule.desc.BaseFontIsNotUsed": "<p>The <code>basefont</code> tag is deprecated and should not be used. Investigate using stylesheets instead.</p>",
   "rule.desc.BlinkIsNotUsed": "<p>The <code>blink</code> tag should not be used. Ever.</p>",
   "rule.desc.ContentTooLong": "<p>For content longer than 3000 words, consider splitting it up into multiple documents. This makes it easier for students to process and retain the information.</p>",
-  "rule.desc.CssTextHasContrast": " <p>Text color should be easily viewable and should not be the only indicator of meaning or function. Color balance should have at least a 4.5:1 ratio for small text and 3:1 ratio for large text. Warning: using UFIXIT to fix one section of text may invalidate the contrast in nested sections of text that are not the same color.</p>",
+  "rule.desc.CssTextHasContrast": " <p>Text color should be easily viewable and should not be the only indicator of meaning or function. Color balance should have at least a 4.5:1 ratio for small text and 3:1 ratio for large text. Warning: using UDOIT to fix one section of text may invalidate the contrast in nested sections of text that are not the same color.</p>",
   "rule.desc.CssTextStyleEmphasize": "<p>When emphasizing text, you may use color with sufficient contrast as long as you also apply some other form of emphasis, such as bold or italics. This ensures that screen reader users are aware of the text's importance.</p>",
   "rule.desc.DocumentReadingDirection": "<p>Changes in text direction in inline content should be indicated using any HTML element (for example, <code>span</code>) with a 'dir' attribute indicating left-to-right or right-to-left. For example, a Hebrew phrase within an english paragraph should have it's own text direction indicated.</p>",
   "rule.desc.EmbedHasAssociatedNoEmbed": "<p>Because some users cannot use the <code>embed</code> element, provide alternative content in a <code>noembed</code> element.</p>",
@@ -289,9 +289,9 @@
   "rule.desc.ImageAltIsDifferent": "<p>Alternative Text (Alt Text) is an alternative (non-visual) way to describe the meaning of an image. Please provide a brief description of the image for a <a href='http://en.wikipedia.org/wiki/Screen_reader'>screen reader</a> user. Note: It should not be the image file name.</p>",
   "rule.desc.ImageAltIsTooLong": "<p>Alternative Text (Alt Text) is an alternative (non-visual) way to describe the meaning of an image. Please provide a brief description of the image for a <a href='http://en.wikipedia.org/wiki/Screen_reader'>screen reader</a> user. Note: It should not be the image file name.</p>",
   "rule.desc.ImageAltNotEmptyInAnchor": "<p>Alternative Text (Alt Text) is an alternative (non-visual) way to describe the meaning of an image. Please provide a brief description of the image for a <a href='http://en.wikipedia.org/wiki/Screen_reader'>screen reader</a> user. Note: It should not be the image file name.</p>",
-  "rule.desc.ImageAltNotPlaceholder": "<p>Any image that is not used decorativey or which is purely for layout purposes cannot have an 'alt' attribute that consists solely of placeholders. Placeholders include:</p><ul><li>nbsp</li><li>&amp;nbsp;</li><li>spacer</li><li>image</li><li>img</li><li>photo</li></ul></p>",
+  "rule.desc.ImageAltNotPlaceholder": "<p>Any image that is not used decoratively or which is purely for layout purposes cannot have an 'alt' attribute that consists solely of placeholders. Placeholders include:</p><ul><li>nbsp</li><li>&amp;nbsp;</li><li>spacer</li><li>image</li><li>img</li><li>photo</li></ul></p>",
   "rule.desc.ImageHasAlt": "<p>Alternative Text (Alt Text) is an alternative (non-visual) way to describe the meaning of an image. Please provide a brief description of the image for a <a href='http://en.wikipedia.org/wiki/Screen_reader'>screen reader</a> user. Note: It should not be the image file name.</p>",
-  "rule.desc.ImageHasAltDecorative": "<p>This image was marked as decorative in the Rich Content Editor, but the ALT attribute contains text. Please remove the alternative text.</p>",
+  "rule.desc.ImageHasAltDecorative": "<p>This image was marked as decorative in the Rich Content Editor, but the ALT attribute contains text. Please remove the alternative text or the decorative marking.</p>",
   "rule.desc.ImageHasLongDescription": "<p>Any image that has an 'alt' attribute that does not fully convey the meaning of the image should have a 'longdesc' attribute.</p>",
   "rule.desc.InputImageNotDecorative": "<p>Every form image button which has text within the image (say, a picture of the word 'Search' in a special font), should have the same text within the 'alt' attribute.</p>",
   "rule.desc.MarqueeIsNotUsed": "<p>The <code>marquee</code> element is difficult for users to read and is not a standard HTML element. Try to find another way to convey the importance of this text.</p>",
@@ -331,7 +331,7 @@
         "errors": [
           {
             "error": "Links should contain text",
-            "description": "Because many users of <a href=\"https://en.wikipedia.org/wiki/Screen_reader\">screen readers</a> use links to navigate the page, providing links with no text (or with images that have empty \"alt\" attributes and no other readable text) hinders these users.",
+            "description": "Because many users of <a href=\"https://en.wikipedia.org/wiki/Screen_reader\">screen readers</a> use links to navigate the page, providing links with no text (or with images that have empty \"alt\" attributes and no other readable text) hinders these users. Please add text to the link or remove the link completely. Please add text to the link or remove the link completely.",
             "resources": [
               "<a href=\"https://guides.instructure.com/m/4152/l/719751\">Canvas Tutorial</a>",
               "<a href=\"https://www.w3.org/TR/UNDERSTANDING-WCAG20/navigation-mechanisms.html\">WCAG Guidelines</a>",
@@ -435,7 +435,7 @@
           },
           {
             "error": "Insufficient text color contrast with the background",
-            "description": "Text color should be easily viewable and should not be the only indicator of meaning or function. Color balance should have at least a 4.5:1 ratio. Warning: using UFIXIT to fix one section of text may invalidate the contrast in nested sections of text that are not the same color.",
+            "description": "Text color should be easily viewable and should not be the only indicator of meaning or function. Color balance should have at least a 4.5:1 ratio. Warning: using UDOIT to fix one section of text may invalidate the contrast in nested sections of text that are not the same color.",
             "resources": [
               "<a href=\"https://webaim.org/blog/wcag-2-0-and-link-colors/\">WebAIM: WCAG 2.0 and Link Colors</a>",
               "<a href=\"https://www.w3.org/TR/WCAG20/#visual-audio-contrast-contrast\">WCAG Standard: 1.4.3</a>"

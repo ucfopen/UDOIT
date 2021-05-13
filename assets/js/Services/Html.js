@@ -26,6 +26,10 @@ class Html {
       element = this.toElement(element)
     }
 
+    if (!element) {
+      return ''
+    }
+    
     // TODO: add logic that looks for multiple text nodes, factors in children elements, etc
     return element.innerText
   }
