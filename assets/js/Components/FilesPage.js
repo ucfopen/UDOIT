@@ -293,6 +293,10 @@ class FilesPage extends React.Component {
   }
 
   formatFileSize(size) {
+    if (!size) {
+      return 'N/A'
+    }
+    
     size = Number(size);
     if (size > 1000000) {
       return (Math.round(size / 100000) / 10) + ' MB';

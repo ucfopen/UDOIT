@@ -4,6 +4,7 @@ import { View } from '@instructure/ui-view'
 import { Button } from '@instructure/ui-buttons'
 import { Spinner } from '@instructure/ui-spinner'
 import { SimpleSelect } from '@instructure/ui-simple-select'
+import { IconCheckMarkLine } from '@instructure/ui-icons'
 import Html from '../../Services/Html';
 
 
@@ -11,49 +12,45 @@ export default class HeadingStyleForm extends React.Component {
     constructor(props) {
         super(props)
 
-        let element = Html.toElement(this.props.activeIssue.sourceHtml)
+        const html = Html.getIssueHtml(this.props.activeIssue)
 
+        let element = Html.toElement(html)
         this.tagName = Html.getTagName(element)
         this.styleTags = ["STRONG", "B", "I", "EM", "MARK", "SMALL", "DEL", "INS", "SUB", "SUP"]
 
         this.state = {
-            codeInputValue: element.innerHTML,
-            textInputValue: element.innerText,
             selectedValue: (this.tagName.startsWith('H')) ? this.tagName : '',
-            removeStyling: false,
-            useHtmlEditor: false,
+            removeStyling: !this.hasStyling(),
             textInputErrors: []
         }
 
         this.formErrors = []
 
-        this.handleTextInput = this.handleTextInput.bind(this)
         this.handleSelect = this.handleSelect.bind(this)
         this.handleSubmit = this.handleSubmit.bind(this)
         this.handleCheckbox = this.handleCheckbox.bind(this)
-        // this.handleToggle = this.handleToggle.bind(this)
     }
 
     componentDidUpdate(prevProps, prevState) {
         if (prevProps.activeIssue !== this.props.activeIssue) {
-            const html = (this.props.activeIssue.newHtml) ? this.props.activeIssue.newHtml : this.props.activeIssue.sourceHtml
-            let element = Html.toElement(html)
+            let html = (this.props.activeIssue.newHtml) ? this.props.activeIssue.newHtml : this.props.activeIssue.sourceHtml
+            
+            if (this.props.activeIssue.status === '1') {
+                html = this.props.activeIssue.newHtml
+            }
 
+            let element = Html.toElement(html)
             this.tagName = Html.getTagName(element)
         
-            this.state = {
-                codeInputValue: element.innerHTML,
-                textInputValue: element.innerText,
+            this.setState({
                 selectedValue: (this.tagName.startsWith('H')) ? this.tagName : '',
-                removeStyling: false,
-                useHtmlEditor: false,
+                removeStyling: !this.hasStyling(),
                 textInputErrors: []
-            }
+            })
 
             this.formErrors = []
         }
     }
-
 
     handleCheckbox() {
         this.setState({
@@ -64,17 +61,6 @@ export default class HeadingStyleForm extends React.Component {
             this.props.handleActiveIssue(issue)
         })
     }
-
-    handleTextInput(event) {
-        this.setState({
-            textInputValue: event.target.value
-        }, () => {
-            let issue = this.props.activeIssue
-            issue.newHtml = this.processHtml()
-            this.props.handleActiveIssue(issue)
-        })
-    }
-
     
     handleSelect = (e, { id, value }) => {
         this.formErrors = []
@@ -97,12 +83,9 @@ export default class HeadingStyleForm extends React.Component {
         if (this.formErrors.length > 0) {
             this.setState({ textInputErrors: this.formErrors })
         } 
-        
         else {
             this.setState({ textInputErrors: []})
-            let issue = this.props.activeIssue
-            issue.newHtml = this.processHtml()
-            this.props.handleIssueSave(issue)
+            this.props.handleIssueSave(this.props.activeIssue)
         }
     }
 
@@ -114,7 +97,8 @@ export default class HeadingStyleForm extends React.Component {
 
     processHtml() {
         let newHeader
-        const element = Html.toElement(this.props.activeIssue.sourceHtml)
+        const html = Html.getIssueHtml(this.props.activeIssue)
+        const element = Html.toElement(html)
 
         if (this.state.selectedValue) {
             newHeader = document.createElement(this.state.selectedValue)
@@ -125,7 +109,7 @@ export default class HeadingStyleForm extends React.Component {
             }
         }
         else {
-            newHeader = element
+            newHeader = Html.toElement(this.props.activeIssue.sourceHtml)
 
             if (this.state.removeStyling) {
                 for (let styleTag of this.styleTags) {
@@ -135,6 +119,19 @@ export default class HeadingStyleForm extends React.Component {
         }
 
         return Html.toString(newHeader)
+    }
+
+    hasStyling() {
+        const html = Html.getIssueHtml(this.props.activeIssue)
+        let element = Html.toElement(html)
+
+        for (const styleTag of this.styleTags) {
+            if (Html.hasTag(element, styleTag)) {
+                return true
+            }
+        }
+
+        return false
     }
 
     render() {
@@ -173,13 +170,22 @@ export default class HeadingStyleForm extends React.Component {
                 </View>
 
                 <View as="div" margin="small 0">
-                    <Checkbox label={this.props.t('form.heading.remove_styling')} onChange={this.handleCheckbox} checked={this.state.removeStyling}/>
+                    <Checkbox label={this.props.t('form.heading.remove_styling')} 
+                        onChange={this.handleCheckbox} 
+                        checked={this.state.removeStyling}
+                        />
                 </View>
                 <View as="div" margin="small 0">
                     <Button color="primary" onClick={this.handleSubmit} interaction={(!pending) ? 'enabled' : 'disabled'}>
                         {pending && <Spinner size="x-small" renderTitle={buttonLabel} />}
                         {this.props.t(buttonLabel)}
                     </Button>
+                    {this.props.activeIssue.recentlyUpdated &&
+                        <View margin="0 small">
+                            <IconCheckMarkLine color="success" />
+                            <View margin="0 x-small">{this.props.t('label.fixed')}</View>
+                        </View>
+                    }
                 </View>
             </View>
         );

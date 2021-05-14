@@ -29,7 +29,7 @@ class Html {
     if (!element) {
       return ''
     }
-    
+
     // TODO: add logic that looks for multiple text nodes, factors in children elements, etc
     return element.innerText
   }
@@ -182,6 +182,20 @@ class Html {
     return element
   }
 
+  hasTag(element, tagName) {
+    if ('string' === typeof element) {
+      element = this.toElement(element)
+    }
+
+    if (!element) {
+      return false
+    }
+
+    const outerTag = `<${tagName.toLowerCase()}>`
+    
+    return element.innerHTML.toLowerCase().includes(outerTag)
+  }
+
   renameElement(element, newName) {
     if ('string' === typeof element) {
       element = this.toElement(element)
@@ -258,6 +272,15 @@ class Html {
     }
 
     return nodes    
+  }
+
+  getIssueHtml(issue)
+  {
+    if (issue.status === '1') {
+      return issue.newHtml
+    }
+
+    return (issue.newHtml) ? issue.newHtml : issue.sourceHtml
   }
 }
 

@@ -228,7 +228,7 @@ export default class ContrastForm extends React.Component {
 
   updatePreview() {
     let issue = this.props.activeIssue
-    let html = (issue.newHtml) ? issue.newHtml : issue.sourceHtml
+    const html = Html.getIssueHtml(this.props.activeIssue)
     let ratio = Contrast.contrastRatio(this.state.backgroundColor, this.state.textColor)
     let tagName = Html.toElement(html).tagName
     let largeTextTags = this.props.t('form.contrast.large_text_tags')
@@ -257,7 +257,7 @@ export default class ContrastForm extends React.Component {
   {
     const issue = this.props.activeIssue
     const metadata = (issue.metadata) ? JSON.parse(issue.metadata) : {}
-    const html = (issue.newHtml) ? issue.newHtml : issue.sourceHtml
+    const html = Html.getIssueHtml(this.props.activeIssue)
     const element = Html.toElement(html)
     
     console.log('weight', element.style.fontWeight)
@@ -269,7 +269,7 @@ export default class ContrastForm extends React.Component {
   {
     const issue = this.props.activeIssue
     const metadata = (issue.metadata) ? JSON.parse(issue.metadata) : {}
-    const html = (issue.newHtml) ? issue.newHtml : issue.sourceHtml
+    const html = Html.getIssueHtml(this.props.activeIssue)
     const element = Html.toElement(html)
     
     console.log('style', element.style.fontStyle)
@@ -281,7 +281,7 @@ export default class ContrastForm extends React.Component {
   {
     const issue = this.props.activeIssue
     const metadata = (issue.metadata) ? JSON.parse(issue.metadata) : {}
-    const html = (issue.newHtml) ? issue.newHtml : issue.sourceHtml
+    const html = Html.getIssueHtml(this.props.activeIssue)
     const element = Html.toElement(html)
 
     if (element.style.backgroundColor) {
@@ -296,7 +296,7 @@ export default class ContrastForm extends React.Component {
   {
     const issue = this.props.activeIssue
     const metadata = (issue.metadata) ? JSON.parse(issue.metadata) : {}
-    const html = (issue.newHtml) ? issue.newHtml : issue.sourceHtml
+    const html = Html.getIssueHtml(this.props.activeIssue)
     const element = Html.toElement(html)
 
     if (element.style.color) {

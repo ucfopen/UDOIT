@@ -4,47 +4,48 @@ import { View } from '@instructure/ui-view'
 import { TextInput } from '@instructure/ui-text-input'
 import { Button } from '@instructure/ui-buttons'
 import { Spinner } from '@instructure/ui-spinner'
+import { IconCheckMarkLine } from '@instructure/ui-icons'
 import Html from '../../Services/Html';
 
 
 export default class HeadingEmptyForm extends React.Component {
     constructor(props) {
         super(props)
+        let html = (this.props.activeIssue.newHtml) ? this.props.activeIssue.newHtml : this.props.activeIssue.sourceHtml
 
-        let element = Html.toElement(this.props.activeIssue.sourceHtml)
+        if (this.props.activeIssue.status === '1') {
+            html = this.props.activeIssue.newHtml
+        }
 
-        this.tagName = Html.getTagName(element)
+        let element = Html.toElement(html)
 
         this.state = {
-            codeInputValue: element.innerHTML,
-            textInputValue: element.innerText,
-            deleteHeader: false,
-            useHtmlEditor: false,
+            textInputValue: (element) ? element.innerText : '',
+            deleteHeader: (!element && (this.props.activeIssue.status === '1')),
             textInputErrors: []
         }
 
         this.formErrors = []
 
-        this.handleCodeInput = this.handleCodeInput.bind(this)
         this.handleTextInput = this.handleTextInput.bind(this)
         this.handleSubmit = this.handleSubmit.bind(this)
         this.handleCheckbox = this.handleCheckbox.bind(this)
-        // this.handleToggle = this.handleToggle.bind(this)
     }
 
     componentDidUpdate(prevProps, prevState) {
         if (prevProps.activeIssue !== this.props.activeIssue) {
-            const html = (this.props.activeIssue.newHtml) ? this.props.activeIssue.newHtml : this.props.activeIssue.sourceHtml
-            let element = Html.toElement(html)
+            let html = (this.props.activeIssue.newHtml) ? this.props.activeIssue.newHtml : this.props.activeIssue.sourceHtml
 
-            this.tagName = Html.getTagName(element)
-        
-            this.state = {
-                codeInputValue: element.innerHTML,
-                textInputValue: element.innerText,
-                deleteHeader: false,
-                // useHtmlEditor: false
+            if (this.props.activeIssue.status === 1) {
+                html = this.props.activeIssue.newHtml
             }
+
+            let element = Html.toElement(html)
+        
+            this.setState({
+                textInputValue: (element) ? element.innerText : '',
+                deleteHeader: (!element && (this.props.activeIssue.status === 1)),
+            })
 
             this.formErrors = []
         }
@@ -54,16 +55,6 @@ export default class HeadingEmptyForm extends React.Component {
     handleCheckbox() {
         this.setState({
             deleteHeader: !this.state.deleteHeader
-        }, () => {
-            let issue = this.props.activeIssue
-            issue.newHtml = this.processHtml()
-            this.props.handleActiveIssue(issue)
-        })
-    }
-
-    handleCodeInput(value) {
-        this.setState({
-            codeInputValue: value
         }, () => {
             let issue = this.props.activeIssue
             issue.newHtml = this.processHtml()
@@ -110,17 +101,14 @@ export default class HeadingEmptyForm extends React.Component {
     }
 
     processHtml() {
-        if(this.state.deleteHeader) {
-            return ''
+        const html = (this.props.activeIssue.newHtml) ? this.props.activeIssue.newHtml : this.props.activeIssue.sourceHtml
+        const { textInputValue, deleteHeader } = this.state
+
+        if (deleteHeader) {
+            return '';
         }
 
-        let newHeader = document.createElement(this.tagName)
-        // let newHtml = (this.state.useHtmlEditor) ? this.state.codeInputValue : this.state.textInputValue
-        let newHtml = this.state.textInputValue
-
-        newHeader = Html.setInnerText(newHeader, this.state.textInputValue)
-        
-        return Html.toString(newHeader)
+        return Html.toString(Html.setInnerText(html, textInputValue))
     }
 
     render() {
@@ -151,6 +139,12 @@ export default class HeadingEmptyForm extends React.Component {
                         {pending && <Spinner size="x-small" renderTitle={buttonLabel} />}
                         {this.props.t(buttonLabel)}
                     </Button>
+                    {this.props.activeIssue.recentlyUpdated &&
+                        <View margin="0 small">
+                            <IconCheckMarkLine color="success" />
+                            <View margin="0 x-small">{this.props.t('label.fixed')}</View>
+                        </View>
+                    }
                 </View>
             </View>
         );
