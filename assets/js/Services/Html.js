@@ -205,22 +205,17 @@ class Html {
       return null
     }
 
-    var obj = element.attributes
-    var attributes = Array.prototype.slice.call(obj)
-    var newElement = document.createElement(newName)
+    let newElement = document.createElement(newName)
 
-    // Add attributes to new element
-    attributes.forEach(
-      function (attribute) {
-        newElement = this.setAttribute(
-          newElement,
-          attribute.nodeName,
-          attribute.nodeValue
-        )
-      }.bind(this)
-    )
+    // Copy children
+    while (element.firstChild) {
+      newElement.appendChild(element.firstChild)
+    }
 
-    newElement.innerHTML = element.innerHTML
+    // Copy the attributes
+    for (const attr of element.attributes) {
+      newElement.attributes.setNamedItem(attr.cloneNode())
+    }
 
     return newElement
   }
