@@ -59,7 +59,7 @@ class AboutPage extends React.Component {
   }
 
   render() {
-    const suggestionTypes = this.props.settings.suggestions
+    const suggestionTypes = (this.props.settings.suggestions != null) ? this.props.suggestionTypes : ''
     const suggestions = []
     const errors = []
 
