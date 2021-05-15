@@ -7,6 +7,45 @@ import { List } from '@instructure/ui-list'
 import { IconInfoBorderlessLine, IconNoLine } from '@instructure/ui-icons'
 import Html from '../Services/Html'
 import ReactHtmlParser from 'react-html-parser'
+
+const issueTypes = [
+  "AnchorLinksToMultiMediaRequireTranscript",
+  "AnchorLinksToSoundFilesNeedTranscripts",
+  "AnchorMustContainText",
+  "AnchorSuspiciousLinkText",
+  "BaseFontIsNotUsed",
+  "BlinkIsNotUsed",
+  "ContentTooLong",
+  "CssTextHasContrast",
+  "CssTextStyleEmphasize",
+  "DocumentReadingDirection",
+  "EmbedHasAssociatedNoEmbed",
+  "FontIsNotUsed",
+  "HeadersHaveText",
+  "ImageAltIsDifferent",
+  "ImageAltIsTooLong",
+  "ImageAltNotEmptyInAnchor",
+  "ImageAltNotPlaceholder",
+  "ImageHasAlt",
+  "ImageHasAltDecorative",
+  "ImageHasLongDescription",
+  "InputImageNotDecorative",
+  "MarqueeIsNotUsed",
+  "NoHeadings",
+  "ObjectInterfaceIsAccessible",
+  "ObjectMustContainText",
+  "ObjectShouldHaveLongDescription",
+  "ObjectTagDetected",
+  "ParagraphNotUsedAsHeader",
+  "PreShouldNotBeUsedForTabularValues",
+  "TableDataShouldHaveTableHeader",
+  "TableHeaderShouldHaveScope",
+  "VideoCaptionsMatchCourseLanguage",
+  "VideoEmbedCheck",
+  "VideoProvidesCaptions",
+  "VideosEmbeddedOrLinkedNeedCaptions"
+]
+
 class AboutPage extends React.Component {
 
   constructor(props) {
@@ -20,9 +59,17 @@ class AboutPage extends React.Component {
   }
 
   render() {
-    const translations = this.props.t('translations')
-    const errors = translations.look_for.header.errors
-    const suggestions = translations.look_for.header.suggestions
+    const suggestionTypes = this.props.settings.suggestions
+    const suggestions = []
+    const errors = []
+
+    issueTypes.forEach(issue => {
+      if(suggestionTypes.includes(issue)){
+        suggestions.push(issue)
+      } else {
+        errors.push(issue)
+      }
+    })
 
     return (
       <View as="div">
@@ -45,9 +92,9 @@ class AboutPage extends React.Component {
               
               {errors.map((rule) => {
                 return (
-                  <ToggleDetails key={rule.error} summary={rule.error}>
+                  <ToggleDetails key={rule} summary={this.props.t(rule)}>
                     <View as="div" margin="small 0" background="primary" padding="small" shadow="above">
-                      <Heading level="h4">{rule.error}</Heading>
+                      <Heading level="h4">{this.props.t(rule)}</Heading>
                       <Text as="p">{ReactHtmlParser(rule.description, { preprocessNodes: (nodes) => Html.processStaticHtml(nodes, this.props.settings) })}</Text>
                       {rule.resources &&
                       <List>
@@ -101,10 +148,10 @@ class AboutPage extends React.Component {
               <View padding="x-small"><Text weight="bold">{this.props.t('label.plural.suggestion')}</Text><br/></View>
               {suggestions.map((rule) => {
                 return (
-                  <ToggleDetails key={rule.suggestion} summary={rule.suggestion}>
+                  <ToggleDetails key={rule} summary={this.props.t(`rule.label.${rule}`)}>
                     <View as="div" margin="small 0" background="primary" padding="small" shadow="above">
-                      <Heading level="h4">{rule.suggestion}</Heading>
-                      <Text as="p">{ReactHtmlParser(rule.description, { preprocessNodes: (nodes) => Html.processStaticHtml(nodes, this.props.settings) })}</Text>
+                      <Heading level="h4">{this.props.t(`rule.label.${rule}`)}</Heading>
+                      <Text as="p">{ReactHtmlParser(this.props.t(`rule.desc.${rule}`), { preprocessNodes: (nodes) => Html.processStaticHtml(nodes, this.props.settings) })}</Text>
 
                       {rule.resources &&
                       <List>
