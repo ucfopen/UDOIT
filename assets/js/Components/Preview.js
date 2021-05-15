@@ -32,7 +32,7 @@ class Preview extends React.Component {
 
     render() {
         const activeIssue = this.props.activeIssue
-        const highlightedHtml = this.highlightHtml(activeIssue)
+        const highlightedHtml = this.highlightHtml(activeIssue, activeIssue.previewHtml)
         const contextHtml = (highlightedHtml) ? ReactHtmlParser(highlightedHtml, { preprocessNodes: (nodes) => Html.processStaticHtml(nodes, this.props.settings) }) : 'N/A'
         return(
             <div className={Classes.previewWindow}>
@@ -41,11 +41,11 @@ class Preview extends React.Component {
         )
     }
 
-    highlightHtml(activeIssue) {
+    highlightHtml(activeIssue, previewHtml) {
         const html = (activeIssue.newHtml) ? activeIssue.newHtml : Html.toString(Html.toElement(activeIssue.sourceHtml))
         const highlighted = `<span class="highlighted" style="display:inline-block; border:5px dashed #F1F155;">${html}</span>`
     
-        return activeIssue.previewHtml ? activeIssue.previewHtml.replace(activeIssue.sourceHtml, highlighted) : '<span>Not Available</span>'
+        return previewHtml ? previewHtml.replace(activeIssue.sourceHtml, highlighted) : '<span>Not Available</span>'
     }
 }
 
