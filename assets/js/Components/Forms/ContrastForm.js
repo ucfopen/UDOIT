@@ -5,7 +5,7 @@ import { View } from '@instructure/ui-view'
 import { TextInput } from '@instructure/ui-text-input'
 import { Checkbox } from '@instructure/ui-checkbox'
 import { IconButton } from '@instructure/ui-buttons'
-import { IconArrowOpenDownSolid, IconArrowOpenUpSolid } from '@instructure/ui-icons'
+import { IconArrowOpenDownSolid, IconArrowOpenUpSolid, IconCheckMarkLine } from '@instructure/ui-icons'
 import Html from '../../Services/Html'
 import Contrast from '../../Services/Contrast'
 
@@ -13,28 +13,11 @@ export default class ContrastForm extends React.Component {
   constructor(props) {
     super(props)
 
-    let metadata = null
-    let backgroundColor
-    let textColor
-
-    try{
-      metadata = JSON.parse(this.props.activeIssue.metadata)
-
-      backgroundColor = Contrast.rgb2hex(metadata.backgroundColor)
-      textColor = Contrast.rgb2hex(metadata.color)
-    } catch(error){
-      console.log(error)
-
-      let element = Html.toElement(this.props.activeIssue.sourceHtml)
-      backgroundColor = element.style.backgroundColor ? Contrast.rgb2hex(element.style.backgroundColor) : this.props.settings.backgroundColor
-      textColor = element.style.color ? Contrast.rgb2hex(element.style.color) : this.props.settings.textColor
-    }
-
     this.state = {
-      backgroundColor: backgroundColor,
-      textColor: textColor,
-      useBold: false,
-      useItalics: false,
+      backgroundColor: this.getBackgroundColor(),
+      textColor: this.getTextColor(),
+      useBold: this.isBold(),
+      useItalics: this.isItalicized(),
       textInputErrors: []
     }
 
@@ -59,34 +42,11 @@ export default class ContrastForm extends React.Component {
   componentDidUpdate(prevProps, prevState) {
     if (prevProps.activeIssue !== this.props.activeIssue) {
 
-      let backgroundColor
-      let textColor
-      
-      if(this.props.activeIssue.newHtml) {
-        let element = Html.toElement((this.props.activeIssue.newHtml))
-        backgroundColor = element.style.backgroundColor ? Contrast.rgb2hex(element.style.backgroundColor) : this.props.settings.backgroundColor
-        textColor = element.style.color ? Contrast.rgb2hex(element.style.color) : this.props.settings.textColor
-      }
-
-      else {
-        let metadata = null
-
-        try{
-          metadata = JSON.parse(this.props.activeIssue.metadata)
-          backgroundColor = Contrast.rgb2hex(metadata.backgroundColor)
-          textColor = Contrast.rgb2hex(metadata.color)
-        } catch(error){
-          console.log(error)
-          backgroundColor = this.props.settings.backgroundColor
-          textColor = this.props.settings.textColor
-        }
-      }
-
       this.setState({
-        backgroundColor: backgroundColor,
-        textColor: textColor,
-        useBold: false,
-        useItalics: false,
+        backgroundColor: this.getBackgroundColor(),
+        textColor: this.getTextColor(),
+        useBold: this.isBold(),
+        useItalics: this.isItalicized(),
         textInputErrors: []
       },() => {
         this.formErrors = []
@@ -162,7 +122,6 @@ export default class ContrastForm extends React.Component {
   handleSubmit() {
     if(this.state.textInputErrors.length === 0) {
       let issue = this.props.activeIssue
-      issue.newHtml = this.processHtml()
       this.props.handleIssueSave(issue)
     }
   }
@@ -225,12 +184,16 @@ export default class ContrastForm extends React.Component {
           />
         </View>
         <View as="div" margin="small 0">
-          <Checkbox label={this.props.t('form.contrast.bolden_text')} onChange={this.handleBoldToggle}>
+          <Checkbox label={this.props.t('form.contrast.bolden_text')} 
+            checked={this.state.useBold}
+            onChange={this.handleBoldToggle}>
           </Checkbox>
         </View>
 
         <View as="div" margin="small 0">
-          <Checkbox label={this.props.t('form.contrast.italicize_text')} onChange={this.handleItalicsToggle}>
+          <Checkbox label={this.props.t('form.contrast.italicize_text')} 
+            checked={this.state.useItalics}
+            onChange={this.handleItalicsToggle}>
           </Checkbox>
         </View>
 
@@ -239,33 +202,35 @@ export default class ContrastForm extends React.Component {
               {('1' == pending) && <Spinner size="x-small" renderTitle={buttonLabel} />}
               {this.props.t(buttonLabel)}
           </Button>
+          {this.props.activeIssue.recentlyUpdated &&
+            <View margin="0 small">
+              <IconCheckMarkLine color="success" />
+              <View margin="0 x-small">{this.props.t('label.fixed')}</View>
+            </View>
+          }
         </View>
         
       </View>
     );
   }
 
-  processHtml() {
-    let element = Html.toElement(this.props.activeIssue.sourceHtml)
+  processHtml(html) {
+    let element = Html.toElement(html)
 
     element.style.backgroundColor = this.state.backgroundColor
     element.style.color = this.state.textColor
 
-    if(this.state.useBold) {
-      element.style.fontWeight = "bold"
-    }
-
-    if(this.state.useItalics) {
-      element.style.fontStyle = "italic"
-    }
+    element.style.fontWeight = (this.state.useBold) ? "bold" : "normal"
+    element.style.fontStyle = (this.state.useItalics) ? "italic" : "normal"
 
     return Html.toString(element)
   }
 
   updatePreview() {
     let issue = this.props.activeIssue
+    const html = Html.getIssueHtml(this.props.activeIssue)
     let ratio = Contrast.contrastRatio(this.state.backgroundColor, this.state.textColor)
-    let tagName = Html.toElement(issue.sourceHtml).tagName
+    let tagName = Html.toElement(html).tagName
     let largeTextTags = this.props.t('form.contrast.large_text_tags')
 
     this.formErrors = []
@@ -284,7 +249,61 @@ export default class ContrastForm extends React.Component {
 
     this.setState({ textInputErrors: this.formErrors })
 
-    issue.newHtml = this.processHtml()
+    issue.newHtml = this.processHtml(html)
     this.props.handleActiveIssue(issue)
+  }
+
+  isBold()
+  {
+    const issue = this.props.activeIssue
+    const metadata = (issue.metadata) ? JSON.parse(issue.metadata) : {}
+    const html = Html.getIssueHtml(this.props.activeIssue)
+    const element = Html.toElement(html)
+    
+    console.log('weight', element.style.fontWeight)
+
+    return ((element.style.fontWeight === 'bold') || (metadata.fontWeight === 'bold'))
+  }
+
+  isItalicized()
+  {
+    const issue = this.props.activeIssue
+    const metadata = (issue.metadata) ? JSON.parse(issue.metadata) : {}
+    const html = Html.getIssueHtml(this.props.activeIssue)
+    const element = Html.toElement(html)
+    
+    console.log('style', element.style.fontStyle)
+
+    return ((element.style.fontStyle == 'italic') || (metadata.fontStyle == 'italic'))
+  }
+
+  getBackgroundColor()
+  {
+    const issue = this.props.activeIssue
+    const metadata = (issue.metadata) ? JSON.parse(issue.metadata) : {}
+    const html = Html.getIssueHtml(this.props.activeIssue)
+    const element = Html.toElement(html)
+
+    if (element.style.backgroundColor) {
+      return Contrast.rgb2hex(element.style.backgroundColor)
+    } 
+    else {
+      return (metadata.backgroundColor) ? Contrast.rgb2hex(metadata.backgroundColor) : this.props.settings.backgroundColor
+    }
+  }
+
+  getTextColor()
+  {
+    const issue = this.props.activeIssue
+    const metadata = (issue.metadata) ? JSON.parse(issue.metadata) : {}
+    const html = Html.getIssueHtml(this.props.activeIssue)
+    const element = Html.toElement(html)
+
+    if (element.style.color) {
+      return Contrast.rgb2hex(element.style.color)
+    }
+    else {
+      return (metadata.color) ? Contrast.rgb2hex(metadata.color) : this.props.settings.textColor
+    }
   }
 }

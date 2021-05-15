@@ -11,8 +11,8 @@ import Html from '../../Services/Html'
 export default class AnchorText extends React.Component {
   constructor(props) {
     super(props)
-
-    const html = (props.activeIssue.newHtml) ? props.activeIssue.newHtml : props.activeIssue.sourceHtml
+  
+    const html = Html.getIssueHtml(this.props.activeIssue)
 
     this.state = {
       textInputValue: Html.getInnerText(html),
@@ -29,7 +29,7 @@ export default class AnchorText extends React.Component {
 
   componentDidUpdate(prevProps, prevState) {
     if (prevProps.activeIssue !== this.props.activeIssue) {
-      const html = (this.props.activeIssue.newHtml) ? this.props.activeIssue.newHtml : this.props.activeIssue.sourceHtml
+      const html = Html.getIssueHtml(this.props.activeIssue)
       this.setState({
         textInputValue: Html.getInnerText(html),
         textInputErrors: [],
@@ -133,21 +133,14 @@ export default class AnchorText extends React.Component {
     }
   }
 
-  processHtml(state, props) {
-    if (!state) {
-      state = this.state
-    }
-    if (!props) {
-      props = this.props
-    }
-
-    const sourceHtml = props.activeIssue.sourceHtml
-    const { textInputValue, deleteLink } = state
+  processHtml() {
+    const html = Html.getIssueHtml(this.props.activeIssue)
+    const { textInputValue, deleteLink } = this.state
     
     if (deleteLink) {
       return '';
     }
 
-    return Html.toString(Html.setInnerText(sourceHtml, textInputValue))
+    return Html.toString(Html.setInnerText(html, textInputValue))
   }
 }

@@ -4,6 +4,7 @@ import { Button } from '@instructure/ui-buttons'
 import { Spinner } from '@instructure/ui-spinner'
 import { RadioInput } from '@instructure/ui-radio-input'
 import { RadioInputGroup } from '@instructure/ui-radio-input'
+import { IconCheckMarkLine } from '@instructure/ui-icons'
 import Html from '../../Services/Html';
 
 
@@ -18,8 +19,7 @@ export default class TableHeaders extends React.Component {
     ]
 
     this.state = {
-      selectedValue: 'col',
-      replaceHeaders: (this.props.activeIssue.scanRuleId === 'TableDataShouldHaveTableHeader'),
+      selectedValue: this.getTableHeader(),
     }
 
     this.handleSubmit = this.handleSubmit.bind(this)
@@ -30,8 +30,7 @@ export default class TableHeaders extends React.Component {
     if (prevProps.activeIssue !== this.props.activeIssue) {
 
       this.setState({
-        selectedValue: 'col',
-        replaceHeaders: (this.props.activeIssue.scanRuleId === 'TableDataShouldHaveTableHeader'),
+        selectedValue: this.getTableHeader()
       })
     }
   }
@@ -41,117 +40,110 @@ export default class TableHeaders extends React.Component {
       selectedValue: value
     }, () => {
       let issue = this.props.activeIssue
-      issue.newHtml = (this.state.replaceHeaders) ? this.fixHeaders() : this.addScope(this.props.activeIssue.sourceHtml, this.state.selectedValue)
+      issue.newHtml = this.fixHeaders()
       this.props.handleActiveIssue(issue)
     })
   }
 
   handleSubmit() {
+    console.log('activeIssue', this.props.activeIssue)
     let issue = this.props.activeIssue
-    issue.newHtml = (this.state.replaceHeaders) ? this.fixHeaders() : this.addScope(this.props.activeIssue.sourceHtml, this.state.selectedValue)
+    issue.newHtml = this.fixHeaders()
     this.props.handleIssueSave(issue)
   }
 
-  addScope(html, scope) {
-    return Html.setAttribute(html, "scope", scope).outerHTML
+  getTableHeader() {
+    const html = Html.getIssueHtml(this.props.activeIssue)
+    const table = Html.toElement(html)
+    let isRow = true
+    let isCol = true
+
+    for (let rowInd in table.rows) {
+      let row = table.rows[rowInd]
+
+      for (let cellInd in row.cells) {
+        let cell = row.cells[cellInd]
+        if (cell.tagName === 'TD') {
+          if (rowInd === '0') {
+            isCol = false
+          }
+          if (cellInd === '0') {
+            isRow = false
+          }
+          break
+        }
+      }
+
+      if (!isRow && !isCol) {
+        return ''
+      }
+    }
+
+    if (isRow && isCol) {
+      return 'both'
+    }
+
+    return (isRow) ? 'row' : 'col'
+  }
+
+  removeHeaders(table) {
+    for (let row of table.rows) {
+      for (let cell of row.cells) {
+        if (cell.tagName === 'TH') {
+          let newCell = Html.renameElement(cell, 'td')
+          newCell.removeAttribute('scope')
+          row.replaceChild(newCell, cell)
+        }
+      }
+    }
+
+    return table
   }
 
   fixHeaders() {
-    const table = Html.toElement(this.props.activeIssue.sourceHtml)
-    let first = true 
+    const html = Html.getIssueHtml(this.props.activeIssue)
+    let table = Html.toElement(html)
+    const selectedValue = this.state.selectedValue
 
-    switch(this.state.selectedValue) {
-      case 'col':
-        for (var i = 0, row; row = table.rows[i]; i++) {
-          if(first) {
-            for (var j = 0, col; col = row.cells[j]; j++) {
-              if(this.state.replaceHeaders) {
-                row.cells[j].outerHTML = Html.renameElement(row.cells[j].outerHTML, 'th').outerHTML
-              }
+    this.removeHeaders(table)
 
-              row.cells[j].outerHTML = this.addScope(row.cells[j], "col")
-            }  
-
-            first = false
-          }
-
-          else {
-            if(row.cells[0].tagName === 'TH') {
-              row.cells[0].outerHTML = Html.renameElement(row.cells[0].outerHTML, 'td').outerHTML
-              row.cells[0].outerHTML = Html.removeAttribute(row.cells[0], 'scope').outerHTML
-            }
-          }
-        }
-        
-        break
-
-      case 'row': 
-        for (var i = 0, row; row = table.rows[i]; i++) {
-          if(first) {
-            for (var j = 0, col; col = row.cells[j]; j++) {
-              if(row.cells[j].tagName === 'TH') {
-                row.cells[j].outerHTML = Html.renameElement(row.cells[j].outerHTML, 'td').outerHTML
-                row.cells[j].outerHTML = Html.removeAttribute(row.cells[j], 'scope').outerHTML
-              }
-            }  
-
-            first = false
-          }
-
-          if(this.state.replaceHeaders) {
-            row.cells[0].outerHTML = Html.renameElement(row.cells[0].outerHTML, 'th').outerHTML
-          }
-
-          row.cells[0].outerHTML = this.addScope(row.cells[0], "row")
-          
-        }
-
-        break
-
-      case 'both':
-        for (var i = 0, row; row = table.rows[i]; i++) {
-          if(first) {
-            for (var j = 0, col; col = row.cells[j]; j++) {
-              if(this.state.replaceHeaders) {
-                row.cells[j].outerHTML = Html.renameElement(row.cells[j].outerHTML, 'th').outerHTML
-              }
-              
-              if(row.cells[j].tagName === 'TH') {
-                row.cells[j].outerHTML = this.addScope(row.cells[j], "col")
-              }
-            }  
-
-            first = false
-          }
-
-          else {
-            if(this.state.replaceHeaders) {
-              row.cells[0].outerHTML = Html.renameElement(row.cells[0].outerHTML, 'th').outerHTML
-            }
-  
-            if(row.cells[0].tagName === 'TH') {
-              row.cells[0].outerHTML = this.addScope(row.cells[0], "row")
-            }
-          }
-        }
-        break
+    if ('col' === selectedValue || 'both' === selectedValue) {
+      let row = table.rows[0]
+      
+      for (let cell of row.cells) {
+        let newCell = Html.renameElement(cell, 'th')
+        newCell.setAttribute('scope', 'col')
+        row.replaceChild(newCell, cell)        
+      }
     }
 
-    return table.outerHTML
+    if ('row' === selectedValue || 'both' === selectedValue) {
+      for (let row of table.rows) {
+        let firstCell = row.cells[0]
+        let newCell = Html.renameElement(firstCell, 'th')
+        newCell.setAttribute('scope', 'row')
+        row.replaceChild(newCell, firstCell)
+      }
+    }
+
+    return Html.toString(table)
   }
 
   render() {
     const pending = (this.props.activeIssue && (this.props.activeIssue.pending == '1'))
     const buttonLabel = (pending) ? 'form.processing' : 'form.submit'
-    const radioOptions = this.state.replaceHeaders ? this.radioOptions : this.radioOptions.slice(0, 2);
-
+    const description = (this.props.activeIssue.scanRuleId == 'TableDataShouldHaveTableHeader') ? 'form.table.selection_description' : 'form.table.selection_description_scope'
+  
     return (
       <View as="div" padding="0 x-small">
         
         <View as="div" margin="small 0">
-          <RadioInputGroup onChange={this.handleChange} name="" defaultValue="foo" 
-          description={this.state.replaceHeaders ? this.props.t('form.table.selection_description') : this.props.t('form.table.selection_description_scope')}>
-            {radioOptions.map(input => <RadioInput key={input} value={input} label={this.props.t(`form.table.${input}`)} />)}
+          <RadioInputGroup 
+            onChange={this.handleChange}
+            name="tableHeaderSelect" 
+            value={this.state.selectedValue} 
+            description={this.props.t(description)} >
+            {this.radioOptions.map(input => <RadioInput key={input} value={input} label={this.props.t(`form.table.${input}`)} />)}
           </RadioInputGroup>
         </View>
         
@@ -160,6 +152,12 @@ export default class TableHeaders extends React.Component {
               {('1' == pending) && <Spinner size="x-small" renderTitle={this.props.t(buttonLabel)} />}
               {this.props.t(buttonLabel)}
           </Button>
+          {this.props.activeIssue.recentlyUpdated &&
+            <View margin="0 small">
+              <IconCheckMarkLine color="success" />
+              <View margin="0 x-small">{this.props.t('label.fixed')}</View>
+            </View>
+          }
         </View>
       </View>
     );
