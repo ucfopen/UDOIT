@@ -12,12 +12,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/cidilabs/phpally.git",
-                "reference": "9241a7397b360c1d662eeb221bc2c3afcf5d4ba1"
+                "reference": "dfb9fd02e336ebf66d67b126ccd87162fdffd33b"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/cidilabs/phpally/zipball/9241a7397b360c1d662eeb221bc2c3afcf5d4ba1",
-                "reference": "9241a7397b360c1d662eeb221bc2c3afcf5d4ba1",
+                "url": "https://api.github.com/repos/cidilabs/phpally/zipball/dfb9fd02e336ebf66d67b126ccd87162fdffd33b",
+                "reference": "dfb9fd02e336ebf66d67b126ccd87162fdffd33b",
                 "shasum": ""
             },
             "require": {
@@ -58,7 +58,7 @@
                 "source": "https://github.com/cidilabs/phpally/tree/master",
                 "issues": "https://github.com/cidilabs/phpally/issues"
             },
-            "time": "2021-05-07T20:21:48+00:00"
+            "time": "2021-05-12T15:19:38+00:00"
         },
         {
             "name": "composer/package-versions-deprecated",

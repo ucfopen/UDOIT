@@ -14,11 +14,10 @@ export default class AltText extends React.Component {
     super(props)
 
     this.maxLength = 150
+    const html = Html.getIssueHtml(this.props.activeIssue)
 
-    let altText = Html.getAttribute(this.props.activeIssue.sourceHtml, "alt")
+    let altText = Html.getAttribute(html, "alt")
     altText = (typeof altText === 'string') ? altText : ''
-    
-    const html = (this.props.activeIssue.newHtml) ? this.props.activeIssue.newHtml : this.props.activeIssue.sourceHtml
 
     this.state = {
       textInputValue: altText,
@@ -36,7 +35,7 @@ export default class AltText extends React.Component {
 
   componentDidUpdate(prevProps, prevState) {
     if (prevProps.activeIssue !== this.props.activeIssue) {
-      const html = (this.props.activeIssue.newHtml) ? this.props.activeIssue.newHtml : this.props.activeIssue.sourceHtml
+      const html = Html.getIssueHtml(this.props.activeIssue)
       let altText = Html.getAttribute(html, 'alt')
       altText = (typeof altText === 'string') ? altText : ''
 
@@ -50,7 +49,7 @@ export default class AltText extends React.Component {
   }
 
   handleHtmlUpdate() {
-    const html = (this.props.activeIssue.newHtml) ? this.props.activeIssue.newHtml : this.props.activeIssue.sourceHtml
+    const html = Html.getIssueHtml(this.props.activeIssue)
     let element = Html.toElement(html)
 
     if (this.state.isDecorative) {

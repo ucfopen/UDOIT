@@ -29,7 +29,7 @@ class Html {
     if (!element) {
       return ''
     }
-    
+
     // TODO: add logic that looks for multiple text nodes, factors in children elements, etc
     return element.innerText
   }
@@ -182,6 +182,20 @@ class Html {
     return element
   }
 
+  hasTag(element, tagName) {
+    if ('string' === typeof element) {
+      element = this.toElement(element)
+    }
+
+    if (!element) {
+      return false
+    }
+
+    const outerTag = `<${tagName.toLowerCase()}>`
+    
+    return element.innerHTML.toLowerCase().includes(outerTag)
+  }
+
   renameElement(element, newName) {
     if ('string' === typeof element) {
       element = this.toElement(element)
@@ -191,22 +205,17 @@ class Html {
       return null
     }
 
-    var obj = element.attributes
-    var attributes = Array.prototype.slice.call(obj)
-    var newElement = document.createElement(newName)
+    let newElement = document.createElement(newName)
 
-    // Add attributes to new element
-    attributes.forEach(
-      function (attribute) {
-        newElement = this.setAttribute(
-          newElement,
-          attribute.nodeName,
-          attribute.nodeValue
-        )
-      }.bind(this)
-    )
+    // Copy children
+    while (element.firstChild) {
+      newElement.appendChild(element.firstChild)
+    }
 
-    newElement.innerHTML = element.innerHTML
+    // Copy the attributes
+    for (const attr of element.attributes) {
+      newElement.attributes.setNamedItem(attr.cloneNode())
+    }
 
     return newElement
   }
@@ -258,6 +267,15 @@ class Html {
     }
 
     return nodes    
+  }
+
+  getIssueHtml(issue)
+  {
+    if (issue.status === '1') {
+      return issue.newHtml
+    }
+
+    return (issue.newHtml) ? issue.newHtml : issue.sourceHtml
   }
 }
 
