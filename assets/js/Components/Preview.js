@@ -32,8 +32,8 @@ class Preview extends React.Component {
 
     render() {
         const activeIssue = this.props.activeIssue
-        const highlightedHtml = this.highlightHtml(activeIssue, activeIssue.previewHtml)
-        const contextHtml = (highlightedHtml) ? ReactHtmlParser(highlightedHtml, { preprocessNodes: (nodes) => Html.processStaticHtml(nodes, this.props.settings) }) : 'N/A'
+        const previewHtml = this.preparePreview(this.props.activeIssue)
+        const contextHtml = ReactHtmlParser(previewHtml, { preprocessNodes: (nodes) => Html.processStaticHtml(nodes, this.props.settings) })
         return(
             <div className={Classes.previewWindow}>
                 {contextHtml}
@@ -41,11 +41,65 @@ class Preview extends React.Component {
         )
     }
 
+    preparePreview(activeIssue) {
+        let issueType = activeIssue.scanRuleId
+        let issueHtml = Html.getIssueHtml(activeIssue)
+        let previewHtml = null
+
+        switch(issueType) {
+            case 'ContentTooLong':
+                previewHtml = this.handleLongText(issueHtml)
+                break;
+
+            case 'TableHeaderShouldHaveScope':
+                previewHtml = this.handleTable(issueHtml)
+                break;
+
+            default:
+                previewHtml = this.highlightHtml(activeIssue, activeIssue.previewHtml)
+                break;
+        }
+
+        return previewHtml
+    }
+
     highlightHtml(activeIssue, previewHtml) {
         const html = (activeIssue.newHtml) ? activeIssue.newHtml : Html.toString(Html.toElement(activeIssue.sourceHtml))
         const highlighted = `<span class="highlighted" style="display:inline-block; border:5px dashed #F1F155;">${html}</span>`
     
         return previewHtml ? previewHtml.replace(activeIssue.sourceHtml, highlighted) : '<span>Not Available</span>'
+    }
+
+    handleTable(issueHtml) {
+        let table = Html.toElement(issueHtml)
+        let newTable = document.createElement('table')
+
+        for(let rowInd in table.rows()) {
+            if(rowInd > 10) {
+                return newTable.outerHTML
+            }
+            let row = table.rows[rowInd]
+            let newRow = table.insertRow()
+
+            for(let cellInd in row.cells()) {
+                if(cellInd > 6) {
+                    break;
+                }
+                let cell = row.cells[cellInd]
+                let newCell = Html.toElement(cell.outerHTML)
+                
+                newRow.appendChild(newCell)
+            }
+        }
+
+        return newTable.outerHTML
+    }
+
+    handleLongText(issueHtml) {
+        let element = Html.toElement(issueHtml)
+        element.innerText = element.innerText.substr(0, 500)
+
+        return element.outerHTML
     }
 }
 
