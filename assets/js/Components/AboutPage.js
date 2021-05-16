@@ -100,12 +100,18 @@ class AboutPage extends React.Component {
                   {('error' === issueType ) ? <IconNoLine color="error" /> : <IconInfoBorderlessLine color="alert" />}
                   <View padding="x-small"><Text weight="bold">{this.props.t(`label.plural.${issueType}`)}</Text><br/></View>
                   {type.map((rule) => {
+                    if (!this.props.t(`rule.example.${rule}`).includes('rule.example')) {
+                      var showExample = true
+                    }
                     return (
                       <ToggleDetails key={rule} summary={this.props.t(`rule.label.${rule}`)}>
                         <View as="div" margin="small 0" background="primary" padding="small" shadow="above">
                           <Heading level="h4">{this.props.t(`rule.label.${rule}`)}</Heading>
                           <Text as="p">{ReactHtmlParser(this.props.t(`rule.desc.${rule}`), { preprocessNodes: (nodes) => Html.processStaticHtml(nodes, this.props.settings) })}</Text>
-                          <Text as="p">{ReactHtmlParser(this.props.t(`rule.example.${rule}`), { preprocessNodes: (nodes) => Html.processStaticHtml(nodes, this.props.settings) })}</Text>
+                          {
+                            (showExample) && 
+                            <Text as="p">{ReactHtmlParser(this.props.t(`rule.example.${rule}`), { preprocessNodes: (nodes) => Html.processStaticHtml(nodes, this.props.settings) })}</Text>
+                          }
                         </View>
                       </ToggleDetails>
                     )
