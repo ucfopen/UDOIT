@@ -7,6 +7,45 @@ import { List } from '@instructure/ui-list'
 import { IconInfoBorderlessLine, IconNoLine } from '@instructure/ui-icons'
 import Html from '../Services/Html'
 import ReactHtmlParser from 'react-html-parser'
+
+const issueRuleIds = [
+  "AnchorLinksToMultiMediaRequireTranscript",
+  "AnchorLinksToSoundFilesNeedTranscripts",
+  "AnchorMustContainText",
+  "AnchorSuspiciousLinkText",
+  "BaseFontIsNotUsed",
+  "BlinkIsNotUsed",
+  "ContentTooLong",
+  "CssTextHasContrast",
+  "CssTextStyleEmphasize",
+  "DocumentReadingDirection",
+  "EmbedHasAssociatedNoEmbed",
+  "FontIsNotUsed",
+  "HeadersHaveText",
+  "ImageAltIsDifferent",
+  "ImageAltIsTooLong",
+  "ImageAltNotEmptyInAnchor",
+  "ImageAltNotPlaceholder",
+  "ImageHasAlt",
+  "ImageHasAltDecorative",
+  "ImageHasLongDescription",
+  "InputImageNotDecorative",
+  "MarqueeIsNotUsed",
+  "NoHeadings",
+  "ObjectInterfaceIsAccessible",
+  "ObjectMustContainText",
+  "ObjectShouldHaveLongDescription",
+  "ObjectTagDetected",
+  "ParagraphNotUsedAsHeader",
+  "PreShouldNotBeUsedForTabularValues",
+  "TableDataShouldHaveTableHeader",
+  "TableHeaderShouldHaveScope",
+  "VideoCaptionsMatchCourseLanguage",
+  "VideoEmbedCheck",
+  "VideoProvidesCaptions",
+  "VideosEmbeddedOrLinkedNeedCaptions"
+]
+
 class AboutPage extends React.Component {
 
   constructor(props) {
@@ -19,10 +58,24 @@ class AboutPage extends React.Component {
     this.handleDetailsToggle = this.handleDetailsToggle.bind(this)
   }
 
+  handleDetailsToggle() {
+    this.setState({expandDetails: !this.state.expandDetails})
+  }
+
   render() {
-    const translations = this.props.t('translations')
-    const errors = translations.look_for.header.errors
-    const suggestions = translations.look_for.header.suggestions
+    const suggestionTypes = (this.props.settings.suggestionRuleIds != null) ? this.props.settings.suggestionRuleIds : ''
+    this.issues = {
+      "error": [],
+      "suggestion": []
+    }
+
+    issueRuleIds.forEach(issue => {
+      if(suggestionTypes.includes(issue)){
+        this.issues.suggestion.push(issue)
+      } else {
+        this.issues.error.push(issue)
+      }
+    })
 
     return (
       <View as="div">
@@ -39,129 +92,39 @@ class AboutPage extends React.Component {
             expanded={this.state.expandDetails}
             fluidWidth={true}
             onToggle={this.handleDetailsToggle}>
-            <View as="div" margin="small large">
-              <IconNoLine color="error" />
-              <View padding="x-small"><Text weight="bold">{this.props.t('label.plural.error')}</Text><br/></View>
-              
-              {errors.map((rule) => {
-                return (
-                  <ToggleDetails key={rule.error} summary={rule.error}>
-                    <View as="div" margin="small 0" background="primary" padding="small" shadow="above">
-                      <Heading level="h4">{rule.error}</Heading>
-                      <Text as="p">{ReactHtmlParser(rule.description, { preprocessNodes: (nodes) => Html.processStaticHtml(nodes, this.props.settings) })}</Text>
-                      {rule.resources &&
-                      <List>
-                        {rule.resources.map((resource) => {
-                          return (
-                            <List.Item key={resource}>
-                              {ReactHtmlParser(resource, { preprocessNodes: (nodes) => Html.processStaticHtml(nodes, this.props.settings) })}
-                            </List.Item>
-                          )
-                        })}
-                      </List>}
 
-                      {rule.incorrect && 
-                      <View>
-                        <Text color="danger" weight="bold">
-                        {translations.look_for.header.incorrect}:
-                      </Text> 
-                      <List>
-                        {rule.incorrect.map((example) => {
-                          return (
-                            <List.Item key={example}>
-                              {example}
-                            </List.Item>
-                          )
-                        })}
-                      </List>
-                      </View>}
-
-                      {rule.correct && 
-                      <View>
-                        <Text color="success" weight="bold">
-                        {translations.look_for.header.correct}:
-                      </Text> 
-                      <List>
-                        {rule.correct.map((example) => {
-                          return (
-                            <List.Item key={example}>
-                              {example}
-                            </List.Item>
-                          )
-                        })}
-                      </List>
-                      </View>}
-                    </View>
-                  </ToggleDetails>
-                )
-              })}
-            </View>
-            <View as="div" margin="small large">
-              <IconInfoBorderlessLine color="alert" />
-              <View padding="x-small"><Text weight="bold">{this.props.t('label.plural.suggestion')}</Text><br/></View>
-              {suggestions.map((rule) => {
-                return (
-                  <ToggleDetails key={rule.suggestion} summary={rule.suggestion}>
-                    <View as="div" margin="small 0" background="primary" padding="small" shadow="above">
-                      <Heading level="h4">{rule.suggestion}</Heading>
-                      <Text as="p">{ReactHtmlParser(rule.description, { preprocessNodes: (nodes) => Html.processStaticHtml(nodes, this.props.settings) })}</Text>
-
-                      {rule.resources &&
-                      <List>
-                        {rule.resources.map((resource) => {
-                          return (
-                            <List.Item key={resource}>
-                              {ReactHtmlParser(resource, { preprocessNodes: (nodes) => Html.processStaticHtml(nodes, this.props.settings) })}
-                            </List.Item>
-                          )
-                        })}
-                      </List>}
-
-                      {rule.incorrect && 
-                      <View>
-                        <Text color="danger" weight="bold">
-                        {this.props.t('label.incorrect')}:
-                      </Text> 
-                      <List>
-                        {rule.incorrect.map((example) => {
-                          return (
-                            <List.Item key={example}>
-                              {example}
-                            </List.Item>
-                          )
-                        })}
-                      </List>
-                      </View>}
-
-                      {rule.correct && 
-                      <View>
-                        <Text color="success" weight="bold">
-                        {this.props.t('label.correct')}:
-                      </Text> 
-                      <List>
-                        {rule.correct.map((example) => {
-                          return (
-                            <List.Item key={example}>
-                              {example}
-                            </List.Item>
-                          )
-                        })}
-                      </List>
-                      </View>}
-                    </View>
-                  </ToggleDetails>
-                )
-              })}
-            </View>
+            {Object.keys(this.issues).map((issueType) => {
+              const type = this.issues[issueType]
+              return (
+                <View as="div" margin="small large">
+                  {('error' === issueType ) ? <IconNoLine color="error" /> : <IconInfoBorderlessLine color="alert" />}
+                  <View padding="x-small"><Text weight="bold">{this.props.t(`label.plural.${issueType}`)}</Text><br/></View>
+                  {type.map((rule) => {
+                    if (!this.props.t(`rule.example.${rule}`).includes('rule.example')) {
+                      var showExample = true
+                    }
+                    return (
+                      <ToggleDetails key={rule} summary={this.props.t(`rule.label.${rule}`)}>
+                        <View as="div" margin="small 0" background="primary" padding="small" shadow="above">
+                          <Heading level="h4">{this.props.t(`rule.label.${rule}`)}</Heading>
+                          <Text as="p">{ReactHtmlParser(this.props.t(`rule.desc.${rule}`), { preprocessNodes: (nodes) => Html.processStaticHtml(nodes, this.props.settings) })}</Text>
+                          {
+                            (showExample) && 
+                            <Text as="p">{ReactHtmlParser(this.props.t(`rule.example.${rule}`), { preprocessNodes: (nodes) => Html.processStaticHtml(nodes, this.props.settings) })}</Text>
+                          }
+                        </View>
+                      </ToggleDetails>
+                    )
+                  })}
+            
+                </View>
+              )
+            })} 
           </ToggleDetails>
         </View>
         
       </View>
     )
-  }
-
-  handleDetailsToggle() {
-    this.setState({expandDetails: !this.state.expandDetails})
   }
 }
 
