@@ -259,8 +259,6 @@ export default class ContrastForm extends React.Component {
     const metadata = (issue.metadata) ? JSON.parse(issue.metadata) : {}
     const html = Html.getIssueHtml(this.props.activeIssue)
     const element = Html.toElement(html)
-    
-    console.log('weight', element.style.fontWeight)
 
     return ((element.style.fontWeight === 'bold') || (metadata.fontWeight === 'bold'))
   }
@@ -271,8 +269,6 @@ export default class ContrastForm extends React.Component {
     const metadata = (issue.metadata) ? JSON.parse(issue.metadata) : {}
     const html = Html.getIssueHtml(this.props.activeIssue)
     const element = Html.toElement(html)
-    
-    console.log('style', element.style.fontStyle)
 
     return ((element.style.fontStyle == 'italic') || (metadata.fontStyle == 'italic'))
   }
