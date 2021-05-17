@@ -28,29 +28,29 @@ class Preview extends React.Component {
         let issueHtml = Html.getIssueHtml(activeIssue)
         let previewHtml = activeIssue.previewHtml
 
-            switch(issueType) {
-                case 'TableHeaderShouldHaveScope':
-                    previewHtml = this.handleTable(issueHtml)
-                    break;
-    
-                case 'TableDataShouldHaveTableHeader':
-                    previewHtml = this.handleTable(issueHtml)
-                    break;
-    
-                default:
-                    if(activeIssue.previewHtml.length > MAX_CONTENT_LENGTH) {
-                        previewHtml = this.handleLongText(issueHtml)
-                        return previewHtml
-                    }
-                    break;
-            }
+        switch(issueType) {
+            case 'TableHeaderShouldHaveScope':
+                previewHtml = this.handleTable(issueHtml)
+                break;
+
+            case 'TableDataShouldHaveTableHeader':
+                previewHtml = this.handleTable(issueHtml)
+                break;
+
+            default:
+                if(activeIssue.previewHtml.length > MAX_CONTENT_LENGTH) {
+                    previewHtml = this.handleLongText(issueHtml)
+                    return previewHtml
+                }
+                break;
+        }
 
         return this.highlightHtml(activeIssue, issueHtml, previewHtml)
     }
 
     highlightHtml(activeIssue, issueHtml, previewHtml) {
         const highlighted = `<span class="highlighted" style="display:inline-block; border:5px dashed #F1F155;">${issueHtml}</span>`
-        
+
         try {
             previewHtml = previewHtml.replace(activeIssue.sourceHtml, highlighted)
         } catch (error) {
