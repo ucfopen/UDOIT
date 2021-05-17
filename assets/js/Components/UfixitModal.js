@@ -43,6 +43,7 @@ class UfixitModal extends React.Component {
     this.handleIssueResolve = this.handleIssueResolve.bind(this)
     this.handleOpenContent = this.handleOpenContent.bind(this)
     this.handleExampleToggle = this.handleExampleToggle.bind(this)
+    this.handleManualScan = this.handleManualScan.bind(this)
   }
 
   findActiveIndex() {
@@ -145,7 +146,7 @@ class UfixitModal extends React.Component {
                     handleIssueSave={this.handleIssueSave}
                     addMessage={this.addMessage} 
                     handleActiveIssue={this.props.handleActiveIssue}
-                    handleManualScan={this.props.handleManualScan} />
+                    handleManualScan={this.handleManualScan} />
                 </View>
                 <View as="div" background="secondary" padding="medium" margin="small 0 0 x-small">
                   <Text as="div" weight="bold">{this.props.t('label.manual_resolution')}</Text>
@@ -382,6 +383,39 @@ class UfixitModal extends React.Component {
             issue.pending = false
             this.props.handleActiveIssue(issue)
           }
+        }
+      })
+
+    // update activeIssue
+    issue.pending = 1
+    this.props.handleActiveIssue(issue)
+  }
+
+  handleManualScan(issue) {
+    let api = new Api(this.props.settings)
+    api.scanIssue(issue.id)
+      .then((response) => response.json())
+      .then((data) => {
+        if (data.messages) {
+          data.messages.forEach((msg) => {
+            if (msg.visible) {
+              this.addMessage(msg);
+            }
+          });
+        }
+        if (data.data.issue) {
+          const newIssue = { ...issue, ...data.data.issue }
+          newIssue.pending = false
+          newIssue.recentlyUpdated = true
+
+          // update activeIssue
+          this.props.handleActiveIssue(newIssue)
+
+          this.props.handleIssueSave(newIssue, data.data.report)
+        }
+        else {
+          issue.pending = false
+          this.props.handleActiveIssue(issue)
         }
       })
 

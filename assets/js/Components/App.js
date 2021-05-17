@@ -38,7 +38,6 @@ class App extends React.Component {
     this.t = this.t.bind(this)
     this.handleIssueSave = this.handleIssueSave.bind(this)
     this.handleFileSave = this.handleFileSave.bind(this)
-    this.handleManualScan = this.handleManualScan.bind(this)
     this.handleCourseRescan = this.handleCourseRescan.bind(this)
     this.handleNewReport = this.handleNewReport.bind(this)
   }
@@ -81,7 +80,6 @@ class App extends React.Component {
             handleNavigation={this.handleNavigation}
             handleIssueSave={this.handleIssueSave}
             handleIssueUpdate={this.handleIssueUpdate}
-            handleManualScan={this.handleManualScan}
             disableReview={this.disableReview()}
             t={this.t} />
         }
@@ -177,28 +175,6 @@ class App extends React.Component {
       report,
       disableReview, 
     })
-  }
-
-  handleManualScan(issueId) {
-    let api = new Api(this.settings)
-        api.scanIssue(issueId)
-          .then((response) => response.json())
-          .then((data) => {
-            if (data.messages) {
-              data.messages.forEach((msg) => {
-                if (msg.visible) {
-                  this.addMessage(msg);
-                }
-              });
-            }
-            if (data.data && data.data.id) {
-              const report = {...this.state.report }
-              // doing this to prevent mutating the report in the state
-              report.issues = {...report.issues}
-              report.issues[data.data.id] = data.data              
-              this.setState({ report, hasNewReport: true });
-            }
-          });
   }
 
   handleNavigation(navigation) { 
