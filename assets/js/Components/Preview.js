@@ -32,7 +32,7 @@ class Preview extends React.Component {
 
     render() {
         const activeIssue = this.props.activeIssue
-        const previewHtml = this.preparePreview(this.props.activeIssue)
+        const previewHtml = this.preparePreview(activeIssue)
         const contextHtml = ReactHtmlParser(previewHtml, { preprocessNodes: (nodes) => Html.processStaticHtml(nodes, this.props.settings) })
         return(
             <div className={Classes.previewWindow}>
@@ -74,17 +74,19 @@ class Preview extends React.Component {
         let table = Html.toElement(issueHtml)
         let newTable = document.createElement('table')
 
-        for(let rowInd in table.rows()) {
-            if(rowInd > 10) {
+        for(let rowInd = 0; rowInd < table.rows.length; rowInd++) {
+            if(rowInd > 4) {
                 return newTable.outerHTML
             }
-            let row = table.rows[rowInd]
-            let newRow = table.insertRow()
 
-            for(let cellInd in row.cells()) {
-                if(cellInd > 6) {
+            let row = table.rows[rowInd]
+            let newRow = newTable.insertRow()
+
+            for(let cellInd = 0; cellInd < row.cells.length; cellInd++) {
+                if(cellInd > 3) {
                     break;
                 }
+
                 let cell = row.cells[cellInd]
                 let newCell = Html.toElement(cell.outerHTML)
                 
@@ -92,12 +94,14 @@ class Preview extends React.Component {
             }
         }
 
+        console.log(newTable.outerHTML)
         return newTable.outerHTML
     }
 
     handleLongText(issueHtml) {
         let element = Html.toElement(issueHtml)
-        element.innerText = element.innerText.substr(0, 500)
+        element.innerText = element.innerText.substr(0, 300)
+        element.innerText.concat('...')
 
         return element.outerHTML
     }

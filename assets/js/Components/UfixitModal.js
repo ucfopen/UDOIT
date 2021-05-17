@@ -180,10 +180,7 @@ class UfixitModal extends React.Component {
                     </InlineList.Item>
                   </InlineList>
                   <View as="div" shadow="resting" padding="small" margin="x-small 0 0 0" height="200px" overflowY="auto">
-                    {('preview' === this.state.windowContents) &&
-                      // <div className={Classes.previewWindow}>
-                      //   {ReactHtmlParser(code, { preprocessNodes: (nodes) => Html.processStaticHtml(nodes, this.props.settings) })}
-                      // </div>           
+                    {('preview' === this.state.windowContents) &&       
                       <Preview
                         activeIssue={this.props.activeIssue}
                         settings={this.props.settings}
