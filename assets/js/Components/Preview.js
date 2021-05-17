@@ -24,10 +24,9 @@ class Preview extends React.Component {
     preparePreview(activeIssue) {
         let issueType = activeIssue.scanRuleId
         let issueHtml = Html.getIssueHtml(activeIssue)
-        let previewHtml = issueHtml
+        let previewHtml = activeIssue.previewHtml
 
         if(issueHtml.length > 3000 || activeIssue.previewHtml.length > 3000) {
-            console.log("hello")
             previewHtml = this.handleLongText(issueHtml)
             return previewHtml
         }
@@ -45,18 +44,17 @@ class Preview extends React.Component {
                 break;
         }
 
-        return this.highlightHtml(activeIssue, previewHtml)
+        return this.highlightHtml(activeIssue, issueHtml, previewHtml)
     }
 
-    highlightHtml(activeIssue, html) {
+    highlightHtml(activeIssue, issueHtml, previewHtml) {
         // const html = (activeIssue.newHtml) ? activeIssue.newHtml : Html.toString(Html.toElement(activeIssue.sourceHtml))
-        const highlighted = `<span class="highlighted" style="display:inline-block; border:5px dashed #F1F155;">${html}</span>`
-        let previewHtml 
+        const highlighted = `<span class="highlighted" style="display:inline-block; border:5px dashed #F1F155;">${issueHtml}</span>`
 
         try {
-            previewHtml = activeIssue.previewHtml.replace(activeIssue.sourceHtml, highlighted)
+            previewHtml = previewHtml.replace(activeIssue.sourceHtml, highlighted)
         } catch (error) {
-            previewHtml = html
+            console.log(error)
         }
     
         return previewHtml
