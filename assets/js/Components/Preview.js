@@ -44,7 +44,7 @@ class Preview extends React.Component {
                 let next = element.nextElementSibling
 
                 if(next === null && prev === null) {
-                    previewHtml = this.handleLongText(issueHtml)
+                    previewHtml = this.handleLongText(issueHtml, MAX_CONTENT_LENGTH)
                     return previewHtml
                 }
 
@@ -52,19 +52,19 @@ class Preview extends React.Component {
                 parent.innerHTML = ''
 
                 if(prev !== null) {
-                    prev = Html.toElement(this.handleLongText(prev.outerHTML))
+                    prev = Html.toElement(this.handleLongText(prev.outerHTML, MAX_CONTENT_LENGTH/3))
                     parent.appendChild(prev)
                 }
 
                 parent.appendChild(Html.toElement(activeIssue.sourceHtml))
 
                 if(next !== null) {
-                    next = Html.toElement(this.handleLongText(next.outerHTML))
+                    next = Html.toElement(this.handleLongText(next.outerHTML, MAX_CONTENT_LENGTH/3))
                     parent.appendChild(next)
                 }
 
                 previewHtml = parent.outerHTML
-                previewHtml = this.handleLongText(previewHtml)
+                previewHtml = this.handleLongText(previewHtml, MAX_CONTENT_LENGTH)
                 
                 break;
         }
@@ -111,14 +111,14 @@ class Preview extends React.Component {
         return newTable.outerHTML
     }
 
-    handleLongText(issueHtml) {
+    handleLongText(issueHtml, maxLen) {
         let element = Html.toElement(issueHtml)
 
-        if(element.innerText.length < MAX_CONTENT_LENGTH) {
+        if(element.innerText.length < maxLen) {
             return issueHtml
         }
 
-        element.innerText = element.innerText.substr(0, MAX_CONTENT_LENGTH)
+        element.innerText = element.innerText.substr(0, maxLen)
         element.innerText = element.innerText.concat(' ...')
 
         return element.outerHTML
