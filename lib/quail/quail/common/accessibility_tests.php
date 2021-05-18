@@ -4805,8 +4805,11 @@ class objectMustContainText extends quailTest
 	function check()
 	{
 		foreach ($this->getAllElements('object') as $object) {
-			if (!$object->nodeValue || trim($object->nodeValue) == '')
-				$this->addReport($object);
+			if ((!$object->nodeValue || trim($object->nodeValue) == '') 
+				&& !($object->hasAttribute('aria-label') && strlen($object->getAttribute('aria-label')) > 0)
+				&& !($object->hasAttribute('aria-labelledby') && strlen($object->getAttribute('aria-labelledby')) > 0)){
+					$this->addReport($object);
+			}
 
 		}
 	}
