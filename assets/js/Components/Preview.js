@@ -75,7 +75,6 @@ class Preview extends React.Component {
 
     highlightHtml(issueHtml, previewHtml) {
         const highlighted = `<span class="highlighted" style="display:inline-block; border:5px dashed #F1F155;">${issueHtml}</span>`
-
         try {
             previewHtml = previewHtml.replace(issueHtml, highlighted)
         } catch (error) {
