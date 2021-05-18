@@ -56,11 +56,8 @@ class Preview extends React.Component {
                     parent.appendChild(prev)
                 }
                 
-                parent.appendChild(
-                    Html.toElement(
-                        this.handleLongText(issueHtml, MAX_CONTENT_LENGTH/3)
-                        )
-                )
+                issueHtml = this.handleLongText(issueHtml, MAX_CONTENT_LENGTH/3)
+                parent.appendChild(Html.toElement(issueHtml))
 
                 if(next !== null) {
                     next = Html.toElement(this.handleLongText(next.outerHTML, MAX_CONTENT_LENGTH/3))
