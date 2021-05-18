@@ -16,6 +16,7 @@ import { Checkbox } from '@instructure/ui-checkbox'
 import { Spinner } from '@instructure/ui-spinner'
 import ReactHtmlParser from 'react-html-parser'
 import MessageTray from './MessageTray'
+import Preview from './Preview'
 import { ToggleDetails } from '@instructure/ui-toggle-details'
 
 import Ufixit from '../Services/Ufixit'
@@ -87,8 +88,6 @@ class UfixitModal extends React.Component {
 
     let activeIndex = this.findActiveIndex();
     const UfixitForm = ufixitService.returnIssueForm(activeIssue)
-    const highlightedHtml = this.highlightHtml(activeIssue)
-    const contextHtml = (highlightedHtml) ? ReactHtmlParser(highlightedHtml, { preprocessNodes: (nodes) => Html.processStaticHtml(nodes, this.props.settings) }) : 'N/A'
 
     let showExample = false
     if (!this.props.t(`rule.example.${activeIssue.scanRuleId}`).includes('rule.example')) {
@@ -173,14 +172,6 @@ class UfixitModal extends React.Component {
                       }
                     </InlineList.Item>
                     <InlineList.Item>
-                      {('context' === this.state.windowContents) ?
-                        <Text weight="bold">{this.props.t('label.context')}</Text>
-                        :
-                        <Link isWithinText={false} onClick={() => this.handleWindowToggle('context')}>
-                          {this.props.t('label.context')}</Link>
-                      }
-                    </InlineList.Item>
-                    <InlineList.Item>
                       {('html' === this.state.windowContents) ?
                         <Text weight="bold">{this.props.t('label.view_source')}</Text>
                         :
@@ -190,15 +181,12 @@ class UfixitModal extends React.Component {
                     </InlineList.Item>
                   </InlineList>
                   <View as="div" shadow="resting" padding="small" margin="x-small 0 0 0" height="200px" overflowY="auto">
-                    {('preview' === this.state.windowContents) &&
-                      <div className={Classes.previewWindow}>
-                        {ReactHtmlParser(code, { preprocessNodes: (nodes) => Html.processStaticHtml(nodes, this.props.settings) })}
-                      </div>                      
-                    }
-                    {('context' === this.state.windowContents) &&
-                      <div className={Classes.previewWindow}>
-                        {contextHtml}
-                      </div>
+                    {('preview' === this.state.windowContents) &&       
+                      <Preview
+                        activeIssue={this.props.activeIssue}
+                        settings={this.props.settings}
+                      >  
+                      </Preview>           
                     }
                     {('html' === this.state.windowContents) &&
                       <CodeEditor margin="x-small 0" label={this.props.t('label.code_preview')} language="html" readOnly={true}
@@ -261,13 +249,6 @@ class UfixitModal extends React.Component {
         </Modal>
         }
       </View>)
-  }
-
-  highlightHtml(activeIssue) {
-    const html = (activeIssue.newHtml) ? activeIssue.newHtml : Html.toString(Html.toElement(activeIssue.sourceHtml))
-    const highlighted = `<span class="highlighted" style="display:inline-block; border:5px dashed #F1F155;">${html}</span>`
-
-    return activeIssue.previewHtml ? activeIssue.previewHtml.replace(activeIssue.sourceHtml, highlighted) : '<span>Not Available</span>'
   }
 
   prepareCode(activeIssue) {
