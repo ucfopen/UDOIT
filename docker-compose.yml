@@ -1,5 +1,43 @@
-web:
-  build: .
-  volumes:
-    - .:/var/www
-  command: ./composer_depend.sh
+version: '3.3'
+
+services:
+  nginx:
+    image: nginx:stable-alpine
+    volumes:
+        - ./docker/etc/nginx:/etc/nginx
+        - ./docker/var/ssl:/var/ssl
+        - .:/var/www/html
+    ports:
+        - "80:80"
+        - "443:443"
+  # Uncomment this block and comment the next db block
+  # to use MySQL instead of Postgres
+  # db:
+  #   image: mysql:latest
+  #   volumes:
+  #     - dbdata:/var/lib/mysql
+  #   environment:
+  #     MYSQL_ROOT_PASSWORD: root
+  #     MYSQL_DATABASE: udoit
+  #     MYSQL_USER: udoit
+  #     MYSQL_PASSWORD: udoit
+  #   ports:
+  #     - "3306:3306"
+  db:
+    image: postgres:alpine
+    restart: always
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: udoit
+      POSTGRES_PASSWORD: udoit
+      POSTGRES_DB: udoit
+  php:
+    build:
+      context: .
+      dockerfile: docker/php73-fpm.Dockerfile
+    volumes:
+      - .:/var/www/html
+volumes:
+  web:
+  dbdata:
