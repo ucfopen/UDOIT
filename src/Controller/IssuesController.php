@@ -177,15 +177,24 @@ class IssuesController extends ApiController
             $issue->setStatus(Issue::$issueStatusFixed);
             $issue->setFixedBy($this->getUser());
             $issue->setFixedOn($util->getCurrentTime());
+
+            // Update report stats
+            $report = $issue->getContentItem()->getCourse()->getUpdatedReport();
+            $apiResponse->setData([
+                'issue' => ['status' => $issue->getStatus(), 'pending' => false],
+                'report' => $report
+            ]);
+
             $this->getDoctrine()->getManager()->flush();
-            $apiResponse->addMessage('form.msg.success_resolved', 'success');
+            $apiResponse->addMessage('form.msg.manually_fixed', 'success');
+        }
+        else {
+            $apiResponse->addMessage('form.msg.not_fixed');
         }
 
         // Add messages to response
         $unreadMessages = $util->getUnreadMessages();
-        if (empty($unreadMessages)) {
-            $apiResponse->setData($issue);    
-        } else {
+        if (!empty($unreadMessages)) {
             $apiResponse->addLogMessages($unreadMessages);
         }         
 

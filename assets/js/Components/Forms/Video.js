@@ -2,11 +2,13 @@ import React from 'react'
 import { View } from '@instructure/ui-view'
 import { Button } from '@instructure/ui-buttons'
 import { Spinner } from '@instructure/ui-spinner'
-import { Text } from '@instructure/ui-text'
+import { IconCheckMarkLine } from '@instructure/ui-icons'
 
 export default class Video extends React.Component {
   constructor(props) {
     super(props)
+
+    this.handleVideoRescan = this.handleVideoRescan.bind(this)
   }
 
   render() {
@@ -16,17 +18,18 @@ export default class Video extends React.Component {
 
     if (this.props.activeIssue.status == 1) {
       return (
-        <View as="div" textAlign="center" margin="x-large" padding="x-large">
-          <Text>Issue has been resolved.</Text>
+        <View as="div" margin="small 0 large x-small" padding="0">
+          <IconCheckMarkLine color="success" />
+          <View margin="0 x-small">{this.props.t('label.fixed')}</View>
         </View>
       )
     }
 
     return (
-      <View as="div" textAlign="center" margin="x-large" padding="x-large">
+      <View as="div" margin="small 0 large x-small" padding="0">
         <Button
           color="primary"
-          onClick={() => this.props.handleManualScan(this.props.activeIssue.id)}
+          onClick={this.handleVideoRescan}
           interaction={!pending ? 'enabled' : 'disabled'}
         >
           {'1' == pending && (
@@ -36,5 +39,10 @@ export default class Video extends React.Component {
         </Button>
       </View>
     )
+  }
+
+  handleVideoRescan()
+  {
+    this.props.handleManualScan(this.props.activeIssue)
   }
 }
