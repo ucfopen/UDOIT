@@ -1,4 +1,5 @@
 var Encore = require('@symfony/webpack-encore')
+const CopyWebpackPlugin = require('copy-webpack-plugin')
 var path = require('path')
 
 // Manually configure the runtime environment if not already configured yet by the "encore" command.
@@ -12,6 +13,12 @@ Encore.setOutputPath('public/build/')
 
   .addEntry('app', './assets/js/index.js')
   .addEntry('admin', './assets/js/admin.js')
+
+  .addPlugin(new CopyWebpackPlugin({
+    patterns: [
+      { from: './assets/mediaAssets', to: 'static'}
+    ]
+  }))
 
   .disableSingleRuntimeChunk()
   .cleanupOutputBeforeBuild()
