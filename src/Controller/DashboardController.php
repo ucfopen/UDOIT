@@ -111,7 +111,7 @@ class DashboardController extends AbstractController
             'institution' => $institution,
             'roles' => $this->session->get('roles'),
             'language' => $lang,
-            'labels' => $this->util->getTranslation($lang),
+            'labels' => (array) $this->util->getTranslation($lang),
             'excludedRuleIds' => $excludedRuleIds,
             'contentTypes' => $lms->getContentTypes(),
             'backgroundColor' => !empty($_ENV['BACKGROUND_COLOR']) ? $_ENV['BACKGROUND_COLOR'] : '#ffffff',
