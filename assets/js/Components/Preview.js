@@ -29,6 +29,7 @@ class Preview extends React.Component {
         let previewHtml = activeIssue.previewHtml
 
         switch(issueType) {
+            // Add custom rules here as a case
             case 'TableHeaderShouldHaveScope':
                 previewHtml = this.handleTable(issueHtml)
                 break;
@@ -38,10 +39,33 @@ class Preview extends React.Component {
                 break;
 
             default:
-                if(activeIssue.previewHtml.length > MAX_CONTENT_LENGTH) {
+                let element = this.findCurrentElement(Html.toElement(previewHtml), activeIssue.sourceHtml)
+                let prev = element.previousElementSibling
+                let next = element.nextElementSibling
+
+                if(next === null && prev === null) {
                     previewHtml = this.handleLongText(issueHtml)
                     return previewHtml
                 }
+
+                let parent = Html.toElement(previewHtml)
+                parent.innerHTML = ''
+
+                if(prev !== null) {
+                    prev = Html.toElement(this.handleLongText(prev.outerHTML))
+                    parent.appendChild(prev)
+                }
+
+                parent.appendChild(Html.toElement(activeIssue.sourceHtml))
+
+                if(next !== null) {
+                    next = Html.toElement(this.handleLongText(next.outerHTML))
+                    parent.appendChild(next)
+                }
+
+                previewHtml = parent.outerHTML
+                previewHtml = this.handleLongText(previewHtml)
+                
                 break;
         }
 
@@ -89,10 +113,30 @@ class Preview extends React.Component {
 
     handleLongText(issueHtml) {
         let element = Html.toElement(issueHtml)
+
+        if(element.innerText.length < MAX_CONTENT_LENGTH) {
+            return issueHtml
+        }
+
         element.innerText = element.innerText.substr(0, MAX_CONTENT_LENGTH)
         element.innerText = element.innerText.concat(' ...')
 
         return element.outerHTML
+    }
+
+    findCurrentElement(parent, target) {
+        let children = parent.children
+        
+        if(children !== undefined) {
+            for (let i = 0; i < children.length; i++) {
+                let child = children[i];
+                if(child.outerHTML === target) {
+                    return child
+                }
+            }
+        }
+
+        return Html.toElement(target)
     }
 }
 
