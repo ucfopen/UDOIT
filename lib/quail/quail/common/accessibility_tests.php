@@ -1,9 +1,9 @@
 <?php
 
 // include_once('../config/localConfig.php');
-	
 
-/** 
+
+/**
 *    QUAIL - QUAIL Accessibility Information Library
 *    Copyright (C) 2009 Kevin Miller
 *
@@ -1196,7 +1196,7 @@ class cssTextHasContrast extends quailColorTest
 
 				if (isset($style['font-weight'])) {
 					preg_match_all('!\d+!', $style['font-weight'], $matches);
-					
+
 					if (count($matches) > 0) {
 						if ($matches >= 700) {
 							$bold = true;
@@ -1285,7 +1285,7 @@ class cssTextStyleEmphasize extends quailColorTest
 
 				if (isset($style['font-weight'])) {
 					preg_match_all('!\d+!', $style['font-weight'], $matches);
-					
+
 					if (count($matches) > 0) {
 						if ($matches >= 700) {
 							$bold = true;
@@ -2897,7 +2897,7 @@ class noHeadings extends quailTest
 	function check()
 	{
 		global $doc_length;
-		
+
 		$elements = $this->getAllElements('p');
 
 		$document_string = "";
@@ -5656,14 +5656,22 @@ class tableHasFixedWidth extends quailTableTest
 			$nodes = $xpath->query('.//*', $table);
 			$style = $this->css->getStyle($table);
 			if (isset($style['width'])) {
-				$this->addReport($table);
-				break;
+				$temp = substr( trim($style['width']), -1);
+
+				if ( $temp != '%' && trim($style['width']) != 'auto' ) {
+					$this->addReport($table);
+					break;
+				}
 			}
 			foreach ($nodes as $node) {
 				$style = $this->css->getStyle($node);
 				if (isset($style['width'])) {
-					$this->addReport($table);
-					break;
+					$temp = substr( trim($style['width']), -1);
+
+					if ( $temp != '%' && trim($style['width']) != 'auto' ) {
+						$this->addReport($table);
+						break;
+					}
 				}
 			}
 		}
