@@ -34,7 +34,7 @@
 			}
 		?>
 		<?php foreach ($tmp_types as $type => $type_group): ?>
-			<?php $heading_data = $type_group[0]; ?>
+			<?php $heading_data = end($type_group); ?>
 			<?php $collapse_id = "collapse-{$id}-{$type}"; ?>
 			<li class="list-group-item">
 
@@ -48,25 +48,33 @@
 					<div class="error-desc"><p><?= $heading_data->description; ?></p></div>
 				<?php endif; ?>
 				<!-- End Error group header -->
-				<?php if ($type != "noHeadings"): ?>
-					<div id="<?= $collapse_id; ?>" class="collapse in fade margin-top-small">
+				<div id="<?= $collapse_id; ?>" class="collapse in fade margin-top-small">
+					<?php if ($type == "contentTooLong"): ?>
+						<?php foreach ($type_group as $index => $group_item): ?>
+							<?= $group_item->text_type; ?>
+						<?php endforeach; ?>
+					<?php elseif ($type != "noHeadings") : ?>
 						<ol>
 							<?php foreach ($type_group as $index => $group_item): ?>
 								<?php $li_id = "error-{$id}-{$type}-{$index}"; ?>
 								<li id="<?= $li_id; ?>">
-
-									<?php if ( in_array($group_item->type, $fixable_types) ): ?>
-										<p class="fix-success hidden"><span class="label label-success margin-left-small" style="margin-top: -2px;">Done!</span></p>
+								<?php if ( in_array($group_item->type, $fixable_types) ): ?>
+									<p class="fix-success hidden"><span class="label label-success margin-left-small" style="margin-top: -2px;">Done!</span></p>
+								<?php endif; ?>
+								<!-- Print Report -->
+								<?php if ($group_item->html): ?>
+									<a class="viewError btn" href="#viewError" data-error="<?= $li_id; ?>">View the source of this issue</a>
+									<?php if($group_item->manual == true): ?>
+										<p class="manual-notification">⚠️ Manual verification required.</p>
 									<?php endif; ?>
-
-									<!-- Print Report -->
-									<?php if ($group_item->html): ?>
-										<a class="viewError btn" href="#viewError" data-error="<?= $li_id; ?>">View the source of this issue</a>
-										<div class="more-info hidden instance">
-											<a class="closeError btn" href="#closeError" data-error="<?= $li_id; ?>">Close Issue Source</a>
-											<div class="error-preview">
-												<?php if ($group_item->type == "videosEmbeddedOrLinkedNeedCaptions"): ?>
-													<iframe width="100%" height="300px" src="https://www.youtube.com/embed/<?= Utils::getYouTubeId($group_item->html); ?>" frameborder="0" allowfullscreen></iframe>
+									<div class="more-info hidden instance">
+										<a class="closeError btn" href="#closeError" data-error="<?= $li_id; ?>">Close Issue Source</a>
+										<?php if($group_item->manual == true): ?>
+											<p class="manual-notification">⚠️ Manual verification required.</p>
+										<?php endif; ?>
+										<div class="error-preview">
+											<?php if ($group_item->type == "videosEmbeddedOrLinkedNeedCaptions"): ?>
+												<?= $group_item->html ?>
 												<?php else: ?>
 													<?php if ($group_item->type == "cssTextHasContrast" && !isset($group_item->back_color)): ?>
 														<div class="ufixit-no-background-color">
@@ -125,6 +133,7 @@
 														break;
 
 													case "imgHasAlt":
+													case "imgHasAltDeco":
 													case "imgNonDecorativeHasAlt":
 													case "imgAltIsDifferent":
 													case "imgAltIsTooLong":
@@ -142,6 +151,10 @@
 													case "aSuspiciousLinkText":
 														$result_template = 'suspicious_link_text';
 														break;
+
+													case "pNotUsedAsHeader":
+														$result_template = 'make_heading';
+														break;
 												}
 
 												if ( ! empty($result_template)) {
@@ -153,9 +166,10 @@
 								</li>
 							<?php endforeach; # foreach ($type_group as $group_item):  ?>
 						</ol>
-					</div>
-				<?php endif; # doesn't show list for noHeadings errors ?>
+					<?php endif; # For errors other than content length?>
+				</div>
 			</li>
 		<?php endforeach; # foreach ($error_types as $type_group):?>
 	</ul>
 </div>
+

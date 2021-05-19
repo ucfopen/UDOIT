@@ -1,4 +1,4 @@
-<?php 
+<?php
 /**
 *    QUAIL - QUAIL Accessibility Information Library
 *    Copyright (C) 2009 Kevin Miller
@@ -37,6 +37,8 @@ class Wcag2aaaGuideline extends quailGuideline
 		'imgAltNotPlaceHolder',
 		'imgAltNotEmptyInAnchor',
 		'imgHasLongDesc',
+		'imgHasAltDeco',
+		'contentTooLong',
 		// 'imgAltIsSameInText',
 		// 'imgAltEmptyForDecorativeImages',
 		// 'appletContainsTextEquivalentInAlt',
@@ -54,6 +56,7 @@ class Wcag2aaaGuideline extends quailGuideline
 		'aLinksToSoundFilesNeedTranscripts',
 		'aLinksToMultiMediaRequireTranscript',
 		'objectShouldHaveLongDescription',
+		'objectTagDetected',
 		// 'inputTextHasLabel',
 		'pNotUsedAsHeader',
 		// 'selectHasAssociatedLabel',
@@ -175,7 +178,10 @@ class Wcag2aaaGuideline extends quailGuideline
 		'cssTextStyleEmphasize',
 		'headersHaveText',
 		'videoEmbedChecked',
+		'videoProvidesCaptions',
 		'videosEmbeddedOrLinkedNeedCaptions',
+		'videoUnlistedOrNotFound',
+		'videoCaptionsAreCorrectLanguage'
 	];
 }
 /*@}*/

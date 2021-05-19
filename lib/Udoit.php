@@ -17,442 +17,494 @@
 *
 *   Primary Author Contact:  Jacob Bates <jacob.bates@ucf.edu>
 */
-require_once('../config/settings.php');
-require_once('quail/quail/quail.php');
 
 use Httpful\Request;
 
-class Udoit {
+class Udoit
+{
     /**
-     * @var string - The API key needed to communicate with Canvas
+     * Retrieves an entire group of content by type and scans it
+     * @param string $api_key        API Key of the user were acting as
+     * @param string $canvas_api_url The base URL of the Canvas API
+     * @param string $course_id      The Canvas course id
+     * @param string $content_type   The group of content types we'll retrieve EX: 'pages' or 'assignments'
+     * @param string $report_type    The type of severity the user would like to see on report
+     * @param int    $content_flag   A flag indicating whether to scan unpublished content
+     * @param string $course_locale  The locale/language of the Canvas course
+     *
+     * @return array Results of the scan
      */
-    public $api_key;
+    public static function retrieveAndScan($api_key, $canvas_api_url, $course_id, $content_type, $report_type, $content_flag, $course_locale)
+    {
+        global $logger;
+        session_start();
 
-    /**
-     * @var string - The base uri for the Canvas instance
-     */
-    public $base_uri;
+        $logger->addInfo("Starting retrieveAndScan - course: {$course_id}, content: {$content_type}, report_type: {$report_type}");
 
-    /**
-     * @var array - An array of issues detected by UDOIT
-     */
-    public $bad_content;
+        $items_with_issues = []; // array of content items that the scanner found issues in
+        $totals = ['errors' => 0, 'suggestions' => 0];
+        $error_summary = [];
+        $suggestion_summary = [];
+        $scan_time_start = microtime(true);
 
-    /**
-     * @var string - The id of the content being fixed
-     */
-    public $content_id;
+        $content = static::getCourseContent($api_key, $canvas_api_url, $course_id, $content_type, $content_flag);
 
-    /**
-     * @var array - An array of Canvas content types selected by the user
-     */
-    public $content_types;
+        if ('module_urls' !== $content_type) {
+            // everything except module_urls goes through a content scanner
+            $scanned_items = static::scanContent($content['items'], $report_type, $course_locale);
 
-    /**
-     * @var string - The course title
-     */
-    public $course_title;
+            // remove results w/o issues and count the totals
+            // create a new list of items
+            foreach ($scanned_items as $item) {
+                if ($item['amount'] == 0) {
+                    continue;
+                }
 
-    /**
-     * @var string - The course id our content is in
-     */
-    public $course_id;
+                $items_with_issues[]   = $item;
+                $totals['errors']      += count($item['error']);
+                $totals['suggestions'] += count($item['suggestion']);
 
-    /**
-     * @var array - Count of total results for a UDOIT scan
-     */
-    public $total_results;
+                foreach ($item['error'] as $issue) {
+                    $title = $issue['title'];
+                    if (!isset($error_summary[$title])) {
+                        $error_summary[$title] = new stdClass();
+                        $error_summary[$title]->count = 1;
+                    } else {
+                        $error_summary[$title]->count++;
+                    }
+                }
 
-    /**
-     * @var array - Bad module external urls
-     */
-    public $module_urls;
-
-    /**
-     * @var array - Unscannable files (pdf, doc, ppt, etc)
-     */
-    public $unscannable;
-
-
-    /**
-     * @var string - stringified json report
-     */
-    protected $json_report;
-
-    /**
-     * The class constructor
-     * @param array data - An array of POST data
-     */
-    public function __construct($data) {
-        $this->api_key       = $data['api_key'];
-        $this->base_uri      = $data['base_uri'];
-        $this->content_types = $data['content_types'];
-        $this->course_id     = $data['course_id'];
-        $this->course_title  = $data['course_title'];
-        $this->total_results = ['errors' => 0, 'warnings' => 0, 'suggestions' => 0];
-        $this->module_urls   = [];
-        $this->unscannable   = [];
-    }
-
-    /**
-     * [buildReport description]
-     * @return [type] [description]
-     */
-    public function buildReport() {
-        foreach ($this->content_types as $type) {
-            session_start();
-            $_SESSION['build_report_progress'] = $type;
-            session_write_close();
-
-            $typeResults = [];
-            $courseContentType = $this->getCourseContent($type);
-
-            foreach ($courseContentType['items'] as $r) {
-                if ($r['amount'] != 0) {
-                    $typeResults[] = $r;
-
-                    $this->total_results['errors']      += count($r['error']);
-                    $this->total_results['warnings']    += count($r['warning']);
-                    $this->total_results['suggestions'] += count($r['suggestion']);
+                foreach ($item['suggestion'] as $suggestion) {
+                    $title = $suggestion['title'];
+                    if (!isset($suggestion_summary[$title])) {
+                        $suggestion_summary[$title] = new stdClass();
+                        $suggestion_summary[$title]->count = 1;
+                    } else {
+                        $suggestion_summary[$title]->count++;
+                    }
                 }
             }
-
-            if ($courseContentType['module_urls']) {
-                $this->module_urls = $courseContentType['module_urls'];
+        } else {
+            // module_urls skips the scanner, just add them to the items with issues
+            if ('errors' !== $report_type) {
+                $items_with_issues = $content['items'];
+                $totals['suggestions'] += count($items_with_issues);
             }
-
-            if ($courseContentType['unscannable']) {
-                $this->unscannable = $courseContentType['unscannable'];
-            }
-
-            $courseContentType['items'] = $typeResults;
-            $this->bad_content[$type]   = [
-                'title'  => $type,
-                'items'  => $courseContentType['items'],
-                'amount' => $courseContentType['amount'],
-                'time'   => $courseContentType['time']
-            ];
         }
 
-        if ($this->module_urls) {
-            $this->bad_content['module_urls'] = [
-                'title'  => 'module_urls',
-                'items'  => $this->module_urls,
-                'amount' => count($this->module_urls),
-                'time'   => $courseContentType['time']
-            ];
-        }
+        // caluculate the total run time
+        $content['time']  = round(microtime(true) - $scan_time_start, 2);
 
-        if ($this->unscannable) {
-            $this->bad_content['unscannable'] = [
-                'title'  => 'unscannable',
-                'items'  => $this->unscannable,
-                'amount' => count($this->unscannable)
-            ];
-        }
+        $logger->addInfo("Finished retrieveAndScan - course: {$course_id}, content: {$content_type}");
 
-        // so the ajax call knows we're done
-        session_start();
-        $_SESSION['build_report_progress'] = 'done';
-        session_write_close();
-
-        $to_encode = [
-            'course'        => $this->course_title,
-            'total_results' => $this->total_results,
-            'content'       => $this->bad_content,
+        $content_return = [
+            'title'  => $content_type,
+            'items'  => $items_with_issues,
+            'amount' => $content['amount'],
+            'time'   => $content['time'],
         ];
 
-        $this->json_report = json_encode($to_encode);
+        // If there was an api error, and it's set to true, pass it up
+        if (isset($content['api_error']) && $content['api_error']) {
+            $content_return['api_error'] = $content['api_error'];
+        }
 
+        // If there was a scope error, and it's set to true, pass it up
+        if (isset($content['scope_error']) && $content['scope_error']) {
+            $content_return['scope_error'] = $content['scope_error'];
+        }
+
+        return [
+            'total_results' => $totals,
+            'scan_results' => [
+                'unscannable' => $content['unscannable'],
+                'error_summary' => $error_summary,
+                'suggestion_summary' => $suggestion_summary,
+                $content_type => $content_return,
+            ],
+        ];
     }
 
     /**
      * Calls the Quail library to generate a UDOIT report
-     * @param  array $scanned_content - The items from whatever type of Canvas content was scanned
-     * @return array                  - The report results
+     * @param  array  $content_items The items from whatever type of Canvas content was scanned
+     * @param  string $report_type   The type of severity the user would like to see on report
+     * @param  string $course_locale The locale/language of the Canvas course
+     *
+     * @return array  The report results
      */
-    private function generateReport($scanned_content) {
-        $content_report = [];
-        /* Runs each item in the test array through the Quail accessibility checker */
-        foreach ($scanned_content as $html) {
-            if (strlen($html['content']) == 0) {
+    public static function scanContent(array $content_items, $report_type, $course_locale)
+    {
+        require_once(__DIR__.'/quail/quail/quail.php');
+        $report = [];
+        global $logger;
+
+        // Runs each item through the Quail accessibility checker
+        foreach ($content_items as $item) {
+            if (empty($item['content'])) {
                 continue;
             }
 
-            $quail  = new quail($html['content'], 'wcag2aaa', 'string', 'static');
-            $quail->runCheck();
+            $quail  = new quail($item['content'], 'wcag2aaa', 'string', 'static', 'en', $report_type, $course_locale);
+            $quail->runCheck(null, $course_locale);
+            $quail_report = $quail->getReport();
 
-            $error_count = 0;
-            $result      = $quail->getReport();
-            $report      = $result['report'];
-            $severe      = [];
-            $warning     = [];
-            $suggestion  = [];
+            $issue_count = 0;
+            $errors      = [];
+            $warnings    = [];
+            $suggestions = [];
+            $state       = null;
 
-            foreach ($report as $value) {
-                //  Some don't have a severity num
-                if ( ! array_key_exists('severity_num', $value)) {
+            // loop over the items returning from Quail
+            foreach ($quail_report['report'] as $quail_issue) {
+                if (empty($quail_issue['severity_num'])) {
                     continue;
                 }
 
-                if ($value['severity_num'] == 1) {
-                    $severe[] = $value;
-                }
-                elseif ($value['severity_num'] == 2) {
-                    $warning[] = $value;
-                }
-                elseif ($value['severity_num'] == 3) {
-                    $suggestion[] = $value;
-                }
+                $issue_count++;
+                $state = $quail_issue['state'];
 
-                if (count($value) > 0) {
-                    $error_count++;
+                switch ((int) $quail_issue['severity_num']) {
+                    case 1:
+                        $errors[] = $quail_issue;
+                        break;
+
+                    case 2:
+                        $warnings[] = $quail_issue;
+                        break;
+
+                    case 3:
+                        $suggestions[] = $quail_issue;
+                        break;
                 }
             }
 
-            $content_report[] = [
-                'id'         => $html['id'],
-                'name'       => $html['title'],
-                'url'        => $html['url'],
-                'amount'     => $error_count,
-                'error'      => $severe,
-                'warning'    => $warning,
-                'suggestion' => $suggestion,
+            $quail_summary = [
+                'id'         => $item['id'],
+                'name'       => $item['title'],
+                'url'        => $item['url'],
+                'amount'     => $issue_count,
+                'error'      => $errors,
+                'warning'    => $warnings,
+                'suggestion' => $suggestions,
             ];
+
+            $report[] = $quail_summary;
         }
 
-        return $content_report;
+        return $report;
     }
 
     /**
      * Communicates with the Canvas API to retrieve course content
-     * @param  string $type - The type of course content to be scanned
-     * @return array        - The report results
+     * @param string $api_key        Api key for the user we're acting as
+     * @param string $canvas_api_url Base uri for your canvas api
+     * @param string $course_id      The canvas course id
+     * @param string $type           The type of course content to be scanned
+     * @param int    $content_flag   A flag indicating whether to scan unpublished content
+     *
+     * @return array The report results
      */
-    private function getCourseContent($type) {
-        $content      = [];
-        $per_page     = 100;
-        $page_count   = 1;
-        $base_api_url = "{$this->base_uri}/api/v1/courses/{$this->course_id}/";
+    public static function getCourseContent($api_key, $canvas_api_url, $course_id, $type, $content_flag)
+    {
+        global $logger;
+        $api_url = "{$canvas_api_url}/api/v1/courses/{$course_id}/";
         $content_result = [
-            'items'       => [],
-            'amount'      => 0,
-            'time'        => microtime(true),
-            'module_urls' => [],
-            'unscannable' => [],
+            'items'       => [], // array of items of this type
+            'amount'      => 0, // count of items
+            'time'        => 0, // total time for the scan
+            'unscannable' => [], // items that couldnt be scanned
         ];
+
+        // If flag is set to 0, filter out unpublished content
 
         switch ($type) {
             case 'announcements':
-                $page_count = 1;
-                do {
-                    $url = "{$base_api_url}discussion_topics?&only_announcements=true&access_token={$this->api_key}&page={$page_count}";
-                    $response = Request::get($url)->send();
-
-                    foreach ($response->body as $thing) {
-                        $content[] = $thing;
+                $contents = static::apiGetAllLinks($api_key, "{$api_url}discussion_topics?&only_announcements=true");
+                foreach ($contents as $c) {
+                    if (($content_flag) || $c->published == "true") {
+                        $content_result['items'][] = [
+                            'id'      => $c->id,
+                            'content' => $c->message,
+                            'title'   => $c->title,
+                            'url'     => $c->html_url,
+                        ];
                     }
-                    $page_count++;
-
-                } while ( ! empty($response->body));
-
+                }
                 break;
 
             case 'assignments':
-                $page_count = 1;
-                do {
-                    $url      = "{$base_api_url}assignments?&access_token={$this->api_key}&page={$page_count}";
-                    $response = Request::get($url)->send();
-
-                    foreach ($response->body as $thing) {
-                        $content[] = $thing;
+                $contents = static::apiGetAllLinks($api_key, "{$api_url}assignments?");
+                foreach ($contents as $c) {
+                    if (($content_flag) || $c->published == "true") {
+                        $content_result['items'][] = [
+                            'id'      => $c->id,
+                            'content' => $c->description,
+                            'title'   => $c->name,
+                            'url'     => $c->html_url,
+                        ];
                     }
-                    $page_count++;
-
-                } while ( ! empty($response->body));
-
+                }
                 break;
 
             case 'discussions':
-                $page_count = 1;
-                do {
-                    $url      = "{$base_api_url}discussion_topics?&access_token={$this->api_key}&page={$page_count}";
-                    $response = Request::get($url)->send();
-
-                    foreach ($response->body as $thing) {
-                        $content[] = $thing;
+                $contents = static::apiGetAllLinks($api_key, "{$api_url}discussion_topics?");
+                foreach ($contents as $c) {
+                    if (($content_flag) || $c->published == "true") {
+                        $content_result['items'][] = [
+                            'id'      => $c->id,
+                            'content' => $c->message,
+                            'title'   => $c->title,
+                            'url'     => $c->html_url,
+                        ];
                     }
-                    $page_count++;
-                } while ( ! empty($response->body));
-
+                }
                 break;
 
             case 'files':
-                $url = "{$this->base_uri}/api/v1/courses/{$this->course_id}/files?page=1&per_page={$per_page}&access_token={$this->api_key}";
-
-                do {
-                    $response  = Request::get($url)->send();
-                    $the_links = $this->parseLinks($response->headers->toArray()['link']);
-
-
-                    foreach ($response->body as $thing) {
-                        $content[] = $thing;
+                // Gather all modules out here so we can attach them to files later
+                $all_modules = static::apiGet("{$api_url}modules", $api_key)->send()->body;
+                if (is_array($all_modules) || is_object($all_modules)) {
+                    foreach ($all_modules as $m) {
+                        $m->items = static::apiGet($m->items_url, $api_key)->send()->body;
                     }
+                }
 
-                    if (isset($the_links['next'])) {
-                        $url = $the_links['next'].'&access_token='.$this->api_key;
+                $contents = static::apiGetAllLinks($api_key, "{$api_url}files?");
+                foreach ($contents as $c) {
+                    if (($content_flag) || $c->locked != 1) {
+                        if (substr($c->display_name, 0, 2) === '._') {
+                            continue;
+                        }
+
+                        $extension = pathinfo($c->filename, PATHINFO_EXTENSION);
+                        global $file_scan_size_limit;
+                        global $unscannable_file_types;
+
+                        if (in_array($extension, $unscannable_file_types)) {
+                            // not scannable types
+                            // get folder path
+                            // get full_name from folder information for folder url
+                            $path = str_replace('course files', '', static::apiGet("{$api_url}folders/{$c->folder_id}", $api_key)->send()->body->full_name);
+                            // only prepend 'folder' if the current path is not in the root folder
+                            if (!empty($path)) {
+                                $path = "folder".$path;
+                            }
+                            // prepend canvas url
+                            $path = "{$canvas_api_url}/courses/{$course_id}/files/".$path;
+
+                            // saves modules item is in for unscannable section
+                            unset($modules);
+                            $modules = [];
+                            foreach ($all_modules as $m) {
+                                foreach ($m->items as $i) {
+                                    if ($i->title == $c->display_name) {
+                                        $modules[] = $m->name;
+                                    }
+                                }
+                            }
+                            $modules = array_unique($modules);
+
+                            $content_result['unscannable'][] = [
+                                'title'     => $c->display_name,
+                                'url'       => $c->url,
+                                'path'      => $path,
+                                'modules'    => $modules,
+                                'extension' => $extension,
+                                'big'       => false,
+                            ];
+                        } elseif (!empty($c->size) && $c->size > $file_scan_size_limit) {
+                            // too big to scan
+                            $content_result['unscannable'][] = [
+                                'title' => $c->display_name,
+                                'url' => $c->url,
+                                'big' => true,
+                            ];
+                        } elseif (in_array($extension, ['html', 'htm'])) {
+                            // scannable!
+                            $content_result['items'][] = [
+                                'id'      => $c->id,
+                                'content' => static::apiGet($c->url)->followRedirects()->expectsHtml()->send()->body,
+                                'title'   => $c->display_name,
+                                'url'     => $c->url,
+                            ];
+                        }
                     }
-
-                } while (isset($the_links['next']));
-
+                }
                 break;
 
             case 'pages':
-                $url = "{$base_api_url}pages?page=1&per_page={$per_page}&access_token={$this->api_key}";
-                do {
-                    $response  = Request::get($url)->send();
-                    $the_links = $this->parseLinks($response->headers->toArray()['link']);
+                $contents = static::apiGetAllLinks($api_key, "{$api_url}pages?");
+                foreach ($contents as $c) {
+                    if (($content_flag) || $c->published == "true") {
+                        $wiki_page = static::apiGet("{$api_url}pages/{$c->url}", $api_key)->send();
 
-                    foreach ($response->body as $thing) {
-                        $content[] = $thing;
+                        $content_result['items'][] = [
+                            'id'      => $wiki_page->body->url,
+                            'content' => $wiki_page->body->body,
+                            'title'   => $wiki_page->body->title,
+                            'url'     => $wiki_page->body->html_url,
+                        ];
                     }
+                }
+                break;
 
-                    if (isset($the_links['next'])) {
-                        $url = $the_links['next'].'&access_token='.$this->api_key;
+            case 'module_urls':
+                $url = "{$api_url}modules";
+                $search = '/(youtube|vimeo)/';
+                $resp = static::apiGet($url, $api_key)->send()->body;
+                $count = 0;
+
+                //For each module
+                foreach ($resp as $r) {
+                    // Skip the module if it's unpublished and the user selected that option
+                    if (($content_flag) || $r->published == "true") {
+                        // Grab item data from item url
+                        $items_url = $r->items_url;
+                        $items = static::apiGet($items_url, $api_key)->send()->body;
+
+                        if (isset($items->errors) && count($items->errors) > 0) {
+                            foreach ($items->errors as $error) {
+                                $logger->addError("Canvas API responded with an error for {$items_url}: $error->message");
+                            }
+                            break;
+                        }
+
+                        foreach ($items as $c) {
+                            // Skip the item if it's unpublished and the user selected that option
+                            if (($content_flag) || $c->published == "true") {
+                                $count++;
+                                $external_url = (isset($c->external_url) ? $c->external_url : '');
+                                
+                                if (preg_match($search, $external_url) === 1) {
+                                    $content_result['items'][] = [
+                                        'id'           => $c->id,
+                                        'external_url' => $c->external_url,
+                                        'title'        => $c->title,
+                                        'url'          => $c->html_url,
+                                    ];
+                                }
+                            }
+                        }
                     }
-                } while (isset($the_links['next']));
+                }
+
+                // module_urls is the only one that must count now
+                // todo - just return all items and do the 'scanning' in the scann content function
+                $content_result['amount'] = $count;
                 break;
 
             case 'syllabus':
-                $url       = "{$base_api_url}?include[]=syllabus_body&access_token={$this->api_key}";
-                $response  = Request::get($url)->send();
-                $content[] = $response->body;
+                $url = "{$api_url}?include[]=syllabus_body";
+                $response = static::apiGet($url, $api_key)->send();
 
-                break;
-
-            case 'modules':
-                $page_count = 1;
-                do {
-                    $url      = "{$base_api_url}modules?include[]=items&access_token={$this->api_key}&page={$page_count}";
-                    $response = Request::get($url)->send()->body;
-
-                    foreach ($response as $r) {
-                        foreach ($r->items as $item) {
-                            $content[] = $item;
-                        }
-                    }
-                    $page_count++;
-                } while ( ! empty($response->body));
-
-                break;
-        }
-
-        foreach ($content as $single) {
-            switch ($type) {
-                case 'announcements':
+                if (isset($response->body->syllabus_body)) {
+                    $logger->addInfo("Syllabus body found, adding to report.");
                     $content_result['items'][] = [
-                        'id'      => $single->id,
-                        'content' => $single->message,
-                        'title'   => $single->title,
-                        'url'     => $single->html_url
-                    ];
-                    break;
-
-                case 'assignments':
-                    $content_result['items'][] = [
-                        'id'      => $single->id,
-                        'content' => $single->description,
-                        'title'   => $single->name,
-                        'url'     => $single->html_url
-                    ];
-                    break;
-
-                case 'discussions':
-                    $content_result['items'][] = [
-                        'id'      => $single->id,
-                        'content' => $single->message,
-                        'title'   => $single->title,
-                        'url'     => $single->html_url
-                    ];
-                    break;
-
-                case 'files':
-                    // ignore ._ mac files
-                    if (substr($single->display_name, 0, 2) == '._') {
-                        break;
-                    }
-
-                    $extension = pathinfo($single->filename, PATHINFO_EXTENSION);
-
-                    if (in_array($extension, ['html', 'htm'])) {
-                        $content_result['items'][] = [
-                            'id'      => $single->id,
-                            'content' => Request::get($single->url)->followRedirects()->expectsHtml()->send()->body,
-                            'title'   => $single->display_name,
-                            'url'     => $single->url
-                        ];
-                    }
-                    // filters non html files
-                    if (in_array($extension, ['pdf', 'doc', 'docx', 'ppt', 'pptx'])){
-                        $content_result['unscannable'][] = [
-                            'title' => $single->display_name,
-                            'url'   => $single->url
-                        ];
-                    }
-                    break;
-
-                case 'pages':
-                    $url       = "{$base_api_url}pages/{$single->url}?access_token={$this->api_key}";
-                    $wiki_page = Request::get($url)->send();
-
-                    $content_result['items'][] = [
-                        'id'      => $wiki_page->body->url,
-                        'content' => $wiki_page->body->body,
-                        'title'   => $wiki_page->body->title,
-                        'url'     => $wiki_page->body->html_url
-                    ];
-                    break;
-
-                case 'syllabus':
-                    $content_result['items'][] = [
-                        'id'      => $single->id,
-                        'content' => $single->syllabus_body,
+                        'id'      => $response->body->id,
+                        'content' => $response->body->syllabus_body,
                         'title'   => 'Syllabus',
-                        'url'     => "{$this->base_uri}/courses/{$single->id}/assignments/syllabus"
+                        'url'     => "{$canvas_api_url}/courses/{$course_id}/assignments/syllabus",
                     ];
-                    break;
-
-                case 'modules':
-                    $search = '/(youtube|vimeo)/';
-                    $external_url = isset($single->external_url) ? $single->external_url : '';
-
-                    if (preg_match($search, $external_url)) {
-                        $content_result['module_urls'][] = [
-                            'id'           => $single->id,
-                            'external_url' => $single->external_url,
-                            'title'        => $single->title,
-                            'url'          => $single->html_url
-                        ];
+                } elseif (isset($response->body->errors) && count($response->body->errors) > 0) {
+                    foreach ($response->body->errors as $error) {
+                        $logger->addError("Canvas API responded with an error for {$url}: $error->message");
                     }
-                    break;
+                    // Report this error back to the user.
+                    $content_result['api_error'] = true;
+                } else {
+                    // This is likely caused by a scoped developer key not having sufficient scopes
+                    // Or it could be due to a limitation in canvas that doesn't allow includes for scoped keys
+                    $logger->addError("Unable to scan Syllabus due to scoped developer key.  Displaying message to user.");
+                    $content_result['scope_error'] = true;
+                }
+                break;
 
-            }
+            case 'test':
+                // Do nothing, this is reserved for tests that shouldn't do anything
+                break;
         }
 
-        $time_end                 = microtime(true);
-        $content_result['amount'] = count($content_result['items']);
-        $content_result['items']  = $this->generateReport($content_result['items']);
-        $content_result['time']   = round($time_end - $content_result['time'], 2);
+        // if the tasks didn't set the amount, calculate it now
+        if ($content_result['amount'] == 0) {
+            $content_result['amount'] = count($content_result['items']);
+        }
 
         return $content_result;
     }
 
     /**
+    * An abstraction of Request::get that adds the api key to the header
+    * @param string $url The Canvas API URL
+    * @param string $key The Canvas API key
+    *
+    * @return The results of the request
+    **/
+    protected static function apiGet($url, $key = null)
+    {
+        global $logger;
+        $logger->addInfo("Requesting {$url}");
+        $req = Request::get($url);
+
+        if (!empty($key)) {
+            $req->addHeader('Authorization', "Bearer ${key}");
+        }
+
+        return $req;
+    }
+
+    /**
+    * Gets every page from the Canvas API till there's none left
+    * @param string $api_key The Canvas API Key
+    * @param string $url     The Canvas API URL
+    *
+    * @return The results of the request
+    **/
+    protected static function apiGetAllLinks($api_key, $url)
+    {
+        global $logger;
+        $limit = 500;
+        $per_page = 100;
+        $results = [];
+
+        do {
+            $response = static::apiGet("{$url}page=1&per_page={$per_page}", $api_key)->send();
+            if (isset($response->body->errors) && count($response->body->errors) > 0) {
+                foreach ($response->body->errors as $error) {
+                    $logger->addError("Canvas API responded with an error for {$url}: $error->message");
+                }
+                break;
+            }
+
+            $links = static::apiParseLinks($response->headers->toArray()['link']);
+
+            if (empty($response->body)) {
+                $logger->addError("Canvas API returned empty body for {$url}");
+                break;
+            }
+
+            foreach ($response->body as $thing) {
+                $results[] = $thing;
+            }
+
+            if (isset($links['next'])) {
+                $url = "{$links['next']}&access_token={$api_key}";
+            }
+
+            usleep(250000); // 1/4 sec
+        } while (isset($links['next']) && $cur_page < $limit);
+        
+        return $results;
+    }
+
+    /**
      * Parses pagination links returned from Canvas
-     * @param  string $links - The pagination links
-     * @return array         - An array of the separated links
+     * @param  string $links The pagination links
+     *
+     * @return array An array of the separated links
      */
-    public static function parseLinks($links) {
+    protected static function apiParseLinks($links)
+    {
         $links  = explode(',', $links);
         $pretty = [];
 
@@ -464,35 +516,5 @@ class Udoit {
         }
 
         return $pretty;
-    }
-
-    /**
-     * Gets a copy of the json report
-     * @return string - Stringified json report
-     */
-    public function getReport() {
-        return $this->json_report;
-   }
-
-    /**
-     * Saves the report in json format to a file
-     * @param  string $title        - The title of the report
-     * @param  string $reports_dir  - Base path of the reports directory
-     * @return void
-     */
-    public function saveReport($title, $reports_dir) {
-        // make sure report directory exists
-        $file_name  = date('Y_m_d__g:i:s_a').'.json';
-        $final_path = "{$reports_dir}/{$title}";
-
-        if ( ! file_exists($final_path)) {
-            mkdir($final_path, 0755, true);
-            chmod($reports_dir, 0755);
-        }
-
-    $file = "{$final_path}/{$file_name}";
-        file_put_contents($file, $this->json_report);
-        chmod($file, 0755);
-        return $file;
     }
 }

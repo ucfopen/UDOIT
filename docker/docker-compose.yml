@@ -1,0 +1,18 @@
+version: '2'
+
+services:
+  php73:
+    build:
+      context: .
+      dockerfile: php73.Dockerfile
+    volumes:
+      - ../:/var/www
+    command: php composer.phar start
+
+  php74:
+    build:
+      context: .
+      dockerfile: php74.Dockerfile
+    volumes:
+      - ../:/var/www
+    command: php composer.phar start
