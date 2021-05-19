@@ -56,11 +56,8 @@ class Preview extends React.Component {
                     parent.appendChild(prev)
                 }
                 
-                parent.appendChild(
-                    Html.toElement(
-                        this.handleLongText(issueHtml, MAX_CONTENT_LENGTH/3)
-                        )
-                )
+                issueHtml = this.handleLongText(issueHtml, MAX_CONTENT_LENGTH/3)
+                parent.appendChild(Html.toElement(issueHtml))
 
                 if(next !== null) {
                     next = Html.toElement(this.handleLongText(next.outerHTML, MAX_CONTENT_LENGTH/3))
@@ -78,7 +75,6 @@ class Preview extends React.Component {
 
     highlightHtml(issueHtml, previewHtml) {
         const highlighted = `<span class="highlighted" style="display:inline-block; border:5px dashed #F1F155;">${issueHtml}</span>`
-
         try {
             previewHtml = previewHtml.replace(issueHtml, highlighted)
         } catch (error) {
