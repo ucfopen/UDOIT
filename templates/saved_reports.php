@@ -17,6 +17,7 @@
 *
 *	Primary Author Contact:  Jacob Bates <jacob.bates@ucf.edu>
 */
+
 ?>
 <div id="resultsTable" class="table-responsive">
 	<table class="table table-bordered table-hover no-margin">
@@ -32,7 +33,7 @@
 		<tbody>
 			<?php foreach ($reports as $report): ?>
 				<tr id="<?= $this->e($report['id']); ?>">
-					<td><?= $this->e($report['date_run']); ?></td>
+					<td><?= $this->e($report['date']); ?></td>
 					<td><?= $this->e($report['errors']); ?></td>
 					<td><?= $this->e($report['suggestions']); ?></td>
 				</tr>

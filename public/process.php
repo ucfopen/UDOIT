@@ -18,101 +18,118 @@
 *   Primary Author Contact:  Jacob Bates <jacob.bates@ucf.edu>
 */
 require_once('../config/settings.php');
-require_once('../lib/quail/quail/quail.php');
-require_once('../lib/Udoit.php');
-require_once('../lib/Ufixit.php');
-require_once('../lib/utils.php');
 
 session_start();
-
 $base_url     = $_SESSION['base_url'];
 $user_id      = $_SESSION['launch_params']['custom_canvas_user_id'];
 $course_title = $_SESSION['launch_params']['context_title'];
-$api_key      = $_SESSION['api_key'];
-
-if ( ! Utils::validate_api_key($user_id, $base_url, $api_key)) {
-    $api_key = $_SESSION['api_key'] = Utils::refresh_api_key($oauth2_id, $oauth2_uri, $oauth2_key, $base_url, $_SESSION['refresh_token']);
-
-    if (empty($api_key)) {
-        Utils::exitWithPartialError('Error refreshing authorization. Please re-load UDOIT and try again.');
-    }
-}
+UdoitUtils::$canvas_base_url = $_SESSION['base_url'];
 
 session_write_close();
+
+
+// make sure the session hasn't gone stale and lost the launch params
+if (empty($user_id) || empty($base_url)) {
+    global $logger;
+    $logger->addError('Missing data expected in session, forcing user to relaunch lti');
+    exit('{"error": "Your session timed out, please refresh the page and try again."}');
+}
 
 $main_action = filter_input(INPUT_POST, 'main_action', FILTER_SANITIZE_STRING);
 switch ($main_action) {
     case 'udoit':
-        if ($UDOIT_ENV != ENV_PROD) {
+        if (ENV_PROD !== $UDOIT_ENV) {
             require 'parseResults.php';
             exit();
         }
 
-        $content = filter_input(INPUT_POST, 'content', FILTER_DEFAULT, FILTER_REQUIRE_ARRAY);
+        global $logger;
+
+        $content   = filter_input(INPUT_POST, 'content', FILTER_DEFAULT, FILTER_REQUIRE_ARRAY);
+        $report_type = filter_input(INPUT_POST, 'report_type', FILTER_SANITIZE_STRING);
+        $title     = filter_input(INPUT_POST, 'context_title', FILTER_SANITIZE_STRING);
+        $course_id = filter_input(INPUT_POST, 'course_id', FILTER_SANITIZE_NUMBER_INT);
+        $job_group = uniqid('job_', true); // uniqid for this group of jobs
+        $user_id = $_SESSION['launch_params']['custom_canvas_user_id'];
+        $api_key = UdoitUtils::instance()->getValidRefreshedApiKey($user_id);
+        $course_locale_raw = UdoitUtils::instance()->getCourseLocale($api_key, $course_id);
+
+        if (false === $course_locale_raw ||
+        ctype_space($course_locale_raw) ||
+        '' == $course_locale_raw) {
+            $course_locale = 'en';
+            $logger->addWarning('No course locale received, defaulting to en');
+        } else {
+            $course_locale = substr($course_locale_raw, 0, 2);
+            $logger->addInfo('Course Locale set to '.$course_locale);
+        }
+        
+        $flag = filter_input(INPUT_POST, 'unpublished_flag', FILTER_DEFAULT);
 
         // No content selected
-        if ($content == 'none') {
-            Utils::exitWithPartialError('Please select which course content you wish to scan above.');
+        if ('none' === $content[0]) {
+            $logger->addInfo('no content selected');
+            exit('{"error": "Please select which course content you wish to scan above."}');
+        }
+        // No report types selected
+        if ('none' === $report_type) {
+            $logger->addInfo('no report items selected');
+            exit('{"error": "Please select what you would like to see on your report"}');
         }
 
-        $data = [
-            'course_title'  => $course_title,
-            'api_key'       => $api_key,
-            'base_uri'      => $base_url,
-            'content_types' => $content,
-            'course_id'     => filter_input(INPUT_POST, 'course_id', FILTER_SANITIZE_NUMBER_INT)
+        // common data object
+        $common_data = [
+            'course_title' => $course_title,
+            'base_uri'     => $base_url,
+            'title'        => $title,
+            'course_id'    => $course_id,
+            'scan_item'    => $scan_item,
+            'course_locale' => $course_locale,
+            'report_type'  => $report_type,
+            'flag'         => $flag,
         ];
 
-        $title = filter_input(INPUT_POST, 'context_title', FILTER_SANITIZE_STRING);
-        $udoit = new Udoit($data);
-        $udoit->buildReport();
-        $file = $udoit->saveReport($title, "../reports/{$user_id}");
+        // create an id to group all these jobs together
+        $job_group_id = UdoitJob::createJobGroupId();
 
-        $dbh = include('../lib/db.php');
+        // expire old jobs to make sure old jobs don't clog up the queue
+        UdoitJob::expireOldJobs();
 
-        $sth = $dbh->prepare("
-            INSERT INTO
-                {$db_reports_table}
-                (user_id, course_id, file_path, date_run, errors, suggestions)
-            VALUES
-                (:userid, :courseid, :filepath, CURRENT_TIMESTAMP, :errors, :suggestions)"
-        );
-
-        $sth->bindValue(':userid', $user_id, PDO::PARAM_INT);
-        $sth->bindValue(':courseid', $data['course_id'], PDO::PARAM_INT);
-        $sth->bindValue(':filepath', $file, PDO::PARAM_STR);
-        $sth->bindValue(':errors', $udoit->total_results['errors'], PDO::PARAM_STR);
-        $sth->bindValue(':suggestions', $udoit->total_results['suggestions'], PDO::PARAM_STR);
-
-        if ( ! $sth->execute()) {
-            error_log(print_r($sth->errorInfo(), true));
-            Utils::exitWithPartialError('Error inserting report into database');
+        // split up the items we're scanning into multiple jobs
+        foreach ($content as $scan_item) {
+            $data = array_merge($common_data, ['scan_item' => $scan_item]);
+            UdoitJob::addJobToQueue('scan', $user_id, $job_group_id, $data);
         }
 
-        $udoit_report = json_decode($udoit->getReport());
-        require 'parseResults.php';
+        // RUN NOW if the background worker isn't enabled
+        if (!UdoitJob::$background_worker_enabled) {
+            $limit = 50;
+            while (!UdoitJob::isJobGroupReadyToFinalize($job_group_id) && $limit--) {
+                UdoitJob::runNextJob();
+            }
+        }
+        // add a job to combine the results from all the jobs
+
+        echo(json_encode(['job_group' => $job_group_id]));
         break;
 
     case 'ufixit':
-        $error_color = filter_input(INPUT_POST, 'errorcolor', FILTER_SANITIZE_STRING, FILTER_REQUIRE_ARRAY);
-
         $data = [
             'base_uri'     => $base_url,
             'content_id'   => filter_input(INPUT_POST, 'contentid', FILTER_SANITIZE_STRING),
             'content_type' => filter_input(INPUT_POST, 'contenttype', FILTER_SANITIZE_STRING),
-            'error_html'   => html_entity_decode(filter_input(INPUT_POST, 'errorhtml', FILTER_SANITIZE_FULL_SPECIAL_CHARS)),
-            'error_colors' => empty($error_color) ? '' : $error_color,
+            'error_html'   => html_entity_decode(filter_input(INPUT_POST, 'errorhtml', FILTER_SANITIZE_FULL_SPECIAL_CHARS), ENT_QUOTES),
             'error_type'   => filter_input(INPUT_POST, 'errortype', FILTER_SANITIZE_STRING),
             'bold'         => (filter_input(INPUT_POST, 'add-bold', FILTER_SANITIZE_STRING) == 'bold'),
             'italic'       => (filter_input(INPUT_POST, 'add-italic', FILTER_SANITIZE_STRING) == 'italic'),
+            'remove_color' => (filter_input(INPUT_POST, 'remove-color', FILTER_SANITIZE_STRING) == 'true'),
             'course_id'    => filter_input(INPUT_POST, 'course_id', FILTER_SANITIZE_NUMBER_INT),
-            'api_key'      => $api_key
+            'api_key'      => UdoitUtils::instance()->getValidRefreshedApiKey($user_id),
         ];
-
 
         $ufixit = new Ufixit($data);
 
-        if (strtolower($data['content_type']) == 'files') {
+        if (strtolower($data['content_type']) === 'files') {
             $ufixit->curled_file = $ufixit->getFile("root");
 
             if ($ufixit->curled_file == false) {
@@ -133,11 +150,11 @@ switch ($main_action) {
 
             case 'cssTextHasContrast':
                 $new_content_array  = filter_input(INPUT_POST, 'newcontent', FILTER_SANITIZE_STRING, FILTER_REQUIRE_ARRAY);
-                $corrected_error = $ufixit->fixCssColor($data['error_colors'], $data['error_html'], $new_content_array, $data['bold'], $data['italic']);
+                $corrected_error = $ufixit->fixCssColor($data['error_html'], $new_content_array, $data['bold'], $data['italic']);
                 break;
 
             case 'cssTextStyleEmphasize':
-                $corrected_error = $ufixit->fixCssEmphasize($data['error_html'], $data['bold'], $data['italic']);
+                $corrected_error = $ufixit->fixCssEmphasize($data['error_html'], $data['bold'], $data['italic'], $data['remove_color']);
                 break;
 
             case 'headersHaveText':
@@ -146,14 +163,21 @@ switch ($main_action) {
                 break;
 
             case 'imgHasAlt':
+            case 'imgHasAltDeco':
             case 'imgNonDecorativeHasAlt':
             case 'imgAltIsDifferent':
             case 'imgAltIsTooLong':
-                $new_content = filter_input(INPUT_POST, 'newcontent', FILTER_SANITIZE_STRING);
-                $corrected_error = $ufixit->fixAltText($data['error_html'], $new_content);
+                if (filter_input(INPUT_POST, 'makedeco', FILTER_SANITIZE_STRING) == 'on') {
+                    $corrected_error = $ufixit->fixAltText($data['error_html'], "", true);
+                } else {
+                    $new_content = filter_input(INPUT_POST, 'newcontent', FILTER_SANITIZE_STRING);
+                    $corrected_error = $ufixit->fixAltText($data['error_html'], $new_content, false);
+                }
+                break;
 
-                $remove_attr = preg_replace("/ data-api-endpoint.*$/s", "", $data['error_html']);
-                $data['error_html'] = $remove_attr;
+            case 'pNotUsedAsHeader':
+                $new_content = filter_input(INPUT_POST, 'newcontent', FILTER_SANITIZE_STRING);
+                $corrected_error = $ufixit->makeHeading($data['error_html'], $new_content);
                 break;
 
             case 'tableDataShouldHaveTh':
@@ -182,8 +206,7 @@ switch ($main_action) {
                 break;
 
             case 'files':
-                $file_info = $ufixit->uploadFixedFiles($corrected_error, $data['error_html']);
-                print_r(json_encode($file_info));
+                $ufixit->uploadFixedFiles($corrected_error, $data['error_html']);
                 break;
 
             case 'pages':
