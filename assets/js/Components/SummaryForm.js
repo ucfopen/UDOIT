@@ -1,0 +1,346 @@
+import React from 'react'
+import { Heading } from '@instructure/ui-heading'
+import { Button } from '@instructure/ui-buttons'
+import { Text } from '@instructure/ui-text'
+import { Link } from '@instructure/ui-link'
+import { View } from '@instructure/ui-view'
+import { InlineList, List } from '@instructure/ui-list'
+import { Flex } from '@instructure/ui-flex'
+import { IconArrowOpenEndLine } from '@instructure/ui-icons'
+import { IconInfoBorderlessLine, IconNoLine } from '@instructure/ui-icons'
+import { RadioInput, RadioInputGroup } from '@instructure/ui-radio-input'
+import { SimpleSelect } from '@instructure/ui-simple-select'
+
+const startOptions = [
+  'easy',
+  'errors_only',
+  'active',
+  'by_issue',
+  'by_content'
+]
+
+const easyRules = [
+  'AnchorMustContainText',
+  'AnchorSuspiciousLinkText',
+  'CssTextHasContrast',
+  'CssTextStyleEmphasize',
+  'HeadersHaveText',
+  'ImageAltIsDifferent',
+  'ImageAltIsTooLong',
+  'ImageHasAlt',
+  'ImageHasAltDecorative',
+  'ParagraphNotUsedAsHeader',
+  'ImageAltNotPlaceholder',
+]
+
+class SummaryForm extends React.Component {
+
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      selectFilter: 'easy',
+      selectRule: '',
+      selectContentType: '',
+    }
+
+    this.handleFilterSelect = this.handleFilterSelect.bind(this)
+    this.handleRuleSelect = this.handleRuleSelect.bind(this)
+    this.handleContentTypeSelect = this.handleContentTypeSelect.bind(this)
+    this.handleSubmit = this.handleSubmit.bind(this)
+  }
+
+  render() {
+    let canSubmit = true
+    if ('by_issue' === this.state.selectFilter) {
+      canSubmit = (this.state.selectRule)
+    }
+    if ('by_content' === this.state.selectFilter) {
+      canSubmit = (this.state.selectContentType)
+    }
+
+    return (
+      <View as="div" padding="small large">
+        <Heading>{this.props.t('form.summary.heading')}</Heading>
+        <Text as="p">{this.props.t('form.summary.description')}</Text>
+        <View as="div" margin="large 0">
+          {/* <List isUnstyled>
+            <List.Item>
+              <View 
+                display="block" 
+                renderIcon={<IconArrowOpenEndLine />}
+                onClick={() => {alert('here')}}
+                isWithinText={false}
+                >
+                Link here
+              </View>
+            </List.Item>
+          </List> */}
+          <RadioInputGroup onChange={this.handleFilterSelect}
+            name="summaryFilterSelect"
+            value={this.state.selectFilter}
+            description={this.props.t('form.summary.show')}>
+              {startOptions.map((key) => <RadioInput key={key} value={key} label={this.props.t(`form.summary.option.${key}`)} /> )}       
+          </RadioInputGroup>
+          
+          {('by_issue' === this.state.selectFilter) &&
+            <View as="div" margin="large 0">
+              <SimpleSelect 
+                value={this.state.selectRule}
+                name="selectRule"
+                renderLabel={this.props.t('form.summary.option.by_issue')}
+                onChange={this.handleRuleSelect}>
+                {this.renderIssueOptions()}
+              </SimpleSelect>            
+            </View>
+          }
+
+          {('by_content' === this.state.selectFilter) &&
+            <View as="div" margin="large 0">
+              <SimpleSelect
+                value={this.state.selectContentType}
+                name="selectContentType"
+                renderLabel={this.props.t('form.summary.option.by_content')}
+                onChange={this.handleContentTypeSelect}>
+                {this.renderContentTypeOptions()}
+              </SimpleSelect>
+            </View>
+          }
+          
+          <View as="div" margin="medium 0">
+            {this.renderIssueCount()}
+          </View>
+          <View as="div" margin="medium 0">
+            <Button 
+              color="primary" 
+              onClick={this.handleSubmit}
+              interaction={canSubmit ? 'enabled' : 'disabled'}
+              >{this.props.t('button.start')}</Button>
+          </View>
+        </View>
+      </View>
+    )
+  }
+
+  handleFilterSelect(e, val) 
+  {
+    this.setState({selectFilter: val})
+  }
+
+  handleRuleSelect(e, val) 
+  {
+    this.setState({selectRule: val.id})
+  }
+
+  handleContentTypeSelect(e, val) 
+  {
+    this.setState({ selectContentType: val.id })
+  }
+
+  handleSubmit(e)
+  {
+    const { selectFilter, selectRule, selectContentType } = this.state
+    let filters = {}
+
+    switch (selectFilter) {
+      case 'easy':
+        filters = {issueTitles: easyRules}
+      break
+      case 'errors_only':
+        filters = {issueTypes: ['error']}
+      break
+      case 'active':
+        filters = {issueStatus: ['active']}
+      break
+      case 'by_issue':
+        filters = {issueTitles: [selectRule]}
+      break
+      case 'by_content':
+        filters = {contentTypes: [selectContentType]}
+      break
+    }
+
+    this.props.handleAppFilters(filters);
+    this.props.handleNavigation('content');
+  }
+
+  renderIssueOptions() {
+    let options = {}
+    let out = [
+      <SimpleSelect.Option value="" id="option-none" key="summary-none">--</SimpleSelect.Option>
+    ]
+
+    for (const issue of this.props.report.issues) {
+      options[issue.scanRuleId] = issue.type
+    }
+
+    for (let ruleId of Object.keys(options)) {
+      out.push(<SimpleSelect.Option value={ruleId} id={ruleId} key={`summary-${ruleId}`}>{this.props.t(`rule.label.${ruleId}`)}</SimpleSelect.Option>)
+    }
+
+    return out
+  }
+
+  renderContentTypeOptions() {
+    let types = this.props.settings.contentTypes
+    let out = [
+      <SimpleSelect.Option value="" id="option-none" key="summary-none">--</SimpleSelect.Option>
+    ]
+
+    types.sort()
+
+    for (let type of types) {
+      out.push(<SimpleSelect.Option value={type} id={type} key={`summary-${type}`}>{this.props.t(`content.plural.${type}`)}</SimpleSelect.Option>)
+    }
+
+    return out
+  }
+
+  renderIssueCount() {
+    let values = ['-', '-']
+
+    switch (this.state.selectFilter) {
+      case 'easy':
+        values = this.getEasyCount()
+        break
+      case 'errors_only':
+        values = this.getErrorCount()
+        break
+      case 'active':
+        values = this.getActiveIssueCount()
+        break
+      case 'by_issue':
+        if (this.state.selectRule) {
+          values = this.getIssueTypeCount()
+        }
+        break
+      case 'by_content':
+        if (this.state.selectContentType) {
+          values = this.getContentTypeCount()
+        }
+        break
+    }
+
+    return (
+      <InlineList>
+        {values[0] &&
+        <InlineList.Item>
+          <IconNoLine color="error" />
+          <View padding="0 0 0 xx-small">{values[0]} {this.props.t('label.plural.error')}</View>
+        </InlineList.Item>}
+        {values[1] && 
+        <InlineList.Item>
+          <IconInfoBorderlessLine color="alert" />
+          <View padding="0 0 0 xx-small">{values[1]} {this.props.t('label.plural.suggestion')}</View>
+        </InlineList.Item>}
+      </InlineList>
+    )
+  }
+
+  getEasyCount() {
+    const report = this.props.report
+    let errors = 0
+    let suggestions = 0
+
+    for (const issue of report.issues) {
+      if (issue.status) {
+        continue
+      }
+
+      if (easyRules.includes(issue.scanRuleId)) {
+        if ('error' === issue.type) {
+          errors++
+        }
+        else {
+          suggestions++
+        }
+      }
+    }
+
+    return [errors, suggestions]
+  }
+
+  getErrorCount() {
+    const report = this.props.report
+    let errors = 0
+
+    for (const issue of report.issues) {
+      if (issue.status) {
+        continue
+      }
+      if ('error' === issue.type) {
+        errors++
+      }
+    }
+
+    return [errors, 0]
+  }
+
+  getActiveIssueCount() {
+    const report = this.props.report
+    let errors = 0
+    let suggestions = 0
+
+    for (const issue of report.issues) {
+      if (issue.status) {
+        continue
+      }
+      if ('error' === issue.type) {
+        errors++
+      }
+      else {
+        suggestions++
+      }
+    }
+
+    return [errors, suggestions]
+  }
+
+  getIssueTypeCount() {
+    const report = this.props.report
+    let errors = 0
+    let suggestions = 0
+
+    for (const issue of report.issues) {
+      if (issue.status) {
+        continue
+      }
+      if (this.state.selectRule === issue.scanRuleId) {
+        if ('error' === issue.type) {
+          errors++
+        }
+        else {
+          suggestions++
+        }
+      }
+    }
+
+    return [errors, suggestions]
+  }
+
+  getContentTypeCount() {
+    const report = this.props.report
+    let errors = 0
+    let suggestions = 0
+
+    for (const issue of report.issues) {
+      if (issue.status) {
+        continue
+      }
+      const contentItem = Object.assign({}, report.contentItems[issue.contentItemId])
+
+      if (this.state.selectContentType === contentItem.contentType) {
+        if ('error' === issue.type) {
+          errors++
+        }
+        else {
+          suggestions++
+        }
+      }
+    }
+
+    return [errors, suggestions]
+  }
+}
+
+export default SummaryForm
