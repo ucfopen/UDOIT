@@ -4,11 +4,12 @@ cache:
     - $COMPOSER_CACHE_DIR
     - vendor
 install:
-  - 'composer install --no-scripts'
+  - 'composer install'
 php:
-  - '5.4'
-  - '5.5'
-  - '5.6'
-script: 
-  - 'find . -type f -iname "*.php" -not -path "./lib/quail/tests/*" -not -path "./vendor/*" | xargs -n1 php -l'
-  - './vendor/phpunit/phpunit/phpunit --testsuite "UDOIT"'
+  - '7.3'
+  - '7.4'
+script:
+  - 'composer lint'
+  - 'composer sniff-summary'
+  - 'composer sniff-errors-only'
+  - 'composer test'
