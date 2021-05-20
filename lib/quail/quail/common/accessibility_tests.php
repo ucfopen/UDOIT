@@ -5812,16 +5812,17 @@ class tableHasFixedWidth extends quailTableTest
 	{
 		foreach ($this->getAllElements('table') as $table) {
 			$xpath   = new DOMXPath($this->dom);
-			$nodes = $xpath->query('.//*', $table);
 			$style = $this->css->getStyle($table);
 			if (isset($style['width'])) {
 				$temp = substr( trim($style['width']), -1);
 
 				if ( $temp != '%' && trim($style['width']) != 'auto' ) {
 					$this->addReport($table);
-					break;
+					continue;
 				}
 			}
+			$nodes = $xpath->query('.//*', $table);
+
 			foreach ($nodes as $node) {
 				$style = $this->css->getStyle($node);
 				if (isset($style['width'])) {
