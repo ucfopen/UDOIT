@@ -42,6 +42,7 @@
         "@instructure/ui-buttons": "^7.5.0",
         "@instructure/ui-checkbox": "^7.5.0",
         "@instructure/ui-code-editor": "^7.5.0",
+        "@instructure/ui-drawer-layout": "^8.4.0",
         "@instructure/ui-file-drop": "^7.5.0",
         "@instructure/ui-flex": "^7.5.0",
         "@instructure/ui-form-field": "^7.5.0",

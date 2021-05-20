@@ -381,7 +381,7 @@ class Course implements \JsonSerializable
 
                 foreach ($issues as $issue) {
                     if (Issue::$issueStatusActive === $issue->getStatus()) {
-                        $activeIssues[$issue->getId()] = $issue;
+                        $activeIssues[] = $issue;
                     }
                 }
             }
