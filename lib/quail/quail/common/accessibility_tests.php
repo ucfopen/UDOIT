@@ -2,10 +2,6 @@
 
 // include_once('../config/localConfig.php');
 
-<<<<<<< HEAD
-
-=======
->>>>>>> dev/v2-8-0
 /**
 *    QUAIL - QUAIL Accessibility Information Library
 *    Copyright (C) 2009 Kevin Miller
@@ -1232,16 +1228,6 @@ class cssTextHasContrast extends quailColorTest
 					$style['color'] = '#' . $this->convertColor($style['color']);
 					$style['background-color'] = '#' . $this->convertColor($background);
 
-<<<<<<< HEAD
-				if (isset($style['font-weight'])) {
-					preg_match_all('!\d+!', $style['font-weight'], $matches);
-
-					if (count($matches) > 0) {
-						if ($matches >= 700) {
-							$bold = true;
-						} else {
-							if ($style['font-weight'] === 'bold' || $style['font-weight'] === 'bolder') {
-=======
 					$luminosity = $this->getLuminosity($style['color'], $background);
 					$font_size = 0;
 					$bold = false;
@@ -1257,7 +1243,6 @@ class cssTextHasContrast extends quailColorTest
 
 						if (count($matches) > 0) {
 							if ($matches >= 700) {
->>>>>>> dev/v2-8-0
 								$bold = true;
 							} else {
 								if ($style['font-weight'] === 'bold' || $style['font-weight'] === 'bolder') {
@@ -6590,7 +6575,7 @@ class videoCaptionsAreCorrectLanguage extends quailTest
 *	If a video is unlisted, the YouTube API will pretend that the video is not found, so we can't check for captions
 */
 
-class videoUnlistedOrNotFound extends quailTest 
+class videoUnlistedOrNotFound extends quailTest
 {
 	/**
 	*	@var int $default_severity The default severity code for this test.
