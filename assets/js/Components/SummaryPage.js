@@ -88,10 +88,12 @@ class SummaryPage extends React.Component {
                 <MetricGroup lineHeight="2">
                   <Metric
                     renderLabel={<Text size="x-large">{this.props.t('label.plural.error')}</Text>} 
-                    renderValue={<Text size="xx-large">{report.errors}</Text>} />
+                    renderValue={<Text size="xx-large">{report.errors}</Text>} 
+                    onClick={() => this.handleMetricClick('error')} />
                   <Metric
                     renderLabel={<Text size="x-large">{this.props.t('label.plural.suggestion')}</Text>}
-                    renderValue={<Text size="xx-large">{report.suggestions}</Text>} />
+                    renderValue={<Text size="xx-large">{report.suggestions}</Text>} 
+                    onClick={() => this.handleMetricClick('suggestion')} />
                 </MetricGroup>
               </View>
               <View as="div" margin="large">
@@ -235,6 +237,11 @@ class SummaryPage extends React.Component {
   handleIssueTitleLink(ruleId) {
     this.props.handleAppFilters({issueTitles: [ruleId]});
     this.props.handleNavigation('content');
+  }
+
+  handleMetricClick(val) {
+    this.props.handleAppFilters({issueTypes: [val] })
+    this.props.handleNavigation('content')
   }
 }
 
