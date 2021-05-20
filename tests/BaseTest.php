@@ -18,8 +18,11 @@
 *   Primary Author Contact:  Jacob Bates <jacob.bates@ucf.edu>
 */
 
+use DMS\PHPUnitExtensions\ArraySubset\ArraySubsetAsserts;
+
 class BaseTest extends PHPUnit\Framework\TestCase
 {
+    use ArraySubsetAsserts;
 
     protected static function getPrivateStaticPropertyValue($class, $prop)
     {
