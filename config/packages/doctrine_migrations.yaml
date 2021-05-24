@@ -1,6 +1,6 @@
 doctrine_migrations:
     migrations_paths:
-        'DoctrineMigrations': '%kernel.project_dir%/src/Migrations'
+        'DoctrineMigrations': '%kernel.project_dir%/src/DoctrineMigrations'
     storage:
         table_storage:
             table_name: 'migration_versions'
