@@ -1,0 +1,55 @@
+.ucf-accordion h3 {
+  margin: 2px 0 0 0;
+  text-align: left;
+  font-size: 1.2em;
+}
+
+.ucf-accordion .ucf-accordion-control {
+  box-sizing: border-box;
+  display: block;
+  background-color: #f9f9f9;
+  width: 100%;
+  border: 1px solid #c7cdd1;
+  color: #333;
+  text-decoration: none !important;
+  padding: 10px;
+  transition: background-color 0.2s ease-in;
+  border-radius: 6px;
+}
+
+.ucf-accordion .ucf-accordion-control:focus,
+.ucf-accordion .ucf-accordion-control:hover {
+  background-color: #f6f6f6;
+  cursor: pointer;
+}
+
+.ucf-accordion .ucf-accordion-control:after {
+  float: right;
+  width: 20px;
+  text-align: center;
+  font-weight: bold;
+}
+
+.ucf-accordion .ucf-accordion-control[aria-expanded="true"] {
+  border-bottom-left-radius: 0px;
+  border-bottom-right-radius: 0px;
+}
+.ucf-accordion .ucf-accordion-control[aria-expanded="true"]:after {
+  content:'\2013';
+}
+
+.ucf-accordion .ucf-accordion-control[aria-expanded="false"]:after {
+  content:'+';
+}
+
+.ucf-accordion .ucf-accordion-content {
+  display: none;
+  padding: 10px;
+  border: 1px solid #c7cdd1;
+  border-top: none;
+}
+
+.ucf-accordion .ucf-accordion-content[aria-hidden="false"] {
+  border-bottom-left-radius: 6px;
+  border-bottom-right-radius: 6px;
+}

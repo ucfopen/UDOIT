@@ -11,3 +11,11 @@ config/localConfig.php
 vendor
 reports
 assets/js/vendor/
+
+config/log.log
+
+docker/etc/nginx/nginx.conf
+docker/var/ssl/nginx.crt
+docker/var/ssl/nginx.key
+
+.phpunit.result.cache
