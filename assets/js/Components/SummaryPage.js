@@ -9,6 +9,7 @@ import { IconArrowOpenEndLine } from '@instructure/ui-icons'
 import { MetricGroup, Metric } from '@instructure/ui-metric'
 import { IconInfoBorderlessLine, IconNoLine } from '@instructure/ui-icons'
 import { DrawerLayout } from '@instructure/ui-drawer-layout'
+import Classes from '../../css/theme-overrides.scss'
 
 import SummaryForm from './SummaryForm'
 
@@ -142,7 +143,7 @@ class SummaryPage extends React.Component {
           <Table.Head>
             <Table.Row>
               <Table.ColHeader id="issuesError">
-                <View display="inline-block" width="30px" textAlign="center"><IconNoLine color="error" /></View>                  
+                <View display="inline-block" width="30px" textAlign="center"><IconNoLine className={Classes.error} /></View>                  
                 <View padding="0 x-small">
                   {this.props.t(`label.most_common`) + ' ' + this.props.t(`label.plural.error`)}</View>
               </Table.ColHeader>
@@ -160,8 +161,8 @@ class SummaryPage extends React.Component {
                     <Flex justifyItems="space-between">
                       <Flex.Item shouldGrow shouldShrink>
                         <View as="div">
-                          <View display="inline-block" width="30px" textAlign="center">
-                            <Text weight="bold" color="danger">{val[1]}</Text>
+                          <View display="inline-block" width="30px" textAlign="center" className={Classes.error}>
+                            {val[1]}
                           </View>
                           <View padding="0 x-small">{this.props.t(`rule.label.${val[0]}`)}</View>   
                         </View>
@@ -187,7 +188,9 @@ class SummaryPage extends React.Component {
           <Table.Head>
             <Table.Row>
               <Table.ColHeader id="issuesSuggestion">
-                <View display="inline-block" width="30px" textAlign="center"><IconInfoBorderlessLine color="alert" /></View>
+                <View display="inline-block" width="30px" textAlign="center">
+                  <IconInfoBorderlessLine className={Classes.suggestion} />
+                </View>
                 <View padding="0 x-small">
                   {this.props.t(`label.most_common`) + ' ' + this.props.t(`label.plural.suggestion`)}</View>
               </Table.ColHeader>
@@ -205,8 +208,8 @@ class SummaryPage extends React.Component {
                     <Flex justifyItems="space-between">
                       <Flex.Item shouldGrow shouldShrink>
                         <View as="div">
-                          <View display="inline-block" width="30px" textAlign="center">
-                            <Text weight="bold" color="alert">{val[1]}</Text>
+                          <View display="inline-block" width="30px" textAlign="center" className={Classes.suggestion}>
+                            {val[1]}
                           </View>
                           <View padding="0 x-small">{this.props.t(`rule.label.${val[0]}`)}</View>
                         </View>
