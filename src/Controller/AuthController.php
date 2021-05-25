@@ -93,7 +93,9 @@ class AuthController extends AbstractController
 
         $destination = $this->session->get('destination', 'dashboard');
 
-        return $this->redirectToRoute($destination);
+        return $this->redirectToRoute(
+            $destination,
+            ['auth_token' => $this->session->getUuid()]);
     }
 
     /**
