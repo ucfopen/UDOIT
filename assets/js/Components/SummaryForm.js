@@ -10,6 +10,7 @@ import { IconArrowOpenEndLine } from '@instructure/ui-icons'
 import { IconInfoBorderlessLine, IconNoLine } from '@instructure/ui-icons'
 import { RadioInput, RadioInputGroup } from '@instructure/ui-radio-input'
 import { SimpleSelect } from '@instructure/ui-simple-select'
+import Classes from '../../css/theme-overrides.scss'
 
 const startOptions = [
   'easy',
@@ -225,12 +226,12 @@ class SummaryForm extends React.Component {
       <InlineList>
         {values[0] &&
         <InlineList.Item>
-          <IconNoLine color="error" />
+          <IconNoLine className={Classes.error} />
           <View padding="0 0 0 xx-small">{values[0]} {this.props.t('label.plural.error')}</View>
         </InlineList.Item>}
         {values[1] && 
         <InlineList.Item>
-          <IconInfoBorderlessLine color="alert" />
+          <IconInfoBorderlessLine className={Classes.suggestion} />
           <View padding="0 0 0 xx-small">{values[1]} {this.props.t('label.plural.suggestion')}</View>
         </InlineList.Item>}
       </InlineList>

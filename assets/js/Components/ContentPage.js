@@ -8,7 +8,8 @@ import ContentTrayForm from './ContentTrayForm'
 import { View } from '@instructure/ui-view'
 import { Tag } from '@instructure/ui-tag'
 import { ScreenReaderContent } from '@instructure/ui-a11y-content'
-import UfixitModal from './UfixitModal';
+import UfixitModal from './UfixitModal'
+import Classes from '../../css/theme-overrides.scss'
 
 const issueStatusKeys = [
   'active',
@@ -203,13 +204,13 @@ class ContentPage extends React.Component {
         if ('error' === issue.type) {
           status = <>
             <ScreenReaderContent>{this.props.t('label.error')}</ScreenReaderContent>
-            <IconNoLine color="error" />
+            <IconNoLine className={Classes.error} />
           </>
         } 
         else {
           status = <>
             <ScreenReaderContent>{this.props.t('label.suggestion')}</ScreenReaderContent>
-            <IconInfoBorderlessLine color="alert" />
+            <IconInfoBorderlessLine className={Classes.suggestion} />
           </>
         }
       }

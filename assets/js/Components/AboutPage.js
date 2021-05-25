@@ -6,6 +6,7 @@ import { ToggleDetails } from '@instructure/ui-toggle-details'
 import { IconInfoBorderlessLine, IconNoLine } from '@instructure/ui-icons'
 import Html from '../Services/Html'
 import ReactHtmlParser from 'react-html-parser'
+import Classes from '../../css/theme-overrides.scss'
 
 const issueRuleIds = [
   "AnchorLinksToMultiMediaRequireTranscript",
@@ -97,7 +98,7 @@ class AboutPage extends React.Component {
               const type = this.issues[issueType]
               return (
                 <View as="div" margin="small large" key={issueType}>
-                  {('error' === issueType ) ? <IconNoLine color="error" /> : <IconInfoBorderlessLine color="alert" />}
+                  {('error' === issueType) ? <IconNoLine className={Classes.error} /> : <IconInfoBorderlessLine className={Classes.suggestion} />}
                   <View padding="x-small"><Text weight="bold">{this.props.t(`label.plural.${issueType}`)}</Text><br/></View>
                   {type.map((rule) => {
                     if (!this.props.t(`rule.example.${rule}`).includes('rule.example')) {

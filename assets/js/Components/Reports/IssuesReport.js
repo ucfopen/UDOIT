@@ -28,12 +28,12 @@ class IssuesReport extends React.Component {
         {
           label: this.props.t('label.plural.error'),
           data: [],
-          backgroundColor: '#EE0612',
+          backgroundColor: '#D01A19',
         },
         {
           label: this.props.t('label.plural.suggestion'),
           data: [],
-          backgroundColor: '#BF32A4',
+          backgroundColor: '#0770A3',
         }
       ]
     }
