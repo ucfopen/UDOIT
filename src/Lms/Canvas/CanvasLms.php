@@ -500,13 +500,13 @@ class CanvasLms implements LmsInterface {
     public function getContentTypes()
     {
         return [
-            'syllabus',
-            'page',
-            'assignment',
-            'quiz',
-            'discussion_topic',
             'announcement',
+            'assignment',
+            'discussion_topic',
             'file',
+            'page',
+            'quiz',
+            'syllabus'
         ];
     }
     
