@@ -39,32 +39,35 @@ class Preview extends React.Component {
                 break;
 
             default:
-                let element = this.findCurrentElement(Html.toElement(previewHtml), activeIssue.sourceHtml)
-                let prev = element.previousElementSibling
-                let next = element.nextElementSibling
+                if(activeIssue.sourceHtml != null && activeIssue.sourceHtml !== '') {
+                    let element = this.findCurrentElement(Html.toElement(previewHtml), activeIssue.sourceHtml)
+                    let prev = element.previousElementSibling
+                    let next = element.nextElementSibling
 
-                if(next === null && prev === null) {
-                    previewHtml = this.handleLongText(issueHtml, MAX_CONTENT_LENGTH)
-                    return previewHtml
+                    if(next === null && prev === null) {
+                        previewHtml = this.handleLongText(issueHtml, MAX_CONTENT_LENGTH)
+                        return previewHtml
+                    }
+
+                    let parent = Html.toElement(previewHtml)
+                    parent.innerHTML = ''
+
+                    if(prev !== null) {
+                        prev = Html.toElement(this.handleLongText(prev.outerHTML, MAX_CONTENT_LENGTH/3))
+                        parent.appendChild(prev)
+                    }
+                    
+                    issueHtml = this.handleLongText(issueHtml, MAX_CONTENT_LENGTH/3)
+                    parent.appendChild(Html.toElement(issueHtml))
+
+                    if(next !== null) {
+                        next = Html.toElement(this.handleLongText(next.outerHTML, MAX_CONTENT_LENGTH/3))
+                        parent.appendChild(next)
+                    }
+
+                    previewHtml = parent.outerHTML
                 }
 
-                let parent = Html.toElement(previewHtml)
-                parent.innerHTML = ''
-
-                if(prev !== null) {
-                    prev = Html.toElement(this.handleLongText(prev.outerHTML, MAX_CONTENT_LENGTH/3))
-                    parent.appendChild(prev)
-                }
-                
-                issueHtml = this.handleLongText(issueHtml, MAX_CONTENT_LENGTH/3)
-                parent.appendChild(Html.toElement(issueHtml))
-
-                if(next !== null) {
-                    next = Html.toElement(this.handleLongText(next.outerHTML, MAX_CONTENT_LENGTH/3))
-                    parent.appendChild(next)
-                }
-
-                previewHtml = parent.outerHTML
                 previewHtml = this.handleLongText(previewHtml, MAX_CONTENT_LENGTH)
                 
                 break;
