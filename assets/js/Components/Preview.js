@@ -28,6 +28,10 @@ class Preview extends React.Component {
         let issueHtml = Html.getIssueHtml(activeIssue)
         let previewHtml = activeIssue.previewHtml
 
+        if(!previewHtml && !sourceHtml) {
+            return '<span>Preview Not Available</span>'
+        }
+
         switch(issueType) {
             // Add custom rules here as a case
             case 'TableHeaderShouldHaveScope':
