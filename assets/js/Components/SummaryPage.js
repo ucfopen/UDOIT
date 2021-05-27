@@ -87,18 +87,6 @@ class SummaryPage extends React.Component {
             <View as="div" padding="0 0 medium 0">
               <View as="div" margin="large">
                 <MetricGroup lineHeight="2">
-                  <Metric
-                    renderLabel={<Text size="x-large">{this.props.t('label.plural.error')}</Text>} 
-                    renderValue={<Text size="xx-large">{report.errors}</Text>} 
-                    onClick={() => this.handleMetricClick('error')} />
-                  <Metric
-                    renderLabel={<Text size="x-large">{this.props.t('label.plural.suggestion')}</Text>}
-                    renderValue={<Text size="xx-large">{report.suggestions}</Text>} 
-                    onClick={() => this.handleMetricClick('suggestion')} />
-                </MetricGroup>
-              </View>
-              <View as="div" margin="large">
-                <MetricGroup lineHeight="2">
                   <Metric renderLabel={this.props.t('label.plural.fixed')} renderValue={report.contentFixed} />
                   <Metric renderLabel={this.props.t('label.manually_resolved')} renderValue={report.contentResolved} />
                   <Metric renderLabel={this.props.t('label.files_reviewed')} renderValue={report.filesReviewed} />
@@ -110,10 +98,17 @@ class SummaryPage extends React.Component {
           <DrawerLayout.Tray
             id="summaryTray"
             open={true}
+            border={false}
+            shadow={false}
             placement="end"
             label={this.props.t('label.summary.tray')}
           >
-            <View as="div" maxWidth="350px">
+            <View as="div"
+              maxWidth="350px" 
+              borderColor="brand" 
+              borderWidth="medium" 
+              borderRadius="large"
+              margin="large 0">
               <SummaryForm 
                 t={this.props.t} 
                 report={report}
@@ -133,19 +128,23 @@ class SummaryPage extends React.Component {
     const maxRows = 3
     
     return (
-      <View as="div" margin="large large 0 0">
+      <View as="div" margin="0 large 0 0">
+        <View as="div" margin="small 0">
+          <Text size="large">
+            <IconNoLine className={Classes.error} />
+            <View padding="0 small">{`${report.errors} ${this.props.t(`label.plural.error`)}`}</View>
+          </Text>
+        </View>
         <Table
           caption={this.props.t('label.plural.error')}
           layout="auto"
           hover={true}
-          margin="0 0 medium 0"
+          margin="0 0 large 0"
           key={`errorTable`}>
           <Table.Head>
             <Table.Row>
               <Table.ColHeader id="issuesError">
-                <View display="inline-block" width="30px" textAlign="center"><IconNoLine className={Classes.error} /></View>                  
-                <View padding="0 x-small">
-                  {this.props.t(`label.most_common`) + ' ' + this.props.t(`label.plural.error`)}</View>
+                {this.props.t(`label.most_common`) + ' ' + this.props.t(`label.plural.error`)}
               </Table.ColHeader>
             </Table.Row>
           </Table.Head>
@@ -179,6 +178,12 @@ class SummaryPage extends React.Component {
             })}
           </Table.Body>
         </Table>
+        <View as="div" padding="large 0 small 0">
+          <Text size="large">
+            <IconInfoBorderlessLine className={Classes.suggestion} />
+            <View padding="0 small">{`${report.suggestions} ${this.props.t(`label.plural.suggestion`)}`}</View>
+          </Text>
+        </View>
         <Table
           caption={this.props.t('label.plural.suggestion')}
           layout="auto"
@@ -188,11 +193,7 @@ class SummaryPage extends React.Component {
           <Table.Head>
             <Table.Row>
               <Table.ColHeader id="issuesSuggestion">
-                <View display="inline-block" width="30px" textAlign="center">
-                  <IconInfoBorderlessLine className={Classes.suggestion} />
-                </View>
-                <View padding="0 x-small">
-                  {this.props.t(`label.most_common`) + ' ' + this.props.t(`label.plural.suggestion`)}</View>
+                {this.props.t(`label.most_common`) + ' ' + this.props.t(`label.plural.suggestion`)}
               </Table.ColHeader>
             </Table.Row>
           </Table.Head>
