@@ -61,22 +61,10 @@ class SummaryForm extends React.Component {
     }
 
     return (
-      <View as="div" padding="small large">
+      <View as="div" padding="medium">
         <Heading>{this.props.t('form.summary.heading')}</Heading>
-        <Text as="p">{this.props.t('form.summary.description')}</Text>
-        <View as="div" margin="large 0">
-          {/* <List isUnstyled>
-            <List.Item>
-              <View 
-                display="block" 
-                renderIcon={<IconArrowOpenEndLine />}
-                onClick={() => {alert('here')}}
-                isWithinText={false}
-                >
-                Link here
-              </View>
-            </List.Item>
-          </List> */}
+        {/* <Text as="p">{this.props.t('form.summary.description')}</Text> */}
+        <View as="div" margin="large 0 0 0">
           <RadioInputGroup onChange={this.handleFilterSelect}
             name="summaryFilterSelect"
             value={this.state.selectFilter}
@@ -111,9 +99,10 @@ class SummaryForm extends React.Component {
           <View as="div" margin="medium 0">
             {this.renderIssueCount()}
           </View>
-          <View as="div" margin="medium 0">
+          <View as="div" margin="medium 0 0 0">
             <Button 
               color="primary" 
+              display="block"
               onClick={this.handleSubmit}
               interaction={canSubmit ? 'enabled' : 'disabled'}
               >{this.props.t('button.start')}</Button>
