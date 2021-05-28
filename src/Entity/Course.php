@@ -172,14 +172,6 @@ class Course implements \JsonSerializable
         return $this;
     }
 
-    public function getLmsAccountName(): ?string
-    {
-        $lmsAccountId = $this->getLmsAccountId();
-        $account = $this->getInstitution()->getAccountData($lmsAccountId);
-
-        return (!empty($account)) ? $account['name'] : '';
-    }
-
     public function getLmsCourseId(): ?string
     {
         return $this->lmsCourseId;

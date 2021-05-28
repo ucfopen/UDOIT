@@ -150,13 +150,17 @@ export default class Api {
         return url.replace('{course}', courseId)
     }
 
-    getAdminCourses(accountId, termId) {
+    getAdminCourses(filters) {
         const authToken = this.getAuthToken();
 
         let url = `${this.apiUrl}${this.endpoints.adminCourses}`
-        url = url.replace('{account}', accountId)
-            .replace('{term}', termId)
-
+        url = url.replace('{account}', filters.accountId)
+            .replace('{term}', filters.termId)
+        
+        if (filters.includeSubaccounts) {
+            url += '?subaccounts=true'
+        }
+        
         return fetch(url, {
             method: 'GET',
             headers: {

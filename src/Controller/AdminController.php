@@ -26,6 +26,8 @@ class AdminController extends ApiController
 
     private $lmsUser;
 
+    private $courseRepo;
+
     /**
      * @Route("/admin", name="admin")
      */
@@ -33,12 +35,14 @@ class AdminController extends ApiController
         UtilityService $util,
         SessionService $sessionService,
         LmsApiService $lmsApi,
-        LmsUserService $lmsUser)
+        LmsUserService $lmsUser,
+        CourseRepository $courseRepo)
     {
         $this->util = $util;
         $this->session = $sessionService->getSession();
         $this->lmsApi = $lmsApi;
         $this->lmsUser = $lmsUser;
+        $this->courseRepo = $courseRepo;
 
         $user = $this->getUser();
         if (!$user) {
@@ -65,15 +69,23 @@ class AdminController extends ApiController
         $termId,
         CourseRepository $courseRepo,
         UtilityService $util,
-        LmsApiService $lmsApi)
+        LmsApiService $lmsApi,
+        Request $request)
     {
         $apiResponse = new ApiResponse();
         $results = [];
         $user = $this->getUser();
-        $courses = $courseRepo->findCoursesByAccount($user, $accountId, $termId);
         
         $this->lms = $lmsApi->getLms();
         $this->util = $util;
+
+        $includeSubaccounts = $request->query->get('subaccounts');
+        $accounts = $this->lms->getAccountData($user, $accountId);
+        if (!$includeSubaccounts) {
+            $accounts = [$accountId => $accounts[$accountId]];
+        }
+
+        $courses = $courseRepo->findCoursesByAccount($user, $accounts, $termId);
 
         foreach ($courses as $course) {
             $results[] = $this->getCourseData($course, $user);
@@ -93,13 +105,22 @@ class AdminController extends ApiController
         $termId,
         CourseRepository $courseRepo,
         UtilityService $util,
+        LmsApiService $lmsApi,
         Request $request)
     {
         $apiResponse = new ApiResponse();
         $results = $rows = [];
         $user = $this->getUser();
+
+        $this->lms = $lmsApi->getLms();
+
         $includeSubaccounts = $request->query->get('subaccounts');
-        $courses = $courseRepo->findCoursesByAccount($user, $accountId, $termId, $includeSubaccounts);
+        $accounts = $this->lms->getAccountData($user, $accountId);
+        if (!$includeSubaccounts) {
+            $accounts = [$accountId => $accounts[$accountId]];
+        }
+        $courses = $courseRepo->findCoursesByAccount($user, $accounts, $termId);
+
         $startDate = new \DateTime('today');
         $endDate = null;
         $oneDay = new \DateInterval('P1D');
@@ -255,17 +276,20 @@ class AdminController extends ApiController
      * 
      * @return JsonResponse
      */
-    public function getUpdatedAccounts()
+    public function getUpdatedAccounts(
+        LmsApiService $lmsApi, 
+        SessionService $sessionService,
+        UtilityService $util)
     {
         $apiResponse = new ApiResponse();
-
-        $lms = $this->lmsApi->getLms();
+        $session = $sessionService->getSession();
+        $lms = $lmsApi->getLms();
 
         /** @var User $user */
         $user = $this->getUser();
 
-        if (!($accountId = $this->session->get('lms_account_id'))) {
-            $this->util->exitWithMessage('Account ID not found.');
+        if (!($accountId = $session->get('lms_account_id'))) {
+            $util->exitWithMessage('Account ID not found.');
         }
 
         $apiResponse->setData($lms->getAccountData($user, $accountId));
@@ -296,11 +320,9 @@ class AdminController extends ApiController
             $this->util->exitWithMessage('Account ID not found.');
         }
 
-        $account = (empty($metadata['accounts'][$accountId]))
-            ? $lms->getAccountData($user, $accountId) : $metadata['accounts'][$accountId];
-
-        $metadata = $institution->getMetadata();
-        $terms = (empty($metadata['terms'])) ? $lms->getAccountTerms($user, $accountId) : $metadata['terms'];
+        $accounts = $lms->getAccountData($user, $accountId);
+        $terms = $lms->getAccountTerms($user);
+        $terms = $this->filterTermsByAccount($terms, $accounts);
 
         return [
             'apiUrl' => !empty($_ENV['BASE_URL']) ? $_ENV['BASE_URL'] : false,
@@ -311,7 +333,7 @@ class AdminController extends ApiController
             'language' => $lang,
             'labels' => $this->util->getTranslation($lang),
             'excludedRuleIds' => $excludedRuleIds,
-            'account' => $account,
+            'accounts' => $accounts,
             'terms' => $terms,
         ];
     }
@@ -319,16 +341,40 @@ class AdminController extends ApiController
     protected function getCourseData(Course $course, User $user)
     {
         $updatedDate = $course->getLastUpdated();
+        $accounts = $this->lms->getAccountData($user);
+        $accountId = $course->getLmsAccountId();
+
+        $accountName = $accountId;
+        if (!empty($accounts[$accountId])) {
+            $accountName = "{$accounts[$accountId]['name']} ({$accounts[$accountId]['id']})"; 
+        }
 
         return [
             'id' => $course->getId(),
             'title' => $course->getTitle(),
-            'accountId' => $course->getLmsAccountId(),
-            'accountName' => $course->getLmsAccountName(),
+            'accountId' => $accountId,
+            'accountName' => $accountName,
             'report' => $course->getLatestReport(),
             'lastUpdated' => !empty($updatedDate) ? $updatedDate->format($this->util->getDateFormat()) : '-',
             'publicUrl' => $this->lms->getCourseUrl($course, $user),
+            'termId' => $course->getLmsTermId(),
         ];
     }
 
+    protected function filterTermsByAccount($terms, $accounts) 
+    {
+        $user = $this->getUser();
+        $courseTerms = [];
+
+        $courses = $this->courseRepo->findCoursesByAccount($user, $accounts);
+        foreach ($courses as $course) {
+            $courseTermId = $course->getLmsTermId();
+            
+            if (!empty($terms[$courseTermId])) {
+                $courseTerms[$courseTermId] = $terms[$courseTermId];
+            }
+        }
+
+        return $courseTerms;
+    }
 }

@@ -404,74 +404,46 @@ class CanvasLms implements LmsInterface {
      * ******************
      */
 
-    public function getAccountData(User $user, $accountId) 
+    public function getAccountData(User $user, $accountId = null) 
     {
-        $accounts = [];
+        $session = $this->sessionService->getSession();
 
-        $topAcct = $this->getAccountInfo($user, $accountId);
-        $accounts[$accountId] = [
-            'id' => $topAcct['id'],
-            'name' => $topAcct['name'],
-            'parentId' => $topAcct['parent_account_id'],
-            'subAccounts' => [],
-        ];
+        if (!$accountId) {
+            $accountId = $session->get('lms_account_id');
+        }
 
-        $subaccounts = $this->getSubAccounts($user, $accountId);
-        usort($subaccounts, [$this, 'sortSubAccounts']);
-        
-        foreach ($subaccounts as $sub) {
-            $accounts[$sub['id']] = [
-                'id' => $sub['id'],
-                'name' => $sub['name'],
-                'parentId' => $sub['parent_account_id'],
-                'subAccounts' => [],
+        $accounts = $session->get("accounts{$accountId}", []);
+
+        if (!$accounts) {
+            $topAcct = $this->getAccountInfo($user, $accountId);
+            $accounts[$accountId] = [
+                'id' => $topAcct['id'],
+                'name' => $topAcct['name'],
+                'parentId' => $topAcct['parent_account_id'],
             ];
-        
-            foreach ($accounts as $ind => $account) {
-                if ($sub['parent_account_id'] == $account['id']) {
-                    $accounts[$ind]['subAccounts'][$sub['id']] = $sub['name'];
-                }
-                if (isset($account['subAccounts'][$sub['parent_account_id']])) {
-                    $accounts[$ind]['subAccounts'][$sub['id']] = $sub['name'];
-                }
+
+            $subaccounts = $this->getSubAccounts($user, $accountId);
+            usort($subaccounts, [$this, 'sortSubAccounts']);
+            
+            foreach ($subaccounts as $sub) {
+                $accounts[$sub['id']] = [
+                    'id' => $sub['id'],
+                    'name' => $sub['name'],
+                    'parentId' => $sub['parent_account_id'],
+                ];
             }
-        }
 
-        $rootAccountId = !empty($topAcct['root_account_id']) ? $topAcct['root_account_id'] : $topAcct['id'];
-        $terms = $this->getAccountTerms($user, $rootAccountId, true);
-
-        $institution = $user->getInstitution();
-        $metadata = $institution->getMetadata();
-
-        $metadata['terms'] = $terms;
-        $metadata['rootAccountId'] = $rootAccountId;
-
-        if (isset($metadata['accounts'])) {
-            $metadata['accounts'] = array_merge($metadata['accounts'], $accounts);
-        }
-        else {
-            $metadata['accounts'] = $accounts;
+            $session->set("accounts{$accountId}", $accounts);
         }
         
-        $institution->setMetadata($metadata);
-        $this->entityManager->flush();
-
-        return $accounts[$accountId];
+        return $accounts;
     }
 
-    public function getAccountTerms(User $user, $accountId, $isRoot = false)
+    public function getAccountTerms(User $user)
     {
         $terms = [];
 
-        if (!$isRoot) {
-            $account = $this->getAccountInfo($user, $accountId);
-            $rootAccountId = $account['root_account_id'];
-        }
-        else {
-            $rootAccountId = $accountId;
-        }
-
-        $url = "accounts/${rootAccountId}/terms";
+        $url = "accounts/self/terms";
         $apiDomain = $this->getApiDomain($user);
         $apiToken = $this->getApiToken($user);
 
@@ -491,8 +463,6 @@ class CanvasLms implements LmsInterface {
                 $terms[$term['id']] = $term['name'];
             }
         }
-
-        ksort($terms, SORT_NUMERIC);
 
         return $terms;
     }
