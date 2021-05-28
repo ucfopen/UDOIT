@@ -62,7 +62,7 @@ class SummaryForm extends React.Component {
 
     return (
       <View as="div" padding="medium">
-        <Heading>{this.props.t('form.summary.heading')}</Heading>
+        <Heading level="h3" as="h2">{this.props.t('form.summary.heading')}</Heading>
         {/* <Text as="p">{this.props.t('form.summary.description')}</Text> */}
         <View as="div" margin="large 0 0 0">
           <RadioInputGroup onChange={this.handleFilterSelect}

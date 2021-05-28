@@ -106,9 +106,9 @@ class SummaryPage extends React.Component {
             <View as="div"
               maxWidth="350px" 
               borderColor="brand" 
-              borderWidth="medium" 
+              borderWidth="small" 
               borderRadius="large"
-              margin="large 0">
+              margin="medium 0 0 0">
               <SummaryForm 
                 t={this.props.t} 
                 report={report}
