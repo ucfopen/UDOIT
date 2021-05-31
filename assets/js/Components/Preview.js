@@ -28,7 +28,7 @@ class Preview extends React.Component {
         let issueHtml = Html.getIssueHtml(activeIssue)
         let previewHtml = activeIssue.previewHtml
 
-        if(!previewHtml) {
+        if(!previewHtml && !activeIssue.sourceHtml) {
             return '<span>Preview Not Available</span>'
         }
 
@@ -129,11 +129,15 @@ class Preview extends React.Component {
     }
 
     findCurrentElement(parent, target) {
-        parent = Html.toElement(parent)
-
         if(!target) {
-            return parent
+            return Html.toElement(parent)
         }
+
+        if(!parent) {
+            return Html.toElement(target)
+        }
+
+        parent = Html.toElement(parent)
         
         let children = parent.children
         
