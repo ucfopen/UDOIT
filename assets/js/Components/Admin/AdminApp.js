@@ -22,8 +22,9 @@ class AdminApp extends React.Component {
     this.messages = props.messages
 
     if(this.settings) {
-      if(this.settings.account) {
-        this.settings.accountId = this.settings.account.id
+      if(this.settings.accounts) {
+        const accountIds = Object.keys(this.settings.accounts)
+        this.settings.accountId = accountIds.shift()
       }
       if(this.settings.terms) {
         const termIds = Object.keys(this.settings.terms)
@@ -56,7 +57,7 @@ class AdminApp extends React.Component {
     this.handleTrayToggle = this.handleTrayToggle.bind(this)
     this.renderFilterTags = this.renderFilterTags.bind(this)
 
-    this.loadCourses(this.settings.accountId, this.settings.termId)
+    this.loadCourses(this.state.filters)
   }
 
   render() {
@@ -90,7 +91,6 @@ class AdminApp extends React.Component {
             addMessage={this.addMessage}
             handleCourseUpdate={this.handleCourseUpdate}
             handleFilter={this.handleFilter}
-            loadCourses={this.loadCourses}
             handleTrayToggle={this.handleTrayToggle}
             renderFilterTags={this.renderFilterTags}
           />
@@ -101,7 +101,6 @@ class AdminApp extends React.Component {
             settings={this.settings}
             filters={this.state.filters}
             handleFilter={this.handleFilter}
-            loadCourses={this.loadCourses}
             handleTrayToggle={this.handleTrayToggle}
             renderFilterTags={this.renderFilterTags}
           />
@@ -125,6 +124,7 @@ class AdminApp extends React.Component {
           settings={this.settings}
           trayOpen={this.state.trayOpen}
           handleTrayToggle={this.handleTrayToggle}
+          courses={this.state.courses}
           t={this.t}
         />}
       </View>
@@ -136,9 +136,10 @@ class AdminApp extends React.Component {
     return (this.settings.labels[key]) ? this.settings.labels[key] : key
   }
 
-  loadCourses(accountId, termId, isMounted) {
+  loadCourses(filters, isMounted) {
     const api = new Api(this.settings)
-    api.getAdminCourses(accountId, termId)
+    
+    api.getAdminCourses(filters)
       .then((response) => response.json())
       .then((data) => {
         let courses = {}
@@ -149,7 +150,6 @@ class AdminApp extends React.Component {
           this.setState({courses})
         }
 
-        
         this.setState({loadingCourses: false})
       })
 
@@ -173,7 +173,7 @@ class AdminApp extends React.Component {
   handleFilter(newFilter) {
     const filters = Object.assign(this.state.filters, newFilter)
     this.setState({ filters }, () => {
-      this.loadCourses(this.state.filters.accountId, this.state.filters.termId, true)
+      this.loadCourses(this.state.filters, true)
     })
     
   }
@@ -191,20 +191,14 @@ class AdminApp extends React.Component {
   renderFilterTags() {
     let tags = [];
 
-    const subAccounts = this.settings.account.subAccounts
+    const accounts = this.settings.accounts
     const terms = this.settings.terms
     const selectedAccountId = this.state.filters.accountId
     const selectedTermId = this.state.filters.termId
 
-    if (selectedAccountId == this.settings.account.id) {
-      const id = `subAccounts||${selectedAccountId}`
-      const label = `${this.t('label.admin.account')}: ${this.settings.account.name}`
-      tags.push({ id: id, label: label })
-    }
-
-    if (subAccounts && subAccounts[selectedAccountId]) {
-      const id = `subAccounts||${selectedAccountId}`
-      const label = `${this.t('label.admin.account')}: ${subAccounts[selectedAccountId]}`
+    if (accounts && accounts[selectedAccountId]) {
+      const id = `accounts||${selectedAccountId}`
+      const label = `${this.t('label.admin.account')}: ${accounts[selectedAccountId].name}`
       tags.push({ id: id, label: label })
     }
 

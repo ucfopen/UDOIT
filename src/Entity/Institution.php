@@ -331,23 +331,4 @@ class Institution implements JsonSerializable
             'vanityUrl' => $this->vanityUrl,
         ];
     }
-
-    public function getAccountData($accountId) 
-    {
-        $metadata = $this->getMetadata();
-        
-        return isset($metadata['accounts'][$accountId]) 
-            ? $metadata['accounts'][$accountId] : false;
-    }
-
-    public function setAccountData($accountId, $accountData)
-    {
-        $metadata = $this->getMetadata();
-        $accounts = isset($metadata['accounts']) ? $metadata['accounts'] : [];
-
-        $accounts[$accountId] = $accountData;
-        $metadata['accounts'] = $accounts;
-        
-        $this->setMetadata($metadata);
-    }
 }

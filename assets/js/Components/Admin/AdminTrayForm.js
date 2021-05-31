@@ -88,15 +88,11 @@ class AdminTrayForm extends React.Component {
 
   getAccountOptions() {
     let options = []
-    options.push({
-      id: this.props.settings.account.id,
-      name: this.props.settings.account.name
-    })
 
-    for (const [key, val] of Object.entries(this.props.settings.account.subAccounts)) {
+    for (const acct of Object.values(this.props.settings.accounts)) {
       options.push({
-        id: key,
-        name: val
+        id: acct.id,
+        name: acct.name
       })
     }
 
