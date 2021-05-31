@@ -7,6 +7,7 @@ import FilesTrayForm from './FilesTrayForm'
 import { View } from '@instructure/ui-view'
 import { Tag } from '@instructure/ui-tag'
 import { ScreenReaderContent } from '@instructure/ui-a11y-content'
+import { MetricGroup, Metric } from '@instructure/ui-metric'
 import FilesModal from './FilesModal'
 
 const fileTypes = [
@@ -186,9 +187,19 @@ class FilesPage extends React.Component {
 
   render() {
     const filteredFiles = this.getFilteredFiles()
+    const report = this.props.report
 
     return (
       <View as="div" key="filesPageFormWrapper" padding="small 0">
+        <View as="div" padding="0 0 medium 0">
+          <View as="div" margin="large">
+            <MetricGroup lineHeight="2">
+              <Metric renderLabel={this.props.t('label.plural.fixed')} renderValue={report.contentFixed} />
+              <Metric renderLabel={this.props.t('label.manually_resolved')} renderValue={report.contentResolved} />
+              <Metric renderLabel={this.props.t('label.files_reviewed')} renderValue={report.filesReviewed} />
+            </MetricGroup>
+          </View>
+        </View>
         <FilesPageForm 
           handleSearchTerm={this.handleSearchTerm} 
           handleTrayToggle={this.handleTrayToggle} 
