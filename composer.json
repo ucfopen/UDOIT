@@ -21,10 +21,12 @@
         "docker-test": "docker-compose --file docker/docker-compose.yml run --rm php73 php composer.phar test",
         "docker-test-multi": [
             "@docker-test-no-coverage-php73",
-            "@docker-test-no-coverage-php74"
+            "@docker-test-no-coverage-php74",
+            "@docker-test-no-coverage-php80"
         ],
         "docker-test-no-coverage-php73": "docker-compose --file docker/docker-compose.yml run --rm php73 php composer.phar test-no-coverage",
         "docker-test-no-coverage-php74": "docker-compose --file docker/docker-compose.yml run --rm php74 php composer.phar test-no-coverage",
+        "docker-test-no-coverage-php80": "docker-compose --file docker/docker-compose.yml run --rm php80 php composer.phar test-no-coverage",
         "docker-test-include-functional": "docker-compose --file docker/docker-compose.yml run --rm php73 php composer.phar test-include-functional",
         "docker-lint": "docker-compose --file docker/docker-compose.yml run --rm php73 php composer.phar lint",
         "docker-db-setup": "docker-compose --file docker/docker-compose.yml run --rm php73 php composer.phar db-setup",
@@ -50,12 +52,12 @@
         }
     ],
     "require": {
-        "php": "~7.3.0 || ~7.4.0",
+        "php": "~7.3.0 || ~7.4.0 || ~8.0.0",
         "ext-pdo": "*",
         "ext-gd": "*",
         "nategood/httpful": "~0.3.2",
         "deruli/html-minifier": "~0.5.1",
-        "mpdf/mpdf": "8.0.4",
+        "mpdf/mpdf": "~8.0.10",
         "league/plates": "~3.1.1",
         "monolog/monolog": "~1.21",
         "mnsami/composer-custom-directory-installer": "2.0.*",

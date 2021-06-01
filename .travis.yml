@@ -8,6 +8,7 @@ install:
 php:
   - '7.3'
   - '7.4'
+  - '8.0'
 script:
   - 'composer lint'
   - 'composer sniff-summary'

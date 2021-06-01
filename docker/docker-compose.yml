@@ -16,3 +16,11 @@ services:
     volumes:
       - ../:/var/www
     command: php composer.phar start
+
+  php80:
+    build:
+      context: .
+      dockerfile: php80.Dockerfile
+    volumes:
+      - ../:/var/www
+    command: php composer.phar start
