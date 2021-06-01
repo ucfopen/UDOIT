@@ -1,4 +1,4 @@
-FROM php:7.4-alpine
+FROM php:8.0-alpine
 
 RUN apk upgrade --update && apk add --no-cache \
 	autoconf \
@@ -8,7 +8,7 @@ RUN apk upgrade --update && apk add --no-cache \
 	libjpeg-turbo-dev \
 	libpng-dev \
 	postgresql-dev \
-	&& docker-php-ext-configure gd --with-freetype-dir=/usr/include/ --with-jpeg-dir=/usr/include/ \
+	&& docker-php-ext-configure gd --with-freetype=/usr/include/ --with-jpeg=/usr/include/ \
 	&& docker-php-ext-install \
 	gd \
 	pdo_mysql \
