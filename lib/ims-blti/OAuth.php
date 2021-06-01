@@ -225,15 +225,7 @@ class OAuthRequest {
       $parameters = OAuthUtil::parse_parameters($_SERVER['QUERY_STRING']);
 
       $ourpost = $_POST;
-      // Deal with magic_quotes
-      // http://www.php.net/manual/en/security.magicquotes.disabling.php
-      if ( get_magic_quotes_gpc() ) {
-         $outpost = array();
-         foreach ($_POST as $k => $v) {
-            $v = stripslashes($v);
-            $ourpost[$k] = $v;
-         }
-      }
+
      // Add POST Parameters if they exist
       $parameters = array_merge($parameters, $ourpost);
 
@@ -271,7 +263,7 @@ class OAuthRequest {
       $qparms = OAuthUtil::parse_parameters($parts['query']);
       $parameters = array_merge($qparms, $parameters);
     }
-     
+
 
     return new OAuthRequest($http_method, $http_url, $parameters);
   }
