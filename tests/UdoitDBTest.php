@@ -18,8 +18,11 @@
 *   Primary Author Contact:  Jacob Bates <jacob.bates@ucf.edu>
 */
 
+use DMS\PHPUnitExtensions\ArraySubset\ArraySubsetAsserts;
+
 class UdoitDBTest extends BaseTest
 {
+    use ArraySubsetAsserts;
 
     public static function setUpBeforeClass(): void
     {
