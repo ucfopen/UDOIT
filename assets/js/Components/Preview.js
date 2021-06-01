@@ -28,6 +28,10 @@ class Preview extends React.Component {
         let issueHtml = Html.getIssueHtml(activeIssue)
         let previewHtml = activeIssue.previewHtml
 
+        if(!previewHtml && !activeIssue.sourceHtml) {
+            return '<span>Preview Not Available</span>'
+        }
+
         switch(issueType) {
             // Add custom rules here as a case
             case 'TableHeaderShouldHaveScope':
@@ -39,35 +43,32 @@ class Preview extends React.Component {
                 break;
 
             default:
-                if(activeIssue.sourceHtml != null && activeIssue.sourceHtml !== '') {
-                    let element = this.findCurrentElement(Html.toElement(previewHtml), activeIssue.sourceHtml)
-                    let prev = element.previousElementSibling
-                    let next = element.nextElementSibling
+                let element = this.findCurrentElement(previewHtml, activeIssue.sourceHtml)
+                let prev = element.previousElementSibling
+                let next = element.nextElementSibling
 
-                    if(next === null && prev === null) {
-                        previewHtml = this.handleLongText(issueHtml, MAX_CONTENT_LENGTH)
-                        return previewHtml
-                    }
-
-                    let parent = Html.toElement(previewHtml)
-                    parent.innerHTML = ''
-
-                    if(prev !== null) {
-                        prev = Html.toElement(this.handleLongText(prev.outerHTML, MAX_CONTENT_LENGTH/3))
-                        parent.appendChild(prev)
-                    }
-                    
-                    issueHtml = this.handleLongText(issueHtml, MAX_CONTENT_LENGTH/3)
-                    parent.appendChild(Html.toElement(issueHtml))
-
-                    if(next !== null) {
-                        next = Html.toElement(this.handleLongText(next.outerHTML, MAX_CONTENT_LENGTH/3))
-                        parent.appendChild(next)
-                    }
-
-                    previewHtml = parent.outerHTML
+                if(next === null && prev === null) {
+                    previewHtml = this.handleLongText(issueHtml, MAX_CONTENT_LENGTH)
+                    return previewHtml
                 }
 
+                let parent = Html.toElement(previewHtml)
+                parent.innerHTML = ''
+
+                if(prev !== null) {
+                    prev = Html.toElement(this.handleLongText(prev.outerHTML, MAX_CONTENT_LENGTH/3))
+                    parent.appendChild(prev)
+                }
+                
+                issueHtml = this.handleLongText(issueHtml, MAX_CONTENT_LENGTH/3)
+                parent.appendChild(Html.toElement(issueHtml))
+
+                if(next !== null) {
+                    next = Html.toElement(this.handleLongText(next.outerHTML, MAX_CONTENT_LENGTH/3))
+                    parent.appendChild(next)
+                }
+
+                previewHtml = parent.outerHTML
                 previewHtml = this.handleLongText(previewHtml, MAX_CONTENT_LENGTH)
                 
                 break;
@@ -128,6 +129,16 @@ class Preview extends React.Component {
     }
 
     findCurrentElement(parent, target) {
+        if(!target) {
+            return Html.toElement(parent)
+        }
+
+        if(!parent) {
+            return Html.toElement(target)
+        }
+
+        parent = Html.toElement(parent)
+        
         let children = parent.children
         
         if(children !== undefined) {
