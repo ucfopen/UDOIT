@@ -266,7 +266,7 @@ class ContentPage extends React.Component {
           <View as="div" margin="none" background="secondary">
             <Flex margin="none none large" justifyItems="space-between" padding="xx-small">
               <Flex.Item margin="x-small">
-                <Text weight="bold" size="medium">{this.props.t('label.summary')}</Text>
+                <Text weight="bold" size="large">{this.props.t('label.summary')}</Text>
               </Flex.Item>
               <Flex.Item>
                 <InlineList>
