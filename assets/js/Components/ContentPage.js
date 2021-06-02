@@ -8,7 +8,9 @@ import ContentTrayForm from './ContentTrayForm'
 import { View } from '@instructure/ui-view'
 import { Tag } from '@instructure/ui-tag'
 import { ScreenReaderContent } from '@instructure/ui-a11y-content'
-import { MetricGroup, Metric } from '@instructure/ui-metric'
+import { Text } from '@instructure/ui-text'
+import { Flex } from '@instructure/ui-flex'
+import { InlineList } from '@instructure/ui-list'
 import UfixitModal from './UfixitModal'
 import Classes from '../../css/theme-overrides.scss'
 
@@ -260,16 +262,48 @@ class ContentPage extends React.Component {
     const report = this.props.report
 
     return (
-      <View as="div" key="contentPageFormWrapper" padding="small 0">
-        <View as="div" padding="0 0 medium 0">
-          <View as="div" margin="large">
-            <MetricGroup lineHeight="2">
-              <Metric renderLabel={this.props.t('label.plural.fixed')} renderValue={report.contentFixed} />
-              <Metric renderLabel={this.props.t('label.manually_resolved')} renderValue={report.contentResolved} />
-              <Metric renderLabel={this.props.t('label.files_reviewed')} renderValue={report.filesReviewed} />
-            </MetricGroup>
+      <View as="div" key="contentPageFormWrapper" padding="small 0" margin="none">
+          <View as="div" margin="none" background="secondary">
+            <Flex margin="none none large" justifyItems="space-between" padding="xx-small">
+              <Flex.Item margin="x-small">
+                <Text weight="bold" size="medium">{this.props.t('label.summary')}</Text>
+              </Flex.Item>
+              <Flex.Item>
+                <InlineList>
+                  <InlineList.Item>
+                    <Text>
+                      <b>{report.errors} </b>
+                      {this.props.t('label.plural.error')}
+                    </Text>
+                  </InlineList.Item>
+                  <InlineList.Item>
+                    <Text>
+                      <b>{report.suggestions} </b>
+                      {this.props.t('label.plural.suggestion')}
+                    </Text>
+                  </InlineList.Item>
+                  <InlineList.Item>
+                    <Text>
+                      <b>{report.contentFixed} </b>
+                      {this.props.t('label.plural.fixed')}
+                    </Text>
+                  </InlineList.Item>
+                  <InlineList.Item>
+                    <Text>
+                      <b>{report.contentResolved} </b>
+                      {this.props.t('label.manually_resolved')}
+                    </Text>
+                  </InlineList.Item>
+                  <InlineList.Item>
+                    <Text>
+                      <b>{report.filesReviewed} </b>
+                      {this.props.t('label.files_reviewed')}
+                    </Text>
+                  </InlineList.Item>
+                </InlineList>
+              </Flex.Item>
+            </Flex>
           </View>
-        </View>
         <ContentPageForm 
           handleSearchTerm={this.handleSearchTerm} 
           handleTrayToggle={this.handleTrayToggle} 
