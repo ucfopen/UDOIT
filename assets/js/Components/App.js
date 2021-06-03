@@ -10,6 +10,7 @@ import { View } from '@instructure/ui-view'
 import Api from '../Services/Api'
 import MessageTray from './MessageTray'
 import FilesPage from './FilesPage'
+import SummaryBar from './SummaryBar'
 
 class App extends React.Component {
   constructor(props) {
@@ -53,6 +54,10 @@ class App extends React.Component {
           handleNavigation={this.handleNavigation} 
           handleCourseRescan={this.handleCourseRescan}
           handleModal={this.handleModal} />
+        
+        {(('welcome' !== this.state.navigation) && ('summary' !== this.state.navigation)) && 
+          <SummaryBar t={this.t} report={this.state.report} />
+        }
 
         <MessageTray messages={this.messages} t={this.t} clearMessages={this.clearMessages} hasNewReport={this.state.syncComplete} />
 

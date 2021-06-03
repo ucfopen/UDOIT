@@ -12,39 +12,39 @@ class SummaryBar extends React.Component {
   render() {
     const report = this.props.report
     return (
-        <View as="div" margin="none" background="secondary">
-        <Flex margin="none none large" justifyItems="space-between" padding="xx-small">
-          <Flex.Item margin="x-small">
-            <Text weight="bold" size="large">{this.props.t('label.summary')}</Text>
+        <View as="div" margin="0" background="secondary">
+        <Flex margin="0" justifyItems="space-between" padding="x-small">
+          <Flex.Item>
+            {/* <Text weight="bold" size="small">{this.props.t('label.summary')}</Text> */}
           </Flex.Item>
           <Flex.Item>
             <InlineList>
               <InlineList.Item>
-                <Text>
+                <Text size="small">
                   <b>{report.errors} </b>
                   {this.props.t('label.plural.error')}
                 </Text>
               </InlineList.Item>
               <InlineList.Item>
-                <Text>
+                <Text size="small">
                   <b>{report.suggestions} </b>
                   {this.props.t('label.plural.suggestion')}
                 </Text>
               </InlineList.Item>
               <InlineList.Item>
-                <Text>
+                <Text size="small">
                   <b>{report.contentFixed} </b>
                   {this.props.t('label.plural.fixed')}
                 </Text>
               </InlineList.Item>
               <InlineList.Item>
-                <Text>
+                <Text size="small">
                   <b>{report.contentResolved} </b>
                   {this.props.t('label.manually_resolved')}
                 </Text>
               </InlineList.Item>
               <InlineList.Item>
-                <Text>
+                <Text size="small">
                   <b>{report.filesReviewed} </b>
                   {this.props.t('label.files_reviewed')}
                 </Text>
