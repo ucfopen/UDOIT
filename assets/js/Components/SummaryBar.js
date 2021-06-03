@@ -12,7 +12,7 @@ class SummaryBar extends React.Component {
   render() {
     const report = this.props.report
     return (
-        <View as="div" margin="0" background="secondary">
+        <View as="div" margin="0 0 medium 0" background="secondary">
         <Flex margin="0" justifyItems="space-between" padding="x-small">
           <Flex.Item>
             {/* <Text weight="bold" size="small">{this.props.t('label.summary')}</Text> */}
