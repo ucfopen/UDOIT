@@ -74,7 +74,6 @@ class UdoitJob
     {
         global $background_job_expire_time;
         global $db_job_queue_table;
-        print_r($background_job_expire_time);
         $time = 20;
         switch (UdoitDB::$type) {
             case 'pgsql':

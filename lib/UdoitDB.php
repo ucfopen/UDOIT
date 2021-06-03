@@ -55,7 +55,8 @@ class UdoitDB
         if (!method_exists(static::$pdo, $name)) {
             throw new \RuntimeException("{$name} method does not exist on PDO object");
         }
-
+        print_r($name);
+        print_r($args);
         // pass through to pdo
         return call_user_func_array([static::$pdo, $name], $args);
     }

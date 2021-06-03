@@ -18,12 +18,8 @@
 *   Primary Author Contact:  Jacob Bates <jacob.bates@ucf.edu>
 */
 
-use DMS\PHPUnitExtensions\ArraySubset\ArraySubsetAsserts;
-
 class UdoitTest extends BaseTest
 {
-    use ArraySubsetAsserts;
-
     public function setUp(): void
     {
         Mockery::close();
