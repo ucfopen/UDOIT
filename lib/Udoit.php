@@ -140,7 +140,6 @@ class Udoit
         $udoit = new Udoit;
         global $logger;
         global $links_on;
-        $quail_report = NULL;
 
         // Runs each item through the Quail accessibility checker
         foreach ($content_items as $item) {
@@ -155,13 +154,13 @@ class Udoit
             $quail_report = $quail->getReport();
 
             foreach ($quail_report['report'] as $value) {
-                if ($value['text_type'] != NULL && $value['type'] == 'redirectedLink') $new_links[] = $value['text_type'];
+                if ($value['text_type'] != null && $value['type'] == 'redirectedLink') {
+                    $new_links[] = $value['text_type'];
+                }
             }
 
-            if($links_on) $tested_links = $udoit->linkTest($new_links);
-
-            if (empty($item['content'])) {
-                continue;
+            if ($links_on) {
+                $tested_links = $udoit->linkTest($new_links);
             }
 
             $issue_count = 0;
@@ -172,7 +171,7 @@ class Udoit
 
             // loop over the items returning from Quail
             foreach ($quail_report['report'] as $quail_issue) {
-                if($quail_issue['type'] == 'redirectedLink'){
+                if ($quail_issue['type'] == 'redirectedLink') {
                     $ref = $quail_issue['text_type'];
                     preg_match('/(.+?)#/', $ref, $matches);
                     $base = $matches[1];
@@ -182,9 +181,9 @@ class Udoit
                         unset($quail_report[$quail_issue['text_type']]);
                         continue;
                     }
-                } else if($quail_issue['type'] == 'brokenLink'){
+                } else if ($quail_issue['type'] == 'brokenLink') {
                     $ref = $quail_issue['text_type'];
-                    if ($tested_links[$ref] != 404){
+                    if ($tested_links[$ref] != 404) {
                         unset($quail_report[$quail_issue['text_type']]);
                         continue;
                     }
@@ -228,23 +227,24 @@ class Udoit
         return $report;
     }
 
-    function linkTest($rlinks) {
-        $curls = array();
-        $result = array();
+    public function linkTest($rlinks)
+    {
+        $curls = [];
+        $result = [];
         $mcurl = curl_multi_init();
-        foreach ($rlinks as $i => $link){
+        foreach ($rlinks as $i => $link) {
             $curls[$i] = curl_init();
-            if (strpos($link, $this->base_uri) !== FALSE){
+            if (strpos($link, $this->base_uri) !== false) {
                 curl_setopt($curls[$i], CURLOPT_MAXREDIRS, 1);
             }
             curl_setopt($curls[$i], CURLOPT_URL, $link);
-            curl_setopt($curls[$i], CURLOPT_HEADER, TRUE);
-            curl_setopt($curls[$i], CURLOPT_NOBODY, TRUE);
-            curl_setopt($curls[$i], CURLOPT_REFERER, TRUE);
+            curl_setopt($curls[$i], CURLOPT_HEADER, true);
+            curl_setopt($curls[$i], CURLOPT_NOBODY, true);
+            curl_setopt($curls[$i], CURLOPT_REFERER, true);
             curl_setopt($curls[$i], CURLOPT_TIMEOUT, 2);
-            curl_setopt($curls[$i], CURLOPT_AUTOREFERER, TRUE);
-            curl_setopt($curls[$i], CURLOPT_RETURNTRANSFER, TRUE);
-            curl_setopt($curls[$i], CURLOPT_FOLLOWLOCATION, TRUE);
+            curl_setopt($curls[$i], CURLOPT_AUTOREFERER, true);
+            curl_setopt($curls[$i], CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($curls[$i], CURLOPT_FOLLOWLOCATION, true);
             curl_multi_add_handle($mcurl, $curls[$i]);
         }
         $running = null;
@@ -252,23 +252,24 @@ class Udoit
             curl_multi_exec($mcurl, $running);
         } while ($running > 0);
 
-        foreach($rlinks as $i => $link){
+        foreach ($rlinks as $i => $link) {
             $redirect = curl_getinfo($curls[$i], CURLINFO_EFFECTIVE_URL);
             $status = curl_getinfo($curls[$i], CURLINFO_HTTP_CODE);
-            if($link != $redirect){
-                if($redirect != $this->base_uri . 'login'){
+            if ($link != $redirect) {
+                if ($redirect != $this->base_uri.'login') {
                     $result[$link] = $redirect;
                 }
-                if ($redirect == $this->base_uri . 'courses/' . $this->course_id .'/pages'){
+                if ($redirect == $this->base_uri.'courses/'.$this->course_id.'/pages') {
                     $result[$link] = 404;
                 }
             }
-            if($status == 404){
+            if (404 == $status) {
                 $result[$link] = $status;
             }
             curl_multi_remove_handle($mcurl, $curls[$i]);
         }
         curl_multi_close($mcurl);
+
         return $result;
     }
 

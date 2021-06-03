@@ -262,7 +262,7 @@ return [
             'name'      => 'objectTextUpdatesWhenObjectChanges',
             'title'     => 'The text equivalents (e.g., transcripts and/or captions) for embedded content should update when content changes.',
             'desc'      => '',
-            'resources' => ['WCAG Standard: <a href="http://www.w3.org/TR/UNDERSTANDING-WCAG20/media-equiv.html">1.2</a>',],
+            'resources' => ['WCAG Standard: <a href="http://www.w3.org/TR/UNDERSTANDING-WCAG20/media-equiv.html">1.2</a>', ],
         ],
         [
             'name'      => 'objectTagDetected',

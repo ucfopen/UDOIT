@@ -256,19 +256,20 @@ class Ufixit
 
     /**
      * Fixes Redirected Link
-     * @param string $error_html        - The bad html that needs to be fixed
-     * @param string|array $new_content - The new Heading text from the user
-     * @param bool $submitting_again    - If the user is resubmitting their error fix
-     * @return string $fixed_link       - The html with corrected Link
+     * @param string       $error_html       - The bad html that needs to be fixed
+     * @param string|array $new_content      - The new Heading text from the user
+     * @param bool         $submitting_again - If the user is resubmitting their error fix
+     *
+     * @return string      $fixed_link       - The html with corrected Link
      */
     public function fixRedirectedLink($error_html, $new_content, $submitting_again = false)
     {
         $fixed_link = '';
-        if ($new_content == '') {
+        if ('' == $new_content) {
             return $fixed_link;
         }
 
-        $this->dom->loadHTML('<?xml encoding="utf-8" ?>' . $error_html);
+        $this->dom->loadHTML('<?xml encoding="utf-8" ?>'.$error_html);
 
         $tag = $this->dom->getElementsByTagName('a')->item(0);
 
@@ -283,11 +284,17 @@ class Ufixit
         $new_text = '';
         $new_url = $new_content;
         preg_match('/((https?:\/\/)(www.)?)?(.*)/', $new_url, $new_urlm);
-        if(strpos($text, 'http') !== FALSE) $new_text = $new_urlm[2];
-        if(strpos($text, 'www') !== FALSE) $new_text = $new_text.$new_urlm[3];
+        if (strpos($text, 'http') !== false) {
+            $new_text = $new_urlm[2];
+        }
+        if (strpos($text, 'www') !== false) {
+            $new_text = $new_text.$new_urlm[3];
+        }
         $new_text = $new_text.$new_urlm[4];
 
-        if($dtext == $old) $tag->nodeValue = $new_text;
+        if ($dtext == $old) {
+            $tag->nodeValue = $new_text;
+        }
 
         $tag->setAttribute('href', $new_content);
 
@@ -298,19 +305,20 @@ class Ufixit
 
        /**
      * Fixes Broken Link
-     * @param string $error_html        - The bad html that needs to be fixed
-     * @param string|array $new_content - The new Heading text from the user
-     * @param bool $submitting_again    - If the user is resubmitting their error fix
-     * @return string $fixed_link       - The html with corrected Link
+     * @param string       $error_html       - The bad html that needs to be fixed
+     * @param string|array $new_content      - The new Heading text from the user
+     * @param bool         $submitting_again - If the user is resubmitting their error fix
+     *
+     * @return string      $fixed_link       - The html with corrected Link
      */
     public function fixBrokenLink($error_html, $new_content, $submitting_again = false)
     {
         $fixed_link = '';
-        if ($new_content == '') {
+        if ('' == $new_content) {
             return $fixed_link;
         }
 
-        $this->dom->loadHTML('<?xml encoding="utf-8" ?>' . $error_html);
+        $this->dom->loadHTML('<?xml encoding="utf-8" ?>'.$error_html);
 
         $tag = $this->dom->getElementsByTagName('a')->item(0);
 
