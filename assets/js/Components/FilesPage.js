@@ -7,7 +7,6 @@ import FilesTrayForm from './FilesTrayForm'
 import { View } from '@instructure/ui-view'
 import { Tag } from '@instructure/ui-tag'
 import { ScreenReaderContent } from '@instructure/ui-a11y-content'
-import SummaryBar from './SummaryBar'
 import FilesModal from './FilesModal'
 
 const fileTypes = [
@@ -191,7 +190,6 @@ class FilesPage extends React.Component {
 
     return (
       <View as="div" key="filesPageFormWrapper" padding="small 0">
-        <SummaryBar t={this.props.t} report={this.props.report}></SummaryBar>
         <FilesPageForm 
           handleSearchTerm={this.handleSearchTerm} 
           handleTrayToggle={this.handleTrayToggle} 
