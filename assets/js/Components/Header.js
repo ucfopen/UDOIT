@@ -28,7 +28,7 @@ class Header extends React.Component {
     return (
       <AppNav
         screenReaderLabel={this.props.t('menu.udoit')}
-        margin="small 0"
+        margin="none"
         renderBeforeItems={
           <View padding="0 medium 0 0">
             <img className={`${Classes.logo}`} src={Logo}></img>

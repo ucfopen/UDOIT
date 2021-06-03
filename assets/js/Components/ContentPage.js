@@ -8,6 +8,7 @@ import ContentTrayForm from './ContentTrayForm'
 import { View } from '@instructure/ui-view'
 import { Tag } from '@instructure/ui-tag'
 import { ScreenReaderContent } from '@instructure/ui-a11y-content'
+import SummaryBar from './SummaryBar'
 import UfixitModal from './UfixitModal'
 import Classes from '../../css/theme-overrides.scss'
 
@@ -258,7 +259,8 @@ class ContentPage extends React.Component {
     const activeContentItem = (this.state.activeIssue) ? this.getContentById(this.state.activeIssue.contentItemId) : null
 
     return (
-      <View as="div" key="contentPageFormWrapper" padding="small 0">
+      <View as="div" key="contentPageFormWrapper" padding="small 0" margin="none">
+        <SummaryBar t={this.props.t} report={this.props.report}></SummaryBar>
         <ContentPageForm 
           handleSearchTerm={this.handleSearchTerm} 
           handleTrayToggle={this.handleTrayToggle} 
