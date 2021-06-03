@@ -104,7 +104,7 @@ class SummaryPage extends React.Component {
             label={this.props.t('label.summary.tray')}
           >
             <View as="div"
-              maxWidth="350px" 
+              width="320px" 
               borderColor="brand" 
               borderWidth="small" 
               borderRadius="large"
