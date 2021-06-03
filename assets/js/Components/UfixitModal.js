@@ -296,6 +296,7 @@ class UfixitModal extends React.Component {
 
           // update activeIssue
           newIssue.pending = false
+          newIssue.recentlyResolved = !!activeIssue.status
           newIssue.sourceHtml = newIssue.newHtml
           newIssue.newHtml = ''
           this.props.handleActiveIssue(newIssue)

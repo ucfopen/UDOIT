@@ -152,7 +152,7 @@ class ContentPage extends React.Component {
       }
 
       // Check if we are filtering by issue status
-      if (!issue.recentlyUpdated) {
+      if (!issue.recentlyUpdated && !issue.recentlyResolved) {
         if (filters.issueStatus.length !== 0 && !filters.issueStatus.includes(issueStatusKeys[issue.status])) {
           continue;
         }
