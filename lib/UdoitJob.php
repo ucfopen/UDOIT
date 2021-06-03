@@ -74,6 +74,7 @@ class UdoitJob
     {
         global $background_job_expire_time;
         global $db_job_queue_table;
+        print_r($background_job_expire_time);
         $time = 20;
         switch (UdoitDB::$type) {
             case 'pgsql':
@@ -280,7 +281,7 @@ class UdoitJob
             return false; // return false if theres nothing
         }
 
-        if(!($job = $query->fetchObject())) {
+        if ($job = $query->fetchObject()) {
             $sql = "UPDATE {$db_job_queue_table} SET status = 'running' WHERE id = '{$job->id}' AND status = 'new'";
             UdoitDB::query($sql);
             UdoitDB::commit();
