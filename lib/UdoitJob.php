@@ -280,10 +280,11 @@ class UdoitJob
             return false; // return false if theres nothing
         }
 
-        $job = $query->fetchObject();
-        $sql = "UPDATE {$db_job_queue_table} SET status = 'running' WHERE id = '{$job->id}' AND status = 'new'";
-        UdoitDB::query($sql);
-        UdoitDB::commit();
+        if(!($job = $query->fetchObject())) {
+            $sql = "UPDATE {$db_job_queue_table} SET status = 'running' WHERE id = '{$job->id}' AND status = 'new'";
+            UdoitDB::query($sql);
+            UdoitDB::commit();
+        }
 
         return $job;
     }

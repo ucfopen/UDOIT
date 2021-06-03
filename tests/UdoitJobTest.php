@@ -25,9 +25,9 @@ class UdoitJobTest extends BaseTest
         Mockery::close();
         global $db_type, $dsn, $db_user, $db_password;
         UdoitDB::setup($db_type, $dsn, $db_user, $db_password);
-        UdoitDB::query("DROP table users");
-        UdoitDB::query("DROP table reports");
-        UdoitDB::query("DROP table job_queue");
+        UdoitDB::query("DROP TABLE IF EXISTS users");
+        UdoitDB::query("DROP TABLE IF EXISTS reports");
+        UdoitDB::query("DROP TABLE IF EXISTS job_queue");
         include(__DIR__.'/../bin/run_database_migrations.php');
     }
 

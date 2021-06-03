@@ -5,12 +5,6 @@ global $db_type;
 if ('sqlite' === $db_type || 'test' === $db_type) {
     // SQLITE (mostly for testing)
     $queries = [
-        [
-            'sql' => 'ALTER TABLE users CHANGE id id BIGINT(20)',
-        ],
-        [
-            'sql' => 'ALTER TABLE reports CHANGE user_id user_id BIGINT(20)',
-        ],
     ];
 }
 
