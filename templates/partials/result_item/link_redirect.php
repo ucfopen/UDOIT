@@ -20,8 +20,8 @@
 ?>
 <div class="form-group no-margin margin-bottom">
 	<label for="<?= $this->e($item_id); ?>-input" class="control-label sr-only">Update Link to New Url</label>
-	<p class="new-url">New URL: <?= $group_item->message; ?> (<a target="_blank" href="<?= $group_item->message;?>">Test New URL <small><span class ="glyphicon glyphicon-new-window"></span></small></a>)</p>
-	<input class="{hash:true,caps:false} form-control" type="text" name="newcontent" placeholder="Enter the new url" value="<?= $group_item->message; ?>" id="<?= $this->e($item_id); ?>-input">
+	<p class="new-url">New URL: <?= $group_item->text_type; ?> (<a target="_blank" href="<?= $group_item->text_type;?>">Test New URL <small><span class ="glyphicon glyphicon-new-window"></span></small></a>)</p>
+	<input class="{hash:true,caps:false} form-control" type="text" name="newcontent" placeholder="Enter the new url" value="<?= $group_item->text_type; ?>" id="<?= $this->e($item_id); ?>-input">
 	<label><input class="remove-url" type="checkbox" /> Delete this Link completely instead</label><br />
 	<button class="submit-content inactive btn btn-default" type="submit">Submit</button>
 </div>
