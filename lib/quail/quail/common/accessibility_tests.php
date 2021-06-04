@@ -1221,7 +1221,7 @@ class cssTextHasContrast extends quailColorTest
 
 				if ((isset($style['background']) || isset($style['background-color'])) && isset($style['color']) && $element->nodeValue) {
 					$background = (isset($style['background-color'])) ? $style['background-color'] : $style['background'];
-					if (!$background || $this->options['css_only_use_default']) {
+					if (!$background || (isset($this->options['css_only_use_default']) && $this->options['css_only_use_default'])) {
 						$background = $this->default_background;
 					}
 
@@ -1341,7 +1341,7 @@ class cssTextStyleEmphasize extends quailColorTest
 			if ((isset($style['background']) || isset($style['background-color'])) && isset($style['color']) && $element->nodeValue) {
 				$background = (isset($style['background-color'])) ? $style['background-color'] : $style['background'];
 
-				if (!$background || $this->options['css_only_use_default']) {
+				if (!$background || (isset($this->options['css_only_use_default']) && $this->options['css_only_use_default'])) {
 					$background = $this->default_background;
 				}
 
@@ -4805,7 +4805,7 @@ class objectMustContainText extends quailTest
 	function check()
 	{
 		foreach ($this->getAllElements('object') as $object) {
-			if ((!$object->nodeValue || trim($object->nodeValue) == '') 
+			if ((!$object->nodeValue || trim($object->nodeValue) == '')
 				&& !($object->hasAttribute('aria-label') && strlen($object->getAttribute('aria-label')) > 0)
 				&& !($object->hasAttribute('aria-labelledby') && strlen($object->getAttribute('aria-labelledby')) > 0)){
 					$this->addReport($object);
@@ -6537,7 +6537,7 @@ class videoCaptionsAreCorrectLanguage extends quailTest
 *	If a video is unlisted, the YouTube API will pretend that the video is not found, so we can't check for captions
 */
 
-class videoUnlistedOrNotFound extends quailTest 
+class videoUnlistedOrNotFound extends quailTest
 {
 	/**
 	*	@var int $default_severity The default severity code for this test.
