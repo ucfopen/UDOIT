@@ -375,7 +375,7 @@ class Udoit
                             if (($content_flag) || $c->published == "true") {
                                 $count++;
                                 $external_url = (isset($c->external_url) ? $c->external_url : '');
-                                
+
                                 if (preg_match($search, $external_url) === 1) {
                                     $content_result['items'][] = [
                                         'id'           => $c->id,
@@ -493,7 +493,7 @@ class Udoit
 
             usleep(250000); // 1/4 sec
         } while (isset($links['next']) && $cur_page < $limit);
-        
+
         return $results;
     }
 
