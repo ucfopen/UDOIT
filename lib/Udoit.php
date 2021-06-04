@@ -173,9 +173,13 @@ class Udoit
             foreach ($quail_report['report'] as $quail_issue) {
                 if ($quail_issue['type'] == 'redirectedLink') {
                     $ref = $quail_issue['text_type'];
-                    preg_match('/(.+?)#/', $ref, $matches);
-                    $base = $matches[1];
-                    if (array_key_exists($quail_issue['text_type'], $tested_links) && $tested_links[$ref] != $base && $tested_links[$ref] != 404) {
+                    // Original: preg_match('/(.+?)#/', $ref, $matches);
+                    preg_match('/^[^#\s]+/', $ref, $matches);
+                    $base = $matches[0];
+                    $base = preg_replace('/\/$/', '', $base);
+                    $base = preg_replace('/www\./', '', $base);
+                    $base = preg_replace('/http[s]{0,1}:\/\//', '', $base);
+                    if (array_key_exists($quail_issue['text_type'], $tested_links) && strpos($tested_links[$ref], $base) === false /*$tested_links[$ref] != $base */&& $tested_links[$ref] != 404) {
                         $quail_issue['text_type'] = $tested_links[$ref];
                     } else {
                         unset($quail_report[$quail_issue['text_type']]);
