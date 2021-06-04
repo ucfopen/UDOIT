@@ -51,7 +51,7 @@ class Udoit
 
         if ('module_urls' !== $content_type) {
             // everything except module_urls goes through a content scanner
-            $scanned_items = static::scanContent($content['items'], $report_type, $course_locale);
+            $scanned_items = static::scanContent($content['items'], $report_type, $course_locale, $canvas_api_url, $course_id);
 
             // remove results w/o issues and count the totals
             // create a new list of items
@@ -127,17 +127,18 @@ class Udoit
 
     /**
      * Calls the Quail library to generate a UDOIT report
-     * @param  array  $content_items The items from whatever type of Canvas content was scanned
-     * @param  string $report_type   The type of severity the user would like to see on report
-     * @param  string $course_locale The locale/language of the Canvas course
+     * @param  array  $content_items  The items from whatever type of Canvas content was scanned
+     * @param  string $report_type    The type of severity the user would like to see on report
+     * @param  string $course_locale  The locale/language of the Canvas course
+     * @param  string $canvas_api_url The base URL of the Canvas API
+     * @param  string $course_id      The Canvas course id
      *
      * @return array  The report results
      */
-    public static function scanContent(array $content_items, $report_type, $course_locale)
+    public static function scanContent(array $content_items, $report_type, $course_locale, $canvas_api_url = "", $course_id = "")
     {
         require_once(__DIR__.'/quail/quail/quail.php');
         $report = [];
-        $udoit = new Udoit;
         global $logger;
         global $links_on;
 
@@ -160,7 +161,7 @@ class Udoit
             }
 
             if ($links_on) {
-                $tested_links = $udoit->linkTest($new_links);
+                $tested_links = static::linkTest($new_links, $canvas_api_url, $course_id);
             }
 
             $issue_count = 0;
@@ -173,7 +174,6 @@ class Udoit
             foreach ($quail_report['report'] as $quail_issue) {
                 if ($quail_issue['type'] == 'redirectedLink') {
                     $ref = $quail_issue['text_type'];
-                    // Original: preg_match('/(.+?)#/', $ref, $matches);
                     preg_match('/^[^#\s]+/', $ref, $matches);
                     $base = $matches[0];
                     $base = preg_replace('/\/$/', '', $base);
@@ -231,14 +231,15 @@ class Udoit
         return $report;
     }
 
-    public function linkTest($rlinks)
+    public static function linkTest($rlinks, $canvas_api_url, $course_id)
     {
+        $base_uri = $canvas_api_url;
         $curls = [];
         $result = [];
         $mcurl = curl_multi_init();
         foreach ($rlinks as $i => $link) {
             $curls[$i] = curl_init();
-            if (strpos($link, $this->base_uri) !== false) {
+            if (strpos($link, $base_uri) !== false) {
                 curl_setopt($curls[$i], CURLOPT_MAXREDIRS, 1);
             }
             curl_setopt($curls[$i], CURLOPT_URL, $link);
@@ -260,10 +261,10 @@ class Udoit
             $redirect = curl_getinfo($curls[$i], CURLINFO_EFFECTIVE_URL);
             $status = curl_getinfo($curls[$i], CURLINFO_HTTP_CODE);
             if ($link != $redirect) {
-                if ($redirect != $this->base_uri.'login') {
+                if (strpos($redirect, $base_uri.'/login') === false) {
                     $result[$link] = $redirect;
                 }
-                if ($redirect == $this->base_uri.'courses/'.$this->course_id.'/pages') {
+                if (strpos($redirect, $base_uri.'/courses/'.$course_id.'/pages') !== false) {
                     $result[$link] = 404;
                 }
             }
