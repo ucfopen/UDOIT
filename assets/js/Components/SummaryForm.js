@@ -1,15 +1,12 @@
 import React from 'react'
 import { Heading } from '@instructure/ui-heading'
 import { Button } from '@instructure/ui-buttons'
-import { Text } from '@instructure/ui-text'
-import { Link } from '@instructure/ui-link'
 import { View } from '@instructure/ui-view'
 import { InlineList, List } from '@instructure/ui-list'
-import { Flex } from '@instructure/ui-flex'
-import { IconArrowOpenEndLine } from '@instructure/ui-icons'
 import { IconInfoBorderlessLine, IconNoLine } from '@instructure/ui-icons'
 import { RadioInput, RadioInputGroup } from '@instructure/ui-radio-input'
 import { SimpleSelect } from '@instructure/ui-simple-select'
+import { issueRuleIds } from './Constants'
 import Classes from '../../css/theme-overrides.scss'
 
 const startOptions = [
@@ -18,20 +15,6 @@ const startOptions = [
   'active',
   'by_issue',
   'by_content'
-]
-
-const easyRules = [
-  'AnchorMustContainText',
-  'AnchorSuspiciousLinkText',
-  'CssTextHasContrast',
-  'CssTextStyleEmphasize',
-  'HeadersHaveText',
-  'ImageAltIsDifferent',
-  'ImageAltIsTooLong',
-  'ImageHasAlt',
-  'ImageHasAltDecorative',
-  'ParagraphNotUsedAsHeader',
-  'ImageAltNotPlaceholder',
 ]
 
 class SummaryForm extends React.Component {
@@ -53,12 +36,15 @@ class SummaryForm extends React.Component {
 
   render() {
     let canSubmit = true
+    let easyRuleIds = this.props.settings.easyRuleIds
     if ('by_issue' === this.state.selectFilter) {
       canSubmit = (this.state.selectRule)
     }
     if ('by_content' === this.state.selectFilter) {
       canSubmit = (this.state.selectContentType)
     }
+
+    this.easyRules = issueRuleIds.filter(rule => easyRuleIds.includes(rule))
 
     return (
       <View as="div" padding="medium">
@@ -134,7 +120,7 @@ class SummaryForm extends React.Component {
 
     switch (selectFilter) {
       case 'easy':
-        filters = {issueTitles: easyRules}
+        filters = {issueTitles: this.easyRules}
       break
       case 'errors_only':
         filters = {issueTypes: ['error']}
@@ -237,7 +223,7 @@ class SummaryForm extends React.Component {
         continue
       }
 
-      if (easyRules.includes(issue.scanRuleId)) {
+      if (this.easyRules.includes(issue.scanRuleId)) {
         if ('error' === issue.type) {
           errors++
         }
