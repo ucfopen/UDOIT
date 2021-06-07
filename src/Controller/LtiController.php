@@ -5,7 +5,6 @@ namespace App\Controller;
 use App\Entity\Institution;
 use App\Entity\User;
 use App\Services\LmsApiService;
-use App\Services\LmsUserService;
 use App\Services\SessionService;
 use App\Services\UtilityService;
 use Firebase\JWT\JWK;
@@ -20,11 +19,11 @@ class LtiController extends AbstractController
 {
     /** @var UtilityService $util */
     private $util;
-    /** @var UserSession $session */
+    /** @var \App\Entity\UserSession $session */
     private $session;
     /** @var Request $request */
     private $request;
-    /** @var App\Services\LmsApiService $lmsApi */
+    /** @var \App\Services\LmsApiService $lmsApi */
     private $lmsApi;
 
     /**
@@ -96,6 +95,9 @@ class LtiController extends AbstractController
 
         // Add user to session
         $this->saveUserToSession();
+
+        // Remove old sessions
+        $sessionService->removeExpiredSessions();
 
         if (isset($token->{'https://purl.imsglobal.org/spec/lti/claim/target_link_uri'})) {
             $redirectUrl = $token->{'https://purl.imsglobal.org/spec/lti/claim/target_link_uri'} . '?auth_token=' . $this->session->getUuid();
