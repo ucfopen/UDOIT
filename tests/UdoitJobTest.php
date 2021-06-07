@@ -352,6 +352,9 @@ class UdoitJobTest extends BaseTest
             'title'        => 'context title',
             'course_id'    => '5555',
             'scan_item'    => 'test',
+            'course_locale'=> 'en',
+            'report_type'  => "all",
+            'flag'         => '1'
         ];
     }
 }
