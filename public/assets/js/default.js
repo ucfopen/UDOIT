@@ -165,7 +165,7 @@ function displayScanResults(results) {
 	});
 
 	jscolor.bind();
-	
+
 	if (typeof ResultsFilter != 'undefined') {
 		ResultsFilter.init();
 	}
@@ -506,7 +506,7 @@ $doc.ready(function() {
 		$this.hide();
 
 		var $contentForm = $issueContainer.find('form');
-		
+
 		if ($contentForm.is(':visible')) {
 			$contentForm.removeClass('show');
 			$contentForm.addClass('hidden');
@@ -660,6 +660,7 @@ $doc.ready(function() {
 						$parent.find('.more-info').addClass('hidden');
 						$parent.find('.ufixit-form').addClass('hidden');
 
+						$parent.find('.fix-success').focus();
 
 						errorsRemaining = $parent.parent().parent().find('.fix-success.hidden').length;
 						if ( errorsRemaining == 0 ) {
