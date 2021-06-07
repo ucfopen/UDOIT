@@ -271,7 +271,7 @@ class UdoitJobTest extends BaseTest
         UdoitDB::query("INSERT into users (api_key, refresh_token) VALUES ('sample_api_key', 'refresh_token')");
         UdoitJob::$background_worker_enabled = false;
 
-        // add 2 scanns for fake test data
+        // add 2 scans for fake test data
         // setting scan_item to test will bypass all the api fetching that normally happens
         UdoitJob::addJobToQueue('scan', 1, 'job_4', static::mockJobData());
         UdoitJob::addJobToQueue('scan', 1, 'job_4', static::mockJobData());
