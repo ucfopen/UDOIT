@@ -120,7 +120,7 @@ class SummaryForm extends React.Component {
 
     switch (selectFilter) {
       case 'easy':
-        filters = {issueTitles: this.easyRules}
+        filters = {easyIssues: true}
       break
       case 'errors_only':
         filters = {issueTypes: ['error']}
