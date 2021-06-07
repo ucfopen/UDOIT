@@ -505,14 +505,18 @@ class Udoit
      */
     protected static function apiParseLinks($links)
     {
-        $links  = explode(',', $links);
         $pretty = [];
 
-        // Break up the link entries into URL and rel
-        foreach ($links as $link) {
-            $temp = explode('; ', $link);
-            // Create the pretty array where we have nice indices with urls
-            $pretty[substr($temp[1], 5, -1)] = substr($temp[0], 1, -1);
+        if (!empty($links)) {
+            $links = explode(',', $links);
+
+            // Break up the link entries into URL and rel
+            foreach ($links as $link) {
+                $temp = explode('; ', $link);
+
+                // Create the pretty array where we have nice indices with urls
+                $pretty[substr($temp[1], 5, -1)] = substr($temp[0], 1, -1);
+            }
         }
 
         return $pretty;
