@@ -347,14 +347,14 @@ class UdoitJobTest extends BaseTest
     {
        // common data object
         return [
-            'course_title' => 'course title',
-            'base_uri'     => 'http://baseurl.com',
-            'title'        => 'context title',
-            'course_id'    => '5555',
-            'scan_item'    => 'test',
-            'course_locale'=> 'en',
-            'report_type'  => "all",
-            'flag'         => '1'
+            'course_title'  => 'course title',
+            'base_uri'      => 'http://baseurl.com',
+            'title'         => 'context title',
+            'course_id'     => '5555',
+            'scan_item'     => 'test',
+            'course_locale' => 'en',
+            'report_type'   => "all",
+            'flag'          => '1',
         ];
     }
 }
