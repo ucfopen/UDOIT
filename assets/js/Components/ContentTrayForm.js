@@ -28,6 +28,7 @@ class ContentTrayForm extends React.Component {
     this.handleUnpublishedContent = this.handleUnpublishedContent.bind(this)
     this.handleIssueTypeChange = this.handleIssueTypeChange.bind(this)
     this.handleIssueTitleChange = this.handleIssueTitleChange.bind(this)
+    this.handleEasyIssues = this.handleEasyIssues.bind(this)
   }
 
   render() {
@@ -88,6 +89,13 @@ console.log('render', this.props.filters)
             />
           </View>
           <View as="div" padding="small 0">
+            <Checkbox
+              label={this.props.t('label.show_easy_issues')}
+              onChange={this.handleEasyIssues}
+              checked={this.props.filters.easyIssues}
+            />
+          </View>
+          <View as="div" padding="small 0">
             <IssueRuleSelect 
               options={this.getRuleOptions()} 
               t={this.props.t}
@@ -129,6 +137,10 @@ console.log('render', this.props.filters)
 
   handleUnpublishedContent(e) {
     this.props.handleFilter({ hideUnpublishedContentItems: !this.props.filters.hideUnpublishedContentItems });
+  }
+
+  handleEasyIssues(e) {
+    this.props.handleFilter({ easyIssues: !this.props.filters.easyIssues });
   }
 
   getRuleOptions() {
