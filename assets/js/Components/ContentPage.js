@@ -10,6 +10,7 @@ import { Tag } from '@instructure/ui-tag'
 import { ScreenReaderContent } from '@instructure/ui-a11y-content'
 import UfixitModal from './UfixitModal'
 import Classes from '../../css/theme-overrides.scss'
+import { issueRuleIds } from './Constants'
 
 const issueStatusKeys = [
   'active',
@@ -29,6 +30,8 @@ class ContentPage extends React.Component {
       { id: "scanRuleLabel", text: this.props.t('label.issue') },
       {id: "action", text: "", alignText: "end"}
     ];
+    
+    this.easyRules = issueRuleIds.filter(rule => this.props.settings.easyRuleIds.includes(rule))
 
     this.state = {
       activeIssue: null,
@@ -42,6 +45,7 @@ class ContentPage extends React.Component {
         issueTitles: [],
         issueStatus: ['active'],
         hideUnpublishedContentItems: false,
+        easyIssues: false,
       },
       tableSettings: {
         sortBy: 'contentTitle',
@@ -131,11 +135,16 @@ class ContentPage extends React.Component {
 
   getFilteredContent = () => { 
     const report = this.props.report;
-    const filters = this.state.filters;
+    const filters = Object.assign({}, this.state.filters);
     const { sortBy, ascending } = this.state.tableSettings 
     
     let filteredList = [];
     let issueList = Object.assign({}, report.issues);
+
+    // Check for easy issues filter
+    if(filters.easyIssues) {
+      filters.issueTitles = this.easyRules
+    }
     
     // Loop through the issues
     issueLoop: for (const [key, value] of Object.entries(issueList)) {
@@ -357,6 +366,9 @@ class ContentPage extends React.Component {
 
     if (this.state.filters.hideUnpublishedContentItems) {
       tags.push({ id: `hideUnpublishedContentItems||true`, label: this.props.t(`label.hide_unpublished`) });
+    }
+    if (this.state.filters.easyIssues) {
+      tags.push({ id: `easyIssues||true`, label: this.props.t(`label.show_easy_issues`) });
     }
 
     return tags.map((tag, i) => {
