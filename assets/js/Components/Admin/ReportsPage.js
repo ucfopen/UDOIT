@@ -106,11 +106,9 @@ class ReportsPage extends React.Component {
     api.getAdminReportHistory(this.props.filters)
       .then((responseStr) => responseStr.json())
       .then((response) => {
-        console.log('response', response)
         if (!Array.isArray(response.data)) {
           this.setState({ reports: response.data.reports })
           this.setState({ issues: response.data.issues })
-          console.log('admin response', response)
         }
         else {
           this.setState({ reports: null })
