@@ -100,6 +100,7 @@ class App extends React.Component {
           <ReportsPage
             t={this.t}
             settings={this.settings}
+            report={this.state.report}
             handleNavigation={this.handleNavigation}
           />
         }

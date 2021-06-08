@@ -51,6 +51,7 @@ class SyncController extends ApiController
             $reportArr['files'] = $course->getFileItems();
             $reportArr['issues'] = $course->getAllIssues();
             $reportArr['contentItems'] = $course->getContentItems();
+
             $response->setData($reportArr);
 
             $prevReport = $course->getPreviousReport();

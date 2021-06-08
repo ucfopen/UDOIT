@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\Course;
+use App\Entity\Issue;
 use App\Entity\User;
 use App\Repository\CourseRepository;
 use App\Repository\ReportRepository;
@@ -109,7 +110,7 @@ class AdminController extends ApiController
         Request $request)
     {
         $apiResponse = new ApiResponse();
-        $results = $rows = [];
+        $results = $rows = $issues = [];
         $user = $this->getUser();
 
         $this->lms = $lmsApi->getLms();
@@ -146,6 +147,38 @@ class AdminController extends ApiController
                     $endDate = $reportDate;
                 }
             }
+
+            foreach ($course->getAllIssues() as $issue) {
+                $rule = $issue->getScanRuleId();
+                $status = $issue->getStatus();
+                if (!isset($issues[$rule])) {
+                    $issues[$rule] = [
+                        'id' => $rule,
+                        'type' => $issue->getType(),
+                        'active' => 0,
+                        'fixed' => 0,
+                        'resolved' => 0,
+                        'total' => 0,
+                        'courses' => [],
+                    ];
+                }
+
+                if (Issue::$issueStatusResolved === $status) {
+                    $issues[$rule]['resolved']++;
+                }
+                else if (Issue::$issueStatusFixed === $status) {
+                    $issues[$rule]['fixed']++;
+                }
+                else {
+                    $issues[$rule]['active']++;
+                }
+                $issues[$rule]['total']++;
+                $issues[$rule]['courses'][$course->getId()] = $course->getId();
+            }
+        }
+
+        foreach ($issues as $rule => $row) {
+            $issues[$rule]['courses'] = count($row['courses']);
         }
 
         if ($endDate) {
@@ -202,7 +235,8 @@ class AdminController extends ApiController
 
         ksort($results);
 
-        $apiResponse->setData($results);
+        $apiResponse->addData('reports', $results);
+        $apiResponse->addData('issues', $issues);
         $apiResponse->addLogMessages($util->getUnreadMessages());
         
         return new JsonResponse($apiResponse);
@@ -335,6 +369,7 @@ class AdminController extends ApiController
             'excludedRuleIds' => $excludedRuleIds,
             'accounts' => $accounts,
             'terms' => $terms,
+            'suggestionRuleIds' => !empty($_ENV['PHPALLY_SUGGESTION_RULES']) ? $_ENV['PHPALLY_SUGGESTION_RULES'] : '',
         ];
     }
 

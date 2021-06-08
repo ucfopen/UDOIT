@@ -11,13 +11,15 @@ import { Spinner } from '@instructure/ui-spinner'
 import IssuesReport from '../Reports/IssuesReport'
 import ResolutionsReport from '../Reports/ResolutionsReport'
 import ReportsTable from '../Reports/ReportsTable'
+import IssuesTable from '../Reports/IssuesTable'
 
 class ReportsPage extends React.Component {
   constructor(props) {
     super(props)
 
     this.state = {
-      reports: null
+      reports: null,
+      issues: null
     }
   }
 
@@ -80,6 +82,13 @@ class ReportsPage extends React.Component {
             </Flex>
           </View>
           <View as="div" margin="large 0">
+            <IssuesTable
+              issues={this.state.issues}
+              isAdmin={true}
+              settings={this.props.settings}
+              t={this.props.t} />
+          </View>
+          <View as="div" margin="large 0">
             <ReportsTable
               reports={reports}
               t={this.props.t}
@@ -97,11 +106,15 @@ class ReportsPage extends React.Component {
     api.getAdminReportHistory(this.props.filters)
       .then((responseStr) => responseStr.json())
       .then((response) => {
+        console.log('response', response)
         if (!Array.isArray(response.data)) {
-          this.setState({ reports: response.data })
+          this.setState({ reports: response.data.reports })
+          this.setState({ issues: response.data.issues })
+          console.log('admin response', response)
         }
         else {
-          this.setState({ reports: {} })
+          this.setState({ reports: null })
+          this.setState({ issues: null })
         }
         
       })
