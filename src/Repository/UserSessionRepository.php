@@ -19,6 +19,15 @@ class UserSessionRepository extends ServiceEntityRepository
         parent::__construct($registry, UserSession::class);
     }
 
+    public function findByUser($userId)
+    {
+        return $this->createQueryBuilder('u')
+            ->andWhere('u.data LIKE :val')
+            ->setParameter('val', "%\"userId\": {$userId}%")
+            ->getQuery()
+            ->getResult();
+    }
+
     // /**
     //  * @return UserSession[] Returns an array of UserSession objects
     //  */

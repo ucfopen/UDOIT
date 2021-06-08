@@ -52,11 +52,7 @@ class SessionService {
         }        
 
         if ($uuid) {
-            $userSession = $this->sessionRepo->findOneBy(['uuid' => $uuid]);
-
-            if ($userSession) {
-                $this->userSession = $userSession;
-            }
+            $this->userSession = $this->sessionRepo->findOneBy(['uuid' => $uuid]);
         }
         
         if (empty($this->userSession)) {
@@ -100,7 +96,17 @@ class SessionService {
 
     public function removeExpiredSessions()
     {
+        $userId = $this->userSession->get('userId');
+        
+        $userSessions = $this->sessionRepo->findByUser($userId);
 
+        foreach ($userSessions as $userSess) {
+            if ($userSess != $this->userSession) {
+                $this->doctrine->getManager()->remove($userSess);
+            }
+        }
+
+        $this->doctrine->getManager()->flush();
     }
 
     protected function createSession()

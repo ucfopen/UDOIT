@@ -208,8 +208,7 @@ class App extends React.Component {
     report = {...report, ...newReport}
 
     if (report && Array.isArray(report.issues)) {
-      report.issues = report.issues.filter(issue => (issue.id != newIssue.id))
-      report.issues.push(newIssue)
+      report.issues = report.issues.map(issue => (issue.id == newIssue.id) ? newIssue : issue)
     }
 
     this.setState({ report })
