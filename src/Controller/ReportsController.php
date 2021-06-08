@@ -95,6 +95,7 @@ class ReportsController extends ApiController
             $reportArr['files'] = $course->getFileItems();
             $reportArr['issues'] = $course->getAllIssues();
             $reportArr['contentItems'] = $course->getContentItems();
+            $reportArr['scanRules'] = $report->getData();
             $apiResponse->setData($reportArr);
 
             $prevReport = $course->getPreviousReport();

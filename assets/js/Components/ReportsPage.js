@@ -11,10 +11,13 @@ import { Spinner } from '@instructure/ui-spinner'
 import IssuesReport from './Reports/IssuesReport'
 import ResolutionsReport from './Reports/ResolutionsReport'
 import ReportsTable from './Reports/ReportsTable'
+import IssuesTable from './Reports/IssuesTable'
 
 class ReportsPage extends React.Component {
   constructor(props) {
     super(props)
+
+    this.issues = this.processIssues(props.report)
 
     this.state = {
       reports: []
@@ -27,8 +30,11 @@ class ReportsPage extends React.Component {
     }
   }
 
-  render() {
+  componentDidUpdate() {
+    this.issues = this.processIssues(this.props.report)
+  }
 
+  render() {
     if (this.state.reports.length === 0) {
       return (
         <View as="div" padding="small 0">
@@ -53,6 +59,12 @@ class ReportsPage extends React.Component {
             </Flex>
           </View>
           <View as="div" margin="large 0">
+            <IssuesTable
+              issues={this.issues}
+              settings={this.props.settings}
+              t={this.props.t} />
+          </View>
+          <View as="div" margin="large 0">
             <ReportsTable
               reports={this.state.reports}
               t={this.props.t}
@@ -71,6 +83,41 @@ class ReportsPage extends React.Component {
         this.setState({reports: response.data})
       })
   }
+
+  processIssues(report) {
+    let rules = []
+
+    for (let issue of report.issues) {
+      const rule = issue.scanRuleId
+      const status = issue.status
+    
+      if (!rules[rule]) {
+        rules[rule] = {
+          id: rule,
+          type: issue.type,
+          active: 0,
+          fixed: 0,
+          resolved: 0,
+          total: 0
+        }
+      }
+
+      if (2 === status) {
+        rules[rule]['resolved']++
+      }
+      else if (1 === status) {
+        rules[rule]['fixed']++
+      }
+      else {
+        rules[rule]['active']++
+      }
+      rules[rule]['total']++
+    }
+
+    return rules
+  }
+
+
 }
 
 export default ReportsPage

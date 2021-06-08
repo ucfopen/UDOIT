@@ -69,7 +69,7 @@ class DashboardController extends AbstractController
         $activeReport = $course->getLatestReport();        
         if ($activeReport) {
             $reportArr = $activeReport->toArray();
-            $reportArr['issues'] = $course->getActiveIssues();
+            $reportArr['issues'] = $course->getAllIssues();
             $reportArr['contentItems'] = $course->getContentItems();
             $reportArr['files'] = $course->getFileItems();
         }
