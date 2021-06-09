@@ -6453,7 +6453,7 @@ class videosEmbeddedOrLinkedNeedCaptions extends quailTest
 	*/
 	function check()
 	{
-		$search_youtube = '/(youtube|youtu\.be)/';
+		$search_youtube = '/(youtube|youtu\.be|youtube\-nocookie)/';
 		$search_vimeo = '/(vimeo)/';
 
 		foreach ($this->getAllElements(array('a', 'embed', 'iframe')) as $video) {
@@ -6504,7 +6504,7 @@ class videoCaptionsAreCorrectLanguage extends quailTest
 	*/
 	function check()
 	{
-		$search_youtube = '/(youtube|youtu\.be)/';
+		$search_youtube = '/(youtube|youtu\.be|youtube\-nocookie)/';
 		$search_vimeo = '/(vimeo)/';
 
 		foreach ($this->getAllElements(array('a', 'embed', 'iframe')) as $video) {
@@ -6557,7 +6557,7 @@ class videoUnlistedOrNotFound extends quailTest
 	*/
 	function check()
 	{
-		$search_youtube = '/(youtube|youtu\.be)/';
+		$search_youtube = '/(youtube|youtu\.be|youtube\-nocookie)/';
 		$search_vimeo = '/(vimeo)/';
 
 		foreach ($this->getAllElements(array('a', 'embed', 'iframe')) as $video) {

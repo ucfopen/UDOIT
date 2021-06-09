@@ -54,7 +54,7 @@ class vimeoService extends mediaService
 	}
 
 	/**
-	*	Checks to see if a video is missing caption information in YouTube
+	*	Checks to see if a video is missing caption information in Vimeo
 	*	@param string $link_url The URL to the video or video resource
 	*	@param string $course_locale The locale/language of the Canvas course
 	*	@return int 0 if captions are manual and wrong language, 1 if video is private, 2 if there are no captions or if manually generated and correct language
