@@ -69,7 +69,7 @@ class DashboardController extends AbstractController
         $activeReport = $course->getLatestReport();        
         if ($activeReport) {
             $reportArr = $activeReport->toArray();
-            $reportArr['issues'] = $course->getActiveIssues();
+            $reportArr['issues'] = $course->getAllIssues();
             $reportArr['contentItems'] = $course->getContentItems();
             $reportArr['files'] = $course->getFileItems();
         }
@@ -117,6 +117,7 @@ class DashboardController extends AbstractController
             'backgroundColor' => !empty($_ENV['BACKGROUND_COLOR']) ? $_ENV['BACKGROUND_COLOR'] : '#ffffff',
             'textColor' => !empty($_ENV['TEXT_COLOR']) ? $_ENV['TEXT_COLOR'] : '#000000',
             'suggestionRuleIds' => !empty($_ENV['PHPALLY_SUGGESTION_RULES']) ? $_ENV['PHPALLY_SUGGESTION_RULES'] : '',
+            'easyRuleIds' => !empty($_ENV['EASY_FIX_RULES']) ? $_ENV['EASY_FIX_RULES'] : '',
         ];
     }
 

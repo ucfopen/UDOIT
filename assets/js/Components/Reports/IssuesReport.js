@@ -38,13 +38,17 @@ class IssuesReport extends React.Component {
       ]
     }
 
-    let reports = this.props.reports //.reverse()
+    let { reports } = this.props
+
+    reports.sort((a, b) => {
+      const dateA = new Date(a.created)
+      const dateB = new Date(b.created)
+
+      return (dateA > dateB) ? 1 : -1
+    })
 
     for (let report of reports) {
       data.labels.push(report.created)
-
-      data.datasets[0].data.push(report.errors)
-      data.datasets[1].data.push(report.suggestions)
 
       data.datasets[0].data.push(report.errors)
       data.datasets[1].data.push(report.suggestions)

@@ -97,6 +97,7 @@
   "label.report_history": "History",
   "label.no_results_header": "No results found",
   "label.no_results_message": "Try changing the filters or searching with a different keyword",
+  "label.report.total": "Total",
 
   "label.date": "Date",
   "label.content_fixed": "Content Fixed",
@@ -127,6 +128,7 @@
   "label.hide_unpublished": "Hide Unpublished Content",
   "label.hide_reviewed": "Hide Reviewed",
   "label.hide_unpublished_files": "Hide Unpublished Files",
+  "label.show_easy_issues": "Show Easiest Issues",
   "label.preview": "Preview",
   "label.context": "In Context",
   "label.source": "Source",
@@ -144,6 +146,7 @@
   "label.resolved_description": "Mark an issue as resolved when it cannot be properly fixed in UDOIT and is considered complete.",
   "label.files_reviewed": "Files Reviewed",
   "label.resolved": "Resolved",
+  "label.active": "Active",
   "label.mark_resolved": "Mark as resolved",
   "label.mark_reviewed": "Mark as reviewed",
   "label.reviewed": "Reviewed",
@@ -194,6 +197,7 @@
   "label.admin.no_results": "No results found for this account and term.",
   "label.admin.force_reauthorize": "Force Reauthorize",
   "label.admin.deauthorized": "Deauthorized",
+  "label.admin.report.by_issue": "Issues By Type",
 
   "form.alt.text": "New Alt Text",
   "form.alt.char_count": "Current character count",
