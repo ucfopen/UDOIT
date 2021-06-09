@@ -97,7 +97,7 @@ To start the Heroku deployment process, you can click the button below, please n
 
 ## System Requirements
 * Apache or Nginx webserver
-* PHP 7.2, 7.3
+* PHP 7.3, 7.4
   * [GD Graphics Library](http://php.net/manual/en/book.image.php)
 * MySQL, MariaDB or PostgreSQL
 * Git (If you are using [The Git Method](#the-git-method) below) or if you plan on contributing to UDOIT
