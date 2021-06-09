@@ -40,18 +40,19 @@ class SortableTable extends React.Component {
             caption={caption}
             hover={true}
           >
-            <Table.Head renderSortLabel={this.props.t('sortable_table.sort_by')}>
+            <Table.Head renderSortLabel={this.props.t('table.sort_by')}>
               <Table.Row>
                 {(headers || []).map(({ id, text }) => (
-                  <Table.ColHeader
-                    key={`header${id}`}
-                    id={id}
-                    onRequestSort={this.handleSort}
-                    textAlign="start"
-                    sortDirection={id === sortBy ? direction : 'none'}
-                  >
-                    {text}
-                  </Table.ColHeader>
+                  (text) ? 
+                    <Table.ColHeader
+                      key={`header${id}`}
+                      id={id}
+                      onRequestSort={this.handleSort}
+                      textAlign="start"
+                      sortDirection={id === sortBy ? direction : 'none'}
+                    >{text}</Table.ColHeader>
+                      :
+                    <Table.ColHeader key={`header${id}`} id={id} />
                   ))}
               </Table.Row>
             </Table.Head>
@@ -90,8 +91,8 @@ class SortableTable extends React.Component {
           as="nav"
           margin="small"
           variant="compact"
-          labelNext={this.props.t('sortable_table.next_page')}
-          labelPrev={this.props.t('sortable_table.prev_page')}
+          labelNext={this.props.t('table.next_page')}
+          labelPrev={this.props.t('table.prev_page')}
         >
           {pages}
         </Pagination>
