@@ -58,6 +58,7 @@ class Section508Guideline extends quailGuideline{
 		// 'imgMapAreasHaveDuplicateLink',
 		// 'imgWithMapHasUseMap',
 		'tableDataShouldHaveTh',
+		'tableHasFixedWidth',
 		'tableThShouldHaveScope',
 		// 'framesHaveATitle',
 		// 'frameTitlesDescribeFunction',
