@@ -435,8 +435,11 @@ class aSuspiciousLinkText extends quailTest
 	function check()
 	{
 		foreach ($this->getAllElements('a') as $a) {
-			if (in_array(strtolower(trim($a->nodeValue)), $this->translation()) || $a->nodeValue == $a->getAttribute('href'))
-				$this->addReport($a);
+			if ((in_array(strtolower(trim($a->nodeValue)), $this->translation()) || $a->nodeValue == $a->getAttribute('href')) 
+				&& !($a->hasAttribute('aria-label') && strlen($a->getAttribute('aria-label')) > 0)
+				&& !($a->hasAttribute('aria-labelledby') && strlen($a->getAttribute('aria-labelledby')) > 0)){
+					$this->addReport($a);
+			}
 		}
 	}
 }
