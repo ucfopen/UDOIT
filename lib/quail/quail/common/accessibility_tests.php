@@ -435,7 +435,7 @@ class aSuspiciousLinkText extends quailTest
 	function check()
 	{
 		foreach ($this->getAllElements('a') as $a) {
-			if ((in_array(strtolower(trim($a->nodeValue)), $this->translation()) || $a->nodeValue == $a->getAttribute('href')) 
+			if ((in_array(strtolower(trim($a->nodeValue)), $this->translation()) || $a->nodeValue == $a->getAttribute('href'))
 				&& !($a->hasAttribute('aria-label') && strlen($a->getAttribute('aria-label')) > 0)
 				&& !($a->hasAttribute('aria-labelledby') && strlen($a->getAttribute('aria-labelledby')) > 0)){
 					$this->addReport($a);
@@ -4808,7 +4808,7 @@ class objectMustContainText extends quailTest
 	function check()
 	{
 		foreach ($this->getAllElements('object') as $object) {
-			if ((!$object->nodeValue || trim($object->nodeValue) == '') 
+			if ((!$object->nodeValue || trim($object->nodeValue) == '')
 				&& !($object->hasAttribute('aria-label') && strlen($object->getAttribute('aria-label')) > 0)
 				&& !($object->hasAttribute('aria-labelledby') && strlen($object->getAttribute('aria-labelledby')) > 0)){
 					$this->addReport($object);
@@ -5060,11 +5060,23 @@ class pNotUsedAsHeader extends quailTest
 			$parent_tag = $p->parentNode->tagName;
 			if($parent_tag != 'td' && $parent_tag != 'th'){
 				if (isset($p->nodeValue) && isset($p->firstChild->nodeValue)) {
+					// if (($p->nodeValue == $p->firstChild->nodeValue)
+					// 	&& is_object($p->firstChild)
+					// 	&& property_exists($p->firstChild, 'tagName')
+					// 	&& in_array($p->firstChild->tagName, $this->head_tags)) {
+					// 	$this->addReport($p);
+					// } else {
 					if (($p->nodeValue == $p->firstChild->nodeValue)
 						&& is_object($p->firstChild)
-						&& property_exists($p->firstChild, 'tagName')
-						&& in_array($p->firstChild->tagName, $this->head_tags)) {
-						$this->addReport($p);
+						&& property_exists($p->firstChild, 'tagName')) {
+							if (in_array($p->firstChild->tagName, $this->head_tags)
+								|| (($p->firstChild->tagName == 'span')
+									&& ($p->firstChild->nodeValue == $p->firstChild->firstChild->nodeValue)
+									&& is_object($p->firstChild->firstChild)
+									&& property_exists($p->firstChild->firstChild, 'tagName')
+									&& in_array($p->firstChild->firstChild->tagName, $this->head_tags))) {
+								$this->addReport($p);
+									}
 					} else {
 						$style = $this->css->getStyle($p);
 
