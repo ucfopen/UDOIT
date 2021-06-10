@@ -47,6 +47,7 @@ $dsn                = "pgsql:host={$db_host};dbname={$db_name};user={$db_user};p
 
 /* Background worker Options */
 $background_worker_enabled = (getenv("WORKER_ENABLED")) == 'true';
+$background_job_expire_time = 20; // after x Minutes, mark job as expired
 $background_worker_sleep_seconds = 7;
 
 /* Disable headings check character count */

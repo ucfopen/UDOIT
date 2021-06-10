@@ -41,7 +41,7 @@ class PDOMock extends \PDO
         $this->force_fail = (is_bool($value) ? $value : false);
     }
 
-    public function query()
+    public function query(string $query, ?int $fetchMode = null, mixed ...$fetchModeArgs)
     {
         $this->query_calls[] = func_get_args();
         if ($this->query_returns_data) {

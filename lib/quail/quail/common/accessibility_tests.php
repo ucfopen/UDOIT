@@ -1224,7 +1224,7 @@ class cssTextHasContrast extends quailColorTest
 
 				if ((isset($style['background']) || isset($style['background-color'])) && isset($style['color']) && $element->nodeValue) {
 					$background = (isset($style['background-color'])) ? $style['background-color'] : $style['background'];
-					if (!$background || $this->options['css_only_use_default']) {
+					if (!$background || (isset($this->options['css_only_use_default']) && $this->options['css_only_use_default'])) {
 						$background = $this->default_background;
 					}
 
@@ -1344,7 +1344,7 @@ class cssTextStyleEmphasize extends quailColorTest
 			if ((isset($style['background']) || isset($style['background-color'])) && isset($style['color']) && $element->nodeValue) {
 				$background = (isset($style['background-color'])) ? $style['background-color'] : $style['background'];
 
-				if (!$background || $this->options['css_only_use_default']) {
+				if (!$background || (isset($this->options['css_only_use_default']) && $this->options['css_only_use_default'])) {
 					$background = $this->default_background;
 				}
 
