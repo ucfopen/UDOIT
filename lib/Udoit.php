@@ -466,9 +466,9 @@ class Udoit
         $limit = 500;
         $per_page = 100;
         $results = [];
-
+        $cur_page = 1;
         do {
-            $response = static::apiGet("{$url}page=1&per_page={$per_page}", $api_key)->send();
+            $response = static::apiGet("{$url}&page=1&per_page={$per_page}", $api_key)->send();
             if (isset($response->body->errors) && count($response->body->errors) > 0) {
                 foreach ($response->body->errors as $error) {
                     $logger->addError("Canvas API responded with an error for {$url}: $error->message");
@@ -476,7 +476,10 @@ class Udoit
                 break;
             }
 
-            $links = static::apiParseLinks($response->headers->toArray()['link']);
+            if (empty($response->headers->toArray()['link']))
+                $links = null;
+            else
+                $links = static::apiParseLinks($response->headers->toArray()['link']);
 
             if (empty($response->body)) {
                 $logger->addError("Canvas API returned empty body for {$url}");
@@ -491,6 +494,7 @@ class Udoit
                 $url = "{$links['next']}&access_token={$api_key}";
             }
 
+            $cur_page++;
             usleep(250000); // 1/4 sec
         } while (isset($links['next']) && $cur_page < $limit);
 
