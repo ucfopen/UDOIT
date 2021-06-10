@@ -110,14 +110,17 @@ class BaseTest extends PHPUnit\Framework\TestCase
             $mock_response->headers = new MockObj();
             // mock *toArray()* from Httpful\Request::get()->send()->headers->toArray()
             $mock_response->headers->toArray = function () use (&$called, $header_to_array_returns) {
-                if (empty($header_to_array_returns[$called]))
+                if (empty($header_to_array_returns[$called])) {
                     return [];
+                }
+
                 return $header_to_array_returns[$called];
             };
-            if (empty($body_returns[$called]))
+            if (empty($body_returns[$called])) {
                 $mock_response->body = [];
-            else
+            } else {
                 $mock_response->body = $body_returns[$called];
+            }
 
             return $mock_response;
         };

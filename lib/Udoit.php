@@ -476,10 +476,11 @@ class Udoit
                 break;
             }
 
-            if (empty($response->headers->toArray()['link']))
+            if (empty($response->headers->toArray()['link'])) {
                 $links = null;
-            else
+            } else {
                 $links = static::apiParseLinks($response->headers->toArray()['link']);
+            }
 
             if (empty($response->body)) {
                 $logger->addError("Canvas API returned empty body for {$url}");

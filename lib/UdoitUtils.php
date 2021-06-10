@@ -30,7 +30,7 @@ class UdoitUtils
     public static $curl_ssl_verify;
     public static $canvas_enforce_scopes;
     public static $canvas_scopes;
-    
+
     private static $instance;
 
     public static function instance()
@@ -270,6 +270,7 @@ class UdoitUtils
         ];
 
         foreach ($report_groups as $rg) {
+            print_r($rg);
             if (!array_key_exists($rg->title, $ordered_report_groups)) {
                 $logger->addWarning("{$rg->title} is an unknown report title, it will be omitted from the report.");
                 $logger->addInfo("Contents of the unknown report:".print_r($rg, true));
@@ -382,7 +383,7 @@ class UdoitUtils
     protected function curlOauthToken($base_url, $post_data)
     {
         global $curl_ssl_verify;
-        
+
         // @TODO - why not use Httpful here?
         $ch = curl_init("{$base_url}/login/oauth2/token");
         curl_setopt($ch, CURLOPT_POST, 1);
