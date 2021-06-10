@@ -226,7 +226,7 @@ class OAuthRequest {
 
       $ourpost = $_POST;
 
-     // Add POST Parameters if they exist
+      // Add POST Parameters if they exist
       $parameters = array_merge($parameters, $ourpost);
 
       // We have a Authorization-header with OAuth data. Parse the header

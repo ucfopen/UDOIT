@@ -435,8 +435,11 @@ class aSuspiciousLinkText extends quailTest
 	function check()
 	{
 		foreach ($this->getAllElements('a') as $a) {
-			if (in_array(strtolower(trim($a->nodeValue)), $this->translation()) || $a->nodeValue == $a->getAttribute('href'))
-				$this->addReport($a);
+			if ((in_array(strtolower(trim($a->nodeValue)), $this->translation()) || $a->nodeValue == $a->getAttribute('href')) 
+				&& !($a->hasAttribute('aria-label') && strlen($a->getAttribute('aria-label')) > 0)
+				&& !($a->hasAttribute('aria-labelledby') && strlen($a->getAttribute('aria-labelledby')) > 0)){
+					$this->addReport($a);
+			}
 		}
 	}
 }
@@ -5798,6 +5801,48 @@ class tableDataShouldHaveTh extends quailTableTest
 	}
 }
 
+/**
+*  Detect if a table or its cells have fixed width
+*/
+class tableHasFixedWidth extends quailTableTest
+{
+	/**
+	*	@var int $default_severity The default severity code for this test.
+	*/
+	var $default_severity = QUAIL_TEST_SUGGESTION;
+
+	/**
+	*	The main check function. This is called by the parent class to actually check content
+	*/
+	function check()
+	{
+		foreach ($this->getAllElements('table') as $table) {
+			$xpath = new DOMXPath($this->dom);
+			$style = $this->css->getStyle($table);
+			if (isset($style['width'])) {
+				$temp = substr( trim($style['width']), -1);
+
+				if ( $temp != '%' && trim($style['width']) != 'auto' ) {
+					$this->addReport($table);
+					continue;
+				}
+			}
+
+			$nodes = $xpath->query('.//*', $table);
+			foreach ($nodes as $node) {
+				$style = $this->css->getStyle($node);
+				if (isset($style['width'])) {
+					$temp = substr( trim($style['width']), -1);
+
+					if ($temp != '%' && trim($style['width']) != 'auto' ) {
+						$this->addReport($table);
+						break;
+					}
+				}
+			}
+		}
+	}
+}
 
 /**
 *  Substitutes for table header labels must be terse.
@@ -6453,7 +6498,7 @@ class videosEmbeddedOrLinkedNeedCaptions extends quailTest
 	*/
 	function check()
 	{
-		$search_youtube = '/(youtube|youtu\.be)/';
+		$search_youtube = '/(youtube|youtu\.be|youtube\-nocookie)/';
 		$search_vimeo = '/(vimeo)/';
 
 		foreach ($this->getAllElements(array('a', 'embed', 'iframe')) as $video) {
@@ -6504,7 +6549,7 @@ class videoCaptionsAreCorrectLanguage extends quailTest
 	*/
 	function check()
 	{
-		$search_youtube = '/(youtube|youtu\.be)/';
+		$search_youtube = '/(youtube|youtu\.be|youtube\-nocookie)/';
 		$search_vimeo = '/(vimeo)/';
 
 		foreach ($this->getAllElements(array('a', 'embed', 'iframe')) as $video) {
@@ -6557,7 +6602,7 @@ class videoUnlistedOrNotFound extends quailTest
 	*/
 	function check()
 	{
-		$search_youtube = '/(youtube|youtu\.be)/';
+		$search_youtube = '/(youtube|youtu\.be|youtube\-nocookie)/';
 		$search_vimeo = '/(vimeo)/';
 
 		foreach ($this->getAllElements(array('a', 'embed', 'iframe')) as $video) {
