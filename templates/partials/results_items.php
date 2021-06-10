@@ -48,13 +48,12 @@
 					<div class="error-desc"><p><?= $heading_data->description; ?></p></div>
 				<?php endif; ?>
 				<!-- End Error group header -->
-
 				<div id="<?= $collapse_id; ?>" class="collapse in fade margin-top-small">
 					<?php if ($type == "contentTooLong"): ?>
 						<?php foreach ($type_group as $index => $group_item): ?>
 							<?= $group_item->text_type; ?>
 						<?php endforeach; ?>
-					<?php else: ?>
+					<?php elseif ($type != "noHeadings") : ?>
 						<ol>
 							<?php foreach ($type_group as $index => $group_item): ?>
 								<?php $li_id = "error-{$id}-{$type}-{$index}"; ?>
