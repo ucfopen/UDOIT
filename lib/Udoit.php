@@ -434,7 +434,7 @@ class Udoit
 
             case 'module_urls':
                 $url = "{$api_url}modules";
-                $search = '/(youtube|vimeo)/';
+                $search = '/(youtube|vimeo|youtu\.be|youtube\-nocookie)/';
                 $resp = static::apiGet($url, $api_key)->send()->body;
                 $count = 0;
 

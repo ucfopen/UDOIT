@@ -75,6 +75,7 @@ class Wcag2aaaGuideline extends quailGuideline
 		// 'fileLabelIsNearby',
 		// 'radioLabelIsNearby',
 		'tableDataShouldHaveTh',
+		'tableHasFixedWidth',
 		'tableThShouldHaveScope',
 		// 'tableLayoutDataShouldNotHaveTh',
 		// 'tableUsesCaption',

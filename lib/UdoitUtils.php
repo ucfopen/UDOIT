@@ -322,9 +322,10 @@ class UdoitUtils
         // If so, grab response object from session var aka 'cache'
         if (isset($_SESSION[$video_url]) && constant('USE_API_CACHING') != 'false') {
             $response = $_SESSION[$video_url];
-            $logger->addInfo("Cached api response used");
+            $logger->addInfo("Cached api response used for ".$video_url);
         } else {
             // Else, make api call and cache response in a session var
+            $logger->addInfo("Making fresh api call for ".$video_url);
             if (null == $api_key) {
                 $resp = Request::get($api_url)->send();
             } else {

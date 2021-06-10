@@ -660,6 +660,7 @@ $doc.ready(function() {
 						$parent.find('.more-info').addClass('hidden');
 						$parent.find('.ufixit-form').addClass('hidden');
 
+						$parent.find('.fix-success').focus();
 
 						errorsRemaining = $parent.parent().parent().find('.fix-success.hidden').length;
 						if ( errorsRemaining == 0 ) {
