@@ -270,7 +270,6 @@ class UdoitUtils
         ];
 
         foreach ($report_groups as $rg) {
-            print_r($rg);
             if (!array_key_exists($rg->title, $ordered_report_groups)) {
                 $logger->addWarning("{$rg->title} is an unknown report title, it will be omitted from the report.");
                 $logger->addInfo("Contents of the unknown report:".print_r($rg, true));
