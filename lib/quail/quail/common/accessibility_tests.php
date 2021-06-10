@@ -5775,20 +5775,30 @@ class tableDataShouldHaveTh extends quailTableTest
 	function check()
 	{
 		foreach ($this->getAllElements('table') as $table) {
-			foreach ($table->childNodes as $child) {
-				// If $child is thead, tbody, or tr then we can evaluate
-				if (
-					$this->propertyIsEqual($child, 'tagName', 'thead') ||
-					$this->propertyIsEqual($child, 'tagName', 'tbody')
-				)
-					$trWrapper = $child;
-				elseif ($this->propertyIsEqual($child, 'tagName', 'tr'))
-					$trWrapper = $table;
-				else continue;
-
-				if (!$this->doRowsContainTH($trWrapper)) $this->addReport($table);
-
-				break;
+			if (!($table->hasAttribute('role') && $table->getAttribute('role') == "presentation")){
+				foreach ($table->childNodes as $child) {
+					if ($this->propertyIsEqual($child, 'tagName', 'tbody') || $this->propertyIsEqual($child, 'tagName', 'thead')) {
+						foreach ($child->childNodes as $tr) {
+							foreach ($tr->childNodes as $th) {
+								if ($this->propertyIsEqual($th, 'tagName', 'th')) {
+									break 3;
+								} else {
+									$this->addReport($table);
+									break 3;
+								}
+							}
+						}
+					} elseif ($this->propertyIsEqual($child, 'tagName', 'tr')) {
+						foreach ($child->childNodes as $th) {
+							if ($this->propertyIsEqual($th, 'tagName', 'th')) {
+								break 2;
+							} else {
+								$this->addReport($table);
+								break 2;
+							}
+						}
+					}
+				}
 			}
 		}
 	}
