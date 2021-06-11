@@ -239,6 +239,7 @@ class ContentPage extends React.Component {
               disabled={!this.props.disableReview}
             >
                 {this.props.t('label.review')}
+                <ScreenReaderContent>{this.props.t(`rule.label.${issue.scanRuleId}`)}</ScreenReaderContent>
             </Button>
           ),
           onClick: () => this.handleReviewClick(issue),
