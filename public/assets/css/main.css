@@ -621,6 +621,10 @@ div#cached button.btn-success:hover{
 	margin-right: 17px;
 }
 
+.errorWrapper p.new-url {
+	margin-left: 0px;
+}
+
 .errorWrapper .fix-this {
 	margin: 5px 17px 5px 27px;
 }

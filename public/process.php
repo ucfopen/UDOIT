@@ -148,6 +148,11 @@ switch ($main_action) {
                 $corrected_error = $ufixit->fixLink($data['error_html'], $new_content);
                 break;
 
+            case 'brokenLink':
+                $new_content = filter_input(INPUT_POST, 'newcontent', FILTER_SANITIZE_STRING);
+                $corrected_error = $ufixit->fixBrokenLink($data['error_html'], $new_content);
+                break;
+
             case 'cssTextHasContrast':
                 $new_content_array  = filter_input(INPUT_POST, 'newcontent', FILTER_SANITIZE_STRING, FILTER_REQUIRE_ARRAY);
                 $corrected_error = $ufixit->fixCssColor($data['error_html'], $new_content_array, $data['bold'], $data['italic']);
@@ -178,6 +183,11 @@ switch ($main_action) {
             case 'pNotUsedAsHeader':
                 $new_content = filter_input(INPUT_POST, 'newcontent', FILTER_SANITIZE_STRING);
                 $corrected_error = $ufixit->makeHeading($data['error_html'], $new_content);
+                break;
+
+            case 'redirectedLink':
+                $new_content = filter_input(INPUT_POST, 'newcontent', FILTER_SANITIZE_STRING);
+                $corrected_error = $ufixit->fixRedirectedLink($data['error_html'], $new_content);
                 break;
 
             case 'tableDataShouldHaveTh':

@@ -50,6 +50,8 @@ class Section508Guideline extends quailGuideline{
 		// 'scriptInBodyMustHaveNoscript',
 		'aLinksToMultiMediaRequireTranscript',
 		'aSuspiciousLinkText',
+		'redirectedLink',
+		'brokenLink',
 		// 'imgNotReferredToByColorAlone',
 		// 'appletsDoneUseColorAlone',
 		// 'inputDoesNotUseColorAlone',

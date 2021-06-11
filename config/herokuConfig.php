@@ -60,6 +60,9 @@ $unscannable_suggestion_on = true;
 /* Assigning which file types won't be scanned */
 $unscannable_file_types = ['pdf', 'doc', 'docx', 'ppt', 'pptx', 'xls', 'xlsx', 'swf'];
 
+/* Enable checks for redirected links and broken links*/
+$links_on = true;
+
 /* Google/YouTube Data Api Key */
 define('GOOGLE_API_KEY', getenv('GOOGLE_API_KEY')?:'');
 

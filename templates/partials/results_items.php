@@ -114,6 +114,10 @@
 														$result_template = 'link';
 														break;
 
+													case "brokenLink":
+														$result_template = 'link_broken';
+														break;
+
 													case "cssTextStyleEmphasize":
 														$result_template = 'text_style';
 														break;
@@ -138,6 +142,10 @@
 													case "imgAltIsDifferent":
 													case "imgAltIsTooLong":
 														$result_template = 'image_alt';
+														break;
+
+													case "redirectedLink":
+														$result_template = 'link_redirect';
 														break;
 
 													case "tableDataShouldHaveTh":

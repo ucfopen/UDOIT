@@ -138,6 +138,8 @@ class Wcag2aaaGuideline extends quailGuideline
 		// 'documentTitleDescribesDocument',
 		'aMustContainText',
 		'aSuspiciousLinkText',
+		'redirectedLink',
+		'brokenLink',
 		// 'siteMap',
 		// 'headerH1',
 		// 'headerH2',

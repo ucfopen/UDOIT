@@ -426,7 +426,7 @@ class aSuspiciousLinkText extends quailTest
 	/**
 	*	@var array $strings An array of strings, broken up by language domain
 	*/
-	var $strings = array('en' => array('click here', 'click', 'more', 'here'),
+	var $strings = array('en' => array('click here', 'click', 'more', 'here', 'http'),
 		'es' => array('clic aqu&iacute;', 'clic', 'haga clic', 'm&aacute;s', 'aqu&iacute;'));
 
 	/**
@@ -439,6 +439,66 @@ class aSuspiciousLinkText extends quailTest
 				&& !($a->hasAttribute('aria-label') && strlen($a->getAttribute('aria-label')) > 0)
 				&& !($a->hasAttribute('aria-labelledby') && strlen($a->getAttribute('aria-labelledby')) > 0)){
 					$this->addReport($a);
+			}
+		}
+	}
+}
+
+/**
+*  Redirected Link
+*
+*/
+
+class redirectedLink extends quailTest
+{
+	/**
+	*	@var int $default_severity The default severity code for this test.
+	*/
+	var $default_severity = QUAIL_TEST_SUGGESTION;
+
+	/**
+	*	The main check function. This is called by the parent class to actually check content
+	*/
+	function check()
+	{
+		global $links_on;
+
+		if($links_on) {
+			foreach ($this->getAllElements('a') as $a) {
+				$url = $a->getAttribute('href');
+				if(strpos($url, 'http') !== false){
+					$this->addReport($a, $url);
+				}
+			}
+		}
+	}
+}
+
+/**
+*  Redirected Link
+*
+*/
+
+class brokenLink extends quailTest
+{
+	/**
+	*	@var int $default_severity The default severity code for this test.
+	*/
+	var $default_severity = QUAIL_TEST_SEVERE;
+
+	/**
+	*	The main check function. This is called by the parent class to actually check content
+	*/
+	function check()
+	{
+		global $links_on;
+
+		if($links_on) {
+			foreach ($this->getAllElements('a') as $a) {
+				$url = $a->getAttribute('href');
+				if(strpos($url, 'http') !== false){
+					$this->addReport($a, $url);
+				}
 			}
 		}
 	}
