@@ -402,7 +402,7 @@ class Ufixit
         ];
 
         $this->dom->loadHTML('<?xml encoding="utf-8" ?>'.$error_html, LIBXML_HTML_NODEFDTD);
-
+        $logger->addInfo($this->dom);
         switch ($selected_header) {
             case 'col':
                 $trs = $this->dom->getElementsByTagName('tr');
