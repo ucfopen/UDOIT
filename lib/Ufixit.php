@@ -396,6 +396,7 @@ class Ufixit
      */
     public function fixTableHeaders($error_html, $selected_header, $submitting_again = false)
     {
+        global $logger;
         $new_data = [
             'old'   => '',
             'fixed' => '',
