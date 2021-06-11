@@ -1,88 +1,40 @@
-# UDOIT NG
+# Universal Design Online content Inspection Tool
+UDOIT enables faculty to identify accessibility issues in Canvas by Instructure. Scan a course, generate reports, and provide resources to address common accessibility issues.
 
-### Prerequisites
+UDOIT was originally developed by the University of Central Florida (UCF) in 2014. In 2020, UDOIT was in need of a code refresh and UCF partnered with Cidi Labs to rewrite UDOIT from the ground up.
 
- - PHP 7.4
+## Prerequisites
+ - PHP 7.4+
  - Symfony
  - Composer
- - Node v14,Yarn
- - MYSQL v5.7/MariaDB
+ - Node v14
+ - Yarn
+ - MYSQL v5.7 / MariaDB
 
-## Basic setup for local
-Clone repo and run 
+## Skills Needed for Installation
+To manually complete this installation you will need the following skills:
 
-    composer install
+* Web server configuration (Apache or Nginx)
+* Command line familiarity 
+* MySQL familiarity
+* LMS admin permissions
 
-from inside repo. Next make sure you have a database with a user setup in your .env.local. If you want to create it with doctrine you can run php bin/console doctrine:database:create.
+UDOIT is built using PHP, the Symfony framework, the React framework, the Instructure UI component library, and other open source libraries. However, knowledge of PHP or Javascript is _**NOT REQUIRED**_ for installation.
 
-    php bin/console doctrine:migrations:migrate
- You may need to force them with if you are getting errors
+## Where to Start
+1. Start the installation process by setting up UDOIT on your web server. Instructions are in `INSTALL.md`.
 
-    php bin/console doctrine:schema:update --force
-    
-### setup with Canvas
-#### LTI Developer Key
-On the canvas side you will want to go to Developer Keys under Admin. Here you will create a new LTI Key. This is where you will specify the URL that goes with your local. Here are example values
-Redirect URI's:
+2. Once UDOIT is running on your web server you need to configure your LMS. Instructions for the different LMS's are in `INSTALL_<LMS_NAME>.md`.
 
-    https://udoit.example/lti/authorize/check
+## Licenses
+UDOIT is distributed under the GNU GPL v3 license.
 
-Target Link URI:
+Copyright (C) 2014 University of Central Florida, created by Jacob Bates, Eric Colon, Fenel Joseph, and Emily Sachs.
 
-    https://udoit.example/dashboard
+This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
 
-OpenID Connect Initiation Url:
+This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
 
-    https://udoit.example/lti/authorize
+You should have received a copy of the GNU General Public License along with this program. If not, see http://www.gnu.org/licenses/.
 
-JWK Method:
-Public JWK URL
-Public JWK URL:
-
-    https://canvas.instructure.com/api/lti/security/jwks
-
-Then under Additional settings
-Domain:
-
-    udoit.example
-
-tool id:
-
-    lti_test
-
-Custom Fields:
-
-    lms_id=canvas
-    lms_user_id=$Canvas.user.id
-    lms_course_id=$Canvas.course.id
-    lms_api_domain=$Canvas.api.domain
-
-Switch Privacy Level to Public
-Under LTI Advantage Services check everything except Can view Progress records associated with the context the tool is installed in
-Then under placements make sure you have Account Navigation, Link Selection and Course Navigation or it will not show up in your course.
-#### API Developer Key
-Now go back to the Developer Keys and find the Cidi Labs Tools and edit it and add your Redirect URI's in there. For example I would add at the bottom:
-
-    https://udoit.example/authorize/check
-And hit save. From here you will need to locate your Key ID. This is above the Show Key button on the Developer Keys page. Copy this ID,It should be 17 digits. You can add under you sub-Account or under the course itself. It will be Settings -> Apps. On the right hand side you will see a button that says View App Configurations, click that. Click the + App button and switch Configuration Type to By Client ID and in the Client ID box put in the 17 digit ID you copied before, then hit submit.
-### Local Proxy
-This is where you will setup a proxy and url(https://udoit.example) for your local to go to. This is where you will want to use symfony serve -d and most likely you will need to run symfony server:ca:install to enable TLS. You will want to run symfony proxy:start however setting it up with your host system and symfony would be better with a link to their [documentation](https://symfony.com/doc/current/setup/symfony_server.html#local-domain-names). You would also want to run a yarn watch.
-
-After having all this setup you should be able to see the UDOIT NG
-
-### .env.local
-Make sure that you have your .env.local setup with the correct variables
-    
-    DATABASE_URL=mysql://example:example@127.0.0.1:3306/example
-    
-    APP_LMS=canvas
-    APP_ENV=dev
-    ###> udoit ###
-    APP_LMS=canvas
-    APP_OAUTH_REDIRECT_URL="https://udoit.example/authorize/check"
-    APP_LTI_REDIRECT_URL="https://udoit.example/lti/authorize/check"
-    
-    ###> base url ###
-    # Base URL for client callbacks 
-    BASE_URL="https://udoit.example"
-    ###> base url ###
+Primary Contact: Jacob Bates jacob.bates@ucf.edu
