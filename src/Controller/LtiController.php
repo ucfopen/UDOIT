@@ -148,7 +148,7 @@ class LtiController extends AbstractController
         $baseDomain = str_replace('https://', '', $baseUrl);
         $appName = $request->server->get('APP_LTI_NAME');
         $adminName = $request->server->get('ADMIN_LTI_NAME');
-        $platform = 'canvas.instructure.com';
+        $platform = ($lms === 'canvas') ? 'canvas.instructure.com' : 'd2l.com';
 
         $customAppName = $request->query->get('tool_title');
         $default = $request->query->get('default');
