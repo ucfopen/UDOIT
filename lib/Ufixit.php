@@ -403,7 +403,7 @@ class Ufixit
 
         $this->dom->loadHTML('<?xml encoding="utf-8" ?>'.$error_html, LIBXML_HTML_NODEFDTD);
 
-        $table = $this->dom->getElementsByTagName('table');
+        $table = $this->dom->getElementsByTagName('table')[0];
         $new_data['old'] .= $this->dom->saveHTML($table);
 
         switch ($selected_header) {
