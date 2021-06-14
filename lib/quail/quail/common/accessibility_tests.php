@@ -224,7 +224,7 @@ class aLinksMakeSenseOutOfContext extends quailTest
 
 /**
 *  Links to multimedia require a text transcript.
-*  a (anchor) element must not contain an href attribute value that ends with (case insensitive): .wmv, .mpg, .mov, .ram, .aif.
+*  a (anchor) element must not contain an href attribute value that ends with (case insensitive): .wmv, .mpg, .mov, .ram, .aif, .mp4, .mpv, .avi.
 *	@link http://quail-lib.org/test-info/aLinksToMultiMediaRequireTranscript
 */
 class aLinksToMultiMediaRequireTranscript extends quailTest
@@ -237,7 +237,7 @@ class aLinksToMultiMediaRequireTranscript extends quailTest
 	/**
 	*	@var array $extensions A list of extensions that are considered links to multimedi
 	*/
-	var $extensions = ['wmv', 'mpg', 'mov', 'ram', 'aif'];
+	var $extensions = ['wmv', 'mpg', 'mov', 'ram', 'aif', 'mp4', 'mpv', 'avi'];
 
 	/**
 	*	The main check function. This is called by the parent class to actually check content
