@@ -155,7 +155,7 @@ class Udoit
             $quail_report = $quail->getReport();
 
             foreach ($quail_report['report'] as $value) {
-                if ($value['text_type'] != null && $value['type'] == 'redirectedLink') {
+                if (isset($value['text_type']) && $value['type'] == 'redirectedLink') {
                     $new_links[] = $value['text_type'];
                 }
             }
@@ -172,24 +172,26 @@ class Udoit
 
             // loop over the items returning from Quail
             foreach ($quail_report['report'] as $quail_issue) {
-                if ($quail_issue['type'] == 'redirectedLink') {
-                    $ref = $quail_issue['text_type'];
-                    preg_match('/^[^#\s]+/', $ref, $matches);
-                    $base = $matches[0];
-                    $base = preg_replace('/\/$/', '', $base);
-                    $base = preg_replace('/www\./', '', $base);
-                    $base = preg_replace('/http[s]{0,1}:\/\//', '', $base);
-                    if (array_key_exists($quail_issue['text_type'], $tested_links) && strpos($tested_links[$ref], $base) === false /*$tested_links[$ref] != $base */&& $tested_links[$ref] != 404) {
-                        $quail_issue['text_type'] = $tested_links[$ref];
-                    } else {
-                        unset($quail_report[$quail_issue['text_type']]);
-                        continue;
-                    }
-                } else if ($quail_issue['type'] == 'brokenLink') {
-                    $ref = $quail_issue['text_type'];
-                    if ($tested_links[$ref] != 404) {
-                        unset($quail_report[$quail_issue['text_type']]);
-                        continue;
+                if (isset($quail_issue['type']) && isset($quail_issue['text_type'])) {
+                    if ($quail_issue['type'] == 'redirectedLink') {
+                        $ref = $quail_issue['text_type'];
+                        preg_match('/^[^#\s]+/', $ref, $matches);
+                        $base = $matches[0];
+                        $base = preg_replace('/\/$/', '', $base);
+                        $base = preg_replace('/www\./', '', $base);
+                        $base = preg_replace('/http[s]{0,1}:\/\//', '', $base);
+                        if (array_key_exists($quail_issue['text_type'], $tested_links) && strpos($tested_links[$ref], $base) === false /*$tested_links[$ref] != $base */&& $tested_links[$ref] != 404) {
+                            $quail_issue['text_type'] = $tested_links[$ref];
+                        } else {
+                            unset($quail_report[$quail_issue['text_type']]);
+                            continue;
+                        }
+                    } else if ($quail_issue['type'] == 'brokenLink') {
+                        $ref = $quail_issue['text_type'];
+                        if ($tested_links[$ref] != 404) {
+                            unset($quail_report[$quail_issue['text_type']]);
+                            continue;
+                        }
                     }
                 }
 
