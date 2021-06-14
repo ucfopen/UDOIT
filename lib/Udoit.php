@@ -320,7 +320,7 @@ class Udoit
 
             case 'assignments':
                 $contents = static::apiGetAllLinks($api_key, "{$api_url}assignments?");
-                $logger->addInfo($contents);
+                $logger->addInfo(print_r($contents,true));
                 foreach ($contents as $c) {
                     if (($content_flag) || $c->published == "true") {
                         $content_result['items'][] = [
