@@ -396,16 +396,29 @@ class Ufixit
      */
     public function fixTableHeaders($error_html, $selected_header, $submitting_again = false)
     {
-        global $logger;
         $new_data = [
             'old'   => '',
             'fixed' => '',
         ];
 
         $this->dom->loadHTML('<?xml encoding="utf-8" ?>'.$error_html, LIBXML_HTML_NODEFDTD);
-        $logger->addInfo($this->dom->saveHTML($this->dom));
+
+        $table = $this->dom->getElementsByTagName('table');
+        $new_data['old'] .= $this->dom->saveHTML($table);
+
         switch ($selected_header) {
             case 'col':
+                $trs = $this->dom->getElementsByTagName('tr');
+
+                foreach ($trs as $arrkey => $tr) {
+                    $td = $tr->getElementsByTagName('td')->item(0);
+                    $td = $this->renameElement($td, 'th');
+
+                    $td->setAttribute('scope', 'row');
+                }
+
+                $new_data['fixed'] .= $this->dom->saveHTML($table);
+                /*
                 $trs = $this->dom->getElementsByTagName('tr');
 
                 $last_item = $trs->length - 1;
@@ -431,7 +444,7 @@ class Ufixit
                         $new_data['fixed'] .= "\n";
                     }
                 }
-
+                */
                 break;
 
             case 'row':

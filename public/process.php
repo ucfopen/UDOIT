@@ -196,8 +196,7 @@ switch ($main_action) {
                 $corrected_error    = $ufixit->fixTableHeaders($data['error_html'], $new_content);
                 $data['error_html'] = $corrected_error['old'];
                 $corrected_error    = $corrected_error['fixed'];
-                $logger->addInfo("Data ".$data['error_html']);
-                $logger->addInfo("Data ".$corrected_error);
+
                 break;
 
             case 'tableThShouldHaveScope':
