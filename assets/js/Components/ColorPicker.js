@@ -13,7 +13,6 @@ class ColorPicker extends React.Component {
 
     this.renderColors = this.renderColors.bind(this)
     this.handleChange = this.handleChange.bind(this)
-    this.handleMouseEvent = this.handleMouseEvent.bind(this)
   }
 
   handleChange() {
