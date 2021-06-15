@@ -67,7 +67,6 @@ export default class ContrastForm extends React.Component {
     this.setState({
       backgroundColor: value
     }, () => {
-      console.log(this.state.backgroundColor)
       this.updatePreview()
     })
   }
@@ -76,7 +75,6 @@ export default class ContrastForm extends React.Component {
     this.setState({
       textColor: value
     }, () => {
-      console.log(this.state.textColor)
       this.updatePreview()
     })
   }
@@ -85,7 +83,6 @@ export default class ContrastForm extends React.Component {
     this.setState({
       backgroundColor: Contrast.changehue(this.state.backgroundColor, 'lighten')
     }, () => {
-      console.log(this.state.backgroundColor)
       this.updatePreview()
     })
   }
