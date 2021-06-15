@@ -63,7 +63,7 @@ switch ($main_action) {
             $course_locale = substr($course_locale_raw, 0, 2);
             $logger->addInfo('Course Locale set to '.$course_locale);
         }
-        
+
         $flag = filter_input(INPUT_POST, 'unpublished_flag', FILTER_DEFAULT);
 
         // No content selected
@@ -196,6 +196,7 @@ switch ($main_action) {
                 $corrected_error    = $ufixit->fixTableHeaders($data['error_html'], $new_content);
                 $data['error_html'] = $corrected_error['old'];
                 $corrected_error    = $corrected_error['fixed'];
+
                 break;
 
             case 'tableThShouldHaveScope':

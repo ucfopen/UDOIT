@@ -403,39 +403,25 @@ class Ufixit
 
         $this->dom->loadHTML('<?xml encoding="utf-8" ?>'.$error_html, LIBXML_HTML_NODEFDTD);
 
+        $table = $this->dom->getElementsByTagName('table')[0];
+        $new_data['old'] .= $this->dom->saveHTML($table);
+
         switch ($selected_header) {
             case 'col':
                 $trs = $this->dom->getElementsByTagName('tr');
 
-                $last_item = $trs->length - 1;
                 foreach ($trs as $arrkey => $tr) {
-                    $new_data['old'] .= $this->dom->saveHTML($tr);
-
-                    // Add a newline between each output so it matches the original
-                    if ($arrkey < $last_item) {
-                        $new_data['old'] .= "\n";
-                    }
-                }
-
-                foreach ($trs as $arrkey => $tr) {
-                    $td = $tr->getElementsByTagName('td')->item(0);
+                    $td = $tr->getElementsByTagName('td')[0];
                     $td = $this->renameElement($td, 'th');
 
                     $td->setAttribute('scope', 'row');
-
-                    $new_data['fixed'] .= $this->dom->saveHTML($tr);
-
-                    // Add a newline between each output so it matches the original
-                    if ($arrkey < $last_item) {
-                        $new_data['fixed'] .= "\n";
-                    }
                 }
 
+                $new_data['fixed'] .= $this->dom->saveHTML($table);
                 break;
 
             case 'row':
-                $tr              = $this->dom->getElementsByTagName('tr')->item(0);
-                $new_data['old'] = $this->dom->saveHTML($tr);
+                $tr = $this->dom->getElementsByTagName('tr')[0];
 
                 for ($i = $tr->childNodes->length; --$i >= 0;) {
                     $td = $tr->childNodes->item($i);
@@ -448,23 +434,12 @@ class Ufixit
                 }
 
                 //TODO: Move $tr out of <tbody> and into a new <thead> above <tbody>
-
-                $new_data['fixed'] = $this->dom->saveHTML($tr);
+                $new_data['fixed'] = $this->dom->saveHTML($table);
                 break;
 
             case 'both':
                 $first = true;
                 $trs   = $this->dom->getElementsByTagName('tr');
-
-                $last_item = $trs->length - 1;
-                foreach ($trs as $arrkey => $tr) {
-                    $new_data['old'] .= $this->dom->saveHTML($tr);
-
-                    // Add a newline between each output so it matches the original
-                    if ($arrkey < $last_item) {
-                        $new_data['old'] .= "\n";
-                    }
-                }
 
                 foreach ($trs as $tr) {
                     if ($first) {
@@ -478,21 +453,16 @@ class Ufixit
                             }
                         }
 
-                        $new_data['fixed'] .= $this->dom->saveHTML($tr);
                         $first = false;
 
                         continue;
                     }
 
-                    $td = $tr->getElementsByTagName('td')->item(0);
+                    $td = $tr->getElementsByTagName('td')[0];
                     $td = $this->renameElement($td, 'th');
-
                     $td->setAttribute('scope', 'row');
-
-                    // Add a newline before every export of a row (First is skipped)
-                    $new_data['fixed'] .= "\n".$this->dom->saveHTML($tr);
                 }
-
+                $new_data['fixed'] = $this->dom->saveHTML($table);
                 break;
         }
 
