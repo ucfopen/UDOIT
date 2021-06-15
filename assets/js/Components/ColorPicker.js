@@ -8,8 +8,7 @@ class ColorPicker extends React.Component {
     super(props)
 
     this.state = {
-        detailsOpen: false,
-        hover: false
+        detailsOpen: false
     }
 
     this.renderColors = this.renderColors.bind(this)
