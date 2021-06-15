@@ -23,13 +23,6 @@ class ColorPicker extends React.Component {
     })
   }
 
-  handleMouseEvent() {
-    console.log("hi")
-    this.setState({
-        hover: !this.state.hover
-    })
-  }
-
   render() {
     let topColorList = this.props.colors.slice(0,11)
     let bottomColorList = this.props.colors.slice(11,22)
