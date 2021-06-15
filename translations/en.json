@@ -171,6 +171,7 @@
   "label.most_common": "Most Common",
   "label.hide_color_picker": "Hide Color Picker",
   "label.show_color_picker": "Show Color Picker",
+  "label.hex_color": "Hex color value",
 
   "label.file.drag_drop": "Drag a file here, or",
   "label.file.browse_files": "Choose a file to upload",
