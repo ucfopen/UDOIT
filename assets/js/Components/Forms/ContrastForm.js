@@ -9,6 +9,7 @@ import { TextInput } from '@instructure/ui-text-input'
 import { Checkbox } from '@instructure/ui-checkbox'
 import { IconButton } from '@instructure/ui-buttons'
 import { IconArrowOpenDownSolid, IconArrowOpenUpSolid, IconCheckMarkLine } from '@instructure/ui-icons'
+import ColorPicker from '../ColorPicker'
 import Html from '../../Services/Html'
 import Contrast from '../../Services/Contrast'
 
@@ -38,6 +39,8 @@ export default class ContrastForm extends React.Component {
     this.handleItalicsToggle = this.handleItalicsToggle.bind(this)
     this.updatePreview = this.updatePreview.bind(this)
     this.handleSubmit = this.handleSubmit.bind(this)
+    this.updateText = this.updateText.bind(this)
+    this.updateBackground = this.updateBackground.bind(this)
   }
 
   componentDidMount(prevProps, prevState) {
@@ -131,10 +134,28 @@ export default class ContrastForm extends React.Component {
     }
   }
 
+  updateText(value) {
+    this.setState({
+      textColor: value
+    }, () => {
+      this.updatePreview()
+    })
+  }
+
+  updateBackground(value) {
+    this.setState({
+      backgroundColor: value
+    }, () => {
+      this.updatePreview()
+    })
+  }
+
   render() {
     const pending = (this.props.activeIssue && (this.props.activeIssue.pending == '1'))
     const buttonLabel = (pending) ? 'form.processing' : 'form.submit'
     const ratioColor = (this.state.ratioIsValid) ? 'success' : 'danger'
+    const colors= ['888888','F5EB32','70B538','178E3E','225E9D','163D76','202164','6A1C68','CA1325','D44A25','DF7A2A',
+            '000000','99962F','4B7631','155F2E','183F6A','1B294C','1A1A40','451843','7D1820','843322','8A5126']
 
     return (
       <View as="div" padding="0 x-small">
@@ -170,6 +191,11 @@ export default class ContrastForm extends React.Component {
               </View>
             }
           />
+          <ColorPicker
+            update={this.updateBackground}
+            colors={colors}
+            t={this.props.t}
+          />
         </View>
         <View as="div" padding="x-small 0">
           <TextInput
@@ -195,6 +221,11 @@ export default class ContrastForm extends React.Component {
                 </IconButton>
               </View>
             }
+          />
+          <ColorPicker
+            update={this.updateText}
+            colors={colors}
+            t={this.props.t}
           />
         </View>
         <Flex>
