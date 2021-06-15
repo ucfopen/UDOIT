@@ -157,6 +157,8 @@ export default class ContrastForm extends React.Component {
     const pending = (this.props.activeIssue && (this.props.activeIssue.pending == '1'))
     const buttonLabel = (pending) ? 'form.processing' : 'form.submit'
     const ratioColor = (this.state.ratioIsValid) ? 'success' : 'danger'
+    const colors= ['888888','F5EB32','70B538','178E3E','225E9D','163D76','202164','6A1C68','CA1325','D44A25','DF7A2A',
+            '000000','99962F','4B7631','155F2E','183F6A','1B294C','1A1A40','451843','7D1820','843322','8A5126']
 
     return (
       <View as="div" padding="0 x-small">
@@ -194,7 +196,8 @@ export default class ContrastForm extends React.Component {
           />
           <ColorPicker
             update={this.updateBackground}
-            colors={['888888','F5EB32','70B538','178E3E','225E9D','163D76','202164','6A1C68','CA1325','D44A25','DF7A2A']}
+            colors={colors}
+            t={this.props.t}
           />
         </View>
         <View as="div" padding="x-small 0">
@@ -224,7 +227,8 @@ export default class ContrastForm extends React.Component {
           />
           <ColorPicker
             update={this.updateText}
-            colors={['000000','99962F','4B7631','155F2E','183F6A','1B294C','1A1A40','451843','7D1820','843322','8A5126']}
+            colors={colors}
+            t={this.props.t}
           />
         </View>
         <Flex>
