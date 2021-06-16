@@ -208,17 +208,23 @@ class Contrast {
   convertShortenedHex(color) {
     color = color.substring(1);
 
-    if (color.length == 3) {
-      color = color[0] + color[0] + color[1] + color[1] + color[2] + color[2];
+    // If the string is too long, cut it off at 6 characters
+    if(color.length > 6) {
+      color = color.substring(0,6)
     } 
-    
-    if (color.length == 4 || color.length == 5) {
+    // If the length is 3, hex shorthand is being used
+    else if (color.length == 3) {
+      color = color[0] + color[0] + color[1] + color[1] + color[2] + color[2];
+    }
+    // If the length is not 3 or 6, pad the end with zeroes
+    else if(color.length != 6) {
       let padding = '0'.repeat(6 - color.length)
       color = color + padding;
     }
 
     return '#' + color
   }
+
 }
 
 export default new Contrast()
