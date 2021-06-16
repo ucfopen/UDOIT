@@ -23,7 +23,7 @@ export default class ContrastForm extends React.Component {
       useBold: this.isBold(),
       useItalics: this.isItalicized(),
       contrastRatio: null,
-      contrastIsValid: false,
+      ratioIsValid: false,
       textInputErrors: []
     }
 
@@ -128,9 +128,16 @@ export default class ContrastForm extends React.Component {
   }
 
   handleSubmit() {
-    if(this.state.textInputErrors.length === 0) {
+    if(this.state.ratioIsValid) {
       let issue = this.props.activeIssue
       this.props.handleIssueSave(issue)
+    } else {
+      this.formErrors = []
+      //push errors
+      this.formErrors.push({ text: `${this.props.t('form.contrast.invalid')}: ${this.state.contrastRatio}` , type: 'error' })
+      this.setState({
+        textInputErrors: this.formErrors
+      })
     }
   }
 
@@ -154,8 +161,6 @@ export default class ContrastForm extends React.Component {
     const pending = (this.props.activeIssue && (this.props.activeIssue.pending == '1'))
     const buttonLabel = (pending) ? 'form.processing' : 'form.submit'
     const ratioColor = (this.state.ratioIsValid) ? 'success' : 'danger'
-    // const colors= ['888888','F5EB32','70B538','178E3E','225E9D','163D76','202164','6A1C68','CA1325','D44A25','DF7A2A',
-    //         '000000','99962F','4B7631','155F2E','183F6A','1B294C','1A1A40','451843','7D1820','843322','8A5126']
 
     const colors = [
       // top row (lighter)
