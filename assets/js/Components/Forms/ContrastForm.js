@@ -206,7 +206,7 @@ export default class ContrastForm extends React.Component {
             value={this.state.backgroundColor}
             onChange={this.handleInputBackground}
             renderBeforeInput={
-              <span style={{ boxShadow: '0 0 5px 0 #CCC', backgroundColor: this.state.backgroundColor, width: '20px', height: '20px', opacity: 1.0, display: 'inline-block' }}></span>
+              <span style={{ boxShadow: '0 0 5px 0 #CCC', backgroundColor: Contrast.convertShortenedHex(this.state.backgroundColor), width: '20px', height: '20px', opacity: 1.0, display: 'inline-block' }}></span>
             }
             renderAfterInput={
               <View>
@@ -237,7 +237,7 @@ export default class ContrastForm extends React.Component {
             onChange={this.handleInputText}
             messages={this.state.textInputErrors}
             renderBeforeInput={
-              <div style={{ boxShadow: '0 0 5px 0 #CCC', backgroundColor: this.state.textColor, width: '20px', height: '20px', opacity: 1.0 }}></div>
+              <div style={{ boxShadow: '0 0 5px 0 #CCC', backgroundColor: Contrast.convertShortenedHex(this.state.textColor), width: '20px', height: '20px', opacity: 1.0 }}></div>
             }
             renderAfterInput={
               <View>
@@ -314,8 +314,8 @@ export default class ContrastForm extends React.Component {
   processHtml(html) {
     let element = Html.toElement(html)
 
-    element.style.backgroundColor = this.state.backgroundColor
-    element.style.color = this.state.textColor
+    element.style.backgroundColor = Contrast.convertShortenedHex(this.state.backgroundColor)
+    element.style.color = Contrast.convertShortenedHex(this.state.textColor)
 
     element.style.fontWeight = (this.state.useBold) ? "bold" : "normal"
     element.style.fontStyle = (this.state.useItalics) ? "italic" : "normal"
