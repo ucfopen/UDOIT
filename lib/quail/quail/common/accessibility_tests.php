@@ -6779,12 +6779,9 @@ class headingLevelSkipped extends quailTest
 	*/
 	function check()
 	{
-		global $logger;
 		// Grab all the headings in order.
 		$xpath   = new DOMXPath($this->dom);
-
-		$headings = $xpath->query('//h1 | //h2 | //h3 | //h4 | //h5 | //h6 |');
-		$logger->addInfo(print_r($headings, true));
+		$headings = $xpath->query('//h1 | //h2 | //h3 | //h4 | //h5 | //h6');
 
 		// Check that we dont skip heading levels.
 		for ($i = 0; $i < count($headings); $i++) {
@@ -6793,13 +6790,11 @@ class headingLevelSkipped extends quailTest
 			// Check that we start with the right heading.
 			if ($i == 0 && $current !== 1) {
 				$this->addReport($headings[$i]);
-				break;
 			} else {
 				$previous = (int)substr($headings[$i - 1]->nodeName, -1);
 
 				if ($current > ($previous + 1)) {
 					$this->addReport($headings[$i]);
-					break;
 				}
 			}
 		}
