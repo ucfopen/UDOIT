@@ -6765,6 +6765,36 @@ class headersHaveText extends quailTest
 }
 
 /**
+*	Heading levels should be used in order.
+*/
+class headingLevelSkipped extends quailTest
+{
+	/**
+	*	@var int $default_severity The default severity code for this test.
+	*/
+	var $default_severity = QUAIL_TEST_SEVERE;
+
+		/**
+	*	The main check function. This is called by the parent class to actually check content
+	*/
+	function check()
+	{
+		$headings = $this->getAllElements(null, 'header', true);
+
+		for ($i = 0; $i < count($headings) - 1; $i++) {
+
+			// Get the header numbers
+			$current = (int)substr($headings[$i]->nodeName, -1);
+			$next = (int)substr($headings[$i + 1]->nodeName, -1);
+
+			if ($next > ($current + 1)) {
+				$this->addReport($header);
+			}
+		}
+	}
+}
+
+/**
 *	All labels should be associated with an input element. If not, these are considered 'orphans'
 *	because they have no or the wrong "for" attribute
 *	@link http://quail-lib.org/test-info/labelsAreAssignedToAnInput

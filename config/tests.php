@@ -170,6 +170,15 @@ return [
             ',
         ],
         [
+            'name'      => 'headingLevelSkipped',
+            'title'     => 'Heading levels should not be skipped',
+            'desc'      => '<p>Nest headings by their rank (or level). The most important heading has the rank 1 (h1), the least important heading rank 6 (h6). Headings with an equal or higher rank start a new section, headings with a lower rank start new subsections that are part of the higher ranked section. Skipping heading ranks can be confusing and should be avoided where possible</p>',
+            'resources' => [
+                'Heading ranks <a href="https://www.w3.org/WAI/tutorials/page-structure/headings/#:~:text=Skipping%20heading%20ranks%20can%20be,it%20closes%20the%20previous%20section.">Article</a>',
+            ],
+            'example'   => '',
+        ],
+        [
             'name'      => 'objectMustContainText',
             'title'     => 'Multimedia objects should have text equivalents (e.g., transcripts).',
             'desc'      => '<p>Multimedia objects should be accompanied by a link to a transcript of the content.</p>',
