@@ -32,7 +32,8 @@ class ContentTrayForm extends React.Component {
   }
 
   render() {
-console.log('render', this.props.filters)
+    console.log('render', this.props.filters)
+
     return (
       <Tray
         label={this.props.t('label.plural.filter')}
