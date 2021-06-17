@@ -6782,20 +6782,21 @@ class headingLevelSkipped extends quailTest
 		// Grab all the headings.
 		$headings = $this->getAllElements(null, 'header', true);
 
-		// Check that we start with the right heading.
-		if (isset($headings[0]) && (int)substr($headings[0]->nodeName, -1) !== 1) {
-			$this->addReport($headings[0]);
-		}
-
 		// Check that we dont skip heading levels.
-		for ($i = 0; $i < count($headings) - 1; $i++) {
+		for ($i = 0; $i < count($headings); $i++) {
+			if ($i == 0) {
+				// Check that we start with the right heading.
+				if (((int)substr($headings[$i]->nodeName, -1)) !== 1) {
+					$this->addReport($headings[$i]);
+				}
+			} else {
+				// Get the header numbers
+				$current = (int)substr($headings[$i]->nodeName, -1);
+				$previous = (int)substr($headings[$i - 1]->nodeName, -1);
 
-			// Get the header numbers
-			$current = (int)substr($headings[$i]->nodeName, -1);
-			$next = (int)substr($headings[$i + 1]->nodeName, -1);
-
-			if ($next > ($current + 1)) {
-				$this->addReport($headings[$i + 1]);
+				if ($current > ($previous + 1)) {
+					$this->addReport($headings[$i - 1]);
+				}
 			}
 		}
 	}
