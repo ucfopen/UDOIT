@@ -6779,8 +6779,10 @@ class headingLevelSkipped extends quailTest
 	*/
 	function check()
 	{
+		global $logger;
 		// Grab all the headings.
 		$headings = $this->getAllElements(null, 'header', true);
+		$logger->addInfo($headings);
 
 		// Check that we dont skip heading levels.
 		for ($i = 0; $i < count($headings); $i++) {
