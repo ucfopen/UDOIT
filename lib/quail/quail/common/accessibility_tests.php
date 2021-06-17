@@ -6779,8 +6779,15 @@ class headingLevelSkipped extends quailTest
 	*/
 	function check()
 	{
+		// Grab all the headings.
 		$headings = $this->getAllElements(null, 'header', true);
 
+		// Check that we start with the right heading.
+		if ((int)substr($headings[$i]->nodeName, -1) !== 1) {
+			$this->addReport($$headings[$i]);
+		}
+
+		// Check that we dont skip heading levels.
 		for ($i = 0; $i < count($headings) - 1; $i++) {
 
 			// Get the header numbers
@@ -6788,7 +6795,7 @@ class headingLevelSkipped extends quailTest
 			$next = (int)substr($headings[$i + 1]->nodeName, -1);
 
 			if ($next > ($current + 1)) {
-				$this->addReport($header);
+				$this->addReport($headings[$i + 1]);
 			}
 		}
 	}
