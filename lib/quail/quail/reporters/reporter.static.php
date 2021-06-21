@@ -88,8 +88,8 @@ class reportStatic extends quailReporter
 							$testResult['fore_color'] = $hexColors[1];
 							$testResult['font_style'] = $styleMatches[1];
 							$testResult['font_weight'] = $weightMatches[1];
-							if($testResult['font-weight'] === "bolder"){
-								$testResult['font-weight'] = "bold";
+							if($testResult['font_weight'] === "bolder"){
+								$testResult['font_weight'] = "bold";
 							}
 							$testResult['text_type']	= preg_replace('/(?=:).+/', '', $problem->message);
 

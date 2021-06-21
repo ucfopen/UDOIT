@@ -1,4 +1,4 @@
-<phpunit 
+<phpunit
 	bootstrap='tests/bootstrap.php'
 	backupGlobals="false"
 	convertWarningsToExceptions="false"
@@ -9,7 +9,6 @@
 			<file>tests/UdoitDBTest.php</file>
 			<file>tests/UfixitTest.php</file>
 			<file>tests/UdoitTest.php</file>
-			<file>tests/IndexTest.php</file>
 			<file>tests/FunctionalTests.php</file>
 			<file>tests/UdoitStatsTest.php</file>
 		</testsuite>

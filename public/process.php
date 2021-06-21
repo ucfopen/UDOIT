@@ -63,7 +63,7 @@ switch ($main_action) {
             $course_locale = substr($course_locale_raw, 0, 2);
             $logger->addInfo('Course Locale set to '.$course_locale);
         }
-        
+
         $flag = filter_input(INPUT_POST, 'unpublished_flag', FILTER_DEFAULT);
 
         // No content selected
@@ -148,6 +148,11 @@ switch ($main_action) {
                 $corrected_error = $ufixit->fixLink($data['error_html'], $new_content);
                 break;
 
+            case 'brokenLink':
+                $new_content = filter_input(INPUT_POST, 'newcontent', FILTER_SANITIZE_STRING);
+                $corrected_error = $ufixit->fixBrokenLink($data['error_html'], $new_content);
+                break;
+
             case 'cssTextHasContrast':
                 $new_content_array  = filter_input(INPUT_POST, 'newcontent', FILTER_SANITIZE_STRING, FILTER_REQUIRE_ARRAY);
                 $corrected_error = $ufixit->fixCssColor($data['error_html'], $new_content_array, $data['bold'], $data['italic']);
@@ -180,12 +185,18 @@ switch ($main_action) {
                 $corrected_error = $ufixit->makeHeading($data['error_html'], $new_content);
                 break;
 
+            case 'redirectedLink':
+                $new_content = filter_input(INPUT_POST, 'newcontent', FILTER_SANITIZE_STRING);
+                $corrected_error = $ufixit->fixRedirectedLink($data['error_html'], $new_content);
+                break;
+
             case 'tableDataShouldHaveTh':
                 // fixing table headers is a special case...
                 $new_content = filter_input(INPUT_POST, 'newcontent', FILTER_SANITIZE_STRING);
                 $corrected_error    = $ufixit->fixTableHeaders($data['error_html'], $new_content);
                 $data['error_html'] = $corrected_error['old'];
                 $corrected_error    = $corrected_error['fixed'];
+
                 break;
 
             case 'tableThShouldHaveScope':

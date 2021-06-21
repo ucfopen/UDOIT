@@ -224,7 +224,7 @@ class aLinksMakeSenseOutOfContext extends quailTest
 
 /**
 *  Links to multimedia require a text transcript.
-*  a (anchor) element must not contain an href attribute value that ends with (case insensitive): .wmv, .mpg, .mov, .ram, .aif.
+*  a (anchor) element must not contain an href attribute value that ends with (case insensitive): .wmv, .mpg, .mov, .ram, .aif, .mp4, .mpv, .avi.
 *	@link http://quail-lib.org/test-info/aLinksToMultiMediaRequireTranscript
 */
 class aLinksToMultiMediaRequireTranscript extends quailTest
@@ -237,7 +237,7 @@ class aLinksToMultiMediaRequireTranscript extends quailTest
 	/**
 	*	@var array $extensions A list of extensions that are considered links to multimedi
 	*/
-	var $extensions = ['wmv', 'mpg', 'mov', 'ram', 'aif'];
+	var $extensions = ['wmv', 'mpg', 'mov', 'ram', 'aif', 'mp4', 'mpv', 'avi'];
 
 	/**
 	*	The main check function. This is called by the parent class to actually check content
@@ -426,7 +426,7 @@ class aSuspiciousLinkText extends quailTest
 	/**
 	*	@var array $strings An array of strings, broken up by language domain
 	*/
-	var $strings = array('en' => array('click here', 'click', 'more', 'here'),
+	var $strings = array('en' => array('click here', 'click', 'more', 'here', 'http'),
 		'es' => array('clic aqu&iacute;', 'clic', 'haga clic', 'm&aacute;s', 'aqu&iacute;'));
 
 	/**
@@ -435,8 +435,71 @@ class aSuspiciousLinkText extends quailTest
 	function check()
 	{
 		foreach ($this->getAllElements('a') as $a) {
-			if (in_array(strtolower(trim($a->nodeValue)), $this->translation()) || $a->nodeValue == $a->getAttribute('href'))
-				$this->addReport($a);
+			if ((in_array(strtolower(trim($a->nodeValue)), $this->translation()) || $a->nodeValue == $a->getAttribute('href'))
+				&& !($a->hasAttribute('aria-label') && strlen($a->getAttribute('aria-label')) > 0)
+				&& !($a->hasAttribute('aria-labelledby') && strlen($a->getAttribute('aria-labelledby')) > 0)){
+					$this->addReport($a);
+			}
+		}
+	}
+}
+
+/**
+*  Redirected Link
+*
+*/
+
+class redirectedLink extends quailTest
+{
+	/**
+	*	@var int $default_severity The default severity code for this test.
+	*/
+	var $default_severity = QUAIL_TEST_SUGGESTION;
+
+	/**
+	*	The main check function. This is called by the parent class to actually check content
+	*/
+	function check()
+	{
+		global $links_on;
+
+		if($links_on) {
+			foreach ($this->getAllElements('a') as $a) {
+				$url = $a->getAttribute('href');
+				if(strpos($url, 'http') !== false){
+					$this->addReport($a, $url);
+				}
+			}
+		}
+	}
+}
+
+/**
+*  Redirected Link
+*
+*/
+
+class brokenLink extends quailTest
+{
+	/**
+	*	@var int $default_severity The default severity code for this test.
+	*/
+	var $default_severity = QUAIL_TEST_SEVERE;
+
+	/**
+	*	The main check function. This is called by the parent class to actually check content
+	*/
+	function check()
+	{
+		global $links_on;
+
+		if($links_on) {
+			foreach ($this->getAllElements('a') as $a) {
+				$url = $a->getAttribute('href');
+				if(strpos($url, 'http') !== false){
+					$this->addReport($a, $url);
+				}
+			}
 		}
 	}
 }
@@ -1221,7 +1284,7 @@ class cssTextHasContrast extends quailColorTest
 
 				if ((isset($style['background']) || isset($style['background-color'])) && isset($style['color']) && $element->nodeValue) {
 					$background = (isset($style['background-color'])) ? $style['background-color'] : $style['background'];
-					if (!$background || $this->options['css_only_use_default']) {
+					if (!$background || (isset($this->options['css_only_use_default']) && $this->options['css_only_use_default'])) {
 						$background = $this->default_background;
 					}
 
@@ -1341,7 +1404,7 @@ class cssTextStyleEmphasize extends quailColorTest
 			if ((isset($style['background']) || isset($style['background-color'])) && isset($style['color']) && $element->nodeValue) {
 				$background = (isset($style['background-color'])) ? $style['background-color'] : $style['background'];
 
-				if (!$background || $this->options['css_only_use_default']) {
+				if (!$background || (isset($this->options['css_only_use_default']) && $this->options['css_only_use_default'])) {
 					$background = $this->default_background;
 				}
 
@@ -4805,8 +4868,11 @@ class objectMustContainText extends quailTest
 	function check()
 	{
 		foreach ($this->getAllElements('object') as $object) {
-			if (!$object->nodeValue || trim($object->nodeValue) == '')
-				$this->addReport($object);
+			if ((!$object->nodeValue || trim($object->nodeValue) == '')
+				&& !($object->hasAttribute('aria-label') && strlen($object->getAttribute('aria-label')) > 0)
+				&& !($object->hasAttribute('aria-labelledby') && strlen($object->getAttribute('aria-labelledby')) > 0)){
+					$this->addReport($object);
+			}
 
 		}
 	}
@@ -5054,11 +5120,23 @@ class pNotUsedAsHeader extends quailTest
 			$parent_tag = $p->parentNode->tagName;
 			if($parent_tag != 'td' && $parent_tag != 'th'){
 				if (isset($p->nodeValue) && isset($p->firstChild->nodeValue)) {
+					// if (($p->nodeValue == $p->firstChild->nodeValue)
+					// 	&& is_object($p->firstChild)
+					// 	&& property_exists($p->firstChild, 'tagName')
+					// 	&& in_array($p->firstChild->tagName, $this->head_tags)) {
+					// 	$this->addReport($p);
+					// } else {
 					if (($p->nodeValue == $p->firstChild->nodeValue)
 						&& is_object($p->firstChild)
-						&& property_exists($p->firstChild, 'tagName')
-						&& in_array($p->firstChild->tagName, $this->head_tags)) {
-						$this->addReport($p);
+						&& property_exists($p->firstChild, 'tagName')) {
+							if (in_array($p->firstChild->tagName, $this->head_tags)
+								|| (($p->firstChild->tagName == 'span')
+									&& ($p->firstChild->nodeValue == $p->firstChild->firstChild->nodeValue)
+									&& is_object($p->firstChild->firstChild)
+									&& property_exists($p->firstChild->firstChild, 'tagName')
+									&& in_array($p->firstChild->firstChild->tagName, $this->head_tags))) {
+								$this->addReport($p);
+									}
 					} else {
 						$style = $this->css->getStyle($p);
 
@@ -5757,20 +5835,22 @@ class tableDataShouldHaveTh extends quailTableTest
 	function check()
 	{
 		foreach ($this->getAllElements('table') as $table) {
-			foreach ($table->childNodes as $child) {
-				// If $child is thead, tbody, or tr then we can evaluate
-				if (
-					$this->propertyIsEqual($child, 'tagName', 'thead') ||
-					$this->propertyIsEqual($child, 'tagName', 'tbody')
-				)
-					$trWrapper = $child;
-				elseif ($this->propertyIsEqual($child, 'tagName', 'tr'))
-					$trWrapper = $table;
-				else continue;
+			if (!($table->hasAttribute('role') && $table->getAttribute('role') == "presentation")) {
+				foreach ($table->childNodes as $child) {
+					// If $child is thead, tbody, or tr then we can evaluate
+					if (
+						$this->propertyIsEqual($child, 'tagName', 'thead') ||
+						$this->propertyIsEqual($child, 'tagName', 'tbody')
+					)
+						$trWrapper = $child;
+					elseif ($this->propertyIsEqual($child, 'tagName', 'tr'))
+						$trWrapper = $table;
+					else continue;
 
-				if (!$this->doRowsContainTH($trWrapper)) $this->addReport($table);
+					if (!$this->doRowsContainTH($trWrapper)) $this->addReport($table);
 
-				break;
+					break;
+				}
 			}
 		}
 	}
@@ -5795,6 +5875,48 @@ class tableDataShouldHaveTh extends quailTableTest
 	}
 }
 
+/**
+*  Detect if a table or its cells have fixed width
+*/
+class tableHasFixedWidth extends quailTableTest
+{
+	/**
+	*	@var int $default_severity The default severity code for this test.
+	*/
+	var $default_severity = QUAIL_TEST_SUGGESTION;
+
+	/**
+	*	The main check function. This is called by the parent class to actually check content
+	*/
+	function check()
+	{
+		foreach ($this->getAllElements('table') as $table) {
+			$xpath = new DOMXPath($this->dom);
+			$style = $this->css->getStyle($table);
+			if (isset($style['width'])) {
+				$temp = substr( trim($style['width']), -1);
+
+				if ( $temp != '%' && trim($style['width']) != 'auto' ) {
+					$this->addReport($table);
+					continue;
+				}
+			}
+
+			$nodes = $xpath->query('.//*', $table);
+			foreach ($nodes as $node) {
+				$style = $this->css->getStyle($node);
+				if (isset($style['width'])) {
+					$temp = substr( trim($style['width']), -1);
+
+					if ($temp != '%' && trim($style['width']) != 'auto' ) {
+						$this->addReport($table);
+						break;
+					}
+				}
+			}
+		}
+	}
+}
 
 /**
 *  Substitutes for table header labels must be terse.
@@ -6450,7 +6572,7 @@ class videosEmbeddedOrLinkedNeedCaptions extends quailTest
 	*/
 	function check()
 	{
-		$search_youtube = '/(youtube|youtu\.be)/';
+		$search_youtube = '/(youtube|youtu\.be|youtube\-nocookie)/';
 		$search_vimeo = '/(vimeo)/';
 
 		foreach ($this->getAllElements(array('a', 'embed', 'iframe')) as $video) {
@@ -6501,7 +6623,7 @@ class videoCaptionsAreCorrectLanguage extends quailTest
 	*/
 	function check()
 	{
-		$search_youtube = '/(youtube|youtu\.be)/';
+		$search_youtube = '/(youtube|youtu\.be|youtube\-nocookie)/';
 		$search_vimeo = '/(vimeo)/';
 
 		foreach ($this->getAllElements(array('a', 'embed', 'iframe')) as $video) {
@@ -6534,7 +6656,7 @@ class videoCaptionsAreCorrectLanguage extends quailTest
 *	If a video is unlisted, the YouTube API will pretend that the video is not found, so we can't check for captions
 */
 
-class videoUnlistedOrNotFound extends quailTest 
+class videoUnlistedOrNotFound extends quailTest
 {
 	/**
 	*	@var int $default_severity The default severity code for this test.
@@ -6554,7 +6676,7 @@ class videoUnlistedOrNotFound extends quailTest
 	*/
 	function check()
 	{
-		$search_youtube = '/(youtube|youtu\.be)/';
+		$search_youtube = '/(youtube|youtu\.be|youtube\-nocookie)/';
 		$search_vimeo = '/(vimeo)/';
 
 		foreach ($this->getAllElements(array('a', 'embed', 'iframe')) as $video) {

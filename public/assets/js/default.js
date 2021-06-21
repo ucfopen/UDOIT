@@ -165,7 +165,7 @@ function displayScanResults(results) {
 	});
 
 	jscolor.bind();
-	
+
 	if (typeof ResultsFilter != 'undefined') {
 		ResultsFilter.init();
 	}
@@ -214,7 +214,7 @@ function sendScanRequest(main_action, base_url, course_id, context_label, contex
 		},
 		error: function(data){
 			killButton();
-			$('#failMsg').fadeIn();
+			$('#failMsg').append(' Time elapsed: ' + timetaken + 'ms. Larger courses may need to be scanned by content section.').fadeIn();
 		}
 	});
 }
@@ -506,7 +506,7 @@ $doc.ready(function() {
 		$this.hide();
 
 		var $contentForm = $issueContainer.find('form');
-		
+
 		if ($contentForm.is(':visible')) {
 			$contentForm.removeClass('show');
 			$contentForm.addClass('hidden');
@@ -660,6 +660,7 @@ $doc.ready(function() {
 						$parent.find('.more-info').addClass('hidden');
 						$parent.find('.ufixit-form').addClass('hidden');
 
+						$parent.find('.fix-success').focus();
 
 						errorsRemaining = $parent.parent().parent().find('.fix-success.hidden').length;
 						if ( errorsRemaining == 0 ) {
@@ -903,6 +904,22 @@ $doc.ready(function() {
 		} else {
 			$input.removeAttr('maxlength');
 			$input.attr('placeholder', 'New link text');
+		}
+	});
+
+	// click to remove/fill Link url for redirected links
+	$doc.on('click', '.remove-url', function (e) {
+		var $input = $(e.target).parent().parent().find('input[name="newcontent"]');
+
+		if( $input.attr('placeholder') == 'Enter the new url') {
+			$input.attr('new', $input.val());
+			$input.val('');
+			$input.attr('maxlength', '0');
+			$input.attr('placeholder', 'Link will be deleted');
+		} else {
+			$input.removeAttr('maxlength');
+			$input.val($input.attr('new'));
+			$input.attr('placeholder', 'Enter the new url');
 		}
 	});
 	// END click to remove/fill link with no text

@@ -41,8 +41,7 @@ class PDOStatementMock extends \PDOStatement
 
         return !$this->force_fail;
     }
-
-    public function fetchAll($how = null, $class_name = null, $ctor_args = null)
+    public function fetchAll(int $mode = PDO::FETCH_BOTH, mixed ...$args)
     {
         return $this->mockFetch();
     }

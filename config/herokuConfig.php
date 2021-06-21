@@ -47,6 +47,7 @@ $dsn                = "pgsql:host={$db_host};dbname={$db_name};user={$db_user};p
 
 /* Background worker Options */
 $background_worker_enabled = (getenv("WORKER_ENABLED")) == 'true';
+$background_job_expire_time = 20; // after x Minutes, mark job as expired
 $background_worker_sleep_seconds = 7;
 
 /* Disable headings check character count */
@@ -58,6 +59,9 @@ $unscannable_suggestion_on = true;
 
 /* Assigning which file types won't be scanned */
 $unscannable_file_types = ['pdf', 'doc', 'docx', 'ppt', 'pptx', 'xls', 'xlsx', 'swf'];
+
+/* Enable checks for redirected links and broken links*/
+$links_on = true;
 
 /* Google/YouTube Data Api Key */
 define('GOOGLE_API_KEY', getenv('GOOGLE_API_KEY')?:'');

@@ -28,6 +28,9 @@ $session_cookie_options = [
 /* Disable headings check character count */
 $doc_length = '1500';
 
+/* Enable checks for redirected links and broken links*/
+$links_on = true;
+
 /* Unscannable Suggestion */
 $unscannable_suggestion = 'Consider converting these documents to Pages, since they are easier to update, easier to view on mobile devices, and generally more accessible.';
 $unscannable_suggestion_on = true;

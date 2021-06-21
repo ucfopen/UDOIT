@@ -35,7 +35,7 @@ services:
   php:
     build:
       context: .
-      dockerfile: docker/php73-fpm.Dockerfile
+      dockerfile: docker/php80-fpm.Dockerfile
     volumes:
       - .:/var/www/html
 volumes:

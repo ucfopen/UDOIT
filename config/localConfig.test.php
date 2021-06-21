@@ -8,6 +8,7 @@ $shared_secret = 'test_secret';
 $oauth2_id = 'test_oauth2_id';
 $oauth2_key = 'test_oauth2_key';
 $oauth2_uri = 'test_oauth2_uri';
+$oauth2_enforce_scopes = false; // Set to true if you have a scoped developer key.
 
 /* Disable headings check character count */
 $doc_length = '1500';
@@ -59,6 +60,8 @@ $debug = false;
 $background_worker_enabled = false;
 $background_job_expire_time = 20; // after x Minutes, mark job as expired
 $background_worker_sleep_seconds = 1;
+
+$UDOIT_ENV = ENV_TEST; // default
 
 // Sets CURLOPT_SSL_VERIFYPEER and CURLOPT_SSL_VERIFYHOST
 // This should be true for production environments

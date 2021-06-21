@@ -51,7 +51,7 @@ class Udoit
 
         if ('module_urls' !== $content_type) {
             // everything except module_urls goes through a content scanner
-            $scanned_items = static::scanContent($content['items'], $report_type, $course_locale);
+            $scanned_items = static::scanContent($content['items'], $report_type, $course_locale, $canvas_api_url, $course_id);
 
             // remove results w/o issues and count the totals
             // create a new list of items
@@ -127,20 +127,25 @@ class Udoit
 
     /**
      * Calls the Quail library to generate a UDOIT report
-     * @param  array  $content_items The items from whatever type of Canvas content was scanned
-     * @param  string $report_type   The type of severity the user would like to see on report
-     * @param  string $course_locale The locale/language of the Canvas course
+     * @param  array  $content_items  The items from whatever type of Canvas content was scanned
+     * @param  string $report_type    The type of severity the user would like to see on report
+     * @param  string $course_locale  The locale/language of the Canvas course
+     * @param  string $canvas_api_url The base URL of the Canvas API
+     * @param  string $course_id      The Canvas course id
      *
      * @return array  The report results
      */
-    public static function scanContent(array $content_items, $report_type, $course_locale)
+    public static function scanContent(array $content_items, $report_type, $course_locale, $canvas_api_url = "", $course_id = "")
     {
         require_once(__DIR__.'/quail/quail/quail.php');
         $report = [];
         global $logger;
+        global $links_on;
 
         // Runs each item through the Quail accessibility checker
         foreach ($content_items as $item) {
+            $new_links = [];
+            $tested_links = [];
             if (empty($item['content'])) {
                 continue;
             }
@@ -148,6 +153,16 @@ class Udoit
             $quail  = new quail($item['content'], 'wcag2aaa', 'string', 'static', 'en', $report_type, $course_locale);
             $quail->runCheck(null, $course_locale);
             $quail_report = $quail->getReport();
+
+            foreach ($quail_report['report'] as $value) {
+                if (isset($value['text_type']) && $value['type'] == 'redirectedLink') {
+                    $new_links[] = $value['text_type'];
+                }
+            }
+
+            if ($links_on) {
+                $tested_links = static::linkTest($new_links, $canvas_api_url, $course_id);
+            }
 
             $issue_count = 0;
             $errors      = [];
@@ -157,6 +172,29 @@ class Udoit
 
             // loop over the items returning from Quail
             foreach ($quail_report['report'] as $quail_issue) {
+                if (isset($quail_issue['type']) && isset($quail_issue['text_type'])) {
+                    if ($quail_issue['type'] == 'redirectedLink') {
+                        $ref = $quail_issue['text_type'];
+                        preg_match('/^[^#\s]+/', $ref, $matches);
+                        $base = $matches[0];
+                        $base = preg_replace('/\/$/', '', $base);
+                        $base = preg_replace('/www\./', '', $base);
+                        $base = preg_replace('/http[s]{0,1}:\/\//', '', $base);
+                        if (array_key_exists($quail_issue['text_type'], $tested_links) && strpos($tested_links[$ref], $base) === false /*$tested_links[$ref] != $base */&& $tested_links[$ref] != 404) {
+                            $quail_issue['text_type'] = $tested_links[$ref];
+                        } else {
+                            unset($quail_report[$quail_issue['text_type']]);
+                            continue;
+                        }
+                    } else if ($quail_issue['type'] == 'brokenLink') {
+                        $ref = $quail_issue['text_type'];
+                        if ($tested_links[$ref] != 404) {
+                            unset($quail_report[$quail_issue['text_type']]);
+                            continue;
+                        }
+                    }
+                }
+
                 if (empty($quail_issue['severity_num'])) {
                     continue;
                 }
@@ -193,6 +231,53 @@ class Udoit
         }
 
         return $report;
+    }
+
+    public static function linkTest($rlinks, $canvas_api_url, $course_id)
+    {
+        $base_uri = $canvas_api_url;
+        $curls = [];
+        $result = [];
+        $mcurl = curl_multi_init();
+        foreach ($rlinks as $i => $link) {
+            $curls[$i] = curl_init();
+            if (strpos($link, $base_uri) !== false) {
+                curl_setopt($curls[$i], CURLOPT_MAXREDIRS, 1);
+            }
+            curl_setopt($curls[$i], CURLOPT_URL, $link);
+            curl_setopt($curls[$i], CURLOPT_HEADER, true);
+            curl_setopt($curls[$i], CURLOPT_NOBODY, true);
+            curl_setopt($curls[$i], CURLOPT_REFERER, true);
+            curl_setopt($curls[$i], CURLOPT_TIMEOUT, 2);
+            curl_setopt($curls[$i], CURLOPT_AUTOREFERER, true);
+            curl_setopt($curls[$i], CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($curls[$i], CURLOPT_FOLLOWLOCATION, true);
+            curl_multi_add_handle($mcurl, $curls[$i]);
+        }
+        $running = null;
+        do {
+            curl_multi_exec($mcurl, $running);
+        } while ($running > 0);
+
+        foreach ($rlinks as $i => $link) {
+            $redirect = curl_getinfo($curls[$i], CURLINFO_EFFECTIVE_URL);
+            $status = curl_getinfo($curls[$i], CURLINFO_HTTP_CODE);
+            if ($link != $redirect) {
+                if (strpos($redirect, $base_uri.'/login') === false) {
+                    $result[$link] = $redirect;
+                }
+                if (strpos($redirect, $base_uri.'/courses/'.$course_id.'/pages') !== false) {
+                    $result[$link] = 404;
+                }
+            }
+            if (404 == $status) {
+                $result[$link] = $status;
+            }
+            curl_multi_remove_handle($mcurl, $curls[$i]);
+        }
+        curl_multi_close($mcurl);
+
+        return $result;
     }
 
     /**
@@ -351,7 +436,7 @@ class Udoit
 
             case 'module_urls':
                 $url = "{$api_url}modules";
-                $search = '/(youtube|vimeo)/';
+                $search = '/(youtube|vimeo|youtu\.be|youtube\-nocookie)/';
                 $resp = static::apiGet($url, $api_key)->send()->body;
                 $count = 0;
 
@@ -375,7 +460,7 @@ class Udoit
                             if (($content_flag) || $c->published == "true") {
                                 $count++;
                                 $external_url = (isset($c->external_url) ? $c->external_url : '');
-                                
+
                                 if (preg_match($search, $external_url) === 1) {
                                     $content_result['items'][] = [
                                         'id'           => $c->id,
@@ -466,9 +551,9 @@ class Udoit
         $limit = 500;
         $per_page = 100;
         $results = [];
-
+        $cur_page = 1;
         do {
-            $response = static::apiGet("{$url}page=1&per_page={$per_page}", $api_key)->send();
+            $response = static::apiGet("{$url}&page=1&per_page={$per_page}", $api_key)->send();
             if (isset($response->body->errors) && count($response->body->errors) > 0) {
                 foreach ($response->body->errors as $error) {
                     $logger->addError("Canvas API responded with an error for {$url}: $error->message");
@@ -476,7 +561,11 @@ class Udoit
                 break;
             }
 
-            $links = static::apiParseLinks($response->headers->toArray()['link']);
+            if (empty($response->headers->toArray()['link'])) {
+                $links = null;
+            } else {
+                $links = static::apiParseLinks($response->headers->toArray()['link']);
+            }
 
             if (empty($response->body)) {
                 $logger->addError("Canvas API returned empty body for {$url}");
@@ -491,9 +580,10 @@ class Udoit
                 $url = "{$links['next']}&access_token={$api_key}";
             }
 
+            $cur_page++;
             usleep(250000); // 1/4 sec
         } while (isset($links['next']) && $cur_page < $limit);
-        
+
         return $results;
     }
 
@@ -505,14 +595,18 @@ class Udoit
      */
     protected static function apiParseLinks($links)
     {
-        $links  = explode(',', $links);
         $pretty = [];
 
-        // Break up the link entries into URL and rel
-        foreach ($links as $link) {
-            $temp = explode('; ', $link);
-            // Create the pretty array where we have nice indices with urls
-            $pretty[substr($temp[1], 5, -1)] = substr($temp[0], 1, -1);
+        if (!empty($links)) {
+            $links = explode(',', $links);
+
+            // Break up the link entries into URL and rel
+            foreach ($links as $link) {
+                $temp = explode('; ', $link);
+
+                // Create the pretty array where we have nice indices with urls
+                $pretty[substr($temp[1], 5, -1)] = substr($temp[0], 1, -1);
+            }
         }
 
         return $pretty;
