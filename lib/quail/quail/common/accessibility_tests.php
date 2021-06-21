@@ -6788,7 +6788,7 @@ class headingLevelSkipped extends quailTest
 			$current = (int)substr($headings[$i]->nodeName, -1);
 
 			// Check that we start with the right heading.
-			if ($i == 0 && $current !== 1) {
+			if ($i == 0 && $current !== 1 && $current !== 2) {
 				$this->addReport($headings[$i]);
 			} else {
 				$previous = (int)substr($headings[$i - 1]->nodeName, -1);
