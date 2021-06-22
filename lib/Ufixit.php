@@ -620,11 +620,11 @@ class Ufixit
         $logger->addDebug("After error minify.\nError: \n".$error);
         $corrected  = HTMLMinify::minify(str_replace($this->annoying_entities, $this->entity_replacements, $corrected), $this->htmlminify_options);
         $logger->addDebug("After corrected minify.\nCorrected: \n".$corrected);
-        $html       = HTMLMinify::minify(str_replace($this->annoying_entities, $this->entity_replacements, htmlentities($html)), $this->htmlminify_options);
+        $html       = HTMLMinify::minify(/*str_replace($this->annoying_entities, $this->entity_replacements, htmlentities(*/$html/*))*/, $this->htmlminify_options);
         $logger->addDebug("After html minify.\nHtml: \n".$html);
 
         $count = 0;
-        $html = str_replace($error, $corrected, html_entity_decode($html), $count);
+        $html = str_replace($error, $corrected, /*html_entity_decode*/($html), $count);
 
         $logger->addDebug("After final html string replace.\nHtml: \n".$html);
 
@@ -644,7 +644,7 @@ class Ufixit
     {
         $get_uri = $this->base_uri."/api/v1/courses/".$this->course_id."/assignments/".$this->content_id."?&access_token=".$this->api_key;
         $content = Request::get($get_uri)->send();
-        $html    = html_entity_decode($content->body->description);
+        $html    = /*html_entity_decode*/($content->body->description);
 
         $html    = $this->replaceContent($html, $error_html, $corrected_error);
         $put_uri = $this->base_uri."/api/v1/courses/".$this->course_id."/assignments/".$this->content_id."?&access_token=".$this->api_key;
@@ -661,7 +661,7 @@ class Ufixit
     {
         $get_uri = $this->base_uri."/api/v1/courses/".$this->course_id."/discussion_topics/".$this->content_id."?&access_token=".$this->api_key;
         $content = Request::get($get_uri)->send();
-        $html    = html_entity_decode($content->body->message);
+        $html    = /*html_entity_decode*/($content->body->message);
 
         $html    = $this->replaceContent($html, $error_html, $corrected_error);
         $put_uri = $this->base_uri."/api/v1/courses/".$this->course_id."/discussion_topics/".$this->content_id."?&access_token=".$this->api_key;
@@ -766,7 +766,7 @@ class Ufixit
         }
 
         // update the page content
-        $html     = html_entity_decode($page_resp->body->body);
+        $html     = /*html_entity_decode*/($page_resp->body->body);
         $html     = $this->replaceContent($html, $error_html, $corrected_error);
         $put_uri  = "{$this->base_uri}/api/v1/courses/{$this->course_id}/pages/{$this->content_id}?&access_token={$this->api_key}";
         $put_resp = Request::put($put_uri)->body(['wiki_page[body]' => $html])->sendsType(\Httpful\Mime::FORM)->send();
@@ -785,7 +785,7 @@ class Ufixit
     {
         $get_uri = $this->base_uri."/api/v1/courses/".$this->course_id."/?include[]=syllabus_body&access_token=".$this->api_key;
         $content = Request::get($get_uri)->send();
-        $html    = html_entity_decode($content->body->syllabus_body);
+        $html    = /*html_entity_decode*/($content->body->syllabus_body);
 
         $html    = $this->replaceContent($html, $error_html, $corrected_error);
         $put_uri = $this->base_uri."/api/v1/courses/".$this->course_id."/?&access_token=".$this->api_key;
