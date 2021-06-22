@@ -460,7 +460,7 @@ class CanvasLms implements LmsInterface {
         
         if (isset($content['enrollment_terms'])) {
             foreach ($content['enrollment_terms'] as $term) {
-                $terms[$term['id']] = $term['name'];
+                $terms[$term['id']] = $term;
             }
         }
 
