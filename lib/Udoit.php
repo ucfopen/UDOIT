@@ -321,7 +321,7 @@ class Udoit
             case 'assignments':
                 $contents = static::apiGetAllLinks($api_key, "{$api_url}assignments?");
                 foreach ($contents as $c) {
-                    if (($content_flag) || $c->published == "true") {
+                    if ((($content_flag) || $c->published == "true") && (!isset($c->submission_types) || !in_array("discussion_topic", $c->submission_types))) {
                         $content_result['items'][] = [
                             'id'      => $c->id,
                             'content' => $c->description,
