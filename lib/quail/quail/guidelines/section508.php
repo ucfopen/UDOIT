@@ -96,6 +96,7 @@ class Section508Guideline extends quailGuideline{
 		// 'documentAutoRedirectNotUsed',
 		// 'documentMetaNotUsedWithTimeout',
 		// 'headersHaveText',
+		'headingLevelSkipped',
 	);
 }
 /*@}*/

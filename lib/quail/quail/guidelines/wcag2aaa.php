@@ -184,7 +184,8 @@ class Wcag2aaaGuideline extends quailGuideline
 		'videoProvidesCaptions',
 		'videosEmbeddedOrLinkedNeedCaptions',
 		'videoUnlistedOrNotFound',
-		'videoCaptionsAreCorrectLanguage'
+		'videoCaptionsAreCorrectLanguage',
+		'headingLevelSkipped',
 	];
 }
 /*@}*/
