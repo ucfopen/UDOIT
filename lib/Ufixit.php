@@ -149,14 +149,9 @@ class Ufixit
      */
     public function fixCssColor($error_html, $new_content, $bold, $italic, $submitting_again = false)
     {
-        global $logger;
-        $logger->addDebug("Entering fixCssColor\nError html:\n".$error_html);
-
         preg_match_all('/<(\w+)\s+\w+.*?>/s', $error_html, $matches);
 
         $fixed_css = $error_html;
-
-        $logger->addDebug("After first regex\nFixed css:\n".$fixed_css);
 
         $fixed_css = preg_replace('/background:\s*([#a-z0-9]*)\s*;*\s*/', '', $fixed_css);
         $fixed_css = preg_replace('/background-color:\s*([#a-z0-9]*)\s*;*\s*/', '', $fixed_css);
@@ -164,8 +159,6 @@ class Ufixit
         $fixed_css = preg_replace('/font-weight:\s*([a-z0-9]*)\s*;*\s*/', '', $fixed_css);
         $fixed_css = preg_replace('/font-style:\s*([a-z0-9]*)\s*;*\s*/', '', $fixed_css);
         $fixed_css = preg_replace('/style="/', 'style="background-color: '.$new_content[0].'; color: '.$new_content[1].';', $fixed_css);
-
-        $logger->addDebug("After regex barrage\nFixed css:\n".$fixed_css);
 
         $this->dom->loadHTML('<?xml encoding="utf-8" ?>'.$fixed_css, LIBXML_HTML_NODEFDTD);
 
@@ -184,8 +177,6 @@ class Ufixit
         }
 
         $fixed_css = $this->dom->saveHTML($tag);
-
-        $logger->addDebug("Before return\nFixed css:\n".$fixed_css);
 
         return $fixed_css;
     }
@@ -613,20 +604,12 @@ class Ufixit
      */
     public function replaceContent($html, $error, $corrected)
     {
-        global $logger;
-        $logger->addDebug("Entering replaceContent function.\nError: \n".$error."\nCorrected:\n".$corrected."\nHtml:\n".$html);
-
         $error      = HTMLMinify::minify(str_replace($this->annoying_entities, $this->entity_replacements, $error), $this->htmlminify_options);
-        $logger->addDebug("After error minify.\nError: \n".$error);
         $corrected  = HTMLMinify::minify(str_replace($this->annoying_entities, $this->entity_replacements, $corrected), $this->htmlminify_options);
-        $logger->addDebug("After corrected minify.\nCorrected: \n".$corrected);
-        $html       = HTMLMinify::minify(/*str_replace($this->annoying_entities, $this->entity_replacements, htmlentities(*/$html/*))*/, $this->htmlminify_options);
-        $logger->addDebug("After html minify.\nHtml: \n".$html);
+        $html       = HTMLMinify::minify(str_replace($this->annoying_entities, $this->entity_replacements, $html), $this->htmlminify_options);
 
         $count = 0;
-        $html = str_replace($error, $corrected, /*html_entity_decode*/($html), $count);
-
-        $logger->addDebug("After final html string replace.\nHtml: \n".$html);
+        $html = str_replace($error, $corrected, $html, $count);
 
         if (0 === $count) {
             $logger->addError("No replacement occurred.\nOld: \n".$error."\nNew:\n".$corrected."\nContext:\n".$html);
@@ -644,7 +627,7 @@ class Ufixit
     {
         $get_uri = $this->base_uri."/api/v1/courses/".$this->course_id."/assignments/".$this->content_id."?&access_token=".$this->api_key;
         $content = Request::get($get_uri)->send();
-        $html    = /*html_entity_decode*/($content->body->description);
+        $html    = $content->body->description;
 
         $html    = $this->replaceContent($html, $error_html, $corrected_error);
         $put_uri = $this->base_uri."/api/v1/courses/".$this->course_id."/assignments/".$this->content_id."?&access_token=".$this->api_key;
@@ -661,7 +644,7 @@ class Ufixit
     {
         $get_uri = $this->base_uri."/api/v1/courses/".$this->course_id."/discussion_topics/".$this->content_id."?&access_token=".$this->api_key;
         $content = Request::get($get_uri)->send();
-        $html    = /*html_entity_decode*/($content->body->message);
+        $html    = $content->body->message;
 
         $html    = $this->replaceContent($html, $error_html, $corrected_error);
         $put_uri = $this->base_uri."/api/v1/courses/".$this->course_id."/discussion_topics/".$this->content_id."?&access_token=".$this->api_key;
@@ -766,7 +749,7 @@ class Ufixit
         }
 
         // update the page content
-        $html     = /*html_entity_decode*/($page_resp->body->body);
+        $html     = $page_resp->body->body;
         $html     = $this->replaceContent($html, $error_html, $corrected_error);
         $put_uri  = "{$this->base_uri}/api/v1/courses/{$this->course_id}/pages/{$this->content_id}?&access_token={$this->api_key}";
         $put_resp = Request::put($put_uri)->body(['wiki_page[body]' => $html])->sendsType(\Httpful\Mime::FORM)->send();
@@ -785,7 +768,7 @@ class Ufixit
     {
         $get_uri = $this->base_uri."/api/v1/courses/".$this->course_id."/?include[]=syllabus_body&access_token=".$this->api_key;
         $content = Request::get($get_uri)->send();
-        $html    = /*html_entity_decode*/($content->body->syllabus_body);
+        $html    = $content->body->syllabus_body;
 
         $html    = $this->replaceContent($html, $error_html, $corrected_error);
         $put_uri = $this->base_uri."/api/v1/courses/".$this->course_id."/?&access_token=".$this->api_key;
