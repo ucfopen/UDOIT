@@ -31,6 +31,8 @@ In late 2013, the proposal submitted by UCF's Center for Distributed Learning wo
 | headersHaveText | If a header tag does not contain text. |
 | videoProvidesCaptions | If a video tag does not have a caption track tag. |
 | videosEmbeddedOrLinkedNeedCaptions | If a YouTube or Vimeo video does not have human-generated captions. |
+| brokenLink | If a link is broken |
+| headingLevelSkipped | If a heading level has been skipped |
 
 ### Suggestions
 
@@ -52,6 +54,9 @@ In late 2013, the proposal submitted by UCF's Center for Distributed Learning wo
 | cssTextStyleEmphasize | If colored text is not emphasized as bold or italicized. |
 | videoEmbedChecked | If an iframe, link, or object tag linking to a Dailymotion video exists on the page. |
 | videoCaptionsAreCorrectLanguage | If a YouTube or Vimeo video has human-generated captions, but they do not match the set language of the course. |
+| tableHasFixedWidth | If a table or its cells have fixed width |
+| videoUnlistedOrNotFound | If a video is unlisted or can not be found |
+| redirectedLink | If a link is redirected |
 
 ## Awards
 
