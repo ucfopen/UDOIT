@@ -23,14 +23,14 @@ you overloaded with those names need to be updated.
 
 Fatal error: Call to undefined method Classname::classname()
 ------------------------------------------------------------
-SimpleTest renamed all of its constructors from 
+SimpleTest renamed all of its constructors from
 Classname to __construct; derived classes invoking
 their parent constructors should replace parent::Classname()
 with parent::__construct().
 
 Custom CSS in HtmlReporter not being applied
 --------------------------------------------
-Batch rename of protected and private methods 
+Batch rename of protected and private methods
 means that _getCss() was renamed to getCss().
 Please rename your method and it should work again.
 
@@ -340,13 +340,13 @@ test case expansion against the ease of writing user interfaces.
 
 Code such as...
 
-$test = &new MyTestCase();
+$test = new MyTestCase();
 $test->attachObserver(new TestHtmlDisplay());
 $test->run();
 
 ...should be rewritten as...
 
-$test = &new MyTestCase();
+$test = new MyTestCase();
 $test->run(new HtmlReporter());
 
 If you previously attached multiple observers then the workaround

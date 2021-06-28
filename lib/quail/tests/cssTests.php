@@ -14,8 +14,8 @@ class TestOfCSSTests extends UnitTestCase {
 		$type = 'uri';
 		$path = '/';
 		return new quailCSS($dom, $uri, $type, $path);
-	} 
-	
+	}
+
 	function test_wcagCss1() {
 		$css = $this->getCSSObject('http://www.w3.org/Style/CSS/Test/CSS3/Selectors/current/html/tests/css3-modsel-1.html');
 		$paragraph = $css->dom->getElementsByTagName('p');
@@ -23,18 +23,18 @@ class TestOfCSSTests extends UnitTestCase {
 		$this->assertTrue($style['background-color'] == 'lime');
 		foreach($css->dom->getElementsByTagName('li') as $li) {
 			$style = $css->getStyle($li);
-			$this->assertTrue($style['background-color'] == 'lime');			
+			$this->assertTrue($style['background-color'] == 'lime');
 		}
 	}
-	
-	
+
+
 	function test_wcagCss2() {
 		$css = $this->getCSSObject('http://www.w3.org/Style/CSS/Test/CSS3/Selectors/current/html/tests/css3-modsel-2.html');
 		$paragraph = $css->dom->getElementsByTagName('address');
 		$style = $css->getStyle($paragraph->item(0));
 		$this->assertTrue($style['background-color'] == 'lime');
 	}
-	
+
 	function test_wcagCss3() {
 		$css = $this->getCSSObject('http://www.w3.org/Style/CSS/Test/CSS3/Selectors/current/html/tests/css3-modsel-3a.html');
 		$paragraph = $css->dom->getElementsByTagName('p');
@@ -88,14 +88,14 @@ class TestOfCSSTests extends UnitTestCase {
 		$style = $css->getStyle($div->item(0));
 		$this->assertTrue($style['background'] == 'green');
 	}
-	
+
 	function test_wcagCss14d() {
 		$css = $this->getCSSObject('http://www.w3.org/Style/CSS/Test/CSS3/Selectors/current/html/tests/css3-modsel-14d.html');
 		$paragraph = $css->dom->getElementsByTagName('p');
 		$style = $css->getStyle($paragraph->item(0));
 		$this->assertTrue($style['background'] == 'green');
 		$this->assertTrue($style['color'] == 'white');
-	}	
+	}
 
 	function test_wcagCss14e() {
 		$css = $this->getCSSObject('http://www.w3.org/Style/CSS/Test/CSS3/Selectors/current/html/tests/css3-modsel-14e.html');
@@ -126,7 +126,7 @@ class TestOfCSSTests extends UnitTestCase {
 		$this->assertTrue($style['background'] == 'green');
 
 	}
-	
+
 	/**
 	*	We are skipping pseudo classes
 	*/
@@ -151,7 +151,7 @@ class TestOfCSSTests extends UnitTestCase {
 		$style = $css->getStyle($paragraphs->item(2));
 		$this->assertTrue($style['background-color'] == 'lime');
 	}
-	
+
 	/**
 	*	Child combinator (#44)
 	*/
@@ -174,5 +174,5 @@ class TestOfCSSTests extends UnitTestCase {
 }
 
 
-$tests = &new TestOfCSSTests();
+$tests = new TestOfCSSTests();
 $tests->run(new HtmlReporter());
