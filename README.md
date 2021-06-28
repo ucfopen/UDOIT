@@ -33,6 +33,7 @@ In late 2013, the proposal submitted by UCF's Center for Distributed Learning wo
 | videosEmbeddedOrLinkedNeedCaptions | If a YouTube or Vimeo video does not have human-generated captions. |
 | brokenLink | If a link is broken |
 | headingLevelSkipped | If a heading level has been skipped |
+| documentReadingDirection | If text that is in Hebrew, Arabic, or Dhivehi/Maldivian does not have the dir attribute set to rtl |
 
 ### Suggestions
 

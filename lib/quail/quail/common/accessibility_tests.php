@@ -1920,7 +1920,6 @@ class documentMetaNotUsedWithTimeout extends quailTest
 
 /**
 *  The reading direction of all text is correctly marked.
-*  The reading direction of all text is correctly marked.
 */
 
 
@@ -1936,7 +1935,7 @@ class documentReadingDirection extends quailTest
 	/**
 	*	@var int $default_severity The default severity code for this test.
 	*/
-	var $default_severity = QUAIL_TEST_MODERATE;
+	var $default_severity = QUAIL_TEST_SEVERE;
 
 	/**
 	*	@var bool $cms This test does not apply to content management systems (is document-related)
@@ -1946,7 +1945,7 @@ class documentReadingDirection extends quailTest
 	/**
 	*	@var array $right_to_left The language codes that are considered right-to-left
 	*/
-	var $right_to_left = array('he', 'ar');
+	var $right_to_left = array('he', 'ar', 'dv');
 
 	/**
 	*	The main check function. This is called by the parent class to actually check content
