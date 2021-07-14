@@ -317,7 +317,7 @@ class LtiController extends AbstractController
     protected function getInstitutionFromSession()
     {
         $institution = null;
-        
+
         if (!$this->getUser()) {
             $rawDomain = $this->session->get('lms_api_domain');
             if (empty($rawDomain)) {
@@ -330,7 +330,18 @@ class LtiController extends AbstractController
                     ->getDoctrine()
                     ->getRepository(Institution::class)
                     ->findOneBy(['lmsDomain' => $domain]);
+
+                if (!$institution) {
+                    $institution = $this
+                        ->getDoctrine()
+                        ->getRepository(Institution::class)
+                        ->findOneBy(['vanityUrl' => $domain]);
+                }
             }
+        }
+
+        if (empty($institution)) {
+            $this->util->exitWithMessage("No institution found. Please verify your institution data in the database.");
         }
 
         return $institution;

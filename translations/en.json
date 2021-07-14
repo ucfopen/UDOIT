@@ -291,7 +291,7 @@
   "rule.label.ImageHasAlt": "Image Elements Should Have an \"alt\" Attribute",
   "rule.label.ImageHasAltDecorative": "Decorative Images Should Have Empty Alternative Text",
   "rule.label.ImageHasLongDescription": "Image Description Is Too Long",
-  "rule.label.InputImageNotDecorative": "",
+  "rule.label.InputImageNotDecorative": "Input Images Should Have an \"alt\" Attribute",
   "rule.label.MarqueeIsNotUsed": "Marquee Tag Should Not Be Used",
   "rule.label.NoHeadings": "Headings Should Be Used in Content",
   "rule.label.ObjectInterfaceIsAccessible": "Object Interface Must Be Accessible",
