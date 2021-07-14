@@ -49,7 +49,12 @@ class SessionService {
         // Check PHP session for a UUID
         if (!$uuid) {
             $uuid = $this->request->cookies->get('AUTH_TOKEN');
-        }        
+        }
+        
+        // Check state for UUID from Oauth
+        if (!$uuid) {
+            $uuid = $this->request->query->get('state');
+        }
 
         if ($uuid) {
             $this->userSession = $this->sessionRepo->findOneBy(['uuid' => $uuid]);

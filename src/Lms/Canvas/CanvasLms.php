@@ -100,11 +100,13 @@ class CanvasLms implements LmsInterface {
 
     public function getOauthUri(Institution $institution)
     {
+        $session = $this->sessionService->getSession();
         $query = [
             'client_id' => $institution->getApiClientId(),
             'scope' => $this->getScopes(),
             'response_type' => 'code',
             'redirect_uri' => LmsUserService::getOauthRedirectUri(),
+            'state' => $session->getUuid()
         ];
         $baseUrl = $institution->getLmsDomain();
 
@@ -460,7 +462,7 @@ class CanvasLms implements LmsInterface {
         
         if (isset($content['enrollment_terms'])) {
             foreach ($content['enrollment_terms'] as $term) {
-                $terms[$term['id']] = $term['name'];
+                $terms[$term['id']] = $term;
             }
         }
 
@@ -673,24 +675,69 @@ class CanvasLms implements LmsInterface {
             'assignment' =>         "courses/{$courseId}/assignments",
             'discussion_topic' =>   "courses/{$courseId}/discussion_topics",
             'file' =>               "courses/{$courseId}/files",
+            // we're not handling module item URLs yet.
             //'module' =>             "courses/{$courseId}/modules",
             'page' =>               "courses/{$courseId}/pages",
-            'quiz' =>               "courses/{$courseId}/quizzes",
+            // quizzes will show up in the assignment list
+            //'quiz' =>               "courses/{$courseId}/quizzes",
         ];
     }
 
     protected function getScopes()
     {
         $scopes = [
+            // Accounts
             'url:GET|/api/v1/accounts',
+            'url:GET|/api/v1/accounts/:id',
+            'url:GET|/api/v1/accounts/:account_id/sub_accounts',
+
+            // Assignments
             'url:GET|/api/v1/courses/:course_id/assignments',
-            'url:GET|/api/v1/announcements',
-            'url:GET|/api/v1/courses/:course_id/discussion_topics',
-            'url:GET|/api/v1/courses/:course_id/files',
-            'url:GET|/api/v1/courses/:course_id/modules',
-            'url:GET|/api/v1/courses/:course_id/pages',
+            'url:GET|/api/v1/courses/:course_id/assignments/:id',
+            'url:PUT|/api/v1/courses/:course_id/assignments/:id',
+
+            // Courses
             'url:GET|/api/v1/courses/:id',
-            'url:GET|/api/v1/courses'
+            'url:PUT|/api/v1/courses/:id',
+            'url:POST|/api/v1/courses/:course_id/files',
+
+            // Discussion Topics
+            'url:GET|/api/v1/courses/:course_id/discussion_topics',
+            'url:GET|/api/v1/courses/:course_id/discussion_topics/:topic_id',
+            'url:PUT|/api/v1/courses/:course_id/discussion_topics/:topic_id',
+
+            // Enrollment Terms
+            'url:GET|/api/v1/accounts/:account_id/terms',
+
+            // Files
+            'url:GET|/api/v1/courses/:course_id/files',
+            'url:GET|/api/v1/courses/:course_id/files/:id',
+
+            // Modules
+            'url:GET|/api/v1/courses/:course_id/modules',
+            'url:GET|/api/v1/courses/:course_id/modules/:id',
+            'url:PUT|/api/v1/courses/:course_id/modules/:id',
+            'url:GET|/api/v1/courses/:course_id/modules/:module_id/items',
+            'url:GET|/api/v1/courses/:course_id/modules/:module_id/items/:id',
+            'url:PUT|/api/v1/courses/:course_id/modules/:module_id/items/:id',
+
+            // Pages
+            'url:GET|/api/v1/courses/:course_id/pages',
+            'url:GET|/api/v1/courses/:course_id/pages/:url',
+            'url:PUT|/api/v1/courses/:course_id/pages/:url',
+
+            // Quiz Questions
+            'url:GET|/api/v1/courses/:course_id/quizzes/:quiz_id/questions',
+            'url:GET|/api/v1/courses/:course_id/quizzes/:quiz_id/questions/:id',
+            'url:PUT|/api/v1/courses/:course_id/quizzes/:quiz_id/questions/:id',
+
+            // Quizzes
+            'url:GET|/api/v1/courses/:course_id/quizzes',
+            'url:GET|/api/v1/courses/:course_id/quizzes/:id',
+            'url:PUT|/api/v1/courses/:course_id/quizzes/:id',
+            
+            // Users
+            'url:GET|/api/v1/users/:id',
         ];
 
         return implode(' ', $scopes);

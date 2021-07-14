@@ -357,6 +357,13 @@ class AdminController extends ApiController
         $accounts = $lms->getAccountData($user, $accountId);
         $terms = $lms->getAccountTerms($user);
         $terms = $this->filterTermsByAccount($terms, $accounts);
+        $defaultTerm = $this->getDefaultTerm($terms);
+
+        $simpleTerms = [];
+
+        foreach ($terms as $term) {
+            $simpleTerms[$term['id']] = $term['name'];
+        }
 
         return [
             'apiUrl' => !empty($_ENV['BASE_URL']) ? $_ENV['BASE_URL'] : false,
@@ -368,7 +375,8 @@ class AdminController extends ApiController
             'labels' => $this->util->getTranslation($lang),
             'excludedRuleIds' => $excludedRuleIds,
             'accounts' => $accounts,
-            'terms' => $terms,
+            'terms' => $simpleTerms,
+            'defaultTerm' => $defaultTerm,
             'suggestionRuleIds' => !empty($_ENV['PHPALLY_SUGGESTION_RULES']) ? $_ENV['PHPALLY_SUGGESTION_RULES'] : '',
         ];
     }
@@ -411,5 +419,29 @@ class AdminController extends ApiController
         }
 
         return $courseTerms;
+    }
+
+    protected function getDefaultTerm($terms)
+    {
+        $currentTime = time();
+
+
+        foreach ($terms as $term) {
+            if(empty($term["start_at"]) || empty($term["end_at"])) {
+                continue;
+            }
+            $startTime= strtotime($term["start_at"]);
+            $endTime = strtotime($term["end_at"]);
+
+            if(($startTime <= $currentTime) && ($currentTime <= $endTime)){
+                return $term['id'];
+            }
+
+        }
+
+        //Return a default case just in case we dont find one.
+        $defaultReturn = current($terms);
+        return $defaultReturn['id'];
+
     }
 }
