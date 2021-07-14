@@ -100,11 +100,13 @@ class CanvasLms implements LmsInterface {
 
     public function getOauthUri(Institution $institution)
     {
+        $session = $this->sessionService->getSession();
         $query = [
             'client_id' => $institution->getApiClientId(),
             'scope' => $this->getScopes(),
             'response_type' => 'code',
             'redirect_uri' => LmsUserService::getOauthRedirectUri(),
+            'state' => $session->getUuid()
         ];
         $baseUrl = $institution->getLmsDomain();
 
