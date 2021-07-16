@@ -43,11 +43,15 @@ class AboutPage extends React.Component {
     return (
       <View as="div">
         <View as="div">
-          <Text as="p" lineHeight="default">{this.props.t('about.description')}</Text>
+          <Text as="p" lineHeight="default">
+            {ReactHtmlParser(this.props.t('about.description'), { preprocessNodes: (nodes) => Html.processStaticHtml(nodes, this.props.settings) })}
+          </Text>
         </View>
         <View as="div" margin="large 0">
           <Text as="strong">{this.props.t('about.disclaimer_title')}</Text>
-          <Text as="p" weight="normal" lineHeight="default">{this.props.t('about.disclaimer')}</Text>
+          <Text as="p" weight="normal" lineHeight="default">
+            {ReactHtmlParser(this.props.t('about.disclaimer'), { preprocessNodes: (nodes) => Html.processStaticHtml(nodes, this.props.settings) })}
+          </Text>
         </View>
         <View as="div" margin="medium 0" display="inline-block">
           <ToggleDetails

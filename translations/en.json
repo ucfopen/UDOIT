@@ -2,7 +2,7 @@
   "lang": "English",
 
   "about.title": "Welcome to UDOIT",
-  "about.description": "The Universal Design Online content Inspection Tool (UDOIT) was created by the Center for Distributed Learning at the University of Central Florida. UDOIT will scan your course content, generate a report and provide instructions on how to correct accessibility issues. Funding for UDOIT was provided by a Canvas Grant awarded in 2014.",
+  "about.description": "The Universal Design Online content Inspection Tool (UDOIT) will scan your course content, generate a list of accessibility issues and provide guidance on how to correct them.<br/><br/>UDOIT was created by the University of Central Florida, and is now a fully supported cloud solution from Cidi Labs.",
   "about.disclaimer": "This tool is meant to be used as a guide, not a certification. It only checks for common accessibility issues, and is not comprehensive; a clean report in UDOIT does not necessarily mean that your course is fully accessible. Likewise, the tool may indicate a possible accessibility issue where one does not exist.",
   "about.disclaimer_title": "Please Note:",
   "about.skip_welcome": "Skip this welcome message in the future",
@@ -138,7 +138,7 @@
   "label.view_source": "HTML",
   "label.open_in_lms": "View In LMS",
   "label.continue": "Continue",
-  "label.content_loading_msg": "The course content is being reviewed.",
+  "label.content_loading_msg": "UDOIT is scanning the course content for accessibility issues.  This scan happens automatically each time you use the tool.",
   "label.review_only": "This issue cannot be fixed within UDOIT. You can fix the issue in Canvas, or mark this as reviewed to hide this issue in the future.",
   "label.manually_resolved": "Manually Resolved",
   "label.manual_resolution": "Manual Resolution",
