@@ -139,12 +139,12 @@ class FilesPage extends React.Component {
       let status
       if (file.reviewed) {
         status = <>
-          <ScreenReaderContent>{this.props.t('table.suggestion')}</ScreenReaderContent>
+          <ScreenReaderContent>{this.props.t('label.file.reviewed')}</ScreenReaderContent>
           <IconCheckLine color="success" /> 
         </>
       } else {
         status = <>
-          <ScreenReaderContent>{this.props.t('table.error')}</ScreenReaderContent>
+          <ScreenReaderContent>{this.props.t('label.file.needs_review')}</ScreenReaderContent>
           <IconEyeLine color="alert" />
         </>
       }

@@ -26,47 +26,49 @@ class Header extends React.Component {
     const pdfUrl = this.getPdfUrl()
 
     return (
-      <AppNav
-        screenReaderLabel={this.props.t('menu.udoit')}
-        margin="none"
-        renderBeforeItems={
-          <View padding="0 medium 0 0">
-            <img className={`${Classes.logo}`} src={Logo}></img>
-          </View>
-        }
-        visibleItemsCount={3}
-        renderAfterItems={
-          <Menu
-            placement="bottom"
-            trigger={<IconButton withBackground={false} withBorder={false} color="secondary" screenReaderLabel={this.props.t('label.menu')}><IconMoreSolid /></IconButton>}
+      <header role="banner">
+        <AppNav
+          screenReaderLabel={this.props.t('menu.main')}
+          margin="none"
+          renderBeforeItems={
+            <View as="h1" margin="0" padding="0 medium 0 0">
+              <img className={`${Classes.logo}`} alt="UDOIT logo" src={Logo}></img>
+            </View>
+          }
+          visibleItemsCount={3}
+          renderAfterItems={
+            <Menu
+              placement="bottom"
+              trigger={<IconButton withBackground={false} withBorder={false} color="secondary" screenReaderLabel={this.props.t('label.menu')}><IconMoreSolid /></IconButton>}
+            >
+              <Menu.Item onClick={() => this.props.handleModal('about')}>{this.props.t('menu.about')}</Menu.Item>
+              <Menu.Item onClick={() => this.props.handleNavigation('reports')}>{this.props.t('menu.reports')}</Menu.Item>
+              {/* <Menu.Item onClick={() => this.handleMoreNav('settings')}>{this.props.t('menu.settings')}</Menu.Item> */}
+              <Menu.Separator />
+              <Menu.Item onClick={this.props.handleCourseRescan}>{this.props.t('menu.scan_course')}</Menu.Item>
+              <Menu.Separator />  
+              <Menu.Item href={pdfUrl}>{this.props.t('menu.download_pdf')}</Menu.Item>
+            </Menu>
+          }
           >
-            <Menu.Item onClick={() => this.props.handleModal('about')}>{this.props.t('menu.about')}</Menu.Item>
-            <Menu.Item onClick={() => this.props.handleNavigation('reports')}>{this.props.t('menu.reports')}</Menu.Item>
-            {/* <Menu.Item onClick={() => this.handleMoreNav('settings')}>{this.props.t('menu.settings')}</Menu.Item> */}
-            <Menu.Separator />
-            <Menu.Item onClick={this.props.handleCourseRescan}>{this.props.t('menu.scan_course')}</Menu.Item>
-            <Menu.Separator />  
-            <Menu.Item href={pdfUrl}>{this.props.t('menu.download_pdf')}</Menu.Item>
-          </Menu>
-        }
-        >
-        <AppNav.Item
-          renderLabel={this.props.t('label.home')}
-          isDisabled={('welcome' === this.props.navigation) && !this.props.hasNewReport}
-          isSelected={('summary' === this.props.navigation)}
-          onClick={() => this.props.handleNavigation('summary')} />
-        <AppNav.Item
-          renderLabel={this.props.t('label.ufixit')}
-          isDisabled={('welcome' === this.props.navigation) && !this.props.hasNewReport}
-          isSelected={('content' === this.props.navigation)}
-          onClick={() => this.props.handleNavigation('content')} />
-        <AppNav.Item
-          renderLabel={this.props.t('label.review_files')}
-          isDisabled={('welcome' === this.props.navigation) && !this.props.hasNewReport}
-          isSelected={('files' === this.props.navigation)}
-          onClick={() => this.props.handleNavigation('files')} />
+          <AppNav.Item
+            renderLabel={this.props.t('label.home')}
+            isDisabled={('welcome' === this.props.navigation) && !this.props.hasNewReport}
+            isSelected={('summary' === this.props.navigation)}
+            onClick={() => this.props.handleNavigation('summary')} />
+          <AppNav.Item
+            renderLabel={this.props.t('label.ufixit')}
+            isDisabled={('welcome' === this.props.navigation) && !this.props.hasNewReport}
+            isSelected={('content' === this.props.navigation)}
+            onClick={() => this.props.handleNavigation('content')} />
+          <AppNav.Item
+            renderLabel={this.props.t('label.review_files')}
+            isDisabled={('welcome' === this.props.navigation) && !this.props.hasNewReport}
+            isSelected={('files' === this.props.navigation)}
+            onClick={() => this.props.handleNavigation('files')} />
 
-      </AppNav>
+        </AppNav>
+      </header>
     )
   }
 

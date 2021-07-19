@@ -61,49 +61,52 @@ class App extends React.Component {
 
         <MessageTray messages={this.messages} t={this.t} clearMessages={this.clearMessages} hasNewReport={this.state.syncComplete} />
 
-        {('welcome' === this.state.navigation) && 
-          <WelcomePage 
-            handleNavigation={this.handleNavigation} 
-            t={this.t}
-            settings={this.settings}
-            hasNewReport={this.state.hasNewReport} />
-        }
-        {('summary' === this.state.navigation) &&
-          <SummaryPage
-            report={this.state.report}
-            settings={this.settings}
-            handleAppFilters={this.handleAppFilters}
-            handleNavigation={this.handleNavigation}
-            t={this.t} />
-        }
-        {('content' === this.state.navigation) &&
-          <ContentPage
-            report={this.state.report}
-            settings={this.settings}
-            appFilters={this.appFilters}
-            handleAppFilters={this.handleAppFilters}
-            handleNavigation={this.handleNavigation}
-            handleIssueSave={this.handleIssueSave}
-            handleIssueUpdate={this.handleIssueUpdate}
-            disableReview={this.disableReview()}
-            t={this.t} />
-        }
-        {('files' === this.state.navigation) &&
-          <FilesPage
-            report={this.state.report}
-            settings={this.settings}
-            handleNavigation={this.handleNavigation}
-            handleFileSave={this.handleFileSave}
-            t={this.t} />
-        }
-        {('reports' === this.state.navigation) &&
-          <ReportsPage
-            t={this.t}
-            settings={this.settings}
-            report={this.state.report}
-            handleNavigation={this.handleNavigation}
-          />
-        }
+        <main role="main">
+          {('welcome' === this.state.navigation) && 
+            <WelcomePage 
+              handleNavigation={this.handleNavigation} 
+              t={this.t}
+              settings={this.settings}
+              hasNewReport={this.state.hasNewReport} />
+          }
+          {('summary' === this.state.navigation) &&
+            <SummaryPage
+              report={this.state.report}
+              settings={this.settings}
+              handleAppFilters={this.handleAppFilters}
+              handleNavigation={this.handleNavigation}
+              t={this.t} />
+          }
+          {('content' === this.state.navigation) &&
+            <ContentPage
+              report={this.state.report}
+              settings={this.settings}
+              appFilters={this.appFilters}
+              handleAppFilters={this.handleAppFilters}
+              handleNavigation={this.handleNavigation}
+              handleIssueSave={this.handleIssueSave}
+              handleIssueUpdate={this.handleIssueUpdate}
+              disableReview={this.disableReview()}
+              t={this.t} />
+          }
+          {('files' === this.state.navigation) &&
+            <FilesPage
+              report={this.state.report}
+              settings={this.settings}
+              handleNavigation={this.handleNavigation}
+              handleFileSave={this.handleFileSave}
+              t={this.t} />
+          }
+          {('reports' === this.state.navigation) &&
+            <ReportsPage
+              t={this.t}
+              settings={this.settings}
+              report={this.state.report}
+              handleNavigation={this.handleNavigation}
+            />
+          }
+        </main>
+
         {('about' === this.state.modal) &&
           <AboutModal t={this.t}
             settings={this.settings}

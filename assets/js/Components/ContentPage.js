@@ -142,7 +142,7 @@ class ContentPage extends React.Component {
     let issueList = Object.assign({}, report.issues);
 
     // Check for easy issues filter
-    if(filters.easyIssues) {
+    if(filters.easyIssues && filters.issueTitles.length == 0) {
       filters.issueTitles = this.easyRules
     }
     
@@ -239,6 +239,7 @@ class ContentPage extends React.Component {
               disabled={!this.props.disableReview}
             >
                 {this.props.t('label.review')}
+                <ScreenReaderContent>{this.props.t(`rule.label.${issue.scanRuleId}`)}</ScreenReaderContent>
             </Button>
           ),
           onClick: () => this.handleReviewClick(issue),

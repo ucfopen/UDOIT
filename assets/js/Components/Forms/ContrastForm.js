@@ -1,11 +1,15 @@
 import React from 'react'
+import { Alert } from '@instructure/ui-alerts'
 import { Button } from '@instructure/ui-buttons'
 import { Spinner } from '@instructure/ui-spinner'
+import { Flex } from '@instructure/ui-flex'
 import { View } from '@instructure/ui-view'
+import { Text } from '@instructure/ui-text'
 import { TextInput } from '@instructure/ui-text-input'
 import { Checkbox } from '@instructure/ui-checkbox'
 import { IconButton } from '@instructure/ui-buttons'
 import { IconArrowOpenDownSolid, IconArrowOpenUpSolid, IconCheckMarkLine } from '@instructure/ui-icons'
+import ColorPicker from '../ColorPicker'
 import Html from '../../Services/Html'
 import Contrast from '../../Services/Contrast'
 
@@ -18,6 +22,8 @@ export default class ContrastForm extends React.Component {
       textColor: this.getTextColor(),
       useBold: this.isBold(),
       useItalics: this.isItalicized(),
+      contrastRatio: null,
+      ratioIsValid: false,
       textInputErrors: []
     }
 
@@ -33,6 +39,8 @@ export default class ContrastForm extends React.Component {
     this.handleItalicsToggle = this.handleItalicsToggle.bind(this)
     this.updatePreview = this.updatePreview.bind(this)
     this.handleSubmit = this.handleSubmit.bind(this)
+    this.updateText = this.updateText.bind(this)
+    this.updateBackground = this.updateBackground.bind(this)
   }
 
   componentDidMount(prevProps, prevState) {
@@ -120,18 +128,77 @@ export default class ContrastForm extends React.Component {
   }
 
   handleSubmit() {
-    if(this.state.textInputErrors.length === 0) {
+    if(this.state.ratioIsValid) {
       let issue = this.props.activeIssue
       this.props.handleIssueSave(issue)
+    } else {
+      this.formErrors = []
+      //push errors
+      this.formErrors.push({ text: `${this.props.t('form.contrast.invalid')}: ${this.state.contrastRatio}` , type: 'error' })
+      this.setState({
+        textInputErrors: this.formErrors
+      })
     }
+  }
+
+  updateText(value) {
+    this.setState({
+      textColor: value
+    }, () => {
+      this.updatePreview()
+    })
+  }
+
+  updateBackground(value) {
+    this.setState({
+      backgroundColor: value
+    }, () => {
+      this.updatePreview()
+    })
   }
 
   render() {
     const pending = (this.props.activeIssue && (this.props.activeIssue.pending == '1'))
     const buttonLabel = (pending) ? 'form.processing' : 'form.submit'
+    const ratioColor = (this.state.ratioIsValid) ? 'success' : 'danger'
+
+    const colors = [
+      // top row (lighter)
+      'FFFFFF',
+      'E4E4E4',
+      'FCFAC6',
+      'DFF1D1',
+      'DDF9E7',
+      'DBE9F7',
+      'E5EEF6',
+      'F7E0F6',
+      'F8EBEC',
+      'F8E5D8',
+      'F6E5CF',
+      // bottom row (darker)
+      '000000',
+      '2D3B45',
+      '7B7A30',
+      '528328',
+      '13803F',
+      '225E9D',
+      '2463CE',
+      '80227D',
+      'DC3545',
+      'D04920',
+      'BF590A',
+    ];
 
     return (
       <View as="div" padding="0 x-small">
+        <div id="flash-messages" role="alert"></div>
+        <Alert 
+          liveRegion={() => document.getElementById('flash-messages')}
+          liveRegionPoliteness="polite"
+          screenReaderOnly
+        >
+          {this.props.t('form.contrast_ratio')}: {this.state.contrastRatio}
+        </Alert>
         <View as="div" padding="x-small 0">
           <TextInput
             renderLabel={this.props.t('form.contrast.replace_background')}
@@ -139,11 +206,11 @@ export default class ContrastForm extends React.Component {
             value={this.state.backgroundColor}
             onChange={this.handleInputBackground}
             renderBeforeInput={
-              <div style={{ boxShadow: '0 0 5px 0 #CCC', backgroundColor: this.state.backgroundColor, width: '20px', height: '20px', opacity: 1.0 }}></div>
+              <span style={{ boxShadow: '0 0 5px 0 #CCC', backgroundColor: Contrast.convertShortenedHex(this.state.backgroundColor), width: '20px', height: '20px', opacity: 1.0, display: 'inline-block' }}></span>
             }
             renderAfterInput={
               <View>
-                <IconButton withBackground={false} withBorder={false} 
+                <IconButton withBackground={false} withBorder={false}
                   onClick={this.handleDarkenBackground}
                   screenReaderLabel={this.props.t('form.contrast.darken')}>
                   <IconArrowOpenDownSolid color="primary" size="x-small" />
@@ -152,9 +219,14 @@ export default class ContrastForm extends React.Component {
                   onClick={this.handleLightenBackground}
                   screenReaderLabel={this.props.t('form.contrast.lighten')}>
                   <IconArrowOpenUpSolid color="primary" size="x-small" />
-                </IconButton>          
+                </IconButton>
               </View>
             }
+          />
+          <ColorPicker
+            update={this.updateBackground}
+            colors={colors}
+            t={this.props.t}
           />
         </View>
         <View as="div" padding="x-small 0">
@@ -165,7 +237,7 @@ export default class ContrastForm extends React.Component {
             onChange={this.handleInputText}
             messages={this.state.textInputErrors}
             renderBeforeInput={
-              <div style={{ boxShadow: '0 0 5px 0 #CCC', backgroundColor: this.state.textColor, width: '20px', height: '20px', opacity: 1.0 }}></div>
+              <div style={{ boxShadow: '0 0 5px 0 #CCC', backgroundColor: Contrast.convertShortenedHex(this.state.textColor), width: '20px', height: '20px', opacity: 1.0 }}></div>
             }
             renderAfterInput={
               <View>
@@ -182,34 +254,59 @@ export default class ContrastForm extends React.Component {
               </View>
             }
           />
+          <ColorPicker
+            update={this.updateText}
+            colors={colors}
+            t={this.props.t}
+          />
         </View>
-        <View as="div" margin="small 0">
-          <Checkbox label={this.props.t('form.contrast.bolden_text')} 
-            checked={this.state.useBold}
-            onChange={this.handleBoldToggle}>
-          </Checkbox>
-        </View>
-
-        <View as="div" margin="small 0">
-          <Checkbox label={this.props.t('form.contrast.italicize_text')} 
-            checked={this.state.useItalics}
-            onChange={this.handleItalicsToggle}>
-          </Checkbox>
-        </View>
-
-        <View as="div" margin="medium 0">
-          <Button color="primary" onClick={this.handleSubmit} interaction={(!pending) ? 'enabled' : 'disabled'}>
-              {('1' == pending) && <Spinner size="x-small" renderTitle={buttonLabel} />}
-              {this.props.t(buttonLabel)}
-          </Button>
-          {this.props.activeIssue.recentlyUpdated &&
-            <View margin="0 small">
-              <IconCheckMarkLine color="success" />
-              <View margin="0 x-small">{this.props.t('label.fixed')}</View>
+        <Flex>
+          <Flex.Item shouldGrow shouldShrink>
+            <View as="div" margin="small 0">
+              <Checkbox label={this.props.t('form.contrast.bolden_text')}
+                checked={this.state.useBold}
+                onChange={this.handleBoldToggle}>
+              </Checkbox>
             </View>
-          }
-        </View>
-        
+
+            <View as="div" margin="small 0">
+              <Checkbox label={this.props.t('form.contrast.italicize_text')}
+                checked={this.state.useItalics}
+                onChange={this.handleItalicsToggle}>
+              </Checkbox>
+            </View>
+
+            <View as="div" margin="medium 0">
+              <Button color="primary" onClick={this.handleSubmit} interaction={(!pending) ? 'enabled' : 'disabled'}>
+                {('1' == pending) && <Spinner size="x-small" renderTitle={buttonLabel} />}
+                {this.props.t(buttonLabel)}
+              </Button>
+              {this.props.activeIssue.recentlyUpdated &&
+                <View margin="0 small">
+                  <IconCheckMarkLine color="success" />
+                  <View margin="0 x-small">{this.props.t('label.fixed')}</View>
+                </View>
+              }
+            </View>
+          </Flex.Item>
+          <Flex.Item>
+            <View as="div" padding="x-small 0">
+              <Text weight="bold">{this.props.t('form.contrast_ratio')}</Text>
+              <View as="div" width="120px" margin="x-small 0" textAlign="center" padding="small 0" borderColor={ratioColor} borderWidth="small">
+                <Text color={ratioColor} as="div" size="x-large">{this.state.contrastRatio}</Text>
+                {(this.state.ratioIsValid) ?
+                  <View as="div" padding="x-small 0">
+                    <Text size="x-small" color={ratioColor}>{this.props.t('form.contrast.valid')}</Text>
+                  </View>
+                  :
+                  <View as="div" padding="x-small 0">
+                    <Text size="x-small" color={ratioColor}>{this.props.t('form.contrast.invalid')}</Text>
+                  </View>
+                }
+              </View>
+            </View>
+          </Flex.Item>
+        </Flex>        
       </View>
     );
   }
@@ -217,8 +314,8 @@ export default class ContrastForm extends React.Component {
   processHtml(html) {
     let element = Html.toElement(html)
 
-    element.style.backgroundColor = this.state.backgroundColor
-    element.style.color = this.state.textColor
+    element.style.backgroundColor = Contrast.convertShortenedHex(this.state.backgroundColor)
+    element.style.color = Contrast.convertShortenedHex(this.state.textColor)
 
     element.style.fontWeight = (this.state.useBold) ? "bold" : "normal"
     element.style.fontStyle = (this.state.useItalics) ? "italic" : "normal"
@@ -229,25 +326,18 @@ export default class ContrastForm extends React.Component {
   updatePreview() {
     let issue = this.props.activeIssue
     const html = Html.getIssueHtml(this.props.activeIssue)
-    let ratio = Contrast.contrastRatio(this.state.backgroundColor, this.state.textColor)
+    let contrastRatio = Contrast.contrastRatio(this.state.backgroundColor, this.state.textColor)
     let tagName = Html.toElement(html).tagName
     let largeTextTags = this.props.t('form.contrast.large_text_tags')
-
-    this.formErrors = []
+    let ratioIsValid = this.state.ratioIsValid
     
     if(largeTextTags.includes(tagName)) {
-      if(ratio < 3) {
-        //push errors
-        this.formErrors.push({ text: `${this.props.t('form.contrast.invalid')}: ${ratio}` , type: 'error' })
-      }
+      ratioIsValid = (contrastRatio >= 3)
     } else {
-      if(ratio < 4.5) {
-        //push errors
-        this.formErrors.push({ text: `${this.props.t('form.contrast.invalid')}: ${ratio}` , type: 'error' })
-      }
+      ratioIsValid = (contrastRatio >= 4.5)
     }
 
-    this.setState({ textInputErrors: this.formErrors })
+    this.setState({ contrastRatio, ratioIsValid })
 
     issue.newHtml = this.processHtml(html)
     this.props.handleActiveIssue(issue)
