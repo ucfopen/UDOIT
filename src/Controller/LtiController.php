@@ -84,7 +84,6 @@ class LtiController extends AbstractController
         $publicKey = JWK::parseKeySet($jwks);
         JWT::$leeway = 60;
         $this->logger->info($jwt);
-        $this->logger->info($publicKey);
         $token = JWT::decode($jwt, $publicKey, ['RS256']);
 
         // Issuer should match previously defined issuer
