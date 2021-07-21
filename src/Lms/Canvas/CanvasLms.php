@@ -86,7 +86,7 @@ class CanvasLms implements LmsInterface {
 
     public function getKeysetUrl()
     {
-        return 'https://canvas.instructure.com/api/lti/security/jwks';
+        return 'https://canvas.dev.cdl.ucf.edu/api/lti/security/jwks';
     }
 
     public function saveTokenToSession($token)
