@@ -28,13 +28,6 @@ class LtiController extends AbstractController
     /** @var \App\Services\LmsApiService $lmsApi */
     private $lmsApi;
 
-    private $logger;
-
-    public function __construct(LoggerInterface $logger)
-    {
-        $this->logger = $logger;
-    }
-
     /**
      * @Route("/lti/authorize", name="lti_authorize")
      */
@@ -83,7 +76,6 @@ class LtiController extends AbstractController
         $jwks = $this->getPublicJwks();
         $publicKey = JWK::parseKeySet($jwks);
         JWT::$leeway = 60;
-        $this->logger->info($jwt);
         $token = JWT::decode($jwt, $publicKey, ['RS256']);
 
         // Issuer should match previously defined issuer
