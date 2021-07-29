@@ -2,6 +2,9 @@
 [![Join UCF Open Slack Discussions](https://ucf-open-slackin.herokuapp.com/badge.svg)](https://ucf-open-slackin.herokuapp.com/)
 
 # Universal Design Online content Inspection Tool
+
+Note: This is the "Classic" version of UDOIT.  It is no longer in active development. You can find the latest version of UDOIT in the [main branch](https://github.com/ucfopen/UDOIT/tree/main).
+
 UDOIT enables faculty to identify accessibility issues in Canvas by Instructure. Scan a course, generate reports, and provide resources to address common accessibility issues.
 
 In late 2013, the proposal submitted by UCF's Center for Distributed Learning won Instructure, Inc.’s Canvas Grant in the higher education category. The $10,000 grant was awarded to UCF – CDL to take an existing tool and further develop this solution into what is now known as UDOIT.
@@ -99,7 +102,7 @@ UDOIT can be installed on your own existing servers, but we've also configured a
 
 To start the Heroku deployment process, you can click the button below, please note, that although this button eliminates much of the installation complexity, there are still some configuration steps that need to be followed, those steps are outlined in the [HEROKU.md Readme](HEROKU.md).
 
-<a href="https://heroku.com/deploy" title="Deploy to Heroku"><img src="https://www.herokucdn.com/deploy/button.svg" alt="Deploy to Heroku" title="Deploy to Heroku Button"></a>
+<a href="https://heroku.com/deploy?template=https://github.com/ucfopen/UDOIT/tree/classic" title="Deploy to Heroku"><img src="https://www.herokucdn.com/deploy/button.svg" alt="Deploy to Heroku" title="Deploy to Heroku Button"></a>
 
 ## System Requirements
 * Apache or Nginx webserver
