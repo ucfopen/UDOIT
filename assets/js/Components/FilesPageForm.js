@@ -4,6 +4,7 @@ import { Button } from '@instructure/ui-buttons'
 import { IconSearchLine, IconFilterLine } from '@instructure/ui-icons'
 import { Flex } from '@instructure/ui-flex'
 import { ScreenReaderContent } from '@instructure/ui-a11y-content'
+import { SimpleSelect } from '@instructure/ui-simple-select'
 
 class FilesPageForm extends React.Component {
 
@@ -17,16 +18,46 @@ class FilesPageForm extends React.Component {
   }
 
   render() {
+    const options = ['10', '25', '50'];
     return (
-      <Flex justifyItems="space-between" padding="0 0 medium 0" key="filesPageForm">
+      <Flex alignItems="center" justifyItems="space-between" key="filesPageForm">
         <Flex.Item>
-          <TextInput
-            renderLabel={<ScreenReaderContent>Search Term</ScreenReaderContent>}
-            renderBeforeInput={<IconSearchLine inline={false} />}
-            placeholder={this.props.t('placeholder.keyword')}
-            onChange={this.props.handleSearchTerm}
-            value={this.props.searchTerm}
-          />
+          <Flex alignItems="end" width="33vw" justifyItems="space-between" padding="0 0 medium 0">
+            <Flex.Item>
+              <TextInput
+                renderLabel={<ScreenReaderContent>Search Term</ScreenReaderContent>}
+                renderBeforeInput={<IconSearchLine inline={false} />}
+                placeholder={this.props.t('placeholder.keyword')}
+                onChange={this.props.handleSearchTerm}
+                value={this.props.searchTerm}
+              />
+            </Flex.Item>
+            <Flex.Item>
+              <SimpleSelect
+                  renderLabel="Results"
+                  assistiveText="Use arrow keys to navigate options."
+                  value={this.props.tableSettings.rowsPerPage}
+                  onChange={(e, { id, value }) => {
+                    this.props.handleTableSettings({
+                      rowsPerPage: value
+                    })
+                    localStorage.setItem('rowsPerPage', value)
+                  }}
+                  width="10vw"
+                  size="small"
+                >
+                  {options.map((opt, index) => (
+                    <SimpleSelect.Option
+                    key={index}
+                    id={`opt-${index}`}
+                    value={opt}
+                    >
+                    { opt }
+                    </SimpleSelect.Option>
+                  ))}
+                </SimpleSelect>
+            </Flex.Item>
+          </Flex>
         </Flex.Item>
         <Flex.Item>
           <Button

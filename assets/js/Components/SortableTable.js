@@ -26,7 +26,7 @@ class SortableTable extends React.Component {
     }
   
     render() {
-      this.rowsPerPage = (this.props.rowsPerPage) ? this.props.rowsPerPage : 10;
+      this.rowsPerPage = (this.props.rowsPerPage) ? parseInt(this.props.rowsPerPage) : 10;
       const { caption, headers, rows } = this.props
       const start = (this.props.tableSettings.pageNum * this.rowsPerPage)
       const { sortBy, ascending } = this.props.tableSettings

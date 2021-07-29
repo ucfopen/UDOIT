@@ -32,7 +32,7 @@ class ContentPage extends React.Component {
     ];
     
     this.easyRules = issueRuleIds.filter(rule => this.props.settings.easyRuleIds.includes(rule))
-    
+
     this.state = {
       activeIssue: null,
       trayOpen: false,
@@ -51,7 +51,7 @@ class ContentPage extends React.Component {
         sortBy: 'contentTitle',
         ascending: true,
         pageNum: 0,
-        rowsPerPage: (localStorage.getItem('rowsPerPage')) ? localStorage.getItem('rowsPerPage') : 10
+        rowsPerPage: (localStorage.getItem('rowsPerPage')) ? localStorage.getItem('rowsPerPage') : '10'
       },
     }
 
