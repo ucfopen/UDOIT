@@ -32,7 +32,7 @@ class ContentPage extends React.Component {
     ];
     
     this.easyRules = issueRuleIds.filter(rule => this.props.settings.easyRuleIds.includes(rule))
-
+    
     this.state = {
       activeIssue: null,
       trayOpen: false,
@@ -51,7 +51,8 @@ class ContentPage extends React.Component {
         sortBy: 'contentTitle',
         ascending: true,
         pageNum: 0,
-      }
+        rowsPerPage: (localStorage.getItem('rowsPerPage')) ? localStorage.getItem('rowsPerPage') : 10
+      },
     }
 
     this.handleTrayToggle = this.handleTrayToggle.bind(this);
@@ -275,6 +276,8 @@ class ContentPage extends React.Component {
           searchTerm={this.state.searchTerm}
           t={this.props.t} 
           ref={(node) => this.contentPageForm = node}
+          handleTableSettings={this.handleTableSettings}
+          tableSettings={this.state.tableSettings}
         />
         <View as="div">
           {this.renderFilterTags()}
@@ -288,6 +291,7 @@ class ContentPage extends React.Component {
           handleFilter = {this.handleFilter}
           handleTableSettings = {this.handleTableSettings}
           t={this.props.t}
+          rowsPerPage = {this.state.tableSettings.rowsPerPage}
         />
         {this.state.trayOpen && <ContentTrayForm
           filters={this.state.filters}

@@ -60,6 +60,7 @@
         "@instructure/ui-progress": "^7.5.0",
         "@instructure/ui-radio-input": "^7.5.0",
         "@instructure/ui-responsive": "^7.5.0",
+        "@instructure/ui-simple-select": "^8.7.0",
         "@instructure/ui-spinner": "^7.5.0",
         "@instructure/ui-table": "^7.5.0",
         "@instructure/ui-tabs": "^7.5.0",

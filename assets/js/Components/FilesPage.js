@@ -43,6 +43,7 @@ class FilesPage extends React.Component {
         sortBy: 'fileName',
         ascending: true,
         pageNum: 0,
+        rowsPerPage: 10
       }
     }
 

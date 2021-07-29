@@ -4,6 +4,7 @@ import { Button } from '@instructure/ui-buttons'
 import { IconSearchLine, IconFilterLine } from '@instructure/ui-icons'
 import { Flex } from '@instructure/ui-flex'
 import { ScreenReaderContent } from '@instructure/ui-a11y-content'
+import { SimpleSelect } from '@instructure/ui-simple-select'
 
 class ContentPageForm extends React.Component {
 
@@ -17,6 +18,7 @@ class ContentPageForm extends React.Component {
   }
 
   render() {
+    const options = [10, 25, 50];
     return (
       <Flex justifyItems="space-between" padding="0 0 medium 0" key="contentPageForm">
         <Flex.Item>
@@ -29,15 +31,45 @@ class ContentPageForm extends React.Component {
           />
         </Flex.Item>
         <Flex.Item>
-          {this.props.handleTrayToggle && 
-            <Button
-              renderIcon={IconFilterLine}
-              screenReaderLabel={this.props.t('srlabel.open_filters_tray')}
-              onClick={this.props.handleTrayToggle}
-              elementRef={(node) => this.filterButton = node}
+          <Flex justifyItems="end" padding="0 0 medium 0">
+            <Flex.Item>
+              <SimpleSelect
+                renderLabel="Results per Page"
+                assistiveText="Use arrow keys to navigate options."
+                value={this.props.tableSettings.rowsPerPage}
+                onChange={(e, { id, value }) => {
+                  // localStorage = window.localStorage;
+                  this.props.handleTableSettings({
+                    rowsPerPage: value
+                  })
+                  localStorage.setItem('rowsPerPage', value)
+                }}
+                width="10vw"
+                size="small"
               >
-              {this.props.t('label.filter')}
-            </Button>}
+                {options.map((opt, index) => (
+                  <SimpleSelect.Option
+                  key={index}
+                  id={`opt-${index}`}
+                  value={opt}
+                  >
+                  { opt }
+                  </SimpleSelect.Option>
+                ))}
+              </SimpleSelect>
+            </Flex.Item>
+            <Flex.Item>
+              {this.props.handleTrayToggle && 
+              <Button
+                renderIcon={IconFilterLine}
+                screenReaderLabel={this.props.t('srlabel.open_filters_tray')}
+                onClick={this.props.handleTrayToggle}
+                elementRef={(node) => this.filterButton = node}
+                >
+                {this.props.t('label.filter')}
+              </Button>}
+            </Flex.Item>
+          </Flex>
         </Flex.Item>
       </Flex>
     );
