@@ -34,7 +34,7 @@ class ContentPageForm extends React.Component {
             </Flex.Item>
             <Flex.Item>
               <SimpleSelect
-                  renderLabel="Results"
+                  renderLabel={this.props.t('label.table_rows_select')}
                   assistiveText="Use arrow keys to navigate options."
                   value={this.props.tableSettings.rowsPerPage}
                   onChange={(e, { id, value }) => {
