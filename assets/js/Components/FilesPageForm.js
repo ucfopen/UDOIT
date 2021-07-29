@@ -22,7 +22,7 @@ class FilesPageForm extends React.Component {
     return (
       <Flex alignItems="center" justifyItems="space-between" key="filesPageForm">
         <Flex.Item>
-          <Flex alignItems="end" width="33vw" justifyItems="space-between" padding="0 0 medium 0">
+          <Flex alignItems="end" width="36vw" justifyItems="space-between" padding="0 0 medium 0">
             <Flex.Item>
               <TextInput
                 renderLabel={<ScreenReaderContent>Search Term</ScreenReaderContent>}
@@ -43,7 +43,7 @@ class FilesPageForm extends React.Component {
                     })
                     localStorage.setItem('rowsPerPage', value)
                   }}
-                  width="10vw"
+                  width="13vw"
                   size="small"
                 >
                   {options.map((opt, index) => (

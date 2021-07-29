@@ -98,7 +98,7 @@
   "label.no_results_header": "No results found",
   "label.no_results_message": "Try changing the filters or searching with a different keyword",
   "label.report.total": "Total",
-  "label.table_rows_select": "Results",
+  "label.table_rows_select": "Rows per page",
 
   "label.date": "Date",
   "label.content_fixed": "Content Fixed",
