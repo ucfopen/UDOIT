@@ -175,6 +175,7 @@ var ResultsFilter = {
         $('.tab-pane.content-type-pane', contentPanes).remove();
 
         let contentLabels = {
+            'moduleurls': 'Module URLs',
             'files': 'HTML Files',
             'unscannable': 'Unscannable Files',
         };
