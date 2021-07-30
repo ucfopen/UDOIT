@@ -58,7 +58,7 @@ class FilesPage extends React.Component {
   }
 
   handleSearchTerm = (e, val) => {
-    this.setState({searchTerm: val});
+    this.setState({searchTerm: val, tableSettings: Object.assign({}, this.state.tableSettings, {pageNum: 0})});
   }
 
   handleTrayToggle = (e, val) => {
