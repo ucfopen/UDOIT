@@ -30,7 +30,7 @@ class UdoitUtils
     public static $curl_ssl_verify;
     public static $canvas_enforce_scopes;
     public static $canvas_scopes;
-    
+
     private static $instance;
 
     public static function instance()
@@ -322,9 +322,10 @@ class UdoitUtils
         // If so, grab response object from session var aka 'cache'
         if (isset($_SESSION[$video_url]) && constant('USE_API_CACHING') != 'false') {
             $response = $_SESSION[$video_url];
-            $logger->addInfo("Cached api response used");
+            $logger->addInfo("Cached api response used for ".$video_url);
         } else {
             // Else, make api call and cache response in a session var
+            $logger->addInfo("Making fresh api call for ".$video_url);
             if (null == $api_key) {
                 $resp = Request::get($api_url)->send();
             } else {
@@ -382,7 +383,7 @@ class UdoitUtils
     protected function curlOauthToken($base_url, $post_data)
     {
         global $curl_ssl_verify;
-        
+
         // @TODO - why not use Httpful here?
         $ch = curl_init("{$base_url}/login/oauth2/token");
         curl_setopt($ch, CURLOPT_POST, 1);

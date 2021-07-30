@@ -138,5 +138,5 @@ class TestOfQuailTests extends UnitTestCase {
 	}
 }
 
-$tests = &new TestOfQuailTests();
+$tests = new TestOfQuailTests();
 $tests->run(new HtmlReporter());

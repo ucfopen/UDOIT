@@ -2,6 +2,9 @@
 [![Join UCF Open Slack Discussions](https://ucf-open-slackin.herokuapp.com/badge.svg)](https://ucf-open-slackin.herokuapp.com/)
 
 # Universal Design Online content Inspection Tool
+
+Note: This is the "Classic" version of UDOIT.  It is no longer in active development. You can find the latest version of UDOIT in the [main branch](https://github.com/ucfopen/UDOIT/tree/main).
+
 UDOIT enables faculty to identify accessibility issues in Canvas by Instructure. Scan a course, generate reports, and provide resources to address common accessibility issues.
 
 In late 2013, the proposal submitted by UCF's Center for Distributed Learning won Instructure, Inc.’s Canvas Grant in the higher education category. The $10,000 grant was awarded to UCF – CDL to take an existing tool and further develop this solution into what is now known as UDOIT.
@@ -31,6 +34,9 @@ In late 2013, the proposal submitted by UCF's Center for Distributed Learning wo
 | headersHaveText | If a header tag does not contain text. |
 | videoProvidesCaptions | If a video tag does not have a caption track tag. |
 | videosEmbeddedOrLinkedNeedCaptions | If a YouTube or Vimeo video does not have human-generated captions. |
+| brokenLink | If a link is broken |
+| headingLevelSkipped | If a heading level has been skipped |
+| documentReadingDirection | If text that is in Hebrew, Arabic, or Dhivehi/Maldivian does not have the dir attribute set to rtl |
 
 ### Suggestions
 
@@ -52,6 +58,9 @@ In late 2013, the proposal submitted by UCF's Center for Distributed Learning wo
 | cssTextStyleEmphasize | If colored text is not emphasized as bold or italicized. |
 | videoEmbedChecked | If an iframe, link, or object tag linking to a Dailymotion video exists on the page. |
 | videoCaptionsAreCorrectLanguage | If a YouTube or Vimeo video has human-generated captions, but they do not match the set language of the course. |
+| tableHasFixedWidth | If a table or its cells have fixed width |
+| videoUnlistedOrNotFound | If a video is unlisted or can not be found |
+| redirectedLink | If a link is redirected |
 
 ## Awards
 
@@ -93,11 +102,11 @@ UDOIT can be installed on your own existing servers, but we've also configured a
 
 To start the Heroku deployment process, you can click the button below, please note, that although this button eliminates much of the installation complexity, there are still some configuration steps that need to be followed, those steps are outlined in the [HEROKU.md Readme](HEROKU.md).
 
-<a href="https://heroku.com/deploy" title="Deploy to Heroku"><img src="https://www.herokucdn.com/deploy/button.svg" alt="Deploy to Heroku" title="Deploy to Heroku Button"></a>
+<a href="https://heroku.com/deploy?template=https://github.com/ucfopen/UDOIT/tree/classic" title="Deploy to Heroku"><img src="https://www.herokucdn.com/deploy/button.svg" alt="Deploy to Heroku" title="Deploy to Heroku Button"></a>
 
 ## System Requirements
 * Apache or Nginx webserver
-* PHP 7.2, 7.3
+* PHP 7.2, 7.3, 7.4, 8.0
   * [GD Graphics Library](http://php.net/manual/en/book.image.php)
 * MySQL, MariaDB or PostgreSQL
 * Git (If you are using [The Git Method](#the-git-method) below) or if you plan on contributing to UDOIT
@@ -185,7 +194,7 @@ If you didn't already make `config/localConfig.php` when you set up the database
 Please refer to the [Canvas API Policy](http://www.canvaslms.com/policies/api-policy) before using this application, as it makes heavy use of the Canvas API.
 
 ### LTI Security
-UDOIT uses the security processes built into the LTI specification to ensure that users are only accessing UDOIT from within your instance of Canvas.  There are two values that need to be set in order for this security process to work.  These values should be different from each other.  You will use them again when you are installing the LTI in Canvas.
+UDOIT uses the trust built into the LTI v1.1 specification to authorize usage from within your LMS.  LTI v1.1 requires a strong key and secret for this security process to work. You will need the key and secret when setting up the LTI tool in the LMS.
 
 Edit `config/localConfig.php`:
 
@@ -247,7 +256,7 @@ If you'd like to use this option, you'll need set the following scopes for your 
 	* url:GET|/api/v1/users/:user_id/profile
 
 ### Google/YouTube API Key
-In order for UDOIT to scan YouTube videos for closed captioning, you will need to create a YouTube Data API key.  Follow the instructions below:
+To allow UDOIT to scan YouTube videos for closed captioning, you will need to create a YouTube Data API key.  Follow the instructions below:
 
 1. Go to the [Google Developer Console](https://console.developers.google.com).
 2. Create a project.
@@ -258,7 +267,7 @@ In order for UDOIT to scan YouTube videos for closed captioning, you will need t
 If you do not provide a Google API key, a warning log will be recorded in `config/log.log` and all YouTube videos will be marked for manual inspection by the user.
 
 ### Vimeo API Key
-In order for UDOIT to scan Vimeo videos for closed captioning, you will need to create a Vimeo API key. Follow the instructions below:
+To allow UDOIT to scan Vimeo videos for closed captioning, you will need to create a Vimeo API key. Follow the instructions below:
 
 1. [Create a new App on Vimeo Developer API](https://developer.vimeo.com/apps/new?source=getting-started), please note you must have a Vimeo Developer account.
 2. On your applications "Authentication" page, Generate a new Access Token.  (Select the `Public` and `Private` checkboxes for Scopes.)
@@ -273,7 +282,7 @@ If you would like to use Google Analytics for tracking usage of UDOIT, create a 
 As of 2.5.0, the admin panel is still an experimental feature.  Consider it a first draft of what we'd like it to be.  It lets you view reports across your institution, generate statistics about reports and user growth, and administer user accounts.  This feature is disabled by default.  To enable it, change `$admin_panel_enabled` to `true`.
 
 ### Installing the LTI in Canvas
-Log into Canvas to add UDOIT:
+Log in to Canvas to add UDOIT:
 
 1. You can install UDOIT at the sub-account level or the course level.  Either way, start by going to the **settings** area.
 2. Click the **Apps** tab.

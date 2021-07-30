@@ -5,6 +5,13 @@
         "suggestions": 2
     },
     "scan_results": {
+        "unscannable": [],
+        "error_summary": [],
+        "suggestion_summary": {
+            "title_value": {
+                "Count": 2
+            }
+        },
         "module_urls": {
             "title": "module_urls",
             "items": [
@@ -23,7 +30,6 @@
             ],
             "amount": 2,
             "time": 0
-        },
-        "unscannable": []
+        }
     }
 }

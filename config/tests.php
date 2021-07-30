@@ -118,6 +118,13 @@ return [
             ',
         ],
         [
+            'name'      => 'tableHasFixedWidth',
+            'title'     => 'Table should not have fixed width',
+            'desc'      => '<p>Tables with fixed widths (or containing cells with fixed widths) might display incorrectly on tablets and phones, running off the side of the page and creating inaccessible content. Try viewing this page on a mobile device, and remove the portions with a fixed width if necessary.</p>',
+            'resources' => [],
+            'example'   => '',
+        ],
+        [
             'name'      => 'tableThShouldHaveScope',
             'title'     => 'No row or column scopes declarations found in headers of the table',
             'desc'      => '<p>Scope declarations in headers organize and define table data by row/column for sighted and <a href="http://en.wikipedia.org/wiki/Screen_reader">screen reader</a> users.</p>',
@@ -161,6 +168,15 @@ return [
                 <p class="text-success">Correct</p>
                 <pre><code>'.htmlspecialchars('<h1>Title</h1>').'</code></pre>
             ',
+        ],
+        [
+            'name'      => 'headingLevelSkipped',
+            'title'     => 'Heading levels should not be skipped',
+            'desc'      => '<p>Nest headings by their rank (or level). The most important heading has the rank 1 (h1), the least important heading rank 6 (h6). Headings with an equal or higher rank start a new section, headings with a lower rank start new subsections that are part of the higher ranked section. Skipping heading ranks can be confusing and should be avoided where possible</p>',
+            'resources' => [
+                'Heading ranks <a href="https://www.w3.org/WAI/tutorials/page-structure/headings/#:~:text=Skipping%20heading%20ranks%20can%20be,it%20closes%20the%20previous%20section.">Article</a>',
+            ],
+            'example'   => '',
         ],
         [
             'name'      => 'objectMustContainText',
@@ -243,6 +259,26 @@ return [
                 <p class="text-success">Correct</p>
                 <pre><code>'.htmlspecialchars('<a href="http://example.com">read the document</a>').'</code></pre>
             ',
+        ],
+        [
+            'name'      => 'redirectedLink',
+            'title'     => 'Redirected link found',
+            'desc'      => '<p>When the address of a web page changes, the content owner may set up a redirect so that the link is not broken. However, that redirect could go away in the future, so it\'s best to update the link now. UFIXIT has been populated with the new URL automatically. If the UFIXIT field is empty, we were unable to fetch the new URL, and you will need to manually visit the link to discover the new URL.</p>',
+            'resources' => [],
+            'example'   => '',
+        ],
+        [
+            'name'      => 'brokenLink',
+            'title'     => 'Broken link detected',
+            'desc'      => '<p>The following link is no longer functioning. This could be temporary, so please verify and repair the link if necessary.</p>',
+            'resources' => [],
+            'example'   => '',
+        ],
+        [
+            'name'      => 'objectTextUpdatesWhenObjectChanges',
+            'title'     => 'The text equivalents (e.g., transcripts and/or captions) for embedded content should update when content changes.',
+            'desc'      => '',
+            'resources' => ['WCAG Standard: <a href="http://www.w3.org/TR/UNDERSTANDING-WCAG20/media-equiv.html">1.2</a>', ],
         ],
         [
             'name'      => 'objectTagDetected',

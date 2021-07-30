@@ -27,7 +27,7 @@ class Ufixit
      * Array of annoying characters to filter out of strings
      * @var array
      */
-    public $annoying_entities = ["\r", "&nbsp;", "&amp;", "%2F", "%22", "&lt;", "&gt;", "&quot;", "&lsquo;", "&rsquo;", "&sbquo;", "&ldquo;", "&rdquo;", "&bdquo;"];
+    public $annoying_entities = ["\r", "&nbsp;", "&amp;", "%2F", "%22", "&quot;", "&lsquo;", "&rsquo;", "&sbquo;", "&ldquo;", "&rdquo;", "&bdquo;"];
 
     /**
      * The API key needed to communicate with Canvas
@@ -69,7 +69,7 @@ class Ufixit
      * Array of replacements for the annoying entities
      * @var array
      */
-    public $entity_replacements = ["", " ", "&", "/", "", "<", ">", "\"", "‘", "’", "‚", "“", "”", "„"];
+    public $entity_replacements = ["", " ", "&", "/", "", "\"", "‘", "’", "‚", "“", "”", "„"];
 
     /**
      * A file pointer
@@ -253,7 +253,83 @@ class Ufixit
         return $fixed_link;
     }
 
+
     /**
+     * Fixes Redirected Link
+     * @param string       $error_html       - The bad html that needs to be fixed
+     * @param string|array $new_content      - The new Heading text from the user
+     * @param bool         $submitting_again - If the user is resubmitting their error fix
+     *
+     * @return string      $fixed_link       - The html with corrected Link
+     */
+    public function fixRedirectedLink($error_html, $new_content, $submitting_again = false)
+    {
+        $fixed_link = '';
+        if ('' == $new_content) {
+            return $fixed_link;
+        }
+
+        $this->dom->loadHTML('<?xml encoding="utf-8" ?>'.$error_html);
+
+        $tag = $this->dom->getElementsByTagName('a')->item(0);
+
+        $text = $tag->nodeValue;
+        $tag->nodeValue = $text;
+        $old = $tag->getAttribute('href');
+        preg_match('/(https?:\/\/(www.)?)?(.*)/', $text, $textm);
+        preg_match('/(https?:\/\/(www.)?)?(.*)/', $old, $oldm);
+        $dtext = $textm[3];
+        $old = $oldm[3];
+
+        $new_text = '';
+        $new_url = $new_content;
+        preg_match('/((https?:\/\/)(www.)?)?(.*)/', $new_url, $new_urlm);
+        if (strpos($text, 'http') !== false) {
+            $new_text = $new_urlm[2];
+        }
+        if (strpos($text, 'www') !== false) {
+            $new_text = $new_text.$new_urlm[3];
+        }
+        $new_text = $new_text.$new_urlm[4];
+
+        if ($dtext == $old) {
+            $tag->nodeValue = $new_text;
+        }
+
+        $tag->setAttribute('href', $new_content);
+
+        $fixed_link = $this->dom->saveHTML($tag);
+
+        return $fixed_link;
+    }
+
+       /**
+     * Fixes Broken Link
+     * @param string       $error_html       - The bad html that needs to be fixed
+     * @param string|array $new_content      - The new Heading text from the user
+     * @param bool         $submitting_again - If the user is resubmitting their error fix
+     *
+     * @return string      $fixed_link       - The html with corrected Link
+     */
+    public function fixBrokenLink($error_html, $new_content, $submitting_again = false)
+    {
+        $fixed_link = '';
+        if ('' == $new_content) {
+            return $fixed_link;
+        }
+
+        $this->dom->loadHTML('<?xml encoding="utf-8" ?>'.$error_html);
+
+        $tag = $this->dom->getElementsByTagName('a')->item(0);
+
+        $tag->setAttribute('href', $new_content);
+
+        $fixed_link = $this->dom->saveHTML($tag);
+
+        return $fixed_link;
+    }
+
+        /**
      * Fixes Empty HTML Headers
      * @param string       $error_html       The bad html that needs to be fixed
      * @param string|array $new_content      The new Heading text from the user
@@ -327,39 +403,25 @@ class Ufixit
 
         $this->dom->loadHTML('<?xml encoding="utf-8" ?>'.$error_html, LIBXML_HTML_NODEFDTD);
 
+        $table = $this->dom->getElementsByTagName('table')[0];
+        $new_data['old'] .= $this->dom->saveHTML($table);
+
         switch ($selected_header) {
             case 'col':
                 $trs = $this->dom->getElementsByTagName('tr');
 
-                $last_item = $trs->length - 1;
                 foreach ($trs as $arrkey => $tr) {
-                    $new_data['old'] .= $this->dom->saveHTML($tr);
-
-                    // Add a newline between each output so it matches the original
-                    if ($arrkey < $last_item) {
-                        $new_data['old'] .= "\n";
-                    }
-                }
-
-                foreach ($trs as $arrkey => $tr) {
-                    $td = $tr->getElementsByTagName('td')->item(0);
+                    $td = $tr->getElementsByTagName('td')[0];
                     $td = $this->renameElement($td, 'th');
 
                     $td->setAttribute('scope', 'row');
-
-                    $new_data['fixed'] .= $this->dom->saveHTML($tr);
-
-                    // Add a newline between each output so it matches the original
-                    if ($arrkey < $last_item) {
-                        $new_data['fixed'] .= "\n";
-                    }
                 }
 
+                $new_data['fixed'] .= $this->dom->saveHTML($table);
                 break;
 
             case 'row':
-                $tr              = $this->dom->getElementsByTagName('tr')->item(0);
-                $new_data['old'] = $this->dom->saveHTML($tr);
+                $tr = $this->dom->getElementsByTagName('tr')[0];
 
                 for ($i = $tr->childNodes->length; --$i >= 0;) {
                     $td = $tr->childNodes->item($i);
@@ -372,23 +434,12 @@ class Ufixit
                 }
 
                 //TODO: Move $tr out of <tbody> and into a new <thead> above <tbody>
-
-                $new_data['fixed'] = $this->dom->saveHTML($tr);
+                $new_data['fixed'] = $this->dom->saveHTML($table);
                 break;
 
             case 'both':
                 $first = true;
                 $trs   = $this->dom->getElementsByTagName('tr');
-
-                $last_item = $trs->length - 1;
-                foreach ($trs as $arrkey => $tr) {
-                    $new_data['old'] .= $this->dom->saveHTML($tr);
-
-                    // Add a newline between each output so it matches the original
-                    if ($arrkey < $last_item) {
-                        $new_data['old'] .= "\n";
-                    }
-                }
 
                 foreach ($trs as $tr) {
                     if ($first) {
@@ -402,21 +453,16 @@ class Ufixit
                             }
                         }
 
-                        $new_data['fixed'] .= $this->dom->saveHTML($tr);
                         $first = false;
 
                         continue;
                     }
 
-                    $td = $tr->getElementsByTagName('td')->item(0);
+                    $td = $tr->getElementsByTagName('td')[0];
                     $td = $this->renameElement($td, 'th');
-
                     $td->setAttribute('scope', 'row');
-
-                    // Add a newline before every export of a row (First is skipped)
-                    $new_data['fixed'] .= "\n".$this->dom->saveHTML($tr);
                 }
-
+                $new_data['fixed'] = $this->dom->saveHTML($table);
                 break;
         }
 
@@ -558,14 +604,12 @@ class Ufixit
      */
     public function replaceContent($html, $error, $corrected)
     {
-        global $logger;
-
         $error      = HTMLMinify::minify(str_replace($this->annoying_entities, $this->entity_replacements, $error), $this->htmlminify_options);
         $corrected  = HTMLMinify::minify(str_replace($this->annoying_entities, $this->entity_replacements, $corrected), $this->htmlminify_options);
-        $html       = HTMLMinify::minify(str_replace($this->annoying_entities, $this->entity_replacements, htmlentities($html)), $this->htmlminify_options);
+        $html       = HTMLMinify::minify(str_replace($this->annoying_entities, $this->entity_replacements, $html), $this->htmlminify_options);
 
         $count = 0;
-        $html = str_replace($error, $corrected, html_entity_decode($html), $count);
+        $html = str_replace($error, $corrected, $html, $count);
 
         if (0 === $count) {
             $logger->addError("No replacement occurred.\nOld: \n".$error."\nNew:\n".$corrected."\nContext:\n".$html);
@@ -583,7 +627,7 @@ class Ufixit
     {
         $get_uri = $this->base_uri."/api/v1/courses/".$this->course_id."/assignments/".$this->content_id."?&access_token=".$this->api_key;
         $content = Request::get($get_uri)->send();
-        $html    = html_entity_decode($content->body->description);
+        $html    = $content->body->description;
 
         $html    = $this->replaceContent($html, $error_html, $corrected_error);
         $put_uri = $this->base_uri."/api/v1/courses/".$this->course_id."/assignments/".$this->content_id."?&access_token=".$this->api_key;
@@ -600,7 +644,7 @@ class Ufixit
     {
         $get_uri = $this->base_uri."/api/v1/courses/".$this->course_id."/discussion_topics/".$this->content_id."?&access_token=".$this->api_key;
         $content = Request::get($get_uri)->send();
-        $html    = html_entity_decode($content->body->message);
+        $html    = $content->body->message;
 
         $html    = $this->replaceContent($html, $error_html, $corrected_error);
         $put_uri = $this->base_uri."/api/v1/courses/".$this->course_id."/discussion_topics/".$this->content_id."?&access_token=".$this->api_key;
@@ -705,7 +749,7 @@ class Ufixit
         }
 
         // update the page content
-        $html     = html_entity_decode($page_resp->body->body);
+        $html     = $page_resp->body->body;
         $html     = $this->replaceContent($html, $error_html, $corrected_error);
         $put_uri  = "{$this->base_uri}/api/v1/courses/{$this->course_id}/pages/{$this->content_id}?&access_token={$this->api_key}";
         $put_resp = Request::put($put_uri)->body(['wiki_page[body]' => $html])->sendsType(\Httpful\Mime::FORM)->send();
@@ -724,7 +768,7 @@ class Ufixit
     {
         $get_uri = $this->base_uri."/api/v1/courses/".$this->course_id."/?include[]=syllabus_body&access_token=".$this->api_key;
         $content = Request::get($get_uri)->send();
-        $html    = html_entity_decode($content->body->syllabus_body);
+        $html    = $content->body->syllabus_body;
 
         $html    = $this->replaceContent($html, $error_html, $corrected_error);
         $put_uri = $this->base_uri."/api/v1/courses/".$this->course_id."/?&access_token=".$this->api_key;

@@ -43,7 +43,7 @@ global $file_scan_size_limit;
 				<ul class="list-group">
 					<?php foreach($error_summary as $item => $data): ?>
 						<li class="list-group-item text-danger title-line">
-							<span class="badge badge-error"><?= $data->count ?></span><?= $item ?>
+							<span class="badge badge-error"><?= $data->count ?></span><?php echo"\t"?><?= $item ?>
 						</li>
 					<?php endforeach; ?>
 				</ul>
@@ -57,7 +57,7 @@ global $file_scan_size_limit;
 				<ul class="list-group">
 					<?php foreach($suggestion_summary as $item => $data): ?>
 						<li class="list-group-item text-danger title-line">
-							<span class="badge badge-error"><?= $data->count ?></span><?= $item ?>
+							<span class="badge badge-error"><?= $data->count ?></span><?php echo"\t"?><?= $item ?>
 						</li>
 					<?php endforeach; ?>
 				</ul>

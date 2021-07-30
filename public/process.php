@@ -63,7 +63,7 @@ switch ($main_action) {
             $course_locale = substr($course_locale_raw, 0, 2);
             $logger->addInfo('Course Locale set to '.$course_locale);
         }
-        
+
         $flag = filter_input(INPUT_POST, 'unpublished_flag', FILTER_DEFAULT);
 
         // No content selected
@@ -118,7 +118,7 @@ switch ($main_action) {
             'base_uri'     => $base_url,
             'content_id'   => filter_input(INPUT_POST, 'contentid', FILTER_SANITIZE_STRING),
             'content_type' => filter_input(INPUT_POST, 'contenttype', FILTER_SANITIZE_STRING),
-            'error_html'   => html_entity_decode(filter_input(INPUT_POST, 'errorhtml', FILTER_SANITIZE_FULL_SPECIAL_CHARS), ENT_QUOTES),
+            'error_html'   => filter_input(INPUT_POST, 'errorhtml'),
             'error_type'   => filter_input(INPUT_POST, 'errortype', FILTER_SANITIZE_STRING),
             'bold'         => (filter_input(INPUT_POST, 'add-bold', FILTER_SANITIZE_STRING) == 'bold'),
             'italic'       => (filter_input(INPUT_POST, 'add-italic', FILTER_SANITIZE_STRING) == 'italic'),
@@ -146,6 +146,11 @@ switch ($main_action) {
             case 'aLinkTextDoesNotBeginWithRedundantWord':
                 $new_content = filter_input(INPUT_POST, 'newcontent', FILTER_SANITIZE_STRING);
                 $corrected_error = $ufixit->fixLink($data['error_html'], $new_content);
+                break;
+
+            case 'brokenLink':
+                $new_content = filter_input(INPUT_POST, 'newcontent', FILTER_SANITIZE_STRING);
+                $corrected_error = $ufixit->fixBrokenLink($data['error_html'], $new_content);
                 break;
 
             case 'cssTextHasContrast':
@@ -180,12 +185,18 @@ switch ($main_action) {
                 $corrected_error = $ufixit->makeHeading($data['error_html'], $new_content);
                 break;
 
+            case 'redirectedLink':
+                $new_content = filter_input(INPUT_POST, 'newcontent', FILTER_SANITIZE_STRING);
+                $corrected_error = $ufixit->fixRedirectedLink($data['error_html'], $new_content);
+                break;
+
             case 'tableDataShouldHaveTh':
                 // fixing table headers is a special case...
                 $new_content = filter_input(INPUT_POST, 'newcontent', FILTER_SANITIZE_STRING);
                 $corrected_error    = $ufixit->fixTableHeaders($data['error_html'], $new_content);
                 $data['error_html'] = $corrected_error['old'];
                 $corrected_error    = $corrected_error['fixed'];
+
                 break;
 
             case 'tableThShouldHaveScope':

@@ -8,8 +8,11 @@ config/localConfig.php
 # Thumbnails
 ._*
 
+node_modules/
+var
 vendor
 reports
+public/build
 assets/js/vendor/
 
 config/log.log

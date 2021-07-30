@@ -3,7 +3,7 @@ define('ENV_TEST', 'test');
 define('ENV_PROD', 'prod');
 define('ENV_DEV', 'dev');
 
-define('UDOIT_VERSION', '2.7.1');
+define('UDOIT_VERSION', '2.8.0');
 
 // SET UP AUTOLOADER (uses autoload rules from composer)
 require_once(__DIR__.'/../vendor/autoload.php');
@@ -48,12 +48,12 @@ if (PHP_VERSION_ID < 70300) {
     ]);
 }
 
+// SET DEFAULT ENVIRONMENT
+isset($UDOIT_ENV) || $UDOIT_ENV = ENV_PROD; // !! override in your localConfig.php
+
 // SET UP ERROR REPORTING
 error_reporting(E_ALL & ~E_NOTICE);
 ini_set("display_errors", ($UDOIT_ENV == ENV_PROD ? 0 : 1));
-
-// SET DEFAULT ENVIRONMENT
-isset($UDOIT_ENV) || $UDOIT_ENV = ENV_PROD; // !! override in your localConfig.php
 
 // CHECK FOR SAFARI
 if (!UdoitUtils::isLoadingXMLSettings()) {
