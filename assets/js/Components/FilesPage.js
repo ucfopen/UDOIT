@@ -7,6 +7,7 @@ import FilesTrayForm from './FilesTrayForm'
 import { View } from '@instructure/ui-view'
 import { Tag } from '@instructure/ui-tag'
 import { ScreenReaderContent } from '@instructure/ui-a11y-content'
+import { Billboard } from '@instructure/ui-billboard'
 import FilesModal from './FilesModal'
 
 const fileTypes = [
@@ -43,6 +44,7 @@ class FilesPage extends React.Component {
         sortBy: 'fileName',
         ascending: true,
         pageNum: 0,
+        rowsPerPage: (localStorage.getItem('rowsPerPage')) ? localStorage.getItem('rowsPerPage') : '10'
       }
     }
 
@@ -196,6 +198,8 @@ class FilesPage extends React.Component {
           searchTerm={this.state.searchTerm}
           t={this.props.t} 
           ref={(node) => this.filesPageForm = node}
+          handleTableSettings={this.handleTableSettings}
+          tableSettings={this.state.tableSettings}
         />
         <View as="div" key="filterFileTags">
           {this.renderFilterTags()}
@@ -231,6 +235,14 @@ class FilesPage extends React.Component {
           t={this.props.t}
           />
         }
+
+        {filteredFiles.length === 0 && 
+            <Billboard
+            size="medium"
+            heading={this.props.t('label.no_results_header')}
+            margin="small"
+            message={this.props.t('label.no_results_message')}
+        />}
       </View>
     )
   }
