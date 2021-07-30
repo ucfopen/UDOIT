@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "2f2d9e35a1ddb453cdd656ad3216fb36",
+    "content-hash": "457bbacbb1d3d5af335f2789b6bfaf54",
     "packages": [
         {
             "name": "cidilabs/phpally",
@@ -11793,7 +11793,8 @@
     "platform": {
         "php": "^7.2.5",
         "ext-ctype": "*",
-        "ext-iconv": "*"
+        "ext-iconv": "*",
+        "ext-sodium": "*"
     },
     "platform-dev": [],
     "plugin-api-version": "2.1.0"
