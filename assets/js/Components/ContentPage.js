@@ -83,7 +83,7 @@ class ContentPage extends React.Component {
   }
 
   handleSearchTerm = (e, val) => {
-    this.setState({searchTerm: val, filteredIssues: []});
+    this.setState({searchTerm: val, filteredIssues: [], tableSettings: Object.assign({}, this.state.tableSettings, {pageNum: 0})});
   }
 
   // Opens the modal with the appropriate form based on the issue passed in
