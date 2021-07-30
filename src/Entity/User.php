@@ -11,6 +11,7 @@ use Symfony\Component\Security\Core\User\UserInterface;
 
 /**
  * @ORM\Entity(repositoryClass="App\Repository\UserRepository")
+ * @ORM\Table(name="users")
  */
 class User implements UserInterface, \Serializable, JsonSerializable
 {
@@ -177,7 +178,7 @@ class User implements UserInterface, \Serializable, JsonSerializable
         if (empty($this->apiKey)) {
             return false;
         }
-        
+
         return $this->decryptData($this->apiKey);
     }
 
