@@ -7,6 +7,7 @@ use App\Entity\Course;
 use App\Entity\FileItem;
 use App\Entity\Institution;
 use App\Entity\User;
+use App\Entity\UserSession;
 use App\Lms\LmsInterface;
 use App\Repository\ContentItemRepository;
 use App\Repository\FileItemRepository;
@@ -98,9 +99,8 @@ class CanvasLms implements LmsInterface {
      * ********************
      */
 
-    public function getOauthUri(Institution $institution)
+    public function getOauthUri(Institution $institution, UserSession $session)
     {
-        $session = $this->sessionService->getSession();
         $query = [
             'client_id' => $institution->getApiClientId(),
             'scope' => $this->getScopes(),
@@ -108,14 +108,14 @@ class CanvasLms implements LmsInterface {
             'redirect_uri' => LmsUserService::getOauthRedirectUri(),
             'state' => $session->getUuid()
         ];
-        $baseUrl = $institution->getLmsDomain();
+        $baseUrl = $this->util->getCurrentDomain();
 
         return "https://{$baseUrl}/login/oauth2/auth?" . http_build_query($query);
     }
 
     public function getOauthTokenUri(Institution $institution)
     {
-        $baseUrl = $institution->getLmsDomain();
+        $baseUrl = $this->util->getCurrentDomain();
 
         return "https://{$baseUrl}/login/oauth2/token";
     }
