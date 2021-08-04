@@ -3,16 +3,19 @@ ARG ENVIORNMENT_TYPE
 
 #Install dependencies and php extensions
 RUN apt-get update && apt-get install -y \
+        git \
         libfreetype6-dev \
         libjpeg62-turbo-dev \
         libpng-dev \
+        libpq-dev \
         unzip \
         wget \
         supervisor \
         apache2 \
     && docker-php-ext-configure gd  \
     && docker-php-ext-install -j$(nproc) gd \
-    && docker-php-ext-install pdo_mysql 
+    && docker-php-ext-install pdo_mysql \
+    && docker-php-ext-install pdo_pgsql
 
 #Install AWS CLI v2
 RUN if [ "$ENVIORNMENT_TYPE" != "local" ] ;then  \
@@ -49,4 +52,4 @@ WORKDIR /var/www/html
 RUN chmod +x deploy/udoit-ng.sh
 RUN deploy/udoit-ng.sh
 
-CMD php-fpm 
+CMD php-fpm
