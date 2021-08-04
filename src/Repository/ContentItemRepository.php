@@ -22,40 +22,40 @@ class ContentItemRepository extends ServiceEntityRepository
 
     public function setCourseContentInactive(Course $course)
     {
-        $em = $this->getEntityManager();        
-        $query = $em->createQuery('UPDATE App\Entity\ContentItem c SET c.active=0 WHERE c.course=:course')
+        $em = $this->getEntityManager();
+        $query = $em->createQuery('UPDATE App\Entity\ContentItem c SET c.active=FALSE WHERE c.course=:course')
             ->setParameter(':course', $course);
-        
-        return $query->execute();            
+
+        return $query->execute();
     }
 
-    public function removeInactiveContentItems() 
+    public function removeInactiveContentItems()
     {
         return $this->getEntityManager()
-            ->createQuery('DELETE App\Entity\ContentItem ci WHERE ci.active = 0')->execute();
+            ->createQuery('DELETE App\Entity\ContentItem ci WHERE ci.active = FALSE')->execute();
     }
 
     public function getUpdatedContentItems(Course $course)
     {
         $latestReport = $course->getLatestReport();
-        
+
         if (!$latestReport) {
             return $this->createQueryBuilder('c')
                 ->andWhere('c.course = :course')
-                ->andWhere('c.active = 1')
+                ->andWhere('c.active = TRUE')
                 ->setParameter('course', $course)
                 ->getQuery()
-                ->getResult(); 
+                ->getResult();
         }
 
         return $this->createQueryBuilder('c')
             ->andWhere('c.course = :course')
             ->andWhere('c.updated > :updated')
-            ->andWhere('c.active = 1')
+            ->andWhere('c.active = TRUE')
             ->setParameter('course', $course)
             ->setParameter('updated', $latestReport->getCreated())
             ->getQuery()
-            ->getResult();            
+            ->getResult();
     }
 
     /**
@@ -74,7 +74,7 @@ class ContentItemRepository extends ServiceEntityRepository
         return $this->createQueryBuilder('c')
             ->andWhere('c.course = :course')
             ->andWhere('c.updated < :updated')
-            ->andWhere('c.active = 1')
+            ->andWhere('c.active = TRUE')
             ->setParameter('course', $course)
             ->setParameter('updated', $lastUpdated)
             ->getQuery()
@@ -92,7 +92,7 @@ class ContentItemRepository extends ServiceEntityRepository
     {
         return $this->createQueryBuilder('c')
             ->andWhere('c.course = :course')
-            ->andWhere('c.active = 1')
+            ->andWhere('c.active = TRUE')
             ->andWhere('c.contentType = :contentType')
             ->setParameter('course', $course)
             ->setParameter('contentType', $contentType)
