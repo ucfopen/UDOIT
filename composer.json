@@ -12,6 +12,7 @@
         "knplabs/knp-snappy-bundle": "^1.7",
         "knpuniversity/oauth2-client-bundle": "^1.34",
         "mpdf/mpdf": "^8.0",
+        "oro/doctrine-extensions": "^2.0",
         "sensio/framework-extra-bundle": "^5.5",
         "symfony/apache-pack": "^1.0",
         "symfony/asset": "5.2.*",
@@ -38,14 +39,15 @@
         "symfony/validator": "5.2.*",
         "symfony/web-link": "5.2.*",
         "symfony/webpack-encore-bundle": "^1.7",
-        "symfony/yaml": "5.2.*",
+        "symfony/yaml": "5.2.*"
+    },
+    "require-dev": {
         "doctrine/doctrine-fixtures-bundle": "^3.4",
         "symfony/debug-pack": "*",
         "symfony/maker-bundle": "^1.0",
         "symfony/phpunit-bridge": "^5.1",
         "symfony/profiler-pack": "*",
-        "symfony/test-pack": "*",
-        "oro/doctrine-extensions": "^2.0"
+        "symfony/test-pack": "*"
     },
     "config": {
         "preferred-install": {
