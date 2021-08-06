@@ -15,8 +15,6 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
-use Psr\Log\LoggerInterface;
-
 class LtiController extends AbstractController
 {
     /** @var UtilityService $util */
