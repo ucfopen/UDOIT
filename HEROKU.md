@@ -8,10 +8,10 @@
 1. Go to 'Settings' --> 'Config Vars' --> 'Reveal Config Vars'.
 2. Add the following:
   * APP_ENV = prod
-  * APP_LMS = <LMS>
-  * APP_LTI_REDIRECT_URL = <Heroku app URL>/lti/authorize/check
-  * APP_OAUTH_REDIRECT_URL = <Heroku app URL>/authorize/check
-  * BASE_URL = <Heroku app URL>
+  * APP_LMS = \<LMS\>
+  * APP_LTI_REDIRECT_URL = \<Heroku app URL\>/lti/authorize/check
+  * APP_OAUTH_REDIRECT_URL = \<Heroku app URL\>/authorize/check
+  * BASE_URL = \<Heroku app URL\>
 ### Step 4: Connect Database
 If you intend to use your own databse, set a DATABASE_URL config var to your database's url. To use Heroku Postgresql:
   * Go to 'Resources' --> 'Add-ons' --> 'Find more add-ons'.
