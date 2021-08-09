@@ -1,0 +1,55 @@
+{
+	"name": "UDOIT",
+	"description": "The Universal Design Online content Inspection Tool, or UDOIT identifies and fixes accessibility issues in Canvas by Instructure.",
+	"keywords": [
+	  "education",
+	  "canvas",
+	  "CDL",
+	  "EDU",
+	  "UCF",
+	  "Instructure",
+	  "508"
+	],
+	"website": "https://cdl.ucf.edu/initiatives/udoit/",
+	"repository": "https://github.com/ucfopen/UDOIT",
+	"success_url": "/",
+	"formation": {
+	  "web": {
+		"quantity": 1,
+		"size": "free"
+	  }
+	},
+	"env": {
+	  "APP_ENV": {
+		"description": "Application environment can either be 'dev' or 'prod'.",
+		"value": "prod"
+	  },
+	  "APP_LMS": {
+		"description": "LMS which UDOIT will work in.",
+		"value": "canvas"
+	  },
+	  "APP_LTI_REDIRECT_URL": {
+		"description": "Full URL to your instance's 'lti/authorize/check'.",
+		"value": "https://your.herokuapp.com/lti/authorize/check"
+	  },
+	  "APP_OAUTH_REDIRECT_URL": {
+		"description": "Full URL to your instance's 'lti/authorize/check'.",
+		"value": "https://your.herokuapp.com/authorize/check"
+	  },
+	  "BASE_URL": {
+		"description": "Full URL to your instance.",
+		"value": "https://your.herokuapp.com"
+	  }
+	},
+	"addons": [
+	  "heroku-postgresql:hobby-dev"
+	],
+	"buildpacks": [
+	  {
+		"url": "https://github.com/heroku/heroku-buildpack-php"
+	  },
+	  {
+		"url": "https://github.com/heroku/heroku-buildpack-nodejs"
+	  }
+	]
+  }
