@@ -17,7 +17,7 @@ We strongly recommend source code should be managed through Git. The benefit of 
 * Run `git clone git@github.com:ucfopen/UDOIT.git . ` (The . is important. It tells Git to download the files to the current directory.)
 
 ## Docker
-We provide a fast and simple way of setting up a local UDOIT instance through the use of docker containers. By default the application is set up to create a MySQL database container, but if you wish to create a postgres container instead you can do so by modifying the file `docker-compose.yml`. To set up the docker containers, you must first install [Docker](https://docs.docker.com/get-docker/) and [Docker Compose](https://docs.docker.com/compose/install/). Then, simply run the following command from within the UDOIT directory:
+We provide a fast and simple way of setting up a local UDOIT instance through the use of docker containers. By default the application is set up to create a MySQL database container, but if you wish to create a postgres container instead you can do so by modifying the file `docker-compose.yml`. To set up the docker containers, you must first install [Docker](https://docs.docker.com/get-docker/) and [Docker Compose](https://docs.docker.com/compose/install/). Then, run the following command from within the UDOIT directory:
 
     docker-compose up --build
 
