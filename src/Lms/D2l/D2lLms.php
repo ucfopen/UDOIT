@@ -7,6 +7,7 @@ use App\Entity\Course;
 use App\Entity\FileItem;
 use App\Entity\Institution;
 use App\Entity\User;
+use App\Entity\UserSession;
 use App\Lms\LmsInterface;
 use App\Repository\ContentItemRepository;
 use App\Repository\FileItemRepository;
@@ -102,13 +103,14 @@ class D2lLms implements LmsInterface {
         return ($response->getStatusCode() < 400);
     }
 
-    public function getOauthUri(Institution $institution)
+    public function getOauthUri(Institution $institution, UserSession $session)
     {
         $query = [
             'client_id' => $institution->getApiClientId(),
             'scope' => $this->getScopes(),
             'response_type' => 'code',
             'redirect_uri' => LmsUserService::getOauthRedirectUri(),
+            'state' => $session->getUuid(),
         ];
 
         return 'https://auth.brightspace.com/oauth2/auth?' . http_build_query($query);

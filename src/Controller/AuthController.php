@@ -50,7 +50,7 @@ class AuthController extends AbstractController
 
         $this->session->set('oauthAttempted', true);
 
-        $oauthUri = $lmsApi->getLms()->getOauthUri($institution);
+        $oauthUri = $lmsApi->getLms()->getOauthUri($institution, $this->session);
 
         return $this->redirect($oauthUri);
     }

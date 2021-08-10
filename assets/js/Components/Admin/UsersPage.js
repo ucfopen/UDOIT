@@ -47,7 +47,13 @@ class UsersPage extends React.Component {
     
     let filteredList = [];
 
-    for (const user of users) {      
+    for (const user of users) {
+      
+      //Since usernames won't always be stored, we check for null to avoid crashes
+      if(!user.name) {
+        user.name = 'User'
+      }
+
       // Filter by search term
       if (searchTerm !== '') {
         if (user.name.toLowerCase().indexOf(searchTerm.toLowerCase()) === -1) {

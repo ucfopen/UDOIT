@@ -7,6 +7,7 @@ use App\Entity\Course;
 use App\Entity\FileItem;
 use App\Entity\Institution;
 use App\Entity\User;
+use App\Entity\UserSession;
 use App\Lms\LmsInterface;
 use App\Repository\ContentItemRepository;
 use App\Repository\FileItemRepository;
@@ -75,18 +76,20 @@ class CanvasLms implements LmsInterface {
     public function getLtiAuthUrl($globalParams)
     {
         $session = $this->sessionService->getSession();
-        $baseUrl = 'https://canvas.dev.cdl.ucf.edu/';/*$session->get('iss');*/
+        $baseUrl = $_ENV['JWK_BASE_URL'];
 
         $lmsParams = [];
         $params = array_merge($globalParams, $lmsParams);
         $queryStr = http_build_query($params);
 
-        return "{$baseUrl}/api/lti/authorize_redirect?{$queryStr}";
+        return "{$baseUrl}api/lti/authorize_redirect?{$queryStr}";
     }
 
     public function getKeysetUrl()
     {
-        return 'https://canvas.dev.cdl.ucf.edu/api/lti/security/jwks';
+        $baseUrl = $_ENV['JWK_BASE_URL'];
+
+        return "{$baseUrl}api/lti/security/jwks";
     }
 
     public function saveTokenToSession($token)
@@ -98,9 +101,8 @@ class CanvasLms implements LmsInterface {
      * ********************
      */
 
-    public function getOauthUri(Institution $institution)
+    public function getOauthUri(Institution $institution, UserSession $session)
     {
-        $session = $this->sessionService->getSession();
         $query = [
             'client_id' => $institution->getApiClientId(),
             'scope' => $this->getScopes(),
@@ -108,14 +110,14 @@ class CanvasLms implements LmsInterface {
             'redirect_uri' => LmsUserService::getOauthRedirectUri(),
             'state' => $session->getUuid()
         ];
-        $baseUrl = $institution->getLmsDomain();
+        $baseUrl = $this->util->getCurrentDomain();
 
         return "https://{$baseUrl}/login/oauth2/auth?" . http_build_query($query);
     }
 
     public function getOauthTokenUri(Institution $institution)
     {
-        $baseUrl = $institution->getLmsDomain();
+        $baseUrl = $this->util->getCurrentDomain();
 
         return "https://{$baseUrl}/login/oauth2/token";
     }

@@ -7,6 +7,7 @@ use App\Entity\Course;
 use App\Entity\FileItem;
 use App\Entity\Institution;
 use App\Entity\User;
+use App\Entity\UserSession;
 
 interface LmsInterface {
     public function getId();
@@ -17,7 +18,7 @@ interface LmsInterface {
     public function updateContentItem(ContentItem $contentItem);
     public function postContentItem(ContentItem $contentItem);
     public function postFileItem(FileItem $file);
-    public function getOauthUri(Institution $institution);
+    public function getOauthUri(Institution $institution, UserSession $session);
     public function getAccountData(User $user, $accountId);
     public function getCourseUrl(Course $course, User $user);
     public function getLtiAuthUrl($params);

@@ -51,7 +51,8 @@ class ContentPage extends React.Component {
         sortBy: 'contentTitle',
         ascending: true,
         pageNum: 0,
-      }
+        rowsPerPage: (localStorage.getItem('rowsPerPage')) ? localStorage.getItem('rowsPerPage') : '10'
+      },
     }
 
     this.handleTrayToggle = this.handleTrayToggle.bind(this);
@@ -82,7 +83,7 @@ class ContentPage extends React.Component {
   }
 
   handleSearchTerm = (e, val) => {
-    this.setState({searchTerm: val, filteredIssues: []});
+    this.setState({searchTerm: val, filteredIssues: [], tableSettings: Object.assign({}, this.state.tableSettings, {pageNum: 0})});
   }
 
   // Opens the modal with the appropriate form based on the issue passed in
@@ -275,6 +276,8 @@ class ContentPage extends React.Component {
           searchTerm={this.state.searchTerm}
           t={this.props.t} 
           ref={(node) => this.contentPageForm = node}
+          handleTableSettings={this.handleTableSettings}
+          tableSettings={this.state.tableSettings}
         />
         <View as="div">
           {this.renderFilterTags()}
@@ -288,6 +291,7 @@ class ContentPage extends React.Component {
           handleFilter = {this.handleFilter}
           handleTableSettings = {this.handleTableSettings}
           t={this.props.t}
+          rowsPerPage = {this.state.tableSettings.rowsPerPage}
         />
         {this.state.trayOpen && <ContentTrayForm
           filters={this.state.filters}
