@@ -28,17 +28,13 @@
 		"description": "LMS which UDOIT will work in.",
 		"value": "canvas"
 	  },
-	  "APP_LTI_REDIRECT_URL": {
-		"description": "Full URL to your instance's 'lti/authorize/check'.",
-		"value": "https://your.herokuapp.com/lti/authorize/check"
-	  },
-	  "APP_OAUTH_REDIRECT_URL": {
-		"description": "Full URL to your instance's 'lti/authorize/check'.",
-		"value": "https://your.herokuapp.com/authorize/check"
-	  },
 	  "BASE_URL": {
 		"description": "Full URL to your instance.",
 		"value": "https://your.herokuapp.com"
+	  },
+	  "JWK_BASE_URL": {
+		"description": "Full URL to your LMS. Default value works for cloud hosted Canvas.",
+		"value": "https://canvas.instructure.com/"
 	  }
 	},
 	"addons": [
