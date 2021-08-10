@@ -6,13 +6,13 @@ Once UDOIT has been installed on a public web server the following steps must be
 * Install the application
 
 **Skills Required**
-* Ability to insert MySQL 
+* Ability to insert MySQL
 
 ## Create an API Developer Key
 UDOIT requires an API developer key, since all course data is gathered through the Canvas API.
 
 ### Steps to Create an API Key
-* Navigate to `Developer Keys` in the root account menu. 
+* Navigate to `Developer Keys` in the root account menu.
 * Choose to add a `Developer Key` => `API Key`
 
 Provide values for the following fields:
@@ -34,7 +34,7 @@ Provide values for the following fields:
     * See section below for a list of scopes to enable.
     * Check `Allow Include Parameters`
 * Save
-* Click `ON` to enable the newly created key 
+* Click `ON` to enable the newly created key
 
 ### Scopes
 We strongly recommend you enforce scopes with your API key. The following scopes must be enabled for UDOIT to work.
@@ -46,7 +46,7 @@ We strongly recommend you enforce scopes with your API key. The following scopes
 * Announcements
     * url:GET|/api/v1/announcements
 * Courses
-    * url:GET|/api/v1/courses/:id    
+    * url:GET|/api/v1/courses/:id
 * Discussion Topics
     * url:GET|/api/v1/courses/:course_id/discussion_topics
 * Files
@@ -61,7 +61,7 @@ We strongly recommend you enforce scopes with your API key. The following scopes
 UDOIT uses LTI 1.3 to integrate with the LMS.
 
 ### Steps to Create an LTI Key
-* Navigate to `Developer Keys` in the root account menu. 
+* Navigate to `Developer Keys` in the root account menu.
 * Choose to add a `Developer Key` => `LTI Key`
 
 Provide values for the following fields:
@@ -77,13 +77,13 @@ Provide values for the following fields:
 * JSON URL
     * <YOUR_UDOIT_BASE_URL>/lti/config
 * Save
-* Click `ON` to enable the newly created key 
+* Click `ON` to enable the newly created key
 
 ---
 ## Update the Institutions Table
-UDOIT is built to support more than one LMS instance. For this purpose we have an `institution` table that must be populated with the LMS information. 
+UDOIT is built to support more than one LMS instance. For this purpose we have an `institution` table that must be populated with the LMS information.
 
-**Note:** This step requires knowledge of MySQL. 
+**Note:** This step requires knowledge of MySQL.
 
 The following fields need to be populated in the `institution` table.
 * title
@@ -91,7 +91,7 @@ The following fields need to be populated in the `institution` table.
 * lms_domain
     * The Canvas domain name of your institution.
     * Most institutions will use their `.instructure.com` domain.
-    * Do not include `https://` or a trailing slash. 
+    * Do not include `https://` or a trailing slash.
     * Example: `myschool.instructure.com`
 * lms_id
     * canvas
@@ -114,6 +114,10 @@ The following fields need to be populated in the `institution` table.
     * This key will be encrypted and stored as encrypted on the first use of the key.
 
 ---
+## .ENV Setup
+For cloud-hosted canvas instances the default value for the `JWK_BASE_URL` environmental variable will work out of the box. If you are not cloud-hosted, you may need to change the value of this variable in `.env.local` to match your canvas instance.
+
+---
 ## Install the App
 UDOIT now needs to be added to an account in Canvas. Follow these steps to add the LTI tool to an account:
 * Copy the `Client ID` from the developer LTI key created earlier.
@@ -121,7 +125,7 @@ UDOIT now needs to be added to an account in Canvas. Follow these steps to add t
 * Select `Settings` from the left menu.
 * Choose the `Apps` tab.
 * Choose the `View App Configurations` button in the top right corner.
-* Click `+ App` 
+* Click `+ App`
 
 ### Add App
 * Configuration Type
