@@ -25,7 +25,7 @@ Once the containers are up and running, you can access the php container by call
 
     docker exec -it udoit_php_1 /bin/bash
 
-By default the application is set up to create a MySQL database container, but if you wish to create a postgres container instead you can do so by modifying the file `docker-compose.yml`. The credentials required to access this database depend on the databas type and can be found in this same file. You can access the database container by calling the command:
+By default the application is set up to create a MySQL database container, but if you wish to create a postgres container instead you can do so by modifying the file `docker-compose.yml`. The credentials required to access this database depend on the database type and can be found in this same file. You can access the database container by calling the command:
 
     docker exec -it udoit_db_1 /bin/bash
 
