@@ -170,6 +170,7 @@ class LtiController extends AbstractController
                                 "placement" => "course_navigation",
                                 "message_type" => "LtiResourceLinkRequest",
                                 "target_link_uri" => "{$baseUrl}/dashboard",
+                                "visibility" => "admins",
                                 "enabled" => true,
                                 "default" => ($default) ? $default : 'disabled',
                             ],
