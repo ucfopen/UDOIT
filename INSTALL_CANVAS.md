@@ -80,6 +80,10 @@ Provide values for the following fields:
 * Click `ON` to enable the newly created key
 
 ---
+## Docker-Compose Base URL
+If you are setting up UDOIT for local development through docker-compose, <YOUR_UDOIT_BASE_URL> in both the API developer key and the LTI developer key above should be set to `https://localhost:8000`.
+
+---
 ## Update the Institutions Table
 UDOIT is built to support more than one LMS instance. For this purpose we have an `institution` table that must be populated with the LMS information.
 
