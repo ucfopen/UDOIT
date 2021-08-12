@@ -38,6 +38,9 @@ jobs:
       - name: Install Composer dependencies
         run: composer install --no-progress --prefer-dist --optimize-autoloader
 
+      - name: PHPUnit Testing
+        run: SYMFONY_DEPRECATIONS_HELPER=disabled ./vendor/bin/phpunit
+
       - name: Yarn install
         run: yarn install
 
