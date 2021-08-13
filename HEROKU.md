@@ -42,7 +42,8 @@ Next we need to set up the database and insert our institution in to the appropr
   Important Note: If using Postgres, ensure that the table name in 'UDOIT/src/Entity/User.php' at line 14 is set to 'users'.
 2. Insert your institution in to the institution table as described in INSTALL_\<LMS\>.md.
 ### Step 4: Finish
-Finish up the setup by [installing the yarn dependencies and building the project](https://github.com/ucfopen/UDOIT/blob/issue/570-heroku/INSTALL.md#javascript).
+Finish up the Heroku setup by [installing the yarn dependencies and building the project](https://github.com/ucfopen/UDOIT/blob/issue/570-heroku/INSTALL.md#javascript).
+Next follow the instructions in INSTALL_\<LMS\>.md to create LTI and API keys with your Heroku app's URL.
 
 ## Manual Deployment
 ### Step 1: Create a new Heroku app
