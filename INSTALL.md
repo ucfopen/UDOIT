@@ -17,7 +17,7 @@ We strongly recommend source code should be managed through Git. The benefit of 
 * Run `git clone git@github.com:ucfopen/UDOIT.git . ` (The . is important. It tells Git to download the files to the current directory.)
 
 ## Docker
-We provide a fast and simple way of setting up a local UDOIT instance through the use of docker containers. By default the application is set up to create a MySQL database container, but if you wish to create a postgres container instead you can do so by modifying the file `docker-compose.yml`. To set up the docker containers, simply run the command:
+We provide a fast and simple way of setting up a local UDOIT instance through the use of docker containers. To set up the docker containers, you must first install [Docker](https://docs.docker.com/get-docker/) and [Docker Compose](https://docs.docker.com/compose/install/). Then, simply run the following command from within the UDOIT directory:
 
     docker-compose up --build
 
@@ -25,11 +25,11 @@ Once the containers are up and running, you can access the php container by call
 
     docker exec -it udoit_php_1 /bin/bash
 
-You can access the database container by calling the command:
+By default the application is set up to create a MySQL database container, but if you wish to create a postgres container instead you can do so by modifying the file `docker-compose.yml`. The credentials required to access this database depend on the database type and can be found in this same file. You can access the database container by calling the command:
 
     docker exec -it udoit_db_1 /bin/bash
 
-Once you are finished, you can shut it down with the following command:
+If you ever want to take down the containers, you can do so with the following command:
 
     docker-compose down
 
@@ -62,7 +62,7 @@ UDOIT uses a `.env` file for storing configuration. Local configuration such as 
 * Add the `BASE_URL`, which is the full URL to reach the `public` folder of UDOIT. (i.e. https://udoit3.ciditools.com)
 
 
-### Database Setup
+## Database Setup
 While UDOIT is configured to use MySQL or MariaDB by default, Symfony can be configured to work with other databases as well. See the Symfony documentation for details.
 
 You can create your database manually, or use `Symfony` to create the database with this command:
