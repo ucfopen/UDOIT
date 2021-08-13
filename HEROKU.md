@@ -39,11 +39,12 @@ psql <the DATABASE_URL from your config vars>
 ```
 Next we need to set up the database and insert our institution in to the appropriate table.
 1. Proceed with [setting up the database](https://github.com/ucfopen/UDOIT/blob/issue/570-heroku/INSTALL.md#database-setup).
-  Important Note: If using Postgres, ensure that the table name in 'UDOIT/src/Entity/User.php' at line 14 is set to 'users'.
-2. Insert your institution in to the institution table as described in INSTALL_\<LMS\>.md.
+  Important Note: Before setting up the database and if using Postgres, ensure that the table name in 'UDOIT/src/Entity/User.php' at line 14 is set to 'users'.
+  This change must be contained in a commit and be pushed to the Heroku remote.
+2. Now is a good time to set up developer keys according to the instructions in INSTALL_\<LMS\>.md.
+3. Insert your institution in to the institution table as described in INSTALL_\<LMS\>.md.
 ### Step 4: Finish
 Finish up the Heroku setup by [installing the yarn dependencies and building the project](https://github.com/ucfopen/UDOIT/blob/issue/570-heroku/INSTALL.md#javascript).
-Next follow the instructions in INSTALL_\<LMS\>.md to create LTI and API keys with your Heroku app's URL.
 
 ## Manual Deployment
 ### Step 1: Create a new Heroku app
