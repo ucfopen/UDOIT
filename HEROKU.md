@@ -19,7 +19,11 @@ After clicking the Heroku button above:
 ### Step 2: Clone UDOIT and Push to Heroku
 1. Follow the instruction under the ['Source Code' section of INSTALL.md](https://github.com/ucfopen/UDOIT/blob/issue/570-heroku/INSTALL.md#source-code).
 2. Install and log in to the [Heroku CLI](https://devcenter.heroku.com/articles/heroku-cli).
-3. From within your UDOIT's root folder on your machine, run the following to upload the source to Heroku:
+3. Next, from within your UDOIT's root folder on your machine, connect your local repository to Heroku:
+```
+heroku git:remote -a your_app_name
+```
+4. Finally, run the following to upload the source to Heroku:
 ```
 git push heroku main:master -f
 ```
