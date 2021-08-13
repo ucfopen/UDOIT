@@ -13,12 +13,6 @@
 	"website": "https://cdl.ucf.edu/initiatives/udoit/",
 	"repository": "https://github.com/ucfopen/UDOIT",
 	"success_url": "/",
-	"formation": {
-	  "web": {
-		"quantity": 1,
-		"size": "free"
-	  }
-	},
 	"env": {
 	  "APP_ENV": {
 		"description": "Application environment can either be 'dev' or 'prod'.",
