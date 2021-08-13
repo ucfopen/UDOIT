@@ -35,6 +35,7 @@ psql <the DATABASE_URL from your config vars>
 ```
 Next we need to set up the database and insert our institution in to the appropriate table.
 1. Proceed with [setting up the database](https://github.com/ucfopen/UDOIT/blob/issue/570-heroku/INSTALL.md#database-setup).
+  Important Note: If using Postgres, ensure that the table name in 'UDOIT/src/Entity/User.php' at line 14 is set to 'users'.
 2. Insert your instiution in to the institution table as described in INSTALL_\<LMS\>.md.
 ### Step 4: Finish
 Finish up the setup by [installing the yarn dependencies and building the project](https://github.com/ucfopen/UDOIT/blob/issue/570-heroku/INSTALL.md#javascript).
