@@ -76,6 +76,18 @@ Provide values for the following fields:
     * Enter URL
 * JSON URL
     * <YOUR_UDOIT_BASE_URL>/lti/config
+* Additional Settings
+    * Domain
+      * Your UDOIT domain
+    * Tool ID
+      * Enter a name
+    * Custom Fields
+```
+lms_id=canvas
+lms_user_id=$Canvas.user.id
+lms_course_id=$Canvas.course.id
+lms_api_domain=$Canvas.api.domain
+```
 * Save
 * Click `ON` to enable the newly created key
 
