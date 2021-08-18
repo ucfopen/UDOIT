@@ -1,5 +1,4 @@
 import React from 'react'
-import '@instructure/canvas-theme'
 import WelcomePage from './WelcomePage'
 import Header from './Header'
 import SummaryPage from './SummaryPage'
@@ -43,7 +42,7 @@ class App extends React.Component {
     this.handleNewReport = this.handleNewReport.bind(this)
   }
 
-  render() {    
+  render() {
     return (
       <View as="div">
         <Header
@@ -51,20 +50,20 @@ class App extends React.Component {
           settings={this.settings}
           hasNewReport={this.state.hasNewReport}
           navigation={this.state.navigation}
-          handleNavigation={this.handleNavigation} 
+          handleNavigation={this.handleNavigation}
           handleCourseRescan={this.handleCourseRescan}
           handleModal={this.handleModal} />
-        
-        {(('welcome' !== this.state.navigation) && ('summary' !== this.state.navigation)) && 
+
+        {(('welcome' !== this.state.navigation) && ('summary' !== this.state.navigation)) &&
           <SummaryBar t={this.t} report={this.state.report} />
         }
 
         <MessageTray messages={this.messages} t={this.t} clearMessages={this.clearMessages} hasNewReport={this.state.syncComplete} />
 
         <main role="main">
-          {('welcome' === this.state.navigation) && 
-            <WelcomePage 
-              handleNavigation={this.handleNavigation} 
+          {('welcome' === this.state.navigation) &&
+            <WelcomePage
+              handleNavigation={this.handleNavigation}
               t={this.t}
               settings={this.settings}
               hasNewReport={this.state.hasNewReport} />
@@ -124,7 +123,7 @@ class App extends React.Component {
         }
       }
     }
-    
+
     this.scanCourse()
       .then((response) => response.json())
       .then(this.handleNewReport)
@@ -135,7 +134,7 @@ class App extends React.Component {
   }
 
   scanCourse() {
-    let api = new Api(this.settings)    
+    let api = new Api(this.settings)
     return api.scanCourse(this.settings.course.id)
   }
 
@@ -179,15 +178,15 @@ class App extends React.Component {
       report = data.data
       hasNewReport = true
     }
-    this.setState({ 
-      syncComplete: true, 
-      hasNewReport, 
+    this.setState({
+      syncComplete: true,
+      hasNewReport,
       report,
-      disableReview, 
+      disableReview,
     })
   }
 
-  handleNavigation(navigation) { 
+  handleNavigation(navigation) {
     this.setState({navigation})
   }
 
