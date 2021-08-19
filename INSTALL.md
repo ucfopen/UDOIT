@@ -69,6 +69,10 @@ You can create your database manually, or use `Symfony` to create the database w
 
     php bin/console doctrine:database:create
 
+If using another database such as Heroku Postgres, generate a migration by using:
+
+    php bin/console doctrine:migrations:diff
+
 Once the database is created you can populate the database with the following command:
 
     php bin/console doctrine:migrations:migrate

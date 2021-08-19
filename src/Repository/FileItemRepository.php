@@ -33,7 +33,7 @@ class FileItemRepository extends ServiceEntityRepository
     public function setCourseFileItemsInactive(Course $course)
     {
         $em = $this->getEntityManager();
-        $query = $em->createQuery('UPDATE App\Entity\FileItem f SET f.active=0 WHERE f.course=:course')
+        $query = $em->createQuery('UPDATE App\Entity\FileItem f SET f.active=FALSE WHERE f.course=:course')
         ->setParameter(':course', $course);
 
         return $query->execute();

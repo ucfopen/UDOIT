@@ -22,7 +22,7 @@ class UserSessionRepository extends ServiceEntityRepository
     public function findByUser($userId)
     {
         return $this->createQueryBuilder('u')
-            ->andWhere('u.data LIKE :val')
+            ->andWhere('CAST(u.data AS TEXT) LIKE :val')
             ->setParameter('val', "%\"userId\": {$userId}%")
             ->getQuery()
             ->getResult();

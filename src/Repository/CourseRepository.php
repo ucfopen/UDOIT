@@ -27,10 +27,10 @@ class CourseRepository extends ServiceEntityRepository
     {
         $now = new \DateTime();
         $expiryDate = $now->sub(new \DateInterval('P' . $maxAge));
-        
+
         return $this->createQueryBuilder('c')
             ->andWhere('c.lastUpdated < :val')
-            ->andWhere('c.active = 1')
+            ->andWhere('c.active = TRUE')
             ->andWhere('c.dirty = 0')
             ->setParameter('val', $expiryDate->format('Y-m-d h:i:s'))
             ->orderBy('c.lastUpdated', 'ASC')
@@ -56,12 +56,12 @@ class CourseRepository extends ServiceEntityRepository
     public function findCoursesByAccount(User $user, $accounts, $termId = null)
     {
         $institution = $user->getInstitution();
-        
+
         $accountIds = array_keys($accounts);
 
         $qb = $this->createQueryBuilder('c')
             ->andWhere('c.institution = :institution')
-            ->andWhere('c.active = 1')
+            ->andWhere('c.active = TRUE')
             ->setParameter('institution', $institution);
 
         if (!empty($accountIds)) {

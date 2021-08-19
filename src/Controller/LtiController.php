@@ -86,7 +86,7 @@ class LtiController extends AbstractController
         if (date('U') >= $token->exp) {
             $this->util->exitWithMessage(sprintf('The "exp" provided is before the current time.'));
         }
-        
+
         // Id token must contain a nonce. Should verify that nonce has not been received within a certain time window
         $this->claimMatchOrExit('nonce', 'nonce', $token->nonce);
 
@@ -104,7 +104,7 @@ class LtiController extends AbstractController
             return $this->redirect($redirectUrl);
         }
 
-        return $this->redirectToRoute('dashboard', 
+        return $this->redirectToRoute('dashboard',
             ['auth_token' => $this->session->getUuid()]);
     }
 
@@ -152,7 +152,7 @@ class LtiController extends AbstractController
 
         $customAppName = $request->query->get('tool_title');
         $default = $request->query->get('default');
-        
+
         $output = [
             "title" => $appName,
             "scopes" => [],
@@ -226,11 +226,11 @@ class LtiController extends AbstractController
         $this->util->exitWithMessage(sprintf('The "%s" provided does not match the expected value: %s.', $claimType, $sessionClaim));
     }
 
-    protected function saveTokenToSession($token) 
+    protected function saveTokenToSession($token)
     {
         try {
             $lms = $this->lmsApi->getLms();
-            
+
             if (!empty($token->{'https://purl.imsglobal.org/spec/lti/claim/custom'})) {
                 $customFields = (array) $token->{'https://purl.imsglobal.org/spec/lti/claim/custom'};
                 foreach ($customFields as $key => $val) {
@@ -246,14 +246,14 @@ class LtiController extends AbstractController
                     $roles[] = trim($roleArr[1]);
                 }
             }
-            $this->session->set('roles', array_values(array_unique($roles)));  
-            
+            $this->session->set('roles', array_values(array_unique($roles)));
+
             if (isset($token->name)) {
                 $this->session->set('lms_user_name', $token->name);
             }
 
             $lms->saveTokenToSession($token);
-        } 
+        }
         catch (\Exception $e) {
             print_r($e->getMessage());
         }
@@ -296,7 +296,7 @@ class LtiController extends AbstractController
     {
         $lms = $this->lmsApi->getLms();
         $server = $this->request->server;
-        
+
         $params = [
             'lti_message_hint' => $this->session->get('lti_message_hint'),
             'client_id' => $this->session->get('client_id'),

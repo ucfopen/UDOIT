@@ -15,7 +15,7 @@ UDOIT was originally developed by the University of Central Florida (UCF) in 201
 To manually complete this installation you will need the following skills:
 
 * Web server configuration (Apache or Nginx)
-* Command line familiarity 
+* Command line familiarity
 * MySQL familiarity
 * LMS admin permissions
 
@@ -25,6 +25,13 @@ UDOIT is built using PHP, the Symfony framework, the React framework, the Instru
 1. Start the installation process by setting up UDOIT on your web server. Instructions are in `INSTALL.md`.
 
 2. Once UDOIT is running on your web server you need to configure your LMS. Instructions for the different LMS's are in `INSTALL_<LMS_NAME>.md`.
+
+## Installing UDOIT on Heroku
+UDOIT can be installed on your own existing servers, but we've also configured an easy install to a free Heroku server.
+
+To start the Heroku deployment process, you can click the button below, please note, that although this button eliminates much of the installation complexity, there are still some configuration steps that need to be followed, those steps are outlined in the [HEROKU.md Readme](HEROKU.md).
+
+<a href="https://heroku.com/deploy?template=https://github.com/ucfopen/UDOIT/tree/issue/570-heroku" title="Deploy to Heroku"><img src="https://www.herokucdn.com/deploy/button.svg" alt="Deploy to Heroku" title="Deploy to Heroku Button"></a>
 
 ## Licenses
 UDOIT is distributed under the GNU GPL v3 license.
