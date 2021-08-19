@@ -27,6 +27,7 @@ class UsersPage extends React.Component {
         sortBy: 'lmsUserName',
         ascending: true,
         pageNum: 0,
+        rowsPerPage: (localStorage.getItem('rowsPerPage')) ? localStorage.getItem('rowsPerPage') : '10'
       }
     }
 
@@ -108,7 +109,10 @@ class UsersPage extends React.Component {
           <ContentPageForm
             handleSearchTerm={this.handleSearchTerm}
             searchTerm={this.state.searchTerm}
-            t={this.props.t} />
+            t={this.props.t}
+            handleTableSettings={this.handleTableSettings}
+            tableSettings={this.state.tableSettings}
+            />
           <View as="div" textAlign="center" padding="medium">
             <Spinner variant="inverse" renderTitle={this.props.t('label.loading_users')} />
             <Text as="p" weight="light" size="large">{this.props.t('label.loading_users')}</Text>
@@ -121,7 +125,10 @@ class UsersPage extends React.Component {
           <ContentPageForm
             handleSearchTerm={this.handleSearchTerm}
             searchTerm={this.state.searchTerm}
-            t={this.props.t} />
+            t={this.props.t}
+            handleTableSettings={this.handleTableSettings}
+            tableSettings={this.state.tableSettings}
+            />
           <SortableTable
             caption={this.props.t('srlabel.users.table.caption')}
             headers={this.headers}
@@ -137,7 +144,7 @@ class UsersPage extends React.Component {
   }
 
   handleSearchTerm = (e, val) => {
-    this.setState({ searchTerm: val });
+    this.setState({searchTerm: val, tableSettings: Object.assign({}, this.state.tableSettings, {pageNum: 0})});
   }
 
   handleTableSettings = (setting) => {
