@@ -40,7 +40,7 @@ If you are contributing code to UDOIT, please follow the guidelines below.  Plea
 
 If you are outside of UCF, you will need to fork the UDOIT project in order to work on it.  Please follow the branching guidelines below.  If you are familiar with Git, but are unsure of the forking process, read the [Forking Projects](https://guides.github.com/activities/forking/) guide.
 
-### Master Branch
+### Main Branch
 
 * This is the default branch.
 * It always points at the latest release (thus always production ready)
@@ -48,8 +48,8 @@ If you are outside of UCF, you will need to fork the UDOIT project in order to w
 ### Dev Branches
 
 * Naming Convention: `dev/v1-2-10` - a new one for every upcoming release version. (Note: Hyphens are used instead of periods to preserve compatibility with the Heroku button.)
-* Issue branches merge into this branch (never master)
-* When this dev branch is ready for release, it is merged into master and deleted
+* Issue branches merge into this branch (never main)
+* When this dev branch is ready for release, it is merged into main and deleted
 
 ### Issue Branches
 
@@ -57,7 +57,7 @@ If you are outside of UCF, you will need to fork the UDOIT project in order to w
 * The number is an issue number, and the text is a very short description of the issue.
 * All issue branches must be tied to an issue, even in your forked version of UDOIT.
 * Make sure you update your forked version first, then create your issue branch from the current dev branch.
-* After work is completed, create a pull request into the target dev branch (never master).
+* After work is completed, create a pull request into the target dev branch (never main).
 * Once the pull request is merged, the issue branch should be deleted.
 
 ### Releases
@@ -65,20 +65,20 @@ If you are outside of UCF, you will need to fork the UDOIT project in order to w
 This section is mainly for the project managers, but is here for documentation purposes.
 
 * Naming convention: `v1.2.10` using [SEMVER](http://semver.org/)
-* Each release gets a tag after it's merged into master
+* Each release gets a tag after it's merged into main
 * Write a [release doc for Github](https://help.github.com/articles/creating-releases/)
 * It is suggested that you sign release tags for extra trust ([git tag](https://git-scm.com/book/tr/v2/Git-Tools-Signing-Your-Work)) and ([using keybase gpg keys](https://clu.cdl.ucf.edu/snippets/103))
 
 
 ### Pictures to really drive it home
 ```
-  ┌───────────┐    ┌───────────┐    ┌───────────┐
-  |           |    |           |    |           |
-  |  Master   |    |  Develop  |    |   Issue   |
-  |           |    |           |    |           |
-  └───────────┘    └───────────┘    └───────────┘
+  ┌──────────┐    ┌───────────┐    ┌───────────┐
+  |          |    |           |    |           |
+  |   Main   |    |  Develop  |    |   Issue   |
+  |          |    |           |    |           |
+  └──────────┘    └───────────┘    └───────────┘
 
-    release        ◄── merge         ◄── merge
+    release       ◄── merge         ◄── merge
 
   	tags:          branches:        branches:
     v0.0.3   ◄──   dev/v0-0-3  ◄──  issue/123-fix-broken-links + issue/211
