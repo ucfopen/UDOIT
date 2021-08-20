@@ -106,7 +106,7 @@ To start the Heroku deployment process, you can click the button below, please n
 
 ## System Requirements
 * Apache or Nginx webserver
-* PHP 7.2, 7.3, 7.4, 8.0
+* PHP 7.4, 8.0
   * [GD Graphics Library](http://php.net/manual/en/book.image.php)
 * MySQL, MariaDB or PostgreSQL
 * Git (If you are using [The Git Method](#the-git-method) below) or if you plan on contributing to UDOIT
@@ -424,17 +424,26 @@ Add contributors here and dont forget composer.json!)
 
 ### Contributors
 
+* [Alan Francis Verdu](https://github.com/AlanFCMV)
+* [Chuck Crandall](https://github.com/webchuckweb)
+* [Cidi Labs](https://github.com/cidilabs)
 * [Cooper Fellows](https://github.com/cooperfellows)
+* [Cristopher Mattos](https://github.com/jasonmatos23-git)
+* [Dan Brinkman](https://github.com/DanBrink91)
+* [Dirk Tepe](https://github.com/dstepe)
 * [Emily Sachs](https://github.com/emilysachs)
 * [Eric Colon](https://github.com/accell)
+* [Ethan Finlay](https://github.com/atarisafari)
 * [Fenel Joseph](https://github.com/feneljoseph)
 * [Ian Turgeon](https://github.com/iturgeon)
 * Joe Fauvel
 * [John Raible](https://github.com/rebelaide)
-* [Kevin Baugh](https://github.com/loraxx753)
-* [Sean Hernandez](https://github.com/seanlh)
-* [Ethan Finlay](https://github.com/atarisafari)
+* [Jose Silveti](https://github.com/jrsilveti)
 * [Kenny G Perez](https://github.com/kennygperez)
+* [Kevin Baugh](https://github.com/loraxx753)
+* [Sam Ottenhoff](https://github.com/ottenhoff)
+* [Sean Hernandez](https://github.com/seanlh)
+* [Tanner Stokes](https://github.com/twstokes)
 
 ### Special Thanks
 
