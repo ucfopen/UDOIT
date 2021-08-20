@@ -1,6 +1,6 @@
 {
     "type": "project",
-    "license": "proprietary",
+    "license": "GPL-3.0-only",
     "require": {
         "php": "^7.2.5",
         "ext-ctype": "*",
