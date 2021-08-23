@@ -39,9 +39,7 @@
         "symfony/validator": "5.2.*",
         "symfony/web-link": "5.2.*",
         "symfony/webpack-encore-bundle": "^1.7",
-        "symfony/yaml": "5.2.*"
-    },
-    "require-dev": {
+        "symfony/yaml": "5.2.*",
         "doctrine/doctrine-fixtures-bundle": "^3.4",
         "symfony/debug-pack": "*",
         "symfony/maker-bundle": "^1.0",
