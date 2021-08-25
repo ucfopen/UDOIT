@@ -40,6 +40,7 @@ class App extends React.Component {
     this.handleFileSave = this.handleFileSave.bind(this)
     this.handleCourseRescan = this.handleCourseRescan.bind(this)
     this.handleNewReport = this.handleNewReport.bind(this)
+    this.resizeFrame = this.resizeFrame.bind(this)
   }
 
   render() {
@@ -127,6 +128,15 @@ class App extends React.Component {
     this.scanCourse()
       .then((response) => response.json())
       .then(this.handleNewReport)
+
+      // update iframe height on resize
+      window.addEventListener("resize", this.resizeFrame);
+
+      this.resizeFrame();
+  }
+
+  componentWillUnmount() {
+    window.removeEventListener('resize', this.resizeFrame);
   }
 
   t(key) {
@@ -226,6 +236,18 @@ class App extends React.Component {
     }
 
     this.setState({ report })
+  }
+
+  // resize containing iframe height
+  resizeFrame(){
+    let default_height = document.body.scrollHeight + 50;
+    default_height = default_height > 500 ? default_height : 500;
+
+    // IE 8 & 9 only support string data, so send objects as string
+    parent.postMessage(JSON.stringify({
+      subject: "lti.frameResize",
+      height: default_height
+    }), "*");
   }
 }
 
