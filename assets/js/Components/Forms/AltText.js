@@ -136,7 +136,7 @@ export default class AltText extends React.Component {
       return false
     }
 
-    return (decorativeAttribute || (classes.includes('phpally-ignore')))
+    return (decorativeAttribute === 'presentation' || (classes.includes('phpally-ignore')))
   }
 
   render() {
