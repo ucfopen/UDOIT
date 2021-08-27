@@ -18,6 +18,8 @@ use App\Services\UtilityService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Security\Core\Security;
 
+use Psr\Log\LoggerInterface;
+
 class CanvasLms implements LmsInterface {
     const CANVAS_TEST_BASE_URL = 'https://canvas.test.instructure.com';
     const CANVAS_BETA_BASE_URL = 'https://canvas.beta.instructure.com';
@@ -44,6 +46,8 @@ class CanvasLms implements LmsInterface {
     /** @var App\Services\HtmlService */
     private $html;
 
+    private $logger;
+
     public function __construct(
         ContentItemRepository $contentItemRepo,
         FileItemRepository $fileItemRepo,
@@ -51,7 +55,8 @@ class CanvasLms implements LmsInterface {
         UtilityService $util,
         Security $security,
         SessionService $sessionService,
-        HtmlService $html)
+        HtmlService $html,
+        LoggerInterface $logger)
     {
         $this->contentItemRepo = $contentItemRepo;
         $this->fileItemRepo = $fileItemRepo;
@@ -60,6 +65,7 @@ class CanvasLms implements LmsInterface {
         $this->security = $security;
         $this->sessionService = $sessionService;
         $this->html = $html;
+        $this->logger = $logger;
     }
 
     public function getId()
