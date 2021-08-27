@@ -7,22 +7,27 @@ use App\Services\LmsApiService;
 use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Component\HttpClient\HttpClient;
 
+use Psr\Log\LoggerInterface;
+
 class LmsUserService {
 
     /** @var App\Services\LmsApiService $lmsApi */
     protected $lmsApi;
-    
+
     /** @var ManagerRegistry $doctrine */
     protected $doctrine;
 
     /** @var UtilityService $util */
     protected $util;
 
-    public function __construct(LmsApiService $lmsApi, ManagerRegistry $doctrine, UtilityService $util)
+    private $logger;
+
+    public function __construct(LmsApiService $lmsApi, ManagerRegistry $doctrine, UtilityService $util, LoggerInterface $logger)
     {
         $this->lmsApi = $lmsApi;
         $this->doctrine = $doctrine;
         $this->util = $util;
+        $this->logger = $logger;
     }
 
     public static function getOauthRedirectUri()
@@ -43,11 +48,11 @@ class LmsUserService {
 
         if (empty($apiKey)) {
             return false;
-        }        
+        }
 
-        try {        
+        try {
             return $lms->testApiConnection($user);
-        } 
+        }
         catch (\Exception $e) {
             $this->refreshApiKey($user);
         }
