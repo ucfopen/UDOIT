@@ -6,6 +6,7 @@ use App\Entity\User;
 use App\Services\LmsApiService;
 use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Component\HttpClient\HttpClient;
+use Symfony\Component\HttpClient\Exception\TimeoutException;
 
 use Psr\Log\LoggerInterface;
 
@@ -84,13 +85,17 @@ class LmsUserService {
             ],
             'verify_host' => false,
             'verify_peer' => false,
-            'timeout' => 25,
+            'timeout' => 15,
         ];
 
         $client = HttpClient::create();
         $requestUrl = $this->lmsApi->getLms()->getOauthTokenUri($institution);
-        $response = $client->request('POST', $requestUrl, $options);
-        $contentStr = $response->getContent(false);
+        try {
+            $response = $client->request('POST', $requestUrl, $options);
+            $contentStr = $response->getContent(false);
+        } catch (TimeoutException $e) {
+            return false;
+        }
         $newKey = \json_decode($contentStr, true);
 
         // update the token in the database
