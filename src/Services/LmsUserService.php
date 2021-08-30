@@ -84,6 +84,7 @@ class LmsUserService {
             ],
             'verify_host' => false,
             'verify_peer' => false,
+            'timeout' => 25,
         ];
 
         $client = HttpClient::create();
