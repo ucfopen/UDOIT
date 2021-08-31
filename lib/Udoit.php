@@ -553,7 +553,14 @@ class Udoit
         $results = [];
         $cur_page = 1;
         do {
-            $response = static::apiGet("{$url}&page=1&per_page={$per_page}", $api_key)->send();
+            if (strpos($url, 'page=') === false) {
+                $url .= "&page={$cur_page}";
+            }
+            if (strpos($url, 'per_page=') === false) {
+                $url .= "&per_page={$per_page}";
+            }
+            
+            $response = static::apiGet($url, $api_key)->send();
             if (isset($response->body->errors) && count($response->body->errors) > 0) {
                 foreach ($response->body->errors as $error) {
                     $logger->addError("Canvas API responded with an error for {$url}: $error->message");
