@@ -25,7 +25,7 @@ To manually complete this installation you will need the following skills:
 UDOIT is built using PHP, the Symfony framework, the React framework, the Instructure UI component library, and other open source libraries. However, knowledge of PHP or Javascript is _**NOT REQUIRED**_ for installation.
 
 ## Where to Start
-1. Start the installation process by setting up UDOIT on your web server. Instructions are in `INSTALL.md`.
+1. Start the installation process by setting up UDOIT on your web server. Instructions are in [INSTALL.md](INSTALL.md).
 
 2. Once UDOIT is running on your web server you need to configure your LMS. Instructions for the different LMS's are in `INSTALL_<LMS_NAME>.md`.
 
