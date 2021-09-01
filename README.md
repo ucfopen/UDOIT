@@ -1,3 +1,6 @@
+[![Join UCF Open Slack Discussions](https://ucf-open-slackin.herokuapp.com/badge.svg)](https://ucf-open-slackin.herokuapp.com/)
+![Build Status](https://github.com/ucfopen/UDOIT/actions/workflows/udoit.yml/badge.svg)
+
 # Universal Design Online content Inspection Tool
 UDOIT enables faculty to identify accessibility issues in Canvas by Instructure. Scan a course, generate reports, and provide resources to address common accessibility issues.
 
