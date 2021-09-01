@@ -102,6 +102,7 @@
   "label.no_results_message": "Try changing the filters or searching with a different keyword",
   "label.report.total": "Total",
   "label.table_rows_select": "Rows per page",
+  "label.version": "Version: ",
 
   "label.date": "Date",
   "label.content_fixed": "Content Fixed",
@@ -288,6 +289,7 @@
   "rule.label.EmbedHasAssociatedNoEmbed": "All 'embed' Elements Must Have an Associated 'noembed' Element",
   "rule.label.FontIsNotUsed": "Font Tag Should Not Be Used",
   "rule.label.HeadersHaveText": "Headings Should Contain Text",
+  "rule.label.HeadingsInOrder": "Heading Levels Should Not Be Skipped",
   "rule.label.ImageAltIsDifferent": "Alternative Text Should Not Be the Image Filename",
   "rule.label.ImageAltIsTooLong": "Alternative Text Is More Than the Maximum Allowed Characters",
   "rule.label.ImageAltNotEmptyInAnchor": "Alt Text For Images Within Links Should Not Be Empty",
@@ -325,6 +327,7 @@
   "rule.desc.EmbedHasAssociatedNoEmbed": "<p>Because some users cannot use the <code>embed</code> element, provide alternative content in a <code>noembed</code> element.</p>",
   "rule.desc.FontIsNotUsed": "<p>The <code>font</code> tag is deprecated and should not be used. Investigate using stylesheets instead.</p>",
   "rule.desc.HeadersHaveText": "<p>Sighted and <a href='https://en.wikipedia.org/wiki/Screen_reader' target='_blank'>screen reader</a> users depend on headings to organize the content on the page. Headings should not be empty and should represent an accurate outline of the content</p>",
+  "rule.desc.HeadingsInOrder": "Nest headings by their rank (or level). The most important heading has the rank 1 (h1) in HTML files or rank 2 (h2) in Canvas pages, the least important heading rank 6 (h6). Headings with an equal or higher rank start a new section, headings with a lower rank start new subsections that are part of the higher ranked section. Skipping heading ranks can be confusing and should be avoided.",
   "rule.desc.ImageAltIsDifferent": "<p>Alternative Text (Alt Text) is an alternative (non-visual) way to describe the meaning of an image. Please provide a brief description of the image for a <a href='http://en.wikipedia.org/wiki/Screen_reader'>screen reader</a> user. Note: It should not be the image file name and should be 125 characters or less. </p><p>Learn more at WebAIM.org: <a href='https://webaim.org/techniques/alttext/' target='_blank'>Alt Text Accessibility</a></p>",
   "rule.desc.ImageAltIsTooLong": "<p>Alternative Text (Alt Text) is an alternative (non-visual) way to describe the meaning of an image. Please provide a brief description of the image for a <a href='http://en.wikipedia.org/wiki/Screen_reader'>screen reader</a> user. Note: It should not be the image file name and should be 125 characters or less.</p><p>Learn more at WebAIM.org: <a href='https://webaim.org/techniques/alttext/' target='_blank'>Alt Text Accessibility</a></p>",
   "rule.desc.ImageAltNotEmptyInAnchor": "<p>Alternative Text (Alt Text) is an alternative (non-visual) way to describe the meaning of an image. Please provide a brief description of the image for a <a href='http://en.wikipedia.org/wiki/Screen_reader'>screen reader</a> user. Note: It should not be the image file name and should be 125 characters or less.</p><p>Learn more at WebAIM.org: <a href='https://webaim.org/techniques/alttext/' target='_blank'>Alt Text Accessibility</a></p>",
