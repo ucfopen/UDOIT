@@ -12,6 +12,7 @@ export const issueRuleIds = [
     "EmbedHasAssociatedNoEmbed",
     "FontIsNotUsed",
     "HeadersHaveText",
+    "HeadingsInOrder",
     "ImageAltIsDifferent",
     "ImageAltIsTooLong",
     "ImageAltNotEmptyInAnchor",
