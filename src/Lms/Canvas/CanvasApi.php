@@ -27,11 +27,11 @@ class CanvasApi {
      * @param string $url
      * @param array $options
      * @param integer $perPage
-     * 
+     *
      * @return LmsResponse
      */
     public function apiGet($url, $options = [], $perPage = 100, LmsResponse $lmsResponse = null)
-    {      
+    {
         $links = [];
 
         if (!$lmsResponse) {
@@ -54,8 +54,8 @@ class CanvasApi {
         $lmsResponse->setResponse($response);
         $content = $lmsResponse->getContent();
 
-        // If error is invalid token, refresh API token and try again 
-        if ($lmsResponse->getStatusCode() >= 400) {
+        // If error is invalid token, refresh API token and try again
+        if ($lmsResponse->getStatusCode() == 400 || $lmsResponse->getStatusCode() > 401) {
             throw new \Exception('Failed API call', $lmsResponse->getStatusCode());
         }
 
@@ -76,15 +76,15 @@ class CanvasApi {
                 }
             }
         }
-        
+
         if (isset($links['next'])) {
-            $this->apiGet($links['next'], $options, $perPage, $lmsResponse); 
+            $this->apiGet($links['next'], $options, $perPage, $lmsResponse);
         }
 
         return $lmsResponse;
     }
 
-    public function apiPost($url, $options, $sendAuthorized = true) 
+    public function apiPost($url, $options, $sendAuthorized = true)
     {
         $lmsResponse = new LmsResponse();
 
@@ -103,7 +103,7 @@ class CanvasApi {
 
         $content = $lmsResponse->getContent();
         if (!empty($content['errors'])) {
-            // TODO: If error is invalid token, refresh API token and try again 
+            // TODO: If error is invalid token, refresh API token and try again
 
             foreach ($content['errors'] as $error) {
                 $lmsResponse->setError($error['message']);
@@ -119,7 +119,7 @@ class CanvasApi {
      * @param string $url
      * @param array $options
      * @param string $filepath
-     * 
+     *
      * @return LmsResponse
      */
     public function apiFilePost($url, $options, $filepath)
@@ -131,23 +131,23 @@ class CanvasApi {
 
         $endpointOptions = [
             'name' => urldecode($file['filename']),
-            'parent_folder_id' => $file['folder_id'],            
+            'parent_folder_id' => $file['folder_id'],
         ];
-        
+
         $endpointResponse = $this->apiPost($options['postUrl'], ['query' => $endpointOptions], true);
         $endpointContent = $endpointResponse->getContent();
-        
+
         // TODO: handle failed call
-        
+
         $formFields = $endpointContent['upload_params'];
         $formFields['file'] = DataPart::fromPath($filepath);
         $formData = new FormDataPart($formFields);
-        
+
         $fileResponse = $this->apiPost($endpointContent['upload_url'], [
             'headers' => $formData->getPreparedHeaders()->toArray(),
             'body' => $formData->bodyToIterable(),
         ], false);
-        
+
         return $fileResponse;
     }
 
@@ -164,7 +164,7 @@ class CanvasApi {
 
         $content = $lmsResponse->getContent();
         if (!empty($content['errors'])) {
-            // TODO: If error is invalid token, refresh API token and try again 
+            // TODO: If error is invalid token, refresh API token and try again
 
             foreach ($content['errors'] as $error) {
                 $lmsResponse->setError($error['message']);
