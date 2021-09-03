@@ -50,7 +50,7 @@ We strongly recommend you enforce scopes with your API key. The following scopes
     * url:PUT|/api/v1/courses/:course_id/assignments/:id
 * Courses
     * url:GET|/api/v1/courses/:id
-    * url:OUT|/api/v1/courses/:id
+    * url:PUT|/api/v1/courses/:id
     * url:POST|/api/v1/courses_id/files
 * Discussion Topics
     * url:GET|/api/v1/courses/:course_id/discussion_topics
