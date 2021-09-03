@@ -38,11 +38,24 @@ Furthermore, you can access the Heroku Postgres database by running the followin
 psql <the DATABASE_URL located in your config vars under the Settings tab>
 ```
 Next we need to set up the database and insert our institution in to the appropriate table.
-1. Proceed with [setting up the database](https://github.com/ucfopen/UDOIT/blob/main/INSTALL.md#database-setup).
-  Important Note: Before setting up the database and if using Postgres, ensure that the table name in 'UDOIT/src/Entity/User.php' at line 14 is set to 'users'.
-  This change must be contained in a commit and be pushed to the Heroku remote.
-2. Now is a good time to set up developer keys according to the instructions in INSTALL_\<LMS\>.md.
-3. Insert your institution in to the institution table as described in INSTALL_\<LMS\>.md.
+1. Before setting up the database and if using Postgres, ensure that the table name in 'UDOIT/src/Entity/User.php' at line 14 is set to 'users'.
+  This change must be contained in a commit and be pushed to the Heroku remote before continuing.
+2. If using Heroku Postgres, generate a migration by using:
+```
+php bin/console doctrine:migrations:diff
+```
+3. To execute the generated migration, run the following:
+```
+php bin/console doctrine:migrations:execute --up 'DoctrineMigrations\<Version################>'
+```
+  where '\<Version################\>' is the version that the previous command displayed.
+
+4. If you are operating in a production environment you will need to generate the doctrine proxy classes by running the following command:
+```
+php bin/console cache:warmup --env=prod
+```
+5. Now is a good time to set up developer keys according to the instructions in INSTALL_\<LMS\>.md.
+6. Insert your institution in to the institution table as described in INSTALL_\<LMS\>.md.
 ### Step 4: Finish
 Finish up the Heroku setup by [installing the yarn dependencies and building the project](https://github.com/ucfopen/UDOIT/blob/main/INSTALL.md#javascript).
 
