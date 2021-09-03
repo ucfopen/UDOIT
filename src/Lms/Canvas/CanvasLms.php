@@ -618,9 +618,6 @@ class CanvasLms implements LmsInterface {
 
             case 'assignment':
                 $out['id'] = $lmsContent['id'];
-                if (!empty($lmsContent['quiz_id'])) {
-                    $out['id'] = $lmsContent['quiz_id'];
-                }
                 $out['title'] = $lmsContent['name'];
                 $out['updated'] = $lmsContent['updated_at'];
                 $out['body'] = $lmsContent['description'];
