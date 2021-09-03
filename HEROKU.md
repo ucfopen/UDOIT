@@ -1,6 +1,6 @@
 # Heroku Deploy
 ## Heroku Button
-If you wish to install Heroku using the one-click deployment process, please click the purple "Deploy to Heroku" button in the [repository home page](https://github.com/ucfopen/UDOIT/tree/issue/570-heroku).
+If you wish to install Heroku using the one-click deployment process, please click the purple "Deploy to Heroku" button in the [repository home page](https://github.com/ucfopen/UDOIT/tree/main#installing-udoit-on-heroku).
 
 ## Installation Instructions
 Installing UDOIT using the Heroku button is very easy, but still requires some setup.
@@ -17,7 +17,7 @@ After clicking the Heroku button above:
 6. Click the Deploy button and wait for the process to complete.
 
 ### Step 2: Clone UDOIT and Push to Heroku
-1. Follow the instruction under the ['Source Code' section of INSTALL.md](https://github.com/ucfopen/UDOIT/blob/issue/570-heroku/INSTALL.md#source-code).
+1. Follow the instruction under the ['Source Code' section of INSTALL.md](https://github.com/ucfopen/UDOIT/blob/main/INSTALL.md#source-code).
 2. Install and log in to the [Heroku CLI](https://devcenter.heroku.com/articles/heroku-cli).
 3. Next, from within your UDOIT's root folder on your machine, connect your local repository to Heroku:
 ```
@@ -38,13 +38,13 @@ Furthermore, you can access the Heroku Postgres database by running the followin
 psql <the DATABASE_URL from your config vars>
 ```
 Next we need to set up the database and insert our institution in to the appropriate table.
-1. Proceed with [setting up the database](https://github.com/ucfopen/UDOIT/blob/issue/570-heroku/INSTALL.md#database-setup).
+1. Proceed with [setting up the database](https://github.com/ucfopen/UDOIT/blob/main/INSTALL.md#database-setup).
   Important Note: Before setting up the database and if using Postgres, ensure that the table name in 'UDOIT/src/Entity/User.php' at line 14 is set to 'users'.
   This change must be contained in a commit and be pushed to the Heroku remote.
 2. Now is a good time to set up developer keys according to the instructions in INSTALL_\<LMS\>.md.
 3. Insert your institution in to the institution table as described in INSTALL_\<LMS\>.md.
 ### Step 4: Finish
-Finish up the Heroku setup by [installing the yarn dependencies and building the project](https://github.com/ucfopen/UDOIT/blob/issue/570-heroku/INSTALL.md#javascript).
+Finish up the Heroku setup by [installing the yarn dependencies and building the project](https://github.com/ucfopen/UDOIT/blob/main/INSTALL.md#javascript).
 
 ## Manual Deployment
 ### Step 1: Create a new Heroku app
