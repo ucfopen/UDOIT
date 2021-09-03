@@ -74,7 +74,7 @@ We strongly recommend you enforce scopes with your API key. The following scopes
     * url:GET|/api/v1/groups/:group_id/pages/:url
     * url:PUT|/api/v1/courses/:course_id/pages/:url
 * Quiz Questions
-    * ul:GET|/api/v1/courses/:course_id/quizzes/:quiz_id/questions
+    * url:GET|/api/v1/courses/:course_id/quizzes/:quiz_id/questions
     * url:GET|/api/v1/courses/:course_id/quizzes/:quiz_id/questions/:id
     * url:POST|/api/v1/courses/:course_id/quizzes/:quiz_id/questions u
     * url:PUT|/api/v1/courses/:course_id/quizzes/:quiz_id/questions/:id
