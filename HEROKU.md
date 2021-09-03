@@ -35,7 +35,7 @@ heroku run bash
 ```
 Furthermore, you can access the Heroku Postgres database by running the following within that environment to execute SQL:
 ```
-psql <the DATABASE_URL from your config vars>
+psql <the DATABASE_URL located in your config vars under the Settings tab>
 ```
 Next we need to set up the database and insert our institution in to the appropriate table.
 1. Proceed with [setting up the database](https://github.com/ucfopen/UDOIT/blob/main/INSTALL.md#database-setup).
