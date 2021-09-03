@@ -6,29 +6,23 @@ use App\Entity\User;
 use App\Services\LmsApiService;
 use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Component\HttpClient\HttpClient;
-use Symfony\Component\HttpClient\Exception\TimeoutException;
-
-use Psr\Log\LoggerInterface;
 
 class LmsUserService {
 
     /** @var App\Services\LmsApiService $lmsApi */
     protected $lmsApi;
-
+    
     /** @var ManagerRegistry $doctrine */
     protected $doctrine;
 
     /** @var UtilityService $util */
     protected $util;
 
-    private $logger;
-
-    public function __construct(LmsApiService $lmsApi, ManagerRegistry $doctrine, UtilityService $util, LoggerInterface $logger)
+    public function __construct(LmsApiService $lmsApi, ManagerRegistry $doctrine, UtilityService $util)
     {
         $this->lmsApi = $lmsApi;
         $this->doctrine = $doctrine;
         $this->util = $util;
-        $this->logger = $logger;
     }
 
     public static function getOauthRedirectUri()
@@ -49,11 +43,11 @@ class LmsUserService {
 
         if (empty($apiKey)) {
             return false;
-        }
+        }        
 
-        try {
+        try {        
             return $lms->testApiConnection($user);
-        }
+        } 
         catch (\Exception $e) {
             $this->refreshApiKey($user);
         }
@@ -85,17 +79,12 @@ class LmsUserService {
             ],
             'verify_host' => false,
             'verify_peer' => false,
-            'timeout' => 15,
         ];
 
         $client = HttpClient::create();
         $requestUrl = $this->lmsApi->getLms()->getOauthTokenUri($institution);
-        try {
-            $response = $client->request('POST', $requestUrl, $options);
-            $contentStr = $response->getContent(false);
-        } catch (TimeoutException $e) {
-            return false;
-        }
+        $response = $client->request('POST', $requestUrl, $options);
+        $contentStr = $response->getContent(false);
         $newKey = \json_decode($contentStr, true);
 
         // update the token in the database
