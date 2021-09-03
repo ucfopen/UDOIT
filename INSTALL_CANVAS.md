@@ -65,7 +65,7 @@ We strongly recommend you enforce scopes with your API key. The following scopes
     * url:GET|/api/v1/courses/:course_id/modules
     * url:GET|/api/v1/courses/:course_id/modules/:id
     * url:PUT|/api/v1/courses/:course_id/modules/:id
-    * url:GET|/api/v1/courses/:course_id/modules_id/items
+    * url:GET|/api/v1/courses/:course_id/modules/:module_id/items
     * url:GET|/api/v1/courses/:course_id/modules_id/items/:id
     * url:PUT|/api/v1/courses/:course_id/modules/:module_id/items/:id
 * Pages
