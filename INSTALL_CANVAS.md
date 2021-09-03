@@ -57,7 +57,7 @@ We strongly recommend you enforce scopes with your API key. The following scopes
     * url:GET|/api/v1/courses/:course_id/discussion_topics/:topic_id
     * url:PUT|/api/v1/courses/:course_id/discussion_topics/:topic_id
 * Enrollment Terms
-    * url:GETurl:GET|/api/v1/accounts/:account_id/terms|/api/v1/accounts/:account_id/terms
+    * url:GET|/api/v1/accounts/:account_id/terms
 * Files
     * url:GET|/api/v1/courses/:course_id/files
     * url:GET|/api/v1/courses/:course_id/files/:id
