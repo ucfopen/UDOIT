@@ -53,11 +53,11 @@ export default class AltText extends React.Component {
     let element = Html.toElement(html)
 
     if (this.state.isDecorative) {
-      element = Html.setAttribute(element, "data-decorative", "true")
+      element = Html.setAttribute(element, "role", "presentation")
       element = Html.addClass(element, 'phpally-ignore')
       element = Html.setAttribute(element, 'alt', '')
     } else {
-      element = Html.removeAttribute(element, "data-decorative")
+      element = Html.removeAttribute(element, "role")
       element = Html.removeClass(element, 'phpally-ignore')
       element = Html.setAttribute(element, "alt", this.state.textInputValue)
     }
@@ -129,14 +129,14 @@ export default class AltText extends React.Component {
   }
 
   elementIsDecorative(htmlString) {
-    const decorativeAttribute = Html.getAttribute(htmlString, "data-decorative")
+    const decorativeAttribute = Html.getAttribute(htmlString, "role")
     const classes = Html.getClasses(htmlString)
 
     if (Html.getTagName(htmlString) !== 'IMG') {
       return false
     }
 
-    return (decorativeAttribute || (classes.includes('phpally-ignore')))
+    return (decorativeAttribute === 'presentation' || (classes.includes('phpally-ignore')))
   }
 
   render() {
