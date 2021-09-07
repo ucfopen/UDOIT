@@ -36,6 +36,10 @@ To start the Heroku deployment process, you can click the button below, please n
 
 <a href="https://heroku.com/deploy?template=https://github.com/ucfopen/UDOIT/tree/issue/570-heroku" title="Deploy to Heroku"><img src="https://www.herokucdn.com/deploy/button.svg" alt="Deploy to Heroku" title="Deploy to Heroku Button"></a>
 
+## Contributing
+
+Like any other open source project, UDOIT relies on contributions from the community to improve the tool.  If you are interested in contributing to UDOIT, follow the instructions in [CONTRIBUTING.md](CONTRIBUTING.md).
+
 ## Licenses
 UDOIT is distributed under the GNU GPL v3 license.
 
