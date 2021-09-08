@@ -42,6 +42,7 @@ We strongly recommend you enforce scopes with your API key. The following scopes
 * Accounts
     * url:GET|/api/v1/accounts
     * url:GET|/api/v1/accounts/:id
+    * url:GET|/api/v1/accounts/:account_id/sub_accounts
 * Announcements
     * url:GET|/api/v1/announcements
 * Assignments
