@@ -30,32 +30,30 @@ git push heroku main:master -f
 
 ### Step 3: Database Migration and Setup
 Next we need to set up the database and insert our institution in to the appropriate table.
-1. Before setting up the database and if using Postgres, ensure that the table name in 'UDOIT/src/Entity/User.php' at line 14 is set to 'users'.
-  This change must be contained in a commit and be pushed to the Heroku remote before continuing.
-2. Access your Heroku instance by running
+1. Access your Heroku instance by running
 ```
 heroku run bash
 ```
-3. If using Heroku Postgres, generate a migration by using:
+2. If using Heroku Postgres, generate a migration by using:
 ```
 php bin/console doctrine:migrations:diff
 ```
-4. To execute the generated migration, run the following:
+3. To execute the generated migration, run the following:
 ```
 php bin/console doctrine:migrations:execute --up 'DoctrineMigrations\<Version################>'
 ```
   where '\<Version################\>' is the version that the previous command printed to the screen.
 
-5. If you are operating in a production environment you will need to generate the doctrine proxy classes by running the following command:
+4. If you are operating in a production environment you will need to generate the doctrine proxy classes by running the following command:
 ```
 php bin/console cache:warmup --env=prod
 ```
-6. Now is a good time to set up developer keys according to the instructions in INSTALL_\<LMS\>.md.
-7. Access the Postgres database by running the following within Heorku's bash environment:
+5. Now is a good time to set up developer keys according to the instructions in INSTALL_\<LMS\>.md.
+6. Access the Postgres database by running the following within Heorku's bash environment:
 ```
 psql <the DATABASE_URL located in your config vars under the Settings tab>
 ```
-8. Insert your institution in to the institution table as described in INSTALL_\<LMS\>.md.
+7. Insert your institution in to the institution table as described in INSTALL_\<LMS\>.md.
 ### Step 4: Finish
 Finish up the Heroku setup by [installing the yarn dependencies and building the project](https://github.com/ucfopen/UDOIT/blob/main/INSTALL.md#javascript).
 
