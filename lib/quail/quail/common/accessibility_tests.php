@@ -1458,7 +1458,7 @@ class cssTextStyleEmphasize extends quailColorTest
 					$style['font-style'] = "normal";
 				}
 
-				if ($element->tagName === 'h1' || $element->tagName === 'h2' || $element->tagName === 'h3' || $element->tagName === 'h4' || $element->tagName === 'h5' || $element->tagName === 'h6' || checkTextEqualsHeadingText($element)) {
+				if ($element->tagName === 'h1' || $element->tagName === 'h2' || $element->tagName === 'h3' || $element->tagName === 'h4' || $element->tagName === 'h5' || $element->tagName === 'h6' || $this->checkTextEqualsHeadingText($element)) {
 					continue;
 				} elseif ($font_size >= 18) {
 					if ($luminosity >= 3 && !$bold && !$italic) {
