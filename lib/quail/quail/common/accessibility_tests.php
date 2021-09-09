@@ -1458,7 +1458,9 @@ class cssTextStyleEmphasize extends quailColorTest
 					$style['font-style'] = "normal";
 				}
 
-				if ($element->tagName === 'h1' || $element->tagName === 'h2' || $element->tagName === 'h3' || $element->tagName === 'h4' || $element->tagName === 'h5' || $element->tagName === 'h6' || $font_size >= 18 || $font_size >= 14 && $bold) {
+				if ($element->tagName === 'h1' || $element->tagName === 'h2' || $element->tagName === 'h3' || $element->tagName === 'h4' || $element->tagName === 'h5' || $element->tagName === 'h6' || checkTextEqualsHeadingText($element)) {
+					continue;
+				} elseif ($font_size >= 18) {
 					if ($luminosity >= 3 && !$bold && !$italic) {
 						$message = 'heading: background-color: ' . $background . '; color:' . $style["color"] . '; font-style: ' . $style['font-style'] . '; font-weight: '  . $style['font-weight'] . '; ';
 						$this->addReport($element, $message);
@@ -1471,6 +1473,32 @@ class cssTextStyleEmphasize extends quailColorTest
 				}
 			}
 		}
+	}
+
+	/**
+	 * Returns true if the tag descends from a heading tag and
+	 * contains the same text, or false otherwise.
+	 * @param object $element A DOMElement object
+	 */
+	function checkTextEqualsHeadingText($element)
+	{
+		$headingAncestor = false;
+		// Stop when we reach a heading or fail to find one.
+		for ($i = 1; $i <= 6 && !$headingAncestor; $i++) {
+			$heading = "h".$i;
+			$headingAncestor = $this->getElementAncestor($element, $heading);
+		}
+
+		// The current element is not descended from a heading.
+		if (!$headingAncestor) {
+			return false;
+		}
+
+		if ($element->textContent === $headingAncestor->textContent) {
+			return true;
+		}
+
+		return false;
 	}
 }
 
