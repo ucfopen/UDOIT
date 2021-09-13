@@ -70,7 +70,7 @@
         "@instructure/ui-toggle-details": "^7.5.0",
         "@instructure/ui-tray": "^7.5.0",
         "@reactchartjs/react-chart.js": "^1.0.0-rc.3",
-        "axios": "^0.21.1",
+        "axios": "^0.21.2",
         "babel-loader": "^8.2.2",
         "chart.js": "^2.9.4",
         "moment": "^2.29.1",
