@@ -21,7 +21,7 @@ jobs:
         uses: shivammathur/setup-php@v2 #https://github.com/shivammathur/setup-php
         with:
           php-version: ${{ matrix.php-versions }}
-          extensions: mbstring, xml, ctype, iconv, intl, pdo_sqlite, gd
+          extensions: mbstring, xml, ctype, iconv, intl, pdo_sqlite, gd, pdo_mysql, pdo_pgsql
           coverage: xdebug #optional
 
       - name: Get composer cache directory
@@ -32,14 +32,26 @@ jobs:
         uses: actions/cache@v2
         with:
           path: ${{ steps.composer-cache.outputs.dir }}
-          key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
-          restore-keys: ${{ runner.os }}-composer-
+          key: php-${{ matrix.php-versions }}-composer-${{ hashFiles('**/composer.lock') }}
+          restore-keys: php-${{ matrix.php-versions }}-composer-
 
       - name: Install Composer dependencies
         run: composer install --no-progress --prefer-dist --optimize-autoloader
 
       - name: PHPUnit Testing
         run: SYMFONY_DEPRECATIONS_HELPER=disabled ./vendor/bin/phpunit
+
+      - name: Get yarn cache directory path
+        id: yarn-cache-dir-path
+        run: echo "::set-output name=dir::$(yarn config get cacheFolder)"
+
+      - uses: actions/cache@v2
+        id: yarn-cache # use this to check for `cache-hit` (`steps.yarn-cache.outputs.cache-hit != 'true'`)
+        with:
+          path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
+          key: php-${{ matrix.php-versions }}-yarn-${{ hashFiles('**/yarn.lock') }}
+          restore-keys: |
+            php-${{ matrix.php-versions }}-yarn-
 
       - name: Yarn install
         run: yarn install
@@ -49,3 +61,22 @@ jobs:
 
       - name: Yarn test
         run: yarn test
+
+      - name: Start and initialize Postgres
+        env:
+          DATABASE_URL: postgresql://udoit:udoit@127.0.0.1:5432/udoit?serverVersion=11&charset=utf8
+        run: |
+          sudo systemctl start postgresql.service
+          sudo -u postgres psql -c "CREATE DATABASE udoit;" 
+          sudo -u postgres psql -c "CREATE USER udoit WITH PASSWORD 'udoit';" 
+          sudo -u postgres psql -c "ALTER USER udoit WITH SUPERUSER;" 
+          sudo -u postgres psql -c "GRANT ALL PRIVILEGES ON DATABASE "udoit" TO udoit;" 
+          php bin/console doctrine:migrations:migrate
+
+      - name: Create and populate MySQL database
+        env:
+          DATABASE_URL: mysql://root:root@localhost/udoit
+        run: |
+          sudo systemctl start mysql.service
+          php bin/console doctrine:database:create
+          php bin/console doctrine:migrations:migrate
