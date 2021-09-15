@@ -130,6 +130,7 @@ export default class ContrastForm extends React.Component {
   handleSubmit() {
     if(this.state.ratioIsValid) {
       let issue = this.props.activeIssue
+      issue.newHtml = this.convertHtmlRgb2Hex(issue.newHtml)
       this.props.handleIssueSave(issue)
     } else {
       this.formErrors = []
@@ -192,7 +193,7 @@ export default class ContrastForm extends React.Component {
     return (
       <View as="div" padding="0 x-small">
         <div id="flash-messages" role="alert"></div>
-        <Alert 
+        <Alert
           liveRegion={() => document.getElementById('flash-messages')}
           liveRegionPoliteness="polite"
           screenReaderOnly
@@ -306,7 +307,7 @@ export default class ContrastForm extends React.Component {
               </View>
             </View>
           </Flex.Item>
-        </Flex>        
+        </Flex>
       </View>
     );
   }
@@ -330,7 +331,7 @@ export default class ContrastForm extends React.Component {
     let tagName = Html.toElement(html).tagName
     let largeTextTags = this.props.t('form.contrast.large_text_tags')
     let ratioIsValid = this.state.ratioIsValid
-    
+
     if(largeTextTags.includes(tagName)) {
       ratioIsValid = (contrastRatio >= 3)
     } else {
@@ -372,7 +373,7 @@ export default class ContrastForm extends React.Component {
 
     if (element.style.backgroundColor) {
       return Contrast.rgb2hex(element.style.backgroundColor)
-    } 
+    }
     else {
       return (metadata.backgroundColor) ? Contrast.rgb2hex(metadata.backgroundColor) : this.props.settings.backgroundColor
     }
@@ -391,5 +392,13 @@ export default class ContrastForm extends React.Component {
     else {
       return (metadata.color) ? Contrast.rgb2hex(metadata.color) : this.props.settings.textColor
     }
+  }
+
+  convertHtmlRgb2Hex(html) {
+    return html.replace(/rgb\((.+?)\)/ig, (_, rgb) => {
+      return '#' + rgb.split(',')
+        .map(str => parseInt(str, 10).toString(16).padStart(2, '0'))
+        .join('')
+    })
   }
 }
