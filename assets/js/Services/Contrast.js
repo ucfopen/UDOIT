@@ -3,11 +3,11 @@ class Contrast {
     if (/^#[0-9A-F]{6}$/i.test(rgb)) return rgb;
 
     rgb = rgb.match(/^rgb\((\d+),\s*(\d+),\s*(\d+)\)$/);
-    
+
     if (!rgb) {
       return rgb;
     }
-    
+
     function hex(x) {
       return ("0" + parseInt(x).toString(16)).slice(-2);
     }
@@ -196,7 +196,7 @@ class Contrast {
   parseRgb(color) {
     color = this.convertShortenedHex(color)
     color = color.substring(1);
-    
+
     var hex = parseInt(color.toUpperCase(), 16);
 
     var r = hex >> 16;
@@ -211,7 +211,7 @@ class Contrast {
     // If the string is too long, cut it off at 6 characters
     if(color.length > 6) {
       color = color.substring(0,6)
-    } 
+    }
     // If the length is 3, hex shorthand is being used
     else if (color.length == 3) {
       color = color[0] + color[0] + color[1] + color[1] + color[2] + color[2];
@@ -223,6 +223,14 @@ class Contrast {
     }
 
     return '#' + color
+  }
+
+  convertHtmlRgb2Hex(html) {
+    return html.replace(/rgb\((.+?)\)/ig, (_, rgb) => {
+      return '#' + rgb.split(',')
+        .map(str => parseInt(str, 10).toString(16).padStart(2, '0'))
+        .join('')
+    })
   }
 
 }

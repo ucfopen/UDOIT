@@ -130,7 +130,7 @@ export default class ContrastForm extends React.Component {
   handleSubmit() {
     if(this.state.ratioIsValid) {
       let issue = this.props.activeIssue
-      issue.newHtml = this.convertHtmlRgb2Hex(issue.newHtml)
+      issue.newHtml = Contrast.convertHtmlRgb2Hex(issue.newHtml)
       this.props.handleIssueSave(issue)
     } else {
       this.formErrors = []
@@ -392,13 +392,5 @@ export default class ContrastForm extends React.Component {
     else {
       return (metadata.color) ? Contrast.rgb2hex(metadata.color) : this.props.settings.textColor
     }
-  }
-
-  convertHtmlRgb2Hex(html) {
-    return html.replace(/rgb\((.+?)\)/ig, (_, rgb) => {
-      return '#' + rgb.split(',')
-        .map(str => parseInt(str, 10).toString(16).padStart(2, '0'))
-        .join('')
-    })
   }
 }
