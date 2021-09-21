@@ -19,7 +19,8 @@ final class Version20210525163808 extends AbstractMigration
 
     public function up(Schema $schema): void
     {
-        // this up() migration is auto-generated, please modify it to your needs
+        $this->skipIf($this->connection->getDatabasePlatform()->getName() !== 'mysql', 'Migration can only be executed safely on \'mysql\'.');
+
         $this->addSql('CREATE TABLE content_item (id INT AUTO_INCREMENT NOT NULL, course_id INT NOT NULL, title VARCHAR(255) NOT NULL, content_type VARCHAR(255) NOT NULL, lms_content_id VARCHAR(512) NOT NULL, updated DATETIME NOT NULL, metadata LONGTEXT DEFAULT NULL, published TINYINT(1) NOT NULL, active TINYINT(1) NOT NULL, body LONGTEXT DEFAULT NULL, url VARCHAR(255) DEFAULT NULL, INDEX IDX_D279C8DB591CC992 (course_id), PRIMARY KEY(id)) DEFAULT CHARACTER SET utf8mb4 COLLATE `utf8mb4_unicode_ci` ENGINE = InnoDB');
         $this->addSql('CREATE TABLE course (id INT AUTO_INCREMENT NOT NULL, institution_id INT NOT NULL, title VARCHAR(255) NOT NULL, lms_account_id VARCHAR(255) DEFAULT NULL, lms_course_id VARCHAR(255) DEFAULT NULL, last_updated DATETIME DEFAULT NULL, active TINYINT(1) DEFAULT NULL, dirty TINYINT(1) DEFAULT NULL, lms_term_id INT DEFAULT NULL, INDEX IDX_169E6FB910405986 (institution_id), PRIMARY KEY(id)) DEFAULT CHARACTER SET utf8mb4 COLLATE `utf8mb4_unicode_ci` ENGINE = InnoDB');
         $this->addSql('CREATE TABLE file_item (id INT AUTO_INCREMENT NOT NULL, course_id INT DEFAULT NULL, reviewed_by_id INT DEFAULT NULL, file_name VARCHAR(255) NOT NULL, file_type VARCHAR(32) NOT NULL, lms_file_id VARCHAR(255) NOT NULL, updated DATETIME DEFAULT NULL, metadata LONGTEXT DEFAULT NULL, status TINYINT(1) DEFAULT NULL, file_size VARCHAR(255) DEFAULT NULL, hidden TINYINT(1) DEFAULT NULL, reviewed TINYINT(1) DEFAULT NULL, lms_url VARCHAR(255) DEFAULT NULL, download_url VARCHAR(255) DEFAULT NULL, reviewed_on DATETIME DEFAULT NULL, active TINYINT(1) NOT NULL, INDEX IDX_96E74D70591CC992 (course_id), INDEX IDX_96E74D70FC6B21F1 (reviewed_by_id), PRIMARY KEY(id)) DEFAULT CHARACTER SET utf8mb4 COLLATE `utf8mb4_unicode_ci` ENGINE = InnoDB');
@@ -45,7 +46,8 @@ final class Version20210525163808 extends AbstractMigration
 
     public function down(Schema $schema): void
     {
-        // this down() migration is auto-generated, please modify it to your needs
+        $this->skipIf($this->connection->getDatabasePlatform()->getName() !== 'mysql', 'Migration can only be executed safely on \'mysql\'.');
+
         $this->addSql('ALTER TABLE issue DROP FOREIGN KEY FK_12AD233ECD678BED');
         $this->addSql('ALTER TABLE content_item DROP FOREIGN KEY FK_D279C8DB591CC992');
         $this->addSql('ALTER TABLE file_item DROP FOREIGN KEY FK_96E74D70591CC992');
