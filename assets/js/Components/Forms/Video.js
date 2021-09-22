@@ -30,7 +30,7 @@ export default class Video extends React.Component {
         <Button
           color="primary"
           onClick={this.handleVideoRescan}
-          interaction={!pending ? 'enabled' : 'disabled'}
+          interaction={(!pending && this.props.activeIssue.status !== 2) ? 'enabled' : 'disabled'}
         >
           {'1' == pending && (
             <Spinner size="x-small" renderTitle={buttonLabel} />
