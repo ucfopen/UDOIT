@@ -129,14 +129,15 @@ export default class AltText extends React.Component {
   }
 
   elementIsDecorative(htmlString) {
-    const decorativeAttribute = Html.getAttribute(htmlString, "role")
+    const decorativeAttribute = Html.getAttribute(htmlString, "data-decorative")
+    const roleAttribute = Html.getAttribute(htmlString, "role")
     const classes = Html.getClasses(htmlString)
 
     if (Html.getTagName(htmlString) !== 'IMG') {
       return false
     }
 
-    return (decorativeAttribute === 'presentation' || (classes.includes('phpally-ignore')))
+    return (decorativeAttribute === 'true' || roleAttribute === 'presentation' || (classes.includes('phpally-ignore')))
   }
 
   render() {
