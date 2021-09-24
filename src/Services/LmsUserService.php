@@ -6,6 +6,7 @@ use App\Entity\User;
 use App\Services\LmsApiService;
 use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Component\HttpClient\HttpClient;
+use Symfony\Component\HttpClient\Exception\TimeoutException;
 
 class LmsUserService {
 
@@ -90,7 +91,7 @@ class LmsUserService {
             $response = $client->request('POST', $requestUrl, $options);
             $contentStr = $response->getContent(false);
             $newKey = \json_decode($contentStr, true);
-        } catch (\Exception $e) {
+        } catch (TimeoutException $e) {
             $newKey = null;
         }
 
