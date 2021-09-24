@@ -11,7 +11,7 @@ class LmsUserService {
 
     /** @var App\Services\LmsApiService $lmsApi */
     protected $lmsApi;
-    
+
     /** @var ManagerRegistry $doctrine */
     protected $doctrine;
 
@@ -43,13 +43,15 @@ class LmsUserService {
 
         if (empty($apiKey)) {
             return false;
-        }        
+        }
 
-        try {        
+        try {
             return $lms->testApiConnection($user);
-        } 
+        }
         catch (\Exception $e) {
-            $this->refreshApiKey($user);
+            if(!$this->refreshApiKey($user)) {
+                return false;
+            }
         }
 
         try {
@@ -79,13 +81,19 @@ class LmsUserService {
             ],
             'verify_host' => false,
             'verify_peer' => false,
+            'timeout' => 10,
         ];
 
         $client = HttpClient::create();
         $requestUrl = $this->lmsApi->getLms()->getOauthTokenUri($institution);
-        $response = $client->request('POST', $requestUrl, $options);
-        $contentStr = $response->getContent(false);
-        $newKey = \json_decode($contentStr, true);
+        try {
+            $response = $client->request('POST', $requestUrl, $options);
+            $contentStr = $response->getContent(false);
+            $newKey = \json_decode($contentStr, true);
+        } catch (\Exception $e) {
+            $newKey = null;
+        }
+
 
         // update the token in the database
         if (isset($newKey['access_token'])) {
