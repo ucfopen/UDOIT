@@ -19,7 +19,8 @@ final class Version20210910210740 extends AbstractMigration
 
     public function up(Schema $schema): void
     {
-        // this up() migration is auto-generated, please modify it to your needs
+        $this->skipIf($this->connection->getDatabasePlatform()->getName() !== 'postgresql', 'Migration is for \'postgresql\' only.');
+
         $this->addSql('CREATE SEQUENCE content_item_id_seq INCREMENT BY 1 MINVALUE 1 START 1');
         $this->addSql('CREATE SEQUENCE course_id_seq INCREMENT BY 1 MINVALUE 1 START 1');
         $this->addSql('CREATE SEQUENCE file_item_id_seq INCREMENT BY 1 MINVALUE 1 START 1');
@@ -77,7 +78,8 @@ final class Version20210910210740 extends AbstractMigration
 
     public function down(Schema $schema): void
     {
-        // this down() migration is auto-generated, please modify it to your needs
+        $this->skipIf($this->connection->getDatabasePlatform()->getName() !== 'postgresql', 'Migration is for \'postgresql\' only.');
+
         $this->addSql('ALTER TABLE issue DROP CONSTRAINT FK_12AD233ECD678BED');
         $this->addSql('ALTER TABLE content_item DROP CONSTRAINT FK_D279C8DB591CC992');
         $this->addSql('ALTER TABLE file_item DROP CONSTRAINT FK_96E74D70591CC992');
