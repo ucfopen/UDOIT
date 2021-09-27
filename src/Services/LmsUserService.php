@@ -82,8 +82,11 @@ class LmsUserService {
             ],
             'verify_host' => false,
             'verify_peer' => false,
-            'timeout' => 10,
         ];
+
+        if (isset($_ENV['HEROKU_TIMEOUT'])) {
+            $options['timeout'] = $_ENV['HEROKU_TIMEOUT'];
+        }
 
         $client = HttpClient::create();
         $requestUrl = $this->lmsApi->getLms()->getOauthTokenUri($institution);
