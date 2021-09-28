@@ -318,8 +318,12 @@ export default class ContrastForm extends React.Component {
     element.style.backgroundColor = Contrast.convertShortenedHex(this.state.backgroundColor)
     element.style.color = Contrast.convertShortenedHex(this.state.textColor)
 
-    element.style.fontWeight = (this.state.useBold) ? "bold" : "normal"
-    element.style.fontStyle = (this.state.useItalics) ? "italic" : "normal"
+    // Clean up tags
+    Html.removeTag(element, 'strong')
+    Html.removeTag(element, 'em')
+
+    element.innerHTML = (this.state.useBold) ? `<strong>${element.innerHTML}</strong>` : element.innerHTML
+    element.innerHTML = (this.state.useItalics) ? `<em>${element.innerHTML}</em>` : element.innerHTML
 
     return Html.toString(element)
   }
@@ -351,7 +355,7 @@ export default class ContrastForm extends React.Component {
     const html = Html.getIssueHtml(this.props.activeIssue)
     const element = Html.toElement(html)
 
-    return ((element.style.fontWeight === 'bold') || (metadata.fontWeight === 'bold'))
+    return ((Html.hasTag(element, 'strong')) || (metadata.fontWeight === 'bold'))
   }
 
   isItalicized()
@@ -361,7 +365,7 @@ export default class ContrastForm extends React.Component {
     const html = Html.getIssueHtml(this.props.activeIssue)
     const element = Html.toElement(html)
 
-    return ((element.style.fontStyle == 'italic') || (metadata.fontStyle == 'italic'))
+    return ((Html.hasTag(element, 'em')) || (metadata.fontStyle == 'italic'))
   }
 
   getBackgroundColor()
