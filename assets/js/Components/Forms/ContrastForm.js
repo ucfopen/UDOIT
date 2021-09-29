@@ -278,7 +278,7 @@ export default class ContrastForm extends React.Component {
             </View>
 
             <View as="div" margin="medium 0">
-              <Button color="primary" onClick={this.handleSubmit} interaction={(!pending) ? 'enabled' : 'disabled'}>
+              <Button color="primary" onClick={this.handleSubmit} interaction={(!pending && this.props.activeIssue.status !== 2) ? 'enabled' : 'disabled'}>
                 {('1' == pending) && <Spinner size="x-small" renderTitle={buttonLabel} />}
                 {this.props.t(buttonLabel)}
               </Button>

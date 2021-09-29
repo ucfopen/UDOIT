@@ -169,7 +169,7 @@ export default class AltText extends React.Component {
             onChange={this.handleCheckbox} />
         </View>
         <View as="div" margin="small 0">
-          <Button color="primary" onClick={this.handleButton} interaction={(!pending) ? 'enabled' : 'disabled'}>
+          <Button color="primary" onClick={this.handleButton} interaction={(!pending && this.props.activeIssue.status !== 2) ? 'enabled' : 'disabled'}>
             {('1' == pending) && <Spinner size="x-small" renderTitle={this.props.t(buttonLabel)} />}
             {this.props.t(buttonLabel)}
           </Button>
