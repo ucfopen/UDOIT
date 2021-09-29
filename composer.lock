@@ -4,20 +4,20 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "d4a10e2bff3d0bf2b087c0bd3a398120",
+    "content-hash": "011f1d43a4606df593efccb3c4ded4c8",
     "packages": [
         {
             "name": "cidilabs/phpally",
-            "version": "dev-master",
+            "version": "1.0.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/cidilabs/phpally.git",
-                "reference": "b69b688f21a0637fa9dbd77ec5fba938efaf3cba"
+                "reference": "b3dcdf8610e29b70d8c54bddde554208821bf7d7"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/cidilabs/phpally/zipball/b69b688f21a0637fa9dbd77ec5fba938efaf3cba",
-                "reference": "b69b688f21a0637fa9dbd77ec5fba938efaf3cba",
+                "url": "https://api.github.com/repos/cidilabs/phpally/zipball/b3dcdf8610e29b70d8c54bddde554208821bf7d7",
+                "reference": "b3dcdf8610e29b70d8c54bddde554208821bf7d7",
                 "shasum": ""
             },
             "require": {
@@ -28,7 +28,6 @@
             "require-dev": {
                 "phpunit/phpunit": "^8"
             },
-            "default-branch": true,
             "type": "library",
             "autoload": {
                 "classmap": [
@@ -56,10 +55,10 @@
             ],
             "description": "PHP Accessibility (a11y) Testing Library",
             "support": {
-                "source": "https://github.com/cidilabs/phpally/tree/1.0.1",
+                "source": "https://github.com/cidilabs/phpally/tree/1.0.2",
                 "issues": "https://github.com/cidilabs/phpally/issues"
             },
-            "time": "2021-09-01T04:56:24+00:00"
+            "time": "2021-09-10T18:07:11+00:00"
         },
         {
             "name": "composer/package-versions-deprecated",
@@ -11561,9 +11560,7 @@
     ],
     "aliases": [],
     "minimum-stability": "stable",
-    "stability-flags": {
-        "cidilabs/phpally": 20
-    },
+    "stability-flags": [],
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": {
