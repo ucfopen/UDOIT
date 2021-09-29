@@ -55,7 +55,7 @@ class CanvasApi {
         $content = $lmsResponse->getContent();
 
         // If error is invalid token, refresh API token and try again
-        if ($lmsResponse->getStatusCode() == 400 || $lmsResponse->getStatusCode() > 401) {
+        if ($lmsResponse->getStatusCode() >= 400) {
             throw new \Exception('Failed API call', $lmsResponse->getStatusCode());
         }
 

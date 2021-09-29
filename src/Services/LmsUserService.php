@@ -6,12 +6,13 @@ use App\Entity\User;
 use App\Services\LmsApiService;
 use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Component\HttpClient\HttpClient;
+use Symfony\Component\HttpClient\Exception\TimeoutException;
 
 class LmsUserService {
 
     /** @var App\Services\LmsApiService $lmsApi */
     protected $lmsApi;
-    
+
     /** @var ManagerRegistry $doctrine */
     protected $doctrine;
 
@@ -43,13 +44,15 @@ class LmsUserService {
 
         if (empty($apiKey)) {
             return false;
-        }        
+        }
 
-        try {        
+        try {
             return $lms->testApiConnection($user);
-        } 
+        }
         catch (\Exception $e) {
-            $this->refreshApiKey($user);
+            if(!$this->refreshApiKey($user)) {
+                return false;
+            }
         }
 
         try {
@@ -81,11 +84,20 @@ class LmsUserService {
             'verify_peer' => false,
         ];
 
+        if (isset($_ENV['HEROKU_TIMEOUT'])) {
+            $options['timeout'] = $_ENV['HEROKU_TIMEOUT'];
+        }
+
         $client = HttpClient::create();
         $requestUrl = $this->lmsApi->getLms()->getOauthTokenUri($institution);
-        $response = $client->request('POST', $requestUrl, $options);
-        $contentStr = $response->getContent(false);
-        $newKey = \json_decode($contentStr, true);
+        try {
+            $response = $client->request('POST', $requestUrl, $options);
+            $contentStr = $response->getContent(false);
+            $newKey = \json_decode($contentStr, true);
+        } catch (TimeoutException $e) {
+            $newKey = null;
+        }
+
 
         // update the token in the database
         if (isset($newKey['access_token'])) {
