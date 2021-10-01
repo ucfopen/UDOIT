@@ -86,8 +86,8 @@ class AboutPage extends React.Component {
               const type = this.issues[issueType]
               return (
                 <View as="div" margin="small large" key={issueType}>
-                  <View padding="x-small">
-                    <Heading  margin="none" padding="small" level="h3">
+                  <View padding="x-small" margin="none">
+                    <Heading level="h3">
                       {('error' === issueType) ? <IconNoLine className={Classes.error} /> : <IconInfoBorderlessLine className={Classes.suggestion} />}
                       {this.props.t(`label.plural.${issueType}`)}
                     </Heading><br />
@@ -97,7 +97,11 @@ class AboutPage extends React.Component {
                       var showExample = true
                     }
                     return (
-                      <ToggleDetails key={rule} summary={this.props.t(`rule.label.${rule}`)}>
+                      <ToggleDetails key={rule} summary={
+                        <Heading level="h4">
+                          {this.props.t(`rule.label.${rule}`)}
+                        </Heading>}
+                      >
                         <View as="div" margin="small 0" background="primary" padding="small" shadow="above">
                           {ReactHtmlParser(this.props.t(`rule.desc.${rule}`), { preprocessNodes: (nodes) => Html.processStaticHtml(nodes, this.props.settings) })}
                           {
