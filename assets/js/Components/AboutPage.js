@@ -88,7 +88,7 @@ class AboutPage extends React.Component {
                 <View as="div" margin="small large" key={issueType}>
                   <View padding="x-small" margin="none">
                     <Heading level="h3">
-                      {('error' === issueType) ? <IconNoLine className={Classes.error} /> : <IconInfoBorderlessLine className={Classes.suggestion} />}
+                      {('error' === issueType) ? <IconNoLine className={Classes.error} /> : <IconInfoBorderlessLine className={Classes.suggestion} />}&nbsp;
                       {this.props.t(`label.plural.${issueType}`)}
                     </Heading><br />
                   </View>
