@@ -60,7 +60,7 @@ UDOIT uses a `.env` file for storing configuration. Local configuration such as 
 * Rename the file `.env.local.example` to `.env.local`.
 * Add your database information to this `.env.local` file.
 * Add the `BASE_URL`, which is the full URL to reach the `public` folder of UDOIT. (i.e. https://udoit3.ciditools.com)
-
+* You can optionally change the default language for your entire UDOIT instance by overriding the DEFAULT_LANG variable. Currently supported languages are English (en) and Spanish (es).
 
 ## Database Setup
 While UDOIT is configured to use MySQL or MariaDB by default, Symfony can be configured to work with other databases as well. See the Symfony documentation for details.

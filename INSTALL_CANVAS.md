@@ -82,7 +82,7 @@ We strongly recommend you enforce scopes with your API key. The following scopes
     * url:GET|/api/v1/courses/:course_id/quizzes
     * url:GET|/api/v1/courses/:course_id/quizzes/:id
     * url:PUT|/api/v1/courses/:course_id/quizzes/:id
- * Users 
+ * Users
     * url:GET|/api/v1/users/:id
 
 ---
@@ -149,6 +149,12 @@ The following fields need to be populated in the `institution` table.
 * vanity_url
     * Your LMS vanity URL
     * Example: `canvas.myschool.edu`
+* metadata
+    * Optional
+    * Institution specific settings, such as language or excluded tests.
+    * Text representation of a JSON object.
+    * Example: `'{"lang":"es"}'`
+    * Currently supported languages are English (en) and Spanish (es).
 * api_client_id
     * The ID of the developer API key you created earlier.
     * Client ID is found in the `Details` column on the Developer Keys page
