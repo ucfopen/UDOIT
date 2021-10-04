@@ -8,7 +8,7 @@
   "about.skip_welcome": "Omitir este mensaje de bienvenida en el futuro",
   "about.video_embed": "<iframe width='360' height='200' src='https://www.youtube.com/embed/gXA4vD7wuws' title='UDOIT Vídeo Resumen' frameborder='0' allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture' allowfullscreen></iframe>",
   "about.video_link": "<a href='https://youtu.be/gXA4vD7wuws' target='_blank' rel='noopener'>UDOIT Vídeo Resumen</a>",
-  "about.user_guide_link": "<a href='https://cidilabs.instructure.com/courses/6621' target='_blank' rel='noopener'>UDOIT g=Guía del Usuario</a>",
+  "about.user_guide_link": "<a href='https://cidilabs.instructure.com/courses/6621' target='_blank' rel='noopener'>UDOIT Guía del Usuario</a>",
 
   "content.plural.page": "Paginas",
   "content.plural.assignment": "Asignaciones",
