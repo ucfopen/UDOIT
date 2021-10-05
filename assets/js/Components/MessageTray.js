@@ -22,6 +22,7 @@ class MessageTray extends React.Component {
             renderCloseButtonLabel={this.props.t('label.close')}
             onDismiss={this.props.clearMessages}
             margin="small large"
+            liveRegion={() => document.getElementsByClassName(Classes.messagesTray)[0]}
             liveRegionPoliteness="polite"
           >
             {this.props.t('label.content_loading_msg')}
