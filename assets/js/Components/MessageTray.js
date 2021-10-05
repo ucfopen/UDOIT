@@ -23,7 +23,6 @@ class MessageTray extends React.Component {
             onDismiss={this.props.clearMessages}
             margin="small large"
             liveRegion={() => document.getElementsByClassName(Classes.messagesTray)[0]}
-            liveRegionPoliteness="polite"
           >
             {this.props.t('label.content_loading_msg')}
             <Spinner size="x-small" margin="0 small" renderTitle="Loading" />
@@ -36,7 +35,6 @@ class MessageTray extends React.Component {
             renderCloseButtonLabel={this.props.t('label.close')}
             onDismiss={this.props.clearMessages}
             margin="small large"
-            liveRegionPoliteness="polite"
             key={`msg${i}`}
           >
             {this.props.t(msg.message)}
