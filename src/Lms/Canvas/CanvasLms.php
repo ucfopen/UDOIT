@@ -206,7 +206,8 @@ class CanvasLms implements LmsInterface {
                         continue;
                     }
 
-                    if ('assignment' === $contentType && isset($content['quiz_id'])) {
+                    /* Quizzes should not be counted as assignments */
+                    if (('assignment' === $contentType) && isset($content['quiz_id'])) {
                         continue;
                     }
 
@@ -249,7 +250,7 @@ class CanvasLms implements LmsInterface {
 
                     // some content types don't have an updated date, so we'll compare content
                     // to find out if content has changed.
-                    if (in_array($contentType, ['syllabus', 'discussion_topic', 'announcement'])) {
+                    if (in_array($contentType, ['syllabus', 'discussion_topic', 'announcement', 'quiz'])) {
                         if ($contentItem->getBody() === $lmsContent['body']) {
                             if ($contentItem->getUpdated()) {
                                 $lmsContent['updated'] = $contentItem->getUpdated()->format('c');
@@ -663,6 +664,16 @@ class CanvasLms implements LmsInterface {
                 if (isset($lmsContent['mime_class'])) {
                     $out['fileType'] = $lmsContent['mime_class'];
                 }
+
+                break;
+
+            case 'quiz':
+                $out['id'] = $lmsContent['id'];
+                $out['title'] = $lmsContent['title'];
+                $out['updated'] = 'now';
+                $out['body'] = $lmsContent['description'];
+                $out['status'] = $lmsContent['published'];
+                $out['url'] = "{$baseUrl}/quizzes/{$lmsContent['id']}";
 
                 break;
         }
