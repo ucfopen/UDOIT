@@ -206,6 +206,10 @@ class CanvasLms implements LmsInterface {
                         continue;
                     }
 
+                    if ('assignment' === $contentType && isset($content['quiz_id'])) {
+                        continue;
+                    }
+
                     $lmsContent = $this->normalizeLmsContent($course, $contentType, $content);
                     if (!$lmsContent) {
                         continue;
