@@ -562,6 +562,9 @@ class CanvasLms implements LmsInterface {
                 $options['body'] = $html;
                 break;
 
+            case 'quiz':
+                $options['quiz[description'] = $html;
+                break;
                 // case 'module':
                 // break;
 
@@ -583,7 +586,7 @@ class CanvasLms implements LmsInterface {
             'file' => "courses/{$lmsCourseId}/files/{$lmsContentId}",
             'module' => "courses/{$lmsCourseId}/modules/{$lmsContentId}",
             'page' => "courses/{$lmsCourseId}/pages/{$lmsContentId}",
-            //'quiz' => "courses/{$lmsCourseId}/quizzes/{$lmsContentId}",
+            'quiz' => "courses/{$lmsCourseId}/quizzes/{$lmsContentId}",
             'syllabus' => "courses/{$lmsCourseId}?include[]=syllabus_body",
         ];
 
