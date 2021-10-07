@@ -677,8 +677,7 @@ class CanvasLms implements LmsInterface {
             // we're not handling module item URLs yet.
             //'module' =>             "courses/{$courseId}/modules",
             'page' =>               "courses/{$courseId}/pages",
-            // quizzes will show up in the assignment list
-            //'quiz' =>               "courses/{$courseId}/quizzes",
+            'quiz' =>               "courses/{$courseId}/quizzes",
         ];
     }
 
