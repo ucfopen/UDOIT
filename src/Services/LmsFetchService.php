@@ -54,7 +54,7 @@ class LmsFetchService {
      * 3) Create new report
      * 4) Link unchanged issues to new report
      * 5) Process updated content
-     * 
+     *
      * @param Course $course
      * @param User $user
      */
@@ -226,7 +226,7 @@ class LmsFetchService {
 
                     // Add Issues to report
                     foreach ($phpAllyReport->getIssues() as $issue) {
-                        // Create issue entity 
+                        // Create issue entity
                         $this->createIssue($issue, $contentItem);
                     }
                 }
