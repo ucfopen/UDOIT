@@ -86,16 +86,23 @@ class AboutPage extends React.Component {
               const type = this.issues[issueType]
               return (
                 <View as="div" margin="small large" key={issueType}>
-                  {('error' === issueType) ? <IconNoLine className={Classes.error} /> : <IconInfoBorderlessLine className={Classes.suggestion} />}
-                  <View padding="x-small"><Text weight="bold">{this.props.t(`label.plural.${issueType}`)}</Text><br /></View>
+                  <View padding="x-small" margin="none">
+                    <Heading level="h3">
+                      {('error' === issueType) ? <IconNoLine className={Classes.error} /> : <IconInfoBorderlessLine className={Classes.suggestion} />}&nbsp;
+                      {this.props.t(`label.plural.${issueType}`)}
+                    </Heading><br />
+                  </View>
                   {type.map((rule) => {
                     if (!this.props.t(`rule.example.${rule}`).includes('rule.example')) {
                       var showExample = true
                     }
                     return (
-                      <ToggleDetails key={rule} summary={this.props.t(`rule.label.${rule}`)}>
+                      <ToggleDetails key={rule} summary={
+                        <Heading level="h4">
+                          {this.props.t(`rule.label.${rule}`)}
+                        </Heading>}
+                      >
                         <View as="div" margin="small 0" background="primary" padding="small" shadow="above">
-                          <Heading level="h4">{this.props.t(`rule.label.${rule}`)}</Heading>
                           {ReactHtmlParser(this.props.t(`rule.desc.${rule}`), { preprocessNodes: (nodes) => Html.processStaticHtml(nodes, this.props.settings) })}
                           {
                             (showExample) &&
