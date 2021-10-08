@@ -72,7 +72,7 @@ export const handlers = [
     return res(ctx.status(200), ctx.json({}))
   }),
   // Api.js scanContent
-  rest.get('/api/sync/:content_id', (req, res, ctx) => {
+  rest.get('/api/sync/content/:content_id', (req, res, ctx) => {
     const { content_id } = req.params
 
     return res(ctx.status(200), ctx.json({}))
