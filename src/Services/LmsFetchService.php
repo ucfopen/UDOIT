@@ -270,7 +270,7 @@ class LmsFetchService {
         return $issueEntity;
     }
 
-    private function deleteContentItemIssues($contentItems)
+    public function deleteContentItemIssues($contentItems)
     {
         /** @var \App\Repository\IssueRepository $issueRepo */
         $issueRepo = $this->doctrine->getManager()->getRepository(Issue::class);

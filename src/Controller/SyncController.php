@@ -3,10 +3,12 @@
 namespace App\Controller;
 
 use App\Entity\Course;
+use App\Entity\ContentItem;
 use App\Repository\CourseRepository;
 use App\Response\ApiResponse;
 use App\Services\LmsApiService;
 use App\Services\LmsFetchService;
+use App\Services\PhpAllyService;
 use App\Services\UtilityService;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Annotation\Route;
@@ -67,6 +69,43 @@ class SyncController extends ApiController
                 $response->addMessage($e->getMessage(), 'error', 0);
             }
         }
+
+        return new JsonResponse($response);
+    }
+
+    /**
+     * 
+     * @Route("/api/sync/content/{contentItem}", name="content_sync", methods={"GET"})
+     */
+    public function requestContentSync(ContentItem $contentItem, LmsFetchService $lmsFetch, PhpAllyService $phpAlly)
+    {
+        $response = new ApiResponse();
+        $course = $contentItem->getCourse();
+        $user = $this->getUser();
+
+        // Delete old issues
+        $lmsFetch->deleteContentItemIssues(array($contentItem));
+
+        // Rescan the contentItem
+        $phpAllyReport = $phpAlly->scanContentItem($contentItem);
+
+        // Add rescanned Issues to database
+        foreach ($phpAllyReport->getIssues() as $issue) {
+            // Create issue entity 
+            $lmsFetch->createIssue($issue, $contentItem);
+        }
+
+        // Update report
+        $report = $lmsFetch->updateReport($course, $user);
+        if (!$report) {
+            throw new \Exception('msg.no_report_created');
+        }
+
+        $reportArr = $report->toArray();
+        $reportArr['files'] = $course->getFileItems();
+        $reportArr['issues'] = $course->getAllIssues();
+        $reportArr['contentItems'] = $course->getContentItems();
+        $response->setData($reportArr);
 
         return new JsonResponse($response);
     }
