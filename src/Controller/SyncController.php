@@ -40,7 +40,7 @@ class SyncController extends ApiController
             }
 
             $lmsFetch->refreshLmsContent($course, $user);
-            
+
             $report = $course->getLatestReport();
 
             if (!$report) {
