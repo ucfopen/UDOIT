@@ -83,7 +83,7 @@ export default class LinkForm extends React.Component {
       <View as="div" padding="x-small">
         <View as="div">
           <TextInput
-            renderLabel={this.props.t('form.anchor.new_link')}
+            renderLabel={this.props.t('form.link.new_link')}
             display="inline-block"
             width="100%"
             onChange={this.handleInput}
