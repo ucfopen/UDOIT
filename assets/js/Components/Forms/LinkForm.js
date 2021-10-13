@@ -15,7 +15,7 @@ export default class LinkForm extends React.Component {
     const html = Html.getIssueHtml(this.props.activeIssue)
 
     this.state = {
-      textInputValue: Html.getInnerText(html),
+      textInputValue: Html.getAttribute(html, "href"),
       textInputErrors: [],
       deleteLink: (!props.activeIssue.newHtml && (props.activeIssue.status === 1)), // newHtml is empty (deleted) and status is fixed
     }
