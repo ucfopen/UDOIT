@@ -275,6 +275,8 @@
   "form.summary.option.active": "All open issues",
   "form.summary.option.by_issue": "By issue type",
   "form.summary.option.by_content": "By content type",
+  "form.link.new_link": "New Link",
+  "form.link.msg.link_empty": "Link href cannot be empty",
 
   "rule.label.AnchorLinksToMultiMediaRequireTranscript": "Links To MultiMedia Require Transcripts",
   "rule.label.AnchorLinksToSoundFilesNeedTranscripts": "Links To Sound Files Need Transcripts",
