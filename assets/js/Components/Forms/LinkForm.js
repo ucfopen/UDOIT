@@ -12,10 +12,15 @@ export default class LinkForm extends React.Component {
   constructor(props) {
     super(props)
 
+    let redirectLink = this.props.activeIssue.metadata
+    if (redirectLink) {
+      redirectLink = JSON.parse(redirectLink)
+      redirectLink = redirectLink["redirect_url"]
+    }
     const html = Html.getIssueHtml(this.props.activeIssue)
 
     this.state = {
-      textInputValue: Html.getAttribute(html, "href"),
+      textInputValue: redirectLink ? redirectLink : "",
       textInputErrors: [],
       deleteLink: (!props.activeIssue.newHtml && (props.activeIssue.status === 1)), // newHtml is empty (deleted) and status is fixed
     }
