@@ -74,7 +74,7 @@ class SyncController extends ApiController
     }
 
     /**
-     * 
+     *
      * @Route("/api/sync/content/{contentItem}", name="content_sync", methods={"GET"})
      */
     public function requestContentSync(ContentItem $contentItem, LmsFetchService $lmsFetch, PhpAllyService $phpAlly)
@@ -91,7 +91,7 @@ class SyncController extends ApiController
 
         // Add rescanned Issues to database
         foreach ($phpAllyReport->getIssues() as $issue) {
-            // Create issue entity 
+            // Create issue entity
             $lmsFetch->createIssue($issue, $contentItem);
         }
 
