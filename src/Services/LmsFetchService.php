@@ -60,7 +60,6 @@ class LmsFetchService {
      */
     public function refreshLmsContent(Course $course, User $user)
     {
-        $hasContent = false;
         $lms = $this->lmsApi->getLms($user);
 
         $this->lmsUser->validateApiKey($user);
