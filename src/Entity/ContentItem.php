@@ -108,7 +108,6 @@ class ContentItem implements \JsonSerializable
         return \json_encode($this->jsonSerialize());
     }
 
-
     // Getters and Setters
     public function getId(): ?int
     {
@@ -175,7 +174,7 @@ class ContentItem implements \JsonSerializable
 
         return $this;
     }
-    
+
     public function getBody(): ?string
     {
         return $this->body;
@@ -231,7 +230,7 @@ class ContentItem implements \JsonSerializable
 
         return $this;
     }
-    
+
     public function isActive(): ?bool
     {
         return $this->active;
@@ -255,7 +254,7 @@ class ContentItem implements \JsonSerializable
 
         return $this;
     }
-    
+
     public function update($lmsContent): self
     {
         // try {
@@ -267,10 +266,10 @@ class ContentItem implements \JsonSerializable
         $this->setActive(true);
         $this->setBody($lmsContent['body']);
         $this->setUrl($lmsContent['url']);
-        
+
         // }
         // catch (\Exception $e) {
-            
+
         // }
 
         return $this;
