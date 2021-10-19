@@ -12,12 +12,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/jasonmatos23-git/phpally.git",
-                "reference": "c3c67deefc53abd5e4248431100c084217c8e417"
+                "reference": "47e2e69e1eea665048d6c6a57e4361e3c89c70c1"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/jasonmatos23-git/phpally/zipball/c3c67deefc53abd5e4248431100c084217c8e417",
-                "reference": "c3c67deefc53abd5e4248431100c084217c8e417",
+                "url": "https://api.github.com/repos/jasonmatos23-git/phpally/zipball/47e2e69e1eea665048d6c6a57e4361e3c89c70c1",
+                "reference": "47e2e69e1eea665048d6c6a57e4361e3c89c70c1",
                 "shasum": ""
             },
             "require": {
@@ -58,7 +58,7 @@
             "support": {
                 "source": "https://github.com/jasonmatos23-git/phpally/tree/master"
             },
-            "time": "2021-10-08T20:45:47+00:00"
+            "time": "2021-10-25T14:05:23+00:00"
         },
         {
             "name": "composer/package-versions-deprecated",
