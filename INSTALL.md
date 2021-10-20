@@ -57,10 +57,16 @@ Assuming you have Composer installed, navigate to your UDOIT directory in the CL
 
 ## .ENV Setup
 UDOIT uses a `.env` file for storing configuration. Local configuration such as database information and URLs should be stored in a `.env.local` file that is NOT tracked in Git.
-* Rename the file `.env.local.example` to `.env.local`.
-* Add your database information to this `.env.local` file.
-* Add the `BASE_URL`, which is the full URL to reach the `public` folder of UDOIT. (i.e. https://udoit3.ciditools.com)
-* You can optionally change the default language for your entire UDOIT instance by overriding the DEFAULT_LANG variable. Currently supported languages are English (en) and Spanish (es).
+1. Copy the file `.env.local.example` to `.env.local`.
+2. Change `APP_ENV` to
+   * `dev` if you are setting up a development environment
+   * `prod` if you are setting up a production server
+3. Add your database information to this `DATABASE_URL` variable.
+4. Add the `BASE_URL`, which is the full URL to reach the `public` folder of UDOIT. (i.e. https://udoit3.ciditools.com)
+5. Set `APP_LMS` to the name of your LMS.
+   * `canvas` if you are using the Canvas LMS.
+   * `d2l` if you are using the D2l Brightspace LMS.
+6. (Optional) You can change the default language for your entire UDOIT instance by overriding the `DEFAULT_LANG` variable. Currently supported languages are English (`en`) and Spanish (`es`).
 
 ## Database Setup
 While UDOIT is configured to use MySQL or MariaDB by default, Symfony can be configured to work with other databases as well. See the Symfony documentation for details.
@@ -102,4 +108,4 @@ For example, if you are setting this up on your local computer it may look like:
     https://udoit.local/lti/config
 
 ## Configuring Your LMS
-You will need to complete the steps in the INSTALL_CANVAS.md or INSTALL_D2L.md to configure UDOIT to work within your LMS.
+You will need to complete the steps in the [INSTALL_CANVAS.md](INSTALL_CANVAS.md) or [INSTALL_D2L.md](INSTALL_D2L.md) to configure UDOIT to work within your LMS.

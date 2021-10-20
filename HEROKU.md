@@ -12,9 +12,11 @@ After clicking the Heroku button above:
 2. Give the app a name.
 3. Set `APP_ENV` to prod for the production version of UDOIT. Please note: The dev environment is not available on Heroku.
 4. Set `APP_LMS` to the name of your LMS.
+   * `canvas` if you are using the Canvas LMS.
+   * `d2l` if you are using the D2l Brightspace LMS.
 5. Fill out the `BASE_URL` field with `https://yourapp.herokuapp.com`. (Replace 'yourapp' with the name you gave in step 2.)
-5. Fill out the `JWK_BASE_URL` field with the URL to your LMS. The default value works for instructure hosted instances of Canvas, but will need to be modified according to the LMS and host.
-6. Click the Deploy button and wait for the process to complete.
+6. Fill out the `JWK_BASE_URL` field with the URL to your LMS. The default value works for instructure hosted instances of Canvas, but will need to be modified according to the LMS and host.
+7. Click the Deploy button and wait for the process to complete.
 
 ### Step 2: Clone UDOIT and Push to Heroku
 1. Follow the instruction under the ['Source Code' section of INSTALL.md](https://github.com/ucfopen/UDOIT/blob/main/INSTALL.md#source-code).
