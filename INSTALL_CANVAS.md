@@ -105,7 +105,9 @@ Provide values for the following fields:
     * Enter URL
 * JSON URL
     * <YOUR_UDOIT_BASE_URL>/lti/config
-* Additional Settings
+* Click Save.  Reload the page, then edit the LTI key you just created.
+* If your instance of Canvas is self-hosted, modify the URL under **JWK Method** to point to your canvas instance.
+* Set Additional Settings
     * Domain
       * Your UDOIT domain
     * Tool ID
@@ -139,13 +141,14 @@ The following fields need to be populated in the `institution` table.
     * Do not include `https://` or a trailing slash.
     * Example: `myschool.instructure.com`
 * lms_id
-    * canvas
+    * `canvas`
 * lms_account_id
-    * The Canvas account ID where UDOIT will be installed.
+    * The Canvas account ID (as a string) where UDOIT will be installed.
 * created
-    * Date in this format: "2021-06-08"
+    * Date in this format: `"2021-06-08"`
 * status
-    * 1
+    * `1` if you are using MySQL or MariaDB
+    * `true` if you are using PostgreSQL
 * vanity_url
     * Your LMS vanity URL
     * Example: `canvas.myschool.edu`

@@ -31,25 +31,28 @@ git push heroku main:master -f
 ### Step 3: Database Migration and Setup
 Next we need to set up the database and insert our institution in to the appropriate table.
 1. Access your Heroku instance by running
-```
+```bash
 heroku run bash
 ```
 2. If using Heroku Postgres, run the database migrations by using:
-```
+```bash
 php bin/console doctrine:migrations:migrate
 ```
 3. If you are operating in a production environment you will need to generate the doctrine proxy classes by running the following command:
-```
+```bash
 php bin/console cache:warmup --env=prod
 ```
-4. Now is a good time to set up developer keys according to the instructions in INSTALL_\<LMS\>.md.
+4. Set up developer keys according to the instructions in INSTALL_\<LMS\>.md.
 5. Access the Postgres database by running the following within Heorku's bash environment:
-```
+```sql
 psql <the DATABASE_URL located in your config vars under the Settings tab>
 ```
-6. Insert your institution in to the institution table as described in INSTALL_\<LMS\>.md.
+6. Insert your institution in to the institution table as described in INSTALL_\<LMS\>.md.  It may be something like:
+```sql
+INSERT INTO institution (id, title, lms_domain, lms_id, lms_account_id, created, status, vanity_url, metadata, api_client_id, api_client_secret) VALUES (0, 'Canvas', 'myinstitution.instructure.com', 'canvas', '1', '2021-10-21', true, 'vanity.example.com', '{"lang":"en"}', '123456', 'abcdefghijklmnopqrstuvwxyz');
+```
 ### Step 4: Finish
-Finish up the Heroku setup by [installing the yarn dependencies and building the project](https://github.com/ucfopen/UDOIT/blob/main/INSTALL.md#javascript).
+Install the app following the instructions described in INSTALL_\<LMS\>.md.
 
 ## Manual Deployment
 ### Step 1: Create a new Heroku app
