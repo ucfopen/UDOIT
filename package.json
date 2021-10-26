@@ -1,10 +1,7 @@
 {
-    "name": "ucfopen/udoit",
+    "name": "UDOIT",
     "description": "The Universal Design Online content Inspection Tool, or UDOIT (pronounced, 'You Do It') enables faculty to identify accessibility issues in their Learning Management System. It will scan a course, generate a report, and provide resources on how to address common accessibility issues.",
-    "keywords": ["instructure", "canvas", "d2l", "brightspace", "education", "udoit", "ucf", "accessibility", "edtech", "canvas-lms", "instructure", "section-508"],
-    "homepage": "https://github.com/ucfopen/UDOIT",
     "version": "3.1.0",
-    "license": "GPL-3.0",
     "engines": {
         "yarn": "1.x"
     },
@@ -90,8 +87,5 @@
         "react-html-parser": "^2.0.2",
         "react-router-dom": "^5.2.0",
         "reactstrap": "^8.7.1"
-    },
-    "resolutions": {
-        "**/url-parse": "1.5.3"
     }
 }
