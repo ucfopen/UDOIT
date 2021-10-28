@@ -14,9 +14,11 @@ Click the Heroku button and follow the instructions below:
 2. Give the app a name.
 3. Set `APP_ENV` to `prod` for the production version of UDOIT. Please note: The `dev` environment is not available on Heroku.
 4. Set `APP_LMS` to the name of your LMS.
+   * `canvas` if you are using the Canvas LMS.
+   * `d2l` if you are using the D2l Brightspace LMS.
 5. Fill out the `BASE_URL` field with `https://yourapp.herokuapp.com`. (Replace 'yourapp' with the name you gave in step 1.2.)
-5. Fill out the `JWK_BASE_URL` field with the URL to your LMS. The default value works for instructure hosted instances of Canvas, but will need to be modified according to the LMS and host.
-6. Click the Deploy button and wait for the process to complete.
+6. Fill out the `JWK_BASE_URL` field with the URL to your LMS. The default value works for instructure hosted instances of Canvas, but will need to be modified according to the LMS and host.
+7. Click the Deploy button and wait for the process to complete.
 
 ### Step 2: Database Migration and Setup
 Next we need to set up the database and insert our institution in to the appropriate table.
