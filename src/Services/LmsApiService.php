@@ -30,14 +30,14 @@ class LmsApiService {
 
     public function __construct(
         SessionService $sessionService,
-        MessageBusInterface $bus, 
+        MessageBusInterface $bus,
         ManagerRegistry $doctrine,
         CanvasLms $canvasLms,
         D2lLms $d2lLms)
     {
         $this->sessionService = $sessionService;
         $this->bus = $bus;
-        $this->doctrine = $doctrine;  
+        $this->doctrine = $doctrine;
 
         $this->canvasLms = $canvasLms;
         $this->d2lLms = $d2lLms;
@@ -53,7 +53,7 @@ class LmsApiService {
         if ($lmsId = $session->get('lms_id')) {
             return $lmsId;
         }
-        
+
         return $_ENV['APP_LMS'];
     }
 
@@ -74,11 +74,11 @@ class LmsApiService {
 
     /**
      * Adds Course Refresh request to the Message Queue
-     * 
+     *
      * @param Course[] $courses
      * @param User $user
      * @param bool $isPriority
-     * 
+     *
      * @return int
      */
     public function addCoursesToBeScanned($courses, User $user, $isPriority = false)
