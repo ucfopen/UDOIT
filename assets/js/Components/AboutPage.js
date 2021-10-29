@@ -67,10 +67,24 @@ class AboutPage extends React.Component {
 
             <View as="div" margin="large 0">
               <View as="div">
-                <Text as="strong">Other Resources:</Text>
+                <Text as="strong">{this.props.t('about.resources')}</Text>
               </View>
               <View as="div" position="relative" textAlign="start" insetBlockStart="1vh">
-                {ReactHtmlParser(this.props.t('about.user_guide_link'), { preprocessNodes: (nodes) => Html.processStaticHtml(nodes, this.props.settings) })}
+                <View>
+                  {ReactHtmlParser(this.props.t('about.user_guide_link'), { preprocessNodes: (nodes) => Html.processStaticHtml(nodes, this.props.settings) })}
+                </View>
+              </View>
+            </View>
+
+            <View as="div" margin="large 0">
+              <View as="div">
+                <Text as="strong">{this.props.t('about.policies')}</Text>
+              </View>
+              <View as="div" position="relative" textAlign="start" insetBlockStart="1vh">
+                  {ReactHtmlParser(this.props.t('about.youtube_terms'), { preprocessNodes: (nodes) => Html.processStaticHtml(nodes, this.props.settings) })}
+              </View>  
+              <View as="div" position="relative" textAlign="start" insetBlockStart="1vh">
+                {ReactHtmlParser(this.props.t('about.google_privacy'), { preprocessNodes: (nodes) => Html.processStaticHtml(nodes, this.props.settings) })}
               </View>
             </View>
           </Flex.Item>
