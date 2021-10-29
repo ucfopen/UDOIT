@@ -6,7 +6,7 @@
         "ext-ctype": "*",
         "ext-iconv": "*",
         "ext-sodium": "*",
-        "cidilabs/phpally": "dev-master",
+        "cidilabs/phpally": "^1.0.5",
         "composer/package-versions-deprecated": "1.11.99.3",
         "doctrine/annotations": "^1.0",
         "doctrine/doctrine-bundle": "^2.4",
@@ -109,7 +109,7 @@
     "repositories": [
         {
             "type": "vcs",
-            "url": "https://github.com/jasonmatos23-git/phpally"
+            "url": "https://github.com/cidilabs/phpally"
         }
     ]
 }
