@@ -225,6 +225,14 @@ class Contrast {
     return '#' + color
   }
 
+  // Accepts HSL, RGB, Hex, color name (eg. red, black) and returns the hex value
+  standardizeColor(color){
+    var element = document.createElement("canvas").getContext("2d");
+    element.fillStyle = color;
+    
+    return element.fillStyle;
+  }
+
   convertHtmlRgb2Hex(html) {
     return html.replace(/rgb\((\d+,\s*\d+,\s*\d+)\)(?=[^\<]*\>)/ig, (_, rgb) => {
       return '#' + rgb.split(',')
@@ -232,7 +240,6 @@ class Contrast {
         .join('')
     })
   }
-
 }
 
 export default new Contrast()
