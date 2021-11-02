@@ -6,7 +6,6 @@ import { Flex } from '@instructure/ui-flex'
 import { View } from '@instructure/ui-view'
 import { Text } from '@instructure/ui-text'
 import { TextInput } from '@instructure/ui-text-input'
-import { Checkbox } from '@instructure/ui-checkbox'
 import { IconButton } from '@instructure/ui-buttons'
 import { IconArrowOpenDownSolid, IconArrowOpenUpSolid, IconCheckMarkLine } from '@instructure/ui-icons'
 import ColorPicker from '../ColorPicker'
@@ -20,11 +19,9 @@ export default class ContrastForm extends React.Component {
     this.state = {
       backgroundColor: this.getBackgroundColor(),
       textColor: this.getTextColor(),
-      useBold: this.isBold(),
-      useItalics: this.isItalicized(),
       contrastRatio: null,
       ratioIsValid: false,
-      textInputErrors: []
+      textInputErrors: [],
     }
 
     this.formErrors = []
@@ -35,8 +32,6 @@ export default class ContrastForm extends React.Component {
     this.handleDarkenBackground = this.handleDarkenBackground.bind(this)
     this.handleLightenText = this.handleLightenText.bind(this)
     this.handleDarkenText = this.handleDarkenText.bind(this)
-    this.handleBoldToggle = this.handleBoldToggle.bind(this)
-    this.handleItalicsToggle = this.handleItalicsToggle.bind(this)
     this.updatePreview = this.updatePreview.bind(this)
     this.handleSubmit = this.handleSubmit.bind(this)
     this.updateText = this.updateText.bind(this)
@@ -53,8 +48,6 @@ export default class ContrastForm extends React.Component {
       this.setState({
         backgroundColor: this.getBackgroundColor(),
         textColor: this.getTextColor(),
-        useBold: this.isBold(),
-        useItalics: this.isItalicized(),
         textInputErrors: []
       },() => {
         this.formErrors = []
@@ -111,31 +104,18 @@ export default class ContrastForm extends React.Component {
     })
   }
 
-  handleBoldToggle() {
-    this.setState({
-      useBold: !this.state.useBold
-    }, () => {
-      this.updatePreview()
-    })
-  }
-
-  handleItalicsToggle() {
-    this.setState({
-      useItalics: !this.state.useItalics
-    }, () => {
-      this.updatePreview()
-    })
-  }
-
   handleSubmit() {
+    let issue = this.props.activeIssue
+    
     if(this.state.ratioIsValid) {
       let issue = this.props.activeIssue
       issue.newHtml = Contrast.convertHtmlRgb2Hex(issue.newHtml)
       this.props.handleIssueSave(issue)
     } else {
-      this.formErrors = []
       //push errors
+      this.formErrors = []
       this.formErrors.push({ text: `${this.props.t('form.contrast.invalid')}: ${this.state.contrastRatio}` , type: 'error' })
+
       this.setState({
         textInputErrors: this.formErrors
       })
@@ -193,7 +173,7 @@ export default class ContrastForm extends React.Component {
     return (
       <View as="div" padding="0 x-small">
         <div id="flash-messages" role="alert"></div>
-        <Alert
+        <Alert 
           liveRegion={() => document.getElementById('flash-messages')}
           liveRegionPoliteness="polite"
           screenReaderOnly
@@ -263,20 +243,6 @@ export default class ContrastForm extends React.Component {
         </View>
         <Flex>
           <Flex.Item shouldGrow shouldShrink>
-            <View as="div" margin="small 0">
-              <Checkbox label={this.props.t('form.contrast.bolden_text')}
-                checked={this.state.useBold}
-                onChange={this.handleBoldToggle}>
-              </Checkbox>
-            </View>
-
-            <View as="div" margin="small 0">
-              <Checkbox label={this.props.t('form.contrast.italicize_text')}
-                checked={this.state.useItalics}
-                onChange={this.handleItalicsToggle}>
-              </Checkbox>
-            </View>
-
             <View as="div" margin="medium 0">
               <Button color="primary" onClick={this.handleSubmit} interaction={(!pending && this.props.activeIssue.status !== 2) ? 'enabled' : 'disabled'}>
                 {('1' == pending) && <Spinner size="x-small" renderTitle={buttonLabel} />}
@@ -307,7 +273,7 @@ export default class ContrastForm extends React.Component {
               </View>
             </View>
           </Flex.Item>
-        </Flex>
+        </Flex>        
       </View>
     );
   }
@@ -317,13 +283,6 @@ export default class ContrastForm extends React.Component {
 
     element.style.backgroundColor = Contrast.convertShortenedHex(this.state.backgroundColor)
     element.style.color = Contrast.convertShortenedHex(this.state.textColor)
-
-    // Clean up tags
-    Html.removeTag(element, 'strong')
-    Html.removeTag(element, 'em')
-
-    element.innerHTML = (this.state.useBold) ? `<strong>${element.innerHTML}</strong>` : element.innerHTML
-    element.innerHTML = (this.state.useItalics) ? `<em>${element.innerHTML}</em>` : element.innerHTML
 
     return Html.toString(element)
   }
@@ -335,7 +294,7 @@ export default class ContrastForm extends React.Component {
     let tagName = Html.toElement(html).tagName
     let largeTextTags = this.props.t('form.contrast.large_text_tags')
     let ratioIsValid = this.state.ratioIsValid
-
+    
     if(largeTextTags.includes(tagName)) {
       ratioIsValid = (contrastRatio >= 3)
     } else {
@@ -348,26 +307,6 @@ export default class ContrastForm extends React.Component {
     this.props.handleActiveIssue(issue)
   }
 
-  isBold()
-  {
-    const issue = this.props.activeIssue
-    const metadata = (issue.metadata) ? JSON.parse(issue.metadata) : {}
-    const html = Html.getIssueHtml(this.props.activeIssue)
-    const element = Html.toElement(html)
-
-    return ((Html.hasTag(element, 'strong')) || (metadata.fontWeight === 'bold'))
-  }
-
-  isItalicized()
-  {
-    const issue = this.props.activeIssue
-    const metadata = (issue.metadata) ? JSON.parse(issue.metadata) : {}
-    const html = Html.getIssueHtml(this.props.activeIssue)
-    const element = Html.toElement(html)
-
-    return ((Html.hasTag(element, 'em')) || (metadata.fontStyle == 'italic'))
-  }
-
   getBackgroundColor()
   {
     const issue = this.props.activeIssue
@@ -376,10 +315,10 @@ export default class ContrastForm extends React.Component {
     const element = Html.toElement(html)
 
     if (element.style.backgroundColor) {
-      return Contrast.rgb2hex(element.style.backgroundColor)
-    }
+      return Contrast.standardizeColor(element.style.backgroundColor)
+    } 
     else {
-      return (metadata.backgroundColor) ? Contrast.rgb2hex(metadata.backgroundColor) : this.props.settings.backgroundColor
+      return (metadata.backgroundColor) ? Contrast.standardizeColor(metadata.backgroundColor) : this.props.settings.backgroundColor
     }
   }
 
@@ -391,10 +330,11 @@ export default class ContrastForm extends React.Component {
     const element = Html.toElement(html)
 
     if (element.style.color) {
-      return Contrast.rgb2hex(element.style.color)
+      return Contrast.standardizeColor(element.style.color)
     }
     else {
-      return (metadata.color) ? Contrast.rgb2hex(metadata.color) : this.props.settings.textColor
+      return (metadata.color) ? Contrast.standardizeColor(metadata.color) : this.props.settings.textColor
     }
   }
 }
+
