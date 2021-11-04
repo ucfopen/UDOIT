@@ -637,12 +637,29 @@ class CanvasLms implements LmsInterface {
 
                 break;
 
-                // case 'module':
-                //     $out['id'] = $lmsContent['id'];
-                //     $out['title'] = $lmsContent['name'];
-                //     $out['updated'] = 'now';
-                //     $out['body'] = '';
-                //     break;
+            case 'module':
+                if (!isset($lmsContent['items'])) {
+                    break;
+                }
+
+                $out['id'] = $lmsContent['id'];
+                $out['title'] = $lmsContent['name'];
+                $out['updated'] = 'now';
+
+                $body = '';
+                foreach ($lmsContent['items'] as $item) {
+                    if ('ExternalUrl' !== $item['type']) {
+                        break;
+                    }
+                    $body .= "<p><a data-type-module href='{$item['external_url']}'>{$item['title']}</a></p>";
+                }
+
+                $out['body'] = $body;
+                $out['status'] = $lmsContent['published'];
+                $out['url'] = "{$baseUrl}/modules";
+
+                break;
+
 
             case 'file':
                 if ('html' !== $lmsContent['mime_class']) {

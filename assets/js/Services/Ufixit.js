@@ -31,7 +31,9 @@ export default class Ufixit {
   returnIssueForm(activeIssue) {
     if (activeIssue) {
       if (UfixitForms.hasOwnProperty(activeIssue.scanRuleId)) {
-        return UfixitForms[activeIssue.scanRuleId]
+        if (!activeIssue.sourceHtml.includes("data-type-module")) {
+          return UfixitForms[activeIssue.scanRuleId]
+        }
       }
     }
 
