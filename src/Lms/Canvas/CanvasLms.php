@@ -211,6 +211,11 @@ class CanvasLms implements LmsInterface {
                         continue;
                     }
 
+                    /* Discussion topics set as assignments should be skipped */
+                    if (('assignment' === $contentType) && isset($content['discussion_topic'])) {
+                        continue;
+                    }
+
                     $lmsContent = $this->normalizeLmsContent($course, $contentType, $content);
                     if (!$lmsContent) {
                         continue;
