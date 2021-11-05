@@ -142,7 +142,7 @@ class LtiController extends AbstractController
     /**
      * @Route("/lti/config/{lms}", name="lti_config")
      */
-    public function ltiConfig($lms = 'canvas', Request $request)
+    public function ltiConfig(Request $request, $lms = 'canvas')
     {
         $baseUrl = $request->server->get('BASE_URL');
         $baseDomain = str_replace('https://', '', $baseUrl);
