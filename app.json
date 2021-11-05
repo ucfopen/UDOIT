@@ -1,6 +1,6 @@
 {
 	"name": "UDOIT",
-	"description": "The Universal Design Online content Inspection Tool, or UDOIT identifies and fixes accessibility issues in Canvas by Instructure.",
+	"description": "The Universal Design Online content Inspection Tool, or UDOIT (pronounced, 'You Do It') enables faculty to identify accessibility issues in their Learning Management System. It will scan a course, generate a report, and provide resources on how to address common accessibility issues.",
 	"keywords": [
 	  "education",
 	  "canvas",

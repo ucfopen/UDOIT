@@ -60,7 +60,6 @@ class LmsFetchService {
      */
     public function refreshLmsContent(Course $course, User $user)
     {
-        $hasContent = false;
         $lms = $this->lmsApi->getLms($user);
 
         $this->lmsUser->validateApiKey($user);
@@ -86,23 +85,13 @@ class LmsFetchService {
         /* Step 2: Get list of changed content items */
         $contentItems = $contentItemRepo->getUpdatedContentItems($course);
 
-        /* Step 3: Only continue if the new content needs to be scanned (not all files) */
-        foreach ($contentItems as $contentItem) {
-            if ($contentItem->getBody() != '') {
-                $hasContent = true;
-                break;
-            }
-        }
+        /* Step 3: Delete issues for updated content items */
+        $this->deleteContentItemIssues($contentItems);
 
-        if ($hasContent) {
-            /* Step 4: Delete issues for updated content items */
-            $this->deleteContentItemIssues($contentItems);
+        /* Step 4: Process the updated content with PhpAlly and link to report */
+        $this->scanContentItems($contentItems);
 
-            /* Step 5: Process the updated content with PhpAlly and link to report */
-            $this->scanContentItems($contentItems);
-        }
-
-        /* Step 6: Update report from all active issues */
+        /* Step 5: Update report from all active issues */
         $this->updateReport($course, $user);
 
         /* Save last_updated date on course */
@@ -270,7 +259,7 @@ class LmsFetchService {
         return $issueEntity;
     }
 
-    private function deleteContentItemIssues($contentItems)
+    public function deleteContentItemIssues($contentItems)
     {
         /** @var \App\Repository\IssueRepository $issueRepo */
         $issueRepo = $this->doctrine->getManager()->getRepository(Issue::class);

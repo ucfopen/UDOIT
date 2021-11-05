@@ -170,10 +170,13 @@ class IssuesController extends ApiController
     {
         $apiResponse = new ApiResponse();
 
-        $report = $phpAlly->scanHtml($issue->getHtml(), [$issue->getScanRuleId()]);
-        $reportIssues = $report->getIssues();
+        $issueRule = 'CidiLabs\\PhpAlly\\Rule\\'.$issue->getScanRuleId();
+        $report = $phpAlly->scanHtml($issue->getHtml(), [$issueRule], $issue->getContentItem()->getCourse()->getInstitution());
 
-        if (empty($reportIssues)) {
+        $reportIssues = $report->getIssues();
+        $reportErrors = $report->getErrors();
+
+        if (empty($reportIssues) && empty($reportErrors)) {
             $issue->setStatus(Issue::$issueStatusFixed);
             $issue->setFixedBy($this->getUser());
             $issue->setFixedOn($util->getCurrentTime());
