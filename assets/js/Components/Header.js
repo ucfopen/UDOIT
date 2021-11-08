@@ -11,7 +11,7 @@ import { AppNav } from '@instructure/ui-navigation'
 import Api from '../Services/Api'
 
 class Header extends React.Component {
-  
+
   constructor(props) {
     super(props);
 
@@ -32,7 +32,7 @@ class Header extends React.Component {
           margin="none"
           renderBeforeItems={
             <View as="h1" margin="0" padding="0 medium 0 0">
-              <img className={`${Classes.logo}`} alt="UDOIT logo" src={Logo}></img>
+              <img className={`${Classes.logo}`} alt="UDOIT" src={Logo}></img>
             </View>
           }
           visibleItemsCount={3}
@@ -46,7 +46,7 @@ class Header extends React.Component {
               {/* <Menu.Item onClick={() => this.handleMoreNav('settings')}>{this.props.t('menu.settings')}</Menu.Item> */}
               <Menu.Separator />
               <Menu.Item onClick={this.props.handleCourseRescan}>{this.props.t('menu.scan_course')}</Menu.Item>
-              <Menu.Separator />  
+              <Menu.Separator />
               <Menu.Item href={pdfUrl}>{this.props.t('menu.download_pdf')}</Menu.Item>
             </Menu>
           }

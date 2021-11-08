@@ -50,16 +50,23 @@ The following fields need to be populated in the `institution` table.
     * Do not include `https://` or a trailing slash. 
     * Example: `myschool.d2l.com`
 * lms_id
-    * d2l
+    * `d2l`
 * lms_account_id
     * The D2L org unit ID where UDOIT will be installed.
 * created
-    * Date in this format: "2021-06-08"
+    * Date in this format: `"2021-06-08"`
 * status
-    * 1
+    * `1` if you are using MySQL or MariaDB
+    * `true` if you are using PostgreSQL
 * vanity_url
     * Your LMS vanity URL
     * Example: `d2l.myschool.edu`
+* metadata
+    * Optional
+    * Institution specific settings, such as language or excluded tests.
+    * Text representation of a JSON object.
+    * Example: `'{"lang":"es"}'`
+    * Currently supported languages are English (en) and Spanish (es).
 * api_client_id
 * api_client_secret
     * This key will be encrypted and stored as encrypted on the first use of the key.

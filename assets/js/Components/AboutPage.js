@@ -67,10 +67,24 @@ class AboutPage extends React.Component {
 
             <View as="div" margin="large 0">
               <View as="div">
-                <Text as="strong">Other Resources:</Text>
+                <Text as="strong">{this.props.t('about.resources')}</Text>
               </View>
               <View as="div" position="relative" textAlign="start" insetBlockStart="1vh">
-                {ReactHtmlParser(this.props.t('about.user_guide_link'), { preprocessNodes: (nodes) => Html.processStaticHtml(nodes, this.props.settings) })}
+                <View>
+                  {ReactHtmlParser(this.props.t('about.user_guide_link'), { preprocessNodes: (nodes) => Html.processStaticHtml(nodes, this.props.settings) })}
+                </View>
+              </View>
+            </View>
+
+            <View as="div" margin="large 0">
+              <View as="div">
+                <Text as="strong">{this.props.t('about.policies')}</Text>
+              </View>
+              <View as="div" position="relative" textAlign="start" insetBlockStart="1vh">
+                  {ReactHtmlParser(this.props.t('about.youtube_terms'), { preprocessNodes: (nodes) => Html.processStaticHtml(nodes, this.props.settings) })}
+              </View>  
+              <View as="div" position="relative" textAlign="start" insetBlockStart="1vh">
+                {ReactHtmlParser(this.props.t('about.google_privacy'), { preprocessNodes: (nodes) => Html.processStaticHtml(nodes, this.props.settings) })}
               </View>
             </View>
           </Flex.Item>
@@ -86,16 +100,23 @@ class AboutPage extends React.Component {
               const type = this.issues[issueType]
               return (
                 <View as="div" margin="small large" key={issueType}>
-                  {('error' === issueType) ? <IconNoLine className={Classes.error} /> : <IconInfoBorderlessLine className={Classes.suggestion} />}
-                  <View padding="x-small"><Text weight="bold">{this.props.t(`label.plural.${issueType}`)}</Text><br /></View>
+                  <View padding="x-small" margin="none">
+                    <Heading level="h3">
+                      {('error' === issueType) ? <IconNoLine className={Classes.error} /> : <IconInfoBorderlessLine className={Classes.suggestion} />}&nbsp;
+                      {this.props.t(`label.plural.${issueType}`)}
+                    </Heading><br />
+                  </View>
                   {type.map((rule) => {
                     if (!this.props.t(`rule.example.${rule}`).includes('rule.example')) {
                       var showExample = true
                     }
                     return (
-                      <ToggleDetails key={rule} summary={this.props.t(`rule.label.${rule}`)}>
+                      <ToggleDetails key={rule} summary={
+                        <Heading level="h4">
+                          {this.props.t(`rule.label.${rule}`)}
+                        </Heading>}
+                      >
                         <View as="div" margin="small 0" background="primary" padding="small" shadow="above">
-                          <Heading level="h4">{this.props.t(`rule.label.${rule}`)}</Heading>
                           {ReactHtmlParser(this.props.t(`rule.desc.${rule}`), { preprocessNodes: (nodes) => Html.processStaticHtml(nodes, this.props.settings) })}
                           {
                             (showExample) &&

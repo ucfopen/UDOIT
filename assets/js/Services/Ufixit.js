@@ -6,12 +6,13 @@ import HeadingEmptyForm from '../Components/Forms/HeadingEmptyForm'
 import HeadingStyleForm from '../Components/Forms/HeadingStyleForm'
 import TableHeaders from '../Components/Forms/TableHeaders'
 import Video from '../Components/Forms/Video'
+import EmphasisForm from '../Components/Forms/EmphasisForm'
 
 const UfixitForms = {
   AnchorMustContainText: AnchorText,
   AnchorSuspiciousLinkText: AnchorText,
   CssTextHasContrast: ContrastForm,
-  CssTextStyleEmphasize: ContrastForm,
+  CssTextStyleEmphasize: EmphasisForm,
   HeadersHaveText: HeadingEmptyForm,
   ImageAltIsDifferent: AltText,
   ImageAltIsTooLong: AltText,

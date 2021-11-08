@@ -166,7 +166,7 @@ class Html {
     return element.tagName
   }
 
-  removeTag(element, name) {
+  removeTag(element, tagName) {
     if ('string' === typeof element) {
       element = this.toElement(element)
     }
@@ -175,14 +175,18 @@ class Html {
       return null
     }
 
-    let outerTag = RegExp('<'.concat(name.toLowerCase()).concat('>'))
+    tagName = tagName.toLowerCase();
 
-    element.innerHTML = element.innerHTML.replace(outerTag, "")
+    for (let replaceTag of [`<${tagName}>`, `<${tagName}[^>]*>`, `</${tagName}>`]) {
+      element.innerHTML = element.innerHTML.replace(replaceTag, "")
+    }
     
     return element
   }
 
   hasTag(element, tagName) {
+    let found = false
+
     if ('string' === typeof element) {
       element = this.toElement(element)
     }
@@ -191,10 +195,18 @@ class Html {
       return false
     }
 
-    const outerTag = `<${tagName.toLowerCase()}>`
+    const startTags = [`<${tagName.toLowerCase()}>`, `<${tagName.toLowerCase()} `]
+    const endTag = `</${tagName.toLowerCase()}>`
     
-    return element.innerHTML.toLowerCase().includes(outerTag)
+    for (let startTag of startTags) {
+      if (element.innerHTML.toLowerCase().includes(startTag) && (element.innerHTML.toLowerCase().includes(endTag))) {
+        found = true
+      }
+    }
+
+    return found
   }
+
 
   renameElement(element, newName) {
     if ('string' === typeof element) {

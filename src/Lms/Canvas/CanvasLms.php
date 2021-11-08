@@ -206,6 +206,16 @@ class CanvasLms implements LmsInterface {
                         continue;
                     }
 
+                    /* Quizzes should not be counted as assignments */
+                    if (('assignment' === $contentType) && isset($content['quiz_id'])) {
+                        continue;
+                    }
+
+                    /* Discussion topics set as assignments should be skipped */
+                    if (('assignment' === $contentType) && isset($content['discussion_topic'])) {
+                        continue;
+                    }
+
                     $lmsContent = $this->normalizeLmsContent($course, $contentType, $content);
                     if (!$lmsContent) {
                         continue;
@@ -245,7 +255,7 @@ class CanvasLms implements LmsInterface {
 
                     // some content types don't have an updated date, so we'll compare content
                     // to find out if content has changed.
-                    if (in_array($contentType, ['syllabus', 'discussion_topic', 'announcement'])) {
+                    if (in_array($contentType, ['syllabus', 'discussion_topic', 'announcement', 'quiz'])) {
                         if ($contentItem->getBody() === $lmsContent['body']) {
                             if ($contentItem->getUpdated()) {
                                 $lmsContent['updated'] = $contentItem->getUpdated()->format('c');
@@ -557,6 +567,9 @@ class CanvasLms implements LmsInterface {
                 $options['body'] = $html;
                 break;
 
+            case 'quiz':
+                $options['quiz[description'] = $html;
+                break;
                 // case 'module':
                 // break;
 
@@ -578,7 +591,7 @@ class CanvasLms implements LmsInterface {
             'file' => "courses/{$lmsCourseId}/files/{$lmsContentId}",
             'module' => "courses/{$lmsCourseId}/modules/{$lmsContentId}",
             'page' => "courses/{$lmsCourseId}/pages/{$lmsContentId}",
-            //'quiz' => "courses/{$lmsCourseId}/quizzes/{$lmsContentId}",
+            'quiz' => "courses/{$lmsCourseId}/quizzes/{$lmsContentId}",
             'syllabus' => "courses/{$lmsCourseId}?include[]=syllabus_body",
         ];
 
@@ -678,6 +691,16 @@ class CanvasLms implements LmsInterface {
                 }
 
                 break;
+
+            case 'quiz':
+                $out['id'] = $lmsContent['id'];
+                $out['title'] = $lmsContent['title'];
+                $out['updated'] = 'now';
+                $out['body'] = $lmsContent['description'];
+                $out['status'] = $lmsContent['published'];
+                $out['url'] = "{$baseUrl}/quizzes/{$lmsContent['id']}";
+
+                break;
         }
 
         return $out;
@@ -694,8 +717,7 @@ class CanvasLms implements LmsInterface {
             // we're not handling module item URLs yet.
             //'module' =>             "courses/{$courseId}/modules",
             'page' =>               "courses/{$courseId}/pages",
-            // quizzes will show up in the assignment list
-            //'quiz' =>               "courses/{$courseId}/quizzes",
+            'quiz' =>               "courses/{$courseId}/quizzes",
         ];
     }
 

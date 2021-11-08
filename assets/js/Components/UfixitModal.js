@@ -305,10 +305,15 @@ class UfixitModal extends React.Component {
           newIssue.recentlyResolved = !!activeIssue.status
           newIssue.sourceHtml = newIssue.newHtml
           newIssue.newHtml = ''
-          this.props.handleActiveIssue(newIssue)
-
-          // update report.issues
-          this.props.handleIssueSave(newIssue, newReport)
+          // Get updated report
+          api.scanContent(newIssue.contentItemId)
+          .then((responseStr) => responseStr.json())
+          .then((res) => {
+            // update activeIssue
+            this.props.handleActiveIssue(newIssue)
+            
+            this.props.handleIssueSave(newIssue, res.data)
+          })
         }
         else {
           activeIssue.pending = false
@@ -362,10 +367,15 @@ class UfixitModal extends React.Component {
             newIssue.pending = false
             newIssue.recentlyUpdated = true
 
-            // update activeIssue
-            this.props.handleActiveIssue(newIssue)
-            
-            this.props.handleIssueSave(newIssue, response.data.report)
+            // Get updated report
+            api.scanContent(newIssue.contentItemId)
+              .then((responseStr) => responseStr.json())
+              .then((res) => {
+                // update activeIssue
+                this.props.handleActiveIssue(newIssue)
+                
+                this.props.handleIssueSave(newIssue, res.data)
+              })
           }
           else {
             issue.pending = false
@@ -378,6 +388,7 @@ class UfixitModal extends React.Component {
     issue.pending = 1
     this.props.handleActiveIssue(issue)
   }
+
 
   handleManualScan(issue) {
     let api = new Api(this.props.settings)
