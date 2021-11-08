@@ -6,11 +6,13 @@ import HeadingEmptyForm from '../Components/Forms/HeadingEmptyForm'
 import HeadingStyleForm from '../Components/Forms/HeadingStyleForm'
 import TableHeaders from '../Components/Forms/TableHeaders'
 import Video from '../Components/Forms/Video'
+import LinkForm from '../Components/Forms/LinkForm'
 import EmphasisForm from '../Components/Forms/EmphasisForm'
 
 const UfixitForms = {
   AnchorMustContainText: AnchorText,
   AnchorSuspiciousLinkText: AnchorText,
+  BrokenLink: LinkForm,
   CssTextHasContrast: ContrastForm,
   CssTextStyleEmphasize: EmphasisForm,
   HeadersHaveText: HeadingEmptyForm,
@@ -20,6 +22,7 @@ const UfixitForms = {
   ImageHasAlt: AltText,
   ImageHasAltDecorative: AltText,
   ParagraphNotUsedAsHeader: HeadingStyleForm,
+  RedirectedLink: LinkForm,
   TableDataShouldHaveTableHeader: TableHeaders,
   TableHeaderShouldHaveScope: TableHeaders,
   ImageAltNotPlaceholder: AltText,
