@@ -149,18 +149,20 @@ class UfixitModal extends React.Component {
                     handleActiveIssue={this.props.handleActiveIssue}
                     handleManualScan={this.handleManualScan} />
                 </View>
-                <View as="div" background="secondary" padding="medium" margin="small 0 0 x-small">
-                  <Text as="div" weight="bold">{this.props.t('label.manual_resolution')}</Text>
-                  <Text as="div" lineHeight="default">{this.props.t('label.resolved_description')}</Text>
-                  <View as="div" padding="small 0 0 0">
-                    {('2' == activeIssue.pending) ? 
-                      <Spinner renderTitle={this.props.t('form.processing')} size="x-small" />
-                      :
-                      <Checkbox onChange={this.handleIssueResolve} label={this.props.t('label.mark_resolved')}
-                        checked={(activeIssue.status == '2')} disabled={(activeIssue.status == '1')} />
-                    }
+                {('module' !== activeContentItem.contentType) &&
+                  <View as="div" background="secondary" padding="medium" margin="small 0 0 x-small">
+                    <Text as="div" weight="bold">{this.props.t('label.manual_resolution')}</Text>
+                    <Text as="div" lineHeight="default">{this.props.t('label.resolved_description')}</Text>
+                    <View as="div" padding="small 0 0 0">
+                      {('2' == activeIssue.pending) ? 
+                        <Spinner renderTitle={this.props.t('form.processing')} size="x-small" />
+                        :
+                        <Checkbox onChange={this.handleIssueResolve} label={this.props.t('label.mark_resolved')}
+                          checked={(activeIssue.status == '2')} disabled={(activeIssue.status == '1')} />
+                      }
+                    </View>
                   </View>
-                </View>
+                }
               </Flex.Item>
               <Flex.Item width="50%" padding="0" overflowY="auto">
                 <View as="div" padding="x-small">
@@ -303,10 +305,15 @@ class UfixitModal extends React.Component {
           newIssue.recentlyResolved = !!activeIssue.status
           newIssue.sourceHtml = newIssue.newHtml
           newIssue.newHtml = ''
-          this.props.handleActiveIssue(newIssue)
-
-          // update report.issues
-          this.props.handleIssueSave(newIssue, newReport)
+          // Get updated report
+          api.scanContent(newIssue.contentItemId)
+          .then((responseStr) => responseStr.json())
+          .then((res) => {
+            // update activeIssue
+            this.props.handleActiveIssue(newIssue)
+            
+            this.props.handleIssueSave(newIssue, res.data)
+          })
         }
         else {
           activeIssue.pending = false
@@ -360,10 +367,15 @@ class UfixitModal extends React.Component {
             newIssue.pending = false
             newIssue.recentlyUpdated = true
 
-            // update activeIssue
-            this.props.handleActiveIssue(newIssue)
-            
-            this.props.handleIssueSave(newIssue, response.data.report)
+            // Get updated report
+            api.scanContent(newIssue.contentItemId)
+              .then((responseStr) => responseStr.json())
+              .then((res) => {
+                // update activeIssue
+                this.props.handleActiveIssue(newIssue)
+                
+                this.props.handleIssueSave(newIssue, res.data)
+              })
           }
           else {
             issue.pending = false
@@ -376,6 +388,7 @@ class UfixitModal extends React.Component {
     issue.pending = 1
     this.props.handleActiveIssue(issue)
   }
+
 
   handleManualScan(issue) {
     let api = new Api(this.props.settings)
@@ -394,10 +407,10 @@ class UfixitModal extends React.Component {
           newIssue.pending = false
           newIssue.recentlyUpdated = true
 
+          this.props.handleIssueSave(newIssue, data.data.report)
+
           // update activeIssue
           this.props.handleActiveIssue(newIssue)
-
-          this.props.handleIssueSave(newIssue, data.data.report)
         }
         else {
           issue.pending = false

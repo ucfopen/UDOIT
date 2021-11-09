@@ -6,12 +6,15 @@ import HeadingEmptyForm from '../Components/Forms/HeadingEmptyForm'
 import HeadingStyleForm from '../Components/Forms/HeadingStyleForm'
 import TableHeaders from '../Components/Forms/TableHeaders'
 import Video from '../Components/Forms/Video'
+import LinkForm from '../Components/Forms/LinkForm'
+import EmphasisForm from '../Components/Forms/EmphasisForm'
 
 const UfixitForms = {
   AnchorMustContainText: AnchorText,
   AnchorSuspiciousLinkText: AnchorText,
+  BrokenLink: LinkForm,
   CssTextHasContrast: ContrastForm,
-  CssTextStyleEmphasize: ContrastForm,
+  CssTextStyleEmphasize: EmphasisForm,
   HeadersHaveText: HeadingEmptyForm,
   ImageAltIsDifferent: AltText,
   ImageAltIsTooLong: AltText,
@@ -19,6 +22,7 @@ const UfixitForms = {
   ImageHasAlt: AltText,
   ImageHasAltDecorative: AltText,
   ParagraphNotUsedAsHeader: HeadingStyleForm,
+  RedirectedLink: LinkForm,
   TableDataShouldHaveTableHeader: TableHeaders,
   TableHeaderShouldHaveScope: TableHeaders,
   ImageAltNotPlaceholder: AltText,
@@ -31,7 +35,9 @@ export default class Ufixit {
   returnIssueForm(activeIssue) {
     if (activeIssue) {
       if (UfixitForms.hasOwnProperty(activeIssue.scanRuleId)) {
-        return UfixitForms[activeIssue.scanRuleId]
+        if (!activeIssue.sourceHtml.includes("data-type-module")) {
+          return UfixitForms[activeIssue.scanRuleId]
+        }
       }
     }
 
