@@ -149,18 +149,20 @@ class UfixitModal extends React.Component {
                     handleActiveIssue={this.props.handleActiveIssue}
                     handleManualScan={this.handleManualScan} />
                 </View>
-                <View as="div" background="secondary" padding="medium" margin="small 0 0 x-small">
-                  <Text as="div" weight="bold">{this.props.t('label.manual_resolution')}</Text>
-                  <Text as="div" lineHeight="default">{this.props.t('label.resolved_description')}</Text>
-                  <View as="div" padding="small 0 0 0">
-                    {('2' == activeIssue.pending) ? 
-                      <Spinner renderTitle={this.props.t('form.processing')} size="x-small" />
-                      :
-                      <Checkbox onChange={this.handleIssueResolve} label={this.props.t('label.mark_resolved')}
-                        checked={(activeIssue.status == '2')} disabled={(activeIssue.status == '1')} />
-                    }
+                {('module' !== activeContentItem.contentType) &&
+                  <View as="div" background="secondary" padding="medium" margin="small 0 0 x-small">
+                    <Text as="div" weight="bold">{this.props.t('label.manual_resolution')}</Text>
+                    <Text as="div" lineHeight="default">{this.props.t('label.resolved_description')}</Text>
+                    <View as="div" padding="small 0 0 0">
+                      {('2' == activeIssue.pending) ? 
+                        <Spinner renderTitle={this.props.t('form.processing')} size="x-small" />
+                        :
+                        <Checkbox onChange={this.handleIssueResolve} label={this.props.t('label.mark_resolved')}
+                          checked={(activeIssue.status == '2')} disabled={(activeIssue.status == '1')} />
+                      }
+                    </View>
                   </View>
-                </View>
+                }
               </Flex.Item>
               <Flex.Item width="50%" padding="0" overflowY="auto">
                 <View as="div" padding="x-small">
@@ -406,7 +408,7 @@ class UfixitModal extends React.Component {
           newIssue.recentlyUpdated = true
 
           this.props.handleIssueSave(newIssue, data.data.report)
-          
+
           // update activeIssue
           this.props.handleActiveIssue(newIssue)
         }
