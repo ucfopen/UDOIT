@@ -12,10 +12,10 @@ if ('pgsql' === $db_type) {
     // POSTGRESQL
     $queries = [
         [
-            'sql' => 'ALTER TABLE users CHANGE id id BIGINT(20)',
+            'sql' => 'ALTER TABLE users ALTER COLUMN id TYPE bigint',
         ],
         [
-            'sql' => 'ALTER TABLE reports CHANGE user_id user_id BIGINT(20)',
+            'sql' => 'ALTER TABLE reports ALTER COLUMN user_id TYPE bigint',
         ],
     ];
 }
