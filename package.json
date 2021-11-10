@@ -89,6 +89,6 @@
         "reactstrap": "^8.7.1"
     },
     "resolutions": {
-        "**/postcss": "^7.0.36"
+        "**/postcss": "~7.0.36"
     }
 }
