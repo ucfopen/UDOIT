@@ -6,17 +6,17 @@ use App\Entity\ContentItem;
 use CidiLabs\PhpAlly\PhpAlly;
 
 class PhpAllyService {
-    
+
     protected $phpAlly;
 
     /** @var App\Service\HtmlService */
     protected $htmlService;
 
     protected $util;
-    
+
     public function __construct(HtmlService $htmlService, UtilityService $util)
     {
-        $this->phpAlly = new PhpAlly();    
+        $this->phpAlly = new PhpAlly();
         $this->htmlService = $htmlService;
         $this->util = $util;
     }
@@ -34,7 +34,7 @@ class PhpAllyService {
             'vimeoApiKey' => !empty($_ENV['VIMEO_API_KEY']) ? $_ENV['VIMEO_API_KEY'] : '',
             'youtubeApiKey' => !empty($_ENV['YOUTUBE_API_KEY']) ? $_ENV['YOUTUBE_API_KEY'] : ''
         ];
-        
+
         return $this->phpAlly->checkMany($html, $this->getRules(), $options);
     }
 
@@ -52,7 +52,7 @@ class PhpAllyService {
             'vimeoApiKey' => !empty($_ENV['VIMEO_API_KEY']) ? $_ENV['VIMEO_API_KEY'] : '',
             'youtubeApiKey' => !empty($_ENV['YOUTUBE_API_KEY']) ? $_ENV['YOUTUBE_API_KEY'] : ''
         ];
-        
+
         return $this->phpAlly->checkMany($html, $rules, $options);
     }
 
@@ -68,12 +68,19 @@ class PhpAllyService {
 
     protected function getEnvExcludedRules()
     {
-        return array_map('trim', explode(',', $_ENV['PHPALLY_EXCLUDED_RULES']));
+        $excluded = array_map('trim', explode(',', $_ENV['PHPALLY_EXCLUDED_RULES']));
+
+        return array_map(array($this, 'addRulePath'), $excluded);
     }
 
     protected function getDbExcludedRules()
     {
         // TODO: To be implemented with the admin section
         return [];
+    }
+
+    private function addRulePath($rule)
+    {
+        return "CidiLabs\\PhpAlly\\Rule\\" . $rule;
     }
 }
