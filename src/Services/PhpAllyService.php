@@ -69,7 +69,7 @@ class PhpAllyService {
     protected function getEnvExcludedRules()
     {
         $excluded = array_map('trim', explode(',', $_ENV['PHPALLY_EXCLUDED_RULES']));
-        error_log("here");
+
         return array_map(array($this, 'addRulePath'), $excluded);
     }
 
@@ -79,10 +79,8 @@ class PhpAllyService {
         return [];
     }
 
-    public function addRulePath($rule)
+    private function addRulePath($rule)
     {
-        error_log("inside");
-        // "CidiLabs\\PhpAlly\\Rule\\" .
-        return $rule;
+        return "CidiLabs\\PhpAlly\\Rule\\" . $rule;
     }
 }
