@@ -29,14 +29,14 @@ class ContentPage extends React.Component {
       { id: "contentType", text: this.props.t('label.header.type') },
       { id: "scanRuleLabel", text: this.props.t('label.issue') },
       {id: "action", text: "", alignText: "end"}
-    ];
+    ]
 
-    this.easyRules = issueRuleIds.filter(rule => this.props.settings.easyRuleIds.includes(rule));
+    this.easyRules = issueRuleIds.filter(rule => this.props.settings.easyRuleIds.includes(rule))
 
-    this.visualRules = issueRuleIds.filter(rule => this.props.settings.visualRuleIds.includes(rule));
-    this.auditoryRules = issueRuleIds.filter(rule => this.props.settings.auditoryRuleIds.includes(rule));
-    this.cognitiveRules = issueRuleIds.filter(rule => this.props.settings.cognitiveRuleIds.includes(rule));
-    this.motorRules = issueRuleIds.filter(rule => this.props.settings.motorRuleIds.includes(rule));
+    this.visualRules = issueRuleIds.filter(rule => this.props.settings.visualRuleIds.includes(rule))
+    this.auditoryRules = issueRuleIds.filter(rule => this.props.settings.auditoryRuleIds.includes(rule))
+    this.cognitiveRules = issueRuleIds.filter(rule => this.props.settings.cognitiveRuleIds.includes(rule))
+    this.motorRules = issueRuleIds.filter(rule => this.props.settings.motorRuleIds.includes(rule))
 
     this.state = {
       activeIssue: null,
@@ -159,6 +159,16 @@ class ContentPage extends React.Component {
 
       // Check if we are interested in this issue severity, aka "type"
       if (filters.issueTypes.length !== 0 && !filters.issueTypes.includes(issue.type)) {
+        continue;
+      }
+
+      // Check if we are interested in issues with this rule impact
+      if (filters.issueTitles.length !== 0
+          && !(filters.issueTypes.includes('visual') && this.visualRules.includes(issue.scanRuleId))
+          && !(filters.issueTypes.includes('auditory') && this.auditoryRules.includes(issue.scanRuleId))
+          && !(filters.issueTypes.includes('cognitive') && this.cognitiveRules.includes(issue.scanRuleId))
+          && !(filters.issueTypes.includes('motor') && this.motorRules.includes(issue.scanRuleId))
+        ) {
         continue;
       }
 
@@ -348,6 +358,7 @@ class ContentPage extends React.Component {
       hideUnpublishedContentItems: false,
       issueTypes: [],
       issueTitles: [],
+      issueImpacts: [],
       issueStatus: ['active'],
     };
   }
@@ -363,6 +374,11 @@ class ContentPage extends React.Component {
     for (const issueType of this.state.filters.issueTypes) {
       const id = `issueTypes||${issueType}`
       tags.push({ id: id, label: this.props.t(`label.plural.${issueType}`)});
+    }
+
+    for (const issueImpact of this.state.filters.issueImpacts) {
+      const id = `issueImpacts||${issueImpact}`
+      tags.push({ id: id, label: this.props.t(`label.filter.${issueType}`)});
     }
 
     for (const ruleId of this.state.filters.issueTitles) {
@@ -405,6 +421,11 @@ class ContentPage extends React.Component {
         results = this.state.filters.contentTypes.filter((val) => filterId !== val);
         break;
       case 'issueTypes':
+        index = this.state.filters.contentTypes.length
+        index += this.state.filters.issueTypes.findIndex((val) => filterId == val)
+        results = this.state.filters.issueTypes.filter((val) => filterId !== val);
+        break;
+      case 'issueImpacts':
         index = this.state.filters.contentTypes.length
         index += this.state.filters.issueTypes.findIndex((val) => filterId == val)
         results = this.state.filters.issueTypes.filter((val) => filterId !== val);
