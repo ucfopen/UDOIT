@@ -378,7 +378,7 @@ class ContentPage extends React.Component {
 
     for (const issueImpact of this.state.filters.issueImpacts) {
       const id = `issueImpacts||${issueImpact}`
-      tags.push({ id: id, label: this.props.t(`label.filter.${issueType}`)});
+      tags.push({ id: id, label: this.props.t(`label.filter.${issueImpact}`)});
     }
 
     for (const ruleId of this.state.filters.issueTitles) {
