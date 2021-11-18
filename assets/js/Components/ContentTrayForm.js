@@ -157,7 +157,7 @@ class ContentTrayForm extends React.Component {
   }
 
   handleIssueImpactChange(values) {
-    this.props.handleFilter({issueTitles: values});
+    this.props.handleFilter({issueImpacts: values});
   }
 
   handleUnpublishedContent(e) {

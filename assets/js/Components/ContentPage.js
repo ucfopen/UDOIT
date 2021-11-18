@@ -144,7 +144,7 @@ class ContentPage extends React.Component {
     const report = this.props.report;
     const filters = Object.assign({}, this.state.filters);
     const { sortBy, ascending } = this.state.tableSettings
-
+    console.log(filters)
     let filteredList = [];
     let issueList = Object.assign({}, report.issues);
 
@@ -163,11 +163,11 @@ class ContentPage extends React.Component {
       }
 
       // Check if we are interested in issues with this rule impact
-      if (filters.issueTitles.length !== 0
-          && !(filters.issueTypes.includes('visual') && this.visualRules.includes(issue.scanRuleId))
-          && !(filters.issueTypes.includes('auditory') && this.auditoryRules.includes(issue.scanRuleId))
-          && !(filters.issueTypes.includes('cognitive') && this.cognitiveRules.includes(issue.scanRuleId))
-          && !(filters.issueTypes.includes('motor') && this.motorRules.includes(issue.scanRuleId))
+      if (filters.issueImpacts.length !== 0
+          && !(filters.issueImpacts.includes('visual') && this.visualRules.includes(issue.scanRuleId))
+          && !(filters.issueImpacts.includes('auditory') && this.auditoryRules.includes(issue.scanRuleId))
+          && !(filters.issueImpacts.includes('cognitive') && this.cognitiveRules.includes(issue.scanRuleId))
+          && !(filters.issueImpacts.includes('motor') && this.motorRules.includes(issue.scanRuleId))
         ) {
         continue;
       }
