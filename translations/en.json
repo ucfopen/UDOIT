@@ -284,6 +284,7 @@
   "form.summary.option.active": "All open issues",
   "form.summary.option.by_issue": "By issue type",
   "form.summary.option.by_content": "By content type",
+  "form.summary.option.by_impact": "By impact type",
   "form.link.new_link": "New Link",
   "form.link.msg.link_empty": "Link href cannot be empty",
 

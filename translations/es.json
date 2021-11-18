@@ -278,6 +278,7 @@
   "form.summary.option.active": "Todos los problemas abiertos",
   "form.summary.option.by_issue": "Por tipo de problema",
   "form.summary.option.by_content": "Por tipo de contenido",
+  "form.summary.option.by_impact": "Por tipo de impacto",
 
   "rule.label.AnchorLinksToMultiMediaRequireTranscript": "Los enlaces a MultiMedia requieren transcripciones",
   "rule.label.AnchorLinksToSoundFilesNeedTranscripts": "Los enlaces a archivos de sonido necesitan transcripciones",

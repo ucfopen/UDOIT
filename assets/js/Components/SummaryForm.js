@@ -14,7 +14,8 @@ const startOptions = [
   'errors_only',
   'active',
   'by_issue',
-  'by_content'
+  'by_content',
+  'by_impact'
 ]
 
 class SummaryForm extends React.Component {
@@ -26,11 +27,13 @@ class SummaryForm extends React.Component {
       selectFilter: 'easy',
       selectRule: '',
       selectContentType: '',
+      selectImpact: '',
     }
 
     this.handleFilterSelect = this.handleFilterSelect.bind(this)
     this.handleRuleSelect = this.handleRuleSelect.bind(this)
     this.handleContentTypeSelect = this.handleContentTypeSelect.bind(this)
+    this.handleImpactSelect = this.handleImpactSelect.bind(this)
     this.handleSubmit = this.handleSubmit.bind(this)
   }
 
@@ -42,6 +45,9 @@ class SummaryForm extends React.Component {
     }
     if ('by_content' === this.state.selectFilter) {
       canSubmit = (this.state.selectContentType)
+    }
+    if ('by_impact' === this.state.selectFilter) {
+      canSubmit = (this.state.selectImpact)
     }
 
     this.easyRules = issueRuleIds.filter(rule => easyRuleIds.includes(rule))
@@ -82,6 +88,18 @@ class SummaryForm extends React.Component {
             </View>
           }
 
+          {('by_impact' === this.state.selectFilter) &&
+            <View as="div" margin="large 0">
+              <SimpleSelect
+                value={this.state.selectImpact}
+                name="selectImpact"
+                renderLabel={this.props.t('form.summary.option.by_impact')}
+                onChange={this.handleImpactSelect}>
+                {this.renderImpactOptions()}
+              </SimpleSelect>
+            </View>
+          }
+
           <View as="div" margin="medium 0">
             {this.renderIssueCount()}
           </View>
@@ -113,9 +131,14 @@ class SummaryForm extends React.Component {
     this.setState({ selectContentType: val.id })
   }
 
+  handleImpactSelect(e, val)
+  {
+    this.setState({ selectImpact: val.id })
+  }
+
   handleSubmit(e)
   {
-    const { selectFilter, selectRule, selectContentType } = this.state
+    const { selectFilter, selectRule, selectContentType, selectImpact} = this.state
     let filters = {}
 
     switch (selectFilter) {
@@ -133,6 +156,9 @@ class SummaryForm extends React.Component {
       break
       case 'by_content':
         filters = {contentTypes: [selectContentType]}
+      break
+      case 'by_impact':
+        filters = {issueImpacts: [selectImpact]}
       break
     }
 
@@ -172,6 +198,19 @@ class SummaryForm extends React.Component {
     return out
   }
 
+  renderImpactOptions() {
+    let impacts = ['visual', 'auditory', 'cognitive', 'motor']
+    let out = [
+      <SimpleSelect.Option value="" id="option-none" key="summary-none">--</SimpleSelect.Option>
+    ]
+
+    for (let impact of impacts) {
+      out.push(<SimpleSelect.Option value={impact} id={impact} key={`summary-${impact}`}>{this.props.t(`label.filter.${impact}`)}</SimpleSelect.Option>)
+    }
+
+    return out
+  }
+
   renderIssueCount() {
     let values = ['-', '-']
 
@@ -193,6 +232,11 @@ class SummaryForm extends React.Component {
       case 'by_content':
         if (this.state.selectContentType) {
           values = this.getContentTypeCount()
+        }
+        break
+      case 'by_impact':
+        if (this.state.selectImpact) {
+          values = this.getImpactCount()
         }
         break
     }
@@ -316,6 +360,10 @@ class SummaryForm extends React.Component {
     }
 
     return [errors, suggestions]
+  }
+
+  getImpactCount() {
+
   }
 }
 
