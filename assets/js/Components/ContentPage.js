@@ -30,8 +30,13 @@ class ContentPage extends React.Component {
       { id: "scanRuleLabel", text: this.props.t('label.issue') },
       {id: "action", text: "", alignText: "end"}
     ];
-    
-    this.easyRules = issueRuleIds.filter(rule => this.props.settings.easyRuleIds.includes(rule))
+
+    this.easyRules = issueRuleIds.filter(rule => this.props.settings.easyRuleIds.includes(rule));
+
+    this.visualRules = issueRuleIds.filter(rule => this.props.settings.visualRuleIds.includes(rule));
+    this.auditoryRules = issueRuleIds.filter(rule => this.props.settings.auditoryRuleIds.includes(rule));
+    this.cognitiveRules = issueRuleIds.filter(rule => this.props.settings.cognitiveRuleIds.includes(rule));
+    this.motorRules = issueRuleIds.filter(rule => this.props.settings.motorRuleIds.includes(rule));
 
     this.state = {
       activeIssue: null,
@@ -44,6 +49,7 @@ class ContentPage extends React.Component {
         issueTypes: [],
         issueTitles: [],
         issueStatus: ['active'],
+        issueImpacts: [],
         hideUnpublishedContentItems: false,
         easyIssues: false,
       },
@@ -53,7 +59,7 @@ class ContentPage extends React.Component {
         pageNum: 0,
         rowsPerPage: (localStorage.getItem('rowsPerPage')) ? localStorage.getItem('rowsPerPage') : '10'
       },
-    }
+    };
 
     this.handleTrayToggle = this.handleTrayToggle.bind(this);
     this.handleSearchTerm = this.handleSearchTerm.bind(this);
@@ -128,17 +134,17 @@ class ContentPage extends React.Component {
     this.setState({
       tableSettings: Object.assign({}, this.state.tableSettings, setting)
     });
-  } 
+  }
 
   getContentById = (contentId) => {
     return Object.assign({}, this.props.report.contentItems[contentId]);
   }
 
-  getFilteredContent = () => { 
+  getFilteredContent = () => {
     const report = this.props.report;
     const filters = Object.assign({}, this.state.filters);
-    const { sortBy, ascending } = this.state.tableSettings 
-    
+    const { sortBy, ascending } = this.state.tableSettings
+
     let filteredList = [];
     let issueList = Object.assign({}, report.issues);
 
@@ -146,7 +152,7 @@ class ContentPage extends React.Component {
     if(filters.easyIssues && filters.issueTitles.length == 0) {
       filters.issueTitles = this.easyRules
     }
-    
+
     // Loop through the issues
     issueLoop: for (const [key, value] of Object.entries(issueList)) {
       let issue = Object.assign({}, value)
@@ -155,7 +161,7 @@ class ContentPage extends React.Component {
       if (filters.issueTypes.length !== 0 && !filters.issueTypes.includes(issue.type)) {
         continue;
       }
-  
+
       // Check if we are interested in issues with this rule title
       if (filters.issueTitles.length !== 0 && !filters.issueTitles.includes(issue.scanRuleId)) {
         continue;
@@ -187,7 +193,7 @@ class ContentPage extends React.Component {
       }
       if (this.state.searchTerm !== '') {
         const searchTerms = this.state.searchTerm.toLowerCase().split(' ');
-        
+
         if (Array.isArray(searchTerms)) {
           for (let term of searchTerms) {
             if (!issue.keywords.includes(term)) {
@@ -201,7 +207,7 @@ class ContentPage extends React.Component {
       if (issue.status == 2) {
         status = <>
           <ScreenReaderContent>{this.props.t('label.resolved')}</ScreenReaderContent>
-          <IconCheckLine color="brand" /> 
+          <IconCheckLine color="brand" />
         </>
       }
       else if (issue.status == 1) {
@@ -209,14 +215,14 @@ class ContentPage extends React.Component {
           <ScreenReaderContent>{this.props.t('label.fixed')}</ScreenReaderContent>
           <IconCheckLine color="success" />
         </>
-      } 
+      }
       else {
         if ('error' === issue.type) {
           status = <>
             <ScreenReaderContent>{this.props.t('label.error')}</ScreenReaderContent>
             <IconNoLine className={Classes.error} />
           </>
-        } 
+        }
         else {
           status = <>
             <ScreenReaderContent>{this.props.t('label.suggestion')}</ScreenReaderContent>
@@ -234,8 +240,8 @@ class ContentPage extends React.Component {
           contentType: this.props.t(`content.${contentItem.contentType}`),
           contentTitle: contentItem.title,
           action: (
-            <Button key={`reviewButton${key}`} 
-              onClick={() => this.handleReviewClick(issue)} 
+            <Button key={`reviewButton${key}`}
+              onClick={() => this.handleReviewClick(issue)}
               textAlign="center"
               disabled={!this.props.disableReview}
             >
@@ -270,11 +276,11 @@ class ContentPage extends React.Component {
 
     return (
       <View as="div" key="contentPageFormWrapper" padding="small 0" margin="none">
-        <ContentPageForm 
-          handleSearchTerm={this.handleSearchTerm} 
-          handleTrayToggle={this.handleTrayToggle} 
+        <ContentPageForm
+          handleSearchTerm={this.handleSearchTerm}
+          handleTrayToggle={this.handleTrayToggle}
           searchTerm={this.state.searchTerm}
-          t={this.props.t} 
+          t={this.props.t}
           ref={(node) => this.contentPageForm = node}
           handleTableSettings={this.handleTableSettings}
           tableSettings={this.state.tableSettings}
@@ -298,7 +304,7 @@ class ContentPage extends React.Component {
           handleFilter={this.handleFilter}
           trayOpen={this.state.trayOpen}
           report={this.props.report}
-          handleTrayToggle={this.handleTrayToggle} 
+          handleTrayToggle={this.handleTrayToggle}
           t={this.props.t}
           settings={this.props.settings}
         />}
@@ -315,7 +321,7 @@ class ContentPage extends React.Component {
           t={this.props.t}
           />}
 
-        {filteredRows.length === 0 && 
+        {filteredRows.length === 0 &&
             <Billboard
             size="medium"
             heading={this.props.t('label.no_results_header')}
@@ -378,11 +384,11 @@ class ContentPage extends React.Component {
 
     return tags.map((tag, i) => {
       return (
-      <Tag margin="0 small small 0" 
-        text={tag.label} 
-        dismissible={true} 
+      <Tag margin="0 small small 0"
+        text={tag.label}
+        dismissible={true}
         onClick={(e) => this.handleTagClick(tag.id, e)}
-        key={i} 
+        key={i}
         elementRef={(node) => this[`tag${i}`] = node}
       />
     )});

@@ -55,18 +55,18 @@ class SummaryForm extends React.Component {
             name="summaryFilterSelect"
             value={this.state.selectFilter}
             description={this.props.t('form.summary.show')}>
-              {startOptions.map((key) => <RadioInput key={key} value={key} label={this.props.t(`form.summary.option.${key}`)} /> )}       
+              {startOptions.map((key) => <RadioInput key={key} value={key} label={this.props.t(`form.summary.option.${key}`)} /> )}
           </RadioInputGroup>
-          
+
           {('by_issue' === this.state.selectFilter) &&
             <View as="div" margin="large 0">
-              <SimpleSelect 
+              <SimpleSelect
                 value={this.state.selectRule}
                 name="selectRule"
                 renderLabel={this.props.t('form.summary.option.by_issue')}
                 onChange={this.handleRuleSelect}>
                 {this.renderIssueOptions()}
-              </SimpleSelect>            
+              </SimpleSelect>
             </View>
           }
 
@@ -81,13 +81,13 @@ class SummaryForm extends React.Component {
               </SimpleSelect>
             </View>
           }
-          
+
           <View as="div" margin="medium 0">
             {this.renderIssueCount()}
           </View>
           <View as="div" margin="medium 0 0 0">
-            <Button 
-              color="primary" 
+            <Button
+              color="primary"
               display="block"
               onClick={this.handleSubmit}
               interaction={canSubmit ? 'enabled' : 'disabled'}
@@ -98,17 +98,17 @@ class SummaryForm extends React.Component {
     )
   }
 
-  handleFilterSelect(e, val) 
+  handleFilterSelect(e, val)
   {
     this.setState({selectFilter: val})
   }
 
-  handleRuleSelect(e, val) 
+  handleRuleSelect(e, val)
   {
     this.setState({selectRule: val.id})
   }
 
-  handleContentTypeSelect(e, val) 
+  handleContentTypeSelect(e, val)
   {
     this.setState({ selectContentType: val.id })
   }
@@ -204,7 +204,7 @@ class SummaryForm extends React.Component {
           <IconNoLine className={Classes.error} />
           <View padding="0 0 0 xx-small">{values[0]} {this.props.t('label.plural.error')}</View>
         </InlineList.Item>}
-        {values[1] && 
+        {values[1] &&
         <InlineList.Item>
           <IconInfoBorderlessLine className={Classes.suggestion} />
           <View padding="0 0 0 xx-small">{values[1]} {this.props.t('label.plural.suggestion')}</View>

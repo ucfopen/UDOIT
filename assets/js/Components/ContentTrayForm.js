@@ -18,6 +18,13 @@ const issueStatus = [
   'resolved'
 ]
 
+const issueImpacts = [
+  'visual',
+  'auditory',
+  'cognitive',
+  'motor'
+]
+
 class ContentTrayForm extends React.Component {
 
   constructor(props) {
@@ -28,11 +35,12 @@ class ContentTrayForm extends React.Component {
     this.handleUnpublishedContent = this.handleUnpublishedContent.bind(this)
     this.handleIssueTypeChange = this.handleIssueTypeChange.bind(this)
     this.handleIssueTitleChange = this.handleIssueTitleChange.bind(this)
+    this.handleIssueImpactChange = this.handleIssueImpactChange.bind(this)
     this.handleEasyIssues = this.handleEasyIssues.bind(this)
   }
 
   render() {
-    
+
     return (
       <Tray
         label={this.props.t('label.plural.filter')}
@@ -53,9 +61,9 @@ class ContentTrayForm extends React.Component {
                 onClick={this.props.handleTrayToggle}
               />
             </Flex.Item>
-          </Flex> 
+          </Flex>
           <View as="div" padding="small 0">
-            <CheckboxGroup 
+            <CheckboxGroup
               name="ContentTypes"
               description={ this.props.t('label.content_type')}
               value={this.props.filters.contentTypes}
@@ -82,6 +90,15 @@ class ContentTrayForm extends React.Component {
             </CheckboxGroup>
           </View>
           <View as="div" padding="small 0">
+            <CheckboxGroup
+              name="IssueImpacts"
+              description={this.props.t('label.issue_impact')}
+              value={this.props.filters.issueImpacts}
+              onChange={this.handleIssueImpactChange}>
+              {this.renderIssueImpactCheckboxes()}
+            </CheckboxGroup>
+          </View>
+          <View as="div" padding="small 0">
             <Checkbox
               label={this.props.t('label.hide_unpublished')}
               onChange={this.handleUnpublishedContent}
@@ -96,13 +113,13 @@ class ContentTrayForm extends React.Component {
             />
           </View>
           <View as="div" padding="small 0">
-            <IssueRuleSelect 
-              options={this.getRuleOptions()} 
+            <IssueRuleSelect
+              options={this.getRuleOptions()}
               t={this.props.t}
               issueTitles={this.props.filters.issueTitles}
               handleIssueTitleChange={this.handleIssueTitleChange} />
           </View>
-        </View> 
+        </View>
       </Tray>
     );
   }
@@ -110,13 +127,17 @@ class ContentTrayForm extends React.Component {
   renderContentTypeCheckboxes() {
     return this.props.settings.contentTypes.map((type) => <Checkbox label={this.props.t(`content.plural.${type}`)} value={type} key={type} />);
   }
-  
+
   renderIssueStatusCheckboxes() {
     return issueStatus.map((status) => <Checkbox label={this.props.t(`label.filter.${status}`)} value={status} key={`status.${status}`} />)
   }
 
   renderIssueTypeCheckboxes() {
     return issueTypes.map((type) => <Checkbox label={this.props.t(`label.plural.${type}`)} value={type} key={type} />);
+  }
+
+  renderIssueImpactCheckboxes() {
+    return issueImpacts.map((impact) => <Checkbox label={this.props.t(`label.filter.${impact}`)} value={impact} key={impact} />);
   }
 
   handleContentTypeChange(values) {
@@ -132,6 +153,10 @@ class ContentTrayForm extends React.Component {
   }
 
   handleIssueTitleChange(values) {
+    this.props.handleFilter({issueTitles: values});
+  }
+
+  handleIssueImpactChange(values) {
     this.props.handleFilter({issueTitles: values});
   }
 
