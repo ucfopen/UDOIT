@@ -425,11 +425,6 @@ class ContentPage extends React.Component {
         index += this.state.filters.issueTypes.findIndex((val) => filterId == val)
         results = this.state.filters.issueTypes.filter((val) => filterId !== val);
         break;
-      case 'issueImpacts':
-        index = this.state.filters.contentTypes.length
-        index += this.state.filters.issueTypes.findIndex((val) => filterId == val)
-        results = this.state.filters.issueTypes.filter((val) => filterId !== val);
-        break;
       case 'issueTitles':
         index = this.state.filters.contentTypes.length + this.state.filters.issueTypes.length
         index += this.state.filters.issueTitles.findIndex((val) => filterId == val)
@@ -440,8 +435,13 @@ class ContentPage extends React.Component {
         index += this.state.filters.issueStatus.findIndex((val) => filterId == val)
         results = this.state.filters.issueStatus.filter((val) => filterId != val);
         break;
-      case 'hideUnpublishedContentItems':
+      case 'issueImpacts':
         index = this.state.filters.contentTypes.length + this.state.filters.issueTypes.length + this.state.filters.issueTitles.length + this.state.filters.issueStatus.length
+        index += this.state.filters.issueImpacts.findIndex((val) => filterId == val)
+        results = this.state.filters.issueImpacts.filter((val) => filterId != val);
+        break;
+      case 'hideUnpublishedContentItems':
+        index = this.state.filters.contentTypes.length + this.state.filters.issueTypes.length + this.state.filters.issueTitles.length + this.state.filters.issueStatus.length + this.state.filters.issueImpacts.length
         results = false;
         break;
     }
