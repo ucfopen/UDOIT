@@ -30,6 +30,11 @@ class SummaryForm extends React.Component {
       selectImpact: '',
     }
 
+    this.visualRules = issueRuleIds.filter(rule => this.props.settings.visualRuleIds.includes(rule))
+    this.auditoryRules = issueRuleIds.filter(rule => this.props.settings.auditoryRuleIds.includes(rule))
+    this.cognitiveRules = issueRuleIds.filter(rule => this.props.settings.cognitiveRuleIds.includes(rule))
+    this.motorRules = issueRuleIds.filter(rule => this.props.settings.motorRuleIds.includes(rule))
+
     this.handleFilterSelect = this.handleFilterSelect.bind(this)
     this.handleRuleSelect = this.handleRuleSelect.bind(this)
     this.handleContentTypeSelect = this.handleContentTypeSelect.bind(this)
@@ -51,6 +56,8 @@ class SummaryForm extends React.Component {
     }
 
     this.easyRules = issueRuleIds.filter(rule => easyRuleIds.includes(rule))
+
+
 
     return (
       <View as="div" padding="medium">
@@ -363,7 +370,30 @@ class SummaryForm extends React.Component {
   }
 
   getImpactCount() {
+    const report = this.props.report
+    let errors = 0
+    let suggestions = 0
 
+    for (const issue of report.issues) {
+      if (issue.status) {
+        continue
+      }
+
+      if ((this.state.selectImpact === 'visual' && this.visualRules.includes(issue.scanRuleId))
+          || (this.state.selectImpact === 'auditory' && this.auditoryRules.includes(issue.scanRuleId))
+          || (this.state.selectImpact === 'cognitive' && this.cognitiveRules.includes(issue.scanRuleId))
+          || (this.state.selectImpact === 'motor' && this.motorRules.includes(issue.scanRuleId))
+          ) {
+        if ('error' === issue.type) {
+          errors++
+        }
+        else {
+          suggestions++
+        }
+      }
+    }
+
+    return [errors, suggestions]
   }
 }
 

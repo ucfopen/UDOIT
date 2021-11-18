@@ -144,7 +144,7 @@ class ContentPage extends React.Component {
     const report = this.props.report;
     const filters = Object.assign({}, this.state.filters);
     const { sortBy, ascending } = this.state.tableSettings
-    console.log(filters)
+
     let filteredList = [];
     let issueList = Object.assign({}, report.issues);
 
