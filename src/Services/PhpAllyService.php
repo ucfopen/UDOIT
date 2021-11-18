@@ -81,6 +81,10 @@ class PhpAllyService {
 
     private function addRulePath($rule)
     {
-        return "CidiLabs\\PhpAlly\\Rule\\" . $rule;
+        if (strpos($rule, '\\') === false) {
+            return "CidiLabs\\PhpAlly\\Rule\\" . $rule;
+        }
+
+        return $rule;
     }
 }
