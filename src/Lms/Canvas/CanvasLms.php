@@ -610,7 +610,7 @@ class CanvasLms implements LmsInterface {
                 $out['title'] = $lmsContent['name'];
                 $out['updated'] = 'now';
                 $out['status'] = false;
-                $out['url'] = $baseUrl;
+                $out['url'] = "{$baseUrl}/assignments/syllabus";
 
                 if (array_key_exists('syllabus_body', $lmsContent)) {
                     $out['body'] = $lmsContent['syllabus_body'];
