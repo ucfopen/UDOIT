@@ -241,7 +241,7 @@ class App extends React.Component {
   // resize containing iframe height
   resizeFrame(){
     let default_height = document.body.scrollHeight + 50;
-    default_height = default_height > 500 ? default_height : 500;
+    default_height = default_height > 1000 ? default_height : 1000;
 
     // IE 8 & 9 only support string data, so send objects as string
     parent.postMessage(JSON.stringify({
