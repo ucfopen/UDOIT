@@ -263,10 +263,19 @@ class LtiController extends AbstractController
     protected function saveRequestToSession()
     {
         try {
+            $getParams = $this->request->query->all();
             $postParams = $this->request->request->all();
 
+            foreach ($getParams as $key => $val) {
+                if (!empty($val)) {
+                    $this->session->set($key, $val);
+                }
+            }
+
             foreach ($postParams as $key => $val) {
-                $this->session->set($key, $val);
+                if (!empty($val)) {
+                    $this->session->set($key, $val);
+                }
             }
 
             if (!$this->session->get('lms_api_domain')) {
