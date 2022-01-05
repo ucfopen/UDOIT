@@ -78,7 +78,11 @@ UDOIT uses a `.env` file for storing configuration. Local configuration such as 
 ## Database Setup
 While UDOIT is configured to use MySQL or MariaDB by default, Symfony can be configured to work with other databases as well. See the Symfony documentation for details.
 
-> If you are running UDOIT in Docker, you don't need to install PHP on your system.  You can run `docker exec -it udoit_php_1 /bin/bash` and then run the commands below inside the Docker container.
+> If you are running UDOIT in Docker, you don't need to install PHP on your system.  You can run 
+>
+>     docker exec -it udoit_php_1 /bin/bash
+>
+> and then run the commands below inside the Docker container.
 
 You can create your database manually, or use `Symfony` to create the database with this command:
 
