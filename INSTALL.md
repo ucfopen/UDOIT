@@ -63,6 +63,8 @@ If you're not using Docker, follow the upstream documentation on [Composer Insta
 
     php composer.phar install --no-dev
 
+> Remove the `--no-dev` flag if you wish to use `APP_ENV=dev` below.
+
 ## .ENV Setup
 UDOIT uses a `.env` file for storing configuration. Local configuration such as database information and URLs should be stored in a `.env.local` file that is NOT tracked in Git.
 1. Copy the file `.env.local.example` to `.env.local`.
@@ -103,7 +105,11 @@ If you are operating in a production environment you will need to generate the d
 ## JavaScript
 UDOIT uses [node](https://nodejs.org) and [yarn](https://yarnpkg.com/) to compile the JavaScript. Instructions for installing Node and Yarn are out of the scope of this README.
 
-> If you are running UDOIT in Docker, you don't need to install Node or Yarn on your system.  You can run `docker exec -it udoit_php_1 /bin/bash` and then run the following commands inside the Docker container.
+> If you are running UDOIT in Docker, you don't need to install Node or Yarn on your system. Run 
+>
+>     docker exec -it udoit_php_1 /bin/bash
+>
+> and then run the following commands inside the Docker container.
 
 To install the JavaScript dependencies run the command:
 
