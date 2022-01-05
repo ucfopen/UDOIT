@@ -69,7 +69,7 @@ If you're not using Docker, follow the upstream documentation on [Composer Insta
 UDOIT uses a `.env` file for storing configuration. Local configuration such as database information and URLs should be stored in a `.env.local` file that is NOT tracked in Git.
 1. Copy the file `.env.local.example` to `.env.local`.
 2. Leave `APP_ENV` set to `prod`
-   * Note: If you are setting up a development environment, set this to `dev` and run `php composer.phar install` to obtain all of the development packages.
+> If you are setting up a development environment, set this to `dev` and follow the steps in [Installing Composer Dependencies](#installing-composer-dependencies) without the `--no-dev` flag to obtain all of the development packages.
 3. Add your database information to this `DATABASE_URL` variable.
 4. Add the `BASE_URL`, which is the full URL to reach the `public` folder of UDOIT. (i.e. https://udoit3.ciditools.com) WITHOUT the trailing slash.
 5. Set `APP_LMS` to the name of your LMS.
