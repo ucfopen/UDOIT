@@ -132,9 +132,9 @@ However, UDOIT does have one URL that is publicly available outside of the LMS. 
 
     <BASE_URL>/lti/config
 
-For example, if you are setting this up on your local computer it may look like:
+For example, if you are setting this up on your local computer via Docker, it may look like:
 
-    https://udoit.local/lti/config
+    https://localhost:8000/lti/config
 
 ## Configuring Your LMS
 You will need to complete the steps in the [INSTALL_CANVAS.md](INSTALL_CANVAS.md) or [INSTALL_D2L.md](INSTALL_D2L.md) to configure UDOIT to work within your LMS.
