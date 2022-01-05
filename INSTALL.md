@@ -96,16 +96,16 @@ If you are operating in a production environment you will need to generate the d
 
     php bin/console cache:warmup --env=prod
 
-## Javascript
-UDOIT uses `node` and `yarn` to compile the javascript. Instructions for installing Node and Yarn are out of the scope of this README.
+## JavaScript
+UDOIT uses [node](https://nodejs.org) and [yarn](https://yarnpkg.com/) to compile the JavaScript. Instructions for installing Node and Yarn are out of the scope of this README.
 
-> If you are running UDOIT in Docker, you don't need to install Yarn on your system.  You can run `docker exec -it udoit_php_1 /bin/bash` and then run the command above inside the Docker container.
+> If you are running UDOIT in Docker, you don't need to install Node or Yarn on your system.  You can run `docker exec -it udoit_php_1 /bin/bash` and then run the following commands inside the Docker container.
 
-To install the javascript dependencies run the command:
+To install the JavaScript dependencies run the command:
 
     yarn install
 
-To build the javascript files for production, run the command:
+To build the JavaScript files for production, run the command:
 
     yarn build
 
