@@ -19,7 +19,7 @@ We strongly recommend source code should be managed through Git. The benefit of 
 ## Docker
 We provide a fast and simple way of setting up a local UDOIT instance through the use of docker containers. To set up the docker containers, you must first install [Docker](https://docs.docker.com/get-docker/) and [Docker Compose](https://docs.docker.com/compose/install/). Then, simply run the following command from within the UDOIT directory:
 
-    docker-compose up --build
+    docker-compose up -d
 
 Once the containers are up and running, you can access the php container by calling the command:
 
@@ -51,13 +51,17 @@ SSL Issues:  It is important to note that most browsers will automatically block
 TIP:  If you are running UDOIT in Docker, you will need do this each time you start the docker container.
 
 ## Installing Composer Dependencies
-UDOIT uses Composer to install PHP dependencies. Installing Composer is out of the scope of this README, but here is some documentation on [Composer Installation](https://getcomposer.org/download/).
+UDOIT uses Composer to install PHP dependencies. If you are using Docker, it will already be installed inside the PHP container. To install the required PHP dependencies, enter the PHP container with:
 
-Assuming you have Composer installed, navigate to your UDOIT directory in the CLI and run this command:
+    docker exec -it udoit_php_1 /bin/bash
+
+Then, install the dependencies:
+
+    composer install --no-dev
+
+If you're not using Docker, follow the upstream documentation on [Composer Installation](https://getcomposer.org/download/) to install `composer.phar` into the project root, then run the following:
 
     php composer.phar install --no-dev
-
-TIP:  If you are running UDOIT in Docker, you don't need to install PHP on your system.  You can run `docker exec -it udoit_php_1 /bin/bash` and then run the command above inside the Docker container.
 
 ## .ENV Setup
 UDOIT uses a `.env` file for storing configuration. Local configuration such as database information and URLs should be stored in a `.env.local` file that is NOT tracked in Git.
