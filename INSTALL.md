@@ -48,7 +48,7 @@ Security Note:  Do not use the commands above for production installations.  Use
 
 SSL Issues:  It is important to note that most browsers will automatically block unsigned certificates, and the tool might fail to load with the message that the website might be down or have moved to a new location. If this happens to you after going through the rest of the instructions, you can bypass this warning by opening the specified url in a new tab, granting the browser permission to access the webpage, and then going back to where the UDOIT tool has been integrated and refreshing the page.
 
-TIP:  If you are running UDOIT in Docker, you will need do this each time you start the docker container.
+> If you are running UDOIT in Docker, you will need do this each time you start the docker container.
 
 ## Installing Composer Dependencies
 UDOIT uses Composer to install PHP dependencies. If you are using Docker, it will already be installed inside the PHP container. To install the required PHP dependencies, enter the PHP container with:
@@ -78,7 +78,7 @@ UDOIT uses a `.env` file for storing configuration. Local configuration such as 
 ## Database Setup
 While UDOIT is configured to use MySQL or MariaDB by default, Symfony can be configured to work with other databases as well. See the Symfony documentation for details.
 
-TIP:  If you are running UDOIT in Docker, you don't need to install PHP on your system.  You can run `docker exec -it udoit_php_1 /bin/bash` and then run the commands below inside the Docker container.
+> If you are running UDOIT in Docker, you don't need to install PHP on your system.  You can run `docker exec -it udoit_php_1 /bin/bash` and then run the commands below inside the Docker container.
 
 You can create your database manually, or use `Symfony` to create the database with this command:
 
@@ -97,15 +97,17 @@ If you are operating in a production environment you will need to generate the d
     php bin/console cache:warmup --env=prod
 
 ## Javascript
-UDOIT uses `node` and `yarn` to compile the javascript. Instructions for installing Node and Yarn are out of the scope of this README. TO install the javascript dependencies run the command:
+UDOIT uses `node` and `yarn` to compile the javascript. Instructions for installing Node and Yarn are out of the scope of this README.
+
+> If you are running UDOIT in Docker, you don't need to install Yarn on your system.  You can run `docker exec -it udoit_php_1 /bin/bash` and then run the command above inside the Docker container.
+
+To install the javascript dependencies run the command:
 
     yarn install
 
 To build the javascript files for production, run the command:
 
     yarn build
-
-TIP:  If you are running UDOIT in Docker, you don't need to install Yarn on your system.  You can run `docker exec -it udoit_php_1 /bin/bash` and then run the command above inside the Docker container.
 
 ## Testing Your Setup
 Once you have completed the steps above you will want to test your setup. Unfortunately, UDOIT is an LTI tool that can only fully run within the LMS. You will need to complete the steps in the INSTALL_CANVAS.md or INSTALL_D2L.md to test UDOIT fully.
