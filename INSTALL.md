@@ -67,7 +67,13 @@ If you're not using Docker, follow the upstream documentation on [Composer Insta
 
 ## .ENV Setup
 UDOIT uses a `.env` file for storing configuration. Local configuration such as database information and URLs should be stored in a `.env.local` file that is NOT tracked in Git.
+
+> These changes should be made outside any of the Docker containers.
+
 1. Copy the file `.env.local.example` to `.env.local`.
+```
+cp .env.local.example .env.local
+```
 2. Leave `APP_ENV` set to `prod`
 > If you are setting up a development environment, set this to `dev` and follow the steps in [Installing Composer Dependencies](#installing-composer-dependencies) without the `--no-dev` flag to obtain all of the development packages.
 3. Add your database information to this `DATABASE_URL` variable.
