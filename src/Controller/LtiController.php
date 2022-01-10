@@ -265,14 +265,9 @@ class LtiController extends AbstractController
         try {
             $getParams = $this->request->query->all();
             $postParams = $this->request->request->all();
+            $allParams = array_merge($getParams, $postParams);
 
-            foreach ($getParams as $key => $val) {
-                if (!empty($val)) {
-                    $this->session->set($key, $val);
-                }
-            }
-
-            foreach ($postParams as $key => $val) {
+            foreach ($allParams as $key => $val) {
                 if (!empty($val)) {
                     $this->session->set($key, $val);
                 }
