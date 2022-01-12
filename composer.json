@@ -96,16 +96,7 @@
         "symfony/polyfill-php70": "*",
         "symfony/polyfill-php56": "*"
     },
-    "scripts": {
-        "auto-scripts": {
-        },
-        "post-install-cmd": [
-            "@auto-scripts"
-        ],
-        "post-update-cmd": [
-            "@auto-scripts"
-        ]
-    },
+    "scripts": {},
     "conflict": {
         "symfony/symfony": "*"
     },
