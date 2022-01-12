@@ -101,11 +101,7 @@ class LtiController extends AbstractController
 
         if (isset($token->{'https://purl.imsglobal.org/spec/lti/claim/target_link_uri'})) {
             $redirectUrl = $token->{'https://purl.imsglobal.org/spec/lti/claim/target_link_uri'} . '?auth_token=' . $this->session->getUuid();
-
-            // Avoid a never-ending redirect loop
-            if (strpos($redirectUrl, $this->request->getRequestUri()) === false) {
-                return $this->redirect($redirectUrl);
-            }
+            return $this->redirect($redirectUrl);
         }
 
         return $this->redirectToRoute('dashboard',
@@ -243,14 +239,6 @@ class LtiController extends AbstractController
                 }
             }
 
-            // Context is optional and contains a unique id, label, title, and type
-            if (!empty($token->{'https://purl.imsglobal.org/spec/lti/claim/context'})) {
-                $contextFields = (array) $token->{'https://purl.imsglobal.org/spec/lti/claim/context'};
-                foreach ($contextFields as $key => $val) {
-                    $this->session->set('lms_course_' . $key, $val);
-                }
-            }
-
             $roles = [];
             if (!empty($token->{'https://purl.imsglobal.org/spec/lti/claim/roles'})) {
                 $roleFields = (array) $token->{'https://purl.imsglobal.org/spec/lti/claim/roles'};
@@ -261,26 +249,8 @@ class LtiController extends AbstractController
             }
             $this->session->set('roles', array_values(array_unique($roles)));
 
-            // Full display name including titles and suffixes displayed according to user locale/pref
-            if (!empty($token->name)) {
+            if (isset($token->name)) {
                 $this->session->set('lms_user_name', $token->name);
-            }
-
-            if (!empty($token->given_name)) {
-                $this->session->set('lms_user_given_name', $token->given_name);
-            }
-
-            if (!empty($token->family_name)) {
-                $this->session->set('lms_user_family_name', $token->family_name);
-            }
-
-            if (!empty($token->email)) {
-                $this->session->set('lms_user_email', $token->email);
-            }
-
-            // Required except for anonymous launches; this is stable over time and may not be display friendly
-            if (!empty($token->sub)) {
-                $this->session->set('lms_user_id', $token->sub);
             }
 
             $lms->saveTokenToSession($token);

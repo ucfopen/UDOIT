@@ -149,6 +149,11 @@ class D2lLms implements LmsInterface {
     {
         $session = $this->sessionService->getSession();
 
+        $contextFields = (array) $token->{'https://purl.imsglobal.org/spec/lti/claim/context'};
+        foreach ($contextFields as $key => $val) {
+            $session->set('lms_course_' . $key, $val);
+        }
+
         $brightspaceFields = (array) $token->{'http://www.brightspace.com'};
         foreach ($brightspaceFields as $key => $val) {
             $session->set('lms_' . $key, $val);
