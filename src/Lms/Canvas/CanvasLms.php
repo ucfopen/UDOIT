@@ -75,21 +75,13 @@ class CanvasLms implements LmsInterface {
 
     public function getLtiAuthUrl($globalParams)
     {
-        $session = $this->sessionService->getSession();
-        $baseUrl = $_ENV['JWK_BASE_URL'];
-
-        $lmsParams = [];
-        $params = array_merge($globalParams, $lmsParams);
-        $queryStr = http_build_query($params);
-
-        return "{$baseUrl}api/lti/authorize_redirect?{$queryStr}";
+        $queryStr = http_build_query($globalParams);
+        return "https://{$this->util->getCurrentDomain()}/api/lti/authorize_redirect?{$queryStr}";
     }
 
     public function getKeysetUrl()
     {
-        $baseUrl = $_ENV['JWK_BASE_URL'];
-
-        return "{$baseUrl}api/lti/security/jwks";
+        return "https://{$this->util->getCurrentDomain()}/api/lti/security/jwks";
     }
 
     public function saveTokenToSession($token)
