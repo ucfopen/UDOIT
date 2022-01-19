@@ -4,9 +4,9 @@
 cd /var/www/html
 
 # copy localConfig from S3 if you are not on local
-if [ "$ENVIORNMENT_TYPE" != "local" ]
+if [ "$ENVIRONMENT_TYPE" != "local" ]
 then
-    aws s3 cp s3://cidilabs-devops/udoit3/.env.local.$ENVIORNMENT_TYPE /var/www/html/.env.local
+    aws s3 cp s3://cidilabs-devops/udoit3/.env.local.$ENVIRONMENT_TYPE /var/www/html/.env.local
 fi
 
 # run composer install
@@ -16,7 +16,7 @@ composer install --no-dev --no-interaction --no-progress --optimize-autoloader
 sudo find /var/www/html -type f -exec chmod 664 {} + -o -type d -exec chmod 775 {} +
 
 # only setup newrelic if not on local.
-if [ "$ENVIORNMENT_TYPE" != "local" ]
+if [ "$ENVIRONMENT_TYPE" != "local" ]
 then
     # create .user.ini file for New Relic (PHP-FPM only)
     touch /var/www/html/public/.user.ini
