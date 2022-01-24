@@ -218,15 +218,4 @@ class UtilityService {
 
         return $format;
     }
-
-    public function getCurrentDomain()
-    {
-        $session = $this->sessionService->getSession();
-        $domain = $session->get('lms_api_domain');
-        if (empty($domain)) {
-            $domain = $session->get('iss');
-        }
-
-        return str_replace('https://', '', $domain);
-    }
 }
