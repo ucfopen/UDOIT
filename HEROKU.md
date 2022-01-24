@@ -18,7 +18,8 @@ Click the Heroku button and follow the instructions below:
    * `d2l` if you are using the D2l Brightspace LMS.
 5. Fill out the `BASE_URL` field with `https://yourapp.herokuapp.com`. (Replace 'yourapp' with the name you gave in step 1.2.)
 6. Fill out the `JWK_BASE_URL` field with the URL to your LMS. The default value works for instructure hosted instances of Canvas, but will need to be modified according to the LMS and host.
-7. Click the Deploy button and wait for the process to complete.
+7. Fill out the `LMS_BASE_DOMAIN` field with a bare domain (no "https://" or trailing slash) of the LMS.
+8. Click the Deploy button and wait for the process to complete.
 
 ### Step 2: Database Migration and Setup
 Next we need to set up the database and insert our institution in to the appropriate table.
