@@ -148,7 +148,7 @@ class LtiController extends AbstractController
         $baseDomain = str_replace('https://', '', $baseUrl);
         $appName = $request->server->get('APP_LTI_NAME');
         $adminName = $request->server->get('ADMIN_LTI_NAME');
-        $platform = ($lms === 'canvas') ? 'canvas.instructure.com' : 'd2l.com';
+        $platform = $_ENV['LMS_BASE_DOMAIN'];
 
         $customAppName = $request->query->get('tool_title');
         $default = $request->query->get('default');
@@ -188,7 +188,7 @@ class LtiController extends AbstractController
             ],
             "public_jwk" => [],
             "description" => "User settings for UDOIT 3.x",
-            "public_jwk_url" => "https://canvas.instructure.com/api/lti/security/jwks",
+            "public_jwk_url" => "https://{$platform}/api/lti/security/jwks",
             "target_link_uri" => "{$baseUrl}/dashboard",
             "oidc_initiation_url" => "{$baseUrl}/lti/authorize"
         ];
