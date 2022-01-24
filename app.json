@@ -30,6 +30,10 @@
 		"description": "Full URL to your LMS. Default value works for cloud hosted Canvas.",
 		"value": "https://canvas.instructure.com/"
 	  },
+	  "LMS_BASE_DOMAIN": {
+		"description": "The base domain of the LMS. Should NOT have a trailing slash nor https://",
+		"value": "canvas.instructure.com"
+	  },
 	  "HEROKU_TIMEOUT": {
 		"description": "Web requests time out at 30 seconds causing the app to crash. Value should be significantly less than 30 to prevent this.",
 		"value": "15"
