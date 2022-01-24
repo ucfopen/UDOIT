@@ -26,12 +26,8 @@
 		"description": "Full URL to your instance.",
 		"value": "https://your.herokuapp.com"
 	  },
-	  "JWK_BASE_URL": {
-		"description": "Full URL to your LMS. Default value works for cloud hosted Canvas.",
-		"value": "https://canvas.instructure.com/"
-	  },
 	  "LMS_BASE_DOMAIN": {
-		"description": "The base domain of the LMS. Should NOT have a trailing slash nor https://",
+		"description": "The base domain of the LMS. Should NOT have a trailing slash nor \"https://\". The default value works for cloud hosted Canvas.",
 		"value": "canvas.instructure.com"
 	  },
 	  "HEROKU_TIMEOUT": {
