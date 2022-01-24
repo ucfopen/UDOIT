@@ -76,12 +76,12 @@ class CanvasLms implements LmsInterface {
     public function getLtiAuthUrl($globalParams)
     {
         $queryStr = http_build_query($globalParams);
-        return "https://{$this->util->getCurrentDomain()}/api/lti/authorize_redirect?{$queryStr}";
+        return "https://{$_ENV['LMS_BASE_DOMAIN']}/api/lti/authorize_redirect?{$queryStr}";
     }
 
     public function getKeysetUrl()
     {
-        return "https://{$this->util->getCurrentDomain()}/api/lti/security/jwks";
+        return "https://{$_ENV['LMS_BASE_DOMAIN']}/api/lti/security/jwks";
     }
 
     public function saveTokenToSession($token)
@@ -102,16 +102,13 @@ class CanvasLms implements LmsInterface {
             'redirect_uri' => LmsUserService::getOauthRedirectUri(),
             'state' => $session->getUuid()
         ];
-        $baseUrl = $this->util->getCurrentDomain();
 
-        return "https://{$baseUrl}/login/oauth2/auth?" . http_build_query($query);
+        return "https://{$_ENV['LMS_BASE_DOMAIN']}/login/oauth2/auth?" . http_build_query($query);
     }
 
     public function getOauthTokenUri(Institution $institution)
     {
-        $baseUrl = $this->util->getCurrentDomain();
-
-        return "https://{$baseUrl}/login/oauth2/token";
+        return "https://{$_ENV['LMS_BASE_DOMAIN']}/login/oauth2/token";
     }
 
 

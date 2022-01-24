@@ -329,7 +329,7 @@ class LtiController extends AbstractController
         $institution = null;
 
         if (!$this->getUser()) {
-            $domain = $this->util->getCurrentDomain();
+            $domain = $_ENV['LMS_BASE_DOMAIN'];
 
             if ($domain) {
                 $institution = $this
