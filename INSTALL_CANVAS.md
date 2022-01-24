@@ -169,7 +169,7 @@ The following fields need to be populated in the `institution` table.
 
 ---
 ## .ENV Setup
-For cloud-hosted canvas instances the default value for the `JWK_BASE_URL` environmental variable will work out of the box. If you are not cloud-hosted, you may need to change the value of this variable in `.env.local` to match your canvas instance.
+For cloud-hosted canvas instances the default value for the `LMS_BASE_DOMAIN` environmental variable will work out of the box. If you are not cloud-hosted, you may need to change the value of this variable in `.env.local` to match your canvas instance.
 
 ---
 ## Install the App
