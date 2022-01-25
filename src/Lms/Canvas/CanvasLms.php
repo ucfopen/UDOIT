@@ -51,7 +51,7 @@ class CanvasLms implements LmsInterface {
         UtilityService $util,
         Security $security,
         SessionService $sessionService,
-        HtmlService $html)
+        HtmlService $html) 
     {
         $this->contentItemRepo = $contentItemRepo;
         $this->fileItemRepo = $fileItemRepo;
@@ -76,20 +76,21 @@ class CanvasLms implements LmsInterface {
     public function getLtiAuthUrl($globalParams)
     {
         $session = $this->sessionService->getSession();
-        $baseUrl = $_ENV['JWK_BASE_URL'];
+        $baseUrl = $session->get('iss');
 
         $lmsParams = [];
         $params = array_merge($globalParams, $lmsParams);
         $queryStr = http_build_query($params);
 
-        return "{$baseUrl}api/lti/authorize_redirect?{$queryStr}";
+        return "{$baseUrl}/api/lti/authorize_redirect?{$queryStr}";
     }
 
     public function getKeysetUrl()
     {
-        $baseUrl = $_ENV['JWK_BASE_URL'];
+        $session = $this->sessionService->getSession();
+        $baseUrl = $session->get('iss');
 
-        return "{$baseUrl}api/lti/security/jwks";
+        return "{$baseUrl}/api/lti/security/jwks";
     }
 
     public function saveTokenToSession($token)
@@ -118,6 +119,9 @@ class CanvasLms implements LmsInterface {
     public function getOauthTokenUri(Institution $institution)
     {
         $baseUrl = $this->util->getCurrentDomain();
+        if (!$baseUrl) {
+            $baseUrl = $institution->getLmsDomain();
+        }
 
         return "https://{$baseUrl}/login/oauth2/token";
     }
@@ -174,7 +178,7 @@ class CanvasLms implements LmsInterface {
      *
      * @param Course $course
      * @param User $user
-     *
+     * 
      * @return ContentItem[]
      */
     public function updateCourseContent(Course $course, User $user)
@@ -191,11 +195,11 @@ class CanvasLms implements LmsInterface {
 
             if ($response->getErrors()) {
                 $this->util->createMessage('Error retrieving content. Failed API Call: ' . $url, 'error', $course, $user);
-            }
+            } 
             else {
                 if ('syllabus' === $contentType) {
                     $contentList = [$response->getContent()];
-                }
+                } 
                 else {
                     $contentList = $response->getContent();
                 }
@@ -210,7 +214,6 @@ class CanvasLms implements LmsInterface {
                     if (('assignment' === $contentType) && isset($content['quiz_id'])) {
                         continue;
                     }
-
                     /* Discussion topics set as assignments should be skipped */
                     if (('assignment' === $contentType) && isset($content['discussion_topic'])) {
                         continue;
@@ -309,7 +312,8 @@ class CanvasLms implements LmsInterface {
         $this->entityManager->flush();
     }
 
-    public function updateContentItem(ContentItem $contentItem) {
+    public function updateContentItem(ContentItem $contentItem)
+    {
         $user = $this->security->getUser();
         $apiDomain = $this->getApiDomain($user);
         $apiToken = $this->getApiToken($user);
@@ -328,7 +332,7 @@ class CanvasLms implements LmsInterface {
 
             $this->util->createMessage('Error retrieving content. Please try again.', 'error', $contentItem->getCourse(), $user);
             $this->util->createMessage($log, 'error', $contentItem->getCourse(), $user, true);
-        }
+        } 
         else {
             $apiContent = $response->getContent();
             $lmsContent = $this->normalizeLmsContent($contentItem->getCourse(), $contentType, $apiContent);
@@ -455,27 +459,33 @@ class CanvasLms implements LmsInterface {
 
     public function getAccountTerms(User $user)
     {
-        $terms = [];
+        $session = $this->sessionService->getSession();
+        $terms = $session->get("terms", []);
 
-        $url = "accounts/self/terms";
-        $apiDomain = $this->getApiDomain($user);
-        $apiToken = $this->getApiToken($user);
+        if (empty($terms)) {
+            $url = "accounts/self/terms";
+            $apiDomain = $this->getApiDomain($user);
+            $apiToken = $this->getApiToken($user);
 
-        $canvasApi = new CanvasApi($apiDomain, $apiToken);
-        $response = $canvasApi->apiGet($url);
+            $canvasApi = new CanvasApi($apiDomain, $apiToken);
+            $response = $canvasApi->apiGet($url);
 
-        if (!$response || !empty($response->getErrors())) {
-            foreach ($response->getErrors() as $error) {
-                $this->util->createMessage($error, 'error', null, $user);
+            if (!$response || !empty($response->getErrors())) {
+                foreach ($response->getErrors() as $error) {
+                    $this->util->createMessage($error, 'error', null, $user);
+                }
+                return;
             }
-            return;
-        }
-        $content = $response->getContent();
 
-        if (isset($content['enrollment_terms'])) {
-            foreach ($content['enrollment_terms'] as $term) {
-                $terms[$term['id']] = $term;
+            $content = $response->getContent();
+
+            if (isset($content['enrollment_terms'])) {
+                foreach ($content['enrollment_terms'] as $term) {
+                    $terms[$term['id']] = $term;
+                }
             }
+
+            $session->set("terms", $terms);
         }
 
         return $terms;
@@ -494,9 +504,8 @@ class CanvasLms implements LmsInterface {
         ];
     }
 
-
     /**********************
-     * PROTECTED FUNCTIONS
+     * PROTECTED FUNCTIONS 
      **********************/
 
     protected function getAccountInfo(User $user, $accountId)
@@ -568,8 +577,9 @@ class CanvasLms implements LmsInterface {
                 break;
 
             case 'quiz':
-                $options['quiz[description'] = $html;
+                $options['quiz[description]'] = $html;
                 break;
+
                 // case 'module':
                 // break;
 
@@ -631,11 +641,11 @@ class CanvasLms implements LmsInterface {
 
             case 'assignment':
                 $out['id'] = $lmsContent['id'];
+                $out['url'] = "{$baseUrl}/assignments/{$lmsContent['id']}";
                 $out['title'] = $lmsContent['name'];
                 $out['updated'] = $lmsContent['updated_at'];
                 $out['body'] = $lmsContent['description'];
                 $out['status'] = $lmsContent['published'];
-                $out['url'] = "{$baseUrl}/assignments/{$lmsContent['id']}";
 
                 break;
 
@@ -672,7 +682,6 @@ class CanvasLms implements LmsInterface {
                 $out['url'] = "{$baseUrl}/modules";
 
                 break;
-
 
             case 'file':
                 if ('html' !== $lmsContent['mime_class']) {
@@ -714,8 +723,7 @@ class CanvasLms implements LmsInterface {
             'assignment' =>         "courses/{$courseId}/assignments",
             'discussion_topic' =>   "courses/{$courseId}/discussion_topics",
             'file' =>               "courses/{$courseId}/files",
-            // we're not handling module item URLs yet.
-            //'module' =>             "courses/{$courseId}/modules",
+            'module' =>             "courses/{$courseId}/modules?include[]=items",
             'page' =>               "courses/{$courseId}/pages",
             'quiz' =>               "courses/{$courseId}/quizzes",
         ];
@@ -795,6 +803,6 @@ class CanvasLms implements LmsInterface {
 
     protected function sortSubAccounts($a, $b)
     {
-        return ($a['id'] > $b['id']) ? 1: -1;
+        return ($a['id'] > $b['id']) ? 1 : -1;
     }
 }
