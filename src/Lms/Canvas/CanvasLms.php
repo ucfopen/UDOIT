@@ -51,7 +51,7 @@ class CanvasLms implements LmsInterface {
         UtilityService $util,
         Security $security,
         SessionService $sessionService,
-        HtmlService $html) 
+        HtmlService $html)
     {
         $this->contentItemRepo = $contentItemRepo;
         $this->fileItemRepo = $fileItemRepo;
@@ -178,7 +178,7 @@ class CanvasLms implements LmsInterface {
      *
      * @param Course $course
      * @param User $user
-     * 
+     *
      * @return ContentItem[]
      */
     public function updateCourseContent(Course $course, User $user)
@@ -195,11 +195,11 @@ class CanvasLms implements LmsInterface {
 
             if ($response->getErrors()) {
                 $this->util->createMessage('Error retrieving content. Failed API Call: ' . $url, 'error', $course, $user);
-            } 
+            }
             else {
                 if ('syllabus' === $contentType) {
                     $contentList = [$response->getContent()];
-                } 
+                }
                 else {
                     $contentList = $response->getContent();
                 }
@@ -332,7 +332,7 @@ class CanvasLms implements LmsInterface {
 
             $this->util->createMessage('Error retrieving content. Please try again.', 'error', $contentItem->getCourse(), $user);
             $this->util->createMessage($log, 'error', $contentItem->getCourse(), $user, true);
-        } 
+        }
         else {
             $apiContent = $response->getContent();
             $lmsContent = $this->normalizeLmsContent($contentItem->getCourse(), $contentType, $apiContent);
@@ -505,7 +505,7 @@ class CanvasLms implements LmsInterface {
     }
 
     /**********************
-     * PROTECTED FUNCTIONS 
+     * PROTECTED FUNCTIONS
      **********************/
 
     protected function getAccountInfo(User $user, $accountId)
