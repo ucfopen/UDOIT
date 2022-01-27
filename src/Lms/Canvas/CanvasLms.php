@@ -641,11 +641,11 @@ class CanvasLms implements LmsInterface {
 
             case 'assignment':
                 $out['id'] = $lmsContent['id'];
-                $out['url'] = "{$baseUrl}/assignments/{$lmsContent['id']}";
                 $out['title'] = $lmsContent['name'];
                 $out['updated'] = $lmsContent['updated_at'];
                 $out['body'] = $lmsContent['description'];
                 $out['status'] = $lmsContent['published'];
+                $out['url'] = "{$baseUrl}/assignments/{$lmsContent['id']}";
 
                 break;
 
