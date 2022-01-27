@@ -76,7 +76,8 @@ class CanvasLms implements LmsInterface {
     public function getLtiAuthUrl($globalParams)
     {
         $session = $this->sessionService->getSession();
-        $baseUrl = $session->get('iss');
+        $baseUrl = $_ENV['JWK_BASE_URL'] ?: $session->get('iss');
+        $baseUrl = rtrim($baseUrl, '/');
 
         $lmsParams = [];
         $params = array_merge($globalParams, $lmsParams);
