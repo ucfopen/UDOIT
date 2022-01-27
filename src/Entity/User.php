@@ -245,7 +245,7 @@ class User implements UserInterface, \Serializable, JsonSerializable
         ) = unserialize($serialized);
     }
 
-    public function jsonSerialize()
+    public function jsonSerialize(): array
     {
         $dateFormat = $_ENV['DATE_FORMAT'];
         $apiKey = $this->getApiKey();

@@ -83,14 +83,14 @@ class Report implements \JsonSerializable
     // Public Methods
     /**
      *
-     * @return array|mixed
+     * @return array
      */
-    public function jsonSerialize()
+    public function jsonSerialize(): array
     {
         return $this->toArray();
     }
 
-    public function toArray() 
+    public function toArray(): array
     {
         $result = [
             "id" => $this->id,

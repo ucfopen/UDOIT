@@ -90,9 +90,9 @@ class Course implements \JsonSerializable
 
     /**
      * Serializes Course with basic information needed by front-end.
-     * @return array|mixed
+     * @return array
      */
-    public function jsonSerialize()
+    public function jsonSerialize(): array
     {
         return [
             "id" => $this->id,
