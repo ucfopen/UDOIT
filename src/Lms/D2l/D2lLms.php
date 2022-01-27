@@ -126,14 +126,12 @@ class D2lLms implements LmsInterface {
      * LTI Functions
      * *************
      */
-    public function getLtiAuthUrl($globalParams)
+    public function getLtiAuthUrl($params)
     {
         $session = $this->sessionService->getSession();
         $baseUrl = $_ENV['JWK_BASE_URL'] ?: $session->get('iss');
         $baseUrl = rtrim($baseUrl, '/');
 
-        $lmsParams = [];
-        $params = array_merge($globalParams, $lmsParams);
         $queryStr = http_build_query($params);
 
         return "{$baseUrl}/d2l/lti/authenticate?{$queryStr}";
