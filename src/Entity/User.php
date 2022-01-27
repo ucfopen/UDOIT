@@ -13,7 +13,7 @@ use Symfony\Component\Security\Core\User\UserInterface;
  * @ORM\Entity(repositoryClass="App\Repository\UserRepository")
  * @ORM\Table(name="users")
  */
-class User implements UserInterface, \Serializable, JsonSerializable
+class User implements UserInterface, JsonSerializable
 {
     /**
      * @ORM\Id()
@@ -225,24 +225,18 @@ class User implements UserInterface, \Serializable, JsonSerializable
         return $this;
     }
 
-    /** @see \Serializable::serialize() */
-    public function serialize()
+    public function __serialize(): array
     {
-        return serialize(array(
+        return [
             $this->id,
             $this->username,
             $this->lmsUserId
-        ));
+        ];
     }
 
-    /** @see \Serializable::unserialize() */
-    public function unserialize($serialized)
+    public function __unserialize(array $data): void
     {
-        list(
-            $this->id,
-            $this->username,
-            $this->lmsUserId
-        ) = unserialize($serialized);
+        [$this->id, $this->username, $this->lmsUserId] = $data;
     }
 
     public function jsonSerialize(): array
