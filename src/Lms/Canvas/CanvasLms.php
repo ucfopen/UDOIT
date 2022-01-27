@@ -88,12 +88,9 @@ class CanvasLms implements LmsInterface {
 
     public function getKeysetUrl()
     {
-        if ($_ENV['JWK_BASE_URL']) {
-            $jwk_url_no_trailing_slash = rtrim($_ENV['JWK_BASE_URL'], '/');
-            return "{$jwk_url_no_trailing_slash}/api/lti/security/jwks";
-        }
         $session = $this->sessionService->getSession();
-        $baseUrl = $session->get('iss');
+        $baseUrl = $_ENV['JWK_BASE_URL'] ?: $session->get('iss');
+        $baseUrl = rtrim($baseUrl, '/');
 
         return "{$baseUrl}/api/lti/security/jwks";
     }
