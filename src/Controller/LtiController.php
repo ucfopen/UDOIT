@@ -312,7 +312,7 @@ class LtiController extends AbstractController
             'prompt' => 'none',
             'redirect_uri' => $server->get('BASE_URL') . $server->get('APP_LTI_REDIRECT_PATH'),
         ];
-        
+
         $ltiMessageHint = $this->session->get('lti_message_hint');
         if ($ltiMessageHint !== '') {
             $params['lti_message_hint'] = $ltiMessageHint;
