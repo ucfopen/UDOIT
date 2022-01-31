@@ -1,5 +1,4 @@
 import React from 'react'
-import '@instructure/canvas-theme'
 import AdminHeader from './AdminHeader'
 import CoursesPage from './CoursesPage'
 import ReportsPage from './ReportsPage'
@@ -27,7 +26,7 @@ class AdminApp extends React.Component {
         this.settings.accountId = accountIds.shift()
       }
     }
-    
+
     this.state = {
       courses: {},
       filters: {
@@ -133,7 +132,7 @@ class AdminApp extends React.Component {
 
   loadCourses(filters, isMounted) {
     const api = new Api(this.settings)
-    
+
     api.getAdminCourses(filters)
       .then((response) => response.json())
       .then((data) => {
@@ -164,13 +163,13 @@ class AdminApp extends React.Component {
   clearMessages = () => {
     this.messages = [];
   }
-  
+
   handleFilter(newFilter) {
     const filters = Object.assign(this.state.filters, newFilter)
     this.setState({ filters }, () => {
       this.loadCourses(this.state.filters, true)
     })
-    
+
   }
 
   handleCourseUpdate(course) {
