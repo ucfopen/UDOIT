@@ -303,9 +303,7 @@ class LtiController extends AbstractController
         $server = $this->request->server;
 
         $params = [
-            'lti_message_hint' => $this->session->get('lti_message_hint'),
             'client_id' => $this->session->get('client_id'),
-            'login_hint' => $this->session->get('login_hint'),
             'state' => $this->session->getUuid(),
             'scope' => 'openid',
             'response_type' => 'id_token',
@@ -314,6 +312,16 @@ class LtiController extends AbstractController
             'prompt' => 'none',
             'redirect_uri' => $server->get('BASE_URL') . $server->get('APP_LTI_REDIRECT_PATH'),
         ];
+
+        $ltiMessageHint = $this->session->get('lti_message_hint');
+        if ($ltiMessageHint !== '') {
+            $params['lti_message_hint'] = $ltiMessageHint;
+        }
+
+        $loginHint = $this->session->get('login_hint');
+        if ($loginHint !== '') {
+            $params['login_hint'] = $loginHint;
+        }
 
         return $lms->getLtiAuthUrl($params);
     }
