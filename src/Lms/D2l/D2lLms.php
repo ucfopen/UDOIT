@@ -126,13 +126,12 @@ class D2lLms implements LmsInterface {
      * LTI Functions
      * *************
      */
-    public function getLtiAuthUrl($globalParams)
+    public function getLtiAuthUrl($params)
     {
         $session = $this->sessionService->getSession();
-        $baseUrl = $session->get('iss');
+        $baseUrl = !empty(getenv('JWK_BASE_URL')) ? getenv('JWK_BASE_URL') : $session->get('iss');
+        $baseUrl = rtrim($baseUrl, '/');
 
-        $lmsParams = [];
-        $params = array_merge($globalParams, $lmsParams);
         $queryStr = http_build_query($params);
 
         return "{$baseUrl}/d2l/lti/authenticate?{$queryStr}";
@@ -141,8 +140,10 @@ class D2lLms implements LmsInterface {
     public function getKeysetUrl()
     {
         $session = $this->sessionService->getSession();
+        $baseUrl = !empty(getenv('JWK_BASE_URL')) ? getenv('JWK_BASE_URL') : $session->get('iss');
+        $baseUrl = rtrim($baseUrl, '/');
         
-        return $session->get('iss') . '/d2l/.well-known/jwks';
+        return $baseUrl . '/d2l/.well-known/jwks';
     }
 
     public function saveTokenToSession($token)
