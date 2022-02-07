@@ -247,7 +247,7 @@ class LtiController extends AbstractController
             if (!empty($token->{'https://purl.imsglobal.org/spec/lti/claim/context'})) {
                 $contextFields = (array) $token->{'https://purl.imsglobal.org/spec/lti/claim/context'};
                 foreach ($contextFields as $key => $val) {
-                    $this->session->set('lms_course_' . $key, $val);
+                    $this->session->set('lti_context_' . $key, $val);
                 }
             }
 
