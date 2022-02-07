@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\Entity\Institution;
 use App\Entity\User;
 use App\Services\LmsApiService;
+use App\Services\NonceService;
 use App\Services\SessionService;
 use App\Services\UtilityService;
 use Firebase\JWT\JWK;
@@ -25,6 +26,13 @@ class LtiController extends AbstractController
     private $request;
     /** @var \App\Services\LmsApiService $lmsApi */
     private $lmsApi;
+
+    private NonceService $nonceService;
+
+    public function __construct(NonceService $nonceService)
+    {
+        $this->nonceService = $nonceService;
+    }
 
     /**
      * @Route("/lti/authorize", name="lti_authorize")
@@ -88,7 +96,9 @@ class LtiController extends AbstractController
         }
 
         // Id token must contain a nonce. Should verify that nonce has not been received within a certain time window
-        $this->claimMatchOrExit('nonce', 'nonce', $token->nonce);
+        if(!$this->nonceService->verifyNonce($token->nonce, $this->session->getUuid())) {
+            throw new \Exception("Invalid nonce!");
+        }
 
         // Add Token to Session
         $this->saveTokenToSession($token);
@@ -302,13 +312,18 @@ class LtiController extends AbstractController
         $lms = $this->lmsApi->getLms();
         $server = $this->request->server;
 
+        $uuid = $this->session->getUuid();
+        if (empty($uuid)) {
+            throw new \Exception("No UUID found!");
+        }
+
         $params = [
             'client_id' => $this->session->get('client_id'),
-            'state' => $this->session->getUuid(),
+            'state' => $uuid,
             'scope' => 'openid',
             'response_type' => 'id_token',
             'response_mode' => 'form_post',
-            'nonce' => 'nonce',
+            'nonce' => $this->nonceService->generateNonce($uuid),
             'prompt' => 'none',
             'redirect_uri' => $server->get('BASE_URL') . $server->get('APP_LTI_REDIRECT_PATH'),
         ];
