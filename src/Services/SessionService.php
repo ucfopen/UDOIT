@@ -10,33 +10,29 @@ use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\Uid\Uuid;
 
 class SessionService {
+    protected UserSessionRepository $sessionRepo;
+    protected Request $request;
+    protected UserSession $userSession;
+    protected ManagerRegistry $doctrine;
 
-    /** @var UserSessionRepository $sessionRepo */
-    protected $sessionRepo;
-
-    /** @var Request $request */
-    protected $request;
-
-    /** @var UserSession $userSession */
-    protected $userSession;
-
-    /** @var ManagerRegistry $doctrine */
-    protected $doctrine;
-
-    public function __construct(UserSessionRepository $sessionRepo, RequestStack $requestStack, ManagerRegistry $doctrine) 
+    public function __construct(
+        UserSessionRepository $sessionRepo,
+        RequestStack $requestStack,
+        ManagerRegistry $doctrine,
+    )
     {
         $this->sessionRepo = $sessionRepo;
-        $this->request = $requestStack->getCurrentRequest();        
+        $this->request = $requestStack->getCurrentRequest();
         $this->doctrine = $doctrine;
     }
 
-    public function getSession($uuid = null)
+    public function getSession(?string $uuid = null): UserSession
     {
         if (empty($uuid) && !empty($this->userSession)) {
             return $this->userSession;
         }
 
-        // Check request header 
+        // Check request header
         if (!$uuid) {
             $uuid = $this->request->headers->get('X-AUTH-TOKEN');
         }
@@ -50,7 +46,7 @@ class SessionService {
         if (!$uuid) {
             $uuid = $this->request->cookies->get('AUTH_TOKEN');
         }
-        
+
         // Check state for UUID from Oauth
         if (!$uuid) {
             $uuid = $this->request->query->get('state');
@@ -59,7 +55,7 @@ class SessionService {
         if ($uuid) {
             $this->userSession = $this->sessionRepo->findOneBy(['uuid' => $uuid]);
         }
-        
+
         if (empty($this->userSession)) {
             $this->userSession = $this->createSession();
         }
@@ -67,13 +63,13 @@ class SessionService {
         return $this->userSession;
     }
 
-    public function hasSession($uuid = null)
+    public function hasSession(?string $uuid = null): bool
     {
         if (empty($uuid) && !empty($this->userSession)) {
             return true;
         }
 
-        // Check request header 
+        // Check request header
         if (!$uuid) {
             $uuid = $this->request->headers->get('X-AUTH-TOKEN');
         }
@@ -94,15 +90,15 @@ class SessionService {
             if ($userSession) {
                 $this->userSession = $userSession;
             }
-        } 
+        }
 
         return !empty($this->userSession);
     }
 
-    public function removeExpiredSessions()
+    public function removeExpiredSessions(): void
     {
         $userId = $this->userSession->get('userId');
-        
+
         $userSessions = $this->sessionRepo->findByUser($userId);
 
         foreach ($userSessions as $userSess) {
@@ -114,7 +110,7 @@ class SessionService {
         $this->doctrine->getManager()->flush();
     }
 
-    protected function createSession()
+    protected function createSession(): UserSession
     {
         $session = new UserSession();
 
