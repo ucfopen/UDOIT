@@ -122,4 +122,9 @@ class SessionService {
 
         return $session;
     }
+
+    public function flush(): void
+    {
+        $this->doctrine->getManager()->flush();
+    }
 }
