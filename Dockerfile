@@ -1,5 +1,5 @@
 FROM php:7.4-fpm
-ARG ENVIORNMENT_TYPE
+ARG ENVIRONMENT_TYPE
 
 #Install dependencies and php extensions
 RUN apt-get update && apt-get install -y \
@@ -18,7 +18,7 @@ RUN apt-get update && apt-get install -y \
     && docker-php-ext-install pdo_pgsql
 
 #Install AWS CLI v2
-RUN if [ "$ENVIORNMENT_TYPE" != "local" ] ;then  \
+RUN if [ "$ENVIRONMENT_TYPE" != "local" ] ;then  \
         curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip" \
         && unzip awscliv2.zip \
         && ./aws/install\
