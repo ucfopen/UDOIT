@@ -10,6 +10,7 @@ use App\Repository\FileItemRepository;
 use App\Response\ApiResponse;
 use App\Services\SessionService;
 use App\Services\UtilityService;
+use Doctrine\Persistence\ManagerRegistry;
 use Knp\Bundle\SnappyBundle\Snappy\Response\PdfResponse;
 use Knp\Snappy\Pdf;
 use Mpdf\Mpdf;
@@ -28,6 +29,13 @@ class ReportsController extends ApiController
 {
     private $request;
     private $util;
+
+    private ManagerRegistry $doctrine;
+
+    public function __construct(ManagerRegistry $doctrine)
+    {
+        $this->doctrine = $doctrine;
+    }
 
     /**
      * @Route("/api/courses/{course}/reports", methods={"GET"}, name="get_reports")
@@ -51,7 +59,7 @@ class ReportsController extends ApiController
             }
 
             /** @var ReportRepository $repository */
-            $repository = $this->getDoctrine()->getRepository(Report::class);
+            $repository = $this->doctrine->getRepository(Report::class);
             $reports = $repository->findAllInCourse($course);
 
             $apiResponse->setData($reports);
