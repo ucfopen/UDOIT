@@ -8,6 +8,7 @@ use App\Services\LmsApiService;
 use App\Services\NonceService;
 use App\Services\SessionService;
 use App\Services\UtilityService;
+use Doctrine\Persistence\ManagerRegistry;
 use Firebase\JWT\JWK;
 use \Firebase\JWT\JWT;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -27,10 +28,12 @@ class LtiController extends AbstractController
     /** @var \App\Services\LmsApiService $lmsApi */
     private $lmsApi;
 
+    private ManagerRegistry $doctrine;
     private NonceService $nonceService;
 
-    public function __construct(NonceService $nonceService)
+    public function __construct(ManagerRegistry $doctrine, NonceService $nonceService)
     {
+        $this->doctrine = $doctrine;
         $this->nonceService = $nonceService;
     }
 
@@ -444,6 +447,6 @@ class LtiController extends AbstractController
         }
 
         $this->session->set('userId', $user->getId());
-        $this->getDoctrine()->getManager()->flush();
+        $this->doctrine->getManager()->flush();
     }
 }
