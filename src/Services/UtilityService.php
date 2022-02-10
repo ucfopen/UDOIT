@@ -2,18 +2,12 @@
 
 namespace App\Services;
 
-use App\Lms\Canvas\CanvasLms;
-use App\Lms\D2l\D2lLms;
 use App\Entity\Course;
 use App\Entity\Institution;
 use App\Entity\LogEntry;
 use App\Entity\User;
-use App\Lms\LmsInterface;
-use DateTime;
 use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
-use Symfony\Component\HttpFoundation\RequestStack;
-use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Security\Core\Security;
 use Twig\Environment;
 
