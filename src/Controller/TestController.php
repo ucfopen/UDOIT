@@ -3,12 +3,9 @@
 namespace App\Controller;
 
 use App\Entity\ContentItem;
-use App\Entity\Institution;
 use App\Entity\Issue;
 use App\Services\HtmlService;
 use App\Services\LmsApiService;
-use App\Services\LmsPostService;
-use App\Services\PhpAllyService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Routing\Annotation\Route;
 
