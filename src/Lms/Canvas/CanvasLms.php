@@ -18,10 +18,6 @@ use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Security\Core\Security;
 
 class CanvasLms implements LmsInterface {
-    const CANVAS_TEST_BASE_URL = 'https://canvas.test.instructure.com';
-    const CANVAS_BETA_BASE_URL = 'https://canvas.beta.instructure.com';
-    const CANVAS_PROD_BASE_URL = 'https://canvas.instructure.com';
-
     /** @var ContentItemRepository $contentItemRepo */
     private $contentItemRepo;
 
