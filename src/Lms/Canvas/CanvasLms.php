@@ -11,7 +11,6 @@ use App\Entity\UserSession;
 use App\Lms\LmsInterface;
 use App\Repository\ContentItemRepository;
 use App\Repository\FileItemRepository;
-use App\Services\HtmlService;
 use App\Services\LmsUserService;
 use App\Services\SessionService;
 use App\Services\UtilityService;
@@ -41,9 +40,6 @@ class CanvasLms implements LmsInterface {
     /** @var SessionService $sessionService */
     private $sessionService;
 
-    /** @var App\Services\HtmlService */
-    private $html;
-
     public function __construct(
         ContentItemRepository $contentItemRepo,
         FileItemRepository $fileItemRepo,
@@ -51,7 +47,7 @@ class CanvasLms implements LmsInterface {
         UtilityService $util,
         Security $security,
         SessionService $sessionService,
-        HtmlService $html)
+    )
     {
         $this->contentItemRepo = $contentItemRepo;
         $this->fileItemRepo = $fileItemRepo;
@@ -59,7 +55,6 @@ class CanvasLms implements LmsInterface {
         $this->util = $util;
         $this->security = $security;
         $this->sessionService = $sessionService;
-        $this->html = $html;
     }
 
     public function getId()

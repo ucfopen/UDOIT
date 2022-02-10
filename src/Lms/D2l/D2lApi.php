@@ -117,10 +117,6 @@ class D2lApi {
             $url = "https://{$this->baseUrl}/d2l/api/{$url}";
         }
 
-// print "URL: {$url}\n<br/>";
-// print_r($options);
-// exit;
-
         $response = $this->httpClient->request('PUT', $url, $options);
         $lmsResponse->setResponse($response);
 
