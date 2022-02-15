@@ -16,7 +16,6 @@ class NonceService {
         $session = $this->sessionService->getSession($uuid);
         $nonce = bin2hex(random_bytes(8));
         $session->set('nonce', [$nonce, time()]);
-        $session->set('hello', 'abc123');
         $this->sessionService->flush();
         return $nonce;
     }
