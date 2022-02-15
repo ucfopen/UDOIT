@@ -9,6 +9,8 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\Uid\Uuid;
 
+const FIVE_MINUTES = 300;
+
 class SessionService {
     protected UserSessionRepository $sessionRepo;
     protected Request $request;
@@ -123,8 +125,23 @@ class SessionService {
         return $session;
     }
 
-    public function flush(): void
-    {
+    public function generateNonce(): string {
+        $session = $this->getSession();
+        $nonce = bin2hex(random_bytes(8));
+        $session->set('nonce', [$nonce, time()]);
         $this->doctrine->getManager()->flush();
+        return $nonce;
+    }
+
+    public function verifyNonce(string $nonceToVerify): bool {
+        $session = $this->getSession();
+        $nonceData = $session->get('nonce', false);
+        if ($nonceData) {
+            [$storedNonce, $timestamp] = $nonceData;
+            unset($session->getData()['nonce']);
+            $this->doctrine->getManager()->flush();
+            return time() - $timestamp < FIVE_MINUTES && $storedNonce === $nonceToVerify;
+        }
+        return false;
     }
 }

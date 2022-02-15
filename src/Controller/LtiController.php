@@ -5,7 +5,6 @@ namespace App\Controller;
 use App\Entity\Institution;
 use App\Entity\User;
 use App\Services\LmsApiService;
-use App\Services\NonceService;
 use App\Services\SessionService;
 use App\Services\UtilityService;
 use Doctrine\Persistence\ManagerRegistry;
@@ -28,13 +27,14 @@ class LtiController extends AbstractController
     /** @var \App\Services\LmsApiService $lmsApi */
     private $lmsApi;
 
-    private ManagerRegistry $doctrine;
-    private NonceService $nonceService;
+    private SessionService $sessionService;
 
-    public function __construct(ManagerRegistry $doctrine, NonceService $nonceService)
+    private ManagerRegistry $doctrine;
+
+    public function __construct(ManagerRegistry $doctrine, SessionService $sessionService)
     {
         $this->doctrine = $doctrine;
-        $this->nonceService = $nonceService;
+        $this->sessionService = $sessionService;
     }
 
     /**
@@ -42,13 +42,12 @@ class LtiController extends AbstractController
      */
     public function ltiAuthorize(
         Request $request,
-        SessionService $sessionService,
         UtilityService $util,
         LmsApiService $lmsApi
     ) {
 
         $this->request = $request;
-        $this->session = $sessionService->getSession();
+        $this->session = $this->sessionService->getSession();
         $this->util = $util;
         $this->lmsApi = $lmsApi;
 
@@ -99,7 +98,7 @@ class LtiController extends AbstractController
         }
 
         // Id token must contain a nonce. Should verify that nonce has not been received within a certain time window
-        if(!$this->nonceService->verifyNonce($token->nonce, $this->session->getUuid())) {
+        if(!$this->sessionService->verifyNonce($token->nonce)) {
             throw new \Exception("Invalid nonce!");
         }
 
@@ -326,7 +325,7 @@ class LtiController extends AbstractController
             'scope' => 'openid',
             'response_type' => 'id_token',
             'response_mode' => 'form_post',
-            'nonce' => $this->nonceService->generateNonce($uuid),
+            'nonce' => $this->sessionService->generateNonce(),
             'prompt' => 'none',
             'redirect_uri' => $server->get('BASE_URL') . $server->get('APP_LTI_REDIRECT_PATH'),
         ];
