@@ -1,5 +1,4 @@
 import React from 'react';
-import Classes from '../../css/ContentPreview.scss'
 import { Modal } from '@instructure/ui-modal'
 import { Heading } from '@instructure/ui-heading'
 import { Button } from '@instructure/ui-buttons'
