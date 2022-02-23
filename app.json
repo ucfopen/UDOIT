@@ -27,8 +27,8 @@
 		"value": "https://your.herokuapp.com"
 	  },
 	  "JWK_BASE_URL": {
-		"description": "Full URL to your LMS. Default value works for cloud hosted Canvas.",
-		"value": "https://canvas.instructure.com/"
+		"description": "Overrides `iss` to use an alternative url for JWK. Leave empty if using cloud hosted Canvas.",
+		"value": ""
 	  },
 	  "HEROKU_TIMEOUT": {
 		"description": "Web requests time out at 30 seconds causing the app to crash. Value should be significantly less than 30 to prevent this.",

@@ -5,42 +5,27 @@ namespace App\Controller;
 
 use App\Entity\Course;
 use App\Entity\Report;
-use App\Repository\ContentItemRepository;
-use App\Repository\FileItemRepository;
 use App\Response\ApiResponse;
-use App\Services\SessionService;
 use App\Services\UtilityService;
-use Knp\Bundle\SnappyBundle\Snappy\Response\PdfResponse;
-use Knp\Snappy\Pdf;
 use Mpdf\Mpdf;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Mime\FileinfoMimeTypeGuesser;
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\HttpFoundation\ResponseHeaderBag;
-use Twig\Environment;
 
 
 class ReportsController extends ApiController
 {
-    private $request;
     private $util;
 
     /**
      * @Route("/api/courses/{course}/reports", methods={"GET"}, name="get_reports")
-     * @param Request $request
      * @param $courseId
      * @return JsonResponse
      */
     public function getAllReports(
-        Request $request,
         UtilityService $util,
         Course $course
     ) {
-        $this->request = $request;
         $this->util = $util;
 
         $apiResponse = new ApiResponse();

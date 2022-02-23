@@ -94,7 +94,7 @@ class LmsUserService {
             $response = $client->request('POST', $requestUrl, $options);
             $contentStr = $response->getContent(false);
             $newKey = \json_decode($contentStr, true);
-        } catch (TimeoutException $e) {
+        } catch (TimeoutException) {
             $newKey = null;
         }
 

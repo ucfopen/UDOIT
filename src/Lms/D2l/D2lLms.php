@@ -11,7 +11,6 @@ use App\Entity\UserSession;
 use App\Lms\LmsInterface;
 use App\Repository\ContentItemRepository;
 use App\Repository\FileItemRepository;
-use App\Services\HtmlService;
 use App\Services\LmsUserService;
 use App\Services\SessionService;
 use App\Services\UtilityService;
@@ -53,9 +52,6 @@ class D2lLms implements LmsInterface {
     /** @var SessionService $sessionService */
     private $sessionService;
 
-    /** @var App\Services\HtmlService */
-    private $html;
-
     private $d2lApi;
 
     public function __construct(
@@ -65,7 +61,6 @@ class D2lLms implements LmsInterface {
         UtilityService $util,
         Security $security,
         SessionService $sessionService,
-        HtmlService $html
     ) {
         $this->contentItemRepo = $contentItemRepo;
         $this->fileItemRepo = $fileItemRepo;
@@ -73,7 +68,6 @@ class D2lLms implements LmsInterface {
         $this->util = $util;
         $this->security = $security;
         $this->sessionService = $sessionService;
-        $this->html = $html;
     }
 
     public function getId() 
@@ -126,13 +120,12 @@ class D2lLms implements LmsInterface {
      * LTI Functions
      * *************
      */
-    public function getLtiAuthUrl($globalParams)
+    public function getLtiAuthUrl($params)
     {
         $session = $this->sessionService->getSession();
-        $baseUrl = $session->get('iss');
+        $baseUrl = !empty(getenv('JWK_BASE_URL')) ? getenv('JWK_BASE_URL') : $session->get('iss');
+        $baseUrl = rtrim($baseUrl, '/');
 
-        $lmsParams = [];
-        $params = array_merge($globalParams, $lmsParams);
         $queryStr = http_build_query($params);
 
         return "{$baseUrl}/d2l/lti/authenticate?{$queryStr}";
@@ -141,8 +134,10 @@ class D2lLms implements LmsInterface {
     public function getKeysetUrl()
     {
         $session = $this->sessionService->getSession();
+        $baseUrl = !empty(getenv('JWK_BASE_URL')) ? getenv('JWK_BASE_URL') : $session->get('iss');
+        $baseUrl = rtrim($baseUrl, '/');
         
-        return $session->get('iss') . '/d2l/.well-known/jwks';
+        return $baseUrl . '/d2l/.well-known/jwks';
     }
 
     public function saveTokenToSession($token)
@@ -779,7 +774,7 @@ class D2lLms implements LmsInterface {
                 }        
                 break;
             case self::ACTIVITYTYPE_LINK:
-                $lmsItems[] = $this->handleLinkActivity($topic, $course);
+                $lmsItems[] = $this->handleLinkActivity($topic);
                 break;
             case self::ACTIVITYTYPE_DROPBOX:
                 $lmsItems[] = $this->handleDropboxActivity($topic, $course);
@@ -842,7 +837,7 @@ class D2lLms implements LmsInterface {
         ];
     }
 
-    protected function handleLinkActivity($topic, Course $course)
+    protected function handleLinkActivity($topic)
     {
         return [
             'id' => $topic['TopicId'],

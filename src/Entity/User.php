@@ -2,7 +2,6 @@
 
 namespace App\Entity;
 
-use App\Services\UtilityService;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
@@ -13,7 +12,7 @@ use Symfony\Component\Security\Core\User\UserInterface;
  * @ORM\Entity(repositoryClass="App\Repository\UserRepository")
  * @ORM\Table(name="users")
  */
-class User implements UserInterface, \Serializable, JsonSerializable
+class User implements UserInterface, JsonSerializable
 {
     /**
      * @ORM\Id()
@@ -225,27 +224,21 @@ class User implements UserInterface, \Serializable, JsonSerializable
         return $this;
     }
 
-    /** @see \Serializable::serialize() */
-    public function serialize()
+    public function __serialize(): array
     {
-        return serialize(array(
+        return [
             $this->id,
             $this->username,
             $this->lmsUserId
-        ));
+        ];
     }
 
-    /** @see \Serializable::unserialize() */
-    public function unserialize($serialized)
+    public function __unserialize(array $data): void
     {
-        list(
-            $this->id,
-            $this->username,
-            $this->lmsUserId
-        ) = unserialize($serialized);
+        [$this->id, $this->username, $this->lmsUserId] = $data;
     }
 
-    public function jsonSerialize()
+    public function jsonSerialize(): array
     {
         $dateFormat = $_ENV['DATE_FORMAT'];
         $apiKey = $this->getApiKey();

@@ -66,7 +66,7 @@ class DashboardController extends AbstractController
             $course = $this->createCourse($institution, $lmsCourseId);
         }
 
-        $activeReport = $course->getLatestReport();        
+        $activeReport = $course->getLatestReport();
         if ($activeReport) {
             $reportArr = $activeReport->toArray();
             $reportArr['issues'] = $course->getAllIssues();
@@ -76,7 +76,7 @@ class DashboardController extends AbstractController
 
         return $this->render('default/index.html.twig', [
             'data' => [
-                'report' => $reportArr,                
+                'report' => $reportArr,
                 'settings' => $this->getSettings($course),
                 'messages' => $this->util->getUnreadMessages(true),
             ],
@@ -84,12 +84,12 @@ class DashboardController extends AbstractController
     }
 
     /**
-     * 
+     *
      *
      * @param Course $course
      * @return void
      */
-    protected function getSettings(Course $course) 
+    protected function getSettings(Course $course)
     {
         /** @var User $user */
         $user = $this->getUser();
@@ -118,6 +118,10 @@ class DashboardController extends AbstractController
             'textColor' => !empty($_ENV['TEXT_COLOR']) ? $_ENV['TEXT_COLOR'] : '#000000',
             'suggestionRuleIds' => !empty($_ENV['PHPALLY_SUGGESTION_RULES']) ? $_ENV['PHPALLY_SUGGESTION_RULES'] : '',
             'easyRuleIds' => !empty($_ENV['EASY_FIX_RULES']) ? $_ENV['EASY_FIX_RULES'] : '',
+            'visualRuleIds' => !empty($_ENV['VISUAL_RULES']) ? $_ENV['VISUAL_RULES'] : '',
+            'auditoryRuleIds' => !empty($_ENV['AUDITORY_RULES']) ? $_ENV['AUDITORY_RULES'] : '',
+            'cognitiveRuleIds' => !empty($_ENV['COGNITIVE_RULES']) ? $_ENV['COGNITIVE_RULES'] : '',
+            'motorRuleIds' => !empty($_ENV['MOTOR_RULES']) ? $_ENV['MOTOR_RULES'] : '',
         ];
     }
 
