@@ -3,10 +3,10 @@ UDOIT can be installed on your own existing servers with the following instructi
 
 ## System Requirements
 * Apache or Nginx webserver
-* PHP 7.4, 8.0
+* PHP 8.1+
 * MySQL, MariaDB or PostgreSQL
 * Git (If you are using The Git Method below) or if you plan on contributing to UDOIT
-* Node v14+
+* Node v16 is supported; other versions may work
 * Yarn
 
 ## Source Code
