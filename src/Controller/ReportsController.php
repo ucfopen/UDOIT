@@ -17,15 +17,13 @@ class ReportsController extends ApiController
 {
     private $util;
 
-    /**
-     * @Route("/api/courses/{course}/reports", methods={"GET"}, name="get_reports")
-     * @param $courseId
-     * @return JsonResponse
-     */
+    #[Route('/api/courses/{course}/reports', methods: ['GET'], name: 'get_reports')]
+    // @param $courseId
     public function getAllReports(
         UtilityService $util,
         Course $course
-    ) {
+    ): JsonResponse {
+        $this->request = $request;
         $this->util = $util;
 
         $apiResponse = new ApiResponse();
@@ -49,13 +47,8 @@ class ReportsController extends ApiController
         return new JsonResponse($apiResponse);
     }
 
-    /**
-     * @Route("/api/courses/{course}/reports/latest", methods={"GET"}, name="get_latest_report")
-     * @param Course $course
-     * 
-     * @return JsonResponse
-     */
-    public function getLatestReport(Course $course)
+    #[Route('/api/courses/{course}/reports/latest', methods: ['GET'], name: 'get_latest_report')]
+    public function getLatestReport(Course $course): JsonResponse
     {
         $apiResponse = new ApiResponse();
         $reportArr = false;
@@ -104,16 +97,12 @@ class ReportsController extends ApiController
         return new JsonResponse($apiResponse);
     }
 
-    /**
-     * @Route("/download/courses/{course}/reports/pdf", methods={"GET"}, name="get_report_pdf")
-     * @param Course $course
-     * @return \Symfony\Component\HttpFoundation\Response
-     */
+    #[Route('/download/courses/{course}/reports/pdf', methods: ['GET'], name: 'get_report_pdf')]
     public function getPdfReport(
         Request $request,
         UtilityService $util,
         Course $course
-    ) {
+    ): \Symfony\Component\HttpFoundation\Response {
         $this->request = $request;
         $this->util = $util;
 

@@ -23,9 +23,7 @@ class DashboardController extends AbstractController
     /** @var LmsApiService $lmsApi */
     protected $lmsApi;
 
-    /**
-     * @Route("/dashboard", name="dashboard")
-     */
+    #[Route('/dashboard', name: 'dashboard')]
     public function index(
         UtilityService $util,
         SessionService $sessionService,
