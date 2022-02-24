@@ -18,12 +18,10 @@ class ReportsController extends ApiController
     private $util;
 
     #[Route('/api/courses/{course}/reports', methods: ['GET'], name: 'get_reports')]
-    // @param $courseId
     public function getAllReports(
         UtilityService $util,
         Course $course
     ): JsonResponse {
-        $this->request = $request;
         $this->util = $util;
 
         $apiResponse = new ApiResponse();
