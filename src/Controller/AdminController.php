@@ -6,7 +6,6 @@ use App\Entity\Course;
 use App\Entity\Issue;
 use App\Entity\User;
 use App\Repository\CourseRepository;
-use App\Repository\ReportRepository;
 use App\Repository\UserRepository;
 use App\Response\ApiResponse;
 use App\Services\LmsApiService;
@@ -24,8 +23,6 @@ class AdminController extends ApiController
     private $session;
 
     private $lmsApi;
-
-    private $lmsUser;
 
     private $courseRepo;
 
@@ -288,7 +285,7 @@ class AdminController extends ApiController
      * 
      * @return JsonResponse
      */
-    public function getUsers(UserRepository $userRepo, ReportRepository $reportRepo)
+    public function getUsers(UserRepository $userRepo)
     {
         $apiResponse = new ApiResponse();
         $user = $this->getUser();

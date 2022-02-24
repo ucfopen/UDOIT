@@ -2,8 +2,6 @@
 
 namespace App\Controller;
 
-use App\Entity\Institution;
-use App\Entity\User;
 use App\Services\LmsApiService;
 use App\Services\LmsUserService;
 use App\Services\SessionService;
@@ -19,8 +17,6 @@ class AuthController extends AbstractController
 {
     /** @var UtilityService $util */
     private $util;
-    /** @var SessionService $sessionService */
-    private $sessionService;
     /** @var Request $request */
     private $request;
     /** @var LmsApiService $lmsApi */

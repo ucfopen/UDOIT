@@ -2,9 +2,7 @@
 
 namespace App\Controller;
 
-use App\Entity\Course;
 use App\Entity\Issue;
-use App\Entity\Report;
 use App\Response\ApiResponse;
 use App\Services\LmsPostService;
 use App\Services\PhpAllyService;
@@ -32,7 +30,6 @@ class IssuesController extends ApiController
     public function saveIssue(
         Request $request, 
         LmsPostService $lmsPost, 
-        PhpAllyService $phpAlly, 
         UtilityService $util, 
         Issue $issue) 
     {
