@@ -7,12 +7,20 @@ use App\Response\ApiResponse;
 use App\Services\LmsPostService;
 use App\Services\PhpAllyService;
 use App\Services\UtilityService;
+use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
 class IssuesController extends ApiController
 {
+    private ManagerRegistry $doctrine;
+
+    public function __construct(ManagerRegistry $doctrine)
+    {
+        $this->doctrine = $doctrine;
+    }
+
     /**
      * Save change to issue HTML to LMS
      * 
@@ -59,7 +67,7 @@ class IssuesController extends ApiController
 
             // Update issue HTML
             $issue->setNewHtml($newHtml);
-            $this->getDoctrine()->getManager()->flush();
+            $this->doctrine->getManager()->flush();
 
             // Save content to LMS
             $lmsPost->saveContentToLms($issue, $user);
@@ -74,7 +82,7 @@ class IssuesController extends ApiController
                 $issue->setStatus(Issue::$issueStatusFixed);
                 $issue->setFixedBy($user);
                 $issue->setFixedOn($util->getCurrentTime());
-                $this->getDoctrine()->getManager()->flush();
+                $this->doctrine->getManager()->flush();
 
                 // Update report stats
                 $report = $course->getUpdatedReport();
@@ -118,7 +126,7 @@ class IssuesController extends ApiController
             $issueUpdate = \json_decode($request->getContent(), true);
 
             $issue->setNewHtml($issueUpdate['newHtml']);
-            $this->getDoctrine()->getManager()->flush();
+            $this->doctrine->getManager()->flush();
 
             // Save content to LMS
             $response = $lmsPost->saveContentToLms($issue, $user);
@@ -135,7 +143,7 @@ class IssuesController extends ApiController
                 // Update report stats
                 $report = $course->getUpdatedReport();
 
-                $this->getDoctrine()->getManager()->flush();
+                $this->doctrine->getManager()->flush();
 
                 if ($issue->getStatus() == Issue::$issueStatusResolved) {
                     $apiResponse->addMessage('form.msg.success_resolved', 'success');
@@ -185,7 +193,7 @@ class IssuesController extends ApiController
                 'report' => $report
             ]);
 
-            $this->getDoctrine()->getManager()->flush();
+            $this->doctrine->getManager()->flush();
             $apiResponse->addMessage('form.msg.manually_fixed', 'success');
         }
         else {

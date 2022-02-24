@@ -9,6 +9,7 @@ use App\Services\LmsApiService;
 use App\Services\LmsUserService;
 use App\Services\SessionService;
 use App\Services\UtilityService;
+use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Routing\Annotation\Route;
 
@@ -22,6 +23,13 @@ class DashboardController extends AbstractController
 
     /** @var LmsApiService $lmsApi */
     protected $lmsApi;
+
+    private ManagerRegistry $doctrine;
+
+    public function __construct(ManagerRegistry $doctrine)
+    {
+        $this->doctrine = $doctrine;
+    }
 
     /**
      * @Route("/dashboard", name="dashboard")
@@ -57,7 +65,7 @@ class DashboardController extends AbstractController
             $this->util->exitWithMessage('Missing LMS course ID.');
         }
 
-        $courseRepo = $this->getDoctrine()->getRepository(Course::class);
+        $courseRepo = $this->doctrine->getRepository(Course::class);
         /** @var Course $course */
         $course = $courseRepo->findOneBy(['lmsCourseId' => $lmsCourseId]);
 
@@ -134,8 +142,8 @@ class DashboardController extends AbstractController
         $course->setActive(true);
         $course->setDirty(false);
 
-        $this->getDoctrine()->getManager()->persist($course);
-        $this->getDoctrine()->getManager()->flush();
+        $this->doctrine->getManager()->persist($course);
+        $this->doctrine->getManager()->flush();
 
         return $course;
     }
