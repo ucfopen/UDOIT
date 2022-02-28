@@ -7,6 +7,7 @@ use App\Entity\Course;
 use App\Entity\Report;
 use App\Response\ApiResponse;
 use App\Services\UtilityService;
+use Doctrine\Persistence\ManagerRegistry;
 use Mpdf\Mpdf;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -18,6 +19,13 @@ class ReportsController extends ApiController
     private $util;
 
     #[Route('/api/courses/{course}/reports', methods: ['GET'], name: 'get_reports')]
+    private ManagerRegistry $doctrine;
+
+    public function __construct(ManagerRegistry $doctrine)
+    {
+        $this->doctrine = $doctrine;
+    }
+
     public function getAllReports(
         UtilityService $util,
         Course $course
@@ -32,7 +40,7 @@ class ReportsController extends ApiController
             }
 
             /** @var ReportRepository $repository */
-            $repository = $this->getDoctrine()->getRepository(Report::class);
+            $repository = $this->doctrine->getRepository(Report::class);
             $reports = $repository->findAllInCourse($course);
 
             $apiResponse->setData($reports);

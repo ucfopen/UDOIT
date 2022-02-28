@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\User;
+use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -11,6 +12,13 @@ use Symfony\Component\Routing\Annotation\Route;
 class UserController extends AbstractController
 {
     #[Route('/api/users/{user}', name: 'user_put',  methods: ['PUT'])]
+    private ManagerRegistry $doctrine;
+
+    public function __construct(ManagerRegistry $doctrine)
+    {
+        $this->doctrine = $doctrine;
+    }
+  
     public function update(User $user, Request $request): JsonResponse
     {
         $userVals = \json_decode($request->getContent(), true);
@@ -24,7 +32,7 @@ class UserController extends AbstractController
             $user->setRefreshToken('');
         }
 
-        $this->getDoctrine()->getManager()->flush();
+        $this->doctrine->getManager()->flush();
 
         return $this->json($user);
     }

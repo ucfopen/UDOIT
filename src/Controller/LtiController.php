@@ -7,6 +7,7 @@ use App\Entity\User;
 use App\Services\LmsApiService;
 use App\Services\SessionService;
 use App\Services\UtilityService;
+use Doctrine\Persistence\ManagerRegistry;
 use Firebase\JWT\JWK;
 use \Firebase\JWT\JWT;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -27,11 +28,18 @@ class LtiController extends AbstractController
     private $lmsApi;
 
     #[Route('/lti/authorize', name: 'lti_authorize')]
+    private ManagerRegistry $doctrine;
+
+    public function __construct(ManagerRegistry $doctrine)
+    {
+        $this->doctrine = $doctrine;
+    }
+  
     public function ltiAuthorize(
         Request $request,
         SessionService $sessionService,
         UtilityService $util,
-        LmsApiService $lmsApi
+        LmsApiService $lmsApi,
     ) {
 
         $this->request = $request;
@@ -270,7 +278,7 @@ class LtiController extends AbstractController
                 $this->session->set('lms_api_domain', str_replace('https://', '', $domain));
             }
 
-            $this->getDoctrine()->getManager()->flush();
+            $this->doctrine->getManager()->flush();
         } catch (\Exception $e) {
             print_r($e->getMessage());
         }
@@ -333,13 +341,13 @@ class LtiController extends AbstractController
 
             if ($domain) {
                 $institution = $this
-                    ->getDoctrine()
+                    ->doctrine
                     ->getRepository(Institution::class)
                     ->findOneBy(['lmsDomain' => $domain]);
 
                 if (!$institution) {
                     $institution = $this
-                        ->getDoctrine()
+                        ->doctrine
                         ->getRepository(Institution::class)
                         ->findOneBy(['vanityUrl' => $domain]);
                 }
@@ -351,13 +359,13 @@ class LtiController extends AbstractController
 
             if ($cleanedDomain) {
                 $institution = $this
-                    ->getDoctrine()
+                    ->doctrine
                     ->getRepository(Institution::class)
                     ->findOneBy(['lmsDomain' => $cleanedDomain]);
 
                 if (!$institution) {
                     $institution = $this
-                        ->getDoctrine()
+                        ->doctrine
                         ->getRepository(Institution::class)
                         ->findOneBy(['vanityUrl' => $cleanedDomain]);
                 }
@@ -389,8 +397,8 @@ class LtiController extends AbstractController
             $user->setName($this->session->get('lms_user_name'));
         }
 
-        $this->getDoctrine()->getManager()->persist($user);
-        $this->getDoctrine()->getManager()->flush();
+        $this->doctrine->getManager()->persist($user);
+        $this->doctrine->getManager()->flush();
 
         return $user;
     }
@@ -411,7 +419,7 @@ class LtiController extends AbstractController
             $userId = $this->session->get('lms_user_id');
 
             if ($domain && $userId) {
-                $user = $this->getDoctrine()->getRepository(User::class)
+                $user = $this->doctrine->getRepository(User::class)
                     ->findOneBy(['username' => "{$domain}||{$userId}"]);
             }
         }
@@ -421,6 +429,6 @@ class LtiController extends AbstractController
         }
 
         $this->session->set('userId', $user->getId());
-        $this->getDoctrine()->getManager()->flush();
+        $this->doctrine->getManager()->flush();
     }
 }

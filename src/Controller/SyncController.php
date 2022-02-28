@@ -109,7 +109,7 @@ class SyncController extends ApiController
     public function cronSync(LmsApiService $lmsApi)
     {
         /** @var CourseRepository $courseRepository */
-        $courseRepository = $this->getDoctrine()->getRepository(Course::class);
+        $courseRepository = $this->doctrine->getRepository(Course::class);
         $courses = $courseRepository->findCoursesNeedingUpdate($this->maxAge);
         $user = $this->getUser();
 

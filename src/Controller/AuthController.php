@@ -6,6 +6,7 @@ use App\Services\LmsApiService;
 use App\Services\LmsUserService;
 use App\Services\SessionService;
 use App\Services\UtilityService;
+use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpClient\HttpClient;
 use Symfony\Component\HttpFoundation\Request;
@@ -22,6 +23,13 @@ class AuthController extends AbstractController
     private $lmsApi;
 
     #[Route('/authorize', name: 'authorize')]
+    private ManagerRegistry $doctrine;
+
+    public function __construct(ManagerRegistry $doctrine)
+    {
+        $this->doctrine = $doctrine;
+    }
+
     public function authorize(
         Request $request,
         SessionService $sessionService,
@@ -97,7 +105,7 @@ class AuthController extends AbstractController
         $instId = $request->query->get('id');
         $institution = $util->getInstitutionById($instId);
         $institution->encryptDeveloperKey();
-        $this->getDoctrine()->getManager()->flush();
+        $this->doctrine->getManager()->flush();
 
         return new Response('Updated.');
     }
@@ -116,7 +124,7 @@ class AuthController extends AbstractController
 
         if (empty($clientSecret)) {
             $institution->encryptDeveloperKey();
-            $this->getDoctrine()->getManager()->flush();
+            $this->doctrine->getManager()->flush();
             $clientSecret = $institution->getApiClientSecret();
         }
 
