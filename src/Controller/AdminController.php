@@ -288,6 +288,7 @@ class AdminController extends ApiController
     public function getUsers(UserRepository $userRepo)
     {
         $apiResponse = new ApiResponse();
+        /** @var \App\Entity\User */
         $user = $this->getUser();
         $institution = $user->getInstitution();
 

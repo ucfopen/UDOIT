@@ -45,6 +45,7 @@ class DashboardController extends AbstractController
         $this->lmsApi = $lmsApi;
         $reportArr = false;
 
+        /** @var \App\Entity\User */
         $user = $this->getUser();
         if (!$user) {
             $this->util->exitWithMessage('User authentication failed.');

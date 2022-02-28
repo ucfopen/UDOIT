@@ -42,6 +42,7 @@ class AuthController extends AbstractController
         $this->session = $sessionService->getSession();
         $this->util = $util;
 
+        /** @var \App\Entity\User */
         $user = $this->getUser();
         if (!$user) {
             $this->util->exitWithMessage('User authentication failed.');
@@ -124,6 +125,7 @@ class AuthController extends AbstractController
      */
     protected function requestApiKeyFromLms()
     {
+        /** @var \App\Entity\User */
         $user = $this->getUser();
         $institution = $user->getInstitution();
         $code = $this->request->query->get('code');

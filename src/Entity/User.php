@@ -25,7 +25,7 @@ class User implements UserInterface, JsonSerializable
      * $username = <lms_domain>||<lms_user_id>
      * @ORM\Column(type="string", length=180, unique=true)
      */
-    private $username;
+    private string $username;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
@@ -93,12 +93,17 @@ class User implements UserInterface, JsonSerializable
      */
     public function getUsername(): string
     {
-        return (string) $this->username;
+        return $this->username;
     }
 
-    public function setUsername(string $username): self
+    public function getUserIdentifier(): string
     {
-        $this->username = $username;
+        return $this->username;
+    }
+
+    public function setUserIdentifier(string $identifier): self
+    {
+        $this->username = $identifier;
 
         return $this;
     }
