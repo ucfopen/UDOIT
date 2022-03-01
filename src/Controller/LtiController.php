@@ -43,7 +43,7 @@ class LtiController extends AbstractController
     public function ltiAuthorize(
         Request $request,
         UtilityService $util,
-        LmsApiService $lmsApi
+        LmsApiService $lmsApi,
     ) {
 
         $this->request = $request;
@@ -290,7 +290,7 @@ class LtiController extends AbstractController
                 $this->session->set('lms_api_domain', str_replace('https://', '', $domain));
             }
 
-            $this->getDoctrine()->getManager()->flush();
+            $this->doctrine->getManager()->flush();
         } catch (\Exception $e) {
             print_r($e->getMessage());
         }
@@ -358,13 +358,13 @@ class LtiController extends AbstractController
 
             if ($domain) {
                 $institution = $this
-                    ->getDoctrine()
+                    ->doctrine
                     ->getRepository(Institution::class)
                     ->findOneBy(['lmsDomain' => $domain]);
 
                 if (!$institution) {
                     $institution = $this
-                        ->getDoctrine()
+                        ->doctrine
                         ->getRepository(Institution::class)
                         ->findOneBy(['vanityUrl' => $domain]);
                 }
@@ -376,13 +376,13 @@ class LtiController extends AbstractController
 
             if ($cleanedDomain) {
                 $institution = $this
-                    ->getDoctrine()
+                    ->doctrine
                     ->getRepository(Institution::class)
                     ->findOneBy(['lmsDomain' => $cleanedDomain]);
 
                 if (!$institution) {
                     $institution = $this
-                        ->getDoctrine()
+                        ->doctrine
                         ->getRepository(Institution::class)
                         ->findOneBy(['vanityUrl' => $cleanedDomain]);
                 }
@@ -404,7 +404,7 @@ class LtiController extends AbstractController
         $date = new \DateTime();
 
         $user = new User();
-        $user->setUsername("{$domain}||{$userId}");
+        $user->setUserIdentifier("{$domain}||{$userId}");
         $user->setLmsUserId($userId);
         $user->setInstitution($institution);
         $user->setCreated($date);
@@ -414,8 +414,8 @@ class LtiController extends AbstractController
             $user->setName($this->session->get('lms_user_name'));
         }
 
-        $this->getDoctrine()->getManager()->persist($user);
-        $this->getDoctrine()->getManager()->flush();
+        $this->doctrine->getManager()->persist($user);
+        $this->doctrine->getManager()->flush();
 
         return $user;
     }
@@ -436,7 +436,7 @@ class LtiController extends AbstractController
             $userId = $this->session->get('lms_user_id');
 
             if ($domain && $userId) {
-                $user = $this->getDoctrine()->getRepository(User::class)
+                $user = $this->doctrine->getRepository(User::class)
                     ->findOneBy(['username' => "{$domain}||{$userId}"]);
             }
         }
