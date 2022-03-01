@@ -1,7 +1,6 @@
 version: '3.4'
 
 volumes:
-  site_volume:
   dbdata:
 
 services:
@@ -30,14 +29,16 @@ services:
       - db
     working_dir: /var/www/html
     volumes:
-      - site_volume:/var/www/html
+      - ./src:/var/www/html/src
+      - ./config:/var/www/html/config
+      - ./public:/var/www/html/public
+      - ./.env:/var/www/html/.env
 
   nginx:
     image: nginx
     ports:
       - "80:80"
     volumes:
-      - site_volume:/var/www/html
       - ./config/nginx.conf:/etc/nginx/nginx.conf
     links:
       - php
