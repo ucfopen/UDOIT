@@ -11,6 +11,7 @@ use Doctrine\Persistence\ManagerRegistry;
 use Mpdf\Mpdf;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
 
@@ -18,7 +19,6 @@ class ReportsController extends ApiController
 {
     private $util;
 
-    #[Route('/api/courses/{course}/reports', methods: ['GET'], name: 'get_reports')]
     private ManagerRegistry $doctrine;
 
     public function __construct(ManagerRegistry $doctrine)
@@ -26,6 +26,7 @@ class ReportsController extends ApiController
         $this->doctrine = $doctrine;
     }
 
+    #[Route('/api/courses/{course}/reports', methods: ['GET'], name: 'get_reports')]
     public function getAllReports(
         UtilityService $util,
         Course $course
@@ -108,7 +109,7 @@ class ReportsController extends ApiController
         Request $request,
         UtilityService $util,
         Course $course
-    ): \Symfony\Component\HttpFoundation\Response {
+    ): Response {
         $this->request = $request;
         $this->util = $util;
 
