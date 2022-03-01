@@ -24,7 +24,6 @@ class DashboardController extends AbstractController
     /** @var LmsApiService $lmsApi */
     protected $lmsApi;
 
-    #[Route('/dashboard', name: 'dashboard')]
     private ManagerRegistry $doctrine;
 
     public function __construct(ManagerRegistry $doctrine)
@@ -32,6 +31,7 @@ class DashboardController extends AbstractController
         $this->doctrine = $doctrine;
     }
 
+    #[Route('/dashboard', name: 'dashboard')]
     public function index(
         UtilityService $util,
         SessionService $sessionService,
