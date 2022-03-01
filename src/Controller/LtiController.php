@@ -27,19 +27,13 @@ class LtiController extends AbstractController
     /** @var \App\Services\LmsApiService $lmsApi */
     private $lmsApi;
 
-    private ManagerRegistry $doctrine;
-
-    public function __construct(ManagerRegistry $doctrine)
-    {
-        $this->doctrine = $doctrine;
-    }
-
     #[Route('/lti/authorize', name: 'lti_authorize')]
     public function ltiAuthorize(
         Request $request,
         SessionService $sessionService,
         UtilityService $util,
         LmsApiService $lmsApi,
+        ManagerRegistry $doctrine,
     ) {
 
         $this->request = $request;
@@ -47,7 +41,7 @@ class LtiController extends AbstractController
         $this->util = $util;
         $this->lmsApi = $lmsApi;
 
-        $this->saveRequestToSession();
+        $this->saveRequestToSession($doctrine);
 
         return $this->redirect($this->getLtiAuthResponseUrl());
     }
@@ -57,7 +51,8 @@ class LtiController extends AbstractController
         Request $request,
         SessionService $sessionService,
         UtilityService $util,
-        LmsApiService $lmsApi
+        LmsApiService $lmsApi,
+        ManagerRegistry $doctrine,
     ) {
         $this->request = $request;
         $this->util = $util;
@@ -66,7 +61,7 @@ class LtiController extends AbstractController
         $state = $request->request->get('state');
         $this->session = $sessionService->getSession($state);
 
-        $this->saveRequestToSession();
+        $this->saveRequestToSession($doctrine);
         $clientId = $this->session->get('client_id');
 
         $jwt = $this->session->get('id_token');
@@ -98,7 +93,7 @@ class LtiController extends AbstractController
         $this->saveTokenToSession($token);
 
         // Add user to session
-        $this->saveUserToSession();
+        $this->saveUserToSession($doctrine);
 
         // Remove old sessions
         $sessionService->removeExpiredSessions();
@@ -116,7 +111,8 @@ class LtiController extends AbstractController
     public function dev_lti_authorize(
       Request $request,
       SessionService $sessionService,
-      UtilityService $util
+      UtilityService $util,
+      ManagerRegistry $doctrine,
     ) {
       if ($this->getParameter('app.use_development_auth') != 'YES') {
         throw $this->createNotFoundException('Route not found.');
@@ -135,7 +131,7 @@ class LtiController extends AbstractController
       $this->util = $util;
       $this->session->set('userId', $userId);
       $this->session->set('lms_course_id', $lmsCourseId);
-      $this->saveRequestToSession();
+      $this->saveRequestToSession($doctrine);
       return $this->redirectToRoute('dashboard', [
         'auth_token' => base64_encode('cidilabs.instructure.com||314')
       ]);
@@ -260,7 +256,7 @@ class LtiController extends AbstractController
         }
     }
 
-    protected function saveRequestToSession()
+    protected function saveRequestToSession(ManagerRegistry $doctrine)
     {
         try {
             $getParams = $this->request->query->all();
@@ -278,7 +274,7 @@ class LtiController extends AbstractController
                 $this->session->set('lms_api_domain', str_replace('https://', '', $domain));
             }
 
-            $this->doctrine->getManager()->flush();
+            $doctrine->getManager()->flush();
         } catch (\Exception $e) {
             print_r($e->getMessage());
         }
@@ -332,7 +328,7 @@ class LtiController extends AbstractController
      *
      * @return \App\Entity\Institution
      */
-    protected function getInstitutionFromSession()
+    protected function getInstitutionFromSession(ManagerRegistry $doctrine)
     {
         $institution = null;
 
@@ -340,14 +336,12 @@ class LtiController extends AbstractController
             $domain = $this->util->getCurrentDomain();
 
             if ($domain) {
-                $institution = $this
-                    ->doctrine
+                $institution = $doctrine
                     ->getRepository(Institution::class)
                     ->findOneBy(['lmsDomain' => $domain]);
 
                 if (!$institution) {
-                    $institution = $this
-                        ->doctrine
+                    $institution = $doctrine
                         ->getRepository(Institution::class)
                         ->findOneBy(['vanityUrl' => $domain]);
                 }
@@ -358,14 +352,12 @@ class LtiController extends AbstractController
             $cleanedDomain = str_replace(['.beta.', '.test.'], '.', $domain);
 
             if ($cleanedDomain) {
-                $institution = $this
-                    ->doctrine
+                $institution = $doctrine
                     ->getRepository(Institution::class)
                     ->findOneBy(['lmsDomain' => $cleanedDomain]);
 
                 if (!$institution) {
-                    $institution = $this
-                        ->doctrine
+                    $institution = $doctrine
                         ->getRepository(Institution::class)
                         ->findOneBy(['vanityUrl' => $cleanedDomain]);
                 }
@@ -379,11 +371,11 @@ class LtiController extends AbstractController
         return $institution;
     }
 
-    protected function createUser()
+    protected function createUser(ManagerRegistry $doctrine)
     {
         $domain = $this->session->get('iss');
         $userId = $this->session->get('lms_user_id');
-        $institution = $this->getInstitutionFromSession();
+        $institution = $this->getInstitutionFromSession($doctrine);
         $date = new \DateTime();
 
         $user = new User();
@@ -397,8 +389,8 @@ class LtiController extends AbstractController
             $user->setName($this->session->get('lms_user_name'));
         }
 
-        $this->doctrine->getManager()->persist($user);
-        $this->doctrine->getManager()->flush();
+        $doctrine->getManager()->persist($user);
+        $doctrine->getManager()->flush();
 
         return $user;
     }
@@ -408,7 +400,7 @@ class LtiController extends AbstractController
      *
      * @return User
      */
-    protected function saveUserToSession()
+    protected function saveUserToSession(ManagerRegistry $doctrine)
     {
         $user = null;
 
@@ -419,16 +411,16 @@ class LtiController extends AbstractController
             $userId = $this->session->get('lms_user_id');
 
             if ($domain && $userId) {
-                $user = $this->doctrine->getRepository(User::class)
+                $user = $doctrine->getRepository(User::class)
                     ->findOneBy(['username' => "{$domain}||{$userId}"]);
             }
         }
 
         if (empty($user)) {
-            $user = $this->createUser();
+            $user = $this->createUser($doctrine);
         }
 
         $this->session->set('userId', $user->getId());
-        $this->doctrine->getManager()->flush();
+        $doctrine->getManager()->flush();
     }
 }
