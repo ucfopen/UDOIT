@@ -14,15 +14,15 @@ use Symfony\Component\Routing\Annotation\Route;
 
 class IssuesController extends ApiController
 {
-    // Save change to issue HTML to LMS
-    #[Route('/api/issues/{issue}/save', name: 'save_issue')]
     private ManagerRegistry $doctrine;
 
     public function __construct(ManagerRegistry $doctrine)
     {
         $this->doctrine = $doctrine;
     }
-
+    
+    // Save change to issue HTML to LMS
+    #[Route('/api/issues/{issue}/save', name: 'save_issue')]
     public function saveIssue(
         Request $request, 
         LmsPostService $lmsPost, 
