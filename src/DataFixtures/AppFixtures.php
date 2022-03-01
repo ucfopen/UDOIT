@@ -78,7 +78,7 @@ class AppFixtures extends Fixture
     $domain = $inst->getLmsDomain();
     $user->setLmsUserId($lmsUserId);
     $user->setInstitution($inst);
-    $user->setUsername("{$domain}||{$lmsUserId}");
+    $user->setUserIdentifier("{$domain}||{$lmsUserId}");
     $user->setApiKey('8453~K11OechHKuWe99oEtN1Q22w1qCnrJJEEF5K0BETcshwVVTMA1Hv4iMRRszUcswPJ');
     $user->setRefreshToken('8453~1lptr9pGbHwDOAum048TfOwim90CsnuaRZcHndINUXgbDoUmqxha6Lw4NKrdhOY7');
     $user->setCreated(new \DateTime('now'));
@@ -94,7 +94,7 @@ class AppFixtures extends Fixture
         $domain = $inst->getLmsDomain();
         $user->setLmsUserId($lmsUserId);
         $user->setInstitution($inst);
-        $user->setUsername("{$domain}||{$lmsUserId}");
+        $user->setUserIdentifier("{$domain}||{$lmsUserId}");
         $user->setApiKey('1234567890123456789012345678901234567890');
         $user->setRefreshToken('8453~1lptr9pGbHwDOAum048TfOwim90CsnuaRZcHndINUXgbDoUmqxha6Lw4NKrdhOY7');
         $user->setCreated(new \DateTime('now'));

@@ -8,3 +8,7 @@
    */
   z-index: 9999;
 }
+
+body {
+  overflow-y: scroll;
+}

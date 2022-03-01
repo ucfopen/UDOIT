@@ -395,7 +395,7 @@ class LtiController extends AbstractController
         $date = new \DateTime();
 
         $user = new User();
-        $user->setUsername("{$domain}||{$userId}");
+        $user->setUserIdentifier("{$domain}||{$userId}");
         $user->setLmsUserId($userId);
         $user->setInstitution($institution);
         $user->setCreated($date);
