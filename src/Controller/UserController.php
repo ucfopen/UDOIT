@@ -11,7 +11,6 @@ use Symfony\Component\Routing\Annotation\Route;
 
 class UserController extends AbstractController
 {
-    #[Route('/api/users/{user}', name: 'user_put',  methods: ['PUT'])]
     private ManagerRegistry $doctrine;
 
     public function __construct(ManagerRegistry $doctrine)
@@ -19,6 +18,7 @@ class UserController extends AbstractController
         $this->doctrine = $doctrine;
     }
   
+    #[Route('/api/users/{user}', name: 'user_put',  methods: ['PUT'])]
     public function update(User $user, Request $request): JsonResponse
     {
         $userVals = \json_decode($request->getContent(), true);
