@@ -27,7 +27,6 @@ class LtiController extends AbstractController
     /** @var \App\Services\LmsApiService $lmsApi */
     private $lmsApi;
 
-    #[Route('/lti/authorize', name: 'lti_authorize')]
     private ManagerRegistry $doctrine;
 
     public function __construct(ManagerRegistry $doctrine)
@@ -35,6 +34,7 @@ class LtiController extends AbstractController
         $this->doctrine = $doctrine;
     }
   
+    #[Route('/lti/authorize', name: 'lti_authorize')]
     public function ltiAuthorize(
         Request $request,
         SessionService $sessionService,
