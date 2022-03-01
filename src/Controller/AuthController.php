@@ -22,7 +22,6 @@ class AuthController extends AbstractController
     /** @var LmsApiService $lmsApi */
     private $lmsApi;
 
-    #[Route('/authorize', name: 'authorize')]
     private ManagerRegistry $doctrine;
 
     public function __construct(ManagerRegistry $doctrine)
@@ -30,6 +29,7 @@ class AuthController extends AbstractController
         $this->doctrine = $doctrine;
     }
 
+    #[Route('/authorize', name: 'authorize')]
     public function authorize(
         Request $request,
         SessionService $sessionService,
