@@ -13,7 +13,6 @@ use Symfony\Component\Routing\Annotation\Route;
 
 class FileItemsController extends ApiController
 {
-    #[Route('/api/files/{file}/review', name: 'review_file')]
     private ManagerRegistry $doctrine;
 
     public function __construct(ManagerRegistry $doctrine)
@@ -21,6 +20,7 @@ class FileItemsController extends ApiController
         $this->doctrine = $doctrine;
     }
 
+    #[Route('/api/files/{file}/review', name: 'review_file')]
     public function reviewFile(FileItem $file, Request $request, UtilityService $util)
     {
         $apiResponse = new ApiResponse();
