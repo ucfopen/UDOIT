@@ -122,6 +122,7 @@ class DashboardController extends AbstractController
             'auditoryRuleIds' => !empty($_ENV['AUDITORY_RULES']) ? $_ENV['AUDITORY_RULES'] : '',
             'cognitiveRuleIds' => !empty($_ENV['COGNITIVE_RULES']) ? $_ENV['COGNITIVE_RULES'] : '',
             'motorRuleIds' => !empty($_ENV['MOTOR_RULES']) ? $_ENV['MOTOR_RULES'] : '',
+            'versionNumber' => !empty($_ENV['VERSION_NUMBER']) ? $_ENV['VERSION_NUMBER'] : '',
         ];
     }
 
