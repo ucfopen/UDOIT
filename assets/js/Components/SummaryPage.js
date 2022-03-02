@@ -9,7 +9,7 @@ import { IconArrowOpenEndLine } from '@instructure/ui-icons'
 import { MetricGroup, Metric } from '@instructure/ui-metric'
 import { IconInfoBorderlessLine, IconNoLine } from '@instructure/ui-icons'
 import { DrawerLayout } from '@instructure/ui-drawer-layout'
-import Classes from '../../css/theme-overrides.scss'
+import Classes from '../../css/theme-overrides.css'
 
 import SummaryForm from './SummaryForm'
 

@@ -24,8 +24,6 @@ Encore.setOutputPath('public/build')
   .cleanupOutputBeforeBuild()
   .enableBuildNotifications()
   .enableSourceMaps(!Encore.isProduction())
-
-  .enableSassLoader()
   .configureCssLoader((options) => {
     options.modules = true
   })
