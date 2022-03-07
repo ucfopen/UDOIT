@@ -297,7 +297,7 @@
   "rule.label.FontIsNotUsed": "Font Tag Should Not Be Used",
   "rule.label.HeadersHaveText": "Headings Should Contain Text",
   "rule.label.HeadingsInOrder": "Heading Levels Should Not Be Skipped",
-  "rule.label.IframeNotHandled": "External content may be inaccessible",
+  "rule.label.IframeNotHandled": "External content may be Inaccessible",
   "rule.label.ImageAltIsDifferent": "Alternative Text Should Not Be the Image Filename",
   "rule.label.ImageAltIsTooLong": "Alternative Text Is More Than the Maximum Allowed Characters",
   "rule.label.ImageAltNotEmptyInAnchor": "Alt Text For Images Within Links Should Not Be Empty",
