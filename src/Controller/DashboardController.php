@@ -9,6 +9,7 @@ use App\Services\LmsApiService;
 use App\Services\LmsUserService;
 use App\Services\SessionService;
 use App\Services\UtilityService;
+use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Routing\Annotation\Route;
 
@@ -22,6 +23,13 @@ class DashboardController extends AbstractController
 
     /** @var LmsApiService $lmsApi */
     protected $lmsApi;
+
+    private ManagerRegistry $doctrine;
+
+    public function __construct(ManagerRegistry $doctrine)
+    {
+        $this->doctrine = $doctrine;
+    }
 
     /**
      * @Route("/dashboard", name="dashboard")
@@ -37,6 +45,7 @@ class DashboardController extends AbstractController
         $this->lmsApi = $lmsApi;
         $reportArr = false;
 
+        /** @var \App\Entity\User */
         $user = $this->getUser();
         if (!$user) {
             $this->util->exitWithMessage('User authentication failed.');
@@ -57,7 +66,7 @@ class DashboardController extends AbstractController
             $this->util->exitWithMessage('Missing LMS course ID.');
         }
 
-        $courseRepo = $this->getDoctrine()->getRepository(Course::class);
+        $courseRepo = $this->doctrine->getRepository(Course::class);
         /** @var Course $course */
         $course = $courseRepo->findOneBy(['lmsCourseId' => $lmsCourseId]);
 
@@ -66,7 +75,7 @@ class DashboardController extends AbstractController
             $course = $this->createCourse($institution, $lmsCourseId);
         }
 
-        $activeReport = $course->getLatestReport();        
+        $activeReport = $course->getLatestReport();
         if ($activeReport) {
             $reportArr = $activeReport->toArray();
             $reportArr['issues'] = $course->getAllIssues();
@@ -76,7 +85,7 @@ class DashboardController extends AbstractController
 
         return $this->render('default/index.html.twig', [
             'data' => [
-                'report' => $reportArr,                
+                'report' => $reportArr,
                 'settings' => $this->getSettings($course),
                 'messages' => $this->util->getUnreadMessages(true),
             ],
@@ -84,12 +93,12 @@ class DashboardController extends AbstractController
     }
 
     /**
-     * 
+     *
      *
      * @param Course $course
      * @return void
      */
-    protected function getSettings(Course $course) 
+    protected function getSettings(Course $course)
     {
         /** @var User $user */
         $user = $this->getUser();
@@ -118,6 +127,10 @@ class DashboardController extends AbstractController
             'textColor' => !empty($_ENV['TEXT_COLOR']) ? $_ENV['TEXT_COLOR'] : '#000000',
             'suggestionRuleIds' => !empty($_ENV['PHPALLY_SUGGESTION_RULES']) ? $_ENV['PHPALLY_SUGGESTION_RULES'] : '',
             'easyRuleIds' => !empty($_ENV['EASY_FIX_RULES']) ? $_ENV['EASY_FIX_RULES'] : '',
+            'visualRuleIds' => !empty($_ENV['VISUAL_RULES']) ? $_ENV['VISUAL_RULES'] : '',
+            'auditoryRuleIds' => !empty($_ENV['AUDITORY_RULES']) ? $_ENV['AUDITORY_RULES'] : '',
+            'cognitiveRuleIds' => !empty($_ENV['COGNITIVE_RULES']) ? $_ENV['COGNITIVE_RULES'] : '',
+            'motorRuleIds' => !empty($_ENV['MOTOR_RULES']) ? $_ENV['MOTOR_RULES'] : '',
         ];
     }
 
@@ -130,8 +143,8 @@ class DashboardController extends AbstractController
         $course->setActive(true);
         $course->setDirty(false);
 
-        $this->getDoctrine()->getManager()->persist($course);
-        $this->getDoctrine()->getManager()->flush();
+        $this->doctrine->getManager()->persist($course);
+        $this->doctrine->getManager()->flush();
 
         return $course;
     }

@@ -1,0 +1,12 @@
+.previewWindow {
+    overflow: auto;
+}
+
+.previewWindow img {
+    max-width: 100%;
+}
+
+.previewWindow p {
+    padding: 0;
+    margin: 0;
+}

@@ -88,9 +88,9 @@ class ContentItem implements \JsonSerializable
 
     /**
      * Serializes ContentItem into JSON.
-     * @return array|mixed
+     * @return array
      */
-    public function jsonSerialize()
+    public function jsonSerialize(): array
     {
         return [
             'id' => $this->getId(),

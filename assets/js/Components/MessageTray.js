@@ -2,7 +2,7 @@ import React from 'react'
 import { Alert } from '@instructure/ui-alerts'
 import { Spinner } from '@instructure/ui-spinner'
 
-import Classes from '../../css/app.scss'
+import Classes from '../../css/app.css'
 
 class MessageTray extends React.Component {
   constructor(props) {

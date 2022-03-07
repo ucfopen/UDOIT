@@ -1,5 +1,5 @@
 import React from 'react';
-import Classes from '../../css/ContentPreview.scss'
+import Classes from '../../css/ContentPreview.css'
 import ReactHtmlParser from 'react-html-parser'
 
 import Html from '../Services/Html'
