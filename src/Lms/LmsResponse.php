@@ -91,7 +91,7 @@ class LmsResponse implements \JsonSerializable {
         $this->contentType = (isset($headers['content-type'][0])) ? $headers['content-type'][0] : false;
     }
 
-    public function jsonSerialize()
+    public function jsonSerialize(): array
     {
         return [
             'content' => $this->getContent(),

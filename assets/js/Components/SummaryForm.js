@@ -7,14 +7,15 @@ import { IconInfoBorderlessLine, IconNoLine } from '@instructure/ui-icons'
 import { RadioInput, RadioInputGroup } from '@instructure/ui-radio-input'
 import { SimpleSelect } from '@instructure/ui-simple-select'
 import { issueRuleIds } from './Constants'
-import Classes from '../../css/theme-overrides.scss'
+import Classes from '../../css/theme-overrides.css'
 
 const startOptions = [
   'easy',
   'errors_only',
   'active',
   'by_issue',
-  'by_content'
+  'by_content',
+  'by_impact'
 ]
 
 class SummaryForm extends React.Component {
@@ -26,11 +27,18 @@ class SummaryForm extends React.Component {
       selectFilter: 'easy',
       selectRule: '',
       selectContentType: '',
+      selectImpact: '',
     }
+
+    this.visualRules = issueRuleIds.filter(rule => this.props.settings.visualRuleIds.includes(rule))
+    this.auditoryRules = issueRuleIds.filter(rule => this.props.settings.auditoryRuleIds.includes(rule))
+    this.cognitiveRules = issueRuleIds.filter(rule => this.props.settings.cognitiveRuleIds.includes(rule))
+    this.motorRules = issueRuleIds.filter(rule => this.props.settings.motorRuleIds.includes(rule))
 
     this.handleFilterSelect = this.handleFilterSelect.bind(this)
     this.handleRuleSelect = this.handleRuleSelect.bind(this)
     this.handleContentTypeSelect = this.handleContentTypeSelect.bind(this)
+    this.handleImpactSelect = this.handleImpactSelect.bind(this)
     this.handleSubmit = this.handleSubmit.bind(this)
   }
 
@@ -43,8 +51,13 @@ class SummaryForm extends React.Component {
     if ('by_content' === this.state.selectFilter) {
       canSubmit = (this.state.selectContentType)
     }
+    if ('by_impact' === this.state.selectFilter) {
+      canSubmit = (this.state.selectImpact)
+    }
 
     this.easyRules = issueRuleIds.filter(rule => easyRuleIds.includes(rule))
+
+
 
     return (
       <View as="div" padding="medium">
@@ -55,18 +68,18 @@ class SummaryForm extends React.Component {
             name="summaryFilterSelect"
             value={this.state.selectFilter}
             description={this.props.t('form.summary.show')}>
-              {startOptions.map((key) => <RadioInput key={key} value={key} label={this.props.t(`form.summary.option.${key}`)} /> )}       
+              {startOptions.map((key) => <RadioInput key={key} value={key} label={this.props.t(`form.summary.option.${key}`)} /> )}
           </RadioInputGroup>
-          
+
           {('by_issue' === this.state.selectFilter) &&
             <View as="div" margin="large 0">
-              <SimpleSelect 
+              <SimpleSelect
                 value={this.state.selectRule}
                 name="selectRule"
                 renderLabel={this.props.t('form.summary.option.by_issue')}
                 onChange={this.handleRuleSelect}>
                 {this.renderIssueOptions()}
-              </SimpleSelect>            
+              </SimpleSelect>
             </View>
           }
 
@@ -81,13 +94,25 @@ class SummaryForm extends React.Component {
               </SimpleSelect>
             </View>
           }
-          
+
+          {('by_impact' === this.state.selectFilter) &&
+            <View as="div" margin="large 0">
+              <SimpleSelect
+                value={this.state.selectImpact}
+                name="selectImpact"
+                renderLabel={this.props.t('form.summary.option.by_impact')}
+                onChange={this.handleImpactSelect}>
+                {this.renderImpactOptions()}
+              </SimpleSelect>
+            </View>
+          }
+
           <View as="div" margin="medium 0">
             {this.renderIssueCount()}
           </View>
           <View as="div" margin="medium 0 0 0">
-            <Button 
-              color="primary" 
+            <Button
+              color="primary"
               display="block"
               onClick={this.handleSubmit}
               interaction={canSubmit ? 'enabled' : 'disabled'}
@@ -98,24 +123,29 @@ class SummaryForm extends React.Component {
     )
   }
 
-  handleFilterSelect(e, val) 
+  handleFilterSelect(e, val)
   {
     this.setState({selectFilter: val})
   }
 
-  handleRuleSelect(e, val) 
+  handleRuleSelect(e, val)
   {
     this.setState({selectRule: val.id})
   }
 
-  handleContentTypeSelect(e, val) 
+  handleContentTypeSelect(e, val)
   {
     this.setState({ selectContentType: val.id })
   }
 
+  handleImpactSelect(e, val)
+  {
+    this.setState({ selectImpact: val.id })
+  }
+
   handleSubmit(e)
   {
-    const { selectFilter, selectRule, selectContentType } = this.state
+    const { selectFilter, selectRule, selectContentType, selectImpact} = this.state
     let filters = {}
 
     switch (selectFilter) {
@@ -133,6 +163,9 @@ class SummaryForm extends React.Component {
       break
       case 'by_content':
         filters = {contentTypes: [selectContentType]}
+      break
+      case 'by_impact':
+        filters = {issueImpacts: [selectImpact]}
       break
     }
 
@@ -172,6 +205,19 @@ class SummaryForm extends React.Component {
     return out
   }
 
+  renderImpactOptions() {
+    let impacts = ['visual', 'auditory', 'cognitive', 'motor']
+    let out = [
+      <SimpleSelect.Option value="" id="option-none" key="summary-none">--</SimpleSelect.Option>
+    ]
+
+    for (let impact of impacts) {
+      out.push(<SimpleSelect.Option value={impact} id={impact} key={`summary-${impact}`}>{this.props.t(`label.filter.${impact}`)}</SimpleSelect.Option>)
+    }
+
+    return out
+  }
+
   renderIssueCount() {
     let values = ['-', '-']
 
@@ -195,6 +241,11 @@ class SummaryForm extends React.Component {
           values = this.getContentTypeCount()
         }
         break
+      case 'by_impact':
+        if (this.state.selectImpact) {
+          values = this.getImpactCount()
+        }
+        break
     }
 
     return (
@@ -204,7 +255,7 @@ class SummaryForm extends React.Component {
           <IconNoLine className={Classes.error} />
           <View padding="0 0 0 xx-small">{values[0]} {this.props.t('label.plural.error')}</View>
         </InlineList.Item>}
-        {values[1] && 
+        {values[1] &&
         <InlineList.Item>
           <IconInfoBorderlessLine className={Classes.suggestion} />
           <View padding="0 0 0 xx-small">{values[1]} {this.props.t('label.plural.suggestion')}</View>
@@ -306,6 +357,33 @@ class SummaryForm extends React.Component {
       const contentItem = Object.assign({}, report.contentItems[issue.contentItemId])
 
       if (this.state.selectContentType === contentItem.contentType) {
+        if ('error' === issue.type) {
+          errors++
+        }
+        else {
+          suggestions++
+        }
+      }
+    }
+
+    return [errors, suggestions]
+  }
+
+  getImpactCount() {
+    const report = this.props.report
+    let errors = 0
+    let suggestions = 0
+
+    for (const issue of report.issues) {
+      if (issue.status) {
+        continue
+      }
+
+      if ((this.state.selectImpact === 'visual' && this.visualRules.includes(issue.scanRuleId))
+          || (this.state.selectImpact === 'auditory' && this.auditoryRules.includes(issue.scanRuleId))
+          || (this.state.selectImpact === 'cognitive' && this.cognitiveRules.includes(issue.scanRuleId))
+          || (this.state.selectImpact === 'motor' && this.motorRules.includes(issue.scanRuleId))
+          ) {
         if ('error' === issue.type) {
           errors++
         }

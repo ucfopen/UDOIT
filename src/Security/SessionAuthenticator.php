@@ -4,10 +4,8 @@ namespace App\Security;
 
 use App\Entity\User; // your user entity
 use App\Services\SessionService;
-use App\Services\UtilityService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
-use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Response;
@@ -19,28 +17,21 @@ use Symfony\Component\Security\Guard\AbstractGuardAuthenticator;
 
 class SessionAuthenticator extends AbstractGuardAuthenticator
 {
-    private $request;
-    private $router;
     private $em;
     private $sessionService;
 
     public function __construct(
         RequestStack $requestStack, 
         EntityManagerInterface $em, 
-        UtilityService $util,
         SessionService $sessionService)
     {
-        $this->request = $requestStack->getCurrentRequest();
-        $this->util = $util;
+        $requestStack->getCurrentRequest();
         $this->em = $em;
         $this->sessionService = $sessionService;
     }
 
     public function supports(Request $request)
     {
-
-        //print json_encode($this->sessionService->getSession());
-        
         return $this->sessionService->hasSession();
     }
 

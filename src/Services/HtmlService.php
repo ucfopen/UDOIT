@@ -12,7 +12,6 @@ class HtmlService {
             return $html;
         }
 
-        //return self::tidy($html);
         return self::dom(self::tidy($html));
     }
 
@@ -39,7 +38,7 @@ class HtmlService {
 
             return $tidy->repairString($html, $options, 'utf8');
         }
-        catch (\Exception $e) {
+        catch (\Exception) {
             return $html;
         }
     }
@@ -67,7 +66,7 @@ class HtmlService {
             }
 
             return str_replace(['<?xml encoding="utf-8" ?>', '<?xml version="1.0" encoding="utf-8"?>'], '', implode('', $out));
-        } catch (\Exception $e) {
+        } catch (\Exception) {
             return $html;
         }
     }
