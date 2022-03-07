@@ -293,6 +293,7 @@
   "rule.label.CssTextHasContrast": "Insufficient Text Color Contrast With the Background",
   "rule.label.CssTextStyleEmphasize": "Avoid Using Color Alone for Emphasis",
   "rule.label.DocumentReadingDirection": "Document Reading Direction",
+  "rule.label.EmbedTagDetected": "Embedded Content May Be Inaccessible on Mobile Devices",
   "rule.label.FontIsNotUsed": "Font Tag Should Not Be Used",
   "rule.label.HeadersHaveText": "Headings Should Contain Text",
   "rule.label.HeadingsInOrder": "Heading Levels Should Not Be Skipped",
