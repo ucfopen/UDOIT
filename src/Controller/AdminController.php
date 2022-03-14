@@ -270,7 +270,7 @@ class AdminController extends ApiController
     }
 
     #[Route('/api/admin/users', methods: ['GET'], name: 'admin_users')]
-    public function getUsers(UserRepository $userRepo, ReportRepository $reportRepo): JsonResponse
+    public function getUsers(UserRepository $userRepo): JsonResponse
     {
         $apiResponse = new ApiResponse();
         $user = $this->getUser();
