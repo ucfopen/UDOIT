@@ -101,7 +101,7 @@ class IssuesController extends ApiController
 
     // Mark issue as resolved/reviewed
     #[Route('/api/issues/{issue}/resolve', methods: ['POST','GET'], name: 'resolve_issue')]
-    public function markAsReviewed(Request $request, LmsPostService $lmsPost, UtilityService $util, Issue $issue): \Symfony\Component\HttpFoundation\Response
+    public function markAsReviewed(Request $request, LmsPostService $lmsPost, UtilityService $util, Issue $issue): JsonResponse
     {
         $apiResponse = new ApiResponse();
         $user = $this->getUser();
