@@ -17,7 +17,7 @@ class UserController extends AbstractController
     {
         $this->doctrine = $doctrine;
     }
-  
+
     #[Route('/api/users/{user}', name: 'user_put',  methods: ['PUT'])]
     public function update(User $user, Request $request): JsonResponse
     {
