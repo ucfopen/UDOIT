@@ -9,7 +9,6 @@ use App\Services\PhpAllyService;
 use App\Services\UtilityService;
 use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Component\HttpFoundation\JsonResponse;
-use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
@@ -102,7 +101,7 @@ class IssuesController extends ApiController
 
     // Mark issue as resolved/reviewed
     #[Route('/api/issues/{issue}/resolve', methods: ['POST','GET'], name: 'resolve_issue')]
-    public function markAsReviewed(Request $request, LmsPostService $lmsPost, UtilityService $util, Issue $issue): Response
+    public function markAsReviewed(Request $request, LmsPostService $lmsPost, UtilityService $util, Issue $issue): JsonResponse
     {
         $apiResponse = new ApiResponse();
         $user = $this->getUser();
