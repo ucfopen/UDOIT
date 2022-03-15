@@ -20,14 +20,14 @@ class IssuesController extends ApiController
     {
         $this->doctrine = $doctrine;
     }
-    
+
     // Save change to issue HTML to LMS
     #[Route('/api/issues/{issue}/save', name: 'save_issue')]
     public function saveIssue(
-        Request $request, 
-        LmsPostService $lmsPost, 
-        UtilityService $util, 
-        Issue $issue) 
+        Request $request,
+        LmsPostService $lmsPost,
+        UtilityService $util,
+        Issue $issue)
     {
         $apiResponse = new ApiResponse();
         $user = $this->getUser();
@@ -41,7 +41,7 @@ class IssuesController extends ApiController
 
             // Get updated issue
             $newHtml = $request->getContent();
-            
+
             // Check if new HTML is different from original HTML
             if ($issue->getHtml() === $newHtml) {
                 throw new \Exception('form.error.same_html');
@@ -148,7 +148,7 @@ class IssuesController extends ApiController
                 ]);
             } else {
                 $apiResponse->addLogMessages($unreadMessages);
-            }            
+            }
         } catch (\Exception $e) {
             $apiResponse->addError($e->getMessage());
         }
@@ -191,7 +191,7 @@ class IssuesController extends ApiController
         $unreadMessages = $util->getUnreadMessages();
         if (!empty($unreadMessages)) {
             $apiResponse->addLogMessages($unreadMessages);
-        }         
+        }
 
         return new JsonResponse($apiResponse);
     }

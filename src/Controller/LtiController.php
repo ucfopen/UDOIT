@@ -33,7 +33,7 @@ class LtiController extends AbstractController
     {
         $this->doctrine = $doctrine;
     }
-  
+
     #[Route('/lti/authorize', name: 'lti_authorize')]
     public function ltiAuthorize(
         Request $request,
