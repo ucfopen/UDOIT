@@ -31,9 +31,7 @@ class DashboardController extends AbstractController
         $this->doctrine = $doctrine;
     }
 
-    /**
-     * @Route("/dashboard", name="dashboard")
-     */
+    #[Route('/dashboard', name: 'dashboard')]
     public function index(
         UtilityService $util,
         SessionService $sessionService,
