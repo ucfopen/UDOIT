@@ -24,7 +24,7 @@ Provide values for the following fields:
 * Redirect URL (Legacy) : *SKIP*
 * Vendor Code : *SKIP*
 * Icon URL
-    * <YOUR_UDOIT_BASE_URL>/build/static/udoit_logo.png
+    * <YOUR_UDOIT_BASE_URL>/build/static/udoit_logo.svg
 * Notes : *Optional*
     * These are only seen by other LMS admins
 * Test Cluster Only : *SKIP*
