@@ -2,19 +2,39 @@
 UDOIT can be installed on your own existing servers with the following instructions. UDOIT is also available as a hosted and maintained product by [Cidi Labs](https://cidilabs.com). UDOIT is built using the [PHP Symfony Framework](https://symfony.com).
 
 ## System Requirements
+UDOIT can be installed with Docker, or manually. If you have no preference, the Docker configuration is recommended.
+
+You will need:
+
+* Git (installation only)
+* Docker
+* Docker Compose
+
+for the Docker configuration. See [QUICKSTART.md](./QUICKSTART.md) for instructions.
+
+If you want to attempt a manual installation, you will need:
+
+* Git (installation only)
 * Apache or Nginx webserver
 * PHP 8.1+
 * MySQL, MariaDB, or PostgreSQL
-* Git (If you are using The Git Method below) or if you plan on contributing to UDOIT
-* Node v16 is supported; other versions may work
+* Node v17 is supported; other versions may work
 * Yarn
 
 ## Source Code
 We strongly recommend to manage source code through Git. The benefit of this method is that you can update an existing installation of UDOIT by simply using `git pull`. It also lets you roll back to previous versions if needed. Follow these steps:
 
-* Install Git on your server if necessary. Most Linux distributions preinstall a version of Git. You can verify Git is installed by running `git --version`.
-* Navigate to the directory on your server where UDOIT will live
-* Run `git clone git@github.com:ucfopen/UDOIT.git .` (The `.` is important. It tells Git to download the files to the current directory.)
+* Install Git on your server if necessary. Most Linux distributions preinstall a version of Git. You can verify Git is installed by running 
+```bash
+git --version
+```
+* Navigate to the directory on your server where UDOIT will live.
+* Download this repository with:
+```bash
+git clone git@github.com:ucfopen/UDOIT.git .
+```
+
+> The trailing `.` is important. If you omit it, Git will create a folder called UDOIT in the current directory with the contents of the repo rather than downloading the contents into the local directory itself.
 
 ## Docker
 We provide a fast and simple way of setting up a local UDOIT instance through the use of docker containers. To set up the docker containers, you must first install [Docker](https://docs.docker.com/get-docker/) and [Docker Compose](https://docs.docker.com/compose/install/). Then, simply run the following command from within the UDOIT directory:
