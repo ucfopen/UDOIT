@@ -4,22 +4,22 @@ UDOIT can be installed on your own existing servers with the following instructi
 ## System Requirements
 * Apache or Nginx webserver
 * PHP 8.1+
-* MySQL, MariaDB or PostgreSQL
+* MySQL, MariaDB, or PostgreSQL
 * Git (If you are using The Git Method below) or if you plan on contributing to UDOIT
 * Node v16 is supported; other versions may work
 * Yarn
 
 ## Source Code
-We strongly recommend source code should be managed through Git. The benefit of this method is that you can update an existing installation of UDOIT by simply using git pull. It also lets you roll back to previous versions if needed. Follow these steps:
+We strongly recommend to manage source code through Git. The benefit of this method is that you can update an existing installation of UDOIT by simply using `git pull`. It also lets you roll back to previous versions if needed. Follow these steps:
 
-* Install Git on your server
+* Install Git on your server if necessary. Most Linux distributions preinstall a version of Git. You can verify Git is installed by running `git --version`.
 * Navigate to the directory on your server where UDOIT will live
-* Run `git clone git@github.com:ucfopen/UDOIT.git . ` (The . is important. It tells Git to download the files to the current directory.)
+* Run `git clone git@github.com:ucfopen/UDOIT.git .` (The `.` is important. It tells Git to download the files to the current directory.)
 
 ## Docker
 We provide a fast and simple way of setting up a local UDOIT instance through the use of docker containers. To set up the docker containers, you must first install [Docker](https://docs.docker.com/get-docker/) and [Docker Compose](https://docs.docker.com/compose/install/). Then, simply run the following command from within the UDOIT directory:
 
-    docker-compose up -d
+    docker-compose up --build
 
 Once the containers are up and running, you can access the php container by calling the command:
 
