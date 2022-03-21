@@ -26,9 +26,7 @@ class AdminController extends ApiController
 
     private $courseRepo;
 
-    /**
-     * @Route("/admin", name="admin")
-     */
+    #[Route('/admin', name: 'admin')]
     public function index(
         UtilityService $util,
         SessionService $sessionService,
@@ -59,9 +57,7 @@ class AdminController extends ApiController
         ]);
     }
 
-    /**
-     * @Route("/api/admin/courses/account/{accountId}/term/{termId}", methods={"GET"}, name="admin_courses")
-     */
+    #[Route('/api/admin/courses/account/{accountId}/term/{termId}', methods: ['GET'], name: 'admin_courses')]
     public function getCoursesData(
         $accountId, 
         $termId,
@@ -95,9 +91,7 @@ class AdminController extends ApiController
         return new JsonResponse($apiResponse);
     }
 
-    /**
-     * @Route("/api/admin/reports/account/{accountId}/term/{termId}", methods={"GET"}, name="admin_reports")
-     */
+    #[Route('/api/admin/reports/account/{accountId}/term/{termId}', methods: ['GET'], name: 'admin_reports')]
     public function getReportsData(
         $accountId,
         $termId,
@@ -239,13 +233,8 @@ class AdminController extends ApiController
         return new JsonResponse($apiResponse);
     }
 
-    /**
-     * @Route("/api/admin/courses/{course}/reports/latest", methods={"GET"}, name="admin_latest_report")
-     * @param Course $course
-     * 
-     * @return JsonResponse
-     */
-    public function getAdminLatestReport(Course $course, UtilityService $util, LmsApiService $lmsApi)
+    #[Route('/api/admin/courses/{course}/reports/latest', methods: ['GET'], name: 'admin_latest_report')]
+    public function getAdminLatestReport(Course $course, UtilityService $util, LmsApiService $lmsApi): JsonResponse
     {
         $apiResponse = new ApiResponse();
         $user = $this->getUser();
@@ -280,12 +269,8 @@ class AdminController extends ApiController
         return new JsonResponse($apiResponse);
     }
 
-    /**
-     * @Route("/api/admin/users", methods={"GET"}, name="admin_users")
-     * 
-     * @return JsonResponse
-     */
-    public function getUsers(UserRepository $userRepo)
+    #[Route('/api/admin/users', methods: ['GET'], name: 'admin_users')]
+    public function getUsers(UserRepository $userRepo): JsonResponse
     {
         $apiResponse = new ApiResponse();
         /** @var \App\Entity\User */
@@ -303,15 +288,11 @@ class AdminController extends ApiController
         return new JsonResponse($apiResponse);        
     }
 
-    /**
-     * @Route("/api/admin/accounts", methods={"GET"}, name="admin_update_accounts")
-     * 
-     * @return JsonResponse
-     */
+    #[Route('/api/admin/accounts', methods: ['GET'], name: 'admin_update_accounts')]
     public function getUpdatedAccounts(
         LmsApiService $lmsApi, 
         SessionService $sessionService,
-        UtilityService $util)
+        UtilityService $util): JsonResponse
     {
         $apiResponse = new ApiResponse();
         $session = $sessionService->getSession();

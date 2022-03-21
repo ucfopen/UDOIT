@@ -20,9 +20,7 @@ class SyncController extends ApiController
     /** @var UtilityService $util */
     protected $util;
 
-    /**
-     * @Route("/api/sync/{course}", name="request_sync")
-     */
+    #[Route('/api/sync/{course}', name: 'request_sync')]
     public function requestSync(Course $course, LmsFetchService $lmsFetch)
     {
         $response = new ApiResponse();
@@ -73,10 +71,7 @@ class SyncController extends ApiController
         return new JsonResponse($response);
     }
 
-    /**
-     *
-     * @Route("/api/sync/content/{contentItem}", name="content_sync", methods={"GET"})
-     */
+    #[Route('/api/sync/content/{contentItem}', name: 'content_sync', methods: ['GET'])]
     public function requestContentSync(ContentItem $contentItem, LmsFetchService $lmsFetch, PhpAllyService $phpAlly)
     {
         $response = new ApiResponse();
@@ -110,9 +105,7 @@ class SyncController extends ApiController
         return new JsonResponse($response);
     }
 
-    /**
-     * @Route("/cron/sync", name="cron_sync")
-     */
+    #[Route('/cron/sync', name: 'cron_sync')]
     public function cronSync(LmsApiService $lmsApi)
     {
         /** @var CourseRepository $courseRepository */

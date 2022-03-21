@@ -7,7 +7,7 @@ import { IconInfoBorderlessLine, IconNoLine } from '@instructure/ui-icons'
 import { RadioInput, RadioInputGroup } from '@instructure/ui-radio-input'
 import { SimpleSelect } from '@instructure/ui-simple-select'
 import { issueRuleIds } from './Constants'
-import Classes from '../../css/theme-overrides.scss'
+import Classes from '../../css/theme-overrides.css'
 
 const startOptions = [
   'easy',

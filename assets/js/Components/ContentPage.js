@@ -9,7 +9,7 @@ import { View } from '@instructure/ui-view'
 import { Tag } from '@instructure/ui-tag'
 import { ScreenReaderContent } from '@instructure/ui-a11y-content'
 import UfixitModal from './UfixitModal'
-import Classes from '../../css/theme-overrides.scss'
+import Classes from '../../css/theme-overrides.css'
 import { issueRuleIds } from './Constants'
 
 const issueStatusKeys = [
