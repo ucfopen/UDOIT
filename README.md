@@ -6,6 +6,10 @@ UDOIT enables faculty to identify accessibility issues in Canvas by Instructure.
 
 UDOIT was originally developed by the University of Central Florida (UCF) in 2014. In 2020, UDOIT was in need of a code refresh and UCF partnered with Cidi Labs to rewrite UDOIT from the ground up.
 
+## Quickstart
+
+Looking for the fastest and easiest way to get UDOIT configured? See [QUICKSTART.md](./QUICKSTART.md).
+
 ## Prerequisites
  - PHP 8.1+
  - Symfony
