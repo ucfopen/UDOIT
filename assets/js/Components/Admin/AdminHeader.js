@@ -1,6 +1,6 @@
 import React from 'react'
 //import Logo from '../../../mediaAssets/logo_salmon.png'
-import Logo from '../../../mediaAssets/udoit_logo.png'
+import Logo from '../../../mediaAssets/udoit_logo.svg'
 import Classes from '../../../css/header.css'
 import { View } from '@instructure/ui-view'
 import { Text } from '@instructure/ui-text'
