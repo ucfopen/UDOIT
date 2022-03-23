@@ -63,7 +63,7 @@ class SummaryPage extends React.Component {
         issueResults[issue.type][issue.scanRuleId]++;
       }
 
-      
+
       for (const type in issueResults) {
         for (const ruleId in issueResults[type]) {
           this.issueResults[type].push([ruleId, issueResults[type][ruleId]]);
@@ -78,12 +78,12 @@ class SummaryPage extends React.Component {
   render() {
     const report = this.props.report
     const infoLabel = (this.state.showMoreSummary) ? 'label.less_info' : 'label.more_info'
-        
+
     return (
       <View as="div">
         {/* <Heading margin="0 0 small 0">{this.props.t('label.summary')}</Heading> */}
         <DrawerLayout>
-          <DrawerLayout.Content label={this.props.t('label.summary')}>          
+          <DrawerLayout.Content label={this.props.t('label.summary')}>
             <View as="div" padding="0 0 medium 0">
               <View as="div" margin="large">
                 <MetricGroup lineHeight="2">
@@ -104,16 +104,17 @@ class SummaryPage extends React.Component {
             label={this.props.t('label.summary.tray')}
           >
             <View as="div"
-              width="320px" 
-              borderColor="brand" 
-              borderWidth="small" 
+              width="320px"
+              borderColor="brand"
+              borderWidth="small"
               borderRadius="large"
-              margin="medium 0 0 0">
-              <SummaryForm 
-                t={this.props.t} 
+              margin="medium 0 0 0"
+              >
+              <SummaryForm
+                t={this.props.t}
                 report={report}
                 handleAppFilters={this.props.handleAppFilters}
-                handleNavigation={this.props.handleNavigation} 
+                handleNavigation={this.props.handleNavigation}
                 settings={this.props.settings} />
             </View>
           </DrawerLayout.Tray>
@@ -126,7 +127,7 @@ class SummaryPage extends React.Component {
     const report = this.props.report;
     this.processReportData(report)
     const maxRows = 3
-    
+
     return (
       <View as="div" margin="0 large 0 0">
         <View as="div" margin="small 0">
@@ -163,7 +164,7 @@ class SummaryPage extends React.Component {
                           <View display="inline-block" width="30px" textAlign="center" className={Classes.error}>
                             {val[1]}
                           </View>
-                          <View padding="0 x-small">{this.props.t(`rule.label.${val[0]}`)}</View>   
+                          <View padding="0 x-small">{this.props.t(`rule.label.${val[0]}`)}</View>
                         </View>
                       </Flex.Item>
                       <Flex.Item>
