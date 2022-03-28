@@ -1,14 +1,16 @@
 # Quickstart Guide
 
-This is the easiest way to get UDOIT set up for development or production. The sections should be followed in sequence.
+> For non-Docker configuration instructions, see [INSTALL.md](./INSTALL.md).
+
+> For instructions to set up a development environment, see [HEROKU.md](./HEROKU.md).
+
+This is the easiest way to get UDOIT set up for production. The sections should be followed in sequence.
 
 You will need:
 
 - [Git](https://git-scm.com/downloads)
 - [Docker](https://docs.docker.com/get-docker/)
 - [Docker Compose](https://docs.docker.com/compose/install/)
-
-> For non-Docker configuration instructions, see [INSTALL.md](./INSTALL.md).
 
 ## Downloading UDOIT
 
@@ -41,22 +43,6 @@ You should type Ctrl+C to exit the Docker Compose process for further configurat
 ## Configuring Canvas
 
 Follow the instructions in [INSTALL_CANVAS.md](./INSTALL_CANVAS.md) to initialize the database and add the app to Canvas.
-
-## Set Environment Variables
-
-If you're setting up a development environment, create `.env.local`:
-
-```bash
-cp .env.local.example .env.local
-```
-
-Set `APP_ENV=dev`:
-
-```bash
-echo "APP_ENV=dev" >> .env.local
-```
-
-If you're running a production installation, no action is necessary.
 
 ## Running UDOIT
 

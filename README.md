@@ -8,7 +8,7 @@ UDOIT was originally developed by the University of Central Florida (UCF) in 201
 
 ## Quickstart
 
-Looking for the fastest and easiest way to get UDOIT configured? See [QUICKSTART.md](./QUICKSTART.md).
+Looking for the fastest and easiest way to get UDOIT configured for production? See [QUICKSTART.md](./QUICKSTART.md).
 
 ## Prerequisites
  - PHP 8.1+
