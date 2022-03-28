@@ -39,50 +39,52 @@ Provide values for the following fields:
 ### Scopes
 We strongly recommend you enforce scopes with your API key. The following scopes must be enabled for UDOIT to work.
 
-* Accounts
+* accounts
     * url:GET|/api/v1/accounts
     * url:GET|/api/v1/accounts/:id
     * url:GET|/api/v1/accounts/:account_id/sub_accounts
-* Announcements
+* announcements_api
     * url:GET|/api/v1/announcements
-* Assignments
+* assignments_api
     * url:GET|/api/v1/courses/:course_id/assignments
     * url:GET|/api/v1/courses/:course_id/assignments/:id
     * url:PUT|/api/v1/courses/:course_id/assignments/:id
-* Courses
+* courses
     * url:GET|/api/v1/courses/:id
     * url:PUT|/api/v1/courses/:id
     * url:POST|/api/v1/courses/:course_id/files
-* Discussion Topics
+* discussion_topics
     * url:GET|/api/v1/courses/:course_id/discussion_topics
-    * url:GET|/api/v1/courses/:course_id/discussion_topics/:topic_id
     * url:PUT|/api/v1/courses/:course_id/discussion_topics/:topic_id
-* Enrollment Terms
+* discussion_topics_api
+    * url:GET|/api/v1/courses/:course_id/discussion_topics/:topic_id
+* terms_api
     * url:GET|/api/v1/accounts/:account_id/terms
-* Files
+* files
     * url:GET|/api/v1/courses/:course_id/files
     * url:GET|/api/v1/courses/:course_id/files/:id
-* Modules
+* context_modules_api
     * url:GET|/api/v1/courses/:course_id/modules
     * url:GET|/api/v1/courses/:course_id/modules/:id
     * url:PUT|/api/v1/courses/:course_id/modules/:id
+* context_modules_items_api
     * url:GET|/api/v1/courses/:course_id/modules/:module_id/items
     * url:GET|/api/v1/courses/:course_id/modules/:module_id/items/:id
     * url:PUT|/api/v1/courses/:course_id/modules/:module_id/items/:id
-* Pages
+* wiki_pages_api
     * url:GET|/api/v1/courses/:course_id/pages
     * url:GET|/api/v1/courses/:course_id/pages/:url
     * url:GET|/api/v1/groups/:group_id/pages/:url
     * url:PUT|/api/v1/courses/:course_id/pages/:url
-* Quiz Questions
+* quizzes/quiz_questions
     * url:GET|/api/v1/courses/:course_id/quizzes/:quiz_id/questions
     * url:GET|/api/v1/courses/:course_id/quizzes/:quiz_id/questions/:id
     * url:PUT|/api/v1/courses/:course_id/quizzes/:quiz_id/questions/:id
-* Quizzes
+* quizzes/quizzes_api
     * url:GET|/api/v1/courses/:course_id/quizzes
     * url:GET|/api/v1/courses/:course_id/quizzes/:id
     * url:PUT|/api/v1/courses/:course_id/quizzes/:id
- * Users
+ * users
     * url:GET|/api/v1/users/:id
 
 ---
