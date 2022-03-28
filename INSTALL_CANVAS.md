@@ -152,10 +152,6 @@ The following fields need to be populated in the `institution` table.
     * This key will be encrypted and stored as encrypted on the first use of the key.
 
 ---
-## .ENV Setup
-For cloud-hosted canvas instances the default value for the `JWK_BASE_URL` environmental variable will work out of the box. If you are not cloud-hosted, you may need to change the value of this variable in `.env.local` to match your canvas instance.
-
----
 ## Install the App
 UDOIT now needs to be added to an account in Canvas. Follow these steps to add the LTI tool to an account:
 * Copy the `Client ID` from the developer LTI key created earlier.

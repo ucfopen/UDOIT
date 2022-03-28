@@ -82,3 +82,17 @@ docker exec -it udoit-db-1 /bin/bash
 cd <path to UDOIT>
 docker-compose down
 ```
+
+> I'm having issues related to JWK or authentication.
+
+Try setting `JWK_BASE_URL` to the domain of your **Canvas** installation. If you haven't created `.env.local`, do so now:
+
+```bash
+cp .env.local.example .env.local
+```
+
+Then, set the `JWK_BASE_URL` variable to the base URL of your **Canvas** installation.
+
+```bash
+echo "JWK_BASE_URL=\"https://canvas.instructure.com\" >> .env.local"
+```
