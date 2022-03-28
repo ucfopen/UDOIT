@@ -107,26 +107,8 @@ Provide values for the following fields:
     * Enter URL
 * JSON URL
     * <YOUR_UDOIT_BASE_URL>/lti/config
-* Click Save.  Reload the page, then edit the LTI key you just created.
-* If your instance of Canvas is self-hosted, modify the URL under **JWK Method** to point to your canvas instance.
-* Set Additional Settings
-    * Domain
-      * Your UDOIT domain
-    * Tool ID
-      * Enter a name
-    * Custom Fields
-```
-lms_id=canvas
-lms_user_id=$Canvas.user.id
-lms_course_id=$Canvas.course.id
-lms_api_domain=$Canvas.api.domain
-```
 * Save
 * Click `ON` to enable the newly created key
-
----
-## Docker-Compose Base URL
-If you are setting up UDOIT for local development through docker-compose, <YOUR_UDOIT_BASE_URL> in both the API developer key and the LTI developer key above should be set to `https://localhost:8000`.
 
 ---
 ## Update the Institutions Table
