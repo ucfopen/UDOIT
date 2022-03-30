@@ -5,6 +5,7 @@ volumes:
 
 services:
   db:
+    container_name: "udoit-db-1"
     image: mariadb:latest
     volumes:
       - dbdata:/var/lib/mysql
@@ -16,6 +17,7 @@ services:
     ports:
       - "3306:3306"
   php:
+    container_name: "udoit-php-1"
     environment:
       DATABASE_URL: mysql://udoit:udoit@db:3306/udoit3
     ports:
@@ -37,6 +39,7 @@ services:
       - ./bin:/var/www/html/bin
 
   nginx:
+    container_name: "udoit-nginx-1"
     image: nginx
     ports:
       - "80:80"
