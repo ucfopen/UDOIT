@@ -33,6 +33,7 @@ services:
       - ./config:/var/www/html/config
       - ./public:/var/www/html/public
       - ./.env:/var/www/html/.env
+      - ./.env.local:/var/www/html/.env.local
       - ./bin:/var/www/html/bin
 
   nginx:
