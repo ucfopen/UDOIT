@@ -15,6 +15,7 @@ use App\Services\LmsUserService;
 use App\Services\SessionService;
 use App\Services\UtilityService;
 use Doctrine\ORM\EntityManagerInterface;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\Security\Core\Security;
 
 class CanvasLms implements LmsInterface {
@@ -67,7 +68,7 @@ class CanvasLms implements LmsInterface {
     public function getLtiAuthUrl($params)
     {
         $session = $this->sessionService->getSession();
-        $baseUrl = !empty(getenv('JWK_BASE_URL')) ? getenv('JWK_BASE_URL') : $session->get('iss');
+        $baseUrl = !empty($_ENV['JWK_BASE_URL']) ? $_ENV['JWK_BASE_URL'] : $session->get('iss');
         $baseUrl = rtrim($baseUrl, '/');
 
         $queryStr = http_build_query($params);
@@ -78,7 +79,7 @@ class CanvasLms implements LmsInterface {
     public function getKeysetUrl()
     {
         $session = $this->sessionService->getSession();
-        $baseUrl = !empty(getenv('JWK_BASE_URL')) ? getenv('JWK_BASE_URL') : $session->get('iss');
+        $baseUrl = !empty($_ENV['JWK_BASE_URL']) ? $_ENV['JWK_BASE_URL'] : $session->get('iss');
         $baseUrl = rtrim($baseUrl, '/');
 
         return "{$baseUrl}/api/lti/security/jwks";
