@@ -6,7 +6,7 @@ Once UDOIT has been installed on a public web server the following steps must be
 * Install the application
 
 **Skills Required**
-* Ability to insert MySQL
+* Ability to insert MySQL (or edit a config file if using Docker)
 
 ## Create an API Developer Key
 UDOIT requires an API developer key, since all course data is gathered through the Canvas API.
@@ -114,9 +114,11 @@ Provide values for the following fields:
 ## Update the Institutions Table
 UDOIT is built to support more than one LMS instance. For this purpose we have an `institution` table that must be populated with the LMS information.
 
-**Note:** This step requires knowledge of MySQL.
+> **Note:** This step requires manual database configuration unless you're using the Docker installation.
 
-The following fields need to be populated in the `institution` table.
+### Manual
+
+The following fields need to be populated in the `institution` table. This involves an `INSERT INTO` query for MySQL.
 * title
     * Your institution's name
 * lms_domain
@@ -150,6 +152,22 @@ The following fields need to be populated in the `institution` table.
     * This is also known as the API key.
     * Click `Show Key` for the API key you created earlier.
     * This key will be encrypted and stored as encrypted on the first use of the key.
+
+### Docker
+You can use our bundled script to quickly set up the database without having to know MySQL.
+
+First, create `.env.local` from the template.
+
+```bash
+cp .env.local.example .env.local
+```
+
+Finally, initialize the database and start UDOIT with:
+```bash
+./udoit.sh --init
+```
+
+In the future, you can use `./udoit.sh` without arguments to start UDOIT with Docker.
 
 ---
 ## Install the App
