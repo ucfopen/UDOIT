@@ -4,6 +4,8 @@ WORKDIR /app
 COPY package.json .
 COPY yarn.lock .
 
+ENV GENERATE_SOURCEMAP false
+
 ARG NODE_OPTIONS=--openssl-legacy-provider --max-old-space-size=100000
 RUN yarn install --immutable
 
