@@ -7,6 +7,7 @@ use App\Entity\User;
 use App\Services\LmsApiService;
 use App\Services\SessionService;
 use App\Services\UtilityService;
+use Doctrine\Persistence\ManagerRegistry;
 use Firebase\JWT\JWK;
 use \Firebase\JWT\JWT;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -26,14 +27,19 @@ class LtiController extends AbstractController
     /** @var \App\Services\LmsApiService $lmsApi */
     private $lmsApi;
 
-    /**
-     * @Route("/lti/authorize", name="lti_authorize")
-     */
+    private ManagerRegistry $doctrine;
+
+    public function __construct(ManagerRegistry $doctrine)
+    {
+        $this->doctrine = $doctrine;
+    }
+
+    #[Route('/lti/authorize', name: 'lti_authorize')]
     public function ltiAuthorize(
         Request $request,
         SessionService $sessionService,
         UtilityService $util,
-        LmsApiService $lmsApi
+        LmsApiService $lmsApi,
     ) {
 
         $this->request = $request;
@@ -46,9 +52,7 @@ class LtiController extends AbstractController
         return $this->redirect($this->getLtiAuthResponseUrl());
     }
 
-    /**
-     * @Route("/lti/authorize/check", name="lti_authorize_check")
-     */
+    #[Route('/lti/authorize/check', name: 'lti_authorize_check')]
     public function ltiAuthorizeCheck(
         Request $request,
         SessionService $sessionService,
@@ -108,9 +112,7 @@ class LtiController extends AbstractController
             ['auth_token' => $this->session->getUuid()]);
     }
 
-    /**
-     * @Route("/lti/authorize/dev_lti_authorize", name="dev_lti_authorize")
-     */
+    #[Route('/lti/authorize/dev_lti_authorize', name: 'dev_lti_authorize')]
     public function dev_lti_authorize(
       Request $request,
       SessionService $sessionService,
@@ -139,9 +141,7 @@ class LtiController extends AbstractController
       ]);
     }
 
-    /**
-     * @Route("/lti/config/{lms}", name="lti_config")
-     */
+    #[Route('/lti/config/{lms}', name: 'lti_config')]
     public function ltiConfig(Request $request, $lms = 'canvas')
     {
         $baseUrl = $request->server->get('BASE_URL');
@@ -278,7 +278,7 @@ class LtiController extends AbstractController
                 $this->session->set('lms_api_domain', str_replace('https://', '', $domain));
             }
 
-            $this->getDoctrine()->getManager()->flush();
+            $this->doctrine->getManager()->flush();
         } catch (\Exception $e) {
             print_r($e->getMessage());
         }
@@ -303,9 +303,7 @@ class LtiController extends AbstractController
         $server = $this->request->server;
 
         $params = [
-            'lti_message_hint' => $this->session->get('lti_message_hint'),
             'client_id' => $this->session->get('client_id'),
-            'login_hint' => $this->session->get('login_hint'),
             'state' => $this->session->getUuid(),
             'scope' => 'openid',
             'response_type' => 'id_token',
@@ -314,6 +312,16 @@ class LtiController extends AbstractController
             'prompt' => 'none',
             'redirect_uri' => $server->get('BASE_URL') . $server->get('APP_LTI_REDIRECT_PATH'),
         ];
+
+        $ltiMessageHint = $this->session->get('lti_message_hint');
+        if ($ltiMessageHint !== '') {
+            $params['lti_message_hint'] = $ltiMessageHint;
+        }
+
+        $loginHint = $this->session->get('login_hint');
+        if ($loginHint !== '') {
+            $params['login_hint'] = $loginHint;
+        }
 
         return $lms->getLtiAuthUrl($params);
     }
@@ -333,13 +341,13 @@ class LtiController extends AbstractController
 
             if ($domain) {
                 $institution = $this
-                    ->getDoctrine()
+                    ->doctrine
                     ->getRepository(Institution::class)
                     ->findOneBy(['lmsDomain' => $domain]);
 
                 if (!$institution) {
                     $institution = $this
-                        ->getDoctrine()
+                        ->doctrine
                         ->getRepository(Institution::class)
                         ->findOneBy(['vanityUrl' => $domain]);
                 }
@@ -351,13 +359,13 @@ class LtiController extends AbstractController
 
             if ($cleanedDomain) {
                 $institution = $this
-                    ->getDoctrine()
+                    ->doctrine
                     ->getRepository(Institution::class)
                     ->findOneBy(['lmsDomain' => $cleanedDomain]);
 
                 if (!$institution) {
                     $institution = $this
-                        ->getDoctrine()
+                        ->doctrine
                         ->getRepository(Institution::class)
                         ->findOneBy(['vanityUrl' => $cleanedDomain]);
                 }
@@ -379,7 +387,7 @@ class LtiController extends AbstractController
         $date = new \DateTime();
 
         $user = new User();
-        $user->setUsername("{$domain}||{$userId}");
+        $user->setUserIdentifier("{$domain}||{$userId}");
         $user->setLmsUserId($userId);
         $user->setInstitution($institution);
         $user->setCreated($date);
@@ -389,8 +397,8 @@ class LtiController extends AbstractController
             $user->setName($this->session->get('lms_user_name'));
         }
 
-        $this->getDoctrine()->getManager()->persist($user);
-        $this->getDoctrine()->getManager()->flush();
+        $this->doctrine->getManager()->persist($user);
+        $this->doctrine->getManager()->flush();
 
         return $user;
     }
@@ -411,7 +419,7 @@ class LtiController extends AbstractController
             $userId = $this->session->get('lms_user_id');
 
             if ($domain && $userId) {
-                $user = $this->getDoctrine()->getRepository(User::class)
+                $user = $this->doctrine->getRepository(User::class)
                     ->findOneBy(['username' => "{$domain}||{$userId}"]);
             }
         }
@@ -421,6 +429,6 @@ class LtiController extends AbstractController
         }
 
         $this->session->set('userId', $user->getId());
-        $this->getDoctrine()->getManager()->flush();
+        $this->doctrine->getManager()->flush();
     }
 }

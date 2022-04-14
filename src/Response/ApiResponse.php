@@ -62,7 +62,7 @@ class ApiResponse implements \JsonSerializable
         $this->html = $html;
     }
 
-    public function jsonSerialize()
+    public function jsonSerialize(): array
     {
         return [
             'messages' => $this->getMessages(),

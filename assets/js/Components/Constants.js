@@ -13,6 +13,7 @@ export const issueRuleIds = [
     "FontIsNotUsed",
     "HeadersHaveText",
     "HeadingsInOrder",
+    "IframeNotHandled",
     "ImageAltIsDifferent",
     "ImageAltIsTooLong",
     "ImageAltNotEmptyInAnchor",

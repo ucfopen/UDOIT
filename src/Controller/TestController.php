@@ -3,20 +3,15 @@
 namespace App\Controller;
 
 use App\Entity\ContentItem;
-use App\Entity\Institution;
 use App\Entity\Issue;
 use App\Services\HtmlService;
 use App\Services\LmsApiService;
-use App\Services\LmsPostService;
-use App\Services\PhpAllyService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Routing\Annotation\Route;
 
 class TestController extends AbstractController
 {
-    /**
-     * @Route("/test/issue/{issue}", name="test")
-     */
+    #[Route('/test/issue/{issue}', name: 'test')]
     public function testIssue(HtmlService $html, Issue $issue)
     {
         $contentItem = $issue->getContentItem();
@@ -39,9 +34,7 @@ class TestController extends AbstractController
         ]);
     }
 
-    /**
-     * @Route("/api/test/content/{item}", name="test")
-     */
+    #[Route('/api/test/content/{item}', name: 'test')]
     public function testContentItem(LmsApiService $lmsApi, ContentItem $item)
     {
         $lms = $lmsApi->getLms();

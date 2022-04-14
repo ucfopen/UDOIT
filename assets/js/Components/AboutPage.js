@@ -8,7 +8,7 @@ import { IconInfoBorderlessLine, IconNoLine } from '@instructure/ui-icons'
 import { issueRuleIds } from './Constants'
 import Html from '../Services/Html'
 import ReactHtmlParser from 'react-html-parser'
-import Classes from '../../css/theme-overrides.scss'
+import Classes from '../../css/theme-overrides.css'
 
 class AboutPage extends React.Component {
 
@@ -130,6 +130,9 @@ class AboutPage extends React.Component {
               )
             })}
           </ToggleDetails>
+        </View>
+        <View as="div" textAlign="end">
+          <Text weight="light">{this.props.t('label.version')} {this.props.settings.versionNumber}</Text>
         </View>
       </View>
     )
