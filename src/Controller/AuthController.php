@@ -111,12 +111,8 @@ class AuthController extends AbstractController
         return new Response('Updated.');
     }
 
-    /**
-     * Finish authorization process by requesting a token from LMS
-     *
-     * @return void
-     */
-    protected function requestApiKeyFromLms()
+    // Finish authorization process by requesting a token from LMS
+    protected function requestApiKeyFromLms(): void
     {
         /** @var \App\Entity\User */
         $user = $this->getUser();
