@@ -87,10 +87,7 @@ class Course implements \JsonSerializable
 
     // Public Methods
 
-    /**
-     * Serializes Course with basic information needed by front-end.
-     * @return array
-     */
+    // Serializes Course with basic information needed by front-end.
     public function jsonSerialize(): array
     {
         return [
@@ -195,9 +192,6 @@ class Course implements \JsonSerializable
         return $this;
     }
 
-    /**
-     * @return ContentItem[]
-     */
     public function getContentItems(): Array
     {
         $contentItems = [];
@@ -237,9 +231,6 @@ class Course implements \JsonSerializable
         return $this;
     }
 
-    /**
-     * @return Collection|Report[]
-     */
     public function getReports(): Collection
     {
         return $this->reports;
@@ -321,9 +312,6 @@ class Course implements \JsonSerializable
         return $report;
     }
 
-    /**
-     * @return FileItem[]
-     */
     public function getFileItems($activeOnly = true): Array
     {
         $files = [];
