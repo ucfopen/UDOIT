@@ -86,10 +86,7 @@ class ContentItem implements \JsonSerializable
 
     // Public Methods
 
-    /**
-     * Serializes ContentItem into JSON.
-     * @return array
-     */
+    // Serializes ContentItem into JSON.
     public function jsonSerialize(): array
     {
         return [
@@ -188,9 +185,6 @@ class ContentItem implements \JsonSerializable
         return $this;
     }
 
-    /**
-     * @return Collection|Issue[]
-     */
     public function getIssues(): Collection
     {
         return $this->issues;
