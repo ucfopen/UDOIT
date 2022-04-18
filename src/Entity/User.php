@@ -261,12 +261,7 @@ class User implements UserInterface, JsonSerializable
         ];
     }
 
-    /**
-     * @param $data
-     *
-     * @return string
-     */
-    private function encryptData($data)
+    private function encryptData($data): string
     {
         $key   = base64_decode($this->encodedKey);
         $nonce = random_bytes(SODIUM_CRYPTO_SECRETBOX_NONCEBYTES);
@@ -275,12 +270,7 @@ class User implements UserInterface, JsonSerializable
         return base64_encode($nonce . $encrypted_data);
     }
 
-    /**
-     * @param $encrypted
-     *
-     * @return bool|string
-     */
-    private function decryptData($encrypted)
+    private function decryptData($encrypted): bool|string
     {
         $key     = base64_decode($this->encodedKey);
         $decoded = base64_decode($encrypted);
@@ -290,10 +280,7 @@ class User implements UserInterface, JsonSerializable
         return sodium_crypto_secretbox_open($encrypted_text, $nonce, $key);
     }
 
-    /**
-     * @return Collection|Report[]
-     */
-    public function getReports(): Collection
+    public function getReports(): Collection|Array
     {
         return $this->reports;
     }
