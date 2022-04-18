@@ -101,12 +101,7 @@ class Institution implements JsonSerializable
 
 
     // Private Methods
-    /**
-     * @param $data
-     *
-     * @return string
-     */
-    private function encryptData($data)
+    private function encryptData($data): string
     {
         $key   = base64_decode($this->encodedKey);
         $nonce = random_bytes(SODIUM_CRYPTO_SECRETBOX_NONCEBYTES);
@@ -115,12 +110,7 @@ class Institution implements JsonSerializable
         return base64_encode($nonce . $encrypted_data);
     }
 
-    /**
-     * @param $encrypted
-     *
-     * @return bool|string
-     */
-    private function decryptData($encrypted)
+    private function decryptData($encrypted): bool|string
     {
         $key     = base64_decode($this->encodedKey);
         $decoded = base64_decode($encrypted);
@@ -233,10 +223,7 @@ class Institution implements JsonSerializable
         return $this;
     }
 
-    /**
-     * @return Collection|Course[]
-     */
-    public function getCourses(): Collection
+    public function getCourses(): Collection|Array
     {
         return $this->courses;
     }
@@ -264,10 +251,7 @@ class Institution implements JsonSerializable
         return $this;
     }
 
-    /**
-     * @return Collection|User[]
-     */
-    public function getUsers(): Collection
+    public function getUsers(): Collection|Array
     {
         return $this->users;
     }
