@@ -26,11 +26,18 @@ services:
   php:
     build:
       context: .
+      args:
+        - LIBRE_INSTALL=TRUE
       dockerfile: Dockerfile
     volumes:
       - .:/var/www/html
+      - .env.local.example:/var/www/html/.env.local
     ports:
-      - "8000:8000"
+      - "80:80"
+      - "443:443"
+    environment:
+      - ENVIRONMENT_TYPE=local
+
 volumes:
   web:
   dbdata:
