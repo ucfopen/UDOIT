@@ -28,11 +28,9 @@ class UserSessionRepository extends ServiceEntityRepository
             ->getResult();
     }
 
-    // /**
-    //  * @return UserSession[] Returns an array of UserSession objects
-    //  */
+    // Returns an array of UserSession objects
     /*
-    public function findByExampleField($value)
+    public function findByExampleField($value): array
     {
         return $this->createQueryBuilder('u')
             ->andWhere('u.exampleField = :val')

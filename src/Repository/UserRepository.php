@@ -25,11 +25,9 @@ class UserRepository extends ServiceEntityRepository
     //         ->setParameter('apiKey', $apiKey);
     // }
 
-    // /**
-    //  * @return User[] Returns an array of User objects
-    //  */
+    // Returns an array of User objects
     /*
-    public function findByExampleField($value)
+    public function findByExampleField($value): array
     {
         return $this->createQueryBuilder('u')
             ->andWhere('u.exampleField = :val')

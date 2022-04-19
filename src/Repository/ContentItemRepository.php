@@ -89,11 +89,9 @@ class ContentItemRepository extends ServiceEntityRepository
             ->getResult();
     }
 
-    // /**
-    //  * @return ContentItem[] Returns an array of ContentItem objects
-    //  */
+    // Returns an array of ContentItem objects
     /*
-    public function findByExampleField($value)
+    public function findByExampleField($value): array
     {
         return $this->createQueryBuilder('c')
             ->andWhere('c.exampleField = :val')

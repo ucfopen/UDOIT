@@ -54,9 +54,6 @@ class LmsFetchService {
      * 3) Create new report
      * 4) Link unchanged issues to new report
      * 5) Process updated content
-     *
-     * @param Course $course
-     * @param User $user
      */
     public function refreshLmsContent(Course $course, User $user)
     {
@@ -179,11 +176,8 @@ class LmsFetchService {
         return $report;
     }
 
-    /**
-     * Performs PHPAlly scan on each Content Item.
-     * @param array $contentItems
-     * @param Report $report
-     */
+    
+    // Performs PHPAlly scan on each Content Item.
     private function scanContentItems(array $contentItems)
     {
         // Scan each update content item for issues
