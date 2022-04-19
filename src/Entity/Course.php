@@ -231,7 +231,7 @@ class Course implements \JsonSerializable
         return $this;
     }
 
-    public function getReports(): Collection
+    public function getReports(): Collection|Array
     {
         return $this->reports;
     }
