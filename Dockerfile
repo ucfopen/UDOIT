@@ -20,14 +20,6 @@ RUN apt-get update && apt-get install -y \
     && docker-php-ext-install pdo_mysql \
     && docker-php-ext-install pdo_pgsql
 
-#Install AWS CLI v2
-RUN if [ "$ENVIRONMENT_TYPE" != "local" ] ;then  \
-        curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip" \
-        && unzip awscliv2.zip \
-        && ./aws/install \
-        && rm -r aws* \
-    ;fi
-
 #Install Libre Office
 RUN if [ "$LIBRE_INSTALL" = "TRUE" ];then apt install -y libreoffice ;else echo "Libre Office was not installed"; fi
 
