@@ -22,7 +22,7 @@ class CanvasApi {
     }
 
     // API call GET
-    public function apiGet($url, $options = [], $perPage = 100, LmsResponse $lmsResponse = null): LmsResponse
+    public function apiGet(string $url, array $options = [], int $perPage = 100, LmsResponse $lmsResponse = null): LmsResponse
     {
         $links = [];
 
@@ -106,7 +106,7 @@ class CanvasApi {
     }
 
     // Posts a file to Canvas
-    public function apiFilePost($url, $options, $filepath): LmsResponse
+    public function apiFilePost(string $url, array $options, string $filepath): LmsResponse
     {
         $fileResponse = $this->apiGet($url);
         $file = $fileResponse->getContent();
