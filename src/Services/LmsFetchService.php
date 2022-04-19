@@ -100,27 +100,16 @@ class LmsFetchService {
         $this->doctrine->getManager()->flush();
     }
 
-    /**
-     * Refresh content item data from the LMS
-     *
-     * @param ContentItem $contentItem
-     * @return void
-     */
-    // public function refreshContentItemFromLms(ContentItem $contentItem)
+    // Refresh content item data from the LMS
+    // public function refreshContentItemFromLms(ContentItem $contentItem): void
     // {
     //     $lms = $this->lmsApi->getLms();
     //     $lms->updateContentItem($contentItem);
     //     $this->doctrine->getManager()->flush();
     // }
 
-    /**
-     * Update report, or create new one for a new day
-     *
-     * @param Course $course
-     * @param User $user
-     * @return Report
-     */
-    public function updateReport(Course $course, User $user)
+    // Update report, or create new one for a new day
+    public function updateReport(Course $course, User $user): Report
     {
         $contentFixed = $contentResolved = $filesReviewed = $errors = $suggestions = 0;
         $scanRules = [];
