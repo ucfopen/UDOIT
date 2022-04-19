@@ -72,16 +72,8 @@ class LmsApiService {
         return false;
     }
 
-    /**
-     * Adds Course Refresh request to the Message Queue
-     *
-     * @param Course[] $courses
-     * @param User $user
-     * @param bool $isPriority
-     *
-     * @return int
-     */
-    public function addCoursesToBeScanned($courses, User $user, $isPriority = false)
+    // Adds Course Refresh request to the Message Queue
+    public function addCoursesToBeScanned(array $courses, User $user, bool $isPriority = false): int
     {
         // Add courses to the Messenger Queue.
         foreach ($courses as $course) {
