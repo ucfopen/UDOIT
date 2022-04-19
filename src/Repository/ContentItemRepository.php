@@ -58,13 +58,8 @@ class ContentItemRepository extends ServiceEntityRepository
             ->getResult();
     }
 
-    /**
-     * Get all content items that haven't changed since the course was last updated.
-     *
-     * @param Course $course
-     * @return \App\Entity\ContentItem[]
-     */
-    public function getUnchangedContentItems(Course $course)
+    // Get all content items that haven't changed since the course was last updated.
+    public function getUnchangedContentItems(Course $course): Array
     {
         $lastUpdated = $course->getLastUpdated();
         if (!$lastUpdated) {
@@ -81,14 +76,8 @@ class ContentItemRepository extends ServiceEntityRepository
             ->getResult();
     }
 
-    /**
-     * Find content items by content type
-     *
-     * @param Course $course
-     * @param [type] $contentType
-     * @return \App\Entity\ContentItem[]
-     */
-    public function findByContentType(Course $course, $contentType)
+    // Find content items by content type
+    public function findByContentType(Course $course, $contentType): Array
     {
         return $this->createQueryBuilder('c')
             ->andWhere('c.course = :course')
