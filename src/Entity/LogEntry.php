@@ -17,12 +17,12 @@ class LogEntry implements \JsonSerializable
     private $id;
 
     /**
-     * @ORM\ManyToOne(targetEntity="App\Entity\User", inversedBy="logEntries")
+     * @ORM\ManyToOne(targetEntity="App\Entity\User")
      */
     private $user;
 
     /**
-     * @ORM\ManyToOne(targetEntity="App\Entity\Course", inversedBy="logEntries")
+     * @ORM\ManyToOne(targetEntity="App\Entity\Course")
      */
     private $course;
 
