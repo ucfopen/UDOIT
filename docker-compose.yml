@@ -26,8 +26,8 @@ services:
   php:
     build:
       context: .
-      args:
-        - LIBRE_INSTALL=TRUE
+      # args:
+      #   - LIBRE_INSTALL=TRUE
       dockerfile: Dockerfile
     volumes:
       - .:/var/www/html

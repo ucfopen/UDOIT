@@ -7,6 +7,7 @@ RUN apt-get update && apt-get install -y \
         libfreetype6-dev \
         libjpeg62-turbo-dev \
         libpng-dev \
+        libpq-dev \
         unzip \
         wget \
         supervisor \
@@ -18,6 +19,7 @@ RUN apt-get update && apt-get install -y \
     && docker-php-ext-configure gd  \
     && docker-php-ext-install -j$(nproc) gd \
     && docker-php-ext-install pdo_mysql \
+    && docker-php-ext-configure pgsql -with-pgsql=/usr/local/pgsql \
     && docker-php-ext-install pdo_pgsql
 
 #Install Libre Office
@@ -41,8 +43,6 @@ RUN mkdir -p /var/www/html \
 
 #install composer
 COPY --from=composer:latest /usr/bin/composer /usr/local/bin/composer
-
-COPY deploy/supervisor/messenger-worker.conf /etc/supervisor/conf.d/messenger-worker.conf
 
 #Install symfony
 RUN wget https://get.symfony.com/cli/installer -O - | bash && \
