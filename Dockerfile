@@ -26,6 +26,7 @@ FROM php:8.1-fpm as final
 
 RUN docker-php-ext-install pdo_mysql
 COPY --from=node-builder /app/node_modules/ ./node_modules/
+COPY --from=node-builder /app/public/ ./public/
 COPY --from=php-builder /app/vendor/ ./vendor/
 
 RUN chown -R www-data:www-data /tmp
