@@ -84,40 +84,40 @@ class Contrast {
     var Min = 0;
     var Max = 0;
     var H, S, L
-    r = (eval(r) / 51) * .2;
-    g = (eval(g) / 51) * .2;
-    b = (eval(b) / 51) * .2;
+    r = (parseInt(r) / 51) * .2;
+    g = (parseInt(g) / 51) * .2;
+    b = (parseInt(b) / 51) * .2;
 
-    if (eval(r) >= eval(g))
-      Max = eval(r);
+    if (r >= g)
+      Max = r;
     else
-      Max = eval(g);
-    if (eval(b) > eval(Max))
-      Max = eval(b);
+      Max = g;
+    if (b > Max)
+      Max = b;
 
-    if (eval(r) <= eval(g))
-      Min = eval(r);
+    if (r <= g)
+      Min = r;
     else
-      Min = eval(g);
-    if (eval(b) < eval(Min))
-      Min = eval(b);
+      Min = g;
+    if (b < Min)
+      Min = b;
 
-    L = (eval(Max) + eval(Min)) / 2;
-    if (eval(Max) == eval(Min)) {
+    L = (Max + Min) / 2;
+    if (Max == Min) {
       S = 0;
       H = 0;
     }
     else {
       if (L < .5)
-        S = (eval(Max) - eval(Min)) / (eval(Max) + eval(Min));
+        S = (Max - Min) / (Max + Min);
       if (L >= .5)
-        S = (eval(Max) - eval(Min)) / (2 - eval(Max) - eval(Min));
+        S = (Max - Min) / (2 - Max - Min);
       if (r == Max)
-        H = (eval(g) - eval(b)) / (eval(Max) - eval(Min));
+        H = (g - b) / (Max - Min);
       if (g == Max)
-        H = 2 + ((eval(b) - eval(r)) / (eval(Max) - eval(Min)));
+        H = 2 + ((b - r) / (Max - Min));
       if (b == Max)
-        H = 4 + ((eval(r) - eval(g)) / (eval(Max) - eval(Min)));
+        H = 4 + ((r - g) / (Max - Min));
     }
     H = Math.round(H * 60);
     if (H < 0) H += 360;
