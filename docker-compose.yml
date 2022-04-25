@@ -2,14 +2,14 @@ version: '3.3'
 
 services:
   db:
-    image: mysql:latest
+    image: mariadb:latest
     volumes:
       - ./database/data:/var/lib/mysql
     environment:
-      MYSQL_ROOT_PASSWORD: root
-      MYSQL_DATABASE: udoit3
-      MYSQL_USER: udoit
-      MYSQL_PASSWORD: udoit
+      MARIADB_ROOT_PASSWORD: root
+      MARIADB_DATABASE: udoit3
+      MARIADB_USER: udoit
+      MARIADB_PASSWORD: udoit
     ports:
       - "3306:3306"
   # Uncomment this block and comment the next db block
