@@ -1,5 +1,5 @@
 import React from 'react';
-import { Checkbox, CheckboxGroup } from '@instructure/ui-checkbox'
+import { Checkbox } from '@instructure/ui-checkbox'
 import { SimpleSelect } from '@instructure/ui-simple-select'
 import { CloseButton } from '@instructure/ui-buttons'
 import { Flex } from '@instructure/ui-flex'
