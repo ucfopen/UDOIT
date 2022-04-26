@@ -312,10 +312,7 @@ class AdminController extends ApiController
 
     /** PROTECTED FUNCTIONS **/
 
-    /**
-     * @return array
-     */
-    protected function getSettings()
+    protected function getSettings(): array
     {
         $lms = $this->lmsApi->getLms();
 

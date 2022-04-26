@@ -326,13 +326,9 @@ class LtiController extends AbstractController
         return $lms->getLtiAuthUrl($params);
     }
 
-    /**
-     * Get institution before the user is authenticated.
-     * Once the user is authenticated we should use $user->getInstitution().
-     *
-     * @return \App\Entity\Institution
-     */
-    protected function getInstitutionFromSession()
+    // Get institution before the user is authenticated.
+    // Once the user is authenticated we should use $user->getInstitution().
+    protected function getInstitutionFromSession(): \App\Entity\Institution
     {
         $institution = null;
 
@@ -403,12 +399,8 @@ class LtiController extends AbstractController
         return $user;
     }
 
-    /**
-     * Returns User object, creates a new user if doesn't exist.
-     *
-     * @return User
-     */
-    protected function saveUserToSession()
+    // Returns User object, creates a new user if doesn't exist.
+    protected function saveUserToSession(): void
     {
         $user = null;
 

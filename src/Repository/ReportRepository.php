@@ -28,11 +28,9 @@ class ReportRepository extends ServiceEntityRepository
             ->getResult();
     }
 
-    // /**
-    //  * @return Report[] Returns an array of Report objects
-    //  */
+    // Returns an array of Report objects
     /*
-    public function findByExampleField($value)
+    public function findByExampleField($value): array
     {
         return $this->createQueryBuilder('r')
             ->andWhere('r.exampleField = :val')

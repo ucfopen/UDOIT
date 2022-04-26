@@ -84,10 +84,6 @@ class Issue implements \JsonSerializable
 
     // Public Methods
 
-    /**
-     * Serializes Issue into JSON.
-     * @return array
-     */
     public function jsonSerialize(): array
     {
         return [

@@ -164,15 +164,8 @@ class CanvasLms implements LmsInterface {
         $this->entityManager->flush();
     }
 
-    /**
-     * Get content from Canvas and update content items
-     *
-     * @param Course $course
-     * @param User $user
-     *
-     * @return ContentItem[]
-     */
-    public function updateCourseContent(Course $course, User $user)
+    // Get content from Canvas and update content items
+    public function updateCourseContent(Course $course, User $user): array
     {
         $content = $contentItems = [];
         $urls = $this->getCourseContentUrls($course->getLmsCourseId());

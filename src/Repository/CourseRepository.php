@@ -20,10 +20,8 @@ class CourseRepository extends ServiceEntityRepository
         parent::__construct($registry, Course::class);
     }
 
-    /**
-     * @return Course[] Returns an array of Course objects
-     */
-    public function findCoursesNeedingUpdate($maxAge = '1D')
+    // Returns an array of Course objects
+    public function findCoursesNeedingUpdate($maxAge = '1D'): array
     {
         $now = new \DateTime();
         $expiryDate = $now->sub(new \DateInterval('P' . $maxAge));
@@ -39,12 +37,9 @@ class CourseRepository extends ServiceEntityRepository
         ;
     }
 
-    /**
-     * Gets list of all courses in an institution.
-     * @param $institutionId
-     * @return int|mixed|string
-     */
-    public function findCoursesInInstitution($institutionId) {
+    // Gets list of all courses in an institution.
+    public function findCoursesInInstitution($institutionId): mixed
+    {
         return $this->createQueryBuilder('c')
             ->where('c.institution = :institutionId')
             ->orderBy('c.title', 'ASC')
