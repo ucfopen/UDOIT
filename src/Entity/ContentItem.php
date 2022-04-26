@@ -86,7 +86,6 @@ class ContentItem implements \JsonSerializable
 
     // Public Methods
 
-    // Serializes ContentItem into JSON.
     public function jsonSerialize(): array
     {
         return [

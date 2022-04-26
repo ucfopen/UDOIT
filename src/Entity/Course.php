@@ -192,7 +192,7 @@ class Course implements \JsonSerializable
         return $this;
     }
 
-    public function getContentItems(): Array
+    public function getContentItems(): array
     {
         $contentItems = [];
 
@@ -231,7 +231,7 @@ class Course implements \JsonSerializable
         return $this;
     }
 
-    public function getReports(): Collection|Array
+    public function getReports(): Collection | array
     {
         return $this->reports;
     }
@@ -312,7 +312,7 @@ class Course implements \JsonSerializable
         return $report;
     }
 
-    public function getFileItems($activeOnly = true): Array
+    public function getFileItems($activeOnly = true): array
     {
         $files = [];
 

@@ -270,7 +270,7 @@ class User implements UserInterface, JsonSerializable
         return base64_encode($nonce . $encrypted_data);
     }
 
-    private function decryptData($encrypted): bool|string
+    private function decryptData($encrypted): bool | string
     {
         $key     = base64_decode($this->encodedKey);
         $decoded = base64_decode($encrypted);
@@ -280,7 +280,7 @@ class User implements UserInterface, JsonSerializable
         return sodium_crypto_secretbox_open($encrypted_text, $nonce, $key);
     }
 
-    public function getReports(): Collection|Array
+    public function getReports(): Collection | array
     {
         return $this->reports;
     }

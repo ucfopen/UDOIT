@@ -235,7 +235,6 @@ class FileItem implements \JsonSerializable
         return $this;
     }
 
-    // Serializes ContentItem into JSON.
     public function jsonSerialize(): array
     {
         return [

@@ -59,7 +59,7 @@ class ContentItemRepository extends ServiceEntityRepository
     }
 
     // Get all content items that haven't changed since the course was last updated.
-    public function getUnchangedContentItems(Course $course): Array
+    public function getUnchangedContentItems(Course $course): array
     {
         $lastUpdated = $course->getLastUpdated();
         if (!$lastUpdated) {
@@ -77,7 +77,7 @@ class ContentItemRepository extends ServiceEntityRepository
     }
 
     // Find content items by content type
-    public function findByContentType(Course $course, $contentType): Array
+    public function findByContentType(Course $course, $contentType): array
     {
         return $this->createQueryBuilder('c')
             ->andWhere('c.course = :course')

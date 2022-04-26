@@ -90,7 +90,7 @@ class DashboardController extends AbstractController
         ]);
     }
 
-    protected function getSettings(Course $course): Array
+    protected function getSettings(Course $course): array
     {
         /** @var User $user */
         $user = $this->getUser();

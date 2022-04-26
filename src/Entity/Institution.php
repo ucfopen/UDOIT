@@ -110,7 +110,7 @@ class Institution implements JsonSerializable
         return base64_encode($nonce . $encrypted_data);
     }
 
-    private function decryptData($encrypted): bool|string
+    private function decryptData($encrypted): bool | string
     {
         $key     = base64_decode($this->encodedKey);
         $decoded = base64_decode($encrypted);
@@ -223,7 +223,7 @@ class Institution implements JsonSerializable
         return $this;
     }
 
-    public function getCourses(): Collection|Array
+    public function getCourses(): Collection | array
     {
         return $this->courses;
     }
@@ -251,7 +251,7 @@ class Institution implements JsonSerializable
         return $this;
     }
 
-    public function getUsers(): Collection|Array
+    public function getUsers(): Collection | array
     {
         return $this->users;
     }

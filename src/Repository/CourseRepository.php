@@ -21,7 +21,7 @@ class CourseRepository extends ServiceEntityRepository
     }
 
     // Returns an array of Course objects
-    public function findCoursesNeedingUpdate($maxAge = '1D'): Array
+    public function findCoursesNeedingUpdate($maxAge = '1D'): array
     {
         $now = new \DateTime();
         $expiryDate = $now->sub(new \DateInterval('P' . $maxAge));
