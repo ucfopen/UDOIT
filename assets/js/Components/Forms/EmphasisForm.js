@@ -5,7 +5,7 @@ import { View } from '@instructure/ui-view'
 import { Checkbox } from '@instructure/ui-checkbox'
 import { IconCheckMarkLine } from '@instructure/ui-icons'
 import Html from '../../Services/Html'
-import Contrast from '../../Services/Contrast'
+import * as Contrast from '../../Services/Contrast'
 
 export default class EmphasisForm extends React.Component {
   constructor(props) {
