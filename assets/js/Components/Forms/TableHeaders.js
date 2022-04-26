@@ -5,7 +5,7 @@ import { Spinner } from '@instructure/ui-spinner'
 import { RadioInput } from '@instructure/ui-radio-input'
 import { RadioInputGroup } from '@instructure/ui-radio-input'
 import { IconCheckMarkLine } from '@instructure/ui-icons'
-import Html from '../../Services/Html';
+import * as Html from '../../Services/Html';
 
 
 export default class TableHeaders extends React.Component {

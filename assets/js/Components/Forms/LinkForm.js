@@ -5,7 +5,7 @@ import { Button } from '@instructure/ui-buttons'
 import { IconCheckMarkLine } from '@instructure/ui-icons'
 import { Checkbox } from '@instructure/ui-checkbox'
 import { Spinner } from '@instructure/ui-spinner'
-import Html from '../../Services/Html'
+import * as Html from '../../Services/Html'
 
 
 export default class LinkForm extends React.Component {

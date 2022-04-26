@@ -20,7 +20,7 @@ import { ToggleDetails } from '@instructure/ui-toggle-details'
 
 import Ufixit from '../Services/Ufixit'
 import Api from '../Services/Api'
-import Html from '../Services/Html'
+import * as Html from '../Services/Html'
 
 import Pretty from 'pretty'
 
