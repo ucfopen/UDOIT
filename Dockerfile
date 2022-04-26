@@ -11,6 +11,7 @@ RUN yarn install --immutable
 
 COPY webpack.config.js /app
 COPY assets/ /app/assets/
+COPY public/ /app/public/
 RUN yarn build
 
 FROM php:8.1-fpm as php-builder
