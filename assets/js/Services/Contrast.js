@@ -16,12 +16,12 @@ class Contrast {
 
   hexToRgb(hex) {
     // Expand shorthand form (e.g. "03F") to full form (e.g. "0033FF")
-    var shorthandRegex = /^#?([a-f\d])([a-f\d])([a-f\d])$/i;
+    const shorthandRegex = /^#?([a-f\d])([a-f\d])([a-f\d])$/i;
     hex = hex.replace(shorthandRegex, function (m, r, g, b) {
       return r + r + g + g + b + b;
     });
 
-    var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+    const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
     return result ? {
       r: parseInt(result[1], 16),
       g: parseInt(result[2], 16),
@@ -30,9 +30,9 @@ class Contrast {
   }
 
   changehue(hex, dir) {
-    var color = hex.substring(1)
-    var update
-    var R, G, B
+    const color = hex.substring(1)
+    let update
+    let R, G, B
 
     if (color.length == 3) {
       R = color.substring(0, 1) + color.substring(0, 1);
@@ -53,8 +53,8 @@ class Contrast {
     G = this.getRGB(G);
     B = this.getRGB(B);
 
-    var HSL = this.RGBtoHSL(R, G, B);
-    var lightness = HSL[2];
+    const HSL = this.RGBtoHSL(R, G, B);
+    let lightness = HSL[2];
     if (update == true) {
       lightness = (dir == "lighten") ? lightness + 6.25 : lightness - 6.25;
       if (lightness > 100) {
@@ -63,7 +63,7 @@ class Contrast {
       if (lightness < 0) {
         lightness = 0;
       }
-      var RGB = this.hslToRgb(HSL[0], HSL[1], lightness);
+      const RGB = this.hslToRgb(HSL[0], HSL[1], lightness);
       R = RGB[0];
       G = RGB[1];
       B = RGB[2];
@@ -81,9 +81,9 @@ class Contrast {
   }
 
   RGBtoHSL(r, g, b) {
-    var Min = 0;
-    var Max = 0;
-    var H, S, L
+    let Min = 0;
+    let Max = 0;
+    let H, S, L
     r = (parseInt(r) / 51) * .2;
     g = (parseInt(g) / 51) * .2;
     b = (parseInt(b) / 51) * .2;
@@ -128,8 +128,8 @@ class Contrast {
   }
 
   hslToRgb(H, S, L) {
-    var p1, p2;
-    var R, G, B;
+    let p1, p2;
+    let R, G, B;
     L /= 100;
     S /= 100;
     if (L <= 0.5) p2 = L * (1 + S);
@@ -157,10 +157,10 @@ class Contrast {
 
   getRGB(color) {
     try {
-      var color = parseInt(color, 16);
+      color = parseInt(color, 16);
     }
     catch (err) {
-      var color = false;
+      color = false;
     }
     return color;
   }
@@ -175,9 +175,9 @@ class Contrast {
   }
 
   contrastRatio(back, fore) {
-    var l1 = this.relativeLuminance(this.parseRgb(back));
-    var l2 = this.relativeLuminance(this.parseRgb(fore));
-    var ratio = (Math.max(l1, l2) + 0.05) / (Math.min(l1, l2) + 0.05);
+    const l1 = this.relativeLuminance(this.parseRgb(back));
+    const l2 = this.relativeLuminance(this.parseRgb(fore));
+    let ratio = (Math.max(l1, l2) + 0.05) / (Math.min(l1, l2) + 0.05);
 
     ratio = Math.round((ratio * 100)) / 100;
 
@@ -185,9 +185,9 @@ class Contrast {
   }
 
   relativeLuminance(c) {
-    var lum = [];
-    for (var i = 0; i < 3; i++) {
-      var v = c[i] / 255;
+    const lum = [];
+    for (let i = 0; i < 3; i++) {
+      const v = c[i] / 255;
       lum.push(v < 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4));
     }
     return 0.2126 * lum[0] + 0.7152 * lum[1] + 0.0722 * lum[2];
@@ -197,11 +197,11 @@ class Contrast {
     color = this.convertShortenedHex(color)
     color = color.substring(1);
 
-    var hex = parseInt(color.toUpperCase(), 16);
+    const hex = parseInt(color.toUpperCase(), 16);
 
-    var r = hex >> 16;
-    var g = hex >> 8 & 0xFF;
-    var b = hex & 0xFF;
+    const r = hex >> 16;
+    const g = hex >> 8 & 0xFF;
+    const b = hex & 0xFF;
     return [r, g, b];
   }
 
@@ -227,7 +227,7 @@ class Contrast {
 
   // Accepts HSL, RGB, Hex, color name (eg. red, black) and returns the hex value
   standardizeColor(color){
-    var element = document.createElement("canvas").getContext("2d");
+    const element = document.createElement("canvas").getContext("2d");
     element.fillStyle = color;
     
     return element.fillStyle;
