@@ -184,7 +184,7 @@ class ContentItem implements \JsonSerializable
         return $this;
     }
 
-    public function getIssues(): Collection|Array
+    public function getIssues(): Collection | array
     {
         return $this->issues;
     }
