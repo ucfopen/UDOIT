@@ -39,7 +39,7 @@ export function setInnerText(element, newText) {
 
   console.log(children)
 
-  children.forEach(function(node, index) {
+  children.forEach(node => {
     if(node.nodeType === Node.TEXT_NODE) {
       if(textNodeFound != true) {
         node.nodeValue = newText
@@ -242,7 +242,7 @@ export function prepareLink(element) {
 
   let children = Array.from(element.childNodes)
 
-  children.forEach(function(child) {
+  children.forEach(child => {
     if (child.nodeName === 'A') {
       child = setAttribute(child, "target", "_blank")
     }
