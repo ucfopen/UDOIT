@@ -112,7 +112,7 @@ class AuthController extends AbstractController
     }
 
     // Finish authorization process by requesting a token from LMS
-    protected function requestApiKeyFromLms(): string
+    protected function requestApiKeyFromLms(): mixed
     {
         /** @var \App\Entity\User */
         $user = $this->getUser();
