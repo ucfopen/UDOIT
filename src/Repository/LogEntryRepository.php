@@ -19,11 +19,9 @@ class LogEntryRepository extends ServiceEntityRepository
         parent::__construct($registry, LogEntry::class);
     }
 
-    // /**
-    //  * @return LogEntry[] Returns an array of LogEntry objects
-    //  */
+    // Returns an array of LogEntry objects
     /*
-    public function findByExampleField($value)
+    public function findByExampleField($value): array
     {
         return $this->createQueryBuilder('l')
             ->andWhere('l.exampleField = :val')

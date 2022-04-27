@@ -39,11 +39,9 @@ class FileItemRepository extends ServiceEntityRepository
         return $query->execute();
     }
 
-    // /**
-    //  * @return FileItem[] Returns an array of FileItem objects
-    //  */
+    //  Returns an array of FileItem objects
     /*
-    public function findByExampleField($value)
+    public function findByExampleField($value): array
     {
         return $this->createQueryBuilder('f')
             ->andWhere('f.exampleField = :val')

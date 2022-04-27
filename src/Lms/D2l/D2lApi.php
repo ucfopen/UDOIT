@@ -21,16 +21,8 @@ class D2lApi {
         $this->baseUrl = $baseUrl;
     }
 
-    /**
-     * API call GET
-     *
-     * @param string $url
-     * @param array $options
-     * @param integer $perPage
-     * 
-     * @return LmsResponse
-     */
-    public function apiGet($url, $options = [], $lmsResponse = null)
+    // API call GET
+    public function apiGet(string $url, array $options = [], $lmsResponse = null): LmsResponse
     {      
         if (!$lmsResponse) {
             $lmsResponse = new LmsResponse();
@@ -82,16 +74,8 @@ class D2lApi {
     //     return $lmsResponse;
     // }
 
-    /**
-     * Posts a file to D2L
-     *
-     * @param string $url
-     * @param array $options
-     * @param string $filepath
-     * 
-     * @return LmsResponse
-     */
-    public function apiFilePut($url, $filepath)
+    // Posts a file to D2L
+    public function apiFilePut(string $url, string $filepath): LmsResponse
     {
         $formFields = [];
 
