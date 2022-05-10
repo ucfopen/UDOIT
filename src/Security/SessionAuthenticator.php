@@ -4,76 +4,86 @@ namespace App\Security;
 
 use App\Entity\User; // your user entity
 use App\Services\SessionService;
+use App\Services\UtilityService;
 use Doctrine\ORM\EntityManagerInterface;
-use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Exception\AuthenticationException;
+use Symfony\Component\Security\Core\Exception\CustomUserMessageAuthenticationException;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Security\Core\User\UserProviderInterface;
-use Symfony\Component\Security\Guard\AbstractGuardAuthenticator;
+use Symfony\Component\Security\Http\Authenticator\AbstractAuthenticator;
+use Symfony\Component\Security\Http\Authenticator\Passport\Badge\UserBadge;
+use Symfony\Component\Security\Http\Authenticator\Passport\Passport;
+use Symfony\Component\Security\Http\Authenticator\Passport\PassportInterface;
+use Symfony\Component\Security\Http\Authenticator\Passport\SelfValidatingPassport;
 
-class SessionAuthenticator extends AbstractGuardAuthenticator
+class SessionAuthenticator extends AbstractAuthenticator
 {
+    private $request;
+    private $router;
     private $em;
     private $sessionService;
 
     public function __construct(
-        RequestStack $requestStack, 
-        EntityManagerInterface $em, 
+        RequestStack $requestStack,
+        EntityManagerInterface $em,
+        UtilityService $util,
         SessionService $sessionService)
     {
-        $requestStack->getCurrentRequest();
+        $this->request = $requestStack->getCurrentRequest();
+        $this->util = $util;
         $this->em = $em;
         $this->sessionService = $sessionService;
     }
 
-    public function supports(Request $request)
+    public function supports(Request $request): ?bool
     {
         return $this->sessionService->hasSession();
     }
 
-    public function getCredentials(Request $request)
-    {
-        $session = $this->sessionService->getSession();
 
-        return $session->get('userId');
-    }
 
-    public function checkCredentials($credentials, UserInterface $user) 
-    {
-        return is_numeric($credentials);
-    }
-
-    public function getUser($userId, UserProviderInterface $userProvider)
-    {
-        return $this->em->getRepository(User::class)->find($userId);
-    }
-
-    public function onAuthenticationSuccess(Request $request, TokenInterface $token, $providerKey)
+    public function onAuthenticationSuccess(Request $request, TokenInterface $token, $providerKey): ?Response
     {
         return null;
     }
 
-    public function onAuthenticationFailure(Request $request, AuthenticationException $exception) 
+    public function onAuthenticationFailure(Request $request, AuthenticationException $exception): ?Response
     {
         return null;
     }
 
-    public function start(Request $request, AuthenticationException $exception = null) 
+    public function start(Request $request, AuthenticationException $exception = null)
     {
-        $data = [
-            // you might translate this message
-            'message' => 'Session authentication failed.'
-        ];
-
-        return new JsonResponse($data, Response::HTTP_UNAUTHORIZED);
+        return new Response('authentication failed');
     }
 
     public function supportsRememberMe()
     {
 
     }
+
+    public function authenticate(Request $request): Passport
+    {
+        $session = $this->sessionService->getSession();
+        $userId = $session->get('userId');
+
+        if (!$userId) {
+            throw new CustomUserMessageAuthenticationException('No user found.');
+        }
+        $user = $this->em->getRepository(User::class)->find($userId);
+
+        if (!$user) {
+            throw new CustomUserMessageAuthenticationException('No user found.');
+        }
+
+        $username = $user->getUsername();
+
+        return new SelfValidatingPassport(new UserBadge($username));
+    }
 }
+
