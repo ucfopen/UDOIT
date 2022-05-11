@@ -5,7 +5,7 @@ import { TextInput } from '@instructure/ui-text-input'
 import { Button } from '@instructure/ui-buttons'
 import { Spinner } from '@instructure/ui-spinner'
 import { IconCheckMarkLine } from '@instructure/ui-icons'
-import Html from '../../Services/Html';
+import * as Html from '../../Services/Html';
 
 
 export default class HeadingEmptyForm extends React.Component {
