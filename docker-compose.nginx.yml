@@ -1,0 +1,78 @@
+version: "3.9"
+
+services:
+  db:
+    image: mysql:latest
+    platform: linux/amd64
+    volumes:
+      - dbdata:/var/lib/mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: udoit3
+      MYSQL_USER: udoit
+      MYSQL_PASSWORD: udoit
+    ports:
+      - "3306:3306"
+  # Uncomment this block and comment the next db block
+  # to use Postgres instead of MySQL
+  # db:
+  #   image: postgres:alpine
+  #   restart: always
+  #   ports:
+  #     - "5432:5432"
+  #   environment:
+  #     POSTGRES_USER: udoit
+  #     POSTGRES_PASSWORD: udoit
+  #     POSTGRES_DB: udoit3
+  web:
+      image: nginx:latest
+      ports:
+          - "8000:80"
+      volumes:
+          - .:/var/www/html
+          - ./deploy/default.conf:/etc/nginx/conf.d/default.conf
+      links:
+          - php-fpm
+      env_file:
+        - .env
+        - .env.local
+  php-fpm:
+      build:
+        context: .
+        dockerfile: Dockerfile.php.pdo.mysql
+      volumes:
+          - ./:/var/www/html
+      env_file:
+        - .env
+        - .env.local
+  composer:
+      image: composer
+      volumes:
+          - ./:/app
+      env_file:
+        - .env
+        - .env.local
+      # command: "composer install --no-dev --no-interaction --no-progress --optimize-autoloader --ignore-platform-req=ext-gd"
+      command: >
+        bash -c '
+        apk add zlib-dev libpng-dev &&
+        docker-php-ext-install gd zlib &&
+        install --no-dev --no-interaction --no-progress --optimize-autoloader'
+  yarn:
+      image: node:16
+      volumes:
+          - ./:/app
+      env_file:
+        - .env
+        - .env.local
+      # command: "composer install --no-dev --no-interaction --no-progress --optimize-autoloader --ignore-platform-req=ext-gd"
+      command: >
+        bash -c '
+        cd /app &&
+        yarn install && 
+        yarn build'
+
+volumes:
+  web:
+  dbdata:
+
