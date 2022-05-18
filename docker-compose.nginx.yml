@@ -46,18 +46,15 @@ services:
         - .env
         - .env.local
   composer:
-      image: composer
+      build:
+        context: .
+        dockerfile: Dockerfile.composer
+      command: "composer install --no-dev --no-interaction --no-progress --optimize-autoloader"
       volumes:
           - ./:/app
       env_file:
         - .env
         - .env.local
-      # command: "composer install --no-dev --no-interaction --no-progress --optimize-autoloader --ignore-platform-req=ext-gd"
-      command: >
-        bash -c '
-        apk add zlib-dev libpng-dev &&
-        docker-php-ext-install gd zlib &&
-        install --no-dev --no-interaction --no-progress --optimize-autoloader'
   yarn:
       image: node:16
       volumes:
@@ -65,7 +62,6 @@ services:
       env_file:
         - .env
         - .env.local
-      # command: "composer install --no-dev --no-interaction --no-progress --optimize-autoloader --ignore-platform-req=ext-gd"
       command: >
         bash -c '
         cd /app &&
