@@ -39,7 +39,7 @@ jobs:
           docker build . -t udoit:latest -f nginx_build/Dockerfile.build
           docker tag udoit:latest ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
 
-          docker push ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          docker push ${{ env.REGISTRY }}/udoit:latest
 
 
       # - name: Build and push Docker image
