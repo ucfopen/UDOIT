@@ -38,7 +38,7 @@ services:
         - .env.local
   php-fpm:
       build:
-        context: .
+        context: ./nginx_build
         dockerfile: Dockerfile.php.pdo.mysql
       volumes:
           - ./:/var/www/html
@@ -47,7 +47,7 @@ services:
         - .env.local
   composer:
       build:
-        context: .
+        context: ./nginx_build
         dockerfile: Dockerfile.composer
       command: "composer install --no-dev --no-interaction --no-progress --optimize-autoloader"
       volumes:
