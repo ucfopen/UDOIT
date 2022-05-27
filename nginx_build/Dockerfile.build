@@ -30,8 +30,8 @@ COPY ./nginx_build/entrypoint.sh /etc/entrypoint.sh
 RUN chmod +x /etc/entrypoint.sh
 
 COPY --chown=www-data:www-data . /var/www/html
-
+RUN chown -R www-data:www-data /var/lib/nginx
 WORKDIR /var/www/html
-USER www-data
+
 EXPOSE 80 443
 ENTRYPOINT ["/etc/entrypoint.sh"]
