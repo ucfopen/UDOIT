@@ -30,13 +30,15 @@ services:
           - "8000:80"
       volumes:
           - .:/var/www/html
-          - ./deploy/default.conf:/etc/nginx/conf.d/default.conf
+          - ./nginx_build/default.conf:/etc/nginx/conf.d/default.conf
+          # - ./nginx_build/nginx.conf:/etc/nginx/sites-enabled/default.conf
+
       links:
-          - php-fpm
+          - php
       env_file:
         - .env
         - .env.local
-  php-fpm:
+  php:
       build:
         context: ./nginx_build
         dockerfile: Dockerfile.php.pdo.mysql
