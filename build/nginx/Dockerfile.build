@@ -23,10 +23,9 @@ RUN { \
     } > /usr/local/etc/php/conf.d/php-opocache-cfg.ini
 
 
-# COPY ./nginx_build/default.aws.conf /etc/nginx/conf.d/default.conf
-COPY ./nginx_build/nginx.conf /etc/nginx/sites-enabled/default
+COPY ./build/nginx/nginx.conf /etc/nginx/sites-enabled/default
 
-COPY ./nginx_build/entrypoint.sh /etc/entrypoint.sh
+COPY ./build/nginx/entrypoint.sh /etc/entrypoint.sh
 RUN chmod +x /etc/entrypoint.sh
 
 COPY --chown=www-data:www-data . /var/www/html

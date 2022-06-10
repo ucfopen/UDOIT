@@ -1,9 +1,6 @@
 name: Build UDOIT 3 Docker Image
 
-on:
-  push:
-    branches:
-      - issue/815-docker-nginx
+on: [push]
 
 env:
   REGISTRY: ghcr.io
@@ -23,12 +20,6 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      # - name: Extract metadata (tags, labels) for Docker
-      #   id: meta
-      #   uses: docker/metadata-action@98669ae865ea3cffbcbaa878cf57c20bbf1c6c38
-      #   with:
-      #     images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
-
       - name: Change String Case
         id: case
         uses: ASzc/change-string-case-action@v2
@@ -42,14 +33,12 @@ jobs:
         id: slash
         uses: mad9000/actions-find-and-replace-string@2
         with:
-          source: ${{ github.ref_name }} # this translates to ref/heads/main on the main branch, but can be any arbitrary string 
-          find: '/'        # we want to remove ref/heads/ from source 
+          source: ${{ github.ref_name }} 
+          find: '/' 
           replace: '-'   
 
       - name: Display issue name
         run: echo ${{ steps.slash.outputs.value }}      
-
-
 
       - name: Build Image
         run: |
@@ -63,11 +52,3 @@ jobs:
           docker push ${{ env.REGISTRY }}/${{ steps.case.outputs.lowercase }}:${{ steps.slash.outputs.value }}
 
 
-      # - name: Build and push Docker image
-      #   uses: docker/build-push-action@ad44023a93711e3deb337508980b4b5e9bcdc5dc
-      #   with:
-      #     context: .
-      #     push: true
-      #     tags: ${{ steps.meta.outputs.tags }}
-      #     labels: ${{ steps.meta.outputs.labels }}
-      #     build-args: REQUIREMENTS=${{ env.REQUIREMENTS }}
