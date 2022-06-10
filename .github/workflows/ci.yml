@@ -1,4 +1,4 @@
-name: Run Python Tests and Build Image
+name: Build UDOIT 3 Docker Image
 
 on:
   push:
@@ -29,17 +29,25 @@ jobs:
       #   with:
       #     images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
 
+      - name: Change String Case
+        id: case
+        uses: ASzc/change-string-case-action@v2
+        with:
+          string: ${{ github.repository }}
+      
+      - name: Display repository name
+        run: echo ${{ steps.case.outputs.lowercase }}
 
-      - name: Shea - Build Image
+      - name: Build Image
         run: |
           cp .env.local.example .env.local
           docker-compose -f docker-compose.nginx.yml build
           docker-compose -f docker-compose.nginx.yml run composer composer install --no-dev --no-interaction --no-progress --optimize-autoloader
           docker-compose -f docker-compose.nginx.yml run yarn bash -c 'cd /app && yarn install && yarn build'        
           docker build . -t udoit:latest -f nginx_build/Dockerfile.build
-          docker tag udoit:latest ${{ env.REGISTRY }}/ssilverm/udoit:latest
+          docker tag udoit:latest ${{ env.REGISTRY }}/${{ steps.case.outputs.lowercase }}:${{github.ref_name}}
 
-          docker push ${{ env.REGISTRY }}/ssilverm/udoit:latest
+          docker push ${{ env.REGISTRY }}/${{ steps.case.outputs.lowercase }}:${{github.ref_name}}
 
 
       # - name: Build and push Docker image
