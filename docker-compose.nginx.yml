@@ -30,15 +30,16 @@ services:
           - "8000:80"
       volumes:
           - .:/var/www/html
-          - ./deploy/default.conf:/etc/nginx/conf.d/default.conf
+          - ./build/nginx/default.conf:/etc/nginx/conf.d/default.conf
+
       links:
-          - php-fpm
+          - php
       env_file:
         - .env
         - .env.local
-  php-fpm:
+  php:
       build:
-        context: .
+        context: ./build/nginx
         dockerfile: Dockerfile.php.pdo.mysql
       volumes:
           - ./:/var/www/html
@@ -47,7 +48,7 @@ services:
         - .env.local
   composer:
       build:
-        context: .
+        context: ./build/nginx
         dockerfile: Dockerfile.composer
       command: "composer install --no-dev --no-interaction --no-progress --optimize-autoloader"
       volumes:
