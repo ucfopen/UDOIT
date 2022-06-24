@@ -90,8 +90,10 @@ We strongly recommend you enforce scopes with your API key. The following scopes
 UDOIT uses LTI 1.3 to integrate with the LMS.
 
 ### Steps to Create an LTI Key
-* Navigate to `Developer Keys` in the root account menu.
-* Choose to add a `Developer Key` => `LTI Key`
+Follow the steps below, replacing `<YOUR_UDOIT_BASE_URL>` with the `BASE_URL` value from your `.env.local` file.
+
+1. Navigate to `Developer Keys` in the root account menu.
+2. Choose to add a `Developer Key` => `LTI Key`
 
 Provide values for the following fields:
 * Key Name
@@ -124,7 +126,7 @@ lms_api_domain=$Canvas.api.domain
 
 ---
 ## Docker-Compose Base URL
-If you are setting up UDOIT for local development through docker-compose, <YOUR_UDOIT_BASE_URL> in both the API developer key and the LTI developer key above should be set to `https://localhost:8000`.
+If you are setting up UDOIT for local development through docker-compose, <YOUR_UDOIT_BASE_URL> in both the API developer key and the LTI developer key above should be set to `http://127.0.0.1:8000/udoit3`.
 
 ---
 ## Update the Institutions Table
@@ -156,7 +158,7 @@ The following fields need to be populated in the `institution` table.
     * Optional
     * Institution specific settings, such as language or excluded tests.
     * Text representation of a JSON object.
-    * Example: `'{"lang":"es"}'`
+    * Example: `{"lang":"es"}`
     * Currently supported languages are English (en) and Spanish (es).
 * api_client_id
     * The ID of the developer API key you created earlier.

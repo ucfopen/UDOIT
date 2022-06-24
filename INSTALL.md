@@ -16,83 +16,70 @@ We strongly recommend source code should be managed through Git. The benefit of 
 * Navigate to the directory on your server where UDOIT will live
 * Run `git clone git@github.com:ucfopen/UDOIT.git . ` (The . is important. It tells Git to download the files to the current directory.)
 
-## Docker
-We provide a fast and simple way of setting up a local UDOIT instance through the use of docker containers. To set up the docker containers, you must first install [Docker](https://docs.docker.com/get-docker/) and [Docker Compose](https://docs.docker.com/compose/install/). Then, simply run the following command from within the UDOIT directory:
-
-    docker-compose up -d
-
-Once the containers are up and running, you can access the php container by calling the command:
-
-    docker exec -it udoit_php_1 /bin/bash
-
-By default the application is set up to create a MySQL database container, but if you wish to create a postgres container instead you can do so by modifying the file `docker-compose.yml`. The credentials required to access this database depend on the database type and can be found in this same file. You can access the database container by calling the command:
-
-    docker exec -it udoit_db_1 /bin/bash
-
-If you ever want to take down the containers, you can do so with the following command:
-
-    docker-compose down
-
-Once you have set up the containers in this way, you will still need to follow the rest of the instructions in this document.
-
-## Configuring your Web Server
-The details of configuring a web server with PHP are out of the scope of this README. You should configure your web server to point to UDOIT's "public" folder as the web root folder. Doing this will hide the configuration and source files so that they are not web accessible. It will also clean up your URL structure so that you don't need to include the "public" folder in any of the URLs to UDOIT.
-
-If you are setting up a local UDOIT instance through Docker, you can simplify this step and quickly setup a server by calling the following commands from within the php container:
-
-    docker exec -it udoit_php_1 /bin/bash
-    symfony server:ca:install
-    symfony serve -d
-
-Security Note:  Do not use the commands above for production installations.  Use software such as [Apache](https://httpd.apache.org) or [NGINX](https://nginx.org).
-
-SSL Issues:  It is important to note that most browsers will automatically block unsigned certificates, and the tool might fail to load with the message that the website might be down or have moved to a new location. If this happens to you after going through the rest of the instructions, you can bypass this warning by opening the specified url in a new tab, granting the browser permission to access the webpage, and then going back to where the UDOIT tool has been integrated and refreshing the page.
-
-> If you are running UDOIT in Docker, you will need do this each time you start the docker container.
-
-## Installing Composer Dependencies
-UDOIT uses Composer to install PHP dependencies. If you are using Docker, it will already be installed inside the PHP container. To install the required PHP dependencies, enter the PHP container with:
-
-    docker exec -it udoit_php_1 /bin/bash
-
-Then, install the dependencies:
-
-    composer install --no-dev
-
-If you're not using Docker, follow the upstream documentation on [Composer Installation](https://getcomposer.org/download/) to install `composer.phar` into the project root, then run the following:
-
-    php composer.phar install --no-dev
-
-> Remove the `--no-dev` flag if you wish to use `APP_ENV=dev` below.
-
 ## .ENV Setup
-UDOIT uses a `.env` file for storing configuration. Local configuration such as database information and URLs should be stored in a `.env.local` file that is NOT tracked in Git.
+UDOIT uses a `.env.local` file for storing configuration variables. To create it:
 
-> These changes should be made outside any of the Docker containers.
-
-1. Copy the file `.env.local.example` to `.env.local`.
+1. Copy the file `.env.local.example` to `.env.local` by running
 ```
 cp .env.local.example .env.local
 ```
 2. Leave `APP_ENV` set to `prod`
 > If you are setting up a development environment, set this to `dev` and follow the steps in [Installing Composer Dependencies](#installing-composer-dependencies) without the `--no-dev` flag to obtain all of the development packages.
-3. Add your database information to this `DATABASE_URL` variable.
-4. Add the `BASE_URL`, which is the full URL to reach the `public` folder of UDOIT. (i.e. https://udoit3.ciditools.com) WITHOUT the trailing slash.
+3. Add your database information to thie `DATABASE_URL` variable.  The default value of `mysql://root:root@db:3306/udoit3` is suitable for running it on your local computer using Docker.
+4. Modify the `BASE_URL` to match the URL of your instance of UDOIT.  The default value of `http://127.0.0.1:8000/udoit3` is suitable for running it on your local computer using Docker.
 5. Set `APP_LMS` to the name of your LMS.
    * `canvas` if you are using the Canvas LMS.
    * `d2l` if you are using the D2l Brightspace LMS.
-6. (Optional) You can change the default language for your entire UDOIT instance by overriding the `DEFAULT_LANG` variable. Currently supported languages are English (`en`) and Spanish (`es`).
+6. (Optional) You can change the default language for your entire UDOIT instance by adding the `DEFAULT_LANG` variable. Currently supported languages are English (`en`) and Spanish (`es`).
+7. (Optional) If you are using UDOIT with a self-hosted instance of Canvas, you can add the `JWK_BASE_URL` variable and set it to the URL of your instance of Canvas. (Example: `JWK_BASE_URL="https://canvas.dev.myschool.edu"`)
 
-## Database Setup
+## Docker
+We provide a fast and simple way of setting up a local UDOIT instance through the use of Docker containers.
+
+### 1. Install Docker
+To set up the docker containers, you must first install [Docker](https://docs.docker.com/get-docker/) and [Docker Compose](https://docs.docker.com/compose/install/).
+
+### (Option 1) 2. Use the existing containers
+TODO: Use Shea's repo as the guide for this.
+
+### (Option 2) 2. Build the Containers
+If you prefer to build the containers yourself, or you are actively developing UDOIT and need to rebuild the containers to test your cahnges, run the following command from within the UDOIT directory:
+
+    docker-compose -f docker-compose.nginx.yml up
+
+### 3. Set up the Database
+The first time you start the containers, you will need to set up the database to handle all the information UDOIT generates as it runs.  Run the following command:
+
+    docker-compose -f docker-compose.nginx.yml run php php bin/console doctrine:migrations:migrate
+
+> You will also need to run that command whenever you update to a new version of UDOIT.
+
+### Stopping the Containers
+If you ever want to stop the containers, you can do so with the following command:
+
+    docker-compose -f docker-compose.nginx.yml down
+
+> Skip to [Testing your Setup](#testing-your-setup) to continue.
+
+## Manual Installation
+If you prefer not to use Docker, the process is more complicated.
+
+### Configuring your Web Server
+The details of configuring a web server with PHP are out of the scope of this README. You should configure your web server to point to UDOIT's "public" folder as the web root folder. Doing this will hide the configuration and source files so that they are not web accessible. It will also clean up your URL structure so that you don't need to include the "public" folder in any of the URLs to UDOIT.
+
+If you are using NGINX as your web server, you can use the `build/nginx/nginx.conf` file as a starting point.
+
+### Installing Composer Dependencies
+UDOIT uses Composer to install PHP dependencies. Follow the upstream documentation on [Composer Installation](https://getcomposer.org/download/) to install `composer.phar` into the project root, then run the following:
+
+    php composer.phar install --no-dev
+
+> Remove the `--no-dev` flag if you set `APP_ENV=dev` in your `.env.local` file.
+
+### Database Setup
 While UDOIT is configured to use MySQL or MariaDB by default, Symfony can be configured to work with other databases as well. See the Symfony documentation for details.
 
-> If you are running UDOIT in Docker, you don't need to install PHP on your system.  You can run 
->
->     docker exec -it udoit_php_1 /bin/bash
->
-> and then run the commands below inside the Docker container.
-
-You can create your database manually, or use `Symfony` to create the database with this command:
+Use Symfony to create the database with this command:
 
     php bin/console doctrine:database:create
 
@@ -108,16 +95,8 @@ If you are operating in a production environment you will need to generate the d
 
     php bin/console cache:warmup --env=prod
 
-## JavaScript
-UDOIT uses [node](https://nodejs.org) and [yarn](https://yarnpkg.com/) to compile the JavaScript. Instructions for installing Node and Yarn are out of the scope of this README.
-
-> If you are running UDOIT in Docker, you don't need to install Node or Yarn on your system. Run 
->
->     docker exec -it udoit_php_1 /bin/bash
->
-> and then run the following commands inside the Docker container.
-
-To install the JavaScript dependencies run the command:
+### JavaScript
+UDOIT uses [node](https://nodejs.org) and [yarn](https://yarnpkg.com/) to compile the JavaScript. Install Node and Yarn on your system, then run:
 
     yarn install
 
@@ -126,7 +105,7 @@ To build the JavaScript files for production, run the command:
     yarn build
 
 ## Testing Your Setup
-Once you have completed the steps above you will want to test your setup. Unfortunately, UDOIT is an LTI tool that can only fully run within the LMS. You will need to complete the steps in the INSTALL_CANVAS.md or INSTALL_D2L.md to test UDOIT fully.
+Once you have completed the steps above you will want to test your setup. Unfortunately, UDOIT is an LTI tool that can only fully run within the LMS. You will need to complete the steps in the [INSTALL_CANVAS.md](INSTALL_CANVAS.md) or [INSTALL_D2L.md](INSTALL_D2L.md) to test UDOIT fully.
 
 However, UDOIT does have one URL that is publicly available outside of the LMS. To test your server setup point your browser to:
 
@@ -134,7 +113,7 @@ However, UDOIT does have one URL that is publicly available outside of the LMS. 
 
 For example, if you are setting this up on your local computer via Docker, it may look like:
 
-    https://localhost:8000/lti/config
+    http://127.0.0.1:8000/udoit3/lti/config
 
 ## Configuring Your LMS
 You will need to complete the steps in the [INSTALL_CANVAS.md](INSTALL_CANVAS.md) or [INSTALL_D2L.md](INSTALL_D2L.md) to configure UDOIT to work within your LMS.
