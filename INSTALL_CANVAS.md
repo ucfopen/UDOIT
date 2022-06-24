@@ -39,51 +39,52 @@ Provide values for the following fields:
 ### Scopes
 We strongly recommend you enforce scopes with your API key. The following scopes must be enabled for UDOIT to work.
 
-* Accounts
-    * url:GET|/api/v1/accounts
-    * url:GET|/api/v1/accounts/:id
-    * url:GET|/api/v1/accounts/:account_id/sub_accounts
-* Announcements
-    * url:GET|/api/v1/announcements
-* Assignments
-    * url:GET|/api/v1/courses/:course_id/assignments
-    * url:GET|/api/v1/courses/:course_id/assignments/:id
-    * url:PUT|/api/v1/courses/:course_id/assignments/:id
-* Courses
-    * url:GET|/api/v1/courses/:id
-    * url:PUT|/api/v1/courses/:id
-    * url:POST|/api/v1/courses/:course_id/files
-* Discussion Topics
-    * url:GET|/api/v1/courses/:course_id/discussion_topics
-    * url:GET|/api/v1/courses/:course_id/discussion_topics/:topic_id
-    * url:PUT|/api/v1/courses/:course_id/discussion_topics/:topic_id
-* Enrollment Terms
-    * url:GET|/api/v1/accounts/:account_id/terms
-* Files
-    * url:GET|/api/v1/courses/:course_id/files
-    * url:GET|/api/v1/courses/:course_id/files/:id
-* Modules
-    * url:GET|/api/v1/courses/:course_id/modules
-    * url:GET|/api/v1/courses/:course_id/modules/:id
-    * url:PUT|/api/v1/courses/:course_id/modules/:id
-    * url:GET|/api/v1/courses/:course_id/modules/:module_id/items
-    * url:GET|/api/v1/courses/:course_id/modules/:module_id/items/:id
-    * url:PUT|/api/v1/courses/:course_id/modules/:module_id/items/:id
-* Pages
-    * url:GET|/api/v1/courses/:course_id/pages
-    * url:GET|/api/v1/courses/:course_id/pages/:url
-    * url:GET|/api/v1/groups/:group_id/pages/:url
-    * url:PUT|/api/v1/courses/:course_id/pages/:url
-* Quiz Questions
-    * url:GET|/api/v1/courses/:course_id/quizzes/:quiz_id/questions
-    * url:GET|/api/v1/courses/:course_id/quizzes/:quiz_id/questions/:id
-    * url:PUT|/api/v1/courses/:course_id/quizzes/:quiz_id/questions/:id
-* Quizzes
-    * url:GET|/api/v1/courses/:course_id/quizzes
-    * url:GET|/api/v1/courses/:course_id/quizzes/:id
-    * url:PUT|/api/v1/courses/:course_id/quizzes/:id
- * Users
-    * url:GET|/api/v1/users/:id
+* accounts
+  * url:GET|/api/v1/accounts
+  * url:GET|/api/v1/accounts/:id
+  * url:GET|/api/v1/accounts/:account_id/sub_accounts
+* announcements_api
+  * url:GET|/api/v1/announcements
+* assignments_api
+  * url:GET|/api/v1/courses/:course_id/assignments
+  * url:GET|/api/v1/courses/:course_id/assignments/:id
+  * url:PUT|/api/v1/courses/:course_id/assignments/:id
+* courses
+  * url:PUT|/api/v1/courses/:id
+  * url:GET|/api/v1/courses/:id
+  * url:POST|/api/v1/courses/:course_id/files
+* discussion_topics
+  * url:GET|/api/v1/courses/:course_id/discussion_topics
+  * url:PUT|/api/v1/courses/:course_id/discussion_topics/:topic_id
+* discussion_topics_api
+  * url:GET|/api/v1/courses/:course_id/discussion_topics/:topic_id
+* files
+  * url:GET|/api/v1/courses/:course_id/files
+  * url:GET|/api/v1/courses/:course_id/files/:id
+* context_module_items_api
+  * url:GET|/api/v1/courses/:course_id/modules/:module_id/items
+  * url:GET|/api/v1/courses/:course_id/modules/:module_id/items/:id
+  * url:PUT|/api/v1/courses/:course_id/modules/:module_id/items/:id
+* context_modules_api
+  * url:GET|/api/v1/courses/:course_id/modules
+  * url:GET|/api/v1/courses/:course_id/modules/:id
+  * url:PUT|/api/v1/courses/:course_id/modules/:id
+* quizzes/quiz_questions
+  * url:GET|/api/v1/courses/:course_id/quizzes/:quiz_id/questions
+  * url:GET|/api/v1/courses/:course_id/quizzes/:quiz_id/questions/:id
+  * url:PUT|/api/v1/courses/:course_id/quizzes/:quiz_id/questions/:id
+* quizzes/quizzes_api
+  * url:GET|/api/v1/courses/:course_id/quizzes
+  * url:GET|/api/v1/courses/:course_id/quizzes/:id
+  * url:PUT|/api/v1/courses/:course_id/quizzes/:id
+* terms_api
+  * url:GET|/api/v1/accounts/:account_id/terms
+* users
+  * url:GET|/api/v1/users/:id
+* wiki_pages_api
+  * url:GET|/api/v1/courses/:course_id/pages
+  * url:GET|/api/v1/courses/:course_id/pages/:url_or_id
+  * url:PUT|/api/v1/courses/:course_id/pages/:url_or_id
 
 ---
 ## Create an LTI Developer Key
