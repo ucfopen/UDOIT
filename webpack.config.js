@@ -8,9 +8,15 @@ if (!Encore.isRuntimeEnvironmentConfigured()) {
   Encore.configureRuntimeEnvironment(process.env.NODE_ENV || 'dev')
 }
 
-Encore.setOutputPath('public/build')
-  .setPublicPath('/build')
+// Encore.configureFilenames({
+//     images: 'udoit3/[path][name].[hash:8].[ext]',
+// });
 
+Encore.setOutputPath('public/build')
+  // .setPublicPath('/build')
+  .setPublicPath(process.env.BASE_URL + '/build')
+  .setManifestKeyPrefix('build')
+  // .setManifestKeyPrefix('/udoit3/')
   .addEntry('app', './assets/js/index.js')
   .addEntry('admin', './assets/js/admin.js')
 
