@@ -91,8 +91,10 @@ We strongly recommend you enforce scopes with your API key. The following scopes
 UDOIT uses LTI 1.3 to integrate with the LMS.
 
 ### Steps to Create an LTI Key
-* Navigate to `Developer Keys` in the root account menu.
-* Choose to add a `Developer Key` => `LTI Key`
+Follow the steps below, replacing `<YOUR_UDOIT_BASE_URL>` with the `BASE_URL` value from your `.env.local` file.
+
+1. Navigate to `Developer Keys` in the root account menu.
+2. Choose to add a `Developer Key` => `LTI Key`
 
 Provide values for the following fields:
 * Key Name
@@ -125,7 +127,7 @@ lms_api_domain=$Canvas.api.domain
 
 ---
 ## Docker-Compose Base URL
-If you are setting up UDOIT for local development through docker-compose, <YOUR_UDOIT_BASE_URL> in both the API developer key and the LTI developer key above should be set to `https://localhost:8000`.
+If you are setting up UDOIT for local development through docker-compose, <YOUR_UDOIT_BASE_URL> in both the API developer key and the LTI developer key above should be set to `http://127.0.0.1:8000/udoit3`.
 
 ---
 ## Update the Institutions Table
@@ -146,9 +148,9 @@ The following fields need to be populated in the `institution` table.
 * lms_account_id
     * The Canvas account ID (as a string) where UDOIT will be installed.
 * created
-    * Date in this format: `"2021-06-08"`
+    * Date in this format: `2021-06-08`
 * status
-    * `1` if you are using MySQL or MariaDB
+    * `1` if you are using MySQL or MariaDB (or Docker)
     * `true` if you are using PostgreSQL
 * vanity_url
     * Your LMS vanity URL
@@ -157,16 +159,16 @@ The following fields need to be populated in the `institution` table.
     * Optional
     * Institution specific settings, such as language or excluded tests.
     * Text representation of a JSON object.
-    * Example: `'{"lang":"es"}'`
+    * Example: `{"lang":"es"}`
     * Currently supported languages are English (en) and Spanish (es).
 * api_client_id
     * The ID of the developer API key you created earlier.
     * Client ID is found in the `Details` column on the Developer Keys page
     * Example: 1234500000000001234
 * api_client_secret
-    * This is also known as the API key.
-    * Click `Show Key` for the API key you created earlier.
-    * This key will be encrypted and stored as encrypted on the first use of the key.
+    * The secret for the API key you created earlier.
+    * Click `Show Key` on the API key you created earlier.
+    * This key will be stored encrypted on the first use of the key.
 
 ---
 ## .ENV Setup
@@ -175,16 +177,14 @@ For cloud-hosted canvas instances the default value for the `JWK_BASE_URL` envir
 ---
 ## Install the App
 UDOIT now needs to be added to an account in Canvas. Follow these steps to add the LTI tool to an account:
-* Copy the `Client ID` from the developer LTI key created earlier.
-* Navigate to the desired account.
-* Select `Settings` from the left menu.
-* Choose the `Apps` tab.
-* Choose the `View App Configurations` button in the top right corner.
-* Click `+ App`
+1. Copy the `Client ID` from the developer LTI key created earlier.
+2. Navigate to the desired account.
+3. Select `Settings` from the left menu.
+4. Choose the `Apps` tab.
+5. Choose the `View App Configurations` button in the top right corner.
+6. Click `+ App`
+7. In the dialog that appears, choose "Configuration Type" "By Client ID".
+8. Paste the `Client ID` from the developer LTI Key you created earlier.
+9. Click Submit.
 
-### Add App
-* Configuration Type
-    * By Client ID
-* Client ID
-    * Paste the `Client ID` from the developer LTI key created earlier.
-* Submit
+You're done!  "UDOIT" should now appear in the navigation menu of the course (or every course in the account) in which you installed it.  If you installed it to an account, "UDOIT Admin" will also appear in the account navigation menu.
