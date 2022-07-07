@@ -1,6 +1,10 @@
 name: Build UDOIT 3 Docker Image
 
-on: [push]
+on:
+  push:
+    branches:
+      - main
+      - 'dev/*'
 
 env:
   REGISTRY: ghcr.io
