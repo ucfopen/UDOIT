@@ -1,8 +1,0 @@
-name: udoit
-description: Helm Chart for UDoit
-version: 0.0.1
-apiVersion: v1
-keywords:
-  - UDOIT
-sources:
-  - "https://github.com/ucfopen/UDOIT"

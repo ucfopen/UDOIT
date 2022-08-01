@@ -1,0 +1,7 @@
+name: ucfopen/udoit
+description: This helm chart allows you do deploy UDOIT into a kubernetes cluster
+version: 0.0.1
+apiVersion: v1
+keywords:
+  - UDOIT
+  - ucfopen
