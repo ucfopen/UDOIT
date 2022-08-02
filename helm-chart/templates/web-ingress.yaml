@@ -1,0 +1,20 @@
+# Placeholder
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: udoit-ingress
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+spec:
+  ingressClassName: nginx-example
+  rules:
+  - host: udoit.miamioh.edu
+  - http:
+      paths:
+      - path: /testpath
+        pathType: Prefix
+        backend:
+          service:
+            name: test
+            port:
+              number: 80
