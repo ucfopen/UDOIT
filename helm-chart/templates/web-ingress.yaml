@@ -3,18 +3,13 @@ apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: udoit-ingress
+  labels:  
+    name: udoit 
   annotations:
     nginx.ingress.kubernetes.io/rewrite-target: /
 spec:
-  ingressClassName: nginx-example
-  rules:
-  - host: udoit.miamioh.edu
-  - http:
-      paths:
-      - path: /testpath
-        pathType: Prefix
-        backend:
-          service:
-            name: test
-            port:
-              number: 80
+  defaultBackend:
+    service: 
+      name: udoit-cluster-ip-service
+      port:
+        number: 9000

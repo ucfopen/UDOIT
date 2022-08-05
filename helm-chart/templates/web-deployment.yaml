@@ -24,146 +24,16 @@ spec:
         io.kompose.service: web
     spec:
       containers:
-        - env:
-            - name: ADMIN_LTI_NAME
-              valueFrom:
-                configMapKeyRef:
-                  key: ADMIN_LTI_NAME
-                  name: env
-            - name: APP_ENV
-              valueFrom:
-                configMapKeyRef:
-                  key: APP_ENV
-                  name: env
-            - name: APP_LMS
-              valueFrom:
-                configMapKeyRef:
-                  key: APP_LMS
-                  name: env
-            - name: APP_LTI_NAME
-              valueFrom:
-                configMapKeyRef:
-                  key: APP_LTI_NAME
-                  name: env
-            - name: APP_LTI_REDIRECT_PATH
-              valueFrom:
-                configMapKeyRef:
-                  key: APP_LTI_REDIRECT_PATH
-                  name: env
-            - name: APP_OAUTH_REDIRECT_PATH
-              valueFrom:
-                configMapKeyRef:
-                  key: APP_OAUTH_REDIRECT_PATH
-                  name: env
-            - name: APP_SECRET
-              valueFrom:
-                configMapKeyRef:
-                  key: APP_SECRET
-                  name: env
-            - name: AUDITORY_RULES
-              valueFrom:
-                configMapKeyRef:
-                  key: AUDITORY_RULES
-                  name: env
-            - name: BACKGROUND_COLOR
-              valueFrom:
-                configMapKeyRef:
-                  key: BACKGROUND_COLOR
-                  name: env
-            - name: BASE_URL
-              valueFrom:
-                configMapKeyRef:
-                  key: BASE_URL
-                  name: env
-            - name: COGNITIVE_RULES
-              valueFrom:
-                configMapKeyRef:
-                  key: COGNITIVE_RULES
-                  name: env
-            - name: DATABASE_URL
-              valueFrom:
-                configMapKeyRef:
-                  key: DATABASE_URL
-                  name: env
-            - name: DATE_FORMAT
-              valueFrom:
-                configMapKeyRef:
-                  key: DATE_FORMAT
-                  name: env
-            - name: DEFAULT_LANG
-              valueFrom:
-                configMapKeyRef:
-                  key: DEFAULT_LANG
-                  name: env
-            - name: EASY_FIX_RULES
-              valueFrom:
-                configMapKeyRef:
-                  key: EASY_FIX_RULES
-                  name: env
-            - name: JWK_BASE_URL
-              valueFrom:
-                configMapKeyRef:
-                  key: JWK_BASE_URL
-                  name: env
-            - name: MESSENGER_TRANSPORT_DSN
-              valueFrom:
-                configMapKeyRef:
-                  key: MESSENGER_TRANSPORT_DSN
-                  name: env
-            - name: MOTOR_RULES
-              valueFrom:
-                configMapKeyRef:
-                  key: MOTOR_RULES
-                  name: env
-            - name: PHPALLY_EXCLUDED_RULES
-              valueFrom:
-                configMapKeyRef:
-                  key: PHPALLY_EXCLUDED_RULES
-                  name: env
-            - name: PHPALLY_SUGGESTION_RULES
-              valueFrom:
-                configMapKeyRef:
-                  key: PHPALLY_SUGGESTION_RULES
-                  name: env
-            - name: STORE_USER_NAMES
-              valueFrom:
-                configMapKeyRef:
-                  key: STORE_USER_NAMES
-                  name: env
-            - name: TEXT_COLOR
-              valueFrom:
-                configMapKeyRef:
-                  key: TEXT_COLOR
-                  name: env
-            - name: USE_DEVELOPMENT_AUTH
-              valueFrom:
-                configMapKeyRef:
-                  key: USE_DEVELOPMENT_AUTH
-                  name: env
-            - name: VERSION_NUMBER
-              valueFrom:
-                configMapKeyRef:
-                  key: VERSION_NUMBER
-                  name: env
-            - name: VIMEO_API_KEY
-              valueFrom:
-                configMapKeyRef:
-                  key: VIMEO_API_KEY
-                  name: env
-            - name: VISUAL_RULES
-              valueFrom:
-                configMapKeyRef:
-                  key: VISUAL_RULES
-                  name: env
-            - name: YOUTUBE_API_KEY
-              valueFrom:
-                configMapKeyRef:
-                  key: YOUTUBE_API_KEY
-                  name: env
-          image: ghcr.io/ucfopen/udoit:dev-v3-3-0
-          name: web
+        - name: udoit
           ports:
-            - containerPort: 80
+          - containerPort: 9000
+        # We should be able to add all of these from one place instead of calling these all out individually
+          envFrom:
+            - configMapRef:
+                name: udoit-config
+          image: ghcr.io/ucfopen/udoit:dev-v3-3-0
           resources: {}
       restartPolicy: Always
 status: {}
+
+
