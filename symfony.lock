@@ -2,6 +2,9 @@
     "cidilabs/phpally": {
         "version": "dev-master"
     },
+    "composer/package-versions-deprecated": {
+        "version": "1.11.99.3"
+    },
     "doctrine/annotations": {
         "version": "1.0",
         "recipe": {
@@ -147,12 +150,6 @@
     "laminas/laminas-code": {
         "version": "4.3.0"
     },
-    "laminas/laminas-eventmanager": {
-        "version": "3.3.1"
-    },
-    "laminas/laminas-zendframework-bridge": {
-        "version": "1.1.1"
-    },
     "league/oauth2-client": {
         "version": "2.4.1"
     },
@@ -168,9 +165,6 @@
     "nikic/php-parser": {
         "version": "v4.3.0"
     },
-    "ocramius/package-versions": {
-        "version": "1.4.2"
-    },
     "oro/doctrine-extensions": {
         "version": "2.0.0"
     },
@@ -179,9 +173,6 @@
     },
     "phar-io/version": {
         "version": "3.1.0"
-    },
-    "php": {
-        "version": "7.4"
     },
     "phpdocumentor/reflection-common": {
         "version": "2.0.0"
@@ -234,6 +225,9 @@
         "version": "1.0.0"
     },
     "psr/http-client": {
+        "version": "1.0.1"
+    },
+    "psr/http-factory": {
         "version": "1.0.1"
     },
     "psr/http-message": {
@@ -311,9 +305,6 @@
     "setasign/fpdi": {
         "version": "v2.3.3"
     },
-    "symfony/amqp-messenger": {
-        "version": "v5.2.4"
-    },
     "symfony/apache-pack": {
         "version": "1.0",
         "recipe": {
@@ -379,7 +370,7 @@
         "version": "v5.0.5"
     },
     "symfony/doctrine-messenger": {
-        "version": "v5.2.5"
+        "version": "v6.0.7"
     },
     "symfony/dom-crawler": {
         "version": "v5.0.5"
@@ -523,6 +514,9 @@
     "symfony/options-resolver": {
         "version": "v5.0.5"
     },
+    "symfony/password-hasher": {
+        "version": "v5.4.3"
+    },
     "symfony/phpunit-bridge": {
         "version": "4.3",
         "recipe": {
@@ -553,9 +547,6 @@
     "symfony/polyfill-mbstring": {
         "version": "v1.14.0"
     },
-    "symfony/polyfill-php73": {
-        "version": "v1.14.0"
-    },
     "symfony/polyfill-php80": {
         "version": "v1.17.0"
     },
@@ -576,9 +567,6 @@
     },
     "symfony/proxy-manager-bridge": {
         "version": "v5.0.11"
-    },
-    "symfony/redis-messenger": {
-        "version": "v5.2.4"
     },
     "symfony/routing": {
         "version": "4.2",
@@ -610,9 +598,6 @@
         "version": "v5.0.5"
     },
     "symfony/security-csrf": {
-        "version": "v5.0.5"
-    },
-    "symfony/security-guard": {
         "version": "v5.0.5"
     },
     "symfony/security-http": {
@@ -735,11 +720,5 @@
     },
     "webmozart/assert": {
         "version": "1.7.0"
-    },
-    "zendframework/zend-code": {
-        "version": "3.4.1"
-    },
-    "zendframework/zend-eventmanager": {
-        "version": "3.2.1"
     }
 }
