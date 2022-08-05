@@ -30,11 +30,9 @@ class IssueRepository extends ServiceEntityRepository
             ->getResult();
     }
 
-    // /**
-    //  * @return Issue[] Returns an array of Issue objects
-    //  */
+    // Returns an array of Issue objects
     /*
-    public function findByExampleField($value)
+    public function findByExampleField($value): array
     {
         return $this->createQueryBuilder('i')
             ->andWhere('i.exampleField = :val')

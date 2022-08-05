@@ -6,7 +6,7 @@ import { Flex } from '@instructure/ui-flex'
 import { ToggleDetails } from '@instructure/ui-toggle-details'
 import { IconInfoBorderlessLine, IconNoLine } from '@instructure/ui-icons'
 import { issueRuleIds } from './Constants'
-import Html from '../Services/Html'
+import * as Html from '../Services/Html'
 import ReactHtmlParser from 'react-html-parser'
 import Classes from '../../css/theme-overrides.css'
 

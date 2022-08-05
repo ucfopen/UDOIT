@@ -9,8 +9,8 @@ import { TextInput } from '@instructure/ui-text-input'
 import { IconButton } from '@instructure/ui-buttons'
 import { IconArrowOpenDownSolid, IconArrowOpenUpSolid, IconCheckMarkLine } from '@instructure/ui-icons'
 import ColorPicker from '../ColorPicker'
-import Html from '../../Services/Html'
-import Contrast from '../../Services/Contrast'
+import * as Html from '../../Services/Html'
+import * as Contrast from '../../Services/Contrast'
 
 export default class ContrastForm extends React.Component {
   constructor(props) {

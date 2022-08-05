@@ -21,16 +21,8 @@ class CanvasApi {
         $this->baseUrl = $baseUrl;
     }
 
-    /**
-     * API call GET
-     *
-     * @param string $url
-     * @param array $options
-     * @param integer $perPage
-     *
-     * @return LmsResponse
-     */
-    public function apiGet($url, $options = [], $perPage = 100, LmsResponse $lmsResponse = null)
+    // API call GET
+    public function apiGet(string $url, array $options = [], int $perPage = 100, LmsResponse $lmsResponse = null): LmsResponse
     {
         $links = [];
 
@@ -113,16 +105,8 @@ class CanvasApi {
         return $lmsResponse;
     }
 
-    /**
-     * Posts a file to Canvas
-     *
-     * @param string $url
-     * @param array $options
-     * @param string $filepath
-     *
-     * @return LmsResponse
-     */
-    public function apiFilePost($url, $options, $filepath)
+    // Posts a file to Canvas
+    public function apiFilePost(string $url, array $options, string $filepath): LmsResponse
     {
         $fileResponse = $this->apiGet($url);
         $file = $fileResponse->getContent();

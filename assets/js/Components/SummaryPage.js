@@ -1,6 +1,4 @@
 import React from 'react'
-import { Heading } from '@instructure/ui-heading'
-import { Button } from '@instructure/ui-buttons'
 import { Table } from '@instructure/ui-table'
 import { Text } from '@instructure/ui-text'
 import { View } from '@instructure/ui-view'

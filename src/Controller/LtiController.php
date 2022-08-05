@@ -27,23 +27,25 @@ class LtiController extends AbstractController
     /** @var \App\Services\LmsApiService $lmsApi */
     private $lmsApi;
 
+    private SessionService $sessionService;
+
     private ManagerRegistry $doctrine;
 
-    public function __construct(ManagerRegistry $doctrine)
+    public function __construct(ManagerRegistry $doctrine, SessionService $sessionService)
     {
         $this->doctrine = $doctrine;
+        $this->sessionService = $sessionService;
     }
 
     #[Route('/lti/authorize', name: 'lti_authorize')]
     public function ltiAuthorize(
         Request $request,
-        SessionService $sessionService,
         UtilityService $util,
         LmsApiService $lmsApi,
     ) {
 
         $this->request = $request;
-        $this->session = $sessionService->getSession();
+        $this->session = $this->sessionService->getSession();
         $this->util = $util;
         $this->lmsApi = $lmsApi;
 
@@ -92,7 +94,9 @@ class LtiController extends AbstractController
         }
 
         // Id token must contain a nonce. Should verify that nonce has not been received within a certain time window
-        $this->claimMatchOrExit('nonce', 'nonce', $token->nonce);
+        if(!$this->sessionService->verifyNonce($token->nonce)) {
+            throw new \Exception("Invalid nonce!");
+        }
 
         // Add Token to Session
         $this->saveTokenToSession($token);
@@ -302,13 +306,18 @@ class LtiController extends AbstractController
         $lms = $this->lmsApi->getLms();
         $server = $this->request->server;
 
+        $uuid = $this->session->getUuid();
+        if (empty($uuid)) {
+            throw new \Exception("No UUID found!");
+        }
+
         $params = [
             'client_id' => $this->session->get('client_id'),
-            'state' => $this->session->getUuid(),
+            'state' => $uuid,
             'scope' => 'openid',
             'response_type' => 'id_token',
             'response_mode' => 'form_post',
-            'nonce' => 'nonce',
+            'nonce' => $this->sessionService->generateNonce(),
             'prompt' => 'none',
             'redirect_uri' => $server->get('BASE_URL') . $server->get('APP_LTI_REDIRECT_PATH'),
         ];
@@ -326,13 +335,9 @@ class LtiController extends AbstractController
         return $lms->getLtiAuthUrl($params);
     }
 
-    /**
-     * Get institution before the user is authenticated.
-     * Once the user is authenticated we should use $user->getInstitution().
-     *
-     * @return \App\Entity\Institution
-     */
-    protected function getInstitutionFromSession()
+    // Get institution before the user is authenticated.
+    // Once the user is authenticated we should use $user->getInstitution().
+    protected function getInstitutionFromSession(): \App\Entity\Institution
     {
         $institution = null;
 
@@ -403,12 +408,8 @@ class LtiController extends AbstractController
         return $user;
     }
 
-    /**
-     * Returns User object, creates a new user if doesn't exist.
-     *
-     * @return User
-     */
-    protected function saveUserToSession()
+    // Returns User object, creates a new user if doesn't exist.
+    protected function saveUserToSession(): void
     {
         $user = null;
 

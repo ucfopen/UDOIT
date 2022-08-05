@@ -1,6 +1,6 @@
 import React from 'react';
 import { Button } from '@instructure/ui-buttons'
-import { IconCheckLine, IconInfoBorderlessLine, IconEyeLine } from '@instructure/ui-icons'
+import { IconCheckLine, IconEyeLine } from '@instructure/ui-icons'
 import SortableTable from './SortableTable'
 import FilesPageForm from './FilesPageForm'
 import FilesTrayForm from './FilesTrayForm'
