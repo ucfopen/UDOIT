@@ -12,7 +12,7 @@
   "about.video_link": "<a href='https://youtu.be/gXA4vD7wuws' target='_blank' rel='noopener'>UDOIT Vídeo Resumen</a>",
   "about.user_guide_link": "<a href='https://cidilabs.instructure.com/courses/6621' target='_blank' rel='noopener'>UDOIT Guía del Usuario</a>",
   "about.youtube_terms": "<a href='https://www.youtube.com/t/terms' target='_blank' rel='noopener'>Youtube Términos de Servicio</a>",
-  "about.google_privacy": "<a href='https://policies.google.com/privacy' target='_blank' rel='noopener'>Google Política de Privacidad</a>",
+  "about.google_privacy": "<a href='https://policies.google.com/privacy' target='_blank' rel='noopener'>Google Poliza de Privacidad</a>",
   
   "content.plural.page": "Paginas",
   "content.plural.assignment": "Asignaciones",
@@ -103,7 +103,7 @@
   "label.about": "Sobre UDOIT",
   "label.reports": "Reportes",
   "label.report_history": "Historial",
-  "label.no_results_header": "No se han encontrado resultados",
+  "label.no_results_header": "No se encontraron resultados",
   "label.no_results_message": "Intente cambiar los filtros o buscar con una palabra clave diferente",
   "label.report.total": "Total",
   "label.table_rows_select": "Filas por página",
@@ -302,7 +302,7 @@
   "rule.label.EmbedTagDetected": "El contenido incrustado puede ser inaccesible en dispositivos móviles",
   "rule.label.FontIsNotUsed": "La etiqueta de fuente no debe usarse",
   "rule.label.HeadersHaveText": "Los encabezados deben contener texto",
-  "rule.label.HeadingsInOrder": "Los niveles de encabezado no deben omitirse",
+  "rule.label.HeadingsInOrder": "Los niveles de encabezado no deben saltarse",
   "rule.label.IframeNotHandled": "Contenido Externo Puede Ser Inaccesible",
   "rule.label.ImageAltIsDifferent": "El texto alternativo no debe ser el nombre del archivo de imagen",
   "rule.label.ImageAltIsTooLong": "El texto alternativo es más que el máximo de caracteres permitido",
@@ -342,7 +342,7 @@
   "rule.desc.EmbedTagDetected": "Es posible que el contenido incrustado no se pueda ver correctamente en dispositivos móviles. Tenga en cuenta a los usuarios móviles cuando se basen en objetos para contenido multimedia.",
   "rule.desc.FontIsNotUsed": "<p>La etiqueta <code>font</code> está obsoleta y no debe utilizarse. Investigar usando hojas de estilo en su lugar.</p>",
   "rule.desc.HeadersHaveText": "<p>Los usuarios videntes y <a href='https://es.wikipedia.org/wiki/Lector_de_pantalla' target='_blank'>lectores de pantalla</a> dependen de los encabezados para organizar el contenido de la página. Los títulos no deben estar vacíos y deben representar un esquema preciso del contenido.</p>",
-  "rule.desc.HeadingsInOrder": "Anida los encabezados por su rango (o nivel). El encabezado más importante tiene el rango 1 (h1) en los archivos HTML o el rango 2 (h2) en las páginas de Canvas, el encabezado menos importante tiene el rango 6 (h6). Los encabezados con un rango igual o superior inician una nueva sección, los encabezados con un rango inferior inician nuevas subsecciones que forman parte de la sección con mayor rango. Saltarse los rangos de encabezados puede ser confuso y debe evitarse.",
+  "rule.desc.HeadingsInOrder": "Organice los encabezados por su rango (o nivel). El encabezado más importante tiene el rango 1 (h1) en los archivos HTML o el rango 2 (h2) en las páginas de Canvas, el encabezado menos importante tiene el rango 6 (h6). Los encabezados con un rango igual o superior inician una nueva sección, los encabezados con un rango inferior inician nuevas subsecciones que forman parte de la sección con mayor rango. Saltarse los rangos de encabezados puede ser confuso y debe evitarse.",
   "rule.desc.IframeNotHandled": "<p>El contenido incrustado no es evaluado de forma automática por UDOIT. Por favor verifique de forma manual que el contenido sea accesible y que sea compatible con los teléfonos móviles.</p>",
   "rule.desc.ImageAltIsDifferent": "<p>El texto alternativo (Alt Text) es una forma alternativa (no visual) de describir el significado de una imagen. Proporciona una breve descripción de la imagen para un usuario de <a href='https://es.wikipedia.org/wiki/Lector_de_pantalla'>lector de pantalla</a>. Nota: No debe ser el nombre del archivo de imagen.</p> <p>Obtenga más información en WebAIM.org: <a href='https://webaim.org/techniques/alttext/' target='_blank'>Accesibilidad de texto alternativo</a></p>",
   "rule.desc.ImageAltIsTooLong": "<p>El texto alternativo (Alt Text) es una forma alternativa (no visual) de describir el significado de una imagen. Proporciona una breve descripción de la imagen para un usuario de <a href='https://es.wikipedia.org/wiki/Lector_de_pantalla'>lector de pantalla</a>. Nota: No debe ser el nombre del archivo de imagen.</p> <p>Obtenga más información en WebAIM.org: <a href='https://webaim.org/techniques/alttext/' target='_blank'>Accesibilidad de texto alternativo</a></p>",
@@ -377,7 +377,7 @@
 
   "file.desc.pdf": "<h3>Accesibilidad a PDF</h3><h4>Etiquetas PDF</h4><p>Las etiquetas PDF proporcionan una representación estructurada y oculta del contenido PDF que se presenta a los lectores de pantalla. Existen solo con fines de accesibilidad y no tienen ningún efecto visible en el archivo PDF. Un archivo PDF accesible es más que etiquetas, pero un PDF sin etiquetar no se consideraría <em>accesible</em>.</p><p>Aprenda a crear archivos PDF etiquetados en WebAIM.org:<br/><a href='https://webaim.org/techniques/acrobat/' target='_blank'>Accesibilidad PDF</a></p>",
   "file.desc.doc": "<h3>Creación de documentos de Word accesibles</h3><p>Microsoft Word es el procesador de texto más utilizado en el mercado y el formato .docx es el formato de facto para documentos de texto. También se utiliza a menudo para crear archivos PDF y HTML para sitios web. Hay varias cosas que puede hacer para que sus documentos de Word sean más accesibles para las personas con discapacidades.</p><p>Obtenga más información sobre los documentos de Word accesibles en WebAIM.org:<br/><a href='https://webaim.org/techniques/word/ 'target='_blank'>Accesibilidad de Microsoft Word</a></p>",
-  "file.desc.ppt": "<h3>Creación de presentaciones accesibles</h3><p>Microsoft PowerPoint es una de las herramientas más populares para crear presentaciones de diapositivas. A menudo se usa para organizar pensamientos para una reunión o lección, para presentar puntos clave en una presentación en vivo e incluso para crear folletos.</p><p>Obtenga más información sobre cómo crear presentaciones de PowerPoint accesibles en WebAIM.org:<br/><a href='https://webaim.org/techniques/powerpoint/' target='_blank'>Accesibilidad de Microsoft PowerPoint</a></p>",
+  "file.desc.ppt": "<h3>Creación de presentaciones accesibles</h3><p>Microsoft PowerPoint es una de las herramientas más populares para crear presentaciones diapositivas. A menudo se usa para organizar ideas para una reunión o lección, para presentar puntos clave en una presentación en vivo e incluso para crear folletos.</p><p>Obtenga más información sobre cómo crear presentaciones de PowerPoint accesibles en WebAIM.org:<br/><a href='https://webaim.org/techniques/powerpoint/' target='_blank'>Accesibilidad de Microsoft PowerPoint</a></p>",
 
   "rule.label.SearchKeyWord": "Palabra clave encontrada",
   "rule.desc.SearchKeyWord": "La palabra clave ha sido encontrada"
