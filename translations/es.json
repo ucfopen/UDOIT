@@ -5,11 +5,15 @@
   "about.description": "La Herramienta de Inspección de Contenido en Línea de Diseño Universal (UDOIT por sus siglas en inglés) fue creada por el Center for Distributed Learning de la Universidad de Florida Central. UDOIT escaneará el contenido de su curso, generará un informe y proporcionará instrucciones sobre cómo corregir los problemas de accesibilidad. La financiación para UDOIT fue proporcionada por una beca Canvas otorgada en 2014.",
   "about.disclaimer": "Esta herramienta está destinada a ser utilizada como guía, no como certificación. Solo busca problemas de accesibilidad comunes y no es exhaustivo. Un informe limpio en UDOIT no significa necesariamente que su curso sea completamente accesible. Asimismo, la herramienta puede indicar un posible problema de accesibilidad donde no existe.",
   "about.disclaimer_title": "Tenga en Cuenta:",
+  "about.resources": "Otros Recursos:",
+  "about.policies": "Pólizas de Terceros",
   "about.skip_welcome": "Omitir este mensaje de bienvenida en el futuro",
   "about.video_embed": "<iframe width='360' height='200' src='https://www.youtube.com/embed/gXA4vD7wuws' title='UDOIT Vídeo Resumen' frameborder='0' allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture' allowfullscreen></iframe>",
   "about.video_link": "<a href='https://youtu.be/gXA4vD7wuws' target='_blank' rel='noopener'>UDOIT Vídeo Resumen</a>",
   "about.user_guide_link": "<a href='https://cidilabs.instructure.com/courses/6621' target='_blank' rel='noopener'>UDOIT Guía del Usuario</a>",
-
+  "about.youtube_terms": "<a href='https://www.youtube.com/t/terms' target='_blank' rel='noopener'>Youtube Términos de Servicio</a>",
+  "about.google_privacy": "<a href='https://policies.google.com/privacy' target='_blank' rel='noopener'>Google Poliza de Privacidad</a>",
+  
   "content.plural.page": "Paginas",
   "content.plural.assignment": "Asignaciones",
   "content.plural.announcement": "Anuncios",
@@ -99,9 +103,11 @@
   "label.about": "Sobre UDOIT",
   "label.reports": "Reportes",
   "label.report_history": "Historial",
-  "label.no_results_header": "No results found",
+  "label.no_results_header": "No se encontraron resultados",
   "label.no_results_message": "Intente cambiar los filtros o buscar con una palabra clave diferente",
   "label.report.total": "Total",
+  "label.table_rows_select": "Filas por página",
+  "label.version": "Versión: ",
 
   "label.date": "Fecha",
   "label.content_fixed": "Contenido Solucionado",
@@ -279,6 +285,8 @@
   "form.summary.option.by_issue": "Por tipo de problema",
   "form.summary.option.by_content": "Por tipo de contenido",
   "form.summary.option.by_impact": "Por tipo de impacto",
+  "form.link.new_link": "Nuevo enlace",
+  "form.link.msg.link_empty": "Enlace href no puede estar vacío",
 
   "rule.label.AnchorLinksToMultiMediaRequireTranscript": "Los enlaces a MultiMedia requieren transcripciones",
   "rule.label.AnchorLinksToSoundFilesNeedTranscripts": "Los enlaces a archivos de sonido necesitan transcripciones",
@@ -291,8 +299,10 @@
   "rule.label.CssTextHasContrast": "Contraste insuficiente del color del texto con el fondo",
   "rule.label.CssTextStyleEmphasize": "Evite usar el color solo para enfatizar",
   "rule.label.DocumentReadingDirection": "Dirección de lectura del documento",
+  "rule.label.EmbedTagDetected": "El contenido incrustado puede ser inaccesible en dispositivos móviles",
   "rule.label.FontIsNotUsed": "La etiqueta de fuente no debe usarse",
   "rule.label.HeadersHaveText": "Los encabezados deben contener texto",
+  "rule.label.HeadingsInOrder": "Los niveles de encabezado no deben saltarse",
   "rule.label.IframeNotHandled": "Contenido Externo Puede Ser Inaccesible",
   "rule.label.ImageAltIsDifferent": "El texto alternativo no debe ser el nombre del archivo de imagen",
   "rule.label.ImageAltIsTooLong": "El texto alternativo es más que el máximo de caracteres permitido",
@@ -329,8 +339,10 @@
   "rule.desc.CssTextHasContrast": " <p>El color del texto debe ser fácilmente visible y no debe ser el único indicador de significado o función. El balance de color debe tener al menos una proporción de 4.5:1 para texto pequeño y una proporción de 3:1 para texto grande. Advertencia: el uso de UDOIT para corregir una sección de texto puede invalidar el contraste en secciones de texto anidadas que no son del mismo color.</p>",
   "rule.desc.CssTextStyleEmphasize": "<p>Al enfatizar el texto, puede usar colores con suficiente contraste siempre que también aplique alguna otra forma de énfasis, como negrita o cursiva. Esto asegura que los usuarios de lectores de pantalla sean conscientes de la importancia del texto.</p>",
   "rule.desc.DocumentReadingDirection": "<p>Los cambios en la dirección del texto en el contenido en línea deben indicarse mediante cualquier elemento HTML (por ejemplo, <code>span</code>) con un atributo 'dir' que indique de izquierda a derecha o de derecha a izquierda. Por ejemplo, una frase hebrea dentro de un párrafo en inglés debe tener su propia dirección de texto indicada.</p>",
+  "rule.desc.EmbedTagDetected": "Es posible que el contenido incrustado no se pueda ver correctamente en dispositivos móviles. Tenga en cuenta a los usuarios móviles cuando se basen en objetos para contenido multimedia.",
   "rule.desc.FontIsNotUsed": "<p>La etiqueta <code>font</code> está obsoleta y no debe utilizarse. Investigar usando hojas de estilo en su lugar.</p>",
   "rule.desc.HeadersHaveText": "<p>Los usuarios videntes y <a href='https://es.wikipedia.org/wiki/Lector_de_pantalla' target='_blank'>lectores de pantalla</a> dependen de los encabezados para organizar el contenido de la página. Los títulos no deben estar vacíos y deben representar un esquema preciso del contenido.</p>",
+  "rule.desc.HeadingsInOrder": "Organice los encabezados por su rango (o nivel). El encabezado más importante tiene el rango 1 (h1) en los archivos HTML o el rango 2 (h2) en las páginas de Canvas, el encabezado menos importante tiene el rango 6 (h6). Los encabezados con un rango igual o superior inician una nueva sección, los encabezados con un rango inferior inician nuevas subsecciones que forman parte de la sección con mayor rango. Saltarse los rangos de encabezados puede ser confuso y debe evitarse.",
   "rule.desc.IframeNotHandled": "<p>El contenido incrustado no es evaluado de forma automática por UDOIT. Por favor verifique de forma manual que el contenido sea accesible y que sea compatible con los teléfonos móviles.</p>",
   "rule.desc.ImageAltIsDifferent": "<p>El texto alternativo (Alt Text) es una forma alternativa (no visual) de describir el significado de una imagen. Proporciona una breve descripción de la imagen para un usuario de <a href='https://es.wikipedia.org/wiki/Lector_de_pantalla'>lector de pantalla</a>. Nota: No debe ser el nombre del archivo de imagen.</p> <p>Obtenga más información en WebAIM.org: <a href='https://webaim.org/techniques/alttext/' target='_blank'>Accesibilidad de texto alternativo</a></p>",
   "rule.desc.ImageAltIsTooLong": "<p>El texto alternativo (Alt Text) es una forma alternativa (no visual) de describir el significado de una imagen. Proporciona una breve descripción de la imagen para un usuario de <a href='https://es.wikipedia.org/wiki/Lector_de_pantalla'>lector de pantalla</a>. Nota: No debe ser el nombre del archivo de imagen.</p> <p>Obtenga más información en WebAIM.org: <a href='https://webaim.org/techniques/alttext/' target='_blank'>Accesibilidad de texto alternativo</a></p>",
@@ -365,5 +377,8 @@
 
   "file.desc.pdf": "<h3>Accesibilidad a PDF</h3><h4>Etiquetas PDF</h4><p>Las etiquetas PDF proporcionan una representación estructurada y oculta del contenido PDF que se presenta a los lectores de pantalla. Existen solo con fines de accesibilidad y no tienen ningún efecto visible en el archivo PDF. Un archivo PDF accesible es más que etiquetas, pero un PDF sin etiquetar no se consideraría <em>accesible</em>.</p><p>Aprenda a crear archivos PDF etiquetados en WebAIM.org:<br/><a href='https://webaim.org/techniques/acrobat/' target='_blank'>Accesibilidad PDF</a></p>",
   "file.desc.doc": "<h3>Creación de documentos de Word accesibles</h3><p>Microsoft Word es el procesador de texto más utilizado en el mercado y el formato .docx es el formato de facto para documentos de texto. También se utiliza a menudo para crear archivos PDF y HTML para sitios web. Hay varias cosas que puede hacer para que sus documentos de Word sean más accesibles para las personas con discapacidades.</p><p>Obtenga más información sobre los documentos de Word accesibles en WebAIM.org:<br/><a href='https://webaim.org/techniques/word/ 'target='_blank'>Accesibilidad de Microsoft Word</a></p>",
-  "file.desc.ppt": "<h3>Creación de presentaciones accesibles</h3><p>Microsoft PowerPoint es una de las herramientas más populares para crear presentaciones de diapositivas. A menudo se usa para organizar pensamientos para una reunión o lección, para presentar puntos clave en una presentación en vivo e incluso para crear folletos.</p><p>Obtenga más información sobre cómo crear presentaciones de PowerPoint accesibles en WebAIM.org:<br/><a href='https://webaim.org/techniques/powerpoint/' target='_blank'>Accesibilidad de Microsoft PowerPoint</a></p>"
+  "file.desc.ppt": "<h3>Creación de presentaciones accesibles</h3><p>Microsoft PowerPoint es una de las herramientas más populares para crear presentaciones diapositivas. A menudo se usa para organizar ideas para una reunión o lección, para presentar puntos clave en una presentación en vivo e incluso para crear folletos.</p><p>Obtenga más información sobre cómo crear presentaciones de PowerPoint accesibles en WebAIM.org:<br/><a href='https://webaim.org/techniques/powerpoint/' target='_blank'>Accesibilidad de Microsoft PowerPoint</a></p>",
+
+  "rule.label.SearchKeyWord": "Palabra clave encontrada",
+  "rule.desc.SearchKeyWord": "La palabra clave ha sido encontrada"
 }
