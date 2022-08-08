@@ -1,1 +1,0 @@
-# Helm Chart: ucfopen/udoit
