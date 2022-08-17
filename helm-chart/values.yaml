@@ -5,7 +5,7 @@ replicaCount: 1
 
 app:
   env: prod
-  host: udoit.apps.miamioh.edu
+  host: 127.0.0.1:8000
   lms: canvas
   secret: eb2f09f8a21b0b7c57b9fc36eee250eb
   jwk_base_url: https://canvas.instructure.com/
@@ -13,11 +13,11 @@ app:
 
 database:
   type: mysql
-  host: mariadb-test.miamioh.edu
+  host: db
   port: "3306"
-  user: udoit
-  name: udoit
-  password:
+  user: root
+  name: udoit3
+  password: root
 
 image:
   repository: ghcr.io/ucfopen/udoit
