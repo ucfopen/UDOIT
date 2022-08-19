@@ -5,6 +5,7 @@ on:
     branches:
       - main
       - 'dev/*'
+      - 'issue/840-fastcgi-timeout'
 
 env:
   REGISTRY: ghcr.io
