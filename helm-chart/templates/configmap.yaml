@@ -13,9 +13,9 @@ data:
   APP_OAUTH_REDIRECT_PATH: {{ .Values.app.app_oauth_redirect_path }}
   APP_SECRET: {{ .Values.app.secret }}
   AUDITORY_RULES: {{ .Values.app.auditory_rules }}
-  BACKGROUND_COLOR: {{ .Values.app.background_color }}
+  BACKGROUND_COLOR: {{ .Values.app.background_color | quote}} # String Quoted to handle the # in the color value
   COGNITIVE_RULES: {{ .Values.app.cognitive_rules }}
-  DATABASE_URL: {{ printf "%s://%s:%s@%s:%s/%s" .Values.database.type .Values.database.user .Values.database.password .Values.database.host .Values.database.port  .Values.database.name }}
+  DATABASE_URL: {{ printf "%s://%s:%s@%s:%s/%s" .Values.database.type .Values.database.user .Values.database.password .Values.database.host .Values.database.port  .Values.database.name | quote}}
   DATE_FORMAT: {{ .Values.app.date_format }}
   DEFAULT_LANG: {{ .Values.app.default_lang }}
   EASY_FIX_RULES: {{ .Values.app.easy_fix_rules }}
@@ -24,14 +24,14 @@ data:
   MOTOR_RULES: {{ .Values.app.motor_rules }}
   PHPALLY_EXCLUDED_RULES: {{ .Values.app.phpally_excluded_rules }}
   PHPALLY_SUGGESTION_RULES: {{ .Values.app.phpally_suggestion_rules }}
-  STORE_USER_NAMES: {{ .Values.app.store_user_names }}
-  TEXT_COLOR: {{ .Values.app.text_color }}
-  USE_DEVELOPMENT_AUTH: {{ .Values.app.use_development_auth }}
+  STORE_USER_NAMES: {{ .Values.app.store_user_names | quote }} # String Quoted to handle boolean value
+  TEXT_COLOR: {{ .Values.app.text_color| quote }} # String Quoted to handle the # in the color value
+  USE_DEVELOPMENT_AUTH: {{ .Values.app.use_development_auth | quote }} # String Quoted to handle boolean value
   VERSION_NUMBER: {{ .Values.app.version_number }}
 {{- if .Values.app.vimeo_api_key }}
   VIMEO_API_KEY: {{ .Values.app.vimeo_api_key }}
 {{- end }}
   VISUAL_RULES: {{ .Values.app.visual_rules }}
-{{- if .Values.app.youtube_api_key }}
+{{- if .Values.app.vimeo_api_key }}
   YOUTUBE_API_KEY: {{ .Values.app.youtube_api_key }}
 {{- end }}
