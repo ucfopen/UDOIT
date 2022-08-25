@@ -38,11 +38,12 @@ cp .env.local.example .env.local
 > If you are setting up a development environment, set this to `dev` and follow the steps in [Installing Composer Dependencies](#installing-composer-dependencies) without the `--no-dev` flag to obtain all of the development packages.
 3. Add your database information to thie `DATABASE_URL` variable.  (The default value of `mysql://root:root@db:3306/udoit3` is suitable for running it on your local computer using Docker.)
 4. Modify the `BASE_URL` to match the URL of your instance of UDOIT.  (The default value of `http://127.0.0.1:8000/udoit3` is suitable for running it on your local computer using Docker.)
-5. Set `APP_LMS` to the name of your LMS.
+5. Modify the `WEBPACK_PUBLIC_PATH` to match the `BASE_URL` you set.  (The default value of `/udoit3/build` is suitable for running it on your local computer usind Docker.  Example:  If your `BASE_URL` is set to `http://127.0.0.1:8000`, your `WEBPACK_PUBLIC_PATH` should be `/build`.)
+6. Set `APP_LMS` to the name of your LMS.
    * `canvas` if you are using the Canvas LMS.
    * `d2l` if you are using the D2l Brightspace LMS.
-6. (Optional) You can change the default language for your entire UDOIT instance by adding the `DEFAULT_LANG` variable. Currently supported languages are English (`en`) and Spanish (`es`).
-7. (Optional) If you are using UDOIT with a self-hosted instance of Canvas, you can add the `JWK_BASE_URL` variable and set it to the URL of your instance of Canvas. (Example: `JWK_BASE_URL="https://canvas.dev.myschool.edu"`)
+7. (Optional) You can change the default language for your entire UDOIT instance by adding the `DEFAULT_LANG` variable. Currently supported languages are English (`en`) and Spanish (`es`).
+8. (Optional) If you are using UDOIT with a self-hosted instance of Canvas, you can add the `JWK_BASE_URL` variable and set it to the URL of your instance of Canvas. (Example: `JWK_BASE_URL="https://canvas.dev.myschool.edu"`)
 
 ## Docker
 We provide a fast and simple way of setting up a local UDOIT instance through the use of Docker containers.
