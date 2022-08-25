@@ -1,6 +1,6 @@
 apiVersion: v2
-name: helm-chart
-description: A Helm chart for Kubernetes
+name: udoit
+description: A Helm chart to deploy UDOIT to Kubernetes
 
 # A chart can be either an 'application' or a 'library' chart.
 #
@@ -21,4 +21,4 @@ version: 0.2.0
 # incremented each time you make changes to the application. Versions are not expected to
 # follow Semantic Versioning. They should reflect the version the application is using.
 # It is recommended to use it with quotes.
-appVersion: "1.16.0"
+appVersion: "3.3.0"
