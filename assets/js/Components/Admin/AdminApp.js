@@ -9,7 +9,6 @@ import Api from '../../Services/Api'
 import MessageTray from '../MessageTray'
 import AdminTrayForm from '../Admin/AdminTrayForm'
 import { Tag } from '@instructure/ui-tag'
-
 import { Text } from '@instructure/ui-text'
 import { Spinner } from '@instructure/ui-spinner'
 

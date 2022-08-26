@@ -7,6 +7,7 @@ use App\Entity\User;
 use App\Services\LmsApiService;
 use App\Services\SessionService;
 use App\Services\UtilityService;
+use Doctrine\Persistence\ManagerRegistry;
 use Firebase\JWT\JWK;
 use \Firebase\JWT\JWT;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -26,18 +27,25 @@ class LtiController extends AbstractController
     /** @var \App\Services\LmsApiService $lmsApi */
     private $lmsApi;
 
-    /**
-     * @Route("/lti/authorize", name="lti_authorize")
-     */
+    private SessionService $sessionService;
+
+    private ManagerRegistry $doctrine;
+
+    public function __construct(ManagerRegistry $doctrine, SessionService $sessionService)
+    {
+        $this->doctrine = $doctrine;
+        $this->sessionService = $sessionService;
+    }
+
+    #[Route('/lti/authorize', name: 'lti_authorize')]
     public function ltiAuthorize(
         Request $request,
-        SessionService $sessionService,
         UtilityService $util,
-        LmsApiService $lmsApi
+        LmsApiService $lmsApi,
     ) {
 
         $this->request = $request;
-        $this->session = $sessionService->getSession();
+        $this->session = $this->sessionService->getSession();
         $this->util = $util;
         $this->lmsApi = $lmsApi;
 
@@ -46,9 +54,7 @@ class LtiController extends AbstractController
         return $this->redirect($this->getLtiAuthResponseUrl());
     }
 
-    /**
-     * @Route("/lti/authorize/check", name="lti_authorize_check")
-     */
+    #[Route('/lti/authorize/check', name: 'lti_authorize_check')]
     public function ltiAuthorizeCheck(
         Request $request,
         SessionService $sessionService,
@@ -88,7 +94,9 @@ class LtiController extends AbstractController
         }
 
         // Id token must contain a nonce. Should verify that nonce has not been received within a certain time window
-        $this->claimMatchOrExit('nonce', 'nonce', $token->nonce);
+        if(!$this->sessionService->verifyNonce($token->nonce)) {
+            throw new \Exception("Invalid nonce!");
+        }
 
         // Add Token to Session
         $this->saveTokenToSession($token);
@@ -108,9 +116,7 @@ class LtiController extends AbstractController
             ['auth_token' => $this->session->getUuid()]);
     }
 
-    /**
-     * @Route("/lti/authorize/dev_lti_authorize", name="dev_lti_authorize")
-     */
+    #[Route('/lti/authorize/dev_lti_authorize', name: 'dev_lti_authorize')]
     public function dev_lti_authorize(
       Request $request,
       SessionService $sessionService,
@@ -139,9 +145,7 @@ class LtiController extends AbstractController
       ]);
     }
 
-    /**
-     * @Route("/lti/config/{lms}", name="lti_config")
-     */
+    #[Route('/lti/config/{lms}', name: 'lti_config')]
     public function ltiConfig(Request $request, $lms = 'canvas')
     {
         $baseUrl = $request->server->get('BASE_URL');
@@ -278,7 +282,7 @@ class LtiController extends AbstractController
                 $this->session->set('lms_api_domain', str_replace('https://', '', $domain));
             }
 
-            $this->getDoctrine()->getManager()->flush();
+            $this->doctrine->getManager()->flush();
         } catch (\Exception $e) {
             print_r($e->getMessage());
         }
@@ -302,13 +306,18 @@ class LtiController extends AbstractController
         $lms = $this->lmsApi->getLms();
         $server = $this->request->server;
 
+        $uuid = $this->session->getUuid();
+        if (empty($uuid)) {
+            throw new \Exception("No UUID found!");
+        }
+
         $params = [
             'client_id' => $this->session->get('client_id'),
-            'state' => $this->session->getUuid(),
+            'state' => $uuid,
             'scope' => 'openid',
             'response_type' => 'id_token',
             'response_mode' => 'form_post',
-            'nonce' => 'nonce',
+            'nonce' => $this->sessionService->generateNonce(),
             'prompt' => 'none',
             'redirect_uri' => $server->get('BASE_URL') . $server->get('APP_LTI_REDIRECT_PATH'),
         ];
@@ -326,13 +335,9 @@ class LtiController extends AbstractController
         return $lms->getLtiAuthUrl($params);
     }
 
-    /**
-     * Get institution before the user is authenticated.
-     * Once the user is authenticated we should use $user->getInstitution().
-     *
-     * @return \App\Entity\Institution
-     */
-    protected function getInstitutionFromSession()
+    // Get institution before the user is authenticated.
+    // Once the user is authenticated we should use $user->getInstitution().
+    protected function getInstitutionFromSession(): \App\Entity\Institution
     {
         $institution = null;
 
@@ -341,13 +346,13 @@ class LtiController extends AbstractController
 
             if ($domain) {
                 $institution = $this
-                    ->getDoctrine()
+                    ->doctrine
                     ->getRepository(Institution::class)
                     ->findOneBy(['lmsDomain' => $domain]);
 
                 if (!$institution) {
                     $institution = $this
-                        ->getDoctrine()
+                        ->doctrine
                         ->getRepository(Institution::class)
                         ->findOneBy(['vanityUrl' => $domain]);
                 }
@@ -359,13 +364,13 @@ class LtiController extends AbstractController
 
             if ($cleanedDomain) {
                 $institution = $this
-                    ->getDoctrine()
+                    ->doctrine
                     ->getRepository(Institution::class)
                     ->findOneBy(['lmsDomain' => $cleanedDomain]);
 
                 if (!$institution) {
                     $institution = $this
-                        ->getDoctrine()
+                        ->doctrine
                         ->getRepository(Institution::class)
                         ->findOneBy(['vanityUrl' => $cleanedDomain]);
                 }
@@ -387,7 +392,7 @@ class LtiController extends AbstractController
         $date = new \DateTime();
 
         $user = new User();
-        $user->setUsername("{$domain}||{$userId}");
+        $user->setUserIdentifier("{$domain}||{$userId}");
         $user->setLmsUserId($userId);
         $user->setInstitution($institution);
         $user->setCreated($date);
@@ -397,18 +402,14 @@ class LtiController extends AbstractController
             $user->setName($this->session->get('lms_user_name'));
         }
 
-        $this->getDoctrine()->getManager()->persist($user);
-        $this->getDoctrine()->getManager()->flush();
+        $this->doctrine->getManager()->persist($user);
+        $this->doctrine->getManager()->flush();
 
         return $user;
     }
 
-    /**
-     * Returns User object, creates a new user if doesn't exist.
-     *
-     * @return User
-     */
-    protected function saveUserToSession()
+    // Returns User object, creates a new user if doesn't exist.
+    protected function saveUserToSession(): void
     {
         $user = null;
 
@@ -419,7 +420,7 @@ class LtiController extends AbstractController
             $userId = $this->session->get('lms_user_id');
 
             if ($domain && $userId) {
-                $user = $this->getDoctrine()->getRepository(User::class)
+                $user = $this->doctrine->getRepository(User::class)
                     ->findOneBy(['username' => "{$domain}||{$userId}"]);
             }
         }
@@ -429,6 +430,6 @@ class LtiController extends AbstractController
         }
 
         $this->session->set('userId', $user->getId());
-        $this->getDoctrine()->getManager()->flush();
+        $this->doctrine->getManager()->flush();
     }
 }

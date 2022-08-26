@@ -1,8 +1,8 @@
 import React from 'react';
-import Classes from '../../css/ContentPreview.scss'
+import Classes from '../../css/ContentPreview.css'
 import ReactHtmlParser from 'react-html-parser'
 
-import Html from '../Services/Html'
+import * as Html from '../Services/Html'
 
 const MAX_CONTENT_LENGTH = 800
 

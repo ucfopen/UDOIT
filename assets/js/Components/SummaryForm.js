@@ -2,12 +2,12 @@ import React from 'react'
 import { Heading } from '@instructure/ui-heading'
 import { Button } from '@instructure/ui-buttons'
 import { View } from '@instructure/ui-view'
-import { InlineList, List } from '@instructure/ui-list'
+import { InlineList } from '@instructure/ui-list'
 import { IconInfoBorderlessLine, IconNoLine } from '@instructure/ui-icons'
 import { RadioInput, RadioInputGroup } from '@instructure/ui-radio-input'
 import { SimpleSelect } from '@instructure/ui-simple-select'
 import { issueRuleIds } from './Constants'
-import Classes from '../../css/theme-overrides.scss'
+import Classes from '../../css/theme-overrides.css'
 
 const startOptions = [
   'easy',

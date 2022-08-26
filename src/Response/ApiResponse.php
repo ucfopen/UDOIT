@@ -34,13 +34,8 @@ class ApiResponse implements \JsonSerializable
         ];
     }
 
-    /**
-     * Undocumented function
-     *
-     * @param App\Entity\LogEntry[] $messages
-     * @return void
-     */
-    public function addLogMessages($messages) 
+    // Undocumented function
+    public function addLogMessages(array $messages): void
     {
         foreach ($messages as $msg) {
             $this->addMessage($msg->getMessage(), $msg->getSeverity());

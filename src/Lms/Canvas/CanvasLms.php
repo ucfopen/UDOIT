@@ -11,7 +11,6 @@ use App\Entity\UserSession;
 use App\Lms\LmsInterface;
 use App\Repository\ContentItemRepository;
 use App\Repository\FileItemRepository;
-use App\Services\HtmlService;
 use App\Services\LmsUserService;
 use App\Services\SessionService;
 use App\Services\UtilityService;
@@ -19,10 +18,6 @@ use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Security\Core\Security;
 
 class CanvasLms implements LmsInterface {
-    const CANVAS_TEST_BASE_URL = 'https://canvas.test.instructure.com';
-    const CANVAS_BETA_BASE_URL = 'https://canvas.beta.instructure.com';
-    const CANVAS_PROD_BASE_URL = 'https://canvas.instructure.com';
-
     /** @var ContentItemRepository $contentItemRepo */
     private $contentItemRepo;
 
@@ -41,9 +36,6 @@ class CanvasLms implements LmsInterface {
     /** @var SessionService $sessionService */
     private $sessionService;
 
-    /** @var App\Services\HtmlService */
-    private $html;
-
     public function __construct(
         ContentItemRepository $contentItemRepo,
         FileItemRepository $fileItemRepo,
@@ -51,7 +43,7 @@ class CanvasLms implements LmsInterface {
         UtilityService $util,
         Security $security,
         SessionService $sessionService,
-        HtmlService $html)
+    )
     {
         $this->contentItemRepo = $contentItemRepo;
         $this->fileItemRepo = $fileItemRepo;
@@ -59,7 +51,6 @@ class CanvasLms implements LmsInterface {
         $this->util = $util;
         $this->security = $security;
         $this->sessionService = $sessionService;
-        $this->html = $html;
     }
 
     public function getId()
@@ -173,15 +164,8 @@ class CanvasLms implements LmsInterface {
         $this->entityManager->flush();
     }
 
-    /**
-     * Get content from Canvas and update content items
-     *
-     * @param Course $course
-     * @param User $user
-     *
-     * @return ContentItem[]
-     */
-    public function updateCourseContent(Course $course, User $user)
+    // Get content from Canvas and update content items
+    public function updateCourseContent(Course $course, User $user): array
     {
         $content = $contentItems = [];
         $urls = $this->getCourseContentUrls($course->getLmsCourseId());
@@ -769,8 +753,8 @@ class CanvasLms implements LmsInterface {
 
             // Pages
             'url:GET|/api/v1/courses/:course_id/pages',
-            'url:GET|/api/v1/courses/:course_id/pages/:url',
-            'url:PUT|/api/v1/courses/:course_id/pages/:url',
+            'url:GET|/api/v1/courses/:course_id/pages/:url_or_id',
+            'url:PUT|/api/v1/courses/:course_id/pages/:url_or_id',
 
             // Quiz Questions
             'url:GET|/api/v1/courses/:course_id/quizzes/:quiz_id/questions',

@@ -5,42 +5,32 @@ namespace App\Controller;
 
 use App\Entity\Course;
 use App\Entity\Report;
-use App\Repository\ContentItemRepository;
-use App\Repository\FileItemRepository;
 use App\Response\ApiResponse;
-use App\Services\SessionService;
 use App\Services\UtilityService;
-use Knp\Bundle\SnappyBundle\Snappy\Response\PdfResponse;
-use Knp\Snappy\Pdf;
+use Doctrine\Persistence\ManagerRegistry;
 use Mpdf\Mpdf;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Mime\FileinfoMimeTypeGuesser;
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\HttpFoundation\ResponseHeaderBag;
-use Twig\Environment;
 
 
 class ReportsController extends ApiController
 {
-    private $request;
     private $util;
 
-    /**
-     * @Route("/api/courses/{course}/reports", methods={"GET"}, name="get_reports")
-     * @param Request $request
-     * @param $courseId
-     * @return JsonResponse
-     */
+    private ManagerRegistry $doctrine;
+
+    public function __construct(ManagerRegistry $doctrine)
+    {
+        $this->doctrine = $doctrine;
+    }
+
+    #[Route('/api/courses/{course}/reports', methods: ['GET'], name: 'get_reports')]
     public function getAllReports(
-        Request $request,
         UtilityService $util,
         Course $course
-    ) {
-        $this->request = $request;
+    ): JsonResponse {
         $this->util = $util;
 
         $apiResponse = new ApiResponse();
@@ -51,7 +41,7 @@ class ReportsController extends ApiController
             }
 
             /** @var ReportRepository $repository */
-            $repository = $this->getDoctrine()->getRepository(Report::class);
+            $repository = $this->doctrine->getRepository(Report::class);
             $reports = $repository->findAllInCourse($course);
 
             $apiResponse->setData($reports);
@@ -64,13 +54,8 @@ class ReportsController extends ApiController
         return new JsonResponse($apiResponse);
     }
 
-    /**
-     * @Route("/api/courses/{course}/reports/latest", methods={"GET"}, name="get_latest_report")
-     * @param Course $course
-     * 
-     * @return JsonResponse
-     */
-    public function getLatestReport(Course $course)
+    #[Route('/api/courses/{course}/reports/latest', methods: ['GET'], name: 'get_latest_report')]
+    public function getLatestReport(Course $course): JsonResponse
     {
         $apiResponse = new ApiResponse();
         $reportArr = false;
@@ -119,16 +104,12 @@ class ReportsController extends ApiController
         return new JsonResponse($apiResponse);
     }
 
-    /**
-     * @Route("/download/courses/{course}/reports/pdf", methods={"GET"}, name="get_report_pdf")
-     * @param Course $course
-     * @return \Symfony\Component\HttpFoundation\Response
-     */
+    #[Route('/download/courses/{course}/reports/pdf', methods: ['GET'], name: 'get_report_pdf')]
     public function getPdfReport(
         Request $request,
         UtilityService $util,
         Course $course
-    ) {
+    ): Response {
         $this->request = $request;
         $this->util = $util;
 

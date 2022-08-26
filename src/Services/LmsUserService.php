@@ -31,13 +31,8 @@ class LmsUserService {
         return $_ENV['BASE_URL'] . $_ENV['APP_OAUTH_REDIRECT_PATH'];
     }
 
-    /**
-     * Returns true if API key has been validated.
-     *
-     * @param User $user
-     * @return bool
-     */
-    public function validateApiKey(User $user)
+    // Returns true if API key has been validated.
+    public function validateApiKey(User $user): bool
     {
         $apiKey = $user->getApiKey();
         $lms = $this->lmsApi->getLms();
@@ -94,7 +89,7 @@ class LmsUserService {
             $response = $client->request('POST', $requestUrl, $options);
             $contentStr = $response->getContent(false);
             $newKey = \json_decode($contentStr, true);
-        } catch (TimeoutException $e) {
+        } catch (TimeoutException) {
             $newKey = null;
         }
 

@@ -1,12 +1,8 @@
 import React from 'react';
 import { Modal } from '@instructure/ui-modal'
 import { Heading } from '@instructure/ui-heading'
-import { Button } from '@instructure/ui-buttons'
-import { View } from '@instructure/ui-view'
 import { Flex } from '@instructure/ui-flex'
 import { CloseButton } from '@instructure/ui-buttons'
-import { Text } from '@instructure/ui-text'
-import { Link } from '@instructure/ui-link'
 import AboutPage from './AboutPage'
 
 

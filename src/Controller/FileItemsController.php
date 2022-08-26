@@ -6,15 +6,21 @@ use App\Entity\FileItem;
 use App\Response\ApiResponse;
 use App\Services\LmsPostService;
 use App\Services\UtilityService;
+use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
 class FileItemsController extends ApiController
 {
-    /**
-     * @Route("/api/files/{file}/review", name="review_file")
-     */
+    private ManagerRegistry $doctrine;
+
+    public function __construct(ManagerRegistry $doctrine)
+    {
+        $this->doctrine = $doctrine;
+    }
+
+    #[Route('/api/files/{file}/review', name: 'review_file')]
     public function reviewFile(FileItem $file, Request $request, UtilityService $util)
     {
         $apiResponse = new ApiResponse();
@@ -35,7 +41,7 @@ class FileItemsController extends ApiController
             // Update report stats
             $report = $course->getUpdatedReport();
 
-            $this->getDoctrine()->getManager()->flush();
+            $this->doctrine->getManager()->flush();
 
             // Create response
             if ($file->getReviewed()) {
@@ -56,9 +62,7 @@ class FileItemsController extends ApiController
         return new JsonResponse($apiResponse);
     }
 
-    /**
-     * @Route("/api/files/{file}/post", methods={"POST"}, name="file_post")
-     */
+    #[Route('/api/files/{file}/post', methods: ['POST'], name: 'file_post')]
     public function postFile(FileItem $file, Request $request, UtilityService $util, LmsPostService $lmsPost)
     {
         $apiResponse = new ApiResponse();
@@ -81,7 +85,7 @@ class FileItemsController extends ApiController
             // Update report stats
             $report = $course->getUpdatedReport();
 
-            $this->getDoctrine()->getManager()->flush();
+            $this->doctrine->getManager()->flush();
 
             // Create response
             $apiResponse->addMessage('form.msg.success_replaced', 'success', 5000);

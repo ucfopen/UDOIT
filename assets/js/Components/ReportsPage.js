@@ -3,7 +3,6 @@ import { View } from '@instructure/ui-view'
 import { Flex } from '@instructure/ui-flex'
 import { Text } from '@instructure/ui-text'
 import { Heading } from '@instructure/ui-heading'
-import { IconDownloadLine } from '@instructure/ui-icons'
 
 import Api from '../Services/Api'
 import { Spinner } from '@instructure/ui-spinner'

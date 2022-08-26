@@ -54,9 +54,6 @@ class LmsFetchService {
      * 3) Create new report
      * 4) Link unchanged issues to new report
      * 5) Process updated content
-     *
-     * @param Course $course
-     * @param User $user
      */
     public function refreshLmsContent(Course $course, User $user)
     {
@@ -100,27 +97,16 @@ class LmsFetchService {
         $this->doctrine->getManager()->flush();
     }
 
-    /**
-     * Refresh content item data from the LMS
-     *
-     * @param ContentItem $contentItem
-     * @return void
-     */
-    // public function refreshContentItemFromLms(ContentItem $contentItem)
+    // Refresh content item data from the LMS
+    // public function refreshContentItemFromLms(ContentItem $contentItem): void
     // {
     //     $lms = $this->lmsApi->getLms();
     //     $lms->updateContentItem($contentItem);
     //     $this->doctrine->getManager()->flush();
     // }
 
-    /**
-     * Update report, or create new one for a new day
-     *
-     * @param Course $course
-     * @param User $user
-     * @return Report
-     */
-    public function updateReport(Course $course, User $user)
+    // Update report, or create new one for a new day
+    public function updateReport(Course $course, User $user): Report
     {
         $contentFixed = $contentResolved = $filesReviewed = $errors = $suggestions = 0;
         $scanRules = [];
@@ -190,11 +176,8 @@ class LmsFetchService {
         return $report;
     }
 
-    /**
-     * Performs PHPAlly scan on each Content Item.
-     * @param array $contentItems
-     * @param Report $report
-     */
+    
+    // Performs PHPAlly scan on each Content Item.
     private function scanContentItems(array $contentItems)
     {
         // Scan each update content item for issues

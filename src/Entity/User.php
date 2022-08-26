@@ -2,7 +2,6 @@
 
 namespace App\Entity;
 
-use App\Services\UtilityService;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
@@ -26,7 +25,7 @@ class User implements UserInterface, JsonSerializable
      * $username = <lms_domain>||<lms_user_id>
      * @ORM\Column(type="string", length=180, unique=true)
      */
-    private $username;
+    private string $username;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
@@ -94,12 +93,17 @@ class User implements UserInterface, JsonSerializable
      */
     public function getUsername(): string
     {
-        return (string) $this->username;
+        return $this->username;
     }
 
-    public function setUsername(string $username): self
+    public function getUserIdentifier(): string
     {
-        $this->username = $username;
+        return $this->username;
+    }
+
+    public function setUserIdentifier(string $identifier): self
+    {
+        $this->username = $identifier;
 
         return $this;
     }
@@ -257,12 +261,7 @@ class User implements UserInterface, JsonSerializable
         ];
     }
 
-    /**
-     * @param $data
-     *
-     * @return string
-     */
-    private function encryptData($data)
+    private function encryptData($data): string
     {
         $key   = base64_decode($this->encodedKey);
         $nonce = random_bytes(SODIUM_CRYPTO_SECRETBOX_NONCEBYTES);
@@ -271,12 +270,7 @@ class User implements UserInterface, JsonSerializable
         return base64_encode($nonce . $encrypted_data);
     }
 
-    /**
-     * @param $encrypted
-     *
-     * @return bool|string
-     */
-    private function decryptData($encrypted)
+    private function decryptData($encrypted): bool | string
     {
         $key     = base64_decode($this->encodedKey);
         $decoded = base64_decode($encrypted);
@@ -286,10 +280,7 @@ class User implements UserInterface, JsonSerializable
         return sodium_crypto_secretbox_open($encrypted_text, $nonce, $key);
     }
 
-    /**
-     * @return Collection|Report[]
-     */
-    public function getReports(): Collection
+    public function getReports(): Collection | array
     {
         return $this->reports;
     }

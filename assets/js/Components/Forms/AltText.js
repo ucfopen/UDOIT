@@ -6,7 +6,7 @@ import { Text } from '@instructure/ui-text'
 import { TextArea } from '@instructure/ui-text-area'
 import { Button } from '@instructure/ui-buttons'
 import { Spinner } from '@instructure/ui-spinner'
-import Html from '../../Services/Html';
+import * as Html from '../../Services/Html';
 
 
 export default class AltText extends React.Component {

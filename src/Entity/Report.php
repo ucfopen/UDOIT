@@ -3,7 +3,6 @@
 namespace App\Entity;
 
 use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
@@ -81,10 +80,6 @@ class Report implements \JsonSerializable
 
 
     // Public Methods
-    /**
-     *
-     * @return array
-     */
     public function jsonSerialize(): array
     {
         return $this->toArray();
@@ -180,11 +175,8 @@ class Report implements \JsonSerializable
         return ($this->getSuggestions() + $this->getErrors() + $this->getContentFixed() + $this->getContentResolved());
     }
 
-    /**
-     * Undocumented function
-     *
-     * @return Course|null
-     */
+
+    // Undocumented function
     public function getCourse(): ?Course
     {
         return $this->course;

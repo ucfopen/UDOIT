@@ -5,7 +5,6 @@ namespace App\Entity;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
-use JsonSerializable;
 
 /**
  * @ORM\Entity(repositoryClass="App\Repository\CourseRepository")
@@ -88,10 +87,7 @@ class Course implements \JsonSerializable
 
     // Public Methods
 
-    /**
-     * Serializes Course with basic information needed by front-end.
-     * @return array
-     */
+    // Serializes Course with basic information needed by front-end.
     public function jsonSerialize(): array
     {
         return [
@@ -196,10 +192,7 @@ class Course implements \JsonSerializable
         return $this;
     }
 
-    /**
-     * @return ContentItem[]
-     */
-    public function getContentItems(): Array
+    public function getContentItems(): array
     {
         $contentItems = [];
 
@@ -238,10 +231,7 @@ class Course implements \JsonSerializable
         return $this;
     }
 
-    /**
-     * @return Collection|Report[]
-     */
-    public function getReports(): Collection
+    public function getReports(): Collection | array
     {
         return $this->reports;
     }
@@ -322,10 +312,7 @@ class Course implements \JsonSerializable
         return $report;
     }
 
-    /**
-     * @return FileItem[]
-     */
-    public function getFileItems($activeOnly = true): Array
+    public function getFileItems($activeOnly = true): array
     {
         $files = [];
 

@@ -9,6 +9,7 @@ use App\Services\LmsApiService;
 use App\Services\LmsUserService;
 use App\Services\SessionService;
 use App\Services\UtilityService;
+use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Routing\Annotation\Route;
 
@@ -23,9 +24,14 @@ class DashboardController extends AbstractController
     /** @var LmsApiService $lmsApi */
     protected $lmsApi;
 
-    /**
-     * @Route("/dashboard", name="dashboard")
-     */
+    private ManagerRegistry $doctrine;
+
+    public function __construct(ManagerRegistry $doctrine)
+    {
+        $this->doctrine = $doctrine;
+    }
+
+    #[Route('/dashboard', name: 'dashboard')]
     public function index(
         UtilityService $util,
         SessionService $sessionService,
@@ -37,6 +43,7 @@ class DashboardController extends AbstractController
         $this->lmsApi = $lmsApi;
         $reportArr = false;
 
+        /** @var \App\Entity\User */
         $user = $this->getUser();
         if (!$user) {
             $this->util->exitWithMessage('User authentication failed.');
@@ -57,7 +64,7 @@ class DashboardController extends AbstractController
             $this->util->exitWithMessage('Missing LMS course ID.');
         }
 
-        $courseRepo = $this->getDoctrine()->getRepository(Course::class);
+        $courseRepo = $this->doctrine->getRepository(Course::class);
         /** @var Course $course */
         $course = $courseRepo->findOneBy(['lmsCourseId' => $lmsCourseId]);
 
@@ -83,13 +90,7 @@ class DashboardController extends AbstractController
         ]);
     }
 
-    /**
-     *
-     *
-     * @param Course $course
-     * @return void
-     */
-    protected function getSettings(Course $course)
+    protected function getSettings(Course $course): array
     {
         /** @var User $user */
         $user = $this->getUser();
@@ -122,6 +123,7 @@ class DashboardController extends AbstractController
             'auditoryRuleIds' => !empty($_ENV['AUDITORY_RULES']) ? $_ENV['AUDITORY_RULES'] : '',
             'cognitiveRuleIds' => !empty($_ENV['COGNITIVE_RULES']) ? $_ENV['COGNITIVE_RULES'] : '',
             'motorRuleIds' => !empty($_ENV['MOTOR_RULES']) ? $_ENV['MOTOR_RULES'] : '',
+            'versionNumber' => !empty($_ENV['VERSION_NUMBER']) ? $_ENV['VERSION_NUMBER'] : '',
         ];
     }
 
@@ -134,8 +136,8 @@ class DashboardController extends AbstractController
         $course->setActive(true);
         $course->setDirty(false);
 
-        $this->getDoctrine()->getManager()->persist($course);
-        $this->getDoctrine()->getManager()->flush();
+        $this->doctrine->getManager()->persist($course);
+        $this->doctrine->getManager()->flush();
 
         return $course;
     }

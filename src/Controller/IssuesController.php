@@ -2,31 +2,32 @@
 
 namespace App\Controller;
 
-use App\Entity\Course;
 use App\Entity\Issue;
-use App\Entity\Report;
 use App\Response\ApiResponse;
 use App\Services\LmsPostService;
 use App\Services\PhpAllyService;
 use App\Services\UtilityService;
+use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
 class IssuesController extends ApiController
 {
-    /**
-     * Save change to issue HTML to LMS
-     * 
-     * @Route("/api/issues/{issue}/save", name="save_issue")
-     * @param Issue $issue
-     */
+    private ManagerRegistry $doctrine;
+
+    public function __construct(ManagerRegistry $doctrine)
+    {
+        $this->doctrine = $doctrine;
+    }
+
+    // Save change to issue HTML to LMS
+    #[Route('/api/issues/{issue}/save', name: 'save_issue')]
     public function saveIssue(
-        Request $request, 
-        LmsPostService $lmsPost, 
-        PhpAllyService $phpAlly, 
-        UtilityService $util, 
-        Issue $issue) 
+        Request $request,
+        LmsPostService $lmsPost,
+        UtilityService $util,
+        Issue $issue)
     {
         $apiResponse = new ApiResponse();
         $user = $this->getUser();
@@ -40,7 +41,7 @@ class IssuesController extends ApiController
 
             // Get updated issue
             $newHtml = $request->getContent();
-            
+
             // Check if new HTML is different from original HTML
             if ($issue->getHtml() === $newHtml) {
                 throw new \Exception('form.error.same_html');
@@ -62,7 +63,7 @@ class IssuesController extends ApiController
 
             // Update issue HTML
             $issue->setNewHtml($newHtml);
-            $this->getDoctrine()->getManager()->flush();
+            $this->doctrine->getManager()->flush();
 
             // Save content to LMS
             $lmsPost->saveContentToLms($issue, $user);
@@ -77,7 +78,7 @@ class IssuesController extends ApiController
                 $issue->setStatus(Issue::$issueStatusFixed);
                 $issue->setFixedBy($user);
                 $issue->setFixedOn($util->getCurrentTime());
-                $this->getDoctrine()->getManager()->flush();
+                $this->doctrine->getManager()->flush();
 
                 // Update report stats
                 $report = $course->getUpdatedReport();
@@ -98,14 +99,9 @@ class IssuesController extends ApiController
         return new JsonResponse($apiResponse);
     }
 
-    /**
-     * Mark issue as resolved/reviewed
-     * 
-     * @Route("/api/issues/{issue}/resolve", methods={"POST","GET"}, name="resolve_issue")
-     * @param Issue $issue
-     * @return \Symfony\Component\HttpFoundation\Response
-     */
-    public function markAsReviewed(Request $request, LmsPostService $lmsPost, UtilityService $util, Issue $issue)
+    // Mark issue as resolved/reviewed
+    #[Route('/api/issues/{issue}/resolve', methods: ['POST','GET'], name: 'resolve_issue')]
+    public function markAsReviewed(Request $request, LmsPostService $lmsPost, UtilityService $util, Issue $issue): JsonResponse
     {
         $apiResponse = new ApiResponse();
         $user = $this->getUser();
@@ -121,7 +117,7 @@ class IssuesController extends ApiController
             $issueUpdate = \json_decode($request->getContent(), true);
 
             $issue->setNewHtml($issueUpdate['newHtml']);
-            $this->getDoctrine()->getManager()->flush();
+            $this->doctrine->getManager()->flush();
 
             // Save content to LMS
             $response = $lmsPost->saveContentToLms($issue, $user);
@@ -138,7 +134,7 @@ class IssuesController extends ApiController
                 // Update report stats
                 $report = $course->getUpdatedReport();
 
-                $this->getDoctrine()->getManager()->flush();
+                $this->doctrine->getManager()->flush();
 
                 if ($issue->getStatus() == Issue::$issueStatusResolved) {
                     $apiResponse->addMessage('form.msg.success_resolved', 'success');
@@ -152,7 +148,7 @@ class IssuesController extends ApiController
                 ]);
             } else {
                 $apiResponse->addLogMessages($unreadMessages);
-            }            
+            }
         } catch (\Exception $e) {
             $apiResponse->addError($e->getMessage());
         }
@@ -160,12 +156,8 @@ class IssuesController extends ApiController
         return new JsonResponse($apiResponse);
     }
 
-    /**
-     * Rescan an issue in PhpAlly
-     * 
-     * @Route("/api/issues/{issue}/scan", name="scan_issue")
-     * @param Issue $issue
-     */
+    // Rescan an issue in PhpAlly
+    #[Route('/api/issues/{issue}/scan', name: 'scan_issue')]
     public function scanIssue(Issue $issue, PhpAllyService $phpAlly, UtilityService $util)
     {
         $apiResponse = new ApiResponse();
@@ -188,7 +180,7 @@ class IssuesController extends ApiController
                 'report' => $report
             ]);
 
-            $this->getDoctrine()->getManager()->flush();
+            $this->doctrine->getManager()->flush();
             $apiResponse->addMessage('form.msg.manually_fixed', 'success');
         }
         else {
@@ -199,7 +191,7 @@ class IssuesController extends ApiController
         $unreadMessages = $util->getUnreadMessages();
         if (!empty($unreadMessages)) {
             $apiResponse->addLogMessages($unreadMessages);
-        }         
+        }
 
         return new JsonResponse($apiResponse);
     }

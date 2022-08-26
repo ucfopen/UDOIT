@@ -1,5 +1,4 @@
 import React from 'react';
-import Classes from '../../css/ContentPreview.scss'
 import { Modal } from '@instructure/ui-modal'
 import { Heading } from '@instructure/ui-heading'
 import { Button } from '@instructure/ui-buttons'
@@ -19,9 +18,9 @@ import MessageTray from './MessageTray'
 import Preview from './Preview'
 import { ToggleDetails } from '@instructure/ui-toggle-details'
 
-import Ufixit from '../Services/Ufixit'
+import { returnIssueForm } from '../Services/Ufixit'
 import Api from '../Services/Api'
-import Html from '../Services/Html'
+import * as Html from '../Services/Html'
 
 import Pretty from 'pretty'
 
@@ -83,13 +82,12 @@ class UfixitModal extends React.Component {
   }
 
   render() {
-    const ufixitService = new Ufixit()
     const { activeIssue, activeContentItem } = this.props
 
     const pending = (this.props.activeIssue && (this.props.activeIssue.pending == '1'))
 
     let activeIndex = this.findActiveIndex();
-    const UfixitForm = ufixitService.returnIssueForm(activeIssue)
+    const UfixitForm = returnIssueForm(activeIssue)
 
     let showExample = false
     if (!this.props.t(`rule.example.${activeIssue.scanRuleId}`).includes('rule.example')) {
