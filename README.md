@@ -1,4 +1,4 @@
-[![Join UCF Open Slack Discussions](https://ucf-open-slackin.herokuapp.com/badge.svg)](https://ucf-open-slackin.herokuapp.com/)
+[![Join UCF Open Slack Discussions](https://badgen.net/badge/icon/ucfopen?icon=slack&label)](https://dl.ucf.edu/join-ucfopen)
 ![Build Status](https://github.com/ucfopen/UDOIT/actions/workflows/udoit.yml/badge.svg)
 
 # Universal Design Online content Inspection Tool
@@ -15,9 +15,8 @@ UDOIT was originally developed by the University of Central Florida (UCF) in 201
  - MYSQL v5.7 / MariaDB
 
 ## Skills Needed for Installation
-To manually complete this installation you will need the following skills:
+To complete this installation you will need the following skills:
 
-* Web server configuration (Apache or Nginx)
 * Command line familiarity
 * MySQL familiarity
 * LMS admin permissions
@@ -25,7 +24,9 @@ To manually complete this installation you will need the following skills:
 UDOIT is built using PHP, the Symfony framework, the React framework, the Instructure UI component library, and other open source libraries. However, knowledge of PHP or Javascript is _**NOT REQUIRED**_ for installation.
 
 ## Where to Start
-1. Start the installation process by setting up UDOIT on your web server. Instructions are in [INSTALL.md](INSTALL.md).
+**Tip:** Join the [UCF Open Slack community](https://dl.ucf.edu/join-ucfopen).  They can help solve any issues you may encounter.
+
+1. Start the installation process by setting up UDOIT. Instructions are in [INSTALL.md](INSTALL.md).
 
 2. Once UDOIT is running on your web server you need to configure your LMS. Instructions for the different LMS's are in `INSTALL_<LMS_NAME>.md`.
 
