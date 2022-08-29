@@ -74,9 +74,11 @@ securityContext:
   # runAsNonRoot: true
   # runAsUser: 1000
 
+web:
+  port: "443"
+
 service:
   type: ClusterIP
-  port: "80"
 
 ingress:
   enabled: "false"
