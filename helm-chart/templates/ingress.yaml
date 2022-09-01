@@ -36,6 +36,11 @@ spec:
       secretName: {{ .secretName }}
     {{- end }}
   {{- end }}
+  defaultBackend:
+    service:
+      name: {{ $fullName }}
+      port:
+        number: {{ $svcPort }}
   rules:
     {{- range .Values.ingress.hosts }}
     - host: {{ .host | quote }}
