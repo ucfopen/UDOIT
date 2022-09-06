@@ -5,7 +5,7 @@ metadata:
   name: udoit-config
 data:
   APP_ENV: {{ .Values.app.env }}
-  BASE_URL: {{ printf "https://%s" .Values.app.host | quote }}
+  BASE_URL: {{ printf "https://%s/udoit3" .Values.app.host | quote }}
   ADMIN_LTI_NAME: {{ .Values.app.admin_lti_name }}
   APP_LMS: {{ .Values.app.lms }}
   APP_LTI_NAME: {{ .Values.app.app_lti_name }}
