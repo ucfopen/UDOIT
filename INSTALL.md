@@ -51,7 +51,7 @@ We provide a fast and simple way of setting up a local UDOIT instance through th
 To set up the docker containers, you must first install [Docker](https://docs.docker.com/get-docker/) and [Docker Compose](https://docs.docker.com/compose/install/).
 
 ### 2. Build the Containers
-If you prefer to build the containers yourself, or you are actively developing UDOIT and need to rebuild the containers to test your cahnges, run the following command from within the UDOIT directory:
+If you prefer to build the containers yourself, or you are actively developing UDOIT and need to rebuild the containers to test your changes, run the following command from within the UDOIT directory:
 
     docker-compose -f docker-compose.nginx.yml up
 

@@ -82,9 +82,8 @@ service:
 
 ingress:
   enabled: true
-  # className: nginx-default
-  annotations:
-    {}
+  className: nginx
+  annotations: {}
   hosts:
     - host: chart-example.local
       paths:
@@ -94,11 +93,6 @@ ingress:
   #  - secretName: chart-example-tls
   #    hosts:
   #      - chart-example.local
-
-ingressclass:
-  className: nginx-default
-  controller: k8s.io/ingress-nginx
-  isDefault : true
 
 resources:
   # We usually recommend not to specify default resources and to leave this as a conscious
