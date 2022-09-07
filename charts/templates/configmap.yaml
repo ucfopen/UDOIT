@@ -20,7 +20,7 @@ data:
   DEFAULT_LANG: {{ .Values.app.default_lang }}
   EASY_FIX_RULES: {{ .Values.app.easy_fix_rules }}
   JWK_BASE_URL: {{ .Values.app.jwk_base_url }}
-  MESSENGER_TRANSPORT_DSN: {{ .Values.app.messsenger_transport_dsn }}
+  MESSENGER_TRANSPORT_DSN: {{ .Values.app.messenger_transport_dsn }}
   MOTOR_RULES: {{ .Values.app.motor_rules }}
   PHPALLY_EXCLUDED_RULES: {{ .Values.app.phpally_excluded_rules }}
   PHPALLY_SUGGESTION_RULES: {{ .Values.app.phpally_suggestion_rules }}
