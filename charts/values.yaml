@@ -80,22 +80,25 @@ web:
 service:
   type: ClusterIP
 
-# ingress:
-#   enabled: "false"
-#   className: ""
-#   annotations:
-#     {}
-#     # kubernetes.io/ingress.class: nginx
-#     # kubernetes.io/tls-acme: "true"
-#   hosts:
-#     - host: chart-example.local
-#       paths:
-#         - path: /
-#           pathType: ImplementationSpecific
-#   tls: []
+ingress:
+  enabled: true
+  # className: nginx-default
+  annotations:
+    {}
+  hosts:
+    - host: chart-example.local
+      paths:
+        - path: /
+          pathType: ImplementationSpecific
+  tls: []
   #  - secretName: chart-example-tls
   #    hosts:
   #      - chart-example.local
+
+ingressclass:
+  className: nginx-default
+  controller: k8s.io/ingress-nginx
+  isDefault : true
 
 resources:
   # We usually recommend not to specify default resources and to leave this as a conscious

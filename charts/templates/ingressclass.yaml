@@ -1,0 +1,10 @@
+apiVersion: networking.k8s.io/v1
+kind: IngressClass
+metadata:
+  labels:
+    app.kubernetes.io/component: controller
+  name: {{ .Values.ingressclass.className }}
+  annotations:
+    ingressclass.kubernetes.io/is-default-class: {{ .Values.ingressclass.isDefault }}
+spec:
+  controller: {{ .Values.ingressclass.controller }}

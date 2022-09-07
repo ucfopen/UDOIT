@@ -32,6 +32,6 @@ data:
   VIMEO_API_KEY: {{ .Values.app.vimeo_api_key }}
 {{- end }}
   VISUAL_RULES: {{ .Values.app.visual_rules }}
-{{- if .Values.app.vimeo_api_key }}
+{{- if .Values.app.youtube_api_key }}
   YOUTUBE_API_KEY: {{ .Values.app.youtube_api_key }}
 {{- end }}
