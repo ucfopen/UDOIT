@@ -33,3 +33,4 @@ yarn-error.log
 /phpunit.xml
 .phpunit.result.cache
 ###< phpunit/phpunit ###
+minikube-darwin-amd64

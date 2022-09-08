@@ -2,7 +2,7 @@
 UDOIT can be installed on your own existing servers with the following instructions. UDOIT is also available as a hosted and maintained product by [Cidi Labs](https://cidilabs.com). UDOIT is built using the [PHP Symfony Framework](https://symfony.com).
 
 ## System Requirements
-The system requirements depend on how you install UDOIT.  If you use Docker, the host system doesn't require any additional software.
+The system requirements depend on how you install UDOIT.  If you use Docker, the host system doesn't require any additional software. If you are using the Helm install method, it is assumed you have a running Kubernetes cluster.
 
 ### Docker Method
 * Docker
@@ -15,6 +15,10 @@ The system requirements depend on how you install UDOIT.  If you use Docker, the
 * Git (If you are using The Git Method below) or if you plan on contributing to UDOIT
 * Node v16 is supported; other versions may work
 * Yarn
+
+### Helm Method (for deployment to Kubernetes)
+
+See [INSTALL-HELM.md](INSTALL_HELM.md) for details on prerequisites for this installation method.
 
 ## Download the Code
 ### Option 1: Git
@@ -36,7 +40,7 @@ cp .env.local.example .env.local
 ```
 2. Leave `APP_ENV` set to `prod`
 > If you are setting up a development environment, set this to `dev` and follow the steps in [Installing Composer Dependencies](#installing-composer-dependencies) without the `--no-dev` flag to obtain all of the development packages.
-3. Add your database information to thie `DATABASE_URL` variable.  (The default value of `mysql://root:root@db:3306/udoit3` is suitable for running it on your local computer using Docker.)
+3. Add your database information to the `DATABASE_URL` variable.  (The default value of `mysql://root:root@db:3306/udoit3` is suitable for running it on your local computer using Docker.)
 4. Modify the `BASE_URL` to match the URL of your instance of UDOIT.  (The default value of `http://127.0.0.1:8000/udoit3` is suitable for running it on your local computer using Docker.)
 5. Modify the `WEBPACK_PUBLIC_PATH` to match the `BASE_URL` you set.  (The default value of `/udoit3/build` is suitable for running it on your local computer usind Docker.  Example:  If your `BASE_URL` is set to `http://127.0.0.1:8000`, your `WEBPACK_PUBLIC_PATH` should be `/build`.)
 6. Set `APP_LMS` to the name of your LMS.
@@ -52,7 +56,7 @@ We provide a fast and simple way of setting up a local UDOIT instance through th
 To set up the docker containers, you must first install [Docker](https://docs.docker.com/get-docker/) and [Docker Compose](https://docs.docker.com/compose/install/).
 
 ### 2. Build the Containers
-If you prefer to build the containers yourself, or you are actively developing UDOIT and need to rebuild the containers to test your cahnges, run the following command from within the UDOIT directory:
+If you prefer to build the containers yourself, or you are actively developing UDOIT and need to rebuild the containers to test your changes, run the following command from within the UDOIT directory:
 
     docker-compose -f docker-compose.nginx.yml up
 
@@ -118,6 +122,10 @@ UDOIT uses [node](https://nodejs.org) and [yarn](https://yarnpkg.com/) to compil
 To build the JavaScript files for production, run the command:
 
     yarn build
+
+## Helm Installation (for deployment to Kubernetes)
+
+See [INSTALL-HELM.md](INSTALL_HELM.md) for guidance on this method.
 
 ## Testing Your Setup
 Once you have completed the steps above you will want to test your setup. Unfortunately, UDOIT is an LTI tool that can only fully run within the LMS. You will need to complete the steps in the [INSTALL_CANVAS.md](INSTALL_CANVAS.md) or [INSTALL_D2L.md](INSTALL_D2L.md) to test UDOIT fully.
