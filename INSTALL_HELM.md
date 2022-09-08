@@ -12,9 +12,9 @@
 
 Add the repository: `helm repo add udoit https://ucfopen.github.io/UDOIT/`
 
-Example install: `helm install --repo <repo URL> <deployment name> <chart name>`
+Example install: `helm install <deployment name> <repo name>/<chart name>`
 
-Install the Helm chart: `helm install --repo https://ucfopen.github.io/UDOIT udoit udoit`
+Install the Helm chart: `helm install udoit3 udoit/udoit`
 
 ## Configuration
 
