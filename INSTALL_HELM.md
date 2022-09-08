@@ -1,25 +1,28 @@
 # Installing UDOIT using Helm
 
-[Helm](https://helm.sh/) is a package manager for Kubernetes. A Helm chart has been written to more easily deply UDOIT to containers on a Kubernetes cluster
+[Helm](https://helm.sh/) is a package manager for Kubernetes. A Helm chart has been written to more easily deploy UDOIT to containers on a Kubernetes cluster
 
 ## Prerequisites
 
+* A deployed Kubernetes cluster
 * Your Kubernetes cluster must have the [Ingress NGINX Controller](https://github.com/kubernetes/ingress-nginx) installed
 * A working knowledge of installation with Helm, e.g. the `helm install...` command. More information can be found at [Install an Example Chart](https://helm.sh/docs/intro/quickstart/#install-an-example-chart) or the general [Helm documentation](https://helm.sh/docs/)
 
 ## Installation
 
-Add the repository: `helm repo add udoit https://miamioh.github.io/UDOIT/`
+Add the repository: `helm repo add udoit https://ucfopen.github.io/UDOIT/`
 
-`helm install --repo https://ucfopen.github.io/... <deployment name> <chart name>`
+Example install: `helm install --repo <repo URL> <deployment name> <chart name>`
 
-Install the Helm chart: `helm install--repo https://ucfopen.github.io/... udoit udoit`
+Install the Helm chart: `helm install --repo https://ucfopen.github.io/UDOIT udoit udoit`
 
 ## Configuration
 
-Please note, the application specific configuration settings are the only ones listed for reference; other non-UDOIT specific settings are present in the `values.yaml` for the chart but are not covered here.
+Please note that the application specific configuration settings and the essential for deployment configuration settings are the ones listed here for reference. Other non-UDOIT deployment specific settings are present in the [values.yaml](/charts/udoit/values.yaml) for the chart but are not covered here.
 
-| Parameter | Description | Default 
+### UDOIT Configuration
+
+| Parameter | Description | Default Value
 | --- | --- | --- |
 | `app.env` | Application environment | `prod`
 | `app.host` | The URL of your instance of UDOIT | `127.0.0.1:8000`
@@ -44,7 +47,26 @@ Please note, the application specific configuration settings are the only ones l
 | `app.store_user_names` | lorem ipsum | `true`
 | `app.text_color` | lorem ipsum | `#2D3B45`
 | `app.use_development_auth` | lorem ipsum | `no`
-| `app.version_number` | Udoit veersion | `3.3.0`
+| `app.version_number` | UDOIT veersion | `3.3.0`
 | `app.vimeo_api_key` | Vimeo API access key | `null`
 | `app.visual_rules` | lorem ipsum | `AnchorMustContainText,AnchorSuspiciousLinkText,BaseFontIsNotUsed,CssTextHasContrast,CssTextStyleEmphasize,FontIsNotUsed,HeadersHaveText,HeadingsInOrder,ImageAltIsDifferent,ImageAltIsTooLong,ImageAltNotEmptyInAnchor,ImageAltNotPlaceholder,ImageHasAlt,ImageHasAltDecorative,ImageHasLongDescription,InputImageNotDecorative,NoHeadings,ObjectTagDetected,ParagraphNotUsedAsHeader,PreShouldNotBeUsedForTabularValues,TableDataShouldHaveTableHeader,TableHeaderShouldHaveScope`
 | `app.youtube_api_key` | YouTube API access key | `null`
+
+### Other important Values
+
+#### Database Configuration Settings
+
+| Parameter | Description | Default Value
+| --- | --- | --- |
+| `database.type` | The database type | `mysql`
+| `database.host` | The database host | `db`
+| `database.port` | Database port in use | `"3306"`
+| `database.user` | Database user name | `root`
+| `database.name` | The name of the UDOIT database | `udoit3`
+| `database.password` | Database user password | `root`
+
+#### Other Configuration Settings
+
+| Parameter | Description | Default Value
+| --- | --- | --- |
+| `image.tag` | Overrides the image tag whose default is the chart appVersion. | `"main"`
