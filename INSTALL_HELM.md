@@ -1,4 +1,24 @@
+# Installing UDOIT using Helm
+
+[Helm](https://helm.sh/) is a package manager for Kubernetes. A Helm chart has been written to more easily deply UDOIT to containers on a Kubernetes cluster
+
+## Prerequisites
+
+* Your Kubernetes cluster must have the [Ingress NGINX Controller](https://github.com/kubernetes/ingress-nginx) installed
+* A working knowledge of installation with Helm, e.g. the `helm install...` command. More information can be found at [Install an Example Chart](https://helm.sh/docs/intro/quickstart/#install-an-example-chart) or the general [Helm documentation](https://helm.sh/docs/)
+
+## Installation
+
+Add the repository: `helm repo add udoit https://miamioh.github.io/UDOIT/`
+
+`helm install --repo https://ucfopen.github.io/... <deployment name> <chart name>`
+
+Install the Helm chart: `helm install--repo https://ucfopen.github.io/... udoit udoit`
+
 ## Configuration
+
+Please note, the application specific configuration settings are the only ones listed for reference; other non-UDOIT specific settings are present in the `values.yaml` for the chart but are not covered here.
+
 | Parameter | Description | Default 
 | --- | --- | --- |
 | `app.env` | Application environment | `prod`
