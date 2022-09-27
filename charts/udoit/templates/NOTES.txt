@@ -21,22 +21,3 @@
   kubectl --namespace {{ .Release.Namespace }} port-forward $POD_NAME 8080:$CONTAINER_PORT
 {{- end }}
 
-data:
-  # Non-sensitive UDOIT config entries from the .Values.app
-  {{- range $prefix, $data := .Values.app }}
-  {{- range $key, $value := $data }}
-  {{- if  (and (and (and (not (contains "password" (lower $key))) (not (contains "key" (lower $key)))) (not (contains "token" (lower $key)))) (not (contains "secret" (lower $key)))) }}
-  {{ upper $prefix -}}{{ upper $key -}}: {{ $value | quote }}
-  {{- end }}
-  {{- end }}
-  {{- end }}
-
-  # Non-sensitive database Config entries from the .Values.database
-  {{- range $prefix, $data := .Values.database }}
-  {{- range $key, $value := $data }}
-  {{- if  (and (and (and (not (contains "password" (lower $key))) (not (contains "key" (lower $key)))) (not (contains "token" (lower $key)))) (not (contains "secret" (lower $key)))) }}
-  {{ upper $prefix -}}{{ upper $key -}}: {{ $value | quote }}
-  {{- end }}
-  {{- end }}
-  {{- end }}
-
