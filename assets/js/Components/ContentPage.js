@@ -79,7 +79,7 @@ class ContentPage extends React.Component {
 
   static getDerivedStateFromProps(props, state) {
     const stateActiveIssue = state.activeIssue
-    const propsActiveIssue = stateActiveIssue && props.report.issues[stateActiveIssue.id]
+    const propsActiveIssue = stateActiveIssue && props.report.issues.find(x => x.id === stateActiveIssue.id);
     if(propsActiveIssue && propsActiveIssue.status !== stateActiveIssue.status) {
       return {
         activeIssue: propsActiveIssue
