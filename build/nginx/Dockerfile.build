@@ -13,6 +13,7 @@ RUN docker-php-ext-install pdo_mysql gd pdo \
     && docker-php-ext-install intl \
     && apt-get remove libicu-dev icu-devtools -y
 
+# Write opcache-specific PHP ini file
 RUN { \
         echo 'opcache.memory_consumption=128'; \
         echo 'opcache.interned_strings_buffer=8'; \
@@ -22,7 +23,10 @@ RUN { \
         echo 'opcache.enable_cli=1'; \
     } > /usr/local/etc/php/conf.d/php-opocache-cfg.ini
 
+# Copy custom PHP ini file that overrides defaults
+COPY ./build/nginx/php-custom.ini /usr/local/etc/php/conf.d/php-custom.ini
 
+# Copy custom Nginx configuration
 COPY ./build/nginx/deploy.conf /etc/nginx/sites-enabled/default
 
 COPY ./build/nginx/entrypoint.sh /etc/entrypoint.sh
