@@ -18,7 +18,7 @@ The system requirements depend on how you install UDOIT.  If you use Docker, the
 
 ### Helm Method (for deployment to Kubernetes)
 
-See [INSTALL-HELM.md](INSTALL_HELM.md) for details on prerequisites for this installation method.
+See [INSTALL_HELM.md](INSTALL_HELM.md) for details on prerequisites for this installation method.
 
 ## Download the Code
 ### Option 1: Git
@@ -125,7 +125,7 @@ To build the JavaScript files for production, run the command:
 
 ## Helm Installation (for deployment to Kubernetes)
 
-See [INSTALL-HELM.md](INSTALL_HELM.md) for guidance on this method.
+See [INSTALL_HELM.md](INSTALL_HELM.md) for guidance on this method.
 
 ## Testing Your Setup
 Once you have completed the steps above you will want to test your setup. Unfortunately, UDOIT is an LTI tool that can only fully run within the LMS. You will need to complete the steps in the [INSTALL_CANVAS.md](INSTALL_CANVAS.md) or [INSTALL_D2L.md](INSTALL_D2L.md) to test UDOIT fully.
