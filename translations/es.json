@@ -152,7 +152,7 @@
   "label.view_source": "HTML",
   "label.open_in_lms": "Ver en LMS",
   "label.continue": "Continuar",
-  "label.content_loading_msg": "Se está revisando el contenido del curso.",
+  "label.content_loading_msg": "Se está revisando el contenido del curso. Este escaneado occure automáticamente cada vez la herramienta carga. Puede dura minutos dependiendo del contenido del curso. No se puede arreglar o resolver problemas hasta el escaneado ha completado.",
   "label.review_only": "Este problema no se puede solucionar dentro de UDOIT. Puede solucionar el problema en Canvas o marcarlo como revisado para ocultar este problema en el futuro.",
   "label.manually_resolved": "Resuelto Manualmente",
   "label.manual_resolution": "Resolución Manual",
