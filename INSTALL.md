@@ -1,6 +1,10 @@
 # Installing UDOIT
 UDOIT can be installed on your own existing servers with the following instructions. UDOIT is also available as a hosted and maintained product by [Cidi Labs](https://cidilabs.com). UDOIT is built using the [PHP Symfony Framework](https://symfony.com).
 
+## Helm Installation Method (for deployment to Kubernetes)
+
+See [INSTALL_HELM.md](INSTALL_HELM.md) for details on installing UDOIT (including prerequisites) on a Kubernetes cluster.
+
 ## System Requirements
 The system requirements depend on how you install UDOIT.  If you use Docker, the host system doesn't require any additional software. If you are using the Helm install method, it is assumed you have a running Kubernetes cluster.
 
@@ -15,10 +19,6 @@ The system requirements depend on how you install UDOIT.  If you use Docker, the
 * Git (If you are using The Git Method below) or if you plan on contributing to UDOIT
 * Node v16 is supported; other versions may work
 * Yarn
-
-### Helm Method (for deployment to Kubernetes)
-
-See [INSTALL_HELM.md](INSTALL_HELM.md) for details on prerequisites for this installation method.
 
 ## Download the Code
 ### Option 1: Git
@@ -122,10 +122,6 @@ UDOIT uses [node](https://nodejs.org) and [yarn](https://yarnpkg.com/) to compil
 To build the JavaScript files for production, run the command:
 
     yarn build
-
-## Helm Installation (for deployment to Kubernetes)
-
-See [INSTALL_HELM.md](INSTALL_HELM.md) for guidance on this method.
 
 ## Testing Your Setup
 Once you have completed the steps above you will want to test your setup. Unfortunately, UDOIT is an LTI tool that can only fully run within the LMS. You will need to complete the steps in the [INSTALL_CANVAS.md](INSTALL_CANVAS.md) or [INSTALL_D2L.md](INSTALL_D2L.md) to test UDOIT fully.
