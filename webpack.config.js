@@ -10,7 +10,7 @@ if (!Encore.isRuntimeEnvironmentConfigured()) {
 
 
 Encore.setOutputPath('public/build')
-  .setPublicPath('/udoit3/build')
+  .setPublicPath(process.env.WEBPACK_PUBLIC_PATH || '/build')
   .setManifestKeyPrefix('build')
   .addEntry('app', './assets/js/index.js')
   .addEntry('admin', './assets/js/admin.js')

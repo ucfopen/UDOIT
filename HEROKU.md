@@ -1,9 +1,9 @@
 # Heroku Deploy
-## Heroku Button
-If you wish to install Heroku using the one-click deployment process, please click the purple "Deploy to Heroku" button in the [repository home page](https://github.com/ucfopen/UDOIT/tree/main#installing-udoit-on-heroku).
+
+**Warning:** There is a known issue with hosting UDOIT on Heroku.  Courses with large amounts of content can cause UDOIT to scan for longer than Heroku allows, resulting in a failed scan appears to never complete.  We do not recommend using Heroku for hosting your production instance of UDOIT at this time.  The instructions below are left here for reference.
 
 ## Installation Instructions
-Installing UDOIT using the Heroku button is very easy, but still requires some setup.
+Installing UDOIT on Heroku requires some technical knowledge. We recommend that you have an IT staff member perform the steps below.
 
 ### Step 1: Setting up Heroku
 Click the Heroku button and follow the instructions below:
@@ -50,7 +50,7 @@ Install the app following the instructions described in INSTALL_\<LMS\>.md.
 ### (Optional) Step 4: Clone UDOIT and Push to Heroku
 If you make changes to the source code of UDOIT, and you'd like to deploy those changes to your Heroku instance, follow these instructions.
 
-1. Follow the instruction under the ['Source Code' section of INSTALL.md](https://github.com/ucfopen/UDOIT/blob/main/INSTALL.md#source-code).
+1. Follow the instructions under the ['Source Code' section of INSTALL.md](https://github.com/ucfopen/UDOIT/blob/main/INSTALL.md#source-code).
 2. Install and log in to the [Heroku CLI](https://devcenter.heroku.com/articles/heroku-cli).
 3. Next, from within your UDOIT's root folder on your machine, connect your local repository to Heroku:
 ```

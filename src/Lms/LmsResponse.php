@@ -55,7 +55,7 @@ class LmsResponse implements \JsonSerializable {
             $this->contentString .= $content;
         }
         else {            
-            $this->contentArray = array_merge($this->contentArray, $results);
+            $this->contentArray = array_merge_recursive($this->contentArray, $results);
         }
     }
 

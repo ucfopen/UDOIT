@@ -3,7 +3,6 @@ version: "3.9"
 services:
   db:
     image: mysql:latest
-    platform: linux/amd64
     volumes:
       - dbdata:/var/lib/mysql
     environment:
@@ -43,6 +42,9 @@ services:
         dockerfile: Dockerfile.php.pdo.mysql
       volumes:
           - ./:/var/www/html
+          - type: bind
+            source: ./build/nginx/php-custom.ini
+            target: /usr/local/etc/php/conf.d/php-custom.ini
       env_file:
         - .env
         - .env.local
