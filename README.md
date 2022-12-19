@@ -1,4 +1,4 @@
-[![Join UCF Open Slack Discussions](https://badgen.net/badge/icon/ucfopen?icon=slack&label)](https://dl.ucf.edu/join-ucfopen)
+[![Join UCF Open Slack Discussions](https://badgen.net/badge/icon/ucfopen?icon=slack&label=slack)](https://dl.ucf.edu/join-ucfopen)
 ![Build Status](https://github.com/ucfopen/UDOIT/actions/workflows/udoit.yml/badge.svg)
 
 # Universal Design Online content Inspection Tool

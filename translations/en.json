@@ -152,7 +152,7 @@
   "label.view_source": "HTML",
   "label.open_in_lms": "View In LMS",
   "label.continue": "Continue",
-  "label.content_loading_msg": "UDOIT is scanning the course content for accessibility issues.  This scan happens automatically each time you use the tool.",
+  "label.content_loading_msg": "UDOIT is scanning the course content for accessibility issues. This scan happens automatically each time you use the tool. It can take multiple minutes depending on your course content. You will not be able to fix or resolve issues until the scan has completed.",
   "label.review_only": "This issue cannot be fixed within UDOIT. You can fix the issue in Canvas, or mark this as reviewed to hide this issue in the future.",
   "label.manually_resolved": "Manually Resolved",
   "label.manual_resolution": "Manual Resolution",
