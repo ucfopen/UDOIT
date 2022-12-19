@@ -21,6 +21,22 @@ class IssuesController extends ApiController
         $this->doctrine = $doctrine;
     }
 
+    #[Route(path: '/api/issues/{issue}', name: 'get_issue')]
+    public function getIssue(Issue $issue)
+    {
+        $apiResponse = new ApiResponse();
+        
+        $apiResponse->setData([
+            'id' => $issue->getId(),
+            'sourceHtml' => $issue->getHtml(),
+            'previewHtml' => $issue->getPreviewHtml(),
+            'metadata' => $issue->getMetadata(),
+            'status' => $issue->getStatus(),
+        ]);
+
+        return new JsonResponse($apiResponse);
+    }
+
     // Save change to issue HTML to LMS
     #[Route('/api/issues/{issue}/save', name: 'save_issue')]
     public function saveIssue(
