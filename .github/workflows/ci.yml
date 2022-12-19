@@ -4,7 +4,7 @@ on:
   push:
     branches:
       - main
-      - 'dev/*'
+      - 'stable/*'
 
 env:
   REGISTRY: ghcr.io
@@ -15,7 +15,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-
 
       - name: Log in to the Container registry
         uses: docker/login-action@f054a8b539a109f9f41c372932f1ae047eff08c9

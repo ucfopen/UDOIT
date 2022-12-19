@@ -39,23 +39,24 @@ If you are contributing code to UDOIT, please follow the guidelines below.
 
 ### Forking
 
-If you are an outside contributor, you will need to fork the UDOIT project in order to work on it.  If you are familiar with Git, but are unsure of the forking process, read the [Forking Projects](https://guides.github.com/activities/forking/) guide.  After you are finished fixing a bug or implementing a feature on your fork, submit a pull request using the appropriate [Dev branch](#dev-branches) as the `base`.
+If you are an outside contributor, you will need to fork the UDOIT project in order to work on it.  If you are familiar with Git, but are unsure of the forking process, read the [Forking Projects](https://guides.github.com/activities/forking/) guide. Make your changes in an appropriately-named [issue branch](#issue-branches) in your fork. After you are finished fixing a bug or implementing a feature on your fork, submit a pull request back to this repository.
 
 The overall workflow is:
 
 1. Choose an issue to work on, or submit a new one.
 2. [Fork this project](https://guides.github.com/activities/forking/)
-3. Make the changes necessary to resolve the issue.
-4. Test the code in your own environment.
-5. Create a pull request
-   1. Use the appropriate [Dev branch](#dev-branches) as the `base`
-   2. Write a description of what you did in the `description` field.
-   3. [Link the pull request to the issue](https://docs.github.com/en/issues/tracking-your-work-with-issues/linking-a-pull-request-to-an-issue)
-6. Pay attention to the pull request and respond to any questions others have about it.  It may take a few back-and-forth communications and changes for your pull request to be approved and merged.
+3. Create an [issue branch](#issue-branches).
+4. Make the changes necessary to resolve the issue.
+5. Test the code in your own environment.
+6. Commit and push the code to your fork.
+7. Create a pull request back to the ucfopen/UDOIT repository.
+   1. Write a description of what you did in the `description` field.
+   2. [Link the pull request to the issue](https://docs.github.com/en/issues/tracking-your-work-with-issues/linking-a-pull-request-to-an-issue)
+8. Pay attention to the pull request and respond to any questions others have about it.  It may take a few back-and-forth communications and changes for your pull request to be approved and merged.
 
-## Branching
+### Branching
 
-If you are a member of the UDOIT team, you can either fork the project (using the instructions above) or branch.  Refer to the [Issue Branches](#issue-branches) section for the proper naming convention and pull request process.
+If you are a member of the UDOIT team, you can either fork the project (using the instructions above) or create a new branch within this repository.  Refer to the [Issue Branches](#issue-branches) section for the proper naming convention and pull request process.
 
 ## Explanation of Branches and Merging
 
@@ -64,28 +65,39 @@ UDOIT has a structured flow for how issues, branches, and releases are handled.
 ### Main Branch
 
 * This is the default branch.
-* It always points at the latest release, and thus always production ready.
+* Issue branches merge into this branch.
+* It represents the latest version of UDOIT, but it is not intended for production use.
 
-### Dev Branches
+### Stable Branches
 
-* Naming Convention: `dev/v1-2-10` - a new one for every upcoming release version - following [SEMVER](http://semver.org/). (Note: Hyphens are used instead of periods to preserve compatibility with the Heroku button.)
-* Issue branches merge into this branch (never main)
-* When this dev branch is ready for release, it is merged into main and deleted
+* Naming convention: `stable/major.minor.x`, following [Semantic Versioning](https://semver.org/)
+* They represent the latest stable version of each minor release, including all bugfixes and patches up to that point.
+* They are intended for production use.
+* The current release and previous minor release will receive security vulnerability fixes.
+* Only the current release will receive non-security bugfixes.
 
 ### Issue Branches
 
-* Naming Convention: `issue/3432-add-package-json-dependency`
-* The number is an issue number, and the text is a very short description of the issue.
+* Naming Convention: `issue/####-short-description-of-issue`, where `####` is the issue number.
 * All issue branches must be tied to an issue, even in your forked version of UDOIT.
 * Make sure you update your forked version first, then create your issue branch from the current dev branch.
-* After work is completed, create a pull request into the target dev branch (never main).
+* After work is completed, create a pull request into `main`.
 * After the pull request is merged, the issue branch should be deleted.
 
-### Releases
+### Hotfix Branches
+
+* Naimg convention: `hotfix/short-description`
+* They represent security vulnerability fixes for the current or previous release.
+* After work is completed, create a pull request into the target `stable` branch.
+* Also merge these changes into `main` and any other `stable` branch where the vulnerability exists.
+
+## Releases
 
 The steps in this section are performed by the project maintainers.
 
-* After the dev branch for a release is merged into main, a [Release](https://github.com/ucfopen/UDOIT/releases) is created for it. [Article about managing releases](https://docs.github.com/en/github/administering-a-repository/releasing-projects-on-github/managing-releases-in-a-repository)
-* Releases are named in the format `v1.2.10` (the same as the dev branch, but with periods instead of dashes).
-* Each release gets a tag with the same name as the release after it's merged into main.
-* It is suggested that you sign release tags for extra trust ([git tag](https://git-scm.com/book/tr/v2/Git-Tools-Signing-Your-Work)).
+1. When `main` is ready for a new minor release, a new [stable branch](#stable-branches) is created.
+  * Patch releases for the current minor release are merged into the existing stable branch.
+  * Patch releases for previous minor releases are merged directly into the existing stable branch, not into `main`. The remaining steps below are still followed.
+2. A new [Release](https://github.com/ucfopen/UDOIT/releases) is created for it, named in the format `major.minor.patch` [Article about managing releases](https://docs.github.com/en/github/administering-a-repository/releasing-projects-on-github/managing-releases-in-a-repository)
+3. Each release gets a tag with the same name as the release. This tag points at the appropriate commit hash.
+4. It is suggested that you sign release tags for extra trust ([git tag](https://git-scm.com/book/tr/v2/Git-Tools-Signing-Your-Work)).
