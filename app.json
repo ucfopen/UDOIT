@@ -36,7 +36,7 @@
 	  }
 	},
 	"addons": [
-	  "heroku-postgresql:basic"
+	  "heroku-postgresql:mini"
 	],
 	"buildpacks": [
 	  {

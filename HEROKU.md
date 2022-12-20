@@ -20,6 +20,8 @@ Click the Heroku button and follow the instructions below:
 6. Fill out the `JWK_BASE_URL` field with the URL to your LMS. The default value works for instructure hosted instances of Canvas, but will need to be modified if your JWK configuration is hosted at a different domain than `iss`.
 7. Click the Deploy button and wait for the process to complete.
 
+The above deploy uses the Heroku Postgres Mini plan by default. Please check `https://elements.heroku.com/addons/heroku-postgresql` for Heroku Postgresql plan details. You can upgrade Postgresql plan inside Heroku UI later.
+
 ### Step 2: Database Migration and Setup
 Next we need to set up the database and insert our institution in to the appropriate table.
 1. Click "Manage App" or go to `https://dashboard.heroku.com/apps/yourapp`. (Replace 'yourapp' with the name you gave in Step 1.2.)
