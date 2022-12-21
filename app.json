@@ -100,7 +100,7 @@
     }
   },
   "addons": [
-    "heroku-postgresql:hobby-dev"
+    "heroku-postgresql:basic"
   ],
   "buildpacks": [
     {
