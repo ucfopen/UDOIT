@@ -85,8 +85,8 @@ $oauth2_scopes = [
     'url:GET|/api/v1/courses/:course_id/modules/:module_id/items',
     // pages
     'url:GET|/api/v1/courses/:course_id/pages',
-    'url:GET|/api/v1/courses/:course_id/pages/:url',
-    'url:PUT|/api/v1/courses/:course_id/pages/:url',
+    'url:GET|/api/v1/courses/:course_id/pages/:url_or_id',
+    'url:PUT|/api/v1/courses/:course_id/pages/:url_or_id',
     // users
     'url:GET|/api/v1/users/:user_id/profile',
 ];
