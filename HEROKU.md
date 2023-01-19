@@ -23,7 +23,8 @@ After clicking the Heroku button above:
 8. (optional) Copy and paste your Vimeo API key into the `VIMEO_API_KEY` field.
 9. (optional) If you have a Google Analytics account, you can paste your site tracking code into the `GA_TRACKING_CODE` field.
 10. (optional) If you would like to enable the Admin Panel, change the `ADMIN_PANEL_ENABLED` field to `true`.
-11. Click the Deploy button and wait for the process to complete.
+11. (optional) Set the AUTOIDLE_DOMAIN to the domain of the autoidle if you want to use that to save some money.
+12. Click the Deploy button and wait for the process to complete.
 
 ### Step 3:  Request a Developer Key
 UDOIT uses Oauth2 to take actions on behalf of the user, so you'll need to ask your Canvas administrator to generate a Developer Key for you.  (If you are an admin, go to your institution's account administration page in Canvas and click on 'Developer Keys'.)  Here is the information you need to provide them:
