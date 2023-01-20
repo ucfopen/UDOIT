@@ -20,15 +20,7 @@
 
 require_once('../config/settings.php');
 
-# If domain is passed in, use that instead of servername
-if (isset($autoidle_domain) && !empty($autoidle_domain)) {
-    $DOMAIN = $autoidle_domain;
-}
-else {
-    $DOMAIN = $_SERVER['SERVER_NAME'];
-}
-
-$servername = 'https://' . $DOMAIN;
+$servername = 'https://' . $_SERVER['SERVER_NAME'];
 $exploded   = explode('/',$_SERVER['PHP_SELF']);
 $scriptname = @end( $exploded );
 $scriptpath = str_replace($scriptname,'',$_SERVER['PHP_SELF']);
@@ -53,7 +45,7 @@ echo('<?xml version="1.0" encoding="UTF-8"?>');
 	<blti:extensions platform="canvas.instructure.com">
 		<lticm:property name="tool_id">udoit</lticm:property>
 		<lticm:property name="privacy_level">public</lticm:property>
-		<lticm:property name="domain"><?= $DOMAIN ?></lticm:property>
+		<lticm:property name="domain"><?= $_SERVER['SERVER_NAME'] ?></lticm:property>
 		<lticm:options name="custom_fields">
 			<lticm:property name="canvas_api_domain">$Canvas.api.domain</lticm:property>
 			<lticm:property name="canvas_root_account_id">$Canvas.rootAccount.id</lticm:property>
