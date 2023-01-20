@@ -21,7 +21,7 @@
 require_once('../config/settings.php');
 
 # If domain is passed in, use that instead of servername
-if (isset($autoidle_domain)) {
+if (isset($autoidle_domain) && !empty($autoidle_domain)) {
     $DOMAIN = $autoidle_domain;
 }
 else {
