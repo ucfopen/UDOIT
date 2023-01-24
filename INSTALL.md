@@ -28,22 +28,22 @@ We strongly recommend managing the source code through Git. The benefit of this 
 If you prefer not to use Git, you can download a zip file of the latest release from the [Releases Page](https://github.com/ucfopen/UDOIT/releases).  Unzip it in the directory on your server where UDOIT will live.
 
 ## .ENV Setup
-UDOIT uses a `.env.local` file for storing configuration variables. To create it:
+UDOIT uses a `.env` file for storing configuration variables. To create it:
 
-1. Copy the file `.env.local.example` to `.env.local` by running
+1. Copy the file `.env.example` to `.env` by running
 ```
-cp .env.local.example .env.local
+cp .env.example .env
 ```
 2. Leave `APP_ENV` set to `prod`
 > If you are setting up a development environment, set this to `dev` and follow the steps in [Installing Composer Dependencies](#installing-composer-dependencies) without the `--no-dev` flag to obtain all of the development packages.
-3. Add your database information to thie `DATABASE_URL` variable.  (The default value of `mysql://root:root@db:3306/udoit3` is suitable for running it on your local computer using Docker.)
+3. Add your database information to the `DATABASE_URL` variable.  (The default value of `mysql://root:root@db:3306/udoit3` is suitable for running it on your local computer using Docker.)
 4. Modify the `BASE_URL` to match the URL of your instance of UDOIT.  (The default value of `http://127.0.0.1:8000/udoit3` is suitable for running it on your local computer using Docker.)
 5. Modify the `WEBPACK_PUBLIC_PATH` to match the `BASE_URL` you set.  (The default value of `/udoit3/build` is suitable for running it on your local computer usind Docker.  Example:  If your `BASE_URL` is set to `http://127.0.0.1:8000`, your `WEBPACK_PUBLIC_PATH` should be `/build`.)
 6. Set `APP_LMS` to the name of your LMS.
    * `canvas` if you are using the Canvas LMS.
    * `d2l` if you are using the D2l Brightspace LMS.
-7. (Optional) You can change the default language for your entire UDOIT instance by adding the `DEFAULT_LANG` variable. Currently supported languages are English (`en`) and Spanish (`es`).
-8. (Optional) If you are using UDOIT with a self-hosted instance of Canvas, you can add the `JWK_BASE_URL` variable and set it to the URL of your instance of Canvas. (Example: `JWK_BASE_URL="https://canvas.dev.myschool.edu"`)
+7. If you are using UDOIT with a self-hosted instance of Canvas, you can add the `JWK_BASE_URL` variable and set it to the URL of your instance of Canvas. (Example: `JWK_BASE_URL="https://canvas.dev.myschool.edu"`)
+8. (Optional) You can change the default language for your entire UDOIT instance by adding the `DEFAULT_LANG` variable. Currently supported languages are English (`en`) and Spanish (`es`).
 
 ## Docker
 We provide a fast and simple way of setting up a local UDOIT instance through the use of Docker containers.
@@ -54,7 +54,7 @@ To set up the docker containers, you must first install [Docker](https://docs.do
 ### 2. Build the Containers
 If you prefer to build the containers yourself, or you are actively developing UDOIT and need to rebuild the containers to test your cahnges, run the following command from within the UDOIT directory:
 
-    docker-compose -f docker-compose.nginx.yml up
+    docker compose -f docker-compose.nginx.yml up
 
 ### 3. Wait
 Wait for all of the containers to finish initializing.  This can take over 15 minutes.  You will know you are ready to proceed with the next step when you haven't seen any output in your terminal for a few minutes.
@@ -62,7 +62,7 @@ Wait for all of the containers to finish initializing.  This can take over 15 mi
 ### 4. Set up the Database
 The first time you start the containers, you will need to set up the database to handle all the information UDOIT generates as it runs.  Run the following command:
 
-    docker-compose -f docker-compose.nginx.yml run php php bin/console doctrine:migrations:migrate
+    docker compose -f docker-compose.nginx.yml run php php bin/console doctrine:migrations:migrate
 
 > You will also need to run that command whenever you update to a new version of UDOIT.
 
@@ -72,7 +72,7 @@ Skip to [Testing your Setup](#testing-your-setup) to continue.
 ### 6. Stopping the Containers
 If you ever want to stop the containers, you can do so with the following command:
 
-    docker-compose -f docker-compose.nginx.yml down
+    docker compose -f docker-compose.nginx.yml down
 
 
 

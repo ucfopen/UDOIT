@@ -45,13 +45,11 @@ jobs:
 
       - name: Build Image
         run: |
-          cp .env.local.example .env.local
-          docker-compose -f docker-compose.nginx.yml build
-          docker-compose -f docker-compose.nginx.yml run composer composer install --no-dev --no-interaction --no-progress --optimize-autoloader
-          docker-compose -f docker-compose.nginx.yml run yarn bash -c 'cd /app && yarn install && yarn build'        
+          cp .env.example .env
+          docker compose -f docker-compose.nginx.yml build
+          docker compose -f docker-compose.nginx.yml run composer composer install --no-dev --no-interaction --no-progress --optimize-autoloader
+          docker compose -f docker-compose.nginx.yml run yarn bash -c 'cd /app && yarn install && yarn build'        
           docker build . -t udoit:latest -f build/nginx/Dockerfile.build
           docker tag udoit:latest ${{ env.REGISTRY }}/${{ steps.case.outputs.lowercase }}:${{ steps.slash.outputs.value }}
 
           docker push ${{ env.REGISTRY }}/${{ steps.case.outputs.lowercase }}:${{ steps.slash.outputs.value }}
-
-
