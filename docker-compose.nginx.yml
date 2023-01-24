@@ -60,7 +60,6 @@ services:
         - ./:/app
       env_file:
         - .env
-        - .env.local
       command: >
         bash -c '
         cd /app &&
