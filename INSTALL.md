@@ -54,7 +54,7 @@ To set up the docker containers, you must first install [Docker](https://docs.do
 ### 2. Build the Containers
 If you prefer to build the containers yourself, or you are actively developing UDOIT and need to rebuild the containers to test your cahnges, run the following command from within the UDOIT directory:
 
-    docker-compose -f docker-compose.nginx.yml up
+    docker compose -f docker-compose.nginx.yml up
 
 ### 3. Wait
 Wait for all of the containers to finish initializing.  This can take over 15 minutes.  You will know you are ready to proceed with the next step when you haven't seen any output in your terminal for a few minutes.
@@ -62,7 +62,7 @@ Wait for all of the containers to finish initializing.  This can take over 15 mi
 ### 4. Set up the Database
 The first time you start the containers, you will need to set up the database to handle all the information UDOIT generates as it runs.  Run the following command:
 
-    docker-compose -f docker-compose.nginx.yml run php php bin/console doctrine:migrations:migrate
+    docker compose -f docker-compose.nginx.yml run php php bin/console doctrine:migrations:migrate
 
 > You will also need to run that command whenever you update to a new version of UDOIT.
 
@@ -72,7 +72,7 @@ Skip to [Testing your Setup](#testing-your-setup) to continue.
 ### 6. Stopping the Containers
 If you ever want to stop the containers, you can do so with the following command:
 
-    docker-compose -f docker-compose.nginx.yml down
+    docker compose -f docker-compose.nginx.yml down
 
 
 
