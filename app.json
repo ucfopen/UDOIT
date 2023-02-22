@@ -13,6 +13,16 @@
   "website": "https://cdl.ucf.edu/initiatives/udoit/",
   "repository": "https://github.com/ucfopen/UDOIT",
   "success_url": "/",
+  "formation": {
+    "web": {
+      "quantity": 1,
+      "size": "basic"
+    },
+    "worker": {
+      "quantity": 1,
+      "size": "basic"
+    }
+  },
   "env": {
     "CONSUMER_KEY": {
       "description": "LTI consumer key entered when adding UDOIT LTI to Canvas",
