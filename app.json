@@ -13,16 +13,6 @@
   "website": "https://cdl.ucf.edu/initiatives/udoit/",
   "repository": "https://github.com/ucfopen/UDOIT",
   "success_url": "/",
-  "formation": {
-    "web": {
-      "quantity": 1,
-      "size": "free"
-    },
-    "worker": {
-      "quantity": 1,
-      "size": "free"
-    }
-  },
   "env": {
     "CONSUMER_KEY": {
       "description": "LTI consumer key entered when adding UDOIT LTI to Canvas",
@@ -100,7 +90,7 @@
     }
   },
   "addons": [
-    "heroku-postgresql:hobby-dev"
+    "heroku-postgresql:mini"
   ],
   "buildpacks": [
     {
