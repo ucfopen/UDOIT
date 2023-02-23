@@ -126,8 +126,8 @@ lms_api_domain=$Canvas.api.domain
 * Click `ON` to enable the newly created key
 
 ---
-## Docker-Compose Base URL
-If you are setting up UDOIT for local development through docker-compose, <YOUR_UDOIT_BASE_URL> in both the API developer key and the LTI developer key above should be set to `http://127.0.0.1:8000/udoit3`.
+## Docker Compose Base URL
+If you are setting up UDOIT for local development through `docker compose`, <YOUR_UDOIT_BASE_URL> in both the API developer key and the LTI developer key above should be set to `http://127.0.0.1:8000/udoit3`.
 
 ---
 ## Update the Institutions Table
