@@ -44,6 +44,7 @@ class Header extends React.Component {
               {/* <Menu.Item onClick={() => this.handleMoreNav('settings')}>{this.props.t('menu.settings')}</Menu.Item> */}
               <Menu.Separator />
               <Menu.Item onClick={this.props.handleCourseRescan}>{this.props.t('menu.scan_course')}</Menu.Item>
+              <Menu.Item onClick={this.props.handleFullCourseRescan}>{this.props.t('menu.full_rescan')}</Menu.Item>
               <Menu.Separator />
               <Menu.Item href={pdfUrl}>{this.props.t('menu.download_pdf')}</Menu.Item>
             </Menu>
