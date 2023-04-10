@@ -103,7 +103,7 @@ class ContentPage extends React.Component {
 
   handleCloseButton = () => {
     const newReport = { ...this.props.report };
-    newReport.issues = newReport.issues.map(issue => {
+    newReport.issues = newReport.issues.map((issue) => {
       issue.recentlyResolved = false;
       issue.recentlyUpdated = false;
       return issue;

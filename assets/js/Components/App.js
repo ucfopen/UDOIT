@@ -219,13 +219,13 @@ class App extends React.Component {
   handleIssueSave(newIssue, newReport) {
     const oldReport = this.state.report;
 
-    const report = {...oldReport, ...newReport};
+    const report = { ...oldReport, ...newReport };
 
     if (report && Array.isArray(report.issues)) {
       // Combine backend issues with frontend issue state
       report.issues = report.issues.map((issue) => {
         if (issue.id === newIssue.id) return newIssue;
-        const oldIssue = oldReport.issues.find(oldReportIssue => oldReportIssue.id === issue.id);
+        const oldIssue = oldReport.issues.find((oldReportIssue) => oldReportIssue.id === issue.id);
         return oldIssue !== undefined ? { ...oldIssue, ...issue } : issue;
       });
     }
