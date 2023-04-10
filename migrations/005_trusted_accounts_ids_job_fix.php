@@ -21,7 +21,7 @@ if ('mysql' === $db_type) {
     // MYSQL
     $queries = [
         [
-            'sql' => 'ALTER TABLE job_queue CHANGE id id BIGINT(20) UNSIGNED NOT NULL',
+            'sql' => 'ALTER TABLE job_queue CHANGE user_id user_id BIGINT(20) UNSIGNED NOT NULL',
         ],
     ];
 }
