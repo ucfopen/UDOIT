@@ -228,6 +228,9 @@ After you receive your Developer Key from your Canvas admin, edit the following 
 
 #### Scoped Developer Keys
 If you'd like to use this option, you'll need set the following scopes for your developer key.
+
+You also need to check the option on top to "Allow Include Parameters"
+
 * Assignments
 	* url:GET|/api/v1/courses/:course_id/assignments
 	* url:GET|/api/v1/courses/:course_id/assignments/:id
@@ -250,8 +253,8 @@ If you'd like to use this option, you'll need set the following scopes for your 
 	* url:GET|/api/v1/courses/:course_id/modules/:module_id/items
 * Pages
 	* url:GET|/api/v1/courses/:course_id/pages
-	* url:GET|/api/v1/courses/:course_id/pages/:url
-	* url:PUT|/api/v1/courses/:course_id/pages/:url
+	* url:GET|/api/v1/courses/:course_id/pages/:url_or_id
+	* url:PUT|/api/v1/courses/:course_id/pages/:url_or_id
 * Users
 	* url:GET|/api/v1/users/:user_id/profile
 

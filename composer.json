@@ -37,7 +37,7 @@
         {
             "type"    : "package",
             "package" : {
-                "name"    : "EastDesire/jscolor",
+                "name"    : "east-desire/jscolor",
                 "version" : "1.4.2",
                 "dist"    : {
                     "url"  : "https://github.com/EastDesire/jscolor/archive/v1.4.2.zip",
@@ -61,7 +61,7 @@
         "league/plates": "~3.1.1",
         "monolog/monolog": "~1.21",
         "mnsami/composer-custom-directory-installer": "2.0.*",
-        "eastdesire/jscolor":"1.4.2"
+        "east-desire/jscolor":"1.4.2"
     },
     "require-dev": {
         "phpunit/phpunit": "^9.3.0",
@@ -87,7 +87,7 @@
     },
     "extra": {
         "installer-paths": {
-            "./public/assets/js/vendor/{$name}":["EastDesire/jscolor"]
+            "./public/assets/js/vendor/{$name}":["east-desire/jscolor"]
         }
     },
     "authors": [
@@ -157,5 +157,11 @@
             "homepage": "https://github.com/Thomas-Whitaker",
             "role": "Contributor"
         }
-    ]
+    ],
+    "config": {
+        "allow-plugins": {
+            "symfony/flex": true,
+            "mnsami/composer-custom-directory-installer": true
+        }
+    }
 }

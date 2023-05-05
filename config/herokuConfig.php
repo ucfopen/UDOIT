@@ -12,6 +12,13 @@ $oauth2_key       = getenv('OAUTH2_KEY');
 $oauth2_uri       = getenv('OAUTH2_URI');
 $oauth2_enforce_scopes = (getenv('OAUTH2_ENFORCE_SCOPES')) == 'true';
 
+/* For using autoidle in launch */
+$autoidle_domain = getenv('AUTOIDLE_DOMAIN');
+if (isset($autoidle_domain) and !empty($autoidle_domain)) {
+    $_SERVER['HTTP_HOST'] = $autoidle_domain;
+    $_SERVER['SERVER_NAME'] = $autoidle_domain;
+}
+
 /* Set session cookie options */
 $session_cookie_options = [
     'lifetime' => getenv('SESSION_COOKIE_LIFETIME') ?: 0,
