@@ -240,13 +240,8 @@ class UdoitUtils
 
     public function verifyBasicLTILaunch()
     {
-        global $logger;
         require_once(__DIR__.'/ims-blti/blti.php');
         $context = new BLTI(self::$canvas_consumer_key, self::$canvas_secret_key, false, false);
-
-        if ($context->message) {
-            $logger->addInfo($context->message);
-        }
 
         return isset($context->valid) && $context->valid;
     }
