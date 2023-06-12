@@ -1,6 +1,7 @@
 {
   "name": "UDOIT",
   "description": "The Universal Design Online content Inspection Tool, or UDOIT identifies and fixes accessibility issues in Canvas by Instructure.",
+  "stack": "heroku-20",
   "keywords": [
     "education",
     "canvas",
