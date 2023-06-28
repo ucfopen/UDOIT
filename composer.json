@@ -17,7 +17,7 @@
         "doctrine/doctrine-bundle": "^2.4",
         "doctrine/doctrine-migrations-bundle": "^3.1",
         "doctrine/orm": "^2.9",
-        "firebase/php-jwt": "^5.2",
+        "firebase/php-jwt": "^6.0",
         "htmlawed/htmlawed": "^1.1",
         "knplabs/knp-snappy-bundle": "^1.7",
         "knpuniversity/oauth2-client-bundle": "^2.9",
