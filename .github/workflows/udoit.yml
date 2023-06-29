@@ -10,12 +10,18 @@ jobs:
       matrix:
         operating-system: [ubuntu-latest]
         php-versions: ['8.1']
+        node-version: [16.19.0]
     steps:
       - name: Checkout
         uses: actions/checkout@v2
 
       - name: Check PHP syntax errors
         uses: overtrue/phplint@3.0.3
+
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v2
+        with:
+          node-version: ${{ matrix.node-version }}
 
       - name: Setup PHP, with composer and extensions
         uses: shivammathur/setup-php@v2 #https://github.com/shivammathur/setup-php
@@ -34,6 +40,9 @@ jobs:
           path: ${{ steps.composer-cache.outputs.dir }}
           key: php-${{ matrix.php-versions }}-composer-${{ hashFiles('**/composer.lock') }}
           restore-keys: php-${{ matrix.php-versions }}-composer-
+
+      - name: Create .env file
+        run: cp .env.example .env
 
       - name: Install Composer dependencies
         run: composer install --no-progress --prefer-dist --optimize-autoloader
