@@ -43,6 +43,7 @@ services:
         - type: bind
           source: ./build/nginx/php-custom.ini
           target: /usr/local/etc/php/conf.d/php-custom.ini
+      image: php
       env_file:
         - .env
   composer:
@@ -65,6 +66,15 @@ services:
         cd /app &&
         yarn install && 
         yarn build'
+
+  messenger-consume:
+    image: php
+    volumes:
+      - ./:/var/www/html
+    command: >
+      bash -c "sleep 15 && bin/console messenger:consume async_priority_high"
+    depends_on:
+      - db
 
 volumes:
   web:

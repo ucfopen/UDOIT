@@ -4,6 +4,7 @@ export default class Api {
         this.apiUrl = `https://${window.location.hostname}`;
         this.endpoints = {
             getReport: '/api/courses/{course}/reports/{report}',
+            getLatestReport: '/api/sync/getLatestReport/{course}',
             getReportHistory: '/api/courses/{course}/reports',
             saveIssue: '/api/issues/{issue}/save',
             resolveIssue: '/api/issues/{issue}/resolve',
@@ -224,6 +225,21 @@ export default class Api {
         let url = `${this.apiUrl}${this.endpoints.scanCourse}`
         url = url.replace('{course}', courseId)
 
+        return fetch(url, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-AUTH-TOKEN': authToken,
+            },
+        })
+    }
+
+    getLatestReport(courseId)
+    {
+        const authToken = this.getAuthToken()
+        let url = `${this.apiUrl}${this.endpoints.getLatestReport}`
+        url = url.replace('{course}', courseId)
+        
         return fetch(url, {
             method: 'GET',
             headers: {
