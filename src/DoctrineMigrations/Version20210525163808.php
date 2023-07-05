@@ -43,7 +43,6 @@ final class Version20210525163808 extends AbstractMigration
         $this->addSql('ALTER TABLE report ADD CONSTRAINT FK_C42F7784591CC992 FOREIGN KEY (course_id) REFERENCES course (id)');
         $this->addSql('ALTER TABLE report ADD CONSTRAINT FK_C42F7784F675F31B FOREIGN KEY (author_id) REFERENCES user (id)');
         $this->addSql('ALTER TABLE user ADD CONSTRAINT FK_8D93D64910405986 FOREIGN KEY (institution_id) REFERENCES institution (id)');
-        $this->addSql('ALTER TABLE progress_bar ADD title VARCHAR(255) DEFAULT NULL');
     }
 
     public function down(Schema $schema): void
@@ -61,7 +60,6 @@ final class Version20210525163808 extends AbstractMigration
         $this->addSql('ALTER TABLE issue DROP FOREIGN KEY FK_12AD233EC38008F2');
         $this->addSql('ALTER TABLE log_entry DROP FOREIGN KEY FK_B5F762DA76ED395');
         $this->addSql('ALTER TABLE report DROP FOREIGN KEY FK_C42F7784F675F31B');
-        $this->addSql('ALTER TABLE progress_bar DROP title');
         $this->addSql('DROP TABLE content_item');
         $this->addSql('DROP TABLE course');
         $this->addSql('DROP TABLE progress_bar');
