@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Message\ScanMessage;
 use App\Entity\ContentItem;
 use App\Entity\Course;
 use App\Entity\FileItem;
@@ -12,6 +13,7 @@ use App\Services\LmsApiService;
 use App\Services\PhpAllyService;
 use CidiLabs\PhpAlly\PhpAllyIssue;
 use Doctrine\Persistence\ManagerRegistry;
+use Symfony\Component\Messenger\MessageBusInterface;
 
 class LmsFetchService {
 
@@ -55,46 +57,14 @@ class LmsFetchService {
      * 4) Link unchanged issues to new report
      * 5) Process updated content
      */
-    public function refreshLmsContent(Course $course, User $user)
+    public function refreshLmsContent(Course $course, User $user, MessageBusInterface $bus)
     {
         $lms = $this->lmsApi->getLms($user);
 
         $this->lmsUser->validateApiKey($user);
-
-        /** @var \App\Repository\ContentItemRepository $contentItemRepo */
-        $contentItemRepo = $this->doctrine->getManager()->getRepository(ContentItem::class);
-
-        /** @var \App\Repository\FileItemRepository $fileItemRepo */
-        $fileItemRepo = $this->doctrine->getManager()->getRepository(FileItem::class);
-
-        /* Step 1: Update content
-        /* Update course status */
-        $lms->updateCourseData($course, $user);
-
-        /* Mark content items as inactive */
-        $contentItemRepo->setCourseContentInactive($course);
-        $fileItemRepo->setCourseFileItemsInactive($course);
-        $this->doctrine->getManager()->flush();
-
-        /* Update content items from LMS */
-        $lms->updateCourseContent($course, $user);
-
-        /* Step 2: Get list of changed content items */
-        $contentItems = $contentItemRepo->getUpdatedContentItems($course);
-
-        /* Step 3: Delete issues for updated content items */
-        $this->deleteContentItemIssues($contentItems);
-
-        /* Step 4: Process the updated content with PhpAlly and link to report */
-        $this->scanContentItems($contentItems);
-
-        /* Step 5: Update report from all active issues */
-        $this->updateReport($course, $user);
-
-        /* Save last_updated date on course */
-        $course->setLastUpdated($this->util->getCurrentTime());
-        $course->setDirty(false);
-        $this->doctrine->getManager()->flush();
+        
+        //Begin scanning process
+        $bus->dispatch(new ScanMessage($course->getId(), $user->getId()));
     }
 
     // Refresh content item data from the LMS
@@ -174,40 +144,6 @@ class LmsFetchService {
         $this->doctrine->getManager()->flush();
 
         return $report;
-    }
-
-    
-    // Performs PHPAlly scan on each Content Item.
-    private function scanContentItems(array $contentItems)
-    {
-        // Scan each update content item for issues
-        /** @var \App\Entity\ContentItem $contentItem */
-        foreach ($contentItems as $contentItem) {
-            try {
-                // Scan Content Item with PHPAlly
-                $phpAllyReport = $this->phpAlly->scanContentItem($contentItem);
-
-                if ($phpAllyReport) {
-                    // TODO: Do something with report errors
-                    if (count($phpAllyReport->getErrors())) {
-                        foreach ($phpAllyReport->getErrors() as $error) {
-                            $msg = $error . ', item = #' . $contentItem->getId();
-                            $this->util->createMessage($msg, 'error', $contentItem->getCourse(), null, true);
-                        }
-                    }
-
-                    // Add Issues to report
-                    foreach ($phpAllyReport->getIssues() as $issue) {
-                        // Create issue entity
-                        $this->createIssue($issue, $contentItem);
-                    }
-                }
-            }
-            catch (\Exception $e) {
-                $this->util->createMessage($e->getMessage(), 'error', null, null, true);
-            }
-        }
-        $this->doctrine->getManager()->flush();
     }
 
     public function createIssue(PhpAllyIssue $issue, ContentItem $contentItem)

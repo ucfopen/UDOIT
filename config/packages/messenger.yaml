@@ -25,3 +25,4 @@ framework:
             #'App\Message\BackgroundQueueItem': async_priority_low
             'App\Message\PriorityQueueItem': sync
             'App\Message\BackgroundQueueItem': sync
+            'App\Message\ScanMessage': async_priority_high

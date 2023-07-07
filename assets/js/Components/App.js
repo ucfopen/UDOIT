@@ -8,6 +8,7 @@ import AboutModal from './AboutModal'
 import { View } from '@instructure/ui-view'
 import Api from '../Services/Api'
 import MessageTray from './MessageTray'
+import CourseUpdateProgress from './CourseUpdateProgress'
 import FilesPage from './FilesPage'
 import SummaryBar from './SummaryBar'
 
@@ -20,7 +21,6 @@ class App extends React.Component {
     this.settings = props.settings
     this.reportHistory = []
     this.messages = props.messages
-    this.newReportInterval = 5000
 
     this.state = {
       report: this.initialReport,
@@ -28,6 +28,13 @@ class App extends React.Component {
       modal: null,
       syncComplete: false,
       hasNewReport: false,
+      progress: 0,
+      totalIssues: 0,
+      scanCompleted: false,
+      contentUpdateCompleted: false,
+      title: "",
+      updateInterval: 0,
+      scanInterval: 0,
     }
 
     this.handleNavigation = this.handleNavigation.bind(this)
@@ -41,6 +48,11 @@ class App extends React.Component {
     this.handleCourseRescan = this.handleCourseRescan.bind(this)
     this.handleNewReport = this.handleNewReport.bind(this)
     this.resizeFrame = this.resizeFrame.bind(this)
+    this.pollBackgroundWorker = this.pollBackgroundWorker.bind(this)
+    this.fetchLoadData = this.fetchLoadData.bind(this)
+    this.fetchUpdateData = this.fetchUpdateData.bind(this)
+    this.getReport = this.getReport.bind(this)
+    this.getLatestReport = this.getLatestReport.bind(this)
   }
 
   render() {
@@ -60,7 +72,12 @@ class App extends React.Component {
         }
 
         <MessageTray messages={this.messages} t={this.t} clearMessages={this.clearMessages} hasNewReport={this.state.syncComplete} />
-
+        
+        <CourseUpdateProgress
+          progress={this.state.progress}
+          contentUpdateCompleted={this.state.contentUpdateCompleted} 
+          title = {this.state.title}/>
+          
         <main role="main">
           {('welcome' === this.state.navigation) &&
             <WelcomePage
@@ -127,12 +144,30 @@ class App extends React.Component {
 
     this.scanCourse()
       .then((response) => response.json())
-      .then(this.handleNewReport)
+      .then(() => this.getContentUpdate())
+      .then(() => this.pollBackgroundWorker())
+      .then(() => this.getReport())
 
       // update iframe height on resize
       window.addEventListener("resize", this.resizeFrame);
 
       this.resizeFrame();
+  }
+
+  getReport() {
+    if(this.state.scanCompleted === true) {
+      this.getLatestReport()
+        .then((response) => response.json())
+        .then(this.handleNewReport)
+    }
+    else {
+      setTimeout(this.getReport, 500);
+    }
+  }
+
+  getLatestReport() {
+    let api = new Api(this.settings)
+    return api.getLatestReport(this.settings.course.id)
   }
 
   componentWillUnmount() {
@@ -154,12 +189,86 @@ class App extends React.Component {
 
   handleCourseRescan() {
     if (this.state.hasNewReport) {
-      this.setState({ hasNewReport: false, syncComplete: false })
+      this.setState({hasNewReport: false, 
+                     syncComplete: false, 
+                     contentUpdateCompleted: false,
+                     scanCompleted: false, 
+                     progress: 0})
       this.scanCourse()
         .then((response) => response.json())
-        .then(this.handleNewReport)
+        .then(() => this.getContentUpdate())
+        .then(() => this.pollBackgroundWorker())
+        .then(() => this.getReport())
     }
     this.forceUpdate()
+  }
+
+  // As the worker process updates UDOIT with the latest content items, this method checks on whether or not
+  // This process has been completed
+  fetchUpdateData() {
+    fetch(`http://${window.location.hostname}:8000/udoit3/api/progress`)
+      .then(response => response.json())
+      .then(data => {
+        this.setState({ 
+          progress: data.progress, 
+          title: data.title
+        }, () => { 
+          const progress = this.state.progress
+          const interval = this.state.updateInterval
+          const title = this.state.title
+          if(title != "Getting content from Canvas") {
+            clearInterval(interval);
+            this.state.updateInterval = null
+            this.state.contentUpdateCompleted = true
+          }
+        });
+      })
+      .catch(error => {
+        console.error('Error:', error);
+      });
+  }
+
+  fetchLoadData() {
+    fetch(`http://${window.location.hostname}:8000/udoit3/api/progress`)
+      .then(response => response.json())
+      .then(data => {
+        this.setState({ 
+          progress: data.progress, 
+          total: data.total, 
+          title: data.title
+        }, () => { 
+          const progress = this.state.progress
+          const total = this.state.total
+          const interval = this.state.scanInterval
+          if(progress === total) {
+            clearInterval(interval);
+            this.state.scanInterval = null
+            this.state.scanCompleted = true
+          }
+        });
+      })
+      .catch(error => {
+        console.error('Error:', error);
+      });
+  }
+
+  getContentUpdate() {
+    const interval = setInterval(() => {
+      this.fetchUpdateData();
+    }, 1000)
+    this.setState({updateInterval: interval})
+  }
+
+  pollBackgroundWorker() {
+    if (this.state.contentUpdateCompleted) {
+      const interval = setInterval(() => {
+        this.fetchLoadData()
+      }, 1000)
+      this.setState({scanInterval: interval})
+    }
+    else {
+      setTimeout(this.pollBackgroundWorker, 500);
+    }
   }
 
   handleNewReport(data) {

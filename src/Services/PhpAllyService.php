@@ -12,13 +12,10 @@ class PhpAllyService {
     /** @var App\Service\HtmlService */
     protected $htmlService;
 
-    protected $util;
-
-    public function __construct(HtmlService $htmlService, UtilityService $util)
+    public function __construct(HtmlService $htmlService)
     {
         $this->phpAlly = new PhpAlly();
         $this->htmlService = $htmlService;
-        $this->util = $util;
     }
 
     public function scanContentItem(ContentItem $contentItem)
