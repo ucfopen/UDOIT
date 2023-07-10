@@ -11,7 +11,7 @@
         "ext-ctype": "*",
         "ext-iconv": "*",
         "ext-sodium": "*",
-        "cidilabs/phpally": "~1.2.1",
+        "ucfopen/phpally": "~1.2.1",
         "composer/package-versions-deprecated": "1.11.99.3",
         "doctrine/annotations": "^1.0",
         "doctrine/doctrine-bundle": "^2.4",
@@ -110,7 +110,7 @@
     "repositories": [
         {
             "type": "vcs",
-            "url": "https://github.com/cidilabs/phpally"
+            "url": "https://github.com/ucfopen/phpally"
         }
     ]
 }
