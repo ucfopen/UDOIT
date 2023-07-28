@@ -2,6 +2,7 @@
 
 namespace App\Lms\Canvas;
 
+use DOMDocument;
 use App\Entity\ContentItem;
 use App\Entity\Course;
 use App\Entity\FileItem;
@@ -213,7 +214,15 @@ class CanvasLms implements LmsInterface {
                         $url = "courses/{$course->getLmsCourseId()}/pages/{$lmsContent['id']}";
                         $pageResponse = $canvasApi->apiGet($url);
                         $pageObj = $pageResponse->getContent();
-
+                        /*Check if HTML has any transparent elements, and if so, update them to inherit the parent
+                        background color*/
+                        $html = $this->updateTransparentElements($pageObj['body']);
+                        if (!empty($html) && $html !== $pageObj['body']){
+                            $pageObj['body'] = $html;
+                            $pageUrl = $pageObj['html_url'];
+                            $options['wiki_page[body]'] = $html;
+                            $canvasApi->apiPut($url, ['body' => $options]);
+                        }
                         if (!empty($pageObj['body'])) {
                             $lmsContent['body'] = $pageObj['body'];
                         }
@@ -491,6 +500,57 @@ class CanvasLms implements LmsInterface {
     /**********************
      * PROTECTED FUNCTIONS
      **********************/
+
+    /* Updates HTML elements with transparent backgrounds to inherit parent background colors
+    to better deal with color contrast issues */
+    protected function updateTransparentElements($html) {
+        $pageHtml = new DOMDocument;
+        $pageHtml->loadHTML($html);
+        $elements = $pageHtml->getElementsByTagName('p');
+
+        $html = "";
+
+        foreach($elements as $element) {
+            $style = $element->getAttribute('style');
+            if (strpos($style, 'background-color: transparent;') !== false) {
+                $html = $this->inheritStyle($element);
+            }
+        }
+
+        return $html;
+    }
+
+    protected function inheritStyle($element) {
+        $currElement = $element;
+        $parentStyles = [];
+        while(property_exists($currElement->parentNode, 'tagName')) {
+            $style = $currElement->getAttribute('style');
+            preg_match('/background-color:\s*([^;]+);/', $style, $matches);
+            if (isset($matches[1]) && $matches[1] !== 'transparent') {
+                array_push($parentStyles, $matches[1]);
+            }
+
+            $currElement = $currElement->parentNode;
+        }
+
+        $style = $element->getAttribute('style');
+
+        //If the element has no parent elements, then let its background color be the default background color.
+        //Else, set its background color to equal its first parent element's color
+        if (empty($parentStyles)) {
+            $newStyle = preg_replace('/background-color:\s*[^;]+;/', 'background-color: white;', $style);
+        }
+        else{
+            $color = 'background-color: ' . $parentStyles[0];
+            $newStyle = preg_replace('/background-color:\s*[^;]+;/', $color, $style);
+        }
+
+        $element->setAttribute('style', $newStyle);
+
+        $dom = $element->ownerDocument;
+
+        return $dom->saveHTML();
+    }
 
     protected function getAccountInfo(User $user, $accountId)
     {
