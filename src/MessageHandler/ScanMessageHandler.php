@@ -48,8 +48,8 @@ class ScanMessageHandler
         $progressRepo = $this->doctrine->getManager()->getRepository(ProgressBar::class);
         $fileItemRepo = $this->doctrine->getManager()->getRepository(FileItem::class);
 
+        //Creates a progress bar in case one isn't already set up
         $count = $progressRepo->count([]);
-
         if($count == 0) {
             $this->setUpProgressBar();
         }
@@ -194,6 +194,15 @@ class ScanMessageHandler
     private function scanContentItems(array $contentItems, $progressRepo) {
         // Scan each update content item for issues
         /** @var \App\Entity\ContentItem $contentItem */
+        $progressBar = $progressRepo->findOneBy([], ['id' => 'ASC']); 
+        //If there are no issues to scan, nullify the progress bar such that 
+        //the report can be sent
+        if(count($contentItems) == 0) {
+            $progressBar->setTotal(0);
+            $progressBar->setProgress(0);
+            $this->doctrine->getManager()->persist($progressBar);
+            $this->doctrine->getManager()->flush(); 
+        }
         $issueIndex = 0;
         $progressBar = $progressRepo->findOneBy([], ['id' => 'ASC']); 
         $total = count($contentItems);

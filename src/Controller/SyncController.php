@@ -25,7 +25,7 @@ class SyncController extends ApiController
     protected $util;
 
     #[Route('/api/progress', name: 'progress')]
-    public function hello(ManagerRegistry $doctrine) {
+    public function progress(ManagerRegistry $doctrine) {
         $progressRepo = $doctrine->getManager()->getRepository(ProgressBar::class);
         $progressBar = $progressRepo->findOneBy([], ['id' => 'ASC']); 
         $data = [

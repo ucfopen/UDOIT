@@ -206,7 +206,7 @@ class App extends React.Component {
   // As the worker process updates UDOIT with the latest content items, this method checks on whether or not
   // This process has been completed
   fetchUpdateData() {
-    fetch(`http://${window.location.hostname}:8000/udoit3/api/progress`)
+    fetch(`/udoit3/api/progress`)
       .then(response => response.json())
       .then(data => {
         this.setState({ 
