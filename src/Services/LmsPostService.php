@@ -81,7 +81,7 @@ class LmsPostService {
             return;
         }
 
-        return $lms->postFileItem($file);
+        return $lms->postFileItem($file, $uploadedFile->getClientOriginalName());
     }
 
     public function replaceContent(Issue $issue, ContentItem $contentItem)
