@@ -106,7 +106,7 @@ class CanvasApi {
     }
 
     // Posts a file to Canvas
-    public function apiFilePost(string $url, array $options, string $filepath): LmsResponse
+    public function apiFilePost(string $url, array $options, string $filepath, string $newFileName): LmsResponse
     {
         $fileResponse = $this->apiGet($url);
         $file = $fileResponse->getContent();
@@ -114,12 +114,15 @@ class CanvasApi {
         // TODO: handle failed call
 
         $endpointOptions = [
-            'name' => urldecode($file['filename']),
+            'name' => $newFileName,
             'parent_folder_id' => $file['folder_id'],
+            'content_type' => $file['content-type'],
         ];
 
         $endpointResponse = $this->apiPost($options['postUrl'], ['query' => $endpointOptions], true);
         $endpointContent = $endpointResponse->getContent();
+
+        $this->apiDelete($url);
 
         // TODO: handle failed call
 
@@ -156,6 +159,34 @@ class CanvasApi {
         }
 
         return $lmsResponse;
+    }
+
+    public function apiDelete($url) {
+        $lmsResponse = new LmsResponse();
+
+        if (strpos($url, 'https://') === false) {
+            $pattern = '/\/files\/\d+/';
+
+            preg_match($pattern, $url, $matches);
+    
+            $url = "https://" . $this->baseUrl . "/api/v1/" . $matches[0];
+        }
+
+        $response = $this->httpClient->request('DELETE', $url);
+
+        $lmsResponse->setResponse($response);
+
+        $content = $lmsResponse->getContent();
+        if (!empty($content['errors'])) {
+            // TODO: If error is invalid token, refresh API token and try again
+
+            foreach ($content['errors'] as $error) {
+                $lmsResponse->setError($error['message']);
+            }
+        }
+
+        return $lmsResponse;
+
     }
 
 }

@@ -131,6 +131,7 @@
   "msg.new_content": "Course scan complete. New content has been added.",
   "msg.sync.started": "Course scan started.",
   "msg.sync.failed": "Course scan failed. Course is missing.",
+  "msg.file.replace.file_type": "File type not accepted. Please input a file with the correct filetype.",
   "msg.sync.completed": "Course scan completed.",
   "msg.sync.course_inactive": "Course scan failed. Course is inactive.",
 
