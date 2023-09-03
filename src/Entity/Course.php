@@ -259,6 +259,12 @@ class Course implements \JsonSerializable
         return $this;
     }
 
+    public function removeAllReports(): self
+    {   
+        $this->reports->clear();
+        return $this;
+    }
+
     public function getPreviousReport(): ?Report
     {
         $reports = $this->reports->toArray();

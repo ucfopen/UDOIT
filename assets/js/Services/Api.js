@@ -13,6 +13,7 @@ export default class Api {
             adminCourses: '/api/admin/courses/account/{account}/term/{term}',
             scanContent: '/api/sync/content/{contentItem}',
             scanCourse: '/api/sync/{course}',
+            fullRescan: '/api/sync/rescan/{course}',
             scanIssue: '/api/issues/{issue}/scan',
             adminReport: '/api/admin/courses/{course}/reports/latest',
             adminReportHistory: '/api/admin/reports/account/{account}/term/{term}', 
@@ -222,6 +223,21 @@ export default class Api {
     {
         const authToken = this.getAuthToken()
         let url = `${this.apiUrl}${this.endpoints.scanCourse}`
+        url = url.replace('{course}', courseId)
+
+        return fetch(url, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-AUTH-TOKEN': authToken,
+            },
+        })
+    }
+
+    fullRescan(courseId)
+    {
+        const authToken = this.getAuthToken()
+        let url = `${this.apiUrl}${this.endpoints.fullRescan}`
         url = url.replace('{course}', courseId)
 
         return fetch(url, {
