@@ -10,7 +10,7 @@ The system requirements depend on how you install UDOIT.  If you use Docker, the
 
 ### Manual Installation Method
 * Apache or Nginx webserver
-* PHP 8.1+
+* PHP 8.1, 8.2
 * MySQL, MariaDB or PostgreSQL
 * Git (If you are using The Git Method below) or if you plan on contributing to UDOIT
 * Node v16 is supported; other versions may work

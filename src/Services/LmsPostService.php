@@ -51,11 +51,6 @@ class LmsPostService {
 
         $replaceSuccess = $this->replaceContent($issue, $contentItem);
         if (!$replaceSuccess) {
-            $this->util->createMessage(
-                'Fixed HTML was not replaced in LMS. Please contact an administrator.',
-                'error',
-                $contentItem->getCourse()
-            );
             return;
         }
 
