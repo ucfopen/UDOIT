@@ -131,6 +131,7 @@
   "msg.new_content": "Escaneo del curso completo. Se ha agregado nuevo contenido.",
   "msg.sync.started": "Se inició el escaneo del curso.",
   "msg.sync.failed": "Falló el escaneo del curso. Falta el curso.",
+  "msg.file.replace.file_type": "El tipo de archivo no es válido. Por favor aporte un archivo de tipo correcto.",
   "msg.sync.completed": "Escaneo del curso completado.",
   "msg.sync.course_inactive": "Falló el escaneo del curso. El curso está inactivo.",
 
