@@ -124,7 +124,7 @@
   "menu.admin": "Admin",
   "menu.download_pdf": "Descargar PDF",
   "menu.scan_course": "Volver a escanear Curso",
-  "menu.full_rescan": "Escanear curso de nuevo",
+  "menu.full_rescan": "Reiniciar escaneo completo",
 
   "msg.no_permissions": "No tienes permiso para acceder al curso especificado.",
   "msg.course_scanning": "Escaneando el curso...",
