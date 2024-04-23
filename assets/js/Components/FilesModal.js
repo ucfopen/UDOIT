@@ -77,7 +77,7 @@ class FilesModal extends React.Component {
         break
 
       default:
-        accept = fileType
+        accept = file.fileType
         break
     }
 
