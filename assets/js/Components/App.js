@@ -201,7 +201,7 @@ class App extends React.Component {
       });
     }
     if (data.data && data.data.id) {
-      console.log('new data', data.data)
+      console.log('Found new data!')
       report = data.data
       hasNewReport = true
     }
