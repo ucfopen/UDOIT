@@ -249,6 +249,13 @@ class FilesModal extends React.Component {
       return
     }
 
+    if(file.size > 1024 * 1024 * 10) {
+      this.addMessage({severity: 'error', message: this.props.t('msg.file.replace.file_size'), timeout: 5000})
+      this.setState({ replaceFileObj: null })
+      this.forceUpdate()
+      return
+    }
+
     this.setState({ replaceFileObj: file })
   }
 
