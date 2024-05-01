@@ -46,7 +46,6 @@ export default class TableHeaders extends React.Component {
   }
 
   handleSubmit() {
-    console.log('activeIssue', this.props.activeIssue)
     let issue = this.props.activeIssue
     issue.newHtml = this.fixHeaders()
     this.props.handleIssueSave(issue)
