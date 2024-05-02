@@ -356,7 +356,7 @@ class CanvasLms implements LmsInterface {
                 return;
             }
 
-            $fileResponse = $canvasApi->apiFilePost($url, $options, $filepath);
+            $fileResponse = $canvasApi->apiFilePost($url, $options, $filepath, $contentItem->getTitle());
             $fileObj = $fileResponse->getContent();
 
             if (isset($fileObj['id'])) {
