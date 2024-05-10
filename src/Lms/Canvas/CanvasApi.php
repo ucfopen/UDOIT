@@ -106,7 +106,7 @@ class CanvasApi {
     }
 
     // Posts a file to Canvas
-    public function apiFilePost(string $url, array $options, string $filepath, string $newFileName): LmsResponse
+    public function apiFilePost(string $url, array $options, string $filepath, string $newFileName, $moduleInstances = null, $courseId = null, $replacePages = null) : LmsResponse
     {
         $fileResponse = $this->apiGet($url);
         $file = $fileResponse->getContent();
@@ -134,6 +134,59 @@ class CanvasApi {
             'headers' => $formData->getPreparedHeaders()->toArray(),
             'body' => $formData->bodyToIterable(),
         ], false);
+
+        $fileResponseContent = $fileResponse->getContent();
+
+        if($moduleInstances) {
+            foreach ($moduleInstances as $moduleInstance) {
+                $response = $this->apiPost("courses/{$courseId}/modules/{$moduleInstance}/items", [
+                    'json' => [
+                        'module_item' => [
+                            'title' => $newFileName,
+                            'type' => 'File',
+                            'content_id' => $fileResponseContent['id'],
+                        ],
+                    ],
+                ]);
+
+            }
+        }
+
+        if($replacePages) {
+            foreach ($replacePages as $page) {
+                $dom = new \DOMDocument();
+                $dom->loadHTML($page['body']);
+                $anchors = $dom->getElementsByTagName('a');
+                foreach ($anchors as $anchor) {
+                    preg_match('/files\/(\d+)/', $anchor->getAttribute('href'), $matches);
+                    if (isset($matches[1]) && $matches[1] == $file['id']) {
+                        $anchor->setAttribute('href', $fileResponseContent['url']);
+                        $anchor->setAttribute('title', $newFileName);
+                        $anchor->nodeValue = $newFileName;
+                    }
+                    $page['body'] = $dom->saveHTML();
+                    $response = $this->apiPut("courses/{$courseId}/pages/{$page['page_id']}", [
+                        'json' => [
+                            'wiki_page' => [
+                                'title' => $page['title'],
+                                'body' => $page['body'],
+                                'editing_roles' => $page['editing_roles'],
+                                'published' => $page['published'],
+                                'front_page' => $page['front_page'],
+                                'hide_from_students' => $page['hide_from_students'],
+                                'notify_of_update' => $page['notify_of_update'],
+                                'attachments' => [
+                                    [
+                                        'url' => $fileResponseContent['url'],
+                                        'filename' => $newFileName,
+                                    ],
+                                ],
+                            ],
+                        ],
+                    ]);
+                }
+            }
+        }
 
         return $fileResponse;
     }
@@ -187,6 +240,50 @@ class CanvasApi {
 
         return $lmsResponse;
 
+    }
+
+    public function listModules($courseId)
+    {
+        $url = "courses/{$courseId}/modules";
+        $response = $this->apiGet($url);
+        return $response->getContent();
+    }
+
+    public function listModuleItems($courseId, $moduleId)
+    {
+        $url = "courses/{$courseId}/modules/{$moduleId}/items";
+        $response = $this->apiGet($url);
+        return $response->getContent();
+    }
+
+    public function deleteModuleItem($courseId, $moduleId, $itemId)
+    {
+        $url = "courses/{$courseId}/modules/{$moduleId}/items/{$itemId}";
+        $response = $this->apiDelete($url);
+        return $response->getContent();
+    }
+
+    public function listPages($courseId)
+    {
+        $url = "courses/{$courseId}/pages";
+        $response = $this->apiGet($url . '?include[]=body');
+
+        $responseWithPageBody = [];
+
+        foreach ($response->getContent() as $content) {
+            $page = $this->showPage($courseId, $content['page_id']);
+            $content['body'] = $page['body'];
+            $responseWithPageBody[] = $content;
+        }
+
+        return $responseWithPageBody;
+    }
+
+    public function showPage($courseId, $pageId)
+    {
+        $url = "courses/{$courseId}/pages/{$pageId}";
+        $response = $this->apiGet($url . '?include[]=body');
+        return $response->getContent();
     }
 
 }

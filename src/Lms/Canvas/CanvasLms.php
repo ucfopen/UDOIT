@@ -376,13 +376,44 @@ class CanvasLms implements LmsInterface {
         $apiDomain = $this->getApiDomain($user);
         $apiToken = $this->getApiToken($user);
         $canvasApi = new CanvasApi($apiDomain, $apiToken);
+        $modules = $canvasApi->listModules($file->getCourse()->getLmsCourseId());
+        $pages = $canvasApi->listPages($file->getCourse()->getLmsCourseId());
+        $refillModules = [];
+        $changePages = [];
+
+        // Delete any existing module items with the same file name
+        foreach ($modules as $module) {
+            $moduleItems = $canvasApi->listModuleItems($file->getCourse()->getLmsCourseId(), $module['id']);
+            $instances = $this->findFileInModuleItems($moduleItems, $file->getLmsFileId());
+            if (!empty($instances)) {
+                foreach ($instances as $instance) {
+                    $canvasApi->deleteModuleItem($file->getCourse()->getLmsCourseId(), $module['id'], $instance['id']);
+                }
+                $refillModules[] = $module['id'];
+            }
+        }
+
+        // Find all pages that contain this file in their HTML
+        foreach ($pages as $page) {
+            $dom = new \DOMDocument();
+            $dom->loadHTML($page['body']);
+            $anchors = $dom->getElementsByTagName('a');
+            foreach ($anchors as $anchor) {
+                preg_match('/files\/(\d+)/', $anchor->getAttribute('href'), $matches);
+                if(isset($matches[1]) && $matches[1] == $file->getLmsFileId()) {
+                    $changePages[] = $page;
+                    break;
+                }
+            }
+        }
+
         $url = "courses/{$file->getCourse()->getLmsCourseId()}/files/{$file->getLmsFileId()}";
         $filepath = $this->util->getTempPath() . '/file.' . $file->getId();
         $options = [
             'postUrl' => "courses/{$file->getCourse()->getLmsCourseId()}/files"
         ];
 
-        $fileResponse = $canvasApi->apiFilePost($url, $options, $filepath, $newFileName);
+        $fileResponse = $canvasApi->apiFilePost($url, $options, $filepath, $newFileName, $refillModules, $file->getCourse()->getLmsCourseId(), $changePages);
         $fileObj = $fileResponse->getContent();
 
         if (isset($fileObj['id'])) {
@@ -391,6 +422,18 @@ class CanvasLms implements LmsInterface {
         }
 
         return $fileResponse;
+    }
+
+    public function findFileInModuleItems($moduleItems, string $fileId)
+    {
+        $instances = [];
+        foreach ($moduleItems as $item) {
+            if ($item['content_id'] == $fileId) {
+                $instances[] = $item;
+            }
+        }
+
+        return $instances;
     }
 
     public function getCourseUrl(Course $course, User $user)
