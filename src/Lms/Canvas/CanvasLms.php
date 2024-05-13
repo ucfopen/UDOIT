@@ -378,8 +378,10 @@ class CanvasLms implements LmsInterface {
         $canvasApi = new CanvasApi($apiDomain, $apiToken);
         $modules = $canvasApi->listModules($file->getCourse()->getLmsCourseId());
         $pages = $canvasApi->listPages($file->getCourse()->getLmsCourseId());
+        $assignments = $canvasApi->listAssignments($file->getCourse()->getLmsCourseId());
         $refillModules = [];
         $changePages = [];
+        $changeAssignments = [];
 
         // Delete any existing module items with the same file name
         foreach ($modules as $module) {
@@ -393,7 +395,7 @@ class CanvasLms implements LmsInterface {
             }
         }
 
-        // Find all pages that contain this file in their HTML
+        // Find all wiki pages that contain this file in their HTML
         foreach ($pages as $page) {
             $dom = new \DOMDocument();
             $dom->loadHTML($page['body']);
@@ -407,13 +409,20 @@ class CanvasLms implements LmsInterface {
             }
         }
 
+        // Find all assignments that contain this file in their description HTML
+        foreach ($assignments as $assignment) {
+            if ($this->fileIsInLink($file->getLmsFileId(), $assignment['description'])) {
+                $changeAssignments[] = $assignment;
+            }
+        }
+
         $url = "courses/{$file->getCourse()->getLmsCourseId()}/files/{$file->getLmsFileId()}";
         $filepath = $this->util->getTempPath() . '/file.' . $file->getId();
         $options = [
             'postUrl' => "courses/{$file->getCourse()->getLmsCourseId()}/files"
         ];
 
-        $fileResponse = $canvasApi->apiFilePost($url, $options, $filepath, $newFileName, $refillModules, $file->getCourse()->getLmsCourseId(), $changePages);
+        $fileResponse = $canvasApi->apiFilePost($url, $options, $filepath, $newFileName, $refillModules, $file->getCourse()->getLmsCourseId(), $changePages, $changeAssignments);
         $fileObj = $fileResponse->getContent();
 
         if (isset($fileObj['id'])) {
@@ -534,6 +543,22 @@ class CanvasLms implements LmsInterface {
     /**********************
      * PROTECTED FUNCTIONS
      **********************/
+
+    protected function fileIsInLink($fileId, $html)
+    {
+        $dom = new \DOMDocument();
+        $dom->loadHTML($html);
+        $anchors = $dom->getElementsByTagName('a');
+
+        foreach ($anchors as $anchor) {
+            preg_match('/files\/(\d+)/', $anchor->getAttribute('href'), $matches);
+            if(isset($matches[1]) && $matches[1] == $fileId) {
+                return true;
+            }
+        }
+
+        return false;
+    }
 
     protected function getAccountInfo(User $user, $accountId)
     {

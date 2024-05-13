@@ -106,7 +106,7 @@ class CanvasApi {
     }
 
     // Posts a file to Canvas
-    public function apiFilePost(string $url, array $options, string $filepath, string $newFileName, $moduleInstances = null, $courseId = null, $replacePages = null) : LmsResponse
+    public function apiFilePost(string $url, array $options, string $filepath, string $newFileName, $moduleInstances = null, $courseId = null, $replacePages = null, $replaceAssignments = null) : LmsResponse
     {
         $fileResponse = $this->apiGet($url);
         $file = $fileResponse->getContent();
@@ -181,6 +181,30 @@ class CanvasApi {
                                         'filename' => $newFileName,
                                     ],
                                 ],
+                            ],
+                        ],
+                    ]);
+                }
+            }
+        }
+
+        if ($replaceAssignments) {
+            foreach ($replaceAssignments as $assignment) {
+                $dom = new \DOMDocument();
+                $dom->loadHTML($assignment['description']);
+                $anchors = $dom->getElementsByTagName('a');
+                foreach ($anchors as $anchor) {
+                    preg_match('/files\/(\d+)/', $anchor->getAttribute('href'), $matches);
+                    if (isset($matches[1]) && $matches[1] == $file['id']) {
+                        $anchor->setAttribute('href', $fileResponseContent['url']);
+                        $anchor->setAttribute('title', $newFileName);
+                        $anchor->nodeValue = $newFileName;
+                    }
+                    $assignment['description'] = $dom->saveHTML();
+                    $response = $this->apiPut("courses/{$courseId}/assignments/{$assignment['id']}", [
+                        'json' => [
+                            'assignment' => [
+                                'description' => $assignment['description'],
                             ],
                         ],
                     ]);
@@ -283,6 +307,13 @@ class CanvasApi {
     {
         $url = "courses/{$courseId}/pages/{$pageId}";
         $response = $this->apiGet($url . '?include[]=body');
+        return $response->getContent();
+    }
+
+    public function listAssignments($courseId)
+    {
+        $url = "courses/{$courseId}/assignments";
+        $response = $this->apiGet($url);
         return $response->getContent();
     }
 
