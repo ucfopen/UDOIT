@@ -78,17 +78,15 @@ export default class HeadingEmptyForm extends React.Component {
         if(!this.state.deleteHeader) {
             this.checkTextNotEmpty()
         }
-        
 
         if (this.formErrors.length > 0) {
             this.setState({ textInputErrors: this.formErrors })
-        } 
-        
+        }
+
         else {
             this.setState({ textInputErrors: []})
             let issue = this.props.activeIssue
             issue.newHtml = this.processHtml()
-            console.log(issue.newHtml)
             this.props.handleIssueSave(issue)
         }
     }

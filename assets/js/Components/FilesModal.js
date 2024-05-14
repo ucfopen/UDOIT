@@ -36,6 +36,7 @@ class FilesModal extends React.Component {
     this.handleDropAccept = this.handleDropAccept.bind(this)
     this.handleDropReject = this.handleDropReject.bind(this)
     this.handleFilePost = this.handleFilePost.bind(this)
+    this.setAcceptType = this.setAcceptType.bind(this)
   }
 
   componentDidUpdate(prevProps, prevState) {
@@ -59,6 +60,46 @@ class FilesModal extends React.Component {
     return -1;
   }
 
+  setAcceptType(file) {
+    let accept = []
+
+    switch(file.fileType) {
+      case "doc":
+        accept = ["doc", "docx"]
+        break
+
+      case "ppt":
+        accept = ["ppt", "pptx"]
+        break
+
+      case "xls":
+        accept = ["xls", "xlsx"]
+        break
+
+      default:
+        accept = file.fileType
+        break
+    }
+
+    let extension = file.fileName.slice(-4)
+
+    switch(extension) {
+      case "xlsx":
+        accept = "xlsx"
+        break
+      
+      case "pptx":
+        accept = "pptx"
+        break
+
+      case "docx":
+        accept = "docx"
+        break
+    }
+
+    return accept
+  }
+
   // Handler for the previous and next buttons on the modal
   // Will wrap around if the index goes out of bounds
   handleFileChange(newIndex) {
@@ -80,7 +121,8 @@ class FilesModal extends React.Component {
   }
 
   render() {
-    const { activeFile } = this.props
+    let { activeFile } = this.props
+    activeFile.acceptType = this.setAcceptType(activeFile)
     let activeIndex = this.findActiveIndex()
 
     return (
@@ -121,7 +163,7 @@ class FilesModal extends React.Component {
                     <Text display="block" weight="bold">{this.props.t('label.replace')}</Text>
                     <Text as="p">{this.props.t('label.replace.desc')}</Text>
                     <FileDrop
-                      accept={activeFile.fileType}
+                      accept={activeFile.acceptType}
                       onDropAccepted={this.handleDropAccept}
                       onDropRejected={this.handleDropReject}
                       renderLabel={
@@ -204,6 +246,13 @@ class FilesModal extends React.Component {
   handleDropAccept([file]) {
     let activeFile = Object.assign({}, this.props.activeFile)
     if (activeFile.pending) {
+      return
+    }
+
+    if(file.size > 1024 * 1024 * 10) {
+      this.addMessage({severity: 'error', message: this.props.t('msg.file.replace.file_size'), timeout: 5000})
+      this.setState({ replaceFileObj: null })
+      this.forceUpdate()
       return
     }
 
