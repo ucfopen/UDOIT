@@ -124,6 +124,7 @@
   "menu.admin": "Admin",
   "menu.download_pdf": "Download PDF",
   "menu.scan_course": "Rescan Course",
+  "menu.full_rescan": "Force Full Rescan",
 
   "msg.no_permissions": "You do not have permission to access the specified course.",
   "msg.course_scanning": "Course scanning...",
@@ -131,6 +132,8 @@
   "msg.new_content": "Course scan complete. New content has been added.",
   "msg.sync.started": "Course scan started.",
   "msg.sync.failed": "Course scan failed. Course is missing.",
+  "msg.file.replace.file_type": "File type not accepted. Please input a file with the correct filetype.",
+  "msg.file.replace.file_size": "File size too large. Please input a file of a size less than 10MB",
   "msg.sync.completed": "Course scan completed.",
   "msg.sync.course_inactive": "Course scan failed. Course is inactive.",
 
@@ -356,7 +359,7 @@
   "rule.desc.NoHeadings": "<p>If appropriate, add headings to the page to organize the content for sighted and <a href='https://en.wikipedia.org/wiki/Screen_reader' target='_blank'>screen reader</a> users. The headings should represent an accurate outline of the content</p>",
   "rule.desc.ObjectMustContainText": "<p>Multimedia objects should be accompanied by a link to a transcript of the content.</p>",
   "rule.desc.ObjectTagDetected": "<p>Multimedia embedded using the 'Object' tag may require the user to install a plugin for their web browser. This can create support and access issues for some users. Additionally, users on mobile devices may not be able to view the multimedia content at all. Consider using an alternative format that the user's browser can display natively.</p>",
-  "rule.desc.ParagraphNotUsedAsHeader": "<p>Bold and Italics are used to emphasize text, whereas headings are used to define the structure of the document. Headings like <code>h1-h6</code> are extremely useful for non-sighted users to navigate the structure of the page, and formatting a paragraph to just be big or bold, while it might visually look like a heading, does not make it one.</p>",
+  "rule.desc.ParagraphNotUsedAsHeader": "<p>Bold and Italics are used to emphasize text, whereas headings are used to define the structure of the document. Headings like <code>h1-h6</code> are extremely useful for non-sighted users to navigate the structure of the page, and formatting a paragraph to just be big or bold, while it might visually look like a heading, does not make it one. UDOIT has flagged this as a potential usage of style for document structure, please ensure that this is not the case when you review the content in the HTML editor.</p>",
   "rule.desc.PreShouldNotBeUsedForTabularValues": "<p>If a <code>pre</code> element is used for tabular data, change the data to use a well-formed table.</p>",
   "rule.desc.RedirectedLink": "<p>When the address of a web page changes, the content owner may set up a redirect so that the link is not broken. However, that redirect could go away in the future, so it's best to update the link now. The real url has been populated into the form below.</p>",
   "rule.desc.TableDataShouldHaveTableHeader": "<p>Table headers provide a description of the table structure for sighted and <a href='https://en.wikipedia.org/wiki/Screen_reader' target='_blank'>screen reader</a> users.</p>",

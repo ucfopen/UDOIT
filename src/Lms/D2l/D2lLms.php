@@ -381,7 +381,7 @@ class D2lLms implements LmsInterface {
         $this->entityManager->flush();
     }
 
-    public function postFileItem(FileItem $file)
+    public function postFileItem(FileItem $file, string $newFileName)
     {
         return true;
     }
