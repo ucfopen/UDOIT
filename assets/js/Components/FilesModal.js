@@ -270,6 +270,12 @@ class FilesModal extends React.Component {
       return
     }
 
+    const userConfirmed = window.confirm(this.props.t('msg.confirmation'));
+
+    if (!userConfirmed) {
+      return;
+    }
+
     let api = new Api(this.props.settings)
     api.postFile(activeFile, this.state.replaceFileObj)
       .then((responsStr) => responsStr.json())

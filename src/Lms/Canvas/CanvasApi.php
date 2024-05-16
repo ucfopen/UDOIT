@@ -106,7 +106,7 @@ class CanvasApi {
     }
 
     // Posts a file to Canvas
-    public function apiFilePost(string $url, array $options, string $filepath, string $newFileName, $moduleInstances = null, $courseId = null, $replacePages = null, $replaceAssignments = null) : LmsResponse
+    public function apiFilePost(string $url, array $options, string $filepath, string $newFileName, $changeReferences = null) : LmsResponse
     {
         $fileResponse = $this->apiGet($url);
         $file = $fileResponse->getContent();
@@ -122,8 +122,6 @@ class CanvasApi {
         $endpointResponse = $this->apiPost($options['postUrl'], ['query' => $endpointOptions], true);
         $endpointContent = $endpointResponse->getContent();
 
-        $this->apiDelete($url);
-
         // TODO: handle failed call
 
         $formFields = $endpointContent['upload_params'];
@@ -137,79 +135,13 @@ class CanvasApi {
 
         $fileResponseContent = $fileResponse->getContent();
 
-        if($moduleInstances) {
-            foreach ($moduleInstances as $moduleInstance) {
-                $response = $this->apiPost("courses/{$courseId}/modules/{$moduleInstance}/items", [
-                    'json' => [
-                        'module_item' => [
-                            'title' => $newFileName,
-                            'type' => 'File',
-                            'content_id' => $fileResponseContent['id'],
-                        ],
-                    ],
-                ]);
-
-            }
-        }
-
-        if($replacePages) {
-            foreach ($replacePages as $page) {
-                $dom = new \DOMDocument();
-                $dom->loadHTML($page['body']);
-                $anchors = $dom->getElementsByTagName('a');
-                foreach ($anchors as $anchor) {
-                    preg_match('/files\/(\d+)/', $anchor->getAttribute('href'), $matches);
-                    if (isset($matches[1]) && $matches[1] == $file['id']) {
-                        $anchor->setAttribute('href', $fileResponseContent['url']);
-                        $anchor->setAttribute('title', $newFileName);
-                        $anchor->nodeValue = $newFileName;
-                    }
-                    $page['body'] = $dom->saveHTML();
-                    $response = $this->apiPut("courses/{$courseId}/pages/{$page['page_id']}", [
-                        'json' => [
-                            'wiki_page' => [
-                                'title' => $page['title'],
-                                'body' => $page['body'],
-                                'editing_roles' => $page['editing_roles'],
-                                'published' => $page['published'],
-                                'front_page' => $page['front_page'],
-                                'hide_from_students' => $page['hide_from_students'],
-                                'notify_of_update' => $page['notify_of_update'],
-                                'attachments' => [
-                                    [
-                                        'url' => $fileResponseContent['url'],
-                                        'filename' => $newFileName,
-                                    ],
-                                ],
-                            ],
-                        ],
-                    ]);
-                }
-            }
-        }
-
-        if ($replaceAssignments) {
-            foreach ($replaceAssignments as $assignment) {
-                $dom = new \DOMDocument();
-                $dom->loadHTML($assignment['description']);
-                $anchors = $dom->getElementsByTagName('a');
-                foreach ($anchors as $anchor) {
-                    preg_match('/files\/(\d+)/', $anchor->getAttribute('href'), $matches);
-                    if (isset($matches[1]) && $matches[1] == $file['id']) {
-                        $anchor->setAttribute('href', $fileResponseContent['url']);
-                        $anchor->setAttribute('title', $newFileName);
-                        $anchor->nodeValue = $newFileName;
-                    }
-                    $assignment['description'] = $dom->saveHTML();
-                    $response = $this->apiPut("courses/{$courseId}/assignments/{$assignment['id']}", [
-                        'json' => [
-                            'assignment' => [
-                                'description' => $assignment['description'],
-                            ],
-                        ],
-                    ]);
-                }
-            }
+        if($changeReferences) {
+            $this->changeLinksInSyllabus($changeReferences['course_id'], $file['id'], $fileResponseContent['url'], $newFileName);
+            $this->changeModuleItemInstances($changeReferences['course_id'], $changeReferences['modules'], $newFileName, $fileResponseContent['id']);
+            $this->changeLinksInPages($changeReferences['course_id'], $file['id'], $changeReferences['pages'], $fileResponseContent['url'], $newFileName);
+            $this->changeLinksInAssignments($changeReferences['course_id'], $file['id'], $changeReferences['assignments'], $fileResponseContent['url'], $newFileName);
+            $this->changeLinksInQuizzes($changeReferences['course_id'], $file['id'], $changeReferences['quizzes'], $fileResponseContent['url'], $newFileName);
+            $this->changeLinksInQuizQuestions($changeReferences['course_id'], $file['id'], $changeReferences['quizQuestions'], $fileResponseContent['url'], $newFileName);
         }
 
         return $fileResponse;
@@ -266,6 +198,18 @@ class CanvasApi {
 
     }
 
+    public function getCourse($courseId, $includeSyllabus = false)
+    {   
+        if ($includeSyllabus) {
+            $url = "courses/{$courseId}?include[]=syllabus_body";
+        }
+        else {
+            $url = "courses/{$courseId}";
+        }
+        $response = $this->apiGet($url);
+        return $response->getContent();
+    }
+
     public function listModules($courseId)
     {
         $url = "courses/{$courseId}/modules";
@@ -316,5 +260,176 @@ class CanvasApi {
         $response = $this->apiGet($url);
         return $response->getContent();
     }
+
+    public function listQuizzes($courseId)
+    {
+        $url = "courses/{$courseId}/quizzes";
+        $response = $this->apiGet($url);
+        return $response->getContent();
+    }
+
+    public function listQuizQuestions($courseId, $quizId)
+    {
+        $url = "courses/{$courseId}/quizzes/{$quizId}/questions";
+        $response = $this->apiGet($url);
+        return $response->getContent();
+    }
+
+    public function updateCourse($courseId, $options)
+    {
+        $url = "courses/{$courseId}";
+        $response = $this->apiPut($url, $options);
+        return $response->getContent();
+    }
+
+    public function uploadModuleItem($courseId, $moduleId, $options)
+    {
+        $url = "courses/{$courseId}/modules/{$moduleId}/items";
+        $response = $this->apiPost($url, $options);
+        return $response->getContent();
+    }
+
+    public function updatePage($courseId, $pageId, $options)
+    {
+        $url = "courses/{$courseId}/pages/{$pageId}";
+        $response = $this->apiPut($url, $options);
+        return $response->getContent();
+    }
+
+    public function updateAssignment($courseId, $assignmentId, $options)
+    {
+        $url = "courses/{$courseId}/assignments/{$assignmentId}";
+        $response = $this->apiPut($url, $options);
+        return $response->getContent();
+    }
+
+    public function updateQuiz($courseId, $quizId, $options)
+    {
+        $url = "courses/{$courseId}/quizzes/{$quizId}";
+        $response = $this->apiPut($url, $options);
+        return $response->getContent();
+    }
+
+    public function updateQuizQuestion($courseId, $quizId, $questionId, $options)
+    {
+        $url = "courses/{$courseId}/quizzes/{$quizId}/questions/{$questionId}";
+        $response = $this->apiPut($url, $options);
+        return $response->getContent();
+    }
+
+    /**********************
+     * PROTECTED FUNCTIONS
+     **********************/
+
+
+     protected function changeLinksInSyllabus($courseId, $oldFileId, $newUrl, $newFileName)
+     {
+        $course = $this->getCourse($courseId, true);
+        $dom = new \DOMDocument();
+
+        $dom->loadHTML($course['syllabus_body']);
+        $anchors = $dom->getElementsByTagName('a');
+        $newSyllabus = $this->changeAnchorTags($dom, $oldFileId, $newUrl, $newFileName);
+        if ($newSyllabus != $course['syllabus_body']) {
+            $this->updateCourse($courseId, ['json' => ['course' => ['syllabus_body' => $newSyllabus]]]);
+        }
+     }
+
+     protected function changeModuleItemInstances($courseId, $moduleInstances, $newFileName, $newFileId) {
+        foreach ($moduleInstances as $moduleInstance) {
+            $this->uploadModuleItem($courseId, $moduleInstance, [
+                'json' => [
+                    'module_item' => [
+                        'title' => $newFileName,
+                        'type' => 'File',
+                        'content_id' => $newFileId,
+                    ],
+                ],
+            ]);
+        }
+     }
+
+     protected function changeLinksInPages($courseId, $oldFileId, $pages, $newUrl, $newFileName) {
+        foreach ($pages as $page) {
+            $dom = new \DOMDocument();
+            $dom->loadHTML($page['body']);
+            $newPage = $this->changeAnchorTags($dom, $oldFileId, $newUrl, $newFileName);
+            if ($newPage != $page['body']) {
+                $this->updatePage($courseId, $page['page_id'], [
+                    'json' => [
+                        'wiki_page' => [
+                            'body' => $newPage,
+                        ],
+                    ],
+                ]);
+            }
+        }
+     }
+
+     protected function changeLinksInAssignments($courseId, $oldFileId, $assignments, $newUrl, $newFileName) {
+        foreach ($assignments as $assignment) {
+            $dom = new \DOMDocument();
+            $dom->loadHTML($assignment['description']);
+            $newAssignment = $this->changeAnchorTags($dom, $oldFileId, $newUrl, $newFileName);
+            if ($newAssignment != $assignment['description']) {
+                $this->updateAssignment($courseId, $assignment['id'], [
+                    'json' => [
+                        'assignment' => [
+                            'description' => $newAssignment,
+                        ],
+                    ],
+                ]);
+            }
+        }
+     }
+
+     protected function changeLinksInQuizzes($courseId, $oldFileId, $quizzes, $newUrl, $newFileName) {
+        foreach ($quizzes as $quiz) {
+            $dom = new \DOMDocument();
+            $dom->loadHTML($quiz['description']);
+            $newQuiz = $this->changeAnchorTags($dom, $oldFileId, $newUrl, $newFileName);
+            if ($newQuiz != $quiz['description']) {
+                $this->updateQuiz($courseId, $quiz['id'], [
+                    'json' => [
+                        'quiz' => [
+                            'description' => $newQuiz,
+                            'notify_of_update' => $quiz['notify_of_update'],
+                        ],
+                    ],
+                ]);
+            }
+        }
+     }
+
+     public function changeLinksInQuizQuestions($courseId, $oldFileId, $replaceQuizQuestions, $newUrl, $newFileName) {
+        foreach ($replaceQuizQuestions as $quizQuestion) {
+            $dom = new \DOMDocument();
+            $dom->loadHTML($quizQuestion['question_text']);
+            $newQuestion = $this->changeAnchorTags($dom, $oldFileId, $newUrl, $newFileName);
+            if ($newQuestion != $quizQuestion['question_text']) {
+                $this->updateQuizQuestion($courseId, $quizQuestion['quiz_id'], $quizQuestion['id'], [
+                    'json' => [
+                        'question' => [
+                            'question_text' => $newQuestion,
+                        ],
+                    ],
+                ]);
+            }
+        }
+     }
+
+     protected function changeAnchorTags($dom, $fileId, $newUrl, $newFileName) {
+        $anchors = $dom->getElementsByTagName('a');
+        foreach ($anchors as $anchor) {
+            preg_match('/files\/(\d+)/', $anchor->getAttribute('href'), $matches);
+            if (isset($matches[1]) && $matches[1] == $fileId) {
+                $anchor->setAttribute('href', $newUrl);
+                $anchor->setAttribute('title', $newFileName);
+                $anchor->nodeValue = $newFileName;
+            }
+        }
+
+        return $dom->saveHTML();
+     }
 
 }

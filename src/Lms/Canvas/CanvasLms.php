@@ -379,9 +379,8 @@ class CanvasLms implements LmsInterface {
         $modules = $canvasApi->listModules($file->getCourse()->getLmsCourseId());
         $pages = $canvasApi->listPages($file->getCourse()->getLmsCourseId());
         $assignments = $canvasApi->listAssignments($file->getCourse()->getLmsCourseId());
-        $refillModules = [];
-        $changePages = [];
-        $changeAssignments = [];
+        $quizzes = $canvasApi->listQuizzes($file->getCourse()->getLmsCourseId());
+        $changeReferences = ['course_id' => $file->getCourse()->getLmsCourseId(),'modules' => [], 'pages' => [], 'assignments' => [], 'quizzes' => [], 'quizQuestions' => []];
 
         // Delete any existing module items with the same file name
         foreach ($modules as $module) {
@@ -391,28 +390,39 @@ class CanvasLms implements LmsInterface {
                 foreach ($instances as $instance) {
                     $canvasApi->deleteModuleItem($file->getCourse()->getLmsCourseId(), $module['id'], $instance['id']);
                 }
-                $refillModules[] = $module['id'];
+                $changeReferences['modules'][] = $module['id'];
             }
         }
 
         // Find all wiki pages that contain this file in their HTML
         foreach ($pages as $page) {
-            $dom = new \DOMDocument();
-            $dom->loadHTML($page['body']);
-            $anchors = $dom->getElementsByTagName('a');
-            foreach ($anchors as $anchor) {
-                preg_match('/files\/(\d+)/', $anchor->getAttribute('href'), $matches);
-                if(isset($matches[1]) && $matches[1] == $file->getLmsFileId()) {
-                    $changePages[] = $page;
-                    break;
-                }
+            if ($this->fileIsInLink($file->getLmsFileId(), $page['body'])) {
+                $changeReferences['pages'][] = $page;
             }
         }
 
         // Find all assignments that contain this file in their description HTML
         foreach ($assignments as $assignment) {
             if ($this->fileIsInLink($file->getLmsFileId(), $assignment['description'])) {
-                $changeAssignments[] = $assignment;
+                $changeReferences['assignments'][] = $assignment;
+            }
+        }
+
+        // Find all quizzes that contain this file in their description HTML
+        foreach ($quizzes as $quiz) {
+            if ($this->fileIsInLink($file->getLmsFileId(), $quiz['description'])) {
+                $changeReferences['quizzes'][] = $quiz;
+            }
+
+            // Check quiz questions for references to the file
+            $questions[] = $canvasApi->listQuizQuestions($file->getCourse()->getLmsCourseId(), $quiz['id']);
+
+            $questions = $questions[0];
+
+            foreach ($questions as $question) {
+                if ($this->fileIsInLink($file->getLmsFileId(), $question['question_text'])) {
+                   $changeReferences['quizQuestions'][] = $question;
+                }
             }
         }
 
@@ -422,7 +432,7 @@ class CanvasLms implements LmsInterface {
             'postUrl' => "courses/{$file->getCourse()->getLmsCourseId()}/files"
         ];
 
-        $fileResponse = $canvasApi->apiFilePost($url, $options, $filepath, $newFileName, $refillModules, $file->getCourse()->getLmsCourseId(), $changePages, $changeAssignments);
+        $fileResponse = $canvasApi->apiFilePost($url, $options, $filepath, $newFileName, $changeReferences);
         $fileObj = $fileResponse->getContent();
 
         if (isset($fileObj['id'])) {
