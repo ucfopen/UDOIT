@@ -162,7 +162,6 @@ class UsersPage extends React.Component {
       .then((responseStr) => responseStr.json())
       .then((response) => {
         let users = this.state.users
-        console.log('response', response);
         if (response && response.id) {
           const ind = users.findIndex((el) => { el.id === response.id })
           users[ind] = response

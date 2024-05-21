@@ -124,6 +124,7 @@
   "menu.admin": "Admin",
   "menu.download_pdf": "Descargar PDF",
   "menu.scan_course": "Volver a escanear Curso",
+  "menu.full_rescan": "Reiniciar escaneo completo",
 
   "msg.no_permissions": "No tienes permiso para acceder al curso especificado.",
   "msg.course_scanning": "Escaneando el curso...",
@@ -131,6 +132,8 @@
   "msg.new_content": "Escaneo del curso completo. Se ha agregado nuevo contenido.",
   "msg.sync.started": "Se inició el escaneo del curso.",
   "msg.sync.failed": "Falló el escaneo del curso. Falta el curso.",
+  "msg.file.replace.file_type": "El tipo de archivo no es válido. Por favor aporte un archivo de tipo correcto.",
+  "msg.file.replace.file_size": "El tamaño del archivo es demasiado grande. Por favor aporte un archivo de tamaño menor a 10MB",
   "msg.sync.completed": "Escaneo del curso completado.",
   "msg.sync.course_inactive": "Falló el escaneo del curso. El curso está inactivo.",
 
