@@ -32,6 +32,7 @@ class UfixitModal extends React.Component {
     this.state = {
       windowContents: 'preview',
       expandExample: false,
+      issueDetailsPending: true
     }
 
     this.modalMessages = []
@@ -44,6 +45,22 @@ class UfixitModal extends React.Component {
     this.handleOpenContent = this.handleOpenContent.bind(this)
     this.handleExampleToggle = this.handleExampleToggle.bind(this)
     this.handleManualScan = this.handleManualScan.bind(this)
+  }
+
+  componentDidMount() {
+    this.syncIssue(this.props.activeIssue)
+  }
+
+  componentDidUpdate(prevProps, prevState) {
+    if (prevProps.activeIssue.id != this.props.activeIssue.id) {
+      this.setState({
+        windowContents: 'preview',
+        expandExample: false,
+        issueDetailsPending: true
+      })
+
+      this.syncIssue(this.props.activeIssue)
+    }
   }
 
   findActiveIndex() {
@@ -69,6 +86,7 @@ class UfixitModal extends React.Component {
       newIndex = 0
     }
     this.clearMessages()
+    this.setState({ issueDetailsPending: true })
     this.props.handleActiveIssue(this.props.filteredRows[newIndex].issue, newIndex)
   }
   
@@ -87,14 +105,18 @@ class UfixitModal extends React.Component {
     const pending = (this.props.activeIssue && (this.props.activeIssue.pending == '1'))
 
     let activeIndex = this.findActiveIndex();
-    const UfixitForm = returnIssueForm(activeIssue)
 
+    let code = ''
+    let UfixitForm
     let showExample = false
     if (!this.props.t(`rule.example.${activeIssue.scanRuleId}`).includes('rule.example')) {
       showExample = true
     }
 
-    let code = this.prepareCode(activeIssue)
+    if (!this.state.issueDetailsPending) {
+      UfixitForm = ufixitService.returnIssueForm(activeIssue)
+      code = this.prepareCode(activeIssue)
+    }
 
     return (
       <View>
@@ -120,96 +142,103 @@ class UfixitModal extends React.Component {
           </Modal.Header>
           <Modal.Body padding="small medium">
             <MessageTray messages={this.modalMessages} clearMessages={this.clearMessages} t={this.props.t} hasNewReport={true} />
-            <View as="div" margin="small">
-              <View as="div" margin="small 0">
-                <Text lineHeight="default">
-                  {ReactHtmlParser(this.props.t(`rule.desc.${activeIssue.scanRuleId}`), { preprocessNodes: (nodes) => Html.processStaticHtml(nodes, this.props.settings) })}
-                </Text>
-              </View>
-              {showExample &&
-                <ToggleDetails
-                  summary={this.state.expandExample ? (this.props.t('label.btn.hide_example')) : (this.props.t('label.btn.show_example'))}
-                  expanded={this.state.expandExample}
-                  fluidWidth={true}
-                  onToggle={this.handleExampleToggle}>
-                  <View as="div" margin="small 0">
-                  {ReactHtmlParser(this.props.t(`rule.example.${activeIssue.scanRuleId}`), { preprocessNodes: (nodes) => Html.processStaticHtml(nodes, this.props.settings) })}
-                  </View>
-                </ToggleDetails>
-              }
-            </View>
-            <Flex justifyItems="space-between" alignItems="start">
-              <Flex.Item width="46%" padding="0">
-                <View as="div">
-                  <UfixitForm activeIssue={activeIssue} t={this.props.t} settings={this.props.settings}
-                    handleIssueSave={this.handleIssueSave}
-                    addMessage={this.addMessage} 
-                    handleActiveIssue={this.props.handleActiveIssue}
-                    handleManualScan={this.handleManualScan} />
+            {this.state.issueDetailsPending &&
+                <View as="div" textAlign="center" padding="large">
+                  <Spinner renderTitle="Scanning" size="large" />
                 </View>
-                {('module' !== activeContentItem.contentType) &&
-                  <View as="div" background="secondary" padding="medium" margin="small 0 0 x-small">
-                    <Text as="div" weight="bold">{this.props.t('label.manual_resolution')}</Text>
-                    <Text as="div" lineHeight="default">{this.props.t('label.resolved_description')}</Text>
-                    <View as="div" padding="small 0 0 0">
-                      {('2' == activeIssue.pending) ? 
-                        <Spinner renderTitle={this.props.t('form.processing')} size="x-small" />
-                        :
-                        <Checkbox onChange={this.handleIssueResolve} label={this.props.t('label.mark_resolved')}
-                          checked={(activeIssue.status == '2')} disabled={(activeIssue.status == '1')} />
-                      }
+            }
+            {!this.state.issueDetailsPending && <View as="div">
+              <View as="div" margin="small">
+                <View as="div" margin="small 0">
+                  <Text lineHeight="default">
+                    {ReactHtmlParser(this.props.t(`rule.desc.${activeIssue.scanRuleId}`), { preprocessNodes: (nodes) => Html.processStaticHtml(nodes, this.props.settings) })}
+                  </Text>
+                </View>
+                {showExample &&
+                  <ToggleDetails
+                    summary={this.state.expandExample ? (this.props.t('label.btn.hide_example')) : (this.props.t('label.btn.show_example'))}
+                    expanded={this.state.expandExample}
+                    fluidWidth={true}
+                    onToggle={this.handleExampleToggle}>
+                    <View as="div" margin="small 0">
+                    {ReactHtmlParser(this.props.t(`rule.example.${activeIssue.scanRuleId}`), { preprocessNodes: (nodes) => Html.processStaticHtml(nodes, this.props.settings) })}
                     </View>
-                  </View>
+                  </ToggleDetails>
                 }
-              </Flex.Item>
-              <Flex.Item width="50%" padding="0" overflowY="auto">
-                <View as="div" padding="x-small">
-                  <InlineList delimiter="pipe">
-                    <InlineList.Item>
-                      {('preview' === this.state.windowContents) ?
-                        <Text weight="bold">{this.props.t('label.preview')}</Text> 
-                        :
-                        <Link isWithinText={false} onClick={() => this.handleWindowToggle('preview')}>
-                          {this.props.t('label.preview')}</Link>
-                      }
-                    </InlineList.Item>
-                    <InlineList.Item>
-                      {('html' === this.state.windowContents) ?
-                        <Text weight="bold">{this.props.t('label.view_source')}</Text>
-                        :
-                        <Link isWithinText={false} onClick={() => this.handleWindowToggle('html')}>
-                          {this.props.t('label.view_source')}</Link>
-                      }
-                    </InlineList.Item>
-                  </InlineList>
-                  <View as="div" shadow="resting" padding="small" margin="x-small 0 0 0" height="200px" overflowY="auto">
-                    {('preview' === this.state.windowContents) &&       
-                      <Preview
-                        activeIssue={this.props.activeIssue}
-                        settings={this.props.settings}
-                      >  
-                      </Preview>           
-                    }
-                    {('html' === this.state.windowContents) &&
-                      <CodeEditor margin="x-small 0" label={this.props.t('label.code_preview')} language="html" readOnly={true}
-                        value={code}
-                        options={{ lineNumbers: true }} />
-                    }
+              </View>
+              <Flex justifyItems="space-between" alignItems="start">
+                <Flex.Item width="46%" padding="0">
+                  <View as="div">
+                    <UfixitForm activeIssue={activeIssue} t={this.props.t} settings={this.props.settings}
+                      handleIssueSave={this.handleIssueSave}
+                      addMessage={this.addMessage} 
+                      handleActiveIssue={this.props.handleActiveIssue}
+                      handleManualScan={this.handleManualScan} />
                   </View>
-                </View>
-                <View as="div" padding="0 x-small">
-                  {/* <Text weight="bold">{this.props.t('label.source')}</Text> */}
-                  {activeContentItem && 
-                    <View as="div">                    
-                      <Pill>{activeContentItem.contentType}</Pill>
-                      <Link onClick={this.handleOpenContent} isWithinText={false} margin="small" renderIcon={<IconExternalLinkLine />} iconPlacement="end">
-                          {activeContentItem.title}
-                        </Link>
+                  {('module' !== activeContentItem.contentType) &&
+                    <View as="div" background="secondary" padding="medium" margin="small 0 0 x-small">
+                      <Text as="div" weight="bold">{this.props.t('label.manual_resolution')}</Text>
+                      <Text as="div" lineHeight="default">{this.props.t('label.resolved_description')}</Text>
+                      <View as="div" padding="small 0 0 0">
+                        {('2' == activeIssue.pending) ? 
+                          <Spinner renderTitle={this.props.t('form.processing')} size="x-small" />
+                          :
+                          <Checkbox onChange={this.handleIssueResolve} label={this.props.t('label.mark_resolved')}
+                            checked={(activeIssue.status == '2')} disabled={(activeIssue.status == '1')} />
+                        }
+                      </View>
                     </View>
                   }
-                </View>
-              </Flex.Item>
-            </Flex>
+                </Flex.Item>
+                <Flex.Item width="50%" padding="0" overflowY="auto">
+                  <View as="div" padding="x-small">
+                    <InlineList delimiter="pipe">
+                      <InlineList.Item>
+                        {('preview' === this.state.windowContents) ?
+                          <Text weight="bold">{this.props.t('label.preview')}</Text> 
+                          :
+                          <Link isWithinText={false} onClick={() => this.handleWindowToggle('preview')}>
+                            {this.props.t('label.preview')}</Link>
+                        }
+                      </InlineList.Item>
+                      <InlineList.Item>
+                        {('html' === this.state.windowContents) ?
+                          <Text weight="bold">{this.props.t('label.view_source')}</Text>
+                          :
+                          <Link isWithinText={false} onClick={() => this.handleWindowToggle('html')}>
+                            {this.props.t('label.view_source')}</Link>
+                        }
+                      </InlineList.Item>
+                    </InlineList>
+                    <View as="div" shadow="resting" padding="small" margin="x-small 0 0 0" height="200px" overflowY="auto">
+                      {('preview' === this.state.windowContents) &&       
+                        <Preview
+                          activeIssue={this.props.activeIssue}
+                          settings={this.props.settings}
+                        >  
+                        </Preview>           
+                      }
+                      {('html' === this.state.windowContents) &&
+                        <CodeEditor margin="x-small 0" label={this.props.t('label.code_preview')} language="html" readOnly={true}
+                          value={code}
+                          options={{ lineNumbers: true }} />
+                      }
+                    </View>
+                  </View>
+                  <View as="div" padding="0 x-small">
+                    {/* <Text weight="bold">{this.props.t('label.source')}</Text> */}
+                    {activeContentItem && 
+                      <View as="div">                    
+                        <Pill>{activeContentItem.contentType}</Pill>
+                        <Link onClick={this.handleOpenContent} isWithinText={false} margin="small" renderIcon={<IconExternalLinkLine />} iconPlacement="end">
+                            {activeContentItem.title}
+                          </Link>
+                      </View>
+                    }
+                  </View>
+                </Flex.Item>
+              </Flex>
+            </View>}
           </Modal.Body>
 
           <Modal.Footer>
@@ -280,7 +309,12 @@ class UfixitModal extends React.Component {
 
     if (activeIssue.status) {
       activeIssue.status = false
-      activeIssue.newHtml = Html.toString(Html.removeClass(activeIssue.sourceHtml, 'phpally-ignore'))
+      activeIssue.newHtml = Html.toString(
+        Html.removeClass(activeIssue.sourceHtml, 'phpally-ignore')
+      )
+      activeIssue.newHtml = Html.toString(
+        Html.addClass(activeIssue.newHtml, `udoit-${activeIssue.id}`)
+      )
     }
     else {
       activeIssue.status = 2
@@ -296,7 +330,6 @@ class UfixitModal extends React.Component {
       
         if (response.data.issue) {
           const newIssue = { ...activeIssue, ...response.data.issue }
-          const newReport = response.data.report
 
           // update activeIssue
           newIssue.pending = false
@@ -304,16 +337,39 @@ class UfixitModal extends React.Component {
           newIssue.sourceHtml = newIssue.newHtml
           newIssue.newHtml = ''
           // Get updated report
-          api.scanContent(newIssue.contentItemId)
-          .then((responseStr) => responseStr.json())
-          .then((res) => {
-            // update activeIssue
-            this.props.handleActiveIssue(newIssue)
-            
-            this.props.handleIssueSave(newIssue, res.data)
-          })
-        }
-        else {
+          api
+            .scanContent(newIssue.contentItemId)
+            .then((responseStr) => responseStr.json())
+            .then((scanResponse) => {
+              // If we just unresolved the issue
+              if (!newIssue.status) {
+                // Loop through report
+                for (var issue of scanResponse.data.issues) {
+                  if (issue.scanRuleId === newIssue.scanRuleId) {
+                    // Get issue details 
+                    api.syncIssue(issue)
+                    .then((responseStr) => responseStr.json())
+                    .then((res) => {
+                      let issueDetails = res.data
+                      
+                      if (issueDetails.sourceHtml === newIssue.sourceHtml) {
+                        newIssue.id = issueDetails.id
+                        newIssue.sourceHtml = Html.toString(
+                          Html.removeClass(newIssue.sourceHtml, `udoit-${activeIssue.id}`)
+                        )
+                        newIssue.newHtml = ''
+                        newIssue.previewHtml = issueDetails.previewHtml                      
+                      }
+                    })
+                  }
+                }
+              } 
+
+              this.props.handleActiveIssue(newIssue)  
+              this.props.handleIssueSave(newIssue, scanResponse.data)
+              
+            })
+        } else {
           activeIssue.pending = false
           this.props.handleActiveIssue(activeIssue)
         }
@@ -431,6 +487,24 @@ class UfixitModal extends React.Component {
 
   clearMessages() {
     this.modalMessages = [];
+  }
+
+  syncIssue(issue) {
+    let api = new Api(this.props.settings)
+   
+    api.syncIssue(issue)
+      .then((response) => response.json())
+      .then((response) => {
+        const newIssue = { ...issue, ...response.data }
+   
+        // set messages 
+        response.messages.forEach((msg) => this.addMessage(msg))
+
+        if (newIssue.id === this.props.activeIssue.id) {
+          this.props.handleActiveIssue(newIssue)
+          this.setState({ issueDetailsPending: false });
+        }        
+      })
   }
 }
 
