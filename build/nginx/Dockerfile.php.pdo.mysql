@@ -2,4 +2,8 @@ FROM php:8.2-fpm
 
 # PHP extensions
 RUN apt-get update && apt-get install -y libpng-dev zlib1g-dev git unzip
+
+# Install Python for machine learning projects
+RUN apt-get install -y python3 python3-pandas python3-sklearn python3-joblib python3-numpy python3-imblearn
+
 RUN docker-php-ext-install gd pdo pdo_mysql
