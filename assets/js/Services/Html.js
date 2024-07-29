@@ -37,8 +37,6 @@ export function setInnerText(element, newText) {
   const children = element.childNodes
   let textNodeFound = false
 
-  console.log(children)
-
   children.forEach(node => {
     if(node.nodeType === Node.TEXT_NODE) {
       if(textNodeFound != true) {

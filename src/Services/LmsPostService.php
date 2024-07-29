@@ -51,11 +51,6 @@ class LmsPostService {
 
         $replaceSuccess = $this->replaceContent($issue, $contentItem);
         if (!$replaceSuccess) {
-            $this->util->createMessage(
-                'Fixed HTML was not replaced in LMS. Please contact an administrator.',
-                'error',
-                $contentItem->getCourse()
-            );
             return;
         }
 
@@ -81,7 +76,7 @@ class LmsPostService {
             return;
         }
 
-        return $lms->postFileItem($file);
+        return $lms->postFileItem($file, $uploadedFile->getClientOriginalName());
     }
 
     public function replaceContent(Issue $issue, ContentItem $contentItem)
