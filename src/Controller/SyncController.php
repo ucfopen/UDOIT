@@ -9,6 +9,7 @@ use App\Response\ApiResponse;
 use App\Services\LmsApiService;
 use App\Services\LmsFetchService;
 use App\Services\PhpAllyService;
+use App\Services\EqualAccessService;
 use App\Services\UtilityService;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Annotation\Route;
@@ -72,7 +73,7 @@ class SyncController extends ApiController
     }
 
     #[Route('/api/sync/content/{contentItem}', name: 'content_sync', methods: ['GET'])]
-    public function requestContentSync(ContentItem $contentItem, LmsFetchService $lmsFetch, PhpAllyService $phpAlly)
+    public function requestContentSync(ContentItem $contentItem, LmsFetchService $lmsFetch, PhpAllyService $phpAlly, EqualAccessService $equalAccess)
     {
         $response = new ApiResponse();
         $course = $contentItem->getCourse();
@@ -82,10 +83,11 @@ class SyncController extends ApiController
         $lmsFetch->deleteContentItemIssues(array($contentItem));
 
         // Rescan the contentItem
-        $phpAllyReport = $phpAlly->scanContentItem($contentItem);
+        // $report = $phpAlly->scanContentItem($contentItem);
+        $report = $equalAccess->scanContentItem($contentItem);
 
         // Add rescanned Issues to database
-        foreach ($phpAllyReport->getIssues() as $issue) {
+        foreach ($report->getIssues() as $issue) {
             // Create issue entity
             $lmsFetch->createIssue($issue, $contentItem);
         }
