@@ -39,6 +39,7 @@ class App extends React.Component {
     this.handleIssueSave = this.handleIssueSave.bind(this)
     this.handleFileSave = this.handleFileSave.bind(this)
     this.handleCourseRescan = this.handleCourseRescan.bind(this)
+    this.handleFullCourseRescan = this.handleFullCourseRescan.bind(this)
     this.handleNewReport = this.handleNewReport.bind(this)
     this.resizeFrame = this.resizeFrame.bind(this)
   }
@@ -53,6 +54,7 @@ class App extends React.Component {
           navigation={this.state.navigation}
           handleNavigation={this.handleNavigation}
           handleCourseRescan={this.handleCourseRescan}
+          handleFullCourseRescan={this.handleFullCourseRescan}
           handleModal={this.handleModal} />
 
         {(('welcome' !== this.state.navigation) && ('summary' !== this.state.navigation)) &&
@@ -148,6 +150,11 @@ class App extends React.Component {
     return api.scanCourse(this.settings.course.id)
   }
 
+  fullRescan() {
+    let api = new Api(this.settings)
+    return api.fullRescan(this.settings.course.id)
+  }
+
   disableReview = () => {
     return this.state.syncComplete && !this.state.disableReview
   }
@@ -156,6 +163,16 @@ class App extends React.Component {
     if (this.state.hasNewReport) {
       this.setState({ hasNewReport: false, syncComplete: false })
       this.scanCourse()
+        .then((response) => response.json())
+        .then(this.handleNewReport)
+    }
+    this.forceUpdate()
+  }
+
+  handleFullCourseRescan() {
+    if (this.state.hasNewReport) {
+      this.setState({ hasNewReport: false, syncComplete: false })
+      this.fullRescan()
         .then((response) => response.json())
         .then(this.handleNewReport)
     }
@@ -184,7 +201,6 @@ class App extends React.Component {
       });
     }
     if (data.data && data.data.id) {
-      console.log('new data', data.data)
       report = data.data
       hasNewReport = true
     }
@@ -217,14 +233,20 @@ class App extends React.Component {
   }
 
   handleIssueSave(newIssue, newReport) {
-    let { report } = this.state
-    report = {...report, ...newReport}
+    const oldReport = this.state.report;
+
+    const report = { ...oldReport, ...newReport };
 
     if (report && Array.isArray(report.issues)) {
-      report.issues = report.issues.map(issue => (issue.id == newIssue.id) ? newIssue : issue)
+      // Combine backend issues with frontend issue state
+      report.issues = report.issues.map((issue) => {
+        if (issue.id === newIssue.id) return newIssue;
+        const oldIssue = oldReport.issues.find((oldReportIssue) => oldReportIssue.id === issue.id);
+        return oldIssue !== undefined ? { ...oldIssue, ...issue } : issue;
+      });
     }
 
-    this.setState({ report })
+    this.setState({ report });
   }
 
   handleFileSave(newFile, newReport) {

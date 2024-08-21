@@ -356,7 +356,7 @@ class CanvasLms implements LmsInterface {
                 return;
             }
 
-            $fileResponse = $canvasApi->apiFilePost($url, $options, $filepath);
+            $fileResponse = $canvasApi->apiFilePost($url, $options, $filepath, $contentItem->getTitle());
             $fileObj = $fileResponse->getContent();
 
             if (isset($fileObj['id'])) {
@@ -370,7 +370,7 @@ class CanvasLms implements LmsInterface {
         return $canvasApi->apiPut($url, ['body' => $options]);
     }
 
-    public function postFileItem(FileItem $file)
+    public function postFileItem(FileItem $file, string $newFileName)
     {
         $user = $this->security->getUser();
         $apiDomain = $this->getApiDomain($user);
@@ -382,7 +382,7 @@ class CanvasLms implements LmsInterface {
             'postUrl' => "courses/{$file->getCourse()->getLmsCourseId()}/files"
         ];
 
-        $fileResponse = $canvasApi->apiFilePost($url, $options, $filepath);
+        $fileResponse = $canvasApi->apiFilePost($url, $options, $filepath, $newFileName);
         $fileObj = $fileResponse->getContent();
 
         if (isset($fileObj['id'])) {
