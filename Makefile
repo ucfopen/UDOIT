@@ -1,3 +1,4 @@
+# checks if .ins.env exists and includes it
 ifneq (,$(wildcard ./.ins.env))
     include .ins.env
     export
