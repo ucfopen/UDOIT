@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Entity\ContentItem;
 use CidiLabs\PhpAlly\PhpAllyIssue;
 use CidiLabs\PhpAlly\PhpAllyReport;
+use App\Services\AwsApiAccessibilityService;
 
 use DOMDocument;
 use DOMXPath;
@@ -83,7 +84,9 @@ class EqualAccessService {
 
     public function checkMany($content, $ruleIds = [], $options = []) {
         $document = $this->getDomDocument($content);
-        $response = $this->postData("http://host.docker.internal:3000/check", $document->saveHTML());
+        $aws = new AwsApiAccessibilityService();
+        $response = $aws->scanHtml($document);
+        #$response = $this->postData("http://host.docker.internal:3000/check", $document->saveHTML());
         $json = json_decode($response, true);
         $report = $this->generateReport($json, $document);
         return $report;
