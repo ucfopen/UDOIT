@@ -10,6 +10,7 @@ use App\Entity\Report;
 use App\Entity\User;
 use App\Services\LmsApiService;
 use App\Services\PhpAllyService;
+use App\Services\EqualAccessService;
 use CidiLabs\PhpAlly\PhpAllyIssue;
 use Doctrine\Persistence\ManagerRegistry;
 
@@ -22,6 +23,12 @@ class LmsFetchService {
 
     /** @var PhpAllyService $phpAllyService */
     private $phpAlly;
+
+    /** @var EqualAccessService $equalAccessService */
+    private $equalAccess;
+
+    /** @var AsyncEqualAccessReport $asyncEqualAccessReport */
+    private $asyncReport;
 
     /** @var ManagerRegistry $doctrine */
     protected $doctrine;
@@ -36,6 +43,8 @@ class LmsFetchService {
         LmsApiService $lmsApi,
         LmsUserService $lmsUser,
         PhpAllyService $phpAlly,
+        EqualAccessService $equalAccess,
+        AsyncEqualAccessReport $asyncReport,
         ManagerRegistry $doctrine,
         UtilityService $util
     )
@@ -43,6 +52,8 @@ class LmsFetchService {
         $this->lmsApi = $lmsApi;
         $this->lmsUser = $lmsUser;
         $this->phpAlly = $phpAlly;
+        $this->equalAccess = $equalAccess;
+        $this->asyncReport = $asyncReport;
         $this->doctrine = $doctrine;
         $this->util = $util;
     }
@@ -94,6 +105,7 @@ class LmsFetchService {
         /* Save last_updated date on course */
         $course->setLastUpdated($this->util->getCurrentTime());
         $course->setDirty(false);
+
         $this->doctrine->getManager()->flush();
     }
 
@@ -180,28 +192,51 @@ class LmsFetchService {
     // Performs PHPAlly scan on each Content Item.
     private function scanContentItems(array $contentItems)
     {
+        // Testing async post requests...
+        // $this->asyncReport->postMultipleAsync($contentItems);
+
         // Scan each update content item for issues
         /** @var \App\Entity\ContentItem $contentItem */
         foreach ($contentItems as $contentItem) {
             try {
                 // Scan Content Item with PHPAlly
-                $phpAllyReport = $this->phpAlly->scanContentItem($contentItem);
+                // $phpAllyReport = $this->phpAlly->scanContentItem($contentItem);
+                $this->equalAccess->logToServer("EQUAL ACCESS REPORT:");
+                $report = $this->equalAccess->scanContentItem($contentItem);
+                // $this->equalAccess->logToServer("PHPALLY REPORT:");
+                // $this->equalAccess->logToServer(json_encode($phpAllyReport, JSON_PRETTY_PRINT));
 
-                if ($phpAllyReport) {
+                if ($report) {
                     // TODO: Do something with report errors
-                    if (count($phpAllyReport->getErrors())) {
-                        foreach ($phpAllyReport->getErrors() as $error) {
+                    if (count($report->getErrors())) {
+                        foreach ($report->getErrors() as $error) {
                             $msg = $error . ', item = #' . $contentItem->getId();
                             $this->util->createMessage($msg, 'error', $contentItem->getCourse(), null, true);
                         }
                     }
 
                     // Add Issues to report
-                    foreach ($phpAllyReport->getIssues() as $issue) {
+                    foreach ($report->getIssues() as $issue) {
                         // Create issue entity
                         $this->createIssue($issue, $contentItem);
                     }
                 }
+
+                // if ($phpAllyReport) {
+                //     // TODO: Do something with report errors
+                //     if (count($phpAllyReport->getErrors())) {
+                //         foreach ($phpAllyReport->getErrors() as $error) {
+                //             $msg = $error . ', item = #' . $contentItem->getId();
+                //             $this->util->createMessage($msg, 'error', $contentItem->getCourse(), null, true);
+                //         }
+                //     }
+
+                //     // Add Issues to report
+                //     foreach ($phpAllyReport->getIssues() as $issue) {
+                //         // Create issue entity
+                //         $this->createIssue($issue, $contentItem);
+                //     }
+                // }
             }
             catch (\Exception $e) {
                 $this->util->createMessage($e->getMessage(), 'error', null, null, true);
