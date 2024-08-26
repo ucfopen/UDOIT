@@ -10,7 +10,6 @@ use DOMXPath;
 
 use GuzzleHttp\Promise;
 use GuzzleHttp\Client;
-use Symfony\Component\VarExporter\VarExporter;
 
 // Asynchronously ...
 
@@ -55,13 +54,12 @@ class AsyncEqualAccessReport {
         // Wait for all the POSTs to resolve and save them into an array
         // Each promise is resolved into an array with a "state" key (fulfilled/rejected) and "value" (the JSON)
         $results = Promise\Utils::unwrap($promises);
-        // $this->logToServer(json_encode($results, JSON_PRETTY_PRINT));
 
         foreach ($results as $result) {
             $this->logToServer("____________________");
             $response = $result->getBody()->getContents();
             $json = json_decode($response, true);
-            // $this->logToServer(json_encode($json, JSON_PRETTY_PRINT));
+            $this->logToServer(json_encode($json, JSON_PRETTY_PRINT));
             foreach ($json["results"] as $pageScan) {
                 $equalAccessRule = $pageScan["ruleId"];
                 $this->logToServer($equalAccessRule);

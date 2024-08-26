@@ -193,6 +193,7 @@ class LmsFetchService {
     private function scanContentItems(array $contentItems)
     {
         // Testing async post requests...
+        // $this->equalAccess->logToServer("TESTING ASYNC:");
         // $this->asyncReport->postMultipleAsync($contentItems);
 
         // Scan each update content item for issues
