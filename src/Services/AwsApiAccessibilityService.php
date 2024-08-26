@@ -1,7 +1,6 @@
 <?php
 namespace App\Services;
 
-use App\Entity\ContentItem;
 use Exception;
 
 class AwsApiAccessibilityService
@@ -16,29 +15,17 @@ class AwsApiAccessibilityService
 
     public function __construct()
     {
-        // $this->htmlService = $htmlService;
         $this->loadConfig();
     }
 
     private function loadConfig()
     {
-        $dotenv = parse_ini_file('.env');
-        $this->awsAccessKeyId = $dotenv['AWS_ACCESS_KEY_ID'];
-        $this->awsSecretAccessKey = $dotenv['AWS_SECRET_ACCESS_KEY'];
+        $this->awsAccessKeyId = $_ENV['AWS_ACCESS_KEY_ID'];
+        $this->awsSecretAccessKey = $_ENV['AWS_SECRET_ACCESS_KEY'];
         $this->awsRegion = "us-east-2";
         $this->service = "execute-api";
         $this->host = "kxm63nv0uk.execute-api.us-east-2.amazonaws.com";
         $this->endpoint = "https://kxm63nv0uk.execute-api.us-east-2.amazonaws.com/Test/generate-accessibility-report";
-    }
-
-    public function scanContentItem(ContentItem $contentItem)
-    {
-        // $html = $this->htmlService->clean($contentItem->getBody());
-        if (!$html) {
-            return;
-        }
-
-        return $this->scanHtml($html);
     }
 
     public function scanHtml($html)
@@ -70,8 +57,11 @@ class AwsApiAccessibilityService
             "x-amz-date: {$amzDate}",
             "Authorization: {$authorizationHeader}"
         ];
-        
-        return json_encode($this->makeRequest($requestPayload, $headers), JSON_PRETTY_PRINT);
+
+        $json = $this->makeRequest($requestPayload, $headers);
+
+        // the json is wrapped in an extra set of [], could somehow be changed in the server maybe?
+        return json_encode($json[0]);
     }
 
     private function getSignatureKey($key, $dateStamp, $regionName, $serviceName)

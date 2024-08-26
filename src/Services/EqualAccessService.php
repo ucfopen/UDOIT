@@ -85,9 +85,10 @@ class EqualAccessService {
     public function checkMany($content, $ruleIds = [], $options = []) {
         $document = $this->getDomDocument($content);
         $aws = new AwsApiAccessibilityService();
-        $response = $aws->scanHtml($document);
-        #$response = $this->postData("http://host.docker.internal:3000/check", $document->saveHTML());
+        $response = $aws->scanHtml($document->saveHTML());
+        // $response = $this->postData("http://host.docker.internal:3000/check", $document->saveHTML());
         $json = json_decode($response, true);
+        // $this->logToServer(json_encode($json, JSON_PRETTY_PRINT));
         $report = $this->generateReport($json, $document);
         return $report;
     }
@@ -119,6 +120,8 @@ class EqualAccessService {
     public function generateReport($json, $document) {
         $report = new PhpAllyReport();
         $xpath = new DOMXPath($document);
+
+        $this->logToServer(json_encode($json, JSON_PRETTY_PRINT));
 
         $issues = array();
         $issueCounts = array();
