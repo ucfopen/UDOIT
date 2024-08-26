@@ -14,9 +14,9 @@ class AwsApiAccessibilityService
     private $endpoint;
     private $htmlService;
 
-    public function __construct(HtmlService $htmlService)
+    public function __construct()
     {
-        $this->htmlService = $htmlService;
+        // $this->htmlService = $htmlService;
         $this->loadConfig();
     }
 
@@ -33,7 +33,7 @@ class AwsApiAccessibilityService
 
     public function scanContentItem(ContentItem $contentItem)
     {
-        $html = $this->htmlService->clean($contentItem->getBody());
+        // $html = $this->htmlService->clean($contentItem->getBody());
         if (!$html) {
             return;
         }
