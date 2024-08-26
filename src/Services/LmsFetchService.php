@@ -45,6 +45,7 @@ class LmsFetchService {
         PhpAllyService $phpAlly,
         EqualAccessService $equalAccess,
         AsyncEqualAccessReport $asyncReport,
+        ScannerService $scanner,
         ManagerRegistry $doctrine,
         UtilityService $util
     )
@@ -54,6 +55,7 @@ class LmsFetchService {
         $this->phpAlly = $phpAlly;
         $this->equalAccess = $equalAccess;
         $this->asyncReport = $asyncReport;
+        $this->scanner = $scanner;
         $this->doctrine = $doctrine;
         $this->util = $util;
     }
@@ -203,7 +205,7 @@ class LmsFetchService {
                 // Scan Content Item with PHPAlly
                 // $phpAllyReport = $this->phpAlly->scanContentItem($contentItem);
                 $this->equalAccess->logToServer("EQUAL ACCESS REPORT:");
-                $report = $this->equalAccess->scanContentItem($contentItem);
+                $report = $this->scanner->scanContentItem($contentItem);
                 // $this->equalAccess->logToServer("PHPALLY REPORT:");
                 // $this->equalAccess->logToServer(json_encode($phpAllyReport, JSON_PRETTY_PRINT));
 
