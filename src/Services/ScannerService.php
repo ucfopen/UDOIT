@@ -42,13 +42,29 @@ class ScannerService {
             $this->logToServer("equalaccess (local)");
             $equalAccess = new EqualAccessService();
             $report = $equalAccess->scanContentItem($contentItem);
-            $this->logToServer(json_encode($report));
+            // $this->logToServer(json_encode($report));
         }
-        else if ($scanner == 'equalaccess_aws') {
-            $this->logToServer("equalaccess (ec2)");
-            $awsScanner = new AwsApiAccessibilityService();
-            $report = $awsScanner->scanHtml($contentItem->getBody());
-            $this->logToServer($report);
+        else if ($scanner == 'equalaccess_lambda') {
+            $this->logToServer("equalaccess (lambda)");
+            if ($contentItem->getBody() != null) {
+                $awsScanner = new AwsApiAccessibilityService();
+                $equalAccess = new EqualAccessService();
+                $document = $equalAccess->getDomDocument($contentItem->getBody());
+                $json = $awsScanner->scanContentItem($contentItem);
+                $report = $equalAccess->generateReport($json, $document);
+                
+                if ($document != null) {
+                    $json = $awsScanner->scanHtml($document->saveHTML());
+                    $report = $equalAccess->generateReport($json, $document);
+                    $this->logToServer($report);
+                }
+                else {
+                    $this->logToServer("error receiving report!");
+                }
+            }
+            else {
+                $this->logToServer("null contentitem!");
+            }
         }
         else {
             $this->logToServer("Unknown scanner!");

@@ -1,17 +1,22 @@
 <?php
 namespace App\Services;
 
+use App\Entity\ContentItem;
+
+use DOMDocument;
 use Exception;
 
 class AwsApiAccessibilityService
 {
+    /** @var App\Service\HtmlService */
+    protected $htmlService;
+
     private $awsAccessKeyId;
     private $awsSecretAccessKey;
     private $awsRegion;
     private $service;
     private $host;
     private $endpoint;
-    private $htmlService;
 
     public function __construct()
     {
@@ -28,9 +33,22 @@ class AwsApiAccessibilityService
         $this->endpoint = "https://kxm63nv0uk.execute-api.us-east-2.amazonaws.com/Test/generate-accessibility-report";
     }
 
+    public function scanContentItem(ContentItem $contentItem) {
+        $html = HtmlService::clean($contentItem->getBody());
+
+        if (!$html) {
+            return;
+        }
+
+        $data = $this->scanHtml($html); 
+
+        return $data;
+    }
+
     public function scanHtml($html)
     {
-        $requestPayload = json_encode(["html" => [$html]]);
+        $document = $this->getDomDocument($html);
+        $requestPayload = json_encode(["html" => [$document->saveHTML()]]);
         
         $amzDate = gmdate('Ymd\THis\Z');
         $dateStamp = gmdate('Ymd');
@@ -61,7 +79,7 @@ class AwsApiAccessibilityService
         $json = $this->makeRequest($requestPayload, $headers);
 
         // the json is wrapped in an extra set of [], could somehow be changed in the server maybe?
-        return json_encode($json[0]);
+        return $json[0];
     }
 
     private function getSignatureKey($key, $dateStamp, $regionName, $serviceName)
@@ -106,5 +124,18 @@ class AwsApiAccessibilityService
         } finally {
             curl_close($ch);
         }
+    }
+
+    public function getDomDocument($html)
+    {
+        $dom = new DOMDocument('1.0', 'utf-8');
+        if (strpos($html, '<?xml encoding="utf-8"') !== false) {
+            $dom->loadHTML("<html><body>{$html}</body></html>", LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD);
+        } else {
+            $dom->loadHTML("<?xml encoding=\"utf-8\" ?><html><body>{$html}</body></html>", LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD);
+        }
+
+        return $dom;
+
     }
 }
