@@ -59,7 +59,7 @@ We provide a fast and simple way of setting up a local UDOIT instance through Do
     make start
 ```
 
-3. Once the containers are intialized, run the following command:
+3. Once the containers are initialized, run the following command:
 ```
     make migrate
 ```
@@ -75,7 +75,7 @@ Type `yes` and proceed. The warning is expected and is a non issue.
 
 4. UDOIT should be installed and running as Docker containers.
 
-5. To stop UDOIT containers, run the following command:
+5. To stop the UDOIT containers, run the following command:
 ```
     make down
 ```
@@ -124,7 +124,7 @@ To build the JavaScript files for production, run the command:
     yarn build
 
 ## Testing successful installation
-While UDOIT only functions fully within an LMS, there is one URL publicly available you can access to test your server setup.
+While UDOIT is an LTI tool that only functions fully within an LMS, you can plug the following URL in your browser to test if UDOIT is installed correctly:
 
     <BASE_URL>/lti/config
 
@@ -134,6 +134,6 @@ For example, if you are setting this up on your local computer via Docker, it ma
 
 
 ## Connecting UDOIT to an LMS
-UDOIT is an LTI tool that functions fully within an LMS. 
+UDOIT is an LTI tool that functions fully within an LMS. To configure it fully within your LMS, follow the installations instructions below that apply to you.
 - To install it on Canvas, follow [INSTALL_CANVAS.md](INSTALL_CANVAS.md)
 - or for D2l Brightspace, follow [INSTALL_D2L.md](INSTALL_D2L.md)
