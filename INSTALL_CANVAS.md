@@ -6,7 +6,7 @@ Once UDOIT has been installed on a public web server the following steps must be
 * Install the application
 
 ## Create an API Developer Key
-UDOIT requires an API developer key, since all course data is gathered through the Canvas API.
+UDOIT requires an API developer key since all course data is gathered through the Canvas API.
 
 ### Steps to Create an API Key
 1. Navigate to `Developer Keys` in the root account menu.
@@ -19,7 +19,7 @@ UDOIT requires an API developer key, since all course data is gathered through t
 * Client Credentials
 * Canvas
 * Enforce Scopes
-* See section below for a list of scopes to enable.
+* See the section below for a list of scopes to enable.
 * Check `Allow Include Parameters`
 * Redirect URL (Legacy) : *SKIP*
 * Vendor Code : *SKIP*
@@ -94,7 +94,7 @@ Follow the steps below, replacing `<YOUR_UDOIT_BASE_URL>` with the `BASE_URL` va
 * Redirect URIs: <YOUR_UDOIT_BASE_URL>/lti/authorize/check
 * Configure method: Enter URL
 * JSON URL: <YOUR_UDOIT_BASE_URL>/lti/config
-* If your instance of Canvas is self-hosted, modify the URL under **JWK Method** to point to your canvas instance.
+* If your instance of Canvas is self-hosted, modify the URL under **JWK Method** to point to your Canvas instance.
 * Set Additional Settings
 * Domain: Your UDOIT domain
 * Tool ID: Enter a name
@@ -114,7 +114,7 @@ If you are setting up UDOIT for local development through `docker compose`, <YOU
 
 ---
 ## Update the Institutions Table
-UDOIT is built to support more than one LMS instance. For this purpose we have an `institution` table that must be populated with the LMS information.
+UDOIT is built to support more than one LMS instance. For this purpose, we have an `institution` table that must be populated with the LMS information.
 
 1. Inside the UDOIT directory, run `cp .ins.env.example .ins.env`
 2. open `.ins.env` with a text editor (i.e. Notepad, VS Code, etc.)
@@ -126,7 +126,7 @@ UDOIT is built to support more than one LMS instance. For this purpose we have a
 - `CREATED` = Date in this format: `2021-06-08`
 - `STATUS` = `1` if you are using MySQL or MariaDB (or Docker), `true` if you are using PostgreSQL
 - `VANITY_URL` = Your LMS vanity URL (i.e. `canvas.myschool.edu`)
-- `METADATA` = Optional. Institution specific settings, such as language or excluded tests. Text representation of a JSON object. (i.e. `{"lang":"es"}`)
+- `METADATA` = Optional. Institution-specific settings, such as language or excluded tests. Text representation of a JSON object. (i.e. `{"lang":"es"}`)
 - `API_CLIENT_ID` = The ID of the developer API key you created earlier
 - `API_CLIENT_SECRET` = The secret for the API key you created earlier
 
@@ -138,7 +138,7 @@ make ins-psql	# For PostgreSQL
 
 ---
 ## .ENV Setup
-For cloud-hosted canvas instances the default value for the `JWK_BASE_URL` environmental variable will work out of the box. If you are not cloud-hosted, you may need to change the value of this variable in `.env.local` to match your canvas instance.
+For cloud-hosted canvas instances, the default value for the `JWK_BASE_URL` environmental variable will work out of the box. If you are not cloud-hosted, you may need to change the value of this variable in `.env.local` to match your canvas instance.
 
 ---
 ## Install the App
@@ -149,8 +149,10 @@ UDOIT now needs to be added to an account in Canvas. Follow these steps to add t
 4. Choose the `Apps` tab.
 5. Choose the `View App Configurations` button in the top right corner.
 6. Click `+ App`
-7. In the dialog that appears, choose "Configuration Type" "By Client ID".
+7. In the dialog that appears, choose "Configuration Type: By Client ID".
 8. Paste the `Client ID` from the developer LTI Key you created earlier.
 9. Click Submit.
 
-You're done!  "UDOIT" should now appear in the navigation menu of the course (or every course in the account) in which you installed it.  If you installed it to an account, "UDOIT Admin" will also appear in the account navigation menu.
+You're done!  "UDOIT" should now appear in the navigation menu of the course (or every course in the account) in which you installed it.  If you installed it on an account, "UDOIT Admin" will also appear in the account navigation menu.
+
+

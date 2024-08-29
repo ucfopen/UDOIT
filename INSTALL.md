@@ -73,9 +73,9 @@ Type `yes` and proceed. The warning is expected and is a non issue.
 
 > Note: You will need to run this command whenever you update to a new version of UDOIT.
 
-4. UDOIT should be installed and running in your Docker cotnainer.
+4. UDOIT should be installed and running as Docker containers.
 
-5. To stop UDOIT, run the following command:
+5. To stop UDOIT containers, run the following command:
 ```
     make down
 ```
