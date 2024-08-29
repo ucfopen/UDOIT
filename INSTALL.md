@@ -2,26 +2,27 @@
 UDOIT can be installed on your own existing servers with the following instructions. UDOIT is also available as a hosted and maintained product by [Cidi Labs](https://cidilabs.com). UDOIT is built using the [PHP Symfony Framework](https://symfony.com).
 
 ## System Requirements
-The system requirements depend on how you install UDOIT.  If you use Docker, the host system doesn't require any additional software.
+The system requirements depend on how you install UDOIT.
 
 ### Docker Method
 * Docker
 * Docker Compose
+* Cmake (This is available on most systems by default)
 
 ### Manual Installation Method
 * Apache or Nginx webserver
 * PHP 8.1, 8.2
 * MySQL, MariaDB or PostgreSQL
 * Git (If you are using The Git Method below) or if you plan on contributing to UDOIT
-* Node v16 is supported; other versions may work
+* Node v16 is supported; later versions may work
 * Yarn
 
 ## Download the Code
-### Option 1: Git
-We strongly recommend managing the source code through Git. The benefit of this method is that you can update an existing installation of UDOIT by simply using `git pull`. It also lets you roll back to previous versions if needed. Follow these steps:
+### Option 1: Git (Strongly recommended)
+This method is strongly recommend as it allows UDOIT to be updated through a simple command on the terminal: `git pull`. It also lets you roll back to previous versions if needed. Follow these steps:
 
 1. Install Git on your server (https://git-scm.com/book/en/v2/Getting-Started-Installing-Git)
-2. Create the directory in which UDOIT will reside (e.g `UDOIT`) and navigate to it.
+2. Create a folder/directory in which UDOIT will reside (e.g `UDOIT`) and navigate to it.
 3. Inside the UDOIT directory, run `git clone git@github.com:ucfopen/UDOIT.git . ` (The . is important; It tells Git to download the files to the current directory.)
 
 ### Option 2: Zip File
@@ -36,18 +37,14 @@ cp .env.example .env
 ```
 This command copies the `.env.example` into `.env`, creating the `.env` file in the process if it does not exist.
 
-2. Open `.env` with a text editor and make the necessary changes to the following variables:
-	- `APP_ENV`: If you are setting up a development environment, change this to `dev` and follow the steps in [Installing Composer Dependencies](#installing-composer-dependencies) without the `--no-dev` flag to obtain all of the development packages. Otherwise, leave it as `prod`.
-	- `DATABASE_URL`: If you are hosting UDOIT on Docker or your local machine, leave it as it is. Otherwise, change it to your database URL.
-	- `BASE_URL`: If you are hosting UDOIT on Docker or your local machine, leave it as it is. Otherwise, change it to the URL of your instance of UDOIT.
-	- `WEBPACK_PUBLIC_PATH`: Uf you are hosting UDOIT on Docker or your local machine, leave it as it is. Otherwise, change it to match the `BASE_URL`in such a way that `/build` is located at the root of the `BASE_URL` (Example:  If your `BASE_URL` is set to `http://127.0.0.1:8000`, your `WEBPACK_PUBLIC_PATH` should be `/build`).
-	- `APP_LMS`:
-	   * `canvas` for Canvas LMS.
-	   * `d2l` for D2l Brightspace LMS.
-	- `JWK_BASE_URL`: If you are self-hosting Canvas, you may set it to the URL of your instance of Canvas. (Example: `JWK_BASE_URL="https://canvas.dev.myschool.edu"`)
-	- `DEFAULT_LANG`: (optional) the default language of UDOIT. This is English by default.
-		-  `en` for English
-		-  `es` for Spanish.
+2. Open `.env` with a text editor (i.e. Notepad, VS Code, etc.) and make the necessary changes to the following variables:
+- `APP_ENV`: If you are setting up a development environment, change this to `dev` and follow the steps in [Installing Composer Dependencies](#installing-composer-dependencies) without the `--no-dev` flag to obtain all of the development packages. Otherwise, leave it as `prod`.
+- `DATABASE_URL`: If you are hosting UDOIT on Docker or your local machine, leave it as it is. Otherwise, change it to your database URL.
+- `BASE_URL`: If you are hosting UDOIT on Docker or your local machine, leave it as it is. Otherwise, change it to the URL of your instance of UDOIT.
+- `WEBPACK_PUBLIC_PATH`: Uf you are hosting UDOIT on Docker or your local machine, leave it as it is. Otherwise, change it to match the `BASE_URL`in such a way that `/build` is located at the root of the `BASE_URL` (Example:  If your `BASE_URL` is set to `http://127.0.0.1:8000`, your `WEBPACK_PUBLIC_PATH` should be `/build`).
+	- `APP_LMS`: `canvas` for Canvas LMS. `d2l` for D2l Brightspace LMS.
+- `JWK_BASE_URL`: If you are self-hosting Canvas, you may set it to the URL of your instance of Canvas. (Example: `JWK_BASE_URL="https://canvas.dev.myschool.edu"`)
+	- `DEFAULT_LANG`: (optional)  `en` for English. `es` for Spanish. This is English by default.
 
 ## Installation
 
@@ -57,32 +54,30 @@ We provide a fast and simple way of setting up a local UDOIT instance through Do
 1. Install [Docker Desktop](https://docs.docker.com/get-docker/). This will install Docker and Docker Compose on your system. 
 	> Alternatively, you may install Docker and [Docker Compose](https://docs.docker.com/compose/install/) individually.
 
-3. Build the Containers
-If you prefer to build the containers yourself, or you are actively developing UDOIT and need to rebuild the containers to test your changes, run the following command from within the UDOIT directory:
+2. Build the Containers
 ```
-    docker compose -f docker-compose.nginx.yml up
+    make start
 ```
 
-4. Wait for the containers to finish initializing. This may take over 15 minutes. If you see no output in your terminal for few minutes, proceed to the next step.
-
-5. Once the containers are intialized, run the following command:
+3. Once the containers are intialized, run the following command:
 ```
-    docker compose -f docker-compose.nginx.yml run php php bin/console doctrine:migrations:migrate
+    make migrate
 ```
 This applies migrations necessary to set up the database to store all UDOIT data.
 
 Running this will give the following warning:
- > WARNING! You are about to execute a migration in database "udoit3" that could result in schema changes and data loss. Are you sure you wish to continue? (yes/no) [yes]:
 
-Don't worry! Simply type `yes` and proceed.
+> WARNING! You are about to execute a migration in database "udoit3" that could result in schema changes and data loss. Are you sure you wish to continue? (yes/no) [yes]:
 
-> You will need to run this command whenever you update to a new version of UDOIT.
+Type `yes` and proceed. The warning is expected and is a non issue.
 
-5. UDOIT should be installed and running in your Docker cotnainer. 
+> Note: You will need to run this command whenever you update to a new version of UDOIT.
 
-6. To stop UDOIT, run the following command:
+4. UDOIT should be installed and running in your Docker cotnainer.
+
+5. To stop UDOIT, run the following command:
 ```
-    docker compose -f docker-compose.nginx.yml down
+    make down
 ```
 
 ### Option 2. Manual Installation
