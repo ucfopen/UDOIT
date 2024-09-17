@@ -79,7 +79,7 @@ class AwsApiAccessibilityService
         $json = $this->makeRequest($requestPayload, $headers);
 
         // the json is wrapped in an extra set of [], could somehow be changed in the server maybe?
-        return $json[0];
+        return $json;
     }
 
     private function getSignatureKey($key, $dateStamp, $regionName, $serviceName)

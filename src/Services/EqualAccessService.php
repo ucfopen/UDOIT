@@ -23,27 +23,43 @@ class EqualAccessService {
 
     // Rule mappings from Equal Access names to generic UDOIT names
     // TODO: Verify rules, some Equal Access rules may also be unavailable and vice versa 
-    private $ruleMappings = array(
-        // Image Alt
-        "img_alt_misuse" =>  "ImageAltIsDifferent",
-        "img_alt_valid" => "ImageHasAlt",
-        // Links
-        "a_text_purpose" => "AnchorMustContainText",
-        // Media
-        "caption_track_exists" => "VideoProvidesCaptions", // need to have kind="captions" in <track>
-        // Tables
-        "table_headers_exist" => "TableDataShouldHaveTableHeader",
-        // Deprecated Elements (seems like all of these are overwritten by Canvas?)
-        "blink_elem_deprecated" => "BlinkIsNotUsed", // also maybe blink_css_review?
-        "marquee_elem_avoid" => "MarqueeIsNotUsed",
-        // Objects
-        "object_text_exists" => "ObjectMustContainText",
-        // Headings
-        "heading_content_exists" => "HeadersHaveText",
-        "text_block_heading" => "ParagraphNotUsedAsHeader",
-        // Color Contrast
-        "text_contrast_sufficient" => "CssTextHasContrast",
 
+    // (maybe) force full rescan (hopefully not) and also check for phpally-ignore(?)
+    // private $ruleMappings = array(
+    //     // Image Alt
+    //     "img_alt_misuse" =>  "ImageAltIsDifferent",
+    //     "img_alt_valid" => "ImageHasAlt",
+    //     // Links
+    //     "a_text_purpose" => "AnchorMustContainText",
+    //     // Media
+    //     "caption_track_exists" => "VideoProvidesCaptions", // need to have kind="captions" in <track>
+    //     // Tables
+    //     "table_headers_exist" => "TableDataShouldHaveTableHeader",
+    //     // Deprecated Elements (seems like all of these are overwritten by Canvas?)
+    //     "blink_elem_deprecated" => "BlinkIsNotUsed", // also maybe blink_css_review?
+    //     "marquee_elem_avoid" => "MarqueeIsNotUsed",
+    //     // Objects
+    //     "object_text_exists" => "ObjectMustContainText",
+    //     // Headings
+    //     "heading_content_exists" => "HeadersHaveText",
+    //     "text_block_heading" => "ParagraphNotUsedAsHeader",
+    //     // Color Contrast
+    //     "text_contrast_sufficient" => "CssTextHasContrast",
+
+    // );
+
+    // probably should disable rules in equal access itself, this is temporary hopefully
+    private $skipRules = array(
+        "html_lang_exists",
+        "html_skipnav_exists",
+        "page_title_exists",
+        "skip_main_exists",
+        "style_highcontrast_visible",
+
+        "style_viewport_resizable",
+        "aria_accessiblename_exists",
+        "aria_content_in_landmark",
+        
     );
 
     public function scanContentItem(ContentItem $contentItem) {
@@ -129,16 +145,18 @@ class EqualAccessService {
         $issueCounts = array();
 
         foreach ($json["results"] as $results) {
-            $equalAccessRule = $results["ruleId"];
+            // $equalAccessRule = $results["ruleId"];
+            $udoitRule = $results["ruleId"];
             $xpathQuery = $results["path"]["dom"];
 
             // Map the Equal Access rule name to a UDOIT-style rule name
-            $udoitRule = $this->ruleMappings[$equalAccessRule] ?? "UnknownRule";
+            // $udoitRule = $this->ruleMappings[$equalAccessRule] ?? "UnknownRule";
             
-            $ruleMapString = $equalAccessRule . " " . $udoitRule;
-            $this->logToServer($ruleMapString);
+            // $ruleMapString = $equalAccessRule . " " . $udoitRule;
+            // $this->logToServer($ruleMapString);
 
-            if ($udoitRule != "UnknownRule") {
+            // if ($udoitRule != "UnknownRule") {
+            if (!in_array($udoitRule, $this->skipRules)) {
                 if(array_key_exists($udoitRule, $issueCounts)) {
                     $issueCounts[$udoitRule]++;
                 }

@@ -42,7 +42,7 @@ class ScannerService {
             $this->logToServer("equalaccess (local)");
             $equalAccess = new EqualAccessService();
             $report = $equalAccess->scanContentItem($contentItem);
-            // $this->logToServer(json_encode($report));
+            $this->logToServer(json_encode($report));
         }
         else if ($scanner == 'equalaccess_lambda') {
             $this->logToServer("equalaccess (lambda)");
@@ -51,6 +51,7 @@ class ScannerService {
                 $equalAccess = new EqualAccessService();
                 $document = $equalAccess->getDomDocument($contentItem->getBody());
                 $json = $awsScanner->scanContentItem($contentItem);
+                $this->logToServer(json_encode($json, JSON_PRETTY_PRINT));
                 $report = $equalAccess->generateReport($json, $document);
                 
                 if ($document != null) {
