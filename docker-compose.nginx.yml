@@ -1,7 +1,6 @@
-version: "3.9"
-
 services:
   db:
+    container_name: udoit3-db
     image: mysql:latest
     volumes:
       - dbdata:/var/lib/mysql
@@ -15,6 +14,7 @@ services:
   # Uncomment this block and comment the next db block
   # to use Postgres instead of MySQL
   # db:
+  #   container_name: udoit3-db
   #   image: postgres:alpine
   #   restart: always
   #   ports:
@@ -24,6 +24,7 @@ services:
   #     POSTGRES_PASSWORD: udoit
   #     POSTGRES_DB: udoit3
   web:
+      container_name: udoit3-web
       image: nginx:latest
       ports:
         - "8000:80"
@@ -35,6 +36,7 @@ services:
       env_file:
         - .env
   php:
+      container_name: udoit3-php
       build:
         context: ./build/nginx
         dockerfile: Dockerfile.php.pdo.mysql
@@ -46,6 +48,7 @@ services:
       env_file:
         - .env
   composer:
+      container_name: udoit3-composer
       build:
         context: ./build/nginx
         dockerfile: Dockerfile.composer
@@ -55,6 +58,7 @@ services:
       env_file:
         - .env
   yarn:
+      container_name: udoit3-yarn
       image: node:16
       volumes:
         - ./:/app
