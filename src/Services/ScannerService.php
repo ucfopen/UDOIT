@@ -27,50 +27,46 @@ class ScannerService {
         file_get_contents("http://host.docker.internal:3000/log", false, $context);
     }
 
-    public function scanContentItem(ContentItem $contentItem) {
-        // Check which scanner we're going to use from our environment variables
+    public function scanContentItem(ContentItem $contentItem, $scannerReport = null) {
+        // Optional argument scannerReport is used when handling async Equal Access
+        // requests, so then all we have to do is just make those into a UDOIT report
         $scanner = $_ENV['ACCESSIBILITY_CHECKER'];
-
-        $this->logToServer($scanner);
-
         $report = null;
 
         if ($scanner == 'phpally') {
             $this->logToServer("phpally");
         }
         else if ($scanner == 'equalaccess_local') {
-            $this->logToServer("equalaccess (local)");
-            $equalAccess = new EqualAccessService();
-            $report = $equalAccess->scanContentItem($contentItem);
-            $this->logToServer(json_encode($report));
+            // TODO: create a LocalAccessibilityService
         }
         else if ($scanner == 'equalaccess_lambda') {
-            $this->logToServer("equalaccess (lambda)");
             if ($contentItem->getBody() != null) {
-                $awsScanner = new AwsApiAccessibilityService();
                 $equalAccess = new EqualAccessService();
                 $document = $equalAccess->getDomDocument($contentItem->getBody());
-                $json = $awsScanner->scanContentItem($contentItem);
-                $this->logToServer(json_encode($json, JSON_PRETTY_PRINT));
-                $report = $equalAccess->generateReport($json, $document);
                 
-                if ($document != null) {
-                    $json = $awsScanner->scanHtml($document->saveHTML());
-                    $report = $equalAccess->generateReport($json, $document);
-                    $this->logToServer($report);
+                if ($document != null && $scannerReport != null) {
+                    $report = $equalAccess->generateReport($scannerReport, $document);
                 }
-                else {
-                    $this->logToServer("error receiving report!");
-                }
-            }
-            else {
-                $this->logToServer("null contentitem!");
             }
         }
         else {
-            $this->logToServer("Unknown scanner!");
+            // Unknown scanner set in environment, should return error...
         }
 
         return $report;
+    }
+
+    public function getDomDocument($html)
+    {
+        $dom = new DOMDocument('1.0', 'utf-8');
+        libxml_use_internal_errors(true);
+        if (strpos($html, '<?xml encoding="utf-8"') !== false) {
+            $dom->loadHTML("<html><body>{$html}</body></html>", LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD);
+        } else {
+            $dom->loadHTML("<?xml encoding=\"utf-8\" ?><html><body>{$html}</body></html>", LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD);
+        }
+
+        return $dom;
+
     }
 }
