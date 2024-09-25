@@ -8,6 +8,7 @@ use CidiLabs\PhpAlly\PhpAllyReport;
 use App\Services\AwsApiAccessibilityService;
 
 use DOMDocument;
+use DOMElement;
 use DOMXPath;
 
 /*
@@ -69,6 +70,21 @@ class EqualAccessService {
         return $htmlSnippet;
     }
 
+    public function checkforIgnoreClass($htmlSnippet) {
+        // Assume no phpAllyIgnore by defalt
+        $phpAllyIgnore = false;
+
+        if ($htmlSnippet) {
+            $classes = $htmlSnippet->getAttribute("class");
+
+            if (strlen($classes) > 0 && str_contains($classes, "phpally-ignore")) {
+                $phpAllyIgnore = true;
+            } 
+        }
+
+        return $phpAllyIgnore;
+    }
+
     // Generate a UDOIT-style JSON report from the output of Equal Access
     public function generateReport($json, $document) {
         $report = new PhpAllyReport();
@@ -80,8 +96,10 @@ class EqualAccessService {
         foreach ($json["results"] as $results) {
             $udoitRule = $results["ruleId"];
             $xpathQuery = $results["path"]["dom"];
+            $issueHtml = $this->xpathToSnippet($xpath, $xpathQuery);
 
-            if (!in_array($udoitRule, $this->skipRules)) {
+            // First check if the HTML has phpally-ignore and also check if the rule isn't one we skip.
+            if (!$this->checkforIgnoreClass($issueHtml) && !in_array($udoitRule, $this->skipRules)) {
                 // Populate the issue counts field with how many total issues
                 // with the specific rule are found
                 if(array_key_exists($udoitRule, $issueCounts)) {
@@ -93,12 +111,12 @@ class EqualAccessService {
 
                 // UDOIT database has 'html' and 'preview_html',
                 // where 'preview_html' is the parent of the offending html
-                $issueHtml = $this->xpathToSnippet($xpath, $xpathQuery);
+                // $issueHtml = $this->xpathToSnippet($xpath, $xpathQuery);
 
                 // Check for null (aka no XPath result was found) and skip.
                 // Otherwise, create a new issue with the HTML from the XPath query.
                 if (!is_null($issueHtml)) {
-                    $parentIssueHtml = $issueHtml->parentNode;    
+                    $parentIssueHtml = $issueHtml->parentNode;
     
                     $issue = new PhpAllyIssue($udoitRule, $issueHtml, $parentIssueHtml, null);
                     $report->setIssueCounts($udoitRule, $issueCounts[$udoitRule], -1);

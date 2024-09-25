@@ -6,7 +6,7 @@ use App\Entity\ContentItem;
 
 use App\Services\PhpAllyService;
 use App\Services\EqualAccessService;
-use App\Services\AwsApiAccessibilityService;
+use App\Services\AsyncEqualAccessReport;
 
 use DOMDocument;
 
@@ -34,7 +34,7 @@ class ScannerService {
         $report = null;
 
         if ($scanner == 'phpally') {
-            $this->logToServer("phpally");
+            // TODO: implement flow for phpally scanning
         }
         else if ($scanner == 'equalaccess_local') {
             // TODO: create a LocalAccessibilityService
@@ -43,14 +43,22 @@ class ScannerService {
             if ($contentItem->getBody() != null) {
                 $equalAccess = new EqualAccessService();
                 $document = $equalAccess->getDomDocument($contentItem->getBody());
-                
-                if ($document != null && $scannerReport != null) {
+                if (!$scannerReport) {
+                    // Report is null, we need to call the lambda function for a single page most likely
+                    $this->logToServer("No report passed in!");
+                    $asyncReport = new AsyncEqualAccessReport();
+                    $json = $asyncReport->postSingleAsync($contentItem);
+                    $report = $equalAccess->generateReport($json, $document);
+                }
+                else {
+                    // We already have the report, all we have to do is generate the UDOIT report
                     $report = $equalAccess->generateReport($scannerReport, $document);
                 }
             }
         }
         else {
             // Unknown scanner set in environment, should return error...
+            throw new \Exception("Unknown scanner type!");
         }
 
         return $report;

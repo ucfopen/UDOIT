@@ -135,7 +135,6 @@ class SyncController extends ApiController
         $lmsFetch->deleteContentItemIssues(array($contentItem));
 
         // Rescan the contentItem
-        // $report = $phpAlly->scanContentItem($contentItem);
         $report = $scanner->scanContentItem($contentItem);
 
         // Add rescanned Issues to database

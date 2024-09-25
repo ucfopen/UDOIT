@@ -114,6 +114,50 @@ class AsyncEqualAccessReport {
         return $contentItemsReport;
     }
 
+    public function postSingleAsync(ContentItem $contentItem) {
+        // Scan a single content item
+        $client = new Client();
+        
+        // Clean up the content item's HTML document
+        $html = $contentItem->getBody();
+        $document = $this->getDomDocument($html)->saveHTML();
+        $payload = json_encode(["html" => $document]);
+
+        $request = new Psr7\Request(
+            "POST",
+            "{$this->endpoint}",
+            [
+                "Content-Type" => "application/json",
+            ],
+            $payload,
+        );
+
+        $signedRequest = $this->sign($request);
+
+        // POST document to Lambda and wait for fulfillment 
+        $this->logToServer("Sending to single promise...");
+        $promise = $client->sendAsync($signedRequest);
+        // $promise->then(function($response) {
+        //     $this->logToServer("Fulfilled!");
+        //     $responseContents = $response->getBody()->getContents();
+        //     $report = json_decode($responseContents, true);
+        //     return $report;
+        // });
+
+        $response = $promise->wait();
+
+        
+        if ($response) {
+            $this->logToServer("Fulfilled!");
+            $contents = $response->getBody()->getContents();
+            $this->logToServer(json_encode($contents));
+            $report = json_decode($contents, true);
+        }
+
+        // Return the single Equal Access report
+        return $report;
+    }
+
     public function getDomDocument($html) {
         $dom = new DOMDocument('1.0', 'utf-8');
         if (strpos($html, '<?xml encoding="utf-8"') !== false) {
