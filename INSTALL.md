@@ -38,23 +38,25 @@ cp .env.example .env
 This command copies the `.env.example` into `.env`, creating the `.env` file in the process if it does not exist.
 
 2. Open `.env` with a text editor (i.e. Notepad, VS Code, etc.) and make the necessary changes to the following variables:
-- `APP_ENV`: If you are setting up a development environment, change this to `dev` and follow the steps in [Installing Composer Dependencies](#installing-composer-dependencies) without the `--no-dev` flag to obtain all of the development packages. Otherwise, leave it as `prod`.
-- `DATABASE_URL`: If you are hosting UDOIT on Docker or your local machine, leave it as it is. Otherwise, change it to your database URL.
-- `BASE_URL`: If you are hosting UDOIT on Docker or your local machine, leave it as it is. Otherwise, change it to the URL of your instance of UDOIT.
-- `WEBPACK_PUBLIC_PATH`: Uf you are hosting UDOIT on Docker or your local machine, leave it as it is. Otherwise, change it to match the `BASE_URL`in such a way that `/build` is located at the root of the `BASE_URL` (Example:  If your `BASE_URL` is set to `http://127.0.0.1:8000`, your `WEBPACK_PUBLIC_PATH` should be `/build`).
-	- `APP_LMS`: `canvas` for Canvas LMS. `d2l` for D2l Brightspace LMS.
-- `JWK_BASE_URL`: If you are self-hosting Canvas, you may set it to the URL of your instance of Canvas. (Example: `JWK_BASE_URL="https://canvas.dev.myschool.edu"`)
-	- `DEFAULT_LANG`: (optional)  `en` for English. `es` for Spanish. This is English by default.
+   - `APP_ENV`: If you are setting up a development environment, change this to `dev` and follow the steps in [Installing Composer Dependencies](#installing-composer-dependencies) without the `--no-dev` flag to obtain all of the development packages. Otherwise, leave it as `prod`.
+   - `DATABASE_URL`: If you are hosting UDOIT on Docker or your local machine, leave it as it is. Otherwise, change it to your database URL.
+   - `BASE_URL`: If you are hosting UDOIT on Docker or your local machine, leave it as it is. Otherwise, change it to the URL of your instance of UDOIT.
+   - `WEBPACK_PUBLIC_PATH`: Uf you are hosting UDOIT on Docker or your local machine, leave it as it is. Otherwise, change it to match the `BASE_URL`in such a way that `/build` is located at the root of the `BASE_URL` (Example:  If your `BASE_URL` is set to `http://127.0.0.1:8000`, your `WEBPACK_PUBLIC_PATH` should be `/build`).
+   	- `APP_LMS`: `canvas` for Canvas LMS. `d2l` for D2l Brightspace LMS.
+   - `JWK_BASE_URL`: If you are self-hosting Canvas, you may set it to the URL of your instance of Canvas. (Example: `JWK_BASE_URL="https://canvas.dev.myschool.edu"`)
+   	- `DEFAULT_LANG`: (optional)  `en` for English. `es` for Spanish. This is English by default.
+3. Copy the contents of `ins.env.example` over to a new file called `ins.env`, and keep it in mind for when you're asked to fill out the institutions table. The `makefile` has a command to speed up this process.
 
 ## Installation
 
-### Option 1. Docker
+### Option 1: Docker
 We provide a fast and simple way of setting up a local UDOIT instance through Docker.
 
-1. Install [Docker Desktop](https://docs.docker.com/get-docker/). This will install Docker and Docker Compose on your system. 
+1. Install [Docker Desktop](https://docs.docker.com/get-docker/). This will install Docker and Docker Compose on your system.
 	> Alternatively, you may install Docker and [Docker Compose](https://docs.docker.com/compose/install/) individually.
 
 2. Build the Containers
+
 ```
     make start
 ```
@@ -73,29 +75,31 @@ Type `yes` and proceed. The warning is expected and is a non issue.
 
 > Note: You will need to run this command whenever you update to a new version of UDOIT.
 
-4. UDOIT should be installed and running as Docker containers.
+UDOIT should be installed and running as Docker containers.
 
-5. To stop the UDOIT containers, run the following command:
+4. To stop the UDOIT containers, run the following command:
 ```
     make down
 ```
 
-### Option 2. Manual Installation
+> Please be sure to review the `makefile` for more information on what these commands do.
+
+### Option 2: Manual Installation
 If you prefer not to use Docker, the process is more complicated:
 
-1. Configuring your Web Server
-The details of configuring a web server with PHP are out of the scope of this README. You should configure your web server to point to UDOIT's "public" folder as the web root folder. Doing this will hide the configuration and source files so that they are not web accessible. It will also clean up your URL structure so that you don't need to include the "public" folder in any of the URLs to UDOIT.
+#### 1. Configuring your Web Server
+ The details of configuring a web server with PHP are out of the scope of this README. You should configure your web server to point to UDOIT's "public" folder as the web root folder. Doing this will hide the configuration and source files so that they are not web accessible. It will also clean up your URL structure so that you don't need to include the "public" folder in any of the URLs to UDOIT.
 
 If you are using NGINX as your web server, you can use the `build/nginx/nginx.conf` file as a starting point.
 
-2. Installing Composer Dependencies
+#### 2. Installing Composer Dependencies
 UDOIT uses Composer to install PHP dependencies. Follow the upstream documentation on [Composer Installation](https://getcomposer.org/download/) to install `composer.phar` into the project root, then run the following:
 
     php composer.phar install --no-dev
 
 > Remove the `--no-dev` flag if you set `APP_ENV=dev` in your `.env.local` file.
 
-3. Database Setup
+#### 3. Database Setup
 While UDOIT is configured to use MySQL or MariaDB by default, Symfony can be configured to work with other databases as well. See the Symfony documentation for details.
 
 Use Symfony to create the database with this command:
@@ -114,7 +118,7 @@ If you are operating in a production environment you will need to generate the d
 
     php bin/console cache:warmup --env=prod
 
-4. JavaScript
+#### 4. JavaScript
 UDOIT uses [node](https://nodejs.org) and [yarn](https://yarnpkg.com/) to compile the JavaScript. Install Node and Yarn on your system, then run:
 
     yarn install
@@ -134,6 +138,6 @@ For example, if you are setting this up on your local computer via Docker, it ma
 
 
 ## Connecting UDOIT to an LMS
-UDOIT is an LTI tool that functions fully within an LMS. To configure it fully within your LMS, follow the installations instructions below that apply to you.
+To configure it fully within your LMS, follow the installation instructions below that apply to you.
 - To install it on Canvas, follow [INSTALL_CANVAS.md](INSTALL_CANVAS.md)
 - or for D2l Brightspace, follow [INSTALL_D2L.md](INSTALL_D2L.md)
