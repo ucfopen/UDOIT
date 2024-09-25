@@ -12,8 +12,8 @@ start:
 migrate:
 	docker compose -f docker-compose.nginx.yml run php php bin/console doctrine:migrations:migrate
 
-# stop the containers
-stop:
+# Down the containers
+down:
 	docker compose -f docker-compose.nginx.yml down
 
 # clear the Symfony cache

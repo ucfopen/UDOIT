@@ -45,7 +45,6 @@ This command copies the `.env.example` into `.env`, creating the `.env` file in 
    	- `APP_LMS`: `canvas` for Canvas LMS. `d2l` for D2l Brightspace LMS.
    - `JWK_BASE_URL`: If you are self-hosting Canvas, you may set it to the URL of your instance of Canvas. (Example: `JWK_BASE_URL="https://canvas.dev.myschool.edu"`)
    	- `DEFAULT_LANG`: (optional)  `en` for English. `es` for Spanish. This is English by default.
-3. Copy the contents of `ins.env.example` over to a new file called `ins.env`, and keep it in mind for when you're asked to fill out the institutions table. The `makefile` has a command to speed up this process.
 
 ## Installation
 
