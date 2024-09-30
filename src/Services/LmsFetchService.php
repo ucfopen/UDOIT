@@ -197,11 +197,11 @@ class LmsFetchService {
     // Performs PHPAlly scan on each Content Item.
     private function scanContentItems(array $contentItems)
     {
-
         $scanner = $_ENV['ACCESSIBILITY_CHECKER'];
         $equalAccessReports = null;
 
-        // Testing async post requests...
+        // If we're using Equal Access Lambda, send all the requests to Lambda for the
+        // reports at once and save them all into an array (which should be in the same order as the ContentItems)
         if ($scanner == "equalaccess_lambda" && count($contentItems) > 0) {
             $equalAccessReports = $this->asyncReport->postMultipleAsync($contentItems);
         }
@@ -214,7 +214,7 @@ class LmsFetchService {
 
             try {
                 // Scan the content item with the scanner set in the environment.
-                $report = $this->scanner->scanContentItem($contentItem, $equalAccessReports[$index++]);
+                $report = $this->scanner->scanContentItem($contentItem, $equalAccessReports == null ? null : $equalAccessReports[$index++], $this->util);
 
                 if ($report) {
                     // TODO: Do something with report errors

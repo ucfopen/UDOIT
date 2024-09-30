@@ -18,11 +18,6 @@ use Psr\Http\Message\RequestInterface;
 // send asynchronous requests to a Lambda function's API gateway 
 
 class AsyncEqualAccessReport {
-
-
-    /** @var App\Service\HtmlService */
-    protected $htmlService;
-
     private $client;
 
     private $awsAccessKeyId;
@@ -137,24 +132,15 @@ class AsyncEqualAccessReport {
         // POST document to Lambda and wait for fulfillment 
         $this->logToServer("Sending to single promise...");
         $promise = $client->sendAsync($signedRequest);
-        // $promise->then(function($response) {
-        //     $this->logToServer("Fulfilled!");
-        //     $responseContents = $response->getBody()->getContents();
-        //     $report = json_decode($responseContents, true);
-        //     return $report;
-        // });
-
         $response = $promise->wait();
 
-        
         if ($response) {
             $this->logToServer("Fulfilled!");
             $contents = $response->getBody()->getContents();
-            $this->logToServer(json_encode($contents));
             $report = json_decode($contents, true);
         }
 
-        // Return the single Equal Access report
+        // Return the Equal Access report
         return $report;
     }
 

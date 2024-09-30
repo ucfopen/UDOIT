@@ -8,11 +8,20 @@ use App\Services\PhpAllyService;
 use App\Services\EqualAccessService;
 use App\Services\AsyncEqualAccessReport;
 
+use App\Services\HtmlService;
+use App\Services\UtilityService;
+
 use DOMDocument;
 
 // Main scanner class, expects a phpAlly-styled JSON report from whichever scanner is run 
 
 class ScannerService {
+
+    // /** @var UtilityService $util */
+    // protected $util;
+
+    // /** @var HtmlService $htmlService */
+    // protected $htmlService;
 
     public function logToServer(string $message) {
         $options = [
@@ -27,7 +36,7 @@ class ScannerService {
         file_get_contents("http://host.docker.internal:3000/log", false, $context);
     }
 
-    public function scanContentItem(ContentItem $contentItem, $scannerReport = null) {
+    public function scanContentItem(ContentItem $contentItem, $scannerReport = null, UtilityService $util) {
         // Optional argument scannerReport is used when handling async Equal Access
         // requests, so then all we have to do is just make those into a UDOIT report
         $scanner = $_ENV['ACCESSIBILITY_CHECKER'];
@@ -35,6 +44,9 @@ class ScannerService {
 
         if ($scanner == 'phpally') {
             // TODO: implement flow for phpally scanning
+            $htmlService = new HtmlService();
+            $phpAlly = new PhpAllyService($htmlService, $util);
+            $report = $phpAlly->scanContentItem($contentItem);
         }
         else if ($scanner == 'equalaccess_local') {
             // TODO: create a LocalAccessibilityService

@@ -18,14 +18,11 @@ use DOMXPath;
 
     TODO:
         - check for phpally-ignore on html snippets and ignore them
+        - think about how to migrate old database data to equal access
+        - find way to skip rules in aws perhaps(?)
 */
 
 class EqualAccessService {
-
-    /** @var App\Service\HtmlService */
-    protected $htmlService;
-
-    // (maybe) force full rescan (hopefully not) and also check for phpally-ignore(?)
 
     // probably should disable rules in equal access itself, this is temporary hopefully
     private $skipRules = array(
@@ -71,7 +68,7 @@ class EqualAccessService {
     }
 
     public function checkforIgnoreClass($htmlSnippet) {
-        // Assume no phpAllyIgnore by defalt
+        // Assume no phpAllyIgnore by default
         $phpAllyIgnore = false;
 
         if ($htmlSnippet) {
@@ -109,13 +106,11 @@ class EqualAccessService {
                     $issueCounts[$udoitRule] = 1;
                 }
 
-                // UDOIT database has 'html' and 'preview_html',
-                // where 'preview_html' is the parent of the offending html
-                // $issueHtml = $this->xpathToSnippet($xpath, $xpathQuery);
-
                 // Check for null (aka no XPath result was found) and skip.
                 // Otherwise, create a new issue with the HTML from the XPath query.
                 if (!is_null($issueHtml)) {
+                    // UDOIT database has 'html' and 'preview_html',
+                    // where 'preview_html' is the parent of the offending html
                     $parentIssueHtml = $issueHtml->parentNode;
     
                     $issue = new PhpAllyIssue($udoitRule, $issueHtml, $parentIssueHtml, null);
