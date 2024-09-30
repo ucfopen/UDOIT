@@ -24,6 +24,9 @@ class LmsFetchService {
     /** @var PhpAllyService $phpAllyService */
     private $phpAlly;
 
+    /** @var ScannerService $scannerService */
+    private $scanner;
+
     /** @var EqualAccessService $equalAccessService */
     private $equalAccess;
 
@@ -45,6 +48,7 @@ class LmsFetchService {
         PhpAllyService $phpAlly,
         EqualAccessService $equalAccess,
         AsyncEqualAccessReport $asyncReport,
+        ScannerService $scanner,
         ManagerRegistry $doctrine,
         UtilityService $util
     )
@@ -54,6 +58,7 @@ class LmsFetchService {
         $this->phpAlly = $phpAlly;
         $this->equalAccess = $equalAccess;
         $this->asyncReport = $asyncReport;
+        $this->scanner = $scanner;
         $this->doctrine = $doctrine;
         $this->util = $util;
     }
@@ -192,19 +197,24 @@ class LmsFetchService {
     // Performs PHPAlly scan on each Content Item.
     private function scanContentItems(array $contentItems)
     {
-        // Testing async post requests...
-        // $this->asyncReport->postMultipleAsync($contentItems);
+        $scanner = $_ENV['ACCESSIBILITY_CHECKER'];
+        $equalAccessReports = null;
+
+        // If we're using Equal Access Lambda, send all the requests to Lambda for the
+        // reports at once and save them all into an array (which should be in the same order as the ContentItems)
+        if ($scanner == "equalaccess_lambda" && count($contentItems) > 0) {
+            $equalAccessReports = $this->asyncReport->postMultipleAsync($contentItems);
+        }
 
         // Scan each update content item for issues
         /** @var \App\Entity\ContentItem $contentItem */
+
+        $index = 0;
         foreach ($contentItems as $contentItem) {
+
             try {
-                // Scan Content Item with PHPAlly
-                // $phpAllyReport = $this->phpAlly->scanContentItem($contentItem);
-                $this->equalAccess->logToServer("EQUAL ACCESS REPORT:");
-                $report = $this->equalAccess->scanContentItem($contentItem);
-                // $this->equalAccess->logToServer("PHPALLY REPORT:");
-                // $this->equalAccess->logToServer(json_encode($phpAllyReport, JSON_PRETTY_PRINT));
+                // Scan the content item with the scanner set in the environment.
+                $report = $this->scanner->scanContentItem($contentItem, $equalAccessReports == null ? null : $equalAccessReports[$index++], $this->util);
 
                 if ($report) {
                     // TODO: Do something with report errors
@@ -221,28 +231,14 @@ class LmsFetchService {
                         $this->createIssue($issue, $contentItem);
                     }
                 }
-
-                // if ($phpAllyReport) {
-                //     // TODO: Do something with report errors
-                //     if (count($phpAllyReport->getErrors())) {
-                //         foreach ($phpAllyReport->getErrors() as $error) {
-                //             $msg = $error . ', item = #' . $contentItem->getId();
-                //             $this->util->createMessage($msg, 'error', $contentItem->getCourse(), null, true);
-                //         }
-                //     }
-
-                //     // Add Issues to report
-                //     foreach ($phpAllyReport->getIssues() as $issue) {
-                //         // Create issue entity
-                //         $this->createIssue($issue, $contentItem);
-                //     }
-                // }
             }
             catch (\Exception $e) {
                 $this->util->createMessage($e->getMessage(), 'error', null, null, true);
             }
         }
         $this->doctrine->getManager()->flush();
+
+        $this->scanner->logToServer("done!!!!!!!!!\n");
     }
 
     public function createIssue(PhpAllyIssue $issue, ContentItem $contentItem)
