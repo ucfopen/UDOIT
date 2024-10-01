@@ -5,6 +5,7 @@ on:
     branches:
       - main
       - 'stable/*'
+      - dev-v3.5.0
 
 env:
   REGISTRY: ghcr.io
