@@ -165,7 +165,7 @@ class IssuesController extends ApiController
 
         $issueRule = 'CidiLabs\\PhpAlly\\Rule\\'.$issue->getScanRuleId();
         $report = $phpAlly->scanHtml($issue->getHtml(), [$issueRule], $issue->getContentItem()->getCourse()->getInstitution());
-        $equalAccess->logToServer("scanIssue in issuescontroller");
+        // $equalAccess->logToServer("scanIssue in issuescontroller");
 
         $reportIssues = $report->getIssues();
         $reportErrors = $report->getErrors();
