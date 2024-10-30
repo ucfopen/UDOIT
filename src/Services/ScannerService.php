@@ -58,13 +58,17 @@ class ScannerService {
                     $document = $equalAccess->getDomDocument($contentItem->getBody());
                     if (!$scannerReport) {
                         // Report is null, we need to call the lambda function for a single page most likely
+                        // $this->logToServer("null $scannerReport!");
                         $asyncReport = new AsyncEqualAccessReport();
                         $json = $asyncReport->postSingleAsync($contentItem);
                         $report = $equalAccess->generateReport($json, $document);
                     }
                     else {
+                        // $this->logToServer("Generating report with existing JSON...");
                         // We already have the report, all we have to do is generate the UDOIT report
                         $report = $equalAccess->generateReport($scannerReport, $document);
+                        // $this->logToServer("Report:");
+                        // $this->logToServer($report);
                     }
                 }
             }
@@ -93,9 +97,9 @@ public function getDomDocument($html)
         $envTextColor = $_ENV['TEXT_COLOR'];
 
         if (strpos($html, '<?xml encoding="utf-8"') !== false) {
-            $dom->loadHTML("<html><style>body{background-color:{$envBackgroundColor};color:{$envTextColor}}</style><body>{$html}</body></html>", LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD);
+            $dom->loadHTML("<html><body style=\"background-color:{$envBackgroundColor};color:{$envTextColor}\">{$html}</body></html>", LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD);
         } else {
-            $dom->loadHTML("<?xml encoding=\"utf-8\" ?><html><style>body{background-color:{$envBackgroundColor};color:{$envTextColor}}</style><body>{$html}</body></html>", LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD);
+            $dom->loadHTML("<?xml encoding=\"utf-8\" ?><html><body style=\"background-color:{$envBackgroundColor};color:{$envTextColor}\">{$html}</body></html>", LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD);
         }
 
         return $dom;

@@ -12,13 +12,27 @@ use GuzzleHttp\Promise;
 use GuzzleHttp\Client;
 use Symfony\Component\VarExporter\VarExporter;
 
+use Psr\Http\Message\RequestInterface;
+use GuzzleHttp\Psr7\Request;
+use Aws\Signature\SignatureV4;
+use Aws\Credentials\Credentials;
+
 // Asynchronously ...
 
 class AsyncEqualAccessReport {
 
     private $client;
 
+    protected $awsRegion;
+    protected $awsAccessKeyId;
+    protected $awsSecretAccessKey;
+    protected $endpoint;
+
     public function __construct() {
+        $this->awsRegion = $_ENV["AWS_REGION"];
+        $this->awsAccessKeyId = $_ENV["AWS_ACCESS_KEY_ID"];
+        $this->awsSecretAccessKey = $_ENV["AWS_SECRET_ACCESS_KEY"];
+        $this->endpoint = "https://" . $_ENV["AWS_HOST"] . "/" . $_ENV["AWS_CANONICAL_URI"];
     }
 
     public function logToServer(string $message) {
@@ -42,7 +56,7 @@ class AsyncEqualAccessReport {
     }
 
     public function createRequest($payload) {
-        return new Psr7\Request(
+        return new Request(
             "POST",
             "{$this->endpoint}",
             [
@@ -128,9 +142,7 @@ class AsyncEqualAccessReport {
     public function postMultipleAsync(array $contentItems): array {
         $promises = [];
 
-        $client = new Client([
-            "base_uri" => "http://host.docker.internal:3000/",
-        ]);
+        $client = new Client();
         
         // Iterate through each scannable Canvas page and add a new
         // POST request to our array of promises 
@@ -158,7 +170,6 @@ class AsyncEqualAccessReport {
         // $this->logToServer(json_encode($results, JSON_PRETTY_PRINT));
 
         foreach ($results as $result) {
-            $this->logToServer("____________________");
             $response = $result->getBody()->getContents();
             $json = json_decode($response, true);
             // $this->logToServer(json_encode($json, JSON_PRETTY_PRINT));
@@ -171,6 +182,8 @@ class AsyncEqualAccessReport {
     }
 
     public function postSingleAsync(ContentItem $contentItem) {
+        $report = null;
+
         // Scan a single content item
         $client = new Client();
         
@@ -193,6 +206,8 @@ class AsyncEqualAccessReport {
             $contents = $response->getBody()->getContents();
             $report = json_decode($contents, true);
         }
+
+        return $report;
     }
 
     public function getDomDocument($html)
@@ -214,6 +229,7 @@ class AsyncEqualAccessReport {
         }
 
         return $dom;
+    }
 
 
 }

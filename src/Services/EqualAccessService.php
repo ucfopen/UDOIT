@@ -5,7 +5,10 @@ namespace App\Services;
 use CidiLabs\PhpAlly\PhpAllyIssue;
 use CidiLabs\PhpAlly\PhpAllyReport;
 
+use App\Entity\ContentItem;
+
 use DOMDocument;
+use DOMElement;
 use DOMXPath;
 
 /*
@@ -31,7 +34,7 @@ class EqualAccessService {
         "style_highcontrast_visible",
         "style_viewport_resizable",
         "aria_accessiblename_exists",
-        "aria_content_in_landmark",
+        "aria_content_in_landmark", 
         "a_target_warning",
     );
 
@@ -53,7 +56,7 @@ class EqualAccessService {
                 'header' => "Content-type: text/html\r\n",
                 'method' => 'POST',
                 'content' => $message,
-            ],
+            ],   
         ];
         
         $context = stream_context_create($options);
@@ -89,15 +92,16 @@ class EqualAccessService {
         return $this->checkMany($html, [], []);
     }
 
-    public function xpathToSnippet($domXPath, $xpathQuery): \DOMElement {
+    public function xpathToSnippet($domXPath, $xpathQuery) {
         // Query the document and save the results into an array
         // In a perfect world this array should only have one element
+
         $xpathResults = $domXPath->query($xpathQuery);
         $htmlSnippet = null;
 
         // TODO: For now, if there are multiple results we're just
-        // going to choose the "last" one
-        if (!is_null($xpathResults)) {
+        // going to choose the first one
+        if (!is_null($xpathResults) && count($xpathResults) > 0) {
             foreach ($xpathResults as $xpathResult) {
                 $htmlSnippet = $xpathResult;
             }
@@ -106,29 +110,53 @@ class EqualAccessService {
         return $htmlSnippet;
     }
 
+    public function checkForIgnoreClass($element) {
+        $classNames = $element->getAttribute("class");
+        
+        if (!$classNames || strlen($classNames) <= 0) {
+            return false;
+        }
+
+        if (str_contains($classNames, "phpally-ignore")) {
+            // phpally-ignore found in class list
+            return true;
+        }
+
+        return false;
+    }
+
     // Generate a UDOIT-style JSON report from the output of Equal Access
     public function generateReport($json, $document) {
+        $this->logToServer("Generating report in EqualAccessService!");
         $report = new PhpAllyReport();
         $xpath = new DOMXPath($document);
 
         $issues = array();
         $issueCounts = array();
 
+        // $this->logToServer(json_encode($json["results"]));
         foreach ($json["results"] as $results) {
+            // $this->logToServer(json_encode($results));
             $equalAccessRule = $results["ruleId"];
             $xpathQuery = $results["path"]["dom"];
             $issueHtml = $this->xpathToSnippet($xpath, $xpathQuery);
+            // $this->logToServer($equalAccessRule);
+            // $doc = new DOMDocument;
+            // $doc->importNode($issueHtml);
+            // $this->logToServer($xpathQuery);
+            // $this->logToServer($doc->saveHTML());
             $metadata = null;
 
             // First check if the HTML has phpally-ignore and also check if the rule isn't one we skip.
-            if (!$this->checkforIgnoreClass($issueHtml) && !in_array($udoitRule, $this->skipRules)) {
+            // if ($this->checkForIgnoreClass($issueHtml) == false && !in_array($equalAccessRule, $this->skipRules)) {
+            if (!in_array($equalAccessRule, $this->skipRules)) {
                 // Populate the issue counts field with how many total issues
                 // with the specific rule are found
-                if(array_key_exists($udoitRule, $issueCounts)) {
-                    $issueCounts[$udoitRule]++;
+                if(array_key_exists($equalAccessRule, $issueCounts)) {
+                    $issueCounts[$equalAccessRule]++;
                 }
                 else {
-                    $issueCounts[$udoitRule] = 1;
+                    $issueCounts[$equalAccessRule] = 1;
                 }
 
                 // Check for specific rules (mostly about contrast)
@@ -142,32 +170,25 @@ class EqualAccessService {
                     // $metadata["message"] = $results["message"];
                 }
 
-                // array_push($metadata, ["message" => $results["message"]]);
-                
-
-                // $this->logToServer("metadata:");
-                // $this->logToServer(json_encode($metadata));
-
                 // Check for null (aka no XPath result was found) and skip.
                 // Otherwise, create a new issue with the HTML from the XPath query.
                 if (!is_null($issueHtml)) {
                     // UDOIT database has 'html' and 'preview_html',
                     // where 'preview_html' is the parent of the offending html
                     $parentIssueHtml = $issueHtml->parentNode;
-    
-                    $issue = new PhpAllyIssue($udoitRule, $issueHtml, $parentIssueHtml, $metadata);
-                    $report->setIssueCounts($udoitRule, $issueCounts[$udoitRule], -1);
-                    array_push($issues, $issue);
-                    $report->setErrors([]);
                 }
+                
+                $issue = new PhpAllyIssue($equalAccessRule, $issueHtml, $parentIssueHtml, $metadata);
+                $report->setIssueCounts($equalAccessRule, $issueCounts[$equalAccessRule], -1);
+                array_push($issues, $issue);
+                $report->setErrors([]);
             }
         }
 
         $report->setIssues($issues);
 
         // Debug
-        // $this->logToServer("Generated report! Sending back to ScannerService...");
-
+        $this->logToServer("Generated report! Sending back to ScannerService...");
         return $report;
     }
 
@@ -222,9 +243,9 @@ class EqualAccessService {
         $envTextColor = $_ENV['TEXT_COLOR'];
 
         if (strpos($html, '<?xml encoding="utf-8"') !== false) {
-            $dom->loadHTML("<html><style>body{background-color:{$envBackgroundColor};color:{$envTextColor}}</style><body>{$html}</body></html>", LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD);
+            $dom->loadHTML("<html><body style=\"background-color:{$envBackgroundColor};color:{$envTextColor}\">{$html}</body></html>", LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD);
         } else {
-            $dom->loadHTML("<?xml encoding=\"utf-8\" ?><html><style>body{background-color:{$envBackgroundColor};color:{$envTextColor}}</style><body>{$html}</body></html>", LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD);
+            $dom->loadHTML("<?xml encoding=\"utf-8\" ?><html><body style=\"background-color:{$envBackgroundColor};color:{$envTextColor}\">{$html}</body></html>", LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD);
         }
 
         return $dom;

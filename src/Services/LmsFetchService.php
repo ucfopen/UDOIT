@@ -11,6 +11,7 @@ use App\Entity\User;
 use App\Services\LmsApiService;
 use App\Services\PhpAllyService;
 use App\Services\EqualAccessService;
+use App\Services\ScannerService;
 use CidiLabs\PhpAlly\PhpAllyIssue;
 use Doctrine\Persistence\ManagerRegistry;
 
@@ -23,6 +24,9 @@ class LmsFetchService {
 
     /** @var PhpAllyService $phpAllyService */
     private $phpAlly;
+
+    /** @var ScannerService $scanner */
+    private $scanner;
 
     /** @var EqualAccessService $equalAccessService */
     private $equalAccess;
@@ -45,6 +49,7 @@ class LmsFetchService {
         PhpAllyService $phpAlly,
         EqualAccessService $equalAccess,
         AsyncEqualAccessReport $asyncReport,
+        ScannerService $scanner,
         ManagerRegistry $doctrine,
         UtilityService $util
     )
@@ -52,6 +57,7 @@ class LmsFetchService {
         $this->lmsApi = $lmsApi;
         $this->lmsUser = $lmsUser;
         $this->phpAlly = $phpAlly;
+        $this->scanner = $scanner;
         $this->equalAccess = $equalAccess;
         $this->asyncReport = $asyncReport;
         $this->doctrine = $doctrine;
@@ -202,7 +208,7 @@ class LmsFetchService {
         // reports at once and save them all into an array (which should be in the same order as the ContentItems)
         if ($scanner == "equalaccess_lambda" && count($contentItems) > 0) {
             $equalAccessReports = $this->asyncReport->postMultipleAsync($contentItems);
-            // $this->equalAccess->logToServer(count($equalAccessReports));
+            $this->equalAccess->logToServer(count($equalAccessReports));
         }
 
         $index = 0;
