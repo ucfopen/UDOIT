@@ -208,14 +208,12 @@ class LmsFetchService {
         // reports at once and save them all into an array (which should be in the same order as the ContentItems)
         if ($scanner == "equalaccess_lambda" && count($contentItems) > 0) {
             $equalAccessReports = $this->asyncReport->postMultipleAsync($contentItems);
-            $this->equalAccess->logToServer(count($equalAccessReports));
         }
 
         $index = 0;
         foreach ($contentItems as $contentItem) {
             try {
                 // Scan the content item with the scanner set in the environment.
-                // $this->equalAccess->logToServer("Trying to scan with equal access");
                 $report = $this->scanner->scanContentItem($contentItem, $equalAccessReports == null ? null : $equalAccessReports[$index++], $this->util);
 
                 if ($report) {
@@ -234,21 +232,7 @@ class LmsFetchService {
                     }
                 }
 
-                // if ($phpAllyReport) {
-                //     // TODO: Do something with report errors
-                //     if (count($phpAllyReport->getErrors())) {
-                //         foreach ($phpAllyReport->getErrors() as $error) {
-                //             $msg = $error . ', item = #' . $contentItem->getId();
-                //             $this->util->createMessage($msg, 'error', $contentItem->getCourse(), null, true);
-                //         }
-                //     }
-
-                //     // Add Issues to report
-                //     foreach ($phpAllyReport->getIssues() as $issue) {
-                //         // Create issue entity
-                //         $this->createIssue($issue, $contentItem);
-                //     }
-                // }
+                $this->scanner->logToServer("done!");
             }
             catch (\Exception $e) {
                 $this->util->createMessage($e->getMessage(), 'error', null, null, true);

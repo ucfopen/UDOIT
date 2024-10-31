@@ -38,18 +38,6 @@ class EqualAccessService {
         "a_target_warning",
     );
 
-    public function scanContentItem(ContentItem $contentItem) {
-        $html = HtmlService::clean($contentItem->getBody());
-
-        if (!$html) {
-            return;
-        }
-
-        $data = $this->checkMany($html, [], []); 
-
-        return $data;
-    }
-
     public function logToServer(string $message) {
         $options = [
             'http' => [
@@ -63,35 +51,6 @@ class EqualAccessService {
         file_get_contents("http://host.docker.internal:3000/log", false, $context);
     }
 
-    public function postData(string $url, string $html) {
-        $options = [
-            'http' => [
-                'header' => "Content-type: text/html\r\n",
-                'method' => 'POST',
-                'content' => $html,
-            ],
-        ];
-
-        $context = stream_context_create($options);
-        $result = file_get_contents($url, false, $context);
-
-        return $result;
-    }
-
-    public function checkMany($content, $ruleIds = [], $options = []) {
-        $document = $this->getDomDocument($content);
-        $response = $this->postData("http://host.docker.internal:3000/check", $document->saveHTML());
-        $json = json_decode($response, true);
-        $report = $this->generateReport($json, $document);
-        return $report;
-    }
-
-    public function scanHtml($html, $rules = [], $options = []) {
-        $html = HtmlService::clean($html);
-
-        return $this->checkMany($html, [], []);
-    }
-
     public function xpathToSnippet($domXPath, $xpathQuery) {
         // Query the document and save the results into an array
         // In a perfect world this array should only have one element
@@ -101,7 +60,7 @@ class EqualAccessService {
 
         // TODO: For now, if there are multiple results we're just
         // going to choose the first one
-        if (!is_null($xpathResults) && count($xpathResults) > 0) {
+        if ($xpathResults) {
             foreach ($xpathResults as $xpathResult) {
                 $htmlSnippet = $xpathResult;
             }
@@ -112,10 +71,6 @@ class EqualAccessService {
 
     public function checkForIgnoreClass($element) {
         $classNames = $element->getAttribute("class");
-        
-        if (!$classNames || strlen($classNames) <= 0) {
-            return false;
-        }
 
         if (str_contains($classNames, "phpally-ignore")) {
             // phpally-ignore found in class list
@@ -136,23 +91,20 @@ class EqualAccessService {
 
         // $this->logToServer(json_encode($json["results"]));
         foreach ($json["results"] as $results) {
-            // $this->logToServer(json_encode($results));
             $equalAccessRule = $results["ruleId"];
             $xpathQuery = $results["path"]["dom"];
+
             $issueHtml = $this->xpathToSnippet($xpath, $xpathQuery);
-            // $this->logToServer($equalAccessRule);
-            // $doc = new DOMDocument;
-            // $doc->importNode($issueHtml);
-            // $this->logToServer($xpathQuery);
-            // $this->logToServer($doc->saveHTML());
+            
             $metadata = null;
 
             // First check if the HTML has phpally-ignore and also check if the rule isn't one we skip.
-            // if ($this->checkForIgnoreClass($issueHtml) == false && !in_array($equalAccessRule, $this->skipRules)) {
-            if (!in_array($equalAccessRule, $this->skipRules)) {
+            if (!$this->checkForIgnoreClass($issueHtml) && !in_array($equalAccessRule, $this->skipRules)) {
+                $this->logToServer($equalAccessRule);
+                $this->logToServer($xpathQuery);
                 // Populate the issue counts field with how many total issues
                 // with the specific rule are found
-                if(array_key_exists($equalAccessRule, $issueCounts)) {
+                if (array_key_exists($equalAccessRule, $issueCounts)) {
                     $issueCounts[$equalAccessRule]++;
                 }
                 else {
@@ -172,7 +124,7 @@ class EqualAccessService {
 
                 // Check for null (aka no XPath result was found) and skip.
                 // Otherwise, create a new issue with the HTML from the XPath query.
-                if (!is_null($issueHtml)) {
+                if ($issueHtml) {
                     // UDOIT database has 'html' and 'preview_html',
                     // where 'preview_html' is the parent of the offending html
                     $parentIssueHtml = $issueHtml->parentNode;
@@ -188,13 +140,8 @@ class EqualAccessService {
         $report->setIssues($issues);
 
         // Debug
-        $this->logToServer("Generated report! Sending back to ScannerService...");
         return $report;
     }
-
-    // public function addMessageMetadata($resultSection) {
-    //     array_push($resultSection);
-    // }
 
     public function createMetadata($resultSection) {
         // The Equal Access report has a "messageArgs" section which will give the exact
@@ -243,9 +190,9 @@ class EqualAccessService {
         $envTextColor = $_ENV['TEXT_COLOR'];
 
         if (strpos($html, '<?xml encoding="utf-8"') !== false) {
-            $dom->loadHTML("<html><body style=\"background-color:{$envBackgroundColor};color:{$envTextColor}\">{$html}</body></html>", LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD);
+            $dom->loadHTML("<html><body>{$html}</body></html>", LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD);
         } else {
-            $dom->loadHTML("<?xml encoding=\"utf-8\" ?><html><body style=\"background-color:{$envBackgroundColor};color:{$envTextColor}\">{$html}</body></html>", LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD);
+            $dom->loadHTML("<?xml encoding=\"utf-8\" ?><html><body>{$html}</body></html>", LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD);
         }
 
         return $dom;

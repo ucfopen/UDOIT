@@ -147,7 +147,7 @@ class AsyncEqualAccessReport {
         // Iterate through each scannable Canvas page and add a new
         // POST request to our array of promises 
         foreach ($contentItems as $contentItem) {
-            // $this->logToServer("Checking: {$contentItem->getTitle()}");
+            $this->logToServer("Checking: {$contentItem->getTitle()}");
             // Clean up the content item's HTML document
             $html = $contentItem->getBody();
             $document = $this->getDomDocument($html)->saveHTML();
@@ -160,7 +160,7 @@ class AsyncEqualAccessReport {
             $request = $this->createRequest($payload);
 
             $signedRequest = $this->sign($request);
-            $this->logToServer("Sending to promise array...");
+            // $this->logToServer("Sending to promise array...");
             $promises[] = $client->sendAsync($signedRequest);
         }
 
@@ -174,7 +174,7 @@ class AsyncEqualAccessReport {
             $json = json_decode($response, true);
             // $this->logToServer(json_encode($json, JSON_PRETTY_PRINT));
 
-            $this->logToServer("Saving to contentItemsReport...");
+            // $this->logToServer("Saving to contentItemsReport...");
             $contentItemsReport[] = $json;
         }
 
@@ -223,10 +223,11 @@ class AsyncEqualAccessReport {
         $envTextColor = $_ENV['TEXT_COLOR'];
 
         if (strpos($html, '<?xml encoding="utf-8"') !== false) {
-            $dom->loadHTML("<html><style>body{background-color:{$envBackgroundColor};color:{$envTextColor}}</style><body>{$html}</body></html>", LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD);
+            $dom->loadHTML("<html><body>{$html}</body></html>", LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD);
         } else {
-            $dom->loadHTML("<?xml encoding=\"utf-8\" ?><html><style>body{background-color:{$envBackgroundColor};color:{$envTextColor}}</style><body>{$html}</body></html>", LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD);
+            $dom->loadHTML("<?xml encoding=\"utf-8\" ?><html><body>{$html}</body></html>", LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD);
         }
+
 
         return $dom;
     }

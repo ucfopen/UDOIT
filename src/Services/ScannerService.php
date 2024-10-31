@@ -97,9 +97,9 @@ public function getDomDocument($html)
         $envTextColor = $_ENV['TEXT_COLOR'];
 
         if (strpos($html, '<?xml encoding="utf-8"') !== false) {
-            $dom->loadHTML("<html><body style=\"background-color:{$envBackgroundColor};color:{$envTextColor}\">{$html}</body></html>", LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD);
+            $dom->loadHTML("<html><body>{$html}</body></html>", LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD);
         } else {
-            $dom->loadHTML("<?xml encoding=\"utf-8\" ?><html><body style=\"background-color:{$envBackgroundColor};color:{$envTextColor}\">{$html}</body></html>", LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD);
+            $dom->loadHTML("<?xml encoding=\"utf-8\" ?><html><body>{$html}</body></html>", LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD);
         }
 
         return $dom;
