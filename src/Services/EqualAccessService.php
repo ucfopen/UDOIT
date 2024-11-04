@@ -66,18 +66,23 @@ class EqualAccessService {
             }
         }
 
+        // If no results are found, return null (meaning nothing was found)
         return $htmlSnippet;
     }
 
-    public function checkForIgnoreClass($element) {
-        $classNames = $element->getAttribute("class");
+    public function checkforIgnoreClass($htmlSnippet) {
+        // Assume no phpAllyIgnore by default
+        $phpAllyIgnore = false;
 
-        if (str_contains($classNames, "phpally-ignore")) {
-            // phpally-ignore found in class list
-            return true;
+        if ($htmlSnippet) {
+            $classes = $htmlSnippet->getAttribute("class");
+
+            if (strlen($classes) > 0 && str_contains($classes, "phpally-ignore")) {
+                $phpAllyIgnore = true;
+            } 
         }
 
-        return false;
+        return $phpAllyIgnore;
     }
 
     // Generate a UDOIT-style JSON report from the output of Equal Access
@@ -140,6 +145,9 @@ class EqualAccessService {
         $report->setIssues($issues);
 
         // Debug
+        // $this->logToServer("REPORT:");
+        // $this->logToServer(json_encode($report, JSON_PRETTY_PRINT));
+
         return $report;
     }
 

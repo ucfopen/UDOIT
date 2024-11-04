@@ -158,6 +158,7 @@ class IssuesController extends ApiController
     }
 
     // Rescan an issue in PhpAlly
+    // TODO: implement equal access into this
     #[Route('/api/issues/{issue}/scan', name: 'scan_issue')]
     public function scanIssue(Issue $issue, PhpAllyService $phpAlly, UtilityService $util, EqualAccessService $equalAccess)
     {

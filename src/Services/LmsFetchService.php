@@ -25,7 +25,7 @@ class LmsFetchService {
     /** @var PhpAllyService $phpAllyService */
     private $phpAlly;
 
-    /** @var ScannerService $scanner */
+    /** @var ScannerService $scannerService */
     private $scanner;
 
     /** @var EqualAccessService $equalAccessService */
@@ -60,6 +60,7 @@ class LmsFetchService {
         $this->scanner = $scanner;
         $this->equalAccess = $equalAccess;
         $this->asyncReport = $asyncReport;
+        $this->scanner = $scanner;
         $this->doctrine = $doctrine;
         $this->util = $util;
     }
@@ -198,9 +199,6 @@ class LmsFetchService {
     // Performs PHPAlly scan on each Content Item.
     private function scanContentItems(array $contentItems)
     {
-        // Scan each update content item for issues
-        /** @var \App\Entity\ContentItem $contentItem */
-
         $scanner = $_ENV['ACCESSIBILITY_CHECKER'];
         $equalAccessReports = null;
 
@@ -210,8 +208,12 @@ class LmsFetchService {
             $equalAccessReports = $this->asyncReport->postMultipleAsync($contentItems);
         }
 
+        // Scan each update content item for issues
+        /** @var \App\Entity\ContentItem $contentItem */
+
         $index = 0;
         foreach ($contentItems as $contentItem) {
+
             try {
                 // Scan the content item with the scanner set in the environment.
                 $report = $this->scanner->scanContentItem($contentItem, $equalAccessReports == null ? null : $equalAccessReports[$index++], $this->util);
@@ -239,6 +241,8 @@ class LmsFetchService {
             }
         }
         $this->doctrine->getManager()->flush();
+
+        $this->scanner->logToServer("done!!!!!!!!!\n");
     }
 
     public function createIssue(PhpAllyIssue $issue, ContentItem $contentItem)
