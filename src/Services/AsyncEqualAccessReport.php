@@ -162,9 +162,7 @@ public function sign(RequestInterface $request): RequestInterface {
             $document = $this->getDomDocument($html)->saveHTML();
             // $this->logToServer($document);
 
-            $payload = json_encode([
-                "html" => $document
-            ]);
+            $payload = json_encode(["html" => $document]);
 
             $request = $this->createRequest($payload);
 
@@ -183,7 +181,6 @@ public function sign(RequestInterface $request): RequestInterface {
             $response = $result->getBody()->getContents();
             $json = json_decode($response, true);
             // $this->logToServer(json_encode($json, JSON_PRETTY_PRINT));
-
             $this->logToServer("Saving to contentItemsReport...");
             $contentItemsReport[] = $json;
         }
@@ -229,5 +226,4 @@ public function sign(RequestInterface $request): RequestInterface {
         return $dom;
 
     }
-
 }
