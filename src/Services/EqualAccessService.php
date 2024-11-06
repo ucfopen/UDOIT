@@ -97,16 +97,15 @@ class EqualAccessService {
         // $this->logToServer(json_encode($json["results"]));
         foreach ($json["results"] as $results) {
             $equalAccessRule = $results["ruleId"];
-            $xpathQuery = $results["path"]["dom"];
 
+            // $this->logToServer($equalAccessRule);
+            $xpathQuery = $results["path"]["dom"];
+            // $this->logToServer($xpathQuery);
             $issueHtml = $this->xpathToSnippet($xpath, $xpathQuery);
-            
             $metadata = null;
 
             // First check if the HTML has phpally-ignore and also check if the rule isn't one we skip.
             if (!$this->checkForIgnoreClass($issueHtml) && !in_array($equalAccessRule, $this->skipRules)) {
-                $this->logToServer($equalAccessRule);
-                $this->logToServer($xpathQuery);
                 // Populate the issue counts field with how many total issues
                 // with the specific rule are found
                 if (array_key_exists($equalAccessRule, $issueCounts)) {
@@ -123,7 +122,8 @@ class EqualAccessService {
                 // also should check if ruleID is a CSS related one,
                 // since some messageArgs also are just blank
                 if ($results["messageArgs"]) {
-                    $metadata = json_encode($this->createMetadata($results["messageArgs"]));
+                    // $metadata = json_encode($this->createMetadata($results["messageArgs"]));
+                    $metadata = json_encode($results["messageArgs"]);
                     // $metadata["message"] = $results["message"];
                 }
 
@@ -133,6 +133,9 @@ class EqualAccessService {
                     // UDOIT database has 'html' and 'preview_html',
                     // where 'preview_html' is the parent of the offending html
                     $parentIssueHtml = $issueHtml->parentNode;
+                }  
+                else {
+                    continue;
                 }
                 
                 $issue = new PhpAllyIssue($equalAccessRule, $issueHtml, $parentIssueHtml, $metadata);
@@ -152,20 +155,9 @@ class EqualAccessService {
     }
 
     public function createMetadata($resultSection) {
-        // The Equal Access report has a "messageArgs" section which will give the exact
-        // text contrast, hex colors, font size and font weight for each contrast error.
-
-        /* The JSON section is in the format of:
-          "messageArgs": [
-                "1.02",     -> text contrast
-                16,         -> font size
-                400,        -> font weight
-                "#3e3e3e",  -> foreground color 
-                "#3d3d3d",  -> background color
-                false,      -> ?
-                false       -> ?
-            ],    
-        */
+        // The Equal Access report has a "messageArgs" section
+        // which has any dynamic content (color contrast ratios, specific text it wants to mark)
+        // that we can then use on UFIXIT to generate specific messages
 
         $metadata = array(
             'backgroundColor' => '',

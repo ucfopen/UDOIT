@@ -28,13 +28,11 @@ class AsyncEqualAccessReport {
     private $endpoint;
     private $canonicalUri;
 
-    public function __construct()
-    {
+    public function __construct() {
         $this->loadConfig();
     }
 
-    private function loadConfig()
-    {
+    private function loadConfig() {
         // Load variables for AWS
         $this->awsAccessKeyId = $_ENV['AWS_ACCESS_KEY_ID'];
         $this->awsSecretAccessKey = $_ENV['AWS_SECRET_ACCESS_KEY'];
@@ -57,7 +55,7 @@ class AsyncEqualAccessReport {
         file_get_contents("http://host.docker.internal:3000/log", false, $context);
     }
 
-public function sign(RequestInterface $request): RequestInterface {
+    public function sign(RequestInterface $request): RequestInterface {
         $signature = new SignatureV4('execute-api', $this->awsRegion);
         $credentials = new Credentials($this->awsAccessKeyId, $this->awsSecretAccessKey);
 
@@ -75,7 +73,7 @@ public function sign(RequestInterface $request): RequestInterface {
         );
     }
 
-    public function postMultipleArrayAsync(array $contentItems): array: array {
+    public function postMultipleArrayAsync(array $contentItems): array {
         $promises = [];
         $client = new Client();
         $contentItemsReport = [];
@@ -86,15 +84,14 @@ public function sign(RequestInterface $request): RequestInterface {
         // Combine every 10 pages into a request
         $htmlArray = [];
         $counter = 0;
+        $payloadSize = 5;
         foreach ($contentItems as $contentItem) {
-            if ($counter >= 10) {
+            if ($counter >= $payloadSize) {
                 // Reached our counter limit, create a new payload
                 // $pagesPayload = json_encode($htmlArray);
-                $payload = json_encode([
-                    "html" => $htmlArray,
-                ]);
+                $payload = json_encode(["html" => $htmlArray]);
 
-                $this->logToServer("Creating payload with size 10!");
+                $this->logToServer("Creating payload with size {$payloadSize}!");
 
                 $request = $this->createRequest($payload);
                 $signedRequest = $this->sign($request);
@@ -103,6 +100,9 @@ public function sign(RequestInterface $request): RequestInterface {
                 $counter = 0;
                 $htmlArray = [];
             }
+
+            $this->logToServer("Building up array of size 10:");
+            $this->logToServer($contentItem->getTitle());
 
             // Clean up and push a page into an array
             $html = $contentItem->getBody();
@@ -117,10 +117,8 @@ public function sign(RequestInterface $request): RequestInterface {
             $this->logToServer("Found some leftovers");
             // $pagesPayload = json_encode($htmlArray);
 
-            $this->logToServer(json_encode($htmlArray));
-            $payload = json_encode([
-                "html" => $htmlArray,
-            ]);
+            $this->logToServer(count($htmlArray));
+            $payload = json_encode(["html" => $htmlArray]);
 
             $request = $this->createRequest($payload);
             $signedRequest = $this->sign($request);
@@ -134,11 +132,16 @@ public function sign(RequestInterface $request): RequestInterface {
 
         $results = Promise\Utils::unwrap($promises);
 
-        $this->logToServer($results);
         foreach ($results as $result) {
-            $response = $result->getBody()->getContents();
-            $json = json_decode($response, true);
-            $contentItemsReport[] = $json;
+            // Every "block" of reports pages should be in a stringified
+            // JSON, so we need to decode the JSON to be able to iterate through
+            // it first.
+
+            $response = json_decode($result->getBody()->getContents(), true);
+
+            foreach ($response as $report) {
+                $contentItemsReport[] = $report;
+            }
         }
 
         $this->logToServer("Number of contentItems we're sending back:");
@@ -215,8 +218,18 @@ public function sign(RequestInterface $request): RequestInterface {
         return $report;
     }
 
-    public function getDomDocument($html) {
+    public function getDomDocument($html)
+    {
+        // Load the HTML string into a DOMDocument that PHP can parse.
+        // TODO: checks for if <html>, <body>, or <head> and <style> exist? technically canvas will always remove them if they are present in the HTML editor
+        // but you never know, also the loadHTML string is pretty long and kinda unreadable, could individually load in each element maybe
         $dom = new DOMDocument('1.0', 'utf-8');
+        libxml_use_internal_errors(true);
+
+        // Set the default background color and text color in the DOMDocument's <style>
+        $envBackgroundColor = $_ENV['BACKGROUND_COLOR'];
+        $envTextColor = $_ENV['TEXT_COLOR'];
+
         if (strpos($html, '<?xml encoding="utf-8"') !== false) {
             $dom->loadHTML("<html><body>{$html}</body></html>", LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD);
         } else {

@@ -142,6 +142,12 @@ class AwsApiAccessibilityService
     public function getDomDocument($html)
     {
         $dom = new DOMDocument('1.0', 'utf-8');
+        libxml_use_internal_errors(true);
+
+        // Set the default background color and text color in the DOMDocument's <style>
+        $envBackgroundColor = $_ENV['BACKGROUND_COLOR'];
+        $envTextColor = $_ENV['TEXT_COLOR'];
+
         if (strpos($html, '<?xml encoding="utf-8"') !== false) {
             $dom->loadHTML("<html><body>{$html}</body></html>", LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD);
         } else {
