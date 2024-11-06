@@ -7,6 +7,7 @@ Please update this file as you open PRs and make changes to the codebase. Thank 
 
 ### General
 
+- Changed highlight color of 'alt text' for the UFIXIT form to meet all accessibility standards for color contrast (Thank you, @dmols)
 - Added TableNotEmpty rule and UFIXIT issue form to track tables with no content (Thank you, [@AlanFCMV](https://github.com/alanfcmv))
 - Increased maximum file upload size allowed, from 1mb to 10mb (Thank you, [@taheralfayad](https://github.com/taheralfayad))
 - Changed the description of 'ParagraphNotUsedAsHeader' rule to be less ambiguous since UDOIT has flagged this issue incorrectly before (Thank you, [@taheralfayad](https://github.com/taheralfayad))
