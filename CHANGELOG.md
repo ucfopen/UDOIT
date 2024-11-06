@@ -1,13 +1,13 @@
 # Change Log
 
 Please update this file as you open PRs and make changes to the codebase. Thank you!
-## [Unreleased]
+## [Unreleased](https://github.com/ucfopen/UDOIT/tree/dev)
 
-## [3.5.0]
+## [3.5.0](https://github.com/ucfopen/UDOIT/compare/stable/3.4.x...dev-v3.5.0) - 2024-11-12
 
 ### General
 
-- Changed highlight color of 'alt text' for the UFIXIT form to meet all accessibility standards for color contrast (Thank you, @dmols)
+- Changed highlight color of 'alt text' for the UFIXIT form to meet all accessibility standards for color contrast (Thank you, [@dmols](https://github.com/dmols))
 - Added TableNotEmpty rule and UFIXIT issue form to track tables with no content (Thank you, [@AlanFCMV](https://github.com/alanfcmv))
 - Increased maximum file upload size allowed, from 1mb to 10mb (Thank you, [@taheralfayad](https://github.com/taheralfayad))
 - Changed the description of 'ParagraphNotUsedAsHeader' rule to be less ambiguous since UDOIT has flagged this issue incorrectly before (Thank you, [@taheralfayad](https://github.com/taheralfayad))
@@ -26,4 +26,4 @@ Please update this file as you open PRs and make changes to the codebase. Thank 
 - Upgraded php max_execution_time from 800M to 3500M, and fastcgi_read_timeout from 180 to 300, to allow for php to handle a larger amount of data, and having nginx wait longer for the processes to complete. (Thank you, [@dmols](https://github.com/dmols) and [@Thetwam](https://github.com/Thetwam))
 
 ## Previous Releases
-For the time being, please refer to [this page](https://github.com/ucfopen/UDOIT/releases) to view the changes made to previous UDOIT releases.
+Please refer to [this page](https://github.com/ucfopen/UDOIT/releases) to view the changes made on previous UDOIT releases.
