@@ -31,6 +31,7 @@ export const issueRuleIds = [
     "RedirectedLink",
     "TableDataShouldHaveTableHeader",
     "TableHeaderShouldHaveScope",
+    "TableNotEmpty",
     "VideoCaptionsMatchCourseLanguage",
     "VideoEmbedCheck",
     "VideoProvidesCaptions",
