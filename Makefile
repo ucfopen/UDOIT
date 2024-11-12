@@ -6,7 +6,7 @@ endif
 
 # spin up the containers
 start:
-	docker compose -f docker-compose.nginx.yml up -d
+	docker compose -f docker-compose.nginx.yml up
 
 # set up the database
 migrate:
