@@ -123,7 +123,7 @@ class EqualAccessService {
                 // since some messageArgs also are just blank
                 if ($results["messageArgs"]) {
                     // $metadata = json_encode($this->createMetadata($results["messageArgs"]));
-                    $metadata = json_encode($results["messageArgs"]);
+                    $metadata = $this->createMetadata($results["messageArgs"]);
                     // $metadata["message"] = $results["message"];
                 }
 
@@ -160,21 +160,10 @@ class EqualAccessService {
         // that we can then use on UFIXIT to generate specific messages
 
         $metadata = array(
-            'backgroundColor' => '',
-            'color' => '',
-            'fontStyle' => '',
-            'fontWeight' => '',
+            "messageArgs" => $resultSection
         );
 
-        $backgroundColor = isset($resultSection[4]) ? $resultSection[4] : '';
-        $foregroundColor = isset($resultSection[3]) ? $resultSection[3] : '';
-        $fontWeight = isset($resultSection[2]) ? $resultSection[2] : '';
-
-        $metadata["backgroundColor"] = $backgroundColor;
-        $metadata["color"] = $foregroundColor;
-        $metadata["fontWeight"] = $fontWeight;
-
-        return $metadata;
+        return json_encode($metadata);
     }
 
     public function getDomDocument($html)

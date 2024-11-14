@@ -81,14 +81,14 @@ class AsyncEqualAccessReport {
         $this->logToServer("Count contentItems:");
         $this->logToServer(count($contentItems));
 
-        // Combine every 10 pages into a request
+        // Combine every <num> pages into a request
         $htmlArray = [];
         $counter = 0;
         $payloadSize = 5;
         foreach ($contentItems as $contentItem) {
             if ($counter >= $payloadSize) {
                 // Reached our counter limit, create a new payload
-                // $pagesPayload = json_encode($htmlArray);
+                // and create and sign a request that we send to the lambda function
                 $payload = json_encode(["html" => $htmlArray]);
 
                 $this->logToServer("Creating payload with size {$payloadSize}!");
@@ -98,13 +98,14 @@ class AsyncEqualAccessReport {
 
                 $promises[] = $client->sendAsync($signedRequest);
                 $counter = 0;
+
                 $htmlArray = [];
             }
 
             $this->logToServer("Building up array of size 10:");
             $this->logToServer($contentItem->getTitle());
 
-            // Clean up and push a page into an array
+            // Get the HTML then clean up and push a page into an array
             $html = $contentItem->getBody();
             $document = $this->getDomDocument($html)->saveHTML();
             array_push($htmlArray, $document);
@@ -112,7 +113,7 @@ class AsyncEqualAccessReport {
             $counter++;
         }
 
-        // Send out any leftover pages
+        // Send out any leftover pages we might have
         if (count($htmlArray) > 0) {
             $this->logToServer("Found some leftovers");
             // $pagesPayload = json_encode($htmlArray);
@@ -161,16 +162,14 @@ class AsyncEqualAccessReport {
         foreach ($contentItems as $contentItem) {
             $this->logToServer("Checking: {$contentItem->getTitle()}");
             // Clean up the content item's HTML document
+            // then create a payload that we'll send to the lambda function
             $html = $contentItem->getBody();
             $document = $this->getDomDocument($html)->saveHTML();
-            // $this->logToServer($document);
 
             $payload = json_encode(["html" => $document]);
-
             $request = $this->createRequest($payload);
-
             $signedRequest = $this->sign($request);
-            // $this->logToServer("Sending to promise array...");
+            
             $promises[] = $client->sendAsync($signedRequest);
         }
 
@@ -191,11 +190,13 @@ class AsyncEqualAccessReport {
         return $contentItemsReport;
     }
 
+    // Scan a single content item
     public function postSingleAsync(ContentItem $contentItem) {
-        // Scan a single content item
         $client = new Client();
+        $report = null;
         
         // Clean up the content item's HTML document
+        // and create a payload to send
         $html = $contentItem->getBody();
         $document = $this->getDomDocument($html)->saveHTML();
         $payload = json_encode(["html" => $document]);
@@ -210,8 +211,9 @@ class AsyncEqualAccessReport {
 
         if ($response) {
             $this->logToServer("Fulfilled!");
+
             $contents = $response->getBody()->getContents();
-            $report = json_decode($contents, true);
+            $report = json_decode($contents, true)[0];
         }
 
         // Return the Equal Access report

@@ -316,7 +316,12 @@ export default class ContrastForm extends React.Component {
 
     if (element.style.backgroundColor) {
       return Contrast.standardizeColor(element.style.backgroundColor)
-    } 
+    }
+    else if (metadata.messageArgs) {
+      // TODO: check if 4th argument exists
+      // (Equal Access) text_contrast_sufficient: The 4th index in messageArgs is the background color
+      return metadata.messageArgs[4]
+    }
     else {
       return (metadata.backgroundColor) ? Contrast.standardizeColor(metadata.backgroundColor) : this.props.settings.backgroundColor
     }
@@ -331,6 +336,10 @@ export default class ContrastForm extends React.Component {
 
     if (element.style.color) {
       return Contrast.standardizeColor(element.style.color)
+    }
+    else if (metadata.messageArgs) {
+      // (Equal Access) text_contrast_sufficient: The 3rd index in messageArgs is the foreground color
+      return metadata.messageArgs[3]
     }
     else {
       return (metadata.color) ? Contrast.standardizeColor(metadata.color) : this.props.settings.textColor
