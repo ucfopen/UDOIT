@@ -34,6 +34,7 @@ const UfixitForms = {
   // Equal Access Rules
   img_alt_misuse: AltText,
   text_contrast_sufficient: ContrastForm,
+  text_block_heading: HeadingStyleForm,
 }
 
 export function returnIssueForm(activeIssue) {

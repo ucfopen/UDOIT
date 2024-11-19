@@ -1,30 +1,30 @@
 import React from 'react'
 import { View } from '@instructure/ui-view'
 import { Text } from '@instructure/ui-text'
-import { Heading } from '@instructure/ui-heading'
 
 class UfixitReviewOnly extends React.Component {
   constructor(props) {
     super(props)
 
     this.state = {
-      messageArgs: this.getMessageArgs(),
+      metadata: this.getMetadata(),
     }
   }
 
-  getMessageArgs() {
+  getMetadata() {
     const issue = this.props.activeIssue
-    const args = (issue.metadata.messageArgs) ? JSON.parse(issue.metadata.messageArgs) : {}
-    console.log(args)
-    return args
+    const metadata = JSON.parse(issue.metadata)
+    console.log(metadata)
+    return metadata
   }
+
 
   render() {
     return (
       <View as="div" margin="small small">
-        <Text lineHeight="double">{this.props.t('label.review_only')}</Text>
-        {/* <Text>Experimental messageArgs from Equal Access:</Text> */}
-        {/* <Text>{this.state.messageArgs}</Text> */}
+        {this.state.metadata.message ? <><Text lineHeight="double">{this.state.metadata.message}</Text><br /><br /></> : <></>}
+        
+        <Text fontStyle='italic' >{this.props.t('label.review_only')}</Text>
       </View>
     )
   }

@@ -64,11 +64,8 @@ class ScannerService {
                         $report = $equalAccess->generateReport($json, $document);
                     }
                     else {
-                        // $this->logToServer("Generating report with existing JSON...");
                         // We already have the report, all we have to do is generate the UDOIT report
                         $report = $equalAccess->generateReport($scannerReport, $document);
-                        // $this->logToServer("Report:");
-                        // $this->logToServer($report);
                     }
                 }
             }
@@ -78,7 +75,7 @@ class ScannerService {
             }
         }
         catch (\Throwable $e) {
-            $response->addMessage($e->getMessage(), 'error', 0);
+            $response->addMessage($e->getMessage(), 'error');
         }
 
         return $report;
@@ -90,16 +87,17 @@ public function getDomDocument($html)
         // TODO: checks for if <html>, <body>, or <head> and <style> exist? technically canvas will always remove them if they are present in the HTML editor
         // but you never know, also the loadHTML string is pretty long and kinda unreadable, could individually load in each element maybe
         $dom = new DOMDocument('1.0', 'utf-8');
-        libxml_use_internal_errors(true);
+        libxml_use_internal_errors(true); // this might not be the best idea, we use this to stop udoit from crashing when it sees an html5 element
 
         // Set the default background color and text color in the DOMDocument's <style>
         $envBackgroundColor = $_ENV['BACKGROUND_COLOR'];
         $envTextColor = $_ENV['TEXT_COLOR'];
 
         if (strpos($html, '<?xml encoding="utf-8"') !== false) {
-            $dom->loadHTML("<html><body>{$html}</body></html>", LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD);
+            $dom->loadHTML("<!DOCTYPE html><html lang=\"en\"><head><meta charset=\"UTF-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\"><title>Placeholder Page Title</title></head><body><div role=\"main\"><h1>Placeholder Page Title</h1>{$html}</div></body></html>", LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD);
+
         } else {
-            $dom->loadHTML("<?xml encoding=\"utf-8\" ?><html><body>{$html}</body></html>", LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD);
+            $dom->loadHTML("<?xml encoding=\"utf-8\" ?><!DOCTYPE html><html lang=\"en\"><head><meta charset=\"UTF-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\"><title>Placeholder Page Title</title></head><body><div role=\"main\"><h1>Placeholder Page Title</h1>{$html}</div></body></html>", LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD);
         }
 
         return $dom;

@@ -121,11 +121,11 @@ class EqualAccessService {
                 // checks if the array elements at index 3 and 4 exist lol,
                 // also should check if ruleID is a CSS related one,
                 // since some messageArgs also are just blank
-                if ($results["messageArgs"]) {
-                    // $metadata = json_encode($this->createMetadata($results["messageArgs"]));
-                    $metadata = $this->createMetadata($results["messageArgs"]);
-                    // $metadata["message"] = $results["message"];
-                }
+                $reasonId = $results["reasonId"];
+                $message = $results["message"];
+                $messageArgs = $results["messageArgs"];
+
+                $metadata = $this->createMetadata($reasonId, $message, $messageArgs);
 
                 // Check for null (aka no XPath result was found) and skip.
                 // Otherwise, create a new issue with the HTML from the XPath query.
@@ -154,13 +154,15 @@ class EqualAccessService {
         return $report;
     }
 
-    public function createMetadata($resultSection) {
+    public function createMetadata($reasonId, $message, $messageArgs) {
         // The Equal Access report has a "messageArgs" section
         // which has any dynamic content (color contrast ratios, specific text it wants to mark)
         // that we can then use on UFIXIT to generate specific messages
 
         $metadata = array(
-            "messageArgs" => $resultSection
+            "reasonId" => $reasonId,
+            "message" => $message,
+            "messageArgs" => $messageArgs,
         );
 
         return json_encode($metadata);
@@ -179,9 +181,10 @@ class EqualAccessService {
         $envTextColor = $_ENV['TEXT_COLOR'];
 
         if (strpos($html, '<?xml encoding="utf-8"') !== false) {
-            $dom->loadHTML("<html><body>{$html}</body></html>", LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD);
+            $dom->loadHTML("<!DOCTYPE html><html lang=\"en\"><head><meta charset=\"UTF-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\"><title>Placeholder Page Title</title></head><body><div role=\"main\"><h1>Placeholder Page Title</h1>{$html}</div></body></html>", LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD);
+
         } else {
-            $dom->loadHTML("<?xml encoding=\"utf-8\" ?><html><body>{$html}</body></html>", LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD);
+            $dom->loadHTML("<?xml encoding=\"utf-8\" ?><!DOCTYPE html><html lang=\"en\"><head><meta charset=\"UTF-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\"><title>Placeholder Page Title</title></head><body><div role=\"main\"><h1>Placeholder Page Title</h1>{$html}</div></body></html>", LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD);
         }
 
         return $dom;

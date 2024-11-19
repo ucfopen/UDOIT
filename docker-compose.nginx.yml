@@ -64,7 +64,7 @@ services:
         bash -c '
         cd /app &&
         yarn install && 
-        yarn build'
+        yarn build --watch'
 
 volumes:
   web:
