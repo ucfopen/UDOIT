@@ -11,6 +11,7 @@ use App\Entity\User;
 use App\Services\LmsApiService;
 use App\Services\PhpAllyService;
 use App\Services\EqualAccessService;
+use App\Services\ScannerService;
 use CidiLabs\PhpAlly\PhpAllyIssue;
 use Doctrine\Persistence\ManagerRegistry;
 
@@ -56,6 +57,7 @@ class LmsFetchService {
         $this->lmsApi = $lmsApi;
         $this->lmsUser = $lmsUser;
         $this->phpAlly = $phpAlly;
+        $this->scanner = $scanner;
         $this->equalAccess = $equalAccess;
         $this->asyncReport = $asyncReport;
         $this->scanner = $scanner;
@@ -203,7 +205,8 @@ class LmsFetchService {
         // If we're using Equal Access Lambda, send all the requests to Lambda for the
         // reports at once and save them all into an array (which should be in the same order as the ContentItems)
         if ($scanner == "equalaccess_lambda" && count($contentItems) > 0) {
-            $equalAccessReports = $this->asyncReport->postMultipleAsync($contentItems);
+            // $equalAccessReports = $this->asyncReport->postMultipleAsync($contentItems);
+            $equalAccessReports = $this->asyncReport->postMultipleArrayAsync($contentItems);
         }
 
         // Scan each update content item for issues
@@ -231,6 +234,8 @@ class LmsFetchService {
                         $this->createIssue($issue, $contentItem);
                     }
                 }
+
+                // $this->scanner->logToServer("done!");
             }
             catch (\Exception $e) {
                 $this->util->createMessage($e->getMessage(), 'error', null, null, true);
@@ -238,7 +243,7 @@ class LmsFetchService {
         }
         $this->doctrine->getManager()->flush();
 
-        $this->scanner->logToServer("done!!!!!!!!!\n");
+        // $this->scanner->logToServer("done!!!!!!!!!\n");
     }
 
     public function createIssue(PhpAllyIssue $issue, ContentItem $contentItem)

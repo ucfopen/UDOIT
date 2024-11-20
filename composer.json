@@ -11,7 +11,7 @@
         "ext-ctype": "*",
         "ext-iconv": "*",
         "ext-sodium": "*",
-        "aws/aws-sdk-php": "^3.322",
+        "aws/aws-sdk-php": "^3.324",
         "composer/package-versions-deprecated": "1.11.99.3",
         "doctrine/annotations": "^1.0",
         "doctrine/doctrine-bundle": "^2.4",
