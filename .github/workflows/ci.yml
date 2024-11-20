@@ -5,6 +5,7 @@ on:
     branches:
       - main
       - 'stable/*'
+      - 'equal-access'
 
 env:
   REGISTRY: ghcr.io
