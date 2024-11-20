@@ -55,7 +55,7 @@ class ScannerService {
             else if ($scanner == 'equalaccess_lambda') {
                 if ($contentItem->getBody() != null) {
                     $equalAccess = new EqualAccessService();
-                    $document = $equalAccess->getDomDocument($contentItem->getBody());
+                    $document = $this->getDomDocument($contentItem->getBody());
                     if (!$scannerReport) {
                         // Report is null, we need to call the lambda function for a single page most likely
                         // $this->logToServer("null $scannerReport!");

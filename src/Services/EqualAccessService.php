@@ -174,7 +174,7 @@ class EqualAccessService {
         // TODO: checks for if <html>, <body>, or <head> and <style> exist? technically canvas will always remove them if they are present in the HTML editor
         // but you never know, also the loadHTML string is pretty long and kinda unreadable, could individually load in each element maybe
         $dom = new DOMDocument('1.0', 'utf-8');
-        libxml_use_internal_errors(true);
+        libxml_use_internal_errors(true); // this might not be the best idea, we use this to stop udoit from crashing when it sees an html5 element
 
         // Set the default background color and text color in the DOMDocument's <style>
         $envBackgroundColor = $_ENV['BACKGROUND_COLOR'];
