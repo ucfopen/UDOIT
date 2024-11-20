@@ -53,7 +53,7 @@ class EqualAccessService {
 
     public function xpathToSnippet($domXPath, $xpathQuery) {
         // Query the document and save the results into an array
-        // In a perfect world this array should only have one element
+        // In a perfect world this array should only have one element   
 
         $xpathResults = $domXPath->query($xpathQuery);
         $htmlSnippet = null;
@@ -87,7 +87,7 @@ class EqualAccessService {
 
     // Generate a UDOIT-style JSON report from the output of Equal Access
     public function generateReport($json, $document) {
-        $this->logToServer("Generating report in EqualAccessService!");
+        // $this->logToServer("Generating report in EqualAccessService!");
         $report = new PhpAllyReport();
         $xpath = new DOMXPath($document);
 

@@ -78,8 +78,8 @@ class AsyncEqualAccessReport {
         $client = new Client();
         $contentItemsReport = [];
 
-        $this->logToServer("Count contentItems:");
-        $this->logToServer(count($contentItems));
+        // $this->logToServer("Count contentItems:");
+        // $this->logToServer(count($contentItems));
 
         // Combine every <num> pages into a request
         $htmlArray = [];
@@ -91,7 +91,7 @@ class AsyncEqualAccessReport {
                 // and create and sign a request that we send to the lambda function
                 $payload = json_encode(["html" => $htmlArray]);
 
-                $this->logToServer("Creating payload with size {$payloadSize}!");
+                // $this->logToServer("Creating payload with size {$payloadSize}!");
 
                 $request = $this->createRequest($payload);
                 $signedRequest = $this->sign($request);
@@ -102,8 +102,8 @@ class AsyncEqualAccessReport {
                 $htmlArray = [];
             }
 
-            $this->logToServer("Building up array of size {$payloadSize}:");
-            $this->logToServer($contentItem->getTitle());
+            // $this->logToServer("Building up array of size {$payloadSize}:");
+            // $this->logToServer($contentItem->getTitle());
 
             // Get the HTML then clean up and push a page into an array
             $html = $contentItem->getBody();
@@ -115,10 +115,10 @@ class AsyncEqualAccessReport {
 
         // Send out any leftover pages we might have
         if (count($htmlArray) > 0) {
-            $this->logToServer("Found some leftovers");
+            // $this->logToServer("Found some leftovers");
             // $pagesPayload = json_encode($htmlArray);
 
-            $this->logToServer(count($htmlArray));
+            // $this->logToServer(count($htmlArray));
             $payload = json_encode(["html" => $htmlArray]);
 
             $request = $this->createRequest($payload);
@@ -128,8 +128,8 @@ class AsyncEqualAccessReport {
         }
 
 
-        $this->logToServer("waiting for promises...");
-        $this->logToServer(count($promises));
+        // $this->logToServer("waiting for promises...");
+        // $this->logToServer(count($promises));
 
         $results = Promise\Utils::unwrap($promises);
 
@@ -145,8 +145,8 @@ class AsyncEqualAccessReport {
             }
         }
 
-        $this->logToServer("Number of contentItems we're sending back:");
-        $this->logToServer(count($contentItemsReport));
+        // $this->logToServer("Number of contentItems we're sending back:");
+        // $this->logToServer(count($contentItemsReport));
 
         return $contentItemsReport;
     }
@@ -160,7 +160,7 @@ class AsyncEqualAccessReport {
         // Iterate through each scannable Canvas page and add a new
         // POST request to our array of promises 
         foreach ($contentItems as $contentItem) {
-            $this->logToServer("Checking: {$contentItem->getTitle()}");
+            // $this->logToServer("Checking: {$contentItem->getTitle()}");
             // Clean up the content item's HTML document
             // then create a payload that we'll send to the lambda function
             $html = $contentItem->getBody();
@@ -183,7 +183,7 @@ class AsyncEqualAccessReport {
             $response = $result->getBody()->getContents();
             $json = json_decode($response, true);
             // $this->logToServer(json_encode($json, JSON_PRETTY_PRINT));
-            $this->logToServer("Saving to contentItemsReport...");
+            // $this->logToServer("Saving to contentItemsReport...");
             $contentItemsReport[] = $json;
         }
 
@@ -205,12 +205,12 @@ class AsyncEqualAccessReport {
         $signedRequest = $this->sign($request);
 
         // POST document to Lambda and wait for fulfillment 
-        $this->logToServer("Sending to single promise...");
+        // $this->logToServer("Sending to single promise...");
         $promise = $client->sendAsync($signedRequest);
         $response = $promise->wait();
 
         if ($response) {
-            $this->logToServer("Fulfilled!");
+            // $this->logToServer("Fulfilled!");
 
             $contents = $response->getBody()->getContents();
             $report = json_decode($contents, true)[0];

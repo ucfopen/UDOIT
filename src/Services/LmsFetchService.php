@@ -235,7 +235,7 @@ class LmsFetchService {
                     }
                 }
 
-                $this->scanner->logToServer("done!");
+                // $this->scanner->logToServer("done!");
             }
             catch (\Exception $e) {
                 $this->util->createMessage($e->getMessage(), 'error', null, null, true);
@@ -243,7 +243,7 @@ class LmsFetchService {
         }
         $this->doctrine->getManager()->flush();
 
-        $this->scanner->logToServer("done!!!!!!!!!\n");
+        // $this->scanner->logToServer("done!!!!!!!!!\n");
     }
 
     public function createIssue(PhpAllyIssue $issue, ContentItem $contentItem)
