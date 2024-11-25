@@ -117,10 +117,8 @@ class EqualAccessService {
 
                 // Check for specific rules (mostly about contrast)
                 // so we can add CSS metadata to database
-                // TODO: nicer error checking? currently it just
-                // checks if the array elements at index 3 and 4 exist lol,
-                // also should check if ruleID is a CSS related one,
-                // since some messageArgs also are just blank
+                // TODO: check if these elements exist? 
+                // equal access may just always have these available for each rule however
                 $reasonId = $results["reasonId"];
                 $message = $results["message"];
                 $messageArgs = $results["messageArgs"];
@@ -155,9 +153,9 @@ class EqualAccessService {
     }
 
     public function createMetadata($reasonId, $message, $messageArgs) {
-        // The Equal Access report has a "messageArgs" section
-        // which has any dynamic content (color contrast ratios, specific text it wants to mark)
-        // that we can then use on UFIXIT to generate specific messages
+        // The Equal Access report has a few sections which describe
+        // what the error is/what type of error/error arguments, which we can use 
+        // on UFIXIT to display messages
 
         $metadata = array(
             "reasonId" => $reasonId,

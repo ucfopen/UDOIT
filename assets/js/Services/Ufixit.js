@@ -35,6 +35,7 @@ const UfixitForms = {
   img_alt_misuse: AltText,
   text_contrast_sufficient: ContrastForm,
   text_block_heading: HeadingStyleForm,
+  heading_content_exists: HeadingEmptyForm,
 }
 
 export function returnIssueForm(activeIssue) {

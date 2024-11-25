@@ -34,11 +34,11 @@ class AsyncEqualAccessReport {
 
     private function loadConfig() {
         // Load variables for AWS
-        $this->awsAccessKeyId = $_ENV['AWS_ACCESS_KEY_ID'];
-        $this->awsSecretAccessKey = $_ENV['AWS_SECRET_ACCESS_KEY'];
-        $this->awsRegion = $_ENV['AWS_REGION'];
-        $this->host = $_ENV['AWS_HOST'];
-        $this->canonicalUri = $_ENV['AWS_CANONICAL_URI'];
+        $this->awsAccessKeyId = $_ENV['EQUALACCESS_AWS_ACCESS_KEY_ID'];
+        $this->awsSecretAccessKey = $_ENV['EQUALACCESS_AWS_SECRET_ACCESS_KEY'];
+        $this->awsRegion = $_ENV['EQUALACCESS_AWS_REGION'];
+        $this->host = $_ENV['EQUALACCESS_AWS_HOST'];
+        $this->canonicalUri = $_ENV['EQUALACCESS_AWS_CANONICAL_URI'];
         $this->endpoint = "https://{$this->host}/{$this->canonicalUri}";
     }
 
