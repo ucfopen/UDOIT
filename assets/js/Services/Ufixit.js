@@ -8,6 +8,7 @@ import TableHeaders from '../Components/Forms/TableHeaders'
 import Video from '../Components/Forms/Video'
 import LinkForm from '../Components/Forms/LinkForm'
 import EmphasisForm from '../Components/Forms/EmphasisForm'
+import LabelForm from '../Components/Forms/LabelForm'
 
 const UfixitForms = {
   // phpAlly rules
@@ -33,6 +34,8 @@ const UfixitForms = {
 
   // Equal Access Rules
   img_alt_misuse: AltText,
+  aria_application_labelled: LabelForm,
+  aria_application_label_unique: LabelForm,
   text_contrast_sufficient: ContrastForm,
   text_block_heading: HeadingStyleForm,
   heading_content_exists: HeadingEmptyForm,

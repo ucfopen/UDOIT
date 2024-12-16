@@ -9,9 +9,12 @@ use DOMDocument;
 use Aws\Credentials\Credentials;
 use Aws\Signature\SignatureV4;
 
+use GuzzleHttp\Exception\RequestException;
+use GuzzleHttp\Pool;
 use GuzzleHttp\Psr7;
 use GuzzleHttp\Promise;
 use GuzzleHttp\Client;
+use GuzzleHttp\Psr7\Response;
 use Psr\Http\Message\RequestInterface;
 
 use GuzzleHttp\Psr7\Request;
@@ -75,11 +78,9 @@ class AsyncEqualAccessReport {
 
     public function postMultipleArrayAsync(array $contentItems): array {
         $promises = [];
-        $client = new Client();
         $contentItemsReport = [];
 
-        // $this->logToServer("Count contentItems:");
-        // $this->logToServer(count($contentItems));
+        $client = new Client();
 
         // Combine every <num> pages into a request
         $htmlArray = [];
@@ -91,8 +92,6 @@ class AsyncEqualAccessReport {
                 // and create and sign a request that we send to the lambda function
                 $payload = json_encode(["html" => $htmlArray]);
 
-                // $this->logToServer("Creating payload with size {$payloadSize}!");
-
                 $request = $this->createRequest($payload);
                 $signedRequest = $this->sign($request);
 
@@ -101,9 +100,6 @@ class AsyncEqualAccessReport {
 
                 $htmlArray = [];
             }
-
-            // $this->logToServer("Building up array of size {$payloadSize}:");
-            // $this->logToServer($contentItem->getTitle());
 
             // Get the HTML then clean up and push a page into an array
             $html = $contentItem->getBody();
@@ -115,10 +111,6 @@ class AsyncEqualAccessReport {
 
         // Send out any leftover pages we might have
         if (count($htmlArray) > 0) {
-            // $this->logToServer("Found some leftovers");
-            // $pagesPayload = json_encode($htmlArray);
-
-            // $this->logToServer(count($htmlArray));
             $payload = json_encode(["html" => $htmlArray]);
 
             $request = $this->createRequest($payload);
@@ -127,26 +119,36 @@ class AsyncEqualAccessReport {
             $promises[] = $client->sendAsync($signedRequest);
         }
 
-
-        // $this->logToServer("waiting for promises...");
+        // $this->logToServer("Number of promises:");
         // $this->logToServer(count($promises));
 
-        $results = Promise\Utils::unwrap($promises);
+        $results = Promise\Utils::settle($promises)->wait();
+        // $results = Promise\Utils::unwrap($promises);
+
+        $errors = 0;
 
         foreach ($results as $result) {
-            // Every "block" of reports pages should be in a stringified
+            // Every "block" of reports pages should be in a stringified 
             // JSON, so we need to decode the JSON to be able to iterate through
-            // it first.
+            // it first.}
 
-            $response = json_decode($result->getBody()->getContents(), true);
+            if (isset($result["value"])) {
+                $response = json_decode($result["value"]->getBody()->getContents(), true);
+            }
+            else if (isset($result["reason"])) {
+                $errors++;
+            }
+
+            // $this->logToServer($result["value"]->getBody()->getContents());
 
             foreach ($response as $report) {
+                // $this->logToServer(json_encode($report));
                 $contentItemsReport[] = $report;
             }
         }
 
-        // $this->logToServer("Number of contentItems we're sending back:");
-        // $this->logToServer(count($contentItemsReport));
+        // $this->logToServer("Number of errors:");
+        // $this->logToServer($errors);
 
         return $contentItemsReport;
     }
