@@ -1,4 +1,4 @@
-FROM php:8.2-fpm
+FROM php:8.4.2-fpm
 ARG ENVIRONMENT_TYPE
 
 #Install dependencies and php extensions
