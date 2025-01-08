@@ -9,41 +9,28 @@ use Doctrine\ORM\Mapping as ORM;
  */
 class LogEntry implements \JsonSerializable
 {
-    /**
-     * @ORM\Id()
-     * @ORM\GeneratedValue()
-     * @ORM\Column(type="integer")
-     */
+    #[ORM\Id]
+    #[ORM\GeneratedValue]
+    #[ORM\Column(type: "integer")]
+
     private $id;
 
-    /**
-     * @ORM\ManyToOne(targetEntity="App\Entity\User")
-     */
+    #[ORM\ManyToOne(targetEntity: "App\Entity\User")]
     private $user;
 
-    /**
-     * @ORM\ManyToOne(targetEntity="App\Entity\Course")
-     */
+    #[ORM\ManyToOne(targetEntity: "App\Entity\Course")]
     private $course;
 
-    /**
-     * @ORM\Column(type="text", nullable=true)
-     */
+    #[ORM\Column(type: "text", nullable: true)]
     private $message;
 
-    /**
-     * @ORM\Column(type="string", length=255)
-     */
+    #[ORM\Column(type: "string", length: 255)]
     private $severity;
 
-    /**
-     * @ORM\Column(type="datetime")
-     */
+    #[ORM\Column(type: "datetime")]
     private $created;
 
-    /**
-     * @ORM\Column(type="boolean", nullable=true)
-     */
+    #[ORM\Column(type: "boolean", nullable: true)]
     private $status;
 
     public function getId(): ?int
@@ -104,7 +91,7 @@ class LogEntry implements \JsonSerializable
         return $this->created;
     }
 
-    public function setCreated(\DateTimeInterface $created = null): self
+    public function setCreated(?\DateTimeInterface $created = null): self
     {
         if (!$created) {
             $created = new \DateTime();

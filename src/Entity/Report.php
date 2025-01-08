@@ -11,63 +11,44 @@ use Doctrine\ORM\Mapping as ORM;
 class Report implements \JsonSerializable
 {
     // Private Members
-    /**
-     * @ORM\Id()
-     * @ORM\GeneratedValue()
-     * @ORM\Column(type="integer")
-     */
+    #[ORM\Id]
+    #[ORM\GeneratedValue]
+    #[ORM\Column(type: "integer")]
     private $id;
-    
-    /**
-     * @ORM\ManyToOne(targetEntity="App\Entity\Course", inversedBy="reports")
-     * @ORM\JoinColumn(nullable=false)
-     */
+
+    #[ORM\ManyToOne(targetEntity: "App\Entity\Course", inversedBy: "reports")]
+    #[ORM\JoinColumn(nullable: false)]
     private $course;
 
-    /**
-     * @ORM\Column(type="text", nullable=true)
-     */
+    #[ORM\Column(type: "text", nullable: true)]
     private $data;
 
-    /**
-     * @ORM\Column(type="datetime")
-     */
+    #[ORM\Column(type: "datetime")]
     private $created;
 
-    /**
-     * @ORM\Column(type="integer", nullable=true)
-     */
+    #[ORM\Column(type: "integer", nullable: true)]
     private $errors;
 
-    /**
-     * @ORM\Column(type="integer", nullable=true)
-     */
+    #[ORM\Column(type: "integer", nullable: true)]
     private $suggestions;
 
-    /**
-     * @ORM\Column(type="boolean")
-     */
+    #[ORM\Column(type: "boolean")]
     private $ready;
 
-    /**
-     * @ORM\ManyToOne(targetEntity=User::class, inversedBy="reports")
-     * @ORM\JoinColumn(nullable=false)
-     */
+    #[ORM\ManyToOne(targetEntity: User::class, inversedBy: "reports")]
+    #[ORM\JoinColumn(nullable: false)]
     private $author;
 
-    /**
-     * @ORM\Column(type="integer", nullable=true)
-     */
+    #[ORM\Column(type: "integer", nullable: true)]
+
     private $contentFixed;
 
-    /**
-     * @ORM\Column(type="integer", nullable=true)
-     */
+    #[ORM\Column(type: "integer", nullable: true)]
     private $contentResolved;
 
-    /**
-     * @ORM\Column(type="integer", nullable=true)
-     */
+
+    #[ORM\Column(type: "integer", nullable: true)]
+
     private $filesReviewed;
 
     // Constructor
