@@ -15,14 +15,14 @@ class ContentItem implements \JsonSerializable
 
     #[ORM\Id]
     #[ORM\GeneratedValue]
-    #[ORM\Column(type="integer")]
+    #[ORM\Column(type: "integer")]
     private $id;
 
     #[ORM\Column(type: "string", length: 255)]
     private $title;
 
     #[ORM\ManyToOne(targetEntity: "App\Entity\Course", inversedBy: "contentItems")]
-    #[ORM\JoinColumn(nullable=false)]
+    #[ORM\JoinColumn(nullable: false)]
     private $course;
 
     #[ORM\Column(type: "string", length: 255)]

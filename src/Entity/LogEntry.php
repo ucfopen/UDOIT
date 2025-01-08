@@ -4,9 +4,8 @@ namespace App\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
 
-/**
- * @ORM\Entity(repositoryClass="App\Repository\LogEntryRepository")
- */
+
+#[ORM\Entity(repositoryClass: "App\Repository\LogEntryRepository")]
 class LogEntry implements \JsonSerializable
 {
     #[ORM\Id]

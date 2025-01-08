@@ -12,7 +12,7 @@ class Course implements \JsonSerializable
     // Private Members
     #[ORM\Id]
     #[ORM\GeneratedValue]
-    #[ORM\Column(type="integer")]
+    #[ORM\Column(type: "integer")]
     private $id;
 
     #[ORM\Column(type: "string", length: 255)]
