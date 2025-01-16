@@ -38,7 +38,7 @@ cp .env.example .env
 This command copies the `.env.example` into `.env`, creating the `.env` file in the process if it does not exist.
 
 2. Open `.env` with a text editor (i.e. Notepad, VS Code, etc.) and make the necessary changes to the following variables:
-   - `APP_ENV`: If you are setting up a development environment, change this to `dev` and follow the steps in [Installing Composer Dependencies](#installing-composer-dependencies) without the `--no-dev` flag to obtain all of the development packages. Otherwise, leave it as `prod`.
+   - `APP_ENV`: If you are setting up a development environment, change this to `dev`. Otherwise, leave it as `prod`.
    - `DATABASE_URL`: If you are hosting UDOIT on Docker or your local machine, leave it as it is. Otherwise, change it to your database URL.
    - `BASE_URL`: If you are hosting UDOIT on Docker or your local machine, leave it as it is. Otherwise, change it to the URL of your instance of UDOIT.
    - `WEBPACK_PUBLIC_PATH`: Uf you are hosting UDOIT on Docker or your local machine, leave it as it is. Otherwise, change it to match the `BASE_URL`in such a way that `/build` is located at the root of the `BASE_URL` (Example:  If your `BASE_URL` is set to `http://127.0.0.1:8000`, your `WEBPACK_PUBLIC_PATH` should be `/build`).
@@ -51,20 +51,31 @@ This command copies the `.env.example` into `.env`, creating the `.env` file in 
 ### Option 1: Docker
 We provide a fast and simple way of setting up a local UDOIT instance through Docker.
 
-1. Install [Docker Desktop](https://docs.docker.com/get-docker/). This will install Docker and Docker Compose on your system.
-	> Alternatively, you may install Docker and [Docker Compose](https://docs.docker.com/compose/install/) individually.
+#### 1. Install [Docker Desktop](https://docs.docker.com/get-docker/). This will install Docker and Docker Compose on your system.
+> Alternatively, you may install Docker and [Docker Compose](https://docs.docker.com/compose/install/) individually.
 
-2. Build the Containers
+#### 2. Install the Necessary PHP Dependencies
+
+UDOIT uses Composer to install PHP dependencies. You can install all the necessary dependencies using the following command, if your `APP_ENV` is set to `prod`:
+```
+docker compose -f docker-compose.nginx.yml run composer composer install --no-dev
+```
+
+If your `APP_ENV` is set to `dev`, take out the `--no-dev` when running the command.
+
+#### 3. Build the Containers
 
 ```
     make start
 ```
 
-3. Once the containers are initialized, run the following command:
+*Note: This may take a while to fully initiate. This is normal.*
+#### 4. Set Up Database
+
+The following command applies migrations necessary to set up the database to store all UDOIT data. Please make sure the containers have fully spun up before running this command.
 ```
     make migrate
 ```
-This applies migrations necessary to set up the database to store all UDOIT data.
 
 Running this will give the following warning:
 
@@ -76,12 +87,14 @@ Type `yes` and proceed. The warning is expected and is a non issue.
 
 UDOIT should be installed and running as Docker containers.
 
-4. To stop the UDOIT containers, run the following command:
+#### To stop the UDOIT containers, run the following command:
 ```
     make down
 ```
 
-> Please be sure to review the `makefile` for more information on what these commands do.
+Please be sure to review the `makefile` for more information on what this command and others do.
+
+If UDOIT is running without errors, you can move on to [installing it for your LMS](#connecting-udoit-to-an-lms)! If you're encountering errors, please check out the [wiki](https://github.com/ucfopen/UDOIT/wiki).
 
 ### Option 2: Manual Installation
 If you prefer not to use Docker, the process is more complicated:
@@ -140,3 +153,6 @@ For example, if you are setting this up on your local computer via Docker, it ma
 To configure it fully within your LMS, follow the installation instructions below that apply to you.
 - To install it on Canvas, follow [INSTALL_CANVAS.md](INSTALL_CANVAS.md)
 - or for D2l Brightspace, follow [INSTALL_D2L.md](INSTALL_D2L.md)
+
+## Encountering Errors
+Please resort to the [wiki page](https://github.com/ucfopen/UDOIT/wiki) for some commonly found errors when setting up UDOIT.
