@@ -8,6 +8,8 @@ import { Spinner } from '@instructure/ui-spinner'
 import * as Html from '../../Services/Html'
 import { SimpleSelect } from '@instructure/ui-simple-select'
 
+// TODO: not finished
+
 export default function QuoteForm(props) {
 
   let html = props.activeIssue.newHtml ? props.activeIssue.newHtml : props.activeIssue.sourceHtml
