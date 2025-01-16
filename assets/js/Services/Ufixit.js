@@ -9,6 +9,8 @@ import Video from '../Components/Forms/Video'
 import LinkForm from '../Components/Forms/LinkForm'
 import EmphasisForm from '../Components/Forms/EmphasisForm'
 import LabelForm from '../Components/Forms/LabelForm'
+import QuoteForm from '../Components/Forms/QuoteForm'
+import StyleMisuseForm from '../Components/Forms/StyleMisuseForm'
 
 const UfixitForms = {
   // phpAlly rules
@@ -39,6 +41,8 @@ const UfixitForms = {
   text_contrast_sufficient: ContrastForm,
   text_block_heading: HeadingStyleForm,
   heading_content_exists: HeadingEmptyForm,
+  // text_quoted_correctly: QuoteForm,
+  style_color_misuse: StyleMisuseForm,
 }
 
 export function returnIssueForm(activeIssue) {
