@@ -1,48 +1,40 @@
-import React from 'react'
+import React, { useEffect} from 'react'
 import { Alert } from '@instructure/ui-alerts'
 import { Spinner } from '@instructure/ui-spinner'
-
 import Classes from '../../css/app.css'
 
-class MessageTray extends React.Component {
-  constructor(props) {
-    super(props)
-  }
+export default function MessageTray ({ messages, hasNewReport, clearMessages, t }) {
 
-  componentDidMount() {
-    this.props.clearMessages()
-  }
+  useEffect(() => {
+    clearMessages()
+  }, [])
 
-  render() {
-    return (
-      <div className={Classes.messagesTray}>
-        {!this.props.hasNewReport && (
-          <Alert
-            variant="info"
-            renderCloseButtonLabel={this.props.t('label.close')}
-            onDismiss={this.props.clearMessages}
-            margin="small large"
-            liveRegion={() => document.getElementsByClassName(Classes.messagesTray)[0]}
-          >
-            {this.props.t('label.content_loading_msg')}
-            <Spinner size="x-small" margin="0 small" renderTitle="Loading" />
-          </Alert>
-        )}
-        {this.props.messages.map((msg, i) => (
-          <Alert
-            variant={msg.severity}
-            timeout={msg.timeout ? msg.timeout : 0}
-            renderCloseButtonLabel={this.props.t('label.close')}
-            onDismiss={this.props.clearMessages}
-            margin="small large"
-            key={`msg${i}`}
-          >
-            {this.props.t(msg.message)}
-          </Alert>
-        ))}
-      </div>
-    )
-  }
+  return (
+    <div className={Classes.messagesTray}>
+      {!hasNewReport && (
+        <Alert
+          variant="info"
+          renderCloseButtonLabel={t('label.close')}
+          onDismiss={clearMessages}
+          margin="small large"
+          liveRegion={() => document.getElementsByClassName(Classes.messagesTray)[0]}
+        >
+          {t('label.content_loading_msg')}
+          <Spinner size="x-small" margin="0 small" renderTitle="Loading" />
+        </Alert>
+      )}
+      {messages.map((msg, i) => (
+        <Alert
+          variant={msg.severity}
+          timeout={msg.timeout ? msg.timeout : 0}
+          renderCloseButtonLabel={t('label.close')}
+          onDismiss={clearMessages}
+          margin="small large"
+          key={`msg${i}`}
+        >
+          {t(msg.message)}
+        </Alert>
+      ))}
+    </div>
+  )
 }
-
-export default MessageTray

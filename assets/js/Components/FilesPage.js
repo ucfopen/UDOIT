@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from '@instructure/ui-buttons'
 import { IconCheckLine, IconEyeLine } from '@instructure/ui-icons'
 import SortableTable from './SortableTable'
@@ -17,97 +17,72 @@ const fileTypes = [
   'xls',
 ]
 
-class FilesPage extends React.Component {
-  constructor(props) {
-    super(props);
+export default function FilesPage({ t, report, settings, handleFileSave }) {
+  const headers = [
+    {id: "status", text: '', alignText: "center"},
+    {id: "fileName", text: t('label.file_name')}, 
+    {id: "fileType", text: t('label.file_type')}, 
+    {id: "fileSize", text: t('label.file_size'), format: formatFileSize},
+    {id: "updated", text: t('label.file_updated'), format: formatDate},
+    {id: "action", text: "", alignText: "end"}
+  ];
 
-    this.headers = [
-      {id: "status", text: '', alignText: "center"},
-      {id: "fileName", text: this.props.t('label.file_name')}, 
-      {id: "fileType", text: this.props.t('label.file_type')}, 
-      {id: "fileSize", text: this.props.t('label.file_size'), format: this.formatFileSize},
-      {id: "updated", text: this.props.t('label.file_updated'), format: this.formatDate},
-      {id: "action", text: "", alignText: "end"}
-    ];
+  const [activeFile, setActiveFile] = useState(null)
+  const [activeIndex, setActiveIndex] = useState(-1)
+  const [filteredFiles, setFilteredFiles] = useState([])
+  const [trayOpen, setTrayOpen] = useState(false)
+  const [modalOpen, setModalOpen] = useState(false)
+  const [searchTerm, setSearchTerm] = useState('')
+  const [filters, setFilters] = useState({
+    fileTypes: [],
+    hideReviewed: true
+  })
+  const [tableSettings, setTableSettings] = useState({
+    sortBy: 'fileName',
+    ascending: true,
+    pageNum: 0,
+    rowsPerPage: (localStorage.getItem('rowsPerPage')) ? localStorage.getItem('rowsPerPage') : '10'
+  })
 
-    this.state = {
-      activeFile: null,
-      activeIndex: -1,
-      trayOpen: false,
-      modalOpen: false,
-      searchTerm: '',
-      filters: {
-        fileTypes: [],
-        hideReviewed: true
-      },
-      tableSettings: {
-        sortBy: 'fileName',
-        ascending: true,
-        pageNum: 0,
-        rowsPerPage: (localStorage.getItem('rowsPerPage')) ? localStorage.getItem('rowsPerPage') : '10'
-      }
-    }
-
-    this.handleTrayToggle = this.handleTrayToggle.bind(this)
-    this.handleSearchTerm = this.handleSearchTerm.bind(this)
-    this.handleTableSettings = this.handleTableSettings.bind(this)
-    this.handleFilter = this.handleFilter.bind(this)
-    this.handleReviewClick = this.handleReviewClick.bind(this)
-    this.handleActiveFile = this.handleActiveFile.bind(this)
+  const handleSearchTerm = (e, val) => {
+    setSearchTerm(val)
+    setTableSettings({...tableSettings, pageNum: 0})
   }
 
-  componentDidMount() {
+  const handleTrayToggle = (e, val) => {
+    setTrayOpen(!trayOpen)
   }
 
-  handleSearchTerm = (e, val) => {
-    this.setState({searchTerm: val, tableSettings: Object.assign({}, this.state.tableSettings, {pageNum: 0})});
-  }
-
-  handleTrayToggle = (e, val) => {
-    this.setState({trayOpen: !this.state.trayOpen});
-  }
-
-  handleFilter = (filter) => {
-    this.setState({
-      filters: Object.assign({}, this.state.filters, filter),
-      tableSettings: {
-        sortBy: 'fileName',
-        ascending: true,
-        pageNum: 0,
-      }
+  const handleFilter = (filter) => {
+    setFilters({...filters, ...filter})
+    setTableSettings({
+      sortBy: 'fileName',
+      ascending: true,
+      pageNum: 0,
+      rowsPerPage: tableSettings.rowsPerPage
     })
   }
 
-  handleTableSettings = (setting) => {
-    this.setState({
-      tableSettings: Object.assign({}, this.state.tableSettings, setting)
-    });
+  const handleTableSettings = (setting) => {
+    setTableSettings({...tableSettings, ...setting})
   }
 
-  handleActiveFile(newFile, newIndex) {
-    this.setState({
-      activeFile: newFile,
-      activeIndex: Number(newIndex)
-    })
+  const handleActiveFile = (newFile, newIndex) => {
+    setActiveFile(newFile)
+    setActiveIndex(Number(newIndex))
   }
 
-  handleReviewClick(activeFile) {
-    this.setState({
-      modalOpen: true,
-      activeFile: activeFile
-    })
+  const handleReviewClick = (activeFile) => {
+    setModalOpen(true)
+    setActiveFile(activeFile)
   }
 
-  handleCloseButton = () => {
-    this.setState({
-      modalOpen: false
-    })
+  const handleCloseButton = () => {
+    setModalOpen(false)
   }
 
-  getFilteredFiles = () => {
-    const report = this.props.report;
-    const filters = this.state.filters;    
-    const { sortBy, ascending } = this.state.tableSettings 
+  const getFilteredFiles = () => {  
+    const { sortBy, ascending } = tableSettings 
     
     let filteredList = [];
     let fileList = Object.assign({}, report.files);
@@ -126,8 +101,8 @@ class FilesPage extends React.Component {
       }
 
       // Filter by search term
-      if (this.state.searchTerm !== '') {
-        const searchTerms = this.state.searchTerm.toLowerCase().split(' ');
+      if (searchTerm !== '') {
+        const searchTerms = searchTerm.toLowerCase().split(' ');
         
         if (Array.isArray(searchTerms)) {
           for (let term of searchTerms) {
@@ -141,12 +116,12 @@ class FilesPage extends React.Component {
       let status
       if (file.reviewed) {
         status = <>
-          <ScreenReaderContent>{this.props.t('label.file.reviewed')}</ScreenReaderContent>
+          <ScreenReaderContent>{t('label.file.reviewed')}</ScreenReaderContent>
           <IconCheckLine color="success" /> 
         </>
       } else {
         status = <>
-          <ScreenReaderContent>{this.props.t('label.file.needs_review')}</ScreenReaderContent>
+          <ScreenReaderContent>{t('label.file.needs_review')}</ScreenReaderContent>
           <IconEyeLine color="alert" />
         </>
       }
@@ -162,13 +137,12 @@ class FilesPage extends React.Component {
           updated: file.updated,
           action: <Button 
             key={`reviewButton${key}`}
-            onClick={() => this.handleReviewClick(file)}
-            textAlign="center" >{this.props.t('label.review')}</Button>,
-          onClick: () => this.handleReviewClick(file),
+            onClick={() => handleReviewClick(file)}
+            textAlign="center" >{t('label.review')}</Button>,
+          onClick: () => handleReviewClick(file),
         }
       );
     }
-
 
     filteredList.sort((a, b) => {
       if (isNaN(a[sortBy]) || isNaN(b[sortBy])) {
@@ -185,127 +159,67 @@ class FilesPage extends React.Component {
 
     return filteredList;
   }
-
-  render() {
-    const filteredFiles = this.getFilteredFiles()
-    const report = this.props.report
-
-    return (
-      <View as="div" key="filesPageFormWrapper" padding="small 0">
-        <FilesPageForm 
-          handleSearchTerm={this.handleSearchTerm} 
-          handleTrayToggle={this.handleTrayToggle} 
-          searchTerm={this.state.searchTerm}
-          t={this.props.t} 
-          ref={(node) => this.filesPageForm = node}
-          handleTableSettings={this.handleTableSettings}
-          tableSettings={this.state.tableSettings}
-        />
-        <View as="div" key="filterFileTags">
-          {this.renderFilterTags()}
-        </View>
-        <SortableTable
-          caption={this.props.t('files_page.table.caption')}
-          headers = {this.headers}
-          rows = {filteredFiles}
-          filters = {this.state.filters}
-          tableSettings = {this.state.tableSettings}
-          handleFilter = {this.handleFilter}
-          handleTableSettings = {this.handleTableSettings}
-          t={this.props.t}
-        />
-        {this.state.trayOpen && <FilesTrayForm
-          trayOpen={this.state.trayOpen}
-          report={this.props.report}
-          handleTrayToggle={this.handleTrayToggle} 
-          handleFilter={this.handleFilter}
-          filters={this.state.filters}
-          fileTypes={fileTypes}
-          t={this.props.t}
-          />}
-        {this.state.modalOpen && <FilesModal
-          open={this.state.modalOpen}
-          activeFile={this.state.activeFile}
-          activeIndex={this.state.activeIndex}
-          filteredRows={filteredFiles}
-          settings={this.props.settings}
-          handleCloseButton={this.handleCloseButton}
-          handleActiveFile={this.handleActiveFile}
-          handleFileSave={this.props.handleFileSave}
-          t={this.props.t}
-          />
-        }
-
-        {filteredFiles.length === 0 && 
-            <Billboard
-            size="medium"
-            heading={this.props.t('label.no_results_header')}
-            margin="small"
-            message={this.props.t('label.no_results_message')}
-        />}
-      </View>
-    )
-  }
-
-  resetFilters() {
+  
+  const resetFilters = () => {
     return {
       fileTypes: [],
       hideReviewed: false,
     };
   }
 
-  renderFilterTags() {
+  const renderFilterTags = () => {
     let tags = [];
     
-    for (const fileType of this.state.filters.fileTypes) {
+    for (const fileType of filters.fileTypes) {
       const id = `fileTypes||${fileType}`;
-      tags.push({ id: id, label: this.props.t(`label.mime.${fileType}`) });
+      tags.push({ id: id, label: t(`label.mime.${fileType}`) });
     }
 
-    if (this.state.filters.hideReviewed) {
-      tags.push({ id: `hideReviewed||true`, label: this.props.t(`label.hide_reviewed`)});
+    if (filters.hideReviewed) {
+      tags.push({ id: `hideReviewed||true`, label: t(`label.hide_reviewed`)});
     }
 
     return tags.map((tag, i) => (
       <Tag margin="0 small small 0" 
         text={tag.label} 
         dismissible={true} 
-        onClick={(e) => this.handleTagClick(tag.id, e)}
+        onClick={(e) => handleTagClick(tag.id, e)}
         key={i} 
-        elementRef={(node) => this[`tag${i}`] = node}
+        // elementRef={(node) => this[`tag${i}`] = node}
+        elementRef={() => { React.createRef() }}
       />
     ));
   }
 
-  handleTagClick(tagId, e) {
+  const handleTagClick = (tagId, e) => {
     let [filterType, filterId] = tagId.split('||');
     let results = null;
     let index = 0
 
     switch (filterType) {
       case 'fileTypes':
-        index += this.state.filters.fileTypes.findIndex((val) => filterId == val)
-        results = this.state.filters.fileTypes.filter((val) => filterId !== val);
+        index += filters.fileTypes.findIndex((val) => filterId == val)
+        results = filters.fileTypes.filter((val) => filterId !== val);
         break;
       case 'hideReviewed':
-        index = this.state.filters.fileTypes.length
+        index = filters.fileTypes.length
         results = false;
         break;
     }
 
-    this.handleFilter({ [filterType]: results });
+    handleFilter({ [filterType]: results });
     if (index - 1 >= 0) {
       setTimeout(() => {
         this[`tag${index - 1}`].focus()
       })
     } else {
       setTimeout(() => {
-        this.filesPageForm.focus()
+        filesPageForm.focus()
       })
     }
   }
 
-  formatFileSize(size) {
+  const formatFileSize = (size) => {
     if (!size) {
       return 'N/A'
     }
@@ -321,11 +235,69 @@ class FilesPage extends React.Component {
     return size;
   }
 
-  formatDate(date) {
+ const formatDate = (date) => {
     let parts = date.split('T')
 
     return parts[0]
   }
-}
 
-export default FilesPage;
+  useEffect(() => {
+    setFilteredFiles(getFilteredFiles())
+  }, [report, filters, searchTerm, tableSettings])
+
+  return (
+    <View as="div" key="filesPageFormWrapper" padding="small 0">
+      <FilesPageForm 
+        handleSearchTerm={handleSearchTerm} 
+        handleTrayToggle={handleTrayToggle} 
+        searchTerm={searchTerm}
+        t={t} 
+        ref={(node) => filesPageForm = node}
+        handleTableSettings={handleTableSettings}
+        tableSettings={tableSettings}
+      />
+      <View as="div" key="filterFileTags">
+        {renderFilterTags()}
+      </View>
+      <SortableTable
+        caption={t('files_page.table.caption')}
+        headers = {headers}
+        rows = {filteredFiles}
+        filters = {filters}
+        tableSettings = {tableSettings}
+        handleFilter = {handleFilter}
+        handleTableSettings = {handleTableSettings}
+        t={t}
+      />
+      {trayOpen && <FilesTrayForm
+        trayOpen={trayOpen}
+        report={report}
+        handleTrayToggle={handleTrayToggle} 
+        handleFilter={handleFilter}
+        filters={filters}
+        fileTypes={fileTypes}
+        t={t}
+        />}
+      {modalOpen && <FilesModal
+        open={modalOpen}
+        activeFile={activeFile}
+        activeIndex={activeIndex}
+        filteredRows={filteredFiles}
+        settings={settings}
+        handleCloseButton={handleCloseButton}
+        handleActiveFile={handleActiveFile}
+        handleFileSave={handleFileSave}
+        t={t}
+        />
+      }
+
+      {filteredFiles.length === 0 && 
+          <Billboard
+          size="medium"
+          heading={t('label.no_results_header')}
+          margin="small"
+          message={t('label.no_results_message')}
+      />}
+    </View>
+  )
+}
