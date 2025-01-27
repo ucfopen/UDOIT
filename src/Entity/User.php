@@ -8,71 +8,52 @@ use Doctrine\ORM\Mapping as ORM;
 use JsonSerializable;
 use Symfony\Component\Security\Core\User\UserInterface;
 
-/**
- * @ORM\Entity(repositoryClass="App\Repository\UserRepository")
- * @ORM\Table(name="users")
- */
+#[ORM\Entity(repositoryClass: "App\Repository\UserRepository")]
+#[ORM\Table(name: "users")]
 class User implements UserInterface, JsonSerializable
 {
-    /**
-     * @ORM\Id()
-     * @ORM\GeneratedValue()
-     * @ORM\Column(type="integer")
-     */
+    #[ORM\Id]
+    #[ORM\GeneratedValue]
+    #[ORM\Column(type: "integer")]
+
     private $id;
 
     /**
      * $username = <lms_domain>||<lms_user_id>
-     * @ORM\Column(type="string", length=180, unique=true)
-     */
+    */
+    #[ORM\Column(type: "string", length: 180, unique: true)]
     private string $username;
 
-    /**
-     * @ORM\Column(type="string", length=255, nullable=true)
-     */
+    #[ORM\Column(type: "string", length: 255, nullable: true)]
     private $name;
 
-    /**
-     * @ORM\Column(type="json", nullable=true)
-     */
+    #[ORM\Column(type: "json", nullable: true)]
     private $roles = [];
 
-    /**
-     * @ORM\ManyToOne(targetEntity="App\Entity\Institution", inversedBy="users")
-     * @ORM\JoinColumn(nullable=false)
-     */
+    #[ORM\ManyToOne(targetEntity: "App\Entity\Institution", inversedBy: "users")]
+    #[ORM\JoinColumn(nullable: false)]
     private $institution;
 
-    /**
-     * @ORM\Column(type="string", length=128)
-     */
+    #[ORM\Column(type: "string", length: 128)]
     private $lmsUserId;
 
-    /**
-     * @ORM\Column(type="string", length=2048, nullable=true)
-     */
+    #[ORM\Column(type: "string", length: 2048, nullable: true)]
     private $apiKey;
 
-    /**
-     * @ORM\Column(type="string", length=512, nullable=true)
-     */
+    #[ORM\Column(type: "string", length: 512, nullable: true)]
     private $refreshToken;
 
-    /**
-     * @ORM\Column(type="datetime")
-     */
+    #[ORM\Column(type: "datetime")]
     private $created;
 
-    /**
-     * @ORM\Column(type="datetime")
-     */
+    #[ORM\Column(type: "datetime")]
     private $lastLogin;
 
     private $encodedKey = 'niLb/WbAODNi7E4ccHHa/pPU3Bd9h6z1NXmjA981D4o=';
 
-    /**
-     * @ORM\OneToMany(targetEntity=Report::class, mappedBy="author")
-     */
+
+    #[ORM\OneToMany(targetEntity: Report::class, mappedBy: "author")]
+
     private $reports;
 
 
@@ -147,7 +128,7 @@ class User implements UserInterface, JsonSerializable
     /**
      * @see UserInterface
      */
-    public function eraseCredentials()
+    public function eraseCredentials(): void
     {
         // If you store any temporary, sensitive data on the user, clear it here
         // $this->plainPassword = null;
