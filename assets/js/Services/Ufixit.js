@@ -11,6 +11,7 @@ import EmphasisForm from '../Components/Forms/EmphasisForm'
 import LabelForm from '../Components/Forms/LabelForm'
 import QuoteForm from '../Components/Forms/QuoteForm'
 import StyleMisuseForm from '../Components/Forms/StyleMisuseForm'
+import SensoryMisuseForm from '../Components/Forms/SensoryMisuseForm'
 
 const UfixitForms = {
   // phpAlly rules
@@ -43,6 +44,7 @@ const UfixitForms = {
   heading_content_exists: HeadingEmptyForm,
   // text_quoted_correctly: QuoteForm,
   style_color_misuse: StyleMisuseForm,
+  text_sensory_misuse: SensoryMisuseForm,
 }
 
 export function returnIssueForm(activeIssue) {
