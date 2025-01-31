@@ -3,6 +3,10 @@
 Please update this file as you open PRs and make changes to the codebase. Thank you!
 ## [Unreleased](https://github.com/ucfopen/UDOIT/tree/dev)
 
+## [4.0] -- In Progress
+
+- Updated UDOIT's PHP version from 8.2 to 8.4 to avoid issues pulling the latest composer image, as well as work with a php version that has active support. (Thank you, [@dmols](https://github.com/dmols) and [@panbed](https://github.com/panbed))
+
 ## [3.5.0](https://github.com/ucfopen/UDOIT/compare/3.4.0...3.5.0) - 2024-11-12
 
 ### General

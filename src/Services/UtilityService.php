@@ -8,7 +8,7 @@ use App\Entity\LogEntry;
 use App\Entity\User;
 use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
-use Symfony\Component\Security\Core\Security;
+use Symfony\Bundle\SecurityBundle\Security;
 use Twig\Environment;
 
 class UtilityService {
@@ -95,7 +95,7 @@ class UtilityService {
         return $messages;
     }
 
-    public function createMessage($msg, $severity = 'info', Course $course = null, User $user = null, $hideFromUser = false)
+    public function createMessage($msg, $severity = 'info', ?Course $course = null, ?User $user = null, $hideFromUser = false)
     {
         if (!$user) {
             $user = $this->security->getUser();
@@ -120,8 +120,8 @@ class UtilityService {
         $this->doctrine->getManager()->flush();
     }
 
-    public function exitWithMessage($msg, $severity = 'error', Course $course = null) 
-    {        
+    public function exitWithMessage($msg, $severity = 'error', ?Course $course = null)
+    {
         $this->createMessage($msg, $severity, $course);
 
         print $this->twig->render('error.html.twig', [
