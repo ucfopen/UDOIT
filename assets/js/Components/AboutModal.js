@@ -6,7 +6,7 @@ import { CloseButton } from '@instructure/ui-buttons'
 import AboutPage from './AboutPage'
 
 
-export default function AboutModel({ t, settings, handleModal }) {
+export default function AboutModal({ t, settings, handleModal }) {
   return (
     <Modal
       open={true}
