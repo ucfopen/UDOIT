@@ -101,9 +101,11 @@ export default function ContentPage({ report, setReport, settings, handleIssueSa
     setActiveIndex(-1);
   }
 
-  const handleActiveIssue = (newIssue, newIndex) => {
+  const handleActiveIssue = (newIssue, newIndex = undefined) => {
     setActiveIssue(newIssue);
-    setActiveIndex(Number(newIndex));
+    if(newIndex !== undefined) {
+      setActiveIndex(Number(newIndex));
+    }
   }
 
   const handleTableSettings = (setting) => {

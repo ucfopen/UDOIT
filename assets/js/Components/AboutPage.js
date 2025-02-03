@@ -103,8 +103,9 @@ export default function AboutPage({ t, settings }) {
                   </Heading><br />
                 </View>
                 {type.map((rule) => {
+                  let showExample = false
                   if (!t(`rule.example.${rule}`).includes('rule.example')) {
-                    var showExample = true
+                    showExample = true
                   }
                   return (
                     <ToggleDetails key={rule} summary={

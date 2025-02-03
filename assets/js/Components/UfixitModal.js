@@ -39,9 +39,12 @@ export default function UfixitModal({
 
   const [windowContents, setWindowContents] = useState('preview')
   const [expandExample, setExpandExample] = useState(false)
+  const [showExample, setShowExample] = useState(false)
+  const [pending, setPending] = useState(false)
+  const [currentIndex, setCurrentIndex] = useState(0)
   const [modalMessages, setModalMessages] = useState([])
   const [code, setCode] = useState('')
-  const [UfixitForm, setUfixitForm] = useState(null)
+  let UfixitForm = returnIssueForm(activeIssue)
   
   const findActiveIndex = () => {
     if (filteredRows && activeIssue) {
@@ -52,7 +55,6 @@ export default function UfixitModal({
         }
       }
     }
-
     return 0;
   }
 
@@ -257,15 +259,17 @@ export default function UfixitModal({
     console.info('UfixitModal loaded')
     console.info(JSON.stringify(activeIssue))
 
-    const pending = (activeIssue && (activeIssue.pending == '1'))
-    const activeIndex = findActiveIndex()
-    setUfixitForm = returnIssueForm(activeIssue)
+    setPending(activeIssue && (activeIssue.pending == '1'))
+    UfixitForm = returnIssueForm(activeIssue)
 
-    let showExample = false
     if (!t(`rule.example.${activeIssue.scanRuleId}`).includes('rule.example')) {
-      showExample = true
+      setShowExample(true)
+    }
+    else {
+      setShowExample(false)
     }
 
+    setCurrentIndex(findActiveIndex())
     setCode(prepareCode(activeIssue))
 
   }, [activeIssue, activeContentItem])
@@ -315,11 +319,15 @@ export default function UfixitModal({
           <Flex justifyItems="space-between" alignItems="start">
             <Flex.Item width="46%" padding="0">
               <View as="div">
-                <UfixitForm activeIssue={activeIssue} t={t} settings={settings}
+                {UfixitForm && <UfixitForm
+                  t={t}
+                  settings={settings}
+                  activeIssue={activeIssue}
                   handleIssueSave={handleSingleIssueSave}
                   addMessage={addMessage} 
                   handleActiveIssue={handleActiveIssue}
                   handleManualScan={handleManualScan} />
+                }
               </View>
               {('module' !== activeContentItem.contentType) &&
                 <View as="div" background="secondary" padding="medium" margin="small 0 0 x-small">
@@ -392,7 +400,7 @@ export default function UfixitModal({
               <Flex.Item>
                 <InlineList delimiter="pipe">
                   <InlineList.Item>
-                    {t('label.issue')} {(activeIndex + 1)} {t('label.of')} {filteredRows.length}
+                    {t('label.issue')} {(currentIndex + 1)} {t('label.of')} {filteredRows.length}
                   </InlineList.Item>
                   {activeIssue.status && !activeIssue.pending &&
                     <InlineList.Item>
@@ -414,10 +422,10 @@ export default function UfixitModal({
               </Flex.Item>
               <Flex.Item>
                 <Button margin="0 small" interaction={(!pending) ? 'enabled' : 'disabled'} onClick={handleCloseButton}>{t('label.close')}</Button>
-                <Button margin="0 0 0 x-small" interaction={(!pending) ? 'enabled' : 'disabled'} onClick={() => handleIssueChange(activeIndex - 1)}>
+                <Button margin="0 0 0 x-small" interaction={(!pending) ? 'enabled' : 'disabled'} onClick={() => handleIssueChange(currentIndex - 1)}>
                   {t('label.previous_issue')}
                 </Button>
-                <Button margin="0 0 0 x-small" interaction={(!pending) ? 'enabled' : 'disabled'} onClick={() => handleIssueChange(activeIndex + 1)}>
+                <Button margin="0 0 0 x-small" interaction={(!pending) ? 'enabled' : 'disabled'} onClick={() => handleIssueChange(currentIndex + 1)}>
                   {t('label.next_issue')}
                 </Button>
               </Flex.Item>
