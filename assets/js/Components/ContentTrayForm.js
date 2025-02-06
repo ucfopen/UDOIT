@@ -7,181 +7,164 @@ import { View } from '@instructure/ui-view'
 import { Heading } from '@instructure/ui-heading'
 import IssueRuleSelect from './IssueRuleSelect';
 
-const issueTypes = [
-  'error',
-  'suggestion'
-]
+export default function ContentTrayForm({ t, trayOpen, filters, handleTrayToggle, handleFilter, settings, report }) {
 
-const issueStatus = [
-  'active',
-  'fixed',
-  'resolved'
-]
-
-const issueImpacts = [
-  'visual',
-  'auditory',
-  'cognitive',
-  'motor'
-]
-
-class ContentTrayForm extends React.Component {
-
-  constructor(props) {
-    super(props);
-
-    this.handleContentTypeChange = this.handleContentTypeChange.bind(this)
-    this.handleIssueStatusChange = this.handleIssueStatusChange.bind(this)
-    this.handleUnpublishedContent = this.handleUnpublishedContent.bind(this)
-    this.handleIssueTypeChange = this.handleIssueTypeChange.bind(this)
-    this.handleIssueTitleChange = this.handleIssueTitleChange.bind(this)
-    this.handleIssueImpactChange = this.handleIssueImpactChange.bind(this)
-    this.handleEasyIssues = this.handleEasyIssues.bind(this)
+  const issueTypes = [
+    'error',
+    'suggestion'
+  ]
+  
+  const issueStatus = [
+    'active',
+    'fixed',
+    'resolved'
+  ]
+  
+  const issueImpacts = [
+    'visual',
+    'auditory',
+    'cognitive',
+    'motor'
+  ]
+  
+  const renderContentTypeCheckboxes = () => {
+    return settings.contentTypes.map((type) => <Checkbox label={t(`content.plural.${type}`)} value={type} key={type} />)
   }
-
-  render() {
-
-    return (
-      <Tray
-        label={this.props.t('label.plural.filter')}
-        open={this.props.trayOpen}
-        shouldCloseOnDocumentClick={true}
-        onDismiss={this.props.handleTrayToggle}
-        placement="end">
-        <View as="div" padding="medium">
-          <Flex margin="0 0 medium 0">
-            <Flex.Item shouldGrow shouldShrink>
-              <Heading>{this.props.t('label.plural.filter')}</Heading>
-            </Flex.Item>
-            <Flex.Item>
-              <CloseButton
-                placement="end"
-                offset="small"
-                screenReaderLabel={this.props.t('srlabel.close')}
-                onClick={this.props.handleTrayToggle}
-              />
-            </Flex.Item>
-          </Flex>
-          <View as="div" padding="small 0">
-            <CheckboxGroup
-              name="ContentTypes"
-              description={ this.props.t('label.content_type')}
-              value={this.props.filters.contentTypes}
-              onChange={this.handleContentTypeChange}>
-              {this.renderContentTypeCheckboxes()}
-            </CheckboxGroup>
-          </View>
-          <View as="div" padding="small 0">
-            <CheckboxGroup
-              name="IssueStatus"
-              description={this.props.t('label.issue_status')}
-              value={this.props.filters.issueStatus}
-              onChange={this.handleIssueStatusChange}>
-              {this.renderIssueStatusCheckboxes()}
-            </CheckboxGroup>
-          </View>
-          <View as="div" padding="small 0">
-            <CheckboxGroup
-              name="IssueTypes"
-              description={this.props.t('label.issue_type')}
-              value={this.props.filters.issueTypes}
-              onChange={this.handleIssueTypeChange}>
-              {this.renderIssueTypeCheckboxes()}
-            </CheckboxGroup>
-          </View>
-          <View as="div" padding="small 0">
-            <CheckboxGroup
-              name="IssueImpacts"
-              description={this.props.t('label.issue_impact')}
-              value={this.props.filters.issueImpacts}
-              onChange={this.handleIssueImpactChange}>
-              {this.renderIssueImpactCheckboxes()}
-            </CheckboxGroup>
-          </View>
-          <View as="div" padding="small 0">
-            <Checkbox
-              label={this.props.t('label.hide_unpublished')}
-              onChange={this.handleUnpublishedContent}
-              checked={this.props.filters.hideUnpublishedContentItems}
-            />
-          </View>
-          <View as="div" padding="small 0">
-            <Checkbox
-              label={this.props.t('label.show_easy_issues')}
-              onChange={this.handleEasyIssues}
-              checked={this.props.filters.easyIssues}
-            />
-          </View>
-          <View as="div" padding="small 0">
-            <IssueRuleSelect
-              options={this.getRuleOptions()}
-              t={this.props.t}
-              issueTitles={this.props.filters.issueTitles}
-              handleIssueTitleChange={this.handleIssueTitleChange} />
-          </View>
-        </View>
-      </Tray>
-    );
+  
+  const renderIssueStatusCheckboxes = () => {
+    return issueStatus.map((status) => <Checkbox label={t(`label.filter.${status}`)} value={status} key={`status.${status}`} />)
   }
-
-  renderContentTypeCheckboxes() {
-    return this.props.settings.contentTypes.map((type) => <Checkbox label={this.props.t(`content.plural.${type}`)} value={type} key={type} />);
+  
+  const renderIssueTypeCheckboxes = () => {
+    return issueTypes.map((type) => <Checkbox label={t(`label.plural.${type}`)} value={type} key={type} />)
   }
-
-  renderIssueStatusCheckboxes() {
-    return issueStatus.map((status) => <Checkbox label={this.props.t(`label.filter.${status}`)} value={status} key={`status.${status}`} />)
+  
+  const renderIssueImpactCheckboxes = () => {
+    return issueImpacts.map((impact) => <Checkbox label={t(`label.filter.${impact}`)} value={impact} key={impact} />)
   }
-
-  renderIssueTypeCheckboxes() {
-    return issueTypes.map((type) => <Checkbox label={this.props.t(`label.plural.${type}`)} value={type} key={type} />);
+  
+  const handleContentTypeChange = (values) => {
+    handleFilter({contentTypes: values})
   }
-
-  renderIssueImpactCheckboxes() {
-    return issueImpacts.map((impact) => <Checkbox label={this.props.t(`label.filter.${impact}`)} value={impact} key={impact} />);
+  
+  const handleIssueStatusChange = (values) => {
+    handleFilter({issueStatus: values})
   }
-
-  handleContentTypeChange(values) {
-    this.props.handleFilter({contentTypes: values});
+  
+  const handleIssueTypeChange = (values) => {
+    handleFilter({issueTypes: values})
   }
-
-  handleIssueStatusChange(values) {
-    this.props.handleFilter({issueStatus: values})
+  
+  const handleIssueTitleChange = (values) => {
+    handleFilter({issueTitles: values})
   }
-
-  handleIssueTypeChange(values) {
-    this.props.handleFilter({issueTypes: values});
+  
+  const handleIssueImpactChange = (values) => {
+    handleFilter({issueImpacts: values})
   }
-
-  handleIssueTitleChange(values) {
-    this.props.handleFilter({issueTitles: values});
+  
+  const handleUnpublishedContent = () => {
+    handleFilter({ hideUnpublishedContentItems: !filters.hideUnpublishedContentItems });
   }
-
-  handleIssueImpactChange(values) {
-    this.props.handleFilter({issueImpacts: values});
+  
+  const handleEasyIssues = () => {
+    handleFilter({ easyIssues: !filters.easyIssues });
   }
-
-  handleUnpublishedContent(e) {
-    this.props.handleFilter({ hideUnpublishedContentItems: !this.props.filters.hideUnpublishedContentItems });
-  }
-
-  handleEasyIssues(e) {
-    this.props.handleFilter({ easyIssues: !this.props.filters.easyIssues });
-  }
-
-  getRuleOptions() {
+  
+  const getRuleOptions = () => {
     let ruleOptions = {};
-
-    Object.values(this.props.report.issues).forEach(
+  
+    Object.values(report.issues).forEach(
       (issue) => {
         ruleOptions[issue.scanRuleId] = {
           id: issue.scanRuleId,
-          label: this.props.t(`rule.label.${issue.scanRuleId}`)
+          label: t(`rule.label.${issue.scanRuleId}`)
         };
       }
     );
-
+  
     return Object.values(ruleOptions).sort((a, b) => (a.label.toLowerCase() < b.label.toLowerCase()) ? -1 : 1);
   }
-}
 
-export default ContentTrayForm;
+  return (
+    <Tray
+      label={t('label.plural.filter')}
+      open={trayOpen}
+      shouldCloseOnDocumentClick={true}
+      onDismiss={handleTrayToggle}
+      placement="end">
+      <View as="div" padding="medium">
+        <Flex margin="0 0 medium 0">
+          <Flex.Item shouldGrow shouldShrink>
+            <Heading>{t('label.plural.filter')}</Heading>
+          </Flex.Item>
+          <Flex.Item>
+            <CloseButton
+              placement="end"
+              offset="small"
+              screenReaderLabel={t('srlabel.close')}
+              onClick={handleTrayToggle}
+            />
+          </Flex.Item>
+        </Flex>
+        <View as="div" padding="small 0">
+          <CheckboxGroup
+            name="ContentTypes"
+            description={ t('label.content_type')}
+            value={filters.contentTypes}
+            onChange={handleContentTypeChange}>
+            {renderContentTypeCheckboxes()}
+          </CheckboxGroup>
+        </View>
+        <View as="div" padding="small 0">
+          <CheckboxGroup
+            name="IssueStatus"
+            description={t('label.issue_status')}
+            value={filters.issueStatus}
+            onChange={handleIssueStatusChange}>
+            {renderIssueStatusCheckboxes()}
+          </CheckboxGroup>
+        </View>
+        <View as="div" padding="small 0">
+          <CheckboxGroup
+            name="IssueTypes"
+            description={t('label.issue_type')}
+            value={filters.issueTypes}
+            onChange={handleIssueTypeChange}>
+            {renderIssueTypeCheckboxes()}
+          </CheckboxGroup>
+        </View>
+        <View as="div" padding="small 0">
+          <CheckboxGroup
+            name="IssueImpacts"
+            description={t('label.issue_impact')}
+            value={filters.issueImpacts}
+            onChange={handleIssueImpactChange}>
+            {renderIssueImpactCheckboxes()}
+          </CheckboxGroup>
+        </View>
+        <View as="div" padding="small 0">
+          <Checkbox
+            label={t('label.hide_unpublished')}
+            onChange={handleUnpublishedContent}
+            checked={filters.hideUnpublishedContentItems}
+          />
+        </View>
+        <View as="div" padding="small 0">
+          <Checkbox
+            label={t('label.show_easy_issues')}
+            onChange={handleEasyIssues}
+            checked={filters.easyIssues}
+          />
+        </View>
+        <View as="div" padding="small 0">
+          <IssueRuleSelect
+            options={getRuleOptions()}
+            t={t}
+            issueTitles={filters.issueTitles}
+            handleIssueTitleChange={handleIssueTitleChange} />
+        </View>
+      </View>
+    </Tray>
+  )
+}
