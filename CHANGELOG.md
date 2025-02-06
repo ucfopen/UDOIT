@@ -5,7 +5,9 @@ Please update this file as you open PRs and make changes to the codebase. Thank 
 
 ## [4.0] -- In Progress
 
+- Upgraded the React version from 16.14.0 to 18.3.1, as well as updating a lot of the React code from class-based components to functional. Changes seen in [#984](https://github.com/ucfopen/UDOIT/pull/984) (Thank you [@mbusch3](https://github.com/mbusch3) and [@nizolnier](https://github.com/nizolnier)).
 - Updated UDOIT's PHP version from 8.2 to 8.4 to avoid issues pulling the latest composer image, as well as work with a php version that has active support. (Thank you, [@dmols](https://github.com/dmols) and [@panbed](https://github.com/panbed))
+- Integrated IBM Equal Access scanner to act as the new default UDOIT scanner (replacing PHPAlly) while still allowing developers to choose between the two. Changes seen in [#982](https://github.com/ucfopen/UDOIT/pull/982) (Thank you, [@panbed](https://github.com/panbed) and [@evannaderi](https://github.com/evannaderi))
 
 ## [3.5.0](https://github.com/ucfopen/UDOIT/compare/3.4.0...3.5.0) - 2024-11-12
 
