@@ -56,7 +56,7 @@ export default function Header({ t, settings, hasNewReport, navigation, handleNa
           renderLabel={t('label.ufixit')}
           isDisabled={('welcome' === navigation) && !hasNewReport}
           isSelected={('content' === navigation)}
-          onClick={() => handleNavigation('content')} />
+          onClick={() => handleNavigation('fixIssues')} />
         <AppNav.Item
           renderLabel={t('label.review_files')}
           isDisabled={('welcome' === navigation) && !hasNewReport}

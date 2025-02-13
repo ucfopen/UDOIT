@@ -11,6 +11,7 @@ use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Console\Output\ConsoleOutput;
 
 class IssuesController extends ApiController
 {
@@ -192,6 +193,26 @@ class IssuesController extends ApiController
         if (!empty($unreadMessages)) {
             $apiResponse->addLogMessages($unreadMessages);
         }
+
+        return new JsonResponse($apiResponse);
+    }
+
+    // Get an issue's corresponding content item
+    #[Route('/api/issues/{issue}/content', methods: ['GET'], name: 'get_issue_content')]
+    public function getIssueContent(Issue $issue)
+    {
+        $apiResponse = new ApiResponse();
+        $contentItem = $issue->getContentItem();
+
+        $apiResponse->setData([
+            'contentItem' => [
+                'id' => $contentItem->getId(),
+                'title' => $contentItem->getTitle(),
+                'type' => $contentItem->getType(),
+                'url' => $contentItem->getUrl(),
+                'body' => $contentItem->getBody(),
+            ]
+        ]);
 
         return new JsonResponse($apiResponse);
     }

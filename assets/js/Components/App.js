@@ -1,8 +1,10 @@
 import React, { useState, useCallback, useEffect } from 'react'
 import WelcomePage from './WelcomePage'
 import Header from './Header'
+import HomePage from './HomePage'
 import SummaryPage from './SummaryPage'
 import ContentPage from './ContentPage'
+import FixIssuesPage from './FixIssuesPage'
 import ReportsPage from './ReportsPage'
 import AboutModal from './AboutModal'
 import { View } from '@instructure/ui-view'
@@ -18,6 +20,18 @@ export default function App(initialData) {
   //   messages: [],
   //   report: { ... The report from the most recent scan ... },
   //   settings: { ... From src/Controller/DashboardController.php => getSettings() ... },
+  //   settings.user: {
+  //     "id": 3,
+  //     "username": "https://canvas.instructure.com||1129",
+  //     "name": null,
+  //     "lmsUserId": "1129",
+  //      "roles": [
+  //         "ROLE_USER"    // or "ROLE_ADVANCED_USER" if they've clicked to skip the welcome page.
+  //     ],
+  //     "lastLogin": "2025-02-03",
+  //     "created": "2025-01-13",
+  //     "hasApiKey": true
+  //   }
   // }
 
   const [messages, setMessages] = useState(initialData.messages || [])
@@ -197,6 +211,12 @@ export default function App(initialData) {
       <MessageTray t={t} messages={messages} clearMessages={clearMessages} hasNewReport={syncComplete} />
 
       <main role="main">
+        {('home' === navigation) &&
+          <HomePage
+            t={t}
+            settings={settings}
+            report={report} />
+        }
         {('welcome' === navigation) &&
           <WelcomePage
             t={t}
@@ -215,6 +235,19 @@ export default function App(initialData) {
         }
         {('content' === navigation) &&
           <ContentPage
+            t={t}
+            settings={settings}
+            report={report}
+            setReport={setReport}
+            appFilters={appFilters}
+            handleAppFilters={handleAppFilters}
+            handleNavigation={handleNavigation}
+            handleIssueSave={handleIssueSave}
+            handleIssueUpdate={handleIssueSave}
+            disableReview={syncComplete && !disableReview} />
+        }
+        {('fixIssues' === navigation) &&
+          <FixIssuesPage
             t={t}
             settings={settings}
             report={report}
