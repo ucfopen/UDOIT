@@ -70,19 +70,28 @@ class EqualAccessService {
         return $htmlSnippet;
     }
 
-    public function checkforIgnoreClass($htmlSnippet) {
-        // Assume no phpAllyIgnore by default
+    public function checkforIgnoreClass($htmlSnippet, $equalAccessRule) {
+        // Assume no phpAllyIgnore or data-udoit-ignore match by default
         $phpAllyIgnore = false;
+        $udoitIgnore = false;
 
         if ($htmlSnippet) {
+            // check for phpally-ignore
             $classes = $htmlSnippet->getAttribute("class");
 
             if (strlen($classes) > 0 && str_contains($classes, "phpally-ignore")) {
                 $phpAllyIgnore = true;
             } 
+
+            // check if equalAccessRule matches a ruleId in data-udoit-ignore
+            $classes = $htmlSnippet->getAttribute("data-udoit-ignore");
+            if (strlen($classes) > 0 && str_contains($classes, $equalAccessRule)) {
+                $udoitIgnore = true;
+            }
+
         }
 
-        return $phpAllyIgnore;
+        return $phpAllyIgnore || $udoitIgnore;
     }
 
     // Generate a UDOIT-style JSON report from the output of Equal Access
@@ -105,7 +114,7 @@ class EqualAccessService {
             $metadata = null;
 
             // First check if the HTML has phpally-ignore and also check if the rule isn't one we skip.
-            if (!$this->checkForIgnoreClass($issueHtml) && !in_array($equalAccessRule, $this->skipRules)) {
+            if (!$this->checkForIgnoreClass($issueHtml, $equalAccessRule) && !in_array($equalAccessRule, $this->skipRules)) {
                 // Populate the issue counts field with how many total issues
                 // with the specific rule are found
                 if (array_key_exists($equalAccessRule, $issueCounts)) {

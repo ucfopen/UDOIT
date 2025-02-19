@@ -5,7 +5,9 @@ import { Button } from '@instructure/ui-buttons'
 import { IconCheckMarkLine } from '@instructure/ui-icons'
 import { Checkbox } from '@instructure/ui-checkbox'
 import { Spinner } from '@instructure/ui-spinner'
+import { Pill } from '@instructure/ui-pill'
 import * as Html from '../../Services/Html'
+import { Tag } from '@instructure/ui-tag'
 
 import { Editor } from '@tinymce/tinymce-react'
 
@@ -25,11 +27,10 @@ export default function SensoryMisuseForm(props) {
 
   const editorRef = useRef(null)
   const [editorHtml, setEditorHtml] = useState(html)
-  
+
   const [sensoryErrors, setSensoryErrors] = useState([])
 
   useEffect(() => {
-    console.log(editorHtml)
     const matchedWords = checkForSensoryWords(editorHtml);
     setSensoryErrors(matchedWords)
 
@@ -57,9 +58,58 @@ export default function SensoryMisuseForm(props) {
     })
   }
 
+const goToWord = (word) => {
+  if (editorRef.current) {
+    const editor = editorRef.current;
+    editor.focus();
+
+    // we first use xpath to find any text node that contains the sensory word, case insensitively
+    // however, this also includes (in the example of "top") words like "laptop", "topic", etc.
+    const body = editor.getBody()
+    const xpath = `//text()[contains(translate(., 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz'), '${word.toLowerCase()}')]`
+    const xpathResults = editor.getDoc().evaluate(
+      xpath,
+      body,
+      null,
+      XPathResult.ORDERED_NODE_ITERATOR_TYPE,
+      null
+    )
+
+    try {
+      let result = xpathResults.iterateNext()
+      while (result) {
+        let text = result.textContent
+        // we use regex to further filter the xpath result so we're only matching whole words
+        // so "laptop" no longer matches, but "top", "top.", "top;" ... etc. matches
+        const wordRegex = new RegExp(`\\b${word}\\b`, 'i')
+        let match = wordRegex.exec(text)
+        console.log(match)
+        if (match) {
+          console.log("matched...")
+          // create selection range
+          const range = editor.getDoc().createRange()
+          console.log(range)
+          range.setStart(result, match.index)
+          range.setEnd(result, match.index + match[0].length)
+          
+          // set selection in tinymce then scroll to the selection
+          editor.selection.setRng(range)
+          editor.selection.scrollIntoView()
+          break
+        }
+        // otherwise, if the regex fails, continue iterating through xpath results
+        result = xpathResults.iterateNext()
+      }
+    } 
+    catch (e) {
+      console.log(`An error occurred while trying to evaluate the XPath results: ${e}`)
+    }
+  }
+};
+
   const handleButton = () => {
     if (sensoryErrors.length > 0) {
-      console.log("more than 0 sensory errors found")
+      console.log("Can't save, more than 0 sensory errors found.")
     }
     else {
       if (editorRef.current) {
@@ -83,34 +133,44 @@ export default function SensoryMisuseForm(props) {
           licenseKey="gpl"
           onInit={(evt, editor) => editorRef.current = editor}
           initialValue={html}
-          onChange={(evt, editor) => {
-            handleEditorChange(editor.getContent())
-          }}
-          onKeyUp={(evt, editor) => {
+          onEditorChange={(evt, editor) => {
             handleEditorChange(editor.getContent())
           }}
           init={{
             height: 250,
             menubar: false,
-            toolbar: "undo redo | bold italic underline",
-            content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:14px }',
+            toolbar: "undo redo | bold italic underline ",
+            // content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:14px }',
             branding: false,
             skin: "oxide",
+            quickbars_insert_toolbar: false,
+            statusbar: true
           }}
         />
       </View>
 
-      {sensoryErrors.length > 0 ? 
+      {sensoryErrors.length > 0 ?
         <View as="div" margin="small 0">
-          <p style={{color: "red"}}>Potential sensory words: {sensoryErrors.toString()}</p>
+          <span style={{ fontWeight: "bold" }}>Potential sensory words:</span>
+          <span style={{ flexWrap: "wrap", display: "flex", columnGap: "0.5rem", rowGap: "0.3rem", marginTop: "0.5rem" }}>
+            {sensoryErrors.map((word) => (
+              <Tag 
+                margin="0 0.5rem 0.25rem 0"
+                text={word}
+                onClick={() => goToWord(word)}
+              >
+                {/* <span style={{ cursor: "pointer" }}>{word}</span> */}
+              </Tag>
+            ))}
+          </span>
         </View>
-      : <></>}
+        : <></>}
 
       <View as="div" margin="small 0">
-        <Button 
-          color="primary" 
+        <Button
+          color="primary"
           onClick={handleButton}
-          interaction={(!pending && props.activeIssue.status !== 2) ? 'enabled' : 'disabled'}  
+          interaction={(!pending && sensoryErrors.length == 0 && props.activeIssue.status !== 2) ? 'enabled' : 'disabled'}
         >
           {('1' == pending) && <Spinner size="x-small" renderTitle={props.t(buttonLabel)} />}
           {props.t(buttonLabel)}

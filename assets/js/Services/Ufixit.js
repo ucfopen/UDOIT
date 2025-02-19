@@ -12,6 +12,7 @@ import LabelForm from '../Components/Forms/LabelForm'
 import QuoteForm from '../Components/Forms/QuoteForm'
 import StyleMisuseForm from '../Components/Forms/StyleMisuseForm'
 import SensoryMisuseForm from '../Components/Forms/SensoryMisuseForm'
+import MissingAttributeForm from '../Components/Forms/MissingAttributeForm'
 
 const UfixitForms = {
   // phpAlly rules
@@ -45,6 +46,8 @@ const UfixitForms = {
   // text_quoted_correctly: QuoteForm,
   style_color_misuse: StyleMisuseForm,
   text_sensory_misuse: SensoryMisuseForm,
+  a_text_purpose: AnchorText,
+  aria_attribute_value_valid: MissingAttributeForm
 }
 
 export function returnIssueForm(activeIssue) {

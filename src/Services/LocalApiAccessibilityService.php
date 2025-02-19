@@ -13,7 +13,7 @@ use DOMDocument;
 
 class LocalApiAccessibilityService {
 
-    /** @var App\Service\HtmlService */
+    /** @var \App\Services\HtmlService */
     protected $htmlService;
 
 
