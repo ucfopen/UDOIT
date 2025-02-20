@@ -48,6 +48,8 @@ export default function App(initialData) {
   const [syncComplete, setSyncComplete] = useState(false)
   const [hasNewReport, setHasNewReport] = useState(false)
   const [disableReview, setDisableReview] = useState(false)
+  const [initialSeverity, setInitialSeverity] = useState('')
+  const [contentItemList, setContentItemList] = useState([])
 
   // `t` is used for text/translation. It will return the translated string if it exists
   // in the settings.labels object.
@@ -113,6 +115,18 @@ export default function App(initialData) {
 
   const clearMessages = () => {
     setMessages([])
+  }
+
+  const quickIssues = (severity) => {
+    setInitialSeverity(severity)
+    setNavigation('fixIssues')
+  }
+
+  const addContentItem = (newContentItem) => {
+    console.log('addContentItem: ', newContentItem)
+    let newContentItemList = Object.assign({}, contentItemList)
+    newContentItemList[newContentItem.id] = newContentItem
+    setContentItemList(newContentItemList)
   }
 
   const handleIssueSave = (newIssue, newReport) => {
@@ -204,9 +218,9 @@ export default function App(initialData) {
         handleFullCourseRescan={handleFullCourseRescan}
         handleModal={handleModal} />
 
-      {(('welcome' !== navigation) && ('summary' !== navigation)) &&
+      {/* {(('welcome' !== navigation) && ('summary' !== navigation)) &&
         <SummaryBar t={t} report={report} />
-      }
+      } */}
 
       <MessageTray t={t} messages={messages} clearMessages={clearMessages} hasNewReport={syncComplete} />
 
@@ -250,10 +264,11 @@ export default function App(initialData) {
           <FixIssuesPage
             t={t}
             settings={settings}
+            initialSeverity={initialSeverity}
+            contentItemList={contentItemList}
+            addContentItem={addContentItem}
             report={report}
             setReport={setReport}
-            appFilters={appFilters}
-            handleAppFilters={handleAppFilters}
             handleNavigation={handleNavigation}
             handleIssueSave={handleIssueSave}
             handleIssueUpdate={handleIssueSave}
@@ -275,6 +290,11 @@ export default function App(initialData) {
             handleNavigation={handleNavigation}
           />
         }
+        <div className="flex-row gap-1">
+          <button className="btn btn-primary" onClick={() => quickIssues('ISSUE')}>Fix Issues</button>
+          <button className="btn btn-primary" onClick={() => quickIssues('POTENTIAL')}>Fix Potential Issues</button>
+          <button className="btn btn-primary" onClick={() => quickIssues('SUGGESTION')}>Fix Suggestions</button>
+        </div>
       </main>
 
       {('about' === modal) &&

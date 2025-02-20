@@ -1,0 +1,95 @@
+:root {
+  --primary-color: #6AC8AC;
+  --primary-color-dark: #1B4B3C;
+  --primary-color-light: #E8F3ED;
+  --text-color: #333333;
+
+  --link-color: #2C8AC1;
+
+  --issue-color: #F94144;
+  --potential-color: #F8961E;
+  --suggestion-color: #32B0E4;
+
+  --white: #FFFFFF;
+  --gray-dark: #333333;
+  --gray: #767676;
+  --gray-light: #D3D7DB;
+  --gray-lightest: #F7F7F7;
+
+  --background-color: var(--gray-lightest);
+  --border-color: var(--gray-light);
+}
+
+.flex-row {
+  display: flex;
+  flex-direction: row;
+}
+
+.flex-column {
+  display: flex;
+  flex-direction: column;
+}
+
+.gap-1 {
+  gap: 1rem;
+}
+
+.gap-2 {
+  gap: 2rem;
+}
+
+.text-button {
+  background-color: transparent;
+  color: var(--link-color);
+  padding: .5rem 1.5rem;
+  border-radius: 50px;
+  cursor: pointer;
+}
+
+.btn {
+  font-family: 'Open Sans', Arial, Helvetica, sans-serif;
+  padding: .5rem 1.5rem;
+  border-radius: 50px;
+  cursor: pointer;
+  box-sizing: border-box;
+  border: 2px solid transparent;
+  font-weight: 600;
+  font-size: .9rem;
+}
+
+.btn-primary {
+  text-transform: uppercase;
+  background-color: var(--primary-color);
+  border-color: var(--primary-color);
+  color: var(--primary-color-dark);
+}
+
+.btn-secondary {
+  text-transform: uppercase;
+  border-color: 1px solid var(--primary-color);
+  background-color: transparent;
+  color: var(--primary-color-dark);
+}
+
+.btn-icon-left {
+  display: flex;
+  align-items: center;
+
+  svg {
+    margin-right: .5rem;
+  }
+}
+
+.btn-icon-right {
+  display: flex;
+  align-items: center;
+
+  svg {
+    margin-left: .5rem;
+  }
+}
+
+.btn-icon-only {
+  display: flex;
+  align-items: center;
+}

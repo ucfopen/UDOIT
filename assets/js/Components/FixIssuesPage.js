@@ -1,198 +1,437 @@
 import React, { useState, useEffect } from 'react';
+import FixIssuesFilters from './FixIssuesFilters';
 import { Button } from '@instructure/ui-buttons'
-import { IconCheckLine, IconInfoBorderlessLine, IconNoLine } from '@instructure/ui-icons'
-import { Billboard } from '@instructure/ui-billboard'
-import SortableTable from './SortableTable'
-import ContentPageForm from './ContentPageForm'
-import ContentTrayForm from './ContentTrayForm'
-import { View } from '@instructure/ui-view'
-import { Tag } from '@instructure/ui-tag'
+// import { IconCheckLine, IconInfoBorderlessLine, IconNoLine } from '@instructure/ui-icons'
+// import { Billboard } from '@instructure/ui-billboard'
+// import SortableTable from './SortableTable'
+// import ContentPageForm from './ContentPageForm'
+// import ContentTrayForm from './ContentTrayForm'
+// import { View } from '@instructure/ui-view'
+// import { Tag } from '@instructure/ui-tag'
 import { ScreenReaderContent } from '@instructure/ui-a11y-content'
-import UfixitModal from './UfixitModal'
-import Classes from '../../css/theme-overrides.css'
-import { issueRuleIds } from './Constants'
+import { returnIssueForm } from '../Services/Ufixit'
+import UfixitWidget from './UfixitWidget'
+import ReactHtmlParser from 'react-html-parser'
+import * as Html from '../Services/Html'
+// import { List } from '@instructure/ui-list';
+// import UfixitModal from './UfixitModal'
+// import Classes from '../../css/theme-overrides.css'
+// import { issueRuleIds } from './Constants'
 import Api from '../Services/Api'
+import './FixissuesPage.css'
 
-const issueStatusKeys = [
-  'active',
-  'fixed',
-  'resolved'
-]
+export default function FixIssuesPage({
+  t,
+  settings,
+  initialSeverity = '',
+  contentItemList,
+  addContentItem,
+  report,
+  setReport,
+  handleIssueSave, 
+  handleIssueUpdate,
+  disableReview })
+{
 
-export default function FixIssuesPage({ report, setReport, settings, handleIssueSave, appFilters, handleAppFilters, disableReview, t }) {
-  const filteredIssues = [];
-  const headers = [
-    { id: "status", text: '', alignText: "center" },
-    { id: "contentTitle", text: t('label.header.title') },
-    { id: "contentType", text: t('label.header.type') },
-    { id: "scanRuleLabel", text: t('label.issue') },
-    { id: "action", text: "", alignText: "end" }
-  ]
+  // Define the kinds of filters that will be available to the user
+  const FILTER = {
+    TYPE: {
+      SEVERITY: 'SEVERITY',
+      CONTENT_TYPE: 'CONTENT_TYPE',
+      RESOLUTION: 'RESOLUTION',
+      MODULE: 'MODULE',
+    },
+    ALL: 'ALL',
+    ISSUE: 'ISSUE',
+    POTENTIAL: 'POTENTIAL',
+    SUGGESTION: 'SUGGESTION',
+    PAGE: 'PAGE',
+    ASSIGNMENT: 'ASSIGNMENT',
+    ANNOUNCEMENT: 'ANNOUNCEMENT',
+    DISCUSSION_TOPIC: 'DISCUSSION_TOPIC',
+    DISCUSSION_FORUM: 'DISCUSSION_FORUM',
+    FILE: 'FILE',
+    QUIZ: 'QUIZ',
+    SYLLABUS: 'SYLLABUS',
+    MODULE: 'MODULE',
+    ACTIVE: 'ACTIVE',
+    FIXED: 'FIXED',
+    RESOLVED: 'RESOLVED',
+  }
+  
+  const SEVERITY_OPTIONS = {
+    [FILTER.ALL]: t('label.filter.severity.all'),
+    [FILTER.ISSUE]: t('label.filter.severity.issue'),
+    [FILTER.POTENTIAL]: t('label.filter.severity.potential'),
+    [FILTER.SUGGESTION]: t('label.filter.severity.suggestion'),
+  } 
 
-  const easyRules = issueRuleIds.filter(rule => settings.easyRuleIds.includes(rule))
-  const visualRules = issueRuleIds.filter(rule => settings.visualRuleIds.includes(rule))
-  const auditoryRules = issueRuleIds.filter(rule => settings.auditoryRuleIds.includes(rule))
-  const cognitiveRules = issueRuleIds.filter(rule => settings.cognitiveRuleIds.includes(rule))
-  const motorRules = issueRuleIds.filter(rule => settings.motorRuleIds.includes(rule))
+  const CONTENT_TYPE = {
+    [FILTER.ALL]: t('label.filter.type.all'),
+    [FILTER.PAGE]: t('label.filter.type.page'),
+    [FILTER.ASSIGNMENT]: t('label.filter.type.assignment'),
+    [FILTER.ANNOUNCEMENT]: t('label.filter.type.announcement'),
+    [FILTER.DISCUSSION_TOPIC]: t('label.filter.type.discussion_topic'),
+    [FILTER.DISCUSSION_FORUM]: t('label.filter.type.discussion_forum'),
+    [FILTER.FILE]: t('label.filter.type.file'),
+    [FILTER.QUIZ]: t('label.filter.type.quiz'),
+    [FILTER.SYLLABUS]: t('label.filter.type.syllabus'),
+    [FILTER.MODULE]: t('label.filter.type.module'),
+  }
 
-  const [activeContentItem, setActiveContentItem] = useState(null)
+  const RESOLUTION_OPTIONS = {
+    [FILTER.ALL]: t('label.filter.resolution.all'),
+    [FILTER.ACTIVE]: t('label.filter.resolution.active'),
+    [FILTER.FIXED]: t('label.filter.resolution.fixed'),
+    [FILTER.RESOLVED]: t('label.filter.resolution.resolved'),
+  }
+
+  const MODULE_OPTIONS = {
+    [FILTER.ALL]: t('label.filter.module.all'),
+  }
+
+  const FILTER_TYPES = {
+    [FILTER.TYPE.SEVERITY]: t('label.filter.severity'),
+    [FILTER.TYPE.CONTENT_TYPE]: t('label.filter.type'),
+    [FILTER.TYPE.RESOLUTION]: t('label.filter.resolution'),
+    [FILTER.TYPE.MODULE]: t('label.filter.module'),
+  }
+
+  const allFilters = {
+    [FILTER.TYPE.SEVERITY]: SEVERITY_OPTIONS,
+    [FILTER.TYPE.CONTENT_TYPE]: CONTENT_TYPE,
+    [FILTER.TYPE.RESOLUTION]: RESOLUTION_OPTIONS,
+    [FILTER.TYPE.MODULE]: MODULE_OPTIONS,
+  }
+
+  const defaultFilters = {
+    [FILTER.TYPE.SEVERITY]: FILTER.ALL,
+    [FILTER.TYPE.CONTENT_TYPE]: FILTER.ALL,
+    [FILTER.TYPE.RESOLUTION]: FILTER.ACTIVE,
+    [FILTER.TYPE.MODULE]: FILTER.ALL,
+  }
+
+  const WIDGET_STATE = {
+    LOADING: 0,
+    FIXIT: 1,
+    LEARN: 2,
+    LIST: 3,
+    NO_RESULTS: 4,
+  }
+  // const easyRules = issueRuleIds.filter(rule => settings.easyRuleIds.includes(rule))
+  // const visualRules = issueRuleIds.filter(rule => settings.visualRuleIds.includes(rule))
+  // const auditoryRules = issueRuleIds.filter(rule => settings.auditoryRuleIds.includes(rule))
+  // const cognitiveRules = issueRuleIds.filter(rule => settings.cognitiveRuleIds.includes(rule))
+  // const motorRules = issueRuleIds.filter(rule => settings.motorRuleIds.includes(rule))
+
   const [activeIssue, setActiveIssue] = useState(null)
-  const [trayOpen, setTrayOpen] = useState(false)
-  const [modalOpen, setModalOpen] = useState(false)
-  const [activeIndex, setActiveIndex] = useState(-1)
+  const [activeContentItem, setActiveContentItem] = useState(null)
   const [searchTerm, setSearchTerm] = useState('')
-  const [filters, setFilters] = useState({
-    contentTypes: [],
-    issueTypes: [],
-    issueTitles: [],
-    issueStatus: ['active'],
-    issueImpacts: [],
-    hideUnpublishedContentItems: false,
-    easyIssues: false,
-  })
-  const [tableSettings, setTableSettings] = useState({
-    sortBy: 'contentTitle',
-    ascending: true,
-    pageNum: 0,
-    rowsPerPage: (localStorage.getItem('rowsPerPage')) ? localStorage.getItem('rowsPerPage') : '10'
-  })
+  const [activeFilters, setActiveFilters] = useState(defaultFilters)
+  const [filteredIssues, setFilteredIssues] = useState([])
+  const [widgetState, setWidgetState] = useState(WIDGET_STATE.LOADING)
 
+  const getActiveIssueIndex = () => {
+    if (activeIssue === null) return -1;
+    return filteredIssues.findIndex((issue) => issue.id === activeIssue.id);
+  }
+
+  // The initialSeverity prop is used when clicking a "Fix Issues" button from the main dashboard.
   useEffect(() => {
-    if (Object.keys(appFilters).length > 0) {
-      const newFilters = Object.assign({}, resetFilters(), appFilters);
-      handleAppFilters({});
-      setFilters(newFilters);
+    let tempSeverity = initialSeverity || FILTER.ALL
+    setActiveFilters(Object.assign({}, defaultFilters, {[FILTER.TYPE.SEVERITY]: tempSeverity}))
+  }, [initialSeverity])
+
+  // When the filters or search term changes, update the available issues
+  useEffect(() => {
+
+    const firstLoad = (widgetState === WIDGET_STATE.LOADING)
+    let tempFilteredContent = getFilteredContent()
+    setFilteredIssues(tempFilteredContent)
+
+    if(tempFilteredContent.length === 0) {
+      setActiveIssue(null)
+      setWidgetState(WIDGET_STATE.NO_RESULTS)
+      return
     }
-  }, [])
 
+    // If there is no activeIssue and there is are multiple potential issues, show the list.
+    if(!activeIssue && tempFilteredContent.length > 0) {
+      if(firstLoad) {
+        setActiveIssue(tempFilteredContent[0].issue)
+        setWidgetState(WIDGET_STATE.FIXIT)
+      }
+      else {
+        setWidgetState(WIDGET_STATE.LIST)
+      }
+    }
+
+    // See if the currently activeIssue is still in the filteredIssues...
+    if (activeIssue && tempFilteredContent.length > 0) {
+      let index = tempFilteredContent.findIndex((issue) => issue.id === activeIssue.id)
+      if (index === -1) {
+        if(widgetState === WIDGET_STATE.LIST) {
+          setActiveContent(null)
+          return
+        }
+        // If it isn't, set the activeIssue to the first issue in the list
+        setActiveIssue(tempFilteredContent[0].issue)
+        if(widgetState === WIDGET_STATE.LOADING) {
+          setWidgetState(WIDGET_STATE.FIXIT)
+        }
+      }
+      // Otherwise, keep the activeIssue the same
+    }
+  }, [report, activeFilters, searchTerm])
+
+  // When a new activeIssue is set, get the content for that issue
   useEffect(() => {
-    if(activeIssue === null) return;
+    if(activeIssue === null) {
+      if(widgetState === WIDGET_STATE.LIST) {
+        return
+      }
+      setWidgetState(WIDGET_STATE.NO_RESULTS)
+      setActiveContentItem(null)
+      return
+    }
+  
+    setWidgetState(WIDGET_STATE.FIXIT)
 
-    console.log("Triggering useEffect for activeIssue")
-    console.log(activeIssue)
+    // If we've already downloaded the content for this issue, use that
+    const contentItemId = activeIssue.contentItemId
+    if(contentItemList[contentItemId]) {
+      setActiveContentItem(contentItemList[contentItemId])
+      return
+    }
+
+    // Otherwise, clear the old content and download the content for this issue
+    setActiveContentItem(null)
     let api = new Api(settings)
     api.getIssueContent(activeIssue.id)
     .then((response) => {
-      console.log("Repsonse from getIssueContent")
-      console.log(response)
       return response.json()
     }).then((data) => {
-      console.log("Data from getIssueContent")
-      console.log(data)
-      setActiveContentItem(data.data)
+      if(data?.data?.contentItem) {
+        setActiveContentItem(data.data.contentItem)
+        addContentItem(data.data.contentItem)
+      }
     })
   }, [activeIssue])
 
-  const handleSearchTerm = (e, val) => {
-    setSearchTerm(val);
-    setFilteredIssues([]);
-    setTableSettings(Object.assign({}, tableSettings, { pageNum: 0 }));
+  const handleSearchTerm = (newSearchTerm) => {
+    setSearchTerm(newSearchTerm);
   }
 
-  const handleReviewClick = (activeIssue) => {
-    if (!disableReview) return;
-    setModalOpen(true);
-    setActiveIssue(activeIssue);
-  }
-
-  const handleCloseButton = () => {
-    const newReport = { ...report };
-    newReport.issues = newReport.issues.map((issue) => {
-      issue.recentlyResolved = false;
-      issue.recentlyUpdated = false;
-      return issue;
-    });
-    
-    setModalOpen(false);
-    setReport(newReport);
-  }
-
-  const handleTrayToggle = (e, val) => {
-    setTrayOpen(!trayOpen);
-  }
-
-  const handleFilter = (filter) => {
-    setFilters(Object.assign({}, filters, filter));
-    setTableSettings({
-      sortBy: 'scanRuleLabel',
-      ascending: true,
-      pageNum: 0,
-    });
-    setActiveIndex(-1);
-  }
-
-  const handleActiveIssue = (newIssue, newIndex = undefined) => {
-    setActiveIssue(newIssue);
-    if(newIndex !== undefined) {
-      setActiveIndex(Number(newIndex));
+  const handleIssueResolve = () => {
+    if (activeIssue.pending) {
+      return
     }
+
+    let tempIssue = Object.assign({}, activeIssue)
+    if (tempIssue.status) {
+      tempIssue.status = false
+      tempIssue.newHtml = Html.toString(Html.removeClass(tempIssue.sourceHtml, 'phpally-ignore'))
+    }
+    else {
+      tempIssue.status = 2
+      tempIssue.newHtml = Html.toString(Html.addClass(tempIssue.sourceHtml, 'phpally-ignore'))
+    }
+
+    let api = new Api(settings)
+    api.resolveIssue(tempIssue)
+      .then((responseStr) => responseStr.json())
+      .then((response) => {      
+        // set messages 
+        response.messages.forEach((msg) => addMessage(msg))
+      
+        if (response.data.issue) {
+          const newIssue = { ...tempIssue, ...response.data.issue }
+          const newReport = response.data.report
+
+          // update activeIssue
+          newIssue.pending = false
+          newIssue.recentlyResolved = !!tempIssue.status
+          newIssue.sourceHtml = newIssue.newHtml
+          newIssue.newHtml = ''
+          // Get updated report
+          api.scanContent(newIssue.contentItemId)
+          .then((responseStr) => responseStr.json())
+          .then((res) => {
+            // update activeIssue
+            setActiveIssue(newIssue)
+            
+            handleIssueSave(newIssue, res.data)
+          })
+        }
+        else {
+          tempIssue.pending = false
+          setActiveIssue(tempIssue)
+        }
+      })
+
+    tempIssue.pending = 2
+    setActiveIssue(tempIssue)
   }
 
-  const handleTableSettings = (setting) => {
-    setTableSettings(Object.assign({}, tableSettings, setting));
+  // const handleReviewClick = (activeIssue) => {
+  //   if (!disableReview) return;
+  //   setModalOpen(true);
+  //   setActiveIssue(activeIssue);
+  // }
+
+  // const handleCloseButton = () => {
+  //   const newReport = { ...report };
+  //   newReport.issues = newReport.issues.map((issue) => {
+  //     issue.recentlyResolved = false;
+  //     issue.recentlyUpdated = false;
+  //     return issue;
+  //   });
+    
+  //   setModalOpen(false);
+  //   setReport(newReport);
+  // }
+
+  const updateActiveFilters = (filter, value) => {
+    setActiveFilters(Object.assign({}, activeFilters, {[filter]: value}));
+  }
+
+  const nextIssue = (previous = false) => {
+    if (filteredIssues.length === 0) return
+    let activeIndex = getActiveIssueIndex()
+
+    if(activeIndex === -1) {
+      return;
+    }
+
+    let newIndex = activeIndex + (previous ? -1 : 1);
+    if (newIndex < 0) {
+      newIndex = filteredIssues.length - 1;
+    }
+    else if (newIndex >= filteredIssues.length) {
+      newIndex = 0;
+    }
+    setActiveIssue(filteredIssues[newIndex].issue);
+  }
+
+  const toggleListView = () => {
+    console.log('toggleListView')
+    if (widgetState === WIDGET_STATE.LIST) {
+      if(activeIssue) {
+        setWidgetState(WIDGET_STATE.FIXIT)
+      }
+      else {
+        setWidgetState(WIDGET_STATE.NO_RESULTS)
+      }
+    }
+    else {
+      setWidgetState(WIDGET_STATE.LIST)
+      setActiveIssue(null)
+    }
   }
 
   const getContentById = (contentId) => {
     return Object.assign({}, report.contentItems[contentId]);
   }
 
+  const createKeywords = (issue, contentItem) => {
+    let keywords = [];
+
+    if(issue?.scanRuleId) {
+      keywords.push(t(`rule.label.${issue.scanRuleId}`).toLowerCase());
+    }
+    if(contentItem?.contentType) {
+      keywords.push(t(`label.${contentItem.contentType}`).toLowerCase());
+    }
+    if(contentItem?.title) {
+      keywords.push(contentItem.title.toLowerCase());
+    }
+
+    return keywords.join(' ');
+  }
+
   const getFilteredContent = () => {
     let filteredList = [];
     let issueList = Object.assign({}, report.issues);
-    const tempFilters = Object.assign({}, filters);
+    const tempFilters = Object.assign({}, activeFilters);
 
-    // Check for easy issues filter
-    if (tempFilters.easyIssues && tempFilters.issueTitles.length == 0) {
-      tempFilters.issueTitles = easyRules
-    }
-
+    // PHPAlly Issues have a 'type' of 'error' or 'suggestion'
+    // // Check for easy issues filter
+    // if (tempFilters.easyIssues && tempFilters.issueTitles.length == 0) {
+    //   tempFilters.issueTitles = easyRules
+    // }
+    console.log('tempFilters', tempFilters)
     // Loop through the issues
     issueLoop: for (const [key, value] of Object.entries(issueList)) {
       let issue = Object.assign({}, value)
 
-      // Check if we are interested in this issue severity, aka "type"
-      if (tempFilters.issueTypes.length !== 0 && !tempFilters.issueTypes.includes(issue.type)) {
-        continue;
+      let issueSeverity = FILTER.ISSUE
+      // PHPAlly returns a type of 'error' or 'suggestion'
+      if(issue.type == 'suggestion') {
+        issueSeverity = FILTER.SUGGESTION
       }
-
-      // Check if we are interested in issues with this rule impact
-      if (tempFilters.issueImpacts.length !== 0
-        && !(tempFilters.issueImpacts.includes('visual') && visualRules.includes(issue.scanRuleId))
-        && !(tempFilters.issueImpacts.includes('auditory') && auditoryRules.includes(issue.scanRuleId))
-        && !(tempFilters.issueImpacts.includes('cognitive') && cognitiveRules.includes(issue.scanRuleId))
-        && !(tempFilters.issueImpacts.includes('motor') && motorRules.includes(issue.scanRuleId))
-      ) {
-        continue;
-      }
-
-      // Check if we are interested in issues with this rule title
-      if (tempFilters.issueTitles.length !== 0 && !tempFilters.issueTitles.includes(issue.scanRuleId)) {
-        continue;
-      }
-
-      // Check if we are filtering by issue status
-      if (!issue.recentlyUpdated && !issue.recentlyResolved) {
-        if (tempFilters.issueStatus.length !== 0 && !tempFilters.issueStatus.includes(issueStatusKeys[issue.status])) {
-          continue;
+      
+      let issueContentType = FILTER.ALL
+      // PHPAlly returns a contentItemId that we can use to get the content type
+      let tempContentItem = getContentById(issue.contentItemId)
+      if(tempContentItem) {
+        let tempContentType = tempContentItem.contentType
+        if(tempContentType == 'page') {
+          issueContentType = FILTER.PAGE
+        }
+        else if(tempContentType == 'assignment') {
+          issueContentType = FILTER.ASSIGNMENT
+        }
+        else if(tempContentType == 'announcement') {
+          issueContentType = FILTER.ANNOUNCEMENT
+        }
+        else if(tempContentType == 'discussion_topic') {
+          issueContentType = FILTER.DISCUSSION_TOPIC
+        }
+        else if(tempContentType == 'discussion_forum') {
+          issueContentType = FILTER.DISCUSSION_FORUM
+        }
+        else if(tempContentType == 'file') {
+          issueContentType = FILTER.FILE
+        }
+        else if(tempContentType == 'quiz') {
+          issueContentType = FILTER.QUIZ
+        }
+        else if(tempContentType == 'syllabus') {
+          issueContentType = FILTER.SYLLABUS
+        }
+        else if(tempContentType == 'module') {
+          issueContentType = FILTER.MODULE
         }
       }
+        
 
-      // Get information about the content the issue refers to
-      var contentItem = getContentById(issue.contentItemId)
+      let issueResolution = FILTER.ACTIVE
+      // PHPAlly returns a status of 1 for fixed issues and 2 for resolved issues
+      if(issue.status == 1) {
+        issueResolution = FILTER.FIXED
+      }
+      else if(issue.status == 2) {
+        issueResolution = FILTER.RESOLVED
+      }
 
-      // Check if we are showing unpublished content items
-      if (tempFilters.hideUnpublishedContentItems && !contentItem.status) {
+      // Skip if we are not interested in this issue severity
+      if (tempFilters[FILTER.TYPE.SEVERITY] !== FILTER.ALL && tempFilters[FILTER.TYPE.SEVERITY] !== issueSeverity) {
         continue;
       }
 
-      // Check if we are filtering by content type
-      if (tempFilters.contentTypes.length !== 0 && !tempFilters.contentTypes.includes(contentItem.contentType)) {
+      // Skip if we are not interested in this content type
+      if (tempFilters[FILTER.TYPE.CONTENT_TYPE] !== FILTER.ALL && tempFilters[FILTER.TYPE.CONTENT_TYPE] !== issueContentType) {
+        continue;
+      }
+
+      // Skip if we are not interested in this resolution status
+      if (tempFilters[FILTER.TYPE.RESOLUTION] !== FILTER.ALL && tempFilters[FILTER.TYPE.RESOLUTION] !== issueResolution) {
         continue;
       }
 
       // Filter by search term
       if (!issue.keywords) {
-        issue.keywords = createKeywords(issue, contentItem);
+        issue.keywords = createKeywords(issue, tempContentItem);
       }
       if (searchTerm !== '') {
         const searchTerms = searchTerm.toLowerCase().split(' ');
@@ -206,51 +445,23 @@ export default function FixIssuesPage({ report, setReport, settings, handleIssue
         }
       }
 
-      let status
-      if (issue.status == 2) {
-        status = <>
-          <ScreenReaderContent>{t('label.resolved')}</ScreenReaderContent>
-          <IconCheckLine color="brand" />
-        </>
-      }
-      else if (issue.status == 1) {
-        status = <>
-          <ScreenReaderContent>{t('label.fixed')}</ScreenReaderContent>
-          <IconCheckLine color="success" />
-        </>
-      }
-      else {
-        if ('error' === issue.type) {
-          status = <>
-            <ScreenReaderContent>{t('label.error')}</ScreenReaderContent>
-            <IconNoLine className={Classes.error} />
-          </>
-        }
-        else {
-          status = <>
-            <ScreenReaderContent>{t('label.suggestion')}</ScreenReaderContent>
-            <IconInfoBorderlessLine className={Classes.suggestion} />
-          </>
-        }
-      }
-
       filteredList.push(
         {
           id: issue.id,
           issue,
-          status,
+          status: issueResolution,
           scanRuleLabel: t(`rule.label.${issue.scanRuleId}`),
-          contentType: t(`content.${contentItem.contentType}`),
-          contentTitle: contentItem.title,
+          contentType: t(`content.${tempContentItem.contentType}`),
+          contentTitle: tempContentItem.title,
           action: (
-            <Button key={`reviewButton${key}`}
+            <button key={`reviewButton${key}`}
               onClick={() => handleReviewClick(issue)}
               textAlign="center"
               disabled={!disableReview}
             >
                 {t('label.review')}
                 <ScreenReaderContent>{t(`rule.label.${issue.scanRuleId}`)}</ScreenReaderContent>
-            </Button>
+            </button>
           ),
           onClick: () => handleReviewClick(issue),
         }
@@ -258,185 +469,169 @@ export default function FixIssuesPage({ report, setReport, settings, handleIssue
     }
 
     filteredList.sort((a, b) => {
-      if (isNaN(a[tableSettings.sortBy]) || isNaN(b[tableSettings.sortBy])) {
-        return (a[tableSettings.sortBy].toLowerCase() < b[tableSettings.sortBy].toLowerCase()) ? -1 : 1;
-      }
-      else {
-        return (Number(a[tableSettings.sortBy]) < Number(b[tableSettings.sortBy])) ? -1 : 1;
-      }
-    });
+      return (a.contentType.toLowerCase() < b.contentType.toLowerCase()) ? -1 : 1;
+    })
 
-    if (!tableSettings.ascending) {
-      filteredList.reverse();
-    }
-
-    return filteredList;
+    return filteredList
   }
-
-  const createKeywords = (issue, contentItem) => {
-    let keywords = [];
-
-    keywords.push(t(`rule.label.${issue.scanRuleId}`).toLowerCase());
-    keywords.push(t(`label.${contentItem.contentType}`).toLowerCase());
-    keywords.push(contentItem.title.toLowerCase());
-
-    return keywords.join(' ');
-  }
-
-  const resetFilters = () => {
-    return {
-      contentTypes: [],
-      hideUnpublishedContentItems: false,
-      issueTypes: [],
-      issueTitles: [],
-      issueImpacts: [],
-      issueStatus: ['active'],
-    };
-  }
-
-  const renderFilterTags = () => {
-    let tags = [];
-
-    for (const contentType of filters.contentTypes) {
-      const id = `contentTypes||${contentType}`;
-      tags.push({ id: id, label: t(`content.plural.${contentType}`)});
-    }
-
-    for (const issueType of filters.issueTypes) {
-      const id = `issueTypes||${issueType}`
-      tags.push({ id: id, label: t(`label.plural.${issueType}`)});
-    }
-
-    for (const issueImpact of filters.issueImpacts) {
-      const id = `issueImpacts||${issueImpact}`
-      tags.push({ id: id, label: t(`label.filter.${issueImpact}`)});
-    }
-
-    for (const ruleId of filters.issueTitles) {
-      const id = `issueTitles||${ruleId}`
-      tags.push({ id: id, label: t(`rule.label.${ruleId}`) });
-    }
-
-    for (const statusVal of filters.issueStatus) {
-      const id = `issueStatus||${statusVal}`
-      tags.push({ id: id, label: t(`label.filter.${statusVal}`) });
-    }
-
-    if (filters.hideUnpublishedContentItems) {
-      tags.push({ id: `hideUnpublishedContentItems||true`, label: t(`label.hide_unpublished`) });
-    }
-
-    if (filters.easyIssues) {
-      tags.push({ id: `easyIssues||true`, label: t(`label.show_easy_issues`) });
-    }
-
-    return tags.map((tag, i) => {
-      return (
-        <Tag margin="0 small small 0"
-          text={tag.label}
-          dismissible={true}
-          onClick={(e) => handleTagClick(tag.id, e)}
-          key={i}
-        />
-      )
-    });
-  }
-
-  const handleTagClick = (tagId, e) => {
-    let [filterType, filterId] = tagId.split('||');
-    let results = null;
-    let index = 0
-
-    switch (filterType) {
-      case 'contentTypes':
-        index += filters.contentTypes.findIndex((val) => filterId == val)
-        results = filters.contentTypes.filter((val) => filterId !== val);
-        break;
-      case 'issueTypes':
-        index = filters.contentTypes.length
-        index += filters.issueTypes.findIndex((val) => filterId == val)
-        results = filters.issueTypes.filter((val) => filterId !== val);
-        break;
-      case 'issueTitles':
-        index = filters.contentTypes.length + filters.issueTypes.length
-        index += filters.issueTitles.findIndex((val) => filterId == val)
-        results = filters.issueTitles.filter((val) => filterId !== val);
-        break;
-      case 'issueStatus':
-        index = filters.contentTypes.length + filters.issueTypes.length + filters.issueTitles.length
-        index += filters.issueStatus.findIndex((val) => filterId == val)
-        results = filters.issueStatus.filter((val) => filterId != val);
-        break;
-      case 'issueImpacts':
-        index = filters.contentTypes.length + filters.issueTypes.length + filters.issueTitles.length + filters.issueStatus.length
-        index += filters.issueImpacts.findIndex((val) => filterId == val)
-        results = filters.issueImpacts.filter((val) => filterId != val);
-        break;
-      case 'hideUnpublishedContentItems':
-        index = filters.contentTypes.length + filters.issueTypes.length + filters.issueTitles.length + filters.issueStatus.length + filters.issueImpacts.length
-        results = false;
-        break;
-    }
-
-    handleFilter({ [filterType]: results });
-  }
-
-  const filteredRows = getFilteredContent()
 
   return (
-    <View as="div" key="contentPageFormWrapper" padding="small 0" margin="none">
-      <ContentPageForm
-        handleSearchTerm={handleSearchTerm}
-        handleTrayToggle={handleTrayToggle}
+    <>
+      <FixIssuesFilters
+        allFilters={allFilters}
+        activeFilters={activeFilters}
+        updateActiveFilters={updateActiveFilters}
         searchTerm={searchTerm}
-        t={t}
-        handleTableSettings={handleTableSettings}
-        tableSettings={tableSettings}
+        handleSearchTerm={handleSearchTerm}
       />
-      <View as="div">
-        {renderFilterTags()}
-      </View>
-      <div>Hello, World!!!!</div>
-      <SortableTable
-        caption={t('content_page.issues.table.caption')}
-        headers = {headers}
-        rows = {filteredRows}
-        filters = {filters}
-        tableSettings = {tableSettings}
-        handleFilter = {handleFilter}
-        handleTableSettings = {handleTableSettings}
-        t={t}
-        rowsPerPage = {tableSettings.rowsPerPage}
-      />
-      {trayOpen && <ContentTrayForm
-        filters={filters}
-        handleFilter={handleFilter}
-        trayOpen={trayOpen}
-        report={report}
-        handleTrayToggle={handleTrayToggle}
-        t={t}
-        settings={settings}
-      />}
-      {modalOpen && <UfixitModal
-        open={modalOpen}
-        activeIssue={activeIssue}
-        activeIndex={activeIndex}
-        filteredRows={filteredRows}
-        activeContentItem={ activeIssue ? getContentById(activeIssue.contentItemId) : null }
-        settings={settings}
-        handleCloseButton={handleCloseButton}
-        handleActiveIssue={handleActiveIssue}
-        handleIssueSave={handleIssueSave}
-        t={t}
-        />}
-
-      {filteredRows.length === 0 &&
-          <Billboard
-          size="medium"
-          heading={t('label.no_results_header')}
-          margin="small"
-          message={t('label.no_results_message')}
-      />}
-    </View>
+      <div className="ufixit-page-divider">
+        <section className="ufixit-widget-container">
+          { widgetState === WIDGET_STATE.LIST ? (
+            <div>
+              <h2>Issues List</h2>
+              <ul>
+                {filteredIssues.map((issue, i) => {
+                  return (
+                    <li key={i}>
+                      <span>{issue.id}</span> &nbsp;
+                      <span>{issue.status}</span> &nbsp;
+                      <span>{issue.contentType}</span> &nbsp;
+                      <span>{issue.contentTitle}</span> &nbsp;
+                      <span>{issue.scanRuleLabel}</span> &nbsp;
+                      <button onClick={() => setActiveIssue(issue.issue)}>
+                        Review
+                      </button>
+                    </li>
+                  )
+                })}
+              </ul>
+            </div>
+          ) : activeIssue ? (
+            <>
+              <div>
+                <h2>{t(`rule.label.${activeIssue.scanRuleId}`)}</h2>
+                {ReactHtmlParser(t(`rule.desc.${activeIssue.scanRuleId}`), { preprocessNodes: (nodes) => Html.processStaticHtml(nodes, settings) })}
+                <UfixitWidget
+                  t={t}
+                  settings={settings}
+                  activeIssue={activeIssue}
+                  setActiveIssue={setActiveIssue}
+                  handleIssueSave={handleIssueSave}
+                />
+              </div>
+              <div>
+                <div className="ufixit-widget-resolve-container">
+                  <div>{t(`label.resolved_description`)}</div>
+                  <button
+                    onClick={() => handleIssueResolve}
+                    disabled={(activeIssue.status == '1')}>
+                    {t(`label.mark_resolved`)}
+                  </button>
+                </div>
+                <div className="ufixit-widget-controls">
+                  <button onClick={() => nextIssue(true)}>
+                    Previous
+                  </button>
+                  <button onClick={() => toggleListView()}>
+                    List
+                  </button>
+                  <button onClick={() => nextIssue()}>
+                    Next
+                  </button>
+                </div>
+              </div>
+            </>
+          ) : (
+            <h2>No Issues Found</h2>
+          )}
+        </section>
+        <section className="ufixit-content-container">
+          {activeContentItem ? (
+            <>
+              <div className="ufixit-content-label">
+                <h2 className="fake-h1">{activeContentItem.title}</h2>
+              </div>
+              <div className="ufixit-content-preview" dangerouslySetInnerHTML={{__html: activeContentItem.body}} />
+              <div className="ufixit-content-progress">
+                Progress bar goes here.
+              </div>
+            </>
+          ) : activeIssue ? (
+            <>
+              <h2>Loading Content...</h2>
+              <div className="ufixit-content-preview" />
+              <div className="ufixit-content-progress">
+                Progress bar goes here.
+              </div>
+            </>
+          ) : (
+            <>
+              <h2>No Issue Selected</h2>
+              <div className="ufixit-content-preview" />
+              <div className="ufixit-content-progress">
+                Progress bar goes here.
+              </div>
+            </>
+          )}
+        </section>
+      </div>
+    </>
   )
+
+  // return (
+  //   <View as="div" key="contentPageFormWrapper" padding="small 0" margin="none">
+  //     <ContentPageForm
+  //       handleSearchTerm={handleSearchTerm}
+  //       handleTrayToggle={handleTrayToggle}
+  //       searchTerm={searchTerm}
+  //       t={t}
+  //       handleTableSettings={handleTableSettings}
+  //       tableSettings={tableSettings}
+  //     />
+  //     <View as="div">
+  //       {renderFilterTags()}
+  //     </View>
+  //     <div>Hello, World!!!!</div>
+  //     <SortableTable
+  //       caption={t('content_page.issues.table.caption')}
+  //       headers = {headers}
+  //       rows = {filteredRows}
+  //       filters = {filters}
+  //       tableSettings = {tableSettings}
+  //       handleFilter = {handleFilter}
+  //       handleTableSettings = {handleTableSettings}
+  //       t={t}
+  //       rowsPerPage = {tableSettings.rowsPerPage}
+  //     />
+  //     {trayOpen && <ContentTrayForm
+  //       filters={filters}
+  //       handleFilter={handleFilter}
+  //       trayOpen={trayOpen}
+  //       report={report}
+  //       handleTrayToggle={handleTrayToggle}
+  //       t={t}
+  //       settings={settings}
+  //     />}
+  //     {modalOpen && <UfixitModal
+  //       open={modalOpen}
+  //       activeIssue={activeIssue}
+  //       activeIndex={activeIndex}
+  //       filteredRows={filteredRows}
+  //       activeContentItem={ activeIssue ? getContentById(activeIssue.contentItemId) : null }
+  //       settings={settings}
+  //       handleCloseButton={handleCloseButton}
+  //       handleActiveIssue={handleActiveIssue}
+  //       handleIssueSave={handleIssueSave}
+  //       t={t}
+  //       />}
+
+  //     {filteredRows.length === 0 &&
+  //         <Billboard
+  //         size="medium"
+  //         heading={t('label.no_results_header')}
+  //         margin="small"
+  //         message={t('label.no_results_message')}
+  //     />}
+  //   </View>
+  // )
 }

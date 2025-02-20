@@ -201,19 +201,24 @@ class IssuesController extends ApiController
     #[Route('/api/issues/{issue}/content', methods: ['GET'], name: 'get_issue_content')]
     public function getIssueContent(Issue $issue)
     {
-        $apiResponse = new ApiResponse();
-        $contentItem = $issue->getContentItem();
 
+      $apiResponse = new ApiResponse();
+      $contentItem = $issue->getContentItem();
+
+      try {
         $apiResponse->setData([
             'contentItem' => [
                 'id' => $contentItem->getId(),
                 'title' => $contentItem->getTitle(),
-                'type' => $contentItem->getType(),
+                'contentType' => $contentItem->getContentType(),
                 'url' => $contentItem->getUrl(),
                 'body' => $contentItem->getBody(),
             ]
         ]);
+      } catch (\Exception $e) {
+        $apiResponse->addError($e->getMessage());
+      }
 
-        return new JsonResponse($apiResponse);
+      return new JsonResponse($apiResponse);
     }
 }

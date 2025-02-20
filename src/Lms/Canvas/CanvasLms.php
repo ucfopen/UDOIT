@@ -494,7 +494,7 @@ class CanvasLms implements LmsInterface {
 
     protected function getAccountInfo(User $user, $accountId)
     {
-        $url = "accounts/${accountId}";
+        $url = "accounts/{$accountId}";
         $apiDomain = $this->getApiDomain($user);
         $apiToken = $this->getApiToken($user);
 
@@ -513,7 +513,7 @@ class CanvasLms implements LmsInterface {
 
     protected function getSubAccounts(User $user, $accountId)
     {
-        $url = "accounts/${accountId}/sub_accounts?recursive=true";
+        $url = "accounts/{$accountId}/sub_accounts?recursive=true";
         $apiDomain = $this->getApiDomain($user);
         $apiToken = $this->getApiToken($user);
 
