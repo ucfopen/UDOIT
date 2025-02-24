@@ -44,13 +44,21 @@ class ScannerService {
 
         try {
             if ($scanner == 'phpally') {
-                // TODO: implement flow for phpally scanning
                 $htmlService = new HtmlService();
                 $phpAlly = new PhpAllyService($htmlService, $util);
                 $report = $phpAlly->scanContentItem($contentItem);
             }
             else if ($scanner == 'equalaccess_local') {
                 // TODO: create a LocalAccessibilityService
+                if ($contentItem->getBody() != null) {
+                    $equalAccess = new EqualAccessService();
+                    $document = $this->getDomDocument($contentItem->getBody());
+                    
+                    $localReport = new LocalApiAccessibilityService();
+                    $json = $localReport->scanContentItem($contentItem);
+
+                    $report = $equalAccess->generateReport($json, $document);
+                }
             }
             else if ($scanner == 'equalaccess_lambda') {
                 if ($contentItem->getBody() != null) {

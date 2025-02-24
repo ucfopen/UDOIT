@@ -47,7 +47,6 @@ export default function LabelForm(props) {
   const handleHtmlUpdate = () => {
     let updatedElement = Html.toElement(html)
 
-    console.lo
     if (textInputValue) {
       updatedElement = Html.setAttribute(updatedElement, "aria-label", textInputValue)
     } 
