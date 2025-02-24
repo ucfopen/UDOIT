@@ -123,7 +123,6 @@ export default function App(initialData) {
   }
 
   const addContentItem = (newContentItem) => {
-    console.log('addContentItem: ', newContentItem)
     let newContentItemList = Object.assign({}, contentItemList)
     newContentItemList[newContentItem.id] = newContentItem
     setContentItemList(newContentItemList)

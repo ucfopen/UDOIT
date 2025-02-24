@@ -1,28 +1,33 @@
 import React, { useState, useEffect } from 'react';
-import { Modal } from '@instructure/ui-modal'
-import { Heading } from '@instructure/ui-heading'
-import { Button } from '@instructure/ui-buttons'
-import { View } from '@instructure/ui-view'
-import { Pill } from '@instructure/ui-pill'
-import { Flex } from '@instructure/ui-flex'
-import { CloseButton} from '@instructure/ui-buttons'
-import { Text } from '@instructure/ui-text'
-import { Link } from '@instructure/ui-link'
-import { InlineList } from '@instructure/ui-list'
-import { IconExternalLinkLine, IconCheckMarkLine } from '@instructure/ui-icons'
-import { CodeEditor } from '@instructure/ui-code-editor'
-import { Checkbox } from '@instructure/ui-checkbox'
-import { Spinner } from '@instructure/ui-spinner'
+import SeverityIcon from './Icons/SeverityIcon';
+import LeftArrowIcon from './Icons/LeftArrowIcon'
+import ListIcon from './Icons/ListIcon'
+import RightArrowIcon from './Icons/RightArrowIcon'
+// import { Modal } from '@instructure/ui-modal'
+// import { Heading } from '@instructure/ui-heading'
+// import { Button } from '@instructure/ui-buttons'
+// import { View } from '@instructure/ui-view'
+// import { Pill } from '@instructure/ui-pill'
+// import { Flex } from '@instructure/ui-flex'
+// import { CloseButton} from '@instructure/ui-buttons'
+// import { Text } from '@instructure/ui-text'
+// import { Link } from '@instructure/ui-link'
+// import { InlineList } from '@instructure/ui-list'
+// import { IconExternalLinkLine, IconCheckMarkLine } from '@instructure/ui-icons'
+// import { CodeEditor } from '@instructure/ui-code-editor'
+// import { Checkbox } from '@instructure/ui-checkbox'
+// import { Spinner } from '@instructure/ui-spinner'
 import ReactHtmlParser from 'react-html-parser'
-import MessageTray from './MessageTray'
-import Preview from './Preview'
-import { ToggleDetails } from '@instructure/ui-toggle-details'
+// import MessageTray from './MessageTray'
+// import Preview from './Preview'
+// import { ToggleDetails } from '@instructure/ui-toggle-details'
 
 import { returnIssueForm } from '../Services/Ufixit'
 import Api from '../Services/Api'
 import * as Html from '../Services/Html'
+import './UfixitWidget.css'
 
-import Pretty from 'pretty'
+// import Pretty from 'pretty'
 
 export default function UfixitWidget({
   // t,
@@ -38,9 +43,14 @@ export default function UfixitWidget({
 
   t,
   settings,
+  viewInfo,
+  setViewInfo,
+  severity,
   activeIssue,
   setActiveIssue,
   handleIssueSave,
+  toggleListView,
+  nextIssue
 }) {
 
   const [isSaving, setIsSaving] = useState(false)
@@ -56,7 +66,7 @@ export default function UfixitWidget({
 
   useEffect(() => {
     if(activeIssue) {
-      setUfixitForm(() => returnIssueForm(activeIssue))
+      setUfixitForm(() => returnIssueForm(activeIssue.issue))
     }
     else {
       setUfixitForm(null)
@@ -284,17 +294,81 @@ export default function UfixitWidget({
       {UfixitForm && activeIssue ? 
         (
           <>
-          <UfixitForm
-            t={t}
-            settings={settings}
-            activeIssue={activeIssue}
-            handleIssueSave={handleSingleIssueSave}
-            addMessage={addMessage} 
-            handleActiveIssue={setActiveIssue}
-            handleManualScan={handleManualScan} />
+            {/* The header with the issue name and severity icon */}
+            <div className="ufixit-widget-header flex-row justify-content-between mb-2">
+              <div className="flex-column justify-content-center">
+                <h2 className="mt-0 mb-0">{activeIssue.scanRuleLabel}</h2>
+              </div>
+              <div className="flex-column justify-content-center ml-3">
+                <SeverityIcon type={severity} alt="" className="icon-lg"/>
+              </div>
+            </div>
+
+            {/* The "Learn More" toggle */}
+            <div
+              className={`ufixit-widget-toggle-view-container mb-3 flex-row ${viewInfo ? 'justify-content-start' : 'justify-content-end'}`}
+              onClick={() => setViewInfo(!viewInfo)}>
+              { viewInfo &&
+                <div className="flex-row">
+                  <div className="flex-column justify-content-center">
+                    <LeftArrowIcon className="primary-dark me-2" />
+                  </div>
+                  <div className="flex-column justify-content-center primary-dark">{t('label.hide_learn_more')}</div>
+                </div> }
+              { !viewInfo &&
+              <div className="flex-row">
+                <div className="flex-column justify-content-center primary-dark">{t('label.show_learn_more')}</div>
+                <div className="flex-column justify-content-center">
+                  <RightArrowIcon className="primary-dark ms-2" />
+                </div>
+              </div> }
+            </div>
+
+            {/* The issue description or the form... Both should grow to fill available space. */}
+            <div className="flex-grow-1 ufixit-form-container">
+              { viewInfo && 
+                ReactHtmlParser(t(`rule.desc.${activeIssue.issue.scanRuleId}`), { preprocessNodes: (nodes) => Html.processStaticHtml(nodes, settings) })
+              }
+              { !viewInfo &&
+                  <UfixitForm
+                    t={t}
+                    settings={settings}
+                    activeIssue={activeIssue}
+                    handleIssueSave={handleSingleIssueSave}
+                    addMessage={addMessage} 
+                    handleActiveIssue={setActiveIssue}
+                    handleManualScan={handleManualScan} />
+              }
+            </div>
+
+            {/* The "Mark Resolved" button */}
+            { !viewInfo && 
+              <div className="ufixit-widget-resolve-container">
+                <div>{t(`label.resolved_description`)}</div>
+                <button className="btn btn-secondary mt-3 align-self-end"
+                  onClick={() => handleIssueResolve}
+                  disabled={(activeIssue.status == '1')}>
+                  {t(`label.mark_resolved`)}
+                </button>
+              </div>
+            }
+
+            {/* The "Previous", "Next", and "List View" buttons (footer nav) */}
+            <div className="ufixit-widget-controls">
+              <button className="btn text-button btn-icon-left ps-0" onClick={() => nextIssue(true)}>
+                <LeftArrowIcon className="link-color" />
+                <div className="flex-column justify-content-center">Previous</div>
+              </button>
+              <button className="btn text-button btn-icon-only" onClick={() => toggleListView()}>
+                <ListIcon className="link-color" />
+              </button>
+              <button className="btn text-button btn-icon-right pe-0" onClick={() => nextIssue()}>
+                <div className="flex-column justify-content-center">Next</div>
+                <RightArrowIcon className="link-color" />
+              </button>
+            </div>
           </>
-       
-        ) : ''}
+          ) : ''}
     </>
   )
 

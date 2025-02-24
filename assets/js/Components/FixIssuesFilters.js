@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import SearchIcon from './Icons/SearchIcon';
 import './FixissuesPage.css'
 
 export default function FixIssuesFilters({ allFilters, activeFilters, updateActiveFilters, searchTerm, handleSearchTerm }) {
@@ -7,16 +8,16 @@ export default function FixIssuesFilters({ allFilters, activeFilters, updateActi
   // TODO: Cool-looking, yet fully accessible dropdown. Maybe like https://www.w3.org/WAI/ARIA/apg/patterns/combobox/examples/combobox-select-only/
 
   return (
-    <div className="filter-container">
-      <div className="flex-row gap-1">
+    <div className="filter-container mt-2 mb-2">
+      <div className="flex-row flex-wrap gap-1">
         <div className="search-group">
-          <label>Search</label>
           <input
             value={searchTerm}
             type="text"
             placeholder="Search"
             onChange={(e) => handleSearchTerm(e.target.value)}
           />
+          <SearchIcon className="search-icon icon-sm" />
         </div>
         {Object.keys(allFilters).map((filterType) => {
           return (

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import FixIssuesFilters from './FixIssuesFilters';
-import { Button } from '@instructure/ui-buttons'
+import FixIssuesList from './FixIssuesList';
+// import { Button } from '@instructure/ui-buttons'
 // import { IconCheckLine, IconInfoBorderlessLine, IconNoLine } from '@instructure/ui-icons'
 // import { Billboard } from '@instructure/ui-billboard'
 // import SortableTable from './SortableTable'
@@ -8,17 +9,24 @@ import { Button } from '@instructure/ui-buttons'
 // import ContentTrayForm from './ContentTrayForm'
 // import { View } from '@instructure/ui-view'
 // import { Tag } from '@instructure/ui-tag'
-import { ScreenReaderContent } from '@instructure/ui-a11y-content'
-import { returnIssueForm } from '../Services/Ufixit'
+// import { ScreenReaderContent } from '@instructure/ui-a11y-content'
 import UfixitWidget from './UfixitWidget'
-import ReactHtmlParser from 'react-html-parser'
-import * as Html from '../Services/Html'
+// import ReactHtmlParser from 'react-html-parser'
+// import * as Html from '../Services/Html'
 // import { List } from '@instructure/ui-list';
 // import UfixitModal from './UfixitModal'
 // import Classes from '../../css/theme-overrides.css'
 // import { issueRuleIds } from './Constants'
 import Api from '../Services/Api'
 import './FixissuesPage.css'
+
+import SeverityIssueIcon from './Icons/SeverityIssueIcon'
+import SeverityPotentialIcon from './Icons/SeverityPotentialIcon'
+import SeveritySuggestionIcon from './Icons/SeveritySuggestionIcon'
+import LeftArrowIcon from './Icons/LeftArrowIcon'
+import ListIcon from './Icons/ListIcon'
+import RightArrowIcon from './Icons/RightArrowIcon'
+import ExternalLinkIcon from './Icons/ExternalLinkIcon';
 
 export default function FixIssuesPage({
   t,
@@ -130,6 +138,7 @@ export default function FixIssuesPage({
   const [activeFilters, setActiveFilters] = useState(defaultFilters)
   const [filteredIssues, setFilteredIssues] = useState([])
   const [widgetState, setWidgetState] = useState(WIDGET_STATE.LOADING)
+  const [viewInfo, setViewInfo] = useState(false)
 
   const getActiveIssueIndex = () => {
     if (activeIssue === null) return -1;
@@ -158,7 +167,7 @@ export default function FixIssuesPage({
     // If there is no activeIssue and there is are multiple potential issues, show the list.
     if(!activeIssue && tempFilteredContent.length > 0) {
       if(firstLoad) {
-        setActiveIssue(tempFilteredContent[0].issue)
+        setActiveIssue(tempFilteredContent[0])
         setWidgetState(WIDGET_STATE.FIXIT)
       }
       else {
@@ -171,12 +180,12 @@ export default function FixIssuesPage({
       let index = tempFilteredContent.findIndex((issue) => issue.id === activeIssue.id)
       if (index === -1) {
         if(widgetState === WIDGET_STATE.LIST) {
-          setActiveContent(null)
+          setActiveContentItem(null)
           return
         }
         // If it isn't, set the activeIssue to the first issue in the list
-        setActiveIssue(tempFilteredContent[0].issue)
         if(widgetState === WIDGET_STATE.LOADING) {
+          setActiveIssue(tempFilteredContent[0])
           setWidgetState(WIDGET_STATE.FIXIT)
         }
       }
@@ -198,7 +207,7 @@ export default function FixIssuesPage({
     setWidgetState(WIDGET_STATE.FIXIT)
 
     // If we've already downloaded the content for this issue, use that
-    const contentItemId = activeIssue.contentItemId
+    const contentItemId = activeIssue.issue.contentItemId
     if(contentItemList[contentItemId]) {
       setActiveContentItem(contentItemList[contentItemId])
       return
@@ -212,6 +221,7 @@ export default function FixIssuesPage({
       return response.json()
     }).then((data) => {
       if(data?.data?.contentItem) {
+        console.log(data.data.contentItem)
         setActiveContentItem(data.data.contentItem)
         addContentItem(data.data.contentItem)
       }
@@ -222,56 +232,56 @@ export default function FixIssuesPage({
     setSearchTerm(newSearchTerm);
   }
 
-  const handleIssueResolve = () => {
-    if (activeIssue.pending) {
-      return
-    }
+  // const handleIssueResolve = () => {
+  //   if (activeIssue.pending) {
+  //     return
+  //   }
 
-    let tempIssue = Object.assign({}, activeIssue)
-    if (tempIssue.status) {
-      tempIssue.status = false
-      tempIssue.newHtml = Html.toString(Html.removeClass(tempIssue.sourceHtml, 'phpally-ignore'))
-    }
-    else {
-      tempIssue.status = 2
-      tempIssue.newHtml = Html.toString(Html.addClass(tempIssue.sourceHtml, 'phpally-ignore'))
-    }
+  //   let tempIssue = Object.assign({}, activeIssue)
+  //   if (tempIssue.status) {
+  //     tempIssue.status = false
+  //     tempIssue.newHtml = Html.toString(Html.removeClass(tempIssue.sourceHtml, 'phpally-ignore'))
+  //   }
+  //   else {
+  //     tempIssue.status = 2
+  //     tempIssue.newHtml = Html.toString(Html.addClass(tempIssue.sourceHtml, 'phpally-ignore'))
+  //   }
 
-    let api = new Api(settings)
-    api.resolveIssue(tempIssue)
-      .then((responseStr) => responseStr.json())
-      .then((response) => {      
-        // set messages 
-        response.messages.forEach((msg) => addMessage(msg))
+  //   let api = new Api(settings)
+  //   api.resolveIssue(tempIssue)
+  //     .then((responseStr) => responseStr.json())
+  //     .then((response) => {      
+  //       // set messages 
+  //       response.messages.forEach((msg) => addMessage(msg))
       
-        if (response.data.issue) {
-          const newIssue = { ...tempIssue, ...response.data.issue }
-          const newReport = response.data.report
+  //       if (response.data.issue) {
+  //         const newIssue = { ...tempIssue, ...response.data.issue }
+  //         const newReport = response.data.report
 
-          // update activeIssue
-          newIssue.pending = false
-          newIssue.recentlyResolved = !!tempIssue.status
-          newIssue.sourceHtml = newIssue.newHtml
-          newIssue.newHtml = ''
-          // Get updated report
-          api.scanContent(newIssue.contentItemId)
-          .then((responseStr) => responseStr.json())
-          .then((res) => {
-            // update activeIssue
-            setActiveIssue(newIssue)
+  //         // update activeIssue
+  //         newIssue.pending = false
+  //         newIssue.recentlyResolved = !!tempIssue.status
+  //         newIssue.sourceHtml = newIssue.newHtml
+  //         newIssue.newHtml = ''
+  //         // Get updated report
+  //         api.scanContent(newIssue.contentItemId)
+  //         .then((responseStr) => responseStr.json())
+  //         .then((res) => {
+  //           // update activeIssue
+  //           setActiveIssue(newIssue)
             
-            handleIssueSave(newIssue, res.data)
-          })
-        }
-        else {
-          tempIssue.pending = false
-          setActiveIssue(tempIssue)
-        }
-      })
+  //           handleIssueSave(newIssue, res.data)
+  //         })
+  //       }
+  //       else {
+  //         tempIssue.pending = false
+  //         setActiveIssue(tempIssue)
+  //       }
+  //     })
 
-    tempIssue.pending = 2
-    setActiveIssue(tempIssue)
-  }
+  //   tempIssue.pending = 2
+  //   setActiveIssue(tempIssue)
+  // }
 
   // const handleReviewClick = (activeIssue) => {
   //   if (!disableReview) return;
@@ -310,7 +320,7 @@ export default function FixIssuesPage({
     else if (newIndex >= filteredIssues.length) {
       newIndex = 0;
     }
-    setActiveIssue(filteredIssues[newIndex].issue);
+    setActiveIssue(filteredIssues[newIndex]);
   }
 
   const toggleListView = () => {
@@ -325,7 +335,7 @@ export default function FixIssuesPage({
     }
     else {
       setWidgetState(WIDGET_STATE.LIST)
-      setActiveIssue(null)
+      setActiveContentItem(null)
     }
   }
 
@@ -359,7 +369,6 @@ export default function FixIssuesPage({
     // if (tempFilters.easyIssues && tempFilters.issueTitles.length == 0) {
     //   tempFilters.issueTitles = easyRules
     // }
-    console.log('tempFilters', tempFilters)
     // Loop through the issues
     issueLoop: for (const [key, value] of Object.entries(issueList)) {
       let issue = Object.assign({}, value)
@@ -449,29 +458,32 @@ export default function FixIssuesPage({
         {
           id: issue.id,
           issue,
+          contentType: issueContentType,
+          severity: issueSeverity,
           status: issueResolution,
           scanRuleLabel: t(`rule.label.${issue.scanRuleId}`),
-          contentType: t(`content.${tempContentItem.contentType}`),
+          contentTypeLabel: t(`content.${tempContentItem.contentType}`),
           contentTitle: tempContentItem.title,
-          action: (
-            <button key={`reviewButton${key}`}
-              onClick={() => handleReviewClick(issue)}
-              textAlign="center"
-              disabled={!disableReview}
-            >
-                {t('label.review')}
-                <ScreenReaderContent>{t(`rule.label.${issue.scanRuleId}`)}</ScreenReaderContent>
-            </button>
-          ),
+          // action: (
+          //   <button key={`reviewButton${key}`}
+          //     onClick={() => handleReviewClick(issue)}
+          //     textAlign="center"
+          //     disabled={!disableReview}
+          //   >
+          //       {t('label.review')}
+          //       <ScreenReaderContent>{t(`rule.label.${issue.scanRuleId}`)}</ScreenReaderContent>
+          //   </button>
+          // ),
           onClick: () => handleReviewClick(issue),
         }
       );
     }
 
     filteredList.sort((a, b) => {
-      return (a.contentType.toLowerCase() < b.contentType.toLowerCase()) ? -1 : 1;
+      return (a.contentTypeLabel.toLowerCase() < b.contentTypeLabel.toLowerCase()) ? -1 : 1
     })
 
+    console.log(filteredList)
     return filteredList
   }
 
@@ -487,60 +499,25 @@ export default function FixIssuesPage({
       <div className="ufixit-page-divider">
         <section className="ufixit-widget-container">
           { widgetState === WIDGET_STATE.LIST ? (
-            <div>
-              <h2>Issues List</h2>
-              <ul>
-                {filteredIssues.map((issue, i) => {
-                  return (
-                    <li key={i}>
-                      <span>{issue.id}</span> &nbsp;
-                      <span>{issue.status}</span> &nbsp;
-                      <span>{issue.contentType}</span> &nbsp;
-                      <span>{issue.contentTitle}</span> &nbsp;
-                      <span>{issue.scanRuleLabel}</span> &nbsp;
-                      <button onClick={() => setActiveIssue(issue.issue)}>
-                        Review
-                      </button>
-                    </li>
-                  )
-                })}
-              </ul>
-            </div>
-          ) : activeIssue ? (
-            <>
-              <div>
-                <h2>{t(`rule.label.${activeIssue.scanRuleId}`)}</h2>
-                {ReactHtmlParser(t(`rule.desc.${activeIssue.scanRuleId}`), { preprocessNodes: (nodes) => Html.processStaticHtml(nodes, settings) })}
-                <UfixitWidget
-                  t={t}
-                  settings={settings}
-                  activeIssue={activeIssue}
-                  setActiveIssue={setActiveIssue}
-                  handleIssueSave={handleIssueSave}
-                />
-              </div>
-              <div>
-                <div className="ufixit-widget-resolve-container">
-                  <div>{t(`label.resolved_description`)}</div>
-                  <button
-                    onClick={() => handleIssueResolve}
-                    disabled={(activeIssue.status == '1')}>
-                    {t(`label.mark_resolved`)}
-                  </button>
-                </div>
-                <div className="ufixit-widget-controls">
-                  <button onClick={() => nextIssue(true)}>
-                    Previous
-                  </button>
-                  <button onClick={() => toggleListView()}>
-                    List
-                  </button>
-                  <button onClick={() => nextIssue()}>
-                    Next
-                  </button>
-                </div>
-              </div>
-            </>
+            <FixIssuesList
+              t={t}
+              FILTER={FILTER}
+              filteredIssues={filteredIssues}
+              setActiveIssue={setActiveIssue}
+            />
+          ) : activeIssue ? (  
+              <UfixitWidget
+                t={t}
+                settings={settings}
+                viewInfo={viewInfo}
+                setViewInfo={setViewInfo}
+                severity={activeIssue.severity}
+                activeIssue={activeIssue}
+                setActiveIssue={setActiveIssue}
+                handleIssueSave={handleIssueSave}
+                toggleListView={toggleListView}
+                nextIssue={nextIssue}
+              />
           ) : (
             <h2>No Issues Found</h2>
           )}
@@ -548,9 +525,14 @@ export default function FixIssuesPage({
         <section className="ufixit-content-container">
           {activeContentItem ? (
             <>
-              <div className="ufixit-content-label">
-                <h2 className="fake-h1">{activeContentItem.title}</h2>
-              </div>
+              <a href={activeContentItem.url} target="_blank" className="ufixit-content-label flex-row justify-content-between mt-3">
+                <div className="flex-column flex-center">
+                  <h2 className="fake-h1">{activeContentItem.title}</h2>
+                </div>
+                <div className="flex-column flex-center">
+                  <ExternalLinkIcon className="icon-lg link-color" />
+                </div>
+              </a>
               <div className="ufixit-content-preview" dangerouslySetInnerHTML={{__html: activeContentItem.body}} />
               <div className="ufixit-content-progress">
                 Progress bar goes here.

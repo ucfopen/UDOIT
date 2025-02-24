@@ -284,7 +284,6 @@ export default class Api {
       const authToken = this.getAuthToken()
       let url = `${this.apiUrl}${this.endpoints.getIssueContent}`
       url = url.replace('{issue}', issueId)
-      console.log('Trying to ping: ', url)
 
       return fetch(url, {
           method: 'GET',

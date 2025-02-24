@@ -164,6 +164,8 @@
   "label.filter.module": "Module",
   "label.filter.module.all": "All Modules",
 
+  "label.filter.select.issue": "Select Issue",
+
   "label.filter.active": "Active Issues",
   "label.filter.fixed": "Fixed Issues",
   "label.filter.resolved": "Resolved Issues",
@@ -175,6 +177,8 @@
   "label.hide_reviewed": "Hide Reviewed",
   "label.hide_unpublished_files": "Hide Unpublished Files",
   "label.show_easy_issues": "Show Easiest Issues",
+  "label.show_learn_more": "Learn About this Accessibility Barrier",
+  "label.hide_learn_more": "Remove this Accessibility Barrier",
   "label.preview": "Preview",
   "label.context": "In Context",
   "label.source": "Source",
