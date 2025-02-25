@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import SearchIcon from './Icons/SearchIcon';
-import './FixissuesPage.css'
+import './FixissuesFilters.css'
 
 export default function FixIssuesFilters({ allFilters, activeFilters, updateActiveFilters, searchTerm, handleSearchTerm }) {
 

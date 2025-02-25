@@ -1,32 +1,19 @@
 import React, { useState, useEffect } from 'react';
 import FixIssuesFilters from './FixIssuesFilters';
 import FixIssuesList from './FixIssuesList';
-// import { Button } from '@instructure/ui-buttons'
-// import { IconCheckLine, IconInfoBorderlessLine, IconNoLine } from '@instructure/ui-icons'
-// import { Billboard } from '@instructure/ui-billboard'
-// import SortableTable from './SortableTable'
-// import ContentPageForm from './ContentPageForm'
-// import ContentTrayForm from './ContentTrayForm'
-// import { View } from '@instructure/ui-view'
-// import { Tag } from '@instructure/ui-tag'
-// import { ScreenReaderContent } from '@instructure/ui-a11y-content'
+import FixIssuesContentPreview from './FixIssuesContentPreview';
 import UfixitWidget from './UfixitWidget'
-// import ReactHtmlParser from 'react-html-parser'
-// import * as Html from '../Services/Html'
-// import { List } from '@instructure/ui-list';
-// import UfixitModal from './UfixitModal'
-// import Classes from '../../css/theme-overrides.css'
-// import { issueRuleIds } from './Constants'
+import * as Html from '../Services/Html'
 import Api from '../Services/Api'
 import './FixissuesPage.css'
 
-import SeverityIssueIcon from './Icons/SeverityIssueIcon'
-import SeverityPotentialIcon from './Icons/SeverityPotentialIcon'
-import SeveritySuggestionIcon from './Icons/SeveritySuggestionIcon'
-import LeftArrowIcon from './Icons/LeftArrowIcon'
-import ListIcon from './Icons/ListIcon'
-import RightArrowIcon from './Icons/RightArrowIcon'
-import ExternalLinkIcon from './Icons/ExternalLinkIcon';
+// import SortableTable from './SortableTable'
+// import ContentPageForm from './ContentPageForm'
+// import ContentTrayForm from './ContentTrayForm'
+// import ReactHtmlParser from 'react-html-parser'
+// import UfixitModal from './UfixitModal'
+// import Classes from '../../css/theme-overrides.css'
+// import { issueRuleIds } from './Constants'
 
 export default function FixIssuesPage({
   t,
@@ -36,6 +23,7 @@ export default function FixIssuesPage({
   addContentItem,
   report,
   setReport,
+  addMessage,
   handleIssueSave, 
   handleIssueUpdate,
   disableReview })
@@ -221,7 +209,6 @@ export default function FixIssuesPage({
       return response.json()
     }).then((data) => {
       if(data?.data?.contentItem) {
-        console.log(data.data.contentItem)
         setActiveContentItem(data.data.contentItem)
         addContentItem(data.data.contentItem)
       }
@@ -232,62 +219,135 @@ export default function FixIssuesPage({
     setSearchTerm(newSearchTerm);
   }
 
-  // const handleIssueResolve = () => {
-  //   if (activeIssue.pending) {
-  //     return
-  //   }
+  const updateIssue = (newIssue) => {
+    const tempReport = Object.assign({}, report)
+    tempReport.issues = tempReport.issues.map((issue) => {
+      if (issue.id === newIssue.id) {
+        console.log("Found the issue to overwrite!")
+        const tempIssue = formatIssueData(newIssue)
+        setActiveIssue(tempIssue)
+        return tempIssue
+      }
+      return issue
+    })
+    setReport(tempReport)
+  }
 
-  //   let tempIssue = Object.assign({}, activeIssue)
-  //   if (tempIssue.status) {
-  //     tempIssue.status = false
-  //     tempIssue.newHtml = Html.toString(Html.removeClass(tempIssue.sourceHtml, 'phpally-ignore'))
-  //   }
-  //   else {
-  //     tempIssue.status = 2
-  //     tempIssue.newHtml = Html.toString(Html.addClass(tempIssue.sourceHtml, 'phpally-ignore'))
-  //   }
+  const formatIssueData = (issue) => {
 
-  //   let api = new Api(settings)
-  //   api.resolveIssue(tempIssue)
-  //     .then((responseStr) => responseStr.json())
-  //     .then((response) => {      
-  //       // set messages 
-  //       response.messages.forEach((msg) => addMessage(msg))
+    let issueSeverity = FILTER.ISSUE
+    // PHPAlly returns a type of 'error' or 'suggestion'
+    if(issue.type == 'suggestion') {
+      issueSeverity = FILTER.SUGGESTION
+    }
+    
+    let issueContentType = FILTER.ALL
+    // PHPAlly returns a contentItemId that we can use to get the content type
+    let tempContentItem = getContentById(issue.contentItemId)
+    if(tempContentItem) {
+      let tempContentType = tempContentItem.contentType
+      if(tempContentType == 'page') {
+        issueContentType = FILTER.PAGE
+      }
+      else if(tempContentType == 'assignment') {
+        issueContentType = FILTER.ASSIGNMENT
+      }
+      else if(tempContentType == 'announcement') {
+        issueContentType = FILTER.ANNOUNCEMENT
+      }
+      else if(tempContentType == 'discussion_topic') {
+        issueContentType = FILTER.DISCUSSION_TOPIC
+      }
+      else if(tempContentType == 'discussion_forum') {
+        issueContentType = FILTER.DISCUSSION_FORUM
+      }
+      else if(tempContentType == 'file') {
+        issueContentType = FILTER.FILE
+      }
+      else if(tempContentType == 'quiz') {
+        issueContentType = FILTER.QUIZ
+      }
+      else if(tempContentType == 'syllabus') {
+        issueContentType = FILTER.SYLLABUS
+      }
+      else if(tempContentType == 'module') {
+        issueContentType = FILTER.MODULE
+      }
+    }
+
+    let issueResolution = FILTER.ACTIVE
+    // PHPAlly returns a status of 1 for fixed issues and 2 for resolved issues
+    if(issue.status == 1) {
+      issueResolution = FILTER.FIXED
+    }
+    else if(issue.status == 2) {
+      issueResolution = FILTER.RESOLVED
+    }
+
+    return {
+      id: issue.id,
+      issue: Object.assign({}, issue),
+      severity: issueSeverity,
+      status: issueResolution,
+      keywords: createKeywords(issue, tempContentItem),
+      scanRuleLabel: t(`rule.label.${issue.scanRuleId}`),
+      contentType: issueContentType,
+      contentTypeLabel: t(`content.${tempContentItem.contentType}`),
+      contentTitle: tempContentItem.title,
+      contentUrl: tempContentItem.url,
+    }
+  }
+
+  const handleIssueResolve = () => {
+    console.log("Trying to resolve issue manually")
+    if (activeIssue.pending) {
+      return
+    }
+
+    let tempIssue = Object.assign({}, activeIssue.issue)
+    if (tempIssue.status) {
+      tempIssue.status = false
+      tempIssue.newHtml = Html.toString(Html.removeClass(tempIssue.sourceHtml, 'phpally-ignore'))
+    }
+    else {
+      tempIssue.status = 2
+      tempIssue.newHtml = Html.toString(Html.addClass(tempIssue.sourceHtml, 'phpally-ignore'))
+    }
+
+    let api = new Api(settings)
+    api.resolveIssue(tempIssue)
+      .then((responseStr) => responseStr.json())
+      .then((response) => {      
+        // set messages 
+        response.messages.forEach((msg) => addMessage(msg))
       
-  //       if (response.data.issue) {
-  //         const newIssue = { ...tempIssue, ...response.data.issue }
-  //         const newReport = response.data.report
+        if (response.data.issue) {
+          const newIssue = { ...tempIssue, ...response.data.issue }
+          const newReport = response.data.report
 
-  //         // update activeIssue
-  //         newIssue.pending = false
-  //         newIssue.recentlyResolved = !!tempIssue.status
-  //         newIssue.sourceHtml = newIssue.newHtml
-  //         newIssue.newHtml = ''
-  //         // Get updated report
-  //         api.scanContent(newIssue.contentItemId)
-  //         .then((responseStr) => responseStr.json())
-  //         .then((res) => {
-  //           // update activeIssue
-  //           setActiveIssue(newIssue)
-            
-  //           handleIssueSave(newIssue, res.data)
-  //         })
-  //       }
-  //       else {
-  //         tempIssue.pending = false
-  //         setActiveIssue(tempIssue)
-  //       }
-  //     })
+          // update activeIssue
+          newIssue.pending = false
+          newIssue.recentlyResolved = !!tempIssue.status
+          newIssue.sourceHtml = newIssue.newHtml
+          newIssue.newHtml = ''
+          // Get updated report
+          api.scanContent(newIssue.contentItemId)
+          .then((responseStr) => responseStr.json())
+          .then((res) => {
+            // update activeIssue
+            updateIssue(newIssue)
+            handleIssueSave(newIssue, res.data)
+          })
+        }
+        else {
+          tempIssue.pending = false
+          updateIssue(tempIssue)
+        }
+      })
 
-  //   tempIssue.pending = 2
-  //   setActiveIssue(tempIssue)
-  // }
-
-  // const handleReviewClick = (activeIssue) => {
-  //   if (!disableReview) return;
-  //   setModalOpen(true);
-  //   setActiveIssue(activeIssue);
-  // }
+    tempIssue.pending = 2
+    updateIssue(tempIssue)
+  }
 
   // const handleCloseButton = () => {
   //   const newReport = { ...report };
@@ -324,7 +384,6 @@ export default function FixIssuesPage({
   }
 
   const toggleListView = () => {
-    console.log('toggleListView')
     if (widgetState === WIDGET_STATE.LIST) {
       if(activeIssue) {
         setWidgetState(WIDGET_STATE.FIXIT)
@@ -335,6 +394,7 @@ export default function FixIssuesPage({
     }
     else {
       setWidgetState(WIDGET_STATE.LIST)
+      setActiveIssue(null)
       setActiveContentItem(null)
     }
   }
@@ -371,77 +431,24 @@ export default function FixIssuesPage({
     // }
     // Loop through the issues
     issueLoop: for (const [key, value] of Object.entries(issueList)) {
-      let issue = Object.assign({}, value)
-
-      let issueSeverity = FILTER.ISSUE
-      // PHPAlly returns a type of 'error' or 'suggestion'
-      if(issue.type == 'suggestion') {
-        issueSeverity = FILTER.SUGGESTION
-      }
-      
-      let issueContentType = FILTER.ALL
-      // PHPAlly returns a contentItemId that we can use to get the content type
-      let tempContentItem = getContentById(issue.contentItemId)
-      if(tempContentItem) {
-        let tempContentType = tempContentItem.contentType
-        if(tempContentType == 'page') {
-          issueContentType = FILTER.PAGE
-        }
-        else if(tempContentType == 'assignment') {
-          issueContentType = FILTER.ASSIGNMENT
-        }
-        else if(tempContentType == 'announcement') {
-          issueContentType = FILTER.ANNOUNCEMENT
-        }
-        else if(tempContentType == 'discussion_topic') {
-          issueContentType = FILTER.DISCUSSION_TOPIC
-        }
-        else if(tempContentType == 'discussion_forum') {
-          issueContentType = FILTER.DISCUSSION_FORUM
-        }
-        else if(tempContentType == 'file') {
-          issueContentType = FILTER.FILE
-        }
-        else if(tempContentType == 'quiz') {
-          issueContentType = FILTER.QUIZ
-        }
-        else if(tempContentType == 'syllabus') {
-          issueContentType = FILTER.SYLLABUS
-        }
-        else if(tempContentType == 'module') {
-          issueContentType = FILTER.MODULE
-        }
-      }
-        
-
-      let issueResolution = FILTER.ACTIVE
-      // PHPAlly returns a status of 1 for fixed issues and 2 for resolved issues
-      if(issue.status == 1) {
-        issueResolution = FILTER.FIXED
-      }
-      else if(issue.status == 2) {
-        issueResolution = FILTER.RESOLVED
-      }
+      let issue = formatIssueData(value)
 
       // Skip if we are not interested in this issue severity
-      if (tempFilters[FILTER.TYPE.SEVERITY] !== FILTER.ALL && tempFilters[FILTER.TYPE.SEVERITY] !== issueSeverity) {
+      if (tempFilters[FILTER.TYPE.SEVERITY] !== FILTER.ALL && tempFilters[FILTER.TYPE.SEVERITY] !== issue.severity) {
         continue;
       }
 
       // Skip if we are not interested in this content type
-      if (tempFilters[FILTER.TYPE.CONTENT_TYPE] !== FILTER.ALL && tempFilters[FILTER.TYPE.CONTENT_TYPE] !== issueContentType) {
+      if (tempFilters[FILTER.TYPE.CONTENT_TYPE] !== FILTER.ALL && tempFilters[FILTER.TYPE.CONTENT_TYPE] !== issue.contentType) {
         continue;
       }
 
       // Skip if we are not interested in this resolution status
-      if (tempFilters[FILTER.TYPE.RESOLUTION] !== FILTER.ALL && tempFilters[FILTER.TYPE.RESOLUTION] !== issueResolution) {
+      if (tempFilters[FILTER.TYPE.RESOLUTION] !== FILTER.ALL && tempFilters[FILTER.TYPE.RESOLUTION] !== issue.status) {
         continue;
       }
 
       // Filter by search term
-      if (!issue.keywords) {
-        issue.keywords = createKeywords(issue, tempContentItem);
-      }
       if (searchTerm !== '') {
         const searchTerms = searchTerm.toLowerCase().split(' ');
 
@@ -454,36 +461,13 @@ export default function FixIssuesPage({
         }
       }
 
-      filteredList.push(
-        {
-          id: issue.id,
-          issue,
-          contentType: issueContentType,
-          severity: issueSeverity,
-          status: issueResolution,
-          scanRuleLabel: t(`rule.label.${issue.scanRuleId}`),
-          contentTypeLabel: t(`content.${tempContentItem.contentType}`),
-          contentTitle: tempContentItem.title,
-          // action: (
-          //   <button key={`reviewButton${key}`}
-          //     onClick={() => handleReviewClick(issue)}
-          //     textAlign="center"
-          //     disabled={!disableReview}
-          //   >
-          //       {t('label.review')}
-          //       <ScreenReaderContent>{t(`rule.label.${issue.scanRuleId}`)}</ScreenReaderContent>
-          //   </button>
-          // ),
-          onClick: () => handleReviewClick(issue),
-        }
-      );
+      filteredList.push(issue)
     }
 
     filteredList.sort((a, b) => {
       return (a.contentTypeLabel.toLowerCase() < b.contentTypeLabel.toLowerCase()) ? -1 : 1
     })
 
-    console.log(filteredList)
     return filteredList
   }
 
@@ -514,6 +498,7 @@ export default function FixIssuesPage({
                 severity={activeIssue.severity}
                 activeIssue={activeIssue}
                 setActiveIssue={setActiveIssue}
+                handleIssueResolve={handleIssueResolve}
                 handleIssueSave={handleIssueSave}
                 toggleListView={toggleListView}
                 nextIssue={nextIssue}
@@ -523,38 +508,11 @@ export default function FixIssuesPage({
           )}
         </section>
         <section className="ufixit-content-container">
-          {activeContentItem ? (
-            <>
-              <a href={activeContentItem.url} target="_blank" className="ufixit-content-label flex-row justify-content-between mt-3">
-                <div className="flex-column flex-center">
-                  <h2 className="fake-h1">{activeContentItem.title}</h2>
-                </div>
-                <div className="flex-column flex-center">
-                  <ExternalLinkIcon className="icon-lg link-color" />
-                </div>
-              </a>
-              <div className="ufixit-content-preview" dangerouslySetInnerHTML={{__html: activeContentItem.body}} />
-              <div className="ufixit-content-progress">
-                Progress bar goes here.
-              </div>
-            </>
-          ) : activeIssue ? (
-            <>
-              <h2>Loading Content...</h2>
-              <div className="ufixit-content-preview" />
-              <div className="ufixit-content-progress">
-                Progress bar goes here.
-              </div>
-            </>
-          ) : (
-            <>
-              <h2>No Issue Selected</h2>
-              <div className="ufixit-content-preview" />
-              <div className="ufixit-content-progress">
-                Progress bar goes here.
-              </div>
-            </>
-          )}
+          <FixIssuesContentPreview
+            t={t}
+            activeIssue={activeIssue}
+            activeContentItem={activeContentItem}
+          />
         </section>
       </div>
     </>

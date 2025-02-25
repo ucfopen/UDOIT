@@ -97,7 +97,6 @@ export default function App(initialData) {
   }
 
   const handleNavigation = (navigation) => {
-    console.log('handleNavigation to: ', navigation)
     setNavigation(navigation)
   }
 
@@ -231,12 +230,19 @@ export default function App(initialData) {
             report={report} />
         }
         {('welcome' === navigation) &&
-          <WelcomePage
-            t={t}
-            settings={settings}
-            setSettings={setSettings}
-            hasNewReport={hasNewReport}
-            handleNavigation={handleNavigation} />
+          <>
+            <WelcomePage
+              t={t}
+              settings={settings}
+              setSettings={setSettings}
+              hasNewReport={hasNewReport}
+              handleNavigation={handleNavigation} />
+            <div className="flex-row gap-1 mt-1">
+              <button className="btn btn-primary" onClick={() => quickIssues('ISSUE')}>Fix Issues</button>
+              <button className="btn btn-primary" onClick={() => quickIssues('POTENTIAL')}>Fix Potential Issues</button>
+              <button className="btn btn-primary" onClick={() => quickIssues('SUGGESTION')}>Fix Suggestions</button>
+            </div>
+          </>
         }
         {('summary' === navigation) &&
           <SummaryPage
@@ -268,6 +274,7 @@ export default function App(initialData) {
             addContentItem={addContentItem}
             report={report}
             setReport={setReport}
+            addMessage={addMessage}
             handleNavigation={handleNavigation}
             handleIssueSave={handleIssueSave}
             handleIssueUpdate={handleIssueSave}
@@ -289,11 +296,7 @@ export default function App(initialData) {
             handleNavigation={handleNavigation}
           />
         }
-        <div className="flex-row gap-1">
-          <button className="btn btn-primary" onClick={() => quickIssues('ISSUE')}>Fix Issues</button>
-          <button className="btn btn-primary" onClick={() => quickIssues('POTENTIAL')}>Fix Potential Issues</button>
-          <button className="btn btn-primary" onClick={() => quickIssues('SUGGESTION')}>Fix Suggestions</button>
-        </div>
+        
       </main>
 
       {('about' === modal) &&

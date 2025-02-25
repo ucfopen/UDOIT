@@ -3,29 +3,11 @@ import React, { useState, useEffect, useRef } from 'react'
 import ContentTypeIcon from './Icons/ContentTypeIcon'
 import SeverityIcon from './Icons/SeverityIcon'
 
-import './FixissuesPage.css'
+import './FixissuesList.css'
 
 export default function FixIssuesList({ t, FILTER, filteredIssues, setActiveIssue }) {
 
   const [groupedList, setGroupedList] = useState([])
-  const [activeHeader, setActiveHeader] = useState(null)
-  const observer = useRef(null)
-
-  const resetObserver = () => {
-    // Set listeners on the headers to make them sticky when scrolling
-    observer.current = new IntersectionObserver((entries) => {
-      entries.forEach((entry) => {
-        if (entry.isIntersecting) {
-          setActiveHeader(entry.target.dataset.header)
-        }
-      })
-    },
-    { rootMargin: '-10px 0px 0px 0px', threshold: 0 })
-
-    document.querySelectorAll('.ufixit-list-heading').forEach((header) => {
-      observer.current.observe(header)
-    })
-  }
 
   useEffect(() => {
     const tempGroupedList = []
@@ -41,17 +23,8 @@ export default function FixIssuesList({ t, FILTER, filteredIssues, setActiveIssu
     })
     
     setGroupedList(tempGroupedList)
-    resetObserver()
 
   }, [filteredIssues])
-
-  useEffect(() => {
-    resetObserver()
-    return () => {
-      console.log("Disconneting observer")
-      observer.current.disconnect()
-    }
-  }, [])
 
   return (
     <div className="ufixit-list-container flex-column">

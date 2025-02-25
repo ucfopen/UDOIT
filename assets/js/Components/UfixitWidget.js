@@ -3,20 +3,6 @@ import SeverityIcon from './Icons/SeverityIcon';
 import LeftArrowIcon from './Icons/LeftArrowIcon'
 import ListIcon from './Icons/ListIcon'
 import RightArrowIcon from './Icons/RightArrowIcon'
-// import { Modal } from '@instructure/ui-modal'
-// import { Heading } from '@instructure/ui-heading'
-// import { Button } from '@instructure/ui-buttons'
-// import { View } from '@instructure/ui-view'
-// import { Pill } from '@instructure/ui-pill'
-// import { Flex } from '@instructure/ui-flex'
-// import { CloseButton} from '@instructure/ui-buttons'
-// import { Text } from '@instructure/ui-text'
-// import { Link } from '@instructure/ui-link'
-// import { InlineList } from '@instructure/ui-list'
-// import { IconExternalLinkLine, IconCheckMarkLine } from '@instructure/ui-icons'
-// import { CodeEditor } from '@instructure/ui-code-editor'
-// import { Checkbox } from '@instructure/ui-checkbox'
-// import { Spinner } from '@instructure/ui-spinner'
 import ReactHtmlParser from 'react-html-parser'
 // import MessageTray from './MessageTray'
 // import Preview from './Preview'
@@ -48,6 +34,7 @@ export default function UfixitWidget({
   severity,
   activeIssue,
   setActiveIssue,
+  handleIssueResolve,
   handleIssueSave,
   toggleListView,
   nextIssue
@@ -73,22 +60,6 @@ export default function UfixitWidget({
     }
   }, [activeIssue])
 
-  // // Handler for the previous and next buttons on the modal
-  // // Will wrap around if the index goes out of bounds
-  // const handleIssueChange = (newIndex) => {
-  //   if (newIndex < 0) {
-  //     newIndex = filteredRows.length - 1
-  //   }
-  //   if (newIndex > (filteredRows.length - 1)) {
-  //     newIndex = 0
-  //   }
-  //   clearMessages()
-  //   handleActiveIssue(filteredRows[newIndex].issue, newIndex)
-  // }
-
-  // const handleWindowToggle = (val) => {
-  //   setWindowContents(val)
-  // }
 
   // const handleOpenContent = (e) => {
   //   const contentItem = activeContentItem
@@ -325,28 +296,31 @@ export default function UfixitWidget({
             </div>
 
             {/* The issue description or the form... Both should grow to fill available space. */}
-            <div className="flex-grow-1 ufixit-form-container">
-              { viewInfo && 
-                ReactHtmlParser(t(`rule.desc.${activeIssue.issue.scanRuleId}`), { preprocessNodes: (nodes) => Html.processStaticHtml(nodes, settings) })
-              }
-              { !viewInfo &&
-                  <UfixitForm
-                    t={t}
-                    settings={settings}
-                    activeIssue={activeIssue}
-                    handleIssueSave={handleSingleIssueSave}
-                    addMessage={addMessage} 
-                    handleActiveIssue={setActiveIssue}
-                    handleManualScan={handleManualScan} />
-              }
-            </div>
+            
+            { viewInfo && 
+              <div className="flex-grow-1 ufixit-learn-container">
+                {ReactHtmlParser(t(`rule.desc.${activeIssue.issue.scanRuleId}`), { preprocessNodes: (nodes) => Html.processStaticHtml(nodes, settings) })}
+              </div>
+            }
+            { !viewInfo &&
+              <div className="flex-grow-1 ufixit-form-container">
+                <UfixitForm
+                  t={t}
+                  settings={settings}
+                  activeIssue={activeIssue}
+                  handleIssueSave={handleSingleIssueSave}
+                  addMessage={addMessage} 
+                  handleActiveIssue={setActiveIssue}
+                  handleManualScan={handleManualScan} />
+              </div>
+            }
 
             {/* The "Mark Resolved" button */}
             { !viewInfo && 
               <div className="ufixit-widget-resolve-container">
                 <div>{t(`label.resolved_description`)}</div>
                 <button className="btn btn-secondary mt-3 align-self-end"
-                  onClick={() => handleIssueResolve}
+                  onClick={() => handleIssueResolve()}
                   disabled={(activeIssue.status == '1')}>
                   {t(`label.mark_resolved`)}
                 </button>
@@ -354,7 +328,7 @@ export default function UfixitWidget({
             }
 
             {/* The "Previous", "Next", and "List View" buttons (footer nav) */}
-            <div className="ufixit-widget-controls">
+            <div className="flex-row justify-content-between mt-3">
               <button className="btn text-button btn-icon-left ps-0" onClick={() => nextIssue(true)}>
                 <LeftArrowIcon className="link-color" />
                 <div className="flex-column justify-content-center">Previous</div>

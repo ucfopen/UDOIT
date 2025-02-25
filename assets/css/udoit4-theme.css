@@ -29,6 +29,14 @@
   line-height: 1.4rem;
 }
 
+#root {
+  margin: 0px 4px 4px 0px;
+  padding: 0 1rem 1rem 1rem;
+  border: 1px solid var(--border-color);
+  border-radius: 24px;
+  box-shadow: 2px 2px 2px var(--border-color);
+}
+
 /* Bootstrap-esque classes for general use */
 .flex-row {
   display: flex;
@@ -60,27 +68,27 @@
   flex-shrink: 0;
 }
 
-.justify-content-start {
+.justify-content-start, .flex-start {
   justify-content: flex-start;
 }
 
-.justify-content-end {
+.justify-content-end, .flex-end {
   justify-content: flex-end;
 }
 
-.justify-content-center {
+.justify-content-center, .flex-center {
   justify-content: center;
 }
 
-.justify-content-between {
+.justify-content-between, .flex-between {
   justify-content: space-between;
 }
 
-.justify-content-around {
+.justify-content-around, .flex-around {
   justify-content: space-around;
 }
 
-.justify-content-evenly {
+.justify-content-evenly, .flex-evenly {
   justify-content: space-evenly;
 }
 

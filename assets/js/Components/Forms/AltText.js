@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState, useEffect } from 'react'
 import { Checkbox } from '@instructure/ui-checkbox';
 import { View } from '@instructure/ui-view'
 import { IconCheckMarkLine } from '@instructure/ui-icons'
@@ -8,127 +8,116 @@ import { Button } from '@instructure/ui-buttons'
 import { Spinner } from '@instructure/ui-spinner'
 import * as Html from '../../Services/Html';
 
+export default function AltText ({
+  t,
+  settings,
+  activeIssue,
+  handleIssueSave,
+  addMessage,
+  handleActiveIssue,
+  handleManualScan
+ }) {
+  
+  const maxLength = 150
 
-export default class AltText extends React.Component {
-  constructor(props) {
-    super(props)
+  const [textInputValue, setTextInputValue] = useState('')
+  const [isDecorative, setIsDecorative] = useState(false)
+  const [characterCount, setCharacterCount] = useState(0)
+  const [textInputErrors, setTextInputErrors] = useState([])
+  const [formErrors, setFormErrors] = useState([])
+  const [pending, setPending] = useState(false)
 
-    this.maxLength = 150
-    const html = Html.getIssueHtml(this.props.activeIssue)
-
-    let altText = Html.getAttribute(html, "alt")
-    altText = (typeof altText === 'string') ? altText : ''
-
-    this.state = {
-      textInputValue: altText,
-      isDecorative: (this.elementIsDecorative(html) === 'true'),
-      characterCount: altText.length,
-      textInputErrors: []
-    }
-
-    this.formErrors = []
-
-    this.handleButton = this.handleButton.bind(this)
-    this.handleInput = this.handleInput.bind(this)
-    this.handleCheckbox = this.handleCheckbox.bind(this)
-  }
-
-  componentDidUpdate(prevProps, prevState) {
-    if (prevProps.activeIssue !== this.props.activeIssue) {
-      const html = Html.getIssueHtml(this.props.activeIssue)
+  useEffect(() => {
+    if (activeIssue) {
+      const html = Html.getIssueHtml(activeIssue)
       let altText = Html.getAttribute(html, 'alt')
       altText = (typeof altText === 'string') ? altText : ''
 
-      this.setState({
-        textInputValue: altText,
-        isDecorative: (this.elementIsDecorative(html) === 'true'),
-        characterCount: altText.length,
-        textInputErrors: [],
-      })
+      setTextInputValue(altText)
+      setIsDecorative((elementIsDecorative(html) === 'true'))
+      setCharacterCount(altText.length)
+      setTextInputErrors([])
     }
-  }
+  }, [activeIssue])
 
-  handleHtmlUpdate() {
-    const html = Html.getIssueHtml(this.props.activeIssue)
+  const handleHtmlUpdate = () => {
+    const html = Html.getIssueHtml(activeIssue)
     let element = Html.toElement(html)
-
-    if (this.state.isDecorative) {
+    
+    if (isDecorative) {
       element = Html.setAttribute(element, "role", "presentation")
       element = Html.addClass(element, 'phpally-ignore')
       element = Html.setAttribute(element, 'alt', '')
     } else {
       element = Html.removeAttribute(element, "role")
       element = Html.removeClass(element, 'phpally-ignore')
-      element = Html.setAttribute(element, "alt", this.state.textInputValue)
+      element = Html.setAttribute(element, "alt", textInputValue)
     }
 
-    let issue = this.props.activeIssue
+    let issue = activeIssue
     issue.newHtml = Html.toString(element)
-    this.props.handleActiveIssue(issue)
-  
+
+    handleActiveIssue(issue)
   }
 
-  handleButton() {
-    this.formErrors = []
-
-    if (!this.state.isDecorative) {
-      this.checkTextNotEmpty()
-      this.checkTextLength()
-      this.checkForFileExtensions()
-      this.checkFileName()
+  const handleButton = () => {
+    setFormErrors([])
+    if (!isDecorative) {
+      checkTextNotEmpty()
+      checkTextLength()
+      checkForFileExtensions()
+      checkFileName()
     }
-    
-    if (this.formErrors.length > 0) {
-      this.setState({ textInputErrors: this.formErrors })
+
+    if (formErrors.length > 0) {
+      setTextInputErrors(formErrors)
     } else {
-      this.props.handleIssueSave(this.props.activeIssue)
+      handleIssueSave(activeIssue)
     }
   }
 
-  handleInput(event) {
-    this.setState({
-      textInputValue: event.target.value,
-      characterCount: event.target.value.length
-    }, () => this.handleHtmlUpdate())
+  const handleInput = (event) => {
+    setTextInputValue(event.target.value)
+    setCharacterCount(event.target.value.length)
+    handleHtmlUpdate()
   }
 
-  handleCheckbox() {
-    this.setState({
-      isDecorative: !this.state.isDecorative
-    }, () => this.handleHtmlUpdate())
+  const handleCheckbox = () => {
+    setIsDecorative(!isDecorative)
+    handleHtmlUpdate()
   }
 
-  checkTextNotEmpty() {
-    const text = this.state.textInputValue.trim().toLowerCase()
+  const checkTextNotEmpty = () => {
+    const text = textInputValue.trim().toLowerCase()
     if (text === '') {
-      this.formErrors.push({ text: this.props.t('form.alt.msg.text_empty'), type: 'error' })
+      formErrors.push({ text: t('form.alt.msg.text_empty'), type: 'error' })
     }
   }
 
-  checkTextLength() {
-    const text = this.state.textInputValue.trim().toLowerCase()
-    if (text.length > this.maxLength) {
-      this.formErrors.push({ text: this.props.t('form.alt.msg.text_too_long'), type: 'error' })
+  const checkTextLength = () => {
+    const text = textInputValue.trim().toLowerCase()
+    if (text.length > maxLength) {
+      formErrors.push({ text: t('form.alt.msg.text_too_long'), type: 'error' })
     }
   }
 
-  checkForFileExtensions() {
+  const checkForFileExtensions = () => {
     let fileRegex = /([a-zA-Z0-9\s_\\.\-\(\):])+(.png|.jpg|.jpeg|.gif)$/i
 
-    if (this.state.textInputValue.match(fileRegex) != null) {
-      this.formErrors.push({ text: this.props.t('form.alt.msg.text_has_file_extension'), type: 'error' })
+    if (textInputValue.match(fileRegex) != null) {
+      formErrors.push({ text: t('form.alt.msg.text_has_file_extension'), type: 'error' })
     }
   }
 
-  checkFileName() {
-    let fileName = Html.getAttribute(this.props.activeIssue.sourceHtml, "src")
-
-    if (this.state.textInputValue === fileName) {
-      this.formErrors.push({ text: this.props.t('form.alt.msg.text_matches_filename'), type: 'error' })
+  const checkFileName = () => {
+    let fileName = Html.getAttribute(activeIssue.sourceHtml, "src")
+    
+    if (textInputValue === fileName) {
+      formErrors.push({ text: t('form.alt.msg.text_matches_filename'), type: 'error' })
     }
   }
 
-  elementIsDecorative(htmlString) {
+  const elementIsDecorative = (htmlString) => {
     const decorativeAttribute = Html.getAttribute(htmlString, "data-decorative")
     const roleAttribute = Html.getAttribute(htmlString, "role")
     const classes = Html.getClasses(htmlString)
@@ -140,47 +129,42 @@ export default class AltText extends React.Component {
     return (decorativeAttribute === 'true' || roleAttribute === 'presentation' || (classes.includes('phpally-ignore')))
   }
 
-  render() {
-    const pending = (this.props.activeIssue && (this.props.activeIssue.pending == '1'))
-    const buttonLabel = (pending) ? 'form.processing' : 'form.submit'
-
-    return (
-      <View as="div" padding="x-small">
-        <View>
-          <TextArea
-            label={this.props.t('form.alt.text')}
-            display="inline-block"
-            width="100%"
-            onChange={this.handleInput}
-            value={this.state.textInputValue}
-            id="textInputValue"
-            disabled={this.state.isDecorative}
-            messages={this.state.textInputErrors}
-          />
-        </View>
-        <View as="div" textAlign="end" padding="x-small 0 0 0">
-          <Text size="small" weight="light">
-            {this.state.characterCount} {this.props.t('form.alt.of')} {this.maxLength} {this.props.t('form.alt.chars')}
-          </Text>
-        </View>
-        <View as="div" margin="0 0 small 0">
-          <Checkbox label={this.props.t('form.alt.mark_decorative')} 
-            checked={this.state.isDecorative} 
-            onChange={this.handleCheckbox} />
-        </View>
-        <View as="div" margin="small 0">
-          <Button color="primary" onClick={this.handleButton} interaction={(!pending && this.props.activeIssue.status !== 2) ? 'enabled' : 'disabled'}>
-            {('1' == pending) && <Spinner size="x-small" renderTitle={this.props.t(buttonLabel)} />}
-            {this.props.t(buttonLabel)}
-          </Button>
-          {this.props.activeIssue.recentlyUpdated &&
-            <View margin="0 small">
-              <IconCheckMarkLine color="success" />
-              <View margin="0 x-small">{this.props.t('label.fixed')}</View>
-            </View>
-          }
-        </View>
+  return (
+    <View as="div" padding="x-small">
+      <View>
+        <TextArea
+          label={t('form.alt.text')}
+          display="inline-block"
+          width="100%"
+          onChange={handleInput}
+          value={textInputValue}
+          id="textInputValue"
+          disabled={isDecorative}
+          messages={textInputErrors}
+        />
       </View>
-    );
-  }
+      <View as="div" textAlign="end" padding="x-small 0 0 0">
+        <Text size="small" weight="light">
+          {characterCount} {t('form.alt.of')} {maxLength} {t('form.alt.chars')}
+        </Text>
+      </View>
+      <View as="div" margin="0 0 small 0">
+        <Checkbox label={t('form.alt.mark_decorative')} 
+          checked={isDecorative} 
+          onChange={handleCheckbox} />
+      </View>
+      <View as="div" margin="small 0">
+        <Button color="primary" onClick={handleButton} interaction={(!pending && activeIssue?.status !== 2) ? 'enabled' : 'disabled'}>
+          {('1' == pending) && <Spinner size="x-small" renderTitle={t('form.processing')} />}
+          {t('form.submit')}
+        </Button>
+        {activeIssue.recentlyUpdated &&
+          <View margin="0 small">
+            <IconCheckMarkLine color="success" />
+            <View margin="0 x-small">{t('label.fixed')}</View>
+          </View>
+        }
+      </View>
+    </View>
+  )
 }
