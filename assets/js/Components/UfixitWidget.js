@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import SeverityIcon from './Icons/SeverityIcon';
+import FixedIcon from './Icons/FixedIcon';
+import ResolvedIcon from './Icons/ResolvedIcon';
 import LeftArrowIcon from './Icons/LeftArrowIcon'
 import ListIcon from './Icons/ListIcon'
 import RightArrowIcon from './Icons/RightArrowIcon'
@@ -37,6 +39,7 @@ export default function UfixitWidget({
   handleIssueResolve,
   handleIssueSave,
   toggleListView,
+  listLength,
   nextIssue
 }) {
 
@@ -271,7 +274,15 @@ export default function UfixitWidget({
                 <h2 className="mt-0 mb-0">{activeIssue.scanRuleLabel}</h2>
               </div>
               <div className="flex-column justify-content-center ml-3">
-                <SeverityIcon type={severity} alt="" className="icon-lg"/>
+                {
+                  activeIssue.status === settings.FILTER.ACTIVE ? (
+                    <SeverityIcon type={severity} alt="" className="icon-lg"/>
+                  ) : activeIssue.status === settings.FILTER.FIXED ? (
+                    <FixedIcon alt="" className="color-success icon-lg"/>
+                  ) : activeIssue.status === settings.FILTER.RESOLVED ? (
+                    <ResolvedIcon alt="" className="color-success icon-lg"/>
+                  ) : ''
+                }
               </div>
             </div>
 
@@ -329,17 +340,34 @@ export default function UfixitWidget({
 
             {/* The "Previous", "Next", and "List View" buttons (footer nav) */}
             <div className="flex-row justify-content-between mt-3">
-              <button className="btn text-button btn-icon-left ps-0" onClick={() => nextIssue(true)}>
-                <LeftArrowIcon className="link-color" />
-                <div className="flex-column justify-content-center">Previous</div>
-              </button>
+
+              {listLength > 1 ? (
+                <button className="btn text-button btn-icon-left ps-0" onClick={() => nextIssue(true)}>
+                  <LeftArrowIcon className="link-color" />
+                  <div className="flex-column justify-content-center">Previous</div>
+                </button>
+              ) : (
+                <button className="btn text-button btn-icon-left disabled ps-0">
+                  <LeftArrowIcon className="gray" />
+                  <div className="flex-column justify-content-center">Previous</div>
+                </button>
+              )}
+
               <button className="btn text-button btn-icon-only" onClick={() => toggleListView()}>
                 <ListIcon className="link-color" />
               </button>
-              <button className="btn text-button btn-icon-right pe-0" onClick={() => nextIssue()}>
-                <div className="flex-column justify-content-center">Next</div>
-                <RightArrowIcon className="link-color" />
-              </button>
+
+              {listLength > 1 ? (
+                <button className="btn text-button btn-icon-right pe-0" onClick={() => nextIssue()}>
+                  <div className="flex-column justify-content-center">Next</div>
+                  <RightArrowIcon className="link-color" />
+                </button>
+              ) : (
+                <button className="btn text-button btn-icon-right disabled pe-0">
+                  <div className="flex-column justify-content-center">Next</div>
+                  <RightArrowIcon className="gray" />
+                </button>
+              )}
             </div>
           </>
           ) : ''}

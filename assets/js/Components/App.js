@@ -245,12 +245,19 @@ export default function App(initialData) {
           </>
         }
         {('summary' === navigation) &&
-          <SummaryPage
-            t={t}
-            settings={settings}
-            report={report}
-            handleAppFilters={handleAppFilters}
-            handleNavigation={handleNavigation} />
+          <>
+            <SummaryPage
+              t={t}
+              settings={settings}
+              report={report}
+              handleAppFilters={handleAppFilters}
+              handleNavigation={handleNavigation} />
+            <div className="flex-row gap-1 mt-1">
+              <button className="btn btn-primary" onClick={() => quickIssues('ISSUE')}>Fix Issues</button>
+              <button className="btn btn-primary" onClick={() => quickIssues('POTENTIAL')}>Fix Potential Issues</button>
+              <button className="btn btn-primary" onClick={() => quickIssues('SUGGESTION')}>Fix Suggestions</button>
+            </div>
+          </>
         }
         {('content' === navigation) &&
           <ContentPage

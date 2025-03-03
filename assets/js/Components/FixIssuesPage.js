@@ -86,13 +86,6 @@ export default function FixIssuesPage({
     [FILTER.ALL]: t('label.filter.module.all'),
   }
 
-  const FILTER_TYPES = {
-    [FILTER.TYPE.SEVERITY]: t('label.filter.severity'),
-    [FILTER.TYPE.CONTENT_TYPE]: t('label.filter.type'),
-    [FILTER.TYPE.RESOLUTION]: t('label.filter.resolution'),
-    [FILTER.TYPE.MODULE]: t('label.filter.module'),
-  }
-
   const allFilters = {
     [FILTER.TYPE.SEVERITY]: SEVERITY_OPTIONS,
     [FILTER.TYPE.CONTENT_TYPE]: CONTENT_TYPE,
@@ -114,6 +107,7 @@ export default function FixIssuesPage({
     LIST: 3,
     NO_RESULTS: 4,
   }
+
   // const easyRules = issueRuleIds.filter(rule => settings.easyRuleIds.includes(rule))
   // const visualRules = issueRuleIds.filter(rule => settings.visualRuleIds.includes(rule))
   // const auditoryRules = issueRuleIds.filter(rule => settings.auditoryRuleIds.includes(rule))
@@ -142,53 +136,29 @@ export default function FixIssuesPage({
   // When the filters or search term changes, update the available issues
   useEffect(() => {
 
-    const firstLoad = (widgetState === WIDGET_STATE.LOADING)
     let tempFilteredContent = getFilteredContent()
     setFilteredIssues(tempFilteredContent)
+    setActiveIssue(null)
 
+    // If nothing matches the filters, show the no results view
     if(tempFilteredContent.length === 0) {
-      setActiveIssue(null)
       setWidgetState(WIDGET_STATE.NO_RESULTS)
-      return
+    }
+    else {
+      // Otherwise, view the list
+      setWidgetState(WIDGET_STATE.LIST)
     }
 
-    // If there is no activeIssue and there is are multiple potential issues, show the list.
-    if(!activeIssue && tempFilteredContent.length > 0) {
-      if(firstLoad) {
-        setActiveIssue(tempFilteredContent[0])
-        setWidgetState(WIDGET_STATE.FIXIT)
-      }
-      else {
-        setWidgetState(WIDGET_STATE.LIST)
-      }
-    }
-
-    // See if the currently activeIssue is still in the filteredIssues...
-    if (activeIssue && tempFilteredContent.length > 0) {
-      let index = tempFilteredContent.findIndex((issue) => issue.id === activeIssue.id)
-      if (index === -1) {
-        if(widgetState === WIDGET_STATE.LIST) {
-          setActiveContentItem(null)
-          return
-        }
-        // If it isn't, set the activeIssue to the first issue in the list
-        if(widgetState === WIDGET_STATE.LOADING) {
-          setActiveIssue(tempFilteredContent[0])
-          setWidgetState(WIDGET_STATE.FIXIT)
-        }
-      }
-      // Otherwise, keep the activeIssue the same
-    }
-  }, [report, activeFilters, searchTerm])
+  }, [activeFilters, searchTerm])
 
   // When a new activeIssue is set, get the content for that issue
   useEffect(() => {
     if(activeIssue === null) {
+      setActiveContentItem(null)
       if(widgetState === WIDGET_STATE.LIST) {
         return
       }
       setWidgetState(WIDGET_STATE.NO_RESULTS)
-      setActiveContentItem(null)
       return
     }
   
@@ -492,7 +462,7 @@ export default function FixIssuesPage({
           ) : activeIssue ? (  
               <UfixitWidget
                 t={t}
-                settings={settings}
+                settings={settings.FILTER ? settings : Object.assign({}, settings, { FILTER })}
                 viewInfo={viewInfo}
                 setViewInfo={setViewInfo}
                 severity={activeIssue.severity}
@@ -501,6 +471,7 @@ export default function FixIssuesPage({
                 handleIssueResolve={handleIssueResolve}
                 handleIssueSave={handleIssueSave}
                 toggleListView={toggleListView}
+                listLength={filteredIssues.length}
                 nextIssue={nextIssue}
               />
           ) : (

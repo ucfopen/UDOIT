@@ -308,12 +308,9 @@ h1, h2, h3, h4, h5, h6 {
   fill: var(--gray);
 }
 
-.text-button {
-  background-color: transparent;
-  color: var(--link-color);
-  padding: .5rem 1.5rem;
-  border-radius: 50px;
-  cursor: pointer;
+.disabled {
+  color: var(--gray);
+  fill: var(--gray);
 }
 
 .btn {
@@ -340,6 +337,21 @@ h1, h2, h3, h4, h5, h6 {
   border-color: var(--primary-color);
   background-color: transparent;
   color: var(--primary-color-dark);
+}
+
+.btn-text, .text-button {
+  background-color: transparent;
+  color: var(--link-color);
+  padding: .5rem 1.5rem;
+  border-radius: 50px;
+  cursor: pointer;
+
+  &.disabled,
+  &.btn-disabled {
+    color: var(--gray);
+    opacity: 0.75;
+    cursor: not-allowed !important;
+  }
 }
 
 .btn-icon-left {
@@ -385,17 +397,38 @@ h1, h2, h3, h4, h5, h6 {
   height: 40px;
 }
 
-.udoit-issue {
+.udoit-issue,
+.color-issue {
   color: var(--issue-color);
   fill: var(--issue-color);
 }
 
-.udoit-potential {
+.udoit-potential,
+.color-potential {
   color: var(--potential-color);
   fill: var(--potential-color);
 }
 
-.udoit-suggestion {
+.udoit-suggestion,
+.color-suggestion {
   color: var(--suggestion-color);
   fill: var(--suggestion-color);
+}
+
+.udoit-success,
+.color-success {
+  color: var(--primary-color);
+  fill: var(--primary-color);
+}
+
+header {
+  nav {
+    display: flex;
+    flex-direction: row;
+    border-bottom: none !important;
+    
+    ul {
+      justify-content: flex-end;
+    }
+  }
 }
