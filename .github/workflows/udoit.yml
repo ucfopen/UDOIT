@@ -63,7 +63,7 @@ jobs:
             php-${{ matrix.php-versions }}-yarn-
 
       - name: Verify if cache was found
-        run: echo "Cache hit: ${{ steps.yarn-cache.outputs.cache-hit }}"
+        run: echo "Cache hit ${{ steps.yarn-cache.outputs.cache-hit }}"
 
       - name: Yarn install
         run: yarn install
