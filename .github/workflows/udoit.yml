@@ -62,9 +62,6 @@ jobs:
           restore-keys: |
             php-${{ matrix.php-versions }}-yarn-
 
-      - name: Verify if cache was found
-        run: echo "Cache hit ${{ steps.yarn-cache.outputs.cache-hit }}"
-
       - name: Yarn install
         run: yarn install
 
@@ -73,6 +70,9 @@ jobs:
 
       - name: Yarn test
         run: yarn test
+
+      - name: Verify if cache was found
+        run: echo "Cache hit ${{ steps.yarn-cache.outputs.cache-hit }}"
 
       - name: Start and initialize Postgres
         env:
