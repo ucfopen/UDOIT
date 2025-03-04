@@ -32,7 +32,7 @@ jobs:
 
       - name: Get composer cache directory
         id: composer-cache
-        run: echo "::set-output name=dir::$(composer config cache-files-dir)"
+        run: echo "dir::$(composer config cache-files-dir)" >> "$GITHUB_OUTPUT"
 
       - name: Cache composer dependencies
         uses: actions/cache@v4
@@ -52,7 +52,7 @@ jobs:
 
       - name: Get yarn cache directory path
         id: yarn-cache-dir-path
-        run: echo "::set-output name=dir::$(yarn config get cacheFolder)"
+        run: echo "dir=$(yarn config get cacheFolder)" >> "$GITHUB_OUTPUT"
 
       - uses: actions/cache@v4
         id: yarn-cache # use this to check for `cache-hit` (`steps.yarn-cache.outputs.cache-hit != 'true'`)
@@ -61,6 +61,9 @@ jobs:
           key: php-${{ matrix.php-versions }}-yarn-${{ hashFiles('**/yarn.lock') }}
           restore-keys: |
             php-${{ matrix.php-versions }}-yarn-
+
+      - name: Verify if cache was found
+        run: echo "Cache hit: ${{ steps.yarn-cache.outputs.cache-hit }}"
 
       - name: Yarn install
         run: yarn install
