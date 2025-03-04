@@ -66,9 +66,13 @@ class ScannerService {
                     $document = $this->getDomDocument($contentItem->getBody());
                     if (!$scannerReport) {
                         // Report is null, we need to call the lambda function for a single page most likely
-                        // $this->logToServer("null $scannerReport!");
                         $asyncReport = new AsyncEqualAccessReport();
                         $json = $asyncReport->postSingleAsync($contentItem);
+
+                        // OR we can send it to the local scanner, make sure you have the container in the Docker compose file
+                        // $localReport = new LocalApiAccessibilityService();
+                        // $json = $localReport->scanContentItem($contentItem);
+
                         $report = $equalAccess->generateReport($json, $document);
                     }
                     else {

@@ -83,12 +83,10 @@ const goToWord = (word) => {
         // so "laptop" no longer matches, but "top", "top.", "top;" ... etc. matches
         const wordRegex = new RegExp(`\\b${word}\\b`, 'i')
         let match = wordRegex.exec(text)
-        console.log(match)
+
         if (match) {
-          console.log("matched...")
           // create selection range
           const range = editor.getDoc().createRange()
-          console.log(range)
           range.setStart(result, match.index)
           range.setEnd(result, match.index + match[0].length)
           
