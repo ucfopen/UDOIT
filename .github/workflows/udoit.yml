@@ -57,9 +57,6 @@ jobs:
       - name: PHPUnit Testing
         run: SYMFONY_DEPRECATIONS_HELPER=disabled ./vendor/bin/phpunit
 
-      - name: Set Yarn cache directory (if not set)
-        run: yarn config set cacheFolder ~/.yarn/cache
-
       - name: Get yarn cache directory path
         id: yarn-cache-dir-path
         run: |
@@ -75,9 +72,6 @@ jobs:
           key: php-${{ matrix.php-versions }}-yarn-${{ hashFiles('**/yarn.lock') }}
           restore-keys: |
             php-${{ matrix.php-versions }}-yarn-
-
-      - name: Check if Yarn cache was found
-        run: echo "Cache hit ${{ steps.yarn-cache.outputs.cache-hit }}"
 
       - name: Install Yarn dependencies
         if: ${{ steps.yarn-cache.outputs.cache-hit != 'true' }}
