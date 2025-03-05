@@ -57,6 +57,9 @@ jobs:
       - name: PHPUnit Testing
         run: SYMFONY_DEPRECATIONS_HELPER=disabled ./vendor/bin/phpunit
 
+      - name: Set Yarn cache directory (if not set)
+        run: yarn config set cacheFolder ~/.yarn/cache
+
       - name: Get yarn cache directory path
         id: yarn-cache-dir-path
         run: |
