@@ -1,0 +1,62 @@
+@import '../../css/udoit4-theme.css';
+
+.ufixit-content-label {
+  flex-shrink: 0;
+  flex-grow: 0;
+
+  display: flex;
+  flex-direction: row;
+  cursor: pointer;
+  justify-content: space-between;
+
+  text-decoration: none;
+
+  &:hover {
+    text-decoration: underline;
+    text-decoration-color: var(--link-color);
+  }
+
+  h2 {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: var(--link-color);
+    margin: 0px;
+    flex-grow: 1;
+  }
+
+  svg {
+    margin-left: 1rem;
+    cursor: pointer;
+    fill: var(--link-color);
+    flex-shrink: 0;
+    flex-grow: 0;
+  }
+}
+
+.ufixit-content-preview {
+  flex-grow: 1;
+  overflow-x: auto;
+  overflow-y: auto;
+  margin-top: 1rem;
+  padding-top: 5px;
+  padding-bottom: 1rem;
+
+  /* This is so the highlighted error outlines don't get cut off */
+  padding-left: 5px;
+  padding-right: 5px;
+  margin-left: -5px;
+  margin-right: 5px;
+}
+
+.ufixit-content-progress {
+  flex-shrink: 0;
+  flex-grow: 0;
+}
+
+.ufixit-error-highlight {
+  outline: 3px dashed var(--issue-color);
+  outline-offset: 1px;
+
+  /* Errors without text won't have an outline unless they have a border to provide size */
+  border: 1px solid transparent;
+}

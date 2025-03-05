@@ -2,9 +2,9 @@ import React from 'react'
 import { createRoot } from 'react-dom/client'
 import App from './Components/App'
 import getInitialData from './getInitialData'
-import { theme } from '@instructure/canvas-theme'
+// import { theme } from '@instructure/canvas-theme'
 
-theme.use()
+// theme.use()
 const data = getInitialData()
 
 // Updated from react-dom's `render` to `createRoot.render` for React 18:
