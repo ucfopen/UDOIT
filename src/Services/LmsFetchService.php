@@ -217,7 +217,7 @@ class LmsFetchService {
 
             try {
                 // Scan the content item with the scanner set in the environment.
-                $report = $this->scanner->scanContentItem($contentItem, $equalAccessReports == null ? null : $equalAccessReports[$index++], $this->util);
+                $report = $this->scanner->scanContentItem($contentItem, $equalAccessReports == null ? null : $equalAccessReports[$index++]);
 
                 if ($report) {
                     // TODO: Do something with report errors

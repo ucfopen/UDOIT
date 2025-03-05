@@ -280,27 +280,28 @@ class UfixitModal extends React.Component {
 
     if (activeIssue.status) {
       activeIssue.status = false
-      // activeIssue.newHtml = Html.toString(Html.removeClass(activeIssue.sourceHtml, 'phpally-ignore'))
+      activeIssue.newHtml = Html.toString(Html.removeClass(activeIssue.sourceHtml, 'phpally-ignore'))
 
-      const currentIgnoreAttribute = Html.getAttribute(activeIssue.sourceHtml, "data-udoit-ignore") || "";
-      const ignoreArray = currentIgnoreAttribute.split(" ").filter(id => id !== "" && id !== activeIssue.scanRuleId);
-      const newIgnoreAttribute = ignoreArray.length > 0 ? ignoreArray.join(" ") : "";
+      // TODO: this works for equal access, but phpally seems to still use phpally-ignore. uncomment if you want to test
+      // const currentIgnoreAttribute = Html.getAttribute(activeIssue.sourceHtml, "data-udoit-ignore") || "";
+      // const ignoreArray = currentIgnoreAttribute.split(" ").filter(id => id !== "" && id !== activeIssue.scanRuleId);
+      // const newIgnoreAttribute = ignoreArray.length > 0 ? ignoreArray.join(" ") : "";
 
-      activeIssue.newHtml = Html.toString(Html.setAttribute(activeIssue.sourceHtml, "data-udoit-ignore", newIgnoreAttribute))
+      // activeIssue.newHtml = Html.toString(Html.setAttribute(activeIssue.sourceHtml, "data-udoit-ignore", newIgnoreAttribute))
     }
     else {
       activeIssue.status = 2
-      // activeIssue.newHtml = Html.toString(Html.addClass(activeIssue.sourceHtml, 'phpally-ignore'))
+      activeIssue.newHtml = Html.toString(Html.addClass(activeIssue.sourceHtml, 'phpally-ignore'))
 
-
-      let newIgnoreAttribute = Html.getAttribute(activeIssue.sourceHtml, "data-udoit-ignore")
-      if (newIgnoreAttribute) {
-        newIgnoreAttribute = `${newIgnoreAttribute} ${activeIssue.scanRuleId}`
-      }
-      else {
-        newIgnoreAttribute = activeIssue.scanRuleId
-      }
-      activeIssue.newHtml = Html.toString(Html.setAttribute(activeIssue.sourceHtml, "data-udoit-ignore", newIgnoreAttribute))
+      // TODO: same as above, this works for equal access.
+      // let newIgnoreAttribute = Html.getAttribute(activeIssue.sourceHtml, "data-udoit-ignore")
+      // if (newIgnoreAttribute) {
+      //   newIgnoreAttribute = `${newIgnoreAttribute} ${activeIssue.scanRuleId}`
+      // }
+      // else {
+      //   newIgnoreAttribute = activeIssue.scanRuleId
+      // }
+      // activeIssue.newHtml = Html.toString(Html.setAttribute(activeIssue.sourceHtml, "data-udoit-ignore", newIgnoreAttribute))
     }
     
     let api = new Api(this.props.settings)

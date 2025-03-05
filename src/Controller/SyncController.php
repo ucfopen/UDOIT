@@ -8,8 +8,6 @@ use App\Repository\CourseRepository;
 use App\Response\ApiResponse;
 use App\Services\LmsApiService;
 use App\Services\LmsFetchService;
-use App\Services\PhpAllyService;
-use App\Services\EqualAccessService;
 use App\Services\ScannerService;
 use App\Services\UtilityService;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -137,7 +135,7 @@ class SyncController extends ApiController
         $lmsFetch->deleteContentItemIssues(array($contentItem));
 
         // Rescan the contentItem
-        $report = $scanner->scanContentItem($contentItem, null, $this->util);
+        $report = $scanner->scanContentItem($contentItem, null);
 
         // Add rescanned Issues to database
         foreach ($report->getIssues() as $issue) {

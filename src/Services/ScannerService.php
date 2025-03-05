@@ -22,6 +22,10 @@ class ScannerService {
     /** @var UtilityService $util */
     protected $util;
 
+    public function __construct(UtilityService $util) {
+        $this->util = $util;
+    }
+
     public function logToServer(string $message) {
         $options = [
             'http' => [
@@ -35,7 +39,7 @@ class ScannerService {
         file_get_contents("http://host.docker.internal:3000/log", false, $context);
     }
 
-    public function scanContentItem(ContentItem $contentItem, $scannerReport = null, $util = null) {
+    public function scanContentItem(ContentItem $contentItem, $scannerReport = null) {
         // Optional argument scannerReport is used when handling async Equal Access
         // requests, so then all we have to do is just make those into a UDOIT report
         $scanner = $_ENV['ACCESSIBILITY_CHECKER'];
@@ -45,7 +49,7 @@ class ScannerService {
         try {
             if ($scanner == 'phpally') {
                 $htmlService = new HtmlService();
-                $phpAlly = new PhpAllyService($htmlService, $util);
+                $phpAlly = new PhpAllyService($htmlService, $this->util);
                 $report = $phpAlly->scanContentItem($contentItem);
             }
             else if ($scanner == 'equalaccess_local') {
