@@ -59,9 +59,16 @@ jobs:
 
       - name: Get yarn cache directory path
         id: yarn-cache-dir-path
-        run: echo "dir=$(yarn config get cacheFolder)" >> $GITHUB_OUTPUT
+        run:
+            echo "Yarn cache directory:"
+            yarn config get cacheFolder
+            echo "dir=$(yarn config get cacheFolder)" >> $GITHUB_OUTPUT
 
-      - uses: actions/cache@v4
+      - name: Check if Yarn cache was found
+        run: echo "Cache hit ${{ steps.yarn-cache.outputs.cache-hit }}"
+
+      - name: Cache Yarn dependencies
+        uses: actions/cache@v4
         id: yarn-cache # use this to check for `cache-hit` (`steps.yarn-cache.outputs.cache-hit != 'true'`)
         with:
           path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
@@ -69,7 +76,8 @@ jobs:
           restore-keys: |
             php-${{ matrix.php-versions }}-yarn-
 
-      - name: Yarn install
+      - name: Install Yarn dependencies
+        if: ${{ steps.yarn-cache.outputs.cache-hit != 'true' }}
         run: yarn install
 
       - name: Yarn build
