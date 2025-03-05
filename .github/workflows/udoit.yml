@@ -35,16 +35,23 @@ jobs:
         run: echo "dir=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
 
       - name: Cache composer dependencies
+        id: composer-cache
         uses: actions/cache@v4
         with:
-          path: ${{ steps.composer-cache.outputs.dir }}
+          path: |
+            vendor
+            ${{ steps.composer-cache.outputs.dir }}
           key: php-${{ matrix.php-versions }}-composer-${{ hashFiles('**/composer.lock') }}
           restore-keys: php-${{ matrix.php-versions }}-composer-
+
+      - name: Check if composer cache was found
+        run: echo "Cache hit ${{ steps.composer-cache.outputs.cache-hit }}"
 
       - name: Create .env file
         run: cp .env.example .env
 
       - name: Install Composer dependencies
+        if: steps.composer-cache.outputs.cache-hit != 'true'
         run: composer install --no-progress --prefer-dist --optimize-autoloader
 
       - name: PHPUnit Testing
