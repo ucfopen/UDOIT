@@ -22,7 +22,7 @@ class CanvasApi {
     }
 
     // API call GET
-    public function apiGet(string $url, array $options = [], int $perPage = 100, LmsResponse $lmsResponse = null): LmsResponse
+    public function apiGet(string $url, array $options = [], int $perPage = 100, ?LmsResponse $lmsResponse = null): LmsResponse
     {
         $links = [];
 

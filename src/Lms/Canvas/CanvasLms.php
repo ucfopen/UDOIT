@@ -15,7 +15,7 @@ use App\Services\LmsUserService;
 use App\Services\SessionService;
 use App\Services\UtilityService;
 use Doctrine\ORM\EntityManagerInterface;
-use Symfony\Component\Security\Core\Security;
+use Symfony\Bundle\SecurityBundle\Security;
 
 class CanvasLms implements LmsInterface {
     /** @var ContentItemRepository $contentItemRepo */
@@ -494,7 +494,7 @@ class CanvasLms implements LmsInterface {
 
     protected function getAccountInfo(User $user, $accountId)
     {
-        $url = "accounts/${accountId}";
+        $url = "accounts/{$accountId}";
         $apiDomain = $this->getApiDomain($user);
         $apiToken = $this->getApiToken($user);
 
@@ -513,7 +513,7 @@ class CanvasLms implements LmsInterface {
 
     protected function getSubAccounts(User $user, $accountId)
     {
-        $url = "accounts/${accountId}/sub_accounts?recursive=true";
+        $url = "accounts/{$accountId}/sub_accounts?recursive=true";
         $apiDomain = $this->getApiDomain($user);
         $apiToken = $this->getApiToken($user);
 

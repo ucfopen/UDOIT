@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\Entity\Issue;
 use App\Response\ApiResponse;
 use App\Services\LmsPostService;
+use App\Services\EqualAccessService;
 use App\Services\PhpAllyService;
 use App\Services\UtilityService;
 use Doctrine\Persistence\ManagerRegistry;
@@ -157,13 +158,15 @@ class IssuesController extends ApiController
     }
 
     // Rescan an issue in PhpAlly
+    // TODO: implement equal access into this
     #[Route('/api/issues/{issue}/scan', name: 'scan_issue')]
-    public function scanIssue(Issue $issue, PhpAllyService $phpAlly, UtilityService $util)
+    public function scanIssue(Issue $issue, PhpAllyService $phpAlly, UtilityService $util, EqualAccessService $equalAccess)
     {
         $apiResponse = new ApiResponse();
 
         $issueRule = 'CidiLabs\\PhpAlly\\Rule\\'.$issue->getScanRuleId();
         $report = $phpAlly->scanHtml($issue->getHtml(), [$issueRule], $issue->getContentItem()->getCourse()->getInstitution());
+        // $equalAccess->logToServer("scanIssue in issuescontroller");
 
         $reportIssues = $report->getIssues();
         $reportErrors = $report->getErrors();

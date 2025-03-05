@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState, useCallback, useEffect } from 'react'
 import WelcomePage from './WelcomePage'
 import Header from './Header'
 import SummaryPage from './SummaryPage'
@@ -11,266 +11,245 @@ import MessageTray from './MessageTray'
 import FilesPage from './FilesPage'
 import SummaryBar from './SummaryBar'
 
-class App extends React.Component {
-  constructor(props) {
-    super(props)
+export default function App(initialData) {
 
-    this.initialReport = props.report
-    this.appFilters = {}
-    this.settings = props.settings
-    this.reportHistory = []
-    this.messages = props.messages
-    this.newReportInterval = 5000
+  // The initialData object that is passed to the App will generally contain:
+  // { 
+  //   messages: [],
+  //   report: { ... The report from the most recent scan ... },
+  //   settings: { ... From src/Controller/DashboardController.php => getSettings() ... },
+  // }
 
-    this.state = {
-      report: this.initialReport,
-      navigation: 'welcome',
-      modal: null,
-      syncComplete: false,
-      hasNewReport: false,
+  const [messages, setMessages] = useState(initialData.messages || [])
+  const [report, setReport] = useState(initialData.report || null)  
+  const [settings, setSettings] = useState(initialData.settings || null)
+
+  // The reportHistory and newReportInterval variables are not used in the current codebase
+  // const [reportHistory, setReportHistory] = useState([])
+  // const [newReportInterval, setNewReportInterval] = useState(5000)
+
+  const [appFilters, setAppFilters] = useState({})
+  const [navigation, setNavigation] = useState('welcome')
+  const [modal, setModal] = useState(null)
+  const [syncComplete, setSyncComplete] = useState(false)
+  const [hasNewReport, setHasNewReport] = useState(false)
+  const [disableReview, setDisableReview] = useState(false)
+
+  // `t` is used for text/translation. It will return the translated string if it exists
+  // in the settings.labels object.
+  const t = useCallback((key) => {
+    return (settings.labels[key]) ? settings.labels[key] : key
+  }, [settings.labels])
+
+  const scanCourse = useCallback(() => {
+    let api = new Api(settings)
+    return api.scanCourse(settings.course.id)
+  }, [settings])
+
+  const fullRescan = useCallback(() => {
+    let api = new Api(settings)
+    return api.fullRescan(settings.course.id)
+  }, [settings])
+
+  const handleNewReport = (data) => {
+    let newReport = report
+    let newHasNewReport = hasNewReport
+    let newDisableReview = disableReview
+    if (data.messages) {
+      data.messages.forEach((msg) => {
+        if (msg.visible) {
+          addMessage(msg)
+        }
+        if ('msg.no_report_created' === msg.message) {
+          addMessage(msg)
+          newReport = null
+          newDisableReview = true
+        }
+        if ("msg.sync.course_inactive" === msg.message) {
+          newDisableReview = true
+        }
+      })
+    }
+    if (data.data && data.data.id) {
+      newReport = data.data
+      newHasNewReport = true
+    }
+    setSyncComplete(true)
+    setHasNewReport(newHasNewReport)
+    setReport(newReport)
+    setDisableReview(newDisableReview)
+  }
+
+  const handleNavigation = (navigation) => {
+    console.log('handleNavigation to: ', navigation)
+    setNavigation(navigation)
+  }
+
+  const handleModal = (modal) => {
+    setModal(modal)
+  }
+
+  const handleAppFilters = (filters) => {
+    setAppFilters(filters)
+  }
+
+  const addMessage = (msg) => {
+    setMessages(prevMessages => [...prevMessages, msg])
+  }
+
+  const clearMessages = () => {
+    setMessages([])
+  }
+
+  const handleIssueSave = (newIssue, newReport) => {
+    const oldReport = report
+    const updatedReport = { ...oldReport, ...newReport }
+
+    if (updatedReport && Array.isArray(updatedReport.issues)) {
+      updatedReport.issues = updatedReport.issues.map((issue) => {
+        if (issue.id === newIssue.id) return newIssue
+        const oldIssue = oldReport.issues.find((oldReportIssue) => oldReportIssue.id === issue.id)
+        return oldIssue !== undefined ? { ...oldIssue, ...issue } : issue
+      })
     }
 
-    this.handleNavigation = this.handleNavigation.bind(this)
-    this.handleModal = this.handleModal.bind(this)
-    this.handleAppFilters = this.handleAppFilters.bind(this)
-    this.clearMessages = this.clearMessages.bind(this)
-    this.addMessage = this.addMessage.bind(this)
-    this.t = this.t.bind(this)
-    this.handleIssueSave = this.handleIssueSave.bind(this)
-    this.handleFileSave = this.handleFileSave.bind(this)
-    this.handleCourseRescan = this.handleCourseRescan.bind(this)
-    this.handleFullCourseRescan = this.handleFullCourseRescan.bind(this)
-    this.handleNewReport = this.handleNewReport.bind(this)
-    this.resizeFrame = this.resizeFrame.bind(this)
+    setReport(updatedReport)
   }
 
-  render() {
-    return (
-      <View as="div">
-        <Header
-          t={this.t}
-          settings={this.settings}
-          hasNewReport={this.state.hasNewReport}
-          navigation={this.state.navigation}
-          handleNavigation={this.handleNavigation}
-          handleCourseRescan={this.handleCourseRescan}
-          handleFullCourseRescan={this.handleFullCourseRescan}
-          handleModal={this.handleModal} />
+  const handleFileSave = (newFile, newReport) => {
+    let updatedReport = { ...report, ...newReport }
 
-        {(('welcome' !== this.state.navigation) && ('summary' !== this.state.navigation)) &&
-          <SummaryBar t={this.t} report={this.state.report} />
-        }
+    if (updatedReport && updatedReport.files) {
+      updatedReport.files[newFile.id] = newFile
+    }
 
-        <MessageTray messages={this.messages} t={this.t} clearMessages={this.clearMessages} hasNewReport={this.state.syncComplete} />
-
-        <main role="main">
-          {('welcome' === this.state.navigation) &&
-            <WelcomePage
-              handleNavigation={this.handleNavigation}
-              t={this.t}
-              settings={this.settings}
-              hasNewReport={this.state.hasNewReport} />
-          }
-          {('summary' === this.state.navigation) &&
-            <SummaryPage
-              report={this.state.report}
-              settings={this.settings}
-              handleAppFilters={this.handleAppFilters}
-              handleNavigation={this.handleNavigation}
-              t={this.t} />
-          }
-          {('content' === this.state.navigation) &&
-            <ContentPage
-              report={this.state.report}
-              settings={this.settings}
-              appFilters={this.appFilters}
-              handleAppFilters={this.handleAppFilters}
-              handleNavigation={this.handleNavigation}
-              handleIssueSave={this.handleIssueSave}
-              handleIssueUpdate={this.handleIssueUpdate}
-              disableReview={this.disableReview()}
-              t={this.t} />
-          }
-          {('files' === this.state.navigation) &&
-            <FilesPage
-              report={this.state.report}
-              settings={this.settings}
-              handleNavigation={this.handleNavigation}
-              handleFileSave={this.handleFileSave}
-              t={this.t} />
-          }
-          {('reports' === this.state.navigation) &&
-            <ReportsPage
-              t={this.t}
-              settings={this.settings}
-              report={this.state.report}
-              handleNavigation={this.handleNavigation}
-            />
-          }
-        </main>
-
-        {('about' === this.state.modal) &&
-          <AboutModal t={this.t}
-            settings={this.settings}
-            handleModal={this.handleModal} />
-        }
-      </View>
-    )
+    setReport(updatedReport)
   }
 
-  componentDidMount() {
-    if (this.settings.user && Array.isArray(this.settings.user.roles)) {
-      if (this.settings.user.roles.includes('ROLE_ADVANCED_USER')) {
-        if (this.initialReport) {
-          this.setState({report: this.initialReport, navigation: 'summary'})
+  const handleCourseRescan = () => {
+    if (hasNewReport) {
+      setHasNewReport(false)
+      setSyncComplete(false)
+      scanCourse()
+        .then((response) => response.json())
+        .then(handleNewReport)
+    }
+  }
+
+  const handleFullCourseRescan = () => {
+    if (hasNewReport) {
+      setHasNewReport(false)
+      setSyncComplete(false)
+      fullRescan()
+        .then((response) => response.json())
+        .then(handleNewReport)
+    }
+  }
+
+  const resizeFrame = useCallback(() => {
+    let default_height = document.body.scrollHeight + 50
+    default_height = default_height > 1000 ? default_height : 1000
+
+    parent.postMessage(JSON.stringify({
+      subject: "lti.frameResize",
+      height: default_height
+    }), "*")
+  }, [])
+
+  useEffect(() => {
+    if (settings.user && Array.isArray(settings.user.roles)) {
+      if (settings.user.roles.includes('ROLE_ADVANCED_USER')) {
+        if (initialData.report) {
+          setReport(initialData.report)
+          setNavigation('summary')
         }
       }
     }
 
-    this.scanCourse()
+    scanCourse()
       .then((response) => response.json())
-      .then(this.handleNewReport)
+      .then(handleNewReport)
 
-      // update iframe height on resize
-      window.addEventListener("resize", this.resizeFrame);
+    window.addEventListener("resize", resizeFrame)
+    resizeFrame()
 
-      this.resizeFrame();
-  }
-
-  componentWillUnmount() {
-    window.removeEventListener('resize', this.resizeFrame);
-  }
-
-  t(key) {
-    return (this.settings.labels[key]) ? this.settings.labels[key] : key
-  }
-
-  scanCourse() {
-    let api = new Api(this.settings)
-    return api.scanCourse(this.settings.course.id)
-  }
-
-  fullRescan() {
-    let api = new Api(this.settings)
-    return api.fullRescan(this.settings.course.id)
-  }
-
-  disableReview = () => {
-    return this.state.syncComplete && !this.state.disableReview
-  }
-
-  handleCourseRescan() {
-    if (this.state.hasNewReport) {
-      this.setState({ hasNewReport: false, syncComplete: false })
-      this.scanCourse()
-        .then((response) => response.json())
-        .then(this.handleNewReport)
+    return () => {
+      window.removeEventListener('resize', resizeFrame)
     }
-    this.forceUpdate()
-  }
+  }, [settings, initialData.report, scanCourse, resizeFrame])
 
-  handleFullCourseRescan() {
-    if (this.state.hasNewReport) {
-      this.setState({ hasNewReport: false, syncComplete: false })
-      this.fullRescan()
-        .then((response) => response.json())
-        .then(this.handleNewReport)
-    }
-    this.forceUpdate()
-  }
+  return (
+    <View as="div">
+      <Header
+        t={t}
+        settings={settings}
+        hasNewReport={hasNewReport}
+        navigation={navigation}
+        handleNavigation={handleNavigation}
+        handleCourseRescan={handleCourseRescan}
+        handleFullCourseRescan={handleFullCourseRescan}
+        handleModal={handleModal} />
 
-  handleNewReport(data) {
-    let report = this.state.report
-    let hasNewReport = this.state.hasNewReport
-    let disableReview = this.state.disableReview
-    if (data.messages) {
-      data.messages.forEach((msg) => {
-        if (msg.visible) {
-          this.addMessage(msg)
+      {(('welcome' !== navigation) && ('summary' !== navigation)) &&
+        <SummaryBar t={t} report={report} />
+      }
+
+      <MessageTray t={t} messages={messages} clearMessages={clearMessages} hasNewReport={syncComplete} />
+
+      <main role="main">
+        {('welcome' === navigation) &&
+          <WelcomePage
+            t={t}
+            settings={settings}
+            setSettings={setSettings}
+            hasNewReport={hasNewReport}
+            handleNavigation={handleNavigation} />
         }
-        if ('msg.no_report_created' === msg.message) {
-          this.addMessage(msg)
-          report = null
-          // no report, do not do any review actions
-          disableReview = true
+        {('summary' === navigation) &&
+          <SummaryPage
+            t={t}
+            settings={settings}
+            report={report}
+            handleAppFilters={handleAppFilters}
+            handleNavigation={handleNavigation} />
         }
-        if ("msg.sync.course_inactive" === msg.message) {
-          // course scan failed, issues may be outdated
-          disableReview = true
+        {('content' === navigation) &&
+          <ContentPage
+            t={t}
+            settings={settings}
+            report={report}
+            setReport={setReport}
+            appFilters={appFilters}
+            handleAppFilters={handleAppFilters}
+            handleNavigation={handleNavigation}
+            handleIssueSave={handleIssueSave}
+            handleIssueUpdate={handleIssueSave}
+            disableReview={syncComplete && !disableReview} />
         }
-      });
-    }
-    if (data.data && data.data.id) {
-      report = data.data
-      hasNewReport = true
-    }
-    this.setState({
-      syncComplete: true,
-      hasNewReport,
-      report,
-      disableReview,
-    })
-  }
+        {('files' === navigation) &&
+          <FilesPage
+            report={report}
+            settings={settings}
+            handleNavigation={handleNavigation}
+            handleFileSave={handleFileSave}
+            t={t} />
+        }
+        {('reports' === navigation) &&
+          <ReportsPage
+            t={t}
+            settings={settings}
+            report={report}
+            handleNavigation={handleNavigation}
+          />
+        }
+      </main>
 
-  handleNavigation(navigation) {
-    this.setState({navigation})
-  }
-
-  handleModal(modal) {
-    this.setState({modal})
-  }
-
-  handleAppFilters = (filters) => {
-    this.appFilters = filters;
-  }
-
-  addMessage = (msg) => {
-    this.messages.push(msg)
-  }
-
-  clearMessages = () => {
-    this.messages = [];
-  }
-
-  handleIssueSave(newIssue, newReport) {
-    const oldReport = this.state.report;
-
-    const report = { ...oldReport, ...newReport };
-
-    if (report && Array.isArray(report.issues)) {
-      // Combine backend issues with frontend issue state
-      report.issues = report.issues.map((issue) => {
-        if (issue.id === newIssue.id) return newIssue;
-        const oldIssue = oldReport.issues.find((oldReportIssue) => oldReportIssue.id === issue.id);
-        return oldIssue !== undefined ? { ...oldIssue, ...issue } : issue;
-      });
-    }
-
-    this.setState({ report });
-  }
-
-  handleFileSave(newFile, newReport) {
-    let { report } = this.state
-    report = { ...report, ...newReport }
-
-    if (report && report.files) {
-      report.files[newFile.id] = newFile
-    }
-
-    this.setState({ report })
-  }
-
-  // resize containing iframe height
-  resizeFrame(){
-    let default_height = document.body.scrollHeight + 50;
-    default_height = default_height > 1000 ? default_height : 1000;
-
-    // IE 8 & 9 only support string data, so send objects as string
-    parent.postMessage(JSON.stringify({
-      subject: "lti.frameResize",
-      height: default_height
-    }), "*");
-  }
+      {('about' === modal) &&
+        <AboutModal
+          t={t}
+          settings={settings}
+          handleModal={handleModal} />
+      }
+    </View>
+  )
 }
-
-export default App

@@ -6,75 +6,51 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
-/**
- * @ORM\Entity(repositoryClass="App\Repository\CourseRepository")
- */
+#[ORM\Entity(repositoryClass: "App\Repository\CourseRepository")]
 class Course implements \JsonSerializable
 {
     // Private Members
-    /**
-     * @ORM\Id()
-     * @ORM\GeneratedValue()
-     * @ORM\Column(type="integer")
-     */
+    #[ORM\Id]
+    #[ORM\GeneratedValue]
+    #[ORM\Column(type: "integer")]
     private $id;
 
-    /**
-     * @ORM\Column(type="string", length=255)
-     */
+    #[ORM\Column(type: "string", length: 255)]
     private $title;
 
-    /**
-     * @ORM\ManyToOne(targetEntity="App\Entity\Institution", inversedBy="courses")
-     * @ORM\JoinColumn(nullable=false)
-     */
+    #[ORM\ManyToOne(targetEntity: "App\Entity\Institution", inversedBy: "courses")]
+    #[ORM\JoinColumn(nullable: false)]
     private $institution;
 
-    /**
-     * @ORM\Column(type="string", length=255, nullable=true)
-     */
+
+    #[ORM\Column(type: "string", length: 255, nullable: true)]
     private $lmsAccountId;
 
-    /**
-     * @ORM\Column(type="string", length=255, nullable=true)
-     */
+    #[ORM\Column(type: "string", length: 255, nullable: true)]
     private $lmsCourseId;
 
-    /**
-     * @ORM\Column(type="datetime", nullable=true)
-     */
+
+    #[ORM\Column(type: "datetime", nullable: true)]
     private $lastUpdated;
 
-    /**
-     * @ORM\Column(type="boolean", nullable=true)
-     */
+    #[ORM\Column(type: "boolean", nullable: true)]
     private $active;
 
-    /**
-     * @ORM\Column(type="boolean", nullable=true)
-     */
+    #[ORM\Column(type: "boolean", nullable: true)]
     private $dirty;
 
-    /**
-     * @ORM\OneToMany(targetEntity="App\Entity\ContentItem", mappedBy="course", orphanRemoval=true)
-     */
+    #[ORM\OneToMany(targetEntity: "App\Entity\ContentItem", mappedBy: "course", orphanRemoval: true)]
+
     private $contentItems;
 
-    /**
-     * @ORM\OneToMany(targetEntity="App\Entity\Report", mappedBy="course", orphanRemoval=true)
-     */
+    #[ORM\OneToMany(targetEntity: "App\Entity\Report", mappedBy: "course", orphanRemoval: true)]
     private $reports;
 
-    /**
-     * @ORM\OneToMany(targetEntity=FileItem::class, mappedBy="course")
-     */
+    #[ORM\OneToMany(targetEntity: FileItem::class, mappedBy: "course")]
     private $fileItems;
 
-    /**
-     * @ORM\Column(type="integer", nullable=true)
-     */
+    #[ORM\Column(type: "integer", nullable: true)]
     private $lmsTermId;
-
 
     // Constructor
     public function __construct()
@@ -260,7 +236,7 @@ class Course implements \JsonSerializable
     }
 
     public function removeAllReports(): self
-    {   
+    {
         $this->reports->clear();
         return $this;
     }
@@ -269,10 +245,10 @@ class Course implements \JsonSerializable
     {
         $reports = $this->reports->toArray();
         $count = count($reports);
-        
+
         return ($count > 1) ? $reports[$count-2] : null;
     }
-    
+
     public function getLatestReport(): ?Report
     {
         return $this->reports->last() ?: null;
@@ -314,7 +290,7 @@ class Course implements \JsonSerializable
         $report->setContentFixed($fixed);
         $report->setContentResolved($resolved);
         $report->setFilesReviewed($filesReviewed);
-        
+
         return $report;
     }
 
@@ -386,7 +362,7 @@ class Course implements \JsonSerializable
         return $allIssues;
     }
 
-    protected function sortContentItems(ContentItem $a, ContentItem $b) 
+    protected function sortContentItems(ContentItem $a, ContentItem $b)
     {
         return (strtolower($a->getTitle()) > strtolower($b->getTitle())) ? 1 : -1;
     }

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from '@instructure/ui-buttons'
 import { IconCheckLine, IconInfoBorderlessLine, IconNoLine } from '@instructure/ui-icons'
 import { Billboard } from '@instructure/ui-billboard'
@@ -18,136 +18,112 @@ const issueStatusKeys = [
   'resolved'
 ]
 
-class ContentPage extends React.Component {
-  constructor(props) {
-    super(props);
+export default function ContentPage({ report, setReport, settings, handleIssueSave, appFilters, handleAppFilters, disableReview, t }) {
+  const filteredIssues = [];
+  const headers = [
+    { id: "status", text: '', alignText: "center" },
+    { id: "contentTitle", text: t('label.header.title') },
+    { id: "contentType", text: t('label.header.type') },
+    { id: "scanRuleLabel", text: t('label.issue') },
+    { id: "action", text: "", alignText: "end" }
+  ]
 
-    this.filteredIssues = [];
-    this.headers = [
-      {id: "status", text: '', alignText: "center"},
-      { id: "contentTitle", text: this.props.t('label.header.title') },
-      { id: "contentType", text: this.props.t('label.header.type') },
-      { id: "scanRuleLabel", text: this.props.t('label.issue') },
-      {id: "action", text: "", alignText: "end"}
-    ]
+  const easyRules = issueRuleIds.filter(rule => settings.easyRuleIds.includes(rule))
+  const visualRules = issueRuleIds.filter(rule => settings.visualRuleIds.includes(rule))
+  const auditoryRules = issueRuleIds.filter(rule => settings.auditoryRuleIds.includes(rule))
+  const cognitiveRules = issueRuleIds.filter(rule => settings.cognitiveRuleIds.includes(rule))
+  const motorRules = issueRuleIds.filter(rule => settings.motorRuleIds.includes(rule))
 
-    this.easyRules = issueRuleIds.filter(rule => this.props.settings.easyRuleIds.includes(rule))
+  const [activeIssue, setActiveIssue] = useState(null)
+  const [trayOpen, setTrayOpen] = useState(false)
+  const [modalOpen, setModalOpen] = useState(false)
+  const [activeIndex, setActiveIndex] = useState(-1)
+  const [searchTerm, setSearchTerm] = useState('')
+  const [filters, setFilters] = useState({
+    contentTypes: [],
+    issueTypes: [],
+    issueTitles: [],
+    issueStatus: ['active'],
+    issueImpacts: [],
+    hideUnpublishedContentItems: false,
+    easyIssues: false,
+  })
+  const [tableSettings, setTableSettings] = useState({
+    sortBy: 'contentTitle',
+    ascending: true,
+    pageNum: 0,
+    rowsPerPage: (localStorage.getItem('rowsPerPage')) ? localStorage.getItem('rowsPerPage') : '10'
+  })
 
-    this.visualRules = issueRuleIds.filter(rule => this.props.settings.visualRuleIds.includes(rule))
-    this.auditoryRules = issueRuleIds.filter(rule => this.props.settings.auditoryRuleIds.includes(rule))
-    this.cognitiveRules = issueRuleIds.filter(rule => this.props.settings.cognitiveRuleIds.includes(rule))
-    this.motorRules = issueRuleIds.filter(rule => this.props.settings.motorRuleIds.includes(rule))
-
-    this.state = {
-      activeIssue: null,
-      trayOpen: false,
-      modalOpen: false,
-      activeIndex: -1,
-      searchTerm: '',
-      filters: {
-        contentTypes: [],
-        issueTypes: [],
-        issueTitles: [],
-        issueStatus: ['active'],
-        issueImpacts: [],
-        hideUnpublishedContentItems: false,
-        easyIssues: false,
-      },
-      tableSettings: {
-        sortBy: 'contentTitle',
-        ascending: true,
-        pageNum: 0,
-        rowsPerPage: (localStorage.getItem('rowsPerPage')) ? localStorage.getItem('rowsPerPage') : '10'
-      },
-    };
-
-    this.handleTrayToggle = this.handleTrayToggle.bind(this);
-    this.handleSearchTerm = this.handleSearchTerm.bind(this);
-    this.handleTableSettings = this.handleTableSettings.bind(this);
-    this.handleFilter = this.handleFilter.bind(this);
-    this.handleActiveIssue = this.handleActiveIssue.bind(this);
-    //this.handleIssueSave = this.handleIssueSave.bind(this)
-  }
-
-  componentDidMount() {
-    if (Object.keys(this.props.appFilters).length > 0) {
-      const newFilters = Object.assign({}, this.resetFilters(), this.props.appFilters);
-      this.props.handleAppFilters({});
-      this.setState({ filters: newFilters });
+  useEffect(() => {
+    if (Object.keys(appFilters).length > 0) {
+      const newFilters = Object.assign({}, resetFilters(), appFilters);
+      handleAppFilters({});
+      setFilters(newFilters);
     }
+  }, [])
+
+  const handleSearchTerm = (e, val) => {
+    setSearchTerm(val);
+    setFilteredIssues([]);
+    setTableSettings(Object.assign({}, tableSettings, { pageNum: 0 }));
   }
 
-  handleSearchTerm = (e, val) => {
-    this.setState({searchTerm: val, filteredIssues: [], tableSettings: Object.assign({}, this.state.tableSettings, {pageNum: 0})});
+  const handleReviewClick = (activeIssue) => {
+    if (!disableReview) return;
+    setModalOpen(true);
+    setActiveIssue(activeIssue);
   }
 
-  // Opens the modal with the appropriate form based on the issue passed in
-  handleReviewClick = (activeIssue) => {
-    if (!this.props.disableReview) return;
-    this.setState({
-      modalOpen: true,
-      activeIssue: activeIssue
-    })
-  }
-
-  handleCloseButton = () => {
-    const newReport = { ...this.props.report };
+  const handleCloseButton = () => {
+    const newReport = { ...report };
     newReport.issues = newReport.issues.map((issue) => {
       issue.recentlyResolved = false;
       issue.recentlyUpdated = false;
       return issue;
     });
+    
+    setModalOpen(false);
+    setReport(newReport);
+  }
 
-    this.setState({
-      report: newReport,
-      modalOpen: false
+  const handleTrayToggle = (e, val) => {
+    setTrayOpen(!trayOpen);
+  }
+
+  const handleFilter = (filter) => {
+    setFilters(Object.assign({}, filters, filter));
+    setTableSettings({
+      sortBy: 'scanRuleLabel',
+      ascending: true,
+      pageNum: 0,
     });
+    setActiveIndex(-1);
   }
 
-  handleTrayToggle = (e, val) => {
-    this.setState({trayOpen: !this.state.trayOpen});
+  const handleActiveIssue = (newIssue, newIndex = undefined) => {
+    setActiveIssue(newIssue);
+    if(newIndex !== undefined) {
+      setActiveIndex(Number(newIndex));
+    }
   }
 
-  handleFilter = (filter) => {
-    this.setState({
-      filters: Object.assign({}, this.state.filters, filter),
-      tableSettings: {
-        sortBy: 'scanRuleLabel',
-        ascending: true,
-        pageNum: 0,
-      },
-      activeIndex: -1,
-    })
+  const handleTableSettings = (setting) => {
+    setTableSettings(Object.assign({}, tableSettings, setting));
   }
 
-  handleActiveIssue(newIssue, newIndex) {
-    this.setState({
-      activeIssue: newIssue,
-      activeIndex: Number(newIndex)
-    })
+  const getContentById = (contentId) => {
+    return Object.assign({}, report.contentItems[contentId]);
   }
 
-  handleTableSettings = (setting) => {
-    this.setState({
-      tableSettings: Object.assign({}, this.state.tableSettings, setting)
-    });
-  }
-
-  getContentById = (contentId) => {
-    return Object.assign({}, this.props.report.contentItems[contentId]);
-  }
-
-  getFilteredContent = () => {
-    const report = this.props.report;
-    const filters = Object.assign({}, this.state.filters);
-    const { sortBy, ascending } = this.state.tableSettings
-
+  const getFilteredContent = () => {
     let filteredList = [];
     let issueList = Object.assign({}, report.issues);
+    const tempFilters = Object.assign({}, filters);
 
     // Check for easy issues filter
-    if(filters.easyIssues && filters.issueTitles.length == 0) {
-      filters.issueTitles = this.easyRules
+    if (tempFilters.easyIssues && tempFilters.issueTitles.length == 0) {
+      tempFilters.issueTitles = easyRules
     }
 
     // Loop through the issues
@@ -155,51 +131,51 @@ class ContentPage extends React.Component {
       let issue = Object.assign({}, value)
 
       // Check if we are interested in this issue severity, aka "type"
-      if (filters.issueTypes.length !== 0 && !filters.issueTypes.includes(issue.type)) {
+      if (tempFilters.issueTypes.length !== 0 && !tempFilters.issueTypes.includes(issue.type)) {
         continue;
       }
 
       // Check if we are interested in issues with this rule impact
-      if (filters.issueImpacts.length !== 0
-          && !(filters.issueImpacts.includes('visual') && this.visualRules.includes(issue.scanRuleId))
-          && !(filters.issueImpacts.includes('auditory') && this.auditoryRules.includes(issue.scanRuleId))
-          && !(filters.issueImpacts.includes('cognitive') && this.cognitiveRules.includes(issue.scanRuleId))
-          && !(filters.issueImpacts.includes('motor') && this.motorRules.includes(issue.scanRuleId))
-        ) {
+      if (tempFilters.issueImpacts.length !== 0
+        && !(tempFilters.issueImpacts.includes('visual') && visualRules.includes(issue.scanRuleId))
+        && !(tempFilters.issueImpacts.includes('auditory') && auditoryRules.includes(issue.scanRuleId))
+        && !(tempFilters.issueImpacts.includes('cognitive') && cognitiveRules.includes(issue.scanRuleId))
+        && !(tempFilters.issueImpacts.includes('motor') && motorRules.includes(issue.scanRuleId))
+      ) {
         continue;
       }
 
       // Check if we are interested in issues with this rule title
-      if (filters.issueTitles.length !== 0 && !filters.issueTitles.includes(issue.scanRuleId)) {
+      if (tempFilters.issueTitles.length !== 0 && !tempFilters.issueTitles.includes(issue.scanRuleId)) {
         continue;
       }
 
       // Check if we are filtering by issue status
       if (!issue.recentlyUpdated && !issue.recentlyResolved) {
-        if (filters.issueStatus.length !== 0 && !filters.issueStatus.includes(issueStatusKeys[issue.status])) {
+        if (tempFilters.issueStatus.length !== 0 && !tempFilters.issueStatus.includes(issueStatusKeys[issue.status])) {
           continue;
         }
       }
 
       // Get information about the content the issue refers to
-      var contentItem = this.getContentById(issue.contentItemId)
+      var contentItem = getContentById(issue.contentItemId)
 
       // Check if we are showing unpublished content items
-      if (filters.hideUnpublishedContentItems && !contentItem.status) {
+      if (tempFilters.hideUnpublishedContentItems && !contentItem.status) {
         continue;
       }
 
       // Check if we are filtering by content type
-      if (filters.contentTypes.length !== 0 && !filters.contentTypes.includes(contentItem.contentType)) {
+      if (tempFilters.contentTypes.length !== 0 && !tempFilters.contentTypes.includes(contentItem.contentType)) {
         continue;
       }
 
       // Filter by search term
       if (!issue.keywords) {
-        issue.keywords = this.createKeywords(issue, contentItem);
+        issue.keywords = createKeywords(issue, contentItem);
       }
-      if (this.state.searchTerm !== '') {
-        const searchTerms = this.state.searchTerm.toLowerCase().split(' ');
+      if (searchTerm !== '') {
+        const searchTerms = searchTerm.toLowerCase().split(' ');
 
         if (Array.isArray(searchTerms)) {
           for (let term of searchTerms) {
@@ -213,26 +189,26 @@ class ContentPage extends React.Component {
       let status
       if (issue.status == 2) {
         status = <>
-          <ScreenReaderContent>{this.props.t('label.resolved')}</ScreenReaderContent>
+          <ScreenReaderContent>{t('label.resolved')}</ScreenReaderContent>
           <IconCheckLine color="brand" />
         </>
       }
       else if (issue.status == 1) {
         status = <>
-          <ScreenReaderContent>{this.props.t('label.fixed')}</ScreenReaderContent>
+          <ScreenReaderContent>{t('label.fixed')}</ScreenReaderContent>
           <IconCheckLine color="success" />
         </>
       }
       else {
         if ('error' === issue.type) {
           status = <>
-            <ScreenReaderContent>{this.props.t('label.error')}</ScreenReaderContent>
+            <ScreenReaderContent>{t('label.error')}</ScreenReaderContent>
             <IconNoLine className={Classes.error} />
           </>
         }
         else {
           status = <>
-            <ScreenReaderContent>{this.props.t('label.suggestion')}</ScreenReaderContent>
+            <ScreenReaderContent>{t('label.suggestion')}</ScreenReaderContent>
             <IconInfoBorderlessLine className={Classes.suggestion} />
           </>
         }
@@ -243,113 +219,51 @@ class ContentPage extends React.Component {
           id: issue.id,
           issue,
           status,
-          scanRuleLabel: this.props.t(`rule.label.${issue.scanRuleId}`),
-          contentType: this.props.t(`content.${contentItem.contentType}`),
+          scanRuleLabel: t(`rule.label.${issue.scanRuleId}`),
+          contentType: t(`content.${contentItem.contentType}`),
           contentTitle: contentItem.title,
           action: (
             <Button key={`reviewButton${key}`}
-              onClick={() => this.handleReviewClick(issue)}
+              onClick={() => handleReviewClick(issue)}
               textAlign="center"
-              disabled={!this.props.disableReview}
+              disabled={!disableReview}
             >
-                {this.props.t('label.review')}
-                <ScreenReaderContent>{this.props.t(`rule.label.${issue.scanRuleId}`)}</ScreenReaderContent>
+                {t('label.review')}
+                <ScreenReaderContent>{t(`rule.label.${issue.scanRuleId}`)}</ScreenReaderContent>
             </Button>
           ),
-          onClick: () => this.handleReviewClick(issue),
+          onClick: () => handleReviewClick(issue),
         }
       );
     }
 
     filteredList.sort((a, b) => {
-      if (isNaN(a[sortBy]) || isNaN(b[sortBy])) {
-        return (a[sortBy].toLowerCase() < b[sortBy].toLowerCase()) ? -1 : 1;
+      if (isNaN(a[tableSettings.sortBy]) || isNaN(b[tableSettings.sortBy])) {
+        return (a[tableSettings.sortBy].toLowerCase() < b[tableSettings.sortBy].toLowerCase()) ? -1 : 1;
       }
       else {
-        return (Number(a[sortBy]) < Number(b[sortBy])) ? -1 : 1;
+        return (Number(a[tableSettings.sortBy]) < Number(b[tableSettings.sortBy])) ? -1 : 1;
       }
     });
 
-    if (!ascending) {
+    if (!tableSettings.ascending) {
       filteredList.reverse();
     }
 
     return filteredList;
   }
 
-  render() {
-    const filteredRows = this.getFilteredContent();
-    const activeContentItem = (this.state.activeIssue) ? this.getContentById(this.state.activeIssue.contentItemId) : null
-
-    return (
-      <View as="div" key="contentPageFormWrapper" padding="small 0" margin="none">
-        <ContentPageForm
-          handleSearchTerm={this.handleSearchTerm}
-          handleTrayToggle={this.handleTrayToggle}
-          searchTerm={this.state.searchTerm}
-          t={this.props.t}
-          ref={(node) => this.contentPageForm = node}
-          handleTableSettings={this.handleTableSettings}
-          tableSettings={this.state.tableSettings}
-        />
-        <View as="div">
-          {this.renderFilterTags()}
-        </View>
-        <SortableTable
-          caption={this.props.t('content_page.issues.table.caption')}
-          headers = {this.headers}
-          rows = {filteredRows}
-          filters = {this.state.filters}
-          tableSettings = {this.state.tableSettings}
-          handleFilter = {this.handleFilter}
-          handleTableSettings = {this.handleTableSettings}
-          t={this.props.t}
-          rowsPerPage = {this.state.tableSettings.rowsPerPage}
-        />
-        {this.state.trayOpen && <ContentTrayForm
-          filters={this.state.filters}
-          handleFilter={this.handleFilter}
-          trayOpen={this.state.trayOpen}
-          report={this.props.report}
-          handleTrayToggle={this.handleTrayToggle}
-          t={this.props.t}
-          settings={this.props.settings}
-        />}
-        {this.state.modalOpen && <UfixitModal
-          open={this.state.modalOpen}
-          activeIssue={this.state.activeIssue}
-          activeIndex={this.state.activeIndex}
-          filteredRows={filteredRows}
-          activeContentItem={activeContentItem}
-          settings={this.props.settings}
-          handleCloseButton={this.handleCloseButton}
-          handleActiveIssue={this.handleActiveIssue}
-          handleIssueSave={this.props.handleIssueSave}
-          t={this.props.t}
-          />}
-
-        {filteredRows.length === 0 &&
-            <Billboard
-            size="medium"
-            heading={this.props.t('label.no_results_header')}
-            margin="small"
-            message={this.props.t('label.no_results_message')}
-        />}
-      </View>
-    )
-  }
-
-  createKeywords(issue, contentItem) {
+  const createKeywords = (issue, contentItem) => {
     let keywords = [];
 
-    keywords.push(this.props.t(`rule.label.${issue.scanRuleId}`).toLowerCase());
-    keywords.push(this.props.t(`label.${contentItem.contentType}`).toLowerCase());
+    keywords.push(t(`rule.label.${issue.scanRuleId}`).toLowerCase());
+    keywords.push(t(`label.${contentItem.contentType}`).toLowerCase());
     keywords.push(contentItem.title.toLowerCase());
 
     return keywords.join(' ');
   }
 
-  resetFilters() {
+  const resetFilters = () => {
     return {
       contentTypes: [],
       hideUnpublishedContentItems: false,
@@ -360,100 +274,148 @@ class ContentPage extends React.Component {
     };
   }
 
-  renderFilterTags() {
+  const renderFilterTags = () => {
     let tags = [];
 
-    for (const contentType of this.state.filters.contentTypes) {
+    for (const contentType of filters.contentTypes) {
       const id = `contentTypes||${contentType}`;
-      tags.push({ id: id, label: this.props.t(`content.plural.${contentType}`)});
+      tags.push({ id: id, label: t(`content.plural.${contentType}`)});
     }
 
-    for (const issueType of this.state.filters.issueTypes) {
+    for (const issueType of filters.issueTypes) {
       const id = `issueTypes||${issueType}`
-      tags.push({ id: id, label: this.props.t(`label.plural.${issueType}`)});
+      tags.push({ id: id, label: t(`label.plural.${issueType}`)});
     }
 
-    for (const issueImpact of this.state.filters.issueImpacts) {
+    for (const issueImpact of filters.issueImpacts) {
       const id = `issueImpacts||${issueImpact}`
-      tags.push({ id: id, label: this.props.t(`label.filter.${issueImpact}`)});
+      tags.push({ id: id, label: t(`label.filter.${issueImpact}`)});
     }
 
-    for (const ruleId of this.state.filters.issueTitles) {
+    for (const ruleId of filters.issueTitles) {
       const id = `issueTitles||${ruleId}`
-      tags.push({ id: id, label: this.props.t(`rule.label.${ruleId}`) });
+      tags.push({ id: id, label: t(`rule.label.${ruleId}`) });
     }
 
-    for (const statusVal of this.state.filters.issueStatus) {
+    for (const statusVal of filters.issueStatus) {
       const id = `issueStatus||${statusVal}`
-      tags.push({ id: id, label: this.props.t(`label.filter.${statusVal}`) });
+      tags.push({ id: id, label: t(`label.filter.${statusVal}`) });
     }
 
-    if (this.state.filters.hideUnpublishedContentItems) {
-      tags.push({ id: `hideUnpublishedContentItems||true`, label: this.props.t(`label.hide_unpublished`) });
+    if (filters.hideUnpublishedContentItems) {
+      tags.push({ id: `hideUnpublishedContentItems||true`, label: t(`label.hide_unpublished`) });
     }
-    if (this.state.filters.easyIssues) {
-      tags.push({ id: `easyIssues||true`, label: this.props.t(`label.show_easy_issues`) });
+
+    if (filters.easyIssues) {
+      tags.push({ id: `easyIssues||true`, label: t(`label.show_easy_issues`) });
     }
 
     return tags.map((tag, i) => {
       return (
-      <Tag margin="0 small small 0"
-        text={tag.label}
-        dismissible={true}
-        onClick={(e) => this.handleTagClick(tag.id, e)}
-        key={i}
-        elementRef={(node) => this[`tag${i}`] = node}
-      />
-    )});
+        <Tag margin="0 small small 0"
+          text={tag.label}
+          dismissible={true}
+          onClick={(e) => handleTagClick(tag.id, e)}
+          key={i}
+        />
+      )
+    });
   }
 
-  handleTagClick(tagId, e) {
+  const handleTagClick = (tagId, e) => {
     let [filterType, filterId] = tagId.split('||');
     let results = null;
     let index = 0
 
     switch (filterType) {
       case 'contentTypes':
-        index += this.state.filters.contentTypes.findIndex((val) => filterId == val)
-        results = this.state.filters.contentTypes.filter((val) => filterId !== val);
+        index += filters.contentTypes.findIndex((val) => filterId == val)
+        results = filters.contentTypes.filter((val) => filterId !== val);
         break;
       case 'issueTypes':
-        index = this.state.filters.contentTypes.length
-        index += this.state.filters.issueTypes.findIndex((val) => filterId == val)
-        results = this.state.filters.issueTypes.filter((val) => filterId !== val);
+        index = filters.contentTypes.length
+        index += filters.issueTypes.findIndex((val) => filterId == val)
+        results = filters.issueTypes.filter((val) => filterId !== val);
         break;
       case 'issueTitles':
-        index = this.state.filters.contentTypes.length + this.state.filters.issueTypes.length
-        index += this.state.filters.issueTitles.findIndex((val) => filterId == val)
-        results = this.state.filters.issueTitles.filter((val) => filterId !== val);
+        index = filters.contentTypes.length + filters.issueTypes.length
+        index += filters.issueTitles.findIndex((val) => filterId == val)
+        results = filters.issueTitles.filter((val) => filterId !== val);
         break;
       case 'issueStatus':
-        index = this.state.filters.contentTypes.length + this.state.filters.issueTypes.length + this.state.filters.issueTitles.length
-        index += this.state.filters.issueStatus.findIndex((val) => filterId == val)
-        results = this.state.filters.issueStatus.filter((val) => filterId != val);
+        index = filters.contentTypes.length + filters.issueTypes.length + filters.issueTitles.length
+        index += filters.issueStatus.findIndex((val) => filterId == val)
+        results = filters.issueStatus.filter((val) => filterId != val);
         break;
       case 'issueImpacts':
-        index = this.state.filters.contentTypes.length + this.state.filters.issueTypes.length + this.state.filters.issueTitles.length + this.state.filters.issueStatus.length
-        index += this.state.filters.issueImpacts.findIndex((val) => filterId == val)
-        results = this.state.filters.issueImpacts.filter((val) => filterId != val);
+        index = filters.contentTypes.length + filters.issueTypes.length + filters.issueTitles.length + filters.issueStatus.length
+        index += filters.issueImpacts.findIndex((val) => filterId == val)
+        results = filters.issueImpacts.filter((val) => filterId != val);
         break;
       case 'hideUnpublishedContentItems':
-        index = this.state.filters.contentTypes.length + this.state.filters.issueTypes.length + this.state.filters.issueTitles.length + this.state.filters.issueStatus.length + this.state.filters.issueImpacts.length
+        index = filters.contentTypes.length + filters.issueTypes.length + filters.issueTitles.length + filters.issueStatus.length + filters.issueImpacts.length
         results = false;
         break;
     }
 
-    this.handleFilter({ [filterType]: results });
-    if (index - 1 >= 0) {
-      setTimeout(() => {
-        this[`tag${index - 1}`].focus()
-      })
-    } else {
-      setTimeout(() => {
-        this.contentPageForm.focus()
-      })
-    }
+    handleFilter({ [filterType]: results });
   }
-}
 
-export default ContentPage;
+  const filteredRows = getFilteredContent()
+
+  return (
+    <View as="div" key="contentPageFormWrapper" padding="small 0" margin="none">
+      <ContentPageForm
+        handleSearchTerm={handleSearchTerm}
+        handleTrayToggle={handleTrayToggle}
+        searchTerm={searchTerm}
+        t={t}
+        handleTableSettings={handleTableSettings}
+        tableSettings={tableSettings}
+      />
+      <View as="div">
+        {renderFilterTags()}
+      </View>
+      <SortableTable
+        caption={t('content_page.issues.table.caption')}
+        headers = {headers}
+        rows = {filteredRows}
+        filters = {filters}
+        tableSettings = {tableSettings}
+        handleFilter = {handleFilter}
+        handleTableSettings = {handleTableSettings}
+        t={t}
+        rowsPerPage = {tableSettings.rowsPerPage}
+      />
+      {trayOpen && <ContentTrayForm
+        filters={filters}
+        handleFilter={handleFilter}
+        trayOpen={trayOpen}
+        report={report}
+        handleTrayToggle={handleTrayToggle}
+        t={t}
+        settings={settings}
+      />}
+      {modalOpen && <UfixitModal
+        open={modalOpen}
+        activeIssue={activeIssue}
+        activeIndex={activeIndex}
+        filteredRows={filteredRows}
+        activeContentItem={ activeIssue ? getContentById(activeIssue.contentItemId) : null }
+        settings={settings}
+        handleCloseButton={handleCloseButton}
+        handleActiveIssue={handleActiveIssue}
+        handleIssueSave={handleIssueSave}
+        t={t}
+        />}
+
+      {filteredRows.length === 0 &&
+          <Billboard
+          size="medium"
+          heading={t('label.no_results_header')}
+          margin="small"
+          message={t('label.no_results_message')}
+      />}
+    </View>
+  )
+}
