@@ -5,6 +5,8 @@ import ResolvedIcon from './Icons/ResolvedIcon';
 import LeftArrowIcon from './Icons/LeftArrowIcon'
 import ListIcon from './Icons/ListIcon'
 import RightArrowIcon from './Icons/RightArrowIcon'
+import ProgressIcon from './Icons/ProgressIcon'
+import FixIssuesResolve from './FixIssuesResolve'
 import ReactHtmlParser from 'react-html-parser'
 // import MessageTray from './MessageTray'
 // import Preview from './Preview'
@@ -18,17 +20,6 @@ import './UfixitWidget.css'
 // import Pretty from 'pretty'
 
 export default function UfixitWidget({
-  // t,
-  // settings,
-  // open,
-  // activeIssue,
-  // activeIndex,
-  // activeContentItem,
-  // filteredRows,
-  // handleCloseButton,
-  // handleActiveIssue,
-  // handleIssueSave
-
   t,
   settings,
   viewInfo,
@@ -36,14 +27,14 @@ export default function UfixitWidget({
   severity,
   activeIssue,
   setActiveIssue,
+  formatIssueData,
   handleIssueResolve,
   handleIssueSave,
   toggleListView,
   listLength,
-  nextIssue
+  nextIssue,
+  isSaving
 }) {
-
-  const [isSaving, setIsSaving] = useState(false)
 
   // const [windowContents, setWindowContents] = useState('preview')
   // const [expandExample, setExpandExample] = useState(false)
@@ -52,17 +43,21 @@ export default function UfixitWidget({
   // const [currentIndex, setCurrentIndex] = useState(0)
   const [modalMessages, setModalMessages] = useState([])
   const [UfixitForm, setUfixitForm] = useState(null)
+  const [tempActiveIssue, setTempActiveIssue] = useState(null)
   // const [code, setCode] = useState('')
 
   useEffect(() => {
     if(activeIssue) {
       setUfixitForm(() => returnIssueForm(activeIssue.issue))
+      setTempActiveIssue(Object.assign({}, activeIssue))
+      console.log("Active Issue:")
+      console.log(activeIssue)
     }
     else {
       setUfixitForm(null)
+      setTempActiveIssue(null)
     }
   }, [activeIssue])
-
 
   // const handleOpenContent = (e) => {
   //   const contentItem = activeContentItem
@@ -138,6 +133,9 @@ export default function UfixitWidget({
 
   const handleSingleIssueSave = (issue) => {
     // send issue obj to PHP
+    console.log("Attempting to save this issue:")
+    console.log(issue)
+
     let api = new Api(settings)
 
     api.saveIssue(issue)
@@ -164,39 +162,32 @@ export default function UfixitWidget({
               })
             })
           }
-
-          // update activeIssue
-          issue.pending = false
-          setActiveIssue(issue)
         }
         else {
           // set messages 
           response.messages.forEach((msg) => addMessage(msg))
 
           if (response.data.issue) {
-            const newIssue = {...issue, ...response.data.issue}
-            newIssue.pending = false
-            newIssue.recentlyUpdated = true
+            console.log("Issue saved successfully:")
+            console.log(response.data.issue)
+            const newIssue = Object.assign({}, issue, response.data.issue)
 
+            console.log("New Issue:")
+            console.log(newIssue)
             // Get updated report
             api.scanContent(newIssue.contentItemId)
               .then((responseStr) => responseStr.json())
               .then((res) => {
                 // update activeIssue
-                setActiveIssue(newIssue)
-                handleIssueSave(newIssue, res.data)
+                setActiveIssue(formatIssueData(newIssue))
+                handleIssueSave(newIssuez, res.data)
               })
           }
           else {
-            issue.pending = false
-            setActiveIssue(issue)
+            setActiveIssue(formatIssueData(issue))
           }
         }
       })
-
-    // update activeIssue
-    issue.pending = 1
-    setActiveIssue(issue)
   }
 
   const handleManualScan = (issue) => {
@@ -212,24 +203,17 @@ export default function UfixitWidget({
           });
         }
         if (data.data.issue) {
-          const newIssue = { ...issue, ...data.data.issue }
-          newIssue.pending = false
-          newIssue.recentlyUpdated = true
-
+          const newIssue = Object.assign({}, issue, data.data.issue)
           handleIssueSave(newIssue, data.data.report)
 
           // update activeIssue
-          setActiveIssue(newIssue)
+          setActiveIssue(formatIssueData(newIssue))
         }
         else {
           issue.pending = false
-          setActiveIssue(issue)
+          setActiveIssue(formatIssueData(issue))
         }
       })
-
-    // update activeIssue
-    issue.pending = 1
-    setActiveIssue(issue)
   }
   
   // const handleExampleToggle = () => {
@@ -240,6 +224,11 @@ export default function UfixitWidget({
     setModalMessages([...modalMessages, msg])
   }
 
+  const handleActiveIssue = (newIssue) => {
+    const tempIssue = Object.assign({}, tempActiveIssue)
+    tempIssue.issue = newIssue
+    setTempActiveIssue(tempIssue)
+  }
   // const clearMessages = () => {
   //   setModalMessages([])
   // }
@@ -314,27 +303,40 @@ export default function UfixitWidget({
               </div>
             }
             { !viewInfo &&
-              <div className="flex-grow-1 ufixit-form-container">
-                <UfixitForm
-                  t={t}
-                  settings={settings}
-                  activeIssue={activeIssue}
-                  handleIssueSave={handleSingleIssueSave}
-                  addMessage={addMessage} 
-                  handleActiveIssue={setActiveIssue}
-                  handleManualScan={handleManualScan} />
-              </div>
-            }
-
-            {/* The "Mark Resolved" button */}
-            { !viewInfo && 
-              <div className="ufixit-widget-resolve-container">
-                <div>{t(`label.resolved_description`)}</div>
-                <button className="btn btn-secondary mt-3 align-self-end"
-                  onClick={() => handleIssueResolve()}
-                  disabled={(activeIssue.status == '1')}>
-                  {t(`label.mark_resolved`)}
-                </button>
+              <div className="flex-grow-1 ufixit-form-container flex-column">
+                { activeIssue.status !== settings.FILTER.RESOLVED &&
+                  <div className="flex-grow-1">
+                    <UfixitForm
+                      t={t}
+                      settings={settings}
+                      activeIssue={tempActiveIssue.issue}
+                      handleIssueSave={handleSingleIssueSave}
+                      addMessage={addMessage} 
+                      handleActiveIssue={handleActiveIssue}
+                      handleManualScan={handleManualScan} />
+                  </div>
+                }
+                <div className="flex-grow-0">
+                  <FixIssuesResolve
+                    t={t}
+                    settings={settings}
+                    isSaving={isSaving}
+                    activeIssue={activeIssue}
+                    handleIssueResolve={handleIssueResolve}
+                  />
+                </div>
+                { isSaving && 
+                  <div className="ufixit-overlay flex-column justify-content-center">
+                    <div className="ufixit-overlay-content-container flex-row justify-content-center">
+                      <div className="flex-column justify-content-center">
+                        <ProgressIcon className="icon-lg primary spinner" />
+                      </div>
+                      <div className="flex-column justify-content-center ms-3">
+                        <h2>{t('form.processing')}</h2>
+                      </div>
+                    </div>
+                  </div>
+                }
               </div>
             }
 

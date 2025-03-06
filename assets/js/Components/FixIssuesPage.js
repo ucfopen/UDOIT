@@ -27,6 +27,8 @@ export default function FixIssuesPage({
   addMessage,
   handleIssueSave, 
   handleIssueUpdate,
+  activeTasks,
+  updateTask,
   disableReview })
 {
 
@@ -123,6 +125,7 @@ export default function FixIssuesPage({
   const [filteredIssues, setFilteredIssues] = useState([])
   const [widgetState, setWidgetState] = useState(WIDGET_STATE.LOADING)
   const [viewInfo, setViewInfo] = useState(false)
+  const [isSaving, setIsSaving] = useState(true)
 
   const getActiveIssueIndex = () => {
     if (activeIssue === null) return -1;
@@ -200,6 +203,24 @@ export default function FixIssuesPage({
     })
   }, [activeIssue])
 
+  useEffect(() => {
+
+    if(activeIssue === null || activeTasks.length === 0) {
+      setIsSaving(false)
+      return
+    }
+
+    // See if this issue is already in the activeTasks list
+    let tempTask = activeTasks.find((task) => task.id === activeIssue.id)
+    if(tempTask) {
+      setIsSaving(true)
+    }
+    else {
+      setIsSaving(false)
+    }
+
+  }, [activeIssue, activeTasks])    
+
   const handleSearchTerm = (newSearchTerm) => {
     setSearchTerm(newSearchTerm);
   }
@@ -226,7 +247,7 @@ export default function FixIssuesPage({
     }
     
     let issueContentType = FILTER.ALL
-    let issueSectionId = -1
+    let issueSectionIds = []
 
     // PHPAlly returns a contentItemId that we can use to get the content type
     let tempContentItem = getContentById(issue.contentItemId)
@@ -267,7 +288,7 @@ export default function FixIssuesPage({
           let tempSectionId = section.id
           section.items.forEach((item) => {
             if(item.page_url === tempContentItem.lmsContentId) {
-              issueSectionId = tempSectionId
+              issueSectionIds.push(tempSectionId.toString())
             }
           })
         })
@@ -288,7 +309,7 @@ export default function FixIssuesPage({
       issue: Object.assign({}, issue),
       severity: issueSeverity,
       status: issueResolution,
-      sectionId: issueSectionId,
+      sectionIds: issueSectionIds,
       keywords: createKeywords(issue, tempContentItem),
       scanRuleLabel: t(`rule.label.${issue.scanRuleId}`),
       contentId: tempContentItem.lmsContentId,
@@ -304,6 +325,8 @@ export default function FixIssuesPage({
     if (activeIssue.pending) {
       return
     }
+
+    updateTask(activeIssue.id, 'resolve')
 
     let tempIssue = Object.assign({}, activeIssue.issue)
     if (tempIssue.status) {
@@ -335,32 +358,19 @@ export default function FixIssuesPage({
           api.scanContent(newIssue.contentItemId)
           .then((responseStr) => responseStr.json())
           .then((res) => {
-            // update activeIssue
+            // update activeIssue locally
+            updateTask(newIssue.id)
             updateIssue(newIssue)
             handleIssueSave(newIssue, res.data)
           })
         }
         else {
-          tempIssue.pending = false
+          updateTask(tempIssue.id)
           updateIssue(tempIssue)
         }
       })
-
-    tempIssue.pending = 2
     updateIssue(tempIssue)
   }
-
-  // const handleCloseButton = () => {
-  //   const newReport = { ...report };
-  //   newReport.issues = newReport.issues.map((issue) => {
-  //     issue.recentlyResolved = false;
-  //     issue.recentlyUpdated = false;
-  //     return issue;
-  //   });
-    
-  //   setModalOpen(false);
-  //   setReport(newReport);
-  // }
 
   const updateActiveFilters = (filter, value) => {
     setActiveFilters(Object.assign({}, activeFilters, {[filter]: value}));
@@ -450,7 +460,7 @@ export default function FixIssuesPage({
       }
 
       // Skip if the issue is not in the selected module
-      if (tempFilters[FILTER.TYPE.MODULE] !== FILTER.ALL && tempFilters[FILTER.TYPE.MODULE].toString() !== issue.sectionId.toString()) {
+      if (tempFilters[FILTER.TYPE.MODULE] !== FILTER.ALL && !issue.sectionIds.includes(tempFilters[FILTER.TYPE.MODULE].toString())) {
         continue;
       }
 
@@ -505,11 +515,13 @@ export default function FixIssuesPage({
                 severity={activeIssue.severity}
                 activeIssue={activeIssue}
                 setActiveIssue={setActiveIssue}
+                formatIssueData={formatIssueData}
                 handleIssueResolve={handleIssueResolve}
                 handleIssueSave={handleIssueSave}
                 toggleListView={toggleListView}
                 listLength={filteredIssues.length}
                 nextIssue={nextIssue}
+                isSaving={isSaving}
               />
           ) : (
             <h2>No Issues Found</h2>

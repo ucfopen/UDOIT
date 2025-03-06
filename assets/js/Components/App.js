@@ -38,10 +38,6 @@ export default function App(initialData) {
   const [settings, setSettings] = useState(initialData.settings || null)
   const [sections, setSections] = useState([])
 
-  // The reportHistory and newReportInterval variables are not used in the current codebase
-  // const [reportHistory, setReportHistory] = useState([])
-  // const [newReportInterval, setNewReportInterval] = useState(5000)
-
   const [appFilters, setAppFilters] = useState({})
   const [navigation, setNavigation] = useState('welcome')
   const [modal, setModal] = useState(null)
@@ -50,6 +46,7 @@ export default function App(initialData) {
   const [disableReview, setDisableReview] = useState(false)
   const [initialSeverity, setInitialSeverity] = useState('')
   const [contentItemList, setContentItemList] = useState([])
+  const [activeTasks, setActiveTasks] = useState([])
 
   // `t` is used for text/translation. It will return the translated string if it exists
   // in the settings.labels object.
@@ -66,6 +63,32 @@ export default function App(initialData) {
     let api = new Api(settings)
     return api.fullRescan(settings.course.id)
   }, [settings])
+
+  // Tasks are used to track progress when multiple things are going on at once, and can allow the
+  // activeIssue to change without losing information about the previous issue.
+  // task: { id: issueId, state: 'updating' }
+  // If "state" is empty or not set, the task is considered complete.
+  const updateTask = (taskId, taskState = null) => {
+    let newActiveTasks = activeTasks
+    let taskIndex = newActiveTasks.findIndex((t) => t.id === taskId)
+    if (taskIndex >= 0) {
+      if(taskState) {
+        console.log("Task " + taskId + " is now " + taskState)
+        newActiveTasks[taskIndex] = { id: taskId, state: taskState }
+      }
+      else {
+        console.log("Task " + taskId + " is complete")
+        newActiveTasks.splice(taskIndex, 1)
+      }
+    }
+    else {
+      if(taskState) {
+        console.log("Task " + taskId + " is added as " + taskState)
+        newActiveTasks.push({ id: taskId, state: taskState })
+      }
+    }
+    setActiveTasks(newActiveTasks)
+  }
 
   const handleNewReport = (data) => {
     let newReport = report
@@ -288,6 +311,8 @@ export default function App(initialData) {
             handleNavigation={handleNavigation}
             handleIssueSave={handleIssueSave}
             handleIssueUpdate={handleIssueSave}
+            activeTasks={activeTasks}
+            updateTask={updateTask}
             disableReview={syncComplete && !disableReview} />
         }
         {('files' === navigation) &&

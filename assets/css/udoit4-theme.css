@@ -37,6 +37,13 @@
   box-shadow: 2px 2px 2px var(--border-color);
 }
 
+body {
+  padding: 0px !important;
+  margin: 0px !important;
+  border-left: none !important;
+  max-width: 1200px;
+}
+
 /* Bootstrap-esque classes for general use */
 .flex-row {
   display: flex;
@@ -330,6 +337,14 @@ h1, h2, h3, h4, h5, h6 {
   background-color: var(--primary-color);
   border-color: var(--primary-color);
   color: var(--primary-color-dark);
+
+  &.disabled,
+  &.btn-disabled {
+    color: var(--gray);
+    border-color: var(--gray-light);
+    background-color: var(--gray-light);
+    cursor: not-allowed !important;
+  }
 }
 
 .btn-secondary {
@@ -337,6 +352,15 @@ h1, h2, h3, h4, h5, h6 {
   border-color: var(--primary-color);
   background-color: transparent;
   color: var(--primary-color-dark);
+  
+  &.disabled,
+  &.btn-disabled {
+    color: var(--gray);
+    border-color: var(--gray-light);
+    background-color: var(--gray-lightest);
+    opacity: 0.75;
+    cursor: not-allowed !important;
+  }
 }
 
 .btn-text, .text-button {
@@ -419,6 +443,19 @@ h1, h2, h3, h4, h5, h6 {
 .color-success {
   color: var(--primary-color);
   fill: var(--primary-color);
+}
+
+.spinner {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
 header {
