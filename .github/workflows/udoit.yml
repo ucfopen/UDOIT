@@ -31,7 +31,7 @@ jobs:
           coverage: xdebug #optional
 
       - name: Get composer cache directory
-        id: composer-cache-dir
+        id: get-composer-cache-dir
         run: echo "dir=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
 
       - name: Cache composer dependencies
@@ -40,7 +40,7 @@ jobs:
         with:
           path: |
             vendor
-            ${{ steps.composer-cache.outputs.dir }}
+            ${{ steps.get-composer-cache-dir.outputs.dir }}
           key: php-${{ matrix.php-versions }}-composer-${{ hashFiles('**/composer.lock') }}
           restore-keys: php-${{ matrix.php-versions }}-composer-
 
@@ -65,7 +65,7 @@ jobs:
             echo "dir=$(yarn config get cacheFolder)" >> $GITHUB_OUTPUT
 
       - name: Cache Yarn dependencies
-      - uses: actions/cache@v4
+        uses: actions/cache@v4
         id: yarn-cache # use this to check for `cache-hit` (`steps.yarn-cache.outputs.cache-hit != 'true'`)
         with:
           path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
@@ -73,7 +73,8 @@ jobs:
           restore-keys: |
             php-${{ matrix.php-versions }}-yarn-
 
-      - name: Yarn install
+      - name: Install Yarn dependencies
+        if: ${{ steps.yarn-cache.outputs.cache-hit != 'true' }}
         run: yarn install
 
       - name: Yarn build
@@ -84,6 +85,7 @@ jobs:
 
       - name: Verify if cache was found
         run: echo "Cache hit ${{ steps.yarn-cache.outputs.cache-hit }}"
+
       - name: Start and initialize Postgres
         env:
           DATABASE_URL: postgresql://udoit:udoit@127.0.0.1:5432/udoit?serverVersion=11&charset=utf8
