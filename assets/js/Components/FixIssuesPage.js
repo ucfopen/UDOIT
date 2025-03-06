@@ -5,7 +5,7 @@ import FixIssuesContentPreview from './FixIssuesContentPreview';
 import UfixitWidget from './UfixitWidget'
 import * as Html from '../Services/Html'
 import Api from '../Services/Api'
-import './FixissuesPage.css'
+import './FixIssuesPage.css'
 
 // import SortableTable from './SortableTable'
 // import ContentPageForm from './ContentPageForm'
@@ -22,6 +22,7 @@ export default function FixIssuesPage({
   contentItemList,
   addContentItem,
   report,
+  sections,
   setReport,
   addMessage,
   handleIssueSave, 
@@ -117,6 +118,7 @@ export default function FixIssuesPage({
   const [activeIssue, setActiveIssue] = useState(null)
   const [activeContentItem, setActiveContentItem] = useState(null)
   const [searchTerm, setSearchTerm] = useState('')
+  const [usedFilters, setUsedFilters] = useState([])
   const [activeFilters, setActiveFilters] = useState(defaultFilters)
   const [filteredIssues, setFilteredIssues] = useState([])
   const [widgetState, setWidgetState] = useState(WIDGET_STATE.LOADING)
@@ -132,6 +134,19 @@ export default function FixIssuesPage({
     let tempSeverity = initialSeverity || FILTER.ALL
     setActiveFilters(Object.assign({}, defaultFilters, {[FILTER.TYPE.SEVERITY]: tempSeverity}))
   }, [initialSeverity])
+  
+  useEffect(() => {
+    let tempFilters = Object.assign({}, allFilters)
+    if(sections && sections.length > 0) {
+      sections.forEach((section) => {
+        tempFilters[FILTER.TYPE.MODULE][section.id] = section.title
+      })
+    }
+    else {
+      delete tempFilters[FILTER.TYPE.MODULE]
+    }
+    setUsedFilters(tempFilters)
+  })
 
   // When the filters or search term changes, update the available issues
   useEffect(() => {
@@ -193,7 +208,6 @@ export default function FixIssuesPage({
     const tempReport = Object.assign({}, report)
     tempReport.issues = tempReport.issues.map((issue) => {
       if (issue.id === newIssue.id) {
-        console.log("Found the issue to overwrite!")
         const tempIssue = formatIssueData(newIssue)
         setActiveIssue(tempIssue)
         return tempIssue
@@ -212,6 +226,8 @@ export default function FixIssuesPage({
     }
     
     let issueContentType = FILTER.ALL
+    let issueSectionId = -1
+
     // PHPAlly returns a contentItemId that we can use to get the content type
     let tempContentItem = getContentById(issue.contentItemId)
     if(tempContentItem) {
@@ -243,6 +259,19 @@ export default function FixIssuesPage({
       else if(tempContentType == 'module') {
         issueContentType = FILTER.MODULE
       }
+
+      // See if the issue is listed in one of the sections
+      // TODO: Find a more consistent way to filter this that works with less bespoke data.
+      if(sections && sections.length > 0) {
+        sections.forEach((section) => {
+          let tempSectionId = section.id
+          section.items.forEach((item) => {
+            if(item.page_url === tempContentItem.lmsContentId) {
+              issueSectionId = tempSectionId
+            }
+          })
+        })
+      }
     }
 
     let issueResolution = FILTER.ACTIVE
@@ -259,17 +288,19 @@ export default function FixIssuesPage({
       issue: Object.assign({}, issue),
       severity: issueSeverity,
       status: issueResolution,
+      sectionId: issueSectionId,
       keywords: createKeywords(issue, tempContentItem),
       scanRuleLabel: t(`rule.label.${issue.scanRuleId}`),
+      contentId: tempContentItem.lmsContentId,
       contentType: issueContentType,
       contentTypeLabel: t(`content.${tempContentItem.contentType}`),
       contentTitle: tempContentItem.title,
       contentUrl: tempContentItem.url,
+      
     }
   }
 
   const handleIssueResolve = () => {
-    console.log("Trying to resolve issue manually")
     if (activeIssue.pending) {
       return
     }
@@ -418,6 +449,11 @@ export default function FixIssuesPage({
         continue;
       }
 
+      // Skip if the issue is not in the selected module
+      if (tempFilters[FILTER.TYPE.MODULE] !== FILTER.ALL && tempFilters[FILTER.TYPE.MODULE].toString() !== issue.sectionId.toString()) {
+        continue;
+      }
+
       // Filter by search term
       if (searchTerm !== '') {
         const searchTerms = searchTerm.toLowerCase().split(' ');
@@ -444,8 +480,9 @@ export default function FixIssuesPage({
   return (
     <>
       <FixIssuesFilters
-        allFilters={allFilters}
+        allFilters={usedFilters}
         activeFilters={activeFilters}
+        sections={sections}
         updateActiveFilters={updateActiveFilters}
         searchTerm={searchTerm}
         handleSearchTerm={handleSearchTerm}

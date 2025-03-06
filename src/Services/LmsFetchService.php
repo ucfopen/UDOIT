@@ -81,6 +81,7 @@ class LmsFetchService {
 
         /* Step 2: Get list of changed content items */
         $contentItems = $contentItemRepo->getUpdatedContentItems($course);
+        $contentSections = $lms->getCourseSections($course, $user);
 
         /* Step 3: Delete issues for updated content items */
         $this->deleteContentItemIssues($contentItems);
@@ -104,6 +105,12 @@ class LmsFetchService {
     //     $lms->updateContentItem($contentItem);
     //     $this->doctrine->getManager()->flush();
     // }
+
+    public function getCourseSections(Course $course, User $user)
+    {
+        $lms = $this->lmsApi->getLms($user);
+        return $lms->getCourseSections($course, $user);
+    }
 
     // Update report, or create new one for a new day
     public function updateReport(Course $course, User $user): Report

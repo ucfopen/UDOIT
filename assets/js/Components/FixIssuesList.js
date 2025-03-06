@@ -5,7 +5,7 @@ import SeverityIcon from './Icons/SeverityIcon'
 import ResolvedIcon from './Icons/ResolvedIcon'
 import FixedIcon from './Icons/FixedIcon'
 
-import './FixissuesList.css'
+import './FixIssuesList.css'
 
 export default function FixIssuesList({ t, FILTER, filteredIssues, setActiveIssue }) {
 
