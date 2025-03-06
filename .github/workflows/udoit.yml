@@ -9,17 +9,17 @@ jobs:
       fail-fast: false
       matrix:
         operating-system: [ubuntu-latest]
-        php-versions: ['8.2']
+        php-versions: ['8.4']
         node-version: [16.19.0]
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
       - name: Check PHP syntax errors
         uses: overtrue/phplint@3.0.3
 
       - name: Use Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v2
+        uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
 
@@ -31,20 +31,27 @@ jobs:
           coverage: xdebug #optional
 
       - name: Get composer cache directory
-        id: composer-cache
-        run: echo "::set-output name=dir::$(composer config cache-files-dir)"
+        id: composer-cache-dir
+        run: echo "dir=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
 
       - name: Cache composer dependencies
-        uses: actions/cache@v2
+        id: composer-cache
+        uses: actions/cache@v4
         with:
-          path: ${{ steps.composer-cache.outputs.dir }}
+          path: |
+            vendor
+            ${{ steps.composer-cache.outputs.dir }}
           key: php-${{ matrix.php-versions }}-composer-${{ hashFiles('**/composer.lock') }}
           restore-keys: php-${{ matrix.php-versions }}-composer-
+
+      - name: Check if composer cache was found
+        run: echo "Cache hit ${{ steps.composer-cache.outputs.cache-hit }}"
 
       - name: Create .env file
         run: cp .env.example .env
 
       - name: Install Composer dependencies
+        if: ${{ steps.composer-cache.outputs.cache-hit != 'true' }}
         run: composer install --no-progress --prefer-dist --optimize-autoloader
 
       - name: PHPUnit Testing
@@ -52,9 +59,13 @@ jobs:
 
       - name: Get yarn cache directory path
         id: yarn-cache-dir-path
-        run: echo "::set-output name=dir::$(yarn config get cacheFolder)"
+        run: |
+            echo "Yarn cache directory:"
+            yarn config get cacheFolder
+            echo "dir=$(yarn config get cacheFolder)" >> $GITHUB_OUTPUT
 
-      - uses: actions/cache@v2
+      - name: Cache Yarn dependencies
+      - uses: actions/cache@v4
         id: yarn-cache # use this to check for `cache-hit` (`steps.yarn-cache.outputs.cache-hit != 'true'`)
         with:
           path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
@@ -71,15 +82,17 @@ jobs:
       - name: Yarn test
         run: yarn test
 
+      - name: Verify if cache was found
+        run: echo "Cache hit ${{ steps.yarn-cache.outputs.cache-hit }}"
       - name: Start and initialize Postgres
         env:
           DATABASE_URL: postgresql://udoit:udoit@127.0.0.1:5432/udoit?serverVersion=11&charset=utf8
         run: |
           sudo systemctl start postgresql.service
-          sudo -u postgres psql -c "CREATE DATABASE udoit;" 
-          sudo -u postgres psql -c "CREATE USER udoit WITH PASSWORD 'udoit';" 
-          sudo -u postgres psql -c "ALTER USER udoit WITH SUPERUSER;" 
-          sudo -u postgres psql -c "GRANT ALL PRIVILEGES ON DATABASE "udoit" TO udoit;" 
+          sudo -u postgres psql -c "CREATE DATABASE udoit;"
+          sudo -u postgres psql -c "CREATE USER udoit WITH PASSWORD 'udoit';"
+          sudo -u postgres psql -c "ALTER USER udoit WITH SUPERUSER;"
+          sudo -u postgres psql -c "GRANT ALL PRIVILEGES ON DATABASE "udoit" TO udoit;"
           php bin/console doctrine:migrations:migrate
 
       - name: Create and populate MySQL database
