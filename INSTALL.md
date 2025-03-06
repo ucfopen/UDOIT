@@ -54,14 +54,14 @@ We provide a fast and simple way of setting up a local UDOIT instance through Do
 #### 1. Install [Docker Desktop](https://docs.docker.com/get-docker/). This will install Docker and Docker Compose on your system.
 > Alternatively, you may install Docker and [Docker Compose](https://docs.docker.com/compose/install/) individually.
 
-#### 2. Install the Necessary PHP Dependencies
+#### 2. (Optional) Install the Necessary PHP Dependencies for Dev Environment
 
-UDOIT uses Composer to install PHP dependencies. You can install all the necessary dependencies using the following command, if your `APP_ENV` is set to `prod`:
-```
-docker compose -f docker-compose.nginx.yml run composer composer install --no-dev
-```
+UDOIT uses Composer to install PHP dependencies. If your `APP_ENV` is set to `prod`, UDOIT will handle this for you. However, if it is set to `dev`, you may need some additional dependencies.
 
-If your `APP_ENV` is set to `dev`, take out the `--no-dev` when running the command.
+You can set them up by running the following command:
+```
+docker compose -f docker-compose.nginx.yml run composer composer install
+```
 
 #### 3. Build the Containers
 
