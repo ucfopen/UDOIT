@@ -11,7 +11,6 @@ import { View } from '@instructure/ui-view'
 import Api from '../Services/Api'
 import MessageTray from './MessageTray'
 import FilesPage from './FilesPage'
-import SummaryBar from './SummaryBar'
 
 export default function App(initialData) {
 
@@ -37,6 +36,7 @@ export default function App(initialData) {
   const [messages, setMessages] = useState(initialData.messages || [])
   const [report, setReport] = useState(initialData.report || null)  
   const [settings, setSettings] = useState(initialData.settings || null)
+  const [sections, setSections] = useState([])
 
   // The reportHistory and newReportInterval variables are not used in the current codebase
   // const [reportHistory, setReportHistory] = useState([])
@@ -93,6 +93,12 @@ export default function App(initialData) {
     setSyncComplete(true)
     setHasNewReport(newHasNewReport)
     setReport(newReport)
+    if (newReport.contentSections) {
+      setSections(newReport.contentSections)
+    }
+    else {
+      setSections([])
+    }
     setDisableReview(newDisableReview)
   }
 
@@ -216,10 +222,6 @@ export default function App(initialData) {
         handleFullCourseRescan={handleFullCourseRescan}
         handleModal={handleModal} />
 
-      {/* {(('welcome' !== navigation) && ('summary' !== navigation)) &&
-        <SummaryBar t={t} report={report} />
-      } */}
-
       <MessageTray t={t} messages={messages} clearMessages={clearMessages} hasNewReport={syncComplete} />
 
       <main role="main">
@@ -280,6 +282,7 @@ export default function App(initialData) {
             contentItemList={contentItemList}
             addContentItem={addContentItem}
             report={report}
+            sections={sections}
             setReport={setReport}
             addMessage={addMessage}
             handleNavigation={handleNavigation}
