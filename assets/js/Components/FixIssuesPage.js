@@ -5,7 +5,9 @@ import FixIssuesContentPreview from './FixIssuesContentPreview';
 import UfixitWidget from './UfixitWidget'
 import * as Html from '../Services/Html'
 import Api from '../Services/Api'
+
 import './FixIssuesPage.css'
+
 
 // import SortableTable from './SortableTable'
 // import ContentPageForm from './ContentPageForm'
@@ -296,7 +298,6 @@ export default function FixIssuesPage({
       contentTypeLabel: t(`content.${tempContentItem.contentType}`),
       contentTitle: tempContentItem.title,
       contentUrl: tempContentItem.url,
-      
     }
   }
 
