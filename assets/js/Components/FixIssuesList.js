@@ -7,7 +7,7 @@ import FixedIcon from './Icons/FixedIcon'
 
 import './FixIssuesList.css'
 
-export default function FixIssuesList({ t, FILTER, filteredIssues, setActiveIssue }) {
+export default function FixIssuesList({ t, settings, filteredIssues, setActiveIssue }) {
 
   const [groupedList, setGroupedList] = useState([])
 
@@ -50,17 +50,17 @@ export default function FixIssuesList({ t, FILTER, filteredIssues, setActiveIssu
                       <div className="flex-column justify-content-center ml-3">
                         <ContentTypeIcon type={issue.contentType} alt="" className="gray"/>
                       </div>
-                      { issue.status === FILTER.ACTIVE && (
+                      { issue.status === settings.FILTER.ACTIVE && (
                         <div className="flex-column justify-content-center ml-2">
                           <SeverityIcon type={issue.severity} alt="" />
                         </div>
                       )}
-                      { issue.status === FILTER.RESOLVED && (
+                      { issue.status === settings.FILTER.RESOLVED && (
                         <div className="flex-column justify-content-center ml-2">
                           <ResolvedIcon alt="" className="color-success" />
                         </div>
                       )}
-                      { issue.status === FILTER.FIXED && (
+                      { issue.status === settings.FILTER.FIXED && (
                         <div className="flex-column justify-content-center ml-2">
                           <FixedIcon alt=""className="color-success" />
                         </div>

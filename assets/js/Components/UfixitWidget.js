@@ -27,6 +27,7 @@ export default function UfixitWidget({
   severity,
   activeIssue,
   setActiveIssue,
+  setEditedElement,
   formatIssueData,
   handleIssueResolve,
   handleIssueSave,
@@ -41,17 +42,19 @@ export default function UfixitWidget({
   // const [showExample, setShowExample] = useState(false)
   // const [pending, setPending] = useState(false)
   // const [currentIndex, setCurrentIndex] = useState(0)
+  // const [code, setCode] = useState('')
+
   const [modalMessages, setModalMessages] = useState([])
   const [UfixitForm, setUfixitForm] = useState(null)
+
+  // The tempActiveIssue is what is sent to the form to be manipulated and can be updated
+  // over and over again by the form as the HTML or other data is changed.
   const [tempActiveIssue, setTempActiveIssue] = useState(null)
-  // const [code, setCode] = useState('')
 
   useEffect(() => {
     if(activeIssue) {
       setUfixitForm(() => returnIssueForm(activeIssue.issue))
       setTempActiveIssue(Object.assign({}, activeIssue))
-      console.log("Active Issue:")
-      console.log(activeIssue)
     }
     else {
       setUfixitForm(null)
@@ -225,9 +228,17 @@ export default function UfixitWidget({
   }
 
   const handleActiveIssue = (newIssue) => {
+    console.log("Handling active issue:")
+    console.log(newIssue.newHtml)
     const tempIssue = Object.assign({}, tempActiveIssue)
     tempIssue.issue = newIssue
     setTempActiveIssue(tempIssue)
+    if(newIssue.newHtml && newIssue.newHtml !== '') {
+      setEditedElement(newIssue.newHtml)
+    }
+    else {
+      setEditedElement(newIssue.sourceHtml)
+    }
   }
   // const clearMessages = () => {
   //   setModalMessages([])

@@ -7,14 +7,6 @@ import * as Html from '../Services/Html'
 import Api from '../Services/Api'
 import './FixIssuesPage.css'
 
-// import SortableTable from './SortableTable'
-// import ContentPageForm from './ContentPageForm'
-// import ContentTrayForm from './ContentTrayForm'
-// import ReactHtmlParser from 'react-html-parser'
-// import UfixitModal from './UfixitModal'
-// import Classes from '../../css/theme-overrides.css'
-// import { issueRuleIds } from './Constants'
-
 export default function FixIssuesPage({
   t,
   settings,
@@ -57,44 +49,6 @@ export default function FixIssuesPage({
     FIXED: 'FIXED',
     RESOLVED: 'RESOLVED',
   }
-  
-  const SEVERITY_OPTIONS = {
-    [FILTER.ALL]: t('label.filter.severity.all'),
-    [FILTER.ISSUE]: t('label.filter.severity.issue'),
-    [FILTER.POTENTIAL]: t('label.filter.severity.potential'),
-    [FILTER.SUGGESTION]: t('label.filter.severity.suggestion'),
-  } 
-
-  const CONTENT_TYPE = {
-    [FILTER.ALL]: t('label.filter.type.all'),
-    [FILTER.PAGE]: t('label.filter.type.page'),
-    [FILTER.ASSIGNMENT]: t('label.filter.type.assignment'),
-    [FILTER.ANNOUNCEMENT]: t('label.filter.type.announcement'),
-    [FILTER.DISCUSSION_TOPIC]: t('label.filter.type.discussion_topic'),
-    [FILTER.DISCUSSION_FORUM]: t('label.filter.type.discussion_forum'),
-    [FILTER.FILE]: t('label.filter.type.file'),
-    [FILTER.QUIZ]: t('label.filter.type.quiz'),
-    [FILTER.SYLLABUS]: t('label.filter.type.syllabus'),
-    [FILTER.MODULE]: t('label.filter.type.module'),
-  }
-
-  const RESOLUTION_OPTIONS = {
-    [FILTER.ALL]: t('label.filter.resolution.all'),
-    [FILTER.ACTIVE]: t('label.filter.resolution.active'),
-    [FILTER.FIXED]: t('label.filter.resolution.fixed'),
-    [FILTER.RESOLVED]: t('label.filter.resolution.resolved'),
-  }
-
-  const MODULE_OPTIONS = {
-    [FILTER.ALL]: t('label.filter.module.all'),
-  }
-
-  const allFilters = {
-    [FILTER.TYPE.SEVERITY]: SEVERITY_OPTIONS,
-    [FILTER.TYPE.CONTENT_TYPE]: CONTENT_TYPE,
-    [FILTER.TYPE.RESOLUTION]: RESOLUTION_OPTIONS,
-    [FILTER.TYPE.MODULE]: MODULE_OPTIONS,
-  }
 
   const defaultFilters = {
     [FILTER.TYPE.SEVERITY]: FILTER.ALL,
@@ -111,47 +65,191 @@ export default function FixIssuesPage({
     NO_RESULTS: 4,
   }
 
-  // const easyRules = issueRuleIds.filter(rule => settings.easyRuleIds.includes(rule))
-  // const visualRules = issueRuleIds.filter(rule => settings.visualRuleIds.includes(rule))
-  // const auditoryRules = issueRuleIds.filter(rule => settings.auditoryRuleIds.includes(rule))
-  // const cognitiveRules = issueRuleIds.filter(rule => settings.cognitiveRuleIds.includes(rule))
-  // const motorRules = issueRuleIds.filter(rule => settings.motorRuleIds.includes(rule))
-
   const [activeIssue, setActiveIssue] = useState(null)
   const [activeContentItem, setActiveContentItem] = useState(null)
+  const [editedElement, setEditedElement] = useState(null)
   const [searchTerm, setSearchTerm] = useState('')
-  const [usedFilters, setUsedFilters] = useState([])
   const [activeFilters, setActiveFilters] = useState(defaultFilters)
+  const [unfilteredIssues, setUnfilteredIssues] = useState([])
   const [filteredIssues, setFilteredIssues] = useState([])
   const [widgetState, setWidgetState] = useState(WIDGET_STATE.LOADING)
   const [viewInfo, setViewInfo] = useState(false)
   const [isSaving, setIsSaving] = useState(true)
 
-  const getActiveIssueIndex = () => {
-    if (activeIssue === null) return -1;
-    return filteredIssues.findIndex((issue) => issue.id === activeIssue.id);
+  // The database stores and returns certain issue data, but it needs additional attributes in order to
+  // be really responsive on the front end. This function adds those attributes and stores the database
+  // information in the "issue" attribute.
+  const formatIssueData = (issue) => {
+
+    let issueSeverity = FILTER.ISSUE
+    // PHPAlly returns a type of 'error' or 'suggestion'
+    if(issue.type == 'suggestion') {
+      issueSeverity = FILTER.SUGGESTION
+    }
+    
+    let issueContentType = FILTER.ALL
+    let issueSectionIds = []
+
+    // PHPAlly returns a contentItemId that we can use to get the content type
+    let tempContentItem = getContentById(issue.contentItemId)
+    if(tempContentItem) {
+      let tempContentType = tempContentItem.contentType
+      if(tempContentType == 'page') {
+        issueContentType = FILTER.PAGE
+      }
+      else if(tempContentType == 'assignment') {
+        issueContentType = FILTER.ASSIGNMENT
+      }
+      else if(tempContentType == 'announcement') {
+        issueContentType = FILTER.ANNOUNCEMENT
+      }
+      else if(tempContentType == 'discussion_topic') {
+        issueContentType = FILTER.DISCUSSION_TOPIC
+      }
+      else if(tempContentType == 'discussion_forum') {
+        issueContentType = FILTER.DISCUSSION_FORUM
+      }
+      else if(tempContentType == 'file') {
+        issueContentType = FILTER.FILE
+      }
+      else if(tempContentType == 'quiz') {
+        issueContentType = FILTER.QUIZ
+      }
+      else if(tempContentType == 'syllabus') {
+        issueContentType = FILTER.SYLLABUS
+      }
+      else if(tempContentType == 'module') {
+        issueContentType = FILTER.MODULE
+      }
+
+      // See if the issue is listed in one of the sections
+      /* TODO: Find a more consistent way to filter this that works with less bespoke data.
+        In Canvas, the modules and moduleItems have names and links, but do not have the
+        contentItemId, which is necessary to match the issue to the content. The only current
+        data that matches are the moduleItem's page_url are the contentItem's lmsContentId,
+        which are both the same internal link URL. */
+      if(sections && sections.length > 0) {
+        sections.forEach((section) => {
+          let tempSectionId = section.id
+          section.items.forEach((item) => {
+            if(item.page_url === tempContentItem.lmsContentId) {
+              issueSectionIds.push(tempSectionId.toString())
+            }
+          })
+        })
+      }
+    }
+
+    let issueResolution = FILTER.ACTIVE
+    // PHPAlly returns a status of 1 for fixed issues and 2 for resolved issues
+    if(issue.status == 1) {
+      issueResolution = FILTER.FIXED
+    }
+    else if(issue.status == 2) {
+      issueResolution = FILTER.RESOLVED
+    }
+
+    return {
+      id: issue.id,
+      issue: Object.assign({}, issue),
+      severity: issueSeverity,
+      status: issueResolution,
+      sectionIds: issueSectionIds,
+      keywords: createKeywords(issue, tempContentItem),
+      scanRuleLabel: t(`rule.label.${issue.scanRuleId}`),
+      contentId: tempContentItem.lmsContentId,
+      contentType: issueContentType,
+      contentTypeLabel: t(`content.${tempContentItem.contentType}`),
+      contentTitle: tempContentItem.title,
+      contentUrl: tempContentItem.url,
+      
+    }
   }
+
+  // Call the formatIssueData function when the report changes to make sure every issue has all the necessary attributes
+  useEffect(() => {
+    let tempIssues = Object.assign({}, report.issues)
+    let tempFormattedIssues = []
+
+    for (const [key, value] of Object.entries(tempIssues)) {
+      let issue = formatIssueData(value)
+      tempFormattedIssues.push(issue)
+    }
+
+    tempFormattedIssues.sort((a, b) => {
+      return (a.contentTypeLabel.toLowerCase() < b.contentTypeLabel.toLowerCase()) ? -1 : 1
+    })
+
+    setUnfilteredIssues(tempFormattedIssues)
+  }, [report])
 
   // The initialSeverity prop is used when clicking a "Fix Issues" button from the main dashboard.
   useEffect(() => {
     let tempSeverity = initialSeverity || FILTER.ALL
     setActiveFilters(Object.assign({}, defaultFilters, {[FILTER.TYPE.SEVERITY]: tempSeverity}))
   }, [initialSeverity])
-  
-  useEffect(() => {
-    let tempFilters = Object.assign({}, allFilters)
-    if(sections && sections.length > 0) {
-      sections.forEach((section) => {
-        tempFilters[FILTER.TYPE.MODULE][section.id] = section.title
-      })
-    }
-    else {
-      delete tempFilters[FILTER.TYPE.MODULE]
-    }
-    setUsedFilters(tempFilters)
-  })
 
-  // When the filters or search term changes, update the available issues
+  const getFilteredContent = () => {
+    let filteredList = [];
+    const tempFilters = Object.assign({}, activeFilters);
+
+    // PHPAlly Issues have a 'type' of 'error' or 'suggestion'
+    // // Check for easy issues filter
+    // if (tempFilters.easyIssues && tempFilters.issueTitles.length == 0) {
+    //   tempFilters.issueTitles = easyRules
+    // }
+    // Loop through the issues
+
+    for (const issue of unfilteredIssues) {
+
+      // Do not include this issue if it doesn't match the severity filter
+      if (tempFilters[FILTER.TYPE.SEVERITY] !== FILTER.ALL && tempFilters[FILTER.TYPE.SEVERITY] !== issue.severity) {
+        continue;
+      }
+
+      // Do not include this issue if it doesn't match the content type filter
+      if (tempFilters[FILTER.TYPE.CONTENT_TYPE] !== FILTER.ALL && tempFilters[FILTER.TYPE.CONTENT_TYPE] !== issue.contentType) {
+        continue;
+      }
+
+      // Do not include this issue if it doesn't match the status filter
+      if (tempFilters[FILTER.TYPE.RESOLUTION] !== FILTER.ALL && tempFilters[FILTER.TYPE.RESOLUTION] !== issue.status) {
+        continue;
+      }
+
+      // Do not include this issue if it doesn't match the module filter
+      if (tempFilters[FILTER.TYPE.MODULE] !== FILTER.ALL && !issue.sectionIds.includes(tempFilters[FILTER.TYPE.MODULE].toString())) {
+        continue;
+      }
+
+      // Do not include this issue if it doesn't contain the search term/s
+      if (searchTerm !== '') {
+        const searchTerms = searchTerm.toLowerCase().split(' ');
+        let containsAllTerms = true
+        if (Array.isArray(searchTerms)) {
+          for (let term of searchTerms) {
+            if (!issue.keywords.includes(term)) {
+              containsAllTerms = false
+            }
+          }
+        }
+        if (!containsAllTerms) {
+          continue
+        }
+      }
+
+      // If the issue passes all filters, add it to the list!
+      filteredList.push(issue)
+    }
+
+    filteredList.sort((a, b) => {
+      return (a.contentTypeLabel.toLowerCase() < b.contentTypeLabel.toLowerCase()) ? -1 : 1
+    })
+
+    return filteredList
+  }
+
+  // When the filters or search term changes, update the filtered issues list
   useEffect(() => {
 
     let tempFilteredContent = getFilteredContent()
@@ -203,6 +301,7 @@ export default function FixIssuesPage({
     })
   }, [activeIssue])
 
+  // When the activeIssue changes, check if it's already in the activeTasks list
   useEffect(() => {
 
     if(activeIssue === null || activeTasks.length === 0) {
@@ -221,9 +320,6 @@ export default function FixIssuesPage({
 
   }, [activeIssue, activeTasks])    
 
-  const handleSearchTerm = (newSearchTerm) => {
-    setSearchTerm(newSearchTerm);
-  }
 
   const updateIssue = (newIssue) => {
     const tempReport = Object.assign({}, report)
@@ -238,92 +334,14 @@ export default function FixIssuesPage({
     setReport(tempReport)
   }
 
-  const formatIssueData = (issue) => {
-
-    let issueSeverity = FILTER.ISSUE
-    // PHPAlly returns a type of 'error' or 'suggestion'
-    if(issue.type == 'suggestion') {
-      issueSeverity = FILTER.SUGGESTION
-    }
-    
-    let issueContentType = FILTER.ALL
-    let issueSectionIds = []
-
-    // PHPAlly returns a contentItemId that we can use to get the content type
-    let tempContentItem = getContentById(issue.contentItemId)
-    if(tempContentItem) {
-      let tempContentType = tempContentItem.contentType
-      if(tempContentType == 'page') {
-        issueContentType = FILTER.PAGE
-      }
-      else if(tempContentType == 'assignment') {
-        issueContentType = FILTER.ASSIGNMENT
-      }
-      else if(tempContentType == 'announcement') {
-        issueContentType = FILTER.ANNOUNCEMENT
-      }
-      else if(tempContentType == 'discussion_topic') {
-        issueContentType = FILTER.DISCUSSION_TOPIC
-      }
-      else if(tempContentType == 'discussion_forum') {
-        issueContentType = FILTER.DISCUSSION_FORUM
-      }
-      else if(tempContentType == 'file') {
-        issueContentType = FILTER.FILE
-      }
-      else if(tempContentType == 'quiz') {
-        issueContentType = FILTER.QUIZ
-      }
-      else if(tempContentType == 'syllabus') {
-        issueContentType = FILTER.SYLLABUS
-      }
-      else if(tempContentType == 'module') {
-        issueContentType = FILTER.MODULE
-      }
-
-      // See if the issue is listed in one of the sections
-      // TODO: Find a more consistent way to filter this that works with less bespoke data.
-      if(sections && sections.length > 0) {
-        sections.forEach((section) => {
-          let tempSectionId = section.id
-          section.items.forEach((item) => {
-            if(item.page_url === tempContentItem.lmsContentId) {
-              issueSectionIds.push(tempSectionId.toString())
-            }
-          })
-        })
-      }
-    }
-
-    let issueResolution = FILTER.ACTIVE
-    // PHPAlly returns a status of 1 for fixed issues and 2 for resolved issues
-    if(issue.status == 1) {
-      issueResolution = FILTER.FIXED
-    }
-    else if(issue.status == 2) {
-      issueResolution = FILTER.RESOLVED
-    }
-
-    return {
-      id: issue.id,
-      issue: Object.assign({}, issue),
-      severity: issueSeverity,
-      status: issueResolution,
-      sectionIds: issueSectionIds,
-      keywords: createKeywords(issue, tempContentItem),
-      scanRuleLabel: t(`rule.label.${issue.scanRuleId}`),
-      contentId: tempContentItem.lmsContentId,
-      contentType: issueContentType,
-      contentTypeLabel: t(`content.${tempContentItem.contentType}`),
-      contentTitle: tempContentItem.title,
-      contentUrl: tempContentItem.url,
-      
-    }
-  }
-
   const handleIssueResolve = () => {
-    if (activeIssue.pending) {
-      return
+    
+    if (!activeIssue) { return }
+    
+    for(let i = 0; i < activeTasks.length; i++) {
+      if(activeTasks[i].id === activeIssue.id) {
+        return
+      }
     }
 
     updateTask(activeIssue.id, 'resolve')
@@ -377,13 +395,13 @@ export default function FixIssuesPage({
   }
 
   const nextIssue = (previous = false) => {
-    if (filteredIssues.length === 0) return
-    let activeIndex = getActiveIssueIndex()
+    if (!activeIssue || filteredIssues.length === 0) { return }
 
-    if(activeIndex === -1) {
-      return;
-    }
+    let activeIndex = filteredIssues.findIndex((issue) => issue.id === activeIssue.id);
 
+    if(activeIndex === -1) { return }
+
+    // If we've reached the first or last issue, loop around
     let newIndex = activeIndex + (previous ? -1 : 1);
     if (newIndex < 0) {
       newIndex = filteredIssues.length - 1;
@@ -430,79 +448,23 @@ export default function FixIssuesPage({
     return keywords.join(' ');
   }
 
-  const getFilteredContent = () => {
-    let filteredList = [];
-    let issueList = Object.assign({}, report.issues);
-    const tempFilters = Object.assign({}, activeFilters);
-
-    // PHPAlly Issues have a 'type' of 'error' or 'suggestion'
-    // // Check for easy issues filter
-    // if (tempFilters.easyIssues && tempFilters.issueTitles.length == 0) {
-    //   tempFilters.issueTitles = easyRules
-    // }
-    // Loop through the issues
-    issueLoop: for (const [key, value] of Object.entries(issueList)) {
-      let issue = formatIssueData(value)
-
-      // Skip if we are not interested in this issue severity
-      if (tempFilters[FILTER.TYPE.SEVERITY] !== FILTER.ALL && tempFilters[FILTER.TYPE.SEVERITY] !== issue.severity) {
-        continue;
-      }
-
-      // Skip if we are not interested in this content type
-      if (tempFilters[FILTER.TYPE.CONTENT_TYPE] !== FILTER.ALL && tempFilters[FILTER.TYPE.CONTENT_TYPE] !== issue.contentType) {
-        continue;
-      }
-
-      // Skip if we are not interested in this resolution status
-      if (tempFilters[FILTER.TYPE.RESOLUTION] !== FILTER.ALL && tempFilters[FILTER.TYPE.RESOLUTION] !== issue.status) {
-        continue;
-      }
-
-      // Skip if the issue is not in the selected module
-      if (tempFilters[FILTER.TYPE.MODULE] !== FILTER.ALL && !issue.sectionIds.includes(tempFilters[FILTER.TYPE.MODULE].toString())) {
-        continue;
-      }
-
-      // Filter by search term
-      if (searchTerm !== '') {
-        const searchTerms = searchTerm.toLowerCase().split(' ');
-
-        if (Array.isArray(searchTerms)) {
-          for (let term of searchTerms) {
-            if (!issue.keywords.includes(term)) {
-              continue issueLoop;
-            }
-          }
-        }
-      }
-
-      filteredList.push(issue)
-    }
-
-    filteredList.sort((a, b) => {
-      return (a.contentTypeLabel.toLowerCase() < b.contentTypeLabel.toLowerCase()) ? -1 : 1
-    })
-
-    return filteredList
-  }
-
   return (
     <>
       <FixIssuesFilters
-        allFilters={usedFilters}
-        activeFilters={activeFilters}
+        t={t}
+        settings={settings.FILTER ? settings : Object.assign({}, settings, { FILTER })}
         sections={sections}
+        activeFilters={activeFilters}
         updateActiveFilters={updateActiveFilters}
         searchTerm={searchTerm}
-        handleSearchTerm={handleSearchTerm}
+        handleSearchTerm={setSearchTerm}
       />
       <div className="ufixit-page-divider">
         <section className="ufixit-widget-container">
           { widgetState === WIDGET_STATE.LIST ? (
             <FixIssuesList
               t={t}
-              FILTER={FILTER}
+              settings={settings.FILTER ? settings : Object.assign({}, settings, { FILTER })}
               filteredIssues={filteredIssues}
               setActiveIssue={setActiveIssue}
             />
@@ -515,6 +477,7 @@ export default function FixIssuesPage({
                 severity={activeIssue.severity}
                 activeIssue={activeIssue}
                 setActiveIssue={setActiveIssue}
+                setEditedElement={setEditedElement}
                 formatIssueData={formatIssueData}
                 handleIssueResolve={handleIssueResolve}
                 handleIssueSave={handleIssueSave}
@@ -532,66 +495,10 @@ export default function FixIssuesPage({
             t={t}
             activeIssue={activeIssue}
             activeContentItem={activeContentItem}
+            editedElement={editedElement}
           />
         </section>
       </div>
     </>
   )
-
-  // return (
-  //   <View as="div" key="contentPageFormWrapper" padding="small 0" margin="none">
-  //     <ContentPageForm
-  //       handleSearchTerm={handleSearchTerm}
-  //       handleTrayToggle={handleTrayToggle}
-  //       searchTerm={searchTerm}
-  //       t={t}
-  //       handleTableSettings={handleTableSettings}
-  //       tableSettings={tableSettings}
-  //     />
-  //     <View as="div">
-  //       {renderFilterTags()}
-  //     </View>
-  //     <div>Hello, World!!!!</div>
-  //     <SortableTable
-  //       caption={t('content_page.issues.table.caption')}
-  //       headers = {headers}
-  //       rows = {filteredRows}
-  //       filters = {filters}
-  //       tableSettings = {tableSettings}
-  //       handleFilter = {handleFilter}
-  //       handleTableSettings = {handleTableSettings}
-  //       t={t}
-  //       rowsPerPage = {tableSettings.rowsPerPage}
-  //     />
-  //     {trayOpen && <ContentTrayForm
-  //       filters={filters}
-  //       handleFilter={handleFilter}
-  //       trayOpen={trayOpen}
-  //       report={report}
-  //       handleTrayToggle={handleTrayToggle}
-  //       t={t}
-  //       settings={settings}
-  //     />}
-  //     {modalOpen && <UfixitModal
-  //       open={modalOpen}
-  //       activeIssue={activeIssue}
-  //       activeIndex={activeIndex}
-  //       filteredRows={filteredRows}
-  //       activeContentItem={ activeIssue ? getContentById(activeIssue.contentItemId) : null }
-  //       settings={settings}
-  //       handleCloseButton={handleCloseButton}
-  //       handleActiveIssue={handleActiveIssue}
-  //       handleIssueSave={handleIssueSave}
-  //       t={t}
-  //       />}
-
-  //     {filteredRows.length === 0 &&
-  //         <Billboard
-  //         size="medium"
-  //         heading={t('label.no_results_header')}
-  //         margin="small"
-  //         message={t('label.no_results_message')}
-  //     />}
-  //   </View>
-  // )
 }

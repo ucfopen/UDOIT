@@ -6,10 +6,30 @@ import './FixIssuesContentPreview.css';
 export default function FixIssuesContentPreview({
   t,
   activeIssue,
-  activeContentItem
+  activeContentItem,
+  editedElement
 }) {
 
   const [taggedContent, setTaggedContent] = useState(null)
+  const [altTextPreview, setAltTextPreview] = useState(null)
+
+  const convertErrorHtmlString = (htmlText) => {
+    const parser = new DOMParser()
+    let tempElement = parser.parseFromString(htmlText, 'text/html').body.firstElementChild
+
+    // Get the element's alt attribute, if it exists
+    let altText = tempElement.getAttribute('alt')
+    if (altText && altText !== '') {
+      setAltTextPreview(altText)
+    }
+    else {
+      setAltTextPreview(null)
+    }
+
+    tempElement.classList.add('ufixit-error-highlight')
+
+    return tempElement
+  }
 
   const getTaggedContent = (activeIssue, activeContentItem) => {
     if (!activeIssue || !activeContentItem) {
@@ -41,7 +61,8 @@ export default function FixIssuesContentPreview({
     doc.body.querySelectorAll(errorElement.tagName).forEach((element) => {
       if (element.outerHTML.trim() === errorString) {
         errorCount++
-        element.classList.add('ufixit-error-highlight')
+        const taggedElement = convertErrorHtmlString(errorHtml)
+        element.replaceWith(taggedElement)
       }
     })
 
@@ -63,6 +84,19 @@ export default function FixIssuesContentPreview({
     }
   }, [taggedContent])
 
+  useEffect(() => {
+    if (editedElement) {
+      const targetElement = document.getElementsByClassName('ufixit-error-highlight')[0]
+      
+      if (targetElement) {
+        const tempElement = convertErrorHtmlString(editedElement)
+        
+        // Replace the target element with the new element
+        targetElement.replaceWith(tempElement)
+      }
+    }
+  }, [editedElement])
+
   return (
     <>
       { taggedContent && activeContentItem ? (
@@ -75,7 +109,12 @@ export default function FixIssuesContentPreview({
               <ExternalLinkIcon className="icon-lg link-color" />
             </div>
           </a>
-          <div className="ufixit-content-preview" dangerouslySetInnerHTML={{__html: taggedContent}} />
+          <div className="ufixit-content-preview">
+            <div dangerouslySetInnerHTML={{__html: taggedContent}} />
+            { altTextPreview && (
+              <div className="alt-text-preview">{altTextPreview}</div>
+            )}
+          </div>
           <div className="ufixit-content-progress">
             Progress bar goes here.
           </div>
