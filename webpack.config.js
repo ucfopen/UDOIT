@@ -26,7 +26,9 @@ Encore.setOutputPath('public/build')
   .enableBuildNotifications()
   .enableSourceMaps(!Encore.isProduction())
   .configureCssLoader((options) => {
-    options.modules = true
+    options.modules = {
+      auto: (resourcePath) => resourcePath.endsWith('.module.css')
+    }
   })
   // .enablePostCssLoader()
   .autoProvidejQuery()

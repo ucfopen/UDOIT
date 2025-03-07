@@ -1,15 +1,16 @@
 import React, { useState, useCallback, useEffect } from 'react'
 import WelcomePage from './WelcomePage'
 import Header from './Header'
+import HomePage from './HomePage'
 import SummaryPage from './SummaryPage'
 import ContentPage from './ContentPage'
+import FixIssuesPage from './FixIssuesPage'
 import ReportsPage from './ReportsPage'
 import AboutModal from './AboutModal'
 import { View } from '@instructure/ui-view'
 import Api from '../Services/Api'
 import MessageTray from './MessageTray'
 import FilesPage from './FilesPage'
-import SummaryBar from './SummaryBar'
 
 export default function App(initialData) {
 
@@ -18,11 +19,24 @@ export default function App(initialData) {
   //   messages: [],
   //   report: { ... The report from the most recent scan ... },
   //   settings: { ... From src/Controller/DashboardController.php => getSettings() ... },
+  //   settings.user: {
+  //     "id": 3,
+  //     "username": "https://canvas.instructure.com||1129",
+  //     "name": null,
+  //     "lmsUserId": "1129",
+  //      "roles": [
+  //         "ROLE_USER"    // or "ROLE_ADVANCED_USER" if they've clicked to skip the welcome page.
+  //     ],
+  //     "lastLogin": "2025-02-03",
+  //     "created": "2025-01-13",
+  //     "hasApiKey": true
+  //   }
   // }
 
   const [messages, setMessages] = useState(initialData.messages || [])
   const [report, setReport] = useState(initialData.report || null)  
   const [settings, setSettings] = useState(initialData.settings || null)
+  const [sections, setSections] = useState([])
 
   // The reportHistory and newReportInterval variables are not used in the current codebase
   // const [reportHistory, setReportHistory] = useState([])
@@ -34,6 +48,8 @@ export default function App(initialData) {
   const [syncComplete, setSyncComplete] = useState(false)
   const [hasNewReport, setHasNewReport] = useState(false)
   const [disableReview, setDisableReview] = useState(false)
+  const [initialSeverity, setInitialSeverity] = useState('')
+  const [contentItemList, setContentItemList] = useState([])
 
   // `t` is used for text/translation. It will return the translated string if it exists
   // in the settings.labels object.
@@ -77,11 +93,16 @@ export default function App(initialData) {
     setSyncComplete(true)
     setHasNewReport(newHasNewReport)
     setReport(newReport)
+    if (newReport.contentSections) {
+      setSections(newReport.contentSections)
+    }
+    else {
+      setSections([])
+    }
     setDisableReview(newDisableReview)
   }
 
   const handleNavigation = (navigation) => {
-    console.log('handleNavigation to: ', navigation)
     setNavigation(navigation)
   }
 
@@ -99,6 +120,17 @@ export default function App(initialData) {
 
   const clearMessages = () => {
     setMessages([])
+  }
+
+  const quickIssues = (severity) => {
+    setInitialSeverity(severity)
+    setNavigation('fixIssues')
+  }
+
+  const addContentItem = (newContentItem) => {
+    let newContentItemList = Object.assign({}, contentItemList)
+    newContentItemList[newContentItem.id] = newContentItem
+    setContentItemList(newContentItemList)
   }
 
   const handleIssueSave = (newIssue, newReport) => {
@@ -190,28 +222,44 @@ export default function App(initialData) {
         handleFullCourseRescan={handleFullCourseRescan}
         handleModal={handleModal} />
 
-      {(('welcome' !== navigation) && ('summary' !== navigation)) &&
-        <SummaryBar t={t} report={report} />
-      }
-
       <MessageTray t={t} messages={messages} clearMessages={clearMessages} hasNewReport={syncComplete} />
 
       <main role="main">
-        {('welcome' === navigation) &&
-          <WelcomePage
+        {('home' === navigation) &&
+          <HomePage
             t={t}
             settings={settings}
-            setSettings={setSettings}
-            hasNewReport={hasNewReport}
-            handleNavigation={handleNavigation} />
+            report={report} />
+        }
+        {('welcome' === navigation) &&
+          <>
+            <WelcomePage
+              t={t}
+              settings={settings}
+              setSettings={setSettings}
+              hasNewReport={hasNewReport}
+              handleNavigation={handleNavigation} />
+            <div className="flex-row gap-1 mt-1">
+              <button className="btn btn-primary" onClick={() => quickIssues('ISSUE')}>Fix Issues</button>
+              <button className="btn btn-primary" onClick={() => quickIssues('POTENTIAL')}>Fix Potential Issues</button>
+              <button className="btn btn-primary" onClick={() => quickIssues('SUGGESTION')}>Fix Suggestions</button>
+            </div>
+          </>
         }
         {('summary' === navigation) &&
-          <SummaryPage
-            t={t}
-            settings={settings}
-            report={report}
-            handleAppFilters={handleAppFilters}
-            handleNavigation={handleNavigation} />
+          <>
+            <SummaryPage
+              t={t}
+              settings={settings}
+              report={report}
+              handleAppFilters={handleAppFilters}
+              handleNavigation={handleNavigation} />
+            <div className="flex-row gap-1 mt-1">
+              <button className="btn btn-primary" onClick={() => quickIssues('ISSUE')}>Fix Issues</button>
+              <button className="btn btn-primary" onClick={() => quickIssues('POTENTIAL')}>Fix Potential Issues</button>
+              <button className="btn btn-primary" onClick={() => quickIssues('SUGGESTION')}>Fix Suggestions</button>
+            </div>
+          </>
         }
         {('content' === navigation) &&
           <ContentPage
@@ -221,6 +269,22 @@ export default function App(initialData) {
             setReport={setReport}
             appFilters={appFilters}
             handleAppFilters={handleAppFilters}
+            handleNavigation={handleNavigation}
+            handleIssueSave={handleIssueSave}
+            handleIssueUpdate={handleIssueSave}
+            disableReview={syncComplete && !disableReview} />
+        }
+        {('fixIssues' === navigation) &&
+          <FixIssuesPage
+            t={t}
+            settings={settings}
+            initialSeverity={initialSeverity}
+            contentItemList={contentItemList}
+            addContentItem={addContentItem}
+            report={report}
+            sections={sections}
+            setReport={setReport}
+            addMessage={addMessage}
             handleNavigation={handleNavigation}
             handleIssueSave={handleIssueSave}
             handleIssueUpdate={handleIssueSave}
@@ -242,6 +306,7 @@ export default function App(initialData) {
             handleNavigation={handleNavigation}
           />
         }
+        
       </main>
 
       {('about' === modal) &&

@@ -1,0 +1,51 @@
+@import '../../css/udoit4-theme.css';
+
+.filter-container {
+  background-color: var(--link-color-light);
+  border-top: 1px solid var(--border-color);
+  border-bottom: 1px solid var(--border-color);
+  margin-left: -1rem;
+  margin-right: -1rem;
+  padding: .75rem 1rem;
+
+  .search-group {
+    input {
+      font-size: 0.9rem;
+      font-weight: 300;
+      font-family: 'Open Sans', Arial, Helvetica, sans-serif;
+      padding: .15rem 1.75rem .15rem .5rem;
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      outline: none;
+
+      &:focus {
+        outline: 2px solid var(--link-color);
+        outline-offset: 1px;
+      }
+    }
+
+    .search-icon {
+      position: relative;
+      left: -1.5rem;
+      top: 0.25rem;
+      fill: var(--gray);
+    }
+  }
+
+  .filter-group {
+    select {
+      font-size: 0.9rem;
+      font-weight: 400;
+      font-family: 'Open Sans', Arial, Helvetica, sans-serif;
+      padding: .15rem 1.5rem .15rem 0.5rem;
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      outline: none;
+
+      &:focus {
+        outline: 2px solid var(--link-color);
+        outline-offset: 1px;
+      }
+    }
+  }
+}

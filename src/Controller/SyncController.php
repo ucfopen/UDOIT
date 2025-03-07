@@ -53,6 +53,7 @@ class SyncController extends ApiController
             $reportArr['files'] = $course->getFileItems();
             $reportArr['issues'] = $course->getAllIssues();
             $reportArr['contentItems'] = $course->getContentItems();
+            $reportArr['contentSections'] = $lmsFetch->getCourseSections($course, $user);
 
             $response->setData($reportArr);
 
@@ -107,6 +108,7 @@ class SyncController extends ApiController
             $reportArr['files'] = $course->getFileItems();
             $reportArr['issues'] = $course->getAllIssues();
             $reportArr['contentItems'] = $course->getContentItems();
+            $reportArr['contentSections'] = $lmsFetch->getCourseSections($course, $user);
 
             $response->setData($reportArr);
 
@@ -155,6 +157,8 @@ class SyncController extends ApiController
         $reportArr['files'] = $course->getFileItems();
         $reportArr['issues'] = $course->getAllIssues();
         $reportArr['contentItems'] = $course->getContentItems();
+        $reportArr['contentSections'] = $lmsFetch->getCourseSections($course, $user);
+
         $response->setData($reportArr);
 
         return new JsonResponse($response);

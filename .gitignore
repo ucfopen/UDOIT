@@ -6,6 +6,7 @@
 /public/bundles/
 /var/
 /vendor/
+!/assets/js/Components/Icons/
 ###< symfony/framework-bundle ###
 
 ###> symfony/phpunit-bridge ###
