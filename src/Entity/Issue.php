@@ -5,9 +5,8 @@ namespace App\Entity;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
 
-/**
- * @ORM\Entity(repositoryClass="App\Repository\IssueRepository")
- */
+
+#[ORM\Entity(repositoryClass: "App\Repository\IssueRepository")]
 class Issue implements \JsonSerializable
 {
     static $issueError = 'error';
@@ -17,62 +16,42 @@ class Issue implements \JsonSerializable
     static $issueStatusResolved = 2;
 
     // Private Members
-    /**
-     * @ORM\Id()
-     * @ORM\GeneratedValue()
-     * @ORM\Column(type="integer")
-     */
+    #[ORM\Id]
+    #[ORM\GeneratedValue]
+    #[ORM\Column(type: "integer")]
     private $id;
 
-    /**
-     * @ORM\ManyToOne(targetEntity="App\Entity\ContentItem", inversedBy="issues")
-     * @ORM\JoinColumn(nullable=false)
-     */
+    #[ORM\ManyToOne(targetEntity: "App\Entity\ContentItem", inversedBy: "issues")]
+    #[ORM\JoinColumn(nullable: false)]
     private $contentItem;
 
-    /**
-     * @ORM\Column(type="string", length=255)
-     */
+    #[ORM\Column(type: "string", length: 255)]
     private $scanRuleId;
 
-    /**
-     * @ORM\Column(type="text", nullable=true)
-     */
+    #[ORM\Column(type: "text", nullable: true)]
     private $html;
 
-    /**
-     * @ORM\Column(type="string", length=255)
-     */
+    #[ORM\Column(type: "string", length: 255)]
     private $type;
 
-    /**
-     * @ORM\Column(type="smallint")
-     */
+    #[ORM\Column(type: "smallint")]
     private $status;
 
-    /**
-     * @ORM\ManyToOne(targetEntity=User::class)
-     */
+
+    #[ORM\ManyToOne(targetEntity: User::class)]
     private $fixedBy;
 
-    /**
-     * @ORM\Column(type="datetime", nullable=true)
-     */
+    #[ORM\Column(type: "datetime", nullable: true)]
     private $fixedOn;
 
-    /**
-     * @ORM\Column(type="text", nullable=true)
-     */
+
+    #[ORM\Column(type: "text", nullable: true)]
     private $previewHtml;
 
-    /**
-     * @ORM\Column(type="text", nullable=true)
-     */
+    #[ORM\Column(type: "text", nullable: true)]
     private $newHtml;
 
-    /**
-     * @ORM\Column(type="json", nullable=true)
-     */
+    #[ORM\Column(type: "json", nullable: true)]
     private $metadata;
 
     // Constructor

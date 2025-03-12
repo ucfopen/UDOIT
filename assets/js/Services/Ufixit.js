@@ -14,6 +14,7 @@ import EmbeddedContentTitleForm from '../Components/Forms/EmbeddedContentTitleFo
 import StyleMisuseForm from '../Components/Forms/StyleMisuseForm'
 
 const UfixitForms = {
+  // phpAlly rules
   AnchorMustContainText: AnchorText,
   AnchorSuspiciousLinkText: AnchorText,
   BrokenLink: LinkForm,

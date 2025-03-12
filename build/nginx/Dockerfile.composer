@@ -1,4 +1,4 @@
-FROM composer
+FROM composer:2.2.18
 
 RUN apk add gd-dev libpng-dev
 RUN docker-php-ext-install gd
