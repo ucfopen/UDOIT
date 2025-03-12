@@ -10,6 +10,7 @@ import LinkForm from '../Components/Forms/LinkForm'
 import EmphasisForm from '../Components/Forms/EmphasisForm'
 import LabelForm from '../Components/Forms/LabelForm'
 import QuoteForm from '../Components/Forms/QuoteForm'
+import EmbeddedContentTitleForm from '../Components/Forms/EmbeddedContentTitleForm'
 import StyleMisuseForm from '../Components/Forms/StyleMisuseForm'
 
 const UfixitForms = {
@@ -41,6 +42,9 @@ const UfixitForms = {
   text_contrast_sufficient: ContrastForm,
   text_block_heading: HeadingStyleForm,
   heading_content_exists: HeadingEmptyForm,
+  object_text_exists: EmbeddedContentTitleForm,
+  frame_title_exists: EmbeddedContentTitleForm,
+  media_alt_exists: EmbeddedContentTitleForm,
   // text_quoted_correctly: QuoteForm,
   style_color_misuse: StyleMisuseForm,
 }
