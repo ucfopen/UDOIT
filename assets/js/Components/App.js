@@ -46,7 +46,7 @@ export default function App(initialData) {
   const [disableReview, setDisableReview] = useState(false)
   const [initialSeverity, setInitialSeverity] = useState('')
   const [contentItemList, setContentItemList] = useState([])
-  const [activeTasks, setActiveTasks] = useState([])
+  const [sessionIssues, setSessionIssues] = useState([])
 
   // `t` is used for text/translation. It will return the translated string if it exists
   // in the settings.labels object.
@@ -64,30 +64,17 @@ export default function App(initialData) {
     return api.fullRescan(settings.course.id)
   }, [settings])
 
-  // Tasks are used to track progress when multiple things are going on at once, and can allow the
-  // activeIssue to change without losing information about the previous issue.
-  // task: { id: issueId, state: 'updating' }
-  // If "state" is empty or not set, the task is considered complete.
-  const updateTask = (taskId, taskState = null) => {
-    let newActiveTasks = activeTasks
-    let taskIndex = newActiveTasks.findIndex((t) => t.id === taskId)
-    if (taskIndex >= 0) {
-      if(taskState) {
-        console.log("Task " + taskId + " is now " + taskState)
-        newActiveTasks[taskIndex] = { id: taskId, state: taskState }
-      }
-      else {
-        console.log("Task " + taskId + " is complete")
-        newActiveTasks.splice(taskIndex, 1)
-      }
+  // Session Issues are used to track progress when multiple things are going on at once,
+  // and can allow the activeIssue to change without losing information about the previous issue.
+  // Each issue has an id and state: { id: issueId, state: 2 }
+  // The valid states are set and read in the FixIssuesPage component.
+  const updateSessionIssue = (issueId, issueState = null) => {
+    if(!issueState) {
+      return
     }
-    else {
-      if(taskState) {
-        console.log("Task " + taskId + " is added as " + taskState)
-        newActiveTasks.push({ id: taskId, state: taskState })
-      }
-    }
-    setActiveTasks(newActiveTasks)
+    let newSessionIssues = [...sessionIssues]
+    newSessionIssues[issueId] = issueState
+    setSessionIssues(newSessionIssues)
   }
 
   const handleNewReport = (data) => {
@@ -156,14 +143,13 @@ export default function App(initialData) {
     setContentItemList(newContentItemList)
   }
 
-  const handleIssueSave = (newIssue, newReport) => {
-    const oldReport = report
-    const updatedReport = { ...oldReport, ...newReport }
+  const updateReportIssue = (newIssue, newReport) => {
+    const updatedReport = ( newReport? { ...report, ...newReport } : {...report} )
 
     if (updatedReport && Array.isArray(updatedReport.issues)) {
       updatedReport.issues = updatedReport.issues.map((issue) => {
         if (issue.id === newIssue.id) return newIssue
-        const oldIssue = oldReport.issues.find((oldReportIssue) => oldReportIssue.id === issue.id)
+        const oldIssue = report.issues.find((oldReportIssue) => oldReportIssue.id === issue.id)
         return oldIssue !== undefined ? { ...oldIssue, ...issue } : issue
       })
     }
@@ -171,7 +157,7 @@ export default function App(initialData) {
     setReport(updatedReport)
   }
 
-  const handleFileSave = (newFile, newReport) => {
+  const updateReportFile = (newFile, newReport) => {
     let updatedReport = { ...report, ...newReport }
 
     if (updatedReport && updatedReport.files) {
@@ -293,8 +279,8 @@ export default function App(initialData) {
             appFilters={appFilters}
             handleAppFilters={handleAppFilters}
             handleNavigation={handleNavigation}
-            handleIssueSave={handleIssueSave}
-            handleIssueUpdate={handleIssueSave}
+            handleIssueSave={updateReportIssue}
+            handleIssueUpdate={updateReportIssue}
             disableReview={syncComplete && !disableReview} />
         }
         {('fixIssues' === navigation) &&
@@ -309,10 +295,9 @@ export default function App(initialData) {
             setReport={setReport}
             addMessage={addMessage}
             handleNavigation={handleNavigation}
-            handleIssueSave={handleIssueSave}
-            handleIssueUpdate={handleIssueSave}
-            activeTasks={activeTasks}
-            updateTask={updateTask}
+            updateReportIssue={updateReportIssue}
+            sessionIssues={sessionIssues}
+            updateSessionIssue={updateSessionIssue}
             disableReview={syncComplete && !disableReview} />
         }
         {('files' === navigation) &&
@@ -320,7 +305,7 @@ export default function App(initialData) {
             report={report}
             settings={settings}
             handleNavigation={handleNavigation}
-            handleFileSave={handleFileSave}
+            handleFileSave={updateReportFile}
             t={t} />
         }
         {('reports' === navigation) &&

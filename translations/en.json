@@ -215,6 +215,7 @@
   "label.btn.udoit_details": "What does UDOIT look for?",
   "label.btn.hide_example": "Hide example",
   "label.btn.show_example": "Show example",
+  "label.btn.screen_reader": "Screen Reader Text",
   "placeholder.keyword": "Keyword Search",
   "label.more_info": "More Info",
   "label.less_info": "Less Info",

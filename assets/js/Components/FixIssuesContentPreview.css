@@ -67,11 +67,41 @@
   position: absolute;
   position-anchor: --ufixit-error-highlight;
   position-area: bottom;
-  position-try-fallbacks: bottom left, bottom right, top left, top right;
+  position-try-fallbacks: bottom left, bottom right, top, top left, top right;
 
   background-color: var(--primary-color);
   color: var(--primary-color-dark);
-  padding: 0.25rem 0.5rem;
-  border-radius: 0.25rem;
+  border-radius: 22px;
   font-size: 0.85rem;
+
+  display: flex;
+  flex-direction: row;
+  cursor: pointer;
+  border: 2px solid var(--primary-color-dark);
+  margin: 5px;
+  
+  .alt-text-preview-icon {
+    padding: 8px;
+    line-height: 0px;
+  }
+
+  .alt-text-preview-text {
+    display: flex;
+    flex-direction: column;
+    font-weight: bold;
+    padding: .5rem 1rem .5rem .25rem;
+    max-width: 300px;
+    max-height: 100px;
+    transition: max-height 0.15s, max-width var(--transition-time), padding var(--transition-time);
+    overflow: auto;
+  }
+
+  &.alt-text-preview-closed {
+    .alt-text-preview-text {
+      max-width: 0px;
+      max-height: 0px;
+      padding: 0px;
+      overflow: hidden;
+    }
+  }
 }
