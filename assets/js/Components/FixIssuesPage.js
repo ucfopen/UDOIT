@@ -5,6 +5,7 @@ import FixIssuesContentPreview from './FixIssuesContentPreview';
 import UfixitWidget from './UfixitWidget'
 import * as Html from '../Services/Html'
 import Api from '../Services/Api'
+
 import './FixIssuesPage.css'
 
 /** The data for this component can be a bit confusing, so here's a breakdown:
