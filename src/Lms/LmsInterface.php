@@ -21,6 +21,7 @@ interface LmsInterface {
     public function getOauthUri(Institution $institution, UserSession $session);
     public function getAccountData(User $user, $accountId);
     public function getCourseUrl(Course $course, User $user);
+    public function getCourseSections(Course $course, User $user);
     public function getLtiAuthUrl($params);
     public function getOauthTokenUri(Institution $institution);
     public function getKeysetUrl();

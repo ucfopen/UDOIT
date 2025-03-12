@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { Heading } from '@instructure/ui-heading'
 import { Button } from '@instructure/ui-buttons'
 import { View } from '@instructure/ui-view'
@@ -18,180 +18,96 @@ const startOptions = [
   'by_impact'
 ]
 
-class SummaryForm extends React.Component {
+export default function SummaryForm({ t, settings, report, handleAppFilters, handleNavigation }) {
+  const [selectFilter, setSelectFilter] = useState('easy')
+  const [selectRule, setSelectRule] = useState('')
+  const [selectContentType, setSelectContentType] = useState('')
+  const [selectImpact, setSelectImpact] = useState('')
 
-  constructor(props) {
-    super(props);
+  const visualRules = issueRuleIds.filter(rule => settings.visualRuleIds.includes(rule))
+  const auditoryRules = issueRuleIds.filter(rule => settings.auditoryRuleIds.includes(rule))
+  const cognitiveRules = issueRuleIds.filter(rule => settings.cognitiveRuleIds.includes(rule))
+  const motorRules = issueRuleIds.filter(rule => settings.motorRuleIds.includes(rule))
+  const easyRules = issueRuleIds.filter(rule => settings.easyRuleIds.includes(rule))
 
-    this.state = {
-      selectFilter: 'easy',
-      selectRule: '',
-      selectContentType: '',
-      selectImpact: '',
+  const checkCanSubmit = () => {
+    let newCanSubmit = true
+    if (selectFilter === 'by_issue') {
+      newCanSubmit = selectRule
     }
-
-    this.visualRules = issueRuleIds.filter(rule => this.props.settings.visualRuleIds.includes(rule))
-    this.auditoryRules = issueRuleIds.filter(rule => this.props.settings.auditoryRuleIds.includes(rule))
-    this.cognitiveRules = issueRuleIds.filter(rule => this.props.settings.cognitiveRuleIds.includes(rule))
-    this.motorRules = issueRuleIds.filter(rule => this.props.settings.motorRuleIds.includes(rule))
-
-    this.handleFilterSelect = this.handleFilterSelect.bind(this)
-    this.handleRuleSelect = this.handleRuleSelect.bind(this)
-    this.handleContentTypeSelect = this.handleContentTypeSelect.bind(this)
-    this.handleImpactSelect = this.handleImpactSelect.bind(this)
-    this.handleSubmit = this.handleSubmit.bind(this)
-  }
-
-  render() {
-    let canSubmit = true
-    let easyRuleIds = this.props.settings.easyRuleIds
-    if ('by_issue' === this.state.selectFilter) {
-      canSubmit = (this.state.selectRule)
+    if (selectFilter === 'by_content') {
+      newCanSubmit = selectContentType
     }
-    if ('by_content' === this.state.selectFilter) {
-      canSubmit = (this.state.selectContentType)
+    if (selectFilter === 'by_impact') {
+      newCanSubmit = selectImpact
     }
-    if ('by_impact' === this.state.selectFilter) {
-      canSubmit = (this.state.selectImpact)
-    }
+    return newCanSubmit;
+  }
+  const canSubmit = checkCanSubmit()
 
-    this.easyRules = issueRuleIds.filter(rule => easyRuleIds.includes(rule))
-
-
-
-    return (
-      <View as="div" padding="medium">
-        <Heading level="h3" as="h2">{this.props.t('form.summary.heading')}</Heading>
-        {/* <Text as="p">{this.props.t('form.summary.description')}</Text> */}
-        <View as="div" margin="large 0 0 0">
-          <RadioInputGroup onChange={this.handleFilterSelect}
-            name="summaryFilterSelect"
-            value={this.state.selectFilter}
-            description={this.props.t('form.summary.show')}>
-              {startOptions.map((key) => <RadioInput key={key} value={key} label={this.props.t(`form.summary.option.${key}`)} /> )}
-          </RadioInputGroup>
-
-          {('by_issue' === this.state.selectFilter) &&
-            <View as="div" margin="large 0">
-              <SimpleSelect
-                value={this.state.selectRule}
-                name="selectRule"
-                renderLabel={this.props.t('form.summary.option.by_issue')}
-                onChange={this.handleRuleSelect}>
-                {this.renderIssueOptions()}
-              </SimpleSelect>
-            </View>
-          }
-
-          {('by_content' === this.state.selectFilter) &&
-            <View as="div" margin="large 0">
-              <SimpleSelect
-                value={this.state.selectContentType}
-                name="selectContentType"
-                renderLabel={this.props.t('form.summary.option.by_content')}
-                onChange={this.handleContentTypeSelect}>
-                {this.renderContentTypeOptions()}
-              </SimpleSelect>
-            </View>
-          }
-
-          {('by_impact' === this.state.selectFilter) &&
-            <View as="div" margin="large 0">
-              <SimpleSelect
-                value={this.state.selectImpact}
-                name="selectImpact"
-                renderLabel={this.props.t('form.summary.option.by_impact')}
-                onChange={this.handleImpactSelect}>
-                {this.renderImpactOptions()}
-              </SimpleSelect>
-            </View>
-          }
-
-          <View as="div" margin="medium 0">
-            {this.renderIssueCount()}
-          </View>
-          <View as="div" margin="medium 0 0 0">
-            <Button
-              color="primary"
-              display="block"
-              onClick={this.handleSubmit}
-              interaction={canSubmit ? 'enabled' : 'disabled'}
-              >{this.props.t('button.start')}</Button>
-          </View>
-        </View>
-      </View>
-    )
+  const handleFilterSelect = (e, val) => {
+    setSelectFilter(val)
   }
 
-  handleFilterSelect(e, val)
-  {
-    this.setState({selectFilter: val})
+  const handleRuleSelect = (e, val) => {
+    setSelectRule(val.id)
   }
 
-  handleRuleSelect(e, val)
-  {
-    this.setState({selectRule: val.id})
+  const handleContentTypeSelect = (e, val) => {
+    setSelectContentType(val.id)
   }
 
-  handleContentTypeSelect(e, val)
-  {
-    this.setState({ selectContentType: val.id })
+  const handleImpactSelect = (e, val) => {
+    setSelectImpact(val.id)
   }
 
-  handleImpactSelect(e, val)
-  {
-    this.setState({ selectImpact: val.id })
-  }
-
-  handleSubmit(e)
-  {
-    const { selectFilter, selectRule, selectContentType, selectImpact} = this.state
+  const handleSubmit = (e) => {
     let filters = {}
 
     switch (selectFilter) {
       case 'easy':
         filters = {easyIssues: true}
-      break
+        break
       case 'errors_only':
         filters = {issueTypes: ['error']}
-      break
+        break
       case 'active':
         filters = {issueStatus: ['active']}
-      break
+        break
       case 'by_issue':
         filters = {issueTitles: [selectRule]}
-      break
+        break
       case 'by_content':
         filters = {contentTypes: [selectContentType]}
-      break
+        break
       case 'by_impact':
         filters = {issueImpacts: [selectImpact]}
-      break
+        break
     }
 
-    this.props.handleAppFilters(filters);
-    this.props.handleNavigation('content');
+    handleAppFilters(filters)
+    handleNavigation('content')
   }
 
-  renderIssueOptions() {
+  const renderIssueOptions = () => {
     let options = {}
     let out = [
       <SimpleSelect.Option value="" id="option-none" key="summary-none">--</SimpleSelect.Option>
     ]
 
-    for (const issue of this.props.report.issues) {
+    for (const issue of report.issues) {
       options[issue.scanRuleId] = issue.type
     }
 
     for (let ruleId of Object.keys(options)) {
-      out.push(<SimpleSelect.Option value={ruleId} id={ruleId} key={`summary-${ruleId}`}>{this.props.t(`rule.label.${ruleId}`)}</SimpleSelect.Option>)
+      out.push(<SimpleSelect.Option value={ruleId} id={ruleId} key={`summary-${ruleId}`}>{t(`rule.label.${ruleId}`)}</SimpleSelect.Option>)
     }
 
     return out
   }
 
-  renderContentTypeOptions() {
-    let types = this.props.settings.contentTypes
+  const renderContentTypeOptions = () => {
+    let types = settings.contentTypes
     let out = [
       <SimpleSelect.Option value="" id="option-none" key="summary-none">--</SimpleSelect.Option>
     ]
@@ -199,51 +115,51 @@ class SummaryForm extends React.Component {
     types.sort()
 
     for (let type of types) {
-      out.push(<SimpleSelect.Option value={type} id={type} key={`summary-${type}`}>{this.props.t(`content.plural.${type}`)}</SimpleSelect.Option>)
+      out.push(<SimpleSelect.Option value={type} id={type} key={`summary-${type}`}>{t(`content.plural.${type}`)}</SimpleSelect.Option>)
     }
 
     return out
   }
 
-  renderImpactOptions() {
+  const renderImpactOptions = () => {
     let impacts = ['visual', 'auditory', 'cognitive', 'motor']
     let out = [
       <SimpleSelect.Option value="" id="option-none" key="summary-none">--</SimpleSelect.Option>
     ]
 
     for (let impact of impacts) {
-      out.push(<SimpleSelect.Option value={impact} id={impact} key={`summary-${impact}`}>{this.props.t(`label.filter.${impact}`)}</SimpleSelect.Option>)
+      out.push(<SimpleSelect.Option value={impact} id={impact} key={`summary-${impact}`}>{t(`label.filter.${impact}`)}</SimpleSelect.Option>)
     }
 
     return out
   }
 
-  renderIssueCount() {
+  const renderIssueCount = () => {
     let values = ['-', '-']
 
-    switch (this.state.selectFilter) {
+    switch (selectFilter) {
       case 'easy':
-        values = this.getEasyCount()
+        values = getEasyCount()
         break
       case 'errors_only':
-        values = this.getErrorCount()
+        values = getErrorCount()
         break
       case 'active':
-        values = this.getActiveIssueCount()
+        values = getActiveIssueCount()
         break
       case 'by_issue':
-        if (this.state.selectRule) {
-          values = this.getIssueTypeCount()
+        if (selectRule) {
+          values = getIssueTypeCount()
         }
         break
       case 'by_content':
-        if (this.state.selectContentType) {
-          values = this.getContentTypeCount()
+        if (selectContentType) {
+          values = getContentTypeCount()
         }
         break
       case 'by_impact':
-        if (this.state.selectImpact) {
-          values = this.getImpactCount()
+        if (selectImpact) {
+          values = getImpactCount()
         }
         break
     }
@@ -253,19 +169,18 @@ class SummaryForm extends React.Component {
         {values[0] &&
         <InlineList.Item>
           <IconNoLine className={Classes.error} />
-          <View padding="0 0 0 xx-small">{values[0]} {this.props.t('label.plural.error')}</View>
+          <View padding="0 0 0 xx-small">{values[0]} {t('label.plural.error')}</View>
         </InlineList.Item>}
         {values[1] &&
         <InlineList.Item>
           <IconInfoBorderlessLine className={Classes.suggestion} />
-          <View padding="0 0 0 xx-small">{values[1]} {this.props.t('label.plural.suggestion')}</View>
+          <View padding="0 0 0 xx-small">{values[1]} {t('label.plural.suggestion')}</View>
         </InlineList.Item>}
       </InlineList>
     )
   }
 
-  getEasyCount() {
-    const report = this.props.report
+  const getEasyCount = () => {
     let errors = 0
     let suggestions = 0
 
@@ -274,7 +189,7 @@ class SummaryForm extends React.Component {
         continue
       }
 
-      if (this.easyRules.includes(issue.scanRuleId)) {
+      if (easyRules.includes(issue.scanRuleId)) {
         if ('error' === issue.type) {
           errors++
         }
@@ -287,8 +202,7 @@ class SummaryForm extends React.Component {
     return [errors, suggestions]
   }
 
-  getErrorCount() {
-    const report = this.props.report
+  const getErrorCount = () => {
     let errors = 0
 
     for (const issue of report.issues) {
@@ -303,8 +217,7 @@ class SummaryForm extends React.Component {
     return [errors, 0]
   }
 
-  getActiveIssueCount() {
-    const report = this.props.report
+  const getActiveIssueCount = () => {
     let errors = 0
     let suggestions = 0
 
@@ -323,8 +236,7 @@ class SummaryForm extends React.Component {
     return [errors, suggestions]
   }
 
-  getIssueTypeCount() {
-    const report = this.props.report
+  const getIssueTypeCount = () => {
     let errors = 0
     let suggestions = 0
 
@@ -332,7 +244,7 @@ class SummaryForm extends React.Component {
       if (issue.status) {
         continue
       }
-      if (this.state.selectRule === issue.scanRuleId) {
+      if (selectRule === issue.scanRuleId) {
         if ('error' === issue.type) {
           errors++
         }
@@ -345,8 +257,7 @@ class SummaryForm extends React.Component {
     return [errors, suggestions]
   }
 
-  getContentTypeCount() {
-    const report = this.props.report
+  const getContentTypeCount = () => {
     let errors = 0
     let suggestions = 0
 
@@ -356,7 +267,7 @@ class SummaryForm extends React.Component {
       }
       const contentItem = Object.assign({}, report.contentItems[issue.contentItemId])
 
-      if (this.state.selectContentType === contentItem.contentType) {
+      if (selectContentType === contentItem.contentType) {
         if ('error' === issue.type) {
           errors++
         }
@@ -369,8 +280,7 @@ class SummaryForm extends React.Component {
     return [errors, suggestions]
   }
 
-  getImpactCount() {
-    const report = this.props.report
+  const getImpactCount = () => {
     let errors = 0
     let suggestions = 0
 
@@ -379,10 +289,10 @@ class SummaryForm extends React.Component {
         continue
       }
 
-      if ((this.state.selectImpact === 'visual' && this.visualRules.includes(issue.scanRuleId))
-          || (this.state.selectImpact === 'auditory' && this.auditoryRules.includes(issue.scanRuleId))
-          || (this.state.selectImpact === 'cognitive' && this.cognitiveRules.includes(issue.scanRuleId))
-          || (this.state.selectImpact === 'motor' && this.motorRules.includes(issue.scanRuleId))
+      if ((selectImpact === 'visual' && visualRules.includes(issue.scanRuleId))
+          || (selectImpact === 'auditory' && auditoryRules.includes(issue.scanRuleId))
+          || (selectImpact === 'cognitive' && cognitiveRules.includes(issue.scanRuleId))
+          || (selectImpact === 'motor' && motorRules.includes(issue.scanRuleId))
           ) {
         if ('error' === issue.type) {
           errors++
@@ -395,6 +305,66 @@ class SummaryForm extends React.Component {
 
     return [errors, suggestions]
   }
-}
 
-export default SummaryForm
+  return (
+    <View as="div" padding="medium">
+      <Heading level="h3" as="h2">{t('form.summary.heading')}</Heading>
+      <View as="div" margin="large 0 0 0">
+        <RadioInputGroup onChange={handleFilterSelect}
+          name="summaryFilterSelect"
+          value={selectFilter}
+          description={t('form.summary.show')}>
+            {startOptions.map((key) => <RadioInput key={key} value={key} label={t(`form.summary.option.${key}`)} /> )}
+        </RadioInputGroup>
+
+        {('by_issue' === selectFilter) &&
+          <View as="div" margin="large 0">
+            <SimpleSelect
+              value={selectRule}
+              name="selectRule"
+              renderLabel={t('form.summary.option.by_issue')}
+              onChange={handleRuleSelect}>
+              {renderIssueOptions()}
+            </SimpleSelect>
+          </View>
+        }
+
+        {('by_content' === selectFilter) &&
+          <View as="div" margin="large 0">
+            <SimpleSelect
+              value={selectContentType}
+              name="selectContentType"
+              renderLabel={t('form.summary.option.by_content')}
+              onChange={handleContentTypeSelect}>
+              {renderContentTypeOptions()}
+            </SimpleSelect>
+          </View>
+        }
+
+        {('by_impact' === selectFilter) &&
+          <View as="div" margin="large 0">
+            <SimpleSelect
+              value={selectImpact}
+              name="selectImpact"
+              renderLabel={t('form.summary.option.by_impact')}
+              onChange={handleImpactSelect}>
+              {renderImpactOptions()}
+            </SimpleSelect>
+          </View>
+        }
+
+        <View as="div" margin="medium 0">
+          {renderIssueCount()}
+        </View>
+        <View as="div" margin="medium 0 0 0">
+          <Button
+            color="primary"
+            display="block"
+            onClick={handleSubmit}
+            interaction={canSubmit ? 'enabled' : 'disabled'}
+            >{t('button.start')}</Button>
+        </View>
+      </View>
+    </View>
+  )
+}

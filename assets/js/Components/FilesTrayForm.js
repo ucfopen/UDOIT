@@ -6,82 +6,69 @@ import { Tray } from '@instructure/ui-tray'
 import { View } from '@instructure/ui-view'
 import { Heading } from '@instructure/ui-heading'
 
-class FilesTrayForm extends React.Component {
+export default function FilesTrayForm({t, trayOpen, handleTrayToggle, filters, handleFilter, fileTypes}) {
 
-  constructor(props) {
-    super(props);
-
-    this.handleFileTypeChange = this.handleFileTypeChange.bind(this);
-    this.handleHideReviewed = this.handleHideReviewed.bind(this);
+  const renderFileTypeCheckboxes = () => {
+    return fileTypes.map((type) => <Checkbox label={t(`label.mime.${type}`)} value={type} key={type} />);
   }
 
-  render() {
+  const handleFileTypeChange = (values) => {  
+    handleFilter({fileTypes: values})
+  }
 
-    return (
-      <Tray
-        label={this.props.t('label.plural.filter')}
-        open={this.props.trayOpen}
-        shouldCloseOnDocumentClick={true}
-        onDismiss={this.props.handleTrayToggle}
-        placement="end">
-        <View as="div" padding="medium">
-          <Flex margin="0 0 medium 0">
-            <Flex.Item shouldGrow shouldShrink>
-              <Heading>{this.props.t('label.plural.filter')}</Heading>
-            </Flex.Item>
-            <Flex.Item>
-              <CloseButton
-                placement="end"
-                offset="small"
-                screenReaderLabel={this.props.t('srlabel.close')}
-                onClick={this.props.handleTrayToggle}
-              />
-            </Flex.Item>
-          </Flex> 
-          <View as="div" padding="small 0">
-            <CheckboxGroup 
-              name="FileTypes"
-              description={ this.props.t('label.file_type')}
-              value={this.props.filters.fileTypes}
-              onChange={this.handleFileTypeChange}>
-              {this.renderFileTypeCheckboxes()}
-            </CheckboxGroup>
-          </View>
-          <View as="div" padding="medium 0 0 0">
-            <Checkbox 
-              label={this.props.t('label.hide_reviewed')} 
-              checked={this.props.filters.hideReviewed}
-              onChange={this.handleHideReviewed}
+  const handleUnpublishedFiles = (e) => {
+    handleFilter({ hideUnpublishedFiles: !filters.hideUnpublishedFiles })
+  }
+
+  const handleHideReviewed = (e) => {
+    handleFilter({ hideReviewed: !filters.hideReviewed })
+  }
+
+  return (
+    <Tray
+      label={t('label.plural.filter')}
+      open={trayOpen}
+      shouldCloseOnDocumentClick={true}
+      onDismiss={handleTrayToggle}
+      placement="end">
+      <View as="div" padding="medium">
+        <Flex margin="0 0 medium 0">
+          <Flex.Item shouldGrow shouldShrink>
+            <Heading>{t('label.plural.filter')}</Heading>
+          </Flex.Item>
+          <Flex.Item>
+            <CloseButton
+              placement="end"
+              offset="small"
+              screenReaderLabel={t('srlabel.close')}
+              onClick={handleTrayToggle}
             />
-          </View>
-          <View as="div" padding="small 0 medium 0">
-            <Checkbox 
-              label={this.props.t('label.hide_unpublished_files')} 
-              onChange={this.handleUnpublishedFiles}
-              checked={this.props.filters.hideUnpublishedFiles}
-            />
-          </View>
-        </View> 
-      </Tray>
-    );
-  }
-
-  renderFileTypeCheckboxes() {
-    return this.props.fileTypes.map((type) => <Checkbox label={this.props.t(`label.mime.${type}`)} value={type} key={type} />);
-  }
-
-  handleFileTypeChange(values) {
-    this.props.handleFilter({fileTypes: values});
-  }
-  
-  handleUnpublishedFiles(e) {
-    this.props.handleFilter({ hideUnpublishedFiles: !this.props.filters.hideUnpublishedFiles });
-  }
-
-  handleHideReviewed(e) {
-    this.props.handleFilter({ hideReviewed: !this.props.filters.hideReviewed });
-  }
-
+          </Flex.Item>
+        </Flex> 
+        <View as="div" padding="small 0">
+          <CheckboxGroup 
+            name="FileTypes"
+            description={ t('label.file_type')}
+            value={filters.fileTypes}
+            onChange={handleFileTypeChange}>
+            {renderFileTypeCheckboxes()}
+          </CheckboxGroup>
+        </View>
+        <View as="div" padding="medium 0 0 0">
+          <Checkbox 
+            label={t('label.hide_reviewed')} 
+            checked={filters.hideReviewed}
+            onChange={handleHideReviewed}
+          />
+        </View>
+        <View as="div" padding="small 0 medium 0">
+          <Checkbox 
+            label={t('label.hide_unpublished_files')} 
+            onChange={handleUnpublishedFiles}
+            checked={filters.hideUnpublishedFiles}
+          />
+        </View>
+      </View> 
+    </Tray>
+  );
 }
-
-export default FilesTrayForm;

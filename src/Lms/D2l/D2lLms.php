@@ -191,6 +191,13 @@ class D2lLms implements LmsInterface {
         $this->entityManager->flush();  
     }
 
+    public function getCourseSections(Course $course, User $user)
+    {
+        $lmsItems = [];
+
+        return $lmsItems;
+    }
+
     public function updateCourseContent(Course $course, User $user)
     {
         $lmsItems = $contentItems = [];

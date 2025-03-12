@@ -6,36 +6,11 @@ import { Checkbox } from '@instructure/ui-checkbox'
 import AboutPage from './AboutPage'
 import Api from '../Services/Api'
 
-class WelcomePage extends React.Component {
-  constructor(props) {
-    super(props)
+export default function WelcomePage({ t, settings, setSettings, hasNewReport, handleNavigation }) {
 
-    this.handleSkipWelcomeMessage = this.handleSkipWelcomeMessage.bind(this)
-  }
-
-  render() {
-    return (
-      <View as="div">
-        <View as="div" borderWidth="0 0 small 0" margin="small x-large" padding="medium x-large">
-          <Heading level="h2">{this.props.t('about.title')}</Heading>
-          <AboutPage t={this.props.t} settings={this.props.settings} />
-        </View>
-        <View as="div" margin="0 x-large">
-          <Checkbox label={this.props.t('about.skip_welcome')} value="skip" 
-            onClick={this.handleSkipWelcomeMessage} />
-        </View>
-        <View as="div" textAlign="center" padding="medium">          
-          <Button onClick={() => this.props.handleNavigation('summary')} color="primary"
-            interaction={this.props.hasNewReport ? 'enabled' : 'disabled'}>
-            {this.props.t('label.continue')}</Button>
-        </View>
-      </View>
-    )
-  }
-
-  handleSkipWelcomeMessage(event) {
-    let api = new Api(this.props.settings)
-    let user = this.props.settings.user
+  const handleSkipWelcomeMessage = (event) => {
+    let api = new Api(settings)
+    let user = settings.user
 
     if (event.target.checked) {
       user.roles = ['ROLE_ADVANCED_USER']
@@ -47,10 +22,27 @@ class WelcomePage extends React.Component {
     api.updateUser(user)    
       .then((response) => response.json())
       .then((data) => {
-        this.props.settings.user = data
+        let newSettings = [...settings]
+        newSettings.user = data
+        setSettings(newSettings)
       })
-
   }
-}
 
-export default WelcomePage;
+  return (
+    <View as="div">
+      <View as="div" borderWidth="0 0 small 0" margin="small x-large" padding="medium x-large">
+        <Heading level="h2">{t('about.title')}</Heading>
+        <AboutPage t={t} settings={settings} />
+      </View>
+      <View as="div" margin="0 x-large">
+        <Checkbox label={t('about.skip_welcome')} value="skip" 
+          onClick={handleSkipWelcomeMessage} />
+      </View>
+      <View as="div" textAlign="center" padding="medium">          
+        <Button onClick={() => handleNavigation('summary')} color="primary"
+          interaction={hasNewReport ? 'enabled' : 'disabled'}>
+          {t('label.continue')}</Button>
+      </View>
+    </View>
+  )
+}
