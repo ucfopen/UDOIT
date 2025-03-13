@@ -376,13 +376,63 @@ class CanvasLms implements LmsInterface {
         $apiDomain = $this->getApiDomain($user);
         $apiToken = $this->getApiToken($user);
         $canvasApi = new CanvasApi($apiDomain, $apiToken);
+        $modules = $canvasApi->listModules($file->getCourse()->getLmsCourseId());
+        $pages = $canvasApi->listPages($file->getCourse()->getLmsCourseId());
+        $assignments = $canvasApi->listAssignments($file->getCourse()->getLmsCourseId());
+        $quizzes = $canvasApi->listQuizzes($file->getCourse()->getLmsCourseId());
+        $changeReferences = ['course_id' => $file->getCourse()->getLmsCourseId(),'modules' => [], 'pages' => [], 'assignments' => [], 'quizzes' => [], 'quizQuestions' => []];
+
+        // Delete any existing module items with the same file name
+        foreach ($modules as $module) {
+            $moduleItems = $canvasApi->listModuleItems($file->getCourse()->getLmsCourseId(), $module['id']);
+            $instances = $this->findFileInModuleItems($moduleItems, $file->getLmsFileId());
+            if (!empty($instances)) {
+                foreach ($instances as $instance) {
+                    $canvasApi->deleteModuleItem($file->getCourse()->getLmsCourseId(), $module['id'], $instance['id']);
+                }
+                $changeReferences['modules'][] = $module['id'];
+            }
+        }
+
+        // Find all wiki pages that contain this file in their HTML
+        foreach ($pages as $page) {
+            if ($this->fileIsInLink($file->getLmsFileId(), $page['body'])) {
+                $changeReferences['pages'][] = $page;
+            }
+        }
+
+        // Find all assignments that contain this file in their description HTML
+        foreach ($assignments as $assignment) {
+            if ($this->fileIsInLink($file->getLmsFileId(), $assignment['description'])) {
+                $changeReferences['assignments'][] = $assignment;
+            }
+        }
+
+        // Find all quizzes that contain this file in their description HTML
+        foreach ($quizzes as $quiz) {
+            if ($this->fileIsInLink($file->getLmsFileId(), $quiz['description'])) {
+                $changeReferences['quizzes'][] = $quiz;
+            }
+
+            // Check quiz questions for references to the file
+            $questions[] = $canvasApi->listQuizQuestions($file->getCourse()->getLmsCourseId(), $quiz['id']);
+
+            $questions = $questions[0];
+
+            foreach ($questions as $question) {
+                if ($this->fileIsInLink($file->getLmsFileId(), $question['question_text'])) {
+                   $changeReferences['quizQuestions'][] = $question;
+                }
+            }
+        }
+
         $url = "courses/{$file->getCourse()->getLmsCourseId()}/files/{$file->getLmsFileId()}";
         $filepath = $this->util->getTempPath() . '/file.' . $file->getId();
         $options = [
             'postUrl' => "courses/{$file->getCourse()->getLmsCourseId()}/files"
         ];
 
-        $fileResponse = $canvasApi->apiFilePost($url, $options, $filepath, $newFileName);
+        $fileResponse = $canvasApi->apiFilePost($url, $options, $filepath, $newFileName, $changeReferences);
         $fileObj = $fileResponse->getContent();
 
         if (isset($fileObj['id'])) {
@@ -391,6 +441,18 @@ class CanvasLms implements LmsInterface {
         }
 
         return $fileResponse;
+    }
+
+    public function findFileInModuleItems($moduleItems, string $fileId)
+    {
+        $instances = [];
+        foreach ($moduleItems as $item) {
+            if ($item['content_id'] == $fileId) {
+                $instances[] = $item;
+            }
+        }
+
+        return $instances;
     }
 
     public function getCourseUrl(Course $course, User $user)
@@ -491,6 +553,22 @@ class CanvasLms implements LmsInterface {
     /**********************
      * PROTECTED FUNCTIONS
      **********************/
+
+    protected function fileIsInLink($fileId, $html)
+    {
+        $dom = new \DOMDocument();
+        $dom->loadHTML($html);
+        $anchors = $dom->getElementsByTagName('a');
+
+        foreach ($anchors as $anchor) {
+            preg_match('/files\/(\d+)/', $anchor->getAttribute('href'), $matches);
+            if(isset($matches[1]) && $matches[1] == $fileId) {
+                return true;
+            }
+        }
+
+        return false;
+    }
 
     protected function getAccountInfo(User $user, $accountId)
     {
