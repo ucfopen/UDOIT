@@ -52,17 +52,14 @@ class Header extends React.Component {
           >
           <AppNav.Item
             renderLabel={this.props.t('label.home')}
-            isDisabled={('welcome' === this.props.navigation) && !this.props.hasNewReport}
             isSelected={('summary' === this.props.navigation)}
             onClick={() => this.props.handleNavigation('summary')} />
           <AppNav.Item
             renderLabel={this.props.t('label.ufixit')}
-            isDisabled={('welcome' === this.props.navigation) && !this.props.hasNewReport}
             isSelected={('content' === this.props.navigation)}
             onClick={() => this.props.handleNavigation('content')} />
           <AppNav.Item
             renderLabel={this.props.t('label.review_files')}
-            isDisabled={('welcome' === this.props.navigation) && !this.props.hasNewReport}
             isSelected={('files' === this.props.navigation)}
             onClick={() => this.props.handleNavigation('files')} />
 
