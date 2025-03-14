@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
+import DownloadIcon from './Icons/DownloadIcon';
 import ExternalLinkIcon from './Icons/ExternalLinkIcon';
 import EarIcon from './Icons/EarIcon';
+import UploadIcon from './Icons/UploadIcon ';
 
 import './FixIssuesContentPreview.css';
 
@@ -145,9 +147,22 @@ export default function FixIssuesContentPreview({
               <ExternalLinkIcon className="icon-lg link-color" />
             </div>
           </a>
-          <div className="ufixit-content-preview">
-            <h2>Loading Content...</h2>
-          </div>
+          { activeIssue.contentType === settings.FILTER.FILE ? (
+            <div>
+              <button className="btn btn-secondary btn-icon-left">
+                <DownloadIcon />
+                <div className="flex-column justify-content-center">{t('label.download')}</div>
+              </button>
+              <button className="btn btn-secondary btn-icon-left">
+                <ExternalLinkIcon />
+                <div className="flex-column justify-content-center">{t('label.open_in_lms')}</div>
+              </button>
+              {JSON.stringify(activeIssue.file)}</div>
+          ) : (
+            <div className="ufixit-content-preview">
+              <h2>Loading Content...</h2>
+            </div>
+          )}
           <div className="ufixit-content-progress">
             Progress bar goes here.
           </div>

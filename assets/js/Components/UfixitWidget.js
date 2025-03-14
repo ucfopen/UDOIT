@@ -11,7 +11,7 @@ import ReactHtmlParser from 'react-html-parser'
 // import MessageTray from './MessageTray'
 // import Preview from './Preview'
 // import { ToggleDetails } from '@instructure/ui-toggle-details'
-
+import FileForm from './Forms/FileForm'
 import { returnIssueForm } from '../Services/Ufixit'
 import Api from '../Services/Api'
 import * as Html from '../Services/Html'
@@ -53,7 +53,13 @@ export default function UfixitWidget({
 
   useEffect(() => {
     if(activeIssue) {
-      setUfixitForm(() => returnIssueForm(activeIssue.issue))
+      setTempActiveIssue(Object.assign({}, activeIssue))
+      if(activeIssue.contentType === settings.FILTER.FILE) {
+        setUfixitForm(() => { return FileForm })
+      }
+      else {
+        setUfixitForm(() => returnIssueForm(activeIssue.issue))
+      }
       setTempActiveIssue(Object.assign({}, activeIssue))
     }
     else {
@@ -193,21 +199,31 @@ export default function UfixitWidget({
             
             { viewInfo && 
               <div className="flex-grow-1 ufixit-learn-container">
-                {ReactHtmlParser(t(`rule.desc.${activeIssue.issue.scanRuleId}`), { preprocessNodes: (nodes) => Html.processStaticHtml(nodes, settings) })}
+                { activeIssue.contentType === settings.FILTER.FILE
+                  ? ReactHtmlParser(t(`file.desc.${activeIssue.file.fileType}`), { preprocessNodes: (nodes) => Html.processStaticHtml(nodes, settings) })
+                  : ReactHtmlParser(t(`rule.desc.${activeIssue.scanRuleId}`), { preprocessNodes: (nodes) => Html.processStaticHtml(nodes, settings) })
+                }
               </div>
             }
             { !viewInfo &&
               <div className="flex-grow-1 ufixit-form-container flex-column">
                 { activeIssue.status !== settings.FILTER.RESOLVED &&
                   <div className="flex-grow-1">
-                    <UfixitForm
-                      t={t}
-                      settings={settings}
-                      activeIssue={tempActiveIssue.issue}
-                      handleIssueSave={handleIssueSave}
-                      addMessage={addMessage} 
-                      handleActiveIssue={handleActiveIssue}
-                      handleManualScan={handleManualScan} />
+                    { activeIssue.contentType === settings.FILTER.FILE ? (
+                      <FileForm
+                        t={t}
+                        settings={settings}
+                        activeFile={activeIssue} /> )
+                      : (
+                      <UfixitForm
+                        t={t}
+                        settings={settings}
+                        activeIssue={tempActiveIssue.issue}
+                        handleIssueSave={handleIssueSave}
+                        addMessage={addMessage} 
+                        handleActiveIssue={handleActiveIssue}
+                        handleManualScan={handleManualScan} /> )
+                    }
                   </div>
                 }
                 <div className="flex-grow-0">

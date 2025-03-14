@@ -86,6 +86,13 @@ export default function FixIssuesPage({
     ERROR: 5,
   }
 
+  const FILE_TYPES = [
+    'pdf',
+    'doc',
+    'ppt',
+    'xls',
+  ]
+
   const [activeIssue, setActiveIssue] = useState(null)
   const [activeContentItem, setActiveContentItem] = useState(null)
   const [editedElement, setEditedElement] = useState(null)
@@ -114,32 +121,21 @@ export default function FixIssuesPage({
     let tempContentItem = getContentById(issue.contentItemId)
     if(tempContentItem) {
       let tempContentType = tempContentItem.contentType
-      if(tempContentType == 'page') {
-        issueContentType = FILTER.PAGE
+
+      const contentTypeMap = {
+        'page': FILTER.PAGE,
+        'assignment': FILTER.ASSIGNMENT,
+        'announcement': FILTER.ANNOUNCEMENT,
+        'discussion_topic': FILTER.DISCUSSION_TOPIC,
+        'discussion_forum': FILTER.DISCUSSION_FORUM,
+        'file': FILTER.FILE,
+        'quiz': FILTER.QUIZ,
+        'syllabus': FILTER.SYLLABUS,
+        'module': FILTER.MODULE,
       }
-      else if(tempContentType == 'assignment') {
-        issueContentType = FILTER.ASSIGNMENT
-      }
-      else if(tempContentType == 'announcement') {
-        issueContentType = FILTER.ANNOUNCEMENT
-      }
-      else if(tempContentType == 'discussion_topic') {
-        issueContentType = FILTER.DISCUSSION_TOPIC
-      }
-      else if(tempContentType == 'discussion_forum') {
-        issueContentType = FILTER.DISCUSSION_FORUM
-      }
-      else if(tempContentType == 'file') {
-        issueContentType = FILTER.FILE
-      }
-      else if(tempContentType == 'quiz') {
-        issueContentType = FILTER.QUIZ
-      }
-      else if(tempContentType == 'syllabus') {
-        issueContentType = FILTER.SYLLABUS
-      }
-      else if(tempContentType == 'module') {
-        issueContentType = FILTER.MODULE
+
+      if(contentTypeMap[tempContentType]) {
+        issueContentType = contentTypeMap[tempContentType]
       }
 
       // See if the issue is listed in one of the sections
@@ -175,12 +171,13 @@ export default function FixIssuesPage({
     }
 
     return {
-      id: issue.id,
       issue: Object.assign({}, issue),
+      id: issue.id,
       severity: issueSeverity,
       status: issueResolution,
       sectionIds: issueSectionIds,
       keywords: createKeywords(issue, tempContentItem),
+      scanRuleId: issue.scanRuleId,
       scanRuleLabel: t(`rule.label.${issue.scanRuleId}`),
       contentId: tempContentItem.lmsContentId,
       contentType: issueContentType,
@@ -191,14 +188,99 @@ export default function FixIssuesPage({
     }
   }
 
+  const formatFileData = (fileData) => {
+    // All files should be considered "Potential Issues" since they need to be reviewed and are
+    // not included in the PHPAlly or IBM Equal Access scan.
+
+  //   fileData looks like this:
+  //   {
+  //     "id": 1,
+  //     "fileName": "1737738806_398__50087.50089.pdf",
+  //     "fileType": "pdf",
+  //     "lmsFileId": "12863",
+  //     "updated": "2025-01-24T17:13:26+00:00",
+  //     "status": true,
+  //     "active": true,
+  //     "fileSize": "2168225",
+  //     "hidden": false,
+  //     "reviewed": null,
+  //     "downloadUrl": "https://canvas.dev.cdl.ucf.edu/files/12863/download?download_frd=1&verifier=0n2vcqFeSxeqa0UoKq4w8Ip1f9NaL2zh9Q5dI7WP",
+  //     "lmsUrl": "https://canvas.dev.cdl.ucf.edu/courses/383/files?preview=12863"
+  // }
+
+  // We want a object that matches the issue object, but with the file data
+  // issue: Object.assign({}, issue),
+  // id: issue.id,
+  // severity: issueSeverity,
+  // status: issueResolution,
+  // sectionIds: issueSectionIds,
+  // keywords: createKeywords(issue, tempContentItem),
+  // scanRuleLabel: t(`rule.label.${issue.scanRuleId}`),
+  // contentId: tempContentItem.lmsContentId,
+  // contentType: issueContentType,
+  // contentTypeLabel: t(`content.${tempContentItem.contentType}`),
+  // contentTitle: tempContentItem.title,
+  // contentUrl: tempContentItem.url,
+  // currentState: currentState, 
+    let fileId = "file-" + fileData.id
+
+    let issueResolution = FILTER.ACTIVE
+    if(fileData.reviewed) {
+      issueResolution = FILTER.RESOLVED
+    }
+
+    let scanRuleLabel = t(`rule.label.file`)
+
+    let fileTypeLabel = t(`content.file`)
+    
+    // Guarantee that the keywords include the word "file" in each language
+    let keywords = [ fileData.fileName.toLowerCase(), fileTypeLabel.toLowerCase() ]
+    
+    if(FILE_TYPES.includes(fileData.fileType)) {
+      fileTypeLabel = t(`label.mime.${fileData.fileType}`)
+      // Keywords should include the file type ('MS Word', 'PDF', etc.)
+      keywords.push[fileTypeLabel.toLowerCase()]
+    }
+
+    keywords = keywords.join(' ')
+
+    let currentState = ISSUE_STATE.UNCHANGED
+    if(sessionIssues && sessionIssues[fileId]) {
+      currentState = sessionIssues[fileId]
+    }
+
+    return {
+      file: Object.assign({}, fileData),
+      id: fileId,
+      severity: FILTER.POTENTIAL,
+      status: issueResolution,
+      sectionIds: [],
+      keywords: keywords,
+      scanRuleId: 'aaaa_verify_file_accessibility',
+      scanRuleLabel: scanRuleLabel,
+      contentId: fileData.lmsFileId,
+      contentType: FILTER.FILE,
+      contentTypeLabel: fileTypeLabel,
+      contentTitle: fileData.fileName,
+      contentUrl: fileData.lmsUrl,
+      currentState: currentState,
+    }
+  }
+
   // Call the formatIssueData function when the report changes to make sure every issue has all the necessary attributes
   useEffect(() => {
     let tempIssues = Object.assign({}, report.issues)
     let tempFormattedIssues = []
 
     for (const [key, value] of Object.entries(tempIssues)) {
-      let issue = formatIssueData(value)
-      tempFormattedIssues.push(issue)
+      let tempIssue = formatIssueData(value)
+      tempFormattedIssues.push(tempIssue)
+    }
+
+    let tempFiles = Object.assign({}, report.files)
+    for (const [key, value] of Object.entries(tempFiles)) {
+      let tempFile = formatFileData(value)
+      tempFormattedIssues.push(tempFile)
     }
 
     tempFormattedIssues.sort((a, b) => {
@@ -267,7 +349,7 @@ export default function FixIssuesPage({
     }
 
     filteredList.sort((a, b) => {
-      return (a.contentTypeLabel.toLowerCase() < b.contentTypeLabel.toLowerCase()) ? -1 : 1
+      return (a.scanRuleId.toLowerCase() < b.scanRuleId.toLowerCase()) ? -1 : 1
     })
 
     return filteredList
@@ -319,6 +401,11 @@ export default function FixIssuesPage({
     }
   
     setWidgetState(WIDGET_STATE.FIXIT)
+
+    if(activeIssue.contentType === FILTER.FILE) {
+      setActiveContentItem(null)
+      return
+    }
 
     // If we've already downloaded the content for this issue, use that
     const contentItemId = activeIssue.issue.contentItemId
@@ -516,7 +603,6 @@ export default function FixIssuesPage({
 
   const nextIssue = (previous = false) => {
     if (!activeIssue || filteredIssues.length < 2) { return }
-
     let activeIndex = filteredIssues.findIndex((issue) => issue.id === activeIssue.id);
 
     if(activeIndex === -1) { return }
