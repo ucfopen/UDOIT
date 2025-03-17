@@ -8,156 +8,212 @@ import { Spinner } from '@instructure/ui-spinner'
 import * as Html from '../../Services/Html'
 import { SimpleSelect } from '@instructure/ui-simple-select'
 
-// TODO: not finished
-
 export default function QuoteForm(props) {
-
+  // Determine initial HTML content based on issue status
   let html = props.activeIssue.newHtml ? props.activeIssue.newHtml : props.activeIssue.sourceHtml
 
-  if (props.activeIssue.status === '1') {
+  if (props.activeIssue.status === 1) {
     html = props.activeIssue.newHtml
   }
 
   let element = Html.toElement(html)
+  let cite = Html.getAttribute(element, "cite")
 
-  const [textInputValue, setTextInputValue] = useState(element ? Html.getAttribute(element, "aria-label") : "")
-  const [deleteQuotes, setRemoveQuotes] = useState(!element && (props.activeIssue.status === "1"))
+  // State variables to track form data
+  const [originalHtml, setOriginalHtml] = useState(html)
+  const [modifiedHtml, setModifiedHtml] = useState(html)
+  const [addCitation, setAddCitation] = useState(!!cite)
+  const [citationText, setCitationText] = useState(cite ? cite : "")
+  const [selectedTag, setSelectedTag] = useState(element ? Html.getTagName() : "");
+  const [deleteQuotes, setRemoveQuotes] = useState(!element && (props.activeIssue.status === 1))
   const [textInputErrors, setTextInputErrors] = useState([])
+  const [selectErrors, setSelectErrors] = useState([])
+  const [prevIssueID, setPrevIssueID] = useState(null)
 
-  let formErrors = []
-
+  // Effect to reset form when the active issue changes
   useEffect(() => {
+    if (prevIssueID !== null && prevIssueID === props.activeIssue.id) return;
+
     let html = props.activeIssue.newHtml ? props.activeIssue.newHtml : props.activeIssue.sourceHtml
     if (props.activeIssue.status === 1) {
       html = props.activeIssue.newHtml
     }
 
-    let element = Html.toElement(html)
-    setTextInputValue(element ? Html.getAttribute(element, "aria-label") : "")
-    // setRemoveQuotes(!element && props.activeIssue.status === 1)
-
-    formErrors = []
-
+    setOriginalHtml(html);
+    setModifiedHtml(html);
+    setRemoveQuotes(!element && props.activeIssue.status === 1)
+    setSelectedTag("")
+    setAddCitation(!!cite)
+    setCitationText(cite ? cite : "")
+    setTextInputErrors([])
+    setSelectErrors([])
+    setPrevIssueID(props.activeIssue.id)
   }, [props.activeIssue])
 
+  // Effect to update the modified HTML whenever form inputs change
   useEffect(() => {
-    handleHtmlUpdate()
-  }, [textInputValue])
+    handleHtmlUpdate();
+  }, [selectedTag, citationText, deleteQuotes, addCitation])
 
+  /**
+   * Updates the HTML content based on user selections.
+   * - Removes quotes if deleteQuotes is enabled.
+   * - Wraps quotes in <q> or <blockquote> based on selection.
+   * - Adds citation attribute if applicable.
+   */
   const handleHtmlUpdate = () => {
-    let updatedElement = Html.toElement(html)
+    let updatedElement = Html.toElement(originalHtml)
 
-    updatedElement = Html.setAttribute(updatedElement, "aria-label", textInputValue)
+    if (deleteQuotes) {
+      // Remove quotation marks from text content
+      let innerHtml = updatedElement.innerHTML
+      innerHtml = innerHtml.replace(/"([^"<]+)"/g, '$1') 
+      updatedElement.innerHTML = innerHtml
 
-    // if (deleteQuotes) {
-    //   updatedElement = Html.removeAttribute(updatedElement, "aria-label")
-    // }
-    // else {
-    //   updatedElement = Html.setAttribute(updatedElement, "aria-label", textInputValue)
-    // }
+    } else if (selectedTag === 'q' || selectedTag === 'block') {
+      // Replace quotes with <q> or <blockquote> elements
+      const quoteRegex = /"([^"<]+)"/g;
+      let innerHtml = updatedElement.innerHTML;
+      let match;
+      const tag = selectedTag === 'q' ? 'q' : 'blockquote'
 
-    let issue = props.activeIssue
-    issue.newHtml = Html.toString(updatedElement)
-    props.handleActiveIssue(issue)
+      while ((match = quoteRegex.exec(innerHtml)) !== null) {
+          const quoteText = match[1]
+          const newElement = document.createElement(tag)
+          newElement.textContent = quoteText
 
-  }
+          if (addCitation && citationText.length > 0) {
+              Html.setAttribute(newElement, 'cite', citationText)
+          }
 
-  const handleButton = () => {
-    formErrors = []
-
-    // if (!deleteQuotes) {
-    //   checkTextNotEmpty()
-    // }
-
-    checkTextNotEmpty()
-    checkLabelIsUnique()
-
-    if (formErrors.length > 0) {
-      setTextInputErrors(formErrors)
-    }
-    else {
-      props.handleIssueSave(props.activeIssue)
-    }
-  }
-
-  const handleInput = (event) => {
-    setTextInputValue(event.target.value)
-    // handleHtmlUpdate()
-  }
-
-  const handleCheckbox = () => {
-    setRemoveQuotes(!deleteQuotes)
-    // handleHtmlUpdate()
-  }
-
-  const checkTextNotEmpty = () => {
-    const text = textInputValue.trim().toLowerCase()
-    if (text === '') {
-      formErrors.push({ text: "Empty label text.", type: "error" })
-    }
-  }
-
-  const checkLabelIsUnique = () => {
-    // in the case of aria_*_label_unique, messageArgs (from metadata) should have the offending label (at the first index)
-    // i guess we could get it from the aria-label itself as well...
-    const issue = props.activeIssue
-    const metadata = issue.metadata ? JSON.parse(issue.metadata) : {}
-    const labelFromMessageArgs = metadata.messageArgs ? metadata.messageArgs[0] : null
-    const text = textInputValue.trim().toLowerCase()
-
-    if (labelFromMessageArgs) {
-      if (text == labelFromMessageArgs) {
-        formErrors.push({ text: "Cannot reuse label text.", type: "error" })
+          innerHtml = innerHtml.replace(match[0], Html.toString(newElement))
       }
+
+      updatedElement.innerHTML = innerHtml;
     }
 
+    // Convert element back to HTML string and update state
+    const newHtmlString = Html.toString(updatedElement)
+    setModifiedHtml(newHtmlString)
+  
+    let issue = { ...props.activeIssue, newHtml: newHtmlString };
+    props.handleActiveIssue(issue);
   }
 
-  const pending = props.activeIssue && props.activeIssue.pending == "1"
+  /**
+   * Handles the submission of the form.
+   * - Validates selection and citation input.
+   * - Updates the active issue with the new HTML.
+   */
+  const handleButton = () => {
+    let errors = [];
+
+    if (!selectedTag) {
+        errors.push({ text: "Please select a quotation style.", type: "error" });
+    }
+    setSelectErrors(errors);
+
+    errors = [];
+    if (addCitation && !citationText.trim()) {
+        errors.push({ text: "Citation text cannot be empty.", type: "error" });
+    }
+    setTextInputErrors(errors);
+
+    if (errors.length === 0) {
+        let issue = { ...props.activeIssue, newHtml: modifiedHtml };
+        props.handleIssueSave(issue);
+    }
+  };
+
+  /**
+   * Toggles the "Remove quotes" checkbox.
+   * - If unchecked, restores the original HTML.
+   * - Disables citation when quotes are removed.
+   */
+  const handleRemoveQuotesCheckbox = () => {
+    const newDeleteQuotes = !deleteQuotes
+    setRemoveQuotes(newDeleteQuotes)
+
+    if (!newDeleteQuotes) {
+      setSelectedTag("")
+      setModifiedHtml(originalHtml)
+      let issue = { ...props.activeIssue, newHtml: originalHtml }
+      props.handleActiveIssue(issue)
+    }
+
+    if (addCitation) {
+      setAddCitation(false)
+    }
+  }
+
+  const pending = props.activeIssue && props.activeIssue.pending === "1"
   const buttonLabel = pending ? "form.processing" : "form.submit"
 
-  // TODO: use props.t (from en/es.json) to display text for renderLabel, etc
   return (
     <View as="div" padding="x-small">
+      {/* Dropdown for selecting quote formatting */}
       <View as="div" margin="small 0">
         <SimpleSelect
           renderLabel="Select quotation style"
+          value={selectedTag}
           width="100%"
+          onChange={(event, { value }) => setSelectedTag(value)}
+          interaction={deleteQuotes ? "disabled" : "enabled"}
+          messages={selectErrors}
         >
-          <SimpleSelect.Option
-            key="opt-empty"
-            id="opt-empty"
-            value=""
-          >
+          <SimpleSelect.Option key="opt-empty" id="opt-empty" value="">
             -- Choose --
           </SimpleSelect.Option>
-
-          <SimpleSelect.Group renderLabel="Regular quotation">
-            <SimpleSelect.Option
-              key="1"
-              id="opt-1"
-            >
-              
-            </SimpleSelect.Option>
-          </SimpleSelect.Group>
+          <SimpleSelect.Option key="opt-1" id="opt-1" value="q">
+            Regular Quote
+          </SimpleSelect.Option>
+          <SimpleSelect.Option key="opt-2" id="opt-2" value="block">
+            Block Quote
+          </SimpleSelect.Option>
         </SimpleSelect>
       </View>
+
+      {/* Input for citation text */}
+      {addCitation && (
+        <View as="div" margin="small 0">
+          <TextInput
+            renderLabel="Enter Citation"
+            placeholder="e.g., a URL"
+            value={citationText}
+            onChange={(e) => setCitationText(e.target.value)}
+            interaction={deleteQuotes ? "disabled" : "enabled"}
+            messages={textInputErrors}
+          />
+        </View>
+      )}
+
+      {/* Checkboxes for removing quotes and adding citations */}
       <View>
         <View as='span' display='inline-block'>
           <Checkbox
             label='Remove quotes'
             checked={deleteQuotes}
-            onChange={handleCheckbox}
+            onChange={handleRemoveQuotesCheckbox}
+          />
+        </View>
+        <View as='span' display='inline-block' margin="0 small">
+          <Checkbox
+            label='Add a citation'
+            checked={addCitation}
+            onChange={() => setAddCitation(!addCitation)}
+            disabled={deleteQuotes}
           />
         </View>
       </View>
+
+      {/* Submit button */}
       <View as='div' margin='small 0'>
         <Button
           color='primary'
           onClick={handleButton}
           interaction={(!pending && props.activeIssue.status !== 2) ? 'enabled' : 'disabled'}
         >
-          {('1' == pending) && <Spinner size="x-small" renderTitle={props.t(buttonLabel)} />}
+          {pending && <Spinner size="x-small" renderTitle={props.t(buttonLabel)} />}
           {props.t(buttonLabel)}
         </Button>
       </View>
