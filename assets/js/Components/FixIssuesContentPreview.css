@@ -16,6 +16,11 @@
     text-decoration-color: var(--link-color);
   }
 
+  &:focus {
+    outline: 2px solid var(--link-color);
+    outline-offset: 3px;
+  }
+
   h2 {
     font-size: 1.5rem;
     font-weight: bold;
@@ -103,5 +108,17 @@
       padding: 0px;
       overflow: hidden;
     }
+  }
+}
+
+.ufixit-file-details {
+  margin: 2rem 2rem 3rem 2rem;
+
+  .ufixit-file-details-label {
+    font-weight: bold;
+    margin-right: 1rem;
+    text-align: right;
+    width: 30%;
+    flex-shrink: 0;
   }
 }
