@@ -19,6 +19,7 @@
       background-color: var(--link-color);
       /* border-top: 2px solid var(--gray-dark); */
       padding: .5rem;
+      border-bottom: 1px solid var(--link-color-dark);
     
       h3 {
         color: var(--white);
@@ -40,7 +41,7 @@
         /* background-color: var(--primary-color-light);
         color: var(--primary-color-dark); */
         background-color: var(--link-color-light);
-        color: var(--link-color);
+        color: var(--link-color-dark);
       }
 
       &:focus {
