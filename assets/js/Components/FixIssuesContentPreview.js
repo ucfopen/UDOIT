@@ -36,50 +36,100 @@ export default function FixIssuesContentPreview({
     return tempElement
   }
 
+  const convertErrorHtmlElement = (htmlElement) => {
+    let altText= htmlElement.getAttribute('alt') || htmlElement.getAttribute('aria-label')
+    if(altText && altText !== '') {
+      setAltTextPreview(altText)
+    } else {
+      setAltTextPreview(null)
+    }
+    htmlElement.classList.add('ufixit-error-highlight')
+    return htmlElement
+  }
+
+  // When JavaScript's DOMParser encounters certain elements, it WILL NOT parse them unless they are wrapped
+  // in the required parent element. This function wraps the error HTML in the required parent element so that
+  // the DOMParser can parse it correctly.
+  const parseErrorSafely = (errorHtml) => {
+    const parser = new DOMParser()
+    let tagName = errorHtml.match(/^<(\w+)/)?.[1].toLowerCase()
+
+    const SPECIAL_CASES = {
+      thead: "<table>{content}</table>",
+      tbody: "<table>{content}</table>",
+      tfoot: "<table>{content}</table>",
+      caption: "<table>{content}</table>",
+      tr: "<table><tbody>{content}</tbody></table>",
+      td: "<table><tbody><tr>{content}</tr></tbody></table>",
+      th: "<table><tbody><tr>{content}</tr></tbody></table>",
+      colgroup: "<table>{content}</table>",
+      col: "<table><colgroup>{content}</colgroup></table>",
+      option: "<select>{content}</select>",
+      optgroup: "<select>{content}</select>",
+      legend: "<fieldset>{content}</fieldset>",
+      dt: "<dl>{content}</dl>",
+      dd: "<dl>{content}</dl>",
+      li: "<ul>{content}</ul>",
+      area: "<map>{content}</map>",
+      param: "<object>{content}</object>",
+      source: "<video>{content}</video>",
+      track: "<video>{content}</video>"
+    }
+
+    // Wrap special elements inside their required parent(s) if they are in the SPECIAL_CASES object
+    let wrappedHTML = SPECIAL_CASES[tagName] ? SPECIAL_CASES[tagName].replace('{content}', errorHtml) : errorHtml
+
+    // Parse the wrapped HTML
+    const tempDoc = parser.parseFromString(wrappedHTML, "text/html")
+
+    // Extract the real element from the correct position
+    if (SPECIAL_CASES[tagName]) {
+        return tempDoc.querySelector(tagName)
+    } else {
+        return tempDoc.body.firstElementChild
+    }
+  }
+
   const getTaggedContent = (activeIssue, activeContentItem) => {
+
+    setAltTextPreview(null)
     if (!activeIssue || !activeContentItem) {
       return null
     }
 
-    let rawHtml = activeContentItem.body
+    let fullPageHtml = activeContentItem.body
     let errorHtml = activeIssue?.issueData?.sourceHtml || undefined
     if(activeIssue.status === settings.FILTER.FIXED) {
       errorHtml = activeIssue?.issueData?.newHtml || errorHtml
     }
-    setAltTextPreview(null)
 
     if(errorHtml === undefined || errorHtml === '') {
-      return rawHtml
+      return fullPageHtml
     }
 
     const parser = new DOMParser()
-    const serializer = new XMLSerializer()
+    const doc = parser.parseFromString(fullPageHtml, 'text/html')
 
-    const doc = parser.parseFromString(rawHtml, 'text/html')
-    const errorDoc = parser.parseFromString(errorHtml, 'text/html')
+    const errorElement = parseErrorSafely(errorHtml)
 
-    const errorElement = errorDoc.body.firstElementChild
-
-    if (!errorElement) {
-      return null
+    if(!errorElement) {
+      console.warn("Error element cannot be reproduced.")
+      return fullPageHtml
     }
 
-    const errorString = errorElement.outerHTML.trim()
-    let errorCount = 0
-
-    doc.body.querySelectorAll(errorElement.tagName).forEach((element) => {
-      if (element.outerHTML.trim() === errorString) {
-        errorCount++
-        const taggedElement = convertErrorHtmlString(errorHtml)
-        element.replaceWith(taggedElement)
-      }
+    // Find the first element in the document that matches the error element.
+    const docElement = Array.from(doc.body.querySelectorAll(errorElement.tagName)).find((matchElement) => {
+      return matchElement.outerHTML.trim() === errorElement.outerHTML.trim()
     })
 
-    if (errorCount > 1) {
-      console.warn("Multiple matching elements found for error.")
+    // If the element is found, update it with the appropriate class.
+    if(docElement) {
+      docElement.replaceWith(convertErrorHtmlElement(docElement))
+      const serializer = new XMLSerializer()
+      return serializer.serializeToString(doc)
     }
 
-    return serializer.serializeToString(doc)
+    return fullPageHtml
   }
 
   useEffect(() => {
