@@ -16,6 +16,7 @@ use App\Services\SessionService;
 use App\Services\UtilityService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\SecurityBundle\Security;
+use App\Services\LmsFetchService;
 
 class D2lLms implements LmsInterface {
 
@@ -70,7 +71,7 @@ class D2lLms implements LmsInterface {
         $this->sessionService = $sessionService;
     }
 
-    public function getId() 
+    public function getId()
     {
         return 'd2l';
     }
@@ -80,14 +81,14 @@ class D2lLms implements LmsInterface {
      * OAuth Functions
      * ****************
      */
-    
+
     public function testApiConnection(User $user)
     {
         $this->setD2lApi($user);
 
         $version = $this->getProductVersion('lp');
         $url = "lp/{$version}/users/whoami";
-        
+
         $response = $this->d2lApi->apiGet($url);
 
         if (!$response || !empty($response->getErrors())) {
@@ -136,7 +137,7 @@ class D2lLms implements LmsInterface {
         $session = $this->sessionService->getSession();
         $baseUrl = !empty(getenv('JWK_BASE_URL')) ? getenv('JWK_BASE_URL') : $session->get('iss');
         $baseUrl = rtrim($baseUrl, '/');
-        
+
         return $baseUrl . '/d2l/.well-known/jwks';
     }
 
@@ -188,10 +189,10 @@ class D2lLms implements LmsInterface {
             $course->setLmsTermId($content['Semester']['Identifier']);
         }
 
-        $this->entityManager->flush();  
+        $this->entityManager->flush();
     }
 
-    public function updateCourseContent(Course $course, User $user)
+    public function updateCourseContent(Course $course, User $user, LmsFetchService $lmsFetchServiceObject)
     {
         $lmsItems = $contentItems = [];
 
@@ -226,7 +227,7 @@ class D2lLms implements LmsInterface {
 
         return $contentItems;
     }
-    
+
 
     public function updateContentItem(ContentItem $contentItem)
     {
@@ -244,7 +245,7 @@ class D2lLms implements LmsInterface {
 
             $this->util->createMessage('Error retrieving content. Please try again.', 'error', $contentItem->getCourse(), $user);
             $this->util->createMessage($log, 'error', $contentItem->getCourse(), $user, true);
-        } 
+        }
         else {
             $content = $response->getContent();
 
@@ -294,7 +295,7 @@ class D2lLms implements LmsInterface {
         $user = $this->security->getUser();
         $this->setD2lApi($user);
 
-        $url = $this->getContentItemApiUrl($contentItem); 
+        $url = $this->getContentItemApiUrl($contentItem);
         $options = $this->createLmsPostOptions($contentItem);
 
         if ('file' === $contentItem->getContentType()) {
@@ -310,7 +311,7 @@ class D2lLms implements LmsInterface {
                 );
                 return;
             }
-            
+
             $lmsResponse = $this->d2lApi->apiFilePut($url, $filepath);
         }
         else {
@@ -365,7 +366,7 @@ class D2lLms implements LmsInterface {
         if (!$fileItem) {
             $domainName = $course->getInstitution()->getLmsDomain();
             $lmsUrl = "https://{$domainName}/d2l/le/content/{$course->getLmsCourseId()}/viewContent/{$file['id']}/View";
-            
+
             $fileItem = new FileItem();
             $fileItem->setCourse($course)
                 ->setFileName($file['fileName'])
@@ -407,15 +408,15 @@ class D2lLms implements LmsInterface {
      * *******************
      */
 
-    protected function setD2lApi(User $user) 
+    protected function setD2lApi(User $user)
     {
         $apiDomain = $this->getApiDomain($user);
         $apiToken = $this->getApiToken($user);
-        
+
         $this->d2lApi = new D2lApi($apiDomain, $apiToken);
     }
 
-    protected function getProductVersion($productCode = null) 
+    protected function getProductVersion($productCode = null)
     {
         $versions = [
             'lp' => '1.30',
@@ -548,7 +549,7 @@ class D2lLms implements LmsInterface {
                         'Content' => $content['Submission']['Html'],
                     ];
                 }
-                
+
                 if ('survey.footer' === $contentType) {
                     $content['Footer']['Text'] = $richTextInput;
                 } else {
@@ -569,7 +570,7 @@ class D2lLms implements LmsInterface {
         return $content;
     }
 
-    protected function richTextInput($content) 
+    protected function richTextInput($content)
     {
         $type = (!empty($content['Html'])) ? 'Html' : 'Text';
 
@@ -585,16 +586,16 @@ class D2lLms implements LmsInterface {
 
         $content['Description']['Text'] = $this->richTextInput($content['Description']['Text']);
         //$content['Description']['IsDisplayed'] = !empty($content['Description']['Text']['Html']);
-        
+
         $content['Instructions']['Text'] = $this->richTextInput($content['Instructions']['Text']);
         //$content['Instructions']['IsDisplayed'] = !empty($content['Instructions']['Text']['Html']);
-        
+
         $content['Footer']['Text'] = $this->richTextInput($content['Footer']['Text']);
         //$content['Footer']['IsDisplayed'] = !empty($content['Footer']['Text']['Html']);
-        
+
         $content['Header']['Text'] = $this->richTextInput($content['Header']['Text']);
         //$content['Header']['IsDisplayed'] = !empty($content['Header']['Text']['Html']);
-        
+
         $content['NumberOfAttemptsAllowed'] = $content['AttemptsAllowed']['NumberOfAttemptsAllowed'];
         unset($content['AttemptsAllowed']);
         unset($content['ActivityId']);
@@ -607,7 +608,7 @@ class D2lLms implements LmsInterface {
         $contentType = $contentItem->getContentType();
         $lmsCourseId = $contentItem->getCourse()->getLmsCourseId();
         $lmsContentId = $contentItem->getLmsContentId();
-            
+
         return $this->getApiContentUrl($contentType, $lmsCourseId, $lmsContentId);
     }
 
@@ -639,7 +640,7 @@ class D2lLms implements LmsInterface {
     {
         $url = $this->getApiContentUrl($contentType, $lmsCourseId, $lmsContentId);
         $response = $this->d2lApi->apiGet($url);
-        
+
         return $response->getContent();
     }
 
@@ -707,7 +708,7 @@ class D2lLms implements LmsInterface {
 
         $domainName = $course->getInstitution()->getLmsDomain();
         $contentUrl = "https://{$domainName}/d2l/le/content/{$course->getLmsCourseId()}/Home";
-        
+
         // add module if description not empty
         if (!empty($module['Description']['Html'])) {
             $lmsItems[] = [
@@ -727,7 +728,7 @@ class D2lLms implements LmsInterface {
 
         foreach ($module['Topics'] as $topic) {
             $topicUrl = "https://{$domainName}/d2l/le/content/{$course->getLmsCourseId()}/viewContent/{$topic['TopicId']}/View";
-                
+
             if (!empty($topic['Description']['Html'])) {
                 $lmsItems[] = [
                     'id' => $topic['TopicId'],
@@ -740,7 +741,7 @@ class D2lLms implements LmsInterface {
                 ];
             }
 
-            $topicLmsItems = $this->getItemsFromTopic($topic, $course);            
+            $topicLmsItems = $this->getItemsFromTopic($topic, $course);
             foreach ($topicLmsItems as $topicLmsItem) {
                 if (!empty($topicLmsItem)) {
                     $topicLmsItem += [
@@ -768,10 +769,10 @@ class D2lLms implements LmsInterface {
             case self::ACTIVITYTYPE_FILE:
                 if (strpos($topic['Url'], '.htm')) {
                     $lmsItems[] = $this->handleHtmlFileActivity($topic, $course);
-                }        
+                }
                 else {
                     $lmsItems[] = $this->handleOtherFileActivity($topic, $course);
-                }        
+                }
                 break;
             case self::ACTIVITYTYPE_LINK:
                 $lmsItems[] = $this->handleLinkActivity($topic);
@@ -800,14 +801,14 @@ class D2lLms implements LmsInterface {
         return $lmsItems;
     }
 
-    protected function handleOtherFileActivity($topic, Course $course) 
+    protected function handleOtherFileActivity($topic, Course $course)
     {
         $urlParts = explode('/', $topic['Url']);
         $fileName = end($urlParts);
         $fileParts = explode('.', $fileName);
         $fileType = end($fileParts);
         $domain = $course->getInstitution()->getLmsDomain();
-        
+
         return [
             'updated' => $topic['LastModifiedDate'],
             'id' => $topic['TopicId'],
@@ -824,7 +825,7 @@ class D2lLms implements LmsInterface {
     protected function handleHtmlFileActivity($topic, Course $course)
     {
         $content = $this->getApiContent('file', $course->getLmsCourseId(), $topic['TopicId']);
-        
+
         if (empty($content)) {
             return false;
         }
@@ -930,7 +931,7 @@ class D2lLms implements LmsInterface {
 
     protected function handleDiscussionTopicActivity($topic, Course $course)
     {
-        
+
     }
 
     protected function handleChecklistActivity($topic, Course $course)
@@ -980,11 +981,11 @@ class D2lLms implements LmsInterface {
                 'body' => $content['Footer']['Text']['Html'],
             ];
         }
-        
+
         return $items;
     }
 
-    protected function createContentItem($lmsContent, Course $course) 
+    protected function createContentItem($lmsContent, Course $course)
     {
         $contentItem = $this->contentItemRepo->findOneBy([
             'contentType' => $lmsContent['contentType'],
@@ -1016,7 +1017,7 @@ class D2lLms implements LmsInterface {
         }
 
         $contentItem->update($lmsContent);
-        
+
         return $contentItem;
     }
 }

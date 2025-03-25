@@ -8,11 +8,12 @@ use App\Entity\FileItem;
 use App\Entity\Institution;
 use App\Entity\User;
 use App\Entity\UserSession;
+use App\Services\LmsFetchService;
 
 interface LmsInterface {
     public function getId();
     public function testApiConnection(User $user);
-    public function updateCourseContent(Course $course, User $user);
+    public function updateCourseContent(Course $course, User $user, LmsFetchService $lmsFetchServiceObject);
     public function updateCourseData(Course $course, User $user);
     public function updateFileItem(Course $course, $file);
     public function updateContentItem(ContentItem $contentItem);

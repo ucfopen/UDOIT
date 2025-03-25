@@ -11,12 +11,17 @@ use App\Entity\UserSession;
 use App\Lms\LmsInterface;
 use App\Repository\ContentItemRepository;
 use App\Repository\FileItemRepository;
+use App\Services\LmsFetchService;
 use App\Services\LmsUserService;
 use App\Services\SessionService;
 use App\Services\UtilityService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\SecurityBundle\Security;
+use Symfony\Contracts\HttpClient\ResponseInterface;
+use Symfony\Component\HttpClient\HttpClient;
+use Symfony\Component\HttpClient\Response\StreamableInterface;
 
+use Symfony\Component\Console\Output\ConsoleOutput;
 class CanvasLms implements LmsInterface {
     /** @var ContentItemRepository $contentItemRepo */
     private $contentItemRepo;
@@ -165,8 +170,10 @@ class CanvasLms implements LmsInterface {
     }
 
     // Get content from Canvas and update content items
-    public function updateCourseContent(Course $course, User $user): array
+    // **********************
+    public function updateCourseContentSync(Course $course, User $user): array
     {
+        $startTime = microtime(true);
         $content = $contentItems = [];
         $urls = $this->getCourseContentUrls($course->getLmsCourseId());
         $apiDomain = $this->getApiDomain($user);
@@ -174,8 +181,12 @@ class CanvasLms implements LmsInterface {
 
         $canvasApi = new CanvasApi($apiDomain, $apiToken);
 
+        $printOutput = new ConsoleOutput();
+        $printOutput->writeln("Running FUNCTION updateCourseContent " . microtime(true));
+
         foreach ($urls as $contentType => $url) {
             $response = $canvasApi->apiGet($url);
+            $printOutput->writeln("contentType" . $contentType);
 
             if ($response->getErrors()) {
                 $this->util->createMessage('Error retrieving content. Failed API Call: ' . $url, 'error', $course, $user);
@@ -256,9 +267,10 @@ class CanvasLms implements LmsInterface {
             }
         }
 
+        // $printOutput->writeln("new contentItem" .json_encode( $contentItems));
         // push any updates made to content items to DB
         $this->entityManager->flush();
-
+        $printOutput->writeln("Running FUNCTION updateCourseContent START ". $startTime ." END " . microtime(true));
         return $contentItems;
     }
 
@@ -789,4 +801,303 @@ class CanvasLms implements LmsInterface {
     {
         return ($a['id'] > $b['id']) ? 1 : -1;
     }
+
+    public function updateCourseContent(Course $course, User $user, LmsFetchService $lmsFetchServiceObject): array
+    {
+        $printOutput = new ConsoleOutput();
+        $startTime = microtime(true);
+        $printOutput->writeln("Running FUNCTION updateCourseContent " . microtime(true));
+
+        // Step 1: Prepare concurrency
+        $urls       = $this->getCourseContentUrls($course->getLmsCourseId());
+        $apiDomain  = $this->getApiDomain($user);
+        $apiToken   = $this->getApiToken($user);
+        $canvasApi  = new CanvasApi($apiDomain, $apiToken);
+
+        // We'll map contentType -> pending ResponseInterface
+        $pendingResponses = [];
+
+        // Initiate all requests asynchronously
+        foreach ($urls as $contentType => $url) {
+            $pendingResponses[$contentType] = $canvasApi->apiGetAsync($url);
+        }
+
+        // Step 2: Process responses in parallel
+        $client       = $canvasApi->getHttpClient();
+        $contentItems = [];
+
+        // We'll use Symfony's stream() to read them as they complete
+        foreach ($client->stream($pendingResponses) as $response => $chunk) {
+
+            $client       = HttpClient::create();
+
+            /////////////////////////////////////////////////////
+            // Used to get and see x-rate-limit-remaining
+            $info = $response->getInfo();
+            $headers = $info['response_headers'] ?? [];
+
+            foreach ($headers as $header) {
+                // Look for the header that starts with "x-rate-limit-remaining:" (case-insensitive)
+                if (stripos($header, 'x-rate-limit-remaining:') === 0) {
+                    // Split at the colon and trim the result to get the header value
+                    $parts = explode(':', $header, 2);
+                    $xRateLimitRemaining = trim($parts[1]);
+                    $printOutput->writeln("x-rate-limit-remaining " . $xRateLimitRemaining);
+                    break;
+                }
+            }
+            //////////////////////////////////////////////////////
+
+            if ($chunk->isFirst()) {
+                // The first chunk indicates the start of this response
+                // (often we do nothing here)
+            }
+
+            if ($chunk->isLast()) {
+                // The final chunk means this response is fully finished
+                $contentType = array_search($response, $pendingResponses, true);
+                if (false === $contentType) {
+                    // Should never happen, but just in case
+                    continue;
+                }
+
+                // Use our new method to build LmsResponse
+                $canvasResponse = $canvasApi->completeApiGet($response);
+
+                // Now handle the data
+                if ($canvasResponse->getErrors()) {
+                    $this->util->createMessage(
+                        'Error retrieving content. Failed API Call: ' . $urls[$contentType],
+                        'error',
+                        $course,
+                        $user
+                    );
+                    continue;
+                }
+
+                // Some content types (like 'syllabus') return a single object,
+                // others return an array
+                $list = ('syllabus' === $contentType)
+                    ? [$canvasResponse->getContent()]
+                    : $canvasResponse->getContent();
+
+                // Exactly like your existing loop:
+                foreach ($list as $content) {
+                    // Special handling for some file and assignment checks
+                    if ($contentType === 'file'
+                        && in_array($content['mime_class'], $this->util->getUnscannableFileMimeClasses())
+                    ) {
+                        $this->updateFileItem($course, $content);
+                        continue;
+                    }
+                    if ($contentType === 'assignment' && isset($content['quiz_id'])) {
+                        // quizzes counted as assignments => skip
+                        continue;
+                    }
+                    if ($contentType === 'assignment' && isset($content['discussion_topic'])) {
+                        // discussion topics set as assignments => skip
+                        continue;
+                    }
+
+                    // Create or update ContentItem entity
+                    $lmsContent = $this->normalizeLmsContent($course, $contentType, $content);
+                    if (!$lmsContent) {
+                        continue;
+                    }
+
+                    // If needed, fetch page/body details, etc.
+                    if ('page' === $contentType) {
+                        // e.g. fetch page body
+                        $pageUrl = "courses/{$course->getLmsCourseId()}/pages/{$lmsContent['id']}";
+                        // synchronous or asynchronous again if you'd like
+                        $pageResp = $canvasApi->apiGet($pageUrl);
+                        $pageObj  = $pageResp->getContent();
+                        if (!empty($pageObj['body'])) {
+                            $lmsContent['body'] = $pageObj['body'];
+                        }
+                    }
+
+                    if ('file' === $contentType && 'html' === $content['mime_class']) {
+                        // get raw HTML
+                        $html = @file_get_contents($content['url']);
+                        if ($html) {
+                            $lmsContent['body'] = $html;
+                        }
+                    }
+
+                    $contentItem = $this->contentItemRepo->findOneBy([
+                        'contentType'  => $contentType,
+                        'lmsContentId' => $lmsContent['id'],
+                        'course'       => $course,
+                    ]);
+
+                    if (!$contentItem) {
+                        $contentItem = new ContentItem();
+                        $contentItem->setCourse($course)
+                            ->setLmsContentId($lmsContent['id'])
+                            ->setActive(true)
+                            ->setUpdated($this->util->getCurrentTime())
+                            ->setContentType($contentType);
+                        $this->entityManager->persist($contentItem);
+                    }
+
+                    // Compare body for certain content types that don't have an updated date
+                    if (in_array($contentType, ['syllabus', 'discussion_topic', 'announcement', 'quiz'])) {
+                        if ($contentItem->getBody() === $lmsContent['body']) {
+                            if ($contentItem->getUpdated()) {
+                                $lmsContent['updated'] = $contentItem->getUpdated()->format('c');
+                            }
+                        }
+                    }
+
+                    // checks if content item has been updated and if so rescans it
+
+                    if ($contentItem->getBody() !== $lmsContent['body']) {
+                        $contentItem->update($lmsContent);
+
+                        // ensures database has content item
+                        $this->entityManager->flush();
+
+                        // creates a list to store single content item
+                        $contentItemSingle[] = $contentItem;
+
+                        // deletes issues from content itme
+                        $lmsFetchServiceObject->deleteContentItemIssues($contentItemSingle);
+
+                        // scans the content item
+                        $printOutput->writeln("scanning content item");
+                        $lmsFetchServiceObject->scanContentItems($contentItemSingle);
+                    }
+                    else {
+                        $contentItem->update($lmsContent);
+                    }
+
+                    // updates report
+                    //$lmsFetchServiceObject->updateReport($course, $user);
+
+                    $this->entityManager->flush();
+
+                    if ($contentItem) {
+                        $contentItems[] = $contentItem;
+                    }
+                }
+            }
+        }
+
+        // $printOutput->writeln("n:ew contentItem" .json_encode( $contentItems));
+
+        $printOutput->writeln("Running FUNCTION updateCourseContent START ". $startTime ." END " . microtime(true));
+
+        // Now flush once at the end
+        $this->entityManager->flush();
+
+        return $contentItems;
+    }
+
+
+    // WORKS WITHOUT ASYNC SCAN -------------------------------
+    public function updateCourseContentNoSync(Course $course, User $user): array
+    {
+        $startTime = microtime(true);
+        $content = $contentItems = [];
+        $urls = $this->getCourseContentUrls($course->getLmsCourseId());
+        $apiDomain = $this->getApiDomain($user);
+        $apiToken = $this->getApiToken($user);
+
+        $canvasApi = new CanvasApi($apiDomain, $apiToken);
+
+        $printOutput = new ConsoleOutput();
+        $printOutput->writeln("Running FUNCTION updateCourseContent " . microtime(true));
+
+        foreach ($urls as $contentType => $url) {
+            $response = $canvasApi->apiGet($url);
+            $printOutput->writeln("contentType" . $contentType);
+
+            if ($response->getErrors()) {
+                $this->util->createMessage('Error retrieving content. Failed API Call: ' . $url, 'error', $course, $user);
+            }
+            else {
+                if ('syllabus' === $contentType) {
+                    $contentList = [$response->getContent()];
+                }
+                else {
+                    $contentList = $response->getContent();
+                }
+
+                foreach ($contentList as $content) {
+                    if (('file' === $contentType) && (in_array($content['mime_class'], $this->util->getUnscannableFileMimeClasses()))) {
+                        $this->updateFileItem($course, $content);
+                        continue;
+                    }
+
+                    /* Quizzes should not be counted as assignments */
+                    if (('assignment' === $contentType) && isset($content['quiz_id'])) {
+                        continue;
+                    }
+                    /* Discussion topics set as assignments should be skipped */
+                    if (('assignment' === $contentType) && isset($content['discussion_topic'])) {
+                        continue;
+                    }
+
+                    $lmsContent = $this->normalizeLmsContent($course, $contentType, $content);
+                    if (!$lmsContent) {
+                        continue;
+                    }
+
+                    /* get page content */
+                    if ('page' === $contentType) {
+                        $url = "courses/{$course->getLmsCourseId()}/pages/{$lmsContent['id']}";
+                        $pageResponse = $canvasApi->apiGet($url);
+                        $pageObj = $pageResponse->getContent();
+
+                        if (!empty($pageObj['body'])) {
+                            $lmsContent['body'] = $pageObj['body'];
+                        }
+                    }
+
+                    /* get HTML file content */
+                    if (('file' === $contentType) && ('html' === $content['mime_class'])) {
+                        $lmsContent['body'] = file_get_contents($content['url']);
+                    }
+
+                    $contentItem = $this->contentItemRepo->findOneBy([
+                        'contentType' => $contentType,
+                        'lmsContentId' => $lmsContent['id'],
+                        'course' => $course,
+                    ]);
+
+                    if (!$contentItem) {
+                        $contentItem = new ContentItem();
+                        $contentItem->setCourse($course)
+                            ->setLmsContentId($lmsContent['id'])
+                            ->setActive(true)
+                            ->setUpdated($this->util->getCurrentTime())
+                            ->setContentType($contentType);
+                        $this->entityManager->persist($contentItem);
+                    }
+
+                    // some content types don't have an updated date, so we'll compare content
+                    // to find out if content has changed.
+                    if (in_array($contentType, ['syllabus', 'discussion_topic', 'announcement', 'quiz'])) {
+                        if ($contentItem->getBody() === $lmsContent['body']) {
+                            if ($contentItem->getUpdated()) {
+                                $lmsContent['updated'] = $contentItem->getUpdated()->format('c');
+                            }
+                        }
+                    }
+
+                    $contentItem->update($lmsContent);
+                    $contentItems[] = $contentItem;
+                }
+            }
+        }
+
+        // $printOutput->writeln("new contentItem" .json_encode( $contentItems));
+        // push any updates made to content items to DB
+        $this->entityManager->flush();
+        $printOutput->writeln("Running FUNCTION updateCourseContent START ". $startTime ." END " . microtime(true));
+        return $contentItems;
+    }
+
+
 }
