@@ -41,7 +41,7 @@ class SyncController extends ApiController
                 throw new \Exception('msg.sync.course_inactive');
             }
 
-            $lmsFetch->refreshLmsContent($course, $user);
+            $lmsFetch->asyncRefreshLmsContent($course, $user);
 
             $report = $course->getLatestReport();
 
@@ -95,7 +95,7 @@ class SyncController extends ApiController
 
             $course->removeAllReports();
 
-            $lmsFetch->refreshLmsContent($course, $user);
+            $lmsFetch->asyncRefreshLmsContent($course, $user);
 
             $report = $course->getLatestReport();
 

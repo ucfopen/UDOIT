@@ -95,7 +95,7 @@ class LmsFetchService {
         $this->doctrine->getManager()->flush();
 
         /* Update content items from LMS */
-        $lms->updateCourseContent($course, $user);
+        $lms->updateCourseContentNoSync($course, $user);
 
         /* Step 2: Get list of changed content items */
         $contentItems = $contentItemRepo->getUpdatedContentItems($course);
@@ -123,6 +123,45 @@ class LmsFetchService {
     //     $lms->updateContentItem($contentItem);
     //     $this->doctrine->getManager()->flush();
     // }
+
+    // Uses async calls to refresh content from the LMS
+    public function asyncRefreshLmsContent(Course $course, User $user)
+    {
+        $lms = $this->lmsApi->getLms($user);
+
+        $this->lmsUser->validateApiKey($user);
+
+        /** @var \App\Repository\ContentItemRepository $contentItemRepo */
+        $contentItemRepo = $this->doctrine->getManager()->getRepository(ContentItem::class);
+
+        /** @var \App\Repository\FileItemRepository $fileItemRepo */
+        $fileItemRepo = $this->doctrine->getManager()->getRepository(FileItem::class);
+
+        /* Step 1: Update content
+        /* Update course status */
+        $lms->updateCourseData($course, $user);
+
+        /* Mark content items as inactive */
+        $contentItemRepo->setCourseContentInactive($course);
+        $fileItemRepo->setCourseFileItemsInactive($course);
+        $this->doctrine->getManager()->flush();
+
+        // BEGIN ASYNC CHANGES
+
+        /* Update content items from LMS */
+        $lms->updateCourseContent($course, $user, $this);
+
+        // /* Step 2: Update report from all active issues */
+        $this->updateReport($course, $user);
+
+        // END ASYNC CHANGES
+
+        /* Save last_updated date on course */
+        $course->setLastUpdated($this->util->getCurrentTime());
+        $course->setDirty(false);
+
+        $this->doctrine->getManager()->flush();
+    }
 
     // Update report, or create new one for a new day
     public function updateReport(Course $course, User $user): Report
@@ -195,9 +234,9 @@ class LmsFetchService {
         return $report;
     }
 
-    
+
     // Performs PHPAlly scan on each Content Item.
-    private function scanContentItems(array $contentItems)
+    public function scanContentItems(array $contentItems)
     {
         $scanner = $_ENV['ACCESSIBILITY_CHECKER'];
         $equalAccessReports = null;
