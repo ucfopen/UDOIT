@@ -4,6 +4,8 @@
 :root {
   --primary-color: #6AC8AC;
   --primary-color-dark: #1B4B3C;
+  --primary-color-hover: #54C091;
+  --primary-color-dark-hover: #143328;
   --primary-color-light: #E8F3ED;
   --text-color: #333333;
 
@@ -27,6 +29,8 @@
 
   font-family: 'Open Sans', Arial, Helvetica, sans-serif;
   line-height: 1.4rem;
+
+  --transition-time: 0.25s;
 }
 
 #root {
@@ -35,6 +39,13 @@
   border: 1px solid var(--border-color);
   border-radius: 24px;
   box-shadow: 2px 2px 2px var(--border-color);
+}
+
+body {
+  padding: 0px !important;
+  margin: 0px !important;
+  border-left: none !important;
+  max-width: 1200px;
 }
 
 /* Bootstrap-esque classes for general use */
@@ -298,6 +309,7 @@ h1, h2, h3, h4, h5, h6 {
   fill: var(--primary-color-dark);
 }
 
+.color-link,
 .link-color {
   color: var(--link-color);
   fill: var(--link-color);
@@ -306,6 +318,11 @@ h1, h2, h3, h4, h5, h6 {
 .gray {
   color: var(--gray);
   fill: var(--gray);
+}
+
+.white {
+  color: var(--white);
+  fill: var(--white);
 }
 
 .disabled {
@@ -330,6 +347,28 @@ h1, h2, h3, h4, h5, h6 {
   background-color: var(--primary-color);
   border-color: var(--primary-color);
   color: var(--primary-color-dark);
+
+  &:hover,
+  &:focus {
+    border-color: var(--primary-color-hover);
+    background-color: var(--primary-color-hover);
+    color: var(--primary-color-dark-hover);
+  }
+
+  &.disabled,
+  &.btn-disabled {
+    color: var(--gray);
+    border-color: var(--gray-light);
+    background-color: var(--gray-light);
+    cursor: not-allowed !important;
+
+    &:hover,
+    &:focus {
+      border-color: var(--gray-light);
+      background-color: var(--gray-light);
+      color: var(--gray);
+    }
+  }
 }
 
 .btn-secondary {
@@ -337,6 +376,25 @@ h1, h2, h3, h4, h5, h6 {
   border-color: var(--primary-color);
   background-color: transparent;
   color: var(--primary-color-dark);
+  
+  &:hover,
+  &:focus {
+    background-color: var(--primary-color-light);
+  }
+
+  &.disabled,
+  &.btn-disabled {
+    color: var(--gray);
+    border-color: var(--gray-light);
+    background-color: var(--gray-lightest);
+    opacity: 0.75;
+    cursor: not-allowed !important;
+
+    &:hover,
+    &:focus {
+      background-color: var(--gray-lightest);
+    }
+  }
 }
 
 .btn-text, .text-button {
@@ -419,6 +477,19 @@ h1, h2, h3, h4, h5, h6 {
 .color-success {
   color: var(--primary-color);
   fill: var(--primary-color);
+}
+
+.spinner {
+  animation: spin 1.5s linear infinite;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
 header {

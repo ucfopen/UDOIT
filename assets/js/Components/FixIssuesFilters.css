@@ -10,13 +10,15 @@
 
   .search-group {
     input {
-      font-size: 0.9rem;
-      font-weight: 300;
+      font-size: 0.85rem;
+      font-weight: 400;
       font-family: 'Open Sans', Arial, Helvetica, sans-serif;
-      padding: .15rem 1.75rem .15rem .5rem;
+      padding: .4rem 1.75rem .4rem .5rem;
       border: 1px solid var(--border-color);
       border-radius: 8px;
       outline: none;
+      width: 200px;
+      box-sizing: border-box;
 
       &:focus {
         outline: 2px solid var(--link-color);
@@ -34,13 +36,14 @@
 
   .filter-group {
     select {
-      font-size: 0.9rem;
-      font-weight: 400;
+      font-size: 0.85rem;
+      font-weight: 500;
       font-family: 'Open Sans', Arial, Helvetica, sans-serif;
-      padding: .15rem 1.5rem .15rem 0.5rem;
+      padding: .4rem 1.5rem .4rem 0.5rem;
       border: 1px solid var(--border-color);
       border-radius: 8px;
       outline: none;
+      max-width: 200px;
 
       &:focus {
         outline: 2px solid var(--link-color);

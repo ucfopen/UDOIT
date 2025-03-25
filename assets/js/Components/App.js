@@ -38,10 +38,6 @@ export default function App(initialData) {
   const [settings, setSettings] = useState(initialData.settings || null)
   const [sections, setSections] = useState([])
 
-  // The reportHistory and newReportInterval variables are not used in the current codebase
-  // const [reportHistory, setReportHistory] = useState([])
-  // const [newReportInterval, setNewReportInterval] = useState(5000)
-
   const [appFilters, setAppFilters] = useState({})
   const [navigation, setNavigation] = useState('welcome')
   const [modal, setModal] = useState(null)
@@ -50,6 +46,7 @@ export default function App(initialData) {
   const [disableReview, setDisableReview] = useState(false)
   const [initialSeverity, setInitialSeverity] = useState('')
   const [contentItemList, setContentItemList] = useState([])
+  const [sessionIssues, setSessionIssues] = useState([])
 
   // `t` is used for text/translation. It will return the translated string if it exists
   // in the settings.labels object.
@@ -66,6 +63,19 @@ export default function App(initialData) {
     let api = new Api(settings)
     return api.fullRescan(settings.course.id)
   }, [settings])
+
+  // Session Issues are used to track progress when multiple things are going on at once,
+  // and can allow the activeIssue to change without losing information about the previous issue.
+  // Each issue has an id and state: { id: issueId, state: 2 }
+  // The valid states are set and read in the FixIssuesPage component.
+  const updateSessionIssue = (issueId, issueState = null) => {
+    if(!issueState) {
+      return
+    }
+    let newSessionIssues = [...sessionIssues]
+    newSessionIssues[issueId] = issueState
+    setSessionIssues(newSessionIssues)
+  }
 
   const handleNewReport = (data) => {
     let newReport = report
@@ -133,14 +143,13 @@ export default function App(initialData) {
     setContentItemList(newContentItemList)
   }
 
-  const handleIssueSave = (newIssue, newReport) => {
-    const oldReport = report
-    const updatedReport = { ...oldReport, ...newReport }
+  const updateReportIssue = (newIssue, newReport) => {
+    const updatedReport = ( newReport? { ...report, ...newReport } : {...report} )
 
     if (updatedReport && Array.isArray(updatedReport.issues)) {
       updatedReport.issues = updatedReport.issues.map((issue) => {
         if (issue.id === newIssue.id) return newIssue
-        const oldIssue = oldReport.issues.find((oldReportIssue) => oldReportIssue.id === issue.id)
+        const oldIssue = report.issues.find((oldReportIssue) => oldReportIssue.id === issue.id)
         return oldIssue !== undefined ? { ...oldIssue, ...issue } : issue
       })
     }
@@ -148,7 +157,7 @@ export default function App(initialData) {
     setReport(updatedReport)
   }
 
-  const handleFileSave = (newFile, newReport) => {
+  const updateReportFile = (newFile, newReport) => {
     let updatedReport = { ...report, ...newReport }
 
     if (updatedReport && updatedReport.files) {
@@ -270,8 +279,8 @@ export default function App(initialData) {
             appFilters={appFilters}
             handleAppFilters={handleAppFilters}
             handleNavigation={handleNavigation}
-            handleIssueSave={handleIssueSave}
-            handleIssueUpdate={handleIssueSave}
+            handleIssueSave={updateReportIssue}
+            handleIssueUpdate={updateReportIssue}
             disableReview={syncComplete && !disableReview} />
         }
         {('fixIssues' === navigation) &&
@@ -286,8 +295,9 @@ export default function App(initialData) {
             setReport={setReport}
             addMessage={addMessage}
             handleNavigation={handleNavigation}
-            handleIssueSave={handleIssueSave}
-            handleIssueUpdate={handleIssueSave}
+            updateReportIssue={updateReportIssue}
+            sessionIssues={sessionIssues}
+            updateSessionIssue={updateSessionIssue}
             disableReview={syncComplete && !disableReview} />
         }
         {('files' === navigation) &&
@@ -295,7 +305,7 @@ export default function App(initialData) {
             report={report}
             settings={settings}
             handleNavigation={handleNavigation}
-            handleFileSave={handleFileSave}
+            handleFileSave={updateReportFile}
             t={t} />
         }
         {('reports' === navigation) &&
