@@ -51,7 +51,7 @@ export default function FixIssuesContentPreview({
   // in the required parent element. This function wraps the error HTML in the required parent element so that
   // the DOMParser can parse it correctly.
   const parseErrorSafely = (errorHtml) => {
-    const parser = new DOMParser()
+
     let tagName = errorHtml.match(/^<(\w+)/)?.[1].toLowerCase()
 
     const SPECIAL_CASES = {
@@ -80,6 +80,7 @@ export default function FixIssuesContentPreview({
     let wrappedHTML = SPECIAL_CASES[tagName] ? SPECIAL_CASES[tagName].replace('{content}', errorHtml) : errorHtml
 
     // Parse the wrapped HTML
+    const parser = new DOMParser()
     const tempDoc = parser.parseFromString(wrappedHTML, "text/html")
 
     // Extract the real element from the correct position
@@ -232,7 +233,7 @@ export default function FixIssuesContentPreview({
               <ExternalLinkIcon className="icon-lg link-color" />
             </div>
           </a>
-          { activeIssue.contentType === settings.FILTER.FILE ? (
+          { activeIssue.contentType === settings.FILTER.FILE_OBJECT ? (
             <div className="flex-grow-1">
               <div className="ufixit-file-details">
                 <div className="flex-row mt-2">

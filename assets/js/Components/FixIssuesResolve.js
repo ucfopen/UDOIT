@@ -4,7 +4,7 @@ import './FixIssuesResolve.css'
 export default function FixIssuesResolve({ t, settings, isSaving, activeIssue, handleFileResolve, handleIssueResolve }) {
 
   const handleClick = () => {
-    if(activeIssue.contentType === settings.FILTER.FILE) {
+    if(activeIssue.contentType === settings.FILTER.FILE_OBJECT) {
       handleFileResolve(activeIssue.fileData)
     } else {
       handleIssueResolve(activeIssue.issueData)

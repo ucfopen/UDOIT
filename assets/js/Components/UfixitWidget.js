@@ -56,7 +56,7 @@ export default function UfixitWidget({
   useEffect(() => {
     if(activeIssue) {
       setTempActiveIssue(Object.assign({}, activeIssue))
-      if(activeIssue.contentType === settings.FILTER.FILE) {
+      if(activeIssue.contentType === settings.FILTER.FILE_OBJECT) {
         setUfixitForm(() => { return FileForm })
       }
       else {
@@ -213,7 +213,7 @@ export default function UfixitWidget({
             
             { viewInfo && 
               <div className="flex-grow-1 ufixit-learn-container">
-                { activeIssue.contentType === settings.FILTER.FILE
+                { activeIssue.contentType === settings.FILTER.FILE_OBJECT
                   ? ReactHtmlParser(t(`file.desc.${activeIssue.fileData.fileType}`), { preprocessNodes: (nodes) => Html.processStaticHtml(nodes, settings) })
                   : ReactHtmlParser(t(`rule.desc.${activeIssue.scanRuleId}`), { preprocessNodes: (nodes) => Html.processStaticHtml(nodes, settings) })
                 }
@@ -223,7 +223,7 @@ export default function UfixitWidget({
               <div className="flex-grow-1 flex-column ufixit-form-container">
                 { activeIssue.status !== settings.FILTER.RESOLVED &&
                   <div className="flex-grow-1 ufixit-form-content">
-                    { activeIssue.contentType === settings.FILTER.FILE ? (
+                    { activeIssue.contentType === settings.FILTER.FILE_OBJECT ? (
                       <FileForm
                         t={t}
                         settings={settings}

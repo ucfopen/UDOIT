@@ -60,6 +60,7 @@ export default function FixIssuesPage({
     QUIZ: 'QUIZ',
     SYLLABUS: 'SYLLABUS',
     MODULE: 'MODULE',
+    FILE_OBJECT: 'FILE_OBJECT',
     ACTIVE: 'ACTIVE',
     FIXED: 'FIXED',
     RESOLVED: 'RESOLVED',
@@ -298,7 +299,7 @@ export default function FixIssuesPage({
       scanRuleId: 'aaaa_verify_file_accessibility',
       scanRuleLabel: scanRuleLabel,
       contentId: fileData.lmsFileId,
-      contentType: FILTER.FILE,
+      contentType: FILTER.FILE_OBJECT,
       contentTypeLabel: fileTypeLabel,
       contentTitle: fileData.fileName,
       contentUrl: fileData.lmsUrl,
@@ -350,22 +351,27 @@ export default function FixIssuesPage({
 
       // Do not include this issue if it doesn't match the severity filter
       if (tempFilters[FILTER.TYPE.SEVERITY] !== FILTER.ALL && tempFilters[FILTER.TYPE.SEVERITY] !== issue.severity) {
-        continue;
+        continue
       }
 
       // Do not include this issue if it doesn't match the content type filter
-      if (tempFilters[FILTER.TYPE.CONTENT_TYPE] !== FILTER.ALL && tempFilters[FILTER.TYPE.CONTENT_TYPE] !== issue.contentType) {
-        continue;
+      let tempContentType = issue.contentType
+      if (tempContentType === FILTER.FILE_OBJECT) {
+        // When the user selects "Files", show both "File" issues as well as external File objects
+        tempContentType = FILTER.FILE
+      }
+      if (tempFilters[FILTER.TYPE.CONTENT_TYPE] !== FILTER.ALL && tempFilters[FILTER.TYPE.CONTENT_TYPE] !== tempContentType) {
+        continue
       }
 
       // Do not include this issue if it doesn't match the status filter
       if (tempFilters[FILTER.TYPE.RESOLUTION] !== FILTER.ALL && tempFilters[FILTER.TYPE.RESOLUTION] !== issue.status) {
-        continue;
+        continue
       }
 
       // Do not include this issue if it doesn't match the module filter
       if (tempFilters[FILTER.TYPE.MODULE] !== FILTER.ALL && !issue.sectionIds.includes(tempFilters[FILTER.TYPE.MODULE].toString())) {
-        continue;
+        continue
       }
 
       // Do not include this issue if it doesn't contain the search term/s
@@ -441,7 +447,7 @@ export default function FixIssuesPage({
   
     setWidgetState(WIDGET_STATE.FIXIT)
 
-    if(activeIssue.contentType === FILTER.FILE) {
+    if(activeIssue.contentType === FILTER.FILE_OBJECT) {
       setActiveContentItem(null)
       return
     }
@@ -580,21 +586,22 @@ export default function FixIssuesPage({
             
             // If the save was successful, show the success message
             response.messages.forEach((msg) => addMessage(msg))
-
+            
             if (response.data.issue) {
               // Update the report object by rescanning the content
               const newIssue = Object.assign({}, issue, response.data.issue)
+              setActiveIssue(formatIssueData(newIssue))
+              updateActiveSessionIssue(newIssue.id, ISSUE_STATE.SAVED)
+
               api.scanContent(newIssue.contentItemId)
                 .then((responseStr) => responseStr.json())
-                .then((res) => {
-                  updateActiveSessionIssue(newIssue.id, ISSUE_STATE.SAVED)
-                  setActiveIssue(formatIssueData(newIssue))
+                .then((res) => { 
                   updateReportIssue(newIssue, res.data)
                 })
             }
             else {
-              updateActiveSessionIssue(issue.id, ISSUE_STATE.SAVED)
               setActiveIssue(formatIssueData(issue))
+              updateActiveSessionIssue(issue.id, ISSUE_STATE.SAVED)
             }
           }
         })
