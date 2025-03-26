@@ -16,6 +16,11 @@
     text-decoration-color: var(--link-color);
   }
 
+  &:focus {
+    outline: 2px solid var(--link-color);
+    outline-offset: 3px;
+  }
+
   h2 {
     font-size: 1.5rem;
     font-weight: bold;
@@ -40,6 +45,7 @@
   margin-top: 1rem;
   padding-top: 5px;
   padding-bottom: 1rem;
+  position: relative;
 
   /* This is so the highlighted error outlines don't get cut off */
   padding-left: 5px;
@@ -56,7 +62,65 @@
 .ufixit-error-highlight {
   outline: 3px dashed var(--issue-color);
   outline-offset: 1px;
+  anchor-name: --ufixit-error-highlight;
 
   /* Errors without text won't have an outline unless they have a border to provide size */
-  border: 1px solid transparent;
+  &:not(table) {
+    border: 1px solid transparent;
+  }
+}
+
+.alt-text-preview {
+  position: absolute;
+  position-anchor: --ufixit-error-highlight;
+  position-area: bottom;
+  position-try-fallbacks: bottom left, bottom right, top, top left, top right;
+
+  background-color: var(--primary-color);
+  color: var(--primary-color-dark);
+  border-radius: 22px;
+  font-size: 0.85rem;
+
+  display: flex;
+  flex-direction: row;
+  cursor: pointer;
+  border: 2px solid var(--primary-color-dark);
+  margin: 5px;
+  
+  .alt-text-preview-icon {
+    padding: 8px;
+    line-height: 0px;
+  }
+
+  .alt-text-preview-text {
+    display: flex;
+    flex-direction: column;
+    font-weight: bold;
+    padding: .5rem 1rem .5rem .25rem;
+    max-width: 300px;
+    max-height: 100px;
+    transition: max-height 0.15s, max-width var(--transition-time), padding var(--transition-time);
+    overflow: auto;
+  }
+
+  &.alt-text-preview-closed {
+    .alt-text-preview-text {
+      max-width: 0px;
+      max-height: 0px;
+      padding: 0px;
+      overflow: hidden;
+    }
+  }
+}
+
+.ufixit-file-details {
+  margin: 2rem 2rem 3rem 2rem;
+
+  .ufixit-file-details-label {
+    font-weight: bold;
+    margin-right: 1rem;
+    text-align: right;
+    width: 30%;
+    flex-shrink: 0;
+  }
 }

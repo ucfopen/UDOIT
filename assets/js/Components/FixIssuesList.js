@@ -7,7 +7,7 @@ import FixedIcon from './Icons/FixedIcon'
 
 import './FixIssuesList.css'
 
-export default function FixIssuesList({ t, FILTER, filteredIssues, setActiveIssue }) {
+export default function FixIssuesList({ t, settings, filteredIssues, setActiveIssue }) {
 
   const [groupedList, setGroupedList] = useState([])
 
@@ -33,34 +33,43 @@ export default function FixIssuesList({ t, FILTER, filteredIssues, setActiveIssu
       <div className="mb-3 flex-grow-0 flex-shrink-0">
         <h2 className="mt-0 mb-0">{t('label.filter.select.issue')}</h2>
       </div>
-      <div className="ufixit-list-scrollable flex-grow-1">
+      <div className="ufixit-list-scrollable flex-grow-1" tabindex="-1">
         { groupedList.length > 0 ? groupedList.map((group, i) => {
           return (
             <div className="ufixit-list-section-container" key={i}>
-              <div className="ufixit-list-heading">
+              <div className="ufixit-list-heading allow-word-break">
                 <h3>{group.scanRuleLabel}</h3>
               </div>
               { group.issues.map((issue, j) => {
                 return (
-                  <div className="ufixit-list-item flex-row justify-content-between" key={j} onClick={() => setActiveIssue(issue)}>
-                    <div className="flex-grow-1 flex-column justify-content-center">
+                  <div
+                    className="ufixit-list-item flex-row justify-content-between"
+                    key={j}
+                    onClick={() => setActiveIssue(issue)}
+                    onKeyDown={(event) => {
+                      if(event.key === 'Enter' || event.key === ' ') {
+                        setActiveIssue(issue)
+                      }
+                    }}
+                    tabindex="0" >
+                    <div className="flex-grow-1 flex-column justify-content-center allow-word-break">
                       {issue.contentTitle}
                     </div>
                     <div className="flex-row">
                       <div className="flex-column justify-content-center ml-3">
                         <ContentTypeIcon type={issue.contentType} alt="" className="gray"/>
                       </div>
-                      { issue.status === FILTER.ACTIVE && (
+                      { issue.status === settings.FILTER.ACTIVE && (
                         <div className="flex-column justify-content-center ml-2">
                           <SeverityIcon type={issue.severity} alt="" />
                         </div>
                       )}
-                      { issue.status === FILTER.RESOLVED && (
+                      { issue.status === settings.FILTER.RESOLVED && (
                         <div className="flex-column justify-content-center ml-2">
                           <ResolvedIcon alt="" className="color-success" />
                         </div>
                       )}
-                      { issue.status === FILTER.FIXED && (
+                      { issue.status === settings.FILTER.FIXED && (
                         <div className="flex-column justify-content-center ml-2">
                           <FixedIcon alt=""className="color-success" />
                         </div>

@@ -1,0 +1,12 @@
+@import '../../css/udoit4-theme.css';
+
+.ufixit-widget-resolve-container {
+  display: flex;
+  flex-direction: column;
+
+  background-color: var(--white);
+  border: 2px solid var(--border-color);
+  border-radius: 8px;
+
+  padding: .5rem .5rem;
+}

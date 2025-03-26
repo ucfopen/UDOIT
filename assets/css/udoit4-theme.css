@@ -4,11 +4,14 @@
 :root {
   --primary-color: #6AC8AC;
   --primary-color-dark: #1B4B3C;
+  --primary-color-hover: #54C091;
+  --primary-color-dark-hover: #143328;
   --primary-color-light: #E8F3ED;
   --text-color: #333333;
 
   --link-color: #2C8AC1;
   --link-color-light: #E9F3FF;
+  --link-color-dark: #1B5679;
 
   --issue-color: #F94144;
   --potential-color: #F8961E;
@@ -27,6 +30,8 @@
 
   font-family: 'Open Sans', Arial, Helvetica, sans-serif;
   line-height: 1.4rem;
+
+  --transition-time: 0.25s;
 }
 
 #root {
@@ -35,6 +40,13 @@
   border: 1px solid var(--border-color);
   border-radius: 24px;
   box-shadow: 2px 2px 2px var(--border-color);
+}
+
+body {
+  padding: 0px !important;
+  margin: 0px !important;
+  border-left: none !important;
+  max-width: 1200px;
 }
 
 /* Bootstrap-esque classes for general use */
@@ -280,6 +292,26 @@
   padding-right: var(--spacer) !important;
 }
 
+.fw-bold {
+  font-weight: 500;
+}
+
+.fw-bolder {
+  font-weight: 600;
+}
+
+.fw-normal {
+  font-weight: 400;
+}
+
+.fw-light {
+  font-weight: 300;
+}
+
+.fw-lighter {
+  font-weight: 200;
+}
+
 /* General styles */
 
 h1, h2, h3, h4, h5, h6 {
@@ -298,6 +330,7 @@ h1, h2, h3, h4, h5, h6 {
   fill: var(--primary-color-dark);
 }
 
+.color-link,
 .link-color {
   color: var(--link-color);
   fill: var(--link-color);
@@ -306,6 +339,11 @@ h1, h2, h3, h4, h5, h6 {
 .gray {
   color: var(--gray);
   fill: var(--gray);
+}
+
+.white {
+  color: var(--white);
+  fill: var(--white);
 }
 
 .disabled {
@@ -323,6 +361,12 @@ h1, h2, h3, h4, h5, h6 {
   font-weight: 600;
   font-size: 1rem;
   width: fit-content;
+
+  &:focus {
+    outline-color: var(--link-color);
+    outline-offset: 3px;
+    outline-width: 2px;
+  }
 }
 
 .btn-primary {
@@ -330,6 +374,33 @@ h1, h2, h3, h4, h5, h6 {
   background-color: var(--primary-color);
   border-color: var(--primary-color);
   color: var(--primary-color-dark);
+  fill: var(--primary-color-dark);
+
+  &:hover,
+  &:focus {
+    border-color: var(--primary-color-hover);
+    background-color: var(--primary-color-hover);
+    color: var(--primary-color-dark-hover);
+    fill: var(--primary-color-dark-hover);
+  }
+
+  &.disabled,
+  &.btn-disabled {
+    color: var(--gray);
+    fill: var(--gray);
+    border-color: var(--gray-light);
+    background-color: var(--gray-light);
+    cursor: not-allowed !important;
+
+    &:hover,
+    &:focus {
+      border-color: var(--gray-light);
+      background-color: var(--gray-light);
+      color: var(--gray);
+      fill: var(--gray);
+      outline-color: var(--gray);
+    }
+  }
 }
 
 .btn-secondary {
@@ -337,13 +408,35 @@ h1, h2, h3, h4, h5, h6 {
   border-color: var(--primary-color);
   background-color: transparent;
   color: var(--primary-color-dark);
+  fill: var(--primary-color-dark);
+  
+  &:hover,
+  &:focus {
+    background-color: var(--primary-color-light);
+  }
+
+  &.disabled,
+  &.btn-disabled {
+    color: var(--gray);
+    fill: var(--gray);
+    border-color: var(--gray-light);
+    background-color: var(--gray-lightest);
+    opacity: 0.75;
+    cursor: not-allowed !important;
+
+    &:hover,
+    &:focus {
+      background-color: var(--gray-lightest);
+      outline-color: var(--gray);
+    }
+  }
 }
 
 .btn-text, .text-button {
   background-color: transparent;
   color: var(--link-color);
   padding: .5rem 1.5rem;
-  border-radius: 50px;
+  border-radius: 8px;
   cursor: pointer;
 
   &.disabled,
@@ -351,6 +444,7 @@ h1, h2, h3, h4, h5, h6 {
     color: var(--gray);
     opacity: 0.75;
     cursor: not-allowed !important;
+    outline-color: var(--gray);
   }
 }
 
@@ -359,6 +453,7 @@ h1, h2, h3, h4, h5, h6 {
   align-items: center;
 
   svg {
+    flex-shrink: 0;
     margin-right: .5rem;
   }
 }
@@ -368,6 +463,7 @@ h1, h2, h3, h4, h5, h6 {
   align-items: center;
 
   svg {
+    flex-shrink: 0;
     margin-left: .5rem;
   }
 }
@@ -419,6 +515,24 @@ h1, h2, h3, h4, h5, h6 {
 .color-success {
   color: var(--primary-color);
   fill: var(--primary-color);
+}
+
+.spinner {
+  animation: spin 1.5s linear infinite;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.allow-word-break {
+  overflow: auto;
+  overflow-wrap: break-word;
 }
 
 header {

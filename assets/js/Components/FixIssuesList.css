@@ -16,9 +16,10 @@
     .ufixit-list-heading {
       position: sticky;
       top: 0;
-      background-color: var(--gray);
-      border-top: 2px solid var(--gray-dark);
+      background-color: var(--link-color);
+      /* border-top: 2px solid var(--gray-dark); */
       padding: .5rem;
+      border-bottom: 1px solid var(--link-color-dark);
     
       h3 {
         color: var(--white);
@@ -29,12 +30,23 @@
     .ufixit-list-item {
       cursor: pointer;
       padding: .5rem;
-      border-top: 1px solid var(--gray-dark);
+      border-bottom: 1px solid var(--gray-dark);
       font-weight: 600;
+
+      &:last-child {
+        border-bottom: none;
+      }
     
       &:hover {
-        background-color: var(--primary-color-light);
-        color: var(--primary-color-dark);
+        /* background-color: var(--primary-color-light);
+        color: var(--primary-color-dark); */
+        background-color: var(--link-color-light);
+        color: var(--link-color-dark);
+      }
+
+      &:focus {
+        outline: 2px solid var(--link-color);
+        outline-offset: 3px;
       }
     }
   }  
