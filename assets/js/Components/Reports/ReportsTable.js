@@ -39,6 +39,7 @@ class ReportsTable extends React.Component {
 
   getContent() {
     let list = this.props.reports
+    console.log(list);
     const { sortBy, ascending } = this.state.tableSettings 
 
     list.sort((a, b) => {

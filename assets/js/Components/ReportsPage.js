@@ -3,6 +3,7 @@ import { View } from '@instructure/ui-view'
 import { Flex } from '@instructure/ui-flex'
 import { Text } from '@instructure/ui-text'
 import { Heading } from '@instructure/ui-heading'
+// import { Button } from '@instructure/ui-buttons'
 
 import Api from '../Services/Api'
 import { Spinner } from '@instructure/ui-spinner'
@@ -70,7 +71,7 @@ export default function ReportsPage({t, report, settings}) {
     setIssues(processIssues(report))
   }, [report])
 
-  if (report.length === 0) {
+  if (reports.length === 0) {
     return (
       <View as="div" padding="small 0">
         <View as="div" textAlign="center" padding="medium">
@@ -85,28 +86,35 @@ export default function ReportsPage({t, report, settings}) {
         <Heading>{t('label.reports')}</Heading>
         <View as="div" margin="0 0 large 0">
           <Flex justifyItems="space-between" alignItems="start">
-            <Flex.Item width="48%" padding="0">
-              <IssuesReport t={t} reports={report} />
+            <Flex.Item width="28%" padding="0">
+              {/* <IssuesReport t={t} reports={reports} /> */}
+              <h3>Options</h3>
+              <p><input type="checkbox" id="issuesToggle"></input><label htmlFor="issuesToggle"> Show issues</label></p>
+              <p><input type="checkbox" id="potentialIssuesToggle"></input><label htmlFor="potentialIssuesToggle"> Show potential issues</label></p>
+              <p><input type="checkbox" id="suggestionsToggle"></input><label htmlFor="suggestionsToggle"> Show suggestions</label></p>
             </Flex.Item>
-            <Flex.Item width="48%" padding="0">
-              <ResolutionsReport t={t} reports={report} />
+            <Flex.Item width="70%" padding="0">
+              <ResolutionsReport t={t} reports={reports} />
             </Flex.Item>
           </Flex>
         </View>
         <View as="div" margin="large 0">
-          <IssuesTable
+          {/* <IssuesTable
             issues={issues}
             settings={settings}
-            t={t} />
+            t={t} /> */}
         </View>
         <View as="div" margin="large 0">
           <ReportsTable
-            reports={report}
+            reports={reports}
             t={t}
           />
+        </View>
+        <View as="div" margin="large auto 0 0" display="flex" justifyContent="right">
+          <button margin="0" color="primary">Export Report</button>
+          <button margin="0" color="primary">Print Report</button>
         </View>
       </View>
     )
   }
-
 }

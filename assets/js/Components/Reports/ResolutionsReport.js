@@ -25,25 +25,25 @@ class ResolutionsReport extends React.Component {
       labels: [],
       datasets: [
         {
-          label: this.props.t('label.content_fixed'),
+          label: this.props.t('label.filter.severity.issue'),
           data: [],
           fill: false,
-          backgroundColor: '#00AC18',
-          borderColor: '#00AC18',
+          backgroundColor: '#BA0000',
+          borderColor: '#BA0000',
         },
         {
-          label: this.props.t('label.content_resolved'),
+          label: this.props.t('label.filter.severity.potential'),
           data: [],
           fill: false,
-          backgroundColor: '#008EE2',
-          borderColor: '#008EE2',
+          backgroundColor: '#D9A600',
+          borderColor: '#D9A600',
         },
         {
-          label: this.props.t('label.files_reviewed'),
+          label: this.props.t('label.filter.severity.suggestion'),
           data: [],
           fill: false,
-          backgroundColor: '#8B969E',
-          borderColor: '#8B969E',
+          backgroundColor: '#2C8AC1',
+          borderColor: '#2C8AC1',
         }
       ]
     }
@@ -51,9 +51,9 @@ class ResolutionsReport extends React.Component {
     for (let report of this.props.reports) {
       data.labels.push(report.created)
 
-      data.datasets[0].data.push(report.contentFixed)
+      data.datasets[0].data.push(report.errors)
       data.datasets[1].data.push(report.contentResolved)
-      data.datasets[2].data.push(report.filesReviewed)
+      data.datasets[2].data.push(report.suggestions)
     }
 
     return data
