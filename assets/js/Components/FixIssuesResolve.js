@@ -1,7 +1,15 @@
 import React from 'react';
 import './FixIssuesResolve.css'
 
-export default function FixIssuesResolve({ t, settings, isSaving, activeIssue, handleIssueResolve }) {
+export default function FixIssuesResolve({ t, settings, isSaving, activeIssue, handleFileResolve, handleIssueResolve }) {
+
+  const handleClick = () => {
+    if(activeIssue.contentType === settings.FILTER.FILE_OBJECT) {
+      handleFileResolve(activeIssue.fileData)
+    } else {
+      handleIssueResolve(activeIssue.issueData)
+    }
+  }
 
   return (
     <div className="ufixit-widget-resolve-container">
@@ -12,7 +20,7 @@ export default function FixIssuesResolve({ t, settings, isSaving, activeIssue, h
       <div className="flex-row flex-between mt-3">
       { !isSaving ? (
         <button className="btn btn-secondary align-self-start"
-          onClick={() => handleIssueResolve(activeIssue.issue)}>
+          onClick={() => handleClick()}>
           { activeIssue.status === settings.FILTER.RESOLVED ? t(`label.mark_unresolved`) : t(`label.mark_resolved`) }
         </button>
       ) : (

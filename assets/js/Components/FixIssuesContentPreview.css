@@ -16,6 +16,11 @@
     text-decoration-color: var(--link-color);
   }
 
+  &:focus {
+    outline: 2px solid var(--link-color);
+    outline-offset: 3px;
+  }
+
   h2 {
     font-size: 1.5rem;
     font-weight: bold;
@@ -57,10 +62,12 @@
 .ufixit-error-highlight {
   outline: 3px dashed var(--issue-color);
   outline-offset: 1px;
+  anchor-name: --ufixit-error-highlight;
 
   /* Errors without text won't have an outline unless they have a border to provide size */
-  border: 1px solid transparent;
-  anchor-name: --ufixit-error-highlight;
+  &:not(table) {
+    border: 1px solid transparent;
+  }
 }
 
 .alt-text-preview {
@@ -103,5 +110,17 @@
       padding: 0px;
       overflow: hidden;
     }
+  }
+}
+
+.ufixit-file-details {
+  margin: 2rem 2rem 3rem 2rem;
+
+  .ufixit-file-details-label {
+    font-weight: bold;
+    margin-right: 1rem;
+    text-align: right;
+    width: 30%;
+    flex-shrink: 0;
   }
 }

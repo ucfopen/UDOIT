@@ -9,6 +9,7 @@
   padding: .75rem 1rem;
 
   .search-group {
+
     input {
       font-size: 0.85rem;
       font-weight: 400;
@@ -17,7 +18,7 @@
       border: 1px solid var(--border-color);
       border-radius: 8px;
       outline: none;
-      width: 200px;
+      width: 250px;
       box-sizing: border-box;
 
       &:focus {
@@ -35,6 +36,10 @@
   }
 
   .filter-group {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+
     select {
       font-size: 0.85rem;
       font-weight: 500;
@@ -43,7 +48,7 @@
       border: 1px solid var(--border-color);
       border-radius: 8px;
       outline: none;
-      max-width: 200px;
+      max-width: 300px;
 
       &:focus {
         outline: 2px solid var(--link-color);

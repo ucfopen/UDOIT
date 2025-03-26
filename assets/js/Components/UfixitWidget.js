@@ -11,7 +11,7 @@ import ReactHtmlParser from 'react-html-parser'
 // import MessageTray from './MessageTray'
 // import Preview from './Preview'
 // import { ToggleDetails } from '@instructure/ui-toggle-details'
-
+import FileForm from './Forms/FileForm'
 import { returnIssueForm } from '../Services/Ufixit'
 import Api from '../Services/Api'
 import * as Html from '../Services/Html'
@@ -32,6 +32,8 @@ export default function UfixitWidget({
   formatIssueData,
   handleIssueResolve,
   handleIssueSave,
+  handleFileResolve,
+  handleFileUpload,
   toggleListView,
   listLength,
   nextIssue
@@ -53,7 +55,13 @@ export default function UfixitWidget({
 
   useEffect(() => {
     if(activeIssue) {
-      setUfixitForm(() => returnIssueForm(activeIssue.issue))
+      setTempActiveIssue(Object.assign({}, activeIssue))
+      if(activeIssue.contentType === settings.FILTER.FILE_OBJECT) {
+        setUfixitForm(() => { return FileForm })
+      }
+      else {
+        setUfixitForm(() => returnIssueForm(activeIssue.issueData))
+      }
       setTempActiveIssue(Object.assign({}, activeIssue))
     }
     else {
@@ -114,13 +122,19 @@ export default function UfixitWidget({
 
   const handleActiveIssue = (newIssue) => {
     const tempIssue = Object.assign({}, tempActiveIssue)
-    tempIssue.issue = newIssue
+    tempIssue.issueData = newIssue
     setTempActiveIssue(tempIssue)
     if(newIssue.newHtml && newIssue.newHtml !== '') {
       setEditedElement(newIssue.newHtml)
     }
     else {
       setEditedElement(newIssue.sourceHtml)
+    }
+  }
+
+  const handleKeyViewToggle = (event) => {
+    if(event.key === 'Enter' || event.key === ' ') {
+      setViewInfo(!viewInfo)
     }
   }
   // const clearMessages = () => {
@@ -153,7 +167,7 @@ export default function UfixitWidget({
           <>
             {/* The header with the issue name and severity icon */}
             <div className="ufixit-widget-header flex-row justify-content-between mb-2">
-              <div className="flex-column justify-content-center">
+              <div className="flex-column justify-content-center allow-word-break">
                 <h2 className="mt-0 mb-0">{activeIssue.scanRuleLabel}</h2>
               </div>
               <div className="flex-column justify-content-center ml-3">
@@ -174,14 +188,20 @@ export default function UfixitWidget({
               className={`ufixit-widget-toggle-view-container mb-3 flex-row ${viewInfo ? 'justify-content-start' : 'justify-content-end'}`}
               onClick={() => setViewInfo(!viewInfo)}>
               { viewInfo &&
-                <div className="flex-row">
+                <div
+                  className="flex-row ufixit-widget-toggle-view-container-link pe-2"
+                  onKeyDown={handleKeyViewToggle}
+                  tabindex="0" >
                   <div className="flex-column justify-content-center">
                     <LeftArrowIcon className="primary-dark me-2" />
                   </div>
                   <div className="flex-column justify-content-center primary-dark">{t('label.hide_learn_more')}</div>
                 </div> }
               { !viewInfo &&
-              <div className="flex-row">
+              <div
+                className="flex-row ufixit-widget-toggle-view-container-link ps-2"
+                onKeyDown={handleKeyViewToggle}
+                tabindex="0" >
                 <div className="flex-column justify-content-center primary-dark">{t('label.show_learn_more')}</div>
                 <div className="flex-column justify-content-center">
                   <RightArrowIcon className="primary-dark ms-2" />
@@ -193,21 +213,32 @@ export default function UfixitWidget({
             
             { viewInfo && 
               <div className="flex-grow-1 ufixit-learn-container">
-                {ReactHtmlParser(t(`rule.desc.${activeIssue.issue.scanRuleId}`), { preprocessNodes: (nodes) => Html.processStaticHtml(nodes, settings) })}
+                { activeIssue.contentType === settings.FILTER.FILE_OBJECT
+                  ? ReactHtmlParser(t(`file.desc.${activeIssue.fileData.fileType}`), { preprocessNodes: (nodes) => Html.processStaticHtml(nodes, settings) })
+                  : ReactHtmlParser(t(`rule.desc.${activeIssue.scanRuleId}`), { preprocessNodes: (nodes) => Html.processStaticHtml(nodes, settings) })
+                }
               </div>
             }
             { !viewInfo &&
-              <div className="flex-grow-1 ufixit-form-container flex-column">
+              <div className="flex-grow-1 flex-column ufixit-form-container">
                 { activeIssue.status !== settings.FILTER.RESOLVED &&
-                  <div className="flex-grow-1">
-                    <UfixitForm
-                      t={t}
-                      settings={settings}
-                      activeIssue={tempActiveIssue.issue}
-                      handleIssueSave={handleIssueSave}
-                      addMessage={addMessage} 
-                      handleActiveIssue={handleActiveIssue}
-                      handleManualScan={handleManualScan} />
+                  <div className="flex-grow-1 ufixit-form-content">
+                    { activeIssue.contentType === settings.FILTER.FILE_OBJECT ? (
+                      <FileForm
+                        t={t}
+                        settings={settings}
+                        activeFile={activeIssue}
+                        handleFileUpload={handleFileUpload} /> )
+                      : (
+                      <UfixitForm
+                        t={t}
+                        settings={settings}
+                        activeIssue={tempActiveIssue.issueData}
+                        handleIssueSave={handleIssueSave}
+                        addMessage={addMessage} 
+                        handleActiveIssue={handleActiveIssue}
+                        handleManualScan={handleManualScan} /> )
+                    }
                   </div>
                 }
                 <div className="flex-grow-0">
@@ -216,21 +247,22 @@ export default function UfixitWidget({
                     settings={settings}
                     ISSUE_STATE={ISSUE_STATE}
                     activeIssue={activeIssue}
+                    handleFileResolve={handleFileResolve}
                     handleIssueResolve={handleIssueResolve}
                   />
-                </div>
-                { (activeIssue.currentState === ISSUE_STATE.SAVING || activeIssue.currentState === ISSUE_STATE.RESOLVING) && 
-                  <div className="ufixit-overlay flex-column justify-content-center">
-                    <div className="ufixit-overlay-content-container flex-row justify-content-center">
-                      <div className="flex-column justify-content-center">
-                        <ProgressIcon className="icon-lg primary spinner" />
-                      </div>
-                      <div className="flex-column justify-content-center ms-3">
-                        <h2>{t('form.processing')}</h2>
+                  { (activeIssue.currentState === ISSUE_STATE.SAVING || activeIssue.currentState === ISSUE_STATE.RESOLVING) && 
+                    <div className="ufixit-overlay flex-column justify-content-center">
+                      <div className="ufixit-overlay-content-container flex-row justify-content-center">
+                        <div className="flex-column justify-content-center">
+                          <ProgressIcon className="icon-lg primary spinner" />
+                        </div>
+                        <div className="flex-column justify-content-center ms-3">
+                          <h2>{t('form.processing')}</h2>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                }
+                  }
+                </div>
               </div>
             }
 
