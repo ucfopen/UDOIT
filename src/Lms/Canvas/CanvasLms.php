@@ -925,19 +925,26 @@ class CanvasLms implements LmsInterface {
                         }
                     }
 
+                    // searchs for content item to see if its already in database
                     $contentItem = $this->contentItemRepo->findOneBy([
                         'contentType'  => $contentType,
                         'lmsContentId' => $lmsContent['id'],
                         'course'       => $course,
                     ]);
 
+                    // if its not, then we need to create a new content item
                     if (!$contentItem) {
                         $contentItem = new ContentItem();
                         $contentItem->setCourse($course)
                             ->setLmsContentId($lmsContent['id'])
                             ->setActive(true)
+                            ->setTitle($lmsContent['title'])
+                            ->setUrl($lmsContent['url'])
+                            ->setBody($lmsContent['body'])
                             ->setUpdated($this->util->getCurrentTime())
-                            ->setContentType($contentType);
+                            ->setContentType($contentType)
+                            ->setPublished($lmsContent['status']);
+
                         $this->entityManager->persist($contentItem);
                     }
 
@@ -968,12 +975,6 @@ class CanvasLms implements LmsInterface {
                         $printOutput->writeln("scanning content item");
                         $lmsFetchServiceObject->scanContentItems($contentItemSingle);
                     }
-                    else {
-                        $contentItem->update($lmsContent);
-                    }
-
-                    // updates report
-                    //$lmsFetchServiceObject->updateReport($course, $user);
 
                     $this->entityManager->flush();
 
