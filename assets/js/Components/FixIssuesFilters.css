@@ -56,4 +56,11 @@
       }
     }
   }
+
+  label {
+    font-size: 0.9rem;
+    font-weight: 500;
+    font-family: 'Reddit Sans', Arial, Helvetica, sans-serif;
+    text-transform: uppercase;
+  }
 }
