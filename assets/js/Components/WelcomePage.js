@@ -10,6 +10,8 @@ import './WelcomePage.css'
 export default function WelcomePage({ t, syncComplete, setWelcomeClosed }) {
 
   // TODO: Once text is approved, add items to the translation file and use t to translate.
+  // TODO: Add a place for the Messages component. If things don't load properly, I don't want to leave the user hanging.
+  
   return (
     <div className="flex-column flex-grow-1">
       <div className="flex-column justify-content-center flex-grow-1">

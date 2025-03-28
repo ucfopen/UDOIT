@@ -492,6 +492,12 @@ button.disabled,
   align-items: center;
 }
 
+.outline-link {
+  outline-color: var(--link-color);
+  outline-offset: 3px;
+  outline-width: 2px;
+}
+
 .icon-sm {
   width: 16px;
   height: 16px;

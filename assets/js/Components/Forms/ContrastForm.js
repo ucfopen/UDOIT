@@ -8,7 +8,7 @@ import { Text } from '@instructure/ui-text'
 import { TextInput } from '@instructure/ui-text-input'
 import { IconButton } from '@instructure/ui-buttons'
 import { IconArrowOpenDownSolid, IconArrowOpenUpSolid, IconCheckMarkLine } from '@instructure/ui-icons'
-import ColorPicker from '../ColorPicker'
+import ColorSelector from '../ColorSelector'
 import * as Html from '../../Services/Html'
 import * as Contrast from '../../Services/Contrast'
 
@@ -143,33 +143,6 @@ export default class ContrastForm extends React.Component {
     const buttonLabel = (pending) ? 'form.processing' : 'form.submit'
     const ratioColor = (this.state.ratioIsValid) ? 'success' : 'danger'
 
-    const colors = [
-      // top row (lighter)
-      'FFFFFF',
-      'E4E4E4',
-      'FCFAC6',
-      'DFF1D1',
-      'DDF9E7',
-      'DBE9F7',
-      'E5EEF6',
-      'F7E0F6',
-      'F8EBEC',
-      'F8E5D8',
-      'F6E5CF',
-      // bottom row (darker)
-      '000000',
-      '2D3B45',
-      '7B7A30',
-      '528328',
-      '13803F',
-      '225E9D',
-      '2463CE',
-      '80227D',
-      'DC3545',
-      'D04920',
-      'BF590A',
-    ];
-
     return (
       <View as="div" padding="0 x-small">
         <div id="flash-messages" role="alert"></div>
@@ -204,10 +177,9 @@ export default class ContrastForm extends React.Component {
               </View>
             }
           />
-          <ColorPicker
-            update={this.updateBackground}
-            colors={colors}
+          <ColorSelector
             t={this.props.t}
+            updateColor={this.updateBackground}
           />
         </View>
         <View as="div" padding="x-small 0">
@@ -235,10 +207,9 @@ export default class ContrastForm extends React.Component {
               </View>
             }
           />
-          <ColorPicker
-            update={this.updateText}
-            colors={colors}
+          <ColorSelector
             t={this.props.t}
+            updateColor={this.updateText}
           />
         </View>
         <Flex>

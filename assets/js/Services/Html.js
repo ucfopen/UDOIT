@@ -1,12 +1,48 @@
+// When JavaScript's DOMParser encounters certain elements, it WILL NOT parse them unless they are wrapped
+// in the required parent element. This function wraps the error HTML in the required parent element so that
+// the DOMParser can parse it correctly.
 export function toElement(htmlString) {
   if ('string' !== typeof htmlString) {
     return htmlString
   }
 
-  let tmp = document.createElement('template')
-  tmp.innerHTML = htmlString.trim()
+  let tagName = htmlString.match(/^<(\w+)/)?.[1].toLowerCase()
 
-  return tmp.content.firstChild
+  const SPECIAL_CASES = {
+    thead: "<table>{content}</table>",
+    tbody: "<table>{content}</table>",
+    tfoot: "<table>{content}</table>",
+    caption: "<table>{content}</table>",
+    tr: "<table><tbody>{content}</tbody></table>",
+    td: "<table><tbody><tr>{content}</tr></tbody></table>",
+    th: "<table><tbody><tr>{content}</tr></tbody></table>",
+    colgroup: "<table>{content}</table>",
+    col: "<table><colgroup>{content}</colgroup></table>",
+    option: "<select>{content}</select>",
+    optgroup: "<select>{content}</select>",
+    legend: "<fieldset>{content}</fieldset>",
+    dt: "<dl>{content}</dl>",
+    dd: "<dl>{content}</dl>",
+    li: "<ul>{content}</ul>",
+    area: "<map>{content}</map>",
+    param: "<object>{content}</object>",
+    source: "<video>{content}</video>",
+    track: "<video>{content}</video>"
+  }
+
+  // Wrap special elements inside their required parent(s) if they are in the SPECIAL_CASES object
+  let wrappedHTML = SPECIAL_CASES[tagName] ? SPECIAL_CASES[tagName].replace('{content}', htmlString) : htmlString
+
+  // Parse the wrapped HTML
+  const parser = new DOMParser()
+  const tempDoc = parser.parseFromString(wrappedHTML, "text/html")
+
+  // Extract the real element from the correct position
+  if (SPECIAL_CASES[tagName]) {
+      return tempDoc.querySelector(tagName)
+  } else {
+      return tempDoc.body.firstElementChild
+  }
 }
 
 export function toString(element) {

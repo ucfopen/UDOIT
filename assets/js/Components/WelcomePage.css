@@ -45,6 +45,7 @@
   width: 80px;
   height: auto;
   opacity: 0.8;
+  margin-top: 6px;
 
   &:hover {
     opacity: 1;

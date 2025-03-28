@@ -1,0 +1,20 @@
+.color-selector-container {
+  padding: 1rem;
+  border: 2px solid var(--border-color);
+  border-radius: 8px;
+  background-color: var(--white);
+  width: fit-content;
+}
+
+.palette-option {
+  width: 24px;
+  height: 24px;
+  display: inline-block;
+  opacity: 1.0;
+  cursor: pointer;
+  border: 1px solid var(--border-color);
+
+  &:not(:last-child) {
+    margin-right: 4px;
+  }
+}

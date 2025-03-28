@@ -1,15 +1,10 @@
 import React, { useState, useCallback, useEffect } from 'react'
 import WelcomePage from './WelcomePage'
 import Header from './Header'
-import HomePage from './HomePage'
-import SummaryPage from './SummaryPage'
-import ContentPage from './ContentPage'
 import FixIssuesPage from './FixIssuesPage'
 import ReportsPage from './ReportsPage'
-import AboutModal from './AboutModal'
 import Api from '../Services/Api'
 import MessageTray from './MessageTray'
-import FilesPage from './FilesPage'
 
 export default function App(initialData) {
 
@@ -189,7 +184,7 @@ export default function App(initialData) {
 
   const resizeFrame = useCallback(() => {
     let default_height = document.body.scrollHeight + 50
-    default_height = default_height > 1000 ? default_height : 1000
+    default_height = default_height > 850 ? default_height : 850
 
     parent.postMessage(JSON.stringify({
       subject: "lti.frameResize",
@@ -241,54 +236,15 @@ export default function App(initialData) {
             <MessageTray t={t} messages={messages} clearMessages={clearMessages} hasNewReport={syncComplete} />
 
             <main role="main">
-              {/* {('home' === navigation) &&
-                <HomePage
-                  t={t}
-                  settings={settings}
-                  report={report} />
-              } */}
-              {/* {('welcome' === navigation) &&
-                <>
-                  <WelcomePage
-                    t={t}
-                    settings={settings}
-                    setSettings={setSettings}
-                    hasNewReport={hasNewReport}
-                    handleNavigation={handleNavigation} />
-                  <div className="flex-row gap-1 mt-1">
-                    <button className="btn btn-primary" onClick={() => quickIssues('ISSUE')}>Fix Issues</button>
-                    <button className="btn btn-primary" onClick={() => quickIssues('POTENTIAL')}>Fix Potential Issues</button>
-                    <button className="btn btn-primary" onClick={() => quickIssues('SUGGESTION')}>Fix Suggestions</button>
-                  </div>
-                </>
-              } */}
               {('summary' === navigation) &&
                 <>
-                  <SummaryPage
-                    t={t}
-                    settings={settings}
-                    report={report}
-                    handleAppFilters={handleAppFilters}
-                    handleNavigation={handleNavigation} />
+                  <h1>Summary Page Information Goes Here</h1>
                   <div className="flex-row gap-1 mt-1">
                     <button className="btn btn-primary" onClick={() => quickIssues('ISSUE')}>Fix Issues</button>
                     <button className="btn btn-primary" onClick={() => quickIssues('POTENTIAL')}>Fix Potential Issues</button>
                     <button className="btn btn-primary" onClick={() => quickIssues('SUGGESTION')}>Fix Suggestions</button>
                   </div>
                 </>
-              }
-              {('content' === navigation) &&
-                <ContentPage
-                  t={t}
-                  settings={settings}
-                  report={report}
-                  setReport={setReport}
-                  appFilters={appFilters}
-                  handleAppFilters={handleAppFilters}
-                  handleNavigation={handleNavigation}
-                  handleIssueSave={updateReportIssue}
-                  handleIssueUpdate={updateReportIssue}
-                  disableReview={syncComplete && !disableReview} />
               }
               {('fixIssues' === navigation) &&
                 <FixIssuesPage
@@ -307,14 +263,6 @@ export default function App(initialData) {
                   updateSessionIssue={updateSessionIssue}
                   disableReview={syncComplete && !disableReview} />
               }
-              {('files' === navigation) &&
-                <FilesPage
-                  report={report}
-                  settings={settings}
-                  handleNavigation={handleNavigation}
-                  handleFileSave={updateReportFile}
-                  t={t} />
-              }
               {('reports' === navigation) &&
                 <ReportsPage
                   t={t}
@@ -323,15 +271,7 @@ export default function App(initialData) {
                   handleNavigation={handleNavigation}
                 />
               }
-              
             </main>
-
-            {('about' === modal) &&
-              <AboutModal
-                t={t}
-                settings={settings}
-                handleModal={handleModal} />
-            }
           </>
         )
       }

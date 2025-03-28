@@ -3,6 +3,7 @@ import DownloadIcon from './Icons/DownloadIcon';
 import ExternalLinkIcon from './Icons/ExternalLinkIcon';
 import EarIcon from './Icons/EarIcon';
 import ProgressIcon from './Icons/ProgressIcon';
+import * as Html from '../Services/Html'
 
 import './FixIssuesContentPreview.css';
 
@@ -47,49 +48,49 @@ export default function FixIssuesContentPreview({
     return htmlElement
   }
 
-  // When JavaScript's DOMParser encounters certain elements, it WILL NOT parse them unless they are wrapped
-  // in the required parent element. This function wraps the error HTML in the required parent element so that
-  // the DOMParser can parse it correctly.
-  const parseErrorSafely = (errorHtml) => {
+  // // When JavaScript's DOMParser encounters certain elements, it WILL NOT parse them unless they are wrapped
+  // // in the required parent element. This function wraps the error HTML in the required parent element so that
+  // // the DOMParser can parse it correctly.
+  // const parseErrorSafely = (errorHtml) => {
 
-    let tagName = errorHtml.match(/^<(\w+)/)?.[1].toLowerCase()
+  //   let tagName = errorHtml.match(/^<(\w+)/)?.[1].toLowerCase()
 
-    const SPECIAL_CASES = {
-      thead: "<table>{content}</table>",
-      tbody: "<table>{content}</table>",
-      tfoot: "<table>{content}</table>",
-      caption: "<table>{content}</table>",
-      tr: "<table><tbody>{content}</tbody></table>",
-      td: "<table><tbody><tr>{content}</tr></tbody></table>",
-      th: "<table><tbody><tr>{content}</tr></tbody></table>",
-      colgroup: "<table>{content}</table>",
-      col: "<table><colgroup>{content}</colgroup></table>",
-      option: "<select>{content}</select>",
-      optgroup: "<select>{content}</select>",
-      legend: "<fieldset>{content}</fieldset>",
-      dt: "<dl>{content}</dl>",
-      dd: "<dl>{content}</dl>",
-      li: "<ul>{content}</ul>",
-      area: "<map>{content}</map>",
-      param: "<object>{content}</object>",
-      source: "<video>{content}</video>",
-      track: "<video>{content}</video>"
-    }
+  //   const SPECIAL_CASES = {
+  //     thead: "<table>{content}</table>",
+  //     tbody: "<table>{content}</table>",
+  //     tfoot: "<table>{content}</table>",
+  //     caption: "<table>{content}</table>",
+  //     tr: "<table><tbody>{content}</tbody></table>",
+  //     td: "<table><tbody><tr>{content}</tr></tbody></table>",
+  //     th: "<table><tbody><tr>{content}</tr></tbody></table>",
+  //     colgroup: "<table>{content}</table>",
+  //     col: "<table><colgroup>{content}</colgroup></table>",
+  //     option: "<select>{content}</select>",
+  //     optgroup: "<select>{content}</select>",
+  //     legend: "<fieldset>{content}</fieldset>",
+  //     dt: "<dl>{content}</dl>",
+  //     dd: "<dl>{content}</dl>",
+  //     li: "<ul>{content}</ul>",
+  //     area: "<map>{content}</map>",
+  //     param: "<object>{content}</object>",
+  //     source: "<video>{content}</video>",
+  //     track: "<video>{content}</video>"
+  //   }
 
-    // Wrap special elements inside their required parent(s) if they are in the SPECIAL_CASES object
-    let wrappedHTML = SPECIAL_CASES[tagName] ? SPECIAL_CASES[tagName].replace('{content}', errorHtml) : errorHtml
+  //   // Wrap special elements inside their required parent(s) if they are in the SPECIAL_CASES object
+  //   let wrappedHTML = SPECIAL_CASES[tagName] ? SPECIAL_CASES[tagName].replace('{content}', errorHtml) : errorHtml
 
-    // Parse the wrapped HTML
-    const parser = new DOMParser()
-    const tempDoc = parser.parseFromString(wrappedHTML, "text/html")
+  //   // Parse the wrapped HTML
+  //   const parser = new DOMParser()
+  //   const tempDoc = parser.parseFromString(wrappedHTML, "text/html")
 
-    // Extract the real element from the correct position
-    if (SPECIAL_CASES[tagName]) {
-        return tempDoc.querySelector(tagName)
-    } else {
-        return tempDoc.body.firstElementChild
-    }
-  }
+  //   // Extract the real element from the correct position
+  //   if (SPECIAL_CASES[tagName]) {
+  //       return tempDoc.querySelector(tagName)
+  //   } else {
+  //       return tempDoc.body.firstElementChild
+  //   }
+  // }
 
   const getTaggedContent = (activeIssue, activeContentItem) => {
 
@@ -111,7 +112,7 @@ export default function FixIssuesContentPreview({
     const parser = new DOMParser()
     const doc = parser.parseFromString(fullPageHtml, 'text/html')
 
-    const errorElement = parseErrorSafely(errorHtml)
+    const errorElement = Html.toElement(errorHtml)
 
     if(!errorElement) {
       console.warn("Error element cannot be reproduced.")
