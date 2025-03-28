@@ -1,17 +1,9 @@
 import React, { useEffect, useState } from 'react'
-import { View } from '@instructure/ui-view'
-import { TextInput } from '@instructure/ui-text-input'
-import { Button } from '@instructure/ui-buttons'
-import { IconCheckMarkLine } from '@instructure/ui-icons'
-import { Checkbox } from '@instructure/ui-checkbox'
-import { Spinner } from '@instructure/ui-spinner'
 import * as Html from '../../Services/Html'
-import { SimpleSelect } from '@instructure/ui-simple-select'
 
 export default function QuoteForm(props) {
   // Determine initial HTML content based on issue status
   let html = props.activeIssue.newHtml ? props.activeIssue.newHtml : props.activeIssue.sourceHtml
-
   if (props.activeIssue.status === 1) {
     html = props.activeIssue.newHtml
   }
@@ -67,9 +59,8 @@ export default function QuoteForm(props) {
     if (deleteQuotes) {
       // Remove quotation marks from text content
       let innerHtml = updatedElement.innerHTML
-      innerHtml = innerHtml.replace(/"([^"<]+)"/g, '$1') 
+      innerHtml = innerHtml.replace(/"([^"<]+)"/g, '$1')
       updatedElement.innerHTML = innerHtml
-
     } else if (selectedTag === 'q' || selectedTag === 'block') {
       // Replace quotes with <q> or <blockquote> elements
       const quoteRegex = /"([^"<]+)"/g;
@@ -78,15 +69,15 @@ export default function QuoteForm(props) {
       const tag = selectedTag === 'q' ? 'q' : 'blockquote'
 
       while ((match = quoteRegex.exec(innerHtml)) !== null) {
-          const quoteText = match[1]
-          const newElement = document.createElement(tag)
-          newElement.textContent = quoteText
+        const quoteText = match[1]
+        const newElement = document.createElement(tag)
+        newElement.textContent = quoteText
 
-          if (addCitation && citationText.length > 0) {
-              Html.setAttribute(newElement, 'cite', citationText)
-          }
+        if (addCitation && citationText.length > 0) {
+          Html.setAttribute(newElement, 'cite', citationText)
+        }
 
-          innerHtml = innerHtml.replace(match[0], Html.toString(newElement))
+        innerHtml = innerHtml.replace(match[0], Html.toString(newElement))
       }
 
       updatedElement.innerHTML = innerHtml;
@@ -95,9 +86,8 @@ export default function QuoteForm(props) {
     // Convert element back to HTML string and update state
     const newHtmlString = Html.toString(updatedElement)
     setModifiedHtml(newHtmlString)
-  
-    let issue = { ...props.activeIssue, newHtml: newHtmlString };
-    props.handleActiveIssue(issue);
+    let issue = { ...props.activeIssue, newHtml: newHtmlString }
+    props.handleActiveIssue(issue)
   }
 
   /**
@@ -109,21 +99,21 @@ export default function QuoteForm(props) {
     let errors = [];
 
     if (!selectedTag) {
-        errors.push({ text: "Please select a quotation style.", type: "error" });
+      errors.push("Please select a quotation style.")
     }
     setSelectErrors(errors);
 
     errors = [];
     if (addCitation && !citationText.trim()) {
-        errors.push({ text: "Citation text cannot be empty.", type: "error" });
+      errors.push("Citation text cannot be empty.")
     }
     setTextInputErrors(errors);
 
     if (errors.length === 0) {
-        let issue = { ...props.activeIssue, newHtml: modifiedHtml };
-        props.handleIssueSave(issue);
+      let issue = { ...props.activeIssue, newHtml: modifiedHtml }
+      props.handleIssueSave(issue)
     }
-  };
+  }
 
   /**
    * Toggles the "Remove quotes" checkbox.
@@ -147,76 +137,76 @@ export default function QuoteForm(props) {
   }
 
   const pending = props.activeIssue && props.activeIssue.pending === "1"
-  const buttonLabel = pending ? "form.processing" : "form.submit"
+  const buttonLabel = pending ? "Processing..." : "Submit"
 
   return (
-    <View as="div" padding="x-small">
+    <div style={{ padding: "4px" }}>
       {/* Dropdown for selecting quote formatting */}
-      <View as="div" margin="small 0">
-        <SimpleSelect
-          renderLabel="Select quotation style"
+      <div style={{ margin: "8px 0" }}>
+        <label htmlFor="quote-style">Select quotation style</label><br />
+        <select
+          id="quote-style"
           value={selectedTag}
-          width="100%"
-          onChange={(event, { value }) => setSelectedTag(value)}
-          interaction={deleteQuotes ? "disabled" : "enabled"}
-          messages={selectErrors}
+          disabled={deleteQuotes}
+          onChange={(e) => setSelectedTag(e.target.value)}
         >
-          <SimpleSelect.Option key="opt-empty" id="opt-empty" value="">
-            -- Choose --
-          </SimpleSelect.Option>
-          <SimpleSelect.Option key="opt-1" id="opt-1" value="q">
-            Regular Quote
-          </SimpleSelect.Option>
-          <SimpleSelect.Option key="opt-2" id="opt-2" value="block">
-            Block Quote
-          </SimpleSelect.Option>
-        </SimpleSelect>
-      </View>
+          <option value="">-- Choose --</option>
+          <option value="q">Regular Quote</option>
+          <option value="block">Block Quote</option>
+        </select>
+        {selectErrors.length > 0 && (
+          <div style={{ color: "red" }}>{selectErrors[0]}</div>
+        )}
+      </div>
 
       {/* Input for citation text */}
       {addCitation && (
-        <View as="div" margin="small 0">
-          <TextInput
-            renderLabel="Enter Citation"
+        <div style={{ margin: "8px 0" }}>
+          <label htmlFor="citation">Enter Citation</label><br />
+          <input
+            id="citation"
+            type="text"
             placeholder="e.g., a URL"
             value={citationText}
+            disabled={deleteQuotes}
             onChange={(e) => setCitationText(e.target.value)}
-            interaction={deleteQuotes ? "disabled" : "enabled"}
-            messages={textInputErrors}
           />
-        </View>
+          {textInputErrors.length > 0 && (
+            <div style={{ color: "red" }}>{textInputErrors[0]}</div>
+          )}
+        </div>
       )}
 
       {/* Checkboxes for removing quotes and adding citations */}
-      <View>
-        <View as='span' display='inline-block'>
-          <Checkbox
-            label='Remove quotes'
+      <div style={{ margin: "8px 0" }}>
+        <label>
+          <input
+            type="checkbox"
             checked={deleteQuotes}
             onChange={handleRemoveQuotesCheckbox}
           />
-        </View>
-        <View as='span' display='inline-block' margin="0 small">
-          <Checkbox
-            label='Add a citation'
+          Remove quotes
+        </label>
+        <label style={{ marginLeft: "16px" }}>
+          <input
+            type="checkbox"
             checked={addCitation}
-            onChange={() => setAddCitation(!addCitation)}
             disabled={deleteQuotes}
+            onChange={() => setAddCitation(!addCitation)}
           />
-        </View>
-      </View>
+          Add a citation
+        </label>
+      </div>
 
       {/* Submit button */}
-      <View as='div' margin='small 0'>
-        <Button
-          color='primary'
+      <div style={{ margin: "8px 0" }}>
+        <button
           onClick={handleButton}
-          interaction={(!pending && props.activeIssue.status !== 2) ? 'enabled' : 'disabled'}
+          disabled={pending || props.activeIssue.status === 2}
         >
-          {pending && <Spinner size="x-small" renderTitle={props.t(buttonLabel)} />}
-          {props.t(buttonLabel)}
-        </Button>
-      </View>
-    </View>
-  );
+          {pending ? "Loading..." : buttonLabel}
+        </button>
+      </div>
+    </div>
+  )
 }
