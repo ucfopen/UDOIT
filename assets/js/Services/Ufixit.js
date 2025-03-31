@@ -10,7 +10,9 @@ import LinkForm from '../Components/Forms/LinkForm'
 import EmphasisForm from '../Components/Forms/EmphasisForm'
 import LabelForm from '../Components/Forms/LabelForm'
 import QuoteForm from '../Components/Forms/QuoteForm'
+import EmbeddedContentTitleForm from '../Components/Forms/EmbeddedContentTitleForm'
 import StyleMisuseForm from '../Components/Forms/StyleMisuseForm'
+import AriaRoleForm from '../Components/Forms/AriaRoleForm'
 
 const UfixitForms = {
   // phpAlly rules
@@ -36,11 +38,16 @@ const UfixitForms = {
 
   // Equal Access Rules
   img_alt_misuse: AltText,
+  img_alt_valid: AltText,
   aria_application_labelled: LabelForm,
   aria_application_label_unique: LabelForm,
+  aria_role_valid: AriaRoleForm,
   text_contrast_sufficient: ContrastForm,
   text_block_heading: HeadingStyleForm,
   heading_content_exists: HeadingEmptyForm,
+  object_text_exists: EmbeddedContentTitleForm,
+  frame_title_exists: EmbeddedContentTitleForm,
+  media_alt_exists: EmbeddedContentTitleForm,
   // text_quoted_correctly: QuoteForm,
   style_color_misuse: StyleMisuseForm,
 }
