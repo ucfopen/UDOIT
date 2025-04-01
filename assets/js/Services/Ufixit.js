@@ -45,6 +45,7 @@ const UfixitForms = {
   // text_quoted_correctly: QuoteForm,
   style_color_misuse: StyleMisuseForm,
   text_sensory_misuse: SensoryMisuseForm,
+  a_text_purpose: AnchorText,
 }
 
 export function returnIssueForm(activeIssue) {
