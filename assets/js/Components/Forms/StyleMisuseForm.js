@@ -17,13 +17,13 @@ export default function StyleMisuseForm({
   handleActiveIssue,
   handleManualScan
 }) {
-  const [html, setHtml] = useState(Html.getIssueHtml(activeIssue.issue))
+  const [html, setHtml] = useState(Html.getIssueHtml(activeIssue))
   console.log(html)
   const [useBold, setUseBold] = useState(isBold())
   const [useItalics, setUseItalics] = useState(isItalicized())
   const [removeStyling, setRemoveStyling] = useState(false)
   const [checkBoxErrors, setCheckBoxErrors] = useState([])
-  const [styleAttribute, setStyleAttribute] = useState(Html.getAttribute(Html.getIssueHtml(activeIssue.issue), "style"))
+  const [styleAttribute, setStyleAttribute] = useState(Html.getAttribute(Html.getIssueHtml(activeIssue), "style"))
 
   let formErrors = []
 
@@ -36,7 +36,7 @@ export default function StyleMisuseForm({
       setUseBold(isBold())
       setUseItalics(isItalicized())
       setCheckBoxErrors([])
-      setStyleAttribute(Html.getAttribute(Html.getIssueHtml(activeIssue.issue), "style"))
+      setStyleAttribute(Html.getAttribute(Html.getIssueHtml(activeIssue), "style"))
     }
 
     formErrors = []
@@ -64,10 +64,10 @@ export default function StyleMisuseForm({
   }
 
   function handleSubmit() {
-    let issue = activeIssue.issue
+    let issue = activeIssue
 
     if (cssEmphasisIsValid(issue)) {
-      let issue = activeIssue.issue
+      let issue = activeIssue
       issue.newHtml = Contrast.convertHtmlRgb2Hex(issue.newHtml)
       handleIssueSave(issue)
     }
@@ -101,9 +101,9 @@ export default function StyleMisuseForm({
   }
 
   function updatePreview() {
-    if (activeIssue.issue) {
-      let issue = activeIssue.issue
-      const html = Html.getIssueHtml(activeIssue.issue)
+    if (activeIssue) {
+      let issue = activeIssue
+      const html = Html.getIssueHtml(activeIssue)
   
       issue.newHtml = processHtml(html)
       handleActiveIssue(issue)
@@ -111,12 +111,12 @@ export default function StyleMisuseForm({
   }
 
   function isBold() {
-    if (activeIssue.issue) {
-      const issue = activeIssue.issue
+    if (activeIssue) {
+      const issue = activeIssue
       console.log("CHECKING BOLD ISSUE")
       console.log(issue)
       const metadata = (issue.metadata) ? JSON.parse(issue.metadata) : {}
-      const html = Html.getIssueHtml(activeIssue.issue)
+      const html = Html.getIssueHtml(activeIssue)
       const element = Html.toElement(html)
 
       return ((Html.hasTag(element, 'strong')) || (metadata.fontWeight === 'bold'))
@@ -126,10 +126,10 @@ export default function StyleMisuseForm({
   }
 
   function isItalicized() {
-    if (activeIssue.issue) {
-      const issue = activeIssue.issue
+    if (activeIssue) {
+      const issue = activeIssue
       const metadata = (issue.metadata) ? JSON.parse(issue.metadata) : {}
-      const html = Html.getIssueHtml(activeIssue.issue)
+      const html = Html.getIssueHtml(activeIssue)
       const element = Html.toElement(html)
   
       return ((Html.hasTag(element, 'em')) || (metadata.fontStyle == 'italic'))
@@ -139,7 +139,7 @@ export default function StyleMisuseForm({
   }
 
   function hasStyleTag() {
-    const html = Html.getIssueHtml(activeIssue.issue)
+    const html = Html.getIssueHtml(activeIssue)
     const element = Html.toElement(html)
 
     console.log("checking style attribute")
@@ -159,7 +159,7 @@ export default function StyleMisuseForm({
     return true
   }
 
-  const pending = (activeIssue.issue && (activeIssue.issue.pending == '1'))
+  const pending = (activeIssue && (activeIssue.pending == '1'))
   const buttonLabel = (pending) ? 'form.processing' : 'form.submit'
 
   return (
@@ -192,11 +192,11 @@ export default function StyleMisuseForm({
       </View>
 
       <View as="div" margin="medium 0">
-        <Button color="primary" onClick={handleSubmit} interaction={(!pending && activeIssue.issue?.status !== 2) ? 'enabled' : 'disabled'}>
+        <Button color="primary" onClick={handleSubmit} interaction={(!pending && activeIssue?.status !== 2) ? 'enabled' : 'disabled'}>
           {('1' == pending) && <Spinner size="x-small" renderTitle={buttonLabel} />}
           {t(buttonLabel)}
         </Button>
-        {activeIssue && activeIssue.issue?.recentlyUpdated &&
+        {activeIssue && activeIssue?.recentlyUpdated &&
           <View margin="0 small">
             <IconCheckMarkLine color="success" />
             <View margin="0 x-small">{t('label.fixed')}</View>

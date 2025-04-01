@@ -168,7 +168,8 @@ const goToWord = (word) => {
         <Button
           color="primary"
           onClick={handleButton}
-          interaction={(!pending && sensoryErrors.length == 0 && props.activeIssue.status !== 2) ? 'enabled' : 'disabled'}
+          disabled={pending || sensoryErrors.length > 0 || activeIssue.status === 2}
+          className={pending || sensoryErrors.length > 0 || activeIssue.status === 2 ? 'btn' : 'btn btn-primary'}
         >
           {('1' == pending) && <Spinner size="x-small" renderTitle={props.t(buttonLabel)} />}
           {props.t(buttonLabel)}
