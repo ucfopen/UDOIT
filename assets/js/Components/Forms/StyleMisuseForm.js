@@ -8,14 +8,22 @@ import { Spinner } from '@instructure/ui-spinner'
 import * as Html from '../../Services/Html'
 import * as Contrast from '../../Services/Contrast'
 
-export default function StyleMisuseForm(props) {
+export default function StyleMisuseForm({
+  t,
+  settings,
+  activeIssue,
+  handleIssueSave,
+  addMessage,
+  handleActiveIssue,
+  handleManualScan
+}) {
+  const [html, setHtml] = useState(Html.getIssueHtml(activeIssue.issue))
+  console.log(html)
   const [useBold, setUseBold] = useState(isBold())
   const [useItalics, setUseItalics] = useState(isItalicized())
   const [removeStyling, setRemoveStyling] = useState(false)
   const [checkBoxErrors, setCheckBoxErrors] = useState([])
-  const [styleAttribute, setStyleAttribute] = useState(Html.getAttribute(Html.getIssueHtml(props.activeIssue), "style"))
-  
-  console.log(styleAttribute)
+  const [styleAttribute, setStyleAttribute] = useState(Html.getAttribute(Html.getIssueHtml(activeIssue.issue), "style"))
 
   let formErrors = []
 
@@ -24,12 +32,15 @@ export default function StyleMisuseForm(props) {
   }, [])
 
   useEffect(() => {
-    setUseBold(isBold())
-    setUseItalics(isItalicized())
-    setCheckBoxErrors([])
+    if (activeIssue?.issue) {
+      setUseBold(isBold())
+      setUseItalics(isItalicized())
+      setCheckBoxErrors([])
+      setStyleAttribute(Html.getAttribute(Html.getIssueHtml(activeIssue.issue), "style"))
+    }
 
     formErrors = []
-  }, [props.activeIssue])
+  }, [activeIssue])
 
   useEffect(() => {
     updatePreview()
@@ -53,17 +64,17 @@ export default function StyleMisuseForm(props) {
   }
 
   function handleSubmit() {
-    let issue = props.activeIssue
+    let issue = activeIssue.issue
 
     if (cssEmphasisIsValid(issue)) {
-      let issue = props.activeIssue
+      let issue = activeIssue.issue
       issue.newHtml = Contrast.convertHtmlRgb2Hex(issue.newHtml)
-      props.handleIssueSave(issue)
+      handleIssueSave(issue)
     }
     else {
       // push errors
       formErrors = []
-      formErrors.push({ text: `${props.t('form.contrast.must_select')}` , type: 'error' })
+      formErrors.push({ text: `${t('form.contrast.must_select')}`, type: 'error' })
 
       setCheckBoxErrors(formErrors)
     }
@@ -78,7 +89,7 @@ export default function StyleMisuseForm(props) {
 
     element.innerHTML = (useBold) ? `<strong>${element.innerHTML}</strong>` : element.innerHTML
     element.innerHTML = (useItalics) ? `<em>${element.innerHTML}</em>` : element.innerHTML
-    
+
     if (removeStyling) {
       Html.removeAttribute(element, "style")
     }
@@ -90,33 +101,45 @@ export default function StyleMisuseForm(props) {
   }
 
   function updatePreview() {
-    let issue = props.activeIssue
-    const html = Html.getIssueHtml(props.activeIssue)
-
-    issue.newHtml = processHtml(html)
-    props.handleActiveIssue(issue)
+    if (activeIssue.issue) {
+      let issue = activeIssue.issue
+      const html = Html.getIssueHtml(activeIssue.issue)
+  
+      issue.newHtml = processHtml(html)
+      handleActiveIssue(issue)
+    }
   }
 
   function isBold() {
-    const issue = props.activeIssue
-    const metadata = (issue.metadata) ? JSON.parse(issue.metadata) : {}
-    const html = Html.getIssueHtml(props.activeIssue)
-    const element = Html.toElement(html)
+    if (activeIssue.issue) {
+      const issue = activeIssue.issue
+      console.log("CHECKING BOLD ISSUE")
+      console.log(issue)
+      const metadata = (issue.metadata) ? JSON.parse(issue.metadata) : {}
+      const html = Html.getIssueHtml(activeIssue.issue)
+      const element = Html.toElement(html)
 
-    return ((Html.hasTag(element, 'strong')) || (metadata.fontWeight === 'bold'))
+      return ((Html.hasTag(element, 'strong')) || (metadata.fontWeight === 'bold'))
+    }
+    
+    return false
   }
 
   function isItalicized() {
-    const issue = props.activeIssue
-    const metadata = (issue.metadata) ? JSON.parse(issue.metadata) : {}
-    const html = Html.getIssueHtml(props.activeIssue)
-    const element = Html.toElement(html)
+    if (activeIssue.issue) {
+      const issue = activeIssue.issue
+      const metadata = (issue.metadata) ? JSON.parse(issue.metadata) : {}
+      const html = Html.getIssueHtml(activeIssue.issue)
+      const element = Html.toElement(html)
+  
+      return ((Html.hasTag(element, 'em')) || (metadata.fontStyle == 'italic'))
+    }
 
-    return ((Html.hasTag(element, 'em')) || (metadata.fontStyle == 'italic'))
+    return false
   }
 
   function hasStyleTag() {
-    const html = Html.getIssueHtml(props.activeIssue)
+    const html = Html.getIssueHtml(activeIssue.issue)
     const element = Html.toElement(html)
 
     console.log("checking style attribute")
@@ -136,21 +159,23 @@ export default function StyleMisuseForm(props) {
     return true
   }
 
-  const pending = (props.activeIssue && (props.activeIssue.pending == '1'))
+  const pending = (activeIssue.issue && (activeIssue.issue.pending == '1'))
   const buttonLabel = (pending) ? 'form.processing' : 'form.submit'
 
   return (
-    <View as="div" padding="0 x-small">
+    <div padding="0 x-small" className='pt-0 pb-0 pl-1 pr-1'>
       <div id="flash-messages" role="alert"></div>
-      <View as="div" margin="small 0">
-        <Checkbox label={props.t('form.contrast.bolden_text')}
+      <div className='mt-1 mb-1 ml-0 mr-0'>
+        <Checkbox label={t('form.contrast.bolden_text')}
           checked={useBold}
           onChange={handleBoldToggle}>
         </Checkbox>
-      </View>
+        {/* <input id='bold-checkbox' type='checkbox' name={t('form.contrast.bolden_text')} />
+        <label htmlFor='bold-checkbox'>{t('form.contrast.bolden_text')}</label> */}
+      </div>
 
       <View as="div" margin="small 0">
-        <Checkbox label={props.t('form.contrast.italicize_text')}
+        <Checkbox label={t('form.contrast.italicize_text')}
           checked={useItalics}
           onChange={handleItalicsToggle}
           messages={checkBoxErrors}>
@@ -158,7 +183,7 @@ export default function StyleMisuseForm(props) {
       </View>
 
       <View as="div" margin="small 0">
-        {/* TOOD: use props.t */}
+        {/* TOOD: use t */}
         <Checkbox label={"Remove styling from element"}
           checked={removeStyling}
           onChange={handleStyleToggle}
@@ -167,17 +192,17 @@ export default function StyleMisuseForm(props) {
       </View>
 
       <View as="div" margin="medium 0">
-        <Button color="primary" onClick={handleSubmit} interaction={(!pending && props.activeIssue.status !== 2) ? 'enabled' : 'disabled'}>
+        <Button color="primary" onClick={handleSubmit} interaction={(!pending && activeIssue.issue?.status !== 2) ? 'enabled' : 'disabled'}>
           {('1' == pending) && <Spinner size="x-small" renderTitle={buttonLabel} />}
-          {props.t(buttonLabel)}
+          {t(buttonLabel)}
         </Button>
-        {props.activeIssue.recentlyUpdated &&
+        {activeIssue && activeIssue.issue?.recentlyUpdated &&
           <View margin="0 small">
             <IconCheckMarkLine color="success" />
-            <View margin="0 x-small">{props.t('label.fixed')}</View>
+            <View margin="0 x-small">{t('label.fixed')}</View>
           </View>
         }
       </View>
-    </View>
+    </div>
   )
 }
