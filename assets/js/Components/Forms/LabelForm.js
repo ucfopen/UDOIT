@@ -2,8 +2,6 @@ import React, { useEffect, useState } from 'react'
 import { View } from '@instructure/ui-view'
 import { TextInput } from '@instructure/ui-text-input'
 import { Button } from '@instructure/ui-buttons'
-import { IconCheckMarkLine } from '@instructure/ui-icons'
-import { Checkbox } from '@instructure/ui-checkbox'
 import { Spinner } from '@instructure/ui-spinner'
 import * as Html from '../../Services/Html'
 
@@ -18,6 +16,7 @@ export default function LabelForm(props) {
 
   const [textInputValue, setTextInputValue] = useState(element && element.getAttribute("aria-label") ? element.getAttribute("aria-label") : "")
   const [textInputErrors, setTextInputErrors] = useState([])
+  const [ariaLabelExists, setAriaLabelExists] = useState((element && element.getAttribute("aria-label")) != null)
 
   let formErrors = []
 
@@ -47,10 +46,15 @@ export default function LabelForm(props) {
   const handleHtmlUpdate = () => {
     let updatedElement = Html.toElement(html)
 
-    if (textInputValue) {
+    if (ariaLabelExists) {
       updatedElement = Html.setAttribute(updatedElement, "aria-label", textInputValue)
-    } 
-
+      setAriaLabelExists(true)
+    }
+    else {
+      updatedElement = Html.removeAttribute(updatedElement)
+      setAriaLabelExists(true)
+    }
+    
     let issue = props.activeIssue
     issue.newHtml = Html.toString(updatedElement)
     props.handleActiveIssue(issue)
