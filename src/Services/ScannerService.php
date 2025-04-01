@@ -15,7 +15,9 @@ use App\Response\ApiResponse;
 
 use DOMDocument;
 
-// Main scanner class, expects a phpAlly-styled JSON report from whichever scanner is run 
+use Symfony\Component\Console\Output\ConsoleOutput;
+
+// Main scanner class, expects a phpAlly-styled JSON report from whichever scanner is run
 
 class ScannerService {
 
@@ -30,12 +32,13 @@ class ScannerService {
                 'content' => $message,
             ],
         ];
-        
+
         $context = stream_context_create($options);
         file_get_contents("http://host.docker.internal:3000/log", false, $context);
     }
 
     public function scanContentItem(ContentItem $contentItem, $scannerReport = null, $util = null) {
+        $printOutput = new ConsoleOutput();
         // Optional argument scannerReport is used when handling async Equal Access
         // requests, so then all we have to do is just make those into a UDOIT report
         $scanner = $_ENV['ACCESSIBILITY_CHECKER'];
@@ -51,6 +54,15 @@ class ScannerService {
             }
             else if ($scanner == 'equalaccess_local') {
                 // TODO: create a LocalAccessibilityService
+                if ($contentItem->getBody() != null) {
+                    $equalAccess = new EqualAccessService();
+                    $document = $this->getDomDocument($contentItem->getBody());
+
+                    $localReport = new LocalApiAccessibilityService();
+                    $json = $localReport->scanContentItem($contentItem);
+                    $printOutput->writeln("Json response: " . json_encode($json, JSON_PRETTY_PRINT));
+                    $report = $equalAccess->generateReport($json, $document);
+                }
             }
             else if ($scanner == 'equalaccess_lambda') {
                 if ($contentItem->getBody() != null) {
@@ -58,9 +70,12 @@ class ScannerService {
                     $document = $this->getDomDocument($contentItem->getBody());
                     if (!$scannerReport) {
                         // Report is null, we need to call the lambda function for a single page most likely
-                        // $this->logToServer("null $scannerReport!");
                         $asyncReport = new AsyncEqualAccessReport();
                         $json = $asyncReport->postSingleAsync($contentItem);
+                        // OR we can send it to the local scanner, make sure you have the container in the Docker compose file
+                        // $localReport = new LocalApiAccessibilityService();
+                        // $json = $localReport->scanContentItem($contentItem);
+                        $printOutput->writeln("Json response: " . json_encode($json, JSON_PRETTY_PRINT));
                         $report = $equalAccess->generateReport($json, $document);
                     }
                     else {

@@ -15,6 +15,7 @@ use App\Services\ScannerService;
 use CidiLabs\PhpAlly\PhpAllyIssue;
 use Doctrine\Persistence\ManagerRegistry;
 
+use Symfony\Component\Console\Output\ConsoleOutput;
 class LmsFetchService {
 
     /** @var App\Services\LmsApiService $lmsApi */
@@ -238,6 +239,8 @@ class LmsFetchService {
     // Performs PHPAlly scan on each Content Item.
     public function scanContentItems(array $contentItems)
     {
+        $printOutput = new ConsoleOutput();
+
         $scanner = $_ENV['ACCESSIBILITY_CHECKER'];
         $equalAccessReports = null;
 
@@ -257,7 +260,8 @@ class LmsFetchService {
             try {
                 // Scan the content item with the scanner set in the environment.
                 $report = $this->scanner->scanContentItem($contentItem, $equalAccessReports == null ? null : $equalAccessReports[$index++], $this->util);
-
+                $printOutput->writeln("Finished Scan");
+                $printOutput->writeln($report);
                 if ($report) {
                     // TODO: Do something with report errors
                     if (count($report->getErrors())) {

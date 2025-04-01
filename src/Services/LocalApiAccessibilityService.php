@@ -8,7 +8,7 @@ use DOMDocument;
 
 /*
     Sends a POST request to a local accessibility-checker server (at port 3000)
-    and returns the Equal Access JSON report. 
+    and returns the Equal Access JSON report.
 */
 
 class LocalApiAccessibilityService {
@@ -24,17 +24,18 @@ class LocalApiAccessibilityService {
             return;
         }
 
-        $data = $this->checkMany($html, [], []); 
+        $data = $this->checkMany($html, [], []);
 
         return $data;
     }
 
     public function postData(string $url, string $html) {
+        $jsonPayload = json_encode(["html" => $html, "guidelineIds" => "WCAG_2_1"]);
         $options = [
             'http' => [
-                'header' => "Content-type: text/html\r\n",
+                'header' => "Content-type: text/json\r\n",
                 'method' => 'POST',
-                'content' => $html,
+                'content' => $jsonPayload,
             ],
         ];
 
@@ -46,7 +47,7 @@ class LocalApiAccessibilityService {
 
     public function checkMany($content, $ruleIds = [], $options = []) {
         $document = $this->getDomDocument($content);
-        $response = $this->postData("http://host.docker.internal:3000/check", $document->saveHTML());
+        $response = $this->postData("http://host.docker.internal:3000/scan", $document->saveHTML());
         $json = json_decode($response, true);
         return $json;
     }

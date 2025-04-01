@@ -67,8 +67,21 @@ services:
       command: >
         bash -c '
         cd /app &&
-        yarn install && 
+        yarn install &&
         yarn build --watch'
+
+# Experimental Equal Access container
+  ace:
+      container_name: udoit3-ace
+      build:
+        context: ./equal-access-server
+        dockerfile: Dockerfile
+      ports:
+        - "3000:3000"
+      volumes:
+        - ./:/app
+      env_file:
+        - .env
 
 volumes:
   web:
