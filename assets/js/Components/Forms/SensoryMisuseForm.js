@@ -171,11 +171,11 @@ export default function SensoryMisuseForm({
         </div>
         : <></>}
 
-      <div className='m-0'>
+      <div className='mt-3'>
         <button
           onClick={handleButton}
           disabled={pending || sensoryErrors.length > 0 || activeIssue.status === 2}
-          className={pending || sensoryErrors.length > 0 || activeIssue.status === 2 ? 'btn' : 'btn btn-primary'}
+          className={pending || sensoryErrors.length > 0 || activeIssue.status === 2 ? 'btn btn-secondary btn-disabled' : 'btn btn-primary'}
         >
           {/* {('1' == pending) && <Spinner size="x-small" renderTitle={t(buttonLabel)} />} */}
           {t(buttonLabel)}
