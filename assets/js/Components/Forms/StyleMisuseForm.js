@@ -17,8 +17,6 @@ export default function StyleMisuseForm({
   handleActiveIssue,
   handleManualScan
 }) {
-  const [html, setHtml] = useState(Html.getIssueHtml(activeIssue))
-  console.log(html)
   const [useBold, setUseBold] = useState(isBold())
   const [useItalics, setUseItalics] = useState(isItalicized())
   const [removeStyling, setRemoveStyling] = useState(false)
@@ -58,8 +56,6 @@ export default function StyleMisuseForm({
 
   function handleStyleToggle() {
     setRemoveStyling(!removeStyling)
-    console.log("style tag:")
-    console.log(styleAttribute)
     updatePreview()
   }
 
@@ -113,8 +109,6 @@ export default function StyleMisuseForm({
   function isBold() {
     if (activeIssue) {
       const issue = activeIssue
-      console.log("CHECKING BOLD ISSUE")
-      console.log(issue)
       const metadata = (issue.metadata) ? JSON.parse(issue.metadata) : {}
       const html = Html.getIssueHtml(activeIssue)
       const element = Html.toElement(html)
@@ -141,9 +135,6 @@ export default function StyleMisuseForm({
   function hasStyleTag() {
     const html = Html.getIssueHtml(activeIssue)
     const element = Html.toElement(html)
-
-    console.log("checking style attribute")
-    console.log(Html.getAttribute(element, "style"))
 
     return true
 
