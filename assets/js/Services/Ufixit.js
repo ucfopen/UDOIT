@@ -11,7 +11,6 @@ import EmphasisForm from '../Components/Forms/EmphasisForm'
 import LabelForm from '../Components/Forms/LabelForm'
 import QuoteForm from '../Components/Forms/QuoteForm'
 import EmbeddedContentTitleForm from '../Components/Forms/EmbeddedContentTitleForm'
-import StyleMisuseForm from '../Components/Forms/StyleMisuseForm'
 import SensoryMisuseForm from '../Components/Forms/SensoryMisuseForm'
 import AriaRoleForm from '../Components/Forms/AriaRoleForm'
 
@@ -50,7 +49,6 @@ const UfixitForms = {
   frame_title_exists: EmbeddedContentTitleForm,
   media_alt_exists: EmbeddedContentTitleForm,
   // text_quoted_correctly: QuoteForm,
-  style_color_misuse: StyleMisuseForm,
   text_sensory_misuse: SensoryMisuseForm,
   a_text_purpose: AnchorText,
 }
