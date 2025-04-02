@@ -3,7 +3,6 @@ import { View } from '@instructure/ui-view'
 import { Flex } from '@instructure/ui-flex'
 import { Text } from '@instructure/ui-text'
 import { Heading } from '@instructure/ui-heading'
-// import { Button } from '@instructure/ui-buttons'
 
 import Api from '../Services/Api'
 import { Spinner } from '@instructure/ui-spinner'
@@ -104,15 +103,15 @@ export default function ReportsPage({t, report, settings}) {
             settings={settings}
             t={t} /> */}
         </View>
-        <View as="div" margin="large 0">
+        {/* <View as="div" margin="large 0">
           <ReportsTable
             reports={reports}
             t={t}
           />
-        </View>
+        </View> */}
         <View as="div" margin="large auto 0 0" display="flex" justifyContent="right">
-          <button margin="0" color="primary">Export Report</button>
-          <button margin="0" color="primary">Print Report</button>
+          <button margin="0" color="white" background="#2C8AC1">Export Report</button>
+          <button margin="0" color="white" background="#2C8AC1">Print Report</button>
         </View>
       </View>
     )
