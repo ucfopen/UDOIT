@@ -7,7 +7,6 @@ import { Heading } from '@instructure/ui-heading'
 import Api from '../Services/Api'
 import { Spinner } from '@instructure/ui-spinner'
 
-import IssuesReport from './Reports/IssuesReport'
 import ResolutionsReport from './Reports/ResolutionsReport'
 import ReportsTable from './Reports/ReportsTable'
 import IssuesTable from './Reports/IssuesTable'
@@ -98,7 +97,6 @@ export default function ReportsPage({t, report, settings}) {
         <View as="div" margin="0 0 large 0">
           <Flex justifyItems="space-between" alignItems="start">
             <Flex.Item width="28%" padding="0">
-              {/* <IssuesReport t={t} reports={reports} /> */}
               <h3>Options</h3>
               <p>
                 <input 
@@ -134,17 +132,17 @@ export default function ReportsPage({t, report, settings}) {
           </Flex>
         </View>
         <View as="div" margin="large 0">
-          {/* <IssuesTable
+          <IssuesTable
             issues={issues}
             settings={settings}
-            t={t} /> */}
+            t={t} />
         </View>
-        {/* <View as="div" margin="large 0">
+        <View as="div" margin="large 0">
           <ReportsTable
             reports={reports}
             t={t}
           />
-        </View> */}
+        </View>
         <View as="div" margin="large auto 0 0" display="flex" justifyContent="right">
           <button margin="0" color="white" background="#2C8AC1">Export Report</button>
           <button margin="0" color="white" background="#2C8AC1">Print Report</button>
