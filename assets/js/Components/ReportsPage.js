@@ -16,6 +16,11 @@ export default function ReportsPage({t, report, settings}) {
 
   const [reports, setReports] = useState([])
   const [issues, setIssues] = useState([])
+  const [chartVisibility, setChartVisibility] = useState({
+    issues: true,
+    potentialIssues: true,
+    suggestions: true
+  })
 
   const getReportHistory = () => {
     const api = new Api(settings)
@@ -70,6 +75,13 @@ export default function ReportsPage({t, report, settings}) {
     setIssues(processIssues(report))
   }, [report])
 
+  const toggleChartVisibility = (chart) => {
+    setChartVisibility(prevState => ({
+      ...prevState,
+      [chart]: !prevState[chart]
+    }))
+  }
+
   if (reports.length === 0) {
     return (
       <View as="div" padding="small 0">
@@ -88,12 +100,36 @@ export default function ReportsPage({t, report, settings}) {
             <Flex.Item width="28%" padding="0">
               {/* <IssuesReport t={t} reports={reports} /> */}
               <h3>Options</h3>
-              <p><input type="checkbox" id="issuesToggle"></input><label htmlFor="issuesToggle"> Show issues</label></p>
-              <p><input type="checkbox" id="potentialIssuesToggle"></input><label htmlFor="potentialIssuesToggle"> Show potential issues</label></p>
-              <p><input type="checkbox" id="suggestionsToggle"></input><label htmlFor="suggestionsToggle"> Show suggestions</label></p>
+              <p>
+                <input 
+                  type="checkbox" 
+                  id="issuesToggle" 
+                  checked={chartVisibility.issues} 
+                  onChange={() => toggleChartVisibility('issues')}
+                />
+                <label htmlFor="issuesToggle"> Show issues</label>
+              </p>
+              <p>
+                <input 
+                  type="checkbox" 
+                  id="potentialIssuesToggle" 
+                  checked={chartVisibility.potentialIssues} 
+                  onChange={() => toggleChartVisibility('potentialIssues')}
+                />
+                <label htmlFor="potentialIssuesToggle"> Show potential issues</label>
+              </p>
+              <p>
+                <input 
+                  type="checkbox" 
+                  id="suggestionsToggle" 
+                  checked={chartVisibility.suggestions} 
+                  onChange={() => toggleChartVisibility('suggestions')}
+                />
+                <label htmlFor="suggestionsToggle"> Show suggestions</label>
+              </p>
             </Flex.Item>
             <Flex.Item width="70%" padding="0">
-              <ResolutionsReport t={t} reports={reports} />
+              <ResolutionsReport t={t} reports={reports} visibility={chartVisibility} />
             </Flex.Item>
           </Flex>
         </View>

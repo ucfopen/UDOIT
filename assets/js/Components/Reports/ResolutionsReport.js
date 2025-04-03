@@ -21,6 +21,7 @@ class ResolutionsReport extends React.Component {
   }
 
   getChartData() {
+    const { visibility } = this.props
     let data = {
       labels: [],
       datasets: [
@@ -30,6 +31,7 @@ class ResolutionsReport extends React.Component {
           fill: false,
           backgroundColor: '#BA0000',
           borderColor: '#BA0000',
+          hidden: !visibility.issues
         },
         {
           label: this.props.t('label.filter.severity.potential'),
@@ -37,6 +39,7 @@ class ResolutionsReport extends React.Component {
           fill: false,
           backgroundColor: '#D9A600',
           borderColor: '#D9A600',
+          hidden: !visibility.potentialIssues
         },
         {
           label: this.props.t('label.filter.severity.suggestion'),
@@ -44,6 +47,7 @@ class ResolutionsReport extends React.Component {
           fill: false,
           backgroundColor: '#2C8AC1',
           borderColor: '#2C8AC1',
+          hidden: !visibility.suggestions
         }
       ]
     }
