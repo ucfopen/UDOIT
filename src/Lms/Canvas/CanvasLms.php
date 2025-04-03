@@ -802,7 +802,7 @@ class CanvasLms implements LmsInterface {
         return ($a['id'] > $b['id']) ? 1 : -1;
     }
 
-    public function updateCourseContent(Course $course, User $user, LmsFetchService $lmsFetchServiceObject, $authToken): array
+    public function updateCourseContent(Course $course, User $user, LmsFetchService $lmsFetchServiceObject): array
     {
         $baseUrl = $_ENV['BASE_URL'];
 
@@ -904,13 +904,11 @@ class CanvasLms implements LmsInterface {
                         $lmsFetchServiceObject->deleteContentItemIssues($contentItemSingle);
 
                         $printOutput->writeln("scanning content item");
-                        $printOutput->writeln("authToken" . $authToken);
                         // gives time to buffer the request
 
                         $scanPromises[$contentItem->getId()] = $clientForScan->request('GET', 'http://host.docker.internal:8000' . '/api/sync/content/' . $contentItem->getId(), [
                             'headers' => [
                                 'Content-Type' => 'application/json',
-                                'X-AUTH-TOKEN' => $authToken, // Make sure $authToken contains the correct token
                             ]
                         ]);
 

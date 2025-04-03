@@ -126,7 +126,7 @@ class LmsFetchService {
     // }
 
     // Uses async calls to refresh content from the LMS
-    public function asyncRefreshLmsContent(Course $course, User $user, $authToken)
+    public function asyncRefreshLmsContent(Course $course, User $user)
     {
         $lms = $this->lmsApi->getLms($user);
 
@@ -150,7 +150,7 @@ class LmsFetchService {
         // BEGIN ASYNC CHANGES
 
         /* Update content items from LMS */
-        $lms->updateCourseContent($course, $user, $this, $authToken);
+        $lms->updateCourseContent($course, $user, $this);
 
         // /* Step 2: Update report from all active issues */
         $this->updateReport($course, $user);

@@ -25,12 +25,10 @@ class SyncController extends ApiController
     protected $util;
 
     #[Route('/api/sync/{course}', name: 'request_sync')]
-    public function requestSync(Course $course, LmsFetchService $lmsFetch, Request $request) {
+    public function requestSync(Course $course, LmsFetchService $lmsFetch) {
         $response = new ApiResponse();
         $user = $this->getUser();
         $reportArr = false;
-
-        $authToken = $request->headers->get('X-AUTH-TOKEN');
 
         try {
             if (!$this->userHasCourseAccess($course)) {
@@ -44,7 +42,7 @@ class SyncController extends ApiController
                 throw new \Exception('msg.sync.course_inactive');
             }
 
-            $lmsFetch->asyncRefreshLmsContent($course, $user, $authToken);
+            $lmsFetch->asyncRefreshLmsContent($course, $user);
 
             $report = $course->getLatestReport();
 
@@ -77,12 +75,11 @@ class SyncController extends ApiController
     }
 
     #[Route('/api/sync/rescan/{course}', name: 'full_rescan')]
-    public function fullCourseRescan(Course $course, LmsFetchService $lmsFetch, Request $request){
+    public function fullCourseRescan(Course $course, LmsFetchService $lmsFetch){
         $response = new ApiResponse();
         $user = $this->getUser();
         $reportArr = false;
 
-        $authToken = $request->headers->get('X-AUTH-TOKEN');
         try {
             if (!$this->userHasCourseAccess($course)) {
                 throw new \Exception('msg.no_permissions');
@@ -99,7 +96,7 @@ class SyncController extends ApiController
 
             $course->removeAllReports();
 
-            $lmsFetch->asyncRefreshLmsContent($course, $user, $authToken);
+            $lmsFetch->asyncRefreshLmsContent($course, $user);
 
             $report = $course->getLatestReport();
 
