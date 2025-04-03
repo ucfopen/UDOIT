@@ -23,17 +23,19 @@ export default function AdminApp(initialData) {
     accountId: accountId,
     termId: initialData.settings.defaultTerm,
     includeSubaccounts: true,
+    courseId: null
   }
 
   const [messages, setMessages] = useState(initialData.messages || [])
   const [settings, setSettings] = useState(initialData.settings || null)
   const [courses, setCourses] = useState({})
+  const [selectedCourse, setSelectedCourse] = useState(null)
   const [filters, setFilters] = useState({...initialFilters})
   const [searchTerm, setSearchTerm] = useState('')
   const [accountData, setAccountData] = useState([])
   const [navigation, setNavigation] = useState('courses')
   const [modal, setModal] = useState(null)
-  const [loadingContent, setLoadingContent] = useState(true)
+  const [loadingCourses, setLoadingCourses] = useState(true)
   const [trayOpen, setTrayOpen] = useState(false)
 
   const t = useCallback((key) => {
@@ -41,7 +43,7 @@ export default function AdminApp(initialData) {
   }, [settings.labels])
 
   const loadCourses = (filters) => {
-    setLoadingContent(true)
+    setLoadingCourses(true)
 
     const api = new Api(settings)
     api.getAdminCourses(filters)
@@ -54,12 +56,18 @@ export default function AdminApp(initialData) {
           })
           setCourses(courses)
         }
-        setLoadingContent(false)
+        setLoadingCourses(false)
       })
   }
 
   const handleNavigation = (navigation) => {
+    setSelectedCourse(null)
     setNavigation(navigation)
+  }
+
+  const handleReportClick = (course) => {
+    setSelectedCourse(course)
+    setNavigation('reports')
   }
 
   const addMessage = (msg) => {
@@ -89,28 +97,6 @@ export default function AdminApp(initialData) {
     setCourses(tempCourses)
   }
 
-  const handleTrayToggle = () => {
-    setTrayOpen(!trayOpen)
-  }
-
-  const renderFilterTags = () => {
-    const accounts = settings.accounts
-    const selectedAccountId = filters.accountId
-    const terms = settings.terms
-    const selectedTermId = filters.termId
-
-    return (
-      <div className="flex-row gap-3 mt-2">
-        { accounts && accounts[selectedAccountId] &&
-          <div>{`${t('label.admin.account')}: ${accounts[selectedAccountId].name}`}</div>
-        }
-        { terms && terms[selectedTermId] &&
-          <div>{`${t('label.admin.term')}: ${terms[selectedTermId]}`}</div>
-        }
-      </div>
-    )
-  }
-
   return (
     <div>
       <AdminHeader
@@ -120,15 +106,17 @@ export default function AdminApp(initialData) {
         handleNavigation={handleNavigation}
       />
 
-      <AdminFilters
-        t={t}
-        settings={settings}
-        filters={filters}
-        handleFilter={handleFilter}
-        loadingContent={loadingContent}
-        searchTerm={searchTerm}
-        handleSearchTerm={setSearchTerm}
-      />
+      { (navigation !== 'reports') &&
+        <AdminFilters
+          t={t}
+          settings={settings}
+          filters={filters}
+          handleFilter={handleFilter}
+          loadingContent={loadingCourses}
+          searchTerm={searchTerm}
+          handleSearchTerm={setSearchTerm}
+        />
+      }
 
       <MessageTray
         t={t}
@@ -137,18 +125,18 @@ export default function AdminApp(initialData) {
         hasNewReport={true}
       />
 
-      {loadingContent &&
+      {loadingCourses &&
         <div className="mt-3 flex-row justify-content-center">
           <div className="flex-column justify-content-center me-3">
-            <ProgressIcon className="icon-lg primary-dark spinner" />
+            <ProgressIcon className="icon-lg primary spinner" />
           </div>
           <div className="flex-column justify-content-center">
-            <h1 className="mt-0 mb-0">{t('label.loading')}</h1>
+            <h2 className="mt-0 mb-0">{t('label.loading')}</h2>
           </div>
         </div>
       }
 
-      { !loadingContent && (
+      { !loadingCourses && (
         <>
           
           {('courses' === navigation) &&
@@ -159,6 +147,8 @@ export default function AdminApp(initialData) {
               searchTerm={searchTerm}
               addMessage={addMessage}
               handleCourseUpdate={handleCourseUpdate}
+              handleReportClick={handleReportClick}
+              handleNavigation={handleNavigation}
             />
           }
           {('reports' === navigation) &&
@@ -166,15 +156,14 @@ export default function AdminApp(initialData) {
               t={t}
               settings={settings}
               filters={filters}
-              handleFilter={handleFilter}
-              handleTrayToggle={handleTrayToggle}
-              renderFilterTags={renderFilterTags}
+              selectedCourse={selectedCourse}
             />
           }
           {('users' === navigation) &&
             <UsersPage
               t={t}
               settings={settings}
+              searchTerm={searchTerm}
               accountId={accountId}
               termId={filters.termId}
             />

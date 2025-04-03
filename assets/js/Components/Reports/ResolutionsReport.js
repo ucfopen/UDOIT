@@ -1,45 +1,34 @@
-import React from 'react'
-import { View } from '@instructure/ui-view'
-import { Heading } from '@instructure/ui-heading'
+import React, { useState, useEffect } from 'react'
 import { Line } from '@reactchartjs/react-chart.js'
 
-class ResolutionsReport extends React.Component {
-  constructor(props) {
-    super(props)
-  }
+export default function ResolutionsReport({
+  t,
+  reports
+}) {
+  
+  const [data, setData] = useState(null)
+  const [options, setOptions] = useState(null)
 
-  render() {
-    const data = this.getChartData()
-    const options = this.getChartOptions()
-
-    return (
-      <View as="div" margin="medium 0">
-        <Heading level="h4" as="h3" margin="small 0">{this.props.t('label.plural.resolution')}</Heading>
-        <Line data={data} options={options} />
-      </View>
-    )
-  }
-
-  getChartData() {
+  const getChartData = () => {
     let data = {
       labels: [],
       datasets: [
         {
-          label: this.props.t('label.content_fixed'),
+          label: t('label.content_fixed'),
           data: [],
           fill: false,
           backgroundColor: '#00AC18',
           borderColor: '#00AC18',
         },
         {
-          label: this.props.t('label.content_resolved'),
+          label: t('label.content_resolved'),
           data: [],
           fill: false,
           backgroundColor: '#008EE2',
           borderColor: '#008EE2',
         },
         {
-          label: this.props.t('label.files_reviewed'),
+          label: t('label.files_reviewed'),
           data: [],
           fill: false,
           backgroundColor: '#8B969E',
@@ -48,7 +37,7 @@ class ResolutionsReport extends React.Component {
       ]
     }
 
-    for (let report of this.props.reports) {
+    for (let report of reports) {
       data.labels.push(report.created)
 
       data.datasets[0].data.push(report.contentFixed)
@@ -59,7 +48,7 @@ class ResolutionsReport extends React.Component {
     return data
   }
 
-  getChartOptions() {
+  const getChartOptions = () => {
     return {
       scales: {
         yAxes: [
@@ -72,6 +61,92 @@ class ResolutionsReport extends React.Component {
       }
     }
   }
+
+  useEffect(() => {
+    setData(getChartData())
+    setOptions(getChartOptions())
+  }, [])
+
+  return (
+    <div className="mt-0 me-0 mb-0 ms-0" >
+      <div className="flex-row justify-content-center mb-2">
+        <h2 className="mt-0 mb-0">{t('label.plural.resolution')}</h2>
+      </div>
+      <Line data={data} options={options} />
+    </div>
+  )
 }
 
-export default ResolutionsReport
+// class ResolutionsReport extends React.Component {
+
+
+
+//   render() {
+//     const data = this.getChartData()
+//     const options = this.getChartOptions()
+
+//     return (
+//       <div className="mt-0 me-0 mb-0 ms-0" >
+//         <div className="flex-row justify-content-center mb-2">
+//           <h2 className="mt-0 mb-0">{this.props.t('label.plural.resolution')}</h2>
+//         </div>
+//         <Line data={data} options={options} />
+//       </div>
+//     )
+//   }
+
+//   getChartData() {
+//     let data = {
+//       labels: [],
+//       datasets: [
+//         {
+//           label: t('label.content_fixed'),
+//           data: [],
+//           fill: false,
+//           backgroundColor: '#00AC18',
+//           borderColor: '#00AC18',
+//         },
+//         {
+//           label: t('label.content_resolved'),
+//           data: [],
+//           fill: false,
+//           backgroundColor: '#008EE2',
+//           borderColor: '#008EE2',
+//         },
+//         {
+//           label: t('label.files_reviewed'),
+//           data: [],
+//           fill: false,
+//           backgroundColor: '#8B969E',
+//           borderColor: '#8B969E',
+//         }
+//       ]
+//     }
+
+//     for (let report of reports) {
+//       data.labels.push(report.created)
+
+//       data.datasets[0].data.push(report.contentFixed)
+//       data.datasets[1].data.push(report.contentResolved)
+//       data.datasets[2].data.push(report.filesReviewed)
+//     }
+
+//     return data
+//   }
+
+//   getChartOptions() {
+//     return {
+//       scales: {
+//         yAxes: [
+//           {
+//             ticks: {
+//               beginAtZero: true
+//             },
+//           },
+//         ],
+//       }
+//     }
+//   }
+// }
+
+// export default ResolutionsReport

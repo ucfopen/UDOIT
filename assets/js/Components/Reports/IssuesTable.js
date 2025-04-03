@@ -1,85 +1,76 @@
-import React from 'react'
+import React, { useState, useEffect } from 'react'
 import SortableTable from '../SortableTable'
-import { View } from '@instructure/ui-view'
-import { Heading } from '@instructure/ui-heading'
 
-class IssuesTable extends React.Component {
-    constructor(props) {
-        super(props)
+export default function IssuesTable({
+  t,
+  issues,
+  isAdmin
+}) {
 
-        this.headers = [
-            { id: "label", text: this.props.t('label.issue') },
-            { id: "type", text: this.props.t('label.issue_type')},
-            { id: "active", text: this.props.t('label.active') },
-            { id: "fixed", text: this.props.t('label.fixed') },
-            { id: "resolved", text: this.props.t('label.resolved') },
-        ];
+  const headers = [
+    { id: "label", text: t('label.issue') },
+    { id: "type", text: t('label.issue_type')},
+    { id: "active", text: t('label.active') },
+    { id: "fixed", text: t('label.fixed') },
+    { id: "resolved", text: t('label.resolved') },
+  ]
 
-        if (this.props.isAdmin) {
-            this.headers.push({ id: "courses", text: this.props.t('label.admin.courses') })
-        }
+  if (isAdmin) {
+    headers.push({ id: "courses", text: t('label.admin.courses') })
+  }
 
-        // adding this as the last col of the table
-        this.headers.push({ id: "total", text: this.props.t('label.report.total') })
+  // The "total" is always the last column of the table
+  headers.push({ id: "total", text: t('label.report.total') })
 
-        this.state = {
-            tableSettings: {
-                sortBy: 'total',
-                ascending: false,
-                pageNum: 0,
-            }
-        }
-    }
-    
-    handleTableSettings = (setting) => {
-        this.setState({
-            tableSettings: Object.assign({}, this.state.tableSettings, setting)
-        });
-    }
+  const [tableSettings, setTableSettings] = useState({
+    sortBy: 'total',
+    ascending: false,
+    pageNum: 0,
+  })
+  const [rows, setRows] = useState([])
 
-    getContent() {
-        let { issues } = this.props
-        let rows = (issues) ? Object.values(issues) : []
-        const { sortBy, ascending } = this.state.tableSettings
-        
-        rows = rows.map((row) => {
-            row.label = this.props.t(`rule.label.${row.id}`)
-            return row
-        })
+  const getContent = () => {
 
-        rows.sort((a, b) => {
-            if (isNaN(a[sortBy]) || isNaN(b[sortBy])) {
-                return (a[sortBy].toLowerCase() < b[sortBy].toLowerCase()) ? -1 : 1
-            }
-            else {
-                return (Number(a[sortBy]) < Number(b[sortBy])) ? -1 : 1
-            }
-        })
+    let tempRows = (issues) ? Object.values(issues) : []
+    const { sortBy, ascending } = tableSettings 
 
-        if (!ascending) {
-            rows.reverse()
-        }
+    tempRows = tempRows.map((row) => {
+      row.label = t(`rule.label.${row.id}`)
+      return row
+    })
 
-        return rows
+    tempRows.sort((a, b) => {
+      if (isNaN(a[sortBy]) || isNaN(b[sortBy])) {
+        return (a[sortBy].toLowerCase() < b[sortBy].toLowerCase()) ? -1 : 1
+      }
+      else {
+        return (Number(a[sortBy]) < Number(b[sortBy])) ? -1 : 1
+      }
+    })
+
+    if (!ascending) {
+      tempRows.reverse()
     }
 
-    render() {
-        const rows = this.getContent();
+    return tempRows
+  }
 
-        return (
-            <View as="div">
-                <Heading as="h3" level="h4" margin="small 0">{this.props.t(`label.admin.report.by_issue`)}</Heading>
-                <SortableTable
-                    caption={this.props.t('label.admin.report.by_issue')}
-                    headers={this.headers}
-                    rows={rows}
-                    tableSettings={this.state.tableSettings}
-                    handleTableSettings={this.handleTableSettings}
-                    t={this.props.t}
-                />
-            </View>
-        )
-    }
+  const handleTableSettings = (setting) => {
+    setTableSettings(Object.assign({}, tableSettings, setting))
+  }
+
+  useEffect(() => {
+    setRows(getContent())
+  }, [tableSettings, issues])
+
+  return (
+    <SortableTable
+      caption={t('label.admin.report.by_issue')}
+      headers={headers}
+      rows={rows}
+      tableSettings={tableSettings}
+      handleTableSettings={handleTableSettings}
+      t={t}
+    />
+  )
 }
-
-export default IssuesTable

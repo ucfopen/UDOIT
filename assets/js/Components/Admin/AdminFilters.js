@@ -18,7 +18,6 @@ export default function AdminFilters({
   
   // When the "settings" are loaded, create the Account and Term dropdown options
   useEffect(() => {
-    console.log(settings)
     let tempAccountOptions = []
     for (const acct of Object.values(settings.accounts)) {
       tempAccountOptions.push({
@@ -36,8 +35,6 @@ export default function AdminFilters({
       })
     }
     setTermOptions(tempTermOptions)
-    console.log(tempAccountOptions)
-    console.log(tempTermOptions)
   }, [settings])
 
   const handleAccountSelect = (newValue) => {
@@ -53,7 +50,7 @@ export default function AdminFilters({
   }
 
   return (
-    <div className="filter-container mt-2 mb-2">
+    <div className="filter-container mb-2">
       <div className="flex-row flex-wrap gap-1">
         <div className="search-group">
           <input
