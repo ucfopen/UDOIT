@@ -1,10 +1,4 @@
-import React, { act, useEffect, useState } from 'react'
-import { View } from '@instructure/ui-view'
-import { TextInput } from '@instructure/ui-text-input'
-import { Button } from '@instructure/ui-buttons'
-import { IconCheckMarkLine } from '@instructure/ui-icons'
-import { Checkbox } from '@instructure/ui-checkbox'
-import { Spinner } from '@instructure/ui-spinner'
+import React, { useEffect, useState } from 'react'
 import ProgressIcon from '../Icons/ProgressIcon'
 import ResolvedIcon from '../Icons/ResolvedIcon'
 import * as Html from '../../Services/Html'
@@ -21,9 +15,7 @@ export default function StyleMisuseForm({
 }) {
   const [useBold, setUseBold] = useState(() => isBold())
   const [useItalics, setUseItalics] = useState(() => isItalicized())
-  // const [removeStyling, setRemoveStyling] = useState(false)
   const [checkBoxErrors, setCheckBoxErrors] = useState([])
-  // const [styleAttribute, setStyleAttribute] = useState(Html.getAttribute(Html.getIssueHtml(activeIssue), "style"))
 
   let formErrors = []
 
@@ -40,7 +32,6 @@ export default function StyleMisuseForm({
       setUseBold(isBold())
       setUseItalics(isItalicized())
       setCheckBoxErrors([])
-      // setStyleAttribute(Html.getAttribute(Html.getIssueHtml(activeIssue), "style"))
     }
 
     formErrors = []
@@ -60,11 +51,6 @@ export default function StyleMisuseForm({
     updatePreview()
   }
 
-  // function handleStyleToggle() {
-  //   setRemoveStyling(!removeStyling)
-  //   updatePreview()
-  // }
-
   function handleSubmit() {
     let issue = activeIssue
 
@@ -82,18 +68,6 @@ export default function StyleMisuseForm({
     }
   }
 
-  // function removeStylingAttribute(element) {
-  //   // remove styling recursively from all children (if they exist)
-  //   let children = element.children
-  //   if (children.length > 0) {
-  //     for (let i = 0; i < children.length; i++) {
-  //       removeStylingAttribute(children[i])
-  //     }
-  //   }
-
-  //   Html.removeAttribute(element, "style")
-  // }
-
   function processHtml(html) {
     let element = Html.toElement(html)
 
@@ -103,13 +77,6 @@ export default function StyleMisuseForm({
 
     element.innerHTML = (useBold) ? `<strong>${element.innerHTML}</strong>` : element.innerHTML
     element.innerHTML = (useItalics) ? `<em>${element.innerHTML}</em>` : element.innerHTML
-
-    // if (removeStyling) {
-    //   removeStylingAttribute(element)
-    // }
-    // else {
-    //   Html.setAttribute(element, "style", styleAttribute)
-    // }
 
     return Html.toString(element)
   }
@@ -139,13 +106,6 @@ export default function StyleMisuseForm({
 
     return ((Html.hasTag(element, 'em')) || (metadata.fontStyle == 'italic'))
   }
-
-  // function hasStyleTag() {
-  //   const html = Html.getIssueHtml(activeIssue)
-  //   const element = Html.toElement(html)
-
-  //   return (Html.getAttribute(element, "style") != null)
-  // }
 
   function cssEmphasisIsValid(issue) {
     if (issue.scanRuleId === 'style_color_misuse') {
@@ -191,19 +151,6 @@ export default function StyleMisuseForm({
           }
         </div>
       </form>
-
-      {/* TODO: removeStyling would be cool IF IT WORKED */}
-      {/* <div className='mt-1 mb-1 ml-0 mr-0'>
-        <input id='styling-checkbox' type='checkbox' name={"Remove styling from element"} checked={removeStyling} onChange={handleStyleToggle}/>
-        <label htmlFor='styling-checkbox'>{"Remove styling from element"}</label>
-        {checkBoxErrors.forEach((error) => {
-          if (error.type === 'error') {
-            return <span className='text-danger'>{error.text}</span>
-          }
-        }
-        )}
-      </div> */}
-
     </div>
   )
 }
