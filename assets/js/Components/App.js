@@ -46,7 +46,7 @@ export default function App(initialData) {
   // `t` is used for text/translation. It will return the translated string if it exists
   // in the settings.labels object.
   const t = useCallback((key) => {
-    return (settings.labels[key]) ? settings.labels[key] : key
+    return (settings.labels[key] && settings.labels[key] !== '') ? settings.labels[key] : key
   }, [settings.labels])
 
   const scanCourse = useCallback(() => {
