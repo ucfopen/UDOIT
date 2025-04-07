@@ -18,9 +18,10 @@ use GuzzleHttp\Psr7\Response;
 use Psr\Http\Message\RequestInterface;
 
 use GuzzleHttp\Psr7\Request;
+use Symfony\Component\Console\Output\ConsoleOutput;
 
 // Take in a bundle of ContentItems and
-// send asynchronous requests to a Lambda function's API gateway 
+// send asynchronous requests to a Lambda function's API gateway
 
 class AsyncEqualAccessReport {
     private $client;
@@ -53,7 +54,7 @@ class AsyncEqualAccessReport {
                 'content' => $message,
             ],
         ];
-        
+
         $context = stream_context_create($options);
         file_get_contents("http://host.docker.internal:3000/log", false, $context);
     }
@@ -77,6 +78,7 @@ class AsyncEqualAccessReport {
     }
 
     public function postMultipleArrayAsync(array $contentItems): array {
+        $printOutput = new ConsoleOutput();
         $promises = [];
         $contentItemsReport = [];
 
@@ -105,7 +107,7 @@ class AsyncEqualAccessReport {
             $html = $contentItem->getBody();
             $document = $this->getDomDocument($html)->saveHTML();
             array_push($htmlArray, $document);
-            
+
             $counter++;
         }
 
@@ -128,9 +130,12 @@ class AsyncEqualAccessReport {
         $errors = 0;
 
         foreach ($results as $result) {
-            // Every "block" of reports pages should be in a stringified 
+            // Every "block" of reports pages should be in a stringified
             // JSON, so we need to decode the JSON to be able to iterate through
-            // it first.}
+            // it first.
+
+            $printOutput->writeln("Checking result...");
+            // $printOutput->writeln($result);
 
             if (isset($result["value"])) {
                 $response = json_decode($result["value"]->getBody()->getContents(), true);
@@ -142,6 +147,8 @@ class AsyncEqualAccessReport {
             // $this->logToServer($result["value"]->getBody()->getContents());
 
             foreach ($response as $report) {
+                // $printOutput->writeln("Saving to contentItemsReport...");
+                // $printOutput->writeln(json_encode($report, JSON_PRETTY_PRINT));
                 // $this->logToServer(json_encode($report));
                 $contentItemsReport[] = $report;
             }
@@ -158,9 +165,9 @@ class AsyncEqualAccessReport {
         $promises = [];
 
         $client = new Client();
-        
+
         // Iterate through each scannable Canvas page and add a new
-        // POST request to our array of promises 
+        // POST request to our array of promises
         foreach ($contentItems as $contentItem) {
             // $this->logToServer("Checking: {$contentItem->getTitle()}");
             // Clean up the content item's HTML document
@@ -171,7 +178,7 @@ class AsyncEqualAccessReport {
             $payload = json_encode(["html" => $document]);
             $request = $this->createRequest($payload);
             $signedRequest = $this->sign($request);
-            
+
             $promises[] = $client->sendAsync($signedRequest);
         }
 
@@ -196,7 +203,7 @@ class AsyncEqualAccessReport {
     public function postSingleAsync(ContentItem $contentItem) {
         $client = new Client();
         $report = null;
-        
+
         // Clean up the content item's HTML document
         // and create a payload to send
         $html = $contentItem->getBody();
@@ -206,7 +213,7 @@ class AsyncEqualAccessReport {
         $request = $this->createRequest($payload);
         $signedRequest = $this->sign($request);
 
-        // POST document to Lambda and wait for fulfillment 
+        // POST document to Lambda and wait for fulfillment
         // $this->logToServer("Sending to single promise...");
         $promise = $client->sendAsync($signedRequest);
         $response = $promise->wait();
