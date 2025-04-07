@@ -11,7 +11,7 @@ import EmphasisForm from '../Components/Forms/EmphasisForm'
 import LabelForm from '../Components/Forms/LabelForm'
 import QuoteForm from '../Components/Forms/QuoteForm'
 import EmbeddedContentTitleForm from '../Components/Forms/EmbeddedContentTitleForm'
-import StyleMisuseForm from '../Components/Forms/StyleMisuseForm'
+import SensoryMisuseForm from '../Components/Forms/SensoryMisuseForm'
 import AriaRoleForm from '../Components/Forms/AriaRoleForm'
 
 const UfixitForms = {
@@ -41,6 +41,19 @@ const UfixitForms = {
   img_alt_valid: AltText,
   aria_application_labelled: LabelForm,
   aria_application_label_unique: LabelForm,
+  aria_banner_label_unique: LabelForm,
+  aria_accessiblename_exists: LabelForm,
+  aria_landmark_name_unique: LabelForm,
+  aria_article_label_unique: LabelForm,
+  aria_complementary_label_unique: LabelForm,
+  aria_contentinfo_label_unique: LabelForm,
+  aria_document_label_unique: LabelForm,
+  aria_form_label_unique: LabelForm,
+  aria_main_label_unique: LabelForm,
+  aria_navigation_label_unique: LabelForm,
+  aria_region_label_unique: LabelForm,
+  aria_search_label_unique: LabelForm,
+  aria_toolbar_label_unique: LabelForm,
   aria_role_valid: AriaRoleForm,
   text_contrast_sufficient: ContrastForm,
   text_block_heading: HeadingStyleForm,
@@ -49,7 +62,8 @@ const UfixitForms = {
   frame_title_exists: EmbeddedContentTitleForm,
   media_alt_exists: EmbeddedContentTitleForm,
   // text_quoted_correctly: QuoteForm,
-  style_color_misuse: StyleMisuseForm,
+  text_sensory_misuse: SensoryMisuseForm,
+  a_text_purpose: AnchorText,
 }
 
 export function returnIssueForm(activeIssue) {

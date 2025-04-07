@@ -164,6 +164,22 @@ body {
   gap: 2rem;
 }
 
+.m-0 {
+  margin: 0 !important;
+}
+
+.m-1 {
+  margin: calc(0.25 * var(--spacer)) !important;
+}
+
+.m-2 {
+  margin: calc(0.5 * var(--spacer)) !important;
+}
+
+.m-3 {
+  margin: var(--spacer) !important;
+}
+
 .mt-0 {
   margin-top: 0 !important;
 }
@@ -226,6 +242,21 @@ body {
 
 .mr-3, .me-3 {
   margin-right: var(--spacer) !important;
+}
+
+.p-0 {
+  padding: 0 !important;
+}
+
+.p-1 {
+  padding: calc(0.25 * var(--spacer)) !important;
+}
+.p-2 {
+  padding: calc(0.5 * var(--spacer)) !important;
+}
+
+.p-3 {
+  padding: calc(var(--spacer)) !important;
 }
 
 .pt-0 {
@@ -349,6 +380,24 @@ h1, h2, h3, h4, h5, h6 {
 .disabled {
   color: var(--gray);
   fill: var(--gray);
+}
+
+.tag {
+  font-family: 'Reddit Sans', sans-serif;
+  padding: .15rem 0.5rem;
+  border-radius: 50px;
+  cursor: pointer;
+  box-sizing: border-box;
+  border: 2px solid gray;
+  font-weight: 600;
+  font-size: 1rem;
+  width: fit-content;
+
+  &:focus {
+    outline-color: var(--link-color);
+    outline-offset: 3px;
+    outline-width: 2px;
+  }
 }
 
 .btn {

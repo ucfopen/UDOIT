@@ -8,7 +8,7 @@ if (!Encore.isRuntimeEnvironmentConfigured()) {
   Encore.configureRuntimeEnvironment(process.env.NODE_ENV || 'dev')
 }
 
-
+// TODO: verify if we should be copying tinymce like this?
 Encore.setOutputPath('public/build')
   .setPublicPath(process.env.WEBPACK_PUBLIC_PATH || '/build')
   .setManifestKeyPrefix('build')
@@ -17,7 +17,12 @@ Encore.setOutputPath('public/build')
 
   .addPlugin(new CopyWebpackPlugin({
     patterns: [
-      { from: './assets/mediaAssets', to: 'static'}
+      { from: './assets/mediaAssets', to: 'static'},
+      {
+        context: './node_modules/tinymce/',
+        from: '**/*.min.{js,css,woff}',
+        to: 'static/tinymce/[path][name].[ext]'
+      }
     ]
   }))
 

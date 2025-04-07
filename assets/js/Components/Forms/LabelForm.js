@@ -2,13 +2,10 @@ import React, { useEffect, useState } from 'react'
 import { View } from '@instructure/ui-view'
 import { TextInput } from '@instructure/ui-text-input'
 import { Button } from '@instructure/ui-buttons'
-import { IconCheckMarkLine } from '@instructure/ui-icons'
-import { Checkbox } from '@instructure/ui-checkbox'
 import { Spinner } from '@instructure/ui-spinner'
 import * as Html from '../../Services/Html'
 
 export default function LabelForm(props) {
-
   let html = props.activeIssue.newHtml ? props.activeIssue.newHtml : props.activeIssue.sourceHtml
   
   if (props.activeIssue.status === '1') {
@@ -17,9 +14,9 @@ export default function LabelForm(props) {
 
   let element = Html.toElement(html)
 
-  const [textInputValue, setTextInputValue] = useState(element ? Html.getAttribute(element, "aria-label") : "")
-  // const [deleteLabel, setDeleteLabel] = useState(!element && (props.activeIssue.status === "1"))
+  const [textInputValue, setTextInputValue] = useState(element && element.getAttribute("aria-label") ? element.getAttribute("aria-label") : "")
   const [textInputErrors, setTextInputErrors] = useState([])
+  const [ariaLabelExists, setAriaLabelExists] = useState((element && element.getAttribute("aria-label")) != null)
 
   let formErrors = []
 
@@ -30,8 +27,13 @@ export default function LabelForm(props) {
     }
 
     let element = Html.toElement(html)
-    setTextInputValue(element ? Html.getAttribute(element, "aria-label") : "")
-    // setDeleteLabel(!element && props.activeIssue.status === 1)
+
+    if (element && element.getAttribute("aria-label")) {
+      setTextInputValue(element.getAttribute("aria-label"))
+    }
+    else {
+      setTextInputValue("")
+    }
 
     formErrors = []
 
@@ -44,27 +46,22 @@ export default function LabelForm(props) {
   const handleHtmlUpdate = () => {
     let updatedElement = Html.toElement(html)
 
-    updatedElement = Html.setAttribute(updatedElement, "aria-label", textInputValue)
-
-    // if (deleteLabel) {
-    //   updatedElement = Html.removeAttribute(updatedElement, "aria-label")
-    // }
-    // else {
-    //   updatedElement = Html.setAttribute(updatedElement, "aria-label", textInputValue)
-    // }
-
+    if (ariaLabelExists) {
+      updatedElement = Html.setAttribute(updatedElement, "aria-label", textInputValue)
+      setAriaLabelExists(true)
+    }
+    else {
+      updatedElement = Html.removeAttribute(updatedElement)
+      setAriaLabelExists(true)
+    }
+    
     let issue = props.activeIssue
     issue.newHtml = Html.toString(updatedElement)
     props.handleActiveIssue(issue)
-
   }
 
   const handleButton = () => {
     formErrors = []
-
-    // if (!deleteLabel) {
-    //   checkTextNotEmpty()
-    // }
 
     checkTextNotEmpty()
     checkLabelIsUnique()
@@ -79,13 +76,7 @@ export default function LabelForm(props) {
 
   const handleInput = (event) => {
     setTextInputValue(event.target.value)
-    // handleHtmlUpdate()
   }
-
-  // const handleCheckbox = () => {
-  //   setDeleteLabel(!deleteLabel)
-  //   // handleHtmlUpdate()
-  // }
 
   const checkTextNotEmpty = () => {
     const text = textInputValue.trim().toLowerCase()
@@ -107,7 +98,6 @@ export default function LabelForm(props) {
         formErrors.push({ text: "Cannot reuse label text.", type: "error" })
       }
     }
-
   }
 
   const pending = props.activeIssue && props.activeIssue.pending == "1"
@@ -123,19 +113,9 @@ export default function LabelForm(props) {
           onChange={handleInput}
           value={textInputValue}
           id="textInputValue"
-          // disabled={deleteLabel}
           messages={textInputErrors}
         />
       </View>
-      {/* <View>
-        <View as='span' display='inline-block'>
-          <Checkbox 
-            label='form.label.remove_label' 
-            checked={deleteLabel}
-            onChange={handleCheckbox}
-          />
-        </View>
-      </View> */}
       <View as='div' margin='small 0'>
         <Button 
           color='primary' 
