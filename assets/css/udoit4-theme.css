@@ -388,7 +388,7 @@ h1, h2, h3, h4, h5, h6 {
   border-radius: 50px;
   cursor: pointer;
   box-sizing: border-box;
-  border: 2px solid gray;
+  border: 2px solid var(--gray);
   font-weight: 600;
   font-size: 1rem;
   width: fit-content;
@@ -397,6 +397,17 @@ h1, h2, h3, h4, h5, h6 {
     outline-color: var(--link-color);
     outline-offset: 3px;
     outline-width: 2px;
+  }
+
+  &:hover,
+  &:focus {
+    background-color: var(--gray-light);
+    outline-color: var(--gray-dark);
+  }
+
+  &:active {
+    background-color: var(--gray-lightest);
+    outline-color: var(--gray-dark);
   }
 }
 

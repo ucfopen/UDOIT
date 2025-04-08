@@ -1,13 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react'
-import { View } from '@instructure/ui-view'
-import { TextInput } from '@instructure/ui-text-input'
-import { Button } from '@instructure/ui-buttons'
-import { IconCheckMarkLine } from '@instructure/ui-icons'
-import { Checkbox } from '@instructure/ui-checkbox'
-import { Spinner } from '@instructure/ui-spinner'
-import { Pill } from '@instructure/ui-pill'
 import * as Html from '../../Services/Html'
-import { Tag } from '@instructure/ui-tag'
 
 import { Editor } from '@tinymce/tinymce-react'
 
@@ -174,8 +166,8 @@ export default function SensoryMisuseForm({
       <div className='mt-3'>
         <button
           onClick={handleButton}
-          disabled={pending || sensoryErrors.length > 0 || activeIssue.status === 2}
-          className={pending || sensoryErrors.length > 0 || activeIssue.status === 2 ? 'btn btn-secondary btn-disabled' : 'btn btn-primary'}
+          disabled={pending || sensoryErrors.length > 0 || activeIssue.status == 2}
+          className={pending || sensoryErrors.length > 0 || activeIssue.status == 2 ? 'btn btn-secondary btn-disabled' : 'btn btn-primary'}
         >
           {/* {('1' == pending) && <Spinner size="x-small" renderTitle={t(buttonLabel)} />} */}
           {t(buttonLabel)}
