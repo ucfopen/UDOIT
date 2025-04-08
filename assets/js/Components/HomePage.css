@@ -1,0 +1,51 @@
+@import '../../css/udoit4-theme.css';
+
+/* instances of fake report should be changed once an actual report can be generated and used. */
+.report-container {
+    display: flex;
+    /* flex-direction: column; */
+    background-color: #F7F7F7;
+    border-radius: 15px;
+    padding: 15px;
+    width: 50%;
+    overflow: wrap;
+    border-style: solid;
+    border-color: #D3D7DB;
+    justify-content: space-between;
+    align-items: center;
+    /* margin: 0; */
+}
+
+.div-label-button, .progress-heading{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.issues-report, .potential-issues-report, .suggestions-report {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 10px;
+    overflow: auto;
+}
+
+.errors-progress-bar{
+    margin-left: auto;
+    float: right;
+}
+
+p{
+    float: left;
+    /* width: 75%; */
+}
+
+button {
+    /* width: 25%; */
+    margin-left: auto;
+    float: right;
+    text-wrap: nowrap;
+}
+
+p, button{
+    display: inline-block;
+}

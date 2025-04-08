@@ -1,7 +1,9 @@
 import React, { useState, useCallback, useEffect } from 'react'
-import WelcomePage from './WelcomePage'
-import Header from './Header'
+// import WelcomePage from './WelcomePage'
 import HomePage from './HomePage'
+// import Header from './Header'
+import NewHeader from './NewHeader'
+// import HomePage from './HomePage'
 import SummaryPage from './SummaryPage'
 import ContentPage from './ContentPage'
 import FixIssuesPage from './FixIssuesPage'
@@ -39,7 +41,7 @@ export default function App(initialData) {
   const [sections, setSections] = useState([])
 
   const [appFilters, setAppFilters] = useState({})
-  const [navigation, setNavigation] = useState('welcome')
+  const [navigation, setNavigation] = useState('home')
   const [modal, setModal] = useState(null)
   const [syncComplete, setSyncComplete] = useState(false)
   const [hasNewReport, setHasNewReport] = useState(false)
@@ -96,10 +98,12 @@ export default function App(initialData) {
         }
       })
     }
+
     if (data.data && data.data.id) {
       newReport = data.data
       newHasNewReport = true
     }
+    console.log('newReport: ', newReport)
     setSyncComplete(true)
     setHasNewReport(newHasNewReport)
     setReport(newReport)
@@ -202,7 +206,7 @@ export default function App(initialData) {
       if (settings.user.roles.includes('ROLE_ADVANCED_USER')) {
         if (initialData.report) {
           setReport(initialData.report)
-          setNavigation('summary')
+          setNavigation('home')
         }
       }
     }
@@ -221,7 +225,7 @@ export default function App(initialData) {
 
   return (
     <View as="div">
-      <Header
+      <NewHeader
         t={t}
         settings={settings}
         hasNewReport={hasNewReport}
@@ -231,29 +235,29 @@ export default function App(initialData) {
         handleFullCourseRescan={handleFullCourseRescan}
         handleModal={handleModal} />
 
+      {(('home' !== navigation) && ('summary' !== navigation)) &&
+        <SummaryBar t={t} report={report} />
+      }
+
       <MessageTray t={t} messages={messages} clearMessages={clearMessages} hasNewReport={syncComplete} />
 
       <main role="main">
+        {/* {('welcome' === navigation) &&
+          <WelcomePage
+            t={t}
+            settings={settings}
+            setSettings={setSettings}
+            hasNewReport={hasNewReport}
+            handleNavigation={handleNavigation} />
+        } */}
         {('home' === navigation) &&
           <HomePage
             t={t}
             settings={settings}
-            report={report} />
-        }
-        {('welcome' === navigation) &&
-          <>
-            <WelcomePage
-              t={t}
-              settings={settings}
-              setSettings={setSettings}
-              hasNewReport={hasNewReport}
-              handleNavigation={handleNavigation} />
-            <div className="flex-row gap-1 mt-1">
-              <button className="btn btn-primary" onClick={() => quickIssues('ISSUE')}>Fix Issues</button>
-              <button className="btn btn-primary" onClick={() => quickIssues('POTENTIAL')}>Fix Potential Issues</button>
-              <button className="btn btn-primary" onClick={() => quickIssues('SUGGESTION')}>Fix Suggestions</button>
-            </div>
-          </>
+            setSettings={setSettings}
+            report={report}
+            hasNewReport={hasNewReport}
+            handleNavigation={handleNavigation} />
         }
         {('summary' === navigation) &&
           <>
@@ -328,3 +332,5 @@ export default function App(initialData) {
     </View>
   )
 }
+
+

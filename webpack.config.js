@@ -27,7 +27,11 @@ Encore.setOutputPath('public/build')
   .enableSourceMaps(!Encore.isProduction())
   .configureCssLoader((options) => {
     options.modules = {
+<<<<<<< Updated upstream
       auto: (resourcePath) => resourcePath.endsWith('.module.css')
+=======
+      auto: (resourcePath) => resourcePath.endsWith('.module.css'),
+>>>>>>> Stashed changes
     }
   })
   // .enablePostCssLoader()
