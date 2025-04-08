@@ -49,15 +49,4 @@ The following classes are available for various icon colors. If you need the hex
 
 ### Spinners
 
-To make a progress animation or other icon spin, give it the `spinner` class. For example, a button with a spinner icon inside is on the new WelcomePage.js.
-
-```
-<button className="btn btn-disabled flex-row">
-  <div className="flex-column justify-content-center">
-    <ProgressIcon className="icon-sm gray spinner" />
-  </div>
-  <div className="flex-column justify-content-center ms-3">
-    Scanning Course... Please Wait
-  </div>
-</button>
-```
+To make a progress animation or other icon spin, wrap it in a parent `<div>` (make sure it's the only child), and give the parent the `spinner` class.
