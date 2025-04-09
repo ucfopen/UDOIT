@@ -1,10 +1,7 @@
 <?php
-
 namespace App\Message;
 
-use App\Message\QueueItemInterface;
-
-final class FullRescanMessage implements QueueItemInterface
+class FullRescanMessage implements QueueItemInterface
 {
     private int $courseId;
     private int $userId;
@@ -15,23 +12,25 @@ final class FullRescanMessage implements QueueItemInterface
         $this->userId = $userId;
     }
 
-    public function getCourseId(): int
+    public function getCourseId()
     {
         return $this->courseId;
     }
 
-    public function getUserId(): int
+    public function getUserId()
     {
         return $this->userId;
     }
 
-    public function getTask(): string
+    public function getTask()
     {
-        return 'fullRescan';
+        // Return a task identifier that QueueItemHandler can switch on.
+        return 'refreshContent';
     }
 
-    public function getData(): array
+    public function getData()
     {
+        // If you need to pass additional parameters, include them here.
         return ['courseId' => $this->courseId];
     }
 }
