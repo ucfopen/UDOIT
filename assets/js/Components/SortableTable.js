@@ -91,7 +91,7 @@ export default function SortableTable({
     return (
       <div className="mt-3 flex-row justify-content-center">
         <nav
-          className="pagination flex-row gap-1"
+          className="pagination flex-row justify-content-center gap-1"
           labelNext={t('table.next_page')}
           labelPrev={t('table.prev_page')}
         >

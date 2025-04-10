@@ -5,6 +5,7 @@ import FixIssuesPage from './FixIssuesPage'
 import ReportsPage from './ReportsPage'
 import Api from '../Services/Api'
 import MessageTray from './MessageTray'
+import HomePage from './HomePage'
 
 export default function App(initialData) {
 
@@ -45,8 +46,15 @@ export default function App(initialData) {
 
   // `t` is used for text/translation. It will return the translated string if it exists
   // in the settings.labels object.
-  const t = useCallback((key) => {
-    return (settings.labels[key] && settings.labels[key] !== '') ? settings.labels[key] : key
+  const t = useCallback((key, values = {}) => {
+    let translatedText = (settings.labels[key] && settings.labels[key] !== '') ? settings.labels[key] : key
+    if (values && Object.keys(values).length > 0) {
+      Object.keys(values).forEach((key) => {
+        translatedText = translatedText.replace(`{${key}}`, values[key])
+      })
+    }
+    return translatedText
+
   }, [settings.labels])
 
   const scanCourse = useCallback(() => {
@@ -67,8 +75,7 @@ export default function App(initialData) {
     if(!issueState) {
       return
     }
-    let newSessionIssues = [...sessionIssues]
-    newSessionIssues[issueId] = issueState
+    let newSessionIssues = Object.assign({}, sessionIssues, { [issueId]: issueState})
     setSessionIssues(newSessionIssues)
   }
 
@@ -219,6 +226,7 @@ export default function App(initialData) {
       { !welcomeClosed ?
         ( <WelcomePage
             t={t}
+            settings={settings}
             syncComplete={syncComplete}
             setWelcomeClosed={setWelcomeClosed} /> ) :
         (
@@ -237,14 +245,11 @@ export default function App(initialData) {
 
             <main role="main">
               {('summary' === navigation) &&
-                <>
-                  <h1>Summary Page Information Goes Here</h1>
-                  <div className="flex-row gap-1 mt-1">
-                    <button className="btn btn-primary" onClick={() => quickIssues('ISSUE')}>Fix Issues</button>
-                    <button className="btn btn-primary" onClick={() => quickIssues('POTENTIAL')}>Fix Potential Issues</button>
-                    <button className="btn btn-primary" onClick={() => quickIssues('SUGGESTION')}>Fix Suggestions</button>
-                  </div>
-                </>
+                <HomePage
+                  t={t}
+                  report={report}
+                  hasNewReport={hasNewReport}
+                  quickIssues={quickIssues} />
               }
               {('fixIssues' === navigation) &&
                 <FixIssuesPage
@@ -268,7 +273,6 @@ export default function App(initialData) {
                   t={t}
                   settings={settings}
                   report={report}
-                  handleNavigation={handleNavigation}
                 />
               }
             </main>

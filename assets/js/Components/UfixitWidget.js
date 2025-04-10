@@ -226,7 +226,7 @@ export default function UfixitWidget({
             }
 
             {/* The "Previous", "Next", and "List View" buttons (footer nav) */}
-            <div className="flex-row justify-content-between mt-3">
+            <div className="flex-row justify-content-between mt-2">
 
               <button className={`btn text-button btn-icon-left ps-0 ${listLength < 2 ? 'disabled' : ''}`} onClick={() => nextIssue(true)}>
                 <LeftArrowIcon className={listLength < 2 ? 'gray' : 'link-color'} />

@@ -1,38 +1,48 @@
 import React, { useState, useEffect } from 'react'
 import { Line } from '@reactchartjs/react-chart.js'
 
-export default function ResolutionsReport({
+export default function ResolutionsReport ({
   t,
-  reports
+  reports,
+  visibility
 }) {
-  
-  const [data, setData] = useState(null)
-  const [options, setOptions] = useState(null)
+
+  const [chartData, setChartData] = useState(null)
+  const [chartOptions, setChartOptions] = useState(null)
 
   const getChartData = () => {
+
     let data = {
       labels: [],
       datasets: [
         {
-          label: t('label.content_fixed'),
+          label: t('label.filter.severity.issue'),
           data: [],
           fill: false,
-          backgroundColor: '#00AC18',
-          borderColor: '#00AC18',
+          backgroundColor: 'rgba(249, 65, 68, 0.5)',
+          borderColor: '#F94144',
+          tension: 0,
+          hidden: !visibility.issues
         },
         {
-          label: t('label.content_resolved'),
+          label: t('label.filter.severity.potential'),
           data: [],
           fill: false,
-          backgroundColor: '#008EE2',
-          borderColor: '#008EE2',
+          borderDash: [7, 3],
+          backgroundColor: 'rgba(247, 150, 30, 0.5)',
+          borderColor: '#F8961E',
+          tension: 0,
+          hidden: !visibility.potentialIssues
         },
         {
-          label: t('label.files_reviewed'),
+          label: t('label.filter.severity.suggestion'),
           data: [],
           fill: false,
-          backgroundColor: '#8B969E',
-          borderColor: '#8B969E',
+          borderDash: [3, 5],
+          backgroundColor: 'rgba(48, 176, 228, 0.5)',
+          borderColor: '#32B0E4',
+          tension: 0,
+          hidden: !visibility.suggestions
         }
       ]
     }
@@ -40,9 +50,9 @@ export default function ResolutionsReport({
     for (let report of reports) {
       data.labels.push(report.created)
 
-      data.datasets[0].data.push(report.contentFixed)
+      data.datasets[0].data.push(report.errors)
       data.datasets[1].data.push(report.contentResolved)
-      data.datasets[2].data.push(report.filesReviewed)
+      data.datasets[2].data.push(report.suggestions)
     }
 
     return data
@@ -50,6 +60,7 @@ export default function ResolutionsReport({
 
   const getChartOptions = () => {
     return {
+      tension: 0,
       scales: {
         yAxes: [
           {
@@ -63,90 +74,20 @@ export default function ResolutionsReport({
   }
 
   useEffect(() => {
-    setData(getChartData())
-    setOptions(getChartOptions())
+    const data = getChartData()
+    const options = getChartOptions()
+
+    setChartData(data)
+    setChartOptions(options)
   }, [])
 
+  useEffect(() => {
+    const data = getChartData()
+
+    setChartData(data)
+  }, [reports, visibility])
+
   return (
-    <div className="mt-0 me-0 mb-0 ms-0" >
-      <div className="flex-row justify-content-center mb-2">
-        <h2 className="mt-0 mb-0">{t('label.plural.resolution')}</h2>
-      </div>
-      <Line data={data} options={options} />
-    </div>
+    <Line data={chartData} options={chartOptions} />
   )
 }
-
-// class ResolutionsReport extends React.Component {
-
-
-
-//   render() {
-//     const data = this.getChartData()
-//     const options = this.getChartOptions()
-
-//     return (
-//       <div className="mt-0 me-0 mb-0 ms-0" >
-//         <div className="flex-row justify-content-center mb-2">
-//           <h2 className="mt-0 mb-0">{this.props.t('label.plural.resolution')}</h2>
-//         </div>
-//         <Line data={data} options={options} />
-//       </div>
-//     )
-//   }
-
-//   getChartData() {
-//     let data = {
-//       labels: [],
-//       datasets: [
-//         {
-//           label: t('label.content_fixed'),
-//           data: [],
-//           fill: false,
-//           backgroundColor: '#00AC18',
-//           borderColor: '#00AC18',
-//         },
-//         {
-//           label: t('label.content_resolved'),
-//           data: [],
-//           fill: false,
-//           backgroundColor: '#008EE2',
-//           borderColor: '#008EE2',
-//         },
-//         {
-//           label: t('label.files_reviewed'),
-//           data: [],
-//           fill: false,
-//           backgroundColor: '#8B969E',
-//           borderColor: '#8B969E',
-//         }
-//       ]
-//     }
-
-//     for (let report of reports) {
-//       data.labels.push(report.created)
-
-//       data.datasets[0].data.push(report.contentFixed)
-//       data.datasets[1].data.push(report.contentResolved)
-//       data.datasets[2].data.push(report.filesReviewed)
-//     }
-
-//     return data
-//   }
-
-//   getChartOptions() {
-//     return {
-//       scales: {
-//         yAxes: [
-//           {
-//             ticks: {
-//               beginAtZero: true
-//             },
-//           },
-//         ],
-//       }
-//     }
-//   }
-// }
-
-// export default ResolutionsReport

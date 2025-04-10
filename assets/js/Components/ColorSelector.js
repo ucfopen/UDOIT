@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React from 'react'
 import './ColorSelector.css'
 
 export default function ColorSelector({
@@ -6,8 +6,6 @@ export default function ColorSelector({
   updateColor
 }) {
 
-  const [detailsOpen, setDetailsOpen] = useState(false)
-  
   // The top row of colors is lighter, designed for backgrounds
   const topRowColors = [
     'FFFFFF',
@@ -37,10 +35,6 @@ export default function ColorSelector({
     'D04920',
     'BF590A',
   ]
-
-  const toggleDetails = () => {
-    setDetailsOpen(!detailsOpen)
-  }
 
   const handleKeyPressOnColor = (color) => (event) => {
     if (event.key === 'Enter' || event.key === ' ') {
@@ -72,18 +66,15 @@ export default function ColorSelector({
   }
 
   return (
-    <div className="mb-3">
-      <button className="btn-secondary" onClick={toggleDetails}>{detailsOpen ? t('label.hide_color_picker') : t('label.show_color_picker')}</button>
-      {detailsOpen && (
-        <div className="color-selector-container mt-2">
-          <div className="mb-2">
-            {renderColors(topRowColors)}
-          </div>
-          <div>
-            {renderColors(bottomRowColors, '000000')}
-          </div>
+    <div className="mb-3 flex-row justify-content-end">
+      <div className="color-selector-container mt-2">
+        <div className="mb-1">
+          {renderColors(topRowColors)}
         </div>
-      )}
+        <div>
+          {renderColors(bottomRowColors, '000000')}
+        </div>
+      </div>
     </div>
   )
 }

@@ -1,18 +1,21 @@
-import React, { useState, useEffect } from 'react';
-import DownloadIcon from './Icons/DownloadIcon';
-import ExternalLinkIcon from './Icons/ExternalLinkIcon';
-import EarIcon from './Icons/EarIcon';
-import ProgressIcon from './Icons/ProgressIcon';
+import React, { useState, useEffect } from 'react'
+import DailyProgress from './DailyProgress'
+import DownloadIcon from './Icons/DownloadIcon'
+import ExternalLinkIcon from './Icons/ExternalLinkIcon'
+import EarIcon from './Icons/EarIcon'
+import ProgressIcon from './Icons/ProgressIcon'
 import * as Html from '../Services/Html'
 
-import './FixIssuesContentPreview.css';
+import './FixIssuesContentPreview.css'
 
 export default function FixIssuesContentPreview({
   t,
   settings,
   activeIssue,
   activeContentItem,
-  editedElement
+  editedElement,
+  sessionIssues,
+  ISSUE_STATE
 }) {
 
   const [taggedContent, setTaggedContent] = useState(null)
@@ -221,7 +224,7 @@ export default function FixIssuesContentPreview({
             )}
           </div>
           <div className="ufixit-content-progress">
-            Progress bar goes here.
+            <DailyProgress t={t} sessionIssues={sessionIssues} ISSUE_STATE={ISSUE_STATE}/>
           </div>
         </>
       ) : activeIssue ? (
@@ -281,22 +284,18 @@ export default function FixIssuesContentPreview({
               </div>
             </div>
           )}
-          <div className="ufixit-content-progress">
-            Progress bar goes here.
-          </div>
+          <DailyProgress t={t} sessionIssues={sessionIssues} ISSUE_STATE={ISSUE_STATE} />
         </>
       ) : (
         <>
           <div className="ufixit-content-preview">
-              <div className="flex-row justify-content-center mt-3">
-                <div className="flex-column justify-content-center">
-                  <h2 className="mt-0 mb-0">{t('label.no_selection')}</h2>
-                </div>
+            <div className="flex-row justify-content-center mt-3">
+              <div className="flex-column justify-content-center">
+                <h2 className="mt-0 mb-0">{t('label.no_selection')}</h2>
               </div>
             </div>
-          <div className="ufixit-content-progress">
-            Progress bar goes here.
           </div>
+          <DailyProgress t={t} sessionIssues={sessionIssues} ISSUE_STATE={ISSUE_STATE} />
         </>
       )}
     </>
