@@ -20,6 +20,9 @@ use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Contracts\HttpClient\ResponseInterface;
 use Symfony\Component\HttpClient\HttpClient;
 use Symfony\Component\HttpClient\Response\StreamableInterface;
+use Symfony\Component\Messenger\MessageBusInterface;
+use App\Message\ScanContentItem;
+
 
 use Symfony\Component\Console\Output\ConsoleOutput;
 class CanvasLms implements LmsInterface {
@@ -41,6 +44,8 @@ class CanvasLms implements LmsInterface {
     /** @var SessionService $sessionService */
     private $sessionService;
 
+    private MessageBusInterface $bus;
+
     public function __construct(
         ContentItemRepository $contentItemRepo,
         FileItemRepository $fileItemRepo,
@@ -48,6 +53,7 @@ class CanvasLms implements LmsInterface {
         UtilityService $util,
         Security $security,
         SessionService $sessionService,
+        MessageBusInterface $bus
     )
     {
         $this->contentItemRepo = $contentItemRepo;
@@ -56,6 +62,7 @@ class CanvasLms implements LmsInterface {
         $this->util = $util;
         $this->security = $security;
         $this->sessionService = $sessionService;
+        $this->bus = $bus;
     }
 
     public function getId()
@@ -903,14 +910,10 @@ class CanvasLms implements LmsInterface {
                         $contentItemSingle[] = $contentItem;
                         $lmsFetchServiceObject->deleteContentItemIssues($contentItemSingle);
 
-                        $printOutput->writeln("scanning content item");
-                        // gives time to buffer the request
+                        # each content item that gets scanned, is scanned by a new worker
+                        # via messenger in php
+                        $this->bus->dispatch(new ScanContentItem($contentItem->getId()));
 
-                        $scanPromises[$contentItem->getId()] = $clientForScan->request('GET', 'http://host.docker.internal:8000' . '/api/sync/content/' . $contentItem->getId(), [
-                            'headers' => [
-                                'Content-Type' => 'application/json',
-                            ]
-                        ]);
 
                         $printOutput->writeln("scanPromises" . json_encode($scanPromises));
                     }
