@@ -72,16 +72,15 @@ services:
 
 # Experimental Equal Access container
   ace:
+      platform: linux/x86_64
       container_name: udoit3-ace
       build:
         context: ./equal-access-server
-        dockerfile: Dockerfile
+        dockerfile: Dockerfile.ace
       ports:
         - "3000:3000"
-      volumes:
-        - ./:/app
-      env_file:
-        - .env
+      environment:
+        - PORT=3000
 
 volumes:
   web:

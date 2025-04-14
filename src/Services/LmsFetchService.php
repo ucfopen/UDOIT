@@ -61,7 +61,6 @@ class LmsFetchService {
         $this->scanner = $scanner;
         $this->equalAccess = $equalAccess;
         $this->asyncReport = $asyncReport;
-        $this->scanner = $scanner;
         $this->doctrine = $doctrine;
         $this->util = $util;
     }
@@ -76,6 +75,10 @@ class LmsFetchService {
      */
     public function refreshLmsContent(Course $course, User $user)
     {
+        $printOutput = new ConsoleOutput();
+        // $printOutput->writeln("enter");
+        // return;
+        
         $lms = $this->lmsApi->getLms($user);
 
         $this->lmsUser->validateApiKey($user);
@@ -100,15 +103,20 @@ class LmsFetchService {
 
         /* Step 2: Get list of changed content items */
         $contentItems = $contentItemRepo->getUpdatedContentItems($course);
+        $printOutput->writeln("FIRST number of content items: " . count($contentItems));
 
         /* Step 3: Delete issues for updated content items */
         $this->deleteContentItemIssues($contentItems);
 
         /* Step 4: Process the updated content with PhpAlly and link to report */
+
+        $printOutput->writeln("ABOUT TO Scanning content items...");
         $this->scanContentItems($contentItems);
 
         /* Step 5: Update report from all active issues */
         $this->updateReport($course, $user);
+        $printOutput->writeln("Updated number of content items: " . count($contentItems));
+
 
         /* Save last_updated date on course */
         $course->setLastUpdated($this->util->getCurrentTime());
@@ -128,6 +136,9 @@ class LmsFetchService {
     // Uses async calls to refresh content from the LMS
     public function asyncRefreshLmsContent(Course $course, User $user)
     {
+        $printOutput = new ConsoleOutput();
+        $printOutput->writeln("enter");
+        return;
         $lms = $this->lmsApi->getLms($user);
 
         $this->lmsUser->validateApiKey($user);
@@ -240,6 +251,18 @@ class LmsFetchService {
     public function scanContentItems(array $contentItems)
     {
         $printOutput = new ConsoleOutput();
+        $printOutput->writeln("Scanning content items...");
+
+        // $testLimit = 3; // Change this number as needed
+        // if (count($contentItems) > $testLimit) {
+        //     $printOutput->writeln("⚠️ TESTING MODE: Limiting scan to {$testLimit} items (out of " . count($contentItems) . " total)");
+        //     $contentItems = array_slice($contentItems, 0, $testLimit);
+        // }
+        $printOutput->writeln("Number of content items now that its been CUT: " . count($contentItems));
+        
+        
+        
+        $printOutput->writeln("Scanning content items...");
 
         $scanner = $_ENV['ACCESSIBILITY_CHECKER'];
         $equalAccessReports = null;
@@ -250,18 +273,41 @@ class LmsFetchService {
             // $equalAccessReports = $this->asyncReport->postMultipleAsync($contentItems);
             $equalAccessReports = $this->asyncReport->postMultipleArrayAsync($contentItems);
         }
+        
+        // if ($scanner == "equalaccess_local" && count($contentItems) > 0) {
+        //     $localService = new LocalApiAccessibilityService();
+        //     $printOutput->writeln("Scanning content items with local service asyncronously...");
+        //     $jsons = $localService->scanMultipleContentItemsAsync($contentItems);
+        //     for ($i = 0; $i < count($jsons); $i++) {
+        //         $json = $jsons[$i];
+        //         $contentItem = $contentItems[$i];
+        //         $document = $this->scanner->getDomDocument($contentItem->getBody());
+        //         $report = $this->equalAccess->generateReport($json, $document);
+        //         if ($report) {
+        //             foreach ($report->getIssues() as $issue) {
+        //                 // Create issue entity
+        //                 $this->createIssue($issue, $contentItem);
+        //             }
+        //         }
+        //     }
+        //     $this->doctrine->getManager()->flush();
+        //     return;
+        // }
 
         // Scan each update content item for issues
         /** @var \App\Entity\ContentItem $contentItem */
 
-        $index = 0;
+        $index = 1;
         foreach ($contentItems as $contentItem) {
+            $printOutput->writeln("index: " . $index);
+            // $printOutput->writeln("Scanning: {$contentItem->getTitle()}");
+            $index = $index + 1;
 
             try {
                 // Scan the content item with the scanner set in the environment.
                 $report = $this->scanner->scanContentItem($contentItem, $equalAccessReports == null ? null : $equalAccessReports[$index++], $this->util);
                 $printOutput->writeln("Finished Scan");
-                $printOutput->writeln($report);
+                $printOutput->writeln($report ? "Scan completed successfully" : "No report generated");
                 if ($report) {
                     // TODO: Do something with report errors
                     if (count($report->getErrors())) {
