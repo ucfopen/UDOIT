@@ -38,13 +38,13 @@ services:
   php:
       container_name: udoit3-php
       build:
-        context: ./build/nginx
-        dockerfile: Dockerfile.php.pdo.mysql
+        context: .
+        dockerfile: build/nginx/Dockerfile.php.pdo.mysql
       volumes:
         - ./:/var/www/html
-        - type: bind
-          source: ./build/nginx/php-custom.ini
-          target: /usr/local/etc/php/conf.d/php-custom.ini
+        - ./build/supervisor/supervisord.conf:/etc/supervisor/supervisord.conf
+        - ./build/supervisor/php-fpm.conf:/etc/supervisor/conf.d/php-fpm.conf
+        - ./build/supervisor/messenger-worker.conf:/etc/supervisor/conf.d/messenger-worker.conf
       env_file:
         - .env
   composer:
@@ -69,19 +69,6 @@ services:
         cd /app &&
         yarn install &&
         yarn build --watch'
-
-# Experimental Equal Access container
-  ace:
-      container_name: udoit3-ace
-      build:
-        context: ./equal-access-server
-        dockerfile: Dockerfile
-      ports:
-        - "3000:3000"
-      volumes:
-        - ./:/app
-      env_file:
-        - .env
 
 volumes:
   web:
