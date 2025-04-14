@@ -18,7 +18,7 @@
   width: 450px;
   min-width: 450px;
   max-width: 450px;
-  overflow-y: auto;
+  overflow-y: hidden;
   overflow-x: hidden;
 
   background-color: var(--background-color);

@@ -233,6 +233,147 @@ class AdminController extends ApiController
         return new JsonResponse($apiResponse);
     }
 
+    #[Route('/api/admin/courses/{course}/reports/full', methods: ['GET'], name: 'admin_course_report')]
+    public function getAdminCourseReport(Course $course, UtilityService $util, LmsApiService $lmsApi): JsonResponse
+    {
+        $apiResponse = new ApiResponse();
+        $user = $this->getUser();
+        
+        $this->lms = $lmsApi->getLms();
+        $this->util = $util;
+        
+        try {
+            // Check if user has course access
+            if (!$this->userHasCourseAccess($course)) {
+                throw new \Exception('msg.no_permissions'); //"You do not have permission to access the specified course.");
+            }
+            
+            if ($course->isDirty()) {
+                throw new \Exception('msg.course_scanning');
+            }
+
+            $startDate = new \DateTime('today');
+            $endDate = null;
+            $oneDay = new \DateInterval('P1D');
+
+            foreach ($course->getReports() as $report) {
+                $reportDate = $report->getCreated();
+                $reportKey = $reportDate->format($util->getDateFormat());
+                
+                if (empty($rows[$course->getId()])) {
+                    $rows[$course->getId()] = [];
+                }
+                
+                $rows[$course->getId()][$reportKey] = $report;
+
+                if ($reportDate < $startDate) {
+                    $startDate = $reportDate;
+                }
+                if (!$endDate) {
+                    $endDate = $reportDate;
+                }
+                if ($reportDate > $endDate) {
+                    $endDate = $reportDate;
+                }
+            }
+
+            foreach ($course->getAllIssues() as $issue) {
+                $rule = $issue->getScanRuleId();
+                $status = $issue->getStatus();
+                if (!isset($issues[$rule])) {
+                    $issues[$rule] = [
+                        'id' => $rule,
+                        'type' => $issue->getType(),
+                        'active' => 0,
+                        'fixed' => 0,
+                        'resolved' => 0,
+                        'total' => 0,
+                        'courses' => [],
+                    ];
+                }
+
+                if (Issue::$issueStatusResolved === $status) {
+                    $issues[$rule]['resolved']++;
+                }
+                else if (Issue::$issueStatusFixed === $status) {
+                    $issues[$rule]['fixed']++;
+                }
+                else {
+                    $issues[$rule]['active']++;
+                }
+                $issues[$rule]['total']++;
+                $issues[$rule]['courses'][$course->getId()] = $course->getId();
+            }
+            foreach ($issues as $rule => $row) {
+                $issues[$rule]['courses'] = count($row['courses']);
+            }
+    
+            if ($endDate) {
+                $endDate->setTime(23, 59,0);            
+            }
+    
+            // Populate all dates with a report
+            foreach ($rows as $courseId => $reports) {
+                $currentDate = clone $startDate;
+                $currentReport = null;
+                
+                while ($currentDate <= $endDate) {
+                    $currentKey = $currentDate->format($util->getDateFormat());
+                    $currentDate->add($oneDay);
+                    
+                    if (!empty($reports[$currentKey])) {
+                        $currentReport = $reports[$currentKey];
+                        continue;
+                    }
+                    
+                    if (empty($currentReport)) {
+                        continue;
+                    }
+    
+                    $rows[$courseId][$currentKey] = $currentReport;
+                }
+                ksort($rows[$courseId]);
+            }
+    
+            foreach ($rows as $courseId => $reports) {
+                foreach ($reports as $dateKey => $reportObj) {
+                    $reportArr = $reportObj->toArray();
+                    if (empty($results[$dateKey])) {
+                        $results[$dateKey] = [
+                            'count' => 0,
+                            'errors' => 0,
+                            'suggestions' => 0,
+                            'contentFixed' => 0,
+                            'contentResolved' => 0,
+                            'filesReviewed' => 0,
+                        ];
+                    }
+    
+                    $results[$dateKey]['count']++;
+                    $results[$dateKey]['created'] = $dateKey;
+    
+                    foreach (array_keys($results[$dateKey]) as $key) {
+                        if (!empty($reportArr[$key]) && is_numeric($reportArr[$key])) {
+                            $results[$dateKey][$key] += (int) $reportArr[$key];
+                        }
+                    }
+                }
+            }
+    
+            ksort($results);
+    
+            $apiResponse->addData('reports', $results);
+            $apiResponse->addData('issues', $issues);
+            $apiResponse->addLogMessages($util->getUnreadMessages());
+            
+        } catch (\Exception $e) {
+            $apiResponse->addMessage($e->getMessage(), 'info', 0, false);
+        }
+
+        // Construct Response
+        return new JsonResponse($apiResponse);
+    }
+
     #[Route('/api/admin/courses/{course}/reports/latest', methods: ['GET'], name: 'admin_latest_report')]
     public function getAdminLatestReport(Course $course, UtilityService $util, LmsApiService $lmsApi): JsonResponse
     {

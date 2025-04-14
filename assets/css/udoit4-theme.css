@@ -3,6 +3,7 @@
 
 :root {
   --primary-color: #6AC8AC;
+  --primary-color-text: #235C4C;
   --primary-color-dark: #1B4B3C;
   --primary-color-hover: #54C091;
   --primary-color-dark-hover: #143328;
@@ -38,7 +39,7 @@
   margin: 0px 4px 4px 0px;
   padding: 0 1rem 1rem 1rem;
   border: 1px solid var(--border-color);
-  border-radius: 24px;
+  border-radius: 16px;
   box-shadow: 2px 2px 2px var(--border-color);
   min-height: 600px;
   display: flex;
@@ -50,6 +51,7 @@ body {
   margin: 0px !important;
   border-left: none !important;
   max-width: 1200px;
+  color: var(--text-color);
 }
 
 /* Bootstrap-esque classes for general use */
@@ -365,6 +367,11 @@ h1, h2, h3, h4, h5, h6 {
   fill: var(--primary-color-dark);
 }
 
+.primary-text {
+  color: var(--primary-color-text);
+  fill: var(--primary-color-text);
+}
+
 .color-link,
 .link-color {
   color: var(--link-color);
@@ -406,7 +413,8 @@ button {
 }
 
 button.disabled,
-.btn-disabled {
+.btn-disabled,
+button:disabled {
   color: var(--gray);
   fill: var(--gray);
   border-color: var(--gray-light);
@@ -454,7 +462,7 @@ button.disabled,
   text-transform: capitalize;
   background-color: transparent;
   color: var(--link-color);
-  padding: .5rem 1.5rem;
+  padding: .15rem 0.5rem;
   border-radius: 8px;
   cursor: pointer;
 
@@ -492,6 +500,12 @@ button.disabled,
   align-items: center;
 }
 
+.outline-link {
+  outline-color: var(--link-color);
+  outline-offset: 3px;
+  outline-width: 2px;
+}
+
 .icon-sm {
   width: 16px;
   height: 16px;
@@ -510,6 +524,18 @@ button.disabled,
 .icon-xl {
   width: 40px;
   height: 40px;
+}
+
+.rotate-90 {
+  transform: rotate(90deg);
+}
+
+.rotate-180 {
+  transform: rotate(180deg);
+}
+
+.rotate-270 {
+  transform: rotate(270deg);
 }
 
 .udoit-issue,
