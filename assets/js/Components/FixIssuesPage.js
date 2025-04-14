@@ -114,8 +114,11 @@ export default function FixIssuesPage({
 
     let issueSeverity = FILTER.ISSUE
     // PHPAlly returns a type of 'error' or 'suggestion'
-    if(issue.type == 'suggestion') {
+    if(issue.type === 'suggestion' || issue.type === 'SUGGESTION') {
       issueSeverity = FILTER.SUGGESTION
+    }
+    else if(issue.type === 'POTENTIAL' || issue.type === 'MANUAL') {
+      issueSeverity = FILTER.POTENTIAL
     }
     
     let issueContentType = FILTER.ALL

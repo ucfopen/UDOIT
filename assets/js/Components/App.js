@@ -104,6 +104,7 @@ export default function App(initialData) {
     }
     setSyncComplete(true)
     setHasNewReport(newHasNewReport)
+    console.log(newReport)
     setReport(newReport)
     if (newReport.contentSections) {
       setSections(newReport.contentSections)
@@ -249,7 +250,8 @@ export default function App(initialData) {
                   t={t}
                   report={report}
                   hasNewReport={hasNewReport}
-                  quickIssues={quickIssues} />
+                  quickIssues={quickIssues}
+                  handleFullCourseRescan={handleFullCourseRescan} />
               }
               {('fixIssues' === navigation) &&
                 <FixIssuesPage
@@ -275,6 +277,7 @@ export default function App(initialData) {
                   report={report}
                 />
               }
+              <button className="btn btn-primary" onClick={() => handleFullCourseRescan()}>FORCE RESCAN</button>
             </main>
           </>
         )

@@ -3,7 +3,7 @@ import ProgressBar from './ProgressBar'
 import SeverityIcon from './Icons/SeverityIcon'
 import './HomePage.css'
 
-export default function HomePage({ t, report, hasNewReport, quickIssues }) {
+export default function HomePage({ t, report, hasNewReport, quickIssues, handleFullCourseRescan }) {
 
   const [totalIssues, setTotalIssues] = useState(0)
   const [totalPotentialIssues, setTotalPotentialIssues] = useState(0)
@@ -144,6 +144,8 @@ export default function HomePage({ t, report, hasNewReport, quickIssues }) {
         </>
       )}
     </div>
+    <button onClick={() => handleFullCourseRescan()} className="btn btn-primary mt-3">
+      FORCE RESCAN</button>
   </main>
   )
 }

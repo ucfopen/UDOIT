@@ -194,7 +194,7 @@ export default function UfixitWidget({
                         settings={settings}
                         activeIssue={tempActiveIssue.issueData}
                         handleIssueSave={handleIssueSave}
-                        addMessage={addMessage} 
+                        addMessage={addMessage}
                         handleActiveIssue={handleActiveIssue}
                         handleManualScan={handleManualScan} /> )
                     }

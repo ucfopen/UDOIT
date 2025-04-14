@@ -13,7 +13,7 @@ use DOMDocument;
 
 class LocalApiAccessibilityService {
 
-    /** @var App\Service\HtmlService */
+    /** @var \App\Services\HtmlService */
     protected $htmlService;
 
 
@@ -30,11 +30,13 @@ class LocalApiAccessibilityService {
     }
 
     public function postData(string $url, string $html) {
+        $jsonPayload = json_encode(["html" => $html, "guidelineIds" => "WCAG_2_1"]);
+
         $options = [
             'http' => [
-                'header' => "Content-type: text/html\r\n",
+                'header' => "Content-type: text/json\r\n",
                 'method' => 'POST',
-                'content' => $html,
+                'content' => $jsonPayload,
             ],
         ];
 
@@ -46,7 +48,7 @@ class LocalApiAccessibilityService {
 
     public function checkMany($content, $ruleIds = [], $options = []) {
         $document = $this->getDomDocument($content);
-        $response = $this->postData("http://host.docker.internal:3000/check", $document->saveHTML());
+        $response = $this->postData("http://host.docker.internal:3000/scan", $document->saveHTML());
         $json = json_decode($response, true);
         return $json;
     }
