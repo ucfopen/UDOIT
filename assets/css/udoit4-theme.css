@@ -3,6 +3,7 @@
 
 :root {
   --primary-color: #6AC8AC;
+  --primary-color-text: #235C4C;
   --primary-color-dark: #1B4B3C;
   --primary-color-hover: #54C091;
   --primary-color-dark-hover: #143328;
@@ -38,8 +39,11 @@
   margin: 0px 4px 4px 0px;
   padding: 0 1rem 1rem 1rem;
   border: 1px solid var(--border-color);
-  border-radius: 24px;
+  border-radius: 16px;
   box-shadow: 2px 2px 2px var(--border-color);
+  min-height: 600px;
+  display: flex;
+  flex-direction: column;
 }
 
 body {
@@ -47,6 +51,7 @@ body {
   margin: 0px !important;
   border-left: none !important;
   max-width: 1200px;
+  color: var(--text-color);
 }
 
 /* Bootstrap-esque classes for general use */
@@ -323,6 +328,38 @@ body {
   padding-right: var(--spacer) !important;
 }
 
+.w-25 {
+  width: 25%;
+}
+
+.w-50 {
+  width: 50%;
+}
+
+.w-75 {
+  width: 75%;
+}
+
+.w-100 {
+  width: 100%;
+}
+
+.h-25 {
+  height: 25%;
+}
+
+.h-50 {
+  height: 50%;
+}
+
+.h-75 {
+  height: 75%;
+}
+
+.h-100 {
+  height: 100%;
+}
+
 .fw-bold {
   font-weight: 500;
 }
@@ -359,6 +396,11 @@ h1, h2, h3, h4, h5, h6 {
 .primary-dark {
   color: var(--primary-color-dark);
   fill: var(--primary-color-dark);
+}
+
+.primary-text {
+  color: var(--primary-color-text);
+  fill: var(--primary-color-text);
 }
 
 .color-link,
@@ -400,8 +442,27 @@ h1, h2, h3, h4, h5, h6 {
   }
 }
 
+button {
+  font-family: 'Reddit Sans', sans-serif;
+  padding: .15rem 0.5rem;
+  border-radius: 50px;
+  cursor: pointer;
+  box-sizing: border-box;
+  border: 2px solid gray;
+  font-weight: 600;
+  font-size: 1rem;
+  width: fit-content;
+
+  &:focus {
+    outline-color: var(--link-color);
+    outline-offset: 3px;
+    outline-width: 2px;
+  }
+}
+
 .btn {
   font-family: 'Reddit Sans', sans-serif;
+  text-transform: uppercase;
   padding: .25rem 1.5rem;
   border-radius: 50px;
   cursor: pointer;
@@ -418,8 +479,26 @@ h1, h2, h3, h4, h5, h6 {
   }
 }
 
+button.disabled,
+.btn-disabled,
+button:disabled {
+  color: var(--gray);
+  fill: var(--gray);
+  border-color: var(--gray-light);
+  background-color: var(--gray-light);
+  cursor: not-allowed !important;
+
+  &:hover,
+  &:focus {
+    border-color: var(--gray-light);
+    background-color: var(--gray-light);
+    color: var(--gray);
+    fill: var(--gray);
+    outline-color: var(--gray);
+  }
+}
+
 .btn-primary {
-  text-transform: uppercase;
   background-color: var(--primary-color);
   border-color: var(--primary-color);
   color: var(--primary-color-dark);
@@ -432,28 +511,9 @@ h1, h2, h3, h4, h5, h6 {
     color: var(--primary-color-dark-hover);
     fill: var(--primary-color-dark-hover);
   }
-
-  &.disabled,
-  &.btn-disabled {
-    color: var(--gray);
-    fill: var(--gray);
-    border-color: var(--gray-light);
-    background-color: var(--gray-light);
-    cursor: not-allowed !important;
-
-    &:hover,
-    &:focus {
-      border-color: var(--gray-light);
-      background-color: var(--gray-light);
-      color: var(--gray);
-      fill: var(--gray);
-      outline-color: var(--gray);
-    }
-  }
 }
 
 .btn-secondary {
-  text-transform: uppercase;
   border-color: var(--primary-color);
   background-color: transparent;
   color: var(--primary-color-dark);
@@ -463,28 +523,13 @@ h1, h2, h3, h4, h5, h6 {
   &:focus {
     background-color: var(--primary-color-light);
   }
-
-  &.disabled,
-  &.btn-disabled {
-    color: var(--gray);
-    fill: var(--gray);
-    border-color: var(--gray-light);
-    background-color: var(--gray-lightest);
-    opacity: 0.75;
-    cursor: not-allowed !important;
-
-    &:hover,
-    &:focus {
-      background-color: var(--gray-lightest);
-      outline-color: var(--gray);
-    }
-  }
 }
 
 .btn-text, .text-button {
+  text-transform: capitalize;
   background-color: transparent;
   color: var(--link-color);
-  padding: .5rem 1.5rem;
+  padding: .15rem 0.5rem;
   border-radius: 8px;
   cursor: pointer;
 
@@ -522,6 +567,12 @@ h1, h2, h3, h4, h5, h6 {
   align-items: center;
 }
 
+.outline-link {
+  outline-color: var(--link-color);
+  outline-offset: 3px;
+  outline-width: 2px;
+}
+
 .icon-sm {
   width: 16px;
   height: 16px;
@@ -540,6 +591,18 @@ h1, h2, h3, h4, h5, h6 {
 .icon-xl {
   width: 40px;
   height: 40px;
+}
+
+.rotate-90 {
+  transform: rotate(90deg);
+}
+
+.rotate-180 {
+  transform: rotate(180deg);
+}
+
+.rotate-270 {
+  transform: rotate(270deg);
 }
 
 .udoit-issue,

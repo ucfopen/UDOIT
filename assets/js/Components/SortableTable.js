@@ -1,103 +1,186 @@
-import React from 'react';
-import { Table } from '@instructure/ui-table'
-import { Pagination } from '@instructure/ui-pagination'
-import { View } from '@instructure/ui-view'
+import React, { useState, useEffect } from 'react'
+import SortIcon from './Icons/SortIcon'
+import SortIconFilled from './Icons/SortIconFilled'
 
-class SortableTable extends React.Component {
-    constructor (props) {
-      super(props);
-    }
-  
-    handleSort = (event, { id }) => {
-      const { sortBy, ascending } = this.props.tableSettings;
+import './SortableTable.css'
 
-      if (['status', 'action'].includes(id)) {
-        return;
-      }
+export default function SortableTable({
+  t,
+  caption,
+  headers,
+  rows,
+  tableSettings,
+  handleTableSettings,
+}) {
 
-      if (id === sortBy) {
-        this.props.handleTableSettings({ascending: !ascending});
-      } else {
-        this.props.handleTableSettings({
-          ascending: true,
-          sortBy: id
-        });
-      }
-    }
-  
-    render() {
-      this.rowsPerPage = (this.props.rowsPerPage) ? parseInt(this.props.rowsPerPage) : 10;
-      const { caption, headers, rows } = this.props
-      const start = (this.props.tableSettings.pageNum * this.rowsPerPage)
-      const { sortBy, ascending } = this.props.tableSettings
-      const direction = (ascending) ? 'ascending': 'descending'
-      let pagedRows = rows.slice(start, (start + this.rowsPerPage))
-      let pagination = this.renderPagination()
+  // The tableSettings object should contain:
+  // {
+  //   pageNum: 0,
+  //   sortBy: 'id',
+  //   ascending: true,
+  //   rowsPerPage: '10'
+  // }
 
-      return (
-        <View as="div">
-          <Table
-            caption={caption}
-            hover={true}
-          >
-            <Table.Head renderSortLabel={this.props.t('table.sort_by')}>
-              <Table.Row>
-                {(headers || []).map(({ id, text }) => (
-                  (text) ? 
-                    <Table.ColHeader
-                      key={`header${id}`}
-                      id={id}
-                      onRequestSort={this.handleSort}
-                      textAlign="start"
-                      sortDirection={id === sortBy ? direction : 'none'}
-                    >{text}</Table.ColHeader>
-                      :
-                    <Table.ColHeader key={`header${id}`} id={id} />
-                  ))}
-              </Table.Row>
-            </Table.Head>
-            <Table.Body>
-              {pagedRows.map((row) => (
-                <Table.Row key={`row${row.id}`}>
-                  {headers.map(({ id, renderCell, alignText, format }) => (
-                    <Table.Cell key={`row${row.id}cell${id}`} textAlign={alignText ? alignText : 'start'} onClick={(row.onClick) ? row.onClick : null}>
-                      {renderCell ? renderCell(row[id]) : (format) ? format(row[id]) : <View as="div" cursor={(row.onClick) ? 'pointer' : 'auto'}>{row[id]}</View>}
-                    </Table.Cell>
-                  ))}
-                </Table.Row>
-              ))}
-            </Table.Body>
-          </Table>
-          {pagination}
-        </View>
-      )
+  const [rowsPerPage, setRowsPerPage] = useState((tableSettings.rowsPerPage) ? parseInt(tableSettings.rowsPerPage) : 10)
+  const [start, setStart] = useState(tableSettings.pageNum * rowsPerPage)
+  const [sortBy, setSortBy] = useState(tableSettings.sortBy)
+  const [ascending, setAscending] = useState(tableSettings.ascending)
+  const [direction, setDirection] = useState((tableSettings.ascending) ? 'ascending': 'descending')
+  const [showPagination, setShowPagination] = useState(rows.length >= rowsPerPage)
+  const [pagedRows, setPagedRows] = useState([])
+
+  useEffect(() => {
+    const tempRowsPerPage = (tableSettings.rowsPerPage) ? parseInt(tableSettings.rowsPerPage) : 10
+    const tempShowPagination = rows.length >= tempRowsPerPage
+    const start = tempShowPagination ? tableSettings.pageNum * tempRowsPerPage : 0
+    setRowsPerPage(tempRowsPerPage)
+    setShowPagination(tempShowPagination)
+    setStart(start)
+    setSortBy(tableSettings.sortBy)
+    setAscending(tableSettings.ascending)
+    setDirection((tableSettings.ascending) ? 'ascending': 'descending')
+    setPagedRows(rows.slice(start, (start + tempRowsPerPage)))
+  }
+  , [tableSettings, rows])
+
+  const handleSort = (id) => {
+    if (['status', 'action'].includes(id)) {
+      return
     }
 
-    setPage(i) {
-      this.props.handleTableSettings({pageNum: i});
-    }
-
-    renderPagination() {
-      const pageCount = this.rowsPerPage && Math.ceil(this.props.rows.length / this.rowsPerPage);
-      const pages = Array.from(Array(pageCount)).map((v, i) => <Pagination.Page
-        key={`page${i}`}
-        onClick={() => this.setPage(i)}
-        current={i === this.props.tableSettings.pageNum}>
-        {i + 1}
-      </Pagination.Page>)
-
-      return (pageCount > 1) && (
-        <Pagination
-          as="nav"
-          margin="small"
-          variant="compact"
-          labelNext={this.props.t('table.next_page')}
-          labelPrev={this.props.t('table.prev_page')}
-        >
-          {pages}
-        </Pagination>
-      )
+    if (id === sortBy) {
+      handleTableSettings({ascending: !ascending})
+    } else {
+      handleTableSettings({
+        ascending: true,
+        sortBy: id
+      })
     }
   }
 
-  export default SortableTable;
+  const setPage = (newPageNum) => {
+    handleTableSettings({pageNum: newPageNum})
+  }
+
+  const renderPagination = () => {
+    const pageCount = rowsPerPage && Math.ceil(rows.length / rowsPerPage)
+    if(pageCount < 2) {
+      return null
+    }
+
+    // We will ALWAYS display the first and last page, which may or may not have ellipses next to them.
+    // This portion will display up to two pages on either side of the current page, but will NOT include
+    // the first page (i = 0) or the last page (i = pageCount - 1) in the list.
+    let firstPage = Math.max(1, tableSettings.pageNum - 2)
+    let lastPage = Math.min(pageCount - 2, tableSettings.pageNum + 2)
+
+    let pageNumsToDisplay = []
+    for(let i = firstPage; i <= lastPage; i++) {
+      pageNumsToDisplay.push(i)
+    }
+
+    const pages = pageNumsToDisplay.map((v, i) => <button
+      className={`paginationButton${(v === tableSettings.pageNum) ? ' selected' : ''}`}
+      key={`page${v}`}
+      onClick={() => setPage(v)}
+      current={v === tableSettings.pageNum}>
+      {v + 1}
+    </button>)
+
+    //  
+    return (
+      <div className="mt-3 flex-row justify-content-center">
+        <nav
+          className="pagination flex-row justify-content-center gap-1"
+          labelNext={t('table.next_page')}
+          labelPrev={t('table.prev_page')}
+        >
+          { tableSettings.pageNum > 0 && (
+            <button
+              className="paginationButton"
+              title={t('table.prev_page')}
+              aria-label={t('table.prev_page')}
+              onClick={() => setPage(tableSettings.pageNum - 1)}>
+              &lt;
+            </button>
+          )}
+          <button
+            className={`paginationButton${(tableSettings.pageNum === 0) ? ' selected' : ''}`}
+            onClick={() => setPage(0)}>
+              1
+          </button>
+          { tableSettings.pageNum > 3 && (<span className="paginationSpacer">...</span>) }
+          {pages}
+          { tableSettings.pageNum < pageCount -4 && (<span className="paginationSpacer">...</span>) }
+          <button
+            className={`paginationButton${(tableSettings.pageNum === pageCount - 1) ? ' selected' : ''}`}
+            onClick={() => setPage(pageCount - 1)}>
+              {pageCount}
+          </button>
+          { tableSettings.pageNum < (pageCount - 1) && (
+            <button
+              className="paginationButton"
+              title={t('table.next_page')}
+              aria-label={t('table.next_page')}
+              onClick={() => setPage(tableSettings.pageNum + 1)}>
+              &gt;
+            </button>
+          )}
+        </nav>
+      </div>
+    )
+  }
+
+  return (
+    <div>
+      <table className="udoit-sortable-table">
+        {( caption && caption.length > 0 ) &&
+          <caption className="mb-2">
+            <h2 className="mt-0 mb-0">{caption}</h2>
+          </caption>
+        }
+        <thead aria-label={t('table.sort_by')}>
+          <tr>
+            {(headers || []).map(({ id, text }) => (
+              (text) ? 
+                <th
+                  key={`header${id}`}
+                  id={id}
+                  tabindex="0"
+                  onClick={() => handleSort(id)}
+                  onKeyPress={(e) => {
+                    if(e.key === 'Enter' || e.key === ' ') {
+                      handleSort(id)
+                    }
+                  }}
+                >
+                  <div className="flex-row">
+                    <div className="flex-grow-1 clickable-text">{text}</div>
+                    { (id === sortBy) &&
+                      <div className="flex-column justify-content-center flex-shrink-0 ps-1">
+                        <SortIconFilled className={`icon-md${(direction === 'ascending') ? ' rotate-180' : ''}`} />
+                      </div>
+                    }
+                  </div>
+                  </th>
+                  :
+                <th key={`header${id}`} id={id} />
+              ))}
+          </tr>
+        </thead>
+        <tbody>
+          {pagedRows.map((row) => (
+            <tr key={`row${row.id}`}>
+              {headers.map(({ id, renderCell, alignText, format }) => (
+                <td key={`row${row.id}cell${id}`} textAlign={alignText ? alignText : 'start'} onClick={(row.onClick) ? row.onClick : null}>
+                  {renderCell ? renderCell(row[id]) : (format) ? format(row[id]) : <div cursor={(row.onClick) ? 'pointer' : 'auto'}>{row[id]}</div>}
+                </td>
+              ))}
+            </tr>
+          ))}
+        </tbody>
+      </table>
+      {renderPagination()}
+    </div>
+  )
+}

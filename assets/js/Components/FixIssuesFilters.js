@@ -58,7 +58,7 @@ export default function FixIssuesFilters({ t, settings, sections, activeFilters,
   // TODO: Cool-looking, yet fully accessible dropdown. Maybe like https://www.w3.org/WAI/ARIA/apg/patterns/combobox/examples/combobox-select-only/
 
   return (
-    <div className="filter-container mt-2 mb-2">
+    <div className="filter-container mb-2">
       <div className="flex-row flex-wrap gap-1">
         <div className="search-group">
           <input

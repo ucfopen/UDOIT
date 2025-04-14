@@ -1,0 +1,53 @@
+.welcome-content-wrapper {
+  max-width: 800px;
+  align-self: center;
+  padding: 1.5rem 3rem;
+  display: flex;
+  flex-direction: row;
+
+  @media screen and (max-width: 768px) {
+    flex-direction: column;
+    padding: 1.5rem 1rem;
+  }
+}
+
+.welcome-content {
+  width: 50%;
+
+  @media screen and (max-width: 768px) {
+    width: 100%;
+    max-width: 500px;
+  }
+}
+
+.logo-large {
+  width: 75%;
+  min-width: 250px;
+  margin-bottom: 1.25rem;
+
+  @media screen and (max-width: 768px) {
+    align-self: center;
+    max-width: 325px;
+  }
+}
+
+.welcome-footer {
+  margin-bottom: -0.7rem;
+}
+
+.tagline {
+  text-transform: uppercase;
+  font-size: 0.9em;
+  font-weight: 600;
+}
+
+.logo-small {
+  width: 80px;
+  height: auto;
+  opacity: 0.8;
+  margin-top: 6px;
+
+  &:hover {
+    opacity: 1;
+  }
+}

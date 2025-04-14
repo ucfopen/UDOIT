@@ -1,17 +1,136 @@
 .ufixit-form-container {
   position: relative;
+  overflow-y: auto;
+  margin-left: -5px;
+  margin-right: -5px;
+  padding-left: 5px;
+  padding-right: 5px;
+  width: 100%;
 }
 
 .ufixit-form-content {
   > :first-child {
     margin-top: 0;
   }
+
+  label {
+    font-weight: 600;
+    color: var(--text-color);
+  }
+
+  input[type="text"] {
+    padding: 0.25rem;
+    box-sizing: border-box;
+    font-size: 0.95rem;
+    font-family: 'Open Sans', sans-serif;
+    border: 2px solid var(--border-color);
+    border-radius: 4px;
+
+    &:hover,
+    &:focus {
+      border-color: var(--link-color);
+      outline-offset: 1px;
+      outline: 2px solid var(--link-color);
+    }
+
+    &:disabled {
+      background-color: var(--gray-light);
+      color: var(--gray);
+      border-color: var(--gray-light);
+      cursor: not-allowed !important;
+    }
+    &:disabled:hover,
+    &:disabled:focus {
+      outline-color: var(--gray-light);
+    }
+  }
+
+  input[type="checkbox"] {
+    cursor: pointer;
+
+    &:hover,
+    &:focus {
+      outline: 2px solid var(--link-color);
+      outline-offset: 3px;
+    }
+    &:disabled {
+      cursor: not-allowed !important;
+    }
+  }
+
+  .error-text {
+    font-size: .95rem;
+    font-weight: 500;
+    font-style: italic;
+    color: var(--issue-color);
+  }
+
+  .btn-icon-only.btn-transparent {
+    padding: .15rem .25rem;
+    fill: var(--link-color);
+    background-color: transparent;
+
+    &:hover,
+    &:focus,
+    &.active {
+      background-color: var(--link-color);
+      fill: var(--white);
+    }
+
+    &:focus {
+      outline: 2px solid var(--link-color);
+      outline-offset: 1px;
+    }
+  }
+
+  /* Specific to the ContrastForm Widget... Could be its own CSS file */
+  .ratio-container {
+    padding: .25rem .5rem;
+    border: 2px solid var(--issue-color);
+
+    &.ratio-valid {
+      border-color: var(--primary-color);
+    }
+
+    .ratio-label {
+      text-transform: uppercase;
+      font-size: .85rem;
+      font-weight: 600;
+    }
+
+    .ratio-value {
+      font-size: 1.25rem;
+      font-weight: 600;
+    }
+
+    .ratio-status {
+      font-size: .85rem;
+      font-weight: 600;
+      text-transform: uppercase;
+
+      &.invalid {
+        color: var(--issue-color);
+      }
+
+      &.valid {
+        color: var(--primary-color-dark);
+      }
+    }
+  }
 }
 
 .ufixit-learn-container {
+  overflow-y: auto;
+
   a {
     color: var(--link-color);
     font-weight: 500;
+
+    &:focus {
+      outline: 2px solid var(--link-color);
+      outline-offset: 3px;
+      border-radius: 2px;
+    }
   }
 
   > :first-child {

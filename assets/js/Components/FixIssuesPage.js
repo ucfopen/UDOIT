@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react';
-import FixIssuesFilters from './FixIssuesFilters';
-import FixIssuesList from './FixIssuesList';
-import FixIssuesContentPreview from './FixIssuesContentPreview';
+import React, { useState, useEffect } from 'react'
+import FixIssuesFilters from './FixIssuesFilters'
+import FixIssuesList from './FixIssuesList'
+import FixIssuesContentPreview from './FixIssuesContentPreview'
 import UfixitWidget from './UfixitWidget'
 import * as Html from '../Services/Html'
 import Api from '../Services/Api'
@@ -337,8 +337,8 @@ export default function FixIssuesPage({
   }, [initialSeverity])
 
   const getFilteredContent = () => {
-    let filteredList = [];
-    const tempFilters = Object.assign({}, activeFilters);
+    let filteredList = []
+    const tempFilters = Object.assign({}, activeFilters)
 
     // PHPAlly Issues have a 'type' of 'error' or 'suggestion'
     // // Check for easy issues filter
@@ -376,7 +376,7 @@ export default function FixIssuesPage({
 
       // Do not include this issue if it doesn't contain the search term/s
       if (searchTerm !== '') {
-        const searchTerms = searchTerm.toLowerCase().split(' ');
+        const searchTerms = searchTerm.toLowerCase().split(' ')
         let containsAllTerms = true
         if (Array.isArray(searchTerms)) {
           for (let term of searchTerms) {
@@ -660,7 +660,7 @@ export default function FixIssuesPage({
     try {
       api.resolveIssue(tempIssue)
         .then((responseStr) => responseStr.json())
-        .then((response) => {      
+        .then((response) => {
 
           response.messages.forEach((msg) => addMessage(msg))
         
@@ -721,24 +721,25 @@ export default function FixIssuesPage({
   }
 
   const updateActiveFilters = (filter, value) => {
-    setActiveFilters(Object.assign({}, activeFilters, {[filter]: value}));
+    setActiveFilters(Object.assign({}, activeFilters, {[filter]: value}))
   }
 
   const nextIssue = (previous = false) => {
     if (!activeIssue || filteredIssues.length < 2) { return }
-    let activeIndex = filteredIssues.findIndex((issue) => issue.id === activeIssue.id);
+    let activeIndex = filteredIssues.findIndex((issue) => issue.id === activeIssue.id)
 
     if(activeIndex === -1) { return }
 
     // If we've reached the first or last issue, loop around
-    let newIndex = activeIndex + (previous ? -1 : 1);
+    let newIndex = activeIndex + (previous ? -1 : 1)
     if (newIndex < 0) {
-      newIndex = filteredIssues.length - 1;
+      newIndex = filteredIssues.length - 1
     }
     else if (newIndex >= filteredIssues.length) {
-      newIndex = 0;
+      newIndex = 0
     }
-    setActiveIssue(filteredIssues[newIndex]);
+    setActiveIssue(filteredIssues[newIndex])
+    setViewInfo(false)
   }
 
   const toggleListView = () => {
@@ -752,29 +753,30 @@ export default function FixIssuesPage({
     }
     else {
       setWidgetState(WIDGET_STATE.LIST)
+      setViewInfo(false)
       setActiveIssue(null)
       setActiveContentItem(null)
     }
   }
 
   const getContentById = (contentId) => {
-    return Object.assign({}, report.contentItems[contentId]);
+    return Object.assign({}, report.contentItems[contentId])
   }
 
   const createKeywords = (issue, contentItem) => {
-    let keywords = [];
+    let keywords = []
 
     if(issue?.scanRuleId) {
-      keywords.push(t(`rule.label.${issue.scanRuleId}`).toLowerCase());
+      keywords.push(t(`rule.label.${issue.scanRuleId}`).toLowerCase())
     }
     if(contentItem?.contentType) {
-      keywords.push(t(`label.${contentItem.contentType}`).toLowerCase());
+      keywords.push(t(`label.${contentItem.contentType}`).toLowerCase())
     }
     if(contentItem?.title) {
-      keywords.push(contentItem.title.toLowerCase());
+      keywords.push(contentItem.title.toLowerCase())
     }
 
-    return keywords.join(' ');
+    return keywords.join(' ')
   }
 
   return (
@@ -828,6 +830,8 @@ export default function FixIssuesPage({
             activeIssue={activeIssue}
             activeContentItem={activeContentItem}
             editedElement={editedElement}
+            sessionIssues={sessionIssues}
+            ISSUE_STATE={ISSUE_STATE}
           />
         </section>
       </div>

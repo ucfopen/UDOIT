@@ -17,7 +17,7 @@ export default function FixIssuesResolve({ t, settings, isSaving, activeIssue, h
               ? t(`label.unresolved_description`) 
               : t(`label.resolved_description`) }
       </div>
-      <div className="flex-row flex-between mt-3">
+      <div className="flex-row flex-end mt-2">
       { !isSaving ? (
         <button className="btn btn-secondary align-self-start"
           onClick={() => handleClick()}>
