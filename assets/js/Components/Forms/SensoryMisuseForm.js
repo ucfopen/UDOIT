@@ -40,14 +40,28 @@ export default function SensoryMisuseForm({
 
   useEffect(() => {
     const matchedWords = checkForSensoryWords(editorHtml);
+    console.log(editorHtml)
     setSensoryErrors(matchedWords)
 
-    // handleHtmlUpdate()
+    handleActiveIssue(activeIssue)
   }, [editorHtml])
 
   const handleEditorChange = (html) => {
     setEditorHtml(html)
   }
+
+  // Pull in new html when activeIssue changes.
+  useEffect(() => {
+
+    const newHtml = Html.getIssueHtml(activeIssue);
+
+    // Update TinyMCE content.
+    editorRef.current.setContent(newHtml);
+
+    // Update local state so everything stays in sync.
+    setHtml(newHtml);
+    setEditorHtml(newHtml);
+  }, [activeIssue]);
 
   // TODO: this is supposed to update the preview, but it causes the editor to refresh for some reason?
   // const handleHtmlUpdate = () => {
