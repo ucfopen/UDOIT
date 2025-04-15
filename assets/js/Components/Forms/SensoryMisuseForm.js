@@ -31,6 +31,13 @@ export default function SensoryMisuseForm({
   const [sensoryErrors, setSensoryErrors] = useState([])
 
   useEffect(() => {
+    if (activeIssue) {
+      setHtml(Html.getIssueHtml(activeIssue))
+      setEditorHtml(Html.getIssueHtml(activeIssue))
+    }
+  }, [activeIssue])
+
+  useEffect(() => {
     const matchedWords = checkForSensoryWords(editorHtml);
     setSensoryErrors(matchedWords)
 
