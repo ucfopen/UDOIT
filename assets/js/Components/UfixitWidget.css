@@ -133,6 +133,14 @@
     }
   }
 
+  code {
+    padding: 0.15rem 0.4rem;
+    background-color: var(--gray-dark);
+    color: var(--white);
+    border-radius: 4px;
+    font-size: 0.9rem;
+  }
+
   > :first-child {
     margin-top: 0;
   }

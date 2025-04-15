@@ -277,7 +277,6 @@ export default function App(initialData) {
                   report={report}
                 />
               }
-              <button className="btn btn-primary" onClick={() => handleFullCourseRescan()}>FORCE RESCAN</button>
             </main>
           </>
         )

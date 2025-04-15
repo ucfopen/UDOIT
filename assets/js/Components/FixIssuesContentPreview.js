@@ -122,6 +122,15 @@ export default function FixIssuesContentPreview({
       return fullPageHtml
     }
 
+    // Find all of the <details> elements in the document (if present).
+    const detailsElements = Array.from(doc.body.querySelectorAll('details'))
+    detailsElements.forEach((detailsElement) => {
+      // Open each element before we do the initial render
+      if (!detailsElement.open) {
+        detailsElement.open = true
+      }
+    })
+
     // Find the first element in the document that matches the error element.
     const docElement = Array.from(doc.body.querySelectorAll(errorElement.tagName)).find((matchElement) => {
       return matchElement.outerHTML.trim() === errorElement.outerHTML.trim()
