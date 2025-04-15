@@ -1,16 +1,11 @@
 import React, { useState, useCallback, useEffect } from 'react'
 import WelcomePage from './WelcomePage'
 import Header from './Header'
-import HomePage from './HomePage'
-import SummaryPage from './SummaryPage'
-import ContentPage from './ContentPage'
 import FixIssuesPage from './FixIssuesPage'
 import ReportsPage from './ReportsPage'
-import AboutModal from './AboutModal'
-import { View } from '@instructure/ui-view'
 import Api from '../Services/Api'
 import MessageTray from './MessageTray'
-import FilesPage from './FilesPage'
+import HomePage from './HomePage'
 
 export default function App(initialData) {
 
@@ -39,7 +34,7 @@ export default function App(initialData) {
   const [sections, setSections] = useState([])
 
   const [appFilters, setAppFilters] = useState({})
-  const [navigation, setNavigation] = useState('welcome')
+  const [navigation, setNavigation] = useState('summary')
   const [modal, setModal] = useState(null)
   const [syncComplete, setSyncComplete] = useState(false)
   const [hasNewReport, setHasNewReport] = useState(false)
@@ -47,11 +42,19 @@ export default function App(initialData) {
   const [initialSeverity, setInitialSeverity] = useState('')
   const [contentItemList, setContentItemList] = useState([])
   const [sessionIssues, setSessionIssues] = useState([])
+  const [welcomeClosed, setWelcomeClosed] = useState(false)
 
   // `t` is used for text/translation. It will return the translated string if it exists
   // in the settings.labels object.
-  const t = useCallback((key) => {
-    return (settings.labels[key]) ? settings.labels[key] : key
+  const t = useCallback((key, values = {}) => {
+    let translatedText = (settings.labels[key] && settings.labels[key] !== '') ? settings.labels[key] : key
+    if (values && Object.keys(values).length > 0) {
+      Object.keys(values).forEach((key) => {
+        translatedText = translatedText.replace(`{${key}}`, values[key])
+      })
+    }
+    return translatedText
+
   }, [settings.labels])
 
   const scanCourse = useCallback(() => {
@@ -72,8 +75,7 @@ export default function App(initialData) {
     if(!issueState) {
       return
     }
-    let newSessionIssues = [...sessionIssues]
-    newSessionIssues[issueId] = issueState
+    let newSessionIssues = Object.assign({}, sessionIssues, { [issueId]: issueState})
     setSessionIssues(newSessionIssues)
   }
 
@@ -189,7 +191,7 @@ export default function App(initialData) {
 
   const resizeFrame = useCallback(() => {
     let default_height = document.body.scrollHeight + 50
-    default_height = default_height > 1000 ? default_height : 1000
+    default_height = default_height > 850 ? default_height : 850
 
     parent.postMessage(JSON.stringify({
       subject: "lti.frameResize",
@@ -220,111 +222,63 @@ export default function App(initialData) {
   }, [settings, initialData.report, scanCourse, resizeFrame])
 
   return (
-    <View as="div">
-      <Header
-        t={t}
-        settings={settings}
-        hasNewReport={hasNewReport}
-        navigation={navigation}
-        handleNavigation={handleNavigation}
-        handleCourseRescan={handleCourseRescan}
-        handleFullCourseRescan={handleFullCourseRescan}
-        handleModal={handleModal} />
-
-      <MessageTray t={t} messages={messages} clearMessages={clearMessages} hasNewReport={syncComplete} />
-
-      <main role="main">
-        {('home' === navigation) &&
-          <HomePage
+    <>
+      { !welcomeClosed ?
+        ( <WelcomePage
             t={t}
             settings={settings}
-            report={report} />
-        }
-        {('welcome' === navigation) &&
+            syncComplete={syncComplete}
+            setWelcomeClosed={setWelcomeClosed} /> ) :
+        (
           <>
-            <WelcomePage
+            <Header
               t={t}
               settings={settings}
-              setSettings={setSettings}
               hasNewReport={hasNewReport}
-              handleNavigation={handleNavigation} />
-            <div className="flex-row gap-1 mt-1">
-              <button className="btn btn-primary" onClick={() => quickIssues('ISSUE')}>Fix Issues</button>
-              <button className="btn btn-primary" onClick={() => quickIssues('POTENTIAL')}>Fix Potential Issues</button>
-              <button className="btn btn-primary" onClick={() => quickIssues('SUGGESTION')}>Fix Suggestions</button>
-            </div>
-          </>
-        }
-        {('summary' === navigation) &&
-          <>
-            <SummaryPage
-              t={t}
-              settings={settings}
-              report={report}
-              handleAppFilters={handleAppFilters}
-              handleNavigation={handleNavigation} />
-            <div className="flex-row gap-1 mt-1">
-              <button className="btn btn-primary" onClick={() => quickIssues('ISSUE')}>Fix Issues</button>
-              <button className="btn btn-primary" onClick={() => quickIssues('POTENTIAL')}>Fix Potential Issues</button>
-              <button className="btn btn-primary" onClick={() => quickIssues('SUGGESTION')}>Fix Suggestions</button>
-            </div>
-          </>
-        }
-        {('content' === navigation) &&
-          <ContentPage
-            t={t}
-            settings={settings}
-            report={report}
-            setReport={setReport}
-            appFilters={appFilters}
-            handleAppFilters={handleAppFilters}
-            handleNavigation={handleNavigation}
-            handleIssueSave={updateReportIssue}
-            handleIssueUpdate={updateReportIssue}
-            disableReview={syncComplete && !disableReview} />
-        }
-        {('fixIssues' === navigation) &&
-          <FixIssuesPage
-            t={t}
-            settings={settings}
-            initialSeverity={initialSeverity}
-            contentItemList={contentItemList}
-            addContentItem={addContentItem}
-            report={report}
-            sections={sections}
-            setReport={setReport}
-            addMessage={addMessage}
-            handleNavigation={handleNavigation}
-            updateReportIssue={updateReportIssue}
-            sessionIssues={sessionIssues}
-            updateSessionIssue={updateSessionIssue}
-            disableReview={syncComplete && !disableReview} />
-        }
-        {('files' === navigation) &&
-          <FilesPage
-            report={report}
-            settings={settings}
-            handleNavigation={handleNavigation}
-            handleFileSave={updateReportFile}
-            t={t} />
-        }
-        {('reports' === navigation) &&
-          <ReportsPage
-            t={t}
-            settings={settings}
-            report={report}
-            handleNavigation={handleNavigation}
-          />
-        }
-        
-      </main>
+              navigation={navigation}
+              handleNavigation={handleNavigation}
+              handleCourseRescan={handleCourseRescan}
+              handleFullCourseRescan={handleFullCourseRescan}
+              handleModal={handleModal} />
 
-      {('about' === modal) &&
-        <AboutModal
-          t={t}
-          settings={settings}
-          handleModal={handleModal} />
+            <MessageTray t={t} messages={messages} clearMessages={clearMessages} hasNewReport={syncComplete} />
+
+            <main role="main">
+              {('summary' === navigation) &&
+                <HomePage
+                  t={t}
+                  report={report}
+                  hasNewReport={hasNewReport}
+                  quickIssues={quickIssues} />
+              }
+              {('fixIssues' === navigation) &&
+                <FixIssuesPage
+                  t={t}
+                  settings={settings}
+                  initialSeverity={initialSeverity}
+                  contentItemList={contentItemList}
+                  addContentItem={addContentItem}
+                  report={report}
+                  sections={sections}
+                  setReport={setReport}
+                  addMessage={addMessage}
+                  handleNavigation={handleNavigation}
+                  updateReportIssue={updateReportIssue}
+                  sessionIssues={sessionIssues}
+                  updateSessionIssue={updateSessionIssue}
+                  disableReview={syncComplete && !disableReview} />
+              }
+              {('reports' === navigation) &&
+                <ReportsPage
+                  t={t}
+                  settings={settings}
+                  report={report}
+                />
+              }
+            </main>
+          </>
+        )
       }
-    </View>
+    </>
   )
 }

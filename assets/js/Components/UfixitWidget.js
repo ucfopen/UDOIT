@@ -8,9 +8,6 @@ import RightArrowIcon from './Icons/RightArrowIcon'
 import ProgressIcon from './Icons/ProgressIcon'
 import FixIssuesResolve from './FixIssuesResolve'
 import ReactHtmlParser from 'react-html-parser'
-// import MessageTray from './MessageTray'
-// import Preview from './Preview'
-// import { ToggleDetails } from '@instructure/ui-toggle-details'
 import FileForm from './Forms/FileForm'
 import { returnIssueForm } from '../Services/Ufixit'
 import Api from '../Services/Api'
@@ -70,22 +67,6 @@ export default function UfixitWidget({
     }
   }, [activeIssue])
 
-  // const prepareCode = (activeIssue) => {
-  //   let sourceCode = (activeIssue.newHtml) ? activeIssue.newHtml : activeIssue.sourceHtml
-  //   let tempCode = sourceCode
-
-  //   if (sourceCode.length === 0 || sourceCode.length > 3000) {
-  //     tempCode = '<span>Not Available</span>'
-  //   } else {
-  //       let element = Html.toElement(sourceCode)
-        
-  //       if(element && element.tagName === 'TH') {
-  //         tempCode = activeIssue.previewHtml
-  //       }
-  //   }
-  //   return Pretty(tempCode)
-  // }
-
   const handleManualScan = (issue) => {
     let api = new Api(settings)
     api.scanIssue(issue.id)
@@ -137,28 +118,6 @@ export default function UfixitWidget({
       setViewInfo(!viewInfo)
     }
   }
-  // const clearMessages = () => {
-  //   setModalMessages([])
-  // }
-
-  // useEffect(() => {
-  //   console.info('UfixitModal loaded')
-  //   console.info(JSON.stringify(activeIssue))
-
-  //   setPending(activeIssue && (activeIssue.pending == '1'))
-  //   UfixitForm = returnIssueForm(activeIssue)
-
-  //   if (!t(`rule.example.${activeIssue.scanRuleId}`).includes('rule.example')) {
-  //     setShowExample(true)
-  //   }
-  //   else {
-  //     setShowExample(false)
-  //   }
-
-  //   setCurrentIndex(findActiveIndex())
-  //   setCode(prepareCode(activeIssue))
-
-  // }, [activeIssue, activeContentItem])
 
   return (
     <>
@@ -267,7 +226,7 @@ export default function UfixitWidget({
             }
 
             {/* The "Previous", "Next", and "List View" buttons (footer nav) */}
-            <div className="flex-row justify-content-between mt-3">
+            <div className="flex-row justify-content-between mt-2">
 
               <button className={`btn text-button btn-icon-left ps-0 ${listLength < 2 ? 'disabled' : ''}`} onClick={() => nextIssue(true)}>
                 <LeftArrowIcon className={listLength < 2 ? 'gray' : 'link-color'} />

@@ -1,45 +1,35 @@
-import React from 'react'
+import React, { useState, useEffect } from 'react'
 import SortableTable from '../SortableTable'
-import { View } from '@instructure/ui-view'
-import { Heading } from '@instructure/ui-heading'
 
-class ReportsTable extends React.Component {
-  constructor(props) {
-    super(props)
+export default function ReportsTable({
+  t,
+  reports,
+  isAdmin
+}) {
 
-    this.headers = [
-      { id: "created", text: this.props.t('label.date') },
-      { id: "errors", text: this.props.t('label.plural.error') },
-      { id: "suggestions", text: this.props.t('label.plural.suggestion') },
-      { id: "contentFixed", text: this.props.t('label.content_fixed') },
-      { id: "contentResolved", text: this.props.t('label.content_resolved') },
-      { id: "filesReviewed", text: this.props.t('label.files_reviewed')}
-    ];
+  const headers = [
+    { id: "created", text: t('label.date') },
+    { id: "errors", text: t('label.plural.error') },
+    { id: "suggestions", text: t('label.plural.suggestion') },
+    { id: "contentFixed", text: t('label.content_fixed') },
+    { id: "contentResolved", text: t('label.content_resolved') },
+    { id: "filesReviewed", text: t('label.files_reviewed')}
+  ]
 
-    if (this.props.isAdmin) {
-      this.headers.push({ id: "count", text: this.props.t('label.admin.courses') })
-    }
-
-    this.state = {
-      tableSettings: {
-        sortBy: 'created',
-        ascending: false,
-        pageNum: 0,
-      }
-    }
-
-    this.getContent = this.getContent.bind(this)
+  if (isAdmin) {
+    headers.push({ id: "count", text: t('label.admin.courses') })
   }
 
-  handleTableSettings = (setting) => {
-    this.setState({
-      tableSettings: Object.assign({}, this.state.tableSettings, setting)
-    });
-  } 
+  const [tableSettings, setTableSettings] = useState({
+    sortBy: 'created',
+    ascending: false,
+    pageNum: 0,
+  })
+  const [rows, setRows] = useState([])
 
-  getContent() {
-    let list = this.props.reports
-    const { sortBy, ascending } = this.state.tableSettings 
+  const getContent = () => {
+    let list = reports
+    const { sortBy, ascending } = tableSettings 
 
     list.sort((a, b) => {
       if (isNaN(a[sortBy]) || isNaN(b[sortBy])) {
@@ -57,23 +47,22 @@ class ReportsTable extends React.Component {
     return list
   }
 
-  render() {
-    const rows = this.getContent();
-    
-    return (
-      <View as="div" key="reportsTableWrapper">
-        <Heading as="h3" level="h4" margin="small 0">{this.props.t('label.report_history')}</Heading>
-        <SortableTable
-          caption={this.props.t('udoit.reports.table.caption')}
-          headers={this.headers}
-          rows={rows}
-          tableSettings={this.state.tableSettings}
-          handleTableSettings={this.handleTableSettings}
-          t={this.props.t}
-        />
-      </View>
-    )
+  const handleTableSettings = (setting) => {
+    setTableSettings(Object.assign({}, tableSettings, setting))
   }
-}
 
-export default ReportsTable
+  useEffect(() => {
+    setRows(getContent())
+  }, [tableSettings, reports])
+
+  return (
+    <SortableTable
+      caption={t('label.report_history')}
+      headers={headers}
+      rows={getContent()}
+      tableSettings={tableSettings}
+      handleTableSettings={handleTableSettings}
+      t={t}
+    />
+  )
+}

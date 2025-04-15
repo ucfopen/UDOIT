@@ -1,109 +1,149 @@
 import React, { useState, useEffect } from 'react'
-import { View } from '@instructure/ui-view'
-import { Flex } from '@instructure/ui-flex'
-import { Text } from '@instructure/ui-text'
-import { Heading } from '@instructure/ui-heading'
+import ProgressBar from './ProgressBar'
+import SeverityIcon from './Icons/SeverityIcon'
+import './HomePage.css'
 
-import Api from '../Services/Api'
-import { Spinner } from '@instructure/ui-spinner'
+export default function HomePage({ t, report, hasNewReport, quickIssues }) {
 
-import IssuesReport from './Reports/IssuesReport'
-import ResolutionsReport from './Reports/ResolutionsReport'
-import ReportsTable from './Reports/ReportsTable'
-import IssuesTable from './Reports/IssuesTable'
+  const [totalIssues, setTotalIssues] = useState(0)
+  const [totalPotentialIssues, setTotalPotentialIssues] = useState(0)
+  const [totalSuggestions, setTotalSuggestions] = useState(0)
+  const [totalsCounted, setTotalsCounted] = useState(false)
+  const [issuePercent, setIssuePercent] = useState(0)
+  const [potentialPercent, setPotentialPercent] = useState(0)
+  const [suggestionPercent, setSuggestionPercent] = useState(0)
 
-export default function HomePage({t, report, settings}) {
+  useEffect(() => {
+    if (!hasNewReport) return
 
-  const [reports, setReports] = useState([])
-  const [issues, setIssues] = useState([])
+    let totalIssues = 0
+    let totalPotentialIssues = 0
+    let totalSuggestions = 0
+    let totalIssuesFixed = 0
+    let totalPotentialIssuesFixed = 0
+    let totalSuggestionsFixed = 0
 
-  const getReportHistory = () => {
-    const api = new Api(settings)
-    api.getReportHistory()
-      .then((responseStr) => responseStr.json())
-      .then((response) => {
-        setReports(response.data)
-      })
-  }
-
-  const processIssues = (report) => {
-
-    let rules = []
-
-    for (let issue of report.issues) {
-      const rule = issue.scanRuleId
-      const status = issue.status
-      
-      if (!rules[rule]) {
-        rules[rule] = {
-          id: rule,
-          type: issue.type,
-          active: 0,
-          fixed: 0,
-          resolved: 0,
-          total: 0
+    if(report.issues && report.issues.length > 0) {
+      for (const i of report.issues){
+        if(i.type === 'error') {
+          totalIssues += 1
+          if (i.status === 1 || i.status === 2) {
+            totalIssuesFixed += 1
+          }
+        }
+        else if (i.type === 'potential'){
+          totalPotentialIssues +=1
+          if (i.status === 1 || i.status === 2) {
+            totalPotentialIssuesFixed += 1
+          }
+        }
+        else if (i.type === 'suggestion') {
+          totalSuggestions +=1
+          if (i.status === 1 || i.status === 2) {
+            totalSuggestionsFixed += 1
+          }
         }
       }
-
-      if (2 === status) {
-        rules[rule]['resolved']++
-      }
-      else if (1 === status) {
-        rules[rule]['fixed']++
-      }
-      else {
-        rules[rule]['active']++
-      }
-      rules[rule]['total']++
     }
 
-    return rules
-  }
-
-  useEffect(() => {
-    if (reports.length === 0) {
-      getReportHistory()
+    if (report.files) {
+      for (const [key, fileData] of Object.entries(report.files)) {
+        totalPotentialIssues += 1
+        if (fileData.reviewed) {
+          totalPotentialIssuesFixed += 1
+        }
+      }
     }
-  }, [])
 
-  useEffect(() => {
-    setIssues(processIssues(report))
-  }, [report])
+    // setstates once done iterating and adding, then use those states to display the totals.
+    setTotalIssues(totalIssues)
+    setTotalPotentialIssues(totalPotentialIssues)
+    setTotalSuggestions(totalSuggestions)
+    setIssuePercent(totalIssues === 0 ? 0 : (totalIssuesFixed/totalIssues) * 100)
+    setPotentialPercent(totalPotentialIssues === 0 ? 0 : (totalPotentialIssuesFixed/totalPotentialIssues) * 100)
+    setSuggestionPercent(totalSuggestions === 0 ? 0 : (totalSuggestionsFixed/totalSuggestions) * 100)
+
+    setTotalsCounted(true)
+  }, [hasNewReport])
 
   return (
-    <View as="div" padding="small 0">
-      <Heading>{t('label.reports')}</Heading>
-      {/* <View as="div" margin="0 0 large 0">
-        <Flex justifyItems="space-between" alignItems="start">
-          <Flex.Item width="48%" padding="0">
-            <IssuesReport t={t} reports={report} />
-          </Flex.Item>
-          <Flex.Item width="48%" padding="0">
-            <ResolutionsReport t={t} reports={report} />
-          </Flex.Item>
-        </Flex>
-      </View> */}
-      {/* <View as="div" margin="large 0">
-        <IssuesTable
-          issues={issues}
-          settings={settings}
-          t={t} />
-      </View>
-      <View as="div" margin="large 0">
-        <ReportsTable
-          reports={report}
-          t={t}
-        />
-      </View> */}
-      <View as="div" margin="large 0">
-        <Heading>Settings</Heading>
-        <div>{JSON.stringify(settings)}</div>
-      </View>
-      <View as="div" margin="large 0">
-        <Heading>Report</Heading>
-        <div>{JSON.stringify(report)}</div>
-      </View>
-    </View>
+  <main>
+    <div className='greeting'>
+      <h2>{t('about.greeting')}</h2>
+      <p>{t('about.description')}</p>
+    </div>
+    <div className="report-container flex-column">
+      { setTotalsCounted && (
+        <>
+          <div className='flex-column w-100 mb-3'>
+            <div className="flex-row w-100 justify-content-between mb-1">
+              <div className='flex-row'>
+                <div className='flex-column justify-content-center mr-1'>
+                <SeverityIcon type="ISSUE" className='icon-lg' />
+                </div>
+                <div className='flex-column justify-content-center'>
+                  <h3 className='mb-0 mt-0'>{t('label.filter.severity.issue')}</h3>
+                </div>
+              </div>
+              <div className='flex-column justify-content-end'>
+                <div className="errors-progress-bar">{t('label.issues_resolved', {resolved: issuePercent.toFixed(), total: totalIssues})}</div>
+              </div>
+            </div>
+            <ProgressBar progress={issuePercent} />
+            <div className="flex-row w-100 justify-content-between mt-2 gap-2">
+              <div>{t('label.issue.description')}</div>
+              <div className='flex-column justify-content-start flex-shrink-0'>
+                <button className="btn btn-primary" onClick={() => quickIssues('ISSUE')}>{t('label.issue.fix')}</button>
+              </div>
+            </div>
+          </div>
+          <div className='flex-column w-100 mb-3'>
+            <div className="flex-row w-100 justify-content-between mb-1">
+              <div className='flex-row'>
+                <div className='flex-column justify-content-center mr-1'>
+                <SeverityIcon type="POTENTIAL" className='icon-lg' />
+                </div>
+                <div className='flex-column justify-content-center'>
+                  <h3 className='mb-0 mt-0'>{t('label.filter.severity.potential')}</h3>
+                </div>
+              </div>
+              <div className='flex-column justify-content-end'>
+                <div className="errors-progress-bar">{t('label.issues_resolved', {resolved: potentialPercent.toFixed(), total: totalPotentialIssues})}</div>
+              </div>
+            </div>
+            <ProgressBar progress={potentialPercent} />
+            <div className="flex-row w-100 justify-content-between mt-2 gap-2">
+              <div>{t('label.potential.description')}</div>
+              <div className='flex-column justify-content-start flex-shrink-0'>
+                <button className="btn btn-primary" onClick={() => quickIssues('POTENTIAL')}>{t('label.potential.fix')}</button>
+              </div>
+            </div>
+          </div>
+          <div className='flex-column w-100'>
+            <div className="flex-row w-100 justify-content-between mb-1">
+              <div className='flex-row'>
+                <div className='flex-column justify-content-center mr-1'>
+                <SeverityIcon type="SUGGESTION" className='icon-lg' />
+                </div>
+                <div className='flex-column justify-content-center'>
+                  <h3 className='mb-0 mt-0'>{t('label.filter.severity.suggestion')}</h3>
+                </div>
+              </div>
+              <div className='flex-column justify-content-end'>
+                <div className="errors-progress-bar">{t('label.issues_resolved', {resolved: suggestionPercent.toFixed(), total: totalSuggestions})}</div>
+              </div>
+            </div>
+            <ProgressBar progress={suggestionPercent} />
+            <div className="flex-row w-100 justify-content-between mt-2 gap-2">
+              <div>{t('label.suggestion.description')}</div>
+              <div className='flex-column justify-content-start flex-shrink-0'>
+                <button className="btn btn-primary" onClick={() => quickIssues('SUGGESTION')}>{t('label.suggestion.fix')}</button>
+              </div>
+            </div>
+          </div>
+        </>
+      )}
+    </div>
+  </main>
   )
-
 }
