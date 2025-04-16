@@ -11,6 +11,8 @@ import ResolutionsReport from './Reports/ResolutionsReport'
 import ReportsTable from './Reports/ReportsTable'
 import IssuesTable from './Reports/IssuesTable'
 
+import './ReportsPage.css'
+
 export default function ReportsPage({t, report, settings}) {
 
   const [reports, setReports] = useState([])
@@ -81,6 +83,10 @@ export default function ReportsPage({t, report, settings}) {
     }))
   }
 
+  const printReport = () => {
+    window.print()
+  }
+
   if (reports.length === 0) {
     return (
       <View as="div" padding="small 0">
@@ -143,9 +149,13 @@ export default function ReportsPage({t, report, settings}) {
             t={t}
           />
         </View>
+        <View as="div" className="printArea">
+          <ResolutionsReport t={t} reports={reports} visibility={chartVisibility} />
+          <IssuesTable issues={issues} settings={settings} t={t} />
+          <ReportsTable reports={reports} t={t} />
+        </View>
         <View as="div" margin="large auto 0 0" display="flex" justifyContent="right">
-          <button margin="0" color="white" background="#2C8AC1">Export Report</button>
-          <button margin="0" color="white" background="#2C8AC1">Print Report</button>
+          <button onClick={printReport} margin="0" color="white" background="#2C8AC1">Print Report</button>
         </View>
       </View>
     )

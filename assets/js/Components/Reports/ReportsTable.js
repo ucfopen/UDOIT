@@ -29,33 +29,57 @@ class ReportsTable extends React.Component {
     }
 
     this.getContent = this.getContent.bind(this)
+    this.exportToCSV = this.exportToCSV.bind(this)
   }
 
   handleTableSettings = (setting) => {
     this.setState({
       tableSettings: Object.assign({}, this.state.tableSettings, setting)
     });
-  } 
+  }
 
   getContent() {
-    let list = this.props.reports
-    console.log(list);
-    const { sortBy, ascending } = this.state.tableSettings 
+    let list = this.props.reports;
+    const { sortBy, ascending } = this.state.tableSettings;
 
     list.sort((a, b) => {
       if (isNaN(a[sortBy]) || isNaN(b[sortBy])) {
-        return (a[sortBy].toLowerCase() < b[sortBy].toLowerCase()) ? -1 : 1
+        return (a[sortBy].toLowerCase() < b[sortBy].toLowerCase()) ? -1 : 1;
       }
       else {
-        return (Number(a[sortBy]) < Number(b[sortBy])) ? -1 : 1
+        return (Number(a[sortBy]) < Number(b[sortBy])) ? -1 : 1;
       }
     })
 
     if (!ascending) {
-      list.reverse()
+      list.reverse();
     }
 
-    return list
+    return list;
+  }
+
+  exportToCSV() {
+    const rows = this.getContent();
+    const headers = this.headers.map(header => header.text);
+    
+    const csvData = [];
+    csvData.push(headers.join(','));
+    
+    rows.forEach(row => {
+      const rowData = this.headers.map(header => {
+        const value = row[header.id];
+        return `"${value}"`;
+      });
+      csvData.push(rowData.join(','));
+    });
+    
+    const csvString = csvData.join('\n');
+    const blob = new Blob([csvString], { type: 'text/csv' });
+    
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = 'UDOITHistoryReport.csv';
+    link.click();
   }
 
   render() {
@@ -72,9 +96,10 @@ class ReportsTable extends React.Component {
           handleTableSettings={this.handleTableSettings}
           t={this.props.t}
         />
+        <button onClick={this.exportToCSV}>Export History Table</button>
       </View>
     )
   }
 }
 
-export default ReportsTable
+export default ReportsTable;
