@@ -99,38 +99,38 @@ export default function EmbeddedContentTitleForm(props) {
   const buttonLabel = pending ? "form.processing" : "form.submit"
   
   return (
-    <View as='div' padding='x-small' >
-      <View>
-        <TextInput
-          renderLabel={props.activeIssue.scanRuleId == 'media_alt_exists' ? 'New Label Text' :  'New Title Text'}
-          display='inline-block'
-          width='100%'
-          onChange={handleInput}
-          value={textInputValue}
+    <div className='p-3'>
+      <div>
+        <label htmlFor="textInputValue">
+          {props.activeIssue.scanRuleId === 'media_alt_exists'
+            ? 'New Label Text'
+            : 'New Title Text'}
+        </label>
+        <input
+          type="text"
           id="textInputValue"
-          // disabled={deleteLabel}
-          messages={textInputErrors}
+          value={textInputValue}
+          onChange={handleInput}
+          style={{ width: '100%', padding: '4px', marginTop: '4px' }}
         />
-      </View>
-      {/* <View>
-        <View as='span' display='inline-block'>
-          <Checkbox 
-            label='form.label.remove_label' 
-            checked={deleteLabel}
-            onChange={handleCheckbox}
-          />
-        </View>
-      </View> */}
-      <View as='div' margin='small 0'>
-        <Button 
-          color='primary' 
+        {textInputErrors.length > 0 && (
+          <ul style={{ color: 'red', marginTop: '4px' }}>
+            {textInputErrors.map((err, i) => (
+              <li key={i}>{err.text}</li>
+            ))}
+          </ul>
+        )}
+      </div>
+
+      <div className='mt-2'>
+        <button
           onClick={handleButton}
-          interaction={(!pending && props.activeIssue.status !== 2) ? 'enabled' : 'disabled'}
+          disabled={pending || props.activeIssue.status === 2}
+          className='btn btn-primary'
         >
-          {('1' == pending) && <Spinner size="x-small" renderTitle={props.t(buttonLabel)} />}
-          {props.t(buttonLabel)}
-        </Button>
-      </View>
-    </View>
+          {pending ? 'Processing...' : props.t(buttonLabel)}
+        </button>
+      </div>
+    </div>
   );
 }
