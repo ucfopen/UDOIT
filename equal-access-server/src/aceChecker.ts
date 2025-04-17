@@ -90,7 +90,14 @@ export async function closePagePool(): Promise<void> {
   }
 }
 
-export async function aceCheck(html: string, browser: puppeteer.Browser, guidelineIds?: string | string[]): Promise<Report> {
+// reportLevels can be:
+//     - violation
+//     - potentialviolation
+//     - recommendation
+//     - potentialrecommendation
+//     - manual
+//     - pass
+export async function aceCheck(html: string, browser: puppeteer.Browser, guidelineIds?: string | string[], reportLevels?: string | string[]): Promise<Report> {
   console.time('total-execution');
   
   if (!pagePool) {
@@ -126,7 +133,46 @@ export async function aceCheck(html: string, browser: puppeteer.Browser, guideli
     console.timeEnd('evaluate-check');
     
     console.timeEnd('total-execution');
-    report.results = report.results.filter((result: Issue) => result.value[1] !== "PASS");
+
+    // validate and process reportLevels
+    if (!reportLevels) {
+      throw new Error('reportLevels must be provided as a string or string array');
+    }
+    const levels = Array.isArray(reportLevels) ? reportLevels : [reportLevels];
+    // build a set of valid combos
+    const combos = new Set<string>();
+    for (const level of levels) {
+      switch (level) {
+        case "violation":
+          combos.add("VIOLATION|FAIL");
+          break;
+        case "potentialviolation":
+          combos.add("VIOLATION|POTENTIAL");
+          break;
+        case "recommendation":
+          combos.add("RECOMMENDATION|FAIL");
+          break;
+        case "potentialrecommendation":
+          combos.add("RECOMMENDATION|POTENTIAL");
+          break;
+        case "manual":
+          combos.add("VIOLATION|MANUAL");
+          combos.add("RECOMMENDATION|MANUAL");
+          break;
+        case "pass":
+          combos.add("VIOLATION|PASS");
+          combos.add("RECOMMENDATION|PASS");
+          break;
+        default:
+          console.warn(`Invalid report level: ${level}`);
+      }
+    }
+    // filter results by set membership
+    report.results = report.results.filter((result: Issue) => {
+      const key = `${result.value[0]}|${result.value[1]}`;
+      return combos.has(key);
+    });
+
     return report;
   } finally {
     pagePool.releasePage(page, scriptAdded);

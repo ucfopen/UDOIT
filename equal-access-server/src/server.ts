@@ -11,6 +11,7 @@ app.use(express.json({limit: '50mb'}));
 app.use(express.urlencoded({limit: '50mb', extended: true}));
 const PORT = process.env.PORT || 3000;
 const DEFAULT_ID = 'WCAG_2_1';
+const DEFAULT_REPORT_LEVELS = 'violation';
 
 app.use(bodyParser.json());
 
@@ -41,7 +42,8 @@ app.post("/scan", asyncHandler(async (req, res) => {
   const html: string = req.body.html;
   // console.log(`got page: ${html}`);
   const guidelineIds: string | string[] = req.body.guidelineIds || DEFAULT_ID;
-  const report: Report = await aceCheck(html, browser, guidelineIds);
+  const reportLevels: string | string[] = req.body.reportLevels || DEFAULT_REPORT_LEVELS;
+  const report: Report = await aceCheck(html, browser, guidelineIds, reportLevels);
   
   // Modified to match Lambda output format
   res.status(200).json(report);
