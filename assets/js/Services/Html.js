@@ -311,7 +311,7 @@ export function processStaticHtml(nodes, settings) {
 }
 
 export function getIssueHtml(issue) {
-  if (issue.status === '1') {
+  if (issue.status.toString() === '1') {
     return issue.newHtml
   }
 

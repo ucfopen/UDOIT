@@ -1,5 +1,6 @@
-import React, { useState, useEffect } from 'react';
-import SearchIcon from './Icons/SearchIcon';
+import React, { useState, useEffect } from 'react'
+import SearchIcon from './Icons/SearchIcon'
+import ContentTypeIcon from './Icons/ContentTypeIcon'
 
 import './FixIssuesFilters.css'
 
@@ -24,7 +25,7 @@ export default function FixIssuesFilters({ t, settings, sections, activeFilters,
       [FILTER.FILE]: t('label.filter.type.file'),
       [FILTER.QUIZ]: t('label.filter.type.quiz'),
       [FILTER.SYLLABUS]: t('label.filter.type.syllabus'),
-      [FILTER.MODULE]: t('label.filter.type.module'),
+      // [FILTER.MODULE]: t('label.filter.type.module'),
     },
     [FILTER.TYPE.RESOLUTION]: {
       [FILTER.ALL]: t('label.filter.resolution.all'),
@@ -80,6 +81,9 @@ export default function FixIssuesFilters({ t, settings, sections, activeFilters,
                 {Object.keys(usedFilters[filterType]).map((filter) => {
                   return (
                     <option value={filter} selected={activeFilters[filterType] === filter}>
+                      {filterType === FILTER.TYPE.CONTENT_TYPE && (
+                        <ContentTypeIcon type={filter} alt="" className="icon-sm text-color" />
+                      )}
                       {usedFilters[filterType][filter]}
                     </option>
                   )

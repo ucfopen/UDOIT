@@ -29,7 +29,7 @@
     &:hover,
     &:focus {
       border-color: var(--link-color);
-      outline-offset: 1px;
+      outline-offset: -2px;
       outline: 2px solid var(--link-color);
     }
 
@@ -65,10 +65,17 @@
     color: var(--issue-color);
   }
 
+  .text-muted {
+    font-size: .85rem;
+    font-weight: 400;
+    color: var(--gray-dark);
+  }
+
   .btn-icon-only.btn-transparent {
     padding: .15rem .25rem;
     fill: var(--link-color);
     background-color: transparent;
+    border-color: transparent;
 
     &:hover,
     &:focus,

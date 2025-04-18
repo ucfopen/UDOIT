@@ -1,11 +1,13 @@
 import React, { useState, useCallback, useEffect } from 'react'
-import WelcomePage from './WelcomePage'
 import Header from './Header'
+import WelcomePage from './WelcomePage'
+import HomePage from './HomePage'
 import FixIssuesPage from './FixIssuesPage'
 import ReportsPage from './ReportsPage'
+import SettingsPage from './SettingsPage'
 import Api from '../Services/Api'
 import MessageTray from './MessageTray'
-import HomePage from './HomePage'
+
 
 export default function App(initialData) {
 
@@ -55,17 +57,34 @@ export default function App(initialData) {
     }
     return translatedText
 
-  }, [settings.labels])
+  }, [settings])
 
   const scanCourse = useCallback(() => {
     let api = new Api(settings)
     return api.scanCourse(settings.course.id)
-  }, [settings])
+  }, [])
 
   const fullRescan = useCallback(() => {
     let api = new Api(settings)
     return api.fullRescan(settings.course.id)
-  }, [settings])
+  }, [])
+
+  const updateLanguage = (lang) => {
+    let newSettings = settings
+    newSettings.user.roles.lang = lang
+
+    let api = new Api(settings)
+    let newUser = newSettings.user
+    api.updateUser(newUser)
+      .then((response) => response.json())
+      .then((data) => {
+        console.log("Updated user language: " + data?.roles?.lang)
+        if(data.labels) {
+          newSettings.labels = data.labels
+        }
+        setSettings(newSettings)
+    })
+  }
 
   // Session Issues are used to track progress when multiple things are going on at once,
   // and can allow the activeIssue to change without losing information about the previous issue.
@@ -201,15 +220,7 @@ export default function App(initialData) {
   }, [])
 
   useEffect(() => {
-    if (settings.user && Array.isArray(settings.user.roles)) {
-      if (settings.user.roles.includes('ROLE_ADVANCED_USER')) {
-        if (initialData.report) {
-          setReport(initialData.report)
-          setNavigation('summary')
-        }
-      }
-    }
-
+    
     scanCourse()
       .then((response) => response.json())
       .then(handleNewReport)
@@ -276,6 +287,20 @@ export default function App(initialData) {
                   settings={settings}
                   report={report}
                 />
+              }
+              {('settings' === navigation) &&
+                <SettingsPage
+                  t={t}
+                  settings={settings}
+                  setSettings={setSettings}
+                  updateLanguage={updateLanguage}
+                  handleCourseRescan={handleCourseRescan}
+                  handleFullCourseRescan={handleFullCourseRescan} />
+              }
+              {('modal' === navigation) &&
+                <div className="modal">
+                  {modal}
+                </div>
               }
             </main>
           </>

@@ -14,14 +14,18 @@ export default function FixIssuesList({ t, settings, filteredIssues, setActiveIs
   useEffect(() => {
     const tempGroupedList = []
 
-    // Get all of the issues' "scanRuleLabel" values
-    const scanRuleLabels = filteredIssues.map((issue) => issue.scanRuleLabel)
-    const uniqueScanRuleLabels = [...new Set(scanRuleLabels)]
+    // Get all of the issues' "formLabel" values
+    const formLabels = filteredIssues.map((issue) => issue.formLabel)
+    const uniqueFormLabels = [...new Set(formLabels)]
 
-    // Group the issues by "scanRuleLabel"
-    uniqueScanRuleLabels.forEach((scanRuleLabel) => {
-      const issues = filteredIssues.filter((issue) => issue.scanRuleLabel === scanRuleLabel)
-      tempGroupedList.push({ scanRuleLabel, issues })
+    uniqueFormLabels.sort((a, b) => {
+      return (a.toLowerCase() < b.toLowerCase()) ? -1 : 1
+    })
+
+    // Group the issues by "formLabel"
+    uniqueFormLabels.forEach((formLabel) => {
+      const issues = filteredIssues.filter((issue) => issue.formLabel === formLabel)
+      tempGroupedList.push({ formLabel: formLabel, issues })
     })
     
     setGroupedList(tempGroupedList)
@@ -38,7 +42,7 @@ export default function FixIssuesList({ t, settings, filteredIssues, setActiveIs
           return (
             <div className="ufixit-list-section-container" key={i}>
               <div className="ufixit-list-heading allow-word-break">
-                <h3>{group.scanRuleLabel}</h3>
+                <h3>{group.formLabel}</h3>
               </div>
               { group.issues.map((issue, j) => {
                 return (

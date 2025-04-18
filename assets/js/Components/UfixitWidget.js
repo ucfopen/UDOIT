@@ -9,7 +9,7 @@ import ProgressIcon from './Icons/ProgressIcon'
 import FixIssuesResolve from './FixIssuesResolve'
 import ReactHtmlParser from 'react-html-parser'
 import FileForm from './Forms/FileForm'
-import { returnIssueForm } from '../Services/Ufixit'
+import { formFromIssue } from '../Services/Ufixit'
 import Api from '../Services/Api'
 import * as Html from '../Services/Html'
 import './UfixitWidget.css'
@@ -57,7 +57,7 @@ export default function UfixitWidget({
         setUfixitForm(() => { return FileForm })
       }
       else {
-        setUfixitForm(() => returnIssueForm(activeIssue.issueData))
+        setUfixitForm(() => formFromIssue(activeIssue.issueData))
       }
       setTempActiveIssue(Object.assign({}, activeIssue))
     }
@@ -127,7 +127,7 @@ export default function UfixitWidget({
             {/* The header with the issue name and severity icon */}
             <div className="ufixit-widget-header flex-row justify-content-between mb-2">
               <div className="flex-column justify-content-center allow-word-break">
-                <h2 className="mt-0 mb-0">{activeIssue.scanRuleLabel}</h2>
+                <h2 className="mt-0 mb-0">{activeIssue.formLabel}</h2>
               </div>
               <div className="flex-column justify-content-center ml-3">
                 {

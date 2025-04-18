@@ -17,6 +17,7 @@ export default function getInitialData() {
 
     if (Object.keys(data).length > 0) {
       console.info('UDOIT initial LMS data was found and loaded!')
+      console.log(data)
     } else {
       console.error('No data loaded!')
     }
