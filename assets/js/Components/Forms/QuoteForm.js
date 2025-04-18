@@ -9,6 +9,8 @@ export default function QuoteForm(props) {
     html = props.activeIssue.newHtml
   }
 
+  let activeIssue = props.activeIssue
+
   let initialElement = Html.toElement(html)
   let cite = initialElement ? Html.getAttribute(initialElement, "cite") : ""
 
@@ -25,6 +27,7 @@ export default function QuoteForm(props) {
 
   // Re-init form when activeIssue changes
   useEffect(() => {
+    activeIssue = props.activeIssue
     if (prevIssueID !== null && prevIssueID === activeIssue.id) return;
 
     let html = activeIssue.newHtml || activeIssue.sourceHtml || ''
@@ -80,7 +83,7 @@ export default function QuoteForm(props) {
     const newHtmlString = Html.toString(updatedElement)
 
     setModifiedHtml(newHtmlString)
-    props.handleactiveIssue({ ...activeIssue, newHtml: newHtmlString })
+    props.handleActiveIssue({ ...activeIssue, newHtml: newHtmlString })
   }
 
   const handleButton = () => {
@@ -110,7 +113,7 @@ export default function QuoteForm(props) {
     if (!newDeleteQuotes) {
       setSelectedTag("")
       setModifiedHtml(originalHtml)
-      props.handleactiveIssue({ ...activeIssue, newHtml: originalHtml })
+      props.handleActiveIssue({ ...activeIssue, newHtml: originalHtml })
     }
 
     if (addCitation) {

@@ -62,7 +62,7 @@ const UfixitForms = {
   object_text_exists: EmbeddedContentTitleForm,
   frame_title_exists: EmbeddedContentTitleForm,
   media_alt_exists: EmbeddedContentTitleForm,
-  // text_quoted_correctly: QuoteForm,
+  text_quoted_correctly: QuoteForm,
   text_sensory_misuse: SensoryMisuseForm,
   a_text_purpose: AnchorText,
 }
