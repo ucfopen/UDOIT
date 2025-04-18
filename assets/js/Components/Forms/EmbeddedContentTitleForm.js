@@ -1,17 +1,9 @@
 import React, { useEffect, useState } from 'react'
-import { View } from '@instructure/ui-view'
-import { TextInput } from '@instructure/ui-text-input'
-import { Button } from '@instructure/ui-buttons'
-import { IconCheckMarkLine } from '@instructure/ui-icons'
-import { Checkbox } from '@instructure/ui-checkbox'
-import { Spinner } from '@instructure/ui-spinner'
 import * as Html from '../../Services/Html'
-
-
 
 export default function EmbeddedContentTitleForm(props) {
   let html = props.activeIssue.newHtml ? props.activeIssue.newHtml : props.activeIssue.sourceHtml
-  
+
   if (props.activeIssue.status === '1') {
     html = props.activeIssue.newHtml
   }
