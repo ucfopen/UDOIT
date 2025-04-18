@@ -1,10 +1,6 @@
 import React, { useEffect, useState } from "react";
-import { View } from "@instructure/ui-view";
-import { Button } from "@instructure/ui-buttons";
-import { Checkbox } from "@instructure/ui-checkbox";
-import { Spinner } from "@instructure/ui-spinner";
 import * as Html from "../../Services/Html";
-import { SimpleSelect } from "@instructure/ui-simple-select";
+import './AriaRoleForm.css'
 
 export default function AriaRoleForm(props) {
   const ariaRoleMap = {
@@ -204,8 +200,8 @@ export default function AriaRoleForm(props) {
       props.handleIssueSave(props.activeIssue);
     }
   };
-  const handleInput = (e, { id, value }) => {
-    setTextInputValue(value);
+  const handleInput = (e) => {
+    setTextInputValue(e.target.value);
     // handleHtmlUpdate()
   };
 
@@ -220,48 +216,43 @@ export default function AriaRoleForm(props) {
   const validRoles = detectedTag ? ariaRoleMap[detectedTag] || [] : [];
 
   return (
-    <View as="div" padding="x-small">
-      <View>
-        {!validRoles.length ? (
-          <div>No valid ARIA roles for &lt;{detectedTag}&gt;</div>
-        ) : (
-          <SimpleSelect
-            renderLabel="Please choose one option"
-            assistiveText="Use arrow keys to navigate options."
-            value={textInputValue}
-            onChange={handleInput}
-          >
-            {validRoles.map((opt, index) => (
-              <SimpleSelect.Option key={index} id={`opt-${index}`} value={opt}>
-                {opt}
-              </SimpleSelect.Option>
-            ))}
-          </SimpleSelect>
+    <div className="p-1">
+      <section>
+        {validRoles.length === 0 ? (
+          <p>No valid ARIA roles for &lt;{detectedTag}&gt;</p>
+        ) : (<section className="flex-col">
+          <label>
+            Choose a role
+            </label>
+            <select value={textInputValue} onChange={(e) => handleInput(e)}>
+              <option value="">--Select a role--</option>
+              {validRoles.map((opt, index) => (
+                <option key={index} value={opt} selected={opt == textInputValue}>
+                  {opt}
+                </option>
+              ))}
+            </select>
+            </section>
         )}
-      </View>
-      <View>
-        <View as="span" display="inline-block">
-          <Checkbox
-            label="form.label.remove_label"
+      </section>
+
+      <section className="mt-3 flex">
+        
+          <input className="checkbox"
+            type="checkbox"
             checked={deleteRole}
             onChange={handleCheckbox}
           />
-        </View>
-      </View>
-      <View as="div" margin="small 0">
-        <Button
-          color="primary"
-          onClick={handleButton}
-          interaction={
-            !pending && props.activeIssue.status !== 2 ? "enabled" : "disabled"
-          }
-        >
-          {"1" == pending && (
-            <Spinner size="x-small" renderTitle={props.t(buttonLabel)} />
-          )}
-          {props.t(buttonLabel)}
-        </Button>
-      </View>
-    </View>
+        <label>
+          Remove role attribute
+        </label>
+      </section>
+
+      <section className="mt-3">
+        <button className="btn btn-primary" onClick={handleButton} disabled={pending}>
+          {pending ? "Processing..." : "Submit"}
+        </button>
+      </section>
+    </div>
   );
 }
