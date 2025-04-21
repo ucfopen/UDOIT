@@ -11,7 +11,7 @@ app.use(express.json({limit: '50mb'}));
 app.use(express.urlencoded({limit: '50mb', extended: true}));
 const PORT = process.env.PORT || 3000;
 const DEFAULT_ID = 'WCAG_2_1';
-const DEFAULT_REPORT_LEVELS = 'violation';
+const DEFAULT_REPORT_LEVELS = ['violation', 'potentialviolation', 'manual'];
 
 app.use(bodyParser.json());
 
