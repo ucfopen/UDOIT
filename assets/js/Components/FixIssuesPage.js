@@ -118,7 +118,7 @@ export default function FixIssuesPage({
     if(issue.type === 'suggestion' || issue.type === 'SUGGESTION') {
       issueSeverity = FILTER.SUGGESTION
     }
-    else if(issue.type === 'POTENTIAL' || issue.type === 'MANUAL') {
+    else if(issue.type === 'potential' || issue.type === 'POTENTIAL' || issue.type === 'MANUAL') {
       issueSeverity = FILTER.POTENTIAL
     }
     

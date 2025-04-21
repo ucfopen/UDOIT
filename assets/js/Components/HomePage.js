@@ -144,8 +144,6 @@ export default function HomePage({ t, report, hasNewReport, quickIssues, handleF
         </>
       )}
     </div>
-    <button onClick={() => handleFullCourseRescan()} className="btn btn-primary mt-3">
-      FORCE RESCAN</button>
   </main>
   )
 }

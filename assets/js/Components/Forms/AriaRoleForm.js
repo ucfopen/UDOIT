@@ -188,7 +188,7 @@ export default function AriaRoleForm({
   }, [selectValue, deleteRole])
   
 
-  const handleButton = () => {
+  const handleSubmit = () => {
     handleIssueSave(activeIssue)
   }
 
@@ -236,7 +236,7 @@ export default function AriaRoleForm({
         <label htmlFor="deleteRoleCheckbox">{t('form.aria_role.label.remove')}</label>
       </div>
       <div className="flex-row justify-content-start mt-3 mb-3">
-        <button className="btn btn-primary" disabled={!deleteRole && selectValue === ''} onClick={handleButton}>{t('form.submit')}</button>
+        <button className="btn btn-primary" disabled={!deleteRole && selectValue === ''} onClick={handleSubmit}>{t('form.submit')}</button>
       </div>
     </>
   )

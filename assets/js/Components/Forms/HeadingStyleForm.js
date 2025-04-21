@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import SeverityIcon from '../Icons/SeverityIcon'
+import FormFeedback from './FormFeedback'
 import * as Html from '../../Services/Html'
 
 export default function HeadingStyleForm ({
@@ -123,20 +123,7 @@ export default function HeadingStyleForm ({
           onChange={handleCheckbox} />
         <label htmlFor="removeStylingCheckbox">{t('form.heading_style.label.remove_styling')}</label>
       </div>
-      {textInputErrors.length > 0 && (
-        <div className="flex-column mt-2">
-          {textInputErrors.map((error, index) => (
-            <div className="flex-row justify-content-end gap-1" key={index}>
-              <div className="flex-column flex-center">
-                <SeverityIcon type="ISSUE" className="icon-sm" />
-              </div>
-              <div className="flex-column flex-center">
-                <div className="error-text">{error.text}</div>
-              </div>
-            </div>
-          ))}
-        </div>
-      )}
+      <FormFeedback issues={textInputErrors} />
       <div className="flex-row justify-content-start mt-3 mb-3">
         <button className="btn btn-primary" disabled={textInputErrors.length > 0} onClick={handleSubmit}>{t('form.submit')}</button>
       </div>

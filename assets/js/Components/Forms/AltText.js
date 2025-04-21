@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react'
-import SeverityIcon from '../Icons/SeverityIcon'
+import FormFeedback from './FormFeedback'
 import * as Html from '../../Services/Html'
+import { Form } from 'react-router-dom'
 
 export default function AltText ({
   t,
@@ -33,11 +34,11 @@ export default function AltText ({
   }, [activeIssue])
 
   useEffect(() => {
-    handleHtmlUpdate()
-    setTextInputErrors(checkFormErrors())
+    updateActiveIssueHtml()
+    checkFormErrors()
   }, [textInputValue, isDecorative])
 
-  const handleHtmlUpdate = () => {
+  const updateActiveIssueHtml = () => {
     const html = Html.getIssueHtml(activeIssue)
     let element = Html.toElement(html)
     
@@ -60,27 +61,15 @@ export default function AltText ({
   const checkFormErrors = () => {
     let tempErrors = []
     
+    // If the "Mark as Decorative" checkbox is checked, we don't need to check for input errors
     if (!isDecorative) {
-      const notEmptyError = checkTextNotEmpty()
-      const lengthError = checkTextLength()
-      const fileExtensionError = checkForFileExtensions()
-      const fileNameError = checkFileName()
-
-      if (notEmptyError) {
-        tempErrors.push(notEmptyError)
-      }
-      if (lengthError) {
-        tempErrors.push(lengthError)
-      }
-      if (fileExtensionError) {
-        tempErrors.push(fileExtensionError)
-      }
-      if (fileNameError) {
-        tempErrors.push(fileNameError)
-      }
+      tempErrors = checkTextNotEmpty(tempErrors)
+      tempErrors = checkTextLength(tempErrors)
+      tempErrors = checkForFileExtensions(tempErrors)
+      tempErrors = checkFileName(tempErrors)
     }
 
-    return tempErrors
+    setTextInputErrors(tempErrors)
   }
 
   const handleSubmit = () => {
@@ -98,39 +87,41 @@ export default function AltText ({
     setIsDecorative(!isDecorative)
   }
 
-  const checkTextNotEmpty = () => {
+  const checkTextNotEmpty = (errorArray) => {
     const text = textInputValue.trim().toLowerCase()
+
     if (text === '') {
-      return { text: t('form.alt_text.msg.text_empty'), type: 'error' }
+      errorArray.push({ text: t('form.alt_text.msg.text_empty'), type: 'error' })
     }
-    return false
+    return errorArray
   }
 
-  const checkTextLength = () => {
+  const checkTextLength = (errorArray) => {
     const text = textInputValue.trim().toLowerCase()
+
     if (text.length > maxLength) {
-      return { text: t('form.alt_text.msg.text_too_long'), type: 'error' }
+      errorArray.push({ text: t('form.alt_text.msg.text_too_long'), type: 'error' })
     }
-    return false
+    return errorArray
   }
 
-  const checkForFileExtensions = () => {
+  const checkForFileExtensions = (errorArray) => {
     let fileRegex = /([a-zA-Z0-9\s_\\.\-\(\):])+(.png|.jpg|.jpeg|.gif)$/i
 
     if (textInputValue.match(fileRegex) != null) {
-      return { text: t('form.alt_text.msg.text_has_file_extension'), type: 'error' }
+      errorArray.push({ text: t('form.alt_text.msg.text_has_file_extension'), type: 'error' })
     }
-    return false
+    return errorArray
   }
 
-  const checkFileName = () => {
+  const checkFileName = (errorArray) => {
     let fileName = Html.getAttribute(activeIssue.sourceHtml, "src")
     
     if (textInputValue === fileName) {
-      return { text: t('form.alt_text.msg.text_matches_filename'), type: 'error' }
+      errorArray.push({ text: t('form.alt_text.msg.text_matches_filename'), type: 'error' })
     }
 
-    return false
+    return errorArray
   }
 
   const elementIsDecorative = (htmlString) => {
@@ -163,20 +154,7 @@ export default function AltText ({
           {t('form.alt_text.feedback.characters', {current: characterCount, total: maxLength})}
         </div>
       </div>
-      {textInputErrors.length > 0 && (
-        <div className="flex-column mt-2">
-          {textInputErrors.map((error, index) => (
-            <div className="flex-row justify-content-end gap-1" key={index}>
-              <div className="flex-column flex-center">
-                <SeverityIcon type="ISSUE" className="icon-sm" />
-              </div>
-              <div className="flex-column flex-center">
-                <div className="error-text">{error.text}</div>
-              </div>
-            </div>
-          ))}
-        </div>
-      )}
+      <FormFeedback issues={textInputErrors} />
       <div className="flex-row justify-content-start gap-1 mt-2">
         <input type="checkbox"
           id="decorativeCheckbox"

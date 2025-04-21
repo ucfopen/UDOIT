@@ -1,13 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react'
-import { View } from '@instructure/ui-view'
-import { TextInput } from '@instructure/ui-text-input'
-import { Button } from '@instructure/ui-buttons'
-import { IconCheckMarkLine } from '@instructure/ui-icons'
-import { Checkbox } from '@instructure/ui-checkbox'
-import { Spinner } from '@instructure/ui-spinner'
-import { Pill } from '@instructure/ui-pill'
 import * as Html from '../../Services/Html'
-import { Tag } from '@instructure/ui-tag'
 
 import { Editor } from '@tinymce/tinymce-react'
 

@@ -422,6 +422,14 @@
   "form.aria_role.label.none_selected": "No ARIA Role Selected",
   "form.aria_role.label.remove": "Remove ARIA Role",
 
+  "form.embedded_content_title.label.text": "New Content Label",
+  "form.embedded_content_title.msg.text_empty": "Label cannot be empty",
+  "form.embedded_content_title.msg.text_unique": "Labels must be unique",
+
+  "form.emphasis.label.bold": "Make this text bold",
+  "form.emphasis.label.italic": "Make this text italicized",
+  "form.emphasis.msg.required": "Text must be bold or italicized",
+
   "form.heading_empty.label.text": "New Heading Text",
   "form.heading_empty.label.remove_header": "Delete Heading Instead",
   "form.heading_empty.msg.text_empty": "Heading text cannot be empty",
@@ -432,6 +440,12 @@
   "form.heading_style.label.remove_styling": "Remove Styling",
   "form.heading_style.msg.select_heading": "Heading level cannot be empty",
   
+  "form.label.label.text": "New Content Label",
+  "form.label.msg.text_empty": "Label cannot be empty",
+  "form.label.msg.text_unique": "Labels must be unique",
+
+  "form.table_headers.label.select": "Select Table Headers",
+
   "form.heading.use_text": "Use text editor",
   "form.heading.use_code": "Use HTML editor",
 

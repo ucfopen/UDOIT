@@ -1,10 +1,10 @@
 import React from 'react'
 import UDOITLogo from '../../mediaAssets/UDOIT-logo-small-gradient.png'
-import './Header.css'
 import HomeIcon from './Icons/HomeIcon'
-import ReportIcon from './Icons/ReportIcon'
 import UFIXITIcon from './Icons/UFIXITIcon'
-import Classes from '../../css/header.css'
+import ReportIcon from './Icons/ReportIcon'
+import SettingsIcon from './Icons/SettingsIcon'
+import './Header.css'
 
 export default function Header({ t, navigation, handleNavigation }) {
 
@@ -18,7 +18,8 @@ export default function Header({ t, navigation, handleNavigation }) {
           <ul >
             <li
               className={`flex-row ${navigation === 'summary' ? ' active-link' : ''}`}
-              onClick={()=>handleNavigation('summary')}>
+              onClick={()=>handleNavigation('summary')}
+              tabindex='0'>
               <div className='flex-column justify-content-center'>
                 <HomeIcon className='icon-md pr-1'/>
               </div>
@@ -27,7 +28,8 @@ export default function Header({ t, navigation, handleNavigation }) {
               </div></li>
             <li 
               className={`flex-row ${navigation === 'fixIssues' ? ' active-link' : ''}`}
-              onClick={()=>handleNavigation('fixIssues')}>
+              onClick={()=>handleNavigation('fixIssues')}
+              tabindex='0'>
               <div className='flex-column justify-content-center'>
                 <UFIXITIcon className='icon-md pr-1'/> 
               </div>
@@ -37,7 +39,8 @@ export default function Header({ t, navigation, handleNavigation }) {
             </li>
             <li
               className={`flex-row ${navigation === 'reports' ? ' active-link' : ''}`}
-              onClick={()=>handleNavigation('reports')}>
+              onClick={()=>handleNavigation('reports')}
+              tabindex='0'>
               <div className='flex-column justify-content-center'>
                 <ReportIcon className='icon-md pr-1'/>
               </div>
@@ -45,6 +48,17 @@ export default function Header({ t, navigation, handleNavigation }) {
                 {t('label.reports')}
               </div>
             </li>
+            {/* <li
+              className={`flex-row ${navigation === 'settings' ? ' active-link' : ''}`}
+              onClick={()=>handleNavigation('settings')}
+              tabindex='0'>
+              <div className='flex-column justify-content-center'>
+                <SettingsIcon className='icon-md pr-1'/>
+              </div>
+              <div className='flex-column justify-content-center'>
+                {t('menu.settings')}
+              </div>
+            </li> */}
           </ul>
         </div>
       </nav>

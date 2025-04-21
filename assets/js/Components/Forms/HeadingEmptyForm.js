@@ -1,5 +1,5 @@
 import React, {useState, useEffect} from 'react'
-import SeverityIcon from '../Icons/SeverityIcon'
+import FormFeedback from './FormFeedback'
 import * as Html from '../../Services/Html'
 
 export default function HeadingEmptyForm({
@@ -81,20 +81,7 @@ export default function HeadingEmptyForm({
           disabled={deleteHeader}
           onChange={(e) => handleInput(e.target.value)} />
       </div>
-      {textInputErrors.length > 0 && (
-        <div className="flex-column mt-2">
-          {textInputErrors.map((error, index) => (
-            <div className="flex-row justify-content-end gap-1" key={index}>
-              <div className="flex-column flex-center">
-                <SeverityIcon type="ISSUE" className="icon-sm" />
-              </div>
-              <div className="flex-column flex-center">
-                <div className="error-text">{error.text}</div>
-              </div>
-            </div>
-          ))}
-        </div>
-      )}
+      <FormFeedback issues={textInputErrors} />
       <div className="flex-row justify-content-start gap-1 mt-2">
         <input type="checkbox"
           id="deleteHeaderCheckbox"

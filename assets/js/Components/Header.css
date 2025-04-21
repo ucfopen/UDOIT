@@ -31,6 +31,7 @@ header nav {
     float: right;
     display: block;
     color: var(--text-color);
+    fill: var(--text-color);
     border-top-width: 3px;
     border-top-color: transparent;
     border-top-style: solid;
@@ -45,6 +46,12 @@ header nav {
       color: var(--link-color);
       fill: var(--link-color);
       border-top-color: var(--link-color);
+    }
+
+    &:focus {
+      outline-color: var(--link-color);
+      outline-offset: -1px;
+      outline-width: 2px;
     }
   }
 }
