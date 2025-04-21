@@ -9,6 +9,7 @@ export default function QuoteForm(props) {
     html = props.activeIssue.newHtml
   }
 
+  let issueType = props.activeIssue.scanRuleId
   let activeIssue = props.activeIssue
 
   let initialElement = Html.toElement(html)
@@ -27,6 +28,7 @@ export default function QuoteForm(props) {
 
   // Re-init form when activeIssue changes
   useEffect(() => {
+    issueType = props.activeIssue.scanRuleId
     activeIssue = props.activeIssue
     if (prevIssueID !== null && prevIssueID === activeIssue.id) return;
 
@@ -50,6 +52,7 @@ export default function QuoteForm(props) {
   }, [activeIssue])
 
   useEffect(() => {
+    console.log()
     handleHtmlUpdate()
   }, [selectedTag, citationText, deleteQuotes, addCitation])
 
@@ -59,27 +62,36 @@ export default function QuoteForm(props) {
 
     let innerHtml = updatedElement.innerHTML
 
-    if (deleteQuotes) {
-      innerHtml = innerHtml.replace(/"([^"<]+)"/g, '$1')
-    } else if (selectedTag === 'q' || selectedTag === 'block') {
-      const quoteRegex = /"([^"<]+)"/g
-      const tag = selectedTag === 'q' ? 'q' : 'blockquote'
-      let match
-
-      while ((match = quoteRegex.exec(innerHtml)) !== null) {
-        const quoteText = match[1]
-        const newElement = document.createElement(tag)
-        newElement.textContent = quoteText
-
-        if (addCitation && citationText.length > 0) {
-          Html.setAttribute(newElement, 'cite', citationText)
-        }
-
-        innerHtml = innerHtml.replace(match[0], Html.toString(newElement))
+    // Handles Handles blockquote_cite_exists issue
+    if (issueType === 'blockquote_cite_exists') {
+      if (citationText.length > 0) {
+        Html.setAttribute(updatedElement, 'cite', citationText)
       }
     }
+    // Handles text_quoted_correctly issue
+    else {
+      if (deleteQuotes) {
+        innerHtml = innerHtml.replace(/"([^"<]+)"/g, '$1')
+      } else if (selectedTag === 'q' || selectedTag === 'block') {
+        const quoteRegex = /"([^"<]+)"/g
+        const tag = selectedTag === 'q' ? 'q' : 'blockquote'
+        let match
+  
+        while ((match = quoteRegex.exec(innerHtml)) !== null) {
+          const quoteText = match[1]
+          const newElement = document.createElement(tag)
+          newElement.textContent = quoteText
+  
+          if (addCitation && citationText.length > 0) {
+            Html.setAttribute(newElement, 'cite', citationText)
+          }
+  
+          innerHtml = innerHtml.replace(match[0], Html.toString(newElement))
+        }
+      }
+      updatedElement.innerHTML = innerHtml
+    }
 
-    updatedElement.innerHTML = innerHtml
     const newHtmlString = Html.toString(updatedElement)
 
     setModifiedHtml(newHtmlString)
@@ -125,69 +137,83 @@ export default function QuoteForm(props) {
   const buttonLabel = pending ? "Processing..." : "Submit"
 
   return (
-    <div style={{ padding: "4px" }}>
-      <div style={{ margin: "8px 0" }}>
-        <label htmlFor="quote-style">Select quotation style</label><br />
-        <select
-          id="quote-style"
-          value={selectedTag}
-          disabled={deleteQuotes}
-          onChange={(e) => setSelectedTag(e.target.value)}
-        >
-          <option value="">-- Choose --</option>
-          <option value="q">Regular Quote</option>
-          <option value="block">Block Quote</option>
-        </select>
-        {selectErrors.length > 0 && (
-          <div style={{ color: "red" }}>{selectErrors[0]}</div>
-        )}
-      </div>
-
-      {addCitation && (
-        <div style={{ margin: "8px 0" }}>
+    <div style={{ padding: '4px' }}>
+    {issueType === 'blockquote_cite_exists' ? (
+      <>
+        <div style={{ margin: '8px 0' }}>
           <label htmlFor="citation">Enter Citation</label><br />
           <input
             id="citation"
             type="text"
             placeholder="e.g., a URL"
             value={citationText}
-            disabled={deleteQuotes}
             onChange={(e) => setCitationText(e.target.value)}
           />
-          {textInputErrors.length > 0 && (
-            <div style={{ color: "red" }}>{textInputErrors[0]}</div>
-          )}
+          {textInputErrors.length > 0 && <div>{textInputErrors[0]}</div>}
         </div>
-      )}
-
-      <div style={{ margin: "8px 0" }}>
-        <label>
-          <input
-            type="checkbox"
-            checked={deleteQuotes}
-            onChange={handleRemoveQuotesCheckbox}
-          />
-          Remove quotes
-        </label>
-        <label style={{ marginLeft: "16px" }}>
-          <input
-            type="checkbox"
-            checked={addCitation}
+      </>
+    ) : (
+      <>
+        <div style={{ margin: '8px 0' }}>
+          <label htmlFor="quote-style">Select quotation style</label><br />
+          <select
+            id="quote-style"
+            value={selectedTag}
             disabled={deleteQuotes}
-            onChange={() => setAddCitation(!addCitation)}
-          />
-          Add a citation
-        </label>
-      </div>
+            onChange={(e) => setSelectedTag(e.target.value)}
+          >
+            <option value="">-- Choose --</option>
+            <option value="q">Regular Quote</option>
+            <option value="block">Block Quote</option>
+          </select>
+          {selectErrors.length > 0 && <div>{selectErrors[0]}</div>}
+        </div>
 
-      <div style={{ margin: "8px 0" }}>
-        <button
-          onClick={handleButton}
-          disabled={pending || activeIssue.status === 2}
-        >
-          {buttonLabel}
-        </button>
-      </div>
+        {addCitation && (
+          <div style={{ margin: '8px 0' }}>
+            <label htmlFor="citation">Enter Citation</label><br />
+            <input
+              id="citation"
+              type="text"
+              placeholder="e.g., a URL"
+              value={citationText}
+              disabled={deleteQuotes}
+              onChange={(e) => setCitationText(e.target.value)}
+            />
+            {textInputErrors.length > 0 && <div>{textInputErrors[0]}</div>}
+          </div>
+        )}
+
+        <div style={{ margin: '8px 0' }}>
+          <label>
+            <input
+              type="checkbox"
+              checked={deleteQuotes}
+              onChange={handleRemoveQuotesCheckbox}
+            />
+            Remove quotes
+          </label>
+          <label style={{ marginLeft: '16px' }}>
+            <input
+              type="checkbox"
+              checked={addCitation}
+              disabled={deleteQuotes}
+              onChange={() => setAddCitation(!addCitation)}
+            />
+            Add a citation
+          </label>
+        </div>
+      </>
+    )}
+
+    <div style={{ margin: '8px 0' }}>
+      <button
+        onClick={handleButton}
+        disabled={pending || activeIssue.status === 2}
+      >
+        {buttonLabel}
+      </button>
     </div>
+  </div>
   )
 }
