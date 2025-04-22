@@ -918,23 +918,39 @@ class CanvasLms implements LmsInterface {
                         $printOutput->writeln("scanPromises" . json_encode($scanPromises));
                     }
 
-                    $this->entityManager->flush();
                     $contentItems[] = $contentItem;
                 }
             }
         }
 
         $printOutput->writeln("Waiting for all scans to finish...");
-        while (!empty($scanPromises)) {
-            foreach ($clientForScan->stream($scanPromises) as $response => $chunk) {
-                if ($chunk->isLast()) {
-                    $scanId = array_search($response, $scanPromises, true);
-                    if ($scanId !== false) {
-                        $printOutput->writeln("Scan completed for content item ID: " . $scanId);
-                        unset($scanPromises[$scanId]); // Remove from pending requests
-                    }
-                }
+
+        // Wait for all scan requests to complete
+        // while the queue is not empty
+        $maxWaitTime = 60; // seconds
+        $waited = 0;
+        $interval = 2; // seconds
+
+        while ($waited < $maxWaitTime) {
+            // if empty then count is 0, queue will not be empty if there are scans
+            // in progress as each messenger worker will add a new row to the queue
+            // and remove it when the scan is complete
+            $count = $this->entityManager->getConnection()
+                ->executeQuery('SELECT COUNT(*) FROM queue')
+                ->fetchOne();
+
+            if ($count == 0) {
+                $printOutput->writeln("Scanning queue is empty.");
+                break;
             }
+
+            $printOutput->writeln("Queue not empty yet ($count scans remaining)...");
+            sleep($interval);
+            $waited += $interval;
+        }
+
+        if ($waited >= $maxWaitTime) {
+            $printOutput->writeln("Warning: Timeout while waiting for scanning queue to empty.");
         }
 
         $printOutput->writeln("All scans completed.");
