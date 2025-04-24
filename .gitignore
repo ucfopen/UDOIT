@@ -35,3 +35,5 @@ yarn-error.log
 ###< phpunit/phpunit ###
 
 *.env
+
+equal-access-server

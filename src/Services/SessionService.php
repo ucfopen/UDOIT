@@ -13,7 +13,7 @@ const FIVE_MINUTES = 300;
 
 class SessionService {
     protected UserSessionRepository $sessionRepo;
-    protected Request $request;
+    protected ?Request $request = null;
     protected UserSession $userSession;
     protected ManagerRegistry $doctrine;
 
@@ -26,6 +26,23 @@ class SessionService {
         $this->sessionRepo = $sessionRepo;
         $this->request = $requestStack->getCurrentRequest();
         $this->doctrine = $doctrine;
+
+    }
+
+    public function getSessionData(string $key)
+    {
+        if (!$this->request || !$this->request->hasSession()) {
+            return null; // Or handle however you want
+        }
+
+        return $this->request->getSession()->get($key);
+    }
+
+    public function setSessionData(string $key, $value): void
+    {
+        if ($this->request && $this->request->hasSession()) {
+            $this->request->getSession()->set($key, $value);
+        }
     }
 
     public function getSession(?string $uuid = null): UserSession

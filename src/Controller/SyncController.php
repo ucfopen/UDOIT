@@ -14,8 +14,8 @@ use App\Services\ScannerService;
 use App\Services\UtilityService;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Console\Output\ConsoleOutput;
-
 
 class SyncController extends ApiController
 {
@@ -25,8 +25,7 @@ class SyncController extends ApiController
     protected $util;
 
     #[Route('/api/sync/{course}', name: 'request_sync')]
-    public function requestSync(Course $course, LmsFetchService $lmsFetch)
-    {
+    public function requestSync(Course $course, LmsFetchService $lmsFetch) {
         $response = new ApiResponse();
         $user = $this->getUser();
         $reportArr = false;
@@ -76,7 +75,7 @@ class SyncController extends ApiController
     }
 
     #[Route('/api/sync/rescan/{course}', name: 'full_rescan')]
-    public function fullCourseRescan(Course $course, LmsFetchService $lmsFetch) {
+    public function fullCourseRescan(Course $course, LmsFetchService $lmsFetch){
         $response = new ApiResponse();
         $user = $this->getUser();
         $reportArr = false;
@@ -131,7 +130,43 @@ class SyncController extends ApiController
     #[Route('/api/sync/content/{contentItem}', name: 'content_sync', methods: ['GET'])]
     public function requestContentSync(ContentItem $contentItem, LmsFetchService $lmsFetch, ScannerService $scanner)
     {
-        $printOut = new ConsoleOutput();
+        $printOutput = new ConsoleOutput();
+
+        $printOutput->writeln("running content item");
+        $response = new ApiResponse();
+        $course = $contentItem->getCourse();
+        $user = $this->getUser();
+        $printOutput->writeln("running content item");
+        // Delete old issues
+        $lmsFetch->deleteContentItemIssues(array($contentItem));
+
+        // Rescan the contentItem
+        $report = $scanner->scanContentItem($contentItem, null, $this->util);
+        $printOutput->writeln("scanned content item");
+        // Add rescanned Issues to database
+        foreach ($report->getIssues() as $issue) {
+            // Create issue entity
+            $lmsFetch->createIssue($issue, $contentItem);
+        }
+
+        // Update report
+        $report = $lmsFetch->updateReport($course, $user);
+        if (!$report) {
+            throw new \Exception('msg.no_report_created');
+        }
+
+        $reportArr = $report->toArray();
+        $reportArr['files'] = $course->getFileItems();
+        $reportArr['issues'] = $course->getAllIssues();
+        $reportArr['contentItems'] = $course->getContentItems();
+        $response->setData($reportArr);
+
+        return new JsonResponse($response);
+    }
+
+    #[Route('/api/async/content/{contentItem}', name: 'content_async', methods: ['GET'])]
+    public function requestContentAsync(ContentItem $contentItem, LmsFetchService $lmsFetch, ScannerService $scanner)
+    {
         $response = new ApiResponse();
         $course = $contentItem->getCourse();
         $user = $this->getUser();
