@@ -65,6 +65,40 @@
   }
 }
 
+.scroll-to-error-container {
+  position: sticky;
+  display: flex;
+  justify-content: right;
+}
+
+.scroll-to-error {
+  background-color: var(--white);
+  /* color: var(--text-color); */
+  border-radius: 100%;
+  /* font-size: 0.85rem; */
+  padding: 0.35rem;
+  cursor: pointer;
+  position: fixed;
+  border: 2px solid var(--primary-color);
+  height: 24px;
+  width: 24px;
+  opacity: 0.5;
+  transition: opacity var(--transition-time);
+
+  &:hover {
+    background-color: var(--primary-color-hover);
+    opacity: 1;
+  }
+}
+
+.scroll-to-error-down {
+  top: 80%;
+}
+
+.scroll-to-error-up {
+  top: auto;
+}
+
 .alt-text-preview {
   position: absolute;
   position-anchor: --ufixit-error-highlight;

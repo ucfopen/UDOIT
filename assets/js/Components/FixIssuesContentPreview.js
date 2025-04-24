@@ -1,12 +1,16 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import DailyProgress from './DailyProgress'
 import DownloadIcon from './Icons/DownloadIcon'
 import ExternalLinkIcon from './Icons/ExternalLinkIcon'
 import EarIcon from './Icons/EarIcon'
 import ProgressIcon from './Icons/ProgressIcon'
+import UpArrowIcon from './Icons/UpArrowIcon'
+import DownArrowIcon from './Icons/DownArrowIcon'
 import * as Html from '../Services/Html'
+import useInViewPort from './Hooks/useInViewPort'
 
 import './FixIssuesContentPreview.css'
+import { element } from 'prop-types'
 
 export default function FixIssuesContentPreview({
   t,
@@ -21,6 +25,50 @@ export default function FixIssuesContentPreview({
   const [taggedContent, setTaggedContent] = useState(null)
   const [altTextPreview, setAltTextPreview] = useState(null)
   const [altTextIsOpen, setAltTextIsOpen] = useState(true)
+
+  const [issueElementDefaultRect, setIssueElementDefaultRect] = useState(null)
+  const issueElementRef = useRef(null)
+  const issueElementVisible = useInViewPort(issueElementRef, { threshold: 0.5 })
+
+  // display value of issueElementVisible every 1 second
+  useEffect(() => {
+    const interval = setInterval(() => {
+      console.log(issueElementRef.current)
+      console.log(issueElementDefaultRect)
+      console.log("issueElementVisible: ", issueElementVisible)
+    }, 1000)
+    return () => clearInterval(interval)
+  }, [issueElementVisible])
+
+  useEffect(() => {
+    console.log("change in issueElementRef...")
+    if (issueElementRef.current) {
+      console.log(issueElementRef.current)
+      const rect = issueElementRef.current.getBoundingClientRect()
+      setIssueElementDefaultRect(rect)
+      console.log(rect)
+    }
+  }, [activeIssue, issueElementRef.current])
+
+  const getScrollDirection = (element, defaultRect) => {
+    if (!element || !defaultRect) return null
+
+    const newRect = element.getBoundingClientRect()
+
+    // if (newRect.left < defaultRect.bottom) {
+    //   return 'left'
+    // }
+    // if (newRect.right < defaultRect.bottom) {
+    //   return 'right'
+    // }
+    if (newRect.top < defaultRect.top) {
+      return 'up'
+    }
+    if (newRect.bottom > defaultRect.bottom) {
+      return 'down'
+    }
+    return null
+  }
 
   const convertErrorHtmlString = (htmlText) => {
     const parser = new DOMParser()
@@ -41,7 +89,7 @@ export default function FixIssuesContentPreview({
   }
 
   const convertErrorHtmlElement = (htmlElement) => {
-    let altText= htmlElement.getAttribute('alt') || htmlElement.getAttribute('aria-label')
+    let altText = htmlElement.getAttribute('alt') || htmlElement.getAttribute('aria-label')
     if(altText && altText !== '') {
       setAltTextPreview(altText)
     } else {
@@ -209,6 +257,30 @@ export default function FixIssuesContentPreview({
     return `${date} ${time}`
   }
 
+  const scrollToElement = (element) => {
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'center' })
+    }
+  }
+
+  const renderScrollButton = () => {
+    let scrollDirection = getScrollDirection(issueElementRef.current, issueElementDefaultRect)
+    return (
+      <div className='scroll-to-error-container'>
+        <div
+          className={`scroll-to-error ${scrollDirection ? 'scroll-to-error-' + scrollDirection : ''}`}
+          onClick={() => scrollToElement(issueElementRef.current)}
+        >
+          {scrollDirection === 'up' ? (
+            <UpArrowIcon />
+          ) : (
+            <DownArrowIcon />
+          )}
+        </div>
+      </div>
+    )
+  }
+
   return (
     <>
       { taggedContent && activeContentItem ? (
@@ -222,7 +294,15 @@ export default function FixIssuesContentPreview({
             </div>
           </a>
           <div className="ufixit-content-preview">
-            <div dangerouslySetInnerHTML={{__html: taggedContent}} />
+            {!issueElementVisible && (
+              renderScrollButton()  
+            )}
+            <div ref={node => {
+              if (node) {
+                const highlightElement = node.getElementsByClassName('ufixit-error-highlight')[0]
+                if (highlightElement) issueElementRef.current = highlightElement
+              }
+            }} dangerouslySetInnerHTML={{__html: taggedContent}} />
             { altTextPreview && (
               <div className={`alt-text-preview${altTextIsOpen ? '' : ' alt-text-preview-closed'}`} onClick={toggleAltTextIsOpen}>
                 <div className="alt-text-preview-icon" alt={t('label.btn.screen_reader')} title={t('label.btn.screen_reader')}>
