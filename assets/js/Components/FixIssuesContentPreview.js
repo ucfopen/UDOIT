@@ -30,23 +30,13 @@ export default function FixIssuesContentPreview({
   const issueElementRef = useRef(null)
   const issueElementVisible = useInViewPort(issueElementRef, { threshold: 0.5 })
 
-  // display value of issueElementVisible every 1 second
   useEffect(() => {
-    const interval = setInterval(() => {
-      console.log(issueElementRef.current)
-      console.log(issueElementDefaultRect)
-      console.log("issueElementVisible: ", issueElementVisible)
-    }, 1000)
-    return () => clearInterval(interval)
-  }, [issueElementVisible])
-
-  useEffect(() => {
-    console.log("change in issueElementRef...")
+    // console.log("change in issueElementRef...")
     if (issueElementRef.current) {
-      console.log(issueElementRef.current)
+      // console.log(issueElementRef.current)
       const rect = issueElementRef.current.getBoundingClientRect()
       setIssueElementDefaultRect(rect)
-      console.log(rect)
+      // console.log(rect)
     }
   }, [activeIssue, issueElementRef.current])
 
@@ -265,20 +255,27 @@ export default function FixIssuesContentPreview({
 
   const renderScrollButton = () => {
     let scrollDirection = getScrollDirection(issueElementRef.current, issueElementDefaultRect)
-    return (
-      <div className='scroll-to-error-container'>
-        <div
-          className={`scroll-to-error ${scrollDirection ? 'scroll-to-error-' + scrollDirection : ''}`}
-          onClick={() => scrollToElement(issueElementRef.current)}
-        >
-          {scrollDirection === 'up' ? (
-            <UpArrowIcon />
-          ) : (
-            <DownArrowIcon />
-          )}
+    let button;
+    if (scrollDirection === 'up') {
+      button = <UpArrowIcon />
+    }
+    else if (scrollDirection === 'down') {
+      button = <DownArrowIcon />
+    }
+
+    if (issueElementRef.current && scrollDirection) {
+      return (
+        <div className='scroll-to-error-container'>
+          <div
+            className={`scroll-to-error ${scrollDirection ? 'scroll-to-error-' + scrollDirection : ''}`}
+            onClick={() => scrollToElement(issueElementRef.current)}
+          >
+            {button}
+          </div>
         </div>
-      </div>
-    )
+      )
+    }
+    return <></>
   }
 
   return (
@@ -294,7 +291,7 @@ export default function FixIssuesContentPreview({
             </div>
           </a>
           <div className="ufixit-content-preview">
-            {!issueElementVisible && (
+            {(issueElementRef.current && !issueElementVisible) && (
               renderScrollButton()  
             )}
             <div ref={node => {
