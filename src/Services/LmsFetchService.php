@@ -289,6 +289,63 @@ class LmsFetchService {
         // $this->scanner->logToServer("done!!!!!!!!!\n");
     }
 
+    // Performs PHPAlly scan on each Content Item.
+    public function asyncScanContentItems(array $contentItems)
+    {
+        $printOutput = new ConsoleOutput();
+
+        $scanner = $_ENV['ACCESSIBILITY_CHECKER'];
+        $equalAccessReports = null;
+
+        // If we're using Equal Access Lambda, send all the requests to Lambda for the
+        // reports at once and save them all into an array (which should be in the same order as the ContentItems)
+        if ($scanner == "equalaccess_lambda" && count($contentItems) > 0) {
+            // $equalAccessReports = $this->asyncReport->postMultipleAsync($contentItems);
+            $equalAccessReports = $this->asyncReport->postMultipleArrayAsync($contentItems);
+        }
+
+        // Scan each update content item for issues
+        /** @var \App\Entity\ContentItem $contentItem */
+
+        $index = 0;
+        foreach ($contentItems as $contentItem) {
+
+            try {
+                // Scan the content item with the scanner set in the environment.
+                $report = $this->scanner->scanContentItem($contentItem, $equalAccessReports == null ? null : $equalAccessReports[$index++], $this->util);
+                $printOutput->writeln("Finished Scan");
+                $printOutput->writeln($report);
+                if ($report) {
+                    // TODO: Do something with report errors
+                    if (count($report->getErrors())) {
+                        foreach ($report->getErrors() as $error) {
+                            $msg = $error . ', item = #' . $contentItem->getId();
+                            $this->util->createMessage($msg, 'error', $contentItem->getCourse(), null, true);
+                        }
+                    }
+
+                    // Add Issues to report
+                    foreach ($report->getIssues() as $issue) {
+                        // Create issue entity
+                        $this->createIssue($issue, $contentItem);
+                        $this->doctrine->getManager()->flush();
+                        $this->doctrine->getManager()->clear();
+
+
+                    }
+                }
+
+                // $this->scanner->logToServer("done!");
+            }
+            catch (\Exception $e) {
+                $this->util->createMessage($e->getMessage(), 'error', null, null, true);
+            }
+        }
+        $this->doctrine->getManager()->flush();
+
+        // $this->scanner->logToServer("done!!!!!!!!!\n");
+    }
+
     public function createIssue(PhpAllyIssue $issue, ContentItem $contentItem)
     {
         $issueEntity = new Issue();

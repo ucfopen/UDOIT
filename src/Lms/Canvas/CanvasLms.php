@@ -908,7 +908,6 @@ class CanvasLms implements LmsInterface {
                         $this->entityManager->flush();
 
                         $contentItemSingle[] = $contentItem;
-                        $lmsFetchServiceObject->deleteContentItemIssues($contentItemSingle);
 
                         # each content item that gets scanned, is scanned by a new worker
                         # via messenger in php
@@ -917,6 +916,9 @@ class CanvasLms implements LmsInterface {
 
                         $printOutput->writeln("scanPromises" . json_encode($scanPromises));
                     }
+                    $this->entityManager->flush();
+                    $this->entityManager->detach($contentItem);
+
 
                     $contentItems[] = $contentItem;
                 }

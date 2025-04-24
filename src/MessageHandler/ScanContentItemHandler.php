@@ -34,13 +34,14 @@ class ScanContentItemHandler implements MessageHandlerInterface
             return;
         }
 
+         // deletes all issues for the content item
+        $this->lmsFetchService->deleteContentItemIssues([$contentItem]);
+
         $printOutput->writeln("Processing content item ID: $contentItemId");
 
         // Call the LMSfetchservice method
-        $this->lmsFetchService->scanContentItems([$contentItem]);
+        $this->lmsFetchService->asyncScanContentItems([$contentItem]);
 
         $printOutput->writeln("Finished processing content item ID: $contentItemId");
-
-
     }
 }
