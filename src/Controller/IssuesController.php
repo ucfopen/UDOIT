@@ -12,6 +12,7 @@ use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Console\Output\ConsoleOutput;
 
 class IssuesController extends ApiController
 {
@@ -30,23 +31,31 @@ class IssuesController extends ApiController
         UtilityService $util,
         Issue $issue)
     {
+        $startTime = microtime(true);
+        $timings = [];
+        
+        $printOutput = new ConsoleOutput();
         $apiResponse = new ApiResponse();
         $user = $this->getUser();
 
         try {
             // Check if user has access to course
+            $checkAccessStart = microtime(true);
             $course = $issue->getContentItem()->getCourse();
             if(!$this->userHasCourseAccess($course)) {
                 throw new \Exception("You do not have permission to access this issue.");
             }
+            $timings['check_access'] = microtime(true) - $checkAccessStart;
 
             // Get updated issue
             $newHtml = $request->getContent();
 
             // Check if new HTML is different from original HTML
+            $checkHtmlStart = microtime(true);
             if ($issue->getHtml() === $newHtml) {
                 throw new \Exception('form.error.same_html');
             }
+            $timings['check_html'] = microtime(true) - $checkHtmlStart;
 
             // // Run fixed content through PhpAlly to validate it
             // $report = $phpAlly->scanHtml($newHtml, [$issue->getScanRuleId()]);
@@ -61,28 +70,36 @@ class IssuesController extends ApiController
             //     throw new \Exception('form.error.fails_tests');
             // }
 
-
             // Update issue HTML
+            $updateIssueStart = microtime(true);
             $issue->setNewHtml($newHtml);
             $this->doctrine->getManager()->flush();
+            $timings['update_issue'] = microtime(true) - $updateIssueStart;
 
             // Save content to LMS
+            $saveLmsStart = microtime(true);
             $lmsPost->saveContentToLms($issue, $user);
+            $timings['save_to_lms'] = microtime(true) - $saveLmsStart;
 
             // Add messages to response
+            $messagesStart = microtime(true);
             $unreadMessages = $util->getUnreadMessages();
             if (empty($unreadMessages)) {
                 $apiResponse->addMessage('form.msg.success_saved', 'success');
 
                 // Update issue status
+                $updateStatusStart = microtime(true);
                 $issue->setHtml($newHtml);
                 $issue->setStatus(Issue::$issueStatusFixed);
                 $issue->setFixedBy($user);
                 $issue->setFixedOn($util->getCurrentTime());
                 $this->doctrine->getManager()->flush();
+                $timings['update_status'] = microtime(true) - $updateStatusStart;
 
                 // Update report stats
+                $updateReportStart = microtime(true);
                 $report = $course->getUpdatedReport();
+                $timings['update_report'] = microtime(true) - $updateReportStart;
 
                 $apiResponse->setData([
                     'issue' => ['status' => $issue->getStatus(), 'pending' => false],
@@ -92,10 +109,15 @@ class IssuesController extends ApiController
             else {
                 $apiResponse->addLogMessages($unreadMessages);
             }
+            $timings['process_messages'] = microtime(true) - $messagesStart;
         }
         catch(\Exception $e) {
             $apiResponse->addMessage($e->getMessage(), 'error');
         }
+
+        $timings['total'] = microtime(true) - $startTime;
+        $printOutput->writeln("Save Issue Timings: " . json_encode($timings));
+        $apiResponse->addData('timings', $timings);
 
         return new JsonResponse($apiResponse);
     }

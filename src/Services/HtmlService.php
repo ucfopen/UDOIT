@@ -4,6 +4,8 @@ namespace App\Services;
 
 use DOMDocument;
 
+use Symfony\Component\Console\Output\ConsoleOutput;
+
 class HtmlService {
 
     public static function clean($html)
@@ -45,6 +47,7 @@ class HtmlService {
 
     public static function dom($html) 
     {
+        $printOutput = new ConsoleOutput();
         try {
             if (!class_exists('domdocument')) {
                 return $html;
@@ -52,6 +55,7 @@ class HtmlService {
 
             $dom = new DOMDocument('1.0', 'utf-8');
             $out = [];
+            // $printOutput->writeln("DomDoc html is " . $html);
 
             if (strpos($html, '<?xml encoding="utf-8"') !== false) {
                 $dom->loadHTML($html, LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD);
@@ -64,7 +68,8 @@ class HtmlService {
                     $out[] = $dom->saveHTML($node);
                 }
             }
-
+            
+            // Remove the XML declaration
             return str_replace(['<?xml encoding="utf-8" ?>', '<?xml version="1.0" encoding="utf-8"?>'], '', implode('', $out));
         } catch (\Exception) {
             return $html;

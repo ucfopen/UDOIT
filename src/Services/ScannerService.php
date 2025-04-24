@@ -42,6 +42,7 @@ class ScannerService {
         // Optional argument scannerReport is used when handling async Equal Access
         // requests, so then all we have to do is just make those into a UDOIT report
         $scanner = $_ENV['ACCESSIBILITY_CHECKER'];
+        // $printOutput->writeln("Using scanner: " . $scanner);
         $report = null;
         $response = new ApiResponse();
 
@@ -54,17 +55,33 @@ class ScannerService {
             }
             else if ($scanner == 'equalaccess_local') {
                 // TODO: create a LocalAccessibilityService
+                // $printOutput->writeln("content item body: " . $contentItem->getBody());
                 if ($contentItem->getBody() != null) {
                     $equalAccess = new EqualAccessService();
+                    // $printOutput->writeln("the body of content item is: " . $contentItem->getBody());
                     $document = $this->getDomDocument($contentItem->getBody());
+                    // $printOutput->writeln("Got the DOM document");
+                    // Add total document length info and show preview
+                    $htmlContent = $document->saveHTML();
+                    $totalLength = strlen($htmlContent);
+                    // $printOutput->writeln("DOM content total length: " . $totalLength . " characters");
+                    // $printOutput->writeln("DOM content preview: " . substr($htmlContent, 0, 1000) . ($totalLength > 1000 ? '...' : ''));
+                    // After creating the DOM document
+                    // $printOutput->writeln("DOM structure created with tags:");
+                    // $printOutput->writeln("Root element: " . $document->documentElement->nodeName);
+                    $bodyElements = $document->getElementsByTagName('body');
+                    if ($bodyElements->length > 0) {
+                        // $printOutput->writeln("Body found with children: " . $bodyElements->item(0)->childNodes->length);
+                    }
 
-                    $localReport = new LocalApiAccessibilityService();
-                    $json = $localReport->scanContentItem($contentItem);
+                    $localService = new LocalApiAccessibilityService();
+                    $json = $localService->scanContentItem($contentItem);
                     $printOutput->writeln("Json response: " . json_encode($json, JSON_PRETTY_PRINT));
                     $report = $equalAccess->generateReport($json, $document);
                 }
             }
             else if ($scanner == 'equalaccess_lambda') {
+                // $printOutput->writeln("Using Lambda function for Equal Access scanning");
                 if ($contentItem->getBody() != null) {
                     $equalAccess = new EqualAccessService();
                     $document = $this->getDomDocument($contentItem->getBody());
@@ -75,7 +92,7 @@ class ScannerService {
                         // OR we can send it to the local scanner, make sure you have the container in the Docker compose file
                         // $localReport = new LocalApiAccessibilityService();
                         // $json = $localReport->scanContentItem($contentItem);
-                        $printOutput->writeln("Json response: " . json_encode($json, JSON_PRETTY_PRINT));
+                        // $printOutput->writeln("Json response: " . json_encode($json, JSON_PRETTY_PRINT));
                         $report = $equalAccess->generateReport($json, $document);
                     }
                     else {
@@ -98,6 +115,8 @@ class ScannerService {
 
 public function getDomDocument($html)
     {
+        $printOutput = new ConsoleOutput();
+        // $printOutput->writeln("In getDomDocument");
         // Load the HTML string into a DOMDocument that PHP can parse.
         // TODO: checks for if <html>, <body>, or <head> and <style> exist? technically canvas will always remove them if they are present in the HTML editor
         // but you never know, also the loadHTML string is pretty long and kinda unreadable, could individually load in each element maybe
@@ -108,12 +127,14 @@ public function getDomDocument($html)
         $envBackgroundColor = $_ENV['BACKGROUND_COLOR'];
         $envTextColor = $_ENV['TEXT_COLOR'];
 
-        if (strpos($html, '<?xml encoding="utf-8"') !== false) {
-            $dom->loadHTML("<!DOCTYPE html><html lang=\"en\"><head><meta charset=\"UTF-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\"><title>Placeholder Page Title</title></head><body><div role=\"main\"><h1>Placeholder Page Title</h1>{$html}</div></body></html>", LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD);
-
-        } else {
-            $dom->loadHTML("<?xml encoding=\"utf-8\" ?><!DOCTYPE html><html lang=\"en\"><head><meta charset=\"UTF-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\"><title>Placeholder Page Title</title></head><body><div role=\"main\"><h1>Placeholder Page Title</h1>{$html}</div></body></html>", LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD);
-        }
+        // FIXED VERSION - NEVER add XML declarations
+        $dom->loadHTML("<!DOCTYPE html><html lang=\"en\"><head><meta charset=\"UTF-8\">
+            <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">
+            <title>Placeholder Page Title</title></head>
+            <body><div role=\"main\"><h1>Placeholder Page Title</h1>{$html}</div></body></html>", 
+            LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD);
+            
+        // $printOutput->writeln("About to return the DOM document");
 
         return $dom;
 
