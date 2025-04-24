@@ -35,6 +35,14 @@
   --transition-time: 0.25s;
 }
 
+body {
+  padding: 0px !important;
+  margin: 0px !important;
+  border-left: none !important;
+  max-width: 1400px;
+  color: var(--text-color);
+}
+
 #root {
   margin: 0px 4px 4px 0px;
   padding: 0 1rem 1rem 1rem;
@@ -44,14 +52,6 @@
   min-height: 600px;
   display: flex;
   flex-direction: column;
-}
-
-body {
-  padding: 0px !important;
-  margin: 0px !important;
-  border-left: none !important;
-  max-width: 1200px;
-  color: var(--text-color);
 }
 
 /* Bootstrap-esque classes for general use */
@@ -143,6 +143,7 @@ body {
 
 .align-self-center {
   align-self: center;
+  text-align: center;
 }
 
 .align-self-baseline {
@@ -201,6 +202,10 @@ body {
   margin-top: var(--spacer) !important;
 }
 
+.mt-4 {
+  margin-top: calc(1.5 * var(--spacer)) !important;
+}
+
 .mb-0 {
   margin-bottom: 0 !important;
 }
@@ -215,6 +220,10 @@ body {
 
 .mb-3 {
   margin-bottom: var(--spacer) !important;
+}
+
+.mb-4 {
+  margin-bottom: calc(1.5 * var(--spacer)) !important;
 }
 
 .ml-0, .ms-0 {
@@ -233,6 +242,10 @@ body {
   margin-left: var(--spacer) !important;
 }
 
+.ml-4, .ms-4 {
+  margin-left: calc(1.5 * var(--spacer)) !important;
+}
+
 .mr-0, .me-0 {
   margin-right: 0 !important;
 }
@@ -247,6 +260,10 @@ body {
 
 .mr-3, .me-3 {
   margin-right: var(--spacer) !important;
+}
+
+.mr-4, .me-4 {
+  margin-right: calc(1.5 * var(--spacer)) !important;
 }
 
 .p-0 {
@@ -545,6 +562,13 @@ button:disabled {
     cursor: not-allowed !important;
     outline-color: var(--gray);
   }
+}
+
+.btn-header {
+  border-radius: 8px !important;
+  justify-content: center;
+  width: 100%;
+  font-size: 0.9rem;
 }
 
 .btn-icon-left {

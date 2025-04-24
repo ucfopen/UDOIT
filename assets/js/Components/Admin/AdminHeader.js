@@ -1,5 +1,8 @@
 import React from 'react'
-import Logo from '../../../mediaAssets/UDOIT-logo-small-gradient.png'
+import UDOITLogo from '../../../mediaAssets/UDOIT-logo-small-gradient.png'
+import ContentAssignmentIcon from '../Icons/ContentAssignmentIcon'
+import UserIcon from '../Icons/UserIcon'
+import '../Header.css'
 
 export default function AdminHeader({
   t,
@@ -9,33 +12,42 @@ export default function AdminHeader({
 }) {
   return (
     <header role="banner">
-      <div className="flex-row justify-content-between">
-        <div
-          className="flex-row mt-2 mb-2"
-          onClick={() => handleNavigation('courses')}
-          >
-          <div className="flex-column justify-content-center">
-            <img alt="UDOIT logo" src={Logo} style={{width: "150px", height: "fit-content"}}></img>
+      <nav>
+        <div className="flex-row justify-content-start gap-2" onClick={() => handleNavigation('courses')}>
+          <div className="flex-column justify-content-center" style={{ width: 'min-content' }}>
+            <img alt={t('alt.UDOIT')} src={UDOITLogo}></img>
           </div>
-          <div className="ms-3 flex-column justify-content-center">
-            <h1 className="mt-0 mb-0">Admin</h1>
+          <div className="flex-column justify-content-center">
+            <h1 className="mt-0 mb-0">{t('menu.admin')}</h1>
           </div>
         </div>
-        <nav>
+        <div>
           <ul>
             <li
-              className={(navigation === 'courses') ? 'selected' : ''}
+              className={`flex-row ${navigation === 'courses' ? ' active-link' : ''}`}
               onClick={() => handleNavigation('courses')}
-              tabIndex="0"
-            >{t('label.admin.courses')}</li>
+              tabIndex="0">
+              <div className='flex-column justify-content-center'>
+                <ContentAssignmentIcon className='icon-md pr-1'/>
+              </div>
+              <div className='flex-column justify-content-center'>
+                {t('menu.admin.courses')}
+              </div>
+            </li>
             <li
-              className={(navigation === 'users') ? 'selected' : ''}
+              className={`flex-row ${navigation === 'users' ? ' active-link' : ''}`}
               onClick={() => handleNavigation('users')}
-              tabIndex="0"
-            >{t('label.admin.users')}</li>
+              tabIndex="0">
+              <div className='flex-column justify-content-center'>
+                <UserIcon className='icon-md pr-1'/>
+              </div>
+              <div className='flex-column justify-content-center'>
+                {t('menu.admin.users')}
+              </div>
+            </li>
           </ul>
-        </nav>
-      </div>
+        </div>
+      </nav>
     </header>
   )
 }

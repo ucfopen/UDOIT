@@ -10,12 +10,12 @@ export default function Header({ t, navigation, handleNavigation }) {
 
   return (
     <header role="banner">
-      <nav >
-        <div >
-          <img className='flex-column' alt="UDOIT Logo" src={UDOITLogo}></img>
+      <nav>
+        <div>
+          <img className='flex-column' alt={t('alt.UDOIT')} src={UDOITLogo}></img>
         </div>
         <div>
-          <ul >
+          <ul>
             <li
               className={`flex-row ${navigation === 'summary' ? ' active-link' : ''}`}
               onClick={()=>handleNavigation('summary')}
@@ -24,7 +24,7 @@ export default function Header({ t, navigation, handleNavigation }) {
                 <HomeIcon className='icon-md pr-1'/>
               </div>
               <div className='flex-column justify-content-center'>
-                {t('label.summary')}
+                {t('menu.summary')}
               </div></li>
             <li 
               className={`flex-row ${navigation === 'fixIssues' ? ' active-link' : ''}`}
@@ -34,7 +34,7 @@ export default function Header({ t, navigation, handleNavigation }) {
                 <UFIXITIcon className='icon-md pr-1'/> 
               </div>
               <div className='flex-column justify-content-center'>
-                {t('label.fix.issues')}
+                {t('menu.fix_issues')}
               </div>
             </li>
             <li
@@ -45,10 +45,10 @@ export default function Header({ t, navigation, handleNavigation }) {
                 <ReportIcon className='icon-md pr-1'/>
               </div>
               <div className='flex-column justify-content-center'>
-                {t('label.reports')}
+                {t('menu.reports')}
               </div>
             </li>
-            {/* <li
+            <li
               className={`flex-row ${navigation === 'settings' ? ' active-link' : ''}`}
               onClick={()=>handleNavigation('settings')}
               tabindex='0'>
@@ -58,7 +58,7 @@ export default function Header({ t, navigation, handleNavigation }) {
               <div className='flex-column justify-content-center'>
                 {t('menu.settings')}
               </div>
-            </li> */}
+            </li>
           </ul>
         </div>
       </nav>

@@ -18,8 +18,8 @@ export default function SettingsPage({
 
   return (
   <main>
-    <h1>{t('menu.settings')}</h1>
-    <label htmlFor="language-select">{t('menu.language')}</label>
+    <h1 className="primary-dark">{t('menu.settings')}</h1>
+    <label htmlFor="language-select">{t('settings.label.language')}</label>
     <select
       id="language-select"
       value={selectedLanguage}
@@ -34,7 +34,7 @@ export default function SettingsPage({
         </option>
       ))}
       </select>
-    <button onClick={() => handleFullCourseRescan()} className="btn btn-primary mt-3">{t('menu.full_rescan')}</button>
+    <button onClick={() => handleFullCourseRescan()} className="btn btn-primary mt-3">{t('settings.button.force_full_rescan')}</button>
   </main>
   )
 }

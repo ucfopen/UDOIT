@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import FormFeedback from './FormFeedback'
 import * as Html from '../../Services/Html'
-import { Form } from 'react-router-dom'
 
 export default function AltText ({
   t,
@@ -63,10 +62,18 @@ export default function AltText ({
     
     // If the "Mark as Decorative" checkbox is checked, we don't need to check for input errors
     if (!isDecorative) {
-      tempErrors = checkTextNotEmpty(tempErrors)
-      tempErrors = checkTextLength(tempErrors)
-      tempErrors = checkForFileExtensions(tempErrors)
-      tempErrors = checkFileName(tempErrors)
+      if(isTextEmpty()){
+        tempErrors.push({ text: t('form.alt_text.msg.text_empty'), type: 'error' })
+      }
+      if(isTextTooLong()){
+        tempErrors.push({ text: t('form.alt_text.msg.text_too_long'), type: 'error' })
+      }
+      if(hasFileExtensions()) {
+        tempErrors.push({ text: t('form.alt_text.msg.text_has_file_extension'), type: 'error' })
+      }
+      if(hasFileName()) {
+        tempErrors.push({ text: t('form.alt_text.msg.text_matches_filename'), type: 'error' })
+      }
     }
 
     setTextInputErrors(tempErrors)
@@ -87,41 +94,41 @@ export default function AltText ({
     setIsDecorative(!isDecorative)
   }
 
-  const checkTextNotEmpty = (errorArray) => {
+  const isTextEmpty = () => {
     const text = textInputValue.trim().toLowerCase()
 
     if (text === '') {
-      errorArray.push({ text: t('form.alt_text.msg.text_empty'), type: 'error' })
+      return true
     }
-    return errorArray
+    return false
   }
 
-  const checkTextLength = (errorArray) => {
+  const isTextTooLong = () => {
     const text = textInputValue.trim().toLowerCase()
 
     if (text.length > maxLength) {
-      errorArray.push({ text: t('form.alt_text.msg.text_too_long'), type: 'error' })
+      return true
     }
-    return errorArray
+    return false
   }
 
-  const checkForFileExtensions = (errorArray) => {
+  const hasFileExtensions = () => {
     let fileRegex = /([a-zA-Z0-9\s_\\.\-\(\):])+(.png|.jpg|.jpeg|.gif)$/i
 
     if (textInputValue.match(fileRegex) != null) {
-      errorArray.push({ text: t('form.alt_text.msg.text_has_file_extension'), type: 'error' })
+      return true
     }
-    return errorArray
+    return false
   }
 
-  const checkFileName = (errorArray) => {
+  const hasFileName = () => {
     let fileName = Html.getAttribute(activeIssue.sourceHtml, "src")
     
     if (textInputValue === fileName) {
-      errorArray.push({ text: t('form.alt_text.msg.text_matches_filename'), type: 'error' })
+      return true
     }
 
-    return errorArray
+    return false
   }
 
   const elementIsDecorative = (htmlString) => {

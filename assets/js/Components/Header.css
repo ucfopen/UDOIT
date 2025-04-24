@@ -6,10 +6,6 @@ header nav {
   width: 100%;
   overflow: hidden;
 
-  ul {
-    gap: 3px;
-  }
-
   img {
     width: 15%;
     min-width: 100px;
@@ -23,35 +19,34 @@ header nav {
     margin: 0px;
     margin-left: auto;
     padding: 0px;
-  }
+    gap: 3px;
 
-  li {
-    font-weight: bold;
-    text-transform: uppercase;
-    float: right;
-    display: block;
-    color: var(--text-color);
-    fill: var(--text-color);
-    border-top-width: 3px;
-    border-top-color: transparent;
-    border-top-style: solid;
-    text-align: center;
-    white-space: nowrap;
-    padding: .5rem .75rem;
-    text-decoration: none;
-    cursor: pointer;
+    li {
+      font-weight: bold;
+      text-transform: uppercase;
+      color: var(--text-color);
+      fill: var(--text-color);
+      border-top-width: 3px;
+      border-top-color: transparent;
+      border-top-style: solid;
+      text-align: center;
+      white-space: nowrap;
+      padding: calc(.75rem - 3px) .75rem .75rem .75rem;
+      text-decoration: none;
+      cursor: pointer;
 
-    &:hover,
-    &.active-link {
-      color: var(--link-color);
-      fill: var(--link-color);
-      border-top-color: var(--link-color);
-    }
+      &:hover,
+      &.active-link {
+        color: var(--link-color);
+        fill: var(--link-color);
+        border-top-color: var(--link-color);
+      }
 
-    &:focus {
-      outline-color: var(--link-color);
-      outline-offset: -1px;
-      outline-width: 2px;
+      &:focus {
+        outline-color: var(--link-color);
+        outline-offset: -1px;
+        outline-width: 2px;
+      }
     }
   }
 }

@@ -10,31 +10,31 @@ export default function FixIssuesFilters({ t, settings, sections, activeFilters,
 
   const allFilters = {
     [FILTER.TYPE.SEVERITY]: {
-      [FILTER.ALL]: t('label.filter.severity.all'),
-      [FILTER.ISSUE]: t('label.filter.severity.issue'),
-      [FILTER.POTENTIAL]: t('label.filter.severity.potential'),
-      [FILTER.SUGGESTION]: t('label.filter.severity.suggestion'),
+      [FILTER.ALL]: t('filter.label.severity.all'),
+      [FILTER.ISSUE]: t('filter.label.severity.issue'),
+      [FILTER.POTENTIAL]: t('filter.label.severity.potential'),
+      [FILTER.SUGGESTION]: t('filter.label.severity.suggestion'),
     },
     [FILTER.TYPE.CONTENT_TYPE]: {
-      [FILTER.ALL]: t('label.filter.type.all'),
-      [FILTER.PAGE]: t('label.filter.type.page'),
-      [FILTER.ASSIGNMENT]: t('label.filter.type.assignment'),
-      [FILTER.ANNOUNCEMENT]: t('label.filter.type.announcement'),
-      [FILTER.DISCUSSION_TOPIC]: t('label.filter.type.discussion_topic'),
-      [FILTER.DISCUSSION_FORUM]: t('label.filter.type.discussion_forum'),
-      [FILTER.FILE]: t('label.filter.type.file'),
-      [FILTER.QUIZ]: t('label.filter.type.quiz'),
-      [FILTER.SYLLABUS]: t('label.filter.type.syllabus'),
-      // [FILTER.MODULE]: t('label.filter.type.module'),
+      [FILTER.ALL]: t('filter.label.type.all'),
+      [FILTER.PAGE]: t('filter.label.type.page'),
+      [FILTER.ASSIGNMENT]: t('filter.label.type.assignment'),
+      [FILTER.ANNOUNCEMENT]: t('filter.label.type.announcement'),
+      [FILTER.DISCUSSION_TOPIC]: t('filter.label.type.discussion_topic'),
+      [FILTER.DISCUSSION_FORUM]: t('filter.label.type.discussion_forum'),
+      [FILTER.FILE]: t('filter.label.type.file'),
+      [FILTER.QUIZ]: t('filter.label.type.quiz'),
+      [FILTER.SYLLABUS]: t('filter.label.type.syllabus'),
+      // [FILTER.MODULE]: t('filter.label.type.module'),
     },
     [FILTER.TYPE.RESOLUTION]: {
-      [FILTER.ALL]: t('label.filter.resolution.all'),
-      [FILTER.ACTIVE]: t('label.filter.resolution.active'),
-      [FILTER.FIXED]: t('label.filter.resolution.fixed'),
-      [FILTER.RESOLVED]: t('label.filter.resolution.resolved'),
+      [FILTER.ALL]: t('filter.label.resolution.all'),
+      [FILTER.ACTIVE]: t('filter.label.resolution.active'),
+      [FILTER.FIXED]: t('filter.label.resolution.fixed'),
+      [FILTER.RESOLVED]: t('filter.label.resolution.resolved'),
     },
     [FILTER.TYPE.MODULE]: {
-      [FILTER.ALL]: t('label.filter.module.all'),
+      [FILTER.ALL]: t('filter.label.module.all'),
     },
   }
 
@@ -59,13 +59,13 @@ export default function FixIssuesFilters({ t, settings, sections, activeFilters,
   // TODO: Cool-looking, yet fully accessible dropdown. Maybe like https://www.w3.org/WAI/ARIA/apg/patterns/combobox/examples/combobox-select-only/
 
   return (
-    <div className="filter-container mb-2">
+    <div className="filter-container mb-3">
       <div className="flex-row flex-wrap gap-1">
         <div className="search-group">
           <input
             value={searchTerm}
             type="text"
-            placeholder="Search"
+            placeholder={t('filter.label.search')}
             onChange={(e) => handleSearchTerm(e.target.value)}
           />
           <SearchIcon className="search-icon icon-sm" />

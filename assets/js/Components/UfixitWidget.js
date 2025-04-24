@@ -8,18 +8,16 @@ import RightArrowIcon from './Icons/RightArrowIcon'
 import ProgressIcon from './Icons/ProgressIcon'
 import FixIssuesResolve from './FixIssuesResolve'
 import ReactHtmlParser from 'react-html-parser'
+import FormClarification from './Forms/FormClarification';
 import FileForm from './Forms/FileForm'
-import { formFromIssue } from '../Services/Ufixit'
+import { formFromIssue, formNameFromRule } from '../Services/Ufixit'
 import Api from '../Services/Api'
 import * as Html from '../Services/Html'
 import './UfixitWidget.css'
 
-// import Pretty from 'pretty'
-
 export default function UfixitWidget({
   t,
   settings,
-  ISSUE_STATE,
   viewInfo,
   setViewInfo,
   severity,
@@ -36,15 +34,9 @@ export default function UfixitWidget({
   nextIssue
 }) {
 
-  // const [windowContents, setWindowContents] = useState('preview')
-  // const [expandExample, setExpandExample] = useState(false)
-  // const [showExample, setShowExample] = useState(false)
-  // const [pending, setPending] = useState(false)
-  // const [currentIndex, setCurrentIndex] = useState(0)
-  // const [code, setCode] = useState('')
-
   const [modalMessages, setModalMessages] = useState([])
   const [UfixitForm, setUfixitForm] = useState(null)
+  const [formName, setFormName] = useState('')
 
   // The tempActiveIssue is what is sent to the form to be manipulated and can be updated
   // over and over again by the form as the HTML or other data is changed.
@@ -58,10 +50,12 @@ export default function UfixitWidget({
       }
       else {
         setUfixitForm(() => formFromIssue(activeIssue.issueData))
+        setFormName(formNameFromRule(activeIssue.scanRuleId))
       }
       setTempActiveIssue(Object.assign({}, activeIssue))
     }
     else {
+      setFormName('')
       setUfixitForm(null)
       setTempActiveIssue(null)
     }
@@ -127,7 +121,7 @@ export default function UfixitWidget({
             {/* The header with the issue name and severity icon */}
             <div className="ufixit-widget-header flex-row justify-content-between mb-2">
               <div className="flex-column justify-content-center allow-word-break">
-                <h2 className="mt-0 mb-0">{activeIssue.formLabel}</h2>
+                <h2 className="mt-0 mb-0 primary-dark">{activeIssue.formLabel}</h2>
               </div>
               <div className="flex-column justify-content-center ml-3">
                 {
@@ -143,43 +137,44 @@ export default function UfixitWidget({
             </div>
 
             {/* The "Learn More" toggle */}
-            <div
-              className={`ufixit-widget-toggle-view-container mb-3 flex-row ${viewInfo ? 'justify-content-start' : 'justify-content-end'}`}
-              onClick={() => setViewInfo(!viewInfo)}>
+            <div className='mb-3 flex-row justify-content-center' >
               { viewInfo &&
-                <div
-                  className="flex-row ufixit-widget-toggle-view-container-link pe-2"
+                <button
+                  className="btn btn-primary btn-header btn-icon-left"
                   onKeyDown={handleKeyViewToggle}
+                  onClick={() => setViewInfo(!viewInfo)}
                   tabindex="0" >
                   <div className="flex-column justify-content-center">
-                    <LeftArrowIcon className="primary-dark me-2" />
+                    <LeftArrowIcon className="primary-dark me-2 icon-sm" />
                   </div>
-                  <div className="flex-column justify-content-center primary-dark">{t('label.hide_learn_more')}</div>
-                </div> }
+                  <div className="flex-column justify-content-center primary-dark">{t('fix.button.hide_learn_more')}</div>
+                </button> }
               { !viewInfo &&
-              <div
-                className="flex-row ufixit-widget-toggle-view-container-link ps-2"
+              <button
+                className="btn btn-primary btn-header btn-icon-right"
                 onKeyDown={handleKeyViewToggle}
+                onClick={() => setViewInfo(!viewInfo)}
                 tabindex="0" >
-                <div className="flex-column justify-content-center primary-dark">{t('label.show_learn_more')}</div>
+                <div className="flex-column justify-content-center primary-dark">{t('fix.button.show_learn_more')}</div>
                 <div className="flex-column justify-content-center">
-                  <RightArrowIcon className="primary-dark ms-2" />
+                  <RightArrowIcon className="primary-dark ms-2 icon-sm" />
                 </div>
-              </div> }
+              </button> }
             </div>
 
-            {/* The issue description or the form... Both should grow to fill available space. */}
-            
             { viewInfo && 
               <div className="flex-grow-1 ufixit-learn-container">
                 { activeIssue.contentType === settings.FILTER.FILE_OBJECT
-                  ? ReactHtmlParser(t(`file.desc.${activeIssue.fileData.fileType}`), { preprocessNodes: (nodes) => Html.processStaticHtml(nodes, settings) })
-                  : ReactHtmlParser(t(`rule.desc.${activeIssue.scanRuleId}`), { preprocessNodes: (nodes) => Html.processStaticHtml(nodes, settings) })
+                  ? ReactHtmlParser(t(`form.file.${activeIssue.fileData.fileType}.learn_more`), { preprocessNodes: (nodes) => Html.processStaticHtml(nodes, settings) })
+                  : ReactHtmlParser(t(`form.${formName}.learn_more`), { preprocessNodes: (nodes) => Html.processStaticHtml(nodes, settings) })
                 }
               </div>
             }
             { !viewInfo &&
               <div className="flex-grow-1 flex-column ufixit-form-container">
+                <div className="flex-grow-0">
+                  <FormClarification t={t} activeIssue={activeIssue} />
+                </div>          
                 { activeIssue.status !== settings.FILTER.RESOLVED &&
                   <div className="flex-grow-1 ufixit-form-content">
                     { activeIssue.contentType === settings.FILTER.FILE_OBJECT ? (
@@ -204,12 +199,11 @@ export default function UfixitWidget({
                   <FixIssuesResolve
                     t={t}
                     settings={settings}
-                    ISSUE_STATE={ISSUE_STATE}
                     activeIssue={activeIssue}
                     handleFileResolve={handleFileResolve}
                     handleIssueResolve={handleIssueResolve}
                   />
-                  { (activeIssue.currentState === ISSUE_STATE.SAVING || activeIssue.currentState === ISSUE_STATE.RESOLVING) && 
+                  { (activeIssue.currentState === settings.ISSUE_STATE.SAVING || activeIssue.currentState === settings.ISSUE_STATE.RESOLVING) && 
                     <div className="ufixit-overlay flex-column justify-content-center">
                       <div className="ufixit-overlay-content-container flex-row justify-content-center">
                         <div className="flex-column justify-content-center">

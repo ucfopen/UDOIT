@@ -42,7 +42,7 @@
   flex-grow: 1;
   overflow-x: auto;
   overflow-y: auto;
-  margin: 1rem 0;
+  margin: 0 0 1rem 0;
   padding: 1rem;
   position: relative;
   border: 1px solid var(--border-color);
