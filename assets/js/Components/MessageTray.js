@@ -50,7 +50,7 @@ export default function MessageTray ({ messages, hasNewReport, clearMessages, t 
               <ProgressIcon className="icon-lg primary spinner" alt=""/>
             </div>
             <div className="flex-column justify-content-center">
-              {t('label.content_loading_msg')}
+              {t('msg.content_loading')}
             </div>
           </div>
         )}
