@@ -1,15 +1,21 @@
 import React, { useEffect, useState } from 'react'
-import { View } from '@instructure/ui-view'
-import { TextInput } from '@instructure/ui-text-input'
-import { Button } from '@instructure/ui-buttons'
-import { Spinner } from '@instructure/ui-spinner'
 import * as Html from '../../Services/Html'
+// import ProcessIcon from '../Icons/ProgressIcon'
+// import ResolvedIcon from '../Icons/ResolvedIcon'
 
-export default function LabelForm(props) {
-  let html = props.activeIssue.newHtml ? props.activeIssue.newHtml : props.activeIssue.sourceHtml
+export default function LabelForm({
+  t,
+  settings,
+  activeIssue,
+  handleIssueSave,
+  addMessage,
+  handleActiveIssue,
+  handleManualScan
+}) {
+  let html = activeIssue.newHtml ? activeIssue.newHtml : activeIssue.sourceHtml
   
-  if (props.activeIssue.status === '1') {
-    html = props.activeIssue.newHtml
+  if (activeIssue.status === '1') {
+    html = activeIssue.newHtml
   }
 
   let element = Html.toElement(html)
@@ -21,9 +27,9 @@ export default function LabelForm(props) {
   let formErrors = []
 
   useEffect(() => {
-    let html = props.activeIssue.newHtml ? props.activeIssue.newHtml : props.activeIssue.sourceHtml
-    if (props.activeIssue.status === 1) {
-      html = props.activeIssue.newHtml
+    let html = activeIssue.newHtml ? activeIssue.newHtml : activeIssue.sourceHtml
+    if (activeIssue.status === 1) {
+      html = activeIssue.newHtml
     }
 
     let element = Html.toElement(html)
@@ -37,7 +43,7 @@ export default function LabelForm(props) {
 
     formErrors = []
 
-  }, [props.activeIssue])
+  }, [activeIssue])
 
   useEffect(() => {
     handleHtmlUpdate()
@@ -55,9 +61,9 @@ export default function LabelForm(props) {
       setAriaLabelExists(true)
     }
     
-    let issue = props.activeIssue
+    let issue = activeIssue
     issue.newHtml = Html.toString(updatedElement)
-    props.handleActiveIssue(issue)
+    handleActiveIssue(issue)
   }
 
   const handleButton = () => {
@@ -70,7 +76,9 @@ export default function LabelForm(props) {
       setTextInputErrors(formErrors)
     }
     else {
-      props.handleIssueSave(props.activeIssue)
+      formErrors = []
+      setTextInputErrors(formErrors)
+      handleIssueSave(activeIssue)
     }
   }
 
@@ -88,7 +96,7 @@ export default function LabelForm(props) {
   const checkLabelIsUnique = () => {
     // in the case of aria_*_label_unique, messageArgs (from metadata) should have the offending label (at the first index)
     // i guess we could get it from the aria-label itself as well...
-    const issue = props.activeIssue
+    const issue = activeIssue
     const metadata = issue.metadata ? JSON.parse(issue.metadata) : {}
     const labelFromMessageArgs = metadata.messageArgs ? metadata.messageArgs[0] : null
     const text = textInputValue.trim().toLowerCase()
@@ -100,32 +108,47 @@ export default function LabelForm(props) {
     }
   }
 
-  const pending = props.activeIssue && props.activeIssue.pending == "1"
+  const pending = activeIssue.pending == "1"
   const buttonLabel = pending ? "form.processing" : "form.submit"
   
   return (
-    <View as='div' padding='x-small' >
-      <View>
-        <TextInput
-          renderLabel='New Label Text'
-          display='inline-block'
-          width='100%'
-          onChange={handleInput}
-          value={textInputValue}
-          id="textInputValue"
-          messages={textInputErrors}
-        />
-      </View>
-      <View as='div' margin='small 0'>
-        <Button 
-          color='primary' 
-          onClick={handleButton}
-          interaction={(!pending && props.activeIssue.status !== 2) ? 'enabled' : 'disabled'}
-        >
-          {('1' == pending) && <Spinner size="x-small" renderTitle={props.t(buttonLabel)} />}
-          {props.t(buttonLabel)}
-        </Button>
-      </View>
-    </View>
+    <div className='pt-0 pb-0 pl-1 pr-1'>
+
+      <form onSubmit={(e) => {
+        e.preventDefault()
+        handleButton()
+      }}>
+        <div className='mt-1 mb-1 ml-0 mr-0 flex-col gap-1'>
+          <label htmlFor='label-value'>New Label Text</label>
+          <input id='label-value' type='text' name="New Label Text" value={textInputValue} onChange={handleInput} />
+          <div id="flash-messages" role="alert">
+            {textInputErrors.map((error, index) => (
+              <div key={index} className='color-issue'>
+                {error.text}
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div className='mt-2 mb-1 ml-0 mr-0'>
+          <button 
+            className={(formErrors.length > 0) || pending || activeIssue?.status == "2" ? 'btn btn-secondary disabled' : 'btn btn-primary'} 
+            disabled={pending || activeIssue?.status == 2 || formErrors.length > 0} 
+            type='submit'
+          >
+            {/* {('1' == pending) && <div className='spinner'><ProcessIcon /></div>} */}
+            {t(buttonLabel)}
+          </button>
+          {/* {activeIssue && activeIssue?.recentlyUpdated &&
+            <div className='mt-1 mb-1 ml-0 mr-0'>
+              <ResolvedIcon />
+              <span className='mt-1 mb-1 ml-0 mr-0'>{t('label.fixed')}</span>
+            </div>
+          } */}
+        </div>
+      </form>
+    </div>
+
+
   );
 }

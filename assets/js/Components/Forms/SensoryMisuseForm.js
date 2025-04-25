@@ -1,13 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react'
-import { View } from '@instructure/ui-view'
-import { TextInput } from '@instructure/ui-text-input'
-import { Button } from '@instructure/ui-buttons'
-import { IconCheckMarkLine } from '@instructure/ui-icons'
-import { Checkbox } from '@instructure/ui-checkbox'
-import { Spinner } from '@instructure/ui-spinner'
-import { Pill } from '@instructure/ui-pill'
 import * as Html from '../../Services/Html'
-import { Tag } from '@instructure/ui-tag'
 
 import { Editor } from '@tinymce/tinymce-react'
 
@@ -39,6 +31,14 @@ export default function SensoryMisuseForm({
   const [sensoryErrors, setSensoryErrors] = useState([])
 
   useEffect(() => {
+    // if the issue changes, pull new html and set tinymce's html
+    if (activeIssue) {
+      setHtml(Html.getIssueHtml(activeIssue))
+      setEditorHtml(Html.getIssueHtml(activeIssue))
+    }
+  }, [activeIssue])
+
+  useEffect(() => {
     const matchedWords = checkForSensoryWords(editorHtml);
     console.log(editorHtml)
     setSensoryErrors(matchedWords)
@@ -49,26 +49,6 @@ export default function SensoryMisuseForm({
   const handleEditorChange = (html) => {
     setEditorHtml(html)
   }
-
-  // Pull in new html when activeIssue changes.
-  useEffect(() => {
-
-    const newHtml = Html.getIssueHtml(activeIssue);
-
-    // Update TinyMCE content.
-    editorRef.current.setContent(newHtml);
-
-    // Update local state so everything stays in sync.
-    setHtml(newHtml);
-    setEditorHtml(newHtml);
-  }, [activeIssue]);
-
-  // TODO: this is supposed to update the preview, but it causes the editor to refresh for some reason?
-  // const handleHtmlUpdate = () => {
-  //   let issue = activeIssue
-  //   issue.newHtml = editorHtml
-  //   handleActiveIssue(issue)
-  // }
 
   const checkForSensoryWords = (html) => {
     // check for the same sensory words that equal access checks,
@@ -188,8 +168,8 @@ export default function SensoryMisuseForm({
       <div className='mt-3'>
         <button
           onClick={handleButton}
-          disabled={pending || sensoryErrors.length > 0 || activeIssue.status === 2}
-          className={pending || sensoryErrors.length > 0 || activeIssue.status === 2 ? 'btn btn-secondary btn-disabled' : 'btn btn-primary'}
+          disabled={pending || sensoryErrors.length > 0 || activeIssue.status == 2}
+          className={pending || sensoryErrors.length > 0 || activeIssue.status == 2 ? 'btn btn-secondary btn-disabled' : 'btn btn-primary'}
         >
           {/* {('1' == pending) && <Spinner size="x-small" renderTitle={t(buttonLabel)} />} */}
           {t(buttonLabel)}
