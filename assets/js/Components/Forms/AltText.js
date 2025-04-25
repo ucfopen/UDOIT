@@ -43,11 +43,9 @@ export default function AltText ({
     
     if (isDecorative) {
       element = Html.setAttribute(element, "role", "presentation")
-      element = Html.addClass(element, 'phpally-ignore')
       element = Html.setAttribute(element, 'alt', '')
     } else {
       element = Html.removeAttribute(element, "role")
-      element = Html.removeClass(element, 'phpally-ignore')
       element = Html.setAttribute(element, "alt", textInputValue)
     }
 

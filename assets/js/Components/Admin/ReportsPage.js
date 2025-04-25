@@ -85,7 +85,7 @@ export default function ReportsPage({
       <div>
         {(reports.length === 0) ? 
           <div className="flex-row justify-content-center mt-3">
-            <div>{t('label.admin.no_results')}</div>
+            <div>{t('report.label.no_results')}</div>
           </div>
           : 
           <div className="flex-column">

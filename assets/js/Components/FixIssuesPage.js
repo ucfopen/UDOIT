@@ -204,7 +204,7 @@ export default function FixIssuesPage({
       severity: issueSeverity,
       status: issueResolution,
       sectionIds: issueSectionIds,
-      keywords: createKeywords(issue, formName, tempContentItem),
+      keywords: createKeywords(issue, formLabel, tempContentItem),
       scanRuleId: issue.scanRuleId,
       formName: formName,
       formLabel: formLabel,
@@ -817,10 +817,10 @@ export default function FixIssuesPage({
               />
           ) : (
             <div className="flex-column gap-3 mt-3">
-              <div className="flex-row justify-content-center ms-3 me-3">
-                <h2 className="mt-0 mb-0">{t('report.label.no_results')}</h2>
+              <div className="flex-row align-self-center ms-3 me-3">
+                <h2 className="mt-0 mb-0 primary-dark">{t('report.label.no_results')}</h2>
               </div>
-              <div className="flex-row justify-content-center ms-3 me-3">
+              <div className="flex-row align-self-center ms-3 me-3">
                 {t('report.msg.no_results')}
               </div>
             </div>

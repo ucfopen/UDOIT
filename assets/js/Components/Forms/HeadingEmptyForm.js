@@ -28,13 +28,12 @@ export default function HeadingEmptyForm({
     setTextInputErrors([])
   }, [activeIssue])
 
-  const checkTextNotEmpty = () => {
-    let tempErrors = []
+  const isTextEmpty = () => {
     const text = textInputValue.trim().toLowerCase()
     if (text === '') {
-      tempErrors.push({ text: t('form.heading_empty.msg.text_empty'), type: 'error' })
+      return true
     }
-    setTextInputErrors(tempErrors)
+    return false
   }
 
   const processHtml = () => {
@@ -47,7 +46,11 @@ export default function HeadingEmptyForm({
   }
 
   useEffect(() => {
-    checkTextNotEmpty()
+    let tempErrors = []
+    if(isTextEmpty()) {
+      tempErrors.push({ text: t('form.heading_empty.msg.text_empty'), type: 'error' })
+    }
+    setTextInputErrors(tempErrors)
 
     let issue = activeIssue
     issue.newHtml = processHtml()
@@ -63,9 +66,7 @@ export default function HeadingEmptyForm({
   }
 
   const handleSubmit = () => {
-    if(textInputErrors.length === 0) {
-      handleIssueSave(activeIssue)
-    }
+    handleIssueSave(activeIssue)
   }
 
   return (

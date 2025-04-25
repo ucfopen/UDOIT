@@ -1,3 +1,17 @@
+.ufixit-double-container {
+  width: calc(200% + 2rem);
+  gap: 2rem;
+  transition: var(--transition-time) ease-in-out margin-left;
+  margin-left: -5px;
+  padding-left: 5px;
+  overflow-y: auto;
+  box-sizing: content-box;
+
+  &.ufixit-shift-view {
+    margin-left: calc(-100% - 2rem - 5px);
+  }
+}
+
 .clarification-container {
   border: 1px solid var(--border-color);
   border-radius: 8px;
@@ -14,11 +28,12 @@
 .ufixit-form-container {
   position: relative;
   overflow-y: auto;
-  margin-left: -5px;
+  width: calc(50% - 1rem);
   margin-right: -5px;
-  padding-left: 5px;
   padding-right: 5px;
-  width: 100%;
+  margin-left: -5px;
+  padding-left: 5px;
+  box-sizing: content-box;
 }
 
 .ufixit-form-content {
@@ -141,6 +156,7 @@
 
 .ufixit-learn-container {
   overflow-y: auto;
+  width: calc(50% - 1rem);
 
   a {
     color: var(--link-color);

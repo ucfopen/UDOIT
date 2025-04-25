@@ -88,13 +88,13 @@ export default function ReportsPage({t, report, settings}) {
             <ProgressIcon className="icon-lg primary spinner" />
           </div>
           <div className="flex-column justify-content-center">
-            <h2 className="mt-0 mb-0">{t('label.loading_reports')}</h2>
+            <h2 className="mt-0 mb-0">{t('report.label.loading_reports')}</h2>
           </div>
         </div>
       )}
       { (fetchedReports && reports.length === 0) && (
         <div className="flex-row justify-content-center mt-3">
-          <h2 className="mt-0 mb-0">{t('label.admin.no_results')}</h2>
+          <h2 className="mt-0 mb-0">{t('report.label.no_results')}</h2>
         </div>
       )}
 

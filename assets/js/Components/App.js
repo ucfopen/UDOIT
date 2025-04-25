@@ -142,9 +142,14 @@ export default function App(initialData) {
     setDisableReview(newDisableReview)
   }
 
-  const handleNavigation = (navigation) => {
-    clearMessages()
-    setNavigation(navigation)
+  const handleNavigation = (newNavigation) => {
+    if(newNavigation === navigation) {
+      return
+    }
+    if(newNavigation !== 'fixIssues') {
+      setInitialSeverity('')
+    }
+    setNavigation(newNavigation)
   }
 
   const handleModal = (modal) => {

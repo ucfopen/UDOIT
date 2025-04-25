@@ -49,36 +49,33 @@ export default function EmbeddedContentTitleForm({
   const checkFormErrors = () => {
     let tempErrors = []
     
-    tempErrors = checkTextNotEmpty(tempErrors)
-    tempErrors = checkLabelIsUnique(tempErrors)
+    if(isTextEmpty()) {
+      tempErrors.push({ text: t('form.embedded_content_title.msg.text_empty'), type: "error" })
+    }
+    if(isLabelDuplicate()) {
+      tempErrors.push({ text: t('form.embedded_content_title.msg.text_unique'), type: "error" })
+    }
     
     setTextInputErrors(tempErrors)
   }
 
   const handleSubmit = () => {
-    checkTextNotEmpty()
-    checkLabelIsUnique()
-    if (formErrors.length > 0) {
-      setTextInputErrors(formErrors)
-    }
-    else {
-      props.handleIssueSave(props.activeIssue)
-    }
+    handleIssueSave(activeIssue)
   }
 
   const handleInput = (event) => {
     setTextInputValue(event.target.value)
   }
 
-  const checkTextNotEmpty = (errorArray) => {
+  const isTextEmpty = () => {
     const text = textInputValue.trim().toLowerCase()
     if (text === '') {
-      errorArray.push({ text: t('form.embedded_content_title.msg.text_empty'), type: "error" })
+      return true
     }
-    return errorArray
+    return false
   }
 
-  const checkLabelIsUnique = (errorArray) => {
+  const isLabelDuplicate = () => {
     // in the case of aria_*_label_unique, messageArgs (from metadata) should have the offending label (at the first index)
     // i guess we could get it from the aria-label itself as well...
     const issue = activeIssue
@@ -86,10 +83,9 @@ export default function EmbeddedContentTitleForm({
     const labelFromMessageArgs = metadata.messageArgs ? metadata.messageArgs[0] : null
     const currentText = textInputValue.trim().toLowerCase()
     if (labelFromMessageArgs && currentText === labelFromMessageArgs) {
-      errorArray.push({ text: t('form.embedded_content_title.msg.text_unique'), type: "error" })
+      return true
     }
-
-    return errorArray
+    return false
   }
   
   return (

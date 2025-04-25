@@ -78,13 +78,13 @@ export default function HomePage({
   return (
   <main>
     <div className='flex-column gap-3 mt-4 mb-4'>
-      <h1 className="primary-dark align-self-center mt-0 mb-0">{t('summary.title')}</h1>
-      <div className="flex-row align-self-center w-50">
+      <h1 className="primary-dark mt-0 mb-0">{t('summary.title')}</h1>
+      <div className="flex-row w-50">
         <p className="mt-0 mb-0">{t('summary.description')}</p>
       </div>
       
     </div>
-    <div className="flex-row justify-content-center mb-3">
+    <div className="flex-row gap-3">
       <div className="report-container flex-column">
         { setTotalsCounted && (
           <>
@@ -157,9 +157,9 @@ export default function HomePage({
           </>
         )}
       </div>
-      {/* <div className="flex-column justify-content-end flex-grow-1">
+      <div className="flex-column justify-content-end flex-grow-1">
         <DailyProgress  t={t} sessionIssues={sessionIssues} settings={settings} />
-      </div> */}
+      </div>
     </div>
   </main>
   )

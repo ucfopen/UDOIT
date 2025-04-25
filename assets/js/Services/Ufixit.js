@@ -120,9 +120,9 @@ const rulesToFormNameMap = {
 
   // text_quoted_correctly: formNames.QUOTE,
 
-  // style_color_misuse: formNames.EMPHASIS,
+  style_color_misuse: formNames.EMPHASIS,
 
-  text_sensory_misuse: formNames.SENSORY_MISUSE,
+  // text_sensory_misuse: formNames.SENSORY_MISUSE,
 
   table_headers_exists: formNames.TABLE_HEADERS,
   table_headers_related: formNames.TABLE_HEADERS,

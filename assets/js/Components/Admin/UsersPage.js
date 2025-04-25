@@ -139,7 +139,7 @@ export default function UsersPage({
   return (
     <div className="pt-0 pe-0 pb-0 ps-0">
       <div className="flex-row justify-content-center mt-3 mb-3">
-        <h1 className="mt-0 mb-0 primary-dark">{t('label.admin.users')}</h1>
+        <h1 className="mt-0 mb-0 primary-dark">{t('report.header.users')}</h1>
       </div>
       {(!usersLoaded) &&
         <div className="mt-3 flex-row justify-content-center">

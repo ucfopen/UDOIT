@@ -86,10 +86,6 @@ export default function UfixitWidget({
         }
       })
   }
-  
-  // const handleExampleToggle = () => {
-  //   setExpandExample(!expandExample)
-  // }
 
   const addMessage = (msg) => {
     setModalMessages([...modalMessages, msg])
@@ -104,12 +100,6 @@ export default function UfixitWidget({
     }
     else {
       setEditedElement(newIssue.sourceHtml)
-    }
-  }
-
-  const handleKeyViewToggle = (event) => {
-    if(event.key === 'Enter' || event.key === ' ') {
-      setViewInfo(!viewInfo)
     }
   }
 
@@ -136,42 +126,31 @@ export default function UfixitWidget({
               </div>
             </div>
 
-            {/* The "Learn More" toggle */}
+            {/* The "Learn More" toggle button */}
             <div className='mb-3 flex-row justify-content-center' >
-              { viewInfo &&
-                <button
-                  className="btn btn-primary btn-header btn-icon-left"
-                  onKeyDown={handleKeyViewToggle}
-                  onClick={() => setViewInfo(!viewInfo)}
-                  tabindex="0" >
+              <button
+                className={`btn btn-primary btn-header ${viewInfo ? 'btn-icon-left' : 'btn-icon-right'}`}
+                onClick={() => setViewInfo(!viewInfo)}
+                tabindex="0" >
+                { viewInfo && (
                   <div className="flex-column justify-content-center">
                     <LeftArrowIcon className="primary-dark me-2 icon-sm" />
                   </div>
-                  <div className="flex-column justify-content-center primary-dark">{t('fix.button.hide_learn_more')}</div>
-                </button> }
-              { !viewInfo &&
-              <button
-                className="btn btn-primary btn-header btn-icon-right"
-                onKeyDown={handleKeyViewToggle}
-                onClick={() => setViewInfo(!viewInfo)}
-                tabindex="0" >
-                <div className="flex-column justify-content-center primary-dark">{t('fix.button.show_learn_more')}</div>
-                <div className="flex-column justify-content-center">
-                  <RightArrowIcon className="primary-dark ms-2 icon-sm" />
+                )}
+                <div className="flex-column justify-content-center primary-dark">
+                  { viewInfo ? t('fix.button.hide_learn_more') : t('fix.button.show_learn_more') }
                 </div>
-              </button> }
+                { !viewInfo && (
+                  <div className="flex-column justify-content-center">
+                    <RightArrowIcon className="primary-dark ms-2 icon-sm" />
+                  </div>
+                )}
+              </button>
             </div>
 
-            { viewInfo && 
-              <div className="flex-grow-1 ufixit-learn-container">
-                { activeIssue.contentType === settings.FILTER.FILE_OBJECT
-                  ? ReactHtmlParser(t(`form.file.${activeIssue.fileData.fileType}.learn_more`), { preprocessNodes: (nodes) => Html.processStaticHtml(nodes, settings) })
-                  : ReactHtmlParser(t(`form.${formName}.learn_more`), { preprocessNodes: (nodes) => Html.processStaticHtml(nodes, settings) })
-                }
-              </div>
-            }
-            { !viewInfo &&
-              <div className="flex-grow-1 flex-column ufixit-form-container">
+            <div className={`ufixit-double-container flex-grow-1 flex-row gap-3 ${viewInfo ? 'ufixit-shift-view' : ''}`}>
+              { /* First item: the form and controls... Visible when !viewInfo, so 'ufixit-shift-view' is NOT applied */}
+              <div className="flex-grow-1 flex-column ufixit-form-container" aria-hidden={viewInfo ? "true" : "false"} >
                 <div className="flex-grow-0">
                   <FormClarification t={t} activeIssue={activeIssue} />
                 </div>          
@@ -217,7 +196,14 @@ export default function UfixitWidget({
                   }
                 </div>
               </div>
-            }
+              { /* Second item: the "Learn More" area... Visible when viewInfo, so 'ufixit-shift-view' IS applied */}
+              <div className="flex-grow-1 ufixit-learn-container" aria-hidden={!viewInfo ? "true" : "false"} >
+                { activeIssue.contentType === settings.FILTER.FILE_OBJECT
+                  ? ReactHtmlParser(t(`form.file.${activeIssue.fileData.fileType}.learn_more`), { preprocessNodes: (nodes) => Html.processStaticHtml(nodes, settings) })
+                  : ReactHtmlParser(t(`form.${formName}.learn_more`), { preprocessNodes: (nodes) => Html.processStaticHtml(nodes, settings) })
+                }
+              </div>
+            </div>
 
             {/* The "Previous", "Next", and "List View" buttons (footer nav) */}
             <div className="flex-row justify-content-between mt-2">
@@ -238,7 +224,7 @@ export default function UfixitWidget({
 
             </div>
           </>
-          ) : ''}
+        ) : ''}
     </>
   )
 }
