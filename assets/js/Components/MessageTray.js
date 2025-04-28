@@ -32,6 +32,9 @@ export default function MessageTray ({ messages, hasNewReport, clearMessages, t 
 
   const handleClose = () => {
     setIsOpen(false)
+    setTimeout(() => {
+      clearMessages()
+    }, 500)
   }
 
   const statusMap = {
