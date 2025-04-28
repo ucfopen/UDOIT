@@ -41,19 +41,8 @@
     justify-content: center;
 
     select {
-      font-size: 0.85rem;
-      font-weight: 500;
-      font-family: 'Open Sans', Arial, Helvetica, sans-serif;
-      padding: .4rem 1.5rem .4rem 0.5rem;
-      border: 1px solid var(--border-color);
-      border-radius: 8px;
-      outline: none;
       max-width: 300px;
-
-      &:focus {
-        outline: 2px solid var(--link-color);
-        outline-offset: 1px;
-      }
+      min-width: 200px;
     }
   }
 

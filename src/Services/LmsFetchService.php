@@ -270,6 +270,11 @@ class LmsFetchService {
             }
         }
 
+        $scanner = $_ENV['ACCESSIBILITY_CHECKER'];
+        if ($scanner == 'equalaccess_lambda' || $scanner == 'equalaccess_local') {
+          $issueType = $this->equalAccess->getIssueType($issue->getMetadata());
+        }
+
         $issueEntity->setType($issueType);
         $issueEntity->setStatus(Issue::$issueStatusActive);
         $issueEntity->setContentItem($contentItem);

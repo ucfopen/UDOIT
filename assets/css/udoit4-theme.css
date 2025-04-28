@@ -19,7 +19,7 @@
   --suggestion-color: #32B0E4;
 
   --white: #FFFFFF;
-  --gray-dark: #333333;
+  --gray-dark: #555555;
   --gray: #767676;
   --gray-light: #D3D7DB;
   --gray-lightest: #F7F7F7;
@@ -35,6 +35,14 @@
   --transition-time: 0.25s;
 }
 
+body {
+  padding: 0px !important;
+  margin: 0px !important;
+  border-left: none !important;
+  max-width: 1400px;
+  color: var(--text-color);
+}
+
 #root {
   margin: 0px 4px 4px 0px;
   padding: 0 1rem 1rem 1rem;
@@ -44,14 +52,6 @@
   min-height: 600px;
   display: flex;
   flex-direction: column;
-}
-
-body {
-  padding: 0px !important;
-  margin: 0px !important;
-  border-left: none !important;
-  max-width: 1200px;
-  color: var(--text-color);
 }
 
 /* Bootstrap-esque classes for general use */
@@ -143,6 +143,7 @@ body {
 
 .align-self-center {
   align-self: center;
+  text-align: center;
 }
 
 .align-self-baseline {
@@ -201,6 +202,10 @@ body {
   margin-top: var(--spacer) !important;
 }
 
+.mt-4 {
+  margin-top: calc(1.5 * var(--spacer)) !important;
+}
+
 .mb-0 {
   margin-bottom: 0 !important;
 }
@@ -215,6 +220,10 @@ body {
 
 .mb-3 {
   margin-bottom: var(--spacer) !important;
+}
+
+.mb-4 {
+  margin-bottom: calc(1.5 * var(--spacer)) !important;
 }
 
 .ml-0, .ms-0 {
@@ -233,6 +242,10 @@ body {
   margin-left: var(--spacer) !important;
 }
 
+.ml-4, .ms-4 {
+  margin-left: calc(1.5 * var(--spacer)) !important;
+}
+
 .mr-0, .me-0 {
   margin-right: 0 !important;
 }
@@ -247,6 +260,10 @@ body {
 
 .mr-3, .me-3 {
   margin-right: var(--spacer) !important;
+}
+
+.mr-4, .me-4 {
+  margin-right: calc(1.5 * var(--spacer)) !important;
 }
 
 .p-0 {
@@ -409,6 +426,11 @@ h1, h2, h3, h4, h5, h6 {
   fill: var(--link-color);
 }
 
+.text-color {
+  color: var(--text-color);
+  fill: var(--text-color);
+}
+
 .gray {
   color: var(--gray);
   fill: var(--gray);
@@ -542,6 +564,13 @@ button:disabled {
   }
 }
 
+.btn-header {
+  border-radius: 8px !important;
+  justify-content: center;
+  width: 100%;
+  font-size: 0.9rem;
+}
+
 .btn-icon-left {
   display: flex;
   align-items: center;
@@ -603,6 +632,83 @@ button:disabled {
 
 .rotate-270 {
   transform: rotate(270deg);
+}
+
+/* Customized select and options elements based on example from: 
+ https://developer.mozilla.org/en-US/docs/Learn_web_development/Extensions/Forms/Customizable_select */
+
+select {
+  font-size: 0.85rem;
+  font-weight: 500;
+  font-family: 'Open Sans', Arial, Helvetica, sans-serif;
+  padding: .4rem 0.5rem .4rem 0.5rem;
+  background-color: var(--white);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  outline: none;
+  cursor: pointer;
+  display: grid;
+  grid-template-areas: "select";
+  appearance: base-select;
+
+  &::picker-icon {
+    color: var(--text-color);
+    transition: var(--transition-time) transform;
+  }
+
+  &:open {
+    border-radius: 8px 8px 0 0;
+    border-color: var(--gray);
+    border-bottom: none;
+    padding-bottom: calc(.4rem + 1px);
+    
+    &::picker-icon {
+      transform: rotate(180deg);
+    }
+  }
+
+  &:focus {
+    outline: 2px solid var(--link-color);
+    outline-offset: -2px;
+  }
+
+  &:disabled {
+    cursor: not-allowed !important;
+  }
+}
+
+::picker(select) {
+  appearance: base-select;
+  border: none;
+}
+
+option {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+  color: var(--text-color);
+  gap: 0.5rem;
+  border: 1px solid var(--gray);
+  padding: .25rem 1rem .25rem .25rem;
+
+  &:not(option:last-of-type) {
+    border-bottom: none;
+  }
+
+  &:hover {
+    background-color: var(--link-color-light);
+  }
+
+  &:focus {
+    outline: 2px solid var(--link-color);
+    outline-offset: -2px;
+    background-color: var(--link-color-light);
+  }
+
+  &:checked {
+    font-weight: 600;
+    background-color: var(--background-color);
+  }
 }
 
 .udoit-issue,

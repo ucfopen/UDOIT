@@ -102,6 +102,7 @@
   border-radius: 8px;
   background-color: transparent;
   color: var(--link-color);
+  border-color: transparent;
 
   &.selected {
     background-color: var(--link-color);

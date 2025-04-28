@@ -8,16 +8,16 @@ export default function ReportsTable({
 }) {
 
   const headers = [
-    { id: "created", text: t('label.date') },
-    { id: "errors", text: t('label.plural.error') },
-    { id: "suggestions", text: t('label.plural.suggestion') },
-    { id: "contentFixed", text: t('label.content_fixed') },
-    { id: "contentResolved", text: t('label.content_resolved') },
-    { id: "filesReviewed", text: t('label.files_reviewed')}
+    { id: "created", text: t('report.header.date') },
+    { id: "errors", text: t('report.header.issues') },
+    { id: "suggestions", text: t('report.header.suggestions') },
+    { id: "contentFixed", text: t('report.header.items_fixed') },
+    { id: "contentResolved", text: t('report.header.items_resolved') },
+    { id: "filesReviewed", text: t('report.header.files_reviewed')}
   ]
 
   if (isAdmin) {
-    headers.push({ id: "count", text: t('label.admin.courses') })
+    headers.push({ id: "count", text: t('report.header.courses') })
   }
 
   const [tableSettings, setTableSettings] = useState({
@@ -57,7 +57,7 @@ export default function ReportsTable({
 
   return (
     <SortableTable
-      caption={t('label.report_history')}
+      caption={t('report.title.scan_history')}
       headers={headers}
       rows={getContent()}
       tableSettings={tableSettings}

@@ -1,11 +1,39 @@
+.ufixit-double-container {
+  width: calc(200% + 2rem);
+  gap: 2rem;
+  transition: var(--transition-time) ease-in-out margin-left;
+  margin-left: -5px;
+  padding-left: 5px;
+  overflow-y: auto;
+  box-sizing: content-box;
+
+  &.ufixit-shift-view {
+    margin-left: calc(-100% - 2rem - 5px);
+  }
+}
+
+.clarification-container {
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: .5rem;
+  background-color: var(--white);
+
+  .clarification-text {
+    font-weight: 400;
+    font-style: italic;
+    font-size: .9rem;
+  }
+}
+
 .ufixit-form-container {
   position: relative;
   overflow-y: auto;
-  margin-left: -5px;
+  width: calc(50% - 1rem);
   margin-right: -5px;
-  padding-left: 5px;
   padding-right: 5px;
-  width: 100%;
+  margin-left: -5px;
+  padding-left: 5px;
+  box-sizing: content-box;
 }
 
 .ufixit-form-content {
@@ -29,7 +57,7 @@
     &:hover,
     &:focus {
       border-color: var(--link-color);
-      outline-offset: 1px;
+      outline-offset: -2px;
       outline: 2px solid var(--link-color);
     }
 
@@ -65,10 +93,17 @@
     color: var(--issue-color);
   }
 
+  .text-muted {
+    font-size: .85rem;
+    font-weight: 400;
+    color: var(--gray-dark);
+  }
+
   .btn-icon-only.btn-transparent {
     padding: .15rem .25rem;
     fill: var(--link-color);
     background-color: transparent;
+    border-color: transparent;
 
     &:hover,
     &:focus,
@@ -121,6 +156,7 @@
 
 .ufixit-learn-container {
   overflow-y: auto;
+  width: calc(50% - 1rem);
 
   a {
     color: var(--link-color);
@@ -133,8 +169,50 @@
     }
   }
 
+  code {
+    padding: 0.15rem 0.4rem;
+    background-color: var(--gray-dark);
+    color: var(--white);
+    border-radius: 4px;
+    font-size: 0.9rem;
+  }
+
   > :first-child {
     margin-top: 0;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+
+    caption {
+      font-weight: bold;
+      margin-bottom: .5rem;
+    }
+
+    thead tr {
+      background-color: var(--gray-dark);
+      color: var(--white);
+
+      th {
+        padding: .25rem .5rem;
+      }
+    }
+
+    tbody tr {
+      color: var(--text-color);
+
+      &:nth-child(odd) {
+        background-color: var(--white);
+      }
+
+      td {
+        padding: .25rem;
+        border-bottom: 1px solid var(--border-color);
+      }
+    }
+
+
   }
 }
 

@@ -1,0 +1,111 @@
+.udoit-sortable-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.8rem;
+
+  thead tr th {
+    font-family: 'Reddit Sans', sans-serif;
+    font-weight: 600;
+    text-transform: uppercase;
+    cursor: pointer;
+
+    padding: .5rem .5rem .25rem .5rem;
+    color: var(--primary-color-dark);
+    fill: var(--primary-color-dark);
+    border-bottom: 1px solid var(--primary-color-dark);
+    background-color: var(--primary-color);
+
+    &:focus {
+      outline-color: var(--link-color);
+      outline-offset: 3px;
+      outline-width: 2px;
+
+      .clickable-text {
+        text-decoration: underline;
+      }
+    }
+
+    &:hover {
+      .clickable-text {
+        text-decoration: underline;
+      }
+    }
+
+    svg {
+      transition: transform var(--transition-time) ease-in-out;
+    }
+  }
+
+  tbody {
+    tr {
+      td {
+        padding: .15rem;
+
+        &[textalign='end'] {
+          div {
+            text-align: right;
+          }
+        }
+      }
+
+      a {
+        color: var(--link-color);
+        text-decoration: none;
+        font-weight: 600;
+
+        &:hover,
+        &:focus {
+          text-decoration: underline;
+        }
+      }
+
+      .btn-icon-only {
+        padding: .25rem .4rem;
+        border-radius: 8px;
+        background-color: transparent;
+        fill: var(--link-color);
+
+        &:hover,
+        &:focus {
+          background-color: var(--link-color);
+          fill: var(--white);
+        }
+
+        &.btn-disabled,
+        &.btn-disabled:hover,
+        &.btn-disabled:focus {
+          background-color: var(--gray-light);
+          fill: var(--gray);
+          cursor: not-allowed !important;
+        }
+      }
+    }
+
+    tr:nth-child(even) {
+      td {
+        background-color: var(--primary-color-light);
+      }
+    }
+
+    tr:last-child {
+      td {
+        border-bottom: 1px solid var(--primary-color-dark);
+      }
+    }
+  }
+}
+
+
+.paginationButton {
+  padding: .2rem .5rem;
+  min-width: 2rem;
+  border-radius: 8px;
+  background-color: transparent;
+  border-color: transparent;
+  color: var(--link-color);
+
+  &.selected {
+    background-color: var(--link-color);
+    color: var(--white);
+  }
+}

@@ -131,7 +131,7 @@ export default function AdminApp(initialData) {
             <ProgressIcon className="icon-lg primary spinner" />
           </div>
           <div className="flex-column justify-content-center">
-            <h2 className="mt-0 mb-0">{t('label.loading')}</h2>
+            <h2 className="mt-0 mb-0">{t('report.label.loading')}</h2>
           </div>
         </div>
       }
