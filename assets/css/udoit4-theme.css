@@ -658,6 +658,9 @@ select {
 
   &:open {
     border-radius: 8px 8px 0 0;
+    border-color: var(--gray);
+    border-bottom: none;
+    padding-bottom: calc(.4rem + 1px);
     
     &::picker-icon {
       transform: rotate(180deg);
@@ -685,12 +688,8 @@ option {
   justify-content: flex-start;
   color: var(--text-color);
   gap: 0.5rem;
-  border: 1px solid var(--border-color);
+  border: 1px solid var(--gray);
   padding: .25rem 1rem .25rem .25rem;
-
-  &:first-of-type {
-    border-top: none;
-  }
 
   &:not(option:last-of-type) {
     border-bottom: none;

@@ -24,14 +24,14 @@ export default function MessageTray ({ messages, hasNewReport, clearMessages, t 
     }
     if (messages.length > 0) {
       setIsOpen(true)
+      setTimerInt(setTimeout(() => {
+        handleClose()
+      }, 5000))
     }
   }, [messages])
 
   const handleClose = () => {
     setIsOpen(false)
-    setTimerInt(setTimeout(() => {
-      clearMessages()
-    }, 2000))
   }
 
   const statusMap = {
