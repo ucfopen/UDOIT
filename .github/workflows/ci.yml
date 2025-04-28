@@ -5,7 +5,7 @@ on:
     branches:
       - main
       - 'stable/*'
-      - 'equal-access'
+      - 'new-main-page-UX'
 
 env:
   REGISTRY: ghcr.io
