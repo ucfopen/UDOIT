@@ -639,7 +639,6 @@ export default function FixIssuesPage({
   }
 
   const handleIssueResolve = (issue) => {
-    console.log("Resolve issue: ", issue)
     updateActiveSessionIssue(issue.id, settings.ISSUE_STATE.RESOLVING)
 
     let tempIssue = Object.assign({}, issue)
