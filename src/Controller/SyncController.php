@@ -42,7 +42,7 @@ class SyncController extends ApiController
                 throw new \Exception('msg.sync.course_inactive');
             }
 
-            $lmsFetch->refreshLmsContent($course, $user);
+            $lmsFetch->asyncRefreshLmsContent($course, $user);
 
             $report = $course->getLatestReport();
 
@@ -96,7 +96,7 @@ class SyncController extends ApiController
 
             $course->removeAllReports();
 
-            $lmsFetch->refreshLmsContent($course, $user);
+            $lmsFetch->asyncRefreshLmsContent($course, $user);
 
             $report = $course->getLatestReport();
 
@@ -173,7 +173,7 @@ class SyncController extends ApiController
 
         // Timing: Start total execution
         $startTotal = microtime(true);
-        
+
         // Timing: Start delete issues
         $startDelete = microtime(true);
         // Delete old issues
@@ -208,7 +208,7 @@ class SyncController extends ApiController
         // Timing: End update report
         $endUpdateReport = microtime(true);
         $printOut->writeln('Update report: ' . round(($endUpdateReport - $startUpdateReport) * 1000, 2) . 'ms');
-        
+
         if (!$report) {
             throw new \Exception('msg.no_report_created');
         }
@@ -223,7 +223,7 @@ class SyncController extends ApiController
         // Timing: End data preparation
         $endData = microtime(true);
         $printOut->writeln('Prepare response data: ' . round(($endData - $startData) * 1000, 2) . 'ms');
-        
+
         // Timing: End total execution
         $endTotal = microtime(true);
         $printOut->writeln('Total execution time: ' . round(($endTotal - $startTotal) * 1000, 2) . 'ms');

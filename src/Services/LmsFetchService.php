@@ -78,7 +78,7 @@ class LmsFetchService {
         $printOutput = new ConsoleOutput();
         // $printOutput->writeln("enter");
         // return;
-        
+
         $lms = $this->lmsApi->getLms($user);
 
         $this->lmsUser->validateApiKey($user);
@@ -138,7 +138,7 @@ class LmsFetchService {
     {
         $printOutput = new ConsoleOutput();
         $printOutput->writeln("enter");
-        return;
+
         $lms = $this->lmsApi->getLms($user);
 
         $this->lmsUser->validateApiKey($user);
@@ -259,9 +259,9 @@ class LmsFetchService {
         //     $contentItems = array_slice($contentItems, 0, $testLimit);
         // }
         $printOutput->writeln("Number of content items now that its been CUT: " . count($contentItems));
-        
-        
-        
+
+
+
         $printOutput->writeln("Scanning content items...");
 
         $scanner = $_ENV['ACCESSIBILITY_CHECKER'];
@@ -273,7 +273,7 @@ class LmsFetchService {
             // $equalAccessReports = $this->asyncReport->postMultipleAsync($contentItems);
             $equalAccessReports = $this->asyncReport->postMultipleArrayAsync($contentItems);
         }
-        
+
         // if ($scanner == "equalaccess_local" && count($contentItems) > 0) {
         //     $localService = new LocalApiAccessibilityService();
         //     $printOutput->writeln("Scanning content items with local service asyncronously...");
