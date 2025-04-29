@@ -17,7 +17,6 @@ export default function HeadingEmptyForm({
   const [textInputErrors, setTextInputErrors] = useState([])
 
   useEffect(() => {
-    console.log("Active Issue updated!")
     if (activeIssue) {
       const html = Html.getIssueHtml(activeIssue)
       const element = Html.toElement(html)

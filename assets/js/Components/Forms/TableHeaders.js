@@ -119,7 +119,6 @@ export default function TableHeaders({
   }
 
   const handleChange = (newValue) => {
-    console.log(newValue)
     setSelectedValue(newValue)
   }
 
