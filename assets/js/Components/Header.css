@@ -43,9 +43,8 @@ header nav {
       }
 
       &:focus {
-        outline-color: var(--link-color);
-        outline-offset: -1px;
-        outline-width: 2px;
+        outline: 2px solid var(--focus-color);
+        outline-offset: -2px;
       }
     }
   }

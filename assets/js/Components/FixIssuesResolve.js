@@ -20,7 +20,8 @@ export default function FixIssuesResolve({ t, settings, isSaving, activeIssue, h
       <div className="flex-row flex-end mt-3">
         <button className="btn btn-secondary align-self-start"
           onClick={() => handleClick()}
-          disabled={isSaving}>
+          disabled={isSaving}
+          tabindex="0">
           { activeIssue.status === settings.FILTER.RESOLVED ? t(`fix.button.unresolved`) : t(`fix.button.resolved`) }
         </button>
       </div>

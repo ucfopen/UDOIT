@@ -56,9 +56,9 @@
 
     &:hover,
     &:focus {
-      border-color: var(--link-color);
+      outline: 2px solid var(--focus-color);
       outline-offset: -2px;
-      outline: 2px solid var(--link-color);
+      
     }
 
     &:disabled {
@@ -70,19 +70,6 @@
     &:disabled:hover,
     &:disabled:focus {
       outline-color: var(--gray-light);
-    }
-  }
-
-  input[type="checkbox"] {
-    cursor: pointer;
-
-    &:hover,
-    &:focus {
-      outline: 2px solid var(--link-color);
-      outline-offset: 3px;
-    }
-    &:disabled {
-      cursor: not-allowed !important;
     }
   }
 
@@ -113,7 +100,7 @@
     }
 
     &:focus {
-      outline: 2px solid var(--link-color);
+      outline: 2px solid var(--focus-color);
       outline-offset: 1px;
     }
   }
@@ -160,10 +147,10 @@
 
   a {
     color: var(--link-color);
-    font-weight: 500;
+    font-weight: 600;
 
     &:focus {
-      outline: 2px solid var(--link-color);
+      outline: 2px solid var(--focus-color);
       outline-offset: 3px;
       border-radius: 2px;
     }
@@ -232,7 +219,7 @@
   .ufixit-widget-toggle-view-container-link {
     border-radius: 4px;
     &:focus {
-      outline: 2px solid var(--link-color);
+      outline: 2px solid var(--focus-color);
       outline-offset: 2px;
     }
   }

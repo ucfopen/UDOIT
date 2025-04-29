@@ -141,7 +141,7 @@ export default function TableHeaders({
               name="tableHeaderSelect"
               value={selectedValue}
               onChange={() => handleChange(value)} />
-            <label htmlFor={value}>{t(`form.table.${value}`)}</label>
+            <label htmlFor={value}>{t(`form.table_headers.${value}`)}</label>
           </div>
         ))}
       </div>

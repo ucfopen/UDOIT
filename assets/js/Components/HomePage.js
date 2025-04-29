@@ -14,42 +14,47 @@ export default function HomePage({
   handleFullCourseRescan
 }) {
 
-  const [totalIssues, setTotalIssues] = useState(0)
-  const [totalPotentialIssues, setTotalPotentialIssues] = useState(0)
-  const [totalSuggestions, setTotalSuggestions] = useState(0)
+  const [issueCount, setIssueCount] = useState({"fixed": 0, "total": 0, "percent": 0})
+  const [potentialCount, setPotentialCount] = useState({"fixed": 0, "total": 0, "percent": 0})
+  const [suggestionCount, setSuggestionCount] = useState({"fixed": 0, "total": 0, "percent": 0})
   const [totalsCounted, setTotalsCounted] = useState(false)
-  const [issuePercent, setIssuePercent] = useState(0)
-  const [potentialPercent, setPotentialPercent] = useState(0)
-  const [suggestionPercent, setSuggestionPercent] = useState(0)
+
+  // const [totalIssues, setTotalIssues] = useState(0)
+  // const [totalPotentialIssues, setTotalPotentialIssues] = useState(0)
+  // const [totalSuggestions, setTotalSuggestions] = useState(0)
+  
+  // const [issuePercent, setIssuePercent] = useState(0)
+  // const [potentialPercent, setPotentialPercent] = useState(0)
+  // const [suggestionPercent, setSuggestionPercent] = useState(0)
 
   useEffect(() => {
     if (!hasNewReport) return
 
-    let totalIssues = 0
-    let totalPotentialIssues = 0
-    let totalSuggestions = 0
-    let totalIssuesFixed = 0
-    let totalPotentialIssuesFixed = 0
-    let totalSuggestionsFixed = 0
+    let tempTotalIssues = 0
+    let tempTotalPotentialIssues = 0
+    let tempTempTotalSuggestions = 0
+    let tempTotalIssuesFixed = 0
+    let tempTotalPotentialIssuesFixed = 0
+    let tempTotalSuggestionsFixed = 0
 
     if(report.issues && report.issues.length > 0) {
       for (const i of report.issues){
         if(i.type === 'error') {
-          totalIssues += 1
+          tempTotalIssues += 1
           if (i.status === 1 || i.status === 2) {
-            totalIssuesFixed += 1
+            tempTotalIssuesFixed += 1
           }
         }
         else if (i.type === 'potential'){
-          totalPotentialIssues +=1
+          tempTotalPotentialIssues +=1
           if (i.status === 1 || i.status === 2) {
-            totalPotentialIssuesFixed += 1
+            tempTotalPotentialIssuesFixed += 1
           }
         }
         else if (i.type === 'suggestion') {
-          totalSuggestions +=1
+          tempTempTotalSuggestions +=1
           if (i.status === 1 || i.status === 2) {
-            totalSuggestionsFixed += 1
+            tempTotalSuggestionsFixed += 1
           }
         }
       }
@@ -57,21 +62,29 @@ export default function HomePage({
 
     if (report.files) {
       for (const [key, fileData] of Object.entries(report.files)) {
-        totalPotentialIssues += 1
+        tempTotalPotentialIssues += 1
         if (fileData.reviewed) {
-          totalPotentialIssuesFixed += 1
+          tempTotalPotentialIssuesFixed += 1
         }
       }
     }
 
-    // setstates once done iterating and adding, then use those states to display the totals.
-    setTotalIssues(totalIssues)
-    setTotalPotentialIssues(totalPotentialIssues)
-    setTotalSuggestions(totalSuggestions)
-    setIssuePercent(totalIssues === 0 ? 0 : (totalIssuesFixed/totalIssues) * 100)
-    setPotentialPercent(totalPotentialIssues === 0 ? 0 : (totalPotentialIssuesFixed/totalPotentialIssues) * 100)
-    setSuggestionPercent(totalSuggestions === 0 ? 0 : (totalSuggestionsFixed/totalSuggestions) * 100)
-
+    setIssueCount({
+      "fixed": tempTotalIssuesFixed,
+      "total": tempTotalIssues,
+      "percent": (tempTotalIssues === 0 ? 0 : (tempTotalIssuesFixed/tempTotalIssues) * 100)
+    })
+    setPotentialCount({
+      "fixed": tempTotalPotentialIssuesFixed,
+      "total": tempTotalPotentialIssues,
+      "percent": (tempTotalPotentialIssues === 0 ? 0 : (tempTotalPotentialIssuesFixed/tempTotalPotentialIssues) * 100)
+    })
+    setSuggestionCount({
+      "fixed": tempTotalSuggestionsFixed, 
+      "total": tempTempTotalSuggestions,
+      "percent": (tempTempTotalSuggestions === 0 ? 0 : (tempTotalSuggestionsFixed/tempTempTotalSuggestions) * 100)
+    })
+    
     setTotalsCounted(true)
   }, [hasNewReport])
 
@@ -99,10 +112,10 @@ export default function HomePage({
                   </div>
                 </div>
                 <div className='flex-column justify-content-end'>
-                  <div className="errors-progress-bar">{t('summary.issues_resolved', {resolved: issuePercent.toFixed(), total: totalIssues})}</div>
+                  <div className="errors-progress-bar">{t('summary.issues_resolved', {resolved: issueCount.fixed, total: issueCount.total})}</div>
                 </div>
               </div>
-              <ProgressBar progress={issuePercent} />
+              <ProgressBar progress={issueCount.percent} />
               <div className="flex-row w-100 justify-content-between mt-2 gap-2">
                 <div>{t('summary.issues.description')}</div>
                 <div className='flex-column justify-content-start flex-shrink-0'>
@@ -121,10 +134,10 @@ export default function HomePage({
                   </div>
                 </div>
                 <div className='flex-column justify-content-end'>
-                  <div className="errors-progress-bar">{t('summary.issues_resolved', {resolved: potentialPercent.toFixed(), total: totalPotentialIssues})}</div>
+                  <div className="errors-progress-bar">{t('summary.issues_resolved', {resolved: potentialCount.fixed, total: potentialCount.total})}</div>
                 </div>
               </div>
-              <ProgressBar progress={potentialPercent} />
+              <ProgressBar progress={potentialCount.percent} />
               <div className="flex-row w-100 justify-content-between mt-2 gap-2">
                 <div>{t('summary.potentials.description')}</div>
                 <div className='flex-column justify-content-start flex-shrink-0'>
@@ -143,10 +156,10 @@ export default function HomePage({
                   </div>
                 </div>
                 <div className='flex-column justify-content-end'>
-                  <div className="errors-progress-bar">{t('summary.issues_resolved', {resolved: suggestionPercent.toFixed(), total: totalSuggestions})}</div>
+                  <div className="errors-progress-bar">{t('summary.issues_resolved', {resolved: suggestionCount.fixed, total: suggestionCount.total})}</div>
                 </div>
               </div>
-              <ProgressBar progress={suggestionPercent} />
+              <ProgressBar progress={suggestionCount.percent} />
               <div className="flex-row w-100 justify-content-between mt-2 gap-2">
                 <div>{t('summary.suggestions.description')}</div>
                 <div className='flex-column justify-content-start flex-shrink-0'>
