@@ -14,7 +14,6 @@ export default function LabelForm({
 
   const [textInputValue, setTextInputValue] = useState('')
   const [textInputErrors, setTextInputErrors] = useState([])
-  const [ariaLabelExists, setAriaLabelExists] = useState(false)
 
   useEffect(() => {
     let html = Html.getIssueHtml(activeIssue)
@@ -33,9 +32,12 @@ export default function LabelForm({
   const checkFormErrors = () => {
     let tempErrors = []
     
-    tempErrors = checkTextNotEmpty(tempErrors)
-    tempErrors = checkLabelIsUnique(tempErrors)
-    
+    if(isTextEmpty()) {
+      tempErrors.push({ text: t('form.label.msg.text_empty'), type: "error" })
+    }
+    if(isLabelDuplicate()) {
+      tempErrors.push({ text: t('form.label.msg.text_unique'), type: "error" })
+    }
     setTextInputErrors(tempErrors)
   }
 
@@ -59,27 +61,22 @@ export default function LabelForm({
   }
 
   const handleSubmit = () => {
-    if (textInputErrors.length > 0) {
-      return
-    }
-    else {
-      handleIssueSave(activeIssue)
-    }
+    handleIssueSave(activeIssue)
   }
 
   const handleInput = (event) => {
     setTextInputValue(event.target.value)
   }
 
-  const checkTextNotEmpty = (errorArray) => {
+  const isTextEmpty = () => {
     const text = textInputValue.trim().toLowerCase()
     if (text === '') {
-      errorArray.push({ text: t('form.label.msg.text_empty'), type: "error" })
+      return true
     }
-    return errorArray
+    return false
   }
 
-  const checkLabelIsUnique = (errorArray) => {
+  const isLabelDuplicate = () => {
     // in the case of aria_*_label_unique, messageArgs (from metadata) should have the offending label (at the first index)
     // i guess we could get it from the aria-label itself as well...
     const issue = activeIssue
@@ -89,10 +86,10 @@ export default function LabelForm({
 
     if (labelFromMessageArgs) {
       if (text == labelFromMessageArgs) {
-        errorArray.push({ text: t('form.label.msg.text_unique'), type: "error" })
+        return true
       }
     }
-    return errorArray
+    return false
   }
   
   return (

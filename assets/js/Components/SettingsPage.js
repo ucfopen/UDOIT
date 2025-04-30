@@ -6,6 +6,7 @@ export default function SettingsPage({
   settings,
   setSettings,
   updateLanguage,
+  syncComplete,
   handleCourseRescan,
   handleFullCourseRescan }) {
 
@@ -18,8 +19,9 @@ export default function SettingsPage({
 
   return (
   <main>
-    <h1>{t('menu.settings')}</h1>
-    <label htmlFor="language-select">{t('menu.language')}</label>
+    <h1 className="primary-dark">{t('menu.settings')}</h1>
+    <p><em>This page is a work in progress and is NOT complete. Please do not leave comments about its lack of functionality at this time. Thank you!</em></p>
+    <label htmlFor="language-select">{t('settings.label.language')}</label>
     <select
       id="language-select"
       value={selectedLanguage}
@@ -34,7 +36,7 @@ export default function SettingsPage({
         </option>
       ))}
       </select>
-    <button onClick={() => handleFullCourseRescan()} className="btn btn-primary mt-3">{t('menu.full_rescan')}</button>
+    <button onClick={() => handleFullCourseRescan()} disabled={!syncComplete} className="btn btn-primary mt-3">{syncComplete ? t('settings.button.force_full_rescan') : t('welcome.button.scanning')}</button>
   </main>
   )
 }

@@ -92,14 +92,12 @@ export default function SortableTable({
       <div className="mt-3 flex-row justify-content-center">
         <nav
           className="pagination flex-row justify-content-center gap-1"
-          labelNext={t('table.next_page')}
-          labelPrev={t('table.prev_page')}
         >
           { tableSettings.pageNum > 0 && (
             <button
               className="paginationButton"
-              title={t('table.prev_page')}
-              aria-label={t('table.prev_page')}
+              title={t('report.button.previous')}
+              aria-label={t('report.button.previous')}
               onClick={() => setPage(tableSettings.pageNum - 1)}>
               &lt;
             </button>
@@ -120,8 +118,8 @@ export default function SortableTable({
           { tableSettings.pageNum < (pageCount - 1) && (
             <button
               className="paginationButton"
-              title={t('table.next_page')}
-              aria-label={t('table.next_page')}
+              title={t('report.button.next')}
+              aria-label={t('report.button.next')}
               onClick={() => setPage(tableSettings.pageNum + 1)}>
               &gt;
             </button>
@@ -139,7 +137,7 @@ export default function SortableTable({
             <h2 className="mt-0 mb-0">{caption}</h2>
           </caption>
         }
-        <thead aria-label={t('table.sort_by')}>
+        <thead aria-label={t('report.label.sort_by')}>
           <tr>
             {(headers || []).map(({ id, text }) => (
               (text) ? 

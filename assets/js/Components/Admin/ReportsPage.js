@@ -69,7 +69,7 @@ export default function ReportsPage({
     <>
     { (selectedCourse !== null) &&
       <div className="flex-row justify-content-center mt-3">
-        <h1 className="mt-0 mb-0">{selectedCourse.title}</h1>
+        <h1 className="mt-0 mb-0 primary-dark">{selectedCourse.title}</h1>
       </div>
     }
     { (reports === null) ? (
@@ -78,14 +78,14 @@ export default function ReportsPage({
           <ProgressIcon className="icon-lg primary spinner" />
         </div>
         <div className="flex-column justify-content-center">
-          <h2 className="mt-0 mb-0">{t('label.loading_reports')}</h2>
+          <h2 className="mt-0 mb-0">{t('report.label.loading_reports')}</h2>
         </div>
       </div>
     ) : (
       <div>
         {(reports.length === 0) ? 
           <div className="flex-row justify-content-center mt-3">
-            <div>{t('label.admin.no_results')}</div>
+            <div>{t('report.label.no_results')}</div>
           </div>
           : 
           <div className="flex-column">

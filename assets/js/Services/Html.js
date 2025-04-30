@@ -340,7 +340,6 @@ export function getAccessibleName(element) {
 
   // 3. Run a BUNCH of tag-specific and role-specific logic.
   let tagName = getTagName(element).toLowerCase()
-  let role = getAttribute(element, 'role')?.toLowerCase()
   let type = getAttribute(element, 'type')?.toLowerCase()
   
   let value = getAttribute(element, 'value')

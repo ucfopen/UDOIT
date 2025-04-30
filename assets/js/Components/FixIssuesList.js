@@ -35,7 +35,7 @@ export default function FixIssuesList({ t, settings, filteredIssues, setActiveIs
   return (
     <div className="ufixit-list-container flex-column">
       <div className="mb-3 flex-grow-0 flex-shrink-0">
-        <h2 className="mt-0 mb-0">{t('label.filter.select.issue')}</h2>
+        <h2 className="mt-0 mb-0 primary-dark">{t('filter.label.select.issue')}</h2>
       </div>
       <div className="ufixit-list-scrollable flex-grow-1" tabindex="-1">
         { groupedList.length > 0 ? groupedList.map((group, i) => {
@@ -84,7 +84,16 @@ export default function FixIssuesList({ t, settings, filteredIssues, setActiveIs
               })}
             </div>
           )
-        }) : <h2>{t('label.filter.no.issues')}</h2> }
+        }) : (
+          <div className="flex-column gap-3 mt-3">
+            <div className="flex-row justify-content-center align-self-center ms-3 me-3">
+              <h2 className="mt-0 mb-0 primary-dark">{t('report.label.no_results')}</h2>
+            </div>
+            <div className="flex-row justify-content-center align-self-center ms-3 me-3">
+              {t('report.msg.no_results')}
+            </div>
+          </div>
+        )}
       </div>
     </div>
   )

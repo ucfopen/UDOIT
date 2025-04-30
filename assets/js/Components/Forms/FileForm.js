@@ -113,8 +113,8 @@ export default function FileForm ({
 
   return (
     <>
-      <div className="fw-bold">{t('label.replace')}</div>
-      <p>{t('label.replace.desc')}</p>
+      <h3>{t('form.file.label.replace')}</h3>
+      <p>{t('form.file.label.replace.desc')}</p>
       <div
         id="file-drop-zone"
         className="mt-3 flex-row"
@@ -128,22 +128,22 @@ export default function FileForm ({
           <UploadIcon className="icon-lg" />
         </div>
         <div className="file-drop-text flex-column flex-center">
-          <div className="flex-row flex-center">{t('label.file.drag_drop')}</div>
-          <div className="mt-2 flex-row flex-center link-color">{t('label.file.browse_files')}</div>
+          <div className="flex-row flex-center">{t('form.file.label.drag_drop')}</div>
+          <div className="mt-2 flex-row flex-center link-color">{t('form.file.label.browse_files')}</div>
         </div>
       </div>
       {uploadedFile && (
         <>
           <div className="mt-3 flex-row">
             <div className="flex-column flex-center me-3 flex-shrink-0">
-              <div className="fw-bold">{t('label.file.new_file')}:</div>
+              <div className="fw-bold">{t('form.file.label.new_file')}:</div>
             </div>
             <div className="flex-column flex-center allow-word-break">
               <div>{uploadedFile.name}</div>
             </div>
           </div>
           <div className="mt-3 flex-row">
-            <button className="btn btn-primary" onClick={handleSubmit}>{t('label.file.submit')}</button>
+            <button className="btn btn-primary" onClick={handleSubmit}>{t('form.submit')}</button>
           </div>
         </>
       )}

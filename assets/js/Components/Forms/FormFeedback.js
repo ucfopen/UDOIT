@@ -47,7 +47,7 @@ export default function FormFeedback({
         <div className="flex-column mt-2">
           {formattedIssues.map((issue, index) => (
             <div className="flex-row justify-content-end gap-1" key={index}>
-              <div className="flex-column flex-center">
+              <div className="flex-column flex-center" alt="">
                 <SeverityIcon type={issue.type} className="icon-sm" />
               </div>
               <div className="flex-column flex-center">

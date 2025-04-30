@@ -73,7 +73,7 @@ class LmsFetchService {
      * 4) Link unchanged issues to new report
      * 5) Process updated content
      */
-    public function refreshLmsContent(Course $course, User $user)
+    public function refreshLmsContent(Course $course, User $user, $force = false)
     {
         $lms = $this->lmsApi->getLms($user);
 
@@ -98,7 +98,7 @@ class LmsFetchService {
         $lms->updateCourseContent($course, $user);
 
         /* Step 2: Get list of changed content items */
-        $contentItems = $contentItemRepo->getUpdatedContentItems($course);
+        $contentItems = $contentItemRepo->getUpdatedContentItems($course, $force);
         $contentSections = $lms->getCourseSections($course, $user);
 
         /* Step 3: Delete issues for updated content items */
@@ -268,6 +268,11 @@ class LmsFetchService {
             if (strpos($_ENV['PHPALLY_SUGGESTION_RULES'], $issue->getRuleId()) !== false) {
                 $issueType = self::ISSUE_TYPE_SUGGESTION;
             }
+        }
+
+        $scanner = $_ENV['ACCESSIBILITY_CHECKER'];
+        if ($scanner == 'equalaccess_lambda' || $scanner == 'equalaccess_local') {
+          $issueType = $this->equalAccess->getIssueType($issue->getMetadata());
         }
 
         $issueEntity->setType($issueType);

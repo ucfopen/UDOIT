@@ -109,13 +109,13 @@ export default function EmphasisForm({
         <input type="checkbox"
           id="italicCheckbox"
           name="italicCheckbox"
-          checked={useBold}
+          checked={useItalics}
           onChange={handleItalicsToggle} />
         <label htmlFor="italicCheckbox">{t('form.emphasis.label.italic')}</label>
       </div>
       <FormFeedback issues={checkboxErrors} />
       <div className="flex-row justify-content-start mt-3 mb-3">
-        <button className="btn btn-primary" disabled={textInputErrors.length > 0} onClick={handleSubmit}>{t('form.submit')}</button>
+        <button className="btn btn-primary" disabled={checkboxErrors.length > 0} onClick={handleSubmit}>{t('form.submit')}</button>
       </div>
     </>
   )

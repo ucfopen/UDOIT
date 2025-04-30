@@ -26,13 +26,14 @@ const formNames = {
   HEADING_EMPTY: 'heading_empty',
   HEADING_STYLE: 'heading_style',
   LABEL: 'label',
+  LABEL_UNIQUE: 'label_unique',
   LINK: 'link',
   QUOTE: 'quote',
   SENSORY_MISUSE: 'sensory_misuse',
   TABLE_HEADERS: 'table_headers',
   VIDEO: 'video',
 
-  UFIXIT_REVIEW_ONLY: 'ufixit_review_only',
+  REVIEW_ONLY: 'review_only',
 }
 
 const formTypes = {
@@ -45,13 +46,14 @@ const formTypes = {
   [formNames.HEADING_EMPTY]: HeadingEmptyForm,
   [formNames.HEADING_STYLE]: HeadingStyleForm,
   [formNames.LABEL]: LabelForm,
+  [formNames.LABEL_UNIQUE]: LabelForm,
   [formNames.LINK]: LinkForm,
   [formNames.QUOTE]: QuoteForm,
   [formNames.SENSORY_MISUSE]: SensoryMisuseForm,
   [formNames.TABLE_HEADERS]: TableHeaders,
   [formNames.VIDEO]: Video,
 
-  [formNames.UFIXIT_REVIEW_ONLY]: UfixitReviewOnly,
+  [formNames.REVIEW_ONLY]: UfixitReviewOnly,
 }
 
 // Using the formNames as the only values prevents typos and other errors.
@@ -100,27 +102,34 @@ const rulesToFormNameMap = {
   text_block_heading: formNames.HEADING_STYLE,
 
   aria_application_labelled: formNames.LABEL,
-  aria_application_label_unique: formNames.LABEL,
-  aria_banner_label_unique: formNames.LABEL,
   aria_accessiblename_exists: formNames.LABEL,
-  aria_landmark_name_unique: formNames.LABEL,
-  aria_article_label_unique: formNames.LABEL,
-  aria_complementary_label_unique: formNames.LABEL,
-  aria_contentinfo_label_unique: formNames.LABEL,
-  aria_document_label_unique: formNames.LABEL,
-  aria_form_label_unique: formNames.LABEL,
-  aria_main_label_unique: formNames.LABEL,
-  aria_navigation_label_unique: formNames.LABEL,
-  aria_region_label_unique: formNames.LABEL,
-  aria_search_label_unique: formNames.LABEL,
-  aria_toolbar_label_unique: formNames.LABEL,
+
+  aria_application_label_unique: formNames.LABEL_UNIQUE,
+  aria_banner_label_unique: formNames.LABEL_UNIQUE,
+  aria_landmark_name_unique: formNames.LABEL_UNIQUE,
+  aria_article_label_unique: formNames.LABEL_UNIQUE,
+  aria_complementary_label_unique: formNames.LABEL_UNIQUE,
+  aria_contentinfo_label_unique: formNames.LABEL_UNIQUE,
+  aria_document_label_unique: formNames.LABEL_UNIQUE,
+  aria_form_label_unique: formNames.LABEL_UNIQUE,
+  aria_main_label_unique: formNames.LABEL_UNIQUE,
+  aria_navigation_label_unique: formNames.LABEL_UNIQUE,
+  aria_region_label_unique: formNames.LABEL_UNIQUE,
+  aria_search_label_unique: formNames.LABEL_UNIQUE,
+  aria_toolbar_label_unique: formNames.LABEL_UNIQUE,
 
   // text_quoted_correctly: formNames.QUOTE,
 
-  text_sensory_misuse: formNames.SENSORY_MISUSE,
+  style_color_misuse: formNames.EMPHASIS,
+
+  // text_sensory_misuse: formNames.SENSORY_MISUSE,
 
   table_headers_exists: formNames.TABLE_HEADERS,
   table_headers_related: formNames.TABLE_HEADERS,
+
+  // caption_track_exists: formNames.VIDEO,
+  // media_audio_transcribed: formNames.VIDEO,
+
 }
 
 export function formFromIssue(activeIssue) {
@@ -145,5 +154,5 @@ export function formNameFromRule(ruleId) {
   }
 
   // If the ruleId is not found, return a default form name
-  return formNames.UFIXIT_REVIEW_ONLY
+  return formNames.REVIEW_ONLY
 }

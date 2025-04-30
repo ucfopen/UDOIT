@@ -46,6 +46,15 @@ export default function App(initialData) {
   const [sessionIssues, setSessionIssues] = useState([])
   const [welcomeClosed, setWelcomeClosed] = useState(false)
 
+  const ISSUE_STATE = {
+    UNCHANGED: 0,
+    SAVING: 1,
+    RESOLVING: 2,
+    SAVED: 3,
+    RESOLVED: 4,
+    ERROR: 5,
+  }
+
   // `t` is used for text/translation. It will return the translated string if it exists
   // in the settings.labels object.
   const t = useCallback((key, values = {}) => {
@@ -78,7 +87,6 @@ export default function App(initialData) {
     api.updateUser(newUser)
       .then((response) => response.json())
       .then((data) => {
-        console.log("Updated user language: " + data?.roles?.lang)
         if(data.labels) {
           newSettings.labels = data.labels
         }
@@ -134,8 +142,14 @@ export default function App(initialData) {
     setDisableReview(newDisableReview)
   }
 
-  const handleNavigation = (navigation) => {
-    setNavigation(navigation)
+  const handleNavigation = (newNavigation) => {
+    if(newNavigation === navigation) {
+      return
+    }
+    if(newNavigation !== 'fixIssues') {
+      setInitialSeverity('')
+    }
+    setNavigation(newNavigation)
   }
 
   const handleModal = (modal) => {
@@ -253,21 +267,21 @@ export default function App(initialData) {
               handleFullCourseRescan={handleFullCourseRescan}
               handleModal={handleModal} />
 
-            <MessageTray t={t} messages={messages} clearMessages={clearMessages} hasNewReport={syncComplete} />
-
             <main role="main">
               {('summary' === navigation) &&
                 <HomePage
                   t={t}
+                  settings={settings.ISSUE_STATE ? settings : Object.assign({}, settings, { ISSUE_STATE })}
                   report={report}
                   hasNewReport={hasNewReport}
                   quickIssues={quickIssues}
+                  sessionIssues={sessionIssues}
                   handleFullCourseRescan={handleFullCourseRescan} />
               }
               {('fixIssues' === navigation) &&
                 <FixIssuesPage
                   t={t}
-                  settings={settings}
+                  settings={settings.ISSUE_STATE ? settings : Object.assign({}, settings, { ISSUE_STATE })}
                   initialSeverity={initialSeverity}
                   contentItemList={contentItemList}
                   addContentItem={addContentItem}
@@ -292,8 +306,8 @@ export default function App(initialData) {
                 <SettingsPage
                   t={t}
                   settings={settings}
-                  setSettings={setSettings}
                   updateLanguage={updateLanguage}
+                  syncComplete={syncComplete}
                   handleCourseRescan={handleCourseRescan}
                   handleFullCourseRescan={handleFullCourseRescan} />
               }
@@ -306,6 +320,7 @@ export default function App(initialData) {
           </>
         )
       }
+      <MessageTray t={t} messages={messages} clearMessages={clearMessages} hasNewReport={syncComplete} />
     </>
   )
 }

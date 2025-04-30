@@ -32,7 +32,6 @@ export default function SensoryMisuseForm({
 
   useEffect(() => {
     const matchedWords = checkForSensoryWords(editorHtml);
-    console.log(editorHtml)
     setSensoryErrors(matchedWords)
 
     handleActiveIssue(activeIssue)
