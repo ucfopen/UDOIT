@@ -1,5 +1,5 @@
 import React from 'react'
-import UDOITLogo from '../../mediaAssets/UDOIT-logo-med-gradient.png'
+import UDOITLogo from '../../mediaAssets/udoit-logo.svg'
 import UCFOpenLogo from '../../mediaAssets/ucfopen-logo.svg'
 import SummaryIcon from './Icons/SummaryIcon'
 import UFIXITIcon from './Icons/UFIXITIcon'
@@ -50,7 +50,7 @@ export default function WelcomePage({ t, settings, syncComplete, setWelcomeClose
         </div>
           <div className="flex-row justify-content-center mt-3">
             { !syncComplete ? (
-                <button className="btn btn-disabled flex-row">
+                <button className="btn btn-disabled flex-row" tabindex="0">
                   <div className="flex-column justify-content-center">
                     <ProgressIcon className="icon-sm gray spinner" />
                   </div>
@@ -59,7 +59,7 @@ export default function WelcomePage({ t, settings, syncComplete, setWelcomeClose
                   </div>
                 </button>
               ) : (
-                <button className="btn btn-primary" onClick={() => setWelcomeClosed(true)}>{t('welcome.button.ready')}</button>
+                <button className="btn btn-primary" tabindex="0" onClick={() => setWelcomeClosed(true)}>{t('welcome.button.ready')}</button>
               )
             }    
           </div>
@@ -68,16 +68,16 @@ export default function WelcomePage({ t, settings, syncComplete, setWelcomeClose
         <div className="flex-column justify-content-center tagline">
           {t('welcome.version')} {settings.versionNumber}
         </div>
-        <div className="flex-row">
-          <div className="flex-column justify-content-center tagline">
-            {t('welcome.product_tagline')}
-          </div>
-          <div className="flex-column justify-content-center ms-2">
-            <a href="https://ucfopen.github.io/" target="_blank" rel="noreferrer">
+        <a href="https://ucfopen.github.io/" target="_blank" tabindex="0" rel="noreferrer" className="tagline ps-2">
+          <div className="flex-row">
+            <div className="flex-column justify-content-center">
+              {t('welcome.product_tagline')}
+            </div>
+            <div className="flex-column justify-content-center ms-2">
               <img src={UCFOpenLogo} alt={t('alt.UCF_Open')} className="logo-small"/>
-            </a>
+            </div>
           </div>
-        </div>
+        </a>
       </div>
     </div>
   )

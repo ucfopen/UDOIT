@@ -180,7 +180,7 @@ export default function FixIssuesContentPreview({
             { altTextPreview && (
               <div className={`alt-text-preview${altTextIsOpen ? '' : ' alt-text-preview-closed'}`} onClick={toggleAltTextIsOpen}>
                 <div className="alt-text-preview-icon" alt={t('fix.label.screen_reader')} title={t('fix.label.screen_reader')}>
-                  <EarIcon className="icon-md primary-dark" />
+                  <EarIcon className="icon-md" />
                 </div>
                 <div className="alt-text-preview-text">{altTextPreview}</div>
               </div>

@@ -111,7 +111,7 @@ export default function UfixitWidget({
             {/* The header with the issue name and severity icon */}
             <div className="ufixit-widget-header flex-row justify-content-between mb-2">
               <div className="flex-column justify-content-center allow-word-break">
-                <h2 className="mt-0 mb-0 primary-dark">{activeIssue.formLabel}</h2>
+                <h2 className="mt-0 mb-0 primary-text">{activeIssue.formLabel}</h2>
               </div>
               <div className="flex-column justify-content-center ml-3">
                 {
@@ -134,15 +134,15 @@ export default function UfixitWidget({
                 tabindex="0" >
                 { viewInfo && (
                   <div className="flex-column justify-content-center">
-                    <LeftArrowIcon className="primary-dark me-2 icon-sm" />
+                    <LeftArrowIcon className="me-2 icon-sm" />
                   </div>
                 )}
-                <div className="flex-column justify-content-center primary-dark">
+                <div className="flex-column justify-content-center">
                   { viewInfo ? t('fix.button.hide_learn_more') : t('fix.button.show_learn_more') }
                 </div>
                 { !viewInfo && (
                   <div className="flex-column justify-content-center">
-                    <RightArrowIcon className="primary-dark ms-2 icon-sm" />
+                    <RightArrowIcon className="ms-2 icon-sm" />
                   </div>
                 )}
               </button>

@@ -232,7 +232,7 @@ export default function FixIssuesPage({
     let fileTypeLabel = t(`label.mime.unknown`)
     
     // Guarantee that the keywords include the word "file" in each language
-    let keywords = [ fileData.fileName.toLowerCase(), fileTypeLabel.toLowerCase() ]
+    let keywords = [ fileData.fileName.toLowerCase(), fileTypeLabel.toLowerCase(), formLabel.toLowerCase() ]
     
     // Keywords should include the file type ('MS Word', 'PDF', etc.)
     if(FILE_TYPES.includes(fileData.fileType)) {

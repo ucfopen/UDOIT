@@ -1,5 +1,5 @@
 import React from 'react'
-import UDOITLogo from '../../../mediaAssets/UDOIT-logo-small-gradient.png'
+import UDOITLogo from '../../../mediaAssets/udoit-logo.svg'
 import ContentAssignmentIcon from '../Icons/ContentAssignmentIcon'
 import UserIcon from '../Icons/UserIcon'
 import '../Header.css'
