@@ -181,7 +181,7 @@ export default function ReportsPage({t, report, settings}) {
         </head>
         <body>
           <h2>${t('label.reports')}</h2>
-          <div id="resolutionsReport">
+          <div id="printResolutionsReport">
             ${document.querySelector('.ResolutionsReport')?.innerHTML || ''}
           </div>
           <div id="issuesTable">
@@ -202,6 +202,15 @@ export default function ReportsPage({t, report, settings}) {
       </html>
     `
     printWindow.document.write(content)
+    const oldCanvas = document.querySelector('.chartjs-render-monitor')
+    const newCanvas = printWindow.document.querySelector('.chartjs-render-monitor')
+    console.log(oldCanvas)
+    console.log(newCanvas)
+    if (oldCanvas && newCanvas) {
+      const originalContext = oldCanvas.getContext('2d')
+      const newContext = newCanvas.getContext('2d')
+      newContext.drawImage(oldCanvas, 0, 0)
+    }
     printWindow.document.close()
   }
 
