@@ -71,16 +71,16 @@ services:
         yarn build --watch'
 
 # Experimental Equal Access container
-  ace:
-      platform: linux/x86_64
-      container_name: udoit3-ace
-      build:
-        context: ./equal-access-server
-        dockerfile: Dockerfile.ace
-      ports:
-        - "3000:3000"
-      environment:
-        - PORT=3000
+  # ace:
+  #     platform: linux/x86_64
+  #     container_name: udoit3-ace
+  #     build:
+  #       context: ./equal-access-server
+  #       dockerfile: Dockerfile.ace
+  #     ports:
+  #       - "3000:3000"
+  #     environment:
+  #       - PORT=3000
 
 volumes:
   web:
