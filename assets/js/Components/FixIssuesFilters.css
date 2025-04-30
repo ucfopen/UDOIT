@@ -1,7 +1,7 @@
 @import '../../css/udoit4-theme.css';
 
 .filter-container {
-  background-color: var(--gray-lightest);
+  background-color: var(--link-color-light);
   border-top: 1px solid var(--border-color);
   border-bottom: 1px solid var(--border-color);
   margin-left: -1rem;

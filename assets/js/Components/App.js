@@ -307,6 +307,7 @@ export default function App(initialData) {
                   t={t}
                   settings={settings}
                   updateLanguage={updateLanguage}
+                  syncComplete={syncComplete}
                   handleCourseRescan={handleCourseRescan}
                   handleFullCourseRescan={handleFullCourseRescan} />
               }

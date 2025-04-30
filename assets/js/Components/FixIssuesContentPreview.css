@@ -71,20 +71,21 @@
   position-area: bottom;
   position-try-fallbacks: bottom left, bottom right, top, top left, top right;
 
-  background-color: var(--primary-color);
-  color: var(--primary-color-dark);
+  background-color: var(--gray-dark);
+  color: var(--primary-color-light);
   border-radius: 22px;
   font-size: 0.85rem;
 
   display: flex;
   flex-direction: row;
   cursor: pointer;
-  border: 2px solid var(--primary-color-dark);
+  border: 2px solid var(--gray-dark);
   margin: 5px;
   
   .alt-text-preview-icon {
     padding: 8px;
     line-height: 0px;
+    fill: var(--primary-color-light);
   }
 
   .alt-text-preview-text {

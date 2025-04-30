@@ -151,10 +151,10 @@ export default function ReportsPage({t, report, settings}) {
               reports={reports}/>
           </div>
 
-          <div className="flex-row justify-content-end mt-3 mb-2 gap-2">
+          {/* <div className="flex-row justify-content-end mt-3 mb-2 gap-2">
             <button className="btn btn-primary">{t('report.button.download')}</button>
             <button className="btn btn-primary">{t('report.button.print')}</button>
-          </div>
+          </div> */}
 
         </div>
       )}
