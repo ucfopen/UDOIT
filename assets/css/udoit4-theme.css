@@ -582,11 +582,6 @@ button:disabled {
   align-items: center;
 }
 
-.outline-link {
-  outline: 2px solid var(--focus-color);
-  outline-offset: 3px;
-}
-
 .icon-sm {
   width: 16px;
   height: 16px;

@@ -72,7 +72,7 @@
   position-try-fallbacks: bottom left, bottom right, top, top left, top right;
 
   background-color: var(--gray-dark);
-  color: var(--primary-color-light);
+  color: var(--white);
   border-radius: 22px;
   font-size: 0.85rem;
 
@@ -85,7 +85,7 @@
   .alt-text-preview-icon {
     padding: 8px;
     line-height: 0px;
-    fill: var(--primary-color-light);
+    fill: var(--white);
   }
 
   .alt-text-preview-text {

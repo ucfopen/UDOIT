@@ -134,19 +134,27 @@ export default function ContrastForm({
   }
 
   const handleLightenText = () => {
-    setTextColor(Contrast.changehue(textColor, 'lighten'))
+    const newColor = Contrast.changehue(textColor, 'lighten')
+    setTextColorInput(newColor)
+    setTextColor(newColor)
   }
 
   const handleDarkenText = () => {
-    setTextColor(Contrast.changehue(textColor, 'darken'))
+    const newColor = Contrast.changehue(textColor, 'darken')
+    setTextColorInput(newColor)
+    setTextColor(newColor)
   }
 
   const handleLightenBackground = () => {
-    setBackgroundColor(Contrast.changehue(backgroundColor, 'lighten'))
+    const newColor = Contrast.changehue(backgroundColor, 'lighten')
+    setBackgroundColorInput(newColor)
+    setBackgroundColor(newColor)
   }
 
   const handleDarkenBackground = () => {
-    setBackgroundColor(Contrast.changehue(backgroundColor, 'darken'))
+    const newColor = Contrast.changehue(backgroundColor, 'darken')
+    setBackgroundColorInput(newColor)
+    setBackgroundColor(newColor)
   }
 
   const handleSubmit = () => {
@@ -192,13 +200,13 @@ export default function ContrastForm({
             </button>
           </div>
           <div className="flex-column justify-content-center">
-            <button className="btn-icon-only btn-transparent" title={t('form.contrast.label.darken')} onClick={handleDarkenBackground}>
-              <DarkIcon className="icon-md"/>
+            <button className="btn-icon-only btn-transparent" title={t('form.contrast.label.lighten')} onClick={handleLightenBackground}>
+              <LightIcon className="icon-md"/>
             </button>
           </div>
           <div className="flex-column justify-content-center">
-            <button className="btn-icon-only btn-transparent" title={t('form.contrast.label.lighten')} onClick={handleLightenBackground}>
-              <LightIcon className="icon-md"/>
+            <button className="btn-icon-only btn-transparent" title={t('form.contrast.label.darken')} onClick={handleDarkenBackground}>
+              <DarkIcon className="icon-md"/>
             </button>
           </div>
         </div>
@@ -235,13 +243,13 @@ export default function ContrastForm({
             </button>
           </div>
           <div className="flex-column justify-content-center">
-            <button className="btn-icon-only btn-transparent" title={t('form.contrast.label.darken')} onClick={handleDarkenText}>
-              <DarkIcon className="icon-md"/>
+            <button className="btn-icon-only btn-transparent" title={t('form.contrast.label.lighten')} onClick={handleLightenText}>
+              <LightIcon className="icon-md"/>
             </button>
           </div>
           <div className="flex-column justify-content-center">
-            <button className="btn-icon-only btn-transparent" title={t('form.contrast.label.lighten')} onClick={handleLightenText}>
-              <LightIcon className="icon-md"/>
+            <button className="btn-icon-only btn-transparent" title={t('form.contrast.label.darken')} onClick={handleDarkenText}>
+              <DarkIcon className="icon-md"/>
             </button>
           </div>
         </div>
