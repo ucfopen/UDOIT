@@ -99,7 +99,11 @@ class DashboardController extends AbstractController
         $clientToken = $this->session->getUuid();
 
         $metadata = $institution->getMetadata();
-        $lang = (!empty($metadata['lang'])) ? $metadata['lang'] : $_ENV['DEFAULT_LANG'];
+
+        /** $lang should be two letters, and match an available JSON file in the /translations folder. */
+        $lang = ($_ENV['DEFAULT_LANG'] ? $_ENV['DEFAULT_LANG'] : 'en');
+        $lang = (!empty($metadata['lang'])) ? $metadata['lang'] : $lang;
+        $lang = (array_key_exists("lang", $user->getRoles()) ? $user->getRoles()["lang"] : $lang);
         $excludedRuleIds = (!empty($metadata['excludedRuleIds'])) ? $metadata['excludedRuleIds'] : $_ENV['PHPALLY_EXCLUDED_RULES'];
 
         $lms = $this->lmsApi->getLms();

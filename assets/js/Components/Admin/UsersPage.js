@@ -12,10 +12,10 @@ export default function UsersPage({
 }) {
 
   const headers = [
-    { id: "lmsUserName", text: t('label.admin.name') },
-    { id: "lmsUserId", text: t('label.admin.id') },
-    { id: "created", text: t('label.admin.created') },
-    { id: "lastLogin", text: t('label.admin.last_login') },
+    { id: "lmsUserName", text: t('report.header.name') },
+    { id: "lmsUserId", text: t('report.header.lms_id') },
+    { id: "created", text: t('report.header.created') },
+    { id: "lastLogin", text: t('report.header.last_login') },
     { id: "action", text: "", alignText: "end" }
   ]
 
@@ -75,7 +75,7 @@ export default function UsersPage({
       
       //Since usernames won't always be stored, we check for null to avoid crashes
       if(!user.name) {
-        user.name = 'User'
+        user.name = t('report.label.default_name')
       }
 
       let excludeUser = false
@@ -96,15 +96,15 @@ export default function UsersPage({
 
       if(!excludeUser) {
 
-        let btnLabel = t('label.admin.deauthorized')
+        let btnLabel = t('report.label.deauthorized')
         if (user.hasApiKey) {
-          btnLabel = t('label.admin.force_reauthorize')
+          btnLabel = t('report.button.force_reauthorize')
         }
 
         const action = <button key={`userActionButton${user.id}`}
           onClick={() => handleUserDeauthorize(user)}
           disabled={(user.hasApiKey) ? true : false}
-          className={`${user.hasApiKey ? 'btn-disabled' : ''}`}>
+          className='btn btn-primary'>
             {btnLabel}
           </button>
 
@@ -138,8 +138,8 @@ export default function UsersPage({
 
   return (
     <div className="pt-0 pe-0 pb-0 ps-0">
-      <div className="flex-row justify-content-center mt-3 mb-2">
-        <h1 className="mt-0 mb-0">{t('label.admin.users')}</h1>
+      <div className="flex-row justify-content-center mt-3 mb-3">
+        <h1 className="mt-0 mb-0 primary-dark">{t('report.header.users')}</h1>
       </div>
       {(!usersLoaded) &&
         <div className="mt-3 flex-row justify-content-center">
@@ -147,17 +147,17 @@ export default function UsersPage({
             <ProgressIcon className="icon-lg primary spinner" />
           </div>
           <div className="flex-column justify-content-center">
-            <h2 className="mt-0 mb-0">{t('label.loading_users')}</h2>
+            <h2 className="mt-0 mb-0">{t('report.label.loading_users')}</h2>
           </div>
         </div>
       }
       {(usersLoaded && filteredUsers.length === 0) &&
         <div className="flex-column mt-3">
           <div className="flex-row justify-content-center">
-            <h2 className="mt-0 mb-0">{t('label.no_results_header')}</h2>
+            <h2 className="mt-0 mb-0">{t('report.label.no_results')}</h2>
           </div>
           <div className="flex-row justify-content-center mt-2">
-            <div className="mt-0 mb-0">{t('label.no_results_message')}</div>
+            <div className="mt-0 mb-0">{t('report.msg.no_results')}</div>
           </div>
         </div>
       }

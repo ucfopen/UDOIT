@@ -10,15 +10,14 @@
     cursor: pointer;
 
     padding: .5rem .5rem .25rem .5rem;
-    color: var(--primary-color-dark);
-    fill: var(--primary-color-dark);
-    border-bottom: 1px solid var(--primary-color-dark);
+    color: var(--primary-color-inverse);
+    fill: var(--primary-color-inverse);
+    border-bottom: 1px solid var(--primary-color);
     background-color: var(--primary-color);
 
     &:focus {
-      outline-color: var(--link-color);
-      outline-offset: 3px;
-      outline-width: 2px;
+      outline: 2px solid var(--focus-color);
+      outline-offset: -2px;
 
       .clickable-text {
         text-decoration: underline;
@@ -26,6 +25,7 @@
     }
 
     &:hover {
+      filter: brightness(var(--hover-brightness));
       .clickable-text {
         text-decoration: underline;
       }
@@ -95,13 +95,13 @@
   }
 }
 
-
 .paginationButton {
   padding: .2rem .5rem;
   min-width: 2rem;
   border-radius: 8px;
   background-color: transparent;
   color: var(--link-color);
+  border-color: transparent;
 
   &.selected {
     background-color: var(--link-color);

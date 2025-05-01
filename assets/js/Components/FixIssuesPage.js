@@ -3,6 +3,7 @@ import FixIssuesFilters from './FixIssuesFilters'
 import FixIssuesList from './FixIssuesList'
 import FixIssuesContentPreview from './FixIssuesContentPreview'
 import UfixitWidget from './UfixitWidget'
+import { formNameFromRule } from '../Services/Ufixit'
 import * as Html from '../Services/Html'
 import Api from '../Services/Api'
 
@@ -81,15 +82,6 @@ export default function FixIssuesPage({
     NO_RESULTS: 4,
   }
 
-  const ISSUE_STATE = {
-    UNCHANGED: 0,
-    SAVING: 1,
-    RESOLVING: 2,
-    SAVED: 3,
-    RESOLVED: 4,
-    ERROR: 5,
-  }
-
   const FILE_TYPES = [
     'pdf',
     'doc',
@@ -114,8 +106,11 @@ export default function FixIssuesPage({
 
     let issueSeverity = FILTER.ISSUE
     // PHPAlly returns a type of 'error' or 'suggestion'
-    if(issue.type == 'suggestion') {
+    if(issue.type === 'suggestion' || issue.type === 'SUGGESTION') {
       issueSeverity = FILTER.SUGGESTION
+    }
+    else if(issue.type === 'potential' || issue.type === 'POTENTIAL' || issue.type === 'MANUAL') {
+      issueSeverity = FILTER.POTENTIAL
     }
     
     let issueContentType = FILTER.ALL
@@ -195,10 +190,13 @@ export default function FixIssuesPage({
       issueResolution = FILTER.RESOLVED
     }
 
-    let currentState = ISSUE_STATE.UNCHANGED
+    let currentState = settings.ISSUE_STATE.UNCHANGED
     if(sessionIssues && sessionIssues[issue.id]) {
       currentState = sessionIssues[issue.id]
     }
+
+    let formName = formNameFromRule(issue.scanRuleId)
+    let formLabel = t(`form.${formName}.title`)
 
     return {
       issueData: Object.assign({}, issue),
@@ -206,12 +204,12 @@ export default function FixIssuesPage({
       severity: issueSeverity,
       status: issueResolution,
       sectionIds: issueSectionIds,
-      keywords: createKeywords(issue, tempContentItem),
+      keywords: createKeywords(issue, formLabel, tempContentItem),
       scanRuleId: issue.scanRuleId,
-      scanRuleLabel: t(`rule.label.${issue.scanRuleId}`),
+      formName: formName,
+      formLabel: formLabel,
       contentId: tempContentItem.lmsContentId,
       contentType: issueContentType,
-      contentTypeLabel: t(`content.${tempContentItem.contentType}`),
       contentTitle: tempContentItem.title,
       contentUrl: tempContentItem.url,
       currentState: currentState, 
@@ -229,12 +227,12 @@ export default function FixIssuesPage({
       issueResolution = FILTER.RESOLVED
     }
 
-    let scanRuleLabel = t(`rule.label.file`)
+    let formLabel = t(`form.file.title`)
 
-    let fileTypeLabel = t(`content.file`)
+    let fileTypeLabel = t(`label.mime.unknown`)
     
     // Guarantee that the keywords include the word "file" in each language
-    let keywords = [ fileData.fileName.toLowerCase(), fileTypeLabel.toLowerCase() ]
+    let keywords = [ fileData.fileName.toLowerCase(), fileTypeLabel.toLowerCase(), formLabel.toLowerCase() ]
     
     // Keywords should include the file type ('MS Word', 'PDF', etc.)
     if(FILE_TYPES.includes(fileData.fileType)) {
@@ -284,7 +282,7 @@ export default function FixIssuesPage({
       })
     }
 
-    let currentState = ISSUE_STATE.UNCHANGED
+    let currentState = settings.ISSUE_STATE.UNCHANGED
     if(sessionIssues && sessionIssues[fileId]) {
       currentState = sessionIssues[fileId]
     }
@@ -296,11 +294,10 @@ export default function FixIssuesPage({
       status: issueResolution,
       sectionIds: fileSectionIds,
       keywords: keywords,
-      scanRuleId: 'aaaa_verify_file_accessibility',
-      scanRuleLabel: scanRuleLabel,
+      scanRuleId: 'verify_file_accessibility',
+      formLabel: formLabel,
       contentId: fileData.lmsFileId,
       contentType: FILTER.FILE_OBJECT,
-      contentTypeLabel: fileTypeLabel,
       contentTitle: fileData.fileName,
       contentUrl: fileData.lmsUrl,
       currentState: currentState,
@@ -324,7 +321,7 @@ export default function FixIssuesPage({
     }
 
     tempFormattedIssues.sort((a, b) => {
-      return (a.contentTypeLabel.toLowerCase() < b.contentTypeLabel.toLowerCase()) ? -1 : 1
+      return (a.formLabel.toLowerCase() < b.formLabel.toLowerCase()) ? -1 : 1
     })
 
     setUnfilteredIssues(tempFormattedIssues)
@@ -394,7 +391,7 @@ export default function FixIssuesPage({
     }
 
     filteredList.sort((a, b) => {
-      return (a.scanRuleId.toLowerCase() < b.scanRuleId.toLowerCase()) ? -1 : 1
+      return (a.formLabel.toLowerCase() < b.formLabel.toLowerCase()) ? -1 : 1
     })
 
     return filteredList
@@ -501,7 +498,7 @@ export default function FixIssuesPage({
     setFilteredIssues(tempFilteredIssues)
 
     // If the issue is resolved or saved, reload the associated content item
-    if(state === ISSUE_STATE.SAVED || state === ISSUE_STATE.RESOLVED) {
+    if(state === settings.ISSUE_STATE.SAVED || state === settings.ISSUE_STATE.RESOLVED) {
       let contentItemId = null
       tempUnfilteredIssues.forEach((issue) => {
         if(issue.id === issueId) {
@@ -550,7 +547,7 @@ export default function FixIssuesPage({
 
   const handleIssueSave = (issue) => {
 
-    updateActiveSessionIssue(issue.id, ISSUE_STATE.SAVING)
+    updateActiveSessionIssue(issue.id, settings.ISSUE_STATE.SAVING)
 
     // Save the updated issue using the LMS API
     let api = new Api(settings)
@@ -561,7 +558,7 @@ export default function FixIssuesPage({
 
           // If the save falied, show the relevant error message
           if (response.data.failed) {
-            updateActiveSessionIssue(issue.id, ISSUE_STATE.ERROR)
+            updateActiveSessionIssue(issue.id, settings.ISSUE_STATE.ERROR)
             response.messages.forEach((msg) => addMessage(msg))
             
             if (Array.isArray(response.data.issues)) {
@@ -591,7 +588,7 @@ export default function FixIssuesPage({
               // Update the report object by rescanning the content
               const newIssue = Object.assign({}, issue, response.data.issue)
               setActiveIssue(formatIssueData(newIssue))
-              updateActiveSessionIssue(newIssue.id, ISSUE_STATE.SAVED)
+              updateActiveSessionIssue(newIssue.id, settings.ISSUE_STATE.SAVED)
 
               api.scanContent(newIssue.contentItemId)
                 .then((responseStr) => responseStr.json())
@@ -601,13 +598,13 @@ export default function FixIssuesPage({
             }
             else {
               setActiveIssue(formatIssueData(issue))
-              updateActiveSessionIssue(issue.id, ISSUE_STATE.SAVED)
+              updateActiveSessionIssue(issue.id, settings.ISSUE_STATE.SAVED)
             }
           }
         })
     } catch (error) {
       console.error(error)
-      updateActiveSessionIssue(issue.id, ISSUE_STATE.ERROR)
+      updateActiveSessionIssue(issue.id, settings.ISSUE_STATE.ERROR)
     }
   }
 
@@ -619,7 +616,7 @@ export default function FixIssuesPage({
 
     const tempFile = Object.assign({}, activeIssue.fileData)
 
-    updateActiveSessionIssue("file-" + tempFile.id, ISSUE_STATE.SAVING)
+    updateActiveSessionIssue("file-" + tempFile.id, settings.ISSUE_STATE.SAVING)
 
     try {
       let api = new Api(settings)
@@ -632,18 +629,17 @@ export default function FixIssuesPage({
           response.messages.forEach((msg) => addMessage(msg))
 
           // Update the local report and activeIssue
-          updateActiveSessionIssue("file-" + tempFile.id, ISSUE_STATE.SAVED)
+          updateActiveSessionIssue("file-" + tempFile.id, settings.ISSUE_STATE.SAVED)
           updateFile(updatedFileData)
         })
     } catch (error) {
       console.error(error)
-      updateActiveSessionIssue("file-" + tempFile.id, ISSUE_STATE.ERROR)
+      updateActiveSessionIssue("file-" + tempFile.id, settings.ISSUE_STATE.ERROR)
     }
   }
 
   const handleIssueResolve = (issue) => {
-    console.log("Resolve issue: ", issue)
-    updateActiveSessionIssue(issue.id, ISSUE_STATE.RESOLVING)
+    updateActiveSessionIssue(issue.id, settings.ISSUE_STATE.RESOLVING)
 
     let tempIssue = Object.assign({}, issue)
     if (tempIssue.status) {
@@ -676,25 +672,25 @@ export default function FixIssuesPage({
             .then((responseStr) => responseStr.json())
             .then((res) => {
               // update activeIssue locally
-              updateActiveSessionIssue(tempIssue.id, ISSUE_STATE.RESOLVED)
+              updateActiveSessionIssue(tempIssue.id, settings.ISSUE_STATE.RESOLVED)
               setActiveIssue(formatIssueData(newIssue))
               updateReportIssue(newIssue, res.data)
             })
           }
           else {
-            updateActiveSessionIssue(tempIssue.id, ISSUE_STATE.RESOLVED)
+            updateActiveSessionIssue(tempIssue.id, settings.ISSUE_STATE.RESOLVED)
             setActiveIssue(formatIssueData(tempIssue))
           }
         })
     } catch (error) {
       console.error(error)
-      updateActiveSessionIssue(issue.id, ISSUE_STATE.ERROR)
+      updateActiveSessionIssue(issue.id, settings.ISSUE_STATE.ERROR)
     }
   }
 
   const handleFileResolve = (fileData) => {
 
-    updateActiveSessionIssue("file-" + fileData.id, ISSUE_STATE.RESOLVING)
+    updateActiveSessionIssue("file-" + fileData.id, settings.ISSUE_STATE.RESOLVING)
     
     let tempFile = Object.assign({}, fileData)
     tempFile.reviewed = !(tempFile.reviewed) 
@@ -711,12 +707,12 @@ export default function FixIssuesPage({
           response.messages.forEach((msg) => addMessage(msg))
 
           // Update the local report and activeIssue
-          updateActiveSessionIssue("file-" + fileData.id, ISSUE_STATE.RESOLVED)
+          updateActiveSessionIssue("file-" + fileData.id, settings.ISSUE_STATE.RESOLVED)
           updateFile(newFileData)
         })
     } catch (error) {
       console.error(error)
-      updateActiveSessionIssue("file-" + fileData.id, ISSUE_STATE.ERROR)
+      updateActiveSessionIssue("file-" + fileData.id, settings.ISSUE_STATE.ERROR)
     }
   }
 
@@ -763,11 +759,11 @@ export default function FixIssuesPage({
     return Object.assign({}, report.contentItems[contentId])
   }
 
-  const createKeywords = (issue, contentItem) => {
+  const createKeywords = (issue, formName, contentItem) => {
     let keywords = []
 
-    if(issue?.scanRuleId) {
-      keywords.push(t(`rule.label.${issue.scanRuleId}`).toLowerCase())
+    if(formName !== '') {
+      keywords.push(formName.toLowerCase())
     }
     if(contentItem?.contentType) {
       keywords.push(t(`label.${contentItem.contentType}`).toLowerCase())
@@ -803,7 +799,6 @@ export default function FixIssuesPage({
               <UfixitWidget
                 t={t}
                 settings={settings.FILTER ? settings : Object.assign({}, settings, { FILTER })}
-                ISSUE_STATE={ISSUE_STATE}
                 viewInfo={viewInfo}
                 setViewInfo={setViewInfo}
                 severity={activeIssue.severity}
@@ -820,7 +815,14 @@ export default function FixIssuesPage({
                 nextIssue={nextIssue}
               />
           ) : (
-            <h2>No Issues Found</h2>
+            <div className="flex-column gap-3 mt-3">
+              <div className="flex-row align-self-center ms-3 me-3">
+                <h2 className="mt-0 mb-0 primary-dark">{t('report.label.no_results')}</h2>
+              </div>
+              <div className="flex-row align-self-center ms-3 me-3">
+                {t('report.msg.no_results')}
+              </div>
+            </div>
           )}
         </section>
         <section className="ufixit-content-container">
@@ -831,7 +833,6 @@ export default function FixIssuesPage({
             activeContentItem={activeContentItem}
             editedElement={editedElement}
             sessionIssues={sessionIssues}
-            ISSUE_STATE={ISSUE_STATE}
           />
         </section>
       </div>

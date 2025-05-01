@@ -1,8 +1,16 @@
-import React, { useEffect, useState } from "react";
-import * as Html from "../../Services/Html";
-import './AriaRoleForm.css'
+import React, { useEffect, useState } from "react"
+import * as Html from "../../Services/Html"
 
-export default function AriaRoleForm(props) {
+export default function AriaRoleForm({
+  t,
+  settings,
+  activeIssue,
+  handleIssueSave,
+  addMessage,
+  handleActiveIssue,
+  handleManualScan
+ }) {
+
   const ariaRoleMap = {
     A: [
       "button",
@@ -131,128 +139,106 @@ export default function AriaRoleForm(props) {
     UL: ["list", "menu", "menubar", "tablist", "tree"],
     FOOTER: ["group", "presentation"],
     FORM: ["none", "presentation", "search"],
-  };
-
-  const [deleteRole, setDeleteRole] = useState(
-    !element && props.activeIssue.status === "1"
-  );
-  const [detectedTag, setDetectedTag] = useState("");
-
-
-
-  let html = props.activeIssue.newHtml
-    ? props.activeIssue.newHtml
-    : props.activeIssue.sourceHtml;
-
-  if (props.activeIssue.status === "1") {
-    html = props.activeIssue.newHtml;
   }
-  let element = Html.toElement(html);
 
-  const [textInputValue, setTextInputValue] = useState(
-    element ? Html.getAttribute(element, "role") : ""
-  );
-  const [textInputErrors, setTextInputErrors] = useState([]);
-  let formErrors = [];
-  useEffect(() => {
-    let html = props.activeIssue.newHtml
-      ? props.activeIssue.newHtml
-      : props.activeIssue.sourceHtml;
-    if (props.activeIssue.status === 1) {
-      html = props.activeIssue.newHtml;
-    }
-    let element = Html.toElement(html);
-    setTextInputValue(element ? Html.getAttribute(element, "role") : "");
-    setDeleteRole(!element && props.activeIssue.status === 1);
-    formErrors = [];
-
-    const match = Html.getTagName(html);
-    if (match) {
-      setDetectedTag(match);
-    }
-  }, [props.activeIssue]);
-  useEffect(() => {
-    handleHtmlUpdate();
-  }, [textInputValue, deleteRole]);
+  const [deleteRole, setDeleteRole] = useState(false)
+  const [detectedTag, setDetectedTag] = useState("")
+  const [validRoles, setValidRoles] = useState([])
+  const [selectValue, setSelectValue] = useState("")
+  
   const handleHtmlUpdate = () => {
-    let updatedElement = Html.toElement(html);
-
+    let oldHtml = Html.getIssueHtml(activeIssue)
+    let updatedElement = Html.toElement(oldHtml)
 
     if (deleteRole) {
-      updatedElement = Html.removeAttribute(updatedElement, "role");
+      updatedElement = Html.removeAttribute(updatedElement, "role")
     } else {
       updatedElement = Html.setAttribute(
         updatedElement,
         "role",
-        textInputValue
-      );
+        selectValue
+      )
     }
 
-    let issue = props.activeIssue;
-    issue.newHtml = Html.toString(updatedElement);
-    props.handleActiveIssue(issue);
-  };
-  const handleButton = () => {
-    formErrors = [];
-    if (formErrors.length > 0) {
-      setTextInputErrors(formErrors);
-    } else {
-      props.handleIssueSave(props.activeIssue);
+    let issue = activeIssue
+    issue.newHtml = Html.toString(updatedElement)
+    handleActiveIssue(issue)
+  }
+
+  useEffect(() => {
+    let html = Html.getIssueHtml(activeIssue)
+    let element = Html.toElement(html)
+    setSelectValue(element ? Html.getAttribute(element, "role") : "")
+    setDeleteRole(!element && activeIssue.status === 1)
+
+    const tagName = Html.getTagName(html)
+
+    if (tagName) {
+      setDetectedTag(tagName)
+      setValidRoles(ariaRoleMap[tagName] || [])
     }
-  };
-  const handleInput = (e) => {
-    setTextInputValue(e.target.value);
-    // handleHtmlUpdate()
-  };
+ 
+    else {
+      setDetectedTag("")
+      setValidRoles([])
+    }
+  }, [activeIssue])
+
+  useEffect(() => {
+    handleHtmlUpdate()
+  }, [selectValue, deleteRole])
+  
+
+  const handleSubmit = () => {
+    handleIssueSave(activeIssue)
+  }
+
+  const handleSelect = (newValue) => {
+    setSelectValue(newValue)
+  }
 
   const handleCheckbox = () => {
    setDeleteRole(!deleteRole)
-  // handleHtmlUpdate()
   }
 
-
-  const pending = props.activeIssue && props.activeIssue.pending == "1";
-  const buttonLabel = pending ? "form.processing" : "form.submit";
-  const validRoles = detectedTag ? ariaRoleMap[detectedTag] || [] : [];
-
   return (
-    <div className="p-1">
-      <section>
-        {validRoles.length === 0 ? (
-          <p>No valid ARIA roles for &lt;{detectedTag}&gt;</p>
-        ) : (<section className="flex-col">
-          <label>
-            Choose a role
-            </label>
-            <select value={textInputValue} onChange={(e) => handleInput(e)}>
-              <option value="">--Select a role--</option>
-              {validRoles.map((opt, index) => (
-                <option key={index} value={opt} selected={opt == textInputValue}>
-                  {opt}
-                </option>
-              ))}
-            </select>
-            </section>
-        )}
-      </section>
-
-      <section className="mt-3 flex">
-        
-          <input className="checkbox"
-            type="checkbox"
-            checked={deleteRole}
-            onChange={handleCheckbox}
-          />
-        <label>
-          Remove role attribute
-        </label>
-      </section>
-
-      <section className="mt-3">
-        <button className="btn btn-primary" onClick={handleButton} disabled={pending}>
-          {pending ? "Processing..." : "Submit"}
-        </button>
-      </section>
-    </div>
-  );
+    <>
+      {(detectedTag === '') ? (
+        <label>{t('form.aria_role.feedback.no_tag')}</label>
+      ) : (validRoles.length === 0) ? (
+        <label>{t('form.aria_role.feedback.no_roles', {tagName: detectedTag})}</label>
+      ) : (
+        <>
+          <label htmlFor="role-select">{t('form.aria_role.label.select')}</label>
+          <select
+            id="role-select"
+            name="role-select"
+            className="w-100 mt-2"
+            value={selectValue}
+            onChange={(e) => handleSelect(e.target.value)}
+            disabled={deleteRole}>
+            <option key='empty' id='opt-empty' value=''>
+              {t('form.aria_role.label.none_selected')}
+            </option>
+            {validRoles.map((opt, index) => (
+              <option key={index} id={`opt-${index}`} value={opt}>
+                {opt}
+              </option>
+            ))}
+          </select>
+        </>
+      )}
+      <div className="flex-row justify-content-start gap-1 mt-2">
+        <input type="checkbox"
+          id="deleteRoleCheckbox"
+          name="deleteRoleCheckbox"
+          checked={deleteRole}
+          onChange={handleCheckbox} />
+        <label htmlFor="deleteRoleCheckbox">{t('form.aria_role.label.remove')}</label>
+      </div>
+      <div className="flex-row justify-content-start mt-3 mb-3">
+        <button className="btn btn-primary" disabled={!deleteRole && selectValue === ''} onClick={handleSubmit}>{t('form.submit')}</button>
+      </div>
+    </>
+  )
 }

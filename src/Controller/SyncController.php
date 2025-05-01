@@ -94,9 +94,7 @@ class SyncController extends ApiController
 
             $prevReport = $course->getPreviousReport();
 
-            $course->removeAllReports();
-
-            $lmsFetch->refreshLmsContent($course, $user);
+            $lmsFetch->refreshLmsContent($course, $user, true);
 
             $report = $course->getLatestReport();
 

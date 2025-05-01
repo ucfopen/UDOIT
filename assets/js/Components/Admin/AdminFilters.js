@@ -56,14 +56,14 @@ export default function AdminFilters({
           <input
             value={searchTerm}
             type="text"
-            placeholder="Search"
+            placeholder={t('filter.label.search')}
             onChange={(e) => handleSearchTerm(e.target.value)}
           />
           <SearchIcon className="search-icon icon-sm" />
         </div>
         <div className="flex-row me-3">
           <div className="flex-column justify-content-center">
-            <label for="inputAccount" className="me-2">{t('label.admin.account')}</label>
+            <label for="inputAccount" className="me-2">{t('filter.label.account')}</label>
           </div>
           <div className="filter-group">
             <select
@@ -87,7 +87,7 @@ export default function AdminFilters({
         </div>
         <div className="flex-row me-3">
           <div className="flex-column justify-content-center">
-            <label for="inputTerm" className="me-2">{t('label.admin.term')}</label>
+            <label for="inputTerm" className="me-2">{t('filter.label.term')}</label>
           </div>
           <div className="filter-group">
             <select
@@ -121,7 +121,7 @@ export default function AdminFilters({
             />
           </div>
           <div className="flex-column justify-content-center">
-            <label className="ms-2" for="inputSubaccounts">{t('label.admin.include_subaccounts')}</label>
+            <label className="ms-2" for="inputSubaccounts">{t('filter.label.include_subaccounts')}</label>
           </div>
         </div>
       </div>

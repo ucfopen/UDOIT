@@ -35,11 +35,11 @@ class ContentItemRepository extends ServiceEntityRepository
             ->createQuery('DELETE App\Entity\ContentItem ci WHERE ci.active = FALSE')->execute();
     }
 
-    public function getUpdatedContentItems(Course $course)
+    public function getUpdatedContentItems(Course $course, $force = false)
     {
         $latestReport = $course->getLatestReport();
 
-        if (!$latestReport) {
+        if ($force || !$latestReport) {
             return $this->createQueryBuilder('c')
                 ->andWhere('c.course = :course')
                 ->andWhere('c.active = TRUE')

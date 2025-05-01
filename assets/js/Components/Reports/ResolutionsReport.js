@@ -4,19 +4,26 @@ import { Line } from '@reactchartjs/react-chart.js'
 export default function ResolutionsReport ({
   t,
   reports,
-  visibility
+  visibility = {
+    issues: true,
+    potentialIssues: true,
+    suggestions: true
+  }
 }) {
 
   const [chartData, setChartData] = useState(null)
   const [chartOptions, setChartOptions] = useState(null)
 
   const getChartData = () => {
+    let tempReports = reports.sort((a, b) => {
+      return new Date(a.created) - new Date(b.created)
+    })
 
     let data = {
       labels: [],
       datasets: [
         {
-          label: t('label.filter.severity.issue'),
+          label: t('report.header.issues'),
           data: [],
           fill: false,
           backgroundColor: 'rgba(249, 65, 68, 0.5)',
@@ -25,7 +32,7 @@ export default function ResolutionsReport ({
           hidden: !visibility.issues
         },
         {
-          label: t('label.filter.severity.potential'),
+          label: t('report.header.potential'),
           data: [],
           fill: false,
           borderDash: [7, 3],
@@ -35,7 +42,7 @@ export default function ResolutionsReport ({
           hidden: !visibility.potentialIssues
         },
         {
-          label: t('label.filter.severity.suggestion'),
+          label: t('report.header.suggestions'),
           data: [],
           fill: false,
           borderDash: [3, 5],
@@ -47,7 +54,7 @@ export default function ResolutionsReport ({
       ]
     }
 
-    for (let report of reports) {
+    for (let report of tempReports) {
       data.labels.push(report.created)
 
       data.datasets[0].data.push(report.errors)

@@ -16,13 +16,12 @@
     .ufixit-list-heading {
       position: sticky;
       top: 0;
-      background-color: var(--link-color);
-      /* border-top: 2px solid var(--gray-dark); */
+      background-color: var(--gray-light);
       padding: .5rem;
-      border-bottom: 1px solid var(--link-color-dark);
+      border-bottom: 2px solid var(--gray);
     
       h3 {
-        color: var(--white);
+        color: var(--gray-darker);
         margin: 0;
       }
     }
@@ -30,23 +29,23 @@
     .ufixit-list-item {
       cursor: pointer;
       padding: .5rem;
-      border-bottom: 1px solid var(--gray-dark);
+      border-bottom: 1px solid var(--gray);
       font-weight: 600;
+      fill: var(--gray);
 
       &:last-child {
-        border-bottom: none;
+        border-bottom-width: 2px;
       }
     
       &:hover {
-        /* background-color: var(--primary-color-light);
-        color: var(--primary-color-dark); */
-        background-color: var(--link-color-light);
-        color: var(--link-color-dark);
+        background-color: var(--primary-color-light);
+        color: var(--primary-color);
+        fill: var(--primary-color);
       }
 
       &:focus {
-        outline: 2px solid var(--link-color);
-        outline-offset: 3px;
+        outline: 2px solid var(--focus-color);
+        outline-offset: -2px;
       }
     }
   }  

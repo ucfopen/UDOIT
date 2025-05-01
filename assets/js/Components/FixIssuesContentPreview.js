@@ -15,7 +15,6 @@ export default function FixIssuesContentPreview({
   activeContentItem,
   editedElement,
   sessionIssues,
-  ISSUE_STATE
 }) {
 
   const [taggedContent, setTaggedContent] = useState(null)
@@ -23,8 +22,7 @@ export default function FixIssuesContentPreview({
   const [altTextIsOpen, setAltTextIsOpen] = useState(true)
 
   const convertErrorHtmlString = (htmlText) => {
-    const parser = new DOMParser()
-    let tempElement = parser.parseFromString(htmlText, 'text/html').body.firstElementChild
+    let tempElement = Html.toElement(htmlText)
 
     // Get the element's alt attribute, if it exists
     let altText = tempElement.getAttribute('alt') || tempElement.getAttribute('aria-label')
@@ -50,50 +48,6 @@ export default function FixIssuesContentPreview({
     htmlElement.classList.add('ufixit-error-highlight')
     return htmlElement
   }
-
-  // // When JavaScript's DOMParser encounters certain elements, it WILL NOT parse them unless they are wrapped
-  // // in the required parent element. This function wraps the error HTML in the required parent element so that
-  // // the DOMParser can parse it correctly.
-  // const parseErrorSafely = (errorHtml) => {
-
-  //   let tagName = errorHtml.match(/^<(\w+)/)?.[1].toLowerCase()
-
-  //   const SPECIAL_CASES = {
-  //     thead: "<table>{content}</table>",
-  //     tbody: "<table>{content}</table>",
-  //     tfoot: "<table>{content}</table>",
-  //     caption: "<table>{content}</table>",
-  //     tr: "<table><tbody>{content}</tbody></table>",
-  //     td: "<table><tbody><tr>{content}</tr></tbody></table>",
-  //     th: "<table><tbody><tr>{content}</tr></tbody></table>",
-  //     colgroup: "<table>{content}</table>",
-  //     col: "<table><colgroup>{content}</colgroup></table>",
-  //     option: "<select>{content}</select>",
-  //     optgroup: "<select>{content}</select>",
-  //     legend: "<fieldset>{content}</fieldset>",
-  //     dt: "<dl>{content}</dl>",
-  //     dd: "<dl>{content}</dl>",
-  //     li: "<ul>{content}</ul>",
-  //     area: "<map>{content}</map>",
-  //     param: "<object>{content}</object>",
-  //     source: "<video>{content}</video>",
-  //     track: "<video>{content}</video>"
-  //   }
-
-  //   // Wrap special elements inside their required parent(s) if they are in the SPECIAL_CASES object
-  //   let wrappedHTML = SPECIAL_CASES[tagName] ? SPECIAL_CASES[tagName].replace('{content}', errorHtml) : errorHtml
-
-  //   // Parse the wrapped HTML
-  //   const parser = new DOMParser()
-  //   const tempDoc = parser.parseFromString(wrappedHTML, "text/html")
-
-  //   // Extract the real element from the correct position
-  //   if (SPECIAL_CASES[tagName]) {
-  //       return tempDoc.querySelector(tagName)
-  //   } else {
-  //       return tempDoc.body.firstElementChild
-  //   }
-  // }
 
   const getTaggedContent = (activeIssue, activeContentItem) => {
 
@@ -121,6 +75,15 @@ export default function FixIssuesContentPreview({
       console.warn("Error element cannot be reproduced.")
       return fullPageHtml
     }
+
+    // Find all of the <details> elements in the document (if present).
+    const detailsElements = Array.from(doc.body.querySelectorAll('details'))
+    detailsElements.forEach((detailsElement) => {
+      // Open each element before we do the initial render
+      if (!detailsElement.open) {
+        detailsElement.open = true
+      }
+    })
 
     // Find the first element in the document that matches the error element.
     const docElement = Array.from(doc.body.querySelectorAll(errorElement.tagName)).find((matchElement) => {
@@ -176,7 +139,7 @@ export default function FixIssuesContentPreview({
       case 'pdf':
         return t('label.mime.pdf')
       default:
-        return fileType
+        return t('label.mime.unknown')
     }
   }
 
@@ -204,7 +167,7 @@ export default function FixIssuesContentPreview({
     <>
       { taggedContent && activeContentItem ? (
         <>
-          <a href={activeContentItem.url} target="_blank" rel="noreferrer" className="ufixit-content-label flex-row justify-content-between mt-3">
+          <a href={activeContentItem.url} target="_blank" rel="noreferrer" className="ufixit-content-label flex-row justify-content-between mt-2 mb-3">
             <div className="flex-column flex-center">
               <h2 className="fake-h1">{activeContentItem.title}</h2>
             </div>
@@ -216,44 +179,44 @@ export default function FixIssuesContentPreview({
             <div dangerouslySetInnerHTML={{__html: taggedContent}} />
             { altTextPreview && (
               <div className={`alt-text-preview${altTextIsOpen ? '' : ' alt-text-preview-closed'}`} onClick={toggleAltTextIsOpen}>
-                <div className="alt-text-preview-icon" alt={t('label.btn.screen_reader')} title={t('label.btn.screen_reader')}>
-                  <EarIcon className="icon-md primary-dark" />
+                <div className="alt-text-preview-icon" alt={t('fix.label.screen_reader')} title={t('fix.label.screen_reader')}>
+                  <EarIcon className="icon-md" />
                 </div>
                 <div className="alt-text-preview-text">{altTextPreview}</div>
               </div>
             )}
           </div>
           <div className="ufixit-content-progress">
-            <DailyProgress t={t} sessionIssues={sessionIssues} ISSUE_STATE={ISSUE_STATE}/>
+            <DailyProgress t={t} sessionIssues={sessionIssues} settings={settings}/>
           </div>
         </>
       ) : activeIssue ? (
         <>
-          <a href={activeIssue.contentUrl} target="_blank" rel="noreferrer" className="ufixit-content-label flex-row justify-content-between mt-3">
+          <a href={activeIssue.contentUrl} target="_blank" rel="noreferrer" className="ufixit-content-label flex-row justify-content-between mt-3 mb-3">
             <div className="flex-column flex-center allow-word-break">
               <h2 className="fake-h1">{activeIssue.contentTitle}</h2>
             </div>
             <div className="flex-column flex-center">
-              <ExternalLinkIcon className="icon-lg link-color" />
+              <ExternalLinkIcon className="icon-lg link-color" alt="" />
             </div>
           </a>
           { activeIssue.contentType === settings.FILTER.FILE_OBJECT ? (
             <div className="flex-grow-1">
               <div className="ufixit-file-details">
                 <div className="flex-row mt-2">
-                  <div className="flex-column flex-center ufixit-file-details-label">{t('label.file_name')}</div>
+                  <div className="flex-column flex-center ufixit-file-details-label">{t('fix.label.file_name')}</div>
                   <div className="flex-column flex-center allow-word-break">{activeIssue.fileData.fileName}</div>
                 </div>
                 <div className="flex-row mt-2">
-                  <div className="flex-column flex-center ufixit-file-details-label">{t('label.file_type')}</div>
+                  <div className="flex-column flex-center ufixit-file-details-label">{t('fix.label.file_type')}</div>
                   <div className="flex-column flex-center allow-word-break">{getReadableFileType(activeIssue.fileData.fileType)}</div>
                 </div>
                 <div className="flex-row mt-2">
-                  <div className="flex-column flex-center ufixit-file-details-label">{t('label.file_size')}</div>
+                  <div className="flex-column flex-center ufixit-file-details-label">{t('fix.label.file_size')}</div>
                   <div className="flex-column flex-center allow-word-break">{getReadableFileSize(activeIssue.fileData.fileSize)}</div>
                 </div>
                 <div className="flex-row mt-2">
-                  <div className="flex-column flex-center ufixit-file-details-label">{t('label.file_updated')}</div>
+                  <div className="flex-column flex-center ufixit-file-details-label">{t('fix.label.file_updated')}</div>
                   <div className="flex-column flex-center allow-word-break">{getReadableDateTime(activeIssue.fileData.updated)}</div>
                 </div>
               </div>
@@ -261,13 +224,13 @@ export default function FixIssuesContentPreview({
                 { activeIssue.fileData.downloadUrl && (
                   <button className="btn btn-secondary btn-icon-left" onClick={() => window.open(activeIssue.fileData.downloadUrl, 'download')}>
                     <DownloadIcon />
-                    <div className="flex-column justify-content-center">{t('label.download')}</div>
+                    <div className="flex-column justify-content-center">{t('fix.button.download_file')}</div>
                   </button>
                 )}
                 { activeIssue.fileData.lmsUrl && (
                   <button className="btn btn-secondary btn-icon-left" onClick={() => window.open(activeIssue.fileData.lmsUrl, '_blank', 'noopener,noreferrer')}>
                     <ExternalLinkIcon />
-                    <div className="flex-column justify-content-center">{t('label.open_in_lms')}</div>
+                    <div className="flex-column justify-content-center">{t('fix.button.view_in_lms')}</div>
                   </button>
                 )}
               </div>
@@ -279,23 +242,23 @@ export default function FixIssuesContentPreview({
                   <ProgressIcon className="icon-lg primary spinner" />
                 </div>
                 <div className="flex-column justify-content-center ms-3">
-                  <h2 className="mt-0 mb-0">{t('label.loading_content')}</h2>
+                  <h2 className="mt-0 mb-0">{t('fix.label.loading_content')}</h2>
                 </div>
               </div>
             </div>
           )}
-          <DailyProgress t={t} sessionIssues={sessionIssues} ISSUE_STATE={ISSUE_STATE} />
+          <DailyProgress t={t} sessionIssues={sessionIssues} settings={settings} />
         </>
       ) : (
         <>
           <div className="ufixit-content-preview">
             <div className="flex-row justify-content-center mt-3">
               <div className="flex-column justify-content-center">
-                <h2 className="mt-0 mb-0">{t('label.no_selection')}</h2>
+                <h2 className="mt-0 mb-0 primary-dark">{t('fix.label.no_selection')}</h2>
               </div>
             </div>
           </div>
-          <DailyProgress t={t} sessionIssues={sessionIssues} ISSUE_STATE={ISSUE_STATE} />
+          <DailyProgress t={t} sessionIssues={sessionIssues} settings={settings} />
         </>
       )}
     </>

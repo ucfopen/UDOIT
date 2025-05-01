@@ -1,5 +1,5 @@
 import React from 'react'
-import UDOITLogo from '../../mediaAssets/UDOIT-logo-med-gradient.png'
+import UDOITLogo from '../../mediaAssets/udoit-logo.svg'
 import UCFOpenLogo from '../../mediaAssets/ucfopen-logo.svg'
 import SummaryIcon from './Icons/SummaryIcon'
 import UFIXITIcon from './Icons/UFIXITIcon'
@@ -17,9 +17,9 @@ export default function WelcomePage({ t, settings, syncComplete, setWelcomeClose
       <div className="flex-column justify-content-center flex-grow-1">
         <div className="welcome-content-wrapper gap-3">
           <div className="welcome-content flex-column justify-content-start">
-            <img src={UDOITLogo} alt="UDOIT Logo" className="logo-large"/>
-            <h1 className="primary-text">{t('about.title')}</h1>
-            <div>{t('about.description')}</div>
+            <img src={UDOITLogo} alt={t('alt.UDOIT')} className="logo-large"/>
+            <h1 className="primary-text">{t('welcome.title')}</h1>
+            <div>{t('welcome.description')}</div>
           </div>
           <div className="welcome-content flex-column justify-content-start">
             <div className="flex-row mb-3">
@@ -27,7 +27,7 @@ export default function WelcomePage({ t, settings, syncComplete, setWelcomeClose
                 <SummaryIcon className="icon-lg primary-text"/>
               </div>
               <div className="summary-text flex-column justify-content-start flex-grow-1">
-                {t('about.scan')}
+                {t('welcome.scan')}
               </div>
             </div>
             <div className="flex-row mb-3">
@@ -35,7 +35,7 @@ export default function WelcomePage({ t, settings, syncComplete, setWelcomeClose
                 <UFIXITIcon className="icon-lg primary-text"/>
               </div>
               <div className="summary-text flex-column justify-content-start flex-grow-1">
-                {t('about.fix')}
+                {t('welcome.fix')}
               </div>
             </div>
             <div className="flex-row mb-3">
@@ -43,41 +43,41 @@ export default function WelcomePage({ t, settings, syncComplete, setWelcomeClose
                 <ReportIcon className="icon-lg primary-text"/>
               </div>
               <div className="summary-text flex-column justify-content-start flex-grow-1">
-                {t('about.report')}
+                {t('welcome.report')}
               </div>
             </div>
           </div>
         </div>
           <div className="flex-row justify-content-center mt-3">
             { !syncComplete ? (
-                <button className="btn btn-disabled flex-row">
+                <button className="btn btn-disabled flex-row" tabindex="0">
                   <div className="flex-column justify-content-center">
                     <ProgressIcon className="icon-sm gray spinner" />
                   </div>
                   <div className="flex-column justify-content-center ms-3">
-                    {t('about.scanning')}
+                    {t('welcome.button.scanning')}
                   </div>
                 </button>
               ) : (
-                <button className="btn btn-primary" onClick={() => setWelcomeClosed(true)}>{t('about.ready')}</button>
+                <button className="btn btn-primary" tabindex="0" onClick={() => setWelcomeClosed(true)}>{t('welcome.button.ready')}</button>
               )
             }    
           </div>
       </div>
       <div className="welcome-footer flex-row justify-content-between mt-3">
         <div className="flex-column justify-content-center tagline">
-          {t('label.version')} {settings.versionNumber}
+          {t('welcome.version')} {settings.versionNumber}
         </div>
-        <div className="flex-row">
-          <div className="flex-column justify-content-center tagline">
-            {t('about.product_tagline')}
+        <a href="https://ucfopen.github.io/" target="_blank" tabindex="0" rel="noreferrer" className="tagline ps-2">
+          <div className="flex-row">
+            <div className="flex-column justify-content-center">
+              {t('welcome.product_tagline')}
+            </div>
+            <div className="flex-column justify-content-center ms-2">
+              <img src={UCFOpenLogo} alt={t('alt.UCF_Open')} className="logo-small"/>
+            </div>
           </div>
-          <div className="flex-column justify-content-center ms-2">
-            <a href="https://ucfopen.github.io/" target="_blank" rel="noreferrer">
-              <img src={UCFOpenLogo} alt="UCF Open Logo" className="logo-small"/>
-            </a>
-          </div>
-        </div>
+        </a>
       </div>
     </div>
   )
