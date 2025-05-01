@@ -512,6 +512,10 @@ button:disabled {
   &:hover,
   &:focus {
     outline-color: 2px solid var(--gray);
+    color: var(--gray);
+    fill: var(--gray);
+    border-color: var(--gray-light);
+    background-color: var(--gray-light);
   }
 }
 

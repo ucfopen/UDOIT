@@ -102,6 +102,7 @@ export default function ReportsPage({t, report, settings}) {
         <div className="flex-column">
           <div className="flex-row justify-content-between mt-3 gap-3">
             <div className="flex-column justify-content-center">
+              <h3>{t('report.title.options')}</h3>
               <div className="flex-row gap-3 mb-3">
                   <input 
                     type="checkbox" 

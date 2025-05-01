@@ -37,6 +37,7 @@
   "report.title.barriers_remaining": "Accessibility Barriers Remaining",
   "report.title.issues_by_type": "Issues By Type",
   "report.title.scan_history": "Scan History",
+  "report.title.options": "Options",
   "report.option.show_issues": "Show Issues",
   "report.option.show_potential": "Show Potential Issues",
   "report.option.show_suggestions": "Show Suggestions",
@@ -84,8 +85,13 @@
   "report.button.scan": "Scan",
   "report.button.force_reauthorize": "Force Reauthorize",
 
-  "settings.label.language": "Select Language",
-  "settings.button.force_full_rescan": "Force Full Rescan",
+  "settings.label.language": "Language",
+  "settings.label.view_only_published": "Only View Issues from Published Course Content",
+  "settings.button.force_full_rescan": "Full Course Rescan",
+  "settings.about.heading": "About UDOIT",
+  "settings.about.description": "The Universal Design Online content Inspection Tool, or UDOIT (pronounced \"You Do It\"), is a free and open-source accessibility checker for online course content. It downloads and scans course content, finds common accessibility barriers, and provides tools and suggestions for removing them. UDOIT is a product of the University of Central Florida and is available under the GPL License, Version 3.0.",
+  "settings.disclaimer.heading": "Disclaimer",
+  "settings.disclaimer.description": "UDOIT is meant to be used as a guide, not a certification. While it checks for a wide variety of accessibility barriers, and is not comprehensive; a clean report in UDOIT does not necessarily mean that your course is fully accessible. Likewise, the tool may indicate a possible accessibility barrier where one does not exist.",
 
   "filter.label.search": "Search",
   "filter.label.severity": "Severity",
@@ -276,7 +282,6 @@
   "form.heading_empty.label.remove_header": "Delete Heading Instead",
   "form.heading_empty.msg.text_empty": "Heading text cannot be empty",
 
-  "form.heading_style.heading_level_options": ["H2", "H3", "H4", "H5", "H6"],
   "form.heading_style.label.select": "Select Heading Level",
   "form.heading_style.label.none_selected": "No Heading Level Selected",
   "form.heading_style.label.remove_styling": "Remove Styling",

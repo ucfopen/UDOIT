@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react'
+import UDOITLogo from '../../mediaAssets/udoit-logo.svg'
 import './SettingsPage.css'
 
 export default function SettingsPage({
   t,
   settings,
-  setSettings,
-  updateLanguage,
+  updateUserSettings,
   syncComplete,
   handleCourseRescan,
   handleFullCourseRescan }) {
@@ -16,27 +16,70 @@ export default function SettingsPage({
   ]
 
   const [selectedLanguage, setSelectedLanguage] = useState(settings?.user?.roles?.lang || 'en')
+  const [viewOnlyPublished, setViewOnlyPublished] = useState(settings?.user?.roles?.view_only_published || false)
+
+  const handleViewPublishedChange = (newValue) => {
+    setViewOnlyPublished(newValue)
+    updateUserSettings({ "view_only_published": newValue})
+  }
+
+  const handleLanguageChange = (newValue) => {
+    setSelectedLanguage(newValue)
+    updateUserSettings({ "lang": newValue})
+  }
 
   return (
   <main>
     <h1 className="primary-dark">{t('menu.settings')}</h1>
-    <p><em>This page is a work in progress and is NOT complete. Please do not leave comments about its lack of functionality at this time. Thank you!</em></p>
-    <label htmlFor="language-select">{t('settings.label.language')}</label>
-    <select
-      id="language-select"
-      value={selectedLanguage}
-      onChange={(e) => {
-        setSelectedLanguage(e.target.value)
-        updateLanguage(e.target.value)
-      }}
-      >
-      {supportedLanguages.map((lang) => (
-        <option key={lang.code} value={lang.code}>
-          {lang.name}
-        </option>
-      ))}
-      </select>
-    <button onClick={() => handleFullCourseRescan()} disabled={!syncComplete} className="btn btn-primary mt-3">{syncComplete ? t('settings.button.force_full_rescan') : t('welcome.button.scanning')}</button>
+    <div className="flex-row gap-4 mb-3">
+      <div className="flex-column flex-start flex-grow-0 flex-shrink-0">
+        <div className="settings-container flex-column flex-start">
+          <div className="flex-row gap-1 mb-2">
+            <div className="flex-column flex-center">
+              <input
+                type="checkbox"
+                id="view-only-published"
+                checked={viewOnlyPublished}
+                onChange={(e) => {
+                  handleViewPublishedChange(e.target.checked)
+                }}
+              />
+            </div>
+            <div className="flex-column flex-center">
+              <label htmlFor="view-only-published">{t('settings.label.view_only_published')}</label>
+            </div>
+          </div>
+          <div className="flex-row gap-1 mb-2">
+            <div className="flex-column flex-center">
+              <label htmlFor="language-select">{t('settings.label.language')}</label>
+            </div>
+            <div className="flex-column flex-center">
+              <select
+                id="language-select"
+                value={selectedLanguage}
+                onChange={(e) => {
+                  handleLanguageChange(e.target.value)
+                }}
+                >
+                {supportedLanguages.map((lang) => (
+                  <option key={lang.code} value={lang.code}>
+                    {lang.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
+          <button onClick={() => handleFullCourseRescan()} disabled={!syncComplete} className="btn btn-primary mt-3">{syncComplete ? t('settings.button.force_full_rescan') : t('welcome.button.scanning')}</button>
+        </div>
+      </div>
+      <div className="about-container flex-column flex-start flex-grow-1">
+        <img src={UDOITLogo} alt={t('alt.UDOIT')} className="logo-large"/>
+        <h2>{t('settings.about.heading')}</h2>
+        <p>{t('settings.about.description')}</p>
+        <h2>{t('settings.disclaimer.heading')}</h2>
+        <p>{t('settings.disclaimer.description')}</p>
+      </div>
+    </div>
   </main>
   )
 }

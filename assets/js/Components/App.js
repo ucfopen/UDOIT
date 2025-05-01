@@ -78,19 +78,22 @@ export default function App(initialData) {
     return api.fullRescan(settings.course.id)
   }, [])
 
-  const updateLanguage = (lang) => {
-    let newSettings = settings
-    newSettings.user.roles.lang = lang
+  const updateUserSettings = (newUserSetting) => {
+    let newRoles = Object.assign({}, settings.user.roles, newUserSetting)
+    let newUser = Object.assign({}, settings.user, { 'roles': newRoles})
+    let newSettings = Object.assign({}, settings, { user: newUser })
 
     let api = new Api(settings)
-    let newUser = newSettings.user
     api.updateUser(newUser)
       .then((response) => response.json())
       .then((data) => {
-        if(data.labels) {
-          newSettings.labels = data.labels
+        if(data.user) {
+          newSettings.user = data.user
+          if(data?.labels?.lang) {
+            newSettings.labels = data.labels
+          }
+          setSettings(newSettings)
         }
-        setSettings(newSettings)
     })
   }
 
@@ -245,7 +248,7 @@ export default function App(initialData) {
     return () => {
       window.removeEventListener('resize', resizeFrame)
     }
-  }, [settings, initialData.report, scanCourse, resizeFrame])
+  }, [initialData.report, scanCourse, resizeFrame])
 
   return (
     <>
@@ -306,7 +309,7 @@ export default function App(initialData) {
                 <SettingsPage
                   t={t}
                   settings={settings}
-                  updateLanguage={updateLanguage}
+                  updateUserSettings={updateUserSettings}
                   syncComplete={syncComplete}
                   handleCourseRescan={handleCourseRescan}
                   handleFullCourseRescan={handleFullCourseRescan} />

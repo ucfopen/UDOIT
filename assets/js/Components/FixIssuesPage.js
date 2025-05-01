@@ -115,6 +115,7 @@ export default function FixIssuesPage({
     
     let issueContentType = FILTER.ALL
     let issueSectionIds = []
+    let published = true
 
     // PHPAlly returns a contentItemId that we can use to get the content type
     let tempContentItem = getContentById(issue.contentItemId)
@@ -179,6 +180,10 @@ export default function FixIssuesPage({
           })
         })
       }
+
+      if(tempContentItem.published === false) {
+        published = false
+      }
     }
 
     let issueResolution = FILTER.ACTIVE
@@ -203,6 +208,7 @@ export default function FixIssuesPage({
       id: issue.id,
       severity: issueSeverity,
       status: issueResolution,
+      published: published,
       sectionIds: issueSectionIds,
       keywords: createKeywords(issue, formLabel, tempContentItem),
       scanRuleId: issue.scanRuleId,
@@ -292,6 +298,7 @@ export default function FixIssuesPage({
       id: fileId,
       severity: FILTER.POTENTIAL,
       status: issueResolution,
+      published: true,
       sectionIds: fileSectionIds,
       keywords: keywords,
       scanRuleId: 'verify_file_accessibility',
@@ -386,6 +393,16 @@ export default function FixIssuesPage({
           continue
         }
       }
+
+      // Check to see if the user ONLY wants to see issues from published content
+      console.log(settings)
+      if(settings?.user?.roles?.view_only_published && issue.issueData) {
+        let tempContentItem = getContentById(issue.issueData.contentItemId)
+        if(tempContentItem && tempContentItem.published === false) {
+          continue
+        }
+      }
+
       // If the issue passes all filters, add it to the list!
       filteredList.push(issue)
     }
@@ -756,7 +773,10 @@ export default function FixIssuesPage({
   }
 
   const getContentById = (contentId) => {
-    return Object.assign({}, report.contentItems[contentId])
+    if(!report.contentItems[contentId]) {
+      return null
+    }
+    return report.contentItems[contentId]
   }
 
   const createKeywords = (issue, formName, contentItem) => {

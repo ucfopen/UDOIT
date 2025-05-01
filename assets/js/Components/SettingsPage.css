@@ -1,0 +1,31 @@
+select {
+  min-width: 180px;
+}
+
+label {
+  font-weight: 600;
+  color: var(--text-color);
+}
+
+.logo-large {
+  margin: 0 auto 2rem;
+  max-width: 300px;
+  width: 75%;
+  min-width: 200px;
+}
+
+.settings-container {
+  background: var(--background-color);
+  border-radius: 8px;
+  border: 1px solid var(--border-color);
+  padding: 1rem;
+}
+
+.about-container {
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+h2 {
+  margin: 0;
+}

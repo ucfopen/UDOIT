@@ -13,7 +13,7 @@ export default function HeadingStyleForm ({
  }) {
 
   const styleTags = ["strong", "b", "i", "em", "mark", "small", "del", "ins", "sub", "sup"]
-  const selectOptions = t('form.heading_style.heading_level_options')
+  const selectOptions = ["H2", "H3", "H4", "H5", "H6"]
   
   const [selectedValue, setSelectedValue] = useState('')
   const [removeStyling, setRemoveStyling] = useState(false)
