@@ -161,6 +161,18 @@ body {
   align-self: stretch;
 }
 
+.text-start {
+  text-align: start;
+}
+
+.text-end {
+  text-align: end;
+}
+
+.text-center {
+  text-align: center;
+}
+
 .gap-1 {
   gap: 0.5rem;
 }
@@ -499,10 +511,6 @@ button:disabled {
 
   &:hover,
   &:focus {
-    border-color: var(--gray-light);
-    background-color: var(--gray-light);
-    color: var(--gray);
-    fill: var(--gray);
     outline-color: 2px solid var(--gray);
   }
 }

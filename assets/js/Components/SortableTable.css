@@ -9,7 +9,7 @@
     text-transform: uppercase;
     cursor: pointer;
 
-    padding: .5rem .5rem .25rem .5rem;
+    padding: .5rem .15rem .25rem .15rem;
     color: var(--primary-color-inverse);
     fill: var(--primary-color-inverse);
     border-bottom: 1px solid var(--primary-color);
@@ -18,13 +18,10 @@
     &:focus {
       outline: 2px solid var(--focus-color);
       outline-offset: -2px;
-
-      .clickable-text {
-        text-decoration: underline;
-      }
     }
 
-    &:hover {
+    &:hover,
+    &:focus {
       filter: brightness(var(--hover-brightness));
       .clickable-text {
         text-decoration: underline;
@@ -33,6 +30,12 @@
 
     svg {
       transition: transform var(--transition-time) ease-in-out;
+    }
+
+    .header-spacer {
+      width: 32px;
+      min-width: 32px;
+      height: auto;
     }
   }
 

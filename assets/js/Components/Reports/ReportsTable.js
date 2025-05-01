@@ -9,11 +9,12 @@ export default function ReportsTable({
 
   const headers = [
     { id: "created", text: t('report.header.date') },
-    { id: "errors", text: t('report.header.issues') },
-    { id: "suggestions", text: t('report.header.suggestions') },
-    { id: "contentFixed", text: t('report.header.items_fixed') },
-    { id: "contentResolved", text: t('report.header.items_resolved') },
-    { id: "filesReviewed", text: t('report.header.files_reviewed')}
+    { id: "errors", text: t('report.header.issues'), alignText: 'center' },
+    { id: "potentialIssues", text: t('report.header.potential'), alignText: 'center' },
+    { id: "suggestions", text: t('report.header.suggestions'), alignText: 'center' },
+    { id: "contentFixed", text: t('report.header.items_fixed'), alignText: 'center' },
+    { id: "contentResolved", text: t('report.header.items_resolved'), alignText: 'center' },
+    { id: "filesReviewed", text: t('report.header.files_reviewed'), alignText: 'center'}
   ]
 
   if (isAdmin) {
@@ -29,6 +30,21 @@ export default function ReportsTable({
 
   const getContent = () => {
     let list = reports
+    if (!list) {
+      return []
+    }
+
+    list = list.map((report) => {
+      if(report.scanCounts) {
+        report.issues = report.scanCounts.issues
+        report.potentialIssues = report.scanCounts.potentials
+        report.suggestions = report.scanCounts.suggestions
+      }
+      else {
+        report.potentialIssues = 0
+      }
+      return report
+    })
     const { sortBy, ascending } = tableSettings 
 
     list.sort((a, b) => {

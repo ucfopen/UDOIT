@@ -208,17 +208,28 @@ export default function UfixitWidget({
             {/* The "Previous", "Next", and "List View" buttons (footer nav) */}
             <div className="flex-row justify-content-between mt-2">
 
-              <button className={`btn text-button btn-icon-left ps-0 ${listLength < 2 ? 'disabled' : ''}`} onClick={() => nextIssue(true)}>
+              <button
+                className={`btn text-button btn-icon-left ps-0 ${listLength < 2 ? 'disabled' : ''}`}
+                onClick={() => nextIssue(true)}
+                tabindex="0">
                 <LeftArrowIcon className={listLength < 2 ? 'gray' : 'link-color'} />
-                <div className="flex-column justify-content-center">Previous</div>
+                <div className="flex-column justify-content-center">{t('fix.button.previous')}</div>
               </button>
 
-              <button className="btn text-button btn-icon-only" onClick={() => toggleListView()}>
+              <button
+                className="btn text-button btn-icon-only"
+                onClick={() => toggleListView()}
+                tabindex="0"
+                aria-label={t('fix.button.list')}
+                title={t('fix.button.list')}>
                 <ListIcon className="link-color" />
               </button>
 
-              <button className={`btn text-button btn-icon-right pe-0 ${listLength < 2 ? 'disabled' : ''}`} onClick={() => nextIssue()}>
-                <div className="flex-column justify-content-center">Next</div>
+              <button
+                className={`btn text-button btn-icon-right pe-0 ${listLength < 2 ? 'disabled' : ''}`}
+                onClick={() => nextIssue()}
+                tabindex="0">
+                <div className="flex-column justify-content-center">{t('fix.button.next')}</div>
                 <RightArrowIcon className={listLength < 2 ? 'gray' : 'link-color'} />
               </button>
 

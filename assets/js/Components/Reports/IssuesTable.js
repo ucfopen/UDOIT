@@ -11,9 +11,9 @@ export default function IssuesTable({
   const headers = [
     { id: "label", text: t('report.header.issue_type') },
     { id: "type", text: t('report.header.severity')},
-    { id: "active", text: t('report.header.active') },
-    { id: "fixed", text: t('report.header.fixed') },
-    { id: "resolved", text: t('report.header.resolved') },
+    { id: "active", text: t('report.header.active'), alignText: 'center' },
+    { id: "fixed", text: t('report.header.fixed'), alignText: 'center' },
+    { id: "resolved", text: t('report.header.resolved'), alignText: 'center' },
   ]
 
   if (isAdmin) {
@@ -21,7 +21,7 @@ export default function IssuesTable({
   }
 
   // The "total" is always the last column of the table
-  headers.push({ id: "total", text: t('report.header.total') })
+  headers.push({ id: "total", text: t('report.header.total'), alignText: 'center' })
 
   const [tableSettings, setTableSettings] = useState({
     sortBy: 'total',
@@ -38,7 +38,7 @@ export default function IssuesTable({
 
     tempRows.sort((a, b) => {
       if (isNaN(a[sortBy]) || isNaN(b[sortBy])) {
-        return (a[sortBy].toLowerCase() < b[sortBy].toLowerCase()) ? -1 : 1
+        return (a[sortBy].toLowerCase() > b[sortBy].toLowerCase()) ? -1 : 1
       }
       else {
         return (Number(a[sortBy]) < Number(b[sortBy])) ? -1 : 1
@@ -82,6 +82,15 @@ export default function IssuesTable({
       tempIssues.forEach((issue) => {
         if (!labels.includes(issue.label)) {
           labels.push(issue.label)
+          if(issue.type === 'error' || issue.type === 'issue') {
+            issue.type = t('report.label.issue')
+          }
+          else if(issue.type === 'potential') {
+            issue.type = t('report.label.potential')
+          }
+          else if(issue.type === 'suggestion') {
+            issue.type = t('report.label.suggestion')
+          }
           mergedIssues.push(issue)
         }
         else {
@@ -92,7 +101,7 @@ export default function IssuesTable({
           mergedIssues[index].resolved += issue.resolved
         }
       })
-
+      console.log(mergedIssues)
       setLocalIssues(mergedIssues)
     }
     else {

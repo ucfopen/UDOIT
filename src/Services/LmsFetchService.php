@@ -134,7 +134,7 @@ class LmsFetchService {
     // Update report, or create new one for a new day
     public function updateReport(Course $course, User $user): Report
     {
-        $contentFixed = $contentResolved = $filesReviewed = $errors = $suggestions = 0;
+        $contentFixed = $contentResolved = $filesReviewed = $errors = $potentials = $suggestions = 0;
         $scanRules = [];
 
         /** @var \App\Entity\ContentItem[] $contentItems */
@@ -152,6 +152,8 @@ class LmsFetchService {
                 } else {
                     if (Issue::$issueError === $issue->getType()) {
                         $errors++;
+                    } else if (Issue::$issuePotential === $issue->getType()) {
+                        $potentials++;
                     } else {
                         $suggestions++;
                     }
@@ -166,6 +168,12 @@ class LmsFetchService {
                 $scanRules[$ruleId]++;
             }
         }
+
+        $scanCounts = (object) [
+          'errors' => $errors,
+          'potentials' => $potentials,
+          'suggestions' => $suggestions,
+        ];
 
         /** @var \App\Entity\FileItem[] $fileItems */
         $fileItems = $course->getFileItems();
@@ -195,7 +203,7 @@ class LmsFetchService {
         $report->setContentFixed($contentFixed);
         $report->setContentResolved($contentResolved);
         $report->setFilesReviewed($filesReviewed);
-        $report->setData(\json_encode(['scanRules' => $scanRules]));
+        $report->setData(\json_encode(['scanRules' => $scanRules, 'scanCounts' => $scanCounts]));
 
         $this->doctrine->getManager()->flush();
 

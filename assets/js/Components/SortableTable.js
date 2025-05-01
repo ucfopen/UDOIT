@@ -13,14 +13,6 @@ export default function SortableTable({
   handleTableSettings,
 }) {
 
-  // The tableSettings object should contain:
-  // {
-  //   pageNum: 0,
-  //   sortBy: 'id',
-  //   ascending: true,
-  //   rowsPerPage: '10'
-  // }
-
   const [rowsPerPage, setRowsPerPage] = useState((tableSettings.rowsPerPage) ? parseInt(tableSettings.rowsPerPage) : 10)
   const [start, setStart] = useState(tableSettings.pageNum * rowsPerPage)
   const [sortBy, setSortBy] = useState(tableSettings.sortBy)
@@ -52,7 +44,7 @@ export default function SortableTable({
       handleTableSettings({ascending: !ascending})
     } else {
       handleTableSettings({
-        ascending: true,
+        ascending: false,
         sortBy: id
       })
     }
@@ -153,11 +145,15 @@ export default function SortableTable({
                   }}
                 >
                   <div className="flex-row">
+                    <div className="header-spacer" />
                     <div className="flex-grow-1 clickable-text">{text}</div>
-                    { (id === sortBy) &&
-                      <div className="flex-column justify-content-center flex-shrink-0 ps-1">
+                    { (id === sortBy) ? (
+                      <div className="flex-column justify-content-center flex-shrink-0 ps-2">
                         <SortIconFilled className={`icon-md${(direction === 'ascending') ? ' rotate-180' : ''}`} />
                       </div>
+                      ) : (
+                        <div className="header-spacer" />
+                      )
                     }
                   </div>
                   </th>
@@ -170,7 +166,7 @@ export default function SortableTable({
           {pagedRows.map((row) => (
             <tr key={`row${row.id}`}>
               {headers.map(({ id, renderCell, alignText, format }) => (
-                <td key={`row${row.id}cell${id}`} textAlign={alignText ? alignText : 'start'} onClick={(row.onClick) ? row.onClick : null}>
+                <td key={`row${row.id}cell${id}`} className={alignText === 'center' ? 'text-center' : alignText === 'end' ? 'text-end' : 'text-start'} onClick={(row.onClick) ? row.onClick : null}>
                   {renderCell ? renderCell(row[id]) : (format) ? format(row[id]) : <div cursor={(row.onClick) ? 'pointer' : 'auto'}>{row[id]}</div>}
                 </td>
               ))}
