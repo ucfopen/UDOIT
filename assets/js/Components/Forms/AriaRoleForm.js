@@ -177,6 +177,7 @@ export default function AriaRoleForm({
       setDetectedTag(tagName)
       setValidRoles(ariaRoleMap[tagName] || [])
     }
+ 
     else {
       setDetectedTag("")
       setValidRoles([])

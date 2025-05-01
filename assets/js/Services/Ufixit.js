@@ -129,7 +129,6 @@ const rulesToFormNameMap = {
 
   // caption_track_exists: formNames.VIDEO,
   // media_audio_transcribed: formNames.VIDEO,
-
 }
 
 export function formFromIssue(activeIssue) {
