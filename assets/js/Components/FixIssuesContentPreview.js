@@ -10,6 +10,7 @@ import * as Html from '../Services/Html'
 import useInViewPort from './Hooks/useInViewPort'
 
 import './FixIssuesContentPreview.css'
+import { element } from 'prop-types'
 
 export default function FixIssuesContentPreview({
   t,
@@ -28,55 +29,34 @@ export default function FixIssuesContentPreview({
   const issueElementRef = useRef(null)
   const issueElementVisible = useInViewPort(issueElementRef, { threshold: 0.5 })
 
-  const [isInitialLoad, setIsInitialLoad] = useState(true)
-  const [debouncedVisible, setDebouncedVisible] = useState(true)
-  const [debouncedDirection, setDebouncedDirection] = useState(null)
-
   useEffect(() => {
-    // the scroll-to-button will flash sometimes when activeIssue changes
-    // so, we wait 500ms before it is even able to display
-    setIsInitialLoad(true)
-    const timer = setTimeout(() => {
-      setIsInitialLoad(false)
-    }, 500)
-
-    return () => clearTimeout(timer)
-  }, [activeIssue])
-
-  useEffect(() => {
+    // console.log("change in issueElementRef...")
     if (issueElementRef.current) {
+      // console.log(issueElementRef.current)
       const rect = issueElementRef.current.getBoundingClientRect()
       setIssueElementDefaultRect(rect)
+      // console.log(rect)
     }
   }, [activeIssue, issueElementRef.current])
 
-  useEffect(() => {
-    // we also debounce the visibility and direction of the scroll-to-issue button
-    // which fixes the button flashing even when the element visible
-    // (presumably because the issue element is changing which useInViewPort doesnt check for immediately)
-    const timer = setTimeout(() => {
-      setDebouncedVisible(issueElementVisible)
-      setDebouncedDirection(getScrollDirection(issueElementRef.current, issueElementDefaultRect))
-    }, 100)
-  
-    return () => clearTimeout(timer)
-  }, [issueElementVisible, issueElementRef.current, issueElementDefaultRect])
-  
-
   const getScrollDirection = (element, defaultRect) => {
-    if (!element || !defaultRect || !issueElementRef || issueElementVisible) return null
+    if (!element || !defaultRect) return null
 
     const newRect = element.getBoundingClientRect()
 
+    // if (newRect.left < defaultRect.bottom) {
+    //   return 'left'
+    // }
+    // if (newRect.right < defaultRect.bottom) {
+    //   return 'right'
+    // }
     if (newRect.top < defaultRect.top) {
       return 'up'
     }
-    else if (newRect.bottom > defaultRect.bottom) {
+    if (newRect.bottom > defaultRect.bottom) {
       return 'down'
     }
-    else {
-      return null
-    }
+    return null
   }
 
   const convertErrorHtmlString = (htmlText) => {
@@ -228,21 +208,20 @@ export default function FixIssuesContentPreview({
   }
 
   const renderScrollButton = () => {
-    if (isInitialLoad) return null
-
+    let scrollDirection = getScrollDirection(issueElementRef.current, issueElementDefaultRect)
     let button;
-    if (debouncedDirection === 'up') {
-      button = <UpArrowIcon className="icon-arrow" />
+    if (scrollDirection === 'up') {
+      button = <UpArrowIcon />
     }
-    else if (debouncedDirection === 'down') {
-      button = <DownArrowIcon className="icon-arrow" />
+    else if (scrollDirection === 'down') {
+      button = <DownArrowIcon />
     }
 
-    if (issueElementRef.current && !debouncedVisible && debouncedDirection) {
+    if (issueElementRef.current && scrollDirection) {
       return (
         <div className='scroll-to-error-container'>
           <div
-            className={`scroll-to-error ${debouncedDirection ? 'scroll-to-error-' + debouncedDirection : ''}`}
+            className={`scroll-to-error ${scrollDirection ? 'scroll-to-error-' + scrollDirection : ''}`}
             onClick={() => scrollToElement(issueElementRef.current)}
           >
             {button}
@@ -250,7 +229,7 @@ export default function FixIssuesContentPreview({
         </div>
       )
     }
-    return null
+    return <></>
   }
 
   return (
@@ -266,11 +245,13 @@ export default function FixIssuesContentPreview({
             </div>
           </a>
           <div className="ufixit-content-preview">
-            {renderScrollButton()}
+            {(issueElementRef.current && !issueElementVisible) && (
+              renderScrollButton()  
+            )}
             <div ref={node => {
               if (node) {
                 const highlightElement = node.getElementsByClassName('ufixit-error-highlight')[0]
-                issueElementRef.current = highlightElement
+                if (highlightElement) issueElementRef.current = highlightElement
               }
             }} dangerouslySetInnerHTML={{__html: taggedContent}} />
             { altTextPreview && (
