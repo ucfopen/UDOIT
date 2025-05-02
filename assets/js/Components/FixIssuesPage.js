@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react'
 import FixIssuesFilters from './FixIssuesFilters'
 import FixIssuesList from './FixIssuesList'
-import FixIssuesContentPreview from './FixIssuesContentPreview'
 import UfixitWidget from './UfixitWidget'
+import FixIssuesContentPreview from './FixIssuesContentPreview'
+import DailyProgress from './DailyProgress'
 import { formNameFromRule } from '../Services/Ufixit'
 import * as Html from '../Services/Html'
 import Api from '../Services/Api'
@@ -395,7 +396,6 @@ export default function FixIssuesPage({
       }
 
       // Check to see if the user ONLY wants to see issues from published content
-      console.log(settings)
       if(settings?.user?.roles?.view_only_published && issue.issueData) {
         let tempContentItem = getContentById(issue.issueData.contentItemId)
         if(tempContentItem && tempContentItem.published === false) {
@@ -845,15 +845,20 @@ export default function FixIssuesPage({
             </div>
           )}
         </section>
-        <section className="ufixit-content-container">
-          <FixIssuesContentPreview
-            t={t}
-            settings={settings.FILTER ? settings : Object.assign({}, settings, { FILTER })}
-            activeIssue={activeIssue}
-            activeContentItem={activeContentItem}
-            editedElement={editedElement}
-            sessionIssues={sessionIssues}
-          />
+        <section className={`ufixit-content-container ${filteredIssues.length === 0 ? 'justify-content-end' : ''}`}>
+          {filteredIssues.length > 0 && (
+            <FixIssuesContentPreview
+              t={t}
+              settings={settings.FILTER ? settings : Object.assign({}, settings, { FILTER })}
+              activeIssue={activeIssue}
+              activeContentItem={activeContentItem}
+              editedElement={editedElement}
+              sessionIssues={sessionIssues}
+            />
+          )}
+          <div className="ufixit-content-progress">
+            <DailyProgress t={t} sessionIssues={sessionIssues} settings={settings}/>
+          </div>
         </section>
       </div>
     </>

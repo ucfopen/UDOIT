@@ -500,24 +500,6 @@ button {
   }
 }
 
-button.disabled,
-.btn-disabled,
-button:disabled {
-  color: var(--gray);
-  fill: var(--gray);
-  border-color: var(--gray-light);
-  background-color: var(--gray-light);
-  cursor: not-allowed !important;
-
-  &:hover,
-  &:focus {
-    outline-color: 2px solid var(--gray);
-    color: var(--gray);
-    fill: var(--gray);
-    border-color: var(--gray-light);
-    background-color: var(--gray-light);
-  }
-}
 
 .btn-primary {
   background-color: var(--primary-color);
@@ -542,6 +524,26 @@ button:disabled {
   &:hover,
   &:focus {
     background-color: var(--primary-color-light);
+  }
+}
+
+button.disabled,
+.btn-disabled,
+button:disabled {
+  color: var(--gray);
+  fill: var(--gray);
+  border-color: var(--gray-light);
+  background-color: var(--gray-light);
+  cursor: not-allowed !important;
+
+  &:hover,
+  &:focus {
+    outline-color: 2px solid var(--gray);
+    color: var(--gray);
+    fill: var(--gray);
+    border-color: var(--gray-light);
+    background-color: var(--gray-light);
+    filter: none;
   }
 }
 

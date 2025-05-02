@@ -134,7 +134,6 @@ export default function App(initialData) {
     }
     setSyncComplete(true)
     setHasNewReport(newHasNewReport)
-    console.log(newReport)
     setReport(newReport)
     if (newReport.contentSections) {
       setSections(newReport.contentSections)

@@ -101,7 +101,6 @@ export default function IssuesTable({
           mergedIssues[index].resolved += issue.resolved
         }
       })
-      console.log(mergedIssues)
       setLocalIssues(mergedIssues)
     }
     else {
