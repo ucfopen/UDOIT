@@ -204,10 +204,7 @@ export default function ReportsPage({t, report, settings}) {
     printWindow.document.write(content)
     const oldCanvas = document.querySelector('.chartjs-render-monitor')
     const newCanvas = printWindow.document.querySelector('.chartjs-render-monitor')
-    console.log(oldCanvas)
-    console.log(newCanvas)
     if (oldCanvas && newCanvas) {
-      const originalContext = oldCanvas.getContext('2d')
       const newContext = newCanvas.getContext('2d')
       newContext.drawImage(oldCanvas, 0, 0)
     }
@@ -279,11 +276,6 @@ export default function ReportsPage({t, report, settings}) {
             t={t}
           />
         </View>
-        {/* <View as="div" className="printArea">
-          <ResolutionsReport t={t} reports={reports} visibility={chartVisibility} />
-          <IssuesTable issues={issues} settings={settings} t={t} />
-          <ReportsTable reports={reports} t={t} />
-        </View> */}
         <View as="div" margin="large auto 0 0" display="flex" justifyContent="right">
           <button onClick={printReport} margin="0" color="white" background="#2C8AC1">Print Report</button>
         </View>
