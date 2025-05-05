@@ -11,4 +11,4 @@
     limitations under the License.
  *****************************************************************************/
 import { Rule } from "../api/IRule";
-export declare const draggable_alternative_exists: Rule;
+export declare let draggable_alternative_exists: Rule;

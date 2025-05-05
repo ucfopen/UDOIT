@@ -11,4 +11,4 @@
   limitations under the License.
 *****************************************************************************/
 import { Rule } from "../api/IRule";
-export declare const blockquote_cite_exists: Rule;
+export declare let blockquote_cite_exists: Rule;

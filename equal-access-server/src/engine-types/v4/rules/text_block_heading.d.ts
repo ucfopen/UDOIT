@@ -11,4 +11,4 @@
   limitations under the License.
 *****************************************************************************/
 import { Rule } from "../api/IRule";
-export declare const text_block_heading: Rule;
+export declare let text_block_heading: Rule;

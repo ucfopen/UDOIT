@@ -11,4 +11,4 @@
   limitations under the License.
 *****************************************************************************/
 import { Rule } from "../api/IRule";
-export declare const select_options_grouped: Rule;
+export declare let select_options_grouped: Rule;

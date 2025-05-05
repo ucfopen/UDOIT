@@ -11,4 +11,4 @@
   limitations under the License.
 *****************************************************************************/
 import { Rule } from "../api/IRule";
-export declare const table_headers_ref_valid: Rule;
+export declare let table_headers_ref_valid: Rule;

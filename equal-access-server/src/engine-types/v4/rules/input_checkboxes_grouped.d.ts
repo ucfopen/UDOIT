@@ -11,4 +11,4 @@
   limitations under the License.
 *****************************************************************************/
 import { Rule } from "../api/IRule";
-export declare const input_checkboxes_grouped: Rule;
+export declare let input_checkboxes_grouped: Rule;

@@ -11,4 +11,4 @@
   limitations under the License.
 *****************************************************************************/
 import { Rule } from "../api/IRule";
-export declare const error_message_exists: Rule;
+export declare let error_message_exists: Rule;

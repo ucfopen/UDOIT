@@ -11,4 +11,4 @@
   limitations under the License.
 *****************************************************************************/
 import { Rule } from "../api/IRule";
-export declare const canvas_content_described: Rule;
+export declare let canvas_content_described: Rule;

@@ -15,4 +15,4 @@ import { Rule } from "../api/IRule";
  * Description: Trigger when viewport units are used for font size.
  * Origin: Various
  */
-export declare const style_viewport_resizable: Rule;
+export declare let style_viewport_resizable: Rule;

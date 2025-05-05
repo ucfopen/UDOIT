@@ -11,4 +11,4 @@
     limitations under the License.
  *****************************************************************************/
 import { Rule } from "../api/IRule";
-export declare const aria_hidden_nontabbable: Rule;
+export declare let aria_hidden_nontabbable: Rule;

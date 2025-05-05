@@ -11,4 +11,4 @@
   limitations under the License.
 *****************************************************************************/
 import { Rule } from "../api/IRule";
-export declare const aria_navigation_label_unique: Rule;
+export declare let aria_navigation_label_unique: Rule;
