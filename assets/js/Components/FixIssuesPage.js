@@ -29,6 +29,7 @@ export default function FixIssuesPage({
   t,
   settings,
   initialSeverity = '',
+  initialSearchTerm = '',
   contentItemList,
   addContentItem,
   report,
@@ -340,6 +341,13 @@ export default function FixIssuesPage({
     let tempSeverity = initialSeverity || FILTER.ALL
     setActiveFilters(Object.assign({}, defaultFilters, {[FILTER.TYPE.SEVERITY]: tempSeverity}))
   }, [initialSeverity])
+
+  // The initialSearchTerm prop is used when clicking on a specific error type on the Reports screen.
+  useEffect(() => {
+    if(initialSearchTerm) {
+      setSearchTerm(initialSearchTerm)
+    }
+  }, [initialSearchTerm])
 
   const getFilteredContent = () => {
     let filteredList = []
@@ -784,6 +792,9 @@ export default function FixIssuesPage({
 
     if(formName !== '') {
       keywords.push(formName.toLowerCase())
+    }
+    if(issue?.scanRuleId) {
+      keywords.push(issue.scanRuleId.toLowerCase())
     }
     if(contentItem?.contentType) {
       keywords.push(t(`label.${contentItem.contentType}`).toLowerCase())

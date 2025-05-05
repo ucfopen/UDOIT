@@ -13,7 +13,20 @@ export default function FormClarification({
       // Compute what additional clarification text to show, if any.
       // First priority: Rule-specific descriptions from the translation file.
       const clarificationTag = 'rule.desc.' + activeIssue.scanRuleId
-      const clarification = t(clarificationTag)
+      let messageArgs = {}
+      if(activeIssue?.issueData?.metadata) {
+        let metadata = JSON.parse(activeIssue.issueData.metadata)
+        if(activeIssue.scanRuleId === 'text_sensory_misuse') {
+          let wordList = metadata.messageArgs.join(', ')
+          messageArgs = { 'sensoryWords': wordList }
+        }
+        if(activeIssue.scanRuleId === 'text_quoted_correctly') {
+          let quoteList = metadata.messageArgs.join(', ')
+          messageArgs = { 'potentialQuotes': quoteList }
+        }
+      }
+
+      const clarification = t(clarificationTag, messageArgs)
 
       if(clarification !== clarificationTag) {
         setClarification(clarification)

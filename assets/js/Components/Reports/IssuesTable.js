@@ -5,6 +5,7 @@ import { formNameFromRule } from '../../Services/Ufixit'
 export default function IssuesTable({
   t,
   issues,
+  quickSearchTerm = null,
   isAdmin
 }) {
 
@@ -65,14 +66,20 @@ export default function IssuesTable({
       let tempIssues = Object.values(issues)
       tempIssues.map((issue => {
         let label = ''
+        let searchTerm = ''
         let formName = formNameFromRule(issue.id)
         if(formName === 'review_only') {
           label = t('report.label.unhandled') + issue.id
+          searchTerm = issue.id
         }
         else {
           label = t(`form.${formName}.title`)
+          searchTerm = t(`form.${formName}.title`)
         }
         issue.label = label
+        if(quickSearchTerm !== null) {
+          issue.onClick = () => quickSearchTerm(searchTerm)
+        }
         return issue
       }))
 

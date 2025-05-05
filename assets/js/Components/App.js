@@ -35,13 +35,13 @@ export default function App(initialData) {
   const [settings, setSettings] = useState(initialData.settings || null)
   const [sections, setSections] = useState([])
 
-  const [appFilters, setAppFilters] = useState({})
   const [navigation, setNavigation] = useState('summary')
   const [modal, setModal] = useState(null)
   const [syncComplete, setSyncComplete] = useState(false)
   const [hasNewReport, setHasNewReport] = useState(false)
   const [disableReview, setDisableReview] = useState(false)
   const [initialSeverity, setInitialSeverity] = useState('')
+  const [initialSearchTerm, setInitialSearchTerm] = useState('')
   const [contentItemList, setContentItemList] = useState([])
   const [sessionIssues, setSessionIssues] = useState([])
   const [welcomeClosed, setWelcomeClosed] = useState(false)
@@ -150,16 +150,13 @@ export default function App(initialData) {
     }
     if(newNavigation !== 'fixIssues') {
       setInitialSeverity('')
+      setInitialSearchTerm('')
     }
     setNavigation(newNavigation)
   }
 
   const handleModal = (modal) => {
     setModal(modal)
-  }
-
-  const handleAppFilters = (filters) => {
-    setAppFilters(filters)
   }
 
   const addMessage = (msg) => {
@@ -172,6 +169,11 @@ export default function App(initialData) {
 
   const quickIssues = (severity) => {
     setInitialSeverity(severity)
+    setNavigation('fixIssues')
+  }
+
+  const quickSearchTerm = (searchTerm) => {
+    setInitialSearchTerm(searchTerm)
     setNavigation('fixIssues')
   }
 
@@ -285,6 +287,7 @@ export default function App(initialData) {
                   t={t}
                   settings={settings.ISSUE_STATE ? settings : Object.assign({}, settings, { ISSUE_STATE })}
                   initialSeverity={initialSeverity}
+                  initialSearchTerm={initialSearchTerm}
                   contentItemList={contentItemList}
                   addContentItem={addContentItem}
                   report={report}
@@ -302,6 +305,7 @@ export default function App(initialData) {
                   t={t}
                   settings={settings}
                   report={report}
+                  quickSearchTerm={quickSearchTerm}
                 />
               }
               {('settings' === navigation) &&

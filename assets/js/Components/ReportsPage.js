@@ -7,7 +7,7 @@ import ReportsTable from './Reports/ReportsTable'
 import IssuesTable from './Reports/IssuesTable'
 import ProgressIcon from './Icons/ProgressIcon'
 
-export default function ReportsPage({t, report, settings}) {
+export default function ReportsPage({t, report, settings, quickSearchTerm}) {
 
   const [reports, setReports] = useState([])
   const [fetchedReports, setFetchedReports] = useState(false)
@@ -143,6 +143,7 @@ export default function ReportsPage({t, report, settings}) {
             <IssuesTable
               t={t}
               settings={settings}
+              quickSearchTerm={quickSearchTerm}
               issues={issues}/>
           </div>
 

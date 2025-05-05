@@ -34,7 +34,7 @@ export default function SettingsPage({
     <div className="flex-row gap-4 mb-3">
       <div className="flex-column flex-start flex-grow-0 flex-shrink-0">
         <div className="settings-container flex-column flex-start">
-          <div className="flex-row gap-1 mb-2">
+          <div className="flex-row gap-1 mb-3">
             <div className="flex-column flex-center">
               <input
                 type="checkbox"
@@ -49,7 +49,7 @@ export default function SettingsPage({
               <label htmlFor="view-only-published">{t('settings.label.view_only_published')}</label>
             </div>
           </div>
-          <div className="flex-row gap-1 mb-2">
+          <div className="flex-row gap-1 mb-3">
             <div className="flex-column flex-center">
               <label htmlFor="language-select">{t('settings.label.language')}</label>
             </div>
@@ -69,15 +69,16 @@ export default function SettingsPage({
               </select>
             </div>
           </div>
-          <button onClick={() => handleFullCourseRescan()} disabled={!syncComplete} className="btn btn-primary mt-3">{syncComplete ? t('settings.button.force_full_rescan') : t('welcome.button.scanning')}</button>
+          <button onClick={() => handleFullCourseRescan()} disabled={!syncComplete} className="btn btn-primary mt-2">{syncComplete ? t('settings.button.force_full_rescan') : t('welcome.button.scanning')}</button>
         </div>
       </div>
       <div className="about-container flex-column flex-start flex-grow-1">
         <img src={UDOITLogo} alt={t('alt.UDOIT')} className="logo-large"/>
-        <h2>{t('settings.about.heading')}</h2>
-        <p>{t('settings.about.description')}</p>
-        <h2>{t('settings.disclaimer.heading')}</h2>
-        <p>{t('settings.disclaimer.description')}</p>
+        <div dangerouslySetInnerHTML={{__html: t('settings.text.about')}} />
+        <div dangerouslySetInnerHTML={{__html: t('settings.text.tools')}} />
+        <div dangerouslySetInnerHTML={{__html: t('settings.text.history')}} />
+        <div dangerouslySetInnerHTML={{__html: t('settings.text.roadmap')}} />
+        <div dangerouslySetInnerHTML={{__html: t('settings.text.disclaimer')}} />
       </div>
     </div>
   </main>

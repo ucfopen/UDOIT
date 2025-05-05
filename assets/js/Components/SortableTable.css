@@ -62,6 +62,18 @@
         }
       }
 
+      &.clickable {
+        cursor: pointer;
+        color: var(--link-color);
+        text-decoration: none;
+        font-weight: 600;
+
+        &:hover,
+        &:focus {
+          text-decoration: underline;
+        }
+      }
+
       .btn-icon-only {
         padding: .25rem .4rem;
         border-radius: 8px;

@@ -27,6 +27,7 @@ export default function FixIssuesContentPreview({
     "ImageHasAltDecorative",
     "ImageAltNotPlaceholder",
 
+    "imagemap_alt_exists",
     "img_alt_background",
     "img_alt_decorative",
     "img_alt_misuse",
@@ -34,9 +35,12 @@ export default function FixIssuesContentPreview({
     "img_alt_redundant",
     "img_alt_valid",
 
-    "object_text_exists",
+    "applet_alt_exists",
+    "embed_alt_exists",
     "frame_title_exists",
+    "media_alt_brief",
     "media_alt_exists",
+    "object_text_exists",
 
     "aria_application_labelled",
     "aria_accessiblename_exists",
@@ -60,6 +64,7 @@ export default function FixIssuesContentPreview({
     "HeadersHaveText",
     "ParagraphNotUsedAsHeader",
     "heading_content_exists",
+    "heading_markup_misuse",
     "text_block_heading",
   ]
 
