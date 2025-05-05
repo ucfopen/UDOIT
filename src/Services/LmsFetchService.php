@@ -15,6 +15,10 @@ use App\Services\ScannerService;
 use CidiLabs\PhpAlly\PhpAllyIssue;
 use Doctrine\Persistence\ManagerRegistry;
 
+// TODO: Remove once PR is merged
+use App\Services\LocalApiAccessibilityService;
+use Symfony\Component\Console\Output\ConsoleOutput;
+
 class LmsFetchService {
 
     /** @var App\Services\LmsApiService $lmsApi */
@@ -195,16 +199,21 @@ class LmsFetchService {
         return $report;
     }
 
-    
+
     // Performs PHPAlly scan on each Content Item.
     private function scanContentItems(array $contentItems)
     {
+        // TODO: Remove print statements
+        $printOutput = new ConsoleOutput();
         $scanner = $_ENV['ACCESSIBILITY_CHECKER'];
         $equalAccessReports = null;
+
+        // $scanner = 'equalaccess_local';
 
         // If we're using Equal Access Lambda, send all the requests to Lambda for the
         // reports at once and save them all into an array (which should be in the same order as the ContentItems)
         if ($scanner == "equalaccess_lambda" && count($contentItems) > 0) {
+            $printOutput->writeln($scanner . ": Starting async scan of " . count($contentItems) . " content items");
             // $equalAccessReports = $this->asyncReport->postMultipleAsync($contentItems);
             $equalAccessReports = $this->asyncReport->postMultipleArrayAsync($contentItems);
         }
