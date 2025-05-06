@@ -41,6 +41,7 @@ class ScannerService {
         // Optional argument scannerReport is used when handling async Equal Access
         // requests, so then all we have to do is just make those into a UDOIT report
 
+        $printOutput = new ConsoleOutput();
         $scanner = $_ENV['ACCESSIBILITY_CHECKER'];
         $report = null;
         $response = new ApiResponse();
