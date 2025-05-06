@@ -11,4 +11,4 @@
   limitations under the License.
 *****************************************************************************/
 import { Rule } from "../api/IRule";
-export declare const noembed_content_exists: Rule;
+export declare let noembed_content_exists: Rule;

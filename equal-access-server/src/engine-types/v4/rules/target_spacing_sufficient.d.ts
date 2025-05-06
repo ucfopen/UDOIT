@@ -11,4 +11,4 @@
     limitations under the License.
  *****************************************************************************/
 import { Rule } from "../api/IRule";
-export declare const target_spacing_sufficient: Rule;
+export declare let target_spacing_sufficient: Rule;

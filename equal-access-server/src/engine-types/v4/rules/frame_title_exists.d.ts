@@ -11,4 +11,4 @@
   limitations under the License.
 *****************************************************************************/
 import { Rule } from "../api/IRule";
-export declare const frame_title_exists: Rule;
+export declare let frame_title_exists: Rule;

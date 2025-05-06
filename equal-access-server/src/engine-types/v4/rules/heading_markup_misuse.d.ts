@@ -11,4 +11,4 @@
   limitations under the License.
 *****************************************************************************/
 import { Rule } from "../api/IRule";
-export declare const heading_markup_misuse: Rule;
+export declare let heading_markup_misuse: Rule;

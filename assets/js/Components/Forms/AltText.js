@@ -146,7 +146,8 @@ export default function AltText ({
       <label htmlFor="altTextInput">{t('form.alt_text.label.text')}</label>
       <div className="w-100 mt-2">
         <input
-          type="text" 
+          type="text"
+          tabindex="0"
           id="altTextInput"
           name="altTextInput"
           className="w-100"
@@ -161,15 +162,23 @@ export default function AltText ({
       </div>
       <FormFeedback issues={textInputErrors} />
       <div className="flex-row justify-content-start gap-1 mt-2">
-        <input type="checkbox"
+        <input
+          type="checkbox"
           id="decorativeCheckbox"
           name="decorativeCheckbox"
+          tabindex="0"
           checked={isDecorative}
           onChange={handleCheckbox} />
         <label htmlFor="decorativeCheckbox">{t('form.alt_text.label.mark_decorative')}</label>
       </div>
       <div className="flex-row justify-content-start mt-3 mb-3">
-        <button className="btn btn-primary" disabled={textInputErrors.length > 0} onClick={handleSubmit}>{t('form.submit')}</button>
+        <button
+          className="btn btn-primary"
+          disabled={textInputErrors.length > 0}
+          tabindex="0"
+          onClick={handleSubmit}>
+          {t('form.submit')}
+        </button>
       </div>
     </>
   )

@@ -11,4 +11,4 @@
   limitations under the License.
 *****************************************************************************/
 import { Rule } from "../api/IRule";
-export declare const table_caption_nested: Rule;
+export declare let table_caption_nested: Rule;

@@ -11,4 +11,4 @@
   limitations under the License.
 *****************************************************************************/
 import { Rule } from "../api/IRule";
-export declare const object_text_exists: Rule;
+export declare let object_text_exists: Rule;

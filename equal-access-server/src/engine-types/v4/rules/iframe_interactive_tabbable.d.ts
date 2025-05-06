@@ -11,4 +11,4 @@
     limitations under the License.
  *****************************************************************************/
 import { Rule } from "../api/IRule";
-export declare const iframe_interactive_tabbable: Rule;
+export declare let iframe_interactive_tabbable: Rule;

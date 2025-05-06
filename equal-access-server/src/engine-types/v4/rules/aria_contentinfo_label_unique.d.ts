@@ -11,4 +11,4 @@
   limitations under the License.
 *****************************************************************************/
 import { Rule } from "../api/IRule";
-export declare const aria_contentinfo_label_unique: Rule;
+export declare let aria_contentinfo_label_unique: Rule;

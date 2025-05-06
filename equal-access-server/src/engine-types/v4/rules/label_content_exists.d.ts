@@ -11,4 +11,4 @@
   limitations under the License.
 *****************************************************************************/
 import { Rule } from "../api/IRule";
-export declare const label_content_exists: Rule;
+export declare let label_content_exists: Rule;

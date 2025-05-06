@@ -11,4 +11,4 @@
     limitations under the License.
  *****************************************************************************/
 import { Rule } from "../api/IRule";
-export declare const a_target_warning: Rule;
+export declare let a_target_warning: Rule;

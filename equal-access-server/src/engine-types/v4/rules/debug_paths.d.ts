@@ -11,4 +11,4 @@
     limitations under the License.
  *****************************************************************************/
 import { Rule } from "../api/IRule";
-export declare const debug_paths: Rule;
+export declare let debug_paths: Rule;

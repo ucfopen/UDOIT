@@ -11,4 +11,4 @@
   limitations under the License.
 *****************************************************************************/
 import { Rule } from "../api/IRule";
-export declare const aria_keyboard_handler_exists: Rule;
+export declare let aria_keyboard_handler_exists: Rule;

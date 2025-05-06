@@ -11,4 +11,4 @@
   limitations under the License.
 *****************************************************************************/
 import { Rule } from "../api/IRule";
-export declare const img_alt_redundant: Rule;
+export declare let img_alt_redundant: Rule;

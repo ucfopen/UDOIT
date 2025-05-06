@@ -11,4 +11,4 @@
   limitations under the License.
 *****************************************************************************/
 import { Rule } from "../api/IRule";
-export declare const element_id_unique: Rule;
+export declare let element_id_unique: Rule;

@@ -11,4 +11,4 @@
   limitations under the License.
 *****************************************************************************/
 import { Rule } from "../api/IRule";
-export declare const caption_track_exists: Rule;
+export declare let caption_track_exists: Rule;

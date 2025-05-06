@@ -11,4 +11,4 @@
     limitations under the License.
  *****************************************************************************/
 import { Rule } from "../api/IRule";
-export declare const html_lang_exists: Rule;
+export declare let html_lang_exists: Rule;

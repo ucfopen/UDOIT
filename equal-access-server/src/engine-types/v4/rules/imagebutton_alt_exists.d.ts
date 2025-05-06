@@ -11,4 +11,4 @@
   limitations under the License.
 *****************************************************************************/
 import { Rule } from "../api/IRule";
-export declare const imagebutton_alt_exists: Rule;
+export declare let imagebutton_alt_exists: Rule;

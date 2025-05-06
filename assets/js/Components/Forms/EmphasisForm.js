@@ -102,6 +102,7 @@ export default function EmphasisForm({
           id="boldCheckbox"
           name="boldCheckbox"
           checked={useBold}
+          tabindex="0"
           onChange={handleBoldToggle} />
         <label htmlFor="boldCheckbox">{t('form.emphasis.label.bold')}</label>
       </div>
@@ -110,12 +111,19 @@ export default function EmphasisForm({
           id="italicCheckbox"
           name="italicCheckbox"
           checked={useItalics}
+          tabindex="0"
           onChange={handleItalicsToggle} />
         <label htmlFor="italicCheckbox">{t('form.emphasis.label.italic')}</label>
       </div>
       <FormFeedback issues={checkboxErrors} />
       <div className="flex-row justify-content-start mt-3 mb-3">
-        <button className="btn btn-primary" disabled={checkboxErrors.length > 0} onClick={handleSubmit}>{t('form.submit')}</button>
+        <button
+          className="btn btn-primary"
+          disabled={checkboxErrors.length > 0}
+          tabindex="0"
+          onClick={handleSubmit}>
+          {t('form.submit')}
+        </button>
       </div>
     </>
   )

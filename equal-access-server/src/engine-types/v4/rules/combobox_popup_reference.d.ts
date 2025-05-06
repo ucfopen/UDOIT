@@ -11,4 +11,4 @@
   limitations under the License.
 *****************************************************************************/
 import { Rule } from "../api/IRule";
-export declare const combobox_popup_reference: Rule;
+export declare let combobox_popup_reference: Rule;

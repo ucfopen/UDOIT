@@ -11,4 +11,4 @@
   limitations under the License.
 *****************************************************************************/
 import { Rule } from "../api/IRule";
-export declare const skip_main_exists: Rule;
+export declare let skip_main_exists: Rule;

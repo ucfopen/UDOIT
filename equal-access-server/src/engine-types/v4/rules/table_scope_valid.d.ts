@@ -11,4 +11,4 @@
   limitations under the License.
 *****************************************************************************/
 import { Rule } from "../api/IRule";
-export declare const table_scope_valid: Rule;
+export declare let table_scope_valid: Rule;
