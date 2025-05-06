@@ -68,11 +68,15 @@ class Report implements \JsonSerializable
     public function toArray(): array
     {
         $scanCounts = false;
+        $itemsScanned = 0;
         $tempData = $this->getData();
         if ($tempData) {
             $tempData = json_decode($tempData, true);
             if (isset($tempData['scanCounts'])) {
                 $scanCounts = $tempData['scanCounts'];
+            }
+            if (isset($tempData['itemsScanned'])) {
+                $itemsScanned = $tempData['itemsScanned'];
             }
         }
 
@@ -82,6 +86,7 @@ class Report implements \JsonSerializable
             "created" => $this->created->format($_ENV['DATE_FORMAT']),
             "errors" => $this->getErrors(),
             "scanCounts" => $scanCounts,
+            "itemsScanned" => $itemsScanned,
             "suggestions" => $this->getSuggestions(),
             "contentFixed" => $this->getContentFixed(),
             'contentResolved' => $this->getContentResolved(),

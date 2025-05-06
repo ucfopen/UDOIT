@@ -186,7 +186,14 @@ export default function ContrastForm({
             <div style={{ boxShadow: '0 0 5px 0 #CCC', backgroundColor: Contrast.convertShortenedHex(backgroundColor), width: '20px', height: '20px', opacity: 1.0, display: 'inline-block' }}></div>
           </div>
           <div className="flex-column justify-content-center">
-            <input id="backgroundColorInput" name="backgroundColorInput" className="w-50" type="text" value={backgroundColorInput} onChange={(e) => handleInputBackground(e, e.target.value)} />
+            <input
+              id="backgroundColorInput"
+              name="backgroundColorInput"
+              className="w-50"
+              type="text"
+              value={backgroundColorInput}
+              tabindex="0"
+              onChange={(e) => handleInputBackground(e, e.target.value)} />
           </div>
         </div>
         <div className="flex-row gap-1">
@@ -195,17 +202,26 @@ export default function ContrastForm({
               className={`btn-icon-only btn-transparent ${showBackgroundColorSelector ? 'active' : ''}`}
               title={showBackgroundColorSelector ? t('form.contrast.label.hide_color_picker') : t('form.contrast.label.show_color_picker') }
               aria-label={showBackgroundColorSelector ? t('form.contrast.label.hide_color_picker') : t('form.contrast.label.show_color_picker') }
+              tabindex="0"
               onClick={handleToggleBackgroundColorSelector} >
               <PaletteIcon className="icon-md" />
             </button>
           </div>
           <div className="flex-column justify-content-center">
-            <button className="btn-icon-only btn-transparent" title={t('form.contrast.label.lighten')} onClick={handleLightenBackground}>
+            <button
+              className="btn-icon-only btn-transparent"
+              title={t('form.contrast.label.lighten')}
+              tabindex="0"
+              onClick={handleLightenBackground}>
               <LightIcon className="icon-md"/>
             </button>
           </div>
           <div className="flex-column justify-content-center">
-            <button className="btn-icon-only btn-transparent" title={t('form.contrast.label.darken')} onClick={handleDarkenBackground}>
+            <button
+              className="btn-icon-only btn-transparent"
+              title={t('form.contrast.label.darken')}
+              tabindex="0"
+              onClick={handleDarkenBackground}>
               <DarkIcon className="icon-md"/>
             </button>
           </div>
@@ -229,7 +245,14 @@ export default function ContrastForm({
             <div style={{ boxShadow: '0 0 5px 0 #CCC', backgroundColor: Contrast.convertShortenedHex(textColor), width: '20px', height: '20px', opacity: 1.0, display: 'inline-block' }}></div>
           </div>
           <div className="flex-column justify-content-center">
-            <input id="textColorInput" name="textColorInput" className="w-50" type="text" value={textColorInput} onChange={(e) => handleInputText(e, e.target.value)} />
+            <input
+              id="textColorInput"
+              name="textColorInput"
+              className="w-50"
+              type="text"
+              value={textColorInput}
+              tabindex="0"
+              onChange={(e) => handleInputText(e, e.target.value)} />
           </div>
         </div>
         <div className="flex-row gap-1">
@@ -238,17 +261,26 @@ export default function ContrastForm({
               className={`btn-icon-only btn-transparent ${showTextColorSelector ? 'active' : ''}`}
               title={showTextColorSelector ? t('form.contrast.label.hide_color_picker') : t('form.contrast.label.show_color_picker')}
               aria-label={showTextColorSelector ? t('form.contrast.label.hide_color_picker') : t('form.contrast.label.show_color_picker')}
+              tabindex="0"
               onClick={handleToggleTextColorSelector}>
               <PaletteIcon className="icon-md" />
             </button>
           </div>
           <div className="flex-column justify-content-center">
-            <button className="btn-icon-only btn-transparent" title={t('form.contrast.label.lighten')} onClick={handleLightenText}>
+            <button
+              className="btn-icon-only btn-transparent"
+              title={t('form.contrast.label.lighten')}
+              tabindex="0"
+              onClick={handleLightenText}>
               <LightIcon className="icon-md"/>
             </button>
           </div>
           <div className="flex-column justify-content-center">
-            <button className="btn-icon-only btn-transparent" title={t('form.contrast.label.darken')} onClick={handleDarkenText}>
+            <button
+              className="btn-icon-only btn-transparent"
+              title={t('form.contrast.label.darken')}
+              tabindex="0"
+              onClick={handleDarkenText}>
               <DarkIcon className="icon-md"/>
             </button>
           </div>
@@ -264,7 +296,13 @@ export default function ContrastForm({
       )}
       <div className="flex-row justify-content-between mt-3 mb-3">
         <div className="flex-column justify-content-start">
-          <button className="btn btn-primary" onClick={handleSubmit} disabled={!ratioIsValid}>{t('form.submit')}</button>
+          <button
+            className="btn btn-primary"
+            onClick={handleSubmit}
+            tabindex="0"
+            disabled={!ratioIsValid}>
+            {t('form.submit')}
+          </button>
         </div>
         <div className="flex-column justify-content-start">
           <div className={`ratio-container flex-column ${ratioIsValid ? 'ratio-valid' : 'ratio-invalid'}`}>

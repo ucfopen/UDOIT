@@ -102,11 +102,18 @@ export default function LabelForm({
           name="labelInputValue"
           className="w-100"
           value={textInputValue}
+          tabindex="0"
           onChange={handleInput} />
       </div>
       <FormFeedback issues={textInputErrors} />
       <div className="flex-row justify-content-start mt-3 mb-3">
-        <button className="btn btn-primary" disabled={textInputErrors.length > 0} onClick={handleSubmit}>{t('form.submit')}</button>
+        <button
+          className="btn btn-primary"
+          disabled={textInputErrors.length > 0}
+          tabindex="0"
+          onClick={handleSubmit}>
+          {t('form.submit')}
+        </button>
       </div>
     </>
   )

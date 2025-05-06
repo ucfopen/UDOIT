@@ -72,7 +72,7 @@ export default function SettingsPage({
           <button onClick={() => handleFullCourseRescan()} disabled={!syncComplete} className="btn btn-primary mt-2">{syncComplete ? t('settings.button.force_full_rescan') : t('welcome.button.scanning')}</button>
         </div>
       </div>
-      <div className="about-container flex-column flex-start flex-grow-1">
+      <div className="about-container flex-column flex-start flex-grow-1 ps-3 pe-3 pb-3">
         <img src={UDOITLogo} alt={t('alt.UDOIT')} className="logo-large"/>
         <div dangerouslySetInnerHTML={{__html: t('settings.text.about')}} />
         <div dangerouslySetInnerHTML={{__html: t('settings.text.tools')}} />

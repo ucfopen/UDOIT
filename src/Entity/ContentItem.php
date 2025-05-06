@@ -130,6 +130,11 @@ class ContentItem implements \JsonSerializable
 
     public function setUpdated(\DateTimeInterface $updated): self
     {
+        // If the updated date is a string, convert it to a DateTime object
+        if (is_string($updated)) {
+            $updated = new \DateTime($updated, UtilityService::$timezone);
+        }
+
         $this->updated = $updated;
 
         return $this;

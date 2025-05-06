@@ -95,6 +95,7 @@ export default function HeadingStyleForm ({
         name="heading-select"
         className="w-100 mt-2"
         value={selectedValue}
+        tabindex="0"
         onChange={(e) => handleSelect(e.target.value)}
         disabled={removeStyling}>
           <option key='empty' id='opt-empty' value=''>
@@ -111,12 +112,19 @@ export default function HeadingStyleForm ({
           id="removeStylingCheckbox"
           name="removeStylingCheckbox"
           checked={removeStyling}
+          tabindex="0"
           onChange={handleCheckbox} />
         <label htmlFor="removeStylingCheckbox">{t('form.heading_style.label.remove_styling')}</label>
       </div>
       <FormFeedback issues={textInputErrors} />
       <div className="flex-row justify-content-start mt-3 mb-3">
-        <button className="btn btn-primary" disabled={textInputErrors.length > 0} onClick={handleSubmit}>{t('form.submit')}</button>
+        <button
+          className="btn btn-primary"
+          disabled={textInputErrors.length > 0}
+          tabindex="0"
+          onClick={handleSubmit}>
+          {t('form.submit')}
+        </button>
       </div>
     </>
   )

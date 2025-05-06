@@ -9,6 +9,7 @@ label {
 
 .logo-large {
   margin: 0 auto 2rem;
+  padding: 0 1rem 1rem 1rem;
   max-width: 300px;
   width: 75%;
   min-width: 200px;
@@ -31,4 +32,15 @@ label {
 
 h2 {
   margin: 0;
+}
+
+a {
+  color: var(--link-color);
+  font-weight: 600;
+
+  &:focus {
+    outline: 2px solid var(--focus-color);
+    outline-offset: 3px;
+    border-radius: 2px;
+  }
 }
