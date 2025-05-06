@@ -11,4 +11,4 @@
     limitations under the License.
  *****************************************************************************/
 import { Rule } from "../api/IRule";
-export declare const html_skipnav_exists: Rule;
+export declare let html_skipnav_exists: Rule;

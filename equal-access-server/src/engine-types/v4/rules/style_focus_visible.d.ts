@@ -11,4 +11,4 @@
     limitations under the License.
  *****************************************************************************/
 import { Rule } from "../api/IRule";
-export declare const style_focus_visible: Rule;
+export declare let style_focus_visible: Rule;

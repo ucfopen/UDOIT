@@ -11,4 +11,4 @@
   limitations under the License.
 *****************************************************************************/
 import { Rule } from "../api/IRule";
-export declare const script_focus_blur_review: Rule;
+export declare let script_focus_blur_review: Rule;

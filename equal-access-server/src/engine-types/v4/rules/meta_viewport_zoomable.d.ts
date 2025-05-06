@@ -11,4 +11,4 @@
   limitations under the License.
 *****************************************************************************/
 import { Rule } from "../api/IRule";
-export declare const meta_viewport_zoomable: Rule;
+export declare let meta_viewport_zoomable: Rule;

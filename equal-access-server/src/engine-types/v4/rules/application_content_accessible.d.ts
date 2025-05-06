@@ -11,4 +11,4 @@
     limitations under the License.
  *****************************************************************************/
 import { Rule } from "../api/IRule";
-export declare const application_content_accessible: Rule;
+export declare let application_content_accessible: Rule;

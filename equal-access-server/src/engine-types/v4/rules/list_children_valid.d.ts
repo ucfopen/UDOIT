@@ -11,4 +11,4 @@
   limitations under the License.
 *****************************************************************************/
 import { Rule } from "../api/IRule";
-export declare const list_children_valid: Rule;
+export declare let list_children_valid: Rule;

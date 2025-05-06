@@ -11,4 +11,4 @@
   limitations under the License.
 *****************************************************************************/
 import { Rule } from "../api/IRule";
-export declare const media_autostart_controllable: Rule;
+export declare let media_autostart_controllable: Rule;

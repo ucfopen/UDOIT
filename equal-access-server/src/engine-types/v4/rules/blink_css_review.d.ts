@@ -11,4 +11,4 @@
     limitations under the License.
  *****************************************************************************/
 import { Rule } from "../api/IRule";
-export declare const blink_css_review: Rule;
+export declare let blink_css_review: Rule;

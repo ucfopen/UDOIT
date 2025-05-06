@@ -11,4 +11,4 @@
   limitations under the License.
 *****************************************************************************/
 import { Rule } from "../api/IRule";
-export declare const element_accesskey_labelled: Rule;
+export declare let element_accesskey_labelled: Rule;

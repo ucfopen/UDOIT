@@ -39,23 +39,23 @@ export { eGuidelineType as eRulesetType } from "../../v4/api/IGuideline";
 /**
  * @deprecated See ../../v4/api/IRule
  */
-export declare const RulePass: typeof RulePassNew;
+export declare let RulePass: typeof RulePassNew;
 /**
  * @deprecated See ../../v4/api/IRule
  */
-export declare const RuleRender: typeof RuleRenderNew;
+export declare let RuleRender: typeof RuleRenderNew;
 /**
  * @deprecated See ../../v4/api/IRule
  */
-export declare const RuleFail: typeof RuleFailNew;
+export declare let RuleFail: typeof RuleFailNew;
 /**
  * @deprecated See ../../v4/api/IRule
  */
-export declare const RulePotential: typeof RulePotentialNew;
+export declare let RulePotential: typeof RulePotentialNew;
 /**
  * @deprecated See ../../v4/api/IRule
  */
-export declare const RuleManual: typeof RuleManualNew;
+export declare let RuleManual: typeof RuleManualNew;
 /**
  * @deprecated See ../../v4/api/IRule
  */

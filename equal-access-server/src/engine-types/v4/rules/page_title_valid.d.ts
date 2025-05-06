@@ -11,4 +11,4 @@
   limitations under the License.
 *****************************************************************************/
 import { Rule } from "../api/IRule";
-export declare const page_title_valid: Rule;
+export declare let page_title_valid: Rule;

@@ -11,4 +11,4 @@
   limitations under the License.
 *****************************************************************************/
 import { Rule } from "../api/IRule";
-export declare const input_onchange_review: Rule;
+export declare let input_onchange_review: Rule;

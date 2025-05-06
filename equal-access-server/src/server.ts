@@ -10,6 +10,8 @@ const app = express();
 app.use(express.json({limit: '50mb'}));
 app.use(express.urlencoded({limit: '50mb', extended: true}));
 const PORT = process.env.PORT || 3000;
+const DEFAULT_ID = 'WCAG_2_1';
+const DEFAULT_REPORT_LEVELS = ['violation', 'potentialviolation', 'manual'];
 
 app.use(bodyParser.json());
 
@@ -29,7 +31,7 @@ app.get('/', (_req, res) => {
  * @param {string | string[]} guidelineIds - The guideline IDs to scan against.
     * Can be: WCAG_2_1, WCAG_2_2, WCAG_2_0, IBM_Accessibility, IBM_Accessibility_Next
     * See the full list of guideline IDs at /ace-engine/src/v4/ruleset.ts
- * @returns {Report} - The scan report.
+ * @returns {Object} - JSON response with statusCode and body containing the scan results.
  * @example
  * {
  * "html": "<!DOCTYPE html><html><head><title>Test</title></head><body>Hello World</body></html>",
@@ -38,9 +40,13 @@ app.get('/', (_req, res) => {
  */
 app.post("/scan", asyncHandler(async (req, res) => {
   const html: string = req.body.html;
-  const guidelineIds: string | string[] = req.body.guidelineIds;
-  const report: Report = await aceCheck(html, browser, guidelineIds);
-  res.json(report);
+  // console.log(`got page: ${html}`);
+  const guidelineIds: string | string[] = req.body.guidelineIds || DEFAULT_ID;
+  const reportLevels: string | string[] = req.body.reportLevels || DEFAULT_REPORT_LEVELS;
+  const report: Report = await aceCheck(html, browser, guidelineIds, reportLevels);
+  
+  // Modified to match Lambda output format
+  res.status(200).json(report);
 }));
 
 app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {

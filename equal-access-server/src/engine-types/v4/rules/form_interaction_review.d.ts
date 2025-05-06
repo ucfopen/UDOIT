@@ -11,4 +11,4 @@
   limitations under the License.
 *****************************************************************************/
 import { Rule } from "../api/IRule";
-export declare const form_interaction_review: Rule;
+export declare let form_interaction_review: Rule;

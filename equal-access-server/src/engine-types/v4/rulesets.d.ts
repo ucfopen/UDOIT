@@ -14,4 +14,4 @@
     limitations under the License.
  *****************************************************************************/
 import { Guideline } from "./api/IGuideline";
-export declare const a11yRulesets: Guideline[];
+export declare let a11yRulesets: Guideline[];

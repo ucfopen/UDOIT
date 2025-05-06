@@ -11,4 +11,4 @@
   limitations under the License.
 *****************************************************************************/
 import { Rule } from "../api/IRule";
-export declare const media_alt_brief: Rule;
+export declare let media_alt_brief: Rule;

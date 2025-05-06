@@ -11,4 +11,4 @@
   limitations under the License.
 *****************************************************************************/
 import { Rule } from "../api/IRule";
-export declare const list_markup_review: Rule;
+export declare let list_markup_review: Rule;

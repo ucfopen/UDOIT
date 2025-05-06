@@ -15,4 +15,4 @@ import { Rule } from "../api/IRule";
  * Description: Trigger if :before and :after are used in CSS (Internal and External) with content
  * Origin: WCAG 2.0 F87
  */
-export declare const style_before_after_review: Rule;
+export declare let style_before_after_review: Rule;

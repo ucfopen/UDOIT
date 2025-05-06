@@ -11,4 +11,4 @@
   limitations under the License.
 *****************************************************************************/
 import { Rule } from "../api/IRule";
-export declare const widget_tabbable_single: Rule;
+export declare let widget_tabbable_single: Rule;

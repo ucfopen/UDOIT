@@ -16,30 +16,17 @@
 /**
  * Walks in a DOM order
  *
- * Assumption that nodes of shadow DOMs call assignSlots on the shadow root before
- * doing other processing in that tree. If you walk into a shadow root, the DOMWalker
- * will do it automatically.
- *
  * See also ../aria/ARIAWalker
  */
 export declare class DOMWalker {
     root: Node;
     node: Node;
     bEndTag: boolean;
-    considerHidden: boolean;
-    DEBUG: boolean;
-    constructor(element: Node, bEnd?: boolean, root?: Node, considerHidden?: boolean, DEBUG?: boolean);
-    elem(): HTMLElement | null;
+    constructor(element: Node, bEnd?: boolean, root?: Node);
     static parentNode(node: Node): Node | null;
     static parentElement(node: Node): Element | null;
-    static assignSlots(root: ShadowRoot): void;
-    static firstChildNotOwnedBySlot(node: Node): ChildNode;
-    static lastChildNotOwnedBySlot(node: Node): ChildNode;
-    static nextSiblingNotOwnedBySlot(node: Node): ChildNode;
-    static previousSiblingNotOwnedBySlot(node: Node): ChildNode;
+    static isNodeVisible(node: Node): boolean;
     atRoot(): boolean;
-    DEBUGIDX: number;
-    indent: number;
     nextNode(): boolean;
     prevNode(): boolean;
 }

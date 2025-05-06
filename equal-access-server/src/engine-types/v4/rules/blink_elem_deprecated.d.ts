@@ -11,4 +11,4 @@
     limitations under the License.
  *****************************************************************************/
 import { Rule } from "../api/IRule";
-export declare const blink_elem_deprecated: Rule;
+export declare let blink_elem_deprecated: Rule;

@@ -11,4 +11,4 @@
   limitations under the License.
 *****************************************************************************/
 import { Rule } from "../api/IRule";
-export declare const form_font_color: Rule;
+export declare let form_font_color: Rule;

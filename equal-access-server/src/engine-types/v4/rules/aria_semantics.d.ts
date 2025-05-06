@@ -11,5 +11,5 @@
   limitations under the License.
 *****************************************************************************/
 import { Rule } from "../api/IRule";
-export declare const aria_role_valid: Rule;
-export declare const aria_attribute_valid: Rule;
+export declare let aria_role_valid: Rule;
+export declare let aria_attribute_valid: Rule;

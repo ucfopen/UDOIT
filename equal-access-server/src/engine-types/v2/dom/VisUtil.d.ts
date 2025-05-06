@@ -26,38 +26,12 @@ export declare class VisUtil {
      *    Note: If either current node or any of the parent nodes are hidden then this
      *          function will return false (node is not visible).
      *
-     *    Note: nodes with CSS properties opacity:0 or filter:opacity(0%), or similar SVG mechanisms:
-     *      They are not considered hidden. Text hidden with these methods can still be selected or copied,
-     *      and user agents still expose it in their accessibility trees.
-     *
-     *    Note: nodes hidden off screen or behind another object: they are not considered hidden.
-     *      They are exposed in the accessibility tree and they can even name on-screen objects.
-     *
      * @parm {element} node The node which should be checked if it is visible or not.
      * @return {bool} false if the node is NOT visible, true otherwise
      *
      * @memberOf VisUtil
      */
     static isNodeVisible(nodeIn: Node): boolean;
-    /**
-     * This function is responsible for checking if the node that is visually hidden by clipping or opaq:
-     *    1. Check if the current node is visually hidden:
-     *       CSS --> clip: rect(0px, 0px, 0px, 0px)
-     *       CSS --> opacity: 0
-     *
-     *    Note: If either current node or any of the parent nodes are visually hidden then this
-     *          function will return true (node is not visually hidden).
-     *
-     *    Note: nodes with CSS properties clip: rect(0px, 0px, 0px, 0px) or opacity:0 or filter:opacity(0%), or similar SVG mechanisms:
-     *      They are not considered hidden to an AT. Text hidden with these methods can still be selected or copied,
-     *      and user agents still expose it in their accessibility trees.
-     *
-     * @parm {element} node The node which should be checked if it is visually hidden or not.
-     * @return {bool} true if the node is visually hidden, false otherwise
-     *
-     * @memberOf VisUtil
-     */
-    static isNodeVisuallyHidden(node: Node): boolean;
     /**
      * return true if the node or its ancestor is hidden by CSS content-visibility:hidden
      * At this time, CSS content-visibility is partially supported by Chrome & Edge, but not supported by Firefox
@@ -70,18 +44,8 @@ export declare class VisUtil {
      */
     static isContentHidden(node: Element): boolean;
     /**
-     * return true if the node is offscreen by CSS position
-     * @param node
-     */
-    static isElementOffscreen(node: HTMLElement): boolean;
-    /**
      * return true if the node or its ancestor is natively hidden or aria-hidden = 'true'
      * @param node
      */
     static isNodeHiddenFromAT(node: Element): boolean;
-    /**
-     * return true if the node or its ancestor is natively hidden or aria-hidden = 'true'
-     * @param node
-     */
-    static isNodePresentational(node: Element): boolean;
 }
