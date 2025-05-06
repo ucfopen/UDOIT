@@ -40,8 +40,6 @@ class ScannerService {
     public function scanContentItem(ContentItem $contentItem, $scannerReport = null, $util = null) {
         // Optional argument scannerReport is used when handling async Equal Access
         // requests, so then all we have to do is just make those into a UDOIT report
-        $printOutput = new ConsoleOutput();
-        $printOutput->writeln("Scanning content item: " . $contentItem->getId());
 
         $scanner = $_ENV['ACCESSIBILITY_CHECKER'];
         $report = null;
@@ -57,8 +55,6 @@ class ScannerService {
                 $report = $phpAlly->scanContentItem($contentItem);
             }
             else if ($scanner == 'equalaccess_local') {
-                // TODO:
-                $printOutput->writeln($scanner . ": Scanning with local Equal Access");
 
                 if ($contentItem->getBody() != null) {
                     $equalAccess = new EqualAccessService();
@@ -75,7 +71,6 @@ class ScannerService {
 
                     $localService = new LocalApiAccessibilityService();
                     $json = $localService->scanContentItem($contentItem);
-                    // $printOutput->writeln("Json response: " . json_encode($json, JSON_PRETTY_PRINT));
                     $report = $equalAccess->generateReport($json, $document);
                 }
             }
