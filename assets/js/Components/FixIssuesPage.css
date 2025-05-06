@@ -22,7 +22,7 @@
   overflow-x: hidden;
 
   background-color: var(--background-color);
-  border: 2px solid var(--border-color);
+  border: 1px solid var(--border-color);
   border-radius: 8px;
 
   padding: 1rem 1rem .5rem 1rem;
@@ -45,4 +45,9 @@
   padding-right: 5px;
   margin-left: -5px;
   margin-right: -5px;
+}
+
+.ufixit-content-progress {
+  flex-shrink: 0;
+  flex-grow: 0;
 }

@@ -14,12 +14,12 @@ export default function IssuesReport ({
       labels: [],
       datasets: [
         {
-          label: t('label.plural.error'),
+          label: t('report.header.issues'),
           data: [],
           backgroundColor: '#D01A19',
         },
         {
-          label: t('label.plural.suggestion'),
+          label: t('report.header.suggestions'),
           data: [],
           backgroundColor: '#0770A3',
         }
@@ -73,7 +73,7 @@ export default function IssuesReport ({
   return (
     <div className="mt-0 me-0 mb-0 ms-0 w-100" >
       <div className="flex-row justify-content-center mb-2">
-        <h2 className="mt-0 mb-0">{t('label.plural.issue')}</h2>
+        <h2 className="mt-0 mb-0">{t('report.title.issues_by_type')}</h2>
       </div>
       <Bar data={data} options={options} />
     </div>

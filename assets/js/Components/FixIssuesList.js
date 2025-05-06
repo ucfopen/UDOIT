@@ -14,14 +14,18 @@ export default function FixIssuesList({ t, settings, filteredIssues, setActiveIs
   useEffect(() => {
     const tempGroupedList = []
 
-    // Get all of the issues' "scanRuleLabel" values
-    const scanRuleLabels = filteredIssues.map((issue) => issue.scanRuleLabel)
-    const uniqueScanRuleLabels = [...new Set(scanRuleLabels)]
+    // Get all of the issues' "formLabel" values
+    const formLabels = filteredIssues.map((issue) => issue.formLabel)
+    const uniqueFormLabels = [...new Set(formLabels)]
 
-    // Group the issues by "scanRuleLabel"
-    uniqueScanRuleLabels.forEach((scanRuleLabel) => {
-      const issues = filteredIssues.filter((issue) => issue.scanRuleLabel === scanRuleLabel)
-      tempGroupedList.push({ scanRuleLabel, issues })
+    uniqueFormLabels.sort((a, b) => {
+      return (a.toLowerCase() < b.toLowerCase()) ? -1 : 1
+    })
+
+    // Group the issues by "formLabel"
+    uniqueFormLabels.forEach((formLabel) => {
+      const issues = filteredIssues.filter((issue) => issue.formLabel === formLabel)
+      tempGroupedList.push({ formLabel: formLabel, issues })
     })
     
     setGroupedList(tempGroupedList)
@@ -30,15 +34,12 @@ export default function FixIssuesList({ t, settings, filteredIssues, setActiveIs
 
   return (
     <div className="ufixit-list-container flex-column">
-      <div className="mb-3 flex-grow-0 flex-shrink-0">
-        <h2 className="mt-0 mb-0">{t('label.filter.select.issue')}</h2>
-      </div>
       <div className="ufixit-list-scrollable flex-grow-1" tabindex="-1">
         { groupedList.length > 0 ? groupedList.map((group, i) => {
           return (
             <div className="ufixit-list-section-container" key={i}>
               <div className="ufixit-list-heading allow-word-break">
-                <h3>{group.scanRuleLabel}</h3>
+                <h3>{group.formLabel}</h3>
               </div>
               { group.issues.map((issue, j) => {
                 return (
@@ -80,7 +81,16 @@ export default function FixIssuesList({ t, settings, filteredIssues, setActiveIs
               })}
             </div>
           )
-        }) : <h2>{t('label.filter.no.issues')}</h2> }
+        }) : (
+          <div className="flex-column gap-3 mt-3">
+            <div className="flex-row justify-content-center align-self-center ms-3 me-3">
+              <h2 className="mt-0 mb-0 primary-dark">{t('report.label.no_results')}</h2>
+            </div>
+            <div className="flex-row justify-content-center align-self-center ms-3 me-3">
+              {t('report.msg.no_results')}
+            </div>
+          </div>
+        )}
       </div>
     </div>
   )

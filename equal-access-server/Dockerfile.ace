@@ -1,0 +1,35 @@
+FROM node:20-slim
+
+# Install Chromium instead of Google Chrome
+RUN apt-get update \
+    && apt-get install -y \
+    chromium \
+    curl \
+    gnupg \
+    && rm -rf /var/lib/apt/lists/*
+
+# Tell Puppeteer where to find it
+ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
+ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium
+
+WORKDIR /usr/src/app
+
+COPY ./package*.json ./
+
+RUN npm install
+
+RUN mkdir ./src
+COPY src/ ./src
+COPY ./tsconfig.json ./
+
+RUN npm run build
+
+EXPOSE 3000
+
+CMD ["node", "dist/server.js"]
+
+
+
+
+
+

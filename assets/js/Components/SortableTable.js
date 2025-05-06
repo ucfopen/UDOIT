@@ -13,14 +13,6 @@ export default function SortableTable({
   handleTableSettings,
 }) {
 
-  // The tableSettings object should contain:
-  // {
-  //   pageNum: 0,
-  //   sortBy: 'id',
-  //   ascending: true,
-  //   rowsPerPage: '10'
-  // }
-
   const [rowsPerPage, setRowsPerPage] = useState((tableSettings.rowsPerPage) ? parseInt(tableSettings.rowsPerPage) : 10)
   const [start, setStart] = useState(tableSettings.pageNum * rowsPerPage)
   const [sortBy, setSortBy] = useState(tableSettings.sortBy)
@@ -52,7 +44,7 @@ export default function SortableTable({
       handleTableSettings({ascending: !ascending})
     } else {
       handleTableSettings({
-        ascending: true,
+        ascending: false,
         sortBy: id
       })
     }
@@ -92,14 +84,12 @@ export default function SortableTable({
       <div className="mt-3 flex-row justify-content-center">
         <nav
           className="pagination flex-row justify-content-center gap-1"
-          labelNext={t('table.next_page')}
-          labelPrev={t('table.prev_page')}
         >
           { tableSettings.pageNum > 0 && (
             <button
               className="paginationButton"
-              title={t('table.prev_page')}
-              aria-label={t('table.prev_page')}
+              title={t('report.button.previous')}
+              aria-label={t('report.button.previous')}
               onClick={() => setPage(tableSettings.pageNum - 1)}>
               &lt;
             </button>
@@ -120,8 +110,8 @@ export default function SortableTable({
           { tableSettings.pageNum < (pageCount - 1) && (
             <button
               className="paginationButton"
-              title={t('table.next_page')}
-              aria-label={t('table.next_page')}
+              title={t('report.button.next')}
+              aria-label={t('report.button.next')}
               onClick={() => setPage(tableSettings.pageNum + 1)}>
               &gt;
             </button>
@@ -139,7 +129,7 @@ export default function SortableTable({
             <h2 className="mt-0 mb-0">{caption}</h2>
           </caption>
         }
-        <thead aria-label={t('table.sort_by')}>
+        <thead aria-label={t('report.label.sort_by')}>
           <tr>
             {(headers || []).map(({ id, text }) => (
               (text) ? 
@@ -155,11 +145,15 @@ export default function SortableTable({
                   }}
                 >
                   <div className="flex-row">
+                    <div className="header-spacer" />
                     <div className="flex-grow-1 clickable-text">{text}</div>
-                    { (id === sortBy) &&
-                      <div className="flex-column justify-content-center flex-shrink-0 ps-1">
+                    { (id === sortBy) ? (
+                      <div className="flex-column justify-content-center flex-shrink-0 ps-2">
                         <SortIconFilled className={`icon-md${(direction === 'ascending') ? ' rotate-180' : ''}`} />
                       </div>
+                      ) : (
+                        <div className="header-spacer" />
+                      )
                     }
                   </div>
                   </th>
@@ -170,9 +164,9 @@ export default function SortableTable({
         </thead>
         <tbody>
           {pagedRows.map((row) => (
-            <tr key={`row${row.id}`}>
+            <tr key={`row${row.id}`} className={row.onClick ? ' clickable' : ''}>
               {headers.map(({ id, renderCell, alignText, format }) => (
-                <td key={`row${row.id}cell${id}`} textAlign={alignText ? alignText : 'start'} onClick={(row.onClick) ? row.onClick : null}>
+                <td key={`row${row.id}cell${id}`} className={alignText === 'center' ? 'text-center' : alignText === 'end' ? 'text-end' : 'text-start'} onClick={(row.onClick) ? row.onClick : null}>
                   {renderCell ? renderCell(row[id]) : (format) ? format(row[id]) : <div cursor={(row.onClick) ? 'pointer' : 'auto'}>{row[id]}</div>}
                 </td>
               ))}

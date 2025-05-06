@@ -2,24 +2,31 @@
 @import url('https://fonts.googleapis.com/css2?family=Reddit+Sans:ital,wght@0,200..900;1,200..900&display=swap');
 
 :root {
-  --primary-color: #6AC8AC;
-  --primary-color-text: #235C4C;
-  --primary-color-dark: #1B4B3C;
-  --primary-color-hover: #54C091;
-  --primary-color-dark-hover: #143328;
-  --primary-color-light: #E8F3ED;
+  --pantone-green: #006937;
+  --primary-color: var(--pantone-green);
+  --primary-color-text: var(--pantone-green);
+  --primary-color-dark: var(--pantone-green);
+  --primary-color-hover: #436657;
+  --primary-color-dark-hover: #436657;
+  --primary-color-light: color-mix(in srgb, var(--primary-color) 15%, #FFFFFF 100%);  /* #E8F3ED; */
+  --primary-color-inverse: #F2F7F7;
   --text-color: #333333;
 
-  --link-color: #2C8AC1;
-  --link-color-light: #E9F3FF;
+  --hover-brightness: 1.15;
+
+  --link-color: #006AAC;
+  --link-color-light: color-mix(in srgb, var(--link-color) 15%, #FFFFFF 100%);  /* #E9F3FF; */
   --link-color-dark: #1B5679;
+
+  --focus-color: #009AD0;
 
   --issue-color: #F94144;
   --potential-color: #F8961E;
   --suggestion-color: #32B0E4;
+  --progress-bar-color: #32B0E4;
 
   --white: #FFFFFF;
-  --gray-dark: #333333;
+  --gray-dark: #555555;
   --gray: #767676;
   --gray-light: #D3D7DB;
   --gray-lightest: #F7F7F7;
@@ -35,8 +42,16 @@
   --transition-time: 0.25s;
 }
 
+body {
+  padding: 0px !important;
+  margin: 0px !important;
+  border-left: none !important;
+  max-width: 1400px;
+  color: var(--text-color);
+}
+
 #root {
-  margin: 0px 4px 4px 0px;
+  margin: 4px 4px 4px 0px;
   padding: 0 1rem 1rem 1rem;
   border: 1px solid var(--border-color);
   border-radius: 16px;
@@ -44,14 +59,6 @@
   min-height: 600px;
   display: flex;
   flex-direction: column;
-}
-
-body {
-  padding: 0px !important;
-  margin: 0px !important;
-  border-left: none !important;
-  max-width: 1200px;
-  color: var(--text-color);
 }
 
 /* Bootstrap-esque classes for general use */
@@ -143,6 +150,7 @@ body {
 
 .align-self-center {
   align-self: center;
+  text-align: center;
 }
 
 .align-self-baseline {
@@ -151,6 +159,18 @@ body {
 
 .align-self-stretch {
   align-self: stretch;
+}
+
+.text-start {
+  text-align: start;
+}
+
+.text-end {
+  text-align: end;
+}
+
+.text-center {
+  text-align: center;
 }
 
 .gap-1 {
@@ -201,6 +221,10 @@ body {
   margin-top: var(--spacer) !important;
 }
 
+.mt-4 {
+  margin-top: calc(1.5 * var(--spacer)) !important;
+}
+
 .mb-0 {
   margin-bottom: 0 !important;
 }
@@ -215,6 +239,10 @@ body {
 
 .mb-3 {
   margin-bottom: var(--spacer) !important;
+}
+
+.mb-4 {
+  margin-bottom: calc(1.5 * var(--spacer)) !important;
 }
 
 .ml-0, .ms-0 {
@@ -233,6 +261,10 @@ body {
   margin-left: var(--spacer) !important;
 }
 
+.ml-4, .ms-4 {
+  margin-left: calc(1.5 * var(--spacer)) !important;
+}
+
 .mr-0, .me-0 {
   margin-right: 0 !important;
 }
@@ -247,6 +279,10 @@ body {
 
 .mr-3, .me-3 {
   margin-right: var(--spacer) !important;
+}
+
+.mr-4, .me-4 {
+  margin-right: calc(1.5 * var(--spacer)) !important;
 }
 
 .p-0 {
@@ -409,6 +445,11 @@ h1, h2, h3, h4, h5, h6 {
   fill: var(--link-color);
 }
 
+.text-color {
+  color: var(--text-color);
+  fill: var(--text-color);
+}
+
 .gray {
   color: var(--gray);
   fill: var(--gray);
@@ -430,37 +471,29 @@ h1, h2, h3, h4, h5, h6 {
   border-radius: 50px;
   cursor: pointer;
   box-sizing: border-box;
-  border: 2px solid gray;
+  border: 2px solid var(--gray);
   font-weight: 600;
   font-size: 1rem;
   width: fit-content;
 
   &:focus {
-    outline-color: var(--link-color);
+    outline: 2px solid var(--focus-color);
     outline-offset: 3px;
-    outline-width: 2px;
+  }
+
+  &:hover,
+  &:focus {
+    background-color: var(--gray-light);
+    outline-color: var(--gray-dark);
+  }
+
+  &:active {
+    background-color: var(--gray-lightest);
+    outline-color: var(--gray-dark);
   }
 }
 
 button {
-  font-family: 'Reddit Sans', sans-serif;
-  padding: .15rem 0.5rem;
-  border-radius: 50px;
-  cursor: pointer;
-  box-sizing: border-box;
-  border: 2px solid gray;
-  font-weight: 600;
-  font-size: 1rem;
-  width: fit-content;
-
-  &:focus {
-    outline-color: var(--link-color);
-    outline-offset: 3px;
-    outline-width: 2px;
-  }
-}
-
-.btn {
   font-family: 'Reddit Sans', sans-serif;
   text-transform: uppercase;
   padding: .25rem 1.5rem;
@@ -468,14 +501,40 @@ button {
   cursor: pointer;
   box-sizing: border-box;
   border: 2px solid transparent;
-  font-weight: 600;
+  font-weight: 500;
   font-size: 1rem;
   width: fit-content;
 
   &:focus {
-    outline-color: var(--link-color);
-    outline-offset: 3px;
-    outline-width: 2px;
+    outline: 2px solid var(--focus-color);
+    outline-offset: 1px;
+  }
+}
+
+
+.btn-primary {
+  background-color: var(--primary-color);
+  border-color: var(--primary-color);
+  color: var(--primary-color-inverse);
+  fill: var(--primary-color-inverse);
+
+  &:hover,
+  &:focus {
+    filter: brightness(var(--hover-brightness));
+    color: var(--primary-color-inverse);
+    fill: var(--primary-color-inverse);
+  }
+}
+
+.btn-secondary {
+  border-color: var(--primary-color);
+  background-color: transparent;
+  color: var(--primary-color-dark);
+  fill: var(--primary-color-dark);
+  
+  &:hover,
+  &:focus {
+    background-color: var(--primary-color-light);
   }
 }
 
@@ -490,38 +549,12 @@ button:disabled {
 
   &:hover,
   &:focus {
-    border-color: var(--gray-light);
-    background-color: var(--gray-light);
+    outline-color: 2px solid var(--gray);
     color: var(--gray);
     fill: var(--gray);
-    outline-color: var(--gray);
-  }
-}
-
-.btn-primary {
-  background-color: var(--primary-color);
-  border-color: var(--primary-color);
-  color: var(--primary-color-dark);
-  fill: var(--primary-color-dark);
-
-  &:hover,
-  &:focus {
-    border-color: var(--primary-color-hover);
-    background-color: var(--primary-color-hover);
-    color: var(--primary-color-dark-hover);
-    fill: var(--primary-color-dark-hover);
-  }
-}
-
-.btn-secondary {
-  border-color: var(--primary-color);
-  background-color: transparent;
-  color: var(--primary-color-dark);
-  fill: var(--primary-color-dark);
-  
-  &:hover,
-  &:focus {
-    background-color: var(--primary-color-light);
+    border-color: var(--gray-light);
+    background-color: var(--gray-light);
+    filter: none;
   }
 }
 
@@ -540,6 +573,13 @@ button:disabled {
     cursor: not-allowed !important;
     outline-color: var(--gray);
   }
+}
+
+.btn-header {
+  border-radius: 8px !important;
+  justify-content: center;
+  width: 100%;
+  font-size: 0.9rem;
 }
 
 .btn-icon-left {
@@ -565,12 +605,6 @@ button:disabled {
 .btn-icon-only {
   display: flex;
   align-items: center;
-}
-
-.outline-link {
-  outline-color: var(--link-color);
-  outline-offset: 3px;
-  outline-width: 2px;
 }
 
 .icon-sm {
@@ -603,6 +637,101 @@ button:disabled {
 
 .rotate-270 {
   transform: rotate(270deg);
+}
+
+/* Customized select and options elements based on example from: 
+ https://developer.mozilla.org/en-US/docs/Learn_web_development/Extensions/Forms/Customizable_select */
+
+select {
+  font-size: 0.85rem;
+  font-weight: 500;
+  font-family: 'Open Sans', Arial, Helvetica, sans-serif;
+  padding: .4rem 0.5rem .4rem 0.5rem;
+  background-color: var(--white);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  outline: none;
+  cursor: pointer;
+  display: grid;
+  grid-template-areas: "select";
+  appearance: base-select;
+
+  &::picker-icon {
+    color: var(--text-color);
+    transition: var(--transition-time) transform;
+  }
+
+  &:open {
+    border-radius: 8px 8px 0 0;
+    border-color: var(--gray);
+    border-bottom: none;
+    padding-bottom: calc(.4rem + 1px);
+    
+    &::picker-icon {
+      transform: rotate(180deg);
+    }
+  }
+
+  &:focus {
+    outline: 2px solid var(--focus-color);
+    outline-offset: 1px;
+  }
+
+  &:disabled {
+    cursor: not-allowed !important;
+  }
+}
+
+::picker(select) {
+  appearance: base-select;
+  border: none;
+}
+
+option {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+  color: var(--text-color);
+  gap: 0.5rem;
+  border: 1px solid var(--gray);
+  padding: .25rem 1rem .25rem .25rem;
+
+  &:not(option:last-of-type) {
+    border-bottom: none;
+  }
+
+  &:hover {
+    background-color: var(--link-color-light);
+  }
+
+  &:focus {
+    outline: 2px solid var(--focus-color);
+    outline-offset: -2px;
+    background-color: var(--link-color-light);
+  }
+
+  &:checked {
+    font-weight: 600;
+    background-color: var(--background-color);
+  }
+}
+
+input[type="checkbox"] {
+  cursor: pointer;
+  accent-color: var(--primary-color);
+
+  &:hover,
+  &:focus {
+    outline: 2px solid var(--focus-color);
+    outline-offset: 3px;
+  }
+  &:disabled {
+    cursor: not-allowed !important;
+  }
+}
+
+a:focus {
+  outline: 2px solid var(--focus-color);
 }
 
 .udoit-issue,

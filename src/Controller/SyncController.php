@@ -57,11 +57,11 @@ class SyncController extends ApiController
 
             $response->setData($reportArr);
 
-            $prevReport = $course->getPreviousReport();
-            if ($prevReport && ($prevReport->getIssueCount() == $report->getIssueCount())) {
-                $response->addMessage('msg.no_new_content', 'success', 5000);
-            } else {
+            $reportData = json_decode($report->getData());
+            if(isset($reportData->itemsScanned) && $reportData->itemsScanned > 0) {
                 $response->addMessage('msg.new_content', 'success', 5000);
+            } else {
+                $response->addMessage('msg.no_new_content', 'success', 5000);
             }
         } catch (\Exception $e) {
             if ('msg.course_scanning' === $e->getMessage()) {
@@ -92,11 +92,7 @@ class SyncController extends ApiController
                 throw new \Exception('msg.sync.course_inactive');
             }
 
-            $prevReport = $course->getPreviousReport();
-
-            $course->removeAllReports();
-
-            $lmsFetch->refreshLmsContent($course, $user);
+            $lmsFetch->refreshLmsContent($course, $user, true);
 
             $report = $course->getLatestReport();
 
@@ -112,11 +108,13 @@ class SyncController extends ApiController
 
             $response->setData($reportArr);
 
-            if ($prevReport && ($prevReport->getIssueCount() == $report->getIssueCount())) {
-                $response->addMessage('msg.no_new_content', 'success', 5000);
-            } else {
+            $reportData = json_decode($report->getData());
+            if(isset($reportData->itemsScanned) && $reportData->itemsScanned > 0) {
                 $response->addMessage('msg.new_content', 'success', 5000);
+            } else {
+                $response->addMessage('msg.no_new_content', 'success', 5000);
             }
+
         } catch (\Exception $e) {
             if ('msg.course_scanning' === $e->getMessage()) {
                 $response->addMessage($e->getMessage(), 'info', 0, false);

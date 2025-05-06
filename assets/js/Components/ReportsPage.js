@@ -7,7 +7,7 @@ import ReportsTable from './Reports/ReportsTable'
 import IssuesTable from './Reports/IssuesTable'
 import ProgressIcon from './Icons/ProgressIcon'
 
-export default function ReportsPage({t, report, settings}) {
+export default function ReportsPage({t, report, settings, quickSearchTerm}) {
 
   const [reports, setReports] = useState([])
   const [fetchedReports, setFetchedReports] = useState(false)
@@ -79,8 +79,8 @@ export default function ReportsPage({t, report, settings}) {
 
   return (
     <>
-      <div className="flex-row justify-content-center mt-3">
-        <h1 className="mt-0 mb-0">{t('label.reports')}</h1>
+      <div className="flex-row justify-content-center mt-4">
+        <h1 className="mt-0 mb-0 primary-dark">{t('menu.reports')}</h1>
       </div>
       { (!fetchedReports) && (
         <div className="mt-3 mb-3 flex-row justify-content-center">
@@ -88,72 +88,75 @@ export default function ReportsPage({t, report, settings}) {
             <ProgressIcon className="icon-lg primary spinner" />
           </div>
           <div className="flex-column justify-content-center">
-            <h2 className="mt-0 mb-0">{t('label.loading_reports')}</h2>
+            <h2 className="mt-0 mb-0">{t('report.label.loading_reports')}</h2>
           </div>
         </div>
       )}
       { (fetchedReports && reports.length === 0) && (
         <div className="flex-row justify-content-center mt-3">
-          <h2 className="mt-0 mb-0">{t('label.admin.no_results')}</h2>
+          <h2 className="mt-0 mb-0">{t('report.label.no_results')}</h2>
         </div>
       )}
 
       { (fetchedReports && reports.length > 0) && (
         <div className="flex-column">
           <div className="flex-row justify-content-between mt-3 gap-3">
-            <div className="flex-column flex-shrink-0 flex-grow-0">
-              <h3 className="mt-0 mb-0">{t('label.options')}</h3>
-              <div className="flex-row gap-3 mt-3">
+            <div className="flex-column justify-content-center">
+              <h3>{t('report.title.options')}</h3>
+              <div className="flex-row gap-3 mb-3">
                   <input 
                     type="checkbox" 
                     id="issuesToggle" 
                     checked={chartVisibility.issues}
                     onChange={() => toggleChartVisibility('issues')}
                   />
-                  <label htmlFor="issuesToggle">{t('label.report.show_issues')}</label>
+                  <label htmlFor="issuesToggle">{t('report.option.show_issues')}</label>
               </div>
-              <div className="flex-row gap-3 mt-3">
+              <div className="flex-row gap-3 mb-3">
                 <input 
                   type="checkbox" 
                   id="potentialIssuesToggle" 
                   checked={chartVisibility.potentialIssues} 
                   onChange={() => toggleChartVisibility('potentialIssues')}
                 />
-                <label htmlFor="potentialIssuesToggle">{t('label.report.show_potential')}</label>
+                <label htmlFor="potentialIssuesToggle">{t('report.option.show_potential')}</label>
               </div>
-              <div className="flex-row gap-3 mt-3">
+              <div className="flex-row gap-3 mb-3">
                 <input 
                   type="checkbox" 
                   id="suggestionsToggle" 
                   checked={chartVisibility.suggestions} 
                   onChange={() => toggleChartVisibility('suggestions')}
                 />
-                <label htmlFor="suggestionsToggle">{t('label.report.show_suggestions')}</label>
+                <label htmlFor="suggestionsToggle">{t('report.option.show_suggestions')}</label>
               </div>
             </div>
             <div className="flex-column flex-shrink-0 flex-grow-1">
-              <h2 className="mt-0 mb-3">{t('label.plural.resolution')}</h2>
+              <div className="flex-row justify-content-center">
+                <h2 className="mt-0 mb-3">{t('report.title.barriers_remaining')}</h2>
+              </div>
               <ResolutionsReport t={t} reports={reports} visibility={chartVisibility} />
             </div>
           </div>
         
-          <div className="mt-3">
+          <div className="mt-4">
             <IssuesTable
               t={t}
               settings={settings}
+              quickSearchTerm={quickSearchTerm}
               issues={issues}/>
           </div>
 
-          <div className="mt-3">
+          <div className="mt-4">
             <ReportsTable
               t={t}
               reports={reports}/>
           </div>
 
-          <div className="flex-row justify-content-end mt-3 mb-2 gap-2">
-            <button className="btn-primary">Export Report</button>
-            <button className="btn-primary">Print Report</button>
-          </div>
+          {/* <div className="flex-row justify-content-end mt-3 mb-2 gap-2">
+            <button className="btn btn-primary">{t('report.button.download')}</button>
+            <button className="btn btn-primary">{t('report.button.print')}</button>
+          </div> */}
 
         </div>
       )}

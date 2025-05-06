@@ -12,11 +12,11 @@ progress::-webkit-progress-bar {
 }
 /* value */
 progress::-webkit-progress-value {
-  background-color: var(--link-color);
+  background-color: var(--progress-bar-color);
   border-radius: 10px;
 }
 /* firefox */
 progress::-moz-progress-bar {
-  background-color: var(--link-color);
+  background-color: var(--progress-bar-color);
   border-radius: 10px;
 }

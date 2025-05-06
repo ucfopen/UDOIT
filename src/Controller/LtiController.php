@@ -193,7 +193,7 @@ class LtiController extends AbstractController
             "public_jwk" => [],
             "description" => "User settings for UDOIT 3.x",
             "public_jwk_url" => "https://canvas.instructure.com/api/lti/security/jwks",
-            "target_link_uri" => "{$baseUrl}/dashboard",
+            "target_link_uri" => "{$baseUrl}/lti/authorize/check",
             "oidc_initiation_url" => "{$baseUrl}/lti/authorize"
         ];
 

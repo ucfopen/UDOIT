@@ -311,9 +311,82 @@ export function processStaticHtml(nodes, settings) {
 }
 
 export function getIssueHtml(issue) {
-  if (issue.status === '1') {
+  if (issue.status.toString() === '1') {
     return issue.newHtml
   }
 
   return (issue.newHtml) ? issue.newHtml : issue.sourceHtml
+}
+
+export function getAccessibleName(element) {
+  if ('string' === typeof element) {
+    element = toElement(element)
+  }
+
+  if (!element) {
+    return ''
+  }
+
+  /* Accessible Names for different elements can be computed differently, as described here:
+    https://www.w3.org/WAI/ARIA/apg/practices/names-and-descriptions/#name_calculation  */
+
+  // 1. TODO: If the element has the 'aria-labelledby' attribute, use the value of the corresponding element.
+  
+  // 2. If the element has the 'aria-label' attribute, use that value.
+  let ariaLabel = getAttribute(element, 'aria-label')
+  if(ariaLabel) {
+    return ariaLabel
+  }
+
+  // 3. Run a BUNCH of tag-specific and role-specific logic.
+  let tagName = getTagName(element).toLowerCase()
+  let type = getAttribute(element, 'type')?.toLowerCase()
+  
+  let value = getAttribute(element, 'value')
+
+  if(tagName === 'input' && (type === 'button' || type === 'submit' || type === 'reset')) {
+    if(value) { return value }
+  }
+
+  let alt = getAttribute(element, 'alt')
+
+  if((tagName === 'input' && type === 'image')
+      || tagName === 'img'
+      || tagName === 'area') {
+    if(alt) { return alt }
+  }
+
+  if(tagName === 'fieldset') {
+    let legend = element.querySelector('legend')
+    if(legend) {
+      return getInnerText(legend)
+    }
+  }
+
+  if(tagName === 'figure') {
+    let figcaption = element.querySelector('figcaption')
+    if(figcaption) {
+      return getInnerText(figcaption)
+    }
+  }
+
+  if(tagName === 'table') {
+    let caption = element.querySelector('caption')
+    if(caption) {
+      return getInnerText(caption)
+    }
+  }
+  
+  // 4. TODO: "If the name is still empty, then for elements with a role that supports naming
+  // from child content, the content of the element is used."
+
+  // 5. TODO: "Finally, if the name is still empty, then other fallback host-language-specific
+  // attributes or elements are used if present [such as localized 'Submit Query']"
+
+  let title = getAttribute(element, "title")
+  if(title) {
+    return title
+  }
+   
+  return ''
 }

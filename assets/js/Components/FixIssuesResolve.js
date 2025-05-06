@@ -12,24 +12,18 @@ export default function FixIssuesResolve({ t, settings, isSaving, activeIssue, h
   }
 
   return (
-    <div className="ufixit-widget-resolve-container">
-      <div>{ activeIssue.status === settings.FILTER.RESOLVED
-              ? t(`label.unresolved_description`) 
-              : t(`label.resolved_description`) }
+    <div className="ufixit-widget-resolve-container mt-3">
+      <div className="ufixit-widget-resolve-description">{ activeIssue.status === settings.FILTER.RESOLVED
+              ? t(`fix.msg.unresolved`) 
+              : t(`fix.msg.resolved`) }
       </div>
-      <div className="flex-row flex-end mt-2">
-      { !isSaving ? (
+      <div className="flex-row flex-end mt-3">
         <button className="btn btn-secondary align-self-start"
-          onClick={() => handleClick()}>
-          { activeIssue.status === settings.FILTER.RESOLVED ? t(`label.mark_unresolved`) : t(`label.mark_resolved`) }
+          onClick={() => handleClick()}
+          disabled={isSaving}
+          tabindex="0">
+          { activeIssue.status === settings.FILTER.RESOLVED ? t(`fix.button.unresolved`) : t(`fix.button.resolved`) }
         </button>
-      ) : (
-        <>
-          <button className="btn btn-secondary disabled">
-            { activeIssue.status === settings.FILTER.RESOLVED ? t(`label.mark_unresolved`) : t(`label.mark_resolved`) }
-          </button>
-        </>
-      )}
       </div>
     </div>
   )

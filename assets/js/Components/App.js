@@ -1,11 +1,13 @@
 import React, { useState, useCallback, useEffect } from 'react'
-import WelcomePage from './WelcomePage'
 import Header from './Header'
+import WelcomePage from './WelcomePage'
+import HomePage from './HomePage'
 import FixIssuesPage from './FixIssuesPage'
 import ReportsPage from './ReportsPage'
+import SettingsPage from './SettingsPage'
 import Api from '../Services/Api'
 import MessageTray from './MessageTray'
-import HomePage from './HomePage'
+
 
 export default function App(initialData) {
 
@@ -33,16 +35,25 @@ export default function App(initialData) {
   const [settings, setSettings] = useState(initialData.settings || null)
   const [sections, setSections] = useState([])
 
-  const [appFilters, setAppFilters] = useState({})
   const [navigation, setNavigation] = useState('summary')
   const [modal, setModal] = useState(null)
   const [syncComplete, setSyncComplete] = useState(false)
   const [hasNewReport, setHasNewReport] = useState(false)
   const [disableReview, setDisableReview] = useState(false)
   const [initialSeverity, setInitialSeverity] = useState('')
+  const [initialSearchTerm, setInitialSearchTerm] = useState('')
   const [contentItemList, setContentItemList] = useState([])
   const [sessionIssues, setSessionIssues] = useState([])
   const [welcomeClosed, setWelcomeClosed] = useState(false)
+
+  const ISSUE_STATE = {
+    UNCHANGED: 0,
+    SAVING: 1,
+    RESOLVING: 2,
+    SAVED: 3,
+    RESOLVED: 4,
+    ERROR: 5,
+  }
 
   // `t` is used for text/translation. It will return the translated string if it exists
   // in the settings.labels object.
@@ -55,17 +66,36 @@ export default function App(initialData) {
     }
     return translatedText
 
-  }, [settings.labels])
+  }, [settings])
 
   const scanCourse = useCallback(() => {
     let api = new Api(settings)
     return api.scanCourse(settings.course.id)
-  }, [settings])
+  }, [])
 
   const fullRescan = useCallback(() => {
     let api = new Api(settings)
     return api.fullRescan(settings.course.id)
-  }, [settings])
+  }, [])
+
+  const updateUserSettings = (newUserSetting) => {
+    let newRoles = Object.assign({}, settings.user.roles, newUserSetting)
+    let newUser = Object.assign({}, settings.user, { 'roles': newRoles})
+    let newSettings = Object.assign({}, settings, { user: newUser })
+
+    let api = new Api(settings)
+    api.updateUser(newUser)
+      .then((response) => response.json())
+      .then((data) => {
+        if(data.user) {
+          newSettings.user = data.user
+          if(data?.labels?.lang) {
+            newSettings.labels = data.labels
+          }
+          setSettings(newSettings)
+        }
+    })
+  }
 
   // Session Issues are used to track progress when multiple things are going on at once,
   // and can allow the activeIssue to change without losing information about the previous issue.
@@ -114,16 +144,19 @@ export default function App(initialData) {
     setDisableReview(newDisableReview)
   }
 
-  const handleNavigation = (navigation) => {
-    setNavigation(navigation)
+  const handleNavigation = (newNavigation) => {
+    if(newNavigation === navigation) {
+      return
+    }
+    if(newNavigation !== 'fixIssues') {
+      setInitialSeverity('')
+      setInitialSearchTerm('')
+    }
+    setNavigation(newNavigation)
   }
 
   const handleModal = (modal) => {
     setModal(modal)
-  }
-
-  const handleAppFilters = (filters) => {
-    setAppFilters(filters)
   }
 
   const addMessage = (msg) => {
@@ -136,6 +169,11 @@ export default function App(initialData) {
 
   const quickIssues = (severity) => {
     setInitialSeverity(severity)
+    setNavigation('fixIssues')
+  }
+
+  const quickSearchTerm = (searchTerm) => {
+    setInitialSearchTerm(searchTerm)
     setNavigation('fixIssues')
   }
 
@@ -200,15 +238,7 @@ export default function App(initialData) {
   }, [])
 
   useEffect(() => {
-    if (settings.user && Array.isArray(settings.user.roles)) {
-      if (settings.user.roles.includes('ROLE_ADVANCED_USER')) {
-        if (initialData.report) {
-          setReport(initialData.report)
-          setNavigation('summary')
-        }
-      }
-    }
-
+    
     scanCourse()
       .then((response) => response.json())
       .then(handleNewReport)
@@ -219,7 +249,7 @@ export default function App(initialData) {
     return () => {
       window.removeEventListener('resize', resizeFrame)
     }
-  }, [settings, initialData.report, scanCourse, resizeFrame])
+  }, [initialData.report, scanCourse, resizeFrame])
 
   return (
     <>
@@ -241,21 +271,23 @@ export default function App(initialData) {
               handleFullCourseRescan={handleFullCourseRescan}
               handleModal={handleModal} />
 
-            <MessageTray t={t} messages={messages} clearMessages={clearMessages} hasNewReport={syncComplete} />
-
             <main role="main">
               {('summary' === navigation) &&
                 <HomePage
                   t={t}
+                  settings={settings.ISSUE_STATE ? settings : Object.assign({}, settings, { ISSUE_STATE })}
                   report={report}
                   hasNewReport={hasNewReport}
-                  quickIssues={quickIssues} />
+                  quickIssues={quickIssues}
+                  sessionIssues={sessionIssues}
+                  handleFullCourseRescan={handleFullCourseRescan} />
               }
               {('fixIssues' === navigation) &&
                 <FixIssuesPage
                   t={t}
-                  settings={settings}
+                  settings={settings.ISSUE_STATE ? settings : Object.assign({}, settings, { ISSUE_STATE })}
                   initialSeverity={initialSeverity}
+                  initialSearchTerm={initialSearchTerm}
                   contentItemList={contentItemList}
                   addContentItem={addContentItem}
                   report={report}
@@ -273,12 +305,28 @@ export default function App(initialData) {
                   t={t}
                   settings={settings}
                   report={report}
+                  quickSearchTerm={quickSearchTerm}
                 />
+              }
+              {('settings' === navigation) &&
+                <SettingsPage
+                  t={t}
+                  settings={settings}
+                  updateUserSettings={updateUserSettings}
+                  syncComplete={syncComplete}
+                  handleCourseRescan={handleCourseRescan}
+                  handleFullCourseRescan={handleFullCourseRescan} />
+              }
+              {('modal' === navigation) &&
+                <div className="modal">
+                  {modal}
+                </div>
               }
             </main>
           </>
         )
       }
+      <MessageTray t={t} messages={messages} clearMessages={clearMessages} hasNewReport={syncComplete} />
     </>
   )
 }

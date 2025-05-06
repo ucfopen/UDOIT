@@ -1,0 +1,46 @@
+select {
+  min-width: 180px;
+}
+
+label {
+  font-weight: 600;
+  color: var(--text-color);
+}
+
+.logo-large {
+  margin: 0 auto 2rem;
+  padding: 0 1rem 1rem 1rem;
+  max-width: 300px;
+  width: 75%;
+  min-width: 200px;
+}
+
+.settings-container {
+  background: var(--background-color);
+  border-radius: 8px;
+  border: 1px solid var(--border-color);
+  padding: 1rem;
+}
+
+.about-container {
+  height: 650px;
+  max-height: 1000px;
+  max-width: 600px;
+  margin: 0 auto;
+  overflow-y: auto;
+}
+
+h2 {
+  margin: 0;
+}
+
+a {
+  color: var(--link-color);
+  font-weight: 600;
+
+  &:focus {
+    outline: 2px solid var(--focus-color);
+    outline-offset: 3px;
+    border-radius: 2px;
+  }
+}

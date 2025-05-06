@@ -35,6 +35,7 @@ class EqualAccessService {
         "style_viewport_resizable",
         "aria_accessiblename_exists",
         "aria_content_in_landmark", 
+        "aria_landmark_name_unique",
         "a_target_warning",
     );
 
@@ -87,14 +88,13 @@ class EqualAccessService {
 
     // Generate a UDOIT-style JSON report from the output of Equal Access
     public function generateReport($json, $document) {
-        // $this->logToServer("Generating report in EqualAccessService!");
+
         $report = new PhpAllyReport();
         $xpath = new DOMXPath($document);
 
         $issues = array();
         $issueCounts = array();
 
-        // $this->logToServer(json_encode($json["results"]));
         foreach ($json["results"] as $results) {
             $equalAccessRule = $results["ruleId"];
 
@@ -122,8 +122,9 @@ class EqualAccessService {
                 $reasonId = $results["reasonId"];
                 $message = $results["message"];
                 $messageArgs = $results["messageArgs"];
+                $value = $results["value"];
 
-                $metadata = $this->createMetadata($reasonId, $message, $messageArgs);
+                $metadata = $this->createMetadata($reasonId, $message, $messageArgs, $value);
 
                 // Check for null (aka no XPath result was found) and skip.
                 // Otherwise, create a new issue with the HTML from the XPath query.
@@ -152,7 +153,7 @@ class EqualAccessService {
         return $report;
     }
 
-    public function createMetadata($reasonId, $message, $messageArgs) {
+    public function createMetadata($reasonId, $message, $messageArgs, $value) {
         // The Equal Access report has a few sections which describe
         // what the error is/what type of error/error arguments, which we can use 
         // on UFIXIT to display messages
@@ -161,9 +162,46 @@ class EqualAccessService {
             "reasonId" => $reasonId,
             "message" => $message,
             "messageArgs" => $messageArgs,
+            "value" => $value,
         );
 
         return json_encode($metadata);
+    }
+
+    public function getIssueType($metadata) {
+      // if we're using equal access, use the "value" types (usually an array like ["VIOLATION", "FAIL"])
+      // to set the issue type (e.g. "error" or "suggestion")
+      $metadata = json_decode($metadata, true);
+      $value = $metadata["value"];
+
+      if (is_array($value)) {
+        /* equal access has the following: violation, potentialviolation, recommendation, potentialrecommendation, manual
+        violation, potentialviolation -> issue, potential issue
+        recommendation, potentialrecommendation -> suggestion
+        manual -> potential issue 
+        */
+
+        if (in_array("MANUAL", $value)) {
+          // manual
+          return "potential";
+        }
+        else if (in_array("VIOLATION", $value)) {
+          if (in_array("FAIL", $value)) {
+            // violation
+            return "error";
+          }
+          else {
+            // potentialviolation
+            return "potential";
+          }
+        }
+        else if (in_array("RECOMMENDATION", $value)) {
+          // recommendation/potentialrecommendation
+          return "suggestion";
+        }
+      }
+
+      return "error";
     }
 
     public function getDomDocument($html)

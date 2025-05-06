@@ -8,16 +8,17 @@ export default function ReportsTable({
 }) {
 
   const headers = [
-    { id: "created", text: t('label.date') },
-    { id: "errors", text: t('label.plural.error') },
-    { id: "suggestions", text: t('label.plural.suggestion') },
-    { id: "contentFixed", text: t('label.content_fixed') },
-    { id: "contentResolved", text: t('label.content_resolved') },
-    { id: "filesReviewed", text: t('label.files_reviewed')}
+    { id: "created", text: t('report.header.date') },
+    { id: "errors", text: t('report.header.issues'), alignText: 'center' },
+    { id: "potentialIssues", text: t('report.header.potential'), alignText: 'center' },
+    { id: "suggestions", text: t('report.header.suggestions'), alignText: 'center' },
+    { id: "contentFixed", text: t('report.header.items_fixed'), alignText: 'center' },
+    { id: "contentResolved", text: t('report.header.items_resolved'), alignText: 'center' },
+    { id: "filesReviewed", text: t('report.header.files_reviewed'), alignText: 'center'}
   ]
 
   if (isAdmin) {
-    headers.push({ id: "count", text: t('label.admin.courses') })
+    headers.push({ id: "count", text: t('report.header.courses') })
   }
 
   const [tableSettings, setTableSettings] = useState({
@@ -29,6 +30,21 @@ export default function ReportsTable({
 
   const getContent = () => {
     let list = reports
+    if (!list) {
+      return []
+    }
+
+    list = list.map((report) => {
+      if(report.scanCounts) {
+        report.issues = report.scanCounts.issues
+        report.potentialIssues = report.scanCounts.potentials
+        report.suggestions = report.scanCounts.suggestions
+      }
+      else {
+        report.potentialIssues = 0
+      }
+      return report
+    })
     const { sortBy, ascending } = tableSettings 
 
     list.sort((a, b) => {
@@ -57,7 +73,7 @@ export default function ReportsTable({
 
   return (
     <SortableTable
-      caption={t('label.report_history')}
+      caption={t('report.title.scan_history')}
       headers={headers}
       rows={getContent()}
       tableSettings={tableSettings}

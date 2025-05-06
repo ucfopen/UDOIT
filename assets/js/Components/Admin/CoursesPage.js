@@ -24,14 +24,14 @@ export default function CoursePage({
   })
   
   const headers = [
-    { id: "courseName", text: t('label.admin.course_name') }, 
-    { id: "accountName", text: t('label.admin.account_name') }, 
-    { id: "lastUpdated", text: t('label.admin.last_updated') },
-    { id: "errors", text: t('label.plural.error') }, 
-    { id: "suggestions", text: t('label.plural.suggestion') }, 
-    { id: "contentFixed", text: t('label.content_fixed') }, 
-    { id: "contentResolved", text: t('label.content_resolved') }, 
-    { id: "filesReviewed", text: t('label.files_reviewed') }, 
+    { id: "courseName", text: t('report.header.course_name') }, 
+    { id: "accountName", text: t('report.header.account_name') }, 
+    { id: "lastUpdated", text: t('report.header.last_scanned') },
+    { id: "errors", text: t('report.header.issues') }, 
+    { id: "suggestions", text: t('report.header.suggestions') }, 
+    { id: "contentFixed", text: t('report.header.items_fixed') }, 
+    { id: "contentResolved", text: t('report.header.items_resolved') }, 
+    { id: "filesReviewed", text: t('report.header.files_reviewed') }, 
     { id: "action", text: "", alignText: "end" }
   ]
 
@@ -72,20 +72,20 @@ export default function CoursePage({
             <button key={`reportButton${course.id}`}
               onClick={() => { !course.loading && handleReportClick(course) }}
               textAlign="center"
-              className={`btn-icon-only ${course.loading ? 'btn-disabled' : ''}`}
+              className={`btn btn-text btn-icon-only ${course.loading ? 'btn-disabled' : ''}`}
               disabled={course.loading}
-              title={t('label.admin.reports')}
-              aria-label={t('label.admin.reports')}
+              title={t('report.button.view_report')}
+              aria-label={t('report.button.view_report')}
               >
                 <ReportIcon className="icon-md" />
               </button>
             <button key={`scanButton${course.id}`}
               onClick={() => { !course.loading && handleScanClick(course) }}
               textAlign="center"
-              className={`btn-icon-only ${course.loading ? 'btn-disabled' : ''}`}
+              className={`btn btn-text btn-icon-only ${course.loading ? 'btn-disabled' : ''}`}
               disabled={course.loading}
-              title={t('label.admin.scan')}
-              aria-label={t('label.admin.scan')}
+              title={t('report.button.scan')}
+              aria-label={t('report.button.scan')}
               >
                 <SummaryIcon className="icon-md" />
             </button>
@@ -178,16 +178,16 @@ export default function CoursePage({
 
   return (
     <div className="pt-0 pe-0 pb-0 ps-0">
-      <div className="flex-row justify-content-center mt-3 mb-2">
-        <h1 className="mt-0 mb-0">{t('label.admin.courses')}</h1>
+      <div className="flex-row justify-content-center mt-3 mb-3">
+        <h1 className="mt-0 mb-0 primary-dark">{t('report.header.courses')}</h1>
       </div>
       {(courses.length === 0 || filteredCourses.length === 0) ? 
         <div className="flex-column mt-3">
           <div className="flex-row justify-content-center">
-            <h2 className="mt-0 mb-0">{t('label.no_results_header')}</h2>
+            <h2 className="mt-0 mb-0">{t('report.label.no_results')}</h2>
           </div>
           <div className="flex-row justify-content-center mt-2">
-            <div className="mt-0 mb-0">{t('label.no_results_message')}</div>
+            <div className="mt-0 mb-0">{t('report.msg.no_results')}</div>
           </div>
         </div>
         :
@@ -206,7 +206,7 @@ export default function CoursePage({
               onClick={() => handleNavigation('reports')}
             >
               <ReportIcon className="icon-md me-2" />
-              <div className="flex-column justify-content-center">Get Report for All Courses</div>
+              <div className="flex-column justify-content-center">{t('report.button.view_all_report')}</div>
             </button>
           </div>
         </>

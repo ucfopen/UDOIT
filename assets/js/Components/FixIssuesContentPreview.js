@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react'
-import DailyProgress from './DailyProgress'
 import DownloadIcon from './Icons/DownloadIcon'
 import ExternalLinkIcon from './Icons/ExternalLinkIcon'
 import EarIcon from './Icons/EarIcon'
@@ -15,85 +14,124 @@ export default function FixIssuesContentPreview({
   activeContentItem,
   editedElement,
   sessionIssues,
-  ISSUE_STATE
 }) {
 
   const [taggedContent, setTaggedContent] = useState(null)
   const [altTextPreview, setAltTextPreview] = useState(null)
-  const [altTextIsOpen, setAltTextIsOpen] = useState(true)
+
+  const SHOW_ALT_TEXT_RULES = [
+    "ImageAltIsDifferent",
+    "ImageAltIsTooLong",
+    "ImageAltNotEmptyInAnchor",
+    "ImageHasAlt",
+    "ImageHasAltDecorative",
+    "ImageAltNotPlaceholder",
+
+    "imagemap_alt_exists",
+    "img_alt_background",
+    "img_alt_decorative",
+    "img_alt_misuse",
+    "img_alt_null",
+    "img_alt_redundant",
+    "img_alt_valid",
+
+    "applet_alt_exists",
+    "embed_alt_exists",
+    "frame_title_exists",
+    "media_alt_brief",
+    "media_alt_exists",
+    "object_text_exists",
+
+    "aria_application_labelled",
+    "aria_accessiblename_exists",
+
+    "aria_application_label_unique",
+    "aria_banner_label_unique",
+    "aria_landmark_name_unique",
+    "aria_article_label_unique",
+    "aria_complementary_label_unique",
+    "aria_contentinfo_label_unique",
+    "aria_document_label_unique",
+    "aria_form_label_unique",
+    "aria_main_label_unique",
+    "aria_navigation_label_unique",
+    "aria_region_label_unique",
+    "aria_search_label_unique",
+    "aria_toolbar_label_unique",
+  ]
+
+  const SHOW_HEADINGS_RULES = [
+    "HeadersHaveText",
+    "ParagraphNotUsedAsHeader",
+    "heading_content_exists",
+    "heading_markup_misuse",
+    "text_block_heading",
+  ]
 
   const convertErrorHtmlString = (htmlText) => {
-    const parser = new DOMParser()
-    let tempElement = parser.parseFromString(htmlText, 'text/html').body.firstElementChild
-
-    // Get the element's alt attribute, if it exists
-    let altText = tempElement.getAttribute('alt') || tempElement.getAttribute('aria-label')
-    if (altText && altText !== '') {
-      setAltTextPreview(altText)
+    let tempElement = Html.toElement(htmlText)
+    if(tempElement){
+      return convertErrorHtmlElement(tempElement)
     }
-    else {
-      setAltTextPreview(null)
-    }
-
-    tempElement.classList.add('ufixit-error-highlight')
-
-    return tempElement
+    return null
   }
 
   const convertErrorHtmlElement = (htmlElement) => {
-    let altText= htmlElement.getAttribute('alt') || htmlElement.getAttribute('aria-label')
-    if(altText && altText !== '') {
-      setAltTextPreview(altText)
-    } else {
-      setAltTextPreview(null)
-    }
     htmlElement.classList.add('ufixit-error-highlight')
+
     return htmlElement
   }
 
-  // // When JavaScript's DOMParser encounters certain elements, it WILL NOT parse them unless they are wrapped
-  // // in the required parent element. This function wraps the error HTML in the required parent element so that
-  // // the DOMParser can parse it correctly.
-  // const parseErrorSafely = (errorHtml) => {
+  const addPreviewHelperElements = () => {
+    if(!activeIssue) {
+      return
+    }
 
-  //   let tagName = errorHtml.match(/^<(\w+)/)?.[1].toLowerCase()
+    // If the issue edits the alt text, we need to show the auto-updating alt text preview
+    if (SHOW_ALT_TEXT_RULES.includes(activeIssue.scanRuleId)) {
+      const htmlElement = document.getElementsByClassName('ufixit-error-highlight')[0]
+      let altText = Html.getAccessibleName(htmlElement)
+      
+      // If there is alt text to show...
+      if (altText && altText.trim() !== '') {
+        let existingPreviewTextElement = document.querySelector('.ufixit-alt-text-preview-text')
+        
+        // Update the existing alt text preview with the new text...
+        if (existingPreviewTextElement) {
+          existingPreviewTextElement.innerHTML = altText.trim()
+        }
+        // Or create it from scratch if it doesn't exist.
+        else {
+          let altTextPreviewCode =
+            '<div class="ufixit-alt-text-preview">' +
+              '<div class="ufixit-alt-text-preview-icon" alt="' + t('fix.label.screen_reader') + '" title="' + t('fix.label.screen_reader') + '">' +
+                '<svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" class="icon-md"><path d="M360-500q42 0 71-29.5t29-70.5q0-42-29-71t-71-29q-42 0-71 29t-29 71q0 41 29 70.5t71 29.5Zm352 93q-15-6-21.5-20.5T690-456q15-34 22.5-70.5T720-600q0-37-7.5-73T690-743q-6-14 1-27.5t22-19.5q17-6 32.5 1.5T768-764q17 39 24.5 80.5T800-600q0 43-8 84.5T767-434q-7 17-22.5 25t-32.5 2Zm116 116q-14-7-20-21.5t2-27.5q35-59 52.5-124T880-598q0-69-18-134.5T809-858q-8-13-1.5-27.5T828-907q17-8 34.5-.5T889-883q35 66 53 137t18 146q0 75-18.5 147.5T888-314q-9 17-26 24t-34-1Zm-668 51q0-17-11.5-28.5T120-280q-17 0-28.5 11.5T80-240q0 66 47 113t113 47q62 0 101.5-31t60.5-91q17-50 32.5-70t71.5-64q62-50 98-113t36-151q0-119-80.5-199.5T360-880q-119 0-199.5 80.5T80-600q0 17 11.5 28.5T120-560q17 0 28.5-11.5T160-600q0-85 57.5-142.5T360-800q85 0 142.5 57.5T560-600q0 68-27 116t-77 86q-52 38-81 74t-43 78q-14 44-33.5 65T240-160q-33 0-56.5-23.5T160-240Z"></path></svg>' +
+              '</div>' +
+              '<div class="ufixit-alt-text-preview-text">' +
+                altText.trim() +
+              '</div>' +
+            '</div>'
 
-  //   const SPECIAL_CASES = {
-  //     thead: "<table>{content}</table>",
-  //     tbody: "<table>{content}</table>",
-  //     tfoot: "<table>{content}</table>",
-  //     caption: "<table>{content}</table>",
-  //     tr: "<table><tbody>{content}</tbody></table>",
-  //     td: "<table><tbody><tr>{content}</tr></tbody></table>",
-  //     th: "<table><tbody><tr>{content}</tr></tbody></table>",
-  //     colgroup: "<table>{content}</table>",
-  //     col: "<table><colgroup>{content}</colgroup></table>",
-  //     option: "<select>{content}</select>",
-  //     optgroup: "<select>{content}</select>",
-  //     legend: "<fieldset>{content}</fieldset>",
-  //     dt: "<dl>{content}</dl>",
-  //     dd: "<dl>{content}</dl>",
-  //     li: "<ul>{content}</ul>",
-  //     area: "<map>{content}</map>",
-  //     param: "<object>{content}</object>",
-  //     source: "<video>{content}</video>",
-  //     track: "<video>{content}</video>"
-  //   }
+          htmlElement.insertAdjacentHTML('afterend', altTextPreviewCode)
+        }
+      }
+      // If there is no alt text to show, remove the preview element.
+      else {
+        document.querySelector('.ufixit-alt-text-preview')?.remove()
+      }
+    }
 
-  //   // Wrap special elements inside their required parent(s) if they are in the SPECIAL_CASES object
-  //   let wrappedHTML = SPECIAL_CASES[tagName] ? SPECIAL_CASES[tagName].replace('{content}', errorHtml) : errorHtml
+    if(SHOW_HEADINGS_RULES.includes(activeIssue.scanRuleId)) {
+      const htmlElement = document.getElementsByClassName('ufixit-error-highlight')[0]
+      const headingTags = ['h1', 'h2', 'h3', 'h4', 'h5', 'h6']
 
-  //   // Parse the wrapped HTML
-  //   const parser = new DOMParser()
-  //   const tempDoc = parser.parseFromString(wrappedHTML, "text/html")
-
-  //   // Extract the real element from the correct position
-  //   if (SPECIAL_CASES[tagName]) {
-  //       return tempDoc.querySelector(tagName)
-  //   } else {
-  //       return tempDoc.body.firstElementChild
-  //   }
-  // }
+      if(htmlElement && headingTags.includes(htmlElement.tagName.toLowerCase())) {
+        const headingType = htmlElement.tagName.toUpperCase()
+        htmlElement.classList.add('ufixit-heading-highlight')
+        htmlElement.setAttribute('ufixit-heading-type', headingType)
+      }
+    }
+  }
 
   const getTaggedContent = (activeIssue, activeContentItem) => {
 
@@ -122,6 +160,15 @@ export default function FixIssuesContentPreview({
       return fullPageHtml
     }
 
+    // Find all of the <details> elements in the document (if present).
+    const detailsElements = Array.from(doc.body.querySelectorAll('details'))
+    detailsElements.forEach((detailsElement) => {
+      // Open each element before we do the initial render
+      if (!detailsElement.open) {
+        detailsElement.open = true
+      }
+    })
+
     // Find the first element in the document that matches the error element.
     const docElement = Array.from(doc.body.querySelectorAll(errorElement.tagName)).find((matchElement) => {
       return matchElement.outerHTML.trim() === errorElement.outerHTML.trim()
@@ -130,11 +177,20 @@ export default function FixIssuesContentPreview({
     // If the element is found, update it with the appropriate class.
     if(docElement) {
       docElement.replaceWith(convertErrorHtmlElement(docElement))
-      const serializer = new XMLSerializer()
-      return serializer.serializeToString(doc)
     }
 
-    return fullPageHtml
+    // Find all of the heading elements and show them when a relevant issues is being edited.
+    if(SHOW_HEADINGS_RULES.includes(activeIssue.scanRuleId)) {
+      const headingElements = Array.from(doc.body.querySelectorAll('h1, h2, h3, h4, h5, h6'))
+      headingElements.forEach((headingElement) => {
+        const headingType = headingElement.tagName.toUpperCase()
+        headingElement.classList.add('ufixit-heading-highlight')
+        headingElement.setAttribute('ufixit-heading-type', headingType)
+      })
+    }
+
+    const serializer = new XMLSerializer()
+    return serializer.serializeToString(doc)
   }
 
   useEffect(() => {
@@ -146,6 +202,7 @@ export default function FixIssuesContentPreview({
     if (element) {
       element.scrollIntoView({ behavior: 'instant', block: 'center' })
     }
+    addPreviewHelperElements()
   }, [taggedContent])
 
   useEffect(() => {
@@ -157,13 +214,11 @@ export default function FixIssuesContentPreview({
         
         // Replace the target element with the new element
         targetElement.replaceWith(tempElement)
+
+        addPreviewHelperElements()
       }
     }
   }, [editedElement])
-
-  const toggleAltTextIsOpen = () => {
-    setAltTextIsOpen(!altTextIsOpen)
-  }
 
   const getReadableFileType = (fileType) => {
     switch (fileType) {
@@ -176,7 +231,7 @@ export default function FixIssuesContentPreview({
       case 'pdf':
         return t('label.mime.pdf')
       default:
-        return fileType
+        return t('label.mime.unknown')
     }
   }
 
@@ -204,7 +259,7 @@ export default function FixIssuesContentPreview({
     <>
       { taggedContent && activeContentItem ? (
         <>
-          <a href={activeContentItem.url} target="_blank" rel="noreferrer" className="ufixit-content-label flex-row justify-content-between mt-3">
+          <a href={activeContentItem.url} target="_blank" rel="noreferrer" className="ufixit-content-label flex-row justify-content-between mt-2 mb-3">
             <div className="flex-column flex-center">
               <h2 className="fake-h1">{activeContentItem.title}</h2>
             </div>
@@ -214,46 +269,35 @@ export default function FixIssuesContentPreview({
           </a>
           <div className="ufixit-content-preview">
             <div dangerouslySetInnerHTML={{__html: taggedContent}} />
-            { altTextPreview && (
-              <div className={`alt-text-preview${altTextIsOpen ? '' : ' alt-text-preview-closed'}`} onClick={toggleAltTextIsOpen}>
-                <div className="alt-text-preview-icon" alt={t('label.btn.screen_reader')} title={t('label.btn.screen_reader')}>
-                  <EarIcon className="icon-md primary-dark" />
-                </div>
-                <div className="alt-text-preview-text">{altTextPreview}</div>
-              </div>
-            )}
-          </div>
-          <div className="ufixit-content-progress">
-            <DailyProgress t={t} sessionIssues={sessionIssues} ISSUE_STATE={ISSUE_STATE}/>
           </div>
         </>
       ) : activeIssue ? (
         <>
-          <a href={activeIssue.contentUrl} target="_blank" rel="noreferrer" className="ufixit-content-label flex-row justify-content-between mt-3">
+          <a href={activeIssue.contentUrl} target="_blank" rel="noreferrer" className="ufixit-content-label flex-row justify-content-between mt-3 mb-3">
             <div className="flex-column flex-center allow-word-break">
               <h2 className="fake-h1">{activeIssue.contentTitle}</h2>
             </div>
             <div className="flex-column flex-center">
-              <ExternalLinkIcon className="icon-lg link-color" />
+              <ExternalLinkIcon className="icon-lg link-color" alt="" />
             </div>
           </a>
           { activeIssue.contentType === settings.FILTER.FILE_OBJECT ? (
             <div className="flex-grow-1">
               <div className="ufixit-file-details">
                 <div className="flex-row mt-2">
-                  <div className="flex-column flex-center ufixit-file-details-label">{t('label.file_name')}</div>
+                  <div className="flex-column flex-center ufixit-file-details-label">{t('fix.label.file_name')}</div>
                   <div className="flex-column flex-center allow-word-break">{activeIssue.fileData.fileName}</div>
                 </div>
                 <div className="flex-row mt-2">
-                  <div className="flex-column flex-center ufixit-file-details-label">{t('label.file_type')}</div>
+                  <div className="flex-column flex-center ufixit-file-details-label">{t('fix.label.file_type')}</div>
                   <div className="flex-column flex-center allow-word-break">{getReadableFileType(activeIssue.fileData.fileType)}</div>
                 </div>
                 <div className="flex-row mt-2">
-                  <div className="flex-column flex-center ufixit-file-details-label">{t('label.file_size')}</div>
+                  <div className="flex-column flex-center ufixit-file-details-label">{t('fix.label.file_size')}</div>
                   <div className="flex-column flex-center allow-word-break">{getReadableFileSize(activeIssue.fileData.fileSize)}</div>
                 </div>
                 <div className="flex-row mt-2">
-                  <div className="flex-column flex-center ufixit-file-details-label">{t('label.file_updated')}</div>
+                  <div className="flex-column flex-center ufixit-file-details-label">{t('fix.label.file_updated')}</div>
                   <div className="flex-column flex-center allow-word-break">{getReadableDateTime(activeIssue.fileData.updated)}</div>
                 </div>
               </div>
@@ -261,13 +305,13 @@ export default function FixIssuesContentPreview({
                 { activeIssue.fileData.downloadUrl && (
                   <button className="btn btn-secondary btn-icon-left" onClick={() => window.open(activeIssue.fileData.downloadUrl, 'download')}>
                     <DownloadIcon />
-                    <div className="flex-column justify-content-center">{t('label.download')}</div>
+                    <div className="flex-column justify-content-center">{t('fix.button.download_file')}</div>
                   </button>
                 )}
                 { activeIssue.fileData.lmsUrl && (
                   <button className="btn btn-secondary btn-icon-left" onClick={() => window.open(activeIssue.fileData.lmsUrl, '_blank', 'noopener,noreferrer')}>
                     <ExternalLinkIcon />
-                    <div className="flex-column justify-content-center">{t('label.open_in_lms')}</div>
+                    <div className="flex-column justify-content-center">{t('fix.button.view_in_lms')}</div>
                   </button>
                 )}
               </div>
@@ -279,23 +323,24 @@ export default function FixIssuesContentPreview({
                   <ProgressIcon className="icon-lg primary spinner" />
                 </div>
                 <div className="flex-column justify-content-center ms-3">
-                  <h2 className="mt-0 mb-0">{t('label.loading_content')}</h2>
+                  <h2 className="mt-0 mb-0">{t('fix.label.loading_content')}</h2>
                 </div>
               </div>
             </div>
           )}
-          <DailyProgress t={t} sessionIssues={sessionIssues} ISSUE_STATE={ISSUE_STATE} />
         </>
       ) : (
         <>
           <div className="ufixit-content-preview">
-            <div className="flex-row justify-content-center mt-3">
-              <div className="flex-column justify-content-center">
-                <h2 className="mt-0 mb-0">{t('label.no_selection')}</h2>
+            <div className="flex-column">
+              <div className="flex-row justify-content-center text-center mt-3 ms-4 me-4">
+                <h2 className="mt-0 mb-0 primary-dark">{t('fix.label.no_selection')}</h2>
+              </div>
+              <div className="flex-row justify-content-center text-center mt-3 ms-4 me-4">
+                <div>{t('fix.msg.select_issue')}</div>
               </div>
             </div>
           </div>
-          <DailyProgress t={t} sessionIssues={sessionIssues} ISSUE_STATE={ISSUE_STATE} />
         </>
       )}
     </>
