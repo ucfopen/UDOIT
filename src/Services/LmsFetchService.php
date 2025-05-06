@@ -16,10 +16,6 @@ use CidiLabs\PhpAlly\PhpAllyIssue;
 use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Component\Console\Output\ConsoleOutput;
 
-// TODO: Remove once PR is merged
-use App\Services\LocalApiAccessibilityService;
-use Symfony\Component\Console\Output\ConsoleOutput;
-
 class LmsFetchService {
 
     /** @var App\Services\LmsApiService $lmsApi */
