@@ -35,13 +35,13 @@ export default function App(initialData) {
   const [settings, setSettings] = useState(initialData.settings || null)
   const [sections, setSections] = useState([])
 
-  const [appFilters, setAppFilters] = useState({})
   const [navigation, setNavigation] = useState('summary')
   const [modal, setModal] = useState(null)
   const [syncComplete, setSyncComplete] = useState(false)
   const [hasNewReport, setHasNewReport] = useState(false)
   const [disableReview, setDisableReview] = useState(false)
   const [initialSeverity, setInitialSeverity] = useState('')
+  const [initialSearchTerm, setInitialSearchTerm] = useState('')
   const [contentItemList, setContentItemList] = useState([])
   const [sessionIssues, setSessionIssues] = useState([])
   const [welcomeClosed, setWelcomeClosed] = useState(false)
@@ -78,19 +78,22 @@ export default function App(initialData) {
     return api.fullRescan(settings.course.id)
   }, [])
 
-  const updateLanguage = (lang) => {
-    let newSettings = settings
-    newSettings.user.roles.lang = lang
+  const updateUserSettings = (newUserSetting) => {
+    let newRoles = Object.assign({}, settings.user.roles, newUserSetting)
+    let newUser = Object.assign({}, settings.user, { 'roles': newRoles})
+    let newSettings = Object.assign({}, settings, { user: newUser })
 
     let api = new Api(settings)
-    let newUser = newSettings.user
     api.updateUser(newUser)
       .then((response) => response.json())
       .then((data) => {
-        if(data.labels) {
-          newSettings.labels = data.labels
+        if(data.user) {
+          newSettings.user = data.user
+          if(data?.labels?.lang) {
+            newSettings.labels = data.labels
+          }
+          setSettings(newSettings)
         }
-        setSettings(newSettings)
     })
   }
 
@@ -131,7 +134,6 @@ export default function App(initialData) {
     }
     setSyncComplete(true)
     setHasNewReport(newHasNewReport)
-    console.log(newReport)
     setReport(newReport)
     if (newReport.contentSections) {
       setSections(newReport.contentSections)
@@ -148,16 +150,13 @@ export default function App(initialData) {
     }
     if(newNavigation !== 'fixIssues') {
       setInitialSeverity('')
+      setInitialSearchTerm('')
     }
     setNavigation(newNavigation)
   }
 
   const handleModal = (modal) => {
     setModal(modal)
-  }
-
-  const handleAppFilters = (filters) => {
-    setAppFilters(filters)
   }
 
   const addMessage = (msg) => {
@@ -170,6 +169,11 @@ export default function App(initialData) {
 
   const quickIssues = (severity) => {
     setInitialSeverity(severity)
+    setNavigation('fixIssues')
+  }
+
+  const quickSearchTerm = (searchTerm) => {
+    setInitialSearchTerm(searchTerm)
     setNavigation('fixIssues')
   }
 
@@ -245,7 +249,7 @@ export default function App(initialData) {
     return () => {
       window.removeEventListener('resize', resizeFrame)
     }
-  }, [settings, initialData.report, scanCourse, resizeFrame])
+  }, [initialData.report, scanCourse, resizeFrame])
 
   return (
     <>
@@ -283,6 +287,7 @@ export default function App(initialData) {
                   t={t}
                   settings={settings.ISSUE_STATE ? settings : Object.assign({}, settings, { ISSUE_STATE })}
                   initialSeverity={initialSeverity}
+                  initialSearchTerm={initialSearchTerm}
                   contentItemList={contentItemList}
                   addContentItem={addContentItem}
                   report={report}
@@ -300,13 +305,14 @@ export default function App(initialData) {
                   t={t}
                   settings={settings}
                   report={report}
+                  quickSearchTerm={quickSearchTerm}
                 />
               }
               {('settings' === navigation) &&
                 <SettingsPage
                   t={t}
                   settings={settings}
-                  updateLanguage={updateLanguage}
+                  updateUserSettings={updateUserSettings}
                   syncComplete={syncComplete}
                   handleCourseRescan={handleCourseRescan}
                   handleFullCourseRescan={handleFullCourseRescan} />

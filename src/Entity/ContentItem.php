@@ -69,6 +69,7 @@ class ContentItem implements \JsonSerializable
             'contentType' => $this->getContentType(),
             'lmsContentId' => $this->getLmsContentId(),
             'updated' => $this->getUpdated()->format('c'),
+            'published' => $this->isPublished(),
             'status' => $this->isPublished(),
             'url' => $this->getUrl(),
         ];
@@ -129,6 +130,11 @@ class ContentItem implements \JsonSerializable
 
     public function setUpdated(\DateTimeInterface $updated): self
     {
+        // If the updated date is a string, convert it to a DateTime object
+        if (is_string($updated)) {
+            $updated = new \DateTime($updated, UtilityService::$timezone);
+        }
+
         $this->updated = $updated;
 
         return $this;

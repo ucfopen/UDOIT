@@ -16,6 +16,7 @@ use App\Services\SessionService;
 use App\Services\UtilityService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\SecurityBundle\Security;
+use Symfony\Component\Console\Output\ConsoleOutput;
 
 class CanvasLms implements LmsInterface {
     /** @var ContentItemRepository $contentItemRepo */
@@ -165,8 +166,9 @@ class CanvasLms implements LmsInterface {
     }
 
     // Get content from Canvas and update content items
-    public function updateCourseContent(Course $course, User $user): array
+    public function updateCourseContent(Course $course, User $user, $force = false): array
     {
+        $output = new ConsoleOutput();
         $content = $contentItems = [];
         $urls = $this->getCourseContentUrls($course->getLmsCourseId());
         $apiDomain = $this->getApiDomain($user);
@@ -208,6 +210,29 @@ class CanvasLms implements LmsInterface {
                         continue;
                     }
 
+                    /* Check to see if the existing content item is already in the database and hasn't been updated since.
+                       The $force variable is used to force the full rescan, and skips the 'already exists' check */
+
+                    $contentItem = $this->contentItemRepo->findOneBy([
+                        'contentType' => $contentType,
+                        'lmsContentId' => $lmsContent['id'],
+                        'course' => $course,
+                    ]);
+                    
+                    if (!$force && $contentItem) {
+                        $contentItemUpdated = $contentItem->getUpdated();
+                        $lmsUpdated = new \DateTime($lmsContent['updated'], UtilityService::$timezone);
+                        if ($contentItemUpdated == $lmsUpdated) {
+                            $output->writeln('Content item already exists and is up to date. Skipping ' . $contentType . ': ' . $lmsContent['title']);
+                            $contentItem->setActive(true);
+                            continue;
+                        }
+                        $output->writeln('Content item already exists but is out of date. Updating ' . $contentType . ': ' . $lmsContent['title']);
+                    }
+                    else {
+                        $output->writeln('New content item - ' . $contentType . ': ' . $lmsContent['title']);
+                    }
+
                     /* get page content */
                     if ('page' === $contentType) {
                         $url = "courses/{$course->getLmsCourseId()}/pages/{$lmsContent['id']}";
@@ -224,18 +249,11 @@ class CanvasLms implements LmsInterface {
                         $lmsContent['body'] = file_get_contents($content['url']);
                     }
 
-                    $contentItem = $this->contentItemRepo->findOneBy([
-                        'contentType' => $contentType,
-                        'lmsContentId' => $lmsContent['id'],
-                        'course' => $course,
-                    ]);
-
                     if (!$contentItem) {
                         $contentItem = new ContentItem();
                         $contentItem->setCourse($course)
                             ->setLmsContentId($lmsContent['id'])
                             ->setActive(true)
-                            ->setUpdated($this->util->getCurrentTime())
                             ->setContentType($contentType);
                         $this->entityManager->persist($contentItem);
                     }

@@ -10,6 +10,7 @@ use Doctrine\ORM\Mapping as ORM;
 class Issue implements \JsonSerializable
 {
     static $issueError = 'error';
+    static $issuePotential = 'potential';
     static $issueSuggestion = 'suggestion';
     static $issueStatusActive = 0;
     static $issueStatusFixed = 1;

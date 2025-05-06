@@ -114,7 +114,15 @@ export default function AnchorText({
   return (
     <>
       <label for="linkTextInput" className="mt-0 mb-2">{t('form.anchor.link_text')}</label>
-      <input name="linkTextInput" id="linkTextInput" className="w-100 mt-2 mb-2" type="text" value={textInputValue} onChange={handleInput} disabled={deleteLink} />
+      <input
+        name="linkTextInput"
+        id="linkTextInput"
+        className="w-100 mt-2 mb-2"
+        type="text"
+        value={textInputValue}
+        onChange={handleInput}
+        tabindex="0"
+        disabled={deleteLink} />
       { textInputErrors.length > 0 && (
         <div className="error-message flex-column">
           {textInputErrors.map((error, index) => (
@@ -123,7 +131,13 @@ export default function AnchorText({
         </div>
       )}
       <div className="flex-row gap-1 mt-2 mb-3">
-        <input type="checkbox" name="deleteLinkCheckbox" id="deleteLinkCheckbox" checked={deleteLink} onChange={handleDeleteCheckbox} />
+        <input
+          type="checkbox"
+          name="deleteLinkCheckbox"
+          id="deleteLinkCheckbox"
+          checked={deleteLink}
+          tabindex="0"
+          onChange={handleDeleteCheckbox} />
         <label for="deleteLinkCheckbox">{t('form.anchor.delete_link')}</label>
       </div>
       <button className="btn btn-primary" onClick={handleSubmit} disabled={!deleteLink && textInputErrors.length > 0}>{t('form.submit')}</button>

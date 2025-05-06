@@ -7,7 +7,7 @@ import ReportsTable from './Reports/ReportsTable'
 import IssuesTable from './Reports/IssuesTable'
 import ProgressIcon from './Icons/ProgressIcon'
 
-export default function ReportsPage({t, report, settings}) {
+export default function ReportsPage({t, report, settings, quickSearchTerm}) {
 
   const [reports, setReports] = useState([])
   const [fetchedReports, setFetchedReports] = useState(false)
@@ -102,6 +102,7 @@ export default function ReportsPage({t, report, settings}) {
         <div className="flex-column">
           <div className="flex-row justify-content-between mt-3 gap-3">
             <div className="flex-column justify-content-center">
+              <h3>{t('report.title.options')}</h3>
               <div className="flex-row gap-3 mb-3">
                   <input 
                     type="checkbox" 
@@ -142,6 +143,7 @@ export default function ReportsPage({t, report, settings}) {
             <IssuesTable
               t={t}
               settings={settings}
+              quickSearchTerm={quickSearchTerm}
               issues={issues}/>
           </div>
 
