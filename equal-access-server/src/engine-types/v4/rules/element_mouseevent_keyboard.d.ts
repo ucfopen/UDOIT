@@ -11,4 +11,4 @@
   limitations under the License.
 *****************************************************************************/
 import { Rule } from "../api/IRule";
-export declare const element_mouseevent_keyboard: Rule;
+export declare let element_mouseevent_keyboard: Rule;

@@ -11,4 +11,4 @@
     limitations under the License.
  *****************************************************************************/
 import { Rule } from "../api/IRule";
-export declare const text_contrast_sufficient: Rule;
+export declare let text_contrast_sufficient: Rule;

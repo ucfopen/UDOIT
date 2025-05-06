@@ -11,4 +11,4 @@
   limitations under the License.
 *****************************************************************************/
 import { Rule } from "../api/IRule";
-export declare const frame_src_valid: Rule;
+export declare let frame_src_valid: Rule;

@@ -20,8 +20,6 @@ export interface CacheElement extends Element {
         [key: string]: any;
     };
 }
-export declare class CacheUtil {
-    static getCache(cacheSpot: Element | Document | DocumentFragment, keyName: any, initValue: any): any;
-    static setCache(cacheSpot: Document | Element | DocumentFragment | ShadowRoot, globalName: any, value: any): any;
-    static clearCaches(cacheRoot: Node): void;
-}
+export declare function getCache(cacheSpot: Element | Document | DocumentFragment, keyName: any, initValue: any): any;
+export declare function setCache(cacheSpot: Document | Element | DocumentFragment | ShadowRoot, globalName: any, value: any): any;
+export declare function clearCaches(cacheRoot: Node): void;

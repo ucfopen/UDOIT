@@ -11,4 +11,4 @@
     limitations under the License.
  *****************************************************************************/
 import { Rule } from "../api/IRule";
-export declare const style_color_misuse: Rule;
+export declare let style_color_misuse: Rule;

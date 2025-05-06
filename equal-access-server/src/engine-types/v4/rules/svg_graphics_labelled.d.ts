@@ -11,4 +11,4 @@
   limitations under the License.
 *****************************************************************************/
 import { Rule } from "../api/IRule";
-export declare const svg_graphics_labelled: Rule;
+export declare let svg_graphics_labelled: Rule;

@@ -11,4 +11,4 @@
   limitations under the License.
 *****************************************************************************/
 import { Rule } from "../api/IRule";
-export declare const list_structure_proper: Rule;
+export declare let list_structure_proper: Rule;

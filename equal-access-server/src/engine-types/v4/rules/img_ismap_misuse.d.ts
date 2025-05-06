@@ -11,4 +11,4 @@
   limitations under the License.
 *****************************************************************************/
 import { Rule } from "../api/IRule";
-export declare const img_ismap_misuse: Rule;
+export declare let img_ismap_misuse: Rule;

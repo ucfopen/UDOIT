@@ -11,4 +11,4 @@
   limitations under the License.
 *****************************************************************************/
 import { Rule } from "../api/IRule";
-export declare const script_onclick_misuse: Rule;
+export declare let script_onclick_misuse: Rule;

@@ -11,4 +11,4 @@
   limitations under the License.
 *****************************************************************************/
 import { Rule } from "../api/IRule";
-export declare const media_live_captioned: Rule;
+export declare let media_live_captioned: Rule;

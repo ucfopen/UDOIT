@@ -11,4 +11,4 @@
   limitations under the License.
 *****************************************************************************/
 import { Rule } from "../api/IRule";
-export declare const text_whitespace_valid: Rule;
+export declare let text_whitespace_valid: Rule;

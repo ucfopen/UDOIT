@@ -11,4 +11,4 @@
   limitations under the License.
 *****************************************************************************/
 import { Rule } from "../api/IRule";
-export declare const aria_parent_required: Rule;
+export declare let aria_parent_required: Rule;

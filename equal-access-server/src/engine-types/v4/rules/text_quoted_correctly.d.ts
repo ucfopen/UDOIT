@@ -11,4 +11,4 @@
   limitations under the License.
 *****************************************************************************/
 import { Rule } from "../api/IRule";
-export declare const text_quoted_correctly: Rule;
+export declare let text_quoted_correctly: Rule;

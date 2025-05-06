@@ -11,4 +11,4 @@
   limitations under the License.
 *****************************************************************************/
 import { Rule } from "../api/IRule";
-export declare const embed_alt_exists: Rule;
+export declare let embed_alt_exists: Rule;

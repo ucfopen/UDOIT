@@ -11,4 +11,4 @@
   limitations under the License.
 *****************************************************************************/
 import { Rule } from "../api/IRule";
-export declare const asciiart_alt_exists: Rule;
+export declare let asciiart_alt_exists: Rule;
