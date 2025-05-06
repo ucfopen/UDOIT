@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react'
 import FixIssuesFilters from './FixIssuesFilters'
 import FixIssuesList from './FixIssuesList'
-import FixIssuesContentPreview from './FixIssuesContentPreview'
 import UfixitWidget from './UfixitWidget'
+import FixIssuesContentPreview from './FixIssuesContentPreview'
+import DailyProgress from './DailyProgress'
 import { formNameFromRule } from '../Services/Ufixit'
 import * as Html from '../Services/Html'
 import Api from '../Services/Api'
@@ -28,6 +29,7 @@ export default function FixIssuesPage({
   t,
   settings,
   initialSeverity = '',
+  initialSearchTerm = '',
   contentItemList,
   addContentItem,
   report,
@@ -115,6 +117,7 @@ export default function FixIssuesPage({
     
     let issueContentType = FILTER.ALL
     let issueSectionIds = []
+    let published = true
 
     // PHPAlly returns a contentItemId that we can use to get the content type
     let tempContentItem = getContentById(issue.contentItemId)
@@ -179,6 +182,10 @@ export default function FixIssuesPage({
           })
         })
       }
+
+      if(tempContentItem.published === false) {
+        published = false
+      }
     }
 
     let issueResolution = FILTER.ACTIVE
@@ -203,6 +210,7 @@ export default function FixIssuesPage({
       id: issue.id,
       severity: issueSeverity,
       status: issueResolution,
+      published: published,
       sectionIds: issueSectionIds,
       keywords: createKeywords(issue, formLabel, tempContentItem),
       scanRuleId: issue.scanRuleId,
@@ -292,6 +300,7 @@ export default function FixIssuesPage({
       id: fileId,
       severity: FILTER.POTENTIAL,
       status: issueResolution,
+      published: true,
       sectionIds: fileSectionIds,
       keywords: keywords,
       scanRuleId: 'verify_file_accessibility',
@@ -332,6 +341,13 @@ export default function FixIssuesPage({
     let tempSeverity = initialSeverity || FILTER.ALL
     setActiveFilters(Object.assign({}, defaultFilters, {[FILTER.TYPE.SEVERITY]: tempSeverity}))
   }, [initialSeverity])
+
+  // The initialSearchTerm prop is used when clicking on a specific error type on the Reports screen.
+  useEffect(() => {
+    if(initialSearchTerm) {
+      setSearchTerm(initialSearchTerm)
+    }
+  }, [initialSearchTerm])
 
   const getFilteredContent = () => {
     let filteredList = []
@@ -386,6 +402,15 @@ export default function FixIssuesPage({
           continue
         }
       }
+
+      // Check to see if the user ONLY wants to see issues from published content
+      if(settings?.user?.roles?.view_only_published && issue.issueData) {
+        let tempContentItem = getContentById(issue.issueData.contentItemId)
+        if(tempContentItem && tempContentItem.published === false) {
+          continue
+        }
+      }
+
       // If the issue passes all filters, add it to the list!
       filteredList.push(issue)
     }
@@ -756,7 +781,10 @@ export default function FixIssuesPage({
   }
 
   const getContentById = (contentId) => {
-    return Object.assign({}, report.contentItems[contentId])
+    if(!report.contentItems[contentId]) {
+      return null
+    }
+    return report.contentItems[contentId]
   }
 
   const createKeywords = (issue, formName, contentItem) => {
@@ -764,6 +792,9 @@ export default function FixIssuesPage({
 
     if(formName !== '') {
       keywords.push(formName.toLowerCase())
+    }
+    if(issue?.scanRuleId) {
+      keywords.push(issue.scanRuleId.toLowerCase())
     }
     if(contentItem?.contentType) {
       keywords.push(t(`label.${contentItem.contentType}`).toLowerCase())
@@ -825,15 +856,20 @@ export default function FixIssuesPage({
             </div>
           )}
         </section>
-        <section className="ufixit-content-container">
-          <FixIssuesContentPreview
-            t={t}
-            settings={settings.FILTER ? settings : Object.assign({}, settings, { FILTER })}
-            activeIssue={activeIssue}
-            activeContentItem={activeContentItem}
-            editedElement={editedElement}
-            sessionIssues={sessionIssues}
-          />
+        <section className={`ufixit-content-container ${filteredIssues.length === 0 ? 'justify-content-end' : ''}`}>
+          {filteredIssues.length > 0 && (
+            <FixIssuesContentPreview
+              t={t}
+              settings={settings.FILTER ? settings : Object.assign({}, settings, { FILTER })}
+              activeIssue={activeIssue}
+              activeContentItem={activeContentItem}
+              editedElement={editedElement}
+              sessionIssues={sessionIssues}
+            />
+          )}
+          <div className="ufixit-content-progress">
+            <DailyProgress t={t} sessionIssues={sessionIssues} settings={settings}/>
+          </div>
         </section>
       </div>
     </>

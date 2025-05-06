@@ -35,6 +35,7 @@ class EqualAccessService {
         "style_viewport_resizable",
         "aria_accessiblename_exists",
         "aria_content_in_landmark", 
+        "aria_landmark_name_unique",
         "a_target_warning",
     );
 
@@ -87,14 +88,13 @@ class EqualAccessService {
 
     // Generate a UDOIT-style JSON report from the output of Equal Access
     public function generateReport($json, $document) {
-        // $this->logToServer("Generating report in EqualAccessService!");
+
         $report = new PhpAllyReport();
         $xpath = new DOMXPath($document);
 
         $issues = array();
         $issueCounts = array();
 
-        // $this->logToServer(json_encode($json["results"]));
         foreach ($json["results"] as $results) {
             $equalAccessRule = $results["ruleId"];
 

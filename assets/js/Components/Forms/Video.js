@@ -18,7 +18,10 @@ export default function Video({
     <>
       <h3>{t('form.video.label.videos')}</h3>
       <p>{t('form.video.label.description')}</p>
-      <button className="btn btn-primary" onClick={handleVideoRescan}>
+      <button
+        className="btn btn-primary"
+        tabindex="0"
+        onClick={handleVideoRescan}>
         {t('form.video.button.scan_video')}
       </button>
     </>

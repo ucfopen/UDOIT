@@ -34,9 +34,6 @@ export default function FixIssuesList({ t, settings, filteredIssues, setActiveIs
 
   return (
     <div className="ufixit-list-container flex-column">
-      <div className="mb-3 flex-grow-0 flex-shrink-0">
-        <h2 className="mt-0 mb-0 primary-dark">{t('filter.label.select.issue')}</h2>
-      </div>
       <div className="ufixit-list-scrollable flex-grow-1" tabindex="-1">
         { groupedList.length > 0 ? groupedList.map((group, i) => {
           return (

@@ -161,6 +161,18 @@ body {
   align-self: stretch;
 }
 
+.text-start {
+  text-align: start;
+}
+
+.text-end {
+  text-align: end;
+}
+
+.text-center {
+  text-align: center;
+}
+
 .gap-1 {
   gap: 0.5rem;
 }
@@ -499,24 +511,6 @@ button {
   }
 }
 
-button.disabled,
-.btn-disabled,
-button:disabled {
-  color: var(--gray);
-  fill: var(--gray);
-  border-color: var(--gray-light);
-  background-color: var(--gray-light);
-  cursor: not-allowed !important;
-
-  &:hover,
-  &:focus {
-    border-color: var(--gray-light);
-    background-color: var(--gray-light);
-    color: var(--gray);
-    fill: var(--gray);
-    outline-color: 2px solid var(--gray);
-  }
-}
 
 .btn-primary {
   background-color: var(--primary-color);
@@ -541,6 +535,26 @@ button:disabled {
   &:hover,
   &:focus {
     background-color: var(--primary-color-light);
+  }
+}
+
+button.disabled,
+.btn-disabled,
+button:disabled {
+  color: var(--gray);
+  fill: var(--gray);
+  border-color: var(--gray-light);
+  background-color: var(--gray-light);
+  cursor: not-allowed !important;
+
+  &:hover,
+  &:focus {
+    outline-color: 2px solid var(--gray);
+    color: var(--gray);
+    fill: var(--gray);
+    border-color: var(--gray-light);
+    background-color: var(--gray-light);
+    filter: none;
   }
 }
 
@@ -591,11 +605,6 @@ button:disabled {
 .btn-icon-only {
   display: flex;
   align-items: center;
-}
-
-.outline-link {
-  outline: 2px solid var(--focus-color);
-  outline-offset: 3px;
 }
 
 .icon-sm {
