@@ -145,7 +145,7 @@ export default function App(initialData) {
   }
 
   const handleNavigation = (newNavigation) => {
-    if(newNavigation === navigation) {
+    if(newNavigation === navigation || !syncComplete) {
       return
     }
     if(newNavigation !== 'fixIssues') {
@@ -263,13 +263,11 @@ export default function App(initialData) {
           <>
             <Header
               t={t}
-              settings={settings}
               hasNewReport={hasNewReport}
               navigation={navigation}
+              syncComplete={syncComplete}
               handleNavigation={handleNavigation}
-              handleCourseRescan={handleCourseRescan}
-              handleFullCourseRescan={handleFullCourseRescan}
-              handleModal={handleModal} />
+             />
 
             <main role="main">
               {('summary' === navigation) &&
@@ -280,7 +278,7 @@ export default function App(initialData) {
                   hasNewReport={hasNewReport}
                   quickIssues={quickIssues}
                   sessionIssues={sessionIssues}
-                  handleFullCourseRescan={handleFullCourseRescan} />
+                />
               }
               {('fixIssues' === navigation) &&
                 <FixIssuesPage
@@ -314,7 +312,6 @@ export default function App(initialData) {
                   settings={settings}
                   updateUserSettings={updateUserSettings}
                   syncComplete={syncComplete}
-                  handleCourseRescan={handleCourseRescan}
                   handleFullCourseRescan={handleFullCourseRescan} />
               }
               {('modal' === navigation) &&

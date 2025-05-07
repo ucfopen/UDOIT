@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import UDOITLogo from '../../mediaAssets/udoit-logo.svg'
+import ProgressIcon from './Icons/ProgressIcon'
 import './SettingsPage.css'
 
 export default function SettingsPage({
@@ -7,7 +8,6 @@ export default function SettingsPage({
   settings,
   updateUserSettings,
   syncComplete,
-  handleCourseRescan,
   handleFullCourseRescan }) {
 
   const supportedLanguages = [
@@ -69,7 +69,19 @@ export default function SettingsPage({
               </select>
             </div>
           </div>
-          <button onClick={() => handleFullCourseRescan()} disabled={!syncComplete} className="btn btn-primary mt-2">{syncComplete ? t('settings.button.force_full_rescan') : t('welcome.button.scanning')}</button>
+          { !syncComplete ? (
+            <button className="btn btn-disabled mt-2 flex-row" tabindex="-1">
+              <div className="flex-column justify-content-center align-self-center">
+                <ProgressIcon className="icon-sm gray spinner" />
+              </div>
+              <div className="flex-column justify-content-center ms-3">
+                {t('welcome.button.scanning')}
+              </div>
+            </button>
+            ) : (
+              <button onClick={() => handleFullCourseRescan()} className="btn btn-primary mt-2" tabindex="0">{t('settings.button.force_full_rescan')}</button>
+            )
+          }
         </div>
       </div>
       <div className="about-container flex-column flex-start flex-grow-1 ps-3 pe-3 pb-3">
