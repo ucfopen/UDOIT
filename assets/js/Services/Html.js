@@ -311,10 +311,6 @@ export function processStaticHtml(nodes, settings) {
 }
 
 export function getIssueHtml(issue) {
-  if (issue.status.toString() === '1') {
-    return issue.newHtml
-  }
-
   return (issue.newHtml) ? issue.newHtml : issue.sourceHtml
 }
 

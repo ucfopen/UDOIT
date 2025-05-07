@@ -46,6 +46,14 @@ header nav {
         outline: 2px solid var(--focus-color);
         outline-offset: -2px;
       }
+
+      &.disabled:not(.active-link) {
+        color: var(--gray);
+        fill: var(--gray);
+        pointer-events: none;
+        cursor: not-allowed !important;
+        border-top-color: transparent;
+      }
     }
   }
 }

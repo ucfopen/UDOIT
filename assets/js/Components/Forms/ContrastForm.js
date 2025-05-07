@@ -22,7 +22,7 @@ export default function ContrastForm({
     const html = Html.getIssueHtml(activeIssue)
     const element = Html.toElement(html)
 
-    if (element.style.backgroundColor) {
+    if (element?.style?.backgroundColor) {
       return Contrast.standardizeColor(element.style.backgroundColor)
     }
     else if (metadata.messageArgs) {

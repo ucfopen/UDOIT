@@ -10,8 +10,7 @@ export default function HomePage({
   report,
   hasNewReport,
   quickIssues,
-  sessionIssues,
-  handleFullCourseRescan
+  sessionIssues
 }) {
 
   const [issueCount, setIssueCount] = useState({"fixed": 0, "total": 0, "percent": 0})
