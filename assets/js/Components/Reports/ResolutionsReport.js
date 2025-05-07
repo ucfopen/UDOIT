@@ -6,12 +6,11 @@ import { Line } from '@reactchartjs/react-chart.js'
 class ResolutionsReport extends React.Component {
   constructor(props) {
     super(props)
+    const data = this.getChartData()
+    const options = this.getChartOptions()
   }
 
   render() {
-    const data = this.getChartData()
-    const options = this.getChartOptions()
-
     return (
       <View as="div" margin="medium 0">
         <Heading level="h4" as="h3" margin="small 0">{this.props.t('label.plural.resolution')}</Heading>
