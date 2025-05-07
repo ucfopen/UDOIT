@@ -98,11 +98,7 @@
   top: auto;
 }
 
-.alt-text-preview {
-  position: absolute;
-  position-anchor: --ufixit-error-highlight;
-  position-area: bottom;
-  position-try-fallbacks: bottom left, bottom right, top, top left, top right;
+.ufixit-alt-text-preview {
 
   background-color: var(--gray-dark);
   color: var(--white);
