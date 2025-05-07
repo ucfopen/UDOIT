@@ -75,7 +75,6 @@ class ScannerService {
                 }
             }
             else if ($scanner == 'equalaccess_lambda') {
-                $printOutput->writeln($scanner . ": Scanning with Lambda Equal Access");
 
                 if ($contentItem->getBody() != null) {
                     $equalAccess = new EqualAccessService();
@@ -106,7 +105,7 @@ class ScannerService {
         return $report;
     }
 
-public function getDomDocument($html)
+    public function getDomDocument($html)
     {
         // Load the HTML string into a DOMDocument that PHP can parse.
         // TODO: checks for if <html>, <body>, or <head> and <style> exist? technically canvas will always remove them if they are present in the HTML editor
