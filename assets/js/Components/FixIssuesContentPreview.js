@@ -381,9 +381,6 @@ export default function FixIssuesContentPreview({
               </div>
             )}
           </div>
-          <div className="ufixit-content-progress">
-            <DailyProgress t={t} sessionIssues={sessionIssues} settings={settings}/>
-          </div>
         </>
       ) : activeIssue ? (
         <>
