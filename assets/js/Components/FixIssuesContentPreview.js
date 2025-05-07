@@ -1,9 +1,13 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
+import DailyProgress from './DailyProgress'
 import DownloadIcon from './Icons/DownloadIcon'
 import ExternalLinkIcon from './Icons/ExternalLinkIcon'
 import EarIcon from './Icons/EarIcon'
 import ProgressIcon from './Icons/ProgressIcon'
+import UpArrowIcon from './Icons/UpArrowIcon'
+import DownArrowIcon from './Icons/DownArrowIcon'
 import * as Html from '../Services/Html'
+import useInViewPort from './Hooks/useInViewPort'
 
 import './FixIssuesContentPreview.css'
 
@@ -18,6 +22,61 @@ export default function FixIssuesContentPreview({
 
   const [taggedContent, setTaggedContent] = useState(null)
   const [altTextPreview, setAltTextPreview] = useState(null)
+
+  const [issueElementDefaultRect, setIssueElementDefaultRect] = useState(null)
+  const issueElementRef = useRef(null)
+  const issueElementVisible = useInViewPort(issueElementRef, { threshold: 0.5 })
+
+  const [isInitialLoad, setIsInitialLoad] = useState(true)
+  const [debouncedVisible, setDebouncedVisible] = useState(true)
+  const [debouncedDirection, setDebouncedDirection] = useState(null)
+
+  useEffect(() => {
+    // the scroll-to-button will flash sometimes when activeIssue changes
+    // so, we wait 500ms before it is even able to display
+    setIsInitialLoad(true)
+    const timer = setTimeout(() => {
+      setIsInitialLoad(false)
+    }, 500)
+
+    return () => clearTimeout(timer)
+  }, [activeIssue])
+
+  useEffect(() => {
+    if (issueElementRef.current) {
+      const rect = issueElementRef.current.getBoundingClientRect()
+      setIssueElementDefaultRect(rect)
+    }
+  }, [activeIssue, issueElementRef.current])
+
+  useEffect(() => {
+    // we also debounce the visibility and direction of the scroll-to-issue button
+    // which fixes the button flashing even when the element visible
+    // (presumably because the issue element is changing which useInViewPort doesnt check for immediately)
+    const timer = setTimeout(() => {
+      setDebouncedVisible(issueElementVisible)
+      setDebouncedDirection(getScrollDirection(issueElementRef.current, issueElementDefaultRect))
+    }, 100)
+  
+    return () => clearTimeout(timer)
+  }, [issueElementVisible, issueElementRef.current, issueElementDefaultRect])
+  
+
+  const getScrollDirection = (element, defaultRect) => {
+    if (!element || !defaultRect || !issueElementRef || issueElementVisible) return null
+
+    const newRect = element.getBoundingClientRect()
+
+    if (newRect.top < defaultRect.top) {
+      return 'up'
+    }
+    else if (newRect.bottom > defaultRect.bottom) {
+      return 'down'
+    }
+    else {
+      return null
+    }
+  }
 
   const SHOW_ALT_TEXT_RULES = [
     "ImageAltIsDifferent",
@@ -77,6 +136,12 @@ export default function FixIssuesContentPreview({
   }
 
   const convertErrorHtmlElement = (htmlElement) => {
+    let altText = htmlElement.getAttribute('alt') || htmlElement.getAttribute('aria-label')
+    if(altText && altText !== '') {
+      setAltTextPreview(altText)
+    } else {
+      setAltTextPreview(null)
+    }
     htmlElement.classList.add('ufixit-error-highlight')
 
     return htmlElement
@@ -255,6 +320,38 @@ export default function FixIssuesContentPreview({
     return `${date} ${time}`
   }
 
+  const scrollToElement = (element) => {
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'center' })
+    }
+  }
+
+  const renderScrollButton = () => {
+    if (isInitialLoad) return null
+
+    let button;
+    if (debouncedDirection === 'up') {
+      button = <UpArrowIcon className="icon-arrow" />
+    }
+    else if (debouncedDirection === 'down') {
+      button = <DownArrowIcon className="icon-arrow" />
+    }
+
+    if (issueElementRef.current && !debouncedVisible && debouncedDirection) {
+      return (
+        <div className='scroll-to-error-container'>
+          <div
+            className={`scroll-to-error ${debouncedDirection ? 'scroll-to-error-' + debouncedDirection : ''}`}
+            onClick={() => scrollToElement(issueElementRef.current)}
+          >
+            {button}
+          </div>
+        </div>
+      )
+    }
+    return null
+  }
+
   return (
     <>
       { taggedContent && activeContentItem ? (
@@ -268,7 +365,21 @@ export default function FixIssuesContentPreview({
             </div>
           </a>
           <div className="ufixit-content-preview">
-            <div dangerouslySetInnerHTML={{__html: taggedContent}} />
+            {renderScrollButton()}
+            <div ref={node => {
+              if (node) {
+                const highlightElement = node.getElementsByClassName('ufixit-error-highlight')[0]
+                issueElementRef.current = highlightElement
+              }
+            }} dangerouslySetInnerHTML={{__html: taggedContent}} />
+            { altTextPreview && (
+              <div className={`alt-text-preview${altTextIsOpen ? '' : ' alt-text-preview-closed'}`} onClick={toggleAltTextIsOpen}>
+                <div className="alt-text-preview-icon" alt={t('fix.label.screen_reader')} title={t('fix.label.screen_reader')}>
+                  <EarIcon className="icon-md" />
+                </div>
+                <div className="alt-text-preview-text">{altTextPreview}</div>
+              </div>
+            )}
           </div>
         </>
       ) : activeIssue ? (
