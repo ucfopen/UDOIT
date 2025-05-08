@@ -12,7 +12,7 @@ export default function SettingsPage({
 
   const supportedLanguages = [
     { code: 'en', name: 'English' },
-    // { code: 'es', name: 'Español' },
+    { code: 'es', name: 'Español' },
   ]
 
   const [selectedLanguage, setSelectedLanguage] = useState(settings?.user?.roles?.lang || 'en')
