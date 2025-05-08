@@ -1,0 +1,52 @@
+@import '../../css/udoit4-theme.css';
+
+.ufixit-list-container {
+  height: 100%;
+
+  .ufixit-list-scrollable {
+    overflow-y: auto;
+    min-height: 0;
+    
+    /* This is so the highlighted error outlines don't get cut off */
+    padding-left: 5px;
+    padding-right: 5px;
+    margin-left: -5px;
+    margin-right: -5px;
+
+    .ufixit-list-heading {
+      position: sticky;
+      top: 0;
+      background-color: var(--gray-light);
+      padding: .5rem;
+      border-bottom: 2px solid var(--gray);
+    
+      h3 {
+        color: var(--gray-darker);
+        margin: 0;
+      }
+    }
+    
+    .ufixit-list-item {
+      cursor: pointer;
+      padding: .5rem;
+      border-bottom: 1px solid var(--gray);
+      font-weight: 600;
+      fill: var(--gray);
+
+      &:last-child {
+        border-bottom-width: 2px;
+      }
+    
+      &:hover {
+        background-color: var(--primary-color-light);
+        color: var(--primary-color);
+        fill: var(--primary-color);
+      }
+
+      &:focus {
+        outline: 2px solid var(--focus-color);
+        outline-offset: -2px;
+      }
+    }
+  }  
+}

@@ -1,0 +1,55 @@
+@import '../../css/udoit4-theme.css';
+
+.filter-container {
+  background-color: var(--link-color-light);
+  border-top: 1px solid var(--border-color);
+  border-bottom: 1px solid var(--border-color);
+  margin-left: -1rem;
+  margin-right: -1rem;
+  padding: .5rem 1rem;
+
+  .search-group {
+
+    input {
+      font-size: 0.85rem;
+      font-weight: 400;
+      font-family: 'Open Sans', Arial, Helvetica, sans-serif;
+      padding: .4rem 1.75rem .4rem .5rem;
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      outline: none;
+      width: 250px;
+      box-sizing: border-box;
+
+      &:focus {
+        outline: 2px solid var(--focus-color);
+        outline-offset: 1px;
+      }
+    }
+
+    .search-icon {
+      position: relative;
+      left: -1.5rem;
+      top: 0.25rem;
+      fill: var(--gray);
+    }
+  }
+
+  .filter-group {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+
+    select {
+      max-width: 240px;
+      min-width: 180px;
+    }
+  }
+
+  label {
+    font-size: 0.9rem;
+    font-weight: 500;
+    font-family: 'Reddit Sans', Arial, Helvetica, sans-serif;
+    text-transform: uppercase;
+  }
+}

@@ -1,80 +1,87 @@
 import React from 'react'
-import Logo from '../../mediaAssets/udoit_logo.svg'
-import Classes from '../../css/header.css'
-import { View } from '@instructure/ui-view'
-import { IconButton } from '@instructure/ui-buttons'
-import { IconMoreSolid } from '@instructure/ui-icons'
-import { Menu } from '@instructure/ui-menu'
-import { AppNav } from '@instructure/ui-navigation'
-import Api from '../Services/Api'
+import UDOITLogo from '../../mediaAssets/udoit-logo.svg'
+import HomeIcon from './Icons/HomeIcon'
+import UFIXITIcon from './Icons/UFIXITIcon'
+import ReportIcon from './Icons/ReportIcon'
+import SettingsIcon from './Icons/SettingsIcon'
+import './Header.css'
 
-class Header extends React.Component {
+export default function Header({ t, navigation, handleNavigation }) {
 
-  constructor(props) {
-    super(props);
-
-    this.state = {
-      showPopover: false
-    }
-
-    this.getPdfUrl = this.getPdfUrl.bind(this)
-  }
-
-  render() {
-    const pdfUrl = this.getPdfUrl()
-
-    return (
-      <header role="banner">
-        <AppNav
-          screenReaderLabel={this.props.t('menu.main')}
-          margin="none"
-          renderBeforeItems={
-            <View as="h1" margin="0" padding="0 medium 0 0">
-              <img className={`${Classes.logo}`} alt="UDOIT" src={Logo}></img>
-            </View>
-          }
-          visibleItemsCount={3}
-          renderAfterItems={
-            <Menu
-              placement="bottom"
-              trigger={<IconButton withBackground={false} withBorder={false} color="secondary" screenReaderLabel={this.props.t('label.menu')}><IconMoreSolid /></IconButton>}
-            >
-              <Menu.Item onClick={() => this.props.handleModal('about')}>{this.props.t('menu.about')}</Menu.Item>
-              <Menu.Item onClick={() => this.props.handleNavigation('reports')}>{this.props.t('menu.reports')}</Menu.Item>
-              {/* <Menu.Item onClick={() => this.handleMoreNav('settings')}>{this.props.t('menu.settings')}</Menu.Item> */}
-              <Menu.Separator />
-              <Menu.Item onClick={this.props.handleCourseRescan}>{this.props.t('menu.scan_course')}</Menu.Item>
-              <Menu.Item onClick={this.props.handleFullCourseRescan}>{this.props.t('menu.full_rescan')}</Menu.Item>
-              <Menu.Separator />
-              <Menu.Item href={pdfUrl}>{this.props.t('menu.download_pdf')}</Menu.Item>
-            </Menu>
-          }
-          >
-          <AppNav.Item
-            renderLabel={this.props.t('label.home')}
-            isDisabled={('welcome' === this.props.navigation) && !this.props.hasNewReport}
-            isSelected={('summary' === this.props.navigation)}
-            onClick={() => this.props.handleNavigation('summary')} />
-          <AppNav.Item
-            renderLabel={this.props.t('label.ufixit')}
-            isDisabled={('welcome' === this.props.navigation) && !this.props.hasNewReport}
-            isSelected={('content' === this.props.navigation)}
-            onClick={() => this.props.handleNavigation('content')} />
-          <AppNav.Item
-            renderLabel={this.props.t('label.review_files')}
-            isDisabled={('welcome' === this.props.navigation) && !this.props.hasNewReport}
-            isSelected={('files' === this.props.navigation)}
-            onClick={() => this.props.handleNavigation('files')} />
-
-        </AppNav>
-      </header>
-    )
-  }
-
-  getPdfUrl() {
-    let api = new Api(this.props.settings)
-    return api.getPdfUrl()
-  }
+  return (
+    <header role="banner">
+      <nav>
+        <div>
+          <img className='flex-column' alt={t('alt.UDOIT')} src={UDOITLogo}></img>
+        </div>
+        <div>
+          <ul>
+            <li
+              className={`flex-row ${navigation === 'summary' ? ' active-link' : ''}`}
+              onClick={()=>handleNavigation('summary')}
+              onKeyPress={(e) => {
+                if(e.key === 'Enter' || e.key === ' ') {
+                  handleNavigation('summary')
+                }
+              }}
+              tabindex='0'>
+              <div className='flex-column justify-content-center'>
+                <HomeIcon className='icon-md pr-1'/>
+              </div>
+              <div className='flex-column justify-content-center'>
+                {t('menu.summary')}
+              </div></li>
+            <li 
+              className={`flex-row ${navigation === 'fixIssues' ? ' active-link' : ''}`}
+              onClick={()=>handleNavigation('fixIssues')}
+              onKeyPress={(e) => {
+                if(e.key === 'Enter' || e.key === ' ') {
+                  handleNavigation('fixIssues')
+                }
+              }}
+              tabindex='0'>
+              <div className='flex-column justify-content-center'>
+                <UFIXITIcon className='icon-md pr-1'/> 
+              </div>
+              <div className='flex-column justify-content-center'>
+                {t('menu.fix_issues')}
+              </div>
+            </li>
+            <li
+              className={`flex-row ${navigation === 'reports' ? ' active-link' : ''}`}
+              onClick={()=>handleNavigation('reports')}
+              onKeyPress={(e) => {
+                if(e.key === 'Enter' || e.key === ' ') {
+                  handleNavigation('reports')
+                }
+              }}
+              tabindex='0'>
+              <div className='flex-column justify-content-center'>
+                <ReportIcon className='icon-md pr-1'/>
+              </div>
+              <div className='flex-column justify-content-center'>
+                {t('menu.reports')}
+              </div>
+            </li>
+            <li
+              className={`flex-row ${navigation === 'settings' ? ' active-link' : ''}`}
+              onClick={()=>handleNavigation('settings')}
+              onKeyPress={(e) => {
+                if(e.key === 'Enter' || e.key === ' ') {
+                  handleNavigation('settings')
+                }
+              }}
+              tabindex='0'>
+              <div className='flex-column justify-content-center'>
+                <SettingsIcon className='icon-md pr-1'/>
+              </div>
+              <div className='flex-column justify-content-center'>
+                {t('menu.settings')}
+              </div>
+            </li>
+          </ul>
+        </div>
+      </nav>
+    </header>
+  )
 }
-
-export default Header

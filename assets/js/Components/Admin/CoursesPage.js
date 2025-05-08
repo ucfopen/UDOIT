@@ -1,93 +1,104 @@
-import React from 'react';
-import { Button } from '@instructure/ui-buttons'
+import React, {useState, useEffect} from 'react'
 import SortableTable from '../SortableTable'
-import ContentPageForm from '../ContentPageForm'
-import { View } from '@instructure/ui-view'
 import Api from '../../Services/Api'
-import { Link } from '@instructure/ui-link'
-import { Spinner } from '@instructure/ui-spinner';
+import SummaryIcon from '../Icons/SummaryIcon'
+import ReportIcon from '../Icons/ReportIcon'
 
-class CoursesPage extends React.Component {
-  constructor(props) {
-    super(props);
+export default function CoursePage({
+  t,
+  settings,
+  courses,
+  searchTerm,
+  handleCourseUpdate,
+  handleReportClick,
+  handleNavigation,
+  addMessage,
+}) {
 
-    this.headers = [
-      { id: "courseName", text: this.props.t('label.admin.course_name') }, 
-      { id: "accountName", text: this.props.t('label.admin.account_name') }, 
-      { id: "lastUpdated", text: this.props.t('label.admin.last_updated') },
-      { id: "errors", text: this.props.t('label.plural.error') }, 
-      { id: "suggestions", text: this.props.t('label.plural.suggestion') }, 
-      { id: "contentFixed", text: this.props.t('label.content_fixed') }, 
-      { id: "contentResolved", text: this.props.t('label.content_resolved') }, 
-      { id: "filesReviewed", text: this.props.t('label.files_reviewed') }, 
-      { id: "action", text: "", alignText: "end" }
-    ];
+  const [filteredCourses, setFilteredCourses] = useState([])
+  const [tableSettings, setTableSettings] = useState({
+    sortBy: 'errors',
+    ascending: false,
+    pageNum: 0,
+    rowsPerPage: (localStorage.getItem('rowsPerPage')) ? localStorage.getItem('rowsPerPage') : '10'
+  })
+  
+  const headers = [
+    { id: "courseName", text: t('report.header.course_name') }, 
+    { id: "accountName", text: t('report.header.account_name') }, 
+    { id: "lastUpdated", text: t('report.header.last_scanned') },
+    { id: "errors", text: t('report.header.issues') }, 
+    { id: "suggestions", text: t('report.header.suggestions') }, 
+    { id: "contentFixed", text: t('report.header.items_fixed') }, 
+    { id: "contentResolved", text: t('report.header.items_resolved') }, 
+    { id: "filesReviewed", text: t('report.header.files_reviewed') }, 
+    { id: "action", text: "", alignText: "end" }
+  ]
 
-    this.filteredIssues = [];
+  useEffect(() => {
+    let tempFilteredCourses = []
 
-    this.state = {
-      searchTerm: '',
-      tableSettings: {
-        sortBy: 'courseName',
-        ascending: true,
-        pageNum: 0,
-        rowsPerPage: (localStorage.getItem('rowsPerPage')) ? localStorage.getItem('rowsPerPage') : '10'
-      }
-    }
-
-    this.handleSearchTerm = this.handleSearchTerm.bind(this);
-    this.handleTableSettings = this.handleTableSettings.bind(this);
-    this.handleFilter = this.handleFilter.bind(this);
-    this.handleCourseLink = this.handleCourseLink.bind(this)
-  }
-
-  getFilteredContent() {
-    const { searchTerm } = this.state
-    const { sortBy, ascending } = this.state.tableSettings 
-    const courses = Object.values(this.props.courses)
-    const { filters } = this.props
-
-    let filteredList = [];
-
-    for (const course of courses) {
-      if (!course.report) {
-        continue
-      }
-
-      if (!filters.includeSubaccounts && (filters.accountId != course.accountId)) {
-        continue
-      }
-      
-      // Filter by search term
+    // Note: The `courses` variable is ALREADY filtered by the Account and Term.
+    // This ONLY needs to filter based on the search term.
+    Object.keys(courses).forEach((key) => {
+      const course = courses[key]
+      let excludeCourse = false
       if (searchTerm !== '') {
-        if (course.title.toLowerCase().indexOf(searchTerm.toLowerCase()) === -1) {
-          continue
+        const searchTerms = searchTerm.toLowerCase().split(' ');
+        let containsAllTerms = true
+        if (Array.isArray(searchTerms)) {
+          for (let term of searchTerms) {
+            if (!course.title.toLowerCase().includes(term)) {
+              containsAllTerms = false
+            }
+          }
+        }
+        if (!containsAllTerms) {
+          excludeCourse = true
         }
       }
 
-      const link = <Link 
-        onClick={() => this.handleCourseLink(course)} 
-        isWithinText={false}
-        >{course.title}</Link>
-
-      let row = {
-        id: course.id,
-        course,
-        courseName: link,
-        courseTitle: course.title,
-        lastUpdated: course.lastUpdated,
-        accountName: course.accountName,
-        action: <Button key={`reviewButton${course.id}`}
-          onClick={() => this.handleScanClick(course)}
-          textAlign="center" 
-          interaction={(course.loading) ? 'disabled' : 'enabled'}
-          renderIcon={(course.loading) ? <Spinner renderTitle="Scanning" size="x-small" /> : null}
-          >{this.props.t('label.admin.scan')}</Button>
+      if (!excludeCourse) {
+        // The Course data from the database is stored in the `course` object.
+        // The data for the table is converted to the `row` object.
+        let row = {
+          id: course.id,
+          course,
+          courseName: <a href={course.publicUrl} target="_blank" rel="noopener noreferrer">{course.title}</a>,
+          courseTitle: course.title, // Used for sorting, not displayed outside of courseName element
+          accountName: course.accountName,
+          lastUpdated: course.lastUpdated,
+          action: <div class="flex-row gap-1">
+            <button key={`reportButton${course.id}`}
+              onClick={() => { !course.loading && handleReportClick(course) }}
+              textAlign="center"
+              className={`btn btn-text btn-icon-only ${course.loading ? 'btn-disabled' : ''}`}
+              disabled={course.loading}
+              title={t('report.button.view_report')}
+              aria-label={t('report.button.view_report')}
+              >
+                <ReportIcon className="icon-md" />
+              </button>
+            <button key={`scanButton${course.id}`}
+              onClick={() => { !course.loading && handleScanClick(course) }}
+              textAlign="center"
+              className={`btn btn-text btn-icon-only ${course.loading ? 'btn-disabled' : ''}`}
+              disabled={course.loading}
+              title={t('report.button.scan')}
+              aria-label={t('report.button.scan')}
+              >
+                <SummaryIcon className="icon-md" />
+            </button>
+          </div>
+            
+        }
+        tempFilteredCourses.push({...row, ...course.report})
       }
-      filteredList.push({...row, ...course.report})    
-    }
+    })
 
-    filteredList.sort((a, b) => {
+    const { sortBy, ascending } = tableSettings
+    
+    tempFilteredCourses.sort((a, b) => {
       if (sortBy === 'courseName') {
         return (a['courseTitle'].toLowerCase() < b['courseTitle'].toLowerCase()) ? -1 : 1
       }
@@ -100,101 +111,50 @@ class CoursesPage extends React.Component {
     })
 
     if (!ascending) {
-      filteredList.reverse();
+      tempFilteredCourses.reverse();
     }
+    setFilteredCourses(tempFilteredCourses)
 
-    return filteredList;
+  }, [courses, searchTerm, tableSettings])
+  
+  const handleTableSettings = (newSettings) => {
+    setTableSettings(Object.assign({}, tableSettings, newSettings))
   }
 
-  render() {
-    const filteredRows = this.getFilteredContent();
-
-    return (
-      <View as="div" key="coursesPageFormWrapper" padding="small 0">
-        <ContentPageForm 
-          handleSearchTerm={this.handleSearchTerm} 
-          handleTrayToggle={this.props.handleTrayToggle} 
-          searchTerm={this.state.searchTerm}
-          t={this.props.t}
-          handleTableSettings={this.handleTableSettings}
-          tableSettings={this.state.tableSettings}
-          />
-        <View as="div" key="filterTags">
-          {this.props.renderFilterTags()}
-        </View>
-        {(filteredRows.length === 0) ? 
-          <View as="div">{this.props.t('label.admin.no_results')}</View>
-          : 
-          <SortableTable
-            caption={this.props.t('srlabel.courses.table')}
-            headers = {this.headers}
-            rows = {filteredRows}
-            filters = {this.props.filters}
-            tableSettings = {this.state.tableSettings}
-            handleFilter = {this.handleFilter}
-            handleTableSettings = {this.handleTableSettings}
-            t={this.props.t}
-          />        
-        }
-      </View>
-    )
-  }
-
-  handleSearchTerm = (e, val) => {
-    this.setState({searchTerm: val, tableSettings: Object.assign({}, this.state.tableSettings, {pageNum: 0})});
-  }
-
-  handleFilter = (filter) => {
-    this.setState({
-      filters: Object.assign({}, this.props.filters, filter),
-      tableSettings: {
-        sortBy: 'courseName',
-        ascending: true,
-        pageNum: 0,
-      },
-    })
-  }
-
-  handleTableSettings = (setting) => {
-    this.setState({
-      tableSettings: Object.assign({}, this.state.tableSettings, setting)
-    });
-  } 
-
-  handleScanClick(course) {
-    let api = new Api(this.props.settings)
+  const handleScanClick = (course) => {
+    let api = new Api(settings)
     
     api.scanCourse(course.id)
       .then((responseStr) => responseStr.json())
       .then((response) => {
         if (response.data) {
-          this.checkForReport(course)        
+          checkForReport(course)        
         }
         else {
           if (response.messages) {
             response.messages.forEach((msg) => {
               if (msg.visible) {
-                this.props.addMessage(msg)
-                this.props.handleCourseUpdate(course)
+                addMessage(msg)
+                handleCourseUpdate(course)
               }
             })
           }
         }
       })
     
-    this.props.addMessage({
+    addMessage({
       message: 'msg.sync.started',
       severity: 'info',
       timeout: 5000,
     })
 
     course.loading = true
-    this.props.handleCourseUpdate(course)
+    handleCourseUpdate(course)
   }
 
-  checkForReport(course) {
+  const checkForReport = (course) => {
     const newReportInterval = 5000
-    let api = new Api(this.props.settings)
+    let api = new Api(settings)
 
     var intervalId = setInterval(() => {
       api.getAdminReport(course.id)
@@ -203,22 +163,54 @@ class CoursesPage extends React.Component {
           if (data.messages) {
             data.messages.forEach((msg) => {
               if (msg.visible) {
-                this.props.addMessage(msg)
+                addMessage(msg)
               }
             })
           }
 
           if (data.data && data.data.id) {
             clearInterval(intervalId)
-            this.props.handleCourseUpdate(data.data)
+            handleCourseUpdate(data.data)
           }
         })
     }, newReportInterval)
   }
 
-  handleCourseLink(course) {
-    window.open(course.publicUrl, '_blank', 'noopener,noreferrer')
-  }
+  return (
+    <div className="pt-0 pe-0 pb-0 ps-0">
+      <div className="flex-row justify-content-center mt-3 mb-3">
+        <h1 className="mt-0 mb-0 primary-dark">{t('report.header.courses')}</h1>
+      </div>
+      {(courses.length === 0 || filteredCourses.length === 0) ? 
+        <div className="flex-column mt-3">
+          <div className="flex-row justify-content-center">
+            <h2 className="mt-0 mb-0">{t('report.label.no_results')}</h2>
+          </div>
+          <div className="flex-row justify-content-center mt-2">
+            <div className="mt-0 mb-0">{t('report.msg.no_results')}</div>
+          </div>
+        </div>
+        :
+        <>
+          <SortableTable
+            t={t}
+            caption=''
+            headers = {headers}
+            rows = {filteredCourses}
+            tableSettings = {tableSettings}
+            handleTableSettings = {handleTableSettings}
+          />
+          <div className="flex-row justify-content-end mt-3 mb-2">
+            <button
+              className="btn btn-primary flex-row justify-content-center"
+              onClick={() => handleNavigation('reports')}
+            >
+              <ReportIcon className="icon-md me-2" />
+              <div className="flex-column justify-content-center">{t('report.button.view_all_report')}</div>
+            </button>
+          </div>
+        </>
+      }
+    </div>
+  )
 }
-
-export default CoursesPage;

@@ -1,53 +1,40 @@
-import React from 'react'
-import { View } from '@instructure/ui-view'
-import { Heading } from '@instructure/ui-heading'
+import React, { useState, useEffect } from 'react'
 import { Bar } from '@reactchartjs/react-chart.js'
 
-class IssuesReport extends React.Component {
-  constructor(props) {
-    super(props)
-    this.myChart = React.createRef()
-  }
+export default function IssuesReport ({
+  t,
+  reports
+}) {
 
-  render() {
-    const data = this.getChartData()
-    const options = this.getChartOptions()
+  const [data, setData] = useState(null)
+  const [options, setOptions] = useState(null)
 
-    return (
-      <View as="div" margin="medium 0">
-        <Heading level="h4" as="h3" margin="small 0">{this.props.t('label.plural.issue')}</Heading>
-        <Bar data={data} options={options} />
-      </View>
-    )
-  }
-
-  getChartData() {
+  const getChartData = () => {
     let data = {
       labels: [],
       datasets: [
         {
-          label: this.props.t('label.plural.error'),
+          label: t('report.header.issues'),
           data: [],
           backgroundColor: '#D01A19',
         },
         {
-          label: this.props.t('label.plural.suggestion'),
+          label: t('report.header.suggestions'),
           data: [],
           backgroundColor: '#0770A3',
         }
       ]
     }
 
-    let { reports } = this.props
-
-    reports.sort((a, b) => {
+    let tempReports = [...reports]
+    tempReports.sort((a, b) => {
       const dateA = new Date(a.created)
       const dateB = new Date(b.created)
 
       return (dateA > dateB) ? 1 : -1
     })
 
-    for (let report of reports) {
+    for (let report of tempReports) {
       data.labels.push(report.created)
 
       data.datasets[0].data.push(report.errors)
@@ -57,7 +44,7 @@ class IssuesReport extends React.Component {
     return data
   }
 
-  getChartOptions() {
+  const getChartOptions = () => {
     return {
       scales: {
         yAxes: [
@@ -76,6 +63,19 @@ class IssuesReport extends React.Component {
       }
     }
   }
-}
 
-export default IssuesReport
+  useEffect(() => {
+    setData(getChartData())
+    setOptions(getChartOptions())
+  }
+  , [reports])
+
+  return (
+    <div className="mt-0 me-0 mb-0 ms-0 w-100" >
+      <div className="flex-row justify-content-center mb-2">
+        <h2 className="mt-0 mb-0">{t('report.title.issues_by_type')}</h2>
+      </div>
+      <Bar data={data} options={options} />
+    </div>
+  )
+}

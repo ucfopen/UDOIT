@@ -1,0 +1,122 @@
+@import '../../css/udoit4-theme.css';
+
+.ufixit-content-label {
+  flex-shrink: 0;
+  flex-grow: 0;
+
+  display: flex;
+  flex-direction: row;
+  cursor: pointer;
+  justify-content: space-between;
+
+  text-decoration: none;
+
+  &:hover {
+    text-decoration: underline;
+    text-decoration-color: var(--link-color);
+  }
+
+  &:focus {
+    outline: 2px solid var(--focus-color);
+    outline-offset: 3px;
+  }
+
+  h2 {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: var(--link-color);
+    margin: 0px;
+    flex-grow: 1;
+  }
+
+  svg {
+    margin-left: 1rem;
+    cursor: pointer;
+    fill: var(--link-color);
+    flex-shrink: 0;
+    flex-grow: 0;
+  }
+}
+
+.ufixit-content-preview {
+  flex-grow: 1;
+  overflow-x: auto;
+  overflow-y: auto;
+  margin: 0 0 1rem 0;
+  padding: 1rem;
+  position: relative;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+}
+
+.ufixit-content-progress {
+  flex-shrink: 0;
+  flex-grow: 0;
+}
+
+.ufixit-error-highlight {
+  outline: 3px dashed var(--issue-color);
+  outline-offset: 1px;
+  anchor-name: --ufixit-error-highlight;
+
+  /* Errors without text won't have an outline unless they have a border to provide size */
+  &:not(table) {
+    border: 1px solid transparent;
+  }
+}
+
+.alt-text-preview {
+  position: absolute;
+  position-anchor: --ufixit-error-highlight;
+  position-area: bottom;
+  position-try-fallbacks: bottom left, bottom right, top, top left, top right;
+
+  background-color: var(--gray-dark);
+  color: var(--primary-color-light);
+  border-radius: 22px;
+  font-size: 0.85rem;
+
+  display: flex;
+  flex-direction: row;
+  cursor: pointer;
+  border: 2px solid var(--gray-dark);
+  margin: 5px;
+  
+  .alt-text-preview-icon {
+    padding: 8px;
+    line-height: 0px;
+    fill: var(--primary-color-light);
+  }
+
+  .alt-text-preview-text {
+    display: flex;
+    flex-direction: column;
+    font-weight: bold;
+    padding: .5rem 1rem .5rem .25rem;
+    max-width: 300px;
+    max-height: 100px;
+    transition: max-height 0.15s, max-width var(--transition-time), padding var(--transition-time);
+    overflow: auto;
+  }
+
+  &.alt-text-preview-closed {
+    .alt-text-preview-text {
+      max-width: 0px;
+      max-height: 0px;
+      padding: 0px;
+      overflow: hidden;
+    }
+  }
+}
+
+.ufixit-file-details {
+  margin: 2rem 2rem 3rem 2rem;
+
+  .ufixit-file-details-label {
+    font-weight: bold;
+    margin-right: 1rem;
+    text-align: right;
+    width: 30%;
+    flex-shrink: 0;
+  }
+}

@@ -4,16 +4,21 @@ namespace App\Services;
 
 use App\Entity\ContentItem;
 
+use GuzzleHttp\Client;
+use GuzzleHttp\Promise;
+use GuzzleHttp\Exception\RequestException;
 use DOMDocument;
+use Symfony\Component\Console\Output\ConsoleOutput;
+
 
 /*
     Sends a POST request to a local accessibility-checker server (at port 3000)
-    and returns the Equal Access JSON report. 
+    and returns the Equal Access JSON report.
 */
 
 class LocalApiAccessibilityService {
 
-    /** @var App\Service\HtmlService */
+    /** @var \App\Services\HtmlService */
     protected $htmlService;
 
 
@@ -24,31 +29,191 @@ class LocalApiAccessibilityService {
             return;
         }
 
-        $data = $this->checkMany($html, [], []); 
+        $data = $this->checkMany($html, [], []);
 
         return $data;
     }
 
-    public function postData(string $url, string $html) {
-        $options = [
-            'http' => [
-                'header' => "Content-type: text/html\r\n",
-                'method' => 'POST',
-                'content' => $html,
-            ],
-        ];
+    public function scanMultipleContentItemsAsync(array $contentItems, int $concurrency = 5, bool $stopOnFailure = false): array
+    {
+        // Initialize Guzzle client with base options
+        $client = new Client([
+            // TODO: the problem with this is that it does not matter if the scanner is the
+            // local or Lambda version, the URL is always the same location causing the
+            // local to be triggered.
+            'base_uri' => 'http://host.docker.internal:3000',
+            'timeout' => 30.0,
+            'http_errors' => false, // Don't throw exceptions for 4xx/5xx responses
+        ]);
 
-        $context = stream_context_create($options);
-        $result = file_get_contents($url, false, $context);
+        $output = new ConsoleOutput();
+        $output->writeln("Starting async scan of " . count($contentItems) . " content items");
+
+        // Initialize promises array
+        $promises = [];
+        $results = [];
+
+        // Create a promise for each content item
+        foreach ($contentItems as $contentItem) {
+            $id = $contentItem->getId();
+            $html = HtmlService::clean($contentItem->getBody());
+
+            if (!$html) {
+                $output->writeln("Skipping content item {$id}: Empty or invalid HTML");
+                $results[$id] = null;
+                continue;
+            }
+
+            // Get DOM document for scanning
+            $document = $this->getDomDocument($html);
+            $htmlOutput = $document->saveHTML();
+
+            // Create promise for this content item
+            $promises[$id] = $client->postAsync('/scan', [
+                'json' => [
+                    'html' => $htmlOutput,
+                    'guidelineIds' => 'WCAG_2_1'
+                ],
+                'headers' => [
+                    'Content-Type' => 'application/json',
+                ]
+            ])->then(
+                // Success callback
+                function ($response) use ($id, $output, &$results) {
+                    $statusCode = $response->getStatusCode();
+                    $body = $response->getBody()->getContents();
+
+                    if ($statusCode >= 200 && $statusCode < 300) {
+                        try {
+                            $result = json_decode($body, true);
+                            if (json_last_error() !== JSON_ERROR_NONE) {
+                                $output->writeln("JSON decode error for item {$id}: " . json_last_error_msg());
+                                $results[$id] = null;
+                            } else {
+                                $output->writeln("Successfully scanned content item {$id}");
+                                $results[$id] = $result;
+                            }
+                        } catch (\Exception $e) {
+                            $output->writeln("Error processing response for item {$id}: " . $e->getMessage());
+                            $results[$id] = null;
+                        }
+                    } else {
+                        $output->writeln("HTTP error for item {$id}: {$statusCode}");
+                        $results[$id] = null;
+                    }
+                },
+                // Error callback
+                function ($exception) use ($id, $output, &$results) {
+                    $output->writeln("Request exception for item {$id}: " . $exception->getMessage());
+                    $results[$id] = null;
+
+                }
+            );
+        }
+
+        // Execute promises with concurrency limit
+        $pool = new Promise\EachPromise($promises, [
+            // Execute N requests concurrently
+            'concurrency' => $concurrency,
+            // Invoked when a promise is fulfilled or rejected
+            'fulfilled' => function ($value, $idx, $aggregate) use ($output) {
+                $output->writeln("Completed request {$idx}");
+            },
+            'rejected' => function ($reason, $idx, $aggregate) use ($output, $stopOnFailure) {
+                $output->writeln("Failed request {$idx}: " . $reason->getMessage());
+
+                // Optionally reject the aggregate promise on any rejection
+                if ($stopOnFailure) {
+                    $aggregate->reject($reason);
+                }
+            },
+        ]);
+
+        try {
+            // Wait for the pool to complete
+            $pool->promise()->wait();
+            $output->writeln("All content items scanned successfully");
+        } catch (\Exception $e) {
+            $output->writeln("Error during scanning process: " . $e->getMessage());
+            // Handle any uncaught exceptions from the promise pool
+        }
+
+        return $results;
+    }
+
+    public function postData(string $url, string $html) {
+        // Standardize headers and content type
+        $jsonPayload = json_encode([
+            "html" => $html,
+            "guidelineIds" => "WCAG_2_1"
+        ]);
+
+        // Use cURL instead of file_get_contents for better error handling
+        $ch = curl_init($url);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_POST, true);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $jsonPayload);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, [
+            'Content-Type: application/json',
+            'Content-Length: ' . strlen($jsonPayload)
+        ]);
+
+        $result = curl_exec($ch);
+
+        // Handle errors
+        if (curl_errno($ch)) {
+            $output = new ConsoleOutput();
+            $output->writeln("cURL error: " . curl_error($ch));
+        }
+
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        curl_close($ch);
+
+        // Log HTTP errors
+        if ($httpCode >= 400) {
+            $output = new ConsoleOutput();
+            $output->writeln("HTTP error: " . $httpCode);
+        }
 
         return $result;
     }
 
     public function checkMany($content, $ruleIds = [], $options = []) {
+        // Get DOM document
         $document = $this->getDomDocument($content);
-        $response = $this->postData("http://host.docker.internal:3000/check", $document->saveHTML());
-        $json = json_decode($response, true);
-        return $json;
+
+        // Create proper debugging for document state
+        $output = new ConsoleOutput();
+        // $output->writeln("DOM document state:");
+        // $output->writeln("- Has HTML element: " . ($document->getElementsByTagName('html')->length > 0 ? 'Yes' : 'No'));
+
+        // Check attribute preservation
+        $htmlElement = $document->getElementsByTagName('html')->item(0);
+        if ($htmlElement) {
+            // $output->writeln("- HTML lang attribute: " . ($htmlElement->hasAttribute('lang') ? $htmlElement->getAttribute('lang') : 'Not present'));
+        }
+
+        // Get serialized HTML, using saveHTML on the document not an element to preserve DOCTYPE
+        $htmlOutput = $document->saveHTML();
+
+        // Debug the output
+        // $output->writeln("First 200 chars of serialized HTML: " . substr($htmlOutput, 0, 200));
+
+        // Send to accessibility checker
+        $response = $this->postData("http://host.docker.internal:3000/scan", $htmlOutput);
+
+        try {
+            $json = json_decode($response, true);
+            if (json_last_error() !== JSON_ERROR_NONE) {
+                // $output->writeln("JSON decode error: " . json_last_error_msg());
+                // $output->writeln("Response preview: " . substr($response, 0, 100));
+                return null;
+            }
+            return $json;
+        } catch (\Exception $e) {
+            // $output->writeln("Error processing response: " . $e->getMessage());
+            return null;
+        }
     }
 
     public function scanHtml($html, $rules = [], $options = []) {
@@ -57,19 +222,48 @@ class LocalApiAccessibilityService {
         return $this->checkMany($html, [], []);
     }
 
-    public function getDomDocument($html)
-    {
+    public function getDomDocument($html) {
+        // Create a clean DOM document
         $dom = new DOMDocument('1.0', 'utf-8');
-        libxml_use_internal_errors(true);
-        if (strpos($html, '<?xml encoding="utf-8"') !== false) {
-            $dom->loadHTML("<!DOCTYPE html><html lang=\"en\"><head><meta charset=\"UTF-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\"><title>Placeholder Page Title</title></head><body><div role=\"main\"><h1>Placeholder Page Title</h1>{$html}</div></body></html>", LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD);
+        $dom->formatOutput = false; // Prevent extra whitespace
 
-        } else {
-            $dom->loadHTML("<?xml encoding=\"utf-8\" ?><!DOCTYPE html><html lang=\"en\"><head><meta charset=\"UTF-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\"><title>Placeholder Page Title</title></head><body><div role=\"main\"><h1>Placeholder Page Title</h1>{$html}</div></body></html>", LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD);
+        // Suppress libxml errors but store them for debugging
+        libxml_use_internal_errors(true);
+
+        // Create a proper HTML5 document with a single wrapper
+        $templateHtml = "<!DOCTYPE html>
+        <html lang=\"en\">
+        <head>
+            <meta charset=\"UTF-8\">
+            <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">
+            <title>Placeholder Page Title</title>
+        </head>
+        <body>
+            <div role=\"main\">
+                <h1>Placeholder Page Title</h1>
+                <!-- CONTENT_PLACEHOLDER -->
+            </div>
+        </body>
+        </html>";
+
+        // Insert content properly
+        $templateHtml = str_replace('<!-- CONTENT_PLACEHOLDER -->', $html, $templateHtml);
+
+        // Load without flags that might strip attributes
+        $dom->loadHTML($templateHtml);
+
+        // Log any parsing errors for debugging
+        $errors = libxml_get_errors();
+        if (!empty($errors)) {
+            $output = new ConsoleOutput();
+            $output->writeln("DOM parsing errors: " . count($errors));
+            foreach ($errors as $error) {
+                $output->writeln("Line {$error->line}: {$error->message}");
+            }
         }
+        libxml_clear_errors();
 
         return $dom;
-
     }
 
 }

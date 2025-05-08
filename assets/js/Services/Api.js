@@ -5,6 +5,7 @@ export default class Api {
         this.endpoints = {
             getReport: '/api/courses/{course}/reports/{report}',
             getReportHistory: '/api/courses/{course}/reports',
+            getIssueContent: '/api/issues/{issue}/content',
             saveIssue: '/api/issues/{issue}/save',
             resolveIssue: '/api/issues/{issue}/resolve',
             reviewFile: '/api/files/{file}/review',
@@ -16,6 +17,7 @@ export default class Api {
             fullRescan: '/api/sync/rescan/{course}',
             scanIssue: '/api/issues/{issue}/scan',
             adminReport: '/api/admin/courses/{course}/reports/latest',
+            adminCourseReport: '/api/admin/courses/{course}/reports/full',
             adminReportHistory: '/api/admin/reports/account/{account}/term/{term}', 
             adminUser: '/api/admin/users',          
             updateUser: '/api/users/{user}' 
@@ -206,6 +208,20 @@ export default class Api {
         });
     }
 
+    getCourseReport(courseId) {
+        const authToken = this.getAuthToken()
+        let url = `${this.apiUrl}${this.endpoints.adminCourseReport}`
+        url = url.replace('{course}', courseId)
+
+        return fetch(url, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-AUTH-TOKEN': authToken,
+            },
+        });
+    }
+
     getAdminUser() {
         const authToken = this.getAuthToken()
         let url = `${this.apiUrl}${this.endpoints.adminUser}`
@@ -277,6 +293,20 @@ export default class Api {
                 'X-AUTH-TOKEN': authToken,
             },
         })
+    }
+
+    getIssueContent(issueId) {
+      const authToken = this.getAuthToken()
+      let url = `${this.apiUrl}${this.endpoints.getIssueContent}`
+      url = url.replace('{issue}', issueId)
+
+      return fetch(url, {
+          method: 'GET',
+          headers: {
+              'Content-Type': 'application/json',
+              'X-AUTH-TOKEN': authToken,
+          },
+      })
     }
 
     updateUser(user) {

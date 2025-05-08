@@ -1,276 +1,326 @@
-import React from 'react'
-import WelcomePage from './WelcomePage'
+import React, { useState, useCallback, useEffect } from 'react'
 import Header from './Header'
-import SummaryPage from './SummaryPage'
-import ContentPage from './ContentPage'
+import WelcomePage from './WelcomePage'
+import HomePage from './HomePage'
+import FixIssuesPage from './FixIssuesPage'
 import ReportsPage from './ReportsPage'
-import AboutModal from './AboutModal'
-import { View } from '@instructure/ui-view'
+import SettingsPage from './SettingsPage'
 import Api from '../Services/Api'
 import MessageTray from './MessageTray'
-import FilesPage from './FilesPage'
-import SummaryBar from './SummaryBar'
 
-class App extends React.Component {
-  constructor(props) {
-    super(props)
 
-    this.initialReport = props.report
-    this.appFilters = {}
-    this.settings = props.settings
-    this.reportHistory = []
-    this.messages = props.messages
-    this.newReportInterval = 5000
+export default function App(initialData) {
 
-    this.state = {
-      report: this.initialReport,
-      navigation: 'welcome',
-      modal: null,
-      syncComplete: false,
-      hasNewReport: false,
-    }
+  // The initialData object that is passed to the App will generally contain:
+  // { 
+  //   messages: [],
+  //   report: { ... The report from the most recent scan ... },
+  //   settings: { ... From src/Controller/DashboardController.php => getSettings() ... },
+  //   settings.user: {
+  //     "id": 3,
+  //     "username": "https://canvas.instructure.com||1129",
+  //     "name": null,
+  //     "lmsUserId": "1129",
+  //      "roles": [
+  //         "ROLE_USER"    // or "ROLE_ADVANCED_USER" if they've clicked to skip the welcome page.
+  //     ],
+  //     "lastLogin": "2025-02-03",
+  //     "created": "2025-01-13",
+  //     "hasApiKey": true
+  //   }
+  // }
 
-    this.handleNavigation = this.handleNavigation.bind(this)
-    this.handleModal = this.handleModal.bind(this)
-    this.handleAppFilters = this.handleAppFilters.bind(this)
-    this.clearMessages = this.clearMessages.bind(this)
-    this.addMessage = this.addMessage.bind(this)
-    this.t = this.t.bind(this)
-    this.handleIssueSave = this.handleIssueSave.bind(this)
-    this.handleFileSave = this.handleFileSave.bind(this)
-    this.handleCourseRescan = this.handleCourseRescan.bind(this)
-    this.handleFullCourseRescan = this.handleFullCourseRescan.bind(this)
-    this.handleNewReport = this.handleNewReport.bind(this)
-    this.resizeFrame = this.resizeFrame.bind(this)
+  const [messages, setMessages] = useState(initialData.messages || [])
+  const [report, setReport] = useState(initialData.report || null)  
+  const [settings, setSettings] = useState(initialData.settings || null)
+  const [sections, setSections] = useState([])
+
+  const [appFilters, setAppFilters] = useState({})
+  const [navigation, setNavigation] = useState('summary')
+  const [modal, setModal] = useState(null)
+  const [syncComplete, setSyncComplete] = useState(false)
+  const [hasNewReport, setHasNewReport] = useState(false)
+  const [disableReview, setDisableReview] = useState(false)
+  const [initialSeverity, setInitialSeverity] = useState('')
+  const [contentItemList, setContentItemList] = useState([])
+  const [sessionIssues, setSessionIssues] = useState([])
+  const [welcomeClosed, setWelcomeClosed] = useState(false)
+
+  const ISSUE_STATE = {
+    UNCHANGED: 0,
+    SAVING: 1,
+    RESOLVING: 2,
+    SAVED: 3,
+    RESOLVED: 4,
+    ERROR: 5,
   }
 
-  render() {
-    return (
-      <View as="div">
-        <Header
-          t={this.t}
-          settings={this.settings}
-          hasNewReport={this.state.hasNewReport}
-          navigation={this.state.navigation}
-          handleNavigation={this.handleNavigation}
-          handleCourseRescan={this.handleCourseRescan}
-          handleFullCourseRescan={this.handleFullCourseRescan}
-          handleModal={this.handleModal} />
-
-        {(('welcome' !== this.state.navigation) && ('summary' !== this.state.navigation)) &&
-          <SummaryBar t={this.t} report={this.state.report} />
-        }
-
-        <MessageTray messages={this.messages} t={this.t} clearMessages={this.clearMessages} hasNewReport={this.state.syncComplete} />
-
-        <main role="main">
-          {('welcome' === this.state.navigation) &&
-            <WelcomePage
-              handleNavigation={this.handleNavigation}
-              t={this.t}
-              settings={this.settings}
-              hasNewReport={this.state.hasNewReport} />
-          }
-          {('summary' === this.state.navigation) &&
-            <SummaryPage
-              report={this.state.report}
-              settings={this.settings}
-              handleAppFilters={this.handleAppFilters}
-              handleNavigation={this.handleNavigation}
-              t={this.t} />
-          }
-          {('content' === this.state.navigation) &&
-            <ContentPage
-              report={this.state.report}
-              settings={this.settings}
-              appFilters={this.appFilters}
-              handleAppFilters={this.handleAppFilters}
-              handleNavigation={this.handleNavigation}
-              handleIssueSave={this.handleIssueSave}
-              handleIssueUpdate={this.handleIssueUpdate}
-              disableReview={this.disableReview()}
-              t={this.t} />
-          }
-          {('files' === this.state.navigation) &&
-            <FilesPage
-              report={this.state.report}
-              settings={this.settings}
-              handleNavigation={this.handleNavigation}
-              handleFileSave={this.handleFileSave}
-              t={this.t} />
-          }
-          {('reports' === this.state.navigation) &&
-            <ReportsPage
-              t={this.t}
-              settings={this.settings}
-              report={this.state.report}
-              handleNavigation={this.handleNavigation}
-            />
-          }
-        </main>
-
-        {('about' === this.state.modal) &&
-          <AboutModal t={this.t}
-            settings={this.settings}
-            handleModal={this.handleModal} />
-        }
-      </View>
-    )
-  }
-
-  componentDidMount() {
-    if (this.settings.user && Array.isArray(this.settings.user.roles)) {
-      if (this.settings.user.roles.includes('ROLE_ADVANCED_USER')) {
-        if (this.initialReport) {
-          this.setState({report: this.initialReport, navigation: 'summary'})
-        }
-      }
+  // `t` is used for text/translation. It will return the translated string if it exists
+  // in the settings.labels object.
+  const t = useCallback((key, values = {}) => {
+    let translatedText = (settings.labels[key] && settings.labels[key] !== '') ? settings.labels[key] : key
+    if (values && Object.keys(values).length > 0) {
+      Object.keys(values).forEach((key) => {
+        translatedText = translatedText.replace(`{${key}}`, values[key])
+      })
     }
+    return translatedText
 
-    this.scanCourse()
+  }, [settings])
+
+  const scanCourse = useCallback(() => {
+    let api = new Api(settings)
+    return api.scanCourse(settings.course.id)
+  }, [])
+
+  const fullRescan = useCallback(() => {
+    let api = new Api(settings)
+    return api.fullRescan(settings.course.id)
+  }, [])
+
+  const updateLanguage = (lang) => {
+    let newSettings = settings
+    newSettings.user.roles.lang = lang
+
+    let api = new Api(settings)
+    let newUser = newSettings.user
+    api.updateUser(newUser)
       .then((response) => response.json())
-      .then(this.handleNewReport)
-
-      // update iframe height on resize
-      window.addEventListener("resize", this.resizeFrame);
-
-      this.resizeFrame();
-  }
-
-  componentWillUnmount() {
-    window.removeEventListener('resize', this.resizeFrame);
-  }
-
-  t(key) {
-    return (this.settings.labels[key]) ? this.settings.labels[key] : key
-  }
-
-  scanCourse() {
-    let api = new Api(this.settings)
-    return api.scanCourse(this.settings.course.id)
-  }
-
-  fullRescan() {
-    let api = new Api(this.settings)
-    return api.fullRescan(this.settings.course.id)
-  }
-
-  disableReview = () => {
-    return this.state.syncComplete && !this.state.disableReview
-  }
-
-  handleCourseRescan() {
-    if (this.state.hasNewReport) {
-      this.setState({ hasNewReport: false, syncComplete: false })
-      this.scanCourse()
-        .then((response) => response.json())
-        .then(this.handleNewReport)
-    }
-    this.forceUpdate()
-  }
-
-  handleFullCourseRescan() {
-    if (this.state.hasNewReport) {
-      this.setState({ hasNewReport: false, syncComplete: false })
-      this.fullRescan()
-        .then((response) => response.json())
-        .then(this.handleNewReport)
-    }
-    this.forceUpdate()
-  }
-
-  handleNewReport(data) {
-    let report = this.state.report
-    let hasNewReport = this.state.hasNewReport
-    let disableReview = this.state.disableReview
-    if (data.messages) {
-      data.messages.forEach((msg) => {
-        if (msg.visible) {
-          this.addMessage(msg)
+      .then((data) => {
+        if(data.labels) {
+          newSettings.labels = data.labels
         }
-        if ('msg.no_report_created' === msg.message) {
-          this.addMessage(msg)
-          report = null
-          // no report, do not do any review actions
-          disableReview = true
-        }
-        if ("msg.sync.course_inactive" === msg.message) {
-          // course scan failed, issues may be outdated
-          disableReview = true
-        }
-      });
-    }
-    if (data.data && data.data.id) {
-      report = data.data
-      hasNewReport = true
-    }
-    this.setState({
-      syncComplete: true,
-      hasNewReport,
-      report,
-      disableReview,
+        setSettings(newSettings)
     })
   }
 
-  handleNavigation(navigation) {
-    this.setState({navigation})
+  // Session Issues are used to track progress when multiple things are going on at once,
+  // and can allow the activeIssue to change without losing information about the previous issue.
+  // Each issue has an id and state: { id: issueId, state: 2 }
+  // The valid states are set and read in the FixIssuesPage component.
+  const updateSessionIssue = (issueId, issueState = null) => {
+    if(!issueState) {
+      return
+    }
+    let newSessionIssues = Object.assign({}, sessionIssues, { [issueId]: issueState})
+    setSessionIssues(newSessionIssues)
   }
 
-  handleModal(modal) {
-    this.setState({modal})
+  const handleNewReport = (data) => {
+    let newReport = report
+    let newHasNewReport = hasNewReport
+    let newDisableReview = disableReview
+    if (data.messages) {
+      data.messages.forEach((msg) => {
+        if (msg.visible) {
+          addMessage(msg)
+        }
+        if ('msg.no_report_created' === msg.message) {
+          addMessage(msg)
+          newReport = null
+          newDisableReview = true
+        }
+        if ("msg.sync.course_inactive" === msg.message) {
+          newDisableReview = true
+        }
+      })
+    }
+    if (data.data && data.data.id) {
+      newReport = data.data
+      newHasNewReport = true
+    }
+    setSyncComplete(true)
+    setHasNewReport(newHasNewReport)
+    console.log(newReport)
+    setReport(newReport)
+    if (newReport.contentSections) {
+      setSections(newReport.contentSections)
+    }
+    else {
+      setSections([])
+    }
+    setDisableReview(newDisableReview)
   }
 
-  handleAppFilters = (filters) => {
-    this.appFilters = filters;
+  const handleNavigation = (newNavigation) => {
+    if(newNavigation === navigation) {
+      return
+    }
+    if(newNavigation !== 'fixIssues') {
+      setInitialSeverity('')
+    }
+    setNavigation(newNavigation)
   }
 
-  addMessage = (msg) => {
-    this.messages.push(msg)
+  const handleModal = (modal) => {
+    setModal(modal)
   }
 
-  clearMessages = () => {
-    this.messages = [];
+  const handleAppFilters = (filters) => {
+    setAppFilters(filters)
   }
 
-  handleIssueSave(newIssue, newReport) {
-    const oldReport = this.state.report;
+  const addMessage = (msg) => {
+    setMessages(prevMessages => [...prevMessages, msg])
+  }
 
-    const report = { ...oldReport, ...newReport };
+  const clearMessages = () => {
+    setMessages([])
+  }
 
-    if (report && Array.isArray(report.issues)) {
-      // Combine backend issues with frontend issue state
-      report.issues = report.issues.map((issue) => {
-        if (issue.id === newIssue.id) return newIssue;
-        const oldIssue = oldReport.issues.find((oldReportIssue) => oldReportIssue.id === issue.id);
-        return oldIssue !== undefined ? { ...oldIssue, ...issue } : issue;
-      });
+  const quickIssues = (severity) => {
+    setInitialSeverity(severity)
+    setNavigation('fixIssues')
+  }
+
+  const addContentItem = (newContentItem) => {
+    let newContentItemList = Object.assign({}, contentItemList)
+    newContentItemList[newContentItem.id] = newContentItem
+    setContentItemList(newContentItemList)
+  }
+
+  const updateReportIssue = (newIssue, newReport) => {
+    const updatedReport = ( newReport? { ...report, ...newReport } : {...report} )
+
+    if (updatedReport && Array.isArray(updatedReport.issues)) {
+      updatedReport.issues = updatedReport.issues.map((issue) => {
+        if (issue.id === newIssue.id) return newIssue
+        const oldIssue = report.issues.find((oldReportIssue) => oldReportIssue.id === issue.id)
+        return oldIssue !== undefined ? { ...oldIssue, ...issue } : issue
+      })
     }
 
-    this.setState({ report });
+    setReport(updatedReport)
   }
 
-  handleFileSave(newFile, newReport) {
-    let { report } = this.state
-    report = { ...report, ...newReport }
+  const updateReportFile = (newFile, newReport) => {
+    let updatedReport = { ...report, ...newReport }
 
-    if (report && report.files) {
-      report.files[newFile.id] = newFile
+    if (updatedReport && updatedReport.files) {
+      updatedReport.files[newFile.id] = newFile
     }
 
-    this.setState({ report })
+    setReport(updatedReport)
   }
 
-  // resize containing iframe height
-  resizeFrame(){
-    let default_height = document.body.scrollHeight + 50;
-    default_height = default_height > 1000 ? default_height : 1000;
+  const handleCourseRescan = () => {
+    if (hasNewReport) {
+      setHasNewReport(false)
+      setSyncComplete(false)
+      scanCourse()
+        .then((response) => response.json())
+        .then(handleNewReport)
+    }
+  }
 
-    // IE 8 & 9 only support string data, so send objects as string
+  const handleFullCourseRescan = () => {
+    if (hasNewReport) {
+      setHasNewReport(false)
+      setSyncComplete(false)
+      fullRescan()
+        .then((response) => response.json())
+        .then(handleNewReport)
+    }
+  }
+
+  const resizeFrame = useCallback(() => {
+    let default_height = document.body.scrollHeight + 50
+    default_height = default_height > 850 ? default_height : 850
+
     parent.postMessage(JSON.stringify({
       subject: "lti.frameResize",
       height: default_height
-    }), "*");
-  }
-}
+    }), "*")
+  }, [])
 
-export default App
+  useEffect(() => {
+    
+    scanCourse()
+      .then((response) => response.json())
+      .then(handleNewReport)
+
+    window.addEventListener("resize", resizeFrame)
+    resizeFrame()
+
+    return () => {
+      window.removeEventListener('resize', resizeFrame)
+    }
+  }, [settings, initialData.report, scanCourse, resizeFrame])
+
+  return (
+    <>
+      { !welcomeClosed ?
+        ( <WelcomePage
+            t={t}
+            settings={settings}
+            syncComplete={syncComplete}
+            setWelcomeClosed={setWelcomeClosed} /> ) :
+        (
+          <>
+            <Header
+              t={t}
+              settings={settings}
+              hasNewReport={hasNewReport}
+              navigation={navigation}
+              handleNavigation={handleNavigation}
+              handleCourseRescan={handleCourseRescan}
+              handleFullCourseRescan={handleFullCourseRescan}
+              handleModal={handleModal} />
+
+            <main role="main">
+              {('summary' === navigation) &&
+                <HomePage
+                  t={t}
+                  settings={settings.ISSUE_STATE ? settings : Object.assign({}, settings, { ISSUE_STATE })}
+                  report={report}
+                  hasNewReport={hasNewReport}
+                  quickIssues={quickIssues}
+                  sessionIssues={sessionIssues}
+                  handleFullCourseRescan={handleFullCourseRescan} />
+              }
+              {('fixIssues' === navigation) &&
+                <FixIssuesPage
+                  t={t}
+                  settings={settings.ISSUE_STATE ? settings : Object.assign({}, settings, { ISSUE_STATE })}
+                  initialSeverity={initialSeverity}
+                  contentItemList={contentItemList}
+                  addContentItem={addContentItem}
+                  report={report}
+                  sections={sections}
+                  setReport={setReport}
+                  addMessage={addMessage}
+                  handleNavigation={handleNavigation}
+                  updateReportIssue={updateReportIssue}
+                  sessionIssues={sessionIssues}
+                  updateSessionIssue={updateSessionIssue}
+                  disableReview={syncComplete && !disableReview} />
+              }
+              {('reports' === navigation) &&
+                <ReportsPage
+                  t={t}
+                  settings={settings}
+                  report={report}
+                />
+              }
+              {('settings' === navigation) &&
+                <SettingsPage
+                  t={t}
+                  settings={settings}
+                  updateLanguage={updateLanguage}
+                  syncComplete={syncComplete}
+                  handleCourseRescan={handleCourseRescan}
+                  handleFullCourseRescan={handleFullCourseRescan} />
+              }
+              {('modal' === navigation) &&
+                <div className="modal">
+                  {modal}
+                </div>
+              }
+            </main>
+          </>
+        )
+      }
+      <MessageTray t={t} messages={messages} clearMessages={clearMessages} hasNewReport={syncComplete} />
+    </>
+  )
+}

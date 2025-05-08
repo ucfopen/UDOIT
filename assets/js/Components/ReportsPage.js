@@ -1,95 +1,41 @@
-import React from 'react'
-import { View } from '@instructure/ui-view'
-import { Flex } from '@instructure/ui-flex'
-import { Text } from '@instructure/ui-text'
-import { Heading } from '@instructure/ui-heading'
+import React, { useState, useEffect } from 'react'
 
 import Api from '../Services/Api'
-import { Spinner } from '@instructure/ui-spinner'
-
 import IssuesReport from './Reports/IssuesReport'
 import ResolutionsReport from './Reports/ResolutionsReport'
 import ReportsTable from './Reports/ReportsTable'
 import IssuesTable from './Reports/IssuesTable'
+import ProgressIcon from './Icons/ProgressIcon'
 
-class ReportsPage extends React.Component {
-  constructor(props) {
-    super(props)
+export default function ReportsPage({t, report, settings}) {
 
-    this.issues = this.processIssues(props.report)
+  const [reports, setReports] = useState([])
+  const [fetchedReports, setFetchedReports] = useState(false)
+  const [issues, setIssues] = useState([])
+  const [chartVisibility, setChartVisibility] = useState({
+    issues: true,
+    potentialIssues: true,
+    suggestions: true
+  })
 
-    this.state = {
-      reports: []
-    }
-  }
-
-  componentDidMount() {
-    if (this.state.reports.length === 0) {
-      this.getReportHistory()
-    }
-  }
-
-  componentDidUpdate() {
-    this.issues = this.processIssues(this.props.report)
-  }
-
-  render() {
-    if (this.state.reports.length === 0) {
-      return (
-        <View as="div" padding="small 0">
-          <View as="div" textAlign="center" padding="medium">
-            <Spinner variant="inverse" renderTitle={this.props.t('label.loading_reports')} />
-            <Text as="p" weight="light" size="large">{this.props.t('label.loading_reports')}</Text>
-          </View>
-        </View>
-      )
-    } else {
-      return (
-        <View as="div" padding="small 0">
-          <Heading>{this.props.t('label.reports')}</Heading>
-          <View as="div" margin="0 0 large 0">
-            <Flex justifyItems="space-between" alignItems="start">
-              <Flex.Item width="48%" padding="0">
-                <IssuesReport t={this.props.t} reports={this.state.reports} />
-              </Flex.Item>
-              <Flex.Item width="48%" padding="0">
-                <ResolutionsReport t={this.props.t} reports={this.state.reports} />
-              </Flex.Item>
-            </Flex>
-          </View>
-          <View as="div" margin="large 0">
-            <IssuesTable
-              issues={this.issues}
-              settings={this.props.settings}
-              t={this.props.t} />
-          </View>
-          <View as="div" margin="large 0">
-            <ReportsTable
-              reports={this.state.reports}
-              t={this.props.t}
-            />
-          </View>
-        </View>
-      )
-    }
-  }
-
-  getReportHistory() {
-    const api = new Api(this.props.settings)
+  const getReportHistory = () => {
+    const api = new Api(settings)
     api.getReportHistory()
       .then((responseStr) => responseStr.json())
       .then((response) => {
-        this.setState({reports: response.data})
+        setReports(response.data)
+        setFetchedReports(true)
       })
   }
 
-  processIssues(report) {
+  const processIssues = (report) => {
+
     let rules = []
 
     for (let issue of report.issues) {
       const rule = issue.scanRuleId
       const status = issue.status
-    
+      
       if (!rules[rule]) {
         rules[rule] = {
           id: rule,
@@ -116,7 +62,102 @@ class ReportsPage extends React.Component {
     return rules
   }
 
+  useEffect(() => {
+    if (reports.length === 0) {
+      getReportHistory()
+    }
+  }, [])
 
+  useEffect(() => {
+    setIssues(processIssues(report))
+  }, [report])
+
+  const toggleChartVisibility = (chart) => {
+    const tempVisibility = Object.assign({}, chartVisibility, {[chart]: !chartVisibility[chart]})
+    setChartVisibility(tempVisibility)
+  }
+
+  return (
+    <>
+      <div className="flex-row justify-content-center mt-4">
+        <h1 className="mt-0 mb-0 primary-dark">{t('menu.reports')}</h1>
+      </div>
+      { (!fetchedReports) && (
+        <div className="mt-3 mb-3 flex-row justify-content-center">
+          <div className="flex-column justify-content-center me-3">
+            <ProgressIcon className="icon-lg primary spinner" />
+          </div>
+          <div className="flex-column justify-content-center">
+            <h2 className="mt-0 mb-0">{t('report.label.loading_reports')}</h2>
+          </div>
+        </div>
+      )}
+      { (fetchedReports && reports.length === 0) && (
+        <div className="flex-row justify-content-center mt-3">
+          <h2 className="mt-0 mb-0">{t('report.label.no_results')}</h2>
+        </div>
+      )}
+
+      { (fetchedReports && reports.length > 0) && (
+        <div className="flex-column">
+          <div className="flex-row justify-content-between mt-3 gap-3">
+            <div className="flex-column justify-content-center">
+              <div className="flex-row gap-3 mb-3">
+                  <input 
+                    type="checkbox" 
+                    id="issuesToggle" 
+                    checked={chartVisibility.issues}
+                    onChange={() => toggleChartVisibility('issues')}
+                  />
+                  <label htmlFor="issuesToggle">{t('report.option.show_issues')}</label>
+              </div>
+              <div className="flex-row gap-3 mb-3">
+                <input 
+                  type="checkbox" 
+                  id="potentialIssuesToggle" 
+                  checked={chartVisibility.potentialIssues} 
+                  onChange={() => toggleChartVisibility('potentialIssues')}
+                />
+                <label htmlFor="potentialIssuesToggle">{t('report.option.show_potential')}</label>
+              </div>
+              <div className="flex-row gap-3 mb-3">
+                <input 
+                  type="checkbox" 
+                  id="suggestionsToggle" 
+                  checked={chartVisibility.suggestions} 
+                  onChange={() => toggleChartVisibility('suggestions')}
+                />
+                <label htmlFor="suggestionsToggle">{t('report.option.show_suggestions')}</label>
+              </div>
+            </div>
+            <div className="flex-column flex-shrink-0 flex-grow-1">
+              <div className="flex-row justify-content-center">
+                <h2 className="mt-0 mb-3">{t('report.title.barriers_remaining')}</h2>
+              </div>
+              <ResolutionsReport t={t} reports={reports} visibility={chartVisibility} />
+            </div>
+          </div>
+        
+          <div className="mt-4">
+            <IssuesTable
+              t={t}
+              settings={settings}
+              issues={issues}/>
+          </div>
+
+          <div className="mt-4">
+            <ReportsTable
+              t={t}
+              reports={reports}/>
+          </div>
+
+          {/* <div className="flex-row justify-content-end mt-3 mb-2 gap-2">
+            <button className="btn btn-primary">{t('report.button.download')}</button>
+            <button className="btn btn-primary">{t('report.button.print')}</button>
+          </div> */}
+
+        </div>
+      )}
+    </>
+  )
 }
-
-export default ReportsPage

@@ -69,6 +69,16 @@ services:
         cd /app &&
         yarn install &&
         yarn build --watch'
+  ace:
+      # platform: linux/amd64
+      container_name: udoit3-ace
+      build:
+        context: ./equal-access-server
+        dockerfile: Dockerfile.ace
+      ports:
+        - "3000:3000"
+      environment:
+        - PORT=3000
 
 volumes:
   web:

@@ -1,12 +1,48 @@
+// When JavaScript's DOMParser encounters certain elements, it WILL NOT parse them unless they are wrapped
+// in the required parent element. This function wraps the error HTML in the required parent element so that
+// the DOMParser can parse it correctly.
 export function toElement(htmlString) {
   if ('string' !== typeof htmlString) {
     return htmlString
   }
 
-  let tmp = document.createElement('template')
-  tmp.innerHTML = htmlString.trim()
+  let tagName = htmlString.match(/^<(\w+)/)?.[1].toLowerCase()
 
-  return tmp.content.firstChild
+  const SPECIAL_CASES = {
+    thead: "<table>{content}</table>",
+    tbody: "<table>{content}</table>",
+    tfoot: "<table>{content}</table>",
+    caption: "<table>{content}</table>",
+    tr: "<table><tbody>{content}</tbody></table>",
+    td: "<table><tbody><tr>{content}</tr></tbody></table>",
+    th: "<table><tbody><tr>{content}</tr></tbody></table>",
+    colgroup: "<table>{content}</table>",
+    col: "<table><colgroup>{content}</colgroup></table>",
+    option: "<select>{content}</select>",
+    optgroup: "<select>{content}</select>",
+    legend: "<fieldset>{content}</fieldset>",
+    dt: "<dl>{content}</dl>",
+    dd: "<dl>{content}</dl>",
+    li: "<ul>{content}</ul>",
+    area: "<map>{content}</map>",
+    param: "<object>{content}</object>",
+    source: "<video>{content}</video>",
+    track: "<video>{content}</video>"
+  }
+
+  // Wrap special elements inside their required parent(s) if they are in the SPECIAL_CASES object
+  let wrappedHTML = SPECIAL_CASES[tagName] ? SPECIAL_CASES[tagName].replace('{content}', htmlString) : htmlString
+
+  // Parse the wrapped HTML
+  const parser = new DOMParser()
+  const tempDoc = parser.parseFromString(wrappedHTML, "text/html")
+
+  // Extract the real element from the correct position
+  if (SPECIAL_CASES[tagName]) {
+      return tempDoc.querySelector(tagName)
+  } else {
+      return tempDoc.body.firstElementChild
+  }
 }
 
 export function toString(element) {
@@ -275,9 +311,82 @@ export function processStaticHtml(nodes, settings) {
 }
 
 export function getIssueHtml(issue) {
-  if (issue.status === '1') {
+  if (issue.status.toString() === '1') {
     return issue.newHtml
   }
 
   return (issue.newHtml) ? issue.newHtml : issue.sourceHtml
+}
+
+export function getAccessibleName(element) {
+  if ('string' === typeof element) {
+    element = toElement(element)
+  }
+
+  if (!element) {
+    return ''
+  }
+
+  /* Accessible Names for different elements can be computed differently, as described here:
+    https://www.w3.org/WAI/ARIA/apg/practices/names-and-descriptions/#name_calculation  */
+
+  // 1. TODO: If the element has the 'aria-labelledby' attribute, use the value of the corresponding element.
+  
+  // 2. If the element has the 'aria-label' attribute, use that value.
+  let ariaLabel = getAttribute(element, 'aria-label')
+  if(ariaLabel) {
+    return ariaLabel
+  }
+
+  // 3. Run a BUNCH of tag-specific and role-specific logic.
+  let tagName = getTagName(element).toLowerCase()
+  let type = getAttribute(element, 'type')?.toLowerCase()
+  
+  let value = getAttribute(element, 'value')
+
+  if(tagName === 'input' && (type === 'button' || type === 'submit' || type === 'reset')) {
+    if(value) { return value }
+  }
+
+  let alt = getAttribute(element, 'alt')
+
+  if((tagName === 'input' && type === 'image')
+      || tagName === 'img'
+      || tagName === 'area') {
+    if(alt) { return alt }
+  }
+
+  if(tagName === 'fieldset') {
+    let legend = element.querySelector('legend')
+    if(legend) {
+      return getInnerText(legend)
+    }
+  }
+
+  if(tagName === 'figure') {
+    let figcaption = element.querySelector('figcaption')
+    if(figcaption) {
+      return getInnerText(figcaption)
+    }
+  }
+
+  if(tagName === 'table') {
+    let caption = element.querySelector('caption')
+    if(caption) {
+      return getInnerText(caption)
+    }
+  }
+  
+  // 4. TODO: "If the name is still empty, then for elements with a role that supports naming
+  // from child content, the content of the element is used."
+
+  // 5. TODO: "Finally, if the name is still empty, then other fallback host-language-specific
+  // attributes or elements are used if present [such as localized 'Submit Query']"
+
+  let title = getAttribute(element, "title")
+  if(title) {
+    return title
+  }
+   
+  return ''
 }

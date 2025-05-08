@@ -1,7 +1,4 @@
 <?php
-
-// src/Lms/Canvas/CanvasApi.php
-
 namespace App\Lms\Canvas;
 
 use App\Lms\LmsResponse;

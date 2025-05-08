@@ -1,85 +1,113 @@
-import React from 'react'
+import React, { useState, useEffect } from 'react'
 import SortableTable from '../SortableTable'
-import { View } from '@instructure/ui-view'
-import { Heading } from '@instructure/ui-heading'
+import { formNameFromRule } from '../../Services/Ufixit'
 
-class IssuesTable extends React.Component {
-    constructor(props) {
-        super(props)
+export default function IssuesTable({
+  t,
+  issues,
+  isAdmin
+}) {
 
-        this.headers = [
-            { id: "label", text: this.props.t('label.issue') },
-            { id: "type", text: this.props.t('label.issue_type')},
-            { id: "active", text: this.props.t('label.active') },
-            { id: "fixed", text: this.props.t('label.fixed') },
-            { id: "resolved", text: this.props.t('label.resolved') },
-        ];
+  const headers = [
+    { id: "label", text: t('report.header.issue_type') },
+    { id: "type", text: t('report.header.severity')},
+    { id: "active", text: t('report.header.active') },
+    { id: "fixed", text: t('report.header.fixed') },
+    { id: "resolved", text: t('report.header.resolved') },
+  ]
 
-        if (this.props.isAdmin) {
-            this.headers.push({ id: "courses", text: this.props.t('label.admin.courses') })
+  if (isAdmin) {
+    headers.push({ id: "courses", text: t('report.header.courses') })
+  }
+
+  // The "total" is always the last column of the table
+  headers.push({ id: "total", text: t('report.header.total') })
+
+  const [tableSettings, setTableSettings] = useState({
+    sortBy: 'total',
+    ascending: false,
+    pageNum: 0,
+  })
+  const [localIssues, setLocalIssues] = useState([])
+  const [rows, setRows] = useState([])
+
+  const sortContent = () => {
+
+    let tempRows = (issues) ? Object.values(localIssues) : []
+    const { sortBy, ascending } = tableSettings
+
+    tempRows.sort((a, b) => {
+      if (isNaN(a[sortBy]) || isNaN(b[sortBy])) {
+        return (a[sortBy].toLowerCase() < b[sortBy].toLowerCase()) ? -1 : 1
+      }
+      else {
+        return (Number(a[sortBy]) < Number(b[sortBy])) ? -1 : 1
+      }
+    })
+
+    if (!ascending) {
+      tempRows.reverse()
+    }
+
+    return tempRows
+  }
+
+  const handleTableSettings = (setting) => {
+    setTableSettings(Object.assign({}, tableSettings, setting))
+  }
+
+  useEffect(() => {
+    setRows(sortContent())
+  }, [tableSettings, localIssues])
+
+  useEffect(() => {
+    if (issues) {
+      let tempIssues = Object.values(issues)
+      tempIssues.map((issue => {
+        let label = ''
+        let formName = formNameFromRule(issue.id)
+        if(formName === 'review_only') {
+          label = t('report.label.unhandled') + issue.id
         }
-
-        // adding this as the last col of the table
-        this.headers.push({ id: "total", text: this.props.t('label.report.total') })
-
-        this.state = {
-            tableSettings: {
-                sortBy: 'total',
-                ascending: false,
-                pageNum: 0,
-            }
+        else {
+          label = t(`form.${formName}.title`)
         }
-    }
-    
-    handleTableSettings = (setting) => {
-        this.setState({
-            tableSettings: Object.assign({}, this.state.tableSettings, setting)
-        });
-    }
+        issue.label = label
+        return issue
+      }))
 
-    getContent() {
-        let { issues } = this.props
-        let rows = (issues) ? Object.values(issues) : []
-        const { sortBy, ascending } = this.state.tableSettings
-        
-        rows = rows.map((row) => {
-            row.label = this.props.t(`rule.label.${row.id}`)
-            return row
-        })
-
-        rows.sort((a, b) => {
-            if (isNaN(a[sortBy]) || isNaN(b[sortBy])) {
-                return (a[sortBy].toLowerCase() < b[sortBy].toLowerCase()) ? -1 : 1
-            }
-            else {
-                return (Number(a[sortBy]) < Number(b[sortBy])) ? -1 : 1
-            }
-        })
-
-        if (!ascending) {
-            rows.reverse()
+      // Merge the issues with the same labels
+      let mergedIssues = []
+      let labels = []
+      tempIssues.forEach((issue) => {
+        if (!labels.includes(issue.label)) {
+          labels.push(issue.label)
+          mergedIssues.push(issue)
         }
+        else {
+          let index = mergedIssues.findIndex((i) => i.label === issue.label)
+          mergedIssues[index].total += issue.total
+          mergedIssues[index].active += issue.active
+          mergedIssues[index].fixed += issue.fixed
+          mergedIssues[index].resolved += issue.resolved
+        }
+      })
 
-        return rows
+      setLocalIssues(mergedIssues)
     }
-
-    render() {
-        const rows = this.getContent();
-
-        return (
-            <View as="div">
-                <Heading as="h3" level="h4" margin="small 0">{this.props.t(`label.admin.report.by_issue`)}</Heading>
-                <SortableTable
-                    caption={this.props.t('label.admin.report.by_issue')}
-                    headers={this.headers}
-                    rows={rows}
-                    tableSettings={this.state.tableSettings}
-                    handleTableSettings={this.handleTableSettings}
-                    t={this.props.t}
-                />
-            </View>
-        )
+    else {
+      setLocalIssues([])
     }
+  }, [issues])
+
+  return (
+    <SortableTable
+      caption={t('report.title.issues_by_type')}
+      headers={headers}
+      rows={rows}
+      tableSettings={tableSettings}
+      handleTableSettings={handleTableSettings}
+      t={t}
+    />
+  )
 }
-
-export default IssuesTable

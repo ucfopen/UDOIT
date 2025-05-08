@@ -1,0 +1,27 @@
+.messageTrayContainer {
+  position: absolute;
+  max-width: 40%;
+  top: 3rem;
+  left: -50%;
+  transition: var(--transition-time) ease-in-out left;
+
+  &.open {
+    left: 1rem;
+  }
+}
+
+.messageTray {
+  position: relative;
+  justify-self: flex-start;
+  background-color: var(--primary-color-light);
+  padding: 1rem 2.75rem 1rem 1rem;
+  box-shadow: 0px 0px 3px var(--gray-dark);
+  width: 100%;
+}
+
+.closeButton {
+  position: absolute;
+  top: .25rem;
+  right: .25rem;
+  padding: 0px;
+}

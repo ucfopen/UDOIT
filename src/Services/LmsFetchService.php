@@ -15,6 +15,10 @@ use App\Services\ScannerService;
 use CidiLabs\PhpAlly\PhpAllyIssue;
 use Doctrine\Persistence\ManagerRegistry;
 
+// TODO: Remove once PR is merged
+use App\Services\LocalApiAccessibilityService;
+use Symfony\Component\Console\Output\ConsoleOutput;
+
 class LmsFetchService {
 
     /** @var App\Services\LmsApiService $lmsApi */
@@ -73,7 +77,7 @@ class LmsFetchService {
      * 4) Link unchanged issues to new report
      * 5) Process updated content
      */
-    public function refreshLmsContent(Course $course, User $user)
+    public function refreshLmsContent(Course $course, User $user, $force = false)
     {
         $lms = $this->lmsApi->getLms($user);
 
@@ -98,7 +102,8 @@ class LmsFetchService {
         $lms->updateCourseContent($course, $user);
 
         /* Step 2: Get list of changed content items */
-        $contentItems = $contentItemRepo->getUpdatedContentItems($course);
+        $contentItems = $contentItemRepo->getUpdatedContentItems($course, $force);
+        $contentSections = $lms->getCourseSections($course, $user);
 
         /* Step 3: Delete issues for updated content items */
         $this->deleteContentItemIssues($contentItems);
@@ -123,6 +128,12 @@ class LmsFetchService {
     //     $lms->updateContentItem($contentItem);
     //     $this->doctrine->getManager()->flush();
     // }
+
+    public function getCourseSections(Course $course, User $user)
+    {
+        $lms = $this->lmsApi->getLms($user);
+        return $lms->getCourseSections($course, $user);
+    }
 
     // Update report, or create new one for a new day
     public function updateReport(Course $course, User $user): Report
@@ -195,17 +206,18 @@ class LmsFetchService {
         return $report;
     }
 
-    
+
     // Performs PHPAlly scan on each Content Item.
     private function scanContentItems(array $contentItems)
     {
         $scanner = $_ENV['ACCESSIBILITY_CHECKER'];
         $equalAccessReports = null;
 
+        // $scanner = 'equalaccess_local';
+
         // If we're using Equal Access Lambda, send all the requests to Lambda for the
         // reports at once and save them all into an array (which should be in the same order as the ContentItems)
         if ($scanner == "equalaccess_lambda" && count($contentItems) > 0) {
-            // $equalAccessReports = $this->asyncReport->postMultipleAsync($contentItems);
             $equalAccessReports = $this->asyncReport->postMultipleArrayAsync($contentItems);
         }
 
@@ -234,16 +246,12 @@ class LmsFetchService {
                         $this->createIssue($issue, $contentItem);
                     }
                 }
-
-                // $this->scanner->logToServer("done!");
             }
             catch (\Exception $e) {
                 $this->util->createMessage($e->getMessage(), 'error', null, null, true);
             }
         }
         $this->doctrine->getManager()->flush();
-
-        // $this->scanner->logToServer("done!!!!!!!!!\n");
     }
 
     public function createIssue(PhpAllyIssue $issue, ContentItem $contentItem)
@@ -261,6 +269,11 @@ class LmsFetchService {
             if (strpos($_ENV['PHPALLY_SUGGESTION_RULES'], $issue->getRuleId()) !== false) {
                 $issueType = self::ISSUE_TYPE_SUGGESTION;
             }
+        }
+
+        $scanner = $_ENV['ACCESSIBILITY_CHECKER'];
+        if ($scanner == 'equalaccess_lambda' || $scanner == 'equalaccess_local') {
+          $issueType = $this->equalAccess->getIssueType($issue->getMetadata());
         }
 
         $issueEntity->setType($issueType);

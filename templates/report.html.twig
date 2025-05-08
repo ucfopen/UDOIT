@@ -48,11 +48,11 @@ td, th {
     <table width="100%" style="text-align: center">
         <thead>
             <tr>
-                <th>{{ labels['label.plural.error'] }}</th>
-                <th>{{ labels['label.plural.suggestion'] }}</th>
-                <th>{{ labels['label.content_fixed'] }}</th>
-                <th>{{ labels['label.content_resolved'] }}</th>
-                <th>{{ labels['label.files_reviewed'] }}</th>
+                <th>{{ labels['report.header.issues'] }}</th>
+                <th>{{ labels['report.header.suggestions'] }}</th>
+                <th>{{ labels['report.header.items_fixed'] }}</th>
+                <th>{{ labels['report.header.items_resolved'] }}</th>
+                <th>{{ labels['report.header.files_reviewed'] }}</th>
             </tr>
         </thead>
         <tbody>
@@ -77,13 +77,13 @@ td, th {
             <table class="error-table issue-table">
                 <thead>
                     <tr>
-                        <th>{{ labels['label.plural.error']}}</th>
+                        <th>{{ labels['report.header.issues']}}</th>
                         <th></th>
                     </tr>
                 </thead>
                 {% for key, count in row.issues.error %}
                     <tr>
-                        <td class="key">{{ labels["rule.label.#{key}"] }}</td>
+                        <td class="key">Rule: {{ key }}</td>
                         <td class="count">{{ count }}</td>
                     </tr>
                 {% endfor %}
@@ -94,13 +94,13 @@ td, th {
             <table class="suggestion-table issue-table">
                 <thead>
                     <tr>
-                        <th>{{ labels['label.plural.suggestion']}}</th>
+                        <th>{{ labels['report.header.suggestions']}}</th>
                         <th></th>
                     </tr>
                 </thead>
                 {% for key, count in row.issues.suggestion %}
                     <tr>
-                        <td class="key">{{ labels["rule.label.#{key}"] }}</td>
+                        <td class="key">Rule: {{ key }}</td>
                         <td class="count">{{ count }}</td>
                     </tr>
                 {% endfor %}
