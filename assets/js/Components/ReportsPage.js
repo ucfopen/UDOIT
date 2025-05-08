@@ -193,9 +193,9 @@ export default function ReportsPage({t, report, settings}) {
           <script>
             window.onload = function () {
               window.print();
-              window.onafterprint = function () {
-                window.close();
-              };
+            };
+            window.onafterprint = function () {
+              window.close();
             };
           </script>
         </body>
