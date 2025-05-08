@@ -38,7 +38,7 @@ class ResolutionsReport extends React.Component {
           fill: false,
           backgroundColor: '#D9A600',
           borderColor: '#D9A600',
-          borderDash: [10,5],
+          borderDash: [15,5],
           hidden: !visibility.potentialIssues
         },
         {
