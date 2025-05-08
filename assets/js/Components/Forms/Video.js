@@ -2,11 +2,8 @@ import React from 'react'
 
 export default function Video({
   t,
-  settings,
   activeIssue,
-  handleIssueSave,
-  addMessage,
-  handleActiveIssue,
+  isDisabled,
   handleManualScan
 }) {
 
@@ -21,6 +18,7 @@ export default function Video({
       <button
         className="btn btn-primary"
         tabindex="0"
+        disabled={isDisabled}
         onClick={handleVideoRescan}>
         {t('form.video.button.scan_video')}
       </button>

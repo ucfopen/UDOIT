@@ -4,12 +4,10 @@ import * as Html from '../../Services/Html'
 
 export default function HeadingEmptyForm({
   t,
-  settings,
   activeIssue,
   handleIssueSave,
-  addMessage,
+  isDisabled,
   handleActiveIssue,
-  handleManualScan
 }) {
 
   const [textInputValue, setTextInputValue] = useState('')
@@ -78,7 +76,7 @@ export default function HeadingEmptyForm({
           name="headingTextInput"
           className="w-100"
           value={textInputValue}
-          disabled={deleteHeader}
+          disabled={isDisabled || deleteHeader}
           tabindex="0"
           onChange={(e) => handleInput(e.target.value)} />
       </div>
@@ -89,13 +87,14 @@ export default function HeadingEmptyForm({
           name="deleteHeaderCheckbox"
           checked={deleteHeader}
           tabindex="0"
+          disabled={isDisabled}
           onChange={handleCheckbox} />
         <label htmlFor="deleteHeaderCheckbox">{t('form.heading_empty.label.remove_header')}</label>
       </div>
       <div className="flex-row justify-content-start mt-3 mb-3">
         <button
           className="btn btn-primary"
-          disabled={textInputErrors.length > 0}
+          disabled={isDisabled || textInputErrors.length > 0}
           tabindex="0"
           onClick={handleSubmit}>
           {t('form.submit')}

@@ -12,6 +12,7 @@ export default function ContrastForm({
   t,
   settings,
   activeIssue,
+  isDisabled,
   handleActiveIssue,
   handleIssueSave
 }) {
@@ -193,6 +194,7 @@ export default function ContrastForm({
               type="text"
               value={backgroundColorInput}
               tabindex="0"
+              disabled={isDisabled}
               onChange={(e) => handleInputBackground(e, e.target.value)} />
           </div>
         </div>
@@ -203,6 +205,7 @@ export default function ContrastForm({
               title={showBackgroundColorSelector ? t('form.contrast.label.hide_color_picker') : t('form.contrast.label.show_color_picker') }
               aria-label={showBackgroundColorSelector ? t('form.contrast.label.hide_color_picker') : t('form.contrast.label.show_color_picker') }
               tabindex="0"
+              disabled={isDisabled}
               onClick={handleToggleBackgroundColorSelector} >
               <PaletteIcon className="icon-md" />
             </button>
@@ -212,6 +215,7 @@ export default function ContrastForm({
               className="btn-icon-only btn-transparent"
               title={t('form.contrast.label.lighten')}
               tabindex="0"
+              disabled={isDisabled}
               onClick={handleLightenBackground}>
               <LightIcon className="icon-md"/>
             </button>
@@ -221,6 +225,7 @@ export default function ContrastForm({
               className="btn-icon-only btn-transparent"
               title={t('form.contrast.label.darken')}
               tabindex="0"
+              disabled={isDisabled}
               onClick={handleDarkenBackground}>
               <DarkIcon className="icon-md"/>
             </button>
@@ -252,6 +257,7 @@ export default function ContrastForm({
               type="text"
               value={textColorInput}
               tabindex="0"
+              disabled={isDisabled}
               onChange={(e) => handleInputText(e, e.target.value)} />
           </div>
         </div>
@@ -262,6 +268,7 @@ export default function ContrastForm({
               title={showTextColorSelector ? t('form.contrast.label.hide_color_picker') : t('form.contrast.label.show_color_picker')}
               aria-label={showTextColorSelector ? t('form.contrast.label.hide_color_picker') : t('form.contrast.label.show_color_picker')}
               tabindex="0"
+              disabled={isDisabled}
               onClick={handleToggleTextColorSelector}>
               <PaletteIcon className="icon-md" />
             </button>
@@ -271,6 +278,7 @@ export default function ContrastForm({
               className="btn-icon-only btn-transparent"
               title={t('form.contrast.label.lighten')}
               tabindex="0"
+              disabled={isDisabled}
               onClick={handleLightenText}>
               <LightIcon className="icon-md"/>
             </button>
@@ -280,6 +288,7 @@ export default function ContrastForm({
               className="btn-icon-only btn-transparent"
               title={t('form.contrast.label.darken')}
               tabindex="0"
+              disabled={isDisabled}
               onClick={handleDarkenText}>
               <DarkIcon className="icon-md"/>
             </button>
@@ -300,7 +309,7 @@ export default function ContrastForm({
             className="btn btn-primary"
             onClick={handleSubmit}
             tabindex="0"
-            disabled={!ratioIsValid}>
+            disabled={isDisabled || !ratioIsValid}>
             {t('form.submit')}
           </button>
         </div>

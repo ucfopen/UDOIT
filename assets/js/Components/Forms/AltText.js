@@ -4,12 +4,10 @@ import * as Html from '../../Services/Html'
 
 export default function AltText ({
   t,
-  settings,
   activeIssue,
   handleIssueSave,
-  addMessage,
+  isDisabled,
   handleActiveIssue,
-  handleManualScan
  }) {
   
   const maxLength = 150
@@ -152,7 +150,7 @@ export default function AltText ({
           name="altTextInput"
           className="w-100"
           value={textInputValue}
-          disabled={isDecorative}
+          disabled={isDisabled || isDecorative}
           onChange={handleInput} />
       </div>
       <div className="flex-row justify-content-end mt-1">
@@ -167,6 +165,7 @@ export default function AltText ({
           id="decorativeCheckbox"
           name="decorativeCheckbox"
           tabindex="0"
+          disabled={isDisabled}
           checked={isDecorative}
           onChange={handleCheckbox} />
         <label htmlFor="decorativeCheckbox">{t('form.alt_text.label.mark_decorative')}</label>
@@ -174,7 +173,7 @@ export default function AltText ({
       <div className="flex-row justify-content-start mt-3 mb-3">
         <button
           className="btn btn-primary"
-          disabled={textInputErrors.length > 0}
+          disabled={isDisabled || textInputErrors.length > 0}
           tabindex="0"
           onClick={handleSubmit}>
           {t('form.submit')}

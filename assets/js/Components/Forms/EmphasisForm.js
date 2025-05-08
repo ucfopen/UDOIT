@@ -5,12 +5,10 @@ import * as Contrast from '../../Services/Contrast'
 
 export default function EmphasisForm({
   t,
-  settings,
   activeIssue,
+  isDisabled,
   handleIssueSave,
-  addMessage,
   handleActiveIssue,
-  handleManualScan
 }) {
   const [useBold, setUseBold] = useState(false)
   const [useItalics, setUseItalics] = useState(false)
@@ -103,6 +101,7 @@ export default function EmphasisForm({
           name="boldCheckbox"
           checked={useBold}
           tabindex="0"
+          disabled={isDisabled}
           onChange={handleBoldToggle} />
         <label htmlFor="boldCheckbox">{t('form.emphasis.label.bold')}</label>
       </div>
@@ -112,6 +111,7 @@ export default function EmphasisForm({
           name="italicCheckbox"
           checked={useItalics}
           tabindex="0"
+          disabled={isDisabled}
           onChange={handleItalicsToggle} />
         <label htmlFor="italicCheckbox">{t('form.emphasis.label.italic')}</label>
       </div>
@@ -119,7 +119,7 @@ export default function EmphasisForm({
       <div className="flex-row justify-content-start mt-3 mb-3">
         <button
           className="btn btn-primary"
-          disabled={checkboxErrors.length > 0}
+          disabled={isDisabled || checkboxErrors.length > 0}
           tabindex="0"
           onClick={handleSubmit}>
           {t('form.submit')}

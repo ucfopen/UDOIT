@@ -4,7 +4,6 @@ import './FileForm.css'
 
 export default function FileForm ({
   t,
-  settings,
   activeFile,
   handleFileUpload,
  }) {

@@ -135,6 +135,7 @@
   "fix.label.file_updated": "Last Updated",
   "fix.label.screen_reader": "Screen Reader Text",
   "fix.label.no_error_preview": "Accessibility Barrier Not Found",
+  "fix.label.no_saving": "Editing and Saving Unavailable",
   "fix.msg.no_error_preview": "This accessibility barrier cannot be found, likely because the content has been changed. No areas will be highlighted and no changes can be made inside of UDOIT.",
   "fix.button.download_file": "Download File",
   "fix.button.view_in_lms": "View In LMS",

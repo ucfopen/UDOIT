@@ -4,12 +4,10 @@ import * as Html from '../../Services/Html'
 
 export default function HeadingStyleForm ({
   t,
-  settings,
   activeIssue,
   handleIssueSave,
-  addMessage,
+  isDisabled,
   handleActiveIssue,
-  handleManualScan
  }) {
 
   const styleTags = ["strong", "b", "i", "em", "mark", "small", "del", "ins", "sub", "sup"]
@@ -97,7 +95,7 @@ export default function HeadingStyleForm ({
         value={selectedValue}
         tabindex="0"
         onChange={(e) => handleSelect(e.target.value)}
-        disabled={removeStyling}>
+        disabled={isDisabled || removeStyling}>
           <option key='empty' id='opt-empty' value=''>
             {t('form.heading_style.label.none_selected')}
           </option>
@@ -113,6 +111,7 @@ export default function HeadingStyleForm ({
           name="removeStylingCheckbox"
           checked={removeStyling}
           tabindex="0"
+          disabled={isDisabled}
           onChange={handleCheckbox} />
         <label htmlFor="removeStylingCheckbox">{t('form.heading_style.label.remove_styling')}</label>
       </div>
@@ -120,7 +119,7 @@ export default function HeadingStyleForm ({
       <div className="flex-row justify-content-start mt-3 mb-3">
         <button
           className="btn btn-primary"
-          disabled={textInputErrors.length > 0}
+          disabled={isDisabled || textInputErrors.length > 0}
           tabindex="0"
           onClick={handleSubmit}>
           {t('form.submit')}

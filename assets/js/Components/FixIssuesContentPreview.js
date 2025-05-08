@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import DownloadIcon from './Icons/DownloadIcon'
 import ExternalLinkIcon from './Icons/ExternalLinkIcon'
-import EarIcon from './Icons/EarIcon'
 import ProgressIcon from './Icons/ProgressIcon'
 import * as Html from '../Services/Html'
 
@@ -14,12 +13,13 @@ export default function FixIssuesContentPreview({
   activeIssue,
   activeContentItem,
   editedElement,
+  setIsErrorFoundInContent,
   sessionIssues,
 }) {
 
   const [taggedContent, setTaggedContent] = useState(null)
   const [altTextPreview, setAltTextPreview] = useState(null)
-  const [isErrorElementPresent, setIsErrorElementPresent] = useState(false)
+  const [canShowPreview, setCanShowPreview] = useState(false)
 
   const SHOW_ALT_TEXT_RULES = [
     "ImageAltIsDifferent",
@@ -158,7 +158,8 @@ export default function FixIssuesContentPreview({
     const errorElement = Html.toElement(errorHtml)
 
     if(!errorElement) {
-      setIsErrorElementPresent(false)
+      setCanShowPreview(false)
+      setIsErrorFoundInContent(false)
       return fullPageHtml
     }
 
@@ -178,12 +179,13 @@ export default function FixIssuesContentPreview({
 
     // If the element is found, update it with the appropriate class.
     if(docElement) {
-      setIsErrorElementPresent(true)
+      setCanShowPreview(true)
+      setIsErrorFoundInContent(true)
       docElement.replaceWith(convertErrorHtmlElement(docElement))
     }
     else {
-      console.warn('Error element not found: ', activeIssue)
-      setIsErrorElementPresent(false)
+      setCanShowPreview(false)
+      setIsErrorFoundInContent(false)
     }
 
     // Find all of the heading elements and show them when a relevant issues is being edited.
@@ -275,14 +277,14 @@ export default function FixIssuesContentPreview({
             </div>
           </a>
           <div className="ufixit-content-preview">
-            { isErrorElementPresent ? (
+            { canShowPreview ? (
               <div dangerouslySetInnerHTML={{__html: taggedContent}} />
             ) : (
               <div className="ufixit-content-preview-no-error flex-row p-3">
                 <div className="flex-column justify-content-start">
                   <div className="flex-row mb-3">
                     <div className="flex-column justify-content-center flex-grow-0 flex-shrink-0 me-3">
-                      <InfoIcon className="icon-lg udoit-potential" alt="" />
+                      <InfoIcon className="icon-lg udoit-suggestion" alt="" />
                     </div>  
                     <div className="flex-column justify-content-center flex-grow-1">
                       <h2 className="mt-0 mb-0">{t('fix.label.no_error_preview')}</h2>
@@ -290,7 +292,7 @@ export default function FixIssuesContentPreview({
                   </div>
                   <div>{t('fix.msg.no_error_preview')}</div>
                   <div className="flex-row justify-content-end mt-3">
-                    <button className="btn btn-secondary mt-3" onClick={() => setIsErrorElementPresent(true)}>
+                    <button className="btn btn-secondary mt-3" onClick={() => setCanShowPreview(true)}>
                       {t('fix.button.show_no_error_preview')}
                     </button>
                   </div>
