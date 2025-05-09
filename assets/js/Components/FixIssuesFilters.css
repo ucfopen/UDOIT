@@ -19,7 +19,7 @@
       border: 1px solid var(--border-color);
       border-radius: 8px;
       outline: none;
-      width: 450px;
+      width: 300px;
       box-sizing: border-box;
 
       &:focus {
@@ -33,6 +33,20 @@
       left: -1.5rem;
       top: 0.25rem;
       fill: var(--gray);
+    }
+  }
+
+  .filter-pill {
+    padding: 0px .5rem 0px .75rem;
+    background-color: var(--gray);
+    cursor: pointer;
+    border-radius: 12px;
+
+    .filter-pill-text {
+      color: var(--white);
+      font-size: 0.8rem;
+      font-weight: 500;
+      text-transform: uppercase;
     }
   }
 

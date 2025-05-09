@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import SearchIcon from './Icons/SearchIcon'
+import CloseIcon from './Icons/CloseIcon'
 import ContentTypeIcon from './Icons/ContentTypeIcon'
 
 import './FixIssuesFilters.css'
@@ -51,7 +52,7 @@ export default function FixIssuesFilters({ t, settings, sections, activeFilters,
     },
   }
 
-  const [usedFilters, setUsedFilters] = useState([])
+  const [usedFilters, setUsedFilters] = useState(null)
   // For new users, the 'show_filters' attribute may not be set, so we need to check if it exists before using it
   const [showFilters, setShowFilters] = useState(settings?.user?.roles && ('show_filters' in settings.user.roles) ? settings.user.roles.show_filters : true)
 
@@ -68,15 +69,19 @@ export default function FixIssuesFilters({ t, settings, sections, activeFilters,
       delete tempFilters[FILTER.TYPE.MODULE]
     }
     setUsedFilters(tempFilters)
-  }, [])  
+  }, [])
+
+  const removeFilter = (filterType) => {
+    updateActiveFilters(filterType, FILTER.ALL)
+  }
 
   // TODO: Icons on the Content Type dropdown
   // TODO: Cool-looking, yet fully accessible dropdown. Maybe like https://www.w3.org/WAI/ARIA/apg/patterns/combobox/examples/combobox-select-only/
 
   return (
     <div className="filter-container flex-column gap-1 mb-3">
-      <div className="flex-row flex-wrap justify-content-between">
-        <div className="flex-column justify-content-center">
+      <div className="flex-row justify-content-between">
+        <div className="flex-column flex-shrink-0 justify-content-center">
           {/* <label htmlFor='search-bar'>{t('filter.label.search')}</label> */}
           <div className="search-group">
             <input
@@ -92,7 +97,31 @@ export default function FixIssuesFilters({ t, settings, sections, activeFilters,
             <SearchIcon className="search-icon icon-sm" />
           </div>
         </div>
-        <div className="flex-column justify-content-center">
+        <div className="flex-column flex-grow-1 justify-content-center">
+          <div className="flex-row flex-wrap gap-1">
+            { usedFilters !== null ? Object.keys(activeFilters).map((filterType) => {
+              if(activeFilters[filterType] !== FILTER.ALL) {
+                return (
+                  <button
+                    className="filter-pill flex-row gap-1"
+                    key={filterType}
+                    aria-label={t('filter.label.remove_filter', { filterName: usedFilters[filterType][activeFilters[filterType]] })}
+                    title={t('filter.label.remove_filter', { filterName: usedFilters[filterType][activeFilters[filterType]] })}
+                    onClick={() => removeFilter(filterType)}
+                    id={'pill-' + filterType + '-' + activeFilters[filterType]}>
+                    <div className="filter-pill-text flex-column align-self-center white">
+                      {usedFilters[filterType][activeFilters[filterType]]}
+                    </div>
+                    <div className="filter-pill-remove flex-column align-self-center">
+                      <CloseIcon className="icon-sm white" />
+                    </div>
+                  </button>
+                )
+              }
+            }) : null }
+          </div>
+        </div>
+        <div className="flex-column flex-shrink-0 ms-3 justify-content-center">
           <button
             className="btn btn-secondary"
             tabindex="0"
@@ -102,7 +131,7 @@ export default function FixIssuesFilters({ t, settings, sections, activeFilters,
           </button>
         </div>
       </div>
-      {showFilters && (
+      {showFilters && usedFilters && (
         <div className="flex-row flex-wrap gap-1">
           {Object.keys(usedFilters).map((filterType) => {
             return (

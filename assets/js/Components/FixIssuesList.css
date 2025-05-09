@@ -38,9 +38,9 @@
       }
     
       &:hover {
-        background-color: var(--primary-color-light);
-        color: var(--primary-color);
-        fill: var(--primary-color);
+        background-color: var(--link-color-light);
+        color: var(--link-color);
+        fill: var(--link-color);
       }
 
       &:focus {

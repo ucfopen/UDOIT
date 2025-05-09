@@ -98,6 +98,7 @@
   "filter.label.search": "Search",
   "filter.label.show_filters": "Show Filters",
   "filter.label.hide_filters": "Hide Filters",
+  "filter.label.remove_filter": "Remove Filter: {filterName}",
   "filter.label.severity": "Severity",
   "filter.label.severity.all": "All Severities",
   "filter.label.severity.issue": "Issues",
@@ -330,6 +331,7 @@
   "form.table_headers.col": "Column Header",
   "form.table_headers.row": "Row Header",
   "form.table_headers.both": "Both",
+  "rule.desc.table_headers_exists": "",
 
   "form.video.label.videos": "Video Files",
   "form.video.label.description": "UDOIT cannot automatically detect whether videos hosted on external sites have captions. Please check the item yourself and ensure that captions and transcripts are available. If they are, mark this issue as reviewed.",
@@ -381,7 +383,9 @@
   "rule.desc.list_markup_review": "This text seems to be part of a list, but is not marked as one. If it is a list, modify it in your LMS using the list tools. If it is not part of a list, you may mark this as reviewed.",
   "rule.desc.text_sensory_misuse": "Make sure that there aren't any instructions that depend on these sensory words: {sensoryWords}",
   "rule.desc.text_quoted_correctly": "If any of the following text is a direct quotation, make sure that it is cited correctly: {potentialQuotes}",
-  
+  "rule.desc.table_headers_related": "In complicated data tables where cells are merged, cells may need to be individually linked to their headers using the headers attribute. If you are using a table editor, this should be done automatically. If you are not using a table editor, you may need to add the headers attribute manually.",
+  "rule.desc.table_headers_ref_valid": "This cell is trying to link to a header using an id that cannot be found. Please verify that the id is correct and that the header exists.",
+
   "rule.desc.area_alt_exists": "",
   "rule.desc.aria_graphic_labelled": "",
   "rule.desc.aria_img_labelled": "",
@@ -399,15 +403,14 @@
   "rule.desc.media_track_available": "",
   "rule.desc.media_live_captioned": "",
   "rule.desc.input_checkboxes_grouped": "",
-  "rule.desc.table_headers_ref_valid": "",
+  
   "rule.desc.fieldset_label_valid": "",
   "rule.desc.table_scope_valid": "",
   "rule.desc.form_label_unique": "",
   "rule.desc.label_ref_valid": "",
   "rule.desc.table_caption_empty": "",
   "rule.desc.table_caption_nested": "",
-  "rule.desc.table_headers_exists": "",
-  "rule.desc.table_headers_related": "",
+  
   "rule.desc.table_structure_misuse": "",
   "rule.desc.table_summary_redundant": "",
   "rule.desc.blockquote_cite_exists": "",
