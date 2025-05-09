@@ -49,6 +49,7 @@ export default function FixIssuesPage({
       CONTENT_TYPE: 'CONTENT_TYPE',
       RESOLUTION: 'RESOLUTION',
       MODULE: 'MODULE',
+      PUBLISHED: 'PUBLISHED',
     },
     ALL: 'ALL',
     ISSUE: 'ISSUE',
@@ -67,10 +68,13 @@ export default function FixIssuesPage({
     ACTIVE: 'ACTIVE',
     FIXED: 'FIXED',
     RESOLVED: 'RESOLVED',
+    PUBLISHED: 'PUBLISHED',
+    UNPUBLISHED: 'UNPUBLISHED',
   }
 
   const defaultFilters = {
     [FILTER.TYPE.SEVERITY]: FILTER.ALL,
+    [FILTER.TYPE.PUBLISHED]: FILTER.PUBLISHED,
     [FILTER.TYPE.CONTENT_TYPE]: FILTER.ALL,
     [FILTER.TYPE.RESOLUTION]: FILTER.ACTIVE,
     [FILTER.TYPE.MODULE]: FILTER.ALL,
@@ -385,6 +389,11 @@ export default function FixIssuesPage({
 
       // Do not include this issue if it doesn't match the module filter
       if (tempFilters[FILTER.TYPE.MODULE] !== FILTER.ALL && !issue.sectionIds.includes(tempFilters[FILTER.TYPE.MODULE].toString())) {
+        continue
+      }
+
+      // Do not include this issue if it doesn't match the published filter
+      if (tempFilters[FILTER.TYPE.PUBLISHED] !== FILTER.ALL && (tempFilters[FILTER.TYPE.PUBLISHED] === FILTER.PUBLISHED) !== issue.published) {
         continue
       }
 

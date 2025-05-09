@@ -15,19 +15,15 @@ label {
   min-width: 200px;
 }
 
-.settings-container {
-  background: var(--background-color);
-  border-radius: 8px;
-  border: 1px solid var(--border-color);
-  padding: 1rem;
-}
-
 .about-container {
   height: 650px;
   max-height: 1000px;
-  max-width: 600px;
-  margin: 0 auto;
   overflow-y: auto;
+
+  .about-content {
+    max-width: 600px;
+    margin: 0 auto;
+  }
 }
 
 h2 {

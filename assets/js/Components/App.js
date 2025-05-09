@@ -92,6 +92,7 @@ export default function App(initialData) {
           if(data?.labels?.lang) {
             newSettings.labels = data.labels
           }
+          console.log(newSettings)
           setSettings(newSettings)
         }
     })

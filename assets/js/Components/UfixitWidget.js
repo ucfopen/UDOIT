@@ -192,7 +192,7 @@ export default function UfixitWidget({
                     <div className="ufixit-overlay flex-column justify-content-center">
                       <div className="ufixit-overlay-content-container flex-row justify-content-center mb-4">
                         <div className="flex-column justify-content-center me-3">
-                          <ProgressIcon className="icon-lg primary spinner" />
+                          <ProgressIcon className="icon-lg udoit-suggestion spinner" />
                         </div>
                         <div className="flex-column justify-content-center">
                           <h3>{t('form.processing')}</h3>
@@ -205,7 +205,7 @@ export default function UfixitWidget({
                       <div className="ufixit-overlay-content-container flex-row justify-content-center mt-3">
                         <div className="flex-column justify-content-start me-3">
                           { isContentLoading ? (
-                            <ProgressIcon className="icon-lg primary spinner" />
+                            <ProgressIcon className="icon-lg udoit-suggestion spinner" />
                           ) : (
                             <InfoIcon className="icon-lg udoit-suggestion" />
                           )}

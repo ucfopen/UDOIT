@@ -350,7 +350,7 @@ export default function FixIssuesContentPreview({
             <div className="ufixit-content-preview">
               <div className="flex-row justify-content-center mt-3">
                 <div className="flex-column justify-content-center">
-                  <ProgressIcon className="icon-lg primary spinner" />
+                  <ProgressIcon className="icon-lg udoit-suggestion spinner" />
                 </div>
                 <div className="flex-column justify-content-center ms-3">
                   <h2 className="mt-0 mb-0">{t('fix.label.loading_content')}</h2>

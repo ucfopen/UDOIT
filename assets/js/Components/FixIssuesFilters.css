@@ -1,7 +1,7 @@
 @import '../../css/udoit4-theme.css';
 
 .filter-container {
-  background-color: var(--link-color-light);
+  background-color: var(--background-color);
   border-top: 1px solid var(--border-color);
   border-bottom: 1px solid var(--border-color);
   margin-left: -1rem;
@@ -9,6 +9,7 @@
   padding: .5rem 1rem;
 
   .search-group {
+    display: block;
 
     input {
       font-size: 0.85rem;
@@ -18,7 +19,7 @@
       border: 1px solid var(--border-color);
       border-radius: 8px;
       outline: none;
-      width: 250px;
+      width: 450px;
       box-sizing: border-box;
 
       &:focus {
@@ -36,12 +37,8 @@
   }
 
   .filter-group {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-
     select {
-      max-width: 240px;
+      max-width: 250px;
       min-width: 180px;
     }
   }

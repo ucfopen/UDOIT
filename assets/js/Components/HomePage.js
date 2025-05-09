@@ -89,12 +89,9 @@ export default function HomePage({
 
   return (
   <main>
-    <div className='flex-column gap-3 mt-4 mb-4'>
-      <h1 className="primary-dark mt-0 mb-0">{t('summary.title')}</h1>
-      <div className="flex-row w-50">
-        <p className="mt-0 mb-0">{t('summary.description')}</p>
-      </div>
-      
+    <h1 className="primary-dark">{t('summary.title')}</h1>
+    <div className="flex-row w-50 mb-4">
+      <p className="mt-0 mb-0">{t('summary.description')}</p>
     </div>
     <div className="flex-row gap-3">
       <div className="report-container flex-column">
@@ -107,7 +104,7 @@ export default function HomePage({
                   <SeverityIcon type="ISSUE" className='icon-lg' />
                   </div>
                   <div className='flex-column justify-content-center'>
-                    <h3 className='mb-0 mt-0'>{t('filter.label.severity.issue')}</h3>
+                    <h3 className='text-color mb-0 mt-0'>{t('filter.label.severity.issue')}</h3>
                   </div>
                 </div>
                 <div className='flex-column justify-content-end'>
@@ -129,7 +126,7 @@ export default function HomePage({
                   <SeverityIcon type="POTENTIAL" className='icon-lg' />
                   </div>
                   <div className='flex-column justify-content-center'>
-                    <h3 className='mb-0 mt-0'>{t('filter.label.severity.potential')}</h3>
+                    <h3 className='text-color mb-0 mt-0'>{t('filter.label.severity.potential')}</h3>
                   </div>
                 </div>
                 <div className='flex-column justify-content-end'>
@@ -151,7 +148,7 @@ export default function HomePage({
                   <SeverityIcon type="SUGGESTION" className='icon-lg' />
                   </div>
                   <div className='flex-column justify-content-center'>
-                    <h3 className='mb-0 mt-0'>{t('filter.label.severity.suggestion')}</h3>
+                    <h3 className='text-color mb-0 mt-0'>{t('filter.label.severity.suggestion')}</h3>
                   </div>
                 </div>
                 <div className='flex-column justify-content-end'>

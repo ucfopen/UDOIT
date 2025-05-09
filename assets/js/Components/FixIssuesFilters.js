@@ -8,12 +8,25 @@ export default function FixIssuesFilters({ t, settings, sections, activeFilters,
 
   const FILTER = settings.FILTER
 
+  const filterLabels = {
+    [FILTER.TYPE.SEVERITY]: t('filter.label.severity'),
+    [FILTER.TYPE.PUBLISHED]: t('filter.label.published'),
+    [FILTER.TYPE.CONTENT_TYPE]: t('filter.label.type'),
+    [FILTER.TYPE.RESOLUTION]: t('filter.label.resolution'),
+    [FILTER.TYPE.MODULE]: t('filter.label.module'),
+  }
+
   const allFilters = {
     [FILTER.TYPE.SEVERITY]: {
       [FILTER.ALL]: t('filter.label.severity.all'),
       [FILTER.ISSUE]: t('filter.label.severity.issue'),
       [FILTER.POTENTIAL]: t('filter.label.severity.potential'),
       [FILTER.SUGGESTION]: t('filter.label.severity.suggestion'),
+    },
+    [FILTER.TYPE.PUBLISHED]: {
+      [FILTER.PUBLISHED]: t('filter.label.published.published'),
+      [FILTER.UNPUBLISHED]: t('filter.label.published.unpublished'),
+      [FILTER.ALL]: t('filter.label.published.all'),
     },
     [FILTER.TYPE.CONTENT_TYPE]: {
       [FILTER.ALL]: t('filter.label.type.all'),
@@ -39,6 +52,8 @@ export default function FixIssuesFilters({ t, settings, sections, activeFilters,
   }
 
   const [usedFilters, setUsedFilters] = useState([])
+  // For new users, the 'show_filters' attribute may not be set, so we need to check if it exists before using it
+  const [showFilters, setShowFilters] = useState(settings?.user?.roles && ('show_filters' in settings.user.roles) ? settings.user.roles.show_filters : true)
 
   // When the page loads, only show the "Modules" filter is there are modules to filter by...
   useEffect(() => {
@@ -53,46 +68,68 @@ export default function FixIssuesFilters({ t, settings, sections, activeFilters,
       delete tempFilters[FILTER.TYPE.MODULE]
     }
     setUsedFilters(tempFilters)
-  })  
+  }, [])  
 
   // TODO: Icons on the Content Type dropdown
   // TODO: Cool-looking, yet fully accessible dropdown. Maybe like https://www.w3.org/WAI/ARIA/apg/patterns/combobox/examples/combobox-select-only/
 
   return (
-    <div className="filter-container mb-3">
-      <div className="flex-row flex-wrap gap-1">
-        <div className="search-group">
-          <input
-            value={searchTerm}
-            type="text"
-            placeholder={t('filter.label.search')}
-            onChange={(e) => handleSearchTerm(e.target.value)}
-          />
-          <SearchIcon className="search-icon icon-sm" />
+    <div className="filter-container flex-column gap-1 mb-3">
+      <div className="flex-row flex-wrap justify-content-between">
+        <div className="flex-column justify-content-center">
+          {/* <label htmlFor='search-bar'>{t('filter.label.search')}</label> */}
+          <div className="search-group">
+            <input
+              id="search-bar"
+              name="search-bar"
+              tabindex="0"
+              aria-label={t('filter.label.search')}
+              value={searchTerm}
+              type="text"
+              placeholder={t('filter.label.search')}
+              onChange={(e) => handleSearchTerm(e.target.value)}
+            />
+            <SearchIcon className="search-icon icon-sm" />
+          </div>
         </div>
-        {Object.keys(usedFilters).map((filterType) => {
-          return (
-            <div className="filter-group">
-              {/* <label>{filterType}</label> */}
-              <select
-                aria-label={filterType}
-                onChange={(e) => updateActiveFilters(filterType, e.target.value)}
-              >
-                {Object.keys(usedFilters[filterType]).map((filter) => {
-                  return (
-                    <option value={filter} selected={activeFilters[filterType] === filter}>
-                      {filterType === FILTER.TYPE.CONTENT_TYPE && (
-                        <ContentTypeIcon type={filter} alt="" className="icon-sm text-color" />
-                      )}
-                      {usedFilters[filterType][filter]}
-                    </option>
-                  )
-                })}
-              </select>
-            </div>
-          )
-        })}
+        <div className="flex-column justify-content-center">
+          <button
+            className="btn btn-secondary"
+            tabindex="0"
+            onClick={() => setShowFilters(!showFilters)}
+          >
+            {showFilters ? t('filter.label.hide_filters') : t('filter.label.show_filters')}
+          </button>
+        </div>
       </div>
+      {showFilters && (
+        <div className="flex-row flex-wrap gap-1">
+          {Object.keys(usedFilters).map((filterType) => {
+            return (
+              <div className="filter-group flex-column justify-content-center" key={filterType}>
+                <label htmlFor={'filter' + filterType}>{filterLabels[filterType]}</label>
+                <select
+                  id={'filter' + filterType}
+                  name={'filter' + filterType}
+                  tabindex="0"
+                  onChange={(e) => updateActiveFilters(filterType, e.target.value)}
+                >
+                  {Object.keys(usedFilters[filterType]).map((filter) => {
+                    return (
+                      <option value={filter} selected={activeFilters[filterType] === filter}>
+                        {filterType === FILTER.TYPE.CONTENT_TYPE && (
+                          <ContentTypeIcon type={filter} alt="" className="icon-sm text-color" />
+                        )}
+                        {usedFilters[filterType][filter]}
+                      </option>
+                    )
+                  })}
+                </select>
+              </div>
+            )
+          })}
+        </div>
+      )}
     </div>
   )
 }

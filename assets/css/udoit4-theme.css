@@ -422,6 +422,7 @@ h1, h2, h3, h4, h5, h6 {
   font-family: 'Open Sans', sans-serif;
   font-weight: 500;
   line-height: normal;
+  color: var(--primary-color);
 }
 
 .primary {
@@ -637,6 +638,13 @@ button:disabled {
 
 .rotate-270 {
   transform: rotate(270deg);
+}
+
+.callout-container {
+  background: var(--background-color);
+  border-radius: 8px;
+  border: 1px solid var(--border-color);
+  padding: 1rem;
 }
 
 /* Customized select and options elements based on example from: 
