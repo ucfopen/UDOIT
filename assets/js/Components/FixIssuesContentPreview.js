@@ -1,15 +1,13 @@
 import React, { useState, useEffect, useRef } from 'react'
-import DailyProgress from './DailyProgress'
 import DownloadIcon from './Icons/DownloadIcon'
 import ExternalLinkIcon from './Icons/ExternalLinkIcon'
-import EarIcon from './Icons/EarIcon'
 import ProgressIcon from './Icons/ProgressIcon'
+import * as Html from '../Services/Html'
 import UpArrowIcon from './Icons/UpArrowIcon'
 import DownArrowIcon from './Icons/DownArrowIcon'
-import * as Html from '../Services/Html'
 import useInViewPort from './Hooks/useInViewPort'
-
 import './FixIssuesContentPreview.css'
+import InfoIcon from './Icons/InfoIcon'
 
 export default function FixIssuesContentPreview({
   t,
@@ -17,11 +15,14 @@ export default function FixIssuesContentPreview({
   activeIssue,
   activeContentItem,
   editedElement,
+  setIsErrorFoundInContent,
   sessionIssues,
 }) {
 
   const [taggedContent, setTaggedContent] = useState(null)
   const [altTextPreview, setAltTextPreview] = useState(null)
+  const [canShowPreview, setCanShowPreview] = useState(false)
+
 
   const [issueElementDefaultRect, setIssueElementDefaultRect] = useState(null)
   const issueElementRef = useRef(null)
@@ -57,10 +58,10 @@ export default function FixIssuesContentPreview({
       setDebouncedVisible(issueElementVisible)
       setDebouncedDirection(getScrollDirection(issueElementRef.current, issueElementDefaultRect))
     }, 100)
-  
+
     return () => clearTimeout(timer)
   }, [issueElementVisible, issueElementRef.current, issueElementDefaultRect])
-  
+
 
   const getScrollDirection = (element, defaultRect) => {
     if (!element || !defaultRect || !issueElementRef || issueElementVisible) return null
@@ -136,12 +137,6 @@ export default function FixIssuesContentPreview({
   }
 
   const convertErrorHtmlElement = (htmlElement) => {
-    let altText = htmlElement.getAttribute('alt') || htmlElement.getAttribute('aria-label')
-    if(altText && altText !== '') {
-      setAltTextPreview(altText)
-    } else {
-      setAltTextPreview(null)
-    }
     htmlElement.classList.add('ufixit-error-highlight')
 
     return htmlElement
@@ -221,7 +216,8 @@ export default function FixIssuesContentPreview({
     const errorElement = Html.toElement(errorHtml)
 
     if(!errorElement) {
-      console.warn("Error element cannot be reproduced.")
+      setCanShowPreview(false)
+      setIsErrorFoundInContent(false)
       return fullPageHtml
     }
 
@@ -241,7 +237,13 @@ export default function FixIssuesContentPreview({
 
     // If the element is found, update it with the appropriate class.
     if(docElement) {
+      setCanShowPreview(true)
+      setIsErrorFoundInContent(true)
       docElement.replaceWith(convertErrorHtmlElement(docElement))
+    }
+    else {
+      setCanShowPreview(false)
+      setIsErrorFoundInContent(false)
     }
 
     // Find all of the heading elements and show them when a relevant issues is being edited.
@@ -365,13 +367,36 @@ export default function FixIssuesContentPreview({
             </div>
           </a>
           <div className="ufixit-content-preview">
-            {renderScrollButton()}
-            <div ref={node => {
-              if (node) {
-                const highlightElement = node.getElementsByClassName('ufixit-error-highlight')[0]
-                issueElementRef.current = highlightElement
-              }
-            }} dangerouslySetInnerHTML={{__html: taggedContent}} />
+            { canShowPreview ? (
+              <>
+              {renderScrollButton()}
+              <div ref={node => {
+                if (node) {
+                  const highlightElement = node.getElementsByClassName('ufixit-error-highlight')[0]
+                  issueElementRef.current = highlightElement
+                }
+              }} dangerouslySetInnerHTML={{__html: taggedContent}} />
+              </>
+            ) : (
+              <div className="ufixit-content-preview-no-error flex-row p-3">
+                <div className="flex-column justify-content-start">
+                  <div className="flex-row mb-3">
+                    <div className="flex-column justify-content-center flex-grow-0 flex-shrink-0 me-3">
+                      <InfoIcon className="icon-lg udoit-suggestion" alt="" />
+                    </div>
+                    <div className="flex-column justify-content-center flex-grow-1">
+                      <h2 className="mt-0 mb-0">{t('fix.label.no_error_preview')}</h2>
+                    </div>
+                  </div>
+                  <div>{t('fix.msg.no_error_preview')}</div>
+                  <div className="flex-row justify-content-end mt-3">
+                    <button className="btn btn-secondary mt-3" onClick={() => setCanShowPreview(true)}>
+                      {t('fix.button.show_no_error_preview')}
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
         </>
       ) : activeIssue ? (

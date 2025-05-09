@@ -49,6 +49,14 @@
   border-radius: 8px;
 }
 
+.ufixit-content-preview-no-error {
+  background-color: var(--background-color);
+  margin: 1.5rem;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 1rem 1.5rem;
+}
+
 .ufixit-error-highlight {
   outline: 3px dashed var(--issue-color);
   outline-offset: 1px;
@@ -99,7 +107,6 @@
 }
 
 .ufixit-alt-text-preview {
-
   background-color: var(--gray-dark);
   color: var(--white);
   border-radius: 22px;

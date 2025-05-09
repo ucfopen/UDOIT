@@ -2,13 +2,11 @@ import React, { useState, useEffect } from 'react'
 import * as Html from '../../Services/Html';
 
 export default function TableHeaders({
-  t, 
-  settings, 
+  t,
   activeIssue, 
   handleIssueSave, 
-  addMessage, 
-  handleActiveIssue, 
-  handleManualScan
+  isDisabled, 
+  handleActiveIssue,
 }) {
   const radioOptions = [
     'col',
@@ -145,6 +143,7 @@ export default function TableHeaders({
               name="tableHeaderSelect"
               value={selectedValue}
               tabindex="0"
+              disabled={isDisabled}
               onChange={() => handleChange(value)} />
             <label htmlFor={value}>{t(`form.table_headers.${value}`)}</label>
           </div>
@@ -153,7 +152,7 @@ export default function TableHeaders({
       <div className="flex-row justify-content-start mt-3 mb-3">
         <button
           className="btn btn-primary"
-          disabled={!selectedValue}
+          disabled={isDisabled || !selectedValue}
           tabindex="0"
           onClick={handleSubmit}>
           {t('form.submit')}

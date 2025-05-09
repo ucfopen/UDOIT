@@ -93,6 +93,7 @@ export default function FixIssuesPage({
 
   const [activeIssue, setActiveIssue] = useState(null)
   const [activeContentItem, setActiveContentItem] = useState(null)
+  const [isErrorFoundInContent, setIsErrorFoundInContent] = useState(false)
   const [editedElement, setEditedElement] = useState(null)
   const [searchTerm, setSearchTerm] = useState('')
   const [activeFilters, setActiveFilters] = useState(defaultFilters)
@@ -471,6 +472,7 @@ export default function FixIssuesPage({
 
     if(activeIssue.contentType === FILTER.FILE_OBJECT) {
       setActiveContentItem(null)
+      setIsErrorFoundInContent(true)
       return
     }
 
@@ -837,6 +839,8 @@ export default function FixIssuesPage({
                 setActiveIssue={setActiveIssue}
                 setEditedElement={setEditedElement}
                 formatIssueData={formatIssueData}
+                isContentLoading={activeContentItem === null}
+                isErrorFoundInContent={isErrorFoundInContent}
                 handleIssueResolve={handleIssueResolve}
                 handleIssueSave={handleIssueSave}
                 handleFileResolve={handleFileResolve}
@@ -865,6 +869,7 @@ export default function FixIssuesPage({
               activeContentItem={activeContentItem}
               editedElement={editedElement}
               sessionIssues={sessionIssues}
+              setIsErrorFoundInContent={setIsErrorFoundInContent}
             />
           )}
           <div className="ufixit-content-progress">

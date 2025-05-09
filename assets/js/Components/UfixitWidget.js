@@ -6,6 +6,7 @@ import LeftArrowIcon from './Icons/LeftArrowIcon'
 import ListIcon from './Icons/ListIcon'
 import RightArrowIcon from './Icons/RightArrowIcon'
 import ProgressIcon from './Icons/ProgressIcon'
+import InfoIcon from './Icons/InfoIcon'
 import FixIssuesResolve from './FixIssuesResolve'
 import ReactHtmlParser from 'react-html-parser'
 import FormClarification from './Forms/FormClarification';
@@ -29,6 +30,8 @@ export default function UfixitWidget({
   handleIssueSave,
   handleFileResolve,
   handleFileUpload,
+  isContentLoading,
+  isErrorFoundInContent,
   toggleListView,
   listLength,
   nextIssue
@@ -153,7 +156,8 @@ export default function UfixitWidget({
               <div className="flex-grow-1 flex-column ufixit-form-container" aria-hidden={viewInfo ? "true" : "false"} >
                 <div className="flex-grow-0">
                   <FormClarification t={t} activeIssue={activeIssue} />
-                </div>          
+                </div>
+                {/* <h2>{activeIssue.scanRuleId}</h2> */}
                 { activeIssue.status !== settings.FILTER.RESOLVED &&
                   <div className="flex-grow-1 ufixit-form-content">
                     { activeIssue.contentType === settings.FILTER.FILE_OBJECT ? (
@@ -166,6 +170,7 @@ export default function UfixitWidget({
                       <UfixitForm
                         t={t}
                         settings={settings}
+                        isDisabled={!isErrorFoundInContent}
                         activeIssue={tempActiveIssue.issueData}
                         handleIssueSave={handleIssueSave}
                         addMessage={addMessage}
@@ -179,21 +184,40 @@ export default function UfixitWidget({
                     t={t}
                     settings={settings}
                     activeIssue={activeIssue}
+                    isDisabled={!isErrorFoundInContent}
                     handleFileResolve={handleFileResolve}
                     handleIssueResolve={handleIssueResolve}
                   />
                   { (activeIssue.currentState === settings.ISSUE_STATE.SAVING || activeIssue.currentState === settings.ISSUE_STATE.RESOLVING) && 
                     <div className="ufixit-overlay flex-column justify-content-center">
-                      <div className="ufixit-overlay-content-container flex-row justify-content-center">
-                        <div className="flex-column justify-content-center">
+                      <div className="ufixit-overlay-content-container flex-row justify-content-center mb-4">
+                        <div className="flex-column justify-content-center me-3">
                           <ProgressIcon className="icon-lg primary spinner" />
                         </div>
-                        <div className="flex-column justify-content-center ms-3">
-                          <h2>{t('form.processing')}</h2>
+                        <div className="flex-column justify-content-center">
+                          <h3>{t('form.processing')}</h3>
                         </div>
                       </div>
                     </div>
                   }
+                  { !isErrorFoundInContent && (
+                    <div className="ufixit-overlay flex-column justify-content-start">
+                      <div className="ufixit-overlay-content-container flex-row justify-content-center mt-3">
+                        <div className="flex-column justify-content-start me-3">
+                          { isContentLoading ? (
+                            <ProgressIcon className="icon-lg primary spinner" />
+                          ) : (
+                            <InfoIcon className="icon-lg udoit-suggestion" />
+                          )}
+                        </div>
+                        <div className="flex-column justify-content-center">
+                          <h3 className="mb-0 mt-0">
+                            {isContentLoading ? t('fix.label.loading_content') : t('fix.label.no_saving')}
+                          </h3>
+                        </div>
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
               { /* Second item: the "Learn More" area... Visible when viewInfo, so 'ufixit-shift-view' IS applied */}

@@ -3,10 +3,9 @@ import * as Html from '../../Services/Html'
 
 export default function AnchorText({
   t,
-  settings,
   activeIssue,
   handleIssueSave,
-  addMessage,
+  isDisabled,
   handleActiveIssue,
 }) {
   const maxLength = 150
@@ -122,7 +121,7 @@ export default function AnchorText({
         value={textInputValue}
         onChange={handleInput}
         tabindex="0"
-        disabled={deleteLink} />
+        disabled={isDisabled || deleteLink} />
       { textInputErrors.length > 0 && (
         <div className="error-message flex-column">
           {textInputErrors.map((error, index) => (
@@ -137,10 +136,11 @@ export default function AnchorText({
           id="deleteLinkCheckbox"
           checked={deleteLink}
           tabindex="0"
+          disabled={isDisabled}
           onChange={handleDeleteCheckbox} />
         <label for="deleteLinkCheckbox">{t('form.anchor.delete_link')}</label>
       </div>
-      <button className="btn btn-primary" onClick={handleSubmit} disabled={!deleteLink && textInputErrors.length > 0}>{t('form.submit')}</button>
+      <button className="btn btn-primary" onClick={handleSubmit} disabled={isDisabled || !deleteLink && textInputErrors.length > 0}>{t('form.submit')}</button>
     </>
   )
 }

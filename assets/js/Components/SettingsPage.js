@@ -12,7 +12,7 @@ export default function SettingsPage({
 
   const supportedLanguages = [
     { code: 'en', name: 'English' },
-    // { code: 'es', name: 'Español' },
+    { code: 'es', name: 'Español' },
   ]
 
   const [selectedLanguage, setSelectedLanguage] = useState(settings?.user?.roles?.lang || 'en')
@@ -49,7 +49,7 @@ export default function SettingsPage({
               <label htmlFor="view-only-published">{t('settings.label.view_only_published')}</label>
             </div>
           </div>
-          <div className="flex-row gap-1 mb-3">
+          {/* <div className="flex-row gap-1 mb-3">
             <div className="flex-column flex-center">
               <label htmlFor="language-select">{t('settings.label.language')}</label>
             </div>
@@ -68,7 +68,7 @@ export default function SettingsPage({
                 ))}
               </select>
             </div>
-          </div>
+          </div> */}
           { !syncComplete ? (
             <button className="btn btn-disabled mt-2 flex-row" tabindex="-1">
               <div className="flex-column justify-content-center align-self-center">
