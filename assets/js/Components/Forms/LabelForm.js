@@ -46,15 +46,9 @@ export default function LabelForm({
     let html = Html.getIssueHtml(activeIssue)
     let updatedElement = Html.toElement(html)
 
-    if (activeIssue.scanRuleId == 'media_alt_exists') {
-      updatedElement = Html.setAttribute(updatedElement, "aria-label", textInputValue)
-      updatedElement = Html.setAttribute(updatedElement, "label", textInputValue)
-    }
-    else {
-      updatedElement = Html.setAttribute(updatedElement, "aria-label", textInputValue)
-      updatedElement = Html.setAttribute(updatedElement, "title", textInputValue)
-    }
-    
+    updatedElement = Html.setAttribute(updatedElement, "aria-label", textInputValue)
+    updatedElement = Html.setAttribute(updatedElement, "title", textInputValue)
+        
     let issue = activeIssue
     issue.newHtml = Html.toString(updatedElement)
     handleActiveIssue(issue)
