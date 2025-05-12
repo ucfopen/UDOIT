@@ -676,15 +676,16 @@ export default function FixIssuesPage({
 
   const handleIssueResolve = (issue) => {
     updateActiveSessionIssue(issue.id, settings.ISSUE_STATE.RESOLVING)
+    const specificClassName = `udoit-ignore-${issue.scanRuleId.replaceAll("_", "-")}`
 
     let tempIssue = Object.assign({}, issue)
     if (tempIssue.status) {
       tempIssue.status = false
-      tempIssue.newHtml = Html.toString(Html.removeClass(tempIssue.sourceHtml, 'phpally-ignore'))
+      tempIssue.newHtml = Html.toString(Html.removeClass(tempIssue.sourceHtml, specificClassName))
     }
     else {
       tempIssue.status = 2
-      tempIssue.newHtml = Html.toString(Html.addClass(tempIssue.sourceHtml, 'phpally-ignore'))
+      tempIssue.newHtml = Html.toString(Html.addClass(tempIssue.sourceHtml, specificClassName))
     }
 
     // Save the updated issue using the LMS API
