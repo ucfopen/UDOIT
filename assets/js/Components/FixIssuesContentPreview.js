@@ -333,21 +333,24 @@ export default function FixIssuesContentPreview({
 
     let button;
     if (debouncedDirection === 'up') {
-      button = <UpArrowIcon className="icon-arrow" />
+      button = <UpArrowIcon className="icon-arrow primary" />
     }
     else if (debouncedDirection === 'down') {
-      button = <DownArrowIcon className="icon-arrow" />
+      button = <DownArrowIcon className="icon-arrow primary" />
     }
 
     if (issueElementRef.current && !debouncedVisible && debouncedDirection) {
       return (
         <div className='scroll-to-error-container'>
-          <div
+          <button
             className={`scroll-to-error ${debouncedDirection ? 'scroll-to-error-' + debouncedDirection : ''}`}
             onClick={() => scrollToElement(issueElementRef.current)}
+            aria-label={t('fix.button.scroll_to_issue')}
+            title={t('fix.button.scroll_to_issue')}
+            tabIndex="0"
           >
             {button}
-          </div>
+          </button>
         </div>
       )
     }
@@ -369,13 +372,16 @@ export default function FixIssuesContentPreview({
           <div className="ufixit-content-preview">
             { canShowPreview ? (
               <>
-              {renderScrollButton()}
-              <div ref={node => {
-                if (node) {
-                  const highlightElement = node.getElementsByClassName('ufixit-error-highlight')[0]
-                  issueElementRef.current = highlightElement
-                }
-              }} dangerouslySetInnerHTML={{__html: taggedContent}} />
+              
+              <div
+                className="ufixit-content-preview-main"
+                ref={node => {
+                  if (node) {
+                    const highlightElement = node.getElementsByClassName('ufixit-error-highlight')[0]
+                    issueElementRef.current = highlightElement
+                  }
+                }} dangerouslySetInnerHTML={{__html: taggedContent}} />
+                {renderScrollButton()}
               </>
             ) : (
               <div className="ufixit-content-preview-no-error flex-row p-3">

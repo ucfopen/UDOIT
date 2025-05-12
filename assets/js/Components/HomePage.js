@@ -173,7 +173,7 @@ export default function HomePage({
             <p>This version of UDOIT is currently in beta. While we're very proud of this version, we're still finding issues and would love any feedback you could provide.</p>
             <div className="mb-2"><a href='https://form.asana.com/?k=fM-ii4jhXi1ff574xnf-ig&d=941449628608720' target='_blank' rel='noopener noreferrer'>Quick Question or Bug Report</a></div>
             <div className="mb-4"><a href='https://form.asana.com/?k=_WTU9I8AhlBXFKYkduprvg&d=941449628608720' target='_blank' rel='noopener noreferrer'>User Feedback Survey</a></div>
-            <div><a href='https://ucf.service-now.com/ucfit?id=kb_article_view&sys_kb_id=a2a7f0b61b1de290f6b98595624bcbab&table=kb_knowledge&searchTerm=UDOIT' target='_blank' rel='noopener noreferrer'>UDOIT KB Article</a></div>
+            <div><a href='https://ucf.service-now.com/ucfit?id=kb_article_view&sys_kb_id=a2a7f0b61b1de290f6b98595624bcbab&table=kb_knowledge&searchTerm=UDOIT' target='_blank' rel='noopener noreferrer'>Learn About UDOIT 4.0</a></div>
           </div>
         </div>
         <DailyProgress  t={t} sessionIssues={sessionIssues} settings={settings} />

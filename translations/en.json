@@ -154,6 +154,7 @@
   "fix.button.previous": "Previous",
   "fix.button.list": "Show List",
   "fix.button.next": "Next",
+  "fix.button.scroll_to_issue": "Scroll to Issue",
   "fix.button.show_no_error_preview": "Show Content Preview",
   "fix.msg.select_issue": "Select an issue from the list to view its details and either fix it or mark it as reviewed.",
   "fix.msg.resolved": "If you have reviewed this issue and determined that it is not an accessibility barrier, you can mark it as reviewed.",
