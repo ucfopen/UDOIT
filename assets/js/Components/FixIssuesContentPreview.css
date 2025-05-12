@@ -48,15 +48,15 @@
   border: 1px solid var(--border-color);
   border-radius: 8px;
 
-  h2, h3, h4, h5, h6 {
-    color: var(--text-color);
-  }
-
   .ufixit-content-preview-main {
     position: absolute;
     top: 0px;
     padding-top: 1rem;
     padding-right: 1rem;
+    
+    h2, h3, h4, h5, h6 {
+      color: var(--text-color);
+    }
   }
 }
 
