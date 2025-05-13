@@ -18,12 +18,6 @@ export default function SettingsPage({
   // For new users, the 'show_filters' attribute may not be set, so we need to check if it exists before using it
   const [showFilters, setShowFilters] = useState(settings?.user?.roles && ('show_filters' in settings.user.roles) ? settings.user.roles.show_filters : true)
   const [selectedLanguage, setSelectedLanguage] = useState(settings?.user?.roles?.lang || 'en')
-  const [viewOnlyPublished, setViewOnlyPublished] = useState(settings?.user?.roles?.view_only_published || false)
-
-  const handleViewPublishedChange = (newValue) => {
-    setViewOnlyPublished(newValue)
-    updateUserSettings({ "view_only_published": newValue})
-  }
 
   const handleShowFiltersChange = (newValue) => {
     setShowFilters(newValue)
@@ -41,20 +35,6 @@ export default function SettingsPage({
     <div className="flex-row gap-4 mb-3">
       <div className="flex-column flex-start flex-grow-0 flex-shrink-0">
         <div className="callout-container flex-column flex-start">
-          {/* <div className="flex-row gap-1 mb-3">
-            <div className="flex-column flex-center">
-              <input
-                type="checkbox"
-                id="view-only-published"
-                checked={viewOnlyPublished}
-                onChange={(e) => {
-                  handleViewPublishedChange(e.target.checked)
-                }}
-              />
-            </div>
-            <div className="flex-column flex-center">
-              <label htmlFor="view-only-published">{t('settings.label.view_only_published')}</label>
-            </div> */}
           <div className="flex-row gap-1 mb-3">
             <div className="flex-column flex-center">
               <input
