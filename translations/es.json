@@ -318,9 +318,9 @@
   "form.table_headers.label.select": "Seleccionar Los Encabezados de Tabla",
   "form.table_headers.selection_description": "Seleccionar dirección de los encabezados de tabla",
   "form.table_headers.selection_description_scope": "Seleccionar el alcance del encabezado",
-  "form.table.col": "Encabezado de Columna",
-  "form.table.row": "Encabezado de Fila",
-  "form.table.both": "Ambos",
+  "form.table_headers.col": "Encabezado de Columna",
+  "form.table_headers.row": "Encabezado de Fila",
+  "form.table_headers.both": "Ambos",
   "rule.desc.table_headers_exists": "",
 
   "form.video.label.videos": "Archivos De Video",

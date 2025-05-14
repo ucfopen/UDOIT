@@ -15,6 +15,7 @@ export default function FixIssuesContentPreview({
   activeIssue,
   activeContentItem,
   editedElement,
+  isErrorFoundInContent,
   setIsErrorFoundInContent,
   sessionIssues,
 }) {
@@ -261,6 +262,11 @@ export default function FixIssuesContentPreview({
   }
 
   useEffect(() => {
+    if(!activeIssue || !activeContentItem) {
+      setTaggedContent(null)
+      setIsErrorFoundInContent(true)
+      return
+    }
     setTaggedContent(getTaggedContent(activeIssue, activeContentItem))
   }, [activeIssue, activeContentItem])
 
@@ -372,16 +378,15 @@ export default function FixIssuesContentPreview({
           <div className="ufixit-content-preview">
             { canShowPreview ? (
               <>
-              
-              <div
-                className="ufixit-content-preview-main"
-                ref={node => {
-                  if (node) {
-                    const highlightElement = node.getElementsByClassName('ufixit-error-highlight')[0]
-                    issueElementRef.current = highlightElement
-                  }
-                }} dangerouslySetInnerHTML={{__html: taggedContent}} />
-                {renderScrollButton()}
+                <div
+                  className="ufixit-content-preview-main"
+                  ref={node => {
+                    if (node) {
+                      const highlightElement = node.getElementsByClassName('ufixit-error-highlight')[0]
+                      issueElementRef.current = highlightElement
+                    }
+                  }} dangerouslySetInnerHTML={{__html: taggedContent}} />
+                {isErrorFoundInContent && renderScrollButton()}
               </>
             ) : (
               <div className="ufixit-content-preview-no-error flex-row p-3">

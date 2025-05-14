@@ -55,7 +55,7 @@ export default function FormClarification({
       { (clarification !== '') && (
         <div className="clarification-container flex-row mb-3 gap-2">
           <div className="flex-column justify-content-start">
-            <InfoIcon className="icon-lg link-color" alt="" />
+            <InfoIcon className="icon-lg udoit-suggestion" alt="" />
           </div>
           <div className="flex-column justify-content-center">
             <div className="clarification-text">{clarification}</div>

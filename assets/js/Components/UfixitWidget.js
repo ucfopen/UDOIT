@@ -189,13 +189,13 @@ export default function UfixitWidget({
                     handleIssueResolve={handleIssueResolve}
                   />
                   { (activeIssue.currentState === settings.ISSUE_STATE.SAVING || activeIssue.currentState === settings.ISSUE_STATE.RESOLVING) && 
-                    <div className="ufixit-overlay flex-column justify-content-center">
-                      <div className="ufixit-overlay-content-container flex-row justify-content-center mb-4">
+                    <div className="ufixit-overlay flex-column justify-content-start">
+                      <div className="ufixit-overlay-content-container flex-row justify-content-center mt-3">
                         <div className="flex-column justify-content-center me-3">
                           <ProgressIcon className="icon-lg udoit-suggestion spinner" />
                         </div>
                         <div className="flex-column justify-content-center">
-                          <h3>{t('form.processing')}</h3>
+                          <h3 className="mb-0 mt-0">{t('form.processing')}</h3>
                         </div>
                       </div>
                     </div>
@@ -224,7 +224,9 @@ export default function UfixitWidget({
               <div className="flex-grow-1 ufixit-learn-container" aria-hidden={!viewInfo ? "true" : "false"} >
                 { activeIssue.contentType === settings.FILTER.FILE_OBJECT
                   ? ReactHtmlParser(t(`form.file.${activeIssue.fileData.fileType}.learn_more`), { preprocessNodes: (nodes) => Html.processStaticHtml(nodes, settings) })
-                  : ReactHtmlParser(t(`form.${formName}.learn_more`), { preprocessNodes: (nodes) => Html.processStaticHtml(nodes, settings) })
+                  : formName !== 'review_only' || t(`rule.desc.${activeIssue.scanRuleId}`) === `rule.desc.${activeIssue.scanRuleId}`
+                    ? ReactHtmlParser(t(`form.${formName}.learn_more`), { preprocessNodes: (nodes) => Html.processStaticHtml(nodes, settings) })
+                    : ReactHtmlParser(t(`rule.desc.${activeIssue.scanRuleId}`), { preprocessNodes: (nodes) => Html.processStaticHtml(nodes, settings) })
                 }
               </div>
             </div>

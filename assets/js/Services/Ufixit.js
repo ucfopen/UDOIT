@@ -128,7 +128,7 @@ const rulesToFormNameMap = {
 
   style_color_misuse: formNames.EMPHASIS,
 
-  // text_sensory_misuse: formNames.SENSORY_MISUSE,
+  text_sensory_misuse: formNames.SENSORY_MISUSE,
 
   table_headers_exists: formNames.TABLE_HEADERS,
 
