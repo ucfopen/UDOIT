@@ -47,6 +47,17 @@
   position: relative;
   border: 1px solid var(--border-color);
   border-radius: 8px;
+
+  .ufixit-content-preview-main {
+    position: absolute;
+    top: 0px;
+    padding-top: 1rem;
+    padding-right: 1rem;
+    
+    h1, h2, h3, h4, h5, h6 {
+      color: var(--text-color);
+    }
+  }
 }
 
 .ufixit-content-preview-no-error {
@@ -70,40 +81,39 @@
 
 .scroll-to-error-container {
   position: sticky;
+  top: 0;
   display: flex;
-  justify-content: right;
-  margin-right: 0.5rem;
+  flex-direction: row;
+  justify-content: flex-end;
+  height: 100%;
+  width: 100%;
+  pointer-events: none;
 }
 
 .scroll-to-error {
-  background-color: var(--primary-color-light);
+  background-color: transparent;
   border-radius: 100%;
   padding: 0.35rem;
   cursor: pointer;
-  position: fixed;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
   border: 2px solid var(--primary-color);
-  height: 24px;
-  width: 24px;
   opacity: 0.5;
-  transition: all var(--transition-time);
+  transition: opacity var(--transition-time);
+  align-self: start;
+  pointer-events: all;
 
-  &:hover {
-    opacity: 1;
-  }
-
+  &:hover,
   &:focus,
   &:active {
-    background-color: var(--primary-color);
-    border: 2px solid var(--primary-color-light);
+    opacity: 1;
+    background-color: var(--primary-color-light);
   }
-}
 
-.scroll-to-error-down {
-  top: 78%;
-}
-
-.scroll-to-error-up {
-  top: auto;
+  &.scroll-to-error-down {
+    align-self: end;
+  }
 }
 
 .ufixit-alt-text-preview {

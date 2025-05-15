@@ -42,7 +42,7 @@ export default function App(initialData) {
   const [disableReview, setDisableReview] = useState(false)
   const [initialSeverity, setInitialSeverity] = useState('')
   const [initialSearchTerm, setInitialSearchTerm] = useState('')
-  const [contentItemList, setContentItemList] = useState([])
+  const [contentItemCache, setContentItemCache] = useState([])
   const [sessionIssues, setSessionIssues] = useState([])
   const [welcomeClosed, setWelcomeClosed] = useState(false)
 
@@ -101,8 +101,18 @@ export default function App(initialData) {
   // and can allow the activeIssue to change without losing information about the previous issue.
   // Each issue has an id and state: { id: issueId, state: 2 }
   // The valid states are set and read in the FixIssuesPage component.
-  const updateSessionIssue = (issueId, issueState = null) => {
-    if(!issueState) {
+  const updateSessionIssue = (issueId, issueState = null, contentItemId = null) => {
+    if(issueState === null || issueState === ISSUE_STATE.UNCHANGED) {
+      let newSessionIssues = Object.assign({}, sessionIssues)
+      if(newSessionIssues[issueId]) {
+        delete newSessionIssues[issueId]
+      }
+      setSessionIssues(newSessionIssues)
+
+      if(contentItemId) {
+        removeContentItemFromCache(contentItemId)
+      }
+
       return
     }
     let newSessionIssues = Object.assign({}, sessionIssues, { [issueId]: issueState})
@@ -177,33 +187,43 @@ export default function App(initialData) {
     setNavigation('fixIssues')
   }
 
-  const addContentItem = (newContentItem) => {
-    let newContentItemList = Object.assign({}, contentItemList)
-    newContentItemList[newContentItem.id] = newContentItem
-    setContentItemList(newContentItemList)
+  const addContentItemToCache = (newContentItem) => {
+    let newContentItemCache = Object.assign({}, contentItemCache)
+    newContentItemCache[newContentItem.id] = newContentItem
+    setContentItemCache(newContentItemCache)
   }
 
-  const updateReportIssue = (newIssue, newReport) => {
-    const updatedReport = ( newReport? { ...report, ...newReport } : {...report} )
-
-    if (updatedReport && Array.isArray(updatedReport.issues)) {
-      updatedReport.issues = updatedReport.issues.map((issue) => {
-        if (issue.id === newIssue.id) return newIssue
-        const oldIssue = report.issues.find((oldReportIssue) => oldReportIssue.id === issue.id)
-        return oldIssue !== undefined ? { ...oldIssue, ...issue } : issue
-      })
+  const removeContentItemFromCache = (contentItemId) => {
+    if(!contentItemId) {
+      return
     }
 
+    let newContentItemCache = Object.assign({}, contentItemCache)
+    if(newContentItemCache[contentItemId]) {
+      delete newContentItemCache[contentItemId]
+    }
+    setContentItemCache(newContentItemCache)
+  }
+
+  // When an issue has been saved, the page is rescanned and a new report is generated.
+  // THIS MEANS THAT ALL OF THE UNRESOLVED ISSUES ON THAT PAGE WILL BE REMOVED and then
+  // replaced (if necessary) in the new scan. The newIssue will PROBABLY have a valid
+  // issueId in the new report (unless it was marked as UNresolved).
+  const updateReportIssue = (newReport) => {
+    if(!newReport) {
+      return
+    }
+    const updatedReport = { ...newReport }
     setReport(updatedReport)
   }
 
-  const updateReportFile = (newFile, newReport) => {
-    let updatedReport = { ...report, ...newReport }
-
+  const updateReportFile = (newFile) => {
+    let updatedReport = { ...report }
+    console.log(updateReport)
+    console.log(newFile)
     if (updatedReport && updatedReport.files) {
       updatedReport.files[newFile.id] = newFile
     }
-
     setReport(updatedReport)
   }
 
@@ -286,14 +306,15 @@ export default function App(initialData) {
                   settings={settings.ISSUE_STATE ? settings : Object.assign({}, settings, { ISSUE_STATE })}
                   initialSeverity={initialSeverity}
                   initialSearchTerm={initialSearchTerm}
-                  contentItemList={contentItemList}
-                  addContentItem={addContentItem}
+                  contentItemCache={contentItemCache}
+                  addContentItemToCache={addContentItemToCache}
                   report={report}
                   sections={sections}
                   setReport={setReport}
                   addMessage={addMessage}
                   handleNavigation={handleNavigation}
                   updateReportIssue={updateReportIssue}
+                  updateReportFile={updateReportFile}
                   sessionIssues={sessionIssues}
                   updateSessionIssue={updateSessionIssue}
                   disableReview={syncComplete && !disableReview} />

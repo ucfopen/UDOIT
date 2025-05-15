@@ -48,24 +48,21 @@ export default function WelcomePage({ t, settings, syncComplete, setWelcomeClose
             </div>
           </div>
         </div>
-          <div className="flex-row justify-content-center mt-3">
-            { !syncComplete ? (
-                <button className="btn btn-disabled flex-row" tabindex="0">
-                  <div className="flex-column justify-content-center align-self-center">
-                    <ProgressIcon className="icon-sm gray spinner" />
-                  </div>
-                  <div className="flex-column justify-content-center ms-3">
-                    {t('welcome.button.scanning')}
-                  </div>
-                </button>
-              ) : (
-                <button className="btn btn-primary" tabindex="0" onClick={() => setWelcomeClosed(true)}>{t('welcome.button.ready')}</button>
-              )
-            }    
-          </div>
-          <div className="flex-row justify-content-center align-self-center mt-3 w-75">
-            <a href='https://ucf.service-now.com/ucfit?id=kb_article_view&sys_kb_id=a2a7f0b61b1de290f6b98595624bcbab&table=kb_knowledge&searchTerm=UDOIT' target='_blank'>Learn more about this new version of UDOIT!</a>
-          </div>
+        <div className="flex-row justify-content-center mt-3">
+          { !syncComplete ? (
+              <button className="btn btn-disabled flex-row" tabindex="0">
+                <div className="flex-column justify-content-center align-self-center">
+                  <ProgressIcon className="icon-sm gray spinner" />
+                </div>
+                <div className="flex-column justify-content-center ms-3">
+                  {t('welcome.button.scanning')}
+                </div>
+              </button>
+            ) : (
+              <button className="btn btn-primary" tabindex="0" onClick={() => setWelcomeClosed(true)}>{t('welcome.button.ready')}</button>
+            )
+          }    
+        </div>
       </div>
       <div className="welcome-footer flex-row justify-content-between mt-3">
         <div className="flex-column justify-content-center tagline">

@@ -89,12 +89,9 @@ export default function HomePage({
 
   return (
   <main>
-    <div className='flex-column gap-3 mt-4 mb-4'>
-      <h1 className="primary-dark mt-0 mb-0">{t('summary.title')}</h1>
-      <div className="flex-row w-50">
-        <p className="mt-0 mb-0">{t('summary.description')}</p>
-      </div>
-      
+    <h1 className="primary-dark">{t('summary.title')}</h1>
+    <div className="flex-row w-50 mb-4">
+      <p className="mt-0 mb-0">{t('summary.description')}</p>
     </div>
     <div className="flex-row gap-3">
       <div className="report-container flex-column">
@@ -107,7 +104,7 @@ export default function HomePage({
                   <SeverityIcon type="ISSUE" className='icon-lg' />
                   </div>
                   <div className='flex-column justify-content-center'>
-                    <h3 className='mb-0 mt-0'>{t('filter.label.severity.issue')}</h3>
+                    <h3 className='text-color mb-0 mt-0'>{t('filter.label.severity.issue')}</h3>
                   </div>
                 </div>
                 <div className='flex-column justify-content-end'>
@@ -129,7 +126,7 @@ export default function HomePage({
                   <SeverityIcon type="POTENTIAL" className='icon-lg' />
                   </div>
                   <div className='flex-column justify-content-center'>
-                    <h3 className='mb-0 mt-0'>{t('filter.label.severity.potential')}</h3>
+                    <h3 className='text-color mb-0 mt-0'>{t('filter.label.severity.potential')}</h3>
                   </div>
                 </div>
                 <div className='flex-column justify-content-end'>
@@ -151,7 +148,7 @@ export default function HomePage({
                   <SeverityIcon type="SUGGESTION" className='icon-lg' />
                   </div>
                   <div className='flex-column justify-content-center'>
-                    <h3 className='mb-0 mt-0'>{t('filter.label.severity.suggestion')}</h3>
+                    <h3 className='text-color mb-0 mt-0'>{t('filter.label.severity.suggestion')}</h3>
                   </div>
                 </div>
                 <div className='flex-column justify-content-end'>
@@ -169,7 +166,16 @@ export default function HomePage({
           </>
         )}
       </div>
-      <div className="flex-column justify-content-end flex-grow-1">
+      <div className="flex-column flex-grow-1">
+        <div className="flex-column justify-content-start flex-grow-1">
+          <div className="callout-container text-center ms-4 me-4">
+            <h2 className="mt-0">Your Feedback is Requested!</h2>
+            <p>This version of UDOIT is currently in beta. While we're very proud of this version, we're still finding issues and would love any feedback you could provide.</p>
+            <div className="mb-2"><a href='https://form.asana.com/?k=fM-ii4jhXi1ff574xnf-ig&d=941449628608720' target='_blank' rel='noopener noreferrer'>Quick Question or Bug Report</a></div>
+            <div className="mb-4"><a href='https://form.asana.com/?k=_WTU9I8AhlBXFKYkduprvg&d=941449628608720' target='_blank' rel='noopener noreferrer'>User Feedback Survey</a></div>
+            <div><a href='https://ucf.service-now.com/ucfit?id=kb_article_view&sys_kb_id=a2a7f0b61b1de290f6b98595624bcbab&table=kb_knowledge&searchTerm=UDOIT' target='_blank' rel='noopener noreferrer'>Learn About UDOIT 4.0</a></div>
+          </div>
+        </div>
         <DailyProgress  t={t} sessionIssues={sessionIssues} settings={settings} />
       </div>
     </div>

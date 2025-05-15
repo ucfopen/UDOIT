@@ -15,6 +15,7 @@ export default function FixIssuesContentPreview({
   activeIssue,
   activeContentItem,
   editedElement,
+  isErrorFoundInContent,
   setIsErrorFoundInContent,
   sessionIssues,
 }) {
@@ -261,6 +262,11 @@ export default function FixIssuesContentPreview({
   }
 
   useEffect(() => {
+    if(!activeIssue || !activeContentItem) {
+      setTaggedContent(null)
+      setIsErrorFoundInContent(true)
+      return
+    }
     setTaggedContent(getTaggedContent(activeIssue, activeContentItem))
   }, [activeIssue, activeContentItem])
 
@@ -333,21 +339,24 @@ export default function FixIssuesContentPreview({
 
     let button;
     if (debouncedDirection === 'up') {
-      button = <UpArrowIcon className="icon-arrow" />
+      button = <UpArrowIcon className="icon-arrow primary" />
     }
     else if (debouncedDirection === 'down') {
-      button = <DownArrowIcon className="icon-arrow" />
+      button = <DownArrowIcon className="icon-arrow primary" />
     }
 
     if (issueElementRef.current && !debouncedVisible && debouncedDirection) {
       return (
         <div className='scroll-to-error-container'>
-          <div
+          <button
             className={`scroll-to-error ${debouncedDirection ? 'scroll-to-error-' + debouncedDirection : ''}`}
             onClick={() => scrollToElement(issueElementRef.current)}
+            aria-label={t('fix.button.scroll_to_issue')}
+            title={t('fix.button.scroll_to_issue')}
+            tabIndex="0"
           >
             {button}
-          </div>
+          </button>
         </div>
       )
     }
@@ -369,13 +378,15 @@ export default function FixIssuesContentPreview({
           <div className="ufixit-content-preview">
             { canShowPreview ? (
               <>
-              {renderScrollButton()}
-              <div ref={node => {
-                if (node) {
-                  const highlightElement = node.getElementsByClassName('ufixit-error-highlight')[0]
-                  issueElementRef.current = highlightElement
-                }
-              }} dangerouslySetInnerHTML={{__html: taggedContent}} />
+                <div
+                  className="ufixit-content-preview-main"
+                  ref={node => {
+                    if (node) {
+                      const highlightElement = node.getElementsByClassName('ufixit-error-highlight')[0]
+                      issueElementRef.current = highlightElement
+                    }
+                  }} dangerouslySetInnerHTML={{__html: taggedContent}} />
+                {isErrorFoundInContent && renderScrollButton()}
               </>
             ) : (
               <div className="ufixit-content-preview-no-error flex-row p-3">
@@ -448,7 +459,7 @@ export default function FixIssuesContentPreview({
             <div className="ufixit-content-preview">
               <div className="flex-row justify-content-center mt-3">
                 <div className="flex-column justify-content-center">
-                  <ProgressIcon className="icon-lg primary spinner" />
+                  <ProgressIcon className="icon-lg udoit-suggestion spinner" />
                 </div>
                 <div className="flex-column justify-content-center ms-3">
                   <h2 className="mt-0 mb-0">{t('fix.label.loading_content')}</h2>

@@ -146,7 +146,7 @@ class SyncController extends ApiController
         }
 
         // Update report
-        $report = $lmsFetch->updateReport($course, $user);
+        $report = $lmsFetch->updateReport($course, $user, 1);
         if (!$report) {
             throw new \Exception('msg.no_report_created');
         }

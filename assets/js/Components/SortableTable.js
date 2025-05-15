@@ -126,7 +126,7 @@ export default function SortableTable({
       <table className="udoit-sortable-table">
         {( caption && caption.length > 0 ) &&
           <caption className="mb-2">
-            <h2 className="mt-0 mb-0">{caption}</h2>
+            <h2 className="primary-dark mt-0 mb-0">{caption}</h2>
           </caption>
         }
         <thead aria-label={t('report.label.sort_by')}>
