@@ -34,7 +34,7 @@ class EqualAccessService {
         "style_highcontrast_visible",
         "style_viewport_resizable",
         "aria_accessiblename_exists",
-        "aria_content_in_landmark", 
+        "aria_content_in_landmark",
         "a_target_warning",
     );
 
@@ -44,16 +44,16 @@ class EqualAccessService {
                 'header' => "Content-type: text/html\r\n",
                 'method' => 'POST',
                 'content' => $message,
-            ],   
+            ],
         ];
-        
+
         $context = stream_context_create($options);
         file_get_contents("http://host.docker.internal:3000/log", false, $context);
     }
 
     public function xpathToSnippet($domXPath, $xpathQuery) {
         // Query the document and save the results into an array
-        // In a perfect world this array should only have one element   
+        // In a perfect world this array should only have one element
 
         $xpathResults = $domXPath->query($xpathQuery);
         $htmlSnippet = null;
@@ -79,7 +79,7 @@ class EqualAccessService {
 
             if (strlen($classes) > 0 && str_contains($classes, "phpally-ignore")) {
                 $phpAllyIgnore = true;
-            } 
+            }
         }
 
         return $phpAllyIgnore;
@@ -117,7 +117,7 @@ class EqualAccessService {
 
                 // Check for specific rules (mostly about contrast)
                 // so we can add CSS metadata to database
-                // TODO: check if these elements exist? 
+                // TODO: check if these elements exist?
                 // equal access may just always have these available for each rule however
                 $reasonId = $results["reasonId"];
                 $message = $results["message"];
@@ -132,11 +132,11 @@ class EqualAccessService {
                     // UDOIT database has 'html' and 'preview_html',
                     // where 'preview_html' is the parent of the offending html
                     $parentIssueHtml = $issueHtml->parentNode;
-                }  
+                }
                 else {
                     continue;
                 }
-                
+
                 $issue = new PhpAllyIssue($equalAccessRule, $issueHtml, $parentIssueHtml, $metadata);
                 $report->setIssueCounts($equalAccessRule, $issueCounts[$equalAccessRule], -1);
                 array_push($issues, $issue);
@@ -155,7 +155,7 @@ class EqualAccessService {
 
     public function createMetadata($reasonId, $message, $messageArgs, $value) {
         // The Equal Access report has a few sections which describe
-        // what the error is/what type of error/error arguments, which we can use 
+        // what the error is/what type of error/error arguments, which we can use
         // on UFIXIT to display messages
 
         $metadata = array(
@@ -178,7 +178,7 @@ class EqualAccessService {
         /* equal access has the following: violation, potentialviolation, recommendation, potentialrecommendation, manual
         violation, potentialviolation -> issue, potential issue
         recommendation, potentialrecommendation -> suggestion
-        manual -> potential issue 
+        manual -> potential issue
         */
 
         if (in_array("MANUAL", $value)) {

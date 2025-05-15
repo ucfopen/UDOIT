@@ -64,7 +64,6 @@ class LmsFetchService {
         $this->scanner = $scanner;
         $this->equalAccess = $equalAccess;
         $this->asyncReport = $asyncReport;
-        $this->scanner = $scanner;
         $this->doctrine = $doctrine;
         $this->util = $util;
     }
@@ -79,6 +78,10 @@ class LmsFetchService {
      */
     public function refreshLmsContent(Course $course, User $user, $force = false)
     {
+        $printOutput = new ConsoleOutput();
+        // $printOutput->writeln("enter");
+        // return;
+
         $lms = $this->lmsApi->getLms($user);
 
         $this->lmsUser->validateApiKey($user);
@@ -109,10 +112,14 @@ class LmsFetchService {
         $this->deleteContentItemIssues($contentItems);
 
         /* Step 4: Process the updated content with PhpAlly and link to report */
+
+        $printOutput->writeln("ABOUT TO Scanning content items...");
         $this->scanContentItems($contentItems);
 
         /* Step 5: Update report from all active issues */
         $this->updateReport($course, $user);
+        $printOutput->writeln("Updated number of content items: " . count($contentItems));
+
 
         /* Save last_updated date on course */
         $course->setLastUpdated($this->util->getCurrentTime());
@@ -133,6 +140,48 @@ class LmsFetchService {
     {
         $lms = $this->lmsApi->getLms($user);
         return $lms->getCourseSections($course, $user);
+    }
+
+    // Uses async calls to refresh content from the LMS
+    public function asyncRefreshLmsContent(Course $course, User $user)
+    {
+        $printOutput = new ConsoleOutput();
+        $printOutput->writeln("enter");
+
+        $lms = $this->lmsApi->getLms($user);
+
+        $this->lmsUser->validateApiKey($user);
+
+        /** @var \App\Repository\ContentItemRepository $contentItemRepo */
+        $contentItemRepo = $this->doctrine->getManager()->getRepository(ContentItem::class);
+
+        /** @var \App\Repository\FileItemRepository $fileItemRepo */
+        $fileItemRepo = $this->doctrine->getManager()->getRepository(FileItem::class);
+
+        /* Step 1: Update content
+        /* Update course status */
+        $lms->updateCourseData($course, $user);
+
+        /* Mark content items as inactive */
+        $contentItemRepo->setCourseContentInactive($course);
+        $fileItemRepo->setCourseFileItemsInactive($course);
+        $this->doctrine->getManager()->flush();
+
+        // BEGIN ASYNC CHANGES
+
+        /* Update content items from LMS */
+        $lms->updateCourseContent($course, $user, $this);
+
+        // /* Step 2: Update report from all active issues */
+        $this->updateReport($course, $user);
+
+        // END ASYNC CHANGES
+
+        /* Save last_updated date on course */
+        $course->setLastUpdated($this->util->getCurrentTime());
+        $course->setDirty(false);
+
+        $this->doctrine->getManager()->flush();
     }
 
     // Update report, or create new one for a new day
@@ -252,6 +301,63 @@ class LmsFetchService {
             }
         }
         $this->doctrine->getManager()->flush();
+    }
+
+    // Performs PHPAlly scan on each Content Item.
+    public function asyncScanContentItems(array $contentItems)
+    {
+        $printOutput = new ConsoleOutput();
+
+        $scanner = $_ENV['ACCESSIBILITY_CHECKER'];
+        $equalAccessReports = null;
+
+        // If we're using Equal Access Lambda, send all the requests to Lambda for the
+        // reports at once and save them all into an array (which should be in the same order as the ContentItems)
+        if ($scanner == "equalaccess_lambda" && count($contentItems) > 0) {
+            // $equalAccessReports = $this->asyncReport->postMultipleAsync($contentItems);
+            $equalAccessReports = $this->asyncReport->postMultipleArrayAsync($contentItems);
+        }
+
+        // Scan each update content item for issues
+        /** @var \App\Entity\ContentItem $contentItem */
+
+        $index = 0;
+        foreach ($contentItems as $contentItem) {
+
+            try {
+                // Scan the content item with the scanner set in the environment.
+                $report = $this->scanner->scanContentItem($contentItem, $equalAccessReports == null ? null : $equalAccessReports[$index++], $this->util);
+                $printOutput->writeln("Finished Scan");
+                $printOutput->writeln($report);
+                if ($report) {
+                    // TODO: Do something with report errors
+                    if (count($report->getErrors())) {
+                        foreach ($report->getErrors() as $error) {
+                            $msg = $error . ', item = #' . $contentItem->getId();
+                            $this->util->createMessage($msg, 'error', $contentItem->getCourse(), null, true);
+                        }
+                    }
+
+                    // Add Issues to report
+                    foreach ($report->getIssues() as $issue) {
+                        // Create issue entity
+                        $this->createIssue($issue, $contentItem);
+                        $this->doctrine->getManager()->flush();
+                        $this->doctrine->getManager()->clear();
+
+
+                    }
+                }
+
+                // $this->scanner->logToServer("done!");
+            }
+            catch (\Exception $e) {
+                $this->util->createMessage($e->getMessage(), 'error', null, null, true);
+            }
+        }
+        $this->doctrine->getManager()->flush();
+
+        // $this->scanner->logToServer("done!!!!!!!!!\n");
     }
 
     public function createIssue(PhpAllyIssue $issue, ContentItem $contentItem)

@@ -38,9 +38,6 @@ class LocalApiAccessibilityService {
     {
         // Initialize Guzzle client with base options
         $client = new Client([
-            // TODO: the problem with this is that it does not matter if the scanner is the
-            // local or Lambda version, the URL is always the same location causing the
-            // local to be triggered.
             'base_uri' => 'http://host.docker.internal:3000',
             'timeout' => 30.0,
             'http_errors' => false, // Don't throw exceptions for 4xx/5xx responses
@@ -174,7 +171,6 @@ class LocalApiAccessibilityService {
             $output = new ConsoleOutput();
             $output->writeln("HTTP error: " . $httpCode);
         }
-
         return $result;
     }
 
@@ -201,7 +197,6 @@ class LocalApiAccessibilityService {
 
         // Send to accessibility checker
         $response = $this->postData("http://host.docker.internal:3000/scan", $htmlOutput);
-
         try {
             $json = json_decode($response, true);
             if (json_last_error() !== JSON_ERROR_NONE) {
@@ -262,7 +257,6 @@ class LocalApiAccessibilityService {
             }
         }
         libxml_clear_errors();
-
         return $dom;
     }
 
