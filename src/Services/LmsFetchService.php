@@ -76,7 +76,7 @@ class LmsFetchService {
      * 4) Link unchanged issues to new report
      * 5) Process updated content
      */
-    public function refreshLmsContent(Course $course, User $user, $force = false)
+    public function refreshLmsContent(Course $course, User $user, $force = false): array
     {
         $printOutput = new ConsoleOutput();
         // $printOutput->writeln("enter");
@@ -108,17 +108,7 @@ class LmsFetchService {
         $contentItems = $contentItemRepo->getUpdatedContentItems($course, $force);
         $contentSections = $lms->getCourseSections($course, $user);
 
-        /* Step 3: Delete issues for updated content items */
-        $this->deleteContentItemIssues($contentItems);
-
-        /* Step 4: Process the updated content with PhpAlly and link to report */
-
-        $printOutput->writeln("ABOUT TO Scanning content items...");
-        $this->scanContentItems($contentItems);
-
-        /* Step 5: Update report from all active issues */
-        $this->updateReport($course, $user);
-        $printOutput->writeln("Updated number of content items: " . count($contentItems));
+        // (Skipping synchronous scan and report update; just return changed items.)
 
 
         /* Save last_updated date on course */
@@ -126,6 +116,10 @@ class LmsFetchService {
         $course->setDirty(false);
 
         $this->doctrine->getManager()->flush();
+
+        // Return the list of updated ContentItems so the caller can dispatch
+        // one ScanContentItem message per item.
+        return $contentItems;
     }
 
     // Refresh content item data from the LMS

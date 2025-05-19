@@ -2,17 +2,13 @@
 
 namespace App\Message;
 
-class ScanContentItem
+final class ScanContentItem
 {
-    private $contentItemData;
+    public function __construct(
+        private int $contentItemId,
+        private int $userId
+    ) {}
 
-    public function __construct($contentItemData)
-    {
-        $this->contentItemData = $contentItemData;
-    }
-
-    public function getContentItemData()
-    {
-        return $this->contentItemData;
-    }
+    public function getContentItemId(): int { return $this->contentItemId; }
+    public function getUserId(): int       { return $this->userId; }
 }

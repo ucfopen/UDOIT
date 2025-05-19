@@ -38,7 +38,7 @@ services:
         - ./:/var/www/html
         - ./build/supervisor/supervisord.conf:/etc/supervisor/supervisord.conf
         - ./build/supervisor/php-fpm.conf:/etc/supervisor/conf.d/php-fpm.conf
-        - ./build/supervisor/messenger-worker.conf:/etc/supervisor/conf.d/messenger-worker.conf
+        - ./build/supervisor/:/etc/supervisor/conf.d/
       env_file:
         - .env
       depends_on:

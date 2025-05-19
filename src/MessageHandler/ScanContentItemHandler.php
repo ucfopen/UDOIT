@@ -3,45 +3,80 @@
 namespace App\MessageHandler;
 
 use App\Message\ScanContentItem;
-use Symfony\Component\Messenger\Handler\MessageHandlerInterface;
-use Symfony\Component\Console\Output\ConsoleOutput;
+use App\Entity\ContentItem;
+use App\Entity\User;
 use App\Services\LmsFetchService;
+use App\Services\ScannerService;
+use App\Services\UtilityService;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
-class ScanContentItemHandler implements MessageHandlerInterface
+
+
+#[AsMessageHandler]
+final class ScanContentItemHandler
 {
-    private $lmsFetchService;
-    private $em;
+    public function __construct(
+        private LmsFetchService        $lmsFetch,
+        private ScannerService         $scanner,
+        private UtilityService         $util,
+        private EntityManagerInterface $em,
+    ) {}
 
-    public function __construct(LmsFetchService $lmsFetchService, EntityManagerInterface $em)
+    public function __invoke(ScanContentItem $msg): void
     {
-        $this->lmsFetchService = $lmsFetchService;
-        $this->em = $em;
-    }
+        /* --------------------------------------------------------------------
+         * 1.   Resolve the entities needed for this tiny job
+         * ------------------------------------------------------------------ */
+        /** @var ContentItem|null $item */
+        $item = $this->em->getRepository(ContentItem::class)
+                            ->find($msg->getContentItemId());
 
-    public function __invoke(ScanContentItem $message)
-    {
-        $printOutput = new ConsoleOutput();
+        /** @var User|null $user */
+        $user = $this->em->getRepository(User::class)
+                            ->find($msg->getUserId());
 
-        // Get content item ID from the message
-        $contentItemId = $message->getContentItemData();
-
-        // Fetch the ContentItem entity from the database
-        $contentItem = $this->em->getRepository(\App\Entity\ContentItem::class)->find($contentItemId);
-
-        if (!$contentItem) {
-            $printOutput->writeln("ContentItem with ID $contentItemId not found.");
-            return;
+        if (!$item || !$user) {
+            return;             // nothing to do – corrupted message?
         }
 
-         // deletes all issues for the content item
-        $this->lmsFetchService->deleteContentItemIssues([$contentItem]);
+        /* --------------------------------------------------------------------
+         * 2.   Remove the previous Issues linked to this ContentItem
+         * ------------------------------------------------------------------ */
+        $this->lmsFetch->deleteContentItemIssues([$item]);
 
-        $printOutput->writeln("Processing content item ID: $contentItemId");
+        /* --------------------------------------------------------------------
+         * 3.   Re‑scan the ContentItem with the configured scanner
+         * ------------------------------------------------------------------ */
+        try {
+            $report = $this->scanner->scanContentItem($item, /* equalAccess */ null, $this->util);
 
-        // Call the LMSfetchservice method
-        $this->lmsFetchService->asyncScanContentItems([$contentItem]);
+            if ($report) {
+                // propagate scan errors back into our messaging system
+                foreach ($report->getErrors() as $err) {
+                    $msgTxt = $err . ', item = #' . $item->getId();
+                    $this->util->createMessage($msgTxt, 'error', $item->getCourse(), null, true);
+                }
 
-        $printOutput->writeln("Finished processing content item ID: $contentItemId");
+                // persist each reported Issue
+                foreach ($report->getIssues() as $issue) {
+                    $this->lmsFetch->createIssue($issue, $item);
+                }
+            }
+
+            /* ----------------------------------------------------------------
+             * 4.   Update (or create) today’s Report for the parent Course
+             * -------------------------------------------------------------- */
+            $this->lmsFetch->updateReport($item->getCourse(), $user);
+
+            /* ----------------------------------------------------------------
+             * 5.   Flush & detach to keep memory low when many jobs run
+             * -------------------------------------------------------------- */
+            $this->em->flush();
+            $this->em->clear();
+        } catch (\Throwable $e) {
+            // A single item failed – log and continue; do NOT re‑throw.
+            $this->util->createMessage($e->getMessage(), 'error', $item->getCourse(), null, true);
+        }
     }
 }

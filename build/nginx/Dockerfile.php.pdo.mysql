@@ -21,7 +21,7 @@ WORKDIR /var/www/html
 # Copy Supervisor configs into the image
 COPY build/supervisor/supervisord.conf /etc/supervisor/supervisord.conf
 COPY build/supervisor/php-fpm.conf /etc/supervisor/conf.d/php-fpm.conf
-COPY build/supervisor/messenger-worker.conf /etc/supervisor/conf.d/messenger-worker.conf
+COPY build/supervisor/ /etc/supervisor/conf.d/
 
 # Expose port if necessary (e.g., for Nginx, but with PHP-FPM you typically let Nginx handle this)
 EXPOSE 9000
