@@ -137,7 +137,7 @@ const rulesToFormNameMap = {
 }
 
 export function formFromIssue(activeIssue) {
-  if (activeIssue && !activeIssue.sourceHtml.includes("data-type-module")) {
+  if (activeIssue) {
     const ruleId = activeIssue.scanRuleId
     // Get the form name based on the ruleId
     if (rulesToFormNameMap.hasOwnProperty(ruleId)) {

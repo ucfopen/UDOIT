@@ -12,6 +12,7 @@ export default function FixIssuesList({ t, settings, filteredIssues, setActiveIs
   const [groupedList, setGroupedList] = useState([])
 
   useEffect(() => {
+    console.log("FixIssuesList caught a change in filteredIssues")
     const tempGroupedList = []
 
     // Get all of the issues' "formLabel" values
@@ -29,6 +30,7 @@ export default function FixIssuesList({ t, settings, filteredIssues, setActiveIs
     })
     
     setGroupedList(tempGroupedList)
+    console.log("Setting new Grouped List!")
 
   }, [filteredIssues])
 

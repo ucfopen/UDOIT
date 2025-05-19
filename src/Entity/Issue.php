@@ -22,6 +22,8 @@ class Issue implements \JsonSerializable
     #[ORM\Column(type: "integer")]
     private $id;
 
+    private $reports;
+
     #[ORM\ManyToOne(targetEntity: "App\Entity\ContentItem", inversedBy: "issues")]
     #[ORM\JoinColumn(nullable: false)]
     private $contentItem;
@@ -37,7 +39,6 @@ class Issue implements \JsonSerializable
 
     #[ORM\Column(type: "smallint")]
     private $status;
-
 
     #[ORM\ManyToOne(targetEntity: User::class)]
     private $fixedBy;
@@ -72,8 +73,9 @@ class Issue implements \JsonSerializable
             "contentItemId" => $this->contentItem->getId(),
             "scanRuleId" => $this->scanRuleId,
             "type" => $this->type,
-            "sourceHtml" => $this->html,
-            "previewHtml" => $this->previewHtml,
+            "xpath" => $this->html,
+            "sourceHtml" => $this->previewHtml,
+            "newHtml" => $this->newHtml,
             "metadata" => $this->metadata,
         ];
     }

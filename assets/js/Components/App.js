@@ -7,28 +7,10 @@ import ReportsPage from './ReportsPage'
 import SettingsPage from './SettingsPage'
 import Api from '../Services/Api'
 import MessageTray from './MessageTray'
+import { analyzeReport } from '../Services/Report'
 
 
 export default function App(initialData) {
-
-  // The initialData object that is passed to the App will generally contain:
-  // { 
-  //   messages: [],
-  //   report: { ... The report from the most recent scan ... },
-  //   settings: { ... From src/Controller/DashboardController.php => getSettings() ... },
-  //   settings.user: {
-  //     "id": 3,
-  //     "username": "https://canvas.instructure.com||1129",
-  //     "name": null,
-  //     "lmsUserId": "1129",
-  //      "roles": [
-  //         "ROLE_USER"    // or "ROLE_ADVANCED_USER" if they've clicked to skip the welcome page.
-  //     ],
-  //     "lastLogin": "2025-02-03",
-  //     "created": "2025-01-13",
-  //     "hasApiKey": true
-  //   }
-  // }
 
   const [messages, setMessages] = useState(initialData.messages || [])
   const [report, setReport] = useState(initialData.report || null)  
@@ -36,10 +18,8 @@ export default function App(initialData) {
   const [sections, setSections] = useState([])
 
   const [navigation, setNavigation] = useState('summary')
-  const [modal, setModal] = useState(null)
   const [syncComplete, setSyncComplete] = useState(false)
   const [hasNewReport, setHasNewReport] = useState(false)
-  const [disableReview, setDisableReview] = useState(false)
   const [initialSeverity, setInitialSeverity] = useState('')
   const [initialSearchTerm, setInitialSearchTerm] = useState('')
   const [contentItemCache, setContentItemCache] = useState([])
@@ -119,22 +99,35 @@ export default function App(initialData) {
     setSessionIssues(newSessionIssues)
   }
 
+  const processNewReport = (rawReport) => {
+    console.log("Processing a raw report!")
+    const tempReport = analyzeReport(rawReport)
+    setReport(tempReport)
+    console.log(tempReport)
+    
+    if (tempReport.contentSections) {
+      setSections(tempReport.contentSections)
+    }
+    else {
+      setSections([])
+    }
+
+    let tempContentItems = {}
+    for(const key in tempReport.contentItems) {
+      tempContentItems[key] = tempReport.contentItems[key]
+    }
+    setContentItemCache(tempContentItems)
+    console.log("Setting new content item cache!")
+    console.log(tempContentItems)
+  }
+
   const handleNewReport = (data) => {
     let newReport = report
     let newHasNewReport = hasNewReport
-    let newDisableReview = disableReview
     if (data.messages) {
       data.messages.forEach((msg) => {
         if (msg.visible) {
           addMessage(msg)
-        }
-        if ('msg.no_report_created' === msg.message) {
-          addMessage(msg)
-          newReport = null
-          newDisableReview = true
-        }
-        if ("msg.sync.course_inactive" === msg.message) {
-          newDisableReview = true
         }
       })
     }
@@ -144,14 +137,10 @@ export default function App(initialData) {
     }
     setSyncComplete(true)
     setHasNewReport(newHasNewReport)
-    setReport(newReport)
-    if (newReport.contentSections) {
-      setSections(newReport.contentSections)
+
+    if(newHasNewReport) {
+      processNewReport(newReport)
     }
-    else {
-      setSections([])
-    }
-    setDisableReview(newDisableReview)
   }
 
   const handleNavigation = (newNavigation) => {
@@ -163,10 +152,6 @@ export default function App(initialData) {
       setInitialSearchTerm('')
     }
     setNavigation(newNavigation)
-  }
-
-  const handleModal = (modal) => {
-    setModal(modal)
   }
 
   const addMessage = (msg) => {
@@ -203,38 +188,6 @@ export default function App(initialData) {
       delete newContentItemCache[contentItemId]
     }
     setContentItemCache(newContentItemCache)
-  }
-
-  // When an issue has been saved, the page is rescanned and a new report is generated.
-  // THIS MEANS THAT ALL OF THE UNRESOLVED ISSUES ON THAT PAGE WILL BE REMOVED and then
-  // replaced (if necessary) in the new scan. The newIssue will PROBABLY have a valid
-  // issueId in the new report (unless it was marked as UNresolved).
-  const updateReportIssue = (newReport) => {
-    if(!newReport) {
-      return
-    }
-    const updatedReport = { ...newReport }
-    setReport(updatedReport)
-  }
-
-  const updateReportFile = (newFile) => {
-    let updatedReport = { ...report }
-    console.log(updateReport)
-    console.log(newFile)
-    if (updatedReport && updatedReport.files) {
-      updatedReport.files[newFile.id] = newFile
-    }
-    setReport(updatedReport)
-  }
-
-  const handleCourseRescan = () => {
-    if (hasNewReport) {
-      setHasNewReport(false)
-      setSyncComplete(false)
-      scanCourse()
-        .then((response) => response.json())
-        .then(handleNewReport)
-    }
   }
 
   const handleFullCourseRescan = () => {
@@ -310,14 +263,11 @@ export default function App(initialData) {
                   addContentItemToCache={addContentItemToCache}
                   report={report}
                   sections={sections}
-                  setReport={setReport}
+                  processNewReport={processNewReport}
                   addMessage={addMessage}
                   handleNavigation={handleNavigation}
-                  updateReportIssue={updateReportIssue}
-                  updateReportFile={updateReportFile}
                   sessionIssues={sessionIssues}
-                  updateSessionIssue={updateSessionIssue}
-                  disableReview={syncComplete && !disableReview} />
+                  updateSessionIssue={updateSessionIssue} />
               }
               {('reports' === navigation) &&
                 <ReportsPage
