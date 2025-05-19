@@ -1,36 +1,25 @@
 <?php
 namespace App\Message;
 
-class FullRescanMessage implements QueueItemInterface
+class FullRescanMessage
 {
     private int $courseId;
     private int $userId;
+    private string $apiKey;
+    private string $lmsId;
+    private string $lmsDomain;
 
-    public function __construct(int $courseId, int $userId)
-    {
+    public function __construct(int $courseId, int $userId, string $apiKey, string $lmsId, string $lmsDomain) {
         $this->courseId = $courseId;
         $this->userId = $userId;
+        $this->apiKey = $apiKey;
+        $this->lmsId = $lmsId;
+        $this->lmsDomain = $lmsDomain;
     }
 
-    public function getCourseId()
-    {
-        return $this->courseId;
-    }
-
-    public function getUserId()
-    {
-        return $this->userId;
-    }
-
-    public function getTask()
-    {
-        // Return a task identifier that QueueItemHandler can switch on.
-        return 'refreshContent';
-    }
-
-    public function getData()
-    {
-        // If you need to pass additional parameters, include them here.
-        return ['courseId' => $this->courseId];
-    }
+    public function getApiKey(): string { return $this->apiKey; }
+    public function getLmsId(): string { return $this->lmsId; }
+    public function getLmsDomain(): string { return $this->lmsDomain; }
+    public function getCourseId() { return $this->courseId; }
+    public function getUserId() { return $this->userId; }
 }

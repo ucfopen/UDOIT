@@ -8,6 +8,7 @@ use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\Uid\Uuid;
+use Symfony\Component\Console\Output\ConsoleOutput;
 
 const FIVE_MINUTES = 300;
 
@@ -47,8 +48,17 @@ class SessionService {
 
     public function getSession(?string $uuid = null): UserSession
     {
+        $printer = new ConsoleOutput();
+        $printer->writeln('SessionService: getSession() called');
+        $printer->writeln('SessionService: uuid: ' . $uuid);
+
         if (empty($uuid) && !empty($this->userSession)) {
             return $this->userSession;
+        }
+
+        if (!$this->request) {
+            // ⚠️ Log or throw depending on use case
+            throw new \RuntimeException('SessionService: No current HTTP request context. Cannot resolve session token.');
         }
 
         // Check request header
