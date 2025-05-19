@@ -248,7 +248,12 @@ class LmsFetchService {
 
                     // Add Issues to report
                     foreach ($report->getIssues() as $issue) {
-                        $this->createIssue($issue, $contentItem);
+                        if(isset($issue->isGeneric)) {
+                          $this->createGenericIssue($issue, $contentItem);
+                        }
+                        else {
+                          $this->createIssue($issue, $contentItem);
+                        }
                     }
                 }
 
@@ -290,6 +295,32 @@ class LmsFetchService {
         $issueEntity->setHtml($issue->getHtml());
         $issueEntity->setPreviewHtml($issue->getPreview());
         $issueEntity->setMetadata($issue->getMetadata());
+
+        $contentItem->addIssue($issueEntity);
+
+        $this->doctrine->getManager()->persist($issueEntity);
+
+        return $issueEntity;
+    }
+
+    public function createGenericIssue($issue, ContentItem $contentItem)
+    {
+        $issueEntity = new Issue();
+        $meta = $contentItem->getCourse()->getInstitution()->getMetadata();
+        $issueType = self::ISSUE_TYPE_ERROR;
+
+        $scanner = $_ENV['ACCESSIBILITY_CHECKER'];
+        if ($scanner == 'equalaccess_lambda' || $scanner == 'equalaccess_local') {
+          $issueType = $this->equalAccess->getIssueType($issue->metadata);
+        }
+
+        $issueEntity->setType($issueType);
+        $issueEntity->setStatus(Issue::$issueStatusActive);
+        $issueEntity->setContentItem($contentItem);
+        $issueEntity->setScanRuleId($issue->scanRuleId);
+        $issueEntity->setHtml($issue->xpath);
+        $issueEntity->setPreviewHtml('');
+        $issueEntity->setMetadata($issue->metadata);
 
         $contentItem->addIssue($issueEntity);
 

@@ -21,9 +21,7 @@ export default function FixIssuesContentPreview({
 }) {
 
   const [taggedContent, setTaggedContent] = useState(null)
-  const [altTextPreview, setAltTextPreview] = useState(null)
   const [canShowPreview, setCanShowPreview] = useState(false)
-
 
   const [issueElementDefaultRect, setIssueElementDefaultRect] = useState(null)
   const issueElementRef = useRef(null)
@@ -196,30 +194,24 @@ export default function FixIssuesContentPreview({
 
   const getTaggedContent = (activeIssue, activeContentItem) => {
 
-    setAltTextPreview(null)
     if (!activeIssue || !activeContentItem) {
       return null
     }
 
     let fullPageHtml = activeContentItem.body
-    let errorHtml = activeIssue?.issueData?.sourceHtml || undefined
-    if(activeIssue.status === settings.FILTER.FIXED) {
-      errorHtml = activeIssue?.issueData?.newHtml || errorHtml
-    }
-
-    if(errorHtml === undefined || errorHtml === '') {
-      return fullPageHtml
-    }
-
     const parser = new DOMParser()
     const doc = parser.parseFromString(fullPageHtml, 'text/html')
 
-    const errorElement = Html.toElement(errorHtml)
-
+    let errorElement = Html.findElementWithIssue(doc, activeIssue?.issueData)
+  
     if(!errorElement) {
       setCanShowPreview(false)
       setIsErrorFoundInContent(false)
-      return fullPageHtml
+    }
+    else {
+      errorElement.replaceWith(convertErrorHtmlElement(errorElement))
+      setCanShowPreview(true)
+      setIsErrorFoundInContent(true)
     }
 
     // Find all of the <details> elements in the document (if present).
@@ -231,21 +223,21 @@ export default function FixIssuesContentPreview({
       }
     })
 
-    // Find the first element in the document that matches the error element.
-    const docElement = Array.from(doc.body.querySelectorAll(errorElement.tagName)).find((matchElement) => {
-      return matchElement.outerHTML.trim() === errorElement.outerHTML.trim()
-    })
+    // // Find the first element in the document that matches the error element.
+    // const docElement = Array.from(doc.body.querySelectorAll(errorElement.tagName)).find((matchElement) => {
+    //   return matchElement.outerHTML.trim() === errorElement.outerHTML.trim()
+    // })
 
-    // If the element is found, update it with the appropriate class.
-    if(docElement) {
-      setCanShowPreview(true)
-      setIsErrorFoundInContent(true)
-      docElement.replaceWith(convertErrorHtmlElement(docElement))
-    }
-    else {
-      setCanShowPreview(false)
-      setIsErrorFoundInContent(false)
-    }
+    // // If the element is found, update it with the appropriate class.
+    // if(docElement) {
+    //   setCanShowPreview(true)
+    //   setIsErrorFoundInContent(true)
+    //   docElement.replaceWith(convertErrorHtmlElement(docElement))
+    // }
+    // else {
+    //   setCanShowPreview(false)
+    //   setIsErrorFoundInContent(false)
+    // }
 
     // Find all of the heading elements and show them when a relevant issues is being edited.
     if(SHOW_HEADINGS_RULES.includes(activeIssue.scanRuleId)) {
@@ -257,8 +249,10 @@ export default function FixIssuesContentPreview({
       })
     }
 
-    const serializer = new XMLSerializer()
-    return serializer.serializeToString(doc)
+    return doc.body.innerHTML
+
+    // const serializer = new XMLSerializer()
+    // return serializer.serializeToString(doc)
   }
 
   useEffect(() => {
@@ -267,7 +261,9 @@ export default function FixIssuesContentPreview({
       setIsErrorFoundInContent(true)
       return
     }
-    setTaggedContent(getTaggedContent(activeIssue, activeContentItem))
+    if(activeIssue.contentType !== settings.FILTER.FILE_OBJECT) {
+      setTaggedContent(getTaggedContent(activeIssue, activeContentItem))
+    }
   }, [activeIssue, activeContentItem])
 
   useEffect(() => {
