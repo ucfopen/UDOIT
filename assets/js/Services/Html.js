@@ -448,7 +448,7 @@ export function findElementWithIssue(content, issue) {
       return null
     }
 
-    let element = Html.toElement(issue.sourceHtml)
+    let element = toElement(issue.sourceHtml)
     return findElementWithError(content, element)
   }
 }
