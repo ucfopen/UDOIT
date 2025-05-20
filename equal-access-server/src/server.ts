@@ -44,7 +44,7 @@ app.post("/scan", asyncHandler(async (req, res) => {
   const guidelineIds: string | string[] = req.body.guidelineIds || DEFAULT_ID;
   const reportLevels: string | string[] = req.body.reportLevels || DEFAULT_REPORT_LEVELS;
   const report: Report = await aceCheck(html, browser, guidelineIds, reportLevels);
-  
+
   // Modified to match Lambda output format
   res.status(200).json(report);
 }));
@@ -54,12 +54,14 @@ app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {
   res.status(500).json({ error: err.message });
 });
 
+const SCAN_POOL_SIZE = parseInt(process.env.SCAN_POOL_SIZE || '5', 10);
+
 (async () => {
   try {
     browser = await puppeteer.launch({
       args: ['--no-sandbox', '--disable-setuid-sandbox']
     });
-    await initializePagePool(browser, 5);
+    await initializePagePool(browser, SCAN_POOL_SIZE);
     app.listen(PORT, () => {
       console.log(`Server is running on port ${PORT}`);
     });

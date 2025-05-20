@@ -79,6 +79,7 @@ services:
         - "3000:3000"
       environment:
         - PORT=3000
+        - SCAN_POOL_SIZE=${SCAN_POOL_SIZE}
 
 volumes:
   web:
