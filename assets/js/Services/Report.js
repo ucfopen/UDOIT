@@ -75,7 +75,6 @@ export function analyzeReport(report) {
           }
         }
         else {
-          console.log(`Unable to find element for issue ${issue.id} in content item ${contentItemId}.`)
           issueIgnored = true
         }
       }

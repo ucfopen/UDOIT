@@ -104,6 +104,7 @@ export default function FixIssuesPage({
   const [activeFilters, setActiveFilters] = useState(defaultFilters)
   const [unfilteredIssues, setUnfilteredIssues] = useState([])
   const [filteredIssues, setFilteredIssues] = useState([])
+  const [groupedList, setGroupedList] = useState([])
   const [widgetState, setWidgetState] = useState(WIDGET_STATE.LOADING)
   const [viewInfo, setViewInfo] = useState(false)
 
@@ -323,6 +324,7 @@ export default function FixIssuesPage({
     let tempContentItems = contentItemsBeingScanned
     if(!tempContentItems.includes(contentItemId)) {
       tempContentItems.push(contentItemId)
+      console.log("Adding item to being scanned: " + contentItemId)
       setContentItemsBeingScanned(tempContentItems)
     }
   }
@@ -331,6 +333,7 @@ export default function FixIssuesPage({
     let tempContentItems = contentItemsBeingScanned
     if(tempContentItems.includes(contentItemId)) {
       tempContentItems = tempContentItems.filter((item) => item !== contentItemId)
+      console.log("Removing item from being scanned: " + contentItemId)
       setContentItemsBeingScanned(tempContentItems)
     }
   }
@@ -351,11 +354,27 @@ export default function FixIssuesPage({
   // When the filters or search term changes, update the filtered issues list
   useEffect(() => {
 
-    console.log("About to get filtered content...")
     let tempFilteredContent = getFilteredContent(unfilteredIssues)
     setFilteredIssues(tempFilteredContent)
     setActiveIssue(null)
-    console.log("How fast was that?")
+
+    const tempGroupedList = []
+
+    // Get all of the issues' "formLabel" values
+    const formLabels = tempFilteredContent.map((issue) => issue.formLabel)
+    const uniqueFormLabels = [...new Set(formLabels)]
+
+    uniqueFormLabels.sort((a, b) => {
+      return (a.toLowerCase() < b.toLowerCase()) ? -1 : 1
+    })
+
+    // Group the issues by "formLabel"
+    uniqueFormLabels.forEach((formLabel) => {
+      const issues = tempFilteredContent.filter((issue) => issue.formLabel === formLabel)
+      tempGroupedList.push({ formLabel: formLabel, issues })
+    })
+    
+    setGroupedList(tempGroupedList)
 
     // If nothing matches the filters, show the no results view
     if(tempFilteredContent.length === 0) {
@@ -463,14 +482,12 @@ export default function FixIssuesPage({
     // If we've already downloaded the content for this issue, use that
     const contentItemId = activeIssue.issueData.contentItemId
     if(contentItemCache[contentItemId]) {
-      console.log("Using cached content item: ", contentItemId)
       setActiveContentItem(contentItemCache[contentItemId])
       return
     }
 
     // Otherwise, clear the old content and download the content for this issue
     setActiveContentItem(null)
-    console.log("Loading content item from UDOIT database: ", contentItemId)
     loadContentItemByIssue(activeIssue)
 
   }, [activeIssue])
@@ -1080,7 +1097,7 @@ export default function FixIssuesPage({
             <FixIssuesList
               t={t}
               settings={settings.FILTER ? settings : Object.assign({}, settings, { FILTER })}
-              filteredIssues={filteredIssues}
+              groupedList={groupedList}
               setActiveIssue={setActiveIssue}
             />
           ) : activeIssue ? (  
@@ -1126,6 +1143,7 @@ export default function FixIssuesPage({
               sessionIssues={sessionIssues}
               isErrorFoundInContent={isErrorFoundInContent}
               setIsErrorFoundInContent={setIsErrorFoundInContent}
+              contentItemsBeingScanned={contentItemsBeingScanned}
             />
           )}
           <div className="ufixit-content-progress">

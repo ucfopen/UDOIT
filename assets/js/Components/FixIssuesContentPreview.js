@@ -17,6 +17,7 @@ export default function FixIssuesContentPreview({
   editedElement,
   isErrorFoundInContent,
   setIsErrorFoundInContent,
+  contentItemsBeingScanned,
   sessionIssues,
 }) {
 
@@ -361,123 +362,234 @@ export default function FixIssuesContentPreview({
 
   return (
     <>
-      { taggedContent && activeContentItem ? (
-        <>
-          <a href={activeContentItem.url} target="_blank" rel="noreferrer" className="ufixit-content-label flex-row justify-content-between mt-2 mb-3">
-            <div className="flex-column flex-center">
-              <h2 className="fake-h1">{activeContentItem.title}</h2>
-            </div>
-            <div className="flex-column flex-center">
-              <ExternalLinkIcon className="icon-lg link-color" />
-            </div>
-          </a>
-          <div className="ufixit-content-preview">
-            { canShowPreview ? (
-              <>
-                <div
-                  className="ufixit-content-preview-main"
-                  ref={node => {
-                    if (node) {
-                      const highlightElement = node.getElementsByClassName('ufixit-error-highlight')[0]
-                      issueElementRef.current = highlightElement
-                    }
-                  }} dangerouslySetInnerHTML={{__html: taggedContent}} />
-                {isErrorFoundInContent && renderScrollButton()}
-              </>
-            ) : (
-              <div className="ufixit-content-preview-no-error flex-row p-3">
-                <div className="flex-column justify-content-start">
-                  <div className="flex-row mb-3">
-                    <div className="flex-column justify-content-center flex-grow-0 flex-shrink-0 me-3">
-                      <InfoIcon className="icon-lg udoit-suggestion" alt="" />
-                    </div>
-                    <div className="flex-column justify-content-center flex-grow-1">
-                      <h2 className="mt-0 mb-0">{t('fix.label.no_error_preview')}</h2>
-                    </div>
-                  </div>
-                  <div>{t('fix.msg.no_error_preview')}</div>
-                  <div className="flex-row justify-content-end mt-3">
-                    <button className="btn btn-secondary mt-3" onClick={() => setCanShowPreview(true)}>
-                      {t('fix.button.show_no_error_preview')}
-                    </button>
-                  </div>
-                </div>
-              </div>
-            )}
+      { activeIssue && (
+        <a href={activeIssue.contentUrl} target="_blank" rel="noreferrer" className="ufixit-content-label flex-row justify-content-between mt-0 mb-3">
+          <div className="flex-column flex-center allow-word-break">
+            <h2 className="fake-h1">{activeIssue.contentTitle}</h2>
           </div>
-        </>
-      ) : activeIssue ? (
-        <>
-          <a href={activeIssue.contentUrl} target="_blank" rel="noreferrer" className="ufixit-content-label flex-row justify-content-between mt-3 mb-3">
-            <div className="flex-column flex-center allow-word-break">
-              <h2 className="fake-h1">{activeIssue.contentTitle}</h2>
-            </div>
-            <div className="flex-column flex-center">
-              <ExternalLinkIcon className="icon-lg link-color" alt="" />
-            </div>
-          </a>
-          { activeIssue.contentType === settings.FILTER.FILE_OBJECT ? (
-            <div className="flex-grow-1">
-              <div className="ufixit-file-details">
-                <div className="flex-row mt-2">
-                  <div className="flex-column flex-center ufixit-file-details-label">{t('fix.label.file_name')}</div>
-                  <div className="flex-column flex-center allow-word-break">{activeIssue.fileData.fileName}</div>
-                </div>
-                <div className="flex-row mt-2">
-                  <div className="flex-column flex-center ufixit-file-details-label">{t('fix.label.file_type')}</div>
-                  <div className="flex-column flex-center allow-word-break">{getReadableFileType(activeIssue.fileData.fileType)}</div>
-                </div>
-                <div className="flex-row mt-2">
-                  <div className="flex-column flex-center ufixit-file-details-label">{t('fix.label.file_size')}</div>
-                  <div className="flex-column flex-center allow-word-break">{getReadableFileSize(activeIssue.fileData.fileSize)}</div>
-                </div>
-                <div className="flex-row mt-2">
-                  <div className="flex-column flex-center ufixit-file-details-label">{t('fix.label.file_updated')}</div>
-                  <div className="flex-column flex-center allow-word-break">{getReadableDateTime(activeIssue.fileData.updated)}</div>
-                </div>
-              </div>
-              <div className="mt-3 flex-row justify-content-center gap-3">
-                { activeIssue.fileData.downloadUrl && (
-                  <button className="btn btn-secondary btn-icon-left" onClick={() => window.open(activeIssue.fileData.downloadUrl, 'download')}>
-                    <DownloadIcon />
-                    <div className="flex-column justify-content-center">{t('fix.button.download_file')}</div>
-                  </button>
-                )}
-                { activeIssue.fileData.lmsUrl && (
-                  <button className="btn btn-secondary btn-icon-left" onClick={() => window.open(activeIssue.fileData.lmsUrl, '_blank', 'noopener,noreferrer')}>
-                    <ExternalLinkIcon />
-                    <div className="flex-column justify-content-center">{t('fix.button.view_in_lms')}</div>
-                  </button>
-                )}
-              </div>
-            </div>
-          ) : (
-            <div className="ufixit-content-preview">
-              <div className="flex-row justify-content-center mt-3">
-                <div className="flex-column justify-content-center">
-                  <ProgressIcon className="icon-lg udoit-suggestion spinner" />
-                </div>
-                <div className="flex-column justify-content-center ms-3">
-                  <h2 className="mt-0 mb-0">{t('fix.label.loading_content')}</h2>
-                </div>
-              </div>
-            </div>
-          )}
-        </>
-      ) : (
-        <>
-          <div className="ufixit-content-preview">
-            <div className="flex-column">
-              <div className="flex-row justify-content-center text-center mt-3 ms-4 me-4">
-                <h2 className="mt-0 mb-0 primary-dark">{t('fix.label.no_selection')}</h2>
-              </div>
-              <div className="flex-row justify-content-center text-center mt-3 ms-4 me-4">
-                <div>{t('fix.msg.select_issue')}</div>
-              </div>
-            </div>
+          <div className="flex-column flex-center">
+            <ExternalLinkIcon className="icon-lg link-color" alt="" />
           </div>
-        </>
+        </a>
       )}
+
+      <div className="ufixit-content-preview">
+
+        { activeContentItem && (
+          <div className="ufixit-content-preview-rescan-container">
+            <div className={`ufixit-content-preview-rescan flex-row ${contentItemsBeingScanned.includes(activeContentItem.id) ? 'active' : 'hidden'}`}>
+              <div className="flex-column align-self-center">
+                <ProgressIcon className="icon-md udoit-suggestion spinner" />
+              </div>
+              <div className="flex-column align-self-center ms-3">
+                {t('fix.label.reload_content')}
+              </div>
+            </div>
+          </div>
+        )}
+
+        { !activeIssue ? (
+          <div className="flex-column">
+            <div className="flex-row justify-content-center text-center mt-3 ms-4 me-4">
+              <h2 className="mt-0 mb-0 primary-dark">{t('fix.label.no_selection')}</h2>
+            </div>
+            <div className="flex-row justify-content-center text-center mt-3 ms-4 me-4">
+              <div>{t('fix.msg.select_issue')}</div>
+            </div>
+          </div>
+        ) : (
+          <>
+            { activeIssue.contentType === settings.FILTER.FILE_OBJECT ? (
+              <div className="flex-grow-1">
+                <div className="ufixit-file-details">
+                  <div className="flex-row mt-2">
+                    <div className="flex-column flex-center ufixit-file-details-label">{t('fix.label.file_name')}</div>
+                    <div className="flex-column flex-center allow-word-break">{activeIssue.fileData.fileName}</div>
+                  </div>
+                  <div className="flex-row mt-2">
+                    <div className="flex-column flex-center ufixit-file-details-label">{t('fix.label.file_type')}</div>
+                    <div className="flex-column flex-center allow-word-break">{getReadableFileType(activeIssue.fileData.fileType)}</div>
+                  </div>
+                  <div className="flex-row mt-2">
+                    <div className="flex-column flex-center ufixit-file-details-label">{t('fix.label.file_size')}</div>
+                    <div className="flex-column flex-center allow-word-break">{getReadableFileSize(activeIssue.fileData.fileSize)}</div>
+                  </div>
+                  <div className="flex-row mt-2">
+                    <div className="flex-column flex-center ufixit-file-details-label">{t('fix.label.file_updated')}</div>
+                    <div className="flex-column flex-center allow-word-break">{getReadableDateTime(activeIssue.fileData.updated)}</div>
+                  </div>
+                </div>
+                <div className="mt-3 flex-row justify-content-center gap-3">
+                  { activeIssue.fileData.downloadUrl && (
+                    <button className="btn btn-secondary btn-icon-left" onClick={() => window.open(activeIssue.fileData.downloadUrl, 'download')}>
+                      <DownloadIcon />
+                      <div className="flex-column justify-content-center">{t('fix.button.download_file')}</div>
+                    </button>
+                  )}
+                  { activeIssue.fileData.lmsUrl && (
+                    <button className="btn btn-secondary btn-icon-left" onClick={() => window.open(activeIssue.fileData.lmsUrl, '_blank', 'noopener,noreferrer')}>
+                      <ExternalLinkIcon />
+                      <div className="flex-column justify-content-center">{t('fix.button.view_in_lms')}</div>
+                    </button>
+                  )}
+                </div>
+              </div>
+            ) : (
+              <>
+                { taggedContent ? (
+                  <>
+                    { canShowPreview ? (
+                      <>
+                        <div
+                          className="ufixit-content-preview-main"
+                          ref={node => {
+                            if (node) {
+                              const highlightElement = node.getElementsByClassName('ufixit-error-highlight')[0]
+                              issueElementRef.current = highlightElement
+                            }
+                          }} dangerouslySetInnerHTML={{__html: taggedContent}} />
+                        {isErrorFoundInContent && renderScrollButton()}
+                      </>
+                    ) : (
+                      <div className="ufixit-content-preview-no-error flex-row p-3">
+                        <div className="flex-column justify-content-start">
+                          <div className="flex-row mb-3">
+                            <div className="flex-column justify-content-center flex-grow-0 flex-shrink-0 me-3">
+                              <InfoIcon className="icon-lg udoit-suggestion" alt="" />
+                            </div>
+                            <div className="flex-column justify-content-center flex-grow-1">
+                              <h2 className="mt-0 mb-0">{t('fix.label.no_error_preview')}</h2>
+                            </div>
+                          </div>
+                          <div>{t('fix.msg.no_error_preview')}</div>
+                          <div className="flex-row justify-content-end mt-3">
+                            <button className="btn btn-secondary mt-3" onClick={() => setCanShowPreview(true)}>
+                              {t('fix.button.show_no_error_preview')}
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                  </>
+                ) : (
+                  <div className="flex-row justify-content-center mt-3">
+                    <div className="flex-column justify-content-center">
+                      <ProgressIcon className="icon-lg udoit-suggestion spinner" />
+                    </div>
+                    <div className="flex-column justify-content-center ms-3">
+                      <h2 className="mt-0 mb-0">{t('fix.label.loading_content')}</h2>
+                    </div>
+                  </div>
+                )}
+              </>
+            )}
+          </>
+        )}
+      </div>
     </>
   )
+
+
+  //     { taggedContent && activeContentItem ? (
+  //       <>
+  //           { canShowPreview ? (
+  //             <>
+  //               <div
+  //                 className="ufixit-content-preview-main"
+  //                 ref={node => {
+  //                   if (node) {
+  //                     const highlightElement = node.getElementsByClassName('ufixit-error-highlight')[0]
+  //                     issueElementRef.current = highlightElement
+  //                   }
+  //                 }} dangerouslySetInnerHTML={{__html: taggedContent}} />
+  //               {isErrorFoundInContent && renderScrollButton()}
+  //             </>
+  //           ) : (
+  //             <div className="ufixit-content-preview-no-error flex-row p-3">
+  //               <div className="flex-column justify-content-start">
+  //                 <div className="flex-row mb-3">
+  //                   <div className="flex-column justify-content-center flex-grow-0 flex-shrink-0 me-3">
+  //                     <InfoIcon className="icon-lg udoit-suggestion" alt="" />
+  //                   </div>
+  //                   <div className="flex-column justify-content-center flex-grow-1">
+  //                     <h2 className="mt-0 mb-0">{t('fix.label.no_error_preview')}</h2>
+  //                   </div>
+  //                 </div>
+  //                 <div>{t('fix.msg.no_error_preview')}</div>
+  //                 <div className="flex-row justify-content-end mt-3">
+  //                   <button className="btn btn-secondary mt-3" onClick={() => setCanShowPreview(true)}>
+  //                     {t('fix.button.show_no_error_preview')}
+  //                   </button>
+  //                 </div>
+  //               </div>
+  //             </div>
+  //           )}
+  //         </div>
+  //       </>
+  //     ) : activeIssue ? (
+  //       <>
+  //         { activeIssue.contentType === settings.FILTER.FILE_OBJECT ? (
+  //           <div className="flex-grow-1">
+  //             <div className="ufixit-file-details">
+  //               <div className="flex-row mt-2">
+  //                 <div className="flex-column flex-center ufixit-file-details-label">{t('fix.label.file_name')}</div>
+  //                 <div className="flex-column flex-center allow-word-break">{activeIssue.fileData.fileName}</div>
+  //               </div>
+  //               <div className="flex-row mt-2">
+  //                 <div className="flex-column flex-center ufixit-file-details-label">{t('fix.label.file_type')}</div>
+  //                 <div className="flex-column flex-center allow-word-break">{getReadableFileType(activeIssue.fileData.fileType)}</div>
+  //               </div>
+  //               <div className="flex-row mt-2">
+  //                 <div className="flex-column flex-center ufixit-file-details-label">{t('fix.label.file_size')}</div>
+  //                 <div className="flex-column flex-center allow-word-break">{getReadableFileSize(activeIssue.fileData.fileSize)}</div>
+  //               </div>
+  //               <div className="flex-row mt-2">
+  //                 <div className="flex-column flex-center ufixit-file-details-label">{t('fix.label.file_updated')}</div>
+  //                 <div className="flex-column flex-center allow-word-break">{getReadableDateTime(activeIssue.fileData.updated)}</div>
+  //               </div>
+  //             </div>
+  //             <div className="mt-3 flex-row justify-content-center gap-3">
+  //               { activeIssue.fileData.downloadUrl && (
+  //                 <button className="btn btn-secondary btn-icon-left" onClick={() => window.open(activeIssue.fileData.downloadUrl, 'download')}>
+  //                   <DownloadIcon />
+  //                   <div className="flex-column justify-content-center">{t('fix.button.download_file')}</div>
+  //                 </button>
+  //               )}
+  //               { activeIssue.fileData.lmsUrl && (
+  //                 <button className="btn btn-secondary btn-icon-left" onClick={() => window.open(activeIssue.fileData.lmsUrl, '_blank', 'noopener,noreferrer')}>
+  //                   <ExternalLinkIcon />
+  //                   <div className="flex-column justify-content-center">{t('fix.button.view_in_lms')}</div>
+  //                 </button>
+  //               )}
+  //             </div>
+  //           </div>
+  //         ) : (
+  //           <div className="ufixit-content-preview">
+  //             <div className="flex-row justify-content-center mt-3">
+  //               <div className="flex-column justify-content-center">
+  //                 <ProgressIcon className="icon-lg udoit-suggestion spinner" />
+  //               </div>
+  //               <div className="flex-column justify-content-center ms-3">
+  //                 <h2 className="mt-0 mb-0">{t('fix.label.loading_content')}</h2>
+  //               </div>
+  //             </div>
+  //           </div>
+  //         )}
+  //       </>
+  //     ) : (
+  //       <>
+  //         <div className="ufixit-content-preview">
+  //           <div className="flex-column">
+  //             <div className="flex-row justify-content-center text-center mt-3 ms-4 me-4">
+  //               <h2 className="mt-0 mb-0 primary-dark">{t('fix.label.no_selection')}</h2>
+  //             </div>
+  //             <div className="flex-row justify-content-center text-center mt-3 ms-4 me-4">
+  //               <div>{t('fix.msg.select_issue')}</div>
+  //             </div>
+  //           </div>
+  //         </div>
+  //       </>
+  //     )}
+  //   </>
+  // )
 }
