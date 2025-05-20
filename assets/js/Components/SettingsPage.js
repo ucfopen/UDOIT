@@ -52,11 +52,11 @@ export default function SettingsPage({
               <label htmlFor="show-filters">{t('settings.label.show_filters_default')}</label>
             </div>
           </div>
-          <div className="flex-row gap-1 mb-3">
+          {/* <div className="flex-row gap-1 mb-3">
             <div className="flex-column flex-center">
               <label htmlFor="language-select">{t('settings.label.language')}</label>
-            </div>
-            <div className="flex-column flex-center">
+            </div> */}
+            {/* <div className="flex-column flex-center">
               <select
                 id="language-select"
                 value={selectedLanguage}
@@ -70,8 +70,8 @@ export default function SettingsPage({
                   </option>
                 ))}
               </select>
-            </div>
-          </div>
+            </div> */}
+          {/* </div> */}
           { !syncComplete ? (
             <button className="btn btn-disabled mt-2 flex-row" tabindex="-1">
               <div className="flex-column justify-content-center align-self-center">
