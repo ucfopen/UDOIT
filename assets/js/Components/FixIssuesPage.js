@@ -324,7 +324,6 @@ export default function FixIssuesPage({
     let tempContentItems = contentItemsBeingScanned
     if(!tempContentItems.includes(contentItemId)) {
       tempContentItems.push(contentItemId)
-      console.log("Adding item to being scanned: " + contentItemId)
       setContentItemsBeingScanned(tempContentItems)
     }
   }
@@ -333,7 +332,6 @@ export default function FixIssuesPage({
     let tempContentItems = contentItemsBeingScanned
     if(tempContentItems.includes(contentItemId)) {
       tempContentItems = tempContentItems.filter((item) => item !== contentItemId)
-      console.log("Removing item from being scanned: " + contentItemId)
       setContentItemsBeingScanned(tempContentItems)
     }
   }

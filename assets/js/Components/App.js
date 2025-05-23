@@ -23,7 +23,7 @@ export default function App(initialData) {
   const [initialSeverity, setInitialSeverity] = useState('')
   const [initialSearchTerm, setInitialSearchTerm] = useState('')
   const [contentItemCache, setContentItemCache] = useState([])
-  const [sessionIssues, setSessionIssues] = useState([])
+  const [sessionIssues, setSessionIssues] = useState({})
   const [welcomeClosed, setWelcomeClosed] = useState(false)
 
   const ISSUE_STATE = {
@@ -100,10 +100,8 @@ export default function App(initialData) {
   }
 
   const processNewReport = (rawReport) => {
-    console.log("Processing a raw report!")
-    const tempReport = analyzeReport(rawReport)
+    const tempReport = analyzeReport(rawReport, ISSUE_STATE)
     setReport(tempReport)
-    console.log(tempReport)
     
     if (tempReport.contentSections) {
       setSections(tempReport.contentSections)
@@ -112,13 +110,15 @@ export default function App(initialData) {
       setSections([])
     }
 
+    if(tempReport.sessionIssues) {
+      setSessionIssues(tempReport.sessionIssues)
+    }
+
     let tempContentItems = {}
     for(const key in tempReport.contentItems) {
       tempContentItems[key] = tempReport.contentItems[key]
     }
     setContentItemCache(tempContentItems)
-    console.log("Setting new content item cache!")
-    console.log(tempContentItems)
   }
 
   const handleNewReport = (data) => {

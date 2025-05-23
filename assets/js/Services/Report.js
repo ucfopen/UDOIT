@@ -13,7 +13,7 @@ import * as Html from './Html'
  *      understandable fields: xpath, sourceHtml, and newHtml.
  **/
 
-export function analyzeReport(report) {
+export function analyzeReport(report, ISSUE_STATE) {
   let tempReport = {
     contentFixed: report.contentFixed || 0,
     contentResolved: report.contentResolved || 0,
@@ -34,6 +34,9 @@ export function analyzeReport(report) {
     potentials: 0,
     suggestions: 0
   }
+  let sessionIssues = {}
+  let currentTime = new Date()
+  let millisecondsInADay = 86400000 // 1000 * 60 * 60 * 24
 
   const parser = new DOMParser()
 
@@ -42,7 +45,8 @@ export function analyzeReport(report) {
     // By default, we assume the issue is included in the final report.
     let issueIgnored = false
 
-    // If the issue is "resolved" or "fixed", we don't need to do anything else.
+    // If the issue is "unresolved" (0), we need to see if it exists in the relevant content item
+    // and if it has the "phpally-ignore" or "udoit-ignore-rule-id" class. If so, we ignore it.
     if(issue.status === 0) {
 
       // Get the relevant content item
@@ -79,6 +83,14 @@ export function analyzeReport(report) {
         }
       }
     }
+    else {
+      if(issue.fixedOn) {
+        let fixedOnTime = new Date(issue.fixedOn)
+        if(currentTime - fixedOnTime < millisecondsInADay) {
+          sessionIssues[issue.id] = (issue.status === 1) ? ISSUE_STATE.SAVED : ISSUE_STATE.RESOLVED
+        }
+      }
+    }
 
     if(!issueIgnored) {
       activeIssues.push(issue)
@@ -102,6 +114,7 @@ export function analyzeReport(report) {
   tempReport.issues = activeIssues
   tempReport.scanCounts = scanCounts
   tempReport.contentItems = usedContentItems
+  tempReport.sessionIssues = sessionIssues
 
   return tempReport
 }

@@ -46,7 +46,6 @@ class Issue implements \JsonSerializable
     #[ORM\Column(type: "datetime", nullable: true)]
     private $fixedOn;
 
-
     #[ORM\Column(type: "text", nullable: true)]
     private $previewHtml;
 
@@ -70,6 +69,7 @@ class Issue implements \JsonSerializable
         return [
             "id" => $this->id,
             "status" => $this->status,
+            "fixedOn" => ($this->fixedOn ? $this->fixedOn->format('Y-m-d H:i:s') : null),
             "contentItemId" => $this->contentItem->getId(),
             "scanRuleId" => $this->scanRuleId,
             "type" => $this->type,
