@@ -65,7 +65,11 @@ class IssuesController extends ApiController
                 $apiResponse->addMessage('form.msg.success_saved', 'success');
 
                 // Update issue status
-                $issue->setStatus(Issue::$issueStatusFixed);
+                $newStatus = Issue::$issueStatusFixed;
+                if($issue->getStatus() === Issue::$issueStatusResolved || $issue->getStatus() === Issue::$issueStatusFixedAndResolved) {
+                    $newStatus = Issue::$issueStatusFixedAndResolved;
+                }
+                $issue->setStatus($newStatus);
                 $issue->setFixedBy($user);
                 $issue->setFixedOn($util->getCurrentTime());
                 $this->doctrine->getManager()->flush();
@@ -121,7 +125,7 @@ class IssuesController extends ApiController
             $unreadMessages = $util->getUnreadMessages();
             if (empty($unreadMessages)) {
                 // Update issue
-                $issue->setStatus(($issueUpdate['status']) ? Issue::$issueStatusResolved : Issue::$issueStatusActive);
+                $issue->setStatus(($issueUpdate['status']) ? $issueUpdate['status'] : Issue::$issueStatusActive);
                 $issue->setFixedBy($user);
                 $issue->setFixedOn($util->getCurrentTime());
 
@@ -130,7 +134,7 @@ class IssuesController extends ApiController
 
                 $this->doctrine->getManager()->flush();
 
-                if ($issue->getStatus() == Issue::$issueStatusResolved) {
+                if ($issue->getStatus() == Issue::$issueStatusResolved || $issue->getStatus() == Issue::$issueStatusFixedAndResolved) {
                     $apiResponse->addMessage('form.msg.success_resolved', 'success');
                 } else {
                     $apiResponse->addMessage('form.msg.success_unresolved', 'success');

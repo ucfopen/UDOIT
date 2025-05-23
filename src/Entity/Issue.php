@@ -15,6 +15,7 @@ class Issue implements \JsonSerializable
     static $issueStatusActive = 0;
     static $issueStatusFixed = 1;
     static $issueStatusResolved = 2;
+    static $issueStatusFixedAndResolved = 3;
 
     // Private Members
     #[ORM\Id]

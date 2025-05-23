@@ -120,7 +120,7 @@ export default function UfixitWidget({
                 {
                   activeIssue.status === settings.FILTER.ACTIVE ? (
                     <SeverityIcon type={severity} alt="" className="icon-lg"/>
-                  ) : activeIssue.status === settings.FILTER.FIXED ? (
+                  ) : (activeIssue.status === settings.FILTER.FIXED || activeIssue.status === settings.FILTER.FIXEDANDRESOLVED) ? (
                     <FixedIcon alt="" className="color-success icon-lg"/>
                   ) : activeIssue.status === settings.FILTER.RESOLVED ? (
                     <ResolvedIcon alt="" className="color-success icon-lg"/>

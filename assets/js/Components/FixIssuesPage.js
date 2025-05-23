@@ -68,6 +68,7 @@ export default function FixIssuesPage({
     ACTIVE: 'ACTIVE',
     FIXED: 'FIXED',
     RESOLVED: 'RESOLVED',
+    FIXEDANDRESOLVED: 'FIXEDANDRESOLVED', // Doesn't appear in any dropdowns, but is used in the code
     PUBLISHED: 'PUBLISHED',
     UNPUBLISHED: 'UNPUBLISHED',
   }
@@ -202,6 +203,9 @@ export default function FixIssuesPage({
     }
     else if(issue.status == 2) {
       issueResolution = FILTER.RESOLVED
+    }
+    else if(issue.status === 3) {
+      issueResolution = FILTER.FIXEDANDRESOLVED
     }
 
     let currentState = settings.ISSUE_STATE.UNCHANGED
@@ -587,6 +591,7 @@ export default function FixIssuesPage({
 
       // Do not include this issue if it doesn't match the content type filter
       let tempContentType = issue.contentType
+      let tempStatus = issue.status === FILTER.FIXEDANDRESOLVED ? FILTER.FIXED : issue.status
       if (tempContentType === FILTER.FILE_OBJECT) {
         // When the user selects "Files", show both "File" issues as well as external File objects
         tempContentType = FILTER.FILE
@@ -596,7 +601,7 @@ export default function FixIssuesPage({
       }
 
       // Do not include this issue if it doesn't match the status filter
-      if (tempFilters[FILTER.TYPE.RESOLUTION] !== FILTER.ALL && tempFilters[FILTER.TYPE.RESOLUTION] !== issue.status) {
+      if (tempFilters[FILTER.TYPE.RESOLUTION] !== FILTER.ALL && tempFilters[FILTER.TYPE.RESOLUTION] !== tempStatus) {
         continue
       }
 
@@ -921,11 +926,23 @@ export default function FixIssuesPage({
     updateActiveSessionIssue(issue.id, settings.ISSUE_STATE.RESOLVING)
     const specificClassName = `udoit-ignore-${issue.scanRuleId.replaceAll("_", "-")}`
     let tempIssue = Object.assign({}, issue)
-    if (tempIssue.status) {
-      tempIssue.status = false
+    if (tempIssue.status === 2) {
+      console.log("Issue already resolved. Marking as unresolved and reverting to SOURCE HTML")
+      tempIssue.status = 0
       tempIssue.newHtml = Html.toString(Html.removeClass(tempIssue.sourceHtml, specificClassName))
     }
+    else if (tempIssue.status === 1) {
+      console.log("Issue already fixed. Marking as both fixed and resolved and adding class to NEW HTML")
+      tempIssue.status = 3
+      tempIssue.newHtml = Html.toString(Html.addClass(tempIssue.newHtml, specificClassName))
+    }
+    else if (tempIssue.status === 3) {
+      console.log("Issue already fixed and resolved. Marking as FIXED and removing class from NEW HTML")
+      tempIssue.status = 1
+      tempIssue.newHtml = Html.toString(Html.removeClass(tempIssue.newHtml, specificClassName))
+    }
     else {
+      console.log("Marking issue as resolved and adding class to SOURCE HTML")
       tempIssue.status = 2
       tempIssue.newHtml = Html.toString(Html.addClass(tempIssue.sourceHtml, specificClassName))
     }
@@ -960,7 +977,10 @@ export default function FixIssuesPage({
                 if(!tempIssue.status) {
                   updateActiveSessionIssue(tempIssue.id, null)
                 }
-                else {
+                else if(tempIssue.status === 1) {
+                  updateActiveSessionIssue(tempIssue.id, settings.ISSUE_STATE.SAVED)
+                }
+                else if(tempIssue.status === 2) {
                   updateActiveSessionIssue(tempIssue.id, settings.ISSUE_STATE.RESOLVED)
                 }
                 setActiveContentItem(null)

@@ -41,7 +41,7 @@ export default function FixIssuesList({ t, settings, groupedList, setActiveIssue
                       { issue.status === settings.FILTER.RESOLVED && (
                         <ResolvedIcon alt="" className="color-success flex-column align-self-center ml-2"/>
                       )}
-                      { issue.status === settings.FILTER.FIXED && (
+                      { (issue.status === settings.FILTER.FIXED || issue.status == settings.FILTER.FIXEDANDRESOLVED) && (
                         <FixedIcon alt=""className="color-success flex-column align-self-center ml-2"/>
                       )}
                     </div>
