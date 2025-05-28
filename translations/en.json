@@ -144,6 +144,7 @@
   "fix.label.screen_reader": "Screen Reader Text",
   "fix.label.no_error_preview": "Accessibility Barrier Not Found",
   "fix.label.no_saving": "Editing and Saving Unavailable",
+  "fix.label.reload_content": "Reloading Updated Content...",
   "fix.msg.no_error_preview": "This accessibility barrier cannot be found, likely because the content has been changed. No areas will be highlighted and no changes can be made inside of UDOIT.",
   "fix.button.download_file": "Download File",
   "fix.button.view_in_lms": "View In LMS",
@@ -315,6 +316,9 @@
   "form.link.new_link": "New Link",
   "form.link.msg.link_empty": "Link cannot be empty",
   "rule.desc.a_text_purpose": "",
+
+  "form.sensory_misuse.label.potential": "Potential Sensory Words:",
+  "rule.desc.text_sensory_misuse": "Make sure that there aren't any instructions that depend on these sensory words: {sensoryWords}",
   
   "form.table_headers.label.select": "Select Table Headers",
   "form.table_headers.selection_description": "Select direction for table header(s)",
@@ -372,7 +376,6 @@
   "rule.desc.download_keyboard_controllable": "Downloads should be accessible to keyboard users. Please verify that this download link can be reached with a keyboard (usually by pressing tab and shift-tab to navigate), that the download can be triggered with a keyboard (usually by pressing enter or spacebar), and that when finished, the keyboard focus comes back to the download link.",
   "rule.desc.frame_src_valid": "The highlighted content comes from another website. Please verify that it doesn't introduce any accessibility barriers. For instance, videos should be captioned, images should have alternative text, buttons and controls should work with keyboards as well as mice, etc.",
   "rule.desc.list_markup_review": "This text seems to be part of a list, but is not marked as one. If it is a list, modify it in your LMS using the list tools. If it is not part of a list, you may mark this as reviewed.",
-  "rule.desc.text_sensory_misuse": "Make sure that there aren't any instructions that depend on these sensory words: {sensoryWords}",
   "rule.desc.text_quoted_correctly": "If any of the following text is a direct quotation, make sure that it is cited correctly: {potentialQuotes}",
   "rule.desc.table_headers_related": "In complicated data tables where cells are merged, cells may need to be individually linked to their headers using the headers attribute. If you are using a table editor, this should be done automatically. If you are not using a table editor, you may need to add the headers attribute manually.",
   "rule.desc.table_headers_ref_valid": "This cell is trying to link to a header using an id that cannot be found. Please verify that the id is correct and that the header exists.",

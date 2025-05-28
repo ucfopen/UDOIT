@@ -48,6 +48,30 @@
   border: 1px solid var(--border-color);
   border-radius: 8px;
 
+  .ufixit-content-preview-rescan-container {
+    position: sticky;
+    top: 0;
+    display: flex;
+    z-index: 5;
+
+    .ufixit-content-preview-rescan {
+      padding: 0.5rem 1rem;
+      background-color: var(--primary-color-light);
+      border: 1px solid var(--border-color);
+      border-radius: 0 0 8px 0;
+      margin-top: calc(-1rem - 1px);
+      margin-left: -100%;
+      transition: margin-left var(--transition-time);
+      font-size: .9em;
+      font-weight: 600;
+      box-shadow: 0 0 3px var(--gray-dark);
+
+      &.active {
+        margin-left: calc(-1rem - 1px);
+      }
+    }
+  }
+
   .ufixit-content-preview-main {
     position: absolute;
     top: 0px;
@@ -173,7 +197,7 @@
     position: absolute;
     padding: 4px;
     border-radius: 4px;
-    margin-left: -30px;
+    margin-left: -32px;
     width: 20px;
     text-align: center;
     border: 1px solid var(--white)

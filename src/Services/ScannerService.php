@@ -60,19 +60,19 @@ class ScannerService {
                 if ($contentItem->getBody() != null) {
                     $equalAccess = new EqualAccessService();
 
-                    $document = $this->getDomDocument($contentItem->getBody());
+                    // $document = $this->getDomDocument($contentItem->getBody());
 
-                    $htmlContent = $document->saveHTML();
-                    $totalLength = strlen($htmlContent);
+                    // $htmlContent = $document->saveHTML();
+                    // $totalLength = strlen($htmlContent);
 
-                    $bodyElements = $document->getElementsByTagName('body');
-                    if ($bodyElements->length > 0) {
-                        // $printOutput->writeln("Body found with children: " . $bodyElements->item(0)->childNodes->length);
-                    }
+                    // $bodyElements = $document->getElementsByTagName('body');
+                    // if ($bodyElements->length > 0) {
+                    //     $printOutput->writeln("Body found with children: " . $bodyElements->item(0)->childNodes->length);
+                    // }
 
                     $localService = new LocalApiAccessibilityService();
                     $json = $localService->scanContentItem($contentItem);
-                    $report = $equalAccess->generateReport($json, $document);
+                    $report = $equalAccess->generateReport($json);
                 }
             }
             else if ($scanner == 'equalaccess_lambda') {
@@ -80,18 +80,18 @@ class ScannerService {
 
                 if ($contentItem->getBody() != null) {
                     $equalAccess = new EqualAccessService();
-                    $document = $this->getDomDocument($contentItem->getBody());
+                    //$document = $this->getDomDocument($contentItem->getBody());
 
                     if (!$scannerReport) {
                         // Report is null, we need to call the lambda function for a single page most likely
                         // $this->logToServer("null $scannerReport!");
                         $asyncReport = new AsyncEqualAccessReport();
                         $json = $asyncReport->postSingleAsync($contentItem);
-                        $report = $equalAccess->generateReport($json, $document);
+                        $report = $equalAccess->generateReport($json);
                     }
                     else {
                         // We already have the report, all we have to do is generate the UDOIT report
-                        $report = $equalAccess->generateReport($scannerReport, $document);
+                        $report = $equalAccess->generateReport($scannerReport);
                     }
                 }
             }
@@ -120,10 +120,10 @@ public function getDomDocument($html)
         $envTextColor = $_ENV['TEXT_COLOR'];
 
         if (strpos($html, '<?xml encoding="utf-8"') !== false) {
-            $dom->loadHTML("<!DOCTYPE html><html lang=\"en\"><head><meta charset=\"UTF-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\"><title>Placeholder Page Title</title></head><body><div role=\"main\"><h1>Placeholder Page Title</h1>{$html}</div></body></html>", LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD);
+            $dom->loadHTML("<!DOCTYPE html><html lang=\"en\"><head><meta charset=\"UTF-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\"><title>Placeholder Page Title</title></head><body><main>{$html}</main></body></html>", LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD);
 
         } else {
-            $dom->loadHTML("<?xml encoding=\"utf-8\" ?><!DOCTYPE html><html lang=\"en\"><head><meta charset=\"UTF-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\"><title>Placeholder Page Title</title></head><body><div role=\"main\"><h1>Placeholder Page Title</h1>{$html}</div></body></html>", LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD);
+            $dom->loadHTML("<?xml encoding=\"utf-8\" ?><!DOCTYPE html><html lang=\"en\"><head><meta charset=\"UTF-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\"><title>Placeholder Page Title</title></head><body><main>{$html}</main></body></html>", LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD);
         }
 
         return $dom;

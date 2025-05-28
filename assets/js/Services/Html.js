@@ -386,3 +386,69 @@ export function getAccessibleName(element) {
    
   return ''
 }
+
+const findElementWithXpath = (content, xpath) => {
+  
+  if(xpath.startsWith('/html[1]/body[1]/main[1]/')) {
+    xpath = xpath.replace('/html[1]/body[1]/main[1]/', '/html[1]/body[1]/')
+  }
+  else if (xpath.startsWith('/html[1]/body[1]/div[1]/')) {
+    xpath = xpath.replace('/html[1]/body[1]/div[1]/', '/html[1]/body[1]/')
+  }
+
+  if(xpath.startsWith('/')) {
+    xpath = xpath.substring(1)
+  }
+
+  if(xpath.length > 0) {
+    let pathParts = xpath.split('/').map(part => {
+      let match = part.match(/(\w+)\[(\d+)\]/)
+      if (match) {
+        let tag = match[1]
+        let index = parseInt(match[2], 10)
+        return `${tag}:nth-of-type(${index})`
+      }
+      return part
+    });
+    
+    let selector = pathParts.join(' > ')
+    let element = content.querySelector(selector)
+    if(element) {
+      return element
+    }
+  }
+  return null
+}
+
+const findElementWithError = (content, errorElement) => {
+  if(errorElement) {
+    // Find the first element in the document that matches the error element.
+    const docElement = Array.from(content.body.querySelectorAll(errorElement.tagName)).find((matchElement) => {
+      return matchElement.outerHTML.trim() === errorElement.outerHTML.trim()
+    })
+    if(docElement) {
+      return docElement
+    }
+  }
+  return null
+}
+
+export function findElementWithIssue(content, issue) {
+  let xpath = issue.xpath
+  if(xpath.startsWith('/html[1]/body[1]')) {
+    return findElementWithXpath(content, xpath)
+  }
+  else {
+    let errorHtml = issue?.sourceHtml || undefined
+    if(issue.status.toString() === '1') {
+      errorHtml = issue?.newHtml || errorHtml
+    }
+
+    if(errorHtml === undefined || errorHtml === '') {
+      return null
+    }
+
+    let element = toElement(issue.sourceHtml)
+    return findElementWithError(content, element)
+  }
+}

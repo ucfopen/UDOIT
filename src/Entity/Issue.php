@@ -15,12 +15,15 @@ class Issue implements \JsonSerializable
     static $issueStatusActive = 0;
     static $issueStatusFixed = 1;
     static $issueStatusResolved = 2;
+    static $issueStatusFixedAndResolved = 3;
 
     // Private Members
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(type: "integer")]
     private $id;
+
+    private $reports;
 
     #[ORM\ManyToOne(targetEntity: "App\Entity\ContentItem", inversedBy: "issues")]
     #[ORM\JoinColumn(nullable: false)]
@@ -38,13 +41,11 @@ class Issue implements \JsonSerializable
     #[ORM\Column(type: "smallint")]
     private $status;
 
-
     #[ORM\ManyToOne(targetEntity: User::class)]
     private $fixedBy;
 
     #[ORM\Column(type: "datetime", nullable: true)]
     private $fixedOn;
-
 
     #[ORM\Column(type: "text", nullable: true)]
     private $previewHtml;
@@ -69,11 +70,13 @@ class Issue implements \JsonSerializable
         return [
             "id" => $this->id,
             "status" => $this->status,
+            "fixedOn" => ($this->fixedOn ? $this->fixedOn->format('Y-m-d H:i:s') : null),
             "contentItemId" => $this->contentItem->getId(),
             "scanRuleId" => $this->scanRuleId,
             "type" => $this->type,
-            "sourceHtml" => $this->html,
-            "previewHtml" => $this->previewHtml,
+            "xpath" => $this->html,
+            "sourceHtml" => $this->previewHtml,
+            "newHtml" => $this->newHtml,
             "metadata" => $this->metadata,
         ];
     }

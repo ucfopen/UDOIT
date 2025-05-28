@@ -34,10 +34,9 @@ export default function FixIssuesPage({
   addContentItemToCache,
   report,
   sections,
-  setReport,
+  processNewReport,
   addMessage,
   updateReportIssue,
-  updateReportFile,
   sessionIssues,
   updateSessionIssue
 })
@@ -69,6 +68,7 @@ export default function FixIssuesPage({
     ACTIVE: 'ACTIVE',
     FIXED: 'FIXED',
     RESOLVED: 'RESOLVED',
+    FIXEDANDRESOLVED: 'FIXEDANDRESOLVED', // Doesn't appear in any dropdowns, but is used in the code
     PUBLISHED: 'PUBLISHED',
     UNPUBLISHED: 'UNPUBLISHED',
   }
@@ -105,6 +105,7 @@ export default function FixIssuesPage({
   const [activeFilters, setActiveFilters] = useState(defaultFilters)
   const [unfilteredIssues, setUnfilteredIssues] = useState([])
   const [filteredIssues, setFilteredIssues] = useState([])
+  const [groupedList, setGroupedList] = useState([])
   const [widgetState, setWidgetState] = useState(WIDGET_STATE.LOADING)
   const [viewInfo, setViewInfo] = useState(false)
 
@@ -202,6 +203,9 @@ export default function FixIssuesPage({
     }
     else if(issue.status == 2) {
       issueResolution = FILTER.RESOLVED
+    }
+    else if(issue.status === 3) {
+      issueResolution = FILTER.FIXEDANDRESOLVED
     }
 
     let currentState = settings.ISSUE_STATE.UNCHANGED
@@ -336,116 +340,6 @@ export default function FixIssuesPage({
     }
   }
 
-  // Call the formatIssueData function when the report changes to make sure every issue has all the necessary attributes
-  useEffect(() => {
-    let tempIssues = Object.assign({}, report.issues)
-    let tempFormattedIssues = []
-
-    for (const [key, value] of Object.entries(tempIssues)) {
-      let tempIssue = formatIssueData(value)
-      tempFormattedIssues.push(tempIssue)
-    }
-
-    let tempFiles = Object.assign({}, report.files)
-    for (const [key, value] of Object.entries(tempFiles)) {
-      let tempFile = formatFileData(value)
-      tempFormattedIssues.push(tempFile)
-    }
-
-    tempFormattedIssues.sort((a, b) => {
-      return (a.formLabel.toLowerCase() < b.formLabel.toLowerCase()) ? -1 : 1
-    })
-
-    setUnfilteredIssues(tempFormattedIssues)
-  }, [report])
-
-  // The unfilteredIssues list changes each time the report is updated (usually after a "Save" or
-  // "Mark as Reviewed" action). When this happens, all of the issues from that contentItem are
-  // deleted and new scan results are put in instead. This leads to an issue where the current item
-  // the user is interacting with is no longer available. This effect checks to see if the current
-  // activeIssue matches one of the newly downloaded issues.
-  useEffect(() => {
-
-    // Every time the list changes, we need to reload the activeContentItem. This will come from the
-    // cache (contentItemCache) or from the database, if not in the cache.
-    setActiveContentItem(null)
-
-    if(!activeIssue) {
-      return
-    }
-
-    // The filtered list should ALWAYS include the current activeIssue, even if it no longer matches
-    // the filters. For instance, if I'm only looking through "Unreviewed" issues, and I click on the
-    // "Mark as Reviewed" button, that newly-reviewed issue should be available to stay on screen.
-    const tempFilteredIssues = getFilteredContent(activeIssue.id)
-    
-    // Quick check: is the active issue still in the list?
-    let activeIssueFound = false
-    tempFilteredIssues.forEach((issue) => {
-      if(issue.id === activeIssue.id) {
-        activeIssueFound = true
-        setActiveIssue(issue)
-      }
-    })
-
-    // If not, we need to do a more thorough check.
-    if(!activeIssueFound) {
-      if(activeIssue.contentType === FILTER.FILE_OBJECT) {
-        tempFilteredIssues.forEach((issue) => {
-          if(issue.contentId === activeIssue.contentId) {
-            activeIssueFound = true        
-            setActiveIssue(issue)
-          }
-        })
-      }
-      else {
-        tempFilteredIssues.forEach((issue) => {
-          if(issue.scanRuleId === activeIssue.scanRuleId &&
-              issue.contentId === activeIssue.contentId &&
-              issue.issueData.sourceHtml === activeIssue.issueData.sourceHtml) {
-            activeIssueFound = true
-            updateActiveSessionIssue(issue.id, null, issue.issueData.contentItemId)
-            setActiveIssue(issue)
-          }
-        })
-      }
-    }
-
-    if(!activeIssueFound) {
-      setWidgetState(WIDGET_STATE.LIST)
-      setActiveIssue(null)
-    }
-
-    setFilteredIssues(tempFilteredIssues)
-
-  }, [unfilteredIssues])
-
-  useEffect(() => {
-    let tempContentItem = null
-    if(activeIssue?.issueData?.contentItemId) {
-      tempContentItem = contentItemCache[activeIssue.issueData.contentItemId] || null
-    }
-    setActiveContentItem(tempContentItem)
-  }, [contentItemCache])
-
-  // When the filters or search term changes, update the filtered issues list
-  useEffect(() => {
-
-    let tempFilteredContent = getFilteredContent()
-    setFilteredIssues(tempFilteredContent)
-    setActiveIssue(null)
-
-    // If nothing matches the filters, show the no results view
-    if(tempFilteredContent.length === 0) {
-      setWidgetState(WIDGET_STATE.NO_RESULTS)
-    }
-    else {
-      // Otherwise, view the list
-      setWidgetState(WIDGET_STATE.LIST)
-    }
-
-  }, [activeFilters, searchTerm])
-
   // The initialSeverity prop is used when clicking a "Fix Issues" button from the main dashboard.
   useEffect(() => {
     let tempSeverity = initialSeverity || FILTER.ALL
@@ -459,7 +353,217 @@ export default function FixIssuesPage({
     }
   }, [initialSearchTerm])
 
-  const getFilteredContent = (includedIssueId = null) => {
+  // When the filters or search term changes, update the filtered issues list
+  useEffect(() => {
+
+    let tempFilteredContent = getFilteredContent(unfilteredIssues)
+    setFilteredIssues(tempFilteredContent)
+    setActiveIssue(null)
+
+    const tempGroupedList = []
+
+    // Get all of the issues' "formLabel" values
+    const formLabels = tempFilteredContent.map((issue) => issue.formLabel)
+    const uniqueFormLabels = [...new Set(formLabels)]
+
+    uniqueFormLabels.sort((a, b) => {
+      return (a.toLowerCase() < b.toLowerCase()) ? -1 : 1
+    })
+
+    // Group the issues by "formLabel"
+    uniqueFormLabels.forEach((formLabel) => {
+      const issues = tempFilteredContent.filter((issue) => issue.formLabel === formLabel)
+      tempGroupedList.push({ formLabel: formLabel, issues })
+    })
+    
+    setGroupedList(tempGroupedList)
+
+    // If nothing matches the filters, show the no results view
+    if(tempFilteredContent.length === 0) {
+      setWidgetState(WIDGET_STATE.NO_RESULTS)
+    }
+    else {
+      // Otherwise, view the list
+      setWidgetState(WIDGET_STATE.LIST)
+    }
+
+  }, [activeFilters, searchTerm])
+
+  // The report object is updated whenever a scan or rescan is completed. At this point, the list of issues
+  // needs to be rebuilt and the activeIssue may need to be updated. For instance, if an issue is marked as
+  // unreviewed then it will be deleted during the rescan and a new issue with a new id will take its place.
+  useEffect(() => {
+    let tempIssues = Object.assign({}, report.issues)
+    let tempUnfilteredIssues = []
+
+    for (const [key, value] of Object.entries(tempIssues)) {
+      let tempIssue = formatIssueData(value)
+      tempUnfilteredIssues.push(tempIssue)
+    }
+
+    let tempFiles = Object.assign({}, report.files)
+    for (const [key, value] of Object.entries(tempFiles)) {
+      let tempFile = formatFileData(value)
+      tempUnfilteredIssues.push(tempFile)
+    }
+
+    tempUnfilteredIssues.sort((a, b) => {
+      return (a.formLabel.toLowerCase() < b.formLabel.toLowerCase()) ? -1 : 1
+    })
+
+    // Every time the list changes, we need to reload the activeContentItem. This will come from the
+    // cache (contentItemCache) or from the database, if not in the cache.
+    setActiveContentItem(null)
+
+    // The filtered list should ALWAYS include the current activeIssue, even if it no longer matches
+    // the filters. For instance, if I'm only looking through "Unreviewed" issues, and I click on the
+    // "Mark as Reviewed" button, that newly-reviewed issue should be available to stay on screen.
+    let tempActiveIssue = null
+
+    // If there is an activeIssue, we need to connect it to something in the new list of issues.
+    if(activeIssue) {  
+      // Quick check: is the old activeIssue still in the list?
+      tempUnfilteredIssues.forEach((issue) => {
+        if(issue.id === activeIssue.id) {
+          tempActiveIssue = issue
+        }
+      })
+
+      // If not, we need to do a more thorough check.
+      if(tempActiveIssue === null) {
+        if(activeIssue.contentType === FILTER.FILE_OBJECT) {
+          tempUnfilteredIssues.forEach((issue) => {
+            if(issue.contentId === activeIssue.contentId) {
+              tempActiveIssue = issue
+            }
+          })
+        }
+        else {
+          tempUnfilteredIssues.forEach((issue) => {
+            if(issue.scanRuleId === activeIssue.scanRuleId &&
+                issue.contentId === activeIssue.contentId &&
+                issue.issueData.xpath === activeIssue.issueData.xpath) {
+              updateActiveSessionIssue(issue.id, null, issue.issueData.contentItemId)
+              tempActiveIssue = issue
+            }
+          })
+        }
+      }
+
+      if(tempActiveIssue === null) {
+        setWidgetState(WIDGET_STATE.LIST)
+      }
+    }
+
+    setUnfilteredIssues(tempUnfilteredIssues)
+    setFilteredIssues(getFilteredContent(tempUnfilteredIssues, tempActiveIssue?.id || null))
+    setActiveIssue(tempActiveIssue)
+
+  }, [report])
+
+
+  // When a new activeIssue is set, get the content for that issue
+  useEffect(() => {
+    if(activeIssue === null) {
+      setActiveContentItem(null)
+      if(widgetState === WIDGET_STATE.LIST) {
+        return
+      }
+      setWidgetState(WIDGET_STATE.NO_RESULTS)
+      return
+    }
+  
+    setWidgetState(WIDGET_STATE.FIXIT)
+
+    if(activeIssue.contentType === FILTER.FILE_OBJECT) {
+      setActiveContentItem(null)
+      setIsErrorFoundInContent(true)
+      return
+    }
+
+    // If we've already downloaded the content for this issue, use that
+    const contentItemId = activeIssue.issueData.contentItemId
+    if(contentItemCache[contentItemId]) {
+      setActiveContentItem(contentItemCache[contentItemId])
+      return
+    }
+
+    // Otherwise, clear the old content and download the content for this issue
+    setActiveContentItem(null)
+    loadContentItemByIssue(activeIssue)
+
+  }, [activeIssue])
+
+  // // The unfilteredIssues list changes each time the report is updated (usually after a "Save" or
+  // // "Mark as Reviewed" action). When this happens, all of the issues from that contentItem are
+  // // deleted and new scan results are put in instead. This leads to an issue where the current item
+  // // the user is interacting with is no longer available. This effect checks to see if the current
+  // // activeIssue matches one of the newly downloaded issues.
+  // useEffect(() => {
+
+  //   // Every time the list changes, we need to reload the activeContentItem. This will come from the
+  //   // cache (contentItemCache) or from the database, if not in the cache.
+  //   setActiveContentItem(null)
+
+  //   if(!activeIssue) {
+  //     return
+  //   }
+
+  //   // The filtered list should ALWAYS include the current activeIssue, even if it no longer matches
+  //   // the filters. For instance, if I'm only looking through "Unreviewed" issues, and I click on the
+  //   // "Mark as Reviewed" button, that newly-reviewed issue should be available to stay on screen.
+  //   const tempFilteredIssues = getFilteredContent(activeIssue.id)
+    
+  //   // Quick check: is the active issue still in the list?
+  //   let activeIssueFound = false
+  //   tempFilteredIssues.forEach((issue) => {
+  //     if(issue.id === activeIssue.id) {
+  //       activeIssueFound = true
+  //       setActiveIssue(issue)
+  //     }
+  //   })
+
+  //   // If not, we need to do a more thorough check.
+  //   if(!activeIssueFound) {
+  //     if(activeIssue.contentType === FILTER.FILE_OBJECT) {
+  //       tempFilteredIssues.forEach((issue) => {
+  //         if(issue.contentId === activeIssue.contentId) {
+  //           activeIssueFound = true        
+  //           setActiveIssue(issue)
+  //         }
+  //       })
+  //     }
+  //     else {
+  //       tempFilteredIssues.forEach((issue) => {
+  //         if(issue.scanRuleId === activeIssue.scanRuleId &&
+  //             issue.contentId === activeIssue.contentId &&
+  //             issue.issueData.sourceHtml === activeIssue.issueData.sourceHtml) {
+  //           activeIssueFound = true
+  //           updateActiveSessionIssue(issue.id, null, issue.issueData.contentItemId)
+  //           setActiveIssue(issue)
+  //         }
+  //       })
+  //     }
+  //   }
+
+  //   if(!activeIssueFound) {
+  //     setWidgetState(WIDGET_STATE.LIST)
+  //     setActiveIssue(null)
+  //   }
+
+  //   setFilteredIssues(tempFilteredIssues)
+
+  // }, [unfilteredIssues])
+
+  useEffect(() => {
+    let tempContentItem = null
+    if(activeIssue?.issueData?.contentItemId) {
+      tempContentItem = contentItemCache[activeIssue.issueData.contentItemId] || null
+    }
+    setActiveContentItem(tempContentItem)
+  }, [contentItemCache])
+
+  const getFilteredContent = (allIssues, includedIssueId = null) => {
     let filteredList = []
     const tempFilters = Object.assign({}, activeFilters)
 
@@ -470,7 +574,7 @@ export default function FixIssuesPage({
     // }
     // Loop through the issues
 
-    for (const issue of unfilteredIssues) {
+    for (const issue of allIssues) {
 
       // When we have just saved or resolved an issue, we want to keep that one in the list
       // even if it doesn't match the filters. This is used to show the user that their changes
@@ -487,6 +591,7 @@ export default function FixIssuesPage({
 
       // Do not include this issue if it doesn't match the content type filter
       let tempContentType = issue.contentType
+      let tempStatus = issue.status === FILTER.FIXEDANDRESOLVED ? FILTER.FIXED : issue.status
       if (tempContentType === FILTER.FILE_OBJECT) {
         // When the user selects "Files", show both "File" issues as well as external File objects
         tempContentType = FILTER.FILE
@@ -496,7 +601,7 @@ export default function FixIssuesPage({
       }
 
       // Do not include this issue if it doesn't match the status filter
-      if (tempFilters[FILTER.TYPE.RESOLUTION] !== FILTER.ALL && tempFilters[FILTER.TYPE.RESOLUTION] !== issue.status) {
+      if (tempFilters[FILTER.TYPE.RESOLUTION] !== FILTER.ALL && tempFilters[FILTER.TYPE.RESOLUTION] !== tempStatus) {
         continue
       }
 
@@ -560,37 +665,24 @@ export default function FixIssuesPage({
     })
   }
 
-  // When a new activeIssue is set, get the content for that issue
-  useEffect(() => {
-    if(activeIssue === null) {
-      setActiveContentItem(null)
-      if(widgetState === WIDGET_STATE.LIST) {
-        return
-      }
-      setWidgetState(WIDGET_STATE.NO_RESULTS)
-      return
+  const loadContentItemByIssue = (issue) => {
+    let contentItemId = issue?.issueData?.contentItemId || null
+    if(contentItemId) {
+      addItemToBeingScanned(contentItemId)
+      let api = new Api(settings)
+      api.getIssueContent(issue.id)
+      .then((response) => {
+        return response.json()
+      }).then((data) => {
+        if(data?.data?.contentItem) {
+          const newContentItem = data.data.contentItem
+          addContentItemToCache(newContentItem)
+        }
+        removeItemFromBeingScanned(contentItemId)
+      })
     }
-  
-    setWidgetState(WIDGET_STATE.FIXIT)
+  }
 
-    if(activeIssue.contentType === FILTER.FILE_OBJECT) {
-      setActiveContentItem(null)
-      setIsErrorFoundInContent(true)
-      return
-    }
-
-    // If we've already downloaded the content for this issue, use that
-    const contentItemId = activeIssue.issueData.contentItemId
-    if(contentItemCache[contentItemId]) {
-      setActiveContentItem(contentItemCache[contentItemId])
-      return
-    }
-
-    // Otherwise, clear the old content and download the content for this issue
-    setActiveContentItem(null)
-    loadContentItem(contentItemId)
-
-  }, [activeIssue])
 
   // All local information must be updated to match the new issue state:
   // - activeIssue
@@ -613,8 +705,6 @@ export default function FixIssuesPage({
 
         let tempUnfilteredIssues = unfilteredIssues.map((issue) => {
           if(issue.id === issueId) {
-            let contentItemId = issue?.issueData?.contentItemId
-            loadContentItem(contentItemId)
             let tempIssue = Object.assign({}, issue)
             tempIssue.currentState = state
             return tempIssue
@@ -622,6 +712,7 @@ export default function FixIssuesPage({
           return issue
         })
         setUnfilteredIssues(tempUnfilteredIssues)
+        setFilteredIssues(getFilteredContent(tempUnfilteredIssues, activeIssue?.id || null))
     }
 
     // This updates the active issue to the current state, which allows the proper UI to show
@@ -683,7 +774,7 @@ export default function FixIssuesPage({
       }
       return issue
     })
-    setReport(tempReport)
+    processNewReport(tempReport)
   }
 
   const updateFile = (tempFile) => {
@@ -700,17 +791,48 @@ export default function FixIssuesPage({
         tempReport.files[key] = tempFile
       }
     }
-    setReport(tempReport)
+    processNewReport(tempReport)
+  }
+
+  const getNewFullPageHtml = (content, issue) => {
+    if(!content?.body || !issue?.newHtml) {
+      return
+    }
+
+    // Create the full HTML string for the new version of the content item.
+    const parser = new DOMParser()
+    const tempDoc = parser.parseFromString(content.body, 'text/html')
+
+    let errorElement = Html.findElementWithIssue(tempDoc, issue)
+      
+    if(!errorElement) {
+      console.warn("Could not find error element when attempting to save...")
+      return
+    }
+    const newElement = Html.toElement(issue?.newHtml)
+    errorElement.replaceWith(newElement)
+
+    return tempDoc.body.innerHTML
   }
 
   const handleIssueSave = (issue) => {
 
+    if(!activeContentItem) {
+      return
+    }
+
     updateActiveSessionIssue(issue.id, settings.ISSUE_STATE.SAVING)
+
+    if(!activeContentItem?.body || !issue.newHtml) {
+      return
+    }
+
+    let fullPageHtml = getNewFullPageHtml(activeContentItem, issue)
 
     // Save the updated issue using the LMS API
     let api = new Api(settings)
     try {
-      api.saveIssue(issue)
+      api.saveIssue(issue, fullPageHtml)
         .then((responseStr) => responseStr.json())
         .then((response) => {
 
@@ -753,7 +875,8 @@ export default function FixIssuesPage({
               api.scanContent(newIssue.contentItemId)
                 .then((responseStr) => responseStr.json())
                 .then((res) => { 
-                  updateReportIssue(res?.data)
+                  const tempReport = Object.assign({}, res?.data)
+                  processNewReport(tempReport)
                   removeItemFromBeingScanned(newIssue.contentItemId)
                 })
             }
@@ -803,19 +926,33 @@ export default function FixIssuesPage({
     updateActiveSessionIssue(issue.id, settings.ISSUE_STATE.RESOLVING)
     const specificClassName = `udoit-ignore-${issue.scanRuleId.replaceAll("_", "-")}`
     let tempIssue = Object.assign({}, issue)
-    if (tempIssue.status) {
-      tempIssue.status = false
+    if (tempIssue.status === 2) {
+      console.log("Issue already resolved. Marking as unresolved and reverting to SOURCE HTML")
+      tempIssue.status = 0
       tempIssue.newHtml = Html.toString(Html.removeClass(tempIssue.sourceHtml, specificClassName))
     }
+    else if (tempIssue.status === 1) {
+      console.log("Issue already fixed. Marking as both fixed and resolved and adding class to NEW HTML")
+      tempIssue.status = 3
+      tempIssue.newHtml = Html.toString(Html.addClass(tempIssue.newHtml, specificClassName))
+    }
+    else if (tempIssue.status === 3) {
+      console.log("Issue already fixed and resolved. Marking as FIXED and removing class from NEW HTML")
+      tempIssue.status = 1
+      tempIssue.newHtml = Html.toString(Html.removeClass(tempIssue.newHtml, specificClassName))
+    }
     else {
+      console.log("Marking issue as resolved and adding class to SOURCE HTML")
       tempIssue.status = 2
       tempIssue.newHtml = Html.toString(Html.addClass(tempIssue.sourceHtml, specificClassName))
     }
 
+    let fullPageHtml = getNewFullPageHtml(activeContentItem, tempIssue)
+
     // Save the updated issue using the LMS API
     let api = new Api(settings)
     try {
-      api.resolveIssue(tempIssue)
+      api.resolveIssue(tempIssue, fullPageHtml)
         .then((responseStr) => responseStr.json())
         .then((response) => {
 
@@ -823,26 +960,30 @@ export default function FixIssuesPage({
         
           if (response.data.issue) {
             const newIssue = { ...tempIssue, ...response.data.issue }
-            newIssue.sourceHtml = newIssue.newHtml
-            newIssue.newHtml = ''
 
             if(activeIssue.id === tempIssue.id) {
               setActiveIssue(formatIssueData(newIssue))
             }
+            
             addItemToBeingScanned(newIssue.contentItemId)
 
             // Get updated report
             api.scanContent(newIssue.contentItemId)
               .then((responseStr) => responseStr.json())
               .then((res) => {
+                const tempReport = Object.assign({}, res?.data)
+                processNewReport(tempReport)
+                
                 if(!tempIssue.status) {
                   updateActiveSessionIssue(tempIssue.id, null)
                 }
-                else {
+                else if(tempIssue.status === 1) {
+                  updateActiveSessionIssue(tempIssue.id, settings.ISSUE_STATE.SAVED)
+                }
+                else if(tempIssue.status === 2) {
                   updateActiveSessionIssue(tempIssue.id, settings.ISSUE_STATE.RESOLVED)
                 }
                 setActiveContentItem(null)
-                updateReportIssue(res?.data)
                 removeItemFromBeingScanned(newIssue.contentItemId)
             })
           }
@@ -885,7 +1026,6 @@ export default function FixIssuesPage({
             updateActiveSessionIssue("file-" + fileData.id, settings.ISSUE_STATE.UNCHANGED)
           }
           updateFile(newFileData)
-          updateReportFile(newFileData)
         })
     } catch (error) {
       console.warn(error)
@@ -975,7 +1115,7 @@ export default function FixIssuesPage({
             <FixIssuesList
               t={t}
               settings={settings.FILTER ? settings : Object.assign({}, settings, { FILTER })}
-              filteredIssues={filteredIssues}
+              groupedList={groupedList}
               setActiveIssue={setActiveIssue}
             />
           ) : activeIssue ? (  
@@ -1021,6 +1161,7 @@ export default function FixIssuesPage({
               sessionIssues={sessionIssues}
               isErrorFoundInContent={isErrorFoundInContent}
               setIsErrorFoundInContent={setIsErrorFoundInContent}
+              contentItemsBeingScanned={contentItemsBeingScanned}
             />
           )}
           <div className="ufixit-content-progress">
