@@ -18,12 +18,23 @@ export default function SensoryMisuseForm({
 
   // equal access checks for these words - we can check for them while in tinymce
   // https://github.com/IBMa/equal-access/blob/83eaa932747d1a1156080c60849ff63029d5e293/accessibility-checker-engine/src/v4/rules/text_sensory_misuse.ts
-  const sensoryWords = ["top-left", "top-right", "bottom-right", "bottom-left",
-    "top-to-bottom", "left-to-right", "bottom-to-top", "right-to-left",
-    "right", "left", "above", "below", "top", "bottom",
-    "upper", "lower", "corner", "beside", "round", "square", "shape", "rectangle", "triangle",
-    "size", "large", "small", "medium", "big", "huge", "tiny", "extra",
-    "larger", "smaller", "bigger", "little", "largest", "smallest", "biggest"]
+  const sensoryWords = [
+    "above", "below", "beside",
+    "big", "bigger", "biggest",
+    "bottom", "bottom-left", "bottom-right", "bottom-to-top",
+    "corner", "extra", "huge",
+    "large", "larger", "largest",
+    "left", "left-to-right",
+    "little", "lower", "medium",
+    "right", "right-to-left",
+    "rectangle", "round",
+    "shape", "size",
+    "small", "smaller", "smallest",
+    "square", "tiny",
+    "top", "top-left", "top-right", "top-to-bottom",
+    "triangle",
+    "upper",
+  ]
 
   const editorRef = useRef(null)
   const [editorHtml, setEditorHtml] = useState(html)
@@ -41,8 +52,6 @@ export default function SensoryMisuseForm({
   useEffect(() => {
     const matchedWords = checkForSensoryWords(editorHtml);
     setSensoryErrors(matchedWords)
-
-    handleActiveIssue(activeIssue)
   }, [editorHtml])
 
   const handleEditorChange = (html) => {
@@ -106,26 +115,40 @@ export default function SensoryMisuseForm({
     }
   };
 
+  // This form does NOT have a "Disabled" state: Users can choose to save the text EVEN WHEN there are still
+  // potential sensory misuse words in the text. If they choose to save a change, then we ALSO apply the 
+  // `udoit-ignore-[rule_id]` class to the element, so that it is ignored in the future.
   const handleButton = () => {
-    if (sensoryErrors.length > 0) {
-      console.log("Can't save, more than 0 sensory errors found.")
-    }
-    else {
-      if (editorRef.current) {
-        let issue = activeIssue
-        issue.newHtml = editorRef.current.getContent()
-        handleActiveIssue(issue)
+    if (editorRef.current) {
+      let issue = activeIssue
 
-        handleIssueSave(activeIssue)
+      let editorCode = editorRef.current.getContent()
+      if( editorCode === null || editorCode === undefined || editorCode === '') {
+        addMessage('Problem getting HTML out of the editor...', 'error')
+        return
       }
+      let editorElement = Html.toElement(editorCode)
+      if (editorElement === null || editorElement === undefined) {
+        addMessage('Problem converting the editor HTML to an element...', 'error')
+        return
+      }
+      let editorInnerHtml = editorElement.innerHTML
+
+      const specificClassName = `udoit-ignore-${issue.scanRuleId.replaceAll("_", "-")}`
+      
+      let newElement = Html.addClass(issue.sourceHtml, specificClassName)
+      newElement.innerHTML = editorInnerHtml
+      issue.newHtml = Html.toString(newElement)
+
+      console.log(issue.newHtml)
+      handleActiveIssue(issue)
+      
+      handleIssueSave(issue)
     }
   }
 
-  const pending = activeIssue && activeIssue.pending == "1"
-  const buttonLabel = pending ? "form.processing" : "form.submit"
-
   return (
-    <div className="p-3">
+    <>
       <div>
         <Editor
           tinymceScriptSrc="/udoit3/build/static/tinymce/tinymce.min.js"
@@ -150,30 +173,31 @@ export default function SensoryMisuseForm({
 
       {sensoryErrors.length > 0 ?
         <div className="mt-3">
-          <span style={{ fontWeight: "bold" }}>Potential sensory words:</span>
-          <span style={{ flexWrap: "wrap", display: "flex", columnGap: "0.15rem", rowGap: "0.15rem", marginTop: "0.5rem" }}>
+          <label>{t('form.sensory_misuse.label.potential')}</label>
+          <div className="flex-row flex-wrap gap-1 mt-2">
             {sensoryErrors.map((word) => (
               <button
-                className="tag mt-0 mr-2 mb-1 ml-0"
+                className="tag"
+                tabindex="0"
+                key={word}
                 onClick={() => goToWord(word)}
               >
-                <span style={{ cursor: "pointer" }}>{word}</span>
+                {word}
               </button>
             ))}
-          </span>
+          </div>
         </div>
         : <></>}
 
       <div className='mt-3'>
         <button
           onClick={handleButton}
-          disabled={pending || sensoryErrors.length > 0 || activeIssue.status == 2}
-          className={pending || sensoryErrors.length > 0 || activeIssue.status == 2 ? 'btn btn-secondary btn-disabled' : 'btn btn-primary'}
+          className="btn btn-primary"
+          tabindex="0"
         >
-          {/* {('1' == pending) && <Spinner size="x-small" renderTitle={t(buttonLabel)} />} */}
-          {t(buttonLabel)}
+          {t('form.submit')}
         </button>
       </div>
-    </div>
+    </>
   )
 }
