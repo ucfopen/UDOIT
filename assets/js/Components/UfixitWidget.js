@@ -154,71 +154,73 @@ export default function UfixitWidget({
             <div className={`ufixit-double-container flex-grow-1 flex-row gap-3 ${viewInfo ? 'ufixit-shift-view' : ''}`}>
               { /* First item: the form and controls... Visible when !viewInfo, so 'ufixit-shift-view' is NOT applied */}
               <div className="flex-grow-1 flex-column ufixit-form-container" aria-hidden={viewInfo ? "true" : "false"} >
-                <div className="flex-grow-0">
-                  <FormClarification t={t} activeIssue={activeIssue} />
-                </div>
-                {/* <h2>{activeIssue.scanRuleId}</h2> */}
-                { activeIssue.status !== settings.FILTER.RESOLVED &&
-                  <div className="flex-grow-1 ufixit-form-content">
-                    { activeIssue.contentType === settings.FILTER.FILE_OBJECT ? (
-                      <FileForm
-                        t={t}
-                        settings={settings}
-                        activeFile={activeIssue}
-                        handleFileUpload={handleFileUpload} /> )
-                      : (
-                      <UfixitForm
-                        t={t}
-                        settings={settings}
-                        isDisabled={!isErrorFoundInContent}
-                        activeIssue={tempActiveIssue.issueData}
-                        handleIssueSave={handleIssueSave}
-                        addMessage={addMessage}
-                        handleActiveIssue={handleActiveIssue}
-                        handleManualScan={handleManualScan} /> )
-                    }
+                <div className="ufixit-form-inner-scrollable">
+                  <div className="flex-grow-0">
+                    <FormClarification t={t} activeIssue={activeIssue} />
                   </div>
-                }
-                <div className="flex-grow-0">
-                  <FixIssuesResolve
-                    t={t}
-                    settings={settings}
-                    activeIssue={activeIssue}
-                    isDisabled={!isErrorFoundInContent}
-                    handleFileResolve={handleFileResolve}
-                    handleIssueResolve={handleIssueResolve}
-                  />
-                  { (activeIssue.currentState === settings.ISSUE_STATE.SAVING || activeIssue.currentState === settings.ISSUE_STATE.RESOLVING) && 
-                    <div className="ufixit-overlay flex-column justify-content-start">
-                      <div className="ufixit-overlay-content-container flex-row justify-content-center mt-3">
-                        <div className="flex-column justify-content-center me-3">
-                          <ProgressIcon className="icon-lg udoit-suggestion spinner" />
-                        </div>
-                        <div className="flex-column justify-content-center">
-                          <h3 className="mb-0 mt-0">{t('form.processing')}</h3>
-                        </div>
-                      </div>
+                  {/* <h2>{activeIssue.scanRuleId}</h2> */}
+                  { activeIssue.status !== settings.FILTER.RESOLVED &&
+                    <div className="flex-grow-1 ufixit-form-content">
+                      { activeIssue.contentType === settings.FILTER.FILE_OBJECT ? (
+                        <FileForm
+                          t={t}
+                          settings={settings}
+                          activeFile={activeIssue}
+                          handleFileUpload={handleFileUpload} /> )
+                        : (
+                        <UfixitForm
+                          t={t}
+                          settings={settings}
+                          isDisabled={!isErrorFoundInContent}
+                          activeIssue={tempActiveIssue.issueData}
+                          handleIssueSave={handleIssueSave}
+                          addMessage={addMessage}
+                          handleActiveIssue={handleActiveIssue}
+                          handleManualScan={handleManualScan} /> )
+                      }
                     </div>
                   }
-                  { !isErrorFoundInContent && (
-                    <div className="ufixit-overlay flex-column justify-content-start">
-                      <div className="ufixit-overlay-content-container flex-row justify-content-center mt-3">
-                        <div className="flex-column justify-content-start me-3">
-                          { isContentLoading ? (
-                            <ProgressIcon className="icon-lg udoit-suggestion spinner" />
-                          ) : (
-                            <InfoIcon className="icon-lg udoit-suggestion" />
-                          )}
-                        </div>
-                        <div className="flex-column justify-content-center">
-                          <h3 className="mb-0 mt-0">
-                            {isContentLoading ? t('fix.label.loading_content') : t('fix.label.no_saving')}
-                          </h3>
-                        </div>
+                  <div className="flex-grow-0">
+                    <FixIssuesResolve
+                      t={t}
+                      settings={settings}
+                      activeIssue={activeIssue}
+                      isDisabled={!isErrorFoundInContent}
+                      handleFileResolve={handleFileResolve}
+                      handleIssueResolve={handleIssueResolve}
+                    />
+                  </div>
+                </div>
+                { !isErrorFoundInContent && (
+                  <div className="ufixit-overlay flex-column justify-content-start">
+                    <div className="ufixit-overlay-content-container flex-row justify-content-center mt-3">
+                      <div className="flex-column justify-content-start me-3">
+                        { isContentLoading ? (
+                          <ProgressIcon className="icon-lg udoit-suggestion spinner" />
+                        ) : (
+                          <InfoIcon className="icon-lg udoit-suggestion" />
+                        )}
+                      </div>
+                      <div className="flex-column justify-content-center">
+                        <h3 className="mb-0 mt-0">
+                          {isContentLoading ? t('fix.label.loading_content') : t('fix.label.no_saving')}
+                        </h3>
                       </div>
                     </div>
-                  )}
-                </div>
+                  </div>
+                )}
+                { (activeIssue.currentState === settings.ISSUE_STATE.SAVING || activeIssue.currentState === settings.ISSUE_STATE.RESOLVING) && 
+                  <div className="ufixit-overlay flex-column justify-content-start">
+                    <div className="ufixit-overlay-content-container flex-row justify-content-center mt-3">
+                      <div className="flex-column justify-content-center me-3">
+                        <ProgressIcon className="icon-lg udoit-suggestion spinner" />
+                      </div>
+                      <div className="flex-column justify-content-center">
+                        <h3 className="mb-0 mt-0">{t('form.processing')}</h3>
+                      </div>
+                    </div>
+                  </div>
+                }
               </div>
               { /* Second item: the "Learn More" area... Visible when viewInfo, so 'ufixit-shift-view' IS applied */}
               <div className="flex-grow-1 ufixit-learn-container" aria-hidden={!viewInfo ? "true" : "false"} >
