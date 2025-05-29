@@ -2,11 +2,6 @@ select {
   min-width: 180px;
 }
 
-label {
-  font-weight: 600;
-  color: var(--text-color);
-}
-
 .logo-large {
   margin: 0 auto 2rem;
   padding: 0 1rem 1rem 1rem;

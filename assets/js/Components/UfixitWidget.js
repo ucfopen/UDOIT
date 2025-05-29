@@ -154,7 +154,7 @@ export default function UfixitWidget({
             <div className={`ufixit-double-container flex-grow-1 flex-row gap-3 ${viewInfo ? 'ufixit-shift-view' : ''}`}>
               { /* First item: the form and controls... Visible when !viewInfo, so 'ufixit-shift-view' is NOT applied */}
               <div className="flex-grow-1 flex-column ufixit-form-container" aria-hidden={viewInfo ? "true" : "false"} >
-                <div className="ufixit-form-inner-scrollable">
+                <div className="ufixit-form-inner-scrollable flex-column">
                   <div className="flex-grow-0">
                     <FormClarification t={t} activeIssue={activeIssue} />
                   </div>

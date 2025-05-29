@@ -44,7 +44,7 @@ export default function HeadingEmptyForm({
 
   useEffect(() => {
     let tempErrors = []
-    if(isTextEmpty()) {
+    if(!deleteHeader && isTextEmpty()) {
       tempErrors.push({ text: t('form.heading_empty.msg.text_empty'), type: 'error' })
     }
     setTextInputErrors(tempErrors)
@@ -68,7 +68,7 @@ export default function HeadingEmptyForm({
 
   return (
     <>
-      <label htmlFor="headingTextInput">{t('form.heading_empty.label.text')}</label>
+      <label className="instructions" htmlFor="headingTextInput">{t('form.heading_empty.label.text')}</label>
       <div className="w-100 mt-2">
         <input
           type="text" 
@@ -80,7 +80,7 @@ export default function HeadingEmptyForm({
           tabindex="0"
           onChange={(e) => handleInput(e.target.value)} />
       </div>
-      <FormFeedback issues={textInputErrors} />
+      <div className="separator mt-2">{t('fix.label.or')}</div>
       <div className="flex-row justify-content-start gap-1 mt-2">
         <input type="checkbox"
           id="deleteHeaderCheckbox"
@@ -89,8 +89,9 @@ export default function HeadingEmptyForm({
           tabindex="0"
           disabled={isDisabled}
           onChange={handleCheckbox} />
-        <label htmlFor="deleteHeaderCheckbox">{t('form.heading_empty.label.remove_header')}</label>
+        <label className="instructions" htmlFor="deleteHeaderCheckbox">{t('form.heading_empty.label.remove_header')}</label>
       </div>
+      <FormFeedback issues={textInputErrors} />
       <div className="flex-row justify-content-start mt-3 mb-3">
         <button
           className="btn btn-primary"

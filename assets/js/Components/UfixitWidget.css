@@ -51,8 +51,11 @@
     margin-top: 0;
   }
 
-  label {
+  .instructions {
     font-weight: 600;
+  }
+  
+  label {
     color: var(--text-color);
   }
 
