@@ -16,7 +16,7 @@ import Video from '../Components/Forms/Video'
 import UfixitReviewOnly from '../Components/Forms/UfixitReviewOnly'
 
 // These form names strictly match the translation keys in the language files (e.g. en.json).
-const formNames = {
+export const formNames = {
   ALT_TEXT: 'alt_text',
   ANCHOR_TEXT: 'anchor_text',
   ARIA_ROLE: 'aria_role',

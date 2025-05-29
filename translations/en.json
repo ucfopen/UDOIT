@@ -146,6 +146,7 @@
   "fix.label.no_saving": "Editing and Saving Unavailable",
   "fix.label.reload_content": "Reloading Updated Content...",
   "fix.label.or": "Or",
+  "fix.label.and_or": "And/Or",
   "fix.msg.no_error_preview": "This accessibility barrier cannot be found, likely because the content has been changed. No areas will be highlighted and no changes can be made inside of UDOIT.",
   "fix.button.download_file": "Download File",
   "fix.button.view_in_lms": "View In LMS",
@@ -238,10 +239,10 @@
   "form.msg.success_replaced": "File replaced.",
   "form.msg.not_fixed": "Issue has not been fixed.",
 
-  "form.alt_text.label.text": "New Alt Text",
+  "form.alt_text.label.text": "Describe Image Content Clearly",
   "form.alt_text.label.mark_decorative": "Mark Image as Decorative",
   "form.alt_text.feedback.characters": "{current} of {total} Characters",
-  "form.alt_text.msg.text_empty": "Alt text cannot be empty",
+  "form.alt_text.msg.text_empty": "Alt text is required if an image is not decorative",
   "form.alt_text.msg.text_too_long": "Alt text is too long",
   "form.alt_text.msg.text_has_file_extension": "Alt text cannot contain file extensions",
   "form.alt_text.msg.text_matches_filename": "Alt text cannot match file name",
@@ -253,17 +254,18 @@
   "rule.desc.img_alt_redundant": "",
   "rule.desc.img_alt_valid": "",
 
-  "form.anchor.link_text": "New Link Text",
-  "form.anchor.delete_link": "Delete this link completely instead",
-  "form.anchor.msg.text_descriptive": "This text is not descriptive",
+  "form.anchor.link_text": "Descriptive Label for Link",
+  "form.anchor.delete_link": "Delete the Link Completely Instead",
+  "form.anchor.msg.text_descriptive": "Link text must be descriptive",
   "form.anchor.msg.text_empty": "Link text cannot be empty",
  
   "form.aria_role.feedback.no_tag": "The HTML tag could not be computed.",
   "form.aria_role.feedback.no_roles": "No valid ARIA roles for <{tagName}>",
-  "form.aria_role.label.select": "Select a Valid ARIA Role",
+  "form.aria_role.label.select": "Select a Valid ARIA Role",  
   "form.aria_role.label.none_selected": "No ARIA Role Selected",
   "form.aria_role.label.remove": "Remove ARIA Role",
  
+  "form.contrast.label.adjust": "Adjust the Text and/or Background Colors to Increase Contrast",
   "form.contrast.label.darken": "Darken",
   "form.contrast.label.lighten": "Lighten",
   "form.contrast.label.bolden_text": "Make Text Bold",
@@ -277,7 +279,7 @@
   "form.contrast.feedback.invalid": "Invalid Ratio",
   "form.contrast.feedback.valid": "Valid Ratio",
 
-  "form.embedded_content_title.label.text": "New Content Label",
+  "form.embedded_content_title.label.text": "Descriptive Label for Highlighted Content",
   "form.embedded_content_title.msg.text_empty": "Label cannot be empty",
   "form.embedded_content_title.msg.text_unique": "Labels must be unique",
   "rule.desc.applet_alt_exists": "",
@@ -287,9 +289,11 @@
   "rule.desc.media_alt_exists": "",
   "rule.desc.object_text_exists": "",
 
-  "form.emphasis.label.bold": "Make this text bold",
-  "form.emphasis.label.italic": "Make this text italicized",
-  "form.emphasis.msg.required": "Text must be bold or italicized",
+  "form.emphasis.label.select_emphasis": "Select Additional Ways to Distinguish Text",
+  "form.emphasis.label.bold": "Make this Text Bold",
+  "form.emphasis.label.italic": "Make this Text Italicized",
+  "form.emphasis.label.remove_color": "Remove Color Emphasis",
+  "form.emphasis.msg.required": "Emphasized text should be bold or italicized",
 
   "form.file.label.replace": "Replace File",
   "form.file.label.replace.desc": "Replace the current version of this file here.",
@@ -310,7 +314,7 @@
   "rule.desc.heading_markup_misuse": "This text is marked as a heading, but does not appear to be one. If it is, you may ignore this issue and mark it as reviewed. If it is not a heading, remove the heading level.",
   "rule.desc.text_block_heading": "This text seems to be a heading, but is not marked as one. If it is a heading, select an appropriate heading level. If not, you may remove any styling or mark it as reviewed.",
   
-  "form.label.label.text": "New Content Label",
+  "form.label.label.text": "Descriptive Label for Highlighted Area",
   "form.label.msg.text_empty": "Label cannot be empty",
   "form.label.msg.text_unique": "Labels must be unique",
   
@@ -318,7 +322,7 @@
   "form.link.msg.link_empty": "Link cannot be empty",
   "rule.desc.a_text_purpose": "",
 
-  "form.sensory_misuse.label.potential": "Potential Sensory Words:",
+  "form.sensory_misuse.label.potential": "Potential Sensory Words (Click to Highlight)",
   "rule.desc.text_sensory_misuse": "Make sure that there aren't any instructions that depend on these sensory words: {sensoryWords}",
   
   "form.table_headers.label.select": "Select Table Headers",
