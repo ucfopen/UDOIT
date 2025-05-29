@@ -3,12 +3,12 @@ import React from 'react'
 export default function Video({
   t,
   activeIssue,
-  isDisabled,
-  handleManualScan
+  isDisabled
 }) {
 
   const handleVideoRescan = () => {
-    handleManualScan(activeIssue)
+    // handleManualScan(activeIssue)
+    console.log('Video rescan triggered for issue:', activeIssue.id)
   }
 
   return (

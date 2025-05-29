@@ -18,16 +18,17 @@ export default function AltText ({
   const [textInputErrors, setTextInputErrors] = useState([])
 
   useEffect(() => {
-    if (activeIssue) {
-      const html = Html.getIssueHtml(activeIssue)
-      let altText = Html.getAttribute(html, 'alt')
-      altText = (typeof altText === 'string') ? altText : ''
-
-      setTextInputValue(altText)
-      setIsDecorative((elementIsDecorative(html) === 'true'))
-      setCharacterCount(altText.length)
-      setTextInputErrors([])
+    if (!activeIssue) {
+      return
     }
+    const html = Html.getIssueHtml(activeIssue)
+    let altText = Html.getAttribute(html, 'alt')
+    altText = (typeof altText === 'string') ? altText : ''
+
+    setTextInputValue(altText)
+    setIsDecorative((elementIsDecorative(html) === 'true'))
+    setCharacterCount(altText.length)
+    setTextInputErrors([])
   }, [activeIssue])
 
   useEffect(() => {
@@ -42,9 +43,11 @@ export default function AltText ({
     if (isDecorative) {
       element = Html.setAttribute(element, "role", "presentation")
       element = Html.setAttribute(element, 'alt', '')
+      element = Html.setAttribute(element, 'title', '')
     } else {
       element = Html.removeAttribute(element, "role")
       element = Html.setAttribute(element, "alt", textInputValue)
+      element = Html.setAttribute(element, "title", textInputValue)
     }
 
     let issue = activeIssue
@@ -141,7 +144,7 @@ export default function AltText ({
 
   return (
     <>
-      <label htmlFor="altTextInput">{t('form.alt_text.label.text')}</label>
+      <label htmlFor="altTextInput" className="instructions">{t('form.alt_text.label.text')}</label>
       <div className="w-100 mt-2">
         <input
           type="text"
@@ -158,7 +161,7 @@ export default function AltText ({
           {t('form.alt_text.feedback.characters', {current: characterCount, total: maxLength})}
         </div>
       </div>
-      <FormFeedback issues={textInputErrors} />
+      <div className="separator mt-2">{t('fix.label.or')}</div>
       <div className="flex-row justify-content-start gap-1 mt-2">
         <input
           type="checkbox"
@@ -168,17 +171,13 @@ export default function AltText ({
           disabled={isDisabled}
           checked={isDecorative}
           onChange={handleCheckbox} />
-        <label htmlFor="decorativeCheckbox">{t('form.alt_text.label.mark_decorative')}</label>
+        <label htmlFor="decorativeCheckbox" className="instructions">{t('form.alt_text.label.mark_decorative')}</label>
       </div>
-      <div className="flex-row justify-content-start mt-3 mb-3">
-        <button
-          className="btn btn-primary"
-          disabled={isDisabled || textInputErrors.length > 0}
-          tabindex="0"
-          onClick={handleSubmit}>
-          {t('form.submit')}
-        </button>
-      </div>
+      <FormFeedback
+        t={t}
+        isDisabled={isDisabled}
+        handleSubmit={handleSubmit}
+        formErrors={textInputErrors} />
     </>
   )
 }

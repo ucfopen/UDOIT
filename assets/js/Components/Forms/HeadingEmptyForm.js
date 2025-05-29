@@ -91,16 +91,11 @@ export default function HeadingEmptyForm({
           onChange={handleCheckbox} />
         <label className="instructions" htmlFor="deleteHeaderCheckbox">{t('form.heading_empty.label.remove_header')}</label>
       </div>
-      <FormFeedback issues={textInputErrors} />
-      <div className="flex-row justify-content-start mt-3 mb-3">
-        <button
-          className="btn btn-primary"
-          disabled={isDisabled || textInputErrors.length > 0}
-          tabindex="0"
-          onClick={handleSubmit}>
-          {t('form.submit')}
-        </button>
-      </div>
+      <FormFeedback
+        t={t}
+        isDisabled={isDisabled}
+        handleSubmit={handleSubmit}
+        formErrors={textInputErrors} />
     </>
   )
 }

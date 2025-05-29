@@ -100,16 +100,11 @@ export default function EmbeddedContentTitleForm({
           disabled={isDisabled}
           onChange={handleInput} />
       </div>
-      <FormFeedback issues={textInputErrors} />
-      <div className="flex-row justify-content-start mt-3 mb-3">
-        <button
-          className="btn btn-primary"
-          disabled={isDisabled || textInputErrors.length > 0}
-          tabindex="0"
-          onClick={handleSubmit}>
-          {t('form.submit')}
-        </button>
-      </div>
+      <FormFeedback
+        t={t}
+        isDisabled={isDisabled}
+        handleSubmit={handleSubmit}
+        formErrors={textInputErrors} />
     </>
   )
 }

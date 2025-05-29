@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react'
+import FormFeedback from './FormFeedback'
 import * as Html from '../../Services/Html';
 
 export default function TableHeaders({
@@ -183,15 +184,10 @@ export default function TableHeaders({
           {t('form.table_headers.decoration_only')}
         </label>
       </div>
-      <div className="flex-row justify-content-start mt-3 mb-3">
-        <button
-          className="btn btn-primary"
-          disabled={isDisabled || (!selectedValue && !decorationOnly)}
-          tabindex="0"
-          onClick={handleSubmit}>
-          {t('form.submit')}
-        </button>
-      </div>
+      <FormFeedback
+        t={t}
+        isDisabled={isDisabled || (!selectedValue && !decorationOnly)}
+        handleSubmit={handleSubmit} />
     </>
   )
 }

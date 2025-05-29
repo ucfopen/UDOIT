@@ -54,7 +54,7 @@
   .instructions {
     font-weight: 600;
   }
-  
+
   label {
     color: var(--text-color);
   }
@@ -91,6 +91,7 @@
     font-weight: 500;
     font-style: italic;
     color: var(--issue-color);
+    line-height: normal;
   }
 
   .text-muted {
@@ -157,17 +158,6 @@
 .ufixit-learn-container {
   overflow-y: auto;
   width: calc(50% - 1rem);
-
-  a {
-    color: var(--link-color);
-    font-weight: 600;
-
-    &:focus {
-      outline: 2px solid var(--focus-color);
-      outline-offset: 3px;
-      border-radius: 2px;
-    }
-  }
 
   code {
     padding: 0.15rem 0.4rem;
@@ -260,5 +250,16 @@
     border-radius: 8px;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
     z-index: 1001;
+  }
+}
+
+a {
+  color: var(--link-color);
+  font-weight: 600;
+
+  &:focus {
+    outline: 2px solid var(--focus-color);
+    outline-offset: 3px;
+    border-radius: 2px;
   }
 }

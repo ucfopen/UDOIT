@@ -1,11 +1,14 @@
 import React, { useState, useEffect } from 'react'
-import SeverityIcon from '../Icons/SeverityIcon'
 
 export default function FormFeedback({
-  issues
+  t,
+  handleSubmit,
+  isDisabled = false,
+  formErrors = [],
 }) {
 
   const [formattedIssues, setFormattedIssues] = useState([])
+  const [hasErrors, setHasErrors] = useState(false)
 
   const issueTypeMap = {
     'error': 'ISSUE',
@@ -24,39 +27,49 @@ export default function FormFeedback({
 
   useEffect(() => {
     let tempIssues = []
-    issues.forEach((issue) => {
+    let tempHasErrors = false
+    formErrors.forEach((issue) => {
       if(issueTypeMap[issue.type]) {
         tempIssues.push({
           text: issue.text,
           type: issueTypeMap[issue.type]
         })
+        if(issueTypeMap[issue.type] === 'ISSUE') {
+          tempHasErrors = true
+        }
       }
       else {
         tempIssues.push({
           text: issue.text,
           type: 'ISSUE'
         })
+        tempHasErrors = true
       }
     })
     setFormattedIssues(tempIssues)
-  }, [issues])
+    setHasErrors(tempHasErrors)
+  }, [formErrors])
   
   return (
-    <>
+    <div className="flex-row justify-content-between gap-3 mt-4">
+      <div className="flex-column justify-content-start">
+        <button
+          className="btn btn-primary"
+          disabled={isDisabled || hasErrors}
+          tabindex="0"
+          onClick={handleSubmit}>
+          {t('form.submit')}
+        </button>
+      </div>
       { formattedIssues.length > 0 && (
-        <div className="flex-column mt-2">
+        <div className="flex-column justify-content-start gap-1">
           {formattedIssues.map((issue, index) => (
             <div className="flex-row justify-content-end gap-1" key={index}>
-              <div className="flex-column flex-center" alt="">
-                <SeverityIcon type={issue.type} className="icon-sm" />
-              </div>
-              <div className="flex-column flex-center">
-                <div className="error-text">{issue.text}</div>
-              </div>
+              <div className="error-text text-end">{issue.text}</div>
             </div>
           ))}
         </div>
       )}
-    </>
+    </div>
   )
 }

@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react'
+import FormFeedback from './FormFeedback'
 import * as Html from '../../Services/Html'
 
 import { Editor } from '@tinymce/tinymce-react'
@@ -10,9 +11,9 @@ export default function SensoryMisuseForm({
   settings, 
   activeIssue, 
   handleIssueSave, 
-  addMessage, 
-  handleActiveIssue, 
-  handleManualScan
+  addMessage,
+  isDisabled,
+  handleActiveIssue
 }) {
   const [html, setHtml] = useState(Html.getIssueHtml(activeIssue))
 
@@ -118,7 +119,7 @@ export default function SensoryMisuseForm({
   // This form does NOT have a "Disabled" state: Users can choose to save the text EVEN WHEN there are still
   // potential sensory misuse words in the text. If they choose to save a change, then we ALSO apply the 
   // `udoit-ignore-[rule_id]` class to the element, so that it is ignored in the future.
-  const handleButton = () => {
+  const handleSubmit = () => {
     if (editorRef.current) {
       let issue = activeIssue
 
@@ -173,7 +174,7 @@ export default function SensoryMisuseForm({
 
       {sensoryErrors.length > 0 ?
         <div className="mt-3">
-          <label>{t('form.sensory_misuse.label.potential')}</label>
+          <label className="instructions">{t('form.sensory_misuse.label.potential')}</label>
           <div className="flex-row flex-wrap gap-1 mt-2">
             {sensoryErrors.map((word) => (
               <button
@@ -189,15 +190,10 @@ export default function SensoryMisuseForm({
         </div>
         : <></>}
 
-      <div className='mt-3'>
-        <button
-          onClick={handleButton}
-          className="btn btn-primary"
-          tabindex="0"
-        >
-          {t('form.submit')}
-        </button>
-      </div>
+      <FormFeedback
+        t={t}
+        isDisabled={isDisabled}
+        handleSubmit={handleSubmit} />
     </>
   )
 }
