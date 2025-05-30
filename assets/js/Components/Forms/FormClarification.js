@@ -24,6 +24,9 @@ export default function FormClarification({
           let quoteList = metadata.messageArgs.join(', ')
           messageArgs = { 'potentialQuotes': quoteList }
         }
+        if(activeIssue.scanRuleId === 'aria_role_valid') {
+          messageArgs = { 'tagName': metadata.messageArgs[1], 'ariaRole': metadata.messageArgs[0] }
+        }
       }
 
       const clarification = t(clarificationTag, messageArgs)

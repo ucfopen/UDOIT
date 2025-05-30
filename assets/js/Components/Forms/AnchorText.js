@@ -20,7 +20,13 @@ export default function AnchorText({
       return
     }
     const html = Html.getIssueHtml(activeIssue)
-    const initialText = Html.getInnerText(html)
+    let initialText = ''
+    if(Html.getTagName(html).toLowerCase() === 'a') {
+      initialText = Html.getInnerText(html)
+    } else if(Html.getTagName(html).toLowerCase() === 'area') {
+      initialText = Html.getAttribute(html, 'alt') || ''
+    }
+    
     setLinkUrl(Html.getAttribute(html, 'href') || '')
     setTextInputValue(initialText)
     setDeleteLink(!activeIssue.newHtml && (activeIssue.status === 1))

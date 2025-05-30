@@ -81,16 +81,16 @@ export default function FixIssuesContentPreview({
   }
 
   const ALT_TEXT_RELATED = [
-    formNames.ALT_TEXT,             
+    formNames.ALT_TEXT,            
     formNames.ANCHOR_TEXT,
     formNames.EMBEDDED_CONTENT_TITLE,
-    formNames.LABEL,             
+    formNames.LABEL,
     formNames.LABEL_UNIQUE
   ]
 
   const HEADINGS_RELATED = [
-    formNames.HEADING_EMPTY,  
-    formNames.HEADING_STYLE 
+    formNames.HEADING_EMPTY,
+    formNames.HEADING_STYLE
   ]
 
   const convertErrorHtmlString = (htmlText) => {

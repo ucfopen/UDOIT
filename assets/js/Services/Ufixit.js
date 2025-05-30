@@ -89,6 +89,7 @@ const rulesToFormNameMap = {
   img_alt_valid: formNames.ALT_TEXT,
 
   a_text_purpose: formNames.ANCHOR_TEXT,
+  area_alt_exists: formNames.ANCHOR_TEXT,
 
   aria_role_valid: formNames.ARIA_ROLE,
 
@@ -101,22 +102,26 @@ const rulesToFormNameMap = {
   media_alt_exists: formNames.EMBEDDED_CONTENT_TITLE,
   object_text_exists: formNames.EMBEDDED_CONTENT_TITLE,
 
+  style_color_misuse: formNames.EMPHASIS,
+
   heading_content_exists: formNames.HEADING_EMPTY,
 
   heading_markup_misuse: formNames.HEADING_STYLE,
   text_block_heading: formNames.HEADING_STYLE,
 
-  aria_application_labelled: formNames.LABEL,
   aria_accessiblename_exists: formNames.LABEL,
+  aria_application_labelled: formNames.LABEL,
+  aria_complementary_labelled: formNames.LABEL,
+  aria_region_labelled: formNames.LABEL,
 
   aria_application_label_unique: formNames.LABEL_UNIQUE,
-  aria_banner_label_unique: formNames.LABEL_UNIQUE,
-  aria_landmark_name_unique: formNames.LABEL_UNIQUE,
   aria_article_label_unique: formNames.LABEL_UNIQUE,
+  aria_banner_label_unique: formNames.LABEL_UNIQUE,
   aria_complementary_label_unique: formNames.LABEL_UNIQUE,
   aria_contentinfo_label_unique: formNames.LABEL_UNIQUE,
   aria_document_label_unique: formNames.LABEL_UNIQUE,
   aria_form_label_unique: formNames.LABEL_UNIQUE,
+  aria_landmark_name_unique: formNames.LABEL_UNIQUE,
   aria_main_label_unique: formNames.LABEL_UNIQUE,
   aria_navigation_label_unique: formNames.LABEL_UNIQUE,
   aria_region_label_unique: formNames.LABEL_UNIQUE,
@@ -125,8 +130,6 @@ const rulesToFormNameMap = {
 
   // blockquote_cite_exists: formNames.QUOTE,
   // text_quoted_correctly: formNames.QUOTE,
-
-  style_color_misuse: formNames.EMPHASIS,
 
   text_sensory_misuse: formNames.SENSORY_MISUSE,
 

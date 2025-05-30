@@ -55,6 +55,7 @@ export default function UfixitWidget({
         setFormName(formNameFromRule(activeIssue.scanRuleId))
       }
       setTempActiveIssue(Object.assign({}, activeIssue))
+      console.log('UfixitWidget: activeIssue', activeIssue)
     }
     else {
       setFormName('')
