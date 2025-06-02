@@ -36,6 +36,14 @@ export default function SensoryMisuseForm({
     "upper",
   ]
 
+  const sensoryWordRegexes = sensoryWords.map(word => ({
+    word,
+    regex: new RegExp(`\\b${word}\\b`, 'i')
+  }))
+
+  const excludedTags = ['script', 'style', 'noscript', 'iframe', 'svg', 'canvas']
+  const includedAttributes = ['alt', 'title', 'aria-label']
+
   const editorRef = useRef(null)
   const [editorHtml, setEditorHtml] = useState(html)
 
@@ -59,13 +67,45 @@ export default function SensoryMisuseForm({
   }
 
   const checkForSensoryWords = (html) => {
-    // check for the same sensory words that equal access checks,
-    // equal access will only mark whole words, so we do the same here
-    const lowerHtml = html.toLowerCase()
-    return sensoryWords.filter(word => {
-      const pattern = new RegExp(`\\b${word}\\b`, 'i')
-      return pattern.test(lowerHtml)
-    })
+
+    const tempFoundWords = new Set()    
+
+    const checkText = (text) => {
+      sensoryWordRegexes.forEach(({ word, regex }) => {
+        if (regex.test(text)) {
+          tempFoundWords.add(word.toLowerCase())
+        }
+      })
+    }
+
+    const traverseNode = (node) => {
+      if (node.nodeType === Node.TEXT_NODE) {
+        // Check if the text node contains any sensory words
+        checkText(node.textContent);
+      }
+
+      if (node.nodeType === Node.ELEMENT_NODE) {
+        // If the element is excluded, skip it
+        if (excludedTags.includes(node.tagName.toLowerCase())) {
+          return
+        }
+
+        // Check attributes for sensory words
+        includedAttributes.forEach(attr => {
+          if (node.hasAttribute(attr)) {
+            checkText(node.getAttribute(attr));
+          }
+        })
+
+        // Recursively traverse child nodes
+        node.childNodes.forEach(child => traverseNode(child));
+      }
+    }
+
+    let tempDoc = Html.toElement(html)
+    traverseNode(tempDoc)
+    
+    return Array.from(tempFoundWords).sort((a, b) => a < b ? -1 : 1);
   }
 
   const goToWord = (word) => {
