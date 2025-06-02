@@ -11,8 +11,6 @@ use App\Services\UtilityService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
-
-
 #[AsMessageHandler]
 final class ScanContentItemHandler
 {
@@ -37,6 +35,17 @@ final class ScanContentItemHandler
                             ->find($msg->getUserId());
 
         if (!$item || !$user) {
+            $this->util->createMessage(
+                sprintf(
+                    'ScanContentItemHandler: Missing entity. ContentItem ID: %s, User ID: %s',
+                    $msg->getContentItemId(),
+                    $msg->getUserId()
+                ),
+                'error',
+                null,
+                null,
+                true
+            );
             return;             // nothing to do – corrupted message?
         }
 

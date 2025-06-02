@@ -169,13 +169,38 @@ class CanvasLms implements LmsInterface {
         $this->entityManager->flush();
     }
 
+    private function xRateLimitCheck(array $headers, ?ConsoleOutput $out = null): void
+    {
+        foreach ($headers as $header) {
+            // Look for the header that starts with "x-rate-limit-remaining:" (case-insensitive)
+            if (stripos($header, 'x-rate-limit-remaining:') === 0) {
+                // Split at the colon and trim the result to get the header value
+                $parts = explode(':', $header, 2);
+                $xRateLimitRemaining = trim($parts[1]);
+                if ($out) {
+                    $out->writeln("x-rate-limit-remaining: " . $xRateLimitRemaining);
+                }
+                // ------------------------------------------------------------------
+                // Reactive leaky‑bucket back‑off: pause when we are about to run dry
+                // Canvas refills ~1 token / second.  We wait until at least 2 exist.
+                if ($xRateLimitRemaining !== null && is_numeric($xRateLimitRemaining)) {
+                    $remaining = (float) $xRateLimitRemaining;
+
+                    if ($remaining < 2.0) {
+                        // how many seconds until we have two tokens again?
+                        $sleepFor = (int) ceil((2.0 - $remaining) + 1); // +1 sec buffer
+                        sleep($sleepFor);
+                    }
+                }
+                // ------------------------------------------------------------------
+                break;
+            }
+        }
+    }
+
 
     public function updateCourseContent(Course $course, User $user): array
     {
-        $printOutput = new ConsoleOutput();
-        $startTime = microtime(true);
-        $printOutput->writeln("Running FUNCTION updateCourseContent " . microtime(true));
-
         // Step 1: Prepare concurrency
         $urls       = $this->getCourseContentUrls($course->getLmsCourseId());
         $apiDomain  = $this->getApiDomain($user);
@@ -196,23 +221,8 @@ class CanvasLms implements LmsInterface {
 
         // We'll use Symfony's stream() to read them as they complete
         foreach ($client->stream($pendingResponses) as $response => $chunk) {
-
-            /////////////////////////////////////////////////////
-            // Used to get and see x-rate-limit-remaining
-            $info = $response->getInfo();
-            $headers = $info['response_headers'] ?? [];
-
-            foreach ($headers as $header) {
-                // Look for the header that starts with "x-rate-limit-remaining:" (case-insensitive)
-                if (stripos($header, 'x-rate-limit-remaining:') === 0) {
-                    // Split at the colon and trim the result to get the header value
-                    $parts = explode(':', $header, 2);
-                    $xRateLimitRemaining = trim($parts[1]);
-                    $printOutput->writeln("x-rate-limit-remaining " . $xRateLimitRemaining);
-                    break;
-                }
-            }
-            //////////////////////////////////////////////////////
+            // Comment this line out if not using leaky-bucket back-off
+            $this->xRateLimitCheck($info['response_headers'] ?? []);
 
             if ($chunk->isFirst()) {
                 // The first chunk indicates the start of this response
@@ -321,10 +331,6 @@ class CanvasLms implements LmsInterface {
                 }
             }
         }
-
-        // $printOutput->writeln("n:ew contentItem" .json_encode( $contentItems));
-
-        $printOutput->writeln("Running FUNCTION updateCourseContent START ". $startTime ." END " . microtime(true));
 
         // Now flush once at the end
         $this->entityManager->flush();

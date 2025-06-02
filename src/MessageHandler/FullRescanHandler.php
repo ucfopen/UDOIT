@@ -38,7 +38,12 @@ class FullRescanHandler
 
         // ---------- 1. Sanity check ----------
         if (!$course || !$user) {
-            return;                 // log if you like
+            error_log(sprintf(
+                'FullRescanHandler: Missing course or user. course_id=%s, user_id=%s',
+                $message->getCourseId(),
+                $message->getUserId()
+            ));
+            return;
         }
 
         // ---------- 2.  Patch the missing “request” context ----------
@@ -53,6 +58,11 @@ class FullRescanHandler
 
         // ---------- 3.  Normal guard clauses ----------
         if (!$course->isActive() || $course->isDirty()) {
+            error_log(sprintf(
+                'FullRescanHandler: Skipping rescan. Course is not active or is dirty. course_id=%s, user_id=%s',
+                $message->getCourseId(),
+                $message->getUserId()
+            ));
             return;
         }
 
@@ -71,7 +81,12 @@ class FullRescanHandler
             // Nothing else to do here – individual workers will pick up the
             // ScanContentItem messages and perform the scans in parallel.
         } catch (\Throwable $e) {
-            // log / Sentry, etc.
+            error_log(sprintf(
+                'FullRescanHandler: Exception during rescan. course_id=%s, user_id=%s, error=%s',
+                $message->getCourseId(),
+                $message->getUserId(),
+                $e->getMessage()
+            ));
         }
     }
 

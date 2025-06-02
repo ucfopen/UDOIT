@@ -9,7 +9,13 @@ class FullRescanMessage
     private string $lmsId;
     private string $lmsDomain;
 
-    public function __construct(int $courseId, int $userId, string $apiKey, string $lmsId, string $lmsDomain) {
+    public function __construct(
+        int $courseId,
+        int $userId,
+        string $apiKey,
+        string $lmsId,
+        string $lmsDomain
+    ) {
         $this->courseId = $courseId;
         $this->userId = $userId;
         $this->apiKey = $apiKey;
