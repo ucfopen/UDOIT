@@ -88,7 +88,7 @@ export default function EmbeddedContentTitleForm({
   
   return (
     <>
-      <label htmlFor="labelInputValue">{t('form.embedded_content_title.label.text')}</label>
+      <label htmlFor="labelInputValue" className="instructions">{t('form.embedded_content_title.label.text')}</label>
       <div className="w-100 mt-2">
         <input
           type="text" 

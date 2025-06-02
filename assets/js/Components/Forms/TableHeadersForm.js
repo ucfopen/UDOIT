@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react'
 import FormFeedback from './FormFeedback'
 import * as Html from '../../Services/Html';
 
-export default function TableHeaders({
+export default function TableHeadersForm({
   t,
   activeIssue, 
   handleIssueSave, 

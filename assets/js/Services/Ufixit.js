@@ -10,7 +10,8 @@ import LabelForm from '../Components/Forms/LabelForm'
 import LinkForm from '../Components/Forms/LinkForm'
 import QuoteForm from '../Components/Forms/QuoteForm'
 import SensoryMisuseForm from '../Components/Forms/SensoryMisuseForm'
-import TableHeaders from '../Components/Forms/TableHeaders'
+import TableCaptionForm from '../Components/Forms/TableCaptionForm'
+import TableHeadersForm from '../Components/Forms/TableHeadersForm'
 import Video from '../Components/Forms/Video'
 
 import UfixitReviewOnly from '../Components/Forms/UfixitReviewOnly'
@@ -30,6 +31,7 @@ export const formNames = {
   LINK: 'link',
   QUOTE: 'quote',
   SENSORY_MISUSE: 'sensory_misuse',
+  TABLE_CAPTION: 'table_caption',
   TABLE_HEADERS: 'table_headers',
   VIDEO: 'video',
 
@@ -50,7 +52,8 @@ const formTypes = {
   [formNames.LINK]: LinkForm,
   [formNames.QUOTE]: QuoteForm,
   [formNames.SENSORY_MISUSE]: SensoryMisuseForm,
-  [formNames.TABLE_HEADERS]: TableHeaders,
+  [formNames.TABLE_CAPTION]: TableCaptionForm,
+  [formNames.TABLE_HEADERS]: TableHeadersForm,
   [formNames.VIDEO]: Video,
 
   [formNames.REVIEW_ONLY]: UfixitReviewOnly,
@@ -132,6 +135,9 @@ const rulesToFormNameMap = {
   // text_quoted_correctly: formNames.QUOTE,
 
   text_sensory_misuse: formNames.SENSORY_MISUSE,
+
+  table_caption_empty: formNames.TABLE_CAPTION,
+  table_caption_nested: formNames.TABLE_CAPTION,
 
   table_headers_exists: formNames.TABLE_HEADERS,
 
