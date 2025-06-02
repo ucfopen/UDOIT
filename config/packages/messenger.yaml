@@ -35,3 +35,4 @@ framework:
             'App\Message\ScanContentItem': async_concurrent
             # verified if async_concurrent is a valid transport
             'App\Message\FullRescanMessage': async_priority_low
+            'App\Message\FinishRescanMessage': async_priority_high

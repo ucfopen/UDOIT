@@ -11,6 +11,8 @@ use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 use Symfony\Component\Messenger\MessageBusInterface;
 use App\Message\ScanContentItem;
 
+use Symfony\Component\Uid\Uuid;   // for unique batch ids
+
 #[AsMessageHandler]
 class FullRescanHandler
 {
@@ -25,10 +27,10 @@ class FullRescanHandler
         UserRepository           $users,
         MessageBusInterface      $bus
     ) {
-        $this->lmsFetch = $lmsFetch;
-        $this->em       = $em;
-        $this->users    = $users;
-        $this->bus      = $bus;
+        $this->lmsFetch     = $lmsFetch;
+        $this->em           = $em;
+        $this->users        = $users;
+        $this->bus          = $bus;
     }
 
     public function __invoke(FullRescanMessage $message): void
@@ -71,10 +73,20 @@ class FullRescanHandler
             // Refresh LMS data and get only the list of *changed* items
             $updatedItems = $this->lmsFetch->refreshLmsContent($course, $user, true);
 
-            // Fan‑out: enqueue a ScanContentItem job for each item
+            $batchId = Uuid::v4()->toRfc4122();          // random UUID
+
+            $total = \count($updatedItems);
+            $idx   = 0;
             foreach ($updatedItems as $ci) {
+                $idx++;
+                $isLast = ($idx === $total);          // true for the final item
                 $this->bus->dispatch(
-                    new ScanContentItem($ci->getId(), $user->getId())
+                    new ScanContentItem(
+                        contentItemId: $ci->getId(),
+                        userId:        $user->getId(),
+                        isLast:        $isLast,
+                        batchId:       $batchId
+                    )
                 );
             }
 

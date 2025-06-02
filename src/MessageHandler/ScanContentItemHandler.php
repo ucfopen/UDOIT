@@ -10,6 +10,10 @@ use App\Services\ScannerService;
 use App\Services\UtilityService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
+use Symfony\Component\Console\Output\ConsoleOutput;
+use App\Message\FinishRescanMessage;
+use Symfony\Component\Messenger\MessageBusInterface;
+use Symfony\Component\Messenger\MessageBusInterface;
 
 #[AsMessageHandler]
 final class ScanContentItemHandler
@@ -19,6 +23,7 @@ final class ScanContentItemHandler
         private ScannerService         $scanner,
         private UtilityService         $util,
         private EntityManagerInterface $em,
+        private MessageBusInterface    $bus,
     ) {}
 
     public function __invoke(ScanContentItem $msg): void
@@ -74,15 +79,21 @@ final class ScanContentItemHandler
             }
 
             /* ----------------------------------------------------------------
-             * 4.   Update (or create) today’s Report for the parent Course
-             * -------------------------------------------------------------- */
-            $this->lmsFetch->updateReport($item->getCourse(), $user);
-
-            /* ----------------------------------------------------------------
-             * 5.   Flush & detach to keep memory low when many jobs run
+             * 4.   Flush & detach to keep memory low when many jobs run
              * -------------------------------------------------------------- */
             $this->em->flush();
             $this->em->clear();
+
+            /* --------------------------------------------------------------
+             * 6.  If I was the final worker for this batch, generate the report
+             * -------------------------------------------------------------- */
+            // If this was the final item in the batch, fire the aggregation job
+            if ($msg->isLast()) {
+                $this->bus->dispatch(
+                    new FinishRescanMessage($item->getCourse()->getId(), $user->getId())
+                );
+            }
+
         } catch (\Throwable $e) {
             // A single item failed – log and continue; do NOT re‑throw.
             $this->util->createMessage($e->getMessage(), 'error', $item->getCourse(), null, true);
