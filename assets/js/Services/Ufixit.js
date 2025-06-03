@@ -131,8 +131,8 @@ const rulesToFormNameMap = {
   aria_search_label_unique: formNames.LABEL_UNIQUE,
   aria_toolbar_label_unique: formNames.LABEL_UNIQUE,
 
-  // blockquote_cite_exists: formNames.QUOTE,
-  // text_quoted_correctly: formNames.QUOTE,
+  blockquote_cite_exists: formNames.QUOTE,
+  text_quoted_correctly: formNames.QUOTE,
 
   text_sensory_misuse: formNames.SENSORY_MISUSE,
 
