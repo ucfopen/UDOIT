@@ -44,6 +44,8 @@ services:
       depends_on:
         db:
           condition: service_healthy
+        redis:
+          condition: service_started
 
   composer:
       container_name: udoit3-composer
@@ -81,6 +83,14 @@ services:
         - PORT=3000
         - SCAN_POOL_SIZE=${SCAN_POOL_SIZE}
 
+  redis:
+    image: redis:7-alpine
+    container_name: udoit3-redis        # <- the hostname Docker will resolve
+    restart: unless-stopped
+    volumes:
+      - redis-data:/data
+
 volumes:
   web:
   dbdata:
+  redis-data:

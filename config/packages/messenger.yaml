@@ -33,6 +33,5 @@ framework:
             'App\Message\PriorityQueueItem': sync
             'App\Message\BackgroundQueueItem': sync
             'App\Message\ScanContentItem': async_concurrent
-            # verified if async_concurrent is a valid transport
             'App\Message\FullRescanMessage': async_priority_high
             'App\Message\FinishRescanMessage': async_priority_high

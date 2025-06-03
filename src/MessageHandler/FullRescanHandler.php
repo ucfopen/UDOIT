@@ -12,6 +12,7 @@ use Symfony\Component\Messenger\MessageBusInterface;
 use App\Message\ScanContentItem;
 
 use Symfony\Component\Uid\Uuid;   // for unique batch ids
+use App\Services\BatchCounterService;
 
 #[AsMessageHandler]
 class FullRescanHandler
@@ -20,17 +21,20 @@ class FullRescanHandler
     private EntityManagerInterface $em;
     private UserRepository $users;
     private MessageBusInterface $bus;
+    private BatchCounterService $counter;
 
     public function __construct(
         LmsFetchService          $lmsFetch,
         EntityManagerInterface   $em,
         UserRepository           $users,
-        MessageBusInterface      $bus
+        MessageBusInterface      $bus,
+        BatchCounterService      $counter
     ) {
         $this->lmsFetch     = $lmsFetch;
         $this->em           = $em;
         $this->users        = $users;
         $this->bus          = $bus;
+        $this->counter      = $counter;
     }
 
     public function __invoke(FullRescanMessage $message): void
@@ -74,17 +78,20 @@ class FullRescanHandler
             $updatedItems = $this->lmsFetch->refreshLmsContent($course, $user, true);
 
             $batchId = Uuid::v4()->toRfc4122();          // random UUID
-
             $total = \count($updatedItems);
+
+            // -------- initialise shared counter (atomic) ----------
+            $this->counter->init($batchId, $total);
+
             $idx   = 0;
             foreach ($updatedItems as $ci) {
                 $idx++;
-                $isLast = ($idx === $total);          // true for the final item
+                // $isLast = ($idx === $total);          // true for the final item
                 $this->bus->dispatch(
                     new ScanContentItem(
                         contentItemId: $ci->getId(),
                         userId:        $user->getId(),
-                        isLast:        $isLast,
+                        // isLast:        $isLast,
                         batchId:       $batchId
                     )
                 );

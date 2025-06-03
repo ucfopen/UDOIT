@@ -13,6 +13,7 @@ use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 use Symfony\Component\Console\Output\ConsoleOutput;
 use App\Message\FinishRescanMessage;
 use Symfony\Component\Messenger\MessageBusInterface;
+use App\Services\BatchCounterService;
 
 #[AsMessageHandler]
 final class ScanContentItemHandler
@@ -23,6 +24,7 @@ final class ScanContentItemHandler
         private UtilityService         $util,
         private EntityManagerInterface $em,
         private MessageBusInterface    $bus,
+        private BatchCounterService    $counter,
     ) {}
 
     public function __invoke(ScanContentItem $msg): void
@@ -87,7 +89,14 @@ final class ScanContentItemHandler
              * 6.  If I was the final worker for this batch, generate the report
              * -------------------------------------------------------------- */
             // If this was the final item in the batch, fire the aggregation job
-            if ($msg->isLast()) {
+            // if ($msg->isLast()) {
+            //     $this->bus->dispatch(
+            //         new FinishRescanMessage($item->getCourse()->getId(), $user->getId())
+            //     );
+            // }
+
+            // Tell the counter we’re done; TRUE ⇒ we are the very last worker
+            if ($this->counter->finishedOne($msg->getBatchId())) {
                 $this->bus->dispatch(
                     new FinishRescanMessage($item->getCourse()->getId(), $user->getId())
                 );
