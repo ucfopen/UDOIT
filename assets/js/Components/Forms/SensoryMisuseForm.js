@@ -41,7 +41,7 @@ export default function SensoryMisuseForm({
     regex: new RegExp(`\\b${word}\\b`, 'i')
   }))
 
-  const excludedTags = ['script', 'style', 'noscript', 'iframe', 'svg', 'canvas']
+  const excludedTags = ['script', 'style', 'noscript']
   const includedAttributes = ['alt', 'title', 'aria-label']
 
   const editorRef = useRef(null)
