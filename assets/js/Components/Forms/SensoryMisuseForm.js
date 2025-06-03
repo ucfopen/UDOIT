@@ -175,14 +175,13 @@ export default function SensoryMisuseForm({
       let editorInnerHtml = editorElement.innerHTML
 
       const specificClassName = `udoit-ignore-${issue.scanRuleId.replaceAll("_", "-")}`
-      
+
       let newElement = Html.addClass(issue.sourceHtml, specificClassName)
       newElement.innerHTML = editorInnerHtml
       issue.newHtml = Html.toString(newElement)
 
-      console.log(issue.newHtml)
       handleActiveIssue(issue)
-      
+
       handleIssueSave(issue)
     }
   }
