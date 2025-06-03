@@ -201,7 +201,8 @@ export default function SensoryMisuseForm({
           init={{
             height: 250,
             menubar: false,
-            toolbar: "undo redo | bold italic underline ",
+            plugins: "code",
+            toolbar: "undo redo | bold italic underline | code ",
             // content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:14px }',
             branding: false,
             skin: "oxide",
