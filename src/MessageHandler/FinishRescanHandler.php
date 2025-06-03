@@ -41,30 +41,21 @@ final class FinishRescanHandler
             // --------------------------------------------------------------
             // Build a flattened list of *all* issues for this course
             // --------------------------------------------------------------
-            $issuesData = [];
-            foreach ($course->getContentItems() as $ci) {
-                foreach ($ci->getIssues() as $issue) {
-                    $issuesData[] = [
-                        'id'            => $issue->getId(),
-                        'type'          => $issue->getType(),
-                        'status'        => $issue->getStatus(),
-                        'rule'          => $issue->getScanRuleId(),
-                        'contentItemId' => $ci->getId(),
-                        // Trim the raw HTML so the log stays readable
-                        'html'          => mb_substr($issue->getHtml() ?? '', 0, 120) . '…',
-                    ];
-                }
-            }
+            // $issuesData = [];
+            // foreach ($course->getContentItems() as $ci) {
+            //     foreach ($ci->getIssues() as $issue) {
+            //         $issuesData[] = [
+            //             'id'            => $issue->getId(),
+            //             'type'          => $issue->getType(),
+            //             'status'        => $issue->getStatus(),
+            //             'rule'          => $issue->getScanRuleId(),
+            //             'contentItemId' => $ci->getId(),
+            //             // Trim the raw HTML so the log stays readable
+            //             'html'          => mb_substr($issue->getHtml() ?? '', 0, 120) . '…',
+            //         ];
+            //     }
+            // }
 
-            $output->writeln(
-                "Generated report summary:\n" .
-                json_encode($report->toArray(), JSON_PRETTY_PRINT)
-            );
-
-            $output->writeln(
-                "Full issue list (" . \count($issuesData) . " items):\n" .
-                json_encode($issuesData, JSON_PRETTY_PRINT)
-            );
             $report->setReady(true);
             $this->em->flush();
 
