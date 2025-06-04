@@ -17,6 +17,7 @@ export default class Api {
             fullRescan: '/api/sync/rescan/{course}',
             scanIssue: '/api/issues/{issue}/scan',
             adminReport: '/api/admin/courses/{course}/reports/latest',
+            adminCourseReport: '/api/admin/courses/{course}/reports/full',
             adminReportHistory: '/api/admin/reports/account/{account}/term/{term}', 
             adminUser: '/api/admin/users',          
             updateUser: '/api/users/{user}' 
@@ -76,7 +77,7 @@ export default class Api {
         });
     }
 
-    saveIssue(issue) {
+    saveIssue(issue, fullPageHtml) {
         const authToken = this.getAuthToken()
 
         let url = `${this.apiUrl}${this.endpoints.saveIssue}`
@@ -88,11 +89,11 @@ export default class Api {
             headers: {
                 'X-AUTH-TOKEN': authToken,
             },
-            body: issue.newHtml
+            body: JSON.stringify({sourceHtml: issue.sourceHtml, newHtml: issue.newHtml, fullPageHtml: fullPageHtml}),
         })
     }
 
-    resolveIssue(issue) {
+    resolveIssue(issue, fullPageHtml) {
         const authToken = this.getAuthToken()
 
         let url = `${this.apiUrl}${this.endpoints.resolveIssue}`
@@ -105,7 +106,7 @@ export default class Api {
                 'Content-Type': 'application/json',
                 'X-AUTH-TOKEN': authToken,
             },
-            body: JSON.stringify({status: issue.status, newHtml: issue.newHtml}),
+            body: JSON.stringify({status: issue.status, sourceHtml: issue.sourceHtml, newHtml: issue.newHtml, fullPageHtml: fullPageHtml}),
         })
     }
 
@@ -196,6 +197,20 @@ export default class Api {
     getAdminReport(courseId) {
         const authToken = this.getAuthToken()
         let url = `${this.apiUrl}${this.endpoints.adminReport}`
+        url = url.replace('{course}', courseId)
+
+        return fetch(url, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-AUTH-TOKEN': authToken,
+            },
+        });
+    }
+
+    getCourseReport(courseId) {
+        const authToken = this.getAuthToken()
+        let url = `${this.apiUrl}${this.endpoints.adminCourseReport}`
         url = url.replace('{course}', courseId)
 
         return fetch(url, {

@@ -25,6 +25,7 @@ export default function ContentTypeIcon(props) {
     case('DISCUSSION_FORUM'):
       return <ContentDiscussionForumIcon {...props} />
     case('FILE'):
+    case('FILE_OBJECT'):
       return <ContentFileIcon {...props} />
     case('QUIZ'):
       return <ContentQuizIcon {...props} />

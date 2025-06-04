@@ -1,21 +1,21 @@
-import React, { act, useEffect, useState } from 'react'
-import { View } from '@instructure/ui-view'
-import { TextInput } from '@instructure/ui-text-input'
-import { Button } from '@instructure/ui-buttons'
-import { IconCheckMarkLine } from '@instructure/ui-icons'
-import { Checkbox } from '@instructure/ui-checkbox'
-import { Spinner } from '@instructure/ui-spinner'
+import React, { useEffect, useState } from 'react'
+import ProgressIcon from '../Icons/ProgressIcon'
+import ResolvedIcon from '../Icons/ResolvedIcon'
 import * as Html from '../../Services/Html'
 import * as Contrast from '../../Services/Contrast'
 
-export default function StyleMisuseForm(props) {
-  const [useBold, setUseBold] = useState(isBold())
-  const [useItalics, setUseItalics] = useState(isItalicized())
-  const [removeStyling, setRemoveStyling] = useState(false)
+export default function StyleMisuseForm({
+  t,
+  settings,
+  activeIssue,
+  handleIssueSave,
+  addMessage,
+  handleActiveIssue,
+  handleManualScan
+}) {
+  const [useBold, setUseBold] = useState(() => isBold())
+  const [useItalics, setUseItalics] = useState(() => isItalicized())
   const [checkBoxErrors, setCheckBoxErrors] = useState([])
-  const [styleAttribute, setStyleAttribute] = useState(Html.getAttribute(Html.getIssueHtml(props.activeIssue), "style"))
-  
-  console.log(styleAttribute)
 
   let formErrors = []
 
@@ -24,16 +24,22 @@ export default function StyleMisuseForm(props) {
   }, [])
 
   useEffect(() => {
-    setUseBold(isBold())
-    setUseItalics(isItalicized())
-    setCheckBoxErrors([])
+    setUseBold(false)
+    setUseItalics(false)
+
+    if (activeIssue.status == '1') {
+      // set checkboxes based on if its already fixed
+      setUseBold(isBold())
+      setUseItalics(isItalicized())
+      setCheckBoxErrors([])
+    }
 
     formErrors = []
-  }, [props.activeIssue])
+  }, [activeIssue])
 
   useEffect(() => {
     updatePreview()
-  }, [useBold, useItalics, removeStyling])
+  }, [useBold, useItalics])
 
   function handleBoldToggle() {
     setUseBold(!useBold)
@@ -45,25 +51,18 @@ export default function StyleMisuseForm(props) {
     updatePreview()
   }
 
-  function handleStyleToggle() {
-    setRemoveStyling(!removeStyling)
-    console.log("style tag:")
-    console.log(styleAttribute)
-    updatePreview()
-  }
-
   function handleSubmit() {
-    let issue = props.activeIssue
+    let issue = activeIssue
 
     if (cssEmphasisIsValid(issue)) {
-      let issue = props.activeIssue
+      let issue = activeIssue
       issue.newHtml = Contrast.convertHtmlRgb2Hex(issue.newHtml)
-      props.handleIssueSave(issue)
+      handleIssueSave(issue)
     }
     else {
       // push errors
       formErrors = []
-      formErrors.push({ text: `${props.t('form.contrast.must_select')}` , type: 'error' })
+      formErrors.push({ text: `${t('form.contrast.must_select')}`, type: 'error' })
 
       setCheckBoxErrors(formErrors)
     }
@@ -78,53 +77,34 @@ export default function StyleMisuseForm(props) {
 
     element.innerHTML = (useBold) ? `<strong>${element.innerHTML}</strong>` : element.innerHTML
     element.innerHTML = (useItalics) ? `<em>${element.innerHTML}</em>` : element.innerHTML
-    
-    if (removeStyling) {
-      Html.removeAttribute(element, "style")
-    }
-    else {
-      Html.setAttribute(element, "style", styleAttribute)
-    }
 
     return Html.toString(element)
   }
 
   function updatePreview() {
-    let issue = props.activeIssue
-    const html = Html.getIssueHtml(props.activeIssue)
-
-    issue.newHtml = processHtml(html)
-    props.handleActiveIssue(issue)
+      let issue = activeIssue
+      const html = Html.getIssueHtml(activeIssue)
+  
+      issue.newHtml = processHtml(html)
+      handleActiveIssue(issue)
   }
 
   function isBold() {
-    const issue = props.activeIssue
+    const issue = activeIssue
     const metadata = (issue.metadata) ? JSON.parse(issue.metadata) : {}
-    const html = Html.getIssueHtml(props.activeIssue)
+    const html = Html.getIssueHtml(activeIssue)
     const element = Html.toElement(html)
 
     return ((Html.hasTag(element, 'strong')) || (metadata.fontWeight === 'bold'))
   }
 
   function isItalicized() {
-    const issue = props.activeIssue
+    const issue = activeIssue
     const metadata = (issue.metadata) ? JSON.parse(issue.metadata) : {}
-    const html = Html.getIssueHtml(props.activeIssue)
+    const html = Html.getIssueHtml(activeIssue)
     const element = Html.toElement(html)
 
     return ((Html.hasTag(element, 'em')) || (metadata.fontStyle == 'italic'))
-  }
-
-  function hasStyleTag() {
-    const html = Html.getIssueHtml(props.activeIssue)
-    const element = Html.toElement(html)
-
-    console.log("checking style attribute")
-    console.log(Html.getAttribute(element, "style"))
-
-    return true
-
-    // return (Html.getAttribute(element, "style") != null)
   }
 
   function cssEmphasisIsValid(issue) {
@@ -133,51 +113,44 @@ export default function StyleMisuseForm(props) {
         return false
       }
     }
+
     return true
   }
 
-  const pending = (props.activeIssue && (props.activeIssue.pending == '1'))
+  const pending = (activeIssue && (activeIssue.pending == '1'))
   const buttonLabel = (pending) ? 'form.processing' : 'form.submit'
 
   return (
-    <View as="div" padding="0 x-small">
+    <div padding="0 x-small" className='pt-0 pb-0 pl-1 pr-1'>
       <div id="flash-messages" role="alert"></div>
-      <View as="div" margin="small 0">
-        <Checkbox label={props.t('form.contrast.bolden_text')}
-          checked={useBold}
-          onChange={handleBoldToggle}>
-        </Checkbox>
-      </View>
 
-      <View as="div" margin="small 0">
-        <Checkbox label={props.t('form.contrast.italicize_text')}
-          checked={useItalics}
-          onChange={handleItalicsToggle}
-          messages={checkBoxErrors}>
-        </Checkbox>
-      </View>
+      <form onSubmit={(e) => {
+        e.preventDefault()
+        handleSubmit()
+      }}>
+        <div className='mt-1 mb-1 ml-0 mr-0'>
+          <input id='bold-checkbox' type='checkbox' name={t('form.contrast.bolden_text')} checked={useBold} onChange={handleBoldToggle}/>
+          <label htmlFor='bold-checkbox'>{t('form.contrast.bolden_text')}</label>
+        </div>
 
-      <View as="div" margin="small 0">
-        {/* TOOD: use props.t */}
-        <Checkbox label={"Remove styling from element"}
-          checked={removeStyling}
-          onChange={handleStyleToggle}
-          messages={checkBoxErrors}>
-        </Checkbox>
-      </View>
+        <div className='mt-1 mb-1 ml-0 mr-0'>
+          <input id='italicize-checkbox' type='checkbox' name={t('form.contrast.italicize_text')} checked={useItalics} onChange={handleItalicsToggle}/>
+          <label htmlFor='italicize-checkbox'>{t('form.contrast.italicize_text')}</label>
+        </div>
 
-      <View as="div" margin="medium 0">
-        <Button color="primary" onClick={handleSubmit} interaction={(!pending && props.activeIssue.status !== 2) ? 'enabled' : 'disabled'}>
-          {('1' == pending) && <Spinner size="x-small" renderTitle={buttonLabel} />}
-          {props.t(buttonLabel)}
-        </Button>
-        {props.activeIssue.recentlyUpdated &&
-          <View margin="0 small">
-            <IconCheckMarkLine color="success" />
-            <View margin="0 x-small">{props.t('label.fixed')}</View>
-          </View>
-        }
-      </View>
-    </View>
+        <div className='mt-2 mb-1 ml-0 mr-0'>
+          <button className={(useBold === false && useItalics === false) || pending || activeIssue?.status === 2 ? 'btn btn-secondary disabled' : 'btn btn-primary'} disabled={pending || activeIssue?.status === 2 || useBold === false && useItalics === false} type='submit'>
+            {('1' == pending) && <div className='spinner'><ProgressIcon /></div>}
+            {t(buttonLabel)}
+          </button>
+          {activeIssue && activeIssue?.recentlyUpdated &&
+            <div className='mt-1 mb-1 ml-0 mr-0'>
+              <ResolvedIcon />
+              <span className='mt-1 mb-1 ml-0 mr-0'>{t('label.fixed')}</span>
+            </div>
+          }
+        </div>
+      </form>
+    </div>
   )
 }

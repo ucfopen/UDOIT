@@ -5,7 +5,7 @@ on:
     branches:
       - main
       - 'stable/*'
-      - 'equal-access'
+      - 'new-main-page-UX'
 
 env:
   REGISTRY: ghcr.io
@@ -18,7 +18,7 @@ jobs:
       fail-fast: false
       matrix:
         operating-system: [ubuntu-latest]
-        php-versions: ['8.2']
+        php-versions: ['8.4']
         node-version: [16.19.0]
     steps:
       - uses: actions/checkout@v2

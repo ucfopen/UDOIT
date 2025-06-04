@@ -42,33 +42,22 @@ class IssuesController extends ApiController
             }
 
             // Get updated issue
-            $newHtml = $request->getContent();
+            $issueUpdate = \json_decode($request->getContent(), true);
+            $sourceHtml = $issueUpdate['sourceHtml'];
+            $newHtml = $issueUpdate['newHtml'];
+            $fullPageHtml = $issueUpdate['fullPageHtml'];
 
             // Check if new HTML is different from original HTML
-            if ($issue->getHtml() === $newHtml) {
+            if ($issue->getPreviewHtml() === $newHtml || $sourceHtml === $newHtml) {
                 throw new \Exception('form.error.same_html');
             }
 
-            // // Run fixed content through PhpAlly to validate it
-            // $report = $phpAlly->scanHtml($newHtml, [$issue->getScanRuleId()]);
-            // if ($issues = $report->getIssues()) {
-            //     $apiResponse->addData('issues', $issues);
-            //     $apiResponse->addData('failed', 1);
-            //     throw new \Exception('form.error.fails_tests');
-            // }
-            // if ($errors = $report->getErrors()) {
-            //     $apiResponse->addData('errors', $errors);
-            //     $apiResponse->addData('failed', 1);
-            //     throw new \Exception('form.error.fails_tests');
-            // }
-
-
-            // Update issue HTML
+            $issue->setPreviewHtml($sourceHtml);
             $issue->setNewHtml($newHtml);
             $this->doctrine->getManager()->flush();
 
             // Save content to LMS
-            $lmsPost->saveContentToLms($issue, $user);
+            $lmsPost->saveContentToLms($issue, $user, $fullPageHtml);
 
             // Add messages to response
             $unreadMessages = $util->getUnreadMessages();
@@ -76,8 +65,11 @@ class IssuesController extends ApiController
                 $apiResponse->addMessage('form.msg.success_saved', 'success');
 
                 // Update issue status
-                $issue->setHtml($newHtml);
-                $issue->setStatus(Issue::$issueStatusFixed);
+                $newStatus = Issue::$issueStatusFixed;
+                if($issue->getStatus() === Issue::$issueStatusResolved || $issue->getStatus() === Issue::$issueStatusFixedAndResolved) {
+                    $newStatus = Issue::$issueStatusFixedAndResolved;
+                }
+                $issue->setStatus($newStatus);
                 $issue->setFixedBy($user);
                 $issue->setFixedOn($util->getCurrentTime());
                 $this->doctrine->getManager()->flush();
@@ -107,6 +99,7 @@ class IssuesController extends ApiController
     {
         $apiResponse = new ApiResponse();
         $user = $this->getUser();
+        $output = new ConsoleOutput();
 
         try {
             // Check if user has access to course
@@ -117,19 +110,22 @@ class IssuesController extends ApiController
 
             // Get updated issue
             $issueUpdate = \json_decode($request->getContent(), true);
+            $sourceHtml = $issueUpdate['sourceHtml'];
+            $newHtml = $issueUpdate['newHtml'];
+            $fullPageHtml = isset($issueUpdate['fullPageHtml']) ? $issueUpdate['fullPageHtml'] : null;
 
-            $issue->setNewHtml($issueUpdate['newHtml']);
+            $issue->setPreviewHtml($sourceHtml);
+            $issue->setNewHtml($newHtml);
             $this->doctrine->getManager()->flush();
 
             // Save content to LMS
-            $response = $lmsPost->saveContentToLms($issue, $user);
+            $response = $lmsPost->saveContentToLms($issue, $user, $fullPageHtml);
 
             // Add messages to response
             $unreadMessages = $util->getUnreadMessages();
             if (empty($unreadMessages)) {
                 // Update issue
-                $issue->setHtml($issueUpdate['newHtml']);
-                $issue->setStatus(($issueUpdate['status']) ? Issue::$issueStatusResolved : Issue::$issueStatusActive);
+                $issue->setStatus(($issueUpdate['status']) ? $issueUpdate['status'] : Issue::$issueStatusActive);
                 $issue->setFixedBy($user);
                 $issue->setFixedOn($util->getCurrentTime());
 
@@ -138,7 +134,7 @@ class IssuesController extends ApiController
 
                 $this->doctrine->getManager()->flush();
 
-                if ($issue->getStatus() == Issue::$issueStatusResolved) {
+                if ($issue->getStatus() == Issue::$issueStatusResolved || $issue->getStatus() == Issue::$issueStatusFixedAndResolved) {
                     $apiResponse->addMessage('form.msg.success_resolved', 'success');
                 } else {
                     $apiResponse->addMessage('form.msg.success_unresolved', 'success');

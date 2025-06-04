@@ -1,0 +1,25 @@
+@import '../../../css/udoit4-theme.css';
+
+#file-drop-zone {
+  border: 2px dashed var(--gray);
+  border-radius: 8px;
+  padding: 1rem 2rem;
+  text-align: center;
+  cursor: pointer;
+  width: 100%;
+  box-sizing: border-box;
+  margin: 1rem auto;
+
+  &:focus {
+    outline: 2px solid var(--focus-color);
+    outline-offset: 1px;
+  }
+
+  &:hover {
+    border-color: var(--focus-color);
+  }
+
+  .file-drop-text {
+    width: 100%;
+  }
+}

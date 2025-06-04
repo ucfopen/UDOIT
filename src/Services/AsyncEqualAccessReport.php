@@ -20,7 +20,7 @@ use Psr\Http\Message\RequestInterface;
 use GuzzleHttp\Psr7\Request;
 
 // Take in a bundle of ContentItems and
-// send asynchronous requests to a Lambda function's API gateway 
+// send asynchronous requests to a Lambda function's API gateway
 
 class AsyncEqualAccessReport {
     private $client;
@@ -53,7 +53,7 @@ class AsyncEqualAccessReport {
                 'content' => $message,
             ],
         ];
-        
+
         $context = stream_context_create($options);
         file_get_contents("http://host.docker.internal:3000/log", false, $context);
     }
@@ -105,7 +105,7 @@ class AsyncEqualAccessReport {
             $html = $contentItem->getBody();
             $document = $this->getDomDocument($html)->saveHTML();
             array_push($htmlArray, $document);
-            
+
             $counter++;
         }
 
@@ -128,7 +128,7 @@ class AsyncEqualAccessReport {
         $errors = 0;
 
         foreach ($results as $result) {
-            // Every "block" of reports pages should be in a stringified 
+            // Every "block" of reports pages should be in a stringified
             // JSON, so we need to decode the JSON to be able to iterate through
             // it first.}
 
@@ -158,9 +158,9 @@ class AsyncEqualAccessReport {
         $promises = [];
 
         $client = new Client();
-        
+
         // Iterate through each scannable Canvas page and add a new
-        // POST request to our array of promises 
+        // POST request to our array of promises
         foreach ($contentItems as $contentItem) {
             // $this->logToServer("Checking: {$contentItem->getTitle()}");
             // Clean up the content item's HTML document
@@ -171,7 +171,7 @@ class AsyncEqualAccessReport {
             $payload = json_encode(["html" => $document]);
             $request = $this->createRequest($payload);
             $signedRequest = $this->sign($request);
-            
+
             $promises[] = $client->sendAsync($signedRequest);
         }
 
@@ -196,7 +196,7 @@ class AsyncEqualAccessReport {
     public function postSingleAsync(ContentItem $contentItem) {
         $client = new Client();
         $report = null;
-        
+
         // Clean up the content item's HTML document
         // and create a payload to send
         $html = $contentItem->getBody();
@@ -206,7 +206,7 @@ class AsyncEqualAccessReport {
         $request = $this->createRequest($payload);
         $signedRequest = $this->sign($request);
 
-        // POST document to Lambda and wait for fulfillment 
+        // POST document to Lambda and wait for fulfillment
         // $this->logToServer("Sending to single promise...");
         $promise = $client->sendAsync($signedRequest);
         $response = $promise->wait();
@@ -235,10 +235,10 @@ class AsyncEqualAccessReport {
         $envTextColor = $_ENV['TEXT_COLOR'];
 
         if (strpos($html, '<?xml encoding="utf-8"') !== false) {
-            $dom->loadHTML("<!DOCTYPE html><html lang=\"en\"><head><meta charset=\"UTF-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\"><title>Placeholder Page Title</title></head><body><div role=\"main\"><h1>Placeholder Page Title</h1>{$html}</div></body></html>", LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD);
+            $dom->loadHTML("<!DOCTYPE html><html lang=\"en\"><head><meta charset=\"UTF-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\"><title>Placeholder Page Title</title></head><body><div role=\"main\">{$html}</div></body></html>", LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD);
 
         } else {
-            $dom->loadHTML("<?xml encoding=\"utf-8\" ?><!DOCTYPE html><html lang=\"en\"><head><meta charset=\"UTF-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\"><title>Placeholder Page Title</title></head><body><div role=\"main\"><h1>Placeholder Page Title</h1>{$html}</div></body></html>", LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD);
+            $dom->loadHTML("<?xml encoding=\"utf-8\" ?><!DOCTYPE html><html lang=\"en\"><head><meta charset=\"UTF-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\"><title>Placeholder Page Title</title></head><body><div role=\"main\">{$html}</div></body></html>", LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD);
         }
 
         return $dom;

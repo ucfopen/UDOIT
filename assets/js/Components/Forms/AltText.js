@@ -1,21 +1,13 @@
 import React, { useState, useEffect } from 'react'
-import { Checkbox } from '@instructure/ui-checkbox';
-import { View } from '@instructure/ui-view'
-import { IconCheckMarkLine } from '@instructure/ui-icons'
-import { Text } from '@instructure/ui-text'
-import { TextArea } from '@instructure/ui-text-area'
-import { Button } from '@instructure/ui-buttons'
-import { Spinner } from '@instructure/ui-spinner'
-import * as Html from '../../Services/Html';
+import FormFeedback from './FormFeedback'
+import * as Html from '../../Services/Html'
 
 export default function AltText ({
   t,
-  settings,
   activeIssue,
   handleIssueSave,
-  addMessage,
+  isDisabled,
   handleActiveIssue,
-  handleManualScan
  }) {
   
   const maxLength = 150
@@ -24,8 +16,6 @@ export default function AltText ({
   const [isDecorative, setIsDecorative] = useState(false)
   const [characterCount, setCharacterCount] = useState(0)
   const [textInputErrors, setTextInputErrors] = useState([])
-  const [formErrors, setFormErrors] = useState([])
-  const [pending, setPending] = useState(false)
 
   useEffect(() => {
     if (activeIssue) {
@@ -40,17 +30,20 @@ export default function AltText ({
     }
   }, [activeIssue])
 
-  const handleHtmlUpdate = () => {
+  useEffect(() => {
+    updateActiveIssueHtml()
+    checkFormErrors()
+  }, [textInputValue, isDecorative])
+
+  const updateActiveIssueHtml = () => {
     const html = Html.getIssueHtml(activeIssue)
     let element = Html.toElement(html)
     
     if (isDecorative) {
       element = Html.setAttribute(element, "role", "presentation")
-      element = Html.addClass(element, 'phpally-ignore')
       element = Html.setAttribute(element, 'alt', '')
     } else {
       element = Html.removeAttribute(element, "role")
-      element = Html.removeClass(element, 'phpally-ignore')
       element = Html.setAttribute(element, "alt", textInputValue)
     }
 
@@ -60,18 +53,30 @@ export default function AltText ({
     handleActiveIssue(issue)
   }
 
-  const handleButton = () => {
-    setFormErrors([])
+  const checkFormErrors = () => {
+    let tempErrors = []
+    
+    // If the "Mark as Decorative" checkbox is checked, we don't need to check for input errors
     if (!isDecorative) {
-      checkTextNotEmpty()
-      checkTextLength()
-      checkForFileExtensions()
-      checkFileName()
+      if(isTextEmpty()){
+        tempErrors.push({ text: t('form.alt_text.msg.text_empty'), type: 'error' })
+      }
+      if(isTextTooLong()){
+        tempErrors.push({ text: t('form.alt_text.msg.text_too_long'), type: 'error' })
+      }
+      if(hasFileExtensions()) {
+        tempErrors.push({ text: t('form.alt_text.msg.text_has_file_extension'), type: 'error' })
+      }
+      if(hasFileName()) {
+        tempErrors.push({ text: t('form.alt_text.msg.text_matches_filename'), type: 'error' })
+      }
     }
 
-    if (formErrors.length > 0) {
-      setTextInputErrors(formErrors)
-    } else {
+    setTextInputErrors(tempErrors)
+  }
+
+  const handleSubmit = () => {
+    if (textInputErrors.length === 0) {
       handleIssueSave(activeIssue)
     }
   }
@@ -79,42 +84,47 @@ export default function AltText ({
   const handleInput = (event) => {
     setTextInputValue(event.target.value)
     setCharacterCount(event.target.value.length)
-    handleHtmlUpdate()
   }
 
   const handleCheckbox = () => {
     setIsDecorative(!isDecorative)
-    handleHtmlUpdate()
   }
 
-  const checkTextNotEmpty = () => {
+  const isTextEmpty = () => {
     const text = textInputValue.trim().toLowerCase()
+
     if (text === '') {
-      formErrors.push({ text: t('form.alt.msg.text_empty'), type: 'error' })
+      return true
     }
+    return false
   }
 
-  const checkTextLength = () => {
+  const isTextTooLong = () => {
     const text = textInputValue.trim().toLowerCase()
+
     if (text.length > maxLength) {
-      formErrors.push({ text: t('form.alt.msg.text_too_long'), type: 'error' })
+      return true
     }
+    return false
   }
 
-  const checkForFileExtensions = () => {
+  const hasFileExtensions = () => {
     let fileRegex = /([a-zA-Z0-9\s_\\.\-\(\):])+(.png|.jpg|.jpeg|.gif)$/i
 
     if (textInputValue.match(fileRegex) != null) {
-      formErrors.push({ text: t('form.alt.msg.text_has_file_extension'), type: 'error' })
+      return true
     }
+    return false
   }
 
-  const checkFileName = () => {
+  const hasFileName = () => {
     let fileName = Html.getAttribute(activeIssue.sourceHtml, "src")
     
     if (textInputValue === fileName) {
-      formErrors.push({ text: t('form.alt.msg.text_matches_filename'), type: 'error' })
+      return true
     }
+
+    return false
   }
 
   const elementIsDecorative = (htmlString) => {
@@ -130,41 +140,45 @@ export default function AltText ({
   }
 
   return (
-    <View as="div" padding="x-small">
-      <View>
-        <TextArea
-          label={t('form.alt.text')}
-          display="inline-block"
-          width="100%"
-          onChange={handleInput}
+    <>
+      <label htmlFor="altTextInput">{t('form.alt_text.label.text')}</label>
+      <div className="w-100 mt-2">
+        <input
+          type="text"
+          tabindex="0"
+          id="altTextInput"
+          name="altTextInput"
+          className="w-100"
           value={textInputValue}
-          id="textInputValue"
-          disabled={isDecorative}
-          messages={textInputErrors}
-        />
-      </View>
-      <View as="div" textAlign="end" padding="x-small 0 0 0">
-        <Text size="small" weight="light">
-          {characterCount} {t('form.alt.of')} {maxLength} {t('form.alt.chars')}
-        </Text>
-      </View>
-      <View as="div" margin="0 0 small 0">
-        <Checkbox label={t('form.alt.mark_decorative')} 
-          checked={isDecorative} 
+          disabled={isDisabled || isDecorative}
+          onChange={handleInput} />
+      </div>
+      <div className="flex-row justify-content-end mt-1">
+        <div className="text-muted">
+          {t('form.alt_text.feedback.characters', {current: characterCount, total: maxLength})}
+        </div>
+      </div>
+      <FormFeedback issues={textInputErrors} />
+      <div className="flex-row justify-content-start gap-1 mt-2">
+        <input
+          type="checkbox"
+          id="decorativeCheckbox"
+          name="decorativeCheckbox"
+          tabindex="0"
+          disabled={isDisabled}
+          checked={isDecorative}
           onChange={handleCheckbox} />
-      </View>
-      <View as="div" margin="small 0">
-        <Button color="primary" onClick={handleButton} interaction={(!pending && activeIssue?.status !== 2) ? 'enabled' : 'disabled'}>
-          {('1' == pending) && <Spinner size="x-small" renderTitle={t('form.processing')} />}
+        <label htmlFor="decorativeCheckbox">{t('form.alt_text.label.mark_decorative')}</label>
+      </div>
+      <div className="flex-row justify-content-start mt-3 mb-3">
+        <button
+          className="btn btn-primary"
+          disabled={isDisabled || textInputErrors.length > 0}
+          tabindex="0"
+          onClick={handleSubmit}>
           {t('form.submit')}
-        </Button>
-        {activeIssue.recentlyUpdated &&
-          <View margin="0 small">
-            <IconCheckMarkLine color="success" />
-            <View margin="0 x-small">{t('label.fixed')}</View>
-          </View>
-        }
-      </View>
-    </View>
+        </button>
+      </div>
+    </>
   )
 }

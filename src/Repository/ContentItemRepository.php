@@ -35,27 +35,32 @@ class ContentItemRepository extends ServiceEntityRepository
             ->createQuery('DELETE App\Entity\ContentItem ci WHERE ci.active = FALSE')->execute();
     }
 
-    public function getUpdatedContentItems(Course $course)
+    public function getUpdatedContentItems(Course $course, $force = false)
     {
-        $latestReport = $course->getLatestReport();
+        $allActiveContentItems = $this->createQueryBuilder('c')
+          ->andWhere('c.course = :course')
+          ->andWhere('c.active = TRUE')
+          ->setParameter('course', $course)
+          ->getQuery()
+          ->getResult();
 
-        if (!$latestReport) {
-            return $this->createQueryBuilder('c')
-                ->andWhere('c.course = :course')
-                ->andWhere('c.active = TRUE')
-                ->setParameter('course', $course)
-                ->getQuery()
-                ->getResult();
+        if ($force) {
+            return $allActiveContentItems;
+        }
+        
+        $updatedContentItems = [];
+        foreach ($allActiveContentItems as $contentItem) {
+            $metadata = json_decode($contentItem->getMetadata());
+            if ($metadata && isset($metadata->lmsUpdated)) {
+                if ($metadata->lmsUpdated != $contentItem->getUpdated()->format('c')) {
+                    $updatedContentItems[] = $contentItem;
+                }
+            } else {
+                $updatedContentItems[] = $contentItem;
+            }
         }
 
-        return $this->createQueryBuilder('c')
-            ->andWhere('c.course = :course')
-            ->andWhere('c.updated > :updated')
-            ->andWhere('c.active = TRUE')
-            ->setParameter('course', $course)
-            ->setParameter('updated', $latestReport->getCreated())
-            ->getQuery()
-            ->getResult();
+        return $updatedContentItems;
     }
 
     // Get all content items that haven't changed since the course was last updated.

@@ -1,0 +1,19 @@
+.report-container {
+  display: flex;
+  background-color: var(--background-color);
+  border-radius: 16px;
+  padding: .75rem 1rem 1rem 1rem;
+  width: 100%;
+  min-width: 650px;
+  overflow: wrap;
+  border: 2px solid var(--border-color);
+  justify-content: space-between;
+  align-items: center;
+  box-sizing: border-box;
+}
+
+.errors-progress-bar {
+  font-weight: 600;
+  font-size: .9rem;
+  text-transform: uppercase;
+}

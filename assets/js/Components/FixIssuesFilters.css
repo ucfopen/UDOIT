@@ -1,25 +1,29 @@
 @import '../../css/udoit4-theme.css';
 
 .filter-container {
-  background-color: var(--link-color-light);
+  background-color: var(--background-color);
   border-top: 1px solid var(--border-color);
   border-bottom: 1px solid var(--border-color);
   margin-left: -1rem;
   margin-right: -1rem;
-  padding: .75rem 1rem;
+  padding: .5rem 1rem;
 
   .search-group {
+    display: block;
+
     input {
-      font-size: 0.9rem;
-      font-weight: 300;
+      font-size: 0.85rem;
+      font-weight: 400;
       font-family: 'Open Sans', Arial, Helvetica, sans-serif;
-      padding: .15rem 1.75rem .15rem .5rem;
+      padding: .4rem 1.75rem .4rem .5rem;
       border: 1px solid var(--border-color);
       border-radius: 8px;
       outline: none;
+      width: 300px;
+      box-sizing: border-box;
 
       &:focus {
-        outline: 2px solid var(--link-color);
+        outline: 2px solid var(--focus-color);
         outline-offset: 1px;
       }
     }
@@ -32,20 +36,31 @@
     }
   }
 
+  .filter-pill {
+    padding: 0px .5rem 0px .75rem;
+    background-color: var(--gray);
+    cursor: pointer;
+    border-radius: 12px;
+
+    .filter-pill-text {
+      color: var(--white);
+      font-size: 0.8rem;
+      font-weight: 500;
+      text-transform: uppercase;
+    }
+  }
+
   .filter-group {
     select {
-      font-size: 0.9rem;
-      font-weight: 400;
-      font-family: 'Open Sans', Arial, Helvetica, sans-serif;
-      padding: .15rem 1.5rem .15rem 0.5rem;
-      border: 1px solid var(--border-color);
-      border-radius: 8px;
-      outline: none;
-
-      &:focus {
-        outline: 2px solid var(--link-color);
-        outline-offset: 1px;
-      }
+      max-width: 250px;
+      min-width: 180px;
     }
+  }
+
+  label {
+    font-size: 0.9rem;
+    font-weight: 500;
+    font-family: 'Reddit Sans', Arial, Helvetica, sans-serif;
+    text-transform: uppercase;
   }
 }

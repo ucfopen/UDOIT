@@ -1,87 +1,123 @@
-import React from 'react'
+import React, { useState, useEffect } from 'react'
 import SortableTable from '../SortableTable'
-import ContentPageForm from '../ContentPageForm'
-import { View } from '@instructure/ui-view'
-import { Button } from '@instructure/ui-buttons'
 import Api from '../../Services/Api'
-import { Spinner } from '@instructure/ui-spinner'
-import { Text } from '@instructure/ui-text'
+import ProgressIcon from '../Icons/ProgressIcon'
 
-class UsersPage extends React.Component {
-  constructor(props) {
-    super(props);
+export default function UsersPage({
+  t,
+  settings,
+  accountId,
+  searchTerm,
+  termId
+}) {
 
-    this.headers = [
-      { id: "lmsUserName", text: this.props.t('label.admin.name') },
-      { id: "lmsUserId", text: this.props.t('label.admin.id') },
-      { id: "created", text: this.props.t('label.admin.created') },
-      { id: "lastLogin", text: this.props.t('label.admin.last_login') },
-      // { id: "reportCount", text: this.props.t('label.reports') },
-      { id: "action", text: "", alignText: "end" }
-    ];
+  const headers = [
+    { id: "lmsUserName", text: t('report.header.name') },
+    { id: "lmsUserId", text: t('report.header.lms_id') },
+    { id: "created", text: t('report.header.created') },
+    { id: "lastLogin", text: t('report.header.last_login') },
+    { id: "action", text: "", alignText: "end" }
+  ]
 
-    this.state = {
-      users: [],
-      searchTerm: '',
-      tableSettings: {
-        sortBy: 'lmsUserName',
-        ascending: true,
-        pageNum: 0,
-        rowsPerPage: (localStorage.getItem('rowsPerPage')) ? localStorage.getItem('rowsPerPage') : '10'
-      }
-    }
+  const [users, setUsers] = useState([])
+  const [usersLoaded, setUsersLoaded] = useState(false)
+  const [filteredUsers, setFilteredUsers] = useState([])
+  const [tableSettings, setTableSettings] = useState({
+    sortBy: 'lmsUserName',
+    ascending: true,
+    pageNum: 0,
+    rowsPerPage: (localStorage.getItem('rowsPerPage')) ? localStorage.getItem('rowsPerPage') : '10'
+  })
 
-    this.handleSearchTerm = this.handleSearchTerm.bind(this);
-    this.handleTableSettings = this.handleTableSettings.bind(this)
-    this.handleUserDeauthorize = this.handleUserDeauthorize.bind(this)
+  const getUsers = () => {
+    const api = new Api(settings)
+    api.getAdminUser()
+      .then((responseStr) => responseStr.json())
+      .then((response) => {
+        setUsersLoaded(true)
+        setUsers(response.data)
+      })
   }
 
-  componentDidMount() {
-    if (this.state.users.length === 0) {
-      this.getUsers()
+  useEffect(() => {
+    if (users.length === 0) {
+      getUsers()
     }
+  }, [])
+
+  const handleUserDeauthorize = (user) => {
+    const api = new Api(settings)
+
+    user.hasApiKey = false
+
+    api.updateUser(user)
+      .then((responseStr) => responseStr.json())
+      .then((response) => {
+        let tempUsers = Object.assign({}, users)
+        if (response && response.id) {
+          const ind = users.findIndex((el) => { el.id === response.id })
+          tempUsers[ind] = response
+          setUsers(tempUsers)
+        }
+      })
   }
 
-  getFilteredContent() {
-    const { searchTerm, users } = this.state
-    const { sortBy, ascending } = this.state.tableSettings
+  const handleTableSettings = (setting) => {
+    setTableSettings(Object.assign({}, tableSettings, setting))
+  }
+
+  useEffect(() => {
+    const { sortBy, ascending } = tableSettings
     
-    let filteredList = [];
+    let filteredList = []
 
     for (const user of users) {
       
       //Since usernames won't always be stored, we check for null to avoid crashes
       if(!user.name) {
-        user.name = 'User'
+        user.name = t('report.label.default_name')
       }
 
-      // Filter by search term
+      let excludeUser = false
       if (searchTerm !== '') {
-        if (user.name.toLowerCase().indexOf(searchTerm.toLowerCase()) === -1) {
-          continue
+        const searchTerms = searchTerm.toLowerCase().split(' ');
+        let containsAllTerms = true
+        if (Array.isArray(searchTerms)) {
+          for (let term of searchTerms) {
+            if (!user.name.toLowerCase().includes(term)) {
+              containsAllTerms = false
+            }
+          }
+        }
+        if (!containsAllTerms) {
+          excludeUser = true
         }
       }
 
-      let btnLabel = this.props.t('label.admin.deauthorized')
-      if (user.hasApiKey) {
-        btnLabel = this.props.t('label.admin.force_reauthorize')
+      if(!excludeUser) {
+
+        let btnLabel = t('report.label.deauthorized')
+        if (user.hasApiKey) {
+          btnLabel = t('report.button.force_reauthorize')
+        }
+
+        const action = <button key={`userActionButton${user.id}`}
+          onClick={() => handleUserDeauthorize(user)}
+          disabled={(user.hasApiKey) ? true : false}
+          className='btn btn-primary'>
+            {btnLabel}
+          </button>
+
+        filteredList.push({
+          id: user.id,
+          user,
+          lmsUserId: user.lmsUserId,
+          lmsUserName: user.name,
+          lastLogin: user.lastLogin,
+          created: user.created,
+          action: action
+        })
       }
-
-      const action = <Button key={`userActionButton${user.id}`}
-        onClick={() => this.handleUserDeauthorize(user)}
-        interaction={(user.hasApiKey) ? 'enabled' : 'disabled'}>
-          {btnLabel}
-        </Button>
-
-      filteredList.push({
-        id: user.id,
-        user,
-        lmsUserId: user.lmsUserId,
-        lmsUserName: user.name,
-        lastLogin: user.lastLogin,
-        created: user.created,
-        action: action
-      })
     }
 
     filteredList.sort((a, b) => {
@@ -97,89 +133,44 @@ class UsersPage extends React.Component {
       filteredList.reverse();
     }
 
-    return filteredList;
-  }
+    setFilteredUsers(filteredList);
+  }, [users, searchTerm, tableSettings])
 
-  render() {
-    const filteredRows = this.getFilteredContent();
-
-    if (filteredRows.length === 0) {
-      return (
-        <View as="div" padding="small 0">
-          <ContentPageForm
-            handleSearchTerm={this.handleSearchTerm}
-            searchTerm={this.state.searchTerm}
-            t={this.props.t}
-            handleTableSettings={this.handleTableSettings}
-            tableSettings={this.state.tableSettings}
-            />
-          <View as="div" textAlign="center" padding="medium">
-            <Spinner variant="inverse" renderTitle={this.props.t('label.loading_users')} />
-            <Text as="p" weight="light" size="large">{this.props.t('label.loading_users')}</Text>
-          </View>
-        </View>
-      )
-    } else {
-      return (
-        <View as="div" key="coursesPageFormWrapper" padding="small 0">
-          <ContentPageForm
-            handleSearchTerm={this.handleSearchTerm}
-            searchTerm={this.state.searchTerm}
-            t={this.props.t}
-            handleTableSettings={this.handleTableSettings}
-            tableSettings={this.state.tableSettings}
-            />
-          <SortableTable
-            caption={this.props.t('srlabel.users.table.caption')}
-            headers={this.headers}
-            rows={filteredRows}
-            filters={null}
-            tableSettings={this.state.tableSettings}
-            handleTableSettings={this.handleTableSettings}
-            t={this.props.t}
-          />
-        </View>
-      )
-    }
-  }
-
-  handleSearchTerm = (e, val) => {
-    this.setState({searchTerm: val, tableSettings: Object.assign({}, this.state.tableSettings, {pageNum: 0})});
-  }
-
-  handleTableSettings = (setting) => {
-    this.setState({
-      tableSettings: Object.assign({}, this.state.tableSettings, setting)
-    });
-  }
-
-  handleUserDeauthorize = (user) => {
-    const api = new Api(this.props.settings)
-
-    user.hasApiKey = false
-
-    api.updateUser(user)
-      .then((responseStr) => responseStr.json())
-      .then((response) => {
-        let users = this.state.users
-        if (response && response.id) {
-          const ind = users.findIndex((el) => { el.id === response.id })
-          users[ind] = response
-          this.setState({users})
-        }
-      })
-  }
-
-  getUsers() {
-    const api = new Api(this.props.settings)
-    // TODO: add filtering by account/term
-    //api.getAdminUser(this.props.accountId, this.props.termId)
-    api.getAdminUser()
-      .then((responseStr) => responseStr.json())
-      .then((response) => {
-        this.setState({ users: response.data })
-      })
-  }
+  return (
+    <div className="pt-0 pe-0 pb-0 ps-0">
+      <div className="flex-row justify-content-center mt-3 mb-3">
+        <h1 className="mt-0 mb-0 primary-dark">{t('report.header.users')}</h1>
+      </div>
+      {(!usersLoaded) &&
+        <div className="mt-3 flex-row justify-content-center">
+          <div className="flex-column justify-content-center me-3">
+            <ProgressIcon className="icon-lg udoit-suggestion spinner" />
+          </div>
+          <div className="flex-column justify-content-center">
+            <h2 className="mt-0 mb-0">{t('report.label.loading_users')}</h2>
+          </div>
+        </div>
+      }
+      {(usersLoaded && filteredUsers.length === 0) &&
+        <div className="flex-column mt-3">
+          <div className="flex-row justify-content-center">
+            <h2 className="mt-0 mb-0">{t('report.label.no_results')}</h2>
+          </div>
+          <div className="flex-row justify-content-center mt-2">
+            <div className="mt-0 mb-0">{t('report.msg.no_results')}</div>
+          </div>
+        </div>
+      }
+      {(filteredUsers.length > 0) &&
+        <SortableTable
+          t={t}
+          caption=''
+          headers={headers}
+          rows={filteredUsers}
+          tableSettings={tableSettings}
+          handleTableSettings={handleTableSettings}
+        />
+      }
+    </div>
+  )
 }
-
-export default UsersPage;

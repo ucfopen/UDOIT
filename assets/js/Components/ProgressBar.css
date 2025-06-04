@@ -1,0 +1,22 @@
+/* container */
+progress {
+  width: 100%;
+  height: 12px;
+  border-radius: 10px;
+  overflow: hidden;
+}
+/* background */
+progress::-webkit-progress-bar {
+  background-color: #D3D7DB;
+  border-radius: 10px;
+}
+/* value */
+progress::-webkit-progress-value {
+  background-color: var(--progress-bar-color);
+  border-radius: 10px;
+}
+/* firefox */
+progress::-moz-progress-bar {
+  background-color: var(--progress-bar-color);
+  border-radius: 10px;
+}

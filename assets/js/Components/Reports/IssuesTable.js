@@ -1,112 +1,155 @@
-import React from 'react'
+import React, { useState, useEffect } from 'react'
 import SortableTable from '../SortableTable'
-import { View } from '@instructure/ui-view'
-import { Heading } from '@instructure/ui-heading'
+import { formNameFromRule } from '../../Services/Ufixit'
 
-class IssuesTable extends React.Component {
-    constructor(props) {
-        super(props)
+export default function IssuesTable({
+  t,
+  issues,
+  quickSearchTerm = null,
+  isAdmin
+}) {
 
-        this.headers = [
-            { id: "label", text: this.props.t('label.issue') },
-            { id: "type", text: this.props.t('label.issue_type')},
-            { id: "active", text: this.props.t('label.active') },
-            { id: "fixed", text: this.props.t('label.fixed') },
-            { id: "resolved", text: this.props.t('label.resolved') },
-        ];
+  const headers = [
+    { id: "label", text: t('report.header.issue_type') },
+    { id: "type", text: t('report.header.severity')},
+    { id: "active", text: t('report.header.active'), alignText: 'center' },
+    { id: "fixed", text: t('report.header.fixed'), alignText: 'center' },
+    { id: "resolved", text: t('report.header.resolved'), alignText: 'center' },
+  ]
 
-        if (this.props.isAdmin) {
-            this.headers.push({ id: "courses", text: this.props.t('label.admin.courses') })
-        }
+  if (isAdmin) {
+    headers.push({ id: "courses", text: t('report.header.courses') })
+  }
 
-        // adding this as the last col of the table
-        this.headers.push({ id: "total", text: this.props.t('label.report.total') })
+  // The "total" is always the last column of the table
+  headers.push({ id: "total", text: t('report.header.total'), alignText: 'center' })
 
-        this.state = {
-            tableSettings: {
-                sortBy: 'total',
-                ascending: false,
-                pageNum: 0,
-            }
-        }
+  const [tableSettings, setTableSettings] = useState({
+    sortBy: 'total',
+    ascending: false,
+    pageNum: 0,
+  })
+  const [localIssues, setLocalIssues] = useState([])
+  const [rows, setRows] = useState([])
 
-        this.exportToCSV = this.exportToCSV.bind(this)
-    }
-    
-    handleTableSettings = (setting) => {
-        this.setState({
-            tableSettings: Object.assign({}, this.state.tableSettings, setting)
-        });
-    }
+  const sortContent = () => {
 
-    getContent() {
-        let { issues } = this.props
-        let rows = (issues) ? Object.values(issues) : []
-        const { sortBy, ascending } = this.state.tableSettings
-        
-        rows = rows.map((row) => {
-            row.label = this.props.t(`rule.label.${row.id}`)
-            return row
-        })
+    let tempRows = (issues) ? Object.values(localIssues) : []
+    const { sortBy, ascending } = tableSettings
 
-        rows.sort((a, b) => {
-            if (isNaN(a[sortBy]) || isNaN(b[sortBy])) {
-                return (a[sortBy].toLowerCase() < b[sortBy].toLowerCase()) ? -1 : 1
-            }
-            else {
-                return (Number(a[sortBy]) < Number(b[sortBy])) ? -1 : 1
-            }
-        })
-
-        if (!ascending) {
-            rows.reverse()
-        }
-
-        return rows
-    }
-
-    exportToCSV() {
-        const rows = this.getContent();
-        const headers = this.headers.map(header => header.text);
-        
-        const csvData = [];
-        csvData.push(headers.join(','));
-        
-        rows.forEach(row => {
-          const rowData = this.headers.map(header => {
-            const value = row[header.id];
-            return `"${value}"`;
-          });
-          csvData.push(rowData.join(','));
-        });
-        
-        const csvString = csvData.join('\n');
-        const blob = new Blob([csvString], { type: 'text/csv' });
-        
-        const link = document.createElement('a');
-        link.href = URL.createObjectURL(blob);
-        link.download = 'UDOITIssuesReport.csv';
-        link.click();
+    tempRows.sort((a, b) => {
+      if (isNaN(a[sortBy]) || isNaN(b[sortBy])) {
+        return (a[sortBy].toLowerCase() > b[sortBy].toLowerCase()) ? -1 : 1
       }
+      else {
+        return (Number(a[sortBy]) < Number(b[sortBy])) ? -1 : 1
+      }
+    })
 
-    render() {
-        const rows = this.getContent();
-
-        return (
-            <View as="div">
-                <Heading as="h3" level="h4" margin="small 0">{this.props.t(`label.admin.report.by_issue`)}</Heading>
-                <SortableTable
-                    caption={this.props.t('label.admin.report.by_issue')}
-                    headers={this.headers}
-                    rows={rows}
-                    tableSettings={this.state.tableSettings}
-                    handleTableSettings={this.handleTableSettings}
-                    t={this.props.t}
-                />
-                <button onClick={this.exportToCSV}>Export Issues Table</button>
-            </View>
-        )
+    if (!ascending) {
+      tempRows.reverse()
     }
-}
 
-export default IssuesTable
+    return tempRows
+  }
+
+  const handleTableSettings = (setting) => {
+    setTableSettings(Object.assign({}, tableSettings, setting))
+  }
+
+  useEffect(() => {
+    setRows(sortContent())
+  }, [tableSettings, localIssues])
+
+  useEffect(() => {
+    if (issues) {
+      let tempIssues = Object.values(issues)
+      tempIssues.map((issue => {
+        let label = ''
+        let searchTerm = ''
+        let formName = formNameFromRule(issue.id)
+        if(formName === 'review_only') {
+          label = t('report.label.unhandled') + issue.id
+          searchTerm = issue.id
+        }
+        else {
+          label = t(`form.${formName}.title`)
+          searchTerm = t(`form.${formName}.title`)
+        }
+        issue.label = label
+        if(quickSearchTerm !== null) {
+          issue.onClick = () => quickSearchTerm(searchTerm)
+        }
+        return issue
+      }))
+
+      // Merge the issues with the same labels
+      let mergedIssues = []
+      let labels = []
+      tempIssues.forEach((issue) => {
+        if (!labels.includes(issue.label)) {
+          labels.push(issue.label)
+          if(issue.type === 'error' || issue.type === 'issue') {
+            issue.type = t('report.label.issue')
+          }
+          else if(issue.type === 'potential') {
+            issue.type = t('report.label.potential')
+          }
+          else if(issue.type === 'suggestion') {
+            issue.type = t('report.label.suggestion')
+          }
+          mergedIssues.push(issue)
+        }
+        else {
+          let index = mergedIssues.findIndex((i) => i.label === issue.label)
+          mergedIssues[index].total += issue.total
+          mergedIssues[index].active += issue.active
+          mergedIssues[index].fixed += issue.fixed
+          mergedIssues[index].resolved += issue.resolved
+        }
+      })
+      setLocalIssues(mergedIssues)
+    }
+    else {
+      setLocalIssues([])
+    }
+  }, [issues])
+
+  const exportToCSV = () => {
+
+      const tempHeaders = headers.map(header => header.text);
+
+      const csvData = [];
+      csvData.push(tempHeaders.join(','));
+
+      rows.forEach(row => {
+        const rowData = headers.map(header => {
+          const value = row[header.id];
+          return `"${value}"`;
+        });
+        csvData.push(rowData.join(','));
+      });
+
+      const csvString = csvData.join('\n');
+      const blob = new Blob([csvString], { type: 'text/csv' });
+
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = 'UDOITIssuesReport.csv';
+      link.click();
+    }
+
+  return (
+    <>
+      <SortableTable
+        caption={t('report.title.issues_by_type')}
+        headers={headers}
+        rows={rows}
+        tableSettings={tableSettings}
+        handleTableSettings={handleTableSettings}
+        t={t}
+      />
+      <button onClick={() => exportToCSV()}>Export CSV</button>
+    </>
+  )
+}

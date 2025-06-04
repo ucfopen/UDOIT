@@ -1,21 +1,15 @@
 import React, { useState, useEffect } from 'react'
-import { View } from '@instructure/ui-view'
-import { Flex } from '@instructure/ui-flex'
-import { Text } from '@instructure/ui-text'
-import { Heading } from '@instructure/ui-heading'
 
 import Api from '../Services/Api'
-import { Spinner } from '@instructure/ui-spinner'
-
 import ResolutionsReport from './Reports/ResolutionsReport'
 import ReportsTable from './Reports/ReportsTable'
 import IssuesTable from './Reports/IssuesTable'
+import ProgressIcon from './Icons/ProgressIcon'
 
-import './ReportsPage.css'
-
-export default function ReportsPage({t, report, settings}) {
+export default function ReportsPage({t, report, settings, quickSearchTerm}) {
 
   const [reports, setReports] = useState([])
+  const [fetchedReports, setFetchedReports] = useState(false)
   const [issues, setIssues] = useState([])
   const [chartVisibility, setChartVisibility] = useState({
     issues: true,
@@ -29,6 +23,7 @@ export default function ReportsPage({t, report, settings}) {
       .then((responseStr) => responseStr.json())
       .then((response) => {
         setReports(response.data)
+        setFetchedReports(true)
       })
   }
 
@@ -39,7 +34,7 @@ export default function ReportsPage({t, report, settings}) {
     for (let issue of report.issues) {
       const rule = issue.scanRuleId
       const status = issue.status
-      
+
       if (!rules[rule]) {
         rules[rule] = {
           id: rule,
@@ -77,10 +72,8 @@ export default function ReportsPage({t, report, settings}) {
   }, [report])
 
   const toggleChartVisibility = (chart) => {
-    setChartVisibility(prevState => ({
-      ...prevState,
-      [chart]: !prevState[chart]
-    }))
+    const tempVisibility = Object.assign({}, chartVisibility, {[chart]: !chartVisibility[chart]})
+    setChartVisibility(tempVisibility)
   }
 
   const getPrintableReportsTable = (reports, t) => {
@@ -92,17 +85,17 @@ export default function ReportsPage({t, report, settings}) {
       { id: "contentResolved", text: t('label.content_resolved') },
       { id: "filesReviewed", text: t('label.files_reviewed') }
     ]
-  
+
     const sortedReports = [...reports].sort((a, b) => {
       return new Date(b.created) - new Date(a.created)
     })
-  
+
     const tableHeaders = headers.map(h => `<th>${h.text}</th>`).join('')
     const tableRows = sortedReports.map(row => {
       const cells = headers.map(h => `<td>${row[h.id] != null ? row[h.id] : ''}</td>`).join('')
       return `<tr>${cells}</tr>`
     }).join('')
-  
+
     return `
       <h3>${t('label.report_history')}</h3>
       <table border="1" cellpadding="8" cellspacing="0" style="width:100%; border-collapse: collapse;">
@@ -120,24 +113,24 @@ export default function ReportsPage({t, report, settings}) {
       { id: "fixed", text: t('label.fixed') },
       { id: "resolved", text: t('label.resolved') },
     ]
-  
+
     headers.push({ id: "total", text: t('label.report.total') })
-  
+
     let rows = issues ? Object.values(issues) : []
-  
+
     rows = rows.map((row) => ({
       ...row,
       label: t(`rule.label.${row.id}`)
     }))
-  
+
     rows.sort((a, b) => Number(b.total) - Number(a.total))
-  
+
     const tableHeaders = headers.map(h => `<th>${h.text}</th>`).join('')
     const tableRows = rows.map(row => {
       const cells = headers.map(h => `<td>${row[h.id] != null ? row[h.id] : ''}</td>`).join('')
       return `<tr>${cells}</tr>`
     }).join('')
-  
+
     return `
       <h3>${t('label.admin.report.by_issue')}</h3>
       <table border="1" cellpadding="8" cellspacing="0" style="width:100%; border-collapse: collapse;">
@@ -211,75 +204,97 @@ export default function ReportsPage({t, report, settings}) {
     printWindow.document.close()
   }
 
-  if (reports.length === 0) {
-    return (
-      <View as="div" padding="small 0">
-        <View as="div" textAlign="center" padding="medium">
-          <Spinner variant="inverse" renderTitle={t('label.loading_reports')} />
-          <Text as="p" weight="light" size="large">{t('label.loading_reports')}</Text>
-        </View>
-      </View>
-    )
-  } else {
-    return (
-      <View as="div" padding="small 0">
-        <Heading>{t('label.reports')}</Heading>
-        <View as="div" margin="0 0 large 0">
-          <Flex justifyItems="space-between" alignItems="start">
-            <Flex.Item width="28%" padding="0">
-              <h3>Options</h3>
-              <p>
-                <input 
-                  type="checkbox" 
-                  id="issuesToggle" 
-                  checked={chartVisibility.issues} 
-                  onChange={() => toggleChartVisibility('issues')}
-                />
-                <label htmlFor="issuesToggle"> Show issues</label>
-              </p>
-              <p>
-                <input 
-                  type="checkbox" 
-                  id="potentialIssuesToggle" 
-                  checked={chartVisibility.potentialIssues} 
-                  onChange={() => toggleChartVisibility('potentialIssues')}
-                />
-                <label htmlFor="potentialIssuesToggle"> Show potential issues</label>
-              </p>
-              <p>
-                <input 
-                  type="checkbox" 
-                  id="suggestionsToggle" 
-                  checked={chartVisibility.suggestions} 
-                  onChange={() => toggleChartVisibility('suggestions')}
-                />
-                <label htmlFor="suggestionsToggle"> Show suggestions</label>
-              </p>
-            </Flex.Item>
-            <Flex.Item width="70%" padding="0">
-              <View as="div" className="ResolutionsReport">
-                <ResolutionsReport t={t} reports={reports} visibility={chartVisibility} />
-              </View>
-            </Flex.Item>
-          </Flex>
-        </View>
-        <View as="div" margin="large 0">
-          <IssuesTable
-            issues={issues}
-            settings={settings}
-            t={t}
-          />
-        </View>
-        <View as="div" margin="large 0">
-          <ReportsTable
-            reports={reports}
-            t={t}
-          />
-        </View>
-        <View as="div" margin="large auto 0 0" display="flex" justifyContent="right">
-          <button onClick={printReport} margin="0" color="white" background="#2C8AC1">Print Report</button>
-        </View>
-      </View>
-    )
-  }
+  return (
+    <main>
+      <h1 className="primary-dark">{t('menu.reports')}</h1>
+      { (!fetchedReports) && (
+        <div className="mt-3 mb-3 flex-row justify-content-center">
+          <div className="flex-column justify-content-center me-3">
+            <ProgressIcon className="icon-lg udoit-suggestion spinner" />
+          </div>
+          <div className="flex-column justify-content-center">
+            <h2 className="mt-0 mb-0">{t('report.label.loading_reports')}</h2>
+          </div>
+        </div>
+      )}
+      { (fetchedReports && reports.length === 0) && (
+        <div className="flex-row justify-content-center mt-3">
+          <h2 className="mt-0 mb-0">{t('report.label.no_results')}</h2>
+        </div>
+      )}
+
+      { (fetchedReports && reports.length > 0) && (
+        <div className="flex-column">
+          <div className="flex-row justify-content-between gap-3">
+
+            <div className="flex-column flex-shrink-0 flex-grow-1">
+              <div className="flex-row justify-content-center">
+                <h2 className="primary-dark mt-0 mb-3">{t('report.title.barriers_remaining')}</h2>
+              </div>
+              <ResolutionsReport t={t} reports={reports} visibility={chartVisibility} />
+            </div>
+
+            <div className="flex-column justify-content-start">
+              <div className="callout-container">
+                <h3 className="primary-dark mt-0">{t('report.title.options')}</h3>
+                <div className="flex-row gap-1 mb-2">
+                  <input
+                    type="checkbox"
+                    id="issuesToggle"
+                    name="issuesToggle"
+                    tabindex="0"
+                    checked={chartVisibility.issues}
+                    onChange={() => toggleChartVisibility('issues')}
+                  />
+                  <label htmlFor="issuesToggle">{t('report.option.show_issues')}</label>
+                </div>
+                <div className="flex-row gap-1 mb-2">
+                  <input
+                    type="checkbox"
+                    id="potentialIssuesToggle"
+                    name="potentialIssuesToggle"
+                    tabindex="0"
+                    checked={chartVisibility.potentialIssues}
+                    onChange={() => toggleChartVisibility('potentialIssues')}
+                  />
+                  <label htmlFor="potentialIssuesToggle">{t('report.option.show_potential')}</label>
+                </div>
+                <div className="flex-row gap-1">
+                  <input
+                    type="checkbox"
+                    id="suggestionsToggle"
+                    name="suggestionsToggle"
+                    tabindex="0"
+                    checked={chartVisibility.suggestions}
+                    onChange={() => toggleChartVisibility('suggestions')}
+                  />
+                  <label htmlFor="suggestionsToggle">{t('report.option.show_suggestions')}</label>
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+          <div className="mt-4">
+            <IssuesTable
+              t={t}
+              settings={settings}
+              quickSearchTerm={quickSearchTerm}
+              issues={issues}/>
+          </div>
+
+          <div className="mt-4">
+            <ReportsTable
+              t={t}
+              reports={reports}/>
+          </div>
+
+          <div className="flex-row justify-content-end mt-3 mb-2 gap-2">
+            <button className="btn btn-primary" onClick={()=> printReport()}>{t('report.button.print')}</button>
+          </div>
+
+        </div>
+      )}
+    </main>
+  )
 }

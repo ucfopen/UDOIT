@@ -1,46 +1,51 @@
-import React from 'react'
+import React, { useState, useEffect } from 'react'
 import SortableTable from '../SortableTable'
-import { View } from '@instructure/ui-view'
-import { Heading } from '@instructure/ui-heading'
 
-class ReportsTable extends React.Component {
-  constructor(props) {
-    super(props)
+export default function ReportsTable({
+  t,
+  reports,
+  isAdmin
+}) {
 
-    this.headers = [
-      { id: "created", text: this.props.t('label.date') },
-      { id: "errors", text: this.props.t('label.plural.error') },
-      { id: "suggestions", text: this.props.t('label.plural.suggestion') },
-      { id: "contentFixed", text: this.props.t('label.content_fixed') },
-      { id: "contentResolved", text: this.props.t('label.content_resolved') },
-      { id: "filesReviewed", text: this.props.t('label.files_reviewed')}
-    ];
+  const headers = [
+    { id: "created", text: t('report.header.date') },
+    { id: "errors", text: t('report.header.issues'), alignText: 'center' },
+    { id: "potentialIssues", text: t('report.header.potential'), alignText: 'center' },
+    { id: "suggestions", text: t('report.header.suggestions'), alignText: 'center' },
+    { id: "contentFixed", text: t('report.header.items_fixed'), alignText: 'center' },
+    { id: "contentResolved", text: t('report.header.items_resolved'), alignText: 'center' },
+    { id: "filesReviewed", text: t('report.header.files_reviewed'), alignText: 'center'}
+  ]
 
-    if (this.props.isAdmin) {
-      this.headers.push({ id: "count", text: this.props.t('label.admin.courses') })
+  if (isAdmin) {
+    headers.push({ id: "count", text: t('report.header.courses') })
+  }
+
+  const [tableSettings, setTableSettings] = useState({
+    sortBy: 'created',
+    ascending: false,
+    pageNum: 0,
+  })
+  const [rows, setRows] = useState([])
+
+  const getContent = () => {
+    let list = reports
+    if (!list) {
+      return []
     }
 
-    this.state = {
-      tableSettings: {
-        sortBy: 'created',
-        ascending: false,
-        pageNum: 0,
+    list = list.map((report) => {
+      if(report.scanCounts) {
+        report.issues = report.scanCounts.issues
+        report.potentialIssues = report.scanCounts.potentials
+        report.suggestions = report.scanCounts.suggestions
       }
-    }
-
-    this.getContent = this.getContent.bind(this)
-    this.exportToCSV = this.exportToCSV.bind(this)
-  }
-
-  handleTableSettings = (setting) => {
-    this.setState({
-      tableSettings: Object.assign({}, this.state.tableSettings, setting)
-    });
-  }
-
-  getContent() {
-    let list = this.props.reports;
-    const { sortBy, ascending } = this.state.tableSettings;
+      else {
+        report.potentialIssues = 0
+      }
+      return report
+    })
+    const { sortBy, ascending } = tableSettings
 
     list.sort((a, b) => {
       if (isNaN(a[sortBy]) || isNaN(b[sortBy])) {
@@ -58,48 +63,48 @@ class ReportsTable extends React.Component {
     return list;
   }
 
-  exportToCSV() {
-    const rows = this.getContent();
-    const headers = this.headers.map(header => header.text);
-    
+  const exportToCSV = () => {
+    const tempHeaders = headers.map(header => header.text);
+
     const csvData = [];
-    csvData.push(headers.join(','));
-    
+    csvData.push(tempHeaders.join(','));
+
     rows.forEach(row => {
-      const rowData = this.headers.map(header => {
+      const rowData = headers.map(header => {
         const value = row[header.id];
         return `"${value}"`;
       });
       csvData.push(rowData.join(','));
     });
-    
+
     const csvString = csvData.join('\n');
     const blob = new Blob([csvString], { type: 'text/csv' });
-    
+
     const link = document.createElement('a');
     link.href = URL.createObjectURL(blob);
     link.download = 'UDOITHistoryReport.csv';
     link.click();
   }
 
-  render() {
-    const rows = this.getContent();
-    
-    return (
-      <View as="div" key="reportsTableWrapper">
-        <Heading as="h3" level="h4" margin="small 0">{this.props.t('label.report_history')}</Heading>
-        <SortableTable
-          caption={this.props.t('udoit.reports.table.caption')}
-          headers={this.headers}
-          rows={rows}
-          tableSettings={this.state.tableSettings}
-          handleTableSettings={this.handleTableSettings}
-          t={this.props.t}
-        />
-        <button onClick={this.exportToCSV}>Export History Table</button>
-      </View>
-    )
+  const handleTableSettings = (setting) => {
+    setTableSettings(Object.assign({}, tableSettings, setting))
   }
-}
 
-export default ReportsTable;
+  useEffect(() => {
+    setRows(getContent())
+  }, [tableSettings, reports])
+
+  return (
+    <>
+      <SortableTable
+        caption={t('report.title.scan_history')}
+        headers={headers}
+        rows={getContent()}
+        tableSettings={tableSettings}
+        handleTableSettings={handleTableSettings}
+        t={t}
+      />
+      <button onClick={()=>exportToCSV()}>Print to CSV</button>
+    </>
+  )
+}
