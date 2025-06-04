@@ -15,7 +15,7 @@ use App\Services\LmsUserService;
 use App\Services\SessionService;
 use App\Services\UtilityService;
 use Doctrine\ORM\EntityManagerInterface;
-use Symfony\Component\Security\Core\Security;
+use Symfony\Bundle\SecurityBundle\Security;
 
 class D2lLms implements LmsInterface {
 
@@ -189,6 +189,13 @@ class D2lLms implements LmsInterface {
         }
 
         $this->entityManager->flush();  
+    }
+
+    public function getCourseSections(Course $course, User $user)
+    {
+        $lmsItems = [];
+
+        return $lmsItems;
     }
 
     public function updateCourseContent(Course $course, User $user)

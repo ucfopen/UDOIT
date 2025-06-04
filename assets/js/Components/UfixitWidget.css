@@ -1,0 +1,39 @@
+.ufixit-form-container {
+  display: block;
+}
+
+.ufixit-learn-container {
+  a {
+    color: var(--link-color);
+    font-weight: 500;
+  }
+
+  p:first-child {
+    margin-top: 0;
+  }
+}
+
+.ufixit-widget-toggle-view-container {
+  width: 100%;
+  padding: .2rem 0px;
+  cursor: pointer;
+
+  color: var(--primary-color-dark);
+  fill: var(--primary-color-dark);
+  font-weight: 500;
+
+  background-color: var(--primary-color-light);
+  border-top: 2px solid var(--primary-color-dark);
+  border-bottom: 1px solid var(--primary-color-dark);
+}
+
+.ufixit-widget-resolve-container {
+  display: flex;
+  flex-direction: column;
+
+  background-color: var(--white);
+  border: 2px solid var(--border-color);
+  border-radius: 8px;
+
+  padding: .5rem .5rem;
+}

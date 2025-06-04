@@ -10,6 +10,8 @@ use App\Entity\Report;
 use App\Entity\User;
 use App\Services\LmsApiService;
 use App\Services\PhpAllyService;
+use App\Services\EqualAccessService;
+use App\Services\ScannerService;
 use CidiLabs\PhpAlly\PhpAllyIssue;
 use Doctrine\Persistence\ManagerRegistry;
 
@@ -22,6 +24,15 @@ class LmsFetchService {
 
     /** @var PhpAllyService $phpAllyService */
     private $phpAlly;
+
+    /** @var ScannerService $scannerService */
+    private $scanner;
+
+    /** @var EqualAccessService $equalAccessService */
+    private $equalAccess;
+
+    /** @var AsyncEqualAccessReport $asyncEqualAccessReport */
+    private $asyncReport;
 
     /** @var ManagerRegistry $doctrine */
     protected $doctrine;
@@ -36,6 +47,9 @@ class LmsFetchService {
         LmsApiService $lmsApi,
         LmsUserService $lmsUser,
         PhpAllyService $phpAlly,
+        EqualAccessService $equalAccess,
+        AsyncEqualAccessReport $asyncReport,
+        ScannerService $scanner,
         ManagerRegistry $doctrine,
         UtilityService $util
     )
@@ -43,6 +57,10 @@ class LmsFetchService {
         $this->lmsApi = $lmsApi;
         $this->lmsUser = $lmsUser;
         $this->phpAlly = $phpAlly;
+        $this->scanner = $scanner;
+        $this->equalAccess = $equalAccess;
+        $this->asyncReport = $asyncReport;
+        $this->scanner = $scanner;
         $this->doctrine = $doctrine;
         $this->util = $util;
     }
@@ -81,6 +99,7 @@ class LmsFetchService {
 
         /* Step 2: Get list of changed content items */
         $contentItems = $contentItemRepo->getUpdatedContentItems($course);
+        $contentSections = $lms->getCourseSections($course, $user);
 
         /* Step 3: Delete issues for updated content items */
         $this->deleteContentItemIssues($contentItems);
@@ -94,6 +113,7 @@ class LmsFetchService {
         /* Save last_updated date on course */
         $course->setLastUpdated($this->util->getCurrentTime());
         $course->setDirty(false);
+
         $this->doctrine->getManager()->flush();
     }
 
@@ -104,6 +124,12 @@ class LmsFetchService {
     //     $lms->updateContentItem($contentItem);
     //     $this->doctrine->getManager()->flush();
     // }
+
+    public function getCourseSections(Course $course, User $user)
+    {
+        $lms = $this->lmsApi->getLms($user);
+        return $lms->getCourseSections($course, $user);
+    }
 
     // Update report, or create new one for a new day
     public function updateReport(Course $course, User $user): Report
@@ -180,34 +206,51 @@ class LmsFetchService {
     // Performs PHPAlly scan on each Content Item.
     private function scanContentItems(array $contentItems)
     {
+        $scanner = $_ENV['ACCESSIBILITY_CHECKER'];
+        $equalAccessReports = null;
+
+        // If we're using Equal Access Lambda, send all the requests to Lambda for the
+        // reports at once and save them all into an array (which should be in the same order as the ContentItems)
+        if ($scanner == "equalaccess_lambda" && count($contentItems) > 0) {
+            // $equalAccessReports = $this->asyncReport->postMultipleAsync($contentItems);
+            $equalAccessReports = $this->asyncReport->postMultipleArrayAsync($contentItems);
+        }
+
         // Scan each update content item for issues
         /** @var \App\Entity\ContentItem $contentItem */
-        foreach ($contentItems as $contentItem) {
-            try {
-                // Scan Content Item with PHPAlly
-                $phpAllyReport = $this->phpAlly->scanContentItem($contentItem);
 
-                if ($phpAllyReport) {
+        $index = 0;
+        foreach ($contentItems as $contentItem) {
+
+            try {
+                // Scan the content item with the scanner set in the environment.
+                $report = $this->scanner->scanContentItem($contentItem, $equalAccessReports == null ? null : $equalAccessReports[$index++], $this->util);
+
+                if ($report) {
                     // TODO: Do something with report errors
-                    if (count($phpAllyReport->getErrors())) {
-                        foreach ($phpAllyReport->getErrors() as $error) {
+                    if (count($report->getErrors())) {
+                        foreach ($report->getErrors() as $error) {
                             $msg = $error . ', item = #' . $contentItem->getId();
                             $this->util->createMessage($msg, 'error', $contentItem->getCourse(), null, true);
                         }
                     }
 
                     // Add Issues to report
-                    foreach ($phpAllyReport->getIssues() as $issue) {
+                    foreach ($report->getIssues() as $issue) {
                         // Create issue entity
                         $this->createIssue($issue, $contentItem);
                     }
                 }
+
+                // $this->scanner->logToServer("done!");
             }
             catch (\Exception $e) {
                 $this->util->createMessage($e->getMessage(), 'error', null, null, true);
             }
         }
         $this->doctrine->getManager()->flush();
+
+        // $this->scanner->logToServer("done!!!!!!!!!\n");
     }
 
     public function createIssue(PhpAllyIssue $issue, ContentItem $contentItem)

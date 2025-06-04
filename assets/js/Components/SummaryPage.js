@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { Table } from '@instructure/ui-table'
 import { Text } from '@instructure/ui-text'
 import { View } from '@instructure/ui-view'
@@ -11,30 +11,15 @@ import Classes from '../../css/theme-overrides.css'
 
 import SummaryForm from './SummaryForm'
 
-class SummaryPage extends React.Component {
+export default function SummaryPage({ report, t, handleAppFilters, handleNavigation, settings }) {
 
-  constructor(props) {
-    super(props);
-
-    this.state = {
-      showMoreSummary: false
-    }
-
-    //this.handleIssueTypeLink = this.handleIssueTypeLink.bind(this)
-    //this.handleShowMore = this.handleShowMore.bind(this)
-  }
-
-  processReportData(report) {
+  const processReportData = () => {
     let issueResults = {
-      error: {},
-      suggestion: {}
-    };
-
-    this.contentResults = {};
-    this.issueResults = {
       error: [],
       suggestion: []
     };
+
+    let contentResults = {};
 
     if (report && report.issues) {
       for (let issueId in report.issues) {
@@ -46,13 +31,13 @@ class SummaryPage extends React.Component {
         }
 
         if (contentItem && contentItem.contentType) {
-          if (!this.contentResults[contentItem.contentType]) {
-            this.contentResults[contentItem.contentType] = {
+          if (!contentResults[contentItem.contentType]) {
+            contentResults[contentItem.contentType] = {
               error: 0,
               suggestion: 0
             };
           }
-          this.contentResults[contentItem.contentType][issue.type]++;
+          contentResults[contentItem.contentType][issue.type]++;
         }
 
         if(!issueResults[issue.type].hasOwnProperty(issue.scanRuleId)) {
@@ -64,66 +49,29 @@ class SummaryPage extends React.Component {
 
       for (const type in issueResults) {
         for (const ruleId in issueResults[type]) {
-          this.issueResults[type].push([ruleId, issueResults[type][ruleId]]);
+          issueResults[type].push([ruleId, issueResults[type][ruleId]]);
         }
       }
 
-      this.issueResults.error.sort((a, b) => (a[1] > b[1]) ? -1 : 1 );
-      this.issueResults.suggestion.sort((a, b) => (a[1] > b[1]) ? -1 : 1);
+      issueResults.error.sort((a, b) => (a[1] > b[1]) ? -1 : 1 );
+      issueResults.suggestion.sort((a, b) => (a[1] > b[1]) ? -1 : 1);
     }
+
+    return { issueResults, contentResults }
   }
 
-  render() {
-    const report = this.props.report
-    const infoLabel = (this.state.showMoreSummary) ? 'label.less_info' : 'label.more_info'
-
-    return (
-      <View as="div">
-        {/* <Heading margin="0 0 small 0">{this.props.t('label.summary')}</Heading> */}
-        <DrawerLayout>
-          <DrawerLayout.Content label={this.props.t('label.summary')}>
-            <View as="div" padding="0 0 medium 0">
-              <View as="div" margin="large">
-                <MetricGroup lineHeight="2">
-                  <Metric renderLabel={this.props.t('label.plural.fixed')} renderValue={report.contentFixed} />
-                  <Metric renderLabel={this.props.t('label.manually_resolved')} renderValue={report.contentResolved} />
-                  <Metric renderLabel={this.props.t('label.files_reviewed')} renderValue={report.filesReviewed} />
-                </MetricGroup>
-              </View>
-            </View>
-            {this.renderSummaryTables()}
-          </DrawerLayout.Content>
-          <DrawerLayout.Tray
-            id="summaryTray"
-            open={true}
-            border={false}
-            shadow={false}
-            placement="end"
-            label={this.props.t('label.summary.tray')}
-          >
-            <View as="div"
-              width="320px"
-              borderColor="brand"
-              borderWidth="small"
-              borderRadius="large"
-              margin="medium 0 0 0"
-              >
-              <SummaryForm
-                t={this.props.t}
-                report={report}
-                handleAppFilters={this.props.handleAppFilters}
-                handleNavigation={this.props.handleNavigation}
-                settings={this.props.settings} />
-            </View>
-          </DrawerLayout.Tray>
-        </DrawerLayout>
-      </View>
-    )
+  const handleIssueTitleLink = (ruleId) => {
+    handleAppFilters({issueTitles: [ruleId]});
+    handleNavigation('content');
   }
 
-  renderSummaryTables() {
-    const report = this.props.report;
-    this.processReportData(report)
+  const handleMetricClick = (val) => {
+    handleAppFilters({issueTypes: [val] })
+    handleNavigation('content')
+  }
+
+  const renderSummaryTables = () => {
+    const { issueResults, contentResults } = processReportData()
     const maxRows = 3
 
     return (
@@ -131,11 +79,11 @@ class SummaryPage extends React.Component {
         <View as="div" margin="small 0">
           <Text size="large">
             <IconNoLine className={Classes.error} />
-            <View padding="0 small">{`${report.errors} ${this.props.t(`label.plural.error`)}`}</View>
+            <View padding="0 small">{`${report.errors} ${t(`label.plural.error`)}`}</View>
           </Text>
         </View>
         <Table
-          caption={this.props.t('label.plural.error')}
+          caption={t('label.plural.error')}
           layout="auto"
           hover={true}
           margin="0 0 large 0"
@@ -143,30 +91,30 @@ class SummaryPage extends React.Component {
           <Table.Head>
             <Table.Row>
               <Table.ColHeader id="issuesError">
-                {this.props.t(`label.most_common`) + ' ' + this.props.t(`label.plural.error`)}
+                {t(`label.most_common`) + ' ' + t(`label.plural.error`)}
               </Table.ColHeader>
             </Table.Row>
           </Table.Head>
           <Table.Body>
-            {this.issueResults['error'].map((val, ind) => {
+            {issueResults['error'].map((val, ind) => {
               if (ind >= maxRows) {
                 return
               }
 
               return (
                 <Table.Row key={ind}>
-                  <Table.Cell key={ind} onClick={() => this.handleIssueTitleLink(val[0])}>
+                  <Table.Cell key={ind} onClick={() => handleIssueTitleLink(val[0])}>
                     <Flex justifyItems="space-between">
                       <Flex.Item shouldGrow shouldShrink>
                         <View as="div">
                           <View display="inline-block" width="30px" textAlign="center" className={Classes.error}>
                             {val[1]}
                           </View>
-                          <View padding="0 x-small">{this.props.t(`rule.label.${val[0]}`)}</View>
+                          <View padding="0 x-small">{t(`rule.label.${val[0]}`)}</View>
                         </View>
                       </Flex.Item>
                       <Flex.Item>
-                        <View as="div" onClick={() => this.handleIssueTitleLink(val[0])}>
+                        <View as="div" onClick={() => handleIssueTitleLink(val[0])}>
                           <IconArrowOpenEndLine />
                         </View>
                       </Flex.Item>
@@ -180,11 +128,11 @@ class SummaryPage extends React.Component {
         <View as="div" padding="large 0 small 0">
           <Text size="large">
             <IconInfoBorderlessLine className={Classes.suggestion} />
-            <View padding="0 small">{`${report.suggestions} ${this.props.t(`label.plural.suggestion`)}`}</View>
+            <View padding="0 small">{`${report.suggestions} ${t(`label.plural.suggestion`)}`}</View>
           </Text>
         </View>
         <Table
-          caption={this.props.t('label.plural.suggestion')}
+          caption={t('label.plural.suggestion')}
           layout="auto"
           hover={true}
           margin="0 0 medium 0"
@@ -192,26 +140,26 @@ class SummaryPage extends React.Component {
           <Table.Head>
             <Table.Row>
               <Table.ColHeader id="issuesSuggestion">
-                {this.props.t(`label.most_common`) + ' ' + this.props.t(`label.plural.suggestion`)}
+                {t(`label.most_common`) + ' ' + t(`label.plural.suggestion`)}
               </Table.ColHeader>
             </Table.Row>
           </Table.Head>
           <Table.Body>
-            {this.issueResults['suggestion'].map((val, ind) => {
+            {issueResults['suggestion'].map((val, ind) => {
               if (ind >= maxRows) {
                 return
               }
 
               return (
                 <Table.Row key={ind}>
-                  <Table.Cell key={ind} onClick={() => this.handleIssueTitleLink(val[0])}>
+                  <Table.Cell key={ind} onClick={() => handleIssueTitleLink(val[0])}>
                     <Flex justifyItems="space-between">
                       <Flex.Item shouldGrow shouldShrink>
                         <View as="div">
                           <View display="inline-block" width="30px" textAlign="center" className={Classes.suggestion}>
                             {val[1]}
                           </View>
-                          <View padding="0 x-small">{this.props.t(`rule.label.${val[0]}`)}</View>
+                          <View padding="0 x-small">{t(`rule.label.${val[0]}`)}</View>
                         </View>
                       </Flex.Item>
                       <Flex.Item>
@@ -228,24 +176,46 @@ class SummaryPage extends React.Component {
     )
   }
 
-  // handleShowMore(e) {
-  //   this.setState({ showMoreSummary: !this.state.showMoreSummary })
-  // }
-
-  // handleIssueTypeLink(contentType, issueType) {
-  //   this.props.handleAppFilters({contentTypes: [contentType], issueTypes: [issueType]});
-  //   this.props.handleNavigation('content');
-  // }
-
-  handleIssueTitleLink(ruleId) {
-    this.props.handleAppFilters({issueTitles: [ruleId]});
-    this.props.handleNavigation('content');
-  }
-
-  handleMetricClick(val) {
-    this.props.handleAppFilters({issueTypes: [val] })
-    this.props.handleNavigation('content')
-  }
+  return (
+    <View as="div">
+      {/* <Heading margin="0 0 small 0">{t('label.summary')}</Heading> */}
+      <DrawerLayout>
+        <DrawerLayout.Content label={t('label.summary')}>
+          <View as="div" padding="0 0 medium 0">
+            <View as="div" margin="large">
+              <MetricGroup lineHeight="2">
+                <Metric renderLabel={t('label.plural.fixed')} renderValue={report.contentFixed} />
+                <Metric renderLabel={t('label.manually_resolved')} renderValue={report.contentResolved} />
+                <Metric renderLabel={t('label.files_reviewed')} renderValue={report.filesReviewed} />
+              </MetricGroup>
+            </View>
+          </View>
+          { renderSummaryTables() }
+        </DrawerLayout.Content>
+        <DrawerLayout.Tray
+          id="summaryTray"
+          open={true}
+          border={false}
+          shadow={false}
+          placement="end"
+          label={t('label.summary.tray')}
+        >
+          <View as="div"
+            width="320px"
+            borderColor="brand"
+            borderWidth="small"
+            borderRadius="large"
+            margin="medium 0 0 0"
+            >
+            <SummaryForm
+              t={t}
+              report={report}
+              handleAppFilters={handleAppFilters}
+              handleNavigation={handleNavigation}
+              settings={settings} />
+          </View>
+        </DrawerLayout.Tray>
+      </DrawerLayout>
+    </View>
+  )
 }
-
-export default SummaryPage;

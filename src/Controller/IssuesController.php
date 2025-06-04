@@ -5,12 +5,14 @@ namespace App\Controller;
 use App\Entity\Issue;
 use App\Response\ApiResponse;
 use App\Services\LmsPostService;
+use App\Services\EqualAccessService;
 use App\Services\PhpAllyService;
 use App\Services\UtilityService;
 use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Console\Output\ConsoleOutput;
 
 class IssuesController extends ApiController
 {
@@ -157,13 +159,15 @@ class IssuesController extends ApiController
     }
 
     // Rescan an issue in PhpAlly
+    // TODO: implement equal access into this
     #[Route('/api/issues/{issue}/scan', name: 'scan_issue')]
-    public function scanIssue(Issue $issue, PhpAllyService $phpAlly, UtilityService $util)
+    public function scanIssue(Issue $issue, PhpAllyService $phpAlly, UtilityService $util, EqualAccessService $equalAccess)
     {
         $apiResponse = new ApiResponse();
 
         $issueRule = 'CidiLabs\\PhpAlly\\Rule\\'.$issue->getScanRuleId();
         $report = $phpAlly->scanHtml($issue->getHtml(), [$issueRule], $issue->getContentItem()->getCourse()->getInstitution());
+        // $equalAccess->logToServer("scanIssue in issuescontroller");
 
         $reportIssues = $report->getIssues();
         $reportErrors = $report->getErrors();
@@ -194,5 +198,30 @@ class IssuesController extends ApiController
         }
 
         return new JsonResponse($apiResponse);
+    }
+
+    // Get an issue's corresponding content item
+    #[Route('/api/issues/{issue}/content', methods: ['GET'], name: 'get_issue_content')]
+    public function getIssueContent(Issue $issue)
+    {
+
+      $apiResponse = new ApiResponse();
+      $contentItem = $issue->getContentItem();
+
+      try {
+        $apiResponse->setData([
+            'contentItem' => [
+                'id' => $contentItem->getId(),
+                'title' => $contentItem->getTitle(),
+                'contentType' => $contentItem->getContentType(),
+                'url' => $contentItem->getUrl(),
+                'body' => $contentItem->getBody(),
+            ]
+        ]);
+      } catch (\Exception $e) {
+        $apiResponse->addError($e->getMessage());
+      }
+
+      return new JsonResponse($apiResponse);
     }
 }

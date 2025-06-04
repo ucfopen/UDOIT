@@ -29,6 +29,8 @@ class IssuesTable extends React.Component {
                 pageNum: 0,
             }
         }
+
+        this.exportToCSV = this.exportToCSV.bind(this)
     }
     
     handleTableSettings = (setting) => {
@@ -63,6 +65,30 @@ class IssuesTable extends React.Component {
         return rows
     }
 
+    exportToCSV() {
+        const rows = this.getContent();
+        const headers = this.headers.map(header => header.text);
+        
+        const csvData = [];
+        csvData.push(headers.join(','));
+        
+        rows.forEach(row => {
+          const rowData = this.headers.map(header => {
+            const value = row[header.id];
+            return `"${value}"`;
+          });
+          csvData.push(rowData.join(','));
+        });
+        
+        const csvString = csvData.join('\n');
+        const blob = new Blob([csvString], { type: 'text/csv' });
+        
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = 'UDOITIssuesReport.csv';
+        link.click();
+      }
+
     render() {
         const rows = this.getContent();
 
@@ -77,6 +103,7 @@ class IssuesTable extends React.Component {
                     handleTableSettings={this.handleTableSettings}
                     t={this.props.t}
                 />
+                <button onClick={this.exportToCSV}>Export Issues Table</button>
             </View>
         )
     }

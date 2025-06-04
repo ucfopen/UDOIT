@@ -1,242 +1,206 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Select } from '@instructure/ui-select'
 import { Tag } from '@instructure/ui-tag'
 import { Alert } from '@instructure/ui-alerts'
 import { View } from '@instructure/ui-view'
 
-class IssueRuleSelect extends React.Component {
-  constructor(props) {
-    super(props);
+export default function IssueRuleSelect({ t, options, issueTitles, handleIssueTitleChange }) {
 
-    this.state = {
-      isShowingOptions: false,
-      inputValue: '',
-      highlightedOptionId: null,
-      selectedOptionIds: this.props.issueTitles,
-      filteredOptions: this.props.options,
-    }
-  }
-  
-  getOptionById (queryId) {
-    return this.props.options.find(({ id }) => id === queryId)
+  const [ isShowingOptions, setIsShowingOptions ] = useState(false)
+  const [ inputValue, setInputValue ] = useState('')
+  const [ highlightedOptionId, setHighlightedOptionId ] = useState(null)
+  const [ selectedOptionIds, setSelectedOptionIds ] = useState(issueTitles)
+  const [ filteredOptions, setFilteredOptions ] = useState(options)
+  const [ announcement, setAnnouncement ] = useState('')
+
+  const getOptionById = (queryId) => {
+    return options.find(({ id }) => id === queryId)
   }
 
-  getOptionsChangedMessage (newOptions) {
-    let message = newOptions.length !== this.state.filteredOptions.length
-      ? `${newOptions.length} ${this.props.t('options.available')}.` // options changed, announce new total
+  const getOptionsChangedMessage = (newOptions) => {
+    let message = newOptions.length !== filteredOptions.length
+      ? `${newOptions.length} ${t('options.available')}.` // options changed, announce new total
       : null // options haven't changed, don't announce
     if (message && newOptions.length > 0) {
       // options still available
-      if (this.state.highlightedOptionId !== newOptions[0].id) {
+      if (highlightedOptionId !== newOptions[0].id) {
         // highlighted option hasn't been announced
-        const option = this.getOptionById(newOptions[0].id).label
+        const option = getOptionById(newOptions[0].id).label
         message = `${option}. ${message}`
       }
     }
     return message
   }
 
-  filterOptions = (value) => {
-    const { selectedOptionIds } = this.state
-    return this.props.options.filter(option => (
+  const filterOptions = (value) => {
+    return options.filter(option => (
       selectedOptionIds.indexOf(option.id) === -1 // ignore selected options removed from list
       && option.label.toLowerCase().includes(value.toLowerCase())
     ))
   }
 
-  matchValue() {
-    const {
-      filteredOptions,
-      inputValue,
-      highlightedOptionId,
-      selectedOptionIds
-    } = this.state
+  const matchValue = () => {
 
     // an option matching user input exists
     if (filteredOptions.length === 1) {
       const onlyOption = filteredOptions[0]
       // automatically select the matching option
       if (onlyOption.label.toLowerCase() === inputValue.toLowerCase()) {
-        return {
-          inputValue: '',
-          selectedOptionIds: [...selectedOptionIds, onlyOption.id],
-          filteredOptions: this.filterOptions('')
-        }
+        setInputValue('')
+        setSelectedOptionIds([...selectedOptionIds, onlyOption.id])
+        setFilteredOptions(filterOptions(''))
       }
     }
     // input value is from highlighted option, not user input
     // clear input, reset options
     if (highlightedOptionId) {
-      if (inputValue === this.getOptionById(highlightedOptionId).label) {
-        return {
-          inputValue: '',
-          filteredOptions: this.filterOptions('')
-        }
+      if (inputValue === getOptionById(highlightedOptionId).label) {
+        setInputValue('')
+        setFilteredOptions(filterOptions(''))
       }
     }
   }
 
-  handleShowOptions = (event) => {
-    this.setState({ isShowingOptions: true })
+  const handleShowOptions = () => {
+    setIsShowingOptions(true)
   }
 
-  handleHideOptions = (event) => {
-    this.setState({
-      isShowingOptions: false,
-      ...this.matchValue()
-    })
+  const handleHideOptions = () => {
+    setIsShowingOptions(false)
+    matchValue()
   }
 
-  handleBlur = (event) => {
-    this.setState({
-      highlightedOptionId: null
-    })
+  const handleBlur = () => {
+    setHighlightedOptionId(null)
   }
 
-  handleHighlightOption = (event, { id }) => {
+  const handleHighlightOption = (event, { id }) => {
     event.persist()
-    const option = this.getOptionById(id)
+    const option = getOptionById(id)
     if (!option) return // prevent highlighting empty option
-    this.setState((state) => ({
-      highlightedOptionId: id,
-      inputValue: event.type === 'keydown' ? option.label : state.inputValue,
-      announcement: option.label
-    }))
+    setHighlightedOptionId(id)
+    setInputValue(event.type === 'keydown' ? option.label : inputValue)
+
+    setHighlightedOptionId(id)
+    setInputValue(event.type === 'keydown' ? option.label : inputValue)
+    setAnnouncement(option.label)
   }
 
-  handleSelectOption = (event, { id }) => {
-    const option = this.getOptionById(id)
+  const handleSelectOption = (event, { id }) => {
+    const option = getOptionById(id)
     if (!option) return // prevent selecting of empty option
 
-    this.setState((state) => ({
-      selectedOptionIds: [...state.selectedOptionIds, id],
-      highlightedOptionId: null,
-      filteredOptions: this.filterOptions(''),
-      inputValue: '',
-      isShowingOptions: false,
-      announcement: `${option.label} ${this.props.t('label.selected.list_collapsed')}.`
-    }))
-
-    this.props.handleIssueTitleChange([...this.state.selectedOptionIds, id])
+    setSelectedOptionIds([...selectedOptionIds, id])
+    setHighlightedOptionId(null)
+    setFilteredOptions(filterOptions(''))
+    setInputValue('')
+    setIsShowingOptions(false)
+    setAnnouncement(`${option.label} ${t('label.selected.list_collapsed')}.`)
+    
+    handleIssueTitleChange([...selectedOptionIds, id])
   }
 
-  handleInputChange = (event) => {
+  const handleInputChange = (event) => {
     const value = event.target.value
-    const newOptions = this.filterOptions(value)
-    this.setState({
-      inputValue: value,
-      filteredOptions: newOptions,
-      highlightedOptionId: newOptions.length > 0 ? newOptions[0].id : null,
-      isShowingOptions: true,
-      announcement: this.getOptionsChangedMessage(newOptions)
-    })
+    const newOptions = filterOptions(value)
+
+    setInputValue(value)
+    setFilteredOptions(newOptions)
+    setHighlightedOptionId(newOptions.length > 0 ? newOptions[0].id : null)
+    setIsShowingOptions(true)
+    setAnnouncement(getOptionsChangedMessage(newOptions))
   }
 
-  handleKeyDown = (event) => {
-    const { selectedOptionId, inputValue } = this.state
+  const handleKeyDown = (event) => {
+
     if (event.keyCode === 8) {
       // when backspace key is pressed
       if (inputValue === '' && selectedOptionId.length > 0) {
         // remove last selected option, if input has no entered text
-        this.setState((state) => ({
-          highlightedOptionId: null,
-          selectedOptionIds: state.selectedOptionIds.slice(0, -1)
-        }))
+        setHighlightedOptionId(null)
+        setSelectedOptionIds(selectedOptionIds.slice(0, -1))
       }
     }
   }
+
   // remove a selected option tag
-  dismissTag (e, tag) {
+  const dismissTag = (e, tag) => {
     // prevent closing of list
     e.stopPropagation()
     e.preventDefault()
 
-    const newSelection = this.state.selectedOptionIds.filter((id) => id !== tag)
-    this.setState({
-      selectedOptionIds: newSelection,
-      highlightedOptionId: null
-    }, () => {
-      this.inputRef.focus()
-    })
+    const newSelection = selectedOptionIds.filter((id) => id !== tag)
 
-    this.props.handleIssueTitleChange(newSelection)
+    setSelectedOptionIds(newSelection)
+    setHighlightedOptionId(null)
+
+    // this?.inputRef.focus()
+
+    handleIssueTitleChange(newSelection)
   }
   // render tags when multiple options are selected
-  renderTags () {
-    const { selectedOptionIds } = this.state
+  const renderTags = () => {
+
     return selectedOptionIds.map((id, index) => (
       <Tag
         dismissible
         key={id}
-        title={`${this.props.t('remove.label')} ${this.getOptionById(id).label}`}
-        text={this.getOptionById(id).label}
+        title={`${t('remove.label')} ${getOptionById(id).label}`}
+        text={getOptionById(id).label}
         margin="x-small 0 0 0"
-        onClick={(e) => this.dismissTag(e, id)}
+        onClick={(e) => dismissTag(e, id)}
       />
     ))
   }
 
-  render () {
-    const {
-      inputValue,
-      isShowingOptions,
-      highlightedOptionId,
-      selectedOptionIds,
-      filteredOptions,
-      announcement
-    } = this.state
-
-    return (
-      <View as="div" padding="small 0">
-        <Select
-          renderLabel={this.props.t('label.plural.issue')}
-          assistiveText={this.props.t('srlabel.multi_select.help')}
-          inputValue={inputValue}
-          isShowingOptions={isShowingOptions}
-          inputRef={(el) => this.inputRef = el}
-          onBlur={this.handleBlur}
-          onInputChange={this.handleInputChange}
-          onRequestShowOptions={this.handleShowOptions}
-          onRequestHideOptions={this.handleHideOptions}
-          onRequestHighlightOption={this.handleHighlightOption}
-          onRequestSelectOption={this.handleSelectOption}
-          onKeyDown={this.handleKeyDown}
-        >
-          {filteredOptions.length > 0 ? filteredOptions.map((option, index) => {
-            if (selectedOptionIds.indexOf(option.id) === -1) {
-              return (
-                <Select.Option
-                  id={option.id}
-                  key={option.id}
-                  isHighlighted={option.id === highlightedOptionId}
-                >
-                  { option.label }
-                </Select.Option>
-              )
-            }
-          }) : (
-            <Select.Option
-              id="empty-option"
-              key="empty-option"
-            >
-              ---
-            </Select.Option>
-          )}
-        </Select>
-        <Alert
-          liveRegion={() => document.getElementById('flash-messages')}
-          liveRegionPoliteness="polite"
-          isLiveRegionAtomic
-          screenReaderOnly
-        >
-          { announcement }
-        </Alert>
-        <View as="div">
-          {selectedOptionIds.length > 0 ? this.renderTags() : null}
-        </View>
+  return (
+    <View as="div" padding="small 0">
+      <Select
+        renderLabel={t('label.plural.issue')}
+        assistiveText={t('srlabel.multi_select.help')}
+        inputValue={inputValue}
+        isShowingOptions={isShowingOptions}
+        // inputRef={(el) => this.inputRef = el}
+        onBlur={handleBlur}
+        onInputChange={handleInputChange}
+        onRequestShowOptions={handleShowOptions}
+        onRequestHideOptions={handleHideOptions}
+        onRequestHighlightOption={handleHighlightOption}
+        onRequestSelectOption={handleSelectOption}
+        onKeyDown={handleKeyDown}
+      >
+        {filteredOptions.length > 0 ? filteredOptions.map((option, index) => {
+          if (selectedOptionIds.indexOf(option.id) === -1) {
+            return (
+              <Select.Option
+                id={option.id}
+                key={option.id}
+                isHighlighted={option.id === highlightedOptionId}
+              >
+                { option.label }
+              </Select.Option>
+            )
+          }
+        }) : (
+          <Select.Option
+            id="empty-option"
+            key="empty-option"
+          >
+            ---
+          </Select.Option>
+        )}
+      </Select>
+      <Alert
+        liveRegion={() => document.getElementById('flash-messages')}
+        liveRegionPoliteness="polite"
+        isLiveRegionAtomic
+        screenReaderOnly
+      >
+        { announcement }
+      </Alert>
+      <View as="div">
+        {selectedOptionIds.length > 0 ? renderTags() : null}
       </View>
-    )
-  }
+    </View>
+  )
 }
-
-export default IssueRuleSelect;

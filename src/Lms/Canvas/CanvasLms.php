@@ -15,7 +15,7 @@ use App\Services\LmsUserService;
 use App\Services\SessionService;
 use App\Services\UtilityService;
 use Doctrine\ORM\EntityManagerInterface;
-use Symfony\Component\Security\Core\Security;
+use Symfony\Bundle\SecurityBundle\Security;
 
 class CanvasLms implements LmsInterface {
     /** @var ContentItemRepository $contentItemRepo */
@@ -262,6 +262,60 @@ class CanvasLms implements LmsInterface {
         return $contentItems;
     }
 
+    public function getCourseSections(Course $course, User $user)
+    {
+        $sections = [];
+        $lmsCourseId = $course->getLmsCourseId();
+        $apiDomain = $this->getApiDomain($user);
+        $apiToken = $this->getApiToken($user);
+
+        $canvasApi = new CanvasApi($apiDomain, $apiToken);
+        $urls = $this->getCourseContentUrls($lmsCourseId);
+
+        $sectionUrl = $urls['module'];
+        $response = $canvasApi->apiGet($sectionUrl);
+
+        if ($response->getErrors()) {
+            $this->util->createMessage('Error retrieving content. Failed API Call: ' . $url, 'error', $course, $user);
+        }
+        else {
+            $contentList = $response->getContent();
+            
+            foreach ($contentList as $content) {
+                $formattedSection = [];
+                $formattedSection['id'] = $content['id'];
+                $formattedSection['title'] = $content['name'];
+                $formattedSection['status'] = $content['published'];
+                $formattedSection['items'] = [];
+
+                if(isset($content['items'])){
+                    foreach ($content['items'] as $item) {
+                        $formattedSection['items'][] = $item;
+                    }
+                }
+
+                else {
+                  $itemUrl = $sectionUrl . '/' . $content['id'] . '/items';
+                  $itemApi = new CanvasApi($apiDomain, $apiToken);
+                  $itemResponse = $itemApi->apiGet($itemUrl);
+
+                  if ($itemResponse->getErrors()) {
+                      $this->util->createMessage('Error retrieving content. Failed API Call: ' . $url, 'error', $course, $user);
+                  }
+                  else {
+                    $itemList = $itemResponse->getContent();            
+                    if(isset($itemList)) {
+                        foreach ($itemList as $item) {
+                            $formattedSection['items'][] = $item;
+                        }
+                    }
+                  }
+              }
+              $sections[] = $formattedSection;
+            }
+        }
+        return $sections;
+    }
 
     public function updateFileItem(Course $course, $file)
     {
@@ -494,7 +548,7 @@ class CanvasLms implements LmsInterface {
 
     protected function getAccountInfo(User $user, $accountId)
     {
-        $url = "accounts/${accountId}";
+        $url = "accounts/{$accountId}";
         $apiDomain = $this->getApiDomain($user);
         $apiToken = $this->getApiToken($user);
 
@@ -513,7 +567,7 @@ class CanvasLms implements LmsInterface {
 
     protected function getSubAccounts(User $user, $accountId)
     {
-        $url = "accounts/${accountId}/sub_accounts?recursive=true";
+        $url = "accounts/{$accountId}/sub_accounts?recursive=true";
         $apiDomain = $this->getApiDomain($user);
         $apiToken = $this->getApiToken($user);
 
@@ -641,29 +695,6 @@ class CanvasLms implements LmsInterface {
                 $out['body'] = $lmsContent['message'];
                 $out['status'] = $lmsContent['published'];
                 $out['url'] = "{$baseUrl}/discussion_topics/{$lmsContent['id']}";
-
-                break;
-
-            case 'module':
-                if (!isset($lmsContent['items'])) {
-                    break;
-                }
-
-                $out['id'] = $lmsContent['id'];
-                $out['title'] = $lmsContent['name'];
-                $out['updated'] = 'now';
-
-                $body = '';
-                foreach ($lmsContent['items'] as $item) {
-                    if ('ExternalUrl' !== $item['type']) {
-                        break;
-                    }
-                    $body .= "<p><a data-type-module href='{$item['external_url']}'>{$item['title']}</a></p>";
-                }
-
-                $out['body'] = $body;
-                $out['status'] = $lmsContent['published'];
-                $out['url'] = "{$baseUrl}/modules";
 
                 break;
 
