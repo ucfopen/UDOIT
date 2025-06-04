@@ -102,11 +102,9 @@ class LmsFetchService {
           2. ContentItems that are in our database but older than the LMS's versions are re-downloaded.
           3. ContentItems that are in the LMS but not in our database are added to our database.
         */
-        $lms->updateCourseContent($course, $user, $force);
+        $contentItems = $lms->updateCourseContent($course, $user, $force);
+        $output->writeln("Found " . count($contentItems) . " updated content items in the LMS.");
 
-        $contentItems = $contentItemRepo->getUpdatedContentItems($course, $force);
-        
-        $output->writeln("Found " . count($contentItems) . " updated content items.");
         $contentSections = $lms->getCourseSections($course, $user);
 
         /* Step 3: Delete issues for updated content items */
@@ -232,6 +230,9 @@ class LmsFetchService {
 
         $index = 0;
         foreach ($contentItems as $contentItem) {
+            if($contentItem->getBody() == null) {
+              continue; // Skip content items that have no body
+            }
 
             try {
                 // Scan the content item with the scanner set in the environment.
@@ -256,8 +257,6 @@ class LmsFetchService {
                         }
                     }
                 }
-
-                $contentItem->setMetadata(json_encode(['lmsUpdated' => $contentItem->getUpdated()->format('c')]));
             }
             catch (\Exception $e) {
                 $this->util->createMessage($e->getMessage(), 'error', null, null, true);

@@ -927,22 +927,18 @@ export default function FixIssuesPage({
     const specificClassName = `udoit-ignore-${issue.scanRuleId.replaceAll("_", "-")}`
     let tempIssue = Object.assign({}, issue)
     if (tempIssue.status === 2) {
-      console.log("Issue already resolved. Marking as unresolved and reverting to SOURCE HTML")
       tempIssue.status = 0
       tempIssue.newHtml = Html.toString(Html.removeClass(tempIssue.sourceHtml, specificClassName))
     }
     else if (tempIssue.status === 1) {
-      console.log("Issue already fixed. Marking as both fixed and resolved and adding class to NEW HTML")
       tempIssue.status = 3
       tempIssue.newHtml = Html.toString(Html.addClass(tempIssue.newHtml, specificClassName))
     }
     else if (tempIssue.status === 3) {
-      console.log("Issue already fixed and resolved. Marking as FIXED and removing class from NEW HTML")
       tempIssue.status = 1
       tempIssue.newHtml = Html.toString(Html.removeClass(tempIssue.newHtml, specificClassName))
     }
     else {
-      console.log("Marking issue as resolved and adding class to SOURCE HTML")
       tempIssue.status = 2
       tempIssue.newHtml = Html.toString(Html.addClass(tempIssue.sourceHtml, specificClassName))
     }
