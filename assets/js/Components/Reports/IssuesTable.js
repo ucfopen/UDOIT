@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import SortableTable from '../SortableTable'
+import DownloadIcon from '../Icons/DownloadIcon'
 import { formNameFromRule } from '../../Services/Ufixit'
 
 export default function IssuesTable({
@@ -115,41 +116,14 @@ export default function IssuesTable({
     }
   }, [issues])
 
-  const exportToCSV = () => {
-
-      const tempHeaders = headers.map(header => header.text);
-
-      const csvData = [];
-      csvData.push(tempHeaders.join(','));
-
-      rows.forEach(row => {
-        const rowData = headers.map(header => {
-          const value = row[header.id];
-          return `"${value}"`;
-        });
-        csvData.push(rowData.join(','));
-      });
-
-      const csvString = csvData.join('\n');
-      const blob = new Blob([csvString], { type: 'text/csv' });
-
-      const link = document.createElement('a');
-      link.href = URL.createObjectURL(blob);
-      link.download = 'UDOITIssuesReport.csv';
-      link.click();
-    }
-
   return (
-    <>
-      <SortableTable
-        caption={t('report.title.issues_by_type')}
-        headers={headers}
-        rows={rows}
-        tableSettings={tableSettings}
-        handleTableSettings={handleTableSettings}
-        t={t}
-      />
-      <button onClick={() => exportToCSV()}>Export CSV</button>
-    </>
+    <SortableTable
+      caption={t('report.title.issues_by_type')}
+      headers={headers}
+      rows={rows}
+      tableSettings={tableSettings}
+      handleTableSettings={handleTableSettings}
+      t={t}
+    />
   )
 }
