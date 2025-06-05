@@ -3,6 +3,7 @@ import FixIssuesFilters from './FixIssuesFilters'
 import FixIssuesList from './FixIssuesList'
 import UfixitWidget from './UfixitWidget'
 import FixIssuesContentPreview from './FixIssuesContentPreview'
+import UfixitWidgetSimple from './UfixitWidgetSimple'
 import DailyProgress from './DailyProgress'
 import { formNameFromRule } from '../Services/Ufixit'
 import * as Html from '../Services/Html'
@@ -1114,8 +1115,8 @@ export default function FixIssuesPage({
               groupedList={groupedList}
               setActiveIssue={setActiveIssue}
             />
-          ) : activeIssue ? (  
-              <UfixitWidget
+          ) : activeIssue ? (
+              <UfixitWidgetSimple
                 t={t}
                 settings={settings.FILTER ? settings : Object.assign({}, settings, { FILTER })}
                 viewInfo={viewInfo}
