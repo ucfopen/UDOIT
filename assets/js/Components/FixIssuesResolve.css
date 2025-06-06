@@ -3,14 +3,15 @@
   flex-direction: column;
 
   background-color: var(--white);
-  border: 1px solid var(--border-color);
+  border: 3px solid var(--primary-color);
   border-radius: 8px;
 
-  padding: .5rem .5rem;
+  padding: .5rem 1rem;
 
   .ufixit-widget-resolve-description {
-    font-size: .9rem;
-    font-weight: 400;
-    font-style: italic;
+    font-size: 1.1rem;
+    font-weight: 600;
+    text-align: center;
+    color: var(--primary-color);
   }
 }

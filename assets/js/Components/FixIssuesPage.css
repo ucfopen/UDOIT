@@ -1,8 +1,17 @@
 @import '../../css/udoit4-theme.css';
 
+.ufixit-nav-container {
+  background-color: var(--background-color);
+  padding: .5rem 1rem;
+  margin-left: -1rem;
+  margin-right: -1rem;
+  border-top: 1px solid var(--border-color);
+  border-bottom: 1px solid var(--border-color);
+}
+
 .ufixit-page-divider {
   display: flex;
-  flex-direction: row;
+  flex-direction: row-reverse;
   gap: 2rem;
 }
 
@@ -15,9 +24,9 @@
   height: 650px;
   max-height: 1000px;
   box-sizing:border-box;
-  width: 450px;
+  width: 50%;
   min-width: 450px;
-  max-width: 450px;
+  max-width: 600px;
   overflow-y: hidden;
   overflow-x: hidden;
 

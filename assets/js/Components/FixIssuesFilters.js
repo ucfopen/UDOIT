@@ -109,11 +109,11 @@ export default function FixIssuesFilters({ t, settings, sections, activeFilters,
                     title={t('filter.label.remove_filter', { filterName: usedFilters[filterType][activeFilters[filterType]] })}
                     onClick={() => removeFilter(filterType)}
                     id={'pill-' + filterType + '-' + activeFilters[filterType]}>
-                    <div className="filter-pill-text flex-column align-self-center white">
+                    <div className="filter-pill-text flex-column align-self-center">
                       {usedFilters[filterType][activeFilters[filterType]]}
                     </div>
                     <div className="filter-pill-remove flex-column align-self-center">
-                      <CloseIcon className="icon-sm white" />
+                      <CloseIcon className="icon-sm" />
                     </div>
                   </button>
                 )

@@ -348,22 +348,23 @@ export default function FixIssuesContentPreview({
 
     let button;
     if (debouncedDirection === 'up') {
-      button = <UpArrowIcon className="icon-arrow primary" />
+      button = <UpArrowIcon className="icon-arrow" />
     }
     else if (debouncedDirection === 'down') {
-      button = <DownArrowIcon className="icon-arrow primary" />
+      button = <DownArrowIcon className="icon-arrow" />
     }
 
     if (issueElementRef.current && !debouncedVisible && debouncedDirection) {
       return (
         <div className='scroll-to-error-container'>
           <button
-            className={`scroll-to-error ${debouncedDirection ? 'scroll-to-error-' + debouncedDirection : ''}`}
+            className={`btn-primary btn-icon-right scroll-to-error ${debouncedDirection ? 'scroll-to-error-' + debouncedDirection : ''}`}
             onClick={() => scrollToElement(issueElementRef.current)}
             aria-label={t('fix.button.scroll_to_issue')}
             title={t('fix.button.scroll_to_issue')}
             tabIndex="0"
           >
+            <div>Scroll to Issue</div>
             {button}
           </button>
         </div>
@@ -375,12 +376,12 @@ export default function FixIssuesContentPreview({
   return (
     <>
       { activeIssue && (
-        <a href={activeIssue.contentUrl} target="_blank" rel="noreferrer" className="ufixit-content-label flex-row justify-content-between mt-0 mb-3">
+        <a href={activeIssue.contentUrl} target="_blank" rel="noreferrer" className="ufixit-content-label flex-row justify-content-between mt-0">
           <div className="flex-column flex-center allow-word-break">
-            <h2 className="fake-h1">{activeIssue.contentTitle}</h2>
+            <h2>{activeIssue.contentTitle}</h2>
           </div>
-          <div className="flex-column flex-center">
-            <ExternalLinkIcon className="icon-lg link-color" alt="" />
+          <div className="flex-column flex-start">
+            <ExternalLinkIcon className="icon-md link-color" title={t('fix.button.view_in_lms')}/>
           </div>
         </a>
       )}

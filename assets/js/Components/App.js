@@ -162,9 +162,11 @@ export default function App(initialData) {
     setMessages([])
   }
 
-  const quickIssues = (severity) => {
+  const quickIssues = (severity, navigate = true) => {
     setInitialSeverity(severity)
-    setNavigation('fixIssues')
+    if(navigate) {
+      setNavigation('fixIssues')
+    }
   }
 
   const quickSearchTerm = (searchTerm) => {
@@ -263,6 +265,7 @@ export default function App(initialData) {
                   addContentItemToCache={addContentItemToCache}
                   report={report}
                   sections={sections}
+                  quickIssues={quickIssues}
                   processNewReport={processNewReport}
                   addMessage={addMessage}
                   handleNavigation={handleNavigation}

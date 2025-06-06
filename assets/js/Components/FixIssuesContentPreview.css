@@ -1,15 +1,18 @@
 @import '../../css/udoit4-theme.css';
 
 .ufixit-content-label {
-  flex-shrink: 0;
-  flex-grow: 0;
-
-  display: flex;
-  flex-direction: row;
-  cursor: pointer;
-  justify-content: space-between;
-
-  text-decoration: none;
+    flex-shrink: 0;
+    flex-grow: 0;
+    display: flex;
+    flex-direction: row;
+    cursor: pointer;
+    justify-content: space-between;
+    text-decoration: none;
+    padding: 0.5rem .5rem;
+    background-color: var(--background-color);
+    border: 1px solid var(--border-color);
+    border-bottom: none;
+    border-radius: 8px 8px 0 0;
 
   &:hover {
     text-decoration: underline;
@@ -22,7 +25,7 @@
   }
 
   h2 {
-    font-size: 1.5rem;
+    font-size: 1.15rem;
     font-weight: bold;
     color: var(--link-color);
     margin: 0px;
@@ -42,11 +45,11 @@
   flex-grow: 1;
   overflow-x: auto;
   overflow-y: auto;
-  margin: 0 0 1rem 0;
+  margin: 0;
   padding: 1rem;
   position: relative;
   border: 1px solid var(--border-color);
-  border-radius: 8px;
+  border-radius: 0 0 8px 8px;
 
   .ufixit-content-preview-rescan-container {
     position: sticky;
@@ -116,14 +119,14 @@
 }
 
 .scroll-to-error {
-  background-color: transparent;
+  /* background-color: transparent;
   border-radius: 100%;
   padding: 0.35rem;
   cursor: pointer;
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
-  border: 2px solid var(--primary-color);
+  border: 2px solid var(--primary-color); */
   opacity: 0.5;
   transition: opacity var(--transition-time);
   align-self: start;
@@ -133,7 +136,7 @@
   &:focus,
   &:active {
     opacity: 1;
-    background-color: var(--primary-color-light);
+    /* background-color: var(--primary-color-light); */
   }
 
   &.scroll-to-error-down {

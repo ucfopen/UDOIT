@@ -5,6 +5,8 @@ import UfixitWidget from './UfixitWidget'
 import FixIssuesContentPreview from './FixIssuesContentPreview'
 import UfixitWidgetSimple from './UfixitWidgetSimple'
 import DailyProgress from './DailyProgress'
+import LeftArrowIcon from './Icons/LeftArrowIcon'
+import RightArrowIcon from './Icons/RightArrowIcon'
 import { formNameFromRule } from '../Services/Ufixit'
 import * as Html from '../Services/Html'
 import Api from '../Services/Api'
@@ -37,6 +39,7 @@ export default function FixIssuesPage({
   sections,
   processNewReport,
   addMessage,
+  quickIssues,
   updateReportIssue,
   sessionIssues,
   updateSessionIssue
@@ -345,7 +348,7 @@ export default function FixIssuesPage({
   useEffect(() => {
     let tempSeverity = initialSeverity || FILTER.ALL
     setActiveFilters(Object.assign({}, defaultFilters, {[FILTER.TYPE.SEVERITY]: tempSeverity}))
-  }, [initialSeverity])
+  }, [])
 
   // The initialSearchTerm prop is used when clicking on a specific error type on the Reports screen.
   useEffect(() => {
@@ -359,7 +362,6 @@ export default function FixIssuesPage({
 
     let tempFilteredContent = getFilteredContent(unfilteredIssues)
     setFilteredIssues(tempFilteredContent)
-    setActiveIssue(null)
 
     const tempGroupedList = []
 
@@ -379,15 +381,16 @@ export default function FixIssuesPage({
     
     setGroupedList(tempGroupedList)
 
-    // If nothing matches the filters, show the no results view
-    if(tempFilteredContent.length === 0) {
-      setWidgetState(WIDGET_STATE.NO_RESULTS)
+    if(initialSeverity !== '' && tempFilteredContent.length > 0) {
+      setActiveIssue(tempFilteredContent[0])
+      setWidgetState(WIDGET_STATE.FIXIT)
+      quickIssues('', false)
     }
     else {
-      // Otherwise, view the list
+      setActiveIssue(null)
       setWidgetState(WIDGET_STATE.LIST)
     }
-
+    
   }, [activeFilters, searchTerm])
 
   // The report object is updated whenever a scan or rescan is completed. At this point, the list of issues
@@ -474,6 +477,7 @@ export default function FixIssuesPage({
       return
     }
   
+    console.log(activeIssue.scanRuleId)
     setWidgetState(WIDGET_STATE.FIXIT)
 
     if(activeIssue.contentType === FILTER.FILE_OBJECT) {
@@ -649,21 +653,6 @@ export default function FixIssuesPage({
     })
 
     return filteredList
-  }
-
-  const loadContentItem = (contentItemId) => {
-    addItemToBeingScanned(contentItemId)
-    let api = new Api(settings)
-    api.getIssueContent(activeIssue.id)
-    .then((response) => {
-      return response.json()
-    }).then((data) => {
-      if(data?.data?.contentItem) {
-        const newContentItem = data.data.contentItem
-        addContentItemToCache(newContentItem)
-        removeItemFromBeingScanned(contentItemId)
-      }
-    })
   }
 
   const loadContentItemByIssue = (issue) => {
@@ -1097,75 +1086,95 @@ export default function FixIssuesPage({
 
   return (
     <>
-      <FixIssuesFilters
-        t={t}
-        settings={settings.FILTER ? settings : Object.assign({}, settings, { FILTER })}
-        sections={sections}
-        activeFilters={activeFilters}
-        updateActiveFilters={updateActiveFilters}
-        searchTerm={searchTerm}
-        handleSearchTerm={setSearchTerm}
-      />
-      <div className="ufixit-page-divider">
-        <section className="ufixit-widget-container">
-          { widgetState === WIDGET_STATE.LIST ? (
-            <FixIssuesList
-              t={t}
-              settings={settings.FILTER ? settings : Object.assign({}, settings, { FILTER })}
-              groupedList={groupedList}
-              setActiveIssue={setActiveIssue}
-            />
-          ) : activeIssue ? (
-              <UfixitWidgetSimple
+      { widgetState === WIDGET_STATE.LIST ? (
+        <>
+          <FixIssuesFilters
+            t={t}
+            settings={settings.FILTER ? settings : Object.assign({}, settings, { FILTER })}
+            sections={sections}
+            activeFilters={activeFilters}
+            updateActiveFilters={updateActiveFilters}
+            searchTerm={searchTerm}
+            handleSearchTerm={setSearchTerm}
+          />
+          <FixIssuesList
+            t={t}
+            settings={settings.FILTER ? settings : Object.assign({}, settings, { FILTER })}
+            groupedList={groupedList}
+            setActiveIssue={setActiveIssue}
+          />
+        </>
+      ) : (
+        <>
+        <div className="flex-row justify-content-between pt-1 pb-1 ufixit-nav-container">
+          <button onClick={toggleListView} className="btn text-button btn-icon-left">
+            <LeftArrowIcon className="icon-sm link-color" />{t('fix.button.list')}
+          </button>
+          <div className="flex-row gap-3">
+            <button
+              className={`btn text-button btn-icon-left ps-0 ${filteredIssues.length < 2 ? 'disabled' : ''}`}
+              onClick={() => nextIssue(true)}
+              tabindex="0">
+              <LeftArrowIcon className={`icon-sm ` + (filteredIssues.length < 2 ? 'gray' : 'link-color')} />
+              <div className="flex-column justify-content-center">{t('fix.button.previous')}</div>
+            </button>
+
+            <button
+              className={`btn text-button btn-icon-right pe-0 ${filteredIssues.length < 2 ? 'disabled' : ''}`}
+              onClick={() => nextIssue()}
+              tabindex="0">
+              <div className="flex-column justify-content-center">{t('fix.button.next')}</div>
+              <RightArrowIcon className={`icon-sm ` + (filteredIssues.length < 2 ? 'gray' : 'link-color')} />
+            </button>
+          </div>
+        </div>
+        
+        <div className="ufixit-page-divider mt-3">
+          <section className="ufixit-widget-container">
+            { activeIssue ? (  
+                <UfixitWidgetSimple
+                  t={t}
+                  settings={settings.FILTER ? settings : Object.assign({}, settings, { FILTER })}
+                  viewInfo={viewInfo}
+                  setViewInfo={setViewInfo}
+                  severity={activeIssue.severity}
+                  activeIssue={activeIssue}
+                  setActiveIssue={setActiveIssue}
+                  setEditedElement={setEditedElement}
+                  formatIssueData={formatIssueData}
+                  isContentLoading={contentItemsBeingScanned.includes(activeIssue?.issueData?.contentItemId)}
+                  isErrorFoundInContent={isErrorFoundInContent}
+                  handleIssueResolve={handleIssueResolve}
+                  handleIssueSave={handleIssueSave}
+                  handleFileResolve={handleFileResolve}
+                  handleFileUpload={handleFileUpload}
+                  toggleListView={toggleListView}
+                  listLength={filteredIssues.length}
+                  nextIssue={nextIssue}
+                />
+            ) : ''}
+          </section>
+          <section className={`ufixit-content-container ${filteredIssues.length === 0 ? 'justify-content-end' : ''}`}>
+            {filteredIssues.length > 0 && (
+              <FixIssuesContentPreview
                 t={t}
                 settings={settings.FILTER ? settings : Object.assign({}, settings, { FILTER })}
-                viewInfo={viewInfo}
-                setViewInfo={setViewInfo}
-                severity={activeIssue.severity}
                 activeIssue={activeIssue}
-                setActiveIssue={setActiveIssue}
-                setEditedElement={setEditedElement}
-                formatIssueData={formatIssueData}
-                isContentLoading={contentItemsBeingScanned.includes(activeIssue?.issueData?.contentItemId)}
+                activeContentItem={activeContentItem}
+                editedElement={editedElement}
+                sessionIssues={sessionIssues}
                 isErrorFoundInContent={isErrorFoundInContent}
-                handleIssueResolve={handleIssueResolve}
-                handleIssueSave={handleIssueSave}
-                handleFileResolve={handleFileResolve}
-                handleFileUpload={handleFileUpload}
-                toggleListView={toggleListView}
-                listLength={filteredIssues.length}
-                nextIssue={nextIssue}
+                setIsErrorFoundInContent={setIsErrorFoundInContent}
+                contentItemsBeingScanned={contentItemsBeingScanned}
               />
-          ) : (
-            <div className="flex-column gap-3 mt-3">
-              <div className="flex-row align-self-center ms-3 me-3">
-                <h2 className="mt-0 mb-0 primary-dark">{t('report.label.no_results')}</h2>
-              </div>
-              <div className="flex-row align-self-center ms-3 me-3">
-                {t('report.msg.no_results')}
-              </div>
-            </div>
-          )}
-        </section>
-        <section className={`ufixit-content-container ${filteredIssues.length === 0 ? 'justify-content-end' : ''}`}>
-          {filteredIssues.length > 0 && (
-            <FixIssuesContentPreview
-              t={t}
-              settings={settings.FILTER ? settings : Object.assign({}, settings, { FILTER })}
-              activeIssue={activeIssue}
-              activeContentItem={activeContentItem}
-              editedElement={editedElement}
-              sessionIssues={sessionIssues}
-              isErrorFoundInContent={isErrorFoundInContent}
-              setIsErrorFoundInContent={setIsErrorFoundInContent}
-              contentItemsBeingScanned={contentItemsBeingScanned}
-            />
-          )}
-          <div className="ufixit-content-progress">
-            <DailyProgress t={t} sessionIssues={sessionIssues} settings={settings}/>
-          </div>
-        </section>
-      </div>
+            )}
+            {/* <div className="ufixit-content-progress">
+              <DailyProgress t={t} sessionIssues={sessionIssues} settings={settings}/>
+            </div> */}
+          </section>
+        </div>
+        </>
+      )}
     </>
   )
 }

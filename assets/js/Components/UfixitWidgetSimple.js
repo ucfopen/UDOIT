@@ -162,7 +162,7 @@ export default function UfixitWidgetSimple({
                   </div>
                   <div className="flex-column w-100 mt-3">
                     <div className="flex-row align-self-center">
-                      <button className="btn btn-secondary btn-icon-left" onClick={() => setNeedsFixing(true)}>
+                      <button className="btn btn-primary btn-icon-left" onClick={() => setNeedsFixing(true)}>
                         <UFIXITIcon className="icon-md" />
                         <div>YES. Let's Fix It!</div>
                       </button>
@@ -214,6 +214,12 @@ export default function UfixitWidgetSimple({
                     handleIssueResolve={handleIssueResolve}
                   />
                 )}
+                <div className="flex-grow-0">
+                  <button className="btn btn-secondary btn-icon-left mt-3" onClick={() => setNeedsFixing(false)}>
+                    <LeftArrowIcon className="icon-md" />
+                    <div>Back to Explanation</div>
+                  </button>
+                </div>
                 { (activeIssue.currentState === settings.ISSUE_STATE.SAVING || activeIssue.currentState === settings.ISSUE_STATE.RESOLVING) && 
                   <div className="ufixit-overlay flex-column justify-content-start">
                     <div className="ufixit-overlay-content-container flex-row justify-content-center mt-3">

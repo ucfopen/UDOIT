@@ -18,14 +18,6 @@ export default function HomePage({
   const [suggestionCount, setSuggestionCount] = useState({"fixed": 0, "total": 0, "percent": 0})
   const [totalsCounted, setTotalsCounted] = useState(false)
 
-  // const [totalIssues, setTotalIssues] = useState(0)
-  // const [totalPotentialIssues, setTotalPotentialIssues] = useState(0)
-  // const [totalSuggestions, setTotalSuggestions] = useState(0)
-  
-  // const [issuePercent, setIssuePercent] = useState(0)
-  // const [potentialPercent, setPotentialPercent] = useState(0)
-  // const [suggestionPercent, setSuggestionPercent] = useState(0)
-
   useEffect(() => {
     if (!hasNewReport) return
 
@@ -71,17 +63,17 @@ export default function HomePage({
     setIssueCount({
       "fixed": tempTotalIssuesFixed,
       "total": tempTotalIssues,
-      "percent": (tempTotalIssues === 0 ? 0 : (tempTotalIssuesFixed/tempTotalIssues) * 100)
+      "percent": (tempTotalIssues === 0 ? 100 : (tempTotalIssuesFixed/tempTotalIssues) * 100)
     })
     setPotentialCount({
       "fixed": tempTotalPotentialIssuesFixed,
       "total": tempTotalPotentialIssues,
-      "percent": (tempTotalPotentialIssues === 0 ? 0 : (tempTotalPotentialIssuesFixed/tempTotalPotentialIssues) * 100)
+      "percent": (tempTotalPotentialIssues === 0 ? 100 : (tempTotalPotentialIssuesFixed/tempTotalPotentialIssues) * 100)
     })
     setSuggestionCount({
       "fixed": tempTotalSuggestionsFixed, 
       "total": tempTempTotalSuggestions,
-      "percent": (tempTempTotalSuggestions === 0 ? 0 : (tempTotalSuggestionsFixed/tempTempTotalSuggestions) * 100)
+      "percent": (tempTempTotalSuggestions === 0 ? 100 : (tempTotalSuggestionsFixed/tempTempTotalSuggestions) * 100)
     })
     
     setTotalsCounted(true)
@@ -115,7 +107,12 @@ export default function HomePage({
               <div className="flex-row w-100 justify-content-between mt-2 gap-2">
                 <div>{t('summary.issues.description')}</div>
                 <div className='flex-column justify-content-start flex-shrink-0'>
-                  <button className="btn btn-primary" onClick={() => quickIssues('ISSUE')}>{t('summary.button.fix_issues')}</button>
+                  <button
+                    className="btn btn-primary"
+                    disabled={issueCount.total === 0 || issueCount.fixed === issueCount.total}
+                    onClick={() => quickIssues('ISSUE')}>
+                    {t('summary.button.fix_issues')}
+                  </button>
                 </div>
               </div>
             </div>
@@ -137,7 +134,12 @@ export default function HomePage({
               <div className="flex-row w-100 justify-content-between mt-2 gap-2">
                 <div>{t('summary.potentials.description')}</div>
                 <div className='flex-column justify-content-start flex-shrink-0'>
-                  <button className="btn btn-primary" onClick={() => quickIssues('POTENTIAL')}>{t('summary.button.fix_potentials')}</button>
+                  <button
+                    className="btn btn-primary"
+                    disabled={potentialCount.total === 0 || potentialCount.fixed === potentialCount.total}
+                    onClick={() => quickIssues('POTENTIAL')}>
+                    {t('summary.button.fix_potentials')}
+                  </button>
                 </div>
               </div>
             </div>
@@ -159,7 +161,12 @@ export default function HomePage({
               <div className="flex-row w-100 justify-content-between mt-2 gap-2">
                 <div>{t('summary.suggestions.description')}</div>
                 <div className='flex-column justify-content-start flex-shrink-0'>
-                  <button className="btn btn-primary" onClick={() => quickIssues('SUGGESTION')}>{t('summary.button.fix_suggestions')}</button>
+                  <button
+                    className="btn btn-primary"
+                    disabled={suggestionCount.total === 0 || suggestionCount.fixed === suggestionCount.total}
+                    onClick={() => quickIssues('SUGGESTION')}>
+                    {t('summary.button.fix_suggestions')}
+                  </button>
                 </div>
               </div>
             </div>

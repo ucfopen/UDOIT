@@ -30,19 +30,31 @@ export default function FixIssuesList({ t, settings, groupedList, setActiveIssue
                       }
                     }}
                     tabindex="0" >
-                    <div className="flex-grow-1 flex-column justify-content-center allow-word-break">
+                    <div className="flex-grow-1 flex-column justify-content-center allow-word-break list-item-title">
                       {issue.contentTitle}
                     </div>
                     <div className="flex-row">
-                      <ContentTypeIcon type={issue.contentType} alt="" className="gray flex-column align-self-center ml-3"/>
+                      <div alt="" title={t(`filter.label.type.${issue.contentType.toLowerCase()}_single`)} className="data-pill flex-row ml-2">
+                        <ContentTypeIcon type={issue.contentType} className="gray icon-sm flex-column align-self-center me-1"/>
+                        <div>{t(`filter.label.type.${issue.contentType.toLowerCase()}_single`)}</div>
+                      </div>
                       { issue.status === settings.FILTER.ACTIVE && (
-                        <SeverityIcon type={issue.severity} alt="" className="flex-column align-self-center ml-2"/>
+                        <div alt="" title={t(`filter.label.severity.${issue.severity.toLowerCase()}_single`)} className="data-pill flex-row ml-0">
+                          <SeverityIcon type={issue.severity} className="icon-sm flex-column align-self-center me-1" />
+                          <div>{t(`filter.label.severity.${issue.severity.toLowerCase()}_single`)}</div>
+                        </div>
                       )}
                       { issue.status === settings.FILTER.RESOLVED && (
-                        <ResolvedIcon alt="" className="color-success flex-column align-self-center ml-2"/>
+                        <div alt="" title={t('filter.label.resolution.resolved_single')} className="data-pill fixed flex-row ml-0">
+                          <ResolvedIcon className="color-success icon-sm flex-column align-self-center me-1"/>
+                          <div>{t('filter.label.resolution.resolved_single')}</div>
+                        </div>
                       )}
                       { (issue.status === settings.FILTER.FIXED || issue.status == settings.FILTER.FIXEDANDRESOLVED) && (
-                        <FixedIcon alt=""className="color-success flex-column align-self-center ml-2"/>
+                        <div alt="" title={t('filter.label.resolution.fixed_single')} className="data-pill fixed flex-row ml-0">
+                          <FixedIcon className="color-success icon-sm flex-column align-self-center me-1"/>
+                          <div>{t('filter.label.resolution.fixed_single')}</div>
+                        </div>
                       )}
                     </div>
                   </div>
@@ -52,10 +64,10 @@ export default function FixIssuesList({ t, settings, groupedList, setActiveIssue
           )
         }) : (
           <div className="flex-column gap-3 mt-3">
-            <div className="flex-row justify-content-center align-self-center ms-3 me-3">
+            <div className="flex-row align-self-center ms-3 me-3">
               <h2 className="mt-0 mb-0 primary-dark">{t('report.label.no_results')}</h2>
             </div>
-            <div className="flex-row justify-content-center align-self-center ms-3 me-3">
+            <div className="flex-row align-self-center ms-3 me-3">
               {t('report.msg.no_results')}
             </div>
           </div>
