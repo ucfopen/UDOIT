@@ -209,12 +209,14 @@ export default function ReportsPage({t, report, settings, quickSearchTerm}) {
     <main>
       <div className="flex-row justify-content-between">
         <h1 className="primary-dark">{t('menu.reports')}</h1>
-        <div className="flex-column justify-content-center">
-          <button className="btn btn-primary btn-icon-left" onClick={()=> printReport()}>
-            <PrintIcon className="icon-md" />
-            {t('report.button.print')}
-          </button>
-        </div>
+        { (fetchedReports && reports.length > 0) && (
+          <div className="flex-column justify-content-center">
+            <button className="btn btn-primary btn-icon-left" onClick={()=> printReport()}>
+              <PrintIcon className="icon-md" />
+              {t('report.button.print')}
+            </button>
+          </div>
+        )}
       </div>
       { (!fetchedReports) && (
         <div className="mt-3 mb-3 flex-row justify-content-center">
