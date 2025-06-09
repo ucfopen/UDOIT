@@ -5,6 +5,7 @@ import ResolutionsReport from './Reports/ResolutionsReport'
 import ReportsTable from './Reports/ReportsTable'
 import IssuesTable from './Reports/IssuesTable'
 import ProgressIcon from './Icons/ProgressIcon'
+import PrintIcon from './Icons/PrintIcon'
 
 export default function ReportsPage({t, report, settings, quickSearchTerm}) {
 
@@ -78,12 +79,13 @@ export default function ReportsPage({t, report, settings, quickSearchTerm}) {
 
   const getPrintableReportsTable = (reports, t) => {
     const headers = [
-      { id: "created", text: t('label.date') },
-      { id: "errors", text: t('label.plural.error') },
-      { id: "suggestions", text: t('label.plural.suggestion') },
-      { id: "contentFixed", text: t('label.content_fixed') },
-      { id: "contentResolved", text: t('label.content_resolved') },
-      { id: "filesReviewed", text: t('label.files_reviewed') }
+      { id: "created", text: t('report.header.date') },
+      { id: "errors", text: t('report.header.issues'), alignText: 'center' },
+      { id: "potentialIssues", text: t('report.header.potential'), alignText: 'center' },
+      { id: "suggestions", text: t('report.header.suggestions'), alignText: 'center' },
+      { id: "contentFixed", text: t('report.header.items_fixed'), alignText: 'center' },
+      { id: "contentResolved", text: t('report.header.items_resolved'), alignText: 'center' },
+      { id: "filesReviewed", text: t('report.header.files_reviewed'), alignText: 'center'}
     ]
 
     const sortedReports = [...reports].sort((a, b) => {
@@ -97,7 +99,7 @@ export default function ReportsPage({t, report, settings, quickSearchTerm}) {
     }).join('')
 
     return `
-      <h3>${t('label.report_history')}</h3>
+      <h3>${t('report.title.scan_history')}</h3>
       <table border="1" cellpadding="8" cellspacing="0" style="width:100%; border-collapse: collapse;">
         <thead><tr>${tableHeaders}</tr></thead>
         <tbody>${tableRows}</tbody>
@@ -106,22 +108,16 @@ export default function ReportsPage({t, report, settings, quickSearchTerm}) {
   }
 
   const getPrintableIssuesTable = (issues, t) => {
-    let headers = [
-      { id: "label", text: t('label.issue') },
-      { id: "type", text: t('label.issue_type') },
-      { id: "active", text: t('label.active') },
-      { id: "fixed", text: t('label.fixed') },
-      { id: "resolved", text: t('label.resolved') },
+    const headers = [
+      { id: "label", text: t('report.header.issue_type') },
+      { id: "type", text: t('report.header.severity')},
+      { id: "active", text: t('report.header.active'), alignText: 'center' },
+      { id: "fixed", text: t('report.header.fixed'), alignText: 'center' },
+      { id: "resolved", text: t('report.header.resolved'), alignText: 'center' },
+      { id: "total", text: t('report.header.total'), alignText: 'center' }
     ]
 
-    headers.push({ id: "total", text: t('label.report.total') })
-
     let rows = issues ? Object.values(issues) : []
-
-    rows = rows.map((row) => ({
-      ...row,
-      label: t(`rule.label.${row.id}`)
-    }))
 
     rows.sort((a, b) => Number(b.total) - Number(a.total))
 
@@ -132,7 +128,7 @@ export default function ReportsPage({t, report, settings, quickSearchTerm}) {
     }).join('')
 
     return `
-      <h3>${t('label.admin.report.by_issue')}</h3>
+      <h3>${t('report.title.issues_by_type')}</h3>
       <table border="1" cellpadding="8" cellspacing="0" style="width:100%; border-collapse: collapse;">
         <thead><tr>${tableHeaders}</tr></thead>
         <tbody>${tableRows}</tbody>
@@ -147,7 +143,7 @@ export default function ReportsPage({t, report, settings, quickSearchTerm}) {
     const content = `
       <html>
         <head>
-          <title>UDOIT Print Report</title>
+          <title>${t('report.label.printed_report')}</title>
           <style>
             body {
               background: #fff;
@@ -170,10 +166,15 @@ export default function ReportsPage({t, report, settings, quickSearchTerm}) {
               padding: 8px;
               text-align: left;
             }
+            #printResolutionsReport {
+              display: flex;
+              flex-direction: row;
+              justify-content: center;
+            }
           </style>
         </head>
         <body>
-          <h2>${t('label.reports')}</h2>
+          <h2>${t('report.label.printed_report')}</h2>
           <div id="printResolutionsReport">
             ${document.querySelector('.ResolutionsReport')?.innerHTML || ''}
           </div>
@@ -206,7 +207,17 @@ export default function ReportsPage({t, report, settings, quickSearchTerm}) {
 
   return (
     <main>
-      <h1 className="primary-dark">{t('menu.reports')}</h1>
+      <div className="flex-row justify-content-between">
+        <h1 className="primary-dark">{t('menu.reports')}</h1>
+        { (fetchedReports && reports.length > 0) && (
+          <div className="flex-column justify-content-center">
+            <button className="btn btn-primary btn-icon-left" onClick={()=> printReport()}>
+              <PrintIcon className="icon-md" />
+              {t('report.button.print')}
+            </button>
+          </div>
+        )}
+      </div>
       { (!fetchedReports) && (
         <div className="mt-3 mb-3 flex-row justify-content-center">
           <div className="flex-column justify-content-center me-3">
@@ -231,7 +242,9 @@ export default function ReportsPage({t, report, settings, quickSearchTerm}) {
               <div className="flex-row justify-content-center">
                 <h2 className="primary-dark mt-0 mb-3">{t('report.title.barriers_remaining')}</h2>
               </div>
-              <ResolutionsReport t={t} reports={reports} visibility={chartVisibility} />
+              <div id="resolutionsReport" className="ResolutionsReport">
+                <ResolutionsReport t={t} reports={reports} visibility={chartVisibility} />
+              </div>
             </div>
 
             <div className="flex-column justify-content-start">
@@ -288,11 +301,6 @@ export default function ReportsPage({t, report, settings, quickSearchTerm}) {
               t={t}
               reports={reports}/>
           </div>
-
-          <div className="flex-row justify-content-end mt-3 mb-2 gap-2">
-            <button className="btn btn-primary" onClick={()=> printReport()}>{t('report.button.print')}</button>
-          </div>
-
         </div>
       )}
     </main>

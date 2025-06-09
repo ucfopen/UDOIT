@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import SortableTable from '../SortableTable'
+import DownloadIcon from '../Icons/DownloadIcon'
 
 export default function ReportsTable({
   t,
@@ -63,29 +64,6 @@ export default function ReportsTable({
     return list;
   }
 
-  const exportToCSV = () => {
-    const tempHeaders = headers.map(header => header.text);
-
-    const csvData = [];
-    csvData.push(tempHeaders.join(','));
-
-    rows.forEach(row => {
-      const rowData = headers.map(header => {
-        const value = row[header.id];
-        return `"${value}"`;
-      });
-      csvData.push(rowData.join(','));
-    });
-
-    const csvString = csvData.join('\n');
-    const blob = new Blob([csvString], { type: 'text/csv' });
-
-    const link = document.createElement('a');
-    link.href = URL.createObjectURL(blob);
-    link.download = 'UDOITHistoryReport.csv';
-    link.click();
-  }
-
   const handleTableSettings = (setting) => {
     setTableSettings(Object.assign({}, tableSettings, setting))
   }
@@ -95,16 +73,13 @@ export default function ReportsTable({
   }, [tableSettings, reports])
 
   return (
-    <>
-      <SortableTable
-        caption={t('report.title.scan_history')}
-        headers={headers}
-        rows={getContent()}
-        tableSettings={tableSettings}
-        handleTableSettings={handleTableSettings}
-        t={t}
-      />
-      <button onClick={()=>exportToCSV()}>Print to CSV</button>
-    </>
+    <SortableTable
+      caption={t('report.title.scan_history')}
+      headers={headers}
+      rows={getContent()}
+      tableSettings={tableSettings}
+      handleTableSettings={handleTableSettings}
+      t={t}
+    />
   )
 }

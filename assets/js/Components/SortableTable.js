@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
-import SortIcon from './Icons/SortIcon'
 import SortIconFilled from './Icons/SortIconFilled'
+import DownloadIcon from './Icons/DownloadIcon'
 
 import './SortableTable.css'
 
@@ -34,6 +34,30 @@ export default function SortableTable({
     setPagedRows(rows.slice(start, (start + tempRowsPerPage)))
   }
   , [tableSettings, rows])
+
+  const exportToCSV = () => {
+
+    const tempHeaders = headers.map(header => header.text);
+
+    const csvData = [];
+    csvData.push(tempHeaders.join(','));
+
+    rows.forEach(row => {
+      const rowData = headers.map(header => {
+        const value = row[header.id];
+        return `"${value}"`;
+      });
+      csvData.push(rowData.join(','));
+    });
+
+    const csvString = csvData.join('\n');
+    const blob = new Blob([csvString], { type: 'text/csv' });
+
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = `${caption}.csv`;
+    link.click();
+  }
 
   const handleSort = (id) => {
     if (['status', 'action'].includes(id)) {
@@ -126,7 +150,17 @@ export default function SortableTable({
       <table className="udoit-sortable-table">
         {( caption && caption.length > 0 ) &&
           <caption className="mb-2">
-            <h2 className="primary-dark mt-0 mb-0">{caption}</h2>
+            <div className="flex-row">
+              <div className="flex-grow-1 flex-row justify-content-center">
+                <h2 className="flex-column align-self-center primary-dark mt-0 mb-0">{caption}</h2>
+              </div>
+              <div className="flex-grow-0">
+                <button className="btn-secondary btn-icon-left" onClick={()=>exportToCSV()}>
+                  <DownloadIcon className="icon-md" />
+                  {t('report.button.download')}
+                </button>
+              </div>
+            </div>
           </caption>
         }
         <thead aria-label={t('report.label.sort_by')}>
