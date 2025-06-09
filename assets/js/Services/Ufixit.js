@@ -1,6 +1,7 @@
 import AltText from '../Components/Forms/AltText'
 import AnchorText from '../Components/Forms/AnchorText'
 import AriaRoleForm from '../Components/Forms/AriaRoleForm'
+import BlockquoteForm from '../Components/Forms/BlockquoteForm'
 import ContrastForm from '../Components/Forms/ContrastForm'
 import EmbeddedContentTitleForm from '../Components/Forms/EmbeddedContentTitleForm'
 import EmphasisForm from '../Components/Forms/EmphasisForm'
@@ -21,6 +22,7 @@ export const formNames = {
   ALT_TEXT: 'alt_text',
   ANCHOR_TEXT: 'anchor_text',
   ARIA_ROLE: 'aria_role',
+  BLOCKQUOTE: 'blockquote',
   CONTRAST: 'contrast',
   EMBEDDED_CONTENT_TITLE: 'embedded_content_title',
   EMPHASIS: 'emphasis',
@@ -42,6 +44,7 @@ const formTypes = {
   [formNames.ALT_TEXT]: AltText,
   [formNames.ANCHOR_TEXT]: AnchorText,
   [formNames.ARIA_ROLE]: AriaRoleForm,
+  [formNames.BLOCKQUOTE]: BlockquoteForm,
   [formNames.CONTRAST]: ContrastForm,
   [formNames.EMBEDDED_CONTENT_TITLE]: EmbeddedContentTitleForm,
   [formNames.EMPHASIS]: EmphasisForm,
@@ -96,6 +99,8 @@ const rulesToFormNameMap = {
 
   aria_role_valid: formNames.ARIA_ROLE,
 
+  blockquote_cite_exists: formNames.BLOCKQUOTE,
+
   text_contrast_sufficient: formNames.CONTRAST,
   
   applet_alt_exists: formNames.EMBEDDED_CONTENT_TITLE,
@@ -133,8 +138,7 @@ const rulesToFormNameMap = {
   
   caption_track_exists: formNames.MEDIA_CAPTIONS,
   media_audio_transcribed: formNames.MEDIA_CAPTIONS,
-
-  blockquote_cite_exists: formNames.QUOTE,
+  
   text_quoted_correctly: formNames.QUOTE,
 
   text_sensory_misuse: formNames.SENSORY_MISUSE,
@@ -143,8 +147,6 @@ const rulesToFormNameMap = {
   table_caption_nested: formNames.TABLE_CAPTION,
 
   table_headers_exists: formNames.TABLE_HEADERS,
-
-  
 }
 
 export function formFromIssue(activeIssue) {

@@ -61,14 +61,14 @@ export default function EmphasisForm({
     const metadata = activeIssue.metadata ? JSON.parse(activeIssue.metadata) : {}
     const html = Html.getIssueHtml(activeIssue)
     const element = Html.toElement(html)
-    return Html.hasTag(element, 'strong') || Html.hasTag(element, 'b') || metadata.fontWeight === 'bold'
+    return Html.getChild(element, 'strong') || Html.getChild(element, 'b') || metadata.fontWeight === 'bold'
   }
 
   const isItalicized = () => {
     const metadata = activeIssue.metadata ? JSON.parse(activeIssue.metadata) : {}
     const html = Html.getIssueHtml(activeIssue)
     const element = Html.toElement(html)
-    return Html.hasTag(element, 'em') || Html.hasTag(element, 'i') || metadata.fontStyle === 'italic'
+    return Html.getChild(element, 'em') || Html.getChild(element, 'i') || metadata.fontStyle === 'italic'
   }
 
   const handleBoldToggle = () => {

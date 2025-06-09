@@ -213,27 +213,21 @@ export function removeTag(element, tagName) {
   return element
 }
 
-export function hasTag(element, tagName) {
-  let found = false
-
+export function getChild(element, tagName) {
   if ('string' === typeof element) {
     element = toElement(element)
   }
 
   if (!element) {
-    return false
+    return null
   }
 
-  const startTags = [`<${tagName.toLowerCase()}>`, `<${tagName.toLowerCase()} `]
-  const endTag = `</${tagName.toLowerCase()}>`
-
-  for (let startTag of startTags) {
-    if (element.innerHTML.toLowerCase().includes(startTag) && (element.innerHTML.toLowerCase().includes(endTag))) {
-      found = true
-    }
+  let children = element.querySelectorAll(tagName)
+  if (children.length > 0) {
+    return children[0]
   }
-
-  return found
+  
+  return null
 }
 
 
@@ -370,6 +364,13 @@ export function getAccessibleName(element) {
     let caption = element.querySelector('caption')
     if(caption) {
       return getInnerText(caption)
+    }
+  }
+
+  if(tagName === 'blockquote') {
+    let cite = getAttribute(element, 'cite')
+    if(cite) {
+      return cite
     }
   }
   

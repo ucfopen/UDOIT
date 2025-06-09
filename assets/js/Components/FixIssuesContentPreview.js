@@ -83,6 +83,7 @@ export default function FixIssuesContentPreview({
   const ALT_TEXT_RELATED = [
     formNames.ALT_TEXT,            
     formNames.ANCHOR_TEXT,
+    formNames.BLOCKQUOTE,
     formNames.EMBEDDED_CONTENT_TITLE,
     formNames.LABEL,
     formNames.LABEL_UNIQUE
