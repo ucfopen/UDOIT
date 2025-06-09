@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react'
 import SortableTable from '../SortableTable'
-import DownloadIcon from '../Icons/DownloadIcon'
 import { formNameFromRule } from '../../Services/Ufixit'
 
 export default function IssuesTable({

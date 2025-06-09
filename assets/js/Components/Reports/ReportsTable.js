@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react'
 import SortableTable from '../SortableTable'
-import DownloadIcon from '../Icons/DownloadIcon'
 
 export default function ReportsTable({
   t,
@@ -50,18 +49,18 @@ export default function ReportsTable({
 
     list.sort((a, b) => {
       if (isNaN(a[sortBy]) || isNaN(b[sortBy])) {
-        return (a[sortBy].toLowerCase() < b[sortBy].toLowerCase()) ? -1 : 1;
+        return (a[sortBy].toLowerCase() < b[sortBy].toLowerCase()) ? -1 : 1
       }
       else {
-        return (Number(a[sortBy]) < Number(b[sortBy])) ? -1 : 1;
+        return (Number(a[sortBy]) < Number(b[sortBy])) ? -1 : 1
       }
     })
 
     if (!ascending) {
-      list.reverse();
+      list.reverse()
     }
 
-    return list;
+    return list
   }
 
   const handleTableSettings = (setting) => {
