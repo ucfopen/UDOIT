@@ -38,6 +38,7 @@ class EqualAccessService {
         "aria_content_in_landmark", 
         "aria_landmark_name_unique",
         "a_target_warning",
+        "text_quoted_correctly",
     );
 
     public function logToServer(string $message) {

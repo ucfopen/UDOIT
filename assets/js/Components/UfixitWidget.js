@@ -24,6 +24,7 @@ export default function UfixitWidget({
   severity,
   activeIssue,
   setActiveIssue,
+  activeContentItem,
   setEditedElement,
   formatIssueData,
   handleIssueResolve,
@@ -143,6 +144,7 @@ export default function UfixitWidget({
                           settings={settings}
                           isDisabled={!isErrorFoundInContent}
                           activeIssue={tempActiveIssue.issueData}
+                          activeContentItem={activeContentItem}
                           handleIssueSave={handleIssueSave}
                           handleActiveIssue={handleActiveIssue} /> )
                       }

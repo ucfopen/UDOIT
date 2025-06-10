@@ -14,6 +14,7 @@ export default function BlockquoteForm({
   const [hideCitation, setHideCitation] = useState(false)
   const [removeBlockquote, setRemoveBlockquote] = useState(false)
   const [formErrors, setFormErrors] = useState([])
+  const [triggerCheck, setTriggerCheck] = useState(false)
 
   // Re-init form when activeIssue changes
   useEffect(() => {
@@ -36,12 +37,13 @@ export default function BlockquoteForm({
     setHideCitation(inlineCite && !elementCite)
     setRemoveBlockquote(!isBlockquote)
     setFormErrors([])
+    setTriggerCheck(!triggerCheck) // Trigger a check (below) to ensure the form updates correctly
   }, [activeIssue])
 
   useEffect(() => {
     checkFormErrors()
     handleHtmlUpdate()
-  }, [citationText, hideCitation, removeBlockquote])
+  }, [citationText, hideCitation, removeBlockquote, triggerCheck])
 
   // If the blockquote only contains text, we return that text wrapped in a <p> tag
   const embedTextOnlyInParagraph = (element) => {
@@ -180,7 +182,10 @@ export default function BlockquoteForm({
           tabindex="0"
           disabled={isDisabled || removeBlockquote}
           onChange={handleHideToggle} />
-        <label htmlFor="hideCheckbox">{t('form.blockquote.label.hide_citation')}</label>
+        <label className="instructions" htmlFor="hideCheckbox">{t('form.blockquote.label.hide_citation')}</label>
+      </div>
+      <div className="mt-1">
+        <em>{t('form.blockquote.label.hide_citation_desc')}</em>
       </div>
 
       <div className="separator mt-2">{t('fix.label.or')}</div>

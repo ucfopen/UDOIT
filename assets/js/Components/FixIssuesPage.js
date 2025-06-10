@@ -1123,6 +1123,7 @@ export default function FixIssuesPage({
                 severity={activeIssue.severity}
                 activeIssue={activeIssue}
                 setActiveIssue={setActiveIssue}
+                activeContentItem={activeContentItem}
                 setEditedElement={setEditedElement}
                 formatIssueData={formatIssueData}
                 isContentLoading={contentItemsBeingScanned.includes(activeIssue?.issueData?.contentItemId)}

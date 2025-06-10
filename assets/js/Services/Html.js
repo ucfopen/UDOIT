@@ -230,6 +230,27 @@ export function getChild(element, tagName) {
   return null
 }
 
+export function getAllIds(doc) {
+  if ('string' === typeof doc) {
+    const parser = new DOMParser()
+    doc = parser.parseFromString(doc, "text/html")
+  }
+
+  if (!doc) {
+    return null
+  }
+
+  // Get all elements with an ID attribute
+  let elements = doc.querySelectorAll('[id]')
+  let ids = []
+  elements.forEach(element => {
+    let id = element.getAttribute('id')
+    if (id && !ids.includes(id)) {
+      ids.push(id)
+    }
+  })
+  return ids
+}
 
 export function renameElement(element, newName) {
   if ('string' === typeof element) {
