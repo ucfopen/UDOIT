@@ -422,6 +422,11 @@ const findElementWithXpath = (content, xpath) => {
     xpath = xpath.substring(1)
   }
 
+  // If there is no xpath aside from the root element, return null
+  if(xpath === 'html[1]/body[1]') {
+    return null
+  }
+
   if(xpath.length > 0) {
     let pathParts = xpath.split('/').map(part => {
       let match = part.match(/(\w+)\[(\d+)\]/)

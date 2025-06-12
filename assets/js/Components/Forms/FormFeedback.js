@@ -2,7 +2,8 @@ import React, { useState, useEffect } from 'react'
 
 export default function FormFeedback({
   t,
-  handleSubmit,
+  handleSubmit = null,
+  activeContentItem = null,
   isDisabled = false,
   formErrors = [],
 }) {
@@ -52,23 +53,36 @@ export default function FormFeedback({
   
   return (
     <div className="flex-row justify-content-between gap-3 mt-4">
-      <div className="flex-column justify-content-start">
-        <button
-          className="btn btn-primary"
-          disabled={isDisabled || hasErrors}
-          tabindex="0"
-          onClick={handleSubmit}>
-          {t('form.submit')}
-        </button>
-      </div>
-      { formattedIssues.length > 0 && (
-        <div className="flex-column justify-content-start gap-1">
-          {formattedIssues.map((issue, index) => (
-            <div className="flex-row justify-content-end gap-1" key={index}>
-              <div className="error-text text-end">{issue.text}</div>
+      { !handleSubmit && activeContentItem?.url && (
+        <a href={activeContentItem.url} 
+           className="btn btn-secondary"
+           target="_blank"
+           rel="noopener noreferrer"
+           tabindex="0">
+          {t('fix.button.lms_solve')}
+        </a>
+      )}
+      { handleSubmit && (
+        <>
+          <div className="flex-column justify-content-start">
+            <button
+              className="btn btn-primary"
+              disabled={isDisabled || hasErrors}
+              tabindex="0"
+              onClick={handleSubmit}>
+              {t('form.submit')}
+            </button>
+          </div>
+          { formattedIssues.length > 0 && (
+            <div className="flex-column justify-content-start gap-1">
+              {formattedIssues.map((issue, index) => (
+                <div className="flex-row justify-content-end gap-1" key={index}>
+                  <div className="error-text text-end">{issue.text}</div>
+                </div>
+              ))}
             </div>
-          ))}
-        </div>
+          )}
+        </>
       )}
     </div>
   )

@@ -9,6 +9,7 @@ import HeadingEmptyForm from '../Components/Forms/HeadingEmptyForm'
 import HeadingStyleForm from '../Components/Forms/HeadingStyleForm'
 import LabelForm from '../Components/Forms/LabelForm'
 import LinkForm from '../Components/Forms/LinkForm'
+import ListForm from '../Components/Forms/ListForm'
 import MediaCaptionsForm from '../Components/Forms/MediaCaptionsForm'
 import QuoteForm from '../Components/Forms/QuoteForm'
 import SensoryMisuseForm from '../Components/Forms/SensoryMisuseForm'
@@ -31,6 +32,7 @@ export const formNames = {
   LABEL: 'label',
   LABEL_UNIQUE: 'label_unique',
   LINK: 'link',
+  LIST: 'list',
   MEDIA_CAPTIONS: 'media_captions',
   QUOTE: 'quote',
   SENSORY_MISUSE: 'sensory_misuse',
@@ -53,6 +55,7 @@ const formTypes = {
   [formNames.LABEL]: LabelForm,
   [formNames.LABEL_UNIQUE]: LabelForm,
   [formNames.LINK]: LinkForm,
+  [formNames.LIST]: ListForm,
   [formNames.MEDIA_CAPTIONS]: MediaCaptionsForm,
   [formNames.QUOTE]: QuoteForm,
   [formNames.SENSORY_MISUSE]: SensoryMisuseForm,
@@ -135,7 +138,10 @@ const rulesToFormNameMap = {
   aria_region_label_unique: formNames.LABEL_UNIQUE,
   aria_search_label_unique: formNames.LABEL_UNIQUE,
   aria_toolbar_label_unique: formNames.LABEL_UNIQUE,
-  
+
+  list_markup_review: formNames.LIST,
+  list_structure_proper: formNames.LIST,
+
   caption_track_exists: formNames.MEDIA_CAPTIONS,
   media_audio_transcribed: formNames.MEDIA_CAPTIONS,
   

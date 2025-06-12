@@ -303,7 +303,6 @@
   "form.heading_style.label.select": "Escoge el Nivel de Encabezado",
   "form.heading_style.label.none_selected": "No Hay Nivel de Encabezado Seleccionado",
   "form.heading_style.label.remove_styling": "Elimina los Estilos",
-  "form.heading_style.msg.select_heading": "El nivel de encabezado no puede estar vacío",
   "rule.desc.heading_markup_misuse": "TODO: This text is marked as a heading, but does not appear to be one. If it is, you may ignore this issue and mark it as reviewed. If it is not a heading, remove the heading level.",
   "rule.desc.text_block_heading": "TODO: This text seems to be a heading, but is not marked as one. If it is a heading, select an appropriate heading level. If not, you may remove any styling or mark it as reviewed.",
 
