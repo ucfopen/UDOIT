@@ -125,30 +125,32 @@ export default function UfixitWidget({
             <div className={`ufixit-double-container flex-grow-1 flex-row gap-3 ${viewInfo ? 'ufixit-shift-view' : ''}`}>
               { /* First item: the form and controls... Visible when !viewInfo, so 'ufixit-shift-view' is NOT applied */}
               <div className="flex-grow-1 flex-column ufixit-form-container" aria-hidden={viewInfo ? "true" : "false"} >
-                <div className="ufixit-form-inner-scrollable flex-column">
-                  <div className="flex-grow-0">
-                    <FormClarification t={t} activeIssue={activeIssue} />
-                  </div>
+                <div className="ufixit-form-inner-scrollable">
                   {/* <h2>{activeIssue.scanRuleId}</h2> */}
-                  { activeIssue.status !== settings.FILTER.RESOLVED &&
-                    <div className="flex-grow-1 ufixit-form-content">
-                      { activeIssue.contentType === settings.FILTER.FILE_OBJECT ? (
-                        <FileForm
-                          t={t}
-                          settings={settings}
-                          activeFile={activeIssue}
-                          handleFileUpload={handleFileUpload} /> )
-                        : (
-                        <UfixitForm
-                          t={t}
-                          settings={settings}
-                          isDisabled={!isErrorFoundInContent}
-                          activeIssue={tempActiveIssue.issueData}
-                          activeContentItem={activeContentItem}
-                          handleIssueSave={handleIssueSave}
-                          handleActiveIssue={handleActiveIssue} /> )
-                      }
-                    </div>
+                  { (activeIssue.status !== settings.FILTER.RESOLVED && activeIssue.status !== settings.FILTER.FIXEDANDRESOLVED) &&
+                    <>
+                      <FormClarification t={t} activeIssue={activeIssue} />
+                      <div className="flex-grow-1 ufixit-form-content">
+                        { activeIssue.contentType === settings.FILTER.FILE_OBJECT ? (
+                          <FileForm
+                            t={t}
+                            settings={settings}
+                            activeFile={activeIssue}
+                            handleFileUpload={handleFileUpload} /> )
+                          : (
+                          <UfixitForm
+                            t={t}
+                            settings={settings}
+                            isDisabled={!isErrorFoundInContent}
+                            activeIssue={tempActiveIssue.issueData}
+                            activeContentItem={activeContentItem}
+                            handleIssueSave={handleIssueSave}
+                            addMessage={addMessage}
+                            handleActiveIssue={handleActiveIssue}
+                            handleManualScan={handleManualScan} /> )
+                        }
+                      </div>
+                    </>
                   }
                   <div className="flex-grow-0">
                     <FixIssuesResolve

@@ -15,7 +15,7 @@ import './FixIssuesPage.css'
   * --- report.issues: All of the issues in a format that mirrors the database. Saving a loading is done with this.
   * --- report.files: All of the files in a format that mirrors the database. Saving a loading is done with this.
   * --- report.contentItems: All of the content items in the course. This is used to store the content for each issue.
-  * 
+  *
   * After the data is brought in through the API, it is formatted in the formatIssueData and formatFileData functions
   * and stored in a list that can be filtered.
   * - unfilteredIssues: A list of all the issues in the course, formatted for the front end.
@@ -122,7 +122,7 @@ export default function FixIssuesPage({
     else if(issue.type === 'potential' || issue.type === 'POTENTIAL' || issue.type === 'MANUAL') {
       issueSeverity = FILTER.POTENTIAL
     }
-    
+
     let issueContentType = FILTER.ALL
     let issueSectionIds = []
     let published = true
@@ -179,7 +179,7 @@ export default function FixIssuesPage({
         contentItemId, which is necessary to match the issue to the content. The only current
         data that matches are the moduleItem's page_url are the contentItem's lmsContentId,
         which are both the same internal link URL. */
-        
+
       if(sections && sections.length > 0) {
         sections.forEach((section) => {
           let tempSectionId = section.id
@@ -231,7 +231,7 @@ export default function FixIssuesPage({
       contentType: issueContentType,
       contentTitle: tempContentItem.title,
       contentUrl: tempContentItem.url,
-      currentState: currentState, 
+      currentState: currentState,
     }
   }
 
@@ -249,10 +249,10 @@ export default function FixIssuesPage({
     let formLabel = t(`form.file.title`)
 
     let fileTypeLabel = t(`label.mime.unknown`)
-    
+
     // Guarantee that the keywords include the word "file" in each language
     let keywords = [ fileData.fileName.toLowerCase(), fileTypeLabel.toLowerCase(), formLabel.toLowerCase() ]
-    
+
     // Keywords should include the file type ('MS Word', 'PDF', etc.)
     if(FILE_TYPES.includes(fileData.fileType)) {
       fileTypeLabel = t(`label.mime.${fileData.fileType}`)
@@ -375,7 +375,7 @@ export default function FixIssuesPage({
       const issues = tempFilteredContent.filter((issue) => issue.formLabel === formLabel)
       tempGroupedList.push({ formLabel: formLabel, issues })
     })
-    
+
     setGroupedList(tempGroupedList)
 
     // If nothing matches the filters, show the no results view
@@ -421,7 +421,7 @@ export default function FixIssuesPage({
     let tempActiveIssue = null
 
     // If there is an activeIssue, we need to connect it to something in the new list of issues.
-    if(activeIssue) {  
+    if(activeIssue) {
       // Quick check: is the old activeIssue still in the list?
       tempUnfilteredIssues.forEach((issue) => {
         if(issue.id === activeIssue.id) {
@@ -472,7 +472,7 @@ export default function FixIssuesPage({
       setWidgetState(WIDGET_STATE.NO_RESULTS)
       return
     }
-  
+
     setWidgetState(WIDGET_STATE.FIXIT)
 
     if(activeIssue.contentType === FILTER.FILE_OBJECT) {
@@ -513,7 +513,7 @@ export default function FixIssuesPage({
   //   // the filters. For instance, if I'm only looking through "Unreviewed" issues, and I click on the
   //   // "Mark as Reviewed" button, that newly-reviewed issue should be available to stay on screen.
   //   const tempFilteredIssues = getFilteredContent(activeIssue.id)
-    
+
   //   // Quick check: is the active issue still in the list?
   //   let activeIssueFound = false
   //   tempFilteredIssues.forEach((issue) => {
@@ -528,7 +528,7 @@ export default function FixIssuesPage({
   //     if(activeIssue.contentType === FILTER.FILE_OBJECT) {
   //       tempFilteredIssues.forEach((issue) => {
   //         if(issue.contentId === activeIssue.contentId) {
-  //           activeIssueFound = true        
+  //           activeIssueFound = true
   //           setActiveIssue(issue)
   //         }
   //       })
@@ -690,7 +690,7 @@ export default function FixIssuesPage({
   // - filteredIssues
   // This does NOT change the report object, which updates when the issue's data changes.
   const updateActiveSessionIssue = (issueId, state = null, contentItemId = null) => {
-    
+
     if(state === null) {
       state = settings.ISSUE_STATE.UNCHANGED
     }
@@ -804,7 +804,7 @@ export default function FixIssuesPage({
     const tempDoc = parser.parseFromString(content.body, 'text/html')
 
     let errorElement = Html.findElementWithIssue(tempDoc, issue)
-      
+
     if(!errorElement) {
       console.warn("Could not find error element when attempting to save...")
       return
@@ -840,7 +840,7 @@ export default function FixIssuesPage({
           if (response.data.failed) {
             updateActiveSessionIssue(issue.id, settings.ISSUE_STATE.ERROR)
             response.messages.forEach((msg) => addMessage(msg))
-            
+
             if (Array.isArray(response.data.issues)) {
               response.data.issues.forEach((issue) => {
                 addMessage({
@@ -860,10 +860,10 @@ export default function FixIssuesPage({
             }
           }
           else {
-            
+
             // If the save was successful, show the success message
             response.messages.forEach((msg) => addMessage(msg))
-            
+
             if (response.data.issue) {
               // Update the report object by rescanning the content
               const newIssue = Object.assign({}, issue, response.data.issue)
@@ -874,7 +874,7 @@ export default function FixIssuesPage({
 
               api.scanContent(newIssue.contentItemId)
                 .then((responseStr) => responseStr.json())
-                .then((res) => { 
+                .then((res) => {
                   const tempReport = Object.assign({}, res?.data)
                   processNewReport(tempReport)
                   removeItemFromBeingScanned(newIssue.contentItemId)
@@ -909,7 +909,7 @@ export default function FixIssuesPage({
         .then((response) => {
           const updatedFileData = { ...tempFile, ...response.data.file }
 
-          // Set messages 
+          // Set messages
           response.messages.forEach((msg) => addMessage(msg))
 
           // Update the local report and activeIssue
@@ -953,14 +953,14 @@ export default function FixIssuesPage({
         .then((response) => {
 
           response.messages.forEach((msg) => addMessage(msg))
-        
+
           if (response.data.issue) {
             const newIssue = { ...tempIssue, ...response.data.issue }
 
             if(activeIssue.id === tempIssue.id) {
               setActiveIssue(formatIssueData(newIssue))
             }
-            
+
             addItemToBeingScanned(newIssue.contentItemId)
 
             // Get updated report
@@ -969,7 +969,7 @@ export default function FixIssuesPage({
               .then((res) => {
                 const tempReport = Object.assign({}, res?.data)
                 processNewReport(tempReport)
-                
+
                 if(!tempIssue.status) {
                   updateActiveSessionIssue(tempIssue.id, null)
                 }
@@ -998,9 +998,9 @@ export default function FixIssuesPage({
 
   const handleFileResolve = (fileData) => {
     updateActiveSessionIssue("file-" + fileData.id, settings.ISSUE_STATE.RESOLVING)
-    
+
     let tempFile = Object.assign({}, fileData)
-    tempFile.reviewed = !(tempFile.reviewed) 
+    tempFile.reviewed = !(tempFile.reviewed)
 
     try {
       let api = new Api(settings)
@@ -1114,7 +1114,7 @@ export default function FixIssuesPage({
               groupedList={groupedList}
               setActiveIssue={setActiveIssue}
             />
-          ) : activeIssue ? (  
+          ) : activeIssue ? (
               <UfixitWidget
                 t={t}
                 settings={settings.FILTER ? settings : Object.assign({}, settings, { FILTER })}
