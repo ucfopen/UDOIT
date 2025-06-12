@@ -46,6 +46,7 @@ class IssuesController extends ApiController
             $sourceHtml = $issueUpdate['sourceHtml'];
             $newHtml = $issueUpdate['newHtml'];
             $fullPageHtml = $issueUpdate['fullPageHtml'];
+            $xpath = $issueUpdate['xpath'];
 
             // Check if new HTML is different from original HTML
             if ($issue->getPreviewHtml() === $newHtml || $sourceHtml === $newHtml) {
@@ -54,6 +55,7 @@ class IssuesController extends ApiController
 
             $issue->setPreviewHtml($sourceHtml);
             $issue->setNewHtml($newHtml);
+            $issue->setHtml($xpath);
             $this->doctrine->getManager()->flush();
 
             // Save content to LMS

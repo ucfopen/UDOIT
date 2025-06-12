@@ -409,7 +409,25 @@ export function getAccessibleName(element) {
   return ''
 }
 
-const findElementWithXpath = (content, xpath) => {
+export const findXpathFromElement = (element) => {
+  if (!element) {
+    return null
+  }
+
+  // Get the path to the element
+  let path = []
+  while (element && element.nodeType === Node.ELEMENT_NODE) {
+    let tagName = element.tagName.toLowerCase()
+    let siblings = Array.from(element.parentNode.children).filter(sibling => sibling.tagName.toLowerCase() === tagName)
+    let index = siblings.indexOf(element) + 1 // +1 for 1-based index
+    path.unshift(`${tagName}[${index}]`)
+    element = element.parentNode
+  }
+
+  return '/' + path.join('/')
+}
+
+export const findElementWithXpath = (content, xpath) => {
   
   if(xpath.startsWith('/html[1]/body[1]/main[1]/')) {
     xpath = xpath.replace('/html[1]/body[1]/main[1]/', '/html[1]/body[1]/')
@@ -447,7 +465,9 @@ const findElementWithXpath = (content, xpath) => {
   return null
 }
 
-const findElementWithError = (content, errorElement) => {
+export const findElementWithError = (content, errorHtml) => {
+  let errorElement = toElement(errorHtml)
+  
   if(errorElement) {
     // Find the first element in the document that matches the error element.
     const docElement = Array.from(content.body.querySelectorAll(errorElement.tagName)).find((matchElement) => {
@@ -475,7 +495,6 @@ export function findElementWithIssue(content, issue) {
       return null
     }
 
-    let element = toElement(issue.sourceHtml)
-    return findElementWithError(content, element)
+    return findElementWithError(content, issue.sourceHtml)
   }
 }

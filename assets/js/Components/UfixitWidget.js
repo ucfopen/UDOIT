@@ -22,6 +22,7 @@ export default function UfixitWidget({
   viewInfo,
   setViewInfo,
   severity,
+  addMessage,
   activeIssue,
   setActiveIssue,
   activeContentItem,
@@ -146,8 +147,7 @@ export default function UfixitWidget({
                             activeContentItem={activeContentItem}
                             handleIssueSave={handleIssueSave}
                             addMessage={addMessage}
-                            handleActiveIssue={handleActiveIssue}
-                            handleManualScan={handleManualScan} /> )
+                            handleActiveIssue={handleActiveIssue} /> )
                         }
                       </div>
                     </>
