@@ -24,14 +24,17 @@ export default function BlockquoteForm({
     }
 
     const html = Html.getIssueHtml(activeIssue)
+    let newCite = ""
+    let inlineCite = ""
+    let elementCite = null
     let tempElement = Html.toElement(html)
-    tempElement = embedTextOnlyInParagraph(tempElement)
-
-    const inlineCite = tempElement ? Html.getAttribute(tempElement, "cite") : ""
-    const elementCite = Html.getChild(tempElement, "cite")
     const isBlockquote = tempElement && tempElement.tagName.toLowerCase() === 'blockquote'
-
-    const newCite = elementCite ? elementCite.textContent : inlineCite
+    if(isBlockquote) {
+      tempElement = embedTextOnlyInParagraph(tempElement)
+      inlineCite = tempElement ? Html.getAttribute(tempElement, "cite") : ""
+      elementCite = Html.getChild(tempElement, "cite")
+      newCite = elementCite ? elementCite.textContent : inlineCite
+    }
 
     setCitationText(newCite || "")
     setHideCitation(inlineCite && !elementCite)
@@ -87,6 +90,23 @@ export default function BlockquoteForm({
       return ''
     }
 
+    const isBlockquote = updatedElement && updatedElement.tagName.toLowerCase() === 'blockquote'
+
+    // Case 1: Element is NOT a blockquote any more ("fixed" by the user), but they haven't unchecked the "remove blockquote" checkbox...
+    if(!isBlockquote && removeBlockquote) {
+      return Html.toString(updatedElement)
+    }
+
+    // Case 2: Element is NOT a blockquote, but the user has unchecked the "remove blockquote" checkbox... Make it a blockquote again and continue.
+    if(!isBlockquote && !removeBlockquote) {
+      // We need to wrap the content in a blockquote tag
+      const newBlockquote = document.createElement('blockquote')
+      updatedElement.childNodes.forEach(node => {
+        newBlockquote.appendChild(node)
+      })
+      updatedElement = newBlockquote
+    }
+
     updatedElement = embedTextOnlyInParagraph(updatedElement)
 
     // If the blockquote is to be removed...
@@ -117,6 +137,11 @@ export default function BlockquoteForm({
     // If the citation is present but needs to be visually hidden, add it as the cite attribute
     if (hideCitation && citationText.length > 0) {
       updatedElement = Html.setAttribute(updatedElement, 'cite', citationText)
+      // Remove any existing cite tag, as it will not be used
+      const existingCite = updatedElement.querySelector('cite')
+      if (existingCite) {
+        existingCite.remove()
+      }
     }
 
     // If the citation is not hidden, we want to update or add the cite tag inside the blockquote
@@ -133,6 +158,8 @@ export default function BlockquoteForm({
           updatedElement.appendChild(citeElement)
         }
       }
+      // Remove the cite attribute if it exists
+      updatedElement.removeAttribute('cite')
     }
 
     const newHtmlString = Html.toString(updatedElement)
