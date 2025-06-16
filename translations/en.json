@@ -149,6 +149,7 @@
   "filter.label.account": "Account",
   "filter.label.term": "Term",
   "filter.label.include_subaccounts": "Include courses from sub-accounts",
+  "filter.label.issue_count": "{count} Barriers",
 
   "fix.label.select_issue": "Select Issue",
   "fix.label.no_selection": "No Issue Selected",

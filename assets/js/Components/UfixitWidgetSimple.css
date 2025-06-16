@@ -12,6 +12,15 @@
   }
 }
 
+.ufixit-widget {
+  height: 50%;
+  background-color: var(--background-color);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 1rem 1rem .5rem 1rem;
+  overflow-y: auto;
+}
+
 .clarification-container {
   border: 1px solid var(--border-color);
   border-radius: 8px;

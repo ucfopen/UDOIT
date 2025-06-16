@@ -13,57 +13,85 @@
     margin-left: -5px;
     margin-right: -5px;
 
-    .ufixit-list-section-container:not(:last-child) {
-      margin-bottom: 1.5rem;
+    .ufixit-list-section-container {
+      margin-bottom: -2px;
     }
 
     .ufixit-list-heading {
       position: sticky;
       top: 0;
       background-color: var(--white);
-      padding: .5rem;
-      border-bottom: 2px solid var(--gray);
+      padding: 1rem;
+      border: 1px solid var(--gray);
+      cursor: pointer;
     
       h3 {
         color: var(--primary-color);
         margin: 0;
         font-weight: 700;
       }
+
+      .ufixit-list-heading-count {
+        display: flex;
+        flex-direction: column;
+        justify-content: end;
+        font-size: .9rem;
+        font-weight: 600;
+        color: var(--gray-dark);
+        text-transform: uppercase;
+      }
+
+      .expand-icon {
+        transition: transform var(--transition-time) ease-in-out;
+      }
+
+      &:hover, &:focus {
+        background-color: var(--link-color-light);
+      }
+
+      &:focus {
+        outline: 2px solid var(--focus-color);
+        outline-offset: -2px;
+      }
     }
     
+  .ufixit-list-items-container {
+    transition: max-height var(--transition-time) ease-in-out;
+    max-height: 0px;
+    overflow: hidden;
+    background-color: var(--background-color);
+    border: 1px solid var(--gray);
+    border-top: none;
+
+    &.open {
+      max-height: 360px; /* Adjust as needed */
+      overflow-y: auto;
+    }
+  }
+
     .ufixit-list-item {
       cursor: pointer;
-      padding: .2rem .5rem;
-      border-bottom: 1px solid var(--gray);
+      padding: 1rem 1.5rem;
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
       font-weight: 600;
       fill: var(--gray);
-      font-size: .9rem;
-
-      .data-pill {
-        padding: 0.05rem 0.5rem;
-        border-radius: 15px;
-        background-color: transparent;
-        color: var(--gray-dark);
-        font-size: 0.8rem;
-        /* border: 1px solid var(--gray); */
-        border: none;
-        height: fit-content;
-        flex-shrink: 0;
-
-        &.fixed {
-          /* background-color: var(--primary-color-light); */
-          color: var(--primary-color);
-          border-color: var(--primary-color)
-        }
+      font-size: 1rem;
+      margin: 0.5rem 1rem;
+      background-color: var(--white);
+      
+      .data-pill.fixed {
+        color: var(--primary-color);
+        border-color: var(--primary-color)
       }
 
-      &:nth-child(even) {
+      /* &:nth-child(even) {
         background-color: var(--background-color);
-      }
+      } */
 
-      &:last-child {
-        border-bottom-width: 2px;
-      }
+      /* &:last-child {
+        border-bottom: none;
+      } */
     
       &:hover, &:focus {
         background-color: var(--link-color-light);
@@ -73,11 +101,24 @@
         .list-item-title {
           text-decoration: underline;
         }
+
+        .data-pill {
+          background-color: var(--white);;
+        }
       }
 
       &:focus {
         outline: 2px solid var(--focus-color);
         outline-offset: -2px;
+
+        .data-pill {
+          padding: 0.05rem 0.5rem;
+
+          .data-pill-text {
+            max-width: 200px;
+            margin-left: 0.5rem;
+          }
+        }
       }
     }
   }  

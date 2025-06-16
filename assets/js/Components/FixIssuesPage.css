@@ -10,9 +10,25 @@
 }
 
 .ufixit-page-divider {
-  display: flex;
-  flex-direction: row-reverse;
   gap: 2rem;
+}
+
+
+.ufixit-content-container {
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+  flex-shrink: 1;
+
+  height: 650px;
+  max-height: 1000px;
+  box-sizing: border-box;
+  overflow-y: hidden;
+  overflow-x: hidden;
+
+  /* This is so the highlighted error outlines don't get cut off */
+  padding: 5px;
+  margin: -5px;
 }
 
 .ufixit-widget-container {
@@ -30,30 +46,8 @@
   overflow-y: hidden;
   overflow-x: hidden;
 
-  background-color: var(--background-color);
-  border: 1px solid var(--border-color);
-  border-radius: 8px;
-
-  padding: 1rem 1rem .5rem 1rem;
-}
-
-.ufixit-content-container {
-  display: flex;
-  flex-direction: column;
-  flex-grow: 1;
-  flex-shrink: 1;
-
-  height: 650px;
-  max-height: 1000px;
-  box-sizing: border-box;
-  overflow-y: hidden;
-  overflow-x: hidden;
-
-  /* This is so the highlighted error outlines don't get cut off */
-  padding-left: 5px;
-  padding-right: 5px;
-  margin-left: -5px;
-  margin-right: -5px;
+  padding: 5px;
+  margin: -5px;
 }
 
 .ufixit-content-progress {

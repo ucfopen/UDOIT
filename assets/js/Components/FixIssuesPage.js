@@ -1106,7 +1106,7 @@ export default function FixIssuesPage({
         </>
       ) : (
         <>
-        <div className="flex-row justify-content-between pt-1 pb-1 ufixit-nav-container">
+        {/* <div className="flex-row justify-content-between pt-1 pb-1 ufixit-nav-container">
           <button onClick={toggleListView} className="btn text-button btn-icon-left">
             <LeftArrowIcon className="icon-sm link-color" />{t('fix.button.list')}
           </button>
@@ -1127,9 +1127,27 @@ export default function FixIssuesPage({
               <RightArrowIcon className={`icon-sm ` + (filteredIssues.length < 2 ? 'gray' : 'link-color')} />
             </button>
           </div>
-        </div>
+        </div> */}
         
-        <div className="ufixit-page-divider mt-3">
+        <div className="ufixit-page-divider flex-row">
+          <section className='ufixit-content-container'>
+            <button onClick={toggleListView} className="btn btn-link btn-icon-left btn-small mb-2">
+              <LeftArrowIcon className="icon-sm link-color" />{t('fix.button.list')}
+            </button>
+            {filteredIssues.length > 0 && (
+              <FixIssuesContentPreview
+                t={t}
+                settings={settings.FILTER ? settings : Object.assign({}, settings, { FILTER })}
+                activeIssue={activeIssue}
+                activeContentItem={activeContentItem}
+                editedElement={editedElement}
+                sessionIssues={sessionIssues}
+                isErrorFoundInContent={isErrorFoundInContent}
+                setIsErrorFoundInContent={setIsErrorFoundInContent}
+                contentItemsBeingScanned={contentItemsBeingScanned}
+              />
+            )}
+          </section>
           <section className="ufixit-widget-container">
             { activeIssue ? (  
                 <UfixitWidgetSimple
@@ -1153,24 +1171,23 @@ export default function FixIssuesPage({
                   nextIssue={nextIssue}
                 />
             ) : ''}
-          </section>
-          <section className={`ufixit-content-container ${filteredIssues.length === 0 ? 'justify-content-end' : ''}`}>
-            {filteredIssues.length > 0 && (
-              <FixIssuesContentPreview
-                t={t}
-                settings={settings.FILTER ? settings : Object.assign({}, settings, { FILTER })}
-                activeIssue={activeIssue}
-                activeContentItem={activeContentItem}
-                editedElement={editedElement}
-                sessionIssues={sessionIssues}
-                isErrorFoundInContent={isErrorFoundInContent}
-                setIsErrorFoundInContent={setIsErrorFoundInContent}
-                contentItemsBeingScanned={contentItemsBeingScanned}
-              />
-            )}
-            {/* <div className="ufixit-content-progress">
-              <DailyProgress t={t} sessionIssues={sessionIssues} settings={settings}/>
-            </div> */}
+            <div className="flex-row justify-content-end gap-2 mt-2">
+              <button
+                className={`btn btn-small btn-link btn-icon-left ${filteredIssues.length < 2 ? 'disabled' : ''}`}
+                onClick={() => nextIssue(true)}
+                tabindex="0">
+                <LeftArrowIcon className={`icon-sm ` + (filteredIssues.length < 2 ? 'gray' : 'link-color')} />
+                <div className="flex-column justify-content-center">{t('fix.button.previous')}</div>
+              </button>
+
+              <button
+                className={`btn btn-small btn-link btn-icon-right ${filteredIssues.length < 2 ? 'disabled' : ''}`}
+                onClick={() => nextIssue()}
+                tabindex="0">
+                <div className="flex-column justify-content-center">{t('fix.button.next')}</div>
+                <RightArrowIcon className={`icon-sm ` + (filteredIssues.length < 2 ? 'gray' : 'link-color')} />
+              </button>
+            </div>
           </section>
         </div>
         </>

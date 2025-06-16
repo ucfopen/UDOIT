@@ -125,7 +125,7 @@ export default function UfixitWidgetSimple({
     <>
       {UfixitForm && activeIssue ? 
         (
-          <>
+          <div class="ufixit-widget flex-column flex-grow-1">
             {/* The header with the issue name and severity icon */}
             <div className="ufixit-widget-header flex-row justify-content-between mb-3">
               <div className="flex-column justify-content-center allow-word-break">
@@ -252,7 +252,7 @@ export default function UfixitWidgetSimple({
                 )}
               </div>
             )}
-          </>
+          </div>
         ) : ''}
     </>
   )
