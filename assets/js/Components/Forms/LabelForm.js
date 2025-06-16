@@ -46,7 +46,7 @@ export default function LabelForm({
 
     updatedElement = Html.setAttribute(updatedElement, "aria-label", textInputValue)
     updatedElement = Html.setAttribute(updatedElement, "title", textInputValue)
-    
+
     let issue = activeIssue
     issue.newHtml = Html.toString(updatedElement)
     handleActiveIssue(issue)
