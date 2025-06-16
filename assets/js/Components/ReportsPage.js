@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react'
 
 import Api from '../Services/Api'
-import IssuesReport from './Reports/IssuesReport'
 import ResolutionsReport from './Reports/ResolutionsReport'
 import ReportsTable from './Reports/ReportsTable'
 import IssuesTable from './Reports/IssuesTable'
 import ProgressIcon from './Icons/ProgressIcon'
+import PrintIcon from './Icons/PrintIcon'
 
 export default function ReportsPage({t, report, settings, quickSearchTerm}) {
 
@@ -35,7 +35,7 @@ export default function ReportsPage({t, report, settings, quickSearchTerm}) {
     for (let issue of report.issues) {
       const rule = issue.scanRuleId
       const status = issue.status
-      
+
       if (!rules[rule]) {
         rules[rule] = {
           id: rule,
@@ -77,15 +77,151 @@ export default function ReportsPage({t, report, settings, quickSearchTerm}) {
     setChartVisibility(tempVisibility)
   }
 
+  const getPrintableReportsTable = (reports, t) => {
+    const headers = [
+      { id: "created", text: t('report.header.date') },
+      { id: "errors", text: t('report.header.issues'), alignText: 'center' },
+      { id: "potentialIssues", text: t('report.header.potential'), alignText: 'center' },
+      { id: "suggestions", text: t('report.header.suggestions'), alignText: 'center' },
+      { id: "contentFixed", text: t('report.header.items_fixed'), alignText: 'center' },
+      { id: "contentResolved", text: t('report.header.items_resolved'), alignText: 'center' },
+      { id: "filesReviewed", text: t('report.header.files_reviewed'), alignText: 'center'}
+    ]
+
+    const sortedReports = [...reports].sort((a, b) => {
+      return new Date(b.created) - new Date(a.created)
+    })
+
+    const tableHeaders = headers.map(h => `<th>${h.text}</th>`).join('')
+    const tableRows = sortedReports.map(row => {
+      const cells = headers.map(h => `<td>${row[h.id] != null ? row[h.id] : ''}</td>`).join('')
+      return `<tr>${cells}</tr>`
+    }).join('')
+
+    return `
+      <h3>${t('report.title.scan_history')}</h3>
+      <table border="1" cellpadding="8" cellspacing="0" style="width:100%; border-collapse: collapse;">
+        <thead><tr>${tableHeaders}</tr></thead>
+        <tbody>${tableRows}</tbody>
+      </table>
+    `
+  }
+
+  const getPrintableIssuesTable = (issues, t) => {
+    const headers = [
+      { id: "label", text: t('report.header.issue_type') },
+      { id: "type", text: t('report.header.severity')},
+      { id: "active", text: t('report.header.active'), alignText: 'center' },
+      { id: "fixed", text: t('report.header.fixed'), alignText: 'center' },
+      { id: "resolved", text: t('report.header.resolved'), alignText: 'center' },
+      { id: "total", text: t('report.header.total'), alignText: 'center' }
+    ]
+
+    let rows = issues ? Object.values(issues) : []
+
+    rows.sort((a, b) => Number(b.total) - Number(a.total))
+
+    const tableHeaders = headers.map(h => `<th>${h.text}</th>`).join('')
+    const tableRows = rows.map(row => {
+      const cells = headers.map(h => `<td>${row[h.id] != null ? row[h.id] : ''}</td>`).join('')
+      return `<tr>${cells}</tr>`
+    }).join('')
+
+    return `
+      <h3>${t('report.title.issues_by_type')}</h3>
+      <table border="1" cellpadding="8" cellspacing="0" style="width:100%; border-collapse: collapse;">
+        <thead><tr>${tableHeaders}</tr></thead>
+        <tbody>${tableRows}</tbody>
+      </table>
+    `
+  }
+
+  const printReport = () => {
+    const printWindow = window.open()
+    const reportsTableRaw = getPrintableReportsTable(reports, t)
+    const issuesTableRaw = getPrintableIssuesTable(issues, t)
+    const content = `
+      <html>
+        <head>
+          <title>${t('report.label.printed_report')}</title>
+          <style>
+            body {
+              background: #fff;
+              font-family: Arial, sans-serif;
+              padding: 20px;
+            }
+            h2, h3 {
+              color: #000;
+            }
+            h2 {
+              text-align: center;
+            }
+            table {
+              width: 100%; border-collapse: collapse;
+            }
+            table, th, td {
+              border: 1px solid #000;
+            }
+            th, td {
+              padding: 8px;
+              text-align: left;
+            }
+            #printResolutionsReport {
+              display: flex;
+              flex-direction: row;
+              justify-content: center;
+            }
+          </style>
+        </head>
+        <body>
+          <h2>${t('report.label.printed_report')}</h2>
+          <div id="printResolutionsReport">
+            ${document.querySelector('.ResolutionsReport')?.innerHTML || ''}
+          </div>
+          <div id="issuesTable">
+            ${issuesTableRaw}
+          </div>
+          <div id="reportsTable">
+            ${reportsTableRaw}
+          </div>
+          <script>
+            window.onload = function () {
+              window.print();
+            };
+            window.onafterprint = function () {
+              window.close();
+            };
+          </script>
+        </body>
+      </html>
+    `
+    printWindow.document.write(content)
+    const oldCanvas = document.querySelector('.chartjs-render-monitor')
+    const newCanvas = printWindow.document.querySelector('.chartjs-render-monitor')
+    if (oldCanvas && newCanvas) {
+      const newContext = newCanvas.getContext('2d')
+      newContext.drawImage(oldCanvas, 0, 0)
+    }
+    printWindow.document.close()
+  }
+
   return (
-    <>
-      <div className="flex-row justify-content-center mt-4">
-        <h1 className="mt-0 mb-0 primary-dark">{t('menu.reports')}</h1>
+    <main>
+      <div className="flex-row justify-content-between">
+        <h1 className="primary-dark">{t('menu.reports')}</h1>
+        { (fetchedReports && reports.length > 0) && (
+          <div className="flex-column justify-content-center">
+            <button className="btn btn-primary btn-icon-left" onClick={()=> printReport()}>
+              <PrintIcon className="icon-md" />
+              {t('report.button.print')}
+            </button>
+          </div>
+        )}
       </div>
       { (!fetchedReports) && (
         <div className="mt-3 mb-3 flex-row justify-content-center">
           <div className="flex-column justify-content-center me-3">
-            <ProgressIcon className="icon-lg primary spinner" />
+            <ProgressIcon className="icon-lg udoit-suggestion spinner" />
           </div>
           <div className="flex-column justify-content-center">
             <h2 className="mt-0 mb-0">{t('report.label.loading_reports')}</h2>
@@ -100,45 +236,58 @@ export default function ReportsPage({t, report, settings, quickSearchTerm}) {
 
       { (fetchedReports && reports.length > 0) && (
         <div className="flex-column">
-          <div className="flex-row justify-content-between mt-3 gap-3">
-            <div className="flex-column justify-content-center">
-              <h3>{t('report.title.options')}</h3>
-              <div className="flex-row gap-3 mb-3">
-                  <input 
-                    type="checkbox" 
-                    id="issuesToggle" 
+          <div className="flex-row justify-content-between gap-3">
+
+            <div className="flex-column flex-shrink-0 flex-grow-1">
+              <div className="flex-row justify-content-center">
+                <h2 className="primary-dark mt-0 mb-3">{t('report.title.barriers_remaining')}</h2>
+              </div>
+              <div id="resolutionsReport" className="ResolutionsReport">
+                <ResolutionsReport t={t} reports={reports} visibility={chartVisibility} />
+              </div>
+            </div>
+
+            <div className="flex-column justify-content-start">
+              <div className="callout-container">
+                <h3 className="primary-dark mt-0">{t('report.title.options')}</h3>
+                <div className="flex-row gap-1 mb-2">
+                  <input
+                    type="checkbox"
+                    id="issuesToggle"
+                    name="issuesToggle"
+                    tabindex="0"
                     checked={chartVisibility.issues}
                     onChange={() => toggleChartVisibility('issues')}
                   />
                   <label htmlFor="issuesToggle">{t('report.option.show_issues')}</label>
-              </div>
-              <div className="flex-row gap-3 mb-3">
-                <input 
-                  type="checkbox" 
-                  id="potentialIssuesToggle" 
-                  checked={chartVisibility.potentialIssues} 
-                  onChange={() => toggleChartVisibility('potentialIssues')}
-                />
-                <label htmlFor="potentialIssuesToggle">{t('report.option.show_potential')}</label>
-              </div>
-              <div className="flex-row gap-3 mb-3">
-                <input 
-                  type="checkbox" 
-                  id="suggestionsToggle" 
-                  checked={chartVisibility.suggestions} 
-                  onChange={() => toggleChartVisibility('suggestions')}
-                />
-                <label htmlFor="suggestionsToggle">{t('report.option.show_suggestions')}</label>
+                </div>
+                <div className="flex-row gap-1 mb-2">
+                  <input
+                    type="checkbox"
+                    id="potentialIssuesToggle"
+                    name="potentialIssuesToggle"
+                    tabindex="0"
+                    checked={chartVisibility.potentialIssues}
+                    onChange={() => toggleChartVisibility('potentialIssues')}
+                  />
+                  <label htmlFor="potentialIssuesToggle">{t('report.option.show_potential')}</label>
+                </div>
+                <div className="flex-row gap-1">
+                  <input
+                    type="checkbox"
+                    id="suggestionsToggle"
+                    name="suggestionsToggle"
+                    tabindex="0"
+                    checked={chartVisibility.suggestions}
+                    onChange={() => toggleChartVisibility('suggestions')}
+                  />
+                  <label htmlFor="suggestionsToggle">{t('report.option.show_suggestions')}</label>
+                </div>
               </div>
             </div>
-            <div className="flex-column flex-shrink-0 flex-grow-1">
-              <div className="flex-row justify-content-center">
-                <h2 className="mt-0 mb-3">{t('report.title.barriers_remaining')}</h2>
-              </div>
-              <ResolutionsReport t={t} reports={reports} visibility={chartVisibility} />
-            </div>
+
           </div>
-        
+
           <div className="mt-4">
             <IssuesTable
               t={t}
@@ -152,14 +301,8 @@ export default function ReportsPage({t, report, settings, quickSearchTerm}) {
               t={t}
               reports={reports}/>
           </div>
-
-          {/* <div className="flex-row justify-content-end mt-3 mb-2 gap-2">
-            <button className="btn btn-primary">{t('report.button.download')}</button>
-            <button className="btn btn-primary">{t('report.button.print')}</button>
-          </div> */}
-
         </div>
       )}
-    </>
+    </main>
   )
 }

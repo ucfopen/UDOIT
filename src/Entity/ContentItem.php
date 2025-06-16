@@ -71,6 +71,7 @@ class ContentItem implements \JsonSerializable
             'updated' => $this->getUpdated()->format('c'),
             'published' => $this->isPublished(),
             'status' => $this->isPublished(),
+            'body' => $this->getBody(),
             'url' => $this->getUrl(),
         ];
     }
@@ -160,7 +161,8 @@ class ContentItem implements \JsonSerializable
 
     public function setBody(?string $body): self
     {
-        $this->body = HtmlService::clean($body);
+        $this->body = $body;
+        // $this->body = HtmlService::clean($body);
 
         return $this;
     }

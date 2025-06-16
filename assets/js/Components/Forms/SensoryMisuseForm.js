@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react'
+import FormFeedback from './FormFeedback'
 import * as Html from '../../Services/Html'
 
 import { Editor } from '@tinymce/tinymce-react'
@@ -10,20 +11,39 @@ export default function SensoryMisuseForm({
   settings, 
   activeIssue, 
   handleIssueSave, 
-  addMessage, 
-  handleActiveIssue, 
-  handleManualScan
+  addMessage,
+  isDisabled,
+  handleActiveIssue
 }) {
   const [html, setHtml] = useState(Html.getIssueHtml(activeIssue))
 
   // equal access checks for these words - we can check for them while in tinymce
   // https://github.com/IBMa/equal-access/blob/83eaa932747d1a1156080c60849ff63029d5e293/accessibility-checker-engine/src/v4/rules/text_sensory_misuse.ts
-  const sensoryWords = ["top-left", "top-right", "bottom-right", "bottom-left",
-    "top-to-bottom", "left-to-right", "bottom-to-top", "right-to-left",
-    "right", "left", "above", "below", "top", "bottom",
-    "upper", "lower", "corner", "beside", "round", "square", "shape", "rectangle", "triangle",
-    "size", "large", "small", "medium", "big", "huge", "tiny", "extra",
-    "larger", "smaller", "bigger", "little", "largest", "smallest", "biggest"]
+  const sensoryWords = [
+    "above", "below", "beside",
+    "big", "bigger", "biggest",
+    "bottom", "bottom-left", "bottom-right", "bottom-to-top",
+    "corner", "extra", "huge",
+    "large", "larger", "largest",
+    "left", "left-to-right",
+    "little", "lower", "medium",
+    "right", "right-to-left",
+    "rectangle", "round",
+    "shape", "size",
+    "small", "smaller", "smallest",
+    "square", "tiny",
+    "top", "top-left", "top-right", "top-to-bottom",
+    "triangle",
+    "upper",
+  ]
+
+  const sensoryWordRegexes = sensoryWords.map(word => ({
+    word,
+    regex: new RegExp(`\\b${word}\\b`, 'i')
+  }))
+
+  const excludedTags = ['script', 'style', 'noscript']
+  const includedAttributes = ['alt', 'title', 'aria-label']
 
   const editorRef = useRef(null)
   const [editorHtml, setEditorHtml] = useState(html)
@@ -41,8 +61,6 @@ export default function SensoryMisuseForm({
   useEffect(() => {
     const matchedWords = checkForSensoryWords(editorHtml);
     setSensoryErrors(matchedWords)
-
-    handleActiveIssue(activeIssue)
   }, [editorHtml])
 
   const handleEditorChange = (html) => {
@@ -50,13 +68,45 @@ export default function SensoryMisuseForm({
   }
 
   const checkForSensoryWords = (html) => {
-    // check for the same sensory words that equal access checks,
-    // equal access will only mark whole words, so we do the same here
-    const lowerHtml = html.toLowerCase()
-    return sensoryWords.filter(word => {
-      const pattern = new RegExp(`\\b${word}\\b`, 'i')
-      return pattern.test(lowerHtml)
-    })
+
+    const tempFoundWords = new Set()    
+
+    const checkText = (text) => {
+      sensoryWordRegexes.forEach(({ word, regex }) => {
+        if (regex.test(text)) {
+          tempFoundWords.add(word.toLowerCase())
+        }
+      })
+    }
+
+    const traverseNode = (node) => {
+      if (node.nodeType === Node.TEXT_NODE) {
+        // Check if the text node contains any sensory words
+        checkText(node.textContent);
+      }
+
+      if (node.nodeType === Node.ELEMENT_NODE) {
+        // If the element is excluded, skip it
+        if (excludedTags.includes(node.tagName.toLowerCase())) {
+          return
+        }
+
+        // Check attributes for sensory words
+        includedAttributes.forEach(attr => {
+          if (node.hasAttribute(attr)) {
+            checkText(node.getAttribute(attr));
+          }
+        })
+
+        // Recursively traverse child nodes
+        node.childNodes.forEach(child => traverseNode(child));
+      }
+    }
+
+    let tempDoc = Html.toElement(html)
+    traverseNode(tempDoc)
+    
+    return Array.from(tempFoundWords).sort((a, b) => a < b ? -1 : 1);
   }
 
   const goToWord = (word) => {
@@ -106,26 +156,39 @@ export default function SensoryMisuseForm({
     }
   };
 
-  const handleButton = () => {
-    if (sensoryErrors.length > 0) {
-      console.log("Can't save, more than 0 sensory errors found.")
-    }
-    else {
-      if (editorRef.current) {
-        let issue = activeIssue
-        issue.newHtml = editorRef.current.getContent()
-        handleActiveIssue(issue)
+  // This form does NOT have a "Disabled" state: Users can choose to save the text EVEN WHEN there are still
+  // potential sensory misuse words in the text. If they choose to save a change, then we ALSO apply the 
+  // `udoit-ignore-[rule_id]` class to the element, so that it is ignored in the future.
+  const handleSubmit = () => {
+    if (editorRef.current) {
+      let issue = activeIssue
 
-        handleIssueSave(activeIssue)
+      let editorCode = editorRef.current.getContent()
+      if( editorCode === null || editorCode === undefined || editorCode === '') {
+        addMessage('Problem getting HTML out of the editor...', 'error')
+        return
       }
+      let editorElement = Html.toElement(editorCode)
+      if (editorElement === null || editorElement === undefined) {
+        addMessage('Problem converting the editor HTML to an element...', 'error')
+        return
+      }
+      let editorInnerHtml = editorElement.innerHTML
+
+      const specificClassName = `udoit-ignore-${issue.scanRuleId.replaceAll("_", "-")}`
+
+      let newElement = Html.addClass(issue.sourceHtml, specificClassName)
+      newElement.innerHTML = editorInnerHtml
+      issue.newHtml = Html.toString(newElement)
+
+      handleActiveIssue(issue)
+
+      handleIssueSave(issue)
     }
   }
 
-  const pending = activeIssue && activeIssue.pending == "1"
-  const buttonLabel = pending ? "form.processing" : "form.submit"
-
   return (
-    <div className="p-3">
+    <>
       <div>
         <Editor
           tinymceScriptSrc="/udoit3/build/static/tinymce/tinymce.min.js"
@@ -138,7 +201,8 @@ export default function SensoryMisuseForm({
           init={{
             height: 250,
             menubar: false,
-            toolbar: "undo redo | bold italic underline ",
+            plugins: "code",
+            toolbar: "undo redo | bold italic underline | code ",
             // content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:14px }',
             branding: false,
             skin: "oxide",
@@ -150,30 +214,26 @@ export default function SensoryMisuseForm({
 
       {sensoryErrors.length > 0 ?
         <div className="mt-3">
-          <span style={{ fontWeight: "bold" }}>Potential sensory words:</span>
-          <span style={{ flexWrap: "wrap", display: "flex", columnGap: "0.15rem", rowGap: "0.15rem", marginTop: "0.5rem" }}>
+          <label className="instructions">{t('form.sensory_misuse.label.potential')}</label>
+          <div className="flex-row flex-wrap gap-1 mt-2">
             {sensoryErrors.map((word) => (
               <button
-                className="tag mt-0 mr-2 mb-1 ml-0"
+                className="tag"
+                tabindex="0"
+                key={word}
                 onClick={() => goToWord(word)}
               >
-                <span style={{ cursor: "pointer" }}>{word}</span>
+                {word}
               </button>
             ))}
-          </span>
+          </div>
         </div>
         : <></>}
 
-      <div className='mt-3'>
-        <button
-          onClick={handleButton}
-          disabled={pending || sensoryErrors.length > 0 || activeIssue.status == 2}
-          className={pending || sensoryErrors.length > 0 || activeIssue.status == 2 ? 'btn btn-secondary btn-disabled' : 'btn btn-primary'}
-        >
-          {/* {('1' == pending) && <Spinner size="x-small" renderTitle={t(buttonLabel)} />} */}
-          {t(buttonLabel)}
-        </button>
-      </div>
-    </div>
+      <FormFeedback
+        t={t}
+        isDisabled={isDisabled}
+        handleSubmit={handleSubmit} />
+    </>
   )
 }

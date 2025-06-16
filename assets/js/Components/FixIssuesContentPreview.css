@@ -47,6 +47,49 @@
   position: relative;
   border: 1px solid var(--border-color);
   border-radius: 8px;
+
+  .ufixit-content-preview-rescan-container {
+    position: sticky;
+    top: 0;
+    display: flex;
+    z-index: 5;
+
+    .ufixit-content-preview-rescan {
+      padding: 0.5rem 1rem;
+      background-color: var(--primary-color-light);
+      border: 1px solid var(--border-color);
+      border-radius: 0 0 8px 0;
+      margin-top: calc(-1rem - 1px);
+      margin-left: -100%;
+      transition: margin-left var(--transition-time);
+      font-size: .9em;
+      font-weight: 600;
+      box-shadow: 0 0 3px var(--gray-dark);
+
+      &.active {
+        margin-left: calc(-1rem - 1px);
+      }
+    }
+  }
+
+  .ufixit-content-preview-main {
+    position: absolute;
+    top: 0px;
+    padding-top: 1rem;
+    padding-right: 1rem;
+    
+    h1, h2, h3, h4, h5, h6 {
+      color: var(--text-color);
+    }
+  }
+}
+
+.ufixit-content-preview-no-error {
+  background-color: var(--background-color);
+  margin: 1.5rem;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 1rem 1.5rem;
 }
 
 .ufixit-error-highlight {
@@ -57,6 +100,44 @@
   /* Errors without text won't have an outline unless they have a border to provide size */
   &:not(table) {
     border: 1px solid transparent;
+  }
+}
+
+.scroll-to-error-container {
+  position: sticky;
+  top: 0;
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-end;
+  height: 100%;
+  width: 100%;
+  pointer-events: none;
+  z-index: 10;
+}
+
+.scroll-to-error {
+  background-color: transparent;
+  border-radius: 100%;
+  padding: 0.35rem;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  border: 2px solid var(--primary-color);
+  opacity: 0.5;
+  transition: opacity var(--transition-time);
+  align-self: start;
+  pointer-events: all;
+
+  &:hover,
+  &:focus,
+  &:active {
+    opacity: 1;
+    background-color: var(--primary-color-light);
+  }
+
+  &.scroll-to-error-down {
+    align-self: end;
   }
 }
 
@@ -117,7 +198,7 @@
     position: absolute;
     padding: 4px;
     border-radius: 4px;
-    margin-left: -30px;
+    margin-left: -32px;
     width: 20px;
     text-align: center;
     border: 1px solid var(--white)

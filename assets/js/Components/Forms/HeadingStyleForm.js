@@ -4,38 +4,34 @@ import * as Html from '../../Services/Html'
 
 export default function HeadingStyleForm ({
   t,
-  settings,
   activeIssue,
   handleIssueSave,
-  addMessage,
+  isDisabled,
   handleActiveIssue,
-  handleManualScan
  }) {
 
   const styleTags = ["strong", "b", "i", "em", "mark", "small", "del", "ins", "sub", "sup"]
   const selectOptions = ["H2", "H3", "H4", "H5", "H6"]
-  
+  const allHeadings = ["H1", "H2", "H3", "H4", "H5", "H6", "h1", "h2", "h3", "h4", "h5", "h6"]
+
   const [selectedValue, setSelectedValue] = useState('')
   const [removeStyling, setRemoveStyling] = useState(false)
-  const [textInputErrors, setTextInputErrors] = useState([])
 
   useEffect(() => {
+    if(!activeIssue) {
+      return
+    }
     let html = Html.getIssueHtml(activeIssue)
-
     let element = Html.toElement(html)
-    const tagName = Html.getTagName(element)
-
-    setSelectedValue((tagName.startsWith('H')) ? tagName : '')
+    const tagName = Html.getTagName(element).toUpperCase()
+    
+    const tagSelection = selectOptions.includes(tagName) ? tagName : ''
+    setSelectedValue(tagSelection)
+    setRemoveStyling(false)
   }, [activeIssue])
 
   useEffect(() => {
-    let tempErrors = []
-    if(isSelectEmpty()) {
-      tempErrors.push({ text: t('form.heading_style.msg.select_heading'), type: 'error' })
-    }
-    setTextInputErrors(tempErrors)
-
-    let issue = {...activeIssue}
+    let issue = activeIssue
     issue.newHtml = processHtml()
     handleActiveIssue(issue)
   }, [selectedValue, removeStyling])
@@ -56,9 +52,18 @@ export default function HeadingStyleForm ({
     else {
       newHeader = Html.toElement(activeIssue.sourceHtml)
 
+      if(allHeadings.includes(newHeader.tagName)) {
+        const innerHtml = newHeader.innerHTML
+        newHeader = document.createElement('p')
+        newHeader.innerHTML = innerHtml
+      }
+
       if (removeStyling) {
         for (let styleTag of styleTags) {
           newHeader = Html.removeTag(newHeader, styleTag)
+        }
+        if (newHeader.hasAttribute('style')) {
+          newHeader.removeAttribute('style')
         }
       }
     }
@@ -74,22 +79,13 @@ export default function HeadingStyleForm ({
     setSelectedValue(value)
   }
 
-  const isSelectEmpty = () => {
-    if (selectedValue === '' && !removeStyling) {
-      return true
-    }
-    return false
-  }
-
   const handleSubmit = () => {
-    if(textInputErrors.length === 0) {
-      handleIssueSave(activeIssue)
-    }
+    handleIssueSave(activeIssue)
   }
 
   return (
     <>
-      <label htmlFor="heading-select">{t('form.heading_style.label.select')}</label>
+      <label className="instructions" htmlFor="heading-select">{t('form.heading_style.label.select')}</label>
       <select
         id="heading-select"
         name="heading-select"
@@ -97,7 +93,7 @@ export default function HeadingStyleForm ({
         value={selectedValue}
         tabindex="0"
         onChange={(e) => handleSelect(e.target.value)}
-        disabled={removeStyling}>
+        disabled={isDisabled}>
           <option key='empty' id='opt-empty' value=''>
             {t('form.heading_style.label.none_selected')}
           </option>
@@ -113,19 +109,14 @@ export default function HeadingStyleForm ({
           name="removeStylingCheckbox"
           checked={removeStyling}
           tabindex="0"
+          disabled={isDisabled}
           onChange={handleCheckbox} />
-        <label htmlFor="removeStylingCheckbox">{t('form.heading_style.label.remove_styling')}</label>
+        <label htmlFor="removeStylingCheckbox" className="instructions">{t('form.heading_style.label.remove_styling')}</label>
       </div>
-      <FormFeedback issues={textInputErrors} />
-      <div className="flex-row justify-content-start mt-3 mb-3">
-        <button
-          className="btn btn-primary"
-          disabled={textInputErrors.length > 0}
-          tabindex="0"
-          onClick={handleSubmit}>
-          {t('form.submit')}
-        </button>
-      </div>
+      <FormFeedback
+        t={t}
+        isDisabled={isDisabled}
+        handleSubmit={handleSubmit} />
     </>
   )
 }

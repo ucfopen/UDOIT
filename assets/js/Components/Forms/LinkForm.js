@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react'
+import FormFeedback from './FormFeedback'
 import * as Html from '../../Services/Html'
 
 export default function LinkForm({
   t,
   activeIssue,
+  isDisabled,
   handleIssueSave,
   handleActiveIssue,
 }) {
@@ -92,7 +94,7 @@ export default function LinkForm({
         value={textInputValue}
         onChange={handleInput}
         tabindex="0"
-        disabled={deleteLink} />
+        disabled={isDisabled || deleteLink} />
       { textInputErrors.length > 0 && (
         <div className="error-message flex-column gap-1">
           {textInputErrors.map((error, index) => (
@@ -107,16 +109,15 @@ export default function LinkForm({
           id="deleteLinkCheckbox"
           checked={deleteLink}
           tabindex="0"
+          disabled={isDisabled}
           onChange={handleDeleteCheckbox} />
         <label for="deleteLinkCheckbox">{t('form.anchor.delete_link')}</label>
       </div>
-      <button
-        className="btn btn-primary"
-        onClick={handleSubmit}
-        tabindex="0"
-        disabled={textInputErrors.length > 0}>
-        {t('form.submit')}
-      </button>
+      <FormFeedback
+        t={t}
+        isDisabled={isDisabled}
+        handleSubmit={handleSubmit}
+        formErrors={textInputErrors} />
     </>
   ) 
 }

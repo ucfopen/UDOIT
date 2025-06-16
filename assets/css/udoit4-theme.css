@@ -422,6 +422,7 @@ h1, h2, h3, h4, h5, h6 {
   font-family: 'Open Sans', sans-serif;
   font-weight: 500;
   line-height: normal;
+  color: var(--primary-color);
 }
 
 .primary {
@@ -466,15 +467,14 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .tag {
-  font-family: 'Reddit Sans', sans-serif;
-  padding: .15rem 0.5rem;
-  border-radius: 50px;
+  color: var(--white);
+  font-size: .8rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  padding: .15rem .75rem;
+  background-color: var(--gray);
   cursor: pointer;
-  box-sizing: border-box;
-  border: 2px solid var(--gray);
-  font-weight: 600;
-  font-size: 1rem;
-  width: fit-content;
+  border-radius: 16px;
 
   &:focus {
     outline: 2px solid var(--focus-color);
@@ -484,12 +484,12 @@ h1, h2, h3, h4, h5, h6 {
   &:hover,
   &:focus {
     background-color: var(--gray-light);
-    outline-color: var(--gray-dark);
+    color: var(--gray-dark);
   }
 
   &:active {
     background-color: var(--gray-lightest);
-    outline-color: var(--gray-dark);
+    color: var(--gray-dark);
   }
 }
 
@@ -637,6 +637,38 @@ button:disabled {
 
 .rotate-270 {
   transform: rotate(270deg);
+}
+
+.callout-container {
+  background: var(--background-color);
+  border-radius: 8px;
+  border: 1px solid var(--border-color);
+  padding: 1rem;
+}
+
+.separator {
+  display: flex;
+  align-items: center;
+  text-align: center;
+  text-transform: uppercase;
+  font-weight: 600;
+}
+
+.separator::before,
+.separator::after {
+  content: '';
+  flex: 1;
+  border-bottom: 1px solid var(--gray);
+}
+
+.separator:not(:empty)::before {
+  margin-right: .5em;
+  margin-left: 1.5rem;
+}
+
+.separator:not(:empty)::after {
+  margin-left: .5em;
+  margin-right: 1.5rem;
 }
 
 /* Customized select and options elements based on example from: 

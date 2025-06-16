@@ -9,7 +9,7 @@ use App\Entity\User;
 use App\Services\LmsApiService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
-
+use Symfony\Component\Console\Output\ConsoleOutput;
 
 class LmsPostService {
 
@@ -40,7 +40,7 @@ class LmsPostService {
         $this->html = $html;
     }
 
-    public function saveContentToLms(Issue $issue, User $user)
+    public function saveContentToLms(Issue $issue, User $user, $fullPageHtml = null)
     {
         $contentItem = $issue->getContentItem();
         $lms = $this->lmsApi->getLms();
@@ -49,7 +49,7 @@ class LmsPostService {
 
         $lms->updateContentItem($contentItem);
 
-        $replaceSuccess = $this->replaceContent($issue, $contentItem);
+        $replaceSuccess = $this->replaceContent($issue, $contentItem, $fullPageHtml);
         if (!$replaceSuccess) {
             return;
         }
@@ -79,9 +79,15 @@ class LmsPostService {
         return $lms->postFileItem($file, $uploadedFile->getClientOriginalName());
     }
 
-    public function replaceContent(Issue $issue, ContentItem $contentItem)
+    public function replaceContent(Issue $issue, ContentItem $contentItem, $fullPageHtml = null)
     {
-        $error = $issue->getHtml();
+        if($fullPageHtml) {
+            $contentItem->setBody($fullPageHtml);
+            $this->entityManager->flush();
+            return true;
+        }
+
+        $error = $issue->getPreviewHtml();
         $corrected = $issue->getNewHtml();
         $body = $contentItem->getBody();
         

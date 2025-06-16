@@ -45,7 +45,7 @@ export default function ReportsTable({
       }
       return report
     })
-    const { sortBy, ascending } = tableSettings 
+    const { sortBy, ascending } = tableSettings
 
     list.sort((a, b) => {
       if (isNaN(a[sortBy]) || isNaN(b[sortBy])) {

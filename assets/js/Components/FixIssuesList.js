@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react'
+import React from 'react'
 
 import ContentTypeIcon from './Icons/ContentTypeIcon'
 import SeverityIcon from './Icons/SeverityIcon'
@@ -7,30 +7,7 @@ import FixedIcon from './Icons/FixedIcon'
 
 import './FixIssuesList.css'
 
-export default function FixIssuesList({ t, settings, filteredIssues, setActiveIssue }) {
-
-  const [groupedList, setGroupedList] = useState([])
-
-  useEffect(() => {
-    const tempGroupedList = []
-
-    // Get all of the issues' "formLabel" values
-    const formLabels = filteredIssues.map((issue) => issue.formLabel)
-    const uniqueFormLabels = [...new Set(formLabels)]
-
-    uniqueFormLabels.sort((a, b) => {
-      return (a.toLowerCase() < b.toLowerCase()) ? -1 : 1
-    })
-
-    // Group the issues by "formLabel"
-    uniqueFormLabels.forEach((formLabel) => {
-      const issues = filteredIssues.filter((issue) => issue.formLabel === formLabel)
-      tempGroupedList.push({ formLabel: formLabel, issues })
-    })
-    
-    setGroupedList(tempGroupedList)
-
-  }, [filteredIssues])
+export default function FixIssuesList({ t, settings, groupedList, setActiveIssue }) {
 
   return (
     <div className="ufixit-list-container flex-column">
@@ -57,23 +34,15 @@ export default function FixIssuesList({ t, settings, filteredIssues, setActiveIs
                       {issue.contentTitle}
                     </div>
                     <div className="flex-row">
-                      <div className="flex-column justify-content-center ml-3">
-                        <ContentTypeIcon type={issue.contentType} alt="" className="gray"/>
-                      </div>
+                      <ContentTypeIcon type={issue.contentType} alt="" className="gray flex-column align-self-center ml-3"/>
                       { issue.status === settings.FILTER.ACTIVE && (
-                        <div className="flex-column justify-content-center ml-2">
-                          <SeverityIcon type={issue.severity} alt="" />
-                        </div>
+                        <SeverityIcon type={issue.severity} alt="" className="flex-column align-self-center ml-2"/>
                       )}
                       { issue.status === settings.FILTER.RESOLVED && (
-                        <div className="flex-column justify-content-center ml-2">
-                          <ResolvedIcon alt="" className="color-success" />
-                        </div>
+                        <ResolvedIcon alt="" className="color-success flex-column align-self-center ml-2"/>
                       )}
-                      { issue.status === settings.FILTER.FIXED && (
-                        <div className="flex-column justify-content-center ml-2">
-                          <FixedIcon alt=""className="color-success" />
-                        </div>
+                      { (issue.status === settings.FILTER.FIXED || issue.status == settings.FILTER.FIXEDANDRESOLVED) && (
+                        <FixedIcon alt=""className="color-success flex-column align-self-center ml-2"/>
                       )}
                     </div>
                   </div>

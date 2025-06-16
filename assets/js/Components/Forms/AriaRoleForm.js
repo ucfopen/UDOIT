@@ -1,14 +1,13 @@
 import React, { useEffect, useState } from "react"
+import FormFeedback from './FormFeedback'
 import * as Html from "../../Services/Html"
 
 export default function AriaRoleForm({
   t,
-  settings,
   activeIssue,
   handleIssueSave,
-  addMessage,
-  handleActiveIssue,
-  handleManualScan
+  isDisabled,
+  handleActiveIssue
  }) {
 
   const ariaRoleMap = {
@@ -209,7 +208,7 @@ export default function AriaRoleForm({
         <label>{t('form.aria_role.feedback.no_roles', {tagName: detectedTag})}</label>
       ) : (
         <>
-          <label htmlFor="role-select">{t('form.aria_role.label.select')}</label>
+          <label htmlFor="role-select" className="instructions">{t('form.aria_role.label.select')}</label>
           <select
             id="role-select"
             name="role-select"
@@ -217,7 +216,7 @@ export default function AriaRoleForm({
             value={selectValue}
             onChange={(e) => handleSelect(e.target.value)}
             tabindex="0"
-            disabled={deleteRole}>
+            disabled={isDisabled || deleteRole}>
             <option key='empty' id='opt-empty' value=''>
               {t('form.aria_role.label.none_selected')}
             </option>
@@ -227,6 +226,7 @@ export default function AriaRoleForm({
               </option>
             ))}
           </select>
+          <div className="separator mt-2">{t('fix.label.or')}</div>
         </>
       )}
       <div className="flex-row justify-content-start gap-1 mt-2">
@@ -234,19 +234,16 @@ export default function AriaRoleForm({
           id="deleteRoleCheckbox"
           name="deleteRoleCheckbox"
           tabindex="0"
+          disabled={isDisabled}
           checked={deleteRole}
           onChange={handleCheckbox} />
-        <label htmlFor="deleteRoleCheckbox">{t('form.aria_role.label.remove')}</label>
+        <label htmlFor="deleteRoleCheckbox" className="instructions">{t('form.aria_role.label.remove')}</label>
       </div>
-      <div className="flex-row justify-content-start mt-3 mb-3">
-        <button
-          className="btn btn-primary"
-          disabled={!deleteRole && selectValue === ''}
-          tabindex="0"
-          onClick={handleSubmit}>
-          {t('form.submit')}
-        </button>
-      </div>
+      <FormFeedback
+        t={t}
+        isDisabled={isDisabled || !deleteRole && selectValue === ''}
+        handleSubmit={handleSubmit}
+        formErrors={[]} />
     </>
   )
 }

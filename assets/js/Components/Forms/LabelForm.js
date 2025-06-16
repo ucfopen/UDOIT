@@ -4,12 +4,10 @@ import * as Html from '../../Services/Html'
 
 export default function LabelForm({
   t,
-  settings,
   activeIssue,
   handleIssueSave,
-  addMessage,
-  handleActiveIssue,
-  handleManualScan
+  isDisabled,
+  handleActiveIssue
  }) {
 
   const [textInputValue, setTextInputValue] = useState('')
@@ -48,7 +46,7 @@ export default function LabelForm({
 
     updatedElement = Html.setAttribute(updatedElement, "aria-label", textInputValue)
     updatedElement = Html.setAttribute(updatedElement, "title", textInputValue)
-        
+
     let issue = activeIssue
     issue.newHtml = Html.toString(updatedElement)
     handleActiveIssue(issue)
@@ -88,7 +86,7 @@ export default function LabelForm({
   
   return (
     <>
-      <label htmlFor="labelInputValue">{t('form.label.label.text')}</label>
+      <label htmlFor="labelInputValue" className="instructions">{t('form.label.label.text')}</label>
       <div className="w-100 mt-2">
         <input
           type="text" 
@@ -96,19 +94,15 @@ export default function LabelForm({
           name="labelInputValue"
           className="w-100"
           value={textInputValue}
+          disabled={isDisabled}
           tabindex="0"
           onChange={handleInput} />
       </div>
-      <FormFeedback issues={textInputErrors} />
-      <div className="flex-row justify-content-start mt-3 mb-3">
-        <button
-          className="btn btn-primary"
-          disabled={textInputErrors.length > 0}
-          tabindex="0"
-          onClick={handleSubmit}>
-          {t('form.submit')}
-        </button>
-      </div>
+      <FormFeedback
+        t={t}
+        isDisabled={isDisabled}
+        handleSubmit={handleSubmit}
+        formErrors={textInputErrors} />
     </>
   )
 }

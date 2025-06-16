@@ -1,0 +1,22 @@
+import React, { useEffect, useState } from 'react'
+import FormFeedback from './FormFeedback'
+import * as Html from '../../Services/Html'
+
+export default function ListForm({
+  t,
+  activeIssue,
+  activeContentItem,
+  handleIssueSave,
+  isDisabled,
+ }) {
+  
+  return (
+    <>
+      <div dangerouslySetInnerHTML={{__html: t('form.list.learn_more')}}></div>
+      <FormFeedback
+        t={t}
+        isDisabled={isDisabled}
+        activeContentItem={activeContentItem} />
+    </>
+  )
+}
