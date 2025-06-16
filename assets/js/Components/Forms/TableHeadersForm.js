@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react'
+import FormFeedback from './FormFeedback'
 import * as Html from '../../Services/Html';
 
-export default function TableHeaders({
+export default function TableHeadersForm({
   t,
   activeIssue, 
   handleIssueSave, 
@@ -14,19 +15,13 @@ export default function TableHeaders({
     'both'
   ]
   const [selectedValue, setSelectedValue] = useState(null)
-  const [description, setDescription] = useState('')
-
-  const NO_HEADER_RULES = [
-    'TableDataShouldHaveTableHeader',
-    'table_headers_exists'
-  ]
+  const [cachedValue, setCachedValue] = useState(null)
+  const [decorationOnly, setDecorationOnly] = useState(false)
 
   useEffect(() => {
-    setSelectedValue(getTableHeader())
-    if(NO_HEADER_RULES.includes(activeIssue.scanRuleId)) {
-      setDescription(t('form.table_headers.selection_description'))
-    } else {
-      setDescription(t('form.table_headers.selection_description_scope'))
+    if(activeIssue) {
+      setSelectedValue(getTableHeader())
+      setCachedValue(null)
     }
   }, [activeIssue])
 
@@ -37,6 +32,12 @@ export default function TableHeaders({
   const getTableHeader = () => {
     const html = Html.getIssueHtml(activeIssue)
     const table = Html.toElement(html)
+
+    if(table.getAttribute('role') === 'presentation') {
+      setDecorationOnly(true)
+    } else {
+      setDecorationOnly(false)
+    }
 
     let isRow = true
     let isCol = true
@@ -93,6 +94,14 @@ export default function TableHeaders({
 
     removeHeaders(table)
 
+    if (decorationOnly) {
+      Html.setAttribute(table, 'role', 'presentation')
+      return Html.toString(table)
+    }
+    else {
+      Html.removeAttribute(table, 'role')
+    }
+
     if ('col' === selectedValue || 'both' === selectedValue) {
       let row = table.rows[0]
       
@@ -125,6 +134,18 @@ export default function TableHeaders({
     setSelectedValue(newValue)
   }
 
+  const handleDecoration = (checked) => {
+    setDecorationOnly(checked)
+    if(checked) {
+      setCachedValue(selectedValue)
+      setSelectedValue('')
+    }
+    else {
+      setSelectedValue(cachedValue)
+      setCachedValue(null)
+    }
+  }
+
   const handleSubmit = () => {
     let issue = activeIssue
     issue.newHtml = fixHeaders()
@@ -133,7 +154,7 @@ export default function TableHeaders({
 
   return (
     <>
-      <label htmlFor="altTextInput">{description}</label>
+      <div className="instructions">{t('form.table_headers.selection_description')}</div>
       <div className="w-100 mt-2 flex-column gap-1">
         { radioOptions.map(value => (
           <div className="flex-row gap-1">
@@ -143,21 +164,30 @@ export default function TableHeaders({
               name="tableHeaderSelect"
               value={selectedValue}
               tabindex="0"
-              disabled={isDisabled}
+              disabled={isDisabled || decorationOnly}
               onChange={() => handleChange(value)} />
             <label htmlFor={value}>{t(`form.table_headers.${value}`)}</label>
           </div>
         ))}
       </div>
-      <div className="flex-row justify-content-start mt-3 mb-3">
-        <button
-          className="btn btn-primary"
-          disabled={isDisabled || !selectedValue}
+      <div className="separator mt-2">{t('fix.label.or')}</div>
+      <div className="flex-row justify-content-start mt-2 gap-1">
+        <input
+          type="checkbox"
+          id="decorationOnlyCheckbox"
+          name="decorationOnlyCheckbox"
           tabindex="0"
-          onClick={handleSubmit}>
-          {t('form.submit')}
-        </button>
+          checked={decorationOnly}
+          disabled={isDisabled}
+          onChange={(e) => handleDecoration(e.target.checked)} />
+        <label className="instructions" htmlFor="decorationOnlyCheckbox">
+          {t('form.table_headers.decoration_only')}
+        </label>
       </div>
+      <FormFeedback
+        t={t}
+        isDisabled={isDisabled || (!selectedValue && !decorationOnly)}
+        handleSubmit={handleSubmit} />
     </>
   )
 }

@@ -89,7 +89,7 @@ export default class Api {
             headers: {
                 'X-AUTH-TOKEN': authToken,
             },
-            body: JSON.stringify({sourceHtml: issue.sourceHtml, newHtml: issue.newHtml, fullPageHtml: fullPageHtml}),
+            body: JSON.stringify({sourceHtml: issue.sourceHtml, newHtml: issue.newHtml, fullPageHtml: fullPageHtml, xpath: issue.xpath}),
         })
     }
 

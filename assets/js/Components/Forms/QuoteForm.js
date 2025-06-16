@@ -1,162 +1,202 @@
 import React, { useEffect, useState } from 'react'
+import FormFeedback from './FormFeedback'
 import * as Html from '../../Services/Html'
 
-// TODO: not finished
+export default function QuoteForm({
+  t,
+  activeIssue,
+  handleIssueSave,
+  isDisabled,
+  handleActiveIssue
+}) {
 
-export default function QuoteForm(props) {
+  const [originalHtml, setOriginalHtml] = useState('')
+  const [addCitation, setAddCitation] = useState(false)
+  const [citationText, setCitationText] = useState("")
+  const [selectedTag, setSelectedTag] = useState("")
+  const [removeQuotes, setRemoveQuotes] = useState(false)
+  const [formErrors, setFormErrors] = useState([])
 
-  let html = props.activeIssue.newHtml ? props.activeIssue.newHtml : props.activeIssue.sourceHtml
-
-  if (props.activeIssue.status === '1') {
-    html = props.activeIssue.newHtml
-  }
-
-  let element = Html.toElement(html)
-
-  const [textInputValue, setTextInputValue] = useState(element ? Html.getAttribute(element, "aria-label") : "")
-  const [deleteQuotes, setRemoveQuotes] = useState(!element && (props.activeIssue.status === "1"))
-  const [textInputErrors, setTextInputErrors] = useState([])
-
-  let formErrors = []
-
+  // Re-init form when activeIssue changes
   useEffect(() => {
-    let html = props.activeIssue.newHtml ? props.activeIssue.newHtml : props.activeIssue.sourceHtml
-    if (props.activeIssue.status === 1) {
-      html = props.activeIssue.newHtml
+
+    if (!activeIssue) {
+      return
     }
 
-    let element = Html.toElement(html)
-    setTextInputValue(element ? Html.getAttribute(element, "aria-label") : "")
-    // setRemoveQuotes(!element && props.activeIssue.status === 1)
+    const html = Html.getIssueHtml(activeIssue)
+    const tempElement = Html.toElement(html)
+    const newCite = tempElement ? Html.getAttribute(tempElement, "cite") : ""
 
-    formErrors = []
-
-  }, [props.activeIssue])
+    setOriginalHtml(html)
+    setAddCitation(!!newCite)
+    setCitationText(newCite || "")
+    setSelectedTag(tempElement ? Html.getTagName(tempElement)?.toLowerCase() : "")
+    setRemoveQuotes(!tempElement && activeIssue.status === 1)
+    setFormErrors([])
+  }, [activeIssue])
 
   useEffect(() => {
+    checkFormErrors()
     handleHtmlUpdate()
-  }, [textInputValue])
+  }, [selectedTag, citationText, removeQuotes, addCitation])
+
+
+  const checkFormErrors = () => {
+    const tempFormErrors = []
+
+    if (!selectedTag && !removeQuotes) {
+      tempFormErrors.push("Please select a quotation style.")
+    }
+
+    if (addCitation && !citationText.trim()) {
+      tempFormErrors.push("Citation text cannot be empty.")
+    }
+
+    setFormErrors(tempFormErrors)
+  }
 
   const handleHtmlUpdate = () => {
-    let updatedElement = Html.toElement(html)
-
-    updatedElement = Html.setAttribute(updatedElement, "aria-label", textInputValue)
-
-    // if (deleteQuotes) {
-    //   updatedElement = Html.removeAttribute(updatedElement, "aria-label")
-    // }
-    // else {
-    //   updatedElement = Html.setAttribute(updatedElement, "aria-label", textInputValue)
-    // }
-
-    let issue = props.activeIssue
-    issue.newHtml = Html.toString(updatedElement)
-    props.handleActiveIssue(issue)
-
-  }
-
-  const handleButton = () => {
-    formErrors = []
-
-    // if (!deleteQuotes) {
-    //   checkTextNotEmpty()
-    // }
-
-    checkTextNotEmpty()
-    checkLabelIsUnique()
-
-    if (formErrors.length > 0) {
-      setTextInputErrors(formErrors)
+      let issue = activeIssue
+      const html = Html.getIssueHtml(activeIssue)
+  
+      issue.newHtml = processHtml(html)
+      handleActiveIssue(issue)
     }
-    else {
-      props.handleIssueSave(props.activeIssue)
-    }
-  }
 
-  const handleInput = (event) => {
-    setTextInputValue(event.target.value)
-    // handleHtmlUpdate()
-  }
+  const processHtml = (html) => {
+    const updatedElement = Html.toElement(html)
+    if (!updatedElement) return
 
-  const handleCheckbox = () => {
-    setRemoveQuotes(!deleteQuotes)
-    // handleHtmlUpdate()
-  }
+    let innerHtml = updatedElement.innerHTML
 
-  const checkTextNotEmpty = () => {
-    const text = textInputValue.trim().toLowerCase()
-    if (text === '') {
-      formErrors.push({ text: "Empty label text.", type: "error" })
-    }
-  }
-
-  const checkLabelIsUnique = () => {
-    // in the case of aria_*_label_unique, messageArgs (from metadata) should have the offending label (at the first index)
-    // i guess we could get it from the aria-label itself as well...
-    const issue = props.activeIssue
-    const metadata = issue.metadata ? JSON.parse(issue.metadata) : {}
-    const labelFromMessageArgs = metadata.messageArgs ? metadata.messageArgs[0] : null
-    const text = textInputValue.trim().toLowerCase()
-
-    if (labelFromMessageArgs) {
-      if (text == labelFromMessageArgs) {
-        formErrors.push({ text: "Cannot reuse label text.", type: "error" })
+    // Handles Handles blockquote_cite_exists issue
+    if (activeIssue.scanRuleId === 'blockquote_cite_exists') {
+      if (citationText.length > 0) {
+        Html.setAttribute(updatedElement, 'cite', citationText)
       }
     }
+    // Handles text_quoted_correctly issue
+    else {
+      if (removeQuotes) {
+        innerHtml = innerHtml.replace(/"([^"<]+)"/g, '$1')
+      } else if (selectedTag === 'q' || selectedTag === 'block') {
+        const quoteRegex = /"([^"<]+)"/g
+        const tag = selectedTag === 'q' ? 'q' : 'blockquote'
+        let match
+  
+        while ((match = quoteRegex.exec(innerHtml)) !== null) {
+          const quoteText = match[1]
+          const newElement = document.createElement(tag)
+          newElement.textContent = quoteText
+  
+          if (addCitation && citationText.length > 0) {
+            Html.setAttribute(newElement, 'cite', citationText)
+          }
+  
+          innerHtml = innerHtml.replace(match[0], Html.toString(newElement))
+        }
+      }
+      updatedElement.innerHTML = innerHtml
+    }
 
+    const newHtmlString = Html.toString(updatedElement)
+    return newHtmlString
   }
 
-  const pending = props.activeIssue && props.activeIssue.pending == "1"
-  const buttonLabel = pending ? "form.processing" : "form.submit"
+  const handleSubmit = () => {
+    if(formErrors.length > 0) {
+      return
+    }
+    handleIssueSave({ ...activeIssue, newHtml: modifiedHtml })
+  }
 
-  // TODO: use props.t (from en/es.json) to display text for renderLabel, etc
+  const handleRemoveQuotesCheckbox = () => {
+    const newDeleteQuotes = !removeQuotes
+    setRemoveQuotes(newDeleteQuotes)
+
+    if (!newDeleteQuotes) {
+      setSelectedTag("")
+      setModifiedHtml(originalHtml)
+      handleActiveIssue({ ...activeIssue, newHtml: originalHtml })
+    }
+
+    if (addCitation) {
+      setAddCitation(false)
+    }
+  }
+
   return (
-    <div>
-      {t('form.review_only.learn_more')}
-    </div>
-    // <View as="div" padding="x-small">
-    //   <View as="div" margin="small 0">
-    //     <SimpleSelect
-    //       renderLabel="Select quotation style"
-    //       width="100%"
-    //     >
-    //       <SimpleSelect.Option
-    //         key="opt-empty"
-    //         id="opt-empty"
-    //         value=""
-    //       >
-    //         -- Choose --
-    //       </SimpleSelect.Option>
+    <div style={{ padding: '4px' }}>
+      {activeIssue.scanRuleId === 'blockquote_cite_exists' ? (
+        <>
+          <div style={{ margin: '8px 0' }}>
+            <label htmlFor="citation">Enter Citation</label><br />
+            <input
+              id="citation"
+              type="text"
+              placeholder="e.g., a URL"
+              value={citationText}
+              onChange={(e) => setCitationText(e.target.value)}
+            />
+          </div>
+        </>
+      ) : (
+        <>
+          <div style={{ margin: '8px 0' }}>
+            <label htmlFor="quote-style">Select quotation style</label><br />
+            <select
+              id="quote-style"
+              value={selectedTag}
+              disabled={removeQuotes}
+              onChange={(e) => setSelectedTag(e.target.value)}
+            >
+              <option value="">-- Choose --</option>
+              <option value="q">Regular Quote</option>
+              <option value="block">Block Quote</option>
+            </select>
+          </div>
 
-    //       <SimpleSelect.Group renderLabel="Regular quotation">
-    //         <SimpleSelect.Option
-    //           key="1"
-    //           id="opt-1"
-    //         >
-              
-    //         </SimpleSelect.Option>
-    //       </SimpleSelect.Group>
-    //     </SimpleSelect>
-    //   </View>
-    //   <View>
-    //     <View as='span' display='inline-block'>
-    //       <Checkbox
-    //         label='Remove quotes'
-    //         checked={deleteQuotes}
-    //         onChange={handleCheckbox}
-    //       />
-    //     </View>
-    //   </View>
-    //   <View as='div' margin='small 0'>
-    //     <Button
-    //       color='primary'
-    //       onClick={handleButton}
-    //       interaction={(!pending && props.activeIssue.status !== 2) ? 'enabled' : 'disabled'}
-    //     >
-    //       {('1' == pending) && <Spinner size="x-small" renderTitle={props.t(buttonLabel)} />}
-    //       {props.t(buttonLabel)}
-    //     </Button>
-    //   </View>
-    // </View>
-  );
+          {addCitation && (
+            <div style={{ margin: '8px 0' }}>
+              <label htmlFor="citation">Enter Citation</label><br />
+              <input
+                id="citation"
+                type="text"
+                placeholder="e.g., a URL"
+                value={citationText}
+                disabled={removeQuotes}
+                onChange={(e) => setCitationText(e.target.value)}
+              />
+            </div>
+          )}
+
+          <div style={{ margin: '8px 0' }}>
+            <label>
+              <input
+                type="checkbox"
+                checked={removeQuotes}
+                onChange={handleRemoveQuotesCheckbox}
+              />
+              Remove quotes
+            </label>
+            <label style={{ marginLeft: '16px' }}>
+              <input
+                type="checkbox"
+                checked={addCitation}
+                disabled={removeQuotes}
+                onChange={() => setAddCitation(!addCitation)}
+              />
+              Add a citation
+            </label>
+          </div>
+        </>
+      )}
+      <FormFeedback
+        t={t}
+        isDisabled={isDisabled}
+        handleSubmit={handleSubmit}
+        formErrors={formErrors} />
+  </div>
+  )
 }

@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react'
 import DownloadIcon from './Icons/DownloadIcon'
 import ExternalLinkIcon from './Icons/ExternalLinkIcon'
 import ProgressIcon from './Icons/ProgressIcon'
+import { formFromIssue, formNameFromRule, formNames } from '../Services/Ufixit'
 import * as Html from '../Services/Html'
 import UpArrowIcon from './Icons/UpArrowIcon'
 import DownArrowIcon from './Icons/DownArrowIcon'
@@ -79,53 +80,18 @@ export default function FixIssuesContentPreview({
     }
   }
 
-  const SHOW_ALT_TEXT_RULES = [
-    "ImageAltIsDifferent",
-    "ImageAltIsTooLong",
-    "ImageAltNotEmptyInAnchor",
-    "ImageHasAlt",
-    "ImageHasAltDecorative",
-    "ImageAltNotPlaceholder",
-
-    "imagemap_alt_exists",
-    "img_alt_background",
-    "img_alt_decorative",
-    "img_alt_misuse",
-    "img_alt_null",
-    "img_alt_redundant",
-    "img_alt_valid",
-
-    "applet_alt_exists",
-    "embed_alt_exists",
-    "frame_title_exists",
-    "media_alt_brief",
-    "media_alt_exists",
-    "object_text_exists",
-
-    "aria_application_labelled",
-    "aria_accessiblename_exists",
-
-    "aria_application_label_unique",
-    "aria_banner_label_unique",
-    "aria_landmark_name_unique",
-    "aria_article_label_unique",
-    "aria_complementary_label_unique",
-    "aria_contentinfo_label_unique",
-    "aria_document_label_unique",
-    "aria_form_label_unique",
-    "aria_main_label_unique",
-    "aria_navigation_label_unique",
-    "aria_region_label_unique",
-    "aria_search_label_unique",
-    "aria_toolbar_label_unique",
+  const ALT_TEXT_RELATED = [
+    formNames.ALT_TEXT,            
+    formNames.ANCHOR_TEXT,
+    formNames.BLOCKQUOTE,
+    formNames.EMBEDDED_CONTENT_TITLE,
+    formNames.LABEL,
+    formNames.LABEL_UNIQUE
   ]
 
-  const SHOW_HEADINGS_RULES = [
-    "HeadersHaveText",
-    "ParagraphNotUsedAsHeader",
-    "heading_content_exists",
-    "heading_markup_misuse",
-    "text_block_heading",
+  const HEADINGS_RELATED = [
+    formNames.HEADING_EMPTY,
+    formNames.HEADING_STYLE
   ]
 
   const convertErrorHtmlString = (htmlText) => {
@@ -148,7 +114,7 @@ export default function FixIssuesContentPreview({
     }
 
     // If the issue edits the alt text, we need to show the auto-updating alt text preview
-    if (SHOW_ALT_TEXT_RULES.includes(activeIssue.scanRuleId)) {
+    if (ALT_TEXT_RELATED.includes(formNameFromRule(activeIssue.scanRuleId))) {
       const htmlElement = document.getElementsByClassName('ufixit-error-highlight')[0]
       let altText = Html.getAccessibleName(htmlElement)
       
@@ -171,8 +137,19 @@ export default function FixIssuesContentPreview({
                 altText.trim() +
               '</div>' +
             '</div>'
-
-          htmlElement.insertAdjacentHTML('afterend', altTextPreviewCode)
+          
+          let elementTag = Html.getTagName(htmlElement)
+          // If the element is an <area>, find its parent <map> element
+          if (elementTag.toLowerCase() === 'area') {
+            const mapElement = htmlElement.closest('map')
+            if (mapElement) {
+              mapElement.insertAdjacentHTML('afterend', altTextPreviewCode)
+            }
+          }
+          // Otherwise, insert the preview after the error element itself.
+          else {
+            htmlElement.insertAdjacentHTML('afterend', altTextPreviewCode)
+          }
         }
       }
       // If there is no alt text to show, remove the preview element.
@@ -181,11 +158,11 @@ export default function FixIssuesContentPreview({
       }
     }
 
-    if(SHOW_HEADINGS_RULES.includes(activeIssue.scanRuleId)) {
+    if (HEADINGS_RELATED.includes(formNameFromRule(activeIssue.scanRuleId))) {
       const htmlElement = document.getElementsByClassName('ufixit-error-highlight')[0]
       const headingTags = ['h1', 'h2', 'h3', 'h4', 'h5', 'h6']
 
-      if(htmlElement && headingTags.includes(htmlElement.tagName.toLowerCase())) {
+      if (htmlElement && headingTags.includes(htmlElement.tagName.toLowerCase())) {
         const headingType = htmlElement.tagName.toUpperCase()
         htmlElement.classList.add('ufixit-heading-highlight')
         htmlElement.setAttribute('ufixit-heading-type', headingType)
@@ -241,7 +218,7 @@ export default function FixIssuesContentPreview({
     // }
 
     // Find all of the heading elements and show them when a relevant issues is being edited.
-    if(SHOW_HEADINGS_RULES.includes(activeIssue.scanRuleId)) {
+    if (HEADINGS_RELATED.includes(formNameFromRule(activeIssue.scanRuleId))) {
       const headingElements = Array.from(doc.body.querySelectorAll('h1, h2, h3, h4, h5, h6'))
       headingElements.forEach((headingElement) => {
         const headingType = headingElement.tagName.toUpperCase()
@@ -276,11 +253,47 @@ export default function FixIssuesContentPreview({
   }, [taggedContent])
 
   useEffect(() => {
-    if (editedElement) {
+    if (editedElement && activeIssue) {
       const targetElement = document.getElementsByClassName('ufixit-error-highlight')[0]
+      let formName = formNameFromRule(activeIssue.scanRuleId)
       
       if (targetElement) {
         const tempElement = convertErrorHtmlString(editedElement)
+        
+        if (formName === formNames.ALT_TEXT) {
+
+          if (targetElement.tagName.toLowerCase() === 'img') {
+            const alt = tempElement.getAttribute('alt')
+            const role = tempElement.getAttribute('role')
+
+            if (alt !== null) {
+              targetElement.setAttribute('alt', alt)
+            } else {
+              targetElement.removeAttribute('alt')
+            }
+
+            if (role !== null) targetElement.setAttribute('role', role)
+            else targetElement.removeAttribute('role')
+          }
+          addPreviewHelperElements()
+          return
+        }
+
+        if (formName === formNames.EMBEDDED_CONTENT_TITLE) {
+          const tag = targetElement.tagName.toLowerCase()
+
+          if (['iframe', 'video', 'embed', 'object'].includes(tag)) {
+            const title = tempElement.getAttribute('title')
+            const aria = tempElement.getAttribute('aria-label')
+            const label = tempElement.getAttribute('label')
+
+            if (title !== null) targetElement.setAttribute('title', title)
+            if (aria !== null) targetElement.setAttribute('aria-label', aria)
+            if (label !== null) targetElement.setAttribute('label', label)
+          }
+          addPreviewHelperElements()
+          return
+        }
         
         // Replace the target element with the new element
         targetElement.replaceWith(tempElement)

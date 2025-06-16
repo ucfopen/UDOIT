@@ -1,4 +1,5 @@
 import React, {useState, useEffect} from 'react'
+import FormFeedback from './FormFeedback'
 import * as Html from '../../Services/Html'
 
 export default function AnchorText({
@@ -8,60 +9,102 @@ export default function AnchorText({
   isDisabled,
   handleActiveIssue,
 }) {
-  const maxLength = 150
 
   const [textInputValue, setTextInputValue] = useState("")
+  const [linkUrl, setLinkUrl] = useState("")
   const [textInputErrors, setTextInputErrors] = useState([])
   const [deleteLink, setDeleteLink] = useState(false)
 
   useEffect(() => {
+    if(!activeIssue) {
+      return
+    }
     const html = Html.getIssueHtml(activeIssue)
-    const initialText = Html.getInnerText(html)
+    let initialText = ''
+    if(Html.getTagName(html).toLowerCase() === 'a') {
+      initialText = Html.getInnerText(html)
+    } else if(Html.getTagName(html).toLowerCase() === 'area') {
+      initialText = Html.getAttribute(html, 'alt') || ''
+    }
+    
+    setLinkUrl(Html.getAttribute(html, 'href') || '')
     setTextInputValue(initialText)
-    textHasErrors(initialText)
     setDeleteLink(!activeIssue.newHtml && (activeIssue.status === 1))
   }, [activeIssue])
 
   useEffect(() => {
-    if (deleteLink) {
-      setTextInputErrors([])
-    }
-    else {
-      textHasErrors(textInputValue)
-    }
+    updateActiveIssueHtml()
+    checkFormErrors()
   }, [textInputValue, deleteLink])
+
+  const updateActiveIssueHtml = () => {
+    const html = Html.getIssueHtml(activeIssue)
+    let element = Html.toElement(html)
+    let elementTag = Html.getTagName(element)?.toLowerCase() || ''
+    
+    if(elementTag === 'a') {
+      if(deleteLink) {
+        element = Html.setInnerText(element, '')
+      } else {
+        element = Html.setInnerText(element, textInputValue)
+      }
+    }
+    if(elementTag === 'area') {
+      if(deleteLink) {
+        element = Html.setAttribute(element, 'href', '')
+        element = Html.setAttribute(element, 'alt', '')
+        element = Html.setAttribute(element, 'title', '')
+      } else {
+        element = Html.setAttribute(element, 'href', linkUrl)
+        element = Html.setAttribute(element, 'alt', textInputValue)
+        element = Html.setAttribute(element, 'title', textInputValue)
+      }
+    }
+    
+    let issue = activeIssue
+    issue.newHtml = Html.toString(element)
+    handleActiveIssue(issue)
+  }
 
   const handleSubmit = () => {
     if(!deleteLink && textInputErrors.length > 0) {
       return
     }
-    let issue = activeIssue
-    issue.newHtml = processHtml()
-    handleIssueSave(issue)
+    handleIssueSave(activeIssue)
   }
 
-  const textHasErrors = (newText) => {
-    let textErrors = []
-    if(!isTextDescriptive(newText)) {
-      textErrors.push({ text: t('form.anchor.msg.text_descriptive'), type: 'error' })
+  const checkFormErrors = () => {
+    let tempErrors = []
+    
+    // If the "Delete Link" checkbox is checked, we don't need to check for input errors
+    if(!deleteLink) {
+      if(!isTextDescriptive()) {
+        tempErrors.push({ text: t('form.anchor.msg.text_descriptive'), type: 'error' })
+      }
+      if(!isTextNotEmpty()) {
+        tempErrors.push({text: t('form.anchor.msg.text_empty'), type: 'error'})
+      }
     }
-    if(!isTextNotEmpty(newText)) {
-      textErrors.push({text: t('form.anchor.msg.text_empty'), type: 'error'})
-    }
-    setTextInputErrors(textErrors)
-    if(textErrors.length > 0) {
-      return true
-    }
-    return false
+
+    setTextInputErrors(tempErrors)
   }
 
-  const isTextDescriptive = (value) => {
-    const text = value.trim().toLowerCase()
+  const isTextDescriptive = () => {
+    const text = textInputValue.trim().toLowerCase()
     const badOptions = [
       'click',
       'click here',
-      'more',
+      'details',
       'here',
+      'learn',
+      'learn more',
+      'more',
+      'more info',
+      'more information',
+      'read',
+      'read more',
+      'visit',
+      'visit here',
     ]
     if (badOptions.includes(text)) {
       return false
@@ -69,8 +112,8 @@ export default function AnchorText({
     return true
   }
 
-  const isTextNotEmpty = (value) => {
-    const text = value.trim().toLowerCase()
+  const isTextNotEmpty = () => {
+    const text = textInputValue.trim().toLowerCase()
     if (text === '') {
       return false
     }
@@ -80,39 +123,24 @@ export default function AnchorText({
   const handleInput = (event) => {
     const value = event.target.value
     setTextInputValue(value)
-
-    let issue = activeIssue
-    issue.newHtml = processHtml(value)
-    handleActiveIssue(issue)
   }
 
   const handleDeleteCheckbox = (event) => {
     const checked = event.target.checked
     setDeleteLink(checked)
-    let issue = activeIssue
-    if(checked) {
-      issue.newHtml = processHtml('')
-    }
-    else {
-      issue.newHtml = processHtml(textInputValue)
-    }
-    handleActiveIssue(issue)
   }
   
-  const processHtml = (innerText = null) => {
-    const html = Html.getIssueHtml(activeIssue)
-    if(innerText !== null) {
-      return Html.toString(Html.setInnerText(html, innerText))
-    }
-    if(deleteLink) {
-      return ''
-    }
-    return Html.toString(Html.setInnerText(html, textInputValue))
-  }
-
   return (
     <>
-      <label for="linkTextInput" className="mt-0 mb-2">{t('form.anchor.link_text')}</label>
+      {linkUrl !== '' && (
+        <div className="clarification-container flex-row gap-1 mb-3">
+          <div className="instructions">Link:</div>
+          <a href={linkUrl} target="_blank" rel="noopener noreferrer" tabindex="0" style={{wordBreak: 'break-all'}}>
+            {linkUrl}
+          </a>
+        </div>
+      )}
+      <label for="linkTextInput" className="instructions">{t('form.anchor.link_text')}</label>
       <input
         name="linkTextInput"
         id="linkTextInput"
@@ -122,14 +150,8 @@ export default function AnchorText({
         onChange={handleInput}
         tabindex="0"
         disabled={isDisabled || deleteLink} />
-      { textInputErrors.length > 0 && (
-        <div className="error-message flex-column">
-          {textInputErrors.map((error, index) => (
-            <div key={index} className="error-text mb-2 flex-row justify-content-end">{error.text}</div>
-          ))}
-        </div>
-      )}
-      <div className="flex-row gap-1 mt-2 mb-3">
+      <div className="separator mt-2">{t('fix.label.or')}</div>
+      <div className="flex-row gap-1 mt-2">
         <input
           type="checkbox"
           name="deleteLinkCheckbox"
@@ -138,9 +160,13 @@ export default function AnchorText({
           tabindex="0"
           disabled={isDisabled}
           onChange={handleDeleteCheckbox} />
-        <label for="deleteLinkCheckbox">{t('form.anchor.delete_link')}</label>
+        <label for="deleteLinkCheckbox" className="instructions">{t('form.anchor.delete_link')}</label>
       </div>
-      <button className="btn btn-primary" onClick={handleSubmit} disabled={isDisabled || !deleteLink && textInputErrors.length > 0}>{t('form.submit')}</button>
+      <FormFeedback
+        t={t}
+        isDisabled={isDisabled}
+        handleSubmit={handleSubmit}
+        formErrors={textInputErrors} />
     </>
   )
 }

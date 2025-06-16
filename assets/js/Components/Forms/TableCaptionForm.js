@@ -2,7 +2,7 @@ import React, {useState, useEffect} from 'react'
 import FormFeedback from './FormFeedback'
 import * as Html from '../../Services/Html'
 
-export default function HeadingEmptyForm({
+export default function TableCaptionForm({
   t,
   activeIssue,
   handleIssueSave,
@@ -11,7 +11,7 @@ export default function HeadingEmptyForm({
 }) {
 
   const [textInputValue, setTextInputValue] = useState('')
-  const [deleteHeader, setDeleteHeader] = useState(false)
+  const [deleteCaption, setDeleteCaption] = useState(false)
   const [textInputErrors, setTextInputErrors] = useState([])
 
   useEffect(() => {
@@ -20,7 +20,7 @@ export default function HeadingEmptyForm({
       const element = Html.toElement(html)
 
       setTextInputValue(element ? element.innerText : '')
-      setDeleteHeader(!element && activeIssue.status.toString() === '1')
+      setDeleteCaption(!element && activeIssue.status.toString() === '1')
     }
     setTextInputErrors([])
   }, [activeIssue])
@@ -34,7 +34,7 @@ export default function HeadingEmptyForm({
   }
 
   const processHtml = () => {
-    if (deleteHeader) {
+    if (deleteCaption) {
       return '';
     }
 
@@ -44,18 +44,18 @@ export default function HeadingEmptyForm({
 
   useEffect(() => {
     let tempErrors = []
-    if(!deleteHeader && isTextEmpty()) {
-      tempErrors.push({ text: t('form.heading_empty.msg.text_empty'), type: 'error' })
+    if(!deleteCaption && isTextEmpty()) {
+      tempErrors.push({ text: t('form.table_caption.msg.text_empty'), type: 'error' })
     }
     setTextInputErrors(tempErrors)
 
     let issue = activeIssue
     issue.newHtml = processHtml()
     handleActiveIssue(issue)
-  }, [textInputValue, deleteHeader])
+  }, [textInputValue, deleteCaption])
 
   const handleCheckbox = () => {
-    setDeleteHeader(!deleteHeader)
+    setDeleteCaption(!deleteCaption)
   }
 
   const handleInput = (newValue) => {
@@ -68,28 +68,31 @@ export default function HeadingEmptyForm({
 
   return (
     <>
-      <label className="instructions" htmlFor="headingTextInput">{t('form.heading_empty.label.text')}</label>
+      <label className="instructions" htmlFor="captionTextInput">{t('form.table_caption.label.text')}</label>
       <div className="w-100 mt-2">
         <input
           type="text" 
-          id="headingTextInput"
-          name="headingTextInput"
+          id="captionTextInput"
+          name="captionTextInput"
           className="w-100"
           value={textInputValue}
-          disabled={isDisabled || deleteHeader}
+          disabled={isDisabled || deleteCaption}
           tabindex="0"
           onChange={(e) => handleInput(e.target.value)} />
       </div>
       <div className="separator mt-2">{t('fix.label.or')}</div>
       <div className="flex-row justify-content-start gap-1 mt-2">
         <input type="checkbox"
-          id="deleteHeaderCheckbox"
-          name="deleteHeaderCheckbox"
-          checked={deleteHeader}
+          id="deleteCaptionCheckbox"
+          name="deleteCaptionCheckbox"
+          checked={deleteCaption}
           tabindex="0"
           disabled={isDisabled}
           onChange={handleCheckbox} />
-        <label className="instructions" htmlFor="deleteHeaderCheckbox">{t('form.heading_empty.label.remove_header')}</label>
+        <label className="instructions" htmlFor="deleteCaptionCheckbox">{t('form.table_caption.label.remove_caption')}</label>
+      </div>
+      <div className="mt-1">
+        <em>{t('form.table_caption.label.remove_caption_desc')}</em>
       </div>
       <FormFeedback
         t={t}

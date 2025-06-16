@@ -22,8 +22,10 @@ export default function UfixitWidget({
   viewInfo,
   setViewInfo,
   severity,
+  addMessage,
   activeIssue,
   setActiveIssue,
+  activeContentItem,
   setEditedElement,
   formatIssueData,
   handleIssueResolve,
@@ -37,7 +39,6 @@ export default function UfixitWidget({
   nextIssue
 }) {
 
-  const [modalMessages, setModalMessages] = useState([])
   const [UfixitForm, setUfixitForm] = useState(null)
   const [formName, setFormName] = useState('')
 
@@ -56,6 +57,7 @@ export default function UfixitWidget({
         setFormName(formNameFromRule(activeIssue.scanRuleId))
       }
       setTempActiveIssue(Object.assign({}, activeIssue))
+      console.log('UfixitWidget: activeIssue', activeIssue)
     }
     else {
       setFormName('')
@@ -63,36 +65,6 @@ export default function UfixitWidget({
       setTempActiveIssue(null)
     }
   }, [activeIssue])
-
-  const handleManualScan = (issue) => {
-    let api = new Api(settings)
-    api.scanIssue(issue.id)
-      .then((response) => response.json())
-      .then((data) => {
-        if (data.messages) {
-          data.messages.forEach((msg) => {
-            if (msg.visible) {
-              addMessage(msg);
-            }
-          });
-        }
-        if (data.data.issue) {
-          const newIssue = Object.assign({}, issue, data.data.issue)
-          handleIssueSave(newIssue, data.data.report)
-
-          // update activeIssue
-          setActiveIssue(formatIssueData(newIssue))
-        }
-        else {
-          issue.pending = false
-          setActiveIssue(formatIssueData(issue))
-        }
-      })
-  }
-
-  const addMessage = (msg) => {
-    setModalMessages([...modalMessages, msg])
-  }
 
   const handleActiveIssue = (newIssue) => {
     const tempIssue = Object.assign({}, tempActiveIssue)
@@ -172,10 +144,10 @@ export default function UfixitWidget({
                             settings={settings}
                             isDisabled={!isErrorFoundInContent}
                             activeIssue={tempActiveIssue.issueData}
+                            activeContentItem={activeContentItem}
                             handleIssueSave={handleIssueSave}
                             addMessage={addMessage}
-                            handleActiveIssue={handleActiveIssue}
-                            handleManualScan={handleManualScan} /> )
+                            handleActiveIssue={handleActiveIssue} /> )
                         }
                       </div>
                     </>

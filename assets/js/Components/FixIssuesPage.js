@@ -724,57 +724,6 @@ export default function FixIssuesPage({
         setActiveIssue(tempIssue)
       }
     }
-
-
-    // let tempUnfilteredIssues = unfilteredIssues.map((issue) => {
-    //   if(issue.id === issueId) {
-    //     let tempIssue = Object.assign({}, issue)
-    //     tempIssue.currentState = state
-    //     return tempIssue
-    //   }
-    //   return issue
-    // })
-    // setUnfilteredIssues(tempUnfilteredIssues)
-
-    // let tempFilteredIssues = filteredIssues.map((issue) => {
-    //   if(issue.id === issueId) {
-    //     let tempIssue = Object.assign({}, issue)
-    //     tempIssue.currentState = state
-    //     return tempIssue
-    //   }
-    //   return issue
-    // })
-    // setFilteredIssues(tempFilteredIssues)
-
-    // // If the issue is resolved or saved, reload the associated content item
-    // if(state === settings.ISSUE_STATE.SAVED || state === settings.ISSUE_STATE.RESOLVED) {
-    //   let contentItemId = null
-    //   tempUnfilteredIssues.forEach((issue) => {
-    //     if(issue.id === issueId) {
-    //       contentItemId = issue?.issueData?.contentItemId
-    //     }
-    //   })
-    //   if(contentItemId) {
-    //     loadContentItem(contentItemId)
-    //   }
-    // }
-
-    // updateSessionIssue(issueId, state)
-  }
-
-  const updateIssue = (newIssueData) => {
-    const tempReport = Object.assign({}, report)
-    tempReport.issues = tempReport.issues.map((issue) => {
-      if (issue.id === newIssueData.id) {
-        const tempIssue = formatIssueData(newIssueData)
-        if(activeIssue.id === newIssueData.id) {
-          setActiveIssue(tempIssue)
-        }
-        return tempIssue
-      }
-      return issue
-    })
-    processNewReport(tempReport)
   }
 
   const updateFile = (tempFile) => {
@@ -828,6 +777,13 @@ export default function FixIssuesPage({
     }
 
     let fullPageHtml = getNewFullPageHtml(activeContentItem, issue)
+    let fullPageDoc = new DOMParser().parseFromString(fullPageHtml, 'text/html')
+    let newElement = Html.findElementWithError(fullPageDoc, issue?.newHtml)
+    let newXpath = Html.findXpathFromElement(newElement)
+    if(newXpath) {
+      issue.xpath = newXpath
+      activeContentItem.body = fullPageHtml
+    }
 
     // Save the updated issue using the LMS API
     let api = new Api(settings)
@@ -1121,8 +1077,10 @@ export default function FixIssuesPage({
                 viewInfo={viewInfo}
                 setViewInfo={setViewInfo}
                 severity={activeIssue.severity}
+                addMessage={addMessage}
                 activeIssue={activeIssue}
                 setActiveIssue={setActiveIssue}
+                activeContentItem={activeContentItem}
                 setEditedElement={setEditedElement}
                 formatIssueData={formatIssueData}
                 isContentLoading={contentItemsBeingScanned.includes(activeIssue?.issueData?.contentItemId)}

@@ -223,7 +223,6 @@ class CanvasLms implements LmsInterface {
                         $contentItemUpdated = $contentItem->getUpdated();
                         $lmsUpdated = new \DateTime($lmsContent['updated'], UtilityService::$timezone);
                         if ($contentItemUpdated == $lmsUpdated) {
-                            $output->writeln('Content item already exists and is up to date. Skipping ' . $contentType . ': ' . $lmsContent['title']);
                             $contentItem->setActive(true);
                             continue;
                         }
@@ -269,7 +268,9 @@ class CanvasLms implements LmsInterface {
                     }
 
                     $contentItem->update($lmsContent);
-                    $contentItems[] = $contentItem;
+                    if($contentItem->getBody() !== null) {
+                        $contentItems[] = $contentItem;
+                    }
                 }
             }
         }
