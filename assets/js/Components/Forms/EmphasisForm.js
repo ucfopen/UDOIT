@@ -5,26 +5,29 @@ import * as Contrast from '../../Services/Contrast'
 
 export default function EmphasisForm({
   t,
-  settings,
   activeIssue,
+  isDisabled,
   handleIssueSave,
-  addMessage,
   handleActiveIssue,
-  handleManualScan
 }) {
   const [useBold, setUseBold] = useState(false)
   const [useItalics, setUseItalics] = useState(false)
-  const [checkboxErrors, setCheckboxErrors] = useState([])
+  const [removeColor, setRemoveColor] = useState(false)
+  const [formErrors, setFormErrors] = useState([])
 
   useEffect(() => {
+    if(!activeIssue) {
+      return
+    }
     setUseBold(isBold())
     setUseItalics(isItalicized())
+    setRemoveColor(false)
   }, [activeIssue])
 
   useEffect(() => {
     updatePreview()
     checkFormErrors()
-  }, [useBold, useItalics])
+  }, [useBold, useItalics, removeColor])
 
   const updatePreview = () => {
     let issue = activeIssue
@@ -41,8 +44,15 @@ export default function EmphasisForm({
     Html.removeTag(element, 'strong')
     Html.removeTag(element, 'em')
 
-    element.innerHTML = (useBold) ? `<strong>${element.innerHTML}</strong>` : element.innerHTML
-    element.innerHTML = (useItalics) ? `<em>${element.innerHTML}</em>` : element.innerHTML
+    if (removeColor) {
+      element = Html.removeAttribute(element, 'style')
+    }
+    if(useItalics) {
+      element.innerHTML = `<em>${element.innerHTML}</em>`
+    }
+    if(useBold) {
+      element.innerHTML = `<strong>${element.innerHTML}</strong>`  
+    }
     
     return Html.toString(element)
   }
@@ -51,14 +61,14 @@ export default function EmphasisForm({
     const metadata = activeIssue.metadata ? JSON.parse(activeIssue.metadata) : {}
     const html = Html.getIssueHtml(activeIssue)
     const element = Html.toElement(html)
-    return Html.hasTag(element, 'strong') || metadata.fontWeight === 'bold'
+    return Html.getChild(element, 'strong') || Html.getChild(element, 'b') || metadata.fontWeight === 'bold'
   }
 
   const isItalicized = () => {
     const metadata = activeIssue.metadata ? JSON.parse(activeIssue.metadata) : {}
     const html = Html.getIssueHtml(activeIssue)
     const element = Html.toElement(html)
-    return Html.hasTag(element, 'em') || metadata.fontStyle === 'italic'
+    return Html.getChild(element, 'em') || Html.getChild(element, 'i') || metadata.fontStyle === 'italic'
   }
 
   const handleBoldToggle = () => {
@@ -69,8 +79,12 @@ export default function EmphasisForm({
     setUseItalics(!useItalics)
   }
 
+  const handleRemoveColorToggle = () => {
+    setRemoveColor(!removeColor)
+  }
+
   const handleSubmit = () => {
-    if (checkboxErrors.length > 0) {
+    if (formErrors.length > 0) {
       return
     }
     let issue = activeIssue
@@ -78,11 +92,9 @@ export default function EmphasisForm({
     handleIssueSave(issue)
   }
 
-  const cssEmphasisIsValid = (issue) => {
-    if (issue.scanRuleId === 'CssTextStyleEmphasize') {
-      if (!useBold && !useItalics) {
-        return false
-      }
+  const cssEmphasisIsValid = () => {
+    if(!removeColor && !useBold && !useItalics) {
+      return false
     }
     return true
   }
@@ -92,16 +104,19 @@ export default function EmphasisForm({
     if(!cssEmphasisIsValid(activeIssue)) {
       tempErrors.push({ text: t('form.emphasis.msg.required'), type: 'error' })
     }
-    setCheckboxErrors(tempErrors)
+    setFormErrors(tempErrors)
   }
 
   return (
     <>
+      <div className="instructions">{t('form.emphasis.label.select_emphasis')}</div>
       <div className="flex-row justify-content-start gap-1 mt-2">
         <input type="checkbox"
           id="boldCheckbox"
           name="boldCheckbox"
           checked={useBold}
+          tabindex="0"
+          disabled={isDisabled}
           onChange={handleBoldToggle} />
         <label htmlFor="boldCheckbox">{t('form.emphasis.label.bold')}</label>
       </div>
@@ -110,13 +125,27 @@ export default function EmphasisForm({
           id="italicCheckbox"
           name="italicCheckbox"
           checked={useItalics}
+          tabindex="0"
+          disabled={isDisabled}
           onChange={handleItalicsToggle} />
         <label htmlFor="italicCheckbox">{t('form.emphasis.label.italic')}</label>
       </div>
-      <FormFeedback issues={checkboxErrors} />
-      <div className="flex-row justify-content-start mt-3 mb-3">
-        <button className="btn btn-primary" disabled={checkboxErrors.length > 0} onClick={handleSubmit}>{t('form.submit')}</button>
+      <div className="separator mt-2">{t('fix.label.and_or')}</div>
+      <div className="flex-row justify-content-start gap-1 mt-2">
+        <input type="checkbox"
+          id="removeColorCheckbox"
+          name="removeColorCheckbox"
+          checked={removeColor}
+          tabindex="0"
+          disabled={isDisabled}
+          onChange={handleRemoveColorToggle} />
+        <label className="instructions" htmlFor="removeColorCheckbox">{t('form.emphasis.label.remove_color')}</label>
       </div>
+      <FormFeedback
+        t={t}
+        isDisabled={isDisabled}
+        handleSubmit={handleSubmit}
+        formErrors={formErrors} />
     </>
   )
 }

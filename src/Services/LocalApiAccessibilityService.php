@@ -23,7 +23,8 @@ class LocalApiAccessibilityService {
 
 
     public function scanContentItem(ContentItem $contentItem) {
-        $html = HtmlService::clean($contentItem->getBody());
+        // $html = HtmlService::clean($contentItem->getBody());
+        $html = $contentItem->getBody();
 
         if (!$html) {
             return;
@@ -53,7 +54,8 @@ class LocalApiAccessibilityService {
         // Create a promise for each content item
         foreach ($contentItems as $contentItem) {
             $id = $contentItem->getId();
-            $html = HtmlService::clean($contentItem->getBody());
+            //$html = HtmlService::clean($contentItem->getBody());
+            $html = $contentItem->getBody();
 
             if (!$html) {
                 $output->writeln("Skipping content item {$id}: Empty or invalid HTML");
@@ -62,13 +64,13 @@ class LocalApiAccessibilityService {
             }
 
             // Get DOM document for scanning
-            $document = $this->getDomDocument($html);
-            $htmlOutput = $document->saveHTML();
+            // $document = $this->getDomDocument($html);
+            // $htmlOutput = $document->saveHTML();
 
             // Create promise for this content item
             $promises[$id] = $client->postAsync('/scan', [
                 'json' => [
-                    'html' => $htmlOutput,
+                    'html' => $html, // $htmlOutput,
                     'guidelineIds' => 'WCAG_2_1'
                 ],
                 'headers' => [
@@ -176,7 +178,7 @@ class LocalApiAccessibilityService {
 
     public function checkMany($content, $ruleIds = [], $options = []) {
         // Get DOM document
-        $document = $this->getDomDocument($content);
+        // $document = $this->getDomDocument($content);
 
         // Create proper debugging for document state
         $output = new ConsoleOutput();
@@ -184,13 +186,10 @@ class LocalApiAccessibilityService {
         // $output->writeln("- Has HTML element: " . ($document->getElementsByTagName('html')->length > 0 ? 'Yes' : 'No'));
 
         // Check attribute preservation
-        $htmlElement = $document->getElementsByTagName('html')->item(0);
-        if ($htmlElement) {
-            // $output->writeln("- HTML lang attribute: " . ($htmlElement->hasAttribute('lang') ? $htmlElement->getAttribute('lang') : 'Not present'));
-        }
+        // $htmlElement = $document->getElementsByTagName('html')->item(0);
 
         // Get serialized HTML, using saveHTML on the document not an element to preserve DOCTYPE
-        $htmlOutput = $document->saveHTML();
+        // $htmlOutput = $document->saveHTML();
 
         // Debug the output
         // $output->writeln("First 200 chars of serialized HTML: " . substr($htmlOutput, 0, 200));
@@ -234,10 +233,9 @@ class LocalApiAccessibilityService {
             <title>Placeholder Page Title</title>
         </head>
         <body>
-            <div role=\"main\">
-                <h1>Placeholder Page Title</h1>
+            <main>
                 <!-- CONTENT_PLACEHOLDER -->
-            </div>
+            </main>
         </body>
         </html>";
 

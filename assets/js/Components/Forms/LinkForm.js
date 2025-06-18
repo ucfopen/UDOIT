@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react'
+import FormFeedback from './FormFeedback'
 import * as Html from '../../Services/Html'
 
 export default function LinkForm({
   t,
   activeIssue,
+  isDisabled,
   handleIssueSave,
   handleActiveIssue,
 }) {
@@ -86,7 +88,13 @@ export default function LinkForm({
   return (
     <>
       <h3 className="mt-0 mb-2">{t('form.link.new_link')}</h3>
-      <input className="w-100 mt-0 mb-1" type="text" value={textInputValue} onChange={handleInput} disabled={deleteLink} />
+      <input
+        className="w-100 mt-0 mb-1"
+        type="text"
+        value={textInputValue}
+        onChange={handleInput}
+        tabindex="0"
+        disabled={isDisabled || deleteLink} />
       { textInputErrors.length > 0 && (
         <div className="error-message flex-column gap-1">
           {textInputErrors.map((error, index) => (
@@ -95,10 +103,21 @@ export default function LinkForm({
         </div>
       )}
       <div className="flex-row gap-2 mb-3">
-        <input type="checkbox" name="deleteLinkCheckbox" id="deleteLinkCheckbox" checked={deleteLink} onChange={handleDeleteCheckbox} />
+        <input
+          type="checkbox"
+          name="deleteLinkCheckbox"
+          id="deleteLinkCheckbox"
+          checked={deleteLink}
+          tabindex="0"
+          disabled={isDisabled}
+          onChange={handleDeleteCheckbox} />
         <label for="deleteLinkCheckbox">{t('form.anchor.delete_link')}</label>
       </div>
-      <button className="btn btn-primary" onClick={handleSubmit} disabled={textInputErrors.length > 0} >{t('form.submit')}</button>
+      <FormFeedback
+        t={t}
+        isDisabled={isDisabled}
+        handleSubmit={handleSubmit}
+        formErrors={textInputErrors} />
     </>
   ) 
 }

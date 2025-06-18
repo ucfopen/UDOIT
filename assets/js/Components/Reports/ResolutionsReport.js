@@ -57,9 +57,16 @@ export default function ResolutionsReport ({
     for (let report of tempReports) {
       data.labels.push(report.created)
 
-      data.datasets[0].data.push(report.errors)
-      data.datasets[1].data.push(report.contentResolved)
-      data.datasets[2].data.push(report.suggestions)
+      if(report?.scanCounts) {
+        data.datasets[0].data.push(report.scanCounts.errors)
+        data.datasets[1].data.push(report.scanCounts.potentials)
+        data.datasets[2].data.push(report.scanCounts.suggestions)
+      }
+      else {
+        data.datasets[0].data.push(report.errors)
+        data.datasets[1].data.push(0)
+        data.datasets[2].data.push(report.suggestions)
+      }
     }
 
     return data

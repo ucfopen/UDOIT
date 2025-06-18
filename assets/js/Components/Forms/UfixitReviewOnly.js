@@ -6,8 +6,7 @@ export default function UfixitReviewOnly({
   activeIssue, 
   handleIssueSave, 
   addMessage, 
-  handleActiveIssue, 
-  handleManualScan
+  handleActiveIssue
 }) {
 
   return (

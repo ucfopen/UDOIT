@@ -50,7 +50,7 @@ export default function MessageTray ({ messages, hasNewReport, clearMessages, t 
         {!hasNewReport && (
           <div className='messageTrayItem flex-row gap-2'>
             <div className="flex-column justify-content-center">
-              <ProgressIcon className="icon-lg primary spinner" alt=""/>
+              <ProgressIcon className="icon-lg udoit-suggestion spinner" alt=""/>
             </div>
             <div className="flex-column justify-content-center">
               {t('msg.content_loading')}

@@ -144,7 +144,7 @@ export default function UsersPage({
       {(!usersLoaded) &&
         <div className="mt-3 flex-row justify-content-center">
           <div className="flex-column justify-content-center me-3">
-            <ProgressIcon className="icon-lg primary spinner" />
+            <ProgressIcon className="icon-lg udoit-suggestion spinner" />
           </div>
           <div className="flex-column justify-content-center">
             <h2 className="mt-0 mb-0">{t('report.label.loading_users')}</h2>

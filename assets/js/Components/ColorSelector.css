@@ -17,4 +17,9 @@
   &:not(:last-child) {
     margin-right: 4px;
   }
+
+  &:focus {
+    outline: 2px solid var(--focus-color);
+    outline-offset: 1px;
+  }
 }

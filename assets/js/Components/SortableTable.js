@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
-import SortIcon from './Icons/SortIcon'
 import SortIconFilled from './Icons/SortIconFilled'
+import DownloadIcon from './Icons/DownloadIcon'
 
 import './SortableTable.css'
 
@@ -12,14 +12,6 @@ export default function SortableTable({
   tableSettings,
   handleTableSettings,
 }) {
-
-  // The tableSettings object should contain:
-  // {
-  //   pageNum: 0,
-  //   sortBy: 'id',
-  //   ascending: true,
-  //   rowsPerPage: '10'
-  // }
 
   const [rowsPerPage, setRowsPerPage] = useState((tableSettings.rowsPerPage) ? parseInt(tableSettings.rowsPerPage) : 10)
   const [start, setStart] = useState(tableSettings.pageNum * rowsPerPage)
@@ -43,6 +35,30 @@ export default function SortableTable({
   }
   , [tableSettings, rows])
 
+  const exportToCSV = () => {
+
+    const tempHeaders = headers.map(header => header.text);
+
+    const csvData = [];
+    csvData.push(tempHeaders.join(','));
+
+    rows.forEach(row => {
+      const rowData = headers.map(header => {
+        const value = row[header.id];
+        return `"${value}"`;
+      });
+      csvData.push(rowData.join(','));
+    });
+
+    const csvString = csvData.join('\n');
+    const blob = new Blob([csvString], { type: 'text/csv' });
+
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = `${caption}.csv`;
+    link.click();
+  }
+
   const handleSort = (id) => {
     if (['status', 'action'].includes(id)) {
       return
@@ -52,7 +68,7 @@ export default function SortableTable({
       handleTableSettings({ascending: !ascending})
     } else {
       handleTableSettings({
-        ascending: true,
+        ascending: false,
         sortBy: id
       })
     }
@@ -134,7 +150,17 @@ export default function SortableTable({
       <table className="udoit-sortable-table">
         {( caption && caption.length > 0 ) &&
           <caption className="mb-2">
-            <h2 className="mt-0 mb-0">{caption}</h2>
+            <div className="flex-row">
+              <div className="flex-grow-1 flex-row justify-content-center">
+                <h2 className="flex-column align-self-center primary-dark mt-0 mb-0">{caption}</h2>
+              </div>
+              <div className="flex-grow-0">
+                <button className="btn-secondary btn-icon-left" onClick={()=>exportToCSV()}>
+                  <DownloadIcon className="icon-md" />
+                  {t('report.button.download')}
+                </button>
+              </div>
+            </div>
           </caption>
         }
         <thead aria-label={t('report.label.sort_by')}>
@@ -153,11 +179,15 @@ export default function SortableTable({
                   }}
                 >
                   <div className="flex-row">
+                    <div className="header-spacer" />
                     <div className="flex-grow-1 clickable-text">{text}</div>
-                    { (id === sortBy) &&
-                      <div className="flex-column justify-content-center flex-shrink-0 ps-1">
+                    { (id === sortBy) ? (
+                      <div className="flex-column justify-content-center flex-shrink-0 ps-2">
                         <SortIconFilled className={`icon-md${(direction === 'ascending') ? ' rotate-180' : ''}`} />
                       </div>
+                      ) : (
+                        <div className="header-spacer" />
+                      )
                     }
                   </div>
                   </th>
@@ -168,9 +198,9 @@ export default function SortableTable({
         </thead>
         <tbody>
           {pagedRows.map((row) => (
-            <tr key={`row${row.id}`}>
+            <tr key={`row${row.id}`} className={row.onClick ? ' clickable' : ''}>
               {headers.map(({ id, renderCell, alignText, format }) => (
-                <td key={`row${row.id}cell${id}`} textAlign={alignText ? alignText : 'start'} onClick={(row.onClick) ? row.onClick : null}>
+                <td key={`row${row.id}cell${id}`} className={alignText === 'center' ? 'text-center' : alignText === 'end' ? 'text-end' : 'text-start'} onClick={(row.onClick) ? row.onClick : null}>
                   {renderCell ? renderCell(row[id]) : (format) ? format(row[id]) : <div cursor={(row.onClick) ? 'pointer' : 'auto'}>{row[id]}</div>}
                 </td>
               ))}

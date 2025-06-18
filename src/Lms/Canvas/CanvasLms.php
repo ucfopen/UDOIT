@@ -199,12 +199,14 @@ class CanvasLms implements LmsInterface {
     }
 
 
-    public function updateCourseContent(Course $course, User $user): array
+    // Get content from Canvas and update content items
+    public function updateCourseContent(Course $course, User $user, $force = false): array
     {
-        // Step 1: Prepare concurrency
-        $urls       = $this->getCourseContentUrls($course->getLmsCourseId());
-        $apiDomain  = $this->getApiDomain($user);
-        $apiToken   = $this->getApiToken($user);
+        $output = new ConsoleOutput();
+        $content = $contentItems = [];
+        $urls = $this->getCourseContentUrls($course->getLmsCourseId());
+        $apiDomain = $this->getApiDomain($user);
+        $apiToken = $this->getApiToken($user);
         $canvasApi  = new CanvasApi($apiDomain, $apiToken);
 
         // We'll map contentType -> pending ResponseInterface
@@ -281,7 +283,29 @@ class CanvasLms implements LmsInterface {
                         continue;
                     }
 
-                    // If needed, fetch page/body details, etc.
+                    /* Check to see if the existing content item is already in the database and hasn't been updated since.
+                       The $force variable is used to force the full rescan, and skips the 'already exists' check */
+
+                    $contentItem = $this->contentItemRepo->findOneBy([
+                        'contentType' => $contentType,
+                        'lmsContentId' => $lmsContent['id'],
+                        'course' => $course,
+                    ]);
+
+                    if (!$force && $contentItem) {
+                        $contentItemUpdated = $contentItem->getUpdated();
+                        $lmsUpdated = new \DateTime($lmsContent['updated'], UtilityService::$timezone);
+                        if ($contentItemUpdated == $lmsUpdated) {
+                            $contentItem->setActive(true);
+                            continue;
+                        }
+                        $output->writeln('Content item already exists but is out of date. Updating ' . $contentType . ': ' . $lmsContent['title']);
+                    }
+                    else {
+                        $output->writeln('New content item - ' . $contentType . ': ' . $lmsContent['title']);
+                    }
+
+                    /* get page content */
                     if ('page' === $contentType) {
                         // e.g. fetch page body
                         $pageUrl = "courses/{$course->getLmsCourseId()}/pages/{$lmsContent['id']}";
@@ -301,18 +325,11 @@ class CanvasLms implements LmsInterface {
                         }
                     }
 
-                    $contentItem = $this->contentItemRepo->findOneBy([
-                        'contentType'  => $contentType,
-                        'lmsContentId' => $lmsContent['id'],
-                        'course'       => $course,
-                    ]);
-
                     if (!$contentItem) {
                         $contentItem = new ContentItem();
                         $contentItem->setCourse($course)
                             ->setLmsContentId($lmsContent['id'])
                             ->setActive(true)
-                            ->setUpdated($this->util->getCurrentTime())
                             ->setContentType($contentType);
                         $this->entityManager->persist($contentItem);
                     }
@@ -327,7 +344,9 @@ class CanvasLms implements LmsInterface {
                     }
 
                     $contentItem->update($lmsContent);
-                    $contentItems[] = $contentItem;
+                    if($contentItem->getBody() !== null) {
+                        $contentItems[] = $contentItem;
+                    }
                 }
             }
         }

@@ -47,11 +47,49 @@
   position: relative;
   border: 1px solid var(--border-color);
   border-radius: 8px;
+
+  .ufixit-content-preview-rescan-container {
+    position: sticky;
+    top: 0;
+    display: flex;
+    z-index: 5;
+
+    .ufixit-content-preview-rescan {
+      padding: 0.5rem 1rem;
+      background-color: var(--primary-color-light);
+      border: 1px solid var(--border-color);
+      border-radius: 0 0 8px 0;
+      margin-top: calc(-1rem - 1px);
+      margin-left: -100%;
+      transition: margin-left var(--transition-time);
+      font-size: .9em;
+      font-weight: 600;
+      box-shadow: 0 0 3px var(--gray-dark);
+
+      &.active {
+        margin-left: calc(-1rem - 1px);
+      }
+    }
+  }
+
+  .ufixit-content-preview-main {
+    position: absolute;
+    top: 0px;
+    padding-top: 1rem;
+    padding-right: 1rem;
+    
+    h1, h2, h3, h4, h5, h6 {
+      color: var(--text-color);
+    }
+  }
 }
 
-.ufixit-content-progress {
-  flex-shrink: 0;
-  flex-grow: 0;
+.ufixit-content-preview-no-error {
+  background-color: var(--background-color);
+  margin: 1.5rem;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 1rem 1.5rem;
 }
 
 .ufixit-error-highlight {
@@ -65,47 +103,71 @@
   }
 }
 
-.alt-text-preview {
-  position: absolute;
-  position-anchor: --ufixit-error-highlight;
-  position-area: bottom;
-  position-try-fallbacks: bottom left, bottom right, top, top left, top right;
+.scroll-to-error-container {
+  position: sticky;
+  top: 0;
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-end;
+  height: 100%;
+  width: 100%;
+  pointer-events: none;
+  z-index: 10;
+}
 
+.scroll-to-error {
+  background-color: transparent;
+  border-radius: 100%;
+  padding: 0.35rem;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  border: 2px solid var(--primary-color);
+  opacity: 0.5;
+  transition: opacity var(--transition-time);
+  align-self: start;
+  pointer-events: all;
+
+  &:hover,
+  &:focus,
+  &:active {
+    opacity: 1;
+    background-color: var(--primary-color-light);
+  }
+
+  &.scroll-to-error-down {
+    align-self: end;
+  }
+}
+
+.ufixit-alt-text-preview {
   background-color: var(--gray-dark);
-  color: var(--primary-color-light);
+  color: var(--white);
   border-radius: 22px;
   font-size: 0.85rem;
+  width: fit-content;
 
   display: flex;
   flex-direction: row;
-  cursor: pointer;
   border: 2px solid var(--gray-dark);
-  margin: 5px;
+  margin: 5px 0px;
   
-  .alt-text-preview-icon {
+  .ufixit-alt-text-preview-icon {
     padding: 8px;
     line-height: 0px;
-    fill: var(--primary-color-light);
+    fill: var(--white);
   }
 
-  .alt-text-preview-text {
+  .ufixit-alt-text-preview-text {
     display: flex;
     flex-direction: column;
-    font-weight: bold;
+    justify-content:center;
+    font-weight: 500;
     padding: .5rem 1rem .5rem .25rem;
     max-width: 300px;
-    max-height: 100px;
     transition: max-height 0.15s, max-width var(--transition-time), padding var(--transition-time);
     overflow: auto;
-  }
-
-  &.alt-text-preview-closed {
-    .alt-text-preview-text {
-      max-width: 0px;
-      max-height: 0px;
-      padding: 0px;
-      overflow: hidden;
-    }
   }
 }
 
@@ -118,5 +180,27 @@
     text-align: right;
     width: 30%;
     flex-shrink: 0;
+  }
+}
+
+.ufixit-heading-highlight {
+  margin-left: 20px;
+
+  &.ufixit-error-highlight {
+    margin-left: 19px;  /* To offset the required 1px border */
+  }
+  
+  &::before {
+    content: attr(ufixit-heading-type);
+    font-size: .85rem;
+    background-color: var(--gray-dark);
+    color: #fff;
+    position: absolute;
+    padding: 4px;
+    border-radius: 4px;
+    margin-left: -32px;
+    width: 20px;
+    text-align: center;
+    border: 1px solid var(--white)
   }
 }

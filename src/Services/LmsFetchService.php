@@ -14,9 +14,6 @@ use App\Services\EqualAccessService;
 use App\Services\ScannerService;
 use CidiLabs\PhpAlly\PhpAllyIssue;
 use Doctrine\Persistence\ManagerRegistry;
-
-// TODO: Remove once PR is merged
-use App\Services\LocalApiAccessibilityService;
 use Symfony\Component\Console\Output\ConsoleOutput;
 
 class LmsFetchService {
@@ -78,10 +75,7 @@ class LmsFetchService {
      */
     public function refreshLmsContent(Course $course, User $user, $force = false): array
     {
-        $printOutput = new ConsoleOutput();
-        // $printOutput->writeln("enter");
-        // return;
-
+        $output = new ConsoleOutput();
         $lms = $this->lmsApi->getLms($user);
 
         $this->lmsUser->validateApiKey($user);
@@ -96,16 +90,20 @@ class LmsFetchService {
         /* Update course status */
         $lms->updateCourseData($course, $user);
 
-        /* Mark content items as inactive */
+        /* Step 2: Get list of updated content items */
+        /* 2.1: Mark all existing content items and files in our database as inactive */
         $contentItemRepo->setCourseContentInactive($course);
         $fileItemRepo->setCourseFileItemsInactive($course);
         $this->doctrine->getManager()->flush();
 
-        /* Update content items from LMS */
-        $lms->updateCourseContent($course, $user);
+        /* Update content items from LMS.
+          1. ContentItems that are in our database but no longer in the LMS remain 'inactive' and are not scanned.
+          2. ContentItems that are in our database but older than the LMS's versions are re-downloaded.
+          3. ContentItems that are in the LMS but not in our database are added to our database.
+        */
+        $contentItems = $lms->updateCourseContent($course, $user, $force);
+        $output->writeln("Found " . count($contentItems) . " updated content items in the LMS.");
 
-        /* Step 2: Get list of changed content items */
-        $contentItems = $contentItemRepo->getUpdatedContentItems($course, $force);
         $contentSections = $lms->getCourseSections($course, $user);
 
         // (Skipping synchronous scan and report update; just return changed items.)
@@ -121,14 +119,6 @@ class LmsFetchService {
         // one ScanContentItem message per item.
         return $contentItems;
     }
-
-    // Refresh content item data from the LMS
-    // public function refreshContentItemFromLms(ContentItem $contentItem): void
-    // {
-    //     $lms = $this->lmsApi->getLms();
-    //     $lms->updateContentItem($contentItem);
-    //     $this->doctrine->getManager()->flush();
-    // }
 
     public function getCourseSections(Course $course, User $user)
     {
@@ -179,9 +169,9 @@ class LmsFetchService {
     }
 
     // Update report, or create new one for a new day
-    public function updateReport(Course $course, User $user): Report
+    public function updateReport(Course $course, User $user, $itemsScannedCount): Report
     {
-        $contentFixed = $contentResolved = $filesReviewed = $errors = $suggestions = 0;
+        $contentFixed = $contentResolved = $filesReviewed = $errors = $potentials = $suggestions = 0;
         $scanRules = [];
 
         /** @var \App\Entity\ContentItem[] $contentItems */
@@ -199,6 +189,8 @@ class LmsFetchService {
                 } else {
                     if (Issue::$issueError === $issue->getType()) {
                         $errors++;
+                    } else if (Issue::$issuePotential === $issue->getType()) {
+                        $potentials++;
                     } else {
                         $suggestions++;
                     }
@@ -213,6 +205,12 @@ class LmsFetchService {
                 $scanRules[$ruleId]++;
             }
         }
+
+        $scanCounts = (object) [
+          'errors' => $errors,
+          'potentials' => $potentials,
+          'suggestions' => $suggestions,
+        ];
 
         /** @var \App\Entity\FileItem[] $fileItems */
         $fileItems = $course->getFileItems();
@@ -242,7 +240,7 @@ class LmsFetchService {
         $report->setContentFixed($contentFixed);
         $report->setContentResolved($contentResolved);
         $report->setFilesReviewed($filesReviewed);
-        $report->setData(\json_encode(['scanRules' => $scanRules]));
+        $report->setData(\json_encode(['scanRules' => $scanRules, 'scanCounts' => $scanCounts, 'itemsScanned' => $itemsScannedCount]));
 
         $this->doctrine->getManager()->flush();
 
@@ -269,6 +267,9 @@ class LmsFetchService {
 
         $index = 0;
         foreach ($contentItems as $contentItem) {
+            if($contentItem->getBody() == null) {
+              continue; // Skip content items that have no body
+            }
 
             try {
                 // Scan the content item with the scanner set in the environment.
@@ -285,8 +286,12 @@ class LmsFetchService {
 
                     // Add Issues to report
                     foreach ($report->getIssues() as $issue) {
-                        // Create issue entity
-                        $this->createIssue($issue, $contentItem);
+                        if(isset($issue->isGeneric)) {
+                          $this->createGenericIssue($issue, $contentItem);
+                        }
+                        else {
+                          $this->createIssue($issue, $contentItem);
+                        }
                     }
                 }
             }
@@ -383,6 +388,32 @@ class LmsFetchService {
         $issueEntity->setHtml($issue->getHtml());
         $issueEntity->setPreviewHtml($issue->getPreview());
         $issueEntity->setMetadata($issue->getMetadata());
+
+        $contentItem->addIssue($issueEntity);
+
+        $this->doctrine->getManager()->persist($issueEntity);
+
+        return $issueEntity;
+    }
+
+    public function createGenericIssue($issue, ContentItem $contentItem)
+    {
+        $issueEntity = new Issue();
+        $meta = $contentItem->getCourse()->getInstitution()->getMetadata();
+        $issueType = self::ISSUE_TYPE_ERROR;
+
+        $scanner = $_ENV['ACCESSIBILITY_CHECKER'];
+        if ($scanner == 'equalaccess_lambda' || $scanner == 'equalaccess_local') {
+          $issueType = $this->equalAccess->getIssueType($issue->metadata);
+        }
+
+        $issueEntity->setType($issueType);
+        $issueEntity->setStatus(Issue::$issueStatusActive);
+        $issueEntity->setContentItem($contentItem);
+        $issueEntity->setScanRuleId($issue->scanRuleId);
+        $issueEntity->setHtml($issue->xpath);
+        $issueEntity->setPreviewHtml('');
+        $issueEntity->setMetadata($issue->metadata);
 
         $contentItem->addIssue($issueEntity);
 

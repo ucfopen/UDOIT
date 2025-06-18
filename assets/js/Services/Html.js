@@ -213,29 +213,44 @@ export function removeTag(element, tagName) {
   return element
 }
 
-export function hasTag(element, tagName) {
-  let found = false
-
+export function getChild(element, tagName) {
   if ('string' === typeof element) {
     element = toElement(element)
   }
 
   if (!element) {
-    return false
+    return null
   }
 
-  const startTags = [`<${tagName.toLowerCase()}>`, `<${tagName.toLowerCase()} `]
-  const endTag = `</${tagName.toLowerCase()}>`
-
-  for (let startTag of startTags) {
-    if (element.innerHTML.toLowerCase().includes(startTag) && (element.innerHTML.toLowerCase().includes(endTag))) {
-      found = true
-    }
+  let children = element.querySelectorAll(tagName)
+  if (children.length > 0) {
+    return children[0]
   }
-
-  return found
+  
+  return null
 }
 
+export function getAllIds(doc) {
+  if ('string' === typeof doc) {
+    const parser = new DOMParser()
+    doc = parser.parseFromString(doc, "text/html")
+  }
+
+  if (!doc) {
+    return null
+  }
+
+  // Get all elements with an ID attribute
+  let elements = doc.querySelectorAll('[id]')
+  let ids = []
+  elements.forEach(element => {
+    let id = element.getAttribute('id')
+    if (id && !ids.includes(id)) {
+      ids.push(id)
+    }
+  })
+  return ids
+}
 
 export function renameElement(element, newName) {
   if ('string' === typeof element) {
@@ -311,11 +326,7 @@ export function processStaticHtml(nodes, settings) {
 }
 
 export function getIssueHtml(issue) {
-  if (issue.status.toString() === '1') {
-    return issue.newHtml
-  }
-
-  return (issue.newHtml) ? issue.newHtml : issue.sourceHtml
+  return (issue.newHtml && issue.status.toString() !== "0") ? issue.newHtml : issue.sourceHtml
 }
 
 export function getAccessibleName(element) {
@@ -376,6 +387,13 @@ export function getAccessibleName(element) {
       return getInnerText(caption)
     }
   }
+
+  if(tagName === 'blockquote') {
+    let cite = getAttribute(element, 'cite')
+    if(cite) {
+      return cite
+    }
+  }
   
   // 4. TODO: "If the name is still empty, then for elements with a role that supports naming
   // from child content, the content of the element is used."
@@ -389,4 +407,94 @@ export function getAccessibleName(element) {
   }
    
   return ''
+}
+
+export const findXpathFromElement = (element) => {
+  if (!element) {
+    return null
+  }
+
+  // Get the path to the element
+  let path = []
+  while (element && element.nodeType === Node.ELEMENT_NODE) {
+    let tagName = element.tagName.toLowerCase()
+    let siblings = Array.from(element.parentNode.children).filter(sibling => sibling.tagName.toLowerCase() === tagName)
+    let index = siblings.indexOf(element) + 1 // +1 for 1-based index
+    path.unshift(`${tagName}[${index}]`)
+    element = element.parentNode
+  }
+
+  return '/' + path.join('/')
+}
+
+export const findElementWithXpath = (content, xpath) => {
+  
+  if(xpath.startsWith('/html[1]/body[1]/main[1]/')) {
+    xpath = xpath.replace('/html[1]/body[1]/main[1]/', '/html[1]/body[1]/')
+  }
+  else if (xpath.startsWith('/html[1]/body[1]/div[1]/')) {
+    xpath = xpath.replace('/html[1]/body[1]/div[1]/', '/html[1]/body[1]/')
+  }
+
+  if(xpath.startsWith('/')) {
+    xpath = xpath.substring(1)
+  }
+
+  // If there is no xpath aside from the root element, return null
+  if(xpath === 'html[1]/body[1]') {
+    return null
+  }
+
+  if(xpath.length > 0) {
+    let pathParts = xpath.split('/').map(part => {
+      let match = part.match(/(\w+)\[(\d+)\]/)
+      if (match) {
+        let tag = match[1]
+        let index = parseInt(match[2], 10)
+        return `${tag}:nth-of-type(${index})`
+      }
+      return part
+    });
+    
+    let selector = pathParts.join(' > ')
+    let element = content.querySelector(selector)
+    if(element) {
+      return element
+    }
+  }
+  return null
+}
+
+export const findElementWithError = (content, errorHtml) => {
+  let errorElement = toElement(errorHtml)
+  
+  if(errorElement) {
+    // Find the first element in the document that matches the error element.
+    const docElement = Array.from(content.body.querySelectorAll(errorElement.tagName)).find((matchElement) => {
+      return matchElement.outerHTML.trim() === errorElement.outerHTML.trim()
+    })
+    if(docElement) {
+      return docElement
+    }
+  }
+  return null
+}
+
+export function findElementWithIssue(content, issue) {
+  let xpath = issue.xpath
+  if(xpath.startsWith('/html[1]/body[1]')) {
+    return findElementWithXpath(content, xpath)
+  }
+  else {
+    let errorHtml = issue?.sourceHtml || undefined
+    if(issue.status.toString() === '1') {
+      errorHtml = issue?.newHtml || errorHtml
+    }
+
+    if(errorHtml === undefined || errorHtml === '') {
+      return null
+    }
+
+    return findElementWithError(content, issue.sourceHtml)
+  }
 }

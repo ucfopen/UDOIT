@@ -77,7 +77,7 @@ export default class Api {
         });
     }
 
-    saveIssue(issue) {
+    saveIssue(issue, fullPageHtml) {
         const authToken = this.getAuthToken()
 
         let url = `${this.apiUrl}${this.endpoints.saveIssue}`
@@ -89,11 +89,11 @@ export default class Api {
             headers: {
                 'X-AUTH-TOKEN': authToken,
             },
-            body: issue.newHtml
+            body: JSON.stringify({sourceHtml: issue.sourceHtml, newHtml: issue.newHtml, fullPageHtml: fullPageHtml, xpath: issue.xpath}),
         })
     }
 
-    resolveIssue(issue) {
+    resolveIssue(issue, fullPageHtml) {
         const authToken = this.getAuthToken()
 
         let url = `${this.apiUrl}${this.endpoints.resolveIssue}`
@@ -106,7 +106,7 @@ export default class Api {
                 'Content-Type': 'application/json',
                 'X-AUTH-TOKEN': authToken,
             },
-            body: JSON.stringify({status: issue.status, newHtml: issue.newHtml}),
+            body: JSON.stringify({status: issue.status, sourceHtml: issue.sourceHtml, newHtml: issue.newHtml, fullPageHtml: fullPageHtml}),
         })
     }
 

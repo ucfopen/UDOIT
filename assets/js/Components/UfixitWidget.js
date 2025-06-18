@@ -6,6 +6,7 @@ import LeftArrowIcon from './Icons/LeftArrowIcon'
 import ListIcon from './Icons/ListIcon'
 import RightArrowIcon from './Icons/RightArrowIcon'
 import ProgressIcon from './Icons/ProgressIcon'
+import InfoIcon from './Icons/InfoIcon'
 import FixIssuesResolve from './FixIssuesResolve'
 import ReactHtmlParser from 'react-html-parser'
 import FormClarification from './Forms/FormClarification';
@@ -21,20 +22,23 @@ export default function UfixitWidget({
   viewInfo,
   setViewInfo,
   severity,
+  addMessage,
   activeIssue,
   setActiveIssue,
+  activeContentItem,
   setEditedElement,
   formatIssueData,
   handleIssueResolve,
   handleIssueSave,
   handleFileResolve,
   handleFileUpload,
+  isContentLoading,
+  isErrorFoundInContent,
   toggleListView,
   listLength,
   nextIssue
 }) {
 
-  const [modalMessages, setModalMessages] = useState([])
   const [UfixitForm, setUfixitForm] = useState(null)
   const [formName, setFormName] = useState('')
 
@@ -53,6 +57,7 @@ export default function UfixitWidget({
         setFormName(formNameFromRule(activeIssue.scanRuleId))
       }
       setTempActiveIssue(Object.assign({}, activeIssue))
+      console.log('UfixitWidget: activeIssue', activeIssue)
     }
     else {
       setFormName('')
@@ -60,36 +65,6 @@ export default function UfixitWidget({
       setTempActiveIssue(null)
     }
   }, [activeIssue])
-
-  const handleManualScan = (issue) => {
-    let api = new Api(settings)
-    api.scanIssue(issue.id)
-      .then((response) => response.json())
-      .then((data) => {
-        if (data.messages) {
-          data.messages.forEach((msg) => {
-            if (msg.visible) {
-              addMessage(msg);
-            }
-          });
-        }
-        if (data.data.issue) {
-          const newIssue = Object.assign({}, issue, data.data.issue)
-          handleIssueSave(newIssue, data.data.report)
-
-          // update activeIssue
-          setActiveIssue(formatIssueData(newIssue))
-        }
-        else {
-          issue.pending = false
-          setActiveIssue(formatIssueData(issue))
-        }
-      })
-  }
-
-  const addMessage = (msg) => {
-    setModalMessages([...modalMessages, msg])
-  }
 
   const handleActiveIssue = (newIssue) => {
     const tempIssue = Object.assign({}, tempActiveIssue)
@@ -117,7 +92,7 @@ export default function UfixitWidget({
                 {
                   activeIssue.status === settings.FILTER.ACTIVE ? (
                     <SeverityIcon type={severity} alt="" className="icon-lg"/>
-                  ) : activeIssue.status === settings.FILTER.FIXED ? (
+                  ) : (activeIssue.status === settings.FILTER.FIXED || activeIssue.status === settings.FILTER.FIXEDANDRESOLVED) ? (
                     <FixedIcon alt="" className="color-success icon-lg"/>
                   ) : activeIssue.status === settings.FILTER.RESOLVED ? (
                     <ResolvedIcon alt="" className="color-success icon-lg"/>
@@ -151,56 +126,81 @@ export default function UfixitWidget({
             <div className={`ufixit-double-container flex-grow-1 flex-row gap-3 ${viewInfo ? 'ufixit-shift-view' : ''}`}>
               { /* First item: the form and controls... Visible when !viewInfo, so 'ufixit-shift-view' is NOT applied */}
               <div className="flex-grow-1 flex-column ufixit-form-container" aria-hidden={viewInfo ? "true" : "false"} >
-                <div className="flex-grow-0">
-                  <FormClarification t={t} activeIssue={activeIssue} />
-                </div>          
-                { activeIssue.status !== settings.FILTER.RESOLVED &&
-                  <div className="flex-grow-1 ufixit-form-content">
-                    { activeIssue.contentType === settings.FILTER.FILE_OBJECT ? (
-                      <FileForm
-                        t={t}
-                        settings={settings}
-                        activeFile={activeIssue}
-                        handleFileUpload={handleFileUpload} /> )
-                      : (
-                      <UfixitForm
-                        t={t}
-                        settings={settings}
-                        activeIssue={tempActiveIssue.issueData}
-                        handleIssueSave={handleIssueSave}
-                        addMessage={addMessage}
-                        handleActiveIssue={handleActiveIssue}
-                        handleManualScan={handleManualScan} /> )
-                    }
+                <div className="ufixit-form-inner-scrollable">
+                  {/* <h2>{activeIssue.scanRuleId}</h2> */}
+                  { (activeIssue.status !== settings.FILTER.RESOLVED && activeIssue.status !== settings.FILTER.FIXEDANDRESOLVED) &&
+                    <>
+                      <FormClarification t={t} activeIssue={activeIssue} />
+                      <div className="flex-grow-1 ufixit-form-content">
+                        { activeIssue.contentType === settings.FILTER.FILE_OBJECT ? (
+                          <FileForm
+                            t={t}
+                            settings={settings}
+                            activeFile={activeIssue}
+                            handleFileUpload={handleFileUpload} /> )
+                          : (
+                          <UfixitForm
+                            t={t}
+                            settings={settings}
+                            isDisabled={!isErrorFoundInContent}
+                            activeIssue={tempActiveIssue.issueData}
+                            activeContentItem={activeContentItem}
+                            handleIssueSave={handleIssueSave}
+                            addMessage={addMessage}
+                            handleActiveIssue={handleActiveIssue} /> )
+                        }
+                      </div>
+                    </>
+                  }
+                  <div className="flex-grow-0">
+                    <FixIssuesResolve
+                      t={t}
+                      settings={settings}
+                      activeIssue={activeIssue}
+                      isDisabled={!isErrorFoundInContent}
+                      handleFileResolve={handleFileResolve}
+                      handleIssueResolve={handleIssueResolve}
+                    />
                   </div>
-                }
-                <div className="flex-grow-0">
-                  <FixIssuesResolve
-                    t={t}
-                    settings={settings}
-                    activeIssue={activeIssue}
-                    handleFileResolve={handleFileResolve}
-                    handleIssueResolve={handleIssueResolve}
-                  />
-                  { (activeIssue.currentState === settings.ISSUE_STATE.SAVING || activeIssue.currentState === settings.ISSUE_STATE.RESOLVING) && 
-                    <div className="ufixit-overlay flex-column justify-content-center">
-                      <div className="ufixit-overlay-content-container flex-row justify-content-center">
-                        <div className="flex-column justify-content-center">
-                          <ProgressIcon className="icon-lg primary spinner" />
-                        </div>
-                        <div className="flex-column justify-content-center ms-3">
-                          <h2>{t('form.processing')}</h2>
-                        </div>
+                </div>
+                { !isErrorFoundInContent && (
+                  <div className="ufixit-overlay flex-column justify-content-start">
+                    <div className="ufixit-overlay-content-container flex-row justify-content-center mt-3">
+                      <div className="flex-column justify-content-start me-3">
+                        { isContentLoading ? (
+                          <ProgressIcon className="icon-lg udoit-suggestion spinner" />
+                        ) : (
+                          <InfoIcon className="icon-lg udoit-suggestion" />
+                        )}
+                      </div>
+                      <div className="flex-column justify-content-center">
+                        <h3 className="mb-0 mt-0">
+                          {isContentLoading ? t('fix.label.loading_content') : t('fix.label.no_saving')}
+                        </h3>
                       </div>
                     </div>
-                  }
-                </div>
+                  </div>
+                )}
+                { (activeIssue.currentState === settings.ISSUE_STATE.SAVING || activeIssue.currentState === settings.ISSUE_STATE.RESOLVING) && 
+                  <div className="ufixit-overlay flex-column justify-content-start">
+                    <div className="ufixit-overlay-content-container flex-row justify-content-center mt-3">
+                      <div className="flex-column justify-content-center me-3">
+                        <ProgressIcon className="icon-lg udoit-suggestion spinner" />
+                      </div>
+                      <div className="flex-column justify-content-center">
+                        <h3 className="mb-0 mt-0">{t('form.processing')}</h3>
+                      </div>
+                    </div>
+                  </div>
+                }
               </div>
               { /* Second item: the "Learn More" area... Visible when viewInfo, so 'ufixit-shift-view' IS applied */}
               <div className="flex-grow-1 ufixit-learn-container" aria-hidden={!viewInfo ? "true" : "false"} >
                 { activeIssue.contentType === settings.FILTER.FILE_OBJECT
                   ? ReactHtmlParser(t(`form.file.${activeIssue.fileData.fileType}.learn_more`), { preprocessNodes: (nodes) => Html.processStaticHtml(nodes, settings) })
-                  : ReactHtmlParser(t(`form.${formName}.learn_more`), { preprocessNodes: (nodes) => Html.processStaticHtml(nodes, settings) })
+                  : formName !== 'review_only' || t(`rule.desc.${activeIssue.scanRuleId}`) === `rule.desc.${activeIssue.scanRuleId}`
+                    ? ReactHtmlParser(t(`form.${formName}.learn_more`), { preprocessNodes: (nodes) => Html.processStaticHtml(nodes, settings) })
+                    : ReactHtmlParser(t(`rule.desc.${activeIssue.scanRuleId}`), { preprocessNodes: (nodes) => Html.processStaticHtml(nodes, settings) })
                 }
               </div>
             </div>
@@ -208,17 +208,28 @@ export default function UfixitWidget({
             {/* The "Previous", "Next", and "List View" buttons (footer nav) */}
             <div className="flex-row justify-content-between mt-2">
 
-              <button className={`btn text-button btn-icon-left ps-0 ${listLength < 2 ? 'disabled' : ''}`} onClick={() => nextIssue(true)}>
+              <button
+                className={`btn text-button btn-icon-left ps-0 ${listLength < 2 ? 'disabled' : ''}`}
+                onClick={() => nextIssue(true)}
+                tabindex="0">
                 <LeftArrowIcon className={listLength < 2 ? 'gray' : 'link-color'} />
-                <div className="flex-column justify-content-center">Previous</div>
+                <div className="flex-column justify-content-center">{t('fix.button.previous')}</div>
               </button>
 
-              <button className="btn text-button btn-icon-only" onClick={() => toggleListView()}>
+              <button
+                className="btn text-button btn-icon-only"
+                onClick={() => toggleListView()}
+                tabindex="0"
+                aria-label={t('fix.button.list')}
+                title={t('fix.button.list')}>
                 <ListIcon className="link-color" />
               </button>
 
-              <button className={`btn text-button btn-icon-right pe-0 ${listLength < 2 ? 'disabled' : ''}`} onClick={() => nextIssue()}>
-                <div className="flex-column justify-content-center">Next</div>
+              <button
+                className={`btn text-button btn-icon-right pe-0 ${listLength < 2 ? 'disabled' : ''}`}
+                onClick={() => nextIssue()}
+                tabindex="0">
+                <div className="flex-column justify-content-center">{t('fix.button.next')}</div>
                 <RightArrowIcon className={listLength < 2 ? 'gray' : 'link-color'} />
               </button>
 

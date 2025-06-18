@@ -6,7 +6,12 @@ import ReportIcon from './Icons/ReportIcon'
 import SettingsIcon from './Icons/SettingsIcon'
 import './Header.css'
 
-export default function Header({ t, navigation, handleNavigation }) {
+export default function Header({
+  t,
+  navigation,
+  handleNavigation,
+  syncComplete
+}) {
 
   return (
     <header role="banner">
@@ -17,7 +22,7 @@ export default function Header({ t, navigation, handleNavigation }) {
         <div>
           <ul>
             <li
-              className={`flex-row ${navigation === 'summary' ? ' active-link' : ''}`}
+              className={`flex-row ${!syncComplete ? 'disabled' : ''} ${navigation === 'summary' ? ' active-link' : ''}`}
               onClick={() => handleNavigation('summary')}
               onKeyPress={(e) => {
                 if (e.key === 'Enter' || e.key === ' ') {
@@ -32,7 +37,7 @@ export default function Header({ t, navigation, handleNavigation }) {
                 {t('menu.summary')}
               </div></li>
             <li
-              className={`flex-row ${navigation === 'fixIssues' ? ' active-link' : ''}`}
+              className={`flex-row ${!syncComplete ? 'disabled' : ''} ${navigation === 'fixIssues' ? ' active-link' : ''}`}
               onClick={() => handleNavigation('fixIssues')}
               onKeyPress={(e) => {
                 if (e.key === 'Enter' || e.key === ' ') {
@@ -48,7 +53,7 @@ export default function Header({ t, navigation, handleNavigation }) {
               </div>
             </li>
             <li
-              className={`flex-row ${navigation === 'reports' ? ' active-link' : ''}`}
+              className={`flex-row ${!syncComplete ? 'disabled' : ''} ${navigation === 'reports' ? ' active-link' : ''}`}
               onClick={() => handleNavigation('reports')}
               onKeyPress={(e) => {
                 if (e.key === 'Enter' || e.key === ' ') {
@@ -64,7 +69,7 @@ export default function Header({ t, navigation, handleNavigation }) {
               </div>
             </li>
             <li
-              className={`flex-row ${navigation === 'settings' ? ' active-link' : ''}`}
+              className={`flex-row ${!syncComplete ? 'disabled' : ''} ${navigation === 'settings' ? ' active-link' : ''}`}
               onClick={() => handleNavigation('settings')}
               onKeyPress={(e) => {
                 if (e.key === 'Enter' || e.key === ' ') {
