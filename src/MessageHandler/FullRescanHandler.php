@@ -73,18 +73,26 @@ class FullRescanHandler
             // Refresh LMS data and get only the list of *changed* items
             $updatedItems = $this->lmsFetch->refreshLmsContent($course, $user, true);
 
+            // ------------------------------------------------------------------
+            // Mark every item as “pending” for this batch so we can reliably
+            // detect when the last worker finishes (metadata flag approach).
+            // ------------------------------------------------------------------
             $batchId = Uuid::v4()->toRfc4122();          // random UUID
-
-            $total = \count($updatedItems);
-            $idx   = 0;
             foreach ($updatedItems as $ci) {
-                $idx++;
-                $isLast = ($idx === $total);          // true for the final item
+                $meta = $ci->getMetadata() ? json_decode($ci->getMetadata(), true) : [];
+                $meta['scan_pending'] = true;
+                $meta['batch']        = $batchId;   // will be defined right below
+                $ci->setMetadata(json_encode($meta));
+            }
+            // Persist the flags *before* any ScanContentItem jobs are queued
+            $this->em->flush();
+
+            foreach ($updatedItems as $ci) {
                 $this->bus->dispatch(
                     new ScanContentItem(
                         contentItemId: $ci->getId(),
                         userId:        $user->getId(),
-                        isLast:        $isLast,
+                        isLast:        false,          // obsolete – kept for BC
                         batchId:       $batchId
                     )
                 );

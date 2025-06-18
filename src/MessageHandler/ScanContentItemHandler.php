@@ -61,41 +61,47 @@ final class ScanContentItemHandler
         /* --------------------------------------------------------------------
          * 3.   Re‑scan the ContentItem with the configured scanner
          * ------------------------------------------------------------------ */
+        $failure = null;
+
         try {
-            $report = $this->scanner->scanContentItem($item, /* equalAccess */ null, $this->util);
-
-            if ($report) {
-                // propagate scan errors back into our messaging system
-                foreach ($report->getErrors() as $err) {
-                    $msgTxt = $err . ', item = #' . $item->getId();
-                    $this->util->createMessage($msgTxt, 'error', $item->getCourse(), null, true);
-                }
-
-                // persist each reported Issue
-                foreach ($report->getIssues() as $issue) {
-                    $this->lmsFetch->createIssue($issue, $item);
-                }
-            }
-
-            /* ----------------------------------------------------------------
-             * 4.   Flush & detach to keep memory low when many jobs run
-             * -------------------------------------------------------------- */
+            // 3 ️⃣  –- run the scanner, build issues, etc.
+            $report = $this->scanner->scanContentItem($item, null, $this->util);                  // current success-path code
+        } catch (\Throwable $e) {
+            // remember the error – we still have to clear the flag
+            $failure = $e;
+            $this->util->createMessage($e->getMessage(), 'error', $item->getCourse(), null, true);
+        } finally {
+            /* 4 ️⃣  ALWAYS clear “scan_pending” + batch */
+            $meta = $item->getMetadata() ? json_decode($item->getMetadata(), true) : [];
+            unset($meta['scan_pending'], $meta['batch']);
+            $item->setMetadata($meta ? json_encode($meta) : null);
             $this->em->flush();
-            $this->em->clear();
 
-            /* --------------------------------------------------------------
-             * 6.  If I was the final worker for this batch, generate the report
-             * -------------------------------------------------------------- */
-            // If this was the final item in the batch, fire the aggregation job
-            if ($msg->isLast()) {
+            /* 5 ️⃣  Re-count pending items for this batch */
+            $pending = (int) $this->em->createQuery(
+                'SELECT COUNT(ci.id)
+                     FROM App\Entity\ContentItem ci
+                    WHERE JSON_EXTRACT(ci.metadata, \'$.batch\') = :b
+                      AND JSON_EXTRACT(ci.metadata, \'$.scan_pending\') = true'
+            )
+            ->setParameter('b', $msg->getBatchId())
+            ->getSingleScalarResult();
+
+            if ($pending === 0) {
                 $this->bus->dispatch(
-                    new FinishRescanMessage($item->getCourse()->getId(), $user->getId())
+                    new FinishRescanMessage(
+                        $item->getCourse()->getId(),
+                        $user->getId()
+                    )
                 );
             }
 
-        } catch (\Throwable $e) {
-            // A single item failed – log and continue; do NOT re‑throw.
-            $this->util->createMessage($e->getMessage(), 'error', $item->getCourse(), null, true);
+            $this->em->clear();
+
+            // let Messenger retry the job if it actually failed
+            if ($failure) {
+                throw $failure;
+            }
         }
     }
 }
