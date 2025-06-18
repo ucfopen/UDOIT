@@ -23,7 +23,6 @@ export default function FixIssuesContentPreview({
 }) {
 
   const [taggedContent, setTaggedContent] = useState(null)
-  const [altTextPreview, setAltTextPreview] = useState(null)
   const [canShowPreview, setCanShowPreview] = useState(false)
 
   const [issueElementDefaultRect, setIssueElementDefaultRect] = useState(null)
@@ -219,7 +218,6 @@ export default function FixIssuesContentPreview({
     // }
 
     // Find all of the heading elements and show them when a relevant issues is being edited.
-
     if (HEADINGS_RELATED.includes(formNameFromRule(activeIssue.scanRuleId))) {
       const headingElements = Array.from(doc.body.querySelectorAll('h1, h2, h3, h4, h5, h6'))
       headingElements.forEach((headingElement) => {
@@ -258,7 +256,7 @@ export default function FixIssuesContentPreview({
     if (editedElement && activeIssue) {
       const targetElement = document.getElementsByClassName('ufixit-error-highlight')[0]
       let formName = formNameFromRule(activeIssue.scanRuleId)
-
+      
       if (targetElement) {
         const tempElement = convertErrorHtmlString(editedElement)
         
