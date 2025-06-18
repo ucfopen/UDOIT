@@ -37,7 +37,13 @@ final class FinishRescanHandler
 
         try {
             $output = new ConsoleOutput();
-            $report = $this->lmsFetch->updateReport($course, $user);
+            // $report = $this->lmsFetch->updateReport($course, $user);
+            // Pass the total number of ContentItems so it’s stored in the report
+            $report = $this->lmsFetch->updateReport(
+                $course,
+                $user,
+                count($course->getContentItems())
+            );
             // --------------------------------------------------------------
             // Build a flattened list of *all* issues for this course
             // --------------------------------------------------------------

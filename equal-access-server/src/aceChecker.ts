@@ -26,7 +26,6 @@ class PagePool {
     }
 
     if (this.pages.length < this.maxSize) {
-      console.time('new-pooled-page');
       const page = await this.browser.newPage();
 
       await page.setRequestInterception(true);
@@ -37,7 +36,6 @@ class PagePool {
           request.continue();
         }
       });
-      console.timeEnd('new-pooled-page');
 
       const pageEntry = { page, inUse: true, hasScript: false };
       this.pages.push(pageEntry);

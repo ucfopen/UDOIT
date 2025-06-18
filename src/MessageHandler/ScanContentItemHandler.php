@@ -64,8 +64,25 @@ final class ScanContentItemHandler
         $failure = null;
 
         try {
-            // 3 ️⃣  –- run the scanner, build issues, etc.
-            $report = $this->scanner->scanContentItem($item, null, $this->util);                  // current success-path code
+            // 3️⃣ – run the scanner, build issues, etc.
+            $report = $this->scanner->scanContentItem($item, null, $this->util);  // existing line
+
+            /* ────────────────────────────────────────────────────────────────
+            * ✨ NEW: Persist every Issue returned by the scanner
+            * ───────────────────────────────────────────────────────────── */
+            if ($report) {
+                foreach ($report->getIssues() as $issueDto) {
+                    if (isset($issueDto->isGeneric) && $issueDto->isGeneric) {
+                        $this->lmsFetch->createGenericIssue($issueDto, $item);
+                    } else {
+                        $this->lmsFetch->createIssue($issueDto, $item);
+                    }
+                }
+                // Flush once so rows are written before we clear the metadata flag
+                $this->em->flush();
+            }
+
+            // current success-path code
         } catch (\Throwable $e) {
             // remember the error – we still have to clear the flag
             $failure = $e;
@@ -77,15 +94,17 @@ final class ScanContentItemHandler
             $item->setMetadata($meta ? json_encode($meta) : null);
             $this->em->flush();
 
-            /* 5 ️⃣  Re-count pending items for this batch */
-            $pending = (int) $this->em->createQuery(
-                'SELECT COUNT(ci.id)
-                     FROM App\Entity\ContentItem ci
-                    WHERE JSON_EXTRACT(ci.metadata, \'$.batch\') = :b
-                      AND JSON_EXTRACT(ci.metadata, \'$.scan_pending\') = true'
-            )
-            ->setParameter('b', $msg->getBatchId())
-            ->getSingleScalarResult();
+            // 5 ️⃣  Re‑count pending items for this batch (native SQL – DQL
+            //      does not recognise JSON_EXTRACT)
+            $table = $this->em->getClassMetadata(ContentItem::class)->getTableName();
+            $sql   = "SELECT COUNT(id)
+                        FROM {$table}
+                       WHERE JSON_EXTRACT(metadata, '$.batch') = :batch
+                         AND JSON_EXTRACT(metadata, '$.scan_pending') = true";
+
+            $pending = (int) $this->em->getConnection()->fetchOne($sql, [
+                'batch' => $msg->getBatchId(),
+            ]);
 
             if ($pending === 0) {
                 $this->bus->dispatch(

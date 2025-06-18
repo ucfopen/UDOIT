@@ -70,7 +70,7 @@ class LocalApiAccessibilityService {
             // Create promise for this content item
             $promises[$id] = $client->postAsync('/scan', [
                 'json' => [
-                    'html' => $html, // $htmlOutput,
+                    'html' => $html,
                     'guidelineIds' => 'WCAG_2_1'
                 ],
                 'headers' => [
@@ -179,33 +179,17 @@ class LocalApiAccessibilityService {
     public function checkMany($content, $ruleIds = [], $options = []) {
         // Get DOM document
         // $document = $this->getDomDocument($content);
-
-        // Create proper debugging for document state
         $output = new ConsoleOutput();
-        // $output->writeln("DOM document state:");
-        // $output->writeln("- Has HTML element: " . ($document->getElementsByTagName('html')->length > 0 ? 'Yes' : 'No'));
-
-        // Check attribute preservation
-        // $htmlElement = $document->getElementsByTagName('html')->item(0);
-
-        // Get serialized HTML, using saveHTML on the document not an element to preserve DOCTYPE
-        // $htmlOutput = $document->saveHTML();
-
-        // Debug the output
-        // $output->writeln("First 200 chars of serialized HTML: " . substr($htmlOutput, 0, 200));
-
         // Send to accessibility checker
-        $response = $this->postData("http://host.docker.internal:3000/scan", $htmlOutput);
+        $response = $this->postData("http://host.docker.internal:3000/scan", $content);  // $htmlOutput
+
         try {
             $json = json_decode($response, true);
             if (json_last_error() !== JSON_ERROR_NONE) {
-                // $output->writeln("JSON decode error: " . json_last_error_msg());
-                // $output->writeln("Response preview: " . substr($response, 0, 100));
                 return null;
             }
             return $json;
         } catch (\Exception $e) {
-            // $output->writeln("Error processing response: " . $e->getMessage());
             return null;
         }
     }

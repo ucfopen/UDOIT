@@ -60,7 +60,7 @@ class ScannerService {
                 if ($contentItem->getBody() != null) {
                     $equalAccess = new EqualAccessService();
 
-                    // $document = $this->getDomDocument($contentItem->getBody());
+                    $document = $this->getDomDocument($contentItem->getBody());
 
                     // $htmlContent = $document->saveHTML();
                     // $totalLength = strlen($htmlContent);
@@ -72,7 +72,7 @@ class ScannerService {
 
                     $localService = new LocalApiAccessibilityService();
                     $json = $localService->scanContentItem($contentItem);
-                    $report = $equalAccess->generateReport($json);
+                    $report = $equalAccess->generateReport($json, $document);
                 }
             }
             else if ($scanner == 'equalaccess_lambda') {
