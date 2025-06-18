@@ -203,7 +203,12 @@ class LmsFetchService {
         $report->setContentFixed($contentFixed);
         $report->setContentResolved($contentResolved);
         $report->setFilesReviewed($filesReviewed);
-        $report->setData(\json_encode(['scanRules' => $scanRules, 'scanCounts' => $scanCounts, 'itemsScanned' => $itemsScannedCount]));
+        $report->setData(\json_encode([
+          'scanRules' => $scanRules, 
+          'scanCounts' => $scanCounts,
+          'itemsScanned' => $itemsScannedCount,
+          'versionNumber' => !empty($_ENV['VERSION_NUMBER']) ? $_ENV['VERSION_NUMBER'] : ''
+        ]));
 
         $this->doctrine->getManager()->flush();
 
