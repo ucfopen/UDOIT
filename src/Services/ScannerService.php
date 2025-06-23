@@ -79,18 +79,18 @@ class ScannerService {
 
                 if ($contentItem->getBody() != null) {
                     $equalAccess = new EqualAccessService();
-                    //$document = $this->getDomDocument($contentItem->getBody());
+                    $document = $this->getDomDocument($contentItem->getBody());
 
                     if (!$scannerReport) {
                         // Report is null, we need to call the lambda function for a single page most likely
                         // $this->logToServer("null $scannerReport!");
                         $asyncReport = new AsyncEqualAccessReport();
                         $json = $asyncReport->postSingleAsync($contentItem);
-                        $report = $equalAccess->generateReport($json);
+                        $report = $equalAccess->generateReport($json, $document);
                     }
                     else {
                         // We already have the report, all we have to do is generate the UDOIT report
-                        $report = $equalAccess->generateReport($scannerReport);
+                        $report = $equalAccess->generateReport($scannerReport, $document);
                     }
                 }
             }

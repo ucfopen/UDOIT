@@ -13,7 +13,7 @@ import { analyzeReport } from '../Services/Report'
 export default function App(initialData) {
 
   const [messages, setMessages] = useState(initialData.messages || [])
-  const [report, setReport] = useState(initialData.report || null)  
+  const [report, setReport] = useState(initialData.report || null)
   const [settings, setSettings] = useState(initialData.settings || null)
   const [sections, setSections] = useState([])
 
@@ -60,21 +60,21 @@ export default function App(initialData) {
 
   const updateUserSettings = (newUserSetting) => {
     let newRoles = Object.assign({}, settings.user.roles, newUserSetting)
-    let newUser = Object.assign({}, settings.user, { 'roles': newRoles})
+    let newUser = Object.assign({}, settings.user, { 'roles': newRoles })
     let newSettings = Object.assign({}, settings, { user: newUser })
 
     let api = new Api(settings)
     api.updateUser(newUser)
       .then((response) => response.json())
       .then((data) => {
-        if(data.user) {
+        if (data.user) {
           newSettings.user = data.user
-          if(data?.labels?.lang) {
+          if (data?.labels?.lang) {
             newSettings.labels = data.labels
           }
           setSettings(newSettings)
         }
-    })
+      })
   }
 
   // Session Issues are used to track progress when multiple things are going on at once,
@@ -82,27 +82,27 @@ export default function App(initialData) {
   // Each issue has an id and state: { id: issueId, state: 2 }
   // The valid states are set and read in the FixIssuesPage component.
   const updateSessionIssue = (issueId, issueState = null, contentItemId = null) => {
-    if(issueState === null || issueState === ISSUE_STATE.UNCHANGED) {
+    if (issueState === null || issueState === ISSUE_STATE.UNCHANGED) {
       let newSessionIssues = Object.assign({}, sessionIssues)
-      if(newSessionIssues[issueId]) {
+      if (newSessionIssues[issueId]) {
         delete newSessionIssues[issueId]
       }
       setSessionIssues(newSessionIssues)
 
-      if(contentItemId) {
+      if (contentItemId) {
         removeContentItemFromCache(contentItemId)
       }
 
       return
     }
-    let newSessionIssues = Object.assign({}, sessionIssues, { [issueId]: issueState})
+    let newSessionIssues = Object.assign({}, sessionIssues, { [issueId]: issueState })
     setSessionIssues(newSessionIssues)
   }
 
   const processNewReport = (rawReport) => {
     const tempReport = analyzeReport(rawReport, ISSUE_STATE)
     setReport(tempReport)
-    
+
     if (tempReport.contentSections) {
       setSections(tempReport.contentSections)
     }
@@ -110,12 +110,12 @@ export default function App(initialData) {
       setSections([])
     }
 
-    if(tempReport.sessionIssues) {
+    if (tempReport.sessionIssues) {
       setSessionIssues(tempReport.sessionIssues)
     }
 
     let tempContentItems = {}
-    for(const key in tempReport.contentItems) {
+    for (const key in tempReport.contentItems) {
       tempContentItems[key] = tempReport.contentItems[key]
     }
     setContentItemCache(tempContentItems)
@@ -138,16 +138,16 @@ export default function App(initialData) {
     setSyncComplete(true)
     setHasNewReport(newHasNewReport)
 
-    if(newHasNewReport) {
+    if (newHasNewReport) {
       processNewReport(newReport)
     }
   }
 
   const handleNavigation = (newNavigation) => {
-    if(newNavigation === navigation || !syncComplete) {
+    if (newNavigation === navigation || !syncComplete) {
       return
     }
-    if(newNavigation !== 'fixIssues') {
+    if (newNavigation !== 'fixIssues') {
       setInitialSeverity('')
       setInitialSearchTerm('')
     }
@@ -179,26 +179,61 @@ export default function App(initialData) {
   }
 
   const removeContentItemFromCache = (contentItemId) => {
-    if(!contentItemId) {
+    if (!contentItemId) {
       return
     }
 
     let newContentItemCache = Object.assign({}, contentItemCache)
-    if(newContentItemCache[contentItemId]) {
+    if (newContentItemCache[contentItemId]) {
       delete newContentItemCache[contentItemId]
     }
     setContentItemCache(newContentItemCache)
   }
 
   const handleFullCourseRescan = () => {
-    if (hasNewReport) {
-      setHasNewReport(false)
-      setSyncComplete(false)
-      fullRescan()
-        .then((response) => response.json())
-        .then(handleNewReport)
-    }
-  }
+    if (!hasNewReport) return;
+
+    setHasNewReport(false);
+    setSyncComplete(false);
+
+    // 1) Kick off the rescan
+    fullRescan()
+      .then(res => res.json())
+      .then(queueData => {
+        // show the "scan queued" banner/message
+        handleNewReport(queueData);
+
+        // 2) Poll just the summary until ready
+        const pollInterval = setInterval(() => {
+          const api = new Api(settings);
+
+          api.getReport()
+            .then(res => res.json())
+            .then(summary => {
+              if (summary.data?.ready) {
+                clearInterval(pollInterval);
+
+                // 3) Now fetch the FULL report payload
+                api.scanCourse(settings.course.id)
+                  .then(res => res.json())
+                  .then(fullData => {
+                    handleNewReport(fullData);
+                  })
+                  .catch(err => {
+                    console.error('Error fetching full report:', err);
+                  });
+              }
+            })
+            .catch(err => {
+              console.error('Error polling summary:', err);
+              clearInterval(pollInterval);
+            });
+        }, 5000);
+      })
+      .catch(err => {
+        console.error('Error starting full rescan:', err);
+      });
+  };
 
   const resizeFrame = useCallback(() => {
     let default_height = document.body.scrollHeight + 50
@@ -211,7 +246,7 @@ export default function App(initialData) {
   }, [])
 
   useEffect(() => {
-    
+
     scanCourse()
       .then((response) => response.json())
       .then(handleNewReport)
@@ -226,12 +261,12 @@ export default function App(initialData) {
 
   return (
     <>
-      { !welcomeClosed ?
-        ( <WelcomePage
-            t={t}
-            settings={settings}
-            syncComplete={syncComplete}
-            setWelcomeClosed={setWelcomeClosed} /> ) :
+      {!welcomeClosed ?
+        (<WelcomePage
+          t={t}
+          settings={settings}
+          syncComplete={syncComplete}
+          setWelcomeClosed={setWelcomeClosed} />) :
         (
           <>
             <Header
@@ -240,7 +275,7 @@ export default function App(initialData) {
               navigation={navigation}
               syncComplete={syncComplete}
               handleNavigation={handleNavigation}
-             />
+            />
 
             <main role="main">
               {('summary' === navigation) &&
