@@ -286,6 +286,7 @@ export default function App(initialData) {
                   hasNewReport={hasNewReport}
                   quickIssues={quickIssues}
                   sessionIssues={sessionIssues}
+                  syncComplete={syncComplete}
                 />
               }
               {('fixIssues' === navigation) &&
