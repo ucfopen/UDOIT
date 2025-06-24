@@ -8,6 +8,7 @@ use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 use Symfony\Component\Console\Output\ConsoleOutput;
 use App\Entity\Issue;
+use App\Services\BatchStatusService;
 
 /**
  * Runs *once* per rescan: builds the final report and flips `$report->ready`
@@ -19,6 +20,7 @@ final class FinishRescanHandler
     public function __construct(
         private LmsFetchService        $lmsFetch,
         private EntityManagerInterface $em,
+        private BatchStatusService     $batchStatus,
     ) {}
 
     public function __invoke(FinishRescanMessage $msg): void
@@ -63,6 +65,7 @@ final class FinishRescanHandler
             // }
 
             $report->setReady(true);
+            $this->batchStatus->setStatus($msg->getBatchId(), 'complete');
             $this->em->flush();
 
             $output->writeln(sprintf(

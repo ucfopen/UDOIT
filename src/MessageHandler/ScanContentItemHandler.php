@@ -110,7 +110,8 @@ final class ScanContentItemHandler
                 $this->bus->dispatch(
                     new FinishRescanMessage(
                         $item->getCourse()->getId(),
-                        $user->getId()
+                        $user->getId(),
+                        $msg->getBatchId()
                     )
                 );
             }

@@ -19,6 +19,8 @@ use Symfony\Component\Console\Output\ConsoleOutput;
 
 use App\Message\FullRescanMessage;
 use Symfony\Component\Messenger\MessageBusInterface;
+use App\Services\BatchStatusService;
+use Symfony\Component\Uid\Uuid;
 
 class SyncController extends ApiController
 {
@@ -86,7 +88,7 @@ class SyncController extends ApiController
     }
 
     #[Route('/api/sync/rescan/{course}', name: 'full_rescan')]
-    public function fullCourseRescan(Course $course): JsonResponse
+    public function fullCourseRescan(Course $course, BatchStatusService $batchStatus): JsonResponse
     {
         $response = new ApiResponse();
         $user = $this->getUser();
@@ -104,20 +106,44 @@ class SyncController extends ApiController
             }
 
             // ✅ Use $this->bus
+            $batchId = Uuid::v4()->toRfc4122();
             $this->bus->dispatch(new FullRescanMessage(
                 $course->getId(),
                 $user->getId(),
                 $user->getApiKey(),
                 $user->getInstitution()->getLmsId(),
-                $user->getInstitution()->getLmsDomain()
+                $user->getInstitution()->getLmsDomain(),
+                $batchId
             ));
 
+            // 🔑  initial status
+            $batchStatus->setStatus($batchId, 'queued');
+
             $response->addMessage('msg.scan_queued', 'success', 5000);
-            $response->setData(['status' => 'queued']);
+            $response->setData([
+                'status'  => 'queued',
+                'batchId' => $batchId             // <‑‑ send to UI
+            ]);
+
         } catch (\Exception $e) {
             $response->addMessage($e->getMessage(), 'error', 0);
         }
 
+        return new JsonResponse($response);
+    }
+
+    #[Route('/api/rescan/status/{batchId}', name: 'rescan_status', methods: ['GET'])]
+    public function rescanStatus(string $batchId, BatchStatusService $batchStatus): JsonResponse
+    {
+        $response = new ApiResponse();
+        $status = $batchStatus->getStatus($batchId);
+
+        if (!$status) {
+            $response->addMessage('msg.invalid_batch', 'error', 0);
+            return new JsonResponse($response, 404);
+        }
+
+        $response->setData(['status' => $status]);
         return new JsonResponse($response);
     }
 

@@ -77,7 +77,7 @@ class FullRescanHandler
             // Mark every item as “pending” for this batch so we can reliably
             // detect when the last worker finishes (metadata flag approach).
             // ------------------------------------------------------------------
-            $batchId = Uuid::v4()->toRfc4122();          // random UUID
+            $batchId = $message->getBatchId();          // random UUID
             foreach ($updatedItems as $ci) {
                 $meta = $ci->getMetadata() ? json_decode($ci->getMetadata(), true) : [];
                 $meta['scan_pending'] = true;

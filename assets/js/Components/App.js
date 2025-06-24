@@ -196,43 +196,37 @@ export default function App(initialData) {
     setHasNewReport(false);
     setSyncComplete(false);
 
-    // 1) Kick off the rescan
     fullRescan()
-      .then(res => res.json())
-      .then(queueData => {
-        // show the "scan queued" banner/message
-        handleNewReport(queueData);
+      .then(res => {
+        if (!res.ok) throw new Error(`Server error ${res.status}`);
+        return res.json();
+      }).then(queueData => {
+        handleNewReport(queueData);      // keeps banner logic
+        const batchId = queueData.data?.batchId;
+        if (!batchId) return;
 
-        // 2) Poll just the summary until ready
         const pollInterval = setInterval(() => {
           const api = new Api(settings);
-
-          api.getReport()
+          api.getRescanStatus(batchId)
             .then(res => res.json())
-            .then(summary => {
-              if (summary.data?.ready) {
+            .then(statusResp => {
+              if (statusResp.data?.status === 'complete') {
                 clearInterval(pollInterval);
 
-                // 3) Now fetch the FULL report payload
+                // fetch fresh report
                 api.scanCourse(settings.course.id)
                   .then(res => res.json())
-                  .then(fullData => {
-                    handleNewReport(fullData);
-                  })
-                  .catch(err => {
-                    console.error('Error fetching full report:', err);
-                  });
+                  .then(fullData => handleNewReport(fullData))
+                  .catch(err => console.error('Error fetching full report:', err));
               }
             })
             .catch(err => {
-              console.error('Error polling summary:', err);
+              console.error('Error polling rescan status:', err);
               clearInterval(pollInterval);
             });
         }, 5000);
       })
-      .catch(err => {
-        console.error('Error starting full rescan:', err);
-      });
+      .catch(err => console.error('Error starting full rescan:', err));
   };
 
   const resizeFrame = useCallback(() => {
