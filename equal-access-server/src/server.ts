@@ -53,14 +53,14 @@ app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {
   res.status(500).json({ error: err.message });
 });
 
-const SCAN_POOL_SIZE = parseInt(process.env.SCAN_POOL_SIZE || '5', 10);
+const ASYNC_POOL_SIZE = parseInt(process.env.ASYNC_POOL_SIZE || '5', 10);
 
 (async () => {
   try {
     browser = await puppeteer.launch({
       args: ['--no-sandbox', '--disable-setuid-sandbox']
     });
-    await initializePagePool(browser, SCAN_POOL_SIZE);
+    await initializePagePool(browser, ASYNC_POOL_SIZE);
     app.listen(PORT, () => {
     });
   } catch (err) {
