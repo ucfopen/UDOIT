@@ -1130,25 +1130,10 @@ export default function FixIssuesPage({
         </div> */}
         
         <div className="ufixit-page-divider flex-row">
-          <section className='ufixit-content-container'>
+          <section className='ufixit-widget-container'>
             <button onClick={toggleListView} className="btn btn-link btn-icon-left btn-small mb-2">
               <LeftArrowIcon className="icon-sm link-color" />{t('fix.button.list')}
             </button>
-            {filteredIssues.length > 0 && (
-              <FixIssuesContentPreview
-                t={t}
-                settings={settings.FILTER ? settings : Object.assign({}, settings, { FILTER })}
-                activeIssue={activeIssue}
-                activeContentItem={activeContentItem}
-                editedElement={editedElement}
-                sessionIssues={sessionIssues}
-                isErrorFoundInContent={isErrorFoundInContent}
-                setIsErrorFoundInContent={setIsErrorFoundInContent}
-                contentItemsBeingScanned={contentItemsBeingScanned}
-              />
-            )}
-          </section>
-          <section className="ufixit-widget-container">
             { activeIssue ? (  
                 <UfixitWidgetSimple
                   t={t}
@@ -1171,6 +1156,21 @@ export default function FixIssuesPage({
                   nextIssue={nextIssue}
                 />
             ) : ''}
+          </section>
+          <section className="ufixit-content-container">
+            {filteredIssues.length > 0 && (
+              <FixIssuesContentPreview
+                t={t}
+                settings={settings.FILTER ? settings : Object.assign({}, settings, { FILTER })}
+                activeIssue={activeIssue}
+                activeContentItem={activeContentItem}
+                editedElement={editedElement}
+                sessionIssues={sessionIssues}
+                isErrorFoundInContent={isErrorFoundInContent}
+                setIsErrorFoundInContent={setIsErrorFoundInContent}
+                contentItemsBeingScanned={contentItemsBeingScanned}
+              />
+            )}
             <div className="flex-row justify-content-end gap-2 mt-2">
               <button
                 className={`btn btn-small btn-link btn-icon-left ${filteredIssues.length < 2 ? 'disabled' : ''}`}

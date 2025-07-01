@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react';
-import SeverityIcon from './Icons/SeverityIcon';
-import FixedIcon from './Icons/FixedIcon';
-import ResolvedIcon from './Icons/ResolvedIcon';
+import React, { useState, useEffect } from 'react'
+import SeverityIcon from './Icons/SeverityIcon'
+import FixedIcon from './Icons/FixedIcon'
+import ResolvedIcon from './Icons/ResolvedIcon'
 import LeftArrowIcon from './Icons/LeftArrowIcon'
 import ListIcon from './Icons/ListIcon'
 import RightArrowIcon from './Icons/RightArrowIcon'
@@ -9,14 +9,14 @@ import ProgressIcon from './Icons/ProgressIcon'
 import InfoIcon from './Icons/InfoIcon'
 import FixIssuesResolve from './FixIssuesResolve'
 import ReactHtmlParser from 'react-html-parser'
-import FormClarification from './Forms/FormClarification';
+import FormClarification from './Forms/FormClarification'
 import FileForm from './Forms/FileForm'
 import { formFromIssue, formNameFromRule } from '../Services/Ufixit'
 import Api from '../Services/Api'
 import * as Html from '../Services/Html'
 import './UfixitWidgetSimple.css'
 import './FixIssuesResolve.css'
-import UFIXITIcon from './Icons/UFIXITIcon';
+import UFIXITIcon from './Icons/UFIXITIcon'
 
 export default function UfixitWidgetSimple({
   t,
@@ -56,7 +56,7 @@ export default function UfixitWidgetSimple({
         setUfixitForm(() => formFromIssue(activeIssue.issueData))
         setFormName(formNameFromRule(activeIssue.scanRuleId))
       }
-      setTempActiveIssue(Object.assign({}, activeIssue, { needsFixing: false }))
+      setTempActiveIssue(Object.assign({}, activeIssue, { showLongDesc: false }))
     }
     else {
       setFormName('')
@@ -65,9 +65,9 @@ export default function UfixitWidgetSimple({
     }
   }, [activeIssue])
 
-  const setNeedsFixing = (needsFixing) => {
+  const setShowLongDesc = (showLongDesc) => {
     const tempIssue = Object.assign({}, tempActiveIssue)
-    tempIssue.needsFixing = needsFixing
+    tempIssue.showLongDesc = showLongDesc
     setTempActiveIssue(tempIssue)
   }
 
@@ -127,11 +127,11 @@ export default function UfixitWidgetSimple({
         (
           <div class="ufixit-widget flex-column flex-grow-1">
             {/* The header with the issue name and severity icon */}
-            <div className="ufixit-widget-header flex-row justify-content-between mb-3">
+            <div className="ufixit-widget-header flex-row justify-content-between mb-3 pb-1">
               <div className="flex-column justify-content-center allow-word-break">
                 <h2 className="mt-0 mb-0 primary-text">{activeIssue.formLabel}</h2>
               </div>
-              <div className="flex-column justify-content-center ml-3">
+              <div className="flex-column justify-content-start ml-3">
                 {
                   activeIssue.status === settings.FILTER.ACTIVE ? (
                     <SeverityIcon type={severity} alt="" className="icon-lg"/>
@@ -143,47 +143,24 @@ export default function UfixitWidgetSimple({
                 }
               </div>
             </div>
-
-            { !tempActiveIssue.needsFixing && (
+            <FormClarification t={t} activeIssue={activeIssue} />
+            { !tempActiveIssue.showLongDesc && (
               <>
-                <div className="flex-grow-1 ufixit-learn-container" aria-hidden={!viewInfo ? "true" : "false"} >
-                  <FormClarification t={t} activeIssue={activeIssue} />
+                <div className="ufixit-learn-container" aria-hidden={!viewInfo ? "true" : "false"} >
                   { activeIssue.contentType === settings.FILTER.FILE_OBJECT
                     ? ReactHtmlParser(t(`form.file.${activeIssue.fileData.fileType}.learn_more`), { preprocessNodes: (nodes) => Html.processStaticHtml(nodes, settings) })
                     : formName !== 'review_only' || t(`rule.desc.${activeIssue.scanRuleId}`) === `rule.desc.${activeIssue.scanRuleId}`
-                      ? ReactHtmlParser(t(`form.${formName}.learn_more`), { preprocessNodes: (nodes) => Html.processStaticHtml(nodes, settings) })
+                      ? ReactHtmlParser(t(`form.${formName}.summary`), { preprocessNodes: (nodes) => Html.processStaticHtml(nodes, settings) })
                       : ReactHtmlParser(t(`rule.desc.${activeIssue.scanRuleId}`), { preprocessNodes: (nodes) => Html.processStaticHtml(nodes, settings) })
                   }
                 </div>
-
-                <div className="ufixit-widget-resolve-container mt-3">
-                  <div className="ufixit-widget-resolve-description">
-                    Based on this explanation, is the highlighted content an accessibility barrier?
-                  </div>
-                  <div className="flex-column w-100 mt-3">
-                    <div className="flex-row align-self-center">
-                      <button className="btn btn-primary btn-icon-left" onClick={() => setNeedsFixing(true)}>
-                        <UFIXITIcon className="icon-md" />
-                        <div>YES. Let's Fix It!</div>
-                      </button>
-                    </div>
-                    <div className="flex-row align-self-center">
-                      <button className="btn btn-secondary btn-icon-left mt-2" onClick={() => handleResolve()}>
-                        <ResolvedIcon className="icon-md" />
-                        <div>NO. It's Not a Barrier</div>
-                      </button>
-                    </div>
-                  </div>
+                <div className="flex-row justify-content-end mt-2">
+                  <button className="btn btn-link btn-small btn-icon-left mt-2" onClick={() => setShowLongDesc(true)}>
+                    <InfoIcon className="icon-md" />
+                    <div>{t('fix.button.learn_more')}</div>
+                  </button>
                 </div>
-              </>
-            )}
-
-            { tempActiveIssue.needsFixing && (
-
-              <div className="flex-grow-1 flex-column ufixit-form-container">
-                <div className="flex-grow-0">
-                  <FormClarification t={t} activeIssue={activeIssue} />
-                </div>
+                
                 { activeIssue.status !== settings.FILTER.RESOLVED ? (
                   <div className="flex-grow-1 ufixit-form-content">
                     { activeIssue.contentType === settings.FILTER.FILE_OBJECT ? (
@@ -214,43 +191,68 @@ export default function UfixitWidgetSimple({
                     handleIssueResolve={handleIssueResolve}
                   />
                 )}
-                <div className="flex-grow-0">
-                  <button className="btn btn-secondary btn-icon-left mt-3" onClick={() => setNeedsFixing(false)}>
-                    <LeftArrowIcon className="icon-md" />
-                    <div>Back to Explanation</div>
-                  </button>
-                </div>
-                { (activeIssue.currentState === settings.ISSUE_STATE.SAVING || activeIssue.currentState === settings.ISSUE_STATE.RESOLVING) && 
-                  <div className="ufixit-overlay flex-column justify-content-start">
-                    <div className="ufixit-overlay-content-container flex-row justify-content-center mt-3">
-                      <div className="flex-column justify-content-center me-3">
-                        <ProgressIcon className="icon-lg udoit-suggestion spinner" />
-                      </div>
-                      <div className="flex-column justify-content-center">
-                        <h3 className="mb-0 mt-0">{t('form.processing')}</h3>
-                      </div>
+                {/* <div className="ufixit-widget-resolve-container mt-3">
+                  <div className="ufixit-widget-resolve-description">
+                    Based on this explanation, is the highlighted content an accessibility barrier?
+                  </div>
+                  <div className="flex-column w-100 mt-3">
+                    <div className="flex-row align-self-center">
+                      <button className="btn btn-primary btn-icon-left" onClick={() => setShowLongDesc(true)}>
+                        <UFIXITIcon className="icon-md" />
+                        <div>YES. Let's Fix It!</div>
+                      </button>
+                    </div>
+                    <div className="flex-row align-self-center">
+                      <button className="btn btn-secondary btn-icon-left mt-2" onClick={() => handleResolve()}>
+                        <ResolvedIcon className="icon-md" />
+                        <div>NO. It's Not a Barrier</div>
+                      </button>
                     </div>
                   </div>
-                }
-                { !isErrorFoundInContent && (
-                  <div className="ufixit-overlay flex-column justify-content-start">
-                    <div className="ufixit-overlay-content-container flex-row justify-content-center mt-3">
-                      <div className="flex-column justify-content-start me-3">
-                        { isContentLoading ? (
-                          <ProgressIcon className="icon-lg udoit-suggestion spinner" />
-                        ) : (
-                          <InfoIcon className="icon-lg udoit-suggestion" />
-                        )}
-                      </div>
-                      <div className="flex-column justify-content-center">
-                        <h3 className="mb-0 mt-0">
-                          {isContentLoading ? t('fix.label.loading_content') : t('fix.label.no_saving')}
-                        </h3>
-                      </div>
-                    </div>
-                  </div>
-                )}
+                </div> */}
+              </>
+            )}
+
+            { tempActiveIssue.showLongDesc && (
+              <>
+              <div className="flex-grow-1 flex-column ufixit-learn-container" dangerouslySetInnerHTML={{__html: t(`form.${formName}.learn_more`)}}  />
+              <div className="flex-grow-0">
+                <button className="btn btn-link btn-small btn-icon-left mt-3" onClick={() => setShowLongDesc(false)}>
+                  <LeftArrowIcon className="icon-sm" />
+                  <div>Back to Barrier</div>
+                </button>
               </div>
+              { (activeIssue.currentState === settings.ISSUE_STATE.SAVING || activeIssue.currentState === settings.ISSUE_STATE.RESOLVING) && 
+                <div className="ufixit-overlay flex-column justify-content-start">
+                  <div className="ufixit-overlay-content-container flex-row justify-content-center mt-3">
+                    <div className="flex-column justify-content-center me-3">
+                      <ProgressIcon className="icon-lg udoit-suggestion spinner" />
+                    </div>
+                    <div className="flex-column justify-content-center">
+                      <h3 className="mb-0 mt-0">{t('form.processing')}</h3>
+                    </div>
+                  </div>
+                </div>
+              }
+              { !isErrorFoundInContent && (
+                <div className="ufixit-overlay flex-column justify-content-start">
+                  <div className="ufixit-overlay-content-container flex-row justify-content-center mt-3">
+                    <div className="flex-column justify-content-start me-3">
+                      { isContentLoading ? (
+                        <ProgressIcon className="icon-lg udoit-suggestion spinner" />
+                      ) : (
+                        <InfoIcon className="icon-lg udoit-suggestion" />
+                      )}
+                    </div>
+                    <div className="flex-column justify-content-center">
+                      <h3 className="mb-0 mt-0">
+                        {isContentLoading ? t('fix.label.loading_content') : t('fix.label.no_saving')}
+                      </h3>
+                    </div>
+                  </div>
+                </div>
+              )}
+              </>
             )}
           </div>
         ) : ''}

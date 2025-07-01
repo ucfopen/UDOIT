@@ -21,6 +21,10 @@
   overflow-y: auto;
 }
 
+.ufixit-widget-header {
+  border-bottom: 2px solid var(--primary-color);
+}
+
 .clarification-container {
   border: 1px solid var(--border-color);
   border-radius: 8px;

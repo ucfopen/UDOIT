@@ -36,8 +36,8 @@ export default function FixIssuesList({ t, settings, groupedList, setActiveIssue
       <div className="ufixit-list-scrollable flex-grow-1" tabindex="-1">
         { groupedList.length > 0 ? groupedList.map((group, i) => {
           return (
-            <div className="ufixit-list-section-container" key={i}>
-              <div className="ufixit-list-heading flex-row gap-3 justify-content-between"
+            <div className={`ufixit-list-section-container ${openList[group.formLabel] ? 'open' : 'closed'}`} key={i}>
+              <div className={`ufixit-list-heading flex-row gap-3 justify-content-between ${openList[group.formLabel] ? 'open' : 'closed'}`}
                 onClick={() => toggleGroup(group)}
                 onKeyDown={(event) => {
                   if(event.key === 'Enter' || event.key === ' ') {
@@ -48,14 +48,15 @@ export default function FixIssuesList({ t, settings, groupedList, setActiveIssue
                 <h3 className="allow-word-break align-self-center">{group.formLabel}</h3>
                 <div className="flex-row justify-content-end gap-3">
                   <div className="ufixit-list-heading-count align-self-center">
-                    {t('filter.label.issue_count', { count: group.issues.length })}
+                    { group.issues.length !== 1 ? t('filter.label.issue_count_plural', { count: group.issues.length }) : t('filter.label.issue_count_single')}
                   </div>
                   <div className="flex-column align-self-center">
-                    <SortIcon className={`expand-icon icon-lg primary ${openList[group.formLabel] ? 'rotate-180' : ''}`} />
+                    <SortIcon className={`expand-icon icon-xl primary ${openList[group.formLabel] ? 'rotate-180' : ''}`} />
                   </div>
                 </div>
               </div>
-              <div className={`ufixit-list-items-container ${openList[group.formLabel] ? 'open' : 'closed'}`}>
+              <div className={`ufixit-list-items-container ${openList[group.formLabel] ? 'open' : 'closed'}`}
+                tabindex="-1">
                 { group.issues.map((issue, j) => {
                   return (
                     <div
