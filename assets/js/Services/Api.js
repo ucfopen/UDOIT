@@ -22,6 +22,7 @@ export default class Api {
             adminUser: '/api/admin/users',
             updateUser: '/api/users/{user}',
             rescanStatus: '/api/rescan/status/{batchId}',
+            syncReport: '/api/sync/report/{course}',
         }
         this.settings = settings;
 
@@ -262,6 +263,20 @@ export default class Api {
                 'X-AUTH-TOKEN': authToken,
             },
         })
+    }
+
+    getSyncReport(courseId) {
+        const authToken = this.getAuthToken();
+        let url = `${this.apiUrl}${this.endpoints.syncReport}`;
+        url = url.replace('{course}', courseId);
+
+        return fetch(url, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-AUTH-TOKEN': authToken,
+            },
+        });
     }
 
     fullRescan(courseId) {

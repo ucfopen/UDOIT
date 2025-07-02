@@ -132,6 +132,29 @@ class SyncController extends ApiController
         return new JsonResponse($response);
     }
 
+    #[Route('/api/sync/report/{course}', name: 'report_sync', methods: ['GET'])]
+    public function getReport(Course $course, LmsFetchService $lmsFetch): JsonResponse
+    {
+        $response = new ApiResponse();
+        $user = $this->getUser();
+        $report = $course->getLatestReport();
+
+        if (!$report) {
+            throw new \Exception('msg.no_report_created');
+        }
+
+        $reportArr = $report->toArray();
+        $reportArr['files'] = $course->getFileItems();
+        $reportArr['issues'] = $course->getAllIssues();
+        $reportArr['contentItems'] = $course->getContentItems();
+        $reportArr['contentSections'] = $lmsFetch->getCourseSections($course, $user);
+
+        $response->setData($reportArr);
+
+        return new JsonResponse($response);
+
+    }
+
     #[Route('/api/rescan/status/{batchId}', name: 'rescan_status', methods: ['GET'])]
     public function rescanStatus(string $batchId, BatchStatusService $batchStatus): JsonResponse
     {
@@ -146,6 +169,8 @@ class SyncController extends ApiController
         $response->setData(['status' => $status]);
         return new JsonResponse($response);
     }
+
+
 
     #[Route('/api/sync/content/{contentItem}', name: 'content_sync', methods: ['GET'])]
     public function requestContentSync(ContentItem $contentItem, LmsFetchService $lmsFetch, ScannerService $scanner)

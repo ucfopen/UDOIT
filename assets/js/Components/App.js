@@ -121,7 +121,7 @@ export default function App(initialData) {
     setContentItemCache(tempContentItems)
   }
 
-  const handleNewReport = (data) => {
+  const handleNewReport = (data, complete = true) => {
     let newReport = report
     let newHasNewReport = hasNewReport
     if (data.messages) {
@@ -135,7 +135,7 @@ export default function App(initialData) {
       newReport = data.data
       newHasNewReport = true
     }
-    setSyncComplete(true)
+    setSyncComplete(complete)
     setHasNewReport(newHasNewReport)
 
     if (newHasNewReport) {
@@ -191,6 +191,7 @@ export default function App(initialData) {
   }
 
   const handleFullCourseRescan = () => {
+    const t0 = performance.now();
     if (!hasNewReport) return;
 
     setHasNewReport(false);
@@ -201,7 +202,7 @@ export default function App(initialData) {
         if (!res.ok) throw new Error(`Server error ${res.status}`);
         return res.json();
       }).then(queueData => {
-        handleNewReport(queueData);      // keeps banner logic
+        handleNewReport(queueData, false);      // keeps banner logic
         const batchId = queueData.data?.batchId;
         if (!batchId) return;
 
@@ -213,11 +214,16 @@ export default function App(initialData) {
               if (statusResp.data?.status === 'complete') {
                 clearInterval(pollInterval);
 
-                // fetch fresh report
-                api.scanCourse(settings.course.id)
+                // fetch fresh report (no extra scan)
+                api.getSyncReport(settings.course.id)
                   .then(res => res.json())
-                  .then(fullData => handleNewReport(fullData))
-                  .catch(err => console.error('Error fetching full report:', err));
+                  .then(fullData => {
+                    handleNewReport(fullData, true);
+                    console.log('Latest report fetched after rescan:', fullData);
+                    const elapsed = performance.now() - t0;
+                    console.log(`handleFullCourseRescan finished in ${elapsed.toFixed(0)} ms`);
+                  })
+                  .catch(err => console.error('Error fetching latest report:', err));
               }
             })
             .catch(err => {
