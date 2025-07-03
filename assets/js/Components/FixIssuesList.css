@@ -1,46 +1,141 @@
 @import '../../css/udoit4-theme.css';
 
 .ufixit-list-container {
-  height: 100%;
+  margin-left: -1rem;
+  margin-right: -1rem;
+  margin-bottom: -1rem;
+  padding-top: 1rem;
+  overflow: hidden;
 
   .ufixit-list-scrollable {
     overflow-y: auto;
     min-height: 0;
     
-    /* This is so the highlighted error outlines don't get cut off */
-    padding-left: 5px;
-    padding-right: 5px;
-    margin-left: -5px;
-    margin-right: -5px;
+    /* The top padding is in the parent so the stick header doesn't look goofy. */
+    padding: 0 1rem 1rem 1rem;
+
+    .ufixit-list-section-container {
+      margin-bottom: .75rem;
+      border-radius: .8rem;
+      border: 1px solid var(--border-color);
+
+      &.open {
+        border: none;
+      }
+
+      &:last-child {
+        margin-bottom: 0;
+      }
+    }
 
     .ufixit-list-heading {
       position: sticky;
       top: 0;
-      background-color: var(--gray-light);
-      padding: .5rem;
-      border-bottom: 2px solid var(--gray);
-    
+      background-color: transparent;
+      padding: 1rem;
+      cursor: pointer;
+      border-radius: .8rem .8rem .8rem .8rem;
+      transition: border-radius var(--transition-time) ease-in-out;
+      
       h3 {
-        color: var(--gray-darker);
+        color: var(--primary-color);
         margin: 0;
+        font-weight: 700;
+      }
+
+      .ufixit-list-heading-count {
+        display: flex;
+        flex-direction: column;
+        justify-content: end;
+        font-size: 1rem;
+        font-weight: 600;
+        color: var(--text-color);
+        text-transform: uppercase;
+      }
+
+      .expand-icon {
+        transition: transform var(--transition-time) ease-in-out;
+        border-radius: 2rem;
+
+        &:hover {
+          background-color: var(--white);
+        }
+      }
+
+      &.open {
+        background-color: var(--background-color);
+        border: 1px solid var(--border-color);
+        border-radius: 0;
+        border-bottom: none;
+      }
+      
+      &:hover, &:focus {
+        background-color: var(--link-color-light);
+      }
+
+      &:focus {
+        outline: 2px solid var(--focus-color);
+        outline-offset: -2px;
       }
     }
     
+  .ufixit-list-items-container {
+    transition: max-height var(--transition-time) ease-in-out;
+    max-height: 0px;
+    overflow-x: hidden;
+    overflow-y: auto;
+    background-color: var(--background-color);
+    border-radius: 0 0 .8rem .8rem;
+
+    &.open {
+      max-height: 380px; /* Adjust as needed */
+      border: 1px solid var(--border-color);
+      border-top: none;
+    } 
+  }
+
     .ufixit-list-item {
       cursor: pointer;
-      padding: .5rem;
-      border-bottom: 1px solid var(--gray);
+      padding: .75rem 1rem;
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
       font-weight: 600;
       fill: var(--gray);
-
-      &:last-child {
-        border-bottom-width: 2px;
+      font-size: 1rem;
+      margin: 0.5rem 1rem;
+      background-color: var(--white);
+      
+      .data-pill.fixed {
+        color: var(--primary-color);
+        border-color: var(--primary-color)
       }
+
+      /* &:nth-child(even) {
+        background-color: var(--background-color);
+      } */
+
+      /* &:last-child {
+        border-bottom: none;
+      } */
     
-      &:hover {
+      &:hover, &:focus {
         background-color: var(--link-color-light);
         color: var(--link-color);
         fill: var(--link-color);
+
+        .list-item-title {
+          text-decoration: underline;
+        }
+
+        .data-pill {
+          background-color: var(--white);
+          padding: 0.05rem 0.5rem;
+
+          .data-pill-text {
+            max-width: 200px;
+            margin-left: 0.5rem;
+          }
+        }
       }
 
       &:focus {

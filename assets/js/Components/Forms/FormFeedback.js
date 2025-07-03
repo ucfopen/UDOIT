@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react'
 
+import FixedIcon from '../Icons/FixedIcon'
+
 export default function FormFeedback({
   t,
   handleSubmit = null,
@@ -64,12 +66,13 @@ export default function FormFeedback({
       )}
       { handleSubmit && (
         <>
-          <div className="flex-column justify-content-start">
+          <div className="flex-column justify-content-start flex-shrink-0">
             <button
-              className="btn btn-primary"
+              className="btn-icon-left btn-primary"
               disabled={isDisabled || hasErrors}
               tabindex="0"
               onClick={handleSubmit}>
+                <FixedIcon className="icon-md" />
               {t('form.submit')}
             </button>
           </div>

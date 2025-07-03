@@ -25,11 +25,14 @@
   --suggestion-color: #32B0E4;
   --progress-bar-color: #32B0E4;
 
-  --white: #FFFFFF;
+  --black: #000000;
+  --gray-darker: #333333;
   --gray-dark: #555555;
   --gray: #767676;
   --gray-light: #D3D7DB;
+  --gray-lighter: #E2E2E2;
   --gray-lightest: #F7F7F7;
+  --white: #FFFFFF;
 
   --background-color: var(--gray-lightest);
   --border-color: var(--gray-light);
@@ -48,6 +51,7 @@ body {
   border-left: none !important;
   max-width: 1400px;
   color: var(--text-color);
+  overflow: hidden;
 }
 
 #root {
@@ -57,6 +61,15 @@ body {
   border-radius: 16px;
   box-shadow: 2px 2px 2px var(--border-color);
   min-height: 600px;
+  max-height: calc(100vh - 8px);
+  display: flex;
+  flex-direction: column;
+}
+
+main {
+  max-height: 778px;
+  height: calc(100vh - 56px - 1rem);
+  box-sizing: border-box;
   display: flex;
   flex-direction: column;
 }
@@ -159,6 +172,15 @@ body {
 
 .align-self-stretch {
   align-self: stretch;
+}
+
+.scrollable {
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+.non-scrollable {
+  overflow: hidden;
 }
 
 .text-start {
@@ -496,8 +518,8 @@ h1, h2, h3, h4, h5, h6 {
 button {
   font-family: 'Reddit Sans', sans-serif;
   text-transform: uppercase;
-  padding: .25rem 1.5rem;
-  border-radius: 50px;
+  padding: .5rem 1rem;
+  border-radius: .8rem;
   cursor: pointer;
   box-sizing: border-box;
   border: 2px solid transparent;
@@ -536,6 +558,24 @@ button {
   &:focus {
     background-color: var(--primary-color-light);
   }
+}
+
+.btn-link {
+  border-color: var(--link-color);
+  background-color: transparent;
+  color: var(--link-color);
+  fill: var(--link-color);
+  
+  &:hover,
+  &:focus {
+    background-color: var(--link-color-light);
+  }
+}
+
+.btn-small {
+  font-size: 0.85rem;
+  padding: .25rem 0.75rem;
+  border-radius: 8px;
 }
 
 button.disabled,
@@ -669,6 +709,41 @@ button:disabled {
 .separator:not(:empty)::after {
   margin-left: .5em;
   margin-right: 1.5rem;
+}
+
+/* Data pills are for icons with text that can be hidden until hovered or focused */
+.data-pill {
+  padding: 0.05rem 0.25rem;
+  border-radius: 20px;
+  background-color: var(--gray-lightest);
+  color: var(--gray-dark);
+  font-size: 0.8rem;
+  border: 1px solid var(--border-color);
+  box-sizing: border-box;
+  height: 34px;
+  flex-shrink: 0;
+  transition: padding var(--transition-time) ease-in-out;
+
+  .data-pill-text {
+    max-width: 0px;
+    width: auto;
+    overflow: hidden;
+    text-wrap-mode: nowrap;
+    align-self: center;
+    font-size: 0.9rem;
+    margin-left: 0;
+    transition: all var(--transition-time) ease-in-out;
+  }
+
+  &:hover,
+  &:focus {
+    padding: 0.05rem 0.5rem;
+
+    .data-pill-text {
+      max-width: 200px;
+      margin-left: 0.5rem;
+    }
+  }
 }
 
 /* Customized select and options elements based on example from: 
