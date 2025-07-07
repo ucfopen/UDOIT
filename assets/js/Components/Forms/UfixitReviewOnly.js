@@ -14,7 +14,6 @@ export default function UfixitReviewOnly({
   const [editorLink, setEditorLink] = useState('')
 
   useEffect(() => {
-    console.log("ActiveIssue:", activeIssue)
     if (activeIssue) {
       let lms = settings?.institution?.lmsId
       if( lms === 'canvas') {

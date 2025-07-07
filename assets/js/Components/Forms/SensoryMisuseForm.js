@@ -151,7 +151,7 @@ export default function SensoryMisuseForm({
         }
       }
       catch (e) {
-        console.log(`An error occurred while trying to evaluate the XPath results: ${e}`)
+        console.warn(`An error occurred while trying to evaluate the XPath results: ${e}`)
       }
     }
   };

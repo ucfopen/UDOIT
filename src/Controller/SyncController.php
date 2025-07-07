@@ -41,14 +41,15 @@ class SyncController extends ApiController
                 throw new \Exception('msg.sync.course_inactive');
             }
 
-            // Check to see if the CODE (based on version number) has been updated since the last scan. If so, force a full rescan.
-            $force = false;
+            // Check to see if the CODE (based on version number) has been updated since the last scan.
+            // If so (or if we can't tell), force a full rescan.
+            $force = true;
             $previousReport = $course->getLatestReport();
             if($previousReport) {
                 $data = json_decode($previousReport->getData());
                 $currentVersionNumber = !empty($_ENV['VERSION_NUMBER']) ? $_ENV['VERSION_NUMBER'] : '';
-                if(!isset($data->versionNumber) || $data->versionNumber !== $currentVersionNumber) {
-                    $force = true;
+                if(isset($data->versionNumber) && $data->versionNumber === $currentVersionNumber) {
+                    $force = false;
                 }
             }
 

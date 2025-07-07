@@ -467,7 +467,6 @@ export default function FixIssuesPage({
       return
     }
   
-    console.log(activeIssue.scanRuleId)
     setWidgetState(WIDGET_STATE.FIXIT)
 
     if(activeIssue.contentType === FILTER.FILE_OBJECT) {
@@ -1137,7 +1136,7 @@ export default function FixIssuesPage({
                 contentItemsBeingScanned={contentItemsBeingScanned}
               />
             )}
-            <div className="flex-row justify-content-end gap-2 mt-2">
+            <div className="flex-row justify-content-end gap-2 mt-3">
               <button
                 className={`btn btn-small btn-link btn-icon-left ${filteredIssues.length < 2 ? 'disabled' : ''}`}
                 onClick={() => nextIssue(true)}

@@ -48,7 +48,7 @@
     padding: 0.25rem;
     box-sizing: border-box;
     font-size: 0.95rem;
-    font-family: 'Open Sans', sans-serif;
+    font-family: var(--text-font-family);
     border: 2px solid var(--border-color);
     border-radius: 4px;
 
