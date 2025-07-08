@@ -39,6 +39,9 @@ services:
         - ./build/supervisor/supervisord.conf:/etc/supervisor/supervisord.conf
         - ./build/supervisor/php-fpm.conf:/etc/supervisor/conf.d/php-fpm.conf
         - ./build/supervisor/:/etc/supervisor/conf.d/
+        - type: bind
+          source: ./build/nginx/php-custom.ini
+          target: /usr/local/etc/php/conf.d/php-custom.ini
       env_file:
         - .env
       depends_on:

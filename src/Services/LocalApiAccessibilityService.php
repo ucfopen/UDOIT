@@ -140,40 +140,77 @@ class LocalApiAccessibilityService {
         return $results;
     }
 
-    public function postData(string $url, string $html) {
-        // Standardize headers and content type
-        $jsonPayload = json_encode([
-            "html" => $html,
-            "guidelineIds" => "WCAG_2_1"
-        ]);
+    public function postData(string $url, string $html)
+    {
+        $output = new ConsoleOutput();
 
-        // Use cURL instead of file_get_contents for better error handling
-        $ch = curl_init($url);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_POST, true);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, $jsonPayload);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, [
-            'Content-Type: application/json',
-            'Content-Length: ' . strlen($jsonPayload)
-        ]);
+        try {
+            // Standardize headers and content type
+            $jsonPayload = json_encode([
+                "html" => $html,
+                "guidelineIds" => "WCAG_2_1"
+            ]);
 
-        $result = curl_exec($ch);
+            $output->writeln("Posting to {$url} with payload length " . strlen($jsonPayload) . " chars");
 
-        // Handle errors
-        if (curl_errno($ch)) {
-            $output = new ConsoleOutput();
-            $output->writeln("cURL error: " . curl_error($ch));
+            // Use cURL for the POST request
+            $ch = curl_init($url);
+
+            curl_setopt_array($ch, [
+                CURLOPT_RETURNTRANSFER => true,
+                CURLOPT_POST           => true,
+                CURLOPT_POSTFIELDS     => $jsonPayload,
+                CURLOPT_HTTPHEADER     => [
+                    'Content-Type: application/json',
+                    'Content-Length: ' . strlen($jsonPayload)
+                ],
+                // Fail fast if the server takes too long
+                CURLOPT_CONNECTTIMEOUT => 10,
+                CURLOPT_TIMEOUT        => 60,
+            ]);
+
+            $result = curl_exec($ch);
+
+            // Handle library-level errors
+            if ($result === false) {
+                $output->writeln("❌  cURL exec failure: " . curl_error($ch));
+                curl_close($ch);
+                return null;
+            }
+
+            // HTTP status handling
+            $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+            curl_close($ch);
+
+            if ($httpCode >= 400) {
+                $output->writeln("❌  HTTP error {$httpCode} while calling {$url}");
+                $output->writeln("Payload length: " . strlen($jsonPayload) . " chars");
+                $output->writeln("postData: First 300 chars of payload:");
+                // $output->writeln(substr($jsonPayload, 0, 300));
+
+                // Print the HTML that caused the request (in manageable chunks)
+                $output->writeln("Offending HTML (chunked):");
+                $chunk = 1000;
+                for ($pos = 0, $len = strlen($html); $pos < $len; $pos += $chunk) {
+                    $output->writeln(substr($html, $pos, $chunk));
+                }
+                // Print the raw server response so we can see what came back
+                $output->writeln("Server response (chunked):");
+                $chunk = 1000;
+                for ($pos = 0, $len = strlen($result); $pos < $len; $pos += $chunk) {
+                    $output->writeln(substr($result, $pos, $chunk));
+                }
+                $output->writeln(str_repeat('═', 60));
+                return null;
+            }
+
+            return $result;
+        } catch (\Throwable $e) {
+            // Catch any unforeseen errors
+            $output->writeln("❌  Exception in postData(): " . $e->getMessage());
+            $output->writeln("Stack trace:\n" . $e->getTraceAsString());
+            return null;
         }
-
-        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        curl_close($ch);
-
-        // Log HTTP errors
-        if ($httpCode >= 400) {
-            $output = new ConsoleOutput();
-            $output->writeln("HTTP error: " . $httpCode);
-        }
-        return $result;
     }
 
     public function checkMany($content, $ruleIds = [], $options = []) {
@@ -185,9 +222,33 @@ class LocalApiAccessibilityService {
 
         try {
             $json = json_decode($response, true);
+
+            if (isset($json[0]) && is_array($json[0]) && isset($json[0]['results'])) {
+                $json = $json[0];
+            }
+
             if (json_last_error() !== JSON_ERROR_NONE) {
+                $output->writeln("JSON decode error: " . json_last_error_msg());
                 return null;
             }
+
+            // ─────────────────────────────────────────────────────────
+            // Debug: if Equal Access response has no "results" key,
+            // print a warning so we can trace problem content items.
+            // ─────────────────────────────────────────────────────────
+            if (!$json || !is_array($json) || !isset($json['results'])) {
+                $output->writeln('❌  LocalApiAccessibilityService.checkMany – response contains no "results"');
+                $output->writeln('checkMany: First 300 chars of raw response:');
+                // $output->writeln(substr($response, 0, 300));
+
+                $output->writeln("Full response from LocalApiAccessibilityService.checkMany (chunked):");
+                $maxChunk = 1000; // ConsoleOutput has a length limit per writeln
+                for ($pos = 0, $len = strlen($response); $pos < $len; $pos += $maxChunk) {
+                    $output->writeln(substr($response, $pos, $maxChunk));
+                }
+                $output->writeln(str_repeat('═', 60));
+            }
+
             return $json;
         } catch (\Exception $e) {
             return null;

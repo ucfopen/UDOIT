@@ -38,15 +38,35 @@ app.get('/', (_req, res) => {
  * "guidelineIds": ["WCAG_2_2"]
 }
  */
-app.post("/scan", asyncHandler(async (req, res) => {
-  const html: string = req.body.html;
-  const guidelineIds: string | string[] = req.body.guidelineIds || DEFAULT_ID;
-  const reportLevels: string | string[] = req.body.reportLevels || DEFAULT_REPORT_LEVELS;
-  const report: Report = await aceCheck(html, browser, guidelineIds, reportLevels);
+app.post(
+  "/scan",
+  asyncHandler(async (req, res) => {
+    try {
+      console.log("🔍  /scan route called");
+      const html: string = req.body.html;
+      const guidelineIds: string | string[] =
+        req.body.guidelineIds || DEFAULT_ID;
+      const reportLevels: string | string[] =
+        req.body.reportLevels || DEFAULT_REPORT_LEVELS;
 
-  // Modified to match Lambda output format
-  res.status(200).json(report);
-}));
+      // Modified to match Lambda output format
+      const report: Report = await aceCheck(
+        html,
+        browser,
+        guidelineIds,
+        reportLevels
+      );
+        // Modified to match Lambda output format
+        res.status(200).json(report);
+      } catch (err: any) {
+        console.error("❌  /scan route error:", err);
+        // console.log("req.body:", req.body);
+        // console.log("res:", res);
+        res.status(500).json({ error: err.message ?? "Unknown error" });
+      }
+    })
+  );
+
 
 app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {
   console.error(err);

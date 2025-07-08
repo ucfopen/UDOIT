@@ -46,7 +46,12 @@ class ScannerService {
         $report = null;
         $response = new ApiResponse();
 
-        // $scanner = 'equalaccess_local';
+        // $scanner = 'equalaccess_lambda'; // TEMPORARY, force equal access lambda for now
+        // $printOutput->writeln("Using scanner: $scanner");
+
+        if ($contentItem->getBody() == null) {
+            return null;
+        }
 
         try {
             if ($scanner == 'phpally') {
@@ -57,42 +62,44 @@ class ScannerService {
             }
             else if ($scanner == 'equalaccess_local') {
 
-                if ($contentItem->getBody() != null) {
+                $localService = new LocalApiAccessibilityService();
+                $json = $localService->scanContentItem($contentItem);
+
+                // --- Debug: surface time‑outs / malformed JSON ---
+                if (!$json || !is_array($json) || !isset($json['results'])) {
+                    $printOutput->writeln('❌  EqualAccess LOCAL returned no "results".');
+                    $printOutput->writeln(sprintf(
+                        'ContentItem #%d (Course #%d) — title: %s',
+                        $contentItem->getId(),
+                        $contentItem->getCourse()->getId(),
+                        $contentItem->getTitle() ?: '[no title]'
+                    ));
+                    // dump the raw JSON so we can inspect the failure
+                    $printOutput->writeln(json_encode($json, JSON_PRETTY_PRINT));
+                    $printOutput->writeln(str_repeat('═', 80));
+
+                } else {
                     $equalAccess = new EqualAccessService();
-
-                    $document = $this->getDomDocument($contentItem->getBody());
-
-                    // $htmlContent = $document->saveHTML();
-                    // $totalLength = strlen($htmlContent);
-
-                    // $bodyElements = $document->getElementsByTagName('body');
-                    // if ($bodyElements->length > 0) {
-                    //     $printOutput->writeln("Body found with children: " . $bodyElements->item(0)->childNodes->length);
-                    // }
-
-                    $localService = new LocalApiAccessibilityService();
-                    $json = $localService->scanContentItem($contentItem);
-                    $report = $equalAccess->generateReport($json, $document);
+                    $report = $equalAccess->generateReport($json);
                 }
+
             }
             else if ($scanner == 'equalaccess_lambda') {
+                $equalAccess = new EqualAccessService();
+                // $document = $this->getDomDocument($contentItem->getBody());
 
-                if ($contentItem->getBody() != null) {
-                    $equalAccess = new EqualAccessService();
-                    $document = $this->getDomDocument($contentItem->getBody());
-
-                    if (!$scannerReport) {
-                        // Report is null, we need to call the lambda function for a single page most likely
-                        // $this->logToServer("null $scannerReport!");
-                        $asyncReport = new AsyncEqualAccessReport();
-                        $json = $asyncReport->postSingleAsync($contentItem);
-                        $report = $equalAccess->generateReport($json, $document);
-                    }
-                    else {
-                        // We already have the report, all we have to do is generate the UDOIT report
-                        $report = $equalAccess->generateReport($scannerReport, $document);
-                    }
+                if (!$scannerReport) {
+                    // Report is null, we need to call the lambda function for a single page most likely
+                    // $this->logToServer("null $scannerReport!");
+                    $asyncReport = new AsyncEqualAccessReport();
+                    $json = $asyncReport->postSingleAsync($contentItem);
+                    $report = $equalAccess->generateReport($json);
                 }
+                else {
+                    // We already have the report, all we have to do is generate the UDOIT report
+                    $report = $equalAccess->generateReport($scannerReport);
+                }
+
             }
             else {
                 // Unknown scanner set in environment, should return error...
@@ -108,6 +115,8 @@ class ScannerService {
 
     public function getDomDocument($html)
     {
+        $printOutput = new ConsoleOutput();
+        $printOutput->writeln("Original HTML from file ScannerService:");
         // Load the HTML string into a DOMDocument that PHP can parse.
         // TODO: checks for if <html>, <body>, or <head> and <style> exist? technically canvas will always remove them if they are present in the HTML editor
         // but you never know, also the loadHTML string is pretty long and kinda unreadable, could individually load in each element maybe

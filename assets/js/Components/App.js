@@ -230,7 +230,7 @@ export default function App(initialData) {
               console.error('Error polling rescan status:', err);
               clearInterval(pollInterval);
             });
-        }, 5000);
+        }, 1000);
       })
       .catch(err => console.error('Error starting full rescan:', err));
   };
