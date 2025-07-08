@@ -807,6 +807,13 @@ export default function FixIssuesPage({
     }
 
     let fullPageHtml = getNewFullPageHtml(activeContentItem, issue)
+    let fullPageDoc = new DOMParser().parseFromString(fullPageHtml, 'text/html')
+    let newElement = Html.findElementWithError(fullPageDoc, issue?.newHtml)
+    let newXpath = Html.findXpathFromElement(newElement)
+    if(newXpath) {
+      issue.xpath = newXpath
+      activeContentItem.body = fullPageHtml
+    }
 
     // Save the updated issue using the LMS API
     let api = new Api(settings)
