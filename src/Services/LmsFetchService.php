@@ -296,6 +296,10 @@ class LmsFetchService {
         $scanner = $_ENV['ACCESSIBILITY_CHECKER'];
         if ($scanner == 'equalaccess_lambda' || $scanner == 'equalaccess_local') {
           $issueType = $this->equalAccess->getIssueType($issue->getMetadata());
+          if($issueType == 'pass') {
+            // If the issue is a pass, we don't create an issue for it
+            return null;
+          }
         }
 
         $issueEntity->setType($issueType);
