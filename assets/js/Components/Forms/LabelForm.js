@@ -4,6 +4,7 @@ import * as Html from '../../Services/Html'
 
 export default function LabelForm({
   t,
+  settings,
   activeIssue,
   handleIssueSave,
   isDisabled,
@@ -100,6 +101,8 @@ export default function LabelForm({
       </div>
       <FormFeedback
         t={t}
+        settings={settings}
+        activeIssue={activeIssue}
         isDisabled={isDisabled}
         handleSubmit={handleSubmit}
         formErrors={textInputErrors} />

@@ -743,8 +743,18 @@ button:disabled {
     text-wrap-mode: nowrap;
     align-self: center;
     font-size: 0.9em;
+    font-weight: 600;
     margin-left: 0;
     transition: all var(--transition-time) ease-in-out;
+  }
+
+  &.transparent {
+    background-color: transparent;
+  }
+
+  &.fixed {
+    color: var(--primary-color);
+    border-color: var(--primary-color);
   }
 
   &:hover,

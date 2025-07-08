@@ -4,6 +4,7 @@ import * as Html from "../../Services/Html"
 
 export default function AriaRoleForm({
   t,
+  settings,
   activeIssue,
   handleIssueSave,
   isDisabled,
@@ -241,6 +242,8 @@ export default function AriaRoleForm({
       </div>
       <FormFeedback
         t={t}
+        settings={settings}
+        activeIssue={activeIssue}
         isDisabled={isDisabled || !deleteRole && selectValue === ''}
         handleSubmit={handleSubmit}
         formErrors={[]} />

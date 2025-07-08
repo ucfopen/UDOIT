@@ -107,7 +107,7 @@
       
       .data-pill.fixed {
         color: var(--primary-color);
-        border-color: var(--primary-color)
+        border-color: var(--primary-color);
       }
 
       /* &:nth-child(even) {

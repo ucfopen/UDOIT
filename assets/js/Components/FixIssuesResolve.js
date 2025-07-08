@@ -29,9 +29,12 @@ export default function FixIssuesResolve({
         }
       </div>
       <div className="flex-row flex-between mt-2">
-        <div className="flex-column justify-content-center">
+        <div className="flex-row justify-content-end flex-grow-1 mt-1 me-2">
           { (activeIssue.status === settings.FILTER.RESOLVED || activeIssue.status === settings.FILTER.FIXEDANDRESOLVED) 
-            ? <ResolvedIcon alt="" className="color-success icon-lg"/>
+            ? <div className="data-pill transparent fixed flex-row">
+                <ResolvedIcon className="color-success icon-md flex-column align-self-center"/>
+                <div className="data-pill-text">{t('filter.label.resolution.resolved_single')}</div>
+              </div>
             : ''
           }
         </div>

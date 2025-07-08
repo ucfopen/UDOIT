@@ -168,7 +168,7 @@ export default function UfixitWidget({
             />
             { showClarification && (<FormClarification t={t} activeIssue={activeIssue} />)}
             { showLearnMore && ( <div className="flex-row justify-content-end mb-3">
-              <button className="btn btn-link btn-small btn-icon-left mt-2" onClick={() => setShowLongDesc(true)}>
+              <button className="btn btn-link btn-small btn-icon-left" onClick={() => setShowLongDesc(true)}>
                 <InfoIcon className="icon-md" />
                 <div>{t('fix.button.learn_more')}</div>
               </button>

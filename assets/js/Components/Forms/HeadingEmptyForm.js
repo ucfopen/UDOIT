@@ -4,6 +4,7 @@ import * as Html from '../../Services/Html'
 
 export default function HeadingEmptyForm({
   t,
+  settings,
   activeIssue,
   handleIssueSave,
   isDisabled,
@@ -93,6 +94,8 @@ export default function HeadingEmptyForm({
       </div>
       <FormFeedback
         t={t}
+        settings={settings}
+        activeIssue={activeIssue}
         isDisabled={isDisabled}
         handleSubmit={handleSubmit}
         formErrors={textInputErrors} />

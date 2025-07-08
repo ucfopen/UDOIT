@@ -232,6 +232,8 @@ export default function SensoryMisuseForm({
 
       <FormFeedback
         t={t}
+        settings={settings}
+        activeIssue={activeIssue}
         isDisabled={isDisabled}
         handleSubmit={handleSubmit} />
     </>
