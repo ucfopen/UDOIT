@@ -14,7 +14,7 @@
     input {
       font-size: 0.85rem;
       font-weight: 400;
-      font-family: 'Open Sans', Arial, Helvetica, sans-serif;
+      font-family: var(--text-font-family);
       padding: .4rem 1.75rem .4rem .5rem;
       border: 1px solid var(--border-color);
       border-radius: 8px;
@@ -37,17 +37,38 @@
   }
 
   .filter-pill {
-    padding: 0px .5rem 0px .75rem;
-    background-color: var(--gray);
+    padding: .15rem .25rem .15rem .75rem;
+    background-color: var(--gray-light);
     cursor: pointer;
-    border-radius: 12px;
+    border-radius: 15px;
 
     .filter-pill-text {
-      color: var(--white);
       font-size: 0.8rem;
       font-weight: 500;
       text-transform: uppercase;
+      color: var(--gray-dark);
     }
+
+    .filter-pill-remove {
+      background: transparent;
+      border-radius: 12px;
+      fill: var(--gray-dark);
+    }
+
+    &:hover,
+    &:focus {
+      background-color: var(--gray);
+
+      .filter-pill-text {
+        color: var(--white);
+      }
+
+      .filter-pill-remove {
+        background: var(--white);
+        fill: var(--gray-dark);
+      }
+    }
+
   }
 
   .filter-group {
@@ -60,7 +81,7 @@
   label {
     font-size: 0.9rem;
     font-weight: 500;
-    font-family: 'Reddit Sans', Arial, Helvetica, sans-serif;
+    font-family: var(--heading-font-family);;
     text-transform: uppercase;
   }
 }

@@ -146,10 +146,15 @@ class CanvasLms implements LmsInterface {
         $canvasApi = new CanvasApi($apiDomain, $apiToken);
         $response = $canvasApi->apiGet($url);
 
-        if (!$response || !empty($response->getErrors())) {
+        if(!$response) {
+            throw new \Exception('msg.sync.error.connection');
+        }
+
+        if (!empty($response->getErrors())) {
             foreach ($response->getErrors() as $error) {
-                $this->util->createMessage($error, 'error', $course, $user);
+                $this->util->createMessage($error['message'], 'error', $course, $user);
             }
+            throw new \Exception('msg.sync.error.api');
             return;
         }
         $content = $response->getContent();
@@ -181,6 +186,7 @@ class CanvasLms implements LmsInterface {
 
             if ($response->getErrors()) {
                 $this->util->createMessage('Error retrieving content. Failed API Call: ' . $url, 'error', $course, $user);
+                throw new \Exception('msg.sync.error.api');
             }
             else {
                 if ('syllabus' === $contentType) {
@@ -296,6 +302,7 @@ class CanvasLms implements LmsInterface {
 
         if ($response->getErrors()) {
             $this->util->createMessage('Error retrieving content. Failed API Call: ' . $url, 'error', $course, $user);
+            throw new \Exception('msg.sync.error.api');
         }
         else {
             $contentList = $response->getContent();
@@ -320,6 +327,7 @@ class CanvasLms implements LmsInterface {
 
                   if ($itemResponse->getErrors()) {
                       $this->util->createMessage('Error retrieving content. Failed API Call: ' . $url, 'error', $course, $user);
+                      throw new \Exception('msg.sync.error.api');
                   }
                   else {
                     $itemList = $itemResponse->getContent();            
@@ -389,6 +397,7 @@ class CanvasLms implements LmsInterface {
 
             $this->util->createMessage('Error retrieving content. Please try again.', 'error', $contentItem->getCourse(), $user);
             $this->util->createMessage($log, 'error', $contentItem->getCourse(), $user, true);
+            throw new \Exception('msg.sync.error.api');
         }
         else {
             $apiContent = $response->getContent();
@@ -426,6 +435,7 @@ class CanvasLms implements LmsInterface {
                     'error',
                     $contentItem->getCourse()
                 );
+                throw new \Exception('msg.sync.error.local_save');
                 return;
             }
 
@@ -803,7 +813,7 @@ class CanvasLms implements LmsInterface {
 
             // Pages
             'url:GET|/api/v1/courses/:course_id/pages',
-            'url:GET|/api/v1/courses/:course_id/pages/:url_or_id',
+            'url:GET|/api/v1/cour dses/:course_id/pages/:url_or_id',
             'url:PUT|/api/v1/courses/:course_id/pages/:url_or_id',
 
             // Quiz Questions

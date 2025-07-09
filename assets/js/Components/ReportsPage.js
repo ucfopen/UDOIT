@@ -6,6 +6,7 @@ import ReportsTable from './Reports/ReportsTable'
 import IssuesTable from './Reports/IssuesTable'
 import ProgressIcon from './Icons/ProgressIcon'
 import PrintIcon from './Icons/PrintIcon'
+import './ReportsPage.css'
 
 export default function ReportsPage({t, report, settings, quickSearchTerm}) {
 
@@ -206,12 +207,12 @@ export default function ReportsPage({t, report, settings, quickSearchTerm}) {
   }
 
   return (
-    <main>
+    <div className="report-page-container scrollable">
       <div className="flex-row justify-content-between">
         <h1 className="primary-dark">{t('menu.reports')}</h1>
         { (fetchedReports && reports.length > 0) && (
           <div className="flex-column justify-content-center">
-            <button className="btn btn-primary btn-icon-left" onClick={()=> printReport()}>
+            <button className="btn-small btn-primary btn-icon-left" onClick={()=> printReport()}>
               <PrintIcon className="icon-md" />
               {t('report.button.print')}
             </button>
@@ -303,6 +304,6 @@ export default function ReportsPage({t, report, settings, quickSearchTerm}) {
           </div>
         </div>
       )}
-    </main>
+    </div>
   )
 }

@@ -177,9 +177,12 @@ class EqualAccessService {
         recommendation, potentialrecommendation -> suggestion
         manual -> potential issue 
         */
-
-        if (in_array("MANUAL", $value)) {
-          // manual
+        if (in_array("PASS", $value)) {
+          return "pass";
+        }
+        else if (in_array("MANUAL", $value)) {
+          // potentialviolation
+          // manual is a special case, it means that the rule requires manual review
           return "potential";
         }
         else if (in_array("VIOLATION", $value)) {
