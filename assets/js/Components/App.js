@@ -155,7 +155,8 @@ export default function App(initialData) {
   }
 
   const addMessage = (msg) => {
-    setMessages(prevMessages => [...prevMessages, msg])
+    setMessages([msg])
+    // setMessages(prevMessages => [...prevMessages, msg])
   }
 
   const clearMessages = () => {
