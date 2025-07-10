@@ -37,6 +37,21 @@ export default function MessageTray ({ messages, hasNewReport, clearMessages, t 
     }, 500)
   }
 
+  const pauseTimer = () => {
+    if (timerInt) {
+      clearInterval(timerInt)
+      setTimerInt(null)
+    }
+  }
+
+  const resumeTimer = () => {
+    if (!timerInt && messages.length > 0) {
+      setTimerInt(setTimeout(() => {
+        handleClose()
+      }, 5000))
+    }
+  }
+
   const statusMap = {
     'success': <FixedIcon className="icon-lg primary" alt="" />,
     'info': <InfoIcon className="icon-lg link-color" alt="" />,
@@ -45,8 +60,15 @@ export default function MessageTray ({ messages, hasNewReport, clearMessages, t 
   }
 
   return (
-    <div className={`messageTrayContainer ${isOpen ? 'open' : ''}`} role="alert" aria-live="polite" aria-atomic="true">
-      <div className='messageTray flex-column'>
+    <div
+      className={`messageTrayContainer ${isOpen ? 'open' : ''}`} 
+      role="alert"
+      aria-live="polite"
+      aria-atomic="true"
+      onMouseEnter={pauseTimer}
+      onMouseLeave={resumeTimer}
+      >
+      <div className={`messageTray flex-column ${messages[0]?.severity}`}>
         {!hasNewReport && (
           <div className='messageTrayItem flex-row gap-2'>
             <div className="flex-column justify-content-center">
@@ -59,7 +81,7 @@ export default function MessageTray ({ messages, hasNewReport, clearMessages, t 
         )}
         {messages.map((msg, i) => (
           <div className='messageTrayItem flex-row gap-2' key={`msg${i}`}>
-            <div className="flex-column justify-content-center">
+            <div className="flex-column justify-content-start">
               {statusMap[msg.severity]}
             </div>
             <div className="flex-column justify-content-center">
@@ -67,8 +89,8 @@ export default function MessageTray ({ messages, hasNewReport, clearMessages, t 
             </div>
           </div>
         ))}
-        <button className="btn btn-text closeButton" onClick={() => handleClose()} aria-label={t('label.close')} title={t('label.close')}>
-          <CloseIcon className="primary-dark" />
+        <button className="flex-column justify-content-center closeButton" onClick={() => handleClose()} aria-label={t('label.close_message')} title={t('label.close_message')}>
+          <CloseIcon className="icon-sm text-color" />
         </button>
       </div>
 

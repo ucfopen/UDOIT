@@ -10,9 +10,12 @@ select {
   min-width: 200px;
 }
 
+.settings-page-container {
+  margin: 0 -1rem -1rem -1rem;
+  padding: 0 1rem;
+}
+
 .about-container {
-  height: 650px;
-  max-height: 1000px;
   overflow-y: auto;
 
   .about-content {

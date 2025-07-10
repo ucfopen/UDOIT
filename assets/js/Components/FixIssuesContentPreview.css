@@ -40,27 +40,35 @@
 
 .ufixit-content-preview {
   flex-grow: 1;
-  overflow-x: auto;
-  overflow-y: auto;
-  margin: 0 0 1rem 0;
-  padding: 1rem;
+  overflow-x: hidden;
+  overflow-y: hidden;
+  width: 100%;
+  margin: 0;
+  padding: 0;
   position: relative;
   border: 1px solid var(--border-color);
   border-radius: 8px;
+  box-sizing: border-box;
 
   .ufixit-content-preview-rescan-container {
-    position: sticky;
+    position: absolute;
     top: 0;
+    right: 0;
     display: flex;
     z-index: 5;
+    transform: translateX(calc(100% + 2rem));
+    transition: transform var(--transition-time);
+
+    &.active {
+      transform: translateX(0);
+    }
 
     .ufixit-content-preview-rescan {
       padding: 0.5rem 1rem;
       background-color: var(--primary-color-light);
       border: 1px solid var(--border-color);
-      border-radius: 0 0 8px 0;
-      margin-top: calc(-1rem - 1px);
-      margin-left: -100%;
+      border-radius: 0 0 0 8px;
+      margin-top: 0;
       transition: margin-left var(--transition-time);
       font-size: .9em;
       font-weight: 600;
@@ -75,8 +83,11 @@
   .ufixit-content-preview-main {
     position: absolute;
     top: 0px;
-    padding-top: 1rem;
-    padding-right: 1rem;
+    padding: 1rem;
+    height: 100%;
+    width: 100%;
+    box-sizing: border-box;
+    overflow: auto;
     
     h1, h2, h3, h4, h5, h6 {
       color: var(--text-color);
@@ -106,6 +117,8 @@
 .scroll-to-error-container {
   position: sticky;
   top: 0;
+  padding: 1rem 1.5rem;
+  box-sizing: border-box;
   display: flex;
   flex-direction: row;
   justify-content: flex-end;
@@ -116,15 +129,7 @@
 }
 
 .scroll-to-error {
-  background-color: transparent;
-  border-radius: 100%;
-  padding: 0.35rem;
-  cursor: pointer;
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-start;
-  border: 2px solid var(--primary-color);
-  opacity: 0.5;
+  opacity: 0.65;
   transition: opacity var(--transition-time);
   align-self: start;
   pointer-events: all;
@@ -133,7 +138,6 @@
   &:focus,
   &:active {
     opacity: 1;
-    background-color: var(--primary-color-light);
   }
 
   &.scroll-to-error-down {

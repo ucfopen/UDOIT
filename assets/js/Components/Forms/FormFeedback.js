@@ -1,8 +1,12 @@
 import React, { useState, useEffect } from 'react'
 
+import FixedIcon from '../Icons/FixedIcon'
+
 export default function FormFeedback({
   t,
   handleSubmit = null,
+  activeIssue = null,
+  settings = null,
   activeContentItem = null,
   isDisabled = false,
   formErrors = [],
@@ -52,7 +56,7 @@ export default function FormFeedback({
   }, [formErrors])
   
   return (
-    <div className="flex-row justify-content-between gap-3 mt-4">
+    <div className="flex-row justify-content-between gap-1 mt-4">
       { !handleSubmit && activeContentItem?.url && (
         <a href={activeContentItem.url} 
            className="btn btn-secondary"
@@ -62,28 +66,36 @@ export default function FormFeedback({
           {t('fix.button.lms_solve')}
         </a>
       )}
-      { handleSubmit && (
-        <>
-          <div className="flex-column justify-content-start">
-            <button
-              className="btn btn-primary"
-              disabled={isDisabled || hasErrors}
-              tabindex="0"
-              onClick={handleSubmit}>
-              {t('form.submit')}
-            </button>
-          </div>
-          { formattedIssues.length > 0 && (
-            <div className="flex-column justify-content-start gap-1">
-              {formattedIssues.map((issue, index) => (
-                <div className="flex-row justify-content-end gap-1" key={index}>
-                  <div className="error-text text-end">{issue.text}</div>
-                </div>
-              ))}
+      <div className="flex-column justify-content-start flex-shrink-0">
+        { handleSubmit && (
+          <button
+            className="btn-primary"
+            disabled={isDisabled || hasErrors}
+            tabindex="0"
+            onClick={handleSubmit}>
+            {t('form.submit')}
+          </button>
+        )}
+      </div>
+      <div className="flex-column justify-content-start flex-grow-1 gap-1">
+        { (activeIssue.status === 1 || activeIssue.status === 3) && (
+            <div className="flex-row justify-content-start mt-1">
+              <div className="data-pill fixed flex-row">
+                <FixedIcon className="color-success icon-md flex-column align-self-center"/>
+                <div className="data-pill-text">{t('filter.label.resolution.fixed_single')}</div>
+              </div>
             </div>
-          )}
-        </>
-      )}
+          ) }
+        { formattedIssues.length > 0 && (
+          <>
+            {formattedIssues.map((issue, index) => (
+              <div className="flex-row justify-content-end gap-1" key={index}>
+                <div className="error-text text-end">{issue.text}</div>
+              </div>
+            ))}
+          </>
+        )}
+      </div>
     </div>
   )
 }

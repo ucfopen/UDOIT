@@ -155,7 +155,7 @@ export default function SortableTable({
                 <h2 className="flex-column align-self-center primary-dark mt-0 mb-0">{caption}</h2>
               </div>
               <div className="flex-grow-0">
-                <button className="btn-secondary btn-icon-left" onClick={()=>exportToCSV()}>
+                <button className="btn-secondary btn-small btn-icon-left" onClick={()=>exportToCSV()}>
                   <DownloadIcon className="icon-md" />
                   {t('report.button.download')}
                 </button>

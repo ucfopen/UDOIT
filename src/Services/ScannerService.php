@@ -41,6 +41,11 @@ class ScannerService {
         // Optional argument scannerReport is used when handling async Equal Access
         // requests, so then all we have to do is just make those into a UDOIT report
 
+        if ($contentItem->getBody() == null) {
+            // No body to scan, return null
+            return null;
+        }
+
         $printOutput = new ConsoleOutput();
         $scanner = $_ENV['ACCESSIBILITY_CHECKER'];
         $report = null;
@@ -56,43 +61,36 @@ class ScannerService {
                 $report = $phpAlly->scanContentItem($contentItem);
             }
             else if ($scanner == 'equalaccess_local') {
+                $equalAccess = new EqualAccessService();
 
-                if ($contentItem->getBody() != null) {
-                    $equalAccess = new EqualAccessService();
+                // $document = $this->getDomDocument($contentItem->getBody());
 
-                    // $document = $this->getDomDocument($contentItem->getBody());
+                // $htmlContent = $document->saveHTML();
+                // $totalLength = strlen($htmlContent);
 
-                    // $htmlContent = $document->saveHTML();
-                    // $totalLength = strlen($htmlContent);
+                // $bodyElements = $document->getElementsByTagName('body');
+                // if ($bodyElements->length > 0) {
+                //     $printOutput->writeln("Body found with children: " . $bodyElements->item(0)->childNodes->length);
+                // }
 
-                    // $bodyElements = $document->getElementsByTagName('body');
-                    // if ($bodyElements->length > 0) {
-                    //     $printOutput->writeln("Body found with children: " . $bodyElements->item(0)->childNodes->length);
-                    // }
-
-                    $localService = new LocalApiAccessibilityService();
-                    $json = $localService->scanContentItem($contentItem);
-                    $report = $equalAccess->generateReport($json);
-                }
+                $localService = new LocalApiAccessibilityService();
+                $json = $localService->scanContentItem($contentItem);
+                $report = $equalAccess->generateReport($json);
             }
             else if ($scanner == 'equalaccess_lambda') {
-                $printOutput->writeln($scanner . ": Scanning with Lambda Equal Access");
+                $equalAccess = new EqualAccessService();
+                //$document = $this->getDomDocument($contentItem->getBody());
 
-                if ($contentItem->getBody() != null) {
-                    $equalAccess = new EqualAccessService();
-                    //$document = $this->getDomDocument($contentItem->getBody());
-
-                    if (!$scannerReport) {
-                        // Report is null, we need to call the lambda function for a single page most likely
-                        // $this->logToServer("null $scannerReport!");
-                        $asyncReport = new AsyncEqualAccessReport();
-                        $json = $asyncReport->postSingleAsync($contentItem);
-                        $report = $equalAccess->generateReport($json);
-                    }
-                    else {
-                        // We already have the report, all we have to do is generate the UDOIT report
-                        $report = $equalAccess->generateReport($scannerReport);
-                    }
+                if (!$scannerReport) {
+                    // Report is null, we need to call the lambda function for a single page most likely
+                    // $this->logToServer("null $scannerReport!");
+                    $asyncReport = new AsyncEqualAccessReport();
+                    $json = $asyncReport->postSingleAsync($contentItem);
+                    $report = $equalAccess->generateReport($json);
+                }
+                else {
+                    // We already have the report, all we have to do is generate the UDOIT report
+                    $report = $equalAccess->generateReport($scannerReport);
                 }
             }
             else {

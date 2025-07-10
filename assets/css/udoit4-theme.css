@@ -21,22 +21,32 @@
   --focus-color: #009AD0;
 
   --issue-color: #F94144;
+  --issue-color-light: color-mix(in srgb, var(--issue-color) 15%, #FFFFFF 100%);
   --potential-color: #F8961E;
+  --potential-color-light: color-mix(in srgb, var(--potential-color) 15%, #FFFFFF 100%);
   --suggestion-color: #32B0E4;
+  --suggestion-color-light: color-mix(in srgb, var(--suggestion-color) 15%, #FFFFFF 100%);
+  --success-color: #006937;
+  --success-color-light: color-mix(in srgb, var(--success-color) 15%, #FFFFFF 100%);
   --progress-bar-color: #32B0E4;
 
-  --white: #FFFFFF;
+  --black: #000000;
+  --gray-darker: #333333;
   --gray-dark: #555555;
   --gray: #767676;
   --gray-light: #D3D7DB;
+  --gray-lighter: #E2E2E2;
   --gray-lightest: #F7F7F7;
+  --white: #FFFFFF;
 
   --background-color: var(--gray-lightest);
   --border-color: var(--gray-light);
 
   --spacer: 1rem;
 
-  font-family: 'Open Sans', Arial, Helvetica, sans-serif;
+  --text-font-family: 'Open Sans', Arial, Helvetica, sans-serif;
+  --heading-font-family: 'Reddit Sans', sans-serif;
+
   line-height: 1.4rem;
 
   --transition-time: 0.25s;
@@ -48,6 +58,13 @@ body {
   border-left: none !important;
   max-width: 1400px;
   color: var(--text-color);
+  overflow: hidden;
+
+  font-family: var(--text-font-family);
+
+  &.serif {
+    --text-font-family: 'Times New Roman', Times, serif;
+  }
 }
 
 #root {
@@ -57,6 +74,15 @@ body {
   border-radius: 16px;
   box-shadow: 2px 2px 2px var(--border-color);
   min-height: 600px;
+  max-height: calc(100vh - 8px);
+  display: flex;
+  flex-direction: column;
+}
+
+main {
+  max-height: 778px;
+  height: calc(100vh - 56px - 1rem);
+  box-sizing: border-box;
   display: flex;
   flex-direction: column;
 }
@@ -159,6 +185,15 @@ body {
 
 .align-self-stretch {
   align-self: stretch;
+}
+
+.scrollable {
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+.non-scrollable {
+  overflow: hidden;
 }
 
 .text-start {
@@ -419,7 +454,7 @@ body {
 /* General styles */
 
 h1, h2, h3, h4, h5, h6 {
-  font-family: 'Open Sans', sans-serif;
+  font-family: var(--text-font-family);
   font-weight: 500;
   line-height: normal;
   color: var(--primary-color);
@@ -468,7 +503,7 @@ h1, h2, h3, h4, h5, h6 {
 
 .tag {
   color: var(--white);
-  font-size: .8rem;
+  font-size: .8em;
   font-weight: 500;
   text-transform: uppercase;
   padding: .15rem .75rem;
@@ -494,15 +529,15 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 button {
-  font-family: 'Reddit Sans', sans-serif;
+  font-family: var(--heading-font-family);
   text-transform: uppercase;
-  padding: .25rem 1.5rem;
-  border-radius: 50px;
+  padding: .5rem 1rem;
+  border-radius: .8rem;
   cursor: pointer;
   box-sizing: border-box;
   border: 2px solid transparent;
   font-weight: 500;
-  font-size: 1rem;
+  font-size: 1em;
   width: fit-content;
 
   &:focus {
@@ -536,6 +571,24 @@ button {
   &:focus {
     background-color: var(--primary-color-light);
   }
+}
+
+.btn-link {
+  border-color: var(--link-color);
+  background-color: transparent;
+  color: var(--link-color);
+  fill: var(--link-color);
+  
+  &:hover,
+  &:focus {
+    background-color: var(--link-color-light);
+  }
+}
+
+.btn-small {
+  font-size: 0.85em;
+  padding: .25em 0.75em;
+  border-radius: 8px;
 }
 
 button.disabled,
@@ -579,7 +632,7 @@ button:disabled {
   border-radius: 8px !important;
   justify-content: center;
   width: 100%;
-  font-size: 0.9rem;
+  font-size: 0.9em;
 }
 
 .btn-icon-left {
@@ -588,7 +641,7 @@ button:disabled {
 
   svg {
     flex-shrink: 0;
-    margin-right: .5rem;
+    margin-right: .5em;
   }
 }
 
@@ -598,7 +651,7 @@ button:disabled {
 
   svg {
     flex-shrink: 0;
-    margin-left: .5rem;
+    margin-left: .5em;
   }
 }
 
@@ -671,13 +724,57 @@ button:disabled {
   margin-right: 1.5rem;
 }
 
+/* Data pills are for icons with text that can be hidden until hovered or focused */
+.data-pill {
+  padding: 0.05rem 0.25rem;
+  border-radius: 20px;
+  background-color: var(--gray-lightest);
+  color: var(--gray-dark);
+  border: 1px solid var(--border-color);
+  box-sizing: border-box;
+  height: 34px;
+  flex-shrink: 0;
+  transition: padding var(--transition-time) ease-in-out;
+
+  .data-pill-text {
+    max-width: 0px;
+    width: auto;
+    overflow: hidden;
+    text-wrap-mode: nowrap;
+    align-self: center;
+    font-size: 0.9em;
+    font-weight: 600;
+    margin-left: 0;
+    transition: all var(--transition-time) ease-in-out;
+  }
+
+  &.transparent {
+    background-color: transparent;
+  }
+
+  &.fixed {
+    color: var(--primary-color);
+    border-color: var(--primary-color);
+  }
+
+  &:hover,
+  &:focus {
+    padding: 0.05rem 0.5rem;
+
+    .data-pill-text {
+      max-width: 200px;
+      margin-left: 0.5rem;
+    }
+  }
+}
+
 /* Customized select and options elements based on example from: 
  https://developer.mozilla.org/en-US/docs/Learn_web_development/Extensions/Forms/Customizable_select */
 
 select {
-  font-size: 0.85rem;
+  font-size: 0.85em;
   font-weight: 500;
-  font-family: 'Open Sans', Arial, Helvetica, sans-serif;
+  font-family: var(--text-font-family);
   padding: .4rem 0.5rem .4rem 0.5rem;
   background-color: var(--white);
   border: 1px solid var(--border-color);

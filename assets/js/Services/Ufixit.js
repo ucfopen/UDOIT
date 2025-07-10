@@ -101,6 +101,7 @@ const rulesToFormNameMap = {
   area_alt_exists: formNames.ANCHOR_TEXT,
 
   aria_role_valid: formNames.ARIA_ROLE,
+  aria_role_allowed: formNames.ARIA_ROLE,
 
   blockquote_cite_exists: formNames.BLOCKQUOTE,
 
@@ -139,6 +140,7 @@ const rulesToFormNameMap = {
   aria_search_label_unique: formNames.LABEL_UNIQUE,
   aria_toolbar_label_unique: formNames.LABEL_UNIQUE,
 
+  list_children_valid: formNames.LIST,
   list_markup_review: formNames.LIST,
   list_structure_proper: formNames.LIST,
 

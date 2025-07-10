@@ -74,7 +74,8 @@ class LocalApiAccessibilityService {
             $promises[$id] = $client->postAsync('/scan', [
                 'json' => [
                     'html' => $html, // $htmlOutput,
-                    'guidelineIds' => 'WCAG_2_1'
+                    'guidelineIds' => 'WCAG_2_1',
+                    'reportLevels' => ['violation', 'potentialviolation', 'manual', 'recommendation']
                 ],
                 'headers' => [
                     'Content-Type' => 'application/json',
@@ -147,7 +148,8 @@ class LocalApiAccessibilityService {
         // Standardize headers and content type
         $jsonPayload = json_encode([
             "html" => $html,
-            "guidelineIds" => "WCAG_2_1"
+            "guidelineIds" => "WCAG_2_1",
+            'reportLevels' => ['violation', 'potentialviolation', 'manual', 'recommendation']
         ]);
 
         // Use cURL instead of file_get_contents for better error handling

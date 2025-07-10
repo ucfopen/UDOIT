@@ -340,7 +340,7 @@ export default function FixIssuesContentPreview({
 
   const scrollToElement = (element) => {
     if (element) {
-      element.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'center' })
+      element.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'nearest' })
     }
   }
 
@@ -349,22 +349,23 @@ export default function FixIssuesContentPreview({
 
     let button;
     if (debouncedDirection === 'up') {
-      button = <UpArrowIcon className="icon-arrow primary" />
+      button = <UpArrowIcon className="icon-sm" />
     }
     else if (debouncedDirection === 'down') {
-      button = <DownArrowIcon className="icon-arrow primary" />
+      button = <DownArrowIcon className="icon-sm" />
     }
 
     if (issueElementRef.current && !debouncedVisible && debouncedDirection) {
       return (
         <div className='scroll-to-error-container'>
           <button
-            className={`scroll-to-error ${debouncedDirection ? 'scroll-to-error-' + debouncedDirection : ''}`}
+            className={`btn-primary btn-icon-right btn-small scroll-to-error ${debouncedDirection ? 'scroll-to-error-' + debouncedDirection : ''}`}
             onClick={() => scrollToElement(issueElementRef.current)}
             aria-label={t('fix.button.scroll_to_issue')}
             title={t('fix.button.scroll_to_issue')}
             tabIndex="0"
           >
+            Scroll to Barrier
             {button}
           </button>
         </div>
@@ -389,8 +390,8 @@ export default function FixIssuesContentPreview({
       <div className="ufixit-content-preview">
 
         { activeContentItem && (
-          <div className="ufixit-content-preview-rescan-container">
-            <div className={`ufixit-content-preview-rescan flex-row ${contentItemsBeingScanned.includes(activeContentItem.id) ? 'active' : 'hidden'}`}>
+          <div className={`ufixit-content-preview-rescan-container ${contentItemsBeingScanned.includes(activeContentItem.id) ? 'active' : ''}`}>
+            <div className="ufixit-content-preview-rescan flex-row">
               <div className="flex-column align-self-center">
                 <ProgressIcon className="icon-md udoit-suggestion spinner" />
               </div>

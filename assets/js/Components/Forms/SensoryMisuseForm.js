@@ -156,7 +156,7 @@ export default function SensoryMisuseForm({
         }
       }
       catch (e) {
-        console.log(`An error occurred while trying to evaluate the XPath results: ${e}`)
+        console.warn(`An error occurred while trying to evaluate the XPath results: ${e}`)
       }
     }
   };
@@ -237,6 +237,8 @@ export default function SensoryMisuseForm({
 
       <FormFeedback
         t={t}
+        settings={settings}
+        activeIssue={activeIssue}
         isDisabled={isDisabled}
         handleSubmit={handleSubmit} />
     </>
