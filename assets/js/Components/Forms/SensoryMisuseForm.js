@@ -80,6 +80,11 @@ export default function SensoryMisuseForm({
     }
 
     const traverseNode = (node) => {
+
+      // Text is empty
+      if(node === null)
+        return
+
       if (node.nodeType === Node.TEXT_NODE) {
         // Check if the text node contains any sensory words
         checkText(node.textContent);
