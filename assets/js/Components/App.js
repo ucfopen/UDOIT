@@ -139,6 +139,8 @@ export default function App(initialData) {
     }
     if (data.data && data.data.id) {
       newReport = data.data
+      console.log("FULL REPORT FROM API")
+      console.log(newReport)
       newHasNewReport = true
     }
     setSyncComplete(true)

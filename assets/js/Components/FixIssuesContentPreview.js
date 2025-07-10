@@ -359,7 +359,7 @@ export default function FixIssuesContentPreview({
       return (
         <div className='scroll-to-error-container'>
           <button
-            className={`btn-primary btn-icon-right btn-small scroll-to-error ${debouncedDirection ? 'scroll-to-error-' + debouncedDirection : ''}`}
+            className={`btn-secondary btn-icon-right btn-small scroll-to-error ${debouncedDirection ? 'scroll-to-error-' + debouncedDirection : ''}`}
             onClick={() => scrollToElement(issueElementRef.current)}
             aria-label={t('fix.button.scroll_to_issue')}
             title={t('fix.button.scroll_to_issue')}

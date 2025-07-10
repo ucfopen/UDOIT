@@ -22,6 +22,7 @@
 
   --issue-color: #F94144;
   --issue-color-light: color-mix(in srgb, var(--issue-color) 15%, #FFFFFF 100%);
+  --issue-color-dark: #E2080C;  /* Sufficient contrast with white text */
   --potential-color: #F8961E;
   --potential-color-light: color-mix(in srgb, var(--potential-color) 15%, #FFFFFF 100%);
   --suggestion-color: #32B0E4;
@@ -563,7 +564,7 @@ button {
 
 .btn-secondary {
   border-color: var(--primary-color);
-  background-color: transparent;
+  background-color: var(--white);
   color: var(--primary-color-dark);
   fill: var(--primary-color-dark);
   

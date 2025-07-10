@@ -8,14 +8,19 @@ import ListIcon from './Icons/ListIcon'
 import RightArrowIcon from './Icons/RightArrowIcon'
 import ProgressIcon from './Icons/ProgressIcon'
 import InfoIcon from './Icons/InfoIcon'
+import DisabilityCognitiveIcon from './Icons/DisabilityCognitiveIcon'
+import DisabilityHearingIcon from './Icons/DisabilityHearingIcon'
+import DisabilityMotorIcon from './Icons/DisabilityMotorIcon'
+import DisabilityVisualIcon from './Icons/DisabilityVisualIcon'
 import FixIssuesResolve from './FixIssuesResolve'
 import ReactHtmlParser from 'react-html-parser'
 import FormClarification from './Forms/FormClarification';
 import FileForm from './Forms/FileForm'
-import { formFromIssue, formNameFromRule } from '../Services/Ufixit'
+import { disabilityTypes, disabilitiesFromRule, formFromIssue, formNameFromRule } from '../Services/Ufixit'
 import Api from '../Services/Api'
 import * as Html from '../Services/Html'
 import './UfixitWidget.css'
+
 
 export default function UfixitWidget({
   t,
@@ -45,6 +50,7 @@ export default function UfixitWidget({
   const [formLearnMore, setFormLearnMore] = useState('')
   const [showClarification, setShowClarification] = useState(false)
   const [showLearnMore, setShowLearnMore] = useState(false)
+  const [disabilities, setDisabilities] = useState([])
 
   // The tempActiveIssue is what is sent to the form to be manipulated and can be updated
   // over and over again by the form as the HTML or other data is changed.
@@ -80,9 +86,11 @@ export default function UfixitWidget({
         setFormLearnMore(t(`form.file.${activeIssue.fileData.fileType}.learn_more`))
         setShowClarification(false)
         setShowLearnMore(true)
+        setDisabilities([disabilityTypes.COGNITIVE, disabilityTypes.VISUAL])
       }
       else {
         setUfixitForm(() => formFromIssue(activeIssue.issueData))
+        setDisabilities(disabilitiesFromRule(activeIssue.scanRuleId))
         let tempFormName = formNameFromRule(activeIssue.scanRuleId)
         if(tempFormName === 'review_only') {
           setShowClarification(false)
@@ -111,6 +119,7 @@ export default function UfixitWidget({
       setTempActiveIssue(Object.assign({}, activeIssue, { showLongDesc: false }))
     }
     else {
+      setDisabilities([])
       setUfixitForm(null)
       setTempActiveIssue(null)
     }
@@ -163,23 +172,29 @@ export default function UfixitWidget({
                 }
               </div> */}
             </div>
-            <div className="ufixit-widget-label">Barrier Information</div>
-            <div className="ufixit-callout-container flex-shrink-0 mb-2" aria-hidden={!viewInfo ? "true" : "false"} >
+            <div class="flex-row justify-content-between mb-2">
+              <div className="ufixit-widget-label flex-grow-1">{t('fix.label.barrier_information')}</div>
+              
+            </div>
+            <div className="ufixit-callout-container flex-shrink-0 mb-3" aria-hidden={!viewInfo ? "true" : "false"} >
               <div className="ufixit-instructions" 
                 dangerouslySetInnerHTML={{__html: formSummary}}
               />
-            { showClarification && (<FormClarification t={t} activeIssue={activeIssue} />)}
+              { showLearnMore && (
+                <div className="flex-row justify-content-end mt-2">
+                  <button className="btn-link btn-small p-0" onClick={() => setShowLongDesc(true)}>
+                    {/* <InfoIcon className="icon-md" /> */}
+                    <div>{t('fix.button.learn_more')}</div>
+                  </button>
+                </div>
+              )}
+              { showClarification && (<FormClarification t={t} activeIssue={activeIssue} />)}
             </div>
-            { showLearnMore && ( <div className="flex-row justify-content-end mb-3">
-              <button className="btn btn-primary btn-small btn-icon-left" onClick={() => setShowLongDesc(true)}>
-                <InfoIcon className="icon-md" />
-                <div>{t('fix.button.learn_more')}</div>
-              </button>
-            </div> )}
+            
             
             { activeIssue.status !== settings.FILTER.RESOLVED ? (
               <>
-                <div className="ufixit-widget-label">How to Repair this Barrier</div>
+                <div className="ufixit-widget-label mb-2">{t('fix.label.barrier_repair')}</div>
                 <div className="flex-column flex-grow-1 justify-content-between ufixit-form-content">
                   <div className="ufixit-callout-container">
                     { activeIssue.contentType === settings.FILTER.FILE_OBJECT ? (
@@ -235,6 +250,37 @@ export default function UfixitWidget({
             </div>
           </div>
           <div className="ufixit-widget-dialog-content flex-column flex-grow-1">
+            { disabilities.length > 0 && (<div className="dialog-indicator-container flex-row gap-2">
+              <div className="flex-column align-self-center flex-shrink-0">
+                {t('fix.label.affected')}
+              </div>
+              <div className="flex-row flex-wrap gap-1">
+                {disabilities.includes(disabilityTypes.VISUAL) && (  
+                  <div className='indicator-container active'>
+                    <DisabilityVisualIcon className="icon-md pe-2" alt=""/>
+                    <div className="flex-column align-self-center">{t('fix.label.disability.visual')}</div>
+                  </div>
+                )}
+                {disabilities.includes(disabilityTypes.HEARING) && (
+                  <div className='indicator-container active'>
+                    <DisabilityHearingIcon className="icon-md pe-2" alt=""/>
+                    <div className="flex-column align-self-center">{t('fix.label.disability.hearing')}</div>
+                  </div>
+                )}
+                {disabilities.includes(disabilityTypes.MOTOR) && (
+                  <div className='indicator-container active'>
+                    <DisabilityMotorIcon className="icon-md pe-2" alt=""/>
+                    <div className="flex-column align-self-center">{t('fix.label.disability.motor')}</div>
+                  </div>
+                )}
+                {disabilities.includes(disabilityTypes.COGNITIVE) && (
+                  <div className='indicator-container active'>
+                    <DisabilityCognitiveIcon className="icon-md pe-2" alt=""/>
+                    <div className="flex-column align-self-center">{t('fix.label.disability.cognitive')}</div>
+                  </div>
+                )}
+              </div>
+            </div>)}
             <div className="flex-grow-1 flex-column ufixit-learn-container pt-3 pb-3"
               dangerouslySetInnerHTML={{__html: formLearnMore }} />
             <div className="flex-row justify-content-center mb-3">

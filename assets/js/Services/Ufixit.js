@@ -42,6 +42,13 @@ export const formNames = {
   REVIEW_ONLY: 'review_only',
 }
 
+export const disabilityTypes = {
+  COGNITIVE: 'cognitive',
+  HEARING: 'hearing',
+  MOTOR: 'motor',
+  VISUAL: 'visual',
+}
+
 const formTypes = {
   [formNames.ALT_TEXT]: AltText,
   [formNames.ANCHOR_TEXT]: AnchorText,
@@ -180,4 +187,73 @@ export function formNameFromRule(ruleId) {
 
   // If the ruleId is not found, return a default form name
   return formNames.REVIEW_ONLY
+}
+
+export function disabilitiesFromRule(ruleId) {
+  let disabilities = []
+  if (rulesToFormNameMap.hasOwnProperty(ruleId)) {
+    let formName = rulesToFormNameMap[ruleId]
+    switch (formName) {
+      case formNames.ALT_TEXT:
+        disabilities = [disabilityTypes.VISUAL]
+        break
+      case formNames.ANCHOR_TEXT:
+        disabilities = [disabilityTypes.COGNITIVE, disabilityTypes.VISUAL]
+        break
+      case formNames.ARIA_ROLE:
+        disabilities = [disabilityTypes.COGNITIVE, disabilityTypes.VISUAL]
+        break
+      case formNames.BLOCKQUOTE:
+        disabilities = [disabilityTypes.COGNITIVE, disabilityTypes.VISUAL]
+        break
+      case formNames.CONTRAST:
+        disabilities = [disabilityTypes.VISUAL]
+        break
+      case formNames.EMBEDDED_CONTENT_TITLE:
+        disabilities = [disabilityTypes.VISUAL, disabilityTypes.COGNITIVE]
+        break
+      case formNames.EMPHASIS:
+        disabilities = [disabilityTypes.COGNITIVE, disabilityTypes.VISUAL]
+        break
+      case formNames.HEADING_EMPTY:
+        disabilities = [disabilityTypes.COGNITIVE, disabilityTypes.VISUAL]
+        break
+      case formNames.HEADING_STYLE:
+        disabilities = [disabilityTypes.COGNITIVE, disabilityTypes.VISUAL]
+        break
+      case formNames.LABEL:
+        disabilities = [disabilityTypes.COGNITIVE, disabilityTypes.VISUAL]
+        break
+      case formNames.LABEL_UNIQUE:
+        disabilities = [disabilityTypes.COGNITIVE, disabilityTypes.VISUAL]
+        break
+      case formNames.LINK:
+        disabilities = [disabilityTypes.COGNITIVE, disabilityTypes.VISUAL]
+        break
+      case formNames.LIST:
+        disabilities = [disabilityTypes.COGNITIVE, disabilityTypes.VISUAL]
+        break
+      case formNames.MEDIA_CAPTIONS:
+        disabilities = [disabilityTypes.HEARING, disabilityTypes.VISUAL]
+        break
+      case formNames.QUOTE:
+        disabilities = [disabilityTypes.COGNITIVE, disabilityTypes.VISUAL]
+        break
+      case formNames.SENSORY_MISUSE:
+        disabilities = [disabilityTypes.COGNITIVE, disabilityTypes.VISUAL]
+        break
+      case formNames.TABLE_CAPTION:
+        disabilities = [disabilityTypes.COGNITIVE, disabilityTypes.VISUAL]
+        break
+      case formNames.TABLE_HEADERS:
+        disabilities = [disabilityTypes.COGNITIVE, disabilityTypes.VISUAL]
+        break
+      default:
+        disabilities = []
+        break
+    }
+    return disabilities
+  } else {
+    return []
+  }
 }

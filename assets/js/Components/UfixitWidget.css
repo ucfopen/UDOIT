@@ -1,6 +1,6 @@
 .ufixit-widget {
   height: 50%;
-  padding: .5rem;
+  padding: .5rem 1rem .5rem .5rem;;
   overflow-y: auto;
 }
 
@@ -12,8 +12,46 @@
   font-size: .9rem;
   font-weight: 600;
   color: var(--text-color);
-  margin-bottom: .25rem;
   text-transform: uppercase;
+}
+
+.dialog-indicator-container {
+  background-color: var(--gray-darker);
+  margin: 0 -1rem;
+  padding: .5rem 1rem;
+  color: var(--white);
+  font-size: .9rem;
+  font-weight: 600;
+  font-family: var(--heading-font-family);
+  text-transform: uppercase;
+}
+
+.indicator-container {
+  border: 2px solid transparent;
+  border-radius: 2rem;
+  display: flex;
+  align-self: center;
+  box-sizing: border-box;
+  font-size: 1em;
+  text-transform: uppercase;
+  color: white;
+  font-family: var(--heading-font-family);
+  font-weight: 600;
+  padding: 0 .75em 0 .35em; /* Left padding is smaller because the icons have inherent padding. */
+
+  svg {
+    fill: var(--gray);
+    padding: .15rem;
+  }
+
+  &.active {
+    border-color: var(--issue-color-dark);
+    background-color: var(--issue-color-dark);
+
+    svg {
+      fill: var(--white);
+    }
+  }
 }
 
 .ufixit-callout-container {
@@ -292,10 +330,10 @@ dialog {
 
 .ufixit-widget-dialog-header {
   padding: 1rem 1rem .75rem 1rem;
-  border-bottom: 2px solid var(--primary-color);
   background-color: var(--primary-color-light);
   position: sticky;
   top: 0;
+  box-shadow: 0 2px 2px #00000044;
 
   .close-icon { 
     padding: .25rem;
@@ -314,7 +352,6 @@ dialog {
   color: var(--text-color);
   font-size: 1rem;
   line-height: 1.5;
-  margin: 0 auto;
   overflow-x: hidden;
   overflow-y: auto;
 }
