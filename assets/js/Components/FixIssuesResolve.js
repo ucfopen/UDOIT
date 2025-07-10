@@ -31,21 +31,21 @@ export default function FixIssuesResolve({
       <div className="flex-row flex-between mt-2">
         <div className="flex-row justify-content-end flex-grow-1 mt-1 me-2">
           { (activeIssue.status === settings.FILTER.RESOLVED || activeIssue.status === settings.FILTER.FIXEDANDRESOLVED) 
-            ? <div className="data-pill transparent fixed flex-row">
-                <ResolvedIcon className="color-success icon-md flex-column align-self-center"/>
-                <div className="data-pill-text">{t('filter.label.resolution.resolved_single')}</div>
+            ? <div className="flex-row justify-content-end pe-2">
+                <ResolvedIcon className="color-success icon-md flex-column align-self-center pe-2"/>
+                <div className="flex-column align-self-center fw-bolder primary">{t('filter.label.resolution.resolved_single')}</div>
               </div>
             : ''
           }
         </div>
         <div className="flex-column justify-content-center">    
           { (activeIssue.status === settings.FILTER.RESOLVED || activeIssue.status === settings.FILTER.FIXEDANDRESOLVED) 
-            ? (<button className="btn-secondary align-self-start"
+            ? (<button className="btn-primary align-self-start"
                 onClick={() => handleClick()}
                 disabled={isDisabled || isSaving}
                 tabindex="0">{t(`fix.button.unresolved`)}
               </button>)
-            : (<button className="btn-icon-left btn-secondary align-self-start"
+            : (<button className="btn-icon-left btn-primary align-self-start"
                 onClick={() => handleClick()}
                 disabled={isDisabled || isSaving}
                 tabindex="0">

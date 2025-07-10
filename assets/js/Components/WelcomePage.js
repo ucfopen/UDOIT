@@ -52,7 +52,7 @@ export default function WelcomePage({ t, settings, syncComplete, setWelcomeClose
           { !syncComplete ? (
               <button className="btn btn-disabled flex-row" tabindex="0">
                 <div className="flex-column justify-content-center align-self-center">
-                  <ProgressIcon className="icon-sm gray spinner" />
+                  <ProgressIcon className="icon-sm spinner" />
                 </div>
                 <div className="flex-column justify-content-center ms-3">
                   {t('welcome.button.scanning')}

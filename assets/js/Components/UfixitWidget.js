@@ -151,7 +151,7 @@ export default function UfixitWidget({
               <div className="flex-column justify-content-center allow-word-break">
                 <h2 className="mt-0 mb-0 primary-text">{activeIssue.formLabel}</h2>
               </div>
-              <div className="flex-column justify-content-start ml-3">
+              {/* <div className="flex-column justify-content-start ml-3">
                 {
                   activeIssue.status === settings.FILTER.ACTIVE ? (
                     <SeverityIcon type={severity} alt="" className="icon-lg"/>
@@ -161,48 +161,55 @@ export default function UfixitWidget({
                     <ResolvedIcon alt="" className="color-success icon-lg"/>
                   ) : ''
                 }
-              </div>
+              </div> */}
             </div>
-            <div className="ufixit-learn-container flex-shrink-0 mb-2" aria-hidden={!viewInfo ? "true" : "false"} 
-              dangerouslySetInnerHTML={{__html: formSummary}}
-            />
+            <div className="ufixit-widget-label">Barrier Information</div>
+            <div className="ufixit-callout-container flex-shrink-0 mb-2" aria-hidden={!viewInfo ? "true" : "false"} >
+              <div className="ufixit-instructions" 
+                dangerouslySetInnerHTML={{__html: formSummary}}
+              />
             { showClarification && (<FormClarification t={t} activeIssue={activeIssue} />)}
+            </div>
             { showLearnMore && ( <div className="flex-row justify-content-end mb-3">
-              <button className="btn btn-link btn-small btn-icon-left" onClick={() => setShowLongDesc(true)}>
+              <button className="btn btn-primary btn-small btn-icon-left" onClick={() => setShowLongDesc(true)}>
                 <InfoIcon className="icon-md" />
                 <div>{t('fix.button.learn_more')}</div>
               </button>
             </div> )}
             
             { activeIssue.status !== settings.FILTER.RESOLVED ? (
-              <div className="flex-column flex-grow-1 justify-content-between ufixit-form-content">
-                <div>
-                  { activeIssue.contentType === settings.FILTER.FILE_OBJECT ? (
-                    <FileForm
-                      t={t}
-                      settings={settings}
-                      activeFile={activeIssue}
-                      handleFileUpload={handleFileUpload} /> )
-                    : (
-                    <UfixitForm
-                      t={t}
-                      settings={settings}
-                      isDisabled={!isErrorFoundInContent}
-                      activeIssue={tempActiveIssue.issueData}
-                      handleIssueSave={handleIssueSave}
-                      addMessage={addMessage}
-                      handleActiveIssue={handleActiveIssue} /> )
-                  }
-                </div>
-                <FixIssuesResolve
-                  t={t}
-                  settings={settings}
-                  activeIssue={activeIssue}
-                  isDisabled={!isErrorFoundInContent}
-                  handleFileResolve={handleFileResolve}
-                  handleIssueResolve={handleIssueResolve}
-                />
-              </div>
+              <>
+                <div className="ufixit-widget-label">How to Repair this Barrier</div>
+                <div className="flex-column flex-grow-1 justify-content-between ufixit-form-content">
+                  <div className="ufixit-callout-container">
+                    { activeIssue.contentType === settings.FILTER.FILE_OBJECT ? (
+                      <FileForm
+                        t={t}
+                        settings={settings}
+                        activeFile={activeIssue}
+                        handleFileUpload={handleFileUpload} /> )
+                      : (
+                      <UfixitForm
+                        t={t}
+                        settings={settings}
+                        isDisabled={!isErrorFoundInContent}
+                        activeIssue={tempActiveIssue.issueData}
+                        handleIssueSave={handleIssueSave}
+                        addMessage={addMessage}
+                        handleActiveIssue={handleActiveIssue} /> )
+                    }
+                  </div>
+                  </div>
+                  <FixIssuesResolve
+                    t={t}
+                    settings={settings}
+                    activeIssue={activeIssue}
+                    isDisabled={!isErrorFoundInContent}
+                    handleFileResolve={handleFileResolve}
+                    handleIssueResolve={handleIssueResolve}
+                  />
+                
+              </>
             ) : (
               <FixIssuesResolve
                 t={t}

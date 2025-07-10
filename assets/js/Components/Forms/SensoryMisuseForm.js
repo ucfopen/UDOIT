@@ -80,12 +80,12 @@ export default function SensoryMisuseForm({
     }
 
     const traverseNode = (node) => {
-      if (node.nodeType === Node.TEXT_NODE) {
+      if (node?.nodeType === Node.TEXT_NODE) {
         // Check if the text node contains any sensory words
         checkText(node.textContent);
       }
 
-      if (node.nodeType === Node.ELEMENT_NODE) {
+      if (node?.nodeType === Node.ELEMENT_NODE) {
         // If the element is excluded, skip it
         if (excludedTags.includes(node.tagName.toLowerCase())) {
           return
@@ -93,13 +93,13 @@ export default function SensoryMisuseForm({
 
         // Check attributes for sensory words
         includedAttributes.forEach(attr => {
-          if (node.hasAttribute(attr)) {
+          if (node?.hasAttribute(attr)) {
             checkText(node.getAttribute(attr));
           }
         })
 
         // Recursively traverse child nodes
-        node.childNodes.forEach(child => traverseNode(child));
+        node?.childNodes?.forEach(child => traverseNode(child));
       }
     }
 

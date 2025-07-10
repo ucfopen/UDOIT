@@ -532,7 +532,7 @@ button {
   font-family: var(--heading-font-family);
   text-transform: uppercase;
   padding: .5rem 1rem;
-  border-radius: .8rem;
+  border-radius: 8px;
   cursor: pointer;
   box-sizing: border-box;
   border: 2px solid transparent;
@@ -574,14 +574,23 @@ button {
 }
 
 .btn-link {
-  border-color: var(--link-color);
+  border-color: transparent;
   background-color: transparent;
   color: var(--link-color);
   fill: var(--link-color);
   
+
+  &.btn-icon-left {
+    padding-left: 0;
+  }
+
+  &.btn-icon-right {
+    padding-right: 0;
+  }
+
   &:hover,
   &:focus {
-    background-color: var(--link-color-light);
+    text-decoration: underline;
   }
 }
 
@@ -594,8 +603,8 @@ button {
 button.disabled,
 .btn-disabled,
 button:disabled {
-  color: var(--gray);
-  fill: var(--gray);
+  color: var(--gray-dark);
+  fill: var(--gray-dark);
   border-color: var(--gray-light);
   background-color: var(--gray-light);
   cursor: not-allowed !important;
@@ -603,8 +612,8 @@ button:disabled {
   &:hover,
   &:focus {
     outline-color: 2px solid var(--gray);
-    color: var(--gray);
-    fill: var(--gray);
+    color: var(--gray-dark);
+    fill: var(--gray-dark);
     border-color: var(--gray-light);
     background-color: var(--gray-light);
     filter: none;

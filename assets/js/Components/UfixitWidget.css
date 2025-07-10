@@ -1,21 +1,39 @@
 .ufixit-widget {
   height: 50%;
-  background-color: var(--background-color);
-  border: 1px solid var(--border-color);
-  border-radius: 8px;
-  padding: 1rem 1rem .5rem 1rem;
+  padding: .5rem;
   overflow-y: auto;
 }
 
-.ufixit-widget-header {
+/* .ufixit-widget-header {
   border-bottom: 2px solid var(--primary-color);
+} */
+
+.ufixit-widget-label {
+  font-size: .9rem;
+  font-weight: 600;
+  color: var(--text-color);
+  margin-bottom: .25rem;
+  text-transform: uppercase;
+}
+
+.ufixit-callout-container {
+  background-color: #efefef;
+  padding: .75rem 1rem;
+  border-radius: 8px;
+}
+
+.ufixit-instructions {
+  font-size: .9rem;
+  font-weight: 500;
 }
 
 .clarification-container {
-  border: 1px solid var(--border-color);
-  border-radius: 8px;
-  padding: .5rem;
-  background-color: var(--white);
+  /* border: 1px solid var(--border-color);
+  border-radius: 8px; */
+  padding-top: .5rem;
+  border-top: 2px solid var(--gray-light);
+  margin-top: .5rem;
+  /* background-color: var(--white); */
 
   .clarification-text {
     font-weight: 400;

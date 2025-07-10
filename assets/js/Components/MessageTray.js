@@ -57,6 +57,7 @@ export default function MessageTray ({ messages, hasNewReport, clearMessages, t 
     'info': <InfoIcon className="icon-lg link-color" alt="" />,
     'error': <SeverityIssueIcon className="icon-lg color-issue" alt="" />,
     'alert': <SeverityPotentialIcon className="icon-lg color-potential" alt="" />,
+    'progress': <ProgressIcon className="icon-lg udoit-suggestion spinner" alt="" />
   }
 
   return (
@@ -69,16 +70,6 @@ export default function MessageTray ({ messages, hasNewReport, clearMessages, t 
       onMouseLeave={resumeTimer}
       >
       <div className={`messageTray flex-column ${messages[0]?.severity}`}>
-        {!hasNewReport && (
-          <div className='messageTrayItem flex-row gap-2'>
-            <div className="flex-column justify-content-center">
-              <ProgressIcon className="icon-lg udoit-suggestion spinner" alt=""/>
-            </div>
-            <div className="flex-column justify-content-center">
-              {t('msg.content_loading')}
-            </div>
-          </div>
-        )}
         {messages.map((msg, i) => (
           <div className='messageTrayItem flex-row gap-2' key={`msg${i}`}>
             <div className="flex-column justify-content-start">

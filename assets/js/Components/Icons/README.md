@@ -54,7 +54,7 @@ To make a progress animation or other icon spin, give it the `spinner` class. Fo
 ```
 <button className="btn btn-disabled flex-row">
   <div className="flex-column justify-content-center">
-    <ProgressIcon className="icon-sm gray spinner" />
+    <ProgressIcon className="icon-sm spinner" />
   </div>
   <div className="flex-column justify-content-center ms-3">
     Scanning Course... Please Wait

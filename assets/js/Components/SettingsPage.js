@@ -75,7 +75,7 @@ export default function SettingsPage({
           { !syncComplete ? (
             <button className="btn btn-disabled mt-2 flex-row" tabindex="-1">
               <div className="flex-column justify-content-center align-self-center">
-                <ProgressIcon className="icon-sm gray spinner" />
+                <ProgressIcon className="icon-sm spinner" />
               </div>
               <div className="flex-column justify-content-center ms-3">
                 {t('welcome.button.scanning')}
