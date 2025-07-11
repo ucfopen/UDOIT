@@ -3,7 +3,6 @@ import express from 'express';
 import type { Report } from "./engine-types/v4/api/IReport";
 import { Request, Response, NextFunction } from 'express';
 import { aceCheck, initializePagePool, closePagePool } from './aceChecker';
-import bodyParser from 'body-parser';
 import * as puppeteer from 'puppeteer';
 
 const app = express();
@@ -13,7 +12,6 @@ const PORT = process.env.PORT || 3000;
 const DEFAULT_ID = 'WCAG_2_1';
 const DEFAULT_REPORT_LEVELS = ['violation', 'potentialviolation', 'manual'];
 
-app.use(bodyParser.json());
 
 let browser: puppeteer.Browser;
 
@@ -42,30 +40,20 @@ app.post(
   "/scan",
   asyncHandler(async (req, res) => {
     try {
-      console.log("🔍  /scan route called");
-      const html: string = req.body.html;
-      const guidelineIds: string | string[] =
-        req.body.guidelineIds || DEFAULT_ID;
-      const reportLevels: string | string[] =
-        req.body.reportLevels || DEFAULT_REPORT_LEVELS;
+      const html: string                    = req.body.html;
+      const guidelineIds: string | string[] = req.body.guidelineIds || DEFAULT_ID;
+      const reportLevels: string | string[] = req.body.reportLevels || DEFAULT_REPORT_LEVELS;
 
-      // Modified to match Lambda output format
-      const report: Report = await aceCheck(
-        html,
-        browser,
-        guidelineIds,
-        reportLevels
-      );
-        // Modified to match Lambda output format
-        res.status(200).json(report);
-      } catch (err: any) {
-        console.error("❌  /scan route error:", err);
-        // console.log("req.body:", req.body);
-        // console.log("res:", res);
-        res.status(500).json({ error: err.message ?? "Unknown error" });
-      }
-    })
-  );
+      const report: Report = await aceCheck(html, browser, guidelineIds, reportLevels);
+
+      res.status(200).json(report);
+
+    } catch (err: any) {
+      console.error("❌  /scan route error:", err);
+      res.status(500).json({ error: err.message ?? "Unknown error" });
+    }
+  })
+);
 
 
 app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {
@@ -82,7 +70,9 @@ const ASYNC_POOL_SIZE = parseInt(process.env.ASYNC_POOL_SIZE || '5', 10);
     });
     await initializePagePool(browser, ASYNC_POOL_SIZE);
     app.listen(PORT, () => {
+      console.log(`🚀  Server listening on port ${PORT}`);
     });
+
   } catch (err) {
     console.error("Error launching Puppeteer:", err);
     process.exit(1);

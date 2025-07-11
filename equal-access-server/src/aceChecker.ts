@@ -95,6 +95,8 @@ export async function closePagePool(): Promise<void> {
 //     - potentialrecommendation
 //     - manual
 //     - pass
+
+const SCAN_TIMEOUT_MS = parseInt(process.env.SCAN_TIMEOUT_MS ?? '10000', 10); // 10 s
 export async function aceCheck(html: string, browser: puppeteer.Browser, guidelineIds?: string | string[], reportLevels?: string | string[]): Promise<Report> {
 
   if (!pagePool) {
@@ -102,32 +104,18 @@ export async function aceCheck(html: string, browser: puppeteer.Browser, guideli
   }
 
   const { page, hasScript } = await pagePool.getPage();
-
-  let scriptAdded = false;
+  let scriptAdded = hasScript; // track whether the ACE engine script has been injected
 
   try {
     try {
-      console.log(`Setting content (${html.length} chars)...`);
-      await page.setContent(html, { waitUntil: 'domcontentloaded' });
+      await page.setContent(html, { waitUntil: 'domcontentloaded', timeout: SCAN_TIMEOUT_MS });
+
     } catch (err: any) {
-      // Surface which piece of HTML caused the setContent timeout
       console.error('⚠️  aceCheck.setContent TIMED OUT');
-      console.error(`HTML length: ${html.length} chars`);
-
-      // Dump the full HTML in manageable chunks so we don’t blow up the terminal buffer
-      const CHUNK_SIZE = 1000;
-      console.error('────────── HTML START ──────────');
-      // for (let pos = 0; pos < html.length; pos += CHUNK_SIZE) {
-      //   console.error(html.slice(pos, pos + CHUNK_SIZE));
-      // }
-      console.error('────────── HTML END ────────────');
-
-      // Re‑throw so the caller still sees the TimeoutError
       throw err;
     }
 
-
-    let scriptAdded = hasScript;
+    scriptAdded = hasScript;
     if (!hasScript) {
 
       await page.addScriptTag({
