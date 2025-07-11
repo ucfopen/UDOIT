@@ -32,3 +32,8 @@ rebuild:
 	$(MAKE) down
 	docker compose -f docker-compose.nginx.yml build --no-cache
 	$(MAKE) start
+
+
+# show supervisorctl status from inside the php container
+supervisor:
+	docker exec -it udoit3-php supervisorctl status

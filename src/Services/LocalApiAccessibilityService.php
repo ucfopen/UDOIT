@@ -151,8 +151,6 @@ class LocalApiAccessibilityService {
                 "guidelineIds" => "WCAG_2_1"
             ]);
 
-            $output->writeln("Posting to {$url} with payload length " . strlen($jsonPayload) . " chars");
-
             // Use cURL for the POST request
             $ch = curl_init($url);
 
