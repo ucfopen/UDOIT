@@ -15,7 +15,6 @@ import QuoteForm from '../Components/Forms/QuoteForm'
 import SensoryMisuseForm from '../Components/Forms/SensoryMisuseForm'
 import TableCaptionForm from '../Components/Forms/TableCaptionForm'
 import TableHeadersForm from '../Components/Forms/TableHeadersForm'
-
 import UfixitReviewOnly from '../Components/Forms/UfixitReviewOnly'
 
 // These form names strictly match the translation keys in the language files (e.g. en.json).

@@ -92,7 +92,7 @@ export default function HeadingStyleForm ({
         name="heading-select"
         className="w-100 mt-2"
         value={selectedValue}
-        tabindex="0"
+        tabIndex="0"
         onChange={(e) => handleSelect(e.target.value)}
         disabled={isDisabled}>
           <option key='empty' id='opt-empty' value=''>
@@ -109,7 +109,7 @@ export default function HeadingStyleForm ({
           id="removeStylingCheckbox"
           name="removeStylingCheckbox"
           checked={removeStyling}
-          tabindex="0"
+          tabIndex="0"
           disabled={isDisabled}
           onChange={handleCheckbox} />
         <label htmlFor="removeStylingCheckbox" className="instructions">{t('form.heading_style.label.remove_styling')}</label>

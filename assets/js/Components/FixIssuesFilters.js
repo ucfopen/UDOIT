@@ -89,7 +89,7 @@ export default function FixIssuesFilters({ t, settings, sections, activeFilters,
             <input
               id="search-bar"
               name="search-bar"
-              tabindex="0"
+              tabIndex="0"
               aria-label={t('filter.label.search')}
               value={searchTerm}
               type="text"
@@ -126,7 +126,7 @@ export default function FixIssuesFilters({ t, settings, sections, activeFilters,
         <div className="flex-column flex-shrink-0 ms-3 justify-content-center">
           <button
             className="btn-small btn-secondary btn-icon-left"
-            tabindex="0"
+            tabIndex="0"
             onClick={() => setShowFilters(!showFilters)}
           >
             { showFilters ? (
@@ -151,12 +151,13 @@ export default function FixIssuesFilters({ t, settings, sections, activeFilters,
                 <select
                   id={'filter' + filterType}
                   name={'filter' + filterType}
-                  tabindex="0"
+                  tabIndex="0"
+                  defaultValue={activeFilters[filterType]}
                   onChange={(e) => updateActiveFilters(filterType, e.target.value)}
                 >
                   {Object.keys(usedFilters[filterType]).map((filter) => {
                     return (
-                      <option value={filter} selected={activeFilters[filterType] === filter}>
+                      <option key={filter} value={filter} selected={activeFilters[filterType] === filter}>
                         {filterType === FILTER.TYPE.CONTENT_TYPE && (
                           <ContentTypeIcon type={filter} alt="" className="icon-sm text-color" />
                         )}

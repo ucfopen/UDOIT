@@ -139,8 +139,6 @@ export default function App(initialData) {
     }
     if (data.data && data.data.id) {
       newReport = data.data
-      console.log("FULL REPORT FROM API")
-      console.log(newReport)
       newHasNewReport = true
     }
     setSyncComplete(true)
@@ -260,7 +258,7 @@ export default function App(initialData) {
   useEffect(() => {
     document.addEventListener('visibilitychange', function() {
       if(document.hidden) {
-        console.log("UDOIT IS HIDDEN!")
+        console.warn("UDOIT has lost focus. Course content may be changed.")
       }
       else {
         // There is probably a case for checking the page you're currently editing to make sure that there weren't any changes in the LMS.

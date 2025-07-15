@@ -29,7 +29,7 @@ export default function Header({
                   handleNavigation('summary')
                 }
               }}
-              tabindex='0'>
+              tabIndex='0'>
               <div className='flex-column justify-content-center'>
                 <HomeIcon className='icon-md pr-1'/>
               </div>
@@ -44,7 +44,7 @@ export default function Header({
                   handleNavigation('fixIssues')
                 }
               }}
-              tabindex='0'>
+              tabIndex='0'>
               <div className='flex-column justify-content-center'>
                 <UFIXITIcon className='icon-md pr-1'/> 
               </div>
@@ -60,7 +60,7 @@ export default function Header({
                   handleNavigation('reports')
                 }
               }}
-              tabindex='0'>
+              tabIndex='0'>
               <div className='flex-column justify-content-center'>
                 <ReportIcon className='icon-md pr-1'/>
               </div>
@@ -76,7 +76,7 @@ export default function Header({
                   handleNavigation('settings')
                 }
               }}
-              tabindex='0'>
+              tabIndex='0'>
               <div className='flex-column justify-content-center'>
                 <SettingsIcon className='icon-md pr-1'/>
               </div>

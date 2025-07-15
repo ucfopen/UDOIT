@@ -97,7 +97,7 @@ export default function EmbeddedContentTitleForm({
           name="labelInputValue"
           className="w-100"
           value={textInputValue}
-          tabindex="0"
+          tabIndex="0"
           disabled={isDisabled}
           onChange={handleInput} />
       </div>

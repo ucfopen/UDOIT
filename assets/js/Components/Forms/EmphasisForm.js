@@ -116,7 +116,7 @@ export default function EmphasisForm({
           id="boldCheckbox"
           name="boldCheckbox"
           checked={useBold}
-          tabindex="0"
+          tabIndex="0"
           disabled={isDisabled}
           onChange={handleBoldToggle} />
         <label htmlFor="boldCheckbox">{t('form.emphasis.label.bold')}</label>
@@ -126,7 +126,7 @@ export default function EmphasisForm({
           id="italicCheckbox"
           name="italicCheckbox"
           checked={useItalics}
-          tabindex="0"
+          tabIndex="0"
           disabled={isDisabled}
           onChange={handleItalicsToggle} />
         <label htmlFor="italicCheckbox">{t('form.emphasis.label.italic')}</label>
@@ -137,7 +137,7 @@ export default function EmphasisForm({
           id="removeColorCheckbox"
           name="removeColorCheckbox"
           checked={removeColor}
-          tabindex="0"
+          tabIndex="0"
           disabled={isDisabled}
           onChange={handleRemoveColorToggle} />
         <label className="instructions" htmlFor="removeColorCheckbox">{t('form.emphasis.label.remove_color')}</label>

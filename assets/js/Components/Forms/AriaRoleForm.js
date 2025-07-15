@@ -216,7 +216,7 @@ export default function AriaRoleForm({
             className="w-100 mt-2"
             value={selectValue}
             onChange={(e) => handleSelect(e.target.value)}
-            tabindex="0"
+            tabIndex="0"
             disabled={isDisabled || deleteRole}>
             <option key='empty' id='opt-empty' value=''>
               {t('form.aria_role.label.none_selected')}
@@ -234,7 +234,7 @@ export default function AriaRoleForm({
         <input type="checkbox"
           id="deleteRoleCheckbox"
           name="deleteRoleCheckbox"
-          tabindex="0"
+          tabIndex="0"
           disabled={isDisabled}
           checked={deleteRole}
           onChange={handleCheckbox} />

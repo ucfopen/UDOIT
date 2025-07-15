@@ -141,6 +141,8 @@ export default function ReportsPage({t, report, settings, quickSearchTerm}) {
     const printWindow = window.open()
     const reportsTableRaw = getPrintableReportsTable(reports, t)
     const issuesTableRaw = getPrintableIssuesTable(issues, t)
+    const canvas = document.getElementById('resolutionsChart')
+    const dataUrl = canvas ? canvas.toDataURL('image/png') : ''
     const content = `
       <html>
         <head>
@@ -177,7 +179,8 @@ export default function ReportsPage({t, report, settings, quickSearchTerm}) {
         <body>
           <h2>${t('report.label.printed_report')}</h2>
           <div id="printResolutionsReport">
-            ${document.querySelector('.ResolutionsReport')?.innerHTML || ''}
+            <img src="${dataUrl}" alt="${t('report.label.resolutions_chart')}" style="max-width: 100%; height: auto; margin-bottom: 20px;" />
+            
           </div>
           <div id="issuesTable">
             ${issuesTableRaw}
@@ -256,7 +259,7 @@ export default function ReportsPage({t, report, settings, quickSearchTerm}) {
                     type="checkbox"
                     id="issuesToggle"
                     name="issuesToggle"
-                    tabindex="0"
+                    tabIndex="0"
                     checked={chartVisibility.issues}
                     onChange={() => toggleChartVisibility('issues')}
                   />
@@ -267,7 +270,7 @@ export default function ReportsPage({t, report, settings, quickSearchTerm}) {
                     type="checkbox"
                     id="potentialIssuesToggle"
                     name="potentialIssuesToggle"
-                    tabindex="0"
+                    tabIndex="0"
                     checked={chartVisibility.potentialIssues}
                     onChange={() => toggleChartVisibility('potentialIssues')}
                   />
@@ -278,7 +281,7 @@ export default function ReportsPage({t, report, settings, quickSearchTerm}) {
                     type="checkbox"
                     id="suggestionsToggle"
                     name="suggestionsToggle"
-                    tabindex="0"
+                    tabIndex="0"
                     checked={chartVisibility.suggestions}
                     onChange={() => toggleChartVisibility('suggestions')}
                   />

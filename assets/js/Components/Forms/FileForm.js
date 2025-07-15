@@ -121,7 +121,7 @@ export default function FileForm ({
         onDragOver={handleDragOver}
         onClick={handleFileSelect}
         onKeyDown={handleKeyPress}
-        tabindex="0">
+        tabIndex="0">
         
         <div className="flex-column flex-center me-3 flex-shrink-0">
           <UploadIcon className="icon-lg" />

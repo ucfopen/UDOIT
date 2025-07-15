@@ -80,7 +80,7 @@ export default function FormFeedback({
            className="btn btn-secondary"
            target="_blank"
            rel="noopener noreferrer"
-           tabindex="0">
+           tabIndex="0">
           {t('fix.button.lms_solve')}
         </a>
       )}
@@ -89,7 +89,7 @@ export default function FormFeedback({
           <button
             className="btn-primary btn-icon-left"
             disabled={isDisabled || hasErrors}
-            tabindex="0"
+            tabIndex="0"
             onClick={handleSubmit}>
               <CheckIcon className="icon-md" />
             {t('form.submit')}

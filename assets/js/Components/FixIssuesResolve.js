@@ -43,12 +43,12 @@ export default function FixIssuesResolve({
             ? (<button className="btn-primary align-self-start"
                 onClick={() => handleClick()}
                 disabled={isDisabled || isSaving}
-                tabindex="0">{t(`fix.button.unresolved`)}
+                tabIndex="0">{t(`fix.button.unresolved`)}
               </button>)
             : (<button className="btn-icon-left btn-primary align-self-start"
                 onClick={() => handleClick()}
                 disabled={isDisabled || isSaving}
-                tabindex="0">
+                tabIndex="0">
                 <ResolvedIcon className="icon-md" />{t(`fix.button.resolved`)}
               </button>)
           }

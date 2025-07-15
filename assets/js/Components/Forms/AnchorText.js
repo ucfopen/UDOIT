@@ -136,7 +136,7 @@ export default function AnchorText({
       {linkUrl !== '' && (
         <div className="clarification-container flex-row gap-1 mb-3">
           <div className="instructions">Link:</div>
-          <a href={linkUrl} target="_blank" rel="noopener noreferrer" tabindex="0" style={{wordBreak: 'break-all'}}>
+          <a href={linkUrl} target="_blank" rel="noopener noreferrer" tabIndex="0" style={{wordBreak: 'break-all'}}>
             {linkUrl}
           </a>
         </div>
@@ -149,7 +149,7 @@ export default function AnchorText({
         type="text"
         value={textInputValue}
         onChange={handleInput}
-        tabindex="0"
+        tabIndex="0"
         disabled={isDisabled || deleteLink} />
       <div className="separator mt-2">{t('fix.label.or')}</div>
       <div className="flex-row gap-1 mt-2">
@@ -158,7 +158,7 @@ export default function AnchorText({
           name="deleteLinkCheckbox"
           id="deleteLinkCheckbox"
           checked={deleteLink}
-          tabindex="0"
+          tabIndex="0"
           disabled={isDisabled}
           onChange={handleDeleteCheckbox} />
         <label for="deleteLinkCheckbox" className="instructions">{t('form.anchor.delete_link')}</label>

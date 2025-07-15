@@ -6,7 +6,6 @@ import { formFromIssue, formNameFromRule, formNames } from '../Services/Ufixit'
 import * as Html from '../Services/Html'
 import UpArrowIcon from './Icons/UpArrowIcon'
 import DownArrowIcon from './Icons/DownArrowIcon'
-import useInViewPort from './Hooks/useInViewPort'
 import './FixIssuesContentPreview.css'
 import InfoIcon from './Icons/InfoIcon'
 
@@ -25,9 +24,11 @@ export default function FixIssuesContentPreview({
   const [taggedContent, setTaggedContent] = useState(null)
   const [canShowPreview, setCanShowPreview] = useState(false)
 
-  const [issueElementDefaultRect, setIssueElementDefaultRect] = useState(null)
   const issueElementRef = useRef(null)
-  const issueElementVisible = useInViewPort(issueElementRef, { threshold: 0.5 })
+  const [issueElementDefaultRect, setIssueElementDefaultRect] = useState(null)
+  const issueViewportRef = useRef(null)
+  const [isIssueElementVisible, setIsIssueElementVisible] = useState(false)
+  const issueElementVisible = false // useInViewPort(issueElementRef, { threshold: 0.5 })
 
   const [isInitialLoad, setIsInitialLoad] = useState(true)
   const [debouncedVisible, setDebouncedVisible] = useState(true)
@@ -63,6 +64,18 @@ export default function FixIssuesContentPreview({
     return () => clearTimeout(timer)
   }, [issueElementVisible, issueElementRef.current, issueElementDefaultRect])
 
+  const checkScrollButton = () => {
+    console.log('Checking scroll button visibility and direction...')
+    if (!issueElementRef.current || !issueViewportRef.current) return
+
+    const isVisible = issueElementVisible
+    const direction = getScrollDirection(issueElementRef.current, issueElementDefaultRect)
+
+    if (isVisible && direction) {
+      setDebouncedVisible(true)
+      setDebouncedDirection(direction)
+    }
+  }
 
   const getScrollDirection = (element, defaultRect) => {
     if (!element || !defaultRect || !issueElementRef || issueElementVisible) return null
@@ -248,6 +261,11 @@ export default function FixIssuesContentPreview({
     const element = document.getElementsByClassName('ufixit-error-highlight')[0]
     if (element) {
       element.scrollIntoView({ behavior: 'instant', block: 'center' })
+      issueElementRef.current = element
+    }
+    else {
+      issueElementRef.current = null
+      setIsErrorFoundInContent(false)
     }
     addPreviewHelperElements()
   }, [taggedContent])
@@ -456,12 +474,17 @@ export default function FixIssuesContentPreview({
                       <>
                         <div
                           className="ufixit-content-preview-main"
-                          ref={node => {
-                            if (node) {
-                              const highlightElement = node.getElementsByClassName('ufixit-error-highlight')[0]
-                              issueElementRef.current = highlightElement
-                            }
-                          }} dangerouslySetInnerHTML={{__html: taggedContent}} />
+                          ref={issueViewportRef}
+                          // ref={node => {
+                          //   if (node) {
+                          //     const highlightElement = node.getElementsByClassName('ufixit-error-highlight')[0]
+                          //     issueElementRef.current = highlightElement
+                          //   }
+                          // }}
+                          onScroll={() => {
+                            checkScrollButton()
+                          }}
+                          dangerouslySetInnerHTML={{__html: taggedContent}} />
                         {isErrorFoundInContent && renderScrollButton()}
                       </>
                     ) : (

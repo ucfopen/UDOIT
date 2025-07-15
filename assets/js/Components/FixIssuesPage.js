@@ -1164,7 +1164,7 @@ export default function FixIssuesPage({
               <button
                 className={`btn btn-small btn-link btn-icon-left ${filteredIssues.length < 2 ? 'disabled' : ''}`}
                 onClick={() => nextIssue(true)}
-                tabindex="0">
+                tabIndex="0">
                 <LeftArrowIcon className={`icon-sm ` + (filteredIssues.length < 2 ? 'gray' : 'link-color')} />
                 <div className="flex-column justify-content-center">{t('fix.button.previous')}</div>
               </button>
@@ -1172,7 +1172,7 @@ export default function FixIssuesPage({
               <button
                 className={`btn btn-small btn-link btn-icon-right ${filteredIssues.length < 2 ? 'disabled' : ''}`}
                 onClick={() => nextIssue()}
-                tabindex="0">
+                tabIndex="0">
                 <div className="flex-column justify-content-center">{t('fix.button.next')}</div>
                 <RightArrowIcon className={`icon-sm ` + (filteredIssues.length < 2 ? 'gray' : 'link-color')} />
               </button>

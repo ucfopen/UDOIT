@@ -1,24 +1,13 @@
-import React, { useState, useEffect } from 'react';
-import SeverityIcon from './Icons/SeverityIcon';
-import FixedIcon from './Icons/FixedIcon';
-import ResolvedIcon from './Icons/ResolvedIcon';
-import LeftArrowIcon from './Icons/LeftArrowIcon'
+import React, { useState, useEffect } from 'react'
 import CloseIcon from './Icons/CloseIcon'
-import ListIcon from './Icons/ListIcon'
-import RightArrowIcon from './Icons/RightArrowIcon'
-import ProgressIcon from './Icons/ProgressIcon'
-import InfoIcon from './Icons/InfoIcon'
 import DisabilityCognitiveIcon from './Icons/DisabilityCognitiveIcon'
 import DisabilityHearingIcon from './Icons/DisabilityHearingIcon'
 import DisabilityMotorIcon from './Icons/DisabilityMotorIcon'
 import DisabilityVisualIcon from './Icons/DisabilityVisualIcon'
 import FixIssuesResolve from './FixIssuesResolve'
-import ReactHtmlParser from 'react-html-parser'
-import FormClarification from './Forms/FormClarification';
+import FormClarification from './Forms/FormClarification'
 import FileForm from './Forms/FileForm'
 import { disabilityTypes, disabilitiesFromRule, formFromIssue, formNameFromRule } from '../Services/Ufixit'
-import Api from '../Services/Api'
-import * as Html from '../Services/Html'
 import './UfixitWidget.css'
 
 
@@ -154,7 +143,7 @@ export default function UfixitWidget({
     <>
       {UfixitForm && activeIssue ? 
         (
-          <div class="ufixit-widget flex-column flex-grow-1">
+          <div className="ufixit-widget flex-column flex-grow-1">
             {/* The header with the issue name and severity icon */}
             <div className="ufixit-widget-header flex-row justify-content-between mb-3 pb-1">
               <div className="flex-column justify-content-center allow-word-break">
@@ -172,7 +161,7 @@ export default function UfixitWidget({
                 }
               </div> */}
             </div>
-            <div class="flex-row justify-content-between mb-2">
+            <div className="flex-row justify-content-between mb-2">
               <div className="ufixit-widget-label flex-grow-1">{t('fix.label.barrier_information')}</div>
               
             </div>

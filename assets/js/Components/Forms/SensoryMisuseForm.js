@@ -219,7 +219,7 @@ export default function SensoryMisuseForm({
             {sensoryErrors.map((word) => (
               <button
                 className="tag"
-                tabindex="0"
+                tabIndex="0"
                 key={word}
                 onClick={() => goToWord(word)}
               >

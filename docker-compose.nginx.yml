@@ -59,7 +59,7 @@ services:
         - .env
   yarn:
       container_name: udoit3-yarn
-      image: node:16
+      image: node:20
       volumes:
         - ./:/app
       env_file:
@@ -68,7 +68,7 @@ services:
         bash -c '
         cd /app &&
         yarn install &&
-        yarn build --watch'
+        yarn watch'
   ace:
       # platform: linux/amd64
       container_name: udoit3-ace
