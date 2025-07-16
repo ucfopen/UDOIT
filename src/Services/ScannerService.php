@@ -77,11 +77,10 @@ class ScannerService {
                     // dump the raw JSON so we can inspect the failure
                     $printOutput->writeln(json_encode($json, JSON_PRETTY_PRINT));
                     $printOutput->writeln(str_repeat('═', 80));
-
-                } else {
-                    $equalAccess = new EqualAccessService();
-                    $report = $equalAccess->generateReport($json);
                 }
+
+                $equalAccess = new EqualAccessService();
+                $report = $equalAccess->generateReport($json);
 
             }
             else if ($scanner == 'equalaccess_lambda') {

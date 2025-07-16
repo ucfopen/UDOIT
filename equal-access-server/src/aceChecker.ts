@@ -88,6 +88,8 @@ export async function closePagePool(): Promise<void> {
   }
 }
 
+const SCAN_TIMEOUT_MS = parseInt(process.env.SCAN_TIMEOUT_MS ?? '10000', 10); // 10 s
+
 // reportLevels can be:
 //     - violation
 //     - potentialviolation
@@ -95,8 +97,6 @@ export async function closePagePool(): Promise<void> {
 //     - potentialrecommendation
 //     - manual
 //     - pass
-
-const SCAN_TIMEOUT_MS = parseInt(process.env.SCAN_TIMEOUT_MS ?? '10000', 10); // 10 s
 export async function aceCheck(html: string, browser: puppeteer.Browser, guidelineIds?: string | string[], reportLevels?: string | string[]): Promise<Report> {
 
   if (!pagePool) {
@@ -104,20 +104,14 @@ export async function aceCheck(html: string, browser: puppeteer.Browser, guideli
   }
 
   const { page, hasScript } = await pagePool.getPage();
-  let scriptAdded = hasScript; // track whether the ACE engine script has been injected
+
+  let scriptAdded = false;
 
   try {
-    try {
-      await page.setContent(html, { waitUntil: 'domcontentloaded', timeout: SCAN_TIMEOUT_MS });
+    await page.setContent(html, { waitUntil: 'domcontentloaded', timeout: SCAN_TIMEOUT_MS });
 
-    } catch (err: any) {
-      console.error('⚠️  aceCheck.setContent TIMED OUT');
-      throw err;
-    }
-
-    scriptAdded = hasScript;
+    let scriptAdded = hasScript;
     if (!hasScript) {
-
       await page.addScriptTag({
         path: require.resolve(acePath)
       });
@@ -177,8 +171,6 @@ export async function aceCheck(html: string, browser: puppeteer.Browser, guideli
 export async function runPerformanceTest(browser: puppeteer.Browser, iterations = 5): Promise<void> {
   const sampleHtml = `<!DOCTYPE html><html lang="en"><head><title>Test</title></head><body><h1>Heading</h1><img src="test.jpg" /></body></html>`;
 
-  console.log(`Running ${iterations} iterations with page pooling...`);
-
   if (!pagePool) {
     await initializePagePool(browser, 3);
   }
@@ -192,6 +184,4 @@ export async function runPerformanceTest(browser: puppeteer.Browser, iterations 
     times.push(Date.now() - start);
   }
 
-  console.log(`Average execution time: ${times.reduce((a, b) => a + b, 0) / times.length}ms`);
-  console.log(`Individual times: ${times.join(', ')}ms`);
 }

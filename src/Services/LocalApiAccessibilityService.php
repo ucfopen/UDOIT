@@ -182,24 +182,6 @@ class LocalApiAccessibilityService {
 
             if ($httpCode >= 400) {
                 $output->writeln("❌  HTTP error {$httpCode} while calling {$url}");
-                $output->writeln("Payload length: " . strlen($jsonPayload) . " chars");
-                $output->writeln("postData: First 300 chars of payload:");
-                // $output->writeln(substr($jsonPayload, 0, 300));
-
-                // Print the HTML that caused the request (in manageable chunks)
-                $output->writeln("Offending HTML (chunked):");
-                $chunk = 1000;
-                for ($pos = 0, $len = strlen($html); $pos < $len; $pos += $chunk) {
-                    $output->writeln(substr($html, $pos, $chunk));
-                }
-                // Print the raw server response so we can see what came back
-                $output->writeln("Server response (chunked):");
-                $chunk = 1000;
-                for ($pos = 0, $len = strlen($result); $pos < $len; $pos += $chunk) {
-                    $output->writeln(substr($result, $pos, $chunk));
-                }
-                $output->writeln(str_repeat('═', 60));
-                return null;
             }
 
             return $result;
@@ -221,30 +203,9 @@ class LocalApiAccessibilityService {
         try {
             $json = json_decode($response, true);
 
-            if (isset($json[0]) && is_array($json[0]) && isset($json[0]['results'])) {
-                $json = $json[0];
-            }
-
             if (json_last_error() !== JSON_ERROR_NONE) {
                 $output->writeln("JSON decode error: " . json_last_error_msg());
                 return null;
-            }
-
-            // ─────────────────────────────────────────────────────────
-            // Debug: if Equal Access response has no "results" key,
-            // print a warning so we can trace problem content items.
-            // ─────────────────────────────────────────────────────────
-            if (!$json || !is_array($json) || !isset($json['results'])) {
-                $output->writeln('❌  LocalApiAccessibilityService.checkMany – response contains no "results"');
-                $output->writeln('checkMany: First 300 chars of raw response:');
-                // $output->writeln(substr($response, 0, 300));
-
-                $output->writeln("Full response from LocalApiAccessibilityService.checkMany (chunked):");
-                $maxChunk = 1000; // ConsoleOutput has a length limit per writeln
-                for ($pos = 0, $len = strlen($response); $pos < $len; $pos += $maxChunk) {
-                    $output->writeln(substr($response, $pos, $maxChunk));
-                }
-                $output->writeln(str_repeat('═', 60));
             }
 
             return $json;
