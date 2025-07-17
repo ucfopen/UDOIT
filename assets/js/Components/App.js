@@ -265,6 +265,18 @@ export default function App(initialData) {
         addMessage({message: 'Welcome back to UDOIT! If you have changed any course content, please refresh this page to rescan.', severity: 'info', visible: true})
       }
     })
+
+    const script = document.createElement('script')
+    script.src = '../udoit3/build/static/tinymce/tinymce.min.js'
+    script.async = true
+    document.body.appendChild(script)
+
+    return () => {
+      document.removeEventListener('visibilitychange', () => {})
+      if (script) {
+        document.body.removeChild(script)
+      }
+    }
   }, [])
 
   useEffect(() => {

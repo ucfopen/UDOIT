@@ -112,7 +112,7 @@ export default function LinkForm({
           tabIndex="0"
           disabled={isDisabled}
           onChange={handleDeleteCheckbox} />
-        <label for="deleteLinkCheckbox">{t('form.anchor.delete_link')}</label>
+        <label htmlFor="deleteLinkCheckbox">{t('form.anchor.delete_link')}</label>
       </div>
       <FormFeedback
         t={t}

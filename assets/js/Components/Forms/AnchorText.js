@@ -141,7 +141,7 @@ export default function AnchorText({
           </a>
         </div>
       )}
-      <label for="linkTextInput" className="instructions">{t('form.anchor.link_text')}</label>
+      <label htmlFor="linkTextInput" className="instructions">{t('form.anchor.link_text')}</label>
       <input
         name="linkTextInput"
         id="linkTextInput"
@@ -161,7 +161,7 @@ export default function AnchorText({
           tabIndex="0"
           disabled={isDisabled}
           onChange={handleDeleteCheckbox} />
-        <label for="deleteLinkCheckbox" className="instructions">{t('form.anchor.delete_link')}</label>
+        <label htmlFor="deleteLinkCheckbox" className="instructions">{t('form.anchor.delete_link')}</label>
       </div>
       <FormFeedback
         t={t}

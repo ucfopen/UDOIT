@@ -18,11 +18,8 @@ Encore.setOutputPath('public/build')
   .addPlugin(new CopyWebpackPlugin({
     patterns: [
       { from: './assets/mediaAssets', to: 'static'},
-      {
-        context: './node_modules/tinymce/',
-        from: '**/*.min.{js,css,woff}',
-        to: 'static/tinymce/[path][name].[ext]'
-      }
+      { from: './node_modules/tinymce',
+        to: 'static/tinymce' },
     ]
   }))
 

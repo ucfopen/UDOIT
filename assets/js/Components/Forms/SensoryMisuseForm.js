@@ -2,10 +2,6 @@ import React, { useEffect, useRef, useState } from 'react'
 import FormFeedback from './FormFeedback'
 import * as Html from '../../Services/Html'
 
-import { Editor } from '@tinymce/tinymce-react'
-
-// TODO: verify if theres a better way to "selfhost" and load tinymce
-
 export default function SensoryMisuseForm({
   t, 
   settings, 
@@ -16,6 +12,7 @@ export default function SensoryMisuseForm({
   handleActiveIssue
 }) {
   const [html, setHtml] = useState(Html.getIssueHtml(activeIssue))
+  const [editorHtml, setEditorHtml] = useState(Html.getIssueHtml(activeIssue))
 
   // equal access checks for these words - we can check for them while in tinymce
   // https://github.com/IBMa/equal-access/blob/83eaa932747d1a1156080c60849ff63029d5e293/accessibility-checker-engine/src/v4/rules/text_sensory_misuse.ts
@@ -46,16 +43,42 @@ export default function SensoryMisuseForm({
   const includedAttributes = ['alt', 'title', 'aria-label']
 
   const editorRef = useRef(null)
-  const [editorHtml, setEditorHtml] = useState(html)
-
+  
   const [sensoryErrors, setSensoryErrors] = useState([])
 
   useEffect(() => {
     // if the issue changes, pull new html and set tinymce's html
-    if (activeIssue) {
-      setHtml(Html.getIssueHtml(activeIssue))
-      setEditorHtml(Html.getIssueHtml(activeIssue))
+    if(!activeIssue) {
+      return
     }
+    
+    let html = Html.getIssueHtml(activeIssue)
+    setHtml(html)
+    setEditorHtml(html)
+
+    tinymce.remove()
+    tinymce.init({
+      selector: '#sensory-misuse-textarea',
+      licenseKey: "gpl",
+      height: 250,
+      menubar: false,
+      plugins: "code",
+      toolbar: "undo redo | bold italic underline | code ",
+      // content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:14px }',
+      branding: false,
+      skin: "oxide",
+      quickbars_insert_toolbar: false,
+      statusbar: true,
+      setup: (editor) => {
+        editor.on('init', () => {
+          editor.setContent(html)
+          editorRef.current = editor
+        })
+        editor.on('input', () => {
+          handleEditorChange(editor.getContent())
+        })
+      }
+    })
   }, [activeIssue])
 
   useEffect(() => {
@@ -190,26 +213,7 @@ export default function SensoryMisuseForm({
   return (
     <>
       <div>
-        <Editor
-          tinymceScriptSrc="/udoit3/build/static/tinymce/tinymce.min.js"
-          licenseKey="gpl"
-          onInit={(evt, editor) => editorRef.current = editor}
-          initialValue={html}
-          onEditorChange={(evt, editor) => {
-            handleEditorChange(editor.getContent())
-          }}
-          init={{
-            height: 250,
-            menubar: false,
-            plugins: "code",
-            toolbar: "undo redo | bold italic underline | code ",
-            // content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:14px }',
-            branding: false,
-            skin: "oxide",
-            quickbars_insert_toolbar: false,
-            statusbar: true
-          }}
-        />
+        <textarea id="sensory-misuse-textarea"></textarea>
       </div>
 
       {sensoryErrors.length > 0 ?
@@ -235,7 +239,8 @@ export default function SensoryMisuseForm({
         settings={settings}
         activeIssue={activeIssue}
         isDisabled={isDisabled}
-        handleSubmit={handleSubmit} />
+        handleSubmit={handleSubmit}
+        formErrors={[]} />
     </>
   )
 }
