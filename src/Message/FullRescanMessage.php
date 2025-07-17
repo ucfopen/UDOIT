@@ -9,6 +9,7 @@ class FullRescanMessage
     private string $lmsId;
     private string $lmsDomain;
     private string $batchId;
+    private bool $force = false;
 
     public function __construct(
         int $courseId,
@@ -16,7 +17,8 @@ class FullRescanMessage
         string $apiKey,
         string $lmsId,
         string $lmsDomain,
-        string $batchId
+        string $batchId,
+        bool $force = false
     ) {
         $this->courseId = $courseId;
         $this->userId = $userId;
@@ -24,6 +26,7 @@ class FullRescanMessage
         $this->lmsId = $lmsId;
         $this->lmsDomain = $lmsDomain;
         $this->batchId = $batchId;
+        $this->force = $force;
     }
 
     public function getApiKey(): string { return $this->apiKey; }
@@ -32,4 +35,5 @@ class FullRescanMessage
     public function getCourseId() { return $this->courseId; }
     public function getUserId() { return $this->userId; }
     public function getBatchId(): string { return $this->batchId; }
+    public function isForce(): bool { return $this->force; }
 }

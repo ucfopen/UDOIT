@@ -125,7 +125,8 @@ class SyncController extends ApiController
                 $user->getApiKey(),
                 $user->getInstitution()->getLmsId(),
                 $user->getInstitution()->getLmsDomain(),
-                $batchId
+                $batchId,
+                true // force rescan
             ));
 
             // 🔑  initial status

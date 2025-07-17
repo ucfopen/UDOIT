@@ -71,7 +71,7 @@ class FullRescanHandler
         // ---------- 4.  Do the work ----------
         try {
             // Refresh LMS data and get only the list of *changed* items
-            $updatedItems = $this->lmsFetch->fullRefreshLmsContent($course, $user, true);
+            $updatedItems = $this->lmsFetch->fullRefreshLmsContent($course, $user, $message->isForce());
 
             // ------------------------------------------------------------------
             // Mark every item as “pending” for this batch so we can reliably
