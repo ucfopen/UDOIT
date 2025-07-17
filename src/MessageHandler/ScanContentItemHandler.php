@@ -79,7 +79,7 @@ final class ScanContentItemHandler
                     }
                 }
                 // Flush once so rows are written before we clear the metadata flag
-                $this->em->flush();
+                // $this->em->flush();
             }
 
             // current success-path code

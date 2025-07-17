@@ -77,6 +77,7 @@ class LmsFetchService {
     {
         try {
             $output = new ConsoleOutput();
+            $output->writeln("Refreshing LMS content. \$force value: " . var_export($force, true));
             $lms = $this->lmsApi->getLms($user);
 
             $this->lmsUser->validateApiKey($user);
@@ -105,8 +106,6 @@ class LmsFetchService {
             $contentItems = $lms->updateCourseContent($course, $user, $force);
             $output->writeln("Found " . count($contentItems) . " updated content items in the LMS.");
 
-            $contentSections = $lms->getCourseSections($course, $user);
-
             /* Step 3: Delete issues for updated content items */
             $this->deleteContentItemIssues($contentItems);
 
@@ -123,15 +122,60 @@ class LmsFetchService {
             $course->setDirty(false);
 
             $this->doctrine->getManager()->flush();
+        }
+        catch (\Exception $e) {
+            throw $e; // Rethrow the exception to be caught by the controller
+        }
+    }
 
+    public function fullRefreshLmsContent(Course $course, User $user, $force = false)
+    {
+        try {
+            $output = new ConsoleOutput();
+            $output->writeln("Refreshing LMS content. \$force value: " . var_export($force, true));
+            $lms = $this->lmsApi->getLms($user);
+
+            $this->lmsUser->validateApiKey($user);
+
+            /** @var \App\Repository\ContentItemRepository $contentItemRepo */
+            $contentItemRepo = $this->doctrine->getManager()->getRepository(ContentItem::class);
+
+            /** @var \App\Repository\FileItemRepository $fileItemRepo */
+            $fileItemRepo = $this->doctrine->getManager()->getRepository(FileItem::class);
+
+            /* Step 1: Update content
+            /* Update course status */
+            $lms->updateCourseData($course, $user);
+
+            /* Step 2: Get list of updated content items */
+            /* 2.1: Mark all existing content items and files in our database as inactive */
+            $contentItemRepo->setCourseContentInactive($course);
+            $fileItemRepo->setCourseFileItemsInactive($course);
+            $this->doctrine->getManager()->flush();
+
+            /* Update content items from LMS.
+              1. ContentItems that are in our database but no longer in the LMS remain 'inactive' and are not scanned.
+              2. ContentItems that are in our database but older than the LMS's versions are re-downloaded.
+              3. ContentItems that are in the LMS but not in our database are added to our database.
+            */
+            $contentItems = $lms->updateCourseContent($course, $user, $force);
+            $output->writeln("Found " . count($contentItems) . " updated content items in the LMS.");
+
+            // If this is a full rescan, skip the sync scan/report;
+            // async ScanContentItemHandler + FinishRescanHandler will do that.
             if ($force) {
-                return $contentItems; // Return the updated content items if force is true
+                // We still need to mark the course lastUpdated and dirty flag:
+                $course->setLastUpdated($this->util->getCurrentTime());
+                $course->setDirty(false);
+                $this->doctrine->getManager()->flush();
+                return $contentItems;
             }
         }
         catch (\Exception $e) {
             throw $e; // Rethrow the exception to be caught by the controller
         }
     }
+
 
     public function getCourseSections(Course $course, User $user)
     {
