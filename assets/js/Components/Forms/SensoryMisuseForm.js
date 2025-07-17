@@ -47,12 +47,16 @@ export default function SensoryMisuseForm({
 
   const editorRef = useRef(null)
   const [editorHtml, setEditorHtml] = useState(html)
-
+  const [editorKey, setEditorKey] = useState(0);
   const [sensoryErrors, setSensoryErrors] = useState([])
 
   useEffect(() => {
     // if the issue changes, pull new html and set tinymce's html
     if (activeIssue) {
+
+      // Re-render the editor
+      setEditorKey(prev => prev + 1)
+
       setHtml(Html.getIssueHtml(activeIssue))
       setEditorHtml(Html.getIssueHtml(activeIssue))
     }
@@ -80,6 +84,11 @@ export default function SensoryMisuseForm({
     }
 
     const traverseNode = (node) => {
+
+      // Editor HTML is empty so node ends up empty
+      if(node === null)
+        return
+
       if (node.nodeType === Node.TEXT_NODE) {
         // Check if the text node contains any sensory words
         checkText(node.textContent);
@@ -191,6 +200,7 @@ export default function SensoryMisuseForm({
     <>
       <div>
         <Editor
+          key={editorKey}
           tinymceScriptSrc="/udoit3/build/static/tinymce/tinymce.min.js"
           licenseKey="gpl"
           onInit={(evt, editor) => editorRef.current = editor}
