@@ -6,29 +6,32 @@
   --primary-color: var(--pantone-green);
   --primary-color-text: var(--pantone-green);
   --primary-color-dark: var(--pantone-green);
-  --primary-color-hover: #436657;
+  --primary-color-hover: color-mix(in srgb, var(--primary-color) 100%, #FFFFFF 10%); /* #436657; */
   --primary-color-dark-hover: #436657;
-  --primary-color-light: color-mix(in srgb, var(--primary-color) 15%, #FFFFFF 100%);  /* #E8F3ED; */
+  --primary-color-light: color-mix(in srgb, var(--primary-color) 10%, #FFFFFF 100%);  /* #E8F3ED; */
   --primary-color-inverse: #F2F7F7;
   --text-color: #333333;
 
   --hover-brightness: 1.15;
 
   --link-color: #006AAC;
-  --link-color-light: color-mix(in srgb, var(--link-color) 15%, #FFFFFF 100%);  /* #E9F3FF; */
+  --link-color-hover: color-mix(in srgb, var(--link-color) 100%, #FFFFFF 10%);
+  --link-color-light: color-mix(in srgb, var(--link-color) 10%, #FFFFFF 100%);  /* #E9F3FF; */
   --link-color-dark: #1B5679;
 
   --focus-color: #009AD0;
 
   --issue-color: #F94144;
-  --issue-color-light: color-mix(in srgb, var(--issue-color) 15%, #FFFFFF 100%);
+  --issue-color-light: color-mix(in srgb, var(--issue-color) 10%, #FFFFFF 100%);
   --issue-color-dark: #E2080C;  /* Sufficient contrast with white text */
   --potential-color: #F8961E;
-  --potential-color-light: color-mix(in srgb, var(--potential-color) 15%, #FFFFFF 100%);
+  --potential-color-light: color-mix(in srgb, var(--potential-color) 10%, #FFFFFF 100%);
   --suggestion-color: #32B0E4;
-  --suggestion-color-light: color-mix(in srgb, var(--suggestion-color) 15%, #FFFFFF 100%);
+  --suggestion-color-light: color-mix(in srgb, var(--suggestion-color) 10%, #FFFFFF 100%);
+  --info-color: #2C9ECE;
+  --info-color-light: color-mix(in srgb, var(--info-color) 10%, #FFFFFF 100%);
   --success-color: #006937;
-  --success-color-light: color-mix(in srgb, var(--success-color) 15%, #FFFFFF 100%);
+  --success-color-light: color-mix(in srgb, var(--success-color) 10%, #FFFFFF 100%);
   --progress-bar-color: #32B0E4;
 
   --black: #000000;
@@ -508,24 +511,22 @@ h1, h2, h3, h4, h5, h6 {
   font-weight: 500;
   text-transform: uppercase;
   padding: .15rem .75rem;
-  background-color: var(--gray);
+  background-color: var(--link-color);
   cursor: pointer;
   border-radius: 16px;
 
   &:focus {
     outline: 2px solid var(--focus-color);
-    outline-offset: 3px;
+    outline-offset: 1px;
   }
 
   &:hover,
   &:focus {
-    background-color: var(--gray-light);
-    color: var(--gray-dark);
+    background-color: var(--link-color-hover);
   }
 
   &:active {
-    background-color: var(--gray-lightest);
-    color: var(--gray-dark);
+    background-color: var(--link-color-hover);
   }
 }
 
@@ -897,6 +898,12 @@ a:focus {
   fill: var(--primary-color);
 }
 
+.udoit-info,
+.color-info {
+  color: var(--info-color);
+  fill: var(--info-color);
+}
+
 .spinner {
   animation: spin 1.5s linear infinite;
 }
@@ -913,6 +920,11 @@ a:focus {
 .allow-word-break {
   overflow: auto;
   overflow-wrap: break-word;
+}
+
+.link-small {
+  font-size: 0.9rem;
+  overflow-wrap: anywhere;
 }
 
 header {

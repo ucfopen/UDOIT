@@ -134,9 +134,9 @@ export default function AnchorText({
   return (
     <>
       {linkUrl !== '' && (
-        <div className="clarification-container flex-row gap-1 mb-3">
-          <div className="instructions">Link:</div>
-          <a href={linkUrl} target="_blank" rel="noopener noreferrer" tabIndex="0" style={{wordBreak: 'break-all'}}>
+        <div className="flex-row justify-content-end gap-1 mb-2">
+          <div className="ufixit-widget-label">Link:</div>
+          <a href={linkUrl} target="_blank" rel="noopener noreferrer" tabIndex="0" className="link-small">
             {linkUrl}
           </a>
         </div>

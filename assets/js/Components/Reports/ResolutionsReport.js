@@ -77,6 +77,7 @@ export default function ResolutionsReport ({
   const getChartOptions = () => {
     return {
       responsive: true,
+      maintainAspectRatio: false,
       plugins: {
         legend: {
           position: 'top',

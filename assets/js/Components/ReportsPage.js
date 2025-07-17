@@ -242,16 +242,16 @@ export default function ReportsPage({t, report, settings, quickSearchTerm}) {
         <div className="flex-column">
           <div className="flex-row justify-content-between gap-3">
 
-            <div className="flex-column flex-shrink-0 flex-grow-1">
-              <div className="flex-row justify-content-center">
+            <div className="flex-column flex-shrink-1 flex-grow-1">
+              <div className="flex-row w-100 justify-content-center">
                 <h2 className="primary-dark mt-0 mb-3">{t('report.title.barriers_remaining')}</h2>
               </div>
-              <div id="resolutionsReport" className="ResolutionsReport">
+              <div id="resolutionsReport" className="graph-container">
                 <ResolutionsReport t={t} reports={reports} visibility={chartVisibility} />
               </div>
             </div>
 
-            <div className="flex-column justify-content-start">
+            <div className="flex-column flex-grow-0 flex-shrink-0 justify-content-start">
               <div className="callout-container">
                 <h3 className="primary-dark mt-0">{t('report.title.options')}</h3>
                 <div className="flex-row gap-1 mb-2">

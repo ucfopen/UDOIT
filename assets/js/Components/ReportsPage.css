@@ -5,6 +5,16 @@
   padding: 0 1rem 1rem 1rem;
 }
 
+.graph-container {
+  width: 100%;
+  height: auto;
+}
+
+#resolutionsChart {
+  max-width: 100%;
+  min-height: 400px;
+}
+
 .print-area * {
   display: none;
   visibility: hidden;

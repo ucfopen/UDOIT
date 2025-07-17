@@ -8,7 +8,8 @@ export default function SettingsPage({
   settings,
   updateUserSettings,
   syncComplete,
-  handleFullCourseRescan }) {
+  handleFullCourseRescan
+}) {
 
   const supportedLanguages = [
     { code: 'en', name: 'English' },
@@ -17,11 +18,17 @@ export default function SettingsPage({
 
   // For new users, the 'show_filters' attribute may not be set, so we need to check if it exists before using it
   const [showFilters, setShowFilters] = useState(settings?.user?.roles && ('show_filters' in settings.user.roles) ? settings.user.roles.show_filters : true)
+  const [alertTimeout, setAlertTimeout] = useState(settings?.user?.roles?.alert_timeout || 5000)
   const [selectedLanguage, setSelectedLanguage] = useState(settings?.user?.roles?.lang || 'en')
 
   const handleShowFiltersChange = (newValue) => {
     setShowFilters(newValue)
     updateUserSettings({ "show_filters": newValue})
+  }
+
+  const handleAlertTimeoutChange = (newValue) => {
+    setAlertTimeout(newValue)
+    updateUserSettings({ "alert_timeout": newValue })
   }
 
   const handleLanguageChange = (newValue) => {
@@ -50,6 +57,25 @@ export default function SettingsPage({
             </div>
             <div className="flex-column flex-center">
               <label htmlFor="show-filters">{t('settings.label.show_filters_default')}</label>
+            </div>
+          </div>
+          <div className="flex-row gap-1 mb-3">
+            <div className="flex-column flex-center">
+              <label htmlFor="alert-timeout">{t('settings.label.alert_timeout')}</label>
+            </div>
+            <div className="flex-column flex-center">
+              <select
+                id="alert-timeout"
+                value={settings?.user?.roles?.alert_timeout || 5000}
+                onChange={(e) => {
+                  handleAlertTimeoutChange(e.target.value)
+                }}
+              >
+                <option key="5000" value="5000">{t('settings.option.alert_timeout.5s')}</option>
+                <option key="10000" value="10000">{t('settings.option.alert_timeout.10s')}</option>
+                <option key="20000" value="20000">{t('settings.option.alert_timeout.20s')}</option>
+                <option key="none" value="none">{t('settings.option.alert_timeout.none')}</option>
+              </select>
             </div>
           </div>
           {/* <div className="flex-row gap-1 mb-3">
