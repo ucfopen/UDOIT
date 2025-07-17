@@ -44,6 +44,10 @@ COPY --from=composer:latest /usr/bin/composer /usr/local/bin/composer
 RUN wget https://get.symfony.com/cli/installer -O - | bash && \
     mv /root/.symfony/bin/symfony /usr/local/bin/symfony
 
+# ensures supervisor config is in place and supervisor is running
+COPY supervisor.conf /etc/supervisor/conf.d/messenger-worker.conf
+RUN service supervisor start
+
 #Copy over files
 COPY --chown=ssm-user:www-data . /var/www/html/
 
@@ -52,4 +56,5 @@ WORKDIR /var/www/html
 RUN chmod +x deploy/udoit-ng.sh
 RUN deploy/udoit-ng.sh
 
-CMD php-fpm
+#CMD php-fpm # runs supervisor which starts main application and messanger workers
+CMD ["/usr/bin/supervisord", "-n", "-c", "/etc/supervisor/supervisord.conf"]

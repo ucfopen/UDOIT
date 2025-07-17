@@ -1,5 +1,30 @@
 FROM php:8.4.2-fpm
 
-# PHP extensions
-RUN apt-get update && apt-get install -y libpng-dev zlib1g-dev git unzip
-RUN docker-php-ext-install gd pdo pdo_mysql
+# Install necessary packages and PHP extensions
+RUN apt-get update && apt-get install -y \
+    supervisor \
+    libpng-dev \
+    zlib1g-dev \
+    git \
+    unzip
+
+RUN docker-php-ext-install pdo pdo_mysql gd
+
+# Create log directories expected by Supervisor and your apps
+RUN mkdir -p /var/www/html/var/log/supervisor \
+    && mkdir -p /var/log/supervisor
+
+# Copy your code
+COPY . /var/www/html
+WORKDIR /var/www/html
+
+# Copy Supervisor configs into the image
+COPY build/supervisor/supervisord.conf /etc/supervisor/supervisord.conf
+COPY build/supervisor/php-fpm.conf /etc/supervisor/conf.d/php-fpm.conf
+COPY build/supervisor/ /etc/supervisor/conf.d/
+
+# Expose port if necessary (e.g., for Nginx, but with PHP-FPM you typically let Nginx handle this)
+EXPOSE 9000
+
+# Start Supervisor as the main process
+CMD ["/usr/bin/supervisord", "-n", "-c", "/etc/supervisor/supervisord.conf"]

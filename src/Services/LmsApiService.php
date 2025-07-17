@@ -45,13 +45,18 @@ class LmsApiService {
 
     public function getLmsId(?User $user = null)
     {
-        $session = $this->sessionService->getSession();
 
         if ($user) {
             return $user->getInstitution()->getLmsId();
         }
-        if ($lmsId = $session->get('lms_id')) {
-            return $lmsId;
+
+        try {
+            $session = $this->sessionService->getSession();
+            if ($lmsId = $session->get('lms_id')) {
+                return $lmsId;
+            }
+        } catch (\Throwable $e) {
+            // no session, fallback
         }
 
         return $_ENV['APP_LMS'];
@@ -65,8 +70,6 @@ class LmsApiService {
             return $this->canvasLms;
         } elseif (self::D2L_LMS === $lmsId) {
             return $this->d2lLms;
-        } else {
-            // handle other LMS classes
         }
 
         return false;

@@ -18,6 +18,7 @@ use GuzzleHttp\Psr7\Response;
 use Psr\Http\Message\RequestInterface;
 
 use GuzzleHttp\Psr7\Request;
+use Symfony\Component\Console\Output\ConsoleOutput;
 
 // Take in a bundle of ContentItems and
 // send asynchronous requests to a Lambda function's API gateway
@@ -77,6 +78,7 @@ class AsyncEqualAccessReport {
     }
 
     public function postMultipleArrayAsync(array $contentItems): array {
+        $printOutput = new ConsoleOutput();
         $promises = [];
         $contentItemsReport = [];
 
@@ -130,7 +132,10 @@ class AsyncEqualAccessReport {
         foreach ($results as $result) {
             // Every "block" of reports pages should be in a stringified
             // JSON, so we need to decode the JSON to be able to iterate through
-            // it first.}
+            // it first.
+
+            $printOutput->writeln("Checking result...");
+            // $printOutput->writeln($result);
 
             if (isset($result["value"])) {
                 $response = json_decode($result["value"]->getBody()->getContents(), true);
@@ -142,6 +147,8 @@ class AsyncEqualAccessReport {
             // $this->logToServer($result["value"]->getBody()->getContents());
 
             foreach ($response as $report) {
+                // $printOutput->writeln("Saving to contentItemsReport...");
+                // $printOutput->writeln(json_encode($report, JSON_PRETTY_PRINT));
                 // $this->logToServer(json_encode($report));
                 $contentItemsReport[] = $report;
             }

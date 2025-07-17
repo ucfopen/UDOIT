@@ -25,7 +25,7 @@ class UtilityService {
 
     /** @var Environment $twig */
     private $twig;
-    
+
     /** @var ManagerRegistry */
     private $doctrine;
 
@@ -34,7 +34,7 @@ class UtilityService {
 
     /** @var ParameterBagInterface */
     private $paramBag;
-    
+
     private $env;
 
     public function __construct(
@@ -52,17 +52,24 @@ class UtilityService {
 
         self::$timezone = new \DateTimeZone('GMT');
     }
-   
+
     public function getEnv()
     {
-        $session = $this->sessionService->getSession();
+        $session = null;
+        try {
+            $session = $this->sessionService->getSession();
+        } catch (\Throwable $e) {
+            // No session available (likely running in background/async)
+        }
 
-        if (!isset($this->env)) {
+        if (!isset($this->env) && $session) {
             $this->env = $session->get('app_env');
         }
         if (!isset($this->env)) {
             $this->env = $_ENV['APP_ENV'];
-            $session->set('app_env', $_ENV['APP_ENV']);
+            if ($session) {
+                $session->set('app_env', $_ENV['APP_ENV']);
+            }
         }
 
         return $this->env;
@@ -81,7 +88,7 @@ class UtilityService {
     public function getUnreadMessages($markAsRead = true)
     {
         $user = $this->security->getUser();
-        
+
         $messages = $this->doctrine->getRepository(LogEntry::class)->findBy(['user' => $user, 'status' => false]);
 
         if ($markAsRead) {
@@ -104,14 +111,14 @@ class UtilityService {
         if (is_array($msg) || is_object($msg)) {
             $msg = \json_encode($msg);
         }
-        
+
         $message = new LogEntry();
         $message->setMessage($msg);
         $message->setSeverity($severity);
         $message->setUser($user);
         $message->setStatus($hideFromUser);
         $message->setCreated($this->getCurrentTime());
-        
+
         if ($course) {
             $message->setCourse($course);
         }
@@ -151,7 +158,7 @@ class UtilityService {
         return sodium_crypto_secretbox_open($encrypted_text, $nonce, $this->encryption_key);
     }
 
-    public function getCurrentTime() 
+    public function getCurrentTime()
     {
         return new \DateTime('now', self::$timezone);
     }
@@ -176,12 +183,12 @@ class UtilityService {
             if (file_exists($filepath)) {
                 $file = fopen($filepath, "r");
                 $json = fread($file, filesize($filepath));
-                
+
                  $translation = \json_decode($json);
             } else {
                 throw new \Exception("Translation for language `{$lang}` cannot be found.");
             }
-        } 
+        }
         catch (\Exception $e) {
             $this->createMessage($e->getMessage(), 'error');
         }
@@ -199,28 +206,33 @@ class UtilityService {
         ];
     }
 
-    public function getDateFormat() 
+    public function getDateFormat()
     {
-        $session = $this->sessionService->getSession();
-        $format = $session->get('date_format');
-        
-        if (empty($format)) {
-            $format = $_ENV['DATE_FORMAT'];
-            $session->set('date_format', $format);
-            $this->doctrine->getManager()->flush();
+        try {
+            $session = $this->sessionService->getSession();
+            $format = $session->get('date_format');
+            if (empty($format)) {
+                $format = $_ENV['DATE_FORMAT'];
+                $session->set('date_format', $format);
+                $this->doctrine->getManager()->flush();
+            }
+            return $format;
+        } catch (\Throwable $e) {
+            return $_ENV['DATE_FORMAT'];
         }
-
-        return $format;
     }
 
     public function getCurrentDomain()
     {
-        $session = $this->sessionService->getSession();
-        $domain = $session->get('lms_api_domain');
-        if (empty($domain)) {
-            $domain = $session->get('iss');
+        try {
+            $session = $this->sessionService->getSession();
+            $domain = $session->get('lms_api_domain');
+            if (empty($domain)) {
+                $domain = $session->get('iss');
+            }
+            return str_replace('https://', '', $domain);
+        } catch (\Throwable $e) {
+            return '';
         }
-
-        return str_replace('https://', '', $domain);
     }
 }

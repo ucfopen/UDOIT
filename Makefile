@@ -27,3 +27,13 @@ ins-mysql:
 # fill your institutions table data with the variables in your institutions.env file. Use this command if you are using postgresql.
 ins-psql:
 	docker exec -it -e PGPASSWORD=root udoit3-db psql -U root -d udoit3 -w -c "INSERT INTO institution (title, lms_domain, lms_id, lms_account_id, created, status, vanity_url, metadata, api_client_id, api_client_secret) VALUES ('$(TITLE)', '$(LMS_DOMAIN)', '$(LMS_ID)', '$(LMS_ACCOUNT_ID)', '$(CREATED)', '$(STATUS)', '$(VANITY_URL)', '$(API_CLIENT_ID)', '$(API_CLIENT_SECRET)');"
+
+rebuild:
+	$(MAKE) down
+	docker compose -f docker-compose.nginx.yml build --no-cache
+	$(MAKE) start
+
+
+# show supervisorctl status from inside the php container
+supervisor:
+	docker exec -it udoit3-php supervisorctl status

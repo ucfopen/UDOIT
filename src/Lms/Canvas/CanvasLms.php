@@ -224,7 +224,7 @@ class CanvasLms implements LmsInterface {
                         'lmsContentId' => $lmsContent['id'],
                         'course' => $course,
                     ]);
-                    
+
                     if (!$force && $contentItem) {
                         $contentItemUpdated = $contentItem->getUpdated();
                         $lmsUpdated = new \DateTime($lmsContent['updated'], UtilityService::$timezone);
@@ -306,7 +306,7 @@ class CanvasLms implements LmsInterface {
         }
         else {
             $contentList = $response->getContent();
-            
+
             foreach ($contentList as $content) {
                 $formattedSection = [];
                 $formattedSection['id'] = $content['id'];
@@ -330,7 +330,7 @@ class CanvasLms implements LmsInterface {
                       throw new \Exception('msg.sync.error.api');
                   }
                   else {
-                    $itemList = $itemResponse->getContent();            
+                    $itemList = $itemResponse->getContent();
                     if(isset($itemList)) {
                         foreach ($itemList as $item) {
                             $formattedSection['items'][] = $item;

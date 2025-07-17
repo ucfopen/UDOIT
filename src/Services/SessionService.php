@@ -8,12 +8,13 @@ use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\Uid\Uuid;
+use Symfony\Component\Console\Output\ConsoleOutput;
 
 const FIVE_MINUTES = 300;
 
 class SessionService {
     protected UserSessionRepository $sessionRepo;
-    protected Request $request;
+    protected ?Request $request = null;
     protected UserSession $userSession;
     protected ManagerRegistry $doctrine;
 
@@ -26,12 +27,34 @@ class SessionService {
         $this->sessionRepo = $sessionRepo;
         $this->request = $requestStack->getCurrentRequest();
         $this->doctrine = $doctrine;
+
+    }
+
+    public function getSessionData(string $key)
+    {
+        if (!$this->request || !$this->request->hasSession()) {
+            return null; // Or handle however you want
+        }
+
+        return $this->request->getSession()->get($key);
+    }
+
+    public function setSessionData(string $key, $value): void
+    {
+        if ($this->request && $this->request->hasSession()) {
+            $this->request->getSession()->set($key, $value);
+        }
     }
 
     public function getSession(?string $uuid = null): UserSession
     {
         if (empty($uuid) && !empty($this->userSession)) {
             return $this->userSession;
+        }
+
+        if (!$this->request) {
+            // ⚠️ Log or throw depending on use case
+            throw new \RuntimeException('SessionService: No current HTTP request context. Cannot resolve session token.');
         }
 
         // Check request header

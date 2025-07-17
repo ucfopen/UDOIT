@@ -51,7 +51,12 @@ class ScannerService {
         $report = null;
         $response = new ApiResponse();
 
-        // $scanner = 'equalaccess_local';
+        // $scanner = 'equalaccess_lambda'; // TEMPORARY, force equal access lambda for now
+        // $printOutput->writeln("Using scanner: $scanner");
+
+        if ($contentItem->getBody() == null) {
+            return null;
+        }
 
         try {
             if ($scanner == 'phpally') {
@@ -92,6 +97,7 @@ class ScannerService {
                     // We already have the report, all we have to do is generate the UDOIT report
                     $report = $equalAccess->generateReport($scannerReport);
                 }
+
             }
             else {
                 // Unknown scanner set in environment, should return error...
@@ -105,8 +111,10 @@ class ScannerService {
         return $report;
     }
 
-public function getDomDocument($html)
+    public function getDomDocument($html)
     {
+        $printOutput = new ConsoleOutput();
+        $printOutput->writeln("Original HTML from file ScannerService:");
         // Load the HTML string into a DOMDocument that PHP can parse.
         // TODO: checks for if <html>, <body>, or <head> and <style> exist? technically canvas will always remove them if they are present in the HTML editor
         // but you never know, also the loadHTML string is pretty long and kinda unreadable, could individually load in each element maybe
