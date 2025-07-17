@@ -41,6 +41,11 @@ class ScannerService {
         // Optional argument scannerReport is used when handling async Equal Access
         // requests, so then all we have to do is just make those into a UDOIT report
 
+        if ($contentItem->getBody() == null) {
+            // No body to scan, return null
+            return null;
+        }
+
         $printOutput = new ConsoleOutput();
         $scanner = $_ENV['ACCESSIBILITY_CHECKER'];
         $report = null;
@@ -61,31 +66,25 @@ class ScannerService {
                 $report = $phpAlly->scanContentItem($contentItem);
             }
             else if ($scanner == 'equalaccess_local') {
+                $equalAccess = new EqualAccessService();
+
+                // $document = $this->getDomDocument($contentItem->getBody());
+
+                // $htmlContent = $document->saveHTML();
+                // $totalLength = strlen($htmlContent);
+
+                // $bodyElements = $document->getElementsByTagName('body');
+                // if ($bodyElements->length > 0) {
+                //     $printOutput->writeln("Body found with children: " . $bodyElements->item(0)->childNodes->length);
+                // }
 
                 $localService = new LocalApiAccessibilityService();
                 $json = $localService->scanContentItem($contentItem);
-
-                // --- Debug: surface time‑outs / malformed JSON ---
-                if (!$json || !is_array($json) || !isset($json['results'])) {
-                    $printOutput->writeln('❌  EqualAccess LOCAL returned no "results".');
-                    $printOutput->writeln(sprintf(
-                        'ContentItem #%d (Course #%d) — title: %s',
-                        $contentItem->getId(),
-                        $contentItem->getCourse()->getId(),
-                        $contentItem->getTitle() ?: '[no title]'
-                    ));
-                    // dump the raw JSON so we can inspect the failure
-                    $printOutput->writeln(json_encode($json, JSON_PRETTY_PRINT));
-                    $printOutput->writeln(str_repeat('═', 80));
-                }
-
-                $equalAccess = new EqualAccessService();
                 $report = $equalAccess->generateReport($json);
-
             }
             else if ($scanner == 'equalaccess_lambda') {
                 $equalAccess = new EqualAccessService();
-                // $document = $this->getDomDocument($contentItem->getBody());
+                //$document = $this->getDomDocument($contentItem->getBody());
 
                 if (!$scannerReport) {
                     // Report is null, we need to call the lambda function for a single page most likely

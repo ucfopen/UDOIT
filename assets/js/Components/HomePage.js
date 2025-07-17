@@ -89,13 +89,13 @@ export default function HomePage({
   }, [hasNewReport, syncComplete, report])
 
   return (
-    <main>
+    <div className="flex-column flex-grow-1">
       <h1 className="primary-dark">{t('summary.title')}</h1>
       <div className="flex-row w-50 mb-4">
         <p className="mt-0 mb-0">{t('summary.description')}</p>
       </div>
-      <div className="flex-row gap-3">
-        <div className="report-container flex-column">
+      <div className="flex-row gap-3 flex-grow-1">
+        <div className="report-container flex-column justify-content-start">
           {setTotalsCounted && (
             <>
               <div className='flex-column w-100 mb-3'>
@@ -167,7 +167,7 @@ export default function HomePage({
             </>
           )}
         </div>
-        <div className="flex-column flex-grow-1">
+        <div className="flex-column flex-grow-1 flex-content-end">
           <div className="flex-column justify-content-start flex-grow-1">
             <div className="callout-container text-center ms-4 me-4">
               <h2 className="mt-0">Your Feedback is Requested!</h2>
@@ -177,9 +177,8 @@ export default function HomePage({
               <div><a href='https://ucf.service-now.com/ucfit?id=kb_article_view&sys_kb_id=408fe7021bb162102fc664a2604bcb3e&table=kb_knowledge&searchTerm=Udoit' target='_blank' rel='noopener noreferrer'>Learn About UDOIT</a></div>
             </div>
           </div>
-          <DailyProgress t={t} sessionIssues={sessionIssues} settings={settings} />
         </div>
       </div>
-    </main>
+    </div>
   )
 }

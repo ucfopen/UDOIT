@@ -11,12 +11,6 @@ export default function ListForm({
  }) {
   
   return (
-    <>
-      <div dangerouslySetInnerHTML={{__html: t('form.list.learn_more')}}></div>
-      <FormFeedback
-        t={t}
-        isDisabled={isDisabled}
-        activeContentItem={activeContentItem} />
-    </>
+    <div dangerouslySetInnerHTML={{__html: t('form.review_only.summary')}}></div>
   )
 }

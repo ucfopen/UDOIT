@@ -48,10 +48,6 @@ class SessionService {
 
     public function getSession(?string $uuid = null): UserSession
     {
-        $printer = new ConsoleOutput();
-        $printer->writeln('SessionService: getSession() called');
-        $printer->writeln('SessionService: uuid: ' . $uuid);
-
         if (empty($uuid) && !empty($this->userSession)) {
             return $this->userSession;
         }

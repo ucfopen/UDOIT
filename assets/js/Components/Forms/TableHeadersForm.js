@@ -4,6 +4,7 @@ import * as Html from '../../Services/Html';
 
 export default function TableHeadersForm({
   t,
+  settings,
   activeIssue, 
   handleIssueSave, 
   isDisabled, 
@@ -186,6 +187,8 @@ export default function TableHeadersForm({
       </div>
       <FormFeedback
         t={t}
+        settings={settings}
+        activeIssue={activeIssue}
         isDisabled={isDisabled || (!selectedValue && !decorationOnly)}
         handleSubmit={handleSubmit} />
     </>

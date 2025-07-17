@@ -1,20 +1,25 @@
 @import '../../css/udoit4-theme.css';
 
+.report-page-container {
+  margin: 0 -1rem -1rem -1rem;
+  padding: 0 1rem 1rem 1rem;
+}
+
 .print-area * {
-        display: none;
-        visibility: hidden;
-    }
+  display: none;
+  visibility: hidden;
+}
 
 @media print {
-    .print-area {
-        display: block;
-    }
-  
-    body * {
-        visibility: hidden;
-    }
-  
-    .print-area, .print-area * {
-        visibility: visible;
-    }
+  .print-area {
+    display: block;
+  }
+
+  body * {
+    visibility: hidden;
+  }
+
+  .print-area, .print-area * {
+    visibility: visible;
+  }
 }

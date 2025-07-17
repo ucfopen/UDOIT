@@ -16,8 +16,6 @@ use App\Services\SessionService;
 use App\Services\UtilityService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\SecurityBundle\Security;
-use Symfony\Component\Messenger\MessageBusInterface;
-
 use Symfony\Component\Console\Output\ConsoleOutput;
 
 class CanvasLms implements LmsInterface {
@@ -46,7 +44,6 @@ class CanvasLms implements LmsInterface {
         UtilityService $util,
         Security $security,
         SessionService $sessionService,
-        MessageBusInterface $bus
     )
     {
         $this->contentItemRepo = $contentItemRepo;
@@ -55,7 +52,6 @@ class CanvasLms implements LmsInterface {
         $this->util = $util;
         $this->security = $security;
         $this->sessionService = $sessionService;
-        $this->bus = $bus;
     }
 
     public function getId()
@@ -150,10 +146,15 @@ class CanvasLms implements LmsInterface {
         $canvasApi = new CanvasApi($apiDomain, $apiToken);
         $response = $canvasApi->apiGet($url);
 
-        if (!$response || !empty($response->getErrors())) {
+        if(!$response) {
+            throw new \Exception('msg.sync.error.connection');
+        }
+
+        if (!empty($response->getErrors())) {
             foreach ($response->getErrors() as $error) {
-                $this->util->createMessage($error, 'error', $course, $user);
+                $this->util->createMessage($error['message'], 'error', $course, $user);
             }
+            throw new \Exception('msg.sync.error.api');
             return;
         }
         $content = $response->getContent();
@@ -169,36 +170,6 @@ class CanvasLms implements LmsInterface {
         $this->entityManager->flush();
     }
 
-    private function xRateLimitCheck(array $headers, ?ConsoleOutput $out = null): void
-    {
-        foreach ($headers as $header) {
-            // Look for the header that starts with "x-rate-limit-remaining:" (case-insensitive)
-            if (stripos($header, 'x-rate-limit-remaining:') === 0) {
-                // Split at the colon and trim the result to get the header value
-                $parts = explode(':', $header, 2);
-                $xRateLimitRemaining = trim($parts[1]);
-                if ($out) {
-                    $out->writeln("x-rate-limit-remaining: " . $xRateLimitRemaining);
-                }
-                // ------------------------------------------------------------------
-                // Reactive leaky‑bucket back‑off: pause when we are about to run dry
-                // Canvas refills ~1 token / second.  We wait until at least 2 exist.
-                if ($xRateLimitRemaining !== null && is_numeric($xRateLimitRemaining)) {
-                    $remaining = (float) $xRateLimitRemaining;
-
-                    if ($remaining < 2.0) {
-                        // how many seconds until we have two tokens again?
-                        $sleepFor = (int) ceil((2.0 - $remaining) + 1); // +1 sec buffer
-                        sleep($sleepFor);
-                    }
-                }
-                // ------------------------------------------------------------------
-                break;
-            }
-        }
-    }
-
-
     // Get content from Canvas and update content items
     public function updateCourseContent(Course $course, User $user, $force = false): array
     {
@@ -207,77 +178,39 @@ class CanvasLms implements LmsInterface {
         $urls = $this->getCourseContentUrls($course->getLmsCourseId());
         $apiDomain = $this->getApiDomain($user);
         $apiToken = $this->getApiToken($user);
-        $canvasApi  = new CanvasApi($apiDomain, $apiToken);
 
-        // We'll map contentType -> pending ResponseInterface
-        $pendingResponses = [];
+        $canvasApi = new CanvasApi($apiDomain, $apiToken);
 
-        // Initiate all requests asynchronously
         foreach ($urls as $contentType => $url) {
-            $pendingResponses[$contentType] = $canvasApi->apiGetAsync($url);
-        }
+            $response = $canvasApi->apiGet($url);
 
-        // Step 2: Process responses in parallel
-        $client       = $canvasApi->getHttpClient();
-        $contentItems = [];
-
-        // We'll use Symfony's stream() to read them as they complete
-        foreach ($client->stream($pendingResponses) as $response => $chunk) {
-            // Comment this line out if not using leaky-bucket back-off
-            $this->xRateLimitCheck($info['response_headers'] ?? []);
-
-            if ($chunk->isFirst()) {
-                // The first chunk indicates the start of this response
-                // (often we do nothing here)
+            if ($response->getErrors()) {
+                $this->util->createMessage('Error retrieving content. Failed API Call: ' . $url, 'error', $course, $user);
+                throw new \Exception('msg.sync.error.api');
             }
-
-            if ($chunk->isLast()) {
-                // The final chunk means this response is fully finished
-                $contentType = array_search($response, $pendingResponses, true);
-                if (false === $contentType) {
-                    // Should never happen, but just in case
-                    continue;
+            else {
+                if ('syllabus' === $contentType) {
+                    $contentList = [$response->getContent()];
+                }
+                else {
+                    $contentList = $response->getContent();
                 }
 
-                // Use our new method to build LmsResponse
-                $canvasResponse = $canvasApi->completeApiGet($response);
-
-                // Now handle the data
-                if ($canvasResponse->getErrors()) {
-                    $this->util->createMessage(
-                        'Error retrieving content. Failed API Call: ' . $urls[$contentType],
-                        'error',
-                        $course,
-                        $user
-                    );
-                    continue;
-                }
-
-                // Some content types (like 'syllabus') return a single object,
-                // others return an array
-                $list = ('syllabus' === $contentType)
-                    ? [$canvasResponse->getContent()]
-                    : $canvasResponse->getContent();
-
-                // Exactly like your existing loop:
-                foreach ($list as $content) {
-                    // Special handling for some file and assignment checks
-                    if ($contentType === 'file'
-                        && in_array($content['mime_class'], $this->util->getUnscannableFileMimeClasses())
-                    ) {
+                foreach ($contentList as $content) {
+                    if (('file' === $contentType) && (in_array($content['mime_class'], $this->util->getUnscannableFileMimeClasses()))) {
                         $this->updateFileItem($course, $content);
                         continue;
                     }
-                    if ($contentType === 'assignment' && isset($content['quiz_id'])) {
-                        // quizzes counted as assignments => skip
+
+                    /* Quizzes should not be counted as assignments */
+                    if (('assignment' === $contentType) && isset($content['quiz_id'])) {
                         continue;
                     }
-                    if ($contentType === 'assignment' && isset($content['discussion_topic'])) {
-                        // discussion topics set as assignments => skip
+                    /* Discussion topics set as assignments should be skipped */
+                    if (('assignment' === $contentType) && isset($content['discussion_topic'])) {
                         continue;
                     }
 
-                    // Create or update ContentItem entity
                     $lmsContent = $this->normalizeLmsContent($course, $contentType, $content);
                     if (!$lmsContent) {
                         continue;
@@ -307,22 +240,18 @@ class CanvasLms implements LmsInterface {
 
                     /* get page content */
                     if ('page' === $contentType) {
-                        // e.g. fetch page body
-                        $pageUrl = "courses/{$course->getLmsCourseId()}/pages/{$lmsContent['id']}";
-                        // synchronous or asynchronous again if you'd like
-                        $pageResp = $canvasApi->apiGet($pageUrl);
-                        $pageObj  = $pageResp->getContent();
+                        $url = "courses/{$course->getLmsCourseId()}/pages/{$lmsContent['id']}";
+                        $pageResponse = $canvasApi->apiGet($url);
+                        $pageObj = $pageResponse->getContent();
+
                         if (!empty($pageObj['body'])) {
                             $lmsContent['body'] = $pageObj['body'];
                         }
                     }
 
-                    if ('file' === $contentType && 'html' === $content['mime_class']) {
-                        // get raw HTML
-                        $html = @file_get_contents($content['url']);
-                        if ($html) {
-                            $lmsContent['body'] = $html;
-                        }
+                    /* get HTML file content */
+                    if (('file' === $contentType) && ('html' === $content['mime_class'])) {
+                        $lmsContent['body'] = file_get_contents($content['url']);
                     }
 
                     if (!$contentItem) {
@@ -334,7 +263,8 @@ class CanvasLms implements LmsInterface {
                         $this->entityManager->persist($contentItem);
                     }
 
-                    // Compare body for certain content types that don't have an updated date
+                    // some content types don't have an updated date, so we'll compare content
+                    // to find out if content has changed.
                     if (in_array($contentType, ['syllabus', 'discussion_topic', 'announcement', 'quiz'])) {
                         if ($contentItem->getBody() === $lmsContent['body']) {
                             if ($contentItem->getUpdated()) {
@@ -351,12 +281,11 @@ class CanvasLms implements LmsInterface {
             }
         }
 
-        // Now flush once at the end
+        // push any updates made to content items to DB
         $this->entityManager->flush();
 
         return $contentItems;
     }
-
 
     public function getCourseSections(Course $course, User $user)
     {
@@ -373,6 +302,7 @@ class CanvasLms implements LmsInterface {
 
         if ($response->getErrors()) {
             $this->util->createMessage('Error retrieving content. Failed API Call: ' . $url, 'error', $course, $user);
+            throw new \Exception('msg.sync.error.api');
         }
         else {
             $contentList = $response->getContent();
@@ -397,6 +327,7 @@ class CanvasLms implements LmsInterface {
 
                   if ($itemResponse->getErrors()) {
                       $this->util->createMessage('Error retrieving content. Failed API Call: ' . $url, 'error', $course, $user);
+                      throw new \Exception('msg.sync.error.api');
                   }
                   else {
                     $itemList = $itemResponse->getContent();
@@ -466,6 +397,7 @@ class CanvasLms implements LmsInterface {
 
             $this->util->createMessage('Error retrieving content. Please try again.', 'error', $contentItem->getCourse(), $user);
             $this->util->createMessage($log, 'error', $contentItem->getCourse(), $user, true);
+            throw new \Exception('msg.sync.error.api');
         }
         else {
             $apiContent = $response->getContent();
@@ -503,6 +435,7 @@ class CanvasLms implements LmsInterface {
                     'error',
                     $contentItem->getCourse()
                 );
+                throw new \Exception('msg.sync.error.local_save');
                 return;
             }
 
@@ -593,8 +526,6 @@ class CanvasLms implements LmsInterface {
 
     public function getAccountTerms(User $user)
     {
-        $printOutput = new ConsoleOutput();
-        $printOutput->writeln("getAccountTerms() called | user: ". $user);
         $session = $this->sessionService->getSession();
         $terms = $session->get("terms", []);
 
@@ -882,7 +813,7 @@ class CanvasLms implements LmsInterface {
 
             // Pages
             'url:GET|/api/v1/courses/:course_id/pages',
-            'url:GET|/api/v1/courses/:course_id/pages/:url_or_id',
+            'url:GET|/api/v1/cour dses/:course_id/pages/:url_or_id',
             'url:PUT|/api/v1/courses/:course_id/pages/:url_or_id',
 
             // Quiz Questions
@@ -918,5 +849,4 @@ class CanvasLms implements LmsInterface {
     {
         return ($a['id'] > $b['id']) ? 1 : -1;
     }
-
 }

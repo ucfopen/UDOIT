@@ -155,7 +155,8 @@ export default function App(initialData) {
   }
 
   const addMessage = (msg) => {
-    setMessages(prevMessages => [...prevMessages, msg])
+    setMessages([msg])
+    // setMessages(prevMessages => [...prevMessages, msg])
   }
 
   const clearMessages = () => {
@@ -246,10 +247,27 @@ export default function App(initialData) {
   }, [])
 
   useEffect(() => {
+    document.addEventListener('visibilitychange', function () {
+      if (document.hidden) {
+        console.log("UDOIT IS HIDDEN!")
+      }
+      else {
+        // There is probably a case for checking the page you're currently editing to make sure that there weren't any changes in the LMS.
+        addMessage({ message: 'Welcome back to UDOIT! If you have changed any course content, please refresh this page to rescan.', severity: 'info', visible: true })
+      }
+    })
+  }, [])
 
-    scanCourse()
-      .then((response) => response.json())
-      .then(handleNewReport)
+  useEffect(() => {
+
+    try {
+      scanCourse()
+        .then((response) => response.json())
+        .then(handleNewReport)
+    } catch (error) {
+      addMessage({ message: `${t('msg.sync.failed')}: ${t(error)}`, severity: 'error', visible: true })
+      console.error("Error scanning course:", error)
+    }
 
     window.addEventListener("resize", resizeFrame)
     resizeFrame()

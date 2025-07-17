@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react'
 import SearchIcon from './Icons/SearchIcon'
 import CloseIcon from './Icons/CloseIcon'
 import ContentTypeIcon from './Icons/ContentTypeIcon'
+import FilterOnIcon from './Icons/FilterOnIcon'
+import FilterOffIcon from './Icons/FilterOffIcon'
 
 import './FixIssuesFilters.css'
 
@@ -79,7 +81,7 @@ export default function FixIssuesFilters({ t, settings, sections, activeFilters,
   // TODO: Cool-looking, yet fully accessible dropdown. Maybe like https://www.w3.org/WAI/ARIA/apg/patterns/combobox/examples/combobox-select-only/
 
   return (
-    <div className="filter-container flex-column gap-1 mb-3">
+    <div className="filter-container flex-column gap-1">
       <div className="flex-row justify-content-between">
         <div className="flex-column flex-shrink-0 justify-content-center">
           {/* <label htmlFor='search-bar'>{t('filter.label.search')}</label> */}
@@ -113,7 +115,7 @@ export default function FixIssuesFilters({ t, settings, sections, activeFilters,
                       {usedFilters[filterType][activeFilters[filterType]]}
                     </div>
                     <div className="filter-pill-remove flex-column align-self-center">
-                      <CloseIcon className="icon-sm white" />
+                      <CloseIcon className="icon-sm" />
                     </div>
                   </button>
                 )
@@ -123,11 +125,20 @@ export default function FixIssuesFilters({ t, settings, sections, activeFilters,
         </div>
         <div className="flex-column flex-shrink-0 ms-3 justify-content-center">
           <button
-            className="btn btn-secondary"
+            className="btn-small btn-secondary btn-icon-left"
             tabindex="0"
             onClick={() => setShowFilters(!showFilters)}
           >
-            {showFilters ? t('filter.label.hide_filters') : t('filter.label.show_filters')}
+            { showFilters ? (
+              <>
+                <FilterOffIcon className="icon-sm" />
+                {t('filter.label.hide_filters')}
+              </> ) : (
+              <>
+                <FilterOnIcon className="icon-sm" />
+                {t('filter.label.show_filters')}
+              </>
+            )}
           </button>
         </div>
       </div>

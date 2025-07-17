@@ -4,7 +4,7 @@
   font-size: 0.8rem;
 
   thead tr th {
-    font-family: 'Reddit Sans', sans-serif;
+    font-family: var(--heading-font-family);
     font-weight: 600;
     text-transform: uppercase;
     cursor: pointer;

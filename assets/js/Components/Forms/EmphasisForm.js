@@ -5,6 +5,7 @@ import * as Contrast from '../../Services/Contrast'
 
 export default function EmphasisForm({
   t,
+  settings,
   activeIssue,
   isDisabled,
   handleIssueSave,
@@ -143,6 +144,8 @@ export default function EmphasisForm({
       </div>
       <FormFeedback
         t={t}
+        settings={settings}
+        activeIssue={activeIssue}
         isDisabled={isDisabled}
         handleSubmit={handleSubmit}
         formErrors={formErrors} />

@@ -39,6 +39,9 @@ class LocalApiAccessibilityService {
     {
         // Initialize Guzzle client with base options
         $client = new Client([
+            // TODO: the problem with this is that it does not matter if the scanner is the
+            // local or Lambda version, the URL is always the same location causing the
+            // local to be triggered.
             'base_uri' => 'http://host.docker.internal:3000',
             'timeout' => 30.0,
             'http_errors' => false, // Don't throw exceptions for 4xx/5xx responses
@@ -70,8 +73,9 @@ class LocalApiAccessibilityService {
             // Create promise for this content item
             $promises[$id] = $client->postAsync('/scan', [
                 'json' => [
-                    'html' => $html,
-                    'guidelineIds' => 'WCAG_2_1'
+                    'html' => $html, // $htmlOutput,
+                    'guidelineIds' => 'WCAG_2_1',
+                    'reportLevels' => ['violation', 'potentialviolation', 'manual', 'recommendation']
                 ],
                 'headers' => [
                     'Content-Type' => 'application/json',
@@ -140,76 +144,75 @@ class LocalApiAccessibilityService {
         return $results;
     }
 
-    public function postData(string $url, string $html)
-    {
-        $output = new ConsoleOutput();
+    public function postData(string $url, string $html) {
+        // Standardize headers and content type
+        $jsonPayload = json_encode([
+            "html" => $html,
+            "guidelineIds" => "WCAG_2_1",
+            'reportLevels' => ['violation', 'potentialviolation', 'manual', 'recommendation']
+        ]);
 
-        try {
-            // Standardize headers and content type
-            $jsonPayload = json_encode([
-                "html" => $html,
-                "guidelineIds" => "WCAG_2_1"
-            ]);
+        // Use cURL instead of file_get_contents for better error handling
+        $ch = curl_init($url);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_POST, true);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $jsonPayload);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, [
+            'Content-Type: application/json',
+            'Content-Length: ' . strlen($jsonPayload)
+        ]);
 
-            // Use cURL for the POST request
-            $ch = curl_init($url);
+        $result = curl_exec($ch);
 
-            curl_setopt_array($ch, [
-                CURLOPT_RETURNTRANSFER => true,
-                CURLOPT_POST           => true,
-                CURLOPT_POSTFIELDS     => $jsonPayload,
-                CURLOPT_HTTPHEADER     => [
-                    'Content-Type: application/json',
-                    'Content-Length: ' . strlen($jsonPayload)
-                ],
-                // Fail fast if the server takes too long
-                CURLOPT_CONNECTTIMEOUT => 10,
-                CURLOPT_TIMEOUT        => 60,
-            ]);
-
-            $result = curl_exec($ch);
-
-            // Handle library-level errors
-            if ($result === false) {
-                $output->writeln("❌  cURL exec failure: " . curl_error($ch));
-                curl_close($ch);
-                return null;
-            }
-
-            // HTTP status handling
-            $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-            curl_close($ch);
-
-            if ($httpCode >= 400) {
-                $output->writeln("❌  HTTP error {$httpCode} while calling {$url}");
-            }
-
-            return $result;
-        } catch (\Throwable $e) {
-            // Catch any unforeseen errors
-            $output->writeln("❌  Exception in postData(): " . $e->getMessage());
-            $output->writeln("Stack trace:\n" . $e->getTraceAsString());
-            return null;
+        // Handle errors
+        if (curl_errno($ch)) {
+            $output = new ConsoleOutput();
+            $output->writeln("cURL error: " . curl_error($ch));
         }
+
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        curl_close($ch);
+
+        // Log HTTP errors
+        if ($httpCode >= 400) {
+            $output = new ConsoleOutput();
+            $output->writeln("HTTP error: " . $httpCode);
+        }
+
+        return $result;
     }
 
     public function checkMany($content, $ruleIds = [], $options = []) {
         // Get DOM document
         // $document = $this->getDomDocument($content);
+
+        // Create proper debugging for document state
         $output = new ConsoleOutput();
+        // $output->writeln("DOM document state:");
+        // $output->writeln("- Has HTML element: " . ($document->getElementsByTagName('html')->length > 0 ? 'Yes' : 'No'));
+
+        // Check attribute preservation
+        // $htmlElement = $document->getElementsByTagName('html')->item(0);
+
+        // Get serialized HTML, using saveHTML on the document not an element to preserve DOCTYPE
+        // $htmlOutput = $document->saveHTML();
+
+        // Debug the output
+        // $output->writeln("First 200 chars of serialized HTML: " . substr($htmlOutput, 0, 200));
+
         // Send to accessibility checker
         $response = $this->postData("http://host.docker.internal:3000/scan", $content);  // $htmlOutput
 
         try {
             $json = json_decode($response, true);
-
             if (json_last_error() !== JSON_ERROR_NONE) {
-                $output->writeln("JSON decode error: " . json_last_error_msg());
+                // $output->writeln("JSON decode error: " . json_last_error_msg());
+                // $output->writeln("Response preview: " . substr($response, 0, 100));
                 return null;
             }
-
             return $json;
         } catch (\Exception $e) {
+            // $output->writeln("Error processing response: " . $e->getMessage());
             return null;
         }
     }
@@ -259,6 +262,7 @@ class LocalApiAccessibilityService {
             }
         }
         libxml_clear_errors();
+
         return $dom;
     }
 

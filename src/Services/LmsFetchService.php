@@ -73,51 +73,64 @@ class LmsFetchService {
      * 4) Link unchanged issues to new report
      * 5) Process updated content
      */
-    public function refreshLmsContent(Course $course, User $user, $force = false): array
+    public function refreshLmsContent(Course $course, User $user, $force = false)
     {
-        $output = new ConsoleOutput();
-        $lms = $this->lmsApi->getLms($user);
+        try {
+            $output = new ConsoleOutput();
+            $lms = $this->lmsApi->getLms($user);
 
-        $this->lmsUser->validateApiKey($user);
+            $this->lmsUser->validateApiKey($user);
 
-        /** @var \App\Repository\ContentItemRepository $contentItemRepo */
-        $contentItemRepo = $this->doctrine->getManager()->getRepository(ContentItem::class);
+            /** @var \App\Repository\ContentItemRepository $contentItemRepo */
+            $contentItemRepo = $this->doctrine->getManager()->getRepository(ContentItem::class);
 
-        /** @var \App\Repository\FileItemRepository $fileItemRepo */
-        $fileItemRepo = $this->doctrine->getManager()->getRepository(FileItem::class);
+            /** @var \App\Repository\FileItemRepository $fileItemRepo */
+            $fileItemRepo = $this->doctrine->getManager()->getRepository(FileItem::class);
 
-        /* Step 1: Update content
-        /* Update course status */
-        $lms->updateCourseData($course, $user);
+            /* Step 1: Update content
+            /* Update course status */
+            $lms->updateCourseData($course, $user);
 
-        /* Step 2: Get list of updated content items */
-        /* 2.1: Mark all existing content items and files in our database as inactive */
-        $contentItemRepo->setCourseContentInactive($course);
-        $fileItemRepo->setCourseFileItemsInactive($course);
-        $this->doctrine->getManager()->flush();
+            /* Step 2: Get list of updated content items */
+            /* 2.1: Mark all existing content items and files in our database as inactive */
+            $contentItemRepo->setCourseContentInactive($course);
+            $fileItemRepo->setCourseFileItemsInactive($course);
+            $this->doctrine->getManager()->flush();
 
-        /* Update content items from LMS.
-          1. ContentItems that are in our database but no longer in the LMS remain 'inactive' and are not scanned.
-          2. ContentItems that are in our database but older than the LMS's versions are re-downloaded.
-          3. ContentItems that are in the LMS but not in our database are added to our database.
-        */
-        $contentItems = $lms->updateCourseContent($course, $user, $force);
-        $output->writeln("Found " . count($contentItems) . " updated content items in the LMS.");
+            /* Update content items from LMS.
+              1. ContentItems that are in our database but no longer in the LMS remain 'inactive' and are not scanned.
+              2. ContentItems that are in our database but older than the LMS's versions are re-downloaded.
+              3. ContentItems that are in the LMS but not in our database are added to our database.
+            */
+            $contentItems = $lms->updateCourseContent($course, $user, $force);
+            $output->writeln("Found " . count($contentItems) . " updated content items in the LMS.");
 
-        $contentSections = $lms->getCourseSections($course, $user);
+            $contentSections = $lms->getCourseSections($course, $user);
 
-        // (Skipping synchronous scan and report update; just return changed items.)
+            /* Step 3: Delete issues for updated content items */
+            $this->deleteContentItemIssues($contentItems);
 
+            $output->writeln("Scanning content items now...");
+            /* Step 4: Process the updated content with PhpAlly and link to report */
+            $this->scanContentItems($contentItems);
 
-        /* Save last_updated date on course */
-        $course->setLastUpdated($this->util->getCurrentTime());
-        $course->setDirty(false);
+            $output->writeln("Updating report now...");
+            /* Step 5: Update report from all active issues */
+            $this->updateReport($course, $user, count($contentItems));
 
-        $this->doctrine->getManager()->flush();
+            /* Save last_updated date on course */
+            $course->setLastUpdated($this->util->getCurrentTime());
+            $course->setDirty(false);
 
-        // Return the list of updated ContentItems so the caller can dispatch
-        // one ScanContentItem message per item.
-        return $contentItems;
+            $this->doctrine->getManager()->flush();
+
+            if ($force) {
+                return $contentItems; // Return the updated content items if force is true
+            }
+        }
+        catch (\Exception $e) {
+            throw $e; // Rethrow the exception to be caught by the controller
+        }
     }
 
     public function getCourseSections(Course $course, User $user)
@@ -297,6 +310,7 @@ class LmsFetchService {
             }
             catch (\Exception $e) {
                 $this->util->createMessage($e->getMessage(), 'error', null, null, true);
+                throw $e; // Rethrow the exception to be caught by the controller
             }
         }
         $this->doctrine->getManager()->flush();
@@ -379,6 +393,10 @@ class LmsFetchService {
         $scanner = $_ENV['ACCESSIBILITY_CHECKER'];
         if ($scanner == 'equalaccess_lambda' || $scanner == 'equalaccess_local') {
           $issueType = $this->equalAccess->getIssueType($issue->getMetadata());
+          if($issueType == 'pass') {
+            // If the issue is a pass, we don't create an issue for it
+            return null;
+          }
         }
 
         $issueEntity->setType($issueType);

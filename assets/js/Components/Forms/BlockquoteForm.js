@@ -4,6 +4,7 @@ import * as Html from '../../Services/Html'
 
 export default function BlockquoteForm({
   t,
+  settings,
   activeIssue,
   handleIssueSave,
   isDisabled,
@@ -230,6 +231,8 @@ export default function BlockquoteForm({
       
       <FormFeedback
         t={t}
+        settings={settings}
+        activeIssue={activeIssue}
         isDisabled={isDisabled || formErrors.length > 0}
         handleSubmit={handleSubmit}
         formErrors={formErrors} />
