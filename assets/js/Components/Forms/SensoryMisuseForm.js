@@ -43,7 +43,6 @@ export default function SensoryMisuseForm({
   const includedAttributes = ['alt', 'title', 'aria-label']
 
   const editorRef = useRef(null)
-  
   const [sensoryErrors, setSensoryErrors] = useState([])
 
   useEffect(() => {
@@ -103,7 +102,12 @@ export default function SensoryMisuseForm({
     }
 
     const traverseNode = (node) => {
-      if (node?.nodeType === Node.TEXT_NODE) {
+
+      // Editor HTML is empty so node ends up empty
+      if(node === null)
+        return
+
+      if (node.nodeType === Node.TEXT_NODE) {
         // Check if the text node contains any sensory words
         checkText(node.textContent);
       }
