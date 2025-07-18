@@ -38,8 +38,7 @@
 
   .filter-pill {
     padding: .15rem .25rem .15rem .75rem;
-    background-color: var(--gray);
-    color: var(--white);
+    background-color: var(--gray-light);
     cursor: pointer;
     border-radius: 15px;
 
@@ -51,19 +50,22 @@
     }
 
     .filter-pill-remove {
-      background: var(--gray-light);
+      background: transparent;
       border-radius: 12px;
-      fill: var(--gray);
+      fill: var(--gray-dark);
     }
 
     &:hover,
     &:focus {
-      background-color: var(--gray-light);
-      color: var(--gray-dark);
+      background-color: var(--gray);
+
+      .filter-pill-text {
+        color: var(--white);
+      }
 
       .filter-pill-remove {
-        background: var(--gray);
-        fill: var(--white);
+        background: var(--white);
+        fill: var(--gray-dark);
       }
     }
 
@@ -79,7 +81,7 @@
   label {
     font-size: 0.9rem;
     font-weight: 500;
-    font-family: var(--heading-font-family);;
+    font-family: var(--heading-font-family);
     text-transform: uppercase;
   }
 }
