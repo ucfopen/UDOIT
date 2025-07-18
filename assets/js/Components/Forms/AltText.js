@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import FormFeedback from './FormFeedback'
 import * as Html from '../../Services/Html'
+import * as Text from '../../Services/Text'
 
 export default function AltText ({
   t,
@@ -62,10 +63,10 @@ export default function AltText ({
     
     // If the "Mark as Decorative" checkbox is checked, we don't need to check for input errors
     if (!isDecorative) {
-      if(isTextEmpty()){
+      if(Text.isTextEmpty(textInputValue)){
         tempErrors.push({ text: t('form.alt_text.msg.text_empty'), type: 'error' })
       }
-      if(isTextTooLong()){
+      if(Text.isTextTooLong(textInputValue, maxLength)){
         tempErrors.push({ text: t('form.alt_text.msg.text_too_long'), type: 'error' })
       }
       if(hasFileExtensions()) {
@@ -92,24 +93,6 @@ export default function AltText ({
 
   const handleCheckbox = () => {
     setIsDecorative(!isDecorative)
-  }
-
-  const isTextEmpty = () => {
-    const text = textInputValue.trim().toLowerCase()
-
-    if (text === '') {
-      return true
-    }
-    return false
-  }
-
-  const isTextTooLong = () => {
-    const text = textInputValue.trim().toLowerCase()
-
-    if (text.length > maxLength) {
-      return true
-    }
-    return false
   }
 
   const hasFileExtensions = () => {

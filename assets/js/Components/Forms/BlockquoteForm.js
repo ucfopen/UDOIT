@@ -70,8 +70,10 @@ export default function BlockquoteForm({
   const checkFormErrors = () => {
     const tempFormErrors = []
 
-    if (!removeBlockquote && citationText.trim() === '') {
-      tempFormErrors.push({text: t('form.blockquote.msg.text_empty'), type: 'error'})
+    if (!removeBlockquote) {
+      if(Text.isTextEmpty(citationText)) {
+        tempFormErrors.push({text: t('form.blockquote.msg.text_empty'), type: 'error'})
+      }
     }
 
     setFormErrors(tempFormErrors)

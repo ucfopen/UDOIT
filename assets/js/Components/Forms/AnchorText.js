@@ -1,5 +1,6 @@
 import React, {useState, useEffect} from 'react'
 import FormFeedback from './FormFeedback'
+import * as Text from '../../Services/Text'
 import * as Html from '../../Services/Html'
 
 export default function AnchorText({
@@ -79,46 +80,15 @@ export default function AnchorText({
     
     // If the "Delete Link" checkbox is checked, we don't need to check for input errors
     if(!deleteLink) {
-      if(!isTextDescriptive()) {
+      if(!Text.isTextDescriptive(textInputValue)) {
         tempErrors.push({ text: t('form.anchor.msg.text_descriptive'), type: 'error' })
       }
-      if(!isTextNotEmpty()) {
+      if(Text.isTextEmpty(textInputValue)) {
         tempErrors.push({text: t('form.anchor.msg.text_empty'), type: 'error'})
       }
     }
 
     setTextInputErrors(tempErrors)
-  }
-
-  const isTextDescriptive = () => {
-    const text = textInputValue.trim().toLowerCase()
-    const badOptions = [
-      'click',
-      'click here',
-      'details',
-      'here',
-      'learn',
-      'learn more',
-      'more',
-      'more info',
-      'more information',
-      'read',
-      'read more',
-      'visit',
-      'visit here',
-    ]
-    if (badOptions.includes(text)) {
-      return false
-    }
-    return true
-  }
-
-  const isTextNotEmpty = () => {
-    const text = textInputValue.trim().toLowerCase()
-    if (text === '') {
-      return false
-    }
-    return true
   }
 
   const handleInput = (event) => {
