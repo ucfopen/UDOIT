@@ -4,6 +4,7 @@ import * as Html from '../../Services/Html'
 
 export default function TableCaptionForm({
   t,
+  settings,
   activeIssue,
   handleIssueSave,
   isDisabled,
@@ -96,6 +97,8 @@ export default function TableCaptionForm({
       </div>
       <FormFeedback
         t={t}
+        settings={settings}
+        activeIssue={activeIssue}
         isDisabled={isDisabled}
         handleSubmit={handleSubmit}
         formErrors={textInputErrors} />

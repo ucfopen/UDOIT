@@ -7,11 +7,22 @@
     overflow-y: auto;
     min-height: 0;
     
-    /* This is so the highlighted error outlines don't get cut off */
-    padding-left: 5px;
-    padding-right: 5px;
-    margin-left: -5px;
-    margin-right: -5px;
+    /* The top padding is in the parent so the stick header doesn't look goofy. */
+    padding: 0 1rem 1rem 1rem;
+
+    .ufixit-list-section-container {
+      margin-bottom: .75rem;
+      border-radius: .8rem;
+      border: 1px solid var(--border-color);
+
+      &.open {
+        border: none;
+      }
+
+      &:last-child {
+        margin-bottom: 0;
+      }
+    }
 
     .ufixit-list-section-container {
       margin-bottom: .75rem;
@@ -95,7 +106,7 @@
       
       .data-pill.fixed {
         color: var(--primary-color);
-        border-color: var(--primary-color)
+        border-color: var(--primary-color);
       }
 
       /* &:nth-child(even) {

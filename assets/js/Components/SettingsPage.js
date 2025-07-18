@@ -30,9 +30,9 @@ export default function SettingsPage({
   }
 
   return (
-  <main>
-    <h1 className="primary-dark">{t('menu.settings')}</h1>
-    <div className="flex-row gap-4 mb-3">
+  <div className="flex-column settings-page-container h-100">
+    <h1 className="primary-dark flex-grow-0 flex-shrink-0">{t('menu.settings')}</h1>
+    <div className="flex-row flex-grow-1 flex-shrink-1 gap-4 non-scrollable">
       <div className="flex-column flex-start flex-grow-0 flex-shrink-0">
         <div className="callout-container flex-column flex-start">
           <div className="flex-row gap-1 mb-3">
@@ -98,6 +98,6 @@ export default function SettingsPage({
         </div>
       </div>
     </div>
-  </main>
+  </div>
   )
 }

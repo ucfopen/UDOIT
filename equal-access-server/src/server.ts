@@ -40,11 +40,10 @@ app.get('/', (_req, res) => {
  */
 app.post("/scan", asyncHandler(async (req, res) => {
   const html: string = req.body.html;
-  // console.log(`got page: ${html}`);
   const guidelineIds: string | string[] = req.body.guidelineIds || DEFAULT_ID;
   const reportLevels: string | string[] = req.body.reportLevels || DEFAULT_REPORT_LEVELS;
   const report: Report = await aceCheck(html, browser, guidelineIds, reportLevels);
-  
+
   // Modified to match Lambda output format
   res.status(200).json(report);
 }));
@@ -61,7 +60,6 @@ app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {
     });
     await initializePagePool(browser, 5);
     app.listen(PORT, () => {
-      console.log(`Server is running on port ${PORT}`);
     });
   } catch (err) {
     console.error("Error launching Puppeteer:", err);
@@ -70,7 +68,6 @@ app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {
 })();
 
 process.on('SIGINT', async () => {
-  console.log('Shutting down...');
   await closePagePool();
   if (browser) {
     await browser.close();

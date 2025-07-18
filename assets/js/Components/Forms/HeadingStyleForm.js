@@ -4,6 +4,7 @@ import * as Html from '../../Services/Html'
 
 export default function HeadingStyleForm ({
   t,
+  settings,
   activeIssue,
   handleIssueSave,
   isDisabled,
@@ -115,6 +116,8 @@ export default function HeadingStyleForm ({
       </div>
       <FormFeedback
         t={t}
+        settings={settings}
+        activeIssue={activeIssue}
         isDisabled={isDisabled}
         handleSubmit={handleSubmit} />
     </>

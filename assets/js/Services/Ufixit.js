@@ -1,6 +1,7 @@
 import AltText from '../Components/Forms/AltText'
 import AnchorText from '../Components/Forms/AnchorText'
 import AriaRoleForm from '../Components/Forms/AriaRoleForm'
+import BlockquoteForm from '../Components/Forms/BlockquoteForm'
 import ContrastForm from '../Components/Forms/ContrastForm'
 import EmbeddedContentTitleForm from '../Components/Forms/EmbeddedContentTitleForm'
 import EmphasisForm from '../Components/Forms/EmphasisForm'
@@ -8,6 +9,7 @@ import HeadingEmptyForm from '../Components/Forms/HeadingEmptyForm'
 import HeadingStyleForm from '../Components/Forms/HeadingStyleForm'
 import LabelForm from '../Components/Forms/LabelForm'
 import LinkForm from '../Components/Forms/LinkForm'
+import ListForm from '../Components/Forms/ListForm'
 import MediaCaptionsForm from '../Components/Forms/MediaCaptionsForm'
 import QuoteForm from '../Components/Forms/QuoteForm'
 import SensoryMisuseForm from '../Components/Forms/SensoryMisuseForm'
@@ -21,6 +23,7 @@ export const formNames = {
   ALT_TEXT: 'alt_text',
   ANCHOR_TEXT: 'anchor_text',
   ARIA_ROLE: 'aria_role',
+  BLOCKQUOTE: 'blockquote',
   CONTRAST: 'contrast',
   EMBEDDED_CONTENT_TITLE: 'embedded_content_title',
   EMPHASIS: 'emphasis',
@@ -29,6 +32,7 @@ export const formNames = {
   LABEL: 'label',
   LABEL_UNIQUE: 'label_unique',
   LINK: 'link',
+  LIST: 'list',
   MEDIA_CAPTIONS: 'media_captions',
   QUOTE: 'quote',
   SENSORY_MISUSE: 'sensory_misuse',
@@ -42,6 +46,7 @@ const formTypes = {
   [formNames.ALT_TEXT]: AltText,
   [formNames.ANCHOR_TEXT]: AnchorText,
   [formNames.ARIA_ROLE]: AriaRoleForm,
+  [formNames.BLOCKQUOTE]: BlockquoteForm,
   [formNames.CONTRAST]: ContrastForm,
   [formNames.EMBEDDED_CONTENT_TITLE]: EmbeddedContentTitleForm,
   [formNames.EMPHASIS]: EmphasisForm,
@@ -50,6 +55,7 @@ const formTypes = {
   [formNames.LABEL]: LabelForm,
   [formNames.LABEL_UNIQUE]: LabelForm,
   [formNames.LINK]: LinkForm,
+  [formNames.LIST]: ListForm,
   [formNames.MEDIA_CAPTIONS]: MediaCaptionsForm,
   [formNames.QUOTE]: QuoteForm,
   [formNames.SENSORY_MISUSE]: SensoryMisuseForm,
@@ -95,6 +101,9 @@ const rulesToFormNameMap = {
   area_alt_exists: formNames.ANCHOR_TEXT,
 
   aria_role_valid: formNames.ARIA_ROLE,
+  aria_role_allowed: formNames.ARIA_ROLE,
+
+  blockquote_cite_exists: formNames.BLOCKQUOTE,
 
   text_contrast_sufficient: formNames.CONTRAST,
   
@@ -130,11 +139,14 @@ const rulesToFormNameMap = {
   aria_region_label_unique: formNames.LABEL_UNIQUE,
   aria_search_label_unique: formNames.LABEL_UNIQUE,
   aria_toolbar_label_unique: formNames.LABEL_UNIQUE,
-  
+
+  list_children_valid: formNames.LIST,
+  list_markup_review: formNames.LIST,
+  list_structure_proper: formNames.LIST,
+
   caption_track_exists: formNames.MEDIA_CAPTIONS,
   media_audio_transcribed: formNames.MEDIA_CAPTIONS,
-
-  blockquote_cite_exists: formNames.QUOTE,
+  
   text_quoted_correctly: formNames.QUOTE,
 
   text_sensory_misuse: formNames.SENSORY_MISUSE,
@@ -143,8 +155,6 @@ const rulesToFormNameMap = {
   table_caption_nested: formNames.TABLE_CAPTION,
 
   table_headers_exists: formNames.TABLE_HEADERS,
-
-  
 }
 
 export function formFromIssue(activeIssue) {

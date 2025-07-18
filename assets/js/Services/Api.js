@@ -89,7 +89,7 @@ export default class Api {
             headers: {
                 'X-AUTH-TOKEN': authToken,
             },
-            body: JSON.stringify({sourceHtml: issue.sourceHtml, newHtml: issue.newHtml, fullPageHtml: fullPageHtml}),
+            body: JSON.stringify({sourceHtml: issue.sourceHtml, newHtml: issue.newHtml, fullPageHtml: fullPageHtml, xpath: issue.xpath}),
         })
     }
 
@@ -106,7 +106,7 @@ export default class Api {
                 'Content-Type': 'application/json',
                 'X-AUTH-TOKEN': authToken,
             },
-            body: JSON.stringify({status: issue.status, sourceHtml: issue.sourceHtml, newHtml: issue.newHtml, fullPageHtml: fullPageHtml}),
+            body: JSON.stringify({status: issue.status, sourceHtml: issue.sourceHtml, newHtml: issue.newHtml, fullPageHtml: fullPageHtml, xpath: issue.xpath}),
         })
     }
 

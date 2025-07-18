@@ -19,13 +19,13 @@ export default function MediaCaptionsForm({
     <>
       <h3>{t('form.media_captions.label.videos')}</h3>
       <p>{t('form.media_captions.label.description')}</p>
-      <button
+      {/* <button
         className="btn btn-primary"
         tabindex="0"
         disabled={isDisabled}
         onClick={checkForCaptions}>
         {t('form.media_captions.button.scan_video')}
-      </button>
+      </button> */}
     </>
   )
 }

@@ -14,7 +14,7 @@
     input {
       font-size: 0.85rem;
       font-weight: 400;
-      font-family: 'Open Sans', Arial, Helvetica, sans-serif;
+      font-family: var(--text-font-family);
       padding: .4rem 1.75rem .4rem .5rem;
       border: 1px solid var(--border-color);
       border-radius: 8px;
@@ -47,6 +47,7 @@
       font-size: 0.8rem;
       font-weight: 500;
       text-transform: uppercase;
+      color: var(--gray-dark);
     }
 
     .filter-pill-remove {
@@ -78,7 +79,7 @@
   label {
     font-size: 0.9rem;
     font-weight: 500;
-    font-family: 'Reddit Sans', Arial, Helvetica, sans-serif;
+    font-family: var(--heading-font-family);;
     text-transform: uppercase;
   }
 }

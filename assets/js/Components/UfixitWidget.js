@@ -3,6 +3,7 @@ import SeverityIcon from './Icons/SeverityIcon';
 import FixedIcon from './Icons/FixedIcon';
 import ResolvedIcon from './Icons/ResolvedIcon';
 import LeftArrowIcon from './Icons/LeftArrowIcon'
+import CloseIcon from './Icons/CloseIcon'
 import ListIcon from './Icons/ListIcon'
 import RightArrowIcon from './Icons/RightArrowIcon'
 import ProgressIcon from './Icons/ProgressIcon'
@@ -22,8 +23,10 @@ export default function UfixitWidget({
   viewInfo,
   setViewInfo,
   severity,
+  addMessage,
   activeIssue,
   setActiveIssue,
+  activeContentItem,
   setEditedElement,
   formatIssueData,
   handleIssueResolve,
@@ -38,31 +41,93 @@ export default function UfixitWidget({
 }) {
 
   const [UfixitForm, setUfixitForm] = useState(null)
-  const [formName, setFormName] = useState('')
+  const [formSummary, setFormSummary] = useState('')
+  const [formLearnMore, setFormLearnMore] = useState('')
+  const [showClarification, setShowClarification] = useState(false)
+  const [showLearnMore, setShowLearnMore] = useState(false)
 
   // The tempActiveIssue is what is sent to the form to be manipulated and can be updated
   // over and over again by the form as the HTML or other data is changed.
   const [tempActiveIssue, setTempActiveIssue] = useState(null)
+  
+  const formatEqualAccessMessage = () => {
+    if(!activeIssue || !activeIssue.issueData || !activeIssue.issueData.metadata) {
+      return ''
+    }
+    const metadata = JSON.parse(activeIssue.issueData.metadata)
+    if(!metadata.message || metadata.message === '') {
+      return ''
+    }
+    let message = metadata.message
+    if(metadata.messageArgs && metadata.messageArgs.length > 0) {
+      for(let i = 0; i < metadata.messageArgs.length; i++) {
+        message = message.replace(`{${i}}`, metadata.messageArgs[i])
+      }
+    }
+    message = message.replaceAll('<', '&lt;')
+    message = message.replaceAll('>', '&gt;')
+    message = message.replaceAll('&lt;', '<code>&lt;')
+    message = message.replaceAll('&gt;', '&gt;</code>')
+    return message
+  }
 
   useEffect(() => {
     if(activeIssue) {
       setTempActiveIssue(Object.assign({}, activeIssue))
       if(activeIssue.contentType === settings.FILTER.FILE_OBJECT) {
         setUfixitForm(() => { return FileForm })
+        setFormSummary(t('form.file.summary'))
+        setFormLearnMore(t(`form.file.${activeIssue.fileData.fileType}.learn_more`))
+        setShowClarification(false)
+        setShowLearnMore(true)
       }
       else {
         setUfixitForm(() => formFromIssue(activeIssue.issueData))
-        setFormName(formNameFromRule(activeIssue.scanRuleId))
+        let tempFormName = formNameFromRule(activeIssue.scanRuleId)
+        if(tempFormName === 'review_only') {
+          setShowClarification(false)
+          let ruleSummary = t(`rule.summary.${activeIssue.scanRuleId}`)
+          if(ruleSummary === `rule.summary.${activeIssue.scanRuleId}`) {
+            ruleSummary = formatEqualAccessMessage()
+          }
+          setFormSummary(ruleSummary)
+
+          let ruleLearnMore = t(`rule.desc.${activeIssue.scanRuleId}`)
+          if(ruleLearnMore === `rule.desc.${activeIssue.scanRuleId}`) {
+            setShowLearnMore(false)
+          }
+          else {
+            setShowLearnMore(true)
+          }
+          setFormLearnMore(ruleLearnMore)
+        }
+        else {
+          setFormSummary(t(`form.${tempFormName}.summary`))
+          setFormLearnMore(t(`form.${tempFormName}.learn_more`))
+          setShowClarification(true)
+          setShowLearnMore(true)
+        }
       }
-      setTempActiveIssue(Object.assign({}, activeIssue))
-      console.log('UfixitWidget: activeIssue', activeIssue)
+      setTempActiveIssue(Object.assign({}, activeIssue, { showLongDesc: false }))
     }
     else {
-      setFormName('')
       setUfixitForm(null)
       setTempActiveIssue(null)
     }
   }, [activeIssue])
+
+  const setShowLongDesc = (showLongDesc) => {
+    const tempIssue = Object.assign({}, tempActiveIssue)
+    tempIssue.showLongDesc = showLongDesc
+    setTempActiveIssue(tempIssue)
+    if(showLongDesc) {
+      const dialog = document.getElementById('learn-more-dialog')
+      dialog.showModal()
+    } else {
+      const dialog = document.getElementById('learn-more-dialog')
+      dialog.close()
+    }
+  }
 
   const handleActiveIssue = (newIssue) => {
     const tempIssue = Object.assign({}, tempActiveIssue)
@@ -80,13 +145,13 @@ export default function UfixitWidget({
     <>
       {UfixitForm && activeIssue ? 
         (
-          <>
+          <div class="ufixit-widget flex-column flex-grow-1">
             {/* The header with the issue name and severity icon */}
-            <div className="ufixit-widget-header flex-row justify-content-between mb-2">
+            <div className="ufixit-widget-header flex-row justify-content-between mb-3 pb-1">
               <div className="flex-column justify-content-center allow-word-break">
                 <h2 className="mt-0 mb-0 primary-text">{activeIssue.formLabel}</h2>
               </div>
-              <div className="flex-column justify-content-center ml-3">
+              <div className="flex-column justify-content-start ml-3">
                 {
                   activeIssue.status === settings.FILTER.ACTIVE ? (
                     <SeverityIcon type={severity} alt="" className="icon-lg"/>
@@ -98,140 +163,81 @@ export default function UfixitWidget({
                 }
               </div>
             </div>
-
-            {/* The "Learn More" toggle button */}
-            <div className='mb-3 flex-row justify-content-center' >
-              <button
-                className={`btn btn-primary btn-header ${viewInfo ? 'btn-icon-left' : 'btn-icon-right'}`}
-                onClick={() => setViewInfo(!viewInfo)}
-                tabindex="0" >
-                { viewInfo && (
-                  <div className="flex-column justify-content-center">
-                    <LeftArrowIcon className="me-2 icon-sm" />
-                  </div>
-                )}
-                <div className="flex-column justify-content-center">
-                  { viewInfo ? t('fix.button.hide_learn_more') : t('fix.button.show_learn_more') }
-                </div>
-                { !viewInfo && (
-                  <div className="flex-column justify-content-center">
-                    <RightArrowIcon className="ms-2 icon-sm" />
-                  </div>
-                )}
+            <div className="ufixit-learn-container flex-shrink-0 mb-2" aria-hidden={!viewInfo ? "true" : "false"} 
+              dangerouslySetInnerHTML={{__html: formSummary}}
+            />
+            { showClarification && (<FormClarification t={t} activeIssue={activeIssue} />)}
+            { showLearnMore && ( <div className="flex-row justify-content-end mb-3">
+              <button className="btn btn-link btn-small btn-icon-left" onClick={() => setShowLongDesc(true)}>
+                <InfoIcon className="icon-md" />
+                <div>{t('fix.button.learn_more')}</div>
               </button>
-            </div>
-
-            <div className={`ufixit-double-container flex-grow-1 flex-row gap-3 ${viewInfo ? 'ufixit-shift-view' : ''}`}>
-              { /* First item: the form and controls... Visible when !viewInfo, so 'ufixit-shift-view' is NOT applied */}
-              <div className="flex-grow-1 flex-column ufixit-form-container" aria-hidden={viewInfo ? "true" : "false"} >
-                <div className="ufixit-form-inner-scrollable flex-column">
-                  <div className="flex-grow-0">
-                    <FormClarification t={t} activeIssue={activeIssue} />
-                  </div>
-                  {/* <h2>{activeIssue.scanRuleId}</h2> */}
-                  { activeIssue.status !== settings.FILTER.RESOLVED &&
-                    <div className="flex-grow-1 ufixit-form-content">
-                      { activeIssue.contentType === settings.FILTER.FILE_OBJECT ? (
-                        <FileForm
-                          t={t}
-                          settings={settings}
-                          activeFile={activeIssue}
-                          handleFileUpload={handleFileUpload} /> )
-                        : (
-                        <UfixitForm
-                          t={t}
-                          settings={settings}
-                          isDisabled={!isErrorFoundInContent}
-                          activeIssue={tempActiveIssue.issueData}
-                          handleIssueSave={handleIssueSave}
-                          handleActiveIssue={handleActiveIssue} /> )
-                      }
-                    </div>
-                  }
-                  <div className="flex-grow-0">
-                    <FixIssuesResolve
+            </div> )}
+            
+            { activeIssue.status !== settings.FILTER.RESOLVED ? (
+              <div className="flex-column flex-grow-1 justify-content-between ufixit-form-content">
+                <div>
+                  { activeIssue.contentType === settings.FILTER.FILE_OBJECT ? (
+                    <FileForm
                       t={t}
                       settings={settings}
-                      activeIssue={activeIssue}
+                      activeFile={activeIssue}
+                      handleFileUpload={handleFileUpload} /> )
+                    : (
+                    <UfixitForm
+                      t={t}
+                      settings={settings}
                       isDisabled={!isErrorFoundInContent}
-                      handleFileResolve={handleFileResolve}
-                      handleIssueResolve={handleIssueResolve}
-                    />
-                  </div>
+                      activeIssue={tempActiveIssue.issueData}
+                      handleIssueSave={handleIssueSave}
+                      addMessage={addMessage}
+                      handleActiveIssue={handleActiveIssue} /> )
+                  }
                 </div>
-                { !isErrorFoundInContent && (
-                  <div className="ufixit-overlay flex-column justify-content-start">
-                    <div className="ufixit-overlay-content-container flex-row justify-content-center mt-3">
-                      <div className="flex-column justify-content-start me-3">
-                        { isContentLoading ? (
-                          <ProgressIcon className="icon-lg udoit-suggestion spinner" />
-                        ) : (
-                          <InfoIcon className="icon-lg udoit-suggestion" />
-                        )}
-                      </div>
-                      <div className="flex-column justify-content-center">
-                        <h3 className="mb-0 mt-0">
-                          {isContentLoading ? t('fix.label.loading_content') : t('fix.label.no_saving')}
-                        </h3>
-                      </div>
-                    </div>
-                  </div>
-                )}
-                { (activeIssue.currentState === settings.ISSUE_STATE.SAVING || activeIssue.currentState === settings.ISSUE_STATE.RESOLVING) && 
-                  <div className="ufixit-overlay flex-column justify-content-start">
-                    <div className="ufixit-overlay-content-container flex-row justify-content-center mt-3">
-                      <div className="flex-column justify-content-center me-3">
-                        <ProgressIcon className="icon-lg udoit-suggestion spinner" />
-                      </div>
-                      <div className="flex-column justify-content-center">
-                        <h3 className="mb-0 mt-0">{t('form.processing')}</h3>
-                      </div>
-                    </div>
-                  </div>
-                }
+                <FixIssuesResolve
+                  t={t}
+                  settings={settings}
+                  activeIssue={activeIssue}
+                  isDisabled={!isErrorFoundInContent}
+                  handleFileResolve={handleFileResolve}
+                  handleIssueResolve={handleIssueResolve}
+                />
               </div>
-              { /* Second item: the "Learn More" area... Visible when viewInfo, so 'ufixit-shift-view' IS applied */}
-              <div className="flex-grow-1 ufixit-learn-container" aria-hidden={!viewInfo ? "true" : "false"} >
-                { activeIssue.contentType === settings.FILTER.FILE_OBJECT
-                  ? ReactHtmlParser(t(`form.file.${activeIssue.fileData.fileType}.learn_more`), { preprocessNodes: (nodes) => Html.processStaticHtml(nodes, settings) })
-                  : formName !== 'review_only' || t(`rule.desc.${activeIssue.scanRuleId}`) === `rule.desc.${activeIssue.scanRuleId}`
-                    ? ReactHtmlParser(t(`form.${formName}.learn_more`), { preprocessNodes: (nodes) => Html.processStaticHtml(nodes, settings) })
-                    : ReactHtmlParser(t(`rule.desc.${activeIssue.scanRuleId}`), { preprocessNodes: (nodes) => Html.processStaticHtml(nodes, settings) })
-                }
-              </div>
-            </div>
-
-            {/* The "Previous", "Next", and "List View" buttons (footer nav) */}
-            <div className="flex-row justify-content-between mt-2">
-
-              <button
-                className={`btn text-button btn-icon-left ps-0 ${listLength < 2 ? 'disabled' : ''}`}
-                onClick={() => nextIssue(true)}
-                tabindex="0">
-                <LeftArrowIcon className={listLength < 2 ? 'gray' : 'link-color'} />
-                <div className="flex-column justify-content-center">{t('fix.button.previous')}</div>
-              </button>
-
-              <button
-                className="btn text-button btn-icon-only"
-                onClick={() => toggleListView()}
-                tabindex="0"
-                aria-label={t('fix.button.list')}
-                title={t('fix.button.list')}>
-                <ListIcon className="link-color" />
-              </button>
-
-              <button
-                className={`btn text-button btn-icon-right pe-0 ${listLength < 2 ? 'disabled' : ''}`}
-                onClick={() => nextIssue()}
-                tabindex="0">
-                <div className="flex-column justify-content-center">{t('fix.button.next')}</div>
-                <RightArrowIcon className={listLength < 2 ? 'gray' : 'link-color'} />
-              </button>
-
-            </div>
-          </>
+            ) : (
+              <FixIssuesResolve
+                t={t}
+                settings={settings}
+                activeIssue={activeIssue}
+                isDisabled={!isErrorFoundInContent}
+                handleFileResolve={handleFileResolve}
+                handleIssueResolve={handleIssueResolve}
+              />
+            )}
+          </div>
         ) : ''}
+      <dialog id="learn-more-dialog">
+        <div className="ufixit-widget-dialog flex-column">
+          <div className="ufixit-widget-dialog-header flex-row justify-content-between">
+            <div className="flex-column justify-content-center allow-word-break">
+              <h2 className="mt-0 mb-0 primary-text">{activeIssue.formLabel}</h2>
+            </div>
+            <div className="flex-column justify-content-start ml-3">
+              <button className="close-icon btn-icon-only btn-small" title={t('fix.button.close_learn_more')} alt={t('fix.button.close_learn_more')} onClick={() => setShowLongDesc(false)} tabIndex="0">
+                <CloseIcon className="icon-md primary" />
+              </button>
+            </div>
+          </div>
+          <div className="ufixit-widget-dialog-content flex-column flex-grow-1">
+            <div className="flex-grow-1 flex-column ufixit-learn-container pt-3 pb-3"
+              dangerouslySetInnerHTML={{__html: formLearnMore }} />
+            <div className="flex-row justify-content-center mb-3">
+              <button className="btn-secondary" onClick={() => setShowLongDesc(false)} tabIndex="0">
+                {t('fix.button.close_learn_more')}
+              </button>
+            </div>
+          </div>
+        </div>
+      </dialog>
     </>
   )
 }

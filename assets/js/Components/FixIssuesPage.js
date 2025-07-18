@@ -221,7 +221,7 @@ export default function FixIssuesPage({
     let formLabel = t(`form.${formName}.title`)
 
     return {
-      issueData: Object.assign({}, issue),
+      issueData: Object.assign({}, issue, { contentUrl: tempContentItem?.url || '' }),
       id: issue.id,
       severity: issueSeverity,
       status: issueResolution,
@@ -818,6 +818,13 @@ export default function FixIssuesPage({
     }
 
     let fullPageHtml = getNewFullPageHtml(activeContentItem, issue)
+    let fullPageDoc = new DOMParser().parseFromString(fullPageHtml, 'text/html')
+    let newElement = Html.findElementWithError(fullPageDoc, issue?.newHtml)
+    let newXpath = Html.findXpathFromElement(newElement)
+    if(newXpath) {
+      issue.xpath = newXpath
+      activeContentItem.body = fullPageHtml
+    }
 
     // Save the updated issue using the LMS API
     let api = new Api(settings)

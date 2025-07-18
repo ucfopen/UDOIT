@@ -83,6 +83,7 @@ export default function FixIssuesContentPreview({
   const ALT_TEXT_RELATED = [
     formNames.ALT_TEXT,            
     formNames.ANCHOR_TEXT,
+    formNames.BLOCKQUOTE,
     formNames.EMBEDDED_CONTENT_TITLE,
     formNames.LABEL,
     formNames.LABEL_UNIQUE
@@ -339,7 +340,7 @@ export default function FixIssuesContentPreview({
 
   const scrollToElement = (element) => {
     if (element) {
-      element.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'center' })
+      element.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'nearest' })
     }
   }
 
@@ -389,8 +390,8 @@ export default function FixIssuesContentPreview({
       <div className="ufixit-content-preview">
 
         { activeContentItem && (
-          <div className="ufixit-content-preview-rescan-container">
-            <div className={`ufixit-content-preview-rescan flex-row ${contentItemsBeingScanned.includes(activeContentItem.id) ? 'active' : 'hidden'}`}>
+          <div className={`ufixit-content-preview-rescan-container ${contentItemsBeingScanned.includes(activeContentItem.id) ? 'active' : ''}`}>
+            <div className="ufixit-content-preview-rescan flex-row">
               <div className="flex-column align-self-center">
                 <ProgressIcon className="icon-md udoit-suggestion spinner" />
               </div>
