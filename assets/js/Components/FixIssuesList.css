@@ -32,7 +32,7 @@
       position: sticky;
       top: 0;
       background-color: transparent;
-      padding: 1rem;
+      padding: .75rem 1rem;
       cursor: pointer;
       border-radius: .8rem .8rem .8rem .8rem;
       transition: border-radius var(--transition-time) ease-in-out;
