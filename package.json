@@ -21,7 +21,8 @@
         "msw": "^2.10.4",
         "regenerator-runtime": "^0.14.1",
         "webpack-cli": "^5.1.4",
-        "webpack-notifier": "^1.15.0"
+        "webpack-notifier": "^1.15.0",
+        "whatwg-fetch": "^3.6.20"
     },
     "license": "GPL-3.0-only",
     "private": true,
