@@ -19,7 +19,7 @@ jobs:
       matrix:
         operating-system: [ubuntu-latest]
         php-versions: ['8.4']
-        node-version: [20.0.0]
+        node-version: [20.19.0]
     steps:
       - uses: actions/checkout@v2
 
