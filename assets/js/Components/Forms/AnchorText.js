@@ -103,14 +103,6 @@ export default function AnchorText({
   
   return (
     <>
-      {linkUrl !== '' && (
-        <div className="flex-row justify-content-end gap-1 mb-2">
-          <div className="ufixit-widget-label">Link:</div>
-          <a href={linkUrl} target="_blank" rel="noopener noreferrer" tabIndex="0" className="link-small">
-            {linkUrl}
-          </a>
-        </div>
-      )}
       <label htmlFor="linkTextInput" className="instructions">{t('form.anchor.link_text')}</label>
       <input
         name="linkTextInput"
@@ -133,6 +125,14 @@ export default function AnchorText({
           onChange={handleDeleteCheckbox} />
         <label htmlFor="deleteLinkCheckbox" className="instructions">{t('form.anchor.delete_link')}</label>
       </div>
+      {linkUrl !== '' && (
+        <div className="flex-row justify-content-end gap-1 mt-3">
+          <div className="ufixit-widget-label">Link:</div>
+          <a href={linkUrl} target="_blank" rel="noopener noreferrer" tabIndex="0" className="link-small">
+            {linkUrl}
+          </a>
+        </div>
+      )}
       <FormFeedback
         t={t}
         settings={settings}

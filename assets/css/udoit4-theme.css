@@ -722,7 +722,7 @@ button:disabled {
 .separator::after {
   content: '';
   flex: 1;
-  border-bottom: 1px solid var(--gray);
+  border-bottom: 2px solid var(--gray);
 }
 
 .separator:not(:empty)::before {

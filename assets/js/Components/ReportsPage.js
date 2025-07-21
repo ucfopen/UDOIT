@@ -13,11 +13,8 @@ export default function ReportsPage({t, report, settings, quickSearchTerm}) {
   const [reports, setReports] = useState([])
   const [fetchedReports, setFetchedReports] = useState(false)
   const [issues, setIssues] = useState([])
-  const [chartVisibility, setChartVisibility] = useState({
-    issues: true,
-    potentialIssues: true,
-    suggestions: true
-  })
+  const [showChart, setShowChart] = useState(true)
+  const [showTable, setShowTable] = useState(false)
 
   const getReportHistory = () => {
     const api = new Api(settings)
@@ -73,10 +70,10 @@ export default function ReportsPage({t, report, settings, quickSearchTerm}) {
     setIssues(processIssues(report))
   }, [report])
 
-  const toggleChartVisibility = (chart) => {
-    const tempVisibility = Object.assign({}, chartVisibility, {[chart]: !chartVisibility[chart]})
-    setChartVisibility(tempVisibility)
-  }
+  // const toggleChartVisibility = (chart) => {
+  //   const tempVisibility = Object.assign({}, chartVisibility, {[chart]: !chartVisibility[chart]})
+  //   setChartVisibility(tempVisibility)
+  // }
 
   const getPrintableReportsTable = (reports, t) => {
     const headers = [
@@ -180,13 +177,12 @@ export default function ReportsPage({t, report, settings, quickSearchTerm}) {
           <h2>${t('report.label.printed_report')}</h2>
           <div id="printResolutionsReport">
             <img src="${dataUrl}" alt="${t('report.label.resolutions_chart')}" style="max-width: 100%; height: auto; margin-bottom: 20px;" />
-            
-          </div>
-          <div id="issuesTable">
-            ${issuesTableRaw}
           </div>
           <div id="reportsTable">
             ${reportsTableRaw}
+          </div>
+          <div id="issuesTable">
+            ${issuesTableRaw}
           </div>
           <script>
             window.onload = function () {
@@ -240,18 +236,44 @@ export default function ReportsPage({t, report, settings, quickSearchTerm}) {
 
       { (fetchedReports && reports.length > 0) && (
         <div className="flex-column">
-          <div className="flex-row justify-content-between gap-3">
-
-            <div className="flex-column flex-shrink-1 flex-grow-1">
-              <div className="flex-row w-100 justify-content-center">
-                <h2 className="primary-dark mt-0 mb-3">{t('report.title.barriers_remaining')}</h2>
-              </div>
-              <div id="resolutionsReport" className="graph-container">
-                <ResolutionsReport t={t} reports={reports} visibility={chartVisibility} />
-              </div>
+          <div className="flex-row justify-content-start gap-2 flex-wrap options-container">
+            <div className="options-label">{t('report.label.progress_over_time')}</div>
+            <div className="flex-row gap-1">
+              <input type="checkbox" id="showChart" name="showChart"
+                checked={showChart}
+                onChange={() => setShowChart(!showChart)} />
+              <label className="fw-bolder" htmlFor="showChart">{t('report.option.show_chart')}</label>
             </div>
+            <div className="flex-row gap-1">
+              <input type="checkbox" id="showTable" name="showTable"
+                checked={showTable}
+                onChange={() => setShowTable(!showTable)} />
+              <label className="fw-bolder" htmlFor="showTable">{t('report.option.show_table')}</label>
+            </div>
+          </div>
+          <div className="flex-column w-100 flex-shrink-1 flex-grow-1">
+            { showChart && (
+              <div className="mt-4">
+                <div className="flex-row w-100 justify-content-center">
+                  <h2 className="primary-dark mt-0 mb-3">{t('report.title.barriers_remaining')}</h2>
+                </div>
+                <div id="resolutionsReport" className="graph-container">
+                  <ResolutionsReport t={t} reports={reports}/>
+                </div>
+              </div>
+            )}
 
-            <div className="flex-column flex-grow-0 flex-shrink-0 justify-content-start">
+            { showTable && (
+              <div className="mt-4">
+                <ReportsTable
+                  t={t}
+                  reports={reports}/>
+              </div>
+            )}
+            
+          </div>
+
+            {/* <div className="flex-column flex-grow-0 flex-shrink-0 justify-content-start">
               <div className="callout-container">
                 <h3 className="primary-dark mt-0">{t('report.title.options')}</h3>
                 <div className="flex-row gap-1 mb-2">
@@ -288,9 +310,7 @@ export default function ReportsPage({t, report, settings, quickSearchTerm}) {
                   <label htmlFor="suggestionsToggle">{t('report.option.show_suggestions')}</label>
                 </div>
               </div>
-            </div>
-
-          </div>
+            </div> */}
 
           <div className="mt-4">
             <IssuesTable
@@ -298,12 +318,6 @@ export default function ReportsPage({t, report, settings, quickSearchTerm}) {
               settings={settings}
               quickSearchTerm={quickSearchTerm}
               issues={issues}/>
-          </div>
-
-          <div className="mt-4">
-            <ReportsTable
-              t={t}
-              reports={reports}/>
           </div>
         </div>
       )}

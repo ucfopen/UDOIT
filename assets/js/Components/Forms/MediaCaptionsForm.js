@@ -1,31 +1,21 @@
 import React from 'react'
+import FormExternalLink from './FormExternalLink'
 
 export default function MediaCaptionsForm({
   t,
+  settings,
   activeIssue,
   isDisabled
 }) {
 
-  const handleVideoRescan = () => {
-    // handleManualScan(activeIssue)
-    console.log('Video rescan triggered for issue:', activeIssue.id)
-  }
-
-  const checkForCaptions = () => {
-    
-  }
-
   return (
-    <>
-      <h3>{t('form.media_captions.label.videos')}</h3>
-      <p>{t('form.media_captions.label.description')}</p>
-      {/* <button
-        className="btn btn-primary"
-        tabIndex="0"
-        disabled={isDisabled}
-        onClick={checkForCaptions}>
-        {t('form.media_captions.button.scan_video')}
-      </button> */}
-    </>
+    <div className="flex-column">
+      <div dangerouslySetInnerHTML={{__html: t('form.review_only.summary')}}></div>
+      <FormExternalLink
+        t={t}
+        settings={settings}
+        activeIssue={activeIssue}
+      />
+    </div>
   )
 }
