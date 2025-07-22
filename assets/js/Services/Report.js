@@ -13,6 +13,32 @@ import * as Html from './Html'
  *      understandable fields: xpath, sourceHtml, and newHtml.
  **/
 
+const checkTextBlockHeading = (issue, element) => {
+  let issueIgnored = false
+  
+  if(issue.scanRuleId !== 'text_block_heading') {
+    return false
+  }
+  // For the text_block_heading rule, we need to check if the element is inside a table cell.
+  let parentElement = element.parentElement
+  while(parentElement) {
+    if(parentElement.tagName.toLowerCase() === 'th' || parentElement.tagName.toLowerCase() === 'td') {
+      issueIgnored = true
+    }
+    else if(issueIgnored && parentElement.tagName.toLowerCase() === 'table') {
+      // If the table is decorative, there may be a valid reason for heading elements inside it.
+      let role = parentElement.getAttribute('role')
+      let ariaHidden = parentElement.getAttribute('aria-hidden')
+      if((role && role === 'presentation') || (ariaHidden && ariaHidden === 'true')) {
+        issueIgnored = false
+      }
+    }
+    parentElement = parentElement.parentElement
+  }
+
+  return issueIgnored
+}
+
 export function analyzeReport(report, ISSUE_STATE) {
   let tempReport = {
     contentFixed: report.contentFixed || 0,
@@ -74,6 +100,13 @@ export function analyzeReport(report, ISSUE_STATE) {
             let specificError = 'udoit-ignore-' + issue.scanRuleId.replaceAll("_", "-")
             let classesArray = elementClasses.split(' ')
             if(classesArray.includes('phpally-ignore') || classesArray.includes(specificError)) {
+              issueIgnored = true
+            }
+          }
+          
+          // For the text_block_heading rule, we need to check if the element is inside a table cell.
+          if(issue.scanRuleId === 'text_block_heading') {
+            if(checkTextBlockHeading(issue, element)) {
               issueIgnored = true
             }
           }

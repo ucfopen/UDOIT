@@ -33,7 +33,7 @@ export default function FixIssuesList({ t, settings, groupedList, setActiveIssue
 
   return (
     <div className="ufixit-list-container flex-column">
-      <div className="ufixit-list-scrollable flex-grow-1" tabindex="-1">
+      <div className="ufixit-list-scrollable flex-grow-1" tabIndex="-1">
         { groupedList.length > 0 ? groupedList.map((group, i) => {
           return (
             <div className={`ufixit-list-section-container ${openList[group.formLabel] ? 'open' : 'closed'}`} key={i}>
@@ -44,7 +44,7 @@ export default function FixIssuesList({ t, settings, groupedList, setActiveIssue
                     toggleGroup(group)
                   }
                 }}
-                tabindex="0">
+                tabIndex="0">
                 <h3 className="allow-word-break align-self-center">{group.formLabel}</h3>
                 <div className="flex-row justify-content-end gap-3">
                   <div className="ufixit-list-heading-count align-self-center">
@@ -56,7 +56,7 @@ export default function FixIssuesList({ t, settings, groupedList, setActiveIssue
                 </div>
               </div>
               <div className={`ufixit-list-items-container ${openList[group.formLabel] ? 'open' : 'closed'}`}
-                tabindex="-1">
+                tabIndex="-1">
                 { group.issues.map((issue, j) => {
                   return (
                     <div
@@ -68,7 +68,7 @@ export default function FixIssuesList({ t, settings, groupedList, setActiveIssue
                           setActiveIssue(issue)
                         }
                       }}
-                      tabindex={openList[group.formLabel] ? '0' : '-1'} >
+                      tabIndex={openList[group.formLabel] ? '0' : '-1'} >
                       <div className="flex-grow-1 flex-column justify-content-center allow-word-break list-item-title">
                         {issue.contentTitle}
                       </div>

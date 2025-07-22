@@ -6,7 +6,6 @@ import { formFromIssue, formNameFromRule, formNames } from '../Services/Ufixit'
 import * as Html from '../Services/Html'
 import UpArrowIcon from './Icons/UpArrowIcon'
 import DownArrowIcon from './Icons/DownArrowIcon'
-import useInViewPort from './Hooks/useInViewPort'
 import './FixIssuesContentPreview.css'
 import InfoIcon from './Icons/InfoIcon'
 
@@ -16,7 +15,6 @@ export default function FixIssuesContentPreview({
   activeIssue,
   activeContentItem,
   editedElement,
-  isErrorFoundInContent,
   setIsErrorFoundInContent,
   contentItemsBeingScanned,
   sessionIssues,
@@ -24,13 +22,9 @@ export default function FixIssuesContentPreview({
 
   const [taggedContent, setTaggedContent] = useState(null)
   const [canShowPreview, setCanShowPreview] = useState(false)
-
-  const [issueElementDefaultRect, setIssueElementDefaultRect] = useState(null)
-  const issueElementRef = useRef(null)
-  const issueElementVisible = useInViewPort(issueElementRef, { threshold: 0.5 })
+  const [isIssueElementVisible, setIsIssueElementVisible] = useState(false)
 
   const [isInitialLoad, setIsInitialLoad] = useState(true)
-  const [debouncedVisible, setDebouncedVisible] = useState(true)
   const [debouncedDirection, setDebouncedDirection] = useState(null)
 
   useEffect(() => {
@@ -39,44 +33,41 @@ export default function FixIssuesContentPreview({
     setIsInitialLoad(true)
     const timer = setTimeout(() => {
       setIsInitialLoad(false)
-    }, 500)
+    }, 250)
 
     return () => clearTimeout(timer)
   }, [activeIssue])
 
-  useEffect(() => {
-    if (issueElementRef.current) {
-      const rect = issueElementRef.current.getBoundingClientRect()
-      setIssueElementDefaultRect(rect)
+  const checkScrollButton = () => {
+    if(isInitialLoad) {
+      setIsIssueElementVisible(true)
+      return
     }
-  }, [activeIssue, issueElementRef.current])
 
-  useEffect(() => {
-    // we also debounce the visibility and direction of the scroll-to-issue button
-    // which fixes the button flashing even when the element visible
-    // (presumably because the issue element is changing which useInViewPort doesnt check for immediately)
-    const timer = setTimeout(() => {
-      setDebouncedVisible(issueElementVisible)
-      setDebouncedDirection(getScrollDirection(issueElementRef.current, issueElementDefaultRect))
-    }, 100)
+    const htmlElement = document.getElementsByClassName('ufixit-error-highlight')[0]
+    const containerElement = document.getElementsByClassName('ufixit-content-preview-main')[0]
+    if (htmlElement && containerElement) {
+      const htmlRect = htmlElement.getBoundingClientRect()
+      const containerRect = containerElement.getBoundingClientRect()
+      const htmlMidpoint = (htmlRect.top + htmlRect.bottom) / 2
 
-    return () => clearTimeout(timer)
-  }, [issueElementVisible, issueElementRef.current, issueElementDefaultRect])
+      if (htmlMidpoint < containerRect.top) {
+        setIsIssueElementVisible(false)
+        setDebouncedDirection('up')
+      }
+      else if (htmlMidpoint > containerRect.bottom) {
+        setIsIssueElementVisible(false)
+        setDebouncedDirection('down')
+      }
 
-
-  const getScrollDirection = (element, defaultRect) => {
-    if (!element || !defaultRect || !issueElementRef || issueElementVisible) return null
-
-    const newRect = element.getBoundingClientRect()
-
-    if (newRect.top < defaultRect.top) {
-      return 'up'
-    }
-    else if (newRect.bottom > defaultRect.bottom) {
-      return 'down'
+      else {
+        setIsIssueElementVisible(true)
+        setDebouncedDirection(null)
+      }
     }
     else {
-      return null
+      setIsIssueElementVisible(true)
+      setDebouncedDirection(null)
     }
   }
 
@@ -201,22 +192,6 @@ export default function FixIssuesContentPreview({
       }
     })
 
-    // // Find the first element in the document that matches the error element.
-    // const docElement = Array.from(doc.body.querySelectorAll(errorElement.tagName)).find((matchElement) => {
-    //   return matchElement.outerHTML.trim() === errorElement.outerHTML.trim()
-    // })
-
-    // // If the element is found, update it with the appropriate class.
-    // if(docElement) {
-    //   setCanShowPreview(true)
-    //   setIsErrorFoundInContent(true)
-    //   docElement.replaceWith(convertErrorHtmlElement(docElement))
-    // }
-    // else {
-    //   setCanShowPreview(false)
-    //   setIsErrorFoundInContent(false)
-    // }
-
     // Find all of the heading elements and show them when a relevant issues is being edited.
     if (HEADINGS_RELATED.includes(formNameFromRule(activeIssue.scanRuleId))) {
       const headingElements = Array.from(doc.body.querySelectorAll('h1, h2, h3, h4, h5, h6'))
@@ -236,7 +211,7 @@ export default function FixIssuesContentPreview({
   useEffect(() => {
     if(!activeIssue || !activeContentItem) {
       setTaggedContent(null)
-      setIsErrorFoundInContent(true)
+      setIsErrorFoundInContent(false)
       return
     }
     if(activeIssue.contentType !== settings.FILTER.FILE_OBJECT) {
@@ -344,36 +319,6 @@ export default function FixIssuesContentPreview({
     }
   }
 
-  const renderScrollButton = () => {
-    if (isInitialLoad) return null
-
-    let button;
-    if (debouncedDirection === 'up') {
-      button = <UpArrowIcon className="icon-sm" />
-    }
-    else if (debouncedDirection === 'down') {
-      button = <DownArrowIcon className="icon-sm" />
-    }
-
-    if (issueElementRef.current && !debouncedVisible && debouncedDirection) {
-      return (
-        <div className='scroll-to-error-container'>
-          <button
-            className={`btn-primary btn-icon-right btn-small scroll-to-error ${debouncedDirection ? 'scroll-to-error-' + debouncedDirection : ''}`}
-            onClick={() => scrollToElement(issueElementRef.current)}
-            aria-label={t('fix.button.scroll_to_issue')}
-            title={t('fix.button.scroll_to_issue')}
-            tabIndex="0"
-          >
-            Scroll to Barrier
-            {button}
-          </button>
-        </div>
-      )
-    }
-    return null
-  }
-
   return (
     <>
       { activeIssue && (
@@ -456,13 +401,27 @@ export default function FixIssuesContentPreview({
                       <>
                         <div
                           className="ufixit-content-preview-main"
-                          ref={node => {
-                            if (node) {
-                              const highlightElement = node.getElementsByClassName('ufixit-error-highlight')[0]
-                              issueElementRef.current = highlightElement
-                            }
-                          }} dangerouslySetInnerHTML={{__html: taggedContent}} />
-                        {isErrorFoundInContent && renderScrollButton()}
+                          onScroll={() => {
+                            checkScrollButton()
+                          }}
+                          dangerouslySetInnerHTML={{__html: taggedContent}} />
+                        {!isIssueElementVisible && !isInitialLoad && debouncedDirection && (
+                          <div className='scroll-to-error-container'>
+                            <button
+                              className={`btn-secondary btn-icon-right btn-small scroll-to-error ${debouncedDirection ? 'scroll-to-error-' + debouncedDirection : ''}`}
+                              onClick={() => scrollToElement(document.getElementsByClassName('ufixit-error-highlight')[0])}
+                              tabIndex="0"
+                            >
+                              {t('fix.button.scroll_to_issue')}
+                              { debouncedDirection === 'up' ?
+                                <UpArrowIcon className="icon-sm" />
+                              : debouncedDirection === 'down' ?
+                                <DownArrowIcon className="icon-sm" />
+                              : null
+                              }
+                            </button>
+                          </div>
+                          )}
                       </>
                     ) : (
                       <div className="ufixit-content-preview-no-error flex-row p-3">

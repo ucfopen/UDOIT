@@ -96,7 +96,7 @@ export default function LabelForm({
           className="w-100"
           value={textInputValue}
           disabled={isDisabled}
-          tabindex="0"
+          tabIndex="0"
           onChange={handleInput} />
       </div>
       <FormFeedback

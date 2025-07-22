@@ -94,7 +94,7 @@ export default function LinkForm({
         type="text"
         value={textInputValue}
         onChange={handleInput}
-        tabindex="0"
+        tabIndex="0"
         disabled={isDisabled || deleteLink} />
       { textInputErrors.length > 0 && (
         <div className="error-message flex-column gap-1">
@@ -109,10 +109,10 @@ export default function LinkForm({
           name="deleteLinkCheckbox"
           id="deleteLinkCheckbox"
           checked={deleteLink}
-          tabindex="0"
+          tabIndex="0"
           disabled={isDisabled}
           onChange={handleDeleteCheckbox} />
-        <label for="deleteLinkCheckbox">{t('form.anchor.delete_link')}</label>
+        <label htmlFor="deleteLinkCheckbox">{t('form.anchor.delete_link')}</label>
       </div>
       <FormFeedback
         t={t}

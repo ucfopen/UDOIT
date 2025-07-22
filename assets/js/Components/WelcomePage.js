@@ -50,16 +50,16 @@ export default function WelcomePage({ t, settings, syncComplete, setWelcomeClose
         </div>
         <div className="flex-row justify-content-center mt-3">
           { !syncComplete ? (
-              <button className="btn btn-disabled flex-row" tabindex="0">
+              <button className="btn btn-disabled flex-row" tabIndex="0">
                 <div className="flex-column justify-content-center align-self-center">
-                  <ProgressIcon className="icon-sm gray spinner" />
+                  <ProgressIcon className="icon-sm spinner" />
                 </div>
                 <div className="flex-column justify-content-center ms-3">
                   {t('welcome.button.scanning')}
                 </div>
               </button>
             ) : (
-              <button className="btn btn-primary" tabindex="0" onClick={() => setWelcomeClosed(true)}>{t('welcome.button.ready')}</button>
+              <button className="btn btn-primary" tabIndex="0" onClick={() => setWelcomeClosed(true)}>{t('welcome.button.ready')}</button>
             )
           }    
         </div>
@@ -68,7 +68,7 @@ export default function WelcomePage({ t, settings, syncComplete, setWelcomeClose
         <div className="flex-column justify-content-center tagline">
           {t('welcome.version')} {settings.versionNumber}
         </div>
-        <a href="https://ucfopen.github.io/" target="_blank" tabindex="0" rel="noreferrer" className="tagline ps-2">
+        <a href="https://ucfopen.github.io/" target="_blank" tabIndex="0" rel="noreferrer" className="tagline ps-2">
           <div className="flex-row">
             <div className="flex-column justify-content-center">
               {t('welcome.product_tagline')}

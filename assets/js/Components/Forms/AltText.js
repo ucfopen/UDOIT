@@ -149,7 +149,7 @@ export default function AltText ({
       <div className="w-100 mt-2">
         <input
           type="text"
-          tabindex="0"
+          tabIndex="0"
           id="altTextInput"
           name="altTextInput"
           className="w-100"
@@ -168,7 +168,7 @@ export default function AltText ({
           type="checkbox"
           id="decorativeCheckbox"
           name="decorativeCheckbox"
-          tabindex="0"
+          tabIndex="0"
           disabled={isDisabled}
           checked={isDecorative}
           onChange={handleCheckbox} />

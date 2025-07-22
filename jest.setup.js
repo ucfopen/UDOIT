@@ -1,8 +1,8 @@
 import 'regenerator-runtime/runtime'
 import '@testing-library/jest-dom'
-import 'whatwg-fetch'
 
 import { server } from './assets/js/__tests__/mocks/server.js'
+import 'whatwg-fetch';
 
 // Establish API mocking before all tests.
 beforeAll(() => server.listen())

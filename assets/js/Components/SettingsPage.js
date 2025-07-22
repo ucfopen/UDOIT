@@ -41,7 +41,7 @@ export default function SettingsPage({
                 type="checkbox"
                 id="show-filters"
                 name="show-filters"
-                tabindex="0"
+                tabIndex="0"
                 checked={showFilters}
                 onChange={(e) => {
                   handleShowFiltersChange(e.target.checked)
@@ -73,16 +73,16 @@ export default function SettingsPage({
             </div> */}
           {/* </div> */}
           { !syncComplete ? (
-            <button className="btn btn-disabled mt-2 flex-row" tabindex="-1">
+            <button className="btn btn-disabled mt-2 flex-row" tabIndex="-1">
               <div className="flex-column justify-content-center align-self-center">
-                <ProgressIcon className="icon-sm gray spinner" />
+                <ProgressIcon className="icon-sm spinner" />
               </div>
               <div className="flex-column justify-content-center ms-3">
                 {t('welcome.button.scanning')}
               </div>
             </button>
             ) : (
-              <button onClick={() => handleFullCourseRescan()} className="btn btn-primary mt-2" tabindex="0">{t('settings.button.force_full_rescan')}</button>
+              <button onClick={() => handleFullCourseRescan()} className="btn btn-primary mt-2" tabIndex="0">{t('settings.button.force_full_rescan')}</button>
             )
           }
         </div>

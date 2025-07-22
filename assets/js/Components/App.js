@@ -122,6 +122,12 @@ export default function App(initialData) {
   }
 
   const handleNewReport = (data) => {
+    if(!data || !data.data) {
+      setSyncComplete(true)
+      setHasNewReport(false)
+      return
+    }
+
     let newReport = report
     let newHasNewReport = hasNewReport
     if (data.messages) {
@@ -163,6 +169,32 @@ export default function App(initialData) {
     setMessages([])
   }
 
+  const processServerError = (response) => {
+    let status = response.status || 500
+    let errorMessage = ''
+    switch (status) {
+      case 400:
+        errorMessage = t('msg.sync.error.api')
+        break
+      case 401:
+        errorMessage = t('msg.sync.error.unauthorized')
+        break
+      case 403:
+        errorMessage = t('msg.sync.error.forbidden')
+        break
+      case 404:
+        errorMessage = t('msg.sync.error.not_found')
+        break
+      case 500:
+        errorMessage = 'Internal Server Error: Please try again later.'
+        break
+      default:
+        errorMessage = t('msg.sync.error.connection')
+    }
+    addMessage({message: errorMessage, severity: 'error', visible: true})
+    console.error(`Error: ${errorMessage} (Status: ${status})`)
+  }
+
   const quickIssues = (severity) => {
     setInitialSeverity(severity)
     setNavigation('fixIssues')
@@ -197,7 +229,14 @@ export default function App(initialData) {
       setSyncComplete(false)
       try {
         fullRescan()
-          .then((response) => response.json())
+          .then((responseStr) => {
+            // Check for HTTP errors before parsing JSON
+            if (!responseStr.ok) {
+              processServerError(responseStr)
+              return null
+            }
+            return responseStr.json()
+          })
           .then(handleNewReport)
       } catch (error) {
         addMessage({message: `${t('msg.sync.failed')}: ${t(error)}`, severity: 'error', visible: true})
@@ -219,20 +258,39 @@ export default function App(initialData) {
   useEffect(() => {
     document.addEventListener('visibilitychange', function() {
       if(document.hidden) {
-        console.log("UDOIT IS HIDDEN!")
+        console.warn("UDOIT has lost focus. Course content may be changed.")
       }
       else {
         // There is probably a case for checking the page you're currently editing to make sure that there weren't any changes in the LMS.
         addMessage({message: 'Welcome back to UDOIT! If you have changed any course content, please refresh this page to rescan.', severity: 'info', visible: true})
       }
     })
+
+    const script = document.createElement('script')
+    script.src = '../udoit3/build/static/tinymce/tinymce.min.js'
+    script.async = true
+    document.body.appendChild(script)
+
+    return () => {
+      document.removeEventListener('visibilitychange', () => {})
+      if (script) {
+        document.body.removeChild(script)
+      }
+    }
   }, [])
 
   useEffect(() => {
     
     try {
       scanCourse()
-        .then((response) => response.json())
+        .then((responseStr) => {
+        // Check for HTTP errors before parsing JSON
+          if (!responseStr.ok) {
+            processServerError(responseStr)
+            return null
+          }
+          return responseStr.json()
+        })
         .then(handleNewReport)
     } catch (error) {
       addMessage({message: `${t('msg.sync.failed')}: ${t(error)}`, severity: 'error', visible: true})
@@ -265,7 +323,7 @@ export default function App(initialData) {
               handleNavigation={handleNavigation}
              />
 
-            <main role="main">
+            <main role="main" className="pt-2">
               {('summary' === navigation) &&
                 <HomePage
                   t={t}
@@ -290,7 +348,9 @@ export default function App(initialData) {
                   addMessage={addMessage}
                   handleNavigation={handleNavigation}
                   sessionIssues={sessionIssues}
-                  updateSessionIssue={updateSessionIssue} />
+                  updateSessionIssue={updateSessionIssue}
+                  processServerError={processServerError}
+                />
               }
               {('reports' === navigation) &&
                 <ReportsPage

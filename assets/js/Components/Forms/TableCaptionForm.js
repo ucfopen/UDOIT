@@ -78,7 +78,7 @@ export default function TableCaptionForm({
           className="w-100"
           value={textInputValue}
           disabled={isDisabled || deleteCaption}
-          tabindex="0"
+          tabIndex="0"
           onChange={(e) => handleInput(e.target.value)} />
       </div>
       <div className="separator mt-2">{t('fix.label.or')}</div>
@@ -87,7 +87,7 @@ export default function TableCaptionForm({
           id="deleteCaptionCheckbox"
           name="deleteCaptionCheckbox"
           checked={deleteCaption}
-          tabindex="0"
+          tabIndex="0"
           disabled={isDisabled}
           onChange={handleCheckbox} />
         <label className="instructions" htmlFor="deleteCaptionCheckbox">{t('form.table_caption.label.remove_caption')}</label>

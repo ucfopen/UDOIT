@@ -21,7 +21,7 @@ export default function MediaCaptionsForm({
       <p>{t('form.media_captions.label.description')}</p>
       {/* <button
         className="btn btn-primary"
-        tabindex="0"
+        tabIndex="0"
         disabled={isDisabled}
         onClick={checkForCaptions}>
         {t('form.media_captions.button.scan_video')}

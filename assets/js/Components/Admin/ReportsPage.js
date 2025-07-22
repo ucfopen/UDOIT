@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import Api from '../../Services/Api'
 
-import IssuesReport from '../Reports/IssuesReport'
 import ResolutionsReport from '../Reports/ResolutionsReport'
 import ReportsTable from '../Reports/ReportsTable'
 import IssuesTable from '../Reports/IssuesTable'
@@ -90,12 +89,6 @@ export default function ReportsPage({
           : 
           <div className="flex-column">
             <div className="flex-row flex-wrap justify-content-between mt-3 gap-3">
-              <div className="w-100">
-                <IssuesReport
-                  t={t}
-                  reports={reports}
-                />
-              </div>
               <div className="w-100">
                 <ResolutionsReport
                   t={t}

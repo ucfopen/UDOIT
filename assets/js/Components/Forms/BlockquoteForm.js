@@ -198,7 +198,7 @@ export default function BlockquoteForm({
           value={citationText}
           disabled={isDisabled || removeBlockquote}
           placeholder={t('form.blockquote.text.placeholder')}
-          tabindex="0"
+          tabIndex="0"
           onChange={(e) => handleInput(e.target.value)} />
       </div>
 
@@ -207,7 +207,7 @@ export default function BlockquoteForm({
           id="hideCheckbox"
           name="hideCheckbox"
           checked={hideCitation}
-          tabindex="0"
+          tabIndex="0"
           disabled={isDisabled || removeBlockquote}
           onChange={handleHideToggle} />
         <label className="instructions" htmlFor="hideCheckbox">{t('form.blockquote.label.hide_citation')}</label>
@@ -223,7 +223,7 @@ export default function BlockquoteForm({
           id="removeCheckbox"
           name="removeCheckbox"
           checked={removeBlockquote}
-          tabindex="0"
+          tabIndex="0"
           disabled={isDisabled}
           onChange={handleRemoveToggle} />
         <label className="instructions" htmlFor="removeCheckbox">{t('form.blockquote.label.remove_blockquote')}</label>

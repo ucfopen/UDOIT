@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react'
 
+import CheckIcon from '../Icons/CheckIcon'
 import FixedIcon from '../Icons/FixedIcon'
 
 export default function FormFeedback({
@@ -57,45 +58,45 @@ export default function FormFeedback({
   
   return (
     <div className="flex-row justify-content-between gap-1 mt-4">
+      <div className="flex-column justify-content-start flex-grow-1 gap-1">
+        { (activeIssue.status === 1 || activeIssue.status === 3) && (
+            <div className="flex-row justify-content-end pt-2 pe-2">
+                <FixedIcon className="color-success icon-md flex-column align-self-center pe-2"/>
+                <div className="flex-column align-self-center fw-bolder primary">{t('filter.label.resolution.fixed_single')}</div>
+            </div>
+          ) }
+        { formattedIssues.length > 0 && (
+          <>
+            {formattedIssues.map((issue, index) => (
+              <div className="flex-row justify-content-start gap-1" key={index}>
+                <div className="error-text">{issue.text}</div>
+              </div>
+            ))}
+          </>
+        )}
+      </div>
       { !handleSubmit && activeContentItem?.url && (
         <a href={activeContentItem.url} 
            className="btn btn-secondary"
            target="_blank"
            rel="noopener noreferrer"
-           tabindex="0">
+           tabIndex="0">
           {t('fix.button.lms_solve')}
         </a>
       )}
       <div className="flex-column justify-content-start flex-shrink-0">
         { handleSubmit && (
           <button
-            className="btn-primary"
+            className="btn-primary btn-icon-left"
             disabled={isDisabled || hasErrors}
-            tabindex="0"
+            tabIndex="0"
             onClick={handleSubmit}>
+              <CheckIcon className="icon-md" />
             {t('form.submit')}
           </button>
         )}
       </div>
-      <div className="flex-column justify-content-start flex-grow-1 gap-1">
-        { (activeIssue.status === 1 || activeIssue.status === 3) && (
-            <div className="flex-row justify-content-start mt-1">
-              <div className="data-pill fixed flex-row">
-                <FixedIcon className="color-success icon-md flex-column align-self-center"/>
-                <div className="data-pill-text">{t('filter.label.resolution.fixed_single')}</div>
-              </div>
-            </div>
-          ) }
-        { formattedIssues.length > 0 && (
-          <>
-            {formattedIssues.map((issue, index) => (
-              <div className="flex-row justify-content-end gap-1" key={index}>
-                <div className="error-text text-end">{issue.text}</div>
-              </div>
-            ))}
-          </>
-        )}
-      </div>
+      
     </div>
   )
 }

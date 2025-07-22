@@ -112,8 +112,8 @@ export default function FileForm ({
 
   return (
     <>
-      <h3>{t('form.file.label.replace')}</h3>
-      <p>{t('form.file.label.replace.desc')}</p>
+      {/* <h3 >{t('form.file.label.replace')}</h3> */}
+      <label className="instructions">{t('form.file.label.replace.desc')}</label>
       <div
         id="file-drop-zone"
         className="mt-3 flex-row"
@@ -121,7 +121,7 @@ export default function FileForm ({
         onDragOver={handleDragOver}
         onClick={handleFileSelect}
         onKeyDown={handleKeyPress}
-        tabindex="0">
+        tabIndex="0">
         
         <div className="flex-column flex-center me-3 flex-shrink-0">
           <UploadIcon className="icon-lg" />

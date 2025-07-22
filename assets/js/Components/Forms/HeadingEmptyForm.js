@@ -78,7 +78,7 @@ export default function HeadingEmptyForm({
           className="w-100"
           value={textInputValue}
           disabled={isDisabled || deleteHeader}
-          tabindex="0"
+          tabIndex="0"
           onChange={(e) => handleInput(e.target.value)} />
       </div>
       <div className="separator mt-2">{t('fix.label.or')}</div>
@@ -87,7 +87,7 @@ export default function HeadingEmptyForm({
           id="deleteHeaderCheckbox"
           name="deleteHeaderCheckbox"
           checked={deleteHeader}
-          tabindex="0"
+          tabIndex="0"
           disabled={isDisabled}
           onChange={handleCheckbox} />
         <label className="instructions" htmlFor="deleteHeaderCheckbox">{t('form.heading_empty.label.remove_header')}</label>

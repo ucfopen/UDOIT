@@ -164,7 +164,7 @@ export default function TableHeadersForm({
               id={value}
               name="tableHeaderSelect"
               value={selectedValue}
-              tabindex="0"
+              tabIndex="0"
               disabled={isDisabled || decorationOnly}
               onChange={() => handleChange(value)} />
             <label htmlFor={value}>{t(`form.table_headers.${value}`)}</label>
@@ -177,7 +177,7 @@ export default function TableHeadersForm({
           type="checkbox"
           id="decorationOnlyCheckbox"
           name="decorationOnlyCheckbox"
-          tabindex="0"
+          tabIndex="0"
           checked={decorationOnly}
           disabled={isDisabled}
           onChange={(e) => handleDecoration(e.target.checked)} />

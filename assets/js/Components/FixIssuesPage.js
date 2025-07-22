@@ -40,7 +40,8 @@ export default function FixIssuesPage({
   addMessage,
   updateReportIssue,
   sessionIssues,
-  updateSessionIssue
+  updateSessionIssue,
+  processServerError
 })
 {
 
@@ -819,13 +820,20 @@ export default function FixIssuesPage({
     let api = new Api(settings)
     try {
       api.saveIssue(issue, fullPageHtml)
-        .then((responseStr) => responseStr.json())
-        .then((response) => {
+      .then((responseStr) => {
+        // Check for HTTP errors before parsing JSON
+          if (!responseStr.ok) {
+            processServerError(responseStr)
+            return null
+          }
+          return responseStr.json()
+      })
+      .then((response) => {
 
-          // If the save falied, show the relevant error message
-          if (response.data.failed) {
-            updateActiveSessionIssue(issue.id, settings.ISSUE_STATE.ERROR)
-            response.messages.forEach((msg) => addMessage(msg))
+        // If the save falied, show the relevant error message
+        if (response.data.failed) {
+        updateActiveSessionIssue(issue.id, settings.ISSUE_STATE.ERROR)
+        response.messages.forEach((msg) => addMessage(msg))
             
             if (Array.isArray(response.data.issues)) {
               response.data.issues.forEach((issue) => {
@@ -935,8 +943,18 @@ export default function FixIssuesPage({
     let api = new Api(settings)
     try {
       api.resolveIssue(tempIssue, fullPageHtml)
-        .then((responseStr) => responseStr.json())
+        .then((responseStr) => {
+          // Check for HTTP errors before parsing JSON
+          if (!responseStr.ok) {
+            processServerError(responseStr)
+            return null
+          }
+          return responseStr.json()
+        })
         .then((response) => {
+          if(!response) {
+            return
+          }
 
           response.messages.forEach((msg) => addMessage(msg))
         
@@ -977,7 +995,6 @@ export default function FixIssuesPage({
         })
     } catch (error) {
       console.error(error)
-      addMessage(error.message)
       updateActiveSessionIssue(issue.id, settings.ISSUE_STATE.ERROR)
     }
   }
@@ -1147,7 +1164,7 @@ export default function FixIssuesPage({
               <button
                 className={`btn btn-small btn-link btn-icon-left ${filteredIssues.length < 2 ? 'disabled' : ''}`}
                 onClick={() => nextIssue(true)}
-                tabindex="0">
+                tabIndex="0">
                 <LeftArrowIcon className={`icon-sm ` + (filteredIssues.length < 2 ? 'gray' : 'link-color')} />
                 <div className="flex-column justify-content-center">{t('fix.button.previous')}</div>
               </button>
@@ -1155,7 +1172,7 @@ export default function FixIssuesPage({
               <button
                 className={`btn btn-small btn-link btn-icon-right ${filteredIssues.length < 2 ? 'disabled' : ''}`}
                 onClick={() => nextIssue()}
-                tabindex="0">
+                tabIndex="0">
                 <div className="flex-column justify-content-center">{t('fix.button.next')}</div>
                 <RightArrowIcon className={`icon-sm ` + (filteredIssues.length < 2 ? 'gray' : 'link-color')} />
               </button>
