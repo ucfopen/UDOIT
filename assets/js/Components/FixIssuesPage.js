@@ -670,7 +670,7 @@ export default function FixIssuesPage({
   }
 
   const getNewFullPageHtml = (content, issue) => {
-    if(!content?.body || !issue?.newHtml) {
+    if(!content?.body || !issue) {
       return
     }
 
@@ -685,21 +685,27 @@ export default function FixIssuesPage({
       return
     }
     const newElement = Html.toElement(issue?.newHtml)
-    errorElement.replaceWith(newElement)
+    
+    // Replace or remove the error element
+    if(newElement) {
+      errorElement.replaceWith(newElement)  
+    } else {
+      errorElement.remove()
+    }
 
     return tempDoc.body.innerHTML
   }
 
   const handleIssueSave = (issue) => {
 
-    if(!activeContentItem) {
+    if(!activeContentItem || !issue) {
       return
     }
 
     updateActiveSessionIssue(issue.id, settings.ISSUE_STATE.SAVING)
     addItemToBeingScanned(issue.contentItemId)
 
-    if(!activeContentItem?.body || !issue.newHtml) {
+    if(!activeContentItem?.body) {
       return
     }
 
@@ -709,8 +715,11 @@ export default function FixIssuesPage({
     let newXpath = Html.findXpathFromElement(newElement)
     if(newXpath) {
       issue.xpath = newXpath
-      activeContentItem.body = fullPageHtml
     }
+    else {
+      issue.xpath = ""
+    }
+    activeContentItem.body = fullPageHtml
 
     // Save the updated issue using the LMS API
     let api = new Api(settings)
