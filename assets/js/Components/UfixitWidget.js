@@ -196,7 +196,7 @@ export default function UfixitWidget({
                       <UfixitForm
                         t={t}
                         settings={settings}
-                        isDisabled={!isErrorFoundInContent}
+                        isDisabled={isContentLoading || !isErrorFoundInContent}
                         activeIssue={tempActiveIssue.issueData}
                         handleIssueSave={handleIssueSave}
                         addMessage={addMessage}
@@ -208,7 +208,7 @@ export default function UfixitWidget({
                     t={t}
                     settings={settings}
                     activeIssue={activeIssue}
-                    isDisabled={!isErrorFoundInContent}
+                    isDisabled={isContentLoading || !isErrorFoundInContent}
                     handleFileResolve={handleFileResolve}
                     handleIssueResolve={handleIssueResolve}
                   />
@@ -219,7 +219,7 @@ export default function UfixitWidget({
                 t={t}
                 settings={settings}
                 activeIssue={activeIssue}
-                isDisabled={!isErrorFoundInContent}
+                isDisabled={isContentLoading || !isErrorFoundInContent}
                 handleFileResolve={handleFileResolve}
                 handleIssueResolve={handleIssueResolve}
               />

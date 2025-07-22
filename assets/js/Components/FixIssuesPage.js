@@ -697,6 +697,7 @@ export default function FixIssuesPage({
     }
 
     updateActiveSessionIssue(issue.id, settings.ISSUE_STATE.SAVING)
+    addItemToBeingScanned(issue.contentItemId)
 
     if(!activeContentItem?.body || !issue.newHtml) {
       return
@@ -719,6 +720,8 @@ export default function FixIssuesPage({
         // Check for HTTP errors before parsing JSON
           if (!responseStr.ok) {
             processServerError(responseStr)
+            updateActiveSessionIssue(issue.id, settings.ISSUE_STATE.ERROR)
+            removeItemFromBeingScanned(issue.contentItemId)
             return null
           }
           return responseStr.json()
@@ -727,54 +730,55 @@ export default function FixIssuesPage({
 
         // If the save falied, show the relevant error message
         if (response.data.failed) {
-        updateActiveSessionIssue(issue.id, settings.ISSUE_STATE.ERROR)
-        response.messages.forEach((msg) => addMessage(msg))
+          updateActiveSessionIssue(issue.id, settings.ISSUE_STATE.ERROR)
+          removeItemFromBeingScanned(issue.contentItemId)
+          response.messages.forEach((msg) => addMessage(msg))
             
-            if (Array.isArray(response.data.issues)) {
-              response.data.issues.forEach((issue) => {
-                addMessage({
-                  severity: 'error',
-                  message: t(`form.error.${issue.ruleId}`)
-                })
+          if (Array.isArray(response.data.issues)) {
+            response.data.issues.forEach((issue) => {
+              addMessage({
+                severity: 'error',
+                message: t(`form.error.${issue.ruleId}`)
               })
-            }
+            })
+          }
 
-            if (Array.isArray(response.data.errors)) {
-              response.data.errors.forEach((error) => {
-                addMessage({
-                  severity: 'error',
-                  message: error
-                })
+          if (Array.isArray(response.data.errors)) {
+            response.data.errors.forEach((error) => {
+              addMessage({
+                severity: 'error',
+                message: error
               })
-            }
+            })
+          }
+        }
+        else {
+          
+          // If the save was successful, show the success message
+          response.messages.forEach((msg) => addMessage(msg))
+          
+          if (response.data.issue) {
+            // Update the report object by rescanning the content
+            const newIssue = Object.assign({}, issue, response.data.issue)
+            const formattedData = formatIssueData(newIssue)
+            setActiveIssue(formattedData)
+            updateActiveSessionIssue(newIssue.id, settings.ISSUE_STATE.SAVED)
+
+            api.scanContent(newIssue.contentItemId)
+              .then((responseStr) => responseStr.json())
+              .then((res) => { 
+                const tempReport = Object.assign({}, res?.data)
+                processNewReport(tempReport)
+                removeItemFromBeingScanned(newIssue.contentItemId)
+              })
           }
           else {
-            
-            // If the save was successful, show the success message
-            response.messages.forEach((msg) => addMessage(msg))
-            
-            if (response.data.issue) {
-              // Update the report object by rescanning the content
-              const newIssue = Object.assign({}, issue, response.data.issue)
-              const formattedData = formatIssueData(newIssue)
-              addItemToBeingScanned(newIssue.contentItemId)
-              setActiveIssue(formattedData)
-              updateActiveSessionIssue(newIssue.id, settings.ISSUE_STATE.SAVED)
-
-              api.scanContent(newIssue.contentItemId)
-                .then((responseStr) => responseStr.json())
-                .then((res) => { 
-                  const tempReport = Object.assign({}, res?.data)
-                  processNewReport(tempReport)
-                  removeItemFromBeingScanned(newIssue.contentItemId)
-                })
-            }
-            else {
-              setActiveIssue(formatIssueData(issue))
-              updateActiveSessionIssue(issue.id, settings.ISSUE_STATE.SAVED)
-            }
+            setActiveIssue(formatIssueData(issue))
+            updateActiveSessionIssue(issue.id, settings.ISSUE_STATE.SAVED)
+            removeItemFromBeingScanned(issue.contentItemId)
           }
-        })
+        }
+      })
     } catch (error) {
       console.error(error)
       updateActiveSessionIssue(issue.id, settings.ISSUE_STATE.ERROR)
@@ -813,6 +817,8 @@ export default function FixIssuesPage({
 
   const handleIssueResolve = (issue) => {
     updateActiveSessionIssue(issue.id, settings.ISSUE_STATE.RESOLVING)
+    addItemToBeingScanned(issue.contentItemId)
+    
     const specificClassName = `udoit-ignore-${issue.scanRuleId.replaceAll("_", "-")}`
     let tempIssue = Object.assign({}, issue)
     if (tempIssue.status === 2) {
@@ -842,6 +848,8 @@ export default function FixIssuesPage({
           // Check for HTTP errors before parsing JSON
           if (!responseStr.ok) {
             processServerError(responseStr)
+            removeItemFromBeingScanned(tempIssue.contentItemId)
+            updateActiveSessionIssue(issue.id, settings.ISSUE_STATE.ERROR)
             return null
           }
           return responseStr.json()
@@ -859,8 +867,6 @@ export default function FixIssuesPage({
             if(activeIssue.id === tempIssue.id) {
               setActiveIssue(formatIssueData(newIssue))
             }
-            
-            addItemToBeingScanned(newIssue.contentItemId)
 
             // Get updated report
             api.scanContent(newIssue.contentItemId)
