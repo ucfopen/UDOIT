@@ -351,6 +351,26 @@ export default function FixIssuesPage({
     }
   }
 
+  const groupList = (tempFilteredContent) => {
+    const tempGroupedList = []
+
+    // Get all of the issues' "formLabel" values
+    const formLabels = tempFilteredContent.map((issue) => issue.formLabel)
+    const uniqueFormLabels = [...new Set(formLabels)]
+
+    uniqueFormLabels.sort((a, b) => {
+      return (a.toLowerCase() < b.toLowerCase()) ? -1 : 1
+    })
+
+    // Group the issues by "formLabel"
+    uniqueFormLabels.forEach((formLabel) => {
+      const issues = tempFilteredContent.filter((issue) => issue.formLabel === formLabel)
+      tempGroupedList.push({ formLabel: formLabel, issues })
+    })
+
+    return tempGroupedList
+  }
+
   // The initialSeverity prop is used when clicking a "Fix Issues" button from the main dashboard.
   useEffect(() => {
     let tempSeverity = initialSeverity || FILTER.ALL
@@ -368,24 +388,7 @@ export default function FixIssuesPage({
 
     let tempFilteredContent = getFilteredContent(unfilteredIssues)
     setFilteredIssues(tempFilteredContent)
-
-    const tempGroupedList = []
-
-    // Get all of the issues' "formLabel" values
-    const formLabels = tempFilteredContent.map((issue) => issue.formLabel)
-    const uniqueFormLabels = [...new Set(formLabels)]
-
-    uniqueFormLabels.sort((a, b) => {
-      return (a.toLowerCase() < b.toLowerCase()) ? -1 : 1
-    })
-
-    // Group the issues by "formLabel"
-    uniqueFormLabels.forEach((formLabel) => {
-      const issues = tempFilteredContent.filter((issue) => issue.formLabel === formLabel)
-      tempGroupedList.push({ formLabel: formLabel, issues })
-    })
-    
-    setGroupedList(tempGroupedList)
+    setGroupedList(groupList(tempFilteredContent))
 
     setWidgetState(WIDGET_STATE.LIST)
 
@@ -458,7 +461,10 @@ export default function FixIssuesPage({
     }
 
     setUnfilteredIssues(tempUnfilteredIssues)
-    setFilteredIssues(getFilteredContent(tempUnfilteredIssues, tempActiveIssue?.id || null))
+    let tempFilteredContent = getFilteredContent(tempUnfilteredIssues, tempActiveIssue?.id || null)
+
+    setFilteredIssues(tempFilteredContent)
+    setGroupedList(groupList(tempFilteredContent))
     setActiveIssue(tempActiveIssue)
 
   }, [report])
