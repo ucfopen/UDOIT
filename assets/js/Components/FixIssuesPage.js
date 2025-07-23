@@ -474,10 +474,7 @@ export default function FixIssuesPage({
   useEffect(() => {
     if(activeIssue === null) {
       setActiveContentItem(null)
-      if(widgetState === WIDGET_STATE.LIST) {
-        return
-      }
-      setWidgetState(WIDGET_STATE.NO_RESULTS)
+      setWidgetState(WIDGET_STATE.LIST)
       return
     }
   
@@ -966,7 +963,7 @@ export default function FixIssuesPage({
     else if (newIndex >= filteredIssues.length) {
       newIndex = 0
     }
-    setActiveIssue(filteredIssues[newIndex])
+    setActiveIssue({...filteredIssues[newIndex]})
     setViewInfo(false)
   }
 
@@ -1048,6 +1045,7 @@ export default function FixIssuesPage({
                   viewInfo={viewInfo}
                   setViewInfo={setViewInfo}
                   severity={activeIssue.severity}
+                  addMessage={addMessage}
                   activeIssue={activeIssue}
                   setActiveIssue={setActiveIssue}
                   setEditedElement={setEditedElement}
