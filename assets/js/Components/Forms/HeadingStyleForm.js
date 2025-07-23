@@ -119,7 +119,8 @@ export default function HeadingStyleForm ({
         settings={settings}
         activeIssue={activeIssue}
         isDisabled={isDisabled}
-        handleSubmit={handleSubmit} />
+        handleSubmit={handleSubmit}
+        formErrors={[]} />
     </>
   )
 }
