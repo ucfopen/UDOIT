@@ -81,6 +81,14 @@ export default function ResolutionsReport ({
       plugins: {
         legend: {
           position: 'top',
+          labels: {
+            font: {
+              size: 15,
+              weight: 'normal',
+              lineHeight: 1.5,
+              family: "'Open Sans', Arial, Helvetica, sans-serif"
+            }
+          }
         },
       },
     }
