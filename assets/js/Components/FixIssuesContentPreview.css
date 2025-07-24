@@ -129,7 +129,7 @@
 }
 
 .scroll-to-error {
-  opacity: 0.65;
+  opacity: 0.78;
   transition: opacity var(--transition-time);
   align-self: start;
   pointer-events: all;

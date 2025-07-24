@@ -233,7 +233,7 @@ export function disabilitiesFromRule(ruleId) {
         disabilities = [disabilityTypes.COGNITIVE, disabilityTypes.VISUAL]
         break
       case formNames.MEDIA_CAPTIONS:
-        disabilities = [disabilityTypes.HEARING, disabilityTypes.VISUAL]
+        disabilities = [disabilityTypes.COGNITIVE, disabilityTypes.HEARING, disabilityTypes.VISUAL]
         break
       case formNames.QUOTE:
         disabilities = [disabilityTypes.COGNITIVE, disabilityTypes.VISUAL]

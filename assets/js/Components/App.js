@@ -73,6 +73,7 @@ export default function App(initialData) {
             newSettings.labels = data.labels
           }
           setSettings(newSettings)
+          addMessage({ message: t('msg.settings.updated'), severity: 'success', visible: true })
         }
     })
   }
@@ -377,7 +378,12 @@ export default function App(initialData) {
           </>
         )
       }
-      <MessageTray t={t} messages={messages} clearMessages={clearMessages} hasNewReport={syncComplete} />
+      <MessageTray
+        t={t}
+        settings={settings}
+        messages={messages}
+        clearMessages={clearMessages}
+      />
     </>
   )
 }

@@ -1,5 +1,6 @@
 import React, {useState, useEffect} from 'react'
 import FormFeedback from './FormFeedback'
+import * as Text from '../../Services/Text'
 import * as Html from '../../Services/Html'
 
 export default function AnchorText({
@@ -79,46 +80,15 @@ export default function AnchorText({
     
     // If the "Delete Link" checkbox is checked, we don't need to check for input errors
     if(!deleteLink) {
-      if(!isTextDescriptive()) {
+      if(!Text.isTextDescriptive(textInputValue)) {
         tempErrors.push({ text: t('form.anchor.msg.text_descriptive'), type: 'error' })
       }
-      if(!isTextNotEmpty()) {
+      if(Text.isTextEmpty(textInputValue)) {
         tempErrors.push({text: t('form.anchor.msg.text_empty'), type: 'error'})
       }
     }
 
     setTextInputErrors(tempErrors)
-  }
-
-  const isTextDescriptive = () => {
-    const text = textInputValue.trim().toLowerCase()
-    const badOptions = [
-      'click',
-      'click here',
-      'details',
-      'here',
-      'learn',
-      'learn more',
-      'more',
-      'more info',
-      'more information',
-      'read',
-      'read more',
-      'visit',
-      'visit here',
-    ]
-    if (badOptions.includes(text)) {
-      return false
-    }
-    return true
-  }
-
-  const isTextNotEmpty = () => {
-    const text = textInputValue.trim().toLowerCase()
-    if (text === '') {
-      return false
-    }
-    return true
   }
 
   const handleInput = (event) => {
@@ -133,14 +103,6 @@ export default function AnchorText({
   
   return (
     <>
-      {linkUrl !== '' && (
-        <div className="clarification-container flex-row gap-1 mb-3">
-          <div className="instructions">Link:</div>
-          <a href={linkUrl} target="_blank" rel="noopener noreferrer" tabIndex="0" style={{wordBreak: 'break-all'}}>
-            {linkUrl}
-          </a>
-        </div>
-      )}
       <label htmlFor="linkTextInput" className="instructions">{t('form.anchor.link_text')}</label>
       <input
         name="linkTextInput"
@@ -163,6 +125,14 @@ export default function AnchorText({
           onChange={handleDeleteCheckbox} />
         <label htmlFor="deleteLinkCheckbox" className="instructions">{t('form.anchor.delete_link')}</label>
       </div>
+      {linkUrl !== '' && (
+        <div className="flex-row justify-content-end gap-1 mt-3">
+          <div className="ufixit-widget-label">Link:</div>
+          <a href={linkUrl} target="_blank" rel="noopener noreferrer" tabIndex="0" className="link-small">
+            {linkUrl}
+          </a>
+        </div>
+      )}
       <FormFeedback
         t={t}
         settings={settings}

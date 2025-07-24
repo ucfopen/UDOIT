@@ -16,9 +16,6 @@ import * as Html from './Html'
 const checkTextBlockHeading = (issue, element) => {
   let issueIgnored = false
   
-  if(issue.scanRuleId !== 'text_block_heading') {
-    return false
-  }
   // For the text_block_heading rule, we need to check if the element is inside a table cell.
   let parentElement = element.parentElement
   while(parentElement) {
@@ -38,6 +35,26 @@ const checkTextBlockHeading = (issue, element) => {
 
   return issueIgnored
 }
+
+const checkStyleColorMisuse = (issue, element) => {
+
+  let tagName = element.tagName.toLowerCase()
+  if(tagName === 'img' || tagName === 'svg') {
+    return true
+  }
+  
+  return false
+}
+
+const runCustomChecks = (issue, element) => {
+  if(issue.scanRuleId === 'style_color_misuse') {
+    return checkStyleColorMisuse(issue, element)
+  }
+  else if(issue.scanRuleId === 'text_block_heading') {
+    return checkTextBlockHeading(issue, element)
+  }
+  return false
+} 
 
 export function analyzeReport(report, ISSUE_STATE) {
   let tempReport = {
@@ -105,10 +122,8 @@ export function analyzeReport(report, ISSUE_STATE) {
           }
           
           // For the text_block_heading rule, we need to check if the element is inside a table cell.
-          if(issue.scanRuleId === 'text_block_heading') {
-            if(checkTextBlockHeading(issue, element)) {
-              issueIgnored = true
-            }
+          if(runCustomChecks(issue, element)) {
+            issueIgnored = true
           }
         }
         else {

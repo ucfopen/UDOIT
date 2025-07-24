@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import FormFeedback from './FormFeedback'
 import * as Html from '../../Services/Html'
+import * as Text from '../../Services/Text'
 
 export default function LabelForm({
   t,
@@ -31,7 +32,7 @@ export default function LabelForm({
   const checkFormErrors = () => {
     let tempErrors = []
     
-    if(isTextEmpty()) {
+    if(Text.isTextEmpty(textInputValue)) {
       tempErrors.push({ text: t('form.label.msg.text_empty'), type: "error" })
     }
     if(isLabelDuplicate()) {
@@ -59,14 +60,6 @@ export default function LabelForm({
 
   const handleInput = (event) => {
     setTextInputValue(event.target.value)
-  }
-
-  const isTextEmpty = () => {
-    const text = textInputValue.trim().toLowerCase()
-    if (text === '') {
-      return true
-    }
-    return false
   }
 
   const isLabelDuplicate = () => {

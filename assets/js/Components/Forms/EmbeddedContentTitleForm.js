@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import FormFeedback from './FormFeedback'
 import * as Html from '../../Services/Html'
+import * as Text from '../../Services/Text'
 
 export default function EmbeddedContentTitleForm({
   t,
@@ -48,7 +49,7 @@ export default function EmbeddedContentTitleForm({
   const checkFormErrors = () => {
     let tempErrors = []
     
-    if(isTextEmpty()) {
+    if(Text.isTextEmpty()) {
       tempErrors.push({ text: t('form.embedded_content_title.msg.text_empty'), type: "error" })
     }
     if(isLabelDuplicate()) {
@@ -64,14 +65,6 @@ export default function EmbeddedContentTitleForm({
 
   const handleInput = (event) => {
     setTextInputValue(event.target.value)
-  }
-
-  const isTextEmpty = () => {
-    const text = textInputValue.trim().toLowerCase()
-    if (text === '') {
-      return true
-    }
-    return false
   }
 
   const isLabelDuplicate = () => {

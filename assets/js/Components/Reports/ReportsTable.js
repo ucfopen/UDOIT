@@ -73,7 +73,7 @@ export default function ReportsTable({
 
   return (
     <SortableTable
-      caption={t('report.title.scan_history')}
+      caption={t('report.title.barriers_remaining')}
       headers={headers}
       rows={getContent()}
       tableSettings={tableSettings}

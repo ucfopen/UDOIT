@@ -1,6 +1,9 @@
 import React, { useEffect, useRef, useState } from 'react'
 import FormFeedback from './FormFeedback'
 import * as Html from '../../Services/Html'
+// The SensoryMisuseForm.css file is a copy of the tinyMCE oxide skin file, which does not consistently load at runtime, so we include it here
+// Failure to do so often results in the TinyMCE editor not display, especially the first time the componenet is rendered.
+import './SensoryMisuseForm.css'
 
 export default function SensoryMisuseForm({
   t, 
@@ -55,10 +58,11 @@ export default function SensoryMisuseForm({
     setHtml(html)
     setEditorHtml(html)
 
+    console.log('Initializing TinyMCE with activeIssue: ', activeIssue.id)
     tinymce.remove()
     tinymce.init({
       selector: '#sensory-misuse-textarea',
-      licenseKey: "gpl",
+      license_key: "gpl",
       height: 250,
       menubar: false,
       plugins: "code",

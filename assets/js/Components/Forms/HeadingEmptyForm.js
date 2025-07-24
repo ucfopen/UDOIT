@@ -1,6 +1,7 @@
 import React, {useState, useEffect} from 'react'
 import FormFeedback from './FormFeedback'
 import * as Html from '../../Services/Html'
+import * as Text from '../../Services/Text'
 
 export default function HeadingEmptyForm({
   t,
@@ -26,14 +27,6 @@ export default function HeadingEmptyForm({
     setTextInputErrors([])
   }, [activeIssue])
 
-  const isTextEmpty = () => {
-    const text = textInputValue.trim().toLowerCase()
-    if (text === '') {
-      return true
-    }
-    return false
-  }
-
   const processHtml = () => {
     if (deleteHeader) {
       return '';
@@ -45,8 +38,10 @@ export default function HeadingEmptyForm({
 
   useEffect(() => {
     let tempErrors = []
-    if(!deleteHeader && isTextEmpty()) {
-      tempErrors.push({ text: t('form.heading_empty.msg.text_empty'), type: 'error' })
+    if(!deleteHeader) {
+      if(Text.isTextEmpty(textInputValue)) {
+        tempErrors.push({ text: t('form.heading_empty.msg.text_empty'), type: 'error' })
+      }
     }
     setTextInputErrors(tempErrors)
 

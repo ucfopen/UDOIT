@@ -69,7 +69,7 @@
   /* border: 1px solid var(--border-color);
   border-radius: 8px; */
   padding-top: .5rem;
-  border-top: 2px solid var(--gray-light);
+  border-top: 2px solid var(--gray);
   margin-top: .5rem;
   /* background-color: var(--white); */
 
@@ -105,13 +105,13 @@
     box-sizing: border-box;
     font-size: 0.95rem;
     font-family: var(--text-font-family);
-    border: 2px solid var(--border-color);
+    border: 1px solid var(--gray);
     border-radius: 4px;
 
     &:hover,
     &:focus {
       outline: 2px solid var(--focus-color);
-      outline-offset: -2px;
+      outline-offset: 1px;
       
     }
 
@@ -209,19 +209,7 @@
     }
   }
 
-  code {
-    padding: 0.15rem 0.4rem;
-    background-color: var(--gray-dark);
-    color: var(--white);
-    border-radius: 4px;
-    font-size: 0.9rem;
-  }
-
-  > :first-child {
-    margin-top: 0;
-  }
-
-  > p {
+  > * {
     margin-top: 0;
   }
 
@@ -356,6 +344,14 @@ dialog {
   overflow-y: auto;
 }
 
+.ufixit-widget code,
+.ufixit-widget-dialog code {
+    padding: 0.15rem 0.4rem;
+    background-color: var(--gray-dark);
+    color: var(--white);
+    border-radius: 4px;
+    font-size: 0.9rem;
+  }
 
 dialog::backdrop {
   background: rgba(0, 0, 0, 0.25);
