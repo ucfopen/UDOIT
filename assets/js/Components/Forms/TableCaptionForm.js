@@ -1,6 +1,7 @@
 import React, {useState, useEffect} from 'react'
 import FormFeedback from './FormFeedback'
 import * as Html from '../../Services/Html'
+import * as Text from '../../Services/Text'
 
 export default function TableCaptionForm({
   t,
@@ -26,14 +27,6 @@ export default function TableCaptionForm({
     setTextInputErrors([])
   }, [activeIssue])
 
-  const isTextEmpty = () => {
-    const text = textInputValue.trim().toLowerCase()
-    if (text === '') {
-      return true
-    }
-    return false
-  }
-
   const processHtml = () => {
     if (deleteCaption) {
       return '';
@@ -45,8 +38,10 @@ export default function TableCaptionForm({
 
   useEffect(() => {
     let tempErrors = []
-    if(!deleteCaption && isTextEmpty()) {
-      tempErrors.push({ text: t('form.table_caption.msg.text_empty'), type: 'error' })
+    if(!deleteCaption) {
+      if(Text.isTextEmpty(textInputValue)) {
+        tempErrors.push({ text: t('form.table_caption.msg.text_empty'), type: 'error' })
+      }
     }
     setTextInputErrors(tempErrors)
 

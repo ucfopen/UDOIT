@@ -49,7 +49,7 @@ class IssuesController extends ApiController
             $xpath = $issueUpdate['xpath'];
 
             // Check if new HTML is different from original HTML
-            if ($issue->getPreviewHtml() === $newHtml || $sourceHtml === $newHtml) {
+            if ($newHtml !== "" && ($issue->getPreviewHtml() === $newHtml || $sourceHtml === $newHtml)) {
                 throw new \Exception('form.error.same_html');
             }
 

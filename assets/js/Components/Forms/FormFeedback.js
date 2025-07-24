@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 
-import CheckIcon from '../Icons/CheckIcon'
+import SaveIcon from '../Icons/SaveIcon'
 import FixedIcon from '../Icons/FixedIcon'
 
 export default function FormFeedback({
@@ -91,7 +91,7 @@ export default function FormFeedback({
             disabled={isDisabled || hasErrors}
             tabIndex="0"
             onClick={handleSubmit}>
-              <CheckIcon className="icon-md" />
+              <SaveIcon className="icon-md" />
             {t('form.submit')}
           </button>
         )}

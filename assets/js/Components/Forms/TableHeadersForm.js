@@ -15,14 +15,14 @@ export default function TableHeadersForm({
     'row',
     'both'
   ]
-  const [selectedValue, setSelectedValue] = useState(null)
-  const [cachedValue, setCachedValue] = useState(null)
+  const [selectedValue, setSelectedValue] = useState('')
+  const [cachedValue, setCachedValue] = useState('')
   const [decorationOnly, setDecorationOnly] = useState(false)
 
   useEffect(() => {
     if(activeIssue) {
       setSelectedValue(getTableHeader())
-      setCachedValue(null)
+      setCachedValue('')
     }
   }, [activeIssue])
 
@@ -143,7 +143,7 @@ export default function TableHeadersForm({
     }
     else {
       setSelectedValue(cachedValue)
-      setCachedValue(null)
+      setCachedValue('')
     }
   }
 
@@ -158,9 +158,9 @@ export default function TableHeadersForm({
       <div className="instructions">{t('form.table_headers.selection_description')}</div>
       <div className="w-100 mt-2 flex-column gap-1">
         { radioOptions.map(value => (
-          <div className="flex-row gap-1">
+          <div className="flex-row gap-1" key={value}>
             <input
-              type="radio" 
+              type="radio"
               id={value}
               name="tableHeaderSelect"
               value={selectedValue}
@@ -190,7 +190,8 @@ export default function TableHeadersForm({
         settings={settings}
         activeIssue={activeIssue}
         isDisabled={isDisabled || (!selectedValue && !decorationOnly)}
-        handleSubmit={handleSubmit} />
+        handleSubmit={handleSubmit}
+        formErrors={[]} />
     </>
   )
 }

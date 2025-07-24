@@ -161,7 +161,7 @@ export default function UfixitWidget({
                 }
               </div> */}
             </div>
-            <div className="flex-row justify-content-between mb-2">
+            <div className="flex-row justify-content-between mb-1">
               <div className="ufixit-widget-label flex-grow-1">{t('fix.label.barrier_information')}</div>
               
             </div>
@@ -183,7 +183,7 @@ export default function UfixitWidget({
             
             { activeIssue.status !== settings.FILTER.RESOLVED ? (
               <>
-                <div className="ufixit-widget-label mb-2">{t('fix.label.barrier_repair')}</div>
+                <div className="ufixit-widget-label mb-1">{t('fix.label.barrier_repair')}</div>
                 <div className="flex-column flex-grow-1 justify-content-between ufixit-form-content">
                   <div className="ufixit-callout-container">
                     { activeIssue.contentType === settings.FILTER.FILE_OBJECT ? (
@@ -196,7 +196,7 @@ export default function UfixitWidget({
                       <UfixitForm
                         t={t}
                         settings={settings}
-                        isDisabled={!isErrorFoundInContent}
+                        isDisabled={isContentLoading || !isErrorFoundInContent}
                         activeIssue={tempActiveIssue.issueData}
                         handleIssueSave={handleIssueSave}
                         addMessage={addMessage}
@@ -208,7 +208,7 @@ export default function UfixitWidget({
                     t={t}
                     settings={settings}
                     activeIssue={activeIssue}
-                    isDisabled={!isErrorFoundInContent}
+                    isDisabled={isContentLoading || !isErrorFoundInContent}
                     handleFileResolve={handleFileResolve}
                     handleIssueResolve={handleIssueResolve}
                   />
@@ -219,7 +219,7 @@ export default function UfixitWidget({
                 t={t}
                 settings={settings}
                 activeIssue={activeIssue}
-                isDisabled={!isErrorFoundInContent}
+                isDisabled={isContentLoading || !isErrorFoundInContent}
                 handleFileResolve={handleFileResolve}
                 handleIssueResolve={handleIssueResolve}
               />

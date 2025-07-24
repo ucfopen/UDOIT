@@ -77,9 +77,18 @@ export default function ResolutionsReport ({
   const getChartOptions = () => {
     return {
       responsive: true,
+      maintainAspectRatio: false,
       plugins: {
         legend: {
           position: 'top',
+          labels: {
+            font: {
+              size: 15,
+              weight: 'normal',
+              lineHeight: 1.5,
+              family: "'Open Sans', Arial, Helvetica, sans-serif"
+            }
+          }
         },
       },
     }

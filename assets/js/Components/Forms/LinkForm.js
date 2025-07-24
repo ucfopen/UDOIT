@@ -34,7 +34,7 @@ export default function LinkForm({
   const checkFormErrors = () => {
     let tempErrors = []
     if(!deleteLink) {
-      if (isLinkEmpty()) {
+      if (Text.isTextEmpty(textInputValue)) {
         tempErrors.push([{text: t('form.link.msg.link_empty'), type: 'error'}])
       }
     }
@@ -68,14 +68,6 @@ export default function LinkForm({
     let issue = activeIssue
     issue.newHtml = processHtml()
     handleActiveIssue(issue)
-  }
-
-  const isLinkEmpty = () => {
-    const text = textInputValue.trim().toLowerCase()
-    if (text === '') {
-      return true
-    }
-    return false
   }
 
   const processHtml = () => {

@@ -84,6 +84,14 @@ export default function FixIssuesPage({
     [FILTER.TYPE.MODULE]: FILTER.ALL,
   }
 
+  const defaultNoFilters = {
+    [FILTER.TYPE.SEVERITY]: FILTER.ALL,
+    [FILTER.TYPE.PUBLISHED]: FILTER.ALL,
+    [FILTER.TYPE.CONTENT_TYPE]: FILTER.ALL,
+    [FILTER.TYPE.RESOLUTION]: FILTER.ALL,
+    [FILTER.TYPE.MODULE]: FILTER.ALL,
+  }
+
   const WIDGET_STATE = {
     LOADING: 0,
     FIXIT: 1,
@@ -343,25 +351,7 @@ export default function FixIssuesPage({
     }
   }
 
-  // The initialSeverity prop is used when clicking a "Fix Issues" button from the main dashboard.
-  useEffect(() => {
-    let tempSeverity = initialSeverity || FILTER.ALL
-    setActiveFilters(Object.assign({}, defaultFilters, {[FILTER.TYPE.SEVERITY]: tempSeverity}))
-  }, [])
-
-  // The initialSearchTerm prop is used when clicking on a specific error type on the Reports screen.
-  useEffect(() => {
-    if(initialSearchTerm) {
-      setSearchTerm(initialSearchTerm)
-    }
-  }, [initialSearchTerm])
-
-  // When the filters or search term changes, update the filtered issues list
-  useEffect(() => {
-
-    let tempFilteredContent = getFilteredContent(unfilteredIssues)
-    setFilteredIssues(tempFilteredContent)
-
+  const groupList = (tempFilteredContent) => {
     const tempGroupedList = []
 
     // Get all of the issues' "formLabel" values
@@ -377,8 +367,28 @@ export default function FixIssuesPage({
       const issues = tempFilteredContent.filter((issue) => issue.formLabel === formLabel)
       tempGroupedList.push({ formLabel: formLabel, issues })
     })
-    
-    setGroupedList(tempGroupedList)
+
+    return tempGroupedList
+  }
+
+  // The initialSeverity prop is used when clicking a "Fix Issues" button from the main dashboard.
+  useEffect(() => {
+    let tempSeverity = initialSeverity || FILTER.ALL
+    if(initialSearchTerm) {
+      setSearchTerm(initialSearchTerm)
+      setActiveFilters(Object.assign({}, defaultNoFilters))
+    }
+    else {
+      setActiveFilters(Object.assign({}, defaultFilters, {[FILTER.TYPE.SEVERITY]: tempSeverity}))
+    }
+  }, [])
+
+  // When the filters or search term changes, update the filtered issues list
+  useEffect(() => {
+
+    let tempFilteredContent = getFilteredContent(unfilteredIssues)
+    setFilteredIssues(tempFilteredContent)
+    setGroupedList(groupList(tempFilteredContent))
 
     setWidgetState(WIDGET_STATE.LIST)
 
@@ -451,7 +461,10 @@ export default function FixIssuesPage({
     }
 
     setUnfilteredIssues(tempUnfilteredIssues)
-    setFilteredIssues(getFilteredContent(tempUnfilteredIssues, tempActiveIssue?.id || null))
+    let tempFilteredContent = getFilteredContent(tempUnfilteredIssues, tempActiveIssue?.id || null)
+
+    setFilteredIssues(tempFilteredContent)
+    setGroupedList(groupList(tempFilteredContent))
     setActiveIssue(tempActiveIssue)
 
   }, [report])
@@ -461,10 +474,7 @@ export default function FixIssuesPage({
   useEffect(() => {
     if(activeIssue === null) {
       setActiveContentItem(null)
-      if(widgetState === WIDGET_STATE.LIST) {
-        return
-      }
-      setWidgetState(WIDGET_STATE.NO_RESULTS)
+      setWidgetState(WIDGET_STATE.LIST)
       return
     }
   
@@ -488,67 +498,6 @@ export default function FixIssuesPage({
     loadContentItemByIssue(activeIssue)
 
   }, [activeIssue])
-
-  // // The unfilteredIssues list changes each time the report is updated (usually after a "Save" or
-  // // "Mark as Reviewed" action). When this happens, all of the issues from that contentItem are
-  // // deleted and new scan results are put in instead. This leads to an issue where the current item
-  // // the user is interacting with is no longer available. This effect checks to see if the current
-  // // activeIssue matches one of the newly downloaded issues.
-  // useEffect(() => {
-
-  //   // Every time the list changes, we need to reload the activeContentItem. This will come from the
-  //   // cache (contentItemCache) or from the database, if not in the cache.
-  //   setActiveContentItem(null)
-
-  //   if(!activeIssue) {
-  //     return
-  //   }
-
-  //   // The filtered list should ALWAYS include the current activeIssue, even if it no longer matches
-  //   // the filters. For instance, if I'm only looking through "Unreviewed" issues, and I click on the
-  //   // "Mark as Reviewed" button, that newly-reviewed issue should be available to stay on screen.
-  //   const tempFilteredIssues = getFilteredContent(activeIssue.id)
-    
-  //   // Quick check: is the active issue still in the list?
-  //   let activeIssueFound = false
-  //   tempFilteredIssues.forEach((issue) => {
-  //     if(issue.id === activeIssue.id) {
-  //       activeIssueFound = true
-  //       setActiveIssue(issue)
-  //     }
-  //   })
-
-  //   // If not, we need to do a more thorough check.
-  //   if(!activeIssueFound) {
-  //     if(activeIssue.contentType === FILTER.FILE_OBJECT) {
-  //       tempFilteredIssues.forEach((issue) => {
-  //         if(issue.contentId === activeIssue.contentId) {
-  //           activeIssueFound = true        
-  //           setActiveIssue(issue)
-  //         }
-  //       })
-  //     }
-  //     else {
-  //       tempFilteredIssues.forEach((issue) => {
-  //         if(issue.scanRuleId === activeIssue.scanRuleId &&
-  //             issue.contentId === activeIssue.contentId &&
-  //             issue.issueData.sourceHtml === activeIssue.issueData.sourceHtml) {
-  //           activeIssueFound = true
-  //           updateActiveSessionIssue(issue.id, null, issue.issueData.contentItemId)
-  //           setActiveIssue(issue)
-  //         }
-  //       })
-  //     }
-  //   }
-
-  //   if(!activeIssueFound) {
-  //     setWidgetState(WIDGET_STATE.LIST)
-  //     setActiveIssue(null)
-  //   }
-
-  //   setFilteredIssues(tempFilteredIssues)
-
-  // }, [unfilteredIssues])
 
   useEffect(() => {
     let tempContentItem = null
@@ -704,57 +653,6 @@ export default function FixIssuesPage({
         setActiveIssue(tempIssue)
       }
     }
-
-
-    // let tempUnfilteredIssues = unfilteredIssues.map((issue) => {
-    //   if(issue.id === issueId) {
-    //     let tempIssue = Object.assign({}, issue)
-    //     tempIssue.currentState = state
-    //     return tempIssue
-    //   }
-    //   return issue
-    // })
-    // setUnfilteredIssues(tempUnfilteredIssues)
-
-    // let tempFilteredIssues = filteredIssues.map((issue) => {
-    //   if(issue.id === issueId) {
-    //     let tempIssue = Object.assign({}, issue)
-    //     tempIssue.currentState = state
-    //     return tempIssue
-    //   }
-    //   return issue
-    // })
-    // setFilteredIssues(tempFilteredIssues)
-
-    // // If the issue is resolved or saved, reload the associated content item
-    // if(state === settings.ISSUE_STATE.SAVED || state === settings.ISSUE_STATE.RESOLVED) {
-    //   let contentItemId = null
-    //   tempUnfilteredIssues.forEach((issue) => {
-    //     if(issue.id === issueId) {
-    //       contentItemId = issue?.issueData?.contentItemId
-    //     }
-    //   })
-    //   if(contentItemId) {
-    //     loadContentItem(contentItemId)
-    //   }
-    // }
-
-    // updateSessionIssue(issueId, state)
-  }
-
-  const updateIssue = (newIssueData) => {
-    const tempReport = Object.assign({}, report)
-    tempReport.issues = tempReport.issues.map((issue) => {
-      if (issue.id === newIssueData.id) {
-        const tempIssue = formatIssueData(newIssueData)
-        if(activeIssue.id === newIssueData.id) {
-          setActiveIssue(tempIssue)
-        }
-        return tempIssue
-      }
-      return issue
-    })
-    processNewReport(tempReport)
   }
 
   const updateFile = (tempFile) => {
@@ -775,7 +673,7 @@ export default function FixIssuesPage({
   }
 
   const getNewFullPageHtml = (content, issue) => {
-    if(!content?.body || !issue?.newHtml) {
+    if(!content?.body || !issue) {
       return
     }
 
@@ -790,20 +688,27 @@ export default function FixIssuesPage({
       return
     }
     const newElement = Html.toElement(issue?.newHtml)
-    errorElement.replaceWith(newElement)
+    
+    // Replace or remove the error element
+    if(newElement) {
+      errorElement.replaceWith(newElement)  
+    } else {
+      errorElement.remove()
+    }
 
     return tempDoc.body.innerHTML
   }
 
   const handleIssueSave = (issue) => {
 
-    if(!activeContentItem) {
+    if(!activeContentItem || !issue) {
       return
     }
 
     updateActiveSessionIssue(issue.id, settings.ISSUE_STATE.SAVING)
+    addItemToBeingScanned(issue.contentItemId)
 
-    if(!activeContentItem?.body || !issue.newHtml) {
+    if(!activeContentItem?.body) {
       return
     }
 
@@ -813,8 +718,11 @@ export default function FixIssuesPage({
     let newXpath = Html.findXpathFromElement(newElement)
     if(newXpath) {
       issue.xpath = newXpath
-      activeContentItem.body = fullPageHtml
     }
+    else {
+      issue.xpath = ""
+    }
+    activeContentItem.body = fullPageHtml
 
     // Save the updated issue using the LMS API
     let api = new Api(settings)
@@ -824,6 +732,8 @@ export default function FixIssuesPage({
         // Check for HTTP errors before parsing JSON
           if (!responseStr.ok) {
             processServerError(responseStr)
+            updateActiveSessionIssue(issue.id, settings.ISSUE_STATE.ERROR)
+            removeItemFromBeingScanned(issue.contentItemId)
             return null
           }
           return responseStr.json()
@@ -832,54 +742,55 @@ export default function FixIssuesPage({
 
         // If the save falied, show the relevant error message
         if (response.data.failed) {
-        updateActiveSessionIssue(issue.id, settings.ISSUE_STATE.ERROR)
-        response.messages.forEach((msg) => addMessage(msg))
+          updateActiveSessionIssue(issue.id, settings.ISSUE_STATE.ERROR)
+          removeItemFromBeingScanned(issue.contentItemId)
+          response.messages.forEach((msg) => addMessage(msg))
             
-            if (Array.isArray(response.data.issues)) {
-              response.data.issues.forEach((issue) => {
-                addMessage({
-                  severity: 'error',
-                  message: t(`form.error.${issue.ruleId}`)
-                })
+          if (Array.isArray(response.data.issues)) {
+            response.data.issues.forEach((issue) => {
+              addMessage({
+                severity: 'error',
+                message: t(`form.error.${issue.ruleId}`)
               })
-            }
+            })
+          }
 
-            if (Array.isArray(response.data.errors)) {
-              response.data.errors.forEach((error) => {
-                addMessage({
-                  severity: 'error',
-                  message: error
-                })
+          if (Array.isArray(response.data.errors)) {
+            response.data.errors.forEach((error) => {
+              addMessage({
+                severity: 'error',
+                message: error
               })
-            }
+            })
+          }
+        }
+        else {
+          
+          // If the save was successful, show the success message
+          response.messages.forEach((msg) => addMessage(msg))
+          
+          if (response.data.issue) {
+            // Update the report object by rescanning the content
+            const newIssue = Object.assign({}, issue, response.data.issue)
+            const formattedData = formatIssueData(newIssue)
+            setActiveIssue(formattedData)
+            updateActiveSessionIssue(newIssue.id, settings.ISSUE_STATE.SAVED)
+
+            api.scanContent(newIssue.contentItemId)
+              .then((responseStr) => responseStr.json())
+              .then((res) => { 
+                const tempReport = Object.assign({}, res?.data)
+                processNewReport(tempReport)
+                removeItemFromBeingScanned(newIssue.contentItemId)
+              })
           }
           else {
-            
-            // If the save was successful, show the success message
-            response.messages.forEach((msg) => addMessage(msg))
-            
-            if (response.data.issue) {
-              // Update the report object by rescanning the content
-              const newIssue = Object.assign({}, issue, response.data.issue)
-              const formattedData = formatIssueData(newIssue)
-              addItemToBeingScanned(newIssue.contentItemId)
-              setActiveIssue(formattedData)
-              updateActiveSessionIssue(newIssue.id, settings.ISSUE_STATE.SAVED)
-
-              api.scanContent(newIssue.contentItemId)
-                .then((responseStr) => responseStr.json())
-                .then((res) => { 
-                  const tempReport = Object.assign({}, res?.data)
-                  processNewReport(tempReport)
-                  removeItemFromBeingScanned(newIssue.contentItemId)
-                })
-            }
-            else {
-              setActiveIssue(formatIssueData(issue))
-              updateActiveSessionIssue(issue.id, settings.ISSUE_STATE.SAVED)
-            }
+            setActiveIssue(formatIssueData(issue))
+            updateActiveSessionIssue(issue.id, settings.ISSUE_STATE.SAVED)
+            removeItemFromBeingScanned(issue.contentItemId)
           }
-        })
+        }
+      })
     } catch (error) {
       console.error(error)
       updateActiveSessionIssue(issue.id, settings.ISSUE_STATE.ERROR)
@@ -918,6 +829,8 @@ export default function FixIssuesPage({
 
   const handleIssueResolve = (issue) => {
     updateActiveSessionIssue(issue.id, settings.ISSUE_STATE.RESOLVING)
+    addItemToBeingScanned(issue.contentItemId)
+    
     const specificClassName = `udoit-ignore-${issue.scanRuleId.replaceAll("_", "-")}`
     let tempIssue = Object.assign({}, issue)
     if (tempIssue.status === 2) {
@@ -947,6 +860,8 @@ export default function FixIssuesPage({
           // Check for HTTP errors before parsing JSON
           if (!responseStr.ok) {
             processServerError(responseStr)
+            removeItemFromBeingScanned(tempIssue.contentItemId)
+            updateActiveSessionIssue(issue.id, settings.ISSUE_STATE.ERROR)
             return null
           }
           return responseStr.json()
@@ -964,8 +879,6 @@ export default function FixIssuesPage({
             if(activeIssue.id === tempIssue.id) {
               setActiveIssue(formatIssueData(newIssue))
             }
-            
-            addItemToBeingScanned(newIssue.contentItemId)
 
             // Get updated report
             api.scanContent(newIssue.contentItemId)
@@ -1050,7 +963,7 @@ export default function FixIssuesPage({
     else if (newIndex >= filteredIssues.length) {
       newIndex = 0
     }
-    setActiveIssue(filteredIssues[newIndex])
+    setActiveIssue({...filteredIssues[newIndex]})
     setViewInfo(false)
   }
 
@@ -1099,7 +1012,9 @@ export default function FixIssuesPage({
 
   return (
     <>
-      { widgetState === WIDGET_STATE.LIST ? (
+      { widgetState === WIDGET_STATE.LOADING ? (
+        <></>
+      ) : widgetState === WIDGET_STATE.LIST ? (
         <>
           <FixIssuesFilters
             t={t}
@@ -1130,6 +1045,7 @@ export default function FixIssuesPage({
                   viewInfo={viewInfo}
                   setViewInfo={setViewInfo}
                   severity={activeIssue.severity}
+                  addMessage={addMessage}
                   activeIssue={activeIssue}
                   setActiveIssue={setActiveIssue}
                   setEditedElement={setEditedElement}
