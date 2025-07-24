@@ -155,8 +155,8 @@ export default function TableHeadersForm({
 
   return (
     <>
-      <div className="instructions">{t('form.table_headers.selection_description')}</div>
-      <div className="w-100 mt-2 flex-column gap-1">
+      <label id="radioGroupLabel" className="instructions">{t('form.table_headers.selection_description')}</label>
+      <div className="w-100 mt-2 flex-column gap-1" role="radiogroup" aria-labelledby="radioGroupLabel">
         { radioOptions.map(value => (
           <div className="flex-row gap-1" key={value}>
             <input
@@ -184,6 +184,9 @@ export default function TableHeadersForm({
         <label className="instructions" htmlFor="decorationOnlyCheckbox">
           {t('form.table_headers.decoration_only')}
         </label>
+      </div>
+      <div className="mt-1">
+        <em>{t('form.table_headers.decoration_only_desc')}</em>
       </div>
       <FormFeedback
         t={t}

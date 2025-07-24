@@ -95,7 +95,8 @@
     margin-top: 0;
   }
 
-  label {
+  label,
+  .instructions {
     font-weight: 600;
     color: var(--text-color);
   }

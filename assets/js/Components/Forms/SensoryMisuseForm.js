@@ -59,7 +59,6 @@ export default function SensoryMisuseForm({
     setHtml(html)
     setEditorHtml(html)
 
-    console.log('Initializing TinyMCE with activeIssue: ', activeIssue.id)
     tinymce.remove()
     tinymce.init({
       selector: '#sensory-misuse-textarea',
@@ -216,14 +215,11 @@ export default function SensoryMisuseForm({
 
   return (
     <>
-      <div>
-        <textarea id="sensory-misuse-textarea"></textarea>
-      </div>
-
-      {sensoryErrors.length > 0 ?
+      <div className="instructions">{t('form.sensory_misuse.label.instructions')}</div>
+      { sensoryErrors.length > 0 ? (
         <div className="mt-3">
-          <label className="instructions">{t('form.sensory_misuse.label.potential')}</label>
           <div className="flex-row flex-wrap gap-1 mt-2">
+            <div className="ufixit-widget-label flex-column align-self-center">{t('form.sensory_misuse.label.highlight')}</div>
             {sensoryErrors.map((word) => (
               <button
                 className="tag"
@@ -236,7 +232,14 @@ export default function SensoryMisuseForm({
             ))}
           </div>
         </div>
-        : <></>}
+      ) : (
+        <div className="mt-3">
+          <div className="ufixit-widget-label">{t('form.sensory_misuse.label.none')}</div>
+        </div>
+      )}
+      <div className="mt-3">
+        <textarea id="sensory-misuse-textarea"></textarea>
+      </div>
 
       <FormFeedback
         t={t}

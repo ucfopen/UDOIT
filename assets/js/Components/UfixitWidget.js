@@ -208,7 +208,7 @@ export default function UfixitWidget({
                     t={t}
                     settings={settings}
                     activeIssue={activeIssue}
-                    isDisabled={isContentLoading || !isErrorFoundInContent}
+                    isDisabled={ (activeIssue.contentType !== settings.FILTER.FILE_OBJECT) && (isContentLoading || !isErrorFoundInContent)}
                     handleFileResolve={handleFileResolve}
                     handleIssueResolve={handleIssueResolve}
                   />
@@ -219,7 +219,7 @@ export default function UfixitWidget({
                 t={t}
                 settings={settings}
                 activeIssue={activeIssue}
-                isDisabled={isContentLoading || !isErrorFoundInContent}
+                isDisabled={ (activeIssue.contentType !== settings.FILTER.FILE_OBJECT) && (isContentLoading || !isErrorFoundInContent)}
                 handleFileResolve={handleFileResolve}
                 handleIssueResolve={handleIssueResolve}
               />
