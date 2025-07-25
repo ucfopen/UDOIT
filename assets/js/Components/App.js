@@ -103,7 +103,21 @@ export default function App(initialData) {
   const processNewReport = (rawReport) => {
     const tempReport = analyzeReport(rawReport, ISSUE_STATE)
     setReport(tempReport)
-    
+
+    let api = new Api(settings)
+    api.setReportData(tempReport.id, {'scanCounts': tempReport.scanCounts})
+      .then((response) => response.json())
+      .then((data) => {
+        if(data.errors && data.errors.length > 0) {
+          data.errors.forEach((error) => {
+            addMessage({ message: error, severity: 'error', visible: true })
+          })
+        }
+      })
+      .catch((error) => {
+        addMessage({ message: t('msg.sync.error.api'), severity: 'error', visible: true })
+      })
+
     if (tempReport.contentSections) {
       setSections(tempReport.contentSections)
     }

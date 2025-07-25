@@ -159,6 +159,9 @@ export function analyzeReport(report, ISSUE_STATE) {
     }
   })
 
+  scanCounts.potentials += Object.keys(tempReport.files).length
+  scanCounts.potentials -= tempReport.filesReviewed
+
   tempReport.issues = activeIssues
   tempReport.scanCounts = scanCounts
   tempReport.contentItems = usedContentItems
