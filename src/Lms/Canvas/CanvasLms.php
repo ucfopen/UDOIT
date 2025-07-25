@@ -813,7 +813,7 @@ class CanvasLms implements LmsInterface {
 
             // Pages
             'url:GET|/api/v1/courses/:course_id/pages',
-            'url:GET|/api/v1/cour dses/:course_id/pages/:url_or_id',
+            'url:GET|/api/v1/courses/:course_id/pages/:url_or_id',
             'url:PUT|/api/v1/courses/:course_id/pages/:url_or_id',
 
             // Quiz Questions

@@ -172,6 +172,12 @@
     max-width: 300px;
     transition: max-height 0.15s, max-width var(--transition-time), padding var(--transition-time);
     overflow: auto;
+
+    a {
+      color: var(--white);
+      text-decoration: none;
+      cursor: default;
+    }
   }
 }
 

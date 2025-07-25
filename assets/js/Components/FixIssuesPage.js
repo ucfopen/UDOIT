@@ -108,17 +108,17 @@ export default function FixIssuesPage({
   ]
 
   const [activeIssue, setActiveIssue] = useState(null)
+  const [tempActiveIssue, setTempActiveIssue] = useState(null)
   const [activeContentItem, setActiveContentItem] = useState(null)
   const [contentItemsBeingScanned, setContentItemsBeingScanned] = useState([])
   const [isErrorFoundInContent, setIsErrorFoundInContent] = useState(false)
-  const [editedElement, setEditedElement] = useState(null)
   const [searchTerm, setSearchTerm] = useState('')
   const [activeFilters, setActiveFilters] = useState(defaultFilters)
   const [unfilteredIssues, setUnfilteredIssues] = useState([])
   const [filteredIssues, setFilteredIssues] = useState([])
   const [groupedList, setGroupedList] = useState([])
   const [widgetState, setWidgetState] = useState(WIDGET_STATE.LOADING)
-  const [viewInfo, setViewInfo] = useState(false)
+  const [liveUpdateToggle, setLiveUpdateToggle] = useState(true)
 
   // The database stores and returns certain issue data, but it needs additional attributes in order to
   // be really responsive on the front end. This function adds those attributes and stores the database
@@ -423,23 +423,23 @@ export default function FixIssuesPage({
     // The filtered list should ALWAYS include the current activeIssue, even if it no longer matches
     // the filters. For instance, if I'm only looking through "Unreviewed" issues, and I click on the
     // "Mark as Reviewed" button, that newly-reviewed issue should be available to stay on screen.
-    let tempActiveIssue = null
+    let holdoverActiveIssue = null
 
     // If there is an activeIssue, we need to connect it to something in the new list of issues.
     if(activeIssue) {  
       // Quick check: is the old activeIssue still in the list?
       tempUnfilteredIssues.forEach((issue) => {
         if(issue.id === activeIssue.id) {
-          tempActiveIssue = issue
+          holdoverActiveIssue = issue
         }
       })
 
       // If not, we need to do a more thorough check.
-      if(tempActiveIssue === null) {
+      if(holdoverActiveIssue === null) {
         if(activeIssue.contentType === FILTER.FILE_OBJECT) {
           tempUnfilteredIssues.forEach((issue) => {
             if(issue.contentId === activeIssue.contentId) {
-              tempActiveIssue = issue
+              holdoverActiveIssue = issue
             }
           })
         }
@@ -449,24 +449,23 @@ export default function FixIssuesPage({
                 issue.contentId === activeIssue.contentId &&
                 issue.issueData.xpath === activeIssue.issueData.xpath) {
               updateActiveSessionIssue(issue.id, null, issue.issueData.contentItemId)
-              tempActiveIssue = issue
+              holdoverActiveIssue = issue
             }
           })
         }
       }
 
-      if(tempActiveIssue === null) {
+      if(holdoverActiveIssue === null) {
         setWidgetState(WIDGET_STATE.LIST)
       }
     }
 
     setUnfilteredIssues(tempUnfilteredIssues)
-    let tempFilteredContent = getFilteredContent(tempUnfilteredIssues, tempActiveIssue?.id || null)
+    let tempFilteredContent = getFilteredContent(tempUnfilteredIssues, holdoverActiveIssue?.id || null)
 
     setFilteredIssues(tempFilteredContent)
     setGroupedList(groupList(tempFilteredContent))
-    setActiveIssue(tempActiveIssue)
-
+    setActiveIssue(holdoverActiveIssue)
   }, [report])
 
 
@@ -474,11 +473,13 @@ export default function FixIssuesPage({
   useEffect(() => {
     if(activeIssue === null) {
       setActiveContentItem(null)
+      setTempActiveIssue(null)
       setWidgetState(WIDGET_STATE.LIST)
       return
     }
   
     setWidgetState(WIDGET_STATE.FIXIT)
+    setTempActiveIssue(JSON.parse(JSON.stringify(activeIssue)))
 
     if(activeIssue.contentType === FILTER.FILE_OBJECT) {
       setActiveContentItem(null)
@@ -963,8 +964,7 @@ export default function FixIssuesPage({
     else if (newIndex >= filteredIssues.length) {
       newIndex = 0
     }
-    setActiveIssue({...filteredIssues[newIndex]})
-    setViewInfo(false)
+    setActiveIssue(filteredIssues[newIndex])
   }
 
   const toggleListView = () => {
@@ -978,7 +978,6 @@ export default function FixIssuesPage({
     }
     else {
       setWidgetState(WIDGET_STATE.LIST)
-      setViewInfo(false)
       setActiveIssue(null)
       setActiveContentItem(null)
     }
@@ -1010,6 +1009,10 @@ export default function FixIssuesPage({
     return keywords.join(' ')
   }
 
+  const triggerLiveUpdate = () => {
+    setLiveUpdateToggle(!liveUpdateToggle)
+  }
+
   return (
     <>
       { widgetState === WIDGET_STATE.LOADING ? (
@@ -1038,19 +1041,16 @@ export default function FixIssuesPage({
             <button onClick={toggleListView} className="btn btn-link btn-icon-left btn-small mb-2">
               <LeftArrowIcon className="icon-sm link-color" />{t('fix.button.list')}
             </button>
-            { activeIssue ? (  
+            { tempActiveIssue ? (  
                 <UfixitWidget
                   t={t}
                   settings={settings.FILTER ? settings : Object.assign({}, settings, { FILTER })}
-                  viewInfo={viewInfo}
-                  setViewInfo={setViewInfo}
-                  severity={activeIssue.severity}
+                  severity={tempActiveIssue.severity}
                   addMessage={addMessage}
-                  activeIssue={activeIssue}
-                  setActiveIssue={setActiveIssue}
-                  setEditedElement={setEditedElement}
+                  tempActiveIssue={tempActiveIssue}
+                  setTempActiveIssue={setTempActiveIssue}
                   formatIssueData={formatIssueData}
-                  isContentLoading={contentItemsBeingScanned.includes(activeIssue?.issueData?.contentItemId)}
+                  isContentLoading={contentItemsBeingScanned.includes(tempActiveIssue?.issueData?.contentItemId)}
                   isErrorFoundInContent={isErrorFoundInContent}
                   handleIssueResolve={handleIssueResolve}
                   handleIssueSave={handleIssueSave}
@@ -1059,6 +1059,7 @@ export default function FixIssuesPage({
                   toggleListView={toggleListView}
                   listLength={filteredIssues.length}
                   nextIssue={nextIssue}
+                  triggerLiveUpdate={triggerLiveUpdate}
                 />
             ) : ''}
           </section>
@@ -1067,9 +1068,9 @@ export default function FixIssuesPage({
               <FixIssuesContentPreview
                 t={t}
                 settings={settings.FILTER ? settings : Object.assign({}, settings, { FILTER })}
-                activeIssue={activeIssue}
+                activeIssue={tempActiveIssue}
+                liveUpdateToggle={liveUpdateToggle}
                 activeContentItem={activeContentItem}
-                editedElement={editedElement}
                 sessionIssues={sessionIssues}
                 isErrorFoundInContent={isErrorFoundInContent}
                 setIsErrorFoundInContent={setIsErrorFoundInContent}
