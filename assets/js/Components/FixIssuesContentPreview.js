@@ -131,13 +131,15 @@ export default function FixIssuesContentPreview({
           // If the element is an <area>, find its parent <map> element
           if (elementTag.toLowerCase() === 'area') {
             const mapElement = errorElement.closest('map')
-            if (mapElement) {
+            if (mapElement && mapElement.parentNode) {
               mapElement.insertAdjacentHTML('afterend', altTextPreviewCode)
             }
           }
           // Otherwise, insert the preview after the error element itself.
           else {
-            errorElement.insertAdjacentHTML('afterend', altTextPreviewCode)
+            if (errorElement.parentNode) {
+              errorElement.insertAdjacentHTML('afterend', altTextPreviewCode)
+            }
           }
         }
       }
@@ -239,12 +241,13 @@ export default function FixIssuesContentPreview({
     const doc = document.getElementsByClassName('ufixit-content-preview-main')[0]
     if (!doc) { return }
     
-    const targetElement = doc.getElementsByClassName('ufixit-error-highlight')[0]
+    let targetElement = doc.getElementsByClassName('ufixit-error-highlight')[0]
     if (!targetElement) { return }
 
-    let formName = formNameFromRule(activeIssue.scanRuleId)
-
     const tempElement = convertErrorHtmlString(Html.getIssueHtml(activeIssue?.issueData))
+    if(!tempElement) { return }
+
+    let formName = formNameFromRule(activeIssue.scanRuleId)
 
     if (formName === formNames.ALT_TEXT) {
 
@@ -282,7 +285,10 @@ export default function FixIssuesContentPreview({
     }
     
     // Replace the target element with the new element
-    targetElement.replaceWith(tempElement)
+    targetElement.insertAdjacentHTML('afterend', Html.toString(convertErrorHtmlString(tempElement)))
+    let tempSwitchElement = targetElement.nextSibling
+    targetElement.remove()
+    targetElement = tempSwitchElement
     addPreviewHelperElements(doc, targetElement)
     setTaggedContent(doc.innerHTML)
   }, [liveUpdateToggle])
