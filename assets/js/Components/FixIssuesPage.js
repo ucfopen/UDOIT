@@ -1036,7 +1036,7 @@ export default function FixIssuesPage({
           />
         </>
       ) : (
-        <div className="ufixit-page-divider flex-row h-100">
+        <div className="flex-row gap-2 w-100 h-100">
           <section className='ufixit-widget-container'>
             <button onClick={toggleListView} className="btn btn-link btn-icon-left btn-small mb-2">
               <LeftArrowIcon className="icon-sm link-color" />{t('fix.button.list')}
