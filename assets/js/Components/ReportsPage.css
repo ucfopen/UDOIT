@@ -11,7 +11,7 @@
   border-bottom: 1px solid var(--border-color);
   padding: .5rem 1rem;
   margin: 0 -1rem;
-  font-size: 0.9rem;
+  font-size: 0.9em;
 }
 
 .options-label {

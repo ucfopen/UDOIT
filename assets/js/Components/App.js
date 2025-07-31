@@ -59,9 +59,11 @@ export default function App(initialData) {
   }, [])
 
   const updateUserSettings = (newUserSetting) => {
+    let oldSettings = JSON.parse(JSON.stringify(settings))
     let newRoles = Object.assign({}, settings.user.roles, newUserSetting)
     let newUser = Object.assign({}, settings.user, { 'roles': newRoles})
     let newSettings = Object.assign({}, settings, { user: newUser })
+    setSettings(newSettings)
 
     let api = new Api(settings)
     api.updateUser(newUser)
@@ -72,8 +74,11 @@ export default function App(initialData) {
           if(data?.labels?.lang) {
             newSettings.labels = data.labels
           }
-          setSettings(newSettings)
           addMessage({ message: t('msg.settings.updated'), severity: 'success', visible: true })
+        }
+        else {
+          setSettings(oldSettings)
+          addMessage({ message: t('msg.settings.update_failed'), severity: 'error', visible: true })
         }
     })
   }
@@ -260,16 +265,6 @@ export default function App(initialData) {
     }
   }
 
-  const resizeFrame = useCallback(() => {
-    let default_height = document.body.scrollHeight + 50
-    default_height = default_height > 850 ? default_height : 850
-
-    parent.postMessage(JSON.stringify({
-      subject: "lti.frameResize",
-      height: default_height
-    }), "*")
-  }, [])
-
   useEffect(() => {
     document.addEventListener('visibilitychange', function() {
       if(document.hidden) {
@@ -311,17 +306,11 @@ export default function App(initialData) {
       addMessage({message: `${t('msg.sync.failed')}: ${t(error)}`, severity: 'error', visible: true})
       console.error("Error scanning course:", error)
     }
-
-    window.addEventListener("resize", resizeFrame)
-    resizeFrame()
-
-    return () => {
-      window.removeEventListener('resize', resizeFrame)
-    }
-  }, [initialData.report, scanCourse, resizeFrame])
+  }, [initialData.report, scanCourse])
 
   return (
-    <>
+    <div id="app-container"
+         className={`flex-column flex-grow-1 ${settings?.user?.roles?.font_size || 'font-medium'} ${settings?.user?.roles?.font_family || 'sans-serif'} ${settings?.user?.roles?.dark_mode ? 'dark-mode' : ''}`}>
       { !welcomeClosed ?
         ( <WelcomePage
             t={t}
@@ -332,6 +321,7 @@ export default function App(initialData) {
           <>
             <Header
               t={t}
+              settings={settings}
               hasNewReport={hasNewReport}
               navigation={navigation}
               syncComplete={syncComplete}
@@ -347,6 +337,8 @@ export default function App(initialData) {
                   hasNewReport={hasNewReport}
                   quickIssues={quickIssues}
                   sessionIssues={sessionIssues}
+                  syncComplete={syncComplete}
+                  handleFullCourseRescan={handleFullCourseRescan}
                 />
               }
               {('fixIssues' === navigation) &&
@@ -398,6 +390,6 @@ export default function App(initialData) {
         messages={messages}
         clearMessages={clearMessages}
       />
-    </>
+    </div>
   )
 }

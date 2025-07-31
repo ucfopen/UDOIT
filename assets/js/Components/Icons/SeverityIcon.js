@@ -1,12 +1,17 @@
 import React from 'react';
 import SeverityIssueIcon from './SeverityIssueIcon';
+import SeverityIssueIconFilled from './SeverityIssueIconFilled';
 import SeverityPotentialIcon from './SeverityPotentialIcon';
+import SeverityPotentialIconFilled from './SeverityPotentialIconFilled';
 import SeveritySuggestionIcon from './SeveritySuggestionIcon';
+import SeveritySuggestionIconFilled from './SeveritySuggestionIconFilled';
 
 export default function SeverityIcon(props) {
   if(!props.type) {
     return null
   }
+
+  let filled = props?.filled || false
 
   // There may or may not already be a className prop, and we want to append, not overwrite it.
   let newProps = {...props}
@@ -20,13 +25,29 @@ export default function SeverityIcon(props) {
   switch(props.type) {
     case('ISSUE'):
       newProps.className += 'udoit-issue'
-      return <SeverityIssueIcon {...newProps} />
+      if(filled) {
+        return <SeverityIssueIconFilled {...newProps} />
+      }
+      else {
+        return <SeverityIssueIcon {...newProps} />
+      }
+      
     case('POTENTIAL'):
       newProps.className += 'udoit-potential'
-      return <SeverityPotentialIcon {...newProps} />
+      if(filled) {
+        return <SeverityPotentialIconFilled {...newProps} />
+      }
+      else {
+        return <SeverityPotentialIcon {...newProps} />
+      }
     case('SUGGESTION'):
       newProps.className += 'udoit-suggestion'
-      return <SeveritySuggestionIcon {...newProps} />
+      if(filled) {
+        return <SeveritySuggestionIconFilled {...newProps} />
+      }
+      else {
+        return <SeveritySuggestionIcon {...newProps} />
+      }
     default:
       return null
   }

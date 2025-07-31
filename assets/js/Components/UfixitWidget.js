@@ -145,7 +145,7 @@ export default function UfixitWidget({
               <div className="flex-row justify-content-between mb-1">
                 <div className="ufixit-widget-label flex-grow-1">{t('fix.label.barrier_information')}</div>
               </div>
-              <div className="ufixit-callout-container flex-shrink-0 mb-3">
+              <div className="callout-container flex-shrink-0 mb-3">
                 <div className="ufixit-instructions" 
                   dangerouslySetInnerHTML={{__html: formSummary}}
                 />
@@ -169,7 +169,7 @@ export default function UfixitWidget({
                 <>
                   <div className="ufixit-widget-label mb-1">{t('fix.label.barrier_repair')}</div>
                   <div className="flex-column flex-grow-1 justify-content-between ufixit-form-content">
-                    <div className="ufixit-callout-container">
+                    <div className="callout-container">
                       { tempActiveIssue.contentType === settings.FILTER.FILE_OBJECT ? (
                         <FileForm
                           t={t}

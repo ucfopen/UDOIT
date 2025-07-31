@@ -31,8 +31,12 @@
   }
 }
 
+.invisible-spacer {
+  padding-bottom: 4rem;
+}
+
 .welcome-footer {
-  margin-bottom: -0.7rem;
+  padding-top: 4rem;
 }
 
 .tagline {
