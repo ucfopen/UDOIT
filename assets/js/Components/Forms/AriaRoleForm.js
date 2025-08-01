@@ -147,6 +147,7 @@ export default function AriaRoleForm({
   const [detectedTag, setDetectedTag] = useState("")
   const [validRoles, setValidRoles] = useState([])
   const [selectValue, setSelectValue] = useState("")
+  const [formErrors, setFormErrors] = useState([])
   
   useEffect(() => {
     let html = Html.getIssueHtml(activeIssue)
@@ -169,6 +170,7 @@ export default function AriaRoleForm({
 
   useEffect(() => {
     updateHtmlContent()
+    checkFormErrors()
   }, [selectValue, deleteRole, markAsReviewed])
 
   const updateHtmlContent = () => {
@@ -193,9 +195,19 @@ export default function AriaRoleForm({
     issue.newHtml = Html.toString(updatedElement)
     handleActiveIssue(issue)
   }
-  
+
+  const checkFormErrors = () => {
+    let tempErrors = []
+    if (!deleteRole && (selectValue === '' || validRoles.indexOf(selectValue) === -1)) {
+      tempErrors.push({ text: t('form.aria_role.msg.role_required'), type: 'error' })
+    }
+    setFormErrors(tempErrors)
+  }
+
   const handleSubmit = () => {
-    handleIssueSave(activeIssue)
+    if(markAsReviewed || formErrors.length === 0) {
+      handleIssueSave(activeIssue)
+    }
   }
 
   const handleSelect = (newValue) => {
@@ -249,9 +261,9 @@ export default function AriaRoleForm({
         t={t}
         settings={settings}
         activeIssue={activeIssue}
-        isDisabled={isDisabled || !deleteRole && selectValue === ''}
+        isDisabled={isDisabled}
         handleSubmit={handleSubmit}
-        formErrors={[]}
+        formErrors={formErrors}
         markAsReviewed={markAsReviewed}
         setMarkAsReviewed={setMarkAsReviewed} />
     </>

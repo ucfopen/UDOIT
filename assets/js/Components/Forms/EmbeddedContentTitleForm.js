@@ -60,7 +60,7 @@ export default function EmbeddedContentTitleForm({
   const checkFormErrors = () => {
     let tempErrors = []
     
-    if(Text.isTextEmpty()) {
+    if(Text.isTextEmpty(textInputValue)) {
       tempErrors.push({ text: t('form.embedded_content_title.msg.text_empty'), type: "error" })
     }
     if(isLabelDuplicate()) {

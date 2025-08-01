@@ -245,7 +245,7 @@ export default function BlockquoteForm({
         t={t}
         settings={settings}
         activeIssue={activeIssue}
-        isDisabled={isDisabled || formErrors.length > 0}
+        isDisabled={isDisabled}
         handleSubmit={handleSubmit}
         formErrors={formErrors}
         markAsReviewed={markAsReviewed}

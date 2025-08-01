@@ -307,6 +307,7 @@
   "form.aria_role.label.select": "Select a Compatible ARIA Role",  
   "form.aria_role.label.none_selected": "No ARIA Role Selected",
   "form.aria_role.label.remove": "Remove Incompatible ARIA Role",
+  "form.aria_role.msg.role_required": "If an ARIA role is present, it must be compatible with the HTML element",
   "rule.desc.aria_role_allowed": "",
   "rule.desc.aria_role_valid": "This HTML element is a/an <{tagName}>, but has an ARIA role of \"{ariaRole}\", which is incompatible.",
 
@@ -323,7 +324,7 @@
 
   "form.contrast.title": "Text Must Have Sufficient Color Contrast with the Background",
   "form.contrast.summary": "Text must have sufficient contrast with the background color to be readable by users with low vision or color blindness.",
-  "form.contrast.learn_more": "<h3>Color Contrast</h3><p>Users with low vision need sufficient contrast in order to read. The color contrast ratio follows a formula to compare the luminance of the foreground text with background colors. Take note of contrast especially for text resizing, responsive design, and motion effects like parallax or animated backgrounds when the position of text on its background can change.</p><h3>Best Practices</h3><ul><li>Make sure text achieves sufficient contrast against its background</li><li>Achieve minimum contrast for all text placed over images or gradients</li></ul><h3>For More Information</h3><p>WebAIM.org: <a href='https://webaim.org/articles/contrast/' target='_blank'>Contrast and Color Accessibility</a></p><p><a href='https://webaim.org/resources/contrastchecker/' target='_blank'>Online Color Contrast Checker</a></p>",
+  "form.contrast.learn_more": "<h3>Color Contrast</h3><p>Users with low vision need sufficient contrast in order to read. The color contrast ratio follows a formula to compare the luminance of the foreground text with background colors. Take note of contrast especially for text resizing, responsive design, and motion effects like parallax or animated backgrounds when the position of text on its background can change.</p><h3>Best Practices</h3><ul><li>Make sure text achieves sufficient contrast against its background</li><li>Achieve maximum contrast for all text placed over images or gradients</li></ul><h3>For More Information</h3><p>WebAIM.org: <a href='https://webaim.org/articles/contrast/' target='_blank'>Contrast and Color Accessibility</a></p><p><a href='https://webaim.org/resources/contrastchecker/' target='_blank'>Online Color Contrast Checker</a></p>",
   "form.contrast.label.adjust": "Adjust the Text and/or Background Colors to Increase Contrast",
   "form.contrast.label.show_color_picker": "Show Color Picker",
   "form.contrast.label.hide_color_picker": "Hide Color Picker",

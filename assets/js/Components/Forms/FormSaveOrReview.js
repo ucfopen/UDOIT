@@ -122,7 +122,7 @@ export default function FormSaveOrReview({
               disabled={!markAsReviewed && (isDisabled || hasErrors)}
               tabIndex="0"
               onClick={handleSubmit}>
-                <SaveIcon className="icon-md" />
+              <SaveIcon className="icon-md" alt=""/>
               {t('form.submit')}
             </button>
           )}
