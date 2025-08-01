@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react'
-import FormFeedback from './FormFeedback'
+import FormSaveOrReview from './FormSaveOrReview'
 import * as Html from '../../Services/Html'
 // The SensoryMisuseForm.css file is a copy of the tinyMCE oxide skin file, which does not consistently load at runtime, so we include it here
 // Failure to do so often results in the TinyMCE editor not display, especially the first time the componenet is rendered.
@@ -12,7 +12,9 @@ export default function SensoryMisuseForm({
   handleIssueSave, 
   addMessage,
   isDisabled,
-  handleActiveIssue
+  handleActiveIssue,
+  markAsReviewed,
+  setMarkAsReviewed
 }) {
   const [html, setHtml] = useState(Html.getIssueHtml(activeIssue))
   const [editorHtml, setEditorHtml] = useState(Html.getIssueHtml(activeIssue))
@@ -241,13 +243,15 @@ export default function SensoryMisuseForm({
         <textarea id="sensory-misuse-textarea"></textarea>
       </div>
 
-      <FormFeedback
+      <FormSaveOrReview
         t={t}
         settings={settings}
         activeIssue={activeIssue}
         isDisabled={isDisabled}
         handleSubmit={handleSubmit}
-        formErrors={[]} />
+        formErrors={[]}
+        markAsReviewed={markAsReviewed}
+        setMarkAsReviewed={setMarkAsReviewed} />
     </>
   )
 }

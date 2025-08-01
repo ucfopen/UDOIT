@@ -1,5 +1,5 @@
 import React, {useState, useEffect} from 'react'
-import FormFeedback from './FormFeedback'
+import FormSaveOrReview from './FormSaveOrReview'
 import * as Text from '../../Services/Text'
 import * as Html from '../../Services/Html'
 
@@ -10,11 +10,13 @@ export default function AnchorText({
   handleIssueSave,
   isDisabled,
   handleActiveIssue,
+  markAsReviewed,
+  setMarkAsReviewed
 }) {
 
   const [textInputValue, setTextInputValue] = useState("")
   const [linkUrl, setLinkUrl] = useState("")
-  const [textInputErrors, setTextInputErrors] = useState([])
+  const [formErrors, setFormErrors] = useState([])
   const [deleteLink, setDeleteLink] = useState(false)
 
   useEffect(() => {
@@ -35,11 +37,20 @@ export default function AnchorText({
   }, [activeIssue])
 
   useEffect(() => {
-    updateActiveIssueHtml()
+    updateHtmlContent()
     checkFormErrors()
-  }, [textInputValue, deleteLink])
+  }, [textInputValue, deleteLink, markAsReviewed])
 
-  const updateActiveIssueHtml = () => {
+  const updateHtmlContent = () => {
+    let issue = activeIssue
+    issue.isModified = true
+    
+    if (markAsReviewed) {
+      issue.newHtml = issue.initialHtml
+      handleActiveIssue(issue)
+      return
+    }
+
     const html = Html.getIssueHtml(activeIssue)
     let element = Html.toElement(html)
     let elementTag = Html.getTagName(element)?.toLowerCase() || ''
@@ -63,16 +74,8 @@ export default function AnchorText({
       }
     }
     
-    let issue = activeIssue
     issue.newHtml = Html.toString(element)
     handleActiveIssue(issue)
-  }
-
-  const handleSubmit = () => {
-    if(!deleteLink && textInputErrors.length > 0) {
-      return
-    }
-    handleIssueSave(activeIssue)
   }
 
   const checkFormErrors = () => {
@@ -88,7 +91,13 @@ export default function AnchorText({
       }
     }
 
-    setTextInputErrors(tempErrors)
+    setFormErrors(tempErrors)
+  }
+
+  const handleSubmit = () => {
+    if(markAsReviewed || deleteLink || formErrors.length === 0) {
+      handleIssueSave(activeIssue)
+    }
   }
 
   const handleInput = (event) => {
@@ -103,6 +112,14 @@ export default function AnchorText({
   
   return (
     <>
+      {linkUrl !== '' && (
+        <div className="flex-row url-container justify-content-end gap-1 mb-2">
+          <div className="ufixit-widget-label">Link:</div>
+          <a href={linkUrl} target="_blank" rel="noopener noreferrer" tabIndex="0" className="link-small">
+            {linkUrl}
+          </a>
+        </div>
+      )}
       <label htmlFor="linkTextInput" className="instructions">{t('form.anchor.link_text')}</label>
       <input
         name="linkTextInput"
@@ -125,21 +142,16 @@ export default function AnchorText({
           onChange={handleDeleteCheckbox} />
         <label htmlFor="deleteLinkCheckbox" className="instructions">{t('form.anchor.delete_link')}</label>
       </div>
-      {linkUrl !== '' && (
-        <div className="flex-row justify-content-end gap-1 mt-3">
-          <div className="ufixit-widget-label">Link:</div>
-          <a href={linkUrl} target="_blank" rel="noopener noreferrer" tabIndex="0" className="link-small">
-            {linkUrl}
-          </a>
-        </div>
-      )}
-      <FormFeedback
+      
+      <FormSaveOrReview
         t={t}
         settings={settings}
         activeIssue={activeIssue}
         isDisabled={isDisabled}
         handleSubmit={handleSubmit}
-        formErrors={textInputErrors} />
+        formErrors={formErrors}
+        markAsReviewed={markAsReviewed}
+        setMarkAsReviewed={setMarkAsReviewed} />
     </>
   )
 }

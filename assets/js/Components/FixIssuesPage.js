@@ -479,13 +479,17 @@ export default function FixIssuesPage({
     }
   
     setWidgetState(WIDGET_STATE.FIXIT)
-    setTempActiveIssue(JSON.parse(JSON.stringify(activeIssue)))
+    const activeIssueClone = JSON.parse(JSON.stringify(activeIssue))
 
     if(activeIssue.contentType === FILTER.FILE_OBJECT) {
+      setTempActiveIssue(activeIssueClone)
       setActiveContentItem(null)
       setIsErrorFoundInContent(true)
       return
     }
+
+    activeIssueClone.issueData.initialHtml = Html.getIssueHtml(activeIssueClone.issueData)
+    setTempActiveIssue(activeIssueClone)
 
     // If we've already downloaded the content for this issue, use that
     const contentItemId = activeIssue.issueData.contentItemId
@@ -700,9 +704,14 @@ export default function FixIssuesPage({
     return tempDoc.body.innerHTML
   }
 
-  const handleIssueSave = (issue) => {
+  const handleIssueSave = (issue, markAsReviewed = false) => {
 
     if(!activeContentItem || !issue) {
+      return
+    }
+
+    if(markAsReviewed) {
+      handleIssueResolve(issue)
       return
     }
 

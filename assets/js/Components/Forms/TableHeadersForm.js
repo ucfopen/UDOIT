@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import FormFeedback from './FormFeedback'
+import FormSaveOrReview from './FormSaveOrReview'
 import * as Html from '../../Services/Html';
 
 export default function TableHeadersForm({
@@ -9,6 +9,8 @@ export default function TableHeadersForm({
   handleIssueSave, 
   isDisabled, 
   handleActiveIssue,
+  markAsReviewed,
+  setMarkAsReviewed
 }) {
   const radioOptions = [
     'col',
@@ -185,16 +187,16 @@ export default function TableHeadersForm({
           {t('form.table_headers.decoration_only')}
         </label>
       </div>
-      <div className="mt-1">
-        <em>{t('form.table_headers.decoration_only_desc')}</em>
-      </div>
-      <FormFeedback
+      <div className="instructions-helper">{t('form.table_headers.decoration_only_desc')}</div>
+      <FormSaveOrReview
         t={t}
         settings={settings}
         activeIssue={activeIssue}
         isDisabled={isDisabled || (!selectedValue && !decorationOnly)}
         handleSubmit={handleSubmit}
-        formErrors={[]} />
+        formErrors={[]}
+        markAsReviewed={markAsReviewed}
+        setMarkAsReviewed={setMarkAsReviewed} />
     </>
   )
 }

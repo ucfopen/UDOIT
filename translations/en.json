@@ -198,6 +198,8 @@
   "fix.label.barrier_repair": "How to Repair this Barrier",
   "fix.label.or": "Or",
   "fix.label.and_or": "And/Or",
+  "fix.label.no_changes": "No Changes Needed",
+  "fix.label.no_changes_desc": "Only select this option if you have verified that this does not present an accessibility barrier.",
   "fix.label.affected": "Affected Users:",
   "fix.label.disability.visual": "Visually Impaired",
   "fix.label.disability.hearing": "Hearing Impaired",
@@ -258,7 +260,7 @@
   "form.error.fails_tests": "Submission fails tests.",
   "form.error.same_html": "These changes have already been submitted",
 
-  "form.submit": "Save Changes",
+  "form.submit": "Save",
   "form.processing": "Processing...",
   "form.msg.success_saved": "Successfully saved.",
   "form.msg.manually_fixed": "Issue successfully fixed manually.",

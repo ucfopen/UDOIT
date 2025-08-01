@@ -11,7 +11,6 @@
 .ufixit-widget-label {
   font-size: .9em;
   font-weight: 600;
-  color: var(--primary-color);
   text-transform: uppercase;
 }
 
@@ -93,6 +92,15 @@
   .instructions {
     font-weight: 600;
     color: var(--text-color);
+  }
+
+  .instructions-helper {
+    margin-top: .25em;
+    padding-left: 1.8rem;
+    font-weight: 400;
+    font-style: italic;
+    font-size: .9em;
+    color: var(--gray-dark);
   }
 
   input[type="text"] {
@@ -265,6 +273,12 @@
       outline-offset: 2px;
     }
   }
+}
+
+.url-container {
+  background-color: var(--gray-lighter);
+  padding: .25em .5em;
+  border-radius: 8px;
 }
 
 .ufixit-overlay {

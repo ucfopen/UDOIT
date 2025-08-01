@@ -14,7 +14,9 @@ export default function ContrastForm({
   activeIssue,
   isDisabled,
   handleActiveIssue,
-  handleIssueSave
+  handleIssueSave,
+  markAsReviewed,
+  setMarkAsReviewed
 }) {
 
   const getBackgroundColor = () => {
@@ -160,7 +162,7 @@ export default function ContrastForm({
 
   const handleSubmit = () => {
     let issue = activeIssue
-    if(ratioIsValid) {
+    if(ratioIsValid || markAsReviewed) {
       issue.newHtml = Contrast.convertHtmlRgb2Hex(issue.newHtml)
       handleIssueSave(issue)
     }

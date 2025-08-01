@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import FormFeedback from './FormFeedback'
+import FormSaveOrReview from './FormSaveOrReview'
 import * as Html from '../../Services/Html'
 import * as Text from '../../Services/Text'
 
@@ -10,6 +10,8 @@ export default function AltText ({
   handleIssueSave,
   isDisabled,
   handleActiveIssue,
+  markAsReviewed,
+  setMarkAsReviewed
  }) {
   
   const maxLength = 150
@@ -17,7 +19,7 @@ export default function AltText ({
   const [textInputValue, setTextInputValue] = useState('')
   const [isDecorative, setIsDecorative] = useState(false)
   const [characterCount, setCharacterCount] = useState(0)
-  const [textInputErrors, setTextInputErrors] = useState([])
+  const [formErrors, setFormErrors] = useState([])
 
   useEffect(() => {
     if (!activeIssue) {
@@ -30,15 +32,24 @@ export default function AltText ({
     setTextInputValue(altText)
     setIsDecorative((elementIsDecorative(html) === 'true'))
     setCharacterCount(altText.length)
-    setTextInputErrors([])
+    setFormErrors([])
   }, [activeIssue])
 
   useEffect(() => {
-    updateActiveIssueHtml()
+    updateHtmlContent()
     checkFormErrors()
-  }, [textInputValue, isDecorative])
+  }, [textInputValue, isDecorative, markAsReviewed])
 
-  const updateActiveIssueHtml = () => {
+  const updateHtmlContent = () => {
+    let issue = activeIssue
+    issue.isModified = true
+
+    if (markAsReviewed) {
+      issue.newHtml = issue.initialHtml
+      handleActiveIssue(issue)
+      return
+    }
+
     const html = Html.getIssueHtml(activeIssue)
     let element = Html.toElement(html)
     
@@ -52,9 +63,7 @@ export default function AltText ({
       element = Html.setAttribute(element, "title", textInputValue)
     }
 
-    let issue = activeIssue
     issue.newHtml = Html.toString(element)
-
     handleActiveIssue(issue)
   }
 
@@ -62,7 +71,7 @@ export default function AltText ({
     let tempErrors = []
     
     // If the "Mark as Decorative" checkbox is checked, we don't need to check for input errors
-    if (!isDecorative) {
+    if (!isDecorative && !markAsReviewed) {
       if(Text.isTextEmpty(textInputValue)){
         tempErrors.push({ text: t('form.alt_text.msg.text_empty'), type: 'error' })
       }
@@ -77,11 +86,11 @@ export default function AltText ({
       }
     }
 
-    setTextInputErrors(tempErrors)
+    setFormErrors(tempErrors)
   }
 
   const handleSubmit = () => {
-    if (textInputErrors.length === 0) {
+    if (markAsReviewed || formErrors.length === 0) {
       handleIssueSave(activeIssue)
     }
   }
@@ -157,13 +166,15 @@ export default function AltText ({
           onChange={handleCheckbox} />
         <label htmlFor="decorativeCheckbox" className="instructions">{t('form.alt_text.label.mark_decorative')}</label>
       </div>
-      <FormFeedback
+      <FormSaveOrReview
         t={t}
         settings={settings}
         activeIssue={activeIssue}
         isDisabled={isDisabled}
         handleSubmit={handleSubmit}
-        formErrors={textInputErrors} />
+        formErrors={formErrors}
+        markAsReviewed={markAsReviewed}
+        setMarkAsReviewed={setMarkAsReviewed} />
     </>
   )
 }

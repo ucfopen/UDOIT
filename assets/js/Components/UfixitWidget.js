@@ -35,6 +35,7 @@ export default function UfixitWidget({
   const [showClarification, setShowClarification] = useState(false)
   const [showLearnMore, setShowLearnMore] = useState(false)
   const [disabilities, setDisabilities] = useState([])
+  const [markAsReviewed, setMarkAsReviewed] = useState(false)
   
   const formatEqualAccessMessage = () => {
     if(!tempActiveIssue || !tempActiveIssue.issueData || !tempActiveIssue.issueData.metadata) {
@@ -61,7 +62,12 @@ export default function UfixitWidget({
     if(!tempActiveIssue) {
       setDisabilities([])
       setUfixitForm(null)
+      setMarkAsReviewed(false)
       return
+    }
+
+    if(tempActiveIssue.isModified === undefined) {
+      setMarkAsReviewed(tempActiveIssue.status === settings.FILTER.RESOLVED || tempActiveIssue.status === settings.FILTER.FIXEDANDRESOLVED)
     }
 
     if(tempActiveIssue.contentType === settings.FILTER.FILE_OBJECT) {
@@ -115,8 +121,13 @@ export default function UfixitWidget({
   const handleActiveIssue = (newIssue) => {
     const tempIssue = Object.create(tempActiveIssue)
     tempIssue.issueData = newIssue
+    tempIssue.isModified = newIssue?.isModified || false
     setTempActiveIssue(tempIssue)
     triggerLiveUpdate()
+  }
+
+  const interceptIssueSave = (issue) => {
+    handleIssueSave(issue, markAsReviewed)
   }
 
   return (
@@ -143,7 +154,7 @@ export default function UfixitWidget({
                 </div> */}
               </div>
               <div className="flex-row justify-content-between mb-1">
-                <div className="ufixit-widget-label flex-grow-1">{t('fix.label.barrier_information')}</div>
+                <div className="ufixit-widget-label primary flex-grow-1">{t('fix.label.barrier_information')}</div>
               </div>
               <div className="callout-container flex-shrink-0 mb-3">
                 <div className="ufixit-instructions" 
@@ -164,50 +175,29 @@ export default function UfixitWidget({
                 )}
               </div>
 
-
-              { tempActiveIssue.status !== settings.FILTER.RESOLVED ? (
-                <>
-                  <div className="ufixit-widget-label mb-1">{t('fix.label.barrier_repair')}</div>
-                  <div className="flex-column flex-grow-1 justify-content-between ufixit-form-content">
-                    <div className="callout-container">
-                      { tempActiveIssue.contentType === settings.FILTER.FILE_OBJECT ? (
-                        <FileForm
-                          t={t}
-                          settings={settings}
-                          activeFile={tempActiveIssue}
-                          handleFileUpload={handleFileUpload} /> )
-                        : (
-                        <UfixitForm
-                          t={t}
-                          settings={settings}
-                          isDisabled={isContentLoading || !isErrorFoundInContent}
-                          activeIssue={tempActiveIssue.issueData}
-                          handleIssueSave={handleIssueSave}
-                          addMessage={addMessage}
-                          handleActiveIssue={handleActiveIssue} /> )
-                      }
-                    </div>
-                    </div>
-                    <FixIssuesResolve
+              <div className="ufixit-widget-label primary mb-1">{t('fix.label.barrier_repair')}</div>
+              <div className="flex-column flex-grow-1 justify-content-between ufixit-form-content">
+                <div className="callout-container">
+                  { tempActiveIssue.contentType === settings.FILTER.FILE_OBJECT ? (
+                    <FileForm
                       t={t}
                       settings={settings}
-                      activeIssue={tempActiveIssue}
-                      isDisabled={ (tempActiveIssue.contentType !== settings.FILTER.FILE_OBJECT) && (isContentLoading || !isErrorFoundInContent)}
-                      handleFileResolve={handleFileResolve}
-                      handleIssueResolve={handleIssueResolve}
-                    />
-                  
-                </>
-              ) : (
-                <FixIssuesResolve
-                  t={t}
-                  settings={settings}
-                  activeIssue={tempActiveIssue}
-                  isDisabled={ (tempActiveIssue.contentType !== settings.FILTER.FILE_OBJECT) && (isContentLoading || !isErrorFoundInContent)}
-                  handleFileResolve={handleFileResolve}
-                  handleIssueResolve={handleIssueResolve}
-                />
-              )}
+                      activeFile={tempActiveIssue}
+                      handleFileUpload={handleFileUpload} /> )
+                    : (
+                    <UfixitForm
+                      t={t}
+                      settings={settings}
+                      isDisabled={markAsReviewed || isContentLoading || !isErrorFoundInContent}
+                      activeIssue={tempActiveIssue.issueData}
+                      handleIssueSave={interceptIssueSave}
+                      addMessage={addMessage}
+                      handleActiveIssue={handleActiveIssue}
+                      markAsReviewed={markAsReviewed}
+                      setMarkAsReviewed={setMarkAsReviewed} /> )
+                  }
+                </div>
+              </div>
             </div>
             <dialog id="learn-more-dialog">
             <div className="ufixit-widget-dialog flex-column">

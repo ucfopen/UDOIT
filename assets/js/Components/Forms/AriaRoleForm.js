@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react"
-import FormFeedback from './FormFeedback'
+import FormSaveOrReview from './FormSaveOrReview'
 import * as Html from "../../Services/Html"
 
 export default function AriaRoleForm({
@@ -8,7 +8,9 @@ export default function AriaRoleForm({
   activeIssue,
   handleIssueSave,
   isDisabled,
-  handleActiveIssue
+  handleActiveIssue,
+  markAsReviewed,
+  setMarkAsReviewed
  }) {
 
   const ariaRoleMap = {
@@ -146,25 +148,6 @@ export default function AriaRoleForm({
   const [validRoles, setValidRoles] = useState([])
   const [selectValue, setSelectValue] = useState("")
   
-  const handleHtmlUpdate = () => {
-    let oldHtml = Html.getIssueHtml(activeIssue)
-    let updatedElement = Html.toElement(oldHtml)
-
-    if (deleteRole) {
-      updatedElement = Html.removeAttribute(updatedElement, "role")
-    } else {
-      updatedElement = Html.setAttribute(
-        updatedElement,
-        "role",
-        selectValue
-      )
-    }
-
-    let issue = activeIssue
-    issue.newHtml = Html.toString(updatedElement)
-    handleActiveIssue(issue)
-  }
-
   useEffect(() => {
     let html = Html.getIssueHtml(activeIssue)
     let element = Html.toElement(html)
@@ -185,10 +168,32 @@ export default function AriaRoleForm({
   }, [activeIssue])
 
   useEffect(() => {
-    handleHtmlUpdate()
-  }, [selectValue, deleteRole])
-  
+    updateHtmlContent()
+  }, [selectValue, deleteRole, markAsReviewed])
 
+  const updateHtmlContent = () => {
+    let issue = activeIssue
+    issue.isModified = true
+    
+    if (markAsReviewed) {
+      issue.newHtml = issue.initialHtml
+      handleActiveIssue(issue)
+      return
+    }
+
+    let html = Html.getIssueHtml(activeIssue)
+    let updatedElement = Html.toElement(html)
+
+    if (deleteRole) {
+      updatedElement = Html.removeAttribute(updatedElement, "role")
+    } else {
+      updatedElement = Html.setAttribute(updatedElement, "role", selectValue)
+    }
+
+    issue.newHtml = Html.toString(updatedElement)
+    handleActiveIssue(issue)
+  }
+  
   const handleSubmit = () => {
     handleIssueSave(activeIssue)
   }
@@ -240,13 +245,15 @@ export default function AriaRoleForm({
           onChange={handleCheckbox} />
         <label htmlFor="deleteRoleCheckbox" className="instructions">{t('form.aria_role.label.remove')}</label>
       </div>
-      <FormFeedback
+      <FormSaveOrReview
         t={t}
         settings={settings}
         activeIssue={activeIssue}
         isDisabled={isDisabled || !deleteRole && selectValue === ''}
         handleSubmit={handleSubmit}
-        formErrors={[]} />
+        formErrors={[]}
+        markAsReviewed={markAsReviewed}
+        setMarkAsReviewed={setMarkAsReviewed} />
     </>
   )
 }
