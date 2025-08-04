@@ -69,16 +69,16 @@ body {
 }
 
 #app-container {
-  margin: 4px 4px 4px 0px;
+  margin: 0px 6px 6px 0px;
   padding: 0 1rem;
   border-radius: 16px;
-  height: calc(100vh - 8px);
+  height: calc(100vh - 6px);
   display: flex;
   flex-direction: column;
   font-family: var(--text-font-family);
   color: var(--text-color);
   border: 1px solid var(--border-color);
-  box-shadow: 2px 2px 2px var(--border-color);
+  box-shadow: 3px 3px 3px var(--gray-light);
 
   &.serif {
     --text-font-family: 'Merriweather', Times, serif;
