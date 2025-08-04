@@ -167,6 +167,8 @@ export default function ContrastForm({
             aria-label={t('form.contrast.label.text.show_color_picker')}
             title={t('form.contrast.label.text.show_color_picker')}
             type="color"
+            tabIndex="0"
+            disabled={isDisabled}
             value={textColor}
             onChange={updateText} />
         </div>
@@ -204,6 +206,8 @@ export default function ContrastForm({
             aria-label={t('form.contrast.label.background.show_color_picker')}
             title={t('form.contrast.label.background.show_color_picker')}
             type="color"
+            tabIndex="0"
+            disabled={isDisabled}
             value={backgroundColor}
             onChange={updateBackground} />
         </div>

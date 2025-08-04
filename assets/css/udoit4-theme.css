@@ -808,6 +808,13 @@ input[type="color"] {
     outline: 2px solid var(--focus-color);
     outline-offset: 1px;
   }
+
+  &:disabled {
+    border-color: var(--gray-light);
+    background-color: var(--gray-light);
+    cursor: not-allowed !important;
+    outline-color: var(--gray);
+  }
 }
 
 .icon-sm {

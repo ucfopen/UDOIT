@@ -652,7 +652,7 @@ export default function FixIssuesPage({
     // This updates the active issue to the current state, which allows the proper UI to show
     // (like "Processing..." which disables the buttons).
     if(activeIssue) {
-      let tempIssue = Object.assign({}, activeIssue)
+      let tempIssue = activeIssue
       if(tempIssue.id === issueId) {
         tempIssue.currentState = state
         setActiveIssue(tempIssue)
