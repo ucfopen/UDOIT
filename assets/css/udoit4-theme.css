@@ -44,7 +44,7 @@
   --success-color-light: color-mix(in srgb, var(--success-color) 10%, #FFFFFF 100%);
 
   --background-color: var(--gray-lightest);
-  --border-color: var(--gray-light);
+  --border-color: var(--gray);
   --progress-bar-background-color: var(--gray-light);
   --progress-bar-color: var(--primary-color);
   --shadow-color: #00000044;
@@ -858,6 +858,7 @@ input[type="color"] {
   background: var(--background-color);
   border-radius: 8px;
   padding: .75rem 1rem;
+  border: 1px solid var(--border-color);
 }
 
 .separator {

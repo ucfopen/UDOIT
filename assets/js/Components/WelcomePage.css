@@ -38,6 +38,7 @@
       gap: 1em;
       padding: 1em;
       background-color: var(--background-color);
+      border: 1px solid var(--border-color);
       flex: 1;
       border-radius: 8px;
 
