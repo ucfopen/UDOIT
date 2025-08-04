@@ -1,8 +1,6 @@
 import React, { useState, useEffect } from 'react'
-import PaletteIcon from '../Icons/PaletteIcon'
 import DarkIcon from '../Icons/DarkIcon'
 import LightIcon from '../Icons/LightIcon'
-import ColorSelector from '../ColorSelector'
 import SeverityIssueIcon from '../Icons/SeverityIssueIcon'
 import FixedIcon from '../Icons/FixedIcon'
 import SaveIcon from '../Icons/SaveIcon'
@@ -105,12 +103,20 @@ export default function ContrastForm({
     handleActiveIssue(issue)
   }
 
-  const updateText = (value) => {
-     setTextColor(value)
-     setTextColorInput(value)
+  const updateText = (event) => {
+    const value = event.target.value
+    if(!isValidHexColor(value)) {
+      return
+    }
+    setTextColor(value)
+    setTextColorInput(value)
   }
 
-  const updateBackground = (value) => {
+  const updateBackground = (event) => {
+    const value = event.target.value
+    if(!isValidHexColor(value)) {
+      return
+    }
     setBackgroundColor(value)
     setBackgroundColorInput(value)
   }
@@ -187,16 +193,13 @@ export default function ContrastForm({
       </div>
       <div className="flex-row justify-content-between mt-1">
         <div className="flex-column justify-content-center">
-          <button
-            className='btn-small btn-secondary btn-icon-left'
-            title={showTextColorSelector ? t('form.contrast.label.hide_color_picker') : t('form.contrast.label.show_color_picker') }
-            aria-label={showTextColorSelector ? t('form.contrast.label.hide_color_picker') : t('form.contrast.label.show_color_picker') }
-            tabIndex="0"
-            disabled={isDisabled}
-            onClick={handleToggleTextColorSelector} >
-            <PaletteIcon className="icon-md pe-1" alt=""/>
-            <div style={{ boxShadow: '0 0 5px 0 #CCC', backgroundColor: Contrast.convertShortenedHex(textColor), width: '4.5em', height: '1.75em', margin: '0 -0.25em', opacity: 1.0, display: 'block' }}></div>
-          </button>
+          <input
+            id="textColorInput"
+            aria-label={t('form.contrast.label.text.show_color_picker')}
+            title={t('form.contrast.label.text.show_color_picker')}
+            type="color"
+            value={textColor}
+            onChange={updateText} />
         </div>
         <div className="flex-row gap-1">
           <div className="flex-column justify-content-center">
@@ -221,30 +224,19 @@ export default function ContrastForm({
           </div>
         </div>
       </div>
-      {showTextColorSelector && (
-        <div className="mt-1">
-          <ColorSelector
-            t={t}
-            updateColor={updateText}
-          />
-        </div>
-      )}
 
       <div className="mt-3">
         <label htmlFor="backgroundColorInput">{t('form.contrast.replace_background')}</label>
       </div>
       <div className="flex-row justify-content-between mt-1">
         <div className="flex-column justify-content-center">
-          <button
-            className='btn-small btn-secondary btn-icon-left'
-            title={showBackgroundColorSelector ? t('form.contrast.label.hide_color_picker') : t('form.contrast.label.show_color_picker') }
-            aria-label={showBackgroundColorSelector ? t('form.contrast.label.hide_color_picker') : t('form.contrast.label.show_color_picker') }
-            tabIndex="0"
-            disabled={isDisabled}
-            onClick={handleToggleBackgroundColorSelector} >
-            <PaletteIcon className="icon-md pe-1" alt=""/>
-            <div style={{ boxShadow: '0 0 5px 0 #CCC', backgroundColor: Contrast.convertShortenedHex(backgroundColor), width: '4.5em', height: '1.75em', margin: '0 -0.25em', opacity: 1.0, display: 'block' }}></div>
-          </button>
+          <input
+            id="backgroundColorInput"
+            aria-label={t('form.contrast.label.background.show_color_picker')}
+            title={t('form.contrast.label.background.show_color_picker')}
+            type="color"
+            value={backgroundColor}
+            onChange={updateBackground} />
         </div>
         <div className="flex-row gap-1">
           <div className="flex-column justify-content-center">
@@ -269,14 +261,6 @@ export default function ContrastForm({
           </div>
         </div>
       </div>
-      {showBackgroundColorSelector && (
-        <div className="mt-1">
-          <ColorSelector
-            t={t}
-            updateColor={updateBackground}
-          />
-        </div>
-      )}
 
       <div className="flex-row justify-content-between mt-4 mb-3">
         <div className="flex-column justify-content-start">

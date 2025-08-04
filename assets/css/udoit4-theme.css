@@ -798,6 +798,18 @@ button:disabled {
   align-items: center;
 }
 
+input[type="color"] {
+  min-width: 7em;
+  height: 100%;
+  border-radius: 8px;
+  border: 2px solid var(--primary-color);
+
+  &:focus {
+    outline: 2px solid var(--focus-color);
+    outline-offset: 1px;
+  }
+}
+
 .icon-sm {
   width: 16px;
   height: 16px;
