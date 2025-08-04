@@ -46,7 +46,7 @@ export default function FixIssuesList({ t, settings, groupedList, setActiveIssue
                 }}
                 tabIndex="0">
                 <h3 className="allow-word-break align-self-center">{group.formLabel}</h3>
-                <div className="flex-row justify-content-end gap-3">
+                <div className="flex-row justify-content-end flex-shrink-0 gap-3">
                   <div className="ufixit-list-heading-count align-self-center">
                     { group.issues.length !== 1 ? t('filter.label.issue_count_plural', { count: group.issues.length }) : t('filter.label.issue_count_single')}
                   </div>

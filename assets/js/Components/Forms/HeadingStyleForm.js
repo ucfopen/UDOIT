@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import FormFeedback from './FormFeedback'
+import FormSaveOrReview from './FormSaveOrReview'
 import * as Html from '../../Services/Html'
 
 export default function HeadingStyleForm ({
@@ -9,6 +9,8 @@ export default function HeadingStyleForm ({
   handleIssueSave,
   isDisabled,
   handleActiveIssue,
+  markAsReviewed,
+  setMarkAsReviewed
  }) {
 
   const styleTags = ["strong", "b", "i", "em", "mark", "small", "del", "ins", "sub", "sup"]
@@ -32,11 +34,23 @@ export default function HeadingStyleForm ({
   }, [activeIssue])
 
   useEffect(() => {
+    updateHtmlContent()
+  }, [selectedValue, removeStyling, markAsReviewed])
+
+  const updateHtmlContent = () => {
     let issue = activeIssue
+    issue.isModified = true
+
+    if (markAsReviewed) {
+      issue.newHtml = issue.initialHtml
+      handleActiveIssue(issue)
+      return
+    }
+
     issue.newHtml = processHtml()
     handleActiveIssue(issue)
-  }, [selectedValue, removeStyling])
-
+  }
+  
   const processHtml = () => {
     let newHeader
     const html = Html.getIssueHtml(activeIssue)
@@ -114,13 +128,15 @@ export default function HeadingStyleForm ({
           onChange={handleCheckbox} />
         <label htmlFor="removeStylingCheckbox" className="instructions">{t('form.heading_style.label.remove_styling')}</label>
       </div>
-      <FormFeedback
+      <FormSaveOrReview
         t={t}
         settings={settings}
         activeIssue={activeIssue}
         isDisabled={isDisabled}
         handleSubmit={handleSubmit}
-        formErrors={[]} />
+        formErrors={[]}
+        markAsReviewed={markAsReviewed}
+        setMarkAsReviewed={setMarkAsReviewed} />
     </>
   )
 }

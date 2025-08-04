@@ -326,7 +326,7 @@ export function processStaticHtml(nodes, settings) {
 }
 
 export function getIssueHtml(issue) {
-  return (issue.newHtml && issue.status.toString() !== "0") ? issue.newHtml : issue.sourceHtml
+  return issue.newHtml ? issue.newHtml : issue.sourceHtml
 }
 
 export function getAccessibleName(element) {

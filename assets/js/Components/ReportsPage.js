@@ -207,7 +207,7 @@ export default function ReportsPage({t, report, settings, quickSearchTerm}) {
 
   return (
     <div className="report-page-container scrollable">
-      <div className="flex-row justify-content-between">
+      <div className="flex-row justify-content-between gap-4">
         <h1 className="primary-dark">{t('menu.reports')}</h1>
         { (fetchedReports && reports.length > 0) && (
           <div className="flex-column justify-content-center">

@@ -5,6 +5,7 @@ export default class Api {
         this.endpoints = {
             getReport: '/api/courses/{course}/reports/{report}',
             getReportHistory: '/api/courses/{course}/reports',
+            setReportData: '/api/reports/{report}/setdata',
             getIssueContent: '/api/issues/{issue}/content',
             saveIssue: '/api/issues/{issue}/save',
             resolveIssue: '/api/issues/{issue}/resolve',
@@ -77,6 +78,23 @@ export default class Api {
         });
     }
 
+    setReportData(reportId, data) {
+        const authToken = this.getAuthToken()
+
+        let url = `${this.apiUrl}${this.endpoints.setReportData}`
+        url = url.replace('{report}', reportId)
+
+        return fetch(url, {
+            method: 'POST',
+            cache: 'no-cache',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-AUTH-TOKEN': authToken,
+            },
+            body: JSON.stringify(data),
+        })
+    }
+    
     saveIssue(issue, fullPageHtml) {
         const authToken = this.getAuthToken()
 

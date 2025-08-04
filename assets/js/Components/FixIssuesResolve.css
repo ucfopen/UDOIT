@@ -5,10 +5,10 @@
   background-color: var(--white);
   border-top: 1px solid var(--border-color);
 
-  padding-top: .5rem;
+  padding-top: .5em;
 
   .ufixit-widget-resolve-description {
-    font-size: .9rem;
+    font-size: .9em;
     font-weight: 600;
   }
 }

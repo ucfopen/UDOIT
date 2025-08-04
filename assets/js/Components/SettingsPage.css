@@ -38,3 +38,29 @@ a {
     border-radius: 2px;
   }
 }
+
+.settings-container {
+  min-width: 400px;
+
+  select {
+    width: 100%;
+    min-width: unset;
+  }
+
+  input {
+    align-self: start;
+  }
+
+  .settings-label {
+    width: 40%;
+    text-align: right;
+    font-weight: 600;
+    color: var(--text-color);
+    text-transform: uppercase;
+    font-weight: 600;
+  }
+
+  .settings-input {
+    width: 60%;
+  }
+}

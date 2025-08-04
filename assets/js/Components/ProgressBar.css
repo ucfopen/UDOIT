@@ -7,7 +7,7 @@ progress {
 }
 /* background */
 progress::-webkit-progress-bar {
-  background-color: #D3D7DB;
+  background-color: var(--progress-bar-background-color);
   border-radius: 10px;
 }
 /* value */

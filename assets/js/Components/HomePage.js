@@ -1,8 +1,12 @@
 import React, { useState, useEffect } from 'react'
 import ProgressBar from './ProgressBar'
+import ProgressCircle from './ProgressCircle'
+import ProgressIcon from './Icons/ProgressIcon'
 import SeverityIcon from './Icons/SeverityIcon'
 import './HomePage.css'
 import DailyProgress from './DailyProgress'
+import SummaryIcon from './Icons/SummaryIcon'
+import UFIXITIcon from './Icons/UFIXITIcon'
 
 export default function HomePage({
   t,
@@ -10,21 +14,64 @@ export default function HomePage({
   report,
   hasNewReport,
   quickIssues,
-  sessionIssues
+  sessionIssues,
+  syncComplete,
+  handleFullCourseRescan
 }) {
 
   const [issueCount, setIssueCount] = useState({"fixed": 0, "total": 0, "percent": 0})
   const [potentialCount, setPotentialCount] = useState({"fixed": 0, "total": 0, "percent": 0})
   const [suggestionCount, setSuggestionCount] = useState({"fixed": 0, "total": 0, "percent": 0})
+  const [combinedCount, setCombinedCount] = useState({"fixed": 0, "total": 0, "percent": 0})
+  const [dailyCount, setDailyCount] = useState({"fixed": 0, "total": 0, "percent": 0})
   const [totalsCounted, setTotalsCounted] = useState(false)
-
-  // const [totalIssues, setTotalIssues] = useState(0)
-  // const [totalPotentialIssues, setTotalPotentialIssues] = useState(0)
-  // const [totalSuggestions, setTotalSuggestions] = useState(0)
   
-  // const [issuePercent, setIssuePercent] = useState(0)
-  // const [potentialPercent, setPotentialPercent] = useState(0)
-  // const [suggestionPercent, setSuggestionPercent] = useState(0)
+  const progressMeterRadius = () => {
+    switch (settings?.user?.roles?.font_size) {
+      case 'font-small':
+        return 40;
+      case 'font-normal':
+        return 45;
+      case 'font-large':
+        return 50;
+      case 'font-xlarge':
+        return 60;
+      default:
+        return 40;
+    }
+  }
+
+  const panels = [
+    { step: 1, type: "ISSUE", translationKey: 'issues', counter: issueCount },
+    { step: 2, type: "POTENTIAL", translationKey: 'potentials', counter: potentialCount },
+    { step: 3, type: "SUGGESTION", translationKey: 'suggestions', counter: suggestionCount }
+  ]
+
+  useEffect(() => {
+    let totalIssuesFixed = 0
+    let dailyGoal = settings?.user?.roles?.daily_goal || 10
+    let percentComplete = 0
+    if(sessionIssues && Object.keys(sessionIssues).length > 0) {
+      for (const issueState of Object.values(sessionIssues)) {
+        if(issueState === settings.ISSUE_STATE.SAVED || issueState === settings.ISSUE_STATE.RESOLVED) {
+          totalIssuesFixed += 1
+        }
+      }
+    }
+
+    if(totalIssuesFixed >= dailyGoal) {
+      percentComplete = 100
+    }
+    else {
+      percentComplete = (totalIssuesFixed / dailyGoal) * 100
+    }
+
+    setDailyCount({
+      fixed: totalIssuesFixed,
+      total: dailyGoal,
+      percent: percentComplete
+    })
+  }, [settings?.user?.roles?.daily_goal])
 
   useEffect(() => {
     if (!hasNewReport) return
@@ -83,101 +130,160 @@ export default function HomePage({
       "total": tempTempTotalSuggestions,
       "percent": (tempTempTotalSuggestions === 0 ? 0 : (tempTotalSuggestionsFixed/tempTempTotalSuggestions) * 100)
     })
+    setCombinedCount({
+      "fixed": tempTotalIssuesFixed + tempTotalPotentialIssuesFixed + tempTotalSuggestionsFixed,
+      "total": tempTotalIssues + tempTotalPotentialIssues + tempTempTotalSuggestions,
+      "percent": (tempTotalIssues + tempTotalPotentialIssues + tempTempTotalSuggestions === 0 ? 0 : (tempTotalIssuesFixed + tempTotalPotentialIssuesFixed + tempTotalSuggestionsFixed) / (tempTotalIssues + tempTotalPotentialIssues + tempTempTotalSuggestions) * 100)
+    })
     
     setTotalsCounted(true)
   }, [hasNewReport])
 
   return (
   <div className="flex-column flex-grow-1">
-    <h1 className="primary-dark">{t('summary.title')}</h1>
-    <div className="flex-row w-50 mb-4">
-      <p className="mt-0 mb-0">{t('summary.description')}</p>
-    </div>
-    <div className="flex-row gap-3 flex-grow-1">
-      <div className="report-container flex-column justify-content-start">
-        { setTotalsCounted && (
-          <>
-            <div className='flex-column w-100 mb-3'>
-              <div className="flex-row w-100 justify-content-between mb-1">
-                <div className='flex-row'>
-                  <div className='flex-column justify-content-center mr-1'>
-                  <SeverityIcon type="ISSUE" className='icon-lg' />
-                  </div>
-                  <div className='flex-column justify-content-center'>
-                    <h3 className='text-color mb-0 mt-0'>{t('filter.label.severity.issue')}</h3>
-                  </div>
-                </div>
-                <div className='flex-column justify-content-end'>
-                  <div className="errors-progress-bar">{t('summary.issues_resolved', {resolved: issueCount.fixed, total: issueCount.total})}</div>
-                </div>
+    <div className="flex-row justify-content-between gap-4">
+      <h1 className="primary-dark">{t('summary.title')}</h1>
+      <div className="flex-column flex-center flex-shrink-0">
+        <div className="flex-row justify-content-end">
+          { !syncComplete ? (
+            <button className="btn-small btn-icon-left btn-disabled" tabIndex="0">
+              <ProgressIcon className="icon-sm spinner" />
+              <div className="flex-column justify-content-center">
+                {t('welcome.button.scanning')}
               </div>
-              <ProgressBar progress={issueCount.percent} />
-              <div className="flex-row w-100 justify-content-between mt-2 gap-2">
-                <div>{t('summary.issues.description')}</div>
-                <div className='flex-column justify-content-start flex-shrink-0'>
-                  <button className="btn btn-primary" onClick={() => quickIssues('ISSUE')}>{t('summary.button.fix_issues')}</button>
-                </div>
-              </div>
-            </div>
-            <div className='flex-column w-100 mb-3'>
-              <div className="flex-row w-100 justify-content-between mb-1">
-                <div className='flex-row'>
-                  <div className='flex-column justify-content-center mr-1'>
-                  <SeverityIcon type="POTENTIAL" className='icon-lg' />
+            </button>
+            ) : (
+              <button
+                onClick={() => handleFullCourseRescan()}
+                className="btn-small btn-icon-left btn-secondary"
+                tabIndex="0">
+                  <SummaryIcon className="icon-sm" />
+                  <div className="flex-column justify-content-center">
+                    {t('settings.button.force_full_rescan')}
                   </div>
-                  <div className='flex-column justify-content-center'>
-                    <h3 className='text-color mb-0 mt-0'>{t('filter.label.severity.potential')}</h3>
-                  </div>
-                </div>
-                <div className='flex-column justify-content-end'>
-                  <div className="errors-progress-bar">{t('summary.issues_resolved', {resolved: potentialCount.fixed, total: potentialCount.total})}</div>
-                </div>
-              </div>
-              <ProgressBar progress={potentialCount.percent} />
-              <div className="flex-row w-100 justify-content-between mt-2 gap-2">
-                <div>{t('summary.potentials.description')}</div>
-                <div className='flex-column justify-content-start flex-shrink-0'>
-                  <button className="btn btn-primary" onClick={() => quickIssues('POTENTIAL')}>{t('summary.button.fix_potentials')}</button>
-                </div>
-              </div>
-            </div>
-            <div className='flex-column w-100'>
-              <div className="flex-row w-100 justify-content-between mb-1">
-                <div className='flex-row'>
-                  <div className='flex-column justify-content-center mr-1'>
-                  <SeverityIcon type="SUGGESTION" className='icon-lg' />
-                  </div>
-                  <div className='flex-column justify-content-center'>
-                    <h3 className='text-color mb-0 mt-0'>{t('filter.label.severity.suggestion')}</h3>
-                  </div>
-                </div>
-                <div className='flex-column justify-content-end'>
-                  <div className="errors-progress-bar">{t('summary.issues_resolved', {resolved: suggestionCount.fixed, total: suggestionCount.total})}</div>
-                </div>
-              </div>
-              <ProgressBar progress={suggestionCount.percent} />
-              <div className="flex-row w-100 justify-content-between mt-2 gap-2">
-                <div>{t('summary.suggestions.description')}</div>
-                <div className='flex-column justify-content-start flex-shrink-0'>
-                  <button className="btn btn-primary" onClick={() => quickIssues('SUGGESTION')}>{t('summary.button.fix_suggestions')}</button>
-                </div>
-              </div>
-            </div>
-          </>
-        )}
+                </button>
+            )
+          }
+        </div>
       </div>
-      <div className="flex-column flex-grow-1 flex-content-end">
-        <div className="flex-column justify-content-start flex-grow-1">
-          <div className="callout-container text-center ms-4 me-4">
-            <h2 className="mt-0">Your Feedback is Requested!</h2>
-            <p>This version of UDOIT is currently in beta. While we're very proud of this version, we're still finding issues and would love any feedback you could provide.</p>
-            <div className="mb-2"><a href='https://form.asana.com/?k=fM-ii4jhXi1ff574xnf-ig&d=941449628608720' target='_blank' rel='noopener noreferrer'>Quick Question or Bug Report</a></div>
-            <div className="mb-4"><a href='https://form.asana.com/?k=_WTU9I8AhlBXFKYkduprvg&d=941449628608720' target='_blank' rel='noopener noreferrer'>User Feedback Survey</a></div>
-            <div><a href='https://ucf.service-now.com/ucfit?id=kb_article_view&sys_kb_id=408fe7021bb162102fc664a2604bcb3e&table=kb_knowledge&searchTerm=Udoit' target='_blank' rel='noopener noreferrer'>Learn About UDOIT</a></div>
+    </div>
+    <div className="flex-row w-100 mb-4 justify-content-between gap-4">
+      <div className="flex-column flex-center w-75">
+        <p className="mt-0 mb-0">{t('summary.description')}</p>
+      </div>
+      
+    </div>
+
+    <div className="summary-container">
+      <div className="progress-column flex-column gap-2">
+
+        { panels.map((panel) => (
+          <div className="callout-container flex-column">
+            <div className="flex-row justify-content-start gap-2 pb-1">
+              <div className="flex-column justify-content-start">
+                <SeverityIcon type={panel.type} filled={true} className='icon-lg' />
+              </div>
+              <div className="flex-column justify-content-center">
+                <h2 className="callout-heading">{t('summary.label.step' + panel.step)} - {t('summary.label.' + panel.translationKey)}</h2>
+              </div>
+            </div>
+
+            <div className="separator" />
+
+            <div className="flex-row justify-content-start gap-3">
+
+              <div className="flex-column flex-grow-1 justify-content-between gap-2 mt-3">
+                <div className="step-summary">{t('summary.' + panel.translationKey + '.description', {count: panel.counter.total})}</div>
+                <div className="flex-row justify-content-start flex-shrink-0">
+                  <button className="btn-icon-left btn-primary btn-small"
+                    disabled={!syncComplete}
+                    onClick={() => quickIssues(panel.type)}>
+                      <UFIXITIcon className="icon-sm" />
+                      <div className="flex-column justify-content-center">
+                        {t('summary.button.fix_' + panel.translationKey)}
+                      </div>
+                  </button>
+                </div>
+              </div>
+              <div className="flex-column progress-container">
+                <div className="flex-row justify-content-center">
+                  <div className="svg-container mt-3">
+                    <ProgressCircle
+                      percent={panel.counter.percent}
+                      radius={progressMeterRadius()}
+                      circlePortion={75}/>
+                    <div className="progress-text-container flex-column justify-content-center">
+                      <div className="progress-text">{panel.counter.percent.toFixed(0)}%</div>
+                    </div>
+                  </div>
+                </div>
+                <div className="count-summary">
+                  {t('summary.number_resolved', {resolved: panel.counter.fixed, total: panel.counter.total})}
+                </div>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <div className="info-column flex-column">
+        <div className="callout-container flex-column">
+          <h2 className="pb-1 callout-heading text-center">{t('summary.label.course_progress')}</h2>
+          <div className="separator" />
+          <div className="flex-row justify-content-evenly gap-3">
+            <div className="flex-column progress-container">
+              <div className="flex-row justify-content-center">
+                <div className="progress-label">{t('summary.label.overall_progress')}</div>
+              </div>
+              <div className="flex-row justify-content-center">
+                <div className="svg-container mt-3">
+                  <ProgressCircle
+                    percent={combinedCount.percent}
+                    radius={progressMeterRadius() * 1.5}
+                    circlePortion={75}
+                    strokeWidth={15}/>
+                  <div className="progress-text-container flex-column justify-content-center">
+                    <div className="progress-text">{combinedCount.percent.toFixed(0)}%</div>
+                  </div>
+                </div>
+              </div>
+              <div className="count-summary">
+                {t('summary.number_resolved', {resolved: combinedCount.fixed, total: combinedCount.total})}
+              </div>
+            </div>
+
+            <div className="flex-column progress-container">
+              <div className="flex-row justify-content-center">
+                <div className="progress-label">{t('summary.label.daily_progress')}</div>
+              </div>
+              <div className="flex-row justify-content-center">
+                <div className="svg-container mt-3">
+                  <ProgressCircle
+                    percent={dailyCount.percent}
+                    radius={progressMeterRadius() * 1.5}
+                    circlePortion={75}
+                    strokeWidth={15}/>
+                  <div className="progress-text-container flex-column justify-content-center">
+                    <div className="progress-text">{dailyCount.percent.toFixed(0)}%</div>
+                  </div>
+                </div>
+              </div>
+              <div className="count-summary">
+                {t('summary.number_resolved', {resolved: dailyCount.fixed, total: dailyCount.total})}
+              </div>
+            </div>
           </div>
         </div>
-        <DailyProgress  t={t} sessionIssues={sessionIssues} settings={settings} />
+
+        <div className="text-center flex-column mt-4 p-4">
+          <h2 className="mt-0">Your Feedback is Requested!</h2>
+          <p>This version of UDOIT is currently in development. While we're very proud of this version, we're still finding issues and would love any feedback you could provide.</p>
+          <div className="mb-2"><a href='https://form.asana.com/?k=fM-ii4jhXi1ff574xnf-ig&d=941449628608720' target='_blank' rel='noopener noreferrer'>Quick Question or Bug Report</a></div>
+          <div className="mb-4"><a href='https://form.asana.com/?k=_WTU9I8AhlBXFKYkduprvg&d=941449628608720' target='_blank' rel='noopener noreferrer'>User Feedback Survey</a></div>
+          <div><a href='https://ucf.service-now.com/ucfit?id=kb_article_view&sys_kb_id=408fe7021bb162102fc664a2604bcb3e&table=kb_knowledge&searchTerm=Udoit' target='_blank' rel='noopener noreferrer'>Learn About UDOIT</a></div>
+        </div>
       </div>
+
     </div>
   </div>
   )

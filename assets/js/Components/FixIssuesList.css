@@ -47,7 +47,7 @@
         display: flex;
         flex-direction: column;
         justify-content: end;
-        font-size: 1rem;
+        font-size: 1em;
         font-weight: 600;
         color: var(--text-color);
         text-transform: uppercase;
@@ -101,7 +101,7 @@
       border-radius: 8px;
       font-weight: 600;
       fill: var(--gray);
-      font-size: 1rem;
+      font-size: 1em;
       margin: 0.5rem 1rem;
       background-color: var(--white);
       
