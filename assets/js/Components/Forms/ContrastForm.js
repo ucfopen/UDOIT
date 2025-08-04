@@ -3,6 +3,7 @@ import DarkIcon from '../Icons/DarkIcon'
 import LightIcon from '../Icons/LightIcon'
 import SeverityIssueIcon from '../Icons/SeverityIssueIcon'
 import FixedIcon from '../Icons/FixedIcon'
+import ResolvedIcon from '../Icons/ResolvedIcon'
 import SaveIcon from '../Icons/SaveIcon'
 import * as Html from '../../Services/Html'
 import * as Contrast from '../../Services/Contrast'
@@ -61,12 +62,8 @@ export default function ContrastForm({
 
   const [backgroundColor, setBackgroundColor] = useState(initialBackgroundColor)
   const [textColor, setTextColor] = useState(initialTextColor)
-  const [backgroundColorInput, setBackgroundColorInput] = useState(initialBackgroundColor)
-  const [textColorInput, setTextColorInput] = useState(initialTextColor)
   const [contrastRatio, setContrastRatio] = useState(null)
   const [ratioIsValid, setRatioIsValid] = useState(false)
-  const [showTextColorSelector, setShowTextColorSelector] = useState(false)
-  const [showBackgroundColorSelector, setShowBackgroundColorSelector] = useState(false)
   
   const isValidHexColor = (color) => {
     const hexColorPattern = /^#?([a-fA-F0-9]{6}|[a-fA-F0-9]{3})$/
@@ -109,7 +106,6 @@ export default function ContrastForm({
       return
     }
     setTextColor(value)
-    setTextColorInput(value)
   }
 
   const updateBackground = (event) => {
@@ -118,52 +114,25 @@ export default function ContrastForm({
       return
     }
     setBackgroundColor(value)
-    setBackgroundColorInput(value)
-  }
-
-  const handleInputText = (event, value) => {
-    setTextColorInput(value)
-    if(isValidHexColor(value)) {
-      setTextColor(value)
-    }
-  }
-
-  const handleInputBackground = (event, value) => {
-    setBackgroundColorInput(value)
-    if(isValidHexColor(value)) {
-      setBackgroundColor(value)
-    }
-  }
-
-  const handleToggleTextColorSelector = () => {
-    setShowTextColorSelector(!showTextColorSelector)
-  }
-
-  const handleToggleBackgroundColorSelector = () => {
-    setShowBackgroundColorSelector(!showBackgroundColorSelector)
   }
 
   const handleLightenText = () => {
     const newColor = Contrast.changehue(textColor, 'lighten')
-    setTextColorInput(newColor)
     setTextColor(newColor)
   }
 
   const handleDarkenText = () => {
     const newColor = Contrast.changehue(textColor, 'darken')
-    setTextColorInput(newColor)
     setTextColor(newColor)
   }
 
   const handleLightenBackground = () => {
     const newColor = Contrast.changehue(backgroundColor, 'lighten')
-    setBackgroundColorInput(newColor)
     setBackgroundColor(newColor)
   }
 
   const handleDarkenBackground = () => {
     const newColor = Contrast.changehue(backgroundColor, 'darken')
-    setBackgroundColorInput(newColor)
     setBackgroundColor(newColor)
   }
 
@@ -286,14 +255,29 @@ export default function ContrastForm({
           </div>
         </div>
         <div className="flex-column justify-content-start">
-          <button
-            className="btn-primary btn-icon-left"
-            onClick={handleSubmit}
-            tabIndex="0"
-            disabled={isDisabled || !ratioIsValid}>
-            <SaveIcon className="icon-md" alt="" />
-            {t('form.submit')}
-          </button>
+          <div className="flex-row justify-content-between gap-1 mt-4">
+            <div className="flex-column justify-content-center flex-grow-1 gap-1">
+              { (activeIssue.status === 1 || activeIssue.status === 3) ? (
+                  <div className="flex-row justify-content-end pe-2">
+                    <FixedIcon className="color-success icon-md flex-column align-self-center pe-2"/>
+                    <div className="flex-column align-self-center fw-bolder primary">{t('filter.label.resolution.fixed_single')}</div>
+                  </div>
+                ) : activeIssue.status === 2 ? (
+                  <div className="flex-row justify-content-end pe-2">
+                    <ResolvedIcon className="color-success icon-md flex-column align-self-center pe-2"/>
+                    <div className="flex-column align-self-center fw-bolder primary">{t('filter.label.resolution.resolved_single')}</div>
+                  </div>
+                ) : ''}
+            </div>
+            <button
+              className="btn-primary btn-icon-left"
+              onClick={handleSubmit}
+              tabIndex="0"
+              disabled={isDisabled || !ratioIsValid}>
+              <SaveIcon className="icon-md" alt="" />
+              {t('form.submit')}
+            </button>
+          </div>
         </div>
       </div>
     </>
