@@ -19,34 +19,34 @@ export default function WelcomePage({ t, settings, syncComplete, setWelcomeClose
       <div className="flex-column justify-content-between flex-grow-1">
         <div className="invisible-spacer"></div>
         <div className="flex-column">
-          <div className="welcome-content-wrapper gap-3">
-            <div className="welcome-content flex-column justify-content-start">
-              <img src={settings?.user?.roles?.dark_mode ? UDOITLogoDark : UDOITLogo} alt={t('alt.UDOIT')} className="logo-large"/>
-              <h1 className="primary-text">{t('welcome.title')}</h1>
-              <div>{t('welcome.description')}</div>
+          <div className="welcome-content-wrapper flex-column gap-3">
+            <div className="welcome-content flex-column">
+              <h1 className="primary-text text-center">{t('welcome.title')}</h1>
+              <img src={settings?.user?.roles?.dark_mode ? UDOITLogoDark : UDOITLogo} alt={t('alt.UDOIT')} className="logo-large pt-3"/>
+              <div className="text-center welcome-description">{t('welcome.description')}</div>
             </div>
-            <div className="welcome-content flex-column justify-content-start">
-              <div className="flex-row mb-3">
-                <div className="flex-column justify-content-start flex-shrink-0 me-3">
+            <div className="welcome-content-list-container">
+              <div className="welcome-content-list-item">
+                <div className="welcome-content-list-item-icon">
                   <SummaryIcon className="icon-lg primary-text"/>
                 </div>
-                <div className="summary-text flex-column justify-content-start flex-grow-1">
+                <div className="summary-text flex-grow-1">
                   {t('welcome.scan')}
                 </div>
               </div>
-              <div className="flex-row mb-3">
-                <div className="flex-column justify-content-start flex-shrink-0 me-3">
+              <div className="welcome-content-list-item">
+                <div className="welcome-content-list-item-icon">
                   <UFIXITIcon className="icon-lg primary-text"/>
                 </div>
-                <div className="summary-text flex-column justify-content-start flex-grow-1">
+                <div className="summary-text flex-grow-1">
                   {t('welcome.fix')}
                 </div>
               </div>
-              <div className="flex-row mb-3">
-                <div className="flex-column justify-content-start flex-shrink-0 me-3">
+              <div className="welcome-content-list-item">
+                <div className="welcome-content-list-item-icon">
                   <ReportIcon className="icon-lg primary-text"/>
                 </div>
-                <div className="summary-text flex-column justify-content-start flex-grow-1">
+                <div className="summary-text flex-grow-1">
                   {t('welcome.report')}
                 </div>
               </div>
@@ -54,16 +54,16 @@ export default function WelcomePage({ t, settings, syncComplete, setWelcomeClose
           </div>
           <div className="flex-row justify-content-center mt-3">
             { !syncComplete ? (
-                <button className="btn btn-disabled flex-row" tabIndex="0">
+                <button className="btn-large btn-disabled flex-row" tabIndex="0">
                   <div className="flex-column justify-content-center align-self-center">
-                    <ProgressIcon className="icon-sm spinner" />
+                    <ProgressIcon className="icon-md spinner" />
                   </div>
                   <div className="flex-column justify-content-center ms-3">
                     {t('welcome.button.scanning')}
                   </div>
                 </button>
               ) : (
-                <button className="btn btn-primary" tabIndex="0" onClick={() => setWelcomeClosed(true)}>{t('welcome.button.ready')}</button>
+                <button className="btn-large btn-primary" tabIndex="0" onClick={() => setWelcomeClosed(true)}>{t('welcome.button.ready')}</button>
               )
             }    
           </div>

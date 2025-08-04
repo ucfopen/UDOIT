@@ -729,6 +729,11 @@ button {
   border-radius: 8px;
 }
 
+.btn-large {
+  font-size: 1.15em;
+  padding: .5em 1.25em;
+}
+
 button.disabled,
 .btn-disabled,
 button:disabled {
