@@ -182,8 +182,9 @@ export default function UfixitWidget({
                     <FileForm
                       t={t}
                       settings={settings}
-                      activeFile={tempActiveIssue}
-                      handleFileUpload={handleFileUpload} /> )
+                      activeFile={tempActiveIssue.fileData}
+                      handleFileUpload={handleFileUpload}
+                      handleFileResolve={handleFileResolve} /> )
                     : (
                     <UfixitForm
                       t={t}

@@ -193,7 +193,7 @@ export default function HomePage({
             <div className="flex-row justify-content-start gap-3">
 
               <div className="flex-column flex-grow-1 justify-content-between gap-2 mt-3">
-                <div className="step-summary">{t('summary.' + panel.translationKey + '.description')}</div>
+                <div className="step-summary">{t('summary.' + panel.translationKey + '.description', {count: panel.counter.total})}</div>
                 <div className="flex-row justify-content-start flex-shrink-0">
                   <button className="btn-icon-left btn-primary btn-small"
                     disabled={!syncComplete}
