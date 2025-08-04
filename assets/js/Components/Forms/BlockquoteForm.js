@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import FormSaveOrReview from './FormSaveOrReview'
+import * as Text from '../../Services/Text'
 import * as Html from '../../Services/Html'
 
 export default function BlockquoteForm({
