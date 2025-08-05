@@ -190,8 +190,10 @@ export default function UfixitWidget({
                       t={t}
                       settings={settings}
                       isDisabled={markAsReviewed || isContentLoading || !isErrorFoundInContent}
+                      isContentLoading={isContentLoading}
                       activeIssue={tempActiveIssue.issueData}
                       handleIssueSave={interceptIssueSave}
+                      handleIssueResolve={handleIssueResolve}
                       addMessage={addMessage}
                       handleActiveIssue={handleActiveIssue}
                       markAsReviewed={markAsReviewed}
