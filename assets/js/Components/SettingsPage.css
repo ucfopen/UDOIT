@@ -13,6 +13,10 @@ select {
 .settings-page-container {
   margin: 0 -1rem -1rem -1rem;
   padding: 0 1rem;
+
+  .settings-row {
+    margin-bottom: -1rem;
+  }
 }
 
 .about-container {

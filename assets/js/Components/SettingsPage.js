@@ -64,7 +64,7 @@ export default function SettingsPage({
   return (
   <div className="flex-column settings-page-container h-100">
     <h1 className="primary-dark flex-grow-0 flex-shrink-0">{t('menu.settings')}</h1>
-    <div className="flex-row flex-grow-1 flex-shrink-1 gap-4 non-scrollable">
+    <div className="flex-row flex-grow-1 flex-shrink-1 gap-4 non-scrollable settings-row">
       <div className="flex-column flex-start flex-grow-0 flex-shrink-0">
         <div className="callout-container flex-column flex-start settings-container">
           <div className="flex-row gap-2 mb-3">
