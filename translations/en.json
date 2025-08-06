@@ -12,6 +12,7 @@
   "menu.settings": "Settings",
   "menu.admin.courses": "Courses",
   "menu.admin.users": "Users",
+  "menu.nav.label": "UDOIT Main Navigation",
 
   "welcome.title": "Welcome to",
   "welcome.description": "UDOIT helps you through the process of removing accessibility barriers in your online course content.",
@@ -75,6 +76,7 @@
   "report.header.items_resolved": "Issues Reviewed",
   "report.header.files_reviewed": "Files Reviewed",
   "report.header.course_name": "Course Name",
+  "report.header.all_courses": "All Courses",
   "report.header.account_name": "Account Name",
   "report.header.last_scanned": "Last Scanned",
   "report.header.name": "Name",
@@ -253,7 +255,7 @@
   "msg.sync.error.local_save": "Content failed to save to the UDOIT database. Please refresh the page and try again.",
   "msg.sync.error.not_found": "The issue could not be found. Please refresh the page and try again.",
   "msg.sync.error.unauthorized": "You are not authorized to access this course. Please log in again.",
-  "label.close_message": "Close Message",
+  "label.close_message": "Dismiss Alert",
 
   "table.sort_by": "Sort by",
   "table.prev_page": "Previous page",

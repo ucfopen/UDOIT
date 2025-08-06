@@ -18,7 +18,7 @@ export default function Header({
 
   return (
     <header role="banner">
-      <nav>
+      <nav aria-label={t('menu.nav.label')}>
         <div>
           <img className='flex-column' alt={t('alt.UDOIT')} src={settings?.user?.roles?.dark_mode ? UDOITLogoDark : UDOITLogo}></img>
         </div>
@@ -27,7 +27,7 @@ export default function Header({
             <li
               className={`flex-row ${!syncComplete ? 'disabled' : ''} ${navigation === 'summary' ? ' active-link' : ''}`}
               onClick={()=>handleNavigation('summary')}
-              onKeyPress={(e) => {
+              onKeyDown={(e) => {
                 if(e.key === 'Enter' || e.key === ' ') {
                   handleNavigation('summary')
                 }
@@ -42,7 +42,7 @@ export default function Header({
             <li 
               className={`flex-row ${!syncComplete ? 'disabled' : ''} ${navigation === 'fixIssues' ? ' active-link' : ''}`}
               onClick={()=>handleNavigation('fixIssues')}
-              onKeyPress={(e) => {
+              onKeyDown={(e) => {
                 if(e.key === 'Enter' || e.key === ' ') {
                   handleNavigation('fixIssues')
                 }
@@ -58,7 +58,7 @@ export default function Header({
             <li
               className={`flex-row ${!syncComplete ? 'disabled' : ''} ${navigation === 'reports' ? ' active-link' : ''}`}
               onClick={()=>handleNavigation('reports')}
-              onKeyPress={(e) => {
+              onKeyDown={(e) => {
                 if(e.key === 'Enter' || e.key === ' ') {
                   handleNavigation('reports')
                 }
@@ -74,7 +74,7 @@ export default function Header({
             <li
               className={`flex-row ${!syncComplete ? 'disabled' : ''} ${navigation === 'settings' ? ' active-link' : ''}`}
               onClick={()=>handleNavigation('settings')}
-              onKeyPress={(e) => {
+              onKeyDown={(e) => {
                 if(e.key === 'Enter' || e.key === ' ') {
                   handleNavigation('settings')
                 }

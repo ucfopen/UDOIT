@@ -110,7 +110,7 @@ export default function AdminFilters({
           </div>
         </div>
         <div className="flex-row">
-          <div className="filter-group">
+          <div className="filter-group flex-column justify-content-center">
             <input
               id="inputSubaccounts"
               type="checkbox"
