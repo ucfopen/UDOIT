@@ -4,7 +4,6 @@ import DisabilityCognitiveIcon from './Icons/DisabilityCognitiveIcon'
 import DisabilityHearingIcon from './Icons/DisabilityHearingIcon'
 import DisabilityMotorIcon from './Icons/DisabilityMotorIcon'
 import DisabilityVisualIcon from './Icons/DisabilityVisualIcon'
-import FixIssuesResolve from './FixIssuesResolve'
 import FormClarification from './Forms/FormClarification'
 import FileForm from './Forms/FileForm'
 import { disabilityTypes, disabilitiesFromRule, formFromIssue, formNameFromRule } from '../Services/Ufixit'
@@ -20,10 +19,10 @@ export default function UfixitWidget({
   setTempActiveIssue,
   activeContentItem,
   formatIssueData,
-  handleIssueResolve,
   handleIssueSave,
   handleFileResolve,
   handleFileUpload,
+  sessionIssues,
   isContentLoading,
   isErrorFoundInContent,
   triggerLiveUpdate
@@ -183,6 +182,7 @@ export default function UfixitWidget({
                       t={t}
                       settings={settings}
                       activeFile={tempActiveIssue.fileData}
+                      sessionIssues={sessionIssues}
                       handleFileUpload={handleFileUpload}
                       handleFileResolve={handleFileResolve} /> )
                     : (
@@ -193,7 +193,6 @@ export default function UfixitWidget({
                       isContentLoading={isContentLoading}
                       activeIssue={tempActiveIssue.issueData}
                       handleIssueSave={interceptIssueSave}
-                      handleIssueResolve={handleIssueResolve}
                       addMessage={addMessage}
                       handleActiveIssue={handleActiveIssue}
                       markAsReviewed={markAsReviewed}

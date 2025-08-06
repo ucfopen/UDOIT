@@ -6,7 +6,7 @@ export default function FormReviewOnly({
   t,
   settings,
   activeIssue,
-  handleIssueResolve,
+  handleIssueSave,
   isContentLoading,
   markAsReviewed,
   setMarkAsReviewed
@@ -49,7 +49,7 @@ export default function FormReviewOnly({
         <div className="flex-column justify-content-center flex-shrink-0">
           <button
             className="btn-primary btn-icon-left"
-            onClick={() => handleIssueResolve(activeIssue)}
+            onClick={() => handleIssueSave(activeIssue, markAsReviewed)}
             disabled={isContentLoading || !markAsReviewed}
             tabIndex="0">
             <SaveIcon className="icon-md" alt=""/>

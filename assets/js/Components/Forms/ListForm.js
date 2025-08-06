@@ -9,7 +9,7 @@ export default function ListForm({
   isContentLoading,
   markAsReviewed,
   setMarkAsReviewed,
-  handleIssueResolve,
+  handleIssueSave,
 }) {
   
   return (
@@ -24,7 +24,7 @@ export default function ListForm({
         t={t}
         settings={settings}
         activeIssue={activeIssue}
-        handleIssueResolve={handleIssueResolve}
+        handleIssueSave={handleIssueSave}
         isContentLoading={isContentLoading}
         markAsReviewed={markAsReviewed}
         setMarkAsReviewed={setMarkAsReviewed}

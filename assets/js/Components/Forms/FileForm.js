@@ -8,12 +8,14 @@ export default function FileForm ({
   t,
   settings,
   activeFile,
+  sessionIssues,
   handleFileUpload,
   handleFileResolve
  }) {
 
   const [acceptType, setAcceptType] = useState([])
   const [uploadedFile, setUploadedFile] = useState(null)
+  const [isDisabled, setIsDisabled] = useState(false)
 
   const getAcceptType = (file) => {
     let accept = []
@@ -61,6 +63,22 @@ export default function FileForm ({
       setAcceptType(getAcceptType(activeFile))
     }
   }, [activeFile])
+
+  useEffect(() => {
+    let tempIsDisabled = false
+
+    // If there are any unresolved issues in this file, we disable the resolve button.
+    if(activeFile && sessionIssues) {
+      Object.keys(sessionIssues).forEach((key) => {
+        if(key === 'file-' + activeFile.id) {
+          if(sessionIssues[key] === settings.ISSUE_STATE.SAVING || sessionIssues[key] === settings.ISSUE_STATE.RESOLVING) {
+            tempIsDisabled = true
+          }
+        }
+      })
+    }
+    setIsDisabled(tempIsDisabled)
+  }, [sessionIssues])
 
   // Drag and Drop code is adapted from:
   // https://developer.mozilla.org/en-US/docs/Web/API/HTML_Drag_and_Drop_API/File_drag_and_drop
@@ -146,7 +164,10 @@ export default function FileForm ({
             </div>
           </div>
           <div className="mt-3 flex-row justify-content-end">
-            <button className="btn-primary btn-icon-left" onClick={handleSubmit}>
+            <button className="btn-primary btn-icon-left"
+              onClick={handleSubmit}
+              disabled={isDisabled}
+              tabIndex="0">
               <SaveIcon className="icon-md" alt=""/>
               {t('form.submit')}
             </button>
@@ -167,9 +188,10 @@ export default function FileForm ({
           <button
             className="btn-secondary btn-icon-left"
             onClick={() => handleFileResolve(activeFile)}
+            disabled={isDisabled}
             tabIndex="0">
             <ResolvedIcon className="icon-md" alt=""/>
-            {t('fix.button.resolved')}
+            {activeFile?.reviewed ? t('fix.button.unresolved') : t('fix.button.resolved')}
           </button>
         </div>
       </div>
