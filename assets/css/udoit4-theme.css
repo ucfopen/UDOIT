@@ -73,6 +73,7 @@ body {
   padding: 0 1rem;
   border-radius: 16px;
   height: calc(100vh - 6px);
+  max-height: 1024px;
   display: flex;
   flex-direction: column;
   font-family: var(--text-font-family);
