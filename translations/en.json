@@ -238,6 +238,7 @@
   "msg.content_loading": "Loading content...",
   "msg.no_new_content": "Course scan complete. No new content found.",
   "msg.new_content": "Course scan complete. New content has been added.",
+  "msg.return_focus": "Welcome back to UDOIT! If you have changed any course content, please refresh this page to rescan.",
   "msg.sync.started": "Course scan started.",
   "msg.sync.failed": "Course scan failed.",
   "msg.file.replace.file_type": "File type not accepted. Please input a file with the correct filetype.",

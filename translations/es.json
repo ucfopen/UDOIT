@@ -14,7 +14,7 @@
   "menu.admin.users": "Usuarios",
   "menu.nav.label": "Navegación Primeria de UDOIT",
 
-  "welcome.title": "Bienvenido a UDOIT",
+  "welcome.title": "Bienvenido a",
   "welcome.description": "UDOIT te ayuda en el proceso de eliminar barreras de accesibilidad en tu contenido de curso en línea.",
   "welcome.scan": "Encontrar barreras de accesibilidad rápidamente con un escaneo automatizado.",
   "welcome.fix": "Solucionar problemas rápidamente con herramientas simples e instrucciones justo a tiempo.",
@@ -238,6 +238,7 @@
   "msg.content_loading": "Cargando contenido...",
   "msg.no_new_content": "Escaneo del curso completo. No se encontró contenido nuevo.",
   "msg.new_content": "Escaneo del curso completo. Se ha agregado contenido nuevo.",
+  "msg.return_focus": "¡Bienvenido de nuevo a UDOIT! Si has modificado el contenido del curso, actualiza esta página para volver a escanearla.",
   "msg.sync.started": "Escaneo del curso iniciado.",
   "msg.sync.failed": "Escaneo del curso fallado.",
   "msg.file.replace.file_type": "Tipo de archivo no válido. Por favor, seleccione un archivo con el tipo correcto.",
