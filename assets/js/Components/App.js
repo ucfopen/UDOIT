@@ -73,6 +73,7 @@ export default function App(initialData) {
           newSettings.user = data.user
           if(data?.labels?.lang) {
             newSettings.labels = data.labels
+            setSettings(newSettings)
           }
           addMessage({ message: t('msg.settings.updated'), severity: 'success', visible: true })
         }
@@ -272,7 +273,8 @@ export default function App(initialData) {
       }
       else {
         // There is probably a case for checking the page you're currently editing to make sure that there weren't any changes in the LMS.
-        addMessage({message: 'Welcome back to UDOIT! If you have changed any course content, please refresh this page to rescan.', severity: 'info', visible: true})
+        // For now, just let the user know that they should refresh if they made changes.
+        addMessage({message: t('msg.return_focus'), severity: 'info', visible: true})
       }
     })
 
