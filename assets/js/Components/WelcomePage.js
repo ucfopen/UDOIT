@@ -9,10 +9,12 @@ import ReportIcon from './Icons/ReportIcon'
 import ProgressIcon from './Icons/ProgressIcon'
 import './WelcomePage.css'
 
-export default function WelcomePage({ t, settings, syncComplete, setWelcomeClosed }) {
-
-  // TODO: Once text is approved, add items to the translation file and use t to translate.
-  // TODO: Add a place for the Messages component. If things don't load properly, I don't want to leave the user hanging.
+export default function WelcomePage({
+  t,
+  settings,
+  syncComplete,
+  setWelcomeClosed
+}) {
   
   return (
     <main className="flex-column flex-grow-1">

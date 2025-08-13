@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import UDOITLogo from '../../mediaAssets/udoit-logo.svg'
 import UDOITLogoDark from '../../mediaAssets/udoit-logo-inverse.svg'
-import ProgressIcon from './Icons/ProgressIcon'
 import './SettingsPage.css'
 
 export default function SettingsPage({

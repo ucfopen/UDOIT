@@ -1,13 +1,22 @@
 import React, { useState, useEffect } from 'react'
-import SearchIcon from './Icons/SearchIcon'
-import CloseIcon from './Icons/CloseIcon'
-import ContentTypeIcon from './Icons/ContentTypeIcon'
-import FilterOnIcon from './Icons/FilterOnIcon'
-import FilterOffIcon from './Icons/FilterOffIcon'
+import SearchIcon from '../Icons/SearchIcon'
+import CloseIcon from '../Icons/CloseIcon'
+import ContentTypeIcon from '../Icons/ContentTypeIcon'
+import FilterOnIcon from '../Icons/FilterOnIcon'
+import FilterOffIcon from '../Icons/FilterOffIcon'
 
 import './FixIssuesFilters.css'
 
-export default function FixIssuesFilters({ t, settings, sections, activeFilters, updateActiveFilters, searchTerm, handleSearchTerm }) {
+export default function FixIssuesFilters({
+  t,
+  settings,
+  
+  activeFilters,
+  handleSearchTerm,
+  searchTerm,
+  sections,
+  updateActiveFilters
+ }) {
 
   const FILTER = settings.FILTER
 
