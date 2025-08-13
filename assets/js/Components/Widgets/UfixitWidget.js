@@ -1,30 +1,30 @@
 import React, { useState, useEffect } from 'react'
-import CloseIcon from './Icons/CloseIcon'
-import DisabilityCognitiveIcon from './Icons/DisabilityCognitiveIcon'
-import DisabilityHearingIcon from './Icons/DisabilityHearingIcon'
-import DisabilityMotorIcon from './Icons/DisabilityMotorIcon'
-import DisabilityVisualIcon from './Icons/DisabilityVisualIcon'
-import FormClarification from './Forms/FormClarification'
-import FileForm from './Forms/FileForm'
-import { disabilityTypes, disabilitiesFromRule, formFromIssue, formNameFromRule } from '../Services/Ufixit'
+import CloseIcon from '../Icons/CloseIcon'
+import DisabilityCognitiveIcon from '../Icons/DisabilityCognitiveIcon'
+import DisabilityHearingIcon from '../Icons/DisabilityHearingIcon'
+import DisabilityMotorIcon from '../Icons/DisabilityMotorIcon'
+import DisabilityVisualIcon from '../Icons/DisabilityVisualIcon'
+import FormClarification from '../Forms/FormClarification'
+import FileForm from '../Forms/FileForm'
+import { disabilityTypes, disabilitiesFromRule, formFromIssue, formNameFromRule } from '../../Services/Ufixit'
 import './UfixitWidget.css'
 
 
 export default function UfixitWidget({
   t,
   settings,
-  severity,
-  addMessage,
-  tempActiveIssue,
-  setTempActiveIssue,
+
   activeContentItem,
-  formatIssueData,
-  handleIssueSave,
+  addMessage,
   handleFileResolve,
   handleFileUpload,
-  sessionIssues,
+  handleIssueSave,
   isContentLoading,
   isErrorFoundInContent,
+  sessionIssues,
+  setTempActiveIssue,
+  severity,
+  tempActiveIssue,
   triggerLiveUpdate
 }) {
 
@@ -181,20 +181,23 @@ export default function UfixitWidget({
                     <FileForm
                       t={t}
                       settings={settings}
+                      
                       activeFile={tempActiveIssue.fileData}
-                      sessionIssues={sessionIssues}
-                      handleFileUpload={handleFileUpload}
-                      handleFileResolve={handleFileResolve} /> )
+                      handleFileResolve={handleFileResolve}
+                      handleFileUpload={handleFileUpload} 
+                      sessionIssues={sessionIssues} /> )
                     : (
                     <UfixitForm
                       t={t}
                       settings={settings}
-                      isDisabled={markAsReviewed || isContentLoading || !isErrorFoundInContent}
-                      isContentLoading={isContentLoading}
+
                       activeIssue={tempActiveIssue.issueData}
-                      handleIssueSave={interceptIssueSave}
+                      activeContentItem={activeContentItem}
                       addMessage={addMessage}
                       handleActiveIssue={handleActiveIssue}
+                      handleIssueSave={interceptIssueSave}
+                      isContentLoading={isContentLoading}
+                      isDisabled={markAsReviewed || isContentLoading || !isErrorFoundInContent}
                       markAsReviewed={markAsReviewed}
                       setMarkAsReviewed={setMarkAsReviewed} /> )
                   }

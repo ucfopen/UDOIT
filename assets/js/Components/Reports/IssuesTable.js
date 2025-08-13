@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react'
-import SortableTable from '../SortableTable'
+import SortableTable from '../Widgets/SortableTable'
 import { formNameFromRule } from '../../Services/Ufixit'
 import InfoIcon from '../Icons/FilledInfoIcon'
 import './IssuesTable.css'

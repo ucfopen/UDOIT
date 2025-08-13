@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import SearchIcon from '../Icons/SearchIcon'
 
-import '../FixIssuesFilters.css'
+import '../Widgets/FixIssuesFilters.css'
 
 export default function AdminFilters({
   t,

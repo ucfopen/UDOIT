@@ -4,7 +4,7 @@ import CoursesPage from './CoursesPage'
 import ReportsPage from './ReportsPage'
 import UsersPage from './UsersPage'
 import Api from '../../Services/Api'
-import MessageTray from '../MessageTray'
+import MessageTray from '../Widgets/MessageTray'
 import AdminFilters from '../Admin/AdminFilters'
 import ProgressIcon from '../Icons/ProgressIcon'
 
