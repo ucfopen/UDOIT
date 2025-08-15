@@ -4,6 +4,7 @@ import CloseIcon from '../Icons/CloseIcon'
 import ContentTypeIcon from '../Icons/ContentTypeIcon'
 import FilterOnIcon from '../Icons/FilterOnIcon'
 import FilterOffIcon from '../Icons/FilterOffIcon'
+import Combobox from '../Widgets/Combobox'
 
 import './FixIssuesFilters.css'
 
@@ -50,7 +51,6 @@ export default function FixIssuesFilters({
       [FILTER.FILE]: t('filter.label.type.file'),
       [FILTER.QUIZ]: t('filter.label.type.quiz'),
       [FILTER.SYLLABUS]: t('filter.label.type.syllabus'),
-      // [FILTER.MODULE]: t('filter.label.type.module'),
     },
     [FILTER.TYPE.RESOLUTION]: {
       [FILTER.ALL]: t('filter.label.resolution.all'),
@@ -64,6 +64,7 @@ export default function FixIssuesFilters({
   }
 
   const [usedFilters, setUsedFilters] = useState(null)
+  const [detailedFilters, setDetailedFilters] = useState(null)
   // For new users, the 'show_filters' attribute may not be set, so we need to check if it exists before using it
   const [showFilters, setShowFilters] = useState(settings?.user?.roles && ('show_filters' in settings.user.roles) ? settings.user.roles.show_filters : true)
 
@@ -79,8 +80,28 @@ export default function FixIssuesFilters({
     else {
       delete tempFilters[FILTER.TYPE.MODULE]
     }
+
+    let tempDetailedFilters = []
+    Object.keys(tempFilters).forEach((filterType) => {
+      let filterOptions = []
+      Object.keys(tempFilters[filterType]).forEach((filter) => {
+        filterOptions.push({
+          value: filter,
+          name: tempFilters[filterType][filter],
+          icon: filter,
+          selected: activeFilters[filterType] === filter
+        })
+      })
+      tempDetailedFilters.push({
+        label: filterLabels[filterType],
+        value: filterType,
+        options: filterOptions
+      })
+    })
+
+    setDetailedFilters(tempDetailedFilters)
     setUsedFilters(tempFilters)
-  }, [])
+  }, [activeFilters])
 
   const removeFilter = (filterType) => {
     updateActiveFilters(filterType, FILTER.ALL)
@@ -153,7 +174,7 @@ export default function FixIssuesFilters({
       </div>
       {showFilters && usedFilters && (
         <div className="flex-row flex-wrap gap-1">
-          {Object.keys(usedFilters).map((filterType) => {
+          {/* {Object.keys(usedFilters).map((filterType) => {
             return (
               <div className="filter-group flex-column justify-content-center" key={filterType}>
                 <label htmlFor={'filter' + filterType}>{filterLabels[filterType]}</label>
@@ -175,6 +196,19 @@ export default function FixIssuesFilters({
                     )
                   })}
                 </select>
+              </div>
+            )
+          })} */}
+          {Object.keys(detailedFilters).map((filterType, index) => {
+            return (
+              <div className="filter-group flex-column justify-content-center" key={index}>
+                <Combobox
+                  handleChange={updateActiveFilters}
+                  id={detailedFilters[index].value}
+                  label={detailedFilters[index].label}
+                  options={detailedFilters[index].options}
+                  settings={settings}
+                />
               </div>
             )
           })}
