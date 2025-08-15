@@ -79,7 +79,21 @@
   label {
     font-size: 0.9em;
     font-weight: 500;
-    font-family: var(--heading-font-family);;
+    font-family: var(--heading-font-family);
+    text-transform: uppercase;
+  }
+
+  .combo-container {
+    display: flex;
+    flex-direction: column;
+    max-width: 15.625em;
+    min-width: 11.25em;
+  }
+
+  .combo-label {
+    font-size: 0.9em;
+    font-weight: 500;
+    font-family: var(--heading-font-family);
     text-transform: uppercase;
   }
 }
