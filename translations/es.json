@@ -108,7 +108,7 @@
   "settings.option.alert_timeout.10s": "10 Segundos",
   "settings.option.alert_timeout.20s": "20 Segundos",
   "settings.option.alert_timeout.none": "Sin Tiempo de Espera",
-  "settings.button.force_full_rescan": "Escaneo Completo Nuevo",
+  "settings.button.force_full_rescan": "Escanear Curso Completo",
   "settings.label.font_size": "Tamaño de Fuente",
   "settings.label.font_size.small": "Pequeño",
   "settings.label.font_size.medium": "Mediano",
@@ -468,7 +468,7 @@
   "rule.desc.table_caption_nested": "",
 
   "form.table_headers.title": "Las Tablas con Datos Deben Tener Encabezados",
-  "form.table_headers.summary": "Las tablas de datos deben tener encabezados marcados claramente en el codigo. Poner el texto del encabezado en negrita o cambier su alignment no es suficiente.",
+  "form.table_headers.summary": "Las tablas de datos deben tener encabezados marcados claramente en el codigo. Ponga el texto del encabezado en negrita o cambe su alineación no es suficiente.",
   "form.table_headers.learn_more": "<h3>Encabezados de Tabla</h3><p>Las tablas de datos deben tener encabezados que ayuden a los usuarios a entender los datos. Esto es especialmente importante para los usuarios que utilizan lectores de pantalla, quienes no pueden ver el diseño de la tabla. Para las tablas simples, puedes definir la primera fila, la primera columna o ambas como encabezados. Si tu tabla es más complicada, puede que necesites usar el atributo <code>scope</code> para los encabezados o el atributo <code>headers</code> para que las celdas indiquen cuáles encabezados aplican a cuales celdas.</p><h3>Mejores Prácticas</h3> <ul><li>Si una tabla no es para presentar datos, identifícala como una tabla de diseño.</li><li>Usa el elemento <code>th</code> en vez de <code>td</code> para definir los encabezados de las filas y columnas.</li></ul><h3>Para Más Información</h3><p>WebAIM.org: <a href='https://webaim.org/techniques/tables/data'>Tablas de Datos Accesibles</a></p><p>W3.org: <a href='https://www.w3.org/WAI/tutorials/tables/'>Tutorial de Tablas</a></p>",
   "form.table_headers.label.select": "Seleccionar Los Encabezados de Tabla",
   "form.table_headers.selection_description": "Seleccionar dirección de los encabezados de tabla",
