@@ -172,7 +172,7 @@ export default function SortableTable({
                   id={id}
                   tabIndex="0"
                   onClick={() => handleSort(id)}
-                  onKeyPress={(e) => {
+                  onKeyDown={(e) => {
                     if(e.key === 'Enter' || e.key === ' ') {
                       handleSort(id)
                     }

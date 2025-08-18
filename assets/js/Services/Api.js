@@ -8,7 +8,6 @@ export default class Api {
             setReportData: '/api/reports/{report}/setdata',
             getIssueContent: '/api/issues/{issue}/content',
             saveIssue: '/api/issues/{issue}/save',
-            resolveIssue: '/api/issues/{issue}/resolve',
             reviewFile: '/api/files/{file}/review',
             postFile: '/api/files/{file}/post',
             reportPdf: '/download/courses/{course}/reports/pdf',
@@ -95,7 +94,7 @@ export default class Api {
         })
     }
     
-    saveIssue(issue, fullPageHtml) {
+    saveIssue(issue, fullPageHtml, markAsReviewed = false) {
         const authToken = this.getAuthToken()
 
         let url = `${this.apiUrl}${this.endpoints.saveIssue}`
@@ -107,24 +106,13 @@ export default class Api {
             headers: {
                 'X-AUTH-TOKEN': authToken,
             },
-            body: JSON.stringify({sourceHtml: issue.sourceHtml, newHtml: issue.newHtml, fullPageHtml: fullPageHtml, xpath: issue.xpath}),
-        })
-    }
-
-    resolveIssue(issue, fullPageHtml) {
-        const authToken = this.getAuthToken()
-
-        let url = `${this.apiUrl}${this.endpoints.resolveIssue}`
-        url = url.replace('{issue}', issue.id)
-
-        return fetch(url, {
-            method: 'POST',
-            cache: 'no-cache',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-AUTH-TOKEN': authToken,
-            },
-            body: JSON.stringify({status: issue.status, sourceHtml: issue.sourceHtml, newHtml: issue.newHtml, fullPageHtml: fullPageHtml, xpath: issue.xpath}),
+            body: JSON.stringify({
+              sourceHtml: issue.sourceHtml,
+              newHtml: issue.newHtml,
+              fullPageHtml: fullPageHtml,
+              xpath: issue.xpath,
+              markAsReviewed: markAsReviewed
+            }),
         })
     }
 

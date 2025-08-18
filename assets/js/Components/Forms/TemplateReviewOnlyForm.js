@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react'
 import FormExternalLink from './FormExternalLink'
 import FormReviewOnly from './FormReviewOnly'
 
-export default function UfixitReviewOnly({
+export default function TemplateReviewOnlyForm({
   t,
   settings, 
   activeIssue,
@@ -11,7 +11,7 @@ export default function UfixitReviewOnly({
   setMarkAsReviewed,
   handleIssueSave,
 }) {
-
+  
   return (
     <div className="flex-column">
       <div dangerouslySetInnerHTML={{__html: t('form.review_only.summary')}}></div>

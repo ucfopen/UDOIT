@@ -73,10 +73,12 @@ body {
   padding: 0 1rem;
   border-radius: 16px;
   height: calc(100vh - 6px);
+  max-height: 1024px;
   display: flex;
   flex-direction: column;
   font-family: var(--text-font-family);
   color: var(--text-color);
+  box-sizing: border-box;
   border: 1px solid var(--border-color);
   box-shadow: 3px 3px 3px var(--gray-light);
 
@@ -188,8 +190,12 @@ body {
   }
 }
 
+header {
+  height: 3em;
+}
+
 main {
-  height: calc(100vh - 56px - 1rem);
+  height: calc(100vh - 3em);
   min-height: 20em;
   box-sizing: border-box;
   display: flex;

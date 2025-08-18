@@ -706,20 +706,30 @@ export default function FixIssuesPage({
 
   const handleIssueSave = (issue, markAsReviewed = false) => {
 
-    if(!activeContentItem || !issue) {
-      return
-    }
-
-    if(markAsReviewed) {
-      handleIssueResolve(issue)
+    if(!activeContentItem || !activeContentItem?.body || !issue) {
       return
     }
 
     updateActiveSessionIssue(issue.id, settings.ISSUE_STATE.SAVING)
     addItemToBeingScanned(issue.contentItemId)
 
-    if(!activeContentItem?.body) {
-      return
+    const specificClassName = `udoit-ignore-${issue.scanRuleId.replaceAll("_", "-")}`
+    if (markAsReviewed) {
+      if (issue.status === 1) {
+        issue.status = 3
+        issue.newHtml = Html.toString(Html.addClass(issue.newHtml, specificClassName))
+      } else if (issue.status === 0) {
+        issue.status = 2
+        issue.newHtml = Html.toString(Html.addClass(issue.sourceHtml, specificClassName))
+      }
+    } else {
+      if (issue.status === 3) {
+        issue.status = 1
+        issue.newHtml = Html.toString(Html.removeClass(issue.newHtml, specificClassName))
+      } else if (issue.status === 2) {
+        issue.status = 0
+        issue.newHtml = Html.toString(Html.removeClass(issue.sourceHtml, specificClassName))
+      }
     }
 
     let fullPageHtml = getNewFullPageHtml(activeContentItem, issue)
@@ -737,7 +747,7 @@ export default function FixIssuesPage({
     // Save the updated issue using the LMS API
     let api = new Api(settings)
     try {
-      api.saveIssue(issue, fullPageHtml)
+      api.saveIssue(issue, fullPageHtml, markAsReviewed)
       .then((responseStr) => {
         // Check for HTTP errors before parsing JSON
           if (!responseStr.ok) {
@@ -782,8 +792,8 @@ export default function FixIssuesPage({
           if (response.data.issue) {
             // Update the report object by rescanning the content
             const newIssue = Object.assign({}, issue, response.data.issue)
-            const formattedData = formatIssueData(newIssue)
-            setActiveIssue(formattedData)
+            // const formattedData = formatIssueData(newIssue)
+            // setActiveIssue(formattedData)
             updateActiveSessionIssue(newIssue.id, settings.ISSUE_STATE.SAVED)
 
             api.scanContent(newIssue.contentItemId)
@@ -795,7 +805,7 @@ export default function FixIssuesPage({
               })
           }
           else {
-            setActiveIssue(formatIssueData(issue))
+            // setActiveIssue(formatIssueData(issue))
             updateActiveSessionIssue(issue.id, settings.ISSUE_STATE.SAVED)
             removeItemFromBeingScanned(issue.contentItemId)
           }
@@ -834,91 +844,6 @@ export default function FixIssuesPage({
     } catch (error) {
       console.error(error)
       updateActiveSessionIssue("file-" + tempFile.id, settings.ISSUE_STATE.ERROR)
-    }
-  }
-
-  const handleIssueResolve = (issue) => {
-    updateActiveSessionIssue(issue.id, settings.ISSUE_STATE.RESOLVING)
-    addItemToBeingScanned(issue.contentItemId)
-    
-    const specificClassName = `udoit-ignore-${issue.scanRuleId.replaceAll("_", "-")}`
-    let tempIssue = Object.assign({}, issue)
-    if (tempIssue.status === 2) {
-      tempIssue.status = 0
-      tempIssue.newHtml = Html.toString(Html.removeClass(tempIssue.sourceHtml, specificClassName))
-    }
-    else if (tempIssue.status === 1) {
-      tempIssue.status = 3
-      tempIssue.newHtml = Html.toString(Html.addClass(tempIssue.newHtml, specificClassName))
-    }
-    else if (tempIssue.status === 3) {
-      tempIssue.status = 1
-      tempIssue.newHtml = Html.toString(Html.removeClass(tempIssue.newHtml, specificClassName))
-    }
-    else {
-      tempIssue.status = 2
-      tempIssue.newHtml = Html.toString(Html.addClass(tempIssue.sourceHtml, specificClassName))
-    }
-
-    let fullPageHtml = getNewFullPageHtml(activeContentItem, tempIssue)
-
-    // Save the updated issue using the LMS API
-    let api = new Api(settings)
-    try {
-      api.resolveIssue(tempIssue, fullPageHtml)
-        .then((responseStr) => {
-          // Check for HTTP errors before parsing JSON
-          if (!responseStr.ok) {
-            processServerError(responseStr)
-            removeItemFromBeingScanned(tempIssue.contentItemId)
-            updateActiveSessionIssue(issue.id, settings.ISSUE_STATE.ERROR)
-            return null
-          }
-          return responseStr.json()
-        })
-        .then((response) => {
-          if(!response) {
-            return
-          }
-
-          response.messages.forEach((msg) => addMessage(msg))
-        
-          if (response.data.issue) {
-            const newIssue = { ...tempIssue, ...response.data.issue }
-
-            if(activeIssue.id === tempIssue.id) {
-              setActiveIssue(formatIssueData(newIssue))
-            }
-
-            // Get updated report
-            api.scanContent(newIssue.contentItemId)
-              .then((responseStr) => responseStr.json())
-              .then((res) => {
-                const tempReport = Object.assign({}, res?.data)
-                processNewReport(tempReport)
-                
-                if(!tempIssue.status) {
-                  updateActiveSessionIssue(tempIssue.id, null)
-                }
-                else if(tempIssue.status === 1) {
-                  updateActiveSessionIssue(tempIssue.id, settings.ISSUE_STATE.SAVED)
-                }
-                else if(tempIssue.status === 2) {
-                  updateActiveSessionIssue(tempIssue.id, settings.ISSUE_STATE.RESOLVED)
-                }
-                setActiveContentItem(null)
-                removeItemFromBeingScanned(newIssue.contentItemId)
-            })
-          }
-          else {
-            updateActiveSessionIssue(tempIssue.id, settings.ISSUE_STATE.RESOLVED)
-            setActiveContentItem(null)
-            setActiveIssue(formatIssueData(tempIssue))
-          }
-        })
-    } catch (error) {
-      console.error(error)
-      updateActiveSessionIssue(issue.id, settings.ISSUE_STATE.ERROR)
     }
   }
 
@@ -973,6 +898,7 @@ export default function FixIssuesPage({
     else if (newIndex >= filteredIssues.length) {
       newIndex = 0
     }
+    console.log("Move to issue: ", filteredIssues[newIndex].id)
     setActiveIssue(filteredIssues[newIndex])
   }
 
@@ -1060,8 +986,8 @@ export default function FixIssuesPage({
                   setTempActiveIssue={setTempActiveIssue}
                   formatIssueData={formatIssueData}
                   isContentLoading={contentItemsBeingScanned.includes(tempActiveIssue?.issueData?.contentItemId)}
+                  sessionIssues={sessionIssues}
                   isErrorFoundInContent={isErrorFoundInContent}
-                  handleIssueResolve={handleIssueResolve}
                   handleIssueSave={handleIssueSave}
                   handleFileResolve={handleFileResolve}
                   handleFileUpload={handleFileUpload}
