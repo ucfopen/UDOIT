@@ -2,11 +2,12 @@ import React, { useState, useEffect } from 'react'
 import CloseIcon from '../Icons/CloseIcon'
 import DisabilityCognitiveIcon from '../Icons/DisabilityCognitiveIcon'
 import DisabilityHearingIcon from '../Icons/DisabilityHearingIcon'
+import DisabilityLanguageIcon from '../Icons/DisabilityLanguageIcon'
 import DisabilityMotorIcon from '../Icons/DisabilityMotorIcon'
 import DisabilityVisualIcon from '../Icons/DisabilityVisualIcon'
 import FormClarification from '../Forms/FormClarification'
 import FileForm from '../Forms/FileForm'
-import { disabilityTypes, disabilitiesFromRule, formFromIssue, formNameFromRule } from '../../Services/Ufixit'
+import { disabilityTypes, disabilitiesFromRule, formFromIssue, formNameFromRule, sharedRuleDescriptions, sharedRuleSummaries } from '../../Services/Ufixit'
 import './UfixitWidget.css'
 
 
@@ -31,8 +32,6 @@ export default function UfixitWidget({
   const [UfixitForm, setUfixitForm] = useState(null)
   const [formSummary, setFormSummary] = useState('')
   const [formLearnMore, setFormLearnMore] = useState('')
-  const [showClarification, setShowClarification] = useState(false)
-  const [showLearnMore, setShowLearnMore] = useState(false)
   const [disabilities, setDisabilities] = useState([])
   const [markAsReviewed, setMarkAsReviewed] = useState(false)
   
@@ -73,37 +72,53 @@ export default function UfixitWidget({
       setUfixitForm(() => { return FileForm })
       setFormSummary(t('form.file.summary'))
       setFormLearnMore(t(`form.file.${tempActiveIssue.fileData.fileType}.learn_more`))
-      setShowClarification(false)
-      setShowLearnMore(true)
       setDisabilities([disabilityTypes.COGNITIVE, disabilityTypes.VISUAL])
     }
     else {
       setUfixitForm(() => formFromIssue(tempActiveIssue.issueData))
       setDisabilities(disabilitiesFromRule(tempActiveIssue.scanRuleId))
       let tempFormName = formNameFromRule(tempActiveIssue.scanRuleId)
-      if(tempFormName === 'review_only') {
-        setShowClarification(false)
-        let ruleSummary = t(`rule.summary.${tempActiveIssue.scanRuleId}`)
-        if(ruleSummary === `rule.summary.${tempActiveIssue.scanRuleId}`) {
-          ruleSummary = formatEqualAccessMessage()
-        }
-        setFormSummary(ruleSummary)
-
-        let ruleLearnMore = t(`rule.desc.${tempActiveIssue.scanRuleId}`)
-        if(ruleLearnMore === `rule.desc.${tempActiveIssue.scanRuleId}`) {
-          setShowLearnMore(false)
-        }
-        else {
-          setShowLearnMore(true)
-        }
-        setFormLearnMore(ruleLearnMore)
+      let tempSummaryKey = ''
+      let tempDescriptionKey = ''
+      
+      // ALL complete forms should have a summary and 'learn more' description.
+      if(tempFormName !== 'review_only') {
+        tempSummaryKey = `form.${tempFormName}.summary`
+        tempDescriptionKey = `form.${tempFormName}.learn_more`
       }
       else {
-        setFormSummary(t(`form.${tempFormName}.summary`))
-        setFormLearnMore(t(`form.${tempFormName}.learn_more`))
-        setShowClarification(true)
-        setShowLearnMore(true)
+        tempSummaryKey = `rule.summary.${tempActiveIssue.scanRuleId}`
+        tempDescriptionKey = `rule.desc.${tempActiveIssue.scanRuleId}`
       }
+
+      let tempSummary = t(tempSummaryKey)
+      let tempDescription = t(tempDescriptionKey)
+
+      // If there isn't a specific summary for this rule, it may be using a shared summary.
+      if(tempSummary === tempSummaryKey) {
+        if(sharedRuleSummaries.hasOwnProperty(tempActiveIssue.scanRuleId)) {
+          tempSummary = t(sharedRuleSummaries[tempActiveIssue.scanRuleId])
+        }
+
+        // If there STILL isn't a specific summary for this rule, check to see if there's something in the metadata from Equal Access.
+        // THIS IS NOT TRANSLATED, so it will only work in English.
+        else {
+          tempSummary = formatEqualAccessMessage()
+        }
+      }
+
+      // If there isn't a specific description for this rule, it may be using a shared description.
+      if(tempDescription === tempDescriptionKey) {
+        if(sharedRuleDescriptions.hasOwnProperty(tempActiveIssue.scanRuleId)) {
+          tempDescription = t(sharedRuleDescriptions[tempActiveIssue.scanRuleId])
+        }
+        else {
+          tempDescription = ''
+        }
+      }
+      
+      setFormSummary(tempSummary)
+      setFormLearnMore(tempDescription)
     }
   }, [tempActiveIssue])
 
@@ -159,19 +174,17 @@ export default function UfixitWidget({
                 <div className="ufixit-instructions" 
                   dangerouslySetInnerHTML={{__html: formSummary}}
                 />
-                { showLearnMore && (
+                { formLearnMore !== "" && (
                   <div className="flex-row justify-content-end mt-2">
                     <button className="btn-link btn-small p-0" onClick={() => setShowLongDesc(true)}>
                       <div>{t('fix.button.learn_more')}</div>
                     </button>
                   </div>
                 )}
-                { showClarification && (
-                  <FormClarification
-                    t={t}
-                    activeIssue={tempActiveIssue}
-                  />
-                )}
+                <FormClarification
+                  t={t}
+                  activeIssue={tempActiveIssue}
+                />
               </div>
 
               <div className="ufixit-widget-label primary mb-1">{t('fix.label.barrier_repair')}</div>
@@ -232,6 +245,12 @@ export default function UfixitWidget({
                       <div className='indicator-container active'>
                         <DisabilityHearingIcon className="icon-md pe-2" alt=""/>
                         <div className="flex-column align-self-center">{t('fix.label.disability.hearing')}</div>
+                      </div>
+                    )}
+                    {disabilities.includes(disabilityTypes.LANGUAGE) && (
+                      <div className='indicator-container active'>
+                        <DisabilityLanguageIcon className="icon-md pe-2" alt=""/>
+                        <div className="flex-column align-self-center">{t('fix.label.disability.language')}</div>
                       </div>
                     )}
                     {disabilities.includes(disabilityTypes.MOTOR) && (

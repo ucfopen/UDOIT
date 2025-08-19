@@ -8,6 +8,7 @@ import EmphasisForm from '../Components/Forms/EmphasisForm'
 import HeadingEmptyForm from '../Components/Forms/HeadingEmptyForm'
 import HeadingStyleForm from '../Components/Forms/HeadingStyleForm'
 import LabelForm from '../Components/Forms/LabelForm'
+import LanguageForm from '../Components/Forms/LanguageForm'
 import LinkForm from '../Components/Forms/LinkForm'
 import ListForm from '../Components/Forms/ListForm'
 import MediaCaptionsForm from '../Components/Forms/MediaCaptionsForm'
@@ -30,6 +31,7 @@ export const formNames = {
   HEADING_STYLE: 'heading_style',
   LABEL: 'label',
   LABEL_UNIQUE: 'label_unique',
+  LANGUAGE: 'language',
   LINK: 'link',
   LIST: 'list',
   MEDIA_CAPTIONS: 'media_captions',
@@ -44,6 +46,7 @@ export const formNames = {
 export const disabilityTypes = {
   COGNITIVE: 'cognitive',
   HEARING: 'hearing',
+  LANGUAGE: 'language',
   MOTOR: 'motor',
   VISUAL: 'visual',
 }
@@ -60,6 +63,7 @@ const formTypes = {
   [formNames.HEADING_STYLE]: HeadingStyleForm,
   [formNames.LABEL]: LabelForm,
   [formNames.LABEL_UNIQUE]: LabelForm,
+  [formNames.LANGUAGE]: LanguageForm,
   [formNames.LINK]: LinkForm,
   [formNames.LIST]: ListForm,
   [formNames.MEDIA_CAPTIONS]: MediaCaptionsForm,
@@ -146,6 +150,10 @@ const rulesToFormNameMap = {
   aria_search_label_unique: formNames.LABEL_UNIQUE,
   aria_toolbar_label_unique: formNames.LABEL_UNIQUE,
 
+  element_lang_valid: formNames.LANGUAGE,
+  html_lang_exists: formNames.LANGUAGE,
+  html_lang_valid: formNames.LANGUAGE,
+
   list_children_valid: formNames.LIST,
   list_markup_review: formNames.LIST,
   list_structure_proper: formNames.LIST,
@@ -161,6 +169,19 @@ const rulesToFormNameMap = {
   table_caption_nested: formNames.TABLE_CAPTION,
 
   table_headers_exists: formNames.TABLE_HEADERS,
+}
+
+/* When a REVIEW_ONLY rule uses the same summary as another rule, add it here.
+   The key is the name of the rule, and the value is the en.json translation that should be used. */
+export const sharedRuleSummaries = {
+
+}
+
+/* When a REVIEW_ONLY rule uses the same description as another rule, add it here.
+   The key is the name of the rule, and the value is the en.json translation that should be used. */
+export const sharedRuleDescriptions = {
+  aria_banner_single: 'form.label.learn_more',
+  aria_contentinfo_single: 'form.label.learn_more',
 }
 
 export function formFromIssue(activeIssue) {
@@ -226,6 +247,9 @@ export function disabilitiesFromRule(ruleId) {
       case formNames.LABEL_UNIQUE:
         disabilities = [disabilityTypes.COGNITIVE, disabilityTypes.VISUAL]
         break
+      case formNames.LANGUAGE:
+        disabilities = [disabilityTypes.COGNITIVE, disabilityTypes.LANGUAGE, disabilityTypes.VISUAL]
+        break
       case formNames.LINK:
         disabilities = [disabilityTypes.COGNITIVE, disabilityTypes.VISUAL]
         break
@@ -233,13 +257,13 @@ export function disabilitiesFromRule(ruleId) {
         disabilities = [disabilityTypes.COGNITIVE, disabilityTypes.VISUAL]
         break
       case formNames.MEDIA_CAPTIONS:
-        disabilities = [disabilityTypes.COGNITIVE, disabilityTypes.HEARING, disabilityTypes.VISUAL]
+        disabilities = [disabilityTypes.COGNITIVE, disabilityTypes.HEARING, disabilityTypes.LANGUAGE, disabilityTypes.VISUAL]
         break
       case formNames.QUOTE:
         disabilities = [disabilityTypes.COGNITIVE, disabilityTypes.VISUAL]
         break
       case formNames.SENSORY_MISUSE:
-        disabilities = [disabilityTypes.COGNITIVE, disabilityTypes.VISUAL]
+        disabilities = [disabilityTypes.COGNITIVE, disabilityTypes.LANGUAGE, disabilityTypes.VISUAL]
         break
       case formNames.TABLE_CAPTION:
         disabilities = [disabilityTypes.COGNITIVE, disabilityTypes.VISUAL]

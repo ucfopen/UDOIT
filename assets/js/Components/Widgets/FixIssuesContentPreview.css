@@ -229,3 +229,32 @@
     border: 1px solid var(--white)
   }
 }
+
+.ufixit-id-highlight {
+  padding: .25em;
+
+  &:not(.ufixit-error-highlight) {
+    outline: 2px dotted var(--issue-color);
+    outline-offset: 2px;
+  }
+
+  &::before {
+    content: attr(id);
+    display: block;
+    position: relative;
+    top: 0;
+    left: 0;
+    width: 100%;
+    box-sizing: border-box;
+    background-color: var(--issue-color-light);
+    color: var(--text-color);
+    padding: 0.25em 0.5em;
+    border-radius: 4px;
+    font-size: 0.85em;
+    font-weight: 600;
+    white-space: nowrap;
+    z-index: 10;
+    cursor: pointer;
+    margin-bottom: .5em;
+  }
+}

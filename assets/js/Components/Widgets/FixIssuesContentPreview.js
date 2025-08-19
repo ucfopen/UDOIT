@@ -74,6 +74,10 @@ export default function FixIssuesContentPreview({
     formNames.HEADING_STYLE
   ]
 
+  const ID_RELATED = [
+    
+  ]
+
   const convertErrorHtmlString = (htmlText) => {
     let tempElement = Html.toElement(htmlText)
     if(tempElement){
@@ -158,6 +162,14 @@ export default function FixIssuesContentPreview({
         const headingType = headingElement.tagName.toUpperCase()
         headingElement.classList.add('ufixit-heading-highlight')
         headingElement.setAttribute('ufixit-heading-type', headingType)
+      })
+    }
+
+    if(ID_RELATED.includes(formNameFromRule(activeIssue.scanRuleId))) {
+      const elementsWithIds = Array.from(doc.querySelectorAll('[id]'))
+      elementsWithIds.forEach((idElement) => {
+        // If the element has an ID, add a helper element to show the ID.
+        idElement.classList.add('ufixit-id-highlight')
       })
     }
 

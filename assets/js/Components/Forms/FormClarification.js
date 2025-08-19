@@ -16,7 +16,7 @@ export default function FormClarification({
   
     // Compute what additional clarification text to show, if any.
     // First priority: Rule-specific descriptions from the translation file.
-    const clarificationTag = 'rule.desc.' + activeIssue.scanRuleId
+    const clarificationTag = 'rule.info.' + activeIssue.scanRuleId
     let messageArgs = {}
     if(activeIssue?.issueData?.metadata) {
       let metadata = JSON.parse(activeIssue.issueData.metadata)
@@ -36,16 +36,16 @@ export default function FormClarification({
       return
     }
     
-    // If there isn't a specific description from us, check for one in the 
-    const formName = formNameFromRule(activeIssue.scanRuleId)
-    if(formName === 'review_only') {
-      // There may be specific (ENGLISH-ONLY) text from the Equal Access scan.
-      const metadata = activeIssue?.issueData?.metadata ? JSON.parse(activeIssue.issueData.metadata) : {}
-      if(metadata.message && metadata.message !== "") {
-        setClarification(metadata.message)
-        return
-      }
-    }
+    // // If there isn't a specific description from us, check for one in the metadata from the scan issue.
+    // const formName = formNameFromRule(activeIssue.scanRuleId)
+    // if(formName === 'review_only') {
+    //   // There may be specific (ENGLISH-ONLY) text from the Equal Access scan.
+    //   const metadata = activeIssue?.issueData?.metadata ? JSON.parse(activeIssue.issueData.metadata) : {}
+    //   if(metadata.message && metadata.message !== "") {
+    //     setClarification(metadata.message)
+    //     return
+    //   }
+    // }
     setClarification('')
     
   }, [activeIssue])
