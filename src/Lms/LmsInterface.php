@@ -17,7 +17,7 @@ interface LmsInterface {
     public function updateFileItem(Course $course, $file);
     public function updateContentItem(ContentItem $contentItem);
     public function postContentItem(ContentItem $contentItem);
-    public function postFileItem(FileItem $file, string $newFileName);
+    public function postFileItem(FileItem $file, string $newFileName, bool $refIndication);
     public function getOauthUri(Institution $institution, UserSession $session);
     public function getAccountData(User $user, $accountId);
     public function getCourseUrl(Course $course, User $user);

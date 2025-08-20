@@ -45,6 +45,8 @@ export default function FixIssuesPage({
 })
 {
 
+
+
   // Define the kinds of filters that will be available to the user
   const FILTER = {
     TYPE: {
@@ -623,7 +625,6 @@ export default function FixIssuesPage({
     if(state === null) {
       state = settings.ISSUE_STATE.UNCHANGED
     }
-
     // This updates the counter for the daily progress
     updateSessionIssue(issueId, state, contentItemId)
 
@@ -655,20 +656,26 @@ export default function FixIssuesPage({
     }
   }
 
-  const updateFile = (tempFile) => {
+  const updateFile = (tempFile, oldFile) => {
     const tempReport = Object.assign({}, report)
+    if(activeIssue?.fileData?.id === oldFile.id){ // Check if we are still on the same issue 
+      const formattedFile = formatFileData(tempFile);
+      setActiveIssue(formattedFile); // Make it the new issue
+    }
+    tempReport.files[tempFile.id] = tempFile;
+    delete tempReport.files[oldFile.id]; // Delete the old file
 
     // Occasionally, the report will send back a list of files in an object instead of an array.
     // It would be nice to use tempReport.files.map, but that doesn't work with objects.
-    for (const [key, value] of Object.entries(tempReport.files)) {
-      if (key.toString() === tempFile.id.toString()) {
-        if(activeIssue?.fileData?.id === tempFile.id) {
-          const formattedFile = formatFileData(tempFile)
-          setActiveIssue(formattedFile)
-        }
-        tempReport.files[key] = tempFile
-      }
-    }
+    // for (const [key, value] of Object.entries(tempReport.files)) {
+    //   if (key.toString() === tempFile.id.toString()) {
+    //     if(activeIssue?.fileData?.id === tempFile.id) {
+    //       const formattedFile = formatFileData(tempFile)
+    //       setActiveIssue(formattedFile)
+    //     }
+    //     tempReport.files[key] = tempFile
+    //   }
+    // }
     processNewReport(tempReport)
   }
 
@@ -801,25 +808,43 @@ export default function FixIssuesPage({
    * handleFileUpload is called when a new file has already been selected by the user
    * and is ready to be uploaded to the server and verified.
    */
-  const handleFileUpload = (newFileData) => {
+  const handleFileUpload = (newFileData, references) => {
 
-    const tempFile = Object.assign({}, activeIssue.fileData)
+    const tempFile = Object.assign({}, activeIssue.fileData) // Copy over the current file
 
     updateActiveSessionIssue("file-" + tempFile.id, settings.ISSUE_STATE.SAVING)
+    console.log("References from fixPageIssues: " + references);
 
     try {
-      let api = new Api(settings)
-      api.postFile(tempFile, newFileData)
+      let api = new Api(settings) // API Call 
+      api.postFile(tempFile, newFileData, references) 
         .then((responsStr) => responsStr.json())
         .then((response) => {
-          const updatedFileData = { ...tempFile, ...response.data.file }
-
+          // let updatedFileData = Object.assign({}, tempFile) // New copy of the file to add updated fields
+          // // Iterate over every key value pair from response and update them in response, very short O(1) as we are going over the same number of key value pairs everytime
+          
+          // for(const [key, value] of Object.entries(response.data.data.content)){
+          //   if(key.toString() === 'id'){
+          //     updatedFileData.lmsFileId = value;
+          //     updatedFileData.lmsUrl = updatedFileData.lmsUrl.replace(/preview=\d+/, `preview=${value}`)
+          //   }
+          //   if(key.toString() === 'filename'){
+          //     updatedFileData.fileName = value;
+          //   }
+          //   if(key.toString() === 'size'){
+          //     updatedFileData.fileSize = value;
+          //   }
+          //   if(key.toString() === 'url'){
+          //     updatedFileData.downloadUrl = value;
+          //   }
+          // }
+          const newFile = response.data; // Get the new file data from the response
           // Set messages 
           response.messages.forEach((msg) => addMessage(msg))
-
           // Update the local report and activeIssue
-          updateActiveSessionIssue("file-" + tempFile.id, settings.ISSUE_STATE.SAVED)
-          updateFile(updatedFileData)
+          updateFile(newFile, tempFile)
+          updateActiveSessionIssue("file-" + newFile.id, settings.ISSUE_STATE.RESOLVED)
+          
         })
     } catch (error) {
       console.error(error)
@@ -1009,6 +1034,7 @@ export default function FixIssuesPage({
 
     return keywords.join(' ')
   }
+
 
   return (
     <>

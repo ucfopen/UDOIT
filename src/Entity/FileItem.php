@@ -10,6 +10,7 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Entity(repositoryClass: FileItemRepository::class)]
 class FileItem implements \JsonSerializable
 {
+
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(type: "integer")]
@@ -59,6 +60,8 @@ class FileItem implements \JsonSerializable
 
     #[ORM\Column(type: "boolean")]
     private $active;
+
+
 
     public function getId(): ?int
     {
@@ -133,7 +136,6 @@ class FileItem implements \JsonSerializable
     public function setMetadata(?string $metadata): self
     {
         $this->metadata = $metadata;
-
         return $this;
     }
 
@@ -176,7 +178,7 @@ class FileItem implements \JsonSerializable
     public function getReviewed(): ?bool
     {
         return $this->reviewed;
-    }
+}
 
     public function setReviewed(?bool $reviewed): self
     {
@@ -190,7 +192,7 @@ class FileItem implements \JsonSerializable
         $updatedDate = new \DateTime($file['updated'], UtilityService::$timezone);
 
         $this->setUpdated($updatedDate);
-        $this->setActive(true);
+        // $this->setActive($file['status']);
         $this->setFileName($file['fileName']);
         $this->setStatus($file['status']);
         $this->setFileType($file['fileType']);

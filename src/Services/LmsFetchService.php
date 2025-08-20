@@ -95,7 +95,7 @@ class LmsFetchService {
             /* Step 2: Get list of updated content items */
             /* 2.1: Mark all existing content items and files in our database as inactive */
             $contentItemRepo->setCourseContentInactive($course);
-            $fileItemRepo->setCourseFileItemsInactive($course);
+            // $fileItemRepo->setCourseFileItemsInactive($course);
             $this->doctrine->getManager()->flush();
 
             /* Update content items from LMS.

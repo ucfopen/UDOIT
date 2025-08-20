@@ -180,6 +180,7 @@ class CanvasLms implements LmsInterface {
         $apiToken = $this->getApiToken($user);
 
         $canvasApi = new CanvasApi($apiDomain, $apiToken);
+        $contentFileIDs = [];
 
         foreach ($urls as $contentType => $url) {
             $response = $canvasApi->apiGet($url);
@@ -199,6 +200,7 @@ class CanvasLms implements LmsInterface {
                 foreach ($contentList as $content) {
                     if (('file' === $contentType) && (in_array($content['mime_class'], $this->util->getUnscannableFileMimeClasses()))) {
                         $this->updateFileItem($course, $content);
+                        $contentFileIDs[] = $content['id'];
                         continue;
                     }
 
@@ -281,6 +283,27 @@ class CanvasLms implements LmsInterface {
             }
         }
 
+
+        $DBfiles = $course->getFileItems(false);
+        $dbFileIds = [];
+        foreach($DBfiles as $dbFile){
+            $dbFileIds[] = $dbFile->getLmsFileId();
+        }
+
+
+        $fileIDsNotInCourse = array_diff($dbFileIds, $contentFileIDs);
+
+
+        foreach($fileIDsNotInCourse as $uniqueFileID){
+            $fileToDeleted = $this->fileItemRepo->findOneBy([
+                'lmsFileId' => $uniqueFileID,
+                'course' => $course,
+            ]);
+            if($fileToDeleted){
+                $fileToDeleted->setActive(false);
+            }
+        }
+
         // push any updates made to content items to DB
         $this->entityManager->flush();
 
@@ -346,6 +369,8 @@ class CanvasLms implements LmsInterface {
 
     public function updateFileItem(Course $course, $file)
     {
+        $output = new ConsoleOutput();
+
         $fileItem = $this->fileItemRepo->findOneBy([
             'lmsFileId' => $file['id'],
             'course' => $course,
@@ -354,7 +379,7 @@ class CanvasLms implements LmsInterface {
         if (!$fileItem) {
             $fileItem = new FileItem();
             $fileItem->setCourse($course)
-                ->setFileName($file['filename'])
+                ->setFileName($file['display_name'])
                 ->setFileType($file['mime_class'])
                 ->setLmsFileId($file['id'])
                 ->setDownloadUrl($file['url'])
@@ -367,7 +392,7 @@ class CanvasLms implements LmsInterface {
         $fileItem->setLmsUrl($lmsUrl);
 
         // normalize file keys
-        $file['fileName'] = $file['filename'];
+        $file['fileName'] = $file['display_name'];
         $file['fileType'] = $file['mime_class'];
         $file['status'] = !$file['locked'];
         $file['fileSize'] = $file['size'];
@@ -453,27 +478,104 @@ class CanvasLms implements LmsInterface {
         return $canvasApi->apiPut($url, ['body' => $options]);
     }
 
-    public function postFileItem(FileItem $file, string $newFileName)
+    public function postFileItem(FileItem $file, string $newFileName, bool $refIndication)
     {
+        $output = new ConsoleOutput();
+
         $user = $this->security->getUser();
         $apiDomain = $this->getApiDomain($user);
         $apiToken = $this->getApiToken($user);
         $canvasApi = new CanvasApi($apiDomain, $apiToken);
+        $modules = $canvasApi->listModules($file->getCourse()->getLmsCourseId());
+        $pages = $canvasApi->listPages($file->getCourse()->getLmsCourseId());
+        $assignments = $canvasApi->listAssignments($file->getCourse()->getLmsCourseId());
+        $quizzes = $canvasApi->listQuizzes($file->getCourse()->getLmsCourseId()); 
+        $announcements = $canvasApi->listAnnouncements($file->getCourse()->getLmsCourseId());
+        $discussions = $canvasApi->listDiscussions($file->getCourse()->getLmsCourseId());       
+        $changeReferences = ['course_id' => $file->getCourse()->getLmsCourseId(),'module_instances' => [], 'pages' => [], 'assignments' => [], 'quizzes' => [], 'quizQuestions' => [], 'announcements' => [], 'discussions' => []];
+
+        // Delete any existing module items with the same file name
+        foreach ($modules as $module) {
+            $moduleItems = $canvasApi->listModuleItems($file->getCourse()->getLmsCourseId(), $module['id']);
+            $instances = $this->findFileInModuleItems($moduleItems, $file->getLmsFileId());
+            if (!empty($instances)) {
+                foreach ($instances as $instance) {
+                    $canvasApi->deleteModuleItem($file->getCourse()->getLmsCourseId(), $module['id'], $instance['id']);
+                    $changeReferences['module_instances'][] = $instance;
+                }
+                
+            }
+        }
+
+        // Find all wiki pages that contain this file in their HTML
+        foreach ($pages as $page) {
+            if ($this->fileIsInLink($file->getLmsFileId(), $page['body'])) {
+                $changeReferences['pages'][] = $page;
+            }
+        }
+
+        // Find all assignments that contain this file in their description HTML
+        foreach ($assignments as $assignment) {
+            if ($this->fileIsInLink($file->getLmsFileId(), $assignment['description'])) {
+                $changeReferences['assignments'][] = $assignment;
+            }
+        }
+
+        // Find all quizzes that contain this file in their description HTML
+        foreach ($quizzes as $quiz) {
+            if ($this->fileIsInLink($file->getLmsFileId(), $quiz['description'])) {
+                $changeReferences['quizzes'][] = $quiz;
+            }
+
+            // Check quiz questions for references to the file
+            $questions[] = $canvasApi->listQuizQuestions($file->getCourse()->getLmsCourseId(), $quiz['id']);
+
+            $questions = $questions[0];
+
+            foreach ($questions as $question) {
+                if ($this->fileIsInLink($file->getLmsFileId(), $question['question_text'])) {
+                   $changeReferences['quizQuestions'][] = $question;
+                }
+            }
+        }
+
+        // Add announcements with files
+        foreach($announcements as $announcement){
+            if($this->fileIsInLink($file->getLmsFileId(), $announcement['message'])){
+                $changeReferences['announcements'][] = $announcement;
+            }
+        }
+
+        foreach($discussions as $disc){
+            if($this->fileIsInLink($file->getLmsFileId(), $disc['message'])){
+                $changeReferences['discussions'][] = $disc;
+            }
+        }
+
         $url = "courses/{$file->getCourse()->getLmsCourseId()}/files/{$file->getLmsFileId()}";
         $filepath = $this->util->getTempPath() . '/file.' . $file->getId();
         $options = [
             'postUrl' => "courses/{$file->getCourse()->getLmsCourseId()}/files"
         ];
 
-        $fileResponse = $canvasApi->apiFilePost($url, $options, $filepath, $newFileName);
-        $fileObj = $fileResponse->getContent();
 
-        if (isset($fileObj['id'])) {
-            $file->setLmsFileId($fileObj['id']);
-            $this->entityManager->flush();
-        }
+        $fileResponse = $canvasApi->apiFilePost($url, $options, $filepath, $newFileName, $changeReferences, $refIndication);
 
         return $fileResponse;
+    }
+
+
+
+    public function findFileInModuleItems($moduleItems, string $fileId)
+    {
+        $instances = [];
+        foreach ($moduleItems as $item) {
+            if ($item['content_id'] == $fileId) {
+                $instances[] = $item;
+            }
+        }
+
+        return $instances;
     }
 
     public function getCourseUrl(Course $course, User $user)
@@ -482,6 +584,8 @@ class CanvasLms implements LmsInterface {
 
         return "https://{$domain}/courses/{$course->getLmsCourseId()}";
     }
+
+    
 
     /**
      * ******************
@@ -574,6 +678,24 @@ class CanvasLms implements LmsInterface {
     /**********************
      * PROTECTED FUNCTIONS
      **********************/
+
+    protected function fileIsInLink($fileId, $html)
+    {
+        $dom = new \DOMDocument();
+        $dom->loadHTML($html);
+        $anchors = $dom->getElementsByTagName('a');
+
+
+
+        foreach ($anchors as $anchor) {
+            preg_match('/files\/(\d+)/', $anchor->getAttribute('href'), $matches);
+            if(isset($matches[1]) && $matches[1] == $fileId) {
+                return true;
+            }
+        }
+
+        return false;
+    }
 
     protected function getAccountInfo(User $user, $accountId)
     {

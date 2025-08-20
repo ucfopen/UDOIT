@@ -19,6 +19,11 @@ class ApiResponse implements \JsonSerializable
         return $this->errors;
     }
 
+    public function getData()
+    {
+        return $this->data;
+    }
+
     public function addError($error)
     {
         $this->errors[] = $error;
