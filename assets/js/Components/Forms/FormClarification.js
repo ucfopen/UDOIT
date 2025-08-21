@@ -27,6 +27,9 @@ export default function FormClarification({
       if(activeIssue.scanRuleId === 'aria_role_valid') {
         messageArgs = { 'tagName': metadata.messageArgs[1], 'ariaRole': metadata.messageArgs[0] }
       }
+      if(activeIssue.scanRuleId === 'aria_attribute_redundant') {
+        messageArgs = { 'htmlAttribute': metadata.messageArgs[1], 'ariaAttribute': metadata.messageArgs[0] }
+      }
     }
 
     const clarification = t(clarificationTag, messageArgs)
@@ -59,7 +62,7 @@ export default function FormClarification({
               <InfoIcon className="icon-lg udoit-suggestion" alt="" />
             </div>
             <div className="flex-column justify-content-center">
-              <div className="clarification-text">{clarification}</div>
+              <div className="clarification-text" dangerouslySetInnerHTML={{__html: clarification}} />
             </div>
           </div>
         </div>

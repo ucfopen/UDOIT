@@ -7,6 +7,7 @@ import EmbeddedContentTitleForm from '../Components/Forms/EmbeddedContentTitleFo
 import EmphasisForm from '../Components/Forms/EmphasisForm'
 import HeadingEmptyForm from '../Components/Forms/HeadingEmptyForm'
 import HeadingStyleForm from '../Components/Forms/HeadingStyleForm'
+import InvalidAttributeForm from '../Components/Forms/InvalidAttributeForm'
 import LabelForm from '../Components/Forms/LabelForm'
 import LanguageForm from '../Components/Forms/LanguageForm'
 import LinkForm from '../Components/Forms/LinkForm'
@@ -30,6 +31,7 @@ export const formNames = {
   EMPHASIS: 'emphasis',
   HEADING_EMPTY: 'heading_empty',
   HEADING_STYLE: 'heading_style',
+  INVALID_ATTRIBUTE: 'invalid_attribute',
   LABEL: 'label',
   LABEL_UNIQUE: 'label_unique',
   LANGUAGE: 'language',
@@ -63,6 +65,7 @@ const formTypes = {
   [formNames.EMPHASIS]: EmphasisForm,
   [formNames.HEADING_EMPTY]: HeadingEmptyForm,
   [formNames.HEADING_STYLE]: HeadingStyleForm,
+  [formNames.INVALID_ATTRIBUTE]: InvalidAttributeForm,
   [formNames.LABEL]: LabelForm,
   [formNames.LABEL_UNIQUE]: LabelForm,
   [formNames.LANGUAGE]: LanguageForm,
@@ -134,6 +137,13 @@ const rulesToFormNameMap = {
 
   heading_markup_misuse: formNames.HEADING_STYLE,
   text_block_heading: formNames.HEADING_STYLE,
+
+  // dir_attribute_valid: formNames.INVALID_ATTRIBUTE,
+  // element_tabbable_role_valid: formNames.INVALID_ATTRIBUTE,
+  // input_autocomplete_valid: formNames.INVALID_ATTRIBUTE,
+  // input_haspopup_conflict: formNames.INVALID_ATTRIBUTE,
+  // table_aria_descendants: formNames.INVALID_ATTRIBUTE,
+  // table_scope_valid: formNames.INVALID_ATTRIBUTE,
 
   aria_accessiblename_exists: formNames.LABEL,
   aria_application_labelled: formNames.LABEL,
@@ -270,6 +280,9 @@ export function disabilitiesFromRule(ruleId) {
         disabilities = [disabilityTypes.COGNITIVE, disabilityTypes.HEARING, disabilityTypes.LANGUAGE]
         break
       case formNames.QUOTE:
+        disabilities = [disabilityTypes.COGNITIVE, disabilityTypes.VISUAL]
+        break
+      case formNames.SELECT_VALID_ID:
         disabilities = [disabilityTypes.COGNITIVE, disabilityTypes.VISUAL]
         break
       case formNames.SENSORY_MISUSE:
