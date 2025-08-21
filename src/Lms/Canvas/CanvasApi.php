@@ -481,7 +481,6 @@ class CanvasApi {
             if (isset($matches[1]) && $matches[1] == $fileId) {
                 $anchor->setAttribute('href', $newUrl);
                 $anchor->setAttribute('title', $newFileName);
-                $anchor->nodeValue = $newFileName;
             }
         }
         return $dom->saveHTML();

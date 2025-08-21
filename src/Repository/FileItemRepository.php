@@ -39,6 +39,20 @@ class FileItemRepository extends ServiceEntityRepository
         return $query->execute();
     }
 
+    public function deleteCourseFile(Course $course, $fileId)
+    {
+        $doctrine = $this->getEntityManager();
+        $fileToDeleted = $this->findOneBy([
+                'lmsFileId' => $fileId,
+                'course' => $course,
+            ]);
+        
+        if($fileToDeleted){
+            $doctrine->remove($fileToDeleted);
+            $doctrine->flush();
+        }
+    }
+
     //  Returns an array of FileItem objects
     /*
     public function findByExampleField($value): array

@@ -289,24 +289,15 @@ class CanvasLms implements LmsInterface {
         foreach($DBfiles as $dbFile){
             $dbFileIds[] = $dbFile->getLmsFileId();
         }
-
-
+        
         $fileIDsNotInCourse = array_diff($dbFileIds, $contentFileIDs);
 
-
         foreach($fileIDsNotInCourse as $uniqueFileID){
-            $fileToDeleted = $this->fileItemRepo->findOneBy([
-                'lmsFileId' => $uniqueFileID,
-                'course' => $course,
-            ]);
-            if($fileToDeleted){
-                $fileToDeleted->setActive(false);
-            }
+            $this->fileItemRepo->deleteCourseFile($course, $uniqueFileID);
         }
 
         // push any updates made to content items to DB
         $this->entityManager->flush();
-
         return $contentItems;
     }
 
