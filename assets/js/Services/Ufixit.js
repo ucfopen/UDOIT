@@ -13,6 +13,7 @@ import LinkForm from '../Components/Forms/LinkForm'
 import ListForm from '../Components/Forms/ListForm'
 import MediaCaptionsForm from '../Components/Forms/MediaCaptionsForm'
 import QuoteForm from '../Components/Forms/QuoteForm'
+import SelectValidIdForm from '../Components/Forms/SelectValidIdForm'
 import SensoryMisuseForm from '../Components/Forms/SensoryMisuseForm'
 import TableCaptionForm from '../Components/Forms/TableCaptionForm'
 import TableHeadersForm from '../Components/Forms/TableHeadersForm'
@@ -36,6 +37,7 @@ export const formNames = {
   LIST: 'list',
   MEDIA_CAPTIONS: 'media_captions',
   QUOTE: 'quote',
+  SELECT_VALID_ID: 'select_valid_id',
   SENSORY_MISUSE: 'sensory_misuse',
   TABLE_CAPTION: 'table_caption',
   TABLE_HEADERS: 'table_headers',
@@ -68,6 +70,7 @@ const formTypes = {
   [formNames.LIST]: ListForm,
   [formNames.MEDIA_CAPTIONS]: MediaCaptionsForm,
   [formNames.QUOTE]: QuoteForm,
+  [formNames.SELECT_VALID_ID]: SelectValidIdForm,
   [formNames.SENSORY_MISUSE]: SensoryMisuseForm,
   [formNames.TABLE_CAPTION]: TableCaptionForm,
   [formNames.TABLE_HEADERS]: TableHeadersForm,
@@ -100,6 +103,7 @@ const rulesToFormNameMap = {
 
   // Equal Access Rules
   imagemap_alt_exists: formNames.ALT_TEXT,
+  img_ismap_misuse: formNames.ALT_TEXT,
   img_alt_background: formNames.ALT_TEXT,
   img_alt_decorative: formNames.ALT_TEXT,
   img_alt_misuse: formNames.ALT_TEXT,
@@ -150,9 +154,9 @@ const rulesToFormNameMap = {
   aria_search_label_unique: formNames.LABEL_UNIQUE,
   aria_toolbar_label_unique: formNames.LABEL_UNIQUE,
 
-  element_lang_valid: formNames.LANGUAGE,
-  html_lang_exists: formNames.LANGUAGE,
-  html_lang_valid: formNames.LANGUAGE,
+  // element_lang_valid: formNames.LANGUAGE,
+  // html_lang_exists: formNames.LANGUAGE,
+  // html_lang_valid: formNames.LANGUAGE,
 
   list_children_valid: formNames.LIST,
   list_markup_review: formNames.LIST,
@@ -163,10 +167,16 @@ const rulesToFormNameMap = {
   
   text_quoted_correctly: formNames.QUOTE,
 
+  // aria_id_unique: formNames.SELECT_VALID_ID,
+  // combobox_popup_reference: formNames.SELECT_VALID_ID,
+  // error_message_exists: formNames.SELECT_VALID_ID,
+  // input_placeholder_label_visible: formNames.SELECT_VALID_ID,
+  // label_ref_valid: formNames.SELECT_VALID_ID,
+  // table_headers_ref_valid: formNames.SELECT_VALID_ID,
+
   text_sensory_misuse: formNames.SENSORY_MISUSE,
 
   table_caption_empty: formNames.TABLE_CAPTION,
-  table_caption_nested: formNames.TABLE_CAPTION,
 
   table_headers_exists: formNames.TABLE_HEADERS,
 }
@@ -230,7 +240,7 @@ export function disabilitiesFromRule(ruleId) {
         disabilities = [disabilityTypes.VISUAL]
         break
       case formNames.EMBEDDED_CONTENT_TITLE:
-        disabilities = [disabilityTypes.VISUAL, disabilityTypes.COGNITIVE]
+        disabilities = [disabilityTypes.COGNITIVE, disabilityTypes.VISUAL]
         break
       case formNames.EMPHASIS:
         disabilities = [disabilityTypes.COGNITIVE, disabilityTypes.VISUAL]
@@ -257,7 +267,7 @@ export function disabilitiesFromRule(ruleId) {
         disabilities = [disabilityTypes.COGNITIVE, disabilityTypes.VISUAL]
         break
       case formNames.MEDIA_CAPTIONS:
-        disabilities = [disabilityTypes.COGNITIVE, disabilityTypes.HEARING, disabilityTypes.LANGUAGE, disabilityTypes.VISUAL]
+        disabilities = [disabilityTypes.COGNITIVE, disabilityTypes.HEARING, disabilityTypes.LANGUAGE]
         break
       case formNames.QUOTE:
         disabilities = [disabilityTypes.COGNITIVE, disabilityTypes.VISUAL]

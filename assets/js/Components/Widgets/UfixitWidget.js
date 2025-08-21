@@ -230,43 +230,47 @@ export default function UfixitWidget({
                 </div>
               </div>
               <div className="ufixit-widget-dialog-content flex-column flex-grow-1">
-                { disabilities.length > 0 && (<div className="dialog-indicator-container flex-row gap-2">
-                  <div className="flex-column align-self-center flex-shrink-0">
-                    {t('fix.label.affected')}
+                { disabilities.length > 0 && (
+                  <div className="dialog-indicator-background">
+                    <div className="dialog-indicator-container flex-row gap-2">
+                      <div className="flex-column align-self-center flex-shrink-0">
+                        {t('fix.label.affected')}
+                      </div>
+                      <div className="flex-row flex-wrap gap-1">
+                        {disabilities.includes(disabilityTypes.VISUAL) && (  
+                          <div className='indicator-container active'>
+                            <DisabilityVisualIcon className="icon-md pe-2" alt=""/>
+                            <div className="flex-column align-self-center">{t('fix.label.disability.visual')}</div>
+                          </div>
+                        )}
+                        {disabilities.includes(disabilityTypes.HEARING) && (
+                          <div className='indicator-container active'>
+                            <DisabilityHearingIcon className="icon-md pe-2" alt=""/>
+                            <div className="flex-column align-self-center">{t('fix.label.disability.hearing')}</div>
+                          </div>
+                        )}
+                        {disabilities.includes(disabilityTypes.LANGUAGE) && (
+                          <div className='indicator-container active'>
+                            <DisabilityLanguageIcon className="icon-md pe-2" alt=""/>
+                            <div className="flex-column align-self-center">{t('fix.label.disability.language')}</div>
+                          </div>
+                        )}
+                        {disabilities.includes(disabilityTypes.MOTOR) && (
+                          <div className='indicator-container active'>
+                            <DisabilityMotorIcon className="icon-md pe-2" alt=""/>
+                            <div className="flex-column align-self-center">{t('fix.label.disability.motor')}</div>
+                          </div>
+                        )}
+                        {disabilities.includes(disabilityTypes.COGNITIVE) && (
+                          <div className='indicator-container active'>
+                            <DisabilityCognitiveIcon className="icon-md pe-2" alt=""/>
+                            <div className="flex-column align-self-center">{t('fix.label.disability.cognitive')}</div>
+                          </div>
+                        )}
+                      </div>
+                    </div>
                   </div>
-                  <div className="flex-row flex-wrap gap-1">
-                    {disabilities.includes(disabilityTypes.VISUAL) && (  
-                      <div className='indicator-container active'>
-                        <DisabilityVisualIcon className="icon-md pe-2" alt=""/>
-                        <div className="flex-column align-self-center">{t('fix.label.disability.visual')}</div>
-                      </div>
-                    )}
-                    {disabilities.includes(disabilityTypes.HEARING) && (
-                      <div className='indicator-container active'>
-                        <DisabilityHearingIcon className="icon-md pe-2" alt=""/>
-                        <div className="flex-column align-self-center">{t('fix.label.disability.hearing')}</div>
-                      </div>
-                    )}
-                    {disabilities.includes(disabilityTypes.LANGUAGE) && (
-                      <div className='indicator-container active'>
-                        <DisabilityLanguageIcon className="icon-md pe-2" alt=""/>
-                        <div className="flex-column align-self-center">{t('fix.label.disability.language')}</div>
-                      </div>
-                    )}
-                    {disabilities.includes(disabilityTypes.MOTOR) && (
-                      <div className='indicator-container active'>
-                        <DisabilityMotorIcon className="icon-md pe-2" alt=""/>
-                        <div className="flex-column align-self-center">{t('fix.label.disability.motor')}</div>
-                      </div>
-                    )}
-                    {disabilities.includes(disabilityTypes.COGNITIVE) && (
-                      <div className='indicator-container active'>
-                        <DisabilityCognitiveIcon className="icon-md pe-2" alt=""/>
-                        <div className="flex-column align-self-center">{t('fix.label.disability.cognitive')}</div>
-                      </div>
-                    )}
-                  </div>
-                </div>)}
+                )}
                 <div className="flex-grow-1 flex-column ufixit-learn-container pt-3 pb-3"
                   dangerouslySetInnerHTML={{__html: formLearnMore }} />
                 <div className="flex-row justify-content-center mb-3">
