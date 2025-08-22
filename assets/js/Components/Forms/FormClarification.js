@@ -30,6 +30,9 @@ export default function FormClarification({
       if(activeIssue.scanRuleId === 'aria_attribute_redundant') {
         messageArgs = { 'htmlAttribute': metadata.messageArgs[1], 'ariaAttribute': metadata.messageArgs[0] }
       }
+      if(activeIssue.scanRuleId === 'rule.info.aria_attribute_conflict') {
+        messageArgs = { 'tagName': metadata.messageArgs[1], 'ariaAttribute': metadata.messageArgs[0] }
+      }
     }
 
     const clarification = t(clarificationTag, messageArgs)

@@ -1,5 +1,6 @@
 import AltText from '../Components/Forms/AltText'
 import AnchorText from '../Components/Forms/AnchorText'
+import AriaAttributeForm from '../Components/Forms/AriaAttributeForm'
 import AriaRoleForm from '../Components/Forms/AriaRoleForm'
 import BlockquoteForm from '../Components/Forms/BlockquoteForm'
 import ContrastForm from '../Components/Forms/ContrastForm'
@@ -8,6 +9,7 @@ import EmphasisForm from '../Components/Forms/EmphasisForm'
 import HeadingEmptyForm from '../Components/Forms/HeadingEmptyForm'
 import HeadingStyleForm from '../Components/Forms/HeadingStyleForm'
 import InvalidAttributeForm from '../Components/Forms/InvalidAttributeForm'
+import KeyboardTabbableForm from '../Components/Forms/KeyboardTabbableForm'
 import LabelForm from '../Components/Forms/LabelForm'
 import LanguageForm from '../Components/Forms/LanguageForm'
 import LinkForm from '../Components/Forms/LinkForm'
@@ -24,6 +26,7 @@ import UfixitReviewOnly from '../Components/Forms/UfixitReviewOnly'
 export const formNames = {
   ALT_TEXT: 'alt_text',
   ANCHOR_TEXT: 'anchor_text',
+  ARIA_ATTRIBUTE: 'aria_attribute',
   ARIA_ROLE: 'aria_role',
   BLOCKQUOTE: 'blockquote',
   CONTRAST: 'contrast',
@@ -32,6 +35,7 @@ export const formNames = {
   HEADING_EMPTY: 'heading_empty',
   HEADING_STYLE: 'heading_style',
   INVALID_ATTRIBUTE: 'invalid_attribute',
+  KEYBOARD_TABBABLE: 'keyboard_tabbable',
   LABEL: 'label',
   LABEL_UNIQUE: 'label_unique',
   LANGUAGE: 'language',
@@ -58,6 +62,7 @@ export const disabilityTypes = {
 const formTypes = {
   [formNames.ALT_TEXT]: AltText,
   [formNames.ANCHOR_TEXT]: AnchorText,
+  [formNames.ARIA_ATTRIBUTE]: AriaAttributeForm,
   [formNames.ARIA_ROLE]: AriaRoleForm,
   [formNames.BLOCKQUOTE]: BlockquoteForm,
   [formNames.CONTRAST]: ContrastForm,
@@ -66,6 +71,7 @@ const formTypes = {
   [formNames.HEADING_EMPTY]: HeadingEmptyForm,
   [formNames.HEADING_STYLE]: HeadingStyleForm,
   [formNames.INVALID_ATTRIBUTE]: InvalidAttributeForm,
+  [formNames.KEYBOARD_TABBABLE]: KeyboardTabbableForm,
   [formNames.LABEL]: LabelForm,
   [formNames.LABEL_UNIQUE]: LabelForm,
   [formNames.LANGUAGE]: LanguageForm,
@@ -116,6 +122,12 @@ const rulesToFormNameMap = {
 
   a_text_purpose: formNames.ANCHOR_TEXT,
   area_alt_exists: formNames.ANCHOR_TEXT,
+  
+  // aria_attribute_allowed: formNames.ARIA_ATTRIBUTE,
+  // aria_attribute_conflict: formNames.ARIA_ATTRIBUTE,
+  // aria_attribute_exists: formNames.ARIA_ATTRIBUTE,
+  // aria_attribute_redundant: formNames.ARIA_ATTRIBUTE,
+  // aria_attribute_value_valid: formNames.ARIA_ATTRIBUTE,
 
   aria_role_valid: formNames.ARIA_ROLE,
   aria_role_allowed: formNames.ARIA_ROLE,
@@ -139,11 +151,14 @@ const rulesToFormNameMap = {
   text_block_heading: formNames.HEADING_STYLE,
 
   // dir_attribute_valid: formNames.INVALID_ATTRIBUTE,
-  // element_tabbable_role_valid: formNames.INVALID_ATTRIBUTE,
   // input_autocomplete_valid: formNames.INVALID_ATTRIBUTE,
   // input_haspopup_conflict: formNames.INVALID_ATTRIBUTE,
   // table_aria_descendants: formNames.INVALID_ATTRIBUTE,
   // table_scope_valid: formNames.INVALID_ATTRIBUTE,
+
+  // aria_activedescendant_tabindex_valid: formNames.KEYBOARD_TABBABLE,
+  // element_scrollable_tabbable: formNames.KEYBOARD_TABBABLE,
+  // element_tabbable_role_valid: formNames.KEYBOARD_TABBABLE,
 
   aria_accessiblename_exists: formNames.LABEL,
   aria_application_labelled: formNames.LABEL,
@@ -235,64 +250,39 @@ export function disabilitiesFromRule(ruleId) {
     let formName = rulesToFormNameMap[ruleId]
     switch (formName) {
       case formNames.ALT_TEXT:
-        disabilities = [disabilityTypes.VISUAL]
-        break
-      case formNames.ANCHOR_TEXT:
-        disabilities = [disabilityTypes.COGNITIVE, disabilityTypes.VISUAL]
-        break
+      case formNames.ARIA_ATTRIBUTE:
       case formNames.ARIA_ROLE:
-        disabilities = [disabilityTypes.COGNITIVE, disabilityTypes.VISUAL]
-        break
-      case formNames.BLOCKQUOTE:
-        disabilities = [disabilityTypes.COGNITIVE, disabilityTypes.VISUAL]
-        break
       case formNames.CONTRAST:
         disabilities = [disabilityTypes.VISUAL]
         break
+      case formNames.KEYBOARD_TABBABLE:
+        disabilities = [disabilityTypes.MOTOR, disabilityTypes.VISUAL]
+        break
+      case formNames.ANCHOR_TEXT:
+      case formNames.BLOCKQUOTE:
       case formNames.EMBEDDED_CONTENT_TITLE:
-        disabilities = [disabilityTypes.COGNITIVE, disabilityTypes.VISUAL]
-        break
       case formNames.EMPHASIS:
-        disabilities = [disabilityTypes.COGNITIVE, disabilityTypes.VISUAL]
-        break
       case formNames.HEADING_EMPTY:
-        disabilities = [disabilityTypes.COGNITIVE, disabilityTypes.VISUAL]
-        break
       case formNames.HEADING_STYLE:
-        disabilities = [disabilityTypes.COGNITIVE, disabilityTypes.VISUAL]
-        break
       case formNames.LABEL:
+      case formNames.LABEL_UNIQUE:
+      case formNames.LINK:
+      case formNames.LIST:
+      case formNames.QUOTE:
+      case formNames.SELECT_VALID_ID:
+      case formNames.TABLE_CAPTION:
+      case formNames.TABLE_HEADERS:
         disabilities = [disabilityTypes.COGNITIVE, disabilityTypes.VISUAL]
         break
-      case formNames.LABEL_UNIQUE:
-        disabilities = [disabilityTypes.COGNITIVE, disabilityTypes.VISUAL]
+      case formNames.INVALID_ATTRIBUTE:
+        disabilities = [disabilityTypes.COGNITIVE, disabilityTypes.MOTOR, disabilityTypes.VISUAL]
         break
       case formNames.LANGUAGE:
-        disabilities = [disabilityTypes.COGNITIVE, disabilityTypes.LANGUAGE, disabilityTypes.VISUAL]
-        break
-      case formNames.LINK:
-        disabilities = [disabilityTypes.COGNITIVE, disabilityTypes.VISUAL]
-        break
-      case formNames.LIST:
-        disabilities = [disabilityTypes.COGNITIVE, disabilityTypes.VISUAL]
-        break
-      case formNames.MEDIA_CAPTIONS:
-        disabilities = [disabilityTypes.COGNITIVE, disabilityTypes.HEARING, disabilityTypes.LANGUAGE]
-        break
-      case formNames.QUOTE:
-        disabilities = [disabilityTypes.COGNITIVE, disabilityTypes.VISUAL]
-        break
-      case formNames.SELECT_VALID_ID:
-        disabilities = [disabilityTypes.COGNITIVE, disabilityTypes.VISUAL]
-        break
       case formNames.SENSORY_MISUSE:
         disabilities = [disabilityTypes.COGNITIVE, disabilityTypes.LANGUAGE, disabilityTypes.VISUAL]
         break
-      case formNames.TABLE_CAPTION:
-        disabilities = [disabilityTypes.COGNITIVE, disabilityTypes.VISUAL]
-        break
-      case formNames.TABLE_HEADERS:
-        disabilities = [disabilityTypes.COGNITIVE, disabilityTypes.VISUAL]
+      case formNames.MEDIA_CAPTIONS:
+        disabilities = [disabilityTypes.COGNITIVE, disabilityTypes.HEARING, disabilityTypes.LANGUAGE]
         break
       default:
         disabilities = []
