@@ -68,7 +68,7 @@ class User implements UserInterface, JsonSerializable
      */
     private $lastLogin;
 
-    private $encodedKey = 'niLb/WbAODNi7E4ccHHa/pPU3Bd9h6z1NXmjA981D4o=';
+    private $encodedKey;
 
     /**
      * @ORM\OneToMany(targetEntity=Report::class, mappedBy="author")
@@ -79,6 +79,7 @@ class User implements UserInterface, JsonSerializable
     public function __construct()
     {
         $this->reports = new ArrayCollection();
+        $this->encodedKey = $_ENV["DATABASE_ENCODE_KEY"];
     }
 
     public function getId(): ?int

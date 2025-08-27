@@ -70,7 +70,7 @@ class Institution implements JsonSerializable
      */
     private $users;
 
-    private $encodedKey = 'niLb/WbAODNi7E4ccHHa/pPU3Bd9h6z1NXmjA981D4o=';
+    private $encodedKey;
 
     /**
      * @ORM\Column(type="string", nullable=true)
@@ -88,6 +88,7 @@ class Institution implements JsonSerializable
     {
         $this->courses = new ArrayCollection();
         $this->users = new ArrayCollection();
+        $this->encodedKey = $_ENV["DATABASE_ENCODE_KEY"];
     }
 
 
