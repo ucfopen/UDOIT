@@ -1,0 +1,116 @@
+/* In order to maximize code reuse, there are two classes that should be defined in whichever
+ * component uses this Combobox:
+ *   1. `combo-container` - This is the container for the combobox. Setting it to a certain width,
+ *      such as `max-width: 15.625em;`, will ensure the combobox does not exceed that width.
+ *      Other attributes, like `display: flex;` and `flex-direction: column;` can be used to align
+ *      the label with the rest of the combobox.
+ *   2. `combo-label` - This is the label for the combobox. It should be styled to match the design
+ *      of the parent component.
+ */
+
+/* .combo-container {
+  display: block;
+  max-width: 15.625em;
+  min-width: 11.25em;
+  position: relative;
+}
+
+.combo-label {
+  font-size: 0.9em;
+  font-weight: 500;
+  font-family: var(--heading-font-family);
+  text-transform: uppercase;
+} */
+
+.combo-container {
+  position: relative !important;
+}
+
+.combo-input {
+  background-color: var(--white);
+  font-size: .85em;
+  padding: .4em .15em .4em .5em;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  outline: none;
+  box-sizing: border-box;
+  cursor: pointer;
+
+  &:focus {
+    outline: 2px solid var(--focus-color);
+    outline-offset: 1px;
+  }
+
+  &[aria-expanded="true"] {
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+    border-bottom-color: var(--white);
+  }
+
+  &.disabled {
+    color: var(--gray);
+    background-color: transparent;
+    border-color: var(--gray-light);
+    cursor: not-allowed !important;
+    pointer-events: none;
+  }
+
+  .combo-input-text {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    flex-grow: 1;
+    flex-shrink: 1;
+  }
+
+  .combo-input-icon {
+    flex-shrink: 0;
+
+    svg {
+      transition: transform var(--transition-time) ease-in-out;
+    }
+  }
+}
+
+.combo-menu {
+  background-color: var(--white);
+  border: 1px solid var(--border-color);
+  border-radius: 0 0 8px 8px;
+  box-sizing: border-box;
+  display: none;
+  max-height: 300px;
+  overflow-y: scroll;
+  left: 0;
+  position: absolute;
+  top: 100%;
+  width: 100%;
+  z-index: 100;
+  cursor: pointer;
+
+  &.open {
+    display: block;
+  }
+}
+
+.combo-option {
+  padding: .3em .5em;
+  font-size: .85em;
+  box-sizing: border-box;
+  
+  &:hover {
+    background-color: var(--background-color);
+  }
+  
+  &.option-current {
+    outline: 2px solid var(--focus-color);
+    outline-offset: -2px;
+  }
+
+  &.option-selected {
+    font-weight: 700;
+  }
+
+  &:last-child {
+    border-radius: 0 0 7px 7px;
+  }
+}
