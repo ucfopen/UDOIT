@@ -60,7 +60,6 @@ class User implements UserInterface, JsonSerializable
     public function __construct()
     {
         $this->reports = new ArrayCollection();
-        $this->encodedKey = $_ENV["DATABASE_ENCODE_KEY"];
     }
 
     public function getId(): ?int
@@ -245,7 +244,7 @@ class User implements UserInterface, JsonSerializable
 
     private function encryptData($data): string
     {
-        $key   = base64_decode($this->encodedKey);
+        $key   = base64_decode($_ENV['DATABASE_ENCODE_KEY']);
         $nonce = random_bytes(SODIUM_CRYPTO_SECRETBOX_NONCEBYTES);
         $encrypted_data = sodium_crypto_secretbox($data, $nonce, $key);
 
@@ -254,7 +253,8 @@ class User implements UserInterface, JsonSerializable
 
     private function decryptData($encrypted): bool | string
     {
-        $key     = base64_decode($this->encodedKey);
+
+        $key = base64_decode($_ENV['DATABASE_ENCODE_KEY']);
         $decoded = base64_decode($encrypted);
         $nonce   = mb_substr($decoded, 0, SODIUM_CRYPTO_SECRETBOX_NONCEBYTES, '8bit');
         $encrypted_text = mb_substr($decoded, SODIUM_CRYPTO_SECRETBOX_NONCEBYTES, NULL, '8bit');
