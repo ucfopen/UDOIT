@@ -57,7 +57,7 @@ export default function AnchorText({
     
     if(elementTag === 'a') {
       if(deleteLink) {
-        element = Html.setInnerText(element, '')
+        element = null
       } else {
         element = Html.setInnerText(element, textInputValue)
       }
