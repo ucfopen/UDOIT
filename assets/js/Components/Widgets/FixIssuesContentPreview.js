@@ -8,6 +8,7 @@ import UpArrowIcon from '../Icons/UpArrowIcon'
 import DownArrowIcon from '../Icons/DownArrowIcon'
 import './FixIssuesContentPreview.css'
 import InfoIcon from '../Icons/InfoIcon'
+import { preconnect } from 'react-dom'
 
 export default function FixIssuesContentPreview({
   t,
@@ -174,6 +175,12 @@ export default function FixIssuesContentPreview({
     }
 
     return doc
+  }
+
+  const processContentClick = (e) => {
+    e.preventDefault()
+    console.log('Tag: ', e.target.tagName, ' Class: ', e.target.className, ' ID: ', e.target.id)
+    console.log(e.target)
   }
 
   const getTaggedContent = (activeIssue, activeContentItem) => {
@@ -411,6 +418,9 @@ export default function FixIssuesContentPreview({
                           className="ufixit-content-preview-main"
                           onScroll={() => {
                             checkScrollButton()
+                          }}
+                          onClick={(e) => {
+                            processContentClick(e)
                           }}
                           dangerouslySetInnerHTML={{__html: taggedContent}} />
                         {!isIssueElementVisible && !isInitialLoad && debouncedDirection && (

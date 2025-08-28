@@ -290,6 +290,14 @@ export function disabilitiesFromRule(ruleId) {
     }
     return disabilities
   } else {
-    return []
+    switch (ruleId) {
+      case 'aria_descendant_valid':
+        disabilities = [disabilityTypes.COGNITIVE, disabilityTypes.MOTOR, disabilityTypes.VISUAL]
+        break
+      default:
+        disabilities = []
+        break
+    }
+    return disabilities
   }
 }
