@@ -13,13 +13,13 @@ jobs:
         node-version: [16.19.0]
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
       - name: Check PHP syntax errors
         uses: overtrue/phplint@3.0.3
 
       - name: Use Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v2
+        uses: actions/checkout@v4
         with:
           node-version: ${{ matrix.node-version }}
 
@@ -35,7 +35,7 @@ jobs:
         run: echo "::set-output name=dir::$(composer config cache-files-dir)"
 
       - name: Cache composer dependencies
-        uses: actions/cache@v2
+        uses: actions/checkout@v4
         with:
           path: ${{ steps.composer-cache.outputs.dir }}
           key: php-${{ matrix.php-versions }}-composer-${{ hashFiles('**/composer.lock') }}
@@ -54,7 +54,7 @@ jobs:
         id: yarn-cache-dir-path
         run: echo "::set-output name=dir::$(yarn config get cacheFolder)"
 
-      - uses: actions/cache@v2
+      - uses: actions/checkout@v4
         id: yarn-cache # use this to check for `cache-hit` (`steps.yarn-cache.outputs.cache-hit != 'true'`)
         with:
           path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
@@ -76,10 +76,10 @@ jobs:
           DATABASE_URL: postgresql://udoit:udoit@127.0.0.1:5432/udoit?serverVersion=11&charset=utf8
         run: |
           sudo systemctl start postgresql.service
-          sudo -u postgres psql -c "CREATE DATABASE udoit;" 
-          sudo -u postgres psql -c "CREATE USER udoit WITH PASSWORD 'udoit';" 
-          sudo -u postgres psql -c "ALTER USER udoit WITH SUPERUSER;" 
-          sudo -u postgres psql -c "GRANT ALL PRIVILEGES ON DATABASE "udoit" TO udoit;" 
+          sudo -u postgres psql -c "CREATE DATABASE udoit;"
+          sudo -u postgres psql -c "CREATE USER udoit WITH PASSWORD 'udoit';"
+          sudo -u postgres psql -c "ALTER USER udoit WITH SUPERUSER;"
+          sudo -u postgres psql -c "GRANT ALL PRIVILEGES ON DATABASE "udoit" TO udoit;"
           php bin/console doctrine:migrations:migrate
 
       - name: Create and populate MySQL database
