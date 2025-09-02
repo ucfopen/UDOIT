@@ -23,19 +23,26 @@ function updateEnvFile($envFile, $newKey) {
     
     file_put_contents($envFile, $envContent);
 
-    print("Updated $envFile with new key.\n");
+    print("Updated $envFile with new key. Verify DATABASE_ENCODE_KEY is set correctly.\n");
 }
 
 // first argument should be the env file we want to modify
-
 if (!empty($argv[1])) {
     $envFile = $argv[1];
-    if (strtolower(readline("Create new key? (Y/n): ")) == 'y') {
-        $newKey = createKey();
 
-        print("Created new key: $newKey\n");
+    // if envFile doesn't exist, dont try to create a new file and instead exit
+    if (!file_exists($envFile)) {
+        print("Environment file $envFile does not exist!\n");
+        // exit(1);
+    }
+    else {
+        if (strtolower(readline("Create new key? (Y/n): ")) == 'y') {
+            $newKey = createKey();
 
-        updateEnvFile($envFile, $newKey);
+            print("\nCreated new key: $newKey\n\n");
+
+            updateEnvFile($envFile, $newKey);
+        }
     }
 }
 else {
