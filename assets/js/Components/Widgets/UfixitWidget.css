@@ -2,6 +2,19 @@
   height: 50%;
   padding: .5rem 1rem .5rem .5rem;;
   overflow-y: auto;
+
+  .combo-container {
+
+    .combo-label {
+      font-weight: 600;
+      color: var(--text-color);
+    }
+
+    .combo-interactive-container {
+      margin-top: calc(0.25 * var(--spacer)) !important;
+      width: 100%;
+    }
+  }
 }
 
 /* .ufixit-widget-header {

@@ -11,7 +11,7 @@ export default function SeverityIcon(props) {
     return null
   }
 
-  let filled = props?.filled || false
+  let filled = props?.filled === "true" || false
 
   // There may or may not already be a className prop, and we want to append, not overwrite it.
   let newProps = {...props}
