@@ -4,6 +4,12 @@ ifneq (,$(wildcard ./.ins.env))
     export
 endif
 
+# environment variable location, default to .env
+ENV_FILE ?= .env
+
+# ip address of database container
+DB_IP ?= $(shell docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' udoit3-db)
+
 # spin up the containers
 start:
 	docker compose -f docker-compose.nginx.yml up
@@ -30,4 +36,10 @@ ins-psql:
 
 # run rotate keys
 rotate-keys:
-	docker exec -it udoit3-php php scripts/rotate-keys.php $$(docker inspect -f '{{range.NetworkSettings.Networks}}{{.IPAddress}}{{end}}' udoit3-db)
+	@echo ENV_FILE: $(ENV_FILE)
+	@echo DB_IP: $(DB_IP)
+	docker exec -it udoit3-php php scripts/rotate-keys.php $(DB_IP) $(ENV_FILE)
+
+# run create key
+create-key:
+	docker exec -it udoit3-php php scripts/create-key.php $(ENV_FILE)
