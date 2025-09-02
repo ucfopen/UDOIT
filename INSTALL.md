@@ -38,14 +38,14 @@ cp .env.example .env
 This command copies the `.env.example` into `.env`, creating the `.env` file in the process if it does not exist.
 
 2. Open `.env` with a text editor (i.e. Notepad, VS Code, etc.) and make the necessary changes to the following variables:
-    - `APP_ENV`: If you are setting up a development environment, change this to `dev` and follow the steps in [Installing Composer Dependencies](#installing-composer-dependencies) without the `--no-dev` flag to obtain all of the development packages. Otherwise, leave it as `prod`.
-    - `DATABASE_URL`: If you are hosting UDOIT on Docker or your local machine, leave it as it is. Otherwise, change it to your database URL.
-    - `BASE_URL`: If you are hosting UDOIT on Docker or your local machine, leave it as it is. Otherwise, change it to the URL of your instance of UDOIT.
-    - `WEBPACK_PUBLIC_PATH`: Uf you are hosting UDOIT on Docker or your local machine, leave it as it is. Otherwise, change it to match the `BASE_URL`in such a way that `/build` is located at the root of the `BASE_URL` (Example:  If your `BASE_URL` is set to `http://127.0.0.1:8000`, your `WEBPACK_PUBLIC_PATH` should be `/build`).
-    - `APP_LMS`: `canvas` for Canvas LMS. `d2l` for D2l Brightspace LMS.
-    - `JWK_BASE_URL`: If you are self-hosting Canvas, you may set it to the URL of your instance of Canvas. (Example: `JWK_BASE_URL="https://canvas.dev.myschool.edu"`)
-   	- `DEFAULT_LANG`: (optional)  `en` for English. `es` for Spanish. This is English by default.
-    - `DATABASE_ENCODE_KEY`: UDOIT encrypts your API keys within the database using this key. You will need to generate a key that will be used for encryption using the `create-key` script, explained further below.
+- `APP_ENV`: If you are setting up a development environment, change this to `dev` and follow the steps in [Installing Composer Dependencies](#installing-composer-dependencies) without the `--no-dev` flag to obtain all of the development packages. Otherwise, leave it as `prod`.
+- `DATABASE_URL`: If you are hosting UDOIT on Docker or your local machine, leave it as it is. Otherwise, change it to your database URL.
+- `BASE_URL`: If you are hosting UDOIT on Docker or your local machine, leave it as it is. Otherwise, change it to the URL of your instance of UDOIT.
+- `WEBPACK_PUBLIC_PATH`: Uf you are hosting UDOIT on Docker or your local machine, leave it as it is. Otherwise, change it to match the `BASE_URL`in such a way that `/build` is located at the root of the `BASE_URL` (Example:  If your `BASE_URL` is set to `http://127.0.0.1:8000`, your `WEBPACK_PUBLIC_PATH` should be `/build`).
+- `APP_LMS`: `canvas` for Canvas LMS. `d2l` for D2l Brightspace LMS.
+- `JWK_BASE_URL`: If you are self-hosting Canvas, you may set it to the URL of your instance of Canvas. (Example: `JWK_BASE_URL="https://canvas.dev.myschool.edu"`)
+- `DEFAULT_LANG`: (optional)  `en` for English. `es` for Spanish. This is English by default.
+- `DATABASE_ENCODE_KEY`: UDOIT encrypts your API keys within the database using this key. You will need to generate a key that will be used for encryption using the `create-key` script, explained further below.
 
 ## Installation
 
