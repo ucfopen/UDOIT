@@ -74,6 +74,11 @@ export default function TableHeadersForm({
   }
 
   const removeHeaders = (table) => {
+
+    // TODO: The table_structure_misuse rule means that when a table is marked as decorative,
+    // it should not contain any data-related elements, like <th> or <caption>. All 'summary',
+    // 'scope', and 'headers' attributes should also be removed.
+
     for (let row of table.rows) {
       for (let cell of row.cells) {
         if (cell.tagName === 'TH') {

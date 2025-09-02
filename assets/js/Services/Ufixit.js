@@ -15,6 +15,7 @@ import LanguageForm from '../Components/Forms/LanguageForm'
 import LinkForm from '../Components/Forms/LinkForm'
 import ListForm from '../Components/Forms/ListForm'
 import MediaCaptionsForm from '../Components/Forms/MediaCaptionsForm'
+import MultiPartForm from '../Components/Forms/MultiPartForm'
 import QuoteForm from '../Components/Forms/QuoteForm'
 import SelectValidIdForm from '../Components/Forms/SelectValidIdForm'
 import SensoryMisuseForm from '../Components/Forms/SensoryMisuseForm'
@@ -42,6 +43,7 @@ export const formNames = {
   LINK: 'link',
   LIST: 'list',
   MEDIA_CAPTIONS: 'media_captions',
+  MULTI_PART: 'multi_part',
   QUOTE: 'quote',
   SELECT_VALID_ID: 'select_valid_id',
   SENSORY_MISUSE: 'sensory_misuse',
@@ -78,6 +80,7 @@ const formTypes = {
   [formNames.LINK]: LinkForm,
   [formNames.LIST]: ListForm,
   [formNames.MEDIA_CAPTIONS]: MediaCaptionsForm,
+  [formNames.MULTI_PART]: MultiPartForm,
   [formNames.QUOTE]: QuoteForm,
   [formNames.SELECT_VALID_ID]: SelectValidIdForm,
   [formNames.SENSORY_MISUSE]: SensoryMisuseForm,
@@ -189,6 +192,11 @@ const rulesToFormNameMap = {
 
   caption_track_exists: formNames.MEDIA_CAPTIONS,
   media_audio_transcribed: formNames.MEDIA_CAPTIONS,
+
+  // aria_child_valid: formNames.MULTI_PART,
+  // aria_parent_required: formNames.MULTI_PART,
+  // figure_label_exists: formNames.MULTI_PART,
+  // table_caption_nested: formNames.MULTI_PART,
   
   text_quoted_correctly: formNames.QUOTE,
 
@@ -217,6 +225,7 @@ export const sharedRuleSummaries = {
 export const sharedRuleDescriptions = {
   aria_banner_single: 'form.label.learn_more',
   aria_contentinfo_single: 'form.label.learn_more',
+  page_title_valid: 'rule.desc.page_title_exists'
 }
 
 export function formFromIssue(activeIssue) {

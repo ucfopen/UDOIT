@@ -20,18 +20,27 @@ export default function FormClarification({
     let messageArgs = {}
     if(activeIssue?.issueData?.metadata) {
       let metadata = JSON.parse(activeIssue.issueData.metadata)
-      if(activeIssue.scanRuleId === 'text_quoted_correctly') {
-        let quoteList = metadata.messageArgs.join(', ')
-        messageArgs = { 'potentialQuotes': quoteList }
-      }
-      if(activeIssue.scanRuleId === 'aria_role_valid') {
-        messageArgs = { 'tagName': metadata.messageArgs[1], 'ariaRole': metadata.messageArgs[0] }
-      }
-      if(activeIssue.scanRuleId === 'aria_attribute_redundant') {
-        messageArgs = { 'htmlAttribute': metadata.messageArgs[1], 'ariaAttribute': metadata.messageArgs[0] }
-      }
-      if(activeIssue.scanRuleId === 'rule.info.aria_attribute_conflict') {
-        messageArgs = { 'tagName': metadata.messageArgs[1], 'ariaAttribute': metadata.messageArgs[0] }
+      switch(activeIssue.scanRuleId) {
+        case 'aria_child_valid':
+          messageArgs = { 'parentRole': metadata.messageArgs[0], 'childRole': metadata.messageArgs[1] }
+          break
+        case 'aria_parent_required':
+          messageArgs = { 'childRole': metadata.messageArgs[0], 'parentRole': metadata.messageArgs[1] }
+          break
+        case 'aria_role_valid':
+          messageArgs = { 'ariaRole': metadata.messageArgs[0], 'tagName': metadata.messageArgs[1] }
+          break
+        case 'aria_attribute_redundant':
+          messageArgs = { 'ariaAttribute': metadata.messageArgs[0], 'htmlAttribute': metadata.messageArgs[1] }
+          break
+        case 'rule.info.aria_attribute_conflict':
+          messageArgs = { 'ariaAttribute': metadata.messageArgs[0], 'tagName': metadata.messageArgs[1] }
+          break
+        case 'text_quoted_correctly':
+          messageArgs = { 'potentialQuotes': metadata.messageArgs.join(', ') }
+          break
+        default:
+          messageArgs = {}
       }
     }
 
