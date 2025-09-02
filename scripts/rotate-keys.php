@@ -31,6 +31,24 @@ function createKey() {
     return $final;
 }
 
+// modify an env file to include the new key
+function updateEnvFile($envFile, $newKey) {
+    $envContent = file_get_contents($envFile);
+
+    // if DATABASE_ENCODE_KEY doesn't exist, then create the line and set it to the new key
+    if (!preg_match('/^DATABASE_ENCODE_KEY=".*"$/m', $envContent)) {
+        $envContent .= 'DATABASE_ENCODE_KEY="' . $newKey . '"' . PHP_EOL;
+    }
+    // otherwise, just replace DATABASE_ENCODE_KEY
+    else {
+        $envContent = preg_replace('/^DATABASE_ENCODE_KEY=".*"$/m', 'DATABASE_ENCODE_KEY="' . $newKey . '"', $envContent);
+    }
+
+    file_put_contents($envFile, $envContent);
+
+    print("Updated $envFile with new key.\n");
+}
+
 function replaceKey($oldEncodedKey, $newEncodedKey, $table, $host, $username, $password, $database, $port) {
     // for the table "users", the column we want to change is called "api_key",
     // while in "institution" its called "api_client_secret"
@@ -86,7 +104,7 @@ function replaceKey($oldEncodedKey, $newEncodedKey, $table, $host, $username, $p
                         ':id' => $row['id'],
                     ]);
                 } else {
-                    print_r("No key found! Skipping...");
+                    print("\nNo key found! Skipping...\n");
                 }
             }
         }
@@ -220,9 +238,31 @@ echo "\n****************\n\n";
 // fwrite($keyFile, $newEncodeKey);
 // fclose($keyFile);
 
-echo "Please save this key into your .env file now!\n";
-echo "If not, UDOIT will not be able to properly decode your keys when you run this script.\n";
-readline("Press enter to continue. ");
+// ask if we should automatically update the .env file
+$updateEnv = readline("Would you like to automatically update the .env file? (Y/n): ");
+if (strtolower($updateEnv) === 'y') {
+    $envFile = $argv[2];
+    updateEnvFile($envFile, $newEncodeKey);
+}
+else {
+    echo "Please save this key into your .env file now!\n";
+    echo "If not, UDOIT will not be able to properly decode your keys when you run this script.\n";
+
+    echo "You can copy and paste the following 3 lines into your .env file if you do not have a DATABASE_ENCODE_KEY field,\n";
+    echo "or alternatively, update DATABASE_ENCODE_KEY to use the new encode key:\n\n";
+    echo "###> database encode key ###\nDATABASE_ENCODE_KEY=\"" . $newEncodeKey . "\"\n###> database encode key ###\n\n\n";
+}
+
+$valid = false;
+while ($valid == false) {
+    $in = readline("Please paste the new key to verify: ");
+    if ($in === $newEncodeKey) {
+        $valid = true;
+    }
+    else {
+        echo "\nThe keys do not match. Please try again.\n";
+    }
+}
 
 if (!empty($oldEncodeKey) && !empty($newEncodeKey)) {
     echo "\n****************\n";
