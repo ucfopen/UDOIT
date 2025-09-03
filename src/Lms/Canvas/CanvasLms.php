@@ -179,11 +179,16 @@ class CanvasLms implements LmsInterface {
         $apiDomain = $this->getApiDomain($user);
         $apiToken = $this->getApiToken($user);
 
+
         $canvasApi = new CanvasApi($apiDomain, $apiToken);
-        $contentFileIDs = [];
+        $contentFileIDs = []; // Array containg all fileIDs found in canvas course content
+        $contentFileRef = []; // Array containing all the reference to all files in content item EXCLUDING MODULES!
 
         foreach ($urls as $contentType => $url) {
+            $startTime = microtime(true);
             $response = $canvasApi->apiGet($url);
+            $output->writeln("Scanning: ");
+            $output->writeln($url);
 
             if ($response->getErrors()) {
                 $this->util->createMessage('Error retrieving content. Failed API Call: ' . $url, 'error', $course, $user);
@@ -214,6 +219,7 @@ class CanvasLms implements LmsInterface {
                     }
 
                     $lmsContent = $this->normalizeLmsContent($course, $contentType, $content);
+                    
                     if (!$lmsContent) {
                         continue;
                     }
@@ -232,6 +238,7 @@ class CanvasLms implements LmsInterface {
                         $lmsUpdated = new \DateTime($lmsContent['updated'], UtilityService::$timezone);
                         if ($contentItemUpdated == $lmsUpdated) {
                             $contentItem->setActive(true);
+                            $this->getFileIDFromExistingContent($contentItem, $contentFileRef); // We want to check existing content items for files and add to our array of references
                             continue;
                         }
                         $output->writeln('Content item already exists but is out of date. Updating ' . $contentType . ': ' . $lmsContent['title']);
@@ -239,6 +246,7 @@ class CanvasLms implements LmsInterface {
                     else {
                         $output->writeln('New content item - ' . $contentType . ': ' . $lmsContent['title']);
                     }
+
 
                     /* get page content */
                     if ('page' === $contentType) {
@@ -255,6 +263,11 @@ class CanvasLms implements LmsInterface {
                     if (('file' === $contentType) && ('html' === $content['mime_class'])) {
                         $lmsContent['body'] = file_get_contents($content['url']);
                     }
+          
+                    // File References in new items 
+                    if($lmsContent){
+                        $this->getFileIdFromContent($lmsContent, $contentFileRef); // We want to check 
+                    }      
 
                     if (!$contentItem) {
                         $contentItem = new ContentItem();
@@ -269,7 +282,7 @@ class CanvasLms implements LmsInterface {
                     // to find out if content has changed.
                     if (in_array($contentType, ['syllabus', 'discussion_topic', 'announcement', 'quiz'])) {
                         if ($contentItem->getBody() === $lmsContent['body']) {
-                            if ($contentItem->getUpdated()) {
+                            if($contentItem->getUpdated()) {
                                 $lmsContent['updated'] = $contentItem->getUpdated()->format('c');
                             }
                         }
@@ -284,17 +297,40 @@ class CanvasLms implements LmsInterface {
         }
 
 
+        // Deleting unsued files from data base
         $DBfiles = $course->getFileItems(false);
         $dbFileIds = [];
         foreach($DBfiles as $dbFile){
             $dbFileIds[] = $dbFile->getLmsFileId();
         }
-        
-        $fileIDsNotInCourse = array_diff($dbFileIds, $contentFileIDs);
 
+        $fileIDsNotInCourse = array_diff($dbFileIds, $contentFileIDs);
         foreach($fileIDsNotInCourse as $uniqueFileID){
             $this->fileItemRepo->deleteCourseFile($course, $uniqueFileID);
         }
+
+
+        foreach($contentFileRef as $fileRef){
+            // Go through each file ID and if it exists set a reference metadata
+            foreach($fileRef['fileIds'] as $file_id){
+                // Find the file if it exists
+                $file_item = $this->fileItemRepo->findOneBy([
+                    'lmsFileId' => $file_id,
+                    'course' => $course
+                ]);
+
+                if($file_item){
+                    $file_metadata_json = $file_item->getMetadata();
+                    $file_metadata = json_decode($file_metadata_json);
+                    $file_metadata->reference[] = $fileRef; // Add new ref
+                    $file_item->setMetadata(json_encode($file_metadata));
+                }
+            }
+        }
+
+
+        $output->writeln("Reference of files: ");
+        $output->writeln(json_encode($contentFileRef, JSON_PRETTY_PRINT));
 
         // push any updates made to content items to DB
         $this->entityManager->flush();
@@ -303,6 +339,7 @@ class CanvasLms implements LmsInterface {
 
     public function getCourseSections(Course $course, User $user)
     {
+        $output = new ConsoleOutput();
         $sections = [];
         $lmsCourseId = $course->getLmsCourseId();
         $apiDomain = $this->getApiDomain($user);
@@ -313,6 +350,8 @@ class CanvasLms implements LmsInterface {
 
         $sectionUrl = $urls['module'];
         $response = $canvasApi->apiGet($sectionUrl);
+        $contentFileSection = []; // Array to save all references to files found in modules
+
 
         if ($response->getErrors()) {
             $this->util->createMessage('Error retrieving content. Failed API Call: ' . $url, 'error', $course, $user);
@@ -352,15 +391,34 @@ class CanvasLms implements LmsInterface {
                     }
                   }
               }
+              $this->getFileRefFromModule($formattedSection, $contentFileSection); // Save file references in modules in the array
               $sections[] = $formattedSection;
             }
         }
+
+        // Go through each possible reference and update in database
+        foreach($contentFileSection as $moduleFiles){
+            $file_item = $this->fileItemRepo->findOneBy([
+                    'lmsFileId' => $moduleFiles['file_id'],
+                    'course' => $course
+            ]);
+
+            if($file_item){
+                    $file_metadata_json = $file_item->getMetadata();
+                    $file_metadata = json_decode($file_metadata_json);
+                    $file_metadata->reference[] = $moduleFiles; // Add new ref
+                    $file_item->setMetadata(json_encode($file_metadata));
+            }
+        }
+     
+
         return $sections;
     }
 
     public function updateFileItem(Course $course, $file)
     {
         $output = new ConsoleOutput();
+        $file['reference'] = [];
 
         $fileItem = $this->fileItemRepo->findOneBy([
             'lmsFileId' => $file['id'],
@@ -549,7 +607,6 @@ class CanvasLms implements LmsInterface {
             'postUrl' => "courses/{$file->getCourse()->getLmsCourseId()}/files"
         ];
 
-
         $fileResponse = $canvasApi->apiFilePost($url, $options, $filepath, $newFileName, $changeReferences, $refIndication);
 
         return $fileResponse;
@@ -670,13 +727,99 @@ class CanvasLms implements LmsInterface {
      * PROTECTED FUNCTIONS
      **********************/
 
+     // File IDs from new content
+     protected function getFileIdFromContent($lmsContent, &$arr){
+
+        $html = $lmsContent['body']; // Get the body from the lmsContent
+        if($html){
+            // Object with all info about the lmsContent
+            $obj = 
+            [
+                'title' => $lmsContent['title'],
+                'contentId' => $lmsContent['id'],
+                'url' => $lmsContent['url'],
+                'fileIds' => []
+            ];
+
+            // Go through HTML of the page and find all anchor tags
+            $dom = new \DOMDocument();
+            $dom->loadHTML($html);
+            $anchors = $dom->getElementsByTagName('a');
+
+
+            // Find all fileIDs in the cocntent item
+            foreach ($anchors as $anchor) {
+                preg_match('/files\/(\d+)/', $anchor->getAttribute('href'), $matches);
+                if(isset($matches[1])){
+                    $obj['fileIds'][] = $matches[1];
+                }
+            }
+
+            if($obj['fileIds']){
+                $arr[] = $obj;
+            }
+
+        }
+
+     }
+
+
+     // File IDs from existing content (only exists because PHP isn't the brightest)
+     protected function getFileIDFromExistingContent($contentItem, &$arr){
+        $html = $contentItem->getBody();
+        if($html){
+                $obj = 
+                [
+                'title' => $contentItem->getTitle(),
+                'contentId' => $contentItem->getId(),
+                'url' => $contentItem->getUrl(),
+                'fileIds' => []
+                ];
+
+
+            $dom = new \DOMDocument();
+            $dom->loadHTML($html);
+            $anchors = $dom->getElementsByTagName('a');
+
+
+
+            foreach ($anchors as $anchor) {
+                preg_match('/files\/(\d+)/', $anchor->getAttribute('href'), $matches);
+                if(isset($matches[1])){
+                    $obj['fileIds'][] = $matches[1];
+                }
+            }
+
+            if($obj['fileIds']){
+                $arr[] = $obj;
+            }
+        }
+        
+     }
+
+    protected function getFileRefFromModule($formattedSection, &$contentFileSection){
+
+        // Go through each module item and if they are a file add onto the reference object
+        foreach($formattedSection['items'] as $module_item){
+            if($module_item['type'] == 'File'){
+                $obj = 
+                [
+                    "title" => $module_item['title'],
+                    "content_module_id" => $module_item['module_id'],
+                    "content_id" => $module_item['id'],
+                    "file_id" => $module_item['content_id'],
+                    "url" => $module_item['url']
+                ];
+                $contentFileSection[] = $obj;
+            }
+        }
+    }
+
     protected function fileIsInLink($fileId, $html)
     {
         $dom = new \DOMDocument();
         $dom->loadHTML($html);
         $anchors = $dom->getElementsByTagName('a');
-
-
 
         foreach ($anchors as $anchor) {
             preg_match('/files\/(\d+)/', $anchor->getAttribute('href'), $matches);
