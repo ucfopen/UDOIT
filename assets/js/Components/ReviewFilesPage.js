@@ -48,47 +48,28 @@ export default function ReviewFilesPage({
   // Define the kinds of filters that will be available to the user
   const FILTER = {
     TYPE: {
-      SEVERITY: 'SEVERITY',
-      CONTENT_TYPE: 'CONTENT_TYPE',
+      FILE_TYPE: 'FILE_TYPE',
       RESOLUTION: 'RESOLUTION',
       MODULE: 'MODULE',
       PUBLISHED: 'PUBLISHED',
+      UTILIZATION: 'UTILIZATION',
     },
     ALL: 'ALL',
-    ISSUE: 'ISSUE',
-    POTENTIAL: 'POTENTIAL',
-    SUGGESTION: 'SUGGESTION',
-    PAGE: 'PAGE',
-    ASSIGNMENT: 'ASSIGNMENT',
-    ANNOUNCEMENT: 'ANNOUNCEMENT',
-    DISCUSSION_TOPIC: 'DISCUSSION_TOPIC',
-    DISCUSSION_FORUM: 'DISCUSSION_FORUM',
-    FILE: 'FILE',
-    QUIZ: 'QUIZ',
-    SYLLABUS: 'SYLLABUS',
-    MODULE: 'MODULE',
-    FILE_OBJECT: 'FILE_OBJECT',
     ACTIVE: 'ACTIVE',
     FIXED: 'FIXED',
     RESOLVED: 'RESOLVED',
     FIXEDANDRESOLVED: 'FIXEDANDRESOLVED', // Doesn't appear in any dropdowns, but is used in the code
     PUBLISHED: 'PUBLISHED',
     UNPUBLISHED: 'UNPUBLISHED',
+    USED: 'USED',
+    UNUSED: 'UNUSED',
   }
 
   const defaultFilters = {
-    [FILTER.TYPE.SEVERITY]: FILTER.ALL,
+    [FILTER.TYPE.UTILIZATION]: FILTER.ALL,
     [FILTER.TYPE.PUBLISHED]: FILTER.PUBLISHED,
-    [FILTER.TYPE.CONTENT_TYPE]: FILTER.ALL,
+    [FILTER.TYPE.FILE_TYPE]: FILTER.ALL,
     [FILTER.TYPE.RESOLUTION]: FILTER.ACTIVE,
-    [FILTER.TYPE.MODULE]: FILTER.ALL,
-  }
-
-  const defaultNoFilters = {
-    [FILTER.TYPE.SEVERITY]: FILTER.ALL,
-    [FILTER.TYPE.PUBLISHED]: FILTER.ALL,
-    [FILTER.TYPE.CONTENT_TYPE]: FILTER.ALL,
-    [FILTER.TYPE.RESOLUTION]: FILTER.ALL,
     [FILTER.TYPE.MODULE]: FILTER.ALL,
   }
 
@@ -132,7 +113,7 @@ export default function ReviewFilesPage({
   const [contentItemsBeingScanned, setContentItemsBeingScanned] = useState([])
   const [isErrorFoundInContent, setIsErrorFoundInContent] = useState(false)
   const [searchTerm, setSearchTerm] = useState('')
-  const [activeFilters, setActiveFilters] = useState(defaultNoFilters)
+  const [activeFilters, setActiveFilters] = useState(defaultFilters)
   const [unfilteredIssues, setUnfilteredIssues] = useState([])
   const [filteredIssues, setFilteredIssues] = useState([])
   const [widgetState, setWidgetState] = useState(WIDGET_STATE.LOADING)
