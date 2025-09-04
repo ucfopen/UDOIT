@@ -197,9 +197,12 @@ class CanvasLms implements LmsInterface {
                 }
 
                 foreach ($contentList as $content) {
-                    if (('file' === $contentType) && (in_array($content['mime_class'], $this->util->getUnscannableFileMimeClasses()))) {
+                    if ('file' === $contentType) {
+                      $output->writeln('Found file: ' . $content['display_name'] . ' Type: ' . $content['mime_class']);
+                      if (in_array($content['mime_class'], $this->util->getUnscannableFileMimeClasses())) {
                         $this->updateFileItem($course, $content);
                         continue;
+                      }
                     }
 
                     /* Quizzes should not be counted as assignments */
@@ -346,12 +349,14 @@ class CanvasLms implements LmsInterface {
 
     public function updateFileItem(Course $course, $file)
     {
+        $output = new ConsoleOutput();
         $fileItem = $this->fileItemRepo->findOneBy([
             'lmsFileId' => $file['id'],
             'course' => $course,
         ]);
 
         if (!$fileItem) {
+            $output->writeln('New file item: ' . $file['display_name'] . ' Type: ' . $file['mime_class']);
             $fileItem = new FileItem();
             $fileItem->setCourse($course)
                 ->setFileName($file['display_name'])
@@ -367,7 +372,7 @@ class CanvasLms implements LmsInterface {
         $fileItem->setLmsUrl($lmsUrl);
 
         // normalize file keys
-        $file['fileName'] = $file['filename'];
+        $file['fileName'] = $file['display_name'];
         $file['fileType'] = $file['mime_class'];
         $file['status'] = !$file['locked'];
         $file['fileSize'] = $file['size'];
