@@ -354,7 +354,7 @@ class CanvasLms implements LmsInterface {
         if (!$fileItem) {
             $fileItem = new FileItem();
             $fileItem->setCourse($course)
-                ->setFileName($file['filename'])
+                ->setFileName($file['display_name'])
                 ->setFileType($file['mime_class'])
                 ->setLmsFileId($file['id'])
                 ->setDownloadUrl($file['url'])
