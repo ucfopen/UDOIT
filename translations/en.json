@@ -8,6 +8,7 @@
   "menu.summary": "Summary",
   "menu.fix_issues": "Fix Issues",
   "menu.all_barriers": "All Barriers",
+  "menu.review_files": "Review Files",
   "menu.reports": "Reports",
   "menu.settings": "Settings",
   "menu.admin.courses": "Courses",
@@ -226,6 +227,9 @@
   "fix.msg.select_issue": "Select an issue from the list to view its details and either fix it or mark it as reviewed.",
   "fix.msg.resolved": "If you have reviewed this issue and determined that it is not an accessibility barrier, you can mark it as reviewed.",
   "fix.msg.unresolved": "This issue has been marked as reviewed. If additional changes need to be made, you can mark it as unreviewed.",
+
+  "label.yes": "Yes",
+  "label.no": "No",
 
   "label.mime.unknown": "File",
   "label.mime.pdf": "PDF",

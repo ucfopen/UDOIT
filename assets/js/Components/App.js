@@ -3,6 +3,7 @@ import Header from './Header'
 import WelcomePage from './WelcomePage'
 import HomePage from './HomePage'
 import FixIssuesPage from './FixIssuesPage'
+import ReviewFilesPage from './ReviewFilesPage'
 import ReportsPage from './ReportsPage'
 import SettingsPage from './SettingsPage'
 import Api from '../Services/Api'
@@ -133,6 +134,7 @@ export default function App(initialData) {
   const processNewReport = (rawReport) => {
     const tempReport = analyzeReport(rawReport, ISSUE_STATE)
     setReport(tempReport)
+    console.log(tempReport)
 
     let api = new Api(settings)
     api.setReportData(tempReport.id, {'scanCounts': tempReport.scanCounts})
@@ -374,6 +376,22 @@ export default function App(initialData) {
                   settings={settings.ISSUE_STATE ? settings : Object.assign({}, settings, { ISSUE_STATE })}
                   initialSeverity={initialSeverity}
                   initialSearchTerm={initialSearchTerm}
+                  contentItemCache={contentItemCache}
+                  addContentItemToCache={addContentItemToCache}
+                  report={report}
+                  sections={sections}
+                  processNewReport={processNewReport}
+                  addMessage={addMessage}
+                  handleNavigation={handleNavigation}
+                  sessionIssues={sessionIssues}
+                  updateSessionIssue={updateSessionIssue}
+                  processServerError={processServerError}
+                />
+              }
+              {('reviewFiles' === navigation) &&
+                <ReviewFilesPage
+                  t={t}
+                  settings={settings.ISSUE_STATE ? settings : Object.assign({}, settings, { ISSUE_STATE })}
                   contentItemCache={contentItemCache}
                   addContentItemToCache={addContentItemToCache}
                   report={report}

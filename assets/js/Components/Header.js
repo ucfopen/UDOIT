@@ -1,6 +1,7 @@
 import React from 'react'
 import UDOITLogo from '../../mediaAssets/udoit-logo.svg'
 import UDOITLogoDark from '../../mediaAssets/udoit-logo-inverse.svg'
+import ContentFileIcon from './Icons/ContentFileIcon'
 import HomeIcon from './Icons/HomeIcon'
 import BarriersIcon from './Icons/BarriersIcon'
 import ReportIcon from './Icons/ReportIcon'
@@ -32,7 +33,7 @@ export default function Header({
                 }
               }}
               tabIndex='0'>
-              <div className='flex-column justify-content-center'>
+              <div className='flex-column justify-content-center icon-container'>
                 <HomeIcon className='icon-md pr-1'/>
               </div>
               <div className='flex-column justify-content-center'>
@@ -47,11 +48,27 @@ export default function Header({
                 }
               }}
               tabIndex='0'>
-              <div className='flex-column justify-content-center'>
+              <div className='flex-column justify-content-center icon-container'>
                 <BarriersIcon className='icon-md pr-1'/> 
               </div>
               <div className='flex-column justify-content-center'>
                 {t('menu.all_barriers')}
+              </div>
+            </li>
+            <li 
+              className={`flex-row ${!syncComplete ? 'disabled' : ''} ${navigation === 'reviewFiles' ? ' active-link' : ''}`}
+              onClick={()=>handleNavigation('reviewFiles')}
+              onKeyDown={(e) => {
+                if(e.key === 'Enter' || e.key === ' ') {
+                  handleNavigation('reviewFiles')
+                }
+              }}
+              tabIndex='0'>
+              <div className='flex-column justify-content-center icon-container'>
+                <ContentFileIcon className='icon-md pr-1'/> 
+              </div>
+              <div className='flex-column justify-content-center'>
+                {t('menu.review_files')}
               </div>
             </li>
             <li
@@ -63,7 +80,7 @@ export default function Header({
                 }
               }}
               tabIndex='0'>
-              <div className='flex-column justify-content-center'>
+              <div className='flex-column justify-content-center icon-container'>
                 <ReportIcon className='icon-md pr-1'/>
               </div>
               <div className='flex-column justify-content-center'>
@@ -79,7 +96,7 @@ export default function Header({
                 }
               }}
               tabIndex='0'>
-              <div className='flex-column justify-content-center'>
+              <div className='flex-column justify-content-center icon-container'>
                 <SettingsIcon className='icon-md pr-1'/>
               </div>
               <div className='flex-column justify-content-center'>
