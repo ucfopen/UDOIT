@@ -2,12 +2,14 @@ import React, { useState, useEffect, useRef } from 'react'
 import DownloadIcon from '../Icons/DownloadIcon'
 import ExternalLinkIcon from '../Icons/ExternalLinkIcon'
 import ProgressIcon from '../Icons/ProgressIcon'
+import InfoIcon from '../Icons/InfoIcon'
 import { formFromIssue, formNameFromRule, formNames } from '../../Services/Ufixit'
 import * as Html from '../../Services/Html'
+import * as Text from '../../Services/Text'
 import UpArrowIcon from '../Icons/UpArrowIcon'
 import DownArrowIcon from '../Icons/DownArrowIcon'
 import './FixIssuesContentPreview.css'
-import InfoIcon from '../Icons/InfoIcon'
+
 
 export default function FixIssuesContentPreview({
   t,
@@ -303,26 +305,6 @@ export default function FixIssuesContentPreview({
     }
   }
 
-  // Converts file size (in bytes) to a human-readable format (ie 29.6 KB or 3.5 MB)
-  const getReadableFileSize = (fileSize) => {
-    if (fileSize < 1024) {
-      return fileSize + ' bytes'
-    }
-    else if (fileSize < 1048576) {
-      return (fileSize / 1024).toFixed(1) + ' KB'  // A kilobyte is 1024 bytes
-    }
-    else {
-      return (fileSize / 1048576).toFixed(1) + ' MB'  // A megabyte is 1024 kilobytes (1024^2 bytes)
-    }
-  }
-
-  const getReadableDateTime = (dateString) => {
-    let dateObj = new Date(dateString)
-    let date = dateObj.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })
-    let time = dateObj.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', second: '2-digit' })
-    return `${date} ${time}`
-  }
-
   const scrollToElement = (element) => {
     if (element) {
       element.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'nearest' })
@@ -367,11 +349,11 @@ export default function FixIssuesContentPreview({
                   </div>
                   <div className="flex-row mt-2">
                     <div className="flex-column flex-center ufixit-file-details-label">{t('fix.label.file_size')}</div>
-                    <div className="flex-column flex-center allow-word-break">{getReadableFileSize(activeIssue.fileData.fileSize)}</div>
+                    <div className="flex-column flex-center allow-word-break">{Text.getReadableFileSize(activeIssue.fileData.fileSize)}</div>
                   </div>
                   <div className="flex-row mt-2">
                     <div className="flex-column flex-center ufixit-file-details-label">{t('fix.label.file_updated')}</div>
-                    <div className="flex-column flex-center allow-word-break">{getReadableDateTime(activeIssue.fileData.updated)}</div>
+                    <div className="flex-column flex-center allow-word-break">{Text.getReadableDateTime(activeIssue.fileData.updated)}</div>
                   </div>
                 </div>
                 <div className="mt-3 flex-row justify-content-center gap-3">

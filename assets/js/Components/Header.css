@@ -35,6 +35,10 @@ header nav {
       text-decoration: none;
       cursor: pointer;
 
+      .icon-container {
+        display: none !important;
+      }
+
       &:hover,
       &.active-link {
         color: var(--link-color);
