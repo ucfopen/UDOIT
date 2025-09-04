@@ -237,6 +237,8 @@
   "label.mime.doc": "MS Word",
   "label.mime.ppt": "MS PowerPoint",
   "label.mime.xls": "MS Excel",
+  "label.mime.video": "Video File",
+  "label.mime.audio": "Audio File",
 
   "msg.no_permissions": "You do not have permission to access the specified course.",
   "msg.course_scanning": "Course scanning...",
