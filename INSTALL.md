@@ -38,13 +38,14 @@ cp .env.example .env
 This command copies the `.env.example` into `.env`, creating the `.env` file in the process if it does not exist.
 
 2. Open `.env` with a text editor (i.e. Notepad, VS Code, etc.) and make the necessary changes to the following variables:
-   - `APP_ENV`: If you are setting up a development environment, change this to `dev` and follow the steps in [Installing Composer Dependencies](#installing-composer-dependencies) without the `--no-dev` flag to obtain all of the development packages. Otherwise, leave it as `prod`.
-   - `DATABASE_URL`: If you are hosting UDOIT on Docker or your local machine, leave it as it is. Otherwise, change it to your database URL.
-   - `BASE_URL`: If you are hosting UDOIT on Docker or your local machine, leave it as it is. Otherwise, change it to the URL of your instance of UDOIT.
-   - `WEBPACK_PUBLIC_PATH`: Uf you are hosting UDOIT on Docker or your local machine, leave it as it is. Otherwise, change it to match the `BASE_URL`in such a way that `/build` is located at the root of the `BASE_URL` (Example:  If your `BASE_URL` is set to `http://127.0.0.1:8000`, your `WEBPACK_PUBLIC_PATH` should be `/build`).
-   	- `APP_LMS`: `canvas` for Canvas LMS. `d2l` for D2l Brightspace LMS.
-   - `JWK_BASE_URL`: If you are self-hosting Canvas, you may set it to the URL of your instance of Canvas. (Example: `JWK_BASE_URL="https://canvas.dev.myschool.edu"`)
-   	- `DEFAULT_LANG`: (optional)  `en` for English. `es` for Spanish. This is English by default.
+- `APP_ENV`: If you are setting up a development environment, change this to `dev` and follow the steps in [Installing Composer Dependencies](#installing-composer-dependencies) without the `--no-dev` flag to obtain all of the development packages. Otherwise, leave it as `prod`.
+- `DATABASE_URL`: If you are hosting UDOIT on Docker or your local machine, leave it as it is. Otherwise, change it to your database URL.
+- `BASE_URL`: If you are hosting UDOIT on Docker or your local machine, leave it as it is. Otherwise, change it to the URL of your instance of UDOIT.
+- `WEBPACK_PUBLIC_PATH`: Uf you are hosting UDOIT on Docker or your local machine, leave it as it is. Otherwise, change it to match the `BASE_URL`in such a way that `/build` is located at the root of the `BASE_URL` (Example:  If your `BASE_URL` is set to `http://127.0.0.1:8000`, your `WEBPACK_PUBLIC_PATH` should be `/build`).
+- `APP_LMS`: `canvas` for Canvas LMS. `d2l` for D2l Brightspace LMS.
+- `JWK_BASE_URL`: If you are self-hosting Canvas, you may set it to the URL of your instance of Canvas. (Example: `JWK_BASE_URL="https://canvas.dev.myschool.edu"`)
+- `DEFAULT_LANG`: (optional)  `en` for English. `es` for Spanish. This is English by default.
+- `DATABASE_ENCODE_KEY`: UDOIT encrypts your API keys within the database using this key. You will need to generate a key that will be used for encryption using the `create-key` script, explained further below.
 
 ## Installation
 
@@ -61,6 +62,15 @@ We provide a fast and simple way of setting up a local UDOIT instance through Do
 ```
 
 3. Once the containers are initialized, run the following command:
+
+```
+    make create-key
+```
+This will generate an encryption key that is used during encryption and decryption of sensitive API keys in the database.
+
+You **must** generate a key, otherwise UDOIT will not start correctly.
+
+4. Finally, with the containers still running, run the following command:
 ```
     make migrate
 ```
@@ -76,12 +86,13 @@ Type `yes` and proceed. The warning is expected and is a non issue.
 
 UDOIT should be installed and running as Docker containers.
 
-4. To stop the UDOIT containers, run the following command:
+5. After generating an encryption key and applying migrations, run the following command to stop UDOIT:
 ```
     make down
 ```
+You will need to stop UDOIT before loading it for the first time in order to allow the new encryption key to reload.
 
-> Please be sure to review the `makefile` for more information on what these commands do.
+> Please be sure to review the `Makefile` for more information on what these commands do.
 
 ### Option 2: Manual Installation
 If you prefer not to use Docker, the process is more complicated:
@@ -98,7 +109,29 @@ UDOIT uses Composer to install PHP dependencies. Follow the upstream documentati
 
 > Remove the `--no-dev` flag if you set `APP_ENV=dev` in your `.env.local` file.
 
-#### 3. Database Setup
+#### 3. Encryption Key Setup
+UDOIT encrypts your API keys in the database using a generated encryption key.
+
+This is done to protect against an attacker gaining access to your database and using the API keys to "act" as another user or UDOIT itself.
+
+In order to generate the key, first ensure that you have created a `.env`. Then, run the following command from the root directory of UDOIT:
+
+    php scripts/create-key.php .env
+
+The script will then ask: `Create new key? (Y/n): `
+
+Type `y` and then press enter. Then, you should see something like this (the generated key will be different):
+
+```
+Created new key: ha8HJt6CGAJdlO6S920eE6dUWVBOic+xJxN/O7Owu6s=
+Updated .env with new key.
+```
+
+The script should automatically update the `DATABASE_ENCODE_KEY` field in your environment file with your generated key. Verify that your environment file has been updated by comparing the value of `DATABASE_ENCODE_KEY` with the generated key.
+
+> Note: Ensure you include the correct filename of your environment file when running the key generation script. If you do not pass in any filename, you will receive the following error: `Please specify the environment file to modify!`
+
+#### 4. Database Setup
 While UDOIT is configured to use MySQL or MariaDB by default, Symfony can be configured to work with other databases as well. See the Symfony documentation for details.
 
 Use Symfony to create the database with this command:
@@ -117,7 +150,7 @@ If you are operating in a production environment you will need to generate the d
 
     php bin/console cache:warmup --env=prod
 
-#### 4. JavaScript
+#### 5. JavaScript
 UDOIT uses [node](https://nodejs.org) and [yarn](https://yarnpkg.com/) to compile the JavaScript. Install Node and Yarn on your system, then run:
 
     yarn install
