@@ -162,7 +162,7 @@ export function analyzeReport(report, ISSUE_STATE) {
   })
 
   let tempFilesReviewed = 0
-  report.files.forEach((file) => {
+  Object.values(report.files).forEach((file) => {
     if(file.reviewed) {
       tempFilesReviewed += 1
     }
