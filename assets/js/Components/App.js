@@ -243,6 +243,10 @@ export default function App(initialData) {
   }
 
   const quickIssues = (severity) => {
+    if(severity === 'FILE'){
+      setNavigation('reviewFiles')
+      return
+    }
     setInitialSeverity(severity)
     setNavigation('fixIssues')
   }

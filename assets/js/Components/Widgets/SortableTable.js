@@ -165,7 +165,7 @@ export default function SortableTable({
         }
         <thead aria-label={t('report.label.sort_by')}>
           <tr>
-            {(headers || []).map(({ id, text }) => (
+            {(headers || []).map(({ id, text, divider }) => (
               (text) ? 
                 <th
                   key={`header${id}`}
@@ -177,6 +177,7 @@ export default function SortableTable({
                       handleSort(id)
                     }
                   }}
+                  className={(divider) ? 'divider' : '' }
                 >
                   <div className="flex-row">
                     <div className="header-spacer" />
@@ -199,8 +200,8 @@ export default function SortableTable({
         <tbody>
           {pagedRows.map((row) => (
             <tr key={`row${row.id}`} className={row.onClick ? ' clickable' : ''}>
-              {headers.map(({ id, renderCell, alignText, format }) => (
-                <td key={`row${row.id}cell${id}`} className={alignText === 'center' ? 'text-center' : alignText === 'end' ? 'text-end' : 'text-start'} onClick={(row.onClick) ? row.onClick : null}>
+              {headers.map(({ id, renderCell, alignText, format, divider }) => (
+                <td key={`row${row.id}cell${id}`} className={(alignText === 'center' ? 'text-center' : alignText === 'end' ? 'text-end' : 'text-start') + (divider ? ' divider' : '')} onClick={(row.onClick) ? row.onClick : null}>
                   {renderCell ? renderCell(row[id]) : (format) ? format(row[id]) : <div cursor={(row.onClick) ? 'pointer' : 'auto'}>{row[id]}</div>}
                 </td>
               ))}

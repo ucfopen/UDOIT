@@ -95,6 +95,7 @@
 
   .count-summary {
     margin-top: -.5rem;
+    line-height: normal;
   }
 }
 

@@ -16,7 +16,7 @@ export default function FormClarification({
   
     // Compute what additional clarification text to show, if any.
     // First priority: Rule-specific descriptions from the translation file.
-    const clarificationTag = 'rule.desc.' + activeIssue.scanRuleId
+    const clarificationTag = 'rule.info.' + activeIssue.scanRuleId
     let messageArgs = {}
     if(activeIssue?.issueData?.metadata) {
       let metadata = JSON.parse(activeIssue.issueData.metadata)

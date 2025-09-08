@@ -22,41 +22,32 @@ export default function ReviewFilesFilters({
   const FILTER = settings.FILTER
 
   const filterLabels = {
-    [FILTER.TYPE.SEVERITY]: t('filter.label.severity'),
-    [FILTER.TYPE.PUBLISHED]: t('filter.label.published'),
-    [FILTER.TYPE.CONTENT_TYPE]: t('filter.label.type'),
+    [FILTER.TYPE.UTILIZATION]: t('filter.label.utilization'),
+    // [FILTER.TYPE.PUBLISHED]: t('filter.label.published'),
+    [FILTER.TYPE.FILE_TYPE]: t('filter.label.file_type'),
     [FILTER.TYPE.RESOLUTION]: t('filter.label.resolution'),
     [FILTER.TYPE.MODULE]: t('filter.label.module'),
   }
 
   const allFilters = {
-    [FILTER.TYPE.SEVERITY]: {
-      [FILTER.ALL]: t('filter.label.severity.all'),
-      [FILTER.ISSUE]: t('filter.label.severity.issue'),
-      [FILTER.POTENTIAL]: t('filter.label.severity.potential'),
-      [FILTER.SUGGESTION]: t('filter.label.severity.suggestion'),
+    [FILTER.TYPE.UTILIZATION]: {
+      [FILTER.ALL]: t('filter.label.utilization.all'),
+      [FILTER.USED]: t('filter.label.utilization.referenced'),
+      [FILTER.UNUSED]: t('filter.label.utilization.unreferenced'),
     },
-    [FILTER.TYPE.PUBLISHED]: {
-      [FILTER.PUBLISHED]: t('filter.label.published.published'),
-      [FILTER.UNPUBLISHED]: t('filter.label.published.unpublished'),
-      [FILTER.ALL]: t('filter.label.published.all'),
-    },
-    [FILTER.TYPE.CONTENT_TYPE]: {
-      [FILTER.ALL]: t('filter.label.type.all'),
-      [FILTER.PAGE]: t('filter.label.type.page'),
-      [FILTER.ASSIGNMENT]: t('filter.label.type.assignment'),
-      [FILTER.ANNOUNCEMENT]: t('filter.label.type.announcement'),
-      [FILTER.DISCUSSION_TOPIC]: t('filter.label.type.discussion_topic'),
-      [FILTER.DISCUSSION_FORUM]: t('filter.label.type.discussion_forum'),
-      [FILTER.FILE]: t('filter.label.type.file'),
-      [FILTER.QUIZ]: t('filter.label.type.quiz'),
-      [FILTER.SYLLABUS]: t('filter.label.type.syllabus'),
+    [FILTER.TYPE.FILE_TYPE]: {
+      [FILTER.ALL]: t('filter.label.file_type.all'),
+      [FILTER.FILE_PDF]: t('label.mime.pdf'),
+      [FILTER.FILE_WORD]: t('label.mime.doc'),
+      [FILTER.FILE_POWERPOINT]: t('label.mime.ppt'),
+      [FILTER.FILE_EXCEL]: t('label.mime.xls'),
+      [FILTER.FILE_VIDEO]: t('label.mime.video'),
+      [FILTER.FILE_AUDIO]: t('label.mime.audio'),
     },
     [FILTER.TYPE.RESOLUTION]: {
-      [FILTER.ALL]: t('filter.label.resolution.all'),
-      [FILTER.ACTIVE]: t('filter.label.resolution.active'),
-      [FILTER.FIXED]: t('filter.label.resolution.fixed'),
-      [FILTER.RESOLVED]: t('filter.label.resolution.resolved'),
+      [FILTER.ALL]: t('filter.label.review.all'),
+      [FILTER.UNREVIEWED]: t('filter.label.review.unreviewed'),
+      [FILTER.REVIEWED]: t('filter.label.review.reviewed'),
     },
     [FILTER.TYPE.MODULE]: {
       [FILTER.ALL]: t('filter.label.module.all'),
@@ -174,31 +165,6 @@ export default function ReviewFilesFilters({
       </div>
       {showFilters && usedFilters && (
         <div className="flex-row flex-wrap gap-1">
-          {/* {Object.keys(usedFilters).map((filterType) => {
-            return (
-              <div className="filter-group flex-column justify-content-center" key={filterType}>
-                <label htmlFor={'filter' + filterType}>{filterLabels[filterType]}</label>
-                <select
-                  id={'filter' + filterType}
-                  name={'filter' + filterType}
-                  tabIndex="0"
-                  defaultValue={activeFilters[filterType]}
-                  onChange={(e) => updateActiveFilters(filterType, e.target.value)}
-                >
-                  {Object.keys(usedFilters[filterType]).map((filter) => {
-                    return (
-                      <option key={filter} value={filter} selected={activeFilters[filterType] === filter}>
-                        {filterType === FILTER.TYPE.CONTENT_TYPE && (
-                          <ContentTypeIcon type={filter} alt="" className="icon-sm text-color" />
-                        )}
-                        {usedFilters[filterType][filter]}
-                      </option>
-                    )
-                  })}
-                </select>
-              </div>
-            )
-          })} */}
           {Object.keys(detailedFilters).map((filterType, index) => {
             return (
               <div className="filter-group flex-column justify-content-center" key={index}>

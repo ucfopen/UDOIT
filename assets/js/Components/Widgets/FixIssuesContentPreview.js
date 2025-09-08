@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react'
-import DownloadIcon from '../Icons/DownloadIcon'
+import FileReviewPreview from './FileReviewPreview'
 import ExternalLinkIcon from '../Icons/ExternalLinkIcon'
 import ProgressIcon from '../Icons/ProgressIcon'
 import InfoIcon from '../Icons/InfoIcon'
@@ -336,105 +336,66 @@ export default function FixIssuesContentPreview({
           </div>
         ) : (
           <>
-            { activeIssue.contentType === settings.FILTER.FILE_OBJECT ? (
-              <div className="flex-grow-1">
-                <div className="ufixit-file-details">
-                  <div className="flex-row mt-2">
-                    <div className="flex-column flex-center ufixit-file-details-label">{t('fix.label.file_name')}</div>
-                    <div className="flex-column flex-center allow-word-break">{activeIssue.fileData.fileName}</div>
-                  </div>
-                  <div className="flex-row mt-2">
-                    <div className="flex-column flex-center ufixit-file-details-label">{t('fix.label.file_type')}</div>
-                    <div className="flex-column flex-center allow-word-break">{getReadableFileType(activeIssue.fileData.fileType)}</div>
-                  </div>
-                  <div className="flex-row mt-2">
-                    <div className="flex-column flex-center ufixit-file-details-label">{t('fix.label.file_size')}</div>
-                    <div className="flex-column flex-center allow-word-break">{Text.getReadableFileSize(activeIssue.fileData.fileSize)}</div>
-                  </div>
-                  <div className="flex-row mt-2">
-                    <div className="flex-column flex-center ufixit-file-details-label">{t('fix.label.file_updated')}</div>
-                    <div className="flex-column flex-center allow-word-break">{Text.getReadableDateTime(activeIssue.fileData.updated)}</div>
-                  </div>
-                </div>
-                <div className="mt-3 flex-row justify-content-center gap-3">
-                  { activeIssue.fileData.downloadUrl && (
-                    <button className="btn btn-secondary btn-icon-left" onClick={() => window.open(activeIssue.fileData.downloadUrl, 'download')}>
-                      <DownloadIcon />
-                      <div className="flex-column justify-content-center">{t('fix.button.download_file')}</div>
-                    </button>
-                  )}
-                  { activeIssue.fileData.lmsUrl && (
-                    <button className="btn btn-secondary btn-icon-left" onClick={() => window.open(activeIssue.fileData.lmsUrl, '_blank', 'noopener,noreferrer')}>
-                      <ExternalLinkIcon />
-                      <div className="flex-column justify-content-center">{t('fix.button.view_in_lms')}</div>
-                    </button>
-                  )}
-                </div>
-              </div>
-            ) : (
+            { taggedContent && activeContentItem && !contentItemsBeingScanned.includes(activeContentItem?.id) ? (
               <>
-                { taggedContent && activeContentItem && !contentItemsBeingScanned.includes(activeContentItem?.id) ? (
+                { canShowPreview ? (
                   <>
-                    { canShowPreview ? (
-                      <>
-                        <div
-                          className="ufixit-content-preview-main"
-                          onScroll={() => {
-                            checkScrollButton()
-                          }}
-                          dangerouslySetInnerHTML={{__html: taggedContent}} />
-                        {!isIssueElementVisible && !isInitialLoad && debouncedDirection && (
-                          <div className='scroll-to-error-container'>
-                            <button
-                              className={`btn-secondary btn-icon-right btn-small scroll-to-error ${debouncedDirection ? 'scroll-to-error-' + debouncedDirection : ''}`}
-                              onClick={() => scrollToElement(document.getElementsByClassName('ufixit-error-highlight')[0])}
-                              tabIndex="0"
-                            >
-                              {t('fix.button.scroll_to_issue')}
-                              { debouncedDirection === 'up' ?
-                                <UpArrowIcon className="icon-sm" />
-                              : debouncedDirection === 'down' ?
-                                <DownArrowIcon className="icon-sm" />
-                              : null
-                              }
-                            </button>
-                          </div>
-                          )}
-                      </>
-                    ) : (
-                      <div className="ufixit-content-preview-no-error flex-row p-3">
-                        <div className="flex-column justify-content-start">
-                          <div className="flex-row mb-3">
-                            <div className="flex-column justify-content-center flex-grow-0 flex-shrink-0 me-3">
-                              <InfoIcon className="icon-lg udoit-suggestion" alt="" />
-                            </div>
-                            <div className="flex-column justify-content-center flex-grow-1">
-                              <h2 className="mt-0 mb-0">{t('fix.label.no_error_preview')}</h2>
-                            </div>
-                          </div>
-                          <div>{t('fix.msg.no_error_preview')}</div>
-                          <div className="flex-row justify-content-end mt-3">
-                            <button className="btn btn-secondary mt-3" onClick={() => setCanShowPreview(true)}>
-                              {t('fix.button.show_no_error_preview')}
-                            </button>
-                          </div>
-                        </div>
+                    <div
+                      className="ufixit-content-preview-main"
+                      onScroll={() => {
+                        checkScrollButton()
+                      }}
+                      dangerouslySetInnerHTML={{__html: taggedContent}} />
+                    {!isIssueElementVisible && !isInitialLoad && debouncedDirection && (
+                      <div className='scroll-to-error-container'>
+                        <button
+                          className={`btn-secondary btn-icon-right btn-small scroll-to-error ${debouncedDirection ? 'scroll-to-error-' + debouncedDirection : ''}`}
+                          onClick={() => scrollToElement(document.getElementsByClassName('ufixit-error-highlight')[0])}
+                          tabIndex="0"
+                        >
+                          {t('fix.button.scroll_to_issue')}
+                          { debouncedDirection === 'up' ?
+                            <UpArrowIcon className="icon-sm" />
+                          : debouncedDirection === 'down' ?
+                            <DownArrowIcon className="icon-sm" />
+                          : null
+                          }
+                        </button>
                       </div>
-                    )}
+                      )}
                   </>
                 ) : (
-                  <div className="flex-column h-100 flex-grow-1 justify-content-center">
-                    <div className="flex-row justify-content-center mb-4">
-                      <div className="flex-column justify-content-center">
-                        <ProgressIcon className="icon-lg udoit-suggestion spinner" />
+                  <div className="ufixit-content-preview-no-error flex-row p-3">
+                    <div className="flex-column justify-content-start">
+                      <div className="flex-row mb-3">
+                        <div className="flex-column justify-content-center flex-grow-0 flex-shrink-0 me-3">
+                          <InfoIcon className="icon-lg udoit-suggestion" alt="" />
+                        </div>
+                        <div className="flex-column justify-content-center flex-grow-1">
+                          <h2 className="mt-0 mb-0">{t('fix.label.no_error_preview')}</h2>
+                        </div>
                       </div>
-                      <div className="flex-column justify-content-center ms-3">
-                        <h2 className="mt-0 mb-0">{t('fix.label.loading_content')}</h2>
+                      <div>{t('fix.msg.no_error_preview')}</div>
+                      <div className="flex-row justify-content-end mt-3">
+                        <button className="btn btn-secondary mt-3" onClick={() => setCanShowPreview(true)}>
+                          {t('fix.button.show_no_error_preview')}
+                        </button>
                       </div>
                     </div>
                   </div>
                 )}
               </>
+            ) : (
+              <div className="flex-column h-100 flex-grow-1 justify-content-center">
+                <div className="flex-row justify-content-center mb-4">
+                  <div className="flex-column justify-content-center">
+                    <ProgressIcon className="icon-lg udoit-suggestion spinner" />
+                  </div>
+                  <div className="flex-column justify-content-center ms-3">
+                    <h2 className="mt-0 mb-0">{t('fix.label.loading_content')}</h2>
+                  </div>
+                </div>
+              </div>
             )}
           </>
         )}

@@ -60,6 +60,7 @@ export function analyzeReport(report, ISSUE_STATE) {
   let tempReport = {
     contentFixed: report.contentFixed || 0,
     contentResolved: report.contentResolved || 0,
+    contentHandled: (report.contentFixed || 0) + (report.contentResolved || 0),
     contentSections: [...report.contentSections],
     created: report.created,
     files: {...report.files},
@@ -75,7 +76,8 @@ export function analyzeReport(report, ISSUE_STATE) {
   let scanCounts = {
     errors: 0,
     potentials: 0,
-    suggestions: 0
+    suggestions: 0,
+    files: 0,
   }
   let sessionIssues = {}
   let currentTime = new Date()
@@ -159,13 +161,21 @@ export function analyzeReport(report, ISSUE_STATE) {
     }
   })
 
-  scanCounts.potentials += Object.keys(tempReport.files).length
-  scanCounts.potentials -= tempReport.filesReviewed
+  let tempFilesReviewed = 0
+  report.files.forEach((file) => {
+    if(file.reviewed) {
+      tempFilesReviewed += 1
+    }
+    else {
+      scanCounts.files += 1
+    }
+  })
 
   tempReport.issues = activeIssues
   tempReport.scanCounts = scanCounts
   tempReport.contentItems = usedContentItems
   tempReport.sessionIssues = sessionIssues
+  tempReport.filesReviewed = tempFilesReviewed
 
   return tempReport
 }

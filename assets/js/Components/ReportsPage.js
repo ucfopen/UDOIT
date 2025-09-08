@@ -70,19 +70,13 @@ export default function ReportsPage({t, report, settings, quickSearchTerm}) {
     setIssues(processIssues(report))
   }, [report])
 
-  // const toggleChartVisibility = (chart) => {
-  //   const tempVisibility = Object.assign({}, chartVisibility, {[chart]: !chartVisibility[chart]})
-  //   setChartVisibility(tempVisibility)
-  // }
-
   const getPrintableReportsTable = (reports, t) => {
     const headers = [
       { id: "created", text: t('report.header.date') },
       { id: "errors", text: t('report.header.issues'), alignText: 'center' },
       { id: "potentialIssues", text: t('report.header.potential'), alignText: 'center' },
-      { id: "suggestions", text: t('report.header.suggestions'), alignText: 'center' },
-      { id: "contentFixed", text: t('report.header.items_fixed'), alignText: 'center' },
-      { id: "contentResolved", text: t('report.header.items_resolved'), alignText: 'center' },
+      { id: "files", text: t('report.header.suggestions'), alignText: 'center' },
+      { id: "contentHandled", text: t('report.header.items_handled'), alignText: 'center' },
       { id: "filesReviewed", text: t('report.header.files_reviewed'), alignText: 'center'}
     ]
 

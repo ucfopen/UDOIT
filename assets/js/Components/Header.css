@@ -35,9 +35,9 @@ header nav {
       text-decoration: none;
       cursor: pointer;
 
-      .icon-container {
+      /* .icon-container {
         display: none !important;
-      }
+      } */
 
       &:hover,
       &.active-link {
