@@ -16,6 +16,10 @@
     border-bottom: 1px solid var(--primary-color);
     background-color: var(--primary-color);
 
+    &.divider {
+      border-right: 2px solid var(--primary-color-inverse);
+    }
+
     &:focus {
       outline: 2px solid var(--focus-color);
       outline-offset: -2px;
@@ -49,6 +53,10 @@
           div {
             text-align: right;
           }
+        }
+
+        &.divider {
+          border-right: 2px solid var(--primary-color);
         }
       }
 

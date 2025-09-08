@@ -299,9 +299,9 @@ class Course implements \JsonSerializable
         $files = [];
 
         foreach ($this->fileItems as $file) {
-            if ($activeOnly && !$file->isActive()) {
-                continue;
-            }
+            // if ($activeOnly && !$file->isActive()) {
+            //     continue;
+            // }
             $files[$file->getId()] = $file;
         }
 

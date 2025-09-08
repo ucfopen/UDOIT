@@ -98,13 +98,6 @@ export default function FixIssuesPage({
     NO_RESULTS: 4,
   }
 
-  const FILE_TYPES = [
-    'pdf',
-    'doc',
-    'ppt',
-    'xls',
-  ]
-
   const [activeIssue, setActiveIssue] = useState(null)
   const [tempActiveIssue, setTempActiveIssue] = useState(null)
   const [activeContentItem, setActiveContentItem] = useState(null)
@@ -244,95 +237,6 @@ export default function FixIssuesPage({
     }
   }
 
-  const formatFileData = (fileData) => {
-    // All files should be considered "Potential Issues" since they need to be reviewed and are
-    // not included in the PHPAlly or IBM Equal Access scan.
-
-    let fileId = "file-" + fileData.id
-
-    let issueResolution = FILTER.ACTIVE
-    if(fileData.reviewed) {
-      issueResolution = FILTER.RESOLVED
-    }
-
-    let formLabel = t(`form.file.title`)
-
-    let fileTypeLabel = t(`label.mime.unknown`)
-    
-    // Guarantee that the keywords include the word "file" in each language
-    let keywords = [ fileData.fileName.toLowerCase(), fileTypeLabel.toLowerCase(), formLabel.toLowerCase() ]
-    
-    // Keywords should include the file type ('MS Word', 'PDF', etc.)
-    if(FILE_TYPES.includes(fileData.fileType)) {
-      fileTypeLabel = t(`label.mime.${fileData.fileType}`)
-      keywords.push[fileTypeLabel.toLowerCase()]
-    }
-
-    keywords = keywords.join(' ')
-
-// Canvas File Item Data:
-  // active: true
-  // downloadUrl: "https://canvas.dev.cdl.ucf.edu/files/13041/download?download_frd=1&verifier=V4WBmWDBfN64x09tieoEqjfKWQWaK0HKXBI0CF54"
-  // fileName: "1742314259_587__UCF-_Getting_Started_with_Serverless.pdf"
-  // fileSize: "1923148"
-  // fileType: "pdf"
-  // hidden: false
-  // id: 7
-  // lmsFileId: "13041"
-  // lmsUrl: "https://canvas.dev.cdl.ucf.edu/courses/383/files?preview=13041"
-  // reviewed: null
-  // status: true
-  // updated: "2025-03-18T16:11:00+00:00"
-
-// Canvas Section Item Data:
-  // content_id: 13041
-  // html_url: "https://canvas.dev.cdl.ucf.edu/courses/383/modules/items/4020"
-  // id: 4020
-  // indent: 0
-  // module_id: 583
-  // position: 1
-  // published: true
-  // quiz_lti: false
-  // title: "UCF- Getting Started with Serverless.pdf"
-  // type: "File"
-  // url: "https://canvas.dev.cdl.ucf.edu/api/v1/courses/383/files/13041"
-
-    let fileSectionIds = []
-
-    if(sections && sections.length > 0) {
-      sections.forEach((section) => {
-        let tempSectionId = section.id
-        section.items.forEach((item) => {
-          if(item.content_id && item.content_id.toString() === fileData.lmsFileId.toString()) {
-            fileSectionIds.push(tempSectionId.toString())
-          }
-        })
-      })
-    }
-
-    let currentState = settings.ISSUE_STATE.UNCHANGED
-    if(sessionIssues && sessionIssues[fileId]) {
-      currentState = sessionIssues[fileId]
-    }
-
-    return {
-      fileData: Object.assign({}, fileData),
-      id: fileId,
-      severity: FILTER.POTENTIAL,
-      status: issueResolution,
-      published: true,
-      sectionIds: fileSectionIds,
-      keywords: keywords,
-      scanRuleId: 'verify_file_accessibility',
-      formLabel: formLabel,
-      contentId: fileData.lmsFileId,
-      contentType: FILTER.FILE_OBJECT,
-      contentTitle: fileData.fileName,
-      contentUrl: fileData.lmsUrl,
-      currentState: currentState,
-    }
-  }
-
   const addItemToBeingScanned = (contentItemId) => {
     let tempContentItems = contentItemsBeingScanned
     if(!tempContentItems.includes(contentItemId)) {
@@ -404,11 +308,11 @@ export default function FixIssuesPage({
       tempUnfilteredIssues.push(tempIssue)
     }
 
-    let tempFiles = Object.assign({}, report.files)
-    for (const [key, value] of Object.entries(tempFiles)) {
-      let tempFile = formatFileData(value)
-      tempUnfilteredIssues.push(tempFile)
-    }
+    // let tempFiles = Object.assign({}, report.files)
+    // for (const [key, value] of Object.entries(tempFiles)) {
+    //   let tempFile = formatFileData(value)
+    //   tempUnfilteredIssues.push(tempFile)
+    // }
 
     tempUnfilteredIssues.sort((a, b) => {
       return (a.formLabel.toLowerCase() < b.formLabel.toLowerCase()) ? -1 : 1
@@ -658,23 +562,6 @@ export default function FixIssuesPage({
     }
   }
 
-  const updateFile = (tempFile) => {
-    const tempReport = Object.assign({}, report)
-
-    // Occasionally, the report will send back a list of files in an object instead of an array.
-    // It would be nice to use tempReport.files.map, but that doesn't work with objects.
-    for (const [key, value] of Object.entries(tempReport.files)) {
-      if (key.toString() === tempFile.id.toString()) {
-        if(activeIssue?.fileData?.id === tempFile.id) {
-          const formattedFile = formatFileData(tempFile)
-          setActiveIssue(formattedFile)
-        }
-        tempReport.files[key] = tempFile
-      }
-    }
-    processNewReport(tempReport)
-  }
-
   const getNewFullPageHtml = (content, issue) => {
     if(!content?.body || !issue) {
       return
@@ -815,69 +702,6 @@ export default function FixIssuesPage({
     }
   }
 
-  /**
-   * handleFileUpload is called when a new file has already been selected by the user
-   * and is ready to be uploaded to the server and verified.
-   */
-  const handleFileUpload = (newFileData) => {
-
-    const tempFile = Object.assign({}, activeIssue.fileData)
-
-    updateActiveSessionIssue("file-" + tempFile.id, settings.ISSUE_STATE.SAVING)
-
-    try {
-      let api = new Api(settings)
-      api.postFile(tempFile, newFileData)
-        .then((responsStr) => responsStr.json())
-        .then((response) => {
-          const updatedFileData = { ...tempFile, ...response.data.file }
-
-          // Set messages 
-          response.messages.forEach((msg) => addMessage(msg))
-
-          // Update the local report and activeIssue
-          updateActiveSessionIssue("file-" + tempFile.id, settings.ISSUE_STATE.SAVED)
-          updateFile(updatedFileData)
-        })
-    } catch (error) {
-      console.error(error)
-      updateActiveSessionIssue("file-" + tempFile.id, settings.ISSUE_STATE.ERROR)
-    }
-  }
-
-  const handleFileResolve = (fileData) => {
-    updateActiveSessionIssue("file-" + fileData.id, settings.ISSUE_STATE.RESOLVING)
-    
-    let tempFile = Object.assign({}, fileData)
-    tempFile.reviewed = !(tempFile.reviewed) 
-
-    try {
-      let api = new Api(settings)
-      api.reviewFile(tempFile)
-        .then((responseStr) => responseStr.json())
-        .then((response) => {
-          const reviewed = (response?.data?.file && ('reviewed' in response.data.file)) ? response.data.file.reviewed : false
-          const newFileData = { ...tempFile }
-          newFileData.reviewed = reviewed
-
-          // Set messages
-          response.messages.forEach((msg) => addMessage(msg))
-
-          // Update the local report and activeIssue
-          if(reviewed) {
-            updateActiveSessionIssue("file-" + fileData.id, settings.ISSUE_STATE.RESOLVED)
-          }
-          else {
-            updateActiveSessionIssue("file-" + fileData.id, settings.ISSUE_STATE.UNCHANGED)
-          }
-          updateFile(newFileData)
-        })
-    } catch (error) {
-      console.warn(error)
-      updateActiveSessionIssue("file-" + fileData.id, settings.ISSUE_STATE.ERROR)
-    }
-  }
-
   const updateActiveFilters = (filter, value) => {
     setActiveFilters(Object.assign({}, activeFilters, {[filter]: value}))
   }
@@ -982,8 +806,6 @@ export default function FixIssuesPage({
 
                   activeContentItem={activeContentItem}
                   addMessage={addMessage}
-                  handleFileResolve={handleFileResolve}
-                  handleFileUpload={handleFileUpload}
                   handleIssueSave={handleIssueSave}
                   isContentLoading={contentItemsBeingScanned.includes(tempActiveIssue?.issueData?.contentItemId)}
                   isErrorFoundInContent={isErrorFoundInContent}

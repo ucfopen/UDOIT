@@ -174,20 +174,27 @@ class LmsFetchService {
             }
         }
 
-        $scanCounts = (object) [
-          'errors' => $errors,
-          'potentials' => $potentials,
-          'suggestions' => $suggestions,
-        ];
-
         /** @var \App\Entity\FileItem[] $fileItems */
         $fileItems = $course->getFileItems();
+        $unreviewedFiles = 0;
         foreach ($fileItems as $file) {
             if ($file->getReviewed()) {
                 $filesReviewed++;
             }
+            else {
+                $unreviewedFiles++;
+            }
         }
 
+        $scanCounts = (object) [
+          'errors' => $errors,
+          'potentials' => $potentials,
+          'suggestions' => $suggestions,
+          'files' => $unreviewedFiles
+        ];
+
+        $output = new ConsoleOutput();
+        $output->writeln(json_encode($scanCounts));
         $latestReport = $course->getLatestReport();
         $now = $this->util->getCurrentTime();
 

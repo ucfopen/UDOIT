@@ -44,7 +44,7 @@ export default function ResolutionsReport ({
         },
         {
           id: 3,
-          label: t('report.header.suggestions'),
+          label: t('report.header.files_unreviewed'),
           data: [],
           fill: false,
           borderDash: [3, 5],
@@ -62,12 +62,12 @@ export default function ResolutionsReport ({
       if(report?.scanCounts) {
         data.datasets[0].data.push(report.scanCounts.errors)
         data.datasets[1].data.push(report.scanCounts.potentials)
-        data.datasets[2].data.push(report.scanCounts.suggestions)
+        data.datasets[2].data.push(report.scanCounts.files || 0)
       }
       else {
         data.datasets[0].data.push(report.errors)
         data.datasets[1].data.push(0)
-        data.datasets[2].data.push(report.suggestions)
+        data.datasets[2].data.push(0)
       }
     }
 

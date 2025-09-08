@@ -87,6 +87,7 @@ export default function Combobox({
       case settings.FILTER.ISSUE:
         return <SeverityIssueIcon className={`${size} color-issue`} />
       case settings.FILTER.POTENTIAL:
+      case settings.FILTER.UNREVIEWED:
         return <SeverityPotentialIcon className={`${size} color-potential`} />
       case settings.FILTER.SUGGESTION:
         return <SeveritySuggestionIcon className={`${size} color-suggestion`} />
@@ -107,8 +108,10 @@ export default function Combobox({
       case settings.FILTER.SYLLABUS:
         return <ContentSyllabusIcon className={`${size} gray`} />
       case settings.FILTER.FIXED:
+      case settings.FILTER.FIXEDANDRESOLVED:
         return <FixedIcon className={`${size} color-success`} />
       case settings.FILTER.RESOLVED:
+      case settings.FILTER.REVIEWED:
         return <ResolvedIcon className={`${size} color-success`} />
       default:
         return ''
@@ -416,17 +419,6 @@ export default function Combobox({
     updateMenuState(false)
   }
 
-  const onOptionMouseDown = () => {
-    // Clicking an option will cause a blur event,
-    // but we don't want to perform the default keyboard blur action
-    console.log("Is there a blurring problem here?")
-    // let containerEl = document.getElementById('combo-container-' + id)
-    // if(!containerEl) {
-    //   return
-    // }
-    // containerEl.ignoreBlur = true
-  }
-
   const selectOption = (index) => {
     setActiveIndex(index)
     setSelectedIndex(index)
@@ -505,7 +497,6 @@ export default function Combobox({
                 role="option"
                 aria-selected={index === activeIndex ? "true" : "false"}
                 onClick={() => { onOptionClick(index) }}
-                onMouseDown={() => { onOptionMouseDown() }}
               >
                 {getNameWithIcon(option)}
               </div>
