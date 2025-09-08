@@ -13,8 +13,9 @@ export default function IssuesTable({
     { id: "label", text: t('report.header.issue_type') },
     { id: "type", text: t('report.header.severity')},
     { id: "active", text: t('report.header.active'), alignText: 'center' },
-    { id: "fixed", text: t('report.header.fixed'), alignText: 'center' },
-    { id: "resolved", text: t('report.header.resolved'), alignText: 'center' },
+    // { id: "fixed", text: t('report.header.fixed'), alignText: 'center' },
+    // { id: "resolved", text: t('report.header.resolved'), alignText: 'center' },
+    { id: "handled", text: t('report.header.handled'), alignText: 'center' }
   ]
 
   if (isAdmin) {
@@ -90,22 +91,22 @@ export default function IssuesTable({
         if (!labels.includes(issue.label)) {
           labels.push(issue.label)
           if(issue.type === 'error' || issue.type === 'issue') {
-            issue.type = t('report.label.issue')
+            issue.type = t('report.header.issues')
           }
           else if(issue.type === 'potential') {
-            issue.type = t('report.label.potential')
+            issue.type = t('report.header.potential')
           }
           else if(issue.type === 'suggestion') {
-            issue.type = t('report.label.suggestion')
+            issue.type = t('report.header.suggestions')
           }
+          issue.handled = (issue.fixed + issue.resolved > 0 ? 1 : 0)
           mergedIssues.push(issue)
         }
         else {
           let index = mergedIssues.findIndex((i) => i.label === issue.label)
           mergedIssues[index].total += issue.total
           mergedIssues[index].active += issue.active
-          mergedIssues[index].fixed += issue.fixed
-          mergedIssues[index].resolved += issue.resolved
+          mergedIssues[index].handled += (issue.fixed + issue.resolved > 0 ? 1 : 0)
         }
       })
       setLocalIssues(mergedIssues)

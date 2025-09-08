@@ -1,13 +1,10 @@
 import React, { useState, useEffect } from 'react'
-import FixIssuesFilters from './Widgets/FixIssuesFilters'
+import ReviewFilesFilters from './Widgets/ReviewFilesFilters'
 import SortableTable from './Widgets/SortableTable'
-import FixIssuesList from './Widgets/FixIssuesList'
-import UfixitWidget from './Widgets/UfixitWidget'
-import FixIssuesContentPreview from './Widgets/FixIssuesContentPreview'
+import FileFixitWidget from './Widgets/FileFixitWidget'
+import FileReviewPreview from './Widgets/FileReviewPreview'
 import LeftArrowIcon from './Icons/LeftArrowIcon'
 import RightArrowIcon from './Icons/RightArrowIcon'
-import { formNameFromRule } from '../Services/Ufixit'
-import * as Html from '../Services/Html'
 import * as Text from '../Services/Text'
 import Api from '../Services/Api'
 
@@ -31,45 +28,46 @@ import './FixIssuesPage.css'
 export default function ReviewFilesPage({
   t,
   settings,
-  initialSeverity = '',
-  initialSearchTerm = '',
-  contentItemCache,
-  addContentItemToCache,
+  
   report,
   sections,
   processNewReport,
   addMessage,
   sessionIssues,
   updateSessionIssue,
-  processServerError
 })
 {
 
   // Define the kinds of filters that will be available to the user
   const FILTER = {
     TYPE: {
+      UTILIZATION: 'UTILIZATION',
+      PUBLISHED: 'PUBLISHED',
       FILE_TYPE: 'FILE_TYPE',
       RESOLUTION: 'RESOLUTION',
       MODULE: 'MODULE',
-      PUBLISHED: 'PUBLISHED',
-      UTILIZATION: 'UTILIZATION',
     },
     ALL: 'ALL',
-    ACTIVE: 'ACTIVE',
-    FIXED: 'FIXED',
-    RESOLVED: 'RESOLVED',
-    FIXEDANDRESOLVED: 'FIXEDANDRESOLVED', // Doesn't appear in any dropdowns, but is used in the code
-    PUBLISHED: 'PUBLISHED',
-    UNPUBLISHED: 'UNPUBLISHED',
     USED: 'USED',
     UNUSED: 'UNUSED',
+    PUBLISHED: 'PUBLISHED',
+    UNPUBLISHED: 'UNPUBLISHED',
+    FILE_PDF: 'PDF',
+    FILE_WORD: 'WORD',
+    FILE_POWERPOINT: 'POWERPOINT',
+    FILE_EXCEL: 'EXCEL',
+    FILE_VIDEO: 'VIDEO',
+    FILE_AUDIO: 'AUDIO',
+    FILE_UNKNOWN: 'UNKNOWN',
+    ACTIVE: 'ACTIVE',
+    UNREVIEWED: 'UNREVIEWED',
+    REVIEWED: 'REVIEWED',
   }
 
   const defaultFilters = {
     [FILTER.TYPE.UTILIZATION]: FILTER.ALL,
-    [FILTER.TYPE.PUBLISHED]: FILTER.PUBLISHED,
     [FILTER.TYPE.FILE_TYPE]: FILTER.ALL,
-    [FILTER.TYPE.RESOLUTION]: FILTER.ACTIVE,
+    [FILTER.TYPE.RESOLUTION]: FILTER.UNREVIEWED,
     [FILTER.TYPE.MODULE]: FILTER.ALL,
   }
 
@@ -86,7 +84,18 @@ export default function ReviewFilesPage({
     'doc',
     'ppt',
     'xls',
+    'audio',
+    'video',
   ]
+
+  const FILE_TYPE_MAP = {
+    'pdf': FILTER.FILE_PDF,
+    'doc': FILTER.FILE_WORD,
+    'ppt': FILTER.FILE_POWERPOINT,
+    'xls': FILTER.FILE_EXCEL,
+    'audio': FILTER.FILE_AUDIO,
+    'video': FILTER.FILE_VIDEO,
+  }
 
   const headers = [
     { id: "name", text: t('fix.label.file_name') },
@@ -109,15 +118,11 @@ export default function ReviewFilesPage({
   const [rows, setRows] = useState([])
   const [activeIssue, setActiveIssue] = useState(null)
   const [tempActiveIssue, setTempActiveIssue] = useState(null)
-  const [activeContentItem, setActiveContentItem] = useState(null)
-  const [contentItemsBeingScanned, setContentItemsBeingScanned] = useState([])
-  const [isErrorFoundInContent, setIsErrorFoundInContent] = useState(false)
   const [searchTerm, setSearchTerm] = useState('')
   const [activeFilters, setActiveFilters] = useState(defaultFilters)
-  const [unfilteredIssues, setUnfilteredIssues] = useState([])
-  const [filteredIssues, setFilteredIssues] = useState([])
+  const [unfilteredFiles, setUnfilteredFiles] = useState([])
+  const [filteredFiles, setFilteredFiles] = useState([])
   const [widgetState, setWidgetState] = useState(WIDGET_STATE.LOADING)
-  const [liveUpdateToggle, setLiveUpdateToggle] = useState(true)
 
   const formatFileData = (fileData) => {
     // All files should be considered "Potential Issues" since they need to be reviewed and are
@@ -125,20 +130,19 @@ export default function ReviewFilesPage({
 
     let fileId = "file-" + fileData.id
 
-    let issueResolution = FILTER.ACTIVE
-    if(fileData.reviewed) {
-      issueResolution = FILTER.RESOLVED
-    }
+    let issueResolution = (fileData.reviewed ? FILTER.REVIEWED : FILTER.UNREVIEWED)
 
     let formLabel = t(`form.file.title`)
 
+    let fileType = FILTER.FILE_UNKNOWN
     let fileTypeLabel = t(`label.mime.unknown`)
     
     // Guarantee that the keywords include the word "file" in each language
-    let keywords = [ fileData.fileName.toLowerCase(), fileTypeLabel.toLowerCase(), formLabel.toLowerCase() ]
+    let keywords = [ fileData.fileName.toLowerCase() ]
     
     // Keywords should include the file type ('MS Word', 'PDF', etc.)
     if(FILE_TYPES.includes(fileData.fileType)) {
+      fileType = FILE_TYPE_MAP[fileData.fileType]
       fileTypeLabel = t(`label.mime.${fileData.fileType}`)
       keywords.push[fileTypeLabel.toLowerCase()]
     }
@@ -196,6 +200,7 @@ export default function ReviewFilesPage({
       severity: FILTER.POTENTIAL,
       status: issueResolution,
       published: true,
+      fileType: fileType,
       sectionIds: fileSectionIds,
       keywords: keywords,
       scanRuleId: 'verify_file_accessibility',
@@ -208,52 +213,37 @@ export default function ReviewFilesPage({
     }
   }
 
-  const addItemToBeingScanned = (contentItemId) => {
-    let tempContentItems = contentItemsBeingScanned
-    if(!tempContentItems.includes(contentItemId)) {
-      tempContentItems.push(contentItemId)
-      setContentItemsBeingScanned(tempContentItems)
-    }
-  }
-
-  const removeItemFromBeingScanned = (contentItemId) => {
-    let tempContentItems = contentItemsBeingScanned
-    if(tempContentItems.includes(contentItemId)) {
-      tempContentItems = tempContentItems.filter((item) => item !== contentItemId)
-      setContentItemsBeingScanned(tempContentItems)
-    }
-  }
-
   // When the filters or search term changes, update the filtered issues list
   useEffect(() => {
 
-    let tempFilteredContent = getFilteredContent(unfilteredIssues)
+    let tempFilteredFiles = getFilteredContent(unfilteredFiles)
     let tempTableSettings = Object.assign({}, tableSettings)
 
-    if(tempFilteredContent.length !== filteredIssues.length) {
+    if(tempFilteredFiles.length !== filteredFiles.length) {
       tempTableSettings.pageNum = 0
       handleTableSettings({ pageNum: 0 })
     }
 
-    setFilteredIssues(tempFilteredContent)
+    setFilteredFiles(tempFilteredFiles)
     setWidgetState(WIDGET_STATE.LIST)
 
   }, [activeFilters, searchTerm])
 
   const getContent = () => {
-    if (filteredIssues.length === 0) {
+    if (filteredFiles.length === 0) {
       return []
     }
 
     let tempRows = []
-    filteredIssues.forEach((tempFile) => {
+    filteredFiles.forEach((tempFile) => {
       tempRows.push({
         id: tempFile.id,
         name: tempFile.contentTitle,
         type: tempFile.fileData.fileType ? t(`label.mime.${tempFile.fileData.fileType}`) : t('label.mime.unknown'),
         date: tempFile.fileData.updated,
         size: (tempFile.fileData.fileSize) ? parseInt(tempFile.fileData.fileSize) : t('label.unknown'),
-        resolved: (tempFile.status !== FILTER.ACTIVE) ? t('label.yes') : t('label.no'),
+        resolved: (tempFile.status === FILTER.REVIEWED) ? t('label.yes') : t('label.no'),
+        onClick: () => { jumpToFile(tempFile.id) }
       })
     })
 
@@ -277,7 +267,7 @@ export default function ReviewFilesPage({
 
   useEffect(() => {
     setRows(getContent())
-  }, [tableSettings, filteredIssues])
+  }, [tableSettings, filteredFiles])
 
   // The report object is updated whenever a scan or rescan is completed. At this point, the list of issues
   // needs to be rebuilt and the activeIssue may need to be updated. For instance, if an issue is marked as
@@ -310,10 +300,6 @@ export default function ReviewFilesPage({
 
     setRows(tempRows)
 
-    // Every time the list changes, we need to reload the activeContentItem. This will come from the
-    // cache (contentItemCache) or from the database, if not in the cache.
-    setActiveContentItem(null)
-
     // The filtered list should ALWAYS include the current activeIssue, even if it no longer matches
     // the filters. For instance, if I'm only looking through "Unreviewed" issues, and I click on the
     // "Mark as Reviewed" button, that newly-reviewed issue should be available to stay on screen.
@@ -330,23 +316,11 @@ export default function ReviewFilesPage({
 
       // If not, we need to do a more thorough check.
       if(holdoverActiveIssue === null) {
-        if(activeIssue.contentType === FILTER.FILE_OBJECT) {
-          tempUnfilteredIssues.forEach((issue) => {
-            if(issue.contentId === activeIssue.contentId) {
-              holdoverActiveIssue = issue
-            }
-          })
-        }
-        else {
-          tempUnfilteredIssues.forEach((issue) => {
-            if(issue.scanRuleId === activeIssue.scanRuleId &&
-                issue.contentId === activeIssue.contentId &&
-                issue.issueData.xpath === activeIssue.issueData.xpath) {
-              updateActiveSessionIssue(issue.id, null, issue.issueData.contentItemId)
-              holdoverActiveIssue = issue
-            }
-          })
-        }
+        tempUnfilteredIssues.forEach((issue) => {
+          if(issue.contentId === activeIssue.contentId) {
+            holdoverActiveIssue = issue
+          }
+        })
       }
 
       if(holdoverActiveIssue === null) {
@@ -354,10 +328,10 @@ export default function ReviewFilesPage({
       }
     }
 
-    setUnfilteredIssues(tempUnfilteredIssues)
+    setUnfilteredFiles(tempUnfilteredIssues)
     let tempFilteredContent = getFilteredContent(tempUnfilteredIssues, holdoverActiveIssue?.id || null)
 
-    setFilteredIssues(tempFilteredContent)
+    setFilteredFiles(tempFilteredContent)
     setActiveIssue(holdoverActiveIssue)
   }, [report])
 
@@ -365,7 +339,6 @@ export default function ReviewFilesPage({
   // When a new activeIssue is set, get the content for that issue
   useEffect(() => {
     if(activeIssue === null) {
-      setActiveContentItem(null)
       setTempActiveIssue(null)
       setWidgetState(WIDGET_STATE.LIST)
       return
@@ -374,36 +347,9 @@ export default function ReviewFilesPage({
     setWidgetState(WIDGET_STATE.FIXIT)
     const activeIssueClone = JSON.parse(JSON.stringify(activeIssue))
 
-    if(activeIssue.contentType === FILTER.FILE_OBJECT) {
-      setTempActiveIssue(activeIssueClone)
-      setActiveContentItem(null)
-      setIsErrorFoundInContent(true)
-      return
-    }
-
-    activeIssueClone.issueData.initialHtml = Html.getIssueHtml(activeIssueClone.issueData)
     setTempActiveIssue(activeIssueClone)
 
-    // If we've already downloaded the content for this issue, use that
-    const contentItemId = activeIssue.issueData.contentItemId
-    if(contentItemCache[contentItemId]) {
-      setActiveContentItem(contentItemCache[contentItemId])
-      return
-    }
-
-    // Otherwise, clear the old content and download the content for this issue
-    setActiveContentItem(null)
-    loadContentItemByIssue(activeIssue)
-
   }, [activeIssue])
-
-  useEffect(() => {
-    let tempContentItem = null
-    if(activeIssue?.issueData?.contentItemId) {
-      tempContentItem = contentItemCache[activeIssue.issueData.contentItemId] || null
-    }
-    setActiveContentItem(tempContentItem)
-  }, [contentItemCache])
 
   const getFilteredContent = (allIssues, includedIssueId = null) => {
     let filteredList = []
@@ -425,25 +371,8 @@ export default function ReviewFilesPage({
         filteredList.push(issue)
         continue
       }
-
-      // Do not include this issue if it doesn't match the severity filter
-      if (tempFilters[FILTER.TYPE.SEVERITY] !== FILTER.ALL && tempFilters[FILTER.TYPE.SEVERITY] !== issue.severity) {
-        continue
-      }
-
-      // Do not include this issue if it doesn't match the content type filter
-      let tempContentType = issue.contentType
-      let tempStatus = issue.status === FILTER.FIXEDANDRESOLVED ? FILTER.FIXED : issue.status
-      if (tempContentType === FILTER.FILE_OBJECT) {
-        // When the user selects "Files", show both "File" issues as well as external File objects
-        tempContentType = FILTER.FILE
-      }
-      if (tempFilters[FILTER.TYPE.CONTENT_TYPE] !== FILTER.ALL && tempFilters[FILTER.TYPE.CONTENT_TYPE] !== tempContentType) {
-        continue
-      }
-
-      // Do not include this issue if it doesn't match the status filter
-      if (tempFilters[FILTER.TYPE.RESOLUTION] !== FILTER.ALL && tempFilters[FILTER.TYPE.RESOLUTION] !== tempStatus) {
+      
+      if (tempFilters[FILTER.TYPE.RESOLUTION] !== FILTER.ALL && tempFilters[FILTER.TYPE.RESOLUTION] !== issue.status) {
         continue
       }
 
@@ -452,8 +381,7 @@ export default function ReviewFilesPage({
         continue
       }
 
-      // Do not include this issue if it doesn't match the published filter
-      if (tempFilters[FILTER.TYPE.PUBLISHED] !== FILTER.ALL && (tempFilters[FILTER.TYPE.PUBLISHED] === FILTER.PUBLISHED) !== issue.published) {
+      if (tempFilters[FILTER.TYPE.FILE_TYPE] !== FILTER.ALL && issue.fileType !== tempFilters[FILTER.TYPE.FILE_TYPE]) {
         continue
       }
 
@@ -473,14 +401,6 @@ export default function ReviewFilesPage({
         }
       }
 
-      // Check to see if the user ONLY wants to see issues from published content
-      if(settings?.user?.roles?.view_only_published && issue.issueData) {
-        let tempContentItem = getContentById(issue.issueData.contentItemId)
-        if(tempContentItem && tempContentItem.published === false) {
-          continue
-        }
-      }
-
       // If the issue passes all filters, add it to the list!
       filteredList.push(issue)
     }
@@ -491,25 +411,6 @@ export default function ReviewFilesPage({
 
     return filteredList
   }
-
-  const loadContentItemByIssue = (issue) => {
-    let contentItemId = issue?.issueData?.contentItemId || null
-    if(contentItemId) {
-      addItemToBeingScanned(contentItemId)
-      let api = new Api(settings)
-      api.getIssueContent(issue.id)
-      .then((response) => {
-        return response.json()
-      }).then((data) => {
-        if(data?.data?.contentItem) {
-          const newContentItem = data.data.contentItem
-          addContentItemToCache(newContentItem)
-        }
-        removeItemFromBeingScanned(contentItemId)
-      })
-    }
-  }
-
 
   // All local information must be updated to match the new issue state:
   // - activeIssue
@@ -530,7 +431,7 @@ export default function ReviewFilesPage({
       || state === settings.ISSUE_STATE.RESOLVED
       || state === settings.ISSUE_STATE.UNCHANGED) {
 
-        let tempUnfilteredIssues = unfilteredIssues.map((issue) => {
+        let tempUnfilteredIssues = unfilteredFiles.map((issue) => {
           if(issue.id === issueId) {
             let tempIssue = Object.assign({}, issue)
             tempIssue.currentState = state
@@ -538,8 +439,8 @@ export default function ReviewFilesPage({
           }
           return issue
         })
-        setUnfilteredIssues(tempUnfilteredIssues)
-        setFilteredIssues(getFilteredContent(tempUnfilteredIssues, activeIssue?.id || null))
+        setUnfilteredFiles(tempUnfilteredIssues)
+        setFilteredFiles(getFilteredContent(tempUnfilteredIssues, activeIssue?.id || null))
     }
 
     // This updates the active issue to the current state, which allows the proper UI to show
@@ -568,145 +469,6 @@ export default function ReviewFilesPage({
       }
     }
     processNewReport(tempReport)
-  }
-
-  const getNewFullPageHtml = (content, issue) => {
-    if(!content?.body || !issue) {
-      return
-    }
-
-    // Create the full HTML string for the new version of the content item.
-    const parser = new DOMParser()
-    const tempDoc = parser.parseFromString(content.body, 'text/html')
-
-    let errorElement = Html.findElementWithIssue(tempDoc, issue)
-      
-    if(!errorElement) {
-      console.warn("Could not find error element when attempting to save...")
-      return
-    }
-    const newElement = Html.toElement(issue?.newHtml)
-    
-    // Replace or remove the error element
-    if(newElement) {
-      errorElement.replaceWith(newElement)  
-    } else {
-      errorElement.remove()
-    }
-
-    return tempDoc.body.innerHTML
-  }
-
-  const handleIssueSave = (issue, markAsReviewed = false) => {
-
-    if(!activeContentItem || !activeContentItem?.body || !issue) {
-      return
-    }
-
-    updateActiveSessionIssue(issue.id, settings.ISSUE_STATE.SAVING)
-    addItemToBeingScanned(issue.contentItemId)
-
-    const specificClassName = `udoit-ignore-${issue.scanRuleId.replaceAll("_", "-")}`
-    if (markAsReviewed) {
-      if (issue.status === 1) {
-        issue.status = 3
-        issue.newHtml = Html.toString(Html.addClass(issue.newHtml, specificClassName))
-      } else if (issue.status === 0) {
-        issue.status = 2
-        issue.newHtml = Html.toString(Html.addClass(issue.sourceHtml, specificClassName))
-      }
-    } else {
-      if (issue.status === 3) {
-        issue.status = 1
-        issue.newHtml = Html.toString(Html.removeClass(issue.newHtml, specificClassName))
-      } else if (issue.status === 2) {
-        issue.status = 0
-        issue.newHtml = Html.toString(Html.removeClass(issue.sourceHtml, specificClassName))
-      }
-    }
-
-    let fullPageHtml = getNewFullPageHtml(activeContentItem, issue)
-    let fullPageDoc = new DOMParser().parseFromString(fullPageHtml, 'text/html')
-    let newElement = Html.findElementWithError(fullPageDoc, issue?.newHtml)
-    let newXpath = Html.findXpathFromElement(newElement)
-    if(newXpath) {
-      issue.xpath = newXpath
-    }
-    else {
-      issue.xpath = ""
-    }
-    activeContentItem.body = fullPageHtml
-
-    // Save the updated issue using the LMS API
-    let api = new Api(settings)
-    try {
-      api.saveIssue(issue, fullPageHtml, markAsReviewed)
-      .then((responseStr) => {
-        // Check for HTTP errors before parsing JSON
-          if (!responseStr.ok) {
-            processServerError(responseStr)
-            updateActiveSessionIssue(issue.id, settings.ISSUE_STATE.ERROR)
-            removeItemFromBeingScanned(issue.contentItemId)
-            return null
-          }
-          return responseStr.json()
-      })
-      .then((response) => {
-
-        // If the save falied, show the relevant error message
-        if (response.data.failed) {
-          updateActiveSessionIssue(issue.id, settings.ISSUE_STATE.ERROR)
-          removeItemFromBeingScanned(issue.contentItemId)
-          response.messages.forEach((msg) => addMessage(msg))
-            
-          if (Array.isArray(response.data.issues)) {
-            response.data.issues.forEach((issue) => {
-              addMessage({
-                severity: 'error',
-                message: t(`form.error.${issue.ruleId}`)
-              })
-            })
-          }
-
-          if (Array.isArray(response.data.errors)) {
-            response.data.errors.forEach((error) => {
-              addMessage({
-                severity: 'error',
-                message: error
-              })
-            })
-          }
-        }
-        else {
-          
-          // If the save was successful, show the success message
-          response.messages.forEach((msg) => addMessage(msg))
-          
-          if (response.data.issue) {
-            // Update the report object by rescanning the content
-            const newIssue = Object.assign({}, issue, response.data.issue)
-            // setActiveIssue(formattedData)
-            updateActiveSessionIssue(newIssue.id, settings.ISSUE_STATE.SAVED)
-
-            api.scanContent(newIssue.contentItemId)
-              .then((responseStr) => responseStr.json())
-              .then((res) => { 
-                const tempReport = Object.assign({}, res?.data)
-                processNewReport(tempReport)
-                removeItemFromBeingScanned(newIssue.contentItemId)
-              })
-          }
-          else {
-            // setActiveIssue(formatIssueData(issue))
-            updateActiveSessionIssue(issue.id, settings.ISSUE_STATE.SAVED)
-            removeItemFromBeingScanned(issue.contentItemId)
-          }
-        }
-      })
-    } catch (error) {
-      console.error(error)
-      updateActiveSessionIssue(issue.id, settings.ISSUE_STATE.ERROR)
-    }
   }
 
   /**
@@ -776,21 +538,30 @@ export default function ReviewFilesPage({
     setActiveFilters(Object.assign({}, activeFilters, {[filter]: value}))
   }
 
-  const nextIssue = (previous = false) => {
-    if (!activeIssue || filteredIssues.length < 2) { return }
-    let activeIndex = filteredIssues.findIndex((issue) => issue.id === activeIssue.id)
+  const jumpToFile = (fileId) => {
+    let filteredFileIndex = filteredFiles.findIndex((issue) => issue.id === fileId)
+    if(filteredFileIndex === -1) {
+      return
+    }
+
+    setActiveIssue(filteredFiles[filteredFileIndex])
+  }
+
+  const nextFile = (previous = false) => {
+    if (!activeIssue || filteredFiles.length < 2) { return }
+    let activeIndex = filteredFiles.findIndex((issue) => issue.id === activeIssue.id)
 
     if(activeIndex === -1) { return }
 
     // If we've reached the first or last issue, loop around
     let newIndex = activeIndex + (previous ? -1 : 1)
     if (newIndex < 0) {
-      newIndex = filteredIssues.length - 1
+      newIndex = filteredFiles.length - 1
     }
-    else if (newIndex >= filteredIssues.length) {
+    else if (newIndex >= filteredFiles.length) {
       newIndex = 0
     }
-    setActiveIssue(filteredIssues[newIndex])
+    setActiveIssue(filteredFiles[newIndex])
   }
 
   const toggleListView = () => {
@@ -805,19 +576,7 @@ export default function ReviewFilesPage({
     else {
       setWidgetState(WIDGET_STATE.LIST)
       setActiveIssue(null)
-      setActiveContentItem(null)
     }
-  }
-
-  const getContentById = (contentId) => {
-    if(!report.contentItems[contentId]) {
-      return null
-    }
-    return report.contentItems[contentId]
-  }
-
-  const triggerLiveUpdate = () => {
-    setLiveUpdateToggle(!liveUpdateToggle)
   }
 
   return (
@@ -826,7 +585,7 @@ export default function ReviewFilesPage({
         <></>
       ) : widgetState === WIDGET_STATE.LIST ? (
         <>
-          <FixIssuesFilters
+          <ReviewFilesFilters
             t={t}
             settings={settings.FILTER ? settings : Object.assign({}, settings, { FILTER })}
 
@@ -836,67 +595,67 @@ export default function ReviewFilesPage({
             sections={sections}
             updateActiveFilters={updateActiveFilters}
           />
-          <SortableTable
-            t={t}
-            headers={headers}
-            rows={rows}
-            tableSettings={tableSettings}
-            handleTableSettings={handleTableSettings}
-          />
+          <div className="mt-3 mb-2">
+            {(rows.length > 0) ? <SortableTable
+              t={t}
+              headers={headers}
+              rows={rows}
+              tableSettings={tableSettings}
+              handleTableSettings={handleTableSettings}
+            /> : (
+              <div className="flex-column gap-3 mt-3">
+                <div className="flex-row align-self-center ms-3 me-3">
+                  <h2 className="mt-0 mb-0 primary-dark">{t('report.label.no_results')}</h2>
+                </div>
+                <div className="flex-row align-self-center ms-3 me-3">
+                  {t('report.msg.no_results')}
+                </div>
+              </div>
+            )}
+          </div>
         </>
       ) : (
         <div className="flex-row gap-2 w-100 h-100">
           <section className='ufixit-widget-container'>
             <button onClick={toggleListView} className="btn btn-link btn-icon-left btn-small mb-2">
-              <LeftArrowIcon className="icon-sm link-color" />{t('fix.button.list')}
+              <LeftArrowIcon className="icon-sm link-color" />{t('fix.button.files')}
             </button>
             { tempActiveIssue ? (  
-                <UfixitWidget
+                <FileFixitWidget
                   t={t}
                   settings={settings.FILTER ? settings : Object.assign({}, settings, { FILTER })}
-                  activeContentItem={activeContentItem}
-                  addMessage={addMessage}
+                  
                   handleFileResolve={handleFileResolve}
                   handleFileUpload={handleFileUpload}
-                  handleIssueSave={handleIssueSave}
-                  isContentLoading={contentItemsBeingScanned.includes(tempActiveIssue?.issueData?.contentItemId)}
-                  isErrorFoundInContent={isErrorFoundInContent}
                   sessionIssues={sessionIssues}
-                  setTempActiveIssue={setTempActiveIssue}
-                  severity={tempActiveIssue.severity}
                   tempActiveIssue={tempActiveIssue}
-                  triggerLiveUpdate={triggerLiveUpdate}
                 />
             ) : ''}
           </section>
           <section className="ufixit-content-container">
-            {filteredIssues.length > 0 && (
-              <FixIssuesContentPreview
+            {filteredFiles.length > 0 && (
+              <FileReviewPreview
                 t={t}
                 settings={settings.FILTER ? settings : Object.assign({}, settings, { FILTER })}
 
-                activeContentItem={activeContentItem}
                 activeIssue={tempActiveIssue}
-                contentItemsBeingScanned={contentItemsBeingScanned}
-                liveUpdateToggle={liveUpdateToggle}
-                setIsErrorFoundInContent={setIsErrorFoundInContent}
               />
             )}
             <div className="flex-row justify-content-end gap-2 mt-3">
               <button
-                className={`btn btn-small btn-link btn-icon-left ${filteredIssues.length < 2 ? 'disabled' : ''}`}
-                onClick={() => nextIssue(true)}
+                className={`btn btn-small btn-link btn-icon-left ${filteredFiles.length < 2 ? 'disabled' : ''}`}
+                onClick={() => nextFile(true)}
                 tabIndex="0">
-                <LeftArrowIcon className={`icon-sm ` + (filteredIssues.length < 2 ? 'gray' : 'link-color')} />
-                <div className="flex-column justify-content-center">{t('fix.button.previous')}</div>
+                <LeftArrowIcon className={`icon-sm ` + (filteredFiles.length < 2 ? 'gray' : 'link-color')} />
+                <div className="flex-column justify-content-center">{t('fix.button.previous_file')}</div>
               </button>
 
               <button
-                className={`btn btn-small btn-link btn-icon-right ${filteredIssues.length < 2 ? 'disabled' : ''}`}
-                onClick={() => nextIssue()}
+                className={`btn btn-small btn-link btn-icon-right ${filteredFiles.length < 2 ? 'disabled' : ''}`}
+                onClick={() => nextFile()}
                 tabIndex="0">
-                <div className="flex-column justify-content-center">{t('fix.button.next')}</div>
-                <RightArrowIcon className={`icon-sm ` + (filteredIssues.length < 2 ? 'gray' : 'link-color')} />
+                <div className="flex-column justify-content-center">{t('fix.button.next_file')}</div>
+                <RightArrowIcon className={`icon-sm ` + (filteredFiles.length < 2 ? 'gray' : 'link-color')} />
               </button>
             </div>
           </section>

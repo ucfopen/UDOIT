@@ -11,9 +11,8 @@ export default function ReportsTable({
     { id: "created", text: t('report.header.date') },
     { id: "errors", text: t('report.header.issues'), alignText: 'center' },
     { id: "potentialIssues", text: t('report.header.potential'), alignText: 'center' },
-    { id: "suggestions", text: t('report.header.suggestions'), alignText: 'center' },
-    { id: "contentFixed", text: t('report.header.items_fixed'), alignText: 'center' },
-    { id: "contentResolved", text: t('report.header.items_resolved'), alignText: 'center' },
+    { id: "files", text: t('report.header.files_unreviewed'), alignText: 'center', divider: true },
+    { id: "contentHandled", text: t('report.header.items_handled'), alignText: 'center' },
     { id: "filesReviewed", text: t('report.header.files_reviewed'), alignText: 'center'}
   ]
 
@@ -38,11 +37,14 @@ export default function ReportsTable({
       if(report.scanCounts) {
         report.issues = report.scanCounts.issues
         report.potentialIssues = report.scanCounts.potentials
-        report.suggestions = report.scanCounts.suggestions
+        report.files = report.scanCounts.files || 0
       }
       else {
+        report.issues = report.errors || 0
         report.potentialIssues = 0
+        report.files = 0
       }
+      report.contentHandled = report.contentFixed + report.contentResolved || 0
       return report
     })
     const { sortBy, ascending } = tableSettings

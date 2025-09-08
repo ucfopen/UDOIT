@@ -33,8 +33,7 @@ export default function FixIssuesFilters({
     [FILTER.TYPE.SEVERITY]: {
       [FILTER.ALL]: t('filter.label.severity.all'),
       [FILTER.ISSUE]: t('filter.label.severity.issue'),
-      [FILTER.POTENTIAL]: t('filter.label.severity.potential'),
-      [FILTER.SUGGESTION]: t('filter.label.severity.suggestion'),
+      [FILTER.POTENTIAL]: t('filter.label.severity.potential')
     },
     [FILTER.TYPE.PUBLISHED]: {
       [FILTER.PUBLISHED]: t('filter.label.published.published'),
@@ -48,7 +47,6 @@ export default function FixIssuesFilters({
       [FILTER.ANNOUNCEMENT]: t('filter.label.type.announcement'),
       [FILTER.DISCUSSION_TOPIC]: t('filter.label.type.discussion_topic'),
       [FILTER.DISCUSSION_FORUM]: t('filter.label.type.discussion_forum'),
-      [FILTER.FILE]: t('filter.label.type.file'),
       [FILTER.QUIZ]: t('filter.label.type.quiz'),
       [FILTER.SYLLABUS]: t('filter.label.type.syllabus'),
     },
@@ -107,14 +105,10 @@ export default function FixIssuesFilters({
     updateActiveFilters(filterType, FILTER.ALL)
   }
 
-  // TODO: Icons on the Content Type dropdown
-  // TODO: Cool-looking, yet fully accessible dropdown. Maybe like https://www.w3.org/WAI/ARIA/apg/patterns/combobox/examples/combobox-select-only/
-
   return (
     <div className="filter-container flex-column gap-1">
       <div className="flex-row justify-content-between">
         <div className="flex-column flex-shrink-0 justify-content-center">
-          {/* <label htmlFor='search-bar'>{t('filter.label.search')}</label> */}
           <div className="search-group">
             <input
               id="search-bar"
@@ -174,31 +168,6 @@ export default function FixIssuesFilters({
       </div>
       {showFilters && usedFilters && (
         <div className="flex-row flex-wrap gap-1">
-          {/* {Object.keys(usedFilters).map((filterType) => {
-            return (
-              <div className="filter-group flex-column justify-content-center" key={filterType}>
-                <label htmlFor={'filter' + filterType}>{filterLabels[filterType]}</label>
-                <select
-                  id={'filter' + filterType}
-                  name={'filter' + filterType}
-                  tabIndex="0"
-                  defaultValue={activeFilters[filterType]}
-                  onChange={(e) => updateActiveFilters(filterType, e.target.value)}
-                >
-                  {Object.keys(usedFilters[filterType]).map((filter) => {
-                    return (
-                      <option key={filter} value={filter} selected={activeFilters[filterType] === filter}>
-                        {filterType === FILTER.TYPE.CONTENT_TYPE && (
-                          <ContentTypeIcon type={filter} alt="" className="icon-sm text-color" />
-                        )}
-                        {usedFilters[filterType][filter]}
-                      </option>
-                    )
-                  })}
-                </select>
-              </div>
-            )
-          })} */}
           {Object.keys(detailedFilters).map((filterType, index) => {
             return (
               <div className="filter-group flex-column justify-content-center" key={index}>
