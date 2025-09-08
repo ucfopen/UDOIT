@@ -70,7 +70,6 @@ export function getReadableFileSize(fileSize) {
 }
 
 export function getReadableDateTime(dateString) {
-  console.log(dateString)
   let date = new Date(dateString)
   const year = date.getFullYear();
   const month = String(date.getMonth() + 1).padStart(2, '0'); // Month is 0-indexed

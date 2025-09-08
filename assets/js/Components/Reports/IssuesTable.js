@@ -89,13 +89,13 @@ export default function IssuesTable({
         if (!labels.includes(issue.label)) {
           labels.push(issue.label)
           if(issue.type === 'error' || issue.type === 'issue') {
-            issue.type = t('filter.label.severity.issue')
+            issue.type = t('report.header.issues')
           }
           else if(issue.type === 'potential') {
-            issue.type = t('filter.label.severity.potential')
+            issue.type = t('report.header.potential')
           }
           else if(issue.type === 'suggestion') {
-            issue.type = t('filter.label.severity.suggestion')
+            issue.type = t('report.header.suggestions')
           }
           issue.handled = (issue.fixed + issue.resolved > 0 ? 1 : 0)
           mergedIssues.push(issue)

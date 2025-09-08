@@ -14,6 +14,7 @@ export default function UfixitWidget({
   handleIssueSave,
   isContentLoading,
   isErrorFoundInContent = false,
+  sessionIssues,
   setTempActiveIssue,
   tempActiveIssue,
   triggerLiveUpdate
