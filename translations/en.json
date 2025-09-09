@@ -177,7 +177,7 @@
   "filter.label.review.reviewed": "Reviewed Files",
   "filter.label.review.unreviewed": "Unreviewed Files",
   "filter.label.module": "Module",
-  "filter.label.module.all": "All Modules",
+  "filter.label.module.all": "All Barriers",
   "filter.label.utilization": "Referenced in Course",
   "filter.label.utilization.all": "All Files",
   "filter.label.utilization.referenced": "Referenced in Course",
