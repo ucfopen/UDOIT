@@ -809,9 +809,7 @@ export default function FixIssuesPage({
                   handleIssueSave={handleIssueSave}
                   isContentLoading={contentItemsBeingScanned.includes(tempActiveIssue?.issueData?.contentItemId)}
                   isErrorFoundInContent={isErrorFoundInContent}
-                  sessionIssues={sessionIssues}
                   setTempActiveIssue={setTempActiveIssue}
-                  severity={tempActiveIssue.severity}
                   tempActiveIssue={tempActiveIssue}
                   triggerLiveUpdate={triggerLiveUpdate}
                 />

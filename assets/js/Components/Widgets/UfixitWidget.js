@@ -11,12 +11,9 @@ export default function UfixitWidget({
 
   activeContentItem,
   addMessage,
-  handleFileResolve,
-  handleFileUpload,
   handleIssueSave,
   isContentLoading,
   isErrorFoundInContent = false,
-  sessionIssues,
   setTempActiveIssue,
   tempActiveIssue,
   triggerLiveUpdate
@@ -77,30 +74,19 @@ export default function UfixitWidget({
             <div className="ufixit-widget-label primary mb-1">{t('fix.label.barrier_repair')}</div>
             <div className="flex-column flex-grow-1 justify-content-between ufixit-form-content">
               <div className="callout-container">
-                { tempActiveIssue.contentType === settings.FILTER.FILE_OBJECT ? (
-                  <FileForm
-                    t={t}
-                    settings={settings}
-                    
-                    activeFile={tempActiveIssue.fileData}
-                    handleFileResolve={handleFileResolve}
-                    handleFileUpload={handleFileUpload}
-                    sessionIssues={sessionIssues} /> )
-                  : (
-                  <UfixitForm
-                    t={t}
-                    settings={settings}
+                <UfixitForm
+                  t={t}
+                  settings={settings}
 
-                    activeIssue={tempActiveIssue.issueData}
-                    activeContentItem={activeContentItem}
-                    addMessage={addMessage}
-                    handleActiveIssue={handleActiveIssue}
-                    handleIssueSave={interceptIssueSave}
-                    isContentLoading={isContentLoading}
-                    isDisabled={markAsReviewed || isContentLoading || !isErrorFoundInContent}
-                    markAsReviewed={markAsReviewed}
-                    setMarkAsReviewed={setMarkAsReviewed} /> )
-                }
+                  activeIssue={tempActiveIssue.issueData}
+                  activeContentItem={activeContentItem}
+                  addMessage={addMessage}
+                  handleActiveIssue={handleActiveIssue}
+                  handleIssueSave={interceptIssueSave}
+                  isContentLoading={isContentLoading}
+                  isDisabled={markAsReviewed || isContentLoading || !isErrorFoundInContent}
+                  markAsReviewed={markAsReviewed}
+                  setMarkAsReviewed={setMarkAsReviewed} />
               </div>
             </div>
           </div>

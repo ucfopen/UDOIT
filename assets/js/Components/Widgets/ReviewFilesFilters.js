@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import SearchIcon from '../Icons/SearchIcon'
 import CloseIcon from '../Icons/CloseIcon'
-import ContentTypeIcon from '../Icons/ContentTypeIcon'
 import FilterOnIcon from '../Icons/FilterOnIcon'
 import FilterOffIcon from '../Icons/FilterOffIcon'
 import Combobox from './Combobox'
@@ -23,7 +22,6 @@ export default function ReviewFilesFilters({
 
   const filterLabels = {
     [FILTER.TYPE.UTILIZATION]: t('filter.label.utilization'),
-    // [FILTER.TYPE.PUBLISHED]: t('filter.label.published'),
     [FILTER.TYPE.FILE_TYPE]: t('filter.label.file_type'),
     [FILTER.TYPE.RESOLUTION]: t('filter.label.resolution'),
     [FILTER.TYPE.MODULE]: t('filter.label.module'),
@@ -98,14 +96,10 @@ export default function ReviewFilesFilters({
     updateActiveFilters(filterType, FILTER.ALL)
   }
 
-  // TODO: Icons on the Content Type dropdown
-  // TODO: Cool-looking, yet fully accessible dropdown. Maybe like https://www.w3.org/WAI/ARIA/apg/patterns/combobox/examples/combobox-select-only/
-
   return (
     <div className="filter-container flex-column gap-1">
       <div className="flex-row justify-content-between">
         <div className="flex-column flex-shrink-0 justify-content-center">
-          {/* <label htmlFor='search-bar'>{t('filter.label.search')}</label> */}
           <div className="search-group">
             <input
               id="search-bar"

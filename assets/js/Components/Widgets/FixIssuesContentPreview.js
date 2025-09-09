@@ -1,11 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react'
-import FileReviewPreview from './FileReviewPreview'
 import ExternalLinkIcon from '../Icons/ExternalLinkIcon'
 import ProgressIcon from '../Icons/ProgressIcon'
 import InfoIcon from '../Icons/InfoIcon'
-import { formFromIssue, formNameFromRule, formNames } from '../../Services/Ufixit'
+import { formNameFromRule, formNames } from '../../Services/Ufixit'
 import * as Html from '../../Services/Html'
-import * as Text from '../../Services/Text'
 import UpArrowIcon from '../Icons/UpArrowIcon'
 import DownArrowIcon from '../Icons/DownArrowIcon'
 import './FixIssuesContentPreview.css'
@@ -289,21 +287,6 @@ export default function FixIssuesContentPreview({
     addPreviewHelperElements(doc, targetElement)
     setTaggedContent(doc.innerHTML)
   }, [liveUpdateToggle])
-
-  const getReadableFileType = (fileType) => {
-    switch (fileType) {
-      case 'doc':
-        return t('label.mime.doc')
-      case 'ppt':
-        return t('label.mime.ppt')
-      case 'xls':
-        return t('label.mime.xls')
-      case 'pdf':
-        return t('label.mime.pdf')
-      default:
-        return t('label.mime.unknown')
-    }
-  }
 
   const scrollToElement = (element) => {
     if (element) {
