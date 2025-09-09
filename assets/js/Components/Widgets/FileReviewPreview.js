@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react'
+import React from 'react'
 import DownloadIcon from '../Icons/DownloadIcon'
 import ExternalLinkIcon from '../Icons/ExternalLinkIcon'
 import * as Text from '../../Services/Text'

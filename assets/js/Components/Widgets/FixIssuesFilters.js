@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import SearchIcon from '../Icons/SearchIcon'
 import CloseIcon from '../Icons/CloseIcon'
-import ContentTypeIcon from '../Icons/ContentTypeIcon'
 import FilterOnIcon from '../Icons/FilterOnIcon'
 import FilterOffIcon from '../Icons/FilterOffIcon'
 import Combobox from '../Widgets/Combobox'
