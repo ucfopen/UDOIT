@@ -3,6 +3,7 @@ import DownloadIcon from '../Icons/DownloadIcon'
 import ExternalLinkIcon from '../Icons/ExternalLinkIcon'
 import * as Text from '../../Services/Text'
 import './FixIssuesContentPreview.css'
+import SeverityIcon from '../Icons/SeverityIcon'
 
 
 export default function FixIssuesContentPreview({
@@ -62,6 +63,28 @@ export default function FixIssuesContentPreview({
                 <div className="flex-column flex-center allow-word-break">{Text.getReadableDateTime(activeIssue.fileData.updated)}</div>
               </div>
             </div>
+            { activeIssue.fileData.references.length === 0 ? (
+              <div className="mt-3 callout-container">
+                <div className="flex-row">
+                  <div className="flex-column justify-content-start mr-2">
+                    <SeverityIcon severity="potential" className="icon-md potential-color" alt="" />
+                  </div>
+                  <div className="flex-column justify-content-start">
+                    {t('fix.message.no_references_found')}
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <div className="mt-3">
+                <h3>{t('fix.label.references')}</h3>
+                  { activeIssue.fileData.references.map((reference) => (
+                    <p>
+                      <a href={reference.contentItemUrl} target="_blank" rel="noreferrer">{reference.contentItemTitle}</a>
+                    </p>
+                  )) }
+              </div>
+            )}
+            
             <div className="mt-3 flex-row justify-content-center gap-3">
               { activeIssue.fileData.downloadUrl && (
                 <button className="btn btn-secondary btn-icon-left" onClick={() => window.open(activeIssue.fileData.downloadUrl, 'download')}>
