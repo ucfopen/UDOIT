@@ -38,7 +38,7 @@ export default function ReportsPage({t, report, settings, quickSearchTerm}) {
         rules[rule] = {
           id: rule,
           type: issue.type,
-          severity: (issue.type == 'error' ? t("filter.label.severity.issue") : t("filter.label.severity.potential")),
+          severity: (issue.type == 'error' ? t("filter.label.severity.issue_single") : t("filter.label.severity.potential_single")),
           active: 0,
           resolved: 0,
           total: 0

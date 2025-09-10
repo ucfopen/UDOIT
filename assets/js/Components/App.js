@@ -134,7 +134,6 @@ export default function App(initialData) {
   const processNewReport = (rawReport) => {
     const tempReport = analyzeReport(rawReport, ISSUE_STATE)
     setReport(tempReport)
-    console.log(tempReport)
 
     let api = new Api(settings)
     api.setReportData(tempReport.id, {'scanCounts': tempReport.scanCounts, 'scanRules': tempReport.scanRules})
