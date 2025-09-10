@@ -79,6 +79,7 @@ export function analyzeReport(report, ISSUE_STATE) {
     suggestions: 0,
     files: 0,
   }
+  let scanRules = {}
   let sessionIssues = {}
   let currentTime = new Date()
   let millisecondsInADay = 86400000 // 1000 * 60 * 60 * 24
@@ -158,6 +159,13 @@ export function analyzeReport(report, ISSUE_STATE) {
       if(!usedContentItems[issue.contentItemId] && report.contentItems[issue.contentItemId]) {
         usedContentItems[issue.contentItemId] = report.contentItems[issue.contentItemId]
       }
+
+      if(!(issue.scanRuleId in scanRules)) {
+        scanRules[issue.scanRuleId] = 1
+      }
+      else {
+        scanRules[issue.scanRuleId] += 1
+      }
     }
   })
 
@@ -173,6 +181,7 @@ export function analyzeReport(report, ISSUE_STATE) {
 
   tempReport.issues = activeIssues
   tempReport.scanCounts = scanCounts
+  tempReport.scanRules = scanRules
   tempReport.contentItems = usedContentItems
   tempReport.sessionIssues = sessionIssues
   tempReport.filesReviewed = tempFilesReviewed
