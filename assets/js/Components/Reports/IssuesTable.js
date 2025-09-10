@@ -13,8 +13,6 @@ export default function IssuesTable({
     { id: "label", text: t('report.header.issue_type') },
     { id: "type", text: t('report.header.severity')},
     { id: "active", text: t('report.header.active'), alignText: 'center' },
-    // { id: "fixed", text: t('report.header.fixed'), alignText: 'center' },
-    // { id: "resolved", text: t('report.header.resolved'), alignText: 'center' },
     { id: "handled", text: t('report.header.handled'), alignText: 'center' }
   ]
 
@@ -91,13 +89,13 @@ export default function IssuesTable({
         if (!labels.includes(issue.label)) {
           labels.push(issue.label)
           if(issue.type === 'error' || issue.type === 'issue') {
-            issue.type = t('report.header.issues')
+            issue.type = t('filter.label.severity.issue')
           }
           else if(issue.type === 'potential') {
-            issue.type = t('report.header.potential')
+            issue.type = t('filter.label.severity.potential')
           }
           else if(issue.type === 'suggestion') {
-            issue.type = t('report.header.suggestions')
+            issue.type = t('filter.label.severity.suggestion')
           }
           issue.handled = (issue.fixed + issue.resolved > 0 ? 1 : 0)
           mergedIssues.push(issue)
