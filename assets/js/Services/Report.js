@@ -85,6 +85,39 @@ export function analyzeReport(report, ISSUE_STATE) {
   let millisecondsInADay = 86400000 // 1000 * 60 * 60 * 24
 
   const parser = new DOMParser()
+  const fileReferences = {}
+
+  // Parse every document only once. Not every content item will have issues, but we need to parse each one anyway
+  // so we can scan them for references to course files.
+  Object.values(report.contentItems).forEach((contentItem) => {
+    if(contentItem.body) {
+      let tempBody = parser.parseFromString(contentItem.body, 'text/html')
+
+      // Get all of the links to files in the content item.
+      let links = tempBody.getElementsByTagName('a')
+      const fileUrlPattern = /\/files\/(\d+)/
+      for(let i = 0; i < links.length; i++) {
+        let link = links[i]
+        let href = link.getAttribute('href')
+        if(href) {
+          let match = href.match(fileUrlPattern)
+          if(match && match[1]) {
+            let fileId = match[1]
+            if(!fileReferences[fileId]) {
+              fileReferences[fileId] = []
+            }
+            fileReferences[fileId].push({
+              contentItemTitle: contentItem.title,
+              contentItemUrl: contentItem.url,
+              contentType: contentItem.contentType,
+            })
+          }
+        }
+      }
+
+      parsedDocuments[contentItem.id] = tempBody
+    }
+  })
 
   report.issues.forEach((issue) => {
 
@@ -98,21 +131,9 @@ export function analyzeReport(report, ISSUE_STATE) {
       // Get the relevant content item
       let contentItemId = issue.contentItemId
       
-      // We're quickly caching all of the parsed documents so we don't have to parse them for each issue.
-      let parsedDocument = null
       if(parsedDocuments[contentItemId]) {
-        parsedDocument = parsedDocuments[contentItemId]
-      }
-      else {
-        if(report?.contentItems[contentItemId]?.body) {
-          parsedDocuments[contentItemId] = parser.parseFromString(report.contentItems[contentItemId].body, 'text/html')
-          parsedDocument = parsedDocuments[contentItemId]
-        }
-      }
-      
-      if(parsedDocument) {
         // In the initial scan, whatever comes back is saved to both the issue.xpath and issue.sourceHtml variables.
-        let element = Html.findElementWithIssue(parsedDocument, issue)
+        let element = Html.findElementWithIssue(parsedDocuments[contentItemId], issue)
         if(element) {
           issue.sourceHtml = Html.toString(element)
           let elementClasses = element.getAttribute('class')
@@ -169,6 +190,10 @@ export function analyzeReport(report, ISSUE_STATE) {
     }
   })
 
+  report.files.forEach((file) => {
+    file.references = fileReferences[parseInt(file.lmsFileId)] || []
+  })
+
   let tempFilesReviewed = 0
   Object.values(report.files).forEach((file) => {
     if(file.reviewed) {
@@ -182,6 +207,7 @@ export function analyzeReport(report, ISSUE_STATE) {
   tempReport.issues = activeIssues
   tempReport.scanCounts = scanCounts
   tempReport.scanRules = scanRules
+  tempReport.files = {...report.files}
   tempReport.contentItems = usedContentItems
   tempReport.sessionIssues = sessionIssues
   tempReport.filesReviewed = tempFilesReviewed
