@@ -6,7 +6,8 @@ export default function IssuesTable({
   t,
   issues,
   quickSearchTerm = null,
-  isAdmin
+  isAdmin,
+  selectedCourse
 }) {
 
   const headers = [
@@ -17,8 +18,8 @@ export default function IssuesTable({
     { id: "resolved", text: t('report.header.resolved'), alignText: 'center' },
   ]
 
-  if (isAdmin) {
-    headers.push({ id: "courses", text: t('report.header.courses') })
+  if (isAdmin && (selectedCourse == null)) {
+    headers.push({ id: "courses", text: t('report.header.courses'), alignText: 'center' })
   }
 
   // The "total" is always the last column of the table

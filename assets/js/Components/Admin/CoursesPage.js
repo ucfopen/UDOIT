@@ -22,12 +22,11 @@ export default function CoursePage({
     pageNum: 0,
     rowsPerPage: (localStorage.getItem('rowsPerPage')) ? localStorage.getItem('rowsPerPage') : '10'
   })
-  
   const headers = [
     { id: "courseName", text: t('report.header.course_name') }, 
     { id: "accountName", text: t('report.header.account_name') }, 
     { id: "lastUpdated", text: t('report.header.last_scanned') },
-    { id: "errors", text: t('report.header.issues'), alignText: "center" }, 
+    { id: "barriers", text: t('report.header.issues'), alignText: "center" }, 
     { id: "suggestions", text: t('report.header.suggestions'), alignText: "center" }, 
     { id: "contentFixed", text: t('report.header.items_fixed'), alignText: "center" }, 
     { id: "contentResolved", text: t('report.header.items_resolved'), alignText: "center" }, 
@@ -59,6 +58,9 @@ export default function CoursePage({
       }
 
       if (!excludeCourse) {
+        const scanCounts = course.report?.scanCounts || {};
+        const barriers = scanCounts.errors || 0; // Use scanCounts.errors for "Barriers"
+        const suggestions = scanCounts.suggestions || 0; // Use scanCounts.suggestions for "Suggestions"
         // The Course data from the database is stored in the `course` object.
         // The data for the table is converted to the `row` object.
         let row = {
@@ -67,7 +69,10 @@ export default function CoursePage({
           courseName: <a href={course.publicUrl} target="_blank" rel="noopener noreferrer">{course.title}</a>,
           courseTitle: course.title, // Used for sorting, not displayed outside of courseName element
           accountName: course.accountName,
+          barriers,
+          suggestions,
           lastUpdated: course.lastUpdated,
+          
           action: <div class="flex-row gap-1">
             <button key={`reportButton${course.id}`}
               onClick={() => { !course.loading && handleReportClick(course) }}
@@ -92,7 +97,7 @@ export default function CoursePage({
           </div>
             
         }
-        tempFilteredCourses.push({...row, ...course.report})
+        tempFilteredCourses.push({...course.report, ...row,})
       }
     })
 
