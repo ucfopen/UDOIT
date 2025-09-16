@@ -31,6 +31,7 @@ export default function IssuesTable({
   })
   const [localIssues, setLocalIssues] = useState([])
   const [rows, setRows] = useState([])
+  const [popover, setPopover] = useState({ open: false, content: '', x: 0, y: 0 });
 
   const sortContent = () => {
 
@@ -76,7 +77,36 @@ export default function IssuesTable({
           label = t(`form.${formName}.title`)
           searchTerm = t(`form.${formName}.title`)
         }
-        issue.label = label
+        issue.label = (
+          <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
+            {label}
+            <button
+              style={{
+                border: "none",
+                background: "none",
+                cursor: "pointer",
+                color: "#097c1eff",
+                fontSize: "1.1em",
+                padding: 0,
+                marginLeft: 4,
+              }}
+              title={t('report.button.quick_view')}
+              onClick={e => {
+                e.stopPropagation();
+                const rect = e.target.getBoundingClientRect();
+                setPopover({
+                  open: true,
+                  content: issue.summary,
+                  x: rect.right + window.scrollX + 8,
+                  y: rect.top + window.scrollY - 120,
+                });
+              }}
+            >
+              (?)
+            </button>
+          </span>
+        )
+        issue.summary = t(`form.${formName}.summary`)
         if(quickSearchTerm !== null) {
           issue.onClick = () => quickSearchTerm(searchTerm)
         }
@@ -115,14 +145,57 @@ export default function IssuesTable({
     }
   }, [issues])
 
+  useEffect(() => {
+    if (!popover.open) return;
+    const close = () => setPopover(p => ({ ...p, open: false }));
+    window.addEventListener('click', close);
+    return () => window.removeEventListener('click', close);
+  }, [popover.open]);
+
   return (
-    <SortableTable
-      caption={t('report.title.issues_by_type')}
-      headers={headers}
-      rows={rows}
-      tableSettings={tableSettings}
-      handleTableSettings={handleTableSettings}
-      t={t}
-    />
+    <>
+      <SortableTable
+        caption={t('report.title.issues_by_type')}
+        headers={headers}
+        rows={rows}
+        tableSettings={tableSettings}
+        handleTableSettings={handleTableSettings}
+        t={t}
+      />
+      {popover.open && (
+        <div
+          style={{
+            position: "absolute",
+            left: popover.x,
+            top: popover.y,
+            zIndex: 1000,
+            background: "#fff",
+            border: "1px solid #ccc",
+            borderRadius: 6,
+            boxShadow: "0 2px 8px rgba(0,0,0,0.15)",
+            padding: "12px 16px",
+            minWidth: 220,
+            maxWidth: 320,
+            fontSize: "0.95em",
+          }}
+          onClick={e => e.stopPropagation()}
+        >
+          <div style={{ marginBottom: 8 }}>{popover.content}</div>
+          <button
+            style={{
+              border: "none",
+              background: "none",
+              color: "#0074d9",
+              cursor: "pointer",
+              fontSize: "1em",
+              float: "right",
+            }}
+            onClick={() => setPopover({ ...popover, open: false })}
+          >
+            {t('fix.button.close_learn_more')}
+          </button>
+        </div>
+      )}
+    </>
   )
 }
