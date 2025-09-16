@@ -42,11 +42,19 @@ export default function IssuesTable({
     const { sortBy, ascending } = tableSettings
 
     tempRows.sort((a, b) => {
-      if (isNaN(a[sortBy]) || isNaN(b[sortBy])) {
-        return (a[sortBy].toLowerCase() > b[sortBy].toLowerCase()) ? -1 : 1
+      let aValue = a[sortBy]
+      let bValue = b[sortBy]
+
+      // If sorting by label, use labelText for comparison
+      if (sortBy === "label") {
+        aValue = a.labelText || ""
+        bValue = b.labelText || ""
       }
-      else {
-        return (Number(a[sortBy]) < Number(b[sortBy])) ? -1 : 1
+
+      if (isNaN(aValue) || isNaN(bValue)) {
+        return (aValue.toLowerCase() > bValue.toLowerCase()) ? -1 : 1
+      } else {
+        return (Number(aValue) < Number(bValue)) ? -1 : 1
       }
     })
 
@@ -100,6 +108,7 @@ export default function IssuesTable({
           label = t(`form.${formName}.title`)
           searchTerm = t(`form.${formName}.title`)
         }
+        issue.labelText = label
         issue.label = (
           <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
             {label}
