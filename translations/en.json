@@ -325,6 +325,7 @@
   "rule.label.TableDataShouldHaveTableHeader": "No Table Headers Found",
   "rule.label.TableHeaderShouldHaveScope": "No Row or Column Scope Declarations Found in Table Headers",
   "rule.label.TableNotEmpty": "Table Without Content Detected",
+  "rule.label.VideoApiYoutubeConnectionFailed": "Unable to Verify if Video has Captions",
   "rule.label.VideoCaptionsMatchCourseLanguage": "Closed Captions Do Not Match Course Language",
   "rule.label.VideoEmbedCheck": "Closed Captions Cannot Be Checked",
   "rule.label.VideoProvidesCaptions": "Video Tags Must have Caption Track",

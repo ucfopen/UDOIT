@@ -24,7 +24,8 @@ Encore.setOutputPath('public/build')
   .disableSingleRuntimeChunk()
   .cleanupOutputBeforeBuild()
   .enableBuildNotifications()
-  .enableSourceMaps(!Encore.isProduction())
+  //.enableSourceMaps(!Encore.isProduction())
+  .enableSourceMaps(true)
   .configureCssLoader((options) => {
     options.modules = true
   })
