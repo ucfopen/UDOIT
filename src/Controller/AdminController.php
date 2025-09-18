@@ -15,6 +15,7 @@ use App\Services\UtilityService;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
+use App\Lms\Canvas\CanvasApi;
 
 class AdminController extends ApiController
 {
@@ -418,14 +419,33 @@ class AdminController extends ApiController
         $user = $this->getUser();
         $institution = $user->getInstitution();
 
+        // Get Canvas domain and token for the current user/institution
+        $domain = $institution->getLmsDomain();
+        $token = $user->getApiKey();
+
+        $canvasApi = new CanvasApi($domain, $token);
+
         try {
             $users = $userRepo->findBy(['institution' => $institution]);
+            foreach ($users as $localUser) {
+                $lmsUserId = $localUser->getLmsUserId();
+                if ($lmsUserId) {
+                    try {
+                        $canvasResponse = $canvasApi->apiGet("users/{$lmsUserId}/profile");
+                        $canvasData = $canvasResponse->getContent();
+                        if (!empty($canvasData['name'])) {
+                            $localUser->setName($canvasData['name']);
+                        }
+                    } catch (\Exception $e) {
+                        // Optionally log or handle error
+                    }
+                }
+            }
             $apiResponse->setData($users);
         } catch (\Exception $e) {
             $apiResponse->addMessage($e->getMessage(), 'info', 0, false);
         }
 
-        // Construct Response
         return new JsonResponse($apiResponse);        
     }
 
