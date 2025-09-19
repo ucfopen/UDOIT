@@ -46,6 +46,7 @@ We strongly recommend you enforce scopes with your API key. The following scopes
   * url:PUT|/api/v1/courses/:id
   * url:GET|/api/v1/courses/:id
   * url:POST|/api/v1/courses/:course_id/files
+  * url:GET|/api/v1/courses/:course_id/users
 * discussion_topics
   * url:GET|/api/v1/courses/:course_id/discussion_topics
   * url:PUT|/api/v1/courses/:course_id/discussion_topics/:topic_id
@@ -78,6 +79,10 @@ We strongly recommend you enforce scopes with your API key. The following scopes
   * url:GET|/api/v1/courses/:course_id/pages
   * url:GET|/api/v1/courses/:course_id/pages/:url_or_id
   * url:PUT|/api/v1/courses/:course_id/pages/:url_or_id
+ 
+* enrollments_api
+  * url:GET|/api/v1/courses/:course_id/enrollments
+  *   
 
 ---
 ## Create an LTI Developer Key

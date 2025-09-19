@@ -24,7 +24,8 @@ export default function CoursePage({
   })
   
   const headers = [
-    { id: "courseName", text: t('report.header.course_name') }, 
+    { id: "courseName", text: t('report.header.course_name') },
+    { id: "instructors", text: "Instructors"}, 
     { id: "accountName", text: t('report.header.account_name') }, 
     { id: "lastUpdated", text: t('report.header.last_scanned') },
     { id: "errors", text: t('report.header.issues'), alignText: "center" }, 
@@ -61,10 +62,13 @@ export default function CoursePage({
       if (!excludeCourse) {
         // The Course data from the database is stored in the `course` object.
         // The data for the table is converted to the `row` object.
+        const names = Array.isArray(course.instructors) ? course.instructors : []
+
         let row = {
           id: course.id,
           course,
           courseName: <a href={course.publicUrl} target="_blank" rel="noopener noreferrer">{course.title}</a>,
+          instructors: names.length ? names.join(', ') : '-',
           courseTitle: course.title, // Used for sorting, not displayed outside of courseName element
           accountName: course.accountName,
           lastUpdated: course.lastUpdated,

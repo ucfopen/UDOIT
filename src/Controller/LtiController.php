@@ -187,7 +187,7 @@ class LtiController extends AbstractController
                             ]
                         ]
                     ],
-                    "privacy_level" => "anonymous",
+                    "privacy_level" => "name_only",
                 ]
             ],
             "public_jwk" => [],
