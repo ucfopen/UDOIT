@@ -18,10 +18,12 @@ jobs:
       - name: Check PHP syntax errors
         uses: overtrue/phplint@3.0.3
 
+        # This step now handles yarn caching as well
       - name: Use Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
+          cache: 'yarn'
 
       - name: Setup PHP, with composer and extensions
         uses: shivammathur/setup-php@v2 #https://github.com/shivammathur/setup-php
@@ -30,51 +32,23 @@ jobs:
           extensions: mbstring, xml, ctype, iconv, intl, pdo_sqlite, gd, pdo_mysql, pdo_pgsql
           coverage: xdebug #optional
 
-      - name: Get composer cache directory
-        id: get-composer-cache-dir
-        run: echo "dir=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
-
       - name: Cache composer dependencies
-        id: composer-cache
         uses: actions/cache@v4
         with:
-          path: |
-            vendor
-            ${{ steps.get-composer-cache-dir.outputs.dir }}
+          path: ~/.composer/cache
           key: php-${{ matrix.php-versions }}-composer-${{ hashFiles('**/composer.lock') }}
           restore-keys: php-${{ matrix.php-versions }}-composer-
-
-      - name: Check if composer cache was found
-        run: echo "Cache hit ${{ steps.composer-cache.outputs.cache-hit }}"
 
       - name: Create .env file
         run: cp .env.example .env
 
       - name: Install Composer dependencies
-        if: ${{ steps.composer-cache.outputs.cache-hit != 'true' }}
         run: composer install --no-progress --prefer-dist --optimize-autoloader
 
       - name: PHPUnit Testing
         run: SYMFONY_DEPRECATIONS_HELPER=disabled ./vendor/bin/phpunit
 
-      - name: Get yarn cache directory path
-        id: yarn-cache-dir-path
-        run: |
-            echo "Yarn cache directory:"
-            yarn config get cacheFolder
-            echo "dir=$(yarn config get cacheFolder)" >> $GITHUB_OUTPUT
-
-      - name: Cache Yarn dependencies
-        uses: actions/cache@v4
-        id: yarn-cache # use this to check for `cache-hit` (`steps.yarn-cache.outputs.cache-hit != 'true'`)
-        with:
-          path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
-          key: php-${{ matrix.php-versions }}-yarn-${{ hashFiles('**/yarn.lock') }}
-          restore-keys: |
-            php-${{ matrix.php-versions }}-yarn-
-
-      - name: Install Yarn dependencies
-        if: ${{ steps.yarn-cache.outputs.cache-hit != 'true' }}
+      - name: Yarn install
         run: yarn install
 
       - name: Yarn build
@@ -82,9 +56,6 @@ jobs:
 
       # - name: Yarn test
       #   run: yarn test
-
-      - name: Verify if cache was found
-        run: echo "Cache hit ${{ steps.yarn-cache.outputs.cache-hit }}"
 
       - name: Start and initialize Postgres
         env:
@@ -104,3 +75,7 @@ jobs:
           sudo systemctl start mysql.service
           php bin/console doctrine:database:create
           php bin/console doctrine:migrations:migrate
+
+      # Fix permissions before cleanup that may be used during 'Use Node' job
+      - name: Fix permissions
+        run: sudo chown -R $USER:$USER $GITHUB_WORKSPACE ~/.npm ~/.cache ~/.composer || true
