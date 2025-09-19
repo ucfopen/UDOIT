@@ -16,6 +16,7 @@ export default function ReportsPage({
 
   const [reports, setReports] = useState(null)
   const [issues, setIssues] = useState(null)
+  const [instructors, setInstructors] = useState([])
 
   const getReportHistory = () => {
     const api = new Api(settings)
@@ -34,6 +35,7 @@ export default function ReportsPage({
           else {
             setReports(null)
             setIssues(null)
+            setInstructors([]) 
           }
           
         })
@@ -49,10 +51,12 @@ export default function ReportsPage({
             }
             setReports(tempReports)
             setIssues(response.data.issues)
+            setInstructors(response.data.instructors || [])
           }
           else {
             setReports(null)
             setIssues(null)
+            setInstructors([])
           }
         })
     }
@@ -70,6 +74,15 @@ export default function ReportsPage({
       <div className="flex-row justify-content-center mt-3">
         <h1 className="mt-0 mb-0 primary-dark">{selectedCourse?.title || t('report.header.all_courses')}</h1>
       </div>
+
+      {selectedCourse && (instructors?.length ?? 0) > 0 && (
+        <div className="flex-row justify-content-center">
+          <div className="mt-1 secondary-dark">
+            {instructors.join(', ')}
+          </div>
+        </div>
+      )}
+
       { (reports === null) ? (
         <div className="mt-3 mb-3 flex-row justify-content-center">
           <div className="flex-column justify-content-center me-3">

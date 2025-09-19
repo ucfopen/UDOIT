@@ -137,6 +137,47 @@ class CanvasLms implements LmsInterface {
      * ****************
      */
 
+     public function getCourseTeachers(User $actingUser, int|string $lmsCourseId): array
+    {
+        $apiDomain = $this->getApiDomain($actingUser);
+        $apiToken  = $this->getApiToken($actingUser);
+        $canvasApi = new CanvasApi($apiDomain, $apiToken);
+
+        // Primary: Enrollments with user object included
+        $url = "courses/{$lmsCourseId}/enrollments?type[]=TeacherEnrollment&state[]=active&include[]=user";
+        $resp = $canvasApi->apiGet($url);
+
+        if (!$resp->getErrors()) {
+            $out = [];
+            foreach ($resp->getContent() as $enr) {
+                if (!empty($enr['user'])) {
+                    $u = $enr['user'];
+                    $out[] = [
+                        'id'   => (string)$u['id'],                         // lms_user_id
+                        'name' => $u['name'] ?? ($u['short_name'] ?? null), // display_name
+                    ];
+                }
+            }
+            return $out;
+        }
+
+        // Fallback: users-in-course filtered to teachers
+        $fallback = "courses/{$lmsCourseId}/users?enrollment_type[]=teacher";
+        $resp = $canvasApi->apiGet($fallback);
+        if ($resp->getErrors()) {
+            throw new \Exception('msg.sync.error.api');
+        }
+
+        $out = [];
+        foreach ($resp->getContent() as $u) {
+            $out[] = [
+                'id'   => (string)$u['id'],
+                'name' => $u['name'] ?? ($u['short_name'] ?? null),
+            ];
+        }
+        return $out;
+    }
+
     public function updateCourseData(Course $course, User $user)
     {
         $url = "courses/{$course->getLmsCourseId()}?include[]=term";
@@ -828,6 +869,9 @@ class CanvasLms implements LmsInterface {
 
             // Users
             'url:GET|/api/v1/users/:id',
+
+            'url:GET|/api/v1/courses/:course_id/enrollments',
+            'url:GET|/api/v1/courses/:course_id/users',
         ];
 
         return implode(' ', $scopes);

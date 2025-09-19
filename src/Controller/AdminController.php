@@ -12,9 +12,12 @@ use App\Services\LmsApiService;
 use App\Services\LmsUserService;
 use App\Services\SessionService;
 use App\Services\UtilityService;
+use App\Repository\CourseUserRepository;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Console\Output\ConsoleOutput;
+use Doctrine\ORM\EntityManagerInterface;
 
 class AdminController extends ApiController
 {
@@ -25,6 +28,10 @@ class AdminController extends ApiController
     private $lmsApi;
 
     private $courseRepo;
+
+    private $courseUserRepo;
+    private $lms;
+
 
     #[Route('/admin', name: 'admin')]
     public function index(
@@ -64,7 +71,11 @@ class AdminController extends ApiController
         CourseRepository $courseRepo,
         UtilityService $util,
         LmsApiService $lmsApi,
-        Request $request)
+        Request $request,
+        UserRepository $userRepo,
+        CourseUserRepository $courseUserRepo,
+        EntityManagerInterface $em
+        )
     {
         $apiResponse = new ApiResponse();
         $results = [];
@@ -82,7 +93,19 @@ class AdminController extends ApiController
         $courses = $courseRepo->findCoursesByAccount($user, $accounts, $termId);
 
         foreach ($courses as $course) {
-            $results[] = $this->getCourseData($course, $user);
+
+            $row = $this->getCourseData($course, $user);
+
+            $row['instructors'] = $this->getInstructorNamesForCourse(
+            $course,
+            $user,
+            $courseUserRepo,
+            $userRepo,
+            $em,
+            $lmsApi
+            );
+
+            $results[] = $row;
         }
 
         $apiResponse->addLogMessages($util->getUnreadMessages());
@@ -98,8 +121,13 @@ class AdminController extends ApiController
         CourseRepository $courseRepo,
         UtilityService $util,
         LmsApiService $lmsApi,
-        Request $request)
+        Request $request,
+        UserRepository $userRepo,
+        CourseUserRepository $courseUserRepo,  
+        EntityManagerInterface $em 
+    )
     {
+
         $apiResponse = new ApiResponse();
         $results = $rows = $issues = [];
         $user = $this->getUser();
@@ -116,6 +144,8 @@ class AdminController extends ApiController
         $startDate = new \DateTime('today');
         $endDate = null;
         $oneDay = new \DateInterval('P1D');
+
+        $courseInstructors = [];
 
         foreach ($courses as $course) {
             foreach ($course->getReports() as $report) {
@@ -137,7 +167,11 @@ class AdminController extends ApiController
                 if ($reportDate > $endDate) {
                     $endDate = $reportDate;
                 }
+                
             }
+
+            $courseInstructors[$course->getId()] = $this->getInstructorNamesForCourse($course, $user, $courseUserRepo, $userRepo,$em, $lmsApi);
+            
 
             foreach ($course->getAllIssues() as $issue) {
                 $rule = $issue->getScanRuleId();
@@ -229,18 +263,36 @@ class AdminController extends ApiController
         $apiResponse->addData('reports', $results);
         $apiResponse->addData('issues', $issues);
         $apiResponse->addLogMessages($util->getUnreadMessages());
+        $apiResponse->addData('courseInstructors', $courseInstructors);
         
         return new JsonResponse($apiResponse);
     }
 
     #[Route('/api/admin/courses/{course}/reports/full', methods: ['GET'], name: 'admin_course_report')]
-    public function getAdminCourseReport(Course $course, UtilityService $util, LmsApiService $lmsApi): JsonResponse
+    public function getAdminCourseReport(
+        Course $course, 
+        UtilityService $util, 
+        LmsApiService $lmsApi, 
+        UserRepository $userRepo, 
+        CourseUserRepository $courseUserRepo,
+        EntityManagerInterface $em 
+        ): JsonResponse
     {
+
         $apiResponse = new ApiResponse();
         $user = $this->getUser();
         
         $this->lms = $lmsApi->getLms();
         $this->util = $util;
+
+        $instructors = $this->getInstructorNamesForCourse(
+            $course,
+            $user,
+            $courseUserRepo,
+            $userRepo,
+            $em,
+            $lmsApi
+        );
         
         try {
             // Check if user has course access
@@ -364,6 +416,7 @@ class AdminController extends ApiController
     
             $apiResponse->addData('reports', $results);
             $apiResponse->addData('issues', $issues);
+            $apiResponse->addData('instructors', $instructors);
             $apiResponse->addLogMessages($util->getUnreadMessages());
             
         } catch (\Exception $e) {
@@ -562,6 +615,79 @@ class AdminController extends ApiController
         //Return a default case just in case we dont find one.
         $defaultReturn = current($terms);
         return $defaultReturn['id'];
+
+    }
+
+
+
+        /**
+     * Return a de-duplicated, sorted list of instructor display names for a course.
+     * Will refresh the local mapping from Canvas if empty or older than $ttlMinutes.
+     */
+protected function getInstructorNamesForCourse(
+    Course $course,
+    User $actingUser,
+    CourseUserRepository $courseUserRepo,
+    UserRepository $userRepo,
+    EntityManagerInterface $em,
+    LmsApiService $lmsApi,
+    int $ttlMinutes = 1440
+) {
+
+        $rows = $courseUserRepo->findByCourse($course);
+        $lastFetched = $courseUserRepo->maxFetchedAt($course);
+
+        $stale = !$rows
+            || !$lastFetched
+            || $lastFetched < (new \DateTimeImmutable())->modify("-{$ttlMinutes} minutes");
+
+        if ($stale) {
+            try {
+                $lmsClient = $lmsApi->getLms(); 
+                $this->syncInstructors($course, $actingUser, $lmsClient, $courseUserRepo, $userRepo, $em);
+                $rows = $courseUserRepo->findByCourse($course);
+            } catch (\Throwable $e) {
+                // optionally log
+            }
+        }
+
+        $namesSet = [];
+        foreach ($rows as $cu) {
+            $name = trim((string)($cu->getUser()?->getName() ?? $cu->getDisplayName()));
+            if ($name !== '') {
+                $namesSet[$name] = true;
+            }
+        }
+
+        $names = array_keys($namesSet);
+        sort($names, SORT_NATURAL | SORT_FLAG_CASE);
+        return $names;
+    }
+
+    private function syncInstructors(
+        Course $course,
+        User $actingUser,
+        object $lms,
+        CourseUserRepository $courseUserRepo,
+        UserRepository $userRepo,
+        EntityManagerInterface $em
+    ) {
+        $teachers = $lms->getCourseTeachers($actingUser, $course->getLmsCourseId()) ?? [];
+
+        foreach ($teachers as $t) {
+            $lmsUserId   = (string)($t['id'] ?? '');
+            if ($lmsUserId === '') { continue; }
+            $displayName = $t['name'] ?? null;
+
+            $maybeUser = $userRepo->findOneBy([
+                'institution' => $course->getInstitution(),
+                'lmsUserId'   => $lmsUserId,
+            ]);
+
+            $courseUserRepo->upsertFromApi($course, $lmsUserId, $displayName, $maybeUser);
+        }
+
+        $em->flush();
 
     }
 }
