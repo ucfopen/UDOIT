@@ -19,6 +19,8 @@ final class Version20250903152420 extends AbstractMigration
 
     public function up(Schema $schema): void
     {
+
+        $this->skipIf($this->connection->getDatabasePlatform()->getName() !== 'mysql', 'Migration is for \'postgresql\' only.');
         // this up() migration is auto-generated, please modify it to your needs
         $this->addSql('CREATE TABLE course_user (id INT AUTO_INCREMENT NOT NULL, course_id INT NOT NULL, user_id INT DEFAULT NULL, lms_user_id VARCHAR(64) NOT NULL, display_name VARCHAR(255) DEFAULT NULL, fetched_at DATETIME DEFAULT NULL, INDEX IDX_45310B4F591CC992 (course_id), INDEX IDX_45310B4FA76ED395 (user_id), UNIQUE INDEX uniq_course_lmsuser (course_id, lms_user_id), PRIMARY KEY(id)) DEFAULT CHARACTER SET utf8mb4 COLLATE `utf8mb4_unicode_ci` ENGINE = InnoDB');
         $this->addSql('ALTER TABLE course_user ADD CONSTRAINT FK_45310B4F591CC992 FOREIGN KEY (course_id) REFERENCES course (id) ON DELETE CASCADE');
@@ -30,6 +32,8 @@ final class Version20250903152420 extends AbstractMigration
 
     public function down(Schema $schema): void
     {
+
+        $this->skipIf($this->connection->getDatabasePlatform()->getName() !== 'mysql', 'Migration is for \'postgresql\' only.');
         // this down() migration is auto-generated, please modify it to your needs
         $this->addSql('ALTER TABLE course_user DROP FOREIGN KEY FK_45310B4F591CC992');
         $this->addSql('ALTER TABLE course_user DROP FOREIGN KEY FK_45310B4FA76ED395');
