@@ -31,7 +31,8 @@ export default function UfixitWidget({
   isErrorFoundInContent,
   toggleListView,
   listLength,
-  nextIssue
+  nextIssue,
+  previewInfo,
 }) {
 
   const [UfixitForm, setUfixitForm] = useState(null)
@@ -40,6 +41,7 @@ export default function UfixitWidget({
   const [showClarification, setShowClarification] = useState(false)
   const [showLearnMore, setShowLearnMore] = useState(false)
   const [disabilities, setDisabilities] = useState([])
+
 
   // The tempActiveIssue is what is sent to the form to be manipulated and can be updated
   // over and over again by the form as the HTML or other data is changed.
@@ -131,6 +133,7 @@ export default function UfixitWidget({
     const tempIssue = Object.assign({}, tempActiveIssue)
     tempIssue.issueData = newIssue
     setTempActiveIssue(tempIssue)
+    console.log(newIssue)
     if(newIssue.newHtml && newIssue.newHtml !== '') {
       setEditedElement(newIssue.newHtml)
     }
@@ -200,7 +203,9 @@ export default function UfixitWidget({
                         activeIssue={tempActiveIssue.issueData}
                         handleIssueSave={handleIssueSave}
                         addMessage={addMessage}
-                        handleActiveIssue={handleActiveIssue} /> )
+                        handleActiveIssue={handleActiveIssue}
+                        previewInfo={previewInfo}
+                        /> )
                     }
                   </div>
                   </div>

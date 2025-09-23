@@ -444,6 +444,10 @@
   "rule.desc.element_lang_valid": "",
   "rule.desc.html_lang_exists": "",
   "rule.desc.html_lang_valid": "",
+
+  "form.select_valid_id.title": "ID for a Label Should be Valid",
+  "form.select_valid_id.summary": "Summary",
+
   
   "form.link.title": "Links Should Contain Text",
   "form.link.summary": "Links should have descriptive text that clearly indicates where the link will take the user, not just \"click here\" or \"more info\".",
@@ -674,5 +678,7 @@
   "rule.desc.text_spacing_valid": "",
   "rule.desc.text_whitespace_valid": "",
   "rule.desc.widget_tabbable_exists": "",
-  "rule.desc.widget_tabbable_single": ""
+  "rule.desc.widget_tabbable_single": "",
+
+  "misc.clickable_elements": "Click to select this element"
 }
