@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react'
-import FormFeedback from './FormFeedback'
+import FormSaveOrReview from './FormSaveOrReview'
+import Combobox from '../Widgets/Combobox'
 import * as Html from '../../Services/Html'
 
 export default function HeadingStyleForm ({
@@ -9,12 +10,15 @@ export default function HeadingStyleForm ({
   handleIssueSave,
   isDisabled,
   handleActiveIssue,
+  markAsReviewed,
+  setMarkAsReviewed
  }) {
 
   const styleTags = ["strong", "b", "i", "em", "mark", "small", "del", "ins", "sub", "sup"]
-  const selectOptions = ["H2", "H3", "H4", "H5", "H6"]
+  const tagOptions = ["H2", "H3", "H4", "H5", "H6"]
   const allHeadings = ["H1", "H2", "H3", "H4", "H5", "H6", "h1", "h2", "h3", "h4", "h5", "h6"]
 
+  const [selectOptions, setSelectOptions] = useState([])
   const [selectedValue, setSelectedValue] = useState('')
   const [removeStyling, setRemoveStyling] = useState(false)
 
@@ -26,17 +30,40 @@ export default function HeadingStyleForm ({
     let element = Html.toElement(html)
     const tagName = Html.getTagName(element).toUpperCase()
     
-    const tagSelection = selectOptions.includes(tagName) ? tagName : ''
+    const tagSelection = tagOptions.includes(tagName) ? tagName : ''
+    let tempSelectOptions = [
+      { value: '', name: t('form.heading_style.label.none_selected'), selected: tagSelection === '' }
+    ]
+    tagOptions.forEach(tag => {
+      tempSelectOptions.push({
+        value: tag,
+        name: tag,
+        selected: tag === tagSelection
+      })
+    })
+    setSelectOptions(tempSelectOptions)
     setSelectedValue(tagSelection)
     setRemoveStyling(false)
   }, [activeIssue])
 
   useEffect(() => {
+    updateHtmlContent()
+  }, [selectedValue, removeStyling, markAsReviewed])
+
+  const updateHtmlContent = () => {
     let issue = activeIssue
+    issue.isModified = true
+
+    if (markAsReviewed) {
+      issue.newHtml = issue.initialHtml
+      handleActiveIssue(issue)
+      return
+    }
+
     issue.newHtml = processHtml()
     handleActiveIssue(issue)
-  }, [selectedValue, removeStyling])
-
+  }
+  
   const processHtml = () => {
     let newHeader
     const html = Html.getIssueHtml(activeIssue)
@@ -76,7 +103,7 @@ export default function HeadingStyleForm ({
     setRemoveStyling(!removeStyling)
   }
 
-  const handleSelect = (value) => {
+  const handleComboboxSelect = (id, value) => {
     setSelectedValue(value)
   }
 
@@ -86,24 +113,13 @@ export default function HeadingStyleForm ({
 
   return (
     <>
-      <label className="instructions" htmlFor="heading-select">{t('form.heading_style.label.select')}</label>
-      <select
-        id="heading-select"
-        name="heading-select"
-        className="w-100 mt-2"
-        value={selectedValue}
-        tabIndex="0"
-        onChange={(e) => handleSelect(e.target.value)}
-        disabled={isDisabled}>
-          <option key='empty' id='opt-empty' value=''>
-            {t('form.heading_style.label.none_selected')}
-          </option>
-          {selectOptions.map((opt, index) => (
-            <option key={index} id={`opt-${index}`} value={opt}>
-              {opt}
-            </option>
-          ))}
-      </select>
+      <Combobox
+        handleChange={handleComboboxSelect}
+        id='heading-select'
+        isDisabled={isDisabled}
+        label={t('form.heading_style.label.select')}
+        options={selectOptions}
+        settings={settings} />
       <div className="flex-row justify-content-start gap-1 mt-2">
         <input type="checkbox"
           id="removeStylingCheckbox"
@@ -114,13 +130,15 @@ export default function HeadingStyleForm ({
           onChange={handleCheckbox} />
         <label htmlFor="removeStylingCheckbox" className="instructions">{t('form.heading_style.label.remove_styling')}</label>
       </div>
-      <FormFeedback
+      <FormSaveOrReview
         t={t}
         settings={settings}
         activeIssue={activeIssue}
         isDisabled={isDisabled}
         handleSubmit={handleSubmit}
-        formErrors={[]} />
+        formErrors={[]}
+        markAsReviewed={markAsReviewed}
+        setMarkAsReviewed={setMarkAsReviewed} />
     </>
   )
 }

@@ -1,14 +1,20 @@
 import React, {useState, useEffect} from 'react'
 
-import ContentTypeIcon from './Icons/ContentTypeIcon'
-import SeverityIcon from './Icons/SeverityIcon'
-import ResolvedIcon from './Icons/ResolvedIcon'
-import FixedIcon from './Icons/FixedIcon'
-import SortIcon from './Icons/SortIcon'
+import ContentTypeIcon from '../Icons/ContentTypeIcon'
+import SeverityIcon from '../Icons/SeverityIcon'
+import ResolvedIcon from '../Icons/ResolvedIcon'
+import FixedIcon from '../Icons/FixedIcon'
+import SortIcon from '../Icons/SortIcon'
 
 import './FixIssuesList.css'
 
-export default function FixIssuesList({ t, settings, groupedList, setActiveIssue }) {
+export default function FixIssuesList({
+  t,
+  settings,
+  
+  groupedList,
+  setActiveIssue
+}) {
 
   const [openList, setOpenList] = useState([])
 
@@ -46,7 +52,7 @@ export default function FixIssuesList({ t, settings, groupedList, setActiveIssue
                 }}
                 tabIndex="0">
                 <h3 className="allow-word-break align-self-center">{group.formLabel}</h3>
-                <div className="flex-row justify-content-end gap-3">
+                <div className="flex-row justify-content-end flex-shrink-0 gap-3">
                   <div className="ufixit-list-heading-count align-self-center">
                     { group.issues.length !== 1 ? t('filter.label.issue_count_plural', { count: group.issues.length }) : t('filter.label.issue_count_single')}
                   </div>

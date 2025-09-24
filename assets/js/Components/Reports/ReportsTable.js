@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import SortableTable from '../SortableTable'
+import SortableTable from '../Widgets/SortableTable'
 
 export default function ReportsTable({
   t,

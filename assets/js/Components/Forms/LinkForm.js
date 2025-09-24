@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import FormFeedback from './FormFeedback'
+import FormSaveOrReview from './FormSaveOrReview'
 import * as Html from '../../Services/Html'
 
 export default function LinkForm({
@@ -9,10 +9,12 @@ export default function LinkForm({
   isDisabled,
   handleIssueSave,
   handleActiveIssue,
+  markAsReviewed,
+  setMarkAsReviewed
 }) {
 
   const [textInputValue, setTextInputValue] = useState("")
-  const [textInputErrors, setTextInputErrors] = useState([])
+  const [formErrors, setFormErrors] = useState([])
   const [deleteLink, setDeleteLink] = useState(false)
 
   useEffect(() => {
@@ -23,13 +25,28 @@ export default function LinkForm({
     }
     const html = Html.getIssueHtml(activeIssue)
     setTextInputValue(redirectLink ? redirectLink : "")
-    setTextInputErrors([])
+    setFormErrors([])
     setDeleteLink(!activeIssue.newHtml && (activeIssue.status === 1))
   }, [activeIssue])
 
   useEffect(() => {
+    updateHtmlContent()
     checkFormErrors()
-  }, [textInputValue, deleteLink])
+  }, [textInputValue, deleteLink, markAsReviewed])
+
+  const updateHtmlContent = () => {
+    let issue = activeIssue
+    issue.isModified = true
+
+    if (markAsReviewed) {
+      issue.newHtml = issue.initialHtml
+      handleActiveIssue(issue)
+      return
+    }
+
+    issue.newHtml = processHtml()
+    handleActiveIssue(issue)
+  }
 
   const checkFormErrors = () => {
     let tempErrors = []
@@ -38,29 +55,17 @@ export default function LinkForm({
         tempErrors.push([{text: t('form.link.msg.link_empty'), type: 'error'}])
       }
     }
-    setTextInputErrors(tempErrors)
+    setFormErrors(tempErrors)
   }
 
   const handleSubmit = () => {
-    if (!deleteLink) {
-      checkLinkNotEmpty()
-    }
-
-    if (textInputErrors.length > 0) {
-      setTextInputErrors(textInputErrors)
-    } else {
-      let issue = activeIssue
-      issue.newHtml = processHtml()
+    if (markAsReviewed || formErrors.length === 0) {
       handleIssueSave(issue)
     }
   }
 
   const handleInput = (event, value) => {
     setTextInputValue(value)
-    checkLinkNotEmpty(value)
-    let issue = activeIssue
-    issue.newHtml = processHtml()
-    handleActiveIssue(issue)
   }
 
   const handleDeleteCheckbox = (event, value) => {
@@ -88,9 +93,9 @@ export default function LinkForm({
         onChange={handleInput}
         tabIndex="0"
         disabled={isDisabled || deleteLink} />
-      { textInputErrors.length > 0 && (
+      { formErrors.length > 0 && (
         <div className="error-message flex-column gap-1">
-          {textInputErrors.map((error, index) => (
+          {formErrors.map((error, index) => (
             <div key={index} className="error-text">{error.text}</div>
           ))}
         </div>
@@ -106,13 +111,15 @@ export default function LinkForm({
           onChange={handleDeleteCheckbox} />
         <label htmlFor="deleteLinkCheckbox">{t('form.anchor.delete_link')}</label>
       </div>
-      <FormFeedback
+      <FormSaveOrReview
         t={t}
         settings={settings}
         activeIssue={activeIssue}
         isDisabled={isDisabled}
         handleSubmit={handleSubmit}
-        formErrors={textInputErrors} />
+        formErrors={formErrors}
+        markAsReviewed={markAsReviewed}
+        setMarkAsReviewed={setMarkAsReviewed} />
     </>
   ) 
 }

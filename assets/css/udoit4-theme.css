@@ -1,29 +1,39 @@
 @import url('https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300..800;1,300..800&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Reddit+Sans:ital,wght@0,200..900;1,200..900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Merriweather:ital,opsz,wght@0,18..144,300..900;1,18..144,300..900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Lexend:wght@100..900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400;1,700&display=swap');
 
 :root {
-  --pantone-green: #006937;
-  --primary-color: var(--pantone-green);
-  --primary-color-text: var(--pantone-green);
-  --primary-color-dark: var(--pantone-green);
-  --primary-color-hover: color-mix(in srgb, var(--primary-color) 100%, #FFFFFF 10%); /* #436657; */
-  --primary-color-dark-hover: #436657;
-  --primary-color-light: color-mix(in srgb, var(--primary-color) 10%, #FFFFFF 100%);  /* #E8F3ED; */
-  --primary-color-inverse: #F2F7F7;
-  --text-color: #333333;
+  --black: #000000;
+  --gray-darker: #333333;
+  --gray-dark: #555555;
+  --gray: #767676;
+  --gray-light: #D3D7DB;
+  --gray-lighter: #E2E2E2;
+  --gray-lightest: #F2F2F2;
+  --white: #FFFFFF;
+
+  --primary-color: #196937;
+
+  --primary-color-text: var(--primary-color);
+  --primary-color-dark: var(--primary-color);
+  --primary-color-hover: color-mix(in srgb, var(--primary-color) 100%, var(--white) 10%); /* #436657; */
+  --primary-color-light: color-mix(in srgb, var(--primary-color) 10%, var(--white) 100%);  /* #E8F3ED; */
+  --primary-color-inverse: var(--gray-lightest);
+  --text-color: var(--gray-darker);
 
   --hover-brightness: 1.15;
 
   --link-color: #006AAC;
-  --link-color-hover: color-mix(in srgb, var(--link-color) 100%, #FFFFFF 10%);
-  --link-color-light: color-mix(in srgb, var(--link-color) 10%, #FFFFFF 100%);  /* #E9F3FF; */
-  --link-color-dark: #1B5679;
+  --link-color-hover: color-mix(in srgb, var(--link-color) 100%, var(--white) 10%);
+  --link-color-light: color-mix(in srgb, var(--link-color) 10%, var(--white) 100%);  /* #E9F3FF; */
+  --link-color-dark: color-mix(in srgb, var(--link-color) 100%, var(--black) 10%);
 
   --focus-color: #009AD0;
 
-  --issue-color: #F94144;
+  --issue-color: #E2080C;
   --issue-color-light: color-mix(in srgb, var(--issue-color) 10%, #FFFFFF 100%);
-  --issue-color-dark: #E2080C;  /* Sufficient contrast with white text */
   --potential-color: #F8961E;
   --potential-color-light: color-mix(in srgb, var(--potential-color) 10%, #FFFFFF 100%);
   --suggestion-color: #32B0E4;
@@ -32,26 +42,20 @@
   --info-color-light: color-mix(in srgb, var(--info-color) 10%, #FFFFFF 100%);
   --success-color: #006937;
   --success-color-light: color-mix(in srgb, var(--success-color) 10%, #FFFFFF 100%);
-  --progress-bar-color: #32B0E4;
-
-  --black: #000000;
-  --gray-darker: #333333;
-  --gray-dark: #555555;
-  --gray: #767676;
-  --gray-light: #D3D7DB;
-  --gray-lighter: #E2E2E2;
-  --gray-lightest: #F7F7F7;
-  --white: #FFFFFF;
 
   --background-color: var(--gray-lightest);
-  --border-color: var(--gray-light);
+  --border-color: var(--gray);
+  --progress-bar-background-color: var(--gray-light);
+  --progress-bar-color: var(--primary-color);
+  --shadow-color: #00000044;
+  --backdrop-color: rgba(0, 0, 0, 0.25);
 
   --spacer: 1rem;
 
   --text-font-family: 'Open Sans', Arial, Helvetica, sans-serif;
   --heading-font-family: 'Reddit Sans', sans-serif;
 
-  line-height: 1.4rem;
+  line-height: 1.4em;
 
   --transition-time: 0.25s;
 }
@@ -61,34 +65,144 @@ body {
   margin: 0px !important;
   border-left: none !important;
   max-width: 1400px;
-  color: var(--text-color);
   overflow: hidden;
+}
 
+#app-container {
+  margin: 0px 6px 6px 0px;
+  padding: 0 1rem;
+  border-radius: 16px;
+  height: calc(100vh - 6px);
+  max-height: 1024px;
+  display: flex;
+  flex-direction: column;
   font-family: var(--text-font-family);
+  color: var(--text-color);
+  box-sizing: border-box;
+  border: 1px solid var(--border-color);
+  box-shadow: 3px 3px 3px var(--gray-light);
 
   &.serif {
-    --text-font-family: 'Times New Roman', Times, serif;
+    --text-font-family: 'Merriweather', Times, serif;
+    --heading-font-family: 'Merriweather', Times, serif;
+  }
+  &.readable {
+    --text-font-family: 'Lexend', Arial, Helvetica, sans-serif;
+    --heading-font-family: 'Lexend', Arial, Helvetica, sans-serif;
+  }
+  &.hyperlegible {
+    --text-font-family: 'Atkinson Hyperlegible', Arial, Helvetica, sans-serif;
+    --heading-font-family: 'Atkinson Hyperlegible', Arial, Helvetica, sans-serif;
+  }
+
+  line-height: 1.4em;
+  
+  font-size: 16px;
+  &.font-small {
+    font-size: 14px;
+  }
+  &.font-medium {
+    font-size: 16px;
+  }
+  &.font-large {
+    font-size: 20px;
+
+    .icon-sm {
+      width: 18px;
+      height: 18px;
+    }
+    .icon-md {
+      width: 26px;
+      height: 26px;
+    }
+    .icon-lg {
+      width: 34px;
+      height: 34px;
+    }
+  }
+  &.font-xlarge {
+    font-size: 24px;
+
+    .icon-sm {
+      width: 20px;
+      height: 20px;
+    }
+    .icon-md {
+      width: 28px;
+      height: 28px;
+    }
+    .icon-lg {
+      width: 36px;
+      height: 36px;
+    }
+  }
+
+  &.dark-mode {
+
+    --white: #000000;
+    --gray-lightest: #3A3A3A;
+    --gray-lighter: #555555;
+    --gray-light: #767676;
+    --gray-gray: #D3D7DB;
+    --gray-dark: #E2E2E2;
+    --gray-darker: #F7F7F7;
+    --black: #FFFFFF;
+
+    --primary-color: #00AD5A;
+    --primary-color-text: var(--primary-color);
+    --primary-color-dark: var(--primary-color);
+    --primary-color-hover: color-mix(in srgb, var(--primary-color) 100%, var(--white) 10%); /* #436657; */
+    --primary-color-light: color-mix(in srgb, var(--primary-color) 50%, var(--white) 100%);  /* #E8F3ED; */
+    --primary-color-inverse: var(--gray-lightest);
+    --text-color: var(--gray-darker);
+
+    --hover-brightness: 1.15;
+
+    --link-color: #009DFF;
+    --link-color-hover: color-mix(in srgb, var(--link-color) 100%, var(--white) 10%);
+    --link-color-light: color-mix(in srgb, var(--link-color) 50%, var(--white) 100%);  /* #E9F3FF; */
+    --link-color-dark: color-mix(in srgb, var(--link-color) 100%, var(--black) 10%);
+
+    --focus-color: #00BBFF;
+
+    --issue-color: #F64649;
+    --issue-color-light: color-mix(in srgb, var(--issue-color) 50%, var(--white) 100%);
+    --potential-color: #F8961E;
+    --potential-color-light: color-mix(in srgb, var(--potential-color) 50%, var(--white) 100%);
+    --suggestion-color: #32B0E4;
+    --suggestion-color-light: color-mix(in srgb, var(--suggestion-color) 50%, var(--white) 100%);
+    --info-color: #2DA1D2;
+    --info-color-light: color-mix(in srgb, var(--info-color) 50%, var(--white) 100%);
+    --success-color: #00AD5A;
+    --success-color-light: color-mix(in srgb, var(--success-color) 50%, var(--white) 100%);
+
+    --background-color: var(--gray-lightest);
+    --border-color: var(--gray-light);
+    --progress-bar-background-color: var(--gray-light);
+    --progress-bar-color: var(--primary-color);
+    --shadow-color: #FFFFFF44;
+    --backdrop-color: rgba(256, 256, 256, 0.25);
+
+    color: var(--gray-darker);
+    background-color: var(--white);
+    border: 1px solid var(--gray-lighter);
+    box-shadow: 2px 2px 2px var(--gray-lighter);
   }
 }
 
-#root {
-  margin: 4px 4px 4px 0px;
-  padding: 0 1rem 1rem 1rem;
-  border: 1px solid var(--border-color);
-  border-radius: 16px;
-  box-shadow: 2px 2px 2px var(--border-color);
-  min-height: 600px;
-  max-height: calc(100vh - 8px);
-  display: flex;
-  flex-direction: column;
+header {
+  height: 3em;
 }
 
 main {
-  max-height: 778px;
-  height: calc(100vh - 56px - 1rem);
+  height: calc(100vh - 3em);
+  min-height: 20em;
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
+  overflow-y: auto;
+  margin: 0 -1rem;
+  padding: 0 1rem 1rem 1rem;
 }
 
 /* Bootstrap-esque classes for general use */
@@ -180,7 +294,6 @@ main {
 
 .align-self-center {
   align-self: center;
-  text-align: center;
 }
 
 .align-self-baseline {
@@ -339,6 +452,10 @@ main {
   padding: calc(var(--spacer)) !important;
 }
 
+.p-4 {
+  padding: calc(1.5 * var(--spacer)) !important;
+}
+
 .pt-0 {
   padding-top: 0 !important;
 }
@@ -353,6 +470,10 @@ main {
 
 .pt-3 {
   padding-top: var(--spacer) !important;
+}
+
+.pt-4 {
+  padding-top: calc(1.5 * var(--spacer)) !important;
 }
 
 .pb-0 {
@@ -371,6 +492,10 @@ main {
   padding-bottom: var(--spacer) !important;
 }
 
+.pb-4 {
+  padding-bottom: calc(1.5 * var(--spacer)) !important;
+}
+
 .pl-0, .ps-0 {
   padding-left: 0 !important;
 }
@@ -387,6 +512,10 @@ main {
   padding-left: var(--spacer) !important;
 }
 
+.pl-4, .ps-4 {
+  padding-left: calc(1.5 * var(--spacer)) !important;
+}
+
 .pr-0, .pe-0 {
   padding-right: 0 !important;
 }
@@ -401,6 +530,10 @@ main {
 
 .pr-3, .pe-3 {
   padding-right: var(--spacer) !important;
+}
+
+.pr-4, .pe-4 {
+  padding-right: calc(1.5 * var(--spacer)) !important;
 }
 
 .w-25 {
@@ -602,6 +735,11 @@ button {
   border-radius: 8px;
 }
 
+.btn-large {
+  font-size: 1.15em;
+  padding: .5em 1.25em;
+}
+
 button.disabled,
 .btn-disabled,
 button:disabled {
@@ -671,6 +809,25 @@ button:disabled {
   align-items: center;
 }
 
+input[type="color"] {
+  min-width: 7em;
+  height: 100%;
+  border-radius: 8px;
+  border: 2px solid var(--primary-color);
+
+  &:focus {
+    outline: 2px solid var(--focus-color);
+    outline-offset: 1px;
+  }
+
+  &:disabled {
+    border-color: var(--gray-light);
+    background-color: var(--gray-light);
+    cursor: not-allowed !important;
+    outline-color: var(--gray);
+  }
+}
+
 .icon-sm {
   width: 16px;
   height: 16px;
@@ -706,8 +863,8 @@ button:disabled {
 .callout-container {
   background: var(--background-color);
   border-radius: 8px;
+  padding: .75rem 1rem;
   border: 1px solid var(--border-color);
-  padding: 1rem;
 }
 
 .separator {
@@ -722,17 +879,21 @@ button:disabled {
 .separator::after {
   content: '';
   flex: 1;
-  border-bottom: 2px solid var(--gray);
+  border-bottom: 1px solid var(--border-color);
 }
 
 .separator:not(:empty)::before {
   margin-right: .5em;
   margin-left: 1.5rem;
+  border-width: 2px;
+  border-color: var(--gray);
 }
 
 .separator:not(:empty)::after {
   margin-left: .5em;
   margin-right: 1.5rem;
+  border-width: 2px;
+  border-color: var(--gray);
 }
 
 /* Data pills are for icons with text that can be hidden until hovered or focused */
@@ -835,6 +996,7 @@ option {
   gap: 0.5rem;
   border: 1px solid var(--gray);
   padding: .25rem 1rem .25rem .25rem;
+  background-color: var(--white);
 
   &:not(option:last-of-type) {
     border-bottom: none;
@@ -923,8 +1085,9 @@ a:focus {
 }
 
 .link-small {
-  font-size: 0.9rem;
+  font-size: 0.9em;
   overflow-wrap: anywhere;
+  cursor: pointer;
 }
 
 header {

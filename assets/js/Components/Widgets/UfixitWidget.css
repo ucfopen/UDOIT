@@ -2,6 +2,19 @@
   height: 50%;
   padding: .5rem 1rem .5rem .5rem;;
   overflow-y: auto;
+
+  .combo-container {
+
+    .combo-label {
+      font-weight: 600;
+      color: var(--text-color);
+    }
+
+    .combo-interactive-container {
+      margin-top: calc(0.25 * var(--spacer)) !important;
+      width: 100%;
+    }
+  }
 }
 
 /* .ufixit-widget-header {
@@ -9,9 +22,8 @@
 } */
 
 .ufixit-widget-label {
-  font-size: .9rem;
+  font-size: .9em;
   font-weight: 600;
-  color: var(--text-color);
   text-transform: uppercase;
 }
 
@@ -20,7 +32,7 @@
   margin: 0 -1rem;
   padding: .5rem 1rem;
   color: var(--white);
-  font-size: .9rem;
+  font-size: .9em;
   font-weight: 600;
   font-family: var(--heading-font-family);
   text-transform: uppercase;
@@ -45,8 +57,8 @@
   }
 
   &.active {
-    border-color: var(--issue-color-dark);
-    background-color: var(--issue-color-dark);
+    border-color: var(--issue-color);
+    background-color: var(--issue-color);
 
     svg {
       fill: var(--white);
@@ -54,14 +66,8 @@
   }
 }
 
-.ufixit-callout-container {
-  background-color: #efefef;
-  padding: .75rem 1rem;
-  border-radius: 8px;
-}
-
 .ufixit-instructions {
-  font-size: .9rem;
+  font-size: .9em;
   font-weight: 500;
 }
 
@@ -76,7 +82,7 @@
   .clarification-text {
     font-weight: 400;
     font-style: italic;
-    font-size: .9rem;
+    font-size: .9em;
   }
 }
 
@@ -95,15 +101,25 @@
     margin-top: 0;
   }
 
-  label {
+  label,
+  .instructions {
     font-weight: 600;
     color: var(--text-color);
   }
 
+  .instructions-helper {
+    margin-top: .25em;
+    padding-left: 1.8rem;
+    font-weight: 400;
+    font-style: italic;
+    font-size: .9em;
+    color: var(--gray-dark);
+  }
+
   input[type="text"] {
-    padding: 0.25rem;
+    padding: 0.25em;
     box-sizing: border-box;
-    font-size: 0.95rem;
+    font-size: 0.95em;
     font-family: var(--text-font-family);
     border: 1px solid var(--gray);
     border-radius: 4px;
@@ -128,14 +144,14 @@
   }
 
   .error-text {
-    font-size: .95rem;
+    font-size: .95em;
     font-weight: 500;
     font-style: italic;
     color: var(--issue-color);
   }
 
   .text-muted {
-    font-size: .85rem;
+    font-size: .85em;
     font-weight: 400;
     color: var(--gray-dark);
   }
@@ -170,7 +186,7 @@
 
     .ratio-label {
       text-transform: uppercase;
-      font-size: .85rem;
+      font-size: .85em;
       font-weight: 600;
     }
 
@@ -180,7 +196,7 @@
     }
 
     .ratio-status {
-      font-size: .85rem;
+      font-size: .85em;
       font-weight: 600;
       text-transform: uppercase;
 
@@ -272,6 +288,12 @@
   }
 }
 
+.url-container {
+  background-color: var(--gray-lighter);
+  padding: .25em .5em;
+  border-radius: 8px;
+}
+
 .ufixit-overlay {
   position: absolute;
   top: 0;
@@ -307,7 +329,7 @@ dialog {
   padding: 0;
   background-color: var(--white);
   z-index: 100;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 0 10px var(--shadow-color);
 }
 
 .ufixit-widget-dialog {
@@ -321,7 +343,7 @@ dialog {
   background-color: var(--primary-color-light);
   position: sticky;
   top: 0;
-  box-shadow: 0 2px 2px #00000044;
+  box-shadow: 0 2px 2px var(--shadow-color);
 
   .close-icon { 
     padding: .25rem;
@@ -330,7 +352,7 @@ dialog {
     background-color: transparent;
 
     &:hover, &:focus {
-      background-color: white;
+      background-color: var(--white);
     }
   }
 }
@@ -338,7 +360,7 @@ dialog {
 .ufixit-widget-dialog-content {
   padding: 0 1rem;
   color: var(--text-color);
-  font-size: 1rem;
+  font-size: 1em;
   line-height: 1.5;
   overflow-x: hidden;
   overflow-y: auto;
@@ -350,10 +372,10 @@ dialog {
     background-color: var(--gray-dark);
     color: var(--white);
     border-radius: 4px;
-    font-size: 0.9rem;
+    font-size: 0.9em;
   }
 
 dialog::backdrop {
-  background: rgba(0, 0, 0, 0.25);
+  background: var(--backdrop-color);
   backdrop-filter: blur(3px);
 }

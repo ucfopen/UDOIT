@@ -1,0 +1,11 @@
+/* container */
+#progress-circle {
+
+  #total-value {
+    stroke: var(--progress-bar-background-color);
+  }
+
+  #progress-value {
+    stroke: var(--progress-bar-color);
+  }
+}

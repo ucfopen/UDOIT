@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import FormFeedback from './FormFeedback'
+import FormSaveOrReview from './FormSaveOrReview'
 import * as Html from '../../Services/Html';
 
 export default function TableHeadersForm({
@@ -9,6 +9,8 @@ export default function TableHeadersForm({
   handleIssueSave, 
   isDisabled, 
   handleActiveIssue,
+  markAsReviewed,
+  setMarkAsReviewed
 }) {
   const radioOptions = [
     'col',
@@ -155,8 +157,8 @@ export default function TableHeadersForm({
 
   return (
     <>
-      <div className="instructions">{t('form.table_headers.selection_description')}</div>
-      <div className="w-100 mt-2 flex-column gap-1">
+      <label id="radioGroupLabel" className="instructions">{t('form.table_headers.selection_description')}</label>
+      <div className="w-100 mt-2 flex-column gap-1" role="radiogroup" aria-labelledby="radioGroupLabel">
         { radioOptions.map(value => (
           <div className="flex-row gap-1" key={value}>
             <input
@@ -185,13 +187,16 @@ export default function TableHeadersForm({
           {t('form.table_headers.decoration_only')}
         </label>
       </div>
-      <FormFeedback
+      <div className="instructions-helper">{t('form.table_headers.decoration_only_desc')}</div>
+      <FormSaveOrReview
         t={t}
         settings={settings}
         activeIssue={activeIssue}
         isDisabled={isDisabled || (!selectedValue && !decorationOnly)}
         handleSubmit={handleSubmit}
-        formErrors={[]} />
+        formErrors={[]}
+        markAsReviewed={markAsReviewed}
+        setMarkAsReviewed={setMarkAsReviewed} />
     </>
   )
 }

@@ -1,5 +1,5 @@
 import React, {useState, useEffect} from 'react'
-import FormFeedback from './FormFeedback'
+import FormSaveOrReview from './FormSaveOrReview'
 import * as Html from '../../Services/Html'
 import * as Text from '../../Services/Text'
 
@@ -10,11 +10,13 @@ export default function TableCaptionForm({
   handleIssueSave,
   isDisabled,
   handleActiveIssue,
+  markAsReviewed,
+  setMarkAsReviewed
 }) {
 
   const [textInputValue, setTextInputValue] = useState('')
   const [deleteCaption, setDeleteCaption] = useState(false)
-  const [textInputErrors, setTextInputErrors] = useState([])
+  const [formErrors, setFormErrors] = useState([])
 
   useEffect(() => {
     if (activeIssue) {
@@ -24,8 +26,36 @@ export default function TableCaptionForm({
       setTextInputValue(element ? element.innerText : '')
       setDeleteCaption(!element && activeIssue.status.toString() === '1')
     }
-    setTextInputErrors([])
+    setFormErrors([])
   }, [activeIssue])
+
+  useEffect(() => {
+    updateHtmlContent()
+    checkFormErrors()
+  }, [textInputValue, deleteCaption, markAsReviewed])
+
+  const updateHtmlContent = () => {
+    let issue = activeIssue
+    issue.isModified = true
+
+    if (markAsReviewed) {
+      issue.newHtml = issue.initialHtml
+      handleActiveIssue(issue)
+      return
+    }
+    issue.newHtml = processHtml()
+    handleActiveIssue(issue)
+  }
+
+  const checkFormErrors = () => {
+    let tempErrors = []
+    if(!deleteCaption) {
+      if(Text.isTextEmpty(textInputValue)) {
+        tempErrors.push({ text: t('form.table_caption.msg.text_empty'), type: 'error' })
+      }
+    }
+    setFormErrors(tempErrors)
+  }
 
   const processHtml = () => {
     if (deleteCaption) {
@@ -35,20 +65,6 @@ export default function TableCaptionForm({
     const html = Html.getIssueHtml(activeIssue)
     return Html.toString(Html.setInnerText(html, textInputValue))
   }
-
-  useEffect(() => {
-    let tempErrors = []
-    if(!deleteCaption) {
-      if(Text.isTextEmpty(textInputValue)) {
-        tempErrors.push({ text: t('form.table_caption.msg.text_empty'), type: 'error' })
-      }
-    }
-    setTextInputErrors(tempErrors)
-
-    let issue = activeIssue
-    issue.newHtml = processHtml()
-    handleActiveIssue(issue)
-  }, [textInputValue, deleteCaption])
 
   const handleCheckbox = () => {
     setDeleteCaption(!deleteCaption)
@@ -87,16 +103,16 @@ export default function TableCaptionForm({
           onChange={handleCheckbox} />
         <label className="instructions" htmlFor="deleteCaptionCheckbox">{t('form.table_caption.label.remove_caption')}</label>
       </div>
-      <div className="mt-1">
-        <em>{t('form.table_caption.label.remove_caption_desc')}</em>
-      </div>
-      <FormFeedback
+      <div className="instructions-helper">{t('form.table_caption.label.remove_caption_desc')}</div>
+      <FormSaveOrReview
         t={t}
         settings={settings}
         activeIssue={activeIssue}
         isDisabled={isDisabled}
         handleSubmit={handleSubmit}
-        formErrors={textInputErrors} />
+        formErrors={formErrors}
+        markAsReviewed={markAsReviewed}
+        setMarkAsReviewed={setMarkAsReviewed} />
     </>
   )
 }

@@ -1,5 +1,3 @@
-@import '../../css/udoit4-theme.css';
-
 .ufixit-content-label {
   flex-shrink: 0;
   flex-grow: 0;
@@ -148,8 +146,7 @@
 .ufixit-alt-text-preview {
   background-color: var(--gray-dark);
   color: var(--white);
-  border-radius: 22px;
-  font-size: 0.85rem;
+  border-radius: 8px;
   width: fit-content;
 
   display: flex;
@@ -163,15 +160,39 @@
     fill: var(--white);
   }
 
-  .ufixit-alt-text-preview-text {
+  .ufixit-alt-text-preview-text-container {
     display: flex;
     flex-direction: column;
-    justify-content:center;
-    font-weight: 500;
     padding: .5rem 1rem .5rem .25rem;
-    max-width: 300px;
-    transition: max-height 0.15s, max-width var(--transition-time), padding var(--transition-time);
+    max-width: 20em;
     overflow: auto;
+
+    .ufixit-alt-text-preview-label {
+      font-weight: 600;
+      font-size: 1em;
+      padding-bottom: .25em;
+      color: var(--white);
+
+      a {
+        font-weight: 600;
+        color: var(--white);
+        text-decoration: none;
+        cursor: default;
+      }
+    }
+
+    .ufixit-alt-text-preview-text {
+      font-weight: 400;
+      font-size: .9em;
+      line-height: 1.4em;
+
+      a {
+        font-weight: 400;
+        color: var(--white);
+        text-decoration: none;
+        cursor: default;
+      }
+    }
   }
 }
 

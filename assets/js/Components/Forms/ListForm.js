@@ -1,14 +1,16 @@
 import React, { useEffect, useState } from 'react'
 import FormExternalLink from './FormExternalLink'
+import FormReviewOnly from './FormReviewOnly'
 
 export default function ListForm({
   t,
-  settings,
+  settings, 
   activeIssue,
-  activeContentItem,
+  isContentLoading,
+  markAsReviewed,
+  setMarkAsReviewed,
   handleIssueSave,
-  isDisabled,
- }) {
+}) {
   
   return (
     <div className="flex-column">
@@ -17,6 +19,15 @@ export default function ListForm({
         t={t}
         settings={settings}
         activeIssue={activeIssue}
+      />
+      <FormReviewOnly
+        t={t}
+        settings={settings}
+        activeIssue={activeIssue}
+        handleIssueSave={handleIssueSave}
+        isContentLoading={isContentLoading}
+        markAsReviewed={markAsReviewed}
+        setMarkAsReviewed={setMarkAsReviewed}
       />
     </div>
   )

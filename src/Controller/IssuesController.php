@@ -33,6 +33,7 @@ class IssuesController extends ApiController
     {
         $apiResponse = new ApiResponse();
         $user = $this->getUser();
+        $output = new ConsoleOutput();
 
         try {
             // Check if user has access to course
@@ -47,9 +48,27 @@ class IssuesController extends ApiController
             $newHtml = $issueUpdate['newHtml'];
             $fullPageHtml = $issueUpdate['fullPageHtml'];
             $xpath = $issueUpdate['xpath'];
+            $markAsReviewed = $issueUpdate['markAsReviewed'];
 
+            $reviewUpdated = false;
+            $oldStatus = $issue->getStatus();
+            if($markAsReviewed === false && ($oldStatus === 2 || $oldStatus === 3)) {
+                $reviewUpdated = true;
+            }
+            if($markAsReviewed === true && ($oldStatus === 0 || $oldStatus === 1)) {
+                $reviewUpdated = true;
+            }
+
+            $contentUpdated = true;
             // Check if new HTML is different from original HTML
-            if ($newHtml !== "" && ($issue->getPreviewHtml() === $newHtml || $sourceHtml === $newHtml)) {
+            if ($newHtml !== '' && ($sourceHtml === $newHtml || $issue->getPreviewHtml() === $newHtml || $issue->getNewHtml() === $newHtml)) {
+              $contentUpdated = false;
+            }
+
+            $output->writeln("Review updated: ".($reviewUpdated ? 'true' : 'false'));
+            $output->writeln("Content updated: ".($contentUpdated ? 'true' : 'false'));
+
+            if(!$reviewUpdated && !$contentUpdated) {
                 throw new \Exception('form.error.same_html');
             }
 
@@ -67,10 +86,22 @@ class IssuesController extends ApiController
                 $apiResponse->addMessage('form.msg.success_saved', 'success');
 
                 // Update issue status
-                $newStatus = Issue::$issueStatusFixed;
-                if($issue->getStatus() === Issue::$issueStatusResolved || $issue->getStatus() === Issue::$issueStatusFixedAndResolved) {
-                    $newStatus = Issue::$issueStatusFixedAndResolved;
+                // Note: If the review was updated, the content was, too, by adding the reviewed class.
+                // So if "mark as reviewed" is UNchecked, we can't know if the content was otherwise fixed.
+                // We will assume it was, since a human has definitely looked at it.
+                $newStatus = Issue::$issueStatusActive;
+                if($reviewUpdated && $markAsReviewed) {
+                    if($issue->getStatus() === Issue::$issueStatusFixed) {
+                        $newStatus = Issue::$issueStatusFixedAndResolved;
+                    } else if($issue->getStatus() === Issue::$issueStatusActive) {
+                        $newStatus = Issue::$issueStatusResolved;
+                    }
+                } else if ($reviewUpdated && !$markAsReviewed) {
+                    $newStatus = Issue::$issueStatusFixed;
+                } else if ($contentUpdated) {
+                    $newStatus = Issue::$issueStatusFixed;
                 }
+
                 $issue->setStatus($newStatus);
                 $issue->setFixedBy($user);
                 $issue->setFixedOn($util->getCurrentTime());
@@ -90,67 +121,6 @@ class IssuesController extends ApiController
         }
         catch(\Exception $e) {
             $apiResponse->addMessage($e->getMessage(), 'error');
-        }
-
-        return new JsonResponse($apiResponse);
-    }
-
-    // Mark issue as resolved/reviewed
-    #[Route('/api/issues/{issue}/resolve', methods: ['POST','GET'], name: 'resolve_issue')]
-    public function markAsReviewed(Request $request, LmsPostService $lmsPost, UtilityService $util, Issue $issue): JsonResponse
-    {
-        $apiResponse = new ApiResponse();
-        $user = $this->getUser();
-        $output = new ConsoleOutput();
-
-        try {
-            // Check if user has access to course
-            $course = $issue->getContentItem()->getCourse();
-            if (!$this->userHasCourseAccess($course)) {
-                throw new \Exception("You do not have permission to access this issue.");
-            }
-
-            // Get updated issue
-            $issueUpdate = \json_decode($request->getContent(), true);
-            $sourceHtml = $issueUpdate['sourceHtml'];
-            $newHtml = $issueUpdate['newHtml'];
-            $fullPageHtml = isset($issueUpdate['fullPageHtml']) ? $issueUpdate['fullPageHtml'] : null;
-
-            $issue->setPreviewHtml($sourceHtml);
-            $issue->setNewHtml($newHtml);
-            $this->doctrine->getManager()->flush();
-
-            // Save content to LMS
-            $response = $lmsPost->saveContentToLms($issue, $user, $fullPageHtml);
-
-            // Add messages to response
-            $unreadMessages = $util->getUnreadMessages();
-            if (empty($unreadMessages)) {
-                // Update issue
-                $issue->setStatus(($issueUpdate['status']) ? $issueUpdate['status'] : Issue::$issueStatusActive);
-                $issue->setFixedBy($user);
-                $issue->setFixedOn($util->getCurrentTime());
-
-                // Update report stats
-                $report = $course->getUpdatedReport();
-
-                $this->doctrine->getManager()->flush();
-
-                if ($issue->getStatus() == Issue::$issueStatusResolved || $issue->getStatus() == Issue::$issueStatusFixedAndResolved) {
-                    $apiResponse->addMessage('form.msg.success_resolved', 'success');
-                } else {
-                    $apiResponse->addMessage('form.msg.success_unresolved', 'success');
-                }
-
-                $apiResponse->setData([
-                    'issue' => ['status' => $issue->getStatus(), 'pending' => false],
-                    'report' => $report
-                ]);
-            } else {
-                $apiResponse->addLogMessages($unreadMessages);
-            }
-        } catch (\Exception $e) {
-            $apiResponse->addError($e->getMessage());
         }
 
         return new JsonResponse($apiResponse);

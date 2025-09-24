@@ -28,6 +28,7 @@
 
 .combo-input {
   background-color: var(--white);
+  display: block;
   font-size: .85em;
   padding: .4em .15em .4em .5em;
   border: 1px solid var(--border-color);
@@ -114,3 +115,4 @@
     border-radius: 0 0 7px 7px;
   }
 }
+
