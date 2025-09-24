@@ -133,14 +133,17 @@ export default class Api {
         })
     }
 
-    postFile(activeFile, fileObj) {
+    postFile(activeFile, fileObj, references) {
         const authToken = this.getAuthToken()
+
+        console.log("References from API: " + references);
 
         let url = `${this.apiUrl}${this.endpoints.postFile}`
         url = url.replace('{file}', activeFile.id)
 
         let formData = new FormData()
         formData.append('file', fileObj)
+        formData.append('references', references);
 
         return fetch(url, {
             method: 'POST',

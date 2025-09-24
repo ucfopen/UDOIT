@@ -16,6 +16,7 @@ export default function FileForm ({
 
   const [acceptType, setAcceptType] = useState([])
   const [uploadedFile, setUploadedFile] = useState(null)
+  const [changeReferences, setChangeReferences] = useState(false)
   const [isDisabled, setIsDisabled] = useState(false)
 
   const getAcceptType = (file) => {
@@ -63,6 +64,8 @@ export default function FileForm ({
     if(activeFile) {
       setAcceptType(getAcceptType(activeFile))
     }
+    console.log(activeFile)
+    console.log(changeReferences);
   }, [activeFile])
 
   useEffect(() => {
@@ -115,6 +118,11 @@ export default function FileForm ({
     event.preventDefault()
   }
 
+  // Set checkReferences to true or false depending on event on checkbox
+  const handleReferences = (e) => {
+    setChangeReferences(e.target.checked);
+  }
+
   // In order to trigger the file input dialog, we need an input element,
   // and we don't want it to show on the page. So we create a temporary one.
   const handleFileSelect = () => {
@@ -130,8 +138,13 @@ export default function FileForm ({
     if (!uploadedFile) {
       return
     }
-    handleFileUpload(uploadedFile)
+    console.log("Change References from fileForm: " + changeReferences);
+    handleFileUpload(uploadedFile, changeReferences)
   }
+
+  useEffect(() => {
+    console.log(changeReferences);
+  }, [changeReferences])
 
   return (
     <>
@@ -172,6 +185,14 @@ export default function FileForm ({
               <SaveIcon className="icon-md" alt=""/>
               {t('form.submit')}
             </button>
+          </div>
+          <div className=''>
+              <input 
+                type='checkbox'
+                checked={changeReferences}
+                onChange={handleReferences}
+              />
+              <span>Change Links to files in all content items</span>
           </div>
         </>
       )}

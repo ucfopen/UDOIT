@@ -57,7 +57,7 @@ class LmsPostService {
         return $lms->postContentItem($contentItem);
     }
 
-    public function saveFileToLms(FileItem $file, UploadedFile $uploadedFile, User $user)
+    public function saveFileToLms(FileItem $file, UploadedFile $uploadedFile, User $user, bool $refIndication)
     {
         $lms = $this->lmsApi->getLms();
         $path = $this->util->getTempPath();
@@ -76,7 +76,8 @@ class LmsPostService {
             return;
         }
 
-        return $lms->postFileItem($file, $uploadedFile->getClientOriginalName());
+
+        return $lms->postFileItem($file, $uploadedFile->getClientOriginalName(), $refIndication);
     }
 
     public function replaceContent(Issue $issue, ContentItem $contentItem, $fullPageHtml = null)
