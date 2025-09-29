@@ -429,16 +429,17 @@ export const findXpathFromElement = (element) => {
 
 export const findElementWithXpath = (content, xpath) => {
   
-  if(xpath.startsWith('/html[1]/body[1]/main[1]/')) {
-    xpath = xpath.replace('/html[1]/body[1]/main[1]/', '/html[1]/body[1]/')
-  }
-  else if (xpath.startsWith('/html[1]/body[1]/div[1]/')) {
-    xpath = xpath.replace('/html[1]/body[1]/div[1]/', '/html[1]/body[1]/')
-  }
+  // if(xpath.startsWith('/html[1]/body[1]/main[1]/')) {
+  //   xpath = xpath.replace('/html[1]/body[1]/main[1]/', '/html[1]/body[1]/')
+  // }
+  // else if (xpath.startsWith('/html[1]/body[1]/div[1]/')) {
+  //   xpath = xpath.replace('/html[1]/body[1]/div[1]/', '/html[1]/body[1]/')
+  // }
 
   if(xpath.startsWith('/')) {
     xpath = xpath.substring(1)
   }
+
 
   // If there is no xpath aside from the root element, return null
   if(xpath === 'html[1]/body[1]') {
