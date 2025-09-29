@@ -1,7 +1,7 @@
 import React, { act, useEffect, useState } from 'react'
 import * as Html from '../../Services/Html'
 import Combobox from '../Widgets/Combobox'
-import FormFeedback from './FormFeedback'
+import FormSaveOrReview from './FormSaveOrReview'
 
 
 const LanguageForm = ({
@@ -406,14 +406,16 @@ const updateActiveIssueHtml = () => {
      </div>
 
     </div>
-     <FormFeedback
-             t={t}
-             settings={settings}
-             activeIssue={activeIssue}
-             isDisabled={isDisabled}
-             handleSubmit={handleSubmit}
-             formErrors={inputErrors} 
-        />
+        <FormSaveOrReview
+                t={t}
+                settings={settings}
+                activeIssue={activeIssue}
+                isDisabled={isDisabled}
+                handleSubmit={handleSubmit}
+                formErrors={inputErrors}
+                markAsReviewed={markAsReviewed}
+                setMarkAsReviewed={setMarkAsReviewed}
+            />
      
     </>
   )
