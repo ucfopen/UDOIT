@@ -3,7 +3,6 @@ import express from 'express';
 import type { Report } from "./engine-types/v4/api/IReport";
 import { Request, Response, NextFunction } from 'express';
 import { aceCheck, initializePagePool, closePagePool } from './aceChecker';
-import bodyParser from 'body-parser';
 import * as puppeteer from 'puppeteer';
 
 const app = express();
@@ -13,7 +12,6 @@ const PORT = process.env.PORT || 3000;
 const DEFAULT_ID = 'WCAG_2_1';
 const DEFAULT_REPORT_LEVELS = ['violation', 'potentialviolation', 'manual'];
 
-app.use(bodyParser.json());
 
 let browser: puppeteer.Browser;
 
@@ -38,29 +36,43 @@ app.get('/', (_req, res) => {
  * "guidelineIds": ["WCAG_2_2"]
 }
  */
-app.post("/scan", asyncHandler(async (req, res) => {
-  const html: string = req.body.html;
-  const guidelineIds: string | string[] = req.body.guidelineIds || DEFAULT_ID;
-  const reportLevels: string | string[] = req.body.reportLevels || DEFAULT_REPORT_LEVELS;
-  const report: Report = await aceCheck(html, browser, guidelineIds, reportLevels);
+app.post(
+  "/scan",
+  asyncHandler(async (req, res) => {
+    try {
+      const html: string                    = req.body.html;
+      const guidelineIds: string | string[] = req.body.guidelineIds || DEFAULT_ID;
+      const reportLevels: string | string[] = req.body.reportLevels || DEFAULT_REPORT_LEVELS;
 
-  // Modified to match Lambda output format
-  res.status(200).json(report);
-}));
+      const report: Report = await aceCheck(html, browser, guidelineIds, reportLevels);
+
+      res.status(200).json(report);
+
+    } catch (err: any) {
+      console.error("❌  /scan route error:", err);
+      res.status(500).json({ error: err.message ?? "Unknown error" });
+    }
+  })
+);
+
 
 app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {
   console.error(err);
   res.status(500).json({ error: err.message });
 });
 
+const ASYNC_POOL_SIZE = parseInt(process.env.ASYNC_POOL_SIZE || '5', 10);
+
 (async () => {
   try {
     browser = await puppeteer.launch({
       args: ['--no-sandbox', '--disable-setuid-sandbox']
     });
-    await initializePagePool(browser, 5);
+    await initializePagePool(browser, ASYNC_POOL_SIZE);
     app.listen(PORT, () => {
+      console.log(`🚀  Server listening on port ${PORT}`);
     });
+
   } catch (err) {
     console.error("Error launching Puppeteer:", err);
     process.exit(1);

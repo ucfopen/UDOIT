@@ -11,18 +11,11 @@ services:
       MYSQL_PASSWORD: udoit
     ports:
       - "3306:3306"
-  # Uncomment this block and comment the next db block
-  # to use Postgres instead of MySQL
-  # db:
-  #   container_name: udoit3-db
-  #   image: postgres:alpine
-  #   restart: always
-  #   ports:
-  #     - "5432:5432"
-  #   environment:
-  #     POSTGRES_USER: udoit
-  #     POSTGRES_PASSWORD: udoit
-  #     POSTGRES_DB: udoit3
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 5s
+      retries: 10
+
   web:
       container_name: udoit3-web
       image: nginx:latest
@@ -35,18 +28,26 @@ services:
           - php
       env_file:
         - .env
+
   php:
       container_name: udoit3-php
       build:
-        context: ./build/nginx
-        dockerfile: Dockerfile.php.pdo.mysql
+        context: .
+        dockerfile: build/nginx/Dockerfile.php.pdo.mysql
       volumes:
         - ./:/var/www/html
+        - ./build/supervisor/supervisord.conf:/etc/supervisor/supervisord.conf
+        - ./build/supervisor/php-fpm.conf:/etc/supervisor/conf.d/php-fpm.conf
+        - ./build/supervisor/:/etc/supervisor/conf.d/
         - type: bind
           source: ./build/nginx/php-custom.ini
           target: /usr/local/etc/php/conf.d/php-custom.ini
       env_file:
         - .env
+      depends_on:
+        db:
+          condition: service_healthy
+
   composer:
       container_name: udoit3-composer
       build:
@@ -57,6 +58,7 @@ services:
         - ./:/app
       env_file:
         - .env
+
   yarn:
       container_name: udoit3-yarn
       image: node:20
@@ -79,6 +81,7 @@ services:
         - "3000:3000"
       environment:
         - PORT=3000
+        - ASYNC_POOL_SIZE=${ASYNC_POOL_SIZE}
 
 volumes:
   web:

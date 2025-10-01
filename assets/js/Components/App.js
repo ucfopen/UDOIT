@@ -14,7 +14,7 @@ export default function App(initialData) {
 
   const [messages, setMessages] = useState(initialData.messages || [])
   const [untranslatedMessage, setUntranslatedMessage] = useState('')
-  const [report, setReport] = useState(initialData.report || null)  
+  const [report, setReport] = useState(initialData.report || null)
   const [settings, setSettings] = useState(initialData.settings || null)
   const [sections, setSections] = useState([])
 
@@ -83,7 +83,7 @@ export default function App(initialData) {
   const updateUserSettings = (newUserSetting) => {
     let oldSettings = JSON.parse(JSON.stringify(settings))
     let newRoles = Object.assign({}, settings.user.roles, newUserSetting)
-    let newUser = Object.assign({}, settings.user, { 'roles': newRoles})
+    let newUser = Object.assign({}, settings.user, { 'roles': newRoles })
     let newSettings = Object.assign({}, settings, { user: newUser })
     setSettings(newSettings)
 
@@ -91,9 +91,9 @@ export default function App(initialData) {
     api.updateUser(newUser)
       .then((response) => response.json())
       .then((data) => {
-        if(data.user) {
+        if (data.user) {
           newSettings.user = data.user
-          if(data?.labels?.lang) {
+          if (data?.labels?.lang) {
             let newLanguageSettings = Object.assign({}, newSettings)
             newLanguageSettings.lang = data?.language || newSettings.lang
             newLanguageSettings.labels = data.labels
@@ -105,7 +105,7 @@ export default function App(initialData) {
           setSettings(oldSettings)
           setUntranslatedMessage({ message: 'msg.settings.update_failed', severity: 'error', visible: true })
         }
-    })
+      })
   }
 
   // Session Issues are used to track progress when multiple things are going on at once,
@@ -113,20 +113,20 @@ export default function App(initialData) {
   // Each issue has an id and state: { id: issueId, state: 2 }
   // The valid states are set and read in the FixIssuesPage component.
   const updateSessionIssue = (issueId, issueState = null, contentItemId = null) => {
-    if(issueState === null || issueState === ISSUE_STATE.UNCHANGED) {
+    if (issueState === null || issueState === ISSUE_STATE.UNCHANGED) {
       let newSessionIssues = Object.assign({}, sessionIssues)
-      if(newSessionIssues[issueId]) {
+      if (newSessionIssues[issueId]) {
         delete newSessionIssues[issueId]
       }
       setSessionIssues(newSessionIssues)
 
-      if(contentItemId) {
+      if (contentItemId) {
         removeContentItemFromCache(contentItemId)
       }
 
       return
     }
-    let newSessionIssues = Object.assign({}, sessionIssues, { [issueId]: issueState})
+    let newSessionIssues = Object.assign({}, sessionIssues, { [issueId]: issueState })
     setSessionIssues(newSessionIssues)
   }
 
@@ -135,16 +135,24 @@ export default function App(initialData) {
     setReport(tempReport)
 
     let api = new Api(settings)
-    api.setReportData(tempReport.id, {'scanCounts': tempReport.scanCounts})
-      .then((response) => response.json())
+    api.setReportData(tempReport.id, { 'scanCounts': tempReport.scanCounts })
+      .then((response) => {
+        console.log('Are we getting in the setReportData response')
+        console.log(response)
+
+        return response.json()
+      })
       .then((data) => {
-        if(data.errors && data.errors.length > 0) {
+        console.log('Are we getting in the setReportData data')
+        console.log(data)
+        if (data.errors && data.errors.length > 0) {
           data.errors.forEach((error) => {
             addMessage({ message: error, severity: 'error', visible: true })
           })
         }
       })
       .catch((error) => {
+        console.error(`Error message setReportData: ${error}`)
         addMessage({ message: t('msg.sync.error.api'), severity: 'error', visible: true })
       })
 
@@ -155,19 +163,19 @@ export default function App(initialData) {
       setSections([])
     }
 
-    if(tempReport.sessionIssues) {
+    if (tempReport.sessionIssues) {
       setSessionIssues(tempReport.sessionIssues)
     }
 
     let tempContentItems = {}
-    for(const key in tempReport.contentItems) {
+    for (const key in tempReport.contentItems) {
       tempContentItems[key] = tempReport.contentItems[key]
     }
     setContentItemCache(tempContentItems)
   }
 
-  const handleNewReport = (data) => {
-    if(!data || !data.data) {
+  const handleNewReport = (data, complete = true) => {
+    if (!data || !data.data) {
       setSyncComplete(true)
       setHasNewReport(false)
       return
@@ -186,19 +194,19 @@ export default function App(initialData) {
       newReport = data.data
       newHasNewReport = true
     }
-    setSyncComplete(true)
+    setSyncComplete(complete)
     setHasNewReport(newHasNewReport)
 
-    if(newHasNewReport) {
+    if (newHasNewReport) {
       processNewReport(newReport)
     }
   }
 
   const handleNavigation = (newNavigation) => {
-    if(newNavigation === navigation || !syncComplete) {
+    if (newNavigation === navigation || !syncComplete) {
       return
     }
-    if(newNavigation !== 'fixIssues') {
+    if (newNavigation !== 'fixIssues') {
       setInitialSeverity('')
       setInitialSearchTerm('')
     }
@@ -236,7 +244,7 @@ export default function App(initialData) {
       default:
         errorMessage = t('msg.sync.error.connection')
     }
-    addMessage({message: errorMessage, severity: 'error', visible: true})
+    addMessage({ message: errorMessage, severity: 'error', visible: true })
     console.error(`Error: ${errorMessage} (Status: ${status})`)
   }
 
@@ -257,38 +265,61 @@ export default function App(initialData) {
   }
 
   const removeContentItemFromCache = (contentItemId) => {
-    if(!contentItemId) {
+    if (!contentItemId) {
       return
     }
 
     let newContentItemCache = Object.assign({}, contentItemCache)
-    if(newContentItemCache[contentItemId]) {
+    if (newContentItemCache[contentItemId]) {
       delete newContentItemCache[contentItemId]
     }
     setContentItemCache(newContentItemCache)
   }
 
   const handleFullCourseRescan = () => {
-    if (hasNewReport) {
-      setHasNewReport(false)
-      setSyncComplete(false)
-      try {
-        fullRescan()
-          .then((responseStr) => {
-            // Check for HTTP errors before parsing JSON
-            if (!responseStr.ok) {
-              processServerError(responseStr)
-              return null
-            }
-            return responseStr.json()
-          })
-          .then(handleNewReport)
-      } catch (error) {
-        addMessage({message: `${t('msg.sync.failed')}: ${t(error)}`, severity: 'error', visible: true})
-        console.error("Error scanning course:", error)
-      }
-    }
-  }
+    const t0 = performance.now();
+    if (!hasNewReport) return;
+
+    setHasNewReport(false);
+    setSyncComplete(false);
+
+    fullRescan()
+      .then(res => {
+        if (!res.ok) throw new Error(`Server error ${res.status}`);
+        return res.json();
+      }).then(queueData => {
+        handleNewReport(queueData, false);      // keeps banner logic
+        const batchId = queueData.data?.batchId;
+        if (!batchId) return;
+
+        const pollInterval = setInterval(() => {
+          const api = new Api(settings);
+          api.getRescanStatus(batchId)
+            .then(res => res.json())
+            .then(statusResp => {
+              if (statusResp.data?.status === 'complete') {
+                clearInterval(pollInterval);
+
+                // fetch fresh report (no extra scan)
+                api.getSyncReport(settings.course.id)
+                  .then(res => res.json())
+                  .then(fullData => {
+                    handleNewReport(fullData, true);
+                    console.log('Latest report fetched after rescan:', fullData);
+                    const elapsed = performance.now() - t0;
+                    console.log(`handleFullCourseRescan finished in ${elapsed.toFixed(0)} ms`);
+                  })
+                  .catch(err => console.error('Error fetching latest report:', err));
+              }
+            })
+            .catch(err => {
+              console.error('Error polling rescan status:', err);
+              clearInterval(pollInterval);
+            });
+        }, 1000);
+      })
+      .catch(err => console.error('Error starting full rescan:', err));
+  };
 
   // Every time the translation function changes, we need to recompute the page visibility listener.
   useEffect(() => {
@@ -298,10 +329,10 @@ export default function App(initialData) {
       } else {
         // There is probably a case for checking the page you're currently editing to make sure that there weren't any changes in the LMS.
         // For now, just let the user know that they should refresh if they made changes.
-        addMessage({message: t('msg.return_focus'), severity: 'info', visible: true})
+        addMessage({ message: t('msg.return_focus'), severity: 'info', visible: true })
       }
     }
-    
+
     document.addEventListener('visibilitychange', handleVisibilityChange)
 
     return () => {
@@ -317,11 +348,11 @@ export default function App(initialData) {
   }, [])
 
   useEffect(() => {
-    
+
     try {
       scanCourse()
         .then((responseStr) => {
-        // Check for HTTP errors before parsing JSON
+          // Check for HTTP errors before parsing JSON
           if (!responseStr.ok) {
             processServerError(responseStr)
             return null
@@ -330,20 +361,20 @@ export default function App(initialData) {
         })
         .then(handleNewReport)
     } catch (error) {
-      addMessage({message: `${t('msg.sync.failed')}: ${t(error)}`, severity: 'error', visible: true})
+      addMessage({ message: `${t('msg.sync.failed')}: ${t(error)}`, severity: 'error', visible: true })
       console.error("Error scanning course:", error)
     }
   }, [initialData.report, scanCourse])
 
   return (
     <div id="app-container"
-         className={`flex-column flex-grow-1 ${settings?.user?.roles?.font_size || 'font-medium'} ${settings?.user?.roles?.font_family || 'sans-serif'} ${settings?.user?.roles?.dark_mode ? 'dark-mode' : ''}`}>
-      { !welcomeClosed ?
-        ( <WelcomePage
-            t={t}
-            settings={settings}
-            syncComplete={syncComplete}
-            setWelcomeClosed={setWelcomeClosed} /> ) :
+      className={`flex-column flex-grow-1 ${settings?.user?.roles?.font_size || 'font-medium'} ${settings?.user?.roles?.font_family || 'sans-serif'} ${settings?.user?.roles?.dark_mode ? 'dark-mode' : ''}`}>
+      {!welcomeClosed ?
+        (<WelcomePage
+          t={t}
+          settings={settings}
+          syncComplete={syncComplete}
+          setWelcomeClosed={setWelcomeClosed} />) :
         (
           <>
             <Header
@@ -353,7 +384,7 @@ export default function App(initialData) {
               navigation={navigation}
               syncComplete={syncComplete}
               handleNavigation={handleNavigation}
-             />
+            />
 
             <main role="main" className="pt-2">
               {('summary' === navigation) &&
@@ -417,6 +448,6 @@ export default function App(initialData) {
         messages={messages}
         clearMessages={clearMessages}
       />
-    </div>
+    </div >
   )
 }

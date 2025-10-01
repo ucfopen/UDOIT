@@ -5,16 +5,23 @@ framework:
 
         transports:
             # https://symfony.com/doc/current/messenger.html#transport-configuration
-            async_priority_high: 
+            async_priority_high:
                 dsn: '%env(MESSENGER_TRANSPORT_DSN)%'
-                options: 
+                options:
                     table_name: 'queue'
                     queue_name: 'priority_high'
-            async_priority_low: 
+            async_priority_low:
                 dsn: '%env(MESSENGER_TRANSPORT_DSN)%'
-                options: 
+                options:
                     table_name: 'queue'
-                    queue_name: 'priority_low'   
+                    queue_name: 'priority_low'
+
+            async_concurrent:
+                dsn: '%env(MESSENGER_TRANSPORT_DSN)%'
+                options:
+                    table_name: 'queue'
+                    queue_name: 'concurrent'
+
             failed: 'doctrine://default?queue_name=failed'
             sync: 'sync://'
 
@@ -25,3 +32,7 @@ framework:
             #'App\Message\BackgroundQueueItem': async_priority_low
             'App\Message\PriorityQueueItem': sync
             'App\Message\BackgroundQueueItem': sync
+            'App\Message\ScanContentItem': async_concurrent
+            # verified if async_concurrent is a valid transport
+            'App\Message\FullRescanMessage': async_priority_high
+            'App\Message\FinishRescanMessage': async_priority_high
