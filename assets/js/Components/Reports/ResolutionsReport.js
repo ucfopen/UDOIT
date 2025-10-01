@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { Line } from '@reactchartjs/react-chart.js'
+import Chart from 'chart.js/auto'
 
 export default function ResolutionsReport ({
   t,
@@ -11,8 +11,7 @@ export default function ResolutionsReport ({
   }
 }) {
 
-  const [chartData, setChartData] = useState(null)
-  const [chartOptions, setChartOptions] = useState(null)
+  const [liveChart, setLiveChart] = useState(null)
 
   const getChartData = () => {
     let tempReports = reports.sort((a, b) => {
@@ -23,6 +22,7 @@ export default function ResolutionsReport ({
       labels: [],
       datasets: [
         {
+          id: 1,
           label: t('report.header.issues'),
           data: [],
           fill: false,
@@ -32,6 +32,7 @@ export default function ResolutionsReport ({
           hidden: !visibility.issues
         },
         {
+          id: 2,
           label: t('report.header.potential'),
           data: [],
           fill: false,
@@ -42,6 +43,7 @@ export default function ResolutionsReport ({
           hidden: !visibility.potentialIssues
         },
         {
+          id: 3,
           label: t('report.header.suggestions'),
           data: [],
           fill: false,
@@ -74,16 +76,21 @@ export default function ResolutionsReport ({
 
   const getChartOptions = () => {
     return {
-      tension: 0,
-      scales: {
-        yAxes: [
-          {
-            ticks: {
-              beginAtZero: true
-            },
-          },
-        ],
-      }
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          position: 'top',
+          labels: {
+            font: {
+              size: 15,
+              weight: 'normal',
+              lineHeight: 1.5,
+              family: "'Open Sans', Arial, Helvetica, sans-serif"
+            }
+          }
+        },
+      },
     }
   }
 
@@ -91,17 +98,28 @@ export default function ResolutionsReport ({
     const data = getChartData()
     const options = getChartOptions()
 
-    setChartData(data)
-    setChartOptions(options)
-  }, [])
+    // setChartData(data)
+    // setChartOptions(options)
 
-  useEffect(() => {
-    const data = getChartData()
+    if (liveChart) {
+      liveChart.data = data
+      liveChart.options = options
+      liveChart.update()
+      return
+    }
 
-    setChartData(data)
+    let element = document.getElementById('resolutionsChart')
+    if (element) {
+      let newChart = new Chart(element, {
+        type: 'line',
+        data: data,
+        options: options
+      })
+      setLiveChart(newChart)
+    }
   }, [reports, visibility])
 
   return (
-    <Line data={chartData} options={chartOptions} />
+    <canvas id="resolutionsChart" className="ResolutionsReportChart" />
   )
 }

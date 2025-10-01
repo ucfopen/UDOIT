@@ -1,0 +1,381 @@
+.ufixit-widget {
+  height: 50%;
+  padding: .5rem 1rem .5rem .5rem;;
+  overflow-y: auto;
+
+  .combo-container {
+
+    .combo-label {
+      font-weight: 600;
+      color: var(--text-color);
+    }
+
+    .combo-interactive-container {
+      margin-top: calc(0.25 * var(--spacer)) !important;
+      width: 100%;
+    }
+  }
+}
+
+/* .ufixit-widget-header {
+  border-bottom: 2px solid var(--primary-color);
+} */
+
+.ufixit-widget-label {
+  font-size: .9em;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.dialog-indicator-container {
+  background-color: var(--gray-darker);
+  margin: 0 -1rem;
+  padding: .5rem 1rem;
+  color: var(--white);
+  font-size: .9em;
+  font-weight: 600;
+  font-family: var(--heading-font-family);
+  text-transform: uppercase;
+}
+
+.indicator-container {
+  border: 2px solid transparent;
+  border-radius: 2rem;
+  display: flex;
+  align-self: center;
+  box-sizing: border-box;
+  font-size: 1em;
+  text-transform: uppercase;
+  color: white;
+  font-family: var(--heading-font-family);
+  font-weight: 600;
+  padding: 0 .75em 0 .35em; /* Left padding is smaller because the icons have inherent padding. */
+
+  svg {
+    fill: var(--gray);
+    padding: .15rem;
+  }
+
+  &.active {
+    border-color: var(--issue-color);
+    background-color: var(--issue-color);
+
+    svg {
+      fill: var(--white);
+    }
+  }
+}
+
+.ufixit-instructions {
+  font-size: .9em;
+  font-weight: 500;
+}
+
+.clarification-container {
+  /* border: 1px solid var(--border-color);
+  border-radius: 8px; */
+  padding-top: .5rem;
+  border-top: 2px solid var(--gray);
+  margin-top: .5rem;
+  /* background-color: var(--white); */
+
+  .clarification-text {
+    font-weight: 400;
+    font-style: italic;
+    font-size: .9em;
+  }
+}
+
+.ufixit-form-container {
+  position: relative;
+  overflow-y: auto;
+  margin-right: -5px;
+  padding-right: 5px;
+  margin-left: -5px;
+  padding-left: 5px;
+  box-sizing: content-box;
+}
+
+.ufixit-form-content {
+  > :first-child {
+    margin-top: 0;
+  }
+
+  label,
+  .instructions {
+    font-weight: 600;
+    color: var(--text-color);
+  }
+
+  .instructions-helper {
+    margin-top: .25em;
+    padding-left: 1.8rem;
+    font-weight: 400;
+    font-style: italic;
+    font-size: .9em;
+    color: var(--gray-dark);
+  }
+
+  input[type="text"] {
+    padding: 0.25em;
+    box-sizing: border-box;
+    font-size: 0.95em;
+    font-family: var(--text-font-family);
+    border: 1px solid var(--gray);
+    border-radius: 4px;
+
+    &:hover,
+    &:focus {
+      outline: 2px solid var(--focus-color);
+      outline-offset: 1px;
+      
+    }
+
+    &:disabled {
+      background-color: var(--gray-light);
+      color: var(--gray);
+      border-color: var(--gray-light);
+      cursor: not-allowed !important;
+    }
+    &:disabled:hover,
+    &:disabled:focus {
+      outline-color: var(--gray-light);
+    }
+  }
+
+  .error-text {
+    font-size: .95em;
+    font-weight: 500;
+    font-style: italic;
+    color: var(--issue-color);
+  }
+
+  .text-muted {
+    font-size: .85em;
+    font-weight: 400;
+    color: var(--gray-dark);
+  }
+
+  .btn-icon-only.btn-transparent {
+    padding: .15rem .25rem;
+    fill: var(--link-color);
+    background-color: transparent;
+    border-color: transparent;
+
+    &:hover,
+    &:focus,
+    &.active {
+      background-color: var(--link-color);
+      fill: var(--white);
+    }
+
+    &:focus {
+      outline: 2px solid var(--focus-color);
+      outline-offset: 1px;
+    }
+  }
+
+  /* Specific to the ContrastForm Widget... Could be its own CSS file */
+  .ratio-container {
+    padding: .25rem .5rem;
+    border: 2px solid var(--issue-color);
+
+    &.ratio-valid {
+      border-color: var(--primary-color);
+    }
+
+    .ratio-label {
+      text-transform: uppercase;
+      font-size: .85em;
+      font-weight: 600;
+    }
+
+    .ratio-value {
+      font-size: 1.25rem;
+      font-weight: 600;
+    }
+
+    .ratio-status {
+      font-size: .85em;
+      font-weight: 600;
+      text-transform: uppercase;
+
+      &.invalid {
+        color: var(--issue-color);
+      }
+
+      &.valid {
+        color: var(--primary-color-dark);
+      }
+    }
+  }
+}
+
+.ufixit-learn-container {
+  max-width: 600px;
+
+  a {
+    color: var(--link-color);
+    font-weight: 600;
+
+    &:focus {
+      outline: 2px solid var(--focus-color);
+      outline-offset: 3px;
+      border-radius: 2px;
+    }
+  }
+
+  > * {
+    margin-top: 0;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+
+    caption {
+      font-weight: bold;
+      margin-bottom: .5rem;
+    }
+
+    thead tr {
+      background-color: var(--gray-dark);
+      color: var(--white);
+
+      th {
+        padding: .25rem .5rem;
+      }
+    }
+
+    tbody tr {
+      color: var(--text-color);
+
+      &:nth-child(odd) {
+        background-color: var(--white);
+      }
+
+      td {
+        padding: .25rem;
+        border-bottom: 1px solid var(--border-color);
+      }
+    }
+
+
+  }
+}
+
+.ufixit-widget-toggle-view-container {
+  width: 100%;
+  padding: .2rem 0px;
+  cursor: pointer;
+
+  color: var(--primary-color-dark);
+  fill: var(--primary-color-dark);
+  font-weight: 500;
+
+  background-color: var(--primary-color-light);
+  border-top: 2px solid var(--primary-color-dark);
+  border-bottom: 1px solid var(--primary-color-dark);
+
+  .ufixit-widget-toggle-view-container-link {
+    border-radius: 4px;
+    &:focus {
+      outline: 2px solid var(--focus-color);
+      outline-offset: 2px;
+    }
+  }
+}
+
+.url-container {
+  background-color: var(--gray-lighter);
+  padding: .25em .5em;
+  border-radius: 8px;
+}
+
+.ufixit-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  backdrop-filter: blur(3px);
+  background-color: transparent;
+  z-index: 1000;
+  padding: 0 5px;
+  box-sizing: border-box;
+
+  .ufixit-overlay-content-container {
+    width: 100%;
+    box-sizing: border-box;
+    max-width: 600px;
+    padding: 1rem;
+    background-color: var(--white);
+    border: 1px solid var(--gray);
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+    z-index: 1001;
+  }
+}
+
+dialog {
+  width: 90vw;
+  max-width: 70ch;
+  overflow-y: auto;
+  box-sizing: border-box;
+  border: none;
+  border-radius: 16px;
+  padding: 0;
+  background-color: var(--white);
+  z-index: 100;
+  box-shadow: 0 0 10px var(--shadow-color);
+}
+
+.ufixit-widget-dialog {
+  height: 70vh;
+  max-height: 650px;
+  overflow-y: auto;
+}
+
+.ufixit-widget-dialog-header {
+  padding: 1rem 1rem .75rem 1rem;
+  background-color: var(--primary-color-light);
+  position: sticky;
+  top: 0;
+  box-shadow: 0 2px 2px var(--shadow-color);
+
+  .close-icon { 
+    padding: .25rem;
+    border-radius: 2rem;
+    cursor:pointer;
+    background-color: transparent;
+
+    &:hover, &:focus {
+      background-color: var(--white);
+    }
+  }
+}
+
+.ufixit-widget-dialog-content {
+  padding: 0 1rem;
+  color: var(--text-color);
+  font-size: 1em;
+  line-height: 1.5;
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+
+.ufixit-widget code,
+.ufixit-widget-dialog code {
+    padding: 0.15rem 0.4rem;
+    background-color: var(--gray-dark);
+    color: var(--white);
+    border-radius: 4px;
+    font-size: 0.9em;
+  }
+
+dialog::backdrop {
+  background: var(--backdrop-color);
+  backdrop-filter: blur(3px);
+}

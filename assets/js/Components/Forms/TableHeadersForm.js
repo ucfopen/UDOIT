@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import FormFeedback from './FormFeedback'
+import FormSaveOrReview from './FormSaveOrReview'
 import * as Html from '../../Services/Html';
 
 export default function TableHeadersForm({
@@ -9,20 +9,22 @@ export default function TableHeadersForm({
   handleIssueSave, 
   isDisabled, 
   handleActiveIssue,
+  markAsReviewed,
+  setMarkAsReviewed
 }) {
   const radioOptions = [
     'col',
     'row',
     'both'
   ]
-  const [selectedValue, setSelectedValue] = useState(null)
-  const [cachedValue, setCachedValue] = useState(null)
+  const [selectedValue, setSelectedValue] = useState('')
+  const [cachedValue, setCachedValue] = useState('')
   const [decorationOnly, setDecorationOnly] = useState(false)
 
   useEffect(() => {
     if(activeIssue) {
       setSelectedValue(getTableHeader())
-      setCachedValue(null)
+      setCachedValue('')
     }
   }, [activeIssue])
 
@@ -143,7 +145,7 @@ export default function TableHeadersForm({
     }
     else {
       setSelectedValue(cachedValue)
-      setCachedValue(null)
+      setCachedValue('')
     }
   }
 
@@ -155,16 +157,16 @@ export default function TableHeadersForm({
 
   return (
     <>
-      <div className="instructions">{t('form.table_headers.selection_description')}</div>
-      <div className="w-100 mt-2 flex-column gap-1">
+      <label id="radioGroupLabel" className="instructions">{t('form.table_headers.selection_description')}</label>
+      <div className="w-100 mt-2 flex-column gap-1" role="radiogroup" aria-labelledby="radioGroupLabel">
         { radioOptions.map(value => (
-          <div className="flex-row gap-1">
+          <div className="flex-row gap-1" key={value}>
             <input
-              type="radio" 
+              type="radio"
               id={value}
               name="tableHeaderSelect"
               value={selectedValue}
-              tabindex="0"
+              tabIndex="0"
               disabled={isDisabled || decorationOnly}
               onChange={() => handleChange(value)} />
             <label htmlFor={value}>{t(`form.table_headers.${value}`)}</label>
@@ -177,7 +179,7 @@ export default function TableHeadersForm({
           type="checkbox"
           id="decorationOnlyCheckbox"
           name="decorationOnlyCheckbox"
-          tabindex="0"
+          tabIndex="0"
           checked={decorationOnly}
           disabled={isDisabled}
           onChange={(e) => handleDecoration(e.target.checked)} />
@@ -185,12 +187,16 @@ export default function TableHeadersForm({
           {t('form.table_headers.decoration_only')}
         </label>
       </div>
-      <FormFeedback
+      <div className="instructions-helper">{t('form.table_headers.decoration_only_desc')}</div>
+      <FormSaveOrReview
         t={t}
         settings={settings}
         activeIssue={activeIssue}
         isDisabled={isDisabled || (!selectedValue && !decorationOnly)}
-        handleSubmit={handleSubmit} />
+        handleSubmit={handleSubmit}
+        formErrors={[]}
+        markAsReviewed={markAsReviewed}
+        setMarkAsReviewed={setMarkAsReviewed} />
     </>
   )
 }

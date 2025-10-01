@@ -1,16 +1,34 @@
 import React, { useEffect, useState } from 'react'
-import FormFeedback from './FormFeedback'
-import * as Html from '../../Services/Html'
+import FormExternalLink from './FormExternalLink'
+import FormReviewOnly from './FormReviewOnly'
 
 export default function ListForm({
   t,
+  settings, 
   activeIssue,
-  activeContentItem,
+  isContentLoading,
+  markAsReviewed,
+  setMarkAsReviewed,
   handleIssueSave,
-  isDisabled,
- }) {
+}) {
   
   return (
-    <div dangerouslySetInnerHTML={{__html: t('form.review_only.summary')}}></div>
+    <div className="flex-column">
+      <div dangerouslySetInnerHTML={{__html: t('form.review_only.summary')}}></div>
+      <FormExternalLink
+        t={t}
+        settings={settings}
+        activeIssue={activeIssue}
+      />
+      <FormReviewOnly
+        t={t}
+        settings={settings}
+        activeIssue={activeIssue}
+        handleIssueSave={handleIssueSave}
+        isContentLoading={isContentLoading}
+        markAsReviewed={markAsReviewed}
+        setMarkAsReviewed={setMarkAsReviewed}
+      />
+    </div>
   )
 }

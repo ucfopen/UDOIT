@@ -13,6 +13,10 @@ select {
 .settings-page-container {
   margin: 0 -1rem -1rem -1rem;
   padding: 0 1rem;
+
+  .settings-row {
+    margin-bottom: -1rem;
+  }
 }
 
 .about-container {
@@ -36,5 +40,63 @@ a {
     outline: 2px solid var(--focus-color);
     outline-offset: 3px;
     border-radius: 2px;
+  }
+}
+
+.settings-container {
+  min-width: 400px;
+
+  select {
+    width: 100%;
+    min-width: unset;
+  }
+
+  input {
+    align-self: start;
+  }
+
+  .settings-label {
+    width: calc(40% - .5em);
+    text-align: right;
+    font-weight: 600;
+    color: var(--text-color);
+    text-transform: uppercase;
+    font-weight: 600;
+  }
+
+  .settings-input {
+    width: calc(60% - .5em);
+  }
+
+  .combo-container {
+    display: flex;
+    flex-direction: row;
+    gap: 1em;
+    margin-bottom: 1rem;
+  }
+
+  .combo-label {
+    width: calc(40% - .5em);
+    text-align: right;
+    font-weight: 600;
+    color: var(--text-color);
+    text-transform: uppercase;
+    display: flex;
+    flex-direction: column;
+    align-self: center;
+  }
+
+  .combo-menu {
+    top: calc(2.2em + 2px);
+    right: 0;
+    left: unset;
+  }
+
+  .combo-interactive-container {
+    width: calc(60% - .5em);
+  }
+
+  .combo-menu {
+    width: inherit;
   }
 }

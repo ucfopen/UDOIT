@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import FormFeedback from './FormFeedback'
+import FormSaveOrReview from './FormSaveOrReview'
 import * as Html from '../../Services/Html'
 import * as Contrast from '../../Services/Contrast'
 
@@ -10,6 +10,8 @@ export default function EmphasisForm({
   isDisabled,
   handleIssueSave,
   handleActiveIssue,
+  markAsReviewed,
+  setMarkAsReviewed
 }) {
   const [useBold, setUseBold] = useState(false)
   const [useItalics, setUseItalics] = useState(false)
@@ -26,16 +28,30 @@ export default function EmphasisForm({
   }, [activeIssue])
 
   useEffect(() => {
-    updatePreview()
+    updateHtmlContent()
     checkFormErrors()
-  }, [useBold, useItalics, removeColor])
+  }, [useBold, useItalics, removeColor, markAsReviewed])
 
-  const updatePreview = () => {
+  const updateHtmlContent = () => {
     let issue = activeIssue
-    const html = Html.getIssueHtml(activeIssue)
+    issue.isModified = true
 
-    issue.newHtml = processHtml(html)
+    if (markAsReviewed) {
+      issue.newHtml = issue.initialHtml
+      handleActiveIssue(issue)
+      return
+    }
+
+    issue.newHtml = processHtml(issue.initialHtml)
     handleActiveIssue(issue)
+  }
+
+  const checkFormErrors = () => {
+    let tempErrors = []
+    if(!cssEmphasisIsValid(activeIssue)) {
+      tempErrors.push({ text: t('form.emphasis.msg.required'), type: 'error' })
+    }
+    setFormErrors(tempErrors)
   }
 
   const processHtml = (html) => {
@@ -85,7 +101,7 @@ export default function EmphasisForm({
   }
 
   const handleSubmit = () => {
-    if (formErrors.length > 0) {
+    if (!markAsReviewed && formErrors.length > 0) {
       return
     }
     let issue = activeIssue
@@ -100,13 +116,7 @@ export default function EmphasisForm({
     return true
   }
 
-  const checkFormErrors = () => {
-    let tempErrors = []
-    if(!cssEmphasisIsValid(activeIssue)) {
-      tempErrors.push({ text: t('form.emphasis.msg.required'), type: 'error' })
-    }
-    setFormErrors(tempErrors)
-  }
+
 
   return (
     <>
@@ -116,7 +126,7 @@ export default function EmphasisForm({
           id="boldCheckbox"
           name="boldCheckbox"
           checked={useBold}
-          tabindex="0"
+          tabIndex="0"
           disabled={isDisabled}
           onChange={handleBoldToggle} />
         <label htmlFor="boldCheckbox">{t('form.emphasis.label.bold')}</label>
@@ -126,7 +136,7 @@ export default function EmphasisForm({
           id="italicCheckbox"
           name="italicCheckbox"
           checked={useItalics}
-          tabindex="0"
+          tabIndex="0"
           disabled={isDisabled}
           onChange={handleItalicsToggle} />
         <label htmlFor="italicCheckbox">{t('form.emphasis.label.italic')}</label>
@@ -137,18 +147,20 @@ export default function EmphasisForm({
           id="removeColorCheckbox"
           name="removeColorCheckbox"
           checked={removeColor}
-          tabindex="0"
+          tabIndex="0"
           disabled={isDisabled}
           onChange={handleRemoveColorToggle} />
         <label className="instructions" htmlFor="removeColorCheckbox">{t('form.emphasis.label.remove_color')}</label>
       </div>
-      <FormFeedback
+      <FormSaveOrReview
         t={t}
         settings={settings}
         activeIssue={activeIssue}
         isDisabled={isDisabled}
         handleSubmit={handleSubmit}
-        formErrors={formErrors} />
+        formErrors={formErrors}
+        markAsReviewed={markAsReviewed}
+        setMarkAsReviewed={setMarkAsReviewed} />
     </>
   )
 }

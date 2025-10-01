@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react'
-import FormFeedback from './FormFeedback'
+import FormSaveOrReview from './FormSaveOrReview'
+import * as Text from '../../Services/Text'
 import * as Html from '../../Services/Html'
 
 export default function BlockquoteForm({
@@ -8,7 +9,9 @@ export default function BlockquoteForm({
   activeIssue,
   handleIssueSave,
   isDisabled,
-  handleActiveIssue
+  handleActiveIssue,
+  markAsReviewed,
+  setMarkAsReviewed
 }) {
 
   const [citationText, setCitationText] = useState("")
@@ -45,9 +48,37 @@ export default function BlockquoteForm({
   }, [activeIssue])
 
   useEffect(() => {
+    updateHtmlContent()
     checkFormErrors()
-    handleHtmlUpdate()
-  }, [citationText, hideCitation, removeBlockquote, triggerCheck])
+  }, [citationText, hideCitation, removeBlockquote, triggerCheck, markAsReviewed])
+
+  const updateHtmlContent = () => {
+
+    let issue = activeIssue
+    issue.isModified = true
+
+    if (markAsReviewed) {
+      issue.newHtml = issue.initialHtml
+      handleActiveIssue(issue)
+      return
+    }
+    
+    const html = Html.getIssueHtml(activeIssue)
+    issue.newHtml = processHtml(html)
+    handleActiveIssue(issue)
+  }
+
+  const checkFormErrors = () => {
+    const tempFormErrors = []
+
+    if (!removeBlockquote) {
+      if(Text.isTextEmpty(citationText)) {
+        tempFormErrors.push({text: t('form.blockquote.msg.text_empty'), type: 'error'})
+      }
+    }
+
+    setFormErrors(tempFormErrors)
+  }
 
   // If the blockquote only contains text, we return that text wrapped in a <p> tag
   const embedTextOnlyInParagraph = (element) => {
@@ -67,23 +98,8 @@ export default function BlockquoteForm({
     return element
   }
 
-  const checkFormErrors = () => {
-    const tempFormErrors = []
 
-    if (!removeBlockquote && citationText.trim() === '') {
-      tempFormErrors.push({text: t('form.blockquote.msg.text_empty'), type: 'error'})
-    }
 
-    setFormErrors(tempFormErrors)
-  }
-
-  const handleHtmlUpdate = () => {
-      let issue = activeIssue
-      const html = Html.getIssueHtml(activeIssue)
-  
-      issue.newHtml = processHtml(html)
-      handleActiveIssue(issue)
-    }
 
   const processHtml = (html) => {
     let updatedElement = Html.toElement(html)
@@ -180,10 +196,9 @@ export default function BlockquoteForm({
   }
 
   const handleSubmit = () => {
-    if(formErrors.length > 0) {
-      return
+    if(markAsReviewed || formErrors.length === 0) {
+      handleIssueSave({ ...activeIssue, newHtml: activeIssue.newHtml })
     }
-    handleIssueSave({ ...activeIssue, newHtml: activeIssue.newHtml })
   }
 
   return (
@@ -198,7 +213,7 @@ export default function BlockquoteForm({
           value={citationText}
           disabled={isDisabled || removeBlockquote}
           placeholder={t('form.blockquote.text.placeholder')}
-          tabindex="0"
+          tabIndex="0"
           onChange={(e) => handleInput(e.target.value)} />
       </div>
 
@@ -207,14 +222,12 @@ export default function BlockquoteForm({
           id="hideCheckbox"
           name="hideCheckbox"
           checked={hideCitation}
-          tabindex="0"
+          tabIndex="0"
           disabled={isDisabled || removeBlockquote}
           onChange={handleHideToggle} />
         <label className="instructions" htmlFor="hideCheckbox">{t('form.blockquote.label.hide_citation')}</label>
       </div>
-      <div className="mt-1">
-        <em>{t('form.blockquote.label.hide_citation_desc')}</em>
-      </div>
+      <div className="instructions-helper">{t('form.blockquote.label.hide_citation_desc')}</div>
 
       <div className="separator mt-2">{t('fix.label.or')}</div>
 
@@ -223,19 +236,21 @@ export default function BlockquoteForm({
           id="removeCheckbox"
           name="removeCheckbox"
           checked={removeBlockquote}
-          tabindex="0"
+          tabIndex="0"
           disabled={isDisabled}
           onChange={handleRemoveToggle} />
         <label className="instructions" htmlFor="removeCheckbox">{t('form.blockquote.label.remove_blockquote')}</label>
       </div>
       
-      <FormFeedback
+      <FormSaveOrReview
         t={t}
         settings={settings}
         activeIssue={activeIssue}
-        isDisabled={isDisabled || formErrors.length > 0}
+        isDisabled={isDisabled}
         handleSubmit={handleSubmit}
-        formErrors={formErrors} />
+        formErrors={formErrors}
+        markAsReviewed={markAsReviewed}
+        setMarkAsReviewed={setMarkAsReviewed} />
     </>
   )
 }

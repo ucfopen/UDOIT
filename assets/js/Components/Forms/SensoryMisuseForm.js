@@ -1,10 +1,9 @@
 import React, { useEffect, useRef, useState } from 'react'
-import FormFeedback from './FormFeedback'
+import FormSaveOrReview from './FormSaveOrReview'
 import * as Html from '../../Services/Html'
-
-import { Editor } from '@tinymce/tinymce-react'
-
-// TODO: verify if theres a better way to "selfhost" and load tinymce
+// The SensoryMisuseForm.css file is a copy of the tinyMCE oxide skin file, which does not consistently load at runtime, so we include it here
+// Failure to do so often results in the TinyMCE editor not display, especially the first time the componenet is rendered.
+import './SensoryMisuseForm.css'
 
 export default function SensoryMisuseForm({
   t, 
@@ -13,9 +12,12 @@ export default function SensoryMisuseForm({
   handleIssueSave, 
   addMessage,
   isDisabled,
-  handleActiveIssue
+  handleActiveIssue,
+  markAsReviewed,
+  setMarkAsReviewed
 }) {
   const [html, setHtml] = useState(Html.getIssueHtml(activeIssue))
+  const [editorHtml, setEditorHtml] = useState(Html.getIssueHtml(activeIssue))
 
   // equal access checks for these words - we can check for them while in tinymce
   // https://github.com/IBMa/equal-access/blob/83eaa932747d1a1156080c60849ff63029d5e293/accessibility-checker-engine/src/v4/rules/text_sensory_misuse.ts
@@ -46,16 +48,41 @@ export default function SensoryMisuseForm({
   const includedAttributes = ['alt', 'title', 'aria-label']
 
   const editorRef = useRef(null)
-  const [editorHtml, setEditorHtml] = useState(html)
-
   const [sensoryErrors, setSensoryErrors] = useState([])
 
   useEffect(() => {
     // if the issue changes, pull new html and set tinymce's html
-    if (activeIssue) {
-      setHtml(Html.getIssueHtml(activeIssue))
-      setEditorHtml(Html.getIssueHtml(activeIssue))
+    if(!activeIssue) {
+      return
     }
+    
+    let html = Html.getIssueHtml(activeIssue)
+    setHtml(html)
+    setEditorHtml(html)
+
+    tinymce.remove()
+    tinymce.init({
+      selector: '#sensory-misuse-textarea',
+      license_key: "gpl",
+      height: 250,
+      menubar: false,
+      plugins: "code",
+      toolbar: "undo redo | bold italic underline | code ",
+      // content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:14px }',
+      branding: false,
+      skin: "oxide",
+      quickbars_insert_toolbar: false,
+      statusbar: true,
+      setup: (editor) => {
+        editor.on('init', () => {
+          editor.setContent(html)
+          editorRef.current = editor
+        })
+        editor.on('input', () => {
+          handleEditorChange(editor.getContent())
+        })
+      }
+    })
   }, [activeIssue])
 
   useEffect(() => {
@@ -80,12 +107,17 @@ export default function SensoryMisuseForm({
     }
 
     const traverseNode = (node) => {
+
+      // Editor HTML is empty so node ends up empty
+      if(node === null)
+        return
+
       if (node.nodeType === Node.TEXT_NODE) {
         // Check if the text node contains any sensory words
         checkText(node.textContent);
       }
 
-      if (node.nodeType === Node.ELEMENT_NODE) {
+      if (node?.nodeType === Node.ELEMENT_NODE) {
         // If the element is excluded, skip it
         if (excludedTags.includes(node.tagName.toLowerCase())) {
           return
@@ -93,13 +125,13 @@ export default function SensoryMisuseForm({
 
         // Check attributes for sensory words
         includedAttributes.forEach(attr => {
-          if (node.hasAttribute(attr)) {
+          if (node?.hasAttribute(attr)) {
             checkText(node.getAttribute(attr));
           }
         })
 
         // Recursively traverse child nodes
-        node.childNodes.forEach(child => traverseNode(child));
+        node?.childNodes?.forEach(child => traverseNode(child));
       }
     }
 
@@ -189,37 +221,15 @@ export default function SensoryMisuseForm({
 
   return (
     <>
-      <div>
-        <Editor
-          tinymceScriptSrc="/udoit3/build/static/tinymce/tinymce.min.js"
-          licenseKey="gpl"
-          onInit={(evt, editor) => editorRef.current = editor}
-          initialValue={html}
-          onEditorChange={(evt, editor) => {
-            handleEditorChange(editor.getContent())
-          }}
-          init={{
-            height: 250,
-            menubar: false,
-            plugins: "code",
-            toolbar: "undo redo | bold italic underline | code ",
-            // content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:14px }',
-            branding: false,
-            skin: "oxide",
-            quickbars_insert_toolbar: false,
-            statusbar: true
-          }}
-        />
-      </div>
-
-      {sensoryErrors.length > 0 ?
+      <div className="instructions">{t('form.sensory_misuse.label.instructions')}</div>
+      { sensoryErrors.length > 0 ? (
         <div className="mt-3">
-          <label className="instructions">{t('form.sensory_misuse.label.potential')}</label>
           <div className="flex-row flex-wrap gap-1 mt-2">
+            <div className="ufixit-widget-label flex-column align-self-center">{t('form.sensory_misuse.label.highlight')}</div>
             {sensoryErrors.map((word) => (
               <button
                 className="tag"
-                tabindex="0"
+                tabIndex="0"
                 key={word}
                 onClick={() => goToWord(word)}
               >
@@ -228,14 +238,24 @@ export default function SensoryMisuseForm({
             ))}
           </div>
         </div>
-        : <></>}
+      ) : (
+        <div className="mt-3">
+          <div className="ufixit-widget-label">{t('form.sensory_misuse.label.none')}</div>
+        </div>
+      )}
+      <div className="mt-3">
+        <textarea id="sensory-misuse-textarea"></textarea>
+      </div>
 
-      <FormFeedback
+      <FormSaveOrReview
         t={t}
         settings={settings}
         activeIssue={activeIssue}
         isDisabled={isDisabled}
-        handleSubmit={handleSubmit} />
+        handleSubmit={handleSubmit}
+        formErrors={[]}
+        markAsReviewed={markAsReviewed}
+        setMarkAsReviewed={setMarkAsReviewed} />
     </>
   )
 }

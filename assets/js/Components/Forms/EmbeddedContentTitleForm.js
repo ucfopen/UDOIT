@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react'
-import FormFeedback from './FormFeedback'
+import FormSaveOrReview from './FormSaveOrReview'
 import * as Html from '../../Services/Html'
+import * as Text from '../../Services/Text'
 
 export default function EmbeddedContentTitleForm({
   t,
@@ -9,10 +10,12 @@ export default function EmbeddedContentTitleForm({
   handleIssueSave,
   isDisabled,
   handleActiveIssue,
+  markAsReviewed,
+  setMarkAsReviewed
  }) {
 
   const [textInputValue, setTextInputValue] = useState("")
-  const [textInputErrors, setTextInputErrors] = useState([])
+  const [formErrors, setFormErrors] = useState([])
 
   useEffect(() => {
     let html = Html.getIssueHtml(activeIssue)
@@ -23,11 +26,21 @@ export default function EmbeddedContentTitleForm({
   }, [activeIssue])
 
   useEffect(() => {
-    handleHtmlUpdate()
+    updateHtmlContent()
     checkFormErrors()
-  }, [textInputValue])
+  }, [textInputValue, markAsReviewed])
 
-  const handleHtmlUpdate = () => {
+  const updateHtmlContent = () => {
+
+    let issue = activeIssue
+    issue.isModified = true
+
+    if (markAsReviewed) {
+      issue.newHtml = issue.initialHtml
+      handleActiveIssue(issue)
+      return
+    }
+
     let html = Html.getIssueHtml(activeIssue)
     let updatedElement = Html.toElement(html)
 
@@ -39,8 +52,7 @@ export default function EmbeddedContentTitleForm({
       updatedElement = Html.setAttribute(updatedElement, "aria-label", textInputValue)
       updatedElement = Html.setAttribute(updatedElement, "title", textInputValue)
     }
-    
-    let issue = activeIssue
+
     issue.newHtml = Html.toString(updatedElement)
     handleActiveIssue(issue)
   }
@@ -48,30 +60,24 @@ export default function EmbeddedContentTitleForm({
   const checkFormErrors = () => {
     let tempErrors = []
     
-    if(isTextEmpty()) {
+    if(Text.isTextEmpty(textInputValue)) {
       tempErrors.push({ text: t('form.embedded_content_title.msg.text_empty'), type: "error" })
     }
     if(isLabelDuplicate()) {
       tempErrors.push({ text: t('form.embedded_content_title.msg.text_unique'), type: "error" })
     }
     
-    setTextInputErrors(tempErrors)
+    setFormErrors(tempErrors)
   }
 
   const handleSubmit = () => {
-    handleIssueSave(activeIssue)
+    if(markAsReviewed || formErrors.length === 0) {
+      handleIssueSave(activeIssue)
+    }
   }
 
   const handleInput = (event) => {
     setTextInputValue(event.target.value)
-  }
-
-  const isTextEmpty = () => {
-    const text = textInputValue.trim().toLowerCase()
-    if (text === '') {
-      return true
-    }
-    return false
   }
 
   const isLabelDuplicate = () => {
@@ -97,17 +103,19 @@ export default function EmbeddedContentTitleForm({
           name="labelInputValue"
           className="w-100"
           value={textInputValue}
-          tabindex="0"
+          tabIndex="0"
           disabled={isDisabled}
           onChange={handleInput} />
       </div>
-      <FormFeedback
+      <FormSaveOrReview
         t={t}
         settings={settings}
         activeIssue={activeIssue}
         isDisabled={isDisabled}
         handleSubmit={handleSubmit}
-        formErrors={textInputErrors} />
+        formErrors={formErrors}
+        markAsReviewed={markAsReviewed}
+        setMarkAsReviewed={setMarkAsReviewed} />
     </>
   )
 }

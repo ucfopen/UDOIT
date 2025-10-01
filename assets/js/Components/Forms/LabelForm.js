@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react'
-import FormFeedback from './FormFeedback'
+import FormSaveOrReview from './FormSaveOrReview'
 import * as Html from '../../Services/Html'
+import * as Text from '../../Services/Text'
 
 export default function LabelForm({
   t,
@@ -8,11 +9,13 @@ export default function LabelForm({
   activeIssue,
   handleIssueSave,
   isDisabled,
-  handleActiveIssue
+  handleActiveIssue,
+  markAsReviewed,
+  setMarkAsReviewed
  }) {
 
   const [textInputValue, setTextInputValue] = useState('')
-  const [textInputErrors, setTextInputErrors] = useState([])
+  const [formErrors, setFormErrors] = useState([])
 
   useEffect(() => {
     let html = Html.getIssueHtml(activeIssue)
@@ -23,24 +26,20 @@ export default function LabelForm({
   }, [activeIssue])
 
   useEffect(() => {
+    updateHtmlContent()
     checkFormErrors()
-    handleHtmlUpdate()
-  }, [textInputValue])
+  }, [textInputValue, markAsReviewed])
 
+  const updateHtmlContent = () => {
 
-  const checkFormErrors = () => {
-    let tempErrors = []
-    
-    if(isTextEmpty()) {
-      tempErrors.push({ text: t('form.label.msg.text_empty'), type: "error" })
+    let issue = activeIssue
+    issue.isModified = true
+
+    if (markAsReviewed) {
+      issue.newHtml = issue.initialHtml
+      handleActiveIssue(issue)
+      return
     }
-    if(isLabelDuplicate()) {
-      tempErrors.push({ text: t('form.label.msg.text_unique'), type: "error" })
-    }
-    setTextInputErrors(tempErrors)
-  }
-
-  const handleHtmlUpdate = () => {
 
     let html = Html.getIssueHtml(activeIssue)
     let updatedElement = Html.toElement(html)
@@ -48,9 +47,20 @@ export default function LabelForm({
     updatedElement = Html.setAttribute(updatedElement, "aria-label", textInputValue)
     updatedElement = Html.setAttribute(updatedElement, "title", textInputValue)
     
-    let issue = activeIssue
     issue.newHtml = Html.toString(updatedElement)
     handleActiveIssue(issue)
+  }
+
+  const checkFormErrors = () => {
+    let tempErrors = []
+    
+    if(Text.isTextEmpty(textInputValue)) {
+      tempErrors.push({ text: t('form.label.msg.text_empty'), type: "error" })
+    }
+    if(isLabelDuplicate()) {
+      tempErrors.push({ text: t('form.label.msg.text_unique'), type: "error" })
+    }
+    setFormErrors(tempErrors)
   }
 
   const handleSubmit = () => {
@@ -59,14 +69,6 @@ export default function LabelForm({
 
   const handleInput = (event) => {
     setTextInputValue(event.target.value)
-  }
-
-  const isTextEmpty = () => {
-    const text = textInputValue.trim().toLowerCase()
-    if (text === '') {
-      return true
-    }
-    return false
   }
 
   const isLabelDuplicate = () => {
@@ -96,16 +98,18 @@ export default function LabelForm({
           className="w-100"
           value={textInputValue}
           disabled={isDisabled}
-          tabindex="0"
+          tabIndex="0"
           onChange={handleInput} />
       </div>
-      <FormFeedback
+      <FormSaveOrReview
         t={t}
         settings={settings}
         activeIssue={activeIssue}
         isDisabled={isDisabled}
         handleSubmit={handleSubmit}
-        formErrors={textInputErrors} />
+        formErrors={formErrors}
+        markAsReviewed={markAsReviewed}
+        setMarkAsReviewed={setMarkAsReviewed} />
     </>
   )
 }

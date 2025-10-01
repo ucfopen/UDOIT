@@ -1,13 +1,15 @@
 import React from 'react'
 import UDOITLogo from '../../mediaAssets/udoit-logo.svg'
+import UDOITLogoDark from '../../mediaAssets/udoit-logo-inverse.svg'
 import HomeIcon from './Icons/HomeIcon'
-import UFIXITIcon from './Icons/UFIXITIcon'
+import BarriersIcon from './Icons/BarriersIcon'
 import ReportIcon from './Icons/ReportIcon'
 import SettingsIcon from './Icons/SettingsIcon'
 import './Header.css'
 
 export default function Header({
   t,
+  settings,
   navigation,
   handleNavigation,
   syncComplete
@@ -15,21 +17,21 @@ export default function Header({
 
   return (
     <header role="banner">
-      <nav>
+      <nav aria-label={t('menu.nav.label')}>
         <div>
-          <img className='flex-column' alt={t('alt.UDOIT')} src={UDOITLogo}></img>
+          <img className='flex-column' alt={t('alt.UDOIT')} src={settings?.user?.roles?.dark_mode ? UDOITLogoDark : UDOITLogo}></img>
         </div>
         <div>
           <ul>
             <li
               className={`flex-row ${!syncComplete ? 'disabled' : ''} ${navigation === 'summary' ? ' active-link' : ''}`}
               onClick={() => handleNavigation('summary')}
-              onKeyPress={(e) => {
+              onKeyDown={(e) => {
                 if (e.key === 'Enter' || e.key === ' ') {
                   handleNavigation('summary')
                 }
               }}
-              tabindex='0'>
+              tabIndex='0'>
               <div className='flex-column justify-content-center'>
                 <HomeIcon className='icon-md pr-1' />
               </div>
@@ -39,28 +41,28 @@ export default function Header({
             <li
               className={`flex-row ${!syncComplete ? 'disabled' : ''} ${navigation === 'fixIssues' ? ' active-link' : ''}`}
               onClick={() => handleNavigation('fixIssues')}
-              onKeyPress={(e) => {
+              onKeyDown={(e) => {
                 if (e.key === 'Enter' || e.key === ' ') {
                   handleNavigation('fixIssues')
                 }
               }}
-              tabindex='0'>
+              tabIndex='0'>
               <div className='flex-column justify-content-center'>
-                <UFIXITIcon className='icon-md pr-1' />
+                <BarriersIcon className='icon-md pr-1' />
               </div>
               <div className='flex-column justify-content-center'>
-                {t('menu.fix_issues')}
+                {t('menu.all_barriers')}
               </div>
             </li>
             <li
               className={`flex-row ${!syncComplete ? 'disabled' : ''} ${navigation === 'reports' ? ' active-link' : ''}`}
               onClick={() => handleNavigation('reports')}
-              onKeyPress={(e) => {
+              onKeyDown={(e) => {
                 if (e.key === 'Enter' || e.key === ' ') {
                   handleNavigation('reports')
                 }
               }}
-              tabindex='0'>
+              tabIndex='0'>
               <div className='flex-column justify-content-center'>
                 <ReportIcon className='icon-md pr-1' />
               </div>
@@ -71,12 +73,12 @@ export default function Header({
             <li
               className={`flex-row ${!syncComplete ? 'disabled' : ''} ${navigation === 'settings' ? ' active-link' : ''}`}
               onClick={() => handleNavigation('settings')}
-              onKeyPress={(e) => {
+              onKeyDown={(e) => {
                 if (e.key === 'Enter' || e.key === ' ') {
                   handleNavigation('settings')
                 }
               }}
-              tabindex='0'>
+              tabIndex='0'>
               <div className='flex-column justify-content-center'>
                 <SettingsIcon className='icon-md pr-1' />
               </div>

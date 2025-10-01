@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import SearchIcon from '../Icons/SearchIcon'
 
-import '../FixIssuesFilters.css'
+import '../Widgets/FixIssuesFilters.css'
 
 export default function AdminFilters({
   t,
@@ -63,7 +63,7 @@ export default function AdminFilters({
         </div>
         <div className="flex-row me-3">
           <div className="flex-column justify-content-center">
-            <label for="inputAccount" className="me-2">{t('filter.label.account')}</label>
+            <label htmlFor="inputAccount" className="me-2">{t('filter.label.account')}</label>
           </div>
           <div className="filter-group">
             <select
@@ -87,7 +87,7 @@ export default function AdminFilters({
         </div>
         <div className="flex-row me-3">
           <div className="flex-column justify-content-center">
-            <label for="inputTerm" className="me-2">{t('filter.label.term')}</label>
+            <label htmlFor="inputTerm" className="me-2">{t('filter.label.term')}</label>
           </div>
           <div className="filter-group">
             <select
@@ -110,7 +110,7 @@ export default function AdminFilters({
           </div>
         </div>
         <div className="flex-row">
-          <div className="filter-group">
+          <div className="filter-group flex-column justify-content-center">
             <input
               id="inputSubaccounts"
               type="checkbox"
@@ -121,7 +121,7 @@ export default function AdminFilters({
             />
           </div>
           <div className="flex-column justify-content-center">
-            <label className="ms-2" for="inputSubaccounts">{t('filter.label.include_subaccounts')}</label>
+            <label className="ms-2" htmlFor="inputSubaccounts">{t('filter.label.include_subaccounts')}</label>
           </div>
         </div>
       </div>

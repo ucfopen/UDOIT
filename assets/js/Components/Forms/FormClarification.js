@@ -20,10 +20,6 @@ export default function FormClarification({
     let messageArgs = {}
     if(activeIssue?.issueData?.metadata) {
       let metadata = JSON.parse(activeIssue.issueData.metadata)
-      if(activeIssue.scanRuleId === 'text_sensory_misuse') {
-        let wordList = metadata.messageArgs.join(', ')
-        messageArgs = { 'sensoryWords': wordList }
-      }
       if(activeIssue.scanRuleId === 'text_quoted_correctly') {
         let quoteList = metadata.messageArgs.join(', ')
         messageArgs = { 'potentialQuotes': quoteList }

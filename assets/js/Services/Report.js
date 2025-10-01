@@ -13,6 +13,49 @@ import * as Html from './Html'
  *      understandable fields: xpath, sourceHtml, and newHtml.
  **/
 
+const checkTextBlockHeading = (issue, element) => {
+  let issueIgnored = false
+  
+  // For the text_block_heading rule, we need to check if the element is inside a table cell.
+  let parentElement = element.parentElement
+  while(parentElement) {
+    if(parentElement.tagName.toLowerCase() === 'th' || parentElement.tagName.toLowerCase() === 'td') {
+      issueIgnored = true
+    }
+    else if(issueIgnored && parentElement.tagName.toLowerCase() === 'table') {
+      // If the table is decorative, there may be a valid reason for heading elements inside it.
+      let role = parentElement.getAttribute('role')
+      let ariaHidden = parentElement.getAttribute('aria-hidden')
+      if((role && role === 'presentation') || (ariaHidden && ariaHidden === 'true')) {
+        issueIgnored = false
+      }
+    }
+    parentElement = parentElement.parentElement
+  }
+
+  return issueIgnored
+}
+
+const checkStyleColorMisuse = (issue, element) => {
+
+  let tagName = element.tagName.toLowerCase()
+  if(tagName === 'img' || tagName === 'svg') {
+    return true
+  }
+  
+  return false
+}
+
+const runCustomChecks = (issue, element) => {
+  if(issue.scanRuleId === 'style_color_misuse') {
+    return checkStyleColorMisuse(issue, element)
+  }
+  else if(issue.scanRuleId === 'text_block_heading') {
+    return checkTextBlockHeading(issue, element)
+  }
+  return false
+} 
+
 export function analyzeReport(report, ISSUE_STATE) {
   let tempReport = {
     contentFixed: report.contentFixed || 0,
@@ -77,6 +120,11 @@ export function analyzeReport(report, ISSUE_STATE) {
               issueIgnored = true
             }
           }
+          
+          // For the text_block_heading rule, we need to check if the element is inside a table cell.
+          if(runCustomChecks(issue, element)) {
+            issueIgnored = true
+          }
         }
         else {
           issueIgnored = true
@@ -110,6 +158,9 @@ export function analyzeReport(report, ISSUE_STATE) {
       }
     }
   })
+
+  scanCounts.potentials += Object.keys(tempReport.files).length
+  scanCounts.potentials -= tempReport.filesReviewed
 
   tempReport.issues = activeIssues
   tempReport.scanCounts = scanCounts

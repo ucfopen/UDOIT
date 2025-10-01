@@ -1,5 +1,6 @@
 import React, {useState, useEffect} from 'react'
-import FormFeedback from './FormFeedback'
+import FormSaveOrReview from './FormSaveOrReview'
+import * as Text from '../../Services/Text'
 import * as Html from '../../Services/Html'
 
 export default function AnchorText({
@@ -9,11 +10,13 @@ export default function AnchorText({
   handleIssueSave,
   isDisabled,
   handleActiveIssue,
+  markAsReviewed,
+  setMarkAsReviewed
 }) {
 
   const [textInputValue, setTextInputValue] = useState("")
   const [linkUrl, setLinkUrl] = useState("")
-  const [textInputErrors, setTextInputErrors] = useState([])
+  const [formErrors, setFormErrors] = useState([])
   const [deleteLink, setDeleteLink] = useState(false)
 
   useEffect(() => {
@@ -34,18 +37,27 @@ export default function AnchorText({
   }, [activeIssue])
 
   useEffect(() => {
-    updateActiveIssueHtml()
+    updateHtmlContent()
     checkFormErrors()
-  }, [textInputValue, deleteLink])
+  }, [textInputValue, deleteLink, markAsReviewed])
 
-  const updateActiveIssueHtml = () => {
+  const updateHtmlContent = () => {
+    let issue = activeIssue
+    issue.isModified = true
+    
+    if (markAsReviewed) {
+      issue.newHtml = issue.initialHtml
+      handleActiveIssue(issue)
+      return
+    }
+
     const html = Html.getIssueHtml(activeIssue)
     let element = Html.toElement(html)
     let elementTag = Html.getTagName(element)?.toLowerCase() || ''
     
     if(elementTag === 'a') {
       if(deleteLink) {
-        element = Html.setInnerText(element, '')
+        element = null
       } else {
         element = Html.setInnerText(element, textInputValue)
       }
@@ -62,16 +74,8 @@ export default function AnchorText({
       }
     }
     
-    let issue = activeIssue
     issue.newHtml = Html.toString(element)
     handleActiveIssue(issue)
-  }
-
-  const handleSubmit = () => {
-    if(!deleteLink && textInputErrors.length > 0) {
-      return
-    }
-    handleIssueSave(activeIssue)
   }
 
   const checkFormErrors = () => {
@@ -79,46 +83,21 @@ export default function AnchorText({
     
     // If the "Delete Link" checkbox is checked, we don't need to check for input errors
     if(!deleteLink) {
-      if(!isTextDescriptive()) {
+      if(!Text.isTextDescriptive(textInputValue)) {
         tempErrors.push({ text: t('form.anchor.msg.text_descriptive'), type: 'error' })
       }
-      if(!isTextNotEmpty()) {
+      if(Text.isTextEmpty(textInputValue)) {
         tempErrors.push({text: t('form.anchor.msg.text_empty'), type: 'error'})
       }
     }
 
-    setTextInputErrors(tempErrors)
+    setFormErrors(tempErrors)
   }
 
-  const isTextDescriptive = () => {
-    const text = textInputValue.trim().toLowerCase()
-    const badOptions = [
-      'click',
-      'click here',
-      'details',
-      'here',
-      'learn',
-      'learn more',
-      'more',
-      'more info',
-      'more information',
-      'read',
-      'read more',
-      'visit',
-      'visit here',
-    ]
-    if (badOptions.includes(text)) {
-      return false
+  const handleSubmit = () => {
+    if(markAsReviewed || deleteLink || formErrors.length === 0) {
+      handleIssueSave(activeIssue)
     }
-    return true
-  }
-
-  const isTextNotEmpty = () => {
-    const text = textInputValue.trim().toLowerCase()
-    if (text === '') {
-      return false
-    }
-    return true
   }
 
   const handleInput = (event) => {
@@ -134,14 +113,14 @@ export default function AnchorText({
   return (
     <>
       {linkUrl !== '' && (
-        <div className="clarification-container flex-row gap-1 mb-3">
-          <div className="instructions">Link:</div>
-          <a href={linkUrl} target="_blank" rel="noopener noreferrer" tabindex="0" style={{wordBreak: 'break-all'}}>
+        <div className="flex-row url-container justify-content-end gap-1 mb-2">
+          <div className="ufixit-widget-label">Link:</div>
+          <a href={linkUrl} target="_blank" rel="noopener noreferrer" tabIndex="0" className="link-small">
             {linkUrl}
           </a>
         </div>
       )}
-      <label for="linkTextInput" className="instructions">{t('form.anchor.link_text')}</label>
+      <label htmlFor="linkTextInput" className="instructions">{t('form.anchor.link_text')}</label>
       <input
         name="linkTextInput"
         id="linkTextInput"
@@ -149,7 +128,7 @@ export default function AnchorText({
         type="text"
         value={textInputValue}
         onChange={handleInput}
-        tabindex="0"
+        tabIndex="0"
         disabled={isDisabled || deleteLink} />
       <div className="separator mt-2">{t('fix.label.or')}</div>
       <div className="flex-row gap-1 mt-2">
@@ -158,18 +137,21 @@ export default function AnchorText({
           name="deleteLinkCheckbox"
           id="deleteLinkCheckbox"
           checked={deleteLink}
-          tabindex="0"
+          tabIndex="0"
           disabled={isDisabled}
           onChange={handleDeleteCheckbox} />
-        <label for="deleteLinkCheckbox" className="instructions">{t('form.anchor.delete_link')}</label>
+        <label htmlFor="deleteLinkCheckbox" className="instructions">{t('form.anchor.delete_link')}</label>
       </div>
-      <FormFeedback
+      
+      <FormSaveOrReview
         t={t}
         settings={settings}
         activeIssue={activeIssue}
         isDisabled={isDisabled}
         handleSubmit={handleSubmit}
-        formErrors={textInputErrors} />
+        formErrors={formErrors}
+        markAsReviewed={markAsReviewed}
+        setMarkAsReviewed={setMarkAsReviewed} />
     </>
   )
 }

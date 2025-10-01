@@ -1,5 +1,5 @@
 import React, {useState, useEffect} from 'react'
-import SortableTable from '../SortableTable'
+import SortableTable from '../Widgets/SortableTable'
 import Api from '../../Services/Api'
 import SummaryIcon from '../Icons/SummaryIcon'
 import ReportIcon from '../Icons/ReportIcon'
@@ -27,11 +27,11 @@ export default function CoursePage({
     { id: "courseName", text: t('report.header.course_name') }, 
     { id: "accountName", text: t('report.header.account_name') }, 
     { id: "lastUpdated", text: t('report.header.last_scanned') },
-    { id: "errors", text: t('report.header.issues') }, 
-    { id: "suggestions", text: t('report.header.suggestions') }, 
-    { id: "contentFixed", text: t('report.header.items_fixed') }, 
-    { id: "contentResolved", text: t('report.header.items_resolved') }, 
-    { id: "filesReviewed", text: t('report.header.files_reviewed') }, 
+    { id: "errors", text: t('report.header.issues'), alignText: "center" }, 
+    { id: "suggestions", text: t('report.header.suggestions'), alignText: "center" }, 
+    { id: "contentFixed", text: t('report.header.items_fixed'), alignText: "center" }, 
+    { id: "contentResolved", text: t('report.header.items_resolved'), alignText: "center" }, 
+    { id: "filesReviewed", text: t('report.header.files_reviewed'), alignText: "center" }, 
     { id: "action", text: "", alignText: "end" }
   ]
 
@@ -177,7 +177,7 @@ export default function CoursePage({
   }
 
   return (
-    <div className="pt-0 pe-0 pb-0 ps-0">
+    <div className="p-0 scrollable h-100">
       <div className="flex-row justify-content-center mt-3 mb-3">
         <h1 className="mt-0 mb-0 primary-dark">{t('report.header.courses')}</h1>
       </div>
@@ -203,7 +203,7 @@ export default function CoursePage({
           <div className="flex-row justify-content-end mt-3 mb-2">
             <button
               className="btn btn-primary flex-row justify-content-center"
-              onClick={() => handleNavigation('reports')}
+              onClick={() => handleReportClick(null)}
             >
               <ReportIcon className="icon-md me-2" />
               <div className="flex-column justify-content-center">{t('report.button.view_all_report')}</div>

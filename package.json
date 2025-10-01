@@ -6,27 +6,25 @@
         "yarn": "1.x"
     },
     "devDependencies": {
-        "@babel/plugin-proposal-class-properties": "^7.13.0",
-        "@babel/plugin-proposal-object-rest-spread": "^7.13.8",
-        "@babel/plugin-transform-runtime": "^7.13.9",
-        "@babel/preset-env": "^7.13.9",
-        "@babel/preset-react": "^7.12.5",
-        "@symfony/webpack-encore": "^0.33.0",
-        "@testing-library/jest-dom": "^5.11.9",
-        "@testing-library/react": "^11.2.5",
-        "@testing-library/user-event": "^12.8.1",
-        "copy-webpack-plugin": "^6.0.0",
-        "core-js": "^3.7.0",
-        "cssnano": "^4.1.10",
-        "jest": "^26.6.3",
-        "msw": "^0.27.0",
-        "postcss-loader": "^3.0.0",
-        "regenerator-runtime": "^0.13.7",
-        "sass-loader": "^10.2.0",
-        "webpack-notifier": "^1.10.1",
-        "whatwg-fetch": "^3.6.2"
+        "@babel/core": "^7.28.0",
+        "@babel/plugin-transform-class-properties": "^7.27.1",
+        "@babel/preset-env": "^7.28.0",
+        "@babel/preset-react": "^7.27.1",
+        "@symfony/webpack-encore": "5.1.0",
+        "@testing-library/dom": "^10.4.0",
+        "@testing-library/jest-dom": "^6.6.3",
+        "@testing-library/react": "^16.3.0",
+        "@testing-library/user-event": "^14.6.1",
+        "copy-webpack-plugin": "13.0.0",
+        "jest": "^30.0.4",
+        "jest-environment-jsdom": "^30.0.4",
+        "msw": "^2.10.4",
+        "regenerator-runtime": "^0.14.1",
+        "webpack-cli": "^5.1.4",
+        "webpack-notifier": "^1.15.0",
+        "whatwg-fetch": "^3.6.20"
     },
-    "license": "UNLICENSED",
+    "license": "GPL-3.0-only",
     "private": true,
     "scripts": {
         "dev-server": "encore dev-server",
@@ -39,23 +37,14 @@
         "test:noIgnore": "jest"
     },
     "dependencies": {
-        "@babel/core": "^7.14.3",
-        "@reactchartjs/react-chart.js": "^1.0.0-rc.3",
-        "@tinymce/tinymce-react": "^5.1.1",
-        "axios": "^1.6.0",
-        "babel-loader": "^8.2.2",
-        "chart.js": "^2.9.4",
-        "moment": "^2.29.4",
-        "pretty": "^2.0.0",
-        "prop-types": "^15.7.2",
-        "react": "18.3.1",
-        "react-dom": "^18.3.1",
-        "react-html-parser": "^2.0.2",
-        "react-router-dom": "^6.27.0",
-        "reactstrap": "^8.7.1"
+        "axios": "1.10.0",
+        "chart.js": "^4.5.0",
+        "react": "^19.1.0",
+        "react-dom": "^19.1.0",
+        "tinymce": "^7.9.1",
+        "webpack": "^5.100.2"
     },
     "resolutions": {
-        "**/postcss": "~7.0.36",
         "**/tar": "~6.1.11"
     }
 }

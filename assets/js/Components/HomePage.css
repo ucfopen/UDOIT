@@ -15,6 +15,98 @@
 
 .errors-progress-bar {
   font-weight: 600;
-  font-size: .9rem;
+  font-size: .9em;
   text-transform: uppercase;
+}
+
+.step-label {
+  font-size: 1.1em;
+  font-weight: 600;
+  color: var(--gray-dark);
+  text-transform: uppercase;
+  text-align: center;
+
+  &.step-focus {
+    font-size: 1.3em;
+  }
+}
+
+.callout-heading {
+  font-size: 1.1em;
+  font-weight: 600;
+  color: var(--gray-dark);
+  text-transform: uppercase;
+}
+
+.summary-container {
+  display: flex;
+  flex-direction: row;
+  gap: 1rem;
+  width: 100%;
+  flex-wrap: wrap;
+}
+
+.progress-column {
+  flex: 1 1 auto;
+  min-width: 30em;
+  width: 60%
+}
+
+.info-column {
+  flex: 1 1 auto;
+  width: calc(40% - 1rem);;
+  min-width: 25em;
+}
+
+.progress-label {
+  font-weight: 600;
+  font-size: 1em;
+  text-transform: uppercase;
+  text-align: center;
+  margin-top: .5em;
+  margin-bottom: -.5em;
+}
+
+.progress-container {
+  width: 30%;
+  min-width: 11em;
+  flex-shrink: 0;
+
+  .svg-container {
+    position: relative;
+    width: fit-content;
+
+    .progress-text-container {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      top: 0;
+      left: 0;
+
+      .progress-text {
+        width: 100%;
+        text-align: center;
+        font-weight: 600;
+        font-size: 1.25em;
+        margin-top: -.5em;
+      }
+    }
+  }
+
+  .count-summary {
+    margin-top: -.5rem;
+  }
+}
+
+.step-summary {
+  font-size: .9em;
+  font-weight: 500;
+}
+
+.errors-progress-bar,
+.count-summary {
+  font-weight: 600;
+  font-size: .9em;
+  text-transform: uppercase;
+  text-align: center;
 }
