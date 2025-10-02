@@ -198,10 +198,22 @@ export default function SortableTable({
         </thead>
         <tbody>
           {pagedRows.map((row) => (
-            <tr key={`row${row.id}`} className={row.onClick ? ' clickable' : ''}>
+            <tr key={`row${row.id}`}>
               {headers.map(({ id, renderCell, alignText, format }) => (
-                <td key={`row${row.id}cell${id}`} className={alignText === 'center' ? 'text-center' : alignText === 'end' ? 'text-end' : 'text-start'} onClick={(row.onClick) ? row.onClick : null}>
-                  {renderCell ? renderCell(row[id]) : (format) ? format(row[id]) : <div cursor={(row.onClick) ? 'pointer' : 'auto'}>{row[id]}</div>}
+                <td
+                  key={`row${row.id}cell${id}`}
+                  className={
+                    (alignText === 'center'
+                      ? 'text-center'
+                      : alignText === 'end'
+                      ? 'text-end'
+                      : 'text-start') +
+                    (id === "label" && row.onClick ? ' clickable' : '')
+                  }
+                  onClick={id === "label" && row.onClick ? row.onClick : undefined}
+                  style={id === "label" && row.onClick ? { cursor: "pointer" } : undefined}
+                >
+                  {renderCell ? renderCell(row[id]) : (format) ? format(row[id]) : <div>{row[id]}</div>}
                 </td>
               ))}
             </tr>
