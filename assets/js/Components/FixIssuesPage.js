@@ -118,6 +118,11 @@ export default function FixIssuesPage({
   const [widgetState, setWidgetState] = useState(WIDGET_STATE.LOADING)
   const [liveUpdateToggle, setLiveUpdateToggle] = useState(true)
 
+  const [previewInfo, setPreviewInfo] = useState({
+     aria_complementary_id: ""
+  })
+  const [copiedContentItem, setCopiedContentItem] = useState(""); // This is the temporary content item used to manipulate the activeContentItem for when we need to manipulate actual DOM
+
   // The database stores and returns certain issue data, but it needs additional attributes in order to
   // be really responsive on the front end. This function adds those attributes and stores the database
   // information in the "issue" attribute.
@@ -676,13 +681,13 @@ export default function FixIssuesPage({
   }
 
   const getNewFullPageHtml = (content, issue) => {
-    if(!content?.body || !issue) {
+    if(!content || !issue) {
       return
     }
 
     // Create the full HTML string for the new version of the content item.
     const parser = new DOMParser()
-    const tempDoc = parser.parseFromString(content.body, 'text/html')
+    const tempDoc = parser.parseFromString(content, 'text/html')
 
     let errorElement = Html.findElementWithIssue(tempDoc, issue)
       
@@ -730,7 +735,16 @@ export default function FixIssuesPage({
       }
     }
 
-    let fullPageHtml = getNewFullPageHtml(activeContentItem, issue)
+    let currentContent;
+    if(copiedContentItem){ // In the case we ARE using copiedContentItem during save we MUST change the active content item 
+     currentContent = copiedContentItem
+    }
+    else{
+      currentContent = activeContentItem.body
+    }
+
+
+    let fullPageHtml = getNewFullPageHtml(currentContent, issue)
     let fullPageDoc = new DOMParser().parseFromString(fullPageHtml, 'text/html')
     let newElement = Html.findElementWithError(fullPageDoc, issue?.newHtml)
     let newXpath = Html.findXpathFromElement(newElement)
@@ -992,6 +1006,7 @@ export default function FixIssuesPage({
                   severity={tempActiveIssue.severity}
                   tempActiveIssue={tempActiveIssue}
                   triggerLiveUpdate={triggerLiveUpdate}
+                  previewInfo={previewInfo}
                 />
             ) : ''}
           </section>
@@ -1006,6 +1021,10 @@ export default function FixIssuesPage({
                 contentItemsBeingScanned={contentItemsBeingScanned}
                 liveUpdateToggle={liveUpdateToggle}
                 setIsErrorFoundInContent={setIsErrorFoundInContent}
+                previewInfo={previewInfo}
+                setPreviewInfo={setPreviewInfo}
+                copiedContentItem={copiedContentItem}
+                setCopiedContentItem={setCopiedContentItem}
               />
             )}
             <div className="flex-row justify-content-end gap-2 mt-3">

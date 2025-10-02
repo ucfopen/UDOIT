@@ -25,7 +25,8 @@ export default function UfixitWidget({
   setTempActiveIssue,
   severity,
   tempActiveIssue,
-  triggerLiveUpdate
+  triggerLiveUpdate,
+  previewInfo
 }) {
 
   const [UfixitForm, setUfixitForm] = useState(null)
@@ -199,7 +200,9 @@ export default function UfixitWidget({
                       isContentLoading={isContentLoading}
                       isDisabled={markAsReviewed || isContentLoading || !isErrorFoundInContent}
                       markAsReviewed={markAsReviewed}
-                      setMarkAsReviewed={setMarkAsReviewed} /> )
+                      setMarkAsReviewed={setMarkAsReviewed} 
+                      previewInfo={previewInfo}
+                      /> )
                   }
                 </div>
               </div>

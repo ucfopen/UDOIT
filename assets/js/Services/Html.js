@@ -329,7 +329,7 @@ export function getIssueHtml(issue) {
   return issue.newHtml ? issue.newHtml : issue.sourceHtml
 }
 
-export function getAccessibleName(element) {
+export function getAccessibleName(element, allElements = null) {
   if ('string' === typeof element) {
     element = toElement(element)
   }
@@ -342,6 +342,17 @@ export function getAccessibleName(element) {
     https://www.w3.org/WAI/ARIA/apg/practices/names-and-descriptions/#name_calculation  */
 
   // 1. TODO: If the element has the 'aria-labelledby' attribute, use the value of the corresponding element.
+  let ariaLabelledby = getAttribute(element, "aria-labelledby")
+  if(ariaLabelledby){
+    let corresponding_element = null
+    allElements.forEach((element) => {
+      if(element.id == ariaLabelledby){
+        corresponding_element = element
+      }
+    })
+
+    return corresponding_element ? corresponding_element.innerHTML : null
+  }
   
   // 2. If the element has the 'aria-label' attribute, use that value.
   let ariaLabel = getAttribute(element, 'aria-label')
@@ -409,7 +420,7 @@ export function getAccessibleName(element) {
   return ''
 }
 
-export const findXpathFromElement = (element) => {
+export const findXpathFromElement = (element, id=null) => {
   if (!element) {
     return null
   }
@@ -417,6 +428,9 @@ export const findXpathFromElement = (element) => {
   // Get the path to the element
   let path = []
   while (element && element.nodeType === Node.ELEMENT_NODE) {
+    if(element.id && element.id == id){
+      break
+    }
     let tagName = element.tagName.toLowerCase()
     let siblings = Array.from(element.parentNode.children).filter(sibling => sibling.tagName.toLowerCase() === tagName)
     let index = siblings.indexOf(element) + 1 // +1 for 1-based index

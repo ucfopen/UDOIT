@@ -229,3 +229,12 @@
     border: 1px solid var(--white)
   }
 }
+
+.ufixit-content-preview-main.ufixit-clickable-container *{
+  cursor: pointer;
+}
+
+.ufixit-content-preview-main.ufixit-clickable-container *.selected{
+  cursor: pointer;
+  border: 2px solid blue;
+}

@@ -18,6 +18,10 @@ export default function FixIssuesContentPreview({
   contentItemsBeingScanned,
   liveUpdateToggle,
   setIsErrorFoundInContent,
+  previewInfo,
+  setPreviewInfo,
+  copiedContentItem,
+  setCopiedContentItem
 }) {
 
   const [taggedContent, setTaggedContent] = useState(null)
@@ -26,6 +30,16 @@ export default function FixIssuesContentPreview({
 
   const [isInitialLoad, setIsInitialLoad] = useState(false)
   const [debouncedDirection, setDebouncedDirection] = useState(null)
+
+   // Default/Reset values for the previewInfoState
+  const DEFAULT_PREVIEW_VALUES = {
+    aria_complementary_id: ""
+  }
+
+  // On First load we reset the values so we don't load in borders
+  useEffect(() => {
+    setPreviewInfo(DEFAULT_PREVIEW_VALUES)
+  }, [])
 
   const checkScrollButton = () => {
     if(isInitialLoad) {
@@ -61,12 +75,17 @@ export default function FixIssuesContentPreview({
   }
 
   const ALT_TEXT_RELATED = [
-    formNames.ALT_TEXT,            
+    formNames.ALT_TEXT,
+    formNames.ARIA_LABEL_VISIBLE,            
     formNames.ANCHOR_TEXT,
     formNames.BLOCKQUOTE,
     formNames.EMBEDDED_CONTENT_TITLE,
     formNames.LABEL,
     formNames.LABEL_UNIQUE
+  ]
+
+  const CLICKABLE_PREVIEW = [
+    formNames.ARIA_LABEL_VISIBLE
   ]
 
   const HEADINGS_RELATED = [
@@ -88,6 +107,115 @@ export default function FixIssuesContentPreview({
     return htmlElement
   }
 
+  // Finds an element using a xpath in a htmlString --> inser an ID onto that element --> Make the new tagged and copied content into that new strigified DOM
+function addIdToElementInHtml(htmlString, xpath, generatedId) {
+    const parser = new DOMParser()
+    const document = parser.parseFromString(htmlString, 'text/html')
+
+    const element_from_xpath = Html.findElementWithXpath(document, xpath)
+    element_from_xpath.setAttribute('id', generatedId)
+
+    const stringified_content = Html.toString(document.body)
+
+    setTaggedContent(stringified_content) // What renders changes onto our page
+    setCopiedContentItem(stringified_content) // We will use this during save
+
+}
+
+function removeIdToElementInHtml(htmlString, xpath, id){
+    const parser = new DOMParser()
+    const document = parser.parseFromString(htmlString, 'text/html')
+
+    const element_from_xpath = Html.findElementWithXpath(document, xpath)
+    element_from_xpath.removeAttribute('id')
+
+    const stringified_content = Html.toString(document.body)
+
+    setTaggedContent(stringified_content) // What renders changes onto our page
+    setCopiedContentItem(stringified_content) // We will use this during save
+}
+
+// Different forms handle preview values differently, preview value is set in accordance of form 
+  const handlePreviewValues = (newId, selectedFlag = false) => { // selectedFlag indicates how we need to deal elements already selected, be default false
+    const currentForm = formNameFromRule(activeIssue.scanRuleId)
+
+    if(currentForm == formNames.ARIA_LABEL_VISIBLE){
+      // Reset value/Deselection
+      if(selectedFlag){
+        setPreviewInfo(prevInfo => ({
+          ...prevInfo,
+          aria_complementary_id: DEFAULT_PREVIEW_VALUES.aria_complementary_id
+        }))
+        return
+      }
+
+      // Seleting value
+      setPreviewInfo(prevInfo => ({
+          ...prevInfo,
+          aria_complementary_id: newId
+        }))
+        return
+    }
+
+
+  }
+
+  const handleClickablePreview = (e) => {
+    //  We are on a Form where we don't just want the user to click around
+    if(!CLICKABLE_PREVIEW.includes(formNameFromRule(activeIssue.scanRuleId))){
+      console.log("Can't click around when not alowed!")
+      return
+    }
+
+    // We don't want the user to click on the active issue of a page
+    if(e.target.classList.contains('ufixit-error-highlight')){
+      console.log("Can't click on a active issue!")
+      return
+    }
+
+    // In the case the user clicks on the main div, we should reset everything 
+    if(e.target.classList.contains("ufixit-content-preview-main")){
+      setCopiedContentItem("")
+      setTaggedContent(getTaggedContent(activeIssue, activeContentItem))
+      setPreviewInfo(DEFAULT_PREVIEW_VALUES)
+      return      
+    }
+
+    // Selecting an already selected element --> Deselect and reset and accordingly 
+    if(e.target.classList.contains("selected")){
+      if(e.target.id && e.target.id.includes('-clickable-id')){
+        const elemetn_xpath = Html.findXpathFromElement(e.target, 'ufixit-content-preview-main') // Need xpath of element because react is stupid
+        removeIdToElementInHtml(taggedContent, elemetn_xpath, e.target.id)
+      }
+      handlePreviewValues(e.target.id, true)
+      return
+    }
+
+
+    let element_id = e.target.id // ID of the element we want to use for the element
+    // No ID case
+    if(!element_id || element_id == ""){
+      const generated_id = e.target.innerHTML.split(' ')[0] + "-clickable-id" // Generating new ID for us to use
+      const elemetn_xpath = Html.findXpathFromElement(e.target, 'ufixit-content-preview-main') // Need xpath of element because react is stupid
+      // Reset all content item to orginal before proceeding
+      if(copiedContentItem){
+        setCopiedContentItem("")
+        setTaggedContent(getTaggedContent(activeIssue, activeContentItem))
+      }
+      addIdToElementInHtml(taggedContent, elemetn_xpath, generated_id) // Add generated ID to tagged HTML
+      handlePreviewValues(generated_id) // Call Handler
+
+    }
+    else{
+      // In the case the user clicks an non-id element first AND then clicks on an ID'ed one, we want to ensure that the ID is deleted first
+      if(copiedContentItem && formNameFromRule(activeIssue.scanRuleId) == formNames.ARIA_LABEL_VISIBLE){ // Only the case for aria_complementary that we must reset like this
+        setCopiedContentItem("")
+        setTaggedContent(getTaggedContent(activeIssue, activeContentItem))
+      }
+      handlePreviewValues(element_id) // Call Handler 
+    }
+  }
+
   const addPreviewHelperElements = (doc, errorElement) => {
     if(!activeIssue || !doc || !errorElement) {
       return doc
@@ -95,7 +223,9 @@ export default function FixIssuesContentPreview({
 
     // If the issue edits the alt text, we need to show the auto-updating alt text preview
     if (ALT_TEXT_RELATED.includes(formNameFromRule(activeIssue.scanRuleId))) {
-      let altText = Html.getAccessibleName(errorElement)
+      const htmlElement = document.getElementsByClassName('ufixit-error-highlight')[0]
+      const allElements = Array.from(document.querySelectorAll('#ufixit-content-preview-main *')) // This gets all the elements from the current document under the big div
+      let altText = Html.getAccessibleName(htmlElement, allElements)
       
       // If there is alt text to show...
       if (altText && altText.trim() !== '') {
@@ -159,6 +289,27 @@ export default function FixIssuesContentPreview({
         headingElement.classList.add('ufixit-heading-highlight')
         headingElement.setAttribute('ufixit-heading-type', headingType)
       })
+    }
+
+    if(CLICKABLE_PREVIEW.includes(formNameFromRule(activeIssue.scanRuleId))){
+      const errorElement = document.getElementsByClassName('ufixit-error-highlight')[0]
+      const elements = Array.from(document.querySelectorAll('#ufixit-content-preview-main *'))
+      elements.forEach((element) => {
+        // Add a 'Click to Select this Element' to every element except for the current error element
+        if(element != errorElement){
+          element.setAttribute('title', `${t(`misc.clickable_elements`)}`)
+        }
+        // Selection logic by using class if something is selected
+        if(element.id && element.id == previewInfo.aria_complementary_id){
+          element.classList.add('selected')
+        }
+        else if(element.classList.contains('selected')){
+          element.classList.remove('selected')
+        }
+
+        
+      })
+
     }
 
     return doc
@@ -396,10 +547,12 @@ export default function FixIssuesContentPreview({
                     { canShowPreview ? (
                       <>
                         <div
-                          className="ufixit-content-preview-main"
+                          className={CLICKABLE_PREVIEW.includes(formNameFromRule(activeIssue.scanRuleId)) ? `ufixit-content-preview-main ufixit-clickable-container` : `ufixit-content-preview-main`}
+                          id='ufixit-content-preview-main'
                           onScroll={() => {
                             checkScrollButton()
                           }}
+                          onClick={handleClickablePreview}
                           dangerouslySetInnerHTML={{__html: taggedContent}} />
                         {!isIssueElementVisible && !isInitialLoad && debouncedDirection && (
                           <div className='scroll-to-error-container'>

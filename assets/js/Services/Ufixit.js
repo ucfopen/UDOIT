@@ -1,5 +1,6 @@
 import AltText from '../Components/Forms/AltText'
 import AnchorText from '../Components/Forms/AnchorText'
+import AriaLabelVisible from '../Components/Forms/AriaLabelVisible'
 import AriaRoleForm from '../Components/Forms/AriaRoleForm'
 import BlockquoteForm from '../Components/Forms/BlockquoteForm'
 import ContrastForm from '../Components/Forms/ContrastForm'
@@ -21,6 +22,7 @@ import UfixitReviewOnly from '../Components/Forms/UfixitReviewOnly'
 export const formNames = {
   ALT_TEXT: 'alt_text',
   ANCHOR_TEXT: 'anchor_text',
+  ARIA_LABEL_VISIBLE: 'aria_label_visible',
   ARIA_ROLE: 'aria_role',
   BLOCKQUOTE: 'blockquote',
   CONTRAST: 'contrast',
@@ -51,6 +53,7 @@ export const disabilityTypes = {
 const formTypes = {
   [formNames.ALT_TEXT]: AltText,
   [formNames.ANCHOR_TEXT]: AnchorText,
+  [formNames.ARIA_LABEL_VISIBLE]: AriaLabelVisible,
   [formNames.ARIA_ROLE]: AriaRoleForm,
   [formNames.BLOCKQUOTE]: BlockquoteForm,
   [formNames.CONTRAST]: ContrastForm,
@@ -105,6 +108,8 @@ const rulesToFormNameMap = {
 
   a_text_purpose: formNames.ANCHOR_TEXT,
   area_alt_exists: formNames.ANCHOR_TEXT,
+
+  aria_complementary_label_visible: formNames.ARIA_LABEL_VISIBLE,
 
   aria_role_valid: formNames.ARIA_ROLE,
   aria_role_allowed: formNames.ARIA_ROLE,
