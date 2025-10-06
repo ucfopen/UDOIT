@@ -14,21 +14,16 @@ const LanguageForm = ({
   markAsReviewed,
   setMarkAsReviewed
 }) => {
-    const [useBCP47, setUseBCP47] = useState(false) // If user wants to input custom BCP47 rule - deafault to false as most fauclty will just select language
-    const [textInputBCP47, setTextInputBCP47] = useState("") // The text input for checking BCP47
+    const [useBCP47, setUseBCP47] = useState(false) 
+    const [textInputBCP47, setTextInputBCP47] = useState("") 
+    const [removeLanguage, setRemoveLanguage] = useState(false) 
+    const [language, setLanguage] = useState("") 
+    const [inputErrors, setInputErrors] = useState([]) 
+    const [options, setOptions] = useState([]); 
 
-    const [removeLanguage, setRemoveLanguage] = useState(false) // Checkbox for if we want to remove the language tag or not
-    const [language, setLanguage] = useState("") // The actual language or language code that's being used 
-    const [inputErrors, setInputErrors] = useState([]) // Populates if user has errors with inputs (BCP47 validity or somehow choosing an invalid language)
-    const [options, setOptions] = useState([]); // Options used for combobox
+    // This is a special trigger in the case we are dealing with a page where the lang attribute can be found in it's <html> tag
+    const [isHtml, setIsHtml] = useState(false); 
 
-    const [isHtml, setIsHtml] = useState(false); // Checks if it is a html tag
-
-    // Only Construct on first load
-    useEffect(() => {
-        let tempOptions = constructOptions()
-        setOptions(tempOptions)
-    }, [])
 
   
 const primaryLanguages = {
@@ -246,38 +241,44 @@ const primaryLanguages = {
 }
 
 
-// O(1) or however many languages there are when we first load in
-const constructOptions = () => {
+// Returns an array of language options that is used by the combobox
+// selectedLang is a string that can either be an empty string or one of the abberiviated languages and indicates which language is selected
+const constructOptions = (selectedLang) => {
         let tempOptions = []
         tempOptions.push({
-            value: "none",
-            name: "No Language Selected"
+            value: "",
+            name: "No Language Selected",
+            selected: selectedLang === ''
         })
         for(const key in primaryLanguages){
             tempOptions.push({
                 value: key,
-                name: primaryLanguages[key]
+                name: primaryLanguages[key],
+                selected: selectedLang === key
             })
         }
         return tempOptions;
    }
 
 
-// On every update of our activie issue, we want to set it to the language it's using (even if it's not an existing language)
+
     useEffect(() => {
        if(!activeIssue){
-            return
+         return
        }
 
        const html = Html.getIssueHtml(activeIssue)
        const tagName = Html.getTagName(html)
        let rawLanguage = Html.getAttribute(html, "lang")
-       rawLanguage = (typeof rawLanguage == 'string') ? rawLanguage : ""
 
        
+       rawLanguage = (rawLanguage in primaryLanguages) ? rawLanguage : '' 
+       let tempOptions = constructOptions(rawLanguage);
+
        if(activeIssue.scanRuleId !== "element_lang_valid" || tagName === "HTML"){
             setIsHtml(true)
        }
+       setOptions(tempOptions)
        setLanguage(rawLanguage)
        setInputErrors([])
 
@@ -294,17 +295,14 @@ const updateActiveIssueHtml = () => {
     const html = Html.getIssueHtml(activeIssue)
     let element = Html.toElement(html)
 
-    // Case 1: We are removing the lang tag
     if(removeLanguage){ 
         element = Html.removeAttribute(element, "lang")
     }
-    else{ // We are not removing the language
-        if(useBCP47){ // If we are change
-            element = Html.setAttribute(element, "lang", textInputBCP47)
-        }
-        else{ // We are just changing through primary language change
-            element = Html.setAttribute(element, "lang", language)
-        }
+    else if(useBCP47){ 
+        element = Html.setAttribute(element, "lang", textInputBCP47)
+    }
+    else { 
+        element = Html.setAttribute(element, "lang", language)
     }
 
     let issue = activeIssue
@@ -317,17 +315,13 @@ const updateActiveIssueHtml = () => {
 
   const checkFormErrors = () => {
     let tempErrors = [] 
-    // Only check for errors if and only if we are STILL using the lang tag
+
     if(!removeLanguage){
-        if(useBCP47){ // If we are using BCP47 textbox we must check for valid BCP47
-            if(!validBCP47()){
-                tempErrors.push({text: t('form.language.error.invalidBCP'), type: "error"})
-            }
+        if(useBCP47 && !validBCP47()){ 
+            tempErrors.push({text: t('form.language.error.invalidBCP'), type: "error"})
         }
-        else{ // Otherwise we can just use the default languages
-            if(!primaryLanguages[language]){
-                tempErrors.push({text: t(`form.language.error.invalidLang`), type: "error"})
-            }
+        else if(!useBCP47 && !primaryLanguages[language]){ 
+            tempErrors.push({text: t(`form.language.error.invalidLang`), type: "error"})
         }
     }
     setInputErrors(tempErrors)
@@ -341,8 +335,7 @@ const updateActiveIssueHtml = () => {
     }  
 
 
-  const handleLangChange = (id, value) => {
-    // Set the new language selected by the user here 
+  const handleLangChange = (id = null, value) => {
     setLanguage(value)
   }
 
