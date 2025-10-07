@@ -226,10 +226,17 @@ export function convertShortenedHex(color) {
 
 // Accepts HSL, RGB, Hex, color name (eg. red, black) and returns the hex value
 export function standardizeColor(color){
-  const element = document.createElement("canvas").getContext("2d");
-  element.fillStyle = color;
+  const element = document.createElement("canvas").getContext("2d")
+  element.fillStyle = 'rgba(0, 0, 0, 0)'  // This translates 100% transparent
+  
+  // If the color is invalid, the fillStyle will not change
+  element.fillStyle = color
 
-  return element.fillStyle;
+  if(element.fillStyle === 'rgba(0, 0, 0, 0)') {
+    return null
+  }
+
+  return element.fillStyle
 }
 
 export function convertHtmlRgb2Hex(html) {

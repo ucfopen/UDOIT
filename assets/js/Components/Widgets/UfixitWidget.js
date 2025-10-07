@@ -7,6 +7,7 @@ import DisabilityVisualIcon from '../Icons/DisabilityVisualIcon'
 import FormClarification from '../Forms/FormClarification'
 import FileForm from '../Forms/FileForm'
 import { disabilityTypes, disabilitiesFromRule, formFromIssue, formNameFromRule } from '../../Services/Ufixit'
+import * as Html from '../../Services/Html'
 import './UfixitWidget.css'
 
 
@@ -129,6 +130,12 @@ export default function UfixitWidget({
     handleIssueSave(issue, markAsReviewed)
   }
 
+  const fullHtml = activeContentItem?.body
+  let parentBackgroundElement = null
+  if (fullHtml && tempActiveIssue?.issueData) {
+    parentBackgroundElement = findParentWithBackground(fullHtml, tempActiveIssue.issueData)
+  }
+
   return (
     <>
       {UfixitForm && tempActiveIssue ? 
@@ -190,7 +197,7 @@ export default function UfixitWidget({
                     <UfixitForm
                       t={t}
                       settings={settings}
-
+                      parentBackground={parentBackgroundElement}
                       activeIssue={tempActiveIssue.issueData}
                       activeContentItem={activeContentItem}
                       addMessage={addMessage}
@@ -262,4 +269,24 @@ export default function UfixitWidget({
       ) : ''}
     </>
   )
+}
+
+// Helper to find the first ancestor with a background
+function findParentWithBackground(fullHtml, issue) {
+  if (!fullHtml || !issue) return null
+  const parser = new DOMParser()
+  const doc = parser.parseFromString(fullHtml, 'text/html')
+  const issueElement = Html.findElementWithIssue(doc, issue)
+  if (!issueElement) return null
+
+  const backgroundRegex = /background(-color|-image)?:\s*([^;]+);?/i
+  let el = issueElement.parentElement
+  while (el) {
+    const style = el.getAttribute && el.getAttribute('style') || ''
+    if (backgroundRegex.test(style) || (el.hasAttribute && el.hasAttribute('background'))) {
+      return el
+    }
+    el = el.parentElement
+  }
+  return null
 }
