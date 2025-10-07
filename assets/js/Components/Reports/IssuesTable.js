@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react'
 import SortableTable from '../SortableTable'
 import { formNameFromRule } from '../../Services/Ufixit'
-import InfoIcon from '../Icons/InfoIcon'
+import InfoIcon from '../Icons/FilledInfoIcon'
+import './IssuesTable.css'
 
 export default function IssuesTable({
   t,
@@ -36,6 +37,9 @@ export default function IssuesTable({
   const popoverRef = useRef(null);
   const lastButtonRef = useRef(null);
   const [ariaLive, setAriaLive] = useState('');
+
+  // Add a ref for the dialog
+  const dialogRef = useRef(null);
 
   const sortContent = () => {
     let tempRows = (issues) ? Object.values(localIssues) : []
@@ -74,16 +78,21 @@ export default function IssuesTable({
   }, [tableSettings, localIssues])
 
   useEffect(() => {
-    if (!popover.open) return;
-    // Focus the popup content when it opens
-    if (popoverContentRef.current) {
-      popoverContentRef.current.focus();
-    }
-    setAriaLive(popover.content);
+    if (popover.open && dialogRef.current) {
+      if (!dialogRef.current.open) {
+        dialogRef.current.showModal();
+      }
+      if (dialogRef.current) {
+        dialogRef.current.focus();
+      }
+      setAriaLive(popover.content);
 
-    const close = () => setPopover(p => ({ ...p, open: false }));
-    window.addEventListener('click', close);
-    return () => window.removeEventListener('click', close);
+      const close = () => setPopover(p => ({ ...p, open: false }));
+      window.addEventListener('click', close);
+      return () => window.removeEventListener('click', close);
+    } else if (dialogRef.current && dialogRef.current.open) {
+      dialogRef.current.close();
+    }
   }, [popover.open, popover.content]);
 
   // When popover closes, return focus to the last info button
@@ -110,7 +119,7 @@ export default function IssuesTable({
         }
         issue.labelText = label
         issue.label = (
-          <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
+          <span className="issue-label">
             {label}
             <button
               type="button"
@@ -118,18 +127,8 @@ export default function IssuesTable({
               aria-haspopup="dialog"
               aria-expanded={popover.open}
               aria-controls={popover.open ? "issue-info-popover" : undefined}
-              style={{
-                border: "none",
-                background: "none",
-                cursor: "pointer",
-                padding: 0,
-                marginLeft: 4,
-                display: "flex",
-                alignItems: "center",
-                lineHeight: 1,
-              }}
+              className="issue-info-btn"
               ref={el => {
-                // Store the ref to the last button clicked
                 if (popover.open) return;
                 lastButtonRef.current = el;
               }}
@@ -199,35 +198,23 @@ export default function IssuesTable({
         t={t}
       />
       {/* ARIA live region for screen readers */}
-      <div aria-live="polite" style={{position: 'absolute', left: '-9999px', height: 0, width: 0, overflow: 'hidden'}}>
+      <div aria-live="polite" className="sr-only">
         {ariaLive}
       </div>
       {popover.open && (
-        <div
+        <dialog
           id="issue-info-popover"
-          role="dialog"
-          aria-modal="true"
-          tabIndex={-1}
-          ref={popoverRef}
+          ref={dialogRef}
+          className="issue-info-popover"
           style={{
-            position: "absolute",
             left: popover.x,
             top: popover.y,
-            zIndex: 1000,
-            background: "#fff",
-            border: "1px solid #ccc",
-            borderRadius: 6,
-            boxShadow: "0 2px 8px rgba(0,0,0,0.15)",
-            padding: "12px 16px",
-            minWidth: 220,
-            maxWidth: 320,
-            fontSize: "0.95em",
-            outline: "none",
           }}
+          tabIndex={0}
           onClick={e => e.stopPropagation()}
         >
           <div
-            style={{ marginBottom: 8 }}
+            className="issue-info-popover-content"
             tabIndex={-1}
             ref={popoverContentRef}
           >
@@ -235,19 +222,12 @@ export default function IssuesTable({
           </div>
           <button
             type="button"
-            style={{
-              border: "none",
-              background: "none",
-              color: "var(--link-color)",
-              cursor: "pointer",
-              fontSize: "1em",
-              float: "right",
-            }}
+            className="issue-info-popover-close"
             onClick={() => setPopover({ ...popover, open: false })}
           >
             {t('fix.button.close_learn_more')}
           </button>
-        </div>
+        </dialog>
       )}
     </>
   )
