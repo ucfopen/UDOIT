@@ -15,7 +15,7 @@ const LanguageForm = ({
   setMarkAsReviewed
 }) => {
     const [useBCP47, setUseBCP47] = useState(false) 
-    const [textInputBCP47, setTextInputBCP47] = useState("") 
+    const [textInputBCP47, setTextInputBCP47] = useState('') 
     const [removeLanguage, setRemoveLanguage] = useState(false) 
     const [language, setLanguage] = useState("") 
     const [inputErrors, setInputErrors] = useState([]) 
@@ -264,22 +264,24 @@ const constructOptions = (selectedLang) => {
 
     useEffect(() => {
        if(!activeIssue){
-         return
+            return
        }
 
        const html = Html.getIssueHtml(activeIssue)
        const tagName = Html.getTagName(html)
        let rawLanguage = Html.getAttribute(html, "lang")
-
-       
-       rawLanguage = (rawLanguage in primaryLanguages) ? rawLanguage : '' 
-       let tempOptions = constructOptions(rawLanguage);
-
+       rawLanguage = (typeof rawLanguage === 'string') ? rawLanguage : ''
+       const langOption = (rawLanguage in primaryLanguages) ? rawLanguage : '' 
+       let tempOptions = constructOptions(langOption);
        if(activeIssue.scanRuleId !== "element_lang_valid" || tagName === "HTML"){
             setIsHtml(true)
        }
+
        setOptions(tempOptions)
-       setLanguage(rawLanguage)
+       setLanguage(langOption)
+       setTextInputBCP47(rawLanguage)
+       setRemoveLanguage(!checkLangAttr(html))
+       setUseBCP47(false)
        setInputErrors([])
 
     }, [activeIssue])
@@ -292,6 +294,15 @@ useEffect(() => {
 
 
 const updateActiveIssueHtml = () => {
+    let issue = activeIssue
+    issue.isModified = true
+
+    if (markAsReviewed) {
+      issue.newHtml = issue.initialHtml
+      handleActiveIssue(issue)
+      return
+    }
+
     const html = Html.getIssueHtml(activeIssue)
     let element = Html.toElement(html)
 
@@ -301,13 +312,11 @@ const updateActiveIssueHtml = () => {
     else if(useBCP47){ 
         element = Html.setAttribute(element, "lang", textInputBCP47)
     }
-    else { 
+    else if(Html.getAttribute(element, "lang")) { 
         element = Html.setAttribute(element, "lang", language)
     }
 
-    let issue = activeIssue
     issue.newHtml = Html.toString(element)
-
     handleActiveIssue(issue)
 }
 
@@ -334,6 +343,11 @@ const updateActiveIssueHtml = () => {
         return /^(([a-zA-Z]{2,3}(-[a-zA-Z](-[a-zA-Z]{3}){0,2})?|[a-zA-Z]{4}|[a-zA-Z]{5,8})(-[a-zA-Z]{4})?(-([a-zA-Z]{2}|[0-9]{3}))?(-([0-9a-zA-Z]{5,8}|[0-9][a-zA-Z]{3}))*(-[0-9a-wy-zA-WY-Z](-[a-zA-Z0-9]{2,8})+)*(-x(-[a-zA-Z0-9]{1,8})+)?|x(-[a-zA-Z0-9]{1,8})+|(en-GB-oed|i-ami|i-bnn|i-default|i-enochian|i-hak|i-klingon|i-lux|i-mingo|i-navajo|i-pwn|i-tao|i-tay|i-tsu|sgn-BE-FR|sgn-BE-NL|sgn-CH-DE|art-lojban|cel-gaulish|no-bok|no-nyn|zh-guoyu|zh-hakka|zh-min|zh-min-nan|zh-xiang))$/.test(textInputBCP47)
     }  
 
+// Returns true if the element has a lang tag
+  const checkLangAttr = (htmlString) => {
+    const element = Html.toElement(htmlString)
+    return element.hasAttribute('lang')
+  }
 
   const handleLangChange = (id = null, value) => {
     setLanguage(value)
@@ -380,7 +394,7 @@ const updateActiveIssueHtml = () => {
             id='bcpInput'
             name='bcpInput'
             placeholder='Enter valid BCP47'
-            text={textInputBCP47}
+            value={textInputBCP47}
             onChange={(e) => setTextInputBCP47(e.target.value)}
             className='w-100 p-2'
         />
