@@ -197,27 +197,33 @@ export default function SortableTable({
           </tr>
         </thead>
         <tbody>
-          {pagedRows.map((row) => (
-            <tr key={`row${row.id}`}>
-              {headers.map(({ id, renderCell, alignText, format }) => (
-                <td
-                  key={`row${row.id}cell${id}`}
-                  className={
-                    (alignText === 'center'
-                      ? 'text-center'
-                      : alignText === 'end'
-                      ? 'text-end'
-                      : 'text-start') +
-                    (id === "label" && row.onClick ? ' clickable' : '')
-                  }
-                  onClick={id === "label" && row.onClick ? row.onClick : undefined}
-                  style={id === "label" && row.onClick ? { cursor: "pointer" } : undefined}
-                >
-                  {renderCell ? renderCell(row[id]) : (format) ? format(row[id]) : <div>{row[id]}</div>}
-                </td>
-              ))}
-            </tr>
-          ))}
+          {pagedRows.map((row) => {
+            const isRowClickable = !!row.onClick;
+            return (
+              <tr
+                key={`row${row.id}`}
+                className={isRowClickable ? 'clickable' : ''}
+                onClick={isRowClickable ? row.onClick : undefined}
+                tabIndex={isRowClickable ? 0 : undefined}
+                style={isRowClickable ? { cursor: "pointer" } : undefined}
+              >
+                {headers.map(({ id, renderCell, alignText, format }) => (
+                  <td
+                    key={`row${row.id}cell${id}`}
+                    className={
+                      alignText === 'center'
+                        ? 'text-center'
+                        : alignText === 'end'
+                        ? 'text-end'
+                        : 'text-start'
+                    }
+                  >
+                    {renderCell ? renderCell(row[id]) : (format) ? format(row[id]) : <div>{row[id]}</div>}
+                  </td>
+                ))}
+              </tr>
+            );
+          })}
         </tbody>
       </table>
       {renderPagination()}

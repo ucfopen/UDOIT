@@ -111,22 +111,6 @@
   }
 }
 
-.udoit-sortable-table td.clickable {
-  color: var(--link-color);
-  cursor: pointer;
-  font-weight: 600;
-  background: transparent;
-  transition: background 0.15s, text-decoration 0.15s;
-  text-decoration: none;
-}
-
-.udoit-sortable-table td.clickable:hover,
-.udoit-sortable-table td.clickable:focus {
-  background: var(--primary-color-light);
-  color: var(--link-color);
-  text-decoration: underline;
-}
-
 .paginationButton {
   padding: .2rem .5rem;
   min-width: 2rem;
