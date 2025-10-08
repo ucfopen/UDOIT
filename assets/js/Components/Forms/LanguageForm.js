@@ -248,7 +248,7 @@ const constructOptions = (selectedLang) => {
         let tempOptions = []
         tempOptions.push({
             value: "",
-            name: "No Language Selected",
+            name: `${t(`form.language.label.none_selected`)}`,
             selected: selectedLang === ''
         })
         for(const key in primaryLanguages){
