@@ -2,6 +2,7 @@ import React, { act, useEffect, useState } from 'react'
 import * as Html from '../../Services/Html'
 import Combobox from '../Widgets/Combobox'
 import FormSaveOrReview from './FormSaveOrReview'
+import { validPrimaryLangs } from '../../Services/Lang'
 
 
 const LanguageForm = ({
@@ -340,7 +341,27 @@ const updateActiveIssueHtml = () => {
         if(!textInputBCP47 || textInputBCP47 == ""){
             return false
         }
-        return /^(([a-zA-Z]{2,3}(-[a-zA-Z](-[a-zA-Z]{3}){0,2})?|[a-zA-Z]{4}|[a-zA-Z]{5,8})(-[a-zA-Z]{4})?(-([a-zA-Z]{2}|[0-9]{3}))?(-([0-9a-zA-Z]{5,8}|[0-9][a-zA-Z]{3}))*(-[0-9a-wy-zA-WY-Z](-[a-zA-Z0-9]{2,8})+)*(-x(-[a-zA-Z0-9]{1,8})+)?|x(-[a-zA-Z0-9]{1,8})+|(en-GB-oed|i-ami|i-bnn|i-default|i-enochian|i-hak|i-klingon|i-lux|i-mingo|i-navajo|i-pwn|i-tao|i-tay|i-tsu|sgn-BE-FR|sgn-BE-NL|sgn-CH-DE|art-lojban|cel-gaulish|no-bok|no-nyn|zh-guoyu|zh-hakka|zh-min|zh-min-nan|zh-xiang))$/.test(textInputBCP47)
+
+        let primary = textInputBCP47.toLowerCase();
+        if (primary.includes("-")) {
+            primary = primary.split("-")[0];
+        }
+
+        if (!primary.match(/[a-z]{2,3}/)) return false;
+
+        // qaa..qtz custom language check
+        if (primary.length === 3 
+            && primary.charAt(0) === "q"
+            && primary.charCodeAt(1) >= 97 && primary.charCodeAt(1) <= 116
+            && primary.charCodeAt(2) >= 97 && primary.charCodeAt(2) <= 122) {
+                return true;
+        }
+
+        // Checks to make sure language is valid
+        let validPrimaryLangCheck = validPrimaryLangs[primary.charCodeAt(0)-97].includes(primary);
+
+        // Checks it follows BCP47 regex
+        return validPrimaryLangCheck && /^(([a-zA-Z]{2,3}(-[a-zA-Z](-[a-zA-Z]{3}){0,2})?|[a-zA-Z]{4}|[a-zA-Z]{5,8})(-[a-zA-Z]{4})?(-([a-zA-Z]{2}|[0-9]{3}))?(-([0-9a-zA-Z]{5,8}|[0-9][a-zA-Z]{3}))*(-[0-9a-wy-zA-WY-Z](-[a-zA-Z0-9]{2,8})+)*(-x(-[a-zA-Z0-9]{1,8})+)?|x(-[a-zA-Z0-9]{1,8})+|(en-GB-oed|i-ami|i-bnn|i-default|i-enochian|i-hak|i-klingon|i-lux|i-mingo|i-navajo|i-pwn|i-tao|i-tay|i-tsu|sgn-BE-FR|sgn-BE-NL|sgn-CH-DE|art-lojban|cel-gaulish|no-bok|no-nyn|zh-guoyu|zh-hakka|zh-min|zh-min-nan|zh-xiang))$/.test(textInputBCP47)
     }  
 
   const handleLangChange = (id = null, value) => {
@@ -371,7 +392,7 @@ const updateActiveIssueHtml = () => {
         />
     </div>
     <div className="separator mt-2">{t('fix.label.or')}</div>
-    <div className='w-100 mt-2'>
+    <div className='flex-row justify-content-start gap-1 mt-2 pb-2'>
         <input 
             type='checkbox'
             id='useBCPCheckbox'
@@ -382,7 +403,8 @@ const updateActiveIssueHtml = () => {
             onChange={() => setUseBCP47(!useBCP47)}
         />
         <label htmlFor='useBCPCheckbox' className='instructions'>{t(`form.language.label.useBCP`)}</label>
-        <input 
+    </div>
+          <input 
             type='text'
             disabled={isDisabled || removeLanguage || !useBCP47}
             id='bcpInput'
@@ -392,7 +414,6 @@ const updateActiveIssueHtml = () => {
             onChange={(e) => setTextInputBCP47(e.target.value)}
             className='w-100 p-2'
         />
-    </div>
     <div className={isHtml ? `hidden`: ""}>
         <div className="separator mt-2">{t('fix.label.or')}</div>
         <div className="flex-row justify-content-start gap-1 mt-2">
