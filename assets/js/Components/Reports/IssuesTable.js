@@ -38,7 +38,6 @@ export default function IssuesTable({
   const [ariaLive, setAriaLive] = useState('');
   const closeButtonRef = useRef(null);
 
-  // Add a ref for the dialog
   const dialogRef = useRef(null);
 
   const sortContent = () => {
@@ -144,7 +143,7 @@ export default function IssuesTable({
                 lastButtonRef.current = e.target;
               }}
             >
-              <InfoIcon width={18} height={18} className="icon-info" />
+              <InfoIcon width={18} height={18} className="icon-info" circleColor="var(--link-color)" iconColor="#fff" />
             </button>
           </span>
         )
@@ -197,7 +196,7 @@ export default function IssuesTable({
         handleTableSettings={handleTableSettings}
         t={t}
       />
-      {/* ARIA live region for screen readers */}
+      {/* ARIA for screen readers */}
       <div aria-live="polite" className="sr-only">
         {ariaLive}
       </div>

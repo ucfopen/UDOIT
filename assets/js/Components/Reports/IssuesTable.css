@@ -20,7 +20,7 @@
 .issue-info-btn:hover,
 .issue-info-btn:focus {
   background: #e3f0fc;
-  box-shadow: 0 0 0 3px #90caf9;
+  box-shadow: 0 0 0 3px var(--link-color-hover);
   outline: none;
 }
 
