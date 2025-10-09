@@ -34,9 +34,9 @@ export default function IssuesTable({
   const [rows, setRows] = useState([])
   const [popover, setPopover] = useState({ open: false, content: '', x: 0, y: 0 });
   const popoverContentRef = useRef(null);
-  const popoverRef = useRef(null);
   const lastButtonRef = useRef(null);
   const [ariaLive, setAriaLive] = useState('');
+  const closeButtonRef = useRef(null);
 
   // Add a ref for the dialog
   const dialogRef = useRef(null);
@@ -82,8 +82,8 @@ export default function IssuesTable({
       if (!dialogRef.current.open) {
         dialogRef.current.showModal();
       }
-      if (dialogRef.current) {
-        dialogRef.current.focus();
+      if (closeButtonRef.current) {
+        closeButtonRef.current.focus();
       }
       setAriaLive(popover.content);
 
@@ -211,9 +211,12 @@ export default function IssuesTable({
             top: popover.y,
           }}
           tabIndex={0}
+          aria-labelledby="issue-info-popover-title"
+          aria-describedby="issue-info-popover-content"
           onClick={e => e.stopPropagation()}
         >
           <div
+            id="issue-info-popover-content"
             className="issue-info-popover-content"
             tabIndex={-1}
             ref={popoverContentRef}
@@ -223,6 +226,7 @@ export default function IssuesTable({
           <button
             type="button"
             className="issue-info-popover-close"
+            ref={closeButtonRef}
             onClick={() => setPopover({ ...popover, open: false })}
           >
             {t('fix.button.close_learn_more')}
