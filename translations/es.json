@@ -243,6 +243,9 @@
   "label.yes": "Sí",
   "label.no": "No",
 
+  "label.yes": "Sí",
+  "label.no": "No",
+
   "label.mime.unknown": "Archivo",
   "label.mime.pdf": "PDF",
   "label.mime.doc": "MS Word",
