@@ -213,7 +213,7 @@ export default function FixIssuesContentPreview({
       setIsErrorFoundInContent(false)
       return
     }
-    if(activeIssue.contentType === settings.FILTER.FILE_OBJECT || activeIssue?.issueData?.contentItemId !== activeContentItem?.id) {
+    if(activeIssue.contentType === settings.ISSUE_FILTER.FILE_OBJECT || activeIssue?.issueData?.contentItemId !== activeContentItem?.id) {
       return
     }
     setTaggedContent(getTaggedContent(activeIssue, activeContentItem))

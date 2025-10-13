@@ -18,7 +18,7 @@ export default function FixIssuesFilters({
   updateActiveFilters
  }) {
 
-  const FILTER = settings.FILTER
+  const FILTER = settings.ISSUE_FILTER
 
   const filterLabels = {
     [FILTER.TYPE.SEVERITY]: t('filter.label.severity'),

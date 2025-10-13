@@ -30,10 +30,10 @@ export default function UfixitWidget({
     }
 
     if(tempActiveIssue.isModified === undefined) {
-      setMarkAsReviewed(tempActiveIssue.status === settings.FILTER.RESOLVED || tempActiveIssue.status === settings.FILTER.FIXEDANDRESOLVED)
+      setMarkAsReviewed(tempActiveIssue.status === settings.ISSUE_FILTER.RESOLVED || tempActiveIssue.status === settings.ISSUE_FILTER.FIXEDANDRESOLVED)
     }
 
-    if(tempActiveIssue.contentType === settings.FILTER.FILE_OBJECT) {
+    if(tempActiveIssue.contentType === settings.ISSUE_FILTER.FILE_OBJECT) {
       setUfixitForm(() => { return FileForm })
     }
     else {

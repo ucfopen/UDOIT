@@ -48,7 +48,7 @@ export default function UfixitWidget({
       return
     }
 
-    if(tempActiveIssue.contentType === settings.FILTER.FILE_OBJECT) {
+    if(tempActiveIssue.contentType === settings.ISSUE_FILTER.FILE_OBJECT) {
       setFormSummary(t('form.file.summary'))
       setFormLearnMore(t(`form.file.${tempActiveIssue.fileData.fileType}.learn_more`))
       setShowLearnMore(true)

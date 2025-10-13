@@ -39,30 +39,7 @@ export default function ReviewFilesPage({
 {
 
   // Define the kinds of filters that will be available to the user
-  const FILTER = {
-    TYPE: {
-      UTILIZATION: 'UTILIZATION',
-      PUBLISHED: 'PUBLISHED',
-      FILE_TYPE: 'FILE_TYPE',
-      RESOLUTION: 'RESOLUTION',
-      MODULE: 'MODULE',
-    },
-    ALL: 'ALL',
-    USED: 'USED',
-    UNUSED: 'UNUSED',
-    PUBLISHED: 'PUBLISHED',
-    UNPUBLISHED: 'UNPUBLISHED',
-    FILE_PDF: 'PDF',
-    FILE_WORD: 'WORD',
-    FILE_POWERPOINT: 'POWERPOINT',
-    FILE_EXCEL: 'EXCEL',
-    FILE_VIDEO: 'VIDEO',
-    FILE_AUDIO: 'AUDIO',
-    FILE_UNKNOWN: 'UNKNOWN',
-    ACTIVE: 'ACTIVE',
-    UNREVIEWED: 'UNREVIEWED',
-    REVIEWED: 'REVIEWED',
-  }
+  const FILTER = settings.FILE_FILTER
 
   const defaultFilters = {
     [FILTER.TYPE.UTILIZATION]: FILTER.ALL,
@@ -71,31 +48,7 @@ export default function ReviewFilesPage({
     [FILTER.TYPE.MODULE]: FILTER.ALL,
   }
 
-  const WIDGET_STATE = {
-    LOADING: 0,
-    FIXIT: 1,
-    LEARN: 2,
-    LIST: 3,
-    NO_RESULTS: 4,
-  }
-
-  const FILE_TYPES = [
-    'pdf',
-    'doc',
-    'ppt',
-    'xls',
-    'audio',
-    'video',
-  ]
-
-  const FILE_TYPE_MAP = {
-    'pdf': FILTER.FILE_PDF,
-    'doc': FILTER.FILE_WORD,
-    'ppt': FILTER.FILE_POWERPOINT,
-    'xls': FILTER.FILE_EXCEL,
-    'audio': FILTER.FILE_AUDIO,
-    'video': FILTER.FILE_VIDEO,
-  }
+  const WIDGET_STATE = settings.WIDGET_STATE
 
   const headers = [
     { id: "name", text: t('fix.label.file_name') },
@@ -141,53 +94,13 @@ export default function ReviewFilesPage({
     let keywords = [ fileData.fileName.toLowerCase() ]
     
     // Keywords should include the file type ('MS Word', 'PDF', etc.)
-    if(FILE_TYPES.includes(fileData.fileType)) {
-      fileType = FILE_TYPE_MAP[fileData.fileType]
+    if(settings.FILE_TYPES.includes(fileData.fileType)) {
+      fileType = settings.FILE_TYPE_MAP[fileData.fileType]
       fileTypeLabel = t(`label.mime.${fileData.fileType}`)
       keywords.push[fileTypeLabel.toLowerCase()]
     }
 
     keywords = keywords.join(' ')
-
-// Canvas File Item Data:
-  // active: true
-  // downloadUrl: "https://canvas.dev.cdl.ucf.edu/files/13041/download?download_frd=1&verifier=V4WBmWDBfN64x09tieoEqjfKWQWaK0HKXBI0CF54"
-  // fileName: "1742314259_587__UCF-_Getting_Started_with_Serverless.pdf"
-  // fileSize: "1923148"
-  // fileType: "pdf"
-  // hidden: false
-  // id: 7
-  // lmsFileId: "13041"
-  // lmsUrl: "https://canvas.dev.cdl.ucf.edu/courses/383/files?preview=13041"
-  // reviewed: null
-  // status: true
-  // updated: "2025-03-18T16:11:00+00:00"
-
-// Canvas Section Item Data:
-  // content_id: 13041
-  // html_url: "https://canvas.dev.cdl.ucf.edu/courses/383/modules/items/4020"
-  // id: 4020
-  // indent: 0
-  // module_id: 583
-  // position: 1
-  // published: true
-  // quiz_lti: false
-  // title: "UCF- Getting Started with Serverless.pdf"
-  // type: "File"
-  // url: "https://canvas.dev.cdl.ucf.edu/api/v1/courses/383/files/13041"
-
-    let fileSectionIds = []
-
-    if(sections && sections.length > 0) {
-      sections.forEach((section) => {
-        let tempSectionId = section.id
-        section.items.forEach((item) => {
-          if(item.content_id && item.content_id.toString() === fileData.lmsFileId.toString()) {
-            fileSectionIds.push(tempSectionId.toString())
-          }
-        })
-      })
-    }
 
     let currentState = settings.ISSUE_STATE.UNCHANGED
     if(sessionIssues && sessionIssues[fileId]) {
@@ -201,7 +114,7 @@ export default function ReviewFilesPage({
       status: issueResolution,
       published: true,
       fileType: fileType,
-      sectionIds: fileSectionIds,
+      sectionIds: fileData.sections || [],
       keywords: keywords,
       scanRuleId: 'verify_file_accessibility',
       formLabel: formLabel,
@@ -587,7 +500,7 @@ export default function ReviewFilesPage({
         <>
           <ReviewFilesFilters
             t={t}
-            settings={settings.FILTER ? settings : Object.assign({}, settings, { FILTER })}
+            settings={settings}
 
             activeFilters={activeFilters}
             handleSearchTerm={setSearchTerm}
@@ -623,7 +536,7 @@ export default function ReviewFilesPage({
             { tempActiveIssue ? (  
                 <FileFixitWidget
                   t={t}
-                  settings={settings.FILTER ? settings : Object.assign({}, settings, { FILTER })}
+                  settings={settings}
                   
                   handleFileResolve={handleFileResolve}
                   handleFileUpload={handleFileUpload}
@@ -636,7 +549,7 @@ export default function ReviewFilesPage({
             {filteredFiles.length > 0 && (
               <FileReviewPreview
                 t={t}
-                settings={settings.FILTER ? settings : Object.assign({}, settings, { FILTER })}
+                settings={settings}
 
                 activeIssue={tempActiveIssue}
               />

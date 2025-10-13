@@ -44,35 +44,7 @@ export default function FixIssuesPage({
 {
 
   // Define the kinds of filters that will be available to the user
-  const FILTER = {
-    TYPE: {
-      SEVERITY: 'SEVERITY',
-      CONTENT_TYPE: 'CONTENT_TYPE',
-      RESOLUTION: 'RESOLUTION',
-      MODULE: 'MODULE',
-      PUBLISHED: 'PUBLISHED',
-    },
-    ALL: 'ALL',
-    ISSUE: 'ISSUE',
-    POTENTIAL: 'POTENTIAL',
-    SUGGESTION: 'SUGGESTION',
-    PAGE: 'PAGE',
-    ASSIGNMENT: 'ASSIGNMENT',
-    ANNOUNCEMENT: 'ANNOUNCEMENT',
-    DISCUSSION_TOPIC: 'DISCUSSION_TOPIC',
-    DISCUSSION_FORUM: 'DISCUSSION_FORUM',
-    FILE: 'FILE',
-    QUIZ: 'QUIZ',
-    SYLLABUS: 'SYLLABUS',
-    MODULE: 'MODULE',
-    FILE_OBJECT: 'FILE_OBJECT',
-    ACTIVE: 'ACTIVE',
-    FIXED: 'FIXED',
-    RESOLVED: 'RESOLVED',
-    FIXEDANDRESOLVED: 'FIXEDANDRESOLVED', // Doesn't appear in any dropdowns, but is used in the code
-    PUBLISHED: 'PUBLISHED',
-    UNPUBLISHED: 'UNPUBLISHED',
-  }
+  const FILTER = settings.ISSUE_FILTER
 
   const defaultFilters = {
     [FILTER.TYPE.SEVERITY]: FILTER.ALL,
@@ -90,14 +62,6 @@ export default function FixIssuesPage({
     [FILTER.TYPE.MODULE]: FILTER.ALL,
   }
 
-  const WIDGET_STATE = {
-    LOADING: 0,
-    FIXIT: 1,
-    LEARN: 2,
-    LIST: 3,
-    NO_RESULTS: 4,
-  }
-
   const [activeIssue, setActiveIssue] = useState(null)
   const [tempActiveIssue, setTempActiveIssue] = useState(null)
   const [activeContentItem, setActiveContentItem] = useState(null)
@@ -108,7 +72,7 @@ export default function FixIssuesPage({
   const [unfilteredIssues, setUnfilteredIssues] = useState([])
   const [filteredIssues, setFilteredIssues] = useState([])
   const [groupedList, setGroupedList] = useState([])
-  const [widgetState, setWidgetState] = useState(WIDGET_STATE.LOADING)
+  const [widgetState, setWidgetState] = useState(settings.WIDGET_STATE.LOADING)
   const [liveUpdateToggle, setLiveUpdateToggle] = useState(true)
 
   // The database stores and returns certain issue data, but it needs additional attributes in order to
@@ -152,46 +116,7 @@ export default function FixIssuesPage({
 
       // See if the issue's content is listed in one of the sections
 
-// Canvas Content Item Data:
-  // contentType: "page"
-  // id: 61
-  // lmsContentId: "4-dot-1-2-name-role-value-input-fields"
-  // status: true
-  // title: "4.1.2 Name, Role, Value - Input Fields"
-  // updated: "2025-01-13T13:46:05+00:00"
-  // url: "https://canvas.dev.cdl.ucf.edu/courses/383/pages/4-dot-1-2-name-role-value-input-fields"
-
-
-// Canvas Section Item Data:
-  // html_url: "https://canvas.dev.cdl.ucf.edu/courses/383/modules/items/3896"
-  // id: 3896
-  // indent: 0
-  // module_id: 562
-  // page_url: "4-dot-1-2-name-role-value-input-fields"
-  // position: 1
-  // published: true
-  // quiz_lti: false
-  // title: "4.1.2 Name, Role, Value - Input Fields"
-  // type: "Page"
-  // url: "https://canvas.dev.cdl.ucf.edu/api/v1/courses/383/pages/4-dot-1-2-name-role-value-input-fields"
-
-
-      /* TODO: Find a more consistent way to filter this that works with less bespoke data.
-        In Canvas, the modules and moduleItems have names and links, but do not have the
-        contentItemId, which is necessary to match the issue to the content. The only current
-        data that matches are the moduleItem's page_url are the contentItem's lmsContentId,
-        which are both the same internal link URL. */
-        
-      if(sections && sections.length > 0) {
-        sections.forEach((section) => {
-          let tempSectionId = section.id
-          section.items.forEach((item) => {
-            if(item.page_url && item.page_url === tempContentItem.lmsContentId) {
-              issueSectionIds.push(tempSectionId.toString())
-            }
-          })
-        })
-      }
+      issueSectionIds = tempContentItem.sections || []
 
       if(tempContentItem.published === false) {
         published = false
@@ -292,7 +217,7 @@ export default function FixIssuesPage({
     setFilteredIssues(tempFilteredContent)
     setGroupedList(groupList(tempFilteredContent))
 
-    setWidgetState(WIDGET_STATE.LIST)
+    setWidgetState(settings.WIDGET_STATE.LIST)
 
   }, [activeFilters, searchTerm])
 
@@ -358,7 +283,7 @@ export default function FixIssuesPage({
       }
 
       if(holdoverActiveIssue === null) {
-        setWidgetState(WIDGET_STATE.LIST)
+        setWidgetState(settings.WIDGET_STATE.LIST)
       }
     }
 
@@ -376,11 +301,11 @@ export default function FixIssuesPage({
     if(activeIssue === null) {
       setActiveContentItem(null)
       setTempActiveIssue(null)
-      setWidgetState(WIDGET_STATE.LIST)
+      setWidgetState(settings.WIDGET_STATE.LIST)
       return
     }
   
-    setWidgetState(WIDGET_STATE.FIXIT)
+    setWidgetState(settings.WIDGET_STATE.FIXIT)
     const activeIssueClone = JSON.parse(JSON.stringify(activeIssue))
 
     if(activeIssue.contentType === FILTER.FILE_OBJECT) {
@@ -724,16 +649,16 @@ export default function FixIssuesPage({
   }
 
   const toggleListView = () => {
-    if (widgetState === WIDGET_STATE.LIST) {
+    if (widgetState === settings.WIDGET_STATE.LIST) {
       if(activeIssue) {
-        setWidgetState(WIDGET_STATE.FIXIT)
+        setWidgetState(settings.WIDGET_STATE.FIXIT)
       }
       else {
-        setWidgetState(WIDGET_STATE.NO_RESULTS)
+        setWidgetState(settings.WIDGET_STATE.NO_RESULTS)
       }
     }
     else {
-      setWidgetState(WIDGET_STATE.LIST)
+      setWidgetState(settings.WIDGET_STATE.LIST)
       setActiveIssue(null)
       setActiveContentItem(null)
     }
@@ -771,13 +696,13 @@ export default function FixIssuesPage({
 
   return (
     <>
-      { widgetState === WIDGET_STATE.LOADING ? (
+      { widgetState === settings.WIDGET_STATE.LOADING ? (
         <></>
-      ) : widgetState === WIDGET_STATE.LIST ? (
+      ) : widgetState === settings.WIDGET_STATE.LIST ? (
         <>
           <FixIssuesFilters
             t={t}
-            settings={settings.FILTER ? settings : Object.assign({}, settings, { FILTER })}
+            settings={settings}
 
             activeFilters={activeFilters}
             handleSearchTerm={setSearchTerm}
@@ -787,7 +712,7 @@ export default function FixIssuesPage({
           />
           <FixIssuesList
             t={t}
-            settings={settings.FILTER ? settings : Object.assign({}, settings, { FILTER })}
+            settings={settings}
 
             groupedList={groupedList}
             setActiveIssue={setActiveIssue}
@@ -802,7 +727,7 @@ export default function FixIssuesPage({
             { tempActiveIssue ? (  
                 <UfixitWidget
                   t={t}
-                  settings={settings.FILTER ? settings : Object.assign({}, settings, { FILTER })}
+                  settings={settings}
 
                   activeContentItem={activeContentItem}
                   addMessage={addMessage}
@@ -819,7 +744,7 @@ export default function FixIssuesPage({
             {filteredIssues.length > 0 && (
               <FixIssuesContentPreview
                 t={t}
-                settings={settings.FILTER ? settings : Object.assign({}, settings, { FILTER })}
+                settings={settings}
 
                 activeContentItem={activeContentItem}
                 activeIssue={tempActiveIssue}

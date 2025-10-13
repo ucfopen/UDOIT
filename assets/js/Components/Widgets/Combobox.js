@@ -84,34 +84,34 @@ export default function Combobox({
     let size = 'icon-md'
 
     switch(iconString?.toUpperCase()) {
-      case settings.FILTER.ISSUE:
+      case settings.ISSUE_FILTER.ISSUE:
         return <SeverityIssueIcon className={`${size} color-issue`} />
-      case settings.FILTER.POTENTIAL:
-      case settings.FILTER.UNREVIEWED:
+      case settings.ISSUE_FILTER.POTENTIAL:
+      case settings.ISSUE_FILTER.UNREVIEWED:
         return <SeverityPotentialIcon className={`${size} color-potential`} />
-      case settings.FILTER.SUGGESTION:
+      case settings.ISSUE_FILTER.SUGGESTION:
         return <SeveritySuggestionIcon className={`${size} color-suggestion`} />
-      case settings.FILTER.ANNOUNCEMENT:
+      case settings.ISSUE_FILTER.ANNOUNCEMENT:
         return <ContentAnnouncementIcon className={`${size} gray`} />
-      case settings.FILTER.ASSIGNMENT:
+      case settings.ISSUE_FILTER.ASSIGNMENT:
         return <ContentAssignmentIcon className={`${size} gray`} />
-      case settings.FILTER.DISCUSSION_FORUM:
+      case settings.ISSUE_FILTER.DISCUSSION_FORUM:
         return <ContentDiscussionForumIcon className={`${size} gray`} />
-      case settings.FILTER.DISCUSSION_TOPIC:
+      case settings.ISSUE_FILTER.DISCUSSION_TOPIC:
         return <ContentDiscussionTopicIcon className={`${size} gray`} />
-      case settings.FILTER.FILE:
+      case settings.ISSUE_FILTER.FILE:
         return <ContentFileIcon className={`${size} gray`} />
-      case settings.FILTER.PAGE:
+      case settings.ISSUE_FILTER.PAGE:
         return <ContentPageIcon className={`${size} gray`} />
-      case settings.FILTER.QUIZ:
+      case settings.ISSUE_FILTER.QUIZ:
         return <ContentQuizIcon className={`${size} gray`} />
-      case settings.FILTER.SYLLABUS:
+      case settings.ISSUE_FILTER.SYLLABUS:
         return <ContentSyllabusIcon className={`${size} gray`} />
-      case settings.FILTER.FIXED:
-      case settings.FILTER.FIXEDANDRESOLVED:
+      case settings.ISSUE_FILTER.FIXED:
+      case settings.ISSUE_FILTER.FIXEDANDRESOLVED:
         return <FixedIcon className={`${size} color-success`} />
-      case settings.FILTER.RESOLVED:
-      case settings.FILTER.REVIEWED:
+      case settings.ISSUE_FILTER.RESOLVED:
+      case settings.ISSUE_FILTER.REVIEWED:
         return <ResolvedIcon className={`${size} color-success`} />
       default:
         return ''

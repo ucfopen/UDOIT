@@ -54,7 +54,72 @@ const runCustomChecks = (issue, element) => {
     return checkTextBlockHeading(issue, element)
   }
   return false
-} 
+}
+
+/********************************************************************************************
+  * TODO: Find a more consistent way to map modules that works with less bespoke data.
+  * In Canvas, the modules and moduleItems have names and links, but do not have the
+  * contentItemId, which is necessary to match the issue to the content. The only current
+  * data that matches are the moduleItem's page_url are the contentItem's lmsContentId,
+  * which are both the same internal link URL.
+  *
+  * Canvas Content Item Data:
+  *   contentType: "page"
+  *   id: 61
+  *   lmsContentId: "4-dot-1-2-name-role-value-input-fields"
+  *   status: true
+  *   title: "4.1.2 Name, Role, Value - Input Fields"
+  *   updated: "2025-01-13T13:46:05+00:00"
+  *   url: "https://canvas.dev.cdl.ucf.edu/courses/383/pages/4-dot-1-2-name-role-value-input-fields"
+  *
+  * Canvas Section Item Data:
+  *   html_url: "https://canvas.dev.cdl.ucf.edu/courses/383/modules/items/3896"
+  *   id: 3896
+  *   indent: 0
+  *   module_id: 562
+  *   page_url: "4-dot-1-2-name-role-value-input-fields"
+  *   position: 1
+  *   published: true
+  *   quiz_lti: false
+  *   title: "4.1.2 Name, Role, Value - Input Fields"
+  *   type: "Page"
+  *   url: "https://canvas.dev.cdl.ucf.edu/api/v1/courses/383/pages/4-dot-1-2-name-role-value-input-fields"
+  *
+  *******************************************************************************************/
+  
+const getSectionsFromContentItem = (contentSections, contentItem) => {
+  if(!contentSections || contentSections.length === 0) {
+    return []
+  }
+
+  let itemSections = []
+  contentSections.forEach((section) => {
+    let tempSectionId = section.id
+    section.items.forEach((item) => {
+      if(item.page_url && item.page_url === contentItem.lmsContentId) {
+        itemSections.push(tempSectionId.toString())
+      }
+    })
+  })
+  return itemSections
+}
+
+const getSectionsFromFile = (contentSections, fileData) => {
+  if(!contentSections || contentSections.length === 0) {
+    return []
+  }
+
+  let fileSections = []
+  contentSections.forEach((section) => {
+    let tempSectionId = section.id
+    section.items.forEach((item) => {
+      if(item.type === 'File' && item.content_id && item.content_id.toString() === fileData.lmsFileId.toString()) {
+        fileSections.push(tempSectionId.toString())
+      }
+    })
+  })
+  return fileSections
+}
 
 export function analyzeReport(report, ISSUE_STATE) {
   let tempReport = {
@@ -90,6 +155,7 @@ export function analyzeReport(report, ISSUE_STATE) {
   // Parse every document only once. Not every content item will have issues, but we need to parse each one anyway
   // so we can scan them for references to course files.
   Object.values(report.contentItems).forEach((contentItem) => {
+    contentItem.sections = getSectionsFromContentItem(report.contentSections, contentItem)
     if(contentItem.body) {
       let tempBody = parser.parseFromString(contentItem.body, 'text/html')
 
@@ -110,6 +176,7 @@ export function analyzeReport(report, ISSUE_STATE) {
               contentItemTitle: contentItem.title,
               contentItemUrl: contentItem.url,
               contentType: contentItem.contentType,
+              sectionIds: contentItem.sections,
             })
           }
         }
@@ -192,6 +259,15 @@ export function analyzeReport(report, ISSUE_STATE) {
 
   report.files.forEach((file) => {
     file.references = fileReferences[parseInt(file.lmsFileId)] || []
+    file.sections = getSectionsFromFile(report.contentSections, file)
+    file.references.forEach((reference) => {
+      let referenceSections = reference.sectionIds
+      referenceSections.forEach((sectionId) => {
+        if(!file.sections.includes(sectionId)) {
+          file.sections.push(sectionId)
+        }
+      })
+    })
   })
 
   let tempFilesReviewed = 0

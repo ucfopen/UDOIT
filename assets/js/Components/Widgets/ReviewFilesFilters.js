@@ -18,7 +18,7 @@ export default function ReviewFilesFilters({
   updateActiveFilters
  }) {
 
-  const FILTER = settings.FILTER
+  const FILTER = settings.FILE_FILTER
 
   const filterLabels = {
     [FILTER.TYPE.UTILIZATION]: t('filter.label.utilization'),
