@@ -132,6 +132,9 @@ export default function CoursePage({
       .then((responseStr) => responseStr.json())
       .then((response) => {
         if (response.data) {
+          if (Array.isArray(response.data.instructors)) {
+            course.instructors = response.data.instructors.slice()
+          }
           checkForReport(course)        
         }
         else {

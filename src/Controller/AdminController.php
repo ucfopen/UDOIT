@@ -428,7 +428,12 @@ class AdminController extends ApiController
     }
 
     #[Route('/api/admin/courses/{course}/reports/latest', methods: ['GET'], name: 'admin_latest_report')]
-    public function getAdminLatestReport(Course $course, UtilityService $util, LmsApiService $lmsApi): JsonResponse
+    public function getAdminLatestReport(Course $course, 
+    UtilityService $util, 
+    LmsApiService $lmsApi,
+    UserRepository $userRepo,
+    CourseUserRepository $courseUserRepo,
+    EntityManagerInterface $em): JsonResponse
     {
         $apiResponse = new ApiResponse();
         $user = $this->getUser();
@@ -453,6 +458,11 @@ class AdminController extends ApiController
             }
 
             $courseData = $this->getCourseData($course, $user);
+
+            $courseData['instructors'] = $this->getInstructorNamesForCourse(
+            $course, $user, $courseUserRepo, $userRepo, $em, $lmsApi
+            );
+            
             $apiResponse->setData($courseData);
             $apiResponse->addMessage('msg.sync.completed', 'success', 5000);
         } catch (\Exception $e) {
