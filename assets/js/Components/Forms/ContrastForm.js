@@ -16,10 +16,7 @@ export default function ContrastForm({
   handleActiveIssue,
   handleIssueSave,
   markAsReviewed,
-  setMarkAsReviewed,
-  parentBackground = false
 }) {
-  console.log("parentBackground", parentBackground)
   // Extract color strings from gradients
   const extractColors = (gradientString) => {
     const colorRegex = /#(?:[0-9a-fA-F]{3,8})\b|(?:rgba?|hsla?)\([^)]*\)/g
@@ -29,7 +26,6 @@ export default function ContrastForm({
   // Get all background colors (including gradients)
   const getBackgroundColors = () => {
     const html = Html.getIssueHtml(activeIssue)
-    console.log("html", html)
     let element = Html.toElement(html)
     if (!element) return []
   
@@ -73,12 +69,25 @@ export default function ContrastForm({
 
   // Get initial text color
   const getTextColor = () => {
-    const metadata = activeIssue.metadata ? JSON.parse(activeIssue.metadata) : {}
-    const html = Html.getIssueHtml(activeIssue)
-    console.log(html)
-    const element = Html.toElement(html)
-    if (element.style.color) {
-      return Contrast.standardizeColor(element.style.color)
+    const metadata = activeIssue.metadata ? JSON.parse(activeIssue.metadata) : {};
+    const html = Html.getIssueHtml(activeIssue);
+    const element = Html.toElement(html);
+
+    // Helper to find first descendant with a color style
+    function findTextColorEl(el) {
+      if (!el) return null;
+      if (el.style && el.style.color && el.style.color !== '') return el;
+      for (let i = 0; i < el.children.length; i++) {
+        const found = findTextColorEl(el.children[i]);
+        if (found) return found;
+      }
+      return null;
+    }
+
+    const colorEl = findTextColorEl(element);
+
+    if (colorEl && colorEl.style.color) {
+      return Contrast.standardizeColor(colorEl.style.color);
     }
     return metadata.color ? Contrast.standardizeColor(metadata.color) : settings.textColor
   }
@@ -98,20 +107,38 @@ export default function ContrastForm({
 
   // Generate updated HTML with new colors
   const processHtml = (html, bgColors) => {
-    let element = Html.toElement(html)
+    let element = Html.toElement(html);
+
+    // Set background as before
     if (bgColors.length > 1) {
-      let gradientHtml = originalBgColors[0].originalString
+      let gradientHtml = originalBgColors[0].originalString;
       originalBgColors.forEach((bg, idx) => {
-        gradientHtml = gradientHtml.replace(bg.originalColorString, bgColors[idx])
-      })
-      element.style.background = gradientHtml
-      element.style.backgroundColor = ''
+        gradientHtml = gradientHtml.replace(bg.originalColorString, bgColors[idx]);
+      });
+      element.style.background = gradientHtml;
+      element.style.backgroundColor = '';
     } else if (bgColors.length === 1) {
-      element.style.backgroundColor = Contrast.convertShortenedHex(bgColors[0])
+      element.style.backgroundColor = Contrast.convertShortenedHex(bgColors[0]);
     } else {
-      element.style.background = ''
+      element.style.background = '';
     }
-    element.style.color = Contrast.convertShortenedHex(textColor)
+
+    // Set text color on the correct element
+    let textColorXpath = null;
+    try {
+      const metadata = activeIssue.metadata ? JSON.parse(activeIssue.metadata) : {};
+      textColorXpath = metadata.textColorXpath;
+    } catch (e) {}
+    let textEl = element;
+    try {
+      const metadata = activeIssue.metadata ? JSON.parse(activeIssue.metadata) : {};
+      if (metadata.textColorXpath && Html.findElementWithXpath) {
+        const found = Html.findElementWithXpath(element, metadata.textColorXpath);
+        if (found) textEl = found;
+      }
+    } catch (e) {}
+    textEl.style.color = Contrast.convertShortenedHex(textColor);
+
     return Html.toString(element)
   }
 
@@ -143,7 +170,6 @@ export default function ContrastForm({
 
   // On issue change, extract from original HTML
   useEffect(() => {
-    console.log(activeIssue)
     const info = getBackgroundColors() // Use sourceHtml inside this function if available
     setOriginalBgColors(info)
     setCurrentBgColors(info.map(bg => bg.standardColor))
