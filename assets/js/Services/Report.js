@@ -134,6 +134,21 @@ const checkTextContrastSufficient = (issue, element, parsedDocument) => {
   return false;
 }
 
+const checkImgAltBackground = (issue, element) => {
+  if (!(element instanceof HTMLElement)) return false;
+
+  // Read inline style safely
+  const styleAttr = element.getAttribute('style') || '';
+  if (!styleAttr) return false;
+
+  // Normalize: lowercase, collapse spaces, strip trailing semicolons, set regex
+  const style = styleAttr.toLowerCase().replace(/\s+/g, ' ').trim();
+  const gradientRegex = /background(?:-image)?\s*:\s*[^;]*(linear|radial|conic|repeating-(?:linear|radial))-gradient\s*\(/;
+
+  // Return true if any gradient type is found
+  return gradientRegex.test(style);
+};
+
 const runCustomChecks = (issue, element, parsedDocument) => {
   if(issue.scanRuleId === 'style_color_misuse') {
     return checkStyleColorMisuse(issue, element)
@@ -143,6 +158,9 @@ const runCustomChecks = (issue, element, parsedDocument) => {
   }
   else if(issue.scanRuleId === 'text_contrast_sufficient') {
     return checkTextContrastSufficient(issue, element, parsedDocument)
+  }
+  else if(issue.scanRuleId === 'img_alt_background') {
+    return checkImgAltBackground(issue, element)
   }
   return false
 } 
