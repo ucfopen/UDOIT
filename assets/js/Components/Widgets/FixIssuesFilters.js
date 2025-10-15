@@ -35,9 +35,9 @@ export default function FixIssuesFilters({
       [FILTER.POTENTIAL]: t('filter.label.severity.potential')
     },
     [FILTER.TYPE.PUBLISHED]: {
+      [FILTER.ALL]: t('filter.label.published.all'),
       [FILTER.PUBLISHED]: t('filter.label.published.published'),
       [FILTER.UNPUBLISHED]: t('filter.label.published.unpublished'),
-      [FILTER.ALL]: t('filter.label.published.all'),
     },
     [FILTER.TYPE.CONTENT_TYPE]: {
       [FILTER.ALL]: t('filter.label.type.all'),
@@ -71,7 +71,7 @@ export default function FixIssuesFilters({
     if(sections && sections.length > 0) {
       // ... and add each module to the "Modules" filter
       sections.forEach((section) => {
-        tempFilters[FILTER.TYPE.MODULE][section.id] = section.title
+        tempFilters[FILTER.TYPE.MODULE]["section-" + section.id] = section.title
       })
     }
     else {

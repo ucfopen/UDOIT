@@ -121,6 +121,25 @@ const getSectionsFromFile = (contentSections, fileData) => {
   return fileSections
 }
 
+const getReferenceFromSection = (contentSections, sectionId) => {
+  if(!contentSections || contentSections.length === 0) {
+    return null
+  }
+
+  let sectionReference = null
+  contentSections.forEach((section) => {
+    if(section.id.toString() === sectionId.toString()) {
+      sectionReference = {
+        contentItemId: section.id,
+        contentItemTitle: section.title,
+        contentItemUrl: section.url || '',
+        contentType: 'section',
+      }
+    }
+  })
+  return sectionReference
+}
+
 export function analyzeReport(report, ISSUE_STATE) {
   let tempReport = {
     contentFixed: report.contentFixed || 0,
@@ -257,9 +276,21 @@ export function analyzeReport(report, ISSUE_STATE) {
     }
   })
 
+  // We're double-dipping here.
+  // Each file should have a list of sections it appears in for filtering, and that means that
+  // each reference to a file should add its parent section to the list.
+  // We ALSO want a list of references to include the section(s) the file appears in outside of
+  // references (like when the file is linked in the modules directly).
   report.files.forEach((file) => {
-    file.references = fileReferences[parseInt(file.lmsFileId)] || []
     file.sections = getSectionsFromFile(report.contentSections, file)
+    let sectionReferences = []
+    file.sections.forEach((sectionId) => {
+      let sectionReference = getReferenceFromSection(report.contentSections, sectionId)
+      if(sectionReference) {
+        sectionReferences.push(sectionReference)
+      }
+    })
+    file.references = fileReferences[parseInt(file.lmsFileId)] || []
     file.references.forEach((reference) => {
       let referenceSections = reference.sectionIds
       referenceSections.forEach((sectionId) => {
@@ -267,6 +298,9 @@ export function analyzeReport(report, ISSUE_STATE) {
           file.sections.push(sectionId)
         }
       })
+    })
+    sectionReferences.forEach((sectionReference) => {
+      file.references.push(sectionReference)
     })
   })
 

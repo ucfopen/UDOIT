@@ -382,8 +382,11 @@ export default function FixIssuesPage({
       }
 
       // Do not include this issue if it doesn't match the module filter
-      if (tempFilters[FILTER.TYPE.MODULE] !== FILTER.ALL && !issue.sectionIds.includes(tempFilters[FILTER.TYPE.MODULE].toString())) {
-        continue
+      if (tempFilters[FILTER.TYPE.MODULE] !== FILTER.ALL) {
+        let sectionId = tempFilters[FILTER.TYPE.MODULE].replace('section-', '')
+        if (!issue.sectionIds.includes(sectionId)) {
+          continue
+        }
       }
 
       // Do not include this issue if it doesn't match the published filter

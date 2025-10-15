@@ -78,8 +78,6 @@ export default function ReviewFilesPage({
   const [widgetState, setWidgetState] = useState(WIDGET_STATE.LOADING)
 
   const formatFileData = (fileData) => {
-    // All files should be considered "Potential Issues" since they need to be reviewed and are
-    // not included in the PHPAlly or IBM Equal Access scan.
 
     let fileId = "file-" + fileData.id
 
@@ -284,14 +282,26 @@ export default function ReviewFilesPage({
         filteredList.push(issue)
         continue
       }
+
+      if(tempFilters[FILTER.TYPE.UTILIZATION] !== FILTER.ALL) {
+        if(tempFilters[FILTER.TYPE.UTILIZATION] === FILTER.USED && issue?.fileData?.references?.length === 0) {
+          continue
+        }
+        if(tempFilters[FILTER.TYPE.UTILIZATION] === FILTER.UNUSED && issue?.fileData?.references?.length > 0) {
+          continue
+        }
+      }
       
       if (tempFilters[FILTER.TYPE.RESOLUTION] !== FILTER.ALL && tempFilters[FILTER.TYPE.RESOLUTION] !== issue.status) {
         continue
       }
 
       // Do not include this issue if it doesn't match the module filter
-      if (tempFilters[FILTER.TYPE.MODULE] !== FILTER.ALL && !issue.sectionIds.includes(tempFilters[FILTER.TYPE.MODULE].toString())) {
-        continue
+      if (tempFilters[FILTER.TYPE.MODULE] !== FILTER.ALL) {
+        let sectionId = tempFilters[FILTER.TYPE.MODULE].toString().replace('section-', '')
+        if (!issue.sectionIds.includes(sectionId)) {
+          continue
+        }
       }
 
       if (tempFilters[FILTER.TYPE.FILE_TYPE] !== FILTER.ALL && issue.fileType !== tempFilters[FILTER.TYPE.FILE_TYPE]) {

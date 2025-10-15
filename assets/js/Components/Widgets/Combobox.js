@@ -13,6 +13,7 @@ import SeveritySuggestionIcon from '../Icons/SeveritySuggestionIcon'
 import FixedIcon from '../Icons/FixedIcon'
 import ResolvedIcon from '../Icons/ResolvedIcon'
 import SortIcon from '../Icons/SortIcon'
+import FileTypeIcon from '../Icons/FileTypeIcon'
 import './Combobox.css'
 
 
@@ -112,7 +113,15 @@ export default function Combobox({
         return <FixedIcon className={`${size} color-success`} />
       case settings.ISSUE_FILTER.RESOLVED:
       case settings.ISSUE_FILTER.REVIEWED:
+      case settings.FILE_FILTER.REVIEWED:
         return <ResolvedIcon className={`${size} color-success`} />
+      case settings.FILE_FILTER.FILE_PDF:
+      case settings.FILE_FILTER.FILE_WORD:
+      case settings.FILE_FILTER.FILE_POWERPOINT:
+      case settings.FILE_FILTER.FILE_EXCEL:
+      case settings.FILE_FILTER.FILE_AUDIO:
+      case settings.FILE_FILTER.FILE_VIDEO:
+        return <FileTypeIcon className={`${size} gray-stroke`} type={iconString.toUpperCase()} strokeWidth={2} />
       default:
         return ''
     }

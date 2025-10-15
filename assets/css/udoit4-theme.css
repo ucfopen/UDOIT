@@ -629,6 +629,11 @@ h1, h2, h3, h4, h5, h6 {
   fill: var(--gray);
 }
 
+.gray-stroke {
+  stroke: var(--gray);
+  fill: none;
+}
+
 .white {
   color: var(--white);
   fill: var(--white);

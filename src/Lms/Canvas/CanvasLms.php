@@ -313,6 +313,7 @@ class CanvasLms implements LmsInterface {
             foreach ($contentList as $content) {
                 $formattedSection = [];
                 $formattedSection['id'] = $content['id'];
+                $formattedSection['url'] = $this->getCourseUrl($course, $user) . '/modules#' . $content['id'];
                 $formattedSection['title'] = $content['name'];
                 $formattedSection['status'] = $content['published'];
                 $formattedSection['items'] = [];

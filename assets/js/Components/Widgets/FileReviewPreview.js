@@ -1,6 +1,7 @@
 import React from 'react'
 import DownloadIcon from '../Icons/DownloadIcon'
 import ExternalLinkIcon from '../Icons/ExternalLinkIcon'
+import ContentTypeIcon from '../Icons/ContentTypeIcon'
 import * as Text from '../../Services/Text'
 import './FixIssuesContentPreview.css'
 import SeverityIcon from '../Icons/SeverityIcon'
@@ -77,11 +78,14 @@ export default function FixIssuesContentPreview({
             ) : (
               <div className="mt-3">
                 <h3>{t('fix.label.references')}</h3>
-                  { activeIssue.fileData.references.map((reference) => (
-                    <p>
-                      <a href={reference.contentItemUrl} target="_blank" rel="noreferrer">{reference.contentItemTitle}</a>
-                    </p>
+                  <div className='flex-column gap-2'>
+                  { activeIssue.fileData.references.map((reference, index) => (
+                    <a href={reference.contentItemUrl} target="_blank" rel="noreferrer" className='flex-row' key={index}>
+                      <ContentTypeIcon type={reference.contentType} className='link-color icon-md mr-3 flex-column align-self-center'/>
+                      <div className='flex-column align-self-center'>{reference.contentItemTitle}</div>
+                    </a>
                   )) }
+                </div>
               </div>
             )}
             

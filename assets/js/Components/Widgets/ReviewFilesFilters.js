@@ -39,8 +39,8 @@ export default function ReviewFilesFilters({
       [FILTER.FILE_WORD]: t('label.mime.doc'),
       [FILTER.FILE_POWERPOINT]: t('label.mime.ppt'),
       [FILTER.FILE_EXCEL]: t('label.mime.xls'),
-      [FILTER.FILE_VIDEO]: t('label.mime.video'),
       [FILTER.FILE_AUDIO]: t('label.mime.audio'),
+      [FILTER.FILE_VIDEO]: t('label.mime.video'),
     },
     [FILTER.TYPE.RESOLUTION]: {
       [FILTER.ALL]: t('filter.label.review.all'),
@@ -48,7 +48,7 @@ export default function ReviewFilesFilters({
       [FILTER.REVIEWED]: t('filter.label.review.reviewed'),
     },
     [FILTER.TYPE.MODULE]: {
-      [FILTER.ALL]: t('filter.label.module.all'),
+      [FILTER.ALL]: t('filter.label.review.all'),
     },
   }
 
@@ -63,7 +63,7 @@ export default function ReviewFilesFilters({
     if(sections && sections.length > 0) {
       // ... and add each module to the "Modules" filter
       sections.forEach((section) => {
-        tempFilters[FILTER.TYPE.MODULE][section.id] = section.title
+        tempFilters[FILTER.TYPE.MODULE]["section-" + section.id] = section.title
       })
     }
     else {

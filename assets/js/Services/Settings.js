@@ -69,6 +69,7 @@ export const FILE_FILTER = {
   ACTIVE: 'ACTIVE',
   UNREVIEWED: 'UNREVIEWED',
   REVIEWED: 'REVIEWED',
+  FILE_OBJECT: 'FILE_OBJECT',
 }
 
 export const FILE_TYPES = [
