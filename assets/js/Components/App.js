@@ -9,7 +9,7 @@ import SettingsPage from './SettingsPage'
 import Api from '../Services/Api'
 import MessageTray from './Widgets/MessageTray'
 import { analyzeReport } from '../Services/Report'
-import { ISSUE_STATE, WIDGET_STATE, ISSUE_FILTER, FILE_FILTER, FILE_TYPES, FILE_TYPE_MAP } from '../Services/Settings'
+import { ISSUE_STATE, WIDGET_STATE, ISSUE_FILTER, FILE_FILTER, FILE_TYPES, FILE_TYPE_MAP, DEFAULT_USER_SETTINGS } from '../Services/Settings'
 
 
 export default function App(initialData) {
@@ -24,7 +24,9 @@ export default function App(initialData) {
     { ISSUE_FILTER }, 
     { FILE_FILTER },
     { FILE_TYPES },
-    { FILE_TYPE_MAP }))
+    { FILE_TYPE_MAP },
+    { DEFAULT_USER_SETTINGS }
+  ))
   const [sections, setSections] = useState([])
 
   const [navigation, setNavigation] = useState('summary')
@@ -341,7 +343,10 @@ export default function App(initialData) {
 
   return (
     <div id="app-container"
-         className={`flex-column flex-grow-1 ${settings?.user?.roles?.font_size || 'font-medium'} ${settings?.user?.roles?.font_family || 'sans-serif'} ${settings?.user?.roles?.dark_mode ? 'dark-mode' : ''}`}>
+         className={`flex-column flex-grow-1 `
+          + `${settings?.user?.roles?.font_size || settings.DEFAULT_USER_SETTINGS.FONT_SIZE} `
+          + `${settings?.user?.roles?.font_family || settings.DEFAULT_USER_SETTINGS.FONT_FAMILY} `
+          + `${settings?.user?.roles?.dark_mode ? 'dark-mode' : ''}`}>
       { !welcomeClosed ?
         ( <WelcomePage
             t={t}

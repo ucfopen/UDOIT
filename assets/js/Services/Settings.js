@@ -90,6 +90,15 @@ export const FILE_TYPE_MAP = {
   'video': FILE_FILTER.FILE_VIDEO,
 }
 
+export const DEFAULT_USER_SETTINGS = {
+  ALERT_TIMEOUT: '5000',
+  FONT_SIZE: 'font-medium',
+  FONT_FAMILY: 'sans-serif',
+  DARK_MODE: false,
+  SHOW_FILTERS: true,
+  LANGUAGE: 'en',
+}
+
 export function findEditURLWithIssue(issue, settings) {
   if (!issue || !settings || !settings.institution) {
     return ''
