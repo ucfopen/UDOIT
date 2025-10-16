@@ -218,6 +218,39 @@ export default function ContrastForm({
     // eslint-disable-next-line
   }, [textColor, currentBgColors])
 
+  const handleAutoAdjustAll = () => {
+    // Try to minimally adjust each background color to achieve valid contrast
+    let newBgColors = [...currentBgColors];
+    let changed = false;
+    for (let i = 0; i < newBgColors.length; i++) {
+      let bg = newBgColors[i];
+      let ratio = Contrast.contrastRatio(bg, textColor);
+      // Use the same threshold logic as your UI
+      const tagName = Html.toElement(Html.getIssueHtml(activeIssue)).tagName;
+      const minRatio = headingTags.includes(tagName) ? 3 : 4.5;
+      let attempts = 0;
+      // Try to lighten or darken until valid, but don't go infinite
+      while (ratio < minRatio && attempts < 20) {
+        // Decide direction: lighten or darken based on which is closer to valid
+        const lighter = Contrast.changehue(bg, 'lighten');
+        const darker = Contrast.changehue(bg, 'darken');
+        const lighterRatio = Contrast.contrastRatio(lighter, textColor);
+        const darkerRatio = Contrast.contrastRatio(darker, textColor);
+        if (lighterRatio > darkerRatio) {
+          bg = lighter;
+          ratio = lighterRatio;
+        } else {
+          bg = darker;
+          ratio = darkerRatio;
+        }
+        attempts++;
+      }
+      if (attempts > 0) changed = true;
+      newBgColors[i] = bg;
+    }
+    if (changed) setCurrentBgColors(newBgColors);
+  };
+
   // Render
   return (
     <>
@@ -299,6 +332,18 @@ export default function ContrastForm({
           </div>
         </div>
       ))}
+
+      {currentBgColors.length > 1 && (
+        <div className="flex-row justify-content-end mt-2">
+          <button
+            className="btn-small btn-primary"
+            disabled={isDisabled}
+            onClick={handleAutoAdjustAll}
+          >
+            {t('form.contrast.label.auto_adjust_all') || 'Auto Adjust All'}
+          </button>
+        </div>
+      )}
 
       <div className="flex-row justify-content-between mt-4 mb-3">
         <div className="flex-column justify-content-start">

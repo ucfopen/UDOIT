@@ -338,6 +338,7 @@
   "form.contrast.replace_text": "Text Color",
   "form.contrast.replace_background": "Background Color",
   "form.contrast.label.ratio": "Contrast Ratio",
+  "form.contrast.label.auto_adjust_all": "Auto-Adjust All Colors",
   "form.contrast.feedback.invalid": "Invalid Ratio",
   "form.contrast.feedback.valid": "Valid Ratio",
   "rule.desc.text_contrast_sufficient": "",

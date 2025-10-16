@@ -339,6 +339,7 @@
   "form.contrast.feedback.invalid": "Relación Inválida",
   "form.contrast.feedback.valid": "Relación Válida",
   "form.contrast.label.bolden_text": "Poner Texto en Negrita",
+  "form.contrast.label.auto_adjust": "Ajustar Colores Automáticamente",
   "form.contrast.label.italicize_text": "Poner Texto en Cursiva",
   "rule.desc.text_contrast_sufficient": "",
 
