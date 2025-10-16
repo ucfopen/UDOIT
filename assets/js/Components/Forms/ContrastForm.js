@@ -299,17 +299,18 @@ export default function ContrastForm({
         <label>{t('form.contrast.replace_background')}</label>
       </div>
       {currentBgColors.map((color, idx) => (
-        <div key={idx} className="flex-row justify-content-between mt-1">
-          <input
-            id={`backgroundColorInput${idx}`}
-            aria-label={t('form.contrast.label.background.show_color_picker')}
-            title={t('form.contrast.label.background.show_color_picker')}
-            type="color"
-            disabled={isDisabled}
-            value={color}
-            style={{ width: '2.5em', height: '2em' }}
-            onChange={e => updateBackgroundColor(idx, e.target.value)}
-          />
+        <div key={idx} className="flex-row justify-content-between mt-1 gradient-row">
+          <div className="flex-column justify-content-center">
+            <input
+              id={`backgroundColorInput${idx}`}
+              aria-label={t('form.contrast.label.background.show_color_picker')}
+              title={t('form.contrast.label.background.show_color_picker')}
+              type="color"
+              disabled={isDisabled}
+              value={color}
+              onChange={e => updateBackgroundColor(idx, e.target.value)}
+            />
+          </div>
           <div className="flex-row gap-1">
             <button
               tabIndex="0"
@@ -370,7 +371,7 @@ export default function ContrastForm({
             </div>
             {currentBgColors.length > 1 && (
               <div className="flex-row justify-content-center">
-                <small style={{ fontStyle: 'italic', color: '#666' }}>
+                <small className="gradient-note">
                   * lowest among gradient colors
                 </small>
               </div>

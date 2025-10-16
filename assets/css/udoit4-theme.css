@@ -828,6 +828,15 @@ input[type="color"] {
   }
 }
 
+.gradient-row {
+  margin-bottom: 0.75em;
+}
+
+.gradient-note {
+  font-style: italic;
+  color: #666;
+}
+
 .icon-sm {
   width: 16px;
   height: 16px;
