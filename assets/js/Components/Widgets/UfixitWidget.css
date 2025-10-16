@@ -112,6 +112,10 @@
     color: var(--text-color);
   }
 
+  label[for] {
+    cursor: pointer;
+  }
+
   .instructions-helper {
     margin-top: .25em;
     padding-left: 1.8rem;
