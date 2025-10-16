@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react'
 import DarkIcon from '../Icons/DarkIcon'
 import LightIcon from '../Icons/LightIcon'
+import CheckIcon from '../Icons/CheckIcon'
+import CloseIcon from '../Icons/CloseIcon'
 import SeverityIssueIcon from '../Icons/SeverityIssueIcon'
 import FixedIcon from '../Icons/FixedIcon'
 import ResolvedIcon from '../Icons/ResolvedIcon'
@@ -298,41 +300,64 @@ export default function ContrastForm({
       <div className="mt-3">
         <label>{t('form.contrast.replace_background')}</label>
       </div>
-      {currentBgColors.map((color, idx) => (
-        <div key={idx} className="flex-row justify-content-between mt-1 gradient-row">
-          <div className="flex-column justify-content-center">
-            <input
-              id={`backgroundColorInput${idx}`}
-              aria-label={t('form.contrast.label.background.show_color_picker')}
-              title={t('form.contrast.label.background.show_color_picker')}
-              type="color"
-              disabled={isDisabled}
-              value={color}
-              onChange={e => updateBackgroundColor(idx, e.target.value)}
-            />
+      {currentBgColors.map((color, idx) => {
+        let showStatus = currentBgColors.length > 1;
+        let tagName = Html.toElement(Html.getIssueHtml(activeIssue)).tagName;
+        let minRatio = headingTags.includes(tagName) ? 3 : 4.5;
+        let ratio = Contrast.contrastRatio(color, textColor);
+        let isValid = ratio >= minRatio;
+
+        return (
+          <div key={idx} className="flex-row justify-content-between mt-1 gradient-row">
+            <div className="flex-row align-items-center">
+              <input
+                id={`backgroundColorInput${idx}`}
+                aria-label={t('form.contrast.label.background.show_color_picker')}
+                title={t('form.contrast.label.background.show_color_picker')}
+                type="color"
+                disabled={isDisabled}
+                value={color}
+                onChange={e => updateBackgroundColor(idx, e.target.value)}
+              />
+              {showStatus && (
+                isValid
+                  ? <CheckIcon
+                      className="icon-md color-success ms-2"
+                      title={t('form.contrast.feedback.valid')}
+                      aria-label={t('form.contrast.feedback.valid')}
+                      alt={t('form.contrast.feedback.valid')}
+                    />
+                  : <CloseIcon
+                      className="icon-md color-issue ms-2"
+                      title={t('form.contrast.feedback.invalid')}
+                      aria-label={t('form.contrast.feedback.invalid')}
+                      alt={t('form.contrast.feedback.invalid')}
+                    />
+              )}
+            </div>
+            <div className="flex-row gap-1">
+              <button
+                tabIndex="0"
+                disabled={isDisabled}
+                onClick={() => handleLightenBackground(idx)}
+                className="btn-small btn-icon-left btn-secondary"
+              >
+                <LightIcon className="icon-md" alt="" />
+                {t('form.contrast.label.lighten')}
+              </button>
+              <button
+                tabIndex="0"
+                disabled={isDisabled}
+                onClick={() => handleDarkenBackground(idx)}
+                className="btn-small btn-icon-left btn-secondary"
+              >
+                <DarkIcon className="icon-md" alt="" />
+                {t('form.contrast.label.darken')}
+              </button>
+            </div>
           </div>
-          <div className="flex-row gap-1">
-            <button
-              tabIndex="0"
-              disabled={isDisabled}
-              onClick={() => handleLightenBackground(idx)}
-              className="btn-small btn-icon-left btn-secondary"
-            >
-              <LightIcon className="icon-md" alt="" />
-              {t('form.contrast.label.lighten')}
-            </button>
-            <button
-              tabIndex="0"
-              disabled={isDisabled}
-              onClick={() => handleDarkenBackground(idx)}
-              className="btn-small btn-icon-left btn-secondary"
-            >
-              <DarkIcon className="icon-md" alt="" />
-              {t('form.contrast.label.darken')}
-            </button>
-          </div>
-        </div>
-      ))}
+        );
+      })}
 
       {currentBgColors.length > 1 && (
         <div className="flex-row justify-content-end mt-2">

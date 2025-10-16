@@ -339,8 +339,8 @@
   "form.contrast.replace_background": "Background Color",
   "form.contrast.label.ratio": "Contrast Ratio",
   "form.contrast.label.auto_adjust_all": "Auto-Adjust All Colors",
-  "form.contrast.feedback.invalid": "Invalid Ratio",
-  "form.contrast.feedback.valid": "Valid Ratio",
+  "form.contrast.feedback.invalid": "Insufficient Contrast",
+  "form.contrast.feedback.valid": "Sufficient Contrast",
   "rule.desc.text_contrast_sufficient": "",
 
   "form.embedded_content_title.title": "Embedded Content Should Have a Label",
