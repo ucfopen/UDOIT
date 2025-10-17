@@ -27,15 +27,10 @@
   text-transform: uppercase;
 }
 
-.dialog-indicator-background {
+.dialog-indicator-container {
   background-color: var(--gray-darker);
   margin: 0 -1rem;
   padding: .5rem 1rem;
-}
-
-.dialog-indicator-container {
-  max-width: calc(40em / .9);
-  margin: 0 auto;  
   color: var(--white);
   font-size: .9em;
   font-weight: 600;
@@ -217,8 +212,7 @@
 }
 
 .ufixit-learn-container {
-  max-width: 40em;
-  margin: 0 auto;
+  max-width: 600px;
 
   a {
     color: var(--link-color);
@@ -258,8 +252,8 @@
     tbody tr {
       color: var(--text-color);
 
-      &:nth-child(even) {
-        background-color: var(--background-color);
+      &:nth-child(odd) {
+        background-color: var(--white);
       }
 
       td {
@@ -295,7 +289,7 @@
 }
 
 .url-container {
-  background-color: var(--gray-light);
+  background-color: var(--gray-lighter);
   padding: .25em .5em;
   border-radius: 8px;
 }
@@ -327,7 +321,7 @@
 
 dialog {
   width: 90vw;
-  max-width: 50em;
+  max-width: 70ch;
   overflow-y: auto;
   box-sizing: border-box;
   border: none;
@@ -342,11 +336,6 @@ dialog {
   height: 70vh;
   max-height: 650px;
   overflow-y: auto;
-
-  h4 {
-    font-weight: 600;
-    margin-top: .25em;
-  }
 }
 
 .ufixit-widget-dialog-header {
@@ -384,11 +373,6 @@ dialog {
     color: var(--white);
     border-radius: 4px;
     font-size: 0.9em;
-
-    strong {
-      font-weight: 400;
-      text-decoration: underline;
-    }
   }
 
 dialog::backdrop {
