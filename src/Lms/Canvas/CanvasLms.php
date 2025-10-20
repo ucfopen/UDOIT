@@ -52,6 +52,7 @@ class CanvasLms implements LmsInterface {
         $this->util = $util;
         $this->security = $security;
         $this->sessionService = $sessionService;
+        $this->contentItemList = [];
     }
 
     public function getId()
@@ -137,6 +138,93 @@ class CanvasLms implements LmsInterface {
      * ****************
      */
 
+    private function saveOrUpdateContentItem($canvasApi, Course $course, $contentType, $content, $force, $parentLmsId = null)
+    {
+        $lmsContent = $this->normalizeLmsContent($course, $contentType, $content);
+        if (!$lmsContent) {
+            return;
+        }
+
+        if($parentLmsId) {
+            $lmsContent['parentLmsId'] = $parentLmsId;
+        }
+
+        $output = new ConsoleOutput();
+
+        /* Check to see if the existing content item is already in the database and hasn't been updated since.
+            The $force variable is used to force the full rescan, and skips the 'already exists' check */
+        $contentItem = $this->contentItemRepo->findOneBy([
+            'contentType' => $contentType,
+            'lmsContentId' => $lmsContent['id'],
+            'course' => $course,
+        ]);
+        $childContentItems = [];
+
+        if (!$force && $contentItem) {
+            $contentItemUpdated = $contentItem->getUpdated();
+            $lmsUpdated = new \DateTime($lmsContent['updated'], UtilityService::$timezone);
+            if ($contentItemUpdated == $lmsUpdated) {
+                $contentItem->setActive(true);
+                return;
+            }
+            $output->writeln('Content item already exists but is out of date. Updating ' . $contentType . ': ' . $lmsContent['title']);
+        }
+        else {
+            $output->writeln('New content item - ' . $contentType . ': ' . $lmsContent['title']);
+        }
+
+        /* get page content */
+        if ('page' === $contentType) {
+            $url = "courses/{$course->getLmsCourseId()}/pages/{$lmsContent['id']}";
+            $pageResponse = $canvasApi->apiGet($url);
+            $pageObj = $pageResponse->getContent();
+
+            if (!empty($pageObj['body'])) {
+                $lmsContent['body'] = $pageObj['body'];
+            }
+        }
+
+        /* get HTML file content */
+        if (('file' === $contentType) && ('html' === $content['mime_class'])) {
+            $lmsContent['body'] = file_get_contents($content['url']);
+        }
+
+        if (!$contentItem) {
+            $contentItem = new ContentItem();
+            $metadata = $parentLmsId ? array('parentLmsId' => $parentLmsId) : array();
+
+            $contentItem->setCourse($course)
+                ->setLmsContentId($lmsContent['id'])
+                ->setActive(true)
+                ->setContentType($contentType)
+                ->setMetadata(json_encode($metadata));
+            $this->entityManager->persist($contentItem);
+        }
+
+        // some content types don't have an updated date, so we'll compare content
+        // to find out if content has changed.
+        if (in_array($contentType, ['syllabus', 'discussion_topic', 'announcement', 'quiz'])) {
+            if ($contentItem->getBody() === $lmsContent['body']) {
+                if ($contentItem->getUpdated()) {
+                    $lmsContent['updated'] = $contentItem->getUpdated()->format('c');
+                }
+            }
+        }
+
+        $contentItem->update($lmsContent);
+        $this->contentItemList[] = $contentItem;
+
+        if(in_array($contentType, ['quiz'])) {
+            $url = $this->getCourseContentItemUrls($course->getLmsCourseId(), $contentType, $lmsContent['id']);
+            $quizResponse = $canvasApi->apiGet($url);
+            $quizQuestions = $quizResponse->getContent();
+            
+            foreach($quizQuestions as $question) {
+                $this->saveOrUpdateContentItem($canvasApi, $course, 'quiz_question', $question, $force, $lmsContent['id']);
+            }
+        }
+    }
+
     public function updateCourseData(Course $course, User $user)
     {
         $url = "courses/{$course->getLmsCourseId()}?include[]=term";
@@ -173,8 +261,7 @@ class CanvasLms implements LmsInterface {
     // Get content from Canvas and update content items
     public function updateCourseContent(Course $course, User $user, $force = false): array
     {
-        $output = new ConsoleOutput();
-        $content = $contentItems = [];
+        $this->contentItemList = [];
         $urls = $this->getCourseContentUrls($course->getLmsCourseId());
         $apiDomain = $this->getApiDomain($user);
         $apiToken = $this->getApiToken($user);
@@ -211,72 +298,7 @@ class CanvasLms implements LmsInterface {
                         continue;
                     }
 
-                    $lmsContent = $this->normalizeLmsContent($course, $contentType, $content);
-                    if (!$lmsContent) {
-                        continue;
-                    }
-
-                    /* Check to see if the existing content item is already in the database and hasn't been updated since.
-                       The $force variable is used to force the full rescan, and skips the 'already exists' check */
-
-                    $contentItem = $this->contentItemRepo->findOneBy([
-                        'contentType' => $contentType,
-                        'lmsContentId' => $lmsContent['id'],
-                        'course' => $course,
-                    ]);
-
-                    if (!$force && $contentItem) {
-                        $contentItemUpdated = $contentItem->getUpdated();
-                        $lmsUpdated = new \DateTime($lmsContent['updated'], UtilityService::$timezone);
-                        if ($contentItemUpdated == $lmsUpdated) {
-                            $contentItem->setActive(true);
-                            continue;
-                        }
-                        $output->writeln('Content item already exists but is out of date. Updating ' . $contentType . ': ' . $lmsContent['title']);
-                    }
-                    else {
-                        $output->writeln('New content item - ' . $contentType . ': ' . $lmsContent['title']);
-                    }
-
-                    /* get page content */
-                    if ('page' === $contentType) {
-                        $url = "courses/{$course->getLmsCourseId()}/pages/{$lmsContent['id']}";
-                        $pageResponse = $canvasApi->apiGet($url);
-                        $pageObj = $pageResponse->getContent();
-
-                        if (!empty($pageObj['body'])) {
-                            $lmsContent['body'] = $pageObj['body'];
-                        }
-                    }
-
-                    /* get HTML file content */
-                    if (('file' === $contentType) && ('html' === $content['mime_class'])) {
-                        $lmsContent['body'] = file_get_contents($content['url']);
-                    }
-
-                    if (!$contentItem) {
-                        $contentItem = new ContentItem();
-                        $contentItem->setCourse($course)
-                            ->setLmsContentId($lmsContent['id'])
-                            ->setActive(true)
-                            ->setContentType($contentType);
-                        $this->entityManager->persist($contentItem);
-                    }
-
-                    // some content types don't have an updated date, so we'll compare content
-                    // to find out if content has changed.
-                    if (in_array($contentType, ['syllabus', 'discussion_topic', 'announcement', 'quiz'])) {
-                        if ($contentItem->getBody() === $lmsContent['body']) {
-                            if ($contentItem->getUpdated()) {
-                                $lmsContent['updated'] = $contentItem->getUpdated()->format('c');
-                            }
-                        }
-                    }
-
-                    $contentItem->update($lmsContent);
-                    if($contentItem->getBody() !== null) {
-                        $contentItems[] = $contentItem;
-                    }
+                    $this->saveOrUpdateContentItem($canvasApi, $course, $contentType, $content, $force);
                 }
             }
         }
@@ -284,7 +306,7 @@ class CanvasLms implements LmsInterface {
         // push any updates made to content items to DB
         $this->entityManager->flush();
 
-        return $contentItems;
+        return $this->contentItemList;
     }
 
     public function getCourseSections(Course $course, User $user)
@@ -647,9 +669,9 @@ class CanvasLms implements LmsInterface {
                 $options['quiz[description]'] = $html;
                 break;
 
-                // case 'module':
-                // break;
-
+            case 'quiz_question':
+                $options['question[question_text]'] = $html;
+                break;
         }
 
         return $options;
@@ -660,6 +682,7 @@ class CanvasLms implements LmsInterface {
         $contentType = $contentItem->getContentType();
         $lmsCourseId = $contentItem->getCourse()->getLmsCourseId();
         $lmsContentId = $contentItem->getLmsContentId();
+        $parentLmsId = $contentItem->getParentLmsId();
 
         $lmsContentTypeUrls = [
             'announcement' => "courses/{$lmsCourseId}/discussion_topics/{$lmsContentId}",
@@ -669,6 +692,7 @@ class CanvasLms implements LmsInterface {
             'module' => "courses/{$lmsCourseId}/modules/{$lmsContentId}",
             'page' => "courses/{$lmsCourseId}/pages/{$lmsContentId}",
             'quiz' => "courses/{$lmsCourseId}/quizzes/{$lmsContentId}",
+            'quiz_question' => "courses/{$lmsCourseId}/quizzes/{$parentLmsId}/questions/{$lmsContentId}",
             'syllabus' => "courses/{$lmsCourseId}?include[]=syllabus_body",
         ];
 
@@ -754,6 +778,16 @@ class CanvasLms implements LmsInterface {
                 $out['url'] = "{$baseUrl}/quizzes/{$lmsContent['id']}";
 
                 break;
+
+            case 'quiz_question':
+                $out['id'] = $lmsContent['id'];
+                $out['title'] = $lmsContent['question_name'];
+                $out['updated'] = 'now';
+                $out['body'] = $lmsContent['question_text'];
+                $out['status'] = true;
+                $out['url'] = "{$baseUrl}/quizzes/{$lmsContent['quiz_id']}";
+
+                break;
         }
 
         return $out;
@@ -771,6 +805,16 @@ class CanvasLms implements LmsInterface {
             'page' =>               "courses/{$courseId}/pages",
             'quiz' =>               "courses/{$courseId}/quizzes",
         ];
+    }
+
+    protected function getCourseContentItemUrls($courseId, $contentType, $lmsContentId)
+    {
+        $lmsContentTypeUrls = [
+            'discussion_topic' => "courses/{$courseId}/discussion_topics/{$lmsContentId}/entries",
+            'quiz' => "courses/{$courseId}/quizzes/{$lmsContentId}/questions",
+        ];
+
+        return $lmsContentTypeUrls[$contentType];
     }
 
     protected function getScopes()

@@ -22,9 +22,20 @@ class SyncController extends ApiController
     /** @var UtilityService $util */
     protected $util;
 
-    #[Route('/api/sync/{course}', name: 'request_sync')]
-    public function requestSync(Course $course, LmsFetchService $lmsFetch)
-    {
+    private function isCurrentVersion(Course $course): bool {
+        $previousReport = $course->getLatestReport();
+        if($previousReport) {
+            $data = json_decode($previousReport->getData());
+            $currentVersionNumber = !empty($_ENV['VERSION_NUMBER']) ? $_ENV['VERSION_NUMBER'] : '';
+            if(isset($data->versionNumber) && $data->versionNumber === $currentVersionNumber) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private function executeScan(Course $course, LmsFetchService $lmsFetch, bool $force) {
+        
         $response = new ApiResponse();
         $user = $this->getUser();
         $reportArr = false;
@@ -39,18 +50,6 @@ class SyncController extends ApiController
             if (!$course->isActive()) {
                 $response->setData(0);
                 throw new \Exception('msg.sync.course_inactive');
-            }
-
-            // Check to see if the CODE (based on version number) has been updated since the last scan.
-            // If so (or if we can't tell), force a full rescan.
-            $force = true;
-            $previousReport = $course->getLatestReport();
-            if($previousReport) {
-                $data = json_decode($previousReport->getData());
-                $currentVersionNumber = !empty($_ENV['VERSION_NUMBER']) ? $_ENV['VERSION_NUMBER'] : '';
-                if(isset($data->versionNumber) && $data->versionNumber === $currentVersionNumber) {
-                    $force = false;
-                }
             }
 
             $lmsFetch->refreshLmsContent($course, $user, $force);
@@ -86,56 +85,17 @@ class SyncController extends ApiController
         return new JsonResponse($response);
     }
 
+    #[Route('/api/sync/{course}', name: 'request_sync')]
+    public function requestSync(Course $course, LmsFetchService $lmsFetch)
+    {
+        $force = ! $this->isCurrentVersion($course);
+        
+        return $this->executeScan($course, $lmsFetch, $force);
+    }
+
     #[Route('/api/sync/rescan/{course}', name: 'full_rescan')]
     public function fullCourseRescan(Course $course, LmsFetchService $lmsFetch) {
-        $response = new ApiResponse();
-        $user = $this->getUser();
-        $reportArr = false;
-
-        try {
-            if (!$this->userHasCourseAccess($course)) {
-                throw new \Exception('msg.no_permissions');
-            }
-            if ($course->isDirty()) {
-                throw new \Exception('msg.course_scanning');
-            }
-            if (!$course->isActive()) {
-                $response->setData(0);
-                throw new \Exception('msg.sync.course_inactive');
-            }
-
-            $lmsFetch->refreshLmsContent($course, $user, true);
-
-            $report = $course->getLatestReport();
-
-            if (!$report) {
-                throw new \Exception('msg.no_report_created');
-            }
-
-            $reportArr = $report->toArray();
-            $reportArr['files'] = $course->getFileItems();
-            $reportArr['issues'] = $course->getAllIssues();
-            $reportArr['contentItems'] = $course->getContentItems();
-            $reportArr['contentSections'] = $lmsFetch->getCourseSections($course, $user);
-
-            $response->setData($reportArr);
-
-            $reportData = json_decode($report->getData());
-            if(isset($reportData->itemsScanned) && $reportData->itemsScanned > 0) {
-                $response->addMessage('msg.new_content', 'success', 5000);
-            } else {
-                $response->addMessage('msg.no_new_content', 'success', 5000);
-            }
-
-        } catch (\Exception $e) {
-            if ('msg.course_scanning' === $e->getMessage()) {
-                $response->addMessage($e->getMessage(), 'info', 0, false);
-            } else {
-                $response->addMessage($e->getMessage(), 'error', 0);
-            }
-        }
-
-        return new JsonResponse($response);
+        return $this->executeScan($course, $lmsFetch, true);
     }
 
     #[Route('/api/sync/content/{contentItem}', name: 'content_sync', methods: ['GET'])]

@@ -138,6 +138,7 @@ export default function FixIssuesPage({
 
     // PHPAlly returns a contentItemId that we can use to get the content type
     let tempContentItem = getContentById(issue.contentItemId)
+    let parentLmsId = null
     if(tempContentItem) {
       let tempContentType = tempContentItem.contentType
 
@@ -149,6 +150,7 @@ export default function FixIssuesPage({
         'discussion_forum': FILTER.DISCUSSION_FORUM,
         'file': FILTER.FILE,
         'quiz': FILTER.QUIZ,
+        'quiz_question': FILTER.QUIZ,
         'syllabus': FILTER.SYLLABUS,
         'module': FILTER.MODULE,
       }
@@ -203,6 +205,11 @@ export default function FixIssuesPage({
       if(tempContentItem.published === false) {
         published = false
       }
+
+      if(tempContentItem.metadata) {
+        let metadataObj = JSON.parse(tempContentItem.metadata)
+        parentLmsId = metadataObj.parentLmsId || null
+      }
     }
 
     let issueResolution = FILTER.ACTIVE
@@ -226,7 +233,7 @@ export default function FixIssuesPage({
     let formLabel = t(`form.${formName}.title`)
 
     return {
-      issueData: Object.assign({}, issue, { contentUrl: tempContentItem?.url || '' }),
+      issueData: Object.assign({}, issue, { contentUrl: tempContentItem?.url || '' }, { parentLmsId: parentLmsId }),
       id: issue.id,
       severity: issueSeverity,
       status: issueResolution,
@@ -240,7 +247,7 @@ export default function FixIssuesPage({
       contentType: issueContentType,
       contentTitle: tempContentItem.title,
       contentUrl: tempContentItem.url,
-      currentState: currentState, 
+      currentState: currentState,
     }
   }
 
