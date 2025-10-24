@@ -142,7 +142,7 @@ export default function HomePage({
     <div className="flex-row justify-content-between gap-4">
       <h1 className="primary-dark">{t('summary.title')}</h1>
       <div className="flex-column flex-center flex-shrink-0">
-        {/* <div className="flex-row justify-content-end">
+        <div className="flex-row justify-content-end">
           { !syncComplete ? (
             <button className="btn-small btn-icon-left btn-disabled" tabIndex="0">
               <ProgressIcon className="icon-sm spinner" />
@@ -162,7 +162,7 @@ export default function HomePage({
                 </button>
             )
           }
-        </div> */}
+        </div>
       </div>
     </div>
     <div className="flex-row w-100 mb-4 justify-content-between gap-4">
