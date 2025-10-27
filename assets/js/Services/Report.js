@@ -194,6 +194,7 @@ export function analyzeReport(report, ISSUE_STATE) {
             fileReferences[fileId].push({
               contentItemTitle: contentItem.title,
               contentItemUrl: contentItem.url,
+              contentItemLmsId: contentItem.lmsContentId,
               contentType: contentItem.contentType,
               sectionIds: contentItem.sections,
             })

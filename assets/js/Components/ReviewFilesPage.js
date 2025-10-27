@@ -398,9 +398,9 @@ export default function ReviewFilesPage({
    * handleFileUpload is called when a new file has already been selected by the user
    * and is ready to be uploaded to the server and verified.
    */
-  const handleFileUpload = (newFileData) => {
+  const handleFileUpload = (newFileData, changeReferences = false) => {
 
-    const tempFile = Object.assign({}, activeIssue.fileData)
+    const tempFile = Object.assign({}, activeIssue.fileData, { changeReferences: changeReferences } )
 
     updateActiveSessionIssue("file-" + tempFile.id, settings.ISSUE_STATE.SAVING)
 
@@ -409,8 +409,17 @@ export default function ReviewFilesPage({
       api.postFile(tempFile, newFileData)
         .then((responsStr) => responsStr.json())
         .then((response) => {
-          const updatedFileData = { ...tempFile, ...response.data.file }
+          if(response.errors && response.errors.length > 0) {
+            response.errors.forEach((err) => addMessage({ message: t(err), severity: 'error', visible: true }))
+            updateActiveSessionIssue("file-" + tempFile.id, settings.ISSUE_STATE.ERROR)
+            return
+          }
 
+          const updatedFileData = response?.data?.lmsResponse?.content
+          let metadataObj = tempFile.metadata ? JSON.parse(tempFile.metadata) : {}
+          console.log(updatedFileData)
+          metadataObj.replacedByFileId = updatedFileData.id
+          
           // Set messages 
           response.messages.forEach((msg) => addMessage(msg))
 

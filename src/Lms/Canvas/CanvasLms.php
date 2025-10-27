@@ -461,6 +461,7 @@ class CanvasLms implements LmsInterface {
 
     public function postFileItem(FileItem $file, string $newFileName)
     {
+        $output = new ConsoleOutput();
         $user = $this->security->getUser();
         $apiDomain = $this->getApiDomain($user);
         $apiToken = $this->getApiToken($user);
@@ -471,13 +472,9 @@ class CanvasLms implements LmsInterface {
             'postUrl' => "courses/{$file->getCourse()->getLmsCourseId()}/files"
         ];
 
+        $output->writeln("Posting file to LMS: " . $url . " with file path: " . $filepath);
         $fileResponse = $canvasApi->apiFilePost($url, $options, $filepath, $newFileName);
-        $fileObj = $fileResponse->getContent();
-
-        if (isset($fileObj['id'])) {
-            $file->setLmsFileId($fileObj['id']);
-            $this->entityManager->flush();
-        }
+        
 
         return $fileResponse;
     }

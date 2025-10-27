@@ -32,9 +32,6 @@ class LmsFetchService {
     /** @var EqualAccessService $equalAccessService */
     private $equalAccess;
 
-    /** @var AsyncEqualAccessReport $asyncEqualAccessReport */
-    private $asyncReport;
-
     /** @var ManagerRegistry $doctrine */
     protected $doctrine;
 
@@ -49,7 +46,6 @@ class LmsFetchService {
         LmsUserService $lmsUser,
         PhpAllyService $phpAlly,
         EqualAccessService $equalAccess,
-        AsyncEqualAccessReport $asyncReport,
         ScannerService $scanner,
         ManagerRegistry $doctrine,
         UtilityService $util
@@ -60,7 +56,6 @@ class LmsFetchService {
         $this->phpAlly = $phpAlly;
         $this->scanner = $scanner;
         $this->equalAccess = $equalAccess;
-        $this->asyncReport = $asyncReport;
         $this->scanner = $scanner;
         $this->doctrine = $doctrine;
         $this->util = $util;
@@ -88,8 +83,7 @@ class LmsFetchService {
             /** @var \App\Repository\FileItemRepository $fileItemRepo */
             $fileItemRepo = $this->doctrine->getManager()->getRepository(FileItem::class);
 
-            /* Step 1: Update content
-            /* Update course status */
+            /* Step 1: Update overall course data, like name and account id */
             $lms->updateCourseData($course, $user);
 
             /* Step 2: Get list of updated content items */
@@ -234,14 +228,6 @@ class LmsFetchService {
         $scanner = $_ENV['ACCESSIBILITY_CHECKER'];
         $equalAccessReports = null;
 
-        // $scanner = 'equalaccess_local';
-
-        // If we're using Equal Access Lambda, send all the requests to Lambda for the
-        // reports at once and save them all into an array (which should be in the same order as the ContentItems)
-        if ($scanner == "equalaccess_lambda" && count($contentItems) > 0) {
-            $equalAccessReports = $this->asyncReport->postMultipleArrayAsync($contentItems);
-        }
-
         // Scan each update content item for issues
         /** @var \App\Entity\ContentItem $contentItem */
 
@@ -301,7 +287,7 @@ class LmsFetchService {
         }
 
         $scanner = $_ENV['ACCESSIBILITY_CHECKER'];
-        if ($scanner == 'equalaccess_lambda' || $scanner == 'equalaccess_local') {
+        if ($scanner == 'equalaccess' || $scanner == 'equalaccess_local' || $scanner == 'equalaccess_lambda') {
           $issueType = $this->equalAccess->getIssueType($issue->getMetadata());
           if($issueType == 'pass') {
             // If the issue is a pass, we don't create an issue for it
@@ -331,7 +317,7 @@ class LmsFetchService {
         $issueType = self::ISSUE_TYPE_ERROR;
 
         $scanner = $_ENV['ACCESSIBILITY_CHECKER'];
-        if ($scanner == 'equalaccess_lambda' || $scanner == 'equalaccess_local') {
+        if ($scanner == 'equalaccess' || $scanner == 'equalaccess_local' || $scanner == 'equalaccess_lambda') {
           $issueType = $this->equalAccess->getIssueType($issue->metadata);
         }
 
