@@ -1,7 +1,7 @@
-import React, { useState, useEffect, useRef } from 'react'
+import React, { useState, useEffect } from 'react'
 import SortableTable from '../Widgets/SortableTable'
 import { formNameFromRule } from '../../Services/Ufixit'
-import InfoIcon from '../Icons/FilledInfoIcon'
+import InfoPopover from '../Widgets/InfoPopover'
 import './IssuesTable.css'
 
 export default function IssuesTable({
@@ -32,13 +32,6 @@ export default function IssuesTable({
   })
   const [localIssues, setLocalIssues] = useState([])
   const [rows, setRows] = useState([])
-  const [popover, setPopover] = useState({ open: false, content: '', x: 0, y: 0 });
-  const popoverContentRef = useRef(null);
-  const lastButtonRef = useRef(null);
-  const [ariaLive, setAriaLive] = useState('');
-  const closeButtonRef = useRef(null);
-
-  const dialogRef = useRef(null);
 
   const sortContent = () => {
     let tempRows = (issues) ? Object.values(localIssues) : []
@@ -48,7 +41,6 @@ export default function IssuesTable({
       let aValue = a[sortBy]
       let bValue = b[sortBy]
 
-      // If sorting by label, use labelText for comparison
       if (sortBy === "label") {
         aValue = a.labelText || ""
         bValue = b.labelText || ""
@@ -77,31 +69,6 @@ export default function IssuesTable({
   }, [tableSettings, localIssues])
 
   useEffect(() => {
-    if (popover.open && dialogRef.current) {
-      if (!dialogRef.current.open) {
-        dialogRef.current.showModal();
-      }
-      if (closeButtonRef.current) {
-        closeButtonRef.current.focus();
-      }
-      setAriaLive(popover.content);
-
-      const close = () => setPopover(p => ({ ...p, open: false }));
-      window.addEventListener('click', close);
-      return () => window.removeEventListener('click', close);
-    } else if (dialogRef.current && dialogRef.current.open) {
-      dialogRef.current.close();
-    }
-  }, [popover.open, popover.content]);
-
-  // When popover closes, return focus to the last info button
-  useEffect(() => {
-    if (!popover.open && lastButtonRef.current) {
-      lastButtonRef.current.focus();
-    }
-  }, [popover.open]);
-
-  useEffect(() => {
     if (issues) {
       let tempIssues = Object.values(issues)
       tempIssues.map((issue => {
@@ -120,31 +87,10 @@ export default function IssuesTable({
         issue.label = (
           <span className="issue-label">
             {label}
-            <button
-              type="button"
-              title={t('report.button.issue_tooltip')}
-              aria-haspopup="dialog"
-              aria-expanded={popover.open}
-              aria-controls={popover.open ? "issue-info-popover" : undefined}
-              className="issue-info-btn"
-              ref={el => {
-                if (popover.open) return;
-                lastButtonRef.current = el;
-              }}
-              onClick={e => {
-                e.stopPropagation();
-                const rect = e.target.getBoundingClientRect();
-                setPopover({
-                  open: true,
-                  content: t(`form.${formName}.summary`),
-                  x: rect.right + window.scrollX + 8,
-                  y: rect.top + window.scrollY - 120,
-                });
-                lastButtonRef.current = e.target;
-              }}
-            >
-              <InfoIcon width={18} height={18} className="icon-info" circleColor="var(--link-color)" iconColor="#fff" />
-            </button>
+            <InfoPopover
+              t={t}
+              content={t(`form.${formName}.summary`)}
+            />
           </span>
         )
         issue.summary = t(`form.${formName}.summary`)
@@ -154,7 +100,6 @@ export default function IssuesTable({
         return issue
       }))
 
-      // Merge the issues with the same labels
       let mergedIssues = []
       let labels = []
       tempIssues.forEach((issue) => {
@@ -196,42 +141,6 @@ export default function IssuesTable({
         handleTableSettings={handleTableSettings}
         t={t}
       />
-      {/* ARIA for screen readers */}
-      <div aria-live="polite" className="sr-only">
-        {ariaLive}
-      </div>
-      {popover.open && (
-        <dialog
-          id="issue-info-popover"
-          ref={dialogRef}
-          className="issue-info-popover"
-          style={{
-            left: popover.x,
-            top: popover.y,
-          }}
-          tabIndex={0}
-          aria-labelledby="issue-info-popover-title"
-          aria-describedby="issue-info-popover-content"
-          onClick={e => e.stopPropagation()}
-        >
-          <div
-            id="issue-info-popover-content"
-            className="issue-info-popover-content"
-            tabIndex={-1}
-            ref={popoverContentRef}
-          >
-            {popover.content}
-          </div>
-          <button
-            type="button"
-            className="issue-info-popover-close"
-            ref={closeButtonRef}
-            onClick={() => setPopover({ ...popover, open: false })}
-          >
-            {t('fix.button.close_learn_more')}
-          </button>
-        </dialog>
-      )}
     </>
   )
 }
