@@ -75,23 +75,16 @@ export default function ContrastForm({
     const html = Html.getIssueHtml(activeIssue);
     const element = Html.toElement(html);
 
-    // Helper to find first descendant with a color style
-    function findTextColorEl(el) {
-      if (!el) return null;
-      if (el.style && el.style.color && el.style.color !== '') return el;
-      for (let i = 0; i < el.children.length; i++) {
-        const found = findTextColorEl(el.children[i]);
-        if (found) return found;
-      }
-      return null;
+    let colorEl = element;
+    if (metadata.textColorXpath && Html.findElementWithXpath) {
+      const found = Html.findElementWithXpath(element, metadata.textColorXpath);
+      if (found) colorEl = found;
     }
 
-    const colorEl = findTextColorEl(element);
-
-    if (colorEl && colorEl.style.color) {
+    if (colorEl && colorEl.style && colorEl.style.color) {
       return Contrast.standardizeColor(colorEl.style.color);
     }
-    return metadata.color ? Contrast.standardizeColor(metadata.color) : settings.textColor
+    return settings.textColor;
   }
 
   // Heading tags for contrast threshold
@@ -159,8 +152,8 @@ export default function ContrastForm({
 
     const newHtml = processHtml(html, currentBgColors)
     if (activeIssue.newHtml !== newHtml) {
-      const issue = { ...activeIssue, newHtml }
-      handleActiveIssue(issue)
+      activeIssue.newHtml = newHtml
+      handleActiveIssue(activeIssue)
     }
   }
 

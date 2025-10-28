@@ -98,7 +98,6 @@ const checkTextContrastSufficient = (issue, element, parsedDocument) => {
   if (bgAncestor) {
     issue.xpath = Html.findXpathFromElement(bgAncestor);
     issue.sourceHtml = Html.toString(bgAncestor); // <-- Set sourceHtml to the correct scope
-  } else {
   }
 
   // Store the text color element's xpath in metadata
@@ -128,6 +127,7 @@ const checkTextContrastSufficient = (issue, element, parsedDocument) => {
     }
     issue.metadata = issue.metadata || {};
     issue.metadata.textColorXpath = getRelativeXpath(bgAncestor, textAncestor);
+    issue.metadata.focusXpath = Html.findXpathFromElement(element);
     issue.metadata = JSON.stringify(issue.metadata);
   }
   // Return false to indicate this issue should not be ignored

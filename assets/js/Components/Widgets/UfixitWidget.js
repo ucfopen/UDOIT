@@ -123,7 +123,7 @@ export default function UfixitWidget({
     tempIssue.issueData = newIssue
     tempIssue.isModified = newIssue?.isModified || false
     setTempActiveIssue(tempIssue)
-    triggerLiveUpdate()
+    //triggerLiveUpdate()
   }
 
   const interceptIssueSave = (issue) => {
