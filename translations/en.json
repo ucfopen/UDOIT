@@ -246,6 +246,7 @@
   "msg.file.replace.file_size": "File size too large. Please input a file of a size less than 10MB",
   "msg.sync.completed": "Course scan completed.",
   "msg.sync.course_inactive": "Course scan failed. Course is inactive.",
+  "msg.sync.quiz_question": "The Quiz Question has been saved, but only as a draft. The Quiz must be manually saved in the LMS to update the content.",
   "msg.settings.updated": "Settings updated successfully.",
   "msg.settings.update_failed": "Failed to save settings. Please try again.",
   "msg.sync.error.api": "API call failed. Please refresh the page to try again.",

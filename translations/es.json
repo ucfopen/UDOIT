@@ -246,6 +246,7 @@
   "msg.file.replace.file_size": "El archivo es muy grande. Por favor, seleccione un archivo de menos de 10MB.",
   "msg.sync.completed": "Escaneo del curso completo.",
   "msg.sync.course_inactive": "Escaneo del curso fallado. El curso está inactivo.",
+  "msg.sync.quiz_question": "TODO: The Quiz Question has been saved, but only as a draft. The Quiz must be manually saved in the LMS to update the content.",
   "msg.settings.updated": "Configuración actualizada correctamente.",
   "msg.settings.update_failed": "No se pudo guardar la configuración. Por favor, inténtalo de nuevo.",
   "msg.sync.error.api": "Error en la llamada a la API. Por favor, actualiza la pagina para intentarlo de nuevo.",

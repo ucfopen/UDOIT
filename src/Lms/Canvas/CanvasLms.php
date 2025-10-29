@@ -785,7 +785,7 @@ class CanvasLms implements LmsInterface {
                 $out['updated'] = 'now';
                 $out['body'] = $lmsContent['question_text'];
                 $out['status'] = true;
-                $out['url'] = "{$baseUrl}/quizzes/{$lmsContent['quiz_id']}";
+                $out['url'] = "{$baseUrl}/quizzes/{$lmsContent['quiz_id']}/edit#questions_tab";
 
                 break;
         }

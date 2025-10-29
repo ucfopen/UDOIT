@@ -65,9 +65,6 @@ class IssuesController extends ApiController
               $contentUpdated = false;
             }
 
-            $output->writeln("Review updated: ".($reviewUpdated ? 'true' : 'false'));
-            $output->writeln("Content updated: ".($contentUpdated ? 'true' : 'false'));
-
             if(!$reviewUpdated && !$contentUpdated) {
                 throw new \Exception('form.error.same_html');
             }
@@ -121,6 +118,11 @@ class IssuesController extends ApiController
         }
         catch(\Exception $e) {
             $apiResponse->addMessage($e->getMessage(), 'error');
+        }
+
+        $contentItem = $issue->getContentItem();
+        if ($contentItem->getContentType() == "quiz_question") {
+          $apiResponse->addMessage('msg.sync.quiz_question', 'alert');
         }
 
         return new JsonResponse($apiResponse);
