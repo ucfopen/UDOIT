@@ -100,6 +100,7 @@
   "report.button.print": "Imprimir Informe",
   "report.button.view_report": "Ver Informe",
   "report.button.view_all_report": "Ver el Informe Para Todos los Cursos",
+  "report.button.no_report": "No Hay Informe Disponible - Escanear Primero",
   "report.button.scan": "Escanear",
   "report.button.force_reauthorize": "Forzar Reautorización",
 

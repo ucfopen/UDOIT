@@ -100,6 +100,7 @@
   "report.button.print": "Print Report",
   "report.button.view_report": "View Report",
   "report.button.view_all_report": "View Report for All Courses",
+  "report.button.no_report": "No Report Available - Scan First",
   "report.button.scan": "Scan",
   "report.button.force_reauthorize": "Force Reauthorize",
   
