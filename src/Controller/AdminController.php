@@ -128,8 +128,18 @@ class AdminController extends ApiController
                 $instructorNames = [];
                 if (!empty($cc['teachers']) && is_array($cc['teachers'])) {
                     foreach ($cc['teachers'] as $teacher) {
-                        if (!empty($teacher['display_name'])) {
-                            $instructorNames[] = $teacher['display_name'];
+                        $name = null;
+                        if (!empty($teacher['name'])) {
+                            $name = $teacher['name'];
+                        } elseif (!empty($teacher['display_name'])) {
+                            $name = $teacher['display_name'];
+                        } elseif (!empty($teacher['short_name'])) {
+                            $name = $teacher['short_name'];
+                        } elseif (!empty($teacher['sortable_name'])) {
+                            $name = $teacher['sortable_name'];
+                        }
+                        if (!empty($name)) {
+                            $instructorNames[] = $name;
                         }
                     }
                 }
