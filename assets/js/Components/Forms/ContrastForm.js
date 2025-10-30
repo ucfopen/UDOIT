@@ -96,6 +96,7 @@ export default function ContrastForm({
   const [textColor, setTextColor] = useState('')
   const [contrastRatio, setContrastRatio] = useState(null)
   const [ratioIsValid, setRatioIsValid] = useState(false)
+  const [autoAdjustError, setAutoAdjustError] = useState(false)
 
   // Validate hex color
   const isValidHexColor = (color) => /^#?([a-fA-F0-9]{6}|[a-fA-F0-9]{3})$/.test(color)
@@ -165,10 +166,11 @@ export default function ContrastForm({
 
   // On issue change, extract from original HTML
   useEffect(() => {
-    const info = getBackgroundColors() // Use sourceHtml inside this function if available
+    const info = getBackgroundColors()
     setOriginalBgColors(info)
     setCurrentBgColors(info.map(bg => bg.standardColor))
     setTextColor(getTextColor())
+    setAutoAdjustError(false) // Reset error when switching issues
     // eslint-disable-next-line
   }, [activeIssue])
 
@@ -214,19 +216,16 @@ export default function ContrastForm({
   }, [textColor, currentBgColors])
 
   const handleAutoAdjustAll = () => {
-    // Try to minimally adjust each background color to achieve valid contrast
     let newBgColors = [...currentBgColors];
     let changed = false;
+    let failed = false;
     for (let i = 0; i < newBgColors.length; i++) {
       let bg = newBgColors[i];
       let ratio = Contrast.contrastRatio(bg, textColor);
-      // Use the same threshold logic as your UI
       const tagName = Html.toElement(Html.getIssueHtml(activeIssue)).tagName;
       const minRatio = headingTags.includes(tagName) ? 3 : 4.5;
       let attempts = 0;
-      // Try to lighten or darken until valid, but don't go infinite
       while (ratio < minRatio && attempts < 20) {
-        // Decide direction: lighten or darken based on which is closer to valid
         const lighter = Contrast.changehue(bg, 'lighten');
         const darker = Contrast.changehue(bg, 'darken');
         const lighterRatio = Contrast.contrastRatio(lighter, textColor);
@@ -240,10 +239,20 @@ export default function ContrastForm({
         }
         attempts++;
       }
+      if (ratio < minRatio) {
+        failed = true;
+        break; // No need to continue if one fails
+      }
       if (attempts > 0) changed = true;
       newBgColors[i] = bg;
     }
-    if (changed) setCurrentBgColors(newBgColors);
+    if (failed) {
+      setCurrentBgColors(originalBgColors.map(bg => bg.standardColor));
+      setAutoAdjustError(true);
+    } else if (changed) {
+      setCurrentBgColors(newBgColors);
+      setAutoAdjustError(false);
+    }
   };
 
   // Render
@@ -359,8 +368,16 @@ export default function ContrastForm({
             disabled={isDisabled}
             onClick={handleAutoAdjustAll}
           >
-            {t('form.contrast.label.auto_adjust_all') || 'Auto Adjust All'}
+            {t('form.contrast.label.auto_adjust_all')}
           </button>
+        </div>
+      )}
+
+      {autoAdjustError && (
+        <div className="flex-row justify-content-center">
+          <div className="color-issue mt-2">
+            {t('form.contrast.auto_adjust_error')}
+          </div>
         </div>
       )}
 
@@ -390,7 +407,7 @@ export default function ContrastForm({
             {currentBgColors.length > 1 && (
               <div className="flex-row justify-content-center">
                 <small className="gradient-note">
-                  * lowest among gradient colors
+                  {t('form.contrast.ratio_note')}
                 </small>
               </div>
             )}
