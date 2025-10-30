@@ -230,12 +230,12 @@
   }
 }
 
-.ufixit-content-preview-main.ufixit-clickable-container *:not(.ufixit-error-highlight):not(.ufixit-alt-text-preview .ufixit-alt-text-preview *){
+.ufixit-content-preview-main.ufixit-clickable-container *:not(.ufixit-error-highlight):not(.ufixit-alt-text-preview):not(.ufixit-alt-text-preview *){
   cursor: pointer;
   transition: background-color 0.2s;
 }
 
-.ufixit-content-preview-main.ufixit-clickable-container *:not(.ufixit-error-highlight):not(.ufixit-alt-text-preview .ufixit-alt-text-preview *):hover{
+.ufixit-content-preview-main.ufixit-clickable-container *:not(.ufixit-error-highlight):not(.ufixit-alt-text-preview):not(.ufixit-alt-text-preview *):hover{
   background-color: rgb(207, 207, 207) !important;
 }
 
@@ -244,7 +244,7 @@
 }
 
 
-.ufixit-content-preview-main.ufixit-clickable-container *:not(.ufixit-error-highlight .ufixit-alt-text-preview .ufixit-alt-text-preview *):has(:hover){
+.ufixit-content-preview-main.ufixit-clickable-container *:not(.ufixit-error-highlight):not(.ufixit-alt-text-preview):not(.ufixit-alt-text-preview *):has(:hover){
   background-color: transparent !important;
 }
 

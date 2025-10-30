@@ -102,7 +102,8 @@ export const FORM_CLASSIFICATIONS = {
       formNames.BLOCKQUOTE,
       formNames.EMBEDDED_CONTENT_TITLE,
       formNames.LABEL,
-      formNames.LABEL_UNIQUE
+      formNames.LABEL_UNIQUE,
+      formNames.SELECT_VALID_ID
     ],
   
     HEADINGS_RELATED : [

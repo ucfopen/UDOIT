@@ -342,6 +342,18 @@ export function getAccessibleName(element) {
     https://www.w3.org/WAI/ARIA/apg/practices/names-and-descriptions/#name_calculation  */
 
   // 1. TODO: If the element has the 'aria-labelledby' attribute, use the value of the corresponding element.
+  let ariaLabelledby = getAttribute(element, "aria-labelledby")
+  if(ariaLabelledby){
+    let displayText = []
+    const ariaLabelledByIDs = ariaLabelledby.split(" ")
+    ariaLabelledByIDs.forEach((id) => {
+       const element = document.getElementById(id)
+       if(element){
+         displayText.push(getInnerText(element))
+       }
+    })
+    return displayText?.length > 0 ? displayText.join(" ") : null
+  }
   
   // 2. If the element has the 'aria-label' attribute, use that value.
   let ariaLabel = getAttribute(element, 'aria-label')
