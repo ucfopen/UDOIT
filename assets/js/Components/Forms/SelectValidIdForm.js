@@ -218,7 +218,7 @@ const SelectValidIdForm = (
                 continue
             }
             if(attribute?.idStorage?.length == 0){
-                tempErrors.push({text: "All aria-attributes must have valid IDs or be removed from the element", type: "error"})
+                tempErrors.push({text: t("form.select_valid_id.error_msg"), type: "error"})
                 break
             }
         }
@@ -265,7 +265,7 @@ const SelectValidIdForm = (
       <div className='all-attribute-container'>
         {attributeId.map((attribute, index) => (
             <div key={index} className='attribute-container'>
-                <label className={`attribute-header  ${attribute.deactivated ? `deactivatedeee`: ``}`} >
+                <label className={`attribute-header`} >
                     <input
                     type="radio"
                     disabled={attribute.deactivated}
@@ -274,7 +274,7 @@ const SelectValidIdForm = (
                     onChange={() => handleAttributeSelect(attribute.attribute)}
                     />
                     <span className={`attribute-label  ${attribute.deactivated ? `deactivated`: ``}`}>{attribute.attribute}</span>
-                    <button onClick={() => handleRemoveAttribute(attribute)}>{attribute.deactivated ? "Use Attribute" : "Remove Attribute"}</button>
+                    <button disabled={activeIssue.scanRuleId == "aria_complementary_label_visible"} onClick={() => handleRemoveAttribute(attribute)}>{attribute.deactivated ? t("form.select_valid_id.use_attribute") : t("form.select_valid_id.remove_attribute")}</button>
                 </label>
 
                 {attribute.selected && (
@@ -282,7 +282,7 @@ const SelectValidIdForm = (
                     {attribute.idStorage.map((id, i) => (
                         <div key={i} className='attribute-id'>
                             <p className='truncate-inner-text'>{idXpathMap[id].innerText}</p>
-                            <button className='id-remove-btn' onClick={() => removeIDFromAttribute(id)}>Remove</button>
+                            <button className='id-remove-btn' onClick={() => removeIDFromAttribute(id)}>{t("form.select_valid_id.remove")}</button>
                         </div>
                     ))}
 
