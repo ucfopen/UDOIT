@@ -409,7 +409,7 @@ export function getAccessibleName(element) {
   return ''
 }
 
-export const findXpathFromElement = (element) => {
+export const findXpathFromElement = (element, id = null) => {
   if (!element) {
     return null
   }
@@ -417,6 +417,9 @@ export const findXpathFromElement = (element) => {
   // Get the path to the element
   let path = []
   while (element && element.nodeType === Node.ELEMENT_NODE) {
+    if(id && element.id && element.id == id){
+      break
+    }
     let tagName = element.tagName.toLowerCase()
     let siblings = Array.from(element.parentNode.children).filter(sibling => sibling.tagName.toLowerCase() === tagName)
     let index = siblings.indexOf(element) + 1 // +1 for 1-based index
@@ -497,4 +500,54 @@ export function findElementWithIssue(content, issue) {
 
     return findElementWithError(content, issue.sourceHtml)
   }
+}
+
+export function generateElementID(element){
+    if(element.id){
+      return element.id
+    }
+
+    let generated_id = ""
+
+    if(element.tagName == "img"){
+      const altText= getAttribute(element, 'alt')
+      if(altText){
+        generated_id = altText + "-udoit-clickable-id"
+      }
+      else{
+        generated_id = "image-udoit-clickable-id"
+      }
+    }
+    else{
+      const textContent = getInnerText(element).trim()
+      const firstWord = textContent.split(/\s+/)[0]
+      generated_id = firstWord + "-udoit-clickable-id"
+    }
+
+    let i = 1
+    while(document.getElementById(generated_id)){
+        generated_id = generated_id + "-" + i
+        i++;
+    }
+    return generated_id
+  
+}
+
+export function getAriaAttributes(element){
+   const ariaAttributes = []
+   if(!element){
+    return ariaAttributes
+   }
+
+   if(typeof element == "string"){
+      element = toElement(element)
+   }
+
+  for(const attr of element.attributes){
+    if(attr.name.startsWith("aria-")){
+      ariaAttributes.push(attr.name)
+    }
+  }
+
+  return ariaAttributes
 }

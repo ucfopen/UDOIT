@@ -12,6 +12,7 @@ import LinkForm from '../Components/Forms/LinkForm'
 import ListForm from '../Components/Forms/ListForm'
 import MediaCaptionsForm from '../Components/Forms/MediaCaptionsForm'
 import QuoteForm from '../Components/Forms/QuoteForm'
+import SelectValidIdForm from '../Components/Forms/SelectValidIdForm'
 import SensoryMisuseForm from '../Components/Forms/SensoryMisuseForm'
 import TableCaptionForm from '../Components/Forms/TableCaptionForm'
 import TableHeadersForm from '../Components/Forms/TableHeadersForm'
@@ -34,6 +35,7 @@ export const formNames = {
   LIST: 'list',
   MEDIA_CAPTIONS: 'media_captions',
   QUOTE: 'quote',
+  SELECT_VALID_ID: 'select_valid_id',
   SENSORY_MISUSE: 'sensory_misuse',
   TABLE_CAPTION: 'table_caption',
   TABLE_HEADERS: 'table_headers',
@@ -64,11 +66,33 @@ const formTypes = {
   [formNames.LIST]: ListForm,
   [formNames.MEDIA_CAPTIONS]: MediaCaptionsForm,
   [formNames.QUOTE]: QuoteForm,
+  [formNames.SELECT_VALID_ID]: SelectValidIdForm,
   [formNames.SENSORY_MISUSE]: SensoryMisuseForm,
   [formNames.TABLE_CAPTION]: TableCaptionForm,
   [formNames.TABLE_HEADERS]: TableHeadersForm,
   
   [formNames.REVIEW_ONLY]: UfixitReviewOnly,
+}
+
+// Classify forms by error types to use for helper elements
+export const FORM_CLASSIFICATIONS = {
+    ALT_TEXT_RELATED : [
+      formNames.ALT_TEXT,            
+      formNames.ANCHOR_TEXT,
+      formNames.BLOCKQUOTE,
+      formNames.EMBEDDED_CONTENT_TITLE,
+      formNames.LABEL,
+      formNames.LABEL_UNIQUE
+    ],
+  
+    HEADINGS_RELATED : [
+      formNames.HEADING_EMPTY,
+      formNames.HEADING_STYLE
+    ],
+
+    CLICKABLE_RELATED: [
+      formNames.SELECT_VALID_ID
+    ]
 }
 
 // Using the formNames as the only values prevents typos and other errors.
@@ -154,6 +178,9 @@ const rulesToFormNameMap = {
   media_audio_transcribed: formNames.MEDIA_CAPTIONS,
   
   text_quoted_correctly: formNames.QUOTE,
+
+  aria_id_unique: formNames.SELECT_VALID_ID,
+  aria_complementary_label_visible: formNames.SELECT_VALID_ID,
 
   text_sensory_misuse: formNames.SENSORY_MISUSE,
 
