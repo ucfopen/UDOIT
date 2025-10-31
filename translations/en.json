@@ -418,8 +418,6 @@
   "form.heading_style.label.select": "Select Heading Level",
   "form.heading_style.label.none_selected": "Remove Heading Level",
   "form.heading_style.label.remove_styling": "Remove Additional Styling (Optional)",
-  "rule.desc.heading_markup_misuse": "",
-  "rule.desc.text_block_heading": "",
   "rule.info.heading_markup_misuse": "This text is marked as a heading, but does not appear to be one. If it is, you may ignore this issue and mark it as reviewed. If it is not a heading, remove the heading level.",
   "rule.info.text_block_heading": "This text seems to be a heading, but is not marked as one. If it is a heading, select an appropriate heading level. If not, you may remove any styling or mark that no changes are needed.",
 
@@ -479,6 +477,11 @@
   "rule.info.element_scrollable_tabbable": "The highlighted area seems to be scrollable. For keyboard user to scroll up and down, the area must be added to the keyboard navigation.",
   "rule.info.element_tabbable_role_valid": "The highlighted element can be reached by keyboard, but has a <code>role</code> that is not interactive. If it is supposed to be interactive, remove the <code>role</code> or change it to a <a href='https://www.w3.org/TR/wai-aria-1.2/#widget' target='_blank'>valid widget role</a>. Otherwise, add the attribute <code>tabindex=&quot;-1&quot;</code>.",
   "rule.info.iframe_interactive_tabbable": "If this embedded content is interactive, it must be added to the keyboard navigation.",
+  "rule.desc.heading_markup_misuse": "This text is marked as a heading, but does not appear to be one. If it is, you may ignore this issue and mark it as reviewed. If it is not a heading, remove the heading level.",
+  "rule.desc.text_block_heading": "This text seems to be a heading, but is not marked as one. If it is a heading, select an appropriate heading level. If not, you may remove any styling or mark that no changes are needed.",
+  
+  "form.invalid_css.label.remove_style": "Remove Text Spacing Styles",
+  "form.invalid_css.label.remove_important": "De-emphasize Text Spacing Styles",
 
   "form.label.title": "Interactive and Landmark Areas Should Have Labels",
   "form.label.summary": "Interactive elements like buttons, links, and form fields should have descriptive labels that help users understand their purpose. Landmark regions should also have unique labels to help users navigate the page.",
