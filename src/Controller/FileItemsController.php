@@ -90,11 +90,19 @@ class FileItemsController extends ApiController
             if (isset($responseContent['id'])) {
                 $file->setReplacementFile($responseContent);
             }
-
+            
+            $this->doctrine->getManager()->flush();
+            
             // Update report stats
             $report = $course->getUpdatedReport();
+            
+            $reportArr = $report->toArray();
+            $reportArr['files'] = $course->getFileItems();
+            $reportArr['issues'] = $course->getAllIssues();
+            $reportArr['contentItems'] = $course->getContentItems();
+            $reportArr['contentSections'] = $lmsFetch->getCourseSections($course, $user);
 
-            $this->doctrine->getManager()->flush();
+            $response->setData($reportArr);
 
             // Create response
             $apiResponse->addMessage('form.msg.success_replaced', 'success', 5000);
@@ -104,7 +112,7 @@ class FileItemsController extends ApiController
             $apiResponse->setData([
                 'lmsResponse' => $lmsResponse,
                 'file' => ['pending' => false],
-                'report' => $report,
+                'report' => $reportArr,
             ]);
         } catch (\Exception $e) {
             $apiResponse->addError($e->getMessage());

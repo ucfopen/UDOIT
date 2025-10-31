@@ -5,7 +5,7 @@ namespace App\Entity;
 use App\Repository\FileItemRepository;
 use App\Services\UtilityService;
 use Doctrine\ORM\Mapping as ORM;
-
+use Symfony\Component\Console\Output\ConsoleOutput;
 
 #[ORM\Entity(repositoryClass: FileItemRepository::class)]
 class FileItem implements \JsonSerializable
@@ -139,16 +139,11 @@ class FileItem implements \JsonSerializable
 
     public function setReplacementFile($fileData): self
     {
-        $replacement = [
-            'id' => $fileData['id'],
-            'fileName' => $fileData['display_name'],
-            'fileType' => $fileData['mime_class'],
-            'url' => $fileData['url'],
-        ];
-
-        $tempMetadata = json_decode($this->getMetadata(), true);
-        $tempMetadata['replacement'] = $replacement;
-        $this->setMetadata(json_encode($tempMetadata));
+        if(!isset($fileData['id'])) {
+            $tempMetadata = json_decode($this->getMetadata(), true);
+            $tempMetadata['replacement'] = $fileData['id'];
+            $this->setMetadata(json_encode($tempMetadata));
+        }
 
         return $this;
     }
@@ -157,7 +152,21 @@ class FileItem implements \JsonSerializable
     {
         $metadata = json_decode($this->getMetadata(), true);
         if (isset($metadata['replacement'])) {
-            return $metadata['replacement'];
+            // Fetch the replacement file from the database using the LMS File ID
+            $lmsFileId = $metadata['replacement'];
+            $output = new ConsoleOutput();
+            $output->writeln("Fetching replacement file with LMS File ID: " . $lmsFileId);
+            
+            // TODO: Get ANOTHER file item IF it still exists in the database.
+            // This file does NOT have access to the ManagerRegistry (doctrine) but we need it to do
+            // something like this...
+
+            // $fileItemRepo = $this->doctrine->getManager()->getRepository(FileItem::class);
+            // $replacementFile = $fileItemRepo->findOneBy(['lmsFileId' => $lmsFileId]);
+
+            // if ($replacementFile) {
+            //     return $replacementFile;
+            // }
         }
 
         return [];
@@ -232,6 +241,13 @@ class FileItem implements \JsonSerializable
 
     public function jsonSerialize(): array
     {
+        // If there is a replacement file, verify that it still exists.
+        $replacementFileData = $this->getReplacementFile();
+        if(isset($replacementFileData['id'])) {
+            $output = new ConsoleOutput();
+            $output->writeln("File Item " . $this->getId() . " has a replacement file ID of " . $replacementFileData['id']);
+        }
+
         return [
             'id' => $this->getId(),
             'fileName' => $this->getFileName(),
@@ -246,6 +262,7 @@ class FileItem implements \JsonSerializable
             'downloadUrl' => $this->getDownloadUrl(),
             'lmsUrl' => $this->getLmsUrl(),
             'metadata' => json_decode($this->getMetadata(), true),
+            'replacement' => $replacementFileData,
         ];
     }
 

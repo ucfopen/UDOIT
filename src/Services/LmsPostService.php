@@ -76,15 +76,7 @@ class LmsPostService {
             return;
         }
 
-        $lmsResponse = $lms->postFileItem($file, $uploadedFile->getClientOriginalName());
-
-        // If the file was successfully posted, create a new FileItem in the UDOIT database
-        $lmsResponseContent = $lmsResponse->getContent();
-        if(isset($lmsResponseContent['id'])) {
-            $lms->updateFileItem($file->getCourse(), $lmsResponseContent);
-        }
-
-        return $lmsResponse;
+        return $lms->postFileItem($file, $uploadedFile->getClientOriginalName());
     }
 
     public function replaceContent(Issue $issue, ContentItem $contentItem, $fullPageHtml = null)

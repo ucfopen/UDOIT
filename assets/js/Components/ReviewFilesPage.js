@@ -416,7 +416,7 @@ export default function ReviewFilesPage({
           }
 
           const updatedFileData = response?.data?.lmsResponse?.content
-          let metadataObj = tempFile.metadata ? JSON.parse(tempFile.metadata) : {}
+          let metadataObj = tempFile?.metadata || {}
           console.log(updatedFileData)
           metadataObj.replacedByFileId = updatedFileData.id
           
