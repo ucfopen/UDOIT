@@ -259,6 +259,7 @@ export default function ReviewFilesPage({
     const activeIssueClone = JSON.parse(JSON.stringify(activeIssue))
 
     setTempActiveIssue(activeIssueClone)
+    console.log(activeIssue)
 
   }, [activeIssue])
 

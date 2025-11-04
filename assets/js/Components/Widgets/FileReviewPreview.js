@@ -47,22 +47,47 @@ export default function FixIssuesContentPreview({
         <div className="ufixit-content-preview-main">
           <div className="flex-grow-1">
             <div className="ufixit-file-details">
-              <div className="flex-row mt-2">
-                <div className="flex-column flex-center ufixit-file-details-label">{t('fix.label.file_name')}</div>
-                <div className="flex-column flex-center allow-word-break">{activeIssue.fileData.fileName}</div>
+            <div className='flex-row'>
+              <div>
+                  <div className="flex-row mt-2">
+                    <div className="flex-column flex-center ufixit-file-details-label">{t('fix.label.file_name')}</div>
+                    <div className="flex-column flex-center allow-word-break">{activeIssue.fileData.fileName}</div>
+                  </div>
+                  <div className="flex-row mt-2">
+                    <div className="flex-column flex-center ufixit-file-details-label">{t('fix.label.file_type')}</div>
+                    <div className="flex-column flex-center allow-word-break">{getReadableFileType(activeIssue.fileData.fileType)}</div>
+                  </div>
+                  <div className="flex-row mt-2">
+                    <div className="flex-column flex-center ufixit-file-details-label">{t('fix.label.file_size')}</div>
+                    <div className="flex-column flex-center allow-word-break">{Text.getReadableFileSize(activeIssue.fileData.fileSize)}</div>
+                  </div>
+                  <div className="flex-row mt-2">
+                    <div className="flex-column flex-center ufixit-file-details-label">{t('fix.label.file_updated')}</div>
+                    <div className="flex-column flex-center allow-word-break">{Text.getReadableDateTime(activeIssue.fileData.updated)}</div>
+                  </div>
               </div>
-              <div className="flex-row mt-2">
-                <div className="flex-column flex-center ufixit-file-details-label">{t('fix.label.file_type')}</div>
-                <div className="flex-column flex-center allow-word-break">{getReadableFileType(activeIssue.fileData.fileType)}</div>
-              </div>
-              <div className="flex-row mt-2">
-                <div className="flex-column flex-center ufixit-file-details-label">{t('fix.label.file_size')}</div>
-                <div className="flex-column flex-center allow-word-break">{Text.getReadableFileSize(activeIssue.fileData.fileSize)}</div>
-              </div>
-              <div className="flex-row mt-2">
-                <div className="flex-column flex-center ufixit-file-details-label">{t('fix.label.file_updated')}</div>
-                <div className="flex-column flex-center allow-word-break">{Text.getReadableDateTime(activeIssue.fileData.updated)}</div>
-              </div>
+
+              {activeIssue.fileData.replacement && (  
+                <div>
+                  <div className="flex-row mt-2">
+                    <div className="flex-column flex-center ufixit-file-details-label">{t('fix.label.file_name')}</div>
+                    <div className="flex-column flex-center allow-word-break">{activeIssue.fileData.replacement.fileName}</div>
+                  </div>
+                  <div className="flex-row mt-2">
+                    <div className="flex-column flex-center ufixit-file-details-label">{t('fix.label.file_type')}</div>
+                    <div className="flex-column flex-center allow-word-break">{getReadableFileType(activeIssue.fileData.replacement.fileType)}</div>
+                  </div>
+                  <div className="flex-row mt-2">
+                    <div className="flex-column flex-center ufixit-file-details-label">{t('fix.label.file_size')}</div>
+                    <div className="flex-column flex-center allow-word-break">{Text.getReadableFileSize(activeIssue.fileData.replacement.fileSize)}</div>
+                  </div>
+                  <div className="flex-row mt-2">
+                    <div className="flex-column flex-center ufixit-file-details-label">{t('fix.label.file_updated')}</div>
+                    <div className="flex-column flex-center allow-word-break">{Text.getReadableDateTime(activeIssue.fileData.replacement.updated)}</div>
+                  </div>
+              </div>)
+}
+            </div>
             </div>
             { activeIssue.fileData.references.length === 0 ? (
               <div className="mt-3 callout-container">
