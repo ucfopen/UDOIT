@@ -97,9 +97,6 @@ export default function ContrastForm({
   const [ratioIsValid, setRatioIsValid] = useState(false)
   const [autoAdjustError, setAutoAdjustError] = useState(false)
 
-  // Validate hex color
-  const isValidHexColor = (color) => /^#?([a-fA-F0-9]{6}|[a-fA-F0-9]{3})$/.test(color)
-
   // Generate updated HTML with new colors
   const processHtml = (html, bgColors) => {
     let element = Html.toElement(html);
@@ -145,11 +142,11 @@ export default function ContrastForm({
       ))
       ratio = Math.min(...ratios)
     }
-    const tagName = Html.toElement(html).tagName
-    const valid = headingTags.includes(tagName) ? (ratio >= 3) : (ratio >= 4.5)
+    const element = Html.toElement(html);
+    const minRatio = isLargeText(element) ? 3 : 4.5;
     setContrastRatio(ratio)
-    setRatioIsValid(valid)
-
+    setRatioIsValid(ratio >= minRatio)
+  
     const newHtml = processHtml(html, currentBgColors)
     if (activeIssue.newHtml !== newHtml) {
       activeIssue.newHtml = newHtml
@@ -170,11 +167,10 @@ export default function ContrastForm({
     setOriginalBgColors(info)
     setCurrentBgColors(info.map(bg => bg.hsl))
     setTextColor(getTextColor())
-    setAutoAdjustError(false) // Reset error when switching issues
+    setAutoAdjustError(false)
     // eslint-disable-next-line
   }, [activeIssue])
 
-  // On user interaction, only update state (do NOT call getBackgroundColors again)
   const updateBackgroundColor = (idx, value) => {
     const hsl = Contrast.toHSL(value)
     setCurrentBgColors(colors =>
@@ -203,15 +199,13 @@ export default function ContrastForm({
     }
   }
 
-  // Debounce timer ref
   const debounceTimer = useRef(null)
-
   // Debounced updatePreview
   useEffect(() => {
     if (debounceTimer.current) clearTimeout(debounceTimer.current)
     debounceTimer.current = setTimeout(() => {
       updatePreview()
-    }, 150) // 150ms debounce, adjust as needed
+    }, 150)
     return () => clearTimeout(debounceTimer.current)
     // eslint-disable-next-line
   }, [textColor, currentBgColors])
@@ -220,11 +214,11 @@ export default function ContrastForm({
     let newBgColors = [...currentBgColors];
     let changed = false;
     let failed = false;
+    const element = Html.toElement(Html.getIssueHtml(activeIssue));
+    const minRatio = isLargeText(element) ? 3 : 4.5;
     for (let i = 0; i < newBgColors.length; i++) {
       let bg = newBgColors[i];
       let ratio = Contrast.contrastRatio(bg, textColor);
-      const tagName = Html.toElement(Html.getIssueHtml(activeIssue)).tagName;
-      const minRatio = headingTags.includes(tagName) ? 3 : 4.5;
       let attempts = 0;
       while (ratio < minRatio && attempts < 20) {
         const lighter = Contrast.changeLuminance(bg, 'lighten');
@@ -242,7 +236,7 @@ export default function ContrastForm({
       }
       if (ratio < minRatio) {
         failed = true;
-        break; // No need to continue if one fails
+        break;
       }
       if (attempts > 0) changed = true;
       newBgColors[i] = bg;
@@ -255,6 +249,20 @@ export default function ContrastForm({
       setAutoAdjustError(false);
     }
   };
+
+  function isLargeText(element) {
+    if (!element) return false;
+    const style = window.getComputedStyle(element);
+    const fontSizePx = parseFloat(style.fontSize);
+    const fontWeight = style.fontWeight;
+
+    // Convert px to pt (1pt = 1.333px)
+    const fontSizePt = fontSizePx / 1.333;
+
+    // WCAG: large text is >= 18pt (24px) regular or >= 14pt (18.67px) bold
+    const isBold = parseInt(fontWeight, 10) >= 700 || style.fontWeight === 'bold';
+    return (fontSizePt >= 18) || (isBold && fontSizePt >= 14);
+  }
 
   // Render
   return (
