@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\Entity\FileItem;
 use App\Response\ApiResponse;
 use App\Services\LmsPostService;
+use App\Services\LmsFetchService;
 use App\Services\UtilityService;
 use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -64,7 +65,7 @@ class FileItemsController extends ApiController
     }
 
     #[Route('/api/files/{file}/post', methods: ['POST'], name: 'file_post')]
-    public function postFile(FileItem $file, Request $request, UtilityService $util, LmsPostService $lmsPost)
+    public function postFile(FileItem $file, Request $request, UtilityService $util, LmsPostService $lmsPost, LmsFetchService $lmsFetch)
     {
         $output = new ConsoleOutput();
         $apiResponse = new ApiResponse();
@@ -79,7 +80,6 @@ class FileItemsController extends ApiController
 
             $uploadedFile = $request->files->get('file');
 
-            $output->writeln("Uploading file: " . $uploadedFile->getClientOriginalName());
             // Save content to LMS
             $lmsResponse = $lmsPost->saveFileToLms($file, $uploadedFile, $user);
             $responseContent = $lmsResponse->getContent();
@@ -90,7 +90,8 @@ class FileItemsController extends ApiController
             if (isset($responseContent['id'])) {
                 $file->setReplacementFile($responseContent);
             }
-            
+
+            $newFile = $lmsFetch->updateFileItem($course, $user, $responseContent); // Update or save file to database immedeatly to get updated report
             $this->doctrine->getManager()->flush();
             
             // Update report stats
@@ -102,7 +103,9 @@ class FileItemsController extends ApiController
             $reportArr['contentItems'] = $course->getContentItems();
             $reportArr['contentSections'] = $lmsFetch->getCourseSections($course, $user);
 
-            $response->setData($reportArr);
+            $output->writeln("Report array: ");
+            $output->writeln(json_encode($reportArr, JSON_PRETTY_PRINT));
+
 
             // Create response
             $apiResponse->addMessage('form.msg.success_replaced', 'success', 5000);
@@ -110,7 +113,7 @@ class FileItemsController extends ApiController
             $apiResponse->addLogMessages($util->getUnreadMessages());
 
             $apiResponse->setData([
-                'lmsResponse' => $lmsResponse,
+                'newFile' => $newFile,
                 'file' => ['pending' => false],
                 'report' => $reportArr,
             ]);

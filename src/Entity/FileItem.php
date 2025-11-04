@@ -139,37 +139,23 @@ class FileItem implements \JsonSerializable
 
     public function setReplacementFile($fileData): self
     {
-        if(!isset($fileData['id'])) {
+        if(isset($fileData['id'])) {
             $tempMetadata = json_decode($this->getMetadata(), true);
-            $tempMetadata['replacement'] = $fileData['id'];
+            $tempMetadata['replacementFileId'] = $fileData['id'];
             $this->setMetadata(json_encode($tempMetadata));
         }
 
         return $this;
     }
 
-    public function getReplacementFile(): ?array
+    public function getReplacementFile(): int
     {
         $metadata = json_decode($this->getMetadata(), true);
-        if (isset($metadata['replacement'])) {
-            // Fetch the replacement file from the database using the LMS File ID
-            $lmsFileId = $metadata['replacement'];
-            $output = new ConsoleOutput();
-            $output->writeln("Fetching replacement file with LMS File ID: " . $lmsFileId);
-            
-            // TODO: Get ANOTHER file item IF it still exists in the database.
-            // This file does NOT have access to the ManagerRegistry (doctrine) but we need it to do
-            // something like this...
-
-            // $fileItemRepo = $this->doctrine->getManager()->getRepository(FileItem::class);
-            // $replacementFile = $fileItemRepo->findOneBy(['lmsFileId' => $lmsFileId]);
-
-            // if ($replacementFile) {
-            //     return $replacementFile;
-            // }
+        if (isset($metadata['replacementFileId'])) {
+            return $metadata['replacementFileId'];
         }
 
-        return [];
+        return -1;
     }
 
     public function getStatus(): ?bool
@@ -224,7 +210,7 @@ class FileItem implements \JsonSerializable
     {
         $updatedDate = new \DateTime($file['updated'], UtilityService::$timezone);
         $replacementFile = $this->getReplacementFile();
-        $file['replacement'] = $replacementFile;
+        $file['replacementFileId'] = $replacementFile;
 
         $this->setUpdated($updatedDate);
         $this->setActive(true);
@@ -262,7 +248,6 @@ class FileItem implements \JsonSerializable
             'downloadUrl' => $this->getDownloadUrl(),
             'lmsUrl' => $this->getLmsUrl(),
             'metadata' => json_decode($this->getMetadata(), true),
-            'replacement' => $replacementFileData,
         ];
     }
 

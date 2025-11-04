@@ -345,4 +345,11 @@ class LmsFetchService {
             $issueRepo->deleteContentItemIssues($contentItem);
         }
     }
+
+    public function updateFileItem($course, $user, $file)
+    {
+        $lms = $this->lmsApi->getLms($user);
+        return $lms->updateFileItem($course, $file);
+
+    }
 }

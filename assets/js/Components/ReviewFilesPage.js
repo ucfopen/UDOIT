@@ -89,7 +89,7 @@ export default function ReviewFilesPage({
     let fileTypeLabel = t(`label.mime.unknown`)
     
     // Guarantee that the keywords include the word "file" in each language
-    let keywords = [ fileData.fileName.toLowerCase() ]
+    let keywords = [ fileData.fileName ? fileData.fileName.toLowerCase() : fileData.display_name.toLowerCase() ]
     
     // Keywords should include the file type ('MS Word', 'PDF', etc.)
     if(settings.FILE_TYPES.includes(fileData.fileType)) {
@@ -379,18 +379,48 @@ export default function ReviewFilesPage({
 
   const updateFile = (tempFile) => {
     const tempReport = Object.assign({}, report)
+    console.log(tempReport)
+    if(!Array.isArray(tempReport.files)){
+      tempReport.files = Object.values(tempReport.files)
+    }
+
+    tempReport.files.map((file, index) => {
+        if(activeIssue?.fileData?.lmsFileId.toString() == file.lmsFileId.toString()){
+           const formattedFile = formatFileData(tempFile)
+           setActiveIssue(formattedFile)
+           tempReport.files[index] = tempFile
+        }
+    })
 
     // Occasionally, the report will send back a list of files in an object instead of an array.
     // It would be nice to use tempReport.files.map, but that doesn't work with objects.
-    for (const [key, value] of Object.entries(tempReport.files)) {
-      if (key.toString() === tempFile.id.toString()) {
-        if(activeIssue?.fileData?.id === tempFile.id) {
-          const formattedFile = formatFileData(tempFile)
-          setActiveIssue(formattedFile)
-        }
-        tempReport.files[key] = tempFile
-      }
+    // for (const [key, value] of Object.entries(tempReport.files)) {
+    //   if (key.toString() === tempFile.id.toString()) {
+    //     if(activeIssue?.fileData?.id === tempFile.id) {
+    //       const formattedFile = formatFileData(tempFile)
+    //       setActiveIssue(formattedFile)
+    //     }
+    //     tempReport.files[key] = tempFile
+    //   }
+    // }
+    processNewReport(tempReport)
+  }
+
+  const updateFileWithReplacement = (file, newFile) => {
+    const tempReport = Object.assign({}, report)
+    // Make sure it is an array we are working with 
+    if(!Array.isArray(tempReport.files)){
+      tempReport.files = Object.values(tempReport.files)
     }
+
+    tempReport.files.push(newFile) // New File is added onto reports
+    
+    tempReport.files.map((reportFile, index) => {
+      if(reportFile.id == file.id){
+         tempReport.files[index] = file   
+      }
+    })
+
     processNewReport(tempReport)
   }
 
@@ -415,17 +445,17 @@ export default function ReviewFilesPage({
             return
           }
 
-          const updatedFileData = response?.data?.lmsResponse?.content
+          const updatedFileData = response?.data?.newFile
           let metadataObj = tempFile?.metadata || {}
-          console.log(updatedFileData)
-          metadataObj.replacedByFileId = updatedFileData.id
-          
+          metadataObj.replacementFileId = updatedFileData?.metadata.id
+          tempFile.replacement = updatedFileData
+
           // Set messages 
           response.messages.forEach((msg) => addMessage(msg))
 
           // Update the local report and activeIssue
           updateActiveSessionIssue("file-" + tempFile.id, settings.ISSUE_STATE.SAVED)
-          updateFile(updatedFileData)
+          updateFileWithReplacement(tempFile, updatedFileData)
         })
     } catch (error) {
       console.error(error)

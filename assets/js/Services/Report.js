@@ -282,6 +282,7 @@ export function analyzeReport(report, ISSUE_STATE) {
   // each reference to a file should add its parent section to the list.
   // We ALSO want a list of references to include the section(s) the file appears in outside of
   // references (like when the file is linked in the modules directly).
+  console.log(report)
   report.files.forEach((file) => {
     file.sections = getSectionsFromFile(report.contentSections, file)
     let sectionReferences = []

@@ -381,6 +381,8 @@ class CanvasLms implements LmsInterface {
 
         $fileItem->update($file);
         $this->entityManager->flush();
+
+        return $fileItem;
     }
 
     public function updateContentItem(ContentItem $contentItem)
