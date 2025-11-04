@@ -92,6 +92,10 @@ class FileItemsController extends ApiController
             }
 
             $newFile = $lmsFetch->updateFileItem($course, $user, $responseContent); // Update or save file to database immedeatly to get updated report
+            // Prereviewed file - We ASSUME that an accessibile file is being uploaded
+            $newFile->setReviewed(true);
+            $newFile->setReviewedBy($user);
+            $newFile->setReviewedOn($util->getCurrentTime());
             $this->doctrine->getManager()->flush();
             
             // Update report stats
@@ -102,9 +106,6 @@ class FileItemsController extends ApiController
             $reportArr['issues'] = $course->getAllIssues();
             $reportArr['contentItems'] = $course->getContentItems();
             $reportArr['contentSections'] = $lmsFetch->getCourseSections($course, $user);
-
-            $output->writeln("Report array: ");
-            $output->writeln(json_encode($reportArr, JSON_PRETTY_PRINT));
 
 
             // Create response
