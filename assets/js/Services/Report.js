@@ -283,6 +283,7 @@ export function analyzeReport(report, ISSUE_STATE) {
   // We ALSO want a list of references to include the section(s) the file appears in outside of
   // references (like when the file is linked in the modules directly).
   console.log(report)
+  const lmsIdToFileMap = {}
   report.files.forEach((file) => {
     file.sections = getSectionsFromFile(report.contentSections, file)
     let sectionReferences = []
@@ -314,7 +315,16 @@ export function analyzeReport(report, ISSUE_STATE) {
     else {
       scanCounts.files += 1
     }
+
+    lmsIdToFileMap[file.lmsFileId] = file
   })
+
+  report.files.forEach((file) => {
+    if(lmsIdToFileMap[file.metadata.replacementFileId]){
+       file.replacement = lmsIdToFileMap[file.metadata.replacementFileId]
+    }
+  })
+  
 
   tempReport.issues = activeIssues
   tempReport.scanCounts = scanCounts
