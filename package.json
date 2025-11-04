@@ -39,6 +39,7 @@
     "dependencies": {
         "axios": "1.10.0",
         "chart.js": "^4.5.0",
+        "chroma-js": "^3.1.2",
         "react": "^19.1.0",
         "react-dom": "^19.1.0",
         "tinymce": "^7.9.1",

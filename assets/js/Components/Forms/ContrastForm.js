@@ -48,22 +48,21 @@ export default function ContrastForm({
       const styleValue = bgMatch[2]
       const colors = extractColors(styleValue)
       colors.forEach(color => {
-        const standardColor = Contrast.standardizeColor(color)
-        if (standardColor) {
+        const hsl = Contrast.toHSL(color)
+        if (hsl) {
           tempBackgroundColors.push({
             originalString: styleValue,
             originalColorString: color,
-            standardColor
+            hsl
           })
         }
       })
     }
-  
     if (tempBackgroundColors.length === 0) {
       tempBackgroundColors.push({
         originalString: '',
         originalColorString: settings.backgroundColor,
-        standardColor: settings.backgroundColor
+        hsl: Contrast.toHSL(settings.backgroundColor)
       })
     }
     return tempBackgroundColors
@@ -82,9 +81,9 @@ export default function ContrastForm({
     }
 
     if (colorEl && colorEl.style && colorEl.style.color) {
-      return Contrast.standardizeColor(colorEl.style.color);
+      return Contrast.toHSL(colorEl.style.color);
     }
-    return settings.textColor;
+    return Contrast.toHSL(settings.textColor);
   }
 
   // Heading tags for contrast threshold
@@ -93,7 +92,7 @@ export default function ContrastForm({
   // State
   const [originalBgColors, setOriginalBgColors] = useState([])
   const [currentBgColors, setCurrentBgColors] = useState([])
-  const [textColor, setTextColor] = useState('')
+  const [textColor, setTextColor] = useState(null)
   const [contrastRatio, setContrastRatio] = useState(null)
   const [ratioIsValid, setRatioIsValid] = useState(false)
   const [autoAdjustError, setAutoAdjustError] = useState(false)
@@ -104,17 +103,15 @@ export default function ContrastForm({
   // Generate updated HTML with new colors
   const processHtml = (html, bgColors) => {
     let element = Html.toElement(html);
-
-    // Set background as before
     if (bgColors.length > 1) {
       let gradientHtml = originalBgColors[0].originalString;
       originalBgColors.forEach((bg, idx) => {
-        gradientHtml = gradientHtml.replace(bg.originalColorString, bgColors[idx]);
+        gradientHtml = gradientHtml.replace(bg.originalColorString, Contrast.hslToHex(bgColors[idx]));
       });
       element.style.background = gradientHtml;
       element.style.backgroundColor = '';
     } else if (bgColors.length === 1) {
-      element.style.backgroundColor = Contrast.convertShortenedHex(bgColors[0]);
+      element.style.backgroundColor = Contrast.hslToHex(bgColors[0]);
     } else {
       element.style.background = '';
     }
@@ -133,7 +130,7 @@ export default function ContrastForm({
         if (found) textEl = found;
       }
     } catch (e) {}
-    textEl.style.color = Contrast.convertShortenedHex(textColor);
+    textEl.style.color = Contrast.hslToHex(textColor);
 
     return Html.toString(element)
   }
@@ -143,7 +140,9 @@ export default function ContrastForm({
     const html = Html.getIssueHtml(activeIssue)
     let ratio = 1
     if (currentBgColors.length > 0 && textColor) {
-      const ratios = currentBgColors.map(bg => Contrast.contrastRatio(bg, textColor))
+      const ratios = currentBgColors.map(bg => Contrast.contrastRatio(
+        Contrast.hslToHex(bg), Contrast.hslToHex(textColor)
+      ))
       ratio = Math.min(...ratios)
     }
     const tagName = Html.toElement(html).tagName
@@ -161,14 +160,15 @@ export default function ContrastForm({
   // Handlers
   const updateText = (event) => {
     const value = event.target.value
-    if (isValidHexColor(value)) setTextColor(value)
+    const hsl = Contrast.toHSL(value)
+    if (hsl) setTextColor(hsl)
   }
 
   // On issue change, extract from original HTML
   useEffect(() => {
     const info = getBackgroundColors()
     setOriginalBgColors(info)
-    setCurrentBgColors(info.map(bg => bg.standardColor))
+    setCurrentBgColors(info.map(bg => bg.hsl))
     setTextColor(getTextColor())
     setAutoAdjustError(false) // Reset error when switching issues
     // eslint-disable-next-line
@@ -176,22 +176,23 @@ export default function ContrastForm({
 
   // On user interaction, only update state (do NOT call getBackgroundColors again)
   const updateBackgroundColor = (idx, value) => {
+    const hsl = Contrast.toHSL(value)
     setCurrentBgColors(colors =>
-      colors.map((c, i) => i === idx ? value : c)
+      colors.map((c, i) => i === idx ? hsl : c)
     )
   }
 
-  const handleLightenText = () => setTextColor(Contrast.changehue(textColor, 'lighten'))
-  const handleDarkenText = () => setTextColor(Contrast.changehue(textColor, 'darken'))
+  const handleLightenText = () => setTextColor(Contrast.changeLuminance(textColor, 'lighten'))
+  const handleDarkenText = () => setTextColor(Contrast.changeLuminance(textColor, 'darken'))
 
   const handleLightenBackground = idx => {
     setCurrentBgColors(colors =>
-      colors.map((c, i) => i === idx ? Contrast.changehue(c, 'lighten') : c)
+      colors.map((c, i) => i === idx ? Contrast.changeLuminance(c, 'lighten') : c)
     )
   }
   const handleDarkenBackground = idx => {
     setCurrentBgColors(colors =>
-      colors.map((c, i) => i === idx ? Contrast.changehue(c, 'darken') : c)
+      colors.map((c, i) => i === idx ? Contrast.changeLuminance(c, 'darken') : c)
     )
   }
 
@@ -226,8 +227,8 @@ export default function ContrastForm({
       const minRatio = headingTags.includes(tagName) ? 3 : 4.5;
       let attempts = 0;
       while (ratio < minRatio && attempts < 20) {
-        const lighter = Contrast.changehue(bg, 'lighten');
-        const darker = Contrast.changehue(bg, 'darken');
+        const lighter = Contrast.changeLuminance(bg, 'lighten');
+        const darker = Contrast.changeLuminance(bg, 'darken');
         const lighterRatio = Contrast.contrastRatio(lighter, textColor);
         const darkerRatio = Contrast.contrastRatio(darker, textColor);
         if (lighterRatio > darkerRatio) {
@@ -247,7 +248,7 @@ export default function ContrastForm({
       newBgColors[i] = bg;
     }
     if (failed) {
-      setCurrentBgColors(originalBgColors.map(bg => bg.standardColor));
+      setCurrentBgColors(originalBgColors.map(bg => bg.hsl));
       setAutoAdjustError(true);
     } else if (changed) {
       setCurrentBgColors(newBgColors);
@@ -266,13 +267,13 @@ export default function ContrastForm({
         <div className="flex-column justify-content-center">
           <input
             id="textColorInput"
+            type="color"
+            value={Contrast.hslToHex(textColor) || '#000000'}
+            onChange={updateText}
             aria-label={t('form.contrast.label.text.show_color_picker')}
             title={t('form.contrast.label.text.show_color_picker')}
-            type="color"
             tabIndex="0"
             disabled={isDisabled}
-            value={textColor}
-            onChange={updateText}
           />
         </div>
         <div className="flex-row gap-1">
@@ -306,7 +307,9 @@ export default function ContrastForm({
         let showStatus = currentBgColors.length > 1;
         let tagName = Html.toElement(Html.getIssueHtml(activeIssue)).tagName;
         let minRatio = headingTags.includes(tagName) ? 3 : 4.5;
-        let ratio = Contrast.contrastRatio(color, textColor);
+        let ratio = Contrast.contrastRatio(
+          Contrast.hslToHex(color), Contrast.hslToHex(textColor)
+        );
         let isValid = ratio >= minRatio;
 
         return (
@@ -314,12 +317,12 @@ export default function ContrastForm({
             <div className="flex-row align-items-center">
               <input
                 id={`backgroundColorInput${idx}`}
+                type="color"
+                value={Contrast.hslToHex(color) || '#ffffff'}
+                onChange={e => updateBackgroundColor(idx, e.target.value)}
                 aria-label={t('form.contrast.label.background.show_color_picker')}
                 title={t('form.contrast.label.background.show_color_picker')}
-                type="color"
                 disabled={isDisabled}
-                value={color}
-                onChange={e => updateBackgroundColor(idx, e.target.value)}
               />
               {showStatus && (
                 isValid
