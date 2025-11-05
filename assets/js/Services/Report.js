@@ -192,6 +192,7 @@ export function analyzeReport(report, ISSUE_STATE) {
               fileReferences[fileId] = []
             }
             fileReferences[fileId].push({
+              contentItemBody: contentItem.body,
               contentItemTitle: contentItem.title,
               contentItemUrl: contentItem.url,
               contentItemLmsId: contentItem.lmsContentId,
@@ -325,7 +326,6 @@ export function analyzeReport(report, ISSUE_STATE) {
     }
   })
   
-
   tempReport.issues = activeIssues
   tempReport.scanCounts = scanCounts
   tempReport.scanRules = scanRules
