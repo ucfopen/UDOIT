@@ -68,8 +68,6 @@ class User implements UserInterface, JsonSerializable
      */
     private $lastLogin;
 
-    private $encodedKey = 'niLb/WbAODNi7E4ccHHa/pPU3Bd9h6z1NXmjA981D4o=';
-
     /**
      * @ORM\OneToMany(targetEntity=Report::class, mappedBy="author")
      */
@@ -263,7 +261,7 @@ class User implements UserInterface, JsonSerializable
 
     private function encryptData($data): string
     {
-        $key   = base64_decode($this->encodedKey);
+        $key   = base64_decode($_ENV['DATABASE_ENCODE_KEY']);
         $nonce = random_bytes(SODIUM_CRYPTO_SECRETBOX_NONCEBYTES);
         $encrypted_data = sodium_crypto_secretbox($data, $nonce, $key);
 
@@ -272,7 +270,8 @@ class User implements UserInterface, JsonSerializable
 
     private function decryptData($encrypted): bool | string
     {
-        $key     = base64_decode($this->encodedKey);
+
+        $key = base64_decode($_ENV['DATABASE_ENCODE_KEY']);
         $decoded = base64_decode($encrypted);
         $nonce   = mb_substr($decoded, 0, SODIUM_CRYPTO_SECRETBOX_NONCEBYTES, '8bit');
         $encrypted_text = mb_substr($decoded, SODIUM_CRYPTO_SECRETBOX_NONCEBYTES, NULL, '8bit');
