@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
-import SortIconFilled from './Icons/SortIconFilled'
-import DownloadIcon from './Icons/DownloadIcon'
+import SortIconFilled from '../Icons/SortIconFilled'
+import DownloadIcon from '../Icons/DownloadIcon'
 
 import './SortableTable.css'
 
@@ -99,7 +99,7 @@ export default function SortableTable({
       className={`paginationButton${(v === tableSettings.pageNum) ? ' selected' : ''}`}
       key={`page${v}`}
       onClick={() => setPage(v)}
-      current={v === tableSettings.pageNum}>
+      current={(v === tableSettings.pageNum).toString()}>
       {v + 1}
     </button>)
 

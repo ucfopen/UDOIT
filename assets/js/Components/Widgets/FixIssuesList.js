@@ -1,14 +1,20 @@
 import React, {useState, useEffect} from 'react'
 
-import ContentTypeIcon from './Icons/ContentTypeIcon'
-import SeverityIcon from './Icons/SeverityIcon'
-import ResolvedIcon from './Icons/ResolvedIcon'
-import FixedIcon from './Icons/FixedIcon'
-import SortIcon from './Icons/SortIcon'
+import ContentTypeIcon from '../Icons/ContentTypeIcon'
+import SeverityIcon from '../Icons/SeverityIcon'
+import ResolvedIcon from '../Icons/ResolvedIcon'
+import FixedIcon from '../Icons/FixedIcon'
+import SortIcon from '../Icons/SortIcon'
 
 import './FixIssuesList.css'
 
-export default function FixIssuesList({ t, settings, groupedList, setActiveIssue }) {
+export default function FixIssuesList({
+  t,
+  settings,
+  
+  groupedList,
+  setActiveIssue
+}) {
 
   const [openList, setOpenList] = useState([])
 

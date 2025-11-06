@@ -6,13 +6,14 @@ import FixIssuesPage from './FixIssuesPage'
 import ReportsPage from './ReportsPage'
 import SettingsPage from './SettingsPage'
 import Api from '../Services/Api'
-import MessageTray from './MessageTray'
+import MessageTray from './Widgets/MessageTray'
 import { analyzeReport } from '../Services/Report'
 
 
 export default function App(initialData) {
 
   const [messages, setMessages] = useState(initialData.messages || [])
+  const [untranslatedMessage, setUntranslatedMessage] = useState('')
   const [report, setReport] = useState(initialData.report || null)  
   const [settings, setSettings] = useState(initialData.settings || null)
   const [sections, setSections] = useState([])
@@ -58,6 +59,27 @@ export default function App(initialData) {
     return api.fullRescan(settings.course.id)
   }, [])
 
+  // When user settings are updated and the language changes, we need to send alerts, but also wait a tick for the settings to update.
+  // Using the setUntranslatedMessage function will wait for the next render cycle to update the message, with the new language settings.
+  useEffect(() => {
+    let message = t(untranslatedMessage?.message || '')
+    let severity = untranslatedMessage?.severity || 'info'
+    let visible = untranslatedMessage?.visible || false
+
+    if (message === '') {
+      return
+    }
+
+    if (visible) {
+      addMessage({ message: message, severity: severity, visible: true })
+    }
+    else if (severity === 'error' || severity === 'alert') {
+      console.error(message)
+    } else {
+      console.log(message)
+    }
+  }, [untranslatedMessage])
+
   const updateUserSettings = (newUserSetting) => {
     let oldSettings = JSON.parse(JSON.stringify(settings))
     let newRoles = Object.assign({}, settings.user.roles, newUserSetting)
@@ -72,14 +94,16 @@ export default function App(initialData) {
         if(data.user) {
           newSettings.user = data.user
           if(data?.labels?.lang) {
-            newSettings.labels = data.labels
-            setSettings(newSettings)
+            let newLanguageSettings = Object.assign({}, newSettings)
+            newLanguageSettings.lang = data?.language || newSettings.lang
+            newLanguageSettings.labels = data.labels
+            setSettings(newLanguageSettings)
           }
-          addMessage({ message: t('msg.settings.updated'), severity: 'success', visible: true })
+          setUntranslatedMessage({ message: 'msg.settings.updated', severity: 'success', visible: true })
         }
         else {
           setSettings(oldSettings)
-          addMessage({ message: t('msg.settings.update_failed'), severity: 'error', visible: true })
+          setUntranslatedMessage({ message: 'msg.settings.update_failed', severity: 'error', visible: true })
         }
     })
   }
@@ -266,29 +290,30 @@ export default function App(initialData) {
     }
   }
 
+  // Every time the translation function changes, we need to recompute the page visibility listener.
   useEffect(() => {
-    document.addEventListener('visibilitychange', function() {
-      if(document.hidden) {
+    const handleVisibilityChange = () => {
+      if (document.hidden) {
         console.warn("UDOIT has lost focus. Course content may be changed.")
-      }
-      else {
+      } else {
         // There is probably a case for checking the page you're currently editing to make sure that there weren't any changes in the LMS.
         // For now, just let the user know that they should refresh if they made changes.
         addMessage({message: t('msg.return_focus'), severity: 'info', visible: true})
       }
-    })
+    }
+    
+    document.addEventListener('visibilitychange', handleVisibilityChange)
 
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange)
+    }
+  }, [t])
+
+  useEffect(() => {
     const script = document.createElement('script')
     script.src = '../udoit3/build/static/tinymce/tinymce.min.js'
     script.async = true
     document.body.appendChild(script)
-
-    return () => {
-      document.removeEventListener('visibilitychange', () => {})
-      if (script) {
-        document.body.removeChild(script)
-      }
-    }
   }, [])
 
   useEffect(() => {

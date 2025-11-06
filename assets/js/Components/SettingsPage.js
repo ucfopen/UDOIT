@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import UDOITLogo from '../../mediaAssets/udoit-logo.svg'
 import UDOITLogoDark from '../../mediaAssets/udoit-logo-inverse.svg'
-import ProgressIcon from './Icons/ProgressIcon'
+import Combobox from './Widgets/Combobox'
 import './SettingsPage.css'
 
 export default function SettingsPage({
@@ -10,31 +10,50 @@ export default function SettingsPage({
   updateUserSettings
 }) {
 
-  const supportedLanguages = [
-    { code: 'en', name: 'English' },
-    { code: 'es', name: 'Español' },
-  ]
+  const [alertOptions, setAlertOptions] = useState([])
+  const [fontSizeOptions, setFontSizeOptions] = useState([])
+  const [fontFamilyOptions, setFontFamilyOptions] = useState([])
+  const [languageOptions, setLanguageOptions] = useState([])
 
-  /* These sizes are classes that are applied to the body element to change the font size of the entire app. See udoit4-theme.css. */
-  const fontSizes = [
-    { value: 'font-small', title: t('settings.label.font_size.small') },
-    { value: 'font-medium', title: t('settings.label.font_size.medium') },
-    { value: 'font-large', title: t('settings.label.font_size.large') },
-    { value: 'font-xlarge', title: t('settings.label.font_size.xlarge') }
-  ]
+  useEffect(() => {
+    // Set up alert options
+    let currentAlertTimeout = settings?.user?.roles?.alert_timeout || 5000
+    setAlertOptions([
+      { value: '5000', name: t('settings.option.alert_timeout.5s'), selected: currentAlertTimeout === '5000' },
+      { value: '10000', name: t('settings.option.alert_timeout.10s'), selected: currentAlertTimeout === '10000' },
+      { value: '20000', name: t('settings.option.alert_timeout.20s'), selected: currentAlertTimeout === '20000' },
+      { value: 'none', name: t('settings.option.alert_timeout.none'), selected: currentAlertTimeout === 'none' }
+    ])
 
-  const fontFamilies = [
-    { value: 'sans-serif', title: t('settings.label.font_family.sans_serif') },
-    { value: 'serif', title: t('settings.label.font_family.serif') },
-    { value: 'readable', title: t('settings.label.font_family.readable')},
-    { value: 'hyperlegible', title: t('settings.label.font_family.hyperlegible') }
-  ]
+    // Set up font size options
+    let currentFontSize = settings?.user?.roles?.font_size || 'font-medium'
+    setFontSizeOptions([
+      { value: 'font-small', name: t('settings.label.font_size.small'), selected: currentFontSize === 'font-small' },
+      { value: 'font-medium', name: t('settings.label.font_size.medium'), selected: currentFontSize === 'font-medium' },
+      { value: 'font-large', name: t('settings.label.font_size.large'), selected: currentFontSize === 'font-large' },
+      { value: 'font-xlarge', name: t('settings.label.font_size.xlarge'), selected: currentFontSize === 'font-xlarge' }
+    ])
+
+    // Set up font family options
+    let currentFontFamily = settings?.user?.roles?.font_family || 'sans-serif'
+    setFontFamilyOptions([
+      { value: 'sans-serif', name: t('settings.label.font_family.sans_serif'), selected: currentFontFamily === 'sans-serif' },
+      { value: 'serif', name: t('settings.label.font_family.serif'), selected: currentFontFamily === 'serif' },
+      { value: 'readable', name: t('settings.label.font_family.readable'), selected: currentFontFamily === 'readable' },
+      { value: 'hyperlegible', name: t('settings.label.font_family.hyperlegible'), selected: currentFontFamily === 'hyperlegible' }
+    ])
+
+    // Set up language options
+    let currentLanguage = settings?.user?.roles?.lang || 'en'
+    setLanguageOptions([
+      { value: 'en', name: 'English', selected: currentLanguage === 'en' },
+      { value: 'es', name: 'Español', selected: currentLanguage === 'es' }
+    ])
+  }, [settings])
 
   // For new users, the 'show_filters' attribute may not be set, so we need to check if it exists before using it
   const [showFilters, setShowFilters] = useState(settings?.user?.roles && ('show_filters' in settings.user.roles) ? settings.user.roles.show_filters : true)
   const [darkMode, setDarkMode] = useState(settings?.user?.roles && ('dark_mode' in settings.user.roles) ? settings.user.roles.dark_mode : false)
-  const [alertTimeout, setAlertTimeout] = useState(settings?.user?.roles?.alert_timeout || 5000)
-  const [selectedLanguage, setSelectedLanguage] = useState(settings?.user?.roles?.lang || 'en')
 
   const handleShowFiltersChange = (newValue) => {
     setShowFilters(newValue)
@@ -51,14 +70,14 @@ export default function SettingsPage({
     }
   }
 
-  const handleAlertTimeoutChange = (newValue) => {
-    setAlertTimeout(newValue)
-    updateUserSettings({ "alert_timeout": newValue })
-  }
-
-  const handleLanguageChange = (newValue) => {
-    setSelectedLanguage(newValue)
-    updateUserSettings({ "lang": newValue})
+  const handleComboboxChange = (id, value) => {
+    if(!id || !value) {
+      return
+    }
+    if(settings?.user?.roles[id] === value) {
+      return
+    }
+    updateUserSettings({ [id]: value })
   }
 
   return (
@@ -67,97 +86,30 @@ export default function SettingsPage({
     <div className="flex-row flex-grow-1 flex-shrink-1 gap-4 non-scrollable settings-row">
       <div className="flex-column flex-start flex-grow-0 flex-shrink-0 scrollable">
         <div className="callout-container flex-column flex-start settings-container">
-          <div className="flex-row gap-2 mb-3">
-            <div className="flex-column flex-center settings-label">
-              <label htmlFor="alert-timeout">{t('settings.label.alert_timeout')}</label>
-            </div>
-            <div className="flex-column flex-center settings-input">
-              <select
-                id="alert-timeout"
-                value={settings?.user?.roles?.alert_timeout || 5000}
-                onChange={(e) => {
-                  handleAlertTimeoutChange(e.target.value)
-                }}
-              >
-                <option key="5000" value="5000">{t('settings.option.alert_timeout.5s')}</option>
-                <option key="10000" value="10000">{t('settings.option.alert_timeout.10s')}</option>
-                <option key="20000" value="20000">{t('settings.option.alert_timeout.20s')}</option>
-                <option key="none" value="none">{t('settings.option.alert_timeout.none')}</option>
-              </select>
-            </div>
-          </div>
-          <div className="flex-row gap-2 mb-3">
-            <div className="flex-column flex-center settings-label">
-              <label htmlFor="font-size-select">{t('settings.label.font_size')}</label>
-            </div>
-            <div className="flex-column flex-center settings-input">
-              <select
-                id="font-size-select"
-                value={settings?.user?.roles?.font_size || 'font-normal'}
-                onChange={(e) => {
-                  let appElement = document.getElementById('app-container')
-                  if (appElement) {
-                    appElement.classList.remove('font-small', 'font-normal', 'font-large', 'font-xlarge')
-                    appElement.classList.add(e.target.value)
-                  }
-                  updateUserSettings({ "font_size": e.target.value })
-                }}
-              >
-                {fontSizes.map((size) => (
-                  <option key={size.value} value={size.value}>
-                    {size.title}
-                  </option>
-                ))}
-              </select>
-            </div>
-          </div>
-           <div className="flex-row gap-2 mb-3">
-            <div className="flex-column flex-center settings-label">
-              <label htmlFor="font-size-select">{t('settings.label.font_family')}</label>
-            </div>
-            <div className="flex-column flex-center settings-input">
-              <select
-                id="font-family-select"
-                value={settings?.user?.roles?.font_family || 'sans-serif'}
-                onChange={(e) => {
-                  let appElement = document.getElementById('app-container')
-                  if (appElement) {
-                    appElement.classList.remove('sans-serif', 'serif', 'readable')
-                    appElement.classList.add(e.target.value)
-                  }
-                  updateUserSettings({ "font_family": e.target.value })
-                }}
-              >
-                {fontFamilies.map((font) => (
-                  <option key={font.value} value={font.value}>
-                    {font.title}
-                  </option>
-                ))}
-              </select>
-            </div>
-          </div>
-
-          <div className="flex-row gap-2 mb-3">
-            <div className="flex-column flex-center settings-label">
-              <label htmlFor="language-select">{t('settings.label.language')}</label>
-            </div>
-            <div className="flex-column flex-center settings-input">
-              <select
-                id="language-select"
-                value={selectedLanguage}
-                onChange={(e) => {
-                  handleLanguageChange(e.target.value)
-                }}
-                >
-                {supportedLanguages.map((lang) => (
-                  <option key={lang.code} value={lang.code}>
-                    {lang.name}
-                  </option>
-                ))}
-              </select>
-            </div>
-          </div>
-
+          <Combobox
+            handleChange={handleComboboxChange}
+            id='alert_timeout'
+            label={t('settings.label.alert_timeout')}
+            options={alertOptions}
+            settings={settings} />
+          <Combobox
+            handleChange={handleComboboxChange}
+            id='font_size'
+            label={t('settings.label.font_size')}
+            options={fontSizeOptions}
+            settings={settings} />
+          <Combobox
+            handleChange={handleComboboxChange}
+            id='font_family'
+            label={t('settings.label.font_family')}
+            options={fontFamilyOptions}
+            settings={settings} />
+          <Combobox
+            handleChange={handleComboboxChange}
+            id='lang'
+            label={t('settings.label.language')}
+            options={languageOptions}
+            settings={settings} />
           <div className="flex-row gap-2 mb-3">
             <div className="flex-column flex-center settings-label">
               <label htmlFor="dark-mode">{t('settings.label.dark_mode')}</label>

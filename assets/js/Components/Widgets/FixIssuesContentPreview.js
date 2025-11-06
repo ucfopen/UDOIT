@@ -1,22 +1,23 @@
 import React, { useState, useEffect, useRef } from 'react'
-import DownloadIcon from './Icons/DownloadIcon'
-import ExternalLinkIcon from './Icons/ExternalLinkIcon'
-import ProgressIcon from './Icons/ProgressIcon'
-import { formFromIssue, formNameFromRule, formNames } from '../Services/Ufixit'
-import * as Html from '../Services/Html'
-import UpArrowIcon from './Icons/UpArrowIcon'
-import DownArrowIcon from './Icons/DownArrowIcon'
+import DownloadIcon from '../Icons/DownloadIcon'
+import ExternalLinkIcon from '../Icons/ExternalLinkIcon'
+import ProgressIcon from '../Icons/ProgressIcon'
+import { formFromIssue, formNameFromRule, formNames } from '../../Services/Ufixit'
+import * as Html from '../../Services/Html'
+import UpArrowIcon from '../Icons/UpArrowIcon'
+import DownArrowIcon from '../Icons/DownArrowIcon'
 import './FixIssuesContentPreview.css'
-import InfoIcon from './Icons/InfoIcon'
+import InfoIcon from '../Icons/InfoIcon'
 
 export default function FixIssuesContentPreview({
   t,
   settings,
-  activeIssue,
+
   activeContentItem,
-  setIsErrorFoundInContent,
+  activeIssue,
   contentItemsBeingScanned,
   liveUpdateToggle,
+  setIsErrorFoundInContent,
 }) {
 
   const [taggedContent, setTaggedContent] = useState(null)
@@ -25,17 +26,6 @@ export default function FixIssuesContentPreview({
 
   const [isInitialLoad, setIsInitialLoad] = useState(false)
   const [debouncedDirection, setDebouncedDirection] = useState(null)
-
-  // useEffect(() => {
-  //   // the scroll-to-button will flash sometimes when activeIssue changes
-  //   // so, we wait 500ms before it is even able to display
-  //   setIsInitialLoad(true)
-  //   const timer = setTimeout(() => {
-  //     setIsInitialLoad(false)
-  //   }, 250)
-
-  //   return () => clearTimeout(timer)
-  // }, [activeIssue])
 
   const checkScrollButton = () => {
     if(isInitialLoad) {
@@ -353,20 +343,6 @@ export default function FixIssuesContentPreview({
       )}
 
       <div className="ufixit-content-preview">
-
-        {/* { activeContentItem && (
-          <div className={`ufixit-content-preview-rescan-container ${contentItemsBeingScanned.includes(activeContentItem.id) ? 'active' : ''}`}>
-            <div className="ufixit-content-preview-rescan flex-row">
-              <div className="flex-column align-self-center">
-                <ProgressIcon className="icon-md udoit-suggestion spinner" />
-              </div>
-              <div className="flex-column align-self-center ms-3">
-                {t('fix.label.reload_content')}
-              </div>
-            </div>
-          </div>
-        )} */}
-
         { !activeIssue ? (
           <div className="flex-column">
             <div className="flex-row justify-content-center text-center mt-3 ms-4 me-4">
