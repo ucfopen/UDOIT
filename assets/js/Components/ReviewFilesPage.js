@@ -444,9 +444,14 @@ export default function ReviewFilesPage({
           }
           replacedFileHtml = Html.toString(tempBody.body)
          }
-
          // Upload content and sections through backend 
-
+         try{
+          let api = new Api(settings)
+          api.updateContent(ref, replacedFileHtml)
+         }
+         catch(error){
+          console.error("Error while posting content: " + error)
+         }
 
          // Rescan content items to account for any changes
       })

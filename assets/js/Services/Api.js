@@ -10,6 +10,7 @@ export default class Api {
             saveIssue: '/api/issues/{issue}/save',
             reviewFile: '/api/files/{file}/review',
             postFile: '/api/files/{file}/post',
+            updateContent: '/api/content',
             reportPdf: '/download/courses/{course}/reports/pdf',
             adminCourses: '/api/admin/courses/account/{account}/term/{term}',
             scanContent: '/api/sync/content/{contentItem}',
@@ -152,6 +153,23 @@ export default class Api {
         })
     }
 
+    updateContent(content, fullPageHtml){
+        const authToken = this.getAuthToken()
+        let url = `${this.apiUrl}${this.endpoints.updateContent}`
+
+        return fetch(url, {
+            method: 'POST',
+            cache: 'no-cache',
+            headers: {
+                'X-AUTH-TOKEN': authToken
+            },
+            body: JSON.stringify({
+                content: content,
+                fullPageHtml: fullPageHtml
+            })
+        })
+    }
+
     getPdfUrl() {
         const courseId = this.getCourseId()
         const authToken = this.getAuthToken()
@@ -269,7 +287,7 @@ export default class Api {
                 'X-AUTH-TOKEN': authToken,
             },
         })
-    }
+    } 
 
     scanContent(contentId)
     {

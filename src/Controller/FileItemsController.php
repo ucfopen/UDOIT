@@ -124,4 +124,15 @@ class FileItemsController extends ApiController
 
         return new JsonResponse($apiResponse);
     }
+
+    // This route is created here as files are the primary items using this route
+    #[Route('/api/content', methods: ['POST'], name: 'upload_content')]
+    public function uploadContent(Request $request, UtilityService $util, LmsPostService $lmsPost, LmsFetchService $lmsFetch){
+        $output = new ConsoleOutput();
+        $apiResponse = new ApiResponse();
+        $output->writeln(json_encode(json_decode($request->getContent()), JSON_PRETTY_PRINT));
+        return new JsonResponse($apiResponse);
+
+    }
+
 }
