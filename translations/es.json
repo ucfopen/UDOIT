@@ -102,6 +102,7 @@
   "report.button.view_all_report": "Ver el Informe Para Todos los Cursos",
   "report.button.scan": "Escanear",
   "report.button.force_reauthorize": "Forzar Reautorización",
+  "report.button.issue_tooltip": "Aprender Más",
 
   "settings.label.alert_timeout": "Tiempo de Espera de Mensaje de Alerta",
   "settings.option.alert_timeout.5s": "5 Segundos",
