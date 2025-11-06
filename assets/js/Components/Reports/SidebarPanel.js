@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import CourseBrowser from "./CourseBrowser";
+import "./SidebarPanel.css";
 
 // Use keys for translation
 const PRESETS = [
@@ -66,45 +67,19 @@ export default function SidebarPanel({
   }, [dateStart, dateEnd, selectedPreset]);
 
   return (
-    <div
-      style={{
-        flex: 1,
-        borderLeft: "1px solid #ccc",
-        padding: 0,
-        overflowY: "auto",
-        maxHeight: 400,
-        minWidth: minWidth,
-      }}
-    >
-      {/* Filters heading and date filter */}
-      <div
-        style={{
-          position: "sticky",
-          top: 0,
-          backgroundColor: "#fff",
-          zIndex: 2,
-          padding: 10,
-          borderBottom: "1px solid #ccc",
-        }}
-      >
-        <h3
-          style={{
-            margin: "0 0 12px 0",
-            fontWeight: 600,
-            fontSize: "1.1em",
-            letterSpacing: "0.5px",
-          }}
-        >
+    <div className="sidebar-panel-container">
+      <div className="sidebar-panel-header">
+        <h3 className="sidebar-panel-title">
           {t("report.label.filters")}
         </h3>
         {showDateFilter && (
-          <div style={{ marginBottom: 8 }}>
-            <div style={{ display: "flex", alignItems: "center", marginBottom: 4 }}>
-              <span style={{ fontWeight: 500, marginRight: 8 }}>
+          <div className="sidebar-panel-date-filter">
+            <div className="sidebar-panel-date-row">
+              <span className="sidebar-panel-date-label">
                 {t("report.label.date_range")}
               </span>
               <select
-                style={{ fontSize: "0.95em", padding: "2px 6px", borderRadius: 4 }}
+                className="sidebar-panel-select"
                 onChange={(e) => {
                   const daysStr = e.target.value;
                   if (daysStr) handlePreset(daysStr);
@@ -121,14 +96,7 @@ export default function SidebarPanel({
                 ))}
               </select>
             </div>
-            <div
-              style={{
-                display: "flex",
-                alignItems: "center",
-                gap: 8,
-                marginTop: 6,
-              }}
-            >
+            <div className="sidebar-panel-date-inputs">
               <input
                 type="date"
                 value={dateStart || ""}
@@ -136,14 +104,9 @@ export default function SidebarPanel({
                   setDateStart(e.target.value);
                   setSelectedPreset("");
                 }}
-                style={{
-                  border: "1px solid #ccc",
-                  borderRadius: 4,
-                  padding: "4px 8px",
-                  width: 105,
-                }}
+                className="sidebar-panel-date-input"
               />
-              <span style={{ margin: "0 6px" }}>–</span>
+              <span className="sidebar-panel-date-separator">–</span>
               <input
                 type="date"
                 value={dateEnd || ""}
@@ -152,18 +115,12 @@ export default function SidebarPanel({
                   setSelectedPreset("");
                 }}
                 max={new Date().toISOString().slice(0, 10)}
-                style={{
-                  border: "1px solid #ccc",
-                  borderRadius: 4,
-                  padding: "4px 8px",
-                  width: 105,
-                }}
+                className="sidebar-panel-date-input"
               />
             </div>
           </div>
         )}
       </div>
-      {/* Course browser only for multi-course */}
       {showCourseBrowser && (
         <CourseBrowser
           filteredCourseNames={filteredCourseNames}

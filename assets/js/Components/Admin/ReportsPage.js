@@ -71,7 +71,7 @@ const getReportHistory = () => {
   }, [])
 
   return (
-    <div className="p-0 scrollable h-100">
+    <div className="report-page-container scrollable">
       <div className="flex-row justify-content-center mt-3">
         <h1 className="mt-0 mb-0 primary-dark">{selectedCourse?.title || t('report.header.all_courses')}</h1>
       </div>

@@ -23,8 +23,6 @@ for (let i = 1; i <= 100; i++) {
   };
 }
 
-/** ---------- Constants ---------- */
-
 // Colors for multi course line graph
 const LINE_STYLES = [
   { color: "rgb(249, 65, 68)", dash: [] },
@@ -53,7 +51,6 @@ const METRIC_CONFIG = {
   },
 };
 
-/** ---------- Component ---------- */
 export default function ResolutionsReport({
   t,
   reports = null,
@@ -75,7 +72,6 @@ export default function ResolutionsReport({
   const isArrayHistory = useMemo(() => Array.isArray(reports), [reports]);
   const isSingleCourse = useMemo(() => selectedCourse != null, [selectedCourse]);
 
-  /** ---------- Initialize course selection (first load only) ---------- */
   useEffect(() => {
     if (!dataReports || Array.isArray(dataReports)) return;
     if (Object.keys(selectedCourses).length > 0) return;
@@ -247,7 +243,7 @@ export default function ResolutionsReport({
     dateEnd,
   ]);
 
-  /** ---------- Chart options (memo) ---------- */
+  /** ---------- Chart options ---------- */
   const options = useMemo(
     () => ({
       spanGaps: true,

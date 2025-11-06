@@ -17,7 +17,7 @@ export default function CoursePage({
 
   const [filteredCourses, setFilteredCourses] = useState([])
   const [tableSettings, setTableSettings] = useState({
-    sortBy: 'errors',
+    sortBy: 'lastUpdated',
     ascending: false,
     pageNum: 0,
     rowsPerPage: (localStorage.getItem('rowsPerPage')) ? localStorage.getItem('rowsPerPage') : '10'
@@ -59,10 +59,8 @@ export default function CoursePage({
 
       if (!excludeCourse) {
         const scanCounts = course.report?.scanCounts || {};
-        const barriers = scanCounts.errors || 0; // Use scanCounts.errors for "Barriers"
-        const suggestions = scanCounts.suggestions || 0; // Use scanCounts.suggestions for "Suggestions"
-        // The Course data from the database is stored in the `course` object.
-        // The data for the table is converted to the `row` object.
+        const barriers = scanCounts.errors || 0;
+        const suggestions = scanCounts.suggestions || 0;
         let row = {
           id: course.id,
           course,
@@ -106,6 +104,9 @@ export default function CoursePage({
     tempFilteredCourses.sort((a, b) => {
       if (sortBy === 'courseName') {
         return (a['courseTitle'].toLowerCase() < b['courseTitle'].toLowerCase()) ? -1 : 1
+      }
+      if (sortBy === 'lastUpdated') {
+        return new Date(a.lastUpdated) < new Date(b.lastUpdated) ? -1 : 1
       }
       if (isNaN(a[sortBy]) || isNaN(b[sortBy])) {
         return (a[sortBy].toLowerCase() < b[sortBy].toLowerCase()) ? -1 : 1
@@ -182,7 +183,7 @@ export default function CoursePage({
   }
 
   return (
-    <div className="p-0 scrollable h-100">
+    <div className="report-page-container scrollable">
       <div className="flex-row justify-content-center mt-3 mb-3">
         <h1 className="mt-0 mb-0 primary-dark">{t('report.header.courses')}</h1>
       </div>
