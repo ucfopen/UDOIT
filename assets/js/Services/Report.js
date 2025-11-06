@@ -204,6 +204,7 @@ export function analyzeReport(report, ISSUE_STATE) {
       }
 
       parsedDocuments[contentItem.id] = tempBody
+      usedContentItems[contentItem.id] = contentItem
     }
   })
 
@@ -283,7 +284,6 @@ export function analyzeReport(report, ISSUE_STATE) {
   // each reference to a file should add its parent section to the list.
   // We ALSO want a list of references to include the section(s) the file appears in outside of
   // references (like when the file is linked in the modules directly).
-  console.log(report)
   const lmsIdToFileMap = {}
   report.files.forEach((file) => {
     file.sections = getSectionsFromFile(report.contentSections, file)

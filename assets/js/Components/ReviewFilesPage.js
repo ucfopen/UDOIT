@@ -24,6 +24,7 @@ import './FixIssuesPage.css'
   * --- activeIssue.issueData: The issue as it is stored in the database. Matches report.issues for the issue.
   * --- activeIssue.fileData: The file as it is stored in the database. Matches report.files for the file.
 **/
+import * as Html from '../Services/Html.js'
 
 export default function ReviewFilesPage({
   t,
@@ -424,13 +425,8 @@ export default function ReviewFilesPage({
 
     if(file.changeReferences && file.references?.length > 0){
       // We need to update the links here
+      let replacedFileHtml = ""
       file.references.forEach((ref) => {
-        const fileUrl = new URL(file.lmsUrl)
-        const courseId = fileUrl.pathname.match(/\/courses\/(\d+)/);
-        console.log(courseId)
-        const newUrl = `/courses/${courseId[1]}/files/${newFile.lmsFileId}?wrap=1`
-        console.log(newUrl)
-
          if(ref.contentItemBody){
           const parser = new DOMParser()
           const tempBody = parser.parseFromString(ref.contentItemBody, 'text/html')
@@ -442,13 +438,17 @@ export default function ReviewFilesPage({
              if(href){
               let match = href.match(fileUrlPattern)
               if(match && match[1] && match[1] == file.lmsFileId){
-                 link.setAttribute('href', newFile.lmsUrl) 
+                  link.setAttribute('href', newFile.lmsUrl) 
               }
              }
           }
-
-          console.log(tempBody.body)
+          replacedFileHtml = Html.toString(tempBody.body)
          }
+
+         // Upload content and sections through backend 
+
+
+         // Rescan content items to account for any changes
       })
       
       // Handle reference changes
