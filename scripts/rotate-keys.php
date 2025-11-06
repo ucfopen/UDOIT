@@ -23,6 +23,15 @@ function encryptKey($encodedKey, $data) {
         return $final;
 }
 
+function printManualEncodeKeyInstructions($newEncodeKey) {
+    echo "Please save this key into your .env file now!\n";
+    echo "If not, UDOIT will not be able to properly decode your keys when you run this script.\n";
+
+    echo "You can copy and paste the following 3 lines into your .env file if you do not have a DATABASE_ENCODE_KEY field,\n";
+    echo "or alternatively, update DATABASE_ENCODE_KEY to use the new encode key:\n\n";
+    echo "###> database encode key ###\nDATABASE_ENCODE_KEY=\"" . $newEncodeKey . "\"\n###> database encode key ###\n\n\n";
+}
+
 // create a base64-encoded key using sodium (should usually be 44 characters long)
 function createKey() {
     $key = sodium_crypto_secretbox_keygen();
@@ -78,12 +87,12 @@ function replaceKey($oldEncodedKey, $newEncodedKey, $table, $host, $username, $p
                     try {
                         $decryptedKey = decryptKey($oldEncodedKey, $row[$keyColumn]);
                     } catch (SodiumException $e) {
-                        echo "\nAn error occured when trying to decrypt the key! The decryption key you entered might be incorrect. Ensure it is a base64-encoded string (usually 44 characters long).\n";
+                        echo "\nAn error occurred when trying to decrypt the key! The decryption key you entered might be incorrect. Ensure it is a base64-encoded string (usually 44 characters long).\n";
                         $decryptedKey = null;
                     }
 
                     if (empty($decryptedKey)) {
-                        print("\nFailed to decrypt! Either the key in the database may not be encrypted or the decryption key you entered is incorrect. Skipping...\n");
+                        print("\nFailed to decrypt! The key in the database may not be encrypted, or the decryption key you entered is incorrect. Skipping...\n");
                         continue;
                     }
                     print("\n* Decrypted " . $keyColumn . ": " . $decryptedKey . "\n\n");
@@ -149,10 +158,15 @@ $port;
 $valid = false;
 while ($valid == false) {
     // if running makefile and docker, we should have the HOST_ADDR env variable set to the ip address of the udoit3-db container
-    $host = $argv[1];
+    if (!empty($argv[1])) {
+        $host = $argv[1];
+    }
+    else {
+        $host = null;
+    }
 
     if (empty($host)) {
-        $host = readline("Enter IP address of UDOIT: ");
+        $host = readline("Enter IP address of the UDOIT database: ");
     }
     else {
         echo "\nFound IP address of udoit3-db container: " . $host . "\n";
@@ -204,6 +218,7 @@ while ($valid == false) {
             }
             break;
         default:
+            $host = null;
             break;
     }
     
@@ -241,16 +256,41 @@ echo "\n****************\n\n";
 // ask if we should automatically update the .env file
 $updateEnv = readline("Would you like to automatically update the .env file? (Y/n): ");
 if (strtolower($updateEnv) === 'y') {
-    $envFile = $argv[2];
-    updateEnvFile($envFile, $newEncodeKey);
+    if (!empty($argv[2])) {
+        $envFile = $argv[2];
+    }
+    else {
+        // keep asking until we get a valid file path
+        while (empty($envFile) || !file_exists($envFile)) {
+            // prompt user for env file location
+            $envFile = readline("Please enter the path to your .env file (default is .env): ");
+            if (strtolower($envFile) === '') {
+                $envFile = ".env";
+            }
+
+            if (!file_exists($envFile)) {
+                echo "\nFile does not exist. Please try again. Otherwise, leave the prompt empty to skip updating the .env file automatically.\n";
+                if (strtolower($envFile) === '') {
+                    $envFile = null;
+                    break;
+                }
+            }
+        }
+    }
+
+    // check if file exists
+    if (!file_exists($envFile)) {
+        echo "\nUnable to find file: $envFile\n";
+        printManualEncodeKeyInstructions($newEncodeKey);
+    }
+    else {
+        echo "\nFound .env file: $envFile\n";
+        updateEnvFile($envFile, $newEncodeKey);
+    }
+    
 }
 else {
-    echo "Please save this key into your .env file now!\n";
-    echo "If not, UDOIT will not be able to properly decode your keys when you run this script.\n";
-
-    echo "You can copy and paste the following 3 lines into your .env file if you do not have a DATABASE_ENCODE_KEY field,\n";
-    echo "or alternatively, update DATABASE_ENCODE_KEY to use the new encode key:\n\n";
-    echo "###> database encode key ###\nDATABASE_ENCODE_KEY=\"" . $newEncodeKey . "\"\n###> database encode key ###\n\n\n";
+    printManualEncodeKeyInstructions($newEncodeKey);
 }
 
 $valid = false;
