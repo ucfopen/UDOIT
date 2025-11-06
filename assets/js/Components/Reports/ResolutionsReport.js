@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import Chart from "chart.js/auto";
 import SidebarPanel from "./SidebarPanel";
+import './ResolutionsReport.css';
 
 /** ---------- Mock data for testing (optional) ---------- */
 const mockReports = {};
@@ -313,20 +314,31 @@ export default function ResolutionsReport({
   const selectedCount = Object.values(selectedCourses).filter(Boolean).length;
 
   return (
-    <div style={{ display: "flex", flexDirection: "row", height: "100%" }}>
+    <div className="resolutions-report-container">
       {/* Main chart area */}
-      <div style={{ flex: 3, padding: 20 }}>
+      <div className="resolutions-chart-area">
+        <h2 className="resolutions-header">
+          {t('report.title.barriers_remaining')}
+        </h2>
         {showModeToggle && (
-          <div style={{ marginBottom: 15, textAlign: "center" }}>
-            <button onClick={() => setChartMode("bar")} disabled={chartMode === "bar"} style={{ marginRight: 8 }}>
+          <div className="resolutions-mode-toggle">
+            <button
+              onClick={() => setChartMode("bar")}
+              disabled={chartMode === "bar"}
+              className={`resolutions-mode-btn${chartMode === "bar" ? " selected" : ""}`}
+            >
               {t("report.button.grouped_bar")}
             </button>
-            <button onClick={() => setChartMode("line")} disabled={chartMode === "line"}>
+            <button
+              onClick={() => setChartMode("line")}
+              disabled={chartMode === "line"}
+              className={`resolutions-mode-btn${chartMode === "line" ? " selected" : ""}`}
+            >
               {t("report.button.line_graph")}
             </button>
           </div>
         )}
-        <div style={{ height: 400, display: "flex", justifyContent: "center", alignItems: "center" }}>
+        <div className="resolutions-chart-canvas-container">
           <canvas ref={canvasRef} id="resolutionsChart" />
         </div>
       </div>

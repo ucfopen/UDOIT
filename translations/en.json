@@ -109,7 +109,7 @@
   "report.button.view_all_report": "View Report for All Courses",
   "report.button.scan": "Scan",
   "report.button.force_reauthorize": "Force Reauthorize",
-  "report.button.grouped_bar": "Grouped Bar Chart",
+  "report.button.grouped_bar": "Bar Chart",
   "report.button.line_graph": "Line Graph",
   "report.button.deselect_all": "Deselect All",
   "report.time.1_week": "1 Week",

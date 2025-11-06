@@ -1,0 +1,58 @@
+.resolutions-report-container {
+  display: flex;
+  flex-direction: row;
+  height: 100%;
+}
+
+.resolutions-chart-area {
+  flex: 3;
+  padding: 20px;
+}
+
+.resolutions-header {
+  text-align: center;
+  width: 100%;
+  margin-top: 0;
+  margin-bottom: 0.5em;
+}
+
+.resolutions-mode-toggle {
+  margin-bottom: 15px;
+  text-align: center;
+}
+
+.resolutions-mode-btn {
+  margin-right: 8px;
+  background: #f5f5f5;
+  background-color: var(--gray-light);
+  padding: 6px 16px;
+  font-weight: normal;
+  cursor: pointer;
+}
+
+.resolutions-mode-btn.active {
+  background-color: var(--gray-dark) !important;
+  color: #fff;
+  font-weight: bold;
+}
+
+.resolutions-mode-btn:disabled {
+  background-color: var(--primary-color-dark) !important;
+  border-color: var(--primary-color-dark) !important;
+  color: #fff;
+  font-weight: bold;
+}
+
+.resolutions-mode-btn:disabled:hover {
+  background-color: var(--primary-color-dark) !important;
+  border-color: var(--primary-color-dark) !important;
+  color: #fff;
+  font-weight: bold;
+}
+
+.resolutions-chart-canvas-container {
+  height: 400px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}

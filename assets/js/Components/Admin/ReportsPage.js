@@ -73,7 +73,18 @@ const getReportHistory = () => {
   return (
     <div className="report-page-container scrollable">
       <div className="flex-row justify-content-center mt-3">
-        <h1 className="mt-0 mb-0 primary-dark">{selectedCourse?.title || t('report.header.all_courses')}</h1>
+        <div className="flex-column w-100">
+          <h1 className="mt-0 mb-0 primary-dark" style={{ textAlign: "center" }}>
+            {selectedCourse?.title || t('report.header.all_courses')}
+          </h1>
+          <hr
+            style={{
+              margin: "8px auto 0 auto",
+              borderTop: "1px solid",
+              width: "90%"
+            }}
+          />
+        </div>
       </div>
       { (groupedReports === null) ? (
         <div className="mt-3 mb-3 flex-row justify-content-center">
@@ -93,9 +104,6 @@ const getReportHistory = () => {
             : 
             <div className="flex-column">
               <div className="mt-4">
-                <div className="flex-row w-100 justify-content-center">
-                  <h2 className="primary-dark mt-0 mb-2">{t('report.title.barriers_remaining')}</h2>
-                </div>
                 <div id="resolutionsReport" className="graph-container">
                   <ResolutionsReport 
                     t={t} 
