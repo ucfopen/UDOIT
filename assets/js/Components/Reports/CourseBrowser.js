@@ -38,6 +38,7 @@ export default function CourseBrowser({
         <button
           onClick={() => setSelectedCourses({})}
           className="course-browser-deselect"
+          style={{ textTransform: "none" }}
         >
           {t("report.button.deselect_all")}
         </button>

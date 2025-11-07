@@ -26,11 +26,11 @@ for (let i = 1; i <= 100; i++) {
 
 // Colors for multi course line graph
 const LINE_STYLES = [
-  { color: "rgb(249, 65, 68)", dash: [] },
-  { color: "rgba(17, 11, 11, 1)", dash: [5, 5] },
-  { color: "rgba(26, 166, 222, 1)", dash: [10, 5, 2, 5] },
-  { color: "rgba(86, 145, 41, 1)", dash: [2, 2] },
-  { color: "rgba(215, 172, 31, 1)", dash: [15, 5] },
+  { color: "rgba(89, 161, 35, 1)", dash: [] },         // Green
+  { color: "rgba(149, 11, 149, 1)", dash: [5, 5] },     // Purple
+  { color: "rgb(0, 128, 128)", dash: [10, 5, 2, 5] }, // Teal
+  { color: "rgb(139, 69, 19)", dash: [2, 2] },     // Brown
+  { color: "rgba(101, 98, 98, 1)", dash: [15, 5] },  // Gray
 ];
 
 // Display config for errors, potentials, and suggestions on line graphs
@@ -276,7 +276,7 @@ export default function ResolutionsReport({
         },
         y: {
           beginAtZero: true,
-          title: { display: true, text: t("report.label.count") },
+          title: { display: true, text: t("report.label.errors") },
         },
       },
     }),

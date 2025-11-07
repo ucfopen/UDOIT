@@ -83,7 +83,7 @@
   "report.label.course_limit": "Muestra hasta 5 cursos",
   "report.label.search_courses": "Buscar cursos...",
   "report.label.filters": "Filtros",
-  "report.label.count": "Cantidad",
+  "report.label.errors": "Errores",
   "report.label.dates": "Fechas",
   "report.label.date_range": "Rango de Fechas",
   "report.label.presets": "Predefinidos",
