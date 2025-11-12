@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\FileItem;
+use App\Entity\ContentItem;
 use App\Response\ApiResponse;
 use App\Services\LmsPostService;
 use App\Services\LmsFetchService;
@@ -130,9 +131,25 @@ class FileItemsController extends ApiController
     public function uploadContent(Request $request, UtilityService $util, LmsPostService $lmsPost, LmsFetchService $lmsFetch){
         $output = new ConsoleOutput();
         $apiResponse = new ApiResponse();
-        $output->writeln(json_encode(json_decode($request->getContent()), JSON_PRETTY_PRINT));
+        $user = $this->getUser();
+
+        try{
+            $content= \json_decode($request->getContent(), true);
+            $contentOptions = $content['content'];
+
+            $lmsContent = $lmsPost->uploadContentToLms($contentOptions);
+
+            $apiResponse->addMessage('form.msg.success_replaced', 'success', 5000);
+            $apiResponse->addLogMessages($util->getUnreadMessages());
+
+            $apiResponse->setData([
+                'content' => $lmsContent,
+            ]);
+
+        } catch (\Exception $e) {
+            $apiResponse->addError($e->getMessage());
+        }
+
         return new JsonResponse($apiResponse);
-
     }
-
 }

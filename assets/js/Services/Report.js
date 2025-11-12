@@ -192,6 +192,7 @@ export function analyzeReport(report, ISSUE_STATE) {
               fileReferences[fileId] = []
             }
             fileReferences[fileId].push({
+              contentItemId: contentItem.id,
               contentItemBody: contentItem.body,
               contentItemTitle: contentItem.title,
               contentItemUrl: contentItem.url,

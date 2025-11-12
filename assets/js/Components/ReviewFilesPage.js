@@ -379,6 +379,19 @@ export default function ReviewFilesPage({
     }
   }
 
+  const extractUrl = (url) => {
+  if(!url) return ''
+  
+  const idx = url.indexOf('courses/');
+  if (idx !== -1) {
+    // slice from "courses/" onward and strip any leading slashes (defensive)
+    return url.slice(idx).replace(/^\/+/, '');
+  }
+
+  // if no "courses/" found, remove leading slashes and return the remainder
+  return url.replace(/^\/+/, '');
+}
+
   const updateFile = (tempFile) => {
     const tempReport = Object.assign({}, report)
     console.log(tempReport)
@@ -408,6 +421,37 @@ export default function ReviewFilesPage({
     processNewReport(tempReport)
   }
 
+  // Given a html returns updated html with all file links replaced
+  const replaceFileInHtml = (contentItemBody, fileId, newUrl) => {
+    const parser = new DOMParser()
+    const tempBody = parser.parseFromString(contentItemBody, 'text/html')
+    let links = tempBody.getElementsByTagName('a')
+    const fileUrlPattern = /\/files\/(\d+)/
+    for(let i = 0; i < links.length; i++) {
+      let link = links[i]
+      let href = link.getAttribute('href')
+      if(href){
+        let match = href.match(fileUrlPattern)
+        if(match && match[1] && match[1] == fileId){
+            link.setAttribute('href', newUrl) 
+        }
+      }
+    }
+    return Html.toString(tempBody.body)
+  }
+
+  const createContentItemPostOptions = (fullPageHtml, contentUrl, contentId, contentType, sectionIds) => {
+      const contentItemOption = {
+        fullPageHtml: fullPageHtml,
+        contentUrl: contentUrl,
+        contentId: contentId,
+        contentType: contentType,
+        sectionIds: sectionIds?.length > 0 ? sectionIds : []
+      }
+
+      return contentItemOption
+  }
+
   const updateFileWithReplacement = (file, newFile) => {
     const tempReport = Object.assign({}, report)
     // Make sure it is an array we are working with 
@@ -423,43 +467,33 @@ export default function ReviewFilesPage({
       }
     })
 
+    const postContentItemOptions = []
+    // Go through every file and change the reference if needed 
     if(file.changeReferences && file.references?.length > 0){
-      // We need to update the links here
-      let replacedFileHtml = ""
-      file.references.forEach((ref) => {
-         if(ref.contentItemBody){
-          const parser = new DOMParser()
-          const tempBody = parser.parseFromString(ref.contentItemBody, 'text/html')
-          let links = tempBody.getElementsByTagName('a')
-          const fileUrlPattern = /\/files\/(\d+)/
-          for(let i = 0; i < links.length; i++) {
-             let link = links[i]
-             let href = link.getAttribute('href')
-             if(href){
-              let match = href.match(fileUrlPattern)
-              if(match && match[1] && match[1] == file.lmsFileId){
-                  link.setAttribute('href', newFile.lmsUrl) 
-              }
-             }
-          }
-          replacedFileHtml = Html.toString(tempBody.body)
-         }
-         // Upload content and sections through backend 
-         try{
-          let api = new Api(settings)
-          api.updateContent(ref, replacedFileHtml)
-         }
-         catch(error){
-          console.error("Error while posting content: " + error)
-         }
-
-         // Rescan content items to account for any changes
+      file.references.map((reference) => {
+        let newFullPageHtml = ""
+        if(reference.contentItemBody){
+          newFullPageHtml = replaceFileInHtml(reference.contentItemBody, file.lmsFileId, newFile.metadata.url)
+        }
+        postContentItemOptions.push(createContentItemPostOptions(newFullPageHtml, extractUrl(reference.contentItemUrl), reference.contentItemId, reference.contentType, reference.sectionIds))
       })
-      
-      // Handle reference changes
-      // handleFileResolve(file)
     }
-    processNewReport(tempReport)
+
+    console.log(postContentItemOptions)
+    if(postContentItemOptions && postContentItemOptions.length > 0){
+      try{
+        let api = new Api(settings)
+        api.updateContent(postContentItemOptions)
+        .then((responseStr) => responseStr.json())
+        .then((response) => {
+          console.log(response)
+        })
+      }
+      catch(error){
+        console.error("Error when uploading content to canvas: " + error)
+      }
+    }
+ 
   }
 
   /**

@@ -197,6 +197,8 @@ class CanvasLms implements LmsInterface {
                 }
 
                 foreach ($contentList as $content) {
+                    $output->writeln("Testing how content is printed when scanning: ");
+                    $output->writeln(json_encode($content, JSON_PRETTY_PRINT));
                     if ('file' === $contentType) {
                       $output->writeln('Found file: ' . $content['display_name'] . ' Type: ' . $content['mime_class']);
                       if (in_array($content['mime_class'], $this->util->getUnscannableFileMimeClasses())) {
@@ -461,6 +463,48 @@ class CanvasLms implements LmsInterface {
         return $canvasApi->apiPut($url, ['body' => $options]);
     }
 
+    public function postContentItemNoIssue($contentOptions)
+    {
+        $output = new ConsoleOutput();
+        $user = $this->security->getUser();
+        $apiDomain = $this->getApiDomain($user);
+        $apiToken = $this->getApiToken($user);
+        $canvasApi = new CanvasApi($apiDomain, $apiToken);
+
+        $paths = [];
+        $options = [];
+
+        foreach($contentOptions as $option){
+            $paths[] = $option['contentUrl'];
+            $options[] = $this->createLmsPostOptionsWithHtml($option['contentType'], $option['fullPageHtml']);
+        }
+        
+        $responses = $canvasApi->apiPutBatch($paths, $options); 
+        $normalizedResponses = [];
+        foreach($responses as $response){
+                $contentItem = $this->contentItemRepo->findOneBy([
+                        'contentType' => $response['type'],
+                        'lmsContentId' => $response['id'],
+                ]);
+                if($contentItem){
+                    $normalizedContent = [];
+                    if($response['status'] == 200){
+                        $normalizedContent = $this->normalizeLmsContent($contentItem->getCourse(), $response['type'], json_decode(json_encode($response['content']), true));
+                        $contentItem->update($normalizedContent);
+                        $this->entityManager->flush();
+                    }
+                    $normalizedResponse = [
+                        'content' => $normalizedContent,
+                        'id' => $contentItem->getId(),
+                        'status' => $response['status'],
+                    ];
+                    $normalizedResponses[] = $normalizedResponse;
+                }
+        } 
+
+        return $normalizedResponses;
+    }
+
     public function postFileItem(FileItem $file, string $newFileName)
     {
         $output = new ConsoleOutput();
@@ -660,6 +704,46 @@ class CanvasLms implements LmsInterface {
         return $options;
     }
 
+    protected function createLmsPostOptionsWithHtml($type, $fullPageHtml){
+        $options = [];
+        switch($type){
+            case('page'):
+                $options = [
+                        'wiki_page' => [
+                            'body' => $fullPageHtml,
+                        ],
+                ];
+                break;
+            case('assignment'):
+                $options = [
+                        'assignment' => [
+                            'description' => $fullPageHtml,
+                        ],
+                ];
+                break;
+            case('quiz'):
+                $options = [
+                        'quiz' => [
+                            'description' => $fullPageHtml,
+                        ],
+                ];
+                break;
+            case('announcement'):
+                $options = [
+
+                ];
+                break;
+            case('discussion'):
+                $options = [
+
+                ];
+                break;
+            default:
+                break;
+        }
+        return $options;
+    }
+
     protected function getContentTypeUrl(ContentItem $contentItem)
     {
         $contentType = $contentItem->getContentType();
@@ -686,6 +770,13 @@ class CanvasLms implements LmsInterface {
         $domainName = $course->getInstitution()->getLmsDomain();
         $baseUrl = "https://{$domainName}/courses/{$course->getLmsCourseId()}";
 
+        $output = new ConsoleOutput();
+        $output->writeln("Content type: ");
+        $output->writeln($contentType);
+        $output->writeln("Content ");
+        $output->writeln(json_encode($lmsContent, JSON_PRETTY_PRINT));
+
+
         switch ($contentType) {
             case 'syllabus':
                 $out['id'] = $lmsContent['id'];
@@ -699,7 +790,7 @@ class CanvasLms implements LmsInterface {
                     $out['status'] = true;
                 }
 
-                break;
+                break; 
 
             case 'page':
                 $out['id'] = $lmsContent['url'];

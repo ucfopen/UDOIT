@@ -57,6 +57,11 @@ class LmsPostService {
         return $lms->postContentItem($contentItem);
     }
 
+    public function uploadContentToLms($contentOptions){
+        $lms = $this->lmsApi->getLms();
+        return $lms->postContentItemNoIssue($contentOptions);
+    }
+
     public function saveFileToLms(FileItem $file, UploadedFile $uploadedFile, User $user)
     {
         $lms = $this->lmsApi->getLms();

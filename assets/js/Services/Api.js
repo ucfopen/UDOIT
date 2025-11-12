@@ -153,7 +153,7 @@ export default class Api {
         })
     }
 
-    updateContent(content, fullPageHtml){
+    updateContent(contentOptions){
         const authToken = this.getAuthToken()
         let url = `${this.apiUrl}${this.endpoints.updateContent}`
 
@@ -164,8 +164,7 @@ export default class Api {
                 'X-AUTH-TOKEN': authToken
             },
             body: JSON.stringify({
-                content: content,
-                fullPageHtml: fullPageHtml
+                content: contentOptions
             })
         })
     }
@@ -291,6 +290,7 @@ export default class Api {
 
     scanContent(contentId)
     {
+        console.log(contentId)
         const authToken = this.getAuthToken()
         let url = `${this.apiUrl}${this.endpoints.scanContent}`
         url = url.replace('{contentItem}', contentId)
