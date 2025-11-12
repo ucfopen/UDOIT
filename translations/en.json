@@ -102,6 +102,7 @@
   "report.button.view_all_report": "View Report for All Courses",
   "report.button.scan": "Scan",
   "report.button.force_reauthorize": "Force Reauthorize",
+  "report.button.issue_tooltip": "Learn More",
   
   "settings.label.alert_timeout": "Alert Message Timeout",
   "settings.option.alert_timeout.5s": "5 Seconds",
