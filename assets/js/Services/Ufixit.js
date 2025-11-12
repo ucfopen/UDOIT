@@ -246,10 +246,10 @@ const rulesToFormNameMap = {
   table_caption_empty: formNames.TABLE_CAPTION,
 
   table_headers_exists: formNames.TABLE_HEADERS,
-<<<<<<< Updated upstream
   table_structure_misuse: formNames.TABLE_HEADERS,
 
   text_sensory_misuse: formNames.SENSORY_MISUSE,
+  text_spacing_valid: formNames.INLINE_CSS
 }
 
 /* When a REVIEW_ONLY rule uses the same summary as another rule, add it here.
@@ -300,11 +300,7 @@ export const sharedRuleDescriptions = {
   skip_main_described: 'rule.desc.html_skipnav_exists',
   skip_main_exists: 'rule.desc.html_skipnav_exists',
   style_viewport_resizable: 'rule.desc.meta_viewport_zoomable',
-  widget_tabbable_single: 'rule.desc.widget_tabbable_exists',
-=======
-
-  text_spacing_valid: formNames.INLINE_CSS
->>>>>>> Stashed changes
+  widget_tabbable_single: 'rule.desc.widget_tabbable_exists'
 }
 
 export function formFromIssue(activeIssue) {
