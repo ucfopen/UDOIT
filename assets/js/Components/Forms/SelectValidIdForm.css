@@ -29,7 +29,7 @@
 
 .attribute-id {
   padding: 5px;
-  border-bottom: 1px solid #464646;
+  border: 1px solid blue;
   display: flex;
   justify-content: space-between;
 }
