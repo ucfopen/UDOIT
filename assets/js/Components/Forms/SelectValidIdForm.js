@@ -42,13 +42,19 @@ const SelectValidIdForm = (
             return
         }
 
+        setClickedInfo({})
         const html = Html.getIssueHtml(activeIssue) 
         const aria_attributes = Html.getAriaAttributes(html)
         const tempAttributeId = []
+        const tempIDXpathMap = {}
 
         aria_attributes.forEach((attribute, i) => {
             const ariaValue = Html.getAttribute(html, attribute)
-            const ariaIds = getValidIdFromHtml(ariaValue) 
+            const response = getValidIdFromHtml(ariaValue) 
+            const ariaIds = response.validatedIds
+            for(const [key, value] of Object.entries(response.validatedIdXpathMap)){
+                tempIDXpathMap[key] = value
+            }
             tempAttributeId.push({
                 attribute: (activeIssue.scanRuleId == "aria_complementary_label_visible") ? "aria-labelledby" : attribute,
                 selected: (activeIssue.scanRuleId == "aria_complementary_label_visible") || (i == 0),
@@ -57,6 +63,7 @@ const SelectValidIdForm = (
             })
         })
         setAttributeId(tempAttributeId)
+        setIdXpathMap(tempIDXpathMap)
         setFormErrors([])
     }, [activeIssue])
 
@@ -106,7 +113,7 @@ const SelectValidIdForm = (
         const parser = new DOMParser()
         const doc = parser.parseFromString(fullPageHtml, "text/html")
         let validatedIds = []
-        let validatedIdXpathMap = JSON.parse(JSON.stringify(idXpathMap))
+        let validatedIdXpathMap = {}
 
         tempIdArray.forEach((tempId) => {
             const element = doc.getElementById(tempId)
@@ -118,8 +125,12 @@ const SelectValidIdForm = (
             } 
         })
 
-        setIdXpathMap(validatedIdXpathMap)
-        return validatedIds?.length > 0 ? validatedIds : []
+     
+        const response = { 
+                            validatedIds: validatedIds?.length > 0 ? validatedIds : [],
+                            validatedIdXpathMap: validatedIdXpathMap
+                         }
+        return response
     }
 
     const handleLocalSave = () => {
