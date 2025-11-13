@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import Chart from "chart.js/auto";
+import Chart, { Interaction } from "chart.js/auto";
 import SidebarPanel from "./SidebarPanel";
 import './ResolutionsReport.css';
 
@@ -249,8 +249,7 @@ export default function ResolutionsReport({
     () => ({
       spanGaps: true,
       responsive: true,
-      maintainAspectRatio: true,
-      aspectRatio: 2,
+      maintainAspectRatio: false,
       plugins: {
         legend: {
           position: "top",
@@ -293,11 +292,13 @@ export default function ResolutionsReport({
     if (!current || current.config.type !== chartType) {
       current?.destroy();
       chartRef.current = new Chart(ctx, { type: chartType, data: { labels, datasets }, options });
+      chartRef.current.resize();
     } else {
       current.data.labels = labels;
       current.data.datasets = datasets;
       current.options = options;
       current.update();
+      current.resize();
     }
 
     return () => {

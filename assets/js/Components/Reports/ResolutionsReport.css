@@ -56,3 +56,29 @@
   justify-content: center;
   align-items: center;
 }
+
+.resolutions-chart-canvas-container canvas {
+  width: 100% !important;
+  height: 100% !important;
+  display: block;
+}
+
+@media (max-width: 900px) {
+  .resolutions-report-container {
+    flex-direction: column;
+    height: auto;
+  }
+
+  .resolutions-chart-area {
+    flex: none;
+    width: 100%;
+    padding: 10px;
+  }
+
+  .resolutions-chart-canvas-container {
+    height: 300px;
+    min-width: 0;
+    width: 100%;
+    margin-top: 50px; /* Add space between buttons and chart */
+  }
+}
