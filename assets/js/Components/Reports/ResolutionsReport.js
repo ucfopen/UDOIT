@@ -26,11 +26,11 @@ for (let i = 1; i <= 100; i++) {
 
 // Colors for multi course line graph
 const LINE_STYLES = [
-  { color: "rgba(89, 161, 35, 1)", dash: [] },         // Green
-  { color: "rgba(149, 11, 149, 1)", dash: [5, 5] },     // Purple
-  { color: "rgb(0, 128, 128)", dash: [10, 5, 2, 5] }, // Teal
-  { color: "rgb(139, 69, 19)", dash: [2, 2] },     // Brown
-  { color: "rgba(101, 98, 98, 1)", dash: [15, 5] },  // Gray
+  { color: "rgba(89, 161, 35, 1)", dash: [] },
+  { color: "rgba(149, 11, 149, 1)", dash: [5, 5] },
+  { color: "rgb(0, 128, 128)", dash: [10, 5, 2, 5] },
+  { color: "rgb(139, 69, 19)", dash: [2, 2] },
+  { color: "rgba(101, 98, 98, 1)", dash: [15, 5] },  
 ];
 
 // Display config for errors, potentials, and suggestions on line graphs
