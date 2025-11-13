@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react'
-import InfoIcon from '../Icons/FilledInfoIcon'
+import FilledInfoIcon from '../Icons/FilledInfoIcon'
 import './InfoPopover.css'
 
 export default function InfoPopover({
@@ -7,7 +7,7 @@ export default function InfoPopover({
   t,
   label = t('fix.button.close_learn_more'),
   iconSize = 18,
-  triggerAriaLabel = 'More information'
+  triggerAriaLabel = t('report.button.issue_tooltip')
 }) {
   const [open, setOpen] = useState(false)
   const [coords, setCoords] = useState({ x: 0, y: 0 })
@@ -60,22 +60,23 @@ export default function InfoPopover({
       // Get viewport dimensions
       const vw = window.innerWidth
       const vh = window.innerHeight
+      const margin = 16
 
       // Adjust X if dialog overflows right edge
       if (newX + rect.width > vw) {
-        newX = vw - rect.width - 16 // 16px margin
+        newX = vw - rect.width - margin
       }
       // Adjust X if dialog overflows left edge
       if (newX < 0) {
-        newX = 16 // 16px margin
+        newX = margin
       }
       // Adjust Y if dialog overflows bottom edge
       if (newY + rect.height > vh) {
-        newY = vh - rect.height - 16
+        newY = vh - rect.height - margin
       }
       // Adjust Y if dialog overflows top edge
       if (newY < 0) {
-        newY = 16
+        newY = margin
       }
 
       setCoords({ x: newX, y: newY })
@@ -108,12 +109,10 @@ export default function InfoPopover({
         ref={lastButtonRef}
       >
 
-        <InfoIcon
+        <FilledInfoIcon
         width={iconSize}
         height={iconSize}
         className="icon-info"
-        circleColor="var(--link-color)"
-        iconColor="#fff"
         />
       </button>
 
