@@ -1,9 +1,8 @@
 import React, { useState, useEffect } from 'react'
-import FixIssuesFilters from './FixIssuesFilters'
-import FixIssuesList from './FixIssuesList'
-import UfixitWidget from './UfixitWidget'
-import FixIssuesContentPreview from './FixIssuesContentPreview'
-import DailyProgress from './DailyProgress'
+import FixIssuesFilters from './Widgets/FixIssuesFilters'
+import FixIssuesList from './Widgets/FixIssuesList'
+import UfixitWidget from './Widgets/UfixitWidget'
+import FixIssuesContentPreview from './Widgets/FixIssuesContentPreview'
 import LeftArrowIcon from './Icons/LeftArrowIcon'
 import RightArrowIcon from './Icons/RightArrowIcon'
 import { formNameFromRule } from '../Services/Ufixit'
@@ -38,7 +37,6 @@ export default function FixIssuesPage({
   sections,
   processNewReport,
   addMessage,
-  updateReportIssue,
   sessionIssues,
   updateSessionIssue,
   processServerError
@@ -898,7 +896,6 @@ export default function FixIssuesPage({
     else if (newIndex >= filteredIssues.length) {
       newIndex = 0
     }
-    console.log("Move to issue: ", filteredIssues[newIndex].id)
     setActiveIssue(filteredIssues[newIndex])
   }
 
@@ -957,15 +954,17 @@ export default function FixIssuesPage({
           <FixIssuesFilters
             t={t}
             settings={settings.FILTER ? settings : Object.assign({}, settings, { FILTER })}
-            sections={sections}
+
             activeFilters={activeFilters}
-            updateActiveFilters={updateActiveFilters}
-            searchTerm={searchTerm}
             handleSearchTerm={setSearchTerm}
+            searchTerm={searchTerm}
+            sections={sections}
+            updateActiveFilters={updateActiveFilters}
           />
           <FixIssuesList
             t={t}
             settings={settings.FILTER ? settings : Object.assign({}, settings, { FILTER })}
+
             groupedList={groupedList}
             setActiveIssue={setActiveIssue}
           />
@@ -980,20 +979,18 @@ export default function FixIssuesPage({
                 <UfixitWidget
                   t={t}
                   settings={settings.FILTER ? settings : Object.assign({}, settings, { FILTER })}
-                  severity={tempActiveIssue.severity}
+
+                  activeContentItem={activeContentItem}
                   addMessage={addMessage}
-                  tempActiveIssue={tempActiveIssue}
-                  setTempActiveIssue={setTempActiveIssue}
-                  formatIssueData={formatIssueData}
-                  isContentLoading={contentItemsBeingScanned.includes(tempActiveIssue?.issueData?.contentItemId)}
-                  sessionIssues={sessionIssues}
-                  isErrorFoundInContent={isErrorFoundInContent}
-                  handleIssueSave={handleIssueSave}
                   handleFileResolve={handleFileResolve}
                   handleFileUpload={handleFileUpload}
-                  toggleListView={toggleListView}
-                  listLength={filteredIssues.length}
-                  nextIssue={nextIssue}
+                  handleIssueSave={handleIssueSave}
+                  isContentLoading={contentItemsBeingScanned.includes(tempActiveIssue?.issueData?.contentItemId)}
+                  isErrorFoundInContent={isErrorFoundInContent}
+                  sessionIssues={sessionIssues}
+                  setTempActiveIssue={setTempActiveIssue}
+                  severity={tempActiveIssue.severity}
+                  tempActiveIssue={tempActiveIssue}
                   triggerLiveUpdate={triggerLiveUpdate}
                 />
             ) : ''}
@@ -1003,13 +1000,12 @@ export default function FixIssuesPage({
               <FixIssuesContentPreview
                 t={t}
                 settings={settings.FILTER ? settings : Object.assign({}, settings, { FILTER })}
-                activeIssue={tempActiveIssue}
-                liveUpdateToggle={liveUpdateToggle}
+
                 activeContentItem={activeContentItem}
-                sessionIssues={sessionIssues}
-                isErrorFoundInContent={isErrorFoundInContent}
-                setIsErrorFoundInContent={setIsErrorFoundInContent}
+                activeIssue={tempActiveIssue}
                 contentItemsBeingScanned={contentItemsBeingScanned}
+                liveUpdateToggle={liveUpdateToggle}
+                setIsErrorFoundInContent={setIsErrorFoundInContent}
               />
             )}
             <div className="flex-row justify-content-end gap-2 mt-3">

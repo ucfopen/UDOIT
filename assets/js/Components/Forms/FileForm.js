@@ -7,10 +7,11 @@ import './FileForm.css'
 export default function FileForm ({
   t,
   settings,
+
   activeFile,
-  sessionIssues,
+  handleFileResolve,
   handleFileUpload,
-  handleFileResolve
+  sessionIssues
  }) {
 
   const [acceptType, setAcceptType] = useState([])

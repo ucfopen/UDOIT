@@ -1,5 +1,5 @@
 import React, {useState, useEffect} from 'react'
-import SortableTable from '../SortableTable'
+import SortableTable from '../Widgets/SortableTable'
 import Api from '../../Services/Api'
 import SummaryIcon from '../Icons/SummaryIcon'
 import ReportIcon from '../Icons/ReportIcon'

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
-import SortIconFilled from './Icons/SortIconFilled'
-import DownloadIcon from './Icons/DownloadIcon'
+import SortIconFilled from '../Icons/SortIconFilled'
+import DownloadIcon from '../Icons/DownloadIcon'
 
 import './SortableTable.css'
 
@@ -99,7 +99,7 @@ export default function SortableTable({
       className={`paginationButton${(v === tableSettings.pageNum) ? ' selected' : ''}`}
       key={`page${v}`}
       onClick={() => setPage(v)}
-      current={v === tableSettings.pageNum}>
+      current={(v === tableSettings.pageNum).toString()}>
       {v + 1}
     </button>)
 
@@ -197,15 +197,33 @@ export default function SortableTable({
           </tr>
         </thead>
         <tbody>
-          {pagedRows.map((row) => (
-            <tr key={`row${row.id}`} className={row.onClick ? ' clickable' : ''}>
-              {headers.map(({ id, renderCell, alignText, format }) => (
-                <td key={`row${row.id}cell${id}`} className={alignText === 'center' ? 'text-center' : alignText === 'end' ? 'text-end' : 'text-start'} onClick={(row.onClick) ? row.onClick : null}>
-                  {renderCell ? renderCell(row[id]) : (format) ? format(row[id]) : <div cursor={(row.onClick) ? 'pointer' : 'auto'}>{row[id]}</div>}
-                </td>
-              ))}
-            </tr>
-          ))}
+          {pagedRows.map((row) => {
+            const isRowClickable = !!row.onClick;
+            return (
+              <tr
+                key={`row${row.id}`}
+                className={isRowClickable ? 'clickable' : ''}
+                onClick={isRowClickable ? row.onClick : undefined}
+                tabIndex={isRowClickable ? 0 : undefined}
+                style={isRowClickable ? { cursor: "pointer" } : undefined}
+              >
+                {headers.map(({ id, renderCell, alignText, format }) => (
+                  <td
+                    key={`row${row.id}cell${id}`}
+                    className={
+                      alignText === 'center'
+                        ? 'text-center'
+                        : alignText === 'end'
+                        ? 'text-end'
+                        : 'text-start'
+                    }
+                  >
+                    {renderCell ? renderCell(row[id]) : (format) ? format(row[id]) : <div>{row[id]}</div>}
+                  </td>
+                ))}
+              </tr>
+            );
+          })}
         </tbody>
       </table>
       {renderPagination()}

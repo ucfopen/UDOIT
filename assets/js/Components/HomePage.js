@@ -1,10 +1,8 @@
 import React, { useState, useEffect } from 'react'
-import ProgressBar from './ProgressBar'
-import ProgressCircle from './ProgressCircle'
+import ProgressCircle from './Widgets/ProgressCircle'
 import ProgressIcon from './Icons/ProgressIcon'
 import SeverityIcon from './Icons/SeverityIcon'
 import './HomePage.css'
-import DailyProgress from './DailyProgress'
 import SummaryIcon from './Icons/SummaryIcon'
 import UFIXITIcon from './Icons/UFIXITIcon'
 
@@ -171,17 +169,17 @@ export default function HomePage({
       <div className="flex-column flex-center w-75">
         <p className="mt-0 mb-0">{t('summary.description')}</p>
       </div>
-      
+
     </div>
 
     <div className="summary-container">
       <div className="progress-column flex-column gap-2">
 
         { panels.map((panel) => (
-          <div className="callout-container flex-column">
+          <div className="callout-container flex-column" key={"panel-" + panel.step}>
             <div className="flex-row justify-content-start gap-2 pb-1">
               <div className="flex-column justify-content-start">
-                <SeverityIcon type={panel.type} filled={true} className='icon-lg' />
+                <SeverityIcon type={panel.type} filled='true' className='icon-lg' />
               </div>
               <div className="flex-column justify-content-center">
                 <h2 className="callout-heading">{t('summary.label.step' + panel.step)} - {t('summary.label.' + panel.translationKey)}</h2>
