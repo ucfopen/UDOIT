@@ -4,6 +4,7 @@ import SaveIcon from '../Icons/SaveIcon'
 import ResolvedIcon from '../Icons/ResolvedIcon'
 import './FileForm.css'
 import DeleteModal from '../Widgets/DeleteModal'
+import DeleteIcon from '../Icons/DeleteIcon'
 
 export default function FileForm ({
   t,
@@ -124,7 +125,7 @@ export default function FileForm ({
       </div>
       {!activeFile.references || activeFile.references.length == 0 && (
         <div className='mt-3 flex-row justify-content-end'>
-          <button onClick={handleModalVisibility} className="btn-warn btn-icon-left">{t("form.file.delete")}</button>
+          <button onClick={handleModalVisibility} className="btn-warn btn-icon-left"><DeleteIcon className="icon-md" alt="" />{t("form.file.delete")}</button>
         </div>
       )}
       {uploadedFile && (
