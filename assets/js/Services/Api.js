@@ -13,7 +13,7 @@ export default class Api {
             updateContent: '/api/content',
             reportPdf: '/download/courses/{course}/reports/pdf',
             adminCourses: '/api/admin/courses/account/{account}/term/{term}',
-            scanContent: '/api/sync/content/{contentItem}',
+            scanContent: '/api/sync/content/{contentItem}?report={getReport}',
             scanCourse: '/api/sync/{course}',
             fullRescan: '/api/sync/rescan/{course}',
             scanIssue: '/api/issues/{issue}/scan',
@@ -288,12 +288,12 @@ export default class Api {
         })
     } 
 
-    scanContent(contentId)
+    scanContent(contentId, getReport = true)
     {
-        console.log(contentId)
         const authToken = this.getAuthToken()
         let url = `${this.apiUrl}${this.endpoints.scanContent}`
         url = url.replace('{contentItem}', contentId)
+        url = url.replace('{getReport}', getReport)
 
         return fetch(url, {
             method: 'GET',
