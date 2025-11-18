@@ -3,6 +3,7 @@ import UploadIcon from '../Icons/UploadIcon'
 import SaveIcon from '../Icons/SaveIcon'
 import ResolvedIcon from '../Icons/ResolvedIcon'
 import './FileForm.css'
+import DeleteModal from '../Widgets/DeleteModal'
 
 export default function FileForm ({
   t,
@@ -18,6 +19,7 @@ export default function FileForm ({
   const [uploadedFile, setUploadedFile] = useState(null)
   const [isDisabled, setIsDisabled] = useState(false)
   const [changeReferences, setChangeReferences] = useState(true)
+  const [modalVisbility, setModalVisibility] = useState(false)
 
   useEffect(() => {
     setUploadedFile(null)
@@ -38,6 +40,10 @@ export default function FileForm ({
     }
     setIsDisabled(tempIsDisabled)
   }, [sessionIssues])
+
+  const handleModalVisibility = () => {
+    setModalVisibility(() => !modalVisbility)
+  }
 
   // Drag and Drop code is adapted from:
   // https://developer.mozilla.org/en-US/docs/Web/API/HTML_Drag_and_Drop_API/File_drag_and_drop
@@ -118,7 +124,7 @@ export default function FileForm ({
       </div>
       {!activeFile.references || activeFile.references.length == 0 && (
         <div className='mt-3 flex-row justify-content-end'>
-          <button onClick={handleFileDelete} className="btn-warn btn-icon-left">{t("form.file.delete")}</button>
+          <button onClick={handleModalVisibility} className="btn-warn btn-icon-left">{t("form.file.delete")}</button>
         </div>
       )}
       {uploadedFile && (
@@ -173,6 +179,12 @@ export default function FileForm ({
             {activeFile?.reviewed ? t('fix.button.unresolved') : t('fix.button.resolved')}
           </button>
         </div>
+        {modalVisbility && (
+        <div className='modal-overlay'>
+          <DeleteModal handleModalVisibility={handleModalVisibility} handleFileDelete={handleFileDelete} />
+        </div>
+        )}
+      
       </div>
     </>
   )

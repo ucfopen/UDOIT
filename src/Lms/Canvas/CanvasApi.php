@@ -241,7 +241,6 @@ class CanvasApi {
 
         $output->writeln($url);
         $response = $this->httpClient->request('DELETE', $url);
-
         $lmsResponse->setResponse($response);
 
         $content = $lmsResponse->getContent();

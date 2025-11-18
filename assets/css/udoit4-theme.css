@@ -716,6 +716,20 @@ button {
   }
 }
 
+.btn-warn-secondary{
+
+  border-color: var(--issue-color);
+  background-color: var(--white);
+  color: var(--issue-color);
+  fill: var(--issue-color);
+  
+  &:hover,
+  &:focus {
+    background-color: var(--issue-color-light);
+  }
+
+}
+
 .btn-secondary {
   border-color: var(--primary-color);
   background-color: var(--white);
