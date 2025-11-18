@@ -8,6 +8,7 @@ export default function FileFixitWidget({
   t,
   settings,
 
+  handleFileDelete,
   handleFileResolve,
   handleFileUpload,
   sessionIssues,
@@ -39,6 +40,7 @@ export default function FileFixitWidget({
             t={t}
             settings={settings}
             
+            handleFileDelete={handleFileDelete}
             activeFile={tempActiveIssue.fileData}
             handleFileResolve={handleFileResolve}
             handleFileUpload={handleFileUpload}

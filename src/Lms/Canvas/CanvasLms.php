@@ -607,6 +607,20 @@ class CanvasLms implements LmsInterface {
         return $terms;
     }
 
+    public function deleteFileFromCanvas($fileId){
+        $user = $this->security->getUser();
+        $apiDomain = $this->getApiDomain($user);
+        $apiToken = $this->getApiToken($user);
+        $canvasApi = new CanvasApi($apiDomain, $apiToken);
+        $url = "files/" . $fileId;
+        $output = new ConsoleOutput();
+        $output->writeln($fileId);
+        $output->writeln($url);
+
+        return $canvasApi->apiDelete($url);
+
+    }
+
     public function getContentTypes()
     {
         return [

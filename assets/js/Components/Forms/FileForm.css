@@ -22,3 +22,18 @@
     width: 100%;
   }
 }
+
+  #file-drop-zone-disabled-upload {
+    border: 2px dashed var(--gray);
+    border-radius: 8px;
+    padding: 1rem 2rem;
+    text-align: center;
+    width: 100%;
+    box-sizing: border-box;
+    pointer-events: none;
+    opacity: 50%;
+
+  .file-drop-text {
+    width: 100%;
+  }
+  }

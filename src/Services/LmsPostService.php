@@ -62,6 +62,11 @@ class LmsPostService {
         return $lms->postContentItemNoIssue($contentOptions);
     }
 
+    public function deleteFile($fileId){
+        $lms = $this->lmsApi->getLms();
+        return $lms->deleteFileFromCanvas($fileId);
+    }
+
     public function saveFileToLms(FileItem $file, UploadedFile $uploadedFile, User $user)
     {
         $lms = $this->lmsApi->getLms();

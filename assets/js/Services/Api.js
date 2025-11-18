@@ -10,6 +10,7 @@ export default class Api {
             saveIssue: '/api/issues/{issue}/save',
             reviewFile: '/api/files/{file}/review',
             postFile: '/api/files/{file}/post',
+            deleteFile: '/api/files/{file}/delete?lmsFileId={lmsFileId}',
             updateContent: '/api/content',
             reportPdf: '/download/courses/{course}/reports/pdf',
             adminCourses: '/api/admin/courses/account/{account}/term/{term}',
@@ -151,6 +152,23 @@ export default class Api {
             },
             body: formData,
         })
+    }
+
+    deleteFile(activeFile) {
+        const authToken = this.getAuthToken()
+        let url = `${this.apiUrl}${this.endpoints.deleteFile}`
+        url = url.replace('{file}', activeFile.id)
+        url = url.replace('{lmsFileId}', activeFile.lmsFileId)
+
+        console.log(url)
+
+        return fetch(url, {
+            method: 'DELETE',
+            headers: {
+                'X-AUTH-TOKEN': authToken,
+            },
+        })
+
     }
 
     updateContent(contentOptions){

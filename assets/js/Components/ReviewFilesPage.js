@@ -427,6 +427,32 @@ export default function ReviewFilesPage({
     return Html.toString(tempBody.body)
   }
 
+  const handleFileDelete = async () => {
+    try{
+      let api = new Api(settings)
+      const responseStr = await api.deleteFile(activeIssue.fileData)
+      const response = await responseStr.json()
+      if(response?.messages[0].severity == "success"){
+        const tempReport = JSON.parse(JSON.stringify(report))
+        if(!Array.isArray(tempReport.files)){
+          tempReport.files = Object.values(tempReport.files)
+        }
+        let nextFileIndex = tempReport.files.findIndex((file) => file.id == activeIssue.fileData.id) + 1
+        nextFileIndex = nextFileIndex >= report.files.length ? 0 : nextFileIndex
+        const tempNext = tempReport.files[nextFileIndex]
+        tempReport.files = tempReport.files.filter((file) => file.id != activeIssue.fileData.id)
+        if(tempNext){
+          const tempFileIssue = formatFileData(tempNext)
+          setActiveIssue(tempFileIssue)
+        }
+        processNewReport(tempReport)
+      }
+    }
+    catch(error){
+      console.error(error)
+    }
+  }
+
   const createContentItemPostOptions = (fullPageHtml, contentUrl, contentId, contentType, sectionIds) => {
       const contentItemOption = {
         fullPageHtml: fullPageHtml,
@@ -711,6 +737,7 @@ export default function ReviewFilesPage({
                   t={t}
                   settings={settings}
                   
+                  handleFileDelete={handleFileDelete}
                   handleFileResolve={handleFileResolve}
                   handleFileUpload={handleFileUpload}
                   sessionIssues={sessionIssues}

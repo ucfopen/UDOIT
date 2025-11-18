@@ -152,4 +152,23 @@ class FileItemsController extends ApiController
 
         return new JsonResponse($apiResponse);
     }
+
+    #[Route('/api/files/{file}/delete', methods: ['DELETE'], name: 'delete_file')]
+    public function deleteFile(Request $request, UtilityService $util, LmsPostService $lmsPost, LmsFetchService $lmsFetch){
+        $output = new ConsoleOutput();
+        $apiResponse = new ApiResponse();
+        $user = $this->getUser();
+        try{
+            $lmsFileId = $request->query->get('lmsFileId');
+            $lmsResponse = $lmsPost->deleteFile($lmsFileId);
+            
+            $apiResponse->addMessage('Successful Deletion', 'success', 5000);
+            $apiResponse->addLogMessages($util->getUnreadMessages()); 
+        }
+        catch (\Exception $e) {
+            $apiResponse->addError($e->getMessage());
+        }
+
+        return new JsonResponse($apiResponse);
+    }
 }

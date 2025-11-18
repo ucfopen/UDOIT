@@ -702,6 +702,20 @@ button {
   }
 }
 
+.btn-warn{
+  background-color: var(--issue-color);
+  border-color: var(--issue-color);
+  color: var(--primary-color-inverse);
+  fill: var(--primary-color-inverse);
+
+  &:hover,
+  &:focus {
+    filter: brightness(var(--hover-brightness));
+    color: var(--primary-color-inverse);
+    fill: var(--primary-color-inverse);
+  }
+}
+
 .btn-secondary {
   border-color: var(--primary-color);
   background-color: var(--white);

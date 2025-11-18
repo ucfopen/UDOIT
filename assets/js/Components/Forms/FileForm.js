@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, act } from 'react'
 import UploadIcon from '../Icons/UploadIcon'
 import SaveIcon from '../Icons/SaveIcon'
 import ResolvedIcon from '../Icons/ResolvedIcon'
@@ -8,6 +8,7 @@ export default function FileForm ({
   t,
   settings,
 
+  handleFileDelete,
   activeFile,
   handleFileResolve,
   handleFileUpload,
@@ -97,10 +98,10 @@ export default function FileForm ({
   return (
     <>
       {/* <h3 >{t('form.file.label.replace')}</h3> */}
-      <label className="instructions">{t('form.file.label.replace.desc')}</label>
+      <label className="instructions">{!activeFile.references || activeFile.references.length == 0 ? t('form.file.label.delete.desc') : t("form.file.label.replace.desc")}</label>
       <div
-        id="file-drop-zone"
-        className="mt-3 flex-row"
+        id={`file-drop-zone${!activeFile.references || activeFile.references.length == 0 ? "-disabled-upload": ""}`} 
+        className={`mt-3 flex-row`}
         onDrop={handleDrop}
         onDragOver={handleDragOver}
         onClick={handleFileSelect}
@@ -115,6 +116,11 @@ export default function FileForm ({
           <div className="mt-2 flex-row flex-center link-color">{t('form.file.label.browse_files')}</div>
         </div>
       </div>
+      {!activeFile.references || activeFile.references.length == 0 && (
+        <div className='mt-3 flex-row justify-content-end'>
+          <button onClick={handleFileDelete} className="btn-warn btn-icon-left">{t("form.file.delete")}</button>
+        </div>
+      )}
       {uploadedFile && (
         <>
           <div className="mt-3 flex-row">

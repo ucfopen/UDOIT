@@ -227,16 +227,19 @@ class CanvasApi {
     }
 
     public function apiDelete($url) {
+        $output = new ConsoleOutput();
         $lmsResponse = new LmsResponse();
 
         if (strpos($url, 'https://') === false) {
             $pattern = '/\/files\/\d+/';
 
             preg_match($pattern, $url, $matches);
+
     
-            $url = "https://" . $this->baseUrl . "/api/v1/" . $matches[0];
+            $url = "https://" . $this->baseUrl . "/api/v1/" . $url;
         }
 
+        $output->writeln($url);
         $response = $this->httpClient->request('DELETE', $url);
 
         $lmsResponse->setResponse($response);
