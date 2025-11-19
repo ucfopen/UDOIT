@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react'
 import AdminHeader from './AdminHeader'
+import AdminDashboard from './AdminDashboard'
 import CoursesPage from './CoursesPage'
 import ReportsPage from './ReportsPage'
 import UsersPage from './UsersPage'
@@ -33,7 +34,7 @@ export default function AdminApp(initialData) {
   const [filters, setFilters] = useState({...initialFilters})
   const [searchTerm, setSearchTerm] = useState('')
   const [accountData, setAccountData] = useState([])
-  const [navigation, setNavigation] = useState('courses')
+  const [navigation, setNavigation] = useState('dashboard')
   const [modal, setModal] = useState(null)
   const [loadingCourses, setLoadingCourses] = useState(true)
   const [trayOpen, setTrayOpen] = useState(false)
@@ -129,7 +130,7 @@ export default function AdminApp(initialData) {
       />
 
       <main role="main" className="pt-2">
-        { (navigation !== 'reports') &&
+        { (navigation !== 'reports' && navigation !== 'dashboard') &&
           <AdminFilters
             t={t}
             settings={settings}
@@ -155,6 +156,15 @@ export default function AdminApp(initialData) {
         { !loadingCourses && (
           <div className="mt-3">
             
+            {('dashboard' === navigation) &&
+              <AdminDashboard
+                t={t}
+                settings={settings}
+                courses={courses}
+                handleNavigation={handleNavigation}
+                addMessage={addMessage}
+              />
+            }
             {('courses' === navigation) &&
               <CoursesPage
                 t={t}
