@@ -1,5 +1,6 @@
 import React from 'react'
 import UDOITLogo from '../../../mediaAssets/udoit-logo.svg'
+import HomeIcon from '../Icons/HomeIcon'
 import ContentAssignmentIcon from '../Icons/ContentAssignmentIcon'
 import UserIcon from '../Icons/UserIcon'
 import '../Header.css'
@@ -13,7 +14,7 @@ export default function AdminHeader({
   return (
     <header role="banner">
       <nav aria-label={t('menu.nav.label')}>
-        <div className="flex-row justify-content-start gap-2" onClick={() => handleNavigation('courses')}>
+        <div className="flex-row justify-content-start gap-2" onClick={() => handleNavigation('dashboard')}>
           <div className="flex-column justify-content-center" style={{ width: 'min-content' }}>
             <img alt={t('alt.UDOIT')} src={UDOITLogo}></img>
           </div>
@@ -23,6 +24,22 @@ export default function AdminHeader({
         </div>
         <div>
           <ul>
+            <li
+              className={`flex-row ${navigation === 'dashboard' ? ' active-link' : ''}`}
+              onClick={() => handleNavigation('dashboard')}
+              onKeyDown={(e) => {
+                if(e.key === 'Enter' || e.key === ' ') {
+                  handleNavigation('dashboard')
+                }
+              }}
+              tabIndex="0">
+              <div className='flex-column justify-content-center'>
+                <HomeIcon className='icon-md pr-1'/>
+              </div>
+              <div className='flex-column justify-content-center'>
+                Dashboard
+              </div>
+            </li>
             <li
               className={`flex-row ${navigation === 'courses' ? ' active-link' : ''}`}
               onClick={() => handleNavigation('courses')}
