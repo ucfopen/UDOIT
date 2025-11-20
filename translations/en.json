@@ -343,6 +343,9 @@
   "form.contrast.feedback.valid": "Sufficient Contrast",
   "form.contrast.auto_adjust_error": "We couldn't auto-adjust your colors, please do so manually.",
   "form.contrast.ratio_note": "* lowest among gradient colors",
+  "form.contrast.more_colors": "And {count} more colors",
+  "form.contrast.show": "Show",
+  "form.contrast.hide": "Hide",
   "rule.desc.text_contrast_sufficient": "",
 
   "form.embedded_content_title.title": "Embedded Content Should Have a Label",

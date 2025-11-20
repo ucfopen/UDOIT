@@ -11,7 +11,7 @@ import * as Html from '../../Services/Html'
 import * as Contrast from '../../Services/Contrast'
 
 export default function ContrastForm({
-  t,
+  t, 
   settings,
   activeIssue,
   isDisabled,
@@ -96,6 +96,7 @@ export default function ContrastForm({
   const [contrastRatio, setContrastRatio] = useState(null)
   const [ratioIsValid, setRatioIsValid] = useState(false)
   const [autoAdjustError, setAutoAdjustError] = useState(false)
+  const [showAllColors, setShowAllColors] = useState(false)
 
   // Generate updated HTML with new colors
   const processHtml = (html, bgColors) => {
@@ -264,7 +265,11 @@ export default function ContrastForm({
     return (fontSizePt >= 18) || (isBold && fontSizePt >= 14);
   }
 
-  // Render
+  // In your render, before mapping colors:
+  const maxColorsToShow = 4;
+  const shouldShowExpand = currentBgColors.length > maxColorsToShow;
+  const visibleBgColors = showAllColors ? currentBgColors : currentBgColors.slice(0, maxColorsToShow);
+
   return (
     <>
       <div className="instructions">{t('form.contrast.label.adjust')}</div>
@@ -311,7 +316,7 @@ export default function ContrastForm({
       <div className="mt-3">
         <label>{t('form.contrast.replace_background')}</label>
       </div>
-      {currentBgColors.map((color, idx) => {
+      {visibleBgColors.map((color, idx) => {
         let showStatus = currentBgColors.length > 1;
         let tagName = Html.toElement(Html.getIssueHtml(activeIssue)).tagName;
         let minRatio = headingTags.includes(tagName) ? 3 : 4.5;
@@ -328,24 +333,22 @@ export default function ContrastForm({
                 type="color"
                 value={Contrast.hslToHex(color) || '#ffffff'}
                 onChange={e => updateBackgroundColor(idx, e.target.value)}
-                aria-label={t('form.contrast.label.background.show_color_picker')}
+                aria-label={
+                  t('form.contrast.label.background.show_color_picker') +
+                  ' ' +
+                  (isValid
+                    ? t('form.contrast.feedback.valid')
+                    : t('form.contrast.feedback.invalid'))
+                }
                 title={t('form.contrast.label.background.show_color_picker')}
                 disabled={isDisabled}
               />
               {showStatus && (
-                isValid
-                  ? <CheckIcon
-                      className="icon-md color-success ms-2"
-                      title={t('form.contrast.feedback.valid')}
-                      aria-label={t('form.contrast.feedback.valid')}
-                      alt={t('form.contrast.feedback.valid')}
-                    />
-                  : <CloseIcon
-                      className="icon-md color-issue ms-2"
-                      title={t('form.contrast.feedback.invalid')}
-                      aria-label={t('form.contrast.feedback.invalid')}
-                      alt={t('form.contrast.feedback.invalid')}
-                    />
+                isValid ? (
+                  <CheckIcon className="icon-md color-success ms-2" />
+                ) : (
+                  <CloseIcon className="icon-md color-issue ms-2" />
+                )
               )}
             </div>
             <div className="flex-row gap-1">
@@ -371,6 +374,24 @@ export default function ContrastForm({
           </div>
         );
       })}
+
+      {shouldShowExpand && (
+        <div className="flex-column align-items-center mt-2">
+          {!showAllColors && (
+            <div className="mb-1">
+              {t('form.contrast.more_colors', { count: currentBgColors.length - maxColorsToShow })}
+            </div>
+          )}
+          <button
+            className="btn-small text-center btn-secondary"
+            onClick={() => setShowAllColors(v => !v)}
+            aria-expanded={showAllColors}
+            aria-controls="contrast-bgcolor-list"
+          >
+            {showAllColors ? t('form.contrast.hide') : t('form.contrast.show')}
+          </button>
+        </div>
+      )}
 
       {currentBgColors.length > 1 && (
         <div className="flex-row justify-content-end mt-2">

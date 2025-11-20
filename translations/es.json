@@ -343,6 +343,9 @@
   "form.contrast.label.italicize_text": "Poner Texto en Cursiva",
   "form.contrast.auto_adjust_error": "No se pudo ajustar automáticamente el color. Intenta ajustar manualmente los colores.",
   "form.contrast.ratio_note": "* más bajo entre todos los colores",
+  "form.contrast.more_colors": "Y {count} más colores",
+  "form.contrast.show": "Mostrar",
+  "form.contrast.hide": "Ocultar",
   "rule.desc.text_contrast_sufficient": "",
 
   "form.embedded_content_title.title": "El Contenido Incrustado Debe Tener una Etiqueta",
