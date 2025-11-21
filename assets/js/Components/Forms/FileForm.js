@@ -24,6 +24,7 @@ export default function FileForm ({
 
   useEffect(() => {
     setUploadedFile(null)
+    console.log(activeFile)
   }, [activeFile])
 
   useEffect(() => {
@@ -105,9 +106,9 @@ export default function FileForm ({
   return (
     <>
       {/* <h3 >{t('form.file.label.replace')}</h3> */}
-      <label className="instructions">{!activeFile.references || activeFile.references.length == 0 ? t('form.file.label.delete.desc') : t("form.file.label.replace.desc")}</label>
+      <label className="instructions">{(!activeFile.references || activeFile.references.length == 0) && (!activeFile.sectionRefs || activeFile.sectionRefs.length == 0) ? t('form.file.label.delete.desc') : t("form.file.label.replace.desc")}</label>
       <div
-        id={`file-drop-zone${!activeFile.references || activeFile.references.length == 0 ? "-disabled-upload": ""}`} 
+        id={`file-drop-zone${(!activeFile.references || activeFile.references.length == 0) && (!activeFile.sectionRefs || activeFile.sectionRefs.length == 0) ? "-disabled-upload": ""}`} 
         className={`mt-3 flex-row`}
         onDrop={handleDrop}
         onDragOver={handleDragOver}
@@ -123,7 +124,7 @@ export default function FileForm ({
           <div className="mt-2 flex-row flex-center link-color">{t('form.file.label.browse_files')}</div>
         </div>
       </div>
-      {!activeFile.references || activeFile.references.length == 0 && (
+      {(!activeFile.references || activeFile.references.length == 0) && (!activeFile.sectionRefs || activeFile.sectionRefs.length == 0) && (
         <div className='mt-3 flex-row justify-content-end'>
           <button onClick={handleModalVisibility} className="btn-warn btn-icon-left"><DeleteIcon className="icon-md" alt="" />{t("form.file.delete")}</button>
         </div>

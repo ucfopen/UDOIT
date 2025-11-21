@@ -136,8 +136,9 @@ class FileItemsController extends ApiController
         try{
             $content= \json_decode($request->getContent(), true);
             $contentOptions = $content['content'];
+            $sectionOptions = $content['section'];
 
-            $lmsContent = $lmsPost->uploadContentToLms($contentOptions);
+            $lmsContent = $lmsPost->uploadContentToLms($contentOptions, $sectionOptions);
 
             $apiResponse->addMessage('form.msg.success_replaced', 'success', 5000);
             $apiResponse->addLogMessages($util->getUnreadMessages());

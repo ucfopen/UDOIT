@@ -114,7 +114,15 @@ const getSectionsFromFile = (contentSections, fileData) => {
     let tempSectionId = section.id
     section.items.forEach((item) => {
       if(item.type === 'File' && item.content_id && item.content_id.toString() === fileData.lmsFileId.toString()) {
-        fileSections.push(tempSectionId.toString())
+        fileSections.push({
+          moduleId: tempSectionId,
+          itemPosition: item.position,
+          contentItemTitle: section.title,
+          contentItemUrl: section.url,
+          contentType: 'section',
+          indent: item.indent,
+          itemId: item.id
+        })
       }
     })
   })
@@ -177,7 +185,7 @@ export function analyzeReport(report, ISSUE_STATE) {
     contentItem.sections = getSectionsFromContentItem(report.contentSections, contentItem)
     if(contentItem.body) {
       let tempBody = parser.parseFromString(contentItem.body, 'text/html')
-
+ 
       // Get all of the links to files in the content item.
       let links = tempBody.getElementsByTagName('a')
       const fileUrlPattern = /\/files\/(\d+)/
@@ -198,7 +206,6 @@ export function analyzeReport(report, ISSUE_STATE) {
               contentItemUrl: contentItem.url,
               contentItemLmsId: contentItem.lmsContentId,
               contentType: contentItem.contentType,
-              sectionIds: contentItem.sections,
             })
           }
         }
@@ -287,26 +294,8 @@ export function analyzeReport(report, ISSUE_STATE) {
   // references (like when the file is linked in the modules directly).
   const lmsIdToFileMap = {}
   report.files.forEach((file) => {
-    file.sections = getSectionsFromFile(report.contentSections, file)
-    let sectionReferences = []
-    file.sections.forEach((sectionId) => {
-      let sectionReference = getReferenceFromSection(report.contentSections, sectionId)
-      if(sectionReference) {
-        sectionReferences.push(sectionReference)
-      }
-    })
     file.references = fileReferences[parseInt(file.lmsFileId)] || []
-    file.references.forEach((reference) => {
-      let referenceSections = reference.sectionIds
-      referenceSections.forEach((sectionId) => {
-        if(!file.sections.includes(sectionId)) {
-          file.sections.push(sectionId)
-        }
-      })
-    })
-    sectionReferences.forEach((sectionReference) => {
-      file.references.push(sectionReference)
-    })
+    file.sectionRefs = getSectionsFromFile(report.contentSections, file)
   })
 
   let tempFilesReviewed = 0
@@ -335,5 +324,6 @@ export function analyzeReport(report, ISSUE_STATE) {
   tempReport.sessionIssues = sessionIssues
   tempReport.filesReviewed = tempFilesReviewed
 
+  console.log(tempReport)
   return tempReport
 }

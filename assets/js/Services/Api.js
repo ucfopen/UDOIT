@@ -171,7 +171,7 @@ export default class Api {
 
     }
 
-    updateContent(contentOptions){
+    updateContent(contentOptions, sectionOptions){
         const authToken = this.getAuthToken()
         let url = `${this.apiUrl}${this.endpoints.updateContent}`
 
@@ -182,7 +182,8 @@ export default class Api {
                 'X-AUTH-TOKEN': authToken
             },
             body: JSON.stringify({
-                content: contentOptions
+                content: contentOptions,
+                section: sectionOptions
             })
         })
     }

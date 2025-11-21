@@ -57,9 +57,9 @@ class LmsPostService {
         return $lms->postContentItem($contentItem);
     }
 
-    public function uploadContentToLms($contentOptions){
+    public function uploadContentToLms($contentOptions, $sectionOptions){
         $lms = $this->lmsApi->getLms();
-        return $lms->postContentItemNoIssue($contentOptions);
+        return $lms->postContentItemNoIssue($contentOptions, $sectionOptions);
     }
 
     public function deleteFile($fileId){

@@ -260,6 +260,7 @@ export default function ReviewFilesPage({
     const activeIssueClone = JSON.parse(JSON.stringify(activeIssue))
 
     setTempActiveIssue(activeIssueClone)
+    console.log(settings)
 
   }, [activeIssue])
 
@@ -465,6 +466,19 @@ export default function ReviewFilesPage({
       return contentItemOption
   }
 
+  const createSectionPostOptions = (newFile, moduleId, position, itemId, indent) => {
+    const sectionIdOption = {
+      fileName: newFile.fileName,
+      fileId: newFile.lmsFileId,
+      moduleId: moduleId,
+      position: position,
+      itemid: itemId,
+      indent: indent,
+      courseId: settings.course.lmsCourseId
+    }
+    return sectionIdOption
+  }
+
   const getContentPostItems = (file, newFile) => {
     const postContentItemOptions = []
     if(file.changeReferences && file.references?.length > 0){
@@ -479,11 +493,21 @@ export default function ReviewFilesPage({
     return postContentItemOptions
   }
 
-  const updateAndScanContent = async (postContentItemOptions) => {
+const getSectionPostOptions = (file, newFile) => {
+    const postSectionOptions = []
+    if(file.changeReferences && file.sectionRefs?.length > 0){
+      file.sectionRefs.map((sectionRef) => {
+         postSectionOptions.push(createSectionPostOptions(newFile, sectionRef.moduleId, sectionRef.itemPosition, sectionRef.itemId, sectionRef.indent))
+      })
+    }
+    return postSectionOptions
+  }
+
+  const updateAndScanContent = async (postContentItemOptions, postSectionItemOption) => {
     const responseStatus = []
     try{
       let api = new Api(settings)
-      const responseStr = await api.updateContent(postContentItemOptions)
+      const responseStr = await api.updateContent(postContentItemOptions, postSectionItemOption)
       const response = await responseStr.json()
       if (response.errors && response.errors.length > 0) {
       response.errors.forEach((error) => {
@@ -497,14 +521,19 @@ export default function ReviewFilesPage({
       const isLastContent = contentIndex == newContent.length;
       contentIndex++;
       if(content.status == 200){
-        const scanResponseStr = await api.scanContent(content.id, isLastContent);
-        const scanResponse = await scanResponseStr.json();
-        if (scanResponse?.messages[0]?.severity != "success") {
-          responseStatus.push({ status: "error", message: "Failure to scan content" });
-          return responseStatus;
+        let latestScan = {};
+        if(content.type != 'section'){
+            const scanResponseStr = await api.scanContent(content.id, isLastContent);
+            const scanResponse = await scanResponseStr.json();
+            if (scanResponse?.messages[0]?.severity != "success") {
+              responseStatus.push({ status: "error", message: "Failure to scan content" });
+              return responseStatus;
+            }
+            latestScan = scanResponse.data;
         }
-        if(isLastContent && scanResponse.data) {
-          const newReport = scanResponse.data;
+        if(isLastContent && latestScan) {
+          console.log("Triggering")
+          const newReport = latestScan
           responseStatus.push({ status: "success", message: newReport });
           return responseStatus;
         }
@@ -541,13 +570,15 @@ export default function ReviewFilesPage({
       let canMarkReview = false
 
       const postContentItemOptions = getContentPostItems(tempFile, updatedFileData)
-      if(postContentItemOptions && postContentItemOptions.length > 0){
-        const responseStatus = await updateAndScanContent(postContentItemOptions)
-        if(responseStatus && responseStatus[0]?.status == "error"){
+      const postSectionOptions = getSectionPostOptions(tempFile, updatedFileData)
+      if((postContentItemOptions && postContentItemOptions.length > 0) ||  (postSectionOptions && postSectionOptions.length > 0)){
+        const responseStatus = await updateAndScanContent(postContentItemOptions, postSectionOptions)
+        if(responseStatus && responseStatus[0]?.type == "error"){
+          responseStatus.forEach((err) => addMessage({message: err.message, severity: 'error', visible:true}))
           updateActiveSessionIssue("file-" + tempFile.id, settings.ISSUE_STATE.ERROR)
           return
         }
-        else if(responseStatus[0]?.status == "success"){
+        else if(responseStatus && responseStatus[0]?.status == "success"){
           tempReport = responseStatus[0].message
           canMarkReview = true
         }
@@ -604,43 +635,6 @@ export default function ReviewFilesPage({
       processNewReport(newReport)
     }
     catch(error){
-      console.warn(error)
-      updateActiveSessionIssue("file-" + fileData.id, settings.ISSUE_STATE.ERROR)
-    }
-  }
-
-  const handleFileResolve1 = (fileData, getReport = false, copiedReport = report) => {
-    updateActiveSessionIssue("file-" + fileData.id, settings.ISSUE_STATE.RESOLVING)
-    
-    let tempFile = Object.assign({}, fileData)
-    tempFile.reviewed = !(tempFile.reviewed) 
-
-    try {
-      let api = new Api(settings)
-      api.reviewFile(tempFile)
-        .then((responseStr) => responseStr.json())
-        .then((response) => {
-          const reviewed = (response?.data?.file && ('reviewed' in response.data.file)) ? response.data.file.reviewed : false
-          const newFileData = { ...tempFile }
-          newFileData.reviewed = reviewed
-
-          // Set messages
-          response.messages.forEach((msg) => addMessage(msg))
-
-          // Update the local report and activeIssue
-          if(reviewed) {
-            updateActiveSessionIssue("file-" + fileData.id, settings.ISSUE_STATE.RESOLVED)
-          }
-          else {
-            updateActiveSessionIssue("file-" + fileData.id, settings.ISSUE_STATE.UNCHANGED)
-          }
-          const newReport = updateFile(newFileData, copiedReport)
-          if(getReport){
-            return newReport
-          }
-          processNewReport(newReport)
-        })
-    } catch (error) {
       console.warn(error)
       updateActiveSessionIssue("file-" + fileData.id, settings.ISSUE_STATE.ERROR)
     }
@@ -736,7 +730,6 @@ export default function ReviewFilesPage({
                 <FileFixitWidget
                   t={t}
                   settings={settings}
-                  
                   handleFileDelete={handleFileDelete}
                   handleFileResolve={handleFileResolve}
                   handleFileUpload={handleFileUpload}

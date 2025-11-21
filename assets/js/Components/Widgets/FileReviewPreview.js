@@ -89,7 +89,7 @@ export default function FixIssuesContentPreview({
 }
             </div>
             </div>
-            { activeIssue.fileData.references.length === 0 ? (
+            { activeIssue.fileData.references.length && activeIssue.fileData.sectionRef.length === 0 ? (
               <div className="mt-3 callout-container">
                 <div className="flex-row">
                   <div className="flex-column justify-content-start mr-2">
@@ -101,8 +101,7 @@ export default function FixIssuesContentPreview({
                 </div>
               </div>
             ) : (
-              <div className="mt-3">
-                <h3>{t('fix.label.references')}</h3>
+              <div className="mt-3"><h3>{t('fix.label.references')}</h3>
                   <div className='flex-column gap-2'>
                   { activeIssue.fileData.references.map((reference, index) => (
                     <a href={reference.contentItemUrl} target="_blank" rel="noreferrer" className='flex-row' key={index}>
@@ -110,6 +109,12 @@ export default function FixIssuesContentPreview({
                       <div className='flex-column align-self-center'>{reference.contentItemTitle}</div>
                     </a>
                   )) }
+                  {activeIssue.fileData.sectionRefs.map((sectionRef, index) => (
+                    <a href={sectionRef.contentItemUrl} target='_blank' rel='noreferrer' className='flex-row' key={index}>
+                      <ContentTypeIcon type={sectionRef.contentType} className='link-color icon-md mr-3 flex-column align-self-center' />
+                      <div className='flex-column align-self-center'>{sectionRef.contentItemTitle}</div>
+                    </a>
+                  ))}
                 </div>
               </div>
             )}

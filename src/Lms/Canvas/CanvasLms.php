@@ -197,8 +197,6 @@ class CanvasLms implements LmsInterface {
                 }
 
                 foreach ($contentList as $content) {
-                    $output->writeln("Testing how content is printed when scanning: ");
-                    $output->writeln(json_encode($content, JSON_PRETTY_PRINT));
                     if ('file' === $contentType) {
                       $output->writeln('Found file: ' . $content['display_name'] . ' Type: ' . $content['mime_class']);
                       if (in_array($content['mime_class'], $this->util->getUnscannableFileMimeClasses())) {
@@ -463,7 +461,7 @@ class CanvasLms implements LmsInterface {
         return $canvasApi->apiPut($url, ['body' => $options]);
     }
 
-    public function postContentItemNoIssue($contentOptions)
+    public function postContentItemNoIssue($contentOptions, $sectionOptions)
     {
         $output = new ConsoleOutput();
         $user = $this->security->getUser();
@@ -474,12 +472,29 @@ class CanvasLms implements LmsInterface {
         $paths = [];
         $options = [];
 
+        $sectionPaths = [];
+        $sectionOptionsBuild = [] ;
+        $deletePaths = [];
+
         foreach($contentOptions as $option){
             $paths[] = $option['contentUrl'];
             $options[] = $this->createLmsPostOptionsWithHtml($option['contentType'], $option['fullPageHtml']);
         }
-        
-        $responses = $canvasApi->apiPutBatch($paths, $options); 
+
+        foreach($sectionOptions as $sectionOption){
+            $courseId = $sectionOption['courseId'];
+            $moduleId = $sectionOption['moduleId'];
+            $itemId = $sectionOption['itemid'];
+            $sectionPaths[] = "courses/{$courseId}/modules/{$moduleId}/items";
+            $deletePaths[] = "courses/{$courseId}/modules/{$moduleId}/items/{$itemId}";
+            $sectionOptionsBuild[] = $this->sectionFilePostOption($sectionOption);
+        }
+
+
+    
+        $responses = $canvasApi->apiPutBatch($paths, $options);
+        $sectionPostResponse = $canvasApi->apiPostBatch($sectionPaths, $sectionOptionsBuild); 
+        $sectionDeleteResponse = $canvasApi->apiDeleteBatch($deletePaths);
         $normalizedResponses = [];
         foreach($responses as $response){
                 $contentItem = $this->contentItemRepo->findOneBy([
@@ -497,10 +512,20 @@ class CanvasLms implements LmsInterface {
                         'content' => $normalizedContent,
                         'id' => $contentItem->getId(),
                         'status' => $response['status'],
+                        'type' => $response['type']
                     ];
                     $normalizedResponses[] = $normalizedResponse;
                 }
-        } 
+        }
+
+        foreach($sectionPostResponse as $secPostRsp){
+            $normalizedResponse = [
+                'content' => $secPostRsp['content'],
+                'id' => $secPostRsp['id'],
+                'status' => $secPostRsp['status'],
+                'type' => 'section'
+            ];
+        }
 
         return $normalizedResponses;
     }
@@ -676,6 +701,20 @@ class CanvasLms implements LmsInterface {
         return $response->getContent();
     }
 
+    protected function sectionFilePostOption($sectionOption){
+        $option = [];
+        $option = [
+            'module_item' => [
+                'title' => $sectionOption['fileName'],
+                'type' => 'File',
+                'content_id' => $sectionOption['fileId'],
+                'position' => $sectionOption['position'],
+                'indent' => $sectionOption['indent'],
+            ],
+        ];
+        return $option;
+    }
+
     protected function createLmsPostOptions(ContentItem $contentItem)
     {
         $options = [];
@@ -742,14 +781,10 @@ class CanvasLms implements LmsInterface {
                         ],
                 ];
                 break;
-            case('announcement'):
-                $options = [
-
-                ];
-                break;
+            case('announcement'): 
             case('discussion'):
                 $options = [
-
+                    'message' => $fullPageHtml,
                 ];
                 break;
             default:
