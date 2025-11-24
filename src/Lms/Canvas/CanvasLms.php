@@ -473,13 +473,19 @@ class CanvasLms implements LmsInterface {
         $options = [];
 
         $sectionPaths = [];
-        $sectionOptionsBuild = [] ;
+        $sectionOptionsBuild = [];
         $deletePaths = [];
+
+        $output->writeln("Content options being passed in: ");
+        $output->writeln(json_encode($contentOptions, JSON_PRETTY_PRINT));
 
         foreach($contentOptions as $option){
             $paths[] = $option['contentUrl'];
             $options[] = $this->createLmsPostOptionsWithHtml($option['contentType'], $option['fullPageHtml']);
         }
+
+        $output->writeln("Options built: ");
+        $output->writeln(json_encode($options, JSON_PRETTY_PRINT));
 
         foreach($sectionOptions as $sectionOption){
             $courseId = $sectionOption['courseId'];
@@ -639,8 +645,6 @@ class CanvasLms implements LmsInterface {
         $canvasApi = new CanvasApi($apiDomain, $apiToken);
         $url = "files/" . $fileId;
         $output = new ConsoleOutput();
-        $output->writeln($fileId);
-        $output->writeln($url);
 
         return $canvasApi->apiDelete($url);
 
@@ -782,7 +786,7 @@ class CanvasLms implements LmsInterface {
                 ];
                 break;
             case('announcement'): 
-            case('discussion'):
+            case('discussion_topic'):
                 $options = [
                     'message' => $fullPageHtml,
                 ];
@@ -820,11 +824,6 @@ class CanvasLms implements LmsInterface {
         $baseUrl = "https://{$domainName}/courses/{$course->getLmsCourseId()}";
 
         $output = new ConsoleOutput();
-        $output->writeln("Content type: ");
-        $output->writeln($contentType);
-        $output->writeln("Content ");
-        $output->writeln(json_encode($lmsContent, JSON_PRETTY_PRINT));
-
 
         switch ($contentType) {
             case 'syllabus':

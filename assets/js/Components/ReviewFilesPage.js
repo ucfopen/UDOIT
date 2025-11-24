@@ -260,8 +260,6 @@ export default function ReviewFilesPage({
     const activeIssueClone = JSON.parse(JSON.stringify(activeIssue))
 
     setTempActiveIssue(activeIssueClone)
-    console.log(settings)
-
   }, [activeIssue])
 
   const getFilteredContent = (allIssues, includedIssueId = null) => {
@@ -485,11 +483,14 @@ export default function ReviewFilesPage({
       file.references.map((reference) => {
         let newFullPageHtml = ""
         if(reference.contentItemBody){
+          console.log("Before:  \n" + newFullPageHtml)
           newFullPageHtml = replaceFileInHtml(reference.contentItemBody, file.lmsFileId, newFile.metadata.url)
+          console.log("After:  \n" + newFullPageHtml)
         }
         postContentItemOptions.push(createContentItemPostOptions(newFullPageHtml, extractUrl(reference.contentItemUrl), reference.contentItemId, reference.contentType, reference.sectionIds))
       })
     }
+    console.log(postContentItemOptions)
     return postContentItemOptions
   }
 
@@ -521,21 +522,29 @@ const getSectionPostOptions = (file, newFile) => {
       const isLastContent = contentIndex == newContent.length;
       contentIndex++;
       if(content.status == 200){
-        let latestScan = {};
         if(content.type != 'section'){
-            const scanResponseStr = await api.scanContent(content.id, isLastContent);
+            const scanResponseStr = await api.scanContent(content.id, false);
             const scanResponse = await scanResponseStr.json();
             if (scanResponse?.messages[0]?.severity != "success") {
               responseStatus.push({ status: "error", message: "Failure to scan content" });
               return responseStatus;
             }
-            latestScan = scanResponse.data;
         }
-        if(isLastContent && latestScan) {
-          console.log("Triggering")
-          const newReport = latestScan
-          responseStatus.push({ status: "success", message: newReport });
-          return responseStatus;
+        if(isLastContent) {
+          const reportResponseStr = await api.updateAndGetReport(settings.course.id)
+          const reportResponse = await reportResponseStr.json()
+          if(reportResponse){
+            if(reportResponse.messages[0].severity == 'success'){
+              const newReport = reportResponse.data
+              console.log("Entering here!")
+              responseStatus.push({ status: "success", message: newReport});
+              return responseStatus;
+            }
+            else{
+              responseStatus.push({ status: "error", message:"Failed to retrive new report" });
+              return responseStatus;
+            }
+         }
         }
       }
     }
@@ -580,6 +589,7 @@ const getSectionPostOptions = (file, newFile) => {
         }
         else if(responseStatus && responseStatus[0]?.status == "success"){
           tempReport = responseStatus[0].message
+          console.log(tempReport)
           canMarkReview = true
         }
         

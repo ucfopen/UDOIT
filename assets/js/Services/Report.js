@@ -295,7 +295,8 @@ export function analyzeReport(report, ISSUE_STATE) {
   const lmsIdToFileMap = {}
   report.files.forEach((file) => {
     file.references = fileReferences[parseInt(file.lmsFileId)] || []
-    file.sectionRefs = getSectionsFromFile(report.contentSections, file)
+    const sectionRefs =  getSectionsFromFile(report.contentSections, file)
+    file.sectionRefs = sectionRefs ? sectionRefs : []
   })
 
   let tempFilesReviewed = 0

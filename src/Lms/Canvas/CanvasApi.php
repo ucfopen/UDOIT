@@ -175,6 +175,9 @@ class CanvasApi {
                 $url = "https://{$this->baseUrl}/api/v1/{$url}";
             }
 
+            $output->writeln("Printing URL: ");
+            $output->writeln($url);
+
             $ch = curl_init($url);
             curl_setopt_array($ch, [
                 CURLOPT_RETURNTRANSFER => true,
@@ -229,6 +232,8 @@ class CanvasApi {
         }
 
         curl_multi_close($multi);
+        $output->writeln("responses: ");
+        $output->writeln(json_encode($responses, JSON_PRETTY_PRINT));
         return $responses;
     }
 

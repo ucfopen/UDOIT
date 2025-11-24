@@ -6,6 +6,7 @@ export default class Api {
             getReport: '/api/courses/{course}/reports/{report}',
             getReportHistory: '/api/courses/{course}/reports',
             setReportData: '/api/reports/{report}/setdata',
+            updateAndGetReport: '/api/courses/{course}/reports/update',
             getIssueContent: '/api/issues/{issue}/content',
             saveIssue: '/api/issues/{issue}/save',
             reviewFile: '/api/files/{file}/review',
@@ -93,6 +94,20 @@ export default class Api {
                 'X-AUTH-TOKEN': authToken,
             },
             body: JSON.stringify(data),
+        })
+    }
+
+    updateAndGetReport(courseId){
+        const authToken = this.getAuthToken()
+        let url = `${this.apiUrl}${this.endpoints.updateAndGetReport}`
+        url = url.replace('{course}', courseId)
+    
+        return fetch(url, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-AUTH-TOKEN': authToken,
+            },
         })
     }
     

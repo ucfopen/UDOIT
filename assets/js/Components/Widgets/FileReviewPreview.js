@@ -89,7 +89,7 @@ export default function FixIssuesContentPreview({
 }
             </div>
             </div>
-            { activeIssue.fileData.references.length && activeIssue.fileData.sectionRef.length === 0 ? (
+            { activeIssue.fileData.references.length && activeIssue?.fileData?.sectionRef?.length === 0 ? (
               <div className="mt-3 callout-container">
                 <div className="flex-row">
                   <div className="flex-column justify-content-start mr-2">

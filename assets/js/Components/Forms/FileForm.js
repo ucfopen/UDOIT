@@ -24,7 +24,6 @@ export default function FileForm ({
 
   useEffect(() => {
     setUploadedFile(null)
-    console.log(activeFile)
   }, [activeFile])
 
   useEffect(() => {
