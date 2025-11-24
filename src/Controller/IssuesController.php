@@ -61,12 +61,15 @@ class IssuesController extends ApiController
 
             $contentUpdated = true;
             // Check if new HTML is different from original HTML
-            if ($sourceHtml === $newHtml || $issue->getPreviewHtml() === $newHtml || $issue->getNewHtml() === $newHtml) {
+            if ($newHtml !== '' &&
+                    (
+                        $sourceHtml === $newHtml ||
+                        $issue->getPreviewHtml() === $newHtml ||
+                        $issue->getNewHtml() === $newHtml
+                    )
+                ) {
               $contentUpdated = false;
             }
-
-            $output->writeln("Review updated: ".($reviewUpdated ? 'true' : 'false'));
-            $output->writeln("Content updated: ".($contentUpdated ? 'true' : 'false'));
 
             if(!$reviewUpdated && !$contentUpdated) {
                 throw new \Exception('form.error.same_html');

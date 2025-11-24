@@ -463,7 +463,10 @@ export default function FixIssuesPage({
 
     setFilteredIssues(tempFilteredContent)
     setGroupedList(groupList(tempFilteredContent))
-    setActiveIssue(holdoverActiveIssue)
+    if(holdoverActiveIssue) {
+      setActiveIssue(holdoverActiveIssue)
+    }
+    
   }, [report])
 
 
@@ -702,7 +705,7 @@ export default function FixIssuesPage({
     return tempDoc.body.innerHTML
   }
 
-  const handleIssueSave = (issue, markAsReviewed = false) => {
+  const handleIssueSave = async (issue, markAsReviewed = false) => {
 
     if(!activeContentItem || !activeContentItem?.body || !issue) {
       return
@@ -734,83 +737,73 @@ export default function FixIssuesPage({
     let fullPageDoc = new DOMParser().parseFromString(fullPageHtml, 'text/html')
     let newElement = Html.findElementWithError(fullPageDoc, issue?.newHtml)
     let newXpath = Html.findXpathFromElement(newElement)
-    if(newXpath) {
-      issue.xpath = newXpath
-    }
-    else {
-      issue.xpath = ""
-    }
-    activeContentItem.body = fullPageHtml
-
+    issue.xpath = newXpath || ''
+    
     // Save the updated issue using the LMS API
     let api = new Api(settings)
     try {
-      api.saveIssue(issue, fullPageHtml, markAsReviewed)
-      .then((responseStr) => {
-        // Check for HTTP errors before parsing JSON
-          if (!responseStr.ok) {
-            processServerError(responseStr)
-            updateActiveSessionIssue(issue.id, settings.ISSUE_STATE.ERROR)
-            removeItemFromBeingScanned(issue.contentItemId)
-            return null
-          }
-          return responseStr.json()
-      })
-      .then((response) => {
+      const saveResponse = await api.saveIssue(issue, fullPageHtml, markAsReviewed)
+      if(!saveResponse.ok){
+        processServerError(saveResponse)
+        updateActiveSessionIssue(issue.id, settings.ISSUE_STATE.ERROR)
+        removeItemFromBeingScanned(issue.contentItemId)
+        throw Error('Save returned invalid server response.')
+      }
 
-        // If the save falied, show the relevant error message
-        if (response.data.failed) {
-          updateActiveSessionIssue(issue.id, settings.ISSUE_STATE.ERROR)
-          removeItemFromBeingScanned(issue.contentItemId)
-          response.messages.forEach((msg) => addMessage(msg))
-            
-          if (Array.isArray(response.data.issues)) {
-            response.data.issues.forEach((issue) => {
-              addMessage({
-                severity: 'error',
-                message: t(`form.error.${issue.ruleId}`)
-              })
-            })
-          }
+      const saveResponseJson = await saveResponse.json()
 
-          if (Array.isArray(response.data.errors)) {
-            response.data.errors.forEach((error) => {
-              addMessage({
-                severity: 'error',
-                message: error
-              })
+      if(saveResponseJson?.errors && saveResponseJson.errors.length > 0) {
+        updateActiveSessionIssue(issue.id, settings.ISSUE_STATE.ERROR)
+        removeItemFromBeingScanned(issue.contentItemId)
+        saveResponseJson.messages.forEach((msg) => addMessage(msg))
+
+        if (Array.isArray(saveResponseJson.errors)) {
+          saveResponseJson.errors.forEach((error) => {
+            addMessage({
+              severity: 'error',
+              message: t(error)
             })
+          })
+        }
+        throw Error('Save failed.')
+      }
+
+      // Successful save!
+      saveResponseJson.messages.forEach((msg) => addMessage(msg))
+      if(issue.contentItemId === activeContentItem.id) {
+        activeContentItem.body = fullPageHtml
+      }
+
+      // If there isn't a new issue created, we're done.
+      if(!saveResponseJson?.data?.issue) {
+        updateActiveSessionIssue(issue.id, settings.ISSUE_STATE.SAVED)
+        removeItemFromBeingScanned(issue.contentItemId)
+        return
+      }
+
+      if(saveResponseJson?.data?.issue) {
+        // Update the report object by rescanning the content
+        const newIssue = Object.assign({}, issue, saveResponseJson.data.issue)
+        updateActiveSessionIssue(newIssue.id, settings.ISSUE_STATE.SAVED)
+
+        const scanResponse = await api.scanContent(newIssue.contentItemId)
+
+        if(scanResponse.ok) {
+          const scanResponseJson = await scanResponse.json()
+          if(scanResponseJson.data) {
+            const tempReport = Object.assign({}, scanResponseJson.data)
+            processNewReport(tempReport)
+            removeItemFromBeingScanned(newIssue.contentItemId)
+            return
           }
         }
-        else {
-          
-          // If the save was successful, show the success message
-          response.messages.forEach((msg) => addMessage(msg))
-          
-          if (response.data.issue) {
-            // Update the report object by rescanning the content
-            const newIssue = Object.assign({}, issue, response.data.issue)
-            // const formattedData = formatIssueData(newIssue)
-            // setActiveIssue(formattedData)
-            updateActiveSessionIssue(newIssue.id, settings.ISSUE_STATE.SAVED)
+      }
 
-            api.scanContent(newIssue.contentItemId)
-              .then((responseStr) => responseStr.json())
-              .then((res) => { 
-                const tempReport = Object.assign({}, res?.data)
-                processNewReport(tempReport)
-                removeItemFromBeingScanned(newIssue.contentItemId)
-              })
-          }
-          else {
-            // setActiveIssue(formatIssueData(issue))
-            updateActiveSessionIssue(issue.id, settings.ISSUE_STATE.SAVED)
-            removeItemFromBeingScanned(issue.contentItemId)
-          }
-        }
-      })
+      updateActiveSessionIssue(issue.id, settings.ISSUE_STATE.SAVED)
+      removeItemFromBeingScanned(issue.contentItemId)
+
     } catch (error) {
-      console.error(error)
+      console.warn(error)
       updateActiveSessionIssue(issue.id, settings.ISSUE_STATE.ERROR)
     }
   }
