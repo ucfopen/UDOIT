@@ -173,6 +173,7 @@ export function analyzeReport(report, ISSUE_STATE) {
   }
   let scanRules = {}
   let sessionIssues = {}
+  let sessionFiles = {}
   let currentTime = new Date()
   let millisecondsInADay = 86400000 // 1000 * 60 * 60 * 24
 
@@ -315,6 +316,12 @@ export function analyzeReport(report, ISSUE_STATE) {
     if(lmsIdToFileMap[file.metadata.replacementFileId]){
        file.replacement = lmsIdToFileMap[file.metadata.replacementFileId]
     }
+    if(file.reviewed){
+      const fixedOn = new Date(file.updated)
+      if(currentTime - fixedOn < millisecondsInADay){
+        sessionFiles[file.id] = file.replacement ? ISSUE_STATE.SAVED : ISSUE_STATE.RESOLVED
+      }
+    }
   })
   
   tempReport.issues = activeIssues
@@ -323,6 +330,7 @@ export function analyzeReport(report, ISSUE_STATE) {
   tempReport.files = {...report.files}
   tempReport.contentItems = usedContentItems
   tempReport.sessionIssues = sessionIssues
+  tempReport.sessionFiles = sessionFiles
   tempReport.filesReviewed = tempFilesReviewed
 
   console.log(tempReport)

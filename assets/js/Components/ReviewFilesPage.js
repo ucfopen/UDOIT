@@ -36,6 +36,7 @@ export default function ReviewFilesPage({
   addMessage,
   sessionIssues,
   updateSessionIssue,
+  updateSessionFiles
 })
 {
 
@@ -80,7 +81,7 @@ export default function ReviewFilesPage({
 
   const formatFileData = (fileData) => {
 
-    let fileId = "file-" + fileData.id
+    let fileId = fileData.id
 
     let issueResolution = (fileData.reviewed ? FILTER.REVIEWED : FILTER.UNREVIEWED)
 
@@ -347,7 +348,7 @@ export default function ReviewFilesPage({
     }
 
     // This updates the counter for the daily progress
-    updateSessionIssue(issueId, state, contentItemId)
+    updateSessionFiles(issueId, state, contentItemId)
 
     // Only update the whole list if the issue is saved, resolved, or marked as unresolved.
     if(state === settings.ISSUE_STATE.SAVED
@@ -557,14 +558,14 @@ const getSectionPostOptions = (file, newFile) => {
 
   const handleFileUpload  = async (newFileData, changeReferences = false) => {
     const tempFile = Object.assign({}, activeIssue.fileData, { changeReferences: changeReferences } )
-    updateActiveSessionIssue("file-" + tempFile.id, settings.ISSUE_STATE.SAVING)
+    updateActiveSessionIssue(tempFile.id, settings.ISSUE_STATE.SAVING)
     try{
       let api = new Api(settings)
       const responseStr = await api.postFile(tempFile, newFileData)
       const response = await responseStr.json()
       if(response.errors && response.errors.length > 0) {
         response.errors.forEach((err) => addMessage({ message: t(err), severity: 'error', visible: true }))
-        updateActiveSessionIssue("file-" + tempFile.id, settings.ISSUE_STATE.ERROR)
+        updateActiveSessionIssue(tempFile.id, settings.ISSUE_STATE.ERROR)
         return
       }
       const updatedFileData = response?.data?.newFile
@@ -584,7 +585,7 @@ const getSectionPostOptions = (file, newFile) => {
         const responseStatus = await updateAndScanContent(postContentItemOptions, postSectionOptions)
         if(responseStatus && responseStatus[0]?.type == "error"){
           responseStatus.forEach((err) => addMessage({message: err.message, severity: 'error', visible:true}))
-          updateActiveSessionIssue("file-" + tempFile.id, settings.ISSUE_STATE.ERROR)
+          updateActiveSessionIssue(tempFile.id, settings.ISSUE_STATE.ERROR)
           return
         }
         else if(responseStatus && responseStatus[0]?.status == "success"){
@@ -605,17 +606,17 @@ const getSectionPostOptions = (file, newFile) => {
        // Set messages 
       response.messages.forEach((msg) => addMessage(msg))
       // Update the local report and activeIssue
-      updateActiveSessionIssue("file-" + tempFile.id, settings.ISSUE_STATE.SAVED)
+      updateActiveSessionIssue(tempFile.id, settings.ISSUE_STATE.SAVED)
       processNewReport(tempReport)
     }
     catch (error) {
       console.error(error)
-      updateActiveSessionIssue("file-" + tempFile.id, settings.ISSUE_STATE.ERROR)
+      updateActiveSessionIssue(tempFile.id, settings.ISSUE_STATE.ERROR)
     }
   }
 
   const handleFileResolve = async (fileData, getReport = false, copiedReport = report) => {
-    updateActiveSessionIssue("file-" + fileData.id, settings.ISSUE_STATE.RESOLVING)
+    updateActiveSessionIssue(fileData.id, settings.ISSUE_STATE.RESOLVING)
     
     let tempFile = Object.assign({}, fileData)
     tempFile.reviewed = !(tempFile.reviewed) 
@@ -633,10 +634,10 @@ const getSectionPostOptions = (file, newFile) => {
 
       // Update the local report and activeIssue
       if(reviewed) {
-        updateActiveSessionIssue("file-" + fileData.id, settings.ISSUE_STATE.RESOLVED)
+        updateActiveSessionIssue(fileData.id, settings.ISSUE_STATE.RESOLVED)
       }
       else {
-        updateActiveSessionIssue("file-" + fileData.id, settings.ISSUE_STATE.UNCHANGED)
+        updateActiveSessionIssue(fileData.id, settings.ISSUE_STATE.UNCHANGED)
       }
       const newReport = updateFile(newFileData, copiedReport)
       if(getReport){
@@ -646,7 +647,7 @@ const getSectionPostOptions = (file, newFile) => {
     }
     catch(error){
       console.warn(error)
-      updateActiveSessionIssue("file-" + fileData.id, settings.ISSUE_STATE.ERROR)
+      updateActiveSessionIssue(fileData.id, settings.ISSUE_STATE.ERROR)
     }
   }
 
