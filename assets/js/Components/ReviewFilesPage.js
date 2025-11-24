@@ -259,6 +259,7 @@ export default function ReviewFilesPage({
   
     setWidgetState(WIDGET_STATE.FIXIT)
     const activeIssueClone = JSON.parse(JSON.stringify(activeIssue))
+    console.log(activeIssue)
 
     setTempActiveIssue(activeIssueClone)
   }, [activeIssue])
@@ -432,24 +433,33 @@ export default function ReviewFilesPage({
       let api = new Api(settings)
       const responseStr = await api.deleteFile(activeIssue.fileData)
       const response = await responseStr.json()
-      if(response?.messages[0].severity == "success"){
-        const tempReport = JSON.parse(JSON.stringify(report))
-        if(!Array.isArray(tempReport.files)){
-          tempReport.files = Object.values(tempReport.files)
-        }
-        let nextFileIndex = tempReport.files.findIndex((file) => file.id == activeIssue.fileData.id) + 1
-        nextFileIndex = nextFileIndex >= report.files.length ? 0 : nextFileIndex
-        const tempNext = tempReport.files[nextFileIndex]
-        tempReport.files = tempReport.files.filter((file) => file.id != activeIssue.fileData.id)
-        if(tempNext){
-          const tempFileIssue = formatFileData(tempNext)
-          setActiveIssue(tempFileIssue)
-        }
-        processNewReport(tempReport)
+      if(response?.errors && response.errors.length > 0){
+         response.errors.forEach((err) => addMessage(err))
+         return
       }
+
+      const tempReport = JSON.parse(JSON.stringify(report))
+      if(!Array.isArray(tempReport.files)){
+        tempReport.files = Object.values(tempReport.files)
+      }
+
+      let nextFileIndex = tempReport.files.findIndex((file) => file.id == activeIssue.fileData.id) + 1
+      nextFileIndex = nextFileIndex >= report.files.length ? 0 : nextFileIndex
+      const tempNext = tempReport.files[nextFileIndex]
+
+      tempReport.files = tempReport.files.filter((file) => file.id != activeIssue.fileData.id)
+      if(tempNext){
+        const tempFileIssue = formatFileData(tempNext)
+        setActiveIssue(tempFileIssue)
+      }
+
+      response.messages.forEach((msg) => addMessage(msg))
+      processNewReport(tempReport)
     }
     catch(error){
+      addMessage(error)
       console.error(error)
+      return
     }
   }
 

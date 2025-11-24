@@ -475,17 +475,10 @@ class CanvasLms implements LmsInterface {
         $sectionPaths = [];
         $sectionOptionsBuild = [];
         $deletePaths = [];
-
-        $output->writeln("Content options being passed in: ");
-        $output->writeln(json_encode($contentOptions, JSON_PRETTY_PRINT));
-
         foreach($contentOptions as $option){
             $paths[] = $option['contentUrl'];
             $options[] = $this->createLmsPostOptionsWithHtml($option['contentType'], $option['fullPageHtml']);
         }
-
-        $output->writeln("Options built: ");
-        $output->writeln(json_encode($options, JSON_PRETTY_PRINT));
 
         foreach($sectionOptions as $sectionOption){
             $courseId = $sectionOption['courseId'];
@@ -554,6 +547,19 @@ class CanvasLms implements LmsInterface {
         
 
         return $fileResponse;
+    }
+
+    public function deleteFileItem(FileItem $file){
+        $output = new ConsoleOutput();
+        $user = $this->security->getUser();
+        $apiDomain = $this->getApiDomain($user);
+        $apiToken = $this->getApiToken($user);
+        $canvasApi = new CanvasApi($apiDomain, $apiToken);
+
+        $deleteUrl = 'files/' . $file->getLmsFileId();
+        $deleteResponse = $canvasApi->apiDelete($deleteUrl);
+
+        return $deleteResponse;
     }
 
     public function getCourseUrl(Course $course, User $user)
@@ -636,18 +642,6 @@ class CanvasLms implements LmsInterface {
         }
 
         return $terms;
-    }
-
-    public function deleteFileFromCanvas($fileId){
-        $user = $this->security->getUser();
-        $apiDomain = $this->getApiDomain($user);
-        $apiToken = $this->getApiToken($user);
-        $canvasApi = new CanvasApi($apiDomain, $apiToken);
-        $url = "files/" . $fileId;
-        $output = new ConsoleOutput();
-
-        return $canvasApi->apiDelete($url);
-
     }
 
     public function getContentTypes()

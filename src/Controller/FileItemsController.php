@@ -155,15 +155,19 @@ class FileItemsController extends ApiController
     }
 
     #[Route('/api/files/{file}/delete', methods: ['DELETE'], name: 'delete_file')]
-    public function deleteFile(Request $request, UtilityService $util, LmsPostService $lmsPost, LmsFetchService $lmsFetch){
+    public function deleteFile(FileItem $file, UtilityService $util, LmsPostService $lmsPost, LmsFetchService $lmsFetch){
         $output = new ConsoleOutput();
         $apiResponse = new ApiResponse();
         $user = $this->getUser();
+
         try{
-            $lmsFileId = $request->query->get('lmsFileId');
-            $lmsResponse = $lmsPost->deleteFile($lmsFileId);
-            
-            $apiResponse->addMessage('Successful Deletion', 'success', 5000);
+            $fileDeletionResponse = $lmsPost->deleteFileFromLms($file, $user);
+            if(!$fileDeletionResponse || isset($fileDeletionResponse->error)){
+                throw new \Exception("Failed to delete file!");
+            }
+
+            $file->setActive(false); // File was deleted so it can be "deactived now"
+            $apiResponse->addMessage('Succesfully deleted file from course', 'success', 5000);
             $apiResponse->addLogMessages($util->getUnreadMessages()); 
         }
         catch (\Exception $e) {
