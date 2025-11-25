@@ -259,7 +259,6 @@ export default function ReviewFilesPage({
   
     setWidgetState(WIDGET_STATE.FIXIT)
     const activeIssueClone = JSON.parse(JSON.stringify(activeIssue))
-    console.log(activeIssue)
 
     setTempActiveIssue(activeIssueClone)
   }, [activeIssue])
@@ -443,16 +442,19 @@ export default function ReviewFilesPage({
         tempReport.files = Object.values(tempReport.files)
       }
 
+      // Move over to the next file as we are deleting the current one
       let nextFileIndex = tempReport.files.findIndex((file) => file.id == activeIssue.fileData.id) + 1
       nextFileIndex = nextFileIndex >= report.files.length ? 0 : nextFileIndex
       const tempNext = tempReport.files[nextFileIndex]
-
+       
+      // Remove the current file from the list and adjust active issue
       tempReport.files = tempReport.files.filter((file) => file.id != activeIssue.fileData.id)
       if(tempNext){
         const tempFileIssue = formatFileData(tempNext)
         setActiveIssue(tempFileIssue)
       }
 
+      // Add success messages 
       response.messages.forEach((msg) => addMessage(msg))
       processNewReport(tempReport)
     }
@@ -494,14 +496,11 @@ export default function ReviewFilesPage({
       file.references.map((reference) => {
         let newFullPageHtml = ""
         if(reference.contentItemBody){
-          console.log("Before:  \n" + newFullPageHtml)
           newFullPageHtml = replaceFileInHtml(reference.contentItemBody, file.lmsFileId, newFile.metadata.url)
-          console.log("After:  \n" + newFullPageHtml)
         }
         postContentItemOptions.push(createContentItemPostOptions(newFullPageHtml, extractUrl(reference.contentItemUrl), reference.contentItemId, reference.contentType, reference.sectionIds))
       })
     }
-    console.log(postContentItemOptions)
     return postContentItemOptions
   }
 
@@ -523,42 +522,41 @@ const getSectionPostOptions = (file, newFile) => {
       const response = await responseStr.json()
       if (response.errors && response.errors.length > 0) {
       response.errors.forEach((error) => {
-        responseStatus.push({ status: "error", message: error });
-      });
+        responseStatus.push({ status: "error", message: error })
+      })
       return responseStatus;
     }
-    const newContent = response?.data?.content;
-    let contentIndex = 1;
-    for (const content of newContent) {
-      const isLastContent = contentIndex == newContent.length;
-      contentIndex++;
-      if(content.status == 200){
-        if(content.type != 'section'){
-            const scanResponseStr = await api.scanContent(content.id, false);
-            const scanResponse = await scanResponseStr.json();
-            if (scanResponse?.messages[0]?.severity != "success") {
-              responseStatus.push({ status: "error", message: "Failure to scan content" });
-              return responseStatus;
-            }
-        }
-        if(isLastContent) {
-          const reportResponseStr = await api.updateAndGetReport(settings.course.id)
-          const reportResponse = await reportResponseStr.json()
-          if(reportResponse){
-            if(reportResponse.messages[0].severity == 'success'){
-              const newReport = reportResponse.data
-              console.log("Entering here!")
-              responseStatus.push({ status: "success", message: newReport});
-              return responseStatus;
-            }
-            else{
-              responseStatus.push({ status: "error", message:"Failed to retrive new report" });
-              return responseStatus;
-            }
-         }
+      const newContent = response?.data?.content;
+      let contentIndex = 1;
+      for (const content of newContent) {
+        const isLastContent = contentIndex == newContent.length;
+        contentIndex++;
+        if(content.status == 200){
+          if(content.type != 'section'){
+              const scanResponseStr = await api.scanContent(content.id, false);
+              const scanResponse = await scanResponseStr.json();
+              if (scanResponse?.messages[0]?.severity != "success") {
+                responseStatus.push({ status: "error", message: "Failure to scan content" });
+                return responseStatus;
+              }
+          }
+          if(isLastContent) {
+            const reportResponseStr = await api.updateAndGetReport(settings.course.id)
+            const reportResponse = await reportResponseStr.json()
+            if(reportResponse){
+              if(reportResponse.messages[0].severity == 'success'){
+                const newReport = reportResponse.data
+                responseStatus.push({ status: "success", message: newReport});
+                return responseStatus;
+              }
+              else{
+                responseStatus.push({ status: "error", message:"Failed to retrive new report" });
+                return responseStatus;
+              }
+          }
+          }
         }
       }
-    }
     }
     catch(error){
       responseStatus.push({type: "error", message: error})
@@ -570,6 +568,7 @@ const getSectionPostOptions = (file, newFile) => {
     const tempFile = Object.assign({}, activeIssue.fileData, { changeReferences: changeReferences } )
     updateActiveSessionIssue(tempFile.id, settings.ISSUE_STATE.SAVING)
     try{
+      // File Upload to Canvas
       let api = new Api(settings)
       const responseStr = await api.postFile(tempFile, newFileData)
       const response = await responseStr.json()
@@ -578,19 +577,25 @@ const getSectionPostOptions = (file, newFile) => {
         updateActiveSessionIssue(tempFile.id, settings.ISSUE_STATE.ERROR)
         return
       }
+
+      // Setting data for new file and adjusting old file
       const updatedFileData = response?.data?.newFile
       let metadataObj = tempFile?.metadata || {}
       metadataObj.replacementFileId = updatedFileData?.metadata.id
       tempFile.replacement = updatedFileData
+
+      // Copying and pushing new file onto report
       let tempReport = JSON.parse(JSON.stringify(report))
       if(!Array.isArray(tempReport.files)){
         tempReport.files = Object.values(tempReport.files)
       }
       tempReport.files.push(updatedFileData)
-      let canMarkReview = false
+      let canMarkReview = false // Use this to track if the file should be marked as 'reviewed'/'resolved' 
 
+      // Build content and section items POST data
       const postContentItemOptions = getContentPostItems(tempFile, updatedFileData)
       const postSectionOptions = getSectionPostOptions(tempFile, updatedFileData)
+      
       if((postContentItemOptions && postContentItemOptions.length > 0) ||  (postSectionOptions && postSectionOptions.length > 0)){
         const responseStatus = await updateAndScanContent(postContentItemOptions, postSectionOptions)
         if(responseStatus && responseStatus[0]?.type == "error"){
@@ -600,23 +605,22 @@ const getSectionPostOptions = (file, newFile) => {
         }
         else if(responseStatus && responseStatus[0]?.status == "success"){
           tempReport = responseStatus[0].message
-          console.log(tempReport)
-          canMarkReview = true
+          tempReport = processNewReport(tempReport)
         }
-        
       }
+
+      if(!Array.isArray(tempReport.files)){
+        tempReport.files = Object.values(tempReport.files)
+      }
+      const currentFile = tempReport.files.find((file) => file.id == activeIssue.id) 
+      canMarkReview = currentFile ? (currentFile?.references?.length == 0 && currentFile?.sectionRefs?.length == 0) : false
       if(canMarkReview){
           const resolvedReport = await handleFileResolve(tempFile, true, tempReport)
           tempReport = resolvedReport ? resolvedReport : tempReport
+          updateActiveSessionIssue(tempFile.id, settings.ISSUE_STATE.SAVED)
       }
-      
-      // Coming to this point means we have gone through and updated all possible content item, now check if file needs to be marked as review before moving
-
-
-       // Set messages 
-      response.messages.forEach((msg) => addMessage(msg))
-      // Update the local report and activeIssue
-      updateActiveSessionIssue(tempFile.id, settings.ISSUE_STATE.SAVED)
+      // Our file upload process is done at this point so we can add the messages
+      response.messages.forEach((msg) => addMessage(msg))     
       processNewReport(tempReport)
     }
     catch (error) {

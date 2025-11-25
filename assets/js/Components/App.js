@@ -188,7 +188,9 @@ export default function App(initialData) {
     for(const key in tempReport.contentItems) {
       tempContentItems[key] = tempReport.contentItems[key]
     }
+
     setContentItemCache(tempContentItems)
+    return tempReport 
   }
 
   const handleNewReport = (data) => {

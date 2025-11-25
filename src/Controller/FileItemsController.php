@@ -138,7 +138,10 @@ class FileItemsController extends ApiController
             $contentOptions = $content['content'];
             $sectionOptions = $content['section'];
 
-            $lmsContent = $lmsPost->uploadContentToLms($contentOptions, $sectionOptions);
+            $lmsContent = $lmsPost->uploadContentToLms($contentOptions, $sectionOptions, $user);
+            if(!$lmsContent){
+                throw new \Exception("Failed to change references in canvas");
+            }
 
             $apiResponse->addMessage('form.msg.success_replaced', 'success', 5000);
             $apiResponse->addLogMessages($util->getUnreadMessages());

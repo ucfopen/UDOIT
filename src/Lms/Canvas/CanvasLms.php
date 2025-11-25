@@ -524,6 +524,7 @@ class CanvasLms implements LmsInterface {
                 'status' => $secPostRsp['status'],
                 'type' => 'section'
             ];
+            $normalizedResponses[] = $normalizedResponse;
         }
 
         return $normalizedResponses;
