@@ -35,6 +35,7 @@ export default function ReviewFilesPage({
   processNewReport,
   addMessage,
   sessionIssues,
+  sessionFiles,
   updateSessionIssue,
   updateSessionFiles
 })
@@ -103,8 +104,8 @@ export default function ReviewFilesPage({
     keywords = keywords.join(' ')
 
     let currentState = settings.ISSUE_STATE.UNCHANGED
-    if(sessionIssues && sessionIssues[fileId]) {
-      currentState = sessionIssues[fileId]
+    if(sessionFiles && sessionFiles[fileId]) {
+      currentState = sessionFiles[fileId]
     }
 
     return {
@@ -114,7 +115,7 @@ export default function ReviewFilesPage({
       status: issueResolution,
       published: true,
       fileType: fileType,
-      sectionIds: fileData.sections || [],
+      sectionIds: fileData?.sectionRefs?.map((section) => section.moduleId.toString()) || [],
       keywords: keywords,
       scanRuleId: 'verify_file_accessibility',
       formLabel: formLabel,
@@ -285,10 +286,10 @@ export default function ReviewFilesPage({
       }
 
       if(tempFilters[FILTER.TYPE.UTILIZATION] !== FILTER.ALL) {
-        if(tempFilters[FILTER.TYPE.UTILIZATION] === FILTER.USED && issue?.fileData?.references?.length === 0) {
+        if(tempFilters[FILTER.TYPE.UTILIZATION] === FILTER.USED && issue?.fileData?.references?.length === 0 && issue?.fileData?.sectionRef?.length == 0) {
           continue
         }
-        if(tempFilters[FILTER.TYPE.UTILIZATION] === FILTER.UNUSED && issue?.fileData?.references?.length > 0) {
+        if(tempFilters[FILTER.TYPE.UTILIZATION] === FILTER.UNUSED && (issue?.fileData?.references?.length > 0 || issue?.fileData?.sectionRef?.length > 0)) {
           continue
         }
       }
@@ -595,7 +596,7 @@ const getSectionPostOptions = (file, newFile) => {
       // Build content and section items POST data
       const postContentItemOptions = getContentPostItems(tempFile, updatedFileData)
       const postSectionOptions = getSectionPostOptions(tempFile, updatedFileData)
-      
+
       if((postContentItemOptions && postContentItemOptions.length > 0) ||  (postSectionOptions && postSectionOptions.length > 0)){
         const responseStatus = await updateAndScanContent(postContentItemOptions, postSectionOptions)
         if(responseStatus && responseStatus[0]?.type == "error"){
@@ -618,6 +619,9 @@ const getSectionPostOptions = (file, newFile) => {
           const resolvedReport = await handleFileResolve(tempFile, true, tempReport)
           tempReport = resolvedReport ? resolvedReport : tempReport
           updateActiveSessionIssue(tempFile.id, settings.ISSUE_STATE.SAVED)
+      }
+      else{
+        updateActiveSessionIssue(tempFile.id, settings.ISSUE_STATE.UNCHANGED)
       }
       // Our file upload process is done at this point so we can add the messages
       response.messages.forEach((msg) => addMessage(msg))     

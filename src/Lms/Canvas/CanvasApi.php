@@ -361,14 +361,12 @@ class CanvasApi {
             $url = "https://" . $this->baseUrl . "/api/v1/" . $url;
         }
 
-        $output->writeln($url);
         $response = $this->httpClient->request('DELETE', $url);
         $lmsResponse->setResponse($response);
 
         $content = $lmsResponse->getContent();
         if (!empty($content['errors'])) {
             // TODO: If error is invalid token, refresh API token and try again
-
             foreach ($content['errors'] as $error) {
                 $lmsResponse->setError($error['message']);
             }
