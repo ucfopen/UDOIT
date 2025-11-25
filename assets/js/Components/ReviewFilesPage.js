@@ -34,9 +34,7 @@ export default function ReviewFilesPage({
   sections,
   processNewReport,
   addMessage,
-  sessionIssues,
   sessionFiles,
-  updateSessionIssue,
   updateSessionFiles
 })
 {
@@ -286,10 +284,10 @@ export default function ReviewFilesPage({
       }
 
       if(tempFilters[FILTER.TYPE.UTILIZATION] !== FILTER.ALL) {
-        if(tempFilters[FILTER.TYPE.UTILIZATION] === FILTER.USED && issue?.fileData?.references?.length === 0 && issue?.fileData?.sectionRef?.length == 0) {
+        if(tempFilters[FILTER.TYPE.UTILIZATION] === FILTER.USED && issue?.fileData?.references?.length === 0 && issue?.fileData?.sectionRefs?.length == 0) {
           continue
         }
-        if(tempFilters[FILTER.TYPE.UTILIZATION] === FILTER.UNUSED && (issue?.fileData?.references?.length > 0 || issue?.fileData?.sectionRef?.length > 0)) {
+        if(tempFilters[FILTER.TYPE.UTILIZATION] === FILTER.UNUSED && (issue?.fileData?.references?.length > 0 || issue?.fileData?.sectionRefs?.length > 0)) {
           continue
         }
       }
@@ -342,14 +340,13 @@ export default function ReviewFilesPage({
   // - unfilteredIssues
   // - filteredIssues
   // This does NOT change the report object, which updates when the issue's data changes.
-  const updateActiveSessionIssue = (issueId, state = null, contentItemId = null) => {
-    
+  const updateActiveSessionFile = (fileId, state = null, contentItemId = null) => {
     if(state === null) {
       state = settings.ISSUE_STATE.UNCHANGED
     }
 
     // This updates the counter for the daily progress
-    updateSessionFiles(issueId, state, contentItemId)
+    updateSessionFiles(fileId, state, contentItemId)
 
     // Only update the whole list if the issue is saved, resolved, or marked as unresolved.
     if(state === settings.ISSUE_STATE.SAVED
@@ -357,7 +354,7 @@ export default function ReviewFilesPage({
       || state === settings.ISSUE_STATE.UNCHANGED) {
 
         let tempUnfilteredIssues = unfilteredFiles.map((issue) => {
-          if(issue.id === issueId) {
+          if(issue.id === fileId) {
             let tempIssue = Object.assign({}, issue)
             tempIssue.currentState = state
             return tempIssue
@@ -371,10 +368,10 @@ export default function ReviewFilesPage({
     // This updates the active issue to the current state, which allows the proper UI to show
     // (like "Processing..." which disables the buttons).
     if(activeIssue) {
-      let tempIssue = activeIssue
-      if(tempIssue.id === issueId) {
+      let tempIssue = JSON.parse(JSON.stringify(activeIssue))
+      if(tempIssue.id === fileId) {
         tempIssue.currentState = state
-        setActiveIssue(tempIssue)
+
       }
     }
   }
@@ -567,7 +564,7 @@ const getSectionPostOptions = (file, newFile) => {
 
   const handleFileUpload  = async (newFileData, changeReferences = false) => {
     const tempFile = Object.assign({}, activeIssue.fileData, { changeReferences: changeReferences } )
-    updateActiveSessionIssue(tempFile.id, settings.ISSUE_STATE.SAVING)
+    updateActiveSessionFile(tempFile.id, settings.ISSUE_STATE.SAVING)
     try{
       // File Upload to Canvas
       let api = new Api(settings)
@@ -575,7 +572,7 @@ const getSectionPostOptions = (file, newFile) => {
       const response = await responseStr.json()
       if(response.errors && response.errors.length > 0) {
         response.errors.forEach((err) => addMessage({ message: t(err), severity: 'error', visible: true }))
-        updateActiveSessionIssue(tempFile.id, settings.ISSUE_STATE.ERROR)
+        updateActiveSessionFile(tempFile.id, settings.ISSUE_STATE.ERROR)
         return
       }
 
@@ -601,7 +598,7 @@ const getSectionPostOptions = (file, newFile) => {
         const responseStatus = await updateAndScanContent(postContentItemOptions, postSectionOptions)
         if(responseStatus && responseStatus[0]?.type == "error"){
           responseStatus.forEach((err) => addMessage({message: err.message, severity: 'error', visible:true}))
-          updateActiveSessionIssue(tempFile.id, settings.ISSUE_STATE.ERROR)
+          updateActiveSessionFile(tempFile.id, settings.ISSUE_STATE.ERROR)
           return
         }
         else if(responseStatus && responseStatus[0]?.status == "success"){
@@ -618,10 +615,10 @@ const getSectionPostOptions = (file, newFile) => {
       if(canMarkReview){
           const resolvedReport = await handleFileResolve(tempFile, true, tempReport)
           tempReport = resolvedReport ? resolvedReport : tempReport
-          updateActiveSessionIssue(tempFile.id, settings.ISSUE_STATE.SAVED)
+          updateActiveSessionFile(tempFile.id, settings.ISSUE_STATE.SAVED)
       }
       else{
-        updateActiveSessionIssue(tempFile.id, settings.ISSUE_STATE.UNCHANGED)
+        updateActiveSessionFile(tempFile.id, settings.ISSUE_STATE.UNCHANGED)
       }
       // Our file upload process is done at this point so we can add the messages
       response.messages.forEach((msg) => addMessage(msg))     
@@ -629,12 +626,12 @@ const getSectionPostOptions = (file, newFile) => {
     }
     catch (error) {
       console.error(error)
-      updateActiveSessionIssue(tempFile.id, settings.ISSUE_STATE.ERROR)
+      updateActiveSessionFile(tempFile.id, settings.ISSUE_STATE.ERROR)
     }
   }
 
   const handleFileResolve = async (fileData, getReport = false, copiedReport = report) => {
-    updateActiveSessionIssue(fileData.id, settings.ISSUE_STATE.RESOLVING)
+    updateActiveSessionFile(fileData.id, settings.ISSUE_STATE.RESOLVING)
     
     let tempFile = Object.assign({}, fileData)
     tempFile.reviewed = !(tempFile.reviewed) 
@@ -652,10 +649,10 @@ const getSectionPostOptions = (file, newFile) => {
 
       // Update the local report and activeIssue
       if(reviewed) {
-        updateActiveSessionIssue(fileData.id, settings.ISSUE_STATE.RESOLVED)
+        updateActiveSessionFile(fileData.id, settings.ISSUE_STATE.RESOLVED)
       }
       else {
-        updateActiveSessionIssue(fileData.id, settings.ISSUE_STATE.UNCHANGED)
+        updateActiveSessionFile(fileData.id, settings.ISSUE_STATE.UNCHANGED)
       }
       const newReport = updateFile(newFileData, copiedReport)
       if(getReport){
@@ -665,7 +662,7 @@ const getSectionPostOptions = (file, newFile) => {
     }
     catch(error){
       console.warn(error)
-      updateActiveSessionIssue(fileData.id, settings.ISSUE_STATE.ERROR)
+      updateActiveSessionFile(fileData.id, settings.ISSUE_STATE.ERROR)
     }
   }
 
@@ -762,7 +759,7 @@ const getSectionPostOptions = (file, newFile) => {
                   handleFileDelete={handleFileDelete}
                   handleFileResolve={handleFileResolve}
                   handleFileUpload={handleFileUpload}
-                  sessionIssues={sessionIssues}
+                  sessionFiles={sessionFiles}
                   tempActiveIssue={tempActiveIssue}
                 />
             ) : ''}

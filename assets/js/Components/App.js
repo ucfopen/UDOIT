@@ -431,9 +431,7 @@ export default function App(initialData) {
                   processNewReport={processNewReport}
                   addMessage={addMessage}
                   handleNavigation={handleNavigation}
-                  sessionIssues={sessionIssues}
                   sessionFiles={sessionFiles}
-                  updateSessionIssue={updateSessionIssue}
                   updateSessionFiles={updateSessionFiles}
                   processServerError={processServerError}
                 />

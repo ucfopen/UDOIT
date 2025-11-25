@@ -14,7 +14,7 @@ export default function FileForm ({
   activeFile,
   handleFileResolve,
   handleFileUpload,
-  sessionIssues
+  sessionFiles
  }) {
 
   const [uploadedFile, setUploadedFile] = useState(null)
@@ -30,17 +30,17 @@ export default function FileForm ({
     let tempIsDisabled = false
 
     // If there are any unresolved issues in this file, we disable the resolve button.
-    if(activeFile && sessionIssues) {
-      Object.keys(sessionIssues).forEach((key) => {
-        if(key === 'file-' + activeFile.id) {
-          if(sessionIssues[key] === settings.ISSUE_STATE.SAVING || sessionIssues[key] === settings.ISSUE_STATE.RESOLVING) {
+    if(activeFile && sessionFiles) {
+      Object.keys(sessionFiles).forEach((key) => {
+        if(key == activeFile.id) {
+          if(sessionFiles[key] === settings.ISSUE_STATE.SAVING || sessionFiles[key] === settings.ISSUE_STATE.RESOLVING) {
             tempIsDisabled = true
           }
         }
       })
     }
     setIsDisabled(tempIsDisabled)
-  }, [sessionIssues])
+  }, [sessionFiles])
 
   const handleModalVisibility = () => {
     setModalVisibility(() => !modalVisbility)
