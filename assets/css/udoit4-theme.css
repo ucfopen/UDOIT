@@ -69,6 +69,8 @@ body {
 }
 
 #app-container {
+  position: relative;
+  overflow: hidden;
   margin: 0px 6px 6px 0px;
   padding: 0 1rem;
   border-radius: 16px;
