@@ -538,7 +538,8 @@ const getSectionPostOptions = (file, newFile) => {
                 return responseStatus;
               }
           }
-          if(isLastContent) {
+        }
+        if(isLastContent) {
             const reportResponseStr = await api.updateAndGetReport(settings.course.id)
             const reportResponse = await reportResponseStr.json()
             if(reportResponse){
@@ -551,9 +552,8 @@ const getSectionPostOptions = (file, newFile) => {
                 responseStatus.push({ status: "error", message:"Failed to retrive new report" });
                 return responseStatus;
               }
+            }
           }
-          }
-        }
       }
     }
     catch(error){
@@ -613,7 +613,7 @@ const getSectionPostOptions = (file, newFile) => {
       const currentFile = tempReport.files.find((file) => file.id == activeIssue.id) 
       canMarkReview = currentFile ? (currentFile?.references?.length == 0 && currentFile?.sectionRefs?.length == 0) : false
       if(canMarkReview){
-          const resolvedReport = await handleFileResolve(tempFile, true, tempReport)
+          const resolvedReport = await handleFileResolve(tempFile, true, tempReport, true)
           tempReport = resolvedReport ? resolvedReport : tempReport
           updateActiveSessionFile(tempFile.id, settings.ISSUE_STATE.SAVED)
       }
@@ -630,11 +630,11 @@ const getSectionPostOptions = (file, newFile) => {
     }
   }
 
-  const handleFileResolve = async (fileData, getReport = false, copiedReport = report) => {
+  const handleFileResolve = async (fileData, getReport = false, copiedReport = report, forceReview = false) => {
     updateActiveSessionFile(fileData.id, settings.ISSUE_STATE.RESOLVING)
     
     let tempFile = Object.assign({}, fileData)
-    tempFile.reviewed = !(tempFile.reviewed) 
+    tempFile.reviewed = !(tempFile.reviewed) || forceReview
     try{
       let api = new Api(settings)
       const responseStr = await api.reviewFile(tempFile)
