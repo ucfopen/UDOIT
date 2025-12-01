@@ -11,6 +11,8 @@
     position: relative;
     background-color: var(--primary-color-light);
     box-shadow: 0px 0px 3px var(--gray-dark);
+    transform: translateX(calc(100% + 20px));
+    transition: transform 0.5s cubic-bezier(0.68, -0.55, 0.25, 1.35);
 
     &:not(:first-child) {
       margin-top: 1rem;

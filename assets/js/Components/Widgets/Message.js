@@ -17,6 +17,7 @@ export default function Message ({
 
   const ref = useRef()
   const [isPaused, setIsPaused] = useState(true)
+  const [isOpen, setIsOpen] = useState(false)
 
   useEffect(() => {
     const htmlElement = ref.current
@@ -25,12 +26,14 @@ export default function Message ({
     requestAnimationFrame(() => {
       htmlElement.style.transition = "transform 0.5s cubic-bezier(0.68, -0.55, 0.25, 1.35)"
       htmlElement.style.transform = "translateX(0)"
+      setIsOpen(true)
     });
 
     handleResume()
   }, []);
 
   const handleClose = () => {
+    setIsOpen(false)
     removeMessage(messageObject.id)
   }
 
@@ -61,7 +64,7 @@ export default function Message ({
     <div
       ref={ref}
       data-id={messageObject.id}
-      className={`messageItemContainer flex-column ${messageObject.severity}`}
+      className={`messageItemContainer flex-column ${messageObject.severity} ${isOpen ? 'open' : ''}`}
       role="alert"
       aria-live="polite"
       aria-atomic="true"
@@ -74,8 +77,6 @@ export default function Message ({
           </div>
           <div className="flex-column justify-content-center">
             {t(messageObject.message)}
-            <br />
-            {messageObject.id}
           </div>
         </div>
       <button
