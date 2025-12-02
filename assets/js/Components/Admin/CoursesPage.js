@@ -17,17 +17,16 @@ export default function CoursePage({
 
   const [filteredCourses, setFilteredCourses] = useState([])
   const [tableSettings, setTableSettings] = useState({
-    sortBy: 'errors',
+    sortBy: 'lastUpdated',
     ascending: false,
     pageNum: 0,
     rowsPerPage: (localStorage.getItem('rowsPerPage')) ? localStorage.getItem('rowsPerPage') : '10'
   })
-  
   const headers = [
     { id: "courseName", text: t('report.header.course_name') }, 
     { id: "accountName", text: t('report.header.account_name') }, 
     { id: "lastUpdated", text: t('report.header.last_scanned') },
-    { id: "errors", text: t('report.header.issues'), alignText: "center" }, 
+    { id: "barriers", text: t('report.header.issues'), alignText: "center" }, 
     { id: "suggestions", text: t('report.header.suggestions'), alignText: "center" }, 
     { id: "contentFixed", text: t('report.header.items_fixed'), alignText: "center" }, 
     { id: "contentResolved", text: t('report.header.items_resolved'), alignText: "center" }, 
@@ -59,15 +58,19 @@ export default function CoursePage({
       }
 
       if (!excludeCourse) {
-        // The Course data from the database is stored in the `course` object.
-        // The data for the table is converted to the `row` object.
+        const scanCounts = course.report?.scanCounts || {};
+        const barriers = scanCounts.errors || 0;
+        const suggestions = scanCounts.suggestions || 0;
         let row = {
           id: course.id,
           course,
           courseName: <a href={course.publicUrl} target="_blank" rel="noopener noreferrer">{course.title}</a>,
           courseTitle: course.title, // Used for sorting, not displayed outside of courseName element
           accountName: course.accountName,
+          barriers,
+          suggestions,
           lastUpdated: course.lastUpdated,
+          
           action: <div class="flex-row gap-1">
             <button key={`reportButton${course.id}`}
               onClick={() => { !course.loading && handleReportClick(course) }}
@@ -92,7 +95,7 @@ export default function CoursePage({
           </div>
             
         }
-        tempFilteredCourses.push({...row, ...course.report})
+        tempFilteredCourses.push({...course.report, ...row,})
       }
     })
 
@@ -101,6 +104,9 @@ export default function CoursePage({
     tempFilteredCourses.sort((a, b) => {
       if (sortBy === 'courseName') {
         return (a['courseTitle'].toLowerCase() < b['courseTitle'].toLowerCase()) ? -1 : 1
+      }
+      if (sortBy === 'lastUpdated') {
+        return new Date(a.lastUpdated) < new Date(b.lastUpdated) ? -1 : 1
       }
       if (isNaN(a[sortBy]) || isNaN(b[sortBy])) {
         return (a[sortBy].toLowerCase() < b[sortBy].toLowerCase()) ? -1 : 1
@@ -177,7 +183,7 @@ export default function CoursePage({
   }
 
   return (
-    <div className="p-0 scrollable h-100">
+    <div className="report-page-container scrollable">
       <div className="flex-row justify-content-center mt-3 mb-3">
         <h1 className="mt-0 mb-0 primary-dark">{t('report.header.courses')}</h1>
       </div>

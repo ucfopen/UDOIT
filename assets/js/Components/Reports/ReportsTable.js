@@ -4,7 +4,7 @@ import SortableTable from '../Widgets/SortableTable'
 export default function ReportsTable({
   t,
   reports,
-  isAdmin
+  isAdmin,
 }) {
 
   const headers = [
@@ -24,13 +24,41 @@ export default function ReportsTable({
     sortBy: 'created',
     ascending: false,
     pageNum: 0,
-  })
-  const [rows, setRows] = useState([])
+  });
+  const [rows, setRows] = useState([]);
+
+  // Helper function to get the latest report for each course
+  const getLatestReports = (reports) => {
+    if (!reports) return [];
+
+    const latestReports = [];
+
+    // Iterate through each course
+    Object.entries(reports).forEach(([courseName, courseReports]) => {
+      // Find the latest date for the course
+      const latestDate = Object.keys(courseReports).sort((a, b) => new Date(b) - new Date(a))[0];
+      const latestReport = courseReports[latestDate];
+
+      // Add the latest report to the list
+      latestReports.push({
+        courseName,
+        created: latestDate,
+        errors: latestReport.scanCounts?.errors || 0,
+        potentials: latestReport.scanCounts?.potentials || 0,
+        suggestions: latestReport.scanCounts?.suggestions || 0,
+        contentFixed: latestReport.contentFixed || 0,
+        contentResolved: latestReport.contentResolved || 0,
+        filesReviewed: latestReport.filesReviewed || 0,
+      });
+    });
+
+    return latestReports;
+  };
 
   const getContent = () => {
-    let list = reports
+    let list = getLatestReports(reports); // Preprocess reports to get the latest entry per course
     if (!list) {
-      return []
+      return [];
     }
 
     list = list.map((report) => {
@@ -51,27 +79,26 @@ export default function ReportsTable({
 
     list.sort((a, b) => {
       if (isNaN(a[sortBy]) || isNaN(b[sortBy])) {
-        return (a[sortBy].toLowerCase() < b[sortBy].toLowerCase()) ? -1 : 1
+        return a[sortBy].toLowerCase() < b[sortBy].toLowerCase() ? -1 : 1;
+      } else {
+        return Number(a[sortBy]) < Number(b[sortBy]) ? -1 : 1;
       }
-      else {
-        return (Number(a[sortBy]) < Number(b[sortBy])) ? -1 : 1
-      }
-    })
+    });
 
     if (!ascending) {
-      list.reverse()
+      list.reverse();
     }
 
-    return list
-  }
+    return list;
+  };
 
   const handleTableSettings = (setting) => {
-    setTableSettings(Object.assign({}, tableSettings, setting))
-  }
+    setTableSettings(Object.assign({}, tableSettings, setting));
+  };
 
   useEffect(() => {
-    setRows(getContent())
-  }, [tableSettings, reports])
+    setRows(getContent());
+  }, [tableSettings, reports]);
 
   return (
     <SortableTable
@@ -82,5 +109,5 @@ export default function ReportsTable({
       handleTableSettings={handleTableSettings}
       t={t}
     />
-  )
+  );
 }

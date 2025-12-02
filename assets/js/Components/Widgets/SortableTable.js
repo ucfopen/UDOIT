@@ -198,15 +198,33 @@ export default function SortableTable({
           </tr>
         </thead>
         <tbody>
-          {pagedRows.map((row) => (
-            <tr key={`row${row.id}`} className={row.onClick ? ' clickable' : ''}>
-              {headers.map(({ id, renderCell, alignText, format, divider }) => (
-                <td key={`row${row.id}cell${id}`} className={(alignText === 'center' ? 'text-center' : alignText === 'end' ? 'text-end' : 'text-start') + (divider ? ' divider' : '')} onClick={(row.onClick) ? row.onClick : null}>
-                  {renderCell ? renderCell(row[id]) : (format) ? format(row[id]) : <div cursor={(row.onClick) ? 'pointer' : 'auto'}>{row[id]}</div>}
-                </td>
-              ))}
-            </tr>
-          ))}
+          {pagedRows.map((row) => {
+            const isRowClickable = !!row.onClick;
+            return (
+              <tr
+                key={`row${row.id}`}
+                className={isRowClickable ? 'clickable' : ''}
+                onClick={isRowClickable ? row.onClick : undefined}
+                tabIndex={isRowClickable ? 0 : undefined}
+                style={isRowClickable ? { cursor: "pointer" } : undefined}
+              >
+                {headers.map(({ id, renderCell, alignText, format }) => (
+                  <td
+                    key={`row${row.id}cell${id}`}
+                    className={
+                      alignText === 'center'
+                        ? 'text-center'
+                        : alignText === 'end'
+                        ? 'text-end'
+                        : 'text-start'
+                    }
+                  >
+                    {renderCell ? renderCell(row[id]) : (format) ? format(row[id]) : <div>{row[id]}</div>}
+                  </td>
+                ))}
+              </tr>
+            );
+          })}
         </tbody>
       </table>
       {renderPagination()}
