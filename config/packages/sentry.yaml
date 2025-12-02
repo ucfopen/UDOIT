@@ -3,6 +3,6 @@ sentry:
 
   options:
     environment: '%env(APP_ENV)%'
-    # Enable performance monitoring (adjust sampling rate as needed)
-    traces_sample_rate: 0.1
-    send_default_pii: true
+
+    # Enable performance monitoring (adjust sampling rate as traffic goes up)
+    traces_sample_rate: 0.5
