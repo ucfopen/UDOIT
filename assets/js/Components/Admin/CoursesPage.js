@@ -18,18 +18,17 @@ export default function CoursePage({
   const [filteredCourses, setFilteredCourses] = useState([])
   const [isAnyScanning, setIsAnyScanning] = useState(false)
   const [tableSettings, setTableSettings] = useState({
-    sortBy: 'errors',
+    sortBy: 'lastUpdated',
     ascending: false,
     pageNum: 0,
     rowsPerPage: (localStorage.getItem('rowsPerPage')) ? localStorage.getItem('rowsPerPage') : '10'
   })
-  
   const headers = [
     { id: "courseName", text: t('report.header.course_name'), alignText: "center" },
     { id: "instructors", text: "Instructors", alignText: "center" }, 
     { id: "accountName", text: t('report.header.account_name'), alignText: "center" }, 
     { id: "lastUpdated", text: t('report.header.last_scanned'), alignText: "center" },
-    { id: "errors", text: t('report.header.issues'), alignText: "center" }, 
+    { id: "barriers", text: t('report.header.issues'), alignText: "center" },
     { id: "suggestions", text: t('report.header.suggestions'), alignText: "center" }, 
     { id: "contentFixed", text: t('report.header.items_fixed'), alignText: "center" }, 
     { id: "contentResolved", text: t('report.header.items_resolved'), alignText: "center" }, 
@@ -66,7 +65,9 @@ export default function CoursePage({
         const names = Array.isArray(course.instructors) ? course.instructors : []
         const hasReport = course.hasReport || (course.report && course.report.id)
         const publicUrl = course.publicUrl !== '---' && course.publicUrl !== '-' ? course.publicUrl : null
-
+        const scanCounts = course.report?.scanCounts || {};
+        const barriers = scanCounts.errors || 0;
+        const suggestions = scanCounts.suggestions || 0;
         let row = {
           id: course.id,
           course,
@@ -75,8 +76,8 @@ export default function CoursePage({
           courseTitle: course.title, // Used for sorting, not displayed outside of courseName element
           accountName: course.accountName || '---',
           lastUpdated: course.lastUpdated || '---',
-          errors: hasReport && course.report ? course.report.errors : '---',
-          suggestions: hasReport && course.report ? course.report.suggestions : '---',
+          barriers: hasReport && course.report ? barriers : '---',
+          suggestions: hasReport && course.report ? suggestions : '---',
           contentFixed: hasReport && course.report ? course.report.contentFixed : '---',
           contentResolved: hasReport && course.report ? course.report.contentResolved : '---',
           filesReviewed: hasReport && course.report ? course.report.filesReviewed : '---',
@@ -104,7 +105,7 @@ export default function CoursePage({
           </div>
             
         }
-        tempFilteredCourses.push(row)
+        tempFilteredCourses.push({...course.report, ...row,})
       }
     })
 
@@ -123,7 +124,11 @@ export default function CoursePage({
       
       if (sortBy === 'courseName') {
         comparison = (a['courseTitle'].toLowerCase() < b['courseTitle'].toLowerCase()) ? -1 : 1
-      } else {
+      } 
+      else if (sortBy === 'lastUpdated') {
+        return new Date(a.lastUpdated) < new Date(b.lastUpdated) ? -1 : 1
+      }
+      else {
         const aVal = a[sortBy]
         const bVal = b[sortBy]
         
@@ -316,7 +321,7 @@ export default function CoursePage({
   }
 
   return (
-    <div className="p-0 h-100 flex-column">
+    <div className="report-page-container scrollable">
       <div className="flex-row justify-content-center mt-3 mb-3">
         <h1 className="mt-0 mb-0 primary-dark">{t('report.header.courses')}</h1>
       </div>
