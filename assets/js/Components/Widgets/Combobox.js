@@ -13,6 +13,7 @@ import SeveritySuggestionIcon from '../Icons/SeveritySuggestionIcon'
 import FixedIcon from '../Icons/FixedIcon'
 import ResolvedIcon from '../Icons/ResolvedIcon'
 import SortIcon from '../Icons/SortIcon'
+import FileTypeIcon from '../Icons/FileTypeIcon'
 import './Combobox.css'
 
 
@@ -84,32 +85,43 @@ export default function Combobox({
     let size = 'icon-md'
 
     switch(iconString?.toUpperCase()) {
-      case settings.FILTER.ISSUE:
+      case settings.ISSUE_FILTER.ISSUE:
         return <SeverityIssueIcon className={`${size} color-issue`} />
-      case settings.FILTER.POTENTIAL:
+      case settings.ISSUE_FILTER.POTENTIAL:
+      case settings.ISSUE_FILTER.UNREVIEWED:
         return <SeverityPotentialIcon className={`${size} color-potential`} />
-      case settings.FILTER.SUGGESTION:
+      case settings.ISSUE_FILTER.SUGGESTION:
         return <SeveritySuggestionIcon className={`${size} color-suggestion`} />
-      case settings.FILTER.ANNOUNCEMENT:
+      case settings.ISSUE_FILTER.ANNOUNCEMENT:
         return <ContentAnnouncementIcon className={`${size} gray`} />
-      case settings.FILTER.ASSIGNMENT:
+      case settings.ISSUE_FILTER.ASSIGNMENT:
         return <ContentAssignmentIcon className={`${size} gray`} />
-      case settings.FILTER.DISCUSSION_FORUM:
+      case settings.ISSUE_FILTER.DISCUSSION_FORUM:
         return <ContentDiscussionForumIcon className={`${size} gray`} />
-      case settings.FILTER.DISCUSSION_TOPIC:
+      case settings.ISSUE_FILTER.DISCUSSION_TOPIC:
         return <ContentDiscussionTopicIcon className={`${size} gray`} />
-      case settings.FILTER.FILE:
+      case settings.ISSUE_FILTER.FILE:
         return <ContentFileIcon className={`${size} gray`} />
-      case settings.FILTER.PAGE:
+      case settings.ISSUE_FILTER.PAGE:
         return <ContentPageIcon className={`${size} gray`} />
-      case settings.FILTER.QUIZ:
+      case settings.ISSUE_FILTER.QUIZ:
         return <ContentQuizIcon className={`${size} gray`} />
-      case settings.FILTER.SYLLABUS:
+      case settings.ISSUE_FILTER.SYLLABUS:
         return <ContentSyllabusIcon className={`${size} gray`} />
-      case settings.FILTER.FIXED:
+      case settings.ISSUE_FILTER.FIXED:
+      case settings.ISSUE_FILTER.FIXEDANDRESOLVED:
         return <FixedIcon className={`${size} color-success`} />
-      case settings.FILTER.RESOLVED:
+      case settings.ISSUE_FILTER.RESOLVED:
+      case settings.ISSUE_FILTER.REVIEWED:
+      case settings.FILE_FILTER.REVIEWED:
         return <ResolvedIcon className={`${size} color-success`} />
+      case settings.FILE_FILTER.FILE_PDF:
+      case settings.FILE_FILTER.FILE_WORD:
+      case settings.FILE_FILTER.FILE_POWERPOINT:
+      case settings.FILE_FILTER.FILE_EXCEL:
+      case settings.FILE_FILTER.FILE_AUDIO:
+      case settings.FILE_FILTER.FILE_VIDEO:
+        return <FileTypeIcon className={`${size} gray-stroke`} type={iconString.toUpperCase()} strokeWidth={2} />
       default:
         return ''
     }
@@ -416,17 +428,6 @@ export default function Combobox({
     updateMenuState(false)
   }
 
-  const onOptionMouseDown = () => {
-    // Clicking an option will cause a blur event,
-    // but we don't want to perform the default keyboard blur action
-    console.log("Is there a blurring problem here?")
-    // let containerEl = document.getElementById('combo-container-' + id)
-    // if(!containerEl) {
-    //   return
-    // }
-    // containerEl.ignoreBlur = true
-  }
-
   const selectOption = (index) => {
     setActiveIndex(index)
     setSelectedIndex(index)
@@ -505,7 +506,6 @@ export default function Combobox({
                 role="option"
                 aria-selected={index === activeIndex ? "true" : "false"}
                 onClick={() => { onOptionClick(index) }}
-                onMouseDown={() => { onOptionMouseDown() }}
               >
                 {getNameWithIcon(option)}
               </div>

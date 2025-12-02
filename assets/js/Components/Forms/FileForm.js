@@ -1,85 +1,50 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, act } from 'react'
 import UploadIcon from '../Icons/UploadIcon'
 import SaveIcon from '../Icons/SaveIcon'
 import ResolvedIcon from '../Icons/ResolvedIcon'
 import './FileForm.css'
+import DeleteModal from '../Widgets/DeleteModal'
+import DeleteIcon from '../Icons/DeleteIcon'
 
 export default function FileForm ({
   t,
   settings,
 
+  handleFileDelete,
   activeFile,
   handleFileResolve,
   handleFileUpload,
-  sessionIssues
+  sessionFiles
  }) {
 
-  const [acceptType, setAcceptType] = useState([])
   const [uploadedFile, setUploadedFile] = useState(null)
   const [isDisabled, setIsDisabled] = useState(false)
-
-  const getAcceptType = (file) => {
-    let accept = []
-
-    switch(file.fileType) {
-      case "doc":
-        accept = ["doc", "docx"]
-        break
-
-      case "ppt":
-        accept = ["ppt", "pptx"]
-        break
-
-      case "xls":
-        accept = ["xls", "xlsx"]
-        break
-
-      default:
-        accept = file.fileType
-        break
-    }
-
-    let extension = file.fileName.slice(-4)
-
-    switch(extension) {
-      case "xlsx":
-        accept = "xlsx"
-        break
-      
-      case "pptx":
-        accept = "pptx"
-        break
-
-      case "docx":
-        accept = "docx"
-        break
-    }
-
-    return accept
-  }
+  const [changeReferences, setChangeReferences] = useState(true)
+  const [modalVisbility, setModalVisibility] = useState(false)
 
   useEffect(() => {
     setUploadedFile(null)
-    if(activeFile) {
-      setAcceptType(getAcceptType(activeFile))
-    }
   }, [activeFile])
 
   useEffect(() => {
     let tempIsDisabled = false
 
     // If there are any unresolved issues in this file, we disable the resolve button.
-    if(activeFile && sessionIssues) {
-      Object.keys(sessionIssues).forEach((key) => {
-        if(key === 'file-' + activeFile.id) {
-          if(sessionIssues[key] === settings.ISSUE_STATE.SAVING || sessionIssues[key] === settings.ISSUE_STATE.RESOLVING) {
+    if(activeFile && sessionFiles) {
+      Object.keys(sessionFiles).forEach((key) => {
+        if(key == activeFile.id) {
+          if(sessionFiles[key] === settings.ISSUE_STATE.SAVING || sessionFiles[key] === settings.ISSUE_STATE.RESOLVING) {
             tempIsDisabled = true
           }
         }
       })
     }
     setIsDisabled(tempIsDisabled)
-  }, [sessionIssues])
+  }, [sessionFiles])
+
+  const handleModalVisibility = () => {
+    setModalVisibility(() => !modalVisbility)
+  }
 
   // Drag and Drop code is adapted from:
   // https://developer.mozilla.org/en-US/docs/Web/API/HTML_Drag_and_Drop_API/File_drag_and_drop
@@ -115,6 +80,10 @@ export default function FileForm ({
     event.preventDefault()
   }
 
+  const handleChangeReferences = (event) => {
+    setChangeReferences(event.target.checked)
+  }
+
   // In order to trigger the file input dialog, we need an input element,
   // and we don't want it to show on the page. So we create a temporary one.
   const handleFileSelect = () => {
@@ -130,16 +99,16 @@ export default function FileForm ({
     if (!uploadedFile) {
       return
     }
-    handleFileUpload(uploadedFile)
+    handleFileUpload(uploadedFile, changeReferences)
   }
 
   return (
     <>
       {/* <h3 >{t('form.file.label.replace')}</h3> */}
-      <label className="instructions">{t('form.file.label.replace.desc')}</label>
+      <label className="instructions">{(!activeFile.references || activeFile.references.length == 0) && (!activeFile.sectionRefs || activeFile.sectionRefs.length == 0) ? t('form.file.label.delete.desc') : t("form.file.label.replace.desc")}</label>
       <div
-        id="file-drop-zone"
-        className="mt-3 flex-row"
+        id={`file-drop-zone${(!activeFile.references || activeFile.references.length == 0) && (!activeFile.sectionRefs || activeFile.sectionRefs.length == 0) ? "-disabled-upload": ""}`} 
+        className={`mt-3 flex-row`}
         onDrop={handleDrop}
         onDragOver={handleDragOver}
         onClick={handleFileSelect}
@@ -154,6 +123,11 @@ export default function FileForm ({
           <div className="mt-2 flex-row flex-center link-color">{t('form.file.label.browse_files')}</div>
         </div>
       </div>
+      {(!activeFile.references || activeFile.references.length == 0) && (!activeFile.sectionRefs || activeFile.sectionRefs.length == 0) && (
+        <div className='mt-3 flex-row justify-content-end'>
+          <button onClick={handleModalVisibility} className="btn-warn btn-icon-left"><DeleteIcon className="icon-md" alt="" />{t("form.file.delete")}</button>
+        </div>
+      )}
       {uploadedFile && (
         <>
           <div className="mt-3 flex-row">
@@ -163,6 +137,17 @@ export default function FileForm ({
             <div className="flex-column flex-center allow-word-break">
               <div>{uploadedFile.name}</div>
             </div>
+          </div>
+          <div className="flex-row gap-1 mt-3">
+            <input
+              type="checkbox"
+              name="changeReferencesCheckbox"
+              id="changeReferencesCheckbox"
+              checked={changeReferences}
+              tabIndex="0"
+              disabled={isDisabled}
+              onChange={handleChangeReferences} />
+            <label htmlFor="changeReferencesCheckbox" className="instructions">{t('form.file.label.replace_references')}</label>
           </div>
           <div className="mt-3 flex-row justify-content-end">
             <button className="btn-primary btn-icon-left"
@@ -195,6 +180,12 @@ export default function FileForm ({
             {activeFile?.reviewed ? t('fix.button.unresolved') : t('fix.button.resolved')}
           </button>
         </div>
+        {modalVisbility && (
+        <div className='modal-overlay'>
+          <DeleteModal handleModalVisibility={handleModalVisibility} handleFileDelete={handleFileDelete} />
+        </div>
+        )}
+      
       </div>
     </>
   )

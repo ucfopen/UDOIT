@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\Entity\Course;
 use App\Entity\ContentItem;
 use App\Repository\CourseRepository;
+use Doctrine\Persistence\ManagerRegistry;
 use App\Response\ApiResponse;
 use App\Services\LmsApiService;
 use App\Services\LmsFetchService;
@@ -13,7 +14,10 @@ use App\Services\EqualAccessService;
 use App\Services\ScannerService;
 use App\Services\UtilityService;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Console\Output\ConsoleOutput;
+
 
 class SyncController extends ApiController
 {
@@ -21,6 +25,13 @@ class SyncController extends ApiController
 
     /** @var UtilityService $util */
     protected $util;
+
+    private ManagerRegistry $doctrine;
+
+    public function __construct(ManagerRegistry $doctrine)
+    {
+        $this->doctrine = $doctrine;
+    }
 
     #[Route('/api/sync/{course}', name: 'request_sync')]
     public function requestSync(Course $course, LmsFetchService $lmsFetch)
@@ -139,11 +150,14 @@ class SyncController extends ApiController
     }
 
     #[Route('/api/sync/content/{contentItem}', name: 'content_sync', methods: ['GET'])]
-    public function requestContentSync(ContentItem $contentItem, LmsFetchService $lmsFetch, ScannerService $scanner)
+    public function requestContentSync(ContentItem $contentItem, LmsFetchService $lmsFetch, ScannerService $scanner, Request $request)
     {
         $response = new ApiResponse();
         $course = $contentItem->getCourse();
         $user = $this->getUser();
+        $output = new ConsoleOutput();
+
+        $useReport = $request->query->getBoolean('report');
 
         // Delete old issues
         $lmsFetch->deleteContentItemIssues(array($contentItem));
@@ -161,20 +175,13 @@ class SyncController extends ApiController
             }
         }
 
+        $response->addMessage('Successfully scanned content', 'success', 5000);
         // Update report
-        $report = $lmsFetch->updateReport($course, $user, 1);
-        if (!$report) {
-            throw new \Exception('msg.no_report_created');
+        if($useReport){
+            $reportArr = $this->updateReport($course, $user, $lmsFetch);
+            $response->setData($reportArr);
         }
-
-        $reportArr = $report->toArray();
-        $reportArr['files'] = $course->getFileItems();
-        $reportArr['issues'] = $course->getAllIssues();
-        $reportArr['contentItems'] = $course->getContentItems();
-        $reportArr['contentSections'] = $lmsFetch->getCourseSections($course, $user);
-
-        $response->setData($reportArr);
-
+        
         return new JsonResponse($response);
     }
 
@@ -189,5 +196,41 @@ class SyncController extends ApiController
         $count = $lmsApi->addCoursesToBeScanned($courses, $user);
 
         return new JsonResponse($count);
+    }
+
+    #[Route('/api/courses/{course}/reports/update', name:'update_and_get_reports', methods: ['GET'])]
+    public function updateAndGetReport(Course $course, LmsFetchService $lmsFetch){
+        $response = new ApiResponse();
+        $user = $this->getUser();
+        try{
+            if (!$this->userHasCourseAccess($course)) {
+                throw new \Exception("You do not have permission to access this report.");
+            }
+            $reportArr = $this->updateReport($course, $user, $lmsFetch);
+            if(!$reportArr){
+                throw new \Exception("Unable to update report.");
+            }
+            $response->addMessage('Successfully updated and fetched report', 'success', 5000);
+            $response->setData($reportArr);
+        }
+        catch (\Exception $e) {
+            $response->addError($e->getMessage());
+        }
+        return new JsonResponse($response);
+    }
+   
+    private function updateReport($course,  $user, LmsFetchService $lmsFetch){
+        $report = $lmsFetch->updateReport($course, $user, 1);
+        if (!$report) {
+            throw new \Exception('msg.no_report_created');
+        }
+
+        $reportArr = $report->toArray();
+        $reportArr['files'] = $course->getFileItems();
+        $reportArr['issues'] = $course->getAllIssues();
+        $reportArr['contentItems'] = $course->getContentItems();
+        $reportArr['contentSections'] = $lmsFetch->getCourseSections($course, $user);
+
+        return $reportArr;
     }
 }

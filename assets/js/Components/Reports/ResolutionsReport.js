@@ -61,72 +61,49 @@ export default function ResolutionsReport({
   const canvasRef = useRef(null);
   const chartRef = useRef(null);
 
-  const [chartMode, setChartMode] = useState("bar");
-  const [selectedCourses, setSelectedCourses] = useState({});
-  const [searchTerm, setSearchTerm] = useState("");
-  const [dateStart, setDateStart] = useState(null);
-  const [dateEnd, setDateEnd] = useState(null);
-  const courseLimit = 5;
+  const [liveChart, setLiveChart] = useState(null)
 
-  /** ---------- Use memoization to avoid compute on re-render ---------- */
-  const dataReports = useMemo(() => reports || mockReports, [reports]);
-  const isArrayHistory = useMemo(() => Array.isArray(reports), [reports]);
-  const isSingleCourse = useMemo(() => selectedCourse != null, [selectedCourse]);
+  const getChartData = () => {
+    let tempReports = reports.sort((a, b) => {
+      return new Date(a.created) - new Date(b.created)
+    })
 
-  useEffect(() => {
-    if (!dataReports || Array.isArray(dataReports)) return;
-    if (Object.keys(selectedCourses).length > 0) return;
-
-    const initial = Object.keys(dataReports)
-      .slice(0, courseLimit)
-      .reduce((acc, name) => ((acc[name] = true), acc), {});
-    setSelectedCourses(initial);
-  }, [dataReports, courseLimit]);
-
-  /** ---------- Derived lists ---------- */
-  const allCourseNames = useMemo(
-    () => (dataReports && !Array.isArray(dataReports) ? Object.keys(dataReports) : []),
-    [dataReports]
-  );
-
-  const filteredCourseNames = useMemo(() => {
-    if (!allCourseNames.length) return [];
-    const q = searchTerm.toLowerCase();
-    return allCourseNames.filter((n) => n.toLowerCase().includes(q));
-  }, [allCourseNames, searchTerm]);
-
-  const activeCourseNames = useMemo(() => {
-    if (isSingleCourse) return [selectedCourse.title];
-    return Object.keys(selectedCourses).filter((n) => selectedCourses[n]);
-  }, [isSingleCourse, isArrayHistory, selectedCourse, selectedCourses]);
-
-  /** ---------- Labels & datasets ---------- */
-  const { labels, datasets, chartType } = useMemo(() => {
-    if (!dataReports) return { labels: [], datasets: [], chartType: "bar" };
-
-    // Single course WITH object map (courseName -> date -> counts)
-    // This for when clicking on single course report from the admin panel
-    if (isSingleCourse && !isArrayHistory) {
-      if (chartMode !== "line") setChartMode("line");
-      const course = dataReports[selectedCourse.title] || {};
-      const inDateRange = (date) => {
-        if (dateStart && date < dateStart) return false;
-        if (dateEnd && date > dateEnd) return false;
-        return true;
-      };
-      const dates = Object.keys(course)
-        .filter(inDateRange)
-        .sort((a, b) => new Date(a) - new Date(b));
-      const getSeries = (key) =>
-        dates.map((d) => course[d]?.scanCounts?.[key] ?? course[d]?.[key]);
-
-      return {
-        labels: dates,
-        datasets: ["errors", "potentials", "suggestions"].map((key) =>
-          makeMetricDataset({ key, data: getSeries(key), t })
-        ),
-        chartType: "line",
-      };
+    let data = {
+      labels: [],
+      datasets: [
+        {
+          id: 1,
+          label: t('report.header.issues'),
+          data: [],
+          fill: false,
+          backgroundColor: 'rgba(249, 65, 68, 0.5)',
+          borderColor: '#F94144',
+          tension: 0,
+          hidden: !visibility.issues
+        },
+        {
+          id: 2,
+          label: t('report.header.potential'),
+          data: [],
+          fill: false,
+          borderDash: [7, 3],
+          backgroundColor: 'rgba(247, 150, 30, 0.5)',
+          borderColor: '#F8961E',
+          tension: 0,
+          hidden: !visibility.potentialIssues
+        },
+        {
+          id: 3,
+          label: t('report.header.files_unreviewed'),
+          data: [],
+          fill: false,
+          borderDash: [3, 5],
+          backgroundColor: 'rgba(48, 176, 228, 0.5)',
+          borderColor: '#32B0E4',
+          tension: 0,
+          hidden: !visibility.suggestions
+        }
+      ]
     }
 
     // Single course history as ARRAY (reports: [{created, scanCounts}...])
@@ -134,32 +111,16 @@ export default function ResolutionsReport({
     if (isArrayHistory) {
       if (chartMode !== "line") setChartMode("line");
 
-      const inDateRange = (date) => {
-        if (dateStart && date < dateStart) return false;
-        if (dateEnd && date > dateEnd) return false;
-        return true;
-      };
-
-      const dates = reports
-        .map((r) => r.created)
-        .filter(inDateRange)
-        .sort((a, b) => new Date(a) - new Date(b));
-
-      const valueAt = (date, key) => {
-        const r = reports.find((x) => x.created === date);
-        return r?.scanCounts?.[key] ?? r?.[key];
-      };
-      return {
-        labels: dates,
-        datasets: ["errors", "potentials", "suggestions"].map((key) =>
-          makeMetricDataset({
-            key,
-            data: dates.map((d) => valueAt(d, key)),
-            t,
-          })
-        ),
-        chartType: "line",
-      };
+      if(report?.scanCounts) {
+        data.datasets[0].data.push(report.scanCounts.errors)
+        data.datasets[1].data.push(report.scanCounts.potentials)
+        data.datasets[2].data.push(report.scanCounts.files || 0)
+      }
+      else {
+        data.datasets[0].data.push(report.errors)
+        data.datasets[1].data.push(0)
+        data.datasets[2].data.push(0)
+      }
     }
 
     // Multi-course comparison view
