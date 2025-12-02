@@ -1,14 +1,15 @@
 import React, { useEffect, useState } from 'react'
-import { findEditURLWithIssue } from '../../Services/Settings'
 import FormExternalLink from './FormExternalLink'
+import FormReviewOnly from './FormReviewOnly'
 
 export default function UfixitReviewOnly({
-  t, 
+  t,
   settings, 
-  activeIssue, 
-  handleIssueSave, 
-  addMessage, 
-  handleActiveIssue
+  activeIssue,
+  isContentLoading,
+  markAsReviewed,
+  setMarkAsReviewed,
+  handleIssueSave,
 }) {
 
   return (
@@ -18,6 +19,15 @@ export default function UfixitReviewOnly({
         t={t}
         settings={settings}
         activeIssue={activeIssue}
+      />
+      <FormReviewOnly
+        t={t}
+        settings={settings}
+        activeIssue={activeIssue}
+        handleIssueSave={handleIssueSave}
+        isContentLoading={isContentLoading}
+        markAsReviewed={markAsReviewed}
+        setMarkAsReviewed={setMarkAsReviewed}
       />
     </div>
   )

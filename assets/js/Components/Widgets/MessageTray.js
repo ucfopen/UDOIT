@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react'
-import ProgressIcon from './Icons/ProgressIcon'
-import FixedIcon from './Icons/FixedIcon'
-import InfoIcon from './Icons/InfoIcon'
-import SeverityIssueIcon from './Icons/SeverityIssueIcon'
-import SeverityPotentialIcon from './Icons/SeverityPotentialIcon'
-import CloseIcon from './Icons/CloseIcon'
+import ProgressIcon from '../Icons/ProgressIcon'
+import FixedIcon from '../Icons/FixedIcon'
+import InfoIcon from '../Icons/InfoIcon'
+import SeverityIssueIcon from '../Icons/SeverityIssueIcon'
+import SeverityPotentialIcon from '../Icons/SeverityPotentialIcon'
+import CloseIcon from '../Icons/CloseIcon'
 
 import './MessageTray.css'
 

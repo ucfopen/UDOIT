@@ -104,6 +104,31 @@ class ReportsController extends ApiController
         return new JsonResponse($apiResponse);
     }
 
+    #[Route('/api/reports/{report}/setdata', methods: ['POST'], name: 'set_report_data')]
+    public function setReportData(Request $request, Report $report): JsonResponse
+    {
+        $apiResponse = new ApiResponse();
+
+        try {
+            $data = json_decode($request->getContent(), true);
+            $newData = json_decode($report->getData(), true);
+            foreach ($data as $key => $value) {
+                if (isset($newData[$key])) {
+                    $newData[$key] = $value;
+                }
+            }
+            $report->setData(json_encode($newData));
+            $this->doctrine->getManager()->flush();
+
+            $apiResponse->setData($report);
+        } catch (\Exception $e) {
+            $apiResponse->addError($e->getMessage(), 'info', 0, false);
+        }
+
+        // Construct Response
+        return new JsonResponse($apiResponse);
+    }
+
     #[Route('/download/courses/{course}/reports/pdf', methods: ['GET'], name: 'get_report_pdf')]
     public function getPdfReport(
         Request $request,

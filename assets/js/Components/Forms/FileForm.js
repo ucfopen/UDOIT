@@ -1,15 +1,22 @@
 import React, { useState, useEffect } from 'react'
 import UploadIcon from '../Icons/UploadIcon'
+import SaveIcon from '../Icons/SaveIcon'
+import ResolvedIcon from '../Icons/ResolvedIcon'
 import './FileForm.css'
 
 export default function FileForm ({
   t,
+  settings,
+
   activeFile,
+  handleFileResolve,
   handleFileUpload,
+  sessionIssues
  }) {
 
   const [acceptType, setAcceptType] = useState([])
   const [uploadedFile, setUploadedFile] = useState(null)
+  const [isDisabled, setIsDisabled] = useState(false)
 
   const getAcceptType = (file) => {
     let accept = []
@@ -54,9 +61,25 @@ export default function FileForm ({
   useEffect(() => {
     setUploadedFile(null)
     if(activeFile) {
-      setAcceptType(getAcceptType(activeFile.fileData))
+      setAcceptType(getAcceptType(activeFile))
     }
   }, [activeFile])
+
+  useEffect(() => {
+    let tempIsDisabled = false
+
+    // If there are any unresolved issues in this file, we disable the resolve button.
+    if(activeFile && sessionIssues) {
+      Object.keys(sessionIssues).forEach((key) => {
+        if(key === 'file-' + activeFile.id) {
+          if(sessionIssues[key] === settings.ISSUE_STATE.SAVING || sessionIssues[key] === settings.ISSUE_STATE.RESOLVING) {
+            tempIsDisabled = true
+          }
+        }
+      })
+    }
+    setIsDisabled(tempIsDisabled)
+  }, [sessionIssues])
 
   // Drag and Drop code is adapted from:
   // https://developer.mozilla.org/en-US/docs/Web/API/HTML_Drag_and_Drop_API/File_drag_and_drop
@@ -141,11 +164,38 @@ export default function FileForm ({
               <div>{uploadedFile.name}</div>
             </div>
           </div>
-          <div className="mt-3 flex-row">
-            <button className="btn btn-primary" onClick={handleSubmit}>{t('form.submit')}</button>
+          <div className="mt-3 flex-row justify-content-end">
+            <button className="btn-primary btn-icon-left"
+              onClick={handleSubmit}
+              disabled={isDisabled}
+              tabIndex="0">
+              <SaveIcon className="icon-md" alt=""/>
+              {t('form.submit')}
+            </button>
           </div>
         </>
       )}
+      <div className="separator mt-3">{t('fix.label.or')}</div>
+      <div className="flex-row justify-content-between gap-1 mt-3">
+        <div className="flex-column justify-content-center flex-grow-1 gap-1">
+          { activeFile?.reviewed ? (
+              <div className="flex-row justify-content-end pe-2">
+                <ResolvedIcon className="color-success icon-md flex-column align-self-center pe-2"/>
+                <div className="flex-column align-self-center fw-bolder primary">{t('filter.label.resolution.resolved_single')}</div>
+              </div>
+            ) : ''}
+        </div>
+        <div className="flex-column justify-content-center flex-shrink-0">
+          <button
+            className="btn-secondary btn-icon-left"
+            onClick={() => handleFileResolve(activeFile)}
+            disabled={isDisabled}
+            tabIndex="0">
+            <ResolvedIcon className="icon-md" alt=""/>
+            {activeFile?.reviewed ? t('fix.button.unresolved') : t('fix.button.resolved')}
+          </button>
+        </div>
+      </div>
     </>
   )
 }

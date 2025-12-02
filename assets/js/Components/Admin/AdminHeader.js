@@ -12,7 +12,7 @@ export default function AdminHeader({
 }) {
   return (
     <header role="banner">
-      <nav>
+      <nav aria-label={t('menu.nav.label')}>
         <div className="flex-row justify-content-start gap-2" onClick={() => handleNavigation('courses')}>
           <div className="flex-column justify-content-center" style={{ width: 'min-content' }}>
             <img alt={t('alt.UDOIT')} src={UDOITLogo}></img>
@@ -26,6 +26,11 @@ export default function AdminHeader({
             <li
               className={`flex-row ${navigation === 'courses' ? ' active-link' : ''}`}
               onClick={() => handleNavigation('courses')}
+              onKeyDown={(e) => {
+                if(e.key === 'Enter' || e.key === ' ') {
+                  handleNavigation('courses')
+                }
+              }}
               tabIndex="0">
               <div className='flex-column justify-content-center'>
                 <ContentAssignmentIcon className='icon-md pr-1'/>
@@ -37,6 +42,11 @@ export default function AdminHeader({
             <li
               className={`flex-row ${navigation === 'users' ? ' active-link' : ''}`}
               onClick={() => handleNavigation('users')}
+              onKeyDown={(e) => {
+                if(e.key === 'Enter' || e.key === ' ') {
+                  handleNavigation('users')
+                }
+              }}
               tabIndex="0">
               <div className='flex-column justify-content-center'>
                 <UserIcon className='icon-md pr-1'/>

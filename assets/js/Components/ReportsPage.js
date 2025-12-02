@@ -207,7 +207,7 @@ export default function ReportsPage({t, report, settings, quickSearchTerm}) {
 
   return (
     <div className="report-page-container scrollable">
-      <div className="flex-row justify-content-between">
+      <div className="flex-row justify-content-between gap-4">
         <h1 className="primary-dark">{t('menu.reports')}</h1>
         { (fetchedReports && reports.length > 0) && (
           <div className="flex-column justify-content-center">
@@ -272,45 +272,6 @@ export default function ReportsPage({t, report, settings, quickSearchTerm}) {
             )}
             
           </div>
-
-            {/* <div className="flex-column flex-grow-0 flex-shrink-0 justify-content-start">
-              <div className="callout-container">
-                <h3 className="primary-dark mt-0">{t('report.title.options')}</h3>
-                <div className="flex-row gap-1 mb-2">
-                  <input
-                    type="checkbox"
-                    id="issuesToggle"
-                    name="issuesToggle"
-                    tabIndex="0"
-                    checked={chartVisibility.issues}
-                    onChange={() => toggleChartVisibility('issues')}
-                  />
-                  <label htmlFor="issuesToggle">{t('report.option.show_issues')}</label>
-                </div>
-                <div className="flex-row gap-1 mb-2">
-                  <input
-                    type="checkbox"
-                    id="potentialIssuesToggle"
-                    name="potentialIssuesToggle"
-                    tabIndex="0"
-                    checked={chartVisibility.potentialIssues}
-                    onChange={() => toggleChartVisibility('potentialIssues')}
-                  />
-                  <label htmlFor="potentialIssuesToggle">{t('report.option.show_potential')}</label>
-                </div>
-                <div className="flex-row gap-1">
-                  <input
-                    type="checkbox"
-                    id="suggestionsToggle"
-                    name="suggestionsToggle"
-                    tabIndex="0"
-                    checked={chartVisibility.suggestions}
-                    onChange={() => toggleChartVisibility('suggestions')}
-                  />
-                  <label htmlFor="suggestionsToggle">{t('report.option.show_suggestions')}</label>
-                </div>
-              </div>
-            </div> */}
 
           <div className="mt-4">
             <IssuesTable

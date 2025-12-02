@@ -1,5 +1,5 @@
 import React, {useState, useEffect} from 'react'
-import FormFeedback from './FormFeedback'
+import FormSaveOrReview from './FormSaveOrReview'
 import * as Html from '../../Services/Html'
 import * as Text from '../../Services/Text'
 
@@ -10,11 +10,13 @@ export default function HeadingEmptyForm({
   handleIssueSave,
   isDisabled,
   handleActiveIssue,
+  markAsReviewed,
+  setMarkAsReviewed
 }) {
 
   const [textInputValue, setTextInputValue] = useState('')
   const [deleteHeader, setDeleteHeader] = useState(false)
-  const [textInputErrors, setTextInputErrors] = useState([])
+  const [formErrors, setFormErrors] = useState([])
 
   useEffect(() => {
     if (activeIssue) {
@@ -24,8 +26,26 @@ export default function HeadingEmptyForm({
       setTextInputValue(element ? element.innerText : '')
       setDeleteHeader(!element && activeIssue.status.toString() === '1')
     }
-    setTextInputErrors([])
+    setFormErrors([])
   }, [activeIssue])
+
+  useEffect(() => {
+    updateHtmlContent()
+    checkFormErrors()
+  }, [textInputValue, deleteHeader, markAsReviewed])
+
+  const updateHtmlContent = () => {
+    let issue = activeIssue
+    issue.isModified = true 
+    if (markAsReviewed) {
+      issue.newHtml = issue.initialHtml
+      handleActiveIssue(issue)
+      return
+    }
+
+    issue.newHtml = processHtml()
+    handleActiveIssue(issue)
+  }
 
   const processHtml = () => {
     if (deleteHeader) {
@@ -36,19 +56,16 @@ export default function HeadingEmptyForm({
     return Html.toString(Html.setInnerText(html, textInputValue))
   }
 
-  useEffect(() => {
+
+  const checkFormErrors = () => {
     let tempErrors = []
     if(!deleteHeader) {
       if(Text.isTextEmpty(textInputValue)) {
         tempErrors.push({ text: t('form.heading_empty.msg.text_empty'), type: 'error' })
       }
     }
-    setTextInputErrors(tempErrors)
-
-    let issue = activeIssue
-    issue.newHtml = processHtml()
-    handleActiveIssue(issue)
-  }, [textInputValue, deleteHeader])
+    setFormErrors(tempErrors)
+  }
 
   const handleCheckbox = () => {
     setDeleteHeader(!deleteHeader)
@@ -59,7 +76,9 @@ export default function HeadingEmptyForm({
   }
 
   const handleSubmit = () => {
-    handleIssueSave(activeIssue)
+    if(markAsReviewed || formErrors.length === 0) {
+      handleIssueSave(activeIssue)
+    }
   }
 
   return (
@@ -87,13 +106,15 @@ export default function HeadingEmptyForm({
           onChange={handleCheckbox} />
         <label className="instructions" htmlFor="deleteHeaderCheckbox">{t('form.heading_empty.label.remove_header')}</label>
       </div>
-      <FormFeedback
+      <FormSaveOrReview
         t={t}
         settings={settings}
         activeIssue={activeIssue}
         isDisabled={isDisabled}
         handleSubmit={handleSubmit}
-        formErrors={textInputErrors} />
+        formErrors={formErrors}
+        markAsReviewed={markAsReviewed}
+        setMarkAsReviewed={setMarkAsReviewed} />
     </>
   )
 }

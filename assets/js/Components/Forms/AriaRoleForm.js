@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react"
-import FormFeedback from './FormFeedback'
+import FormSaveOrReview from './FormSaveOrReview'
+import Combobox from "../Widgets/Combobox"
 import * as Html from "../../Services/Html"
 
 export default function AriaRoleForm({
@@ -8,7 +9,9 @@ export default function AriaRoleForm({
   activeIssue,
   handleIssueSave,
   isDisabled,
-  handleActiveIssue
+  handleActiveIssue,
+  markAsReviewed,
+  setMarkAsReviewed
  }) {
 
   const ariaRoleMap = {
@@ -145,37 +148,46 @@ export default function AriaRoleForm({
   const [detectedTag, setDetectedTag] = useState("")
   const [validRoles, setValidRoles] = useState([])
   const [selectValue, setSelectValue] = useState("")
+  const [selectOptions, setSelectOptions] = useState([])
+  const [formErrors, setFormErrors] = useState([])
   
-  const handleHtmlUpdate = () => {
-    let oldHtml = Html.getIssueHtml(activeIssue)
-    let updatedElement = Html.toElement(oldHtml)
-
-    if (deleteRole) {
-      updatedElement = Html.removeAttribute(updatedElement, "role")
-    } else {
-      updatedElement = Html.setAttribute(
-        updatedElement,
-        "role",
-        selectValue
-      )
-    }
-
-    let issue = activeIssue
-    issue.newHtml = Html.toString(updatedElement)
-    handleActiveIssue(issue)
-  }
-
   useEffect(() => {
     let html = Html.getIssueHtml(activeIssue)
     let element = Html.toElement(html)
-    setSelectValue(element ? Html.getAttribute(element, "role") : "")
+    let currentRole = element ? Html.getAttribute(element, "role") : ''
+    if (!currentRole) {
+      currentRole = ''
+    }
+    
+    setSelectValue(currentRole)
     setDeleteRole(!element && activeIssue.status === 1)
 
     const tagName = Html.getTagName(html)
+    let tempValidRoles = []
 
     if (tagName) {
       setDetectedTag(tagName)
-      setValidRoles(ariaRoleMap[tagName] || [])
+      
+      tempValidRoles = ariaRoleMap[tagName] || []
+      setValidRoles(tempValidRoles)
+      if (tempValidRoles.length > 0) {
+        let tempSelectOptions = [{
+          value: '',
+          name: t('form.aria_role.label.none_selected'),
+          selected: currentRole === ''
+        }]
+        tempValidRoles.forEach(role => {
+          tempSelectOptions.push({
+            value: role,
+            name: role,
+            selected: role.toLowerCase() === currentRole.toLowerCase()
+          })
+        })
+        setSelectOptions(tempSelectOptions)
+      }
+      else {
+        setSelectOptions([])
+      }
     }
  
     else {
@@ -185,17 +197,54 @@ export default function AriaRoleForm({
   }, [activeIssue])
 
   useEffect(() => {
-    handleHtmlUpdate()
-  }, [selectValue, deleteRole])
-  
+    updateHtmlContent()
+    checkFormErrors()
+  }, [selectValue, deleteRole, markAsReviewed])
+
+  const updateHtmlContent = () => {
+    let issue = activeIssue
+    issue.isModified = true
+    
+    if (markAsReviewed) {
+      issue.newHtml = issue.initialHtml
+      handleActiveIssue(issue)
+      return
+    }
+
+    let html = Html.getIssueHtml(activeIssue)
+    let updatedElement = Html.toElement(html)
+
+    if (deleteRole) {
+      updatedElement = Html.removeAttribute(updatedElement, "role")
+    } else {
+      updatedElement = Html.setAttribute(updatedElement, "role", selectValue)
+    }
+
+    issue.newHtml = Html.toString(updatedElement)
+    handleActiveIssue(issue)
+  }
+
+  const checkFormErrors = () => {
+    let tempErrors = []
+    if (!deleteRole && (selectValue === '' || validRoles.indexOf(selectValue) === -1)) {
+      tempErrors.push({ text: t('form.aria_role.msg.role_required'), type: 'error' })
+    }
+    setFormErrors(tempErrors)
+  }
+
+  const handleComboboxSelect = (id, value) => {
+    setSelectValue(value)
+  }
 
   const handleSubmit = () => {
-    handleIssueSave(activeIssue)
+    if(markAsReviewed || formErrors.length === 0) {
+      handleIssueSave(activeIssue)
+    }
   }
 
-  const handleSelect = (newValue) => {
-    setSelectValue(newValue)
-  }
+  // const handleSelect = (newValue) => {
+  //   setSelectValue(newValue)
+  // }
 
   const handleCheckbox = () => {
    setDeleteRole(!deleteRole)
@@ -209,24 +258,14 @@ export default function AriaRoleForm({
         <label>{t('form.aria_role.feedback.no_roles', {tagName: detectedTag})}</label>
       ) : (
         <>
-          <label htmlFor="role-select" className="instructions">{t('form.aria_role.label.select')}</label>
-          <select
-            id="role-select"
-            name="role-select"
-            className="w-100 mt-2"
-            value={selectValue}
-            onChange={(e) => handleSelect(e.target.value)}
-            tabIndex="0"
-            disabled={isDisabled || deleteRole}>
-            <option key='empty' id='opt-empty' value=''>
-              {t('form.aria_role.label.none_selected')}
-            </option>
-            {validRoles.map((opt, index) => (
-              <option key={index} id={`opt-${index}`} value={opt}>
-                {opt}
-              </option>
-            ))}
-          </select>
+          <Combobox
+            handleChange={handleComboboxSelect}
+            id='role-select'
+            isDisabled={isDisabled || deleteRole}
+            label={t('form.aria_role.label.select')}
+            options={selectOptions}
+            settings={settings}
+          />
           <div className="separator mt-2">{t('fix.label.or')}</div>
         </>
       )}
@@ -240,13 +279,15 @@ export default function AriaRoleForm({
           onChange={handleCheckbox} />
         <label htmlFor="deleteRoleCheckbox" className="instructions">{t('form.aria_role.label.remove')}</label>
       </div>
-      <FormFeedback
+      <FormSaveOrReview
         t={t}
         settings={settings}
         activeIssue={activeIssue}
-        isDisabled={isDisabled || !deleteRole && selectValue === ''}
+        isDisabled={isDisabled}
         handleSubmit={handleSubmit}
-        formErrors={[]} />
+        formErrors={formErrors}
+        markAsReviewed={markAsReviewed}
+        setMarkAsReviewed={setMarkAsReviewed} />
     </>
   )
 }

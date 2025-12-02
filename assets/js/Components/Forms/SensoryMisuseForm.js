@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react'
-import FormFeedback from './FormFeedback'
+import FormSaveOrReview from './FormSaveOrReview'
 import * as Html from '../../Services/Html'
 // The SensoryMisuseForm.css file is a copy of the tinyMCE oxide skin file, which does not consistently load at runtime, so we include it here
 // Failure to do so often results in the TinyMCE editor not display, especially the first time the componenet is rendered.
@@ -12,7 +12,9 @@ export default function SensoryMisuseForm({
   handleIssueSave, 
   addMessage,
   isDisabled,
-  handleActiveIssue
+  handleActiveIssue,
+  markAsReviewed,
+  setMarkAsReviewed
 }) {
   const [html, setHtml] = useState(Html.getIssueHtml(activeIssue))
   const [editorHtml, setEditorHtml] = useState(Html.getIssueHtml(activeIssue))
@@ -58,7 +60,6 @@ export default function SensoryMisuseForm({
     setHtml(html)
     setEditorHtml(html)
 
-    console.log('Initializing TinyMCE with activeIssue: ', activeIssue.id)
     tinymce.remove()
     tinymce.init({
       selector: '#sensory-misuse-textarea',
@@ -220,14 +221,11 @@ export default function SensoryMisuseForm({
 
   return (
     <>
-      <div>
-        <textarea id="sensory-misuse-textarea"></textarea>
-      </div>
-
-      {sensoryErrors.length > 0 ?
+      <div className="instructions">{t('form.sensory_misuse.label.instructions')}</div>
+      { sensoryErrors.length > 0 ? (
         <div className="mt-3">
-          <label className="instructions">{t('form.sensory_misuse.label.potential')}</label>
           <div className="flex-row flex-wrap gap-1 mt-2">
+            <div className="ufixit-widget-label flex-column align-self-center">{t('form.sensory_misuse.label.highlight')}</div>
             {sensoryErrors.map((word) => (
               <button
                 className="tag"
@@ -240,15 +238,24 @@ export default function SensoryMisuseForm({
             ))}
           </div>
         </div>
-        : <></>}
+      ) : (
+        <div className="mt-3">
+          <div className="ufixit-widget-label">{t('form.sensory_misuse.label.none')}</div>
+        </div>
+      )}
+      <div className="mt-3">
+        <textarea id="sensory-misuse-textarea"></textarea>
+      </div>
 
-      <FormFeedback
+      <FormSaveOrReview
         t={t}
         settings={settings}
         activeIssue={activeIssue}
         isDisabled={isDisabled}
         handleSubmit={handleSubmit}
-        formErrors={[]} />
+        formErrors={[]}
+        markAsReviewed={markAsReviewed}
+        setMarkAsReviewed={setMarkAsReviewed} />
     </>
   )
 }

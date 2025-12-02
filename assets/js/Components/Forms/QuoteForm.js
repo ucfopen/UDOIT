@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import FormFeedback from './FormFeedback'
+import FormSaveOrReview from './FormSaveOrReview'
 import * as Html from '../../Services/Html'
 
 export default function QuoteForm({
@@ -8,7 +8,9 @@ export default function QuoteForm({
   activeIssue,
   handleIssueSave,
   isDisabled,
-  handleActiveIssue
+  handleActiveIssue,
+  markAsReviewed,
+  setMarkAsReviewed
 }) {
 
   const [originalHtml, setOriginalHtml] = useState('')
@@ -193,13 +195,15 @@ export default function QuoteForm({
           </div>
         </>
       )}
-      <FormFeedback
+      <FormSaveOrReview
         t={t}
         settings={settings}
         activeIssue={activeIssue}
         isDisabled={isDisabled}
         handleSubmit={handleSubmit}
-        formErrors={formErrors} />
+        formErrors={formErrors}
+        markAsReviewed={markAsReviewed}
+        setMarkAsReviewed={setMarkAsReviewed} />
   </div>
   )
 }
