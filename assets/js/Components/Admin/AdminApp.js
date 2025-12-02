@@ -132,7 +132,7 @@ export default function AdminApp(initialData) {
         }
 
         { !loadingCourses && (
-          <div className="mt-3">
+          <div className="non-scrollable">
             
             {('courses' === navigation) &&
               <CoursesPage

@@ -1,8 +1,0 @@
-sentry:
-  dsn: '%env(SENTRY_DSN)%'
-
-  options:
-    environment: '%env(APP_ENV)%'
-
-    # Enable performance monitoring (adjust sampling rate as traffic goes up)
-    traces_sample_rate: 0.5
