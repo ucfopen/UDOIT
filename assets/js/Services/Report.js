@@ -114,7 +114,15 @@ const getSectionsFromFile = (contentSections, fileData) => {
     let tempSectionId = section.id
     section.items.forEach((item) => {
       if(item.type === 'File' && item.content_id && item.content_id.toString() === fileData.lmsFileId.toString()) {
-        fileSections.push(tempSectionId.toString())
+        fileSections.push({
+          moduleId: tempSectionId,
+          itemPosition: item.position,
+          contentItemTitle: section.title,
+          contentItemUrl: section.url,
+          contentType: 'section',
+          indent: item.indent,
+          itemId: item.id
+        })
       }
     })
   })
@@ -165,6 +173,7 @@ export function analyzeReport(report, ISSUE_STATE) {
   }
   let scanRules = {}
   let sessionIssues = {}
+  let sessionFiles = {}
   let currentTime = new Date()
   let millisecondsInADay = 86400000 // 1000 * 60 * 60 * 24
 
@@ -177,7 +186,7 @@ export function analyzeReport(report, ISSUE_STATE) {
     contentItem.sections = getSectionsFromContentItem(report.contentSections, contentItem)
     if(contentItem.body) {
       let tempBody = parser.parseFromString(contentItem.body, 'text/html')
-
+ 
       // Get all of the links to files in the content item.
       let links = tempBody.getElementsByTagName('a')
       const fileUrlPattern = /\/files\/(\d+)/
@@ -192,17 +201,19 @@ export function analyzeReport(report, ISSUE_STATE) {
               fileReferences[fileId] = []
             }
             fileReferences[fileId].push({
+              contentItemId: contentItem.id,
+              contentItemBody: contentItem.body,
               contentItemTitle: contentItem.title,
               contentItemUrl: contentItem.url,
               contentItemLmsId: contentItem.lmsContentId,
               contentType: contentItem.contentType,
-              sectionIds: contentItem.sections,
             })
           }
         }
       }
 
       parsedDocuments[contentItem.id] = tempBody
+      usedContentItems[contentItem.id] = contentItem
     }
   })
 
@@ -282,27 +293,11 @@ export function analyzeReport(report, ISSUE_STATE) {
   // each reference to a file should add its parent section to the list.
   // We ALSO want a list of references to include the section(s) the file appears in outside of
   // references (like when the file is linked in the modules directly).
+  const lmsIdToFileMap = {}
   report.files.forEach((file) => {
-    file.sections = getSectionsFromFile(report.contentSections, file)
-    let sectionReferences = []
-    file.sections.forEach((sectionId) => {
-      let sectionReference = getReferenceFromSection(report.contentSections, sectionId)
-      if(sectionReference) {
-        sectionReferences.push(sectionReference)
-      }
-    })
     file.references = fileReferences[parseInt(file.lmsFileId)] || []
-    file.references.forEach((reference) => {
-      let referenceSections = reference.sectionIds
-      referenceSections.forEach((sectionId) => {
-        if(!file.sections.includes(sectionId)) {
-          file.sections.push(sectionId)
-        }
-      })
-    })
-    sectionReferences.forEach((sectionReference) => {
-      file.references.push(sectionReference)
-    })
+    const sectionRefs =  getSectionsFromFile(report.contentSections, file)
+    file.sectionRefs = sectionRefs ? sectionRefs : []
   })
 
   let tempFilesReviewed = 0
@@ -313,14 +308,29 @@ export function analyzeReport(report, ISSUE_STATE) {
     else {
       scanCounts.files += 1
     }
+
+    lmsIdToFileMap[file.lmsFileId] = file
   })
 
+  report.files.forEach((file) => {
+    if(lmsIdToFileMap[file.metadata.replacementFileId]){
+       file.replacement = lmsIdToFileMap[file.metadata.replacementFileId]
+    }
+    if(file.reviewed){
+      const fixedOn = new Date(file.updated)
+      if(currentTime - fixedOn < millisecondsInADay){
+        sessionFiles[file.id] = file.replacement ? ISSUE_STATE.SAVED : ISSUE_STATE.RESOLVED
+      }
+    }
+  })
+  
   tempReport.issues = activeIssues
   tempReport.scanCounts = scanCounts
   tempReport.scanRules = scanRules
   tempReport.files = {...report.files}
   tempReport.contentItems = usedContentItems
   tempReport.sessionIssues = sessionIssues
+  tempReport.sessionFiles = sessionFiles
   tempReport.filesReviewed = tempFilesReviewed
 
   return tempReport

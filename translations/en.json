@@ -434,11 +434,13 @@
   "form.file.xls.learn_more": "<h3>Accessible Excel Files</h3><p>Spreadsheets are relatively easy to navigate for screenreaders, but can sometimes be visually overwhelming or difficult to read when text is too small or spaced too closely together. Using slightly larger fonts and adding visual space can help make spreadsheets easier to understand.</p><h3>Best Practices</h3><ul><li>Add extra width and height to cells to enhance readability</li><li>Remove or hide unnecessary blank rows and columns between sections of data</li><li>Freeze rows and columns as necessary to ensure that headers are consistently visible</li></ul><h3>For More Information</h3><p>WebAIM.org: <a href='https://webaim.org/techniques/excel/' target='_blank'>Optimizing Spreadsheet Accessibility</a></p>",
   "form.file.label.replace": "Replace File",
   "form.file.label.replace.desc": "If necessary, replace the current version of this file here:",
+  "form.file.label.delete.desc": "This file is not referenced anywhere in the course. Please delete this from the course if you do not wish to use it to avoid clutter",
   "form.file.label.replace_references": "Replace References to Old File with References to New File",
   "form.file.label.drag_drop": "Drag a file here or",
   "form.file.label.browse_files": "Choose a file to upload",
   "form.file.label.upload": "Upload a File",
   "form.file.label.new_file": "New File",
+  "form.file.delete": "Delete File",
 
   "form.heading_empty.title": "Headings Should Not Be Empty",
   "form.heading_empty.summary": "Headings should not be empty. If a heading is not needed, it should be removed instead.",
