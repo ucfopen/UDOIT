@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react'
+import ProgressCircle from '../Widgets/ProgressCircle'
+import '../HomePage.css'
 
 export default function AdminDashboard({
   t,
   settings,
-  courses,
-  handleNavigation,
-  addMessage
+  courses
 }) {
   const [dashboardStats, setDashboardStats] = useState({
     loading: true,
@@ -23,6 +23,21 @@ export default function AdminDashboard({
     oldestScan: null,
     newestScan: null
   })
+
+  const progressMeterRadius = () => {
+    switch (settings?.user?.roles?.font_size) {
+      case 'font-small':
+        return 40;
+      case 'font-normal':
+        return 45;
+      case 'font-large':
+        return 50;
+      case 'font-xlarge':
+        return 60;
+      default:
+        return 40;
+    }
+  }
 
   useEffect(() => {
     calculateStats()
@@ -108,6 +123,7 @@ export default function AdminDashboard({
     stats.totalInstructors = allInstructors.size
     stats.uniqueInstructorsUsingUdoit = udoitInstructors.size
     stats.accountBreakdown = accountStats
+    stats.accountNumber = Object.keys(accountStats).length
 
     // Find oldest and newest scans
     if (scanDates.length > 0) {
@@ -124,83 +140,111 @@ export default function AdminDashboard({
   }
 
   const scanPercentage = dashboardStats.totalCourses > 0 
-    ? ((dashboardStats.scannedCourses / dashboardStats.totalCourses) * 100).toFixed(1)
+    ? ((dashboardStats.scannedCourses / dashboardStats.totalCourses) * 100)
     : 0
 
   const instructorAdoption = dashboardStats.totalInstructors > 0
-    ? ((dashboardStats.uniqueInstructorsUsingUdoit / dashboardStats.totalInstructors) * 100).toFixed(1)
+    ? ((dashboardStats.uniqueInstructorsUsingUdoit / dashboardStats.totalInstructors) * 100)
     : 0
 
   return (
-    <div className="p-3">
-      <div className="flex-row justify-content-center mb-3">
-        <h1 className="mt-0 mb-0 primary-dark">UDOIT Admin Dashboard</h1>
-      </div>
-      
-      <div>
-        <div>
-          <h2>Course Statistics</h2>
-          <p>Total Courses: {dashboardStats.totalCourses}</p>
-          <p>Scanned Courses: {dashboardStats.scannedCourses}</p>
-          <p>Unscanned Courses: {dashboardStats.totalCourses - dashboardStats.scannedCourses}</p>
-          <p>Scan Adoption Rate: {scanPercentage}%</p>
-          <p>Courses Scanned in Last 30 Days: {dashboardStats.recentScans}</p>
-        </div>
+    <>
+      <div className="flex-row gap-3 w-100 scrollable">
         
-        <div>
-          <h2>Instructor Statistics</h2>
-          <p>Total Instructors: {dashboardStats.totalInstructors}</p>
-          <p>Instructors Using UDOIT: {dashboardStats.uniqueInstructorsUsingUdoit}</p>
-          <p>Instructor Adoption Rate: {instructorAdoption}%</p>
-        </div>
-        
-        <div>
-          <h2>Accessibility Statistics</h2>
-          <p>Total Accessibility Issues Found: {dashboardStats.totalErrors}</p>
-          <p>Total Suggestions Made: {dashboardStats.totalSuggestions}</p>
-          <p>Total Items Fixed: {dashboardStats.totalFixed}</p>
-          <p>Total Items Resolved: {dashboardStats.totalResolved}</p>
-          <p>Total Files Reviewed: {dashboardStats.totalFilesReviewed}</p>
-          
-          {dashboardStats.scannedCourses > 0 && (
-            <>
-              <p>Average Issues per Scanned Course: {(dashboardStats.totalErrors / dashboardStats.scannedCourses).toFixed(1)}</p>
-              <p>Average Files Reviewed per Course: {(dashboardStats.totalFilesReviewed / dashboardStats.scannedCourses).toFixed(1)}</p>
-            </>
-          )}
-        </div>
-        
-        <div>
-          <h2>Scan Activity</h2>
-          {dashboardStats.oldestScan && (
-            <p>Oldest Scan: {dashboardStats.oldestScan.toLocaleDateString()}</p>
-          )}
-          {dashboardStats.newestScan && (
-            <p>Most Recent Scan: {dashboardStats.newestScan.toLocaleDateString()}</p>
-          )}
-        </div>
-        
-        <div>
-          <h2>Department/Account Breakdown</h2>
-          {Object.entries(dashboardStats.accountBreakdown).map(([account, stats]) => (
-            <div key={account}>
-              <p><strong>{account}:</strong></p>
-              <p style={{ marginLeft: '20px' }}>Total Courses: {stats.total}</p>
-              <p style={{ marginLeft: '20px' }}>Scanned: {stats.scanned} ({stats.total > 0 ? ((stats.scanned / stats.total) * 100).toFixed(1) : 0}%)</p>
-              <p style={{ marginLeft: '20px' }}>Total Issues: {stats.errors}</p>
+        <div className="flex-column gap-3 w-100">
+          <section className="callout-container">
+            <div className="flex-column">
+              <div className="flex-row justify-content-evenly gap-3">
+                <div className="flex-column">
+                  <h2 className="callout-heading align-self-center text-center mt-1">Course Usage</h2>
+                  <div className="svg-container align-self-center">
+                    <ProgressCircle
+                      percent={scanPercentage}
+                      radius={progressMeterRadius()}
+                      circlePortion={75}
+                      strokeWidth={10}/>
+                    <div className="progress-text-container flex-column justify-content-center">
+                      <div className="progress-text">{scanPercentage.toFixed(0)}%</div>
+                    </div>
+                  </div>
+                  <div className="flex-row align-self-center count-summary">{dashboardStats.scannedCourses} of {dashboardStats.totalCourses} Courses Scanned</div>
+                </div>
+
+                <div className="flex-column">
+                  <h2 className="callout-heading align-self-center text-center mt-1">Instructor Usage</h2>
+                  <div className="svg-container align-self-center">
+                    <ProgressCircle
+                      percent={instructorAdoption}
+                      radius={progressMeterRadius()}
+                      circlePortion={75}
+                      strokeWidth={10}/>
+                    <div className="progress-text-container flex-column justify-content-center">
+                      <div className="progress-text">{instructorAdoption.toFixed(0)}%</div>
+                    </div>
+                  </div>
+                  <div className="flex-row align-self-center count-summary">{dashboardStats.uniqueInstructorsUsingUdoit} of {dashboardStats.totalInstructors} Instructors Using UDOIT</div>
+                </div>
+              </div>
+
+              <div className="separator mt-3 mb-3"></div>
+
+              <div className="flex-column w-100 mb-2 gap-1">
+                <p className="m-0"><span className="progress-text me-3">{dashboardStats.recentScans}</span> Courses Scanned in Last 30 Days</p>
+                {dashboardStats.oldestScan && (<p className="m-0"><span className="progress-text me-3">{dashboardStats.oldestScan.toLocaleDateString()}</span> Oldest Scan</p>)}
+                {dashboardStats.newestScan && (<p className="m-0"><span className="progress-text me-3">{dashboardStats.newestScan.toLocaleDateString()}</span> Most Recent Scan</p>)}
+              </div>
             </div>
-          ))}
+
+            {/* <h2>Course Statistics</h2>
+            <p>Total Courses: {dashboardStats.totalCourses}</p>
+            <p>Scanned Courses: {dashboardStats.scannedCourses}</p>
+            <p>Unscanned Courses: {dashboardStats.totalCourses - dashboardStats.scannedCourses}</p>
+            <p>Scan Adoption Rate: {scanPercentage}%</p>
+            <p>Courses Scanned in Last 30 Days: {dashboardStats.recentScans}</p>
+
+            <h2>Instructor Statistics</h2>
+            <p>Total Instructors: {dashboardStats.totalInstructors}</p>
+            <p>Instructors Using UDOIT: {dashboardStats.uniqueInstructorsUsingUdoit}</p>
+            <p>Instructor Adoption Rate: {instructorAdoption}%</p>
+
+            <h2>Accessibility Statistics</h2>
+            <p>Total Accessibility Issues Found: {dashboardStats.totalErrors}</p>
+            <p>Total Suggestions Made: {dashboardStats.totalSuggestions}</p>
+            <p>Total Items Fixed: {dashboardStats.totalFixed}</p>
+            <p>Total Items Resolved: {dashboardStats.totalResolved}</p>
+            <p>Total Files Reviewed: {dashboardStats.totalFilesReviewed}</p> */}
+          
+          </section>
+
+          <section className="callout-container">
+            <p>Total Accessibility Issues Found: {dashboardStats.totalErrors}</p>
+            <p>Total Suggestions Made: {dashboardStats.totalSuggestions}</p>
+            <p>Total Items Fixed: {dashboardStats.totalFixed}</p>
+            <p>Total Items Resolved: {dashboardStats.totalResolved}</p>
+            <p>Total Files Reviewed: {dashboardStats.totalFilesReviewed}</p>
+            {dashboardStats.scannedCourses > 0 && (
+              <>
+                <p>Average Issues per Scanned Course: {(dashboardStats.totalErrors / dashboardStats.scannedCourses).toFixed(1)}</p>
+                <p>Average Files Reviewed per Course: {(dashboardStats.totalFilesReviewed / dashboardStats.scannedCourses).toFixed(1)}</p>
+              </>
+            )}
+          </section>
         </div>
+
+        {dashboardStats.accountNumber > 1 && (
+          <section className="callout-container">
+            <h2 className="callout-heading mt-1">Department/Account Breakdown</h2>
+            {Object.entries(dashboardStats.accountBreakdown).map(([account, stats]) => (
+              <div key={account}>
+                <p><strong>{account}:</strong></p>
+                <p style={{ marginLeft: '20px' }}>Total Courses: {stats.total}</p>
+                <p style={{ marginLeft: '20px' }}>Scanned: {stats.scanned} ({stats.total > 0 ? ((stats.scanned / stats.total) * 100).toFixed(1) : 0}%)</p>
+                <p style={{ marginLeft: '20px' }}>Total Issues: {stats.errors}</p>
+              </div>
+            ))}
+          </section>
+        )}
       </div>
-      
-      <div>
-        <button 
-          className="btn btn-primary"
-          onClick={() => handleNavigation('courses')}
-        >
-          View Courses
-        </button>
-      </div>
-    </div>
+    </>
   )
 }
