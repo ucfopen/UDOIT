@@ -170,10 +170,10 @@ export function analyzeReport(report, ISSUE_STATE) {
     contentFixed: report.contentFixed || 0,
     contentResolved: report.contentResolved || 0,
     contentSections: [...report.contentSections],
-    created: report.created,
+    created: report.created || 0,
     files: {...report.files},
     filesReviewed: report.filesReviewed || 0,
-    id: report.id,
+    id: report.id || 0,
     itemsScanned: report.itemsScanned || 0,
     ready: report.ready || false,
   }

@@ -169,7 +169,7 @@ export default function HomePage({
       <div className="flex-column flex-center w-75">
         <p className="mt-0 mb-0">{t('summary.description')}</p>
       </div>
-      
+
     </div>
 
     <div className="summary-container">
