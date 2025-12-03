@@ -183,7 +183,8 @@ class AdminController extends ApiController
     {
 
         $apiResponse = new ApiResponse();
-        $results = $rows = $issues = [];
+        $results = [];
+        $issues = [];
         $user = $this->getUser();
 
         $this->lms = $lmsApi->getLms();
@@ -202,31 +203,49 @@ class AdminController extends ApiController
         $courseInstructors = [];
 
         foreach ($courses as $course) {
+            $courseTitle = $course->getTitle();
+            $results[$courseTitle] = $results[$courseTitle] ?? [];
+
             foreach ($course->getReports() as $report) {
                 $reportDate = $report->getCreated();
                 $reportKey = $reportDate->format($util->getDateFormat());
-                
-                if (empty($rows[$course->getId()])) {
-                    $rows[$course->getId()] = [];
-                }
-                
-                $rows[$course->getId()][$reportKey] = $report;
 
-                if ($reportDate < $startDate) {
-                    $startDate = $reportDate;
+                if (!isset($results[$courseTitle][$reportKey])) {
+                    $results[$courseTitle][$reportKey] = [
+                        'count' => 0,
+                        'errors' => 0,
+                        'suggestions' => 0,
+                        'contentFixed' => 0,
+                        'contentResolved' => 0,
+                        'filesReviewed' => 0,
+                        'contentItems' => [],
+                        'files' => [],
+                        'issues' => [],
+                        'contentSections' => [],
+                    ];
                 }
-                if (!$endDate) {
-                    $endDate = $reportDate;
+
+                // Populate report data
+                $results[$courseTitle][$reportKey]['count']++;
+                foreach (['errors', 'suggestions', 'contentFixed', 'contentResolved', 'filesReviewed'] as $key) {
+                    $results[$courseTitle][$reportKey][$key] += $report->toArray()[$key] ?? 0;
                 }
-                if ($reportDate > $endDate) {
-                    $endDate = $reportDate;
-                }
-                
+
+                $results[$courseTitle][$reportKey]['id'] = $course->getId();
+                $results[$courseTitle][$reportKey]['contentItems'] = $course->getContentItems();
+                $results[$courseTitle][$reportKey]['files'] = $course->getFileItems();
+                $results[$courseTitle][$reportKey]['issues'] = $course->getAllIssues();
+                $results[$courseTitle][$reportKey]['contentSections'] = $this->lms->getCourseSections($course, $user);
+
+                // Update start and end dates
+                if ($reportDate < $startDate) $startDate = $reportDate;
+                if (!$endDate) $endDate = $reportDate;
+                if ($reportDate > $endDate) $endDate = $reportDate;
             }
 
             $courseInstructors[$course->getId()] = $this->getInstructorNamesForCourse($course, $user, $courseUserRepo, $userRepo,$em, $lmsApi);
-            
 
+            // Collect issues for each course
             foreach ($course->getAllIssues() as $issue) {
                 $rule = $issue->getScanRuleId();
                 $status = $issue->getStatus();
@@ -244,11 +263,9 @@ class AdminController extends ApiController
 
                 if (Issue::$issueStatusResolved === $status) {
                     $issues[$rule]['resolved']++;
-                }
-                else if (Issue::$issueStatusFixed === $status) {
+                } elseif (Issue::$issueStatusFixed === $status) {
                     $issues[$rule]['fixed']++;
-                }
-                else {
+                } else {
                     $issues[$rule]['active']++;
                 }
                 $issues[$rule]['total']++;
@@ -256,66 +273,34 @@ class AdminController extends ApiController
             }
         }
 
+        // Count courses per issue rule
         foreach ($issues as $rule => $row) {
             $issues[$rule]['courses'] = count($row['courses']);
         }
 
-        if ($endDate) {
-            $endDate->setTime(23, 59,0);            
-        }
-
-        // Populate all dates with a report
-        foreach ($rows as $courseId => $reports) {
+        /*
+        // Fill missing dates with previous report data
+        foreach ($results as $courseTitle => $reports) {
             $currentDate = clone $startDate;
             $currentReport = null;
-            
+
             while ($currentDate <= $endDate) {
                 $currentKey = $currentDate->format($util->getDateFormat());
                 $currentDate->add($oneDay);
-                
+
                 if (!empty($reports[$currentKey])) {
                     $currentReport = $reports[$currentKey];
                     continue;
                 }
-                
-                if (empty($currentReport)) {
-                    continue;
-                }
+                if (empty($currentReport)) continue;
 
-                $rows[$courseId][$currentKey] = $currentReport;
+                $results[$courseTitle][$currentKey] = $currentReport;
             }
-            ksort($rows[$courseId]);
+            ksort($results[$courseTitle]);
         }
-
-        foreach ($rows as $courseId => $reports) {
-            foreach ($reports as $dateKey => $reportObj) {
-                $reportArr = $reportObj->toArray();
-                if (empty($results[$dateKey])) {
-                    $results[$dateKey] = [
-                        'count' => 0,
-                        'errors' => 0,
-                        'suggestions' => 0,
-                        'contentFixed' => 0,
-                        'contentResolved' => 0,
-                        'filesReviewed' => 0,
-                    ];
-                }
-
-                $results[$dateKey]['count']++;
-                $results[$dateKey]['created'] = $dateKey;
-
-                foreach (array_keys($results[$dateKey]) as $key) {
-                    if (!empty($reportArr[$key]) && is_numeric($reportArr[$key])) {
-                        $results[$dateKey][$key] += (int) $reportArr[$key];
-                    }
-                }
-            }
-        }
-
-        ksort($results);
-
-        $apiResponse->addData('reports', $results);
-        $apiResponse->addData('issues', $issues);
+        */
+        $apiResponse->addData('reports', $results); // Grouped by course and date
+        $apiResponse->addData('issues', $issues);   // Add issues data
         $apiResponse->addLogMessages($util->getUnreadMessages());
         $apiResponse->addData('courseInstructors', $courseInstructors);
         

@@ -429,13 +429,6 @@ export const findXpathFromElement = (element) => {
 
 export const findElementWithXpath = (content, xpath) => {
   
-  if(xpath.startsWith('/html[1]/body[1]/main[1]/')) {
-    xpath = xpath.replace('/html[1]/body[1]/main[1]/', '/html[1]/body[1]/')
-  }
-  else if (xpath.startsWith('/html[1]/body[1]/div[1]/')) {
-    xpath = xpath.replace('/html[1]/body[1]/div[1]/', '/html[1]/body[1]/')
-  }
-
   if(xpath.startsWith('/')) {
     xpath = xpath.substring(1)
   }
@@ -488,7 +481,7 @@ export function findElementWithIssue(content, issue) {
   else {
     let errorHtml = issue?.sourceHtml || undefined
     if(issue.status.toString() === '1') {
-      errorHtml = issue?.newHtml || errorHtml
+      errorHtml = issue?.newHtml || undefined
     }
 
     if(errorHtml === undefined || errorHtml === '') {
