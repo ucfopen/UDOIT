@@ -65,7 +65,6 @@ export default function CoursePage({
         const names = Array.isArray(course.instructors) ? course.instructors : []
         const hasReport = course.hasReport || (course.report && course.report.id)
         const publicUrl = course.publicUrl !== '---' && course.publicUrl !== '-' ? course.publicUrl : null
-
         const scanCounts = course.report?.scanCounts || {};
         const barriers = scanCounts.errors || 0;
         const suggestions = scanCounts.suggestions || 0;

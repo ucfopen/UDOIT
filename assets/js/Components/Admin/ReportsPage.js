@@ -55,11 +55,12 @@ const getReportHistory = () => {
           // Update state with analyzed reports
           setGroupedReports(groupedReports);
           setIssues(response.data.issues);
-          setInstructors(response.data.instructors || []);
+          setInstructors(response.data.instructors || [])
+
         } else {
           setGroupedReports(null);
           setIssues(null);
-          setInstructors([])
+          setInstructors([]);
         }
       })
       .catch((error) => {

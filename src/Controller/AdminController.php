@@ -242,6 +242,8 @@ class AdminController extends ApiController
                 if (!$endDate) $endDate = $reportDate;
                 if ($reportDate > $endDate) $endDate = $reportDate;
             }
+   
+            $courseInstructors[$course->getId()] = $this->getInstructorNamesForCourse($course, $user, $courseUserRepo, $userRepo,$em, $lmsApi);
 
             $courseInstructors[$course->getId()] = $this->getInstructorNamesForCourse($course, $user, $courseUserRepo, $userRepo,$em, $lmsApi);
 
