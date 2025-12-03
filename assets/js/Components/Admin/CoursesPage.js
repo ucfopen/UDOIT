@@ -84,7 +84,7 @@ export default function CoursePage({
           action: <div className="flex-row gap-1">
             <button key={`reportButton${course.id}`}
               onClick={() => { !course.loading && !isAnyScanning && hasReport && handleReportClick(course) }}
-              textAlign="center"
+              textalign="center"
               className={`btn btn-text btn-icon-only ${((course.loading || isAnyScanning) || !hasReport) ? 'btn-disabled' : ''}`}
               disabled={(course.loading || isAnyScanning) || !hasReport}
               title={hasReport ? t('report.button.view_report') : t('report.button.no_report')}
@@ -94,7 +94,7 @@ export default function CoursePage({
               </button>
             <button key={`scanButton${course.id}`}
               onClick={() => { !course.loading && !isAnyScanning && handleScanClick(course) }}
-              textAlign="center"
+              textalign="center"
               className={`btn btn-text btn-icon-only ${(course.loading || isAnyScanning) ? 'btn-disabled' : ''}`}
               disabled={course.loading || isAnyScanning}
               title={t('report.button.scan')}
