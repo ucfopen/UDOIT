@@ -92,8 +92,29 @@ export default function AdminApp(initialData) {
   }, [filters])
 
   const handleCourseUpdate = (courseData) => {
-    let tempCourses = Object.assign({}, courses)
-    tempCourses[courseData.id] = courseData
+    let tempCourses = {...courses}
+    
+    // If there's an oldId, this is a newly scanned course that needs the old entry removed
+    if (courseData.oldId && courseData.oldId !== courseData.id) {
+      // Remove the old unscanned course entry
+      if (tempCourses[courseData.oldId]) {
+        delete tempCourses[courseData.oldId]
+      }
+      
+      // Add the new scanned course entry
+      const updatedCourse = {...courseData}
+      delete updatedCourse.oldId  // Remove the signal flag
+      tempCourses[courseData.id] = updatedCourse
+    }
+    // If updating an existing course, just update its data
+    else if (tempCourses[courseData.id]) {
+      tempCourses[courseData.id] = {...tempCourses[courseData.id], ...courseData}
+    } 
+    // If it's a new course, add it
+    else {
+      tempCourses[courseData.id] = courseData
+    }
+    
     setCourses(tempCourses)
   }
 
@@ -132,7 +153,7 @@ export default function AdminApp(initialData) {
         }
 
         { !loadingCourses && (
-          <div className="non-scrollable">
+          <div className="mt-3">
             
             {('courses' === navigation) &&
               <CoursesPage
