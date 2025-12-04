@@ -814,6 +814,7 @@ input[type="color"] {
   height: 100%;
   border-radius: 8px;
   border: 2px solid var(--primary-color);
+  background-color: var(--background-color);
 
   &:focus {
     outline: 2px solid var(--focus-color);
@@ -826,6 +827,15 @@ input[type="color"] {
     cursor: not-allowed !important;
     outline-color: var(--gray);
   }
+}
+
+.gradient-row {
+  margin-bottom: 0.75em;
+}
+
+.gradient-note {
+  font-style: italic;
+  color: #666;
 }
 
 .icon-sm {

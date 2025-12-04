@@ -74,6 +74,10 @@ export default function FixIssuesContentPreview({
     formNames.HEADING_STYLE
   ]
 
+  const FOCUS_RELATED = [
+    formNames.CONTRAST
+  ]
+
   const convertErrorHtmlString = (htmlText) => {
     let tempElement = Html.toElement(htmlText)
     if(tempElement){
@@ -189,6 +193,13 @@ export default function FixIssuesContentPreview({
         errorElement = tempElement
       } else {
         errorElement.replaceWith(convertErrorHtmlElement(errorElement))
+      }
+      if (FOCUS_RELATED.includes(formNameFromRule(activeIssue.scanRuleId))) {
+        let metadata = JSON.parse(activeIssue.issueData.metadata)
+        let focusElement = Html.findElementWithXpath(doc, metadata.focusXpath)
+        if (focusElement) {
+          focusElement.replaceWith(convertErrorHtmlElement(focusElement))
+        }
       }
       setCanShowPreview(true)
       setIsErrorFoundInContent(true)
