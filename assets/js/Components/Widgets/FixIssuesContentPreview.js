@@ -89,7 +89,7 @@ export default function FixIssuesContentPreview({
   }
 
   const addPreviewHelperElements = (doc, errorElement) => {
-    if(!activeIssue || !doc) {
+    if(!activeIssue || !doc || !errorElement) {
       return doc
     }
 
