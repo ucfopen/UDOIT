@@ -54,11 +54,18 @@ export default function AltText ({
     let element = Html.toElement(html)
     
     if (isDecorative) {
-      element = Html.setAttribute(element, "role", "presentation")
+      
+      // <canvas> elements may have special roles, like "img", and we don't want to overwrite or remove those.
+      // <input> elements with type="image" also need to keep their role.
+      if(issue.scanRuleId !== 'canvas_content_described' && issue.scanRuleId !== 'imagebutton_alt_exists') {
+        element = Html.setAttribute(element, "role", "presentation")
+      }
       element = Html.setAttribute(element, 'alt', '')
       element = Html.setAttribute(element, 'title', '')
     } else {
-      element = Html.removeAttribute(element, "role")
+      if(issue.scanRuleId !== 'canvas_content_described' && issue.scanRuleId !== 'imagebutton_alt_exists') {
+        element = Html.removeAttribute(element, "role")
+      }
       element = Html.setAttribute(element, "alt", textInputValue)
       element = Html.setAttribute(element, "title", textInputValue)
     }

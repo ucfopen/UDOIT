@@ -12,7 +12,7 @@ import HeadingStyleForm from '../Components/Forms/HeadingStyleForm'
 // import InvalidAttributeForm from '../Components/Forms/InvalidAttributeForm'
 // import KeyboardTabbableForm from '../Components/Forms/KeyboardTabbableForm'
 import LabelForm from '../Components/Forms/LabelForm'
-// import LanguageForm from '../Components/Forms/LanguageForm'
+import LanguageForm from '../Components/Forms/LanguageForm'
 import LinkForm from '../Components/Forms/LinkForm'
 import ListForm from '../Components/Forms/ListForm'
 import MediaCaptionsForm from '../Components/Forms/MediaCaptionsForm'
@@ -85,7 +85,7 @@ const formTypes = {
   // [formNames.KEYBOARD_TABBABLE]: KeyboardTabbableForm,
   [formNames.LABEL]: LabelForm,
   [formNames.LABEL_UNIQUE]: LabelForm,
-  // [formNames.LANGUAGE]: LanguageForm,
+  [formNames.LANGUAGE]: LanguageForm,
   [formNames.LINK]: LinkForm,
   [formNames.LIST]: ListForm,
   [formNames.MEDIA_CAPTIONS]: MediaCaptionsForm,
@@ -217,6 +217,10 @@ const rulesToFormNameMap = {
   // element_lang_valid: formNames.LANGUAGE,
   // html_lang_exists: formNames.LANGUAGE,
   // html_lang_valid: formNames.LANGUAGE,
+
+  element_lang_valid: formNames.LANGUAGE,
+  html_lang_exists: formNames.LANGUAGE,
+  html_lang_valid: formNames.LANGUAGE,
 
   list_children_valid: formNames.LIST,
   list_markup_review: formNames.LIST,
@@ -352,6 +356,11 @@ export function disabilitiesFromRule(ruleId) {
       case formNames.INVALID_CSS:
       case formNames.LABEL:
       case formNames.LABEL_UNIQUE:
+        disabilities = [disabilityTypes.COGNITIVE, disabilityTypes.VISUAL]
+        break
+      case formNames.LANGUAGE:
+        disabilities = [disabilityTypes.COGNITIVE, disabilityTypes.LANGUAGE, disabilityTypes.VISUAL]
+        break
       case formNames.LINK:
       case formNames.LIST:
       case formNames.QUOTE:
@@ -369,7 +378,7 @@ export function disabilitiesFromRule(ruleId) {
         disabilities = [disabilityTypes.COGNITIVE, disabilityTypes.LANGUAGE, disabilityTypes.VISUAL]
         break
       case formNames.MEDIA_CAPTIONS:
-        disabilities = [disabilityTypes.COGNITIVE, disabilityTypes.HEARING, disabilityTypes.LANGUAGE]
+        disabilities = [disabilityTypes.COGNITIVE, disabilityTypes.HEARING, disabilityTypes.LANGUAGE, disabilityTypes.VISUAL]        
         break
       default:
         disabilities = []
