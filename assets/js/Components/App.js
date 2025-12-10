@@ -364,7 +364,7 @@ export default function App(initialData) {
               handleNavigation={handleNavigation}
              />
 
-            <main role="main" className="pt-2">
+            <main role="main">
               {('summary' === navigation) &&
                 <HomePage
                   t={t}

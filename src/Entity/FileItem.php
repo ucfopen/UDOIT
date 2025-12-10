@@ -153,9 +153,9 @@ class FileItem implements \JsonSerializable
         $metadata = json_decode($this->getMetadata(), true);
         if (isset($metadata['replacement'])) {
             // Fetch the replacement file from the database using the LMS File ID
-            $lmsFileId = $metadata['replacement'];
-            $output = new ConsoleOutput();
-            $output->writeln("Fetching replacement file with LMS File ID: " . $lmsFileId);
+            // $lmsFileId = $metadata['replacement'];
+            // $output = new ConsoleOutput();
+            // $output->writeln("Fetching replacement file with LMS File ID: " . $lmsFileId);
             
             // TODO: Get ANOTHER file item IF it still exists in the database.
             // This file does NOT have access to the ManagerRegistry (doctrine) but we need it to do

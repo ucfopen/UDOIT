@@ -4,6 +4,7 @@ import CloseIcon from '../Icons/CloseIcon'
 import FilterOnIcon from '../Icons/FilterOnIcon'
 import FilterOffIcon from '../Icons/FilterOffIcon'
 import Combobox from './Combobox'
+import ToggleSwitch from './ToggleSwitch'
 
 import './FixIssuesFilters.css'
 
@@ -28,11 +29,11 @@ export default function ReviewFilesFilters({
   }
 
   const allFilters = {
-    [FILTER.TYPE.UTILIZATION]: {
-      [FILTER.ALL]: t('filter.label.utilization.all'),
-      [FILTER.USED]: t('filter.label.utilization.referenced'),
-      [FILTER.UNUSED]: t('filter.label.utilization.unreferenced'),
-    },
+    // [FILTER.TYPE.UTILIZATION]: {
+    //   [FILTER.ALL]: t('filter.label.utilization.all'),
+    //   [FILTER.USED]: t('filter.label.utilization.referenced'),
+    //   [FILTER.UNUSED]: t('filter.label.utilization.unreferenced'),
+    // },
     [FILTER.TYPE.FILE_TYPE]: {
       [FILTER.ALL]: t('filter.label.file_type.all'),
       [FILTER.FILE_PDF]: t('label.mime.pdf'),
@@ -96,84 +97,69 @@ export default function ReviewFilesFilters({
     updateActiveFilters(filterType, FILTER.ALL)
   }
 
+  const updateUnusedFilesToggle = (newValue) => {
+    if(newValue === true) {
+      updateActiveFilters(FILTER.TYPE.UTILIZATION, FILTER.USED)
+    }
+    else {
+      updateActiveFilters(FILTER.TYPE.UTILIZATION, FILTER.ALL)
+    }
+  }
+
   return (
-    <div className="filter-container flex-column gap-1">
-      <div className="flex-row justify-content-between">
-        <div className="flex-column flex-shrink-0 justify-content-center">
-          <div className="search-group">
-            <input
-              id="search-bar"
-              name="search-bar"
-              tabIndex="0"
-              aria-label={t('filter.label.search')}
-              value={searchTerm}
-              type="text"
-              placeholder={t('filter.label.search')}
-              onChange={(e) => handleSearchTerm(e.target.value)}
+      <div className="filter-container flex-row justify-content-between">
+        <div className="flex-row gap-2">
+          <div className="flex-column flex-shrink-0 justify-content-center">
+            <div className="search-group">
+              <input
+                id="search-bar"
+                name="search-bar"
+                role="searchbox"
+                tabIndex="0"
+                aria-label={t('filter.label.search')}
+                value={searchTerm}
+                type="text"
+                placeholder={t('filter.label.search')}
+                onChange={(e) => handleSearchTerm(e.target.value)}
+              />
+              <SearchIcon className="search-icon icon-sm" />
+            </div>
+          </div>
+
+          <div className="separator-pipe" />
+
+          <div className="flex-row gap-1">
+          <ToggleSwitch
+            labelId={"unusedFiles"}
+            initialValue={false}
+            updateToggle={updateUnusedFilesToggle}
             />
-            <SearchIcon className="search-icon icon-sm" />
+            <div
+              id="unusedFiles"
+              className="align-self-center">Hide Unused</div>
           </div>
+
         </div>
-        <div className="flex-column flex-grow-1 justify-content-center">
-          <div className="flex-row flex-wrap gap-1">
-            { usedFilters !== null ? Object.keys(activeFilters).map((filterType) => {
-              if(activeFilters[filterType] !== FILTER.ALL) {
+        <div className="flex-row gap-2">
+          { usedFilters && (
+            <div className="flex-row flex-wrap gap-2">
+              {Object.keys(detailedFilters).map((filterType, index) => {
                 return (
-                  <button
-                    className="filter-pill flex-row gap-1"
-                    key={filterType}
-                    aria-label={t('filter.label.remove_filter', { filterName: usedFilters[filterType][activeFilters[filterType]] })}
-                    title={t('filter.label.remove_filter', { filterName: usedFilters[filterType][activeFilters[filterType]] })}
-                    onClick={() => removeFilter(filterType)}
-                    id={'pill-' + filterType + '-' + activeFilters[filterType]}>
-                    <div className="filter-pill-text flex-column align-self-center white">
-                      {usedFilters[filterType][activeFilters[filterType]]}
-                    </div>
-                    <div className="filter-pill-remove flex-column align-self-center">
-                      <CloseIcon className="icon-sm" />
-                    </div>
-                  </button>
+                  <div className="filter-group flex-column justify-content-center" key={index}>
+                    <Combobox
+                      handleChange={updateActiveFilters}
+                      id={detailedFilters[index].value}
+                      label={detailedFilters[index].label}
+                      options={detailedFilters[index].options}
+                      settings={settings}
+                    />
+                  </div>
                 )
-              }
-            }) : null }
-          </div>
-        </div>
-        <div className="flex-column flex-shrink-0 ms-3 justify-content-center">
-          <button
-            className="btn-small btn-secondary btn-icon-left"
-            tabIndex="0"
-            onClick={() => setShowFilters(!showFilters)}
-          >
-            { showFilters ? (
-              <>
-                <FilterOffIcon className="icon-sm" />
-                {t('filter.label.hide_filters')}
-              </> ) : (
-              <>
-                <FilterOnIcon className="icon-sm" />
-                {t('filter.label.show_filters')}
-              </>
-            )}
-          </button>
+              })}
+            </div>
+          )}
+          {/* Toggle goes here */}
         </div>
       </div>
-      {showFilters && usedFilters && (
-        <div className="flex-row flex-wrap gap-1">
-          {Object.keys(detailedFilters).map((filterType, index) => {
-            return (
-              <div className="filter-group flex-column justify-content-center" key={index}>
-                <Combobox
-                  handleChange={updateActiveFilters}
-                  id={detailedFilters[index].value}
-                  label={detailedFilters[index].label}
-                  options={detailedFilters[index].options}
-                  settings={settings}
-                />
-              </div>
-            )
-          })}
-        </div>
-      )}
-    </div>
   )
 }

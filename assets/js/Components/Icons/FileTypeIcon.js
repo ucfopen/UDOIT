@@ -15,10 +15,16 @@ export default function FileTypeIcon(props) {
     case('PDF'):
       return <FileTypePDFIcon {...props} />
     case('WORD'):
+    case('DOC'):
+    case('DOCX'):
       return <FileTypeWordIcon {...props} />
     case('POWERPOINT'):
+    case('PPT'):
+    case('PPTX'):
       return <FileTypePowerPointIcon {...props} />
     case('EXCEL'):
+    case('XLS'):
+    case('XLSX'):
       return <FileTypeExcelIcon {...props} />
     case('VIDEO'):
       return <FileTypeVideoIcon {...props} />

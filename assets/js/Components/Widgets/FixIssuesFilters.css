@@ -1,6 +1,5 @@
 .filter-container {
   background-color: var(--background-color);
-  border-top: 1px solid var(--border-color);
   border-bottom: 1px solid var(--border-color);
   margin-left: -1rem;
   margin-right: -1rem;
@@ -8,12 +7,14 @@
 
   .search-group {
     display: block;
+    position: relative;
 
     input {
       font-size: 0.85em;
       font-weight: 400;
       font-family: var(--text-font-family);
-      padding: .4em 1.75em .4em .5em;
+      padding: .5em .5em;
+      padding-inline-start: 2em;
       border: 1px solid var(--border-color);
       border-radius: 8px;
       outline: none;
@@ -27,9 +28,9 @@
     }
 
     .search-icon {
-      position: relative;
-      left: -1.5em;
-      top: 0.15em;
+      position: absolute;
+      left: 0.4em;
+      top: 0.45em;
       fill: var(--gray);
     }
   }
@@ -85,9 +86,7 @@
 
   .combo-container {
     display: flex;
-    flex-direction: column;
-    max-width: 15.625em;
-    min-width: 11.25em;
+    flex-direction: row;
   }
 
   .combo-label {
@@ -95,5 +94,11 @@
     font-weight: 500;
     font-family: var(--heading-font-family);
     text-transform: uppercase;
+    align-self: center;
+  }
+
+  .combo-interactive-container {
+    max-width: 15.5em;
+    min-width: 8em;
   }
 }

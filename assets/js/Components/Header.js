@@ -34,7 +34,7 @@ export default function Header({
               }}
               tabIndex='0'>
               <div className='flex-column justify-content-center icon-container'>
-                <HomeIcon className='icon-md pr-1'/>
+                <HomeIcon className='icon-sm pr-1'/>
               </div>
               <div className='flex-column justify-content-center'>
                 {t('menu.summary')}
@@ -49,7 +49,7 @@ export default function Header({
               }}
               tabIndex='0'>
               <div className='flex-column justify-content-center icon-container'>
-                <BarriersIcon className='icon-md pr-1'/> 
+                <BarriersIcon className='icon-sm pr-1'/> 
               </div>
               <div className='flex-column justify-content-center'>
                 {t('menu.all_barriers')}
@@ -65,7 +65,7 @@ export default function Header({
               }}
               tabIndex='0'>
               <div className='flex-column justify-content-center icon-container'>
-                <ContentFileIcon className='icon-md pr-1'/> 
+                <ContentFileIcon className='icon-sm pr-1'/> 
               </div>
               <div className='flex-column justify-content-center'>
                 {t('menu.review_files')}
@@ -81,7 +81,7 @@ export default function Header({
               }}
               tabIndex='0'>
               <div className='flex-column justify-content-center icon-container'>
-                <ReportIcon className='icon-md pr-1'/>
+                <ReportIcon className='icon-sm pr-1'/>
               </div>
               <div className='flex-column justify-content-center'>
                 {t('menu.reports')}
@@ -97,7 +97,7 @@ export default function Header({
               }}
               tabIndex='0'>
               <div className='flex-column justify-content-center icon-container'>
-                <SettingsIcon className='icon-md pr-1'/>
+                <SettingsIcon className='icon-sm pr-1'/>
               </div>
               <div className='flex-column justify-content-center'>
                 {t('menu.settings')}

@@ -1,5 +1,6 @@
 @import url('https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300..800;1,300..800&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Reddit+Sans:ital,wght@0,200..900;1,200..900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Merriweather:ital,opsz,wght@0,18..144,300..900;1,18..144,300..900&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Lexend:wght@100..900&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400;1,700&display=swap');
@@ -10,8 +11,8 @@
   --gray-dark: #555555;
   --gray: #767676;
   --gray-light: #D3D7DB;
-  --gray-lighter: #E2E2E2;
-  --gray-lightest: #F2F2F2;
+  --gray-lighter: #E9EBEF;
+  --gray-lightest: #F9FAFB;
   --white: #FFFFFF;
 
   --primary-color: #196937;
@@ -44,16 +45,18 @@
   --success-color-light: color-mix(in srgb, var(--success-color) 10%, #FFFFFF 100%);
 
   --background-color: var(--gray-lightest);
-  --border-color: var(--gray);
+  --border-color: rgba(0, 0, 0, 0.25);
   --progress-bar-background-color: var(--gray-light);
   --progress-bar-color: var(--primary-color);
   --shadow-color: #00000044;
   --backdrop-color: rgba(0, 0, 0, 0.25);
 
   --spacer: 1rem;
+  --window-radius: 16px;
+  --element-radius: 8px;
 
-  --text-font-family: 'Open Sans', Arial, Helvetica, sans-serif;
-  --heading-font-family: 'Reddit Sans', sans-serif;
+  --text-font-family: 'Inter', Arial, Helvetica, sans-serif; /* 'Open Sans', Arial, Helvetica, sans-serif; */
+  --heading-font-family: 'Inter', sans-serif; /* 'Reddit Sans', sans-serif; */
 
   line-height: 1.4em;
 
@@ -72,16 +75,18 @@ body {
   position: relative;
   margin: 0px 6px 6px 0px;
   padding: 0 1rem;
-  border-radius: 16px;
+  border-radius: var(--window-radius);
   height: calc(100vh - 6px);
   max-height: 1024px;
   display: flex;
   flex-direction: column;
   font-family: var(--text-font-family);
+  font-weight: 300;
   color: var(--text-color);
   box-sizing: border-box;
   border: 1px solid var(--border-color);
   box-shadow: 3px 3px 3px var(--gray-light);
+  background-color: var(--background-color);
 
   &.serif {
     --text-font-family: 'Merriweather', Times, serif;
@@ -192,11 +197,13 @@ body {
 }
 
 header {
-  height: 3em;
+  background-color: var(--white);
+  border-radius: var(--window-radius) var(--window-radius) 0 0;
+  height: 3.5em;
 }
 
 main {
-  height: calc(100vh - 3em);
+  height: calc(100vh - 3.5em);
   min-height: 20em;
   box-sizing: border-box;
   display: flex;
@@ -592,10 +599,17 @@ main {
 /* General styles */
 
 h1, h2, h3, h4, h5, h6 {
-  font-family: var(--text-font-family);
-  font-weight: 500;
+  font-family: var(--heading-font-family);
+  font-weight: 600;
   line-height: normal;
-  color: var(--primary-color);
+  color: var(--text-color);
+}
+
+.subheader {
+  margin-top: -.75rem;
+  margin-bottom: 1rem;
+  color: var(--gray-dark);
+  font-weight: 400;
 }
 
 .primary {
@@ -866,12 +880,34 @@ input[type="color"] {
   transform: rotate(270deg);
 }
 
+dialog {
+  width: 90vw;
+  max-width: 50em;
+  overflow-y: auto;
+  box-sizing: border-box;
+  border: none;
+  border-radius: var(--window-radius);
+  padding: 0;
+  background-color: var(--white);
+  z-index: 100;
+  box-shadow: 0 0 10px var(--shadow-color);
+
+  &.dialog-full-screen {
+    width: 95vw;
+    max-width: 95vw;
+    height: 95vh;
+    max-height: 95vh;
+  }
+}
+
 .callout-container {
-  background: var(--background-color);
+  background: var(--white);
   border-radius: 8px;
   padding: .75rem 1rem;
   border: 1px solid var(--border-color);
 }
+
+/* The separator class is for a horizontal line with text in the middle on various forms */
 
 .separator {
   display: flex;
@@ -900,6 +936,14 @@ input[type="color"] {
   margin-right: 1.5rem;
   border-width: 2px;
   border-color: var(--gray);
+}
+
+.separator-pipe {
+  height: 1.5em;
+  width: 0px;
+  box-sizing: content-box;
+  align-self: center;
+  border-inline-start: 1px solid var(--border-color);
 }
 
 /* Data pills are for icons with text that can be hidden until hovered or focused */
@@ -1094,16 +1138,4 @@ a:focus {
   font-size: 0.9em;
   overflow-wrap: anywhere;
   cursor: pointer;
-}
-
-header {
-  nav {
-    display: flex;
-    flex-direction: row;
-    border-bottom: none !important;
-    
-    ul {
-      justify-content: flex-end;
-    }
-  }
 }

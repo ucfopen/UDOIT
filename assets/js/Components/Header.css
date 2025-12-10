@@ -1,62 +1,67 @@
-header nav {
-  display: flex;
-  flex-wrap: nowrap;
-  justify-content: space-between;
-  align-items: center;
-  width: 100%;
-  overflow: hidden;
+header {
 
-  img {
-    width: 15%;
-    min-width: 100px;
-    height: auto;
-  }
+  margin: 0 -1rem;
+  padding: 0 1rem;
+  border-bottom: 1px solid var(--border-color);
 
-  ul {
+  nav {
     display: flex;
     flex-wrap: nowrap;
-    list-style-type: none;
-    margin: 0px;
-    margin-left: auto;
-    padding: 0px;
-    gap: 3px;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    overflow: hidden;
 
-    li {
-      font-weight: bold;
-      text-transform: uppercase;
-      color: var(--text-color);
-      fill: var(--text-color);
-      border-top-width: 3px;
-      border-top-color: transparent;
-      border-top-style: solid;
-      text-align: center;
-      white-space: nowrap;
-      padding: calc(.75rem - 3px) .75rem .75rem .75rem;
-      text-decoration: none;
-      cursor: pointer;
+    img {
+      width: 15%;
+      min-width: 80px;
+      height: auto;
+    }
 
-      /* .icon-container {
-        display: none !important;
-      } */
+    ul {
+      display: flex;
+      flex-wrap: nowrap;
+      list-style-type: none;
+      margin: 0px;
+      margin-left: auto;
+      padding: 0px;
+      gap: 3px;
 
-      &:hover,
-      &.active-link {
-        color: var(--link-color);
-        fill: var(--link-color);
-        border-top-color: var(--link-color);
-      }
+      li {
+        color: var(--gray-dark);
+        fill: var(--gray-dark);
+        text-align: center;
+        white-space: nowrap;
+        padding: .25rem .75rem;
+        margin: .75rem .125rem;
+        text-decoration: none;
+        cursor: pointer;
+        font-size: .8em;
+        font-weight: 400;
+        border-radius: 8px;
 
-      &:focus {
-        outline: 2px solid var(--focus-color);
-        outline-offset: -2px;
-      }
+        /* .icon-container {
+          display: none !important;
+        } */
 
-      &.disabled:not(.active-link) {
-        color: var(--gray);
-        fill: var(--gray);
-        pointer-events: none;
-        cursor: not-allowed !important;
-        border-top-color: transparent;
+        &:hover,
+        &.active-link {
+          color: var(--black);
+          fill: var(--black);
+          background-color: var(--gray-lighter);
+        }
+
+        &:focus {
+          outline: 2px solid var(--focus-color);
+          outline-offset: 0px;
+        }
+
+        &.disabled:not(.active-link) {
+          color: var(--gray);
+          fill: var(--gray);
+          pointer-events: none;
+          cursor: not-allowed !important;
+        }
       }
     }
   }

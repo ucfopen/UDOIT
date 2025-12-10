@@ -1,112 +1,101 @@
+.rounded-table-wrapper {
+  border-radius: var(--element-radius);
+  overflow: auto;
+  border: 1px solid var(--border-color);
+}
+
 .udoit-sortable-table {
   width: 100%;
   border-collapse: collapse;
   font-size: 0.8em;
   overflow-x: auto;
-}
 
-.udoit-sortable-table thead tr th {
-  font-family: var(--heading-font-family);
-  font-weight: 600;
-  text-transform: uppercase;
-  cursor: pointer;
-  padding: .5rem .15rem .25rem .15rem;
-  color: var(--primary-color-inverse);
-  fill: var(--primary-color-inverse);
-  border-bottom: 1px solid var(--primary-color);
-  background-color: var(--primary-color);
-  transition: filter var(--transition-time) ease-in-out;
-}
+  thead {
 
-.udoit-sortable-table thead tr th:focus {
-  outline: 2px solid var(--focus-color);
-  outline-offset: -2px;
-}
+    tr {
+      border-bottom: 1px solid var(--border-color);
 
-.udoit-sortable-table thead tr th:hover,
-.udoit-sortable-table thead tr th:focus {
-  filter: brightness(var(--hover-brightness));
-}
+      th {
+        font-family: var(--heading-font-family);
+        font-weight: 600;
+        cursor: pointer;
+        padding: .5rem .5rem .25rem .5rem;
+        color: var(--text-color);
+        fill: var(--text-color);
+        border-bottom: 1px solid var(--border-color);
+        background-color: var(--gray-lighter);
+        text-align: start;
 
-.udoit-sortable-table thead tr th svg {
-  transition: transform var(--transition-time) ease-in-out;
-}
+        &:focus {
+          outline: 2px solid var(--focus-color);
+          outline-offset: -2px;
+        }
 
-.udoit-sortable-table thead tr th .header-spacer {
-  width: 32px;
-  min-width: 32px;
-  height: auto;
-}
+        &:hover, &:focus {
+          /* filter: brightness(var(--hover-brightness)); */
+          background-color: var(--gray-lightest);
 
-.udoit-sortable-table tbody tr td {
-  padding: .15rem;
-}
+          .clickable-text {
+            text-decoration: underline;
+          }
+        }
 
-.udoit-sortable-table tbody tr td[textalign='end'] div {
-  text-align: right;
-}
+        &.divider {
+          border-right: 2px solid var(--primary-color-inverse);
+        }
 
-.udoit-sortable-table tbody tr:hover td div,
-.udoit-sortable-table tbody tr:hover td span {
-  text-decoration: underline;
-}
+        svg {
+          transition: transform var(--transition-time) ease-in-out;
+        }
 
-.udoit-sortable-table tbody tr a {
-  color: var(--link-color);
-  text-decoration: none;
-  font-weight: 600;
-  transition: text-decoration 0.15s;
-}
-
-  thead tr th {
-    font-family: var(--heading-font-family);
-    font-weight: 600;
-    text-transform: uppercase;
-    cursor: pointer;
-
-    padding: .5rem .15rem .25rem .15rem;
-    color: var(--primary-color-inverse);
-    fill: var(--primary-color-inverse);
-    border-bottom: 1px solid var(--primary-color);
-    background-color: var(--primary-color);
-
-    &.divider {
-      border-right: 2px solid var(--primary-color-inverse);
-    }
-
-    &:focus {
-      outline: 2px solid var(--focus-color);
-      outline-offset: -2px;
-    }
-
-    &:hover,
-    &:focus {
-      filter: brightness(var(--hover-brightness));
-      .clickable-text {
-        text-decoration: underline;
+        .header-spacer {
+          width: 32px;
+          min-width: 32px;
+          height: auto;
+        }
       }
-    }
-
-    svg {
-      transition: transform var(--transition-time) ease-in-out;
-    }
-
-    .header-spacer {
-      width: 32px;
-      min-width: 32px;
-      height: auto;
     }
   }
 
   tbody {
-    tr {
-      td {
-        padding: .15rem;
 
-        &[textalign='end'] {
-          div {
-            text-align: right;
-          }
+    tr {
+      background-color: var(--white);
+
+      &:not(:last-child) {
+        border-bottom: 1px solid var(--border-color);
+      }
+
+      &:hover {
+        td div,
+        td span {
+          text-decoration: underline;
+        }
+      }
+
+      &.clickable {
+        cursor: pointer;
+        /* color: var(--link-color);
+        text-decoration: none;
+        font-weight: 600; */
+
+        &:hover,
+        &:focus {
+          text-decoration: underline;
+          background-color: var(--link-color-light);
+        }
+
+        &:focus {
+          outline: 2px solid var(--focus-color);
+          outline-offset: -2px;
+        }
+      }
+
+      td {
+        padding: .5rem;
+
+        &[textalign='end'] div {
+          text-align: right;
         }
 
         &.divider {
@@ -115,18 +104,6 @@
       }
 
       a {
-        color: var(--link-color);
-        text-decoration: none;
-        font-weight: 600;
-
-        &:hover,
-        &:focus {
-          text-decoration: underline;
-        }
-      }
-
-      &.clickable {
-        cursor: pointer;
         color: var(--link-color);
         text-decoration: none;
         font-weight: 600;
@@ -158,64 +135,7 @@
         }
       }
     }
-
-    tr:nth-child(even) {
-      td {
-        background-color: var(--primary-color-light);
-      }
-    }
-
-    tr:last-child {
-      td {
-        border-bottom: 1px solid var(--primary-color-dark);
-      }
-    }
   }
-.udoit-sortable-table tbody tr a:hover,
-.udoit-sortable-table tbody tr a:focus {
-  text-decoration: underline;
-}
-
-.udoit-sortable-table tbody tr.clickable {
-  cursor: pointer;
-  color: var(--link-color);
-  font-weight: 600;
-}
-
-.udoit-sortable-table tbody tr.clickable:hover,
-.udoit-sortable-table tbody tr.clickable:focus {
-  text-decoration: underline;
-}
-
-.udoit-sortable-table tbody tr .btn-icon-only {
-  padding: .25rem .4rem;
-  border-radius: 8px;
-  background-color: transparent;
-  fill: var(--link-color);
-  transition: background-color 0.15s, fill 0.15s;
-}
-
-.udoit-sortable-table tbody tr .btn-icon-only:hover,
-.udoit-sortable-table tbody tr .btn-icon-only:focus {
-  background-color: var(--link-color);
-  fill: var(--white);
-}
-
-.udoit-sortable-table tbody tr .btn-icon-only.btn-disabled,
-.udoit-sortable-table tbody tr .btn-icon-only.btn-disabled:hover,
-.udoit-sortable-table tbody tr .btn-icon-only.btn-disabled:focus {
-  background-color: var(--gray-light);
-  fill: var(--gray);
-  cursor: not-allowed !important;
-}
-
-.udoit-sortable-table tbody tr:nth-child(even) td {
-  background-color: var(--primary-color-light);
-}
-
-
-.udoit-sortable-table tbody tr:last-child td {
-  border-bottom: 1px solid var(--primary-color-dark);
 }
 
 .paginationButton {
@@ -225,7 +145,6 @@
   background-color: transparent;
   color: var(--link-color);
   border-color: transparent;
-  transition: background-color 0.15s, color 0.15s;
 }
 
 .paginationButton.selected {
