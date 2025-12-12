@@ -58,7 +58,7 @@
   transition: text-decoration 0.15s;
 }
 
-  thead tr th {
+  .udoit-sortable-table tr th {
     font-family: var(--heading-font-family);
     font-weight: 600;
     text-transform: uppercase;
@@ -98,7 +98,7 @@
     }
   }
 
-  tbody {
+  .udoit-sortable-table tbody {
     tr {
       td {
         padding: .15rem;

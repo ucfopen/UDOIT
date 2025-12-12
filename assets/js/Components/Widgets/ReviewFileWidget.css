@@ -1,0 +1,254 @@
+.header-content{
+   border-bottom: solid;
+   border-bottom-color: #E5E7EB;
+}
+
+.file-upload-container{
+    background: #F9FAFB;
+    border: solid;
+    border-color: #E5E7EB;
+    border-radius: 20px;
+    width: 100%;
+}
+
+.badge{
+    padding: 2px 8px;
+    border-radius: 10px;
+    border: solid;
+    border-color: #E5E7EB;
+}
+
+.badge-old{
+    background: #f3f4f6;
+    color: #4b5563;
+}
+
+.badge-new{
+    border: solid;
+    border-color: #ABEFC6;
+    background-color: #ECFDF3;
+    color: #027A48;
+}
+
+.file-container{
+   margin: 10px;
+   padding: 5px; 
+}
+
+#disabled{
+    opacity: 10%;
+    cursor: default;
+}
+
+.file-card{
+    background: white;
+    padding: 15px;
+    border: solid;
+    border-color: #F2F2F3;
+    border-radius: 20px;
+}
+
+.file-card-upload{
+    border:solid;
+    border-color: #00C950;
+    cursor: pointer;
+}
+
+.file-card-upload:hover{
+    border:solid;
+    border-color: #3eff8b;
+    cursor: pointer;
+}
+
+.upload-icon {
+    background-color: #F2F4F7;
+    border: solid;
+    border-color: #E4E7EC;
+    padding: 10px;
+    border-radius: 30px;
+    font-size: 48px;
+}
+
+.file-container-upload{
+    text-align: center;
+}
+
+.file-icon{
+    background-color: #F2F2F3;
+    padding: 10px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+}
+
+.file-name-text{
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%; 
+    display: block;   
+}
+
+.title{
+    border-bottom: solid;
+    border-color: #F2F2F3;
+    padding: 10px;
+}
+
+.arrow-icon{
+    background-color: white;
+    border:solid;
+    border-color: #F2F2F3;
+    border-radius: 100%;
+    padding: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+}
+
+.upload-text{
+    font-weight: 600;
+    color: #155DFC;
+}
+
+
+
+
+.switch {
+  width: 48px;
+  height: 24px;
+  background: #ccc;
+  border-radius: 999px;
+  display: flex;
+  align-items: center;
+  padding: 2px;
+  cursor: pointer;
+  transition: background 0.25s ease;
+}
+
+.switch.on {
+  background: #0f0f0f;
+}
+
+.thumb {
+  width: 20px;
+  height: 20px;
+  background: white;
+  border-radius: 50%;
+  transition: transform 0.25s ease;
+}
+
+.switch.on .thumb {
+  transform: translateX(24px);
+}
+
+.references-table,
+.references-table th,
+.references-table td,
+.references-table thead,
+.references-table tbody,
+.references-table tr 
+.references-table tr:nth-child(even){
+  all: unset;
+  /* Remove all inherited styles */
+  display: revert;
+}
+
+.references-table {
+  width: 100%;
+  background: #fff;
+}
+
+.references-table thead {
+  background: #F7F7F9;
+  border-bottom: 1px solid #E5E7EB;
+}
+
+.references-table th {
+  text-align: left;
+  font-size: 14px;
+  font-weight: 600;
+  padding: 8px;
+}
+
+.references-table th:last-child {
+  text-align: right;
+}
+
+.references-table td {
+  border-bottom: 1px solid #F2F2F3;
+  font-size: 14px;
+  padding: 10px;
+  background-color: white;
+}
+
+.custom-checkbox{
+  width: 18px;
+  height: 18px;
+  border: 1.5px solid #d1d5db;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.references-table tr:last-child td {
+  border-bottom: none;
+}
+
+.references-table td:last-child {
+  text-align: right;
+}
+
+.content-title{
+    font-weight: 500;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+}
+
+.location-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: #6b7280;
+  text-decoration: none;
+  transition: color 0.15s ease;
+}
+
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  background: #f3f4f6;
+  border-radius: 6px;
+  font-size: 13px;
+  color: #4b5563;
+  font-weight: 400;
+}
+
+.status-dot {
+  width: 6px;
+  height: 6px;
+  background: #9ca3af;
+  border-radius: 50%;
+}
+
+.table-wrapper{
+    max-height: 200px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    border: solid;
+    border-color: #E5E7EB;
+    border-radius: 10px;
+    align-items: center;
+}
+
+.file-ref-table-container
+{
+   padding-bottom: 25px;
+   border-bottom: solid;
+   border-bottom-color: #E5E7EB;
+}
+
