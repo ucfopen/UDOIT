@@ -464,12 +464,12 @@ export default function Combobox({
     <div
       id={'combo-container-' + id}
       className="combo-container">
-      <div        // labelEl
+      <label        // labelEl
         id={'combo-label-' + id}
         className="subtext align-self-center pe-2"
         onClick={() => onLabelClick()}>
           {label}
-      </div>
+      </label>
       <div className="combo-interactive-container flex-column">
         <div        // 'comboEl'
           id={'combo-' + id}

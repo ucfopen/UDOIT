@@ -18,7 +18,9 @@
       border: 1px solid var(--border-color);
       border-radius: 8px;
       outline: none;
-      width: 300px;
+      width: 15em;
+      min-width: 200px;
+      max-width: 250px;
       box-sizing: border-box;
 
       &:focus {
@@ -30,8 +32,8 @@
     .search-icon {
       position: absolute;
       left: 0.4em;
-      top: 0.45em;
       fill: var(--gray);
+      align-self: center;
     }
   }
 
@@ -75,13 +77,6 @@
       max-width: 250px;
       min-width: 180px;
     }
-  }
-
-  label {
-    font-size: 0.9em;
-    font-weight: 500;
-    font-family: var(--heading-font-family);
-    text-transform: uppercase;
   }
 
   .combo-container {

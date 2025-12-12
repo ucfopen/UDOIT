@@ -104,6 +104,7 @@ body {
   line-height: 1.4em;
   
   font-size: 16px;
+
   &.font-small {
     font-size: 14px;
   }
@@ -112,44 +113,18 @@ body {
   }
   &.font-large {
     font-size: 20px;
-
-    .icon-sm {
-      width: 18px;
-      height: 18px;
-    }
-    .icon-md {
-      width: 26px;
-      height: 26px;
-    }
-    .icon-lg {
-      width: 34px;
-      height: 34px;
-    }
   }
   &.font-xlarge {
     font-size: 24px;
-
-    .icon-sm {
-      width: 20px;
-      height: 20px;
-    }
-    .icon-md {
-      width: 28px;
-      height: 28px;
-    }
-    .icon-lg {
-      width: 36px;
-      height: 36px;
-    }
   }
 
   &.dark-mode {
 
     --white: #000000;
-    --gray-lightest: #3A3A3A;
+    --gray-lightest: #2A2A2A;
     --gray-lighter: #555555;
     --gray-light: #767676;
-    --gray-gray: #D3D7DB;
+    --gray: #CCCCCC;
     --gray-dark: #E2E2E2;
     --gray-darker: #F7F7F7;
     --black: #FFFFFF;
@@ -189,8 +164,6 @@ body {
     --shadow-color: #FFFFFF44;
     --backdrop-color: rgba(256, 256, 256, 0.25);
 
-    color: var(--gray-darker);
-    background-color: var(--white);
     border: 1px solid var(--gray-lighter);
     box-shadow: 2px 2px 2px var(--gray-lighter);
   }
@@ -855,23 +828,27 @@ input[type="color"] {
 }
 
 .icon-sm {
-  width: 16px;
-  height: 16px;
+  width: 1em;
+  min-width: 1em;
+  height: 1em;
 }
 
-.icom-md {
-  width: 24px;
-  height: 24px;
+.icon-md {
+  width: 1.5em;
+  min-width: 1.5em;
+  height: 1.5em;
 }
 
 .icon-lg {
-  width: 32px;
-  height: 32px;
+  width: 2em;
+  min-width: 2em;
+  height: 2em;
 }
 
 .icon-xl {
-  width: 40px;
-  height: 40px;
+  width: 2.5em;
+  min-width: 2.5em;
+  height: 2.5em;
 }
 
 .rotate-90 {
