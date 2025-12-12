@@ -14,6 +14,7 @@ use App\Services\EqualAccessService;
 use App\Services\ScannerService;
 use CidiLabs\PhpAlly\PhpAllyIssue;
 use Doctrine\Persistence\ManagerRegistry;
+use Symfony\Component\Console\Output\ConsoleOutput;
 
 class LmsFetchService {
 
@@ -73,61 +74,72 @@ class LmsFetchService {
      * 4) Link unchanged issues to new report
      * 5) Process updated content
      */
-    public function refreshLmsContent(Course $course, User $user)
+    public function refreshLmsContent(Course $course, User $user, $force = false)
     {
-        $lms = $this->lmsApi->getLms($user);
+        try {
+            $output = new ConsoleOutput();
+            $lms = $this->lmsApi->getLms($user);
 
-        $this->lmsUser->validateApiKey($user);
+            $this->lmsUser->validateApiKey($user);
 
-        /** @var \App\Repository\ContentItemRepository $contentItemRepo */
-        $contentItemRepo = $this->doctrine->getManager()->getRepository(ContentItem::class);
+            /** @var \App\Repository\ContentItemRepository $contentItemRepo */
+            $contentItemRepo = $this->doctrine->getManager()->getRepository(ContentItem::class);
 
-        /** @var \App\Repository\FileItemRepository $fileItemRepo */
-        $fileItemRepo = $this->doctrine->getManager()->getRepository(FileItem::class);
+            /** @var \App\Repository\FileItemRepository $fileItemRepo */
+            $fileItemRepo = $this->doctrine->getManager()->getRepository(FileItem::class);
 
-        /* Step 1: Update content
-        /* Update course status */
-        $lms->updateCourseData($course, $user);
+            /* Step 1: Update content
+            /* Update course status */
+            $lms->updateCourseData($course, $user);
 
-        /* Mark content items as inactive */
-        $contentItemRepo->setCourseContentInactive($course);
-        $fileItemRepo->setCourseFileItemsInactive($course);
-        $this->doctrine->getManager()->flush();
+            /* Step 2: Get list of updated content items */
+            /* 2.1: Mark all existing content items and files in our database as inactive */
+            $contentItemRepo->setCourseContentInactive($course);
+            $fileItemRepo->setCourseFileItemsInactive($course);
+            $this->doctrine->getManager()->flush();
 
-        /* Update content items from LMS */
-        $lms->updateCourseContent($course, $user);
+            /* Update content items from LMS.
+              1. ContentItems that are in our database but no longer in the LMS remain 'inactive' and are not scanned.
+              2. ContentItems that are in our database but older than the LMS's versions are re-downloaded.
+              3. ContentItems that are in the LMS but not in our database are added to our database.
+            */
+            $contentItems = $lms->updateCourseContent($course, $user, $force);
+            $output->writeln("Found " . count($contentItems) . " updated content items in the LMS.");
 
-        /* Step 2: Get list of changed content items */
-        $contentItems = $contentItemRepo->getUpdatedContentItems($course);
+            $contentSections = $lms->getCourseSections($course, $user);
 
-        /* Step 3: Delete issues for updated content items */
-        $this->deleteContentItemIssues($contentItems);
+            /* Step 3: Delete issues for updated content items */
+            $this->deleteContentItemIssues($contentItems);
 
-        /* Step 4: Process the updated content with PhpAlly and link to report */
-        $this->scanContentItems($contentItems);
+            $output->writeln("Scanning content items now...");
+            /* Step 4: Process the updated content with PhpAlly and link to report */
+            $this->scanContentItems($contentItems);
 
-        /* Step 5: Update report from all active issues */
-        $this->updateReport($course, $user);
+            $output->writeln("Updating report now...");
+            /* Step 5: Update report from all active issues */
+            $this->updateReport($course, $user, count($contentItems));
 
-        /* Save last_updated date on course */
-        $course->setLastUpdated($this->util->getCurrentTime());
-        $course->setDirty(false);
+            /* Save last_updated date on course */
+            $course->setLastUpdated($this->util->getCurrentTime());
+            $course->setDirty(false);
 
-        $this->doctrine->getManager()->flush();
+            $this->doctrine->getManager()->flush();
+        }
+        catch (\Exception $e) {
+            throw $e; // Rethrow the exception to be caught by the controller
+        }
     }
 
-    // Refresh content item data from the LMS
-    // public function refreshContentItemFromLms(ContentItem $contentItem): void
-    // {
-    //     $lms = $this->lmsApi->getLms();
-    //     $lms->updateContentItem($contentItem);
-    //     $this->doctrine->getManager()->flush();
-    // }
+    public function getCourseSections(Course $course, User $user)
+    {
+        $lms = $this->lmsApi->getLms($user);
+        return $lms->getCourseSections($course, $user);
+    }
 
     // Update report, or create new one for a new day
-    public function updateReport(Course $course, User $user): Report
+    public function updateReport(Course $course, User $user, $itemsScannedCount): Report
     {
-        $contentFixed = $contentResolved = $filesReviewed = $errors = $suggestions = 0;
+        $contentFixed = $contentResolved = $filesReviewed = $errors = $potentials = $suggestions = 0;
         $scanRules = [];
 
         /** @var \App\Entity\ContentItem[] $contentItems */
@@ -145,6 +157,8 @@ class LmsFetchService {
                 } else {
                     if (Issue::$issueError === $issue->getType()) {
                         $errors++;
+                    } else if (Issue::$issuePotential === $issue->getType()) {
+                        $potentials++;
                     } else {
                         $suggestions++;
                     }
@@ -159,6 +173,12 @@ class LmsFetchService {
                 $scanRules[$ruleId]++;
             }
         }
+
+        $scanCounts = (object) [
+          'errors' => $errors,
+          'potentials' => $potentials,
+          'suggestions' => $suggestions,
+        ];
 
         /** @var \App\Entity\FileItem[] $fileItems */
         $fileItems = $course->getFileItems();
@@ -188,24 +208,30 @@ class LmsFetchService {
         $report->setContentFixed($contentFixed);
         $report->setContentResolved($contentResolved);
         $report->setFilesReviewed($filesReviewed);
-        $report->setData(\json_encode(['scanRules' => $scanRules]));
+        $report->setData(\json_encode([
+          'scanRules' => $scanRules, 
+          'scanCounts' => $scanCounts,
+          'itemsScanned' => $itemsScannedCount,
+          'versionNumber' => !empty($_ENV['VERSION_NUMBER']) ? $_ENV['VERSION_NUMBER'] : ''
+        ]));
 
         $this->doctrine->getManager()->flush();
 
         return $report;
     }
 
-    
+
     // Performs PHPAlly scan on each Content Item.
     private function scanContentItems(array $contentItems)
     {
         $scanner = $_ENV['ACCESSIBILITY_CHECKER'];
         $equalAccessReports = null;
 
+        // $scanner = 'equalaccess_local';
+
         // If we're using Equal Access Lambda, send all the requests to Lambda for the
         // reports at once and save them all into an array (which should be in the same order as the ContentItems)
         if ($scanner == "equalaccess_lambda" && count($contentItems) > 0) {
-            // $equalAccessReports = $this->asyncReport->postMultipleAsync($contentItems);
             $equalAccessReports = $this->asyncReport->postMultipleArrayAsync($contentItems);
         }
 
@@ -214,6 +240,9 @@ class LmsFetchService {
 
         $index = 0;
         foreach ($contentItems as $contentItem) {
+            if($contentItem->getBody() == null) {
+              continue; // Skip content items that have no body
+            }
 
             try {
                 // Scan the content item with the scanner set in the environment.
@@ -230,20 +259,21 @@ class LmsFetchService {
 
                     // Add Issues to report
                     foreach ($report->getIssues() as $issue) {
-                        // Create issue entity
-                        $this->createIssue($issue, $contentItem);
+                        if(isset($issue->isGeneric)) {
+                          $this->createGenericIssue($issue, $contentItem);
+                        }
+                        else {
+                          $this->createIssue($issue, $contentItem);
+                        }
                     }
                 }
-
-                // $this->scanner->logToServer("done!");
             }
             catch (\Exception $e) {
                 $this->util->createMessage($e->getMessage(), 'error', null, null, true);
+                throw $e; // Rethrow the exception to be caught by the controller
             }
         }
         $this->doctrine->getManager()->flush();
-
-        // $this->scanner->logToServer("done!!!!!!!!!\n");
     }
 
     public function createIssue(PhpAllyIssue $issue, ContentItem $contentItem)
@@ -263,6 +293,15 @@ class LmsFetchService {
             }
         }
 
+        $scanner = $_ENV['ACCESSIBILITY_CHECKER'];
+        if ($scanner == 'equalaccess_lambda' || $scanner == 'equalaccess_local') {
+          $issueType = $this->equalAccess->getIssueType($issue->getMetadata());
+          if($issueType == 'pass') {
+            // If the issue is a pass, we don't create an issue for it
+            return null;
+          }
+        }
+
         $issueEntity->setType($issueType);
         $issueEntity->setStatus(Issue::$issueStatusActive);
         $issueEntity->setContentItem($contentItem);
@@ -270,6 +309,32 @@ class LmsFetchService {
         $issueEntity->setHtml($issue->getHtml());
         $issueEntity->setPreviewHtml($issue->getPreview());
         $issueEntity->setMetadata($issue->getMetadata());
+
+        $contentItem->addIssue($issueEntity);
+
+        $this->doctrine->getManager()->persist($issueEntity);
+
+        return $issueEntity;
+    }
+
+    public function createGenericIssue($issue, ContentItem $contentItem)
+    {
+        $issueEntity = new Issue();
+        $meta = $contentItem->getCourse()->getInstitution()->getMetadata();
+        $issueType = self::ISSUE_TYPE_ERROR;
+
+        $scanner = $_ENV['ACCESSIBILITY_CHECKER'];
+        if ($scanner == 'equalaccess_lambda' || $scanner == 'equalaccess_local') {
+          $issueType = $this->equalAccess->getIssueType($issue->metadata);
+        }
+
+        $issueEntity->setType($issueType);
+        $issueEntity->setStatus(Issue::$issueStatusActive);
+        $issueEntity->setContentItem($contentItem);
+        $issueEntity->setScanRuleId($issue->scanRuleId);
+        $issueEntity->setHtml($issue->xpath);
+        $issueEntity->setPreviewHtml('');
+        $issueEntity->setMetadata($issue->metadata);
 
         $contentItem->addIssue($issueEntity);
 

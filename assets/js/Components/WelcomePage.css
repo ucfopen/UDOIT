@@ -1,0 +1,120 @@
+.main {
+  height: 100% !important;
+}
+
+.welcome-content-wrapper {
+  align-self: center;
+  padding: 1.5rem 3rem;
+  display: flex;
+  flex-direction: column;
+  max-width: 1000px;
+  margin: 0 auto;
+
+  h1 {
+    text-transform: uppercase;
+    font-size: 1.5em;
+    font-family: var(--heading-font-family);
+  }
+
+  .welcome-content {
+    margin: 0 auto;
+    max-width: 75%;
+
+    .welcome-description {
+      font-size: 1.15em;
+      font-weight: 500;
+    }
+  }
+
+  .welcome-content-list-container {
+    display: flex;
+    flex-direction: row;
+    gap: 1.5em;
+
+    .welcome-content-list-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 1em;
+      padding: 1em;
+      background-color: var(--background-color);
+      border: 1px solid var(--border-color);
+      flex: 1;
+      border-radius: 8px;
+
+      .welcome-content-list-item-icon {
+        flex-shrink: 0;
+
+        .icon-lg {
+          min-width: 2.25em;
+          min-height: 2.25em;
+          color: var(--primary-text);
+        }
+      }
+
+      .summary-text {
+        flex-grow: 1;
+        font-size: 1em;
+        color: var(--text-color);
+        text-align: center;
+      }
+    }
+  }
+}
+
+@media screen and (max-width: 45em) {
+  .welcome-content-wrapper {
+    max-width: 30em;
+
+    .welcome-content {
+      max-width: 100%;
+    }
+
+    .welcome-content-list-container {
+      flex-direction: column;
+      gap: 1em;
+
+      .welcome-content-list-item {
+        flex-direction: row;
+      }
+    }
+  }
+}
+
+.logo-large {
+  width: 75%;
+  min-width: 250px;
+  margin-bottom: 1.25rem;
+
+  @media screen and (max-width: 768px) {
+    align-self: center;
+    max-width: 325px;
+  }
+}
+
+.invisible-spacer {
+  padding-bottom: 4rem;
+}
+
+.welcome-footer {
+  padding-top: 4rem;
+}
+
+.tagline {
+  text-transform: uppercase;
+  font-size: 0.9em;
+  font-weight: 600;
+  color: var(--text-color);
+  text-decoration: none;
+}
+
+.logo-small {
+  width: 80px;
+  height: auto;
+  opacity: 0.8;
+  margin-top: 1px;
+
+  &:hover {
+    opacity: 1;
+  }
+}

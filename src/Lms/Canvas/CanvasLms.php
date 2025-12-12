@@ -16,6 +16,7 @@ use App\Services\SessionService;
 use App\Services\UtilityService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\SecurityBundle\Security;
+use Symfony\Component\Console\Output\ConsoleOutput;
 
 class CanvasLms implements LmsInterface {
     /** @var ContentItemRepository $contentItemRepo */
@@ -136,6 +137,100 @@ class CanvasLms implements LmsInterface {
      * ****************
      */
 
+    public function listAccountCourses(User $actingUser, int|string $rootAccountId, array $subAccountIds, ?int $termId = null, int $perPage = 100): array
+    {
+        $apiDomain = $this->getApiDomain($actingUser);
+        $apiToken  = $this->getApiToken($actingUser);
+        
+        $canvasApi = new CanvasApi($apiDomain, $apiToken);
+
+        // Build base parameters
+        $params = [
+            'per_page' => $perPage,
+        ];
+        if ($termId !== null) {
+            $params['enrollment_term_id'] = $termId;
+        }
+        
+        // Build query string
+        $queryParts = [];
+        foreach ($params as $key => $value) {
+            $queryParts[] = urlencode($key) . '=' . urlencode($value);
+        }
+        
+        // Add include[] parameters manually
+        $includes = ['teachers', 'term', 'account_name', 'total_students'];
+        foreach ($includes as $include) {
+            $queryParts[] = 'include[]=' . urlencode($include);
+        }
+        
+        // Add by_subaccounts[] parameters manually
+        if (!empty($subAccountIds)) {
+            foreach ($subAccountIds as $subId) {
+                $queryParts[] = 'by_subaccounts[]=' . urlencode($subId);
+            }
+        }
+        
+        $url = "accounts/{$rootAccountId}/courses?" . implode('&', $queryParts);
+
+        $resp = $canvasApi->apiGet($url);
+        if (!$resp) {
+            return [];
+        }
+        if ($resp->getErrors()) {
+            return [];
+        }
+        
+        $content = (array)$resp->getContent();
+        
+        return $content;
+
+    }
+
+
+
+
+     public function getCourseTeachers(User $actingUser, int|string $lmsCourseId): array
+    {
+        $apiDomain = $this->getApiDomain($actingUser);
+        $apiToken  = $this->getApiToken($actingUser);
+        $canvasApi = new CanvasApi($apiDomain, $apiToken);
+
+        // Primary: Enrollments with user object included
+        $url = "courses/{$lmsCourseId}/enrollments?type[]=TeacherEnrollment&state[]=active&include[]=user";
+        $resp = $canvasApi->apiGet($url);
+
+        if (!$resp->getErrors()) {
+            $out = [];
+            foreach ($resp->getContent() as $enr) {
+                if (!empty($enr['user'])) {
+                    $u = $enr['user'];
+                    $out[] = [
+                        'id'   => (string)$u['id'],                         // lms_user_id
+                        'name' => $u['name'] ?? ($u['short_name'] ?? null), // display_name
+                    ];
+                }
+            }
+            return $out;
+        }
+
+        // Fallback: users-in-course filtered to teachers
+        $fallback = "courses/{$lmsCourseId}/users?enrollment_type[]=teacher";
+        $resp = $canvasApi->apiGet($fallback);
+        if ($resp->getErrors()) {
+            throw new \Exception('msg.sync.error.api');
+        }
+
+        $out = [];
+        foreach ($resp->getContent() as $u) {
+            $out[] = [
+                'id'   => (string)$u['id'],
+                'name' => $u['name'] ?? ($u['short_name'] ?? null),
+            ];
+        }
+        return $out;
+    }
+
     public function updateCourseData(Course $course, User $user)
     {
         $url = "courses/{$course->getLmsCourseId()}?include[]=term";
@@ -145,10 +240,15 @@ class CanvasLms implements LmsInterface {
         $canvasApi = new CanvasApi($apiDomain, $apiToken);
         $response = $canvasApi->apiGet($url);
 
-        if (!$response || !empty($response->getErrors())) {
+        if(!$response) {
+            throw new \Exception('msg.sync.error.connection');
+        }
+
+        if (!empty($response->getErrors())) {
             foreach ($response->getErrors() as $error) {
-                $this->util->createMessage($error, 'error', $course, $user);
+                $this->util->createMessage($error['message'], 'error', $course, $user);
             }
+            throw new \Exception('msg.sync.error.api');
             return;
         }
         $content = $response->getContent();
@@ -165,8 +265,9 @@ class CanvasLms implements LmsInterface {
     }
 
     // Get content from Canvas and update content items
-    public function updateCourseContent(Course $course, User $user): array
+    public function updateCourseContent(Course $course, User $user, $force = false): array
     {
+        $output = new ConsoleOutput();
         $content = $contentItems = [];
         $urls = $this->getCourseContentUrls($course->getLmsCourseId());
         $apiDomain = $this->getApiDomain($user);
@@ -179,6 +280,7 @@ class CanvasLms implements LmsInterface {
 
             if ($response->getErrors()) {
                 $this->util->createMessage('Error retrieving content. Failed API Call: ' . $url, 'error', $course, $user);
+                throw new \Exception('msg.sync.error.api');
             }
             else {
                 if ('syllabus' === $contentType) {
@@ -208,6 +310,28 @@ class CanvasLms implements LmsInterface {
                         continue;
                     }
 
+                    /* Check to see if the existing content item is already in the database and hasn't been updated since.
+                       The $force variable is used to force the full rescan, and skips the 'already exists' check */
+
+                    $contentItem = $this->contentItemRepo->findOneBy([
+                        'contentType' => $contentType,
+                        'lmsContentId' => $lmsContent['id'],
+                        'course' => $course,
+                    ]);
+
+                    if (!$force && $contentItem) {
+                        $contentItemUpdated = $contentItem->getUpdated();
+                        $lmsUpdated = new \DateTime($lmsContent['updated'], UtilityService::$timezone);
+                        if ($contentItemUpdated == $lmsUpdated) {
+                            $contentItem->setActive(true);
+                            continue;
+                        }
+                        $output->writeln('Content item already exists but is out of date. Updating ' . $contentType . ': ' . $lmsContent['title']);
+                    }
+                    else {
+                        $output->writeln('New content item - ' . $contentType . ': ' . $lmsContent['title']);
+                    }
+
                     /* get page content */
                     if ('page' === $contentType) {
                         $url = "courses/{$course->getLmsCourseId()}/pages/{$lmsContent['id']}";
@@ -224,18 +348,11 @@ class CanvasLms implements LmsInterface {
                         $lmsContent['body'] = file_get_contents($content['url']);
                     }
 
-                    $contentItem = $this->contentItemRepo->findOneBy([
-                        'contentType' => $contentType,
-                        'lmsContentId' => $lmsContent['id'],
-                        'course' => $course,
-                    ]);
-
                     if (!$contentItem) {
                         $contentItem = new ContentItem();
                         $contentItem->setCourse($course)
                             ->setLmsContentId($lmsContent['id'])
                             ->setActive(true)
-                            ->setUpdated($this->util->getCurrentTime())
                             ->setContentType($contentType);
                         $this->entityManager->persist($contentItem);
                     }
@@ -251,7 +368,9 @@ class CanvasLms implements LmsInterface {
                     }
 
                     $contentItem->update($lmsContent);
-                    $contentItems[] = $contentItem;
+                    if($contentItem->getBody() !== null) {
+                        $contentItems[] = $contentItem;
+                    }
                 }
             }
         }
@@ -262,6 +381,62 @@ class CanvasLms implements LmsInterface {
         return $contentItems;
     }
 
+    public function getCourseSections(Course $course, User $user)
+    {
+        $sections = [];
+        $lmsCourseId = $course->getLmsCourseId();
+        $apiDomain = $this->getApiDomain($user);
+        $apiToken = $this->getApiToken($user);
+
+        $canvasApi = new CanvasApi($apiDomain, $apiToken);
+        $urls = $this->getCourseContentUrls($lmsCourseId);
+
+        $sectionUrl = $urls['module'];
+        $response = $canvasApi->apiGet($sectionUrl);
+
+        if ($response->getErrors()) {
+            $this->util->createMessage('Error retrieving content. Failed API Call: ' . $url, 'error', $course, $user);
+            throw new \Exception('msg.sync.error.api');
+        }
+        else {
+            $contentList = $response->getContent();
+
+            foreach ($contentList as $content) {
+                $formattedSection = [];
+                $formattedSection['id'] = $content['id'];
+                $formattedSection['title'] = $content['name'];
+                $formattedSection['status'] = $content['published'];
+                $formattedSection['items'] = [];
+
+                if(isset($content['items'])){
+                    foreach ($content['items'] as $item) {
+                        $formattedSection['items'][] = $item;
+                    }
+                }
+
+                else {
+                  $itemUrl = $sectionUrl . '/' . $content['id'] . '/items';
+                  $itemApi = new CanvasApi($apiDomain, $apiToken);
+                  $itemResponse = $itemApi->apiGet($itemUrl);
+
+                  if ($itemResponse->getErrors()) {
+                      $this->util->createMessage('Error retrieving content. Failed API Call: ' . $url, 'error', $course, $user);
+                      throw new \Exception('msg.sync.error.api');
+                  }
+                  else {
+                    $itemList = $itemResponse->getContent();
+                    if(isset($itemList)) {
+                        foreach ($itemList as $item) {
+                            $formattedSection['items'][] = $item;
+                        }
+                    }
+                  }
+              }
+              $sections[] = $formattedSection;
+            }
+        }
+        return $sections;
+    }
 
     public function updateFileItem(Course $course, $file)
     {
@@ -316,6 +491,7 @@ class CanvasLms implements LmsInterface {
 
             $this->util->createMessage('Error retrieving content. Please try again.', 'error', $contentItem->getCourse(), $user);
             $this->util->createMessage($log, 'error', $contentItem->getCourse(), $user, true);
+            throw new \Exception('msg.sync.error.api');
         }
         else {
             $apiContent = $response->getContent();
@@ -353,6 +529,7 @@ class CanvasLms implements LmsInterface {
                     'error',
                     $contentItem->getCourse()
                 );
+                throw new \Exception('msg.sync.error.local_save');
                 return;
             }
 
@@ -644,29 +821,6 @@ class CanvasLms implements LmsInterface {
 
                 break;
 
-            case 'module':
-                if (!isset($lmsContent['items'])) {
-                    break;
-                }
-
-                $out['id'] = $lmsContent['id'];
-                $out['title'] = $lmsContent['name'];
-                $out['updated'] = 'now';
-
-                $body = '';
-                foreach ($lmsContent['items'] as $item) {
-                    if ('ExternalUrl' !== $item['type']) {
-                        break;
-                    }
-                    $body .= "<p><a data-type-module href='{$item['external_url']}'>{$item['title']}</a></p>";
-                }
-
-                $out['body'] = $body;
-                $out['status'] = $lmsContent['published'];
-                $out['url'] = "{$baseUrl}/modules";
-
-                break;
-
             case 'file':
                 if ('html' !== $lmsContent['mime_class']) {
                     break;
@@ -730,7 +884,7 @@ class CanvasLms implements LmsInterface {
             'url:GET|/api/v1/courses/:id',
             'url:PUT|/api/v1/courses/:id',
             'url:POST|/api/v1/courses/:course_id/files',
-
+            'url:GET|/api/v1/accounts/:account_id/courses',
             // Discussion Topics
             'url:GET|/api/v1/courses/:course_id/discussion_topics',
             'url:GET|/api/v1/courses/:course_id/discussion_topics/:topic_id',
@@ -768,6 +922,9 @@ class CanvasLms implements LmsInterface {
 
             // Users
             'url:GET|/api/v1/users/:id',
+
+            'url:GET|/api/v1/courses/:course_id/enrollments',
+            'url:GET|/api/v1/courses/:course_id/users',
         ];
 
         return implode(' ', $scopes);

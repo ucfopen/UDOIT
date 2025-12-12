@@ -1,224 +1,362 @@
-import React from 'react';
-import { Button } from '@instructure/ui-buttons'
-import SortableTable from '../SortableTable'
-import ContentPageForm from '../ContentPageForm'
-import { View } from '@instructure/ui-view'
+import React, {useState, useEffect} from 'react'
+import SortableTable from '../Widgets/SortableTable'
 import Api from '../../Services/Api'
-import { Link } from '@instructure/ui-link'
-import { Spinner } from '@instructure/ui-spinner';
+import SummaryIcon from '../Icons/SummaryIcon'
+import ReportIcon from '../Icons/ReportIcon'
 
-class CoursesPage extends React.Component {
-  constructor(props) {
-    super(props);
+export default function CoursePage({
+  t,
+  settings,
+  courses,
+  searchTerm,
+  handleCourseUpdate,
+  handleReportClick,
+  handleNavigation,
+  addMessage,
+}) {
 
-    this.headers = [
-      { id: "courseName", text: this.props.t('label.admin.course_name') }, 
-      { id: "accountName", text: this.props.t('label.admin.account_name') }, 
-      { id: "lastUpdated", text: this.props.t('label.admin.last_updated') },
-      { id: "errors", text: this.props.t('label.plural.error') }, 
-      { id: "suggestions", text: this.props.t('label.plural.suggestion') }, 
-      { id: "contentFixed", text: this.props.t('label.content_fixed') }, 
-      { id: "contentResolved", text: this.props.t('label.content_resolved') }, 
-      { id: "filesReviewed", text: this.props.t('label.files_reviewed') }, 
-      { id: "action", text: "", alignText: "end" }
-    ];
+  const [filteredCourses, setFilteredCourses] = useState([])
+  const [isAnyScanning, setIsAnyScanning] = useState(false)
+  const [tableSettings, setTableSettings] = useState({
+    sortBy: 'lastUpdated',
+    ascending: false,
+    pageNum: 0,
+    rowsPerPage: (localStorage.getItem('rowsPerPage')) ? localStorage.getItem('rowsPerPage') : '10'
+  })
+  const headers = [
+    { id: "courseName", text: t('report.header.course_name'), alignText: "center" },
+    { id: "instructors", text: "Instructors", alignText: "center" }, 
+    { id: "accountName", text: t('report.header.account_name'), alignText: "center" }, 
+    { id: "lastUpdated", text: t('report.header.last_scanned'), alignText: "center" },
+    { id: "barriers", text: t('report.header.issues'), alignText: "center" },
+    { id: "suggestions", text: t('report.header.suggestions'), alignText: "center" }, 
+    { id: "contentFixed", text: t('report.header.items_fixed'), alignText: "center" }, 
+    { id: "contentResolved", text: t('report.header.items_resolved'), alignText: "center" }, 
+    { id: "filesReviewed", text: t('report.header.files_reviewed'), alignText: "center" }, 
+    { id: "action", text: "", alignText: "end" }
+  ]
 
-    this.filteredIssues = [];
+  useEffect(() => {
+    let tempFilteredCourses = []
 
-    this.state = {
-      searchTerm: '',
-      tableSettings: {
-        sortBy: 'courseName',
-        ascending: true,
-        pageNum: 0,
-        rowsPerPage: (localStorage.getItem('rowsPerPage')) ? localStorage.getItem('rowsPerPage') : '10'
-      }
-    }
-
-    this.handleSearchTerm = this.handleSearchTerm.bind(this);
-    this.handleTableSettings = this.handleTableSettings.bind(this);
-    this.handleFilter = this.handleFilter.bind(this);
-    this.handleCourseLink = this.handleCourseLink.bind(this)
-  }
-
-  getFilteredContent() {
-    const { searchTerm } = this.state
-    const { sortBy, ascending } = this.state.tableSettings 
-    const courses = Object.values(this.props.courses)
-    const { filters } = this.props
-
-    let filteredList = [];
-
-    for (const course of courses) {
-      if (!course.report) {
-        continue
-      }
-
-      if (!filters.includeSubaccounts && (filters.accountId != course.accountId)) {
-        continue
-      }
-      
-      // Filter by search term
+    // Note: The `courses` variable is ALREADY filtered by the Account and Term.
+    // This ONLY needs to filter based on the search term.
+    Object.keys(courses).forEach((key) => {
+      const course = courses[key]
+      let excludeCourse = false
       if (searchTerm !== '') {
-        if (course.title.toLowerCase().indexOf(searchTerm.toLowerCase()) === -1) {
-          continue
+        const searchTerms = searchTerm.toLowerCase().split(' ');
+        let containsAllTerms = true
+        if (Array.isArray(searchTerms)) {
+          for (let term of searchTerms) {
+            if (!course.title.toLowerCase().includes(term)) {
+              containsAllTerms = false
+            }
+          }
+        }
+        if (!containsAllTerms) {
+          excludeCourse = true
         }
       }
 
-      const link = <Link 
-        onClick={() => this.handleCourseLink(course)} 
-        isWithinText={false}
-        >{course.title}</Link>
-
-      let row = {
-        id: course.id,
-        course,
-        courseName: link,
-        courseTitle: course.title,
-        lastUpdated: course.lastUpdated,
-        accountName: course.accountName,
-        action: <Button key={`reviewButton${course.id}`}
-          onClick={() => this.handleScanClick(course)}
-          textAlign="center" 
-          interaction={(course.loading) ? 'disabled' : 'enabled'}
-          renderIcon={(course.loading) ? <Spinner renderTitle="Scanning" size="x-small" /> : null}
-          >{this.props.t('label.admin.scan')}</Button>
+      if (!excludeCourse) {
+        // The Course data from the database is stored in the `course` object.
+        // The data for the table is converted to the `row` object.
+        const names = Array.isArray(course.instructors) ? course.instructors : []
+        const hasReport = course.hasReport || (course.report && course.report.id)
+        const publicUrl = course.publicUrl !== '---' && course.publicUrl !== '-' ? course.publicUrl : null
+        const scanCounts = course.report?.scanCounts || {};
+        const barriers = scanCounts.errors || 0;
+        const suggestions = scanCounts.suggestions || 0;
+        let row = {
+          id: course.id,
+          course,
+          courseName: publicUrl ? <a href={publicUrl} target="_blank" rel="noopener noreferrer">{course.title}</a> : course.title,
+          instructors: names.length ? names.join(', ') : '---',
+          courseTitle: course.title, // Used for sorting, not displayed outside of courseName element
+          accountName: course.accountName || '---',
+          lastUpdated: course.lastUpdated || '---',
+          barriers: hasReport && course.report ? barriers : '---',
+          suggestions: hasReport && course.report ? suggestions : '---',
+          contentFixed: hasReport && course.report ? course.report.contentFixed : '---',
+          contentResolved: hasReport && course.report ? course.report.contentResolved : '---',
+          filesReviewed: hasReport && course.report ? course.report.filesReviewed : '---',
+          action: <div className="flex-row gap-1">
+            <button key={`reportButton${course.id}`}
+              onClick={() => { !course.loading && !isAnyScanning && hasReport && handleReportClick(course) }}
+              textalign="center"
+              className={`btn btn-text btn-icon-only ${((course.loading || isAnyScanning) || !hasReport) ? 'btn-disabled' : ''}`}
+              disabled={(course.loading || isAnyScanning) || !hasReport}
+              title={hasReport ? t('report.button.view_report') : t('report.button.no_report')}
+              aria-label={hasReport ? t('report.button.view_report') : t('report.button.no_report')}
+              >
+                <ReportIcon className="icon-md" />
+              </button>
+            <button key={`scanButton${course.id}`}
+              onClick={() => { !course.loading && !isAnyScanning && handleScanClick(course) }}
+              textalign="center"
+              className={`btn btn-text btn-icon-only ${(course.loading || isAnyScanning) ? 'btn-disabled' : ''}`}
+              disabled={course.loading || isAnyScanning}
+              title={t('report.button.scan')}
+              aria-label={t('report.button.scan')}
+              >
+                <SummaryIcon className="icon-md" />
+            </button>
+          </div>
+            
+        }
+        tempFilteredCourses.push({...course.report, ...row,})
       }
-      filteredList.push({...row, ...course.report})    
-    }
+    })
 
-    filteredList.sort((a, b) => {
+    const { sortBy, ascending } = tableSettings
+    
+    tempFilteredCourses.sort((a, b) => {
+      // ALWAYS sort UDOIT courses (with reports) first, then unscanned courses
+      const aHasReport = a.course.hasReport
+      const bHasReport = b.course.hasReport
+      
+      if (aHasReport && !bHasReport) return -1  // a (UDOIT) comes first
+      if (!aHasReport && bHasReport) return 1   // b (UDOIT) comes first
+      
+      // If both have same report status, sort by selected column
+      let comparison = 0
+      
       if (sortBy === 'courseName') {
-        return (a['courseTitle'].toLowerCase() < b['courseTitle'].toLowerCase()) ? -1 : 1
-      }
-      if (isNaN(a[sortBy]) || isNaN(b[sortBy])) {
-        return (a[sortBy].toLowerCase() < b[sortBy].toLowerCase()) ? -1 : 1
+        comparison = (a['courseTitle'].toLowerCase() < b['courseTitle'].toLowerCase()) ? -1 : 1
+      } 
+      else if (sortBy === 'lastUpdated') {
+        return new Date(a.lastUpdated) < new Date(b.lastUpdated) ? -1 : 1
       }
       else {
-        return (Number(a[sortBy]) < Number(b[sortBy])) ? -1 : 1
+        const aVal = a[sortBy]
+        const bVal = b[sortBy]
+        
+        // Handle "---" values - treat them as lowest priority
+        if (aVal === '---' && bVal === '---') {
+          comparison = 0
+        } else if (aVal === '---') {
+          comparison = 1
+        } else if (bVal === '---') {
+          comparison = -1
+        } else if (!isNaN(aVal) && !isNaN(bVal)) {
+          // Try numeric comparison first
+          comparison = (Number(aVal) < Number(bVal)) ? -1 : 1
+        } else {
+          // Fall back to string comparison
+          const aStr = String(aVal).toLowerCase()
+          const bStr = String(bVal).toLowerCase()
+          comparison = (aStr < bStr) ? -1 : 1
+        }
       }
+      
+      // Apply ascending/descending to the comparison (but NOT to the UDOIT vs unscanned grouping)
+      return ascending ? comparison : -comparison
     })
 
-    if (!ascending) {
-      filteredList.reverse();
-    }
+    setFilteredCourses(tempFilteredCourses)
 
-    return filteredList;
+  }, [courses, searchTerm, tableSettings])
+  
+  const handleTableSettings = (newSettings) => {
+    setTableSettings(Object.assign({}, tableSettings, newSettings))
   }
 
-  render() {
-    const filteredRows = this.getFilteredContent();
-
-    return (
-      <View as="div" key="coursesPageFormWrapper" padding="small 0">
-        <ContentPageForm 
-          handleSearchTerm={this.handleSearchTerm} 
-          handleTrayToggle={this.props.handleTrayToggle} 
-          searchTerm={this.state.searchTerm}
-          t={this.props.t}
-          handleTableSettings={this.handleTableSettings}
-          tableSettings={this.state.tableSettings}
-          />
-        <View as="div" key="filterTags">
-          {this.props.renderFilterTags()}
-        </View>
-        {(filteredRows.length === 0) ? 
-          <View as="div">{this.props.t('label.admin.no_results')}</View>
-          : 
-          <SortableTable
-            caption={this.props.t('srlabel.courses.table')}
-            headers = {this.headers}
-            rows = {filteredRows}
-            filters = {this.props.filters}
-            tableSettings = {this.state.tableSettings}
-            handleFilter = {this.handleFilter}
-            handleTableSettings = {this.handleTableSettings}
-            t={this.props.t}
-          />        
-        }
-      </View>
-    )
-  }
-
-  handleSearchTerm = (e, val) => {
-    this.setState({searchTerm: val, tableSettings: Object.assign({}, this.state.tableSettings, {pageNum: 0})});
-  }
-
-  handleFilter = (filter) => {
-    this.setState({
-      filters: Object.assign({}, this.props.filters, filter),
-      tableSettings: {
-        sortBy: 'courseName',
-        ascending: true,
-        pageNum: 0,
-      },
-    })
-  }
-
-  handleTableSettings = (setting) => {
-    this.setState({
-      tableSettings: Object.assign({}, this.state.tableSettings, setting)
-    });
-  } 
-
-  handleScanClick(course) {
-    let api = new Api(this.props.settings)
+  const handleScanClick = (course) => {
+    let api = new Api(settings)
+    setIsAnyScanning(true)
     
-    api.scanCourse(course.id)
-      .then((responseStr) => responseStr.json())
-      .then((response) => {
-        if (response.data) {
-          this.checkForReport(course)        
-        }
-        else {
-          if (response.messages) {
+    // For unscanned courses, course.id will be the LMS course ID (string/number)
+    // and hasReport will be false. We need to create the course in UDOIT first.
+    // For scanned courses, course.id is the UDOIT database ID (number).
+    const isUnscannedCourse = course.hasReport === false
+    const originalCourseId = course.id // Keep track of original ID for updates
+    
+    if (isUnscannedCourse) {
+      // For unscanned courses, first create the course in UDOIT database
+      const lmsCourseId = course.lmsCourseId || course.id
+      api.scanLmsCourse(lmsCourseId)
+        .then((responseStr) => responseStr.json())
+        .then((response) => {
+          if (response.messages && response.messages.length > 0) {
             response.messages.forEach((msg) => {
               if (msg.visible) {
-                this.props.addMessage(msg)
-                this.props.handleCourseUpdate(course)
+                addMessage(msg)
               }
             })
           }
-        }
-      })
+          
+          if (response.data && response.data.courseId) {
+            // Update the course object with the new UDOIT ID and instructors
+            course.udoitId = response.data.courseId
+            const newCourseId = response.data.courseId
+            
+            // Update instructors if they were fetched
+            if (Array.isArray(response.data.instructors)) {
+              course.instructors = response.data.instructors.slice()
+            }
+            
+            // Save the original ID for later removal after scan completes
+            course.originalId = originalCourseId
+            course.id = newCourseId  // Update the ID for future operations
+            
+            return api.scanCourse(newCourseId)
+          } else {
+            throw new Error('Failed to create course')
+          }
+        })
+        .then((responseStr) => responseStr.json())
+        .then((response) => {
+          if (response.data) {
+            if (Array.isArray(response.data.instructors)) {
+              course.instructors = response.data.instructors.slice()
+            }
+            // Use the original ID for the update so it stays in the same position
+            response.data.originalId = originalCourseId
+            checkForReport(course)        
+          }
+          else {
+            if (response.messages) {
+              response.messages.forEach((msg) => {
+                if (msg.visible) {
+                  addMessage(msg)
+                }
+              })
+            }
+          }
+        })
+        .catch((error) => {
+          console.error('Scan error:', error)
+          addMessage({
+            message: error.message || 'Failed to scan course',
+            severity: 'error',
+            timeout: 5000,
+          })
+          course.loading = false
+          handleCourseUpdate(course)
+          setIsAnyScanning(false)
+        })
+    } else {
+      // For already scanned courses, use the UDOIT database ID
+      const courseId = course.udoitId || course.id
+      api.scanCourse(courseId)
+        .then((responseStr) => responseStr.json())
+        .then((response) => {
+          if (response.data) {
+            if (Array.isArray(response.data.instructors)) {
+              course.instructors = response.data.instructors.slice()
+            }
+            checkForReport(course)        
+          }
+          else {
+            if (response.messages) {
+              response.messages.forEach((msg) => {
+                if (msg.visible) {
+                  addMessage(msg)
+                }
+              })
+            }
+          }
+        })
+        .catch((error) => {
+          console.error('Scan error:', error)
+          addMessage({
+            message: error.message || 'Failed to scan course',
+            severity: 'error',
+            timeout: 5000,
+          })
+          course.loading = false
+          handleCourseUpdate(course)
+          setIsAnyScanning(false)
+        })
+    }
     
-    this.props.addMessage({
+    addMessage({
       message: 'msg.sync.started',
       severity: 'info',
       timeout: 5000,
     })
 
     course.loading = true
-    this.props.handleCourseUpdate(course)
+    handleCourseUpdate(course)
   }
 
-  checkForReport(course) {
+  const checkForReport = (course) => {
     const newReportInterval = 5000
-    let api = new Api(this.props.settings)
+    let api = new Api(settings)
+    const courseId = course.udoitId || course.id
+    const originalId = course.originalId  // Save the original ID for removal
 
     var intervalId = setInterval(() => {
-      api.getAdminReport(course.id)
+      api.getAdminReport(courseId)
         .then((response) => response.json())
         .then((data) => {
           if (data.messages) {
             data.messages.forEach((msg) => {
               if (msg.visible) {
-                this.props.addMessage(msg)
+                addMessage(msg)
               }
             })
           }
 
           if (data.data && data.data.id) {
             clearInterval(intervalId)
-            this.props.handleCourseUpdate(data.data)
+            // Make sure hasReport is set to true after successful scan
+            const updatedCourse = {
+              ...data.data,
+              hasReport: true,
+              loading: false
+            }
+            
+            // If this was a newly scanned course, signal to remove the old entry
+            if (originalId && originalId !== data.data.id) {
+              updatedCourse.oldId = originalId
+            }
+            
+            handleCourseUpdate(updatedCourse)
+            setIsAnyScanning(false)
           }
         })
     }, newReportInterval)
   }
 
-  handleCourseLink(course) {
-    window.open(course.publicUrl, '_blank', 'noopener,noreferrer')
-  }
+  return (
+    <div className="report-page-container scrollable">
+      <div className="flex-row justify-content-center mt-3 mb-3">
+        <h1 className="mt-0 mb-0 primary-dark">{t('report.header.courses')}</h1>
+      </div>
+      {(Object.keys(courses).length === 0 || filteredCourses.length === 0) ? 
+        <div className="flex-column mt-3">
+          <div className="flex-row justify-content-center">
+            <h2 className="mt-0 mb-0">{t('report.label.no_results')}</h2>
+          </div>
+          <div className="flex-row justify-content-center mt-2">
+            <div className="mt-0 mb-0">{t('report.msg.no_results')}</div>
+          </div>
+        </div>
+        :
+        <>
+          <div style={{overflowX: 'auto', overflowY: 'visible', flex: '1 1 auto'}}>
+            <SortableTable
+              t={t}
+              caption=''
+              headers = {headers}
+              rows = {filteredCourses}
+              tableSettings = {tableSettings}
+              handleTableSettings = {handleTableSettings}
+            />
+          </div>
+          <div className="flex-row justify-content-end mt-3 mb-2">
+            <button
+              className="btn btn-primary flex-row justify-content-center"
+              onClick={() => handleReportClick(null)}
+            >
+              <ReportIcon className="icon-md me-2" />
+              <div className="flex-column justify-content-center">{t('report.button.view_all_report')}</div>
+            </button>
+          </div>
+        </>
+      }
+    </div>
+  )
 }
-
-export default CoursesPage;

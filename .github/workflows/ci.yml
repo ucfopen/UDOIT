@@ -5,7 +5,7 @@ on:
     branches:
       - main
       - 'stable/*'
-      - 'equal-access'
+      - 'new-main-page-UX'
 
 env:
   REGISTRY: ghcr.io
@@ -18,10 +18,10 @@ jobs:
       fail-fast: false
       matrix:
         operating-system: [ubuntu-latest]
-        php-versions: ['8.2']
-        node-version: [16.19.0]
+        php-versions: ['8.4']
+        node-version: [20.19.0]
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
 
       - name: Log in to the Container registry
         uses: docker/login-action@f054a8b539a109f9f41c372932f1ae047eff08c9
@@ -35,7 +35,7 @@ jobs:
         uses: ASzc/change-string-case-action@v2
         with:
           string: ${{ github.repository }}
-      
+
       - name: Display repository name
         run: echo ${{ steps.case.outputs.lowercase }}
 
@@ -43,19 +43,19 @@ jobs:
         id: slash
         uses: mad9000/actions-find-and-replace-string@2
         with:
-          source: ${{ github.ref_name }} 
-          find: '/' 
-          replace: '-'   
+          source: ${{ github.ref_name }}
+          find: '/'
+          replace: '-'
 
       - name: Display issue name
-        run: echo ${{ steps.slash.outputs.value }}      
+        run: echo ${{ steps.slash.outputs.value }}
 
       - name: Build Image
         run: |
           cp .env.example .env
           docker compose -f docker-compose.nginx.yml build
           docker compose -f docker-compose.nginx.yml run composer composer install --no-dev --no-interaction --no-progress --optimize-autoloader
-          docker compose -f docker-compose.nginx.yml run yarn bash -c 'cd /app && yarn install && yarn build'        
+          docker compose -f docker-compose.nginx.yml run yarn bash -c 'cd /app && yarn install && yarn build'
           docker build . -t udoit:latest -f build/nginx/Dockerfile.build
           docker tag udoit:latest ${{ env.REGISTRY }}/${{ steps.case.outputs.lowercase }}:${{ steps.slash.outputs.value }}
 

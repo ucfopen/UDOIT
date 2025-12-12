@@ -1,168 +1,166 @@
-import React from 'react'
-import { Button } from '@instructure/ui-buttons'
-import { Spinner } from '@instructure/ui-spinner'
-import { View } from '@instructure/ui-view'
-import { Checkbox } from '@instructure/ui-checkbox'
-import { IconCheckMarkLine } from '@instructure/ui-icons'
+import React, { useState, useEffect } from 'react'
+import FormSaveOrReview from './FormSaveOrReview'
 import * as Html from '../../Services/Html'
 import * as Contrast from '../../Services/Contrast'
 
-export default class EmphasisForm extends React.Component {
-  constructor(props) {
-    super(props)
+export default function EmphasisForm({
+  t,
+  settings,
+  activeIssue,
+  isDisabled,
+  handleIssueSave,
+  handleActiveIssue,
+  markAsReviewed,
+  setMarkAsReviewed
+}) {
+  const [useBold, setUseBold] = useState(false)
+  const [useItalics, setUseItalics] = useState(false)
+  const [removeColor, setRemoveColor] = useState(false)
+  const [formErrors, setFormErrors] = useState([])
 
-    this.state = {
-      useBold: this.isBold(),
-      useItalics: this.isItalicized(),
-      checkboxErrors: []
+  useEffect(() => {
+    if(!activeIssue) {
+      return
+    }
+    setUseBold(isBold())
+    setUseItalics(isItalicized())
+    setRemoveColor(false)
+  }, [activeIssue])
+
+  useEffect(() => {
+    updateHtmlContent()
+    checkFormErrors()
+  }, [useBold, useItalics, removeColor, markAsReviewed])
+
+  const updateHtmlContent = () => {
+    let issue = activeIssue
+    issue.isModified = true
+
+    if (markAsReviewed) {
+      issue.newHtml = issue.initialHtml
+      handleActiveIssue(issue)
+      return
     }
 
-    this.formErrors = []
-
-    this.handleBoldToggle = this.handleBoldToggle.bind(this)
-    this.handleItalicsToggle = this.handleItalicsToggle.bind(this)
-    this.updatePreview = this.updatePreview.bind(this)
-    this.handleSubmit = this.handleSubmit.bind(this)
+    issue.newHtml = processHtml(issue.initialHtml)
+    handleActiveIssue(issue)
   }
 
-  componentDidMount(prevProps, prevState) {
-    this.updatePreview()
-  }
-
-  componentDidUpdate(prevProps, prevState) {
-    if (prevProps.activeIssue !== this.props.activeIssue) {
-
-      this.setState({
-        useBold: this.isBold(),
-        useItalics: this.isItalicized(),
-        checkBoxErrors: []
-      },() => {
-        this.formErrors = []
-        this.updatePreview()
-      })
+  const checkFormErrors = () => {
+    let tempErrors = []
+    if(!cssEmphasisIsValid(activeIssue)) {
+      tempErrors.push({ text: t('form.emphasis.msg.required'), type: 'error' })
     }
+    setFormErrors(tempErrors)
   }
 
-  handleBoldToggle() {
-    this.setState({
-      useBold: !this.state.useBold
-    }, () => {
-      this.updatePreview()
-    })
-  }
-
-  handleItalicsToggle() {
-    this.setState({
-      useItalics: !this.state.useItalics
-    }, () => {
-      this.updatePreview()
-    })
-  }
-
-  handleSubmit() {
-    let issue = this.props.activeIssue
-    
-    if (this.cssEmphasisIsValid(issue)) {
-      let issue = this.props.activeIssue
-      issue.newHtml = Contrast.convertHtmlRgb2Hex(issue.newHtml)
-      this.props.handleIssueSave(issue)
-    } 
-    else {
-      //push errors
-      this.formErrors = []
-      this.formErrors.push({ text: `${this.props.t('form.contrast.must_select')}` , type: 'error' })
-
-      this.setState({
-        checkboxErrors: this.formErrors
-      })
-    }
-  }
-
-  render() {
-    const pending = (this.props.activeIssue && (this.props.activeIssue.pending == '1'))
-    const buttonLabel = (pending) ? 'form.processing' : 'form.submit'
-    
-    return (
-      <View as="div" padding="0 x-small">
-        <div id="flash-messages" role="alert"></div>
-        <View as="div" margin="small 0">
-          <Checkbox label={this.props.t('form.contrast.bolden_text')}
-            checked={this.state.useBold}
-            onChange={this.handleBoldToggle}>
-          </Checkbox>
-        </View>
-
-        <View as="div" margin="small 0">
-          <Checkbox label={this.props.t('form.contrast.italicize_text')}
-            checked={this.state.useItalics}
-            onChange={this.handleItalicsToggle}
-            messages={this.state.checkboxErrors}>
-          </Checkbox>
-        </View>
-
-        <View as="div" margin="medium 0">
-          <Button color="primary" onClick={this.handleSubmit} interaction={(!pending && this.props.activeIssue.status !== 2) ? 'enabled' : 'disabled'}>
-            {('1' == pending) && <Spinner size="x-small" renderTitle={buttonLabel} />}
-            {this.props.t(buttonLabel)}
-          </Button>
-          {this.props.activeIssue.recentlyUpdated &&
-            <View margin="0 small">
-              <IconCheckMarkLine color="success" />
-              <View margin="0 x-small">{this.props.t('label.fixed')}</View>
-            </View>
-          }
-        </View>
-      </View>
-    );
-  }
-
-  processHtml(html) {
+  const processHtml = (html) => {
     let element = Html.toElement(html)
 
     // Clean up tags
     Html.removeTag(element, 'strong')
     Html.removeTag(element, 'em')
 
-    element.innerHTML = (this.state.useBold) ? `<strong>${element.innerHTML}</strong>` : element.innerHTML
-    element.innerHTML = (this.state.useItalics) ? `<em>${element.innerHTML}</em>` : element.innerHTML
+    if (removeColor) {
+      element = Html.removeAttribute(element, 'style')
+    }
+    if(useItalics) {
+      element.innerHTML = `<em>${element.innerHTML}</em>`
+    }
+    if(useBold) {
+      element.innerHTML = `<strong>${element.innerHTML}</strong>`  
+    }
     
     return Html.toString(element)
   }
 
-  updatePreview() {
-    let issue = this.props.activeIssue
-    const html = Html.getIssueHtml(this.props.activeIssue)
-
-    issue.newHtml = this.processHtml(html)
-    this.props.handleActiveIssue(issue)
-  }
-
-  isBold()
-  {
-    const issue = this.props.activeIssue
-    const metadata = (issue.metadata) ? JSON.parse(issue.metadata) : {}
-    const html = Html.getIssueHtml(this.props.activeIssue)
+  const isBold = () => {
+    const metadata = activeIssue.metadata ? JSON.parse(activeIssue.metadata) : {}
+    const html = Html.getIssueHtml(activeIssue)
     const element = Html.toElement(html)
-
-    return ((Html.hasTag(element, 'strong')) || (metadata.fontWeight === 'bold'))
+    return Html.getChild(element, 'strong') || Html.getChild(element, 'b') || metadata.fontWeight === 'bold'
   }
 
-  isItalicized()
-  {
-    const issue = this.props.activeIssue
-    const metadata = (issue.metadata) ? JSON.parse(issue.metadata) : {}
-    const html = Html.getIssueHtml(this.props.activeIssue)
+  const isItalicized = () => {
+    const metadata = activeIssue.metadata ? JSON.parse(activeIssue.metadata) : {}
+    const html = Html.getIssueHtml(activeIssue)
     const element = Html.toElement(html)
-
-    return ((Html.hasTag(element, 'em')) || (metadata.fontStyle == 'italic'))
+    return Html.getChild(element, 'em') || Html.getChild(element, 'i') || metadata.fontStyle === 'italic'
   }
 
-  cssEmphasisIsValid(issue) {
-    if(issue.scanRuleId === 'CssTextStyleEmphasize') {
-      if(!this.state.useBold && !this.state.useItalics) {
-        return false
-      }
+  const handleBoldToggle = () => {
+    setUseBold(!useBold)
+  }
+
+  const handleItalicsToggle = () => {
+    setUseItalics(!useItalics)
+  }
+
+  const handleRemoveColorToggle = () => {
+    setRemoveColor(!removeColor)
+  }
+
+  const handleSubmit = () => {
+    if (!markAsReviewed && formErrors.length > 0) {
+      return
+    }
+    let issue = activeIssue
+    issue.newHtml = Contrast.convertHtmlRgb2Hex(issue.newHtml)
+    handleIssueSave(issue)
+  }
+
+  const cssEmphasisIsValid = () => {
+    if(!removeColor && !useBold && !useItalics) {
+      return false
     }
     return true
   }
+
+
+
+  return (
+    <>
+      <div className="instructions">{t('form.emphasis.label.select_emphasis')}</div>
+      <div className="flex-row justify-content-start gap-1 mt-2">
+        <input type="checkbox"
+          id="boldCheckbox"
+          name="boldCheckbox"
+          checked={useBold}
+          tabIndex="0"
+          disabled={isDisabled}
+          onChange={handleBoldToggle} />
+        <label htmlFor="boldCheckbox">{t('form.emphasis.label.bold')}</label>
+      </div>
+      <div className="flex-row justify-content-start gap-1 mt-2">
+        <input type="checkbox"
+          id="italicCheckbox"
+          name="italicCheckbox"
+          checked={useItalics}
+          tabIndex="0"
+          disabled={isDisabled}
+          onChange={handleItalicsToggle} />
+        <label htmlFor="italicCheckbox">{t('form.emphasis.label.italic')}</label>
+      </div>
+      <div className="separator mt-2">{t('fix.label.and_or')}</div>
+      <div className="flex-row justify-content-start gap-1 mt-2">
+        <input type="checkbox"
+          id="removeColorCheckbox"
+          name="removeColorCheckbox"
+          checked={removeColor}
+          tabIndex="0"
+          disabled={isDisabled}
+          onChange={handleRemoveColorToggle} />
+        <label className="instructions" htmlFor="removeColorCheckbox">{t('form.emphasis.label.remove_color')}</label>
+      </div>
+      <FormSaveOrReview
+        t={t}
+        settings={settings}
+        activeIssue={activeIssue}
+        isDisabled={isDisabled}
+        handleSubmit={handleSubmit}
+        formErrors={formErrors}
+        markAsReviewed={markAsReviewed}
+        setMarkAsReviewed={setMarkAsReviewed} />
+    </>
+  )
 }

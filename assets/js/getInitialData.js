@@ -15,10 +15,8 @@ export default function getInitialData() {
   if (settingsElement !== null) {
     data = JSON.parse(settingsElement.textContent)
 
-    if (Object.keys(data).length > 0) {
-      console.info('UDOIT initial LMS data was found and loaded!')
-    } else {
-      console.error('No data loaded!')
+    if (Object.keys(data).length === 0) {
+      console.error('UDOIT initial LMS data failed to load. Using default settings...')
     }
   }
   return data

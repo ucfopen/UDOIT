@@ -1,31 +1,34 @@
 import React, { useEffect, useState } from 'react'
-import { View } from '@instructure/ui-view'
-import { Text } from '@instructure/ui-text'
+import FormExternalLink from './FormExternalLink'
+import FormReviewOnly from './FormReviewOnly'
 
-export default function UfixitReviewOnly(props) {
-  function getMetadata() {
-    const issue = props.activeIssue
-    const metadata = issue.metadata ? JSON.parse(issue.metadata) : {}
-    return metadata
-  }
-
-  const metadata = getMetadata()
-  const [message, setMessage] = useState("")
-
-  useEffect(() => {
-    if (metadata.message) {
-      // when using equal access, we should have metadata.message
-      setMessage(metadata.message)
-    }
-    else {
-      // otherwise, in phpally, we display the default "review" text
-      setMessage(props.t("label.review_only"))
-    }
-  }, [metadata])
+export default function UfixitReviewOnly({
+  t,
+  settings, 
+  activeIssue,
+  isContentLoading,
+  markAsReviewed,
+  setMarkAsReviewed,
+  handleIssueSave,
+}) {
 
   return (
-    <View as="div" margin="small small">
-      <Text lineHeight='double'>{message}</Text>
-    </View>
+    <div className="flex-column">
+      <div dangerouslySetInnerHTML={{__html: t('form.review_only.summary')}}></div>
+      <FormExternalLink
+        t={t}
+        settings={settings}
+        activeIssue={activeIssue}
+      />
+      <FormReviewOnly
+        t={t}
+        settings={settings}
+        activeIssue={activeIssue}
+        handleIssueSave={handleIssueSave}
+        isContentLoading={isContentLoading}
+        markAsReviewed={markAsReviewed}
+        setMarkAsReviewed={setMarkAsReviewed}
+      />
+    </div>
   )
 }

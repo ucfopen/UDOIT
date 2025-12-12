@@ -1,151 +1,115 @@
 import React, { useEffect, useState } from 'react'
-import { View } from '@instructure/ui-view'
-import { TextInput } from '@instructure/ui-text-input'
-import { Button } from '@instructure/ui-buttons'
-import { IconCheckMarkLine } from '@instructure/ui-icons'
-import { Checkbox } from '@instructure/ui-checkbox'
-import { Spinner } from '@instructure/ui-spinner'
+import FormSaveOrReview from './FormSaveOrReview'
 import * as Html from '../../Services/Html'
+import * as Text from '../../Services/Text'
 
-export default function LabelForm(props) {
+export default function LabelForm({
+  t,
+  settings,
+  activeIssue,
+  handleIssueSave,
+  isDisabled,
+  handleActiveIssue,
+  markAsReviewed,
+  setMarkAsReviewed
+ }) {
 
-  let html = props.activeIssue.newHtml ? props.activeIssue.newHtml : props.activeIssue.sourceHtml
-  
-  if (props.activeIssue.status === '1') {
-    html = props.activeIssue.newHtml
-  }
-
-  let element = Html.toElement(html)
-
-  const [textInputValue, setTextInputValue] = useState(element ? Html.getAttribute(element, "aria-label") : "")
-  // const [deleteLabel, setDeleteLabel] = useState(!element && (props.activeIssue.status === "1"))
-  const [textInputErrors, setTextInputErrors] = useState([])
-
-  let formErrors = []
+  const [textInputValue, setTextInputValue] = useState('')
+  const [formErrors, setFormErrors] = useState([])
 
   useEffect(() => {
-    let html = props.activeIssue.newHtml ? props.activeIssue.newHtml : props.activeIssue.sourceHtml
-    if (props.activeIssue.status === 1) {
-      html = props.activeIssue.newHtml
+    let html = Html.getIssueHtml(activeIssue)
+    let element = Html.toElement(html)
+    let initialText = Html.getAccessibleName(element)
+
+    setTextInputValue(initialText)
+  }, [activeIssue])
+
+  useEffect(() => {
+    updateHtmlContent()
+    checkFormErrors()
+  }, [textInputValue, markAsReviewed])
+
+  const updateHtmlContent = () => {
+
+    let issue = activeIssue
+    issue.isModified = true
+
+    if (markAsReviewed) {
+      issue.newHtml = issue.initialHtml
+      handleActiveIssue(issue)
+      return
     }
 
-    let element = Html.toElement(html)
-    setTextInputValue(element ? Html.getAttribute(element, "aria-label") : "")
-    // setDeleteLabel(!element && props.activeIssue.status === 1)
-
-    formErrors = []
-
-  }, [props.activeIssue])
-
-  useEffect(() => {
-    handleHtmlUpdate()
-  }, [textInputValue])
-
-  const handleHtmlUpdate = () => {
+    let html = Html.getIssueHtml(activeIssue)
     let updatedElement = Html.toElement(html)
 
     updatedElement = Html.setAttribute(updatedElement, "aria-label", textInputValue)
-
-    // if (deleteLabel) {
-    //   updatedElement = Html.removeAttribute(updatedElement, "aria-label")
-    // }
-    // else {
-    //   updatedElement = Html.setAttribute(updatedElement, "aria-label", textInputValue)
-    // }
-
-    let issue = props.activeIssue
+    updatedElement = Html.setAttribute(updatedElement, "title", textInputValue)
+    
     issue.newHtml = Html.toString(updatedElement)
-    props.handleActiveIssue(issue)
-
+    handleActiveIssue(issue)
   }
 
-  const handleButton = () => {
-    formErrors = []
-
-    // if (!deleteLabel) {
-    //   checkTextNotEmpty()
-    // }
-
-    checkTextNotEmpty()
-    checkLabelIsUnique()
-
-    if (formErrors.length > 0) {
-      setTextInputErrors(formErrors)
+  const checkFormErrors = () => {
+    let tempErrors = []
+    
+    if(Text.isTextEmpty(textInputValue)) {
+      tempErrors.push({ text: t('form.label.msg.text_empty'), type: "error" })
     }
-    else {
-      props.handleIssueSave(props.activeIssue)
+    if(isLabelDuplicate()) {
+      tempErrors.push({ text: t('form.label.msg.text_unique'), type: "error" })
     }
+    setFormErrors(tempErrors)
+  }
+
+  const handleSubmit = () => {
+    handleIssueSave(activeIssue)
   }
 
   const handleInput = (event) => {
     setTextInputValue(event.target.value)
-    // handleHtmlUpdate()
   }
 
-  // const handleCheckbox = () => {
-  //   setDeleteLabel(!deleteLabel)
-  //   // handleHtmlUpdate()
-  // }
-
-  const checkTextNotEmpty = () => {
-    const text = textInputValue.trim().toLowerCase()
-    if (text === '') {
-      formErrors.push({ text: "Empty label text.", type: "error" })
-    }
-  }
-
-  const checkLabelIsUnique = () => {
+  const isLabelDuplicate = () => {
     // in the case of aria_*_label_unique, messageArgs (from metadata) should have the offending label (at the first index)
     // i guess we could get it from the aria-label itself as well...
-    const issue = props.activeIssue
+    const issue = activeIssue
     const metadata = issue.metadata ? JSON.parse(issue.metadata) : {}
     const labelFromMessageArgs = metadata.messageArgs ? metadata.messageArgs[0] : null
     const text = textInputValue.trim().toLowerCase()
 
     if (labelFromMessageArgs) {
       if (text == labelFromMessageArgs) {
-        formErrors.push({ text: "Cannot reuse label text.", type: "error" })
+        return true
       }
     }
-
+    return false
   }
-
-  const pending = props.activeIssue && props.activeIssue.pending == "1"
-  const buttonLabel = pending ? "form.processing" : "form.submit"
   
   return (
-    <View as='div' padding='x-small' >
-      <View>
-        <TextInput
-          renderLabel='New Label Text'
-          display='inline-block'
-          width='100%'
-          onChange={handleInput}
+    <>
+      <label htmlFor="labelInputValue" className="instructions">{t('form.label.label.text')}</label>
+      <div className="w-100 mt-2">
+        <input
+          type="text" 
+          id="labelInputValue"
+          name="labelInputValue"
+          className="w-100"
           value={textInputValue}
-          id="textInputValue"
-          // disabled={deleteLabel}
-          messages={textInputErrors}
-        />
-      </View>
-      {/* <View>
-        <View as='span' display='inline-block'>
-          <Checkbox 
-            label='form.label.remove_label' 
-            checked={deleteLabel}
-            onChange={handleCheckbox}
-          />
-        </View>
-      </View> */}
-      <View as='div' margin='small 0'>
-        <Button 
-          color='primary' 
-          onClick={handleButton}
-          interaction={(!pending && props.activeIssue.status !== 2) ? 'enabled' : 'disabled'}
-        >
-          {('1' == pending) && <Spinner size="x-small" renderTitle={props.t(buttonLabel)} />}
-          {props.t(buttonLabel)}
-        </Button>
-      </View>
-    </View>
-  );
+          disabled={isDisabled}
+          tabIndex="0"
+          onChange={handleInput} />
+      </div>
+      <FormSaveOrReview
+        t={t}
+        settings={settings}
+        activeIssue={activeIssue}
+        isDisabled={isDisabled}
+        handleSubmit={handleSubmit}
+        formErrors={formErrors}
+        markAsReviewed={markAsReviewed}
+        setMarkAsReviewed={setMarkAsReviewed} />
+    </>
+  )
 }

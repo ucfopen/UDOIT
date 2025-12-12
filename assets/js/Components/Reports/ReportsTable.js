@@ -1,79 +1,97 @@
-import React from 'react'
-import SortableTable from '../SortableTable'
-import { View } from '@instructure/ui-view'
-import { Heading } from '@instructure/ui-heading'
+import React, { useState, useEffect } from 'react'
+import SortableTable from '../Widgets/SortableTable'
 
-class ReportsTable extends React.Component {
-  constructor(props) {
-    super(props)
+export default function ReportsTable({
+  t,
+  reports,
+  isAdmin,
+}) {
 
-    this.headers = [
-      { id: "created", text: this.props.t('label.date') },
-      { id: "errors", text: this.props.t('label.plural.error') },
-      { id: "suggestions", text: this.props.t('label.plural.suggestion') },
-      { id: "contentFixed", text: this.props.t('label.content_fixed') },
-      { id: "contentResolved", text: this.props.t('label.content_resolved') },
-      { id: "filesReviewed", text: this.props.t('label.files_reviewed')}
-    ];
+  const headers = [
+    { id: "courseName", text: t('report.header.course_name') },
+    { id: "created", text: t('report.header.date'), alignText: 'center' },
+    { id: "errors", text: t('report.header.issues'), alignText: 'center' },
+    { id: "potentials", text: t('report.header.potential'), alignText: 'center' },
+    { id: "suggestions", text: t('report.header.suggestions'), alignText: 'center' },
+    { id: "contentFixed", text: t('report.header.items_fixed'), alignText: 'center' },
+    { id: "contentResolved", text: t('report.header.items_resolved'), alignText: 'center' },
+    { id: "filesReviewed", text: t('report.header.files_reviewed'), alignText: 'center' },
+  ];
 
-    if (this.props.isAdmin) {
-      this.headers.push({ id: "count", text: this.props.t('label.admin.courses') })
-    }
+  const [tableSettings, setTableSettings] = useState({
+    sortBy: 'created',
+    ascending: false,
+    pageNum: 0,
+  });
+  const [rows, setRows] = useState([]);
 
-    this.state = {
-      tableSettings: {
-        sortBy: 'created',
-        ascending: false,
-        pageNum: 0,
-      }
-    }
+  // Helper function to get the latest report for each course
+  const getLatestReports = (reports) => {
+    if (!reports) return [];
 
-    this.getContent = this.getContent.bind(this)
-  }
+    const latestReports = [];
 
-  handleTableSettings = (setting) => {
-    this.setState({
-      tableSettings: Object.assign({}, this.state.tableSettings, setting)
+    // Iterate through each course
+    Object.entries(reports).forEach(([courseName, courseReports]) => {
+      // Find the latest date for the course
+      const latestDate = Object.keys(courseReports).sort((a, b) => new Date(b) - new Date(a))[0];
+      const latestReport = courseReports[latestDate];
+
+      // Add the latest report to the list
+      latestReports.push({
+        courseName,
+        created: latestDate,
+        errors: latestReport.scanCounts?.errors || 0,
+        potentials: latestReport.scanCounts?.potentials || 0,
+        suggestions: latestReport.scanCounts?.suggestions || 0,
+        contentFixed: latestReport.contentFixed || 0,
+        contentResolved: latestReport.contentResolved || 0,
+        filesReviewed: latestReport.filesReviewed || 0,
+      });
     });
-  } 
 
-  getContent() {
-    let list = this.props.reports
-    const { sortBy, ascending } = this.state.tableSettings 
+    return latestReports;
+  };
+
+  const getContent = () => {
+    let list = getLatestReports(reports); // Preprocess reports to get the latest entry per course
+    if (!list) {
+      return [];
+    }
+
+    const { sortBy, ascending } = tableSettings;
 
     list.sort((a, b) => {
       if (isNaN(a[sortBy]) || isNaN(b[sortBy])) {
-        return (a[sortBy].toLowerCase() < b[sortBy].toLowerCase()) ? -1 : 1
+        return a[sortBy].toLowerCase() < b[sortBy].toLowerCase() ? -1 : 1;
+      } else {
+        return Number(a[sortBy]) < Number(b[sortBy]) ? -1 : 1;
       }
-      else {
-        return (Number(a[sortBy]) < Number(b[sortBy])) ? -1 : 1
-      }
-    })
+    });
 
     if (!ascending) {
-      list.reverse()
+      list.reverse();
     }
 
-    return list
-  }
+    return list;
+  };
 
-  render() {
-    const rows = this.getContent();
-    
-    return (
-      <View as="div" key="reportsTableWrapper">
-        <Heading as="h3" level="h4" margin="small 0">{this.props.t('label.report_history')}</Heading>
-        <SortableTable
-          caption={this.props.t('udoit.reports.table.caption')}
-          headers={this.headers}
-          rows={rows}
-          tableSettings={this.state.tableSettings}
-          handleTableSettings={this.handleTableSettings}
-          t={this.props.t}
-        />
-      </View>
-    )
-  }
+  const handleTableSettings = (setting) => {
+    setTableSettings(Object.assign({}, tableSettings, setting));
+  };
+
+  useEffect(() => {
+    setRows(getContent());
+  }, [tableSettings, reports]);
+
+  return (
+    <SortableTable
+      caption={t('report.title.barriers_remaining')}
+      headers={headers}
+      rows={getContent()}
+      tableSettings={tableSettings}
+      handleTableSettings={handleTableSettings}
+      t={t}
+    />
+  );
 }
-
-export default ReportsTable

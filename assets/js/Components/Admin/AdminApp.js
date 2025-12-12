@@ -1,137 +1,51 @@
-import React from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import AdminHeader from './AdminHeader'
 import CoursesPage from './CoursesPage'
 import ReportsPage from './ReportsPage'
-import SettingsPage from './SettingsPage'
 import UsersPage from './UsersPage'
-import { View } from '@instructure/ui-view'
 import Api from '../../Services/Api'
-import MessageTray from '../MessageTray'
-import AdminTrayForm from '../Admin/AdminTrayForm'
-import { Tag } from '@instructure/ui-tag'
-import { Text } from '@instructure/ui-text'
-import { Spinner } from '@instructure/ui-spinner'
+import MessageTray from '../Widgets/MessageTray'
+import AdminFilters from '../Admin/AdminFilters'
+import ProgressIcon from '../Icons/ProgressIcon'
 
-class AdminApp extends React.Component {
-  constructor(props) {
-    super(props)
+import '../../../css/udoit4-theme.css'
 
-    this.settings = props.settings
-    this.messages = props.messages
+export default function AdminApp(initialData) {
 
-    if(this.settings) {
-      if(this.settings.accounts) {
-        const accountIds = Object.keys(this.settings.accounts)
-        this.settings.accountId = accountIds.shift()
-      }
-    }
-
-    this.state = {
-      courses: {},
-      filters: {
-        accountId: this.settings.accountId,
-        termId: this.settings.defaultTerm,
-        includeSubaccounts: true,
-      },
-      accountData: [],
-      navigation: 'courses',
-      modal: null,
-      loadingCourses: true,
-      trayOpen: false,
-    }
-
-    this.handleNavigation = this.handleNavigation.bind(this)
-    this.clearMessages = this.clearMessages.bind(this)
-    this.addMessage = this.addMessage.bind(this)
-    this.t = this.t.bind(this)
-    this.handleFilter = this.handleFilter.bind(this)
-    this.handleCourseUpdate = this.handleCourseUpdate.bind(this)
-    this.loadCourses = this.loadCourses.bind(this)
-    this.handleTrayToggle = this.handleTrayToggle.bind(this)
-    this.renderFilterTags = this.renderFilterTags.bind(this)
-
-    this.loadCourses(this.state.filters)
+  // If there are multiple accounts available, the first account is the selected accountId
+  let accountId = initialData.settings?.accountId
+  if(initialData.settings?.accounts) {
+    const accountIds = Object.keys(initialData.settings.accounts)
+    accountId = accountIds.shift()
   }
 
-  render() {
-    return (
-      <View as="div">
-        <AdminHeader
-          t={this.t}
-          settings={this.settings}
-          hasNewReport={this.hasNewReport}
-          navigation={this.state.navigation}
-          handleNavigation={this.handleNavigation}
-          handleModal={this.handleModal} />
-
-        <MessageTray messages={this.messages} t={this.t} clearMessages={this.clearMessages} hasNewReport={true} />
-
-        {(this.state.loadingCourses) &&
-          <View as="div" padding="small 0">
-            <View as="div" textAlign="center" padding="medium">
-              <Spinner variant="inverse" renderTitle={this.t('label.loading')} />
-              <Text as="p" weight="light" size="large">{this.t('label.loading')}</Text>
-            </View>
-          </View>
-        }
-
-        {(!this.state.loadingCourses) && ('courses' === this.state.navigation) &&
-          <CoursesPage
-            settings={this.settings}
-            t={this.t}
-            filters={this.state.filters}
-            courses={this.state.courses}
-            addMessage={this.addMessage}
-            handleCourseUpdate={this.handleCourseUpdate}
-            handleFilter={this.handleFilter}
-            handleTrayToggle={this.handleTrayToggle}
-            renderFilterTags={this.renderFilterTags}
-          />
-        }
-        {(!this.state.loadingCourses) && ('reports' === this.state.navigation) &&
-          <ReportsPage
-            t={this.t}
-            settings={this.settings}
-            filters={this.state.filters}
-            handleFilter={this.handleFilter}
-            handleTrayToggle={this.handleTrayToggle}
-            renderFilterTags={this.renderFilterTags}
-          />
-        }
-        {(!this.state.loadingCourses) && ('users' === this.state.navigation) &&
-          <UsersPage
-            t={this.t}
-            settings={this.settings}
-            accountId={this.state.accountId}
-            termId={this.state.termId}
-          />
-        }
-        {('settings' === this.state.navigation) &&
-          <SettingsPage t={this.t}
-            settings={this.settings}
-            handleNavigation={this.handlenavigation} />
-        }
-        {this.state.trayOpen && <AdminTrayForm
-          filters={this.state.filters}
-          handleFilter={this.handleFilter}
-          settings={this.settings}
-          trayOpen={this.state.trayOpen}
-          handleTrayToggle={this.handleTrayToggle}
-          courses={this.state.courses}
-          t={this.t}
-        />}
-      </View>
-    )
+  let initialFilters = {
+    accountId: accountId,
+    termId: initialData.settings.defaultTerm,
+    includeSubaccounts: true,
+    courseId: null
   }
 
+  const [messages, setMessages] = useState(initialData.messages || [])
+  const [settings, setSettings] = useState(initialData.settings || null)
+  const [courses, setCourses] = useState({})
+  const [selectedCourse, setSelectedCourse] = useState(null)
+  const [filters, setFilters] = useState({...initialFilters})
+  const [searchTerm, setSearchTerm] = useState('')
+  const [accountData, setAccountData] = useState([])
+  const [navigation, setNavigation] = useState('courses')
+  const [modal, setModal] = useState(null)
+  const [loadingCourses, setLoadingCourses] = useState(true)
+  const [trayOpen, setTrayOpen] = useState(false)
 
-  t(key) {
-    return (this.settings.labels[key]) ? this.settings.labels[key] : key
-  }
+  const t = useCallback((key) => {
+    return (settings.labels[key]) ? settings.labels[key] : key
+  }, [settings.labels])
 
-  loadCourses(filters, isMounted) {
-    const api = new Api(this.settings)
+  const loadCourses = (filters) => {
+    setLoadingCourses(true)
 
+    const api = new Api(settings)
     api.getAdminCourses(filters)
       .then((response) => response.json())
       .then((data) => {
@@ -140,75 +54,145 @@ class AdminApp extends React.Component {
           data.data.forEach(course => {
             courses[course.id] = course
           })
-          this.setState({courses})
+          setCourses(courses)
+        }
+        setLoadingCourses(false)
+      })
+  }
+
+  const handleNavigation = (navigation) => {
+    setSelectedCourse(null)
+    setNavigation(navigation)
+  }
+
+  const handleReportClick = (course) => {
+    setSelectedCourse(course)
+    setNavigation('reports')
+  }
+
+  const addMessage = (msg) => {
+    setMessages(prevMessages => [...prevMessages, msg])
+  }
+
+  const clearMessages = () => {
+    setMessages([])
+  }
+
+  const handleFilter = (newFilter) => {
+    const tempFilters = Object.assign({}, filters, newFilter)
+    setFilters(tempFilters)
+  }
+
+  useEffect(() => {
+    loadCourses(initialFilters)
+  }, [])
+
+  useEffect(() => {
+    loadCourses(filters, true)
+  }, [filters])
+
+  const handleCourseUpdate = (courseData) => {
+    let tempCourses = {...courses}
+    
+    // If there's an oldId, this is a newly scanned course that needs the old entry removed
+    if (courseData.oldId && courseData.oldId !== courseData.id) {
+      // Remove the old unscanned course entry
+      if (tempCourses[courseData.oldId]) {
+        delete tempCourses[courseData.oldId]
+      }
+      
+      // Add the new scanned course entry
+      const updatedCourse = {...courseData}
+      delete updatedCourse.oldId  // Remove the signal flag
+      tempCourses[courseData.id] = updatedCourse
+    }
+    // If updating an existing course, just update its data
+    else if (tempCourses[courseData.id]) {
+      tempCourses[courseData.id] = {...tempCourses[courseData.id], ...courseData}
+    } 
+    // If it's a new course, add it
+    else {
+      tempCourses[courseData.id] = courseData
+    }
+    
+    setCourses(tempCourses)
+  }
+
+  return (
+    <div id="app-container"
+         className={`flex-column flex-grow-1 ${settings?.user?.roles?.font_size || 'font-medium'} ${settings?.user?.roles?.font_family || 'sans-serif'} ${settings?.user?.roles?.dark_mode ? 'dark-mode' : ''}`}>
+      <AdminHeader
+        t={t}
+        settings={settings}
+        navigation={navigation}
+        handleNavigation={handleNavigation}
+      />
+
+      <main role="main" className="pt-2">
+        { (navigation !== 'reports') &&
+          <AdminFilters
+            t={t}
+            settings={settings}
+            filters={filters}
+            handleFilter={handleFilter}
+            loadingContent={loadingCourses}
+            searchTerm={searchTerm}
+            handleSearchTerm={setSearchTerm}
+          />
         }
 
-        this.setState({loadingCourses: false})
-      })
+        {loadingCourses &&
+          <div className="mt-3 flex-row justify-content-center">
+            <div className="flex-column justify-content-center me-3">
+              <ProgressIcon className="icon-lg udoit-suggestion spinner" />
+            </div>
+            <div className="flex-column justify-content-center">
+              <h2 className="mt-0 mb-0">{t('report.label.loading')}</h2>
+            </div>
+          </div>
+        }
 
-    if (isMounted) {
-      this.setState({loadingCourses: true})
-    }
-  }
-
-  handleNavigation(navigation) {
-    this.setState({ navigation })
-  }
-
-  addMessage = (msg) => {
-    this.messages.push(msg)
-  }
-
-  clearMessages = () => {
-    this.messages = [];
-  }
-
-  handleFilter(newFilter) {
-    const filters = Object.assign(this.state.filters, newFilter)
-    this.setState({ filters }, () => {
-      this.loadCourses(this.state.filters, true)
-    })
-
-  }
-
-  handleCourseUpdate(course) {
-    let courses = this.state.courses
-    courses[course.id] = course
-    this.setState({courses})
-  }
-
-  handleTrayToggle = (e, val) => {
-    this.setState({ trayOpen: !this.state.trayOpen });
-  }
-
-  renderFilterTags() {
-    let tags = [];
-
-    const accounts = this.settings.accounts
-    const terms = this.settings.terms
-    const selectedAccountId = this.state.filters.accountId
-    const selectedTermId = this.state.filters.termId
-
-    if (accounts && accounts[selectedAccountId]) {
-      const id = `accounts||${selectedAccountId}`
-      const label = `${this.t('label.admin.account')}: ${accounts[selectedAccountId].name}`
-      tags.push({ id: id, label: label })
-    }
-
-    if (terms && terms[selectedTermId]) {
-      const id = `terms||${selectedTermId}`
-      const label = `${this.t('label.admin.term')}: ${terms[selectedTermId]}`
-      tags.push({ id: id, label: label })
-    }
-
-    return tags.map((tag) => (
-      <Tag margin="0 small small 0"
-        text={tag.label}
-        readOnly={true}
-        dismissible={false}
-        key={tag.id} />
-    ));
-  }
+        { !loadingCourses && (
+          <div className="mt-3">
+            
+            {('courses' === navigation) &&
+              <CoursesPage
+                t={t}
+                settings={settings}
+                courses={courses}
+                searchTerm={searchTerm}
+                addMessage={addMessage}
+                handleCourseUpdate={handleCourseUpdate}
+                handleReportClick={handleReportClick}
+                handleNavigation={handleNavigation}
+              />
+            }
+            {('reports' === navigation) &&
+              <ReportsPage
+                t={t}
+                settings={settings}
+                filters={filters}
+                selectedCourse={selectedCourse}
+              />
+            }
+            {('users' === navigation) &&
+              <UsersPage
+                t={t}
+                settings={settings}
+                searchTerm={searchTerm}
+                accountId={accountId}
+                termId={filters.termId}
+              />
+            }
+          </div>
+        )}
+        </main>
+      <MessageTray
+        t={t}
+        messages={messages}
+        clearMessages={clearMessages}
+        hasNewReport={true}
+      />
+    </div>
+  )
 }
-
-export default AdminApp
