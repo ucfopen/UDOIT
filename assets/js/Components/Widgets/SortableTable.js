@@ -60,7 +60,7 @@ export default function SortableTable({
   }
 
   const handleSort = (id) => {
-    if (['status', 'action'].includes(id)) {
+    if (['action'].includes(id)) {
       return
     }
 

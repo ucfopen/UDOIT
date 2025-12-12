@@ -238,6 +238,8 @@
   "fix.label.disability.cognitive": "Cognitively Impaired",
   "fix.label.disability.language": "Foreign Language Speakers",
   "fix.label.disability.motor": "Motor Impaired",
+  "fix.label.barriers_shown_count": "{shown} of {total} Barriers Shown",
+  "fix.label.files_shown_count": "{shown} of {total} Files Shown",
   "fix.msg.no_error_preview": "This accessibility barrier cannot be found, likely because the content has been changed. No areas will be highlighted and no changes can be made inside of UDOIT.",
   "fix.button.download_file": "Download File",
   "fix.button.view_in_lms": "View In LMS",

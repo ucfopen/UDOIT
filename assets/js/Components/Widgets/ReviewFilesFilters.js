@@ -43,11 +43,11 @@ export default function ReviewFilesFilters({
       [FILTER.FILE_AUDIO]: t('label.mime.audio'),
       [FILTER.FILE_VIDEO]: t('label.mime.video'),
     },
-    [FILTER.TYPE.RESOLUTION]: {
-      [FILTER.ALL]: t('filter.label.review.all'),
-      [FILTER.UNREVIEWED]: t('filter.label.review.unreviewed'),
-      [FILTER.REVIEWED]: t('filter.label.review.reviewed'),
-    },
+    // [FILTER.TYPE.RESOLUTION]: {
+    //   [FILTER.ALL]: t('filter.label.review.all'),
+    //   [FILTER.UNREVIEWED]: t('filter.label.review.unreviewed'),
+    //   [FILTER.REVIEWED]: t('filter.label.review.reviewed'),
+    // },
     [FILTER.TYPE.MODULE]: {
       [FILTER.ALL]: t('filter.label.review.all'),
     },
@@ -93,12 +93,17 @@ export default function ReviewFilesFilters({
     setUsedFilters(tempFilters)
   }, [activeFilters])
 
-  const removeFilter = (filterType) => {
-    updateActiveFilters(filterType, FILTER.ALL)
+  const updateCompleteFilesToggle = (newValue) => {
+    if(newValue === false) {
+      updateActiveFilters(FILTER.TYPE.RESOLUTION, FILTER.UNREVIEWED)
+    }
+    else {
+      updateActiveFilters(FILTER.TYPE.RESOLUTION, FILTER.ALL)
+    }
   }
 
   const updateUnusedFilesToggle = (newValue) => {
-    if(newValue === true) {
+    if(newValue === false) {
       updateActiveFilters(FILTER.TYPE.UTILIZATION, FILTER.USED)
     }
     else {
@@ -107,8 +112,8 @@ export default function ReviewFilesFilters({
   }
 
   return (
-      <div className="filter-container flex-row justify-content-between">
-        <div className="flex-row gap-2">
+      <div className="filter-container flex-row justify-content-between gap-3">
+        <div className="flex-row flex-wrap gap-2">
           <div className="flex-column flex-shrink-0 justify-content-center">
             <div className="search-group">
               <input
@@ -129,37 +134,53 @@ export default function ReviewFilesFilters({
           <div className="separator-pipe" />
 
           <div className="flex-row gap-1">
-          <ToggleSwitch
-            labelId={"unusedFiles"}
-            initialValue={false}
-            updateToggle={updateUnusedFilesToggle}
+            <ToggleSwitch
+              labelId={"unusedFiles"}
+              initialValue={activeFilters[FILTER.TYPE.UTILIZATION] === FILTER.ALL}
+              updateToggle={updateUnusedFilesToggle}
             />
             <div
               id="unusedFiles"
-              className="align-self-center">Hide Unused</div>
+              className="align-self-center subtext">
+                Show Unused
+            </div>
+          </div>
+
+          <div className="separator-pipe" />
+
+          <div className="flex-row gap-1">
+            <ToggleSwitch
+              labelId={"completeFiles"}
+              initialValue={activeFilters[FILTER.TYPE.RESOLUTION] === FILTER.ALL}
+              updateToggle={updateCompleteFilesToggle}
+            />
+            <div
+              id="completeFiles"
+              className="align-self-center subtext">
+                Show Complete
+            </div>
           </div>
 
         </div>
-        <div className="flex-row gap-2">
-          { usedFilters && (
-            <div className="flex-row flex-wrap gap-2">
-              {Object.keys(detailedFilters).map((filterType, index) => {
-                return (
-                  <div className="filter-group flex-column justify-content-center" key={index}>
-                    <Combobox
-                      handleChange={updateActiveFilters}
-                      id={detailedFilters[index].value}
-                      label={detailedFilters[index].label}
-                      options={detailedFilters[index].options}
-                      settings={settings}
-                    />
-                  </div>
-                )
-              })}
-            </div>
-          )}
-          {/* Toggle goes here */}
-        </div>
+        
+        { usedFilters && (
+          <div className="flex-row flex-wrap flex-end gap-2">
+            {Object.keys(detailedFilters).map((filterType, index) => {
+              return (
+                <div className="filter-group flex-column justify-content-center" key={index}>
+                  <Combobox
+                    handleChange={updateActiveFilters}
+                    id={detailedFilters[index].value}
+                    label={detailedFilters[index].label}
+                    options={detailedFilters[index].options}
+                    settings={settings}
+                  />
+                </div>
+              )
+            })}
+          </div>
+        )}
+
       </div>
   )
 }

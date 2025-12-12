@@ -713,6 +713,7 @@ export default function FixIssuesPage({
             sections={sections}
             updateActiveFilters={updateActiveFilters}
           />
+          <div className="mt-1 subtext align-self-end">{t('fix.label.barriers_shown_count', { shown: filteredIssues?.length || 0, total: unfilteredIssues?.length || 0 })}</div>
           <FixIssuesList
             t={t}
             settings={settings}

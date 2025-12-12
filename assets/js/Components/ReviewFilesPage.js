@@ -47,13 +47,15 @@ export default function ReviewFilesPage({
   const FILTER = settings.FILE_FILTER
 
   const defaultFilters = {
-    [FILTER.TYPE.UTILIZATION]: FILTER.ALL,
+    [FILTER.TYPE.UTILIZATION]: FILTER.USED,
     [FILTER.TYPE.FILE_TYPE]: FILTER.ALL,
     [FILTER.TYPE.RESOLUTION]: FILTER.UNREVIEWED,
     [FILTER.TYPE.MODULE]: FILTER.ALL,
   }
 
   const WIDGET_STATE = settings.WIDGET_STATE
+
+  const dialogId = "file-dialog"
 
   const headers = [
     { id: "name", text: t('fix.label.file_name') },
@@ -161,7 +163,12 @@ export default function ReviewFilesPage({
         size: tempFile.fileData.fileSize ? { value: parseInt(tempFile.fileData.fileSize), display: Text.getReadableFileSize(tempFile.fileData.fileSize) } : t('label.unknown'),
         references: (tempFile.fileData?.references.length) || 0,
         status: tempFile.status ? { value: t('fix.label.status.' + (tempFile.status.toLowerCase())), display: getFileStatusDisplay(tempFile.status)} : '',
-        onClick: () => { jumpToFile(tempFile.id) }
+        onClick: () => { jumpToFile(tempFile.id) },
+        onKeyDown: (e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            jumpToFile(tempFile.id)
+          }
+        }
       })
     })
 
@@ -202,32 +209,16 @@ export default function ReviewFilesPage({
   // unreviewed then it will be deleted during the rescan and a new issue with a new id will take its place.
   useEffect(() => {
     let tempUnfilteredIssues = []
-    let tempRows = []
 
     let tempFiles = Object.assign({}, report.files)
     for (const [key, value] of Object.entries(tempFiles)) {
       let tempFile = formatFileData(value)
       tempUnfilteredIssues.push(tempFile)
-      tempRows.push({
-        id: tempFile.id,
-        name: tempFile.contentTitle ? { value: tempFile.contentTitle, display: getFileNameDisplay(tempFile)} : t('label.unknown'),
-        type: tempFile.fileData.fileType ? { value: tempFile.fileData.fileType, display: getFileTypeDisplay(tempFile.fileData.fileType)}: t('label.mime.unknown'),
-        date: tempFile.fileData.updated ? { value: tempFile.fileData.updated, display: Text.getReadableDateTime(tempFile.fileData.updated)} : t('label.unknown'),
-        size: tempFile.fileData.fileSize ? { value: parseInt(tempFile.fileData.fileSize), display: Text.getReadableFileSize(tempFile.fileData.fileSize) } : t('label.unknown'),
-        references: (tempFile.fileData?.references.length) || 0,
-        resolved: (tempFile.status !== FILTER.ACTIVE) ? t('label.yes') : t('label.no'),
-      })
     }
 
     tempUnfilteredIssues.sort((a, b) => {
       return (a.formLabel.toLowerCase() < b.formLabel.toLowerCase()) ? -1 : 1
     })
-
-    tempRows.sort((a, b) => {
-      return (a.name.value.toLowerCase() < b.name.value.toLowerCase()) ? -1 : 1
-    })
-
-    setRows(tempRows)
 
     // The filtered list should ALWAYS include the current activeIssue, even if it no longer matches
     // the filters. For instance, if I'm only looking through "Unreviewed" issues, and I click on the
@@ -280,17 +271,42 @@ export default function ReviewFilesPage({
 
   }, [activeIssue])
 
-  useEffect(() => {
-    const dialog = document.getElementById('file-dialog')
-    if(!dialog) {
-      return
-    }
-    if(widgetState === WIDGET_STATE.FIXIT) {
+  const isDialogOpen = () => {
+    const dialog = document.getElementById(dialogId)
+    return dialog && dialog.open
+  }
+
+
+  const openDialog = () => {
+    setWidgetState(WIDGET_STATE.FIXIT)
+
+    const dialog = document.getElementById(dialogId)
+    if(dialog) {
       dialog.showModal()
-    } else {
+    }
+  }
+
+  const closeDialog = () => {
+    setWidgetState(WIDGET_STATE.LIST)
+    setActiveIssue(null)
+
+    const dialog = document.getElementById(dialogId)
+    if(dialog) {
       dialog.close()
     }
-  }, [tempActiveIssue])
+  }
+
+  // useEffect(() => {
+  //   const dialog = document.getElementById(dialogId)
+  //   if(!dialog) {
+  //     return
+  //   }
+  //   if(tempActiveIssue) {
+  //     dialog.showModal()
+  //   } else {
+  //     dialog.close()
+  //   }
+  // }, [tempActiveIssue])
 
   const getFileTypeDisplay = (fileType) => {
     const fileTypeText = t(`label.mime.${fileType}`)
@@ -451,16 +467,20 @@ export default function ReviewFilesPage({
     const tempReport = Object.assign({}, report)
 
     // Occasionally, the report will send back a list of files in an object instead of an array.
-    // It would be nice to use tempReport.files.map, but that doesn't work with objects.
-    for (const [key, value] of Object.entries(tempReport.files)) {
-      if (key.toString() === tempFile.id.toString()) {
-        if(activeIssue?.fileData?.id === tempFile.id) {
+    // It needs to be in array form for the Report.js file to process it correctly.
+    if(!Array.isArray(tempReport.files)) {
+      tempReport.files = Object.values(tempReport.files)
+    }
+ 
+    tempReport.files.forEach((reportFile, index) => {
+      if (reportFile.id.toString() === tempFile.id.toString()) {
+        if(activeIssue?.fileData?.id === tempFile.id && isDialogOpen()) {
           const formattedFile = formatFileData(tempFile)
           setActiveIssue(formattedFile)
         }
-        tempReport.files[key] = tempFile
+        tempReport.files[index] = JSON.parse(JSON.stringify(tempFile))
       }
-    }
+    })
     processNewReport(tempReport)
   }
 
@@ -547,6 +567,7 @@ export default function ReviewFilesPage({
     }
 
     setActiveIssue(filteredFiles[filteredFileIndex])
+    openDialog()
   }
 
   const nextFile = (previous = false) => {
@@ -564,21 +585,6 @@ export default function ReviewFilesPage({
       newIndex = 0
     }
     setActiveIssue(filteredFiles[newIndex])
-  }
-
-  const toggleListView = () => {
-    if (widgetState === WIDGET_STATE.LIST) {
-      if(activeIssue) {
-        setWidgetState(WIDGET_STATE.FIXIT)
-      }
-      else {
-        setWidgetState(WIDGET_STATE.NO_RESULTS)
-      }
-    }
-    else {
-      setWidgetState(WIDGET_STATE.LIST)
-      setActiveIssue(null)
-    }
   }
 
   return (
@@ -600,7 +606,8 @@ export default function ReviewFilesPage({
             sections={sections}
             updateActiveFilters={updateActiveFilters}
           />
-          <div className="mt-3 mb-2">
+          <div className="mt-1 subtext align-self-end">{t('fix.label.files_shown_count', { shown: filteredFiles?.length || 0, total: unfilteredFiles?.length || 0 })}</div>
+          <div className="mt-1">
             {(rows.length > 0) ? <SortableTable
               t={t}
               headers={headers}
@@ -620,10 +627,10 @@ export default function ReviewFilesPage({
           </div>
         </>
       )}
-      <dialog id="file-dialog" className="dialog-full-screen">
+      <dialog id={dialogId} className="dialog-full-screen" onClose={closeDialog}>
         <div className="flex-row gap-2 w-100 h-100">
           <section className='ufixit-widget-container'>
-            <button onClick={toggleListView} className="btn btn-link btn-icon-left btn-small mb-2">
+            <button onClick={closeDialog} className="btn btn-link btn-icon-left btn-small mb-2">
               <LeftArrowIcon className="icon-sm link-color" />{t('fix.button.files')}
             </button>
             { tempActiveIssue ? (  

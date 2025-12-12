@@ -25,6 +25,7 @@ export default function ToggleSwitch({
                 type="checkbox"
                 aria-hidden="true"
                 checked={toggleValue}
+                onChange={() => {}}
             />
             <span
                 aria-labelledby={labelId}

@@ -617,6 +617,12 @@ h1, h2, h3, h4, h5, h6 {
   fill: var(--primary-color);
 }
 
+.subtext {
+  color: var(--gray);
+  font-size: smaller;
+  font-weight: 300;
+}
+
 .primary-dark {
   color: var(--primary-color-dark);
   fill: var(--primary-color-dark);
