@@ -22,6 +22,9 @@ import QuoteForm from '../Components/Forms/QuoteForm'
 import SensoryMisuseForm from '../Components/Forms/SensoryMisuseForm'
 import TableCaptionForm from '../Components/Forms/TableCaptionForm'
 import TableHeadersForm from '../Components/Forms/TableHeadersForm'
+
+import InlineCSSForm from '../Components/Forms/InlineCSSForm'
+
 import UfixitReviewOnly from '../Components/Forms/UfixitReviewOnly'
 
 // These form names strictly match the translation keys in the language files (e.g. en.json).
@@ -52,6 +55,8 @@ export const formNames = {
   SENSORY_MISUSE: 'sensory_misuse',
   TABLE_CAPTION: 'table_caption',
   TABLE_HEADERS: 'table_headers',
+
+  INLINE_CSS: 'inline_css',
 
   REVIEW_ONLY: 'review_only',
 }
@@ -90,6 +95,8 @@ const formTypes = {
   [formNames.SENSORY_MISUSE]: SensoryMisuseForm,
   [formNames.TABLE_CAPTION]: TableCaptionForm,
   [formNames.TABLE_HEADERS]: TableHeadersForm,
+  
+  [formNames.INLINE_CSS]: InlineCSSForm,
   
   [formNames.REVIEW_ONLY]: UfixitReviewOnly,
 }
@@ -246,6 +253,7 @@ const rulesToFormNameMap = {
   table_structure_misuse: formNames.TABLE_HEADERS,
 
   text_sensory_misuse: formNames.SENSORY_MISUSE,
+  text_spacing_valid: formNames.INLINE_CSS
 }
 
 /* When a REVIEW_ONLY rule uses the same summary as another rule, add it here.
@@ -296,7 +304,7 @@ export const sharedRuleDescriptions = {
   skip_main_described: 'rule.desc.html_skipnav_exists',
   skip_main_exists: 'rule.desc.html_skipnav_exists',
   style_viewport_resizable: 'rule.desc.meta_viewport_zoomable',
-  widget_tabbable_single: 'rule.desc.widget_tabbable_exists',
+  widget_tabbable_single: 'rule.desc.widget_tabbable_exists'
 }
 
 export function formFromIssue(activeIssue) {

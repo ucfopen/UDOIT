@@ -137,6 +137,100 @@ class CanvasLms implements LmsInterface {
      * ****************
      */
 
+    public function listAccountCourses(User $actingUser, int|string $rootAccountId, array $subAccountIds, ?int $termId = null, int $perPage = 100): array
+    {
+        $apiDomain = $this->getApiDomain($actingUser);
+        $apiToken  = $this->getApiToken($actingUser);
+        
+        $canvasApi = new CanvasApi($apiDomain, $apiToken);
+
+        // Build base parameters
+        $params = [
+            'per_page' => $perPage,
+        ];
+        if ($termId !== null) {
+            $params['enrollment_term_id'] = $termId;
+        }
+        
+        // Build query string
+        $queryParts = [];
+        foreach ($params as $key => $value) {
+            $queryParts[] = urlencode($key) . '=' . urlencode($value);
+        }
+        
+        // Add include[] parameters manually
+        $includes = ['teachers', 'term', 'account_name', 'total_students'];
+        foreach ($includes as $include) {
+            $queryParts[] = 'include[]=' . urlencode($include);
+        }
+        
+        // Add by_subaccounts[] parameters manually
+        if (!empty($subAccountIds)) {
+            foreach ($subAccountIds as $subId) {
+                $queryParts[] = 'by_subaccounts[]=' . urlencode($subId);
+            }
+        }
+        
+        $url = "accounts/{$rootAccountId}/courses?" . implode('&', $queryParts);
+
+        $resp = $canvasApi->apiGet($url);
+        if (!$resp) {
+            return [];
+        }
+        if ($resp->getErrors()) {
+            return [];
+        }
+        
+        $content = (array)$resp->getContent();
+        
+        return $content;
+
+    }
+
+
+
+
+     public function getCourseTeachers(User $actingUser, int|string $lmsCourseId): array
+    {
+        $apiDomain = $this->getApiDomain($actingUser);
+        $apiToken  = $this->getApiToken($actingUser);
+        $canvasApi = new CanvasApi($apiDomain, $apiToken);
+
+        // Primary: Enrollments with user object included
+        $url = "courses/{$lmsCourseId}/enrollments?type[]=TeacherEnrollment&state[]=active&include[]=user";
+        $resp = $canvasApi->apiGet($url);
+
+        if (!$resp->getErrors()) {
+            $out = [];
+            foreach ($resp->getContent() as $enr) {
+                if (!empty($enr['user'])) {
+                    $u = $enr['user'];
+                    $out[] = [
+                        'id'   => (string)$u['id'],                         // lms_user_id
+                        'name' => $u['name'] ?? ($u['short_name'] ?? null), // display_name
+                    ];
+                }
+            }
+            return $out;
+        }
+
+        // Fallback: users-in-course filtered to teachers
+        $fallback = "courses/{$lmsCourseId}/users?enrollment_type[]=teacher";
+        $resp = $canvasApi->apiGet($fallback);
+        if ($resp->getErrors()) {
+            throw new \Exception('msg.sync.error.api');
+        }
+
+        $out = [];
+        foreach ($resp->getContent() as $u) {
+            $out[] = [
+                'id'   => (string)$u['id'],
+                'name' => $u['name'] ?? ($u['short_name'] ?? null),
+            ];
+        }
+        return $out;
+    }
+
     public function updateCourseData(Course $course, User $user)
     {
         $url = "courses/{$course->getLmsCourseId()}?include[]=term";
@@ -793,7 +887,7 @@ class CanvasLms implements LmsInterface {
             'url:GET|/api/v1/courses/:id',
             'url:PUT|/api/v1/courses/:id',
             'url:POST|/api/v1/courses/:course_id/files',
-
+            'url:GET|/api/v1/accounts/:account_id/courses',
             // Discussion Topics
             'url:GET|/api/v1/courses/:course_id/discussion_topics',
             'url:GET|/api/v1/courses/:course_id/discussion_topics/:topic_id',
@@ -831,6 +925,9 @@ class CanvasLms implements LmsInterface {
 
             // Users
             'url:GET|/api/v1/users/:id',
+
+            'url:GET|/api/v1/courses/:course_id/enrollments',
+            'url:GET|/api/v1/courses/:course_id/users',
         ];
 
         return implode(' ', $scopes);
