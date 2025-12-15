@@ -10,18 +10,10 @@
     position: relative;
 
     input {
-      font-size: 0.85em;
-      font-weight: 400;
-      font-family: var(--text-font-family);
-      padding: .5em .5em;
-      padding-inline-start: 2em;
-      border: 1px solid var(--border-color);
-      border-radius: 8px;
-      outline: none;
       width: 15em;
       min-width: 200px;
       max-width: 250px;
-      box-sizing: border-box;
+      padding-inline-start: 2em;
 
       &:focus {
         outline: 2px solid var(--focus-color);

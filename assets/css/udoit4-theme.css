@@ -1051,6 +1051,36 @@ option {
   }
 }
 
+input[type="text"] {
+  font-weight: 300;
+  color: var(--text-color);
+  height: 2.5em;
+  font-size: 0.85em;
+  font-family: var(--text-font-family);
+  border: 1px solid var(--border-color);
+  border-radius: var(--element-radius);
+  outline: none;
+  box-sizing: border-box;
+  padding-inline-start: .5rem;
+  padding-inline-end: .5rem;
+
+  &:hover,
+  &:focus {
+    outline: 2px solid var(--focus-color);
+    outline-offset: 1px;
+  }
+
+  &:disabled {
+    background-color: var(--gray-light);
+    color: var(--gray);
+    cursor: not-allowed !important;
+  }
+  &:disabled:hover,
+  &:disabled:focus {
+    outline: none;
+  }
+}
+
 input[type="checkbox"] {
   cursor: pointer;
   accent-color: var(--primary-color);
