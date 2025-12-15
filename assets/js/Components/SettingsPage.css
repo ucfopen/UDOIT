@@ -58,7 +58,7 @@ a {
   > div {
     display: flex;
     flex-direction: row;
-    gap: 1em;
+    gap: .5em;
     margin-bottom: 1rem;
 
     > label {

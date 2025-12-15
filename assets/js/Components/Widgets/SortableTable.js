@@ -20,6 +20,7 @@ export default function SortableTable({
   const [direction, setDirection] = useState((tableSettings.ascending) ? 'ascending': 'descending')
   const [showPagination, setShowPagination] = useState(rows.length >= rowsPerPage)
   const [pagedRows, setPagedRows] = useState([])
+  const captionId = Math.random().toString(36).substring(2, 15);
 
   useEffect(() => {
     const tempRowsPerPage = (tableSettings.rowsPerPage) ? parseInt(tableSettings.rowsPerPage) : 10
@@ -147,23 +148,21 @@ export default function SortableTable({
 
   return (
     <>
+      {( caption && caption.length > 0 ) &&
+        <div className="flex-row mb-2">
+          <div className="flex-grow-1 flex-row justify-content-center">
+            <h2 className="flex-column align-self-center primary-dark mt-0 mb-0" id={`caption-${captionId}`}>{caption}</h2>
+          </div>
+          <div className="flex-grow-0">
+            <button className="btn-secondary btn-small btn-icon-left" onClick={()=>exportToCSV()}>
+              <DownloadIcon className="icon-md" />
+              {t('report.button.download')}
+            </button>
+          </div>
+        </div>
+      }
       <div className="rounded-table-wrapper">
-        <table className="udoit-sortable-table">
-          {( caption && caption.length > 0 ) &&
-            <caption className="mb-2">
-              <div className="flex-row">
-                <div className="flex-grow-1 flex-row justify-content-center">
-                  <h2 className="flex-column align-self-center primary-dark mt-0 mb-0">{caption}</h2>
-                </div>
-                <div className="flex-grow-0">
-                  <button className="btn-secondary btn-small btn-icon-left" onClick={()=>exportToCSV()}>
-                    <DownloadIcon className="icon-md" />
-                    {t('report.button.download')}
-                  </button>
-                </div>
-              </div>
-            </caption>
-          }
+        <table className="udoit-sortable-table" aria-labelledby={`caption-${captionId}`}>
           <thead aria-label={t('report.label.sort_by')}>
             <tr>
               {(headers || []).map(({ id, text, divider }) => (
@@ -198,19 +197,21 @@ export default function SortableTable({
             </tr>
           </thead>
           <tbody>
-            {pagedRows.map((row) => {
+            {pagedRows.map((row, index) => {
               const isRowClickable = !!row.onClick;
               return (
                 <tr
-                  key={`row${row.id}`}
+                  key={`row${index}`}
                   className={isRowClickable ? 'clickable' : ''}
                   onClick={isRowClickable ? row.onClick : undefined}
                   tabIndex={isRowClickable ? 0 : undefined}
                   onKeyDown={(e) => {
                     if(isRowClickable && (e.key === 'Enter' || e.key === ' ')) {
+                      e.preventDefault()
                       row.onClick()
                     }
                   }}
+                  aria-label={row.label ? row.label : ''}
                 >
                   {headers.map(({ id, alignText }) => (
                     <td
@@ -223,7 +224,7 @@ export default function SortableTable({
                           : 'text-start'
                       }
                     >
-                      <div>{(typeof row[id] === 'object' && row[id]?.display) ? row[id].display : row[id]}</div>
+                      {(typeof row[id] === 'object' && row[id]?.display) ? row[id].display : row[id]}
                     </td>
                   ))}
                 </tr>

@@ -168,7 +168,8 @@ export default function ReviewFilesPage({
           if (e.key === 'Enter' || e.key === ' ') {
             jumpToFile(tempFile.id)
           }
-        }
+        },
+        label: tempFile.contentTitle + ' - ' + t('fix.label.status.' + (tempFile.status.toLowerCase()))
       })
     })
 
@@ -296,23 +297,11 @@ export default function ReviewFilesPage({
     }
   }
 
-  // useEffect(() => {
-  //   const dialog = document.getElementById(dialogId)
-  //   if(!dialog) {
-  //     return
-  //   }
-  //   if(tempActiveIssue) {
-  //     dialog.showModal()
-  //   } else {
-  //     dialog.close()
-  //   }
-  // }, [tempActiveIssue])
-
   const getFileTypeDisplay = (fileType) => {
     const fileTypeText = t(`label.mime.${fileType}`)
 
     return (
-      <div className="table-pill" title={fileTypeText} aria-label={fileTypeText} >
+      <div className="table-pill" title={fileTypeText}>
         {fileType}
       </div>
     )
@@ -323,11 +312,11 @@ export default function ReviewFilesPage({
     const fileType = tempFile.fileData.fileType
 
     return (
-      <div className="flex-row gap-2">
-        <div className="fileTypeIconBackground">
+      <div className="flex-row gap-2" aria-label={fileName}>
+        <div className="fileTypeIconBackground" aria-hidden="true">
           <FileTypeIcon type={fileType} />
         </div>
-        <div className="fileName" title={fileName} alt={fileName}>
+        <div className="fileName" title={fileName} aria-hidden="true">
           {fileName}
         </div>
       </div>
@@ -336,13 +325,13 @@ export default function ReviewFilesPage({
 
   const getFileStatusDisplay = (status) => {
     return (
-      <div className={'table-status-container ' + status.toLowerCase()}>
+      <div className={'table-status-container ' + status.toLowerCase()} aria-label={t('fix.label.status.' + (status.toLowerCase()))}>
         {status === FILTER.UNREVIEWED ? (
-          <SeverityPotentialIcon className="icon-sm align-self-center" />
+          <SeverityPotentialIcon className="icon-sm align-self-center" aria-hidden="true"/>
         ) : (
-          <FixedIcon className="icon-sm align-self-center" />
+          <FixedIcon className="icon-sm align-self-center" aria-hidden="true" />
         )}
-        <div className='pl-2'>{t('fix.label.status.' + (status.toLowerCase()))}</div>
+        <div className='pl-2' aria-hidden="true">{t('fix.label.status.' + (status.toLowerCase()))}</div>
       </div>
     )
     

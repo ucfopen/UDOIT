@@ -112,7 +112,7 @@ export default function SettingsPage({
             options={languageOptions}
             settings={settings} />
           <div className="flex-row gap-2 mb-3">
-            <label htmlFor="dark-mode" className="subtext">{t('settings.label.dark_mode')}</label>
+            <label htmlFor="dark-mode" className="subtext pe-2">{t('settings.label.dark_mode')}</label>
             <div className="flex-column flex-center settings-input">
               <input
                 type="checkbox"
@@ -128,7 +128,7 @@ export default function SettingsPage({
           </div>
 
           <div className="flex-row gap-2 mb-3">
-            <label htmlFor="show-filters" className="subtext">{t('settings.label.show_filters_default')}</label>
+            <label htmlFor="show-filters" className="subtext pe-2">{t('settings.label.show_filters_default')}</label>
             <div className="flex-column flex-center settings-input">
               <input
                 type="checkbox"
