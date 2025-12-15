@@ -8,15 +8,17 @@ export default function ReportsTable({
 }) {
 
   const headers = [
-    { id: "courseName", text: t('report.header.course_name') },
-    { id: "created", text: t('report.header.date'), alignText: 'center' },
-    { id: "errors", text: t('report.header.issues'), alignText: 'center' },
-    { id: "potentials", text: t('report.header.potential'), alignText: 'center' },
-    { id: "suggestions", text: t('report.header.suggestions'), alignText: 'center' },
-    { id: "contentFixed", text: t('report.header.items_fixed'), alignText: 'center' },
-    { id: "contentResolved", text: t('report.header.items_resolved'), alignText: 'center' },
-    { id: "filesReviewed", text: t('report.header.files_reviewed'), alignText: 'center' },
-  ];
+    { id: "created", text: t('report.header.date') },
+    { id: "knownBarriers", text: t('report.header.issues'), alignText: 'center' },
+    { id: "potentialBarriers", text: t('report.header.potential'), alignText: 'center' },
+    { id: "filesUnreviewed", text: t('report.header.files_unreviewed'), alignText: 'center', divider: true },
+    { id: "contentHandled", text: t('report.header.items_handled'), alignText: 'center' },
+    { id: "filesReviewed", text: t('report.header.files_reviewed'), alignText: 'center'}
+  ]
+
+  if (isAdmin) {
+    headers.push({ id: "count", text: t('report.header.courses') })
+  }
 
   const [tableSettings, setTableSettings] = useState({
     sortBy: 'created',
@@ -59,7 +61,21 @@ export default function ReportsTable({
       return [];
     }
 
-    const { sortBy, ascending } = tableSettings;
+    list = list.map((report) => {
+      if(report.scanCounts) {
+        report.knownBarriers = report.scanCounts.errors || 0
+        report.potentialBarriers = report.scanCounts.potentials
+        report.filesUnreviewed = report.scanCounts.files || 0
+      }
+      else {
+        report.knownBarriers = report.errors || 0
+        report.potentialBarriers = 0
+        report.filesUnreviewed = 0
+      }
+      report.contentHandled = report.contentFixed + report.contentResolved || 0
+      return report
+    })
+    const { sortBy, ascending } = tableSettings
 
     list.sort((a, b) => {
       if (isNaN(a[sortBy]) || isNaN(b[sortBy])) {

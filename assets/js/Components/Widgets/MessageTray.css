@@ -2,7 +2,7 @@
   position: absolute;
   top: 3rem;
   right: 1rem;
-  transform: translateX(calc(100% + 30px));
+  transform: translateX(calc(100vw));
   transition: transform 0.5s cubic-bezier(0.68, -0.55, 0.25, 1.35);
   z-index: 1000;
   box-sizing: border-box;

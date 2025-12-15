@@ -196,6 +196,9 @@ class UtilityService {
             'ppt',
             'doc',
             'xls',
+
+            'audio',
+            'video',
         ];
     }
 

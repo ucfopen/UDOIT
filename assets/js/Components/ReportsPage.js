@@ -38,23 +38,20 @@ export default function ReportsPage({t, report, settings, quickSearchTerm}) {
         rules[rule] = {
           id: rule,
           type: issue.type,
+          severity: (issue.type == 'error' ? t("filter.label.severity.issue") : t("filter.label.severity.potential")),
           active: 0,
-          fixed: 0,
           resolved: 0,
           total: 0
         }
       }
 
-      if (2 === status) {
-        rules[rule]['resolved']++
-      }
-      else if (1 === status) {
-        rules[rule]['fixed']++
-      }
-      else {
+      rules[rule]['total']++
+      if (0 === status) {
         rules[rule]['active']++
       }
-      rules[rule]['total']++
+      else {
+        rules[rule]['resolved']++
+      }
     }
 
     return rules
@@ -70,19 +67,13 @@ export default function ReportsPage({t, report, settings, quickSearchTerm}) {
     setIssues(processIssues(report))
   }, [report])
 
-  // const toggleChartVisibility = (chart) => {
-  //   const tempVisibility = Object.assign({}, chartVisibility, {[chart]: !chartVisibility[chart]})
-  //   setChartVisibility(tempVisibility)
-  // }
-
   const getPrintableReportsTable = (reports, t) => {
     const headers = [
       { id: "created", text: t('report.header.date') },
-      { id: "errors", text: t('report.header.issues'), alignText: 'center' },
-      { id: "potentialIssues", text: t('report.header.potential'), alignText: 'center' },
-      { id: "suggestions", text: t('report.header.suggestions'), alignText: 'center' },
-      { id: "contentFixed", text: t('report.header.items_fixed'), alignText: 'center' },
-      { id: "contentResolved", text: t('report.header.items_resolved'), alignText: 'center' },
+      { id: "knownBarriers", text: t('report.header.issues'), alignText: 'center' },
+      { id: "potentialBarriers", text: t('report.header.potential'), alignText: 'center' },
+      { id: "filesUnreviewed", text: t('report.header.suggestions'), alignText: 'center' },
+      { id: "contentHandled", text: t('report.header.items_handled'), alignText: 'center' },
       { id: "filesReviewed", text: t('report.header.files_reviewed'), alignText: 'center'}
     ]
 
@@ -108,9 +99,8 @@ export default function ReportsPage({t, report, settings, quickSearchTerm}) {
   const getPrintableIssuesTable = (issues, t) => {
     const headers = [
       { id: "label", text: t('report.header.issue_type') },
-      { id: "type", text: t('report.header.severity')},
+      { id: "severity", text: t('report.header.severity')},
       { id: "active", text: t('report.header.active'), alignText: 'center' },
-      { id: "fixed", text: t('report.header.fixed'), alignText: 'center' },
       { id: "resolved", text: t('report.header.resolved'), alignText: 'center' },
       { id: "total", text: t('report.header.total'), alignText: 'center' }
     ]
@@ -174,14 +164,16 @@ export default function ReportsPage({t, report, settings, quickSearchTerm}) {
           </style>
         </head>
         <body>
-          <h2>${t('report.label.printed_report')}</h2>
+          <h2>${t('report.label.printed_report')}</h2>` +
+          (showChart ? `
           <div id="printResolutionsReport">
             <img src="${dataUrl}" alt="${t('report.label.resolutions_chart')}" style="max-width: 100%; height: auto; margin-bottom: 20px;" />
-          </div>
+          </div>` : '') +
+          (showTable ?  `
           <div id="reportsTable">
             ${reportsTableRaw}
-          </div>
-          <div id="issuesTable">
+          </div>` : '') + 
+          `<div id="issuesTable">
             ${issuesTableRaw}
           </div>
           <script>

@@ -54,12 +54,97 @@ const runCustomChecks = (issue, element) => {
     return checkTextBlockHeading(issue, element)
   }
   return false
-} 
+}
+
+/********************************************************************************************
+  * TODO: Find a more consistent way to map modules that works with less bespoke data.
+  * In Canvas, the modules and moduleItems have names and links, but do not have the
+  * contentItemId, which is necessary to match the issue to the content. The only current
+  * data that matches are the moduleItem's page_url are the contentItem's lmsContentId,
+  * which are both the same internal link URL.
+  *
+  * Canvas Content Item Data:
+  *   contentType: "page"
+  *   id: 61
+  *   lmsContentId: "4-dot-1-2-name-role-value-input-fields"
+  *   status: true
+  *   title: "4.1.2 Name, Role, Value - Input Fields"
+  *   updated: "2025-01-13T13:46:05+00:00"
+  *   url: "https://canvas.dev.cdl.ucf.edu/courses/383/pages/4-dot-1-2-name-role-value-input-fields"
+  *
+  * Canvas Section Item Data:
+  *   html_url: "https://canvas.dev.cdl.ucf.edu/courses/383/modules/items/3896"
+  *   id: 3896
+  *   indent: 0
+  *   module_id: 562
+  *   page_url: "4-dot-1-2-name-role-value-input-fields"
+  *   position: 1
+  *   published: true
+  *   quiz_lti: false
+  *   title: "4.1.2 Name, Role, Value - Input Fields"
+  *   type: "Page"
+  *   url: "https://canvas.dev.cdl.ucf.edu/api/v1/courses/383/pages/4-dot-1-2-name-role-value-input-fields"
+  *
+  *******************************************************************************************/
+  
+const getSectionsFromContentItem = (contentSections, contentItem) => {
+  if(!contentSections || contentSections.length === 0) {
+    return []
+  }
+
+  let itemSections = []
+  contentSections.forEach((section) => {
+    let tempSectionId = section.id
+    section.items.forEach((item) => {
+      if(item.page_url && item.page_url === contentItem.lmsContentId) {
+        itemSections.push(tempSectionId.toString())
+      }
+    })
+  })
+  return itemSections
+}
+
+const getSectionsFromFile = (contentSections, fileData) => {
+  if(!contentSections || contentSections.length === 0) {
+    return []
+  }
+
+  let fileSections = []
+  contentSections.forEach((section) => {
+    let tempSectionId = section.id
+    section.items.forEach((item) => {
+      if(item.type === 'File' && item.content_id && item.content_id.toString() === fileData.lmsFileId.toString()) {
+        fileSections.push(tempSectionId.toString())
+      }
+    })
+  })
+  return fileSections
+}
+
+const getReferenceFromSection = (contentSections, sectionId) => {
+  if(!contentSections || contentSections.length === 0) {
+    return null
+  }
+
+  let sectionReference = null
+  contentSections.forEach((section) => {
+    if(section.id.toString() === sectionId.toString()) {
+      sectionReference = {
+        contentItemId: section.id,
+        contentItemTitle: section.title,
+        contentItemUrl: section.url || '',
+        contentType: 'section',
+      }
+    }
+  })
+  return sectionReference
+}
 
 export function analyzeReport(report, ISSUE_STATE) {
   let tempReport = {
     contentFixed: report.contentFixed || 0,
     contentResolved: report.contentResolved || 0,
+    contentHandled: (report.contentFixed || 0) + (report.contentResolved || 0),
     contentSections: [...report.contentSections],
     created: report.created || 0,
     files: {...report.files},
@@ -75,13 +160,51 @@ export function analyzeReport(report, ISSUE_STATE) {
   let scanCounts = {
     errors: 0,
     potentials: 0,
-    suggestions: 0
+    suggestions: 0,
+    files: 0,
   }
+  let scanRules = {}
   let sessionIssues = {}
   let currentTime = new Date()
   let millisecondsInADay = 86400000 // 1000 * 60 * 60 * 24
 
   const parser = new DOMParser()
+  const fileReferences = {}
+
+  // Parse every document only once. Not every content item will have issues, but we need to parse each one anyway
+  // so we can scan them for references to course files.
+  Object.values(report.contentItems).forEach((contentItem) => {
+    contentItem.sections = getSectionsFromContentItem(report.contentSections, contentItem)
+    if(contentItem.body) {
+      let tempBody = parser.parseFromString(contentItem.body, 'text/html')
+
+      // Get all of the links to files in the content item.
+      let links = tempBody.getElementsByTagName('a')
+      const fileUrlPattern = /\/files\/(\d+)/
+      for(let i = 0; i < links.length; i++) {
+        let link = links[i]
+        let href = link.getAttribute('href')
+        if(href) {
+          let match = href.match(fileUrlPattern)
+          if(match && match[1]) {
+            let fileId = match[1]
+            if(!fileReferences[fileId]) {
+              fileReferences[fileId] = []
+            }
+            fileReferences[fileId].push({
+              contentItemTitle: contentItem.title,
+              contentItemUrl: contentItem.url,
+              contentItemLmsId: contentItem.lmsContentId,
+              contentType: contentItem.contentType,
+              sectionIds: contentItem.sections,
+            })
+          }
+        }
+      }
+
+      parsedDocuments[contentItem.id] = tempBody
+    }
+  })
 
   report.issues.forEach((issue) => {
 
@@ -95,21 +218,9 @@ export function analyzeReport(report, ISSUE_STATE) {
       // Get the relevant content item
       let contentItemId = issue.contentItemId
       
-      // We're quickly caching all of the parsed documents so we don't have to parse them for each issue.
-      let parsedDocument = null
       if(parsedDocuments[contentItemId]) {
-        parsedDocument = parsedDocuments[contentItemId]
-      }
-      else {
-        if(report?.contentItems[contentItemId]?.body) {
-          parsedDocuments[contentItemId] = parser.parseFromString(report.contentItems[contentItemId].body, 'text/html')
-          parsedDocument = parsedDocuments[contentItemId]
-        }
-      }
-      
-      if(parsedDocument) {
         // In the initial scan, whatever comes back is saved to both the issue.xpath and issue.sourceHtml variables.
-        let element = Html.findElementWithIssue(parsedDocument, issue)
+        let element = Html.findElementWithIssue(parsedDocuments[contentItemId], issue)
         if(element) {
           issue.sourceHtml = Html.toString(element)
           let elementClasses = element.getAttribute('class')
@@ -156,16 +267,61 @@ export function analyzeReport(report, ISSUE_STATE) {
       if(!usedContentItems[issue.contentItemId] && report.contentItems[issue.contentItemId]) {
         usedContentItems[issue.contentItemId] = report.contentItems[issue.contentItemId]
       }
+
+      if(!(issue.scanRuleId in scanRules)) {
+        scanRules[issue.scanRuleId] = 1
+      }
+      else {
+        scanRules[issue.scanRuleId] += 1
+      }
     }
   })
 
-  scanCounts.potentials += Object.keys(tempReport.files).length
-  scanCounts.potentials -= tempReport.filesReviewed
+  // We're double-dipping here.
+  // Each file should have a list of sections it appears in for filtering, and that means that
+  // each reference to a file should add its parent section to the list.
+  // We ALSO want a list of references to include the section(s) the file appears in outside of
+  // references (like when the file is linked in the modules directly).
+  report.files.forEach((file) => {
+    file.sections = getSectionsFromFile(report.contentSections, file)
+    let sectionReferences = []
+    file.sections.forEach((sectionId) => {
+      let sectionReference = getReferenceFromSection(report.contentSections, sectionId)
+      if(sectionReference) {
+        sectionReferences.push(sectionReference)
+      }
+    })
+    file.references = fileReferences[parseInt(file.lmsFileId)] || []
+    file.references.forEach((reference) => {
+      let referenceSections = reference.sectionIds
+      referenceSections.forEach((sectionId) => {
+        if(!file.sections.includes(sectionId)) {
+          file.sections.push(sectionId)
+        }
+      })
+    })
+    sectionReferences.forEach((sectionReference) => {
+      file.references.push(sectionReference)
+    })
+  })
+
+  let tempFilesReviewed = 0
+  Object.values(report.files).forEach((file) => {
+    if(file.reviewed) {
+      tempFilesReviewed += 1
+    }
+    else {
+      scanCounts.files += 1
+    }
+  })
 
   tempReport.issues = activeIssues
   tempReport.scanCounts = scanCounts
+  tempReport.scanRules = scanRules
+  tempReport.files = {...report.files}
   tempReport.contentItems = usedContentItems
   tempReport.sessionIssues = sessionIssues
+  tempReport.filesReviewed = tempFilesReviewed
 
   return tempReport
 }

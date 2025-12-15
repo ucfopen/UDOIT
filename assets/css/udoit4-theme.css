@@ -69,6 +69,7 @@ body {
 }
 
 #app-container {
+  position: relative;
   margin: 0px 6px 6px 0px;
   padding: 0 1rem;
   border-radius: 16px;
@@ -158,7 +159,7 @@ body {
 
     --hover-brightness: 1.15;
 
-    --link-color: #009DFF;
+    --link-color: #70C8FF;
     --link-color-hover: color-mix(in srgb, var(--link-color) 100%, var(--white) 10%);
     --link-color-light: color-mix(in srgb, var(--link-color) 50%, var(--white) 100%);  /* #E9F3FF; */
     --link-color-dark: color-mix(in srgb, var(--link-color) 100%, var(--black) 10%);
@@ -626,6 +627,11 @@ h1, h2, h3, h4, h5, h6 {
 .gray {
   color: var(--gray);
   fill: var(--gray);
+}
+
+.gray-stroke {
+  stroke: var(--gray);
+  fill: none;
 }
 
 .white {

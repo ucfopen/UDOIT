@@ -3,11 +3,13 @@ import Header from './Header'
 import WelcomePage from './WelcomePage'
 import HomePage from './HomePage'
 import FixIssuesPage from './FixIssuesPage'
+import ReviewFilesPage from './ReviewFilesPage'
 import ReportsPage from './ReportsPage'
 import SettingsPage from './SettingsPage'
 import Api from '../Services/Api'
 import MessageTray from './Widgets/MessageTray'
 import { analyzeReport } from '../Services/Report'
+import { ISSUE_STATE, WIDGET_STATE, ISSUE_FILTER, FILE_FILTER, FILE_TYPES, FILE_TYPE_MAP, DEFAULT_USER_SETTINGS } from '../Services/Settings'
 
 
 export default function App(initialData) {
@@ -15,7 +17,16 @@ export default function App(initialData) {
   const [messages, setMessages] = useState(initialData.messages || [])
   const [untranslatedMessage, setUntranslatedMessage] = useState('')
   const [report, setReport] = useState(initialData.report || null)  
-  const [settings, setSettings] = useState(initialData.settings || null)
+  const [settings, setSettings] = useState(Object.assign({},
+    initialData?.settings || {}, 
+    { ISSUE_STATE }, 
+    { WIDGET_STATE }, 
+    { ISSUE_FILTER }, 
+    { FILE_FILTER },
+    { FILE_TYPES },
+    { FILE_TYPE_MAP },
+    { DEFAULT_USER_SETTINGS }
+  ))
   const [sections, setSections] = useState([])
 
   const [navigation, setNavigation] = useState('summary')
@@ -26,15 +37,6 @@ export default function App(initialData) {
   const [contentItemCache, setContentItemCache] = useState([])
   const [sessionIssues, setSessionIssues] = useState({})
   const [welcomeClosed, setWelcomeClosed] = useState(false)
-
-  const ISSUE_STATE = {
-    UNCHANGED: 0,
-    SAVING: 1,
-    RESOLVING: 2,
-    SAVED: 3,
-    RESOLVED: 4,
-    ERROR: 5,
-  }
 
   // `t` is used for text/translation. It will return the translated string if it exists
   // in the settings.labels object.
@@ -113,7 +115,7 @@ export default function App(initialData) {
   // Each issue has an id and state: { id: issueId, state: 2 }
   // The valid states are set and read in the FixIssuesPage component.
   const updateSessionIssue = (issueId, issueState = null, contentItemId = null) => {
-    if(issueState === null || issueState === ISSUE_STATE.UNCHANGED) {
+    if(issueState === null || issueState === settings.ISSUE_STATE.UNCHANGED) {
       let newSessionIssues = Object.assign({}, sessionIssues)
       if(newSessionIssues[issueId]) {
         delete newSessionIssues[issueId]
@@ -131,11 +133,11 @@ export default function App(initialData) {
   }
 
   const processNewReport = (rawReport) => {
-    const tempReport = analyzeReport(rawReport, ISSUE_STATE)
+    const tempReport = analyzeReport(rawReport, settings.ISSUE_STATE)
     setReport(tempReport)
 
     let api = new Api(settings)
-    api.setReportData(tempReport.id, {'scanCounts': tempReport.scanCounts})
+    api.setReportData(tempReport.id, {'scanCounts': tempReport.scanCounts, 'scanRules': tempReport.scanRules})
       .then((response) => response.json())
       .then((data) => {
         if(data.errors && data.errors.length > 0) {
@@ -241,6 +243,10 @@ export default function App(initialData) {
   }
 
   const quickIssues = (severity) => {
+    if(severity === 'FILE'){
+      setNavigation('reviewFiles')
+      return
+    }
     setInitialSeverity(severity)
     setNavigation('fixIssues')
   }
@@ -337,7 +343,10 @@ export default function App(initialData) {
 
   return (
     <div id="app-container"
-         className={`flex-column flex-grow-1 ${settings?.user?.roles?.font_size || 'font-medium'} ${settings?.user?.roles?.font_family || 'sans-serif'} ${settings?.user?.roles?.dark_mode ? 'dark-mode' : ''}`}>
+         className={`flex-column flex-grow-1 `
+          + `${settings?.user?.roles?.font_size || settings.DEFAULT_USER_SETTINGS.FONT_SIZE} `
+          + `${settings?.user?.roles?.font_family || settings.DEFAULT_USER_SETTINGS.FONT_FAMILY} `
+          + `${settings?.user?.roles?.dark_mode ? 'dark-mode' : ''}`}>
       { !welcomeClosed ?
         ( <WelcomePage
             t={t}
@@ -359,7 +368,7 @@ export default function App(initialData) {
               {('summary' === navigation) &&
                 <HomePage
                   t={t}
-                  settings={settings.ISSUE_STATE ? settings : Object.assign({}, settings, { ISSUE_STATE })}
+                  settings={settings}
                   report={report}
                   hasNewReport={hasNewReport}
                   quickIssues={quickIssues}
@@ -371,9 +380,25 @@ export default function App(initialData) {
               {('fixIssues' === navigation) &&
                 <FixIssuesPage
                   t={t}
-                  settings={settings.ISSUE_STATE ? settings : Object.assign({}, settings, { ISSUE_STATE })}
+                  settings={settings}
                   initialSeverity={initialSeverity}
                   initialSearchTerm={initialSearchTerm}
+                  contentItemCache={contentItemCache}
+                  addContentItemToCache={addContentItemToCache}
+                  report={report}
+                  sections={sections}
+                  processNewReport={processNewReport}
+                  addMessage={addMessage}
+                  handleNavigation={handleNavigation}
+                  sessionIssues={sessionIssues}
+                  updateSessionIssue={updateSessionIssue}
+                  processServerError={processServerError}
+                />
+              }
+              {('reviewFiles' === navigation) &&
+                <ReviewFilesPage
+                  t={t}
+                  settings={settings}
                   contentItemCache={contentItemCache}
                   addContentItemToCache={addContentItemToCache}
                   report={report}

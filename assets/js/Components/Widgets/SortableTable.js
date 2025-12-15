@@ -165,7 +165,7 @@ export default function SortableTable({
         }
         <thead aria-label={t('report.label.sort_by')}>
           <tr>
-            {(headers || []).map(({ id, text }) => (
+            {(headers || []).map(({ id, text, divider }) => (
               (text) ? 
                 <th
                   key={`header${id}`}
@@ -177,6 +177,7 @@ export default function SortableTable({
                       handleSort(id)
                     }
                   }}
+                  className={(divider) ? 'divider' : '' }
                 >
                   <div className="flex-row">
                     <div className="header-spacer" />
