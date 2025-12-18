@@ -1,10 +1,16 @@
 import React, { useEffect, useState } from 'react'
 import CloseIcon from '../Icons/CloseIcon'
+import * as Text from '../../Services/Text'
 import './ReviewFileWidget.css'
 import ContentPageIcon from '../Icons/ContentPageIcon'
 import ArrowIcon from '../Icons/ArrowIcon'
 import UploadIcon from '../Icons/UploadIcon'
 import ExternalLinkIcon from '../Icons/ExternalLinkIcon'
+import SeverityPotentialIcon from '../Icons/SeverityPotentialIcon'
+import SeverityIcon from '../Icons/SeverityIcon'
+import FileAccessibilityInformation from './ReviewFileWidgetComponents/FileAccessibilityInformation'
+import FileReviewOrUpload from './ReviewFileWidgetComponents/FileReviewOrUpload'
+
 
 
 
@@ -12,7 +18,9 @@ const ReviewFileWidget = (
     {
     activeIssue, 
     t,
-    sessionFiles
+    sessionFiles,
+    handleFileUpload,
+    settings
 
     }) => {
     const [toggleReplace, setToggleReplace] = useState(false)
@@ -20,12 +28,21 @@ const ReviewFileWidget = (
     const [uploadedFile, setUploadedFile] = useState(null)
     const [isDisabled, setIsDisabled] = useState(false)
     const [activeFile, setActiveFile] = useState(activeIssue.fileData)
+    const [fileReferenceHolder, setFileReferenceHolder] = useState([])
+    const [markReview, setMarkReview] = useState(false)
 
     useEffect(() => {
         setActiveFile(activeIssue.fileData)
+        console.log(activeIssue.fileData)
+        handleFileReference()
     }, [activeIssue])
     
     useEffect(() => {
+        console.log(uploadedFile)
+    }, [uploadedFile])
+
+    useEffect(() => {
+        console.log(activeFile)
         setUploadedFile(null)
       }, [activeFile])
 
@@ -45,20 +62,81 @@ const ReviewFileWidget = (
           setIsDisabled(tempIsDisabled)
         }, [sessionFiles])
 
+     const handleFileReference = () => {
+        let tempReferences = []
+
+        activeIssue.fileData.replacement?.references?.forEach((ref) => {
+            let tempRef = JSON.parse(JSON.stringify(ref))
+            tempRef.status  = 'New File'
+            tempReferences.push(tempRef)
+        })
+
+        activeIssue.fileData.replacement?.sectionRefs?.forEach((ref) => {
+            let tempRef = JSON.parse(JSON.stringify(ref))
+            tempRef.status  = 'New File'
+            tempReferences.push(tempRef)
+        })
+
+
+        activeIssue.fileData.references?.forEach((ref) => {
+            let tempRef = JSON.parse(JSON.stringify(ref))
+            tempRef.status  = 'Old File'
+            tempReferences.push(tempRef)
+        })
+
+
+        activeIssue.fileData.sectionRefs?.forEach((ref) => {
+            let tempRef = JSON.parse(JSON.stringify(ref))
+            tempRef.status  = 'Old File'
+            tempReferences.push(tempRef)
+        })
+
+        console.log(tempReferences)
+        setFileReferenceHolder(tempReferences)
+     }
+
     const handleToggleRplace = () => {
         const replace = !toggleReplace
+        if(replace){
+            const temp = {}
+            fileReferenceHolder.forEach((ref) => {
+                let id = ref.contentItemLmsId ? ref.contentItemLmsId : ref.itemId
+                temp[id] = ref
+            }) 
+            setSelectedRef(temp)
+        }
+        else{
+            setSelectedRef({})
+        }
         setToggleReplace(replace)
     }
 
     const handleReferenceSelect = (reference) => {
         let tempSelectedRef = JSON.parse(JSON.stringify(selectedRef))
+        let id = reference.contentItemLmsId ? reference.contentItemLmsId : reference.itemId
         if(tempSelectedRef[reference.contentItemLmsId]){
-            delete tempSelectedRef[reference.contentItemLmsId]
+            delete tempSelectedRef[id]
         }
         else{
-           tempSelectedRef[reference.contentItemLmsId] = reference
+           tempSelectedRef[id] = reference
         }
         setSelectedRef(tempSelectedRef)
+    }
+
+    const handleSubmit = () => {
+        let contentReferences = []
+        let sectionReferences = []
+        console.log(selectedRef)
+
+        Object.values(selectedRef).forEach((ref) => {
+            if(ref.itemId){
+                sectionReferences.push(ref)
+            }
+            else{
+                contentReferences.push(ref)
+            }
+        })
+        handleFileUpload(uploadedFile, contentReferences, sectionReferences)
     }
 
     const getReadableFileType = (fileType) => {
@@ -78,6 +156,11 @@ const ReviewFileWidget = (
       default:
         return t('label.mime.unknown')
     }
+  }
+
+  const toggleMarkReview =  () => {
+    const currentReview = markReview
+    setMarkReview(!currentReview)
   }
 
     // Drag and Drop code is adapted from:
@@ -100,6 +183,7 @@ const ReviewFileWidget = (
     if(!newFile) {
       console.error("No valid file uploaded.")
     }
+
 
     setUploadedFile(newFile)
   }
@@ -125,74 +209,42 @@ const ReviewFileWidget = (
     shadowInput.click()
   }
 
-
-
-
   return (
     <div className='p-4 flex-column align-items-center justify-content-center'>
-        <div className='header-content flex-row w-100 justify-content-between'>
-            <div className="flex-column flex-center allow-word-break">
-                <h2>Replace File</h2>
-                <p>Select which course references should point to which file</p>
-            </div>
-            <CloseIcon />
+        <div className='header-content flex-row w-100 justify-content-between align-items-baseline'>
+            <h3>Replace File</h3>
+            <CloseIcon tabIndex='0' />
         </div>
 
-        <div className='file-upload-container flex-row align-items-center mt-4 justify-content-center'>
-            <div className='file-container w-100'>
-                <div className='flex-row gap-2 align-items-center mb-2'>
-                    <p className='fw-bolder'>ORIGINAL FILE</p>
-                    <p className='badge badge-old fw-bolder'>OLD</p>
-                </div>
-                <div className='file-card'>
-                    <div className='title flex-row align-items-center gap-2'>
-                        <div className='file-icon'>
-                            <ContentPageIcon />
-                        </div>
-                        <div className="file-name-text flex-column flex-center allow-word-break">{activeIssue.fileData.fileName}</div>
-                    </div>
-                    <div className='flex-row justify-content-between'>
-                        <p>File Type</p>
-                        <p>{getReadableFileType(activeIssue.fileData.fileType)}</p>
-                    </div>
-                </div>
-            </div>
-            <div className='arrow-icon'>
-                <ArrowIcon />
-            </div>
-            <div className='file-container file-container-upload w-100'>
-                <div className='flex-row gap-2 align-items-center mb-2'>
-                    <p className='fw-bolder'>NEW REPLACEMENT</p>
-                    <p className='badge badge-new fw-bolder'>NEW</p>
-                </div>
-                <div className='file-card file-card-upload'
-                    onDrop={handleDrop}
-                    onDragOver={handleDragOver}
-                    onClick={handleFileSelect}
-                    onKeyDown={handleKeyPress}
-                >
-                        <UploadIcon className='upload-icon' />
-                        {uploadedFile ? <p className='new-file-upload-name'>{`New File: ${uploadedFile.name}`}</p> : ''}
-                        <p><span className='upload-text'>Click to upload</span> or drag and drop</p>
-                        <p>SVG, PNG, JPG or GIF (max. 800x400px)</p>
-                    <div>
-
-                    </div>
-                </div>
-            </div>
+        <FileAccessibilityInformation 
+            activeFile={activeFile}
+            getReadableFileSize={Text.getReadableFileSize}
+            getReadableFileType={getReadableFileType}
+        />
+        <div className='resolve-issue-instruction-header w-100'>
+            <h3 className='mb-0'>Resolve File</h3>
+            <div>Upload a new version if the current file has accessibility issues</div>
         </div>
+
+        <FileReviewOrUpload
+            activeFile={activeFile} 
+            toggleMarkReview={toggleMarkReview}
+            handleDrop={handleDrop}
+            handleKeyPress={handleKeyPress}
+            handleDragOver={handleDragOver}
+        />
 
         {uploadedFile && <div className='m-3 flex-row justify-content-start w-100 align-items-center'>
-            <div className={`switch ${toggleReplace ? "on" : ""}`} onClick={handleToggleRplace}>
+            <div className={`switch ${toggleReplace ? "on" : ""}`} onClick={handleToggleRplace} >
                 <div className='thumb'></div>
             </div>
                 <h4 className='ml-1'>Replace All</h4>
         </div>}
 
-        {uploadedFile && <div className='file-ref-table-container w-100'>
+        {uploadedFile && <div className='file-ref-table-container w-100' id={markReview ? 'disabled' : ''}>
             <div className='w-100 flex-row justify-content-between'>
                 <p>References in Course</p>
-                <p>{`${Object.keys(selectedRef).length} of ${activeIssue.fileData.references.length} references replaced`}</p>
+                <p>{`${Object.keys(selectedRef).length} of ${fileReferenceHolder.length} references replaced`}</p>
             </div>
             <div className='table-wrapper'>
             <table className='references-table'>
@@ -204,7 +256,7 @@ const ReviewFileWidget = (
                     </tr>
                 </thead>
                 <tbody>
-                    {activeIssue.fileData.references.map((ref, index) => (
+                    {fileReferenceHolder?.map((ref, index) => (
                         <tr key={index}>
                             <td className='content-title'>
                             <div className='flex-row align-items-center gap-1'>
@@ -212,8 +264,9 @@ const ReviewFileWidget = (
                                     type="checkbox"
                                     className="custom-checkbox"
                                     id="ref-checkbox"
-                                    checked={ref.contentItemLmsId in selectedRef}
+                                    checked={(ref.contentItemLmsId ? ref.contentItemLmsId : ref.itemId) in selectedRef}
                                     onChange={() => handleReferenceSelect(ref)}
+                                    disabled={!uploadedFile}
                                 />
                                 <label htmlFor='ref-checkbox' className='ref-checkbox-label'>{ref.contentItemTitle}</label>
                             </div>
@@ -227,7 +280,7 @@ const ReviewFileWidget = (
                             <td>
                                 <span className="status-badge">
                                     <span className="status-dot"></span>
-                                    Old File
+                                    {ref.status}
                                 </span>
                             </td>
                         </tr>
@@ -237,11 +290,7 @@ const ReviewFileWidget = (
             </div>
         </div>}
 
-        {uploadedFile && <div className='w-100 flex-row gap-1 align-items-center justify-content-end'>
-            <p>Cancel</p>
-            <button className={`${Object.keys(selectedRef).length > 0 ? 'btn-primnary': 'btn-secondary'}`} disabled={Object.keys(selectedRef).length == 0}>{`Update ${Object.keys(selectedRef).length} references`}</button>
-        </div>}
-      
+
     </div>
   )
 }

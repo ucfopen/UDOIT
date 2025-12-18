@@ -489,10 +489,10 @@ export default function ReviewFilesPage({
     return sectionIdOption
   }
 
-  const getContentPostItems = (file, newFile) => {
+  const getContentPostItems = (file, newFile, contentReferences) => {
     const postContentItemOptions = []
-    if(file.changeReferences && file.references?.length > 0){
-      file.references.map((reference) => {
+    if(contentReferences?.length > 0){
+      contentReferences.map((reference) => {
         let newFullPageHtml = ""
         if(reference.contentItemBody){
           newFullPageHtml = replaceFileInHtml(reference.contentItemBody, file.lmsFileId, newFile.metadata.url)
@@ -503,10 +503,10 @@ export default function ReviewFilesPage({
     return postContentItemOptions
   }
 
-const getSectionPostOptions = (file, newFile) => {
+const getSectionPostOptions = (newFile, sectionReferences) => {
     const postSectionOptions = []
-    if(file.changeReferences && file.sectionRefs?.length > 0){
-      file.sectionRefs.map((sectionRef) => {
+    if(sectionReferences?.length > 0){
+      sectionReferences.map((sectionRef) => {
          postSectionOptions.push(createSectionPostOptions(newFile, sectionRef.moduleId, sectionRef.itemPosition, sectionRef.itemId, sectionRef.indent))
       })
     }
@@ -563,8 +563,8 @@ const getSectionPostOptions = (file, newFile) => {
     }
   }
 
-  const handleFileUpload  = async (newFileData, changeReferences = false) => {
-    const tempFile = Object.assign({}, activeIssue.fileData, { changeReferences: changeReferences } )
+  const handleFileUpload  = async (newFileData, contentReferences, sectionReferences) => {
+    const tempFile = Object.assign({}, activeIssue.fileData)
     updateActiveSessionFile(tempFile.id, settings.ISSUE_STATE.SAVING)
     try{
       // File Upload to Canvas
@@ -592,8 +592,8 @@ const getSectionPostOptions = (file, newFile) => {
       let canMarkReview = false // Use this to track if the file should be marked as 'reviewed'/'resolved' 
 
       // Build content and section items POST data
-      const postContentItemOptions = getContentPostItems(tempFile, updatedFileData)
-      const postSectionOptions = getSectionPostOptions(tempFile, updatedFileData)
+      const postContentItemOptions = getContentPostItems(tempFile, updatedFileData, contentReferences)
+      const postSectionOptions = getSectionPostOptions(updatedFileData, sectionReferences)
 
       if((postContentItemOptions && postContentItemOptions.length > 0) ||  (postSectionOptions && postSectionOptions.length > 0)){
         const responseStatus = await updateAndScanContent(postContentItemOptions, postSectionOptions)
@@ -752,10 +752,15 @@ const getSectionPostOptions = (file, newFile) => {
           <section className="ufixit-content-container">
             {/* Render the redesigned ReviewFileWidget */}
             {filteredFiles.length > 0 && (
-              <ReviewFileWidget
-                activeIssue={activeIssue}
-                t={t}
-              />
+              <div className='scrollable'>
+                <ReviewFileWidget
+                  activeIssue={activeIssue}
+                  t={t}
+                  sessionFiles={sessionFiles}
+                  handleFileUpload={handleFileUpload}
+                  settings={settings}
+                />
+              </div>
             )}
             <div className="flex-row justify-content-end gap-2 mt-3">
               <button
