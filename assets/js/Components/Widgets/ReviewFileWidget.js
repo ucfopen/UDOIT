@@ -10,6 +10,7 @@ import SeverityPotentialIcon from '../Icons/SeverityPotentialIcon'
 import SeverityIcon from '../Icons/SeverityIcon'
 import FileAccessibilityInformation from './ReviewFileWidgetComponents/FileAccessibilityInformation'
 import FileReviewOrUpload from './ReviewFileWidgetComponents/FileReviewOrUpload'
+import FileReferenceTable from './ReviewFileWidgetComponents/FileReferenceTable'
 
 
 
@@ -226,7 +227,7 @@ const ReviewFileWidget = (
             <div>Upload a new version if the current file has accessibility issues</div>
         </div>
 
-        <div className='w-100 flex-row'>
+        <div className='w-100 flex-row justify-content-between align-items-start'>
             <FileReviewOrUpload
                 activeFile={activeFile} 
                 toggleMarkReview={toggleMarkReview}
@@ -234,14 +235,14 @@ const ReviewFileWidget = (
                 handleKeyPress={handleKeyPress}
                 handleDragOver={handleDragOver}
             />
+            <FileReferenceTable 
+                fileReferenceHolder={fileReferenceHolder}
+                selectedRef={selectedRef}
+                handleReferenceSelect={handleReferenceSelect}
+                uploadedFile={uploadedFile}
+            />
         </div>
 
-        {uploadedFile && <div className='m-3 flex-row justify-content-start w-100 align-items-center'>
-            <div className={`switch ${toggleReplace ? "on" : ""}`} onClick={handleToggleRplace} >
-                <div className='thumb'></div>
-            </div>
-                <h4 className='ml-1'>Replace All</h4>
-        </div>}
 
         {uploadedFile && <div className='file-ref-table-container w-100' id={markReview ? 'disabled' : ''}>
             <div className='w-100 flex-row justify-content-between'>
