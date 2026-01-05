@@ -21,7 +21,7 @@ const FileReviewOrUpload = ({
                 </div>
             
 
-                <div className="divider-container flex-row justify-content-center align-items-center mt-2">
+                <div className="divider-container flex-row justify-content-center align-items-center">
                     <div className="divider-line"></div>
                     <span className="divider-text pt-1 pl-3 pr-3 flex-row align-items-center justify-content-center">OR</span>
                     <div className="divider-line"></div>

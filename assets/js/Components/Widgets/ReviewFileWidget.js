@@ -222,7 +222,7 @@ const ReviewFileWidget = (
             <div>Upload a new version if the current file has accessibility issues</div>
         </div>
 
-        <div className='w-100 flex-row justify-content-between align-items-start'>
+        <div className='w-100 flex-row justify-content-between align-items-start mt-2'>
             <FileReviewOrUpload
                 activeFile={activeFile} 
                 toggleMarkReview={toggleMarkReview}
