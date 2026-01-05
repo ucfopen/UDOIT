@@ -752,7 +752,7 @@ const getSectionPostOptions = (newFile, sectionReferences) => {
           <section className="ufixit-content-container">
             {/* Render the redesigned ReviewFileWidget */}
             {filteredFiles.length > 0 && (
-              <div className='scrollable'>
+              <div className=''>
                 <ReviewFileWidget
                   activeIssue={activeIssue}
                   t={t}

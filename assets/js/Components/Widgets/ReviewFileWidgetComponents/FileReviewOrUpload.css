@@ -1,0 +1,59 @@
+.file-review-container{
+    max-width: 420px;
+    background-color: var(--gray-lightest);
+    border-radius: 0.7em;
+    box-sizing: border-box;
+}
+
+.file-review-card{
+    background-color: white;
+    border: solid;
+    border-color: var(--gray-lighter);
+    border-radius: 0.7em;
+    box-sizing: border-box;
+}
+
+.option-section button{
+    font-size: 0.7em
+}
+
+.option-title{
+    font-size: 0.85em;
+}
+
+.option-description{
+    font-size: 0.7em;
+}
+
+.divider-container {
+    display: flex;
+    align-items: center;
+    width: 100%;
+  
+}
+
+.divider-line {
+    flex: 1;
+    border-top: 2px solid var(--gray-lightest);
+}
+
+.divider-text{
+    font-size: 0.6em;
+    background-color: var(--gray-lightest);
+    border: solid;
+    border-color: var(--gray-lighter);
+    border-radius: 0.5em;
+}
+
+.upload-instruction{
+    font-size: 0.7em;
+}
+
+.file-upload-box {
+    background-color: var(--gray-lightest);
+    border: solid;
+    border-color: var(--gray-lighter);
+    border-radius: 0.5em;
+    box-sizing: border-box; 
+}
+

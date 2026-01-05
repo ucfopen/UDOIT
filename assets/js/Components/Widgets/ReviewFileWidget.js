@@ -226,13 +226,15 @@ const ReviewFileWidget = (
             <div>Upload a new version if the current file has accessibility issues</div>
         </div>
 
-        <FileReviewOrUpload
-            activeFile={activeFile} 
-            toggleMarkReview={toggleMarkReview}
-            handleDrop={handleDrop}
-            handleKeyPress={handleKeyPress}
-            handleDragOver={handleDragOver}
-        />
+        <div className='w-100 flex-row'>
+            <FileReviewOrUpload
+                activeFile={activeFile} 
+                toggleMarkReview={toggleMarkReview}
+                handleDrop={handleDrop}
+                handleKeyPress={handleKeyPress}
+                handleDragOver={handleDragOver}
+            />
+        </div>
 
         {uploadedFile && <div className='m-3 flex-row justify-content-start w-100 align-items-center'>
             <div className={`switch ${toggleReplace ? "on" : ""}`} onClick={handleToggleRplace} >
