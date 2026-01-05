@@ -10,7 +10,7 @@ const FileAccessibilityInformation = ({activeFile, getReadableFileType, getReada
         <div className='original-file-info p-2'>
             <div className='current-file-container flex-row gap-1 align-items-center'>
                 <p className='current-file-tag'>Current File</p>
-                <p className={`status ${activeFile.reviewed ? 'status-reviewed' : ''} fw-bold p-1`}>{activeFile.reviewed ? 'Reviewed' : 'In Progress'}</p>
+                <p className={`status ${activeFile.reviewed ? 'status-reviewed' : ''} fw-bold pl-1 pr-1`}>{activeFile.reviewed ? 'Reviewed' : 'In Progress'}</p>
             </div>
             
             <div className='flex-row gap-1 align-items-start'>

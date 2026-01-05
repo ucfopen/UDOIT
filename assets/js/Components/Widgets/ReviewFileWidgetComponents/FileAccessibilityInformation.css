@@ -15,11 +15,17 @@
     font-size: 0.65em;
 }
 
-.status{
+.status-reviewed{
     background-color: var(--primary-color-light);
-    border: solid;
     border-color: var(--primary-color-hover);
+}
+
+.status{
+    background-color: var(--potential-color-light);
+    border: solid;
+    border-color: var(--potential-color);
     border-radius: 0.65em;
+    font-size: 0.6em;
 }
 
 .file-icon{
