@@ -14,10 +14,6 @@ const FileReferenceTable = ({
 }) => {
   return (
     <div className='file-reference-table-container w-100'>
-         <div className='flex-row justify-content-between'>
-            <p>References in Course</p>
-            <p>{`${Object.keys(selectedRef).length} of ${fileReferenceHolder.length} references replaced`}</p>
-         </div>
          <div className='table-wrapper'>
             <table className='references-table'>
                 <thead>
