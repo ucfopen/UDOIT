@@ -1,5 +1,5 @@
 .file-review-container{
-    max-width: 800px;
+    max-width: 420px;
     background-color: var(--gray-lightest);
     border-radius: 0.7em;
     box-sizing: border-box;
@@ -55,5 +55,27 @@
     border-color: var(--gray-lighter);
     border-radius: 0.5em;
     box-sizing: border-box; 
+    cursor: pointer;
 }
+
+.file-info-box{
+    border: solid;
+    border-color: var(--primary-color);
+    border-radius: 0.5em;
+    cursor: pointer;
+}
+
+.uploaded-file-name{
+    font-size: 0.7em;
+    white-space: nowrap;     
+    overflow: hidden;         
+    text-overflow: ellipsis;
+}
+
+.upload-instruction-new{
+    font-size: 0.65em;
+    color: var(--primary-color);
+}
+
+
 

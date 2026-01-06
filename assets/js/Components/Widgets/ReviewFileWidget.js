@@ -34,16 +34,14 @@ const ReviewFileWidget = (
 
     useEffect(() => {
         setActiveFile(activeIssue.fileData)
-        console.log(activeIssue.fileData)
         handleFileReference()
     }, [activeIssue])
-    
+
     useEffect(() => {
         console.log(uploadedFile)
     }, [uploadedFile])
-
+    
     useEffect(() => {
-        console.log(activeFile)
         setUploadedFile(null)
       }, [activeFile])
 
@@ -110,6 +108,10 @@ const ReviewFileWidget = (
             setSelectedRef({})
         }
         setToggleReplace(replace)
+    }
+
+    const removeUploadedFile = () => {
+        setUploadedFile(null)
     }
 
     const handleReferenceSelect = (reference) => {
@@ -222,13 +224,17 @@ const ReviewFileWidget = (
             <div>Upload a new version if the current file has accessibility issues</div>
         </div>
 
-        <div className='w-100 flex-row justify-content-between align-items-start mt-2'>
+        <div className='w-100 flex-row justify-content-between align-items-start mt-2 gap-2'>
             <FileReviewOrUpload
                 activeFile={activeFile} 
                 toggleMarkReview={toggleMarkReview}
                 handleDrop={handleDrop}
                 handleKeyPress={handleKeyPress}
                 handleDragOver={handleDragOver}
+                markReview={markReview}
+                handleFileSelect={handleFileSelect}
+                uploadedFile={uploadedFile}
+                removeUploadedFile={removeUploadedFile}
             />
             <FileReferenceTable 
                 fileReferenceHolder={fileReferenceHolder}

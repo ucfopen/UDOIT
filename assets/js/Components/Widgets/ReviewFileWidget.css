@@ -103,8 +103,10 @@
     align-items: center;
 }
 
-#disabled{
+#disabled-component{
     opacity: 25%;
+    pointer-events: none;
+    cursor: default;
 }
 
 .status-tag{
@@ -229,12 +231,5 @@
     border-color: #E5E7EB;
     border-radius: 10px;
     align-items: center;
-}
-
-.file-ref-table-container
-{
-   padding-bottom: 25px;
-   border-bottom: solid;
-   border-bottom-color: #E5E7EB;
 }
 
