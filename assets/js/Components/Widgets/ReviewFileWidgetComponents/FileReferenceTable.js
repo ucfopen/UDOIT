@@ -3,10 +3,13 @@ import './FileReferenceTable.css'
 import ExternalLinkIcon from '../../Icons/ExternalLinkIcon'
 
 const FileReferenceTable = ({
+    activeFile,
     fileReferenceHolder,
     selectedRef,
     handleReferenceSelect,
-    uploadedFile
+    uploadedFile,
+    toggleReplace,
+    handleToggleReplace
     
 }) => {
   return (
@@ -27,19 +30,7 @@ const FileReferenceTable = ({
                 <tbody>
                     {fileReferenceHolder?.map((ref, index) => (
                             <tr key={index}>
-                                <td className='content-title'>
-                                <div className='flex-row align-items-center gap-1'>
-                                    <input
-                                        type="checkbox"
-                                        className="custom-checkbox"
-                                        id="ref-checkbox"
-                                        checked={(ref.contentItemLmsId ? ref.contentItemLmsId : ref.itemId) in selectedRef}
-                                        onChange={() => handleReferenceSelect(ref)}
-                                        disabled={!uploadedFile}
-                                    />
-                                    <label htmlFor='ref-checkbox' className='ref-checkbox-label'>{ref.contentItemTitle}</label>
-                                </div>
-                                </td>
+                                <td className='content-title'>{ref.contentItemTitle}</td>
                                 <td>
                                     <a href={ref.contentItemUrl} target='_blank' className='location-link'>
                                         External URL

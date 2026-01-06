@@ -24,7 +24,7 @@ const ReviewFileWidget = (
     settings
 
     }) => {
-    const [toggleReplace, setToggleReplace] = useState(false)
+    const [toggleReplace, setToggleReplace] = useState(true)
     const [selectedRef, setSelectedRef] = useState({})
     const [uploadedFile, setUploadedFile] = useState(null)
     const [isDisabled, setIsDisabled] = useState(false)
@@ -37,9 +37,6 @@ const ReviewFileWidget = (
         handleFileReference()
     }, [activeIssue])
 
-    useEffect(() => {
-        console.log(uploadedFile)
-    }, [uploadedFile])
     
     useEffect(() => {
         setUploadedFile(null)
@@ -237,10 +234,13 @@ const ReviewFileWidget = (
                 removeUploadedFile={removeUploadedFile}
             />
             <FileReferenceTable 
+                activeFile={activeFile}
                 fileReferenceHolder={fileReferenceHolder}
                 selectedRef={selectedRef}
                 handleReferenceSelect={handleReferenceSelect}
                 uploadedFile={uploadedFile}
+                toggleReplace={toggleReplace}
+                handleToggleReplace={handleToggleRplace}
             />
         </div>
     </div>
