@@ -11,6 +11,7 @@ import SeverityIcon from '../Icons/SeverityIcon'
 import FileAccessibilityInformation from './ReviewFileWidgetComponents/FileAccessibilityInformation'
 import FileReviewOrUpload from './ReviewFileWidgetComponents/FileReviewOrUpload'
 import FileReferenceTable from './ReviewFileWidgetComponents/FileReferenceTable'
+import FileSaveReviewOrRevert from './ReviewFileWidgetComponents/FileSaveReviewOrRevert'
 
 
 
@@ -37,7 +38,6 @@ const ReviewFileWidget = (
         handleFileReference()
     }, [activeIssue])
 
-    
     useEffect(() => {
         setUploadedFile(null)
       }, [activeFile])
@@ -87,7 +87,6 @@ const ReviewFileWidget = (
             tempReferences.push(tempRef)
         })
 
-        console.log(tempReferences)
         setFileReferenceHolder(tempReferences)
      }
 
@@ -126,9 +125,8 @@ const ReviewFileWidget = (
     const handleSubmit = () => {
         let contentReferences = []
         let sectionReferences = []
-        console.log(selectedRef)
 
-        Object.values(selectedRef).forEach((ref) => {
+        Object.values(fileReferenceHolder).forEach((ref) => {
             if(ref.itemId){
                 sectionReferences.push(ref)
             }
@@ -137,6 +135,10 @@ const ReviewFileWidget = (
             }
         })
         handleFileUpload(uploadedFile, contentReferences, sectionReferences)
+    }
+
+    const handleResolve = () => {
+        console.log("Resolving")
     }
 
     const getReadableFileType = (fileType) => {
@@ -243,6 +245,7 @@ const ReviewFileWidget = (
                 handleToggleReplace={handleToggleRplace}
             />
         </div>
+        <FileSaveReviewOrRevert handleSubmit={handleSubmit} handleResolve={handleResolve} markReview={markReview} uploadedFile={uploadedFile}/>
     </div>
   )
 }
