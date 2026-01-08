@@ -139,16 +139,25 @@ class FileItem implements \JsonSerializable
 
     public function setReplacementFile($fileData): self
     {
-        if(!isset($fileData['id'])) {
+        if(isset($fileData['id'])) {
             $tempMetadata = json_decode($this->getMetadata(), true);
-            $tempMetadata['replacement'] = $fileData['id'];
+            $tempMetadata['replacementFileId'] = $fileData['id'];
             $this->setMetadata(json_encode($tempMetadata));
         }
 
         return $this;
     }
 
-    public function getReplacementFile(): ?array
+    public function removeReplacementFile(): self
+    {
+        $tempMetadata = json_decode($this->getMetadata(), true);
+        $tempMetadata['replacementFileId'] = -1;
+        $this->setMetadata(json_encode($tempMetadata));
+        return $this;
+
+    }
+
+    public function getReplacementFile(): int
     {
         $metadata = json_decode($this->getMetadata(), true);
         if (isset($metadata['replacement'])) {
@@ -169,7 +178,7 @@ class FileItem implements \JsonSerializable
             // }
         }
 
-        return [];
+        return -1;
     }
 
     public function getStatus(): ?bool
@@ -224,7 +233,7 @@ class FileItem implements \JsonSerializable
     {
         $updatedDate = new \DateTime($file['updated'], UtilityService::$timezone);
         $replacementFile = $this->getReplacementFile();
-        $file['replacement'] = $replacementFile;
+        $file['replacementFileId'] = $replacementFile;
 
         $this->setUpdated($updatedDate);
         $this->setActive(true);
@@ -262,7 +271,6 @@ class FileItem implements \JsonSerializable
             'downloadUrl' => $this->getDownloadUrl(),
             'lmsUrl' => $this->getLmsUrl(),
             'metadata' => json_decode($this->getMetadata(), true),
-            'replacement' => $replacementFileData,
         ];
     }
 

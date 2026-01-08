@@ -1,0 +1,57 @@
+.file-accessibility-info-wrapper{
+    border-bottom: solid;
+    border-color: var(--gray-lightest);
+}
+
+.accessibility-info-container{
+    border: solid;
+    border-color: var(--gray-lightest);
+    border-radius: 0.7em;
+    box-sizing: border-box;    
+} 
+
+.current-file-container{
+    text-transform: uppercase;
+    font-size: 0.65em;
+}
+
+.status-reviewed{
+    background-color: var(--primary-color-light);
+    border-color: var(--primary-color-hover);
+}
+
+.status{
+    background-color: var(--potential-color-light);
+    border: solid;
+    border-color: var(--potential-color);
+    border-radius: 0.65em;
+    font-size: 0.6em;
+}
+
+.file-icon{
+    background-color: var(--gray-lightest);
+    border-radius: 0.5em;
+}
+
+.file-name-link{
+    font-size: 0.75em;
+}
+
+
+.file-details{
+    font-size: 0.65em;
+}
+
+.accessibility-instructions-container{
+    font-size: 0.65em;
+    background-color: var(--potential-color-light);
+    border-top: solid;
+    border-color: var(--potential-color);
+    box-sizing: border-box;
+    overflow: hidden;
+    margin: 0;
+    border-radius: 0 0 0.7em 0.7em; /* Match bottom corners if needed */
+
+}
+
+

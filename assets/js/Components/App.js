@@ -36,6 +36,7 @@ export default function App(initialData) {
   const [initialSearchTerm, setInitialSearchTerm] = useState('')
   const [contentItemCache, setContentItemCache] = useState([])
   const [sessionIssues, setSessionIssues] = useState({})
+  const [sessionFiles, setSessionFiles] = useState({})
   const [welcomeClosed, setWelcomeClosed] = useState(false)
 
   // `t` is used for text/translation. It will return the translated string if it exists
@@ -132,6 +133,24 @@ export default function App(initialData) {
     setSessionIssues(newSessionIssues)
   }
 
+    const updateSessionFiles = (fileId, fileState = null, contentItemId = null) => {
+    if(fileState === null || fileState === settings.ISSUE_STATE.UNCHANGED) {
+      let newSessionFiles = Object.assign({}, sessionFiles)
+      if(newSessionFiles[fileId]) {
+        delete newSessionFiles[fileId]
+      }
+      setSessionFiles(newSessionFiles)
+
+      if(contentItemId) {
+        removeContentItemFromCache(contentItemId)
+      }
+
+      return
+    }
+    let newSessionFiles = Object.assign({}, sessionFiles, { [fileId]: fileState})
+    setSessionFiles(newSessionFiles)
+  }
+
   const processNewReport = (rawReport) => {
     const tempReport = analyzeReport(rawReport, settings.ISSUE_STATE)
     setReport(tempReport)
@@ -161,11 +180,17 @@ export default function App(initialData) {
       setSessionIssues(tempReport.sessionIssues)
     }
 
+    if(tempReport.sessionFiles){
+      setSessionFiles(tempReport.sessionFiles)
+    }
+
     let tempContentItems = {}
     for(const key in tempReport.contentItems) {
       tempContentItems[key] = tempReport.contentItems[key]
     }
+
     setContentItemCache(tempContentItems)
+    return tempReport 
   }
 
   const handleNewReport = (data) => {
@@ -406,8 +431,8 @@ export default function App(initialData) {
                   processNewReport={processNewReport}
                   addMessage={addMessage}
                   handleNavigation={handleNavigation}
-                  sessionIssues={sessionIssues}
-                  updateSessionIssue={updateSessionIssue}
+                  sessionFiles={sessionFiles}
+                  updateSessionFiles={updateSessionFiles}
                   processServerError={processServerError}
                 />
               }

@@ -57,6 +57,39 @@ class LmsPostService {
         return $lms->postContentItem($contentItem);
     }
 
+    public function uploadContentToLms($contentOptions, $sectionOptions, User $user){
+        $lms = $this->lmsApi->getLms();
+        $this->lmsUser->validateApiKey($user);
+
+        $lmsResponse = $lms->postContentItemNoIssue($contentOptions, $sectionOptions);
+        if(!$lmsResponse){
+            return;
+        }
+
+        return $lmsResponse;
+    }
+
+    public function deleteFile($fileId){
+        $lms = $this->lmsApi->getLms();
+        return $lms->deleteFileFromCanvas($fileId);
+    }
+
+    public function deleteFileFromLms(FileItem $file, User $user){
+        $lms = $this->lmsApi->getLms();
+        $this->lmsUser->validateApiKey($user);
+        try{
+            return $lms->deleteFileItem($file);
+        }
+        catch (\Exception) {
+            $this->util->createMessage(
+                'Failed to delete file. Please contact an administrator.',
+                'error',
+                $file->getCourse()
+            );
+            return;
+        }
+    }
+
     public function saveFileToLms(FileItem $file, UploadedFile $uploadedFile, User $user)
     {
         $lms = $this->lmsApi->getLms();
