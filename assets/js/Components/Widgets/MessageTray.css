@@ -2,102 +2,112 @@
   position: absolute;
   top: 3rem;
   right: 1rem;
-  transform: translateX(calc(100% + 30px));
-  transition: transform 0.5s cubic-bezier(0.68, -0.55, 0.25, 1.35);
   z-index: 1000;
   box-sizing: border-box;
   width: calc(100% - 2rem);
   max-width: 400px;
-  background-color: var(--primary-color-light);
-  box-shadow: 0px 0px 3px var(--gray-dark);
 
-  &.open {
-    transform: translateX(0);
-  }
+  .messageItemContainer {
+    position: relative;
+    background-color: var(--primary-color-light);
+    box-shadow: 0px 0px 3px var(--gray-dark);
+    transform: translateX(calc(100% + 20px));
+    transition: transform 0.5s cubic-bezier(0.68, -0.55, 0.25, 1.35);
 
-  &.error {
-    border: 1px solid var(--issue-color);
-    background-color: var(--issue-color-light);
-  }
-
-  &.alert {
-    border: 1px solid var(--potential-color);
-    background-color: var(--potential-color-light);
-  }
-
-  &.success {
-    border: 1px solid var(--success-color);
-    background-color: var(--success-color-light);
-  }
-
-  &.info {
-    border: 1px solid var(--info-color);
-    background-color: var(--info-color-light);
-  }
-
-  &:hover {
-    .closeButton {
-      background-color: var(--white);
+    &:not(:first-child) {
+      margin-top: 1rem;
     }
-  }
-}
 
-.messageTray {
-  
-  padding: 1rem 2.75rem 1rem 1rem;
-  box-sizing: border-box;
-  font-size: .9em;
-  font-weight: 500;
-  color: var(--text-color)
-
-}
-
-.closeButton {
-  position: absolute;
-  top: .5rem;
-  right: .5rem;
-  padding: 0.15rem;
-  border-radius: 2rem;
-  background-color: transparent;
-}
-
-.messageTrayAnimatedBorderContainer {
-  width: 100%;
-  height: 3px;
-  display: flex;
-  justify-content: end;
-
-  .messageTrayAnimatedBorder {
-    width: 100%;
-    height: 100%;
+    &.open {
+      transform: translateX(0);
+    }
 
     &.error {
-      background-color: var(--issue-color);
+      border: 1px solid var(--issue-color);
+      background-color: var(--issue-color-light);
     }
 
     &.alert {
-      background-color: var(--potential-color);
+      border: 1px solid var(--potential-color);
+      background-color: var(--potential-color-light);
     }
 
     &.success {
-      background-color: var(--success-color);
+      border: 1px solid var(--success-color);
+      background-color: var(--success-color-light);
     }
 
     &.info {
-      background-color: var(--info-color);
+      border: 1px solid var(--info-color);
+      background-color: var(--info-color-light);
     }
 
-    &.ms5000 {
-      width: 0;
-      transition: width 5s linear;
+    &:hover {
+      .closeButton {
+        background-color: var(--white);
+      }
     }
-    &.ms10000 {
-      width: 0;
-      transition: width 10s linear;
+
+    .messageTrayItem {  
+      padding: 1rem 2.75rem 1rem 1rem;
+      box-sizing: border-box;
+      font-size: .9em;
+      font-weight: 500;
+      color: var(--text-color)
     }
-    &.ms20000 {
-      width: 0;
-      transition: width 20s linear;
+
+    .closeButton {
+      position: absolute;
+      top: .5rem;
+      right: .5rem;
+      padding: 0.15rem;
+      border-radius: 2rem;
+      background-color: transparent;
+    }
+  }
+
+  .messageTrayAnimatedBorderContainer {
+    width: 100%;
+    height: 3px;
+    display: flex;
+    justify-content: end;
+
+    .messageTrayAnimatedBorder {
+      width: 100%;
+      height: 100%;
+
+      &.error {
+        background-color: var(--issue-color);
+      }
+
+      &.alert {
+        background-color: var(--potential-color);
+      }
+
+      &.success {
+        background-color: var(--success-color);
+      }
+
+      &.info {
+        background-color: var(--info-color);
+      }
+
+      &.ms5000 {
+        width: 0;
+        transition: width 5s linear;
+      }
+      &.ms10000 {
+        width: 0;
+        transition: width 10s linear;
+      }
+      &.ms20000 {
+        width: 0;
+        transition: width 20s linear;
+      }
     }
   }
 }
+
+
+
+
