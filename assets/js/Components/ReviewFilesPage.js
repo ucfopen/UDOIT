@@ -30,6 +30,7 @@ import './ReviewFilesPage.css'
   * --- activeIssue.fileData: The file as it is stored in the database. Matches report.files for the file.
 **/
 import * as Html from '../Services/Html.js'
+import ModalHeaders from './Widgets/ModalHeaders.js'
 
 export default function ReviewFilesPage({
   t,
@@ -844,11 +845,11 @@ const getSectionPostOptions = (newFile, sectionReferences) => {
         </>
       )}
       <dialog id={dialogId} className="dialog-full-screen" onClose={closeDialog}>
+        <div className='horizontal-divider'>
+          <ModalHeaders title={"Review File"} closeModal={closeDialog} />
+        </div>
         <div className="flex-row gap-2 w-100 h-100">
           <section className='ufixit-widget-container'>
-            <button onClick={closeDialog} className="btn btn-link btn-icon-left btn-small mb-2">
-              <LeftArrowIcon className="icon-sm link-color" />{t('fix.button.files')}
-            </button>
             { tempActiveIssue ? (  
                 <FileFixitWidget
                   t={t}

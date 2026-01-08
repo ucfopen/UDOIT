@@ -695,34 +695,6 @@ button {
   }
 }
 
-.btn-warn{
-  background-color: var(--issue-color);
-  border-color: var(--issue-color);
-  color: var(--primary-color-inverse);
-  fill: var(--primary-color-inverse);
-
-  &:hover,
-  &:focus {
-    filter: brightness(var(--hover-brightness));
-    color: var(--primary-color-inverse);
-    fill: var(--primary-color-inverse);
-  }
-}
-
-.btn-warn-secondary{
-
-  border-color: var(--issue-color);
-  background-color: var(--white);
-  color: var(--issue-color);
-  fill: var(--issue-color);
-  
-  &:hover,
-  &:focus {
-    background-color: var(--issue-color-light);
-  }
-
-}
-
 .btn-secondary {
   border-color: var(--primary-color);
   background-color: var(--white);
@@ -1179,4 +1151,13 @@ a:focus {
   font-size: 0.9em;
   overflow-wrap: anywhere;
   cursor: pointer;
+}
+
+
+/* The horizontal line appears on the bottom of an element to act as divider between various components*/
+
+.horizontal-divider{
+  border-bottom: solid;
+  border-width: 1px;
+  border-color: var(--gray-lighter);
 }

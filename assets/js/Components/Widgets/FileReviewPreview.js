@@ -10,7 +10,6 @@ import SeverityIcon from '../Icons/SeverityIcon'
 export default function FixIssuesContentPreview({
   t,
   settings,
-
   activeIssue,
 }) {
 
@@ -35,107 +34,7 @@ export default function FixIssuesContentPreview({
 
   return (
     <>
-      <a href={activeIssue.contentUrl} target="_blank" rel="noreferrer" className="ufixit-content-label flex-row justify-content-between mt-0 mb-3">
-        <div className="flex-column flex-center allow-word-break">
-          <h2 className="fake-h1">{activeIssue.contentTitle}</h2>
-        </div>
-        <div className="flex-column flex-center">
-          <ExternalLinkIcon className="icon-lg link-color" alt="" />
-        </div>
-      </a>
-      <div className="ufixit-content-preview">
-        <div className="ufixit-content-preview-main">
-          <div className="flex-grow-1">
-            <div className="ufixit-file-details">
-            <div className='flex-row'>
-              <div>
-                  <div className="flex-row mt-2">
-                    <div className="flex-column flex-center ufixit-file-details-label">{t('fix.label.file_name')}</div>
-                    <div className="flex-column flex-center allow-word-break">{activeIssue.fileData.fileName}</div>
-                  </div>
-                  <div className="flex-row mt-2">
-                    <div className="flex-column flex-center ufixit-file-details-label">{t('fix.label.file_type')}</div>
-                    <div className="flex-column flex-center allow-word-break">{getReadableFileType(activeIssue.fileData.fileType)}</div>
-                  </div>
-                  <div className="flex-row mt-2">
-                    <div className="flex-column flex-center ufixit-file-details-label">{t('fix.label.file_size')}</div>
-                    <div className="flex-column flex-center allow-word-break">{Text.getReadableFileSize(activeIssue.fileData.fileSize)}</div>
-                  </div>
-                  <div className="flex-row mt-2">
-                    <div className="flex-column flex-center ufixit-file-details-label">{t('fix.label.file_updated')}</div>
-                    <div className="flex-column flex-center allow-word-break">{Text.getReadableDateTime(activeIssue.fileData.updated)}</div>
-                  </div>
-              </div>
 
-              {activeIssue.fileData.replacement && (  
-                <div>
-                  <div className="flex-row mt-2">
-                    <div className="flex-column flex-center ufixit-file-details-label">{t('fix.label.file_name')}</div>
-                    <div className="flex-column flex-center allow-word-break">{activeIssue.fileData.replacement.fileName}</div>
-                  </div>
-                  <div className="flex-row mt-2">
-                    <div className="flex-column flex-center ufixit-file-details-label">{t('fix.label.file_type')}</div>
-                    <div className="flex-column flex-center allow-word-break">{getReadableFileType(activeIssue.fileData.replacement.fileType)}</div>
-                  </div>
-                  <div className="flex-row mt-2">
-                    <div className="flex-column flex-center ufixit-file-details-label">{t('fix.label.file_size')}</div>
-                    <div className="flex-column flex-center allow-word-break">{Text.getReadableFileSize(activeIssue.fileData.replacement.fileSize)}</div>
-                  </div>
-                  <div className="flex-row mt-2">
-                    <div className="flex-column flex-center ufixit-file-details-label">{t('fix.label.file_updated')}</div>
-                    <div className="flex-column flex-center allow-word-break">{Text.getReadableDateTime(activeIssue.fileData.replacement.updated)}</div>
-                  </div>
-              </div>)
-}
-            </div>
-            </div>
-            { activeIssue.fileData.references.length && activeIssue?.fileData?.sectionRef?.length === 0 ? (
-              <div className="mt-3 callout-container">
-                <div className="flex-row">
-                  <div className="flex-column justify-content-start mr-2">
-                    <SeverityIcon severity="potential" className="icon-md potential-color" alt="" />
-                  </div>
-                  <div className="flex-column justify-content-start">
-                    {t('fix.message.no_references_found')}
-                  </div>
-                </div>
-              </div>
-            ) : (
-              <div className="mt-3"><h3>{t('fix.label.references')}</h3>
-                  <div className='flex-column gap-2'>
-                  { activeIssue.fileData.references.map((reference, index) => (
-                    <a href={reference.contentItemUrl} target="_blank" rel="noreferrer" className='flex-row' key={index}>
-                      <ContentTypeIcon type={reference.contentType} className='link-color icon-md mr-3 flex-column align-self-center'/>
-                      <div className='flex-column align-self-center'>{reference.contentItemTitle}</div>
-                    </a>
-                  )) }
-                  {activeIssue.fileData.sectionRefs.map((sectionRef, index) => (
-                    <a href={sectionRef.contentItemUrl} target='_blank' rel='noreferrer' className='flex-row' key={index}>
-                      <ContentTypeIcon type={sectionRef.contentType} className='link-color icon-md mr-3 flex-column align-self-center' />
-                      <div className='flex-column align-self-center'>{sectionRef.contentItemTitle}</div>
-                    </a>
-                  ))}
-                </div>
-              </div>
-            )}
-            
-            <div className="mt-3 flex-row justify-content-center gap-3">
-              { activeIssue.fileData.downloadUrl && (
-                <button className="btn btn-secondary btn-icon-left" onClick={() => window.open(activeIssue.fileData.downloadUrl, 'download')}>
-                  <DownloadIcon />
-                  <div className="flex-column justify-content-center">{t('fix.button.download_file')}</div>
-                </button>
-              )}
-              { activeIssue.fileData.lmsUrl && (
-                <button className="btn btn-secondary btn-icon-left" onClick={() => window.open(activeIssue.fileData.lmsUrl, '_blank', 'noopener,noreferrer')}>
-                  <ExternalLinkIcon />
-                  <div className="flex-column justify-content-center">{t('fix.button.view_in_lms')}</div>
-                </button>
-              )}
-            </div>
-          </div>
-        </div>
-      </div>
     </>
   )
 }

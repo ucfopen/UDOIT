@@ -10,76 +10,22 @@
   border-collapse: collapse;
   font-size: 0.8em;
   overflow-x: auto;
-}
 
-.udoit-sortable-table thead tr th {
-  font-family: var(--heading-font-family);
-  font-weight: 600;
-  text-transform: uppercase;
-  cursor: pointer;
-  padding: .5rem .15rem .25rem .15rem;
-  color: var(--primary-color-inverse);
-  fill: var(--primary-color-inverse);
-  border-bottom: 1px solid var(--primary-color);
-  background-color: var(--primary-color);
-  transition: filter var(--transition-time) ease-in-out;
-}
+  thead {
 
-.udoit-sortable-table thead tr th:focus {
-  outline: 2px solid var(--focus-color);
-  outline-offset: -2px;
-}
+    tr {
+      border-bottom: 1px solid var(--border-color);
 
-.udoit-sortable-table thead tr th:hover,
-.udoit-sortable-table thead tr th:focus {
-  filter: brightness(var(--hover-brightness));
-}
-
-.udoit-sortable-table thead tr th svg {
-  transition: transform var(--transition-time) ease-in-out;
-}
-
-.udoit-sortable-table thead tr th .header-spacer {
-  width: 32px;
-  min-width: 32px;
-  height: auto;
-}
-
-.udoit-sortable-table tbody tr td {
-  padding: .15rem;
-}
-
-.udoit-sortable-table tbody tr td[textalign='end'] div {
-  text-align: right;
-}
-
-.udoit-sortable-table tbody tr:hover td div,
-.udoit-sortable-table tbody tr:hover td span {
-  text-decoration: underline;
-}
-
-.udoit-sortable-table tbody tr a {
-  color: var(--link-color);
-  text-decoration: none;
-  font-weight: 600;
-  transition: text-decoration 0.15s;
-}
-
-  .udoit-sortable-table tr th {
-    font-family: var(--heading-font-family);
-    font-weight: 600;
-    text-transform: uppercase;
-    cursor: pointer;
-
-    padding: .5rem .15rem .25rem .15rem;
-    color: var(--primary-color-inverse);
-    fill: var(--primary-color-inverse);
-    border-bottom: 1px solid var(--primary-color);
-    background-color: var(--primary-color);
-
-    &.divider {
-      border-right: 2px solid var(--primary-color-inverse);
-    }
+      th {
+        font-family: var(--heading-font-family);
+        font-weight: 600;
+        cursor: pointer;
+        padding: .5rem .5rem .25rem .5rem;
+        color: var(--text-color);
+        fill: var(--text-color);
+        border-bottom: 1px solid var(--border-color);
+        background-color: var(--gray-lighter);
+        text-align: start;
 
         &:focus {
           outline: 2px solid var(--focus-color);
@@ -109,16 +55,48 @@
           height: auto;
         }
       }
+    }
+  }
 
-  .udoit-sortable-table tbody {
+  tbody {
+
     tr {
-      td {
-        padding: .15rem;
+      background-color: var(--white);
 
-        &[textalign='end'] {
-          div {
-            text-align: right;
-          }
+      &:not(:last-child) {
+        border-bottom: 1px solid var(--border-color);
+      }
+
+      &:hover {
+        td div,
+        td span {
+          text-decoration: underline;
+        }
+      }
+
+      &.clickable {
+        cursor: pointer;
+        /* color: var(--link-color);
+        text-decoration: none;
+        font-weight: 600; */
+
+        &:hover,
+        &:focus {
+          text-decoration: underline;
+          background-color: var(--link-color-light);
+        }
+
+        &:focus {
+          outline: 2px solid var(--focus-color);
+          outline-offset: -2px;
+        }
+      }
+
+      td {
+        padding: .5rem;
+
+        &[textalign='end'] div {
+          text-align: right;
         }
 
         &.divider {
@@ -159,7 +137,7 @@
       }
     }
   }
-
+}
 
 .paginationButton {
   padding: .2rem .5rem;
