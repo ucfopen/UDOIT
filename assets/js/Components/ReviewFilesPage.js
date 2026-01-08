@@ -852,9 +852,11 @@ const getSectionPostOptions = (newFile, sectionReferences) => {
             { tempActiveIssue ? (  
                 <FileFixitWidget
                   t={t}
+                  settings={settings}
                   sessionFiles={sessionFiles}
                   handleFileUpload={handleFileUpload}
-                  sessionIssues={sessionIssues}
+                  handleFileDelete={handleFileDelete}
+                  handleFileResolve={handleFileResolve}
                   tempActiveIssue={tempActiveIssue}
                 />
             ) : ''}

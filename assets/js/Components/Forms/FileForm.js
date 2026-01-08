@@ -3,7 +3,6 @@ import UploadIcon from '../Icons/UploadIcon'
 import SaveIcon from '../Icons/SaveIcon'
 import ResolvedIcon from '../Icons/ResolvedIcon'
 import './FileForm.css'
-import DeleteModal from '../Widgets/DeleteModal'
 import DeleteIcon from '../Icons/DeleteIcon'
 
 export default function FileForm ({

@@ -150,7 +150,6 @@ const getReferenceFromSection = (contentSections, sectionId) => {
 
 export function analyzeReport(report, ISSUE_STATE) {
   let tempReport = {
-    contentItems: {...report.contentItems},
     contentFixed: report.contentFixed || 0,
     contentResolved: report.contentResolved || 0,
     contentHandled: (report.contentFixed || 0) + (report.contentResolved || 0),
@@ -163,6 +162,7 @@ export function analyzeReport(report, ISSUE_STATE) {
     ready: report.ready || false,
   }
 
+  let usedContentItems = {}
   let parsedDocuments = {}
   let activeIssues = []
   let scanCounts = {
@@ -275,6 +275,10 @@ export function analyzeReport(report, ISSUE_STATE) {
         scanCounts.suggestions += 1
       }
 
+      if(!usedContentItems[issue.contentItemId] && report.contentItems[issue.contentItemId]) {
+        usedContentItems[issue.contentItemId] = report.contentItems[issue.contentItemId]
+      }
+
       if(!(issue.scanRuleId in scanRules)) {
         scanRules[issue.scanRuleId] = 1
       }
@@ -329,11 +333,10 @@ export function analyzeReport(report, ISSUE_STATE) {
   tempReport.scanCounts = scanCounts
   tempReport.scanRules = scanRules
   tempReport.files = {...report.files}
+  tempReport.contentItems = usedContentItems
   tempReport.sessionIssues = sessionIssues
   tempReport.sessionFiles = sessionFiles
   tempReport.filesReviewed = tempFilesReviewed
 
-  console.log(tempReport)
-  console.log(lmsIdToFileMap)
   return tempReport
 }
