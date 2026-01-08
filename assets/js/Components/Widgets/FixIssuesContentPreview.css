@@ -318,5 +318,42 @@
   border-radius: 6px;
   font-size: 13px;
   color: #4b5563;
-  font-weight: 400;
 }
+
+
+.accessibility-info-container{
+    border: solid;
+    border-color: var(--gray-lightest);
+    border-radius: 0.7em;
+    box-sizing: border-box;    
+} 
+
+.current-file-container{
+    text-transform: uppercase;
+    font-size: 0.65em;
+}
+
+.file-icon{
+    background-color: var(--gray-lightest);
+    border-radius: 0.5em;
+}
+
+.file-name-link{
+    font-size: 0.75em;
+}
+
+.file-details{
+    font-size: 0.65em;
+}
+
+.accessibility-instructions-container{
+    font-size: 0.65em;
+    background-color: var(--potential-color-light);
+    border-top: solid;
+    border-color: var(--potential-color);
+    box-sizing: border-box;
+    overflow: hidden;
+    margin: 0;
+    border-radius: 0 0 0.7em 0.7em; /* Match bottom corners if needed */
+}
+
