@@ -428,6 +428,16 @@ export default function Combobox({
     updateMenuState(false)
   }
 
+  const onOptionMouseDown = () => {
+    // Clicking an option will cause a blur event,
+    // but we don't want to perform the default keyboard blur action
+    // let containerEl = document.getElementById('combo-container-' + id)
+    // if(!containerEl) {
+    //   return
+    // }
+    // containerEl.ignoreBlur = true
+  }
+
   const selectOption = (index) => {
     setActiveIndex(index)
     setSelectedIndex(index)

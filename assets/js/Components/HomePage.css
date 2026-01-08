@@ -71,33 +71,26 @@
   width: 30%;
   min-width: 11em;
   flex-shrink: 0;
+}
 
-  .svg-container {
-    position: relative;
-    width: fit-content;
+.svg-container {
+  position: relative;
+  width: fit-content;
 
-    .progress-text-container {
-      position: absolute;
-      width: 100%;
-      height: 100%;
-      top: 0;
-      left: 0;
-
-      .progress-text {
-        width: 100%;
-        text-align: center;
-        font-weight: 600;
-        font-size: 1.25em;
-        margin-top: -.5em;
-      }
-    }
+  .progress-text-container {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
   }
+}
 
   .count-summary {
     margin-top: -.5rem;
     line-height: normal;
   }
-}
+
 
 .step-summary {
   font-size: .9em;
