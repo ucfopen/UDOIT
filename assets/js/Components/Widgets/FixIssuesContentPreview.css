@@ -320,6 +320,11 @@
   color: #4b5563;
 }
 
+.file-accessibility-info-wrapper{
+  background-color: white;
+  border-radius: 0.5em;
+}
+
 
 .accessibility-info-container{
     border: solid;

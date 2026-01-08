@@ -864,7 +864,7 @@ const getSectionPostOptions = (newFile, sectionReferences) => {
           </section>
           <section className="ufixit-content-container">
             {filteredFiles.length > 0 && tempActiveIssue && (
-            <div className='p-2 m-2'>              
+            <div className='preview-window p-4'>              
               <FileReviewPreview
                 t={t}
                 settings={settings}

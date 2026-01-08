@@ -68,3 +68,8 @@
     }
   }
 }
+
+.preview-window{
+  background-color: var(--gray-lighter);
+  height: 100%;
+}

@@ -83,7 +83,7 @@ export default function FixIssuesContentPreview({
   return (
     <>
      { currentFile && ( 
-      <div className='file-accessibility-info-wrapper w-100 p-2'>
+      <div className='file-accessibility-info-wrapper w-100'>
         <div className='accessibility-info-container flex-column w-100'>
           <div className='file-info p-2'>
               <div className='current-file-container flex-row gap-1 align-items-center'>
