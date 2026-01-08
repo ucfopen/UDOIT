@@ -22,7 +22,8 @@ const ReviewFileWidget = (
     t,
     sessionFiles,
     handleFileUpload,
-    settings
+    settings,
+    handleFileRevert
 
     }) => {
     const [toggleReplace, setToggleReplace] = useState(true)
@@ -211,6 +212,22 @@ const ReviewFileWidget = (
     shadowInput.click()
   }
 
+  const handleRevert = () => {
+    let contentReferences = []
+    let sectionReferences = []
+
+        Object.values(fileReferenceHolder).forEach((ref) => {
+            if(ref.itemId){
+                sectionReferences.push(ref)
+            }
+            else{
+                contentReferences.push(ref)
+            }
+        })
+    
+    handleFileRevert(activeFile, contentReferences, sectionReferences)
+  }
+
   return (
     <div className='p-4 flex-column align-items-center justify-content-center'>
         <FileAccessibilityInformation 
@@ -245,7 +262,15 @@ const ReviewFileWidget = (
                 handleToggleReplace={handleToggleRplace}
             />
         </div>
-        <FileSaveReviewOrRevert handleSubmit={handleSubmit} handleResolve={handleResolve} markReview={markReview} uploadedFile={uploadedFile}/>
+        <FileSaveReviewOrRevert 
+            activeFile={activeFile} 
+            handleSubmit={handleSubmit} 
+            handleResolve={handleResolve} 
+            markReview={markReview} 
+            uploadedFile={uploadedFile} 
+            references={fileReferenceHolder}
+            handleRevert={handleRevert}
+        />
     </div>
   )
 }

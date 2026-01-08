@@ -148,6 +148,15 @@ class FileItem implements \JsonSerializable
         return $this;
     }
 
+    public function removeReplacementFile(): self
+    {
+        $tempMetadata = json_decode($this->getMetadata(), true);
+        $tempMetadata['replacementFileId'] = -1;
+        $this->setMetadata(json_encode($tempMetadata));
+        return $this;
+
+    }
+
     public function getReplacementFile(): int
     {
         $metadata = json_decode($this->getMetadata(), true);

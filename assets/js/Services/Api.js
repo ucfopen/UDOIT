@@ -133,7 +133,7 @@ export default class Api {
         })
     }
 
-    reviewFile(file) {
+    reviewFile(file, removeReplacement) {
         const authToken = this.getAuthToken()
 
         let url = `${this.apiUrl}${this.endpoints.reviewFile}`
@@ -146,7 +146,7 @@ export default class Api {
                 'Content-Type': 'application/json',
                 'X-AUTH-TOKEN': authToken,
             },
-            body: JSON.stringify({ reviewed: file.reviewed }),
+            body: JSON.stringify({ reviewed: file.reviewed, replacement: removeReplacement }),
         })
     }
 

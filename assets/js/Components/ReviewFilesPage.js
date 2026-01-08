@@ -614,7 +614,7 @@ const getSectionPostOptions = (newFile, sectionReferences) => {
       const currentFile = tempReport.files.find((file) => file.id == activeIssue.id) 
       canMarkReview = currentFile ? (currentFile?.references?.length == 0 && currentFile?.sectionRefs?.length == 0) : false
       if(canMarkReview){
-          const resolvedReport = await handleFileResolve(tempFile, true, tempReport, true)
+          const resolvedReport = await handleFileResolve(tempFile, true, tempReport, true, false)
           tempReport = resolvedReport ? resolvedReport : tempReport
           updateActiveSessionFile(tempFile.id, settings.ISSUE_STATE.SAVED)
       }
@@ -631,19 +631,20 @@ const getSectionPostOptions = (newFile, sectionReferences) => {
     }
   }
 
-  const handleFileResolve = async (fileData, getReport = false, copiedReport = report, forceReview = false) => {
+  const handleFileResolve = async (fileData, getReport = false, copiedReport = report, forceReview = false, replace = false) => {
     updateActiveSessionFile(fileData.id, settings.ISSUE_STATE.RESOLVING)
-    
-    let tempFile = Object.assign({}, fileData)
-    tempFile.reviewed = !(tempFile.reviewed) || forceReview
+    fileData.reviewed = !(fileData.reviewed) || forceReview
+    if(replace){
+        fileData.replacement = null
+        fileData.metadata.replacementFileId = -1
+      }
     try{
       let api = new Api(settings)
-      const responseStr = await api.reviewFile(tempFile)
+      const responseStr = await api.reviewFile(fileData, replace)
       const response = await responseStr.json()
 
       const reviewed = (response?.data?.file && ('reviewed' in response.data.file)) ? response.data.file.reviewed : false
-      const newFileData = { ...tempFile }
-      newFileData.reviewed = reviewed
+      fileData.reviewed = reviewed
 
        // Set messages
       response.messages.forEach((msg) => addMessage(msg))
@@ -655,7 +656,7 @@ const getSectionPostOptions = (newFile, sectionReferences) => {
       else {
         updateActiveSessionFile(fileData.id, settings.ISSUE_STATE.UNCHANGED)
       }
-      const newReport = updateFile(newFileData, copiedReport)
+      const newReport = updateFile(fileData, copiedReport)
       if(getReport){
         return newReport
       }
@@ -665,6 +666,36 @@ const getSectionPostOptions = (newFile, sectionReferences) => {
       console.warn(error)
       updateActiveSessionFile(fileData.id, settings.ISSUE_STATE.ERROR)
     }
+  }
+
+  const handleFileRevert = async (activeFile, contentReferences, sectionReferences) => {
+    let tempReport = JSON.parse(JSON.stringify(report))
+    if(!Array.isArray(tempReport.files)){
+      tempReport.files = Object.values(tempReport.files)
+    }
+    const postContentItemOptions = getContentPostItems(activeFile.replacement, activeFile, contentReferences)
+    const postSectionOptions = getSectionPostOptions(activeFile, sectionReferences)
+
+    if((postContentItemOptions && postContentItemOptions.length > 0) ||  (postSectionOptions && postSectionOptions.length > 0)){
+        const responseStatus = await updateAndScanContent(postContentItemOptions, postSectionOptions)
+        if(responseStatus && responseStatus[0]?.type == "error"){
+          responseStatus.forEach((err) => addMessage({message: err.message, severity: 'error', visible:true}))
+          updateActiveSessionFile(tempFile.id, settings.ISSUE_STATE.ERROR)
+          return
+        }
+        else if(responseStatus && responseStatus[0]?.status == "success"){
+          tempReport = responseStatus[0].message
+          tempReport = processNewReport(tempReport)
+        }
+      }
+    
+    if(!Array.isArray(tempReport.files)){
+        tempReport.files = Object.values(tempReport.files)
+    }
+    let currentFile = tempReport.files.find((file) => file.id == activeIssue.id)
+    const resolvedReport = await handleFileResolve(currentFile, true, tempReport, false, true)
+    processNewReport(resolvedReport)
+
   }
 
   const updateActiveFilters = (filter, value) => {
@@ -759,6 +790,7 @@ const getSectionPostOptions = (newFile, sectionReferences) => {
                   sessionFiles={sessionFiles}
                   handleFileUpload={handleFileUpload}
                   settings={settings}
+                  handleFileRevert={handleFileRevert}
                 />
               </div>
             )}

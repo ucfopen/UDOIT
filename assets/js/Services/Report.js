@@ -315,6 +315,11 @@ export function analyzeReport(report, ISSUE_STATE) {
   report.files.forEach((file) => {
     if(lmsIdToFileMap[file.metadata.replacementFileId]){
        file.replacement = lmsIdToFileMap[file.metadata.replacementFileId]
+       let tempFile = file.replacement
+       while(tempFile.replacement){
+        tempFile = tempFile.replacement
+       }
+       file.replacement = tempFile
     }
     if(file.reviewed){
       const fixedOn = new Date(file.updated)
@@ -334,5 +339,6 @@ export function analyzeReport(report, ISSUE_STATE) {
   tempReport.filesReviewed = tempFilesReviewed
 
   console.log(tempReport)
+  console.log(lmsIdToFileMap)
   return tempReport
 }

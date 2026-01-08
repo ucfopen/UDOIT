@@ -28,6 +28,7 @@ class FileItemsController extends ApiController
     {
         $apiResponse = new ApiResponse();
         $user = $this->getUser();
+        $output = new ConsoleOutput();
 
         try {
             // Check if user has access to course
@@ -38,6 +39,10 @@ class FileItemsController extends ApiController
 
             $updates = \json_decode($request->getContent(), true);
             $file->setReviewed($updates['reviewed']);
+            if ($updates['replacement']){
+                $output->writeln("Triggers");
+                $file->removeReplacementFile();
+            }
             $file->setReviewedBy($user);
             $file->setReviewedOn($util->getCurrentTime());
 
@@ -85,7 +90,6 @@ class FileItemsController extends ApiController
             $lmsResponse = $lmsPost->saveFileToLms($file, $uploadedFile, $user);
             $responseContent = $lmsResponse->getContent();
 
-            $output->writeln("Response Content: " . print_r($responseContent, true));
 
             // If the new file was successfully posted, update the FileItem metadata to point to this replacement
             if (isset($responseContent['id'])) {
