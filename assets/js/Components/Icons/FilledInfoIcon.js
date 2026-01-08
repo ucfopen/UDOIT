@@ -1,6 +1,5 @@
 import React from 'react';
-
-export default function FilledInfoIcon({ circleColor = "var(--link-color)", iconColor = "#fff", ...props }) {
+export default function FilledInfoIcon({ circleColor = "var(--link-color)", iconColor = "var(--white)", ...props }) {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"

@@ -6,6 +6,7 @@
 
 .udoit-sortable-table {
   width: 100%;
+  min-width: 1200px;
   border-collapse: collapse;
   font-size: 0.8em;
   overflow-x: auto;

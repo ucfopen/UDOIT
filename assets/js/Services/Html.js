@@ -481,7 +481,7 @@ export function findElementWithIssue(content, issue) {
   else {
     let errorHtml = issue?.sourceHtml || undefined
     if(issue.status.toString() === '1') {
-      errorHtml = issue?.newHtml || errorHtml
+      errorHtml = issue?.newHtml || undefined
     }
 
     if(errorHtml === undefined || errorHtml === '') {

@@ -4,8 +4,11 @@ namespace App\Controller;
 
 use App\Entity\Course;
 use App\Entity\ContentItem;
+use App\Entity\User;
 use App\Repository\CourseRepository;
 use Doctrine\Persistence\ManagerRegistry;
+use App\Repository\CourseUserRepository;
+use App\Repository\UserRepository;
 use App\Response\ApiResponse;
 use App\Services\LmsApiService;
 use App\Services\LmsFetchService;
@@ -17,6 +20,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Console\Output\ConsoleOutput;
+use Doctrine\ORM\EntityManagerInterface;
 
 
 class SyncController extends ApiController
@@ -34,7 +38,13 @@ class SyncController extends ApiController
     }
 
     #[Route('/api/sync/{course}', name: 'request_sync')]
-    public function requestSync(Course $course, LmsFetchService $lmsFetch)
+    public function requestSync(Course $course,
+    LmsFetchService $lmsFetch,
+    UserRepository $userRepo,
+    CourseUserRepository $courseUserRepo,
+    EntityManagerInterface $em,
+    LmsApiService $lmsApi
+    )
     {
         $response = new ApiResponse();
         $user = $this->getUser();
@@ -77,6 +87,15 @@ class SyncController extends ApiController
             $reportArr['issues'] = $course->getAllIssues();
             $reportArr['contentItems'] = $course->getContentItems();
             $reportArr['contentSections'] = $lmsFetch->getCourseSections($course, $user);
+
+            $reportArr['instructors'] = $this->getInstructorNamesForCourse(
+            $course,
+            $user,
+            $courseUserRepo,
+            $userRepo,
+            $em,
+            $lmsApi
+            );
 
             $response->setData($reportArr);
 
@@ -232,5 +251,76 @@ class SyncController extends ApiController
         $reportArr['contentSections'] = $lmsFetch->getCourseSections($course, $user);
 
         return $reportArr;
+    }
+
+            /**
+     * Return a de-duplicated, sorted list of instructor display names for a course.
+     * Will refresh the local mapping from Canvas if empty or older than $ttlMinutes.
+     */
+protected function getInstructorNamesForCourse(
+    Course $course,
+    User $actingUser,
+    CourseUserRepository $courseUserRepo,
+    UserRepository $userRepo,
+    EntityManagerInterface $em,
+    LmsApiService $lmsApi,
+    int $ttlMinutes = 1440
+) {
+
+        $rows = $courseUserRepo->findByCourse($course);
+        $lastFetched = $courseUserRepo->maxFetchedAt($course);
+
+        $stale = !$rows
+            || !$lastFetched
+            || $lastFetched < (new \DateTimeImmutable())->modify("-{$ttlMinutes} minutes");
+
+        if ($stale) {
+            try {
+                $lmsClient = $lmsApi->getLms(); 
+                $this->syncInstructors($course, $actingUser, $lmsClient, $courseUserRepo, $userRepo, $em);
+                $rows = $courseUserRepo->findByCourse($course);
+            } catch (\Throwable $e) {
+                // optionally log
+            }
+        }
+
+        $namesSet = [];
+        foreach ($rows as $cu) {
+            $name = trim((string)($cu->getUser()?->getName() ?? $cu->getDisplayName()));
+            if ($name !== '') {
+                $namesSet[$name] = true;
+            }
+        }
+
+        $names = array_keys($namesSet);
+        sort($names, SORT_NATURAL | SORT_FLAG_CASE);
+        return $names;
+    }
+
+    private function syncInstructors(
+        Course $course,
+        User $actingUser,
+        object $lms,
+        CourseUserRepository $courseUserRepo,
+        UserRepository $userRepo,
+        EntityManagerInterface $em
+    ) {
+        $teachers = $lms->getCourseTeachers($actingUser, $course->getLmsCourseId()) ?? [];
+
+        foreach ($teachers as $t) {
+            $lmsUserId   = (string)($t['id'] ?? '');
+            if ($lmsUserId === '') { continue; }
+            $displayName = $t['name'] ?? null;
+
+            $maybeUser = $userRepo->findOneBy([
+                'institution' => $course->getInstitution(),
+                'lmsUserId'   => $lmsUserId,
+            ]);
+
+            $courseUserRepo->upsertFromApi($course, $lmsUserId, $displayName, $maybeUser);
+        }
+
+        $em->flush();
+
     }
 }

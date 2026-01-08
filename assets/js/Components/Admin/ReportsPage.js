@@ -16,6 +16,7 @@ export default function ReportsPage({
 }) {
 const [groupedReports, setGroupedReports] = useState(null)
 const [issues, setIssues] = useState(null)
+const [instructors, setInstructors] = useState([])
 
 const ISSUE_STATE = {
   UNCHANGED: 0,
@@ -54,9 +55,12 @@ const getReportHistory = () => {
           // Update state with analyzed reports
           setGroupedReports(groupedReports);
           setIssues(response.data.issues);
+          setInstructors(response.data.instructors || [])
+
         } else {
           setGroupedReports(null);
           setIssues(null);
+          setInstructors([]);
         }
       })
       .catch((error) => {
@@ -86,6 +90,15 @@ const getReportHistory = () => {
           />
         </div>
       </div>
+
+      {selectedCourse && (instructors?.length ?? 0) > 0 && (
+        <div className="flex-row justify-content-center">
+          <div className="mt-1 secondary-dark">
+            {instructors.join(', ')}
+          </div>
+        </div>
+      )}
+
       { (groupedReports === null) ? (
         <div className="mt-3 mb-3 flex-row justify-content-center">
           <div className="flex-column justify-content-center me-3">
