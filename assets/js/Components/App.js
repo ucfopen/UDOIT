@@ -12,7 +12,7 @@ import { analyzeReport } from '../Services/Report'
 
 export default function App(initialData) {
 
-  const [messages, setMessages] = useState(initialData.messages || [])
+  const [nextMessage, setNextMessage] = useState('')
   const [untranslatedMessage, setUntranslatedMessage] = useState('')
   const [report, setReport] = useState(initialData.report || null)  
   const [settings, setSettings] = useState(initialData.settings || null)
@@ -206,12 +206,7 @@ export default function App(initialData) {
   }
 
   const addMessage = (msg) => {
-    setMessages([msg])
-    // setMessages(prevMessages => [...prevMessages, msg])
-  }
-
-  const clearMessages = () => {
-    setMessages([])
+    setNextMessage(msg)
   }
 
   const processServerError = (response) => {
@@ -414,8 +409,7 @@ export default function App(initialData) {
       <MessageTray
         t={t}
         settings={settings}
-        messages={messages}
-        clearMessages={clearMessages}
+        nextMessage={nextMessage}
       />
     </div>
   )
