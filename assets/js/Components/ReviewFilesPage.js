@@ -864,12 +864,15 @@ const getSectionPostOptions = (newFile, sectionReferences) => {
           </section>
           <section className="ufixit-content-container">
             {filteredFiles.length > 0 && tempActiveIssue && (
+            <div className='p-1'>              
               <FileReviewPreview
                 t={t}
                 settings={settings}
 
                 activeIssue={tempActiveIssue}
               />
+            </div>
+
             )}
             <div className="flex-row justify-content-end gap-2 mt-3">
               <button
