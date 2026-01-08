@@ -62,6 +62,7 @@ class LmsUserService {
     {
         $refreshToken = $user->getRefreshToken();
         $institution = $user->getInstitution();;
+        $userAgent = 'UDOIT/' . !empty($_ENV['VERSION_NUMBER']) ? $_ENV['VERSION_NUMBER'] : '4.0.0';
 
         if (empty($refreshToken)) {
             return false;
@@ -74,6 +75,9 @@ class LmsUserService {
                 'redirect_uri'  => self::getOauthRedirectUri(),
                 'client_secret' => $institution->getApiClientSecret(),
                 'refresh_token' => $refreshToken,
+            ],
+            'headers' => [
+                'User-Agent' => $userAgent,
             ],
             'verify_host' => false,
             'verify_peer' => false,
