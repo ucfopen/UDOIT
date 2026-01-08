@@ -5,7 +5,7 @@ namespace App\Entity;
 use App\Repository\FileItemRepository;
 use App\Services\UtilityService;
 use Doctrine\ORM\Mapping as ORM;
-
+use Symfony\Component\Console\Output\ConsoleOutput;
 
 #[ORM\Entity(repositoryClass: FileItemRepository::class)]
 class FileItem implements \JsonSerializable
@@ -137,6 +137,50 @@ class FileItem implements \JsonSerializable
         return $this;
     }
 
+    public function setReplacementFile($fileData): self
+    {
+        if(isset($fileData['id'])) {
+            $tempMetadata = json_decode($this->getMetadata(), true);
+            $tempMetadata['replacementFileId'] = $fileData['id'];
+            $this->setMetadata(json_encode($tempMetadata));
+        }
+
+        return $this;
+    }
+
+    public function removeReplacementFile(): self
+    {
+        $tempMetadata = json_decode($this->getMetadata(), true);
+        $tempMetadata['replacementFileId'] = -1;
+        $this->setMetadata(json_encode($tempMetadata));
+        return $this;
+
+    }
+
+    public function getReplacementFile(): int
+    {
+        $metadata = json_decode($this->getMetadata(), true);
+        if (isset($metadata['replacement'])) {
+            // Fetch the replacement file from the database using the LMS File ID
+            // $lmsFileId = $metadata['replacement'];
+            // $output = new ConsoleOutput();
+            // $output->writeln("Fetching replacement file with LMS File ID: " . $lmsFileId);
+            
+            // TODO: Get ANOTHER file item IF it still exists in the database.
+            // This file does NOT have access to the ManagerRegistry (doctrine) but we need it to do
+            // something like this...
+
+            // $fileItemRepo = $this->doctrine->getManager()->getRepository(FileItem::class);
+            // $replacementFile = $fileItemRepo->findOneBy(['lmsFileId' => $lmsFileId]);
+
+            // if ($replacementFile) {
+            //     return $replacementFile;
+            // }
+        }
+
+        return -1;
+    }
+
     public function getStatus(): ?bool
     {
         return $this->status;
@@ -188,6 +232,8 @@ class FileItem implements \JsonSerializable
     public function update($file): self
     {
         $updatedDate = new \DateTime($file['updated'], UtilityService::$timezone);
+        $replacementFile = $this->getReplacementFile();
+        $file['replacementFileId'] = $replacementFile;
 
         $this->setUpdated($updatedDate);
         $this->setActive(true);
@@ -204,6 +250,13 @@ class FileItem implements \JsonSerializable
 
     public function jsonSerialize(): array
     {
+        // If there is a replacement file, verify that it still exists.
+        $replacementFileData = $this->getReplacementFile();
+        if(isset($replacementFileData['id'])) {
+            $output = new ConsoleOutput();
+            $output->writeln("File Item " . $this->getId() . " has a replacement file ID of " . $replacementFileData['id']);
+        }
+
         return [
             'id' => $this->getId(),
             'fileName' => $this->getFileName(),
@@ -217,6 +270,7 @@ class FileItem implements \JsonSerializable
             'reviewed' => $this->getReviewed(),
             'downloadUrl' => $this->getDownloadUrl(),
             'lmsUrl' => $this->getLmsUrl(),
+            'metadata' => json_decode($this->getMetadata(), true),
         ];
     }
 

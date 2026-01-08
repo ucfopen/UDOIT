@@ -3,11 +3,13 @@ import Header from './Header'
 import WelcomePage from './WelcomePage'
 import HomePage from './HomePage'
 import FixIssuesPage from './FixIssuesPage'
+import ReviewFilesPage from './ReviewFilesPage'
 import ReportsPage from './ReportsPage'
 import SettingsPage from './SettingsPage'
 import Api from '../Services/Api'
 import MessageTray from './Widgets/MessageTray'
 import { analyzeReport } from '../Services/Report'
+import { ISSUE_STATE, WIDGET_STATE, ISSUE_FILTER, FILE_FILTER, FILE_TYPES, FILE_TYPE_MAP, DEFAULT_USER_SETTINGS } from '../Services/Settings'
 
 
 export default function App(initialData) {
@@ -15,7 +17,16 @@ export default function App(initialData) {
   const [nextMessage, setNextMessage] = useState('')
   const [untranslatedMessage, setUntranslatedMessage] = useState('')
   const [report, setReport] = useState(initialData.report || null)  
-  const [settings, setSettings] = useState(initialData.settings || null)
+  const [settings, setSettings] = useState(Object.assign({},
+    initialData?.settings || {}, 
+    { ISSUE_STATE }, 
+    { WIDGET_STATE }, 
+    { ISSUE_FILTER }, 
+    { FILE_FILTER },
+    { FILE_TYPES },
+    { FILE_TYPE_MAP },
+    { DEFAULT_USER_SETTINGS }
+  ))
   const [sections, setSections] = useState([])
 
   const [navigation, setNavigation] = useState('summary')
@@ -25,16 +36,8 @@ export default function App(initialData) {
   const [initialSearchTerm, setInitialSearchTerm] = useState('')
   const [contentItemCache, setContentItemCache] = useState([])
   const [sessionIssues, setSessionIssues] = useState({})
+  const [sessionFiles, setSessionFiles] = useState({})
   const [welcomeClosed, setWelcomeClosed] = useState(false)
-
-  const ISSUE_STATE = {
-    UNCHANGED: 0,
-    SAVING: 1,
-    RESOLVING: 2,
-    SAVED: 3,
-    RESOLVED: 4,
-    ERROR: 5,
-  }
 
   // `t` is used for text/translation. It will return the translated string if it exists
   // in the settings.labels object.
@@ -113,7 +116,7 @@ export default function App(initialData) {
   // Each issue has an id and state: { id: issueId, state: 2 }
   // The valid states are set and read in the FixIssuesPage component.
   const updateSessionIssue = (issueId, issueState = null, contentItemId = null) => {
-    if(issueState === null || issueState === ISSUE_STATE.UNCHANGED) {
+    if(issueState === null || issueState === settings.ISSUE_STATE.UNCHANGED) {
       let newSessionIssues = Object.assign({}, sessionIssues)
       if(newSessionIssues[issueId]) {
         delete newSessionIssues[issueId]
@@ -130,12 +133,30 @@ export default function App(initialData) {
     setSessionIssues(newSessionIssues)
   }
 
+    const updateSessionFiles = (fileId, fileState = null, contentItemId = null) => {
+    if(fileState === null || fileState === settings.ISSUE_STATE.UNCHANGED) {
+      let newSessionFiles = Object.assign({}, sessionFiles)
+      if(newSessionFiles[fileId]) {
+        delete newSessionFiles[fileId]
+      }
+      setSessionFiles(newSessionFiles)
+
+      if(contentItemId) {
+        removeContentItemFromCache(contentItemId)
+      }
+
+      return
+    }
+    let newSessionFiles = Object.assign({}, sessionFiles, { [fileId]: fileState})
+    setSessionFiles(newSessionFiles)
+  }
+
   const processNewReport = (rawReport) => {
-    const tempReport = analyzeReport(rawReport, ISSUE_STATE)
+    const tempReport = analyzeReport(rawReport, settings.ISSUE_STATE)
     setReport(tempReport)
 
     let api = new Api(settings)
-    api.setReportData(tempReport.id, {'scanCounts': tempReport.scanCounts})
+    api.setReportData(tempReport.id, {'scanCounts': tempReport.scanCounts, 'scanRules': tempReport.scanRules})
       .then((response) => response.json())
       .then((data) => {
         if(data.errors && data.errors.length > 0) {
@@ -159,11 +180,17 @@ export default function App(initialData) {
       setSessionIssues(tempReport.sessionIssues)
     }
 
+    if(tempReport.sessionFiles){
+      setSessionFiles(tempReport.sessionFiles)
+    }
+
     let tempContentItems = {}
     for(const key in tempReport.contentItems) {
       tempContentItems[key] = tempReport.contentItems[key]
     }
+
     setContentItemCache(tempContentItems)
+    return tempReport 
   }
 
   const handleNewReport = (data) => {
@@ -236,6 +263,10 @@ export default function App(initialData) {
   }
 
   const quickIssues = (severity) => {
+    if(severity === 'FILE'){
+      setNavigation('reviewFiles')
+      return
+    }
     setInitialSeverity(severity)
     setNavigation('fixIssues')
   }
@@ -332,7 +363,10 @@ export default function App(initialData) {
 
   return (
     <div id="app-container"
-         className={`flex-column flex-grow-1 ${settings?.user?.roles?.font_size || 'font-medium'} ${settings?.user?.roles?.font_family || 'sans-serif'} ${settings?.user?.roles?.dark_mode ? 'dark-mode' : ''}`}>
+         className={`flex-column flex-grow-1 `
+          + `${settings?.user?.roles?.font_size || settings.DEFAULT_USER_SETTINGS.FONT_SIZE} `
+          + `${settings?.user?.roles?.font_family || settings.DEFAULT_USER_SETTINGS.FONT_FAMILY} `
+          + `${settings?.user?.roles?.dark_mode ? 'dark-mode' : ''}`}>
       { !welcomeClosed ?
         ( <WelcomePage
             t={t}
@@ -350,11 +384,11 @@ export default function App(initialData) {
               handleNavigation={handleNavigation}
              />
 
-            <main role="main" className="pt-2">
+            <main role="main">
               {('summary' === navigation) &&
                 <HomePage
                   t={t}
-                  settings={settings.ISSUE_STATE ? settings : Object.assign({}, settings, { ISSUE_STATE })}
+                  settings={settings}
                   report={report}
                   hasNewReport={hasNewReport}
                   quickIssues={quickIssues}
@@ -366,7 +400,7 @@ export default function App(initialData) {
               {('fixIssues' === navigation) &&
                 <FixIssuesPage
                   t={t}
-                  settings={settings.ISSUE_STATE ? settings : Object.assign({}, settings, { ISSUE_STATE })}
+                  settings={settings}
                   initialSeverity={initialSeverity}
                   initialSearchTerm={initialSearchTerm}
                   contentItemCache={contentItemCache}
@@ -378,6 +412,22 @@ export default function App(initialData) {
                   handleNavigation={handleNavigation}
                   sessionIssues={sessionIssues}
                   updateSessionIssue={updateSessionIssue}
+                  processServerError={processServerError}
+                />
+              }
+              {('reviewFiles' === navigation) &&
+                <ReviewFilesPage
+                  t={t}
+                  settings={settings}
+                  contentItemCache={contentItemCache}
+                  addContentItemToCache={addContentItemToCache}
+                  report={report}
+                  sections={sections}
+                  processNewReport={processNewReport}
+                  addMessage={addMessage}
+                  handleNavigation={handleNavigation}
+                  sessionFiles={sessionFiles}
+                  updateSessionFiles={updateSessionFiles}
                   processServerError={processServerError}
                 />
               }

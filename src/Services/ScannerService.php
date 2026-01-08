@@ -6,7 +6,6 @@ use App\Entity\ContentItem;
 
 use App\Services\PhpAllyService;
 use App\Services\EqualAccessService;
-use App\Services\AsyncEqualAccessReport;
 
 use App\Services\HtmlService;
 use App\Services\UtilityService;
@@ -60,7 +59,7 @@ class ScannerService {
                 $phpAlly = new PhpAllyService($htmlService, $util);
                 $report = $phpAlly->scanContentItem($contentItem);
             }
-            else if ($scanner == 'equalaccess_local') {
+            else if ($scanner == 'equalaccess' || $scanner == 'equalaccess_local') {
                 $equalAccess = new EqualAccessService();
 
                 // $document = $this->getDomDocument($contentItem->getBody());
@@ -76,22 +75,6 @@ class ScannerService {
                 $localService = new LocalApiAccessibilityService();
                 $json = $localService->scanContentItem($contentItem);
                 $report = $equalAccess->generateReport($json);
-            }
-            else if ($scanner == 'equalaccess_lambda') {
-                $equalAccess = new EqualAccessService();
-                //$document = $this->getDomDocument($contentItem->getBody());
-
-                if (!$scannerReport) {
-                    // Report is null, we need to call the lambda function for a single page most likely
-                    // $this->logToServer("null $scannerReport!");
-                    $asyncReport = new AsyncEqualAccessReport();
-                    $json = $asyncReport->postSingleAsync($contentItem);
-                    $report = $equalAccess->generateReport($json);
-                }
-                else {
-                    // We already have the report, all we have to do is generate the UDOIT report
-                    $report = $equalAccess->generateReport($scannerReport);
-                }
             }
             else {
                 // Unknown scanner set in environment, should return error...

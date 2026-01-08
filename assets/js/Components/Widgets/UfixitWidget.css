@@ -112,6 +112,10 @@
     color: var(--text-color);
   }
 
+  label[for] {
+    cursor: pointer;
+  }
+
   .instructions-helper {
     margin-top: .25em;
     padding-left: 1.8rem;
@@ -119,33 +123,6 @@
     font-style: italic;
     font-size: .9em;
     color: var(--gray-dark);
-  }
-
-  input[type="text"] {
-    padding: 0.25em;
-    box-sizing: border-box;
-    font-size: 0.95em;
-    font-family: var(--text-font-family);
-    border: 1px solid var(--gray);
-    border-radius: 4px;
-
-    &:hover,
-    &:focus {
-      outline: 2px solid var(--focus-color);
-      outline-offset: 1px;
-      
-    }
-
-    &:disabled {
-      background-color: var(--gray-light);
-      color: var(--gray);
-      border-color: var(--gray-light);
-      cursor: not-allowed !important;
-    }
-    &:disabled:hover,
-    &:disabled:focus {
-      outline-color: var(--gray-light);
-    }
   }
 
   .error-text {

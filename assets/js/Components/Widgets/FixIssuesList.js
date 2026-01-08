@@ -83,19 +83,19 @@ export default function FixIssuesList({
                           <ContentTypeIcon type={issue.contentType} className="gray icon-md flex-column align-self-center"/>
                           <div className="data-pill-text">{t(`filter.label.type.${issue.contentType.toLowerCase()}_single`)}</div>
                         </div>
-                        { issue.status === settings.FILTER.ACTIVE && (
+                        { issue.status === settings.ISSUE_FILTER.ACTIVE && (
                           <div alt="" title={t(`filter.label.severity.${issue.severity.toLowerCase()}_single`)} className="data-pill flex-row ml-2">
                             <SeverityIcon type={issue.severity} className="icon-md flex-column align-self-center" />
                             <div className="data-pill-text">{t(`filter.label.severity.${issue.severity.toLowerCase()}_single`)}</div>
                           </div>
                         )}
-                        { issue.status === settings.FILTER.RESOLVED && (
+                        { issue.status === settings.ISSUE_FILTER.RESOLVED && (
                           <div alt="" title={t('filter.label.resolution.resolved_single')} className="data-pill fixed flex-row ml-2">
                             <ResolvedIcon className="color-success icon-md flex-column align-self-center"/>
                             <div className="data-pill-text">{t('filter.label.resolution.resolved_single')}</div>
                           </div>
                         )}
-                        { (issue.status === settings.FILTER.FIXED || issue.status == settings.FILTER.FIXEDANDRESOLVED) && (
+                        { (issue.status === settings.ISSUE_FILTER.FIXED || issue.status == settings.ISSUE_FILTER.FIXEDANDRESOLVED) && (
                           <div alt="" title={t('filter.label.resolution.fixed_single')} className="data-pill fixed flex-row ml-2">
                             <FixedIcon className="color-success icon-md flex-column align-self-center"/>
                             <div className="data-pill-text">{t('filter.label.resolution.fixed_single')}</div>
