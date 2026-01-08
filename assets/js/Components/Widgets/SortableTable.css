@@ -108,8 +108,6 @@
           height: auto;
         }
       }
-    }
-  }
 
   .udoit-sortable-table tbody {
     tr {
@@ -160,7 +158,7 @@
       }
     }
   }
-}
+
 
 .paginationButton {
   padding: .2rem .5rem;
