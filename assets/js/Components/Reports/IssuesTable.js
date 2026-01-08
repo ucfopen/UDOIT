@@ -1,85 +1,147 @@
-import React from 'react'
-import SortableTable from '../SortableTable'
-import { View } from '@instructure/ui-view'
-import { Heading } from '@instructure/ui-heading'
+import React, { useState, useEffect, useRef } from 'react'
+import SortableTable from '../Widgets/SortableTable'
+import { formNameFromRule } from '../../Services/Ufixit'
+import InfoPopover from '../Widgets/InfoPopover'
+import './IssuesTable.css'
 
-class IssuesTable extends React.Component {
-    constructor(props) {
-        super(props)
+export default function IssuesTable({
+  t,
+  issues,
+  quickSearchTerm = null,
+  isAdmin,
+  selectedCourse
+}) {
 
-        this.headers = [
-            { id: "label", text: this.props.t('label.issue') },
-            { id: "type", text: this.props.t('label.issue_type')},
-            { id: "active", text: this.props.t('label.active') },
-            { id: "fixed", text: this.props.t('label.fixed') },
-            { id: "resolved", text: this.props.t('label.resolved') },
-        ];
+  const headers = [
+    { id: "label", text: t('report.header.issue_type') },
+    { id: "type", text: t('report.header.severity')},
+    { id: "active", text: t('report.header.active'), alignText: 'center' },
+    { id: "fixed", text: t('report.header.fixed'), alignText: 'center' },
+    { id: "resolved", text: t('report.header.resolved'), alignText: 'center' },
+  ]
 
-        if (this.props.isAdmin) {
-            this.headers.push({ id: "courses", text: this.props.t('label.admin.courses') })
-        }
+  if (isAdmin && (selectedCourse == null)) {
+    headers.push({ id: "courses", text: t('report.header.courses'), alignText: 'center' })
+  }
 
-        // adding this as the last col of the table
-        this.headers.push({ id: "total", text: this.props.t('label.report.total') })
+  headers.push({ id: "total", text: t('report.header.total'), alignText: 'center' })
 
-        this.state = {
-            tableSettings: {
-                sortBy: 'total',
-                ascending: false,
-                pageNum: 0,
-            }
-        }
-    }
-    
-    handleTableSettings = (setting) => {
-        this.setState({
-            tableSettings: Object.assign({}, this.state.tableSettings, setting)
-        });
-    }
+  const [tableSettings, setTableSettings] = useState({
+    sortBy: 'total',
+    ascending: false,
+    pageNum: 0,
+  })
+  const [localIssues, setLocalIssues] = useState([])
+  const [rows, setRows] = useState([])
 
-    getContent() {
-        let { issues } = this.props
-        let rows = (issues) ? Object.values(issues) : []
-        const { sortBy, ascending } = this.state.tableSettings
-        
-        rows = rows.map((row) => {
-            row.label = this.props.t(`rule.label.${row.id}`)
-            return row
-        })
+  const sortContent = () => {
+    let tempRows = (issues) ? Object.values(localIssues) : []
+    const { sortBy, ascending } = tableSettings
 
-        rows.sort((a, b) => {
-            if (isNaN(a[sortBy]) || isNaN(b[sortBy])) {
-                return (a[sortBy].toLowerCase() < b[sortBy].toLowerCase()) ? -1 : 1
-            }
-            else {
-                return (Number(a[sortBy]) < Number(b[sortBy])) ? -1 : 1
-            }
-        })
+    tempRows.sort((a, b) => {
+      let aValue = a[sortBy]
+      let bValue = b[sortBy]
 
-        if (!ascending) {
-            rows.reverse()
-        }
+      if (sortBy === "label") {
+        aValue = a.labelText || ""
+        bValue = b.labelText || ""
+      }
 
-        return rows
+      if (isNaN(aValue) || isNaN(bValue)) {
+        return (aValue.toLowerCase() > bValue.toLowerCase()) ? -1 : 1
+      } else {
+        return (Number(aValue) < Number(bValue)) ? -1 : 1
+      }
+    })
+
+    if (!ascending) {
+      tempRows.reverse()
     }
 
-    render() {
-        const rows = this.getContent();
+    return tempRows
+  }
 
-        return (
-            <View as="div">
-                <Heading as="h3" level="h4" margin="small 0">{this.props.t(`label.admin.report.by_issue`)}</Heading>
-                <SortableTable
-                    caption={this.props.t('label.admin.report.by_issue')}
-                    headers={this.headers}
-                    rows={rows}
-                    tableSettings={this.state.tableSettings}
-                    handleTableSettings={this.handleTableSettings}
-                    t={this.props.t}
-                />
-            </View>
+  const handleTableSettings = (setting) => {
+    setTableSettings(Object.assign({}, tableSettings, setting))
+  }
+
+  useEffect(() => {
+    setRows(sortContent())
+  }, [tableSettings, localIssues])
+
+  useEffect(() => {
+    if (issues) {
+      let tempIssues = Object.values(issues)
+      tempIssues.map((issue => {
+        let label = ''
+        let searchTerm = ''
+        let formName = formNameFromRule(issue.id)
+        if(formName === 'review_only') {
+          label = t('report.label.unhandled') + issue.id
+          searchTerm = issue.id
+        }
+        else {
+          label = t(`form.${formName}.title`)
+          searchTerm = t(`form.${formName}.title`)
+        }
+        issue.labelText = label
+        issue.label = (
+          <span className="issue-label">
+            {label}
+            <InfoPopover
+              t={t}
+              content={t(`form.${formName}.summary`)}
+            />
+          </span>
         )
-    }
-}
+        issue.summary = t(`form.${formName}.summary`)
+        if(quickSearchTerm !== null) {
+          issue.onClick = () => quickSearchTerm(searchTerm)
+        }
+        return issue
+      }))
 
-export default IssuesTable
+      let mergedIssues = []
+      let labels = []
+      tempIssues.forEach((issue) => {
+        if (!labels.includes(issue.label)) {
+          labels.push(issue.label)
+          if(issue.type === 'error' || issue.type === 'issue') {
+            issue.type = t('report.label.issue')
+          }
+          else if(issue.type === 'potential') {
+            issue.type = t('report.label.potential')
+          }
+          else if(issue.type === 'suggestion') {
+            issue.type = t('report.label.suggestion')
+          }
+          mergedIssues.push(issue)
+        }
+        else {
+          let index = mergedIssues.findIndex((i) => i.label === issue.label)
+          mergedIssues[index].total += issue.total
+          mergedIssues[index].active += issue.active
+          mergedIssues[index].fixed += issue.fixed
+          mergedIssues[index].resolved += issue.resolved
+        }
+      })
+      setLocalIssues(mergedIssues)
+    }
+    else {
+      setLocalIssues([])
+    }
+  }, [issues])
+
+  return (
+    <>
+      <SortableTable
+        caption={t('report.title.issues_by_type')}
+        headers={headers}
+        rows={rows}
+        tableSettings={tableSettings}
+        handleTableSettings={handleTableSettings}
+        t={t}
+      />
+    </>
+  )
+}

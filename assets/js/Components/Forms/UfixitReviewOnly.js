@@ -1,19 +1,34 @@
-import React from 'react'
-import { View } from '@instructure/ui-view'
-import { Text } from '@instructure/ui-text'
+import React, { useEffect, useState } from 'react'
+import FormExternalLink from './FormExternalLink'
+import FormReviewOnly from './FormReviewOnly'
 
-class UfixitReviewOnly extends React.Component {
-    constructor(props) {
-        super(props)
-    }
+export default function UfixitReviewOnly({
+  t,
+  settings, 
+  activeIssue,
+  isContentLoading,
+  markAsReviewed,
+  setMarkAsReviewed,
+  handleIssueSave,
+}) {
 
-    render() {
-        return (
-            <View as="div" margin="small small">
-                <Text lineHeight="double">{this.props.t('label.review_only')}</Text>
-            </View>
-        )
-    }
+  return (
+    <div className="flex-column">
+      <div dangerouslySetInnerHTML={{__html: t('form.review_only.summary')}}></div>
+      <FormExternalLink
+        t={t}
+        settings={settings}
+        activeIssue={activeIssue}
+      />
+      <FormReviewOnly
+        t={t}
+        settings={settings}
+        activeIssue={activeIssue}
+        handleIssueSave={handleIssueSave}
+        isContentLoading={isContentLoading}
+        markAsReviewed={markAsReviewed}
+        setMarkAsReviewed={setMarkAsReviewed}
+      />
+    </div>
+  )
 }
-
-export default UfixitReviewOnly

@@ -1,151 +1,120 @@
-import React from 'react'
-import { Checkbox } from '@instructure/ui-checkbox';
-import { View } from '@instructure/ui-view'
-import { TextInput } from '@instructure/ui-text-input'
-import { Button } from '@instructure/ui-buttons'
-import { Spinner } from '@instructure/ui-spinner'
-import { IconCheckMarkLine } from '@instructure/ui-icons'
-import * as Html from '../../Services/Html';
+import React, {useState, useEffect} from 'react'
+import FormSaveOrReview from './FormSaveOrReview'
+import * as Html from '../../Services/Html'
+import * as Text from '../../Services/Text'
 
+export default function HeadingEmptyForm({
+  t,
+  settings,
+  activeIssue,
+  handleIssueSave,
+  isDisabled,
+  handleActiveIssue,
+  markAsReviewed,
+  setMarkAsReviewed
+}) {
 
-export default class HeadingEmptyForm extends React.Component {
-    constructor(props) {
-        super(props)
-        let html = (this.props.activeIssue.newHtml) ? this.props.activeIssue.newHtml : this.props.activeIssue.sourceHtml
+  const [textInputValue, setTextInputValue] = useState('')
+  const [deleteHeader, setDeleteHeader] = useState(false)
+  const [formErrors, setFormErrors] = useState([])
 
-        if (this.props.activeIssue.status === '1') {
-            html = this.props.activeIssue.newHtml
-        }
+  useEffect(() => {
+    if (activeIssue) {
+      const html = Html.getIssueHtml(activeIssue)
+      const element = Html.toElement(html)
 
-        let element = Html.toElement(html)
+      setTextInputValue(element ? element.innerText : '')
+      setDeleteHeader(!element && activeIssue.status.toString() === '1')
+    }
+    setFormErrors([])
+  }, [activeIssue])
 
-        this.state = {
-            textInputValue: (element) ? element.innerText : '',
-            deleteHeader: (!element && (this.props.activeIssue.status === '1')),
-            textInputErrors: []
-        }
+  useEffect(() => {
+    updateHtmlContent()
+    checkFormErrors()
+  }, [textInputValue, deleteHeader, markAsReviewed])
 
-        this.formErrors = []
-
-        this.handleTextInput = this.handleTextInput.bind(this)
-        this.handleSubmit = this.handleSubmit.bind(this)
-        this.handleCheckbox = this.handleCheckbox.bind(this)
+  const updateHtmlContent = () => {
+    let issue = activeIssue
+    issue.isModified = true 
+    if (markAsReviewed) {
+      issue.newHtml = issue.initialHtml
+      handleActiveIssue(issue)
+      return
     }
 
-    componentDidUpdate(prevProps, prevState) {
-        if (prevProps.activeIssue !== this.props.activeIssue) {
-            let html = (this.props.activeIssue.newHtml) ? this.props.activeIssue.newHtml : this.props.activeIssue.sourceHtml
+    issue.newHtml = processHtml()
+    handleActiveIssue(issue)
+  }
 
-            if (this.props.activeIssue.status === 1) {
-                html = this.props.activeIssue.newHtml
-            }
-
-            let element = Html.toElement(html)
-        
-            this.setState({
-                textInputValue: (element) ? element.innerText : '',
-                deleteHeader: (!element && (this.props.activeIssue.status === 1)),
-            })
-
-            this.formErrors = []
-        }
+  const processHtml = () => {
+    if (deleteHeader) {
+      return '';
     }
 
+    const html = Html.getIssueHtml(activeIssue)
+    return Html.toString(Html.setInnerText(html, textInputValue))
+  }
 
-    handleCheckbox() {
-        this.setState({
-            deleteHeader: !this.state.deleteHeader
-        }, () => {
-            let issue = this.props.activeIssue
-            issue.newHtml = this.processHtml()
-            this.props.handleActiveIssue(issue)
-        })
+
+  const checkFormErrors = () => {
+    let tempErrors = []
+    if(!deleteHeader) {
+      if(Text.isTextEmpty(textInputValue)) {
+        tempErrors.push({ text: t('form.heading_empty.msg.text_empty'), type: 'error' })
+      }
     }
+    setFormErrors(tempErrors)
+  }
 
-    handleTextInput(event) {
-        this.setState({
-            textInputValue: event.target.value
-        }, () => {
-            let issue = this.props.activeIssue
-            issue.newHtml = this.processHtml()
-            this.props.handleActiveIssue(issue)
-        })
+  const handleCheckbox = () => {
+    setDeleteHeader(!deleteHeader)
+  }
+
+  const handleInput = (newValue) => {
+    setTextInputValue(newValue)
+  }
+
+  const handleSubmit = () => {
+    if(markAsReviewed || formErrors.length === 0) {
+      handleIssueSave(activeIssue)
     }
+  }
 
-    handleSubmit() {
-        this.formErrors = []
-
-        if(!this.state.deleteHeader) {
-            this.checkTextNotEmpty()
-        }
-
-        if (this.formErrors.length > 0) {
-            this.setState({ textInputErrors: this.formErrors })
-        }
-
-        else {
-            this.setState({ textInputErrors: []})
-            let issue = this.props.activeIssue
-            issue.newHtml = this.processHtml()
-            this.props.handleIssueSave(issue)
-        }
-    }
-
-    checkTextNotEmpty() {
-        const text = this.state.textInputValue.trim().toLowerCase()
-        if (text === '') {
-          this.formErrors.push({ text: this.props.t('form.heading.msg.text_empty'), type: 'error' })
-        }
-    }
-
-    processHtml() {
-        const html = (this.props.activeIssue.newHtml) ? this.props.activeIssue.newHtml : this.props.activeIssue.sourceHtml
-        const { textInputValue, deleteHeader } = this.state
-
-        if (deleteHeader) {
-            return '';
-        }
-
-        return Html.toString(Html.setInnerText(html, textInputValue))
-    }
-
-    render() {
-        const pending = (this.props.activeIssue && (this.props.activeIssue.pending == '1'))
-        const buttonLabel = (pending) ? 'form.processing' : 'form.submit'
-
-        return (
-            <View as="div" padding="x-small">
-                <View>
-                    <TextInput
-                        renderLabel={this.props.t('form.heading.text')}
-                        display="inline-block"
-                        width="100%"
-                        onChange={this.handleTextInput}
-                        value={this.state.textInputValue}
-                        id="textInputValue"
-                        messages={this.formErrors}
-                        interaction={(this.state.deleteHeader) ? 'disabled' : 'enabled'}
-                        /> 
-                </View>
-                <View as="div" margin="x-small 0">
-                    <View as="span" display="inline-block">
-                        <Checkbox label={this.props.t('form.heading.remove_header')} onChange={this.handleCheckbox} checked={this.state.deleteHeader}/>
-                    </View>
-                </View>
-                <View as="div" margin="small 0">
-                    <Button color="primary" onClick={this.handleSubmit} interaction={(!pending && this.props.activeIssue.status !== 2) ? 'enabled' : 'disabled'}>
-                        {pending && <Spinner size="x-small" renderTitle={buttonLabel} />}
-                        {this.props.t(buttonLabel)}
-                    </Button>
-                    {this.props.activeIssue.recentlyUpdated &&
-                        <View margin="0 small">
-                            <IconCheckMarkLine color="success" />
-                            <View margin="0 x-small">{this.props.t('label.fixed')}</View>
-                        </View>
-                    }
-                </View>
-            </View>
-        );
-    }
-
+  return (
+    <>
+      <label className="instructions" htmlFor="headingTextInput">{t('form.heading_empty.label.text')}</label>
+      <div className="w-100 mt-2">
+        <input
+          type="text" 
+          id="headingTextInput"
+          name="headingTextInput"
+          className="w-100"
+          value={textInputValue}
+          disabled={isDisabled || deleteHeader}
+          tabIndex="0"
+          onChange={(e) => handleInput(e.target.value)} />
+      </div>
+      <div className="separator mt-2">{t('fix.label.or')}</div>
+      <div className="flex-row justify-content-start gap-1 mt-2">
+        <input type="checkbox"
+          id="deleteHeaderCheckbox"
+          name="deleteHeaderCheckbox"
+          checked={deleteHeader}
+          tabIndex="0"
+          disabled={isDisabled}
+          onChange={handleCheckbox} />
+        <label className="instructions" htmlFor="deleteHeaderCheckbox">{t('form.heading_empty.label.remove_header')}</label>
+      </div>
+      <FormSaveOrReview
+        t={t}
+        settings={settings}
+        activeIssue={activeIssue}
+        isDisabled={isDisabled}
+        handleSubmit={handleSubmit}
+        formErrors={formErrors}
+        markAsReviewed={markAsReviewed}
+        setMarkAsReviewed={setMarkAsReviewed} />
+    </>
+  )
 }

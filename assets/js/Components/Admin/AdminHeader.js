@@ -1,55 +1,63 @@
 import React from 'react'
-import Logo from '../../../mediaAssets/udoit_logo.svg'
-import Classes from '../../../css/header.css'
-import { View } from '@instructure/ui-view'
-import { Text } from '@instructure/ui-text'
-import { AppNav } from '@instructure/ui-navigation'
+import UDOITLogo from '../../../mediaAssets/udoit-logo.svg'
+import ContentAssignmentIcon from '../Icons/ContentAssignmentIcon'
+import UserIcon from '../Icons/UserIcon'
+import '../Header.css'
 
-class AdminHeader extends React.Component {
-  
-  constructor(props) {
-    super(props);
-
-    this.state = {}
-  }
-
-  render() {
-    return (
-      <header role="banner">
-        <AppNav
-          screenReaderLabel={this.props.t('menu.udoit')}
-          margin="small 0"
-          renderBeforeItems={
-            <View padding="0 medium 0 0" margin="0" as="h1">
-              <img className={`${Classes.logo}`} alt="UDOIT logo" src={Logo}></img>
-              <View display="inline-block" padding="x-small">
-                <Text size="large" letterSpacing="expanded">{this.props.t('label.admin.logo')}</Text>
-              </View>
-            </View>
-          }
-          visibleItemsCount={3}
-          >
-          <AppNav.Item
-            renderLabel={this.props.t('label.admin.courses')}
-            isSelected={('courses' === this.props.navigation)}
-            onClick={() => this.props.handleNavigation('courses')} />
-          <AppNav.Item
-            renderLabel={this.props.t('label.admin.reports')}
-            isSelected={('reports' === this.props.navigation)}
-            onClick={() => this.props.handleNavigation('reports')} />
-          <AppNav.Item
-            renderLabel={this.props.t('label.admin.users')}
-            isSelected={('users' === this.props.navigation)}
-            onClick={() => this.props.handleNavigation('users')} />
-          {/* <AppNav.Item
-            renderLabel={this.props.t('label.admin.settings')}
-            isSelected={('settings' === this.props.navigation)}
-            onClick={() => this.props.handleNavigation('settings')} /> */}
-
-        </AppNav>
-      </header>
-    )
-  }
+export default function AdminHeader({
+  t,
+  settings,
+  navigation,
+  handleNavigation
+}) {
+  return (
+    <header role="banner">
+      <nav aria-label={t('menu.nav.label')}>
+        <div className="flex-row justify-content-start gap-2" onClick={() => handleNavigation('courses')}>
+          <div className="flex-column justify-content-center" style={{ width: 'min-content' }}>
+            <img alt={t('alt.UDOIT')} src={UDOITLogo}></img>
+          </div>
+          <div className="flex-column justify-content-center">
+            <h1 className="mt-0 mb-0">{t('menu.admin')}</h1>
+          </div>
+        </div>
+        <div>
+          <ul>
+            <li
+              className={`flex-row ${navigation === 'courses' ? ' active-link' : ''}`}
+              onClick={() => handleNavigation('courses')}
+              onKeyDown={(e) => {
+                if(e.key === 'Enter' || e.key === ' ') {
+                  handleNavigation('courses')
+                }
+              }}
+              tabIndex="0">
+              <div className='flex-column justify-content-center'>
+                <ContentAssignmentIcon className='icon-md pr-1'/>
+              </div>
+              <div className='flex-column justify-content-center'>
+                {t('menu.admin.courses')}
+              </div>
+            </li>
+            <li
+              className={`flex-row ${navigation === 'users' ? ' active-link' : ''}`}
+              onClick={() => handleNavigation('users')}
+              onKeyDown={(e) => {
+                if(e.key === 'Enter' || e.key === ' ') {
+                  handleNavigation('users')
+                }
+              }}
+              tabIndex="0">
+              <div className='flex-column justify-content-center'>
+                <UserIcon className='icon-md pr-1'/>
+              </div>
+              <div className='flex-column justify-content-center'>
+                {t('menu.admin.users')}
+              </div>
+            </li>
+          </ul>
+        </div>
+      </nav>
+    </header>
+  )
 }
-
-export default AdminHeader

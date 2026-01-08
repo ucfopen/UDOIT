@@ -22,7 +22,7 @@ class CanvasApi {
     }
 
     // API call GET
-    public function apiGet(string $url, array $options = [], int $perPage = 100, LmsResponse $lmsResponse = null): LmsResponse
+    public function apiGet(string $url, array $options = [], int $perPage = 100, ?LmsResponse $lmsResponse = null): LmsResponse
     {
         $links = [];
 
@@ -47,13 +47,16 @@ class CanvasApi {
         $content = $lmsResponse->getContent();
 
         // If error is invalid token, refresh API token and try again
-        if ($lmsResponse->getStatusCode() >= 400) {
-            throw new \Exception('Failed API call', $lmsResponse->getStatusCode());
+        if ($lmsResponse->getStatusCode() >= 500) {
+            throw new \Exception('msg.sync.error.api');
+        }
+        else if ($lmsResponse->getStatusCode() >= 400) {
+            throw new \Exception('msg.sync.error.connection');
         }
 
         if (!empty($content['errors'])) {
             foreach ($content['errors'] as $error) {
-                $lmsResponse->setError($error['message']);
+                $lmsResponse->setError($error);
             }
         }
 

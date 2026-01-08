@@ -5,69 +5,49 @@ namespace App\Entity;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
 
-/**
- * @ORM\Entity(repositoryClass="App\Repository\ReportRepository")
- */
+
+#[ORM\Entity(repositoryClass: "App\Repository\ReportRepository")]
 class Report implements \JsonSerializable
 {
     // Private Members
-    /**
-     * @ORM\Id()
-     * @ORM\GeneratedValue()
-     * @ORM\Column(type="integer")
-     */
+    #[ORM\Id]
+    #[ORM\GeneratedValue]
+    #[ORM\Column(type: "integer")]
     private $id;
-    
-    /**
-     * @ORM\ManyToOne(targetEntity="App\Entity\Course", inversedBy="reports")
-     * @ORM\JoinColumn(nullable=false)
-     */
+
+    #[ORM\ManyToOne(targetEntity: "App\Entity\Course", inversedBy: "reports")]
+    #[ORM\JoinColumn(nullable: false)]
     private $course;
 
-    /**
-     * @ORM\Column(type="text", nullable=true)
-     */
+    #[ORM\Column(type: "text", nullable: true)]
     private $data;
 
-    /**
-     * @ORM\Column(type="datetime")
-     */
+    #[ORM\Column(type: "datetime")]
     private $created;
 
-    /**
-     * @ORM\Column(type="integer", nullable=true)
-     */
+    #[ORM\Column(type: "integer", nullable: true)]
     private $errors;
 
-    /**
-     * @ORM\Column(type="integer", nullable=true)
-     */
+    #[ORM\Column(type: "integer", nullable: true)]
     private $suggestions;
 
-    /**
-     * @ORM\Column(type="boolean")
-     */
+    #[ORM\Column(type: "boolean")]
     private $ready;
 
-    /**
-     * @ORM\ManyToOne(targetEntity=User::class, inversedBy="reports")
-     * @ORM\JoinColumn(nullable=false)
-     */
+    #[ORM\ManyToOne(targetEntity: User::class, inversedBy: "reports")]
+    #[ORM\JoinColumn(nullable: false)]
     private $author;
 
-    /**
-     * @ORM\Column(type="integer", nullable=true)
-     */
+    #[ORM\Column(type: "integer", nullable: true)]
+
     private $contentFixed;
 
-    /**
-     * @ORM\Column(type="integer", nullable=true)
-     */
+    #[ORM\Column(type: "integer", nullable: true)]
     private $contentResolved;
 
-    /**
-     * @ORM\Column(type="integer", nullable=true)
-     */
+
+    #[ORM\Column(type: "integer", nullable: true)]
+
     private $filesReviewed;
 
     // Constructor
@@ -87,11 +67,26 @@ class Report implements \JsonSerializable
 
     public function toArray(): array
     {
+        $scanCounts = false;
+        $itemsScanned = 0;
+        $tempData = $this->getData();
+        if ($tempData) {
+            $tempData = json_decode($tempData, true);
+            if (isset($tempData['scanCounts'])) {
+                $scanCounts = $tempData['scanCounts'];
+            }
+            if (isset($tempData['itemsScanned'])) {
+                $itemsScanned = $tempData['itemsScanned'];
+            }
+        }
+
         $result = [
             "id" => $this->id,
             "ready" => $this->ready,
             "created" => $this->created->format($_ENV['DATE_FORMAT']),
             "errors" => $this->getErrors(),
+            "scanCounts" => $scanCounts,
+            "itemsScanned" => $itemsScanned,
             "suggestions" => $this->getSuggestions(),
             "contentFixed" => $this->getContentFixed(),
             'contentResolved' => $this->getContentResolved(),

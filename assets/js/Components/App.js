@@ -1,276 +1,422 @@
-import React from 'react'
-import WelcomePage from './WelcomePage'
+import React, { useState, useCallback, useEffect } from 'react'
 import Header from './Header'
-import SummaryPage from './SummaryPage'
-import ContentPage from './ContentPage'
+import WelcomePage from './WelcomePage'
+import HomePage from './HomePage'
+import FixIssuesPage from './FixIssuesPage'
 import ReportsPage from './ReportsPage'
-import AboutModal from './AboutModal'
-import { View } from '@instructure/ui-view'
+import SettingsPage from './SettingsPage'
 import Api from '../Services/Api'
-import MessageTray from './MessageTray'
-import FilesPage from './FilesPage'
-import SummaryBar from './SummaryBar'
+import MessageTray from './Widgets/MessageTray'
+import { analyzeReport } from '../Services/Report'
 
-class App extends React.Component {
-  constructor(props) {
-    super(props)
 
-    this.initialReport = props.report
-    this.appFilters = {}
-    this.settings = props.settings
-    this.reportHistory = []
-    this.messages = props.messages
-    this.newReportInterval = 5000
+export default function App(initialData) {
 
-    this.state = {
-      report: this.initialReport,
-      navigation: 'welcome',
-      modal: null,
-      syncComplete: false,
-      hasNewReport: false,
-    }
+  const [messages, setMessages] = useState(initialData.messages || [])
+  const [untranslatedMessage, setUntranslatedMessage] = useState('')
+  const [report, setReport] = useState(initialData.report || null)  
+  const [settings, setSettings] = useState(initialData.settings || null)
+  const [sections, setSections] = useState([])
 
-    this.handleNavigation = this.handleNavigation.bind(this)
-    this.handleModal = this.handleModal.bind(this)
-    this.handleAppFilters = this.handleAppFilters.bind(this)
-    this.clearMessages = this.clearMessages.bind(this)
-    this.addMessage = this.addMessage.bind(this)
-    this.t = this.t.bind(this)
-    this.handleIssueSave = this.handleIssueSave.bind(this)
-    this.handleFileSave = this.handleFileSave.bind(this)
-    this.handleCourseRescan = this.handleCourseRescan.bind(this)
-    this.handleFullCourseRescan = this.handleFullCourseRescan.bind(this)
-    this.handleNewReport = this.handleNewReport.bind(this)
-    this.resizeFrame = this.resizeFrame.bind(this)
+  const [navigation, setNavigation] = useState('summary')
+  const [syncComplete, setSyncComplete] = useState(false)
+  const [hasNewReport, setHasNewReport] = useState(false)
+  const [initialSeverity, setInitialSeverity] = useState('')
+  const [initialSearchTerm, setInitialSearchTerm] = useState('')
+  const [contentItemCache, setContentItemCache] = useState([])
+  const [sessionIssues, setSessionIssues] = useState({})
+  const [welcomeClosed, setWelcomeClosed] = useState(false)
+
+  const ISSUE_STATE = {
+    UNCHANGED: 0,
+    SAVING: 1,
+    RESOLVING: 2,
+    SAVED: 3,
+    RESOLVED: 4,
+    ERROR: 5,
   }
 
-  render() {
-    return (
-      <View as="div">
-        <Header
-          t={this.t}
-          settings={this.settings}
-          hasNewReport={this.state.hasNewReport}
-          navigation={this.state.navigation}
-          handleNavigation={this.handleNavigation}
-          handleCourseRescan={this.handleCourseRescan}
-          handleFullCourseRescan={this.handleFullCourseRescan}
-          handleModal={this.handleModal} />
+  // `t` is used for text/translation. It will return the translated string if it exists
+  // in the settings.labels object.
+  const t = useCallback((key, values = {}) => {
+    let translatedText = (settings.labels[key] && settings.labels[key] !== '') ? settings.labels[key] : key
+    if (values && Object.keys(values).length > 0) {
+      Object.keys(values).forEach((key) => {
+        translatedText = translatedText.replace(`{${key}}`, values[key])
+      })
+    }
+    return translatedText
 
-        {(('welcome' !== this.state.navigation) && ('summary' !== this.state.navigation)) &&
-          <SummaryBar t={this.t} report={this.state.report} />
-        }
+  }, [settings])
 
-        <MessageTray messages={this.messages} t={this.t} clearMessages={this.clearMessages} hasNewReport={this.state.syncComplete} />
+  const scanCourse = useCallback(() => {
+    let api = new Api(settings)
+    return api.scanCourse(settings.course.id)
+  }, [])
 
-        <main role="main">
-          {('welcome' === this.state.navigation) &&
-            <WelcomePage
-              handleNavigation={this.handleNavigation}
-              t={this.t}
-              settings={this.settings}
-              hasNewReport={this.state.hasNewReport} />
-          }
-          {('summary' === this.state.navigation) &&
-            <SummaryPage
-              report={this.state.report}
-              settings={this.settings}
-              handleAppFilters={this.handleAppFilters}
-              handleNavigation={this.handleNavigation}
-              t={this.t} />
-          }
-          {('content' === this.state.navigation) &&
-            <ContentPage
-              report={this.state.report}
-              settings={this.settings}
-              appFilters={this.appFilters}
-              handleAppFilters={this.handleAppFilters}
-              handleNavigation={this.handleNavigation}
-              handleIssueSave={this.handleIssueSave}
-              handleIssueUpdate={this.handleIssueUpdate}
-              disableReview={this.disableReview()}
-              t={this.t} />
-          }
-          {('files' === this.state.navigation) &&
-            <FilesPage
-              report={this.state.report}
-              settings={this.settings}
-              handleNavigation={this.handleNavigation}
-              handleFileSave={this.handleFileSave}
-              t={this.t} />
-          }
-          {('reports' === this.state.navigation) &&
-            <ReportsPage
-              t={this.t}
-              settings={this.settings}
-              report={this.state.report}
-              handleNavigation={this.handleNavigation}
-            />
-          }
-        </main>
+  const fullRescan = useCallback(() => {
+    let api = new Api(settings)
+    return api.fullRescan(settings.course.id)
+  }, [])
 
-        {('about' === this.state.modal) &&
-          <AboutModal t={this.t}
-            settings={this.settings}
-            handleModal={this.handleModal} />
-        }
-      </View>
-    )
-  }
+  // When user settings are updated and the language changes, we need to send alerts, but also wait a tick for the settings to update.
+  // Using the setUntranslatedMessage function will wait for the next render cycle to update the message, with the new language settings.
+  useEffect(() => {
+    let message = t(untranslatedMessage?.message || '')
+    let severity = untranslatedMessage?.severity || 'info'
+    let visible = untranslatedMessage?.visible || false
 
-  componentDidMount() {
-    if (this.settings.user && Array.isArray(this.settings.user.roles)) {
-      if (this.settings.user.roles.includes('ROLE_ADVANCED_USER')) {
-        if (this.initialReport) {
-          this.setState({report: this.initialReport, navigation: 'summary'})
-        }
-      }
+    if (message === '') {
+      return
     }
 
-    this.scanCourse()
+    if (visible) {
+      addMessage({ message: message, severity: severity, visible: true })
+    }
+    else if (severity === 'error' || severity === 'alert') {
+      console.error(message)
+    } else {
+      console.log(message)
+    }
+  }, [untranslatedMessage])
+
+  const updateUserSettings = (newUserSetting) => {
+    let oldSettings = JSON.parse(JSON.stringify(settings))
+    let newRoles = Object.assign({}, settings.user.roles, newUserSetting)
+    let newUser = Object.assign({}, settings.user, { 'roles': newRoles})
+    let newSettings = Object.assign({}, settings, { user: newUser })
+    setSettings(newSettings)
+
+    let api = new Api(settings)
+    api.updateUser(newUser)
       .then((response) => response.json())
-      .then(this.handleNewReport)
-
-      // update iframe height on resize
-      window.addEventListener("resize", this.resizeFrame);
-
-      this.resizeFrame();
-  }
-
-  componentWillUnmount() {
-    window.removeEventListener('resize', this.resizeFrame);
-  }
-
-  t(key) {
-    return (this.settings.labels[key]) ? this.settings.labels[key] : key
-  }
-
-  scanCourse() {
-    let api = new Api(this.settings)
-    return api.scanCourse(this.settings.course.id)
-  }
-
-  fullRescan() {
-    let api = new Api(this.settings)
-    return api.fullRescan(this.settings.course.id)
-  }
-
-  disableReview = () => {
-    return this.state.syncComplete && !this.state.disableReview
-  }
-
-  handleCourseRescan() {
-    if (this.state.hasNewReport) {
-      this.setState({ hasNewReport: false, syncComplete: false })
-      this.scanCourse()
-        .then((response) => response.json())
-        .then(this.handleNewReport)
-    }
-    this.forceUpdate()
-  }
-
-  handleFullCourseRescan() {
-    if (this.state.hasNewReport) {
-      this.setState({ hasNewReport: false, syncComplete: false })
-      this.fullRescan()
-        .then((response) => response.json())
-        .then(this.handleNewReport)
-    }
-    this.forceUpdate()
-  }
-
-  handleNewReport(data) {
-    let report = this.state.report
-    let hasNewReport = this.state.hasNewReport
-    let disableReview = this.state.disableReview
-    if (data.messages) {
-      data.messages.forEach((msg) => {
-        if (msg.visible) {
-          this.addMessage(msg)
+      .then((data) => {
+        if(data.user) {
+          newSettings.user = data.user
+          if(data?.labels?.lang) {
+            let newLanguageSettings = Object.assign({}, newSettings)
+            newLanguageSettings.lang = data?.language || newSettings.lang
+            newLanguageSettings.labels = data.labels
+            setSettings(newLanguageSettings)
+          }
+          setUntranslatedMessage({ message: 'msg.settings.updated', severity: 'success', visible: true })
         }
-        if ('msg.no_report_created' === msg.message) {
-          this.addMessage(msg)
-          report = null
-          // no report, do not do any review actions
-          disableReview = true
+        else {
+          setSettings(oldSettings)
+          setUntranslatedMessage({ message: 'msg.settings.update_failed', severity: 'error', visible: true })
         }
-        if ("msg.sync.course_inactive" === msg.message) {
-          // course scan failed, issues may be outdated
-          disableReview = true
-        }
-      });
-    }
-    if (data.data && data.data.id) {
-      report = data.data
-      hasNewReport = true
-    }
-    this.setState({
-      syncComplete: true,
-      hasNewReport,
-      report,
-      disableReview,
     })
   }
 
-  handleNavigation(navigation) {
-    this.setState({navigation})
+  // Session Issues are used to track progress when multiple things are going on at once,
+  // and can allow the activeIssue to change without losing information about the previous issue.
+  // Each issue has an id and state: { id: issueId, state: 2 }
+  // The valid states are set and read in the FixIssuesPage component.
+  const updateSessionIssue = (issueId, issueState = null, contentItemId = null) => {
+    if(issueState === null || issueState === ISSUE_STATE.UNCHANGED) {
+      let newSessionIssues = Object.assign({}, sessionIssues)
+      if(newSessionIssues[issueId]) {
+        delete newSessionIssues[issueId]
+      }
+      setSessionIssues(newSessionIssues)
+
+      if(contentItemId) {
+        removeContentItemFromCache(contentItemId)
+      }
+
+      return
+    }
+    let newSessionIssues = Object.assign({}, sessionIssues, { [issueId]: issueState})
+    setSessionIssues(newSessionIssues)
   }
 
-  handleModal(modal) {
-    this.setState({modal})
-  }
+  const processNewReport = (rawReport) => {
+    const tempReport = analyzeReport(rawReport, ISSUE_STATE)
+    setReport(tempReport)
 
-  handleAppFilters = (filters) => {
-    this.appFilters = filters;
-  }
+    let api = new Api(settings)
+    api.setReportData(tempReport.id, {'scanCounts': tempReport.scanCounts})
+      .then((response) => response.json())
+      .then((data) => {
+        if(data.errors && data.errors.length > 0) {
+          data.errors.forEach((error) => {
+            addMessage({ message: error, severity: 'error', visible: true })
+          })
+        }
+      })
+      .catch((error) => {
+        addMessage({ message: t('msg.sync.error.api'), severity: 'error', visible: true })
+      })
 
-  addMessage = (msg) => {
-    this.messages.push(msg)
-  }
-
-  clearMessages = () => {
-    this.messages = [];
-  }
-
-  handleIssueSave(newIssue, newReport) {
-    const oldReport = this.state.report;
-
-    const report = { ...oldReport, ...newReport };
-
-    if (report && Array.isArray(report.issues)) {
-      // Combine backend issues with frontend issue state
-      report.issues = report.issues.map((issue) => {
-        if (issue.id === newIssue.id) return newIssue;
-        const oldIssue = oldReport.issues.find((oldReportIssue) => oldReportIssue.id === issue.id);
-        return oldIssue !== undefined ? { ...oldIssue, ...issue } : issue;
-      });
+    if (tempReport.contentSections) {
+      setSections(tempReport.contentSections)
+    }
+    else {
+      setSections([])
     }
 
-    this.setState({ report });
-  }
-
-  handleFileSave(newFile, newReport) {
-    let { report } = this.state
-    report = { ...report, ...newReport }
-
-    if (report && report.files) {
-      report.files[newFile.id] = newFile
+    if(tempReport.sessionIssues) {
+      setSessionIssues(tempReport.sessionIssues)
     }
 
-    this.setState({ report })
+    let tempContentItems = {}
+    for(const key in tempReport.contentItems) {
+      tempContentItems[key] = tempReport.contentItems[key]
+    }
+    setContentItemCache(tempContentItems)
   }
 
-  // resize containing iframe height
-  resizeFrame(){
-    let default_height = document.body.scrollHeight + 50;
-    default_height = default_height > 1000 ? default_height : 1000;
+  const handleNewReport = (data) => {
+    if(!data || !data.data) {
+      setSyncComplete(true)
+      setHasNewReport(false)
+      return
+    }
 
-    // IE 8 & 9 only support string data, so send objects as string
-    parent.postMessage(JSON.stringify({
-      subject: "lti.frameResize",
-      height: default_height
-    }), "*");
+    let newReport = report
+    let newHasNewReport = hasNewReport
+    if (data.messages) {
+      data.messages.forEach((msg) => {
+        if (msg.visible) {
+          addMessage(msg)
+        }
+      })
+    }
+    if (data.data && data.data.id) {
+      newReport = data.data
+      newHasNewReport = true
+    }
+    setSyncComplete(true)
+    setHasNewReport(newHasNewReport)
+
+    if(newHasNewReport) {
+      processNewReport(newReport)
+    }
   }
+
+  const handleNavigation = (newNavigation) => {
+    if(newNavigation === navigation || !syncComplete) {
+      return
+    }
+    if(newNavigation !== 'fixIssues') {
+      setInitialSeverity('')
+      setInitialSearchTerm('')
+    }
+    setNavigation(newNavigation)
+  }
+
+  const addMessage = (msg) => {
+    setMessages([msg])
+    // setMessages(prevMessages => [...prevMessages, msg])
+  }
+
+  const clearMessages = () => {
+    setMessages([])
+  }
+
+  const processServerError = (response) => {
+    let status = response.status || 500
+    let errorMessage = ''
+    switch (status) {
+      case 400:
+        errorMessage = t('msg.sync.error.api')
+        break
+      case 401:
+        errorMessage = t('msg.sync.error.unauthorized')
+        break
+      case 403:
+        errorMessage = t('msg.sync.error.forbidden')
+        break
+      case 404:
+        errorMessage = t('msg.sync.error.not_found')
+        break
+      case 500:
+        errorMessage = 'Internal Server Error: Please try again later.'
+        break
+      default:
+        errorMessage = t('msg.sync.error.connection')
+    }
+    addMessage({message: errorMessage, severity: 'error', visible: true})
+    console.error(`Error: ${errorMessage} (Status: ${status})`)
+  }
+
+  const quickIssues = (severity) => {
+    setInitialSeverity(severity)
+    setNavigation('fixIssues')
+  }
+
+  const quickSearchTerm = (searchTerm) => {
+    setInitialSearchTerm(searchTerm)
+    setNavigation('fixIssues')
+  }
+
+  const addContentItemToCache = (newContentItem) => {
+    let newContentItemCache = Object.assign({}, contentItemCache)
+    newContentItemCache[newContentItem.id] = newContentItem
+    setContentItemCache(newContentItemCache)
+  }
+
+  const removeContentItemFromCache = (contentItemId) => {
+    if(!contentItemId) {
+      return
+    }
+
+    let newContentItemCache = Object.assign({}, contentItemCache)
+    if(newContentItemCache[contentItemId]) {
+      delete newContentItemCache[contentItemId]
+    }
+    setContentItemCache(newContentItemCache)
+  }
+
+  const handleFullCourseRescan = () => {
+    if (hasNewReport) {
+      setHasNewReport(false)
+      setSyncComplete(false)
+      try {
+        fullRescan()
+          .then((responseStr) => {
+            // Check for HTTP errors before parsing JSON
+            if (!responseStr.ok) {
+              processServerError(responseStr)
+              return null
+            }
+            return responseStr.json()
+          })
+          .then(handleNewReport)
+      } catch (error) {
+        addMessage({message: `${t('msg.sync.failed')}: ${t(error)}`, severity: 'error', visible: true})
+        console.error("Error scanning course:", error)
+      }
+    }
+  }
+
+  // Every time the translation function changes, we need to recompute the page visibility listener.
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (document.hidden) {
+        console.warn("UDOIT has lost focus. Course content may be changed.")
+      } else {
+        // There is probably a case for checking the page you're currently editing to make sure that there weren't any changes in the LMS.
+        // For now, just let the user know that they should refresh if they made changes.
+        addMessage({message: t('msg.return_focus'), severity: 'info', visible: true})
+      }
+    }
+    
+    document.addEventListener('visibilitychange', handleVisibilityChange)
+
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange)
+    }
+  }, [t])
+
+  useEffect(() => {
+    const script = document.createElement('script')
+    script.src = '../udoit3/build/static/tinymce/tinymce.min.js'
+    script.async = true
+    document.body.appendChild(script)
+  }, [])
+
+  useEffect(() => {
+    
+    try {
+      scanCourse()
+        .then((responseStr) => {
+        // Check for HTTP errors before parsing JSON
+          if (!responseStr.ok) {
+            processServerError(responseStr)
+            return null
+          }
+          return responseStr.json()
+        })
+        .then(handleNewReport)
+    } catch (error) {
+      addMessage({message: `${t('msg.sync.failed')}: ${t(error)}`, severity: 'error', visible: true})
+      console.error("Error scanning course:", error)
+    }
+  }, [initialData.report, scanCourse])
+
+  return (
+    <div id="app-container"
+         className={`flex-column flex-grow-1 ${settings?.user?.roles?.font_size || 'font-medium'} ${settings?.user?.roles?.font_family || 'sans-serif'} ${settings?.user?.roles?.dark_mode ? 'dark-mode' : ''}`}>
+      { !welcomeClosed ?
+        ( <WelcomePage
+            t={t}
+            settings={settings}
+            syncComplete={syncComplete}
+            setWelcomeClosed={setWelcomeClosed} /> ) :
+        (
+          <>
+            <Header
+              t={t}
+              settings={settings}
+              hasNewReport={hasNewReport}
+              navigation={navigation}
+              syncComplete={syncComplete}
+              handleNavigation={handleNavigation}
+             />
+
+            <main role="main" className="pt-2">
+              {('summary' === navigation) &&
+                <HomePage
+                  t={t}
+                  settings={settings.ISSUE_STATE ? settings : Object.assign({}, settings, { ISSUE_STATE })}
+                  report={report}
+                  hasNewReport={hasNewReport}
+                  quickIssues={quickIssues}
+                  sessionIssues={sessionIssues}
+                  syncComplete={syncComplete}
+                  handleFullCourseRescan={handleFullCourseRescan}
+                />
+              }
+              {('fixIssues' === navigation) &&
+                <FixIssuesPage
+                  t={t}
+                  settings={settings.ISSUE_STATE ? settings : Object.assign({}, settings, { ISSUE_STATE })}
+                  initialSeverity={initialSeverity}
+                  initialSearchTerm={initialSearchTerm}
+                  contentItemCache={contentItemCache}
+                  addContentItemToCache={addContentItemToCache}
+                  report={report}
+                  sections={sections}
+                  processNewReport={processNewReport}
+                  addMessage={addMessage}
+                  handleNavigation={handleNavigation}
+                  sessionIssues={sessionIssues}
+                  updateSessionIssue={updateSessionIssue}
+                  processServerError={processServerError}
+                />
+              }
+              {('reports' === navigation) &&
+                <ReportsPage
+                  t={t}
+                  settings={settings}
+                  report={report}
+                  quickSearchTerm={quickSearchTerm}
+                />
+              }
+              {('settings' === navigation) &&
+                <SettingsPage
+                  t={t}
+                  settings={settings}
+                  updateUserSettings={updateUserSettings}
+                  syncComplete={syncComplete}
+                  handleFullCourseRescan={handleFullCourseRescan} />
+              }
+              {('modal' === navigation) &&
+                <div className="modal">
+                  {modal}
+                </div>
+              }
+            </main>
+          </>
+        )
+      }
+      <MessageTray
+        t={t}
+        settings={settings}
+        messages={messages}
+        clearMessages={clearMessages}
+      />
+    </div>
+  )
 }
-
-export default App

@@ -1,194 +1,144 @@
-import React from 'react'
-import { Checkbox } from '@instructure/ui-checkbox';
-import { View } from '@instructure/ui-view'
-import { Button } from '@instructure/ui-buttons'
-import { Spinner } from '@instructure/ui-spinner'
-import { SimpleSelect } from '@instructure/ui-simple-select'
-import { IconCheckMarkLine } from '@instructure/ui-icons'
-import * as Html from '../../Services/Html';
+import React, { useState, useEffect } from 'react'
+import FormSaveOrReview from './FormSaveOrReview'
+import Combobox from '../Widgets/Combobox'
+import * as Html from '../../Services/Html'
 
+export default function HeadingStyleForm ({
+  t,
+  settings,
+  activeIssue,
+  handleIssueSave,
+  isDisabled,
+  handleActiveIssue,
+  markAsReviewed,
+  setMarkAsReviewed
+ }) {
 
-export default class HeadingStyleForm extends React.Component {
-    constructor(props) {
-        super(props)
+  const styleTags = ["strong", "b", "i", "em", "mark", "small", "del", "ins", "sub", "sup"]
+  const tagOptions = ["H2", "H3", "H4", "H5", "H6"]
+  const allHeadings = ["H1", "H2", "H3", "H4", "H5", "H6", "h1", "h2", "h3", "h4", "h5", "h6"]
 
-        const html = Html.getIssueHtml(this.props.activeIssue)
+  const [selectOptions, setSelectOptions] = useState([])
+  const [selectedValue, setSelectedValue] = useState('')
+  const [removeStyling, setRemoveStyling] = useState(false)
 
-        let element = Html.toElement(html)
-        this.tagName = Html.getTagName(element)
-        this.styleTags = ["STRONG", "B", "I", "EM", "MARK", "SMALL", "DEL", "INS", "SUB", "SUP"]
-
-        this.state = {
-            selectedValue: (this.tagName.startsWith('H')) ? this.tagName : '',
-            removeStyling: !this.hasStyling(),
-            textInputErrors: []
-        }
-
-        this.formErrors = []
-
-        this.handleSelect = this.handleSelect.bind(this)
-        this.handleSubmit = this.handleSubmit.bind(this)
-        this.handleCheckbox = this.handleCheckbox.bind(this)
+  useEffect(() => {
+    if(!activeIssue) {
+      return
     }
-
-    componentDidUpdate(prevProps, prevState) {
-        if (prevProps.activeIssue !== this.props.activeIssue) {
-            let html = (this.props.activeIssue.newHtml) ? this.props.activeIssue.newHtml : this.props.activeIssue.sourceHtml
-            
-            if (this.props.activeIssue.status === '1') {
-                html = this.props.activeIssue.newHtml
-            }
-
-            let element = Html.toElement(html)
-            this.tagName = Html.getTagName(element)
-        
-            this.setState({
-                selectedValue: (this.tagName.startsWith('H')) ? this.tagName : '',
-                removeStyling: !this.hasStyling(),
-                textInputErrors: []
-            })
-
-            this.formErrors = []
-        }
-    }
-
-    handleCheckbox() {
-        this.setState({
-            removeStyling: !this.state.removeStyling
-        }, () => {
-            let issue = this.props.activeIssue
-            issue.newHtml = this.processHtml()
-            this.props.handleActiveIssue(issue)
-        })
-    }
+    let html = Html.getIssueHtml(activeIssue)
+    let element = Html.toElement(html)
+    const tagName = Html.getTagName(element).toUpperCase()
     
-    handleSelect = (e, { id, value }) => {
-        this.formErrors = []
+    const tagSelection = tagOptions.includes(tagName) ? tagName : ''
+    let tempSelectOptions = [
+      { value: '', name: t('form.heading_style.label.none_selected'), selected: tagSelection === '' }
+    ]
+    tagOptions.forEach(tag => {
+      tempSelectOptions.push({
+        value: tag,
+        name: tag,
+        selected: tag === tagSelection
+      })
+    })
+    setSelectOptions(tempSelectOptions)
+    setSelectedValue(tagSelection)
+    setRemoveStyling(false)
+  }, [activeIssue])
 
-        this.setState({ selectedValue: value }, () => {
-            let issue = this.props.activeIssue
-            issue.newHtml = this.processHtml()
-            this.props.handleActiveIssue(issue)
-        })
+  useEffect(() => {
+    updateHtmlContent()
+  }, [selectedValue, removeStyling, markAsReviewed])
+
+  const updateHtmlContent = () => {
+    let issue = activeIssue
+    issue.isModified = true
+
+    if (markAsReviewed) {
+      issue.newHtml = issue.initialHtml
+      handleActiveIssue(issue)
+      return
     }
 
-    handleSubmit() {
-        this.formErrors = []
+    issue.newHtml = processHtml()
+    handleActiveIssue(issue)
+  }
+  
+  const processHtml = () => {
+    let newHeader
+    const html = Html.getIssueHtml(activeIssue)
+    const element = Html.toElement(html)
 
-        if(!this.state.removeStyling) {
-            this.checkSelectNotEmpty()
-        }
-        
+    if (selectedValue) {
+      newHeader = document.createElement(selectedValue)
+      newHeader.innerHTML = element.innerHTML
 
-        if (this.formErrors.length > 0) {
-            this.setState({ textInputErrors: this.formErrors })
-        } 
-        else {
-            this.setState({ textInputErrors: []})
-            this.props.handleIssueSave(this.props.activeIssue)
+      for (let styleTag of styleTags) {
+        newHeader = Html.removeTag(newHeader, styleTag)
+      }
+    }
+    else {
+      newHeader = Html.toElement(activeIssue.sourceHtml)
+
+      if(allHeadings.includes(newHeader.tagName)) {
+        const innerHtml = newHeader.innerHTML
+        newHeader = document.createElement('p')
+        newHeader.innerHTML = innerHtml
+      }
+
+      if (removeStyling) {
+        for (let styleTag of styleTags) {
+          newHeader = Html.removeTag(newHeader, styleTag)
         }
+        if (newHeader.hasAttribute('style')) {
+          newHeader.removeAttribute('style')
+        }
+      }
     }
 
-    checkSelectNotEmpty() {
-        if (this.state.selectedValue === '' && !this.state.removeStyling) {
-          this.formErrors.push({ text: this.props.t('form.heading.msg.select_heading'), type: 'error' })
-        }
-    }
+    return Html.toString(newHeader)
+  }
 
-    processHtml() {
-        let newHeader
-        const html = Html.getIssueHtml(this.props.activeIssue)
-        const element = Html.toElement(html)
+  const handleCheckbox = () => {
+    setRemoveStyling(!removeStyling)
+  }
 
-        if (this.state.selectedValue) {
-            newHeader = document.createElement(this.state.selectedValue)
-            newHeader.innerHTML = element.innerHTML
+  const handleComboboxSelect = (id, value) => {
+    setSelectedValue(value)
+  }
 
-            for (let styleTag of this.styleTags) {
-                newHeader = Html.removeTag(newHeader, styleTag)
-            }
-        }
-        else {
-            newHeader = Html.toElement(this.props.activeIssue.sourceHtml)
+  const handleSubmit = () => {
+    handleIssueSave(activeIssue)
+  }
 
-            if (this.state.removeStyling) {
-                for (let styleTag of this.styleTags) {
-                    newHeader = Html.removeTag(newHeader, styleTag)
-                }
-            }
-        }
-
-        return Html.toString(newHeader)
-    }
-
-    hasStyling() {
-        const html = Html.getIssueHtml(this.props.activeIssue)
-        let element = Html.toElement(html)
-
-        for (const styleTag of this.styleTags) {
-            if (Html.hasTag(element, styleTag)) {
-                return true
-            }
-        }
-
-        return false
-    }
-
-    render() {
-        const options = this.props.t('form.heading.heading_level_options')
-        const pending = (this.props.activeIssue && (this.props.activeIssue.pending == '1'))
-        const buttonLabel = (pending) ? 'form.processing' : 'form.submit'
-
-        return (
-            <View as="div" padding="x-small">
-                <View as="div" margin="small 0">
-                    <SimpleSelect
-                    renderLabel={this.props.t('form.heading.heading_level')}
-                    assistiveText={this.props.t('form.heading.assistive_text')}
-                    value={this.state.selectedValue}
-                    onChange={this.handleSelect}
-                    messages={this.formErrors}
-                    width="100%"
-                    >
-                        <SimpleSelect.Option
-                            key="opt-empty"
-                            id="opt-empty"
-                            value=""
-                        >
-                            -- Choose --
-                        </SimpleSelect.Option>
-                        {options.map((opt, index) => (
-                            <SimpleSelect.Option
-                            key={index}
-                            id={`opt-${index}`}
-                            value={opt}
-                            >
-                            { opt }
-                            </SimpleSelect.Option>
-                        ))}
-                    </SimpleSelect>
-                </View>
-
-                <View as="div" margin="small 0">
-                    <Checkbox label={this.props.t('form.heading.remove_styling')} 
-                        onChange={this.handleCheckbox} 
-                        checked={this.state.removeStyling}
-                        />
-                </View>
-                <View as="div" margin="small 0">
-                    <Button color="primary" onClick={this.handleSubmit} interaction={(!pending && this.props.activeIssue.status !== 2) ? 'enabled' : 'disabled'}>
-                        {pending && <Spinner size="x-small" renderTitle={buttonLabel} />}
-                        {this.props.t(buttonLabel)}
-                    </Button>
-                    {this.props.activeIssue.recentlyUpdated &&
-                        <View margin="0 small">
-                            <IconCheckMarkLine color="success" />
-                            <View margin="0 x-small">{this.props.t('label.fixed')}</View>
-                        </View>
-                    }
-                </View>
-            </View>
-        );
-    }
-
+  return (
+    <>
+      <Combobox
+        handleChange={handleComboboxSelect}
+        id='heading-select'
+        isDisabled={isDisabled}
+        label={t('form.heading_style.label.select')}
+        options={selectOptions}
+        settings={settings} />
+      <div className="flex-row justify-content-start gap-1 mt-2">
+        <input type="checkbox"
+          id="removeStylingCheckbox"
+          name="removeStylingCheckbox"
+          checked={removeStyling}
+          tabIndex="0"
+          disabled={isDisabled}
+          onChange={handleCheckbox} />
+        <label htmlFor="removeStylingCheckbox" className="instructions">{t('form.heading_style.label.remove_styling')}</label>
+      </div>
+      <FormSaveOrReview
+        t={t}
+        settings={settings}
+        activeIssue={activeIssue}
+        isDisabled={isDisabled}
+        handleSubmit={handleSubmit}
+        formErrors={[]}
+        markAsReviewed={markAsReviewed}
+        setMarkAsReviewed={setMarkAsReviewed} />
+    </>
+  )
 }

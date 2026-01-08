@@ -22,7 +22,7 @@ class AppFixtures extends Fixture
   private $contentItems = [];
   private $issues = [];
 
-  public function load(ObjectManager $manager)
+  public function load(ObjectManager $manager): void
   {
     $this->manager = $manager;
 

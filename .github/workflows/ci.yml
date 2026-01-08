@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+      - dev
       - 'stable/*'
 
 env:
@@ -17,8 +18,8 @@ jobs:
       fail-fast: false
       matrix:
         operating-system: [ubuntu-latest]
-        php-versions: ['8.2']
-        node-version: [16.19.0]
+        php-versions: ['8.4']
+        node-version: [20.19.0]
     steps:
       - uses: actions/checkout@v4
 

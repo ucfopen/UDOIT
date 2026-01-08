@@ -8,73 +8,48 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
-/**
- * @ORM\Entity(repositoryClass="App\Repository\ContentItemRepository")
- */
+#[ORM\Entity(repositoryClass: "App\Repository\ContentItemRepository")]
 class ContentItem implements \JsonSerializable
 {
     // Private Members
-    /**
-     * @ORM\Id()
-     * @ORM\GeneratedValue()
-     * @ORM\Column(type="integer")
-     */
+
+    #[ORM\Id]
+    #[ORM\GeneratedValue]
+    #[ORM\Column(type: "integer")]
     private $id;
 
-    /**
-     * @ORM\Column(type="string", length=255)
-     */
+    #[ORM\Column(type: "string", length: 255)]
     private $title;
 
-    /**
-     * @ORM\ManyToOne(targetEntity="App\Entity\Course", inversedBy="contentItems")
-     * @ORM\JoinColumn(nullable=false)
-     */
+    #[ORM\ManyToOne(targetEntity: "App\Entity\Course", inversedBy: "contentItems")]
+    #[ORM\JoinColumn(nullable: false)]
     private $course;
 
-    /**
-     * @ORM\Column(type="string", length=255)
-     */
+    #[ORM\Column(type: "string", length: 255)]
     private $contentType;
 
-    /**
-     * @ORM\Column(type="string", length=512)
-     */
+    #[ORM\Column(type: "string", length: 512)]
     private $lmsContentId;
 
-    /**
-     * @ORM\Column(type="datetime")
-     */
+    #[ORM\Column(type: "datetime")]
     private $updated;
 
-    /**
-     * @ORM\Column(type="text", nullable=true)
-     */
+    #[ORM\Column(type: "text", nullable: true)]
     private $metadata;
 
-    /**
-     * @ORM\OneToMany(targetEntity="App\Entity\Issue", mappedBy="contentItem")
-     */
+    #[ORM\OneToMany(targetEntity: "App\Entity\Issue", mappedBy: "contentItem")]
     private $issues;
 
-    /**
-     * @ORM\Column(type="boolean")
-     */
+    #[ORM\Column(type: "boolean")]
     private $published;
 
-    /**
-     * @ORM\Column(type="boolean")
-     */
+    #[ORM\Column(type: "boolean")]
     private $active;
 
-    /**
-     * @ORM\Column(type="text", nullable=true)
-     */
+    #[ORM\Column(type: "text", nullable: true)]
     private $body;
 
-    /**
-     * @ORM\Column(type="string", length=255, nullable=true)
-     */
+    #[ORM\Column(type: "string", length: 255, nullable: true)]
     private $url;
 
 
@@ -94,7 +69,9 @@ class ContentItem implements \JsonSerializable
             'contentType' => $this->getContentType(),
             'lmsContentId' => $this->getLmsContentId(),
             'updated' => $this->getUpdated()->format('c'),
+            'published' => $this->isPublished(),
             'status' => $this->isPublished(),
+            'body' => $this->getBody(),
             'url' => $this->getUrl(),
         ];
     }
@@ -154,6 +131,11 @@ class ContentItem implements \JsonSerializable
 
     public function setUpdated(\DateTimeInterface $updated): self
     {
+        // If the updated date is a string, convert it to a DateTime object
+        if (is_string($updated)) {
+            $updated = new \DateTime($updated, UtilityService::$timezone);
+        }
+
         $this->updated = $updated;
 
         return $this;
@@ -179,7 +161,8 @@ class ContentItem implements \JsonSerializable
 
     public function setBody(?string $body): self
     {
-        $this->body = HtmlService::clean($body);
+        $this->body = $body;
+        // $this->body = HtmlService::clean($body);
 
         return $this;
     }

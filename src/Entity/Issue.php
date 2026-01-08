@@ -5,74 +5,55 @@ namespace App\Entity;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
 
-/**
- * @ORM\Entity(repositoryClass="App\Repository\IssueRepository")
- */
+
+#[ORM\Entity(repositoryClass: "App\Repository\IssueRepository")]
 class Issue implements \JsonSerializable
 {
     static $issueError = 'error';
+    static $issuePotential = 'potential';
     static $issueSuggestion = 'suggestion';
     static $issueStatusActive = 0;
     static $issueStatusFixed = 1;
     static $issueStatusResolved = 2;
+    static $issueStatusFixedAndResolved = 3;
 
     // Private Members
-    /**
-     * @ORM\Id()
-     * @ORM\GeneratedValue()
-     * @ORM\Column(type="integer")
-     */
+    #[ORM\Id]
+    #[ORM\GeneratedValue]
+    #[ORM\Column(type: "integer")]
     private $id;
 
-    /**
-     * @ORM\ManyToOne(targetEntity="App\Entity\ContentItem", inversedBy="issues")
-     * @ORM\JoinColumn(nullable=false)
-     */
+    private $reports;
+
+    #[ORM\ManyToOne(targetEntity: "App\Entity\ContentItem", inversedBy: "issues")]
+    #[ORM\JoinColumn(nullable: false)]
     private $contentItem;
 
-    /**
-     * @ORM\Column(type="string", length=255)
-     */
+    #[ORM\Column(type: "string", length: 255)]
     private $scanRuleId;
 
-    /**
-     * @ORM\Column(type="text", nullable=true)
-     */
+    #[ORM\Column(type: "text", nullable: true)]
     private $html;
 
-    /**
-     * @ORM\Column(type="string", length=255)
-     */
+    #[ORM\Column(type: "string", length: 255)]
     private $type;
 
-    /**
-     * @ORM\Column(type="smallint")
-     */
+    #[ORM\Column(type: "smallint")]
     private $status;
 
-    /**
-     * @ORM\ManyToOne(targetEntity=User::class)
-     */
+    #[ORM\ManyToOne(targetEntity: User::class)]
     private $fixedBy;
 
-    /**
-     * @ORM\Column(type="datetime", nullable=true)
-     */
+    #[ORM\Column(type: "datetime", nullable: true)]
     private $fixedOn;
 
-    /**
-     * @ORM\Column(type="text", nullable=true)
-     */
+    #[ORM\Column(type: "text", nullable: true)]
     private $previewHtml;
 
-    /**
-     * @ORM\Column(type="text", nullable=true)
-     */
+    #[ORM\Column(type: "text", nullable: true)]
     private $newHtml;
 
-    /**
-     * @ORM\Column(type="json", nullable=true)
-     */
+    #[ORM\Column(type: "json", nullable: true)]
     private $metadata;
 
     // Constructor
@@ -89,11 +70,13 @@ class Issue implements \JsonSerializable
         return [
             "id" => $this->id,
             "status" => $this->status,
+            "fixedOn" => ($this->fixedOn ? $this->fixedOn->format('Y-m-d H:i:s') : null),
             "contentItemId" => $this->contentItem->getId(),
             "scanRuleId" => $this->scanRuleId,
             "type" => $this->type,
-            "sourceHtml" => $this->html,
-            "previewHtml" => $this->previewHtml,
+            "xpath" => $this->html,
+            "sourceHtml" => $this->previewHtml,
+            "newHtml" => $this->newHtml,
             "metadata" => $this->metadata,
         ];
     }

@@ -35,29 +35,6 @@ class ContentItemRepository extends ServiceEntityRepository
             ->createQuery('DELETE App\Entity\ContentItem ci WHERE ci.active = FALSE')->execute();
     }
 
-    public function getUpdatedContentItems(Course $course)
-    {
-        $latestReport = $course->getLatestReport();
-
-        if (!$latestReport) {
-            return $this->createQueryBuilder('c')
-                ->andWhere('c.course = :course')
-                ->andWhere('c.active = TRUE')
-                ->setParameter('course', $course)
-                ->getQuery()
-                ->getResult();
-        }
-
-        return $this->createQueryBuilder('c')
-            ->andWhere('c.course = :course')
-            ->andWhere('c.updated > :updated')
-            ->andWhere('c.active = TRUE')
-            ->setParameter('course', $course)
-            ->setParameter('updated', $latestReport->getCreated())
-            ->getQuery()
-            ->getResult();
-    }
-
     // Get all content items that haven't changed since the course was last updated.
     public function getUnchangedContentItems(Course $course): array
     {
