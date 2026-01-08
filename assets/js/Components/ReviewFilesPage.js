@@ -582,8 +582,8 @@ export default function ReviewFilesPage({
         <></>
       ) : (
         <>
-          <h1>Review Files</h1>
-          <div className="subheader">Check files for common accessibility issues and update them if necessary.</div>
+          <h1>{t('files.title')}</h1>
+          <div className="subheader">{t('files.subtitle')}</div>
 
           <ReviewFilesFilters
             t={t}

@@ -47,6 +47,12 @@
   "summary.button.fix_issues": "Resolver Barreras Conocidas",
   "summary.button.fix_potentials": "Resolver Posibles Barreras",
   "summary.button.fix_suggestions": "Revisar Sugerencias",
+  
+  "barriers.title": "Resolver Barreras",
+  "barriers.subtitle": "TODO: Barriers are grouped by type. Select a group below to see where these barriers occur in your course.",
+
+  "files.title": "Revisar Archivos",
+  "files.subtitle": "TODO: Files cannot be automatically scanned by UDOIT. Review course files for common accessibility issues and update them if necessary.",
 
   "report.title.barriers_remaining": "Barreras de Accesibilidad Restantes",
   "report.title.issues_by_type": "Barreras Por Tipo",
@@ -203,6 +209,10 @@
   "filter.label.active": "Problemas Activos",
   "filter.label.fixed": "Problemas Resueltos",
   "filter.label.resolved": "Problemas Revisados",
+  "filter.label.toggle.show_resolved": "Mostrar Resueltos",
+  "filter.label.toggle.show_unpublished": "Mostrar No Publicados",
+  "filter.label.toggle.show_reviewed": "Mostrar Revisados",
+  "filter.label.toggle.show_unused": "Mostrar No Usados",
 
   "filter.label.issue_count_plural": "{count} Barreras",
   "filter.label.issue_count_single": "1 Barrera",
@@ -260,12 +270,6 @@
   "fix.msg.select_issue": "Seleccionar un problema de la lista para ver sus detalles y corregirlo o marcarlo como revisado.",
   "fix.msg.resolved": "Si has revisado este problema y determinado que no es una barrera de accesibilidad, puedes marcarlo como revisado. ",
   "fix.msg.unresolved": "Este problema ha sido marcado como revisado. Si se necesitan realizar cambios adicionales, puedes marcarlo como no revisado.",
-
-  "label.yes": "Sí",
-  "label.no": "No",
-
-  "label.yes": "Sí",
-  "label.no": "No",
 
   "label.yes": "Sí",
   "label.no": "No",

@@ -703,6 +703,9 @@ export default function FixIssuesPage({
         <></>
       ) : widgetState === settings.WIDGET_STATE.LIST ? (
         <>
+          <h1>{t('barriers.title')}</h1>
+          <div className="subheader">{t('barriers.subtitle')}</div>
+          
           <FixIssuesFilters
             t={t}
             settings={settings}

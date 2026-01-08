@@ -47,6 +47,12 @@
   "summary.button.fix_issues": "Resolve Known Barriers",
   "summary.button.fix_potentials": "Resolve Potential Barriers",
   "summary.button.fix_files": "Review Files",
+
+  "barriers.title": "Resolve Barriers",
+  "barriers.subtitle": "Barriers are grouped by type. Select a group below to see where these barriers occur in your course.",
+
+  "files.title": "Review Files",
+  "files.subtitle": "Files cannot be automatically scanned by UDOIT. Review course files for common accessibility issues and update them if necessary.",
   
   "report.title.barriers_remaining": "Accessibility Barriers Remaining",
   "report.title.issues_by_type": "Barriers By Type",
@@ -203,6 +209,10 @@
   "filter.label.active": "Active Issues",
   "filter.label.fixed": "Fixed Issues",
   "filter.label.resolved": "Reviewed Issues",
+  "filter.label.toggle.show_resolved": "Show Resolved",
+  "filter.label.toggle.show_unpublished": "Show Unpublished",
+  "filter.label.toggle.show_reviewed": "Show Reviewed",
+  "filter.label.toggle.show_unused": "Show Unused",
 
   "filter.label.issue_count_plural": "{count} Barriers",
   "filter.label.issue_count_single": "1 Barrier",

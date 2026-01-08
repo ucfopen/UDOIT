@@ -1,8 +1,5 @@
 import React, { useState, useEffect } from 'react'
 import SearchIcon from '../Icons/SearchIcon'
-import CloseIcon from '../Icons/CloseIcon'
-import FilterOnIcon from '../Icons/FilterOnIcon'
-import FilterOffIcon from '../Icons/FilterOffIcon'
 import Combobox from './Combobox'
 import ToggleSwitch from './ToggleSwitch'
 
@@ -29,11 +26,6 @@ export default function ReviewFilesFilters({
   }
 
   const allFilters = {
-    // [FILTER.TYPE.UTILIZATION]: {
-    //   [FILTER.ALL]: t('filter.label.utilization.all'),
-    //   [FILTER.USED]: t('filter.label.utilization.referenced'),
-    //   [FILTER.UNUSED]: t('filter.label.utilization.unreferenced'),
-    // },
     [FILTER.TYPE.FILE_TYPE]: {
       [FILTER.ALL]: t('filter.label.file_type.all'),
       [FILTER.FILE_PDF]: t('label.mime.pdf'),
@@ -43,11 +35,6 @@ export default function ReviewFilesFilters({
       [FILTER.FILE_AUDIO]: t('label.mime.audio'),
       [FILTER.FILE_VIDEO]: t('label.mime.video'),
     },
-    // [FILTER.TYPE.RESOLUTION]: {
-    //   [FILTER.ALL]: t('filter.label.review.all'),
-    //   [FILTER.UNREVIEWED]: t('filter.label.review.unreviewed'),
-    //   [FILTER.REVIEWED]: t('filter.label.review.reviewed'),
-    // },
     [FILTER.TYPE.MODULE]: {
       [FILTER.ALL]: t('filter.label.review.all'),
     },
@@ -112,75 +99,71 @@ export default function ReviewFilesFilters({
   }
 
   return (
-      <div className="filter-container flex-row justify-content-between gap-3">
-        <div className="flex-row flex-wrap gap-2">
-          <div className="flex-column flex-shrink-0 justify-content-center">
-            <div className="search-group">
-              <input
-                id="search-bar"
-                name="search-bar"
-                role="searchbox"
-                tabIndex="0"
-                aria-label={t('filter.label.search')}
-                value={searchTerm}
-                type="text"
-                placeholder={t('filter.label.search')}
-                onChange={(e) => handleSearchTerm(e.target.value)}
-              />
-              <SearchIcon className="search-icon icon-sm" />
-            </div>
-          </div>
-
-          <div className="separator-pipe" />
-
-          <div className="flex-row gap-1">
-            <ToggleSwitch
-              labelId={"unusedFiles"}
-              initialValue={activeFilters[FILTER.TYPE.UTILIZATION] === FILTER.ALL}
-              updateToggle={updateUnusedFilesToggle}
+    <div className="filter-container flex-row justify-content-between gap-3">
+      <div className="flex-row flex-wrap gap-1">
+        <div className="flex-column flex-shrink-0 justify-content-center pe-2">
+          <div className="search-group">
+            <input
+              id="search-bar"
+              name="search-bar"
+              role="searchbox"
+              tabIndex="0"
+              aria-label={t('filter.label.search')}
+              value={searchTerm}
+              type="text"
+              placeholder={t('filter.label.search')}
+              onChange={(e) => handleSearchTerm(e.target.value)}
             />
-            <div
-              id="unusedFiles"
-              className="align-self-center subtext">
-                Show Unused
-            </div>
+            <SearchIcon className="search-icon icon-sm" />
           </div>
-
-          <div className="separator-pipe" />
-
-          <div className="flex-row gap-1">
-            <ToggleSwitch
-              labelId={"completeFiles"}
-              initialValue={activeFilters[FILTER.TYPE.RESOLUTION] === FILTER.ALL}
-              updateToggle={updateCompleteFilesToggle}
-            />
-            <div
-              id="completeFiles"
-              className="align-self-center subtext">
-                Show Complete
-            </div>
-          </div>
-
         </div>
-        
-        { usedFilters && (
-          <div className="flex-row flex-wrap flex-end gap-2">
-            {Object.keys(detailedFilters).map((filterType, index) => {
-              return (
-                <div className="filter-group flex-column justify-content-center" key={index}>
-                  <Combobox
-                    handleChange={updateActiveFilters}
-                    id={detailedFilters[index].value}
-                    label={detailedFilters[index].label}
-                    options={detailedFilters[index].options}
-                    settings={settings}
-                  />
-                </div>
-              )
-            })}
+
+        <div className="flex-row gap-1 pe-2">
+          <ToggleSwitch
+            labelId={"unusedFiles"}
+            initialValue={activeFilters[FILTER.TYPE.UTILIZATION] === FILTER.ALL}
+            updateToggle={updateUnusedFilesToggle}
+          />
+          <div
+            id="unusedFiles"
+            className="align-self-center subtext">
+              {t('filter.label.toggle.show_unused')}
           </div>
-        )}
+        </div>
+
+        <div className="flex-row gap-1 pe-2">
+          <ToggleSwitch
+            labelId={"completeFiles"}
+            initialValue={activeFilters[FILTER.TYPE.RESOLUTION] === FILTER.ALL}
+            updateToggle={updateCompleteFilesToggle}
+          />
+          <div
+            id="completeFiles"
+            className="align-self-center subtext">
+              {t('filter.label.toggle.show_reviewed')}
+          </div>
+        </div>
 
       </div>
+      
+      { usedFilters && (
+        <div className="flex-row flex-wrap flex-end gap-1">
+          {Object.keys(detailedFilters).map((filterType, index) => {
+            return (
+              <div className="filter-group flex-column justify-content-center ps-2" key={index}>
+                <Combobox
+                  handleChange={updateActiveFilters}
+                  id={detailedFilters[index].value}
+                  label={detailedFilters[index].label}
+                  options={detailedFilters[index].options}
+                  settings={settings}
+                />
+              </div>
+            )
+          })}
+        </div>
+      )}
+
+    </div>
   )
 }

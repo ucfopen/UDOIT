@@ -190,6 +190,10 @@ main {
 .flex-row {
   display: flex;
   flex-direction: row;
+
+  &.flex-wrap {
+    height: fit-content;
+  }
 }
 
 .flex-column, .flex-col {
@@ -582,7 +586,7 @@ h1, h2, h3, h4, h5, h6 {
   margin-top: -.75rem;
   margin-bottom: 1rem;
   color: var(--gray-dark);
-  font-weight: 400;
+  font-weight: 300;
 }
 
 .primary {
