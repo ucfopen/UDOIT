@@ -94,7 +94,7 @@ export default function FixIssuesContentPreview({
     }
 
     // If the issue edits the alt text, we need to show the auto-updating alt text preview
-    if (ALT_TEXT_RELATED.includes(formNameFromRule(activeIssue.scanRuleId))) {
+    if (ALT_TEXT_RELATED.includes(formNameFromRule(activeIssue.scanRuleId)) && errorElement) {
       let altText = Html.getAccessibleName(errorElement)
       
       // If there is alt text to show...

@@ -1,0 +1,79 @@
+.info-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.info-popover-btn {
+  border: none;
+  background: none;
+  cursor: pointer;
+  padding: 0;
+  margin-inline-start: 4px;
+  display: flex;
+  align-items: center;
+  line-height: 1;
+  border-radius: 50%;
+}
+
+.info-popover-btn:hover,
+.info-popover-btn:focus {
+  outline: 2px solid var(--focus-color);
+  outline-offset: 1px;
+}
+
+.icon-info {
+  transition: filter var(--transition-time);
+}
+
+.info-popover-btn:hover .icon-info,
+.info-popover-btn:focus .icon-info {
+  filter: brightness(var(--hover-brightness));
+}
+
+/* The popover dialog itself */
+.info-popover-dialog {
+  position: fixed;
+  inset: unset;
+  z-index: 1000;
+  background: var(--white);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  padding: 12px 16px;
+  min-width: 220px;
+  max-width: 320px;
+  outline: none;
+}
+
+.info-popover-dialog::backdrop {
+  background: var(--backdrop-color);
+  backdrop-filter: none;
+}
+
+.info-popover-content {
+  margin-bottom: 8px;
+  text-decoration: none !important;
+  font-size: 1.1em !important;
+  color: var(--text-color) !important;
+  font-weight: normal !important;
+}
+
+.info-popover-close {
+  border: none;
+  background: none;
+  color: var(--link-color);
+  cursor: pointer;
+  font-size: 1em;
+  float: right;
+}
+
+/* Screen reader-only utility */
+.sr-only {
+  position: absolute !important;
+  left: -9999px !important;
+  height: 1px;
+  width: 1px;
+  overflow: hidden;
+  clip: rect(1px, 1px, 1px, 1px);
+  white-space: nowrap;
+}

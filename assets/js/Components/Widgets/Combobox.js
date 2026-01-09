@@ -419,7 +419,6 @@ export default function Combobox({
   const onOptionMouseDown = () => {
     // Clicking an option will cause a blur event,
     // but we don't want to perform the default keyboard blur action
-    console.log("Is there a blurring problem here?")
     // let containerEl = document.getElementById('combo-container-' + id)
     // if(!containerEl) {
     //   return
