@@ -117,16 +117,18 @@ export function analyzeReport(report, ISSUE_STATE) {
             let specificError = 'udoit-ignore-' + issue.scanRuleId.replaceAll("_", "-")
             let classesArray = elementClasses.split(' ')
             if(classesArray.includes('phpally-ignore') || classesArray.includes(specificError)) {
+              // If the scanner found it, but it has an 'ignore' class, don't include it.
               issueIgnored = true
             }
           }
           
-          // For the text_block_heading rule, we need to check if the element is inside a table cell.
           if(runCustomChecks(issue, element)) {
+            // If there are custom checks that indicate we should ignore this issue, do so.
             issueIgnored = true
           }
         }
         else {
+          // If we can't find the element in the content item body, we have to ignore the issue.
           issueIgnored = true
         }
       }

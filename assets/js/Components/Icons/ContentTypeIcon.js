@@ -28,6 +28,7 @@ export default function ContentTypeIcon(props) {
     case('FILE_OBJECT'):
       return <ContentFileIcon {...props} />
     case('QUIZ'):
+    case('QUIZ_QUESTION'):
       return <ContentQuizIcon {...props} />
     case('SYLLABUS'):
       return <ContentSyllabusIcon {...props} />
