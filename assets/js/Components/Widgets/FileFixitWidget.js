@@ -17,8 +17,7 @@ export default function FileFixitWidget({
 
   return (
     <div className="ufixit-widget w-100 flex-column flex-grow-1">
-      <h4>Resolve Issue</h4>
-      <div>Upload a new version of the file if the current one has accessibility issues.</div>
+
     </div>
   )
 }

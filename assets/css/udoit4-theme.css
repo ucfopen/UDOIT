@@ -23,6 +23,7 @@
   --primary-color-light: color-mix(in srgb, var(--primary-color) 10%, var(--white) 100%);  /* #E8F3ED; */
   --primary-color-inverse: var(--gray-lightest);
   --text-color: var(--gray-darker);
+  --disabled-color: #9C9C9C;
 
   --hover-brightness: 1.15;
 
@@ -44,8 +45,14 @@
   --success-color: #006937;
   --success-color-light: color-mix(in srgb, var(--success-color) 10%, #FFFFFF 100%);
 
+  --help-color: #F5E9C3;
+  --help-color-light: #FFF9E6;
+
+  --selection-color: #109E45;
+  --selection-color-light: #FAFFFB;
+
   --background-color: var(--gray-lightest);
-  --border-color: rgba(0, 0, 0, 0.25);
+  --border-color: #E5E7EB;
   --progress-bar-background-color: var(--gray-light);
   --progress-bar-color: var(--primary-color);
   --shadow-color: #00000044;
@@ -190,6 +197,10 @@ main {
 .flex-row {
   display: flex;
   flex-direction: row;
+
+  &.flex-wrap {
+    height: fit-content;
+  }
 }
 
 .flex-column, .flex-col {
@@ -582,7 +593,7 @@ h1, h2, h3, h4, h5, h6 {
   margin-top: -.75rem;
   margin-bottom: 1rem;
   color: var(--gray-dark);
-  font-weight: 400;
+  font-weight: 300;
 }
 
 .primary {
@@ -664,13 +675,12 @@ h1, h2, h3, h4, h5, h6 {
 
 button {
   font-family: var(--heading-font-family);
-  text-transform: uppercase;
   padding: .5rem 1rem;
   border-radius: 8px;
   cursor: pointer;
   box-sizing: border-box;
   border: 2px solid transparent;
-  font-weight: 500;
+  font-weight: 300;
   font-size: 1em;
   width: fit-content;
 
@@ -696,14 +706,15 @@ button {
 }
 
 .btn-secondary {
-  border-color: var(--primary-color);
+  border-color: var(--border-color);
   background-color: var(--white);
-  color: var(--primary-color-dark);
-  fill: var(--primary-color-dark);
+  color: var(--text-color);
+  fill: var(--text-color);
+  border-width: 1px;
   
   &:hover,
   &:focus {
-    background-color: var(--primary-color-light);
+    background-color: var(--gray-lightest);
   }
 }
 
@@ -866,7 +877,7 @@ input[type="color"] {
 dialog {
   width: 90vw;
   max-width: 50em;
-  overflow-y: auto;
+  overflow: hidden;
   box-sizing: border-box;
   border: none;
   border-radius: var(--window-radius);
@@ -881,6 +892,55 @@ dialog {
     height: 95vh;
     max-height: 95vh;
   }
+
+  .dialog-header,
+  .dialog-footer {
+    width: 100%;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    padding: 1rem;
+    gap: 1rem;
+  }
+
+  .dialog-header {
+    position: sticky;
+    top: 0;
+    left: 0;
+    background-color: var(--white);
+    border-bottom: 1px solid var(--border-color);
+
+    h2 {
+      line-height: normal;
+    }
+
+    .close-icon {
+      cursor: pointer;
+      padding: .25rem;
+      margin: -.25rem;
+
+      &:hover,
+      &:focus {
+        background-color: var(--gray-lighter);
+        border-radius: 50%;
+        outline-offset: -2px;
+        outline: 2px solid var(--focus-color);
+      }
+    }
+  }
+
+  .dialog-content {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+    overflow: auto;
+  }
+
+  .dialog-footer {
+    background-color: var(--background-color);
+    border-top: 1px solid var(--border-color);
+  }
 }
 
 .callout-container {
@@ -888,7 +948,11 @@ dialog {
   border-radius: 8px;
   padding: .75rem 1rem;
   border: 1px solid var(--border-color);
-  box-sizing: border-box;
+
+  &.help-container {
+    background-color: var(--help-color-light);
+    border-color: var(--help-color);
+  }
 }
 
 /* The separator class is for a horizontal line with text in the middle on various forms */
@@ -1152,13 +1216,4 @@ a:focus {
   font-size: 0.9em;
   overflow-wrap: anywhere;
   cursor: pointer;
-}
-
-
-/* The horizontal line appears on the bottom of an element to act as divider between various components*/
-
-.horizontal-divider{
-  border-bottom: solid;
-  border-width: 1px;
-  border-color: var(--gray-lighter);
 }
