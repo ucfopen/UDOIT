@@ -89,6 +89,17 @@ export default function ReviewFilesPage({
   const [filteredFiles, setFilteredFiles] = useState([])
   const [widgetState, setWidgetState] = useState(WIDGET_STATE.LOADING)
 
+  // Form States
+  const [markAsReviewed, setMarkAsReviewed] = useState(false)
+  const [formInvalid, setFormInvalid] = useState(true)
+  const [uploadedFile, setUploadedFile] = useState(null)
+
+  const [fileContentReferences, setFileContentReferences] = useState([])
+  const [fileSectionReferences, setFileSectionReferences] = useState([])
+
+  const [isDisabled, setIsDisabled] = useState(false)
+
+
   const formatFileData = (fileData) => {
 
     let fileId = fileData.id
@@ -641,6 +652,11 @@ const getSectionPostOptions = (newFile, sectionReferences) => {
   }
 
   const handleFileUpload  = async (newFileData, contentReferences, sectionReferences) => {
+    if(markAsReviewed){
+      handleFileResolve(activeIssue.fileData)
+      return
+    }
+
     const tempFile = Object.assign({}, activeIssue.fileData)
     updateActiveSessionFile(tempFile.id, settings.ISSUE_STATE.SAVING)
     try{
@@ -880,7 +896,31 @@ const getSectionPostOptions = (newFile, sectionReferences) => {
             </div>
           </div>
           <div className='dialog-footer'>
+            <div className="flex-row gap-2">
+              <button
+                className={`btn btn-small btn-link btn-icon-left ${filteredFiles.length < 2 ? 'disabled' : ''}`}
+                onClick={() => nextFile(true)}
+                tabIndex="0">
+                <LeftArrowIcon className={`icon-sm ` + (filteredFiles.length < 2 ? 'gray' : 'link-color')} />
+                <div className="flex-column justify-content-center">{t('fix.button.previous')}</div>
+              </button>
 
+              <button
+                className={`btn btn-small btn-link btn-icon-right ${filteredFiles.length < 2 ? 'disabled' : ''}`}
+                onClick={() => nextFile()}
+                tabIndex="0">
+                <div className="flex-column justify-content-center">{t('fix.button.next')}</div>
+                <RightArrowIcon className={`icon-sm ` + (filteredFiles.length < 2 ? 'gray' : 'link-color')} />
+              </button>
+            </div>
+              <button
+                onClick={() => handleFileUpload(uploadedFile, fileContentReferences, fileSectionReferences)}
+                className="btn btn-primary btn-icon-left"
+                disabled={formInvalid || isDisabled}
+                tabIndex='0'
+              > 
+              {t(`form.submit`)}
+              </button>
           </div>
         </div>
       </dialog>
