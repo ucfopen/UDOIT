@@ -13,14 +13,18 @@ export default function UfixitWidget({
   addMessage,
   handleIssueSave,
   isContentLoading,
-  isErrorFoundInContent = false,
+  isErrorFoundInContent,
   setTempActiveIssue,
   tempActiveIssue,
-  triggerLiveUpdate
+  triggerLiveUpdate,
+  markAsReviewed,
+  setMarkAsReviewed,
+  setFormInvalid,
+  handleLearnMoreClick,
+  showLearnMore
 }) {
 
   const [UfixitForm, setUfixitForm] = useState(null)
-  const [markAsReviewed, setMarkAsReviewed] = useState(false)
 
   useEffect(() => {
     if(!tempActiveIssue) {
@@ -49,45 +53,37 @@ export default function UfixitWidget({
     triggerLiveUpdate()
   }
 
-  const interceptIssueSave = (issue) => {
-    handleIssueSave(issue, markAsReviewed)
-  }
-
   return (
     <>
       {UfixitForm && tempActiveIssue ? (
         <>
-          <div className="ufixit-widget flex-column flex-grow-1">
-            {/* The header with the issue name and severity icon */}
-            <div className="ufixit-widget-header flex-row justify-content-between mb-3 pb-1">
-              <div className="flex-column justify-content-center allow-word-break">
-                <h2 className="mt-0 mb-0 primary-text">{tempActiveIssue.formLabel}</h2>
-              </div>
-            </div>
+          <div className="ufixit-widget flex-column flex-grow-1"
+            aria-hidden={showLearnMore ? "false" : "true"}
+            style={{ display: showLearnMore ? "none" : "flex" }}>
 
             <BarrierInformation
               t={t}
               settings={settings}
               tempActiveIssue={tempActiveIssue}
+              handleLearnMoreClick={handleLearnMoreClick}
             />
 
-            <div className="ufixit-widget-label primary mb-1">{t('fix.label.barrier_repair')}</div>
-            <div className="flex-column flex-grow-1 justify-content-between ufixit-form-content">
-              <div className="callout-container">
-                <UfixitForm
-                  t={t}
-                  settings={settings}
+            <h3 className="ufixit-widget-label">{t('fix.label.barrier_repair')}</h3>
+            <div className="flex-column gap-1">
+              <UfixitForm
+                t={t}
+                settings={settings}
 
-                  activeIssue={tempActiveIssue.issueData}
-                  activeContentItem={activeContentItem}
-                  addMessage={addMessage}
-                  handleActiveIssue={handleActiveIssue}
-                  handleIssueSave={interceptIssueSave}
-                  isContentLoading={isContentLoading}
-                  isDisabled={markAsReviewed || isContentLoading || !isErrorFoundInContent}
-                  markAsReviewed={markAsReviewed}
-                  setMarkAsReviewed={setMarkAsReviewed} />
-              </div>
+                activeIssue={tempActiveIssue.issueData}
+                activeContentItem={activeContentItem}
+                addMessage={addMessage}
+                handleActiveIssue={handleActiveIssue}
+                handleIssueSave={handleIssueSave}
+                isContentLoading={isContentLoading}
+                isDisabled={isContentLoading || !isErrorFoundInContent}
+                markAsReviewed={markAsReviewed}
+                setMarkAsReviewed={setMarkAsReviewed}
+                setFormInvalid={setFormInvalid} />
             </div>
           </div>
         </>

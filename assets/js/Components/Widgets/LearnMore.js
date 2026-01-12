@@ -4,44 +4,22 @@ import DisabilityCognitiveIcon from '../Icons/DisabilityCognitiveIcon'
 import DisabilityHearingIcon from '../Icons/DisabilityHearingIcon'
 import DisabilityMotorIcon from '../Icons/DisabilityMotorIcon'
 import DisabilityVisualIcon from '../Icons/DisabilityVisualIcon'
-import FormClarification from '../Forms/FormClarification'
 import { disabilityTypes, disabilitiesFromRule, formNameFromRule } from '../../Services/Ufixit'
 import './UfixitWidget.css'
 
 
-export default function BarrierInformation ({
+export default function LearnMore ({
   t,
   settings,
 
   tempActiveIssue,
-  handleLearnMoreClick
+  showLearnMore,
+  hideLearnMore
 }) {
 
-  const [formSummary, setFormSummary] = useState('')
   const [formLearnMore, setFormLearnMore] = useState('')
-  const [showLearnMore, setShowLearnMore] = useState(false)
   const [disabilities, setDisabilities] = useState([])
   
-  const formatEqualAccessMessage = () => {
-    if(!tempActiveIssue || !tempActiveIssue.issueData || !tempActiveIssue.issueData.metadata) {
-      return ''
-    }
-    const metadata = JSON.parse(tempActiveIssue.issueData.metadata)
-    if(!metadata.message || metadata.message === '') {
-      return ''
-    }
-    let message = metadata.message
-    if(metadata.messageArgs && metadata.messageArgs.length > 0) {
-      for(let i = 0; i < metadata.messageArgs.length; i++) {
-        message = message.replace(`{${i}}`, metadata.messageArgs[i])
-      }
-    }
-    message = message.replaceAll('<', '&lt;')
-    message = message.replaceAll('>', '&gt;')
-    message = message.replaceAll('&lt;', '<code>&lt;')
-    message = message.replaceAll('&gt;', '&gt;</code>')
-    return message
-  }
 
   useEffect(() => {
     if(!tempActiveIssue) {
@@ -50,83 +28,26 @@ export default function BarrierInformation ({
     }
 
     if(tempActiveIssue.contentType === settings.ISSUE_FILTER.FILE_OBJECT) {
-      setFormSummary(t('form.file.summary'))
       setFormLearnMore(t(`form.file.${tempActiveIssue.fileData.fileType}.learn_more`))
-      setShowLearnMore(true)
       setDisabilities([disabilityTypes.COGNITIVE, disabilityTypes.VISUAL])
     }
     else {
       setDisabilities(disabilitiesFromRule(tempActiveIssue.scanRuleId))
       let tempFormName = formNameFromRule(tempActiveIssue.scanRuleId)
       if(tempFormName === 'review_only') {
-        let ruleSummary = t(`rule.summary.${tempActiveIssue.scanRuleId}`)
-        if(ruleSummary === `rule.summary.${tempActiveIssue.scanRuleId}`) {
-          ruleSummary = formatEqualAccessMessage()
-        }
-        setFormSummary(ruleSummary)
-
         let ruleLearnMore = t(`rule.desc.${tempActiveIssue.scanRuleId}`)
-        if(ruleLearnMore === `rule.desc.${tempActiveIssue.scanRuleId}`) {
-          setShowLearnMore(false)
-        }
-        else {
-          setShowLearnMore(true)
-        }
         setFormLearnMore(ruleLearnMore)
       }
       else {
-        setFormSummary(t(`form.${tempFormName}.summary`))
         setFormLearnMore(t(`form.${tempFormName}.learn_more`))
-        setShowLearnMore(true)
       }
     }
   }, [tempActiveIssue])
 
-  const setShowLongDesc = (showLongDesc) => {
-    if(showLongDesc) {
-      const dialog = document.getElementById('learn-more-dialog')
-      dialog.showModal()
-    } else {
-      const dialog = document.getElementById('learn-more-dialog')
-      dialog.close()
-    }
-  }
-
   return (
     <>
-      {/* <div className="flex-row justify-content-between mb-1">
-        <div className="ufixit-widget-label primary flex-grow-1">{t('fix.label.barrier_information')}</div>
-      </div> */}
-      <div className="callout-container help-container flex-shrink-0">
-        <div className="flex-row gap-2">
-          <div className="ufixit-instructions" 
-            dangerouslySetInnerHTML={{__html: formSummary}}
-          />
-        
-          { showLearnMore && (
-            <button className="btn-secondary align-self-start flex-shrink-0" onClick={() => handleLearnMoreClick()} >
-              <div>{t('fix.button.learn_more')}</div>
-            </button>
-          )}
-        </div>
-        <FormClarification
-          t={t}
-          activeIssue={tempActiveIssue}
-        />
-      </div>
-
-      <dialog id="learn-more-dialog">
-        <div className="ufixit-widget-dialog flex-column">
-          <div className="ufixit-widget-dialog-header flex-row justify-content-between">
-            <div className="flex-column justify-content-center allow-word-break">
-              <h2 className="mt-0 mb-0 primary-text">{tempActiveIssue.formLabel}</h2>
-            </div>
-            <div className="flex-column justify-content-start ml-3">
-              <button className="close-icon btn-icon-only btn-small" title={t('fix.button.close')} alt={t('fix.button.close')} onClick={() => setShowLongDesc(false)} tabIndex="0">
-                <CloseIcon className="icon-md primary" />
-              </button>
-            </div>
-          </div>
+      { showLearnMore && (
+        <div className="flex-column h-100">
           <div className="ufixit-widget-dialog-content flex-column flex-grow-1">
             { disabilities.length > 0 && (<div className="dialog-indicator-background">
               <div className="dialog-indicator-container flex-row gap-2">
@@ -164,13 +85,13 @@ export default function BarrierInformation ({
             <div className="flex-grow-1 flex-column ufixit-learn-container pt-3 pb-3"
               dangerouslySetInnerHTML={{__html: formLearnMore }} />
             <div className="flex-row justify-content-center mb-3">
-              <button className="btn-secondary" onClick={() => setShowLongDesc(false)} tabIndex="0">
+              <button className="btn-secondary" onClick={() => hideLearnMore()} tabIndex="0">
                 {t('fix.button.close')}
               </button>
             </div>
           </div>
         </div>
-      </dialog>
+      )}
     </>
   )
 }

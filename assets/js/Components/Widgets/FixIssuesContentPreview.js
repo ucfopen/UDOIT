@@ -297,12 +297,10 @@ export default function FixIssuesContentPreview({
   return (
     <>
       { activeIssue && (
-        <a href={activeIssue.contentUrl} target="_blank" rel="noreferrer" className="ufixit-content-label flex-row justify-content-between mt-0 mb-3">
-          <div className="flex-column flex-center allow-word-break">
-            <h2 className="fake-h1">{activeIssue.contentTitle}</h2>
-          </div>
-          <div className="flex-column flex-center">
-            <ExternalLinkIcon className="icon-lg link-color" alt="" />
+        <a href={activeIssue.contentUrl} target="_blank" rel="noreferrer" className="ufixit-content-label mt-0 mb-3">
+          <h3 className="m-0">{activeIssue.contentTitle}</h3>
+          <div className="ps-2" aria-hidden="true">
+            <ExternalLinkIcon className="icon-md" alt="" />
           </div>
         </a>
       )}

@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react'
 import FixIssuesFilters from './Widgets/FixIssuesFilters'
 import FixIssuesList from './Widgets/FixIssuesList'
+import LearnMore from './Widgets/LearnMore'
 import UfixitWidget from './Widgets/UfixitWidget'
 import FixIssuesContentPreview from './Widgets/FixIssuesContentPreview'
 import LeftArrowIcon from './Icons/LeftArrowIcon'
 import RightArrowIcon from './Icons/RightArrowIcon'
+import CloseIcon from './Icons/CloseIcon'
 import { formNameFromRule } from '../Services/Ufixit'
 import * as Html from '../Services/Html'
 import Api from '../Services/Api'
@@ -62,17 +64,24 @@ export default function FixIssuesPage({
     [FILTER.TYPE.MODULE]: FILTER.ALL,
   }
 
+  const WIDGET_STATE = settings.WIDGET_STATE
+
+  const dialogId = "issue-dialog"
+
   const [activeIssue, setActiveIssue] = useState(null)
   const [tempActiveIssue, setTempActiveIssue] = useState(null)
   const [activeContentItem, setActiveContentItem] = useState(null)
   const [contentItemsBeingScanned, setContentItemsBeingScanned] = useState([])
+  const [showLearnMore, setShowLearnMore] = useState(false)
+  const [markAsReviewed, setMarkAsReviewed] = useState(false)
+  const [formInvalid, setFormInvalid] = useState(true)
   const [isErrorFoundInContent, setIsErrorFoundInContent] = useState(false)
   const [searchTerm, setSearchTerm] = useState('')
   const [activeFilters, setActiveFilters] = useState(defaultFilters)
   const [unfilteredIssues, setUnfilteredIssues] = useState([])
   const [filteredIssues, setFilteredIssues] = useState([])
   const [groupedList, setGroupedList] = useState([])
-  const [widgetState, setWidgetState] = useState(settings.WIDGET_STATE.LOADING)
+  const [widgetState, setWidgetState] = useState(WIDGET_STATE.LOADING)
   const [liveUpdateToggle, setLiveUpdateToggle] = useState(true)
 
   // The database stores and returns certain issue data, but it needs additional attributes in order to
@@ -217,7 +226,7 @@ export default function FixIssuesPage({
     setFilteredIssues(tempFilteredContent)
     setGroupedList(groupList(tempFilteredContent))
 
-    setWidgetState(settings.WIDGET_STATE.LIST)
+    setWidgetState(WIDGET_STATE.LIST)
 
   }, [activeFilters, searchTerm])
 
@@ -283,7 +292,7 @@ export default function FixIssuesPage({
       }
 
       if(holdoverActiveIssue === null) {
-        setWidgetState(settings.WIDGET_STATE.LIST)
+        setWidgetState(WIDGET_STATE.LIST)
       }
     }
 
@@ -301,33 +310,26 @@ export default function FixIssuesPage({
     if(activeIssue === null) {
       setActiveContentItem(null)
       setTempActiveIssue(null)
-      setWidgetState(settings.WIDGET_STATE.LIST)
+      setWidgetState(WIDGET_STATE.LIST)
+      closeDialog()
       return
     }
   
-    setWidgetState(settings.WIDGET_STATE.FIXIT)
+    setWidgetState(WIDGET_STATE.FIXIT)
     const activeIssueClone = JSON.parse(JSON.stringify(activeIssue))
-
-    if(activeIssue.contentType === FILTER.FILE_OBJECT) {
-      setTempActiveIssue(activeIssueClone)
-      setActiveContentItem(null)
-      setIsErrorFoundInContent(true)
-      return
-    }
 
     activeIssueClone.issueData.initialHtml = Html.getIssueHtml(activeIssueClone.issueData)
     setTempActiveIssue(activeIssueClone)
-
-    // If we've already downloaded the content for this issue, use that
+    
+    // If we already downloaded the content for this issue, use that
     const contentItemId = activeIssue.issueData.contentItemId
     if(contentItemCache[contentItemId]) {
       setActiveContentItem(contentItemCache[contentItemId])
-      return
     }
-
-    // Otherwise, clear the old content and download the content for this issue
-    setActiveContentItem(null)
-    loadContentItemByIssue(activeIssue)
+    else {
+      setActiveContentItem(null)
+    }
+    openDialog()
 
   }, [activeIssue])
 
@@ -429,25 +431,6 @@ export default function FixIssuesPage({
     return filteredList
   }
 
-  const loadContentItemByIssue = (issue) => {
-    let contentItemId = issue?.issueData?.contentItemId || null
-    if(contentItemId) {
-      addItemToBeingScanned(contentItemId)
-      let api = new Api(settings)
-      api.getIssueContent(issue.id)
-      .then((response) => {
-        return response.json()
-      }).then((data) => {
-        if(data?.data?.contentItem) {
-          const newContentItem = data.data.contentItem
-          addContentItemToCache(newContentItem)
-        }
-        removeItemFromBeingScanned(contentItemId)
-      })
-    }
-  }
-
-
   // All local information must be updated to match the new issue state:
   // - activeIssue
   // - unfilteredIssues
@@ -517,7 +500,7 @@ export default function FixIssuesPage({
     return tempDoc.body.innerHTML
   }
 
-  const handleIssueSave = (issue, markAsReviewed = false) => {
+  const handleIssueSave = (issue) => {
 
     if(!activeContentItem || !activeContentItem?.body || !issue) {
       return
@@ -652,16 +635,16 @@ export default function FixIssuesPage({
   }
 
   const toggleListView = () => {
-    if (widgetState === settings.WIDGET_STATE.LIST) {
+    if (widgetState === WIDGET_STATE.LIST) {
       if(activeIssue) {
-        setWidgetState(settings.WIDGET_STATE.FIXIT)
+        setWidgetState(WIDGET_STATE.FIXIT)
       }
       else {
-        setWidgetState(settings.WIDGET_STATE.NO_RESULTS)
+        setWidgetState(WIDGET_STATE.NO_RESULTS)
       }
     }
     else {
-      setWidgetState(settings.WIDGET_STATE.LIST)
+      setWidgetState(WIDGET_STATE.LIST)
       setActiveIssue(null)
       setActiveContentItem(null)
     }
@@ -697,15 +680,39 @@ export default function FixIssuesPage({
     setLiveUpdateToggle(!liveUpdateToggle)
   }
 
+  const isDialogOpen = () => {
+    const dialog = document.getElementById(dialogId)
+    return dialog && dialog.open
+  }
+
+  const openDialog = () => {
+    setWidgetState(WIDGET_STATE.FIXIT)
+
+    const dialog = document.getElementById(dialogId)
+    if(dialog) {
+      dialog.showModal()
+    }
+  }
+
+  const closeDialog = () => {
+    setWidgetState(WIDGET_STATE.LIST)
+    setActiveIssue(null)
+
+    const dialog = document.getElementById(dialogId)
+    if(dialog) {
+      dialog.close()
+    }
+  }
+
   return (
     <>
-      { widgetState === settings.WIDGET_STATE.LOADING ? (
+      { widgetState === WIDGET_STATE.LOADING ? (
         <></>
-      ) : widgetState === settings.WIDGET_STATE.LIST ? (
+      ) : (
         <>
           <h1>{t('barriers.title')}</h1>
           <div className="subheader">{t('barriers.subtitle')}</div>
-          
+
           <FixIssuesFilters
             t={t}
             settings={settings}
@@ -725,42 +732,66 @@ export default function FixIssuesPage({
             setActiveIssue={setActiveIssue}
           />
         </>
-      ) : (
-        <div className="flex-row gap-2 w-100 h-100">
-          <section className='ufixit-widget-container'>
-            <button onClick={toggleListView} className="btn btn-link btn-icon-left btn-small mb-2">
-              <LeftArrowIcon className="icon-sm link-color" />{t('fix.button.list')}
-            </button>
-            { tempActiveIssue ? (  
-                <UfixitWidget
-                  t={t}
-                  settings={settings}
+      ) }
+      <dialog id={dialogId} className="dialog-full-screen" onClose={closeDialog}>
+        <div className="flex-column h-100">
+          <div className="dialog-header">
+            <h2>{tempActiveIssue?.formLabel}</h2>
+            <CloseIcon onClick={closeDialog} className="close-icon icon-lg" tabIndex="0" alt={t('fix.button.close')} title={t('fix.button.close')} />
+          </div>
+          <div className="dialog-content">
+            <div className="flex-row w-100 h-100">
+              <section className='ufixit-widget-container'>
+                { tempActiveIssue && (
+                  <>
+                    <LearnMore
+                      t={t}
+                      settings={settings}
 
-                  activeContentItem={activeContentItem}
-                  addMessage={addMessage}
-                  handleIssueSave={handleIssueSave}
-                  isContentLoading={contentItemsBeingScanned.includes(tempActiveIssue?.issueData?.contentItemId)}
-                  isErrorFoundInContent={isErrorFoundInContent}
-                  setTempActiveIssue={setTempActiveIssue}
-                  tempActiveIssue={tempActiveIssue}
-                  triggerLiveUpdate={triggerLiveUpdate}
-                />
-            ) : ''}
-          </section>
-          <section className="ufixit-content-container">
-            {filteredIssues.length > 0 && (
-              <FixIssuesContentPreview
-                t={t}
-                settings={settings}
+                      tempActiveIssue={tempActiveIssue}
+                      showLearnMore={showLearnMore}
+                      hideLearnMore={() => setShowLearnMore(false)}
+                    />
+                    
+                    <UfixitWidget
+                      t={t}
+                      settings={settings}
 
-                activeContentItem={activeContentItem}
-                activeIssue={tempActiveIssue}
-                contentItemsBeingScanned={contentItemsBeingScanned}
-                liveUpdateToggle={liveUpdateToggle}
-                setIsErrorFoundInContent={setIsErrorFoundInContent}
-              />
-            )}
-            <div className="flex-row justify-content-end gap-2 mt-3">
+                      activeContentItem={activeContentItem}
+                      addMessage={addMessage}
+                      handleIssueSave={handleIssueSave}
+                      isContentLoading={contentItemsBeingScanned.includes(tempActiveIssue?.issueData?.contentItemId)}
+                      isErrorFoundInContent={isErrorFoundInContent}
+                      setTempActiveIssue={setTempActiveIssue}
+                      tempActiveIssue={tempActiveIssue}
+                      triggerLiveUpdate={triggerLiveUpdate}
+                      markAsReviewed={markAsReviewed}
+                      setMarkAsReviewed={setMarkAsReviewed}
+                      setFormInvalid={setFormInvalid}
+                      handleLearnMoreClick={() => setShowLearnMore(true)}
+                      showLearnMore={showLearnMore}
+                    />
+                  </>
+                )}
+              </section>
+              <section className="ufixit-content-container">
+                {filteredIssues.length > 0 && (
+                  <FixIssuesContentPreview
+                    t={t}
+                    settings={settings}
+
+                    activeContentItem={activeContentItem}
+                    activeIssue={tempActiveIssue}
+                    contentItemsBeingScanned={contentItemsBeingScanned}
+                    liveUpdateToggle={liveUpdateToggle}
+                    setIsErrorFoundInContent={setIsErrorFoundInContent}
+                  />
+                )}
+              </section>
+            </div>
+          </div>
+          <div className="dialog-footer">
+            <div className="flex-row gap-2">
               <button
                 className={`btn btn-small btn-link btn-icon-left ${filteredIssues.length < 2 ? 'disabled' : ''}`}
                 onClick={() => nextIssue(true)}
@@ -777,9 +808,18 @@ export default function FixIssuesPage({
                 <RightArrowIcon className={`icon-sm ` + (filteredIssues.length < 2 ? 'gray' : 'link-color')} />
               </button>
             </div>
-          </section>
+            <div className="flex-column justify-content-center">
+              <button
+                onClick={handleIssueSave}
+                className="btn btn-primary btn-icon-left"
+                disabled={formInvalid || !isErrorFoundInContent || showLearnMore || contentItemsBeingScanned.includes(tempActiveIssue?.issueData?.contentItemId)}
+                tabIndex="0">
+                {t('form.submit')}
+              </button>
+            </div>
+          </div>
         </div>
-      )}
+      </dialog>
     </>
   )
 }

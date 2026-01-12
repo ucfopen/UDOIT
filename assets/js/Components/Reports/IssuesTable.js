@@ -228,7 +228,7 @@ export default function IssuesTable({
             ref={closeButtonRef}
             onClick={() => setPopover({ ...popover, open: false })}
           >
-            {t('fix.button.close_learn_more')}
+            {t('fix.button.close')}
           </button>
         </dialog>
       )}

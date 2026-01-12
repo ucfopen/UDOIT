@@ -252,7 +252,7 @@
   "fix.button.download_file": "Descargar Archivo",
   "fix.button.view_in_lms": "Ver en el LMS",
   "fix.button.learn_more": "Aprender Más",
-  "fix.button.close_learn_more": "Cerrar Ventana",
+  "fix.button.close": "Cerrar",
   "fix.button.back_to_barrier": "Volver a la Barrera",
   "fix.button.show_learn_more": "Aprender Sobre esta Barrera de Accesibilidad",
   "fix.button.hide_learn_more": "Eliminar esta Barrera de Accesibilidad",
