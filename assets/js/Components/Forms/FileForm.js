@@ -13,10 +13,11 @@ export default function FileForm ({
   activeFile,
   handleFileResolve,
   handleFileUpload,
-  sessionFiles
+  sessionFiles,
+  uploadedFile,
+  setUploadedFile
  }) {
 
-  const [uploadedFile, setUploadedFile] = useState(null)
   const [isDisabled, setIsDisabled] = useState(false)
   const [changeReferences, setChangeReferences] = useState(true)
   const [modalVisbility, setModalVisibility] = useState(false)
@@ -25,25 +26,21 @@ export default function FileForm ({
     setUploadedFile(null)
   }, [activeFile])
 
-  useEffect(() => {
-    let tempIsDisabled = false
+  // useEffect(() => {
+  //   let tempIsDisabled = false
 
-    // If there are any unresolved issues in this file, we disable the resolve button.
-    if(activeFile && sessionFiles) {
-      Object.keys(sessionFiles).forEach((key) => {
-        if(key == activeFile.id) {
-          if(sessionFiles[key] === settings.ISSUE_STATE.SAVING || sessionFiles[key] === settings.ISSUE_STATE.RESOLVING) {
-            tempIsDisabled = true
-          }
-        }
-      })
-    }
-    setIsDisabled(tempIsDisabled)
-  }, [sessionFiles])
-
-  const handleModalVisibility = () => {
-    setModalVisibility(() => !modalVisbility)
-  }
+  //   // If there are any unresolved issues in this file, we disable the resolve button.
+  //   if(activeFile && sessionFiles) {
+  //     Object.keys(sessionFiles).forEach((key) => {
+  //       if(key == activeFile.id) {
+  //         if(sessionFiles[key] === settings.ISSUE_STATE.SAVING || sessionFiles[key] === settings.ISSUE_STATE.RESOLVING) {
+  //           tempIsDisabled = true
+  //         }
+  //       }
+  //     })
+  //   }
+  //   setIsDisabled(tempIsDisabled)
+  // }, [sessionFiles])
 
   // Drag and Drop code is adapted from:
   // https://developer.mozilla.org/en-US/docs/Web/API/HTML_Drag_and_Drop_API/File_drag_and_drop

@@ -12,6 +12,8 @@ export default function FileFixitWidget({
   handleFileUpload,
   sessionFiles,
   tempActiveIssue,
+  uploadedFile,
+  setUploadedFile
 }) {
 
   return (
@@ -25,6 +27,8 @@ export default function FileFixitWidget({
             handleFileResolve={handleFileResolve}
             handleFileUpload={handleFileUpload}
             sessionFiles={sessionFiles}
+            uploadedFile={uploadedFile}
+            setUploadedFile={setUploadedFile}
           />
        </div>
     </div>

@@ -880,6 +880,8 @@ const getSectionPostOptions = (newFile, sectionReferences) => {
                       handleFileDelete={handleFileDelete}
                       handleFileResolve={handleFileResolve}
                       tempActiveIssue={tempActiveIssue}
+                      uploadedFile={uploadedFile}
+                      setUploadedFile={setUploadedFile}
                     />
                 ) : ''}
               </section>
