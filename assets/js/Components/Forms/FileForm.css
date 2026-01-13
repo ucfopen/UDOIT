@@ -57,3 +57,19 @@
     border-color: var(--gray-lighter);
     border-radius: 0.5em;
   }
+
+  .file-upload-container{
+    background-color: white;
+    border: dotted;
+    border-color: var(--gray-lighter);
+    border-radius: 0.5em;
+  }
+
+  .upload-icon {
+    background-color: var(--gray-lighter);
+    border-radius: 0.5em;
+  }
+
+  .upload-instructions{
+    font-size: 0.65em;
+  }

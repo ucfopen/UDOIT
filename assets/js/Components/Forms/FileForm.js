@@ -7,6 +7,7 @@ import DeleteIcon from '../Icons/DeleteIcon'
 import FileStatus from '../Widgets/FileStatus'
 import FileInformation from '../Widgets/FileInformation'
 import * as Text from '../../Services/Text'
+import DownwardArrowIcon from '../Icons/DownwardArrowIcon'
 
 export default function FileForm ({
   t,
@@ -165,13 +166,27 @@ export default function FileForm ({
             Replace File
           </label>
           {activeOption == FORM_OPTIONS.REPLACE_FILE && (
-            <div className='flex-col justify-content-center'>
-              <div className='p-2'>
+            <div className='flex-column align-items-center justify-content-center'>
+              <div className='w-100 p-2'>
                 <FileStatus fileStatus={0} fileTagText={"Original File"} />
                   <div className='file-info-container p-2'>
                     <FileInformation file={copiedActiveFile} />
                   </div>
               </div>
+              <DownwardArrowIcon className="icon-md pt-4 pb-4" />
+               <div className='w-100 p-2'>
+                <FileStatus fileStatus={1} fileTagText={"New File"} />
+                <div className={`file-upload-container  ${uploadedFile ? 'p-2' : 'p-4 flex-column text-center jusitify-content-center align-items-center'}`}>
+                  {uploadedFile ? '' :
+                  
+                  <>
+                    <UploadIcon className='upload-icon icon-md p-2 mb-2' />
+                    <div className='upload-instructions'><span className='link-color fw-bold'>Click to upload</span> or drag and drop <br /> SVG, PNG, JPG or GIF (max. 800x400px)</div>
+                  </>
+                  
+                  }
+                </div>
+               </div>
             </div>
           )}
       </div>
