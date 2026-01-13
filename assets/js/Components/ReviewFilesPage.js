@@ -286,6 +286,26 @@ export default function ReviewFilesPage({
     setTempActiveIssue(activeIssueClone)
   }, [activeIssue])
 
+  useEffect(() => {
+    if(!activeIssue){
+      return 
+    }
+
+    let tempIsDisabled = false
+    // If there are any unresolved issues in this file, we disable the resolve button.
+    if(activeIssue.fileData && sessionFiles) {
+      Object.keys(sessionFiles).forEach((key) => {
+        if(key == activeIssue.fileData.id) {
+          if(sessionFiles[key] === settings.ISSUE_STATE.SAVING || sessionFiles[key] === settings.ISSUE_STATE.RESOLVING) {
+            tempIsDisabled = true
+          }
+        }
+      })
+    }
+    setIsDisabled(tempIsDisabled)
+  }, [sessionFiles])
+
+
   const isDialogOpen = () => {
     const dialog = document.getElementById(dialogId)
     return dialog && dialog.open
@@ -940,7 +960,7 @@ const getSectionPostOptions = (newFile, sectionReferences) => {
               <button
                 onClick={() => handleFileUpload(uploadedFile, fileContentReferences, fileSectionReferences)}
                 className="btn btn-primary btn-icon-left"
-                disabled={formInvalid || isDisabled}
+                disabled={formInvalid || isDisabled || activeIssue?.fileData?.reviewed}
                 tabIndex='0'
               > 
               {t(`form.submit`)}

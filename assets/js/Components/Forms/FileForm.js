@@ -155,70 +155,81 @@ export default function FileForm ({
 
   return (
     <>
-       <div className={`resolve-option ${activeOption === FORM_OPTIONS.MARK_AS_REVIEWED ? 'selected' : ''}`}>
-          <label className={`option-label` + (isDisabled ? ' disabled' : '')}>
-          <input
-            type="radio"
-            id={FORM_OPTIONS.MARK_AS_REVIEWED}
-            name="altTextOption"
-            tabIndex="0"
-            checked={activeOption === FORM_OPTIONS.MARK_AS_REVIEWED}
-            disabled={isDisabled}
-            onChange={() => {
-              handleOptionChange(FORM_OPTIONS.MARK_AS_REVIEWED)
-            }} />
-            Keep Current File
-          </label>
+    {activeFile.reviewed && !activeFile.replacement && 
+      <div className='resolve-option selected'>
+        <div className='marked-as-reviewed-container p-4 flex-column justify-content-center align-items-center text-center'>
+          <h3>Marked as Reviewed</h3>
+          <div>This file has been checked for accessibility and marked as reviewed. Mark the file has unreviewed if you believe it is inaccessible and needs changes</div>
+          <div className='fw-bold mt-3'>Mark File As Unreviewed</div>
+        </div> 
       </div>
+      }
+    {!activeFile.reviewed && !activeFile.replacement && <div>
+        <div className={`resolve-option ${activeOption === FORM_OPTIONS.MARK_AS_REVIEWED ? 'selected' : ''}`}>
+            <label className={`option-label` + (isDisabled ? ' disabled' : '')}>
+            <input
+              type="radio"
+              id={FORM_OPTIONS.MARK_AS_REVIEWED}
+              name="altTextOption"
+              tabIndex="0"
+              checked={activeOption === FORM_OPTIONS.MARK_AS_REVIEWED}
+              disabled={isDisabled}
+              onChange={() => {
+                handleOptionChange(FORM_OPTIONS.MARK_AS_REVIEWED)
+              }} />
+              Keep Current File
+            </label>
+        </div>
 
-      <div className={`resolve-option ${activeOption === FORM_OPTIONS.REPLACE_FILE ? 'selected' : ''}`}>
-          <label className={`option-label` + (isDisabled ? ' disabled' : '')}>
-          <input
-            type="radio"
-            id={FORM_OPTIONS.REPLACE_FILE}
-            name="altTextOption"
-            tabIndex="0"
-            checked={activeOption === FORM_OPTIONS.REPLACE_FILE}
-            disabled={isDisabled}
-            onChange={() => {
-              handleOptionChange(FORM_OPTIONS.REPLACE_FILE)
-            }} />
-            Replace File
-          </label>
-          {activeOption == FORM_OPTIONS.REPLACE_FILE && (
-            <div className='flex-column align-items-center justify-content-center'>
-              <div className='w-100 p-2'>
-                <FileStatus fileStatus={0} fileTagText={"Original File"} />
-                  <div className='file-info-container p-2'>
-                    <FileInformation file={copiedActiveFile} />
-                  </div>
-              </div>
-              <DownwardArrowIcon className="icon-md pt-4 pb-4" />
-               <div className='w-100 p-2'>
-                <FileStatus fileStatus={1} fileTagText={"New File"} />
-                <div className={`file-upload-container ${uploadedFile ? 'uploaded p-2' : 'p-4 flex-column text-center jusitify-content-center align-items-center'}`}
-                  onDrop={handleDrop}
-                  onClick={handleFileSelect}
-                  onDrag={handleDragOver}
-                  onKeyDown={handleKeyPress}
-                >
-                  {uploadedFile && copiedUploadedFile ? 
-                  <div className='flex-row align-items-center justify-content-between'>
-                    <FileInformation file={copiedUploadedFile} fillColor={'var(--primary-color)'} />
-                    <CloseIcon onClick={removeUploadedFile} tabIndex='0' />
-                  </div> :
-                  
-                  <>
-                    <UploadIcon className='upload-icon icon-md p-2 mb-2' />
-                    <div className='upload-instructions'><span className='link-color fw-bold'>Click to upload</span> or drag and drop <br /> SVG, PNG, JPG or GIF (max. 800x400px)</div>
-                  </>
-                  
-                  }
+        <div className={`resolve-option mt-2 ${activeOption === FORM_OPTIONS.REPLACE_FILE ? 'selected' : ''}`}>
+            <label className={`option-label` + (isDisabled ? ' disabled' : '')}>
+            <input
+              type="radio"
+              id={FORM_OPTIONS.REPLACE_FILE}
+              name="altTextOption"
+              tabIndex="0"
+              checked={activeOption === FORM_OPTIONS.REPLACE_FILE}
+              disabled={isDisabled}
+              onChange={() => {
+                handleOptionChange(FORM_OPTIONS.REPLACE_FILE)
+              }} />
+              Replace File
+            </label>
+            {activeOption == FORM_OPTIONS.REPLACE_FILE && (
+              <div className='flex-column align-items-center justify-content-center'>
+                <div className='w-100 p-2'>
+                  <FileStatus fileStatus={0} fileTagText={"Original File"} />
+                    <div className='file-info-container p-2'>
+                      <FileInformation file={copiedActiveFile} />
+                    </div>
                 </div>
-               </div>
-            </div>
-          )}
-      </div>
+                <DownwardArrowIcon className="icon-md pt-4 pb-4" />
+                <div className='w-100 p-2'>
+                  <FileStatus fileStatus={1} fileTagText={"New File"} />
+                  <div className={`file-upload-container ${uploadedFile ? 'uploaded p-2' : 'p-4 flex-column text-center jusitify-content-center align-items-center'}`}
+                    onDrop={handleDrop}
+                    onClick={handleFileSelect}
+                    onDrag={handleDragOver}
+                    onKeyDown={handleKeyPress}
+                  >
+                    {uploadedFile && copiedUploadedFile ? 
+                    <div className='flex-row align-items-center justify-content-between'>
+                      <FileInformation file={copiedUploadedFile} fillColor={'var(--primary-color)'} />
+                      <CloseIcon onClick={removeUploadedFile} tabIndex='0' />
+                    </div> :
+                    
+                    <>
+                      <UploadIcon className='upload-icon icon-md p-2 mb-2' />
+                      <div className='upload-instructions'><span className='link-color fw-bold'>Click to upload</span> or drag and drop <br /> SVG, PNG, JPG or GIF (max. 800x400px)</div>
+                    </>
+                    
+                    }
+                  </div>
+                </div>
+              </div>
+            )}
+        </div>
+      </div>}
 
     </>
   )

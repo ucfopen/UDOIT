@@ -76,5 +76,17 @@
   .uploaded{
     border: dotted;
     border-color: var(--primary-color);
-
   }
+
+  .marked-as-reviewed-container{
+    background-color: white;
+    border: solid;
+    border-color: var(--gray-lighter);
+    border-radius: 0.5em;
+  }
+
+
+
+   .marked-as-reviewed-container p{
+    font-size: 0.65em;
+   }
