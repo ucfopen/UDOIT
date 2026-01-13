@@ -8,6 +8,7 @@ import FileStatus from '../Widgets/FileStatus'
 import FileInformation from '../Widgets/FileInformation'
 import * as Text from '../../Services/Text'
 import DownwardArrowIcon from '../Icons/DownwardArrowIcon'
+import CloseIcon from '../Icons/CloseIcon'
 
 export default function FileForm ({
   t,
@@ -33,6 +34,7 @@ export default function FileForm ({
     const [formErrors, setFormErrors] = useState([])
 
     const [copiedActiveFile, setCopiedActiveFile] = useState(null)
+    const [copiedUploadedFile, setCopiedUploadedFile] = useState(null)
 
     useEffect(() => {
       setUploadedFile(null)
@@ -42,6 +44,7 @@ export default function FileForm ({
     }, [activeFile])
 
     useEffect(() => {
+      normalizeUploadedFile()
       if(markAsReviewed || uploadedFile){
         setFormInvalid(false)
       }
@@ -54,9 +57,21 @@ export default function FileForm ({
       const tempFile =  {
         fileName: activeFile.fileName,
         fileType: getReadableFileType(activeFile.fileType),
-        fileSize: Text.getReadableFileSize(activeFile.fileSize)
+        fileSize: Text.getReadableFileSize(activeFile.fileSize),
       }
       setCopiedActiveFile(tempFile)
+    }
+
+    const normalizeUploadedFile = () => {
+      if(!uploadedFile){
+        return
+      }
+      const tempFile = {
+        fileName: uploadedFile.name,
+        fileType: getReadableFileType(uploadedFile.size),
+        fileSize: Text.getReadableFileSize(uploadedFile.fileSize),
+      }
+      setCopiedUploadedFile(tempFile)
     }
 
   // useEffect(() => {
@@ -133,6 +148,11 @@ export default function FileForm ({
     }
   }
 
+  const removeUploadedFile = () => {
+    setUploadedFile(null)
+    setCopiedUploadedFile(null)
+  }
+
   return (
     <>
        <div className={`resolve-option ${activeOption === FORM_OPTIONS.MARK_AS_REVIEWED ? 'selected' : ''}`}>
@@ -176,8 +196,17 @@ export default function FileForm ({
               <DownwardArrowIcon className="icon-md pt-4 pb-4" />
                <div className='w-100 p-2'>
                 <FileStatus fileStatus={1} fileTagText={"New File"} />
-                <div className={`file-upload-container  ${uploadedFile ? 'p-2' : 'p-4 flex-column text-center jusitify-content-center align-items-center'}`}>
-                  {uploadedFile ? '' :
+                <div className={`file-upload-container ${uploadedFile ? 'uploaded p-2' : 'p-4 flex-column text-center jusitify-content-center align-items-center'}`}
+                  onDrop={handleDrop}
+                  onClick={handleFileSelect}
+                  onDrag={handleDragOver}
+                  onKeyDown={handleKeyPress}
+                >
+                  {uploadedFile && copiedUploadedFile ? 
+                  <div className='flex-row align-items-center justify-content-between'>
+                    <FileInformation file={copiedUploadedFile} fillColor={'var(--primary-color)'} />
+                    <CloseIcon onClick={removeUploadedFile} tabIndex='0' />
+                  </div> :
                   
                   <>
                     <UploadIcon className='upload-icon icon-md p-2 mb-2' />

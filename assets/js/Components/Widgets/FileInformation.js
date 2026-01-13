@@ -8,9 +8,10 @@ const FileInformation = (
     file,
     fillColor,
 }
-) => { 
-  return (
+) => {
+    
 
+  return (
     <div className='flex-row gap-1 align-items-start p-2'>
         <ContentPageIcon fill={fillColor ? fillColor : ''}
             className={`${fillColor ? 'file-icon-new' : 'file-icon'} icon-md p-2`} />
