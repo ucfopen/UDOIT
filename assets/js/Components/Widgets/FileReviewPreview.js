@@ -6,6 +6,8 @@ import * as Text from '../../Services/Text'
 import './FixIssuesContentPreview.css'
 import SeverityIcon from '../Icons/SeverityIcon'
 import ContentPageIcon from '../Icons/ContentPageIcon'
+import FileInformation from './FileInformation'
+import FileStatus from './FileStatus'
 
 
 export default function FixIssuesContentPreview({
@@ -21,10 +23,22 @@ export default function FixIssuesContentPreview({
     if(activeIssue){
       handleFileReference()
       if(activeIssue.fileData.replacement){
-        setCurrentFile(activeIssue.fileData.replacement)
+        const tempCurrFile = {
+          fileName: activeIssue.fileData.replacement.fileName,
+          fileType: getReadableFileType(activeIssue.fileData.replacement.fileType),
+          fileSize: Text.getReadableFileSize(activeIssue.fileData.replacement.fileSize),
+          fileLink: activeIssue.fileData.replacement.lmsUrl
+        }  
+        setCurrentFile(tempCurrFile)
         return
       }
-      setCurrentFile(activeIssue.fileData)
+      const tempCurrFile = {
+        fileName: activeIssue.fileData.fileName,
+        fileType: getReadableFileType(activeIssue.fileData.fileType),
+        fileSize: Text.getReadableFileSize(activeIssue.fileData.fileSize),
+        fileLink: activeIssue.fileData.lmsUrl
+      }
+      setCurrentFile(tempCurrFile)
     }
   }, [activeIssue])
 
@@ -86,29 +100,13 @@ export default function FixIssuesContentPreview({
       <div className='file-accessibility-info-wrapper w-100'>
         <div className='accessibility-info-container flex-column w-100'>
           <div className='file-info p-2'>
-              <div className='current-file-container flex-row gap-1 align-items-center'>
-                <p className='current-file-tag'>Current File</p>
-                <span className="status-badge">{activeIssue.fileData?.replacement ? "New" : "Original"}</span>
-              </div>
+            <FileStatus fileStatus={activeIssue.fileData.replacement ? 1 : 0} />
           </div>
-
-          <div className='flex-row gap-1 align-items-start p-2'>
-            <ContentPageIcon className='file-icon icon-md p-2' />
-             <div className='flex-column'>
-              <div className='file-name flex-row align-items-center gap-1'>
-                  <a href={currentFile.lmsUrl} target='_blank' className='file-name-link'>{currentFile.fileName}</a>
-                  <ExternalLinkIcon className="icon-sm link-color" />
-              </div>
-              <div className='file-details flex-row gap-1'>
-                <div>File Type: <span className='fw-bold'>{getReadableFileType(currentFile.fileType)}</span> </div>
-                <div>File Size: <span className='fw-bold'>{Text.getReadableFileSize(currentFile.fileSize)}</span> </div>
-              </div>
-             </div>
+          <FileInformation file={currentFile} />
+          <div className='accessibility-instructions-container flex-row p-2 justify-content-between align-items-center gap-2'>
+              <p>Ensure this file meets accessibility standards for PDFs (proper headings, alt text)</p>
+              <button className='btn-secondary align-self-start flex-shrink-0'>Show Accessibility Guidelines</button>
           </div>
-            <div className='accessibility-instructions-container w-100 flex-row p-2 justify-content-between'>
-                <p>Ensure this file meets accessibility standards for PDFs (proper headings, alt text)w</p>
-                <button className='btn-secondary align-self-start flex-shrink-0'>Show Accessibility Guidelines</button>
-            </div>
         </div>
       </div>)
       }

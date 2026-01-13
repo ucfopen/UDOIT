@@ -333,24 +333,6 @@
     box-sizing: border-box;    
 } 
 
-.current-file-container{
-    text-transform: uppercase;
-    font-size: 0.65em;
-}
-
-.file-icon{
-    background-color: var(--gray-lightest);
-    border-radius: 0.5em;
-}
-
-.file-name-link{
-    font-size: 0.75em;
-}
-
-.file-details{
-    font-size: 0.65em;
-}
-
 .accessibility-instructions-container{
     font-size: 0.65em;
     background-color: var(--potential-color-light);

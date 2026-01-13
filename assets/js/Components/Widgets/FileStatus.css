@@ -1,0 +1,20 @@
+.current-file-container{
+    text-transform: uppercase;
+    font-size: 0.65em;
+}
+
+.status-badge-current{
+  display: inline-flex;
+  align-items: center;
+  border:solid;
+  border-radius: 0.5em;
+  padding: 3px 6px;
+}
+
+.status-new{
+    background-color: var(--primary-color-light);
+}
+
+.status-old{
+    background-color: var(--gray-lighter);
+}
