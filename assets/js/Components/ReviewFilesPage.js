@@ -876,12 +876,14 @@ const getSectionPostOptions = (newFile, sectionReferences) => {
                       t={t}
                       settings={settings}
                       sessionFiles={sessionFiles}
-                      handleFileUpload={handleFileUpload}
-                      handleFileDelete={handleFileDelete}
-                      handleFileResolve={handleFileResolve}
                       tempActiveIssue={tempActiveIssue}
                       uploadedFile={uploadedFile}
                       setUploadedFile={setUploadedFile}
+                      isDisabled={isDisabled}
+                      setIsDisabled={setIsDisabled}
+                      markAsReviewed={markAsReviewed}
+                      setMarkAsReviewed={setMarkAsReviewed}
+                      setFormInvalid={setFormInvalid}
                     />
                 ) : ''}
               </section>

@@ -107,7 +107,7 @@ export default function FixIssuesContentPreview({
           </div>
             <div className='accessibility-instructions-container w-100 flex-row p-2 justify-content-between'>
                 <p>Ensure this file meets accessibility standards for PDFs (proper headings, alt text)w</p>
-                <button className='accessibility-btn'>Show Accessibility Guidelines</button>
+                <button className='btn-secondary align-self-start flex-shrink-0'>Show Accessibility Guidelines</button>
             </div>
         </div>
       </div>)

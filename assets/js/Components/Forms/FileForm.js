@@ -8,23 +8,37 @@ import DeleteIcon from '../Icons/DeleteIcon'
 export default function FileForm ({
   t,
   settings,
-
-  handleFileDelete,
   activeFile,
-  handleFileResolve,
-  handleFileUpload,
   sessionFiles,
   uploadedFile,
-  setUploadedFile
+  setUploadedFile,
+  isDisabled,
+  setIsDisabled,
+  markAsReviewed,
+  setMarkAsReviewed,
+  setFormInvalid
  }) {
 
-  const [isDisabled, setIsDisabled] = useState(false)
-  const [changeReferences, setChangeReferences] = useState(true)
-  const [modalVisbility, setModalVisibility] = useState(false)
+    const FORM_OPTIONS = {
+       REPLACE_FILE: 'replace-file',
+       MARK_AS_REVIEWED: 'mark-as-reviewed',
+    }
 
-  useEffect(() => {
-    setUploadedFile(null)
-  }, [activeFile])
+    const [activeOption, setActiveOption] = useState('')
+    const [formErrors, setFormErrors] = useState([])
+
+    useEffect(() => {
+      setUploadedFile(null)
+    }, [activeFile])
+
+    useEffect(() => {
+      if(markAsReviewed || uploadedFile){
+        setFormInvalid(false)
+      }
+      else{
+        setFormInvalid(true)
+      }
+    }, [markAsReviewed, uploadedFile])
 
   // useEffect(() => {
   //   let tempIsDisabled = false
@@ -76,9 +90,7 @@ export default function FileForm ({
     event.preventDefault()
   }
 
-  const handleChangeReferences = (event) => {
-    setChangeReferences(event.target.checked)
-  }
+
 
   // In order to trigger the file input dialog, we need an input element,
   // and we don't want it to show on the page. So we create a temporary one.
@@ -91,16 +103,52 @@ export default function FileForm ({
     shadowInput.click()
   }
 
-  const handleSubmit = () => {
-    if (!uploadedFile) {
-      return
+  const handleOptionChange = (option) => {
+    setActiveOption(option)
+    if (option == FORM_OPTIONS.MARK_AS_REVIEWED){
+      setMarkAsReviewed(true)
+      setUploadedFile(null)
     }
-    handleFileUpload(uploadedFile, changeReferences)
+    else{
+      setMarkAsReviewed(false)
+    }
   }
 
   return (
     <>
-      
+       <div className={`resolve-option ${activeOption === FORM_OPTIONS.MARK_AS_REVIEWED ? 'selected' : ''}`}>
+          <label className={`option-label` + (isDisabled ? ' disabled' : '')}>
+          <input
+            type="radio"
+            id={FORM_OPTIONS.MARK_AS_REVIEWED}
+            name="altTextOption"
+            tabIndex="0"
+            checked={activeOption === FORM_OPTIONS.MARK_AS_REVIEWED}
+            disabled={isDisabled}
+            onChange={() => {
+              handleOptionChange(FORM_OPTIONS.MARK_AS_REVIEWED)
+            }} />
+            Keep Current File
+          </label>
+      </div>
+
+      <div className={`resolve-option ${activeOption === FORM_OPTIONS.REPLACE_FILE ? 'selected' : ''}`}>
+          <label className={`option-label` + (isDisabled ? ' disabled' : '')}>
+          <input
+            type="radio"
+            id={FORM_OPTIONS.REPLACE_FILE}
+            name="altTextOption"
+            tabIndex="0"
+            checked={activeOption === FORM_OPTIONS.REPLACE_FILE}
+            disabled={isDisabled}
+            onChange={() => {
+              handleOptionChange(FORM_OPTIONS.REPLACE_FILE)
+            }} />
+            Replace File
+          </label>
+      </div>
+
+
     </>
   )
 }

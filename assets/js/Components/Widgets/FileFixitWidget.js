@@ -7,13 +7,15 @@ import './UfixitWidget.css'
 export default function FileFixitWidget({
   t,
   settings,
-  handleFileDelete,
-  handleFileResolve,
-  handleFileUpload,
   sessionFiles,
   tempActiveIssue,
   uploadedFile,
-  setUploadedFile
+  setUploadedFile,
+  isDisabled,
+  setIsDisabled,
+  markAsReviewed,
+  setMarkAsReviewed,
+  setFormInvalid
 }) {
 
   return (
@@ -22,13 +24,15 @@ export default function FileFixitWidget({
           <FileForm
             t={t}
             settings={settings}
-            handleFileDelete={handleFileDelete}
             activeFile={tempActiveIssue.fileData}
-            handleFileResolve={handleFileResolve}
-            handleFileUpload={handleFileUpload}
             sessionFiles={sessionFiles}
             uploadedFile={uploadedFile}
             setUploadedFile={setUploadedFile}
+            isDisabled={isDisabled}
+            setIsDisabled={setIsDisabled}
+            markAsReviewed={markAsReviewed}
+            setMarkAsReviewed={setMarkAsReviewed}
+            setFormInvalid={setFormInvalid}
           />
        </div>
     </div>
