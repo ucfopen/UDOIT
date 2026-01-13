@@ -14,6 +14,7 @@ export default function FixIssuesContentPreview({
   t,
   settings,
   activeIssue,
+  getReadableFileType
 }) {
 
   const [fileReferenceHolder, setFileReferenceHolder] = useState([])
@@ -75,24 +76,7 @@ export default function FixIssuesContentPreview({
        }
     
 
-  const getReadableFileType = (fileType) => {
-    switch (fileType) {
-      case 'doc':
-        return t('label.mime.doc')
-      case 'ppt':
-        return t('label.mime.ppt')
-      case 'xls':
-        return t('label.mime.xls')
-      case 'pdf':
-        return t('label.mime.pdf')
-      case 'audio':
-        return t('label.mime.audio')
-      case 'video':
-        return t('label.mime.video')
-      default:
-        return t('label.mime.unknown')
-    }
-  }
+
 
   return (
     <>
@@ -100,7 +84,7 @@ export default function FixIssuesContentPreview({
       <div className='file-accessibility-info-wrapper w-100'>
         <div className='accessibility-info-container flex-column w-100'>
           <div className='file-info p-2'>
-            <FileStatus fileStatus={activeIssue.fileData.replacement ? 1 : 0} />
+            <FileStatus fileStatus={activeIssue.fileData.replacement ? 1 : 0} fileTagText={"Current File"}/>
           </div>
           <FileInformation file={currentFile} />
           <div className='accessibility-instructions-container flex-row p-2 justify-content-between align-items-center gap-2'>

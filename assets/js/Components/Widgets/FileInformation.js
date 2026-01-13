@@ -8,7 +8,7 @@ const FileInformation = (
     file,
     fillColor,
 }
-) => {
+) => { 
   return (
 
     <div className='flex-row gap-1 align-items-start p-2'>

@@ -822,6 +822,25 @@ const getSectionPostOptions = (newFile, sectionReferences) => {
     setActiveIssue(filteredFiles[newIndex])
   }
 
+  const getReadableFileType = (fileType) => {
+    switch (fileType) {
+      case 'doc':
+        return t('label.mime.doc')
+      case 'ppt':
+        return t('label.mime.ppt')
+      case 'xls':
+        return t('label.mime.xls')
+      case 'pdf':
+        return t('label.mime.pdf')
+      case 'audio':
+        return t('label.mime.audio')
+      case 'video':
+        return t('label.mime.video')
+      default:
+        return t('label.mime.unknown')
+    }
+  }
+
   return (
     <>
       { widgetState === WIDGET_STATE.LOADING ? (
@@ -884,6 +903,7 @@ const getSectionPostOptions = (newFile, sectionReferences) => {
                       markAsReviewed={markAsReviewed}
                       setMarkAsReviewed={setMarkAsReviewed}
                       setFormInvalid={setFormInvalid}
+                      getReadableFileType={getReadableFileType}
                     />
                 ) : ''}
               </section>
@@ -892,7 +912,7 @@ const getSectionPostOptions = (newFile, sectionReferences) => {
                   <FileReviewPreview
                     t={t}
                     settings={settings}
-
+                    getReadableFileType={getReadableFileType}
                     activeIssue={tempActiveIssue}
                   />
                 )}

@@ -4,6 +4,9 @@ import SaveIcon from '../Icons/SaveIcon'
 import ResolvedIcon from '../Icons/ResolvedIcon'
 import './FileForm.css'
 import DeleteIcon from '../Icons/DeleteIcon'
+import FileStatus from '../Widgets/FileStatus'
+import FileInformation from '../Widgets/FileInformation'
+import * as Text from '../../Services/Text'
 
 export default function FileForm ({
   t,
@@ -16,7 +19,8 @@ export default function FileForm ({
   setIsDisabled,
   markAsReviewed,
   setMarkAsReviewed,
-  setFormInvalid
+  setFormInvalid,
+  getReadableFileType
  }) {
 
     const FORM_OPTIONS = {
@@ -27,8 +31,13 @@ export default function FileForm ({
     const [activeOption, setActiveOption] = useState('')
     const [formErrors, setFormErrors] = useState([])
 
+    const [copiedActiveFile, setCopiedActiveFile] = useState(null)
+
     useEffect(() => {
       setUploadedFile(null)
+      if(activeFile){
+        normalizeActiveFile()
+      }
     }, [activeFile])
 
     useEffect(() => {
@@ -39,6 +48,15 @@ export default function FileForm ({
         setFormInvalid(true)
       }
     }, [markAsReviewed, uploadedFile])
+
+    const normalizeActiveFile = () => {
+      const tempFile =  {
+        fileName: activeFile.fileName,
+        fileType: getReadableFileType(activeFile.fileType),
+        fileSize: Text.getReadableFileSize(activeFile.fileSize)
+      }
+      setCopiedActiveFile(tempFile)
+    }
 
   // useEffect(() => {
   //   let tempIsDisabled = false
@@ -146,8 +164,17 @@ export default function FileForm ({
             }} />
             Replace File
           </label>
+          {activeOption == FORM_OPTIONS.REPLACE_FILE && (
+            <div className='flex-col justify-content-center'>
+              <div className='p-2'>
+                <FileStatus fileStatus={0} fileTagText={"Original File"} />
+                  <div className='file-info-container p-2'>
+                    <FileInformation file={copiedActiveFile} />
+                  </div>
+              </div>
+            </div>
+          )}
       </div>
-
 
     </>
   )
