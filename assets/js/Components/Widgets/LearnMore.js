@@ -85,7 +85,7 @@ export default function LearnMore ({
             <div className="flex-grow-1 flex-column ufixit-learn-container pt-3 pb-3"
               dangerouslySetInnerHTML={{__html: formLearnMore }} />
             <div className="flex-row justify-content-center mb-3">
-              <button className="btn-secondary" onClick={() => hideLearnMore()} tabIndex="0">
+              <button id="btn-learn-more-close" className="btn-secondary" onClick={() => hideLearnMore()} tabIndex="0">
                 {t('fix.button.close')}
               </button>
             </div>

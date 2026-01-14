@@ -341,6 +341,15 @@ export default function FixIssuesPage({
     setActiveContentItem(tempContentItem)
   }, [contentItemCache])
 
+  useEffect(() => {
+    if(showLearnMore) {
+      document.getElementById('btn-learn-more-close')?.focus()
+    }
+    else {
+      document.getElementById('btn-learn-more-open')?.focus()
+    }
+  }, [showLearnMore])
+
   const getFilteredContent = (allIssues, includedIssueId = null) => {
     let filteredList = []
     const tempFilters = Object.assign({}, activeFilters)
@@ -632,22 +641,6 @@ export default function FixIssuesPage({
       newIndex = 0
     }
     setActiveIssue(filteredIssues[newIndex])
-  }
-
-  const toggleListView = () => {
-    if (widgetState === WIDGET_STATE.LIST) {
-      if(activeIssue) {
-        setWidgetState(WIDGET_STATE.FIXIT)
-      }
-      else {
-        setWidgetState(WIDGET_STATE.NO_RESULTS)
-      }
-    }
-    else {
-      setWidgetState(WIDGET_STATE.LIST)
-      setActiveIssue(null)
-      setActiveContentItem(null)
-    }
   }
 
   const getContentById = (contentId) => {

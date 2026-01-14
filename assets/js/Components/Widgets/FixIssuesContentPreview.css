@@ -1,29 +1,27 @@
-.ufixit-content-label {
-  flex-shrink: 0;
-  flex-grow: 0;
-
+.live-preview-header {
   display: flex;
   flex-direction: row;
-  cursor: pointer;
-  text-decoration: none;
+  justify-content: space-between;
+  gap: 1rem;
+  padding-bottom: 1rem;
 
-  &:hover {
-    color: var(--link-color);
-    fill: var(--link-color);
-    text-decoration: underline;
-    text-decoration-color: var(--link-color);
+  h3 {
+    margin: 0;
   }
 
-  &:focus {
-    outline: 2px solid var(--focus-color);
-    outline-offset: 3px;
+  a {
+    font-weight: 300;
+    text-align: end;
+    text-decoration: none;
+    font-size: .9em;
+    display: flex;
+    flex-direction: row;
+
+    &:hover, &:focus {
+      text-decoration: underline;
+    }
   }
 
-  svg {
-    cursor: pointer;
-    flex-shrink: 0;
-    flex-grow: 0;
-  }
 }
 
 .ufixit-content-preview {

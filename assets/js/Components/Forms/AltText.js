@@ -1,13 +1,12 @@
 import React, { useState, useEffect } from 'react'
-import FormSaveOrReview from './FormSaveOrReview'
+import OptionFeedback from '../Widgets/OptionFeedback'
 import * as Html from '../../Services/Html'
 import * as Text from '../../Services/Text'
 
 export default function AltText ({
   t,
-  settings,
+
   activeIssue,
-  handleIssueSave,
   isDisabled,
   handleActiveIssue,
   markAsReviewed,
@@ -58,11 +57,15 @@ export default function AltText ({
   }, [textInputValue, isDecorative, markAsReviewed])
 
   useEffect(() => {
-    if(formErrors.length > 0 && !markAsReviewed) {
-      setFormInvalid(true)
-    } else {
-      setFormInvalid(false)
+    let invalid = false
+    if(!markAsReviewed) {
+      Object.keys(formErrors).forEach(optionKey => {
+        if(formErrors[optionKey].length > 0) {
+          invalid = true
+        }
+      })
     }
+    setFormInvalid(invalid)
   }, [formErrors, markAsReviewed])
 
   const updateHtmlContent = () => {
@@ -93,21 +96,24 @@ export default function AltText ({
   }
 
   const checkFormErrors = () => {
-    let tempErrors = []
+    let tempErrors = {
+      [FORM_OPTIONS.ADD_TEXT]: [],
+      [FORM_OPTIONS.MARK_DECORATIVE]: [],
+    }
     
     // If the "Mark as Decorative" checkbox is checked, we don't need to check for input errors
     if (!isDecorative && !markAsReviewed) {
       if(Text.isTextEmpty(textInputValue)){
-        tempErrors.push({ text: t('form.alt_text.msg.text_empty'), type: 'error' })
+        tempErrors[FORM_OPTIONS.ADD_TEXT].push({ text: t('form.alt_text.msg.text_empty'), type: 'error' })
       }
       if(Text.isTextTooLong(textInputValue, maxLength)){
-        tempErrors.push({ text: t('form.alt_text.msg.text_too_long'), type: 'error' })
+        tempErrors[FORM_OPTIONS.ADD_TEXT].push({ text: t('form.alt_text.msg.text_too_long'), type: 'error' })
       }
       if(hasFileExtensions()) {
-        tempErrors.push({ text: t('form.alt_text.msg.text_has_file_extension'), type: 'error' })
+        tempErrors[FORM_OPTIONS.ADD_TEXT].push({ text: t('form.alt_text.msg.text_has_file_extension'), type: 'error' })
       }
       if(hasFileName()) {
-        tempErrors.push({ text: t('form.alt_text.msg.text_matches_filename'), type: 'error' })
+        tempErrors[FORM_OPTIONS.ADD_TEXT].push({ text: t('form.alt_text.msg.text_matches_filename'), type: 'error' })
       }
     }
 
@@ -120,7 +126,7 @@ export default function AltText ({
   }
 
   const hasFileExtensions = () => {
-    let fileRegex = /([a-zA-Z0-9\s_\\.\-\(\):])+(.png|.jpg|.jpeg|.gif)$/i
+    let fileRegex = /([a-zA-Z0-9\s_\\.\-\(\):])+(.png|.jpg|.jpeg|.gif|.bmp)$/i
 
     if (textInputValue.match(fileRegex) != null) {
       return true
@@ -183,15 +189,18 @@ export default function AltText ({
           {t('form.alt_text.label.text')}
         </label>
         {activeOption === FORM_OPTIONS.ADD_TEXT && (
-          <input
-            type="text"
-            tabIndex="0"
-            id="altTextInput"
-            name="altTextInput"
-            className="w-100 mt-2"
-            value={textInputValue}
-            disabled={isDisabled || isDecorative}
-            onChange={handleInput} />
+          <>
+            <input
+              type="text"
+              tabIndex="0"
+              id="altTextInput"
+              name="altTextInput"
+              className="w-100 mt-2"
+              value={textInputValue}
+              disabled={isDisabled || isDecorative}
+              onChange={handleInput} />
+            <OptionFeedback feedbackArray={formErrors[FORM_OPTIONS.ADD_TEXT]} />
+          </>
         )}
       </div>
 
@@ -228,44 +237,6 @@ export default function AltText ({
           {t('fix.label.no_changes')}
         </label>
       </div>
-{/*       
-      <div className="w-100 mt-2">
-        <input
-          type="text"
-          tabIndex="0"
-          id="altTextInput"
-          name="altTextInput"
-          className="w-100"
-          value={textInputValue}
-          disabled={isDisabled || isDecorative}
-          onChange={handleInput} />
-      </div>
-      <div className="flex-row justify-content-end mt-1">
-        <div className="text-muted">
-          {t('form.alt_text.feedback.characters', {current: characterCount, total: maxLength})}
-        </div>
-      </div>
-      <div className="separator mt-2">{t('fix.label.or')}</div>
-      <div className="flex-row justify-content-start gap-1 mt-2">
-        <input
-          type="checkbox"
-          id="decorativeCheckbox"
-          name="decorativeCheckbox"
-          tabIndex="0"
-          disabled={isDisabled}
-          checked={isDecorative}
-          onChange={handleCheckbox} />
-        <label htmlFor="decorativeCheckbox" className="instructions">{t('form.alt_text.label.mark_decorative')}</label>
-      </div>
-      <FormSaveOrReview
-        t={t}
-        settings={settings}
-        activeIssue={activeIssue}
-        isDisabled={isDisabled}
-        handleSubmit={handleSubmit}
-        formErrors={formErrors}
-        markAsReviewed={markAsReviewed}
-        setMarkAsReviewed={setMarkAsReviewed} /> */}
     </>
   )
 }

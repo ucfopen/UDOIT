@@ -45,14 +45,14 @@
   --success-color: #006937;
   --success-color-light: color-mix(in srgb, var(--success-color) 10%, #FFFFFF 100%);
 
-  --help-color: #F5E9C3;
+  --help-color: #EDD792; /* #F5E9C3; */
   --help-color-light: #FFF9E6;
 
   --selection-color: #109E45;
   --selection-color-light: #FAFFFB;
 
   --background-color: var(--gray-lightest);
-  --border-color: #E5E7EB;
+  --border-color: #C5C9D3; /* #E5E7EB; */
   --progress-bar-background-color: var(--gray-light);
   --progress-bar-color: var(--primary-color);
   --shadow-color: #00000044;

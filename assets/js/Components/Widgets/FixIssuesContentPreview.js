@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react'
+import React, { useState, useEffect, useCallback, useMemo } from 'react'
 import ExternalLinkIcon from '../Icons/ExternalLinkIcon'
 import ProgressIcon from '../Icons/ProgressIcon'
 import InfoIcon from '../Icons/InfoIcon'
@@ -7,7 +7,6 @@ import * as Html from '../../Services/Html'
 import UpArrowIcon from '../Icons/UpArrowIcon'
 import DownArrowIcon from '../Icons/DownArrowIcon'
 import './FixIssuesContentPreview.css'
-
 
 export default function FixIssuesContentPreview({
   t,
@@ -20,18 +19,13 @@ export default function FixIssuesContentPreview({
   setIsErrorFoundInContent,
 }) {
 
-  const [taggedContent, setTaggedContent] = useState(null)
+  // const [taggedContent, setTaggedContent] = useState(null)
   const [canShowPreview, setCanShowPreview] = useState(false)
   const [isIssueElementVisible, setIsIssueElementVisible] = useState(false)
-
-  const [isInitialLoad, setIsInitialLoad] = useState(false)
   const [debouncedDirection, setDebouncedDirection] = useState(null)
 
+  
   const checkScrollButton = () => {
-    if(isInitialLoad) {
-      setIsIssueElementVisible(true)
-      return
-    }
 
     const htmlElement = document.getElementsByClassName('ufixit-error-highlight')[0]
     const containerElement = document.getElementsByClassName('ufixit-content-preview-main')[0]
@@ -164,9 +158,10 @@ export default function FixIssuesContentPreview({
     return doc
   }
 
-  const getTaggedContent = (activeIssue, activeContentItem) => {
+  const taggedContent = useMemo(() => {
 
     if (!activeIssue || !activeContentItem) {
+      setIsErrorFoundInContent(false)
       return null
     }
 
@@ -205,19 +200,7 @@ export default function FixIssuesContentPreview({
 
     doc = addPreviewHelperElements(doc, errorElement)
     return doc.body.innerHTML
-  }
-
-  useEffect(() => {
-    if(!activeIssue || !activeContentItem) {
-      setTaggedContent(null)
-      setIsErrorFoundInContent(false)
-      return
-    }
-    if(activeIssue.contentType === settings.ISSUE_FILTER.FILE_OBJECT || activeIssue?.issueData?.contentItemId !== activeContentItem?.id) {
-      return
-    }
-    setTaggedContent(getTaggedContent(activeIssue, activeContentItem))
-  }, [activeIssue, activeContentItem])
+  }, [activeIssue, activeContentItem, liveUpdateToggle])
 
   useEffect(() => {
     const element = document.getElementsByClassName('ufixit-error-highlight')[0]
@@ -226,86 +209,95 @@ export default function FixIssuesContentPreview({
     }
   }, [taggedContent])
 
-  useEffect(() => {
-    if (!activeIssue) {
-      setTaggedContent(null)
-      setIsErrorFoundInContent(false)
-      return
-    }
+  // useEffect(() => {
+  //   if (!activeIssue) {
+  //     setTaggedContent(null)
+  //     setIsErrorFoundInContent(false)
+  //     return
+  //   }
 
-    const doc = document.getElementsByClassName('ufixit-content-preview-main')[0]
-    if (!doc) { return }
+  //   setTaggedContent(getTaggedContent(activeIssue, activeContentItem))
+  //   console.log('liveUpdateToggle changed:', liveUpdateToggle)
+  //   return
+
+  //   const doc = document.getElementsByClassName('ufixit-content-preview-main')[0]
+  //   if (!doc) { return }
     
-    let targetElement = doc.getElementsByClassName('ufixit-error-highlight')[0]
-    if (!targetElement) { return }
+  //   let targetElement = doc.getElementsByClassName('ufixit-error-highlight')[0]
+  //   if (!targetElement) { return }
 
-    const tempElement = convertErrorHtmlString(Html.getIssueHtml(activeIssue?.issueData))
-    if(!tempElement) { return }
+  //   const tempElement = convertErrorHtmlString(Html.getIssueHtml(activeIssue?.issueData))
+  //   if(!tempElement) { return }
 
-    let formName = formNameFromRule(activeIssue.scanRuleId)
+  //   let formName = formNameFromRule(activeIssue.scanRuleId)
 
-    if (formName === formNames.ALT_TEXT) {
+  //   if (formName === formNames.ALT_TEXT) {
 
-      if (targetElement.tagName.toLowerCase() === 'img') {
-        const alt = tempElement.getAttribute('alt')
-        const role = tempElement.getAttribute('role')
+  //     if (targetElement.tagName.toLowerCase() === 'img') {
+  //       const alt = tempElement.getAttribute('alt')
+  //       const role = tempElement.getAttribute('role')
 
-        if (alt !== null) {
-          targetElement.setAttribute('alt', alt)
-        } else {
-          targetElement.removeAttribute('alt')
-        }
+  //       if (alt !== null) {
+  //         targetElement.setAttribute('alt', alt)
+  //       } else {
+  //         targetElement.removeAttribute('alt')
+  //       }
 
-        if (role !== null) targetElement.setAttribute('role', role)
-        else targetElement.removeAttribute('role')
-      }
-      addPreviewHelperElements(doc, targetElement)
-      return
-    }
+  //       if (role !== null) targetElement.setAttribute('role', role)
+  //       else targetElement.removeAttribute('role')
+  //     }
+  //     addPreviewHelperElements(doc, targetElement)
+  //     return
+  //   }
 
-    if (formName === formNames.EMBEDDED_CONTENT_TITLE) {
-      const tag = targetElement.tagName.toLowerCase()
+  //   if (formName === formNames.EMBEDDED_CONTENT_TITLE) {
+  //     const tag = targetElement.tagName.toLowerCase()
 
-      if (['iframe', 'video', 'embed', 'object'].includes(tag)) {
-        const title = tempElement.getAttribute('title')
-        const aria = tempElement.getAttribute('aria-label')
-        const label = tempElement.getAttribute('label')
+  //     if (['iframe', 'video', 'embed', 'object'].includes(tag)) {
+  //       const title = tempElement.getAttribute('title')
+  //       const aria = tempElement.getAttribute('aria-label')
+  //       const label = tempElement.getAttribute('label')
 
-        if (title !== null) targetElement.setAttribute('title', title)
-        if (aria !== null) targetElement.setAttribute('aria-label', aria)
-        if (label !== null) targetElement.setAttribute('label', label)
-      }
-      addPreviewHelperElements(doc, targetElement)
-      return
-    }
+  //       if (title !== null) targetElement.setAttribute('title', title)
+  //       if (aria !== null) targetElement.setAttribute('aria-label', aria)
+  //       if (label !== null) targetElement.setAttribute('label', label)
+  //     }
+  //     addPreviewHelperElements(doc, targetElement)
+  //     return
+  //   }
     
-    // Replace the target element with the new element
-    targetElement.insertAdjacentHTML('afterend', Html.toString(convertErrorHtmlString(tempElement)))
-    let tempSwitchElement = targetElement.nextSibling
-    targetElement.remove()
-    targetElement = tempSwitchElement
-    addPreviewHelperElements(doc, targetElement)
-    setTaggedContent(doc.innerHTML)
-  }, [liveUpdateToggle])
+  //   // Replace the target element with the new element
+  //   targetElement.insertAdjacentHTML('afterend', Html.toString(convertErrorHtmlString(tempElement)))
+  //   let tempSwitchElement = targetElement.nextSibling
+  //   targetElement.remove()
+  //   targetElement = tempSwitchElement
+  //   addPreviewHelperElements(doc, targetElement)
+  //   setTaggedContent(doc.innerHTML)
+  // }, [liveUpdateToggle])
 
   const scrollToElement = (element) => {
     if (element) {
       element.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'nearest' })
     }
   }
-
+    
   return (
     <>
-      { activeIssue && (
-        <a href={activeIssue.contentUrl} target="_blank" rel="noreferrer" className="ufixit-content-label mt-0 mb-3">
-          <h3 className="m-0">{activeIssue.contentTitle}</h3>
-          <div className="ps-2" aria-hidden="true">
-            <ExternalLinkIcon className="icon-md" alt="" />
-          </div>
-        </a>
-      )}
+      {/* "Live Preview" Header with link to content */}
+      <div className="live-preview-header">
+        <h3 id="live-preview-label">Live Preview</h3>
+        { activeIssue && (
+          <a href={activeIssue.contentUrl} target="_blank" rel="noreferrer">
+            {activeIssue.contentTitle}
+            <div className="flex-column justify-content-center ps-2" aria-hidden="true">
+              <ExternalLinkIcon className="icon-sm link-color" alt="" />
+            </div>
+          </a>
+        )}
+      </div>
+      
 
-      <div className="ufixit-content-preview">
+      <section aria-labelledby="live-preview-label" role="region" className="ufixit-content-preview">
         { !activeIssue ? (
           <div className="flex-column">
             <div className="flex-row justify-content-center text-center mt-3 ms-4 me-4">
@@ -322,28 +314,29 @@ export default function FixIssuesContentPreview({
                 { canShowPreview ? (
                   <>
                     <div
+                      className='scroll-to-error-container'
+                      style={!(!isIssueElementVisible && debouncedDirection) ? { display: 'none' } : {}} 
+                      aria-hidden={!(!isIssueElementVisible && debouncedDirection) ? "true" : "false"}>
+                      <button
+                        className={`btn-secondary btn-icon-right btn-small scroll-to-error ${debouncedDirection ? 'scroll-to-error-' + debouncedDirection : ''}`}
+                        onClick={() => scrollToElement(document.getElementsByClassName('ufixit-error-highlight')[0])}
+                        tabIndex={!(!isIssueElementVisible && debouncedDirection) ? "-1" : "0"}
+                      >
+                        {t('fix.button.scroll_to_issue')}
+                        { debouncedDirection === 'up' ?
+                          <UpArrowIcon className="icon-sm" />
+                        : debouncedDirection === 'down' ?
+                          <DownArrowIcon className="icon-sm" />
+                        : null
+                        }
+                      </button>
+                    </div>
+
+                    <div
                       className="ufixit-content-preview-main"
-                      onScroll={() => {
-                        checkScrollButton()
-                      }}
-                      dangerouslySetInnerHTML={{__html: taggedContent}} />
-                    {!isIssueElementVisible && !isInitialLoad && debouncedDirection && (
-                      <div className='scroll-to-error-container'>
-                        <button
-                          className={`btn-secondary btn-icon-right btn-small scroll-to-error ${debouncedDirection ? 'scroll-to-error-' + debouncedDirection : ''}`}
-                          onClick={() => scrollToElement(document.getElementsByClassName('ufixit-error-highlight')[0])}
-                          tabIndex="0"
-                        >
-                          {t('fix.button.scroll_to_issue')}
-                          { debouncedDirection === 'up' ?
-                            <UpArrowIcon className="icon-sm" />
-                          : debouncedDirection === 'down' ?
-                            <DownArrowIcon className="icon-sm" />
-                          : null
-                          }
-                        </button>
-                      </div>
-                      )}
+                      onScroll={() => checkScrollButton()}
+                      dangerouslySetInnerHTML={{ __html: taggedContent }}
+                    />
                   </>
                 ) : (
                   <div className="ufixit-content-preview-no-error flex-row p-3">
@@ -380,7 +373,7 @@ export default function FixIssuesContentPreview({
             )}
           </>
         )}
-      </div>
+      </section>
     </>
   )
 }
