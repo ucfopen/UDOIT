@@ -143,8 +143,6 @@ export default function ContrastForm({
       ))
       ratio = Math.min(...ratios)
     }
-    const element = Html.toElement(html);
-    const minRatio = isLargeText(element) ? 3 : 4.5;
     setContrastRatio(ratio)
     setRatioIsValid(ratio >= minRatio)
   
@@ -169,7 +167,6 @@ export default function ContrastForm({
     setCurrentBgColors(info.map(bg => bg.hsl))
     setTextColor(getTextColor())
     setAutoAdjustError(false)
-    // eslint-disable-next-line
   }, [activeIssue])
 
   const updateBackgroundColor = (idx, value) => {
@@ -208,7 +205,6 @@ export default function ContrastForm({
       updatePreview()
     }, 150)
     return () => clearTimeout(debounceTimer.current)
-    // eslint-disable-next-line
   }, [textColor, currentBgColors])
 
   const handleAutoAdjustAll = () => {
@@ -265,10 +261,11 @@ export default function ContrastForm({
     return (fontSizePt >= 18) || (isBold && fontSizePt >= 14);
   }
 
-  // In your render, before mapping colors:
   const maxColorsToShow = 4;
   const shouldShowExpand = currentBgColors.length > maxColorsToShow;
   const visibleBgColors = showAllColors ? currentBgColors : currentBgColors.slice(0, maxColorsToShow);
+  const tagName = Html.toElement(Html.getIssueHtml(activeIssue)).tagName;
+  const minRatio = headingTags.includes(tagName) ? 3 : 4.5;
 
   return (
     <>
@@ -318,8 +315,6 @@ export default function ContrastForm({
       </div>
       {visibleBgColors.map((color, idx) => {
         let showStatus = currentBgColors.length > 1;
-        let tagName = Html.toElement(Html.getIssueHtml(activeIssue)).tagName;
-        let minRatio = headingTags.includes(tagName) ? 3 : 4.5;
         let ratio = Contrast.contrastRatio(
           Contrast.hslToHex(color), Contrast.hslToHex(textColor)
         );
@@ -377,11 +372,6 @@ export default function ContrastForm({
 
       {shouldShowExpand && (
         <div className="flex-column align-items-center mt-2">
-          {!showAllColors && (
-            <div className="mb-1">
-              {t('form.contrast.more_colors', { count: currentBgColors.length - maxColorsToShow })}
-            </div>
-          )}
           <button
             className="btn-small text-center btn-secondary"
             onClick={() => setShowAllColors(v => !v)}
@@ -428,12 +418,21 @@ export default function ContrastForm({
                 )}
               </div>
               <div className="flex-column justify-content-center">
-                <div className="ratio-value">{contrastRatio}</div>
+                <div className="ratio-value">{contrastRatio?.toFixed(2)}</div>
               </div>
             </div>
             <div className="flex-row justify-content-center">
-              <div className={`ratio-status ${ratioIsValid ? 'valid' : 'invalid'}`}>
-                {ratioIsValid ? t('form.contrast.feedback.valid') : t('form.contrast.feedback.invalid')}
+              <div className={`ratio-status text-center ${ratioIsValid ? 'valid' : 'invalid'}`}>
+                {ratioIsValid
+                  ? t('form.contrast.feedback.valid')
+                  : (
+                      <span>
+                        {t('form.contrast.feedback.minimum', {
+                          required: minRatio
+                        })}
+                      </span>
+                    )
+                }
               </div>
             </div>
             {currentBgColors.length > 1 && (
