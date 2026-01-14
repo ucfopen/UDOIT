@@ -441,3 +441,15 @@ dialog::backdrop {
   background: var(--backdrop-color);
   backdrop-filter: blur(3px);
 }
+
+.file-review-status-container{
+  border-radius: 0.5em;
+}
+
+.file-reviewed{
+  background-color: var(--primary-color-light);
+}
+
+.file-progress{
+    background-color: var(--potential-color-light);
+}
