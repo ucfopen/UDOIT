@@ -167,6 +167,7 @@ export default function ContrastForm({
     setCurrentBgColors(info.map(bg => bg.hsl))
     setTextColor(getTextColor())
     setAutoAdjustError(false)
+    setShowAllColors(false)
   }, [activeIssue])
 
   const updateBackgroundColor = (idx, value) => {
