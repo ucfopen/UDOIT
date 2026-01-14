@@ -781,6 +781,11 @@ const getSectionPostOptions = (newFile, sectionReferences) => {
     }
   }
 
+  // Wrapper to pass to file form for unreviewing 
+  const handleFileResolveWrapper = () => {
+    handleFileResolve(activeIssue.fileData)
+  }
+
   const handleFileRevert = async (activeFile, contentReferences, sectionReferences) => {
     let tempReport = JSON.parse(JSON.stringify(report))
     if(!Array.isArray(tempReport.files)){
@@ -924,6 +929,7 @@ const getSectionPostOptions = (newFile, sectionReferences) => {
                       setMarkAsReviewed={setMarkAsReviewed}
                       setFormInvalid={setFormInvalid}
                       getReadableFileType={getReadableFileType}
+                      handleFileResolveWrapper={handleFileResolveWrapper}
                     />
                 ) : ''}
               </section>

@@ -16,7 +16,8 @@ export default function FileFixitWidget({
   markAsReviewed,
   setMarkAsReviewed,
   setFormInvalid,
-  getReadableFileType
+  getReadableFileType,
+  handleFileResolveWrapper
 }) {
 
   return (
@@ -36,6 +37,7 @@ export default function FileFixitWidget({
             setMarkAsReviewed={setMarkAsReviewed}
             setFormInvalid={setFormInvalid}
             getReadableFileType={getReadableFileType}
+            handleFileResolveWrapper={handleFileResolveWrapper}
           />
        </div>
     </div>

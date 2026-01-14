@@ -22,7 +22,8 @@ export default function FileForm ({
   markAsReviewed,
   setMarkAsReviewed,
   setFormInvalid,
-  getReadableFileType
+  getReadableFileType,
+  handleFileResolveWrapper
  }) {
 
     const FORM_OPTIONS = {
@@ -160,7 +161,7 @@ export default function FileForm ({
         <div className='marked-as-reviewed-container p-4 flex-column justify-content-center align-items-center text-center'>
           <h3>Marked as Reviewed</h3>
           <div>This file has been checked for accessibility and marked as reviewed. Mark the file has unreviewed if you believe it is inaccessible and needs changes</div>
-          <div className='fw-bold mt-3'>Mark File As Unreviewed</div>
+          <div className='btn-link fw-bold mt-3' onClick={handleFileResolveWrapper}>Mark File As Unreviewed</div>
         </div> 
       </div>
       }
