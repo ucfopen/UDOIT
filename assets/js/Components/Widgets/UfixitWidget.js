@@ -8,6 +8,7 @@ import DisabilityVisualIcon from '../Icons/DisabilityVisualIcon'
 import FormClarification from '../Forms/FormClarification'
 import FileForm from '../Forms/FileForm'
 import { disabilityTypes, disabilitiesFromRule, formFromIssue, formNameFromRule, sharedRuleDescriptions, sharedRuleSummaries } from '../../Services/Ufixit'
+import * as Html from '../../Services/Html'
 import './UfixitWidget.css'
 
 
@@ -137,12 +138,14 @@ export default function UfixitWidget({
     tempIssue.issueData = newIssue
     tempIssue.isModified = newIssue?.isModified || false
     setTempActiveIssue(tempIssue)
-    triggerLiveUpdate()
+    //triggerLiveUpdate()
   }
 
   const interceptIssueSave = (issue) => {
     handleIssueSave(issue, markAsReviewed)
   }
+
+  const fullHtml = activeContentItem?.body
 
   return (
     <>
@@ -203,7 +206,6 @@ export default function UfixitWidget({
                     <UfixitForm
                       t={t}
                       settings={settings}
-
                       activeIssue={tempActiveIssue.issueData}
                       activeContentItem={activeContentItem}
                       addMessage={addMessage}

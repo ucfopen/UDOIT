@@ -46,12 +46,121 @@ const checkStyleColorMisuse = (issue, element) => {
   return false
 }
 
-const runCustomChecks = (issue, element) => {
+const checkTextContrastSufficient = (issue, element, parsedDocument) => {
+  if (!element || !parsedDocument) {
+    return false;
+  }
+
+  // Helper to get inline style for an element
+  function getInlineStyle(el, property) {
+    if (!el || !el.hasAttribute('style')) return '';
+    const styleAttr = el.getAttribute('style');
+    const regex = new RegExp(`${property}\\s*:\\s*([^;]+)`, 'i');
+    const match = styleAttr.match(regex);
+    return match ? match[1].trim() : '';
+  }
+
+  // Helper to walk up and find the first ancestor with a non-transparent background
+  function findBgAncestor(el) {
+    let current = el;
+    while (current && current.nodeType === 1) {
+      const bgColor = getInlineStyle(current, 'background-color');
+      const bgImage = getInlineStyle(current, 'background-image') || getInlineStyle(current, 'background');
+      if (
+        (bgColor && bgColor !== 'transparent' && bgColor !== 'rgba(0,0,0,0)') ||
+        (bgImage && bgImage !== 'none')
+      ) {
+        return current;
+      }
+      current = current.parentElement;
+    }
+    return null;
+  }
+
+  // Helper to walk up and find the first ancestor with a non-inherited text color
+  function findTextAncestor(el) {
+    let current = el;
+    while (current && current.nodeType === 1) {
+      const color = getInlineStyle(current, 'color');
+      if (color && color !== 'inherit') {
+        return current;
+      }
+      current = current.parentElement;
+    }
+    return null;
+  }
+
+  // Find ancestors
+  const bgAncestor = findBgAncestor(element);
+  const textAncestor = findTextAncestor(element);
+
+  // Set the issue's xpath and sourceHtml to the background color element
+  if (bgAncestor) {
+    issue.xpath = Html.findXpathFromElement(bgAncestor);
+    issue.sourceHtml = Html.toString(bgAncestor); // <-- Set sourceHtml to the correct scope
+  }
+
+  // Store the text color element's xpath in metadata
+  if (textAncestor && bgAncestor) {
+    // Compute relative xpath from bgAncestor to textAncestor
+    function getRelativeXpath(from, to) {
+      let path = [];
+      let current = to;
+      while (current && current !== from) {
+        let tagName = current.tagName.toLowerCase();
+        let siblings = Array.from(current.parentNode.children).filter(
+          sibling => sibling.tagName.toLowerCase() === tagName
+        );
+        let index = siblings.indexOf(current) + 1;
+        path.unshift(`${tagName}[${index}]`);
+        current = current.parentNode;
+      }
+      return path.length ? path.join('/') : '';
+    }
+    // Parse metadata if it's a string
+    if (typeof issue.metadata === 'string') {
+      try {
+        issue.metadata = JSON.parse(issue.metadata);
+      } catch (e) {
+        issue.metadata = {};
+      }
+    }
+    issue.metadata = issue.metadata || {};
+    issue.metadata.textColorXpath = getRelativeXpath(bgAncestor, textAncestor);
+    issue.metadata.focusXpath = Html.findXpathFromElement(element);
+    issue.metadata = JSON.stringify(issue.metadata);
+  }
+  // Return false to indicate this issue should not be ignored
+  return false;
+}
+
+const checkImgAltBackground = (issue, element) => {
+  if (!(element instanceof HTMLElement)) return false;
+
+  // Read inline style safely
+  const styleAttr = element.getAttribute('style') || '';
+  if (!styleAttr) return false;
+
+  // Normalize: lowercase, collapse spaces, strip trailing semicolons, set regex
+  const style = styleAttr.toLowerCase().replace(/\s+/g, ' ').trim();
+  const gradientRegex = /background(?:-image)?\s*:\s*[^;]*(linear|radial|conic|repeating-(?:linear|radial))-gradient\s*\(/;
+
+  // Return true if any gradient type is found
+  return gradientRegex.test(style);
+};
+
+const runCustomChecks = (issue, element, parsedDocument) => {
   if(issue.scanRuleId === 'style_color_misuse') {
     return checkStyleColorMisuse(issue, element)
   }
   else if(issue.scanRuleId === 'text_block_heading') {
     return checkTextBlockHeading(issue, element)
+  }
+  else if(issue.scanRuleId === 'text_contrast_sufficient') {
+    return checkTextContrastSufficient(issue, element, parsedDocument)
+  }
+  else if(issue.scanRuleId === 'img_alt_background') {
+    return checkImgAltBackground(issue, element)
   }
   return false
 } 
@@ -122,7 +231,7 @@ export function analyzeReport(report, ISSUE_STATE) {
           }
           
           // For the text_block_heading rule, we need to check if the element is inside a table cell.
-          if(runCustomChecks(issue, element)) {
+          if(runCustomChecks(issue, element, parsedDocument)) {
             issueIgnored = true
           }
         }
