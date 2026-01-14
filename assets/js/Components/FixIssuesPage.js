@@ -730,7 +730,17 @@ export default function FixIssuesPage({
         <div className="flex-column h-100">
           <div className="dialog-header">
             <h2>{tempActiveIssue?.formLabel}</h2>
-            <CloseIcon onClick={closeDialog} className="close-icon icon-lg" tabIndex="0" alt={t('fix.button.close')} title={t('fix.button.close')} />
+            <CloseIcon
+              onClick={closeDialog}
+              onKeyDown={(e) => {
+                if(e.key === 'Enter' || e.key === ' ') {
+                  closeDialog()
+                }
+              }}
+              className="close-icon icon-lg"
+              tabIndex="0"
+              alt={t('fix.button.close')}
+              title={t('fix.button.close')} />
           </div>
           <div className="dialog-content">
             <div className="flex-row w-100 h-100">
