@@ -74,8 +74,9 @@
   }
 
   .uploaded{
-    border: dotted;
-    border-color: var(--primary-color);
+    border: solid;
+    border-width: 2px;
+    border-color: var(--primary-color-light);
   }
 
   .marked-as-reviewed-container{

@@ -45,6 +45,7 @@ export default function FileForm ({
     }, [activeFile])
 
     useEffect(() => {
+      console.log(uploadedFile)
       normalizeUploadedFile()
       if(markAsReviewed || uploadedFile){
         setFormInvalid(false)
@@ -94,6 +95,9 @@ export default function FileForm ({
   // Drag and Drop code is adapted from:
   // https://developer.mozilla.org/en-US/docs/Web/API/HTML_Drag_and_Drop_API/File_drag_and_drop
   const handleDrop = (event) => {
+    if(uploadedFile){
+      return
+    }
     event.preventDefault()
     let newFile = null
     
@@ -116,6 +120,9 @@ export default function FileForm ({
   }
 
   const handleKeyPress = (event) => {
+    if(uploadedFile){
+      return
+    }
     if(event.key === 'Enter' || event.key === ' ') {
       handleFileSelect()
     }
@@ -130,6 +137,9 @@ export default function FileForm ({
   // In order to trigger the file input dialog, we need an input element,
   // and we don't want it to show on the page. So we create a temporary one.
   const handleFileSelect = () => {
+    if(uploadedFile){
+      return
+    }
     let shadowInput = document.createElement('input')
     shadowInput.setAttribute('type', 'file')
     shadowInput.onchange = _ => {
@@ -142,7 +152,6 @@ export default function FileForm ({
     setActiveOption(option)
     if (option == FORM_OPTIONS.MARK_AS_REVIEWED){
       setMarkAsReviewed(true)
-      setUploadedFile(null)
     }
     else{
       setMarkAsReviewed(false)
@@ -219,10 +228,10 @@ export default function FileForm ({
                       <CloseIcon onClick={removeUploadedFile} tabIndex='0' />
                     </div> :
                     
-                    <>
+                    <div>
                       <UploadIcon className='upload-icon icon-md p-2 mb-2' />
                       <div className='upload-instructions'><span className='link-color fw-bold'>Click to upload</span> or drag and drop <br /> SVG, PNG, JPG or GIF (max. 800x400px)</div>
-                    </>
+                    </div>
                     
                     }
                   </div>
