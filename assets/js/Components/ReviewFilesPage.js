@@ -282,6 +282,30 @@ export default function ReviewFilesPage({
   
     setWidgetState(WIDGET_STATE.FIXIT)
     const activeIssueClone = JSON.parse(JSON.stringify(activeIssue))
+    if(activeIssue.fileData){
+      let tempContentReferences = []
+      let tempSectionRefereces = []
+
+      activeIssue.fileData.references.forEach((ref) => {
+        tempContentReferences.push(ref)
+      })
+
+      activeIssue.fileData.sectionRefs?.forEach((ref) => {
+        tempSectionRefereces.push(ref)
+      })
+
+     activeIssue.fileData.replacement?.sectionRef?.forEach((ref) => {
+        tempContentReferences.push(ref)
+      })
+
+      activeIssue.fileData.replacement?.sectionRefs?.forEach((ref) => {
+        tempSectionRefereces.push(ref)
+      })
+
+      setFileContentReferences(tempContentReferences)
+      setFileSectionReferences(tempSectionRefereces)
+      
+    }
 
     setTempActiveIssue(activeIssueClone)
   }, [activeIssue])
@@ -695,6 +719,8 @@ const getSectionPostOptions = (newFile, sectionReferences) => {
       let metadataObj = tempFile?.metadata || {}
       metadataObj.replacementFileId = updatedFileData?.metadata.id
       tempFile.replacement = updatedFileData
+
+      console.log(updatedFileData)
 
       // Copying and pushing new file onto report
       let tempReport = JSON.parse(JSON.stringify(report))

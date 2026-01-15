@@ -314,10 +314,18 @@
   align-items: center;
   gap: 6px;
   padding: 6px 12px;
-  background: #f3f4f6;
+
   border-radius: 6px;
   font-size: 13px;
   color: #4b5563;
+}
+
+.old-file-status{
+  background-color: var(--gray-lighter);
+}
+
+.new-file-badge{
+  background-color: var(--primary-color-light);
 }
 
 .file-accessibility-info-wrapper{

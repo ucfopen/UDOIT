@@ -76,6 +76,7 @@ class FileItemsController extends ApiController
         $output = new ConsoleOutput();
         $apiResponse = new ApiResponse();
         $user = $this->getUser();
+        $output->writeln("Getting here on the backend");
 
         try {
             // Check if user has access to course
@@ -89,6 +90,8 @@ class FileItemsController extends ApiController
             // Save content to LMS
             $lmsResponse = $lmsPost->saveFileToLms($file, $uploadedFile, $user);
             $responseContent = $lmsResponse->getContent();
+
+            $output->writeln(json_encode($responseContent, JSON_PRETTY_PRINT));
 
 
             // If the new file was successfully posted, update the FileItem metadata to point to this replacement

@@ -160,22 +160,8 @@ class FileItem implements \JsonSerializable
     public function getReplacementFile(): int
     {
         $metadata = json_decode($this->getMetadata(), true);
-        if (isset($metadata['replacement'])) {
-            // Fetch the replacement file from the database using the LMS File ID
-            // $lmsFileId = $metadata['replacement'];
-            // $output = new ConsoleOutput();
-            // $output->writeln("Fetching replacement file with LMS File ID: " . $lmsFileId);
-            
-            // TODO: Get ANOTHER file item IF it still exists in the database.
-            // This file does NOT have access to the ManagerRegistry (doctrine) but we need it to do
-            // something like this...
-
-            // $fileItemRepo = $this->doctrine->getManager()->getRepository(FileItem::class);
-            // $replacementFile = $fileItemRepo->findOneBy(['lmsFileId' => $lmsFileId]);
-
-            // if ($replacementFile) {
-            //     return $replacementFile;
-            // }
+        if (isset($metadata['replacementFileId'])) {
+            return $metadata['replacementFileId'];
         }
 
         return -1;

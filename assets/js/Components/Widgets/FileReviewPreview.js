@@ -71,7 +71,7 @@ export default function FixIssuesContentPreview({
               tempRef.status  = 'Old File'
               tempReferences.push(tempRef)
           })
-  
+          
           setFileReferenceHolder(tempReferences)
        }
     
@@ -115,7 +115,7 @@ export default function FixIssuesContentPreview({
                           </a>
                       </td>
                       <td>
-                          <span className="status-badge">
+                          <span className={`status-badge ${activeIssue.fileData.replacement ? 'new-file-badge' : 'old-file-status'}`}>
                               {ref.status}
                           </span>
                       </td>

@@ -165,6 +165,10 @@ export default function FileForm ({
 
   return (
     <>
+    {activeFile.reviewed && activeFile.replacement && 
+      <div>Replaced!</div>
+    }
+    
     {activeFile.reviewed && !activeFile.replacement && 
       <div className='resolve-option selected'>
         <div className='marked-as-reviewed-container p-4 flex-column justify-content-center align-items-center text-center'>

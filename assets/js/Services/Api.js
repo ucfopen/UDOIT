@@ -159,6 +159,7 @@ export default class Api {
 
         let formData = new FormData()
         formData.append('file', fileObj)
+        console.log("Sending request to backend")
 
         return fetch(url, {
             method: 'POST',
