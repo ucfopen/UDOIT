@@ -8,20 +8,6 @@
  *      of the parent component.
  */
 
-/* .combo-container {
-  display: block;
-  max-width: 15.625em;
-  min-width: 11.25em;
-  position: relative;
-}
-
-.combo-label {
-  font-size: 0.9em;
-  font-weight: 500;
-  font-family: var(--heading-font-family);
-  text-transform: uppercase;
-} */
-
 .combo-container {
   position: relative !important;
 }
@@ -30,12 +16,15 @@
   background-color: var(--white);
   display: block;
   font-size: .85em;
-  padding: .4em .15em .4em .5em;
+  padding-inline-start: .5em;
+  padding-inline-end: .15em;
   border: 1px solid var(--border-color);
   border-radius: 8px;
   outline: none;
   box-sizing: border-box;
   cursor: pointer;
+  height: 2.5em;
+  align-items: center;
 
   &:focus {
     outline: 2px solid var(--focus-color);
