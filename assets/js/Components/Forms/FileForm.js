@@ -36,16 +36,17 @@ export default function FileForm ({
 
     const [copiedActiveFile, setCopiedActiveFile] = useState(null)
     const [copiedUploadedFile, setCopiedUploadedFile] = useState(null)
+    const [copiedReplacementFile, setCopiedReplacementFile] = useState(null)
 
     useEffect(() => {
       setUploadedFile(null)
       if(activeFile){
         normalizeActiveFile()
+        normalizeReplacementFile()
       }
     }, [activeFile])
 
     useEffect(() => {
-      console.log(uploadedFile)
       normalizeUploadedFile()
       if(markAsReviewed || uploadedFile){
         setFormInvalid(false)
@@ -70,10 +71,23 @@ export default function FileForm ({
       }
       const tempFile = {
         fileName: uploadedFile.name,
-        fileType: getReadableFileType(uploadedFile.size),
-        fileSize: Text.getReadableFileSize(uploadedFile.fileSize),
+        fileType: getReadableFileType(uploadedFile.type),
+        fileSize: Text.getReadableFileSize(uploadedFile.size),
       }
       setCopiedUploadedFile(tempFile)
+    }
+
+    const normalizeReplacementFile = () => {
+      if (!activeFile?.replacement){
+        return
+      }
+      const tempFile = {
+        fileName: activeFile.replacement.fileName,
+        fileType: getReadableFileType(activeFile.replacement.fileType),
+        fileSize: Text.getReadableFileSize(activeFile.replacement.fileSize),
+      }
+
+      setCopiedReplacementFile(tempFile)
     }
 
   // useEffect(() => {
@@ -166,9 +180,30 @@ export default function FileForm ({
   return (
     <>
     {activeFile.reviewed && activeFile.replacement && 
-      <div>Replaced!</div>
+      <div className='resolve-option selected'>
+        <div className='flex-column align-items-center justify-content-center'>
+          <div className='w-100 p-2'>
+            <FileStatus fileStatus={0} fileTagText={"Original File"} />
+            <div className='file-info-container p-2'>
+              <FileInformation file={copiedActiveFile} />
+            </div>
+          </div>
+          <DownwardArrowIcon className="icon-md pt-4 pb-4" />
+        </div>
+        <div className='w-100 p-2'>
+           <FileStatus fileStatus={1} fileTagText={"New File"} />
+           <div className='file-info-container p-4 flex-column justify-content-center align-items-center text-center'>
+              <h3>File Replaced Successfully</h3>
+              <p className='file-msg'>The original file, <span className='fw-bolder'>{activeFile.fileName}</span>, was replaced by the new file, <span className='fw-bolder'>{activeFile.replacement.fileName}</span>. All references to the original file in your course now point to the new file</p>
+              <div className='new-file-info-container w-100 p-2'>
+                <FileInformation file={copiedReplacementFile} fillColor={'var(--primary-color)'} />
+              </div>
+           </div>
+        </div>
+
+      </div>
     }
-    
+
     {activeFile.reviewed && !activeFile.replacement && 
       <div className='resolve-option selected'>
         <div className='marked-as-reviewed-container p-4 flex-column justify-content-center align-items-center text-center'>

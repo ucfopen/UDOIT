@@ -77,6 +77,7 @@
     border: solid;
     border-width: 2px;
     border-color: var(--primary-color-light);
+    
   }
 
   .marked-as-reviewed-container{
@@ -90,4 +91,15 @@
 
    .marked-as-reviewed-container p{
     font-size: 0.65em;
+   }
+
+   .new-file-info-container{
+    background-color: var(--gray-lightest);
+    border: solid;
+    border-color: var(--gray-lighter);
+    border-radius: 0.5em;
+   }
+
+   .file-msg{
+    font-size: 0.75em;
    }

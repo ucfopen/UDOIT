@@ -12,11 +12,12 @@ const FileInformation = (
     
 
   return (
-    <div className='flex-row gap-1 align-items-start p-2'>
+    <>
+    {file && <div className='flex-row gap-1 align-items-start p-2'>
         <ContentPageIcon fill={fillColor ? fillColor : ''}
             className={`${fillColor ? 'file-icon-new' : 'file-icon'} icon-md p-2`} />
         <div className='flex-column'>
-            {file.fileLink ?  
+            {file?.fileLink ?  
             <div className='flex-row align-items-center gap-1'>    
                 <a className='file-title' href={file.fileLink} target='_blank'>{file.fileName}</a> 
                 <ExternalLinkIcon className="icon-sm link-color"/>
@@ -29,7 +30,8 @@ const FileInformation = (
                 <div>File Size: <span className='fw-bold'>{file.fileSize}</span> </div>
             </div>
         </div>
-    </div>
+    </div>}
+    </>
   )
 }
 
