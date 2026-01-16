@@ -164,6 +164,10 @@ body {
     --success-color: #00AD5A;
     --success-color-light: color-mix(in srgb, var(--success-color) 50%, var(--white) 100%);
 
+    --help-color-light: #58450e;
+
+    --selection-color-light: #07461e;
+
     --background-color: var(--gray-lightest);
     --border-color: var(--gray-light);
     --progress-bar-background-color: var(--gray-light);
@@ -1119,6 +1123,7 @@ option {
 input[type="text"] {
   font-weight: 300;
   color: var(--text-color);
+  background-color: var(--white);
   height: 2.5em;
   font-size: 0.85em;
   font-family: var(--text-font-family);

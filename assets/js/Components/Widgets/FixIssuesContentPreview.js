@@ -17,24 +17,61 @@ export default function FixIssuesContentPreview({
   setIsErrorFoundInContent,
 }) {
 
-  console.log("FixIssuesContentPreview rendered!")
-
   const [canShowPreview, setCanShowPreview] = useState(true)
-  const [isIssueElementVisible, setIsIssueElementVisible] = useState(false)
-  const [debouncedDirection, setDebouncedDirection] = useState(null)
 
-  const scrollToElement = (element) => {
-    if (element) {
-      element.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'nearest' })
+  const scrollToError = () => {
+    const errorElement = document.getElementsByClassName('ufixit-error-highlight')[0]
+    if (errorElement) {
+      errorElement.focus({ preventScroll: true })
+      errorElement.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'nearest' })
     }
   }
 
-  const handleScrollVisibility = (isVisible) => {
-    setIsIssueElementVisible(isVisible)
-  }
+  const handleScroll = () => {
+    let visibleButton = null
+  
+    const htmlElement = document.getElementsByClassName('ufixit-error-highlight')[0]
+    const containerElement = document.getElementsByClassName('ufixit-content-preview-main')[0]
+    if (htmlElement && containerElement) {
+      const htmlRect = htmlElement.getBoundingClientRect()
+      const containerRect = containerElement.getBoundingClientRect()
+      const htmlMidpoint = (htmlRect.top + htmlRect.bottom) / 2
 
-  const handleScrollDebounce = (direction) => {
-    setDebouncedDirection(direction)
+      if (htmlMidpoint < containerRect.top) {
+        visibleButton = 'up'
+      }
+      else if (htmlMidpoint > containerRect.bottom) {
+        visibleButton = 'down'
+      }
+    }
+
+    /*  This is NOT the "React" way to show and hide the button elements, but
+        if we update a State and pass it into the ScrollButton component, it
+        causes the HtmlPreview to re-render, which causes focus and tab issues.
+        So for now, we'll directly manipulate the DOM elements here. */
+
+    const upButton = document.getElementById('scroll-to-error-up')
+    const downButton = document.getElementById('scroll-to-error-down')
+
+    if (upButton) {
+      if (visibleButton === 'up') {
+        upButton.style.display = 'flex'
+        upButton.disabled = false
+      } else {
+        upButton.style.display = 'none'
+        upButton.disabled = true
+      }
+    }
+    
+    if (downButton) {
+      if (visibleButton === 'down') {
+        downButton.style.display = 'flex'
+        downButton.disabled = false
+      } else {
+        downButton.style.display = 'none'
+        downButton.disabled = true
+      }
+    }
   }
     
   return (
@@ -72,9 +109,7 @@ export default function FixIssuesContentPreview({
                     <ScrollButton
                       t={t}
                       
-                      isIssueElementVisible={isIssueElementVisible}
-                      debouncedDirection={debouncedDirection}
-                      scrollToElement={scrollToElement}
+                      scrollToError={scrollToError}
                     />
 
                     <HtmlPreview
@@ -86,8 +121,7 @@ export default function FixIssuesContentPreview({
                       liveUpdateToggle={liveUpdateToggle}
                       setCanShowPreview={setCanShowPreview}
                       setIsErrorFoundInContent={setIsErrorFoundInContent}
-                      handleScrollVisibility={handleScrollVisibility}
-                      handleScrollDebounce={handleScrollDebounce}
+                      handleScroll={handleScroll}
                     />
                   </>
                 ) : (

@@ -127,7 +127,7 @@
     opacity: 1;
   }
 
-  &.scroll-to-error-down {
+  &#scroll-to-error-down {
     align-self: end;
   }
 }

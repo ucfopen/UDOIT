@@ -11,43 +11,10 @@ export default function HtmlPreview({
   liveUpdateToggle,
   setCanShowPreview,
   setIsErrorFoundInContent,
-  handleScrollVisibility,
-  handleScrollDebounce
+  handleScroll
 }) {
 
-  console.log("HTMLPreview rendered!")
-
   const [taggedContent, setTaggedContent] = useState(false)
-  
-  const checkScrollButton = () => {
-
-    const htmlElement = document.getElementsByClassName('ufixit-error-highlight')[0]
-    const containerElement = document.getElementsByClassName('ufixit-content-preview-main')[0]
-    if (htmlElement && containerElement) {
-      const htmlRect = htmlElement.getBoundingClientRect()
-      const containerRect = containerElement.getBoundingClientRect()
-      const htmlMidpoint = (htmlRect.top + htmlRect.bottom) / 2
-
-      if (htmlMidpoint < containerRect.top) {
-        handleScrollVisibility(false)
-        handleScrollDebounce('up')
-      }
-      else if (htmlMidpoint > containerRect.bottom) {
-        handleScrollVisibility(false)
-        handleScrollDebounce('down')
-      }
-
-      else {
-        console.log("Scrolled, but on screen!")
-        handleScrollVisibility(true)
-        handleScrollDebounce(null)
-      }
-    }
-    else {
-      handleScrollVisibility(true)
-      handleScrollDebounce(null)
-    }
-  }
 
   const ALT_TEXT_RELATED = [
     formNames.ALT_TEXT,            
@@ -205,7 +172,6 @@ export default function HtmlPreview({
   }
 
   useEffect(() => {
-    console.log("SOMETHING CHANGED!")
     checkTaggedContentUpdate()
   }, [activeIssue, activeContentItem, liveUpdateToggle])
 
@@ -224,7 +190,7 @@ export default function HtmlPreview({
     <div
       key={"html-content-preview-div"}
       className="ufixit-content-preview-main"
-      onScroll={() => checkScrollButton()}
+      onScroll={() => handleScroll()}
       dangerouslySetInnerHTML={{ __html: taggedContent }}
     />
   )

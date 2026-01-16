@@ -6,28 +6,29 @@ import './FixIssuesContentPreview.css'
 export default function ScrollButton({
   t,
 
-  isIssueElementVisible,
-  debouncedDirection,
-  scrollToElement
+  scrollToError
 }) {
     
   return (
-    <div
-      className='scroll-to-error-container'
-      style={!(!isIssueElementVisible && debouncedDirection) ? { display: 'none' } : {}} 
-      aria-hidden={!(!isIssueElementVisible && debouncedDirection) ? "true" : "false"}>
+    <div className='scroll-to-error-container'>
       <button
-        className={`btn-secondary btn-icon-right btn-small scroll-to-error ${debouncedDirection ? 'scroll-to-error-' + debouncedDirection : ''}`}
-        onClick={() => scrollToElement(document.getElementsByClassName('ufixit-error-highlight')[0])}
-        tabIndex={!(!isIssueElementVisible && debouncedDirection) ? "-1" : "0"}
+        id='scroll-to-error-up'
+        className='btn-secondary btn-icon-right btn-small scroll-to-error'
+        onClick={scrollToError}
+        tabIndex='0'
       >
         {t('fix.button.scroll_to_issue')}
-        { debouncedDirection === 'up' ?
-          <UpArrowIcon className="icon-sm" />
-        : debouncedDirection === 'down' ?
-          <DownArrowIcon className="icon-sm" />
-        : null
-        }
+        <UpArrowIcon className="icon-sm" />
+      </button>
+      
+      <button
+        id='scroll-to-error-down'
+        className='btn-secondary btn-icon-right btn-small scroll-to-error'
+        onClick={scrollToError}
+        tabIndex='0'
+      >
+        {t('fix.button.scroll_to_issue')}
+        <DownArrowIcon className="icon-sm" />
       </button>
     </div>
   )

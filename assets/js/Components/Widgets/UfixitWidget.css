@@ -1,6 +1,7 @@
 .ufixit-widget {
   padding: 1.25rem 1.5rem;
   overflow-y: auto;
+  color: var(--text-color);
 
   .combo-container {
 

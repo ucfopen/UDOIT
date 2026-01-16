@@ -737,7 +737,7 @@ export default function FixIssuesPage({
                   closeDialog()
                 }
               }}
-              className="close-icon icon-lg"
+              className="close-icon icon-lg text-color"
               tabIndex="0"
               alt={t('fix.button.close')}
               title={t('fix.button.close')} />
