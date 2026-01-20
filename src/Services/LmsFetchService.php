@@ -228,6 +228,14 @@ class LmsFetchService {
         $scanner = $_ENV['ACCESSIBILITY_CHECKER'];
         $equalAccessReports = null;
 
+        // $scanner = 'equalaccess_local';
+
+        // If we're using Equal Access Lambda, send all the requests to Lambda for the
+        // reports at once and save them all into an array (which should be in the same order as the ContentItems)
+        // if ($scanner == "equalaccess_lambda" && count($contentItems) > 0) {
+        //     $equalAccessReports = $this->asyncReport->postMultipleArrayAsync($contentItems);
+        // }
+
         // Scan each update content item for issues
         /** @var \App\Entity\ContentItem $contentItem */
 
@@ -287,7 +295,7 @@ class LmsFetchService {
         }
 
         $scanner = $_ENV['ACCESSIBILITY_CHECKER'];
-        if ($scanner == 'equalaccess' || $scanner == 'equalaccess_local' || $scanner == 'equalaccess_lambda') {
+        if ($scanner == 'equalaccess_lambda' || $scanner == 'equalaccess_local' || $scanner == 'equalaccess') {
           $issueType = $this->equalAccess->getIssueType($issue->getMetadata());
           if($issueType == 'pass') {
             // If the issue is a pass, we don't create an issue for it
@@ -317,7 +325,7 @@ class LmsFetchService {
         $issueType = self::ISSUE_TYPE_ERROR;
 
         $scanner = $_ENV['ACCESSIBILITY_CHECKER'];
-        if ($scanner == 'equalaccess' || $scanner == 'equalaccess_local' || $scanner == 'equalaccess_lambda') {
+        if ($scanner == 'equalaccess_lambda' || $scanner == 'equalaccess_local' || $scanner == 'equalaccess') {
           $issueType = $this->equalAccess->getIssueType($issue->metadata);
         }
 
