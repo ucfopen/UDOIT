@@ -246,6 +246,7 @@
   "fix.button.view_in_lms": "View In LMS",
   "fix.button.learn_more": "Learn More",
   "fix.button.close_learn_more": "Close Window",
+  "fix.button.close": "Close",
   "fix.button.back_to_barrier": "Back to Barrier",
   "fix.button.show_learn_more": "Learn About this Accessibility Barrier",
   "fix.button.hide_learn_more": "Remove this Accessibility Barrier",
