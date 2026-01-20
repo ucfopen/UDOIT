@@ -831,6 +831,7 @@ const getSectionPostOptions = (newFile, sectionReferences) => {
   }
 
   const handleFileRevert = async (activeFile, contentReferences, sectionReferences) => {
+    updateActiveSessionFile(activeFile.id, settings.ISSUE_STATE.SAVING)
     let tempReport = JSON.parse(JSON.stringify(report))
     if(!Array.isArray(tempReport.files)){
       tempReport.files = Object.values(tempReport.files)
@@ -856,8 +857,8 @@ const getSectionPostOptions = (newFile, sectionReferences) => {
     }
     let currentFile = tempReport.files.find((file) => file.id == activeIssue.id)
     const resolvedReport = await handleFileResolve(currentFile, true, tempReport, false, true)
+    updateActiveSessionFile(currentFile.id, settings.ISSUE_STATE.UNCHANGED)
     processNewReport(resolvedReport)
-
   }
 
   const handleFileSave = () => {
