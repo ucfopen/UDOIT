@@ -320,14 +320,15 @@ export default function FileForm ({
                     {uploadedFile && copiedUploadedFile ? 
                     <div className='flex-row align-items-center justify-content-between'>
                       <FileInformation file={copiedUploadedFile} fillColor={'var(--primary-color)'} />
-                      <CloseIcon onClick={removeUploadedFile} tabIndex='0' />
+                      <div className='close-icon'>
+                        <CloseIcon onClick={removeUploadedFile} className='remove-file' tabIndex='0' />
+                      </div>
                     </div> :
                     
                     <div>
                       <UploadIcon className='upload-icon icon-md p-2 mb-2' />
                       <div className='upload-instructions'><span className='link-color fw-bold'>Click to upload</span> or drag and drop <br /> SVG, PNG, JPG or GIF (max. 800x400px)</div>
                     </div>
-                    
                     }
                   </div>
                 </div>
