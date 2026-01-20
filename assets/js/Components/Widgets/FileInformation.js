@@ -19,7 +19,7 @@ const FileInformation = (
         <div className='flex-column'>
             {file?.fileLink ?  
             <div className='flex-row align-items-center gap-1'>    
-                <a className='file-title' href={file.fileLink} target='_blank'>{file.fileName}</a> 
+                <a className='file-title truncated-text-ellipse' href={file.fileLink} target='_blank'>{file.fileName}</a> 
                 <ExternalLinkIcon className="icon-sm link-color"/>
             </div>
             :  

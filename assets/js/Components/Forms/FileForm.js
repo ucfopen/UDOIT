@@ -213,7 +213,7 @@ export default function FileForm ({
             </label>
               {activeOption == FORM_OPTIONS.MARK_DELETE && (
                 <div className='option-instruction mt-2'> 
-                  <label>Please type <span className='fw-bolder'>'PERMANENTLY DELETE'</span> to permanently delete the following file from your course: <span className='fw-bold'>{activeFile.fileName}</span></label>
+                  <label>Please type <span className='fw-bolder'>'PERMANENTLY DELETE'</span> to permanently delete the following file from your course: <span className='fw-bold truncated-text-ellipse'>{activeFile.fileName}</span></label>
                   <input
                     type='text'
                     tabIndex={0}
@@ -239,7 +239,7 @@ export default function FileForm ({
               Revert Changes
             </label>
             {activeOption == FORM_OPTIONS.MARK_REVERT && (
-              <div>Reverting the changes will undo all changes done to the file and the references will point to the original file: <span className='fw-bolder'>{activeFile.fileName}</span></div>
+              <div>Reverting the changes will undo all changes done to the file and the references will point to the original file: <span className='fw-bolder truncated-text-ellipse'>{activeFile.fileName}</span></div>
             )}
           </div>
 
@@ -250,7 +250,7 @@ export default function FileForm ({
            <FileStatus fileStatus={1} fileTagText={"New File"} />
            <div className='file-info-container p-4 flex-column justify-content-center align-items-center text-center'>
               <h3>File Replaced Successfully</h3>
-              <p className='file-msg'>The original file, <span className='fw-bolder'>{activeFile.fileName}</span>, was replaced by the new file, <span className='fw-bolder'>{activeFile.replacement.fileName}</span>. All references to the original file in your course now point to the new file</p>
+              <p className='file-msg'>The original file, <span className='fw-bolder truncated-text-ellipse'>{activeFile.fileName}</span>, was replaced by the new file, <span className='fw-bolder truncated-text-ellipse'>{activeFile.replacement.fileName}</span>. All references to the original file in your course now point to the new file</p>
               <div className='new-file-info-container w-100 p-2'>
                 <FileInformation file={copiedReplacementFile} fillColor={'var(--primary-color)'} />
               </div>
@@ -354,13 +354,13 @@ export default function FileForm ({
               {activeOption == FORM_OPTIONS.MARK_DELETE && (
                 <div className='option-instruction mt-2'> 
                   <p>This file is not referenced anywhere in your course. Consider deleting it to clear up some junk</p>
-                  <label>Please type <span className='fw-bolder'>'PERMANENTLY DELETE'</span> to permanently delete the following file from your course: <span className='fw-bold'>{activeFile.fileName}</span></label>
+                  <label>Please type <span className='fw-bolder'>'PERMANENTLY DELETE'</span> to permanently delete the following file from your course: <span className='fw-bold truncated-text-ellipse'>{activeFile.fileName}</span></label>
                   <input
                     type='text'
                     tabIndex={0}
                     className='w-100 mt-1'
                     onChange={(e) => checkCanDelete(e)}
-                    />
+                    /> 
                 </div>
               )}
           </div>
