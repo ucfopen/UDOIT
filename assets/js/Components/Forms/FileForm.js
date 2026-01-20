@@ -11,7 +11,7 @@ import DownwardArrowIcon from '../Icons/DownwardArrowIcon'
 import CloseIcon from '../Icons/CloseIcon'
 
 export default function FileForm ({
-  t,
+  t, 
   settings,
   activeFile,
   sessionFiles,
@@ -21,14 +21,18 @@ export default function FileForm ({
   setIsDisabled,
   markAsReviewed,
   setMarkAsReviewed,
-  setFormInvalid,
   getReadableFileType,
-  handleFileResolveWrapper
+  handleFileResolveWrapper,
+  setFormInvalid,
+  setMarkDelete,
+  markDelete
  }) {
 
     const FORM_OPTIONS = {
        REPLACE_FILE: 'replace-file',
        MARK_AS_REVIEWED: 'mark-as-reviewed',
+       MARK_DELETE: 'mark-delete',
+       MARK_REVERT: 'mark-revert'
     }
 
     const [activeOption, setActiveOption] = useState('')
@@ -38,7 +42,7 @@ export default function FileForm ({
     const [copiedUploadedFile, setCopiedUploadedFile] = useState(null)
     const [copiedReplacementFile, setCopiedReplacementFile] = useState(null)
 
-    useEffect(() => {
+    useEffect(() => { 
       setUploadedFile(null)
       if(activeFile){
         normalizeActiveFile()
@@ -48,13 +52,15 @@ export default function FileForm ({
 
     useEffect(() => {
       normalizeUploadedFile()
-      if(markAsReviewed || uploadedFile){
+      console.log(markDelete)
+      if(markAsReviewed || uploadedFile || markDelete){
+        console.log("Works")
         setFormInvalid(false)
       }
       else{
         setFormInvalid(true)
       }
-    }, [markAsReviewed, uploadedFile])
+    }, [markAsReviewed, uploadedFile, markDelete])
 
     const normalizeActiveFile = () => {
       const tempFile =  {
@@ -177,6 +183,17 @@ export default function FileForm ({
     setCopiedUploadedFile(null)
   }
 
+  const checkCanDelete = (e) => {
+    console.log(e.target.value)
+    if (e.target.value === "PERMANENTLY DELETE"){
+      console.log("Triggers")
+      setMarkDelete(true)
+    }
+    else{
+      setMarkDelete(false)
+    }
+  }
+
   return (
     <>
     {activeFile.reviewed && activeFile.replacement && 
@@ -187,6 +204,50 @@ export default function FileForm ({
             <div className='file-info-container p-2'>
               <FileInformation file={copiedActiveFile} />
             </div>
+            
+          <div className='replacement-option p-2 mt-2'>
+            <label className={`option-label` + (isDisabled ? ' disabled' : '')}>
+            <input
+              type="radio"
+              id={FORM_OPTIONS.MARK_DELETE}
+              name="altTextOption"
+              tabIndex="0"
+              checked={activeOption === FORM_OPTIONS.MARK_DELETE}
+              disabled={isDisabled}
+              onChange={() => {
+                handleOptionChange(FORM_OPTIONS.MARK_DELETE)
+              }} />
+              Delete Original File
+            </label>
+              {activeOption == FORM_OPTIONS.MARK_DELETE && (
+                <div className='option-instruction mt-2'> 
+                  <label>Please type <span className='fw-bolder'>'PERMANENTLY DELETE'</span> to permanently delete the following file from your course: <span className='fw-bold'>{activeFile.fileName}</span></label>
+                  <input
+                    type='text'
+                    tabIndex={0}
+                    className='w-100 mt-1'
+                    onChange={(e) => checkCanDelete(e)}
+                    />
+                </div>
+              )}
+          </div>
+          
+          <div className='replacement-option p-2 mt-2'>
+            <label className={`option-label` + (isDisabled ? ' disabled' : '')}>
+            <input
+              type="radio"
+              id={FORM_OPTIONS.MARK_REVERT}
+              name="altTextOption"
+              tabIndex="0"
+              checked={activeOption === FORM_OPTIONS.MARK_REVERT}
+              disabled={isDisabled}
+              onChange={() => {
+                handleOptionChange(FORM_OPTIONS.MARK_REVERT)
+              }} />
+              Revert Changes
+            </label>
+          </div>
+
           </div>
           <DownwardArrowIcon className="icon-md pt-4 pb-4" />
         </div>

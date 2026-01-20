@@ -91,6 +91,10 @@ export default function ReviewFilesPage({
 
   // Form States
   const [markAsReviewed, setMarkAsReviewed] = useState(false)
+  const [markDelete, setMarkDelete] = useState(false)
+  const [markRevert, setMarkRevert] = useState(false)
+
+
   const [formInvalid, setFormInvalid] = useState(true)
   const [uploadedFile, setUploadedFile] = useState(null)
 
@@ -842,6 +846,24 @@ const getSectionPostOptions = (newFile, sectionReferences) => {
 
   }
 
+  const handleFileSave = () => {
+    if(markRevert){
+      handleFileRevert(activeIssue.fileData, fileContentReferences, fileSectionReferences)
+      return
+    }
+    if(markDelete){
+      handleFileDelete()
+      return
+    }
+    if (markAsReviewed){
+      handleFileResolve(activeIssue.fileData)
+      return
+    }
+
+    handleFileUpload(uploadedFile, fileContentReferences, fileSectionReferences)
+
+  }
+
   const updateActiveFilters = (filter, value) => {
     setActiveFilters(Object.assign({}, activeFilters, {[filter]: value}))
   }
@@ -956,6 +978,8 @@ const getSectionPostOptions = (newFile, sectionReferences) => {
                       setFormInvalid={setFormInvalid}
                       getReadableFileType={getReadableFileType}
                       handleFileResolveWrapper={handleFileResolveWrapper}
+                      setMarkDelete={setMarkDelete}
+                      markDelete={markDelete}
                     />
                 ) : ''}
               </section>
@@ -990,9 +1014,9 @@ const getSectionPostOptions = (newFile, sectionReferences) => {
               </button>
             </div>
               <button
-                onClick={() => handleFileUpload(uploadedFile, fileContentReferences, fileSectionReferences)}
+                onClick={handleFileSave}
                 className="btn btn-primary btn-icon-left"
-                disabled={formInvalid || isDisabled || activeIssue?.fileData?.reviewed}
+                disabled={formInvalid || isDisabled || (activeIssue?.fileData?.reviewed && !activeIssue.fileData.replacement)}
                 tabIndex='0'
               > 
               {t(`form.submit`)}

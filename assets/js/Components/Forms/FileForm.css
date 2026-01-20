@@ -103,3 +103,14 @@
    .file-msg{
     font-size: 0.75em;
    }
+
+   .replacement-option{
+    background-color: white;
+    border: solid;
+    border-color: var(--gray-lighter);
+    border-radius: 0.5em;
+   }
+
+   .option-instruction{
+    font-size: 0.9em;
+   }
