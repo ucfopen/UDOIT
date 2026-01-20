@@ -192,7 +192,7 @@ export default function FileForm ({
       <div className='resolve-option selected'>
         <div className='flex-column align-items-center justify-content-center'>
           <div className='w-100 p-2'>
-            <FileStatus fileStatus={0} fileTagText={"Original File"} />
+            <FileStatus fileStatus={0} fileTagText={t('form.file.original.label')} />
             <div className='file-info-container p-2'>
               <FileInformation file={copiedActiveFile} />
             </div>
@@ -209,11 +209,10 @@ export default function FileForm ({
               onChange={() => {
                 handleOptionChange(FORM_OPTIONS.MARK_DELETE)
               }} />
-              Delete Original File
+              {t('form.file.delete.original.label')}
             </label>
               {activeOption == FORM_OPTIONS.MARK_DELETE && (
                 <div className='option-instruction mt-2'> 
-                  <label>Please type <span className='fw-bolder'>'PERMANENTLY DELETE'</span> to permanently delete the following file from your course: <span className='fw-bold truncated-text-ellipse'>{activeFile.fileName}</span></label>
                   <input
                     type='text'
                     tabIndex={0}
@@ -327,7 +326,7 @@ export default function FileForm ({
                     
                     <div>
                       <UploadIcon className='upload-icon icon-md p-2 mb-2' />
-                      <div className='upload-instructions'><span className='link-color fw-bold'>Click to upload</span> or drag and drop <br /> SVG, PNG, JPG or GIF (max. 800x400px)</div>
+                      <div className='upload-instructions'><span className='link-color fw-bold'>Click to upload</span> or drag and drop <br /> PDF, DOC, PPT</div>
                     </div>
                     }
                   </div>
