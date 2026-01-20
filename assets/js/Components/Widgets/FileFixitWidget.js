@@ -31,8 +31,8 @@ export default function FileFixitWidget({
 
   return (
     <div className="ufixit-widget flex-column flex-grow-1"  
-            aria-hidden={showLearnMore ? "false" : "true"}
-            style={{ display: showLearnMore ? "none" : "flex" }}>
+      aria-hidden={showLearnMore ? "false" : "true"}
+      style={{ display: showLearnMore ? "none" : "flex" }}>
        <div className="flex-column gap-1">
         <BarrierInformation
           t={t}
@@ -42,10 +42,10 @@ export default function FileFixitWidget({
         />
 
         <div className='review-status flex-row gap-1 align-items-center'>
-          <h3>Review File</h3>
+          <h3>{t('form.file.sub_heading')}</h3>
           <div className={`file-review-status-container ${tempActiveIssue.fileData.reviewed ? 'file-reviewed' : 'file-progress'} flex-row align-items-center p-2 gap-1`}>
               {tempActiveIssue.fileData.reviewed ? <CheckIcon fill={'var(--primary-color)'} /> : <SeverityIssueIconFilled fill={'var(--potential-color)'} />}
-              <div>{tempActiveIssue.fileData.reviewed ? 'Reviewed' : 'Needs Review'}</div>
+              <div>{tempActiveIssue.fileData.reviewed ? t('report.header.resolved') : t('fix.label.status.unreviewed')}</div>
           </div>
         </div>
           <FileForm
