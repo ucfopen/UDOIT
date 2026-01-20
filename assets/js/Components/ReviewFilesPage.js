@@ -306,8 +306,6 @@ export default function ReviewFilesPage({
         tempSectionRefereces.push(ref)
       })
 
-      console.log(tempContentReferences)
-      console.log(tempSectionRefereces)
       setFileContentReferences(tempContentReferences)
       setFileSectionReferences(tempSectionRefereces)
 
@@ -824,9 +822,6 @@ const getSectionPostOptions = (newFile, sectionReferences) => {
     const postContentItemOptions = getContentPostItems(activeFile.replacement, activeFile, contentReferences)
     const postSectionOptions = getSectionPostOptions(activeFile, sectionReferences)
 
-    console.log(postContentItemOptions)
-    console.log(postSectionOptions)
-
     if((postContentItemOptions && postContentItemOptions.length > 0) ||  (postSectionOptions && postSectionOptions.length > 0)){
         const responseStatus = await updateAndScanContent(postContentItemOptions, postSectionOptions)
         if(responseStatus && responseStatus[0]?.type == "error"){
@@ -851,8 +846,6 @@ const getSectionPostOptions = (newFile, sectionReferences) => {
 
   const handleFileSave = () => {
     if(markRevert){
-      console.log(fileContentReferences)
-      console.log(fileSectionReferences)
       handleFileRevert(activeIssue.fileData, fileContentReferences, fileSectionReferences)
       return
     }
