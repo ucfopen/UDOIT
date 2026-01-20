@@ -44,11 +44,17 @@ export default function FileForm ({
     const [copiedUploadedFile, setCopiedUploadedFile] = useState(null)
     const [copiedReplacementFile, setCopiedReplacementFile] = useState(null)
 
+    const [nonReferenced, setNonReferenced] = useState(false)
+
     useEffect(() => { 
       setUploadedFile(null)
+      setNonReferenced(false)
       if(activeFile){
         normalizeActiveFile()
         normalizeReplacementFile()
+        if(!activeFile.replacement && activeFile?.references?.length == 0 && activeFile?.sectionRefs?.length == 0){
+          setNonReferenced(true)
+        }
       }
     }, [activeFile])
 
@@ -171,9 +177,7 @@ export default function FileForm ({
   }
 
   const checkCanDelete = (e) => {
-    console.log(e.target.value)
     if (e.target.value === "PERMANENTLY DELETE"){
-      console.log("Triggers")
       setMarkDelete(true)
     }
     else{
@@ -281,7 +285,7 @@ export default function FileForm ({
             </label>
         </div>
 
-        <div className={`resolve-option mt-2 ${activeOption === FORM_OPTIONS.REPLACE_FILE ? 'selected' : ''}`}>
+        {!nonReferenced && <div className={`resolve-option mt-2 ${activeOption === FORM_OPTIONS.REPLACE_FILE ? 'selected' : ''}`}>
             <label className={`option-label` + (isDisabled ? ' disabled' : '')}>
             <input
               type="radio"
@@ -328,8 +332,38 @@ export default function FileForm ({
                 </div>
               </div>
             )}
-        </div>
+        </div>}
       </div>}
+      {nonReferenced && (
+        <div className={`resolve-option ${activeOption === FORM_OPTIONS.MARK_DELETE ? 'selected' : ''}`}>
+            <label className={`option-label` + (isDisabled ? ' disabled' : '')}>
+            <input
+              type="radio"
+              id={FORM_OPTIONS.MARK_DELETE}
+              name="altTextOption"
+              tabIndex="0"
+              checked={activeOption === FORM_OPTIONS.MARK_DELETE}
+              disabled={isDisabled}
+              onChange={() => {
+                handleOptionChange(FORM_OPTIONS.MARK_DELETE)
+              }} />
+              Delete Current File
+            </label>
+       
+              {activeOption == FORM_OPTIONS.MARK_DELETE && (
+                <div className='option-instruction mt-2'> 
+                  <p>This file is not referenced anywhere in your course. Consider deleting it to clear up some junk</p>
+                  <label>Please type <span className='fw-bolder'>'PERMANENTLY DELETE'</span> to permanently delete the following file from your course: <span className='fw-bold'>{activeFile.fileName}</span></label>
+                  <input
+                    type='text'
+                    tabIndex={0}
+                    className='w-100 mt-1'
+                    onChange={(e) => checkCanDelete(e)}
+                    />
+                </div>
+              )}
+          </div>
+      )}
 
     </>
   )
