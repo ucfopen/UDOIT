@@ -25,7 +25,9 @@ export default function FileForm ({
   handleFileResolveWrapper,
   setFormInvalid,
   setMarkDelete,
-  markDelete
+  markDelete, 
+  setMarkRevert,
+  markRevert
  }) {
 
     const FORM_OPTIONS = {
@@ -52,15 +54,13 @@ export default function FileForm ({
 
     useEffect(() => {
       normalizeUploadedFile()
-      console.log(markDelete)
-      if(markAsReviewed || uploadedFile || markDelete){
-        console.log("Works")
+      if(markAsReviewed || uploadedFile || markDelete || markRevert){
         setFormInvalid(false)
       }
       else{
         setFormInvalid(true)
       }
-    }, [markAsReviewed, uploadedFile, markDelete])
+    }, [markAsReviewed, uploadedFile, markDelete, markRevert])
 
     const normalizeActiveFile = () => {
       const tempFile =  {
@@ -96,24 +96,6 @@ export default function FileForm ({
       setCopiedReplacementFile(tempFile)
     }
 
-  // useEffect(() => {
-  //   let tempIsDisabled = false
-
-  //   // If there are any unresolved issues in this file, we disable the resolve button.
-  //   if(activeFile && sessionFiles) {
-  //     Object.keys(sessionFiles).forEach((key) => {
-  //       if(key == activeFile.id) {
-  //         if(sessionFiles[key] === settings.ISSUE_STATE.SAVING || sessionFiles[key] === settings.ISSUE_STATE.RESOLVING) {
-  //           tempIsDisabled = true
-  //         }
-  //       }
-  //     })
-  //   }
-  //   setIsDisabled(tempIsDisabled)
-  // }, [sessionFiles])
-
-  // Drag and Drop code is adapted from:
-  // https://developer.mozilla.org/en-US/docs/Web/API/HTML_Drag_and_Drop_API/File_drag_and_drop
   const handleDrop = (event) => {
     if(uploadedFile){
       return
@@ -170,10 +152,15 @@ export default function FileForm ({
 
   const handleOptionChange = (option) => {
     setActiveOption(option)
+    if(option == FORM_OPTIONS.MARK_REVERT){
+      setMarkRevert(true)
+      return
+    }
     if (option == FORM_OPTIONS.MARK_AS_REVIEWED){
       setMarkAsReviewed(true)
     }
     else{
+      setMarkRevert(false)
       setMarkAsReviewed(false)
     }
   }
@@ -246,6 +233,9 @@ export default function FileForm ({
               }} />
               Revert Changes
             </label>
+            {activeOption == FORM_OPTIONS.MARK_REVERT && (
+              <div>Reverting the changes will undo all changes done to the file and the references will point to the original file: <span className='fw-bolder'>{activeFile.fileName}</span></div>
+            )}
           </div>
 
           </div>

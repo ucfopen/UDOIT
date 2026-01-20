@@ -22,7 +22,9 @@ export default function FileFixitWidget({
   getReadableFileType,
   handleFileResolveWrapper,
   setMarkDelete,
-  markDelete
+  markDelete,
+  setMarkRevert,
+  markRevert
 }) {
 
   return (
@@ -51,6 +53,8 @@ export default function FileFixitWidget({
             handleFileResolveWrapper={handleFileResolveWrapper}
             setMarkDelete={setMarkDelete}
             markDelete={markDelete}
+            setMarkRevert={setMarkRevert}
+            markRevert={markRevert}
           />
        </div>
     </div>

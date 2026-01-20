@@ -298,7 +298,7 @@ export default function ReviewFilesPage({
         tempSectionRefereces.push(ref)
       })
 
-     activeIssue.fileData.replacement?.sectionRef?.forEach((ref) => {
+     activeIssue.fileData.replacement?.references?.forEach((ref) => {
         tempContentReferences.push(ref)
       })
 
@@ -306,9 +306,11 @@ export default function ReviewFilesPage({
         tempSectionRefereces.push(ref)
       })
 
+      console.log(tempContentReferences)
+      console.log(tempSectionRefereces)
       setFileContentReferences(tempContentReferences)
       setFileSectionReferences(tempSectionRefereces)
-      
+
     }
 
     setTempActiveIssue(activeIssueClone)
@@ -724,8 +726,6 @@ const getSectionPostOptions = (newFile, sectionReferences) => {
       metadataObj.replacementFileId = updatedFileData?.metadata.id
       tempFile.replacement = updatedFileData
 
-      console.log(updatedFileData)
-
       // Copying and pushing new file onto report
       let tempReport = JSON.parse(JSON.stringify(report))
       if(!Array.isArray(tempReport.files)){
@@ -824,6 +824,9 @@ const getSectionPostOptions = (newFile, sectionReferences) => {
     const postContentItemOptions = getContentPostItems(activeFile.replacement, activeFile, contentReferences)
     const postSectionOptions = getSectionPostOptions(activeFile, sectionReferences)
 
+    console.log(postContentItemOptions)
+    console.log(postSectionOptions)
+
     if((postContentItemOptions && postContentItemOptions.length > 0) ||  (postSectionOptions && postSectionOptions.length > 0)){
         const responseStatus = await updateAndScanContent(postContentItemOptions, postSectionOptions)
         if(responseStatus && responseStatus[0]?.type == "error"){
@@ -848,6 +851,8 @@ const getSectionPostOptions = (newFile, sectionReferences) => {
 
   const handleFileSave = () => {
     if(markRevert){
+      console.log(fileContentReferences)
+      console.log(fileSectionReferences)
       handleFileRevert(activeIssue.fileData, fileContentReferences, fileSectionReferences)
       return
     }
@@ -979,7 +984,9 @@ const getSectionPostOptions = (newFile, sectionReferences) => {
                       getReadableFileType={getReadableFileType}
                       handleFileResolveWrapper={handleFileResolveWrapper}
                       setMarkDelete={setMarkDelete}
+                      setMarkRevert={setMarkRevert}
                       markDelete={markDelete}
+                      markRevert={markRevert}
                     />
                 ) : ''}
               </section>
