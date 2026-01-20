@@ -49,6 +49,7 @@ export default function FileForm ({
     useEffect(() => { 
       setUploadedFile(null)
       setNonReferenced(false)
+      setActiveOption('')
       if(activeFile){
         normalizeActiveFile()
         normalizeReplacementFile()

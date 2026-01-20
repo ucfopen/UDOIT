@@ -8,13 +8,14 @@ import SeverityIcon from '../Icons/SeverityIcon'
 import ContentPageIcon from '../Icons/ContentPageIcon'
 import FileInformation from './FileInformation'
 import FileStatus from './FileStatus'
-
+import ProgressIcon from '../Icons/ProgressIcon'
 
 export default function FixIssuesContentPreview({
   t,
   settings,
   activeIssue,
-  getReadableFileType
+  getReadableFileType,
+  isDisabled
 }) {
 
   const [fileReferenceHolder, setFileReferenceHolder] = useState([])
@@ -80,7 +81,20 @@ export default function FixIssuesContentPreview({
 
   return (
     <>
-     { currentFile && ( 
+    {isDisabled ? 
+    <div className="flex-column h-100 flex-grow-1 justify-content-center">
+      <div className="flex-row justify-content-center mb-4">
+        <div className="flex-column justify-content-center">
+          <ProgressIcon className="icon-lg udoit-suggestion spinner" />
+        </div>
+        <div className="flex-column justify-content-center ms-3">
+          <h2 className="mt-0 mb-0">{t('fix.label.loading_content')}</h2>
+        </div>
+      </div>
+    </div> 
+    :
+    <div>
+    { currentFile && ( 
       <div className='file-accessibility-info-wrapper w-100'>
         <div className='accessibility-info-container flex-column w-100'>
           <div className='file-info p-2'>
@@ -123,6 +137,8 @@ export default function FixIssuesContentPreview({
               ))}
       </tbody>
       </table>
-     </div>    </>
+     </div>
+    </div> }
+    </>
   )
 }

@@ -563,6 +563,7 @@ export default function ReviewFilesPage({
   }
 
   const handleFileDelete = async () => {
+    setIsDisabled(true)
     try{
       let api = new Api(settings)
       const responseStr = await api.deleteFile(activeIssue.fileData)
@@ -588,6 +589,9 @@ export default function ReviewFilesPage({
         const tempFileIssue = formatFileData(tempNext)
         setActiveIssue(tempFileIssue)
       }
+      else{
+        closeDialog()
+      }
 
       // Add success messages 
       response.messages.forEach((msg) => addMessage(msg))
@@ -598,6 +602,7 @@ export default function ReviewFilesPage({
       console.error(error)
       return
     }
+    setIsDisabled(false)
   }
 
   const createContentItemPostOptions = (fullPageHtml, contentUrl, contentId, contentType, sectionIds) => {
@@ -990,6 +995,7 @@ const getSectionPostOptions = (newFile, sectionReferences) => {
                     settings={settings}
                     getReadableFileType={getReadableFileType}
                     activeIssue={tempActiveIssue}
+                    isDisabled={isDisabled}
                   />
                 )}
               </section>
@@ -1016,7 +1022,7 @@ const getSectionPostOptions = (newFile, sectionReferences) => {
               <button
                 onClick={handleFileSave}
                 className="btn btn-primary btn-icon-left"
-                disabled={formInvalid || isDisabled || (activeIssue?.fileData?.reviewed && !activeIssue.fileData.replacement)}
+                disabled={formInvalid || isDisabled }
                 tabIndex='0'
               > 
               {t(`form.submit`)}
