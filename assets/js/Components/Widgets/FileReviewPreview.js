@@ -101,10 +101,6 @@ export default function FixIssuesContentPreview({
             <FileStatus fileStatus={activeIssue.fileData.replacement ? 1 : 0} fileTagText={"Current File"}/>
           </div>
           <FileInformation file={currentFile} />
-          <div className='accessibility-instructions-container flex-row p-2 justify-content-between align-items-center gap-2'>
-              <p>Ensure this file meets accessibility standards for PDFs (proper headings, alt text)</p>
-              <button className='btn-secondary align-self-start flex-shrink-0'>Show Accessibility Guidelines</button>
-          </div>
         </div>
       </div>)
       }

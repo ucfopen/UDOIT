@@ -33,6 +33,7 @@ import './ReviewFilesPage.css'
 **/
 import * as Html from '../Services/Html.js'
 import CloseIcon from './Icons/CloseIcon.js'
+import LearnMore from './Widgets/LearnMore.js'
 
 export default function ReviewFilesPage({
   t,
@@ -102,6 +103,7 @@ export default function ReviewFilesPage({
   const [fileSectionReferences, setFileSectionReferences] = useState([])
 
   const [isDisabled, setIsDisabled] = useState(false)
+  const [showLearnMore, setShowLearnMore] = useState(false)
 
 
   const formatFileData = (fileData) => {
@@ -332,6 +334,15 @@ export default function ReviewFilesPage({
     }
     setIsDisabled(tempIsDisabled)
   }, [sessionFiles])
+
+  useEffect(() => {
+    if(showLearnMore) {
+      document.getElementById('btn-learn-more-close')?.focus()
+    }
+    else {
+      document.getElementById('btn-learn-more-open')?.focus()
+    }
+  }, [showLearnMore])
 
 
   const isDialogOpen = () => {
@@ -966,7 +977,15 @@ const getSectionPostOptions = (newFile, sectionReferences) => {
            <div className="dialog-content">
             <div className="flex-row gap-2 w-100 h-100">
               <section className='ufixit-widget-container'>
-                { tempActiveIssue ? (  
+                { tempActiveIssue ? ( 
+                  <>
+                  <LearnMore
+                    t={t}
+                    settings={settings}
+                    tempActiveIssue={tempActiveIssue}
+                    showLearnMore={showLearnMore}
+                    hideLearnMore={() => setShowLearnMore(false)}
+                    />
                     <FileFixitWidget
                       t={t}
                       settings={settings}
@@ -985,7 +1004,10 @@ const getSectionPostOptions = (newFile, sectionReferences) => {
                       setMarkRevert={setMarkRevert}
                       markDelete={markDelete}
                       markRevert={markRevert}
+                      handleLearnMoreClick={() => setShowLearnMore(true)}
+                      showLearnMore={showLearnMore}
                     />
+                  </>
                 ) : ''}
               </section>
               <section className="ufixit-content-container">

@@ -24,12 +24,23 @@ export default function FileFixitWidget({
   setMarkDelete,
   markDelete,
   setMarkRevert,
-  markRevert
+  markRevert,
+  handleLearnMoreClick,
+  showLearnMore
 }) {
 
   return (
-    <div className="ufixit-widget flex-column flex-grow-1">
+    <div className="ufixit-widget flex-column flex-grow-1"  
+            aria-hidden={showLearnMore ? "false" : "true"}
+            style={{ display: showLearnMore ? "none" : "flex" }}>
        <div className="flex-column gap-1">
+        <BarrierInformation
+          t={t}
+          settings={settings}
+          tempActiveIssue={tempActiveIssue}
+          handleLearnMoreClick={handleLearnMoreClick}
+        />
+
         <div className='review-status flex-row gap-1 align-items-center'>
           <h3>Review File</h3>
           <div className={`file-review-status-container ${tempActiveIssue.fileData.reviewed ? 'file-reviewed' : 'file-progress'} flex-row align-items-center p-2 gap-1`}>
