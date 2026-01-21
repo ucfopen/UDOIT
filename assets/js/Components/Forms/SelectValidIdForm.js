@@ -55,6 +55,9 @@ const SelectValidIdForm = (
             for(const [key, value] of Object.entries(response.validatedIdXpathMap)){
                 tempIDXpathMap[key] = value
             }
+            if ((activeIssue.scanRuleId == "aria_complementary_label_visible") || (i == 0)){
+                document.getElementById('live-update').innerHTML =  `You have selected ${tempAttributeId.attribute}. In the preview, select the element that this element controls.`
+            }
             tempAttributeId.push({
                 attribute: (activeIssue.scanRuleId == "aria_complementary_label_visible") ? "aria-labelledby" : attribute,
                 selected: (activeIssue.scanRuleId == "aria_complementary_label_visible") || (i == 0),
@@ -218,6 +221,9 @@ const SelectValidIdForm = (
         const tempAttributes = JSON.parse(JSON.stringify(attributeId))
         tempAttributes.forEach((attribute) => {
             attribute.selected = (attribute.attribute == selectedVal)
+            if(attribute.attribute == selectedVal){
+                document.getElementById('live-update').innerHTML =  `You have selected ${selectedVal}. In the preview, select the element that this element controls.`
+            }
         })
         setAttributeId(tempAttributes)
     }
@@ -271,6 +277,7 @@ const SelectValidIdForm = (
 
   return (
     <>
+    <div id="live-update" aria-live='assertive' role='alert' aria-atomic='true'></div>
       <div className='mb-2'>{t("form.select_valid_id.instructions")}</div> 
       <label htmlFor='attributeSelectInput' className='instructions'>{t("form.select_valid_id.select_attribute_instruction")}</label>
       <div className='all-attribute-container'>
