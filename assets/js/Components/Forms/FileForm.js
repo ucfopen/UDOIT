@@ -50,6 +50,11 @@ export default function FileForm ({
       setUploadedFile(null)
       setNonReferenced(false)
       setActiveOption('')
+
+      setMarkDelete(false)
+      setMarkRevert(false)
+      setMarkAsReviewed(false)
+
       if(activeFile){
         normalizeActiveFile()
         normalizeReplacementFile()
