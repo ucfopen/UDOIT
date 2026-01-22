@@ -29,26 +29,28 @@
     .ufixit-list-heading {
       position: sticky;
       top: 0;
-      background-color: transparent;
+      background-color: var(--white);
       padding: .75rem 1rem;
       cursor: pointer;
       border-radius: .8rem .8rem .8rem .8rem;
       transition: border-radius var(--transition-time) ease-in-out;
+
+      .ufixit-list-heading-counter {
+        background-color: var(--gray-lighter);
+        padding: 0 0.75rem;
+        border-radius: 2rem;
+        font-size: 0.9em;
+        font-weight: 600;
+        align-self: center;
+        text-align: center;
+        min-width: 1em;
+      }
       
       h3 {
-        color: var(--primary-color);
         margin: 0;
-        font-weight: 700;
-      }
-
-      .ufixit-list-heading-count {
-        display: flex;
-        flex-direction: column;
-        justify-content: end;
-        font-size: 1em;
         font-weight: 600;
-        color: var(--text-color);
-        text-transform: uppercase;
+        font-size: 1.1em;
+        align-self: center;
       }
 
       .expand-icon {
@@ -69,6 +71,11 @@
       
       &:hover, &:focus {
         background-color: var(--link-color-light);
+
+        .ufixit-list-heading-counter {
+          background-color: var(--white);
+        }
+
       }
 
       &:focus {
@@ -95,26 +102,18 @@
     .ufixit-list-item {
       cursor: pointer;
       padding: .75rem 1rem;
-      border: 1px solid var(--border-color);
-      border-radius: 8px;
-      font-weight: 600;
-      fill: var(--gray);
+      border-top: 1px solid var(--border-color);
       font-size: 1em;
-      margin: 0.5rem 1rem;
+      font-weight: 400;
       background-color: var(--white);
-      
-      .data-pill.fixed {
-        color: var(--primary-color);
-        border-color: var(--primary-color);
+
+      .ufixit-list-content-type-icon-container {
+        display: flex;
+        padding: 0.4em;
+        background: var(--gray-lighter);
+        align-self: center;
+        border-radius: var(--element-radius);
       }
-
-      /* &:nth-child(even) {
-        background-color: var(--background-color);
-      } */
-
-      /* &:last-child {
-        border-bottom: none;
-      } */
     
       &:hover, &:focus {
         background-color: var(--link-color-light);
@@ -123,16 +122,6 @@
 
         .list-item-title {
           text-decoration: underline;
-        }
-
-        .data-pill {
-          background-color: var(--white);
-          padding: 0.05rem 0.5rem;
-
-          .data-pill-text {
-            max-width: 200px;
-            margin-left: 0.5rem;
-          }
         }
       }
 

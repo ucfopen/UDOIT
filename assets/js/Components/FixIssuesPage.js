@@ -204,6 +204,11 @@ export default function FixIssuesPage({
       tempGroupedList.push({ formLabel: formLabel, issues })
     })
 
+    let lastLabel = t('form.review_only.title')
+    tempGroupedList.sort((a, b) => {
+      return (a.issues.length > b.issues.length && a.formLabel !== lastLabel) ? -1 : 1
+    })
+
     return tempGroupedList
   }
 

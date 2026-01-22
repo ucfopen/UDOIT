@@ -51,22 +51,27 @@ export default function FixIssuesList({
                   }
                 }}
                 tabIndex="0">
-                <h3 className="allow-word-break align-self-center">{group.formLabel}</h3>
-                <div className="flex-row justify-content-end flex-shrink-0 gap-3">
+                <div className="flex-row gap-2">
+                  <div className="ufixit-list-heading-counter">
+                    { group.issues.length }
+                  </div>
+                  <h3 className="allow-word-break">{group.formLabel}</h3>
+                </div>
+                {/* <div className="flex-row justify-content-end flex-shrink-0 gap-3">
                   <div className="ufixit-list-heading-count align-self-center">
                     { group.issues.length !== 1 ? t('filter.label.issue_count_plural', { count: group.issues.length }) : t('filter.label.issue_count_single')}
-                  </div>
+                  </div> */}
                   <div className="flex-column align-self-center">
-                    <SortIcon className={`expand-icon icon-xl primary ${openList[group.formLabel] ? 'rotate-180' : ''}`} />
+                    <SortIcon className={`expand-icon icon-lg gray ${openList[group.formLabel] ? 'rotate-180' : ''}`} />
                   </div>
-                </div>
+                {/* </div> */}
               </div>
               <div className={`ufixit-list-items-container ${openList[group.formLabel] ? 'open' : 'closed'}`}
                 tabIndex="-1">
                 { group.issues.map((issue, j) => {
                   return (
                     <div
-                      className="ufixit-list-item flex-row justify-content-between"
+                      className="ufixit-list-item flex-row justify-content-between gap-3"
                       key={j}
                       onClick={() => setActiveIssue(issue)}
                       onKeyDown={(event) => {
@@ -76,14 +81,20 @@ export default function FixIssuesList({
                       }}
                       tabIndex={openList[group.formLabel] ? '0' : '-1'}
                       aria-hidden={openList[group.formLabel] ? 'false' : 'true'}>
-                      <div className="flex-grow-1 flex-column justify-content-center allow-word-break list-item-title">
-                        {issue.contentTitle}
-                      </div>
-                      <div className="flex-row">
-                        <div alt="" title={t(`filter.label.type.${issue.contentType.toLowerCase()}_single`)} className="data-pill flex-row ml-2">
-                          <ContentTypeIcon type={issue.contentType} className="gray icon-md flex-column align-self-center"/>
-                          <div className="data-pill-text">{t(`filter.label.type.${issue.contentType.toLowerCase()}_single`)}</div>
+                        <div className="flex-row gap-2">
+                          <div className="ufixit-list-content-type-icon-container">
+                            <ContentTypeIcon type={issue.contentType} className="gray icon-md"/>
+                          </div>
+                          <div className="flex-column">
+                            <div className="flex-grow-1 flex-column justify-content-center allow-word-break list-item-title">
+                              {issue.contentTitle}
+                            </div>
+                            <div>
+                              {JSON.parse(issue.sectionIds)}
+                            </div>
+                          </div>
                         </div>
+                      <div className="flex-row">
                         { issue.status === settings.ISSUE_FILTER.ACTIVE && (
                           <div alt="" title={t(`filter.label.severity.${issue.severity.toLowerCase()}_single`)} className="data-pill flex-row ml-2">
                             <SeverityIcon type={issue.severity} className="icon-md flex-column align-self-center" />
