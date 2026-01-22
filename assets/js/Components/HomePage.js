@@ -138,7 +138,7 @@ export default function HomePage({
       <div className="flex-column flex-center flex-shrink-0">
         <div className="flex-row justify-content-end">
           { !syncComplete ? (
-            <button className="btn-small btn-icon-left btn-disabled" tabIndex="0">
+            <button className="btn-small btn-icon-left" tabIndex="0" disabled>
               <ProgressIcon className="icon-sm spinner" />
               <div className="flex-column justify-content-center">
                 {t('welcome.button.scanning')}

@@ -645,19 +645,21 @@ export default function ReviewFilesPage({
             )}
             <div className="flex-row justify-content-end gap-2 mt-3">
               <button
-                className={`btn btn-small btn-link btn-icon-left ${filteredFiles.length < 2 ? 'disabled' : ''}`}
+                className='btn btn-small btn-link btn-icon-left'
                 onClick={() => nextFile(true)}
+                disabled={filteredFiles.length < 2}
                 tabIndex="0">
-                <LeftArrowIcon className={`icon-sm ` + (filteredFiles.length < 2 ? 'gray' : 'link-color')} />
+                <LeftArrowIcon className='icon-sm' />
                 <div className="flex-column justify-content-center">{t('fix.button.previous_file')}</div>
               </button>
 
               <button
-                className={`btn btn-small btn-link btn-icon-right ${filteredFiles.length < 2 ? 'disabled' : ''}`}
+                className='btn btn-small btn-link btn-icon-right'
                 onClick={() => nextFile()}
+                disabled={filteredFiles.length < 2}
                 tabIndex="0">
                 <div className="flex-column justify-content-center">{t('fix.button.next_file')}</div>
-                <RightArrowIcon className={`icon-sm ` + (filteredFiles.length < 2 ? 'gray' : 'link-color')} />
+                <RightArrowIcon className='icon-sm' />
               </button>
             </div>
           </section>

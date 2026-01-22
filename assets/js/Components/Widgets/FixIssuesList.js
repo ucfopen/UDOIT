@@ -74,7 +74,8 @@ export default function FixIssuesList({
                           setActiveIssue(issue)
                         }
                       }}
-                      tabIndex={openList[group.formLabel] ? '0' : '-1'} >
+                      tabIndex={openList[group.formLabel] ? '0' : '-1'}
+                      aria-hidden={openList[group.formLabel] ? 'false' : 'true'}>
                       <div className="flex-grow-1 flex-column justify-content-center allow-word-break list-item-title">
                         {issue.contentTitle}
                       </div>

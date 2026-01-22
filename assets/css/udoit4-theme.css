@@ -22,6 +22,7 @@
   --primary-color-hover: color-mix(in srgb, var(--primary-color) 100%, var(--white) 10%); /* #436657; */
   --primary-color-light: color-mix(in srgb, var(--primary-color) 10%, var(--white) 100%);  /* #E8F3ED; */
   --primary-color-inverse: var(--gray-lightest);
+  --primary-color-disabled: #AFCFBC;
   --text-color: var(--gray-darker);
   --disabled-color: #9C9C9C;
 
@@ -40,13 +41,14 @@
   --potential-color-light: color-mix(in srgb, var(--potential-color) 10%, #FFFFFF 100%);
   --suggestion-color: #32B0E4;
   --suggestion-color-light: color-mix(in srgb, var(--suggestion-color) 10%, #FFFFFF 100%);
-  --info-color: #2C9ECE;
+  --info-color: #5BAEDF; /* #2C9ECE; */
   --info-color-light: color-mix(in srgb, var(--info-color) 10%, #FFFFFF 100%);
   --success-color: #006937;
   --success-color-light: color-mix(in srgb, var(--success-color) 10%, #FFFFFF 100%);
 
   --help-color: #EDD792; /* #F5E9C3; */
   --help-color-light: #FFF9E6;
+  --help-color-text: #BB4D00;
 
   --selection-color: #109E45;
   --selection-color-light: #FAFFFB;
@@ -683,14 +685,28 @@ button {
   border-radius: 8px;
   cursor: pointer;
   box-sizing: border-box;
-  border: 2px solid transparent;
-  font-weight: 300;
+  border: 1px solid transparent;
+  font-weight: 400;
   font-size: 1em;
   width: fit-content;
 
   &:focus {
     outline: 2px solid var(--focus-color);
     outline-offset: 1px;
+  }
+
+  &:disabled {
+    cursor: not-allowed !important;
+    color: var(--gray) !important;
+    fill: var(--gray) !important;
+    border-color: var(--gray-light) !important;
+    background-color: var(--gray-light) !important;
+
+    &:hover,
+    &:focus {
+      filter: none;
+      outline-color: 2px solid var(--gray);
+    }
   }
 }
 
@@ -754,26 +770,6 @@ button {
   padding: .5em 1.25em;
 }
 
-button.disabled,
-.btn-disabled,
-button:disabled {
-  color: var(--gray-dark);
-  fill: var(--gray-dark);
-  border-color: var(--gray-light);
-  background-color: var(--gray-light);
-  cursor: not-allowed !important;
-
-  &:hover,
-  &:focus {
-    outline-color: 2px solid var(--gray);
-    color: var(--gray-dark);
-    fill: var(--gray-dark);
-    border-color: var(--gray-light);
-    background-color: var(--gray-light);
-    filter: none;
-  }
-}
-
 .btn-text, .text-button {
   text-transform: capitalize;
   background-color: transparent;
@@ -781,14 +777,6 @@ button:disabled {
   padding: .15rem 0.5rem;
   border-radius: 8px;
   cursor: pointer;
-
-  &.disabled,
-  &.btn-disabled {
-    color: var(--gray);
-    opacity: 0.75;
-    cursor: not-allowed !important;
-    outline-color: var(--gray);
-  }
 }
 
 .btn-header {
@@ -904,7 +892,6 @@ dialog {
     display: flex;
     flex-direction: row;
     justify-content: space-between;
-    padding: 1rem;
     gap: 1rem;
   }
 
@@ -914,15 +901,17 @@ dialog {
     left: 0;
     background-color: var(--white);
     border-bottom: 1px solid var(--border-color);
+    padding: 1rem 1.5rem;
 
     h2 {
       line-height: normal;
+      align-self: center;
     }
 
     .close-icon {
       cursor: pointer;
       padding: .25rem;
-      margin: -.25rem;
+      margin-inline-end: -.5rem;
 
       &:hover,
       &:focus {
@@ -944,6 +933,7 @@ dialog {
   .dialog-footer {
     background-color: var(--background-color);
     border-top: 1px solid var(--border-color);
+    padding: .75rem 1.5rem;
   }
 }
 

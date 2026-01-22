@@ -75,7 +75,7 @@ export default function CoursePage({
             <button key={`reportButton${course.id}`}
               onClick={() => { !course.loading && handleReportClick(course) }}
               textAlign="center"
-              className={`btn btn-text btn-icon-only ${course.loading ? 'btn-disabled' : ''}`}
+              className='btn btn-text btn-icon-only'
               disabled={course.loading}
               title={t('report.button.view_report')}
               aria-label={t('report.button.view_report')}
@@ -85,7 +85,7 @@ export default function CoursePage({
             <button key={`scanButton${course.id}`}
               onClick={() => { !course.loading && handleScanClick(course) }}
               textAlign="center"
-              className={`btn btn-text btn-icon-only ${course.loading ? 'btn-disabled' : ''}`}
+              className='btn btn-text btn-icon-only'
               disabled={course.loading}
               title={t('report.button.scan')}
               aria-label={t('report.button.scan')}

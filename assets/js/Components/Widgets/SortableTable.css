@@ -126,9 +126,9 @@
           fill: var(--white);
         }
 
-        &.btn-disabled,
-        &.btn-disabled:hover,
-        &.btn-disabled:focus {
+        &:disabled,
+        &:disabled:hover,
+        &:disabled:focus {
           background-color: var(--gray-light);
           fill: var(--gray);
           cursor: not-allowed !important;

@@ -311,6 +311,7 @@ export default function FixIssuesPage({
       setActiveContentItem(null)
       setTempActiveIssue(null)
       setWidgetState(WIDGET_STATE.LIST)
+      setShowLearnMore(false)
       closeDialog()
       return
     }
@@ -329,6 +330,7 @@ export default function FixIssuesPage({
     else {
       setActiveContentItem(null)
     }
+    setShowLearnMore(false)
     openDialog()
 
   }, [activeIssue])
@@ -343,7 +345,7 @@ export default function FixIssuesPage({
 
   useEffect(() => {
     if(showLearnMore) {
-      document.getElementById('btn-learn-more-close')?.focus()
+      document.getElementById('btn-learn-more-back')?.focus()
     }
     else {
       document.getElementById('btn-learn-more-open')?.focus()
@@ -509,11 +511,13 @@ export default function FixIssuesPage({
     return tempDoc.body.innerHTML
   }
 
-  const handleIssueSave = (issue) => {
+  const handleIssueSave = () => {
 
-    if(!activeContentItem || !activeContentItem?.body || !issue) {
+    if(!activeContentItem || !activeContentItem?.body || !tempActiveIssue || !tempActiveIssue?.issueData) {
       return
     }
+
+    let issue = tempActiveIssue.issueData
 
     updateActiveSessionIssue(issue.id, settings.ISSUE_STATE.SAVING)
     addItemToBeingScanned(issue.contentItemId)
@@ -796,19 +800,21 @@ export default function FixIssuesPage({
           <div className="dialog-footer">
             <div className="flex-row gap-2">
               <button
-                className={`btn btn-small btn-link btn-icon-left ${filteredIssues.length < 2 ? 'disabled' : ''}`}
+                className='btn btn-small btn-link btn-icon-left'
                 onClick={() => nextIssue(true)}
+                disabled={filteredIssues.length < 2}
                 tabIndex="0">
-                <LeftArrowIcon className={`icon-sm ` + (filteredIssues.length < 2 ? 'gray' : 'link-color')} />
+                <LeftArrowIcon className='icon-sm' />
                 <div className="flex-column justify-content-center">{t('fix.button.previous')}</div>
               </button>
 
               <button
-                className={`btn btn-small btn-link btn-icon-right ${filteredIssues.length < 2 ? 'disabled' : ''}`}
+                className='btn btn-small btn-link btn-icon-right'
                 onClick={() => nextIssue()}
+                disabled={filteredIssues.length < 2}
                 tabIndex="0">
                 <div className="flex-column justify-content-center">{t('fix.button.next')}</div>
-                <RightArrowIcon className={`icon-sm ` + (filteredIssues.length < 2 ? 'gray' : 'link-color')} />
+                <RightArrowIcon className='icon-sm' />
               </button>
             </div>
             <div className="flex-column justify-content-center">
