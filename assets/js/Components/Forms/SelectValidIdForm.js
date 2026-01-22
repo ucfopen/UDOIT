@@ -265,6 +265,7 @@ const SelectValidIdForm = (
             }
         }
         setAttributeId(tempAttributeId)
+        setElementFocus(false)
     }
 
   return (
