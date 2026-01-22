@@ -20,7 +20,8 @@ export default function FixIssuesContentPreview({
   setClickedInfo,
   liveUpdateToggle,
   isErrorFoundInContent,
-  setIsErrorFoundInContent
+  setIsErrorFoundInContent,
+  elementFocus
 }) {
   const [taggedContent, setTaggedContent] = useState(null)
   const [canShowPreview, setCanShowPreview] = useState(false)
@@ -28,6 +29,7 @@ export default function FixIssuesContentPreview({
 
   const [isInitialLoad, setIsInitialLoad] = useState(false)
   const [debouncedDirection, setDebouncedDirection] = useState(null)
+    
 
   const checkScrollButton = () => {
     if(isInitialLoad) {
@@ -319,7 +321,7 @@ export default function FixIssuesContentPreview({
 
       if(clickedInfo?.xpath){
         const focusedElement = Html.findElementWithXpath(doc, clickedInfo.xpath)
-        if(focusedElement){
+        if(focusedElement && elementFocus){
           focusedElement.focus()
         }
       }

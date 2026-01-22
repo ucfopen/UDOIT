@@ -19,7 +19,8 @@ const SelectValidIdForm = (
   setMarkAsReviewed,
   clickedInfo,
   setClickedInfo,
-  handleContentIssueSave
+  handleContentIssueSave,
+  setElementFocus
 
 }) => {
 
@@ -92,6 +93,7 @@ const SelectValidIdForm = (
 
         setIdXpathMap(tempIdXpathMap)
         setAttributeId(tempAttributeIdItem)
+        setElementFocus(true)
     }, [clickedInfo])
 
     useEffect(() => {
@@ -126,10 +128,7 @@ const SelectValidIdForm = (
         })
 
      
-        const response = { 
-                            validatedIds: validatedIds?.length > 0 ? validatedIds : [],
-                            validatedIdXpathMap: validatedIdXpathMap
-                         }
+        const response = { validatedIds: validatedIds?.length > 0 ? validatedIds : [], validatedIdXpathMap: validatedIdXpathMap }
         return response
     }
 
@@ -220,6 +219,7 @@ const SelectValidIdForm = (
             attribute.selected = (attribute.attribute == selectedVal)
         })
         setAttributeId(tempAttributes)
+        setElementFocus(false)
     }
 
     const checkFormErrors = () => {
@@ -264,9 +264,7 @@ const SelectValidIdForm = (
                 
             }
         }
-
         setAttributeId(tempAttributeId)
-
     }
 
   return (
@@ -283,6 +281,7 @@ const SelectValidIdForm = (
                     disabled={attribute.deactivated}
                     name="main-attribute"
                     checked={attribute.selected}
+                    tabIndex='0'
                     onChange={() => handleAttributeSelect(attribute.attribute)}
                     />
                     <span className={`attribute-label  ${attribute.deactivated ? `deactivated`: ``}`}>{attribute.attribute}</span>

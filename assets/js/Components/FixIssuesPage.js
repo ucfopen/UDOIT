@@ -120,6 +120,8 @@ export default function FixIssuesPage({
   const [liveUpdateToggle, setLiveUpdateToggle] = useState(true)
   const [clickedInfo, setClickedInfo] = useState({})
 
+  const [elementFocus, setElementFocus] = useState(true)
+
   // The database stores and returns certain issue data, but it needs additional attributes in order to
   // be really responsive on the front end. This function adds those attributes and stores the database
   // information in the "issue" attribute.
@@ -739,7 +741,6 @@ export default function FixIssuesPage({
 
     let fullPageHtml = contentItem.body
     let fullPageDoc = new DOMParser().parseFromString(fullPageHtml, 'text/html')
-    console.log(issue?.newHtml)
     let newElement = Html.findElementWithError(fullPageDoc, issue?.newHtml)
     let newXpath = Html.findXpathFromElement(newElement)
     if(newXpath) {
@@ -1113,6 +1114,7 @@ export default function FixIssuesPage({
                   clickedInfo={clickedInfo}
                   setClickedInfo={setClickedInfo}
                   handleContentIssueSave={handleContentIssueSave}
+                  setElementFocus={setElementFocus}
                 />
             ) : ''}
           </section>
@@ -1129,6 +1131,7 @@ export default function FixIssuesPage({
                 setIsErrorFoundInContent={setIsErrorFoundInContent}
                 clickedInfo={clickedInfo}
                 setClickedInfo={setClickedInfo}
+                elementFocus={elementFocus}
 
               />
             )}

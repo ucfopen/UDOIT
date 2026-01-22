@@ -30,7 +30,8 @@ export default function UfixitWidget({
   triggerLiveUpdate,
   clickedInfo,
   setClickedInfo,
-  handleContentIssueSave
+  handleContentIssueSave,
+  setElementFocus
 }) {
 
   const [UfixitForm, setUfixitForm] = useState(null)
@@ -221,6 +222,7 @@ export default function UfixitWidget({
                       clickedInfo={clickedInfo}
                       setClickedInfo={setClickedInfo}
                       handleContentIssueSave={handleContentIssueSave}
+                      setElementFocus={setElementFocus}
                       /> )
                   }
                 </div>
