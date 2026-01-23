@@ -32,6 +32,7 @@ class AdminController extends ApiController
 
     private $courseUserRepo;
     private $lms;
+    private $lmsUser;
 
 
     #[Route('/admin', name: 'admin')]

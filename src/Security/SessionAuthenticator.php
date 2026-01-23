@@ -27,6 +27,7 @@ class SessionAuthenticator extends AbstractAuthenticator
     private $router;
     private $em;
     private $sessionService;
+    private $util;
 
     public function __construct(
         RequestStack $requestStack,
