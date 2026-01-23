@@ -22,6 +22,7 @@ use Doctrine\ORM\EntityManagerInterface;
 
 class AdminController extends ApiController
 {
+    /** @var UtilityService $util */
     private $util;
 
     private $session;
