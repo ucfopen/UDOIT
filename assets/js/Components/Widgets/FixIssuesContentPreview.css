@@ -229,3 +229,32 @@
     border: 1px solid var(--white)
   }
 }
+
+.ufixit-content-preview-main.ufixit-clickable-container *:not(.ufixit-error-highlight):not(.ufixit-alt-text-preview):not(.ufixit-alt-text-preview *){
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.ufixit-content-preview-main.ufixit-clickable-container *:not(.ufixit-error-highlight):not(.ufixit-alt-text-preview):not(.ufixit-alt-text-preview *):hover{
+  background-color: rgb(207, 207, 207) !important;
+}
+
+.ufixit-content-preview-main.ufixit-clickable-container *:not(.ufixit-error-highlight):not(.ufixit-alt-text-preview .ufixit-alt-text-preview *):focus{
+  background-color: rgb(207, 207, 207) !important;
+}
+
+
+.ufixit-content-preview-main.ufixit-clickable-container *:not(.ufixit-error-highlight):not(.ufixit-alt-text-preview):not(.ufixit-alt-text-preview *):has(:hover){
+  background-color: transparent !important;
+}
+
+.ufixit-content-preview-main.ufixit-clickable-container *.ufixit-temp-selected{
+  outline: 3px solid blue;
+  outline-offset: 1px;
+  anchor-name: --ufixit-temp-selected;
+
+  /* Errors without text won't have an outline unless they have a border to provide size */
+  &:not(table) {
+    border: 1px solid transparent;
+  }
+}

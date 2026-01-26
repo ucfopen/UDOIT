@@ -16,6 +16,7 @@ export default function UfixitWidget({
   settings,
 
   activeContentItem,
+  handleActiveContentItem,
   addMessage,
   handleFileResolve,
   handleFileUpload,
@@ -26,7 +27,11 @@ export default function UfixitWidget({
   setTempActiveIssue,
   severity,
   tempActiveIssue,
-  triggerLiveUpdate
+  triggerLiveUpdate,
+  clickedInfo,
+  setClickedInfo,
+  handleContentIssueSave,
+  setElementFocus
 }) {
 
   const [UfixitForm, setUfixitForm] = useState(null)
@@ -206,13 +211,19 @@ export default function UfixitWidget({
 
                       activeIssue={tempActiveIssue.issueData}
                       activeContentItem={activeContentItem}
+                      handleActiveContentItem={handleActiveContentItem}
                       addMessage={addMessage}
                       handleActiveIssue={handleActiveIssue}
                       handleIssueSave={interceptIssueSave}
                       isContentLoading={isContentLoading}
                       isDisabled={markAsReviewed || isContentLoading || !isErrorFoundInContent}
                       markAsReviewed={markAsReviewed}
-                      setMarkAsReviewed={setMarkAsReviewed} /> )
+                      setMarkAsReviewed={setMarkAsReviewed}
+                      clickedInfo={clickedInfo}
+                      setClickedInfo={setClickedInfo}
+                      handleContentIssueSave={handleContentIssueSave}
+                      setElementFocus={setElementFocus}
+                      /> )
                   }
                 </div>
               </div>
