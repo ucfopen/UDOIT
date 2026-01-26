@@ -170,10 +170,15 @@ export default function FileForm ({
     }
     if (option == FORM_OPTIONS.MARK_AS_REVIEWED){
       setMarkAsReviewed(true)
+      return
+    }
+    if(option == FORM_OPTIONS.MARK_DELETE){
+      setMarkDelete(true )
     }
     else{
       setMarkRevert(false)
       setMarkAsReviewed(false)
+      setMarkDelete(false)
     }
   }
 
@@ -209,9 +214,10 @@ export default function FileForm ({
               }} />
               {t('form.file.delete.original.label')}
             </label>
+            {activeOption === FORM_OPTIONS.MARK_DELETE && <div className='mt-1'>{t('form.file.delete_instructions', {file: activeFile.fileName})}</div>}
         </div>
 
-        <div className={`resolve-option ${activeOption === FORM_OPTIONS.MARK_DELETE ? 'selected' : ''}`}>
+        <div className={`resolve-option ${activeOption === FORM_OPTIONS.MARK_REVERT ? 'selected' : ''}`}>
               <label className={`option-label` + (isDisabled ? ' disabled' : '')}>
               <input
                 type="radio"
@@ -225,6 +231,7 @@ export default function FileForm ({
                 }} />
                 Revert Changes
               </label>
+              {activeOption === FORM_OPTIONS.MARK_REVERT && <div className='mt-1'>{t('form.file.revert_instructions', {file: activeFile.fileName})}</div>}
         </div>
       </div>
     }
