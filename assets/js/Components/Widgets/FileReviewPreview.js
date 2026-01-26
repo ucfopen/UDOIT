@@ -9,6 +9,7 @@ import ContentPageIcon from '../Icons/ContentPageIcon'
 import FileInformation from './FileInformation'
 import FileStatus from './FileStatus'
 import ProgressIcon from '../Icons/ProgressIcon'
+import DownwardArrowIcon from '../Icons/DownwardArrowIcon'
 
 export default function FixIssuesContentPreview({
   t,
@@ -20,6 +21,7 @@ export default function FixIssuesContentPreview({
 
   const [fileReferenceHolder, setFileReferenceHolder] = useState([])
   const [currentFile, setCurrentFile] = useState(null)
+  const [oldFile, setOldFile] = useState(null)
 
   useEffect(() => {
     if(activeIssue){
@@ -32,7 +34,6 @@ export default function FixIssuesContentPreview({
           fileLink: activeIssue.fileData.replacement.lmsUrl
         }  
         setCurrentFile(tempCurrFile)
-        return
       }
       const tempCurrFile = {
         fileName: activeIssue.fileData.fileName,
@@ -40,7 +41,11 @@ export default function FixIssuesContentPreview({
         fileSize: Text.getReadableFileSize(activeIssue.fileData.fileSize),
         fileLink: activeIssue.fileData.lmsUrl
       }
-      setCurrentFile(tempCurrFile)
+      if(!activeIssue.fileData.replacement){
+          setCurrentFile(tempCurrFile)
+      }
+      setOldFile(tempCurrFile)
+      
     }
   }, [activeIssue])
 
@@ -94,7 +99,27 @@ export default function FixIssuesContentPreview({
     </div> 
     :
     <div>
-    { currentFile && ( 
+    {activeIssue.fileData.replacement ? 
+      <div className='flex-column w-100 justify-content-center gap-1 align-items-center'>
+        <div className='file-accessibility-info-wrapper w-100'>
+          <div className='accessibility-info-container flex-column w-100'>
+            <div className='file-info p-2'>
+              <FileStatus t={t} fileStatus={0} fileTagText={t('form.file.current.label')}/>
+            </div>
+            <FileInformation t={t} file={oldFile} />
+          </div>
+        </div>
+        <DownwardArrowIcon className="icon-md text-center" />        
+        <div className='file-accessibility-info-wrapper w-100'>
+          <div className='accessibility-info-container flex-column w-100'>
+            <div className='file-info p-2'>
+              <FileStatus t={t} fileStatus={1} fileTagText={t('form.file.new.label')}/>
+            </div>
+            <FileInformation t={t} file={currentFile} />
+          </div>
+        </div>
+      </div>
+    : currentFile && ( 
       <div className='file-accessibility-info-wrapper w-100'>
         <div className='accessibility-info-container flex-column w-100'>
           <div className='file-info p-2'>
