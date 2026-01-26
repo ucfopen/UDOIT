@@ -325,13 +325,13 @@ export default function ReviewFilesPage({
 
   const getFileStatusDisplay = (status) => {
     return (
-      <div className={'table-status-container ' + status.toLowerCase()} aria-label={t('fix.label.status.' + (status.toLowerCase()))}>
+      <div className={'info-pill ' + status.toLowerCase()} aria-label={t('fix.label.status.' + (status.toLowerCase()))}>
         {status === FILTER.UNREVIEWED ? (
-          <SeverityPotentialIcon className="icon-sm align-self-center" aria-hidden="true"/>
+          <SeverityPotentialIcon className="icon-md udoit-potential" aria-hidden="true"/>
         ) : (
-          <FixedIcon className="icon-sm align-self-center" aria-hidden="true" />
+          <FixedIcon className="icon-md udoit-success" aria-hidden="true" />
         )}
-        <div className='pl-2' aria-hidden="true">{t('fix.label.status.' + (status.toLowerCase()))}</div>
+        <div aria-hidden="true">{t('fix.label.status.' + (status.toLowerCase()))}</div>
       </div>
     )
     

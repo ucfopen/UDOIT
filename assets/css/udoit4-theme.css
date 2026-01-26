@@ -30,21 +30,33 @@
 
   --link-color: #006AAC;
   --link-color-hover: color-mix(in srgb, var(--link-color) 100%, var(--white) 10%);
-  --link-color-light: color-mix(in srgb, var(--link-color) 10%, var(--white) 100%);  /* #E9F3FF; */
+  --link-color-light: color-mix(in srgb, var(--link-color) 5%, var(--white) 100%);  /* #E9F3FF; */
   --link-color-dark: color-mix(in srgb, var(--link-color) 100%, var(--black) 10%);
 
   --focus-color: #009AD0;
 
-  --issue-color: #E2080C;
+  /* --issue-color: #E2080C;
   --issue-color-light: color-mix(in srgb, var(--issue-color) 10%, #FFFFFF 100%);
   --potential-color: #F8961E;
   --potential-color-light: color-mix(in srgb, var(--potential-color) 10%, #FFFFFF 100%);
   --suggestion-color: #32B0E4;
-  --suggestion-color-light: color-mix(in srgb, var(--suggestion-color) 10%, #FFFFFF 100%);
+  --suggestion-color-light: color-mix(in srgb, var(--suggestion-color) 10%, #FFFFFF 100%); */
   --info-color: #5BAEDF; /* #2C9ECE; */
   --info-color-light: color-mix(in srgb, var(--info-color) 10%, #FFFFFF 100%);
   --success-color: #006937;
   --success-color-light: color-mix(in srgb, var(--success-color) 10%, #FFFFFF 100%);
+
+  --issue-color: #FFC9C9;
+  --issue-color-light: #FFEBEB;
+  --issue-color-text: #E7000B;
+
+  --potential-color: #FDD8A5; /* #FEEDD5; */
+  --potential-color-light: #FFF7ED;
+  --potential-color-text: #F54900;
+
+  --suggestion-color: #DBEAFE;
+  --suggestion-color-light: #EFF6FF;
+  --suggestion-color-text: #155DFC;
 
   --help-color: #EDD792; /* #F5E9C3; */
   --help-color-light: #FFF9E6;
@@ -988,6 +1000,45 @@ dialog {
   border-inline-start: 1px solid var(--border-color);
 }
 
+.info-pill {
+  display: flex;
+  flex-direction: row;
+  flex-shrink: 0;
+  gap: 0.5em;
+  border: 1px solid var(--border-color);
+  background-color: var(--background-color);
+  border-radius: var(--element-radius);
+  color: var(--text-color);
+  fill: var(--text-color);
+  padding: 0.25rem .75rem;
+  font-size: .9em;
+  align-self: center;
+  align-items: center;
+  width: fit-content;
+
+  &.issue {
+    border-color: var(--issue-color);
+    background-color: var(--issue-color-light);
+    color: var(--issue-color-text);
+    fill: var(--issue-color-text)
+  }
+
+  &.potential,
+  &.unreviewed {
+    border-color: var(--potential-color);
+    background-color: var(--potential-color-light);
+    color: var(--potential-color-text);
+  }
+
+  &.fixed,
+  &.reviewed,
+  &.replaced {
+    border-color: var(--primary-color);
+    background-color: var(--primary-color-light);
+    color: var(--primary-color-text);
+  }
+}
+
 /* Data pills are for icons with text that can be hidden until hovered or focused */
 .data-pill {
   padding: 0.05rem 0.25rem;
@@ -1161,26 +1212,26 @@ a:focus {
 
 .udoit-issue,
 .color-issue {
-  color: var(--issue-color);
-  fill: var(--issue-color);
+  color: var(--issue-color-text);
+  fill: var(--issue-color-text);
 }
 
 .udoit-potential,
 .color-potential {
-  color: var(--potential-color);
-  fill: var(--potential-color);
+  color: var(--potential-color-text);
+  fill: var(--potential-color-text);
 }
 
 .udoit-suggestion,
 .color-suggestion {
-  color: var(--suggestion-color);
-  fill: var(--suggestion-color);
+  color: var(--suggestion-color-text);
+  fill: var(--suggestion-color-text);
 }
 
 .udoit-success,
 .color-success {
-  color: var(--primary-color);
-  fill: var(--primary-color);
+  color: var(--primary-color-text);
+  fill: var(--primary-color-text);
 }
 
 .udoit-info,

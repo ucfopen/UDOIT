@@ -45,6 +45,7 @@ export default function FixIssuesPage({
 })
 {
 
+  console.log(report)
   // Define the kinds of filters that will be available to the user
   const FILTER = settings.ISSUE_FILTER
 
@@ -84,6 +85,16 @@ export default function FixIssuesPage({
   const [widgetState, setWidgetState] = useState(WIDGET_STATE.LOADING)
   const [liveUpdateToggle, setLiveUpdateToggle] = useState(true)
 
+  const getSectionTitles = () => {
+    let sectionTitles = {}
+    report.contentSections.forEach((section) => {
+      sectionTitles[section.id] = section.title
+    })
+    return sectionTitles
+  }
+
+  const sectionTitles = getSectionTitles()
+
   // The database stores and returns certain issue data, but it needs additional attributes in order to
   // be really responsive on the front end. This function adds those attributes and stores the database
   // information in the "issue" attribute.
@@ -100,6 +111,7 @@ export default function FixIssuesPage({
     
     let issueContentType = FILTER.ALL
     let issueSectionIds = []
+    let issueSectionNames = []
     let published = true
 
     // PHPAlly returns a contentItemId that we can use to get the content type
@@ -123,9 +135,12 @@ export default function FixIssuesPage({
         issueContentType = contentTypeMap[tempContentType]
       }
 
-      // See if the issue's content is listed in one of the sections
-
       issueSectionIds = tempContentItem.sections || []
+      issueSectionIds.forEach((sectionId) => {
+        if(sectionTitles[sectionId]) {
+          issueSectionNames.push(sectionTitles[sectionId])
+        }
+      })
 
       if(tempContentItem.published === false) {
         published = false
@@ -159,6 +174,7 @@ export default function FixIssuesPage({
       status: issueResolution,
       published: published,
       sectionIds: issueSectionIds,
+      sectionNames: issueSectionNames,
       keywords: createKeywords(issue, formLabel, tempContentItem),
       scanRuleId: issue.scanRuleId,
       formName: formName,

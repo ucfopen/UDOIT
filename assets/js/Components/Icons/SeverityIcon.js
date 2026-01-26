@@ -42,14 +42,6 @@ export default function SeverityIcon(props) {
       else {
         return <SeverityPotentialIcon {...newProps} />
       }
-    case('SUGGESTION'):
-      newProps.className += 'udoit-suggestion'
-      if(filled) {
-        return <SeveritySuggestionIconFilled {...newProps} />
-      }
-      else {
-        return <SeveritySuggestionIcon {...newProps} />
-      }
     case('FILE'):
       newProps.className += 'udoit-suggestion'
       if(filled) {

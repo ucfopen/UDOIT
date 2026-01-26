@@ -61,7 +61,7 @@ export default function FormClarification({
         <div className="flex-grow-0">  
           <div className="clarification-container flex-row gap-1">
             <div className="flex-column justify-content-start">
-              <InfoIcon className="icon-md udoit-suggestion" alt="" />
+              <InfoIcon className="icon-md udoit-info" alt="" />
             </div>
             <div className="flex-column justify-content-center">
               <div className="clarification-text" dangerouslySetInnerHTML={{__html: clarification}} />

@@ -86,29 +86,29 @@ export default function FixIssuesList({
                             <ContentTypeIcon type={issue.contentType} className="gray icon-md"/>
                           </div>
                           <div className="flex-column">
-                            <div className="flex-grow-1 flex-column justify-content-center allow-word-break list-item-title">
+                            <div className="list-item-title">
                               {issue.contentTitle}
                             </div>
-                            <div>
-                              {JSON.parse(issue.sectionIds)}
+                            <div className="list-item-subtitle">
+                              {(issue.sectionNames.join(', '))}
                             </div>
                           </div>
                         </div>
                       <div className="flex-row">
                         { issue.status === settings.ISSUE_FILTER.ACTIVE && (
-                          <div alt="" title={t(`filter.label.severity.${issue.severity.toLowerCase()}_single`)} className="data-pill flex-row ml-2">
+                          <div alt="" title={t(`filter.label.severity.${issue.severity.toLowerCase()}_single`)} className={`info-pill ml-2 ` + issue.severity.toLowerCase()}>
                             <SeverityIcon type={issue.severity} className="icon-md flex-column align-self-center" />
                             <div className="data-pill-text">{t(`filter.label.severity.${issue.severity.toLowerCase()}_single`)}</div>
                           </div>
                         )}
                         { issue.status === settings.ISSUE_FILTER.RESOLVED && (
-                          <div alt="" title={t('filter.label.resolution.resolved_single')} className="data-pill fixed flex-row ml-2">
+                          <div alt="" title={t('filter.label.resolution.resolved_single')} className="info-pill fixed ml-2">
                             <ResolvedIcon className="color-success icon-md flex-column align-self-center"/>
                             <div className="data-pill-text">{t('filter.label.resolution.resolved_single')}</div>
                           </div>
                         )}
                         { (issue.status === settings.ISSUE_FILTER.FIXED || issue.status == settings.ISSUE_FILTER.FIXEDANDRESOLVED) && (
-                          <div alt="" title={t('filter.label.resolution.fixed_single')} className="data-pill fixed flex-row ml-2">
+                          <div alt="" title={t('filter.label.resolution.fixed_single')} className="info-pill fixed ml-2">
                             <FixedIcon className="color-success icon-md flex-column align-self-center"/>
                             <div className="data-pill-text">{t('filter.label.resolution.fixed_single')}</div>
                           </div>

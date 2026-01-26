@@ -84,7 +84,7 @@
   }
 
   .option-feedback {
-    color: var(--issue-color);
+    color: var(--issue-color-text);
     margin-top: .5em;
     font-size: .9em;
     font-weight: 400;
