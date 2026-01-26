@@ -582,6 +582,7 @@
   "form.select_valid_id.instructions":"The error element highlighted in the content preview of the current content element has aria attribute(s) that may have incorrect IDs. Please select other elements in the content preview that you want the error element to point to simply by clicking on any of the other elements in the content preview. ",
   "form.select_valid_id.select_attribute_instruction": "Please select an attribute you want to add IDs to",
   "form.select_valid_id.error_msg": "All aria attributes must have valid IDs or must be removed",
+  "form.select_valid_id.live_msg": "You have selected the attribute: {selectedAttribute}. Please select elements that you want to be using with this attribute.",
 
   "form.multi_part.title": "Multi-Part Elements Must Be Nested Correctly",
   "form.multi_part.summary": "Multi-Part elements require specific &quot;child&quot; elements to be nested inside specific &quot;parent&quot; elements in order to function properly. For example, list items must be inside of a list, and table cells must be inside of a table row.",

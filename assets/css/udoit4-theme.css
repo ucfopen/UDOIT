@@ -1101,3 +1101,10 @@ header {
     }
   }
 }
+
+.off-screen {
+  position: absolute;
+  left: -10000px; /* Moves the element far to the left */
+  top: auto;
+  overflow: hidden; /* Hides any potential overflow */
+}

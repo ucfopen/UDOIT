@@ -38,6 +38,8 @@ const SelectValidIdForm = (
     const [idXpathMap, setIdXpathMap] = useState({}) // This will map each id to its each xpath AND the inner text {xpath, innerText}
     const [formErrors, setFormErrors] = useState([])
 
+    const [liveMessage, setLiveMessage] = useState('')
+
     useEffect(() => {
         if(!activeIssue){
             return
@@ -220,6 +222,7 @@ const SelectValidIdForm = (
         })
         setAttributeId(tempAttributes)
         setElementFocus(false)
+        setLiveMessage(t('form.select_valid_id.live_msg', {selectedAttribute: selectedVal}))
     }
 
     const checkFormErrors = () => {
@@ -270,6 +273,7 @@ const SelectValidIdForm = (
 
   return (
     <>
+      <div className='off-screen' aria-live='polite' aria-atomic='true'>{liveMessage}</div>
       <div className='mb-2'>{t("form.select_valid_id.instructions")}</div> 
       <label htmlFor='attributeSelectInput' className='instructions'>{t("form.select_valid_id.select_attribute_instruction")}</label>
       <div className='all-attribute-container'>
