@@ -98,9 +98,9 @@ export default function FixIssuesContentPreview({
       <div className='file-accessibility-info-wrapper w-100'>
         <div className='accessibility-info-container flex-column w-100'>
           <div className='file-info p-2'>
-            <FileStatus fileStatus={activeIssue.fileData.replacement ? 1 : 0} fileTagText={"Current File"}/>
+            <FileStatus t={t} fileStatus={activeIssue.fileData.replacement ? 1 : 0} fileTagText={"Current File"}/>
           </div>
-          <FileInformation file={currentFile} />
+          <FileInformation t={t} file={currentFile} />
         </div>
       </div>)
       }

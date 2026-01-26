@@ -454,6 +454,8 @@
   "form.file.new.label": "New File",
   "form.file.current.label": "Current File",
   "form.file.delete.original.label": "Delete Original File",
+  "form.file.label.file_size": "File Size",
+  "form.file.label.file_type": "File Type",
   "form.label.new.tag": "New",
   "form.label.current.tag": "Current",
   "form.label.original.tag": "Original",

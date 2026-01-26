@@ -197,9 +197,9 @@ export default function FileForm ({
       <div className='resolve-option selected'>
         <div className='flex-column align-items-center justify-content-center'>
           <div className='w-100 p-2'>
-            <FileStatus fileStatus={0} fileTagText={t('form.file.original.label')} />
+            <FileStatus t={t} fileStatus={0} fileTagText={t('form.file.original.label')} />
             <div className='file-info-container p-2'>
-              <FileInformation file={copiedActiveFile} />
+              <FileInformation t={t} file={copiedActiveFile} />
             </div>
             
           <div className='replacement-option p-2 mt-2'>
@@ -251,12 +251,12 @@ export default function FileForm ({
           <DownwardArrowIcon className="icon-md pt-4 pb-4" />
         </div>
         <div className='w-100 p-2'>
-           <FileStatus fileStatus={1} fileTagText={"New File"} />
+           <FileStatus t={t} fileStatus={1} fileTagText={"New File"} />
            <div className='file-info-container p-4 flex-column justify-content-center align-items-center text-center'>
               <h3>File Replaced Successfully</h3>
               <p className='file-msg'>The original file, <span className='fw-bolder truncated-text-ellipse'>{activeFile.fileName}</span>, was replaced by the new file, <span className='fw-bolder truncated-text-ellipse'>{activeFile.replacement.fileName}</span>. All references to the original file in your course now point to the new file</p>
               <div className='new-file-info-container w-100 p-2'>
-                <FileInformation file={copiedReplacementFile} fillColor={'var(--primary-color)'} />
+                <FileInformation t={t} file={copiedReplacementFile} fillColor={'var(--primary-color)'} />
               </div>
            </div>
         </div>
@@ -307,14 +307,14 @@ export default function FileForm ({
             {activeOption == FORM_OPTIONS.REPLACE_FILE && (
               <div className='flex-column align-items-center justify-content-center'>
                 <div className='w-100 p-2'>
-                  <FileStatus fileStatus={0} fileTagText={"Original File"} />
+                  <FileStatus t={t} fileStatus={0} fileTagText={"Original File"} />
                     <div className='file-info-container p-2'>
-                      <FileInformation file={copiedActiveFile} />
+                      <FileInformation t={t} file={copiedActiveFile} />
                     </div>
                 </div>
                 <DownwardArrowIcon className="icon-md pt-4 pb-4" />
                 <div className='w-100 p-2'>
-                  <FileStatus fileStatus={1} fileTagText={"New File"} />
+                  <FileStatus t={t} fileStatus={1} fileTagText={"New File"} />
                   <div className={`file-upload-container ${uploadedFile ? 'uploaded p-2' : 'p-4 flex-column text-center jusitify-content-center align-items-center'}`}
                     onDrop={handleDrop}
                     onClick={handleFileSelect}
@@ -323,7 +323,7 @@ export default function FileForm ({
                   >
                     {uploadedFile && copiedUploadedFile ? 
                     <div className='flex-row align-items-center justify-content-between'>
-                      <FileInformation file={copiedUploadedFile} fillColor={'var(--primary-color)'} />
+                      <FileInformation t={t} file={copiedUploadedFile} fillColor={'var(--primary-color)'} />
                       <div className='close-icon'>
                         <CloseIcon onClick={removeUploadedFile} className='remove-file' tabIndex='0' />
                       </div>

@@ -5,6 +5,7 @@ import './FileInformation.css'
 
 const FileInformation = (
 {
+    t,
     file,
     fillColor,
 }
@@ -26,8 +27,8 @@ const FileInformation = (
             <div className='font-title'>{file.fileName}</div>
             }
             <div className='file-details flex-row gap-1'>
-                <div>File Type: <span className='fw-bold'>{file.fileType}</span> </div>
-                <div>File Size: <span className='fw-bold'>{file.fileSize}</span> </div>
+                <div>{t("form.file.label.file_type")}: <span className='fw-bold'>{file.fileType}</span> </div>
+                <div>{t("form.file.label.file_size")}: <span className='fw-bold'>{file.fileSize}</span> </div>
             </div>
         </div>
     </div>}
