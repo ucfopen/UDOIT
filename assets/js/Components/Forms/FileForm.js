@@ -194,15 +194,8 @@ export default function FileForm ({
   return (
     <>
     {activeFile.reviewed && activeFile.replacement && 
-      <div className='resolve-option selected'>
-        <div className='flex-column align-items-center justify-content-center'>
-          <div className='w-100 p-2'>
-            <FileStatus t={t} fileStatus={0} fileTagText={t('form.file.original.label')} />
-            <div className='file-info-container p-2'>
-              <FileInformation t={t} file={copiedActiveFile} />
-            </div>
-            
-          <div className='replacement-option p-2 mt-2'>
+      <div className='flex-column gap-1'>
+        <div className={`resolve-option ${activeOption === FORM_OPTIONS.MARK_DELETE ? 'selected' : ''}`}>
             <label className={`option-label` + (isDisabled ? ' disabled' : '')}>
             <input
               type="radio"
@@ -216,51 +209,23 @@ export default function FileForm ({
               }} />
               {t('form.file.delete.original.label')}
             </label>
-              {activeOption == FORM_OPTIONS.MARK_DELETE && (
-                <div className='option-instruction mt-2'> 
-                  <input
-                    type='text'
-                    tabIndex={0}
-                    className='w-100 mt-1'
-                    onChange={(e) => checkCanDelete(e)}
-                    />
-                </div>
-              )}
-          </div>
-          
-          <div className='replacement-option p-2 mt-2'>
-            <label className={`option-label` + (isDisabled ? ' disabled' : '')}>
-            <input
-              type="radio"
-              id={FORM_OPTIONS.MARK_REVERT}
-              name="altTextOption"
-              tabIndex="0"
-              checked={activeOption === FORM_OPTIONS.MARK_REVERT}
-              disabled={isDisabled}
-              onChange={() => {
-                handleOptionChange(FORM_OPTIONS.MARK_REVERT)
-              }} />
-              Revert Changes
-            </label>
-            {activeOption == FORM_OPTIONS.MARK_REVERT && (
-              <div>Reverting the changes will undo all changes done to the file and the references will point to the original file: <span className='fw-bolder truncated-text-ellipse'>{activeFile.fileName}</span></div>
-            )}
-          </div>
-
-          </div>
-          <DownwardArrowIcon className="icon-md pt-4 pb-4" />
-        </div>
-        <div className='w-100 p-2'>
-           <FileStatus t={t} fileStatus={1} fileTagText={"New File"} />
-           <div className='file-info-container p-4 flex-column justify-content-center align-items-center text-center'>
-              <h3>File Replaced Successfully</h3>
-              <p className='file-msg'>The original file, <span className='fw-bolder truncated-text-ellipse'>{activeFile.fileName}</span>, was replaced by the new file, <span className='fw-bolder truncated-text-ellipse'>{activeFile.replacement.fileName}</span>. All references to the original file in your course now point to the new file</p>
-              <div className='new-file-info-container w-100 p-2'>
-                <FileInformation t={t} file={copiedReplacementFile} fillColor={'var(--primary-color)'} />
-              </div>
-           </div>
         </div>
 
+        <div className={`resolve-option ${activeOption === FORM_OPTIONS.MARK_DELETE ? 'selected' : ''}`}>
+              <label className={`option-label` + (isDisabled ? ' disabled' : '')}>
+              <input
+                type="radio"
+                id={FORM_OPTIONS.MARK_REVERT}
+                name="altTextOption"
+                tabIndex="0"
+                checked={activeOption === FORM_OPTIONS.MARK_REVERT}
+                disabled={isDisabled}
+                onChange={() => {
+                  handleOptionChange(FORM_OPTIONS.MARK_REVERT)
+                }} />
+                Revert Changes
+              </label>
+        </div>
       </div>
     }
 
