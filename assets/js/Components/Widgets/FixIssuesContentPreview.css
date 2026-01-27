@@ -353,3 +353,10 @@
     border-radius: 0 0 0.7em 0.7em; /* Match bottom corners if needed */
 }
 
+.no-reference-container{
+  background-color: var(--issue-color-light);
+  border: solid 1px var(--issue-color);
+  border-radius: 0.5em;
+  font-size: 0.75em;
+}
+

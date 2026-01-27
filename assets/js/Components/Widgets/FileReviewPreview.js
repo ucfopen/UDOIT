@@ -10,6 +10,7 @@ import FileInformation from './FileInformation'
 import FileStatus from './FileStatus'
 import ProgressIcon from '../Icons/ProgressIcon'
 import DownwardArrowIcon from '../Icons/DownwardArrowIcon'
+import SeverityIssueIconFilled from '../Icons/SeverityIssueIconFilled'
 
 export default function FixIssuesContentPreview({
   t,
@@ -130,7 +131,7 @@ export default function FixIssuesContentPreview({
       </div>)
       }
 
-     <div className="mt-3 rounded-table-wrapper">
+     {fileReferenceHolder.length > 0 ? <div className="mt-3 rounded-table-wrapper">
       <table className="file-reference-table">
       <thead>
         <tr>
@@ -158,8 +159,15 @@ export default function FixIssuesContentPreview({
               ))}
       </tbody>
       </table>
-     </div>
-    </div> }
+     </div> : 
+      <div className='no-reference-container flex-row gap-1 justify-between align-items-center p-1 mt-3'>
+        <SeverityIssueIconFilled fill={'var(--issue-color)'} />
+        <div>{t('form.file.no_ref.label')}</div>
+      </div> 
+            }
+    </div> 
+    
+    }
     </>
   )
 }

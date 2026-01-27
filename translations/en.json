@@ -467,6 +467,7 @@
   "form.file.location.label": "Location",
   "form.file.status.label": "Status",
   "form.file.external_url.label": "External URL",
+  "form.file.no_ref.label": "There are currently no references to this file found in the course. Consider deleting it to clear up some junk",
 
   "form.label.new.tag": "New",
   "form.label.current.tag": "Current",
