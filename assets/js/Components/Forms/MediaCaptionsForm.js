@@ -10,6 +10,31 @@ export default function MediaCaptionsForm({
 }) {
   const [showModal, setShowModal] = useState(false)
 
+  let baseUrl = '';
+  if (activeIssue?.contentUrl) {
+    try {
+      const urlObj = new URL(activeIssue.contentUrl);
+      baseUrl = urlObj.origin;
+    } catch (e) {
+      baseUrl = '';
+    }
+  }
+
+  // Extract video path from initialHtml
+  let initialMatch = null;
+  let initialVideoUrl = null;
+  if (activeIssue?.initialHtml) {
+    const match = activeIssue.initialHtml.match(/<source\s+src=["']([^"']+)["']/i);
+    if (match) {
+      initialMatch = match[1];
+      if (baseUrl && initialMatch.startsWith('/')) {
+        initialVideoUrl = baseUrl + initialMatch;
+      } else {
+        initialVideoUrl = initialMatch;
+      }
+    }
+  }
+
   return (
     <div className="flex-column">
       <div dangerouslySetInnerHTML={{__html: t('form.review_only.summary')}}></div>
@@ -23,7 +48,7 @@ export default function MediaCaptionsForm({
         className="btn-secondary"
         onClick={() => setShowModal(true)}
       >
-        {t('form.media_captions.open_editor') || 'Open Captions Editor'}
+        {'Open Captions Editor'}
       </button>
       {showModal && (
         <div
@@ -52,7 +77,11 @@ export default function MediaCaptionsForm({
             >
               {t('Close') || 'Close'}
             </button>
-            <MediaCaptionsEditor t={t} />
+            <MediaCaptionsEditor
+              t={t}
+              initialVideoUrl={initialVideoUrl}
+              initialMatch={initialMatch}
+            />
           </div>
         </div>
       )}
