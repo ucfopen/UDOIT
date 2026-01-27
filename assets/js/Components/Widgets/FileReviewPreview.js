@@ -54,27 +54,27 @@ export default function FixIssuesContentPreview({
   
           activeIssue.fileData.replacement?.references?.forEach((ref) => {
               let tempRef = JSON.parse(JSON.stringify(ref))
-              tempRef.status  = 'New File'
+              tempRef.status  = 1
               tempReferences.push(tempRef)
           })
   
           activeIssue.fileData.replacement?.sectionRefs?.forEach((ref) => {
               let tempRef = JSON.parse(JSON.stringify(ref))
-              tempRef.status  = 'New File'
+              tempRef.status  = 1
               tempReferences.push(tempRef)
           })
   
   
           activeIssue.fileData.references?.forEach((ref) => {
               let tempRef = JSON.parse(JSON.stringify(ref))
-              tempRef.status  = 'Old File'
+              tempRef.status  = 0
               tempReferences.push(tempRef)
           })
   
   
           activeIssue.fileData.sectionRefs?.forEach((ref) => {
               let tempRef = JSON.parse(JSON.stringify(ref))
-              tempRef.status  = 'Old File'
+              tempRef.status  = 0
               tempReferences.push(tempRef)
           })
           
@@ -123,7 +123,7 @@ export default function FixIssuesContentPreview({
       <div className='file-accessibility-info-wrapper w-100'>
         <div className='accessibility-info-container flex-column w-100'>
           <div className='file-info p-2'>
-            <FileStatus t={t} fileStatus={activeIssue.fileData.replacement ? 1 : 0} fileTagText={"Current File"}/>
+            <FileStatus t={t} fileStatus={activeIssue.fileData.replacement ? 1 : 0} fileTagText={t()}/>
           </div>
           <FileInformation t={t} file={currentFile} />
         </div>
@@ -134,9 +134,9 @@ export default function FixIssuesContentPreview({
       <table className="file-reference-table">
       <thead>
         <tr>
-            <th>Content</th>
-            <th>Location</th>
-            <th>Status</th>
+            <th>{t('form.file.content.label')}</th>
+            <th>{t('form.file.location.label')}</th>
+            <th>{t('form.file.status.label')}</th>
         </tr>
       </thead>
       <tbody>
@@ -145,13 +145,13 @@ export default function FixIssuesContentPreview({
                       <td className='content-title'>{ref.contentItemTitle}</td>
                       <td>
                           <a href={ref.contentItemUrl} target='_blank' className='location-link flex-row align-items-center'>
-                              External URL
+                              {t('form.file.external_url.label')}
                               <ExternalLinkIcon />
                           </a>
                       </td>
                       <td>
                           <span className={`status-badge ${activeIssue.fileData.replacement ? 'new-file-badge' : 'old-file-status'}`}>
-                              {ref.status}
+                              {ref.status == 1 ? t('form.file.new.label') : t('form.file.original.label')}
                           </span>
                       </td>
                   </tr>

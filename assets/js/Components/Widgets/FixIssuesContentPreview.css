@@ -318,6 +318,7 @@
   border-radius: 6px;
   font-size: 13px;
   color: #4b5563;
+  text-transform: uppercase;
 }
 
 .old-file-status{

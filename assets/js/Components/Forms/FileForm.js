@@ -325,7 +325,7 @@ export default function FileForm ({
               onChange={() => {
                 handleOptionChange(FORM_OPTIONS.MARK_DELETE)
               }} />
-              Delete Current File
+              {t('form.file.delete.original.label')}
             </label>
               {activeOption === FORM_OPTIONS.MARK_DELETE && <div className='mt-1'>{t('form.file.delete_instructions', {file: activeFile.fileName})}</div>}
           </div>

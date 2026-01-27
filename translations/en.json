@@ -463,6 +463,10 @@
   "form.file.marked_review_instruction": "This file has been checked for accessibility and marked as reviewed. Mark the file has unreviewed if you believe it is inaccessible and needs changes",
   "form.file.keep_current": "Keep Current File",
   "form.file.upload_instrcutions": "Click to upload or drag and drop PDF, DOC, PPT",
+  "form.file.content.label": "Content",
+  "form.file.location.label": "Location",
+  "form.file.status.label": "Status",
+  "form.file.external_url.label": "External URL",
 
   "form.label.new.tag": "New",
   "form.label.current.tag": "Current",
