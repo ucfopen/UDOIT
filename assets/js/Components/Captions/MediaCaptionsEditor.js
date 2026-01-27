@@ -459,10 +459,27 @@ export default function MediaCaptionsEditor({
     if (ws && video.duration) ws.seekTo(newTime / video.duration);
   }, []);
 
+  const [focusLayer, setFocusLayer] = useState("top");
+  const [focusedRow, setFocusedRow] = useState(-1);
+  const [focusedField, setFocusedField] = useState(-1);
+
+  // Focus management for table and layers
+  useEffect(() => {
+    if (focusLayer === "table" && focusedRow === -1) {
+      document.getElementById("table-focus-layer")?.focus();
+    }
+    if (focusLayer === "table" && focusedRow >= 0) {
+      document.getElementById(`cue-row-${focusedRow}`)?.focus();
+    }
+    if (focusLayer === "row" && focusedRow >= 0 && focusedField >= 0) {
+      document.getElementById(`cue-field-${focusedRow}-${focusedField}`)?.focus();
+    }
+  }, [focusLayer, focusedRow, focusedField]);
+
   return (
     <div className="media-captions-editor" style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-      {/* Loaders (optional if you pass initialVideoUrl / initialVttText) */}
       <div style={{ display: "flex", gap: 12, flexWrap: "wrap", alignItems: "center" }}>
+        {/* 
         <label>
           Load Video{" "}
           <input
@@ -472,7 +489,7 @@ export default function MediaCaptionsEditor({
             onChange={(e) => setVideoFile(e.target.files?.[0] || null)}
           />
         </label>
-
+        */}
         <label>
           Load Subtitles (VTT){" "}
           <input
@@ -489,9 +506,44 @@ export default function MediaCaptionsEditor({
       </div>
 
       <div style={{ display: "grid", gridTemplateColumns: "60% 40%", gap: 12, minHeight: 0 }}>
-        {/* Left: table */}
-        <div style={{ overflow: "auto", border: "1px solid #ddd", borderRadius: 6, padding: 8 }}>
-          <table style={{ width: "100%", borderCollapse: "collapse" }}>
+        {/* Left: table with focus layer */}
+        <div
+          tabIndex={focusLayer === "top" ? 0 : -1}
+          id="table-focus-layer"
+          aria-label="Captions Table"
+          style={{
+            outline: focusLayer === "table" && focusedRow === -1 ? "2px solid #1976d2" : "none",
+            overflow: "auto",
+            border: "1px solid #ddd",
+            borderRadius: 6,
+            padding: 8,
+            height: "35vh",
+            maxHeight: "40vh",
+            minHeight: 120,
+            display: "flex",
+            flexDirection: "column"
+          }}
+          onKeyDown={(e) => {
+            if (focusLayer === "top" && (e.key === "Enter" || e.key === " ")) {
+              setFocusLayer("table");
+              setFocusedRow(0);
+              e.preventDefault();
+            }
+            if (focusLayer === "table" && focusedRow === -1 && e.key === "Enter") {
+              setFocusedRow(0);
+              e.preventDefault();
+            }
+            if (focusLayer === "table" && focusedRow === -1 && e.key === "Escape") {
+              setFocusLayer("top");
+              e.preventDefault();
+            }
+          }}
+          onFocus={() => {
+            if (focusLayer !== "row") setFocusLayer("table");
+            setFocusedRow(-1);
+          }}
+        >
+          <table style={{ width: "100%", borderCollapse: "collapse", flex: 1 }}>
             <thead>
               <tr>
                 <th style={thStyle}>#</th>
@@ -502,19 +554,46 @@ export default function MediaCaptionsEditor({
                 <th style={{ ...thStyle, textAlign: "center" }}>Align</th>
               </tr>
             </thead>
-            <tbody>
+            <tbody style={{ overflowY: "auto" }}>
               {cues.map((cue, i) => {
                 const active = i === selectedIndex;
                 return (
                   <tr
                     key={i}
+                    id={`cue-row-${i}`}
+                    tabIndex={focusLayer === "table" && focusedRow === i ? 0 : -1}
                     style={active ? { background: "#eef6ff" } : undefined}
                     onClick={() => setSelectedIndex(i)}
                     onDoubleClick={() => selectCue(i, vttToMS(cue.start) / 1000)}
+                    onKeyDown={(e) => {
+                      if (e.key === "ArrowDown" && i < cues.length - 1) {
+                        setFocusedRow(i + 1);
+                        e.preventDefault();
+                      }
+                      if (e.key === "ArrowUp" && i > 0) {
+                        setFocusedRow(i - 1);
+                        e.preventDefault();
+                      }
+                      if (e.key === "Escape") {
+                        setFocusedRow(-1);
+                        document.getElementById("table-focus-layer")?.focus();
+                        e.preventDefault();
+                      }
+                      if (e.key === "Enter") {
+                        setFocusLayer("row");
+                        setFocusedField(0);
+                        e.preventDefault();
+                      }
+                    }}
+                    onFocus={() => {
+                      setFocusLayer("table");
+                      setFocusedRow(i);
+                    }}
                   >
-                    <td style={tdStyle}>{cue.index}</td>
+                    <td style={tdStyle}>{i + 1}</td>
                     <td style={tdStyle}>
                       <input
+                        id={`cue-field-${i}-0`}
                         type="text"
                         defaultValue={cue.text}
                         disabled={isDisabled}
@@ -530,6 +609,7 @@ export default function MediaCaptionsEditor({
                     </td>
                     <td style={tdStyle}>
                       <input
+                        id={`cue-field-${i}-1`}
                         type="text"
                         value={cue.start}
                         disabled={isDisabled}
@@ -543,6 +623,7 @@ export default function MediaCaptionsEditor({
                     </td>
                     <td style={tdStyle}>
                       <input
+                        id={`cue-field-${i}-2`}
                         type="text"
                         value={cue.end}
                         disabled={isDisabled}
@@ -595,7 +676,6 @@ export default function MediaCaptionsEditor({
               })}
             </tbody>
           </table>
-
           <div style={{ color: "red", minHeight: 18, marginTop: 6 }}>{error}</div>
         </div>
 
@@ -639,13 +719,14 @@ export default function MediaCaptionsEditor({
       <div style={{ border: "1px solid #ddd", borderRadius: 6, padding: 8 }}>
         <div onWheel={onWaveWheel}>
           <WavesurferPlayer
+            key={videoUrl || "no-url"}
             url={videoUrl || undefined}
             height={120}
             normalize
             hideScrollbar
             minPxPerSec={100}
             interact={false}
-            waveColor="#231e1eff"
+            waveColor="#595656ff"
             progressColor="#1976d2"
             plugins={plugins}
             onReady={onWsReady}
@@ -836,7 +917,6 @@ function formatVTTTime(sec) {
 }
 
 function normalizeVttTime(str) {
-  // Accepts "00:00:00.7" or "00:00:00.70" and returns "00:00:00.700"
   const match = String(str).match(/^(\d{2}):(\d{2}):(\d{2})(\.(\d{1,3}))?$/);
   if (!match) return str;
   const ms = (match[5] || "0").padEnd(3, "0").slice(0, 3);
