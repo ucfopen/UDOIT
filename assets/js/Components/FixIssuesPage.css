@@ -9,22 +9,6 @@
   border-bottom: 1px solid var(--border-color);
 }
 
-.ufixit-content-container {
-  display: flex;
-  flex-direction: column;
-  flex-grow: 1;
-  flex-shrink: 1;
-
-  box-sizing: border-box;
-  width: 50%;
-  overflow-y: hidden;
-  overflow-x: hidden;
-
-  /* This is so the highlighted error outlines don't get cut off */
-  padding: 5px;
-  margin: -5px;
-}
-
 .ufixit-widget-container {
   display: flex;
   flex-direction: column;
@@ -37,9 +21,22 @@
   max-width: 38em;
   overflow-y: hidden;
   overflow-x: hidden;
+}
 
-  padding: 5px;
-  margin: -5px;
+.ufixit-content-container {
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+  flex-shrink: 1;
+
+  box-sizing: border-box;
+  width: 50%;
+  overflow-y: hidden;
+  overflow-x: hidden;
+
+  background-color: var(--background-color);
+  border-left: 1px solid var(--border-color);
+  padding: 1.25rem 1.5rem;
 }
 
 .ufixit-content-progress {

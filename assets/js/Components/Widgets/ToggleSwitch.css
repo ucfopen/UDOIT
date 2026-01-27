@@ -1,0 +1,69 @@
+/* Code adapted from https://www.w3schools.com/howto/howto_css_switch.asp */
+
+/* The switch - the box around the slider */
+.css-switch {    
+    --slider-width: 2.5em;
+    --slider-height: 1.33em;
+    --slider-padding: 2px;
+    --slider-switch-width: calc(var(--slider-height) - (2 * var(--slider-padding)));
+    --slider-switch-displacement: calc(var(--slider-width) - (var(--slider-switch-width) + (2 * var(--slider-padding))));
+
+    position: relative;
+    display: flex;
+    flex-shrink: 0;
+    align-self: center;
+    width: var(--slider-width);
+    height: var(--slider-height);
+  
+    input {
+        opacity: 0;
+        width: 0;
+        height: 0;
+    }
+
+    /* The slider */
+    .slider {
+        position: absolute;
+        cursor: pointer;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: var(--gray-light);
+        -webkit-transition: background-color (--transition-time);
+        transition: background-color var(--transition-time);
+        border-radius: var(--slider-height);
+    
+        &:before {
+            position: absolute;
+            content: "";
+            height: var(--slider-switch-width);
+            width: var(--slider-switch-width);
+            left: var(--slider-padding);
+            bottom: var(--slider-padding);
+            background-color: var(--white);
+            -webkit-transition: transform var(--transition-time);
+            transition: transform var(--transition-time);
+            border-radius: 50%;
+        }
+
+        &:focus {
+            outline: 2px solid var(--focus-color);
+            outline-offset: 2px;
+        }
+    }
+
+    input:checked + .slider {
+        background-color: var(--primary-color);
+    }
+
+    input:focus + .slider {
+        box-shadow: 0 0 1px var(--primary-color);
+    }
+
+    input:checked + .slider:before {
+        -webkit-transform: translateX(var(--slider-switch-displacement));
+        -ms-transform: translateX(var(--slider-switch-displacement));
+        transform: translateX(var(--slider-switch-displacement));
+    }
+}

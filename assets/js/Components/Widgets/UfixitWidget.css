@@ -1,6 +1,5 @@
 .ufixit-widget {
-  height: 50%;
-  padding: .5rem 1rem .5rem .5rem;;
+  padding: 1.25rem 1.5rem;
   overflow-y: auto;
 
   .combo-container {
@@ -17,14 +16,84 @@
   }
 }
 
-/* .ufixit-widget-header {
-  border-bottom: 2px solid var(--primary-color);
-} */
-
 .ufixit-widget-label {
-  font-size: .9em;
+  margin-top: 1.25rem;
+  margin-bottom: .5rem;
+  font-size: 1em;
   font-weight: 600;
-  text-transform: uppercase;
+}
+
+.resolve-option {
+  border: 1px solid var(--border-color);
+  border-radius: var(--element-radius);
+  padding: .75rem 1rem;
+
+  &.selected {
+    border-color: var(--selection-color);
+    background-color: var(--selection-color-light);
+  }
+
+  .option-label {
+    font-weight: 400;
+    font-size: .9em;
+    line-height: normal;
+    display: inline-flex;
+    cursor: pointer;
+
+    /* Custom CSS-only radio button styling adapted from https://moderncss.dev/pure-css-custom-styled-radio-buttons/ */  
+    > input[type="radio"] {
+      /* Remove default appearance */
+      -webkit-appearance: none;
+      appearance: none;
+      background-color: transparent;
+      margin: 0;
+
+      /* Draw a circle for the border */
+      font: inherit;
+      color: var(--text-color);
+      width: 1.15em;
+      height: 1.15em;
+      border: 0.15em solid var(--text-color);
+      border-radius: 50%;
+      display: grid;
+      place-content: center;
+      margin-right: .5rem;
+      transition: 120ms border-width ease-in-out;
+
+      /* &::before {
+        content: "";
+        width: 0.65em;
+        height: 0.65em;
+        border-radius: 50%;
+        transform: scale(0);
+        transition: 120ms transform ease-in-out;
+        box-shadow: inset 1em 1em var(--selection-color);
+      } */
+
+      &:checked {
+        border-color: var(--selection-color);
+        border-width: .4em;
+        /* &::before {
+          transform: scale(1);
+        } */
+      }
+
+      &:focus {
+        outline: 2px solid var(--focus-color);
+        outline-offset: 2px;
+      }
+    }
+
+    &.disabled {
+      color: var(--disabled-color);
+      cursor: not-allowed;
+
+      > input[type="radio"] {
+        border-color: var(--disabled-color) !important;
+        cursor: not-allowed;
+      }
+    }
+  }
 }
 
 .dialog-indicator-background {
@@ -73,7 +142,7 @@
 
 .ufixit-instructions {
   font-size: .9em;
-  font-weight: 500;
+  font-weight: 300;
 }
 
 .clarification-container {
@@ -112,6 +181,10 @@
     color: var(--text-color);
   }
 
+  label[for] {
+    cursor: pointer;
+  }
+
   .instructions-helper {
     margin-top: .25em;
     padding-left: 1.8rem;
@@ -119,33 +192,6 @@
     font-style: italic;
     font-size: .9em;
     color: var(--gray-dark);
-  }
-
-  input[type="text"] {
-    padding: 0.25em;
-    box-sizing: border-box;
-    font-size: 0.95em;
-    font-family: var(--text-font-family);
-    border: 1px solid var(--gray);
-    border-radius: 4px;
-
-    &:hover,
-    &:focus {
-      outline: 2px solid var(--focus-color);
-      outline-offset: 1px;
-      
-    }
-
-    &:disabled {
-      background-color: var(--gray-light);
-      color: var(--gray);
-      border-color: var(--gray-light);
-      cursor: not-allowed !important;
-    }
-    &:disabled:hover,
-    &:disabled:focus {
-      outline-color: var(--gray-light);
-    }
   }
 
   .error-text {
@@ -394,4 +440,16 @@ dialog {
 dialog::backdrop {
   background: var(--backdrop-color);
   backdrop-filter: blur(3px);
+}
+
+.file-review-status-container{
+  border-radius: 0.5em;
+}
+
+.file-reviewed{
+  background-color: var(--primary-color-light);
+}
+
+.file-progress{
+    background-color: var(--potential-color-light);
 }

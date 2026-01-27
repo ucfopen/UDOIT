@@ -22,3 +22,100 @@
     width: 100%;
   }
 }
+
+  #file-drop-zone-disabled-upload {
+    border: 2px dashed var(--gray);
+    border-radius: 8px;
+    padding: 1rem 2rem;
+    text-align: center;
+    width: 100%;
+    box-sizing: border-box;
+    pointer-events: none;
+    opacity: 50%;
+
+  .file-drop-text {
+    width: 100%;
+  }
+  }
+
+  .modal-overlay{
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background-color: rgba(0, 0, 0, 0.5);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000; /* Ensure it's above other content */
+  }
+
+  .file-info-container{
+    background-color: white;
+    border: solid;
+    border-color: var(--gray-lighter);
+    border-radius: 0.5em;
+  }
+
+  .file-upload-container{
+    background-color: white;
+    border: dotted;
+    border-radius: 0.5em;
+    cursor: pointer;
+  }
+
+  .upload-icon {
+    background-color: var(--gray-lighter);
+    border-radius: 0.5em;
+  }
+
+  .upload-instructions{
+    font-size: 0.65em;
+  }
+
+  .uploaded{
+    border: solid;
+    border-width: 2px;
+    border-color: var(--primary-color-light);
+    cursor: default;
+  }
+
+  .remove-file{
+    cursor: pointer;
+  }
+
+  .marked-as-reviewed-container{
+    background-color: white;
+    border: solid;
+    border-color: var(--gray-lighter);
+    border-radius: 0.5em;
+  }
+
+
+
+   .marked-as-reviewed-container p{
+    font-size: 0.65em;
+   }
+
+   .new-file-info-container{
+    background-color: var(--gray-lightest);
+    border: solid;
+    border-color: var(--gray-lighter);
+    border-radius: 0.5em;
+   }
+
+   .file-msg{
+    font-size: 0.75em;
+   }
+
+   .replacement-option{
+    background-color: white;
+    border: solid;
+    border-color: var(--gray-lighter);
+    border-radius: 0.5em;
+   }
+
+   .option-instruction{
+    font-size: 0.9em;
+   }
