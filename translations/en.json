@@ -469,6 +469,8 @@
   "form.file.external_url.label": "External URL",
   "form.file.no_ref.label": "There are currently no references to this file found in the course. Consider deleting it to clear up some junk",
 
+  "form.delete": "Delete",
+
   "form.label.new.tag": "New",
   "form.label.current.tag": "Current",
   "form.label.original.tag": "Original",

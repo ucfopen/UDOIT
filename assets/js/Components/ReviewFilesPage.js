@@ -1048,7 +1048,7 @@ const getSectionPostOptions = (newFile, sectionReferences) => {
                 disabled={formInvalid || isDisabled }
                 tabIndex='0'
               > 
-              {t(`form.submit`)}
+              {markDelete ? t('form.delete') : t(`form.submit`)}
               </button>
           </div>
         </div>
