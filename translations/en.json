@@ -458,7 +458,12 @@
   "form.file.label.file_type": "File Type",
   "form.file.delete_instructions": "You will permanently delete the following file from your webcourses: {file}",
   "form.file.revert_instructions": "You will be reverting the file references to have the original file: {file}",
-  
+  "form.file.revert_label": "Revert Changes",
+  "form.file.marked_review": "Marked as Reviewed",
+  "form.file.marked_review_instruction": "This file has been checked for accessibility and marked as reviewed. Mark the file has unreviewed if you believe it is inaccessible and needs changes",
+  "form.file.keep_current": "Keep Current File",
+  "form.file.upload_instrcutions": "Click to upload or drag and drop PDF, DOC, PPT",
+
   "form.label.new.tag": "New",
   "form.label.current.tag": "Current",
   "form.label.original.tag": "Original",

@@ -76,7 +76,7 @@ export default function FileForm ({
 
     const normalizeActiveFile = () => {
       const tempFile =  {
-        fileName: activeFile.fileName,
+        fileName: activeFile.fileName,        
         fileType: getReadableFileType(activeFile.fileType),
         fileSize: Text.getReadableFileSize(activeFile.fileSize),
       }
@@ -229,7 +229,7 @@ export default function FileForm ({
                 onChange={() => {
                   handleOptionChange(FORM_OPTIONS.MARK_REVERT)
                 }} />
-                Revert Changes
+                {t('form.file.revert_label')}
               </label>
               {activeOption === FORM_OPTIONS.MARK_REVERT && <div className='mt-1'>{t('form.file.revert_instructions', {file: activeFile.fileName})}</div>}
         </div>
@@ -239,9 +239,9 @@ export default function FileForm ({
     {activeFile.reviewed && !activeFile.replacement && 
       <div className='resolve-option selected'>
         <div className='marked-as-reviewed-container p-4 flex-column justify-content-center align-items-center text-center'>
-          <h3>Marked as Reviewed</h3>
-          <div>This file has been checked for accessibility and marked as reviewed. Mark the file has unreviewed if you believe it is inaccessible and needs changes</div>
-          <div className='btn-link fw-bold mt-3' onClick={handleFileResolveWrapper}>Mark File As Unreviewed</div>
+          <h3>{t('form.file.marked_review')}</h3>
+          <div>{t('form.file.marked_review_instruction')}</div>
+          <div className='btn-link fw-bold mt-3' onClick={handleFileResolveWrapper}>{t('fix.button.unresolved')}</div>
         </div> 
       </div>
       }
@@ -258,7 +258,7 @@ export default function FileForm ({
               onChange={() => {
                 handleOptionChange(FORM_OPTIONS.MARK_AS_REVIEWED)
               }} />
-              Keep Current File
+              {t('form.file.keep_current')}
             </label>
         </div>
 
@@ -274,19 +274,19 @@ export default function FileForm ({
               onChange={() => {
                 handleOptionChange(FORM_OPTIONS.REPLACE_FILE)
               }} />
-              Replace File
+              {t('form.file.label.replace')}
             </label>
             {activeOption == FORM_OPTIONS.REPLACE_FILE && (
               <div className='flex-column align-items-center justify-content-center'>
                 <div className='w-100 p-2'>
-                  <FileStatus t={t} fileStatus={0} fileTagText={"Original File"} />
+                  <FileStatus t={t} fileStatus={0} fileTagText={t("form.file.original.label")} />
                     <div className='file-info-container p-2'>
                       <FileInformation t={t} file={copiedActiveFile} />
                     </div>
                 </div>
                 <DownwardArrowIcon className="icon-md pt-4 pb-4" />
                 <div className='w-100 p-2'>
-                  <FileStatus t={t} fileStatus={1} fileTagText={"New File"} />
+                  <FileStatus t={t} fileStatus={1} fileTagText={t("form.file.new.label")} />
                   <div className={`file-upload-container ${uploadedFile ? 'uploaded p-2' : 'p-4 flex-column text-center jusitify-content-center align-items-center'}`}
                     onDrop={handleDrop}
                     onClick={handleFileSelect}
@@ -303,7 +303,7 @@ export default function FileForm ({
                     
                     <div>
                       <UploadIcon className='upload-icon icon-md p-2 mb-2' />
-                      <div className='upload-instructions'><span className='link-color fw-bold'>Click to upload</span> or drag and drop <br /> PDF, DOC, PPT</div>
+                      <div className='upload-instructions'>{t('form.file.upload_instrcutions')}</div>  
                     </div>
                     }
                   </div>
@@ -327,19 +327,7 @@ export default function FileForm ({
               }} />
               Delete Current File
             </label>
-       
-              {activeOption == FORM_OPTIONS.MARK_DELETE && (
-                <div className='option-instruction mt-2'> 
-                  <p>This file is not referenced anywhere in your course. Consider deleting it to clear up some junk</p>
-                  <label>Please type <span className='fw-bolder'>'PERMANENTLY DELETE'</span> to permanently delete the following file from your course: <span className='fw-bold truncated-text-ellipse'>{activeFile.fileName}</span></label>
-                  <input
-                    type='text'
-                    tabIndex={0}
-                    className='w-100 mt-1'
-                    onChange={(e) => checkCanDelete(e)}
-                    /> 
-                </div>
-              )}
+              {activeOption === FORM_OPTIONS.MARK_DELETE && <div className='mt-1'>{t('form.file.delete_instructions', {file: activeFile.fileName})}</div>}
           </div>
       )}
 
