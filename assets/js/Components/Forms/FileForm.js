@@ -166,19 +166,21 @@ export default function FileForm ({
     setActiveOption(option)
     if(option == FORM_OPTIONS.MARK_REVERT){
       setMarkRevert(true)
+      setMarkAsReviewed(false)
+      setMarkDelete(false)
       return
     }
     if (option == FORM_OPTIONS.MARK_AS_REVIEWED){
       setMarkAsReviewed(true)
+      setMarkRevert(false)
+      setMarkDelete(false)
       return
     }
     if(option == FORM_OPTIONS.MARK_DELETE){
-      setMarkDelete(true )
-    }
-    else{
+      setMarkDelete(true)
       setMarkRevert(false)
       setMarkAsReviewed(false)
-      setMarkDelete(false)
+      return
     }
   }
 
