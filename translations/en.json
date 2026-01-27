@@ -360,6 +360,7 @@
   "form.anchor.delete_link": "Delete the Link Instead",
   "form.anchor.msg.text_descriptive": "Link text must be descriptive",
   "form.anchor.msg.text_empty": "Link text cannot be empty",
+  "form.anchor.label.link_target": "Link Target:",
   "rule.desc.a_text_purpose": "",
   "rule.desc.area_alt_exists": "",
 

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react"
-import FormSaveOrReview from './FormSaveOrReview'
+import OptionFeedback from "../Widgets/OptionFeedback"
 import Combobox from "../Widgets/Combobox"
 import * as Html from "../../Services/Html"
 
@@ -7,12 +7,18 @@ export default function AriaRoleForm({
   t,
   settings,
   activeIssue,
-  handleIssueSave,
   isDisabled,
   handleActiveIssue,
   markAsReviewed,
-  setMarkAsReviewed
+  setMarkAsReviewed,
+  setFormInvalid
  }) {
+
+  const FORM_OPTIONS = {
+    SELECT_ROLE: 'select-role',
+    DELETE_ROLE: 'delete-role',
+    MARK_AS_REVIEWED: 'mark-as-reviewed'
+  }
 
   const ariaRoleMap = {
     A: [
@@ -144,6 +150,7 @@ export default function AriaRoleForm({
     FORM: ["none", "presentation", "search"],
   }
 
+  const [activeOption, setActiveOption] = useState('')
   const [deleteRole, setDeleteRole] = useState(false)
   const [detectedTag, setDetectedTag] = useState("")
   const [validRoles, setValidRoles] = useState([])
@@ -159,8 +166,8 @@ export default function AriaRoleForm({
       currentRole = ''
     }
     
-    setSelectValue(currentRole)
-    setDeleteRole(!element && activeIssue.status === 1)
+    let deleted = (!element && activeIssue.status === 1)
+    let hasValidRole = false
 
     const tagName = Html.getTagName(html)
     let tempValidRoles = []
@@ -169,7 +176,10 @@ export default function AriaRoleForm({
       setDetectedTag(tagName)
       
       tempValidRoles = ariaRoleMap[tagName] || []
-      setValidRoles(tempValidRoles)
+      if (tempValidRoles.indexOf(currentRole.toLowerCase()) !== -1) {
+        hasValidRole = true
+      }
+
       if (tempValidRoles.length > 0) {
         let tempSelectOptions = [{
           value: '',
@@ -183,23 +193,51 @@ export default function AriaRoleForm({
             selected: role.toLowerCase() === currentRole.toLowerCase()
           })
         })
+        setValidRoles(tempValidRoles)
         setSelectOptions(tempSelectOptions)
       }
       else {
         setSelectOptions([])
       }
     }
- 
     else {
       setDetectedTag("")
       setValidRoles([])
     }
+
+    if (deleted) {
+      setActiveOption(FORM_OPTIONS.DELETE_ROLE)
+    }
+    else if (hasValidRole) {
+      setActiveOption(FORM_OPTIONS.SELECT_ROLE)
+    }
+    else if (markAsReviewed) {
+      setActiveOption(FORM_OPTIONS.MARK_AS_REVIEWED)
+    }
+    else {
+      setActiveOption('')
+    }
+
+    setSelectValue(currentRole)
+    setDeleteRole(deleted)
   }, [activeIssue])
 
   useEffect(() => {
     updateHtmlContent()
     checkFormErrors()
   }, [selectValue, deleteRole, markAsReviewed])
+
+  useEffect(() => {
+    let invalid = false
+    if(!markAsReviewed) {
+      Object.keys(formErrors).forEach(optionKey => {
+        if(formErrors[optionKey].length > 0) {
+          invalid = true
+        }
+      })
+    }
+    setFormInvalid(invalid)
+  }, [formErrors, markAsReviewed])
 
   const updateHtmlContent = () => {
     let issue = activeIssue
@@ -225,10 +263,17 @@ export default function AriaRoleForm({
   }
 
   const checkFormErrors = () => {
-    let tempErrors = []
-    if (!deleteRole && (selectValue === '' || validRoles.indexOf(selectValue) === -1)) {
-      tempErrors.push({ text: t('form.aria_role.msg.role_required'), type: 'error' })
+    let tempErrors = {
+      [FORM_OPTIONS.SELECT_ROLE]: [],
+      [FORM_OPTIONS.DELETE_ROLE]: []
     }
+
+    if (!deleteRole) {
+      if (selectValue === '' || validRoles.indexOf(selectValue) === -1) {
+        tempErrors[FORM_OPTIONS.SELECT_ROLE].push({ text: t('form.aria_role.msg.role_required'), type: 'error' })
+      }
+    }
+
     setFormErrors(tempErrors)
   }
 
@@ -236,58 +281,113 @@ export default function AriaRoleForm({
     setSelectValue(value)
   }
 
-  const handleSubmit = () => {
-    if(markAsReviewed || formErrors.length === 0) {
-      handleIssueSave(activeIssue)
+  const handleOptionChange = (option) => {
+    setActiveOption(option)
+
+    if (option === FORM_OPTIONS.SELECT_ROLE) {
+      setDeleteRole(false)
+      setMarkAsReviewed(false)
+    } else if (option === FORM_OPTIONS.DELETE_ROLE) {
+      setDeleteRole(true)
+      setMarkAsReviewed(false)
+    } else if (option === FORM_OPTIONS.MARK_AS_REVIEWED) {
+      setDeleteRole(false)
+      setMarkAsReviewed(true)
     }
-  }
-
-  // const handleSelect = (newValue) => {
-  //   setSelectValue(newValue)
-  // }
-
-  const handleCheckbox = () => {
-   setDeleteRole(!deleteRole)
   }
 
   return (
     <>
+      {/* OPTION 1: Select valid role... If there is a valid tag with valid role options. ID: "select-role" */}
       {(detectedTag === '') ? (
-        <label>{t('form.aria_role.feedback.no_tag')}</label>
+        <div className="resolve-option">
+          <label className="option-label disabled">
+            <input
+              type="radio"
+              id="no-select-1"
+              disabled={true}
+              checked={false} />
+            {t('form.aria_role.feedback.no_tag')}
+          </label>
+        </div>
       ) : (validRoles.length === 0) ? (
-        <label>{t('form.aria_role.feedback.no_roles', {tagName: detectedTag})}</label>
+        <div className="resolve-option">
+          <label className="option-label disabled">
+            <input
+              type="radio"
+              id="no-select-2"
+              disabled={true}
+              checked={false} />
+            {t('form.aria_role.feedback.no_roles', {tagName: detectedTag})}
+          </label>
+        </div>
       ) : (
-        <>
-          <Combobox
-            handleChange={handleComboboxSelect}
-            id='role-select'
-            isDisabled={isDisabled || deleteRole}
-            label={t('form.aria_role.label.select')}
-            options={selectOptions}
-            settings={settings}
-          />
-          <div className="separator mt-2">{t('fix.label.or')}</div>
-        </>
+        <div className={`resolve-option ${activeOption === FORM_OPTIONS.SELECT_ROLE ? 'selected' : ''}`}>
+          <label className={`option-label` + (isDisabled ? ' disabled' : '')} id='combo-label-role-select'>
+            <input
+              type="radio"
+              id={FORM_OPTIONS.SELECT_ROLE}
+              name="ufixitRadioOption"
+              tabIndex="0"
+              checked={activeOption === FORM_OPTIONS.SELECT_ROLE}
+              disabled={isDisabled}
+              onChange={() => {
+                handleOptionChange(FORM_OPTIONS.SELECT_ROLE)
+              }} />
+            {t('form.aria_role.label.select')}
+          </label>
+          {activeOption === FORM_OPTIONS.SELECT_ROLE && (
+            <>
+              <Combobox
+                handleChange={handleComboboxSelect}
+                id='role-select'
+                isDisabled={isDisabled || deleteRole}
+                label=''
+                options={selectOptions}
+                settings={settings}
+              />
+              <OptionFeedback feedbackArray={formErrors[FORM_OPTIONS.SELECT_ROLE]} />
+            </>
+          )}
+        </div>
       )}
-      <div className="flex-row justify-content-start gap-1 mt-2">
-        <input type="checkbox"
-          id="deleteRoleCheckbox"
-          name="deleteRoleCheckbox"
-          tabIndex="0"
-          disabled={isDisabled}
-          checked={deleteRole}
-          onChange={handleCheckbox} />
-        <label htmlFor="deleteRoleCheckbox" className="instructions">{t('form.aria_role.label.remove')}</label>
+
+      {/* OPTION 2: Delete Role. ID: "delete-role" */}
+      <div className={`resolve-option ${activeOption === FORM_OPTIONS.DELETE_ROLE ? 'selected' : ''}`}>
+        <label className={`option-label` + (isDisabled ? ' disabled' : '')}>
+          <input
+            type="radio"
+            id={FORM_OPTIONS.DELETE_ROLE}
+            name="ufixitRadioOption"
+            tabIndex="0"
+            checked={activeOption === FORM_OPTIONS.DELETE_ROLE}
+            disabled={isDisabled}
+            onChange={() => {
+              handleOptionChange(FORM_OPTIONS.DELETE_ROLE)
+            }} />
+          {t('form.aria_role.label.remove')}
+        </label>
+        {activeOption === FORM_OPTIONS.DELETE_ROLE && (
+          <OptionFeedback feedbackArray={formErrors[FORM_OPTIONS.DELETE_ROLE]} />
+        )}
       </div>
-      <FormSaveOrReview
-        t={t}
-        settings={settings}
-        activeIssue={activeIssue}
-        isDisabled={isDisabled}
-        handleSubmit={handleSubmit}
-        formErrors={formErrors}
-        markAsReviewed={markAsReviewed}
-        setMarkAsReviewed={setMarkAsReviewed} />
+      
+      {/* OPTION 3: Mark as Reviewed. ID: "mark-as-reviewed" */}
+      <div className={`resolve-option ${activeOption === FORM_OPTIONS.MARK_AS_REVIEWED ? 'selected' : ''}`}>
+        <label className={`option-label` + (isDisabled ? ' disabled' : '')}>
+          <input
+            type="radio"
+            id={FORM_OPTIONS.MARK_AS_REVIEWED}
+            name="ufixitRadioOption"
+            tabIndex="0"
+            checked={activeOption === FORM_OPTIONS.MARK_AS_REVIEWED}
+            disabled={isDisabled}
+            onChange={() => {
+              handleOptionChange(FORM_OPTIONS.MARK_AS_REVIEWED)
+            }} />
+          {t('fix.label.no_changes')}
+        </label>
+      </div>
     </>
   )
 }

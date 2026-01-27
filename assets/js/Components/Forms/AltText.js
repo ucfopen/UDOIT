@@ -179,7 +179,7 @@ export default function AltText ({
           <input
             type="radio"
             id={FORM_OPTIONS.ADD_TEXT}
-            name="altTextOption"
+            name="ufixitRadioOption"
             tabIndex="0"
             checked={activeOption === FORM_OPTIONS.ADD_TEXT}
             disabled={isDisabled}
@@ -195,7 +195,7 @@ export default function AltText ({
               tabIndex="0"
               id="altTextInput"
               name="altTextInput"
-              className="w-100 mt-2"
+              className="w-100"
               value={textInputValue}
               disabled={isDisabled || isDecorative}
               onChange={handleInput} />
@@ -210,7 +210,7 @@ export default function AltText ({
           <input
             type="radio"
             id={FORM_OPTIONS.MARK_DECORATIVE}
-            name="altTextOption"
+            name="ufixitRadioOption"
             tabIndex="0"
             checked={activeOption === FORM_OPTIONS.MARK_DECORATIVE}
             disabled={isDisabled}
@@ -227,7 +227,7 @@ export default function AltText ({
           <input
             type="radio"
             id={FORM_OPTIONS.MARK_AS_REVIEWED}
-            name="altTextOption"
+            name="ufixitRadioOption"
             tabIndex="0"
             checked={activeOption === FORM_OPTIONS.MARK_AS_REVIEWED}
             disabled={isDisabled}

@@ -69,7 +69,7 @@ export default function UfixitWidget({
             />
 
             <h3 className="ufixit-widget-label">{t('fix.label.barrier_repair')}</h3>
-            <div className="flex-column gap-1">
+            <div className="flex-column gap-1 flex-grow-1">
               <UfixitForm
                 t={t}
                 settings={settings}

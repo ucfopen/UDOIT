@@ -16,16 +16,15 @@
   --white: #FFFFFF;
 
   --primary-color: #196937;
-
   --primary-color-text: var(--primary-color);
   --primary-color-dark: var(--primary-color);
   --primary-color-hover: color-mix(in srgb, var(--primary-color) 100%, var(--white) 10%); /* #436657; */
   --primary-color-light: color-mix(in srgb, var(--primary-color) 10%, var(--white) 100%);  /* #E8F3ED; */
   --primary-color-inverse: var(--gray-lightest);
   --primary-color-disabled: #AFCFBC;
+
   --text-color: var(--gray-darker);
   --disabled-color: #9C9C9C;
-
   --hover-brightness: 1.15;
 
   --link-color: #006AAC;
@@ -35,12 +34,6 @@
 
   --focus-color: #009AD0;
 
-  /* --issue-color: #E2080C;
-  --issue-color-light: color-mix(in srgb, var(--issue-color) 10%, #FFFFFF 100%);
-  --potential-color: #F8961E;
-  --potential-color-light: color-mix(in srgb, var(--potential-color) 10%, #FFFFFF 100%);
-  --suggestion-color: #32B0E4;
-  --suggestion-color-light: color-mix(in srgb, var(--suggestion-color) 10%, #FFFFFF 100%); */
   --info-color: #5BAEDF; /* #2C9ECE; */
   --info-color-light: color-mix(in srgb, var(--info-color) 10%, #FFFFFF 100%);
   --success-color: #006937;
@@ -701,6 +694,7 @@ button {
   font-weight: 400;
   font-size: 1em;
   width: fit-content;
+  height: fit-content;
 
   &:focus {
     outline: 2px solid var(--focus-color);

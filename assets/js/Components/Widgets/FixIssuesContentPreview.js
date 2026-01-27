@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import ScrollButton from './ScrollButton'
 import HtmlPreview from './HtmlPreview'
 import ExternalLinkIcon from '../Icons/ExternalLinkIcon'
@@ -73,6 +73,10 @@ export default function FixIssuesContentPreview({
       }
     }
   }
+
+  useEffect(() => {
+    handleScroll()
+  }, [activeContentItem, activeIssue])
     
   return (
     <>

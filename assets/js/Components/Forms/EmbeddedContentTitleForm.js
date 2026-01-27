@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import FormSaveOrReview from './FormSaveOrReview'
+import OptionFeedback from '../Widgets/OptionFeedback'
 import * as Html from '../../Services/Html'
 import * as Text from '../../Services/Text'
 
@@ -7,13 +7,19 @@ export default function EmbeddedContentTitleForm({
   t,
   settings,
   activeIssue,
-  handleIssueSave,
   isDisabled,
   handleActiveIssue,
   markAsReviewed,
-  setMarkAsReviewed
+  setMarkAsReviewed,
+  setFormInvalid
  }) {
 
+  const FORM_OPTIONS = {
+    ADD_LABEL: 'add-label',
+    MARK_AS_REVIEWED: 'mark-as-reviewed'
+  }
+
+  const [activeOption, setActiveOption] = useState('')
   const [textInputValue, setTextInputValue] = useState("")
   const [formErrors, setFormErrors] = useState([])
 
@@ -22,6 +28,16 @@ export default function EmbeddedContentTitleForm({
     let element = Html.toElement(html)
     let initialText = Html.getAccessibleName(element)
 
+    if(initialText !== '') {
+      setActiveOption(FORM_OPTIONS.ADD_LABEL)
+    }
+    else if(markAsReviewed) {
+      setActiveOption(FORM_OPTIONS.MARK_AS_REVIEWED)
+    }
+    else {
+      setActiveOption('')
+    }
+
     setTextInputValue(initialText)
   }, [activeIssue])
 
@@ -29,6 +45,18 @@ export default function EmbeddedContentTitleForm({
     updateHtmlContent()
     checkFormErrors()
   }, [textInputValue, markAsReviewed])
+
+  useEffect(() => {
+    let invalid = false
+    if(!markAsReviewed) {
+      Object.keys(formErrors).forEach(optionKey => {
+        if(formErrors[optionKey].length > 0) {
+          invalid = true
+        }
+      })
+    }
+    setFormInvalid(invalid)
+  }, [formErrors, markAsReviewed])
 
   const updateHtmlContent = () => {
 
@@ -58,21 +86,29 @@ export default function EmbeddedContentTitleForm({
   }
 
   const checkFormErrors = () => {
-    let tempErrors = []
-    
-    if(Text.isTextEmpty(textInputValue)) {
-      tempErrors.push({ text: t('form.embedded_content_title.msg.text_empty'), type: "error" })
+    let tempErrors = {
+      [FORM_OPTIONS.ADD_LABEL]: []
     }
-    if(isLabelDuplicate()) {
-      tempErrors.push({ text: t('form.embedded_content_title.msg.text_unique'), type: "error" })
+    
+    if(!markAsReviewed) {
+      if(Text.isTextEmpty(textInputValue)) {
+        tempErrors[FORM_OPTIONS.ADD_LABEL].push({ text: t('form.embedded_content_title.msg.text_empty'), type: "error" })
+      }
+      if(isLabelDuplicate()) {
+        tempErrors[FORM_OPTIONS.ADD_LABEL].push({ text: t('form.embedded_content_title.msg.text_unique'), type: "error" })
+      }
     }
     
     setFormErrors(tempErrors)
   }
 
-  const handleSubmit = () => {
-    if(markAsReviewed || formErrors.length === 0) {
-      handleIssueSave(activeIssue)
+  const handleOptionChange = (option) => {
+    setActiveOption(option)
+
+    if (option === FORM_OPTIONS.ADD_LABEL) {
+      setMarkAsReviewed(false)
+    } else if (option === FORM_OPTIONS.MARK_AS_REVIEWED) {
+      setMarkAsReviewed(true)
     }
   }
 
@@ -95,27 +131,53 @@ export default function EmbeddedContentTitleForm({
   
   return (
     <>
-      <label htmlFor="labelInputValue" className="instructions">{t('form.embedded_content_title.label.text')}</label>
-      <div className="w-100 mt-2">
-        <input
-          type="text" 
-          id="labelInputValue"
-          name="labelInputValue"
-          className="w-100"
-          value={textInputValue}
-          tabIndex="0"
-          disabled={isDisabled}
-          onChange={handleInput} />
+      {/* OPTION 1: Add label. ID: "add-label" */}
+      <div className={`resolve-option ${activeOption === FORM_OPTIONS.ADD_LABEL ? 'selected' : ''}`}>
+        <label className={`option-label` + (isDisabled ? ' disabled' : '')}>
+          <input
+            type="radio"
+            id={FORM_OPTIONS.ADD_LABEL}
+            name="ufixitRadioOption"
+            tabIndex="0"
+            checked={activeOption === FORM_OPTIONS.ADD_LABEL}
+            disabled={isDisabled}
+            onChange={() => {
+              handleOptionChange(FORM_OPTIONS.ADD_LABEL)
+            }} />
+          {t('form.embedded_content_title.label.text')}
+        </label>
+        {activeOption === FORM_OPTIONS.ADD_LABEL && (
+          <>
+            <input
+              type="text"
+              tabIndex="0"
+              id="labelInputValue"
+              name="labelInputValue"
+              className="w-100"
+              value={textInputValue}
+              disabled={isDisabled}
+              onChange={handleInput} />
+            <OptionFeedback feedbackArray={formErrors[FORM_OPTIONS.ADD_LABEL]} />
+          </>
+        )}
       </div>
-      <FormSaveOrReview
-        t={t}
-        settings={settings}
-        activeIssue={activeIssue}
-        isDisabled={isDisabled}
-        handleSubmit={handleSubmit}
-        formErrors={formErrors}
-        markAsReviewed={markAsReviewed}
-        setMarkAsReviewed={setMarkAsReviewed} />
+
+      {/* OPTION 2: Mark as Reviewed. ID: "mark-as-reviewed" */}
+      <div className={`resolve-option ${activeOption === FORM_OPTIONS.MARK_AS_REVIEWED ? 'selected' : ''}`}>
+        <label className={`option-label` + (isDisabled ? ' disabled' : '')}>
+          <input
+            type="radio"
+            id={FORM_OPTIONS.MARK_AS_REVIEWED}
+            name="ufixitRadioOption"
+            tabIndex="0"
+            checked={activeOption === FORM_OPTIONS.MARK_AS_REVIEWED}
+            disabled={isDisabled}
+            onChange={() => {
+              handleOptionChange(FORM_OPTIONS.MARK_AS_REVIEWED)
+            }} />
+          {t('fix.label.no_changes')}
+        </label>
+      </div>
     </>
   )
 }

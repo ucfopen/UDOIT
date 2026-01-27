@@ -27,7 +27,9 @@
 .resolve-option {
   border: 1px solid var(--border-color);
   border-radius: var(--element-radius);
-  padding: .75rem 1rem;
+  padding: 1rem 1rem;
+  line-height: normal;
+  align-content: center;
 
   &.selected {
     border-color: var(--selection-color);
@@ -40,6 +42,7 @@
     line-height: 1.5em;
     display: inline-flex;
     cursor: pointer;
+    align-items: center;
 
     /* Custom CSS-only radio button styling adapted from https://moderncss.dev/pure-css-custom-styled-radio-buttons/ */  
     > input[type="radio"] {
@@ -56,10 +59,9 @@
       height: 1.15em;
       border: 0.15em solid var(--text-color);
       border-radius: 50%;
-      margin-top: 0.15em;
       margin-right: .75rem;
       transition: 120ms border-width ease-in-out;
-
+      flex-shrink: 0;
 
       &:checked {
         border-color: var(--selection-color);
@@ -80,6 +82,10 @@
         border-color: var(--disabled-color) !important;
         cursor: not-allowed;
       }
+    }
+
+    + * {
+      margin-top: 1rem;
     }
   }
 
@@ -335,9 +341,10 @@
 }
 
 .url-container {
-  background-color: var(--gray-light);
-  padding: .25em .5em;
-  border-radius: 8px;
+  background-color: var(--background-color);
+  border: 1px solid var(--border-color);
+  padding: .5em 1em;
+  border-radius: var(--element-radius);
 }
 
 .ufixit-overlay {

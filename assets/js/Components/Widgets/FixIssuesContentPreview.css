@@ -91,7 +91,7 @@
 }
 
 .ufixit-error-highlight {
-  outline: 3px dashed var(--issue-color);
+  outline: 3px dashed var(--issue-color-text);
   outline-offset: 1px;
   anchor-name: --ufixit-error-highlight;
 

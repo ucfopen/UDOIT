@@ -45,7 +45,6 @@ export default function FixIssuesPage({
 })
 {
 
-  console.log(report)
   // Define the kinds of filters that will be available to the user
   const FILTER = settings.ISSUE_FILTER
 
@@ -819,14 +818,14 @@ export default function FixIssuesPage({
             </div>
           </div>
           <div className="dialog-footer">
-            <div className="flex-row gap-2">
+            <div className="flex-row gap-2 align-items-center">
               <button
                 className='btn btn-small btn-link btn-icon-left'
                 onClick={() => nextIssue(true)}
                 disabled={filteredIssues.length < 2}
                 tabIndex="0">
                 <LeftArrowIcon className='icon-sm' />
-                <div className="flex-column justify-content-center">{t('fix.button.previous')}</div>
+                <div className="align-self-center">{t('fix.button.previous')}</div>
               </button>
 
               <button
@@ -834,11 +833,11 @@ export default function FixIssuesPage({
                 onClick={() => nextIssue()}
                 disabled={filteredIssues.length < 2}
                 tabIndex="0">
-                <div className="flex-column justify-content-center">{t('fix.button.next')}</div>
+                <div className="align-self-center">{t('fix.button.next')}</div>
                 <RightArrowIcon className='icon-sm' />
               </button>
             </div>
-            <div className="flex-column justify-content-center">
+            <div className="align-self-center">
               <button
                 onClick={handleIssueSave}
                 className="btn btn-primary btn-icon-left"

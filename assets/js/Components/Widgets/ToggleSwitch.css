@@ -8,6 +8,11 @@
     --slider-switch-width: calc(var(--slider-height) - (2 * var(--slider-padding)));
     --slider-switch-displacement: calc(var(--slider-width) - (var(--slider-switch-width) + (2 * var(--slider-padding))));
 
+    &.small {
+        --slider-width: 1.8em;
+        --slider-height: 1em;
+    }
+    
     position: relative;
     display: flex;
     flex-shrink: 0;
