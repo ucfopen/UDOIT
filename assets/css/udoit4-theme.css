@@ -1234,6 +1234,11 @@ a:focus {
   fill: var(--info-color);
 }
 
+.udoit-progress {
+  color: var(--info-color);
+  fill: var(--info-color);
+}
+
 .spinner {
   animation: spin 1.5s linear infinite;
 }

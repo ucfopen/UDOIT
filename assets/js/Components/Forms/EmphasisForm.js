@@ -157,18 +157,6 @@ export default function EmphasisForm({
     return Html.toString(element)
   }
 
-  const handleBoldToggle = (value) => {
-    setUseBold(value)
-  }
-
-  const handleItalicsToggle = (value) => {
-    setUseItalics(value)
-  }
-
-  const handleRemoveColorToggle = (value) => {
-    setRemoveColor(value)
-  }
-
   return (
     <>
       {/* OPTION 1: Add label. ID: "add-emphasis" */}
@@ -192,7 +180,7 @@ export default function EmphasisForm({
               <ToggleSwitch
                 labelId="boldCheckbox"
                 initialValue={useBold}
-                updateToggle={handleBoldToggle}
+                updateToggle={setUseBold}
                 disabled={isDisabled}
                 small={true} />
               <label htmlFor="boldCheckbox" className="ufixit-instructions">{t('form.emphasis.label.bold')}</label>
@@ -201,7 +189,7 @@ export default function EmphasisForm({
               <ToggleSwitch
                 labelId="italicCheckbox"
                 initialValue={useItalics}
-                updateToggle={handleItalicsToggle}
+                updateToggle={setUseItalics}
                 disabled={isDisabled}
                 small={true} />
               <label htmlFor="italicCheckbox" className="ufixit-instructions">{t('form.emphasis.label.italic')}</label>
@@ -210,7 +198,7 @@ export default function EmphasisForm({
               <ToggleSwitch
                 labelId="removeColorCheckbox"
                 initialValue={removeColor}
-                updateToggle={handleRemoveColorToggle}
+                updateToggle={setRemoveColor}
                 disabled={isDisabled}
                 small={true} />
               <label htmlFor="removeColorCheckbox" className="ufixit-instructions">{t('form.emphasis.label.remove_color')}</label>

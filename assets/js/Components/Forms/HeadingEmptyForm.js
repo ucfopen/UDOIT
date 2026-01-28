@@ -1,5 +1,5 @@
 import React, {useState, useEffect} from 'react'
-import FormSaveOrReview from './FormSaveOrReview'
+import OptionFeedback from '../Widgets/OptionFeedback'
 import * as Html from '../../Services/Html'
 import * as Text from '../../Services/Text'
 
@@ -7,15 +7,22 @@ export default function HeadingEmptyForm({
   t,
   settings,
   activeIssue,
-  handleIssueSave,
   isDisabled,
   handleActiveIssue,
   markAsReviewed,
-  setMarkAsReviewed
+  setMarkAsReviewed,
+  setFormInvalid
 }) {
 
+  const FORM_OPTIONS = {
+    ADD_TEXT: 'add-text',
+    DELETE_HEADING: 'delete-heading',
+    MARK_AS_REVIEWED: 'mark-as-reviewed'
+  }
+
+  const [activeOption, setActiveOption] = useState('')
   const [textInputValue, setTextInputValue] = useState('')
-  const [deleteHeader, setDeleteHeader] = useState(false)
+  const [deleteHeading, setDeleteHeading] = useState(false)
   const [formErrors, setFormErrors] = useState([])
 
   useEffect(() => {
@@ -23,8 +30,23 @@ export default function HeadingEmptyForm({
       const html = Html.getIssueHtml(activeIssue)
       const element = Html.toElement(html)
 
-      setTextInputValue(element ? element.innerText : '')
-      setDeleteHeader(!element && activeIssue.status.toString() === '1')
+      let initialText = (element ? element.innerText : '')
+      let deleted = (!activeIssue.newHtml && (activeIssue.status === 1))
+
+      if (deleted) {
+        setActiveOption(FORM_OPTIONS.DELETE_HEADING)
+      }
+      else if (initialText !== '') {
+        setActiveOption(FORM_OPTIONS.ADD_TEXT)
+      }
+      else if (markAsReviewed) {
+        setActiveOption(FORM_OPTIONS.MARK_AS_REVIEWED)
+      } else {
+        setActiveOption('')
+      }
+
+      setTextInputValue(initialText)
+      setDeleteHeading(deleted)
     }
     setFormErrors([])
   }, [activeIssue])
@@ -32,7 +54,34 @@ export default function HeadingEmptyForm({
   useEffect(() => {
     updateHtmlContent()
     checkFormErrors()
-  }, [textInputValue, deleteHeader, markAsReviewed])
+  }, [textInputValue, deleteHeading, markAsReviewed])
+
+  useEffect(() => {
+    let invalid = false
+    if(!markAsReviewed) {
+      Object.keys(formErrors).forEach(optionKey => {
+        if(formErrors[optionKey].length > 0) {
+          invalid = true
+        }
+      })
+    }
+    setFormInvalid(invalid)
+  }, [formErrors, markAsReviewed])
+
+  const handleOptionChange = (option) => {
+    setActiveOption(option)
+
+    if (option === FORM_OPTIONS.ADD_TEXT) {
+      setDeleteHeading(false)
+      setMarkAsReviewed(false)
+    } else if (option === FORM_OPTIONS.DELETE_HEADING) {
+      setDeleteHeading(true)
+      setMarkAsReviewed(false)
+    } else if (option === FORM_OPTIONS.MARK_AS_REVIEWED) {
+      setDeleteHeading(false)
+      setMarkAsReviewed(true)
+    }
+  }
 
   const updateHtmlContent = () => {
     let issue = activeIssue
@@ -48,7 +97,7 @@ export default function HeadingEmptyForm({
   }
 
   const processHtml = () => {
-    if (deleteHeader) {
+    if (deleteHeading) {
       return '';
     }
 
@@ -58,63 +107,94 @@ export default function HeadingEmptyForm({
 
 
   const checkFormErrors = () => {
-    let tempErrors = []
-    if(!deleteHeader) {
+    let tempErrors = {
+      [FORM_OPTIONS.ADD_TEXT]: [],
+      [FORM_OPTIONS.DELETE_HEADING]: [],
+    }
+    
+    // If the "Delete Heading" checkbox is checked, we don't need to check for input errors
+    if (!deleteHeading && !markAsReviewed) {
       if(Text.isTextEmpty(textInputValue)) {
-        tempErrors.push({ text: t('form.heading_empty.msg.text_empty'), type: 'error' })
+        tempErrors[FORM_OPTIONS.ADD_TEXT].push({ text: t('form.heading_empty.msg.text_empty'), type: 'error' })
       }
     }
+
     setFormErrors(tempErrors)
   }
 
-  const handleCheckbox = () => {
-    setDeleteHeader(!deleteHeader)
-  }
-
-  const handleInput = (newValue) => {
-    setTextInputValue(newValue)
-  }
-
-  const handleSubmit = () => {
-    if(markAsReviewed || formErrors.length === 0) {
-      handleIssueSave(activeIssue)
-    }
+  const handleInput = (event) => {
+    setTextInputValue(event.target.value)
   }
 
   return (
     <>
-      <label className="instructions" htmlFor="headingTextInput">{t('form.heading_empty.label.text')}</label>
-      <div className="w-100 mt-2">
-        <input
-          type="text" 
-          id="headingTextInput"
-          name="headingTextInput"
-          className="w-100"
-          value={textInputValue}
-          disabled={isDisabled || deleteHeader}
-          tabIndex="0"
-          onChange={(e) => handleInput(e.target.value)} />
+      {/* OPTION 1: Add text. ID: "add-text" */}
+      <div className={`resolve-option ${activeOption === FORM_OPTIONS.ADD_TEXT ? 'selected' : ''}`}>
+        <label className={`option-label` + (isDisabled ? ' disabled' : '')}>
+          <input
+            type="radio"
+            id={FORM_OPTIONS.ADD_TEXT}
+            name="ufixitRadioOption"
+            tabIndex="0"
+            checked={activeOption === FORM_OPTIONS.ADD_TEXT}
+            disabled={isDisabled}
+            onChange={() => {
+              handleOptionChange(FORM_OPTIONS.ADD_TEXT)
+            }} />
+          {t('form.heading_empty.label.text')}
+        </label>
+        {activeOption === FORM_OPTIONS.ADD_TEXT && (
+          <>
+            <input
+              name="linkTextInput"
+              id="linkTextInput"
+              className="w-100"
+              type="text"
+              value={textInputValue}
+              onChange={handleInput}
+              tabIndex="0"
+              disabled={isDisabled} />
+            <OptionFeedback feedbackArray={formErrors[FORM_OPTIONS.ADD_TEXT]} />
+          </>
+        )}
       </div>
-      <div className="separator mt-2">{t('fix.label.or')}</div>
-      <div className="flex-row justify-content-start gap-1 mt-2">
-        <input type="checkbox"
-          id="deleteHeaderCheckbox"
-          name="deleteHeaderCheckbox"
-          checked={deleteHeader}
-          tabIndex="0"
-          disabled={isDisabled}
-          onChange={handleCheckbox} />
-        <label className="instructions" htmlFor="deleteHeaderCheckbox">{t('form.heading_empty.label.remove_header')}</label>
+      
+      {/* OPTION 2: Delete Heading. ID: "delete-heading" */}
+      <div className={`resolve-option ${activeOption === FORM_OPTIONS.DELETE_HEADING ? 'selected' : ''}`}>
+        <label className={`option-label` + (isDisabled ? ' disabled' : '')}>
+          <input
+            type="radio"
+            id={FORM_OPTIONS.DELETE_HEADING}
+            name="ufixitRadioOption"
+            tabIndex="0"
+            checked={activeOption === FORM_OPTIONS.DELETE_HEADING}
+            disabled={isDisabled}
+            onChange={() => {
+              handleOptionChange(FORM_OPTIONS.DELETE_HEADING)
+            }} />
+          {t('form.heading_empty.label.remove_heading')}
+        </label>
+        {activeOption === FORM_OPTIONS.DELETE_HEADING && (
+          <OptionFeedback feedbackArray={formErrors[FORM_OPTIONS.DELETE_HEADING]} />
+        )}
       </div>
-      <FormSaveOrReview
-        t={t}
-        settings={settings}
-        activeIssue={activeIssue}
-        isDisabled={isDisabled}
-        handleSubmit={handleSubmit}
-        formErrors={formErrors}
-        markAsReviewed={markAsReviewed}
-        setMarkAsReviewed={setMarkAsReviewed} />
+      
+      {/* OPTION 3: Mark as Reviewed. ID: "mark-as-reviewed" */}
+      <div className={`resolve-option ${activeOption === FORM_OPTIONS.MARK_AS_REVIEWED ? 'selected' : ''}`}>
+        <label className={`option-label` + (isDisabled ? ' disabled' : '')}>
+          <input
+            type="radio"
+            id={FORM_OPTIONS.MARK_AS_REVIEWED}
+            name="ufixitRadioOption"
+            tabIndex="0"
+            checked={activeOption === FORM_OPTIONS.MARK_AS_REVIEWED}
+            disabled={isDisabled}
+            onChange={() => {
+              handleOptionChange(FORM_OPTIONS.MARK_AS_REVIEWED)
+            }} />
+          {t('fix.label.no_changes')}
+        </label>
+      </div>
     </>
   )
 }

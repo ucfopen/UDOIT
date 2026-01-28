@@ -40,7 +40,7 @@ export default function AltText ({
     setCharacterCount(altText.length)
     setFormErrors([])
 
-    if(altText && altText.length > 0) {
+    if (altText && altText.length > 0) {
       setActiveOption(FORM_OPTIONS.ADD_TEXT)
     } else if (elementIsDecorative(html)) {
       setActiveOption(FORM_OPTIONS.MARK_DECORATIVE)

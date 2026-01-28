@@ -40,13 +40,13 @@ export default function AnchorText({
 
     let deleted = (!activeIssue.newHtml && (activeIssue.status === 1))
 
-    if(deleted) {
+    if (deleted) {
       setActiveOption(FORM_OPTIONS.DELETE_LINK)
     }
-    else if(initialText !== '') {
+    else if (initialText !== '') {
       setActiveOption(FORM_OPTIONS.ADD_TEXT)
     }
-    else if(markAsReviewed) {
+    else if (markAsReviewed) {
       setActiveOption(FORM_OPTIONS.MARK_AS_REVIEWED)
     } else {
       setActiveOption('')

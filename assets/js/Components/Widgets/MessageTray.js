@@ -78,7 +78,7 @@ export default function MessageTray ({
     'info': <InfoIcon className="icon-lg color-info" alt="" />,
     'error': <SeverityIssueIcon className="icon-lg color-issue" alt="" />,
     'alert': <SeverityPotentialIcon className="icon-lg color-potential" alt="" />,
-    'progress': <ProgressIcon className="icon-lg udoit-suggestion spinner" alt="" />
+    'progress': <ProgressIcon className="icon-lg udoit-progress spinner" alt="" />
   }
 
   return (

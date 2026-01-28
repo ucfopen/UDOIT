@@ -76,7 +76,7 @@ export default function FixIssuesContentPreview({
 
   useEffect(() => {
     handleScroll()
-  }, [activeContentItem, activeIssue])
+  }, [activeContentItem, activeIssue, canShowPreview])
     
   return (
     <>
@@ -133,7 +133,7 @@ export default function FixIssuesContentPreview({
                     <div className="flex-column justify-content-start">
                       <div className="flex-row mb-3">
                         <div className="flex-column justify-content-center flex-grow-0 flex-shrink-0 me-3">
-                          <InfoIcon className="icon-lg udoit-suggestion" alt="" />
+                          <InfoIcon className="icon-lg udoit-info" alt="" />
                         </div>
                         <div className="flex-column justify-content-center flex-grow-1">
                           <h2 className="mt-0 mb-0">{t('fix.label.no_error_preview')}</h2>
@@ -153,7 +153,7 @@ export default function FixIssuesContentPreview({
               <div className="flex-column h-100 flex-grow-1 justify-content-center">
                 <div className="flex-row justify-content-center mb-4">
                   <div className="flex-column justify-content-center">
-                    <ProgressIcon className="icon-lg udoit-suggestion spinner" />
+                    <ProgressIcon className="icon-lg udoit-progress spinner" />
                   </div>
                   <div className="flex-column justify-content-center ms-3">
                     <h2 className="mt-0 mb-0">{t('fix.label.loading_content')}</h2>

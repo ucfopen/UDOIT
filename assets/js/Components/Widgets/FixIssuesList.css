@@ -1,4 +1,5 @@
 .ufixit-list-container {
+  --list-heading-border-radius: var(--window-radius);
   margin-left: -1rem;
   margin-right: -1rem;
   margin-bottom: -1rem;
@@ -14,7 +15,7 @@
 
     .ufixit-list-section-container {
       margin-bottom: .75rem;
-      border-radius: .8rem;
+      border-radius: var(--list-heading-border-radius);
       border: 1px solid var(--border-color);
 
       &.open {
@@ -32,7 +33,7 @@
       background-color: var(--white);
       padding: .75rem 1rem;
       cursor: pointer;
-      border-radius: .8rem .8rem .8rem .8rem;
+      border-radius: var(--list-heading-border-radius);
       transition: border-radius var(--transition-time) ease-in-out;
 
       .ufixit-list-heading-counter {
@@ -66,7 +67,7 @@
       &.open {
         background-color: var(--background-color);
         border: 1px solid var(--border-color);
-        border-radius: 0;
+        border-radius: 0; /* var(--list-heading-border-radius) var(--list-heading-border-radius) 0 0; */
       }
       
       &:hover, &:focus {
@@ -85,7 +86,7 @@
     overflow-x: hidden;
     overflow-y: auto;
     background-color: var(--background-color);
-    border-radius: 0 0 .8rem .8rem;
+    border-radius: 0 0 var(--list-heading-border-radius) var(--list-heading-border-radius);
 
     &.open {
       max-height: 380px; /* Adjust as needed */
@@ -104,6 +105,10 @@
 
       &:first-child {
         border-top: none;
+      }
+
+      &:last-child {
+        border-radius: 0 0 var(--list-heading-border-radius) var(--list-heading-border-radius);
       }
 
       .ufixit-list-content-type-icon-container {
