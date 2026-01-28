@@ -1,5 +1,6 @@
 import React, { useState, useEffect, use } from 'react'
 import { formNameFromRule, formNames } from '../../Services/Ufixit'
+import InfoIcon from '../Icons/InfoIcon'
 import * as Html from '../../Services/Html'
 import './FixIssuesContentPreview.css'
 
@@ -9,12 +10,12 @@ export default function HtmlPreview({
   activeContentItem,
   activeIssue,
   liveUpdateToggle,
-  setCanShowPreview,
   setIsErrorFoundInContent,
   handleScroll
 }) {
 
   const [taggedContent, setTaggedContent] = useState(false)
+  const [showMessage, setShowMessage] = useState(false)
 
   const ALT_TEXT_RELATED = [
     formNames.ALT_TEXT,            
@@ -123,6 +124,7 @@ export default function HtmlPreview({
   const getTaggedContent = () => {
 
     if (!activeIssue || !activeContentItem) {
+      setShowMessage(true)
       setIsErrorFoundInContent(false)
       return null
     }
@@ -135,7 +137,7 @@ export default function HtmlPreview({
     let editedElement = Html.getIssueHtml(activeIssue?.issueData)
   
     if(!errorElement) {
-      setCanShowPreview(false)
+      setShowMessage(true)
       setIsErrorFoundInContent(false)
     }
     else {
@@ -147,7 +149,7 @@ export default function HtmlPreview({
       } else {
         errorElement.replaceWith(convertErrorHtmlElement(errorElement))
       }
-      setCanShowPreview(true)
+      setShowMessage(false)
       setIsErrorFoundInContent(true)
     }
     
@@ -187,11 +189,28 @@ export default function HtmlPreview({
   }, [taggedContent])
     
   return (
-    <div
-      key={"html-content-preview-div"}
-      className="ufixit-content-preview-main"
-      onScroll={() => handleScroll()}
-      dangerouslySetInnerHTML={{ __html: taggedContent }}
-    />
+    <>
+      { showMessage ? (
+        <div className="ufixit-content-preview-no-error p-3">
+          <div className="flex-row justify-content-center mt-2 mb-4 gap-2">
+            <InfoIcon className="icon-md udoit-info align-self-center" alt="" />
+            <h3 className="align-self-center mt-0 mb-0">{t('fix.label.no_error_preview')}</h3>
+          </div>
+          <div className="ufixit-instructions">{t('fix.msg.no_error_preview')}</div>
+          <div className="flex-row justify-content-end mt-3">
+            <button className="btn-secondary btn-small" onClick={() => setShowMessage(false)}>
+              {t('fix.button.show_no_error_preview')}
+            </button>
+          </div>
+        </div>
+      ) : (
+        <div
+          key={"html-content-preview-div"}
+          className="ufixit-content-preview-main"
+          onScroll={() => handleScroll()}
+          dangerouslySetInnerHTML={{ __html: taggedContent }}
+        />
+      )}
+    </>
   )
 }

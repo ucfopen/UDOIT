@@ -17,8 +17,6 @@ export default function FixIssuesContentPreview({
   setIsErrorFoundInContent,
 }) {
 
-  const [canShowPreview, setCanShowPreview] = useState(true)
-
   const scrollToError = () => {
     const errorElement = document.getElementsByClassName('ufixit-error-highlight')[0]
     if (errorElement) {
@@ -76,7 +74,7 @@ export default function FixIssuesContentPreview({
 
   useEffect(() => {
     handleScroll()
-  }, [activeContentItem, activeIssue, canShowPreview])
+  }, [activeContentItem, activeIssue])
     
   return (
     <>
@@ -108,46 +106,22 @@ export default function FixIssuesContentPreview({
           <>
             { activeContentItem && !contentItemsBeingScanned.includes(activeContentItem?.id) ? (
               <>
-                { canShowPreview ? (
-                  <>
-                    <ScrollButton
-                      t={t}
-                      
-                      scrollToError={scrollToError}
-                    />
+                <ScrollButton
+                  t={t}
+                  
+                  scrollToError={scrollToError}
+                />
 
-                    <HtmlPreview
-                      key={"html-preview"}
-                      t={t}
+                <HtmlPreview
+                  key={"html-preview"}
+                  t={t}
 
-                      activeContentItem={activeContentItem}
-                      activeIssue={activeIssue}
-                      liveUpdateToggle={liveUpdateToggle}
-                      setCanShowPreview={setCanShowPreview}
-                      setIsErrorFoundInContent={setIsErrorFoundInContent}
-                      handleScroll={handleScroll}
-                    />
-                  </>
-                ) : (
-                  <div className="ufixit-content-preview-no-error flex-row p-3">
-                    <div className="flex-column justify-content-start">
-                      <div className="flex-row mb-3">
-                        <div className="flex-column justify-content-center flex-grow-0 flex-shrink-0 me-3">
-                          <InfoIcon className="icon-lg udoit-info" alt="" />
-                        </div>
-                        <div className="flex-column justify-content-center flex-grow-1">
-                          <h2 className="mt-0 mb-0">{t('fix.label.no_error_preview')}</h2>
-                        </div>
-                      </div>
-                      <div>{t('fix.msg.no_error_preview')}</div>
-                      <div className="flex-row justify-content-end mt-3">
-                        <button className="btn btn-secondary mt-3" onClick={() => setCanShowPreview(true)}>
-                          {t('fix.button.show_no_error_preview')}
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                )}
+                  activeContentItem={activeContentItem}
+                  activeIssue={activeIssue}
+                  liveUpdateToggle={liveUpdateToggle}
+                  setIsErrorFoundInContent={setIsErrorFoundInContent}
+                  handleScroll={handleScroll}
+                />
               </>
             ) : (
               <div className="flex-column h-100 flex-grow-1 justify-content-center">

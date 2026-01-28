@@ -83,7 +83,9 @@
 }
 
 .ufixit-content-preview-no-error {
-  background-color: var(--background-color);
+  position: absolute;
+  top: 0px;
+  background-color: var(--white);
   margin: 1.5rem;
   border: 1px solid var(--border-color);
   border-radius: 8px;
