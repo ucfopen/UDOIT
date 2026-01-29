@@ -19,13 +19,15 @@ export default function EmphasisForm({
     ADD_EMPHASIS: 'add-emphasis',
     MARK_AS_REVIEWED: 'mark-as-reviewed'
   }
-  const colorCssTriggers = ['color:', 'background']
 
   const [activeOption, setActiveOption] = useState('')
   const [useBold, setUseBold] = useState(false)
   const [useItalics, setUseItalics] = useState(false)
   const [removeColor, setRemoveColor] = useState(false)
   const [formErrors, setFormErrors] = useState([])
+
+  const STYLE_ATTRIBUTES = ['color:', 'background:', 'background-color:']
+  const CHILD_TAGS = ['span', 'div', 'p', 'strong', 'em', 'b', 'i', 'u']
 
   const isBold = () => {
     const metadata = activeIssue.metadata ? JSON.parse(activeIssue.metadata) : {}
@@ -44,14 +46,7 @@ export default function EmphasisForm({
   const hasStyleColor = () => {
     const html = Html.getIssueHtml(activeIssue)
     const element = Html.toElement(html)
-    const style = Html.getAttribute(element, 'style')?.toLowerCase() || ''
-    const styleArray = style.split(';')
-    for (let i = 0; i < styleArray.length; i++) {
-      if(colorCssTriggers.some(trigger => styleArray[i].trim().startsWith(trigger))) {
-        return true
-      }
-    }
-    return false
+    return Html.elementOrChildrenHasStyleAttributes(element, STYLE_ATTRIBUTES, CHILD_TAGS)
   }
 
   useEffect(() => {
@@ -141,11 +136,7 @@ export default function EmphasisForm({
     Html.removeTag(element, 'em')
 
     if (removeColor) {
-      let style = Html.getAttribute(element, 'style') || ''
-      let styleArray = style.split(';')
-      styleArray = styleArray.filter(s => !(colorCssTriggers.some(trigger => s.trim().startsWith(trigger))))
-      style = styleArray.join(';')
-      element = Html.setAttribute(element, 'style', style)
+      Html.removeStyleAttributesFromElementAndChildren(element, STYLE_ATTRIBUTES, CHILD_TAGS)
     }
     if(useItalics) {
       element.innerHTML = `<em>${element.innerHTML}</em>`

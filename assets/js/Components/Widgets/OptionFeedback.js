@@ -7,7 +7,7 @@ export default function OptionFeedback ({
   return (
     <>
       { feedbackArray && feedbackArray.length > 0 && (
-        <div className="pt-1">
+        <div className="pt-2">
             { feedbackArray.map((feedback, index) => 
                 <div key={index} className="option-feedback">
                     {feedback.text}

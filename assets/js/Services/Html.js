@@ -409,6 +409,80 @@ export function getAccessibleName(element) {
   return ''
 }
 
+export const elementOrChildrenHasStyleAttributes = (
+  element,
+  styles = ['color:', 'background:', 'background-color:'],
+  tags = ['span', 'div', 'p', 'strong', 'em', 'b', 'i', 'u']
+) => {
+
+  if ('string' === typeof element) {
+    element = toElement(element)
+  }
+
+  const elementHasStyleAttribute = (element) => {
+    const style = getAttribute(element, 'style')?.toLowerCase() || ''
+    const styleArray = style.split(';')
+
+    for (let i = 0; i < styleArray.length; i++) {
+      if(styles.some(trigger => styleArray[i].trim().startsWith(trigger))) {
+        return true
+      }
+    }
+    return false
+  }
+
+  const childTags = ['span', 'div', 'p', 'strong', 'em', 'b', 'i', 'u']
+  if (elementHasStyleAttribute(element)) {
+    return true
+  }
+
+  // Check immediate child elements for color styles as well. Further descendants are ignored.
+  const children = element.querySelectorAll(tags.join(','))
+  for (let i = 0; i < children.length; i++) {
+    const child = children[i]
+    if (elementHasStyleAttribute(child)) {
+      return true
+    }
+  }
+
+  return false
+}
+
+export const removeStyleAttributesFromElementAndChildren = (
+  element,
+  styles = ['color:', 'background:', 'background-color:'],
+  tags = ['span', 'div', 'p', 'strong', 'em', 'b', 'i', 'u']
+) => {
+
+  if ('string' === typeof element) {
+    element = toElement(element)
+  }
+
+  const removeElementStyleAttributes = (element) => {
+
+    let style = getAttribute(element, 'style')?.toLowerCase() || ''
+    let styleArray = style.split(';')
+
+    styleArray = styleArray.filter(styleItem => {
+      return !styles.some(trigger => styleItem.trim().startsWith(trigger))
+    })
+    setAttribute(element, 'style', styleArray.join(';'))
+  }
+
+  const children = element.querySelectorAll(tags.join(','))
+
+  // Remove color styles from the main element
+  element = removeElementStyleAttributes(element)
+
+  // Remove color styles from immediate child elements as well. Further descendants are ignored.
+  for (let i = 0; i < children.length; i++) {
+    const child = children[i]
+    removeElementStyleAttributes(child)
+  }
+
+  return element
+}
+
 export const findXpathFromElement = (element) => {
   if (!element) {
     return null
