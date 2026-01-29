@@ -197,7 +197,8 @@ class EqualAccessService {
         }
         else if (in_array("RECOMMENDATION", $value)) {
           // recommendation/potentialrecommendation
-          return "suggestion";
+          // This used to be handled as a "suggestion" but we're treating all suggestions as potential issues now
+          return "potential";
         }
       }
 

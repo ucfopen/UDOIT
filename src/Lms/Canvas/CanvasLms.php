@@ -291,9 +291,12 @@ class CanvasLms implements LmsInterface {
                 }
 
                 foreach ($contentList as $content) {
-                    if (('file' === $contentType) && (in_array($content['mime_class'], $this->util->getUnscannableFileMimeClasses()))) {
+                    if ('file' === $contentType) {
+                      $output->writeln('Found file: ' . $content['display_name'] . ' Type: ' . $content['mime_class']);
+                      if (in_array($content['mime_class'], $this->util->getUnscannableFileMimeClasses())) {
                         $this->updateFileItem($course, $content);
                         continue;
+                      }
                     }
 
                     /* Quizzes should not be counted as assignments */
@@ -404,6 +407,7 @@ class CanvasLms implements LmsInterface {
             foreach ($contentList as $content) {
                 $formattedSection = [];
                 $formattedSection['id'] = $content['id'];
+                $formattedSection['url'] = $this->getCourseUrl($course, $user) . '/modules#' . $content['id'];
                 $formattedSection['title'] = $content['name'];
                 $formattedSection['status'] = $content['published'];
                 $formattedSection['items'] = [];
@@ -440,15 +444,17 @@ class CanvasLms implements LmsInterface {
 
     public function updateFileItem(Course $course, $file)
     {
+        $output = new ConsoleOutput();
         $fileItem = $this->fileItemRepo->findOneBy([
             'lmsFileId' => $file['id'],
             'course' => $course,
         ]);
 
         if (!$fileItem) {
+            $output->writeln('New file item: ' . $file['display_name'] . ' Type: ' . $file['mime_class']);
             $fileItem = new FileItem();
             $fileItem->setCourse($course)
-                ->setFileName($file['filename'])
+                ->setFileName($file['display_name'])
                 ->setFileType($file['mime_class'])
                 ->setLmsFileId($file['id'])
                 ->setDownloadUrl($file['url'])
@@ -461,7 +467,7 @@ class CanvasLms implements LmsInterface {
         $fileItem->setLmsUrl($lmsUrl);
 
         // normalize file keys
-        $file['fileName'] = $file['filename'];
+        $file['fileName'] = $file['display_name'];
         $file['fileType'] = $file['mime_class'];
         $file['status'] = !$file['locked'];
         $file['fileSize'] = $file['size'];
@@ -469,6 +475,8 @@ class CanvasLms implements LmsInterface {
 
         $fileItem->update($file);
         $this->entityManager->flush();
+
+        return $fileItem;
     }
 
     public function updateContentItem(ContentItem $contentItem)
@@ -547,8 +555,78 @@ class CanvasLms implements LmsInterface {
         return $canvasApi->apiPut($url, ['body' => $options]);
     }
 
+    public function postContentItemNoIssue($contentOptions, $sectionOptions)
+    {
+        $output = new ConsoleOutput();
+        $user = $this->security->getUser();
+        $apiDomain = $this->getApiDomain($user);
+        $apiToken = $this->getApiToken($user);
+        $canvasApi = new CanvasApi($apiDomain, $apiToken);
+
+        $paths = [];
+        $options = [];
+
+        $sectionPaths = [];
+        $sectionOptionsBuild = [];
+        $deletePaths = [];
+        foreach($contentOptions as $option){
+            $paths[] = $option['contentUrl'];
+            $options[] = $this->createLmsPostOptionsWithHtml($option['contentType'], $option['fullPageHtml']);
+        }
+
+        foreach($sectionOptions as $sectionOption){
+            $courseId = $sectionOption['courseId'];
+            $moduleId = $sectionOption['moduleId'];
+            $itemId = $sectionOption['itemid'];
+            $sectionPaths[] = "courses/{$courseId}/modules/{$moduleId}/items";
+            $deletePaths[] = "courses/{$courseId}/modules/{$moduleId}/items/{$itemId}";
+            $sectionOptionsBuild[] = $this->sectionFilePostOption($sectionOption);
+        }
+
+
+    
+        $responses = $canvasApi->apiPutBatch($paths, $options);
+        $sectionPostResponse = $canvasApi->apiPostBatch($sectionPaths, $sectionOptionsBuild); 
+        $sectionDeleteResponse = $canvasApi->apiDeleteBatch($deletePaths);
+        $normalizedResponses = [];
+        foreach($responses as $response){
+                $contentItem = $this->contentItemRepo->findOneBy([
+                        'contentType' => $response['type'],
+                        'lmsContentId' => $response['id'],
+                ]);
+                if($contentItem){
+                    $normalizedContent = [];
+                    if($response['status'] == 200){
+                        $normalizedContent = $this->normalizeLmsContent($contentItem->getCourse(), $response['type'], json_decode(json_encode($response['content']), true));
+                        $contentItem->update($normalizedContent);
+                        $this->entityManager->flush();
+                    }
+                    $normalizedResponse = [
+                        'content' => $normalizedContent,
+                        'id' => $contentItem->getId(),
+                        'status' => $response['status'],
+                        'type' => $response['type']
+                    ];
+                    $normalizedResponses[] = $normalizedResponse;
+                }
+        }
+
+        foreach($sectionPostResponse as $secPostRsp){
+            $normalizedResponse = [
+                'content' => $secPostRsp['content'],
+                'id' => $secPostRsp['id'],
+                'status' => $secPostRsp['status'],
+                'type' => 'section'
+            ];
+            $normalizedResponses[] = $normalizedResponse;
+        }
+
+        return $normalizedResponses;
+    }
+
     public function postFileItem(FileItem $file, string $newFileName)
     {
+        $output = new ConsoleOutput();
         $user = $this->security->getUser();
         $apiDomain = $this->getApiDomain($user);
         $apiToken = $this->getApiToken($user);
@@ -559,15 +637,24 @@ class CanvasLms implements LmsInterface {
             'postUrl' => "courses/{$file->getCourse()->getLmsCourseId()}/files"
         ];
 
+        $output->writeln("Posting file to LMS: " . $url . " with file path: " . $filepath);
         $fileResponse = $canvasApi->apiFilePost($url, $options, $filepath, $newFileName);
-        $fileObj = $fileResponse->getContent();
-
-        if (isset($fileObj['id'])) {
-            $file->setLmsFileId($fileObj['id']);
-            $this->entityManager->flush();
-        }
+        
 
         return $fileResponse;
+    }
+
+    public function deleteFileItem(FileItem $file){
+        $output = new ConsoleOutput();
+        $user = $this->security->getUser();
+        $apiDomain = $this->getApiDomain($user);
+        $apiToken = $this->getApiToken($user);
+        $canvasApi = new CanvasApi($apiDomain, $apiToken);
+
+        $deleteUrl = 'files/' . $file->getLmsFileId();
+        $deleteResponse = $canvasApi->apiDelete($deleteUrl);
+
+        return $deleteResponse;
     }
 
     public function getCourseUrl(Course $course, User $user)
@@ -707,6 +794,20 @@ class CanvasLms implements LmsInterface {
         return $response->getContent();
     }
 
+    protected function sectionFilePostOption($sectionOption){
+        $option = [];
+        $option = [
+            'module_item' => [
+                'title' => $sectionOption['fileName'],
+                'type' => 'File',
+                'content_id' => $sectionOption['fileId'],
+                'position' => $sectionOption['position'],
+                'indent' => $sectionOption['indent'],
+            ],
+        ];
+        return $option;
+    }
+
     protected function createLmsPostOptions(ContentItem $contentItem)
     {
         $options = [];
@@ -749,6 +850,42 @@ class CanvasLms implements LmsInterface {
         return $options;
     }
 
+    protected function createLmsPostOptionsWithHtml($type, $fullPageHtml){
+        $options = [];
+        switch($type){
+            case('page'):
+                $options = [
+                        'wiki_page' => [
+                            'body' => $fullPageHtml,
+                        ],
+                ];
+                break;
+            case('assignment'):
+                $options = [
+                        'assignment' => [
+                            'description' => $fullPageHtml,
+                        ],
+                ];
+                break;
+            case('quiz'):
+                $options = [
+                        'quiz' => [
+                            'description' => $fullPageHtml,
+                        ],
+                ];
+                break;
+            case('announcement'): 
+            case('discussion_topic'):
+                $options = [
+                    'message' => $fullPageHtml,
+                ];
+                break;
+            default:
+                break;
+        }
+        return $options;
+    }
+
     protected function getContentTypeUrl(ContentItem $contentItem)
     {
         $contentType = $contentItem->getContentType();
@@ -775,6 +912,8 @@ class CanvasLms implements LmsInterface {
         $domainName = $course->getInstitution()->getLmsDomain();
         $baseUrl = "https://{$domainName}/courses/{$course->getLmsCourseId()}";
 
+        $output = new ConsoleOutput();
+
         switch ($contentType) {
             case 'syllabus':
                 $out['id'] = $lmsContent['id'];
@@ -788,7 +927,7 @@ class CanvasLms implements LmsInterface {
                     $out['status'] = true;
                 }
 
-                break;
+                break; 
 
             case 'page':
                 $out['id'] = $lmsContent['url'];

@@ -6,13 +6,16 @@ export default class Api {
             getReport: '/api/courses/{course}/reports/{report}',
             getReportHistory: '/api/courses/{course}/reports',
             setReportData: '/api/reports/{report}/setdata',
+            updateAndGetReport: '/api/courses/{course}/reports/update',
             getIssueContent: '/api/issues/{issue}/content',
             saveIssue: '/api/issues/{issue}/save',
             reviewFile: '/api/files/{file}/review',
             postFile: '/api/files/{file}/post',
+            deleteFile: '/api/files/{file}/delete',
+            updateContent: '/api/content',
             reportPdf: '/download/courses/{course}/reports/pdf',
             adminCourses: '/api/admin/courses/account/{account}/term/{term}',
-            scanContent: '/api/sync/content/{contentItem}',
+            scanContent: '/api/sync/content/{contentItem}?report={getReport}',
             scanCourse: '/api/sync/{course}',
             scanLmsCourse: '/api/admin/sync/lms/{lmsCourseId}',
             fullRescan: '/api/sync/rescan/{course}',
@@ -94,6 +97,20 @@ export default class Api {
             body: JSON.stringify(data),
         })
     }
+
+    updateAndGetReport(courseId){
+        const authToken = this.getAuthToken()
+        let url = `${this.apiUrl}${this.endpoints.updateAndGetReport}`
+        url = url.replace('{course}', courseId)
+    
+        return fetch(url, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-AUTH-TOKEN': authToken,
+            },
+        })
+    }
     
     saveIssue(issue, fullPageHtml, markAsReviewed = false) {
         const authToken = this.getAuthToken()
@@ -117,7 +134,7 @@ export default class Api {
         })
     }
 
-    reviewFile(file) {
+    reviewFile(file, removeReplacement) {
         const authToken = this.getAuthToken()
 
         let url = `${this.apiUrl}${this.endpoints.reviewFile}`
@@ -130,7 +147,7 @@ export default class Api {
                 'Content-Type': 'application/json',
                 'X-AUTH-TOKEN': authToken,
             },
-            body: JSON.stringify({ reviewed: file.reviewed }),
+            body: JSON.stringify({ reviewed: file.reviewed, replacement: removeReplacement }),
         })
     }
 
@@ -150,6 +167,37 @@ export default class Api {
                 'X-AUTH-TOKEN': authToken,
             },
             body: formData,
+        })
+    }
+
+    deleteFile(activeFile) {
+        const authToken = this.getAuthToken()
+        let url = `${this.apiUrl}${this.endpoints.deleteFile}`
+        url = url.replace('{file}', activeFile.id)
+        
+        return fetch(url, {
+            method: 'DELETE',
+            headers: {
+                'X-AUTH-TOKEN': authToken,
+            },
+        })
+
+    }
+
+    updateContent(contentOptions, sectionOptions){
+        const authToken = this.getAuthToken()
+        let url = `${this.apiUrl}${this.endpoints.updateContent}`
+
+        return fetch(url, {
+            method: 'POST',
+            cache: 'no-cache',
+            headers: {
+                'X-AUTH-TOKEN': authToken
+            },
+            body: JSON.stringify({
+                content: contentOptions,
+                section: sectionOptions
+            })
         })
     }
 
@@ -285,13 +333,14 @@ export default class Api {
                 'X-AUTH-TOKEN': authToken,
             },
         })
-    }
+    } 
 
-    scanContent(contentId)
+    scanContent(contentId, getReport = true)
     {
         const authToken = this.getAuthToken()
         let url = `${this.apiUrl}${this.endpoints.scanContent}`
         url = url.replace('{contentItem}', contentId)
+        url = url.replace('{getReport}', getReport)
 
         return fetch(url, {
             method: 'GET',

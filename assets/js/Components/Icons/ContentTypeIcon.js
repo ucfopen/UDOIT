@@ -7,13 +7,14 @@ import ContentDiscussionForumIcon from './ContentDiscussionForumIcon';
 import ContentFileIcon from './ContentFileIcon';
 import ContentQuizIcon from './ContentQuizIcon';
 import ContentSyllabusIcon from './ContentSyllabusIcon';
+import ListIcon from './ListIcon';
 
 export default function ContentTypeIcon(props) {
   if(!props.type) {
     return null
   }
 
-  switch(props.type) {
+  switch(props.type.toUpperCase()) {
     case('PAGE'):
       return <ContentPageIcon {...props} />
     case('ASSIGNMENT'):
@@ -31,6 +32,9 @@ export default function ContentTypeIcon(props) {
       return <ContentQuizIcon {...props} />
     case('SYLLABUS'):
       return <ContentSyllabusIcon {...props} />
+    case('SECTION'):
+    case('MODULE'):
+      return <ListIcon {...props} />
     default:
       return null
   }

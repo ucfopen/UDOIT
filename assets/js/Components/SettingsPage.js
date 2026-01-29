@@ -17,7 +17,7 @@ export default function SettingsPage({
 
   useEffect(() => {
     // Set up alert options
-    let currentAlertTimeout = settings?.user?.roles?.alert_timeout || 5000
+    let currentAlertTimeout = settings?.user?.roles?.alert_timeout || settings.DEFAULT_USER_SETTINGS.ALERT_TIMEOUT
     setAlertOptions([
       { value: '5000', name: t('settings.option.alert_timeout.5s'), selected: currentAlertTimeout === '5000' },
       { value: '10000', name: t('settings.option.alert_timeout.10s'), selected: currentAlertTimeout === '10000' },
@@ -26,7 +26,7 @@ export default function SettingsPage({
     ])
 
     // Set up font size options
-    let currentFontSize = settings?.user?.roles?.font_size || 'font-medium'
+    let currentFontSize = settings?.user?.roles?.font_size || settings.DEFAULT_USER_SETTINGS.FONT_SIZE
     setFontSizeOptions([
       { value: 'font-small', name: t('settings.label.font_size.small'), selected: currentFontSize === 'font-small' },
       { value: 'font-medium', name: t('settings.label.font_size.medium'), selected: currentFontSize === 'font-medium' },
@@ -35,7 +35,7 @@ export default function SettingsPage({
     ])
 
     // Set up font family options
-    let currentFontFamily = settings?.user?.roles?.font_family || 'sans-serif'
+    let currentFontFamily = settings?.user?.roles?.font_family || settings.DEFAULT_USER_SETTINGS.FONT_FAMILY
     setFontFamilyOptions([
       { value: 'sans-serif', name: t('settings.label.font_family.sans_serif'), selected: currentFontFamily === 'sans-serif' },
       { value: 'serif', name: t('settings.label.font_family.serif'), selected: currentFontFamily === 'serif' },
@@ -44,7 +44,7 @@ export default function SettingsPage({
     ])
 
     // Set up language options
-    let currentLanguage = settings?.user?.roles?.lang || 'en'
+    let currentLanguage = settings?.user?.roles?.lang || settings.DEFAULT_USER_SETTINGS.LANGUAGE
     setLanguageOptions([
       { value: 'en', name: 'English', selected: currentLanguage === 'en' },
       { value: 'es', name: 'Español', selected: currentLanguage === 'es' }
@@ -52,12 +52,13 @@ export default function SettingsPage({
   }, [settings])
 
   // For new users, the 'show_filters' attribute may not be set, so we need to check if it exists before using it
-  const [showFilters, setShowFilters] = useState(settings?.user?.roles && ('show_filters' in settings.user.roles) ? settings.user.roles.show_filters : true)
-  const [darkMode, setDarkMode] = useState(settings?.user?.roles && ('dark_mode' in settings.user.roles) ? settings.user.roles.dark_mode : false)
+  // Because the values might be false, we need to differentiate between undefined and false
+  const [showFilters, setShowFilters] = useState(settings?.user?.roles && ('show_filters' in settings.user.roles) ? settings.user.roles.show_filters : settings.DEFAULT_USER_SETTINGS.SHOW_FILTERS)
+  const [darkMode, setDarkMode] = useState(settings?.user?.roles && ('dark_mode' in settings.user.roles) ? settings.user.roles.dark_mode : settings.DEFAULT_USER_SETTINGS.DARK_MODE)
 
   const handleShowFiltersChange = (newValue) => {
     setShowFilters(newValue)
-    updateUserSettings({ "show_filters": newValue})
+    updateUserSettings({ "show_filters": newValue })
   }
 
   const handleDarkModeChange = (newValue) => {
@@ -111,9 +112,7 @@ export default function SettingsPage({
             options={languageOptions}
             settings={settings} />
           <div className="flex-row gap-2 mb-3">
-            <div className="flex-column flex-center settings-label">
-              <label htmlFor="dark-mode">{t('settings.label.dark_mode')}</label>
-            </div>
+            <label htmlFor="dark-mode" className="subtext pe-2">{t('settings.label.dark_mode')}</label>
             <div className="flex-column flex-center settings-input">
               <input
                 type="checkbox"
@@ -129,9 +128,7 @@ export default function SettingsPage({
           </div>
 
           <div className="flex-row gap-2 mb-3">
-            <div className="flex-column flex-center settings-label">
-              <label htmlFor="show-filters">{t('settings.label.show_filters_default')}</label>
-            </div>
+            <label htmlFor="show-filters" className="subtext pe-2">{t('settings.label.show_filters_default')}</label>
             <div className="flex-column flex-center settings-input">
               <input
                 type="checkbox"

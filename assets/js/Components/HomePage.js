@@ -19,7 +19,7 @@ export default function HomePage({
 
   const [issueCount, setIssueCount] = useState({"fixed": 0, "total": 0, "percent": 0})
   const [potentialCount, setPotentialCount] = useState({"fixed": 0, "total": 0, "percent": 0})
-  const [suggestionCount, setSuggestionCount] = useState({"fixed": 0, "total": 0, "percent": 0})
+  const [fileCount, setFileCount] = useState({"fixed": 0, "total": 0, "percent": 0})
   const [combinedCount, setCombinedCount] = useState({"fixed": 0, "total": 0, "percent": 0})
   const [dailyCount, setDailyCount] = useState({"fixed": 0, "total": 0, "percent": 0})
   const [totalsCounted, setTotalsCounted] = useState(false)
@@ -42,7 +42,7 @@ export default function HomePage({
   const panels = [
     { step: 1, type: "ISSUE", translationKey: 'issues', counter: issueCount },
     { step: 2, type: "POTENTIAL", translationKey: 'potentials', counter: potentialCount },
-    { step: 3, type: "SUGGESTION", translationKey: 'suggestions', counter: suggestionCount }
+    { step: 3, type: "FILE", translationKey: 'files', counter: fileCount }
   ]
 
   useEffect(() => {
@@ -76,29 +76,23 @@ export default function HomePage({
 
     let tempTotalIssues = 0
     let tempTotalPotentialIssues = 0
-    let tempTempTotalSuggestions = 0
     let tempTotalIssuesFixed = 0
     let tempTotalPotentialIssuesFixed = 0
-    let tempTotalSuggestionsFixed = 0
+    let tempTotalFiles = 0
+    let tempTotalFilesReviewed = 0
 
     if(report.issues && report.issues.length > 0) {
       for (const i of report.issues){
         if(i.type === 'error') {
           tempTotalIssues += 1
-          if (i.status === 1 || i.status === 2) {
+          if (i.status !== 0) {
             tempTotalIssuesFixed += 1
           }
         }
-        else if (i.type === 'potential'){
+        else if (i.type === 'potential' || i.type === 'suggestion'){
           tempTotalPotentialIssues +=1
-          if (i.status === 1 || i.status === 2) {
+          if (i.status !== 0) {
             tempTotalPotentialIssuesFixed += 1
-          }
-        }
-        else if (i.type === 'suggestion') {
-          tempTempTotalSuggestions +=1
-          if (i.status === 1 || i.status === 2) {
-            tempTotalSuggestionsFixed += 1
           }
         }
       }
@@ -106,9 +100,9 @@ export default function HomePage({
 
     if (report.files) {
       for (const [key, fileData] of Object.entries(report.files)) {
-        tempTotalPotentialIssues += 1
+        tempTotalFiles += 1
         if (fileData.reviewed) {
-          tempTotalPotentialIssuesFixed += 1
+          tempTotalFilesReviewed += 1
         }
       }
     }
@@ -123,15 +117,15 @@ export default function HomePage({
       "total": tempTotalPotentialIssues,
       "percent": (tempTotalPotentialIssues === 0 ? 0 : (tempTotalPotentialIssuesFixed/tempTotalPotentialIssues) * 100)
     })
-    setSuggestionCount({
-      "fixed": tempTotalSuggestionsFixed, 
-      "total": tempTempTotalSuggestions,
-      "percent": (tempTempTotalSuggestions === 0 ? 0 : (tempTotalSuggestionsFixed/tempTempTotalSuggestions) * 100)
+    setFileCount({
+      "fixed": tempTotalFilesReviewed,
+      "total": tempTotalFiles,
+      "percent": (tempTotalFiles === 0 ? 0 : (tempTotalFilesReviewed/tempTotalFiles) * 100)
     })
     setCombinedCount({
-      "fixed": tempTotalIssuesFixed + tempTotalPotentialIssuesFixed + tempTotalSuggestionsFixed,
-      "total": tempTotalIssues + tempTotalPotentialIssues + tempTempTotalSuggestions,
-      "percent": (tempTotalIssues + tempTotalPotentialIssues + tempTempTotalSuggestions === 0 ? 0 : (tempTotalIssuesFixed + tempTotalPotentialIssuesFixed + tempTotalSuggestionsFixed) / (tempTotalIssues + tempTotalPotentialIssues + tempTempTotalSuggestions) * 100)
+      "fixed": tempTotalIssuesFixed + tempTotalPotentialIssuesFixed + tempTotalFilesReviewed,
+      "total": tempTotalIssues + tempTotalPotentialIssues + tempTotalFiles,
+      "percent": (tempTotalIssues + tempTotalPotentialIssues + tempTotalFiles === 0 ? 0 : (tempTotalIssuesFixed + tempTotalPotentialIssuesFixed + tempTotalFilesReviewed) / (tempTotalIssues + tempTotalPotentialIssues + tempTotalFiles) * 100)
     })
     
     setTotalsCounted(true)
@@ -216,7 +210,7 @@ export default function HomePage({
                   </div>
                 </div>
                 <div className="count-summary">
-                  {t('summary.number_resolved', {resolved: panel.counter.fixed, total: panel.counter.total})}
+                  {t('summary.' + panel.translationKey + '_resolved', {resolved: panel.counter.fixed, total: panel.counter.total})}
                 </div>
               </div>
             </div>

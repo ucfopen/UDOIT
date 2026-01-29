@@ -229,3 +229,134 @@
     border: 1px solid var(--white)
   }
 }
+
+.file-reference-table{
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.8em;
+  overflow-x: auto;
+
+  thead {
+
+    tr {
+      border-bottom: 1px solid var(--border-color);
+
+      th {
+        font-family: var(--heading-font-family);
+        font-weight: 600;
+        cursor: pointer;
+        padding: .5rem;
+        color: var(--text-color);
+        fill: var(--text-color);
+        border-bottom: 1px solid var(--border-color);
+        background-color: var(--gray-lighter);
+        text-align: start;
+
+        &.divider {
+          border-right: 2px solid var(--primary-color-inverse);
+        }
+        
+        &:last-child{
+          text-align: right;
+        }
+
+        .header-spacer {
+          width: 32px;
+          min-width: 32px;
+          height: auto;
+        }
+      }
+    }
+  }
+
+  tbody {
+
+    tr {
+      background-color: var(--white);
+
+      &:not(:last-child) {
+        border-bottom: 1px solid var(--border-color);
+      }
+
+      td {
+        padding: .5rem;
+
+        &[textalign='end'] div {
+          text-align: right;
+        }
+
+        &:last-child{
+          text-align: right;
+        }
+
+        &.divider {
+          border-right: 2px solid var(--primary-color);
+        }
+      }
+
+      a {
+        color: var(--link-color);
+        text-decoration: none;
+        font-weight: 600;
+
+        &:hover,
+        &:focus {
+          text-decoration: underline;
+        }
+      }
+    }
+  }
+}
+
+
+.status-badge{
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+
+  border-radius: 6px;
+  font-size: 13px;
+  color: #4b5563;
+  text-transform: uppercase;
+}
+
+.old-file-status{
+  background-color: var(--gray-lighter);
+}
+
+.new-file-badge{
+  background-color: var(--primary-color-light);
+}
+
+.file-accessibility-info-wrapper{
+  background-color: white;
+  border-radius: 0.5em;
+}
+
+
+.accessibility-info-container{
+    border: solid;
+    border-color: var(--gray-lightest);
+    border-radius: 0.7em;
+    box-sizing: border-box;    
+} 
+
+.accessibility-instructions-container{
+    font-size: 0.65em;
+    background-color: var(--potential-color-light);
+    border-top: solid;
+    border-color: var(--potential-color);
+    box-sizing: border-box;
+    overflow: hidden;
+    margin: 0;
+    border-radius: 0 0 0.7em 0.7em; /* Match bottom corners if needed */
+}
+
+.no-reference-container{
+  background-color: var(--issue-color-light);
+  border: solid 1px var(--issue-color);
+  border-radius: 0.5em;
+  font-size: 0.75em;
+}
+

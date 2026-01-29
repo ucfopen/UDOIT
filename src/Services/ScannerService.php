@@ -6,7 +6,6 @@ use App\Entity\ContentItem;
 
 use App\Services\PhpAllyService;
 use App\Services\EqualAccessService;
-use App\Services\AsyncEqualAccessReport;
 
 use App\Services\HtmlService;
 use App\Services\UtilityService;

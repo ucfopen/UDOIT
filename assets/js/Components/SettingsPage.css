@@ -55,35 +55,26 @@ a {
     align-self: start;
   }
 
-  .settings-label {
-    width: calc(40% - .5em);
-    text-align: right;
-    font-weight: 600;
-    color: var(--text-color);
-    text-transform: uppercase;
-    font-weight: 600;
-  }
-
-  .settings-input {
-    width: calc(60% - .5em);
-  }
-
-  .combo-container {
+  > div {
     display: flex;
     flex-direction: row;
-    gap: 1em;
+    gap: .5em;
     margin-bottom: 1rem;
-  }
 
-  .combo-label {
-    width: calc(40% - .5em);
-    text-align: right;
-    font-weight: 600;
-    color: var(--text-color);
-    text-transform: uppercase;
-    display: flex;
-    flex-direction: column;
-    align-self: center;
+    > label {
+      width: calc(40% - .5em);
+      text-align: right;
+      font-weight: 600;
+      color: var(--text-color);
+      text-transform: uppercase;
+      font-weight: 600;
+    }
+
+    > div {
+      width: calc(60% - .5em);
+      flex-grow: 0;
+      flex-shrink: 0;
+    }
   }
 
   .combo-menu {
