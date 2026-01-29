@@ -2,6 +2,16 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import WavesurferPlayer from "@wavesurfer/react";
 import Timeline from "wavesurfer.js/dist/plugins/timeline.esm.js";
 import Regions from "wavesurfer.js/dist/plugins/regions.esm.js";
+import RegionAccessList from "./RegionAccessList";
+import CaptionEditDialog from "./CaptionEditDialog";
+import {
+  parseVTT,
+  buildVttText,
+  vttToMS,
+  formatTimeVTT,
+  formatVTTTime,
+  computeVTTDuration,
+} from "../../Services/Captions";
 
 /**
  * MediaCaptionsEditor
@@ -32,6 +42,21 @@ export default function MediaCaptionsEditor({
   const wavesurferRef = useRef(null);
   const timelineRef = useRef(null);
 
+  // Unique id counter for cues
+  const [cueIdCounter, setCueIdCounter] = useState(1);
+
+  // Ensure cues have unique ids on initial load
+  useEffect(() => {
+    if (initialVttText) {
+      const parsed = parseVTT(initialVttText).map((cue, i) => ({
+        ...cue,
+        id: cue.id || `cue-${Date.now()}-${i}`,
+      }));
+      setCues(parsed);
+      setCueIdCounter(parsed.length + 1);
+    }
+  }, [initialVttText]);
+
   // ---- object URL handling for uploaded video file
   useEffect(() => {
     if (!videoFile) return;
@@ -49,7 +74,12 @@ export default function MediaCaptionsEditor({
     const reader = new FileReader();
     reader.onload = (ev) => {
       const text = String(ev.target?.result || "");
-      setCues(parseVTT(text));
+      const parsed = parseVTT(text).map((cue, i) => ({
+        ...cue,
+        id: cue.id || `cue-${Date.now()}-${i}`,
+      }));
+      setCues(parsed);
+      setCueIdCounter(parsed.length + 1);
       setSelectedIndex(-1);
       setError("");
     };
@@ -287,10 +317,6 @@ export default function MediaCaptionsEditor({
     });
   }, []);
 
-  const setAlign = useCallback((idx, position, align) => {
-    setCues((prev) => prev.map((c, i) => (i === idx ? { ...c, position, align } : c)));
-  }, []);
-
   const seekBy = useCallback((deltaSeconds) => {
     const video = videoElRef.current;
     if (!video?.duration) return;
@@ -378,50 +404,52 @@ export default function MediaCaptionsEditor({
 
     const newEnd = Math.min(newStart + defaultDuration, video.duration);
 
-    const newCue = {
-      index: 0,
-      id: null,
-      start: formatVTTTime(newStart),
-      end: formatVTTTime(newEnd),
-      duration: (newEnd - newStart).toFixed(3),
-      text: "",
-      position: 50,
-      align: "center",
-    };
-
-    const next = cues.slice();
-    const nextCue = next[insertAt];
-
-    if (nextCue) {
-      const nextStart = vttToMS(nextCue.start) / 1000;
-      const nextEnd = vttToMS(nextCue.end) / 1000;
-
-      if (nextStart < newEnd) {
-        const trimmedStart = newEnd;
-        if (trimmedStart >= nextEnd) {
-          next.splice(insertAt, 1);
-        } else {
-          nextCue.start = formatVTTTime(trimmedStart);
-          nextCue.duration = (nextEnd - trimmedStart).toFixed(3);
+    setCues((prev) => {
+      const next = prev.slice();
+      // Don't mutate nextCue in place!
+      const nextCue = next[insertAt];
+      if (nextCue) {
+        const nextStart = vttToMS(nextCue.start) / 1000;
+        const nextEnd = vttToMS(nextCue.end) / 1000;
+        if (nextStart < newEnd) {
+          const trimmedStart = newEnd;
+          if (trimmedStart >= nextEnd) {
+            next.splice(insertAt, 1);
+          } else {
+            next[insertAt] = {
+              ...nextCue,
+              start: formatVTTTime(trimmedStart),
+              duration: (nextEnd - trimmedStart).toFixed(3),
+            };
+          }
         }
       }
-    }
-
-    next.splice(insertAt, 0, newCue);
-    next.forEach((cue, i) => (cue.index = i + 1));
-
-    setCues(next);
+      const newCue = {
+        index: insertAt + 1,
+        id: `cue-${Date.now()}-${cueIdCounter}`,
+        start: formatVTTTime(newStart),
+        end: formatVTTTime(newEnd),
+        duration: (newEnd - newStart).toFixed(3),
+        text: "",
+        position: 50,
+        align: "center",
+      };
+      next.splice(insertAt, 0, newCue);
+      // Re-index
+      return next.map((cue, i) => ({ ...cue, index: i + 1 }));
+    });
+    setCueIdCounter((c) => c + 1);
     setSelectedIndex(insertAt);
-  }, [cues, selectedIndex]);
+  }, [cues, selectedIndex, cueIdCounter]);
 
   const deleteCue = useCallback(() => {
     if (selectedIndex < 0 || !cues[selectedIndex]) return;
 
-    const next = cues.slice();
-    next.splice(selectedIndex, 1);
-    next.forEach((cue, i) => (cue.index = i + 1));
-
-    setCues(next);
+    setCues((prev) => {
+      const next = prev.slice();
+      next.splice(selectedIndex, 1);
+      return next.map((cue, i) => ({ ...cue, index: i + 1 }));
+    });
     setSelectedIndex(-1);
   }, [cues, selectedIndex]);
 
@@ -476,10 +504,49 @@ export default function MediaCaptionsEditor({
     }
   }, [focusLayer, focusedRow, focusedField]);
 
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [dialogCueIndex, setDialogCueIndex] = useState(-1);
+
+  // Store refs to each Edit button
+  const editButtonRefs = useRef([]);
+
+  // Add this function to handle saving dialog changes
+  const handleDialogSave = ({ start, end, align, text }) => {
+    const rowToFocus = dialogCueIndex;
+    setCues(prev =>
+      prev.map((cue, i) =>
+        i === rowToFocus
+          ? {
+              ...cue,
+              start,
+              end,
+              align,
+              text,
+              duration: computeVTTDuration(start, end),
+            }
+          : cue
+      )
+    );
+    setDialogOpen(false);
+    setDialogCueIndex(-1);
+    setTimeout(() => {
+      editButtonRefs.current[rowToFocus]?.focus();
+    }, 0);
+  };
+
+  // When dialog is closed without saving, also restore focus
+  const handleDialogClose = () => {
+    const rowToFocus = dialogCueIndex;
+    setDialogOpen(false);
+    setTimeout(() => {
+      editButtonRefs.current[rowToFocus]?.focus();
+    }, 0);
+    setDialogCueIndex(-1);
+  };
+
   return (
     <div className="media-captions-editor" style={{ display: "flex", flexDirection: "column", gap: 12 }}>
       <div style={{ display: "flex", gap: 12, flexWrap: "wrap", alignItems: "center" }}>
-        {/* 
         <label>
           Load Video{" "}
           <input
@@ -489,7 +556,6 @@ export default function MediaCaptionsEditor({
             onChange={(e) => setVideoFile(e.target.files?.[0] || null)}
           />
         </label>
-        */}
         <label>
           Load Subtitles (VTT){" "}
           <input
@@ -510,16 +576,14 @@ export default function MediaCaptionsEditor({
         <div
           tabIndex={focusLayer === "top" ? 0 : -1}
           id="table-focus-layer"
-          aria-label="Captions Table"
+          aria-label="Captions List"
           style={{
             outline: focusLayer === "table" && focusedRow === -1 ? "2px solid #1976d2" : "none",
             overflow: "auto",
             border: "1px solid #ddd",
             borderRadius: 6,
             padding: 8,
-            height: "35vh",
-            maxHeight: "40vh",
-            minHeight: 120,
+            maxHeight: "59vh",
             display: "flex",
             flexDirection: "column"
           }}
@@ -543,145 +607,90 @@ export default function MediaCaptionsEditor({
             setFocusedRow(-1);
           }}
         >
-          <table style={{ width: "100%", borderCollapse: "collapse", flex: 1 }}>
-            <thead>
-              <tr>
-                <th style={thStyle}>#</th>
-                <th style={thStyle}>Text</th>
-                <th style={thStyle}>Start</th>
-                <th style={thStyle}>End</th>
-                <th style={thStyle}>Duration</th>
-                <th style={{ ...thStyle, textAlign: "center" }}>Align</th>
-              </tr>
-            </thead>
-            <tbody style={{ overflowY: "auto" }}>
-              {cues.map((cue, i) => {
-                const active = i === selectedIndex;
-                return (
-                  <tr
-                    key={i}
-                    id={`cue-row-${i}`}
-                    tabIndex={focusLayer === "table" && focusedRow === i ? 0 : -1}
-                    style={active ? { background: "#eef6ff" } : undefined}
-                    onClick={() => setSelectedIndex(i)}
-                    onDoubleClick={() => selectCue(i, vttToMS(cue.start) / 1000)}
+          <ul aria-label="Caption list" style={{ listStyle: "none", padding: 0, margin: 0 }}>
+            {cues.map((cue, i) => {
+              const active = i === selectedIndex;
+              return (
+                <li
+                  key={cue.id || i}
+                  id={`cue-row-${i}`}
+                  tabIndex={focusLayer === "table" && focusedRow === i ? 0 : -1}
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 8,
+                    marginBottom: 8,
+                    background: active ? "#eef6ff" : undefined,
+                    borderRadius: 4,
+                    padding: 4,
+                  }}
+                  onClick={() => setSelectedIndex(i)}
+                  role="group"
+                  aria-label={`Caption ${i + 1}`}
+                  onDoubleClick={() => selectCue(i, vttToMS(cue.start) / 1000)}
+                  onKeyDown={(e) => {
+                    if (e.key === "ArrowDown" && i < cues.length - 1) {
+                      setFocusedRow(i + 1);
+                      e.preventDefault();
+                    }
+                    if (e.key === "ArrowUp" && i > 0) {
+                      setFocusedRow(i - 1);
+                      e.preventDefault();
+                    }
+                    if (e.key === "Escape") {
+                      setFocusedRow(-1);
+                      document.getElementById("table-focus-layer")?.focus();
+                      e.preventDefault();
+                    }
+                    if (e.key === "Enter") {
+                      setFocusLayer("row");
+                      setFocusedField(0);
+                      e.preventDefault();
+                    }
+                  }}
+                  onFocus={() => {
+                    setFocusLayer("table");
+                    setFocusedRow(i);
+                  }}
+                >
+                  <span style={{ minWidth: 24, textAlign: "right" }}>{i + 1}</span>
+                  <input
+                    id={`cue-field-${i}-0`}
+                    type="text"
+                    defaultValue={cue.text}
+                    disabled={isDisabled}
+                    style={{ flex: 2, minWidth: 0 }}
+                    aria-label={`Caption ${i + 1} text`}
+                    onBlur={(e) => updateCueText(i, e.target.value)}
                     onKeyDown={(e) => {
-                      if (e.key === "ArrowDown" && i < cues.length - 1) {
-                        setFocusedRow(i + 1);
-                        e.preventDefault();
-                      }
-                      if (e.key === "ArrowUp" && i > 0) {
-                        setFocusedRow(i - 1);
-                        e.preventDefault();
-                      }
-                      if (e.key === "Escape") {
-                        setFocusedRow(-1);
-                        document.getElementById("table-focus-layer")?.focus();
-                        e.preventDefault();
-                      }
                       if (e.key === "Enter") {
-                        setFocusLayer("row");
-                        setFocusedField(0);
+                        e.currentTarget.blur();
                         e.preventDefault();
                       }
                     }}
-                    onFocus={() => {
-                      setFocusLayer("table");
-                      setFocusedRow(i);
+                  />
+                  <button
+                    type="button"
+                    aria-label={`Edit details for caption ${i + 1}`}
+                    disabled={isDisabled}
+                    style={{ marginLeft: 8 }}
+                    ref={el => (editButtonRefs.current[i] = el)}
+                    onClick={() => {
+                      setDialogOpen(true);
+                      setDialogCueIndex(i);
                     }}
                   >
-                    <td style={tdStyle}>{i + 1}</td>
-                    <td style={tdStyle}>
-                      <input
-                        id={`cue-field-${i}-0`}
-                        type="text"
-                        defaultValue={cue.text}
-                        disabled={isDisabled}
-                        style={{ width: "98%" }}
-                        onBlur={(e) => updateCueText(i, e.target.value)}
-                        onKeyDown={(e) => {
-                          if (e.key === "Enter") {
-                            e.currentTarget.blur();
-                            e.preventDefault();
-                          }
-                        }}
-                      />
-                    </td>
-                    <td style={tdStyle}>
-                      <input
-                        id={`cue-field-${i}-1`}
-                        type="text"
-                        value={cue.start}
-                        disabled={isDisabled}
-                        style={{ width: 110 }}
-                        onChange={(e) => updateCueTime(i, "start", e.target.value)}
-                        onBlur={(e) => {
-                          const norm = normalizeVttTime(e.target.value);
-                          if (norm !== cue.start) updateCueTime(i, "start", norm);
-                        }}
-                      />
-                    </td>
-                    <td style={tdStyle}>
-                      <input
-                        id={`cue-field-${i}-2`}
-                        type="text"
-                        value={cue.end}
-                        disabled={isDisabled}
-                        style={{ width: 110 }}
-                        onChange={(e) => updateCueTime(i, "end", e.target.value)}
-                        onBlur={(e) => {
-                          const norm = normalizeVttTime(e.target.value);
-                          if (norm !== cue.end) updateCueTime(i, "end", norm);
-                        }}
-                      />
-                    </td>
-                    <td style={tdStyle}>{cue.duration}</td>
-                    <td style={{ ...tdStyle, textAlign: "center", whiteSpace: "nowrap" }}>
-                      <button
-                        type="button"
-                        disabled={isDisabled}
-                        style={cue.position === 0 ? strongBtn : btn}
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setAlign(i, 0, "start");
-                        }}
-                      >
-                        L
-                      </button>
-                      <button
-                        type="button"
-                        disabled={isDisabled}
-                        style={cue.position === 50 ? strongBtn : btn}
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setAlign(i, 50, "center");
-                        }}
-                      >
-                        C
-                      </button>
-                      <button
-                        type="button"
-                        disabled={isDisabled}
-                        style={cue.position === 100 ? strongBtn : btn}
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setAlign(i, 100, "end");
-                        }}
-                      >
-                        R
-                      </button>
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
+                    Edit
+                  </button>
+                </li>
+              );
+            })}
+          </ul>
           <div style={{ color: "red", minHeight: 18, marginTop: 6 }}>{error}</div>
         </div>
-
         {/* Right: video + controls */}
         <div style={{ display: "flex", flexDirection: "column", gap: 8, minHeight: 0 }}>
-          <div style={{ background: "#000", borderRadius: 6, overflow: "hidden", flex: "1 1 0", minHeight: 220 }}>
+          <div style={{ background: "#000", borderRadius: 6, overflow: "hidden", aspectRatio: "16/9", width: "100%", maxWidth: "100%" }}>
             <video
               ref={videoElRef}
               src={videoUrl || undefined}
@@ -742,209 +751,14 @@ export default function MediaCaptionsEditor({
         videoElRef={videoElRef}
         wavesurferRef={wavesurferRef}
       />
+
+      <CaptionEditDialog
+        open={dialogOpen}
+        cue={cues[dialogCueIndex]}
+        onClose={handleDialogClose}
+        onSave={handleDialogSave}
+        isDisabled={isDisabled}
+      />
     </div>
   );
 }
-
-/* ---------------------------
-   RegionAccessList (in-file)
---------------------------- */
-
-function RegionAccessList({ cues, onSelect, videoElRef, wavesurferRef }) {
-  const srOnlyStyle = {
-    position: "absolute",
-    left: -9999,
-    top: "auto",
-    width: 1,
-    height: 1,
-    overflow: "hidden",
-  };
-
-  const focusSeek = (startSec) => {
-    const video = videoElRef?.current;
-    if (video && video.duration) video.currentTime = startSec;
-
-    const ws = wavesurferRef?.current;
-    if (ws?.getDuration?.()) ws.seekTo(startSec / ws.getDuration());
-  };
-
-  return (
-    <ul style={srOnlyStyle}>
-      {cues.map((cue, i) => {
-        const startSec = vttToMS(cue.start) / 1000;
-        return (
-          <li
-            key={i}
-            tabIndex={0}
-            role="button"
-            aria-label={`Subtitle region ${i + 1}: ${cue.text}`}
-            onFocus={() => focusSeek(startSec)}
-            onClick={() => onSelect(i, startSec)}
-            onKeyDown={(e) => {
-              if (e.key === "Enter" || e.key === " ") {
-                onSelect(i, startSec);
-                e.preventDefault();
-              }
-            }}
-          >
-            #{i + 1} {cue.text}
-          </li>
-        );
-      })}
-    </ul>
-  );
-}
-
-/* ---------------------------
-   Helpers: VTT parsing/building
---------------------------- */
-
-function parseVTT(data) {
-  const lines = String(data || "").split(/\r?\n/);
-  const out = [];
-  let i = 0;
-
-  if (lines[i]?.includes("WEBVTT")) i++;
-
-  while (i < lines.length) {
-    let line = lines[i].trim();
-    if (!line) {
-      i++;
-      continue;
-    }
-
-    if (line.startsWith("NOTE")) {
-      while (lines[++i]?.trim() !== "") {}
-      continue;
-    }
-
-    let cueId = null;
-    if (!line.includes("-->")) {
-      cueId = line;
-      line = lines[++i]?.trim();
-    }
-
-    if (!line?.includes("-->")) {
-      i++;
-      continue;
-    }
-
-    const [start, restRaw] = line.split("-->").map((s) => s.trim());
-    let end = restRaw;
-    let position = 50;
-    let align = "center";
-
-    const settingsMatch = restRaw.match(/([0-9:.]+)\s+(.*)/);
-    if (settingsMatch) {
-      end = settingsMatch[1];
-      const settings = settingsMatch[2].split(/\s+/);
-      settings.forEach((s) => {
-        if (s.startsWith("position:")) position = parseInt(s.split(":")[1], 10);
-        if (s.startsWith("align:")) align = s.split(":")[1];
-      });
-    }
-
-    i++;
-
-    let text = "";
-    while (lines[i]?.trim()) text += lines[i++] + "\n";
-    text = text.trim();
-    i++;
-
-    out.push({
-      index: out.length + 1,
-      id: cueId,
-      start,
-      end,
-      duration: computeVTTDuration(start, end),
-      text,
-      position,
-      align,
-    });
-  }
-
-  return out;
-}
-
-function buildVttText(cues) {
-  return (
-    "WEBVTT\n\n" +
-    cues
-      .map(
-        (cue) =>
-          `${cue.start} --> ${cue.end} position:${cue.position}% align:${cue.align}\n${cue.text}\n`
-      )
-      .join("\n")
-  );
-}
-
-function vttToMS(t) {
-  const parts = String(t || "").split(":");
-  if (parts.length === 3) {
-    const [h, m, s] = parts;
-    return Number(h) * 3600000 + Number(m) * 60000 + Number(s) * 1000;
-  }
-  if (parts.length === 2) {
-    const [m, s] = parts;
-    return Number(m) * 60000 + Number(s) * 1000;
-  }
-  return 0;
-}
-
-function computeVTTDuration(start, end) {
-  return ((vttToMS(end) - vttToMS(start)) / 1000).toFixed(3);
-}
-
-function formatTimeVTT(seconds) {
-  const ms = Math.floor((seconds % 1) * 1000);
-  const totalSeconds = Math.floor(seconds);
-  const s = totalSeconds % 60;
-  const m = Math.floor((totalSeconds / 60) % 60);
-  const h = Math.floor(totalSeconds / 3600);
-  return (
-    String(h).padStart(2, "0") +
-    ":" +
-    String(m).padStart(2, "0") +
-    ":" +
-    String(s).padStart(2, "0") +
-    "." +
-    String(ms).padStart(3, "0")
-  );
-}
-
-function formatVTTTime(sec) {
-  return formatTimeVTT(sec);
-}
-
-function normalizeVttTime(str) {
-  const match = String(str).match(/^(\d{2}):(\d{2}):(\d{2})(\.(\d{1,3}))?$/);
-  if (!match) return str;
-  const ms = (match[5] || "0").padEnd(3, "0").slice(0, 3);
-  return `${match[1]}:${match[2]}:${match[3]}.${ms}`;
-}
-
-const thStyle = {
-  textAlign: "left",
-  borderBottom: "1px solid #ddd",
-  padding: "6px 4px",
-  position: "sticky",
-  top: 0,
-  background: "#fff",
-  zIndex: 1,
-};
-
-const tdStyle = {
-  borderBottom: "1px solid #eee",
-  padding: "6px 4px",
-  verticalAlign: "top",
-};
-
-const btn = {
-  marginLeft: 4,
-  padding: "2px 8px",
-};
-
-const strongBtn = {
-  ...btn,
-  fontWeight: "bold",
-};

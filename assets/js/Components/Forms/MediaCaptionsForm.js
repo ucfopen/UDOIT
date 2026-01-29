@@ -67,7 +67,7 @@ export default function MediaCaptionsForm({
             padding: 24,
             borderRadius: 8,
             maxWidth: '90vw',
-            maxHeight: '90vh',
+            height: '90vh',
             overflow: 'auto'
           }}>
             <button
