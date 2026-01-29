@@ -25,6 +25,8 @@ export default function UfixitWidget({
 }) {
 
   const [UfixitForm, setUfixitForm] = useState(null)
+  const [activeOption, setActiveOption] = useState('')
+  const [formErrors, setFormErrors] = useState({})
 
   useEffect(() => {
     if(!tempActiveIssue) {
@@ -53,6 +55,33 @@ export default function UfixitWidget({
     triggerLiveUpdate()
   }
 
+  useEffect(() => {
+    let invalid = false
+    
+    if(activeOption === '') {
+      invalid = true
+    }
+    else if(!markAsReviewed) {
+      Object.keys(formErrors).forEach(optionKey => {
+        if(formErrors[optionKey].length > 0) {
+          invalid = true
+        }
+      })
+    }
+    setFormInvalid(invalid)
+  }, [formErrors, activeOption, markAsReviewed])
+
+  const handleOptionChange = (option) => {
+    setActiveOption(option)
+
+    if (option === settings.UFIXIT_OPTIONS.MARK_AS_REVIEWED) {     
+      setMarkAsReviewed(true)
+    }
+    else {
+      setMarkAsReviewed(false)
+    }
+  }
+
   return (
     <>
       {UfixitForm && tempActiveIssue ? (
@@ -78,12 +107,15 @@ export default function UfixitWidget({
                 activeContentItem={activeContentItem}
                 addMessage={addMessage}
                 handleActiveIssue={handleActiveIssue}
-                handleIssueSave={handleIssueSave}
+                    handleIssueSave={handleIssueSave}
                 isContentLoading={isContentLoading}
                 isDisabled={isContentLoading || !isErrorFoundInContent}
-                markAsReviewed={markAsReviewed}
-                setMarkAsReviewed={setMarkAsReviewed}
-                setFormInvalid={setFormInvalid} />
+                    markAsReviewed={markAsReviewed}
+                    setMarkAsReviewed={setMarkAsReviewed}
+                activeOption={activeOption}
+                setActiveOption={handleOptionChange}
+                formErrors={formErrors}
+                setFormErrors={setFormErrors} />
             </div>
           </div>
         </>

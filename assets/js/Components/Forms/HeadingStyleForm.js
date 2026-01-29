@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react'
+import RadioSelector from '../Widgets/RadioSelector'
 import OptionFeedback from '../Widgets/OptionFeedback'
 import Combobox from '../Widgets/Combobox'
 import ToggleSwitch from '../Widgets/ToggleSwitch'
@@ -10,25 +11,24 @@ export default function HeadingStyleForm ({
   activeIssue,
   isDisabled,
   handleActiveIssue,
-  markAsReviewed,
-  setMarkAsReviewed,
-  setFormInvalid
+  activeOption,
+  setActiveOption,
+  formErrors,
+  setFormErrors
  }) {
 
   const styleTags = ["strong", "b", "i", "em", "mark", "small", "del", "ins", "sub", "sup"]
   const tagOptions = ["H2", "H3", "H4", "H5", "H6"]
   const allHeadings = ["H1", "H2", "H3", "H4", "H5", "H6", "h1", "h2", "h3", "h4", "h5", "h6"]
   const FORM_OPTIONS = {
-    SELECT_LEVEL: 'select-level',
-    MARK_AS_REVIEWED: 'mark-as-reviewed'
+    SELECT_LEVEL: settings.UFIXIT_OPTIONS.SELECT_LEVEL,
+    MARK_AS_REVIEWED: settings.UFIXIT_OPTIONS.MARK_AS_REVIEWED
   }
   
-  const [activeOption, setActiveOption] = useState('')
   const [selectOptions, setSelectOptions] = useState([])
   const [selectedValue, setSelectedValue] = useState('')
   const [hasStyling, setHasStyling] = useState(false)
   const [removeStyling, setRemoveStyling] = useState(false)
-  const [formErrors, setFormErrors] = useState([])
 
   const STYLE_ATTRIBUTES = ['color:', 'background:', 'background-color:', 'font-size:', 'font-weight:', 'font-style:', 'text-decoration:', 'text-transform:']
   const CHILD_TAGS = ['span', 'div', 'p', 'strong', 'em', 'b', 'i', 'u']
@@ -37,18 +37,19 @@ export default function HeadingStyleForm ({
     if(!activeIssue) {
       return
     }
-    let html = Html.getIssueHtml(activeIssue)
-    let element = Html.toElement(html)
+    const html = Html.getIssueHtml(activeIssue)
+    const element = Html.toElement(html)
     const hasStyle = Html.elementOrChildrenHasStyleAttributes(element, STYLE_ATTRIBUTES, CHILD_TAGS)
     const tagName = Html.getTagName(element).toUpperCase()
+    const reviewed = activeIssue.newHtml && (activeIssue.status === 2 || activeIssue.status === 3)
     
     const tagSelection = tagOptions.includes(tagName) ? tagName : ''
-    let tempSelectOptions = computeSelectOptions(tagSelection)
+    const tempSelectOptions = computeSelectOptions(tagSelection)
 
     if (activeIssue.status === 1 || activeIssue.status === 3) {
       setActiveOption(FORM_OPTIONS.SELECT_LEVEL)
     }
-    else if (markAsReviewed) {
+    else if (reviewed) {
       setActiveOption(FORM_OPTIONS.MARK_AS_REVIEWED)
     }
     else {
@@ -64,47 +65,20 @@ export default function HeadingStyleForm ({
   useEffect(() => {
     updateHtmlContent()
     checkFormErrors()
-  }, [selectedValue, removeStyling, markAsReviewed])
-
-  useEffect(() => {
-    let invalid = false
-    if(!markAsReviewed) {
-      Object.keys(formErrors).forEach(optionKey => {
-        if(formErrors[optionKey].length > 0) {
-          invalid = true
-        }
-      })
-    }
-    setFormInvalid(invalid)
-  }, [formErrors, markAsReviewed])
-
-  const handleOptionChange = (option) => {
-    setActiveOption(option)
-
-    if (option === FORM_OPTIONS.SELECT_LEVEL) {
-      setMarkAsReviewed(false)
-    } else if (option === FORM_OPTIONS.MARK_AS_REVIEWED) {
-      setMarkAsReviewed(true)
-    }
-  }
+  }, [selectedValue, removeStyling, activeOption])
 
   const updateHtmlContent = () => {
     let issue = activeIssue
     issue.isModified = true
 
-    if (markAsReviewed) {
+    if (activeOption === FORM_OPTIONS.MARK_AS_REVIEWED) {
       issue.newHtml = issue.initialHtml
       handleActiveIssue(issue)
       return
     }
 
-    issue.newHtml = processHtml(issue.initialHtml)
-    handleActiveIssue(issue)
-  }
-  
-  const processHtml = (html) => {
     let newHeader
-    const element = Html.toElement(html)
+    const element = Html.toElement(issue.initialHtml)
 
     if (selectedValue) {
       newHeader = document.createElement(selectedValue)
@@ -124,7 +98,9 @@ export default function HeadingStyleForm ({
       Html.removeStyleAttributesFromElementAndChildren(newHeader, STYLE_ATTRIBUTES, CHILD_TAGS)
     }
 
-    return Html.toString(newHeader)
+    issue.newHtml =  Html.toString(newHeader)
+
+    handleActiveIssue(issue)
   }
 
   const computeSelectOptions = (currentSelection) => {
@@ -146,7 +122,7 @@ export default function HeadingStyleForm ({
       [FORM_OPTIONS.SELECT_LEVEL]: [],
     }
     
-    if (!markAsReviewed) {
+    if (activeOption === FORM_OPTIONS.SELECT_LEVEL) {
       // If the error type is "heading_markup_misuse", then we WANT the heading to be removed.
       if(activeIssue.scanRuleId === 'heading_markup_misuse' && selectedValue !== '') {
         tempErrors[FORM_OPTIONS.SELECT_LEVEL].push({ text: t('form.heading_style.msg.level_remove'), type: 'error' })
@@ -173,19 +149,14 @@ export default function HeadingStyleForm ({
     <>
       {/* OPTION 1: Select heading level. ID: "select-level" */}
       <div className={`resolve-option ${activeOption === FORM_OPTIONS.SELECT_LEVEL ? 'selected' : ''}`}>
-        <label className={`option-label` + (isDisabled ? ' disabled' : '')} id='combo-label-heading-select'>
-          <input
-            type="radio"
-            id={FORM_OPTIONS.SELECT_LEVEL}
-            name="ufixitRadioOption"
-            tabIndex="0"
-            checked={activeOption === FORM_OPTIONS.SELECT_LEVEL}
-            disabled={isDisabled}
-            onChange={() => {
-              handleOptionChange(FORM_OPTIONS.SELECT_LEVEL)
-            }} />
-          {t('form.heading_style.label.select')}
-        </label>
+        <RadioSelector
+          activeOption={activeOption}
+          isDisabled={isDisabled}
+          setActiveOption={setActiveOption}
+          option={FORM_OPTIONS.SELECT_LEVEL}
+          labelId = 'combo-label-heading-select'
+          labelText = {t('form.heading_style.label.select')}
+          />
         {activeOption === FORM_OPTIONS.SELECT_LEVEL && (
           <>
             <Combobox
@@ -214,19 +185,13 @@ export default function HeadingStyleForm ({
 
       {/* OPTION 2: Mark as Reviewed. ID: "mark-as-reviewed" */}
       <div className={`resolve-option ${activeOption === FORM_OPTIONS.MARK_AS_REVIEWED ? 'selected' : ''}`}>
-        <label className={`option-label` + (isDisabled ? ' disabled' : '')}>
-          <input
-            type="radio"
-            id={FORM_OPTIONS.MARK_AS_REVIEWED}
-            name="ufixitRadioOption"
-            tabIndex="0"
-            checked={activeOption === FORM_OPTIONS.MARK_AS_REVIEWED}
-            disabled={isDisabled}
-            onChange={() => {
-              handleOptionChange(FORM_OPTIONS.MARK_AS_REVIEWED)
-            }} />
-          {t('fix.label.no_changes')}
-        </label>
+        <RadioSelector
+          activeOption={activeOption}
+          isDisabled={isDisabled}
+          setActiveOption={setActiveOption}
+          option={FORM_OPTIONS.MARK_AS_REVIEWED}
+          labelText = {t('fix.label.no_changes')}
+          />
       </div>
     </>
   )

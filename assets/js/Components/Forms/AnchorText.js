@@ -1,30 +1,29 @@
-import React, {useState, useEffect} from 'react'
+import React, {useState, useEffect, act} from 'react'
+import RadioSelector from '../Widgets/RadioSelector'
 import OptionFeedback from '../Widgets/OptionFeedback'
 import * as Text from '../../Services/Text'
 import * as Html from '../../Services/Html'
 
 export default function AnchorText({
   t,
-
+  settings,
   activeIssue,
   isDisabled,
   handleActiveIssue,
-  markAsReviewed,
-  setMarkAsReviewed,
-  setFormInvalid
+  activeOption,
+  setActiveOption,
+  formErrors,
+  setFormErrors
 }) {
 
   const FORM_OPTIONS = {
-    ADD_TEXT: 'add-text',
-    DELETE_LINK: 'delete-link',
-    MARK_AS_REVIEWED: 'mark-as-reviewed'
+    ADD_TEXT: settings.UFIXIT_OPTIONS.ADD_TEXT,
+    DELETE_ELEMENT: settings.UFIXIT_OPTIONS.DELETE_ELEMENT,
+    MARK_AS_REVIEWED: settings.UFIXIT_OPTIONS.MARK_AS_REVIEWED
   }
 
-  const [activeOption, setActiveOption] = useState('')
   const [textInputValue, setTextInputValue] = useState("")
   const [linkUrl, setLinkUrl] = useState("")
-  const [formErrors, setFormErrors] = useState([])
-  const [deleteLink, setDeleteLink] = useState(false)
 
   useEffect(() => {
     if(!activeIssue) {
@@ -38,53 +37,43 @@ export default function AnchorText({
       initialText = Html.getAttribute(html, 'alt') || ''
     }
 
-    let deleted = (!activeIssue.newHtml && (activeIssue.status === 1))
+    const deleted = (!activeIssue.newHtml && (activeIssue.status === 1))
+    const reviewed = activeIssue.newHtml && (activeIssue.status === 2 || activeIssue.status === 3)
 
     if (deleted) {
-      setActiveOption(FORM_OPTIONS.DELETE_LINK)
+      setActiveOption(FORM_OPTIONS.DELETE_ELEMENT)
+    }
+    else if (reviewed) {
+      setActiveOption(FORM_OPTIONS.MARK_AS_REVIEWED)
     }
     else if (initialText !== '') {
       setActiveOption(FORM_OPTIONS.ADD_TEXT)
     }
-    else if (markAsReviewed) {
-      setActiveOption(FORM_OPTIONS.MARK_AS_REVIEWED)
-    } else {
+    else {
       setActiveOption('')
     }
     
     setLinkUrl(Html.getAttribute(html, 'href') || '')
     setTextInputValue(initialText)
-    setDeleteLink(deleted)
   }, [activeIssue])
 
   useEffect(() => {
     updateHtmlContent()
     checkFormErrors()
-  }, [textInputValue, deleteLink, markAsReviewed])
-
-  useEffect(() => {
-    let invalid = false
-    if(!markAsReviewed) {
-      Object.keys(formErrors).forEach(optionKey => {
-        if(formErrors[optionKey].length > 0) {
-          invalid = true
-        }
-      })
-    }
-    setFormInvalid(invalid)
-  }, [formErrors, markAsReviewed])
+  }, [textInputValue, activeOption])
 
   const updateHtmlContent = () => {
     let issue = activeIssue
     issue.isModified = true
     
-    if (markAsReviewed) {
+    if (activeOption === FORM_OPTIONS.MARK_AS_REVIEWED) {
       issue.newHtml = issue.initialHtml
       handleActiveIssue(issue)
       return
     }
 
     const html = Html.getIssueHtml(activeIssue)
+    const deleteLink = (activeOption === FORM_OPTIONS.DELETE_ELEMENT)
     let element = Html.toElement(html)
     let elementTag = Html.getTagName(element)?.toLowerCase() || ''
     
@@ -114,11 +103,10 @@ export default function AnchorText({
   const checkFormErrors = () => {
     let tempErrors = {
       [FORM_OPTIONS.ADD_TEXT]: [],
-      [FORM_OPTIONS.DELETE_LINK]: [],
+      [FORM_OPTIONS.DELETE_ELEMENT]: [],
     }
     
-    // If the "Delete Link" checkbox is checked, we don't need to check for input errors
-    if(!deleteLink && !markAsReviewed) {
+    if(activeOption === FORM_OPTIONS.ADD_TEXT) {
       if(!Text.isTextDescriptive(textInputValue)) {
         tempErrors[FORM_OPTIONS.ADD_TEXT].push({ text: t('form.anchor.msg.text_descriptive'), type: 'error' })
       }
@@ -128,21 +116,6 @@ export default function AnchorText({
     }
 
     setFormErrors(tempErrors)
-  }
-
-  const handleOptionChange = (option) => {
-    setActiveOption(option)
-
-    if (option === FORM_OPTIONS.ADD_TEXT) {
-      setDeleteLink(false)
-      setMarkAsReviewed(false)
-    } else if (option === FORM_OPTIONS.DELETE_LINK) {
-      setDeleteLink(true)
-      setMarkAsReviewed(false)
-    } else if (option === FORM_OPTIONS.MARK_AS_REVIEWED) {
-      setDeleteLink(false)
-      setMarkAsReviewed(true)
-    }
   }
 
   const handleInput = (event) => {
@@ -156,22 +129,19 @@ export default function AnchorText({
       <div className="flex-column gap-1">
         {/* OPTION 1: Add text. ID: "add-text" */}
         <div className={`resolve-option ${activeOption === FORM_OPTIONS.ADD_TEXT ? 'selected' : ''}`}>
-          <label className={`option-label` + (isDisabled ? ' disabled' : '')}>
-            <input
-              type="radio"
-              id={FORM_OPTIONS.ADD_TEXT}
-              name="ufixitRadioOption"
-              tabIndex="0"
-              checked={activeOption === FORM_OPTIONS.ADD_TEXT}
-              disabled={isDisabled}
-              onChange={() => {
-                handleOptionChange(FORM_OPTIONS.ADD_TEXT)
-              }} />
-            {t('form.anchor.link_text')}
-          </label>
+          <RadioSelector
+            activeOption={activeOption}
+            isDisabled={isDisabled}
+            setActiveOption={setActiveOption}
+            option={FORM_OPTIONS.ADD_TEXT}
+            labelId = 'add-text-label'
+            labelText = {t('form.anchor.link_text')}
+            />
+
           {activeOption === FORM_OPTIONS.ADD_TEXT && (
             <>
               <input
+                aria-labelledby="add-text-label"
                 name="linkTextInput"
                 id="linkTextInput"
                 className="w-100"
@@ -179,47 +149,35 @@ export default function AnchorText({
                 value={textInputValue}
                 onChange={handleInput}
                 tabIndex="0"
-                disabled={isDisabled || deleteLink} />
+                disabled={isDisabled} />
               <OptionFeedback feedbackArray={formErrors[FORM_OPTIONS.ADD_TEXT]} />
             </>
           )}
         </div>
         
-        {/* OPTION 2: Delete Link. ID: "delete-link" */}
-        <div className={`resolve-option ${activeOption === FORM_OPTIONS.DELETE_LINK ? 'selected' : ''}`}>
-          <label className={`option-label` + (isDisabled ? ' disabled' : '')}>
-            <input
-              type="radio"
-              id={FORM_OPTIONS.DELETE_LINK}
-              name="ufixitRadioOption"
-              tabIndex="0"
-              checked={activeOption === FORM_OPTIONS.DELETE_LINK}
-              disabled={isDisabled}
-              onChange={() => {
-                handleOptionChange(FORM_OPTIONS.DELETE_LINK)
-              }} />
-            {t('form.anchor.delete_link')}
-          </label>
-          {activeOption === FORM_OPTIONS.DELETE_LINK && (
-            <OptionFeedback feedbackArray={formErrors[FORM_OPTIONS.DELETE_LINK]} />
+        {/* OPTION 2: Delete Link. ID: "delete-element" */}
+        <div className={`resolve-option ${activeOption === FORM_OPTIONS.DELETE_ELEMENT ? 'selected' : ''}`}>
+          <RadioSelector
+            activeOption={activeOption}
+            isDisabled={isDisabled}
+            setActiveOption={setActiveOption}
+            option={FORM_OPTIONS.DELETE_ELEMENT}
+            labelText = {t('form.anchor.delete_link')}
+            />
+          {activeOption === FORM_OPTIONS.DELETE_ELEMENT && (
+            <OptionFeedback feedbackArray={formErrors[FORM_OPTIONS.DELETE_ELEMENT]} />
           )}
         </div>
         
         {/* OPTION 3: Mark as Reviewed. ID: "mark-as-reviewed" */}
         <div className={`resolve-option ${activeOption === FORM_OPTIONS.MARK_AS_REVIEWED ? 'selected' : ''}`}>
-          <label className={`option-label` + (isDisabled ? ' disabled' : '')}>
-            <input
-              type="radio"
-              id={FORM_OPTIONS.MARK_AS_REVIEWED}
-              name="ufixitRadioOption"
-              tabIndex="0"
-              checked={activeOption === FORM_OPTIONS.MARK_AS_REVIEWED}
-              disabled={isDisabled}
-              onChange={() => {
-                handleOptionChange(FORM_OPTIONS.MARK_AS_REVIEWED)
-              }} />
-            {t('fix.label.no_changes')}
-          </label>
+          <RadioSelector
+            activeOption={activeOption}
+            isDisabled={isDisabled}
+            setActiveOption={setActiveOption}
+            option={FORM_OPTIONS.MARK_AS_REVIEWED}
+            labelText = {t('fix.label.no_changes')}
+            />
         </div>
       </div>
 

@@ -94,6 +94,18 @@ export function setInnerText(element, newText) {
   return element
 }
 
+export function hasAttribute(element, name) {
+  if ('string' === typeof element) {
+    element = toElement(element)
+  }
+
+  if (!element) {
+    return false
+  }
+
+  return element.hasAttribute(name)
+}
+
 export function getAttribute(element, name) {
   if ('string' === typeof element) {
     element = toElement(element)

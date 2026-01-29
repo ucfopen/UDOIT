@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react'
+import RadioSelector from '../Widgets/RadioSelector'
 import OptionFeedback from '../Widgets/OptionFeedback'
 import ToggleSwitch from '../Widgets/ToggleSwitch'
 import * as Html from '../../Services/Html'
@@ -10,23 +11,22 @@ export default function EmphasisForm({
   activeIssue,
   isDisabled,
   handleActiveIssue,
-  markAsReviewed,
-  setMarkAsReviewed,
-  setFormInvalid
+  activeOption,
+  setActiveOption,
+  formErrors,
+  setFormErrors
 }) {
 
   const FORM_OPTIONS = {
-    ADD_EMPHASIS: 'add-emphasis',
-    MARK_AS_REVIEWED: 'mark-as-reviewed'
+    ADD_EMPHASIS: settings.UFIXIT_OPTIONS.ADD_EMPHASIS,
+    MARK_AS_REVIEWED: settings.UFIXIT_OPTIONS.MARK_AS_REVIEWED
   }
 
-  const [activeOption, setActiveOption] = useState('')
   const [useBold, setUseBold] = useState(false)
   const [useItalics, setUseItalics] = useState(false)
   const [removeColor, setRemoveColor] = useState(false)
-  const [formErrors, setFormErrors] = useState([])
 
-  const STYLE_ATTRIBUTES = ['color:', 'background:', 'background-color:']
+  const STYLE_ATTRIBUTES = ['color:', 'background:', 'background-color:', 'background-image:']
   const CHILD_TAGS = ['span', 'div', 'p', 'strong', 'em', 'b', 'i', 'u']
 
   const isBold = () => {
@@ -57,12 +57,13 @@ export default function EmphasisForm({
     const bold = isBold()
     const italicized = isItalicized()
     const styleColor = hasStyleColor()
+    const reviewed = activeIssue.newHtml && (activeIssue.status === 2 || activeIssue.status === 3)
 
-    if(bold || italicized || !styleColor) {
-      setActiveOption(FORM_OPTIONS.ADD_TEXT)
-    }
-    else if(markAsReviewed) {
+    if (reviewed) {
       setActiveOption(FORM_OPTIONS.MARK_AS_REVIEWED)
+    }
+    else if (bold || italicized || !styleColor) {
+      setActiveOption(FORM_OPTIONS.ADD_TEXT)
     }
     else {
       setActiveOption('')
@@ -76,60 +77,19 @@ export default function EmphasisForm({
   useEffect(() => {
     updateHtmlContent()
     checkFormErrors()
-  }, [useBold, useItalics, removeColor, markAsReviewed])
-
-  useEffect(() => {
-    let invalid = false
-    if(!markAsReviewed) {
-      Object.keys(formErrors).forEach(optionKey => {
-        if(formErrors[optionKey].length > 0) {
-          invalid = true
-        }
-      })
-    }
-    setFormInvalid(invalid)
-  }, [formErrors, markAsReviewed])
-
-  const handleOptionChange = (option) => {
-    setActiveOption(option)
-
-    if (option === FORM_OPTIONS.ADD_EMPHASIS) {
-      setMarkAsReviewed(false)
-    } else if (option === FORM_OPTIONS.MARK_AS_REVIEWED) {
-      setMarkAsReviewed(true)
-    }
-  }
+  }, [useBold, useItalics, removeColor, activeOption])
 
   const updateHtmlContent = () => {
     let issue = activeIssue
     issue.isModified = true
 
-    if (markAsReviewed) {
+    if (activeOption === FORM_OPTIONS.MARK_AS_REVIEWED) {
       issue.newHtml = issue.initialHtml
       handleActiveIssue(issue)
       return
     }
 
-    issue.newHtml = processHtml(issue.initialHtml)
-    handleActiveIssue(issue)
-  }
-
-  const checkFormErrors = () => {
-    let tempErrors = {
-      [FORM_OPTIONS.ADD_EMPHASIS]: [],
-    }
-
-    if(!markAsReviewed) {
-      if(!isBold() && !isItalicized() && hasStyleColor()) {
-        tempErrors[FORM_OPTIONS.ADD_EMPHASIS].push({ text: t('form.emphasis.msg.required'), type: 'error' })
-      }
-    }
-
-    setFormErrors(tempErrors)
-  }
-
-  const processHtml = (html) => {
-    let element = Html.toElement(html)
+    let element = Html.toElement(issue.initialHtml)
 
     // Clean up tags
     Html.removeTag(element, 'strong')
@@ -145,26 +105,35 @@ export default function EmphasisForm({
       element.innerHTML = `<strong>${element.innerHTML}</strong>`  
     }
     
-    return Html.toString(element)
+    issue.newHtml = Html.toString(element)
+    handleActiveIssue(issue)
+  }
+
+  const checkFormErrors = () => {
+    let tempErrors = {
+      [FORM_OPTIONS.ADD_EMPHASIS]: [],
+    }
+
+    if(activeOption === FORM_OPTIONS.ADD_EMPHASIS) {
+      if(!isBold() && !isItalicized() && hasStyleColor()) {
+        tempErrors[FORM_OPTIONS.ADD_EMPHASIS].push({ text: t('form.emphasis.msg.required'), type: 'error' })
+      }
+    }
+
+    setFormErrors(tempErrors)
   }
 
   return (
     <>
       {/* OPTION 1: Add label. ID: "add-emphasis" */}
       <div className={`resolve-option ${activeOption === FORM_OPTIONS.ADD_EMPHASIS ? 'selected' : ''}`}>
-        <label className={`option-label` + (isDisabled ? ' disabled' : '')}>
-          <input
-            type="radio"
-            id={FORM_OPTIONS.ADD_EMPHASIS}
-            name="ufixitRadioOption"
-            tabIndex="0"
-            checked={activeOption === FORM_OPTIONS.ADD_EMPHASIS}
-            disabled={isDisabled}
-            onChange={() => {
-              handleOptionChange(FORM_OPTIONS.ADD_EMPHASIS)
-            }} />
-          {t('form.emphasis.label.select_emphasis')}
-        </label>
+        <RadioSelector
+          activeOption={activeOption}
+          isDisabled={isDisabled}
+          setActiveOption={setActiveOption}
+          option={FORM_OPTIONS.ADD_EMPHASIS}
+          labelText = {t('form.emphasis.label.select_emphasis')}
+          />
         {activeOption === FORM_OPTIONS.ADD_EMPHASIS && (
           <>
             <div className="flex-row justify-content-start gap-1">
@@ -201,19 +170,13 @@ export default function EmphasisForm({
 
       {/* OPTION 2: Mark as Reviewed. ID: "mark-as-reviewed" */}
       <div className={`resolve-option ${activeOption === FORM_OPTIONS.MARK_AS_REVIEWED ? 'selected' : ''}`}>
-        <label className={`option-label` + (isDisabled ? ' disabled' : '')}>
-          <input
-            type="radio"
-            id={FORM_OPTIONS.MARK_AS_REVIEWED}
-            name="ufixitRadioOption"
-            tabIndex="0"
-            checked={activeOption === FORM_OPTIONS.MARK_AS_REVIEWED}
-            disabled={isDisabled}
-            onChange={() => {
-              handleOptionChange(FORM_OPTIONS.MARK_AS_REVIEWED)
-            }} />
-          {t('fix.label.no_changes')}
-        </label>
+        <RadioSelector
+          activeOption={activeOption}
+          isDisabled={isDisabled}
+          setActiveOption={setActiveOption}
+          option={FORM_OPTIONS.MARK_AS_REVIEWED}
+          labelText = {t('fix.label.no_changes')}
+          />
       </div>
     </>
   )

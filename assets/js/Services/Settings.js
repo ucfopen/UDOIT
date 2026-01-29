@@ -91,6 +91,18 @@ export const FILE_TYPE_MAP = {
   'video': FILE_FILTER.FILE_VIDEO,
 }
 
+export const UFIXIT_OPTIONS = {
+  ADD_EMPHASIS: 'add-emphasis',
+  ADD_TEXT: 'add-text',
+  DELETE_ATTRIBUTE: 'delete-attribute',
+  DELETE_ELEMENT: 'delete-element',
+  MARK_AS_REVIEWED: 'mark-as-reviewed',
+  MARK_DECORATIVE: 'mark-decorative',
+  SELECT_ROLE: 'select-role',
+  SELECT_LANGUAGE: 'select-language',
+  SELECT_LEVEL: 'select-level'
+}
+
 export const DEFAULT_USER_SETTINGS = {
   ALERT_TIMEOUT: '5000',
   FONT_SIZE: 'font-medium',

@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react'
+import RadioSelector from '../Widgets/RadioSelector'
 import OptionFeedback from '../Widgets/OptionFeedback'
 import * as Html from '../../Services/Html'
 import * as Text from '../../Services/Text'
@@ -9,30 +10,30 @@ export default function EmbeddedContentTitleForm({
   activeIssue,
   isDisabled,
   handleActiveIssue,
-  markAsReviewed,
-  setMarkAsReviewed,
-  setFormInvalid
+  activeOption,
+  setActiveOption,
+  formErrors,
+  setFormErrors
  }) {
 
   const FORM_OPTIONS = {
-    ADD_LABEL: 'add-label',
-    MARK_AS_REVIEWED: 'mark-as-reviewed'
+    ADD_LABEL: settings.UFIXIT_OPTIONS.ADD_TEXT,
+    MARK_AS_REVIEWED: settings.UFIXIT_OPTIONS.MARK_AS_REVIEWED
   }
 
-  const [activeOption, setActiveOption] = useState('')
   const [textInputValue, setTextInputValue] = useState("")
-  const [formErrors, setFormErrors] = useState([])
 
   useEffect(() => {
-    let html = Html.getIssueHtml(activeIssue)
-    let element = Html.toElement(html)
-    let initialText = Html.getAccessibleName(element)
+    const html = Html.getIssueHtml(activeIssue)
+    const element = Html.toElement(html)
+    const initialText = Html.getAccessibleName(element)
+    const reviewed = activeIssue.newHtml && (activeIssue.status === 2 || activeIssue.status === 3)
 
-    if(initialText !== '') {
-      setActiveOption(FORM_OPTIONS.ADD_LABEL)
-    }
-    else if(markAsReviewed) {
+    if(reviewed) {
       setActiveOption(FORM_OPTIONS.MARK_AS_REVIEWED)
+    }
+    else if(initialText !== '') {
+      setActiveOption(FORM_OPTIONS.ADD_LABEL)
     }
     else {
       setActiveOption('')
@@ -44,26 +45,14 @@ export default function EmbeddedContentTitleForm({
   useEffect(() => {
     updateHtmlContent()
     checkFormErrors()
-  }, [textInputValue, markAsReviewed])
-
-  useEffect(() => {
-    let invalid = false
-    if(!markAsReviewed) {
-      Object.keys(formErrors).forEach(optionKey => {
-        if(formErrors[optionKey].length > 0) {
-          invalid = true
-        }
-      })
-    }
-    setFormInvalid(invalid)
-  }, [formErrors, markAsReviewed])
+  }, [textInputValue, activeOption])
 
   const updateHtmlContent = () => {
 
     let issue = activeIssue
     issue.isModified = true
 
-    if (markAsReviewed) {
+    if (activeOption === FORM_OPTIONS.MARK_AS_REVIEWED) {
       issue.newHtml = issue.initialHtml
       handleActiveIssue(issue)
       return
@@ -90,7 +79,7 @@ export default function EmbeddedContentTitleForm({
       [FORM_OPTIONS.ADD_LABEL]: []
     }
     
-    if(!markAsReviewed) {
+    if(activeOption === FORM_OPTIONS.ADD_LABEL) {
       if(Text.isTextEmpty(textInputValue)) {
         tempErrors[FORM_OPTIONS.ADD_LABEL].push({ text: t('form.embedded_content_title.msg.text_empty'), type: "error" })
       }
@@ -100,16 +89,6 @@ export default function EmbeddedContentTitleForm({
     }
     
     setFormErrors(tempErrors)
-  }
-
-  const handleOptionChange = (option) => {
-    setActiveOption(option)
-
-    if (option === FORM_OPTIONS.ADD_LABEL) {
-      setMarkAsReviewed(false)
-    } else if (option === FORM_OPTIONS.MARK_AS_REVIEWED) {
-      setMarkAsReviewed(true)
-    }
   }
 
   const handleInput = (event) => {
@@ -133,22 +112,18 @@ export default function EmbeddedContentTitleForm({
     <>
       {/* OPTION 1: Add label. ID: "add-label" */}
       <div className={`resolve-option ${activeOption === FORM_OPTIONS.ADD_LABEL ? 'selected' : ''}`}>
-        <label className={`option-label` + (isDisabled ? ' disabled' : '')}>
-          <input
-            type="radio"
-            id={FORM_OPTIONS.ADD_LABEL}
-            name="ufixitRadioOption"
-            tabIndex="0"
-            checked={activeOption === FORM_OPTIONS.ADD_LABEL}
-            disabled={isDisabled}
-            onChange={() => {
-              handleOptionChange(FORM_OPTIONS.ADD_LABEL)
-            }} />
-          {t('form.embedded_content_title.label.text')}
-        </label>
+        <RadioSelector
+          activeOption={activeOption}
+          isDisabled={isDisabled}
+          setActiveOption={setActiveOption}
+          option={FORM_OPTIONS.ADD_LABEL}
+          labelId = 'add-label-label'
+          labelText = {t('form.embedded_content_title.label.text')}
+          />
         {activeOption === FORM_OPTIONS.ADD_LABEL && (
           <>
             <input
+              aria-labelledby="add-label-label"
               type="text"
               tabIndex="0"
               id="labelInputValue"
@@ -164,19 +139,13 @@ export default function EmbeddedContentTitleForm({
 
       {/* OPTION 2: Mark as Reviewed. ID: "mark-as-reviewed" */}
       <div className={`resolve-option ${activeOption === FORM_OPTIONS.MARK_AS_REVIEWED ? 'selected' : ''}`}>
-        <label className={`option-label` + (isDisabled ? ' disabled' : '')}>
-          <input
-            type="radio"
-            id={FORM_OPTIONS.MARK_AS_REVIEWED}
-            name="ufixitRadioOption"
-            tabIndex="0"
-            checked={activeOption === FORM_OPTIONS.MARK_AS_REVIEWED}
-            disabled={isDisabled}
-            onChange={() => {
-              handleOptionChange(FORM_OPTIONS.MARK_AS_REVIEWED)
-            }} />
-          {t('fix.label.no_changes')}
-        </label>
+        <RadioSelector
+          activeOption={activeOption}
+          isDisabled={isDisabled}
+          setActiveOption={setActiveOption}
+          option={FORM_OPTIONS.MARK_AS_REVIEWED}
+          labelText = {t('fix.label.no_changes')}
+          />
       </div>
     </>
   )

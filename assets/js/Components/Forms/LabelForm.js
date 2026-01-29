@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react'
-import FormSaveOrReview from './FormSaveOrReview'
+import RadioSelector from '../Widgets/RadioSelector'
+import OptionFeedback from '../Widgets/OptionFeedback'
 import * as Html from '../../Services/Html'
 import * as Text from '../../Services/Text'
 
@@ -7,20 +8,35 @@ export default function LabelForm({
   t,
   settings,
   activeIssue,
-  handleIssueSave,
   isDisabled,
   handleActiveIssue,
-  markAsReviewed,
-  setMarkAsReviewed
+  activeOption,
+  setActiveOption,
+  formErrors,
+  setFormErrors
  }) {
-
+  
+  const FORM_OPTIONS = {
+    ADD_TEXT: settings.UFIXIT_OPTIONS.ADD_TEXT,
+    MARK_AS_REVIEWED: settings.UFIXIT_OPTIONS.MARK_AS_REVIEWED
+  }
   const [textInputValue, setTextInputValue] = useState('')
-  const [formErrors, setFormErrors] = useState([])
 
   useEffect(() => {
-    let html = Html.getIssueHtml(activeIssue)
-    let element = Html.toElement(html)
-    let initialText = Html.getAccessibleName(element)
+    const html = Html.getIssueHtml(activeIssue)
+    const element = Html.toElement(html)
+    const initialText = Html.getAccessibleName(element)
+    const reviewed = activeIssue.newHtml && (activeIssue.status === 2 || activeIssue.status === 3)
+
+    if (reviewed) {
+      setActiveOption(FORM_OPTIONS.MARK_AS_REVIEWED)
+    }
+    else if (initialText !== ''){
+      setActiveOption(FORM_OPTIONS.ADD_TEXT)
+    }
+    else {
+      setActiveOption('')
+    }
 
     setTextInputValue(initialText)
   }, [activeIssue])
@@ -28,14 +44,14 @@ export default function LabelForm({
   useEffect(() => {
     updateHtmlContent()
     checkFormErrors()
-  }, [textInputValue, markAsReviewed])
+  }, [textInputValue, activeOption])
 
   const updateHtmlContent = () => {
 
     let issue = activeIssue
     issue.isModified = true
 
-    if (markAsReviewed) {
+    if (activeOption === FORM_OPTIONS.MARK_AS_REVIEWED) {
       issue.newHtml = issue.initialHtml
       handleActiveIssue(issue)
       return
@@ -52,19 +68,19 @@ export default function LabelForm({
   }
 
   const checkFormErrors = () => {
-    let tempErrors = []
-    
-    if(Text.isTextEmpty(textInputValue)) {
-      tempErrors.push({ text: t('form.label.msg.text_empty'), type: "error" })
+    let tempErrors = {
+      [FORM_OPTIONS.ADD_TEXT]: []
     }
-    if(isLabelDuplicate()) {
-      tempErrors.push({ text: t('form.label.msg.text_unique'), type: "error" })
+    
+    if(activeOption === FORM_OPTIONS.ADD_TEXT) {
+      if(Text.isTextEmpty(textInputValue)) {
+        tempErrors[FORM_OPTIONS.ADD_TEXT].push({ text: t('form.label.msg.text_empty'), type: "error" })
+      }
+      if(isLabelDuplicate()) {
+        tempErrors[FORM_OPTIONS.ADD_TEXT].push({ text: t('form.label.msg.text_unique'), type: "error" })
+      }
     }
     setFormErrors(tempErrors)
-  }
-
-  const handleSubmit = () => {
-    handleIssueSave(activeIssue)
   }
 
   const handleInput = (event) => {
@@ -89,27 +105,43 @@ export default function LabelForm({
   
   return (
     <>
-      <label htmlFor="labelInputValue" className="instructions">{t('form.label.label.text')}</label>
-      <div className="w-100 mt-2">
-        <input
-          type="text" 
-          id="labelInputValue"
-          name="labelInputValue"
-          className="w-100"
-          value={textInputValue}
-          disabled={isDisabled}
-          tabIndex="0"
-          onChange={handleInput} />
+     {/* OPTION 1: Add text. ID: "add-text" */}
+      <div className={`resolve-option ${activeOption === FORM_OPTIONS.ADD_TEXT ? 'selected' : ''}`}>
+        <RadioSelector
+          activeOption={activeOption}
+          isDisabled={isDisabled}
+          setActiveOption={setActiveOption}
+          option={FORM_OPTIONS.ADD_TEXT}
+          labelId = 'add-text-label'
+          labelText = {t('form.label.label.text')}
+          />
+        {activeOption === FORM_OPTIONS.ADD_TEXT && (
+          <>
+            <input
+              aria-labelledby="add-text-label"
+              name="linkTextInput"
+              id="linkTextInput"
+              className="w-100"
+              type="text"
+              value={textInputValue}
+              onChange={handleInput}
+              tabIndex="0"
+              disabled={isDisabled} />
+            <OptionFeedback feedbackArray={formErrors[FORM_OPTIONS.ADD_TEXT]} />
+          </>
+        )}
       </div>
-      <FormSaveOrReview
-        t={t}
-        settings={settings}
-        activeIssue={activeIssue}
-        isDisabled={isDisabled}
-        handleSubmit={handleSubmit}
-        formErrors={formErrors}
-        markAsReviewed={markAsReviewed}
-        setMarkAsReviewed={setMarkAsReviewed} />
+
+      {/* OPTION 2: Mark as Reviewed. ID: "mark-as-reviewed" */}
+      <div className={`resolve-option ${activeOption === FORM_OPTIONS.MARK_AS_REVIEWED ? 'selected' : ''}`}>
+        <RadioSelector
+          activeOption={activeOption}
+          isDisabled={isDisabled}
+          setActiveOption={setActiveOption}
+          option={FORM_OPTIONS.MARK_AS_REVIEWED}
+          labelText = {t('fix.label.no_changes')}
+          />
+      </div>
     </>
   )
 }

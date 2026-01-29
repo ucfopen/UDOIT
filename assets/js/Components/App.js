@@ -9,7 +9,7 @@ import SettingsPage from './SettingsPage'
 import Api from '../Services/Api'
 import MessageTray from './Widgets/MessageTray'
 import { analyzeReport } from '../Services/Report'
-import { ISSUE_STATE, WIDGET_STATE, ISSUE_FILTER, FILE_FILTER, FILE_TYPES, FILE_TYPE_MAP, DEFAULT_USER_SETTINGS } from '../Services/Settings'
+import { ISSUE_STATE, WIDGET_STATE, ISSUE_FILTER, FILE_FILTER, FILE_TYPES, FILE_TYPE_MAP, DEFAULT_USER_SETTINGS, UFIXIT_OPTIONS } from '../Services/Settings'
 
 
 export default function App(initialData) {
@@ -25,7 +25,8 @@ export default function App(initialData) {
     { FILE_FILTER },
     { FILE_TYPES },
     { FILE_TYPE_MAP },
-    { DEFAULT_USER_SETTINGS }
+    { DEFAULT_USER_SETTINGS },
+    { UFIXIT_OPTIONS }
   ))
   const [sections, setSections] = useState([])
 

@@ -89,6 +89,11 @@
     }
   }
 
+  .subtext {
+    text-align: end;
+    margin-block-start: .5rem;
+  }
+
   .option-feedback {
     color: var(--issue-color-text);
     margin-top: .5em;
