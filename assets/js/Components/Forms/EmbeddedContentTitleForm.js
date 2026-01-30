@@ -45,7 +45,7 @@ export default function EmbeddedContentTitleForm({
   useEffect(() => {
     updateHtmlContent()
     checkFormErrors()
-  }, [textInputValue, activeOption])
+  }, [activeOption, textInputValue])
 
   const updateHtmlContent = () => {
 
@@ -110,7 +110,7 @@ export default function EmbeddedContentTitleForm({
   
   return (
     <>
-      {/* OPTION 1: Add label. ID: "add-label" */}
+      {/* OPTION 1: Add label. ID: "ADD_LABEL" */}
       <div className={`resolve-option ${activeOption === FORM_OPTIONS.ADD_LABEL ? 'selected' : ''}`}>
         <RadioSelector
           activeOption={activeOption}
@@ -137,7 +137,7 @@ export default function EmbeddedContentTitleForm({
         )}
       </div>
 
-      {/* OPTION 2: Mark as Reviewed. ID: "mark-as-reviewed" */}
+      {/* OPTION 2: Mark as Reviewed. ID: "MARK_AS_REVIEWED" */}
       <div className={`resolve-option ${activeOption === FORM_OPTIONS.MARK_AS_REVIEWED ? 'selected' : ''}`}>
         <RadioSelector
           activeOption={activeOption}

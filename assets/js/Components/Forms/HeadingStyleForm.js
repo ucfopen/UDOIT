@@ -21,7 +21,7 @@ export default function HeadingStyleForm ({
   const tagOptions = ["H2", "H3", "H4", "H5", "H6"]
   const allHeadings = ["H1", "H2", "H3", "H4", "H5", "H6", "h1", "h2", "h3", "h4", "h5", "h6"]
   const FORM_OPTIONS = {
-    SELECT_LEVEL: settings.UFIXIT_OPTIONS.SELECT_LEVEL,
+    SELECT_LEVEL: settings.UFIXIT_OPTIONS.SELECT_TAG,
     MARK_AS_REVIEWED: settings.UFIXIT_OPTIONS.MARK_AS_REVIEWED
   }
   
@@ -65,7 +65,7 @@ export default function HeadingStyleForm ({
   useEffect(() => {
     updateHtmlContent()
     checkFormErrors()
-  }, [selectedValue, removeStyling, activeOption])
+  }, [activeOption, selectedValue, removeStyling])
 
   const updateHtmlContent = () => {
     let issue = activeIssue
@@ -125,11 +125,11 @@ export default function HeadingStyleForm ({
     if (activeOption === FORM_OPTIONS.SELECT_LEVEL) {
       // If the error type is "heading_markup_misuse", then we WANT the heading to be removed.
       if(activeIssue.scanRuleId === 'heading_markup_misuse' && selectedValue !== '') {
-        tempErrors[FORM_OPTIONS.SELECT_LEVEL].push({ text: t('form.heading_style.msg.level_remove'), type: 'error' })
+        tempErrors[FORM_OPTIONS.SELECT_LEVEL].push({ text: t('form.heading_style.msg.level_remove'), type: 'warning' })
       }
       // If the error type is "text_block_heading", then we WANT a heading to be selected.
       if(activeIssue.scanRuleId === 'text_block_heading' && selectedValue === '') {
-        tempErrors[FORM_OPTIONS.SELECT_LEVEL].push({ text: t('form.heading_style.msg.level_select'), type: 'error' })
+        tempErrors[FORM_OPTIONS.SELECT_LEVEL].push({ text: t('form.heading_style.msg.level_select'), type: 'warning' })
       }
     }
 
@@ -147,7 +147,7 @@ export default function HeadingStyleForm ({
 
   return (
     <>
-      {/* OPTION 1: Select heading level. ID: "select-level" */}
+      {/* OPTION 1: Select heading level. ID: "SELECT_LEVEL" */}
       <div className={`resolve-option ${activeOption === FORM_OPTIONS.SELECT_LEVEL ? 'selected' : ''}`}>
         <RadioSelector
           activeOption={activeOption}
@@ -183,7 +183,7 @@ export default function HeadingStyleForm ({
         )}
       </div>
 
-      {/* OPTION 2: Mark as Reviewed. ID: "mark-as-reviewed" */}
+      {/* OPTION 2: Mark as Reviewed. ID: "MARK_AS_REVIEWED" */}
       <div className={`resolve-option ${activeOption === FORM_OPTIONS.MARK_AS_REVIEWED ? 'selected' : ''}`}>
         <RadioSelector
           activeOption={activeOption}

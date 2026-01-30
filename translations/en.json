@@ -677,6 +677,7 @@
   "form.table_headers.both": "Both",
   "form.table_headers.decoration_only": "Mark Table as Decorative",
   "form.table_headers.decoration_only_desc": "Only use this option if the table does not contain data.",
+  "form.table_headers.msg.no_selection": "Data tables must have headers on columns, rows, or both",
   "rule.desc.table_headers_exists": "",
   "rule.desc.table_structure_misuse": "",
   "rule.info.table_structure_misuse": "This table seems to be decorative, but also has data-related elements, like <code>&lt;th&gt;</code> or <code>&lt;caption&gt;</code>. If this table contains data, please select the appropriate header option instead.",

@@ -64,7 +64,12 @@ export default function UfixitWidget({
     else if(!markAsReviewed) {
       Object.keys(formErrors).forEach(optionKey => {
         if(formErrors[optionKey].length > 0) {
-          invalid = true
+          for(let i = 0; i < formErrors[optionKey].length; i++) {
+            if(formErrors[optionKey][i].type === 'error') {
+              invalid = true
+              break
+            }
+          }
         }
       })
     }

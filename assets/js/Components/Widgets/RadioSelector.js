@@ -6,6 +6,7 @@ export default function RadioSelector({
   isDisabled,
   setActiveOption,
   option,
+  name = 'ufixitRadioOption',
   labelId = '',
   labelText
 }) {
@@ -15,7 +16,7 @@ export default function RadioSelector({
       <input
         type="radio"
         id={option}
-        name="ufixitRadioOption"
+        name={name}
         tabIndex="0"
         checked={activeOption === option}
         disabled={isDisabled}

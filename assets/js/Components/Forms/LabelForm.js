@@ -44,7 +44,7 @@ export default function LabelForm({
   useEffect(() => {
     updateHtmlContent()
     checkFormErrors()
-  }, [textInputValue, activeOption])
+  }, [activeOption, textInputValue])
 
   const updateHtmlContent = () => {
 
@@ -105,7 +105,7 @@ export default function LabelForm({
   
   return (
     <>
-     {/* OPTION 1: Add text. ID: "add-text" */}
+     {/* OPTION 1: Add text. ID: "ADD_TEXT" */}
       <div className={`resolve-option ${activeOption === FORM_OPTIONS.ADD_TEXT ? 'selected' : ''}`}>
         <RadioSelector
           activeOption={activeOption}
@@ -132,7 +132,7 @@ export default function LabelForm({
         )}
       </div>
 
-      {/* OPTION 2: Mark as Reviewed. ID: "mark-as-reviewed" */}
+      {/* OPTION 2: Mark as Reviewed. ID: "MARK_AS_REVIEWED" */}
       <div className={`resolve-option ${activeOption === FORM_OPTIONS.MARK_AS_REVIEWED ? 'selected' : ''}`}>
         <RadioSelector
           activeOption={activeOption}

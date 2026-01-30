@@ -98,9 +98,8 @@ export const UFIXIT_OPTIONS = {
   DELETE_ELEMENT: 'delete-element',
   MARK_AS_REVIEWED: 'mark-as-reviewed',
   MARK_DECORATIVE: 'mark-decorative',
-  SELECT_ROLE: 'select-role',
-  SELECT_LANGUAGE: 'select-language',
-  SELECT_LEVEL: 'select-level'
+  SELECT_ATTRIBUTE_VALUE: 'select-attribute-value',
+  SELECT_TAG: 'select-tag'
 }
 
 export const DEFAULT_USER_SETTINGS = {

@@ -77,7 +77,7 @@ export default function EmphasisForm({
   useEffect(() => {
     updateHtmlContent()
     checkFormErrors()
-  }, [useBold, useItalics, removeColor, activeOption])
+  }, [activeOption, useBold, useItalics, removeColor])
 
   const updateHtmlContent = () => {
     let issue = activeIssue
@@ -125,7 +125,7 @@ export default function EmphasisForm({
 
   return (
     <>
-      {/* OPTION 1: Add label. ID: "add-emphasis" */}
+      {/* OPTION 1: Add label. ID: "ADD_EMPHASIS" */}
       <div className={`resolve-option ${activeOption === FORM_OPTIONS.ADD_EMPHASIS ? 'selected' : ''}`}>
         <RadioSelector
           activeOption={activeOption}
@@ -168,7 +168,7 @@ export default function EmphasisForm({
         )}
       </div>
 
-      {/* OPTION 2: Mark as Reviewed. ID: "mark-as-reviewed" */}
+      {/* OPTION 2: Mark as Reviewed. ID: "MARK_AS_REVIEWED" */}
       <div className={`resolve-option ${activeOption === FORM_OPTIONS.MARK_AS_REVIEWED ? 'selected' : ''}`}>
         <RadioSelector
           activeOption={activeOption}

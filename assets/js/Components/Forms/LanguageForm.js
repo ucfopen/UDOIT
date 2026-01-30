@@ -18,7 +18,7 @@ export default function LanguageForm ({
 }) {
 
   const FORM_OPTIONS = {
-    SELECT_LANGUAGE: settings.UFIXIT_OPTIONS.SELECT_LANGUAGE,
+    SELECT_LANGUAGE: settings.UFIXIT_OPTIONS.SELECT_ATTRIBUTE_VALUE,
     ENTER_BCP47: settings.UFIXIT_OPTIONS.ADD_TEXT,
     REMOVE_LANGUAGE: settings.UFIXIT_OPTIONS.DELETE_ATTRIBUTE,
     MARK_AS_REVIEWED: settings.UFIXIT_OPTIONS.MARK_AS_REVIEWED
@@ -246,18 +246,18 @@ export default function LanguageForm ({
 
   // Returns an array of language options that is used by the combobox
   // selectedLang is a string that can either be an empty string or one of the abberiviated languages and indicates which language is selected
-  const constructOptions = (selectedLang) => {
+  const computeSelectOptions = (currentSelection) => {
     let tempOptions = []
     tempOptions.push({
       value: "",
       name: `${t(`form.language.label.none_selected`)}`,
-      selected: selectedLang === ''
+      selected: currentSelection === ''
     })
     for(const key in primaryLanguages){
       tempOptions.push({
         value: key,
         name: primaryLanguages[key],
-        selected: selectedLang === key
+        selected: currentSelection === key
       })
     }
     return tempOptions
@@ -268,13 +268,15 @@ export default function LanguageForm ({
       return
     }
 
+    const attributeName = "lang"
+
     const html = Html.getIssueHtml(activeIssue)
     const tagName = Html.getTagName(html)
-    const hasLangAttr = Html.hasAttribute(html, "lang")
-    let rawLanguage = Html.getAttribute(html, "lang")
+    const hasLangAttr = Html.hasAttribute(html, attributeName)
+    let rawLanguage = Html.getAttribute(html, attributeName)
     rawLanguage = (typeof rawLanguage === 'string') ? rawLanguage : ''
     const langOption = (rawLanguage in primaryLanguages) ? rawLanguage : '' 
-    let tempOptions = constructOptions(langOption)
+    let tempOptions = computeSelectOptions(langOption)
     let tempIsHtml = (activeIssue.scanRuleId !== "element_lang_valid" || tagName === "HTML")
     
     const reviewed = activeIssue.newHtml && (activeIssue.status === 2 || activeIssue.status === 3)
@@ -305,7 +307,7 @@ export default function LanguageForm ({
   useEffect(() => {
     updateHtmlContent()
     checkFormErrors()
-  }, [language, textInputBCP47, activeOption])
+  }, [activeOption, language, textInputBCP47])
 
   const updateHtmlContent = () => {
     let issue = activeIssue
@@ -385,7 +387,7 @@ export default function LanguageForm ({
   const handleComboboxSelect = (id, value) => {
     setLanguage(value)
 
-    const tempSelectOptions = constructOptions(value)
+    const tempSelectOptions = computeSelectOptions(value)
     setSelectOptions(tempSelectOptions)
   }
 
@@ -402,7 +404,7 @@ export default function LanguageForm ({
           isDisabled={isDisabled}
           setActiveOption={setActiveOption}
           option={FORM_OPTIONS.SELECT_LANGUAGE}
-          labelId = 'combo-label-heading-select'
+          labelId = 'combo-label-language-select'
           labelText = {t(`form.language.label.select_language`)} 
           />
         {activeOption === FORM_OPTIONS.SELECT_LANGUAGE && (

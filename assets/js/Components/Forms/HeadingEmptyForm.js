@@ -54,7 +54,7 @@ export default function HeadingEmptyForm({
   useEffect(() => {
     updateHtmlContent()
     checkFormErrors()
-  }, [textInputValue, activeOption])
+  }, [activeOption, textInputValue])
 
   const updateHtmlContent = () => {
     let issue = activeIssue
@@ -95,7 +95,7 @@ export default function HeadingEmptyForm({
 
   return (
     <>
-      {/* OPTION 1: Add text. ID: "add-text" */}
+      {/* OPTION 1: Add text. ID: "ADD_TEXT" */}
       <div className={`resolve-option ${activeOption === FORM_OPTIONS.ADD_TEXT ? 'selected' : ''}`}>
         <RadioSelector
           activeOption={activeOption}
@@ -122,7 +122,7 @@ export default function HeadingEmptyForm({
         )}
       </div>
       
-      {/* OPTION 2: Delete Heading. ID: "delete-heading" */}
+      {/* OPTION 2: Delete Heading. ID: "DELETE_HEADING" */}
       <div className={`resolve-option ${activeOption === FORM_OPTIONS.DELETE_HEADING ? 'selected' : ''}`}>
         <RadioSelector
           activeOption={activeOption}
@@ -136,7 +136,7 @@ export default function HeadingEmptyForm({
         )}
       </div>
       
-      {/* OPTION 3: Mark as Reviewed. ID: "mark-as-reviewed" */}
+      {/* OPTION 3: Mark as Reviewed. ID: "MARK_AS_REVIEWED" */}
       <div className={`resolve-option ${activeOption === FORM_OPTIONS.MARK_AS_REVIEWED ? 'selected' : ''}`}>
         <RadioSelector
           activeOption={activeOption}

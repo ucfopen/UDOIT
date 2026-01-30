@@ -60,7 +60,7 @@ export default function AnchorText({
   useEffect(() => {
     updateHtmlContent()
     checkFormErrors()
-  }, [textInputValue, activeOption])
+  }, [activeOption, textInputValue])
 
   const updateHtmlContent = () => {
     let issue = activeIssue
@@ -127,7 +127,7 @@ export default function AnchorText({
     <div className="flex-column flex-grow-1 justify-content-between gap-2">
 
       <div className="flex-column gap-1">
-        {/* OPTION 1: Add text. ID: "add-text" */}
+        {/* OPTION 1: Add text. ID: "ADD_TEXT" */}
         <div className={`resolve-option ${activeOption === FORM_OPTIONS.ADD_TEXT ? 'selected' : ''}`}>
           <RadioSelector
             activeOption={activeOption}
@@ -155,7 +155,7 @@ export default function AnchorText({
           )}
         </div>
         
-        {/* OPTION 2: Delete Link. ID: "delete-element" */}
+        {/* OPTION 2: Delete Link. ID: "DELETE_ELEMENT" */}
         <div className={`resolve-option ${activeOption === FORM_OPTIONS.DELETE_ELEMENT ? 'selected' : ''}`}>
           <RadioSelector
             activeOption={activeOption}
@@ -169,7 +169,7 @@ export default function AnchorText({
           )}
         </div>
         
-        {/* OPTION 3: Mark as Reviewed. ID: "mark-as-reviewed" */}
+        {/* OPTION 3: Mark as Reviewed. ID: "MARK_AS_REVIEWED" */}
         <div className={`resolve-option ${activeOption === FORM_OPTIONS.MARK_AS_REVIEWED ? 'selected' : ''}`}>
           <RadioSelector
             activeOption={activeOption}

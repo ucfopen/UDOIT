@@ -1,46 +1,67 @@
 import React, { useState, useEffect } from 'react'
-import FormSaveOrReview from './FormSaveOrReview'
+import RadioSelector from '../Widgets/RadioSelector';
+import OptionFeedback from '../Widgets/OptionFeedback';
 import * as Html from '../../Services/Html';
 
 export default function TableHeadersForm({
   t,
   settings,
-  activeIssue, 
-  handleIssueSave, 
-  isDisabled, 
+  activeIssue,
+  isDisabled,
   handleActiveIssue,
-  markAsReviewed,
-  setMarkAsReviewed
-}) {
+  activeOption,
+  setActiveOption,
+  formErrors,
+  setFormErrors
+ }) {
+
+  const FORM_OPTIONS = {
+    SELECT_DIRECTION: settings.UFIXIT_OPTIONS.SELECT_ATTRIBUTE_VALUE,
+    MARK_DECORATIVE: settings.UFIXIT_OPTIONS.MARK_DECORATIVE,
+    MARK_AS_REVIEWED: settings.UFIXIT_OPTIONS.MARK_AS_REVIEWED
+  }
+
   const radioOptions = [
     'col',
     'row',
     'both'
   ]
   const [selectedValue, setSelectedValue] = useState('')
-  const [cachedValue, setCachedValue] = useState('')
-  const [decorationOnly, setDecorationOnly] = useState(false)
 
   useEffect(() => {
-    if(activeIssue) {
-      setSelectedValue(getTableHeader())
-      setCachedValue('')
+    if(!activeIssue) {
+      return
     }
+
+    const html = Html.getIssueHtml(activeIssue)
+    const table = Html.toElement(html)
+    const decorationOnly = (table.getAttribute('role') === 'presentation')
+    const headerDirection = getTableHeaderDirection(table)
+    const reviewed = activeIssue.newHtml && (activeIssue.status === 2 || activeIssue.status === 3)
+
+    if (reviewed) {
+      setActiveOption(FORM_OPTIONS.MARK_AS_REVIEWED)
+    }
+    else if (decorationOnly) {
+      setActiveOption(FORM_OPTIONS.MARK_DECORATIVE)
+    }
+    else if(headerDirection !== '') {
+      setActiveOption(FORM_OPTIONS.SELECT_DIRECTION)
+    }
+    else {
+      setActiveOption('')
+    }
+
+    setSelectedValue(headerDirection)
+    
   }, [activeIssue])
 
   useEffect(() => {
-    handleHtmlUpdate()
-  }, [selectedValue])
+    updateHtmlContent()
+    checkFormErrors()
+  }, [activeOption, selectedValue])
 
-  const getTableHeader = () => {
-    const html = Html.getIssueHtml(activeIssue)
-    const table = Html.toElement(html)
-
-    if(table.getAttribute('role') === 'presentation') {
-      setDecorationOnly(true)
-    } else {
-      setDecorationOnly(false)
-    }
+  const getTableHeaderDirection = (table) => {
 
     let isRow = true
     let isCol = true
@@ -88,21 +109,18 @@ export default function TableHeadersForm({
   }
 
   const fixHeaders = () => {
-    const html = Html.getIssueHtml(activeIssue)
+    const html = activeIssue.initialHtml
     let table = Html.toElement(html)
-
+''
     if(!table || !table.rows || table.rows.length === 0) {
       return Html.toString(table)
     }
 
     removeHeaders(table)
 
-    if (decorationOnly) {
+    if (activeOption === FORM_OPTIONS.MARK_DECORATIVE) {
       Html.setAttribute(table, 'role', 'presentation')
       return Html.toString(table)
-    }
-    else {
-      Html.removeAttribute(table, 'role')
     }
 
     if ('col' === selectedValue || 'both' === selectedValue) {
@@ -127,76 +145,94 @@ export default function TableHeadersForm({
     return Html.toString(table)
   }
 
-  const handleHtmlUpdate = () => {
+  const updateHtmlContent = () => {
     let issue = activeIssue
+    issue.isModified = true
+
+    if (activeOption === FORM_OPTIONS.MARK_AS_REVIEWED) {
+      issue.newHtml = issue.initialHtml
+      handleActiveIssue(issue)
+      return
+    }
+    
     issue.newHtml = fixHeaders()
     handleActiveIssue(issue)
+  }
+
+  const checkFormErrors = () => {
+    let tempErrors = {
+      [FORM_OPTIONS.SELECT_DIRECTION]: [],
+      [FORM_OPTIONS.MARK_DECORATIVE]: [],
+    }
+
+    if (activeOption === FORM_OPTIONS.SELECT_DIRECTION) {
+      if (!selectedValue || selectedValue === '') {
+        tempErrors[FORM_OPTIONS.SELECT_DIRECTION].push({ text: t('form.table_headers.msg.no_selection'), type: 'error' })
+      }
+    }
+
+    setFormErrors(tempErrors)
   }
 
   const handleChange = (newValue) => {
     setSelectedValue(newValue)
   }
 
-  const handleDecoration = (checked) => {
-    setDecorationOnly(checked)
-    if(checked) {
-      setCachedValue(selectedValue)
-      setSelectedValue('')
-    }
-    else {
-      setSelectedValue(cachedValue)
-      setCachedValue('')
-    }
-  }
-
-  const handleSubmit = () => {
-    let issue = activeIssue
-    issue.newHtml = fixHeaders()
-    handleIssueSave(issue)
-  }
+  
 
   return (
     <>
-      <label id="radioGroupLabel" className="instructions">{t('form.table_headers.selection_description')}</label>
-      <div className="w-100 mt-2 flex-column gap-1" role="radiogroup" aria-labelledby="radioGroupLabel">
-        { radioOptions.map(value => (
-          <div className="flex-row gap-1" key={value}>
-            <input
-              type="radio"
-              id={value}
-              name="tableHeaderSelect"
-              value={selectedValue}
-              tabIndex="0"
-              disabled={isDisabled || decorationOnly}
-              onChange={() => handleChange(value)} />
-            <label htmlFor={value}>{t(`form.table_headers.${value}`)}</label>
-          </div>
-        ))}
+      {/* OPTION 1: Add label. ID: "SELECT_DIRECTION" */}
+      <div className={`resolve-option ${activeOption === FORM_OPTIONS.SELECT_DIRECTION ? 'selected' : ''}`}>
+        <RadioSelector
+          activeOption = {activeOption}
+          isDisabled = {isDisabled}
+          setActiveOption = {setActiveOption}
+          option = {FORM_OPTIONS.SELECT_DIRECTION}
+          labelId = "headerDirectionLabel"
+          labelText = {t('form.table_headers.selection_description')}
+          />
+        {activeOption === FORM_OPTIONS.SELECT_DIRECTION && (
+          <>
+            <div className="flex-column indented gap-1" role="radiogroup" aria-labelledby="headerDirectionLabel">
+              { radioOptions.map(value => (
+                <RadioSelector
+                  key = {value}
+                  name = "tableHeaderDirection"
+                  activeOption = {selectedValue}
+                  isDisabled = {isDisabled}
+                  setActiveOption = {handleChange}
+                  option = {value}
+                  labelText = {t(`form.table_headers.${value}`)}
+                  />
+              ))}
+            </div>
+            <OptionFeedback feedbackArray={formErrors[FORM_OPTIONS.SELECT_DIRECTION]} />
+          </>
+        )}
       </div>
-      <div className="separator mt-2">{t('fix.label.or')}</div>
-      <div className="flex-row justify-content-start mt-2 gap-1">
-        <input
-          type="checkbox"
-          id="decorationOnlyCheckbox"
-          name="decorationOnlyCheckbox"
-          tabIndex="0"
-          checked={decorationOnly}
-          disabled={isDisabled}
-          onChange={(e) => handleDecoration(e.target.checked)} />
-        <label className="instructions" htmlFor="decorationOnlyCheckbox">
-          {t('form.table_headers.decoration_only')}
-        </label>
+
+      {/* OPTION 2: Mark as Decorative. ID: "MARK_DECORATIVE" */}
+      <div className={`resolve-option ${activeOption === FORM_OPTIONS.MARK_DECORATIVE ? 'selected' : ''}`}>
+        <RadioSelector
+          activeOption={activeOption}
+          isDisabled={isDisabled}
+          setActiveOption={setActiveOption}
+          option={FORM_OPTIONS.MARK_DECORATIVE}
+          labelText = {t('form.table_headers.decoration_only')}
+          />
       </div>
-      <div className="instructions-helper">{t('form.table_headers.decoration_only_desc')}</div>
-      <FormSaveOrReview
-        t={t}
-        settings={settings}
-        activeIssue={activeIssue}
-        isDisabled={isDisabled || (!selectedValue && !decorationOnly)}
-        handleSubmit={handleSubmit}
-        formErrors={[]}
-        markAsReviewed={markAsReviewed}
-        setMarkAsReviewed={setMarkAsReviewed} />
+
+      {/* OPTION 3: Mark as Reviewed. ID: "MARK_AS_REVIEWED" */}
+      <div className={`resolve-option ${activeOption === FORM_OPTIONS.MARK_AS_REVIEWED ? 'selected' : ''}`}>
+        <RadioSelector
+          activeOption={activeOption}
+          isDisabled={isDisabled}
+          setActiveOption={setActiveOption}
+          option={FORM_OPTIONS.MARK_AS_REVIEWED}
+          labelText = {t('fix.label.no_changes')}
+          />
+      </div>
     </>
   )
 }

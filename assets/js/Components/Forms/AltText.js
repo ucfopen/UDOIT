@@ -55,7 +55,7 @@ export default function AltText ({
   useEffect(() => {
     updateHtmlContent()
     checkFormErrors()
-  }, [textInputValue, activeOption])
+  }, [activeOption, textInputValue])
 
   const updateHtmlContent = () => {
     let issue = activeIssue
@@ -108,11 +108,6 @@ export default function AltText ({
     setFormErrors(tempErrors)
   }
 
-  const handleInput = (event) => {
-    setTextInputValue(event.target.value)
-    setCharacterCount(event.target.value.length)
-  }
-
   const hasFileExtensions = () => {
     let fileRegex = /([a-zA-Z0-9\s_\\.\-\(\):])+(.png|.jpg|.jpeg|.gif|.bmp)$/i
 
@@ -144,9 +139,14 @@ export default function AltText ({
     return (decorativeAttribute === 'true' || roleAttribute === 'presentation' || (classes.includes('phpally-ignore')))
   }
 
+  const handleInput = (event) => {
+    setTextInputValue(event.target.value)
+    setCharacterCount(event.target.value.length)
+  }
+
   return (
     <>
-      {/* OPTION 1: Add text. ID: "add-text" */}
+      {/* OPTION 1: Add text. ID: "ADD_TEXT" */}
       <div className={`resolve-option ${activeOption === FORM_OPTIONS.ADD_TEXT ? 'selected' : ''}`}>
         <RadioSelector
           activeOption={activeOption}
@@ -175,7 +175,7 @@ export default function AltText ({
         )}
       </div>
 
-      {/* OPTION 2: Mark as Decorative. ID: "mark-decorative" */}
+      {/* OPTION 2: Mark as Decorative. ID: "MARK_DECORATIVE" */}
       <div className={`resolve-option ${activeOption === FORM_OPTIONS.MARK_DECORATIVE ? 'selected' : ''}`}>
         <RadioSelector
           activeOption={activeOption}
@@ -186,7 +186,7 @@ export default function AltText ({
           />
       </div>
 
-      {/* OPTION 3: Mark as Reviewed. ID: "mark-as-reviewed" */}
+      {/* OPTION 3: Mark as Reviewed. ID: "MARK_AS_REVIEWED" */}
       <div className={`resolve-option ${activeOption === FORM_OPTIONS.MARK_AS_REVIEWED ? 'selected' : ''}`}>
         <RadioSelector
           activeOption={activeOption}

@@ -83,9 +83,14 @@
         cursor: not-allowed;
       }
     }
+  }
 
+  > .option-label {
     + * {
-      margin-top: 1rem;
+      width: 100%;
+      margin-block-start: 1rem;
+      /* border-block-start: 1px solid var(--selection-color);
+      padding-block-start: .5rem; */
     }
   }
 
@@ -95,13 +100,20 @@
   }
 
   .option-feedback {
-    color: var(--issue-color-text);
     margin-top: .5em;
-    font-size: .9em;
-    font-weight: 400;
+    font-size: .85em;
+    font-weight: 300;
     text-align: end;
     line-height: normal;
     font-style: italic;
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-end;
+    align-items: center;
+  }
+
+  .indented {
+    margin-inline-start: 1.9em;
   }
 }
 

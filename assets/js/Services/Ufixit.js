@@ -207,10 +207,6 @@ const rulesToFormNameMap = {
   aria_toolbar_label_unique: formNames.LABEL_UNIQUE,
   form_label_unique: formNames.LABEL_UNIQUE,
 
-  // element_lang_valid: formNames.LANGUAGE,
-  // html_lang_exists: formNames.LANGUAGE,
-  // html_lang_valid: formNames.LANGUAGE,
-
   element_lang_valid: formNames.LANGUAGE,
   html_lang_exists: formNames.LANGUAGE,
   html_lang_valid: formNames.LANGUAGE,

@@ -17,7 +17,7 @@ export default function AriaRoleForm({
  }) {
 
   const FORM_OPTIONS = {
-    SELECT_ROLE: settings.UFIXIT_OPTIONS.SELECT_ROLE,
+    SELECT_ROLE: settings.UFIXIT_OPTIONS.SELECT_ATTRIBUTE_VALUE,
     DELETE_ROLE: settings.UFIXIT_OPTIONS.DELETE_ATTRIBUTE,
     MARK_AS_REVIEWED: settings.UFIXIT_OPTIONS.MARK_AS_REVIEWED
   }
@@ -223,7 +223,7 @@ export default function AriaRoleForm({
   useEffect(() => {
     updateHtmlContent()
     checkFormErrors()
-  }, [selectValue, activeOption])
+  }, [activeOption, selectValue])
 
   const updateHtmlContent = () => {
     let issue = activeIssue
@@ -275,7 +275,7 @@ export default function AriaRoleForm({
 
   return (
     <>
-      {/* OPTION 1: Select valid role... If there is a valid tag with valid role options. ID: "select-role" */}
+      {/* OPTION 1: Select valid role... If there is a valid tag with valid role options. ID: "SELECT_ROLE" */}
       {(detectedTag === '') ? (
         <div className="resolve-option">
           <label className="option-label disabled">
@@ -324,7 +324,7 @@ export default function AriaRoleForm({
         </div>
       )}
 
-      {/* OPTION 2: Delete Role. ID: "delete-role" */}
+      {/* OPTION 2: Delete Role. ID: "DELETE_ROLE" */}
       <div className={`resolve-option ${activeOption === FORM_OPTIONS.DELETE_ROLE ? 'selected' : ''}`}>
         <RadioSelector
           activeOption={activeOption}
@@ -338,7 +338,7 @@ export default function AriaRoleForm({
         )}
       </div>
       
-      {/* OPTION 3: Mark as Reviewed. ID: "mark-as-reviewed" */}
+      {/* OPTION 3: Mark as Reviewed. ID: "MARK_AS_REVIEWED" */}
       <div className={`resolve-option ${activeOption === FORM_OPTIONS.MARK_AS_REVIEWED ? 'selected' : ''}`}>
         <RadioSelector
           activeOption={activeOption}

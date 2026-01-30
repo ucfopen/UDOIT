@@ -670,6 +670,7 @@
   "form.table_headers.both": "Ambos",
   "form.table_headers.decoration_only": "Esta Tabla es de Diseño",
   "form.table_headers.decoration_only_desc": "Utilice esta opción sólo si la tabla no contiene datos.",
+  "form.table_headers.msg.no_selection": "TODO: Table headers must be on columns, rows, or both",
   "rule.desc.table_headers_exists": "",
   "rule.desc.table_structure_misuse": "",
   "rule.info.table_structure_misuse": "TODO: This table seems to be decorative, but also has data-related elements, like <code>&lt;th&gt;</code> or <code>&lt;caption&gt;</code>. If this table contains data, please select the appropriate header option instead.",
