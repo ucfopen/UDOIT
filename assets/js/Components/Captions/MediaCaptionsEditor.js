@@ -283,28 +283,6 @@ export default function MediaCaptionsEditor({
     }
   }, []);
 
-  const updateCueTime = useCallback((idx, field, value) => {
-    setCues((prev) => {
-      const cue = prev[idx];
-      if (!cue) return prev;
-
-      const nextStart = field === "start" ? value : cue.start;
-      const nextEnd = field === "end" ? value : cue.end;
-
-      if (vttToMS(nextStart) >= vttToMS(nextEnd)) {
-        setError(t("form.media_captions.error_time_order") || "Start time must be less than end time.");
-        return prev;
-      }
-
-      setError("");
-
-      const next = prev.map((c, i) =>
-        i === idx ? { ...c, start: nextStart, end: nextEnd, duration: computeVTTDuration(nextStart, nextEnd) } : c
-      );
-      return next;
-    });
-  }, [t]);
-
   const updateCueText = useCallback((idx, value) => {
     setCues((prev) => {
       const cue = prev[idx];
@@ -578,7 +556,6 @@ export default function MediaCaptionsEditor({
           id="table-focus-layer"
           aria-label="Captions List"
           style={{
-            outline: focusLayer === "table" && focusedRow === -1 ? "2px solid #1976d2" : "none",
             overflow: "auto",
             border: "1px solid #ddd",
             borderRadius: 6,
