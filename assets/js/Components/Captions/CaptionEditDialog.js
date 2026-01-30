@@ -1,10 +1,12 @@
 import React, { useEffect, useRef, useState } from "react";
+import { computeVTTDuration } from "../../Services/Captions";
 
 export default function CaptionEditDialog({ open, cue, onClose, onSave, isDisabled }) {
   const [start, setStart] = useState(cue?.start || "");
   const [end, setEnd] = useState(cue?.end || "");
   const [align, setAlign] = useState(cue?.align || "center");
   const [text, setText] = useState(cue?.text || "");
+  const [error, setError] = useState("");
   const dialogRef = useRef(null);
 
   useEffect(() => {
@@ -13,11 +15,31 @@ export default function CaptionEditDialog({ open, cue, onClose, onSave, isDisabl
       setEnd(cue?.end || "");
       setAlign(cue?.align || "center");
       setText(cue?.text || "");
+      setError("");
       setTimeout(() => {
         dialogRef.current?.focus();
       }, 0);
     }
   }, [open, cue]);
+
+  const duration = computeVTTDuration(start, end);
+
+  // Validation
+  const isInvalid =
+    !start ||
+    !end ||
+    isNaN(Number(duration)) ||
+    Number(duration) <= 0;
+
+  useEffect(() => {
+    if (!start || !end) {
+      setError("");
+    } else if (isInvalid) {
+      setError("Start time must be less than end time.");
+    } else {
+      setError("");
+    }
+  }, [start, end, duration, isInvalid]);
 
   if (!open) return null;
 
@@ -75,6 +97,23 @@ export default function CaptionEditDialog({ open, cue, onClose, onSave, isDisabl
             />
           </label>
           <label>
+            Duration (seconds)
+            <div
+              style={{
+                width: "100%",
+                background: "#f5f5f5",
+                padding: "6px 8px",
+                borderRadius: "4px",
+                minHeight: "1.5em",
+                color: "#333",
+                fontFamily: "monospace"
+              }}
+              tabIndex={-1}
+            >
+              {duration}
+            </div>
+          </label>
+          <label>
             Position
             <select
               value={align}
@@ -96,6 +135,9 @@ export default function CaptionEditDialog({ open, cue, onClose, onSave, isDisabl
               style={{ width: "100%", minHeight: 60 }}
             />
           </label>
+          {error && (
+            <div style={{ color: "red", minHeight: 18 }}>{error}</div>
+          )}
         </div>
         <div style={{ marginTop: 24, display: "flex", gap: 8, justifyContent: "flex-end" }}>
           <button type="button" onClick={onClose} disabled={isDisabled}>
@@ -103,8 +145,10 @@ export default function CaptionEditDialog({ open, cue, onClose, onSave, isDisabl
           </button>
           <button
             type="button"
-            onClick={() => onSave({ start, end, align, text })}
-            disabled={isDisabled}
+            onClick={() => {
+              if (!isInvalid) onSave({ start, end, align, text });
+            }}
+            disabled={isDisabled || isInvalid}
             style={{ fontWeight: "bold" }}
           >
             Save
