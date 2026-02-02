@@ -8,7 +8,7 @@
   box-sizing: border-box;
   width: calc(100% - 2rem);
   max-width: 400px;
-  background-color: var(--primary-color-light);
+  background-color: var(--background-color);
   box-shadow: 0px 0px 3px var(--gray-dark);
 
   &.open {
@@ -16,18 +16,18 @@
   }
 
   &.error {
-    border: 1px solid var(--issue-color);
-    background-color: var(--issue-color-light);
+    border: 1px solid var(--pill-error-border);
+    background-color: var(--pill-error-background);
   }
 
   &.alert {
-    border: 1px solid var(--potential-color);
-    background-color: var(--potential-color-light);
+    border: 1px solid var(--pill-warning-border);
+    background-color: var(--pill-warning-background);
   }
 
   &.success {
-    border: 1px solid var(--success-color);
-    background-color: var(--success-color-light);
+    border: 1px solid var(--pill-success-border);
+    background-color: var(--pill-success-background);
   }
 
   &.info {
@@ -72,15 +72,15 @@
     height: 100%;
 
     &.error {
-      background-color: var(--issue-color);
+      background-color: var(--pill-error-text);
     }
 
     &.alert {
-      background-color: var(--potential-color);
+      background-color: var(--pill-warning-text);
     }
 
     &.success {
-      background-color: var(--success-color);
+      background-color: var(--pill-success-text);
     }
 
     &.info {

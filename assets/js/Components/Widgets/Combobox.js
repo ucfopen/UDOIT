@@ -9,7 +9,6 @@ import ContentQuizIcon from '../Icons/ContentQuizIcon'
 import ContentSyllabusIcon from '../Icons/ContentSyllabusIcon'
 import SeverityIssueIcon from '../Icons/SeverityIssueIcon'
 import SeverityPotentialIcon from '../Icons/SeverityPotentialIcon'
-import SeveritySuggestionIcon from '../Icons/SeveritySuggestionIcon'
 import FixedIcon from '../Icons/FixedIcon'
 import ResolvedIcon from '../Icons/ResolvedIcon'
 import SortIcon from '../Icons/SortIcon'
@@ -90,8 +89,6 @@ export default function Combobox({
       case settings.ISSUE_FILTER.POTENTIAL:
       case settings.ISSUE_FILTER.UNREVIEWED:
         return <SeverityPotentialIcon className={`${size} color-potential`} />
-      case settings.ISSUE_FILTER.SUGGESTION:
-        return <SeveritySuggestionIcon className={`${size} color-suggestion`} />
       case settings.ISSUE_FILTER.ANNOUNCEMENT:
         return <ContentAnnouncementIcon className={`${size} gray`} />
       case settings.ISSUE_FILTER.ASSIGNMENT:

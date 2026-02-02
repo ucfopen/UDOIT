@@ -395,11 +395,11 @@
   "form.blockquote.title": "Blockquotes Must Have a Citation",
   "form.blockquote.summary": "Blockquotes are used to indicate that a section of text is a quotation from another source. Do not use blockquotes just for indentation or visual style.",
   "form.blockquote.learn_more": "<h3>Blockquotes</h3><p>Blockquotes are used to indicate that a section of text is a quotation from another source. They should always include a citation to the original source of the quote. If the citation is already included in text directly above or below the blockquote, you may choose to hide the citation inside the blockquote, even though it still must be added here.</p><h3>Best Practices</h3><ul><li>Include a citation for every blockquote</li><li>Blockquotes should never be used just for indentation or visual style</li><li>The citation can be the name of the book or article, the name of the author, or a URL</li></ul><h3>For More Information</h3><p>W3.org: <a href='https://www.w3.org/TR/WCAG20-TECHS/H49.html#H49-examples' target='_blank'>Using Semantic Markup</a></p><p>Mozilla.org: <a href='https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/blockquote' target='_blank'>The Block Quotation element</a></p>",
-  "form.blockquote.label.text": "Citation for Blockquote",
+  "form.blockquote.label.text": "Add Citation for Blockquote",
   "form.blockquote.text.placeholder": "e.g. title of book or article, author name, or URL",
   "form.blockquote.label.hide_citation": "Hide Citation Visually (Optional)",
   "form.blockquote.label.hide_citation_desc": "Only use this option if the citation is already included in the page text.",
-  "form.blockquote.label.remove_blockquote": "Remove Blockquote Instead",
+  "form.blockquote.label.remove_blockquote": "Remove Blockquote Formatting",
   "form.blockquote.msg.text_empty": "Citation cannot be empty",
   "rule.desc.blockquote_cite_exists": "",
 

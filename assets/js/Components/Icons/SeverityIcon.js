@@ -43,7 +43,7 @@ export default function SeverityIcon(props) {
         return <SeverityPotentialIcon {...newProps} />
       }
     case('FILE'):
-      newProps.className += 'udoit-suggestion'
+      newProps.className += 'udoit-file'
       if(filled) {
         return <ContentFileIconFilled {...newProps} />
       }

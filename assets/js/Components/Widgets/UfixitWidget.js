@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react'
 import BarrierInformation from './BarrierInformation'
 import FileForm from '../Forms/FileForm'
+import StatusPill from './StatusPill'
 import { formFromIssue } from '../../Services/Ufixit'
 import './UfixitWidget.css'
+
 
 
 export default function UfixitWidget({
@@ -102,7 +104,15 @@ export default function UfixitWidget({
               handleLearnMoreClick={handleLearnMoreClick}
             />
 
-            <h3 className="ufixit-widget-label">{t('fix.label.barrier_repair')}</h3>
+            <div className="flex-row justify-content-between mt-3 mb-2">
+              <h3 className="ufixit-widget-label m-0 align-self-center">{t('fix.label.barrier_repair')}</h3>
+              <div className="align-self-start flex-shrink-0">
+                <StatusPill
+                  t={t}
+                  settings={settings}
+                  issue={tempActiveIssue} />
+              </div>
+            </div>
             <div className="flex-column gap-1 flex-grow-1">
               <UfixitForm
                 t={t}
