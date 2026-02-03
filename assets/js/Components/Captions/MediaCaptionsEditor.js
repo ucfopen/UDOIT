@@ -12,6 +12,7 @@ import {
   formatVTTTime,
   computeVTTDuration,
 } from "../../Services/Captions";
+import useWaveformKeyboard from "./useWaveformKeyboard";
 
 /**
  * MediaCaptionsEditor
@@ -37,10 +38,12 @@ export default function MediaCaptionsEditor({
   const [cues, setCues] = useState(() => (initialVttText ? parseVTT(initialVttText) : []));
   const [selectedIndex, setSelectedIndex] = useState(-1);
   const [error, setError] = useState("");
+  const [activeRegion, setActiveRegion] = useState(-1);
 
   const videoElRef = useRef(null);
   const wavesurferRef = useRef(null);
   const timelineRef = useRef(null);
+  const waveformFocusRef = useRef(null);
 
   // Unique id counter for cues
   const [cueIdCounter, setCueIdCounter] = useState(1);
@@ -166,13 +169,7 @@ export default function MediaCaptionsEditor({
 
     // remove existing regions
     const existing = regionsPlugin.getRegions?.() || [];
-    existing.forEach((r) => {
-      try {
-        r.remove();
-      } catch {
-        // ignore
-      }
-    });
+    existing.forEach((r) => { try { r.remove(); } catch {} });
 
     cues.forEach((cue, i) => {
       const start = vttToMS(cue.start) / 1000;
@@ -190,44 +187,60 @@ export default function MediaCaptionsEditor({
 
       region.data = { index: i };
 
-      // make region focusable for keyboard
       if (region.element) {
-        region.element.setAttribute("role", "button");
-        region.element.setAttribute("tabindex", "0");
-        region.element.setAttribute("aria-label", `Subtitle region ${i + 1}: ${cue.text}`);
-
-        region.element.onkeydown = null;
-        region.element.addEventListener("keydown", (e) => {
-          if (e.key === "Enter" || e.key === " ") {
-            selectCue(i, start);
-            e.preventDefault();
-          }
-        });
+        region.element.removeAttribute('tabindex');
+        region.element.setAttribute('tabindex', '-1');
+        region.element.setAttribute('aria-hidden', 'true');
+        region.element.setAttribute('role', 'presentation');
+        region.element.style.outline = 'none';
+        region.element.setAttribute(
+          'aria-label',
+          `Region ${i + 1}, from ${cue.start} to ${cue.end}: ${cue.text}`
+        );
       }
 
       // dblclick seeks inside the region
       region.on("dblclick", (e) => {
         let seekTime = region.start;
-
         try {
           const bbox = ws.getWrapper().getBoundingClientRect();
           const x = e.clientX - bbox.left;
           const duration = ws.getDuration();
           const pxPerSec = bbox.width / duration;
           let clickTime = x / pxPerSec;
-
           if (clickTime < region.start) clickTime = region.start;
           if (clickTime > region.end) clickTime = region.end;
-
           seekTime = clickTime;
-        } catch {
-          // ignore
-        }
-
+        } catch {}
         selectCue(i, seekTime);
       });
     });
   }, [cues, selectedIndex, findRegionsPlugin]);
+
+  // Hook: keyboard layers
+  const {
+  waveKbLayer,
+  activeMode,
+  setWaveKbLayer,
+  setActiveMode,
+  onWaveformKeyDown,
+  applyRegionHighlight,
+  sanitizeRegionsDom,
+  } = useWaveformKeyboard({
+    cues,
+    setCues,
+    selectedIndex,
+    wavesurferRef,
+    videoElRef,
+    findRegionsPlugin,
+    activeRegion,
+    setActiveRegion,
+  });
+
+  // Sanitize after regions render (handles late DOM changes)
+  useEffect(() => {
+    sanitizeRegionsDom();
+  }, [sanitizeRegionsDom, cues]);
 
   // ---- when region is dragged/resized, write back to cues
   useEffect(() => {
@@ -522,6 +535,23 @@ export default function MediaCaptionsEditor({
     setDialogCueIndex(-1);
   };
 
+  const [waveformFocused, setWaveformFocused] = useState(false);
+
+  // Wait for the waveform to render
+  useEffect(() => {
+    const interval = setInterval(() => {
+      const wrapper = document.querySelector('.wrapper');
+      if (wrapper) {
+        wrapper.removeAttribute('tabindex');
+        wrapper.setAttribute('tabindex', '-1');
+        wrapper.setAttribute('aria-hidden', 'true');
+        clearInterval(interval);
+      }
+    }, 100);
+
+    return () => clearInterval(interval);
+  }, []);
+
   return (
     <div className="media-captions-editor" style={{ display: "flex", flexDirection: "column", gap: 12 }}>
       <div style={{ display: "flex", gap: 12, flexWrap: "wrap", alignItems: "center" }}>
@@ -701,33 +731,38 @@ export default function MediaCaptionsEditor({
         </div>
       </div>
 
-      {/* Waveform */}
+      {/* Waveform focus container */}
       <div style={{ border: "1px solid #ddd", borderRadius: 6, padding: 8 }}>
-        <div onWheel={onWaveWheel}>
-          <WavesurferPlayer
-            key={videoUrl || "no-url"}
-            url={videoUrl || undefined}
-            height={120}
-            normalize
-            hideScrollbar
-            minPxPerSec={100}
-            interact={false}
-            waveColor="#595656ff"
-            progressColor="#1976d2"
-            plugins={plugins}
-            onReady={onWsReady}
-          />
+        <div
+          ref={waveformFocusRef}
+          tabIndex={0}
+          aria-label="Waveform. Press Enter to navigate regions, Tab to cycle, Escape to go back."
+          onKeyDown={onWaveformKeyDown}
+          onFocus={() => setWaveformFocused(true)}
+          onBlur={() => setWaveformFocused(false)}
+          style={{
+            outline: waveformFocused && waveKbLayer === 'wave' ? '3px solid #1976d2' : 'none',
+            boxShadow: waveformFocused && waveKbLayer === 'wave' ? '0 0 0 4px #90caf9' : 'none'
+          }}
+        >
+          <div onWheel={onWaveWheel}>
+            <WavesurferPlayer
+              key={videoUrl || "no-url"}
+              url={videoUrl || undefined}
+              height={120}
+              normalize
+              hideScrollbar
+              minPxPerSec={100}
+              interact={false}
+              waveColor="#595656ff"
+              progressColor="#1976d2"
+              plugins={plugins}
+              onReady={onWsReady}
+            />
+          </div>
+          <div ref={timelineRef} />
         </div>
-        <div ref={timelineRef} />
       </div>
-
-      {/* Offscreen list for keyboard access to regions */}
-      <RegionAccessList
-        cues={cues}
-        onSelect={(idx, startSec) => selectCue(idx, startSec)}
-        videoElRef={videoElRef}
-        wavesurferRef={wavesurferRef}
-      />
 
       <CaptionEditDialog
         open={dialogOpen}
