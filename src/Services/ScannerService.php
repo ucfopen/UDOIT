@@ -59,18 +59,8 @@ class ScannerService {
                 $phpAlly = new PhpAllyService($htmlService, $util);
                 $report = $phpAlly->scanContentItem($contentItem);
             }
-            else if ($scanner == 'equalaccess' || $scanner == 'equalaccess_local') {
+            else if ($scanner == 'equalaccess_local' || $scanner == 'equalaccess_lambda' || $scanner == 'equalaccess') {
                 $equalAccess = new EqualAccessService();
-
-                // $document = $this->getDomDocument($contentItem->getBody());
-
-                // $htmlContent = $document->saveHTML();
-                // $totalLength = strlen($htmlContent);
-
-                // $bodyElements = $document->getElementsByTagName('body');
-                // if ($bodyElements->length > 0) {
-                //     $printOutput->writeln("Body found with children: " . $bodyElements->item(0)->childNodes->length);
-                // }
 
                 $localService = new LocalApiAccessibilityService();
                 $json = $localService->scanContentItem($contentItem);

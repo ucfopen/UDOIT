@@ -27,6 +27,7 @@ class LmsApiService {
     /** @var D2lLms $d2lLms */
     private $d2lLms;
 
+    private $doctrine;
 
     public function __construct(
         SessionService $sessionService,
@@ -89,6 +90,15 @@ class LmsApiService {
         $this->doctrine->getManager()->flush();
 
         return count($courses);
+    }
+
+    public function getCourseTeachers(User $actingUser, int|string $lmsCourseId): array
+    {
+        $lms = $this->getLms($actingUser);
+        if (!\method_exists($lms, 'getCourseTeachers')) {
+            throw new \RuntimeException('getCourseTeachers not implemented for this LMS');
+        }
+        return $lms->getCourseTeachers($actingUser, $lmsCourseId);
     }
 
 }

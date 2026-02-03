@@ -246,9 +246,6 @@ export default function ReportsPage({t, report, settings, quickSearchTerm}) {
           <div className="flex-column w-100 flex-shrink-1 flex-grow-1">
             { showChart && (
               <div className="mt-4">
-                <div className="flex-row w-100 justify-content-center">
-                  <h2 className="primary-dark mt-0 mb-2">{t('report.title.barriers_remaining')}</h2>
-                </div>
                 <div id="resolutionsReport" className="graph-container">
                   <ResolutionsReport t={t} reports={reports}/>
                 </div>
