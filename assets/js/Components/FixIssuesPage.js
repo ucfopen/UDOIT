@@ -534,7 +534,7 @@ export default function FixIssuesPage({
     return tempDoc.body.innerHTML
   }
 
-  const handleIssueSave = () => {
+  const handleIssueSave = async () => {
 
     if(!activeContentItem || !activeContentItem?.body || !tempActiveIssue || !tempActiveIssue?.issueData) {
       return
