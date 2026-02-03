@@ -27,15 +27,9 @@
   --text-disabled-color: #8B95A7; /* #D1D5DC; */
   --hover-brightness: 1.15;
 
-  --link-color: #006AAC;
-  --link-color-hover: color-mix(in srgb, var(--link-color) 100%, var(--white) 10%);
-  --link-color-light: color-mix(in srgb, var(--link-color) 5%, var(--white) 100%);  /* #E9F3FF; */
-  --link-color-dark: color-mix(in srgb, var(--link-color) 100%, var(--black) 10%);
 
-  --focus-color: #009AD0;
 
-  --info-color: #5BAEDF; /* #2C9ECE; */
-  --info-color-light: color-mix(in srgb, var(--info-color) 10%, #FFFFFF 100%);
+  
 
   /* PILLS have three colors: border color, light background color, and text color */
   --pill-success-border: #80D39E;
@@ -58,8 +52,21 @@
   --help-color-light: #FFFBEB;
   --help-color-text: #BB4D00;
 
+  /* Functional Colors */
   --selection-color: #00A63E;
   --selection-color-light: #F7FEF9;
+
+  --error-highlight-color: #E7000B;
+  
+  --focus-color: #009AD0;
+
+  --info-color: #5BAEDF; /* #2C9ECE; */
+  --info-color-light: color-mix(in srgb, var(--info-color) 10%, #FFFFFF 100%);
+
+  --link-color: #006AAC;
+  --link-color-hover: color-mix(in srgb, var(--link-color) 100%, var(--white) 10%);
+  --link-color-light: color-mix(in srgb, var(--link-color) 5%, var(--white) 100%);  /* #E9F3FF; */
+  --link-color-dark: color-mix(in srgb, var(--link-color) 100%, var(--black) 10%);
 
   --background-color: var(--gray-lightest);
   --border-color: #C5C9D3; /* #E5E7EB; */
