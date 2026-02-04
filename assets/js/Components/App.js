@@ -360,7 +360,7 @@ export default function App(initialData) {
               handleNavigation={handleNavigation}
              />
 
-            <main role="main">
+            <main role="main" id="main-content">
               {('summary' === navigation) &&
                 <HomePage
                   t={t}

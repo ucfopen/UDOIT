@@ -205,7 +205,7 @@ export default function HomePage({
                 <div className="subtext" dangerouslySetInnerHTML={{__html: t('summary.' + panel.translationKey + '.description', {count: panel.counter.total})}}></div>
               </div>
               <div className="summary-percent-container">
-                <div className="subtext align-self-end">
+                <div className="subtext text-end">
                   {t('summary.' + panel.translationKey + '_resolved', {resolved: panel.counter.fixed, total: panel.counter.total})}
                 </div>
 
@@ -255,15 +255,15 @@ export default function HomePage({
         <div className="callout-container filled-container feedback-container flex-column p-4 h-fit flex-grow-1 align-self-end">
           <h2 className="mt-0 mb-4">Help & Feedback</h2>
           <div className="flex-row mb-3">
-            <InfoIcon className="icon-md me-2 link-color align-self-center" />
+            <InfoIcon className="icon-md me-2 link-color align-self-center" aria-hidden="true" />
             <a href='https://ucf.service-now.com/ucfit?id=kb_article_view&sys_kb_id=408fe7021bb162102fc664a2604bcb3e&table=kb_knowledge&searchTerm=Udoit' target='_blank' rel='noopener noreferrer' className='align-self-center'>Learn About UDOIT</a>
           </div>
           <div className="flex-row mb-3">
-            <ContentAnnouncementIcon className="icon-md me-2 link-color align-self-center" />
+            <ContentAnnouncementIcon className="icon-md me-2 link-color align-self-center" aria-hidden="true" />
             <a href='https://form.asana.com/?k=fM-ii4jhXi1ff574xnf-ig&d=941449628608720' target='_blank' rel='noopener noreferrer' className='align-self-center'>Report an Issue</a>
           </div>
           <div className="flex-row mb-0">
-            <ContentPageIcon className="icon-md me-2 link-color align-self-center" />
+            <ContentPageIcon className="icon-md me-2 link-color align-self-center" aria-hidden="true" />
             <a href='https://form.asana.com/?k=_WTU9I8AhlBXFKYkduprvg&d=941449628608720' target='_blank' rel='noopener noreferrer' className='align-self-center'>User Feedback Survey</a>
           </div>
         </div>
