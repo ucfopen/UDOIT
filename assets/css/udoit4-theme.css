@@ -23,7 +23,7 @@
   --primary-color-disabled: #B2D2C3;
 
   --text-color: #0A0A0A;
-  --text-secondary-color: #4A5565;
+  --text-secondary-color: #2F3741; /* #4A5565; */
   --text-disabled-color: #8B95A7; /* #D1D5DC; */
   --hover-brightness: 1.15;
 
@@ -40,7 +40,7 @@
   --pill-warning-background: #FFFBEB;
   --pill-warning-text: #BB4D00;
 
-  --pill-error-color: #D34F4F;
+  --pill-error-border: #FFC9C9; /* #D34F4F; */
   --pill-error-background: #FFEBEB;
   --pill-error-text: #8D0D0D;
 
@@ -52,11 +52,16 @@
   --help-color-light: #FFFBEB;
   --help-color-text: #BB4D00;
 
+  --potential-border: #FFEDD5;
+  --potential-background: #FFF7ED;
+
   /* Functional Colors */
   --selection-color: #00A63E;
   --selection-color-light: #F7FEF9;
 
   --error-highlight-color: #E7000B;
+  --potential-highlight-color: #F54900;
+  --file-highlight-color: #155DFC;
   
   --focus-color: #009AD0;
 
@@ -110,7 +115,7 @@ body {
   box-sizing: border-box;
   border: 1px solid var(--border-color);
   box-shadow: 3px 3px 3px var(--gray-light);
-  background-color: var(--background-color);
+  background-color: var(--white);
 
   &.serif {
     --text-font-family: 'Merriweather', Times, serif;
@@ -169,8 +174,8 @@ body {
 
     --focus-color: #00BBFF;
 
-    --pill-error-color: #F64649;
-    --pill-error-background: color-mix(in srgb, var(--pill-error-color) 50%, var(--white) 100%);
+    --pill-error-border: #F64649;
+    --pill-error-background: color-mix(in srgb, var(--pill-error-border) 50%, var(--white) 100%);
     --pill-warning-border: #F8961E;
     --pill-warning-background: color-mix(in srgb, var(--pill-warning-border) 50%, var(--white) 100%);
     --info-color: #2DA1D2;
@@ -562,6 +567,10 @@ main {
   width: 100%;
 }
 
+.w-fit {
+  width: fit-content;
+}
+
 .h-25 {
   height: 25%;
 }
@@ -576,6 +585,10 @@ main {
 
 .h-100 {
   height: 100%;
+}
+
+.h-fit {
+  height: fit-content;
 }
 
 .fw-bold {
@@ -623,6 +636,10 @@ h1, h2, h3, h4, h5, h6 {
   color: var(--text-secondary-color);
   font-size: smaller;
   font-weight: 300;
+
+  strong {
+    font-weight: 600;
+  }
 }
 
 .primary-dark {
@@ -698,10 +715,14 @@ button {
   cursor: pointer;
   box-sizing: border-box;
   border: 1px solid transparent;
+  color: var(--text-secondary-color);
+  fill: var(--text-secondary-color);
   font-weight: 400;
-  font-size: 1em;
+  font-size: .9em;
+  text-transform: uppercase;
   width: fit-content;
   height: fit-content;
+  box-shadow: 0px 1px 2px var(--shadow-color);
 
   &:focus {
     outline: 2px solid var(--focus-color);
@@ -773,14 +794,11 @@ button {
 }
 
 .btn-small {
-  font-size: 0.85em;
-  padding: .25em 0.75em;
-  border-radius: 8px;
+  font-size: 0.8em;
 }
 
 .btn-large {
   font-size: 1.15em;
-  padding: .5em 1.25em;
 }
 
 .btn-text, .text-button {
@@ -952,7 +970,7 @@ dialog {
 
 .callout-container {
   background: var(--white);
-  border-radius: 8px;
+  border-radius: var(--element-radius);
   padding: .75rem 1rem;
   border: 1px solid var(--border-color);
   box-sizing: border-box;
@@ -961,6 +979,10 @@ dialog {
     background-color: var(--help-color-light);
     border-color: var(--help-color);
     color: var(--text-secondary-color);
+  }
+
+  &.filled-container {
+    background-color: var(--background-color);
   }
 }
 
@@ -1020,7 +1042,7 @@ dialog {
   width: fit-content;
 
   &.issue {
-    border-color: var(--pill-error-color);
+    border-color: var(--pill-error-border);
     background-color: var(--pill-error-background);
     color: var(--pill-error-text);
     fill: var(--pill-error-text);
@@ -1224,16 +1246,31 @@ a:focus {
   fill: var(--pill-error-text);
 }
 
+.udoit-issue-highlight {
+  color: var(--error-highlight-color);
+  fill: var(--error-highlight-color);
+}
+
 .udoit-potential,
 .color-potential {
   color: var(--pill-warning-text);
   fill: var(--pill-warning-text);
 }
 
+.udoit-potential-highlight {
+  color: var(--potential-highlight-color);
+  fill: var(--potential-highlight-color);
+}
+
 .udoit-file,
 .color-file {
   color: var(--pill-info-text);
   fill: var(--pill-info-text);
+}
+
+.udoit-file-highlight {
+  color: var(--file-highlight-color);
+  fill: var(--file-highlight-color);
 }
 
 .udoit-success,
