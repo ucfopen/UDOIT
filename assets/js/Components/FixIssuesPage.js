@@ -720,8 +720,8 @@ export default function FixIssuesPage({
         <></>
       ) : (
         <>
-          <h1>{t('barriers.title')}</h1>
-          <div className="subheader">{t('barriers.subtitle')}</div>
+          <h1 className="pageTitle">{t('barriers.title')}</h1>
+          <p className="pageSubtitle">{t('barriers.subtitle')}</p>
 
           <FixIssuesFilters
             t={t}

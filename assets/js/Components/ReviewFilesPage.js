@@ -6,8 +6,7 @@ import FileReviewPreview from './Widgets/FileReviewPreview'
 import FileTypeIcon from './Icons/FileTypeIcon'
 import LeftArrowIcon from './Icons/LeftArrowIcon'
 import RightArrowIcon from './Icons/RightArrowIcon'
-import SeverityPotentialIcon from './Icons/SeverityPotentialIcon'
-import FixedIcon from './Icons/FixedIcon'
+import StatusPill from './Widgets/StatusPill'
 import * as Text from '../Services/Text'
 import Api from '../Services/Api'
 
@@ -62,7 +61,6 @@ export default function ReviewFilesPage({
     { id: "type", text: t('fix.label.file_type')},
     { id: "references", text: t('fix.label.references')},
     { id: "date", text: t('fix.label.file_updated')},
-    { id: "size", text: t('fix.label.file_size')},
     { id: "status", text: t('fix.label.status')},
   ]
 
@@ -160,7 +158,7 @@ export default function ReviewFilesPage({
         name: tempFile.contentTitle ? { value: tempFile.contentTitle, display: getFileNameDisplay(tempFile)} : t('label.unknown'),
         type: tempFile.fileData.fileType ? { value: tempFile.fileData.fileType, display: getFileTypeDisplay(tempFile.fileData.fileType)}: t('label.mime.unknown'),
         date: tempFile.fileData.updated ? { value: tempFile.fileData.updated, display: Text.getReadableDateTime(tempFile.fileData.updated)} : t('label.unknown'),
-        size: tempFile.fileData.fileSize ? { value: parseInt(tempFile.fileData.fileSize), display: Text.getReadableFileSize(tempFile.fileData.fileSize) } : t('label.unknown'),
+        /* size: tempFile.fileData.fileSize ? { value: parseInt(tempFile.fileData.fileSize), display: Text.getReadableFileSize(tempFile.fileData.fileSize) } : t('label.unknown'), */
         references: (tempFile.fileData?.references.length) || 0,
         status: tempFile.status ? { value: t('fix.label.status.' + (tempFile.status.toLowerCase())), display: getFileStatusDisplay(tempFile.status)} : '',
         onClick: () => { jumpToFile(tempFile.id) },
@@ -325,14 +323,11 @@ export default function ReviewFilesPage({
 
   const getFileStatusDisplay = (status) => {
     return (
-      <div className={'info-pill ' + status.toLowerCase()} aria-label={t('fix.label.status.' + (status.toLowerCase()))}>
-        {status === FILTER.UNREVIEWED ? (
-          <SeverityPotentialIcon className="icon-md udoit-potential" aria-hidden="true"/>
-        ) : (
-          <FixedIcon className="icon-md udoit-success" aria-hidden="true" />
-        )}
-        <div aria-hidden="true">{t('fix.label.status.' + (status.toLowerCase()))}</div>
-      </div>
+      <StatusPill
+        t={t}
+        settings={settings}
+        issue={{ status: status, severity: ''}}
+        />
     )
     
   }
@@ -582,8 +577,8 @@ export default function ReviewFilesPage({
         <></>
       ) : (
         <>
-          <h1>{t('files.title')}</h1>
-          <div className="subheader">{t('files.subtitle')}</div>
+          <h1 className="pageTitle">{t('files.title')}</h1>
+          <p className="pageSubtitle">{t('files.subtitle')}</p>
 
           <ReviewFilesFilters
             t={t}

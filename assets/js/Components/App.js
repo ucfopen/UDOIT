@@ -342,7 +342,8 @@ export default function App(initialData) {
          className={`flex-column flex-grow-1 `
           + `${settings?.user?.roles?.font_size || settings.DEFAULT_USER_SETTINGS.FONT_SIZE} `
           + `${settings?.user?.roles?.font_family || settings.DEFAULT_USER_SETTINGS.FONT_FAMILY} `
-          + `${settings?.user?.roles?.dark_mode ? 'dark-mode' : ''}`}>
+          + `${settings?.user?.roles?.dark_mode ? 'dark-mode' : ''} `
+          + `${('summary' === navigation && welcomeClosed) ? 'clear-background' : ''}`}>
       { !welcomeClosed ?
         ( <WelcomePage
             t={t}

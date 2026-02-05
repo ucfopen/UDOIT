@@ -156,39 +156,30 @@ export default function HomePage({
   }, [hasNewReport])
 
   return (
-  <div className="flex-column flex-grow-1">
-    <div className="flex-row justify-content-between gap-2 mb-4 mt-4 flex-wrap">
-      <h1 className="m-0">{t('summary.title')}</h1>
-      <div className="flex-column flex-center flex-shrink-0">
-        <div className="flex-row justify-content-end">
-          { !syncComplete ? (
-            <button className="btn-small btn-icon-left" tabIndex="0" disabled>
-              <ProgressIcon className="icon-sm spinner" />
-              <div className="flex-column justify-content-center">
-                {t('welcome.button.scanning')}
-              </div>
-            </button>
-            ) : (
-              <button
-                onClick={() => handleFullCourseRescan()}
-                className="btn-small btn-icon-left btn-secondary"
-                tabIndex="0">
-                  <SummaryIcon className="icon-sm" />
-                  <div className="flex-column justify-content-center">
-                    {t('settings.button.force_full_rescan')}
-                  </div>
-                </button>
-            )
-          }
-        </div>
+    <div className="flex-column flex-grow-1">
+      <div className="pageTitleRow">
+        <h1 className="pageTitle">{t('summary.title')}</h1>
+        { !syncComplete ? (
+          <button className="btn-small btn-icon-left" tabIndex="0" disabled>
+            <ProgressIcon className="icon-sm spinner" />
+            <div className="flex-column justify-content-center">
+              {t('welcome.button.scanning')}
+            </div>
+          </button>
+          ) : (
+            <button
+              onClick={() => handleFullCourseRescan()}
+              className="btn-small btn-icon-left btn-secondary"
+              tabIndex="0">
+                <SummaryIcon className="icon-md" />
+                <div className="flex-column justify-content-center">
+                  {t('settings.button.force_full_rescan')}
+                </div>
+              </button>
+          )
+        }
       </div>
-    </div>
-    <div className="flex-row w-100 mb-4 justify-content-between gap-4">
-      <div className="flex-column flex-center w-75">
-        <p className="mt-0 mb-0">{t('summary.description')}</p>
-      </div>
-
-    </div>
+      <p className="pageSubtitle">{t('summary.description')}</p>
 
     <div className="summary-container">
       <div className="progress-column flex-column gap-2">

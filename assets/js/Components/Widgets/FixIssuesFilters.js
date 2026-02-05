@@ -106,7 +106,7 @@ export default function FixIssuesFilters({
   }
 
   return (
-    <div className="filter-container flex-row justify-content-between gap-3">
+    <div className="filter-container flex-row flex-wrap justify-content-between gap-2">
       <div className="flex-row flex-wrap gap-1">
         <div className="flex-column flex-shrink-0 justify-content-center pe-2">
           <div className="search-group">
@@ -153,10 +153,10 @@ export default function FixIssuesFilters({
       </div>
 
       {usedFilters && (
-        <div className="flex-row flex-wrap flex-end gap-1">
+        <div className="flex-row flex-wrap flex-end gap-2">
           {Object.keys(detailedFilters).map((filterType, index) => {
             return (
-              <div className="filter-group flex-column justify-content-center ps-2" key={index}>
+              <div className="filter-group flex-column justify-content-center" key={index}>
                 <Combobox
                   handleChange={updateActiveFilters}
                   id={detailedFilters[index].value}

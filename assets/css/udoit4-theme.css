@@ -85,6 +85,7 @@
     --window-radius: 16px;
     --element-radius: 8px;
 
+    --font-size: 16px;
     --text-font-family: 'Inter', Arial, Helvetica, sans-serif; /* 'Open Sans', Arial, Helvetica, sans-serif; */
     --heading-font-family: 'Inter', sans-serif; /* 'Reddit Sans', sans-serif; */
 
@@ -96,7 +97,7 @@
   #app-container {
     border: 1px solid var(--border-color);
     box-shadow: 3px 3px 3px var(--gray-light);
-    background-color: var(--white);
+    background-color: var(--background-color);
     font-family: var(--text-font-family);
     font-weight: 300;
     color: var(--text-color);
@@ -113,21 +114,28 @@
       --text-font-family: 'Atkinson Hyperlegible', Arial, Helvetica, sans-serif;
       --heading-font-family: 'Atkinson Hyperlegible', Arial, Helvetica, sans-serif;
     }
+    &.clear-background {
+      background-color: white;
+    }
 
     line-height: 1.4em;
     
     font-size: 16px;
 
     &.font-small {
+      --font-size: 14px;
       font-size: 14px;
     }
     &.font-medium {
+      --font-size: 16px;
       font-size: 16px;
     }
     &.font-large {
+      --font-size: 20px;
       font-size: 20px;
     }
     &.font-xlarge {
+      --font-size: 24px;
       font-size: 24px;
     }
 
@@ -623,11 +631,31 @@ h1, h2, h3, h4, h5, h6 {
   color: var(--text-color);
 }
 
-.subheader {
-  margin-top: -.75rem;
-  margin-bottom: 1rem;
-  color: var(--gray-dark);
+.pageTitle {
+  margin: 2rem 0 1rem 0;
+  color: var(--text-color);
+  font-weight: 600;
+}
+
+.pageTitleRow {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: 1rem;
+  justify-content: space-between;
+  align-items: center;
+  margin: 2rem 0 1rem 0;
+
+  .pageTitle {
+    margin: 0;
+  }
+}
+
+.pageSubtitle {
+  margin: 0 0 2rem 0;
+  color: var(--text-secondary-color);
   font-weight: 300;
+  max-width: 80%;
 }
 
 .primary {
@@ -780,8 +808,8 @@ button {
   background-color: transparent;
   color: var(--link-color);
   fill: var(--link-color);
+  box-shadow: none;
   
-
   &.btn-icon-left {
     padding-left: 0;
   }
@@ -790,9 +818,16 @@ button {
     padding-right: 0;
   }
 
-  &:hover,
-  &:focus {
+  &:hover:not(:disabled),
+  &:focus:not(:disabled) {
     text-decoration: underline;
+  }
+
+  &:disabled {
+    color: var(--text-disabled-color) !important;
+    fill: var(--text-disabled-color) !important;
+    background-color: transparent !important;
+    border-color: transparent !important;
   }
 }
 
@@ -1039,7 +1074,7 @@ dialog {
   color: var(--text-color);
   fill: var(--text-color);
   padding: 0.15rem .6rem;
-  font-size: .85em;
+  font-size: calc(.8 * var(--font-size));
   align-self: center;
   align-items: center;
   width: fit-content;

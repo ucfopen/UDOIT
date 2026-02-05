@@ -50,7 +50,7 @@ export default function LearnMore ({
         <div className="flex-column h-100">
           <div className="ufixit-widget-dialog-content flex-column flex-grow-1">
             <div className="flex-row justify-content-start mb-2 mt-2">
-              <button id="btn-learn-more-back" className="btn-text btn-icon-left btn-small ps-0" onClick={() => hideLearnMore()} tabIndex="0">
+              <button id="btn-learn-more-back" className="btn-link btn-icon-left btn-small ps-0" onClick={() => hideLearnMore()} tabIndex="0">
                 <LeftArrowIcon className="icon-sm link-color me-2" alt=""/>
                 {t('fix.button.back')}
               </button>
