@@ -18,7 +18,7 @@ import ListForm from '../Components/Forms/ListForm'
 import MediaCaptionsForm from '../Components/Forms/MediaCaptionsForm'
 // import MultiPartForm from '../Components/Forms/MultiPartForm'
 import QuoteForm from '../Components/Forms/QuoteForm'
-// import SelectValidIdForm from '../Components/Forms/SelectValidIdForm'
+import SelectValidIdForm from '../Components/Forms/SelectValidIdForm'
 import SensoryMisuseForm from '../Components/Forms/SensoryMisuseForm'
 import TableCaptionForm from '../Components/Forms/TableCaptionForm'
 import TableHeadersForm from '../Components/Forms/TableHeadersForm'
@@ -91,7 +91,7 @@ const formTypes = {
   [formNames.MEDIA_CAPTIONS]: MediaCaptionsForm,
   // [formNames.MULTI_PART]: MultiPartForm,
   [formNames.QUOTE]: QuoteForm,
-  // [formNames.SELECT_VALID_ID]: SelectValidIdForm,
+  [formNames.SELECT_VALID_ID]: SelectValidIdForm,
   [formNames.SENSORY_MISUSE]: SensoryMisuseForm,
   [formNames.TABLE_CAPTION]: TableCaptionForm,
   [formNames.TABLE_HEADERS]: TableHeadersForm,
@@ -99,6 +99,28 @@ const formTypes = {
   [formNames.INLINE_CSS]: InlineCSSForm,
   
   [formNames.REVIEW_ONLY]: UfixitReviewOnly,
+}
+
+// Classify forms by error types to use for helper elements
+export const FORM_CLASSIFICATIONS = {
+    ALT_TEXT_RELATED : [
+      formNames.ALT_TEXT,            
+      formNames.ANCHOR_TEXT,
+      formNames.BLOCKQUOTE,
+      formNames.EMBEDDED_CONTENT_TITLE,
+      formNames.LABEL,
+      formNames.LABEL_UNIQUE,
+      formNames.SELECT_VALID_ID
+    ],
+  
+    HEADINGS_RELATED : [
+      formNames.HEADING_EMPTY,
+      formNames.HEADING_STYLE
+    ],
+
+    CLICKABLE_RELATED: [
+      formNames.SELECT_VALID_ID
+    ]
 }
 
 // Using the formNames as the only values prevents typos and other errors.
@@ -231,6 +253,10 @@ const rulesToFormNameMap = {
   media_live_captioned: formNames.MEDIA_CAPTIONS,
   media_track_available: formNames.MEDIA_CAPTIONS,
 
+  aria_id_unique: formNames.SELECT_VALID_ID,
+  aria_complementary_label_visible: formNames.SELECT_VALID_ID,
+
+  text_sensory_misuse: formNames.SENSORY_MISUSE,
   // aria_child_valid: formNames.MULTI_PART,
   // aria_parent_required: formNames.MULTI_PART,
   // fieldset_label_valid: formNames.MULTI_PART,
