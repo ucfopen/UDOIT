@@ -40,7 +40,7 @@
         "react": "^19.1.0",
         "react-dom": "^19.1.0",
         "tinymce": "^7.9.1",
-        "webpack": "^5.100.2"
+        "webpack": "^5.104.1"
     },
     "resolutions": {
         "**/tar": "~6.1.11"
