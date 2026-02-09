@@ -7,7 +7,7 @@ import FixIssuesContentPreview from './Widgets/FixIssuesContentPreview'
 import LeftArrowIcon from './Icons/LeftArrowIcon'
 import RightArrowIcon from './Icons/RightArrowIcon'
 import CloseIcon from './Icons/CloseIcon'
-import { formNameFromRule } from '../Services/Ufixit'
+import { FORM_CLASSIFICATIONS, formFromIssue, formNameFromRule, formNames } from '../Services/Ufixit'
 import * as Html from '../Services/Html'
 import Api from '../Services/Api'
 
@@ -71,6 +71,7 @@ export default function FixIssuesPage({
   const [activeIssue, setActiveIssue] = useState(null)
   const [tempActiveIssue, setTempActiveIssue] = useState(null)
   const [activeContentItem, setActiveContentItem] = useState(null)
+  const [tempActiveContentItem, setTempActiveContentItem] = useState(null)
   const [contentItemsBeingScanned, setContentItemsBeingScanned] = useState([])
   const [showLearnMore, setShowLearnMore] = useState(false)
   const [markAsReviewed, setMarkAsReviewed] = useState(false)
@@ -83,6 +84,9 @@ export default function FixIssuesPage({
   const [groupedList, setGroupedList] = useState([])
   const [widgetState, setWidgetState] = useState(WIDGET_STATE.LOADING)
   const [liveUpdateToggle, setLiveUpdateToggle] = useState(true)
+  const [clickedInfo, setClickedInfo] = useState({})
+
+  const [elementFocus, setElementFocus] = useState(true)
 
   const getSectionTitles = () => {
     let sectionTitles = {}
@@ -364,6 +368,7 @@ export default function FixIssuesPage({
       tempContentItem = contentItemCache[activeIssue.issueData.contentItemId] || null
     }
     setActiveContentItem(tempContentItem)
+    setTempActiveContentItem(tempContentItem)
   }, [contentItemCache])
 
   useEffect(() => {
@@ -534,6 +539,122 @@ export default function FixIssuesPage({
     return tempDoc.body.innerHTML
   }
 
+  const handleContentIssueSave = (issue, contentItem, markAsReviewed = false) => {
+    console.log("Coming into main function")
+    if(!contentItem || !contentItem?.body || !issue) {
+      return
+    }
+
+    console.log("Test")
+    updateActiveSessionIssue(issue.id, settings.ISSUE_STATE.SAVING)
+    addItemToBeingScanned(issue.contentItemId)
+
+    const specificClassName = `udoit-ignore-${issue.scanRuleId.replaceAll("_", "-")}`
+    if (markAsReviewed) {
+      if (issue.status === 1) {
+        issue.status = 3
+        issue.newHtml = Html.toString(Html.addClass(issue.newHtml, specificClassName))
+      } else if (issue.status === 0) {
+        issue.status = 2
+        issue.newHtml = Html.toString(Html.addClass(issue.sourceHtml, specificClassName))
+      }
+    } else {
+      if (issue.status === 3) {
+        issue.status = 1
+        issue.newHtml = Html.toString(Html.removeClass(issue.newHtml, specificClassName))
+      } else if (issue.status === 2) {
+        issue.status = 0
+        issue.newHtml = Html.toString(Html.removeClass(issue.sourceHtml, specificClassName))
+      }
+    }
+
+    let fullPageHtml = contentItem.body
+    let fullPageDoc = new DOMParser().parseFromString(fullPageHtml, 'text/html')
+    let newElement = Html.findElementWithError(fullPageDoc, issue?.newHtml)
+    let newXpath = Html.findXpathFromElement(newElement)
+    if(newXpath) {
+      issue.xpath = newXpath
+    }
+    else {
+      issue.xpath = ""
+    }
+    activeContentItem.body = fullPageHtml
+
+    // Save the updated issue using the LMS API
+    let api = new Api(settings)
+    try {
+      api.saveIssue(issue, fullPageHtml, markAsReviewed)
+      .then((responseStr) => {
+        // Check for HTTP errors before parsing JSON
+          if (!responseStr.ok) {
+            processServerError(responseStr)
+            updateActiveSessionIssue(issue.id, settings.ISSUE_STATE.ERROR)
+            removeItemFromBeingScanned(issue.contentItemId)
+            return null
+          }
+          return responseStr.json()
+      })
+      .then((response) => {
+
+        // If the save falied, show the relevant error message
+        if (response.data.failed) {
+          updateActiveSessionIssue(issue.id, settings.ISSUE_STATE.ERROR)
+          removeItemFromBeingScanned(issue.contentItemId)
+          response.messages.forEach((msg) => addMessage(msg))
+            
+          if (Array.isArray(response.data.issues)) {
+            response.data.issues.forEach((issue) => {
+              addMessage({
+                severity: 'error',
+                message: t(`form.error.${issue.ruleId}`)
+              })
+            })
+          }
+
+          if (Array.isArray(response.data.errors)) {
+            response.data.errors.forEach((error) => {
+              addMessage({
+                severity: 'error',
+                message: error
+              })
+            })
+          }
+        }
+        else {
+          
+          // If the save was successful, show the success message
+          response.messages.forEach((msg) => addMessage(msg))
+          
+          if (response.data.issue) {
+            // Update the report object by rescanning the content
+            const newIssue = Object.assign({}, issue, response.data.issue)
+            // const formattedData = formatIssueData(newIssue)
+            // setActiveIssue(formattedData)
+            updateActiveSessionIssue(newIssue.id, settings.ISSUE_STATE.SAVED)
+
+            api.scanContent(newIssue.contentItemId)
+              .then((responseStr) => responseStr.json())
+              .then((res) => { 
+                const tempReport = Object.assign({}, res?.data)
+                processNewReport(tempReport)
+                removeItemFromBeingScanned(newIssue.contentItemId)
+              })
+          }
+          else {
+            // setActiveIssue(formatIssueData(issue))
+            updateActiveSessionIssue(issue.id, settings.ISSUE_STATE.SAVED)
+            removeItemFromBeingScanned(issue.contentItemId)
+          }
+        }
+      })
+    } catch (error) {
+      console.error(error)
+      updateActiveSessionIssue(issue.id, settings.ISSUE_STATE.ERROR)
+    }
+
+
+  }
+
   const handleIssueSave = async () => {
 
     if(!activeContentItem || !activeContentItem?.body || !tempActiveIssue || !tempActiveIssue?.issueData) {
@@ -639,6 +760,10 @@ export default function FixIssuesPage({
     }
   }
 
+  const handleActiveContentItem = (newContentItem) => {
+    setTempActiveContentItem(newContentItem)
+  }
+  
   const updateActiveFilters = (filter, value) => {
     setActiveFilters(Object.assign({}, activeFilters, {[filter]: value}))
   }
@@ -778,11 +903,13 @@ export default function FixIssuesPage({
                       settings={settings}
 
                       activeContentItem={activeContentItem}
+                      handleActiveContentItem={handleActiveContentItem}
                       addMessage={addMessage}
                       handleIssueSave={handleIssueSave}
                       isContentLoading={contentItemsBeingScanned.includes(tempActiveIssue?.issueData?.contentItemId)}
                       isErrorFoundInContent={isErrorFoundInContent}
                       setTempActiveIssue={setTempActiveIssue}
+                      severity={tempActiveIssue.severity}
                       tempActiveIssue={tempActiveIssue}
                       triggerLiveUpdate={triggerLiveUpdate}
                       markAsReviewed={markAsReviewed}
@@ -790,6 +917,10 @@ export default function FixIssuesPage({
                       setFormInvalid={setFormInvalid}
                       handleLearnMoreClick={() => setShowLearnMore(true)}
                       showLearnMore={showLearnMore}
+                      clickedInfo={clickedInfo}
+                      setClickedInfo={setClickedInfo}
+                      handleContentIssueSave={handleContentIssueSave}
+                      setElementFocus={setElementFocus}
                     />
                   </>
                 )}
@@ -805,6 +936,9 @@ export default function FixIssuesPage({
                     contentItemsBeingScanned={contentItemsBeingScanned}
                     liveUpdateToggle={liveUpdateToggle}
                     setIsErrorFoundInContent={setIsErrorFoundInContent}
+                    clickedInfo={clickedInfo}
+                    setClickedInfo={setClickedInfo}
+                    elementFocus={elementFocus}
                   />
                 )}
               </section>

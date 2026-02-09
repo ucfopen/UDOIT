@@ -12,6 +12,7 @@ export default function UfixitWidget({
   settings,
 
   activeContentItem,
+  handleActiveContentItem,
   addMessage,
   handleIssueSave,
   isContentLoading,
@@ -24,6 +25,10 @@ export default function UfixitWidget({
   setFormInvalid,
   handleLearnMoreClick,
   showLearnMore
+  clickedInfo,
+  setClickedInfo,
+  handleContentIssueSave,
+  setElementFocus
 }) {
 
   const [UfixitForm, setUfixitForm] = useState(null)
@@ -120,17 +125,22 @@ export default function UfixitWidget({
 
                 activeIssue={tempActiveIssue.issueData}
                 activeContentItem={activeContentItem}
+                handleActiveContentItem={handleActiveContentItem}
                 addMessage={addMessage}
                 handleActiveIssue={handleActiveIssue}
-                    handleIssueSave={handleIssueSave}
+                handleIssueSave={handleIssueSave}
                 isContentLoading={isContentLoading}
                 isDisabled={isContentLoading || !isErrorFoundInContent}
-                    markAsReviewed={markAsReviewed}
-                    setMarkAsReviewed={setMarkAsReviewed}
+                markAsReviewed={markAsReviewed}
+                setMarkAsReviewed={setMarkAsReviewed}
                 activeOption={activeOption}
                 setActiveOption={handleOptionChange}
                 formErrors={formErrors}
-                setFormErrors={setFormErrors} />
+                setFormErrors={setFormErrors}
+                clickedInfo={clickedInfo}
+                setClickedInfo={setClickedInfo}
+                handleContentIssueSave={handleContentIssueSave}
+                setElementFocus={setElementFocus} />
             </div>
           </div>
         </>
