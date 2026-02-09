@@ -25,6 +25,8 @@
 
 .resolution-container {
   --progress-bar-width: 14rem;
+  --potential-border: #FFEDD5;
+  --potential-background: #FFF7ED;
 
   padding: 1.5rem;
   box-sizing: border-box;
@@ -107,7 +109,7 @@
       background-color: var(--pill-error-border);
 
       .progress-bar-fill {
-        background-color: var(--error-highlight-color);
+        background-color: var(--error-color);
       }
     }
   }
@@ -127,7 +129,7 @@
       background-color: var(--potential-border);
 
       .progress-bar-fill {
-        background-color: var(--potential-highlight-color);
+        background-color: var(--potential-color);
       }
     }
   }
@@ -147,7 +149,7 @@
       background-color: var(--pill-info-border);
 
       .progress-bar-fill {
-        background-color: var(--file-highlight-color);
+        background-color: var(--file-color);
       }
     }
   }
