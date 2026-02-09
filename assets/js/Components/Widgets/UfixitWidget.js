@@ -24,7 +24,7 @@ export default function UfixitWidget({
   setMarkAsReviewed,
   setFormInvalid,
   handleLearnMoreClick,
-  showLearnMore
+  showLearnMore,
   clickedInfo,
   setClickedInfo,
   handleContentIssueSave,
