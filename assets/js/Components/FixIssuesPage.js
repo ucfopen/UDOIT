@@ -6,12 +6,8 @@ import UfixitWidget from './Widgets/UfixitWidget'
 import FixIssuesContentPreview from './Widgets/FixIssuesContentPreview'
 import LeftArrowIcon from './Icons/LeftArrowIcon'
 import RightArrowIcon from './Icons/RightArrowIcon'
-<<<<<<< new-header
 import CloseIcon from './Icons/CloseIcon'
-import { formNameFromRule } from '../Services/Ufixit'
-=======
 import { FORM_CLASSIFICATIONS, formFromIssue, formNameFromRule, formNames } from '../Services/Ufixit'
->>>>>>> dev
 import * as Html from '../Services/Html'
 import Api from '../Services/Api'
 
@@ -543,9 +539,6 @@ export default function FixIssuesPage({
     return tempDoc.body.innerHTML
   }
 
-<<<<<<< new-header
-  const handleIssueSave = async () => {
-=======
   const handleContentIssueSave = (issue, contentItem, markAsReviewed = false) => {
     console.log("Coming into main function")
     if(!contentItem || !contentItem?.body || !issue) {
@@ -662,8 +655,7 @@ export default function FixIssuesPage({
 
   }
 
-  const handleIssueSave = async (issue, markAsReviewed = false) => {
->>>>>>> dev
+  const handleIssueSave = async () => {
 
     if(!activeContentItem || !activeContentItem?.body || !tempActiveIssue || !tempActiveIssue?.issueData) {
       return
@@ -768,76 +760,10 @@ export default function FixIssuesPage({
     }
   }
 
-<<<<<<< new-header
-=======
-  /**
-   * handleFileUpload is called when a new file has already been selected by the user
-   * and is ready to be uploaded to the server and verified.
-   */
-  const handleFileUpload = (newFileData) => {
-
-    const tempFile = Object.assign({}, activeIssue.fileData)
-
-    updateActiveSessionIssue("file-" + tempFile.id, settings.ISSUE_STATE.SAVING)
-
-    try {
-      let api = new Api(settings)
-      api.postFile(tempFile, newFileData)
-        .then((responsStr) => responsStr.json())
-        .then((response) => {
-          const updatedFileData = { ...tempFile, ...response.data.file }
-
-          // Set messages 
-          response.messages.forEach((msg) => addMessage(msg))
-
-          // Update the local report and activeIssue
-          updateActiveSessionIssue("file-" + tempFile.id, settings.ISSUE_STATE.SAVED)
-          updateFile(updatedFileData)
-        })
-    } catch (error) {
-      console.error(error)
-      updateActiveSessionIssue("file-" + tempFile.id, settings.ISSUE_STATE.ERROR)
-    }
-  }
-
-  const handleFileResolve = (fileData) => {
-    updateActiveSessionIssue("file-" + fileData.id, settings.ISSUE_STATE.RESOLVING)
-    
-    let tempFile = Object.assign({}, fileData)
-    tempFile.reviewed = !(tempFile.reviewed) 
-
-    try {
-      let api = new Api(settings)
-      api.reviewFile(tempFile)
-        .then((responseStr) => responseStr.json())
-        .then((response) => {
-          const reviewed = (response?.data?.file && ('reviewed' in response.data.file)) ? response.data.file.reviewed : false
-          const newFileData = { ...tempFile }
-          newFileData.reviewed = reviewed
-
-          // Set messages
-          response.messages.forEach((msg) => addMessage(msg))
-
-          // Update the local report and activeIssue
-          if(reviewed) {
-            updateActiveSessionIssue("file-" + fileData.id, settings.ISSUE_STATE.RESOLVED)
-          }
-          else {
-            updateActiveSessionIssue("file-" + fileData.id, settings.ISSUE_STATE.UNCHANGED)
-          }
-          updateFile(newFileData)
-        })
-    } catch (error) {
-      console.warn(error)
-      updateActiveSessionIssue("file-" + fileData.id, settings.ISSUE_STATE.ERROR)
-    }
-  }
-
   const handleActiveContentItem = (newContentItem) => {
     setTempActiveContentItem(newContentItem)
   }
 
->>>>>>> dev
   const updateActiveFilters = (filter, value) => {
     setActiveFilters(Object.assign({}, activeFilters, {[filter]: value}))
   }
@@ -941,7 +867,6 @@ export default function FixIssuesPage({
             setActiveIssue={setActiveIssue}
           />
         </>
-<<<<<<< new-header
       ) }
       <dialog id={dialogId} className="dialog-full-screen" onClose={closeDialog}>
         <div className="flex-column h-100">
@@ -978,11 +903,13 @@ export default function FixIssuesPage({
                       settings={settings}
 
                       activeContentItem={activeContentItem}
+                      handleActiveContentItem={handleActiveContentItem}
                       addMessage={addMessage}
                       handleIssueSave={handleIssueSave}
                       isContentLoading={contentItemsBeingScanned.includes(tempActiveIssue?.issueData?.contentItemId)}
                       isErrorFoundInContent={isErrorFoundInContent}
                       setTempActiveIssue={setTempActiveIssue}
+                      severity={tempActiveIssue.severity}
                       tempActiveIssue={tempActiveIssue}
                       triggerLiveUpdate={triggerLiveUpdate}
                       markAsReviewed={markAsReviewed}
@@ -990,6 +917,10 @@ export default function FixIssuesPage({
                       setFormInvalid={setFormInvalid}
                       handleLearnMoreClick={() => setShowLearnMore(true)}
                       showLearnMore={showLearnMore}
+                      clickedInfo={clickedInfo}
+                      setClickedInfo={setClickedInfo}
+                      handleContentIssueSave={handleContentIssueSave}
+                      setElementFocus={setElementFocus}
                     />
                   </>
                 )}
@@ -1005,6 +936,9 @@ export default function FixIssuesPage({
                     contentItemsBeingScanned={contentItemsBeingScanned}
                     liveUpdateToggle={liveUpdateToggle}
                     setIsErrorFoundInContent={setIsErrorFoundInContent}
+                    clickedInfo={clickedInfo}
+                    setClickedInfo={setClickedInfo}
+                    elementFocus={elementFocus}
                   />
                 )}
               </section>
@@ -1012,57 +946,6 @@ export default function FixIssuesPage({
           </div>
           <div className="dialog-footer">
             <div className="flex-row gap-2 align-items-center">
-=======
-      ) : (
-        <div className="flex-row gap-2 w-100 h-100">
-          <section className='ufixit-widget-container'>
-            <button onClick={toggleListView} className="btn btn-link btn-icon-left btn-small mb-2">
-              <LeftArrowIcon className="icon-sm link-color" />{t('fix.button.list')}
-            </button>
-            { tempActiveIssue ? (  
-                <UfixitWidget
-                  t={t}
-                  settings={settings.FILTER ? settings : Object.assign({}, settings, { FILTER })}
-
-                  activeContentItem={activeContentItem}
-                  handleActiveContentItem={handleActiveContentItem}
-                  addMessage={addMessage}
-                  handleFileResolve={handleFileResolve}
-                  handleFileUpload={handleFileUpload}
-                  handleIssueSave={handleIssueSave}
-                  isContentLoading={contentItemsBeingScanned.includes(tempActiveIssue?.issueData?.contentItemId)}
-                  isErrorFoundInContent={isErrorFoundInContent}
-                  sessionIssues={sessionIssues}
-                  setTempActiveIssue={setTempActiveIssue}
-                  severity={tempActiveIssue.severity}
-                  tempActiveIssue={tempActiveIssue}
-                  triggerLiveUpdate={triggerLiveUpdate}
-                  clickedInfo={clickedInfo}
-                  setClickedInfo={setClickedInfo}
-                  handleContentIssueSave={handleContentIssueSave}
-                  setElementFocus={setElementFocus}
-                />
-            ) : ''}
-          </section>
-          <section className="ufixit-content-container">
-            {filteredIssues.length > 0 && (
-              <FixIssuesContentPreview
-                t={t}
-                settings={settings.FILTER ? settings : Object.assign({}, settings, { FILTER })}
-
-                activeContentItem={tempActiveContentItem}
-                activeIssue={tempActiveIssue}
-                contentItemsBeingScanned={contentItemsBeingScanned}
-                liveUpdateToggle={liveUpdateToggle}
-                setIsErrorFoundInContent={setIsErrorFoundInContent}
-                clickedInfo={clickedInfo}
-                setClickedInfo={setClickedInfo}
-                elementFocus={elementFocus}
-
-              />
-            )}
-            <div className="flex-row justify-content-end gap-2 mt-3">
->>>>>>> dev
               <button
                 className='btn btn-small btn-link btn-icon-left'
                 onClick={() => nextIssue(true)}

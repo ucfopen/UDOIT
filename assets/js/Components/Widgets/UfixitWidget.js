@@ -20,18 +20,15 @@ export default function UfixitWidget({
   setTempActiveIssue,
   tempActiveIssue,
   triggerLiveUpdate,
-<<<<<<< new-header
   markAsReviewed,
   setMarkAsReviewed,
   setFormInvalid,
   handleLearnMoreClick,
-  showLearnMore
-=======
+  showLearnMore,
   clickedInfo,
   setClickedInfo,
   handleContentIssueSave,
   setElementFocus
->>>>>>> dev
 }) {
 
   const [UfixitForm, setUfixitForm] = useState(null)
@@ -117,49 +114,8 @@ export default function UfixitWidget({
               <div className="align-self-start flex-shrink-0">
                 <StatusPill
                   t={t}
-<<<<<<< new-header
                   settings={settings}
                   issue={tempActiveIssue} />
-=======
-                  activeIssue={tempActiveIssue}
-                />
-              </div>
-
-              <div className="ufixit-widget-label primary mb-1">{t('fix.label.barrier_repair')}</div>
-              <div className="flex-column flex-grow-1 justify-content-between ufixit-form-content">
-                <div className="callout-container">
-                  { tempActiveIssue.contentType === settings.FILTER.FILE_OBJECT ? (
-                    <FileForm
-                      t={t}
-                      settings={settings}
-                      
-                      activeFile={tempActiveIssue.fileData}
-                      handleFileResolve={handleFileResolve}
-                      handleFileUpload={handleFileUpload} 
-                      sessionIssues={sessionIssues} /> )
-                    : (
-                    <UfixitForm
-                      t={t}
-                      settings={settings}
-
-                      activeIssue={tempActiveIssue.issueData}
-                      activeContentItem={activeContentItem}
-                      handleActiveContentItem={handleActiveContentItem}
-                      addMessage={addMessage}
-                      handleActiveIssue={handleActiveIssue}
-                      handleIssueSave={interceptIssueSave}
-                      isContentLoading={isContentLoading}
-                      isDisabled={markAsReviewed || isContentLoading || !isErrorFoundInContent}
-                      markAsReviewed={markAsReviewed}
-                      setMarkAsReviewed={setMarkAsReviewed}
-                      clickedInfo={clickedInfo}
-                      setClickedInfo={setClickedInfo}
-                      handleContentIssueSave={handleContentIssueSave}
-                      setElementFocus={setElementFocus}
-                      /> )
-                  }
-                </div>
->>>>>>> dev
               </div>
             </div>
             <div className="flex-column gap-1 flex-grow-1">
@@ -169,17 +125,22 @@ export default function UfixitWidget({
 
                 activeIssue={tempActiveIssue.issueData}
                 activeContentItem={activeContentItem}
+                handleActiveContentItem={handleActiveContentItem}
                 addMessage={addMessage}
                 handleActiveIssue={handleActiveIssue}
-                    handleIssueSave={handleIssueSave}
+                handleIssueSave={handleIssueSave}
                 isContentLoading={isContentLoading}
                 isDisabled={isContentLoading || !isErrorFoundInContent}
-                    markAsReviewed={markAsReviewed}
-                    setMarkAsReviewed={setMarkAsReviewed}
+                markAsReviewed={markAsReviewed}
+                setMarkAsReviewed={setMarkAsReviewed}
                 activeOption={activeOption}
                 setActiveOption={handleOptionChange}
                 formErrors={formErrors}
-                setFormErrors={setFormErrors} />
+                setFormErrors={setFormErrors}
+                clickedInfo={clickedInfo}
+                setClickedInfo={setClickedInfo}
+                handleContentIssueSave={handleContentIssueSave}
+                setElementFocus={setElementFocus} />
             </div>
           </div>
         </>

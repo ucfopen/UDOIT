@@ -445,7 +445,6 @@ export function getAccessibleName(element) {
   return ''
 }
 
-<<<<<<< new-header
 export const elementOrChildrenHasStyleAttributes = (
   element,
   styles = ['color:', 'background:', 'background-color:'],
@@ -520,10 +519,7 @@ export const removeStyleAttributesFromElementAndChildren = (
   return element
 }
 
-export const findXpathFromElement = (element) => {
-=======
 export const findXpathFromElement = (element, id = null) => {
->>>>>>> dev
   if (!element) {
     return null
   }
