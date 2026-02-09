@@ -1350,4 +1350,26 @@ a:focus {
   font-size: 0.9em;
   overflow-wrap: anywhere;
   cursor: pointer;
+<<<<<<< new-header
+=======
+}
+
+header {
+  nav {
+    display: flex;
+    flex-direction: row;
+    border-bottom: none !important;
+    
+    ul {
+      justify-content: flex-end;
+    }
+  }
+}
+
+.off-screen {
+  position: absolute;
+  left: -10000px; /* Moves the element far to the left */
+  top: auto;
+  overflow: hidden; /* Hides any potential overflow */
+>>>>>>> dev
 }
