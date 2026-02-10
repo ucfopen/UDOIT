@@ -287,19 +287,20 @@ export default function FileForm ({
                     </div>
                 </div>
                 <DownwardArrowIcon className="icon-md pt-4 pb-4" />
-                <div className='w-100 p-2'>
+                <div className='w-100 p-2' >
                   <FileStatus t={t} fileStatus={1} fileTagText={t("form.file.new.label")} />
                   <div className={`file-upload-container ${uploadedFile ? 'uploaded p-2' : 'p-4 flex-column text-center jusitify-content-center align-items-center'}`}
                     onDrop={handleDrop}
                     onClick={handleFileSelect}
                     onDrag={handleDragOver}
                     onKeyDown={handleKeyPress}
+                    tabIndex='0'
                   >
                     {uploadedFile && copiedUploadedFile ? 
                     <div className='flex-row align-items-center justify-content-between'>
                       <FileInformation t={t} file={copiedUploadedFile} fillColor={'var(--primary-color)'} />
                       <div className='close-icon'>
-                        <CloseIcon onClick={removeUploadedFile} className='remove-file' tabIndex='0' />
+                        <CloseIcon onClick={removeUploadedFile} onKeyDown={removeUploadedFile} className='remove-file' tabIndex='0' />
                       </div>
                     </div> :
                     
