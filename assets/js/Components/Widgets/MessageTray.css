@@ -80,7 +80,7 @@
       height: 100%;
 
       &.error {
-        background-color: var(--issue-color);
+        background-color: var(--error-color);
       }
 
       &.alert {
@@ -88,7 +88,7 @@
       }
 
       &.success {
-        background-color: var(--success-color);
+        background-color: var(--pill-success-text);
       }
 
       &.info {

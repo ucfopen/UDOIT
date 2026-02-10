@@ -1,6 +1,7 @@
 {
   "lang": "English",
 
+  "udoit": "UDOIT",
   "alt.UDOIT": "UDOIT Logo",
   "alt.UCF_Open": "UCF Open Logo",
   
@@ -130,6 +131,8 @@
   "report.time.6_months": "6 Months",
   "report.button.issue_tooltip": "Learn More",
   
+  "settings.title.display": "Display & Accessibility",
+  "settings.title.preferences": "Preferences",
   "settings.label.alert_timeout": "Alert Message Timeout",
   "settings.option.alert_timeout.5s": "5 Seconds",
   "settings.option.alert_timeout.10s": "10 Seconds",
@@ -149,11 +152,16 @@
   "settings.label.show_filters_default": "Show Filters by Default",
   "settings.label.dark_mode": "Dark Mode",
   "settings.label.language": "Language",
+  "settings.label.release_notes": "Release Notes",
+  "settings.label.documentation": "Documentation",
+  "settings.label.about_udoit": "About UDOIT",
+  "settings.label.about_ucfopen": "About UCF Open",
+  "settings.title.disclaimer": "Disclaimer",
   "settings.text.about": "<h2>About UDOIT</h2><p>The Universal Design Online content Inspection Tool, or UDOIT (pronounced \"You Do It\"), is a free and open-source accessibility checker for online course content developed by the <a href='https://www.ucf.edu' target='_blank'>University of Central Florida</a>. It downloads and scans course content, finds common accessibility barriers, and provides tools and suggestions for removing them. UDOIT integrates directly with Learning Management Systems so that scanning information is always up-to-date and that fixes made with UDOIT are instantly saved to your online course.</p>",
   "settings.text.tools": "<h2>Scanning Toolkit</h2><p>UDOIT uses the open source <a href='https://www.ibm.com/able/toolkit/tools/' target='_blank'>IBM Equal Access Checker</a> to scan and identify accessibility barriers. This checker finds most, but not all, accessibility barriers, and is incredibly consistent according to <a href='https://www.w3.org/WAI/standards-guidelines/act/implementations/equal-access/' target='_blank'>public performance data</a>. While it allows for many configurations, UDOIT scans with the ruleset for WCAG 2.1 AA, which is the <a href='https://www.ada.gov/resources/2024-03-08-web-rule/#highlights-of-the-requirements-in-the-rule' target='_blank'>legal requirement for state and government institutions</a> under the new rule for the Americans with Disabilities Act.",
   "settings.text.history": "<h2>History</h2><ul><li><strong>2013</strong> - Canvas awards the University of Central Florida a $10,000 innovation grant to begin work on UDOIT.</li><li><strong>2015</strong> - UDOIT v1 is released to UCF Faculty in May, and to the public as a free and open-source project in June.</li><li><strong>2017</strong> - UDOIT is awarded the <a href='https://www.1edtech.org/li/awards/2017' target='_blank'>Learning Impact Award</a> from IMS Global (now 1EdTech).</li><li><strong>2021</strong> - UDOIT v3 is released. This major release included significant work from <a href='https://cidilabs.com' target='_blank'>Cidi Labs</a>, a corporate partner with UCF.</li><li><strong>2025</strong> - UDOIT v4 released. This current version includes the new IBM scanning tool, improved reporting, and a more user-friendly interface.</li></ul>",
   "settings.text.roadmap": "<h2>Roadmap</h2><p>UDOIT is currently available for Canvas. Future updates will include support for other popular LMS platforms, including Blackboard, D2L, and Moodle. We are also currently working on a standalone desktop version of the app, which will allow smaller institutions to use the scanning tools without needing an online server setup.</p>",
-  "settings.text.disclaimer": "<h2>Disclaimer</h2><p>UDOIT is meant to be used as a guide, not a certification. While it checks for a wide variety of accessibility barriers, it is not comprehensive; a clean report in UDOIT does not necessarily mean that your course is fully accessible. Likewise, the tool may indicate a possible accessibility barrier where one does not exist.</p>",
+  "settings.text.disclaimer": "UDOIT is meant to be used as a guide, not a certification. While it checks for a wide variety of accessibility barriers, it is not comprehensive; a clean report in UDOIT does not necessarily mean that your course is fully accessible. Likewise, the tool may indicate a possible accessibility barrier where one does not exist.",
 
   "filter.label.search": "Search",
   "filter.label.show_filters": "Show Filters",
@@ -542,8 +550,6 @@
   "rule.info.element_scrollable_tabbable": "The highlighted area seems to be scrollable. For keyboard user to scroll up and down, the area must be added to the keyboard navigation.",
   "rule.info.element_tabbable_role_valid": "The highlighted element can be reached by keyboard, but has a <code>role</code> that is not interactive. If it is supposed to be interactive, remove the <code>role</code> or change it to a <a href='https://www.w3.org/TR/wai-aria-1.2/#widget' target='_blank'>valid widget role</a>. Otherwise, add the attribute <code>tabindex=&quot;-1&quot;</code>.",
   "rule.info.iframe_interactive_tabbable": "If this embedded content is interactive, it must be added to the keyboard navigation.",
-  "rule.desc.heading_markup_misuse": "This text is marked as a heading, but does not appear to be one. If it is, you may ignore this issue and mark it as reviewed. If it is not a heading, remove the heading level.",
-  "rule.desc.text_block_heading": "This text seems to be a heading, but is not marked as one. If it is a heading, select an appropriate heading level. If not, you may remove any styling or mark that no changes are needed.",
   
   "form.invalid_css.label.remove_style": "Remove Text Spacing Styles",
   "form.invalid_css.label.remove_important": "De-emphasize Text Spacing Styles",

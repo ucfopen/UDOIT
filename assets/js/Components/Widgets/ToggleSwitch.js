@@ -12,12 +12,10 @@ export default function ToggleSwitch({
 
     const [toggleValue, setToggleValue] = useState(initialValue)
 
-    useEffect(() => {
-        updateToggle(toggleValue)
-    }, [toggleValue])
-
     const handleClick = () => {
-        setToggleValue(!toggleValue)
+        let newValue = !toggleValue
+        setToggleValue(newValue)
+        updateToggle(newValue)
     }
 
     return (

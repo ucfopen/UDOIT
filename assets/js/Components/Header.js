@@ -1,4 +1,4 @@
-import React, {useState, useEffect} from 'react'
+import React, {useState, useEffect, use} from 'react'
 import UDOITLogo from '../../mediaAssets/udoit-logo.svg'
 import UDOITLogoDark from '../../mediaAssets/udoit-logo-inverse.svg'
 import BarriersIcon from './Icons/BarriersIcon'
@@ -18,8 +18,32 @@ export default function Header({
   syncComplete
  }) {
 
-  const screenThreshold = 1200;
-  const [navMenuVisible, setNavMenuVisible] = useState(false);
+  /*****************************************************************************************************************  
+    *  Normally, a simple media query would be enough for toggling the nav to a mobile layout, however...
+    *    1) We have a lot of variable font sizes (small vs x-large) that require different breakpoints.
+    *    2) The nav labels can be wildly different lengths depending on the language.
+    *  SOOOOOO, we have to check to see if the nav list is wider than its parent container. But this can
+    *  be an issue because if we're in mobile mode, it never is. So I added a class called 'force-measurement'
+    *  that undoes the mobile CSS so we can measure what the full menu bar would be without it showing for
+    *  the user.
+  *****************************************************************************************************************/
+  const isNavOverflowing = () => {
+    const nav = document.querySelector('nav')
+    const navList = document.querySelector('#main-nav')
+
+    if(!nav || !navList) {
+      return false
+    }
+
+    nav.classList.add('force-measurement')
+    let isOverflowing = navList.scrollWidth > nav.scrollWidth
+    nav.classList.remove('force-measurement')
+
+    return isOverflowing
+  }
+
+  const [mobileMenuVisible, setMobileMenuVisible] = useState(false)
+  const [isMobile, setIsMobile] = useState(isNavOverflowing())
 
   const links = [
     { name: t('menu.summary'), icon: HomeIcon, key: 'summary' },
@@ -29,8 +53,24 @@ export default function Header({
     { name: t('menu.settings'), icon: SettingsIcon, key: 'settings' },
   ]
 
+  function updateNavLayout() {
+    const isOverflowing = isNavOverflowing()
+
+    setIsMobile(isOverflowing)
+
+    if (!isOverflowing) {
+      setMobileMenuVisible(false)
+    }
+  }
+
+  window.onresize = updateNavLayout
+
+  useEffect(() => {
+    updateNavLayout()
+  }, [])
+
   const handleClick = (destination) => {
-    setNavMenuVisible(false)
+    setMobileMenuVisible(false)
     handleNavigation(destination)
   }
 
@@ -44,25 +84,30 @@ export default function Header({
         tabIndex="-1"
         type="checkbox"
         aria-hidden="true"
-        checked={navMenuVisible}
+        checked={mobileMenuVisible}
         onChange={() => {}}
       />
       <div
+        id="nav-menu-toggle-icon"
         aria-label={t('menu.nav.toggle_menu')}
-        role="checkbox"
-        aria-checked={navMenuVisible}
-        className="nav-menu-toggle-icon"
-        onClick={() => setNavMenuVisible(!navMenuVisible)}
+        role="button"
+        aria-expanded={mobileMenuVisible}
+        aria-controls="main-nav"
+        aria-hidden={!isMobile}
+        className={`nav-menu-toggle-icon${!isMobile ? ' hidden' : ''}`}
+        onClick={() => setMobileMenuVisible(!mobileMenuVisible)}
         onKeyDown={(e) => {
           if (e.key === 'Enter' || e.key === ' ') {
-            setNavMenuVisible(!navMenuVisible)
+            setMobileMenuVisible(!mobileMenuVisible)
           }
         }}
         tabIndex="0">
-        {navMenuVisible ? <CloseIcon className="icon-md text-color" /> : <MenuIcon className="icon-md text-color" />}
+        {mobileMenuVisible ? <CloseIcon className="icon-md text-color" /> : <MenuIcon className="icon-md text-color" />}
       </div>
-      <nav aria-label={t('menu.nav.label')}>
-        <ul>
+      <nav
+        aria-label={t('menu.nav.label')}
+        className={(isMobile ? ' mobile' : '') + (!mobileMenuVisible ? ' hide-mobile' : '')}>
+        <ul id="main-nav">
           {links.map(link => (
             <li
               key={link.key}

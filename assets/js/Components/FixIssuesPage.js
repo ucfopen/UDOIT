@@ -763,7 +763,7 @@ export default function FixIssuesPage({
   const handleActiveContentItem = (newContentItem) => {
     setTempActiveContentItem(newContentItem)
   }
-
+  
   const updateActiveFilters = (filter, value) => {
     setActiveFilters(Object.assign({}, activeFilters, {[filter]: value}))
   }

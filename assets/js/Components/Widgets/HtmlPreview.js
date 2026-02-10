@@ -1,5 +1,5 @@
 import React, { useState, useEffect, use } from 'react'
-import { formNameFromRule, formNames } from '../../Services/Ufixit'
+import { FORM_CLASSIFICATIONS, formNameFromRule, formNames } from '../../Services/Ufixit'
 import InfoIcon from '../Icons/InfoIcon'
 import * as Html from '../../Services/Html'
 import './FixIssuesContentPreview.css'
@@ -11,25 +11,14 @@ export default function HtmlPreview({
   activeIssue,
   liveUpdateToggle,
   setIsErrorFoundInContent,
-  handleScroll
+  clickedInfo,
+  setClickedInfo,
+  handleScroll,
+  elementFocus
 }) {
 
   const [taggedContent, setTaggedContent] = useState(false)
   const [showMessage, setShowMessage] = useState(false)
-
-  const ALT_TEXT_RELATED = [
-    formNames.ALT_TEXT,            
-    formNames.ANCHOR_TEXT,
-    formNames.BLOCKQUOTE,
-    formNames.EMBEDDED_CONTENT_TITLE,
-    formNames.LABEL,
-    formNames.LABEL_UNIQUE
-  ]
-
-  const HEADINGS_RELATED = [
-    formNames.HEADING_EMPTY,
-    formNames.HEADING_STYLE
-  ]
 
   const convertErrorHtmlString = (htmlText) => {
     let tempElement = Html.toElement(htmlText)
@@ -51,7 +40,7 @@ export default function HtmlPreview({
     }
 
     // If the issue edits the alt text, we need to show the auto-updating alt text preview
-    if (ALT_TEXT_RELATED.includes(formNameFromRule(activeIssue.scanRuleId))) {
+    if (FORM_CLASSIFICATIONS.ALT_TEXT_RELATED.includes(formNameFromRule(activeIssue.scanRuleId))) {
       let altText = Html.getAccessibleName(errorElement)
       
       // If there is alt text to show...
@@ -101,7 +90,7 @@ export default function HtmlPreview({
       }
     }
 
-    if (HEADINGS_RELATED.includes(formNameFromRule(activeIssue.scanRuleId))) {
+    if (FORM_CLASSIFICATIONS.HEADINGS_RELATED.includes(formNameFromRule(activeIssue.scanRuleId))) {
       const headingTags = ['h1', 'h2', 'h3', 'h4', 'h5', 'h6']
 
       if (errorElement && headingTags.includes(errorElement.tagName.toLowerCase())) {
@@ -165,6 +154,33 @@ export default function HtmlPreview({
     doc = addPreviewHelperElements(doc, errorElement)
     return doc.body.innerHTML
   }
+
+  const handleClickedElement = (e) => {
+    if(!FORM_CLASSIFICATIONS.CLICKABLE_RELATED.includes(formNameFromRule(activeIssue.scanRuleId))){
+      console.log("Trying to click on a form where clicking is not allowed")
+      return
+    }
+
+    if(e.target.classList.contains("ufixit-content-preview-main")){
+      console.log("Can't be click on anything other than main elements")
+      return      
+    }
+
+    if(e.target.classList.contains('ufixit-error-highlight')){
+      console.log("Can't click on a active issue!")
+      return
+    }
+
+
+    const element_info = {
+      xpath: Html.findXpathFromElement(e.target, 'ufixit-content-preview-main'),
+      id: Html.generateElementID(e.target),
+      class_selected: e.target.classList.contains('ufixit-temp-selected'),
+      inner_text: Html.getInnerText(e.target)
+    }
+
+    setClickedInfo(element_info)
+  }
   
   const checkTaggedContentUpdate = () => {
     let tempTaggedContent = getTaggedContent()
@@ -186,6 +202,14 @@ export default function HtmlPreview({
     if (element) {
       element.scrollIntoView({ behavior: 'instant', block: 'center' })
     }
+
+    const doc = document.getElementsByClassName('ufixit-content-preview-main')[0]
+    if(clickedInfo?.xpath){
+      const focusedElement = Html.findElementWithXpath(doc, clickedInfo.xpath)
+      if(focusedElement && elementFocus){
+        focusedElement.focus()
+      }
+    }
   }, [taggedContent])
     
   return (
@@ -206,8 +230,15 @@ export default function HtmlPreview({
       ) : (
         <div
           key={"html-content-preview-div"}
-          className="ufixit-content-preview-main"
+          className={`ufixit-content-preview-main${FORM_CLASSIFICATIONS.CLICKABLE_RELATED.includes(formNameFromRule(activeIssue.scanRuleId)) ? ' ufixit-clickable-container' : ''}`}
+          id='ufixit-content-preview-main'
           onScroll={() => handleScroll()}
+          onClick={handleClickedElement}
+          onKeyDown={(e) => {
+            if(e.key === 'Enter' || e.key === ' ') {
+              handleClickedElement(e)
+            }
+          }}
           dangerouslySetInnerHTML={{ __html: taggedContent }}
         />
       )}

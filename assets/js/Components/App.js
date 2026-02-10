@@ -1,4 +1,6 @@
 import React, { useState, useCallback, useEffect } from 'react'
+
+import '../../css/udoit4-theme.css'
 import Header from './Header'
 import WelcomePage from './WelcomePage'
 import HomePage from './HomePage'
@@ -102,7 +104,7 @@ export default function App(initialData) {
             newLanguageSettings.labels = data.labels
             setSettings(newLanguageSettings)
           }
-          setUntranslatedMessage({ message: 'msg.settings.updated', severity: 'success', visible: true })
+          // setUntranslatedMessage({ message: 'msg.settings.updated', severity: 'success', visible: true })
         }
         else {
           setSettings(oldSettings)

@@ -387,7 +387,7 @@
   }
 }
 
-dialog {
+/* dialog {
   width: 90vw;
   max-width: 50em;
   overflow-y: auto;
@@ -398,7 +398,7 @@ dialog {
   background-color: var(--white);
   z-index: 100;
   box-shadow: 0 0 10px var(--shadow-color);
-}
+} */
 
 .ufixit-widget-dialog {
   height: 70vh;

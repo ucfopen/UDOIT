@@ -79,7 +79,8 @@ export default function FixIssuesContentPreview({
   useEffect(() => {
     handleScroll()
   }, [activeContentItem, activeIssue])
-    
+
+
   return (
     <>
       {/* "Live Preview" Header with link to content */}
