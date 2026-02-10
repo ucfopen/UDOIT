@@ -13,8 +13,12 @@ export default function FixIssuesContentPreview({
   activeContentItem,
   activeIssue,
   contentItemsBeingScanned,
+  clickedInfo,
+  setClickedInfo,
   liveUpdateToggle,
+  isErrorFoundInContent,
   setIsErrorFoundInContent,
+  elementFocus
 }) {
 
   const scrollToError = () => {
@@ -120,7 +124,10 @@ export default function FixIssuesContentPreview({
                   activeIssue={activeIssue}
                   liveUpdateToggle={liveUpdateToggle}
                   setIsErrorFoundInContent={setIsErrorFoundInContent}
+                  clickedInfo={clickedInfo}
+                  setClickedInfo={setClickedInfo}
                   handleScroll={handleScroll}
+                  elementFocus={elementFocus}
                 />
               </>
             ) : (
