@@ -27,6 +27,7 @@ class LmsApiService {
     /** @var D2lLms $d2lLms */
     private $d2lLms;
 
+    private $doctrine;
 
     public function __construct(
         SessionService $sessionService,

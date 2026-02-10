@@ -53,11 +53,11 @@ export default function Message ({
   }
 
   const statusMap = {
-    'success': <FixedIcon className="icon-lg primary" alt="" />,
-    'info': <InfoIcon className="icon-lg color-info" alt="" />,
-    'error': <SeverityIssueIcon className="icon-lg color-issue" alt="" />,
-    'alert': <SeverityPotentialIcon className="icon-lg color-potential" alt="" />,
-    'progress': <ProgressIcon className="icon-lg udoit-suggestion spinner" alt="" />
+    'success': <FixedIcon className="icon-lg udoit-success" alt="" />,
+    'info': <InfoIcon className="icon-lg udoit-info" alt="" />,
+    'error': <SeverityIssueIcon className="icon-lg udoit-issue" alt="" />,
+    'alert': <SeverityPotentialIcon className="icon-lg udoit-potential" alt="" />,
+    'progress': <ProgressIcon className="icon-lg udoit-progress spinner" alt="" />
   }
 
   return (

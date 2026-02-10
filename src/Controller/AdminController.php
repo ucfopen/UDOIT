@@ -22,6 +22,7 @@ use Doctrine\ORM\EntityManagerInterface;
 
 class AdminController extends ApiController
 {
+    /** @var UtilityService $util */
     private $util;
 
     private $session;
@@ -32,6 +33,7 @@ class AdminController extends ApiController
 
     private $courseUserRepo;
     private $lms;
+    private $lmsUser;
 
 
     #[Route('/admin', name: 'admin')]

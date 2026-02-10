@@ -51,8 +51,9 @@ class ScannerService {
                 $phpAlly = new PhpAllyService($htmlService, $util);
                 $report = $phpAlly->scanContentItem($contentItem);
             }
-            else if ($scanner == 'equalaccess' || $scanner == 'equalaccess_local') {
+            else if ($scanner == 'equalaccess_local' || $scanner == 'equalaccess_lambda' || $scanner == 'equalaccess') {
                 $equalAccess = new EqualAccessService();
+
                 $localService = new LocalApiAccessibilityService();
                 $json = $localService->scanContentItem($contentItem);
                 $report = $equalAccess->generateReport($json);

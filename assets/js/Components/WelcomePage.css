@@ -37,7 +37,7 @@
       align-items: center;
       gap: 1em;
       padding: 1em;
-      background-color: var(--background-color);
+      background-color: var(--white);
       border: 1px solid var(--border-color);
       flex: 1;
       border-radius: 8px;
@@ -84,7 +84,10 @@
 .logo-large {
   width: 75%;
   min-width: 250px;
+  max-width: 300px;
   margin-bottom: 1.25rem;
+  margin: 0 auto 2rem;
+  padding: 0 1rem 1rem 1rem;
 
   @media screen and (max-width: 768px) {
     align-self: center;

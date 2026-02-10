@@ -1,7 +1,7 @@
 .ufixit-widget {
-  height: 50%;
-  padding: .5rem 1rem .5rem .5rem;;
+  padding: 1.25rem 1.5rem;
   overflow-y: auto;
+  color: var(--text-color);
 
   .combo-container {
 
@@ -17,72 +17,156 @@
   }
 }
 
-/* .ufixit-widget-header {
-  border-bottom: 2px solid var(--primary-color);
-} */
-
 .ufixit-widget-label {
-  font-size: .9em;
+  font-size: 1em;
   font-weight: 600;
-  text-transform: uppercase;
+}
+
+.resolve-option {
+  border: 1px solid var(--border-color);
+  border-radius: var(--element-radius);
+  padding: 1rem 1rem;
+  line-height: normal;
+  align-content: center;
+
+  &.selected {
+    border-color: var(--selection-color);
+    background-color: var(--selection-color-light);
+  }
+
+  .option-label {
+    font-weight: 400;
+    font-size: .9em;
+    line-height: 1.5em;
+    display: inline-flex;
+    cursor: pointer;
+    align-items: center;
+
+    /* Custom CSS-only radio button styling adapted from https://moderncss.dev/pure-css-custom-styled-radio-buttons/ */  
+    > input[type="radio"] {
+      /* Remove default appearance */
+      -webkit-appearance: none;
+      appearance: none;
+      background-color: transparent;
+      margin: 0;
+
+      /* Draw a circle for the border */
+      font: inherit;
+      color: var(--text-color);
+      width: 1.15em;
+      height: 1.15em;
+      border: 0.15em solid var(--text-color);
+      border-radius: 50%;
+      margin-right: .75rem;
+      transition: 120ms border-width ease-in-out;
+      flex-shrink: 0;
+
+      &:checked {
+        border-color: var(--selection-color);
+        border-width: .4em;
+      }
+
+      &:focus {
+        outline: 2px solid var(--focus-color);
+        outline-offset: 2px;
+      }
+    }
+
+    &.disabled {
+      color: var(--text-disabled-color);
+      cursor: not-allowed;
+
+      > input[type="radio"] {
+        border-color: var(--text-disabled-color) !important;
+        cursor: not-allowed;
+      }
+    }
+  }
+
+  > .option-label {
+    + * {
+      width: 100%;
+      margin-block-start: 1rem;
+      /* border-block-start: 1px solid var(--selection-color);
+      padding-block-start: .5rem; */
+    }
+  }
+
+  .subtext {
+    text-align: end;
+    margin-block-start: .5rem;
+  }
+
+  .option-feedback {
+    margin-top: .5em;
+    font-size: .85em;
+    font-weight: 300;
+    text-align: end;
+    line-height: normal;
+    font-style: italic;
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-end;
+    align-items: center;
+  }
+
+  .indented {
+    margin-inline-start: 1.9em;
+  }
+}
+
+#btn-learn-more-open {
+  font-size: .85em
 }
 
 .dialog-indicator-background {
-  background-color: var(--gray-darker);
-  margin: 0 -1rem;
-  padding: .5rem 1rem;
+  background-color: var(--help-color-light);
+  border: 1px solid var(--help-color);
+  border-radius: var(--element-radius);
+  padding: .75rem 1rem;
 }
 
 .dialog-indicator-container {
   max-width: calc(40em / .9);
   margin: 0 auto;  
-  color: var(--white);
-  font-size: .9em;
+  color: var(--help-color-text);
+  font-size: .85em;
   font-weight: 600;
   font-family: var(--heading-font-family);
   text-transform: uppercase;
 }
 
+.indicator-affects {
+  padding: calc(.35em + 1px) .5em .5em .5em;
+  flex-shrink: 0;
+}
+
 .indicator-container {
-  border: 2px solid transparent;
+  border: 1px solid var(--help-color);
+  background-color: var(--white);
   border-radius: 2rem;
   display: flex;
   align-self: center;
   box-sizing: border-box;
   font-size: 1em;
-  text-transform: uppercase;
-  color: white;
-  font-family: var(--heading-font-family);
-  font-weight: 600;
-  padding: 0 .75em 0 .35em; /* Left padding is smaller because the icons have inherent padding. */
+  color: var(--help-color-text);
+  padding: .2em 1em .2em .6em; /* Left padding is smaller because the icons have inherent padding. */
 
   svg {
-    fill: var(--gray);
+    fill: var(--help-color-text);
     padding: .15rem;
-  }
-
-  &.active {
-    border-color: var(--issue-color);
-    background-color: var(--issue-color);
-
-    svg {
-      fill: var(--white);
-    }
   }
 }
 
 .ufixit-instructions {
   font-size: .9em;
-  font-weight: 500;
+  font-weight: 300;
 }
 
 .clarification-container {
-  /* border: 1px solid var(--border-color);
-  border-radius: 8px; */
   padding-top: .5rem;
-  border-top: 2px solid var(--gray);
+  border-top: 1px solid var(--help-color);
   margin-top: .5rem;
-  /* background-color: var(--white); */
 
   .clarification-text {
     font-weight: 400;
@@ -112,6 +196,10 @@
     color: var(--text-color);
   }
 
+  label[for] {
+    cursor: pointer;
+  }
+
   .instructions-helper {
     margin-top: .25em;
     padding-left: 1.8rem;
@@ -119,33 +207,6 @@
     font-style: italic;
     font-size: .9em;
     color: var(--gray-dark);
-  }
-
-  input[type="text"] {
-    padding: 0.25em;
-    box-sizing: border-box;
-    font-size: 0.95em;
-    font-family: var(--text-font-family);
-    border: 1px solid var(--gray);
-    border-radius: 4px;
-
-    &:hover,
-    &:focus {
-      outline: 2px solid var(--focus-color);
-      outline-offset: 1px;
-      
-    }
-
-    &:disabled {
-      background-color: var(--gray-light);
-      color: var(--gray);
-      border-color: var(--gray-light);
-      cursor: not-allowed !important;
-    }
-    &:disabled:hover,
-    &:disabled:focus {
-      outline-color: var(--gray-light);
-    }
   }
 
   .error-text {
@@ -295,9 +356,10 @@
 }
 
 .url-container {
-  background-color: var(--gray-light);
-  padding: .25em .5em;
-  border-radius: 8px;
+  background-color: var(--background-color);
+  border: 1px solid var(--border-color);
+  padding: .5em 1em;
+  border-radius: var(--element-radius);
 }
 
 .ufixit-overlay {
@@ -325,7 +387,7 @@
   }
 }
 
-dialog {
+/* dialog {
   width: 90vw;
   max-width: 50em;
   overflow-y: auto;
@@ -336,7 +398,7 @@ dialog {
   background-color: var(--white);
   z-index: 100;
   box-shadow: 0 0 10px var(--shadow-color);
-}
+} */
 
 .ufixit-widget-dialog {
   height: 70vh;
@@ -378,7 +440,8 @@ dialog {
 }
 
 .ufixit-widget code,
-.ufixit-widget-dialog code {
+.ufixit-widget-dialog code,
+.ufixit-learn-container code {
     padding: 0.15rem 0.4rem;
     background-color: var(--gray-dark);
     color: var(--white);

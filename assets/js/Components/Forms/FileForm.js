@@ -14,55 +14,12 @@ export default function FileForm ({
   sessionIssues
  }) {
 
-  const [acceptType, setAcceptType] = useState([])
   const [uploadedFile, setUploadedFile] = useState(null)
   const [isDisabled, setIsDisabled] = useState(false)
-
-  const getAcceptType = (file) => {
-    let accept = []
-
-    switch(file.fileType) {
-      case "doc":
-        accept = ["doc", "docx"]
-        break
-
-      case "ppt":
-        accept = ["ppt", "pptx"]
-        break
-
-      case "xls":
-        accept = ["xls", "xlsx"]
-        break
-
-      default:
-        accept = file.fileType
-        break
-    }
-
-    let extension = file.fileName.slice(-4)
-
-    switch(extension) {
-      case "xlsx":
-        accept = "xlsx"
-        break
-      
-      case "pptx":
-        accept = "pptx"
-        break
-
-      case "docx":
-        accept = "docx"
-        break
-    }
-
-    return accept
-  }
+  const [changeReferences, setChangeReferences] = useState(true)
 
   useEffect(() => {
     setUploadedFile(null)
-    if(activeFile) {
-      setAcceptType(getAcceptType(activeFile))
-    }
   }, [activeFile])
 
   useEffect(() => {
@@ -115,6 +72,10 @@ export default function FileForm ({
     event.preventDefault()
   }
 
+  const handleChangeReferences = (event) => {
+    setChangeReferences(event.target.checked)
+  }
+
   // In order to trigger the file input dialog, we need an input element,
   // and we don't want it to show on the page. So we create a temporary one.
   const handleFileSelect = () => {
@@ -130,7 +91,7 @@ export default function FileForm ({
     if (!uploadedFile) {
       return
     }
-    handleFileUpload(uploadedFile)
+    handleFileUpload(uploadedFile, changeReferences)
   }
 
   return (
@@ -163,6 +124,17 @@ export default function FileForm ({
             <div className="flex-column flex-center allow-word-break">
               <div>{uploadedFile.name}</div>
             </div>
+          </div>
+          <div className="flex-row gap-1 mt-3">
+            <input
+              type="checkbox"
+              name="changeReferencesCheckbox"
+              id="changeReferencesCheckbox"
+              checked={changeReferences}
+              tabIndex="0"
+              disabled={isDisabled}
+              onChange={handleChangeReferences} />
+            <label htmlFor="changeReferencesCheckbox" className="instructions">{t('form.file.label.replace_references')}</label>
           </div>
           <div className="mt-3 flex-row justify-content-end">
             <button className="btn-primary btn-icon-left"

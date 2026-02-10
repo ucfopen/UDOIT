@@ -10,6 +10,7 @@ use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Console\Output\ConsoleOutput;
 
 class FileItemsController extends ApiController
 {
@@ -65,6 +66,7 @@ class FileItemsController extends ApiController
     #[Route('/api/files/{file}/post', methods: ['POST'], name: 'file_post')]
     public function postFile(FileItem $file, Request $request, UtilityService $util, LmsPostService $lmsPost)
     {
+        $output = new ConsoleOutput();
         $apiResponse = new ApiResponse();
         $user = $this->getUser();
 
@@ -77,23 +79,40 @@ class FileItemsController extends ApiController
 
             $uploadedFile = $request->files->get('file');
 
+            $output->writeln("Uploading file: " . $uploadedFile->getClientOriginalName());
             // Save content to LMS
             $lmsResponse = $lmsPost->saveFileToLms($file, $uploadedFile, $user);
+            $responseContent = $lmsResponse->getContent();
 
-            $apiResponse->setData($lmsResponse);
+            $output->writeln("Response Content: " . print_r($responseContent, true));
 
+            // If the new file was successfully posted, update the FileItem metadata to point to this replacement
+            if (isset($responseContent['id'])) {
+                $file->setReplacementFile($responseContent);
+            }
+            
+            $this->doctrine->getManager()->flush();
+            
             // Update report stats
             $report = $course->getUpdatedReport();
+            
+            $reportArr = $report->toArray();
+            $reportArr['files'] = $course->getFileItems();
+            $reportArr['issues'] = $course->getAllIssues();
+            $reportArr['contentItems'] = $course->getContentItems();
+            $reportArr['contentSections'] = $lmsFetch->getCourseSections($course, $user);
 
-            $this->doctrine->getManager()->flush();
+            $response->setData($reportArr);
 
             // Create response
             $apiResponse->addMessage('form.msg.success_replaced', 'success', 5000);
             
             $apiResponse->addLogMessages($util->getUnreadMessages());
+
             $apiResponse->setData([
+                'lmsResponse' => $lmsResponse,
                 'file' => ['pending' => false],
-                'report' => $report,
+                'report' => $reportArr,
             ]);
         } catch (\Exception $e) {
             $apiResponse->addError($e->getMessage());

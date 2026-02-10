@@ -83,8 +83,7 @@ class LmsFetchService {
             /** @var \App\Repository\FileItemRepository $fileItemRepo */
             $fileItemRepo = $this->doctrine->getManager()->getRepository(FileItem::class);
 
-            /* Step 1: Update content
-            /* Update course status */
+            /* Step 1: Update overall course data, like name and account id */
             $lms->updateCourseData($course, $user);
 
             /* Step 2: Get list of updated content items */
@@ -169,20 +168,27 @@ class LmsFetchService {
             }
         }
 
-        $scanCounts = (object) [
-          'errors' => $errors,
-          'potentials' => $potentials,
-          'suggestions' => $suggestions,
-        ];
-
         /** @var \App\Entity\FileItem[] $fileItems */
         $fileItems = $course->getFileItems();
+        $unreviewedFiles = 0;
         foreach ($fileItems as $file) {
             if ($file->getReviewed()) {
                 $filesReviewed++;
             }
+            else {
+                $unreviewedFiles++;
+            }
         }
 
+        $scanCounts = (object) [
+          'errors' => $errors,
+          'potentials' => $potentials,
+          'suggestions' => $suggestions,
+          'files' => $unreviewedFiles
+        ];
+
+        $output = new ConsoleOutput();
+        $output->writeln(json_encode($scanCounts));
         $latestReport = $course->getLatestReport();
         $now = $this->util->getCurrentTime();
 
@@ -281,7 +287,7 @@ class LmsFetchService {
         }
 
         $scanner = $_ENV['ACCESSIBILITY_CHECKER'];
-        if ($scanner == 'equalaccess' || $scanner == 'equalaccess_local') {
+        if ($scanner == 'equalaccess' || $scanner == 'equalaccess_local' || $scanner == 'equalaccess_lambda') {
           $issueType = $this->equalAccess->getIssueType($issue->getMetadata());
           if($issueType == 'pass') {
             // If the issue is a pass, we don't create an issue for it
@@ -311,7 +317,7 @@ class LmsFetchService {
         $issueType = self::ISSUE_TYPE_ERROR;
 
         $scanner = $_ENV['ACCESSIBILITY_CHECKER'];
-        if ($scanner == 'equalaccess' || $scanner == 'equalaccess_local') {
+        if ($scanner == 'equalaccess' || $scanner == 'equalaccess_local' || $scanner == 'equalaccess_lambda') {
           $issueType = $this->equalAccess->getIssueType($issue->metadata);
         }
 
