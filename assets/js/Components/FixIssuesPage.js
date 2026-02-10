@@ -759,10 +759,6 @@ export default function FixIssuesPage({
       updateActiveSessionIssue(issue.id, settings.ISSUE_STATE.ERROR)
     }
   }
-  
-  const handleActiveContentItem = (newContentItem) => {
-    setTempActiveContentItem(newContentItem)
-  }
 
   const handleActiveContentItem = (newContentItem) => {
     setTempActiveContentItem(newContentItem)
