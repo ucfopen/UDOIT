@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react'
-import FormSaveOrReview from './FormSaveOrReview'
+import RadioSelector from '../Widgets/RadioSelector'
+import OptionFeedback from '../Widgets/OptionFeedback'
+import ToggleSwitch from '../Widgets/ToggleSwitch'
 import * as Html from '../../Services/Html'
 import * as Contrast from '../../Services/Contrast'
 
@@ -8,71 +10,24 @@ export default function EmphasisForm({
   settings,
   activeIssue,
   isDisabled,
-  handleIssueSave,
   handleActiveIssue,
-  markAsReviewed,
-  setMarkAsReviewed
+  activeOption,
+  setActiveOption,
+  formErrors,
+  setFormErrors
 }) {
+
+  const FORM_OPTIONS = {
+    ADD_EMPHASIS: settings.UFIXIT_OPTIONS.ADD_EMPHASIS,
+    MARK_AS_REVIEWED: settings.UFIXIT_OPTIONS.MARK_AS_REVIEWED
+  }
+
   const [useBold, setUseBold] = useState(false)
   const [useItalics, setUseItalics] = useState(false)
   const [removeColor, setRemoveColor] = useState(false)
-  const [formErrors, setFormErrors] = useState([])
 
-  useEffect(() => {
-    if(!activeIssue) {
-      return
-    }
-    setUseBold(isBold())
-    setUseItalics(isItalicized())
-    setRemoveColor(false)
-  }, [activeIssue])
-
-  useEffect(() => {
-    updateHtmlContent()
-    checkFormErrors()
-  }, [useBold, useItalics, removeColor, markAsReviewed])
-
-  const updateHtmlContent = () => {
-    let issue = activeIssue
-    issue.isModified = true
-
-    if (markAsReviewed) {
-      issue.newHtml = issue.initialHtml
-      handleActiveIssue(issue)
-      return
-    }
-
-    issue.newHtml = processHtml(issue.initialHtml)
-    handleActiveIssue(issue)
-  }
-
-  const checkFormErrors = () => {
-    let tempErrors = []
-    if(!cssEmphasisIsValid(activeIssue)) {
-      tempErrors.push({ text: t('form.emphasis.msg.required'), type: 'error' })
-    }
-    setFormErrors(tempErrors)
-  }
-
-  const processHtml = (html) => {
-    let element = Html.toElement(html)
-
-    // Clean up tags
-    Html.removeTag(element, 'strong')
-    Html.removeTag(element, 'em')
-
-    if (removeColor) {
-      element = Html.removeAttribute(element, 'style')
-    }
-    if(useItalics) {
-      element.innerHTML = `<em>${element.innerHTML}</em>`
-    }
-    if(useBold) {
-      element.innerHTML = `<strong>${element.innerHTML}</strong>`  
-    }
-    
-    return Html.toString(element)
-  }
+  const STYLE_ATTRIBUTES = ['color:', 'background:', 'background-color:', 'background-image:']
+  const CHILD_TAGS = ['span', 'div', 'p', 'strong', 'em', 'b', 'i', 'u']
 
   const isBold = () => {
     const metadata = activeIssue.metadata ? JSON.parse(activeIssue.metadata) : {}
@@ -88,79 +43,141 @@ export default function EmphasisForm({
     return Html.getChild(element, 'em') || Html.getChild(element, 'i') || metadata.fontStyle === 'italic'
   }
 
-  const handleBoldToggle = () => {
-    setUseBold(!useBold)
+  const hasStyleColor = () => {
+    const html = Html.getIssueHtml(activeIssue)
+    const element = Html.toElement(html)
+    return Html.elementOrChildrenHasStyleAttributes(element, STYLE_ATTRIBUTES, CHILD_TAGS)
   }
 
-  const handleItalicsToggle = () => {
-    setUseItalics(!useItalics)
-  }
-
-  const handleRemoveColorToggle = () => {
-    setRemoveColor(!removeColor)
-  }
-
-  const handleSubmit = () => {
-    if (!markAsReviewed && formErrors.length > 0) {
+  useEffect(() => {
+    if(!activeIssue) {
       return
     }
-    let issue = activeIssue
-    issue.newHtml = Contrast.convertHtmlRgb2Hex(issue.newHtml)
-    handleIssueSave(issue)
-  }
 
-  const cssEmphasisIsValid = () => {
-    if(!removeColor && !useBold && !useItalics) {
-      return false
+    const bold = isBold()
+    const italicized = isItalicized()
+    const styleColor = hasStyleColor()
+    const reviewed = activeIssue.newHtml && (activeIssue.status === 2 || activeIssue.status === 3)
+
+    if (reviewed) {
+      setActiveOption(FORM_OPTIONS.MARK_AS_REVIEWED)
     }
-    return true
+    else if (bold || italicized || !styleColor) {
+      setActiveOption(FORM_OPTIONS.ADD_TEXT)
+    }
+    else {
+      setActiveOption('')
+    }
+    
+    setUseBold(bold)
+    setUseItalics(italicized)
+    setRemoveColor(!styleColor)
+  }, [activeIssue])
+
+  useEffect(() => {
+    updateHtmlContent()
+    checkFormErrors()
+  }, [activeOption, useBold, useItalics, removeColor])
+
+  const updateHtmlContent = () => {
+    let issue = activeIssue
+    issue.isModified = true
+
+    if (activeOption === FORM_OPTIONS.MARK_AS_REVIEWED) {
+      issue.newHtml = issue.initialHtml
+      handleActiveIssue(issue)
+      return
+    }
+
+    let element = Html.toElement(issue.initialHtml)
+
+    // Clean up tags
+    Html.removeTag(element, 'strong')
+    Html.removeTag(element, 'em')
+
+    if (removeColor) {
+      Html.removeStyleAttributesFromElementAndChildren(element, STYLE_ATTRIBUTES, CHILD_TAGS)
+    }
+    if(useItalics) {
+      element.innerHTML = `<em>${element.innerHTML}</em>`
+    }
+    if(useBold) {
+      element.innerHTML = `<strong>${element.innerHTML}</strong>`  
+    }
+    
+    issue.newHtml = Html.toString(element)
+    handleActiveIssue(issue)
   }
 
+  const checkFormErrors = () => {
+    let tempErrors = {
+      [FORM_OPTIONS.ADD_EMPHASIS]: [],
+    }
 
+    if(activeOption === FORM_OPTIONS.ADD_EMPHASIS) {
+      if(!isBold() && !isItalicized() && hasStyleColor()) {
+        tempErrors[FORM_OPTIONS.ADD_EMPHASIS].push({ text: t('form.emphasis.msg.required'), type: 'error' })
+      }
+    }
+
+    setFormErrors(tempErrors)
+  }
 
   return (
     <>
-      <div className="instructions">{t('form.emphasis.label.select_emphasis')}</div>
-      <div className="flex-row justify-content-start gap-1 mt-2">
-        <input type="checkbox"
-          id="boldCheckbox"
-          name="boldCheckbox"
-          checked={useBold}
-          tabIndex="0"
-          disabled={isDisabled}
-          onChange={handleBoldToggle} />
-        <label htmlFor="boldCheckbox">{t('form.emphasis.label.bold')}</label>
+      {/* OPTION 1: Add label. ID: "ADD_EMPHASIS" */}
+      <div className={`resolve-option ${activeOption === FORM_OPTIONS.ADD_EMPHASIS ? 'selected' : ''}`}>
+        <RadioSelector
+          activeOption={activeOption}
+          isDisabled={isDisabled}
+          setActiveOption={setActiveOption}
+          option={FORM_OPTIONS.ADD_EMPHASIS}
+          labelText = {t('form.emphasis.label.select_emphasis')}
+          />
+        {activeOption === FORM_OPTIONS.ADD_EMPHASIS && (
+          <>
+            <div className="flex-row justify-content-start gap-1">
+              <ToggleSwitch
+                labelId="boldCheckbox"
+                initialValue={useBold}
+                updateToggle={setUseBold}
+                disabled={isDisabled}
+                small={true} />
+              <label htmlFor="boldCheckbox" className="ufixit-instructions">{t('form.emphasis.label.bold')}</label>
+            </div>
+            <div className="flex-row justify-content-start gap-1 mt-2">
+              <ToggleSwitch
+                labelId="italicCheckbox"
+                initialValue={useItalics}
+                updateToggle={setUseItalics}
+                disabled={isDisabled}
+                small={true} />
+              <label htmlFor="italicCheckbox" className="ufixit-instructions">{t('form.emphasis.label.italic')}</label>
+            </div>
+            <div className="flex-row justify-content-start gap-1 mt-2">
+              <ToggleSwitch
+                labelId="removeColorCheckbox"
+                initialValue={removeColor}
+                updateToggle={setRemoveColor}
+                disabled={isDisabled}
+                small={true} />
+              <label htmlFor="removeColorCheckbox" className="ufixit-instructions">{t('form.emphasis.label.remove_color')}</label>
+            </div>
+            <OptionFeedback feedbackArray={formErrors[FORM_OPTIONS.ADD_EMPHASIS]} />
+          </>
+        )}
       </div>
-      <div className="flex-row justify-content-start gap-1 mt-2">
-        <input type="checkbox"
-          id="italicCheckbox"
-          name="italicCheckbox"
-          checked={useItalics}
-          tabIndex="0"
-          disabled={isDisabled}
-          onChange={handleItalicsToggle} />
-        <label htmlFor="italicCheckbox">{t('form.emphasis.label.italic')}</label>
+
+      {/* OPTION 2: Mark as Reviewed. ID: "MARK_AS_REVIEWED" */}
+      <div className={`resolve-option ${activeOption === FORM_OPTIONS.MARK_AS_REVIEWED ? 'selected' : ''}`}>
+        <RadioSelector
+          activeOption={activeOption}
+          isDisabled={isDisabled}
+          setActiveOption={setActiveOption}
+          option={FORM_OPTIONS.MARK_AS_REVIEWED}
+          labelText = {t('fix.label.no_changes')}
+          />
       </div>
-      <div className="separator mt-2">{t('fix.label.and_or')}</div>
-      <div className="flex-row justify-content-start gap-1 mt-2">
-        <input type="checkbox"
-          id="removeColorCheckbox"
-          name="removeColorCheckbox"
-          checked={removeColor}
-          tabIndex="0"
-          disabled={isDisabled}
-          onChange={handleRemoveColorToggle} />
-        <label className="instructions" htmlFor="removeColorCheckbox">{t('form.emphasis.label.remove_color')}</label>
-      </div>
-      <FormSaveOrReview
-        t={t}
-        settings={settings}
-        activeIssue={activeIssue}
-        isDisabled={isDisabled}
-        handleSubmit={handleSubmit}
-        formErrors={formErrors}
-        markAsReviewed={markAsReviewed}
-        setMarkAsReviewed={setMarkAsReviewed} />
     </>
   )
 }

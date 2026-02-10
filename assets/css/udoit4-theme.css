@@ -1,5 +1,6 @@
 @import url('https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300..800;1,300..800&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Reddit+Sans:ital,wght@0,200..900;1,200..900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Merriweather:ital,opsz,wght@0,18..144,300..900;1,18..144,300..900&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Lexend:wght@100..900&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400;1,700&display=swap');
@@ -10,50 +11,76 @@
   --gray-dark: #555555;
   --gray: #767676;
   --gray-light: #D3D7DB;
-  --gray-lighter: #E2E2E2;
-  --gray-lightest: #F2F2F2;
+  --gray-lighter: #E9EBEF;
+  --gray-lightest: #F9FAFB;
   --white: #FFFFFF;
 
   --primary-color: #196937;
-
-  --primary-color-text: var(--primary-color);
   --primary-color-dark: var(--primary-color);
   --primary-color-hover: color-mix(in srgb, var(--primary-color) 100%, var(--white) 10%); /* #436657; */
   --primary-color-light: color-mix(in srgb, var(--primary-color) 10%, var(--white) 100%);  /* #E8F3ED; */
   --primary-color-inverse: var(--gray-lightest);
-  --text-color: var(--gray-darker);
+  --primary-color-disabled: #B2D2C3;
 
+  --text-color: #0A0A0A;
+  --text-secondary-color: #4A5565;
+  --text-disabled-color: #8B95A7; /* #D1D5DC; */
   --hover-brightness: 1.15;
+
+
+
+  
+
+  /* PILLS have three colors: border color, light background color, and text color */
+  --pill-success-border: #80D39E;
+  --pill-success-background: #F0FDF4;
+  --pill-success-text: #008236;
+
+  --pill-warning-border: #FEE685;
+  --pill-warning-background: #FFFBEB;
+  --pill-warning-text: #BB4D00;
+
+  --pill-error-color: #D34F4F;
+  --pill-error-background: #FFEBEB;
+  --pill-error-text: #8D0D0D;
+
+  --pill-info-border: #DBEAFE;
+  --pill-info-background: #EFF6FF;
+  --pill-info-text: #155DFC;
+
+  --help-color: #F5E9C3;
+  --help-color-light: #FFFBEB;
+  --help-color-text: #BB4D00;
+
+  /* Functional Colors */
+  --selection-color: #00A63E;
+  --selection-color-light: #F7FEF9;
+
+  --error-highlight-color: #E7000B;
+  
+  --focus-color: #009AD0;
+
+  --info-color: #5BAEDF; /* #2C9ECE; */
+  --info-color-light: color-mix(in srgb, var(--info-color) 10%, #FFFFFF 100%);
 
   --link-color: #006AAC;
   --link-color-hover: color-mix(in srgb, var(--link-color) 100%, var(--white) 10%);
-  --link-color-light: color-mix(in srgb, var(--link-color) 10%, var(--white) 100%);  /* #E9F3FF; */
+  --link-color-light: color-mix(in srgb, var(--link-color) 5%, var(--white) 100%);  /* #E9F3FF; */
   --link-color-dark: color-mix(in srgb, var(--link-color) 100%, var(--black) 10%);
 
-  --focus-color: #009AD0;
-
-  --issue-color: #E2080C;
-  --issue-color-light: color-mix(in srgb, var(--issue-color) 10%, #FFFFFF 100%);
-  --potential-color: #F8961E;
-  --potential-color-light: color-mix(in srgb, var(--potential-color) 10%, #FFFFFF 100%);
-  --suggestion-color: #32B0E4;
-  --suggestion-color-light: color-mix(in srgb, var(--suggestion-color) 10%, #FFFFFF 100%);
-  --info-color: #2C9ECE;
-  --info-color-light: color-mix(in srgb, var(--info-color) 10%, #FFFFFF 100%);
-  --success-color: #006937;
-  --success-color-light: color-mix(in srgb, var(--success-color) 10%, #FFFFFF 100%);
-
   --background-color: var(--gray-lightest);
-  --border-color: var(--gray);
+  --border-color: #C5C9D3; /* #E5E7EB; */
   --progress-bar-background-color: var(--gray-light);
   --progress-bar-color: var(--primary-color);
   --shadow-color: #00000044;
   --backdrop-color: rgba(0, 0, 0, 0.25);
 
   --spacer: 1rem;
+  --window-radius: 16px;
+  --element-radius: 8px;
 
-  --text-font-family: 'Open Sans', Arial, Helvetica, sans-serif;
-  --heading-font-family: 'Reddit Sans', sans-serif;
+  --text-font-family: 'Inter', Arial, Helvetica, sans-serif; /* 'Open Sans', Arial, Helvetica, sans-serif; */
+  --heading-font-family: 'Inter', sans-serif; /* 'Reddit Sans', sans-serif; */
 
   line-height: 1.4em;
 
@@ -70,19 +97,20 @@ body {
 
 #app-container {
   position: relative;
-  overflow: hidden;
   margin: 0px 6px 6px 0px;
   padding: 0 1rem;
-  border-radius: 16px;
+  border-radius: var(--window-radius);
   height: calc(100vh - 6px);
   max-height: 1024px;
   display: flex;
   flex-direction: column;
   font-family: var(--text-font-family);
+  font-weight: 300;
   color: var(--text-color);
   box-sizing: border-box;
   border: 1px solid var(--border-color);
   box-shadow: 3px 3px 3px var(--gray-light);
+  background-color: var(--background-color);
 
   &.serif {
     --text-font-family: 'Merriweather', Times, serif;
@@ -100,6 +128,7 @@ body {
   line-height: 1.4em;
   
   font-size: 16px;
+
   &.font-small {
     font-size: 14px;
   }
@@ -108,50 +137,23 @@ body {
   }
   &.font-large {
     font-size: 20px;
-
-    .icon-sm {
-      width: 18px;
-      height: 18px;
-    }
-    .icon-md {
-      width: 26px;
-      height: 26px;
-    }
-    .icon-lg {
-      width: 34px;
-      height: 34px;
-    }
   }
   &.font-xlarge {
     font-size: 24px;
-
-    .icon-sm {
-      width: 20px;
-      height: 20px;
-    }
-    .icon-md {
-      width: 28px;
-      height: 28px;
-    }
-    .icon-lg {
-      width: 36px;
-      height: 36px;
-    }
   }
 
   &.dark-mode {
 
     --white: #000000;
-    --gray-lightest: #3A3A3A;
+    --gray-lightest: #2A2A2A;
     --gray-lighter: #555555;
     --gray-light: #767676;
-    --gray-gray: #D3D7DB;
+    --gray: #CCCCCC;
     --gray-dark: #E2E2E2;
     --gray-darker: #F7F7F7;
     --black: #FFFFFF;
 
     --primary-color: #00AD5A;
-    --primary-color-text: var(--primary-color);
     --primary-color-dark: var(--primary-color);
     --primary-color-hover: color-mix(in srgb, var(--primary-color) 100%, var(--white) 10%); /* #436657; */
     --primary-color-light: color-mix(in srgb, var(--primary-color) 50%, var(--white) 100%);  /* #E8F3ED; */
@@ -160,23 +162,25 @@ body {
 
     --hover-brightness: 1.15;
 
-    --link-color: #009DFF;
+    --link-color: #70C8FF;
     --link-color-hover: color-mix(in srgb, var(--link-color) 100%, var(--white) 10%);
     --link-color-light: color-mix(in srgb, var(--link-color) 50%, var(--white) 100%);  /* #E9F3FF; */
     --link-color-dark: color-mix(in srgb, var(--link-color) 100%, var(--black) 10%);
 
     --focus-color: #00BBFF;
 
-    --issue-color: #F64649;
-    --issue-color-light: color-mix(in srgb, var(--issue-color) 50%, var(--white) 100%);
-    --potential-color: #F8961E;
-    --potential-color-light: color-mix(in srgb, var(--potential-color) 50%, var(--white) 100%);
-    --suggestion-color: #32B0E4;
-    --suggestion-color-light: color-mix(in srgb, var(--suggestion-color) 50%, var(--white) 100%);
+    --pill-error-color: #F64649;
+    --pill-error-background: color-mix(in srgb, var(--pill-error-color) 50%, var(--white) 100%);
+    --pill-warning-border: #F8961E;
+    --pill-warning-background: color-mix(in srgb, var(--pill-warning-border) 50%, var(--white) 100%);
     --info-color: #2DA1D2;
     --info-color-light: color-mix(in srgb, var(--info-color) 50%, var(--white) 100%);
-    --success-color: #00AD5A;
-    --success-color-light: color-mix(in srgb, var(--success-color) 50%, var(--white) 100%);
+    --pill-success-border: #00AD5A;
+    --pill-success-background: color-mix(in srgb, var(--pill-success-border) 50%, var(--white) 100%);
+
+    --help-color-light: #58450e;
+
+    --selection-color-light: #07461e;
 
     --background-color: var(--gray-lightest);
     --border-color: var(--gray-light);
@@ -185,19 +189,19 @@ body {
     --shadow-color: #FFFFFF44;
     --backdrop-color: rgba(256, 256, 256, 0.25);
 
-    color: var(--gray-darker);
-    background-color: var(--white);
     border: 1px solid var(--gray-lighter);
     box-shadow: 2px 2px 2px var(--gray-lighter);
   }
 }
 
 header {
-  height: 3em;
+  background-color: var(--white);
+  border-radius: var(--window-radius) var(--window-radius) 0 0;
+  height: 3.5em;
 }
 
 main {
-  height: calc(100vh - 3em);
+  height: calc(100vh - 3.5em);
   min-height: 20em;
   box-sizing: border-box;
   display: flex;
@@ -211,6 +215,10 @@ main {
 .flex-row {
   display: flex;
   flex-direction: row;
+
+  &.flex-wrap {
+    height: fit-content;
+  }
 }
 
 .flex-column, .flex-col {
@@ -593,15 +601,28 @@ main {
 /* General styles */
 
 h1, h2, h3, h4, h5, h6 {
-  font-family: var(--text-font-family);
-  font-weight: 500;
+  font-family: var(--heading-font-family);
+  font-weight: 600;
   line-height: normal;
-  color: var(--primary-color);
+  color: var(--text-color);
+}
+
+.subheader {
+  margin-top: -.75rem;
+  margin-bottom: 1rem;
+  color: var(--gray-dark);
+  font-weight: 300;
 }
 
 .primary {
   color: var(--primary-color);
   fill: var(--primary-color);
+}
+
+.subtext {
+  color: var(--text-secondary-color);
+  font-size: smaller;
+  font-weight: 300;
 }
 
 .primary-dark {
@@ -610,8 +631,8 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .primary-text {
-  color: var(--primary-color-text);
-  fill: var(--primary-color-text);
+  color: var(--primary-color);
+  fill: var(--primary-color);
 }
 
 .color-link,
@@ -630,14 +651,19 @@ h1, h2, h3, h4, h5, h6 {
   fill: var(--gray);
 }
 
+.gray-stroke {
+  stroke: var(--gray);
+  fill: none;
+}
+
 .white {
   color: var(--white);
   fill: var(--white);
 }
 
 .disabled {
-  color: var(--gray);
-  fill: var(--gray);
+  color: var(--text-disabled);
+  fill: var(--text-disabled);
 }
 
 .tag {
@@ -667,19 +693,33 @@ h1, h2, h3, h4, h5, h6 {
 
 button {
   font-family: var(--heading-font-family);
-  text-transform: uppercase;
   padding: .5rem 1rem;
   border-radius: 8px;
   cursor: pointer;
   box-sizing: border-box;
-  border: 2px solid transparent;
-  font-weight: 500;
+  border: 1px solid transparent;
+  font-weight: 400;
   font-size: 1em;
   width: fit-content;
+  height: fit-content;
 
   &:focus {
     outline: 2px solid var(--focus-color);
     outline-offset: 1px;
+  }
+
+  &:disabled {
+    cursor: not-allowed !important;
+    color: var(--gray) !important;
+    fill: var(--gray) !important;
+    border-color: var(--gray-light) !important;
+    background-color: var(--gray-light) !important;
+
+    &:hover,
+    &:focus {
+      filter: none;
+      outline-color: 2px solid var(--gray);
+    }
   }
 }
 
@@ -699,14 +739,15 @@ button {
 }
 
 .btn-secondary {
-  border-color: var(--primary-color);
+  border-color: var(--border-color);
   background-color: var(--white);
-  color: var(--primary-color-dark);
-  fill: var(--primary-color-dark);
+  color: var(--text-color);
+  fill: var(--text-color);
+  border-width: 1px;
   
   &:hover,
   &:focus {
-    background-color: var(--primary-color-light);
+    background-color: var(--gray-lightest);
   }
 }
 
@@ -742,26 +783,6 @@ button {
   padding: .5em 1.25em;
 }
 
-button.disabled,
-.btn-disabled,
-button:disabled {
-  color: var(--gray-dark);
-  fill: var(--gray-dark);
-  border-color: var(--gray-light);
-  background-color: var(--gray-light);
-  cursor: not-allowed !important;
-
-  &:hover,
-  &:focus {
-    outline-color: 2px solid var(--gray);
-    color: var(--gray-dark);
-    fill: var(--gray-dark);
-    border-color: var(--gray-light);
-    background-color: var(--gray-light);
-    filter: none;
-  }
-}
-
 .btn-text, .text-button {
   text-transform: capitalize;
   background-color: transparent;
@@ -769,14 +790,6 @@ button:disabled {
   padding: .15rem 0.5rem;
   border-radius: 8px;
   cursor: pointer;
-
-  &.disabled,
-  &.btn-disabled {
-    color: var(--gray);
-    opacity: 0.75;
-    cursor: not-allowed !important;
-    outline-color: var(--gray);
-  }
 }
 
 .btn-header {
@@ -831,23 +844,27 @@ input[type="color"] {
 }
 
 .icon-sm {
-  width: 16px;
-  height: 16px;
+  width: 1em;
+  min-width: 1em;
+  height: 1em;
 }
 
-.icom-md {
-  width: 24px;
-  height: 24px;
+.icon-md {
+  width: 1.5em;
+  min-width: 1.5em;
+  height: 1.5em;
 }
 
 .icon-lg {
-  width: 32px;
-  height: 32px;
+  width: 2em;
+  min-width: 2em;
+  height: 2em;
 }
 
 .icon-xl {
-  width: 40px;
-  height: 40px;
+  width: 2.5em;
+  min-width: 2.5em;
+  height: 2.5em;
 }
 
 .rotate-90 {
@@ -862,13 +879,92 @@ input[type="color"] {
   transform: rotate(270deg);
 }
 
+dialog {
+  width: 90vw;
+  max-width: 50em;
+  overflow: hidden;
+  box-sizing: border-box;
+  border: none;
+  border-radius: var(--window-radius);
+  padding: 0;
+  background-color: var(--white);
+  z-index: 100;
+  box-shadow: 0 0 10px var(--shadow-color);
+
+  &.dialog-full-screen {
+    width: 95vw;
+    max-width: 95vw;
+    height: 95vh;
+    max-height: 95vh;
+  }
+
+  .dialog-header,
+  .dialog-footer {
+    width: 100%;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    gap: 1rem;
+  }
+
+  .dialog-header {
+    position: sticky;
+    top: 0;
+    left: 0;
+    background-color: var(--white);
+    border-bottom: 1px solid var(--border-color);
+    padding: 1rem 1.5rem;
+
+    h2 {
+      line-height: normal;
+      align-self: center;
+    }
+
+    .close-icon {
+      cursor: pointer;
+      padding: .25rem;
+      margin-inline-end: -.5rem;
+
+      &:hover,
+      &:focus {
+        background-color: var(--gray-lighter);
+        border-radius: 50%;
+        outline-offset: -2px;
+        outline: 2px solid var(--focus-color);
+      }
+    }
+  }
+
+  .dialog-content {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+    overflow: auto;
+  }
+
+  .dialog-footer {
+    background-color: var(--background-color);
+    border-top: 1px solid var(--border-color);
+    padding: .75rem 1.5rem;
+  }
+}
+
 .callout-container {
-  background: var(--background-color);
+  background: var(--white);
   border-radius: 8px;
   padding: .75rem 1rem;
   border: 1px solid var(--border-color);
   box-sizing: border-box;
+
+  &.help-container {
+    background-color: var(--help-color-light);
+    border-color: var(--help-color);
+    color: var(--text-secondary-color);
+  }
 }
+
+/* The separator class is for a horizontal line with text in the middle on various forms */
 
 .separator {
   display: flex;
@@ -897,6 +993,58 @@ input[type="color"] {
   margin-right: 1.5rem;
   border-width: 2px;
   border-color: var(--gray);
+}
+
+.separator-pipe {
+  height: 1.5em;
+  width: 0px;
+  box-sizing: content-box;
+  align-self: center;
+  border-inline-start: 1px solid var(--border-color);
+}
+
+.info-pill {
+  display: flex;
+  flex-direction: row;
+  flex-shrink: 0;
+  gap: 0.5em;
+  border: 1px solid var(--border-color);
+  background-color: var(--background-color);
+  border-radius: var(--element-radius);
+  color: var(--text-color);
+  fill: var(--text-color);
+  padding: 0.15rem .6rem;
+  font-size: .85em;
+  align-self: center;
+  align-items: center;
+  width: fit-content;
+
+  &.issue {
+    border-color: var(--pill-error-color);
+    background-color: var(--pill-error-background);
+    color: var(--pill-error-text);
+    fill: var(--pill-error-text);
+    stroke: var(--pill-error-text);
+  }
+
+  &.potential,
+  &.unreviewed {
+    border-color: var(--pill-warning-border);
+    background-color: var(--pill-warning-background);
+    color: var(--pill-warning-text);
+    fill: var(--pill-warning-text);
+    stroke: var(--pill-warning-text);
+  }
+
+  &.fixed,
+  &.reviewed,
+  &.replaced {
+    border-color: var(--pill-success-border);
+    background-color: var(--pill-success-background);
+    color: var(--pill-success-text);
+    fill: var(--pill-success-text);
+    stroke: var(--pill-success-text);
+  }
 }
 
 /* Data pills are for icons with text that can be hidden until hovered or focused */
@@ -1021,6 +1169,37 @@ option {
   }
 }
 
+input[type="text"] {
+  font-weight: 300;
+  color: var(--text-color);
+  background-color: var(--white);
+  height: 2.5em;
+  font-size: 0.85em;
+  font-family: var(--text-font-family);
+  border: 1px solid var(--border-color);
+  border-radius: var(--element-radius);
+  outline: none;
+  box-sizing: border-box;
+  padding-inline-start: .5rem;
+  padding-inline-end: .5rem;
+
+  &:hover,
+  &:focus {
+    outline: 2px solid var(--focus-color);
+    outline-offset: 1px;
+  }
+
+  &:disabled {
+    background-color: var(--gray-light);
+    color: var(--gray);
+    cursor: not-allowed !important;
+  }
+  &:disabled:hover,
+  &:disabled:focus {
+    outline: none;
+  }
+}
+
 input[type="checkbox"] {
   cursor: pointer;
   accent-color: var(--primary-color);
@@ -1041,30 +1220,35 @@ a:focus {
 
 .udoit-issue,
 .color-issue {
-  color: var(--issue-color);
-  fill: var(--issue-color);
+  color: var(--pill-error-text);
+  fill: var(--pill-error-text);
 }
 
 .udoit-potential,
 .color-potential {
-  color: var(--potential-color);
-  fill: var(--potential-color);
+  color: var(--pill-warning-text);
+  fill: var(--pill-warning-text);
 }
 
-.udoit-suggestion,
-.color-suggestion {
-  color: var(--suggestion-color);
-  fill: var(--suggestion-color);
+.udoit-file,
+.color-file {
+  color: var(--pill-info-text);
+  fill: var(--pill-info-text);
 }
 
 .udoit-success,
 .color-success {
-  color: var(--primary-color);
-  fill: var(--primary-color);
+  color: var(--pill-success-text);
+  fill: var(--pill-success-text);
 }
 
 .udoit-info,
 .color-info {
+  color: var(--info-color);
+  fill: var(--info-color);
+}
+
+.udoit-progress {
   color: var(--info-color);
   fill: var(--info-color);
 }
@@ -1091,23 +1275,4 @@ a:focus {
   font-size: 0.9em;
   overflow-wrap: anywhere;
   cursor: pointer;
-}
-
-header {
-  nav {
-    display: flex;
-    flex-direction: row;
-    border-bottom: none !important;
-    
-    ul {
-      justify-content: flex-end;
-    }
-  }
-}
-
-.off-screen {
-  position: absolute;
-  left: -10000px; /* Moves the element far to the left */
-  top: auto;
-  overflow: hidden; /* Hides any potential overflow */
 }

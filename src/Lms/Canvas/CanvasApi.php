@@ -6,6 +6,7 @@ use App\Lms\LmsResponse;
 use Symfony\Component\HttpClient\HttpClient;
 use Symfony\Component\Mime\Part\DataPart;
 use Symfony\Component\Mime\Part\Multipart\FormDataPart;
+use Symfony\Component\Console\Output\ConsoleOutput;
 
 class CanvasApi {
 
@@ -121,6 +122,7 @@ class CanvasApi {
     // Posts a file to Canvas
     public function apiFilePost(string $url, array $options, string $filepath, string $newFileName): LmsResponse
     {
+        // Since files are posted to REPLACE existing files, they should be placed in the same folder
         $fileResponse = $this->apiGet($url);
         $file = $fileResponse->getContent();
         if(!isset($options['headers'])) {
@@ -134,21 +136,16 @@ class CanvasApi {
         $endpointOptions = [
             'name' => $newFileName,
             'parent_folder_id' => $file['folder_id'],
-            'content_type' => $file['content-type'],
         ];
         $options['query'] = $endpointOptions;
 
         $endpointResponse = $this->apiPost($options['postUrl'], $options, true);
         $endpointContent = $endpointResponse->getContent();
 
-        $this->apiDelete($url);
-
-        // TODO: handle failed call
-
+        // Attach the file and send it to the upload URL
         $formFields = $endpointContent['upload_params'];
         $formFields['file'] = DataPart::fromPath($filepath);
         $formData = new FormDataPart($formFields);
-
         $fileResponse = $this->apiPost($endpointContent['upload_url'], [
             'headers' => $formData->getPreparedHeaders()->toArray(),
             'body' => $formData->bodyToIterable(),

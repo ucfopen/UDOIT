@@ -1,10 +1,13 @@
-import React from 'react';
-import SeverityIssueIcon from './SeverityIssueIcon';
-import SeverityIssueIconFilled from './SeverityIssueIconFilled';
-import SeverityPotentialIcon from './SeverityPotentialIcon';
-import SeverityPotentialIconFilled from './SeverityPotentialIconFilled';
-import SeveritySuggestionIcon from './SeveritySuggestionIcon';
-import SeveritySuggestionIconFilled from './SeveritySuggestionIconFilled';
+import React from 'react'
+import SeverityIssueIcon from './SeverityIssueIcon'
+import SeverityIssueIconFilled from './SeverityIssueIconFilled'
+import SeverityPotentialIcon from './SeverityPotentialIcon'
+import SeverityPotentialIconFilled from './SeverityPotentialIconFilled'
+import ContentFileIcon from './ContentFileIcon'
+import ContentFileIconFilled from './ContentFileIconFilled'
+import SeveritySuggestionIcon from './SeveritySuggestionIcon'
+import SeveritySuggestionIconFilled from './SeveritySuggestionIconFilled'
+// import FileIconFilled from './FileIconFilled'
 
 export default function SeverityIcon(props) {
   if(!props.type) {
@@ -31,7 +34,6 @@ export default function SeverityIcon(props) {
       else {
         return <SeverityIssueIcon {...newProps} />
       }
-      
     case('POTENTIAL'):
       newProps.className += 'udoit-potential'
       if(filled) {
@@ -40,13 +42,13 @@ export default function SeverityIcon(props) {
       else {
         return <SeverityPotentialIcon {...newProps} />
       }
-    case('SUGGESTION'):
-      newProps.className += 'udoit-suggestion'
+    case('FILE'):
+      newProps.className += 'udoit-file'
       if(filled) {
-        return <SeveritySuggestionIconFilled {...newProps} />
+        return <ContentFileIconFilled {...newProps} />
       }
       else {
-        return <SeveritySuggestionIcon {...newProps} />
+        return <ContentFileIcon {...newProps} />
       }
     default:
       return null
