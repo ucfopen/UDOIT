@@ -45,6 +45,7 @@
     &:hover {
       .closeButton {
         background-color: var(--white);
+        border-color: var(--border-color);
       }
     }
 
@@ -60,9 +61,11 @@
       position: absolute;
       top: .5rem;
       right: .5rem;
-      padding: 0.15rem;
+      padding: 0.25rem;
       border-radius: 2rem;
       background-color: transparent;
+      border: 1px solid transparent;
+      box-shadow: none;
     }
   }
 

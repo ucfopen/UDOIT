@@ -7,7 +7,7 @@ import FixIssuesContentPreview from './Widgets/FixIssuesContentPreview'
 import LeftArrowIcon from './Icons/LeftArrowIcon'
 import RightArrowIcon from './Icons/RightArrowIcon'
 import CloseIcon from './Icons/CloseIcon'
-import { formNameFromRule } from '../Services/Ufixit'
+import { FORM_CLASSIFICATIONS, formFromIssue, formNameFromRule, formNames } from '../Services/Ufixit'
 import * as Html from '../Services/Html'
 import Api from '../Services/Api'
 
@@ -764,6 +764,10 @@ export default function FixIssuesPage({
     setTempActiveContentItem(newContentItem)
   }
 
+  const handleActiveContentItem = (newContentItem) => {
+    setTempActiveContentItem(newContentItem)
+  }
+
   const updateActiveFilters = (filter, value) => {
     setActiveFilters(Object.assign({}, activeFilters, {[filter]: value}))
   }
@@ -850,8 +854,8 @@ export default function FixIssuesPage({
         <></>
       ) : (
         <>
-          <h1>{t('barriers.title')}</h1>
-          <div className="subheader">{t('barriers.subtitle')}</div>
+          <h1 className="pageTitle">{t('barriers.title')}</h1>
+          <p className="pageSubtitle">{t('barriers.subtitle')}</p>
 
           <FixIssuesFilters
             t={t}

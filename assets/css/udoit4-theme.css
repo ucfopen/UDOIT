@@ -5,210 +5,226 @@
 @import url('https://fonts.googleapis.com/css2?family=Lexend:wght@100..900&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400;1,700&display=swap');
 
-:root {
-  --black: #000000;
-  --gray-darker: #333333;
-  --gray-dark: #555555;
-  --gray: #767676;
-  --gray-light: #D3D7DB;
-  --gray-lighter: #E9EBEF;
-  --gray-lightest: #F9FAFB;
-  --white: #FFFFFF;
 
-  --primary-color: #196937;
-  --primary-color-dark: var(--primary-color);
-  --primary-color-hover: color-mix(in srgb, var(--primary-color) 100%, var(--white) 10%); /* #436657; */
-  --primary-color-light: color-mix(in srgb, var(--primary-color) 10%, var(--white) 100%);  /* #E8F3ED; */
-  --primary-color-inverse: var(--gray-lightest);
-  --primary-color-disabled: #B2D2C3;
+@layer udoit-base-theme, udoit-layout, udoit-component, udoit-modifier;
 
-  --text-color: #0A0A0A;
-  --text-secondary-color: #4A5565;
-  --text-disabled-color: #8B95A7; /* #D1D5DC; */
-  --hover-brightness: 1.15;
+@layer udoit-base-theme {
+  :root {
+    --black: #000000;
+    --gray-darker: #333333;
+    --gray-dark: #555555;
+    --gray: #767676;
+    --gray-light: #D3D7DB;
+    --gray-lighter: #E9EBEF;
+    --gray-lightest: #F9FAFB;
+    --white: #FFFFFF;
 
-
-
-  
-
-  /* PILLS have three colors: border color, light background color, and text color */
-  --pill-success-border: #80D39E;
-  --pill-success-background: #F0FDF4;
-  --pill-success-text: #008236;
-
-  --pill-warning-border: #FEE685;
-  --pill-warning-background: #FFFBEB;
-  --pill-warning-text: #BB4D00;
-
-  --pill-error-color: #D34F4F;
-  --pill-error-background: #FFEBEB;
-  --pill-error-text: #8D0D0D;
-
-  --pill-info-border: #DBEAFE;
-  --pill-info-background: #EFF6FF;
-  --pill-info-text: #155DFC;
-
-  --help-color: #F5E9C3;
-  --help-color-light: #FFFBEB;
-  --help-color-text: #BB4D00;
-
-  /* Functional Colors */
-  --selection-color: #00A63E;
-  --selection-color-light: #F7FEF9;
-
-  --error-highlight-color: #E7000B;
-  
-  --focus-color: #009AD0;
-
-  --info-color: #5BAEDF; /* #2C9ECE; */
-  --info-color-light: color-mix(in srgb, var(--info-color) 10%, #FFFFFF 100%);
-
-  --link-color: #006AAC;
-  --link-color-hover: color-mix(in srgb, var(--link-color) 100%, var(--white) 10%);
-  --link-color-light: color-mix(in srgb, var(--link-color) 5%, var(--white) 100%);  /* #E9F3FF; */
-  --link-color-dark: color-mix(in srgb, var(--link-color) 100%, var(--black) 10%);
-
-  --background-color: var(--gray-lightest);
-  --border-color: #C5C9D3; /* #E5E7EB; */
-  --progress-bar-background-color: var(--gray-light);
-  --progress-bar-color: var(--primary-color);
-  --shadow-color: #00000044;
-  --backdrop-color: rgba(0, 0, 0, 0.25);
-
-  --spacer: 1rem;
-  --window-radius: 16px;
-  --element-radius: 8px;
-
-  --text-font-family: 'Inter', Arial, Helvetica, sans-serif; /* 'Open Sans', Arial, Helvetica, sans-serif; */
-  --heading-font-family: 'Inter', sans-serif; /* 'Reddit Sans', sans-serif; */
-
-  line-height: 1.4em;
-
-  --transition-time: 0.25s;
-}
-
-body {
-  padding: 0px !important;
-  margin: 0px !important;
-  border-left: none !important;
-  max-width: 1400px;
-  overflow: hidden;
-}
-
-#app-container {
-  position: relative;
-  margin: 0px 6px 6px 0px;
-  padding: 0 1rem;
-  border-radius: var(--window-radius);
-  height: calc(100vh - 6px);
-  max-height: 1024px;
-  display: flex;
-  flex-direction: column;
-  font-family: var(--text-font-family);
-  font-weight: 300;
-  color: var(--text-color);
-  box-sizing: border-box;
-  border: 1px solid var(--border-color);
-  box-shadow: 3px 3px 3px var(--gray-light);
-  background-color: var(--background-color);
-
-  &.serif {
-    --text-font-family: 'Merriweather', Times, serif;
-    --heading-font-family: 'Merriweather', Times, serif;
-  }
-  &.readable {
-    --text-font-family: 'Lexend', Arial, Helvetica, sans-serif;
-    --heading-font-family: 'Lexend', Arial, Helvetica, sans-serif;
-  }
-  &.hyperlegible {
-    --text-font-family: 'Atkinson Hyperlegible', Arial, Helvetica, sans-serif;
-    --heading-font-family: 'Atkinson Hyperlegible', Arial, Helvetica, sans-serif;
-  }
-
-  line-height: 1.4em;
-  
-  font-size: 16px;
-
-  &.font-small {
-    font-size: 14px;
-  }
-  &.font-medium {
-    font-size: 16px;
-  }
-  &.font-large {
-    font-size: 20px;
-  }
-  &.font-xlarge {
-    font-size: 24px;
-  }
-
-  &.dark-mode {
-
-    --white: #000000;
-    --gray-lightest: #2A2A2A;
-    --gray-lighter: #555555;
-    --gray-light: #767676;
-    --gray: #CCCCCC;
-    --gray-dark: #E2E2E2;
-    --gray-darker: #F7F7F7;
-    --black: #FFFFFF;
-
-    --primary-color: #00AD5A;
+    --primary-color: #196937;
     --primary-color-dark: var(--primary-color);
     --primary-color-hover: color-mix(in srgb, var(--primary-color) 100%, var(--white) 10%); /* #436657; */
-    --primary-color-light: color-mix(in srgb, var(--primary-color) 50%, var(--white) 100%);  /* #E8F3ED; */
+    --primary-color-light: color-mix(in srgb, var(--primary-color) 10%, var(--white) 100%);  /* #E8F3ED; */
     --primary-color-inverse: var(--gray-lightest);
-    --text-color: var(--gray-darker);
+    --primary-color-disabled: #B2D2C3;
 
+    --text-color: #0A0A0A;
+    --text-secondary-color: #2F3741; /* #4A5565; */
+    --text-disabled-color: #8B95A7; /* #D1D5DC; */
     --hover-brightness: 1.15;
 
-    --link-color: #70C8FF;
+
+    /* PILLS have three colors: border color, light background color, and text color */
+    --pill-success-border: #80D39E;
+    --pill-success-background: #F0FDF4;
+    --pill-success-text: #008236;
+
+    --pill-warning-border: #FEE685;
+    --pill-warning-background: #FFFBEB;
+    --pill-warning-text: #BB4D00;
+
+    --pill-error-border: #FFC9C9; /* #D34F4F; */
+    --pill-error-background: #FFEBEB;
+    --pill-error-text: #8D0D0D;
+
+    --pill-info-border: #DBEAFE;
+    --pill-info-background: #EFF6FF;
+    --pill-info-text: #155DFC;
+
+    --help-color: #F5E9C3;
+    --help-color-light: #FFFBEB;
+    --help-color-text: #BB4D00;
+
+    --potential-border: #FFEDD5;
+    --potential-background: #FFF7ED;
+
+    /* Functional Colors */
+    --selection-color: #00A63E;
+    --selection-color-light: #F7FEF9;
+
+    --error-highlight-color: #E7000B;
+    --potential-highlight-color: #F54900;
+    --file-highlight-color: #155DFC;
+    
+    --focus-color: #009AD0;
+
+    --info-color: #5BAEDF; /* #2C9ECE; */
+    --info-color-light: color-mix(in srgb, var(--info-color) 10%, #FFFFFF 100%);
+
+    --link-color: #006AAC;
     --link-color-hover: color-mix(in srgb, var(--link-color) 100%, var(--white) 10%);
-    --link-color-light: color-mix(in srgb, var(--link-color) 50%, var(--white) 100%);  /* #E9F3FF; */
+    --link-color-light: color-mix(in srgb, var(--link-color) 5%, var(--white) 100%);  /* #E9F3FF; */
     --link-color-dark: color-mix(in srgb, var(--link-color) 100%, var(--black) 10%);
 
-    --focus-color: #00BBFF;
-
-    --pill-error-color: #F64649;
-    --pill-error-background: color-mix(in srgb, var(--pill-error-color) 50%, var(--white) 100%);
-    --pill-warning-border: #F8961E;
-    --pill-warning-background: color-mix(in srgb, var(--pill-warning-border) 50%, var(--white) 100%);
-    --info-color: #2DA1D2;
-    --info-color-light: color-mix(in srgb, var(--info-color) 50%, var(--white) 100%);
-    --pill-success-border: #00AD5A;
-    --pill-success-background: color-mix(in srgb, var(--pill-success-border) 50%, var(--white) 100%);
-
-    --help-color-light: #58450e;
-
-    --selection-color-light: #07461e;
-
     --background-color: var(--gray-lightest);
-    --border-color: var(--gray-light);
+    --border-color: #C5C9D3; /* #E5E7EB; */
     --progress-bar-background-color: var(--gray-light);
     --progress-bar-color: var(--primary-color);
-    --shadow-color: #FFFFFF44;
-    --backdrop-color: rgba(256, 256, 256, 0.25);
+    --shadow-color: #00000044;
+    --backdrop-color: rgba(0, 0, 0, 0.25);
 
-    border: 1px solid var(--gray-lighter);
-    box-shadow: 2px 2px 2px var(--gray-lighter);
+    --spacer: 1rem;
+    --window-radius: 16px;
+    --element-radius: 8px;
+
+    --font-size: 16px;
+    --text-font-family: 'Inter', Arial, Helvetica, sans-serif; /* 'Open Sans', Arial, Helvetica, sans-serif; */
+    --heading-font-family: 'Inter', sans-serif; /* 'Reddit Sans', sans-serif; */
+
+    line-height: 1.4em;
+
+    --transition-time: 0.25s;
+  }
+
+  #app-container {
+    border: 1px solid var(--border-color);
+    box-shadow: 3px 3px 3px var(--gray-light);
+    background-color: var(--background-color);
+    font-family: var(--text-font-family);
+    font-weight: 300;
+    color: var(--text-color);
+
+    &.serif {
+      --text-font-family: 'Merriweather', Times, serif;
+      --heading-font-family: 'Merriweather', Times, serif;
+    }
+    &.readable {
+      --text-font-family: 'Lexend', Arial, Helvetica, sans-serif;
+      --heading-font-family: 'Lexend', Arial, Helvetica, sans-serif;
+    }
+    &.hyperlegible {
+      --text-font-family: 'Atkinson Hyperlegible', Arial, Helvetica, sans-serif;
+      --heading-font-family: 'Atkinson Hyperlegible', Arial, Helvetica, sans-serif;
+    }
+    &.clear-background {
+      background-color: white;
+    }
+
+    line-height: 1.4em;
+    
+    font-size: 16px;
+
+    &.font-small {
+      --font-size: 14px;
+      font-size: 14px;
+    }
+    &.font-medium {
+      --font-size: 16px;
+      font-size: 16px;
+    }
+    &.font-large {
+      --font-size: 20px;
+      font-size: 20px;
+    }
+    &.font-xlarge {
+      --font-size: 24px;
+      font-size: 24px;
+    }
+
+    &.dark-mode {
+
+      --white: #000000;
+      --gray-lightest: #2A2A2A;
+      --gray-lighter: #555555;
+      --gray-light: #767676;
+      --gray: #CCCCCC;
+      --gray-dark: #E2E2E2;
+      --gray-darker: #F7F7F7;
+      --black: #FFFFFF;
+
+      --primary-color: #00AD5A;
+      --primary-color-dark: var(--primary-color);
+      --primary-color-hover: color-mix(in srgb, var(--primary-color) 100%, var(--white) 10%); /* #436657; */
+      --primary-color-light: color-mix(in srgb, var(--primary-color) 50%, var(--white) 100%);  /* #E8F3ED; */
+      --primary-color-inverse: var(--gray-lightest);
+      --text-color: var(--gray-darker);
+
+      --hover-brightness: 1.15;
+
+      --link-color: #70C8FF;
+      --link-color-hover: color-mix(in srgb, var(--link-color) 100%, var(--white) 10%);
+      --link-color-light: color-mix(in srgb, var(--link-color) 50%, var(--white) 100%);  /* #E9F3FF; */
+      --link-color-dark: color-mix(in srgb, var(--link-color) 100%, var(--black) 10%);
+
+      --focus-color: #00BBFF;
+
+      --pill-error-border: #F64649;
+      --pill-error-background: color-mix(in srgb, var(--pill-error-border) 50%, var(--white) 100%);
+      --pill-warning-border: #F8961E;
+      --pill-warning-background: color-mix(in srgb, var(--pill-warning-border) 50%, var(--white) 100%);
+      --info-color: #2DA1D2;
+      --info-color-light: color-mix(in srgb, var(--info-color) 50%, var(--white) 100%);
+      --pill-success-border: #00AD5A;
+      --pill-success-background: color-mix(in srgb, var(--pill-success-border) 50%, var(--white) 100%);
+
+      --help-color-light: #58450e;
+
+      --selection-color-light: #07461e;
+
+      --background-color: var(--gray-lightest);
+      --border-color: var(--gray-light);
+      --progress-bar-background-color: var(--gray-light);
+      --progress-bar-color: var(--primary-color);
+      --shadow-color: #FFFFFF44;
+      --backdrop-color: rgba(256, 256, 256, 0.25);
+
+      border: 1px solid var(--gray-lighter);
+      box-shadow: 2px 2px 2px var(--gray-lighter);
+    }
   }
 }
 
-header {
-  background-color: var(--white);
-  border-radius: var(--window-radius) var(--window-radius) 0 0;
-  height: 3.5em;
-}
+@layer udoit-layout {
+    
+  body {
+    padding: 0px !important;
+    margin: 0px !important;
+    border-left: none !important;
+    max-width: 1400px;
+    overflow: hidden;
+  }
 
-main {
-  height: calc(100vh - 3.5em);
-  min-height: 20em;
-  box-sizing: border-box;
-  display: flex;
-  flex-direction: column;
-  overflow-y: auto;
-  margin: 0 -1rem;
-  padding: 0 1rem 1rem 1rem;
+  #app-container {
+    position: relative;
+    margin: 0px 6px 6px 0px;
+    padding: 0 1rem;
+    border-radius: var(--window-radius);
+    height: calc(100vh - 6px);
+    max-height: 1024px;
+    display: flex;
+    flex-direction: column;
+    box-sizing: border-box;
+
+  }
+
+  main {
+    height: calc(100vh - 3.5em);
+    min-height: 20em;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+    margin: 0 -1rem;
+    padding: 0 1rem 1rem 1rem;
+  }
 }
 
 /* Bootstrap-esque classes for general use */
@@ -562,6 +578,10 @@ main {
   width: 100%;
 }
 
+.w-fit {
+  width: fit-content;
+}
+
 .h-25 {
   height: 25%;
 }
@@ -576,6 +596,10 @@ main {
 
 .h-100 {
   height: 100%;
+}
+
+.h-fit {
+  height: fit-content;
 }
 
 .fw-bold {
@@ -607,11 +631,31 @@ h1, h2, h3, h4, h5, h6 {
   color: var(--text-color);
 }
 
-.subheader {
-  margin-top: -.75rem;
-  margin-bottom: 1rem;
-  color: var(--gray-dark);
+.pageTitle {
+  margin: 2rem 0 1rem 0;
+  color: var(--text-color);
+  font-weight: 600;
+}
+
+.pageTitleRow {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: 1rem;
+  justify-content: space-between;
+  align-items: center;
+  margin: 2rem 0 1rem 0;
+
+  .pageTitle {
+    margin: 0;
+  }
+}
+
+.pageSubtitle {
+  margin: 0 0 2rem 0;
+  color: var(--text-secondary-color);
   font-weight: 300;
+  max-width: 80%;
 }
 
 .primary {
@@ -623,6 +667,10 @@ h1, h2, h3, h4, h5, h6 {
   color: var(--text-secondary-color);
   font-size: smaller;
   font-weight: 300;
+
+  strong {
+    font-weight: 600;
+  }
 }
 
 .primary-dark {
@@ -698,10 +746,14 @@ button {
   cursor: pointer;
   box-sizing: border-box;
   border: 1px solid transparent;
+  color: var(--text-secondary-color);
+  fill: var(--text-secondary-color);
   font-weight: 400;
-  font-size: 1em;
+  font-size: .9em;
+  text-transform: uppercase;
   width: fit-content;
   height: fit-content;
+  box-shadow: 0px 1px 2px var(--shadow-color);
 
   &:focus {
     outline: 2px solid var(--focus-color);
@@ -756,8 +808,8 @@ button {
   background-color: transparent;
   color: var(--link-color);
   fill: var(--link-color);
+  box-shadow: none;
   
-
   &.btn-icon-left {
     padding-left: 0;
   }
@@ -766,21 +818,25 @@ button {
     padding-right: 0;
   }
 
-  &:hover,
-  &:focus {
+  &:hover:not(:disabled),
+  &:focus:not(:disabled) {
     text-decoration: underline;
+  }
+
+  &:disabled {
+    color: var(--text-disabled-color) !important;
+    fill: var(--text-disabled-color) !important;
+    background-color: transparent !important;
+    border-color: transparent !important;
   }
 }
 
 .btn-small {
-  font-size: 0.85em;
-  padding: .25em 0.75em;
-  border-radius: 8px;
+  font-size: 0.8em;
 }
 
 .btn-large {
   font-size: 1.15em;
-  padding: .5em 1.25em;
 }
 
 .btn-text, .text-button {
@@ -952,7 +1008,7 @@ dialog {
 
 .callout-container {
   background: var(--white);
-  border-radius: 8px;
+  border-radius: var(--element-radius);
   padding: .75rem 1rem;
   border: 1px solid var(--border-color);
   box-sizing: border-box;
@@ -961,6 +1017,10 @@ dialog {
     background-color: var(--help-color-light);
     border-color: var(--help-color);
     color: var(--text-secondary-color);
+  }
+
+  &.filled-container {
+    background-color: var(--background-color);
   }
 }
 
@@ -1014,13 +1074,13 @@ dialog {
   color: var(--text-color);
   fill: var(--text-color);
   padding: 0.15rem .6rem;
-  font-size: .85em;
+  font-size: calc(.8 * var(--font-size));
   align-self: center;
   align-items: center;
   width: fit-content;
 
   &.issue {
-    border-color: var(--pill-error-color);
+    border-color: var(--pill-error-border);
     background-color: var(--pill-error-background);
     color: var(--pill-error-text);
     fill: var(--pill-error-text);
@@ -1224,16 +1284,31 @@ a:focus {
   fill: var(--pill-error-text);
 }
 
+.udoit-issue-highlight {
+  color: var(--error-highlight-color);
+  fill: var(--error-highlight-color);
+}
+
 .udoit-potential,
 .color-potential {
   color: var(--pill-warning-text);
   fill: var(--pill-warning-text);
 }
 
+.udoit-potential-highlight {
+  color: var(--potential-highlight-color);
+  fill: var(--potential-highlight-color);
+}
+
 .udoit-file,
 .color-file {
   color: var(--pill-info-text);
   fill: var(--pill-info-text);
+}
+
+.udoit-file-highlight {
+  color: var(--file-highlight-color);
+  fill: var(--file-highlight-color);
 }
 
 .udoit-success,

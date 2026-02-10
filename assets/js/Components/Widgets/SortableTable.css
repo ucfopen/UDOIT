@@ -6,7 +6,6 @@
 
 .udoit-sortable-table {
   width: 100%;
-  min-width: 1200px;
   border-collapse: collapse;
   font-size: 0.8em;
   overflow-x: auto;
@@ -146,6 +145,7 @@
   background-color: transparent;
   color: var(--link-color);
   border-color: transparent;
+  box-shadow: none;
 }
 
 .paginationButton.selected {
