@@ -6,6 +6,7 @@ use App\Lms\LmsResponse;
 use Symfony\Component\HttpClient\HttpClient;
 use Symfony\Component\Mime\Part\DataPart;
 use Symfony\Component\Mime\Part\Multipart\FormDataPart;
+use Symfony\Component\Console\Output\ConsoleOutput;
 
 class CanvasApi {
 
@@ -25,6 +26,11 @@ class CanvasApi {
     public function apiGet(string $url, array $options = [], int $perPage = 100, ?LmsResponse $lmsResponse = null): LmsResponse
     {
         $links = [];
+        if(!isset($options['headers'])) {
+            $options['headers'] = [];
+        }
+        $userAgent = 'UDOIT/' . (!empty($_ENV['VERSION_NUMBER']) ? $_ENV['VERSION_NUMBER'] : '4.0.0');
+        $options['headers']['User-Agent'] = $userAgent;
 
         if (!$lmsResponse) {
             $lmsResponse = new LmsResponse();
@@ -82,6 +88,11 @@ class CanvasApi {
     public function apiPost($url, $options, $sendAuthorized = true)
     {
         $lmsResponse = new LmsResponse();
+        if(!isset($options['headers'])) {
+            $options['headers'] = [];
+        }
+        $userAgent = 'UDOIT/' . (!empty($_ENV['VERSION_NUMBER']) ? $_ENV['VERSION_NUMBER'] : '4.0.0');
+        $options['headers']['User-Agent'] = $userAgent;
 
         if (strpos($url, 'https://') === false) {
             $url = "https://{$this->baseUrl}/api/v1/{$url}";
@@ -111,28 +122,30 @@ class CanvasApi {
     // Posts a file to Canvas
     public function apiFilePost(string $url, array $options, string $filepath, string $newFileName): LmsResponse
     {
+        // Since files are posted to REPLACE existing files, they should be placed in the same folder
         $fileResponse = $this->apiGet($url);
         $file = $fileResponse->getContent();
+        if(!isset($options['headers'])) {
+            $options['headers'] = [];
+        }
+        $userAgent = 'UDOIT/' . (!empty($_ENV['VERSION_NUMBER']) ? $_ENV['VERSION_NUMBER'] : '4.0.0');
+        $options['headers']['User-Agent'] = $userAgent;
 
         // TODO: handle failed call
 
         $endpointOptions = [
             'name' => $newFileName,
             'parent_folder_id' => $file['folder_id'],
-            'content_type' => $file['content-type'],
         ];
+        $options['query'] = $endpointOptions;
 
-        $endpointResponse = $this->apiPost($options['postUrl'], ['query' => $endpointOptions], true);
+        $endpointResponse = $this->apiPost($options['postUrl'], $options, true);
         $endpointContent = $endpointResponse->getContent();
 
-        $this->apiDelete($url);
-
-        // TODO: handle failed call
-
+        // Attach the file and send it to the upload URL
         $formFields = $endpointContent['upload_params'];
         $formFields['file'] = DataPart::fromPath($filepath);
         $formData = new FormDataPart($formFields);
-
         $fileResponse = $this->apiPost($endpointContent['upload_url'], [
             'headers' => $formData->getPreparedHeaders()->toArray(),
             'body' => $formData->bodyToIterable(),
@@ -144,6 +157,11 @@ class CanvasApi {
     public function apiPut($url, $options)
     {
         $lmsResponse = new LmsResponse();
+        if(!isset($options['headers'])) {
+            $options['headers'] = [];
+        }
+        $userAgent = 'UDOIT/' . (!empty($_ENV['VERSION_NUMBER']) ? $_ENV['VERSION_NUMBER'] : '4.0.0');
+        $options['headers']['User-Agent'] = $userAgent;
 
         if (strpos($url, 'https://') === false) {
             $url = "https://{$this->baseUrl}/api/v1/{$url}";
@@ -164,8 +182,13 @@ class CanvasApi {
         return $lmsResponse;
     }
 
-    public function apiDelete($url) {
+    public function apiDelete($url, $options = []) {
         $lmsResponse = new LmsResponse();
+        if(!isset($options['headers'])) {
+            $options['headers'] = [];
+        }
+        $userAgent = 'UDOIT/' . (!empty($_ENV['VERSION_NUMBER']) ? $_ENV['VERSION_NUMBER'] : '4.0.0');
+        $options['headers']['User-Agent'] = $userAgent;
 
         if (strpos($url, 'https://') === false) {
             $pattern = '/\/files\/\d+/';
@@ -175,8 +198,7 @@ class CanvasApi {
             $url = "https://" . $this->baseUrl . "/api/v1/" . $matches[0];
         }
 
-        $response = $this->httpClient->request('DELETE', $url);
-
+        $response = $this->httpClient->request('DELETE', $url, $options);
         $lmsResponse->setResponse($response);
 
         $content = $lmsResponse->getContent();

@@ -8,109 +8,101 @@
  *      of the parent component.
  */
 
-/* .combo-container {
-  display: block;
-  max-width: 15.625em;
-  min-width: 11.25em;
-  position: relative;
-}
-
-.combo-label {
-  font-size: 0.9em;
-  font-weight: 500;
-  font-family: var(--heading-font-family);
-  text-transform: uppercase;
-} */
-
-.combo-container {
-  position: relative !important;
-}
-
-.combo-input {
-  background-color: var(--white);
-  font-size: .85em;
-  padding: .4em .15em .4em .5em;
-  border: 1px solid var(--border-color);
-  border-radius: 8px;
-  outline: none;
-  box-sizing: border-box;
-  cursor: pointer;
-
-  &:focus {
-    outline: 2px solid var(--focus-color);
-    outline-offset: 1px;
+ @layer udoit-component {
+  .combo-container {
+    position: relative !important;
   }
 
-  &[aria-expanded="true"] {
-    border-bottom-left-radius: 0;
-    border-bottom-right-radius: 0;
-    border-bottom-color: var(--white);
-  }
+  .combo-input {
+    background-color: var(--white);
+    display: block;
+    font-size: .85em;
+    padding-inline-start: .5em;
+    padding-inline-end: .15em;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    outline: none;
+    box-sizing: border-box;
+    cursor: pointer;
+    height: 2.5em;
+    align-items: center;
 
-  &.disabled {
-    color: var(--gray);
-    background-color: transparent;
-    border-color: var(--gray-light);
-    cursor: not-allowed !important;
-    pointer-events: none;
-  }
+    &:focus {
+      outline: 2px solid var(--focus-color);
+      outline-offset: 1px;
+    }
 
-  .combo-input-text {
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    flex-grow: 1;
-    flex-shrink: 1;
-  }
+    &[aria-expanded="true"] {
+      border-bottom-left-radius: 0;
+      border-bottom-right-radius: 0;
+      border-bottom-color: var(--white);
+    }
 
-  .combo-input-icon {
-    flex-shrink: 0;
+    &.disabled {
+      color: var(--gray);
+      background-color: transparent;
+      border-color: var(--gray-light);
+      cursor: not-allowed !important;
+      pointer-events: none;
+    }
 
-    svg {
-      transition: transform var(--transition-time) ease-in-out;
+    .combo-input-text {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      flex-grow: 1;
+      flex-shrink: 1;
+    }
+
+    .combo-input-icon {
+      flex-shrink: 0;
+
+      svg {
+        transition: transform var(--transition-time) ease-in-out;
+      }
     }
   }
-}
 
-.combo-menu {
-  background-color: var(--white);
-  border: 1px solid var(--border-color);
-  border-radius: 0 0 8px 8px;
-  box-sizing: border-box;
-  display: none;
-  max-height: 300px;
-  overflow-y: scroll;
-  left: 0;
-  position: absolute;
-  top: 100%;
-  width: 100%;
-  z-index: 100;
-  cursor: pointer;
+  .combo-menu {
+    background-color: var(--white);
+    border: 1px solid var(--border-color);
+    border-radius: 0 0 8px 8px;
+    box-sizing: border-box;
+    display: none;
+    max-height: 300px;
+    overflow-y: scroll;
+    left: 0;
+    position: absolute;
+    top: 100%;
+    width: 100%;
+    z-index: 100;
+    cursor: pointer;
 
-  &.open {
-    display: block;
-  }
-}
-
-.combo-option {
-  padding: .3em .5em;
-  font-size: .85em;
-  box-sizing: border-box;
-  
-  &:hover {
-    background-color: var(--background-color);
-  }
-  
-  &.option-current {
-    outline: 2px solid var(--focus-color);
-    outline-offset: -2px;
+    &.open {
+      display: block;
+    }
   }
 
-  &.option-selected {
-    font-weight: 700;
-  }
+  .combo-option {
+    padding: .3em .5em;
+    font-size: .85em;
+    box-sizing: border-box;
+    
+    &:hover {
+      background-color: var(--background-color);
+    }
+    
+    &.option-current {
+      outline: 2px solid var(--focus-color);
+      outline-offset: -2px;
+    }
 
-  &:last-child {
-    border-radius: 0 0 7px 7px;
+    &.option-selected {
+      font-weight: 700;
+    }
+
+    &:last-child {
+      border-radius: 0 0 7px 7px;
+    }
   }
 }

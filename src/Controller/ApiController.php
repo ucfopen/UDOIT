@@ -11,7 +11,7 @@ abstract class ApiController extends AbstractController
         // Check if course belongs to user's institution
         /** @var \App\Entity\User */
         $user = $this->getUser();
-        $userInstitutionId = $user->getInstitution()->getId();
+        $userInstitutionId = $user?->getInstitution()?->getId();
         $resourceInstitutionId = $course->getInstitution()->getId();
         return $resourceInstitutionId === $userInstitutionId;
     }
