@@ -264,6 +264,18 @@ export function getAllIds(doc) {
   return ids
 }
 
+export function getTextContent(element) {
+  if ('string' === typeof element) {
+    element = toElement(element)
+  }
+
+  if (!element) {
+    return ''
+  }
+
+  return element.textContent
+}
+
 export function renameElement(element, newName) {
   if ('string' === typeof element) {
     element = toElement(element)

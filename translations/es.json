@@ -235,6 +235,8 @@
 
   "fix.label.select_issue": "Seleccionar Problema",
   "fix.label.no_selection": "No Hay Problema Seleccionado",
+  "fix.label.found_in": "TODO: Found in:",
+  "fix.label.no_references": "TODO: Not found in any module",
   "fix.label.loading_content": "Cargando Contenido",
   "fix.label.file_name": "Nombre",
   "fix.label.file_type": "Tipo",

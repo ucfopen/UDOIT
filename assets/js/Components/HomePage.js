@@ -7,6 +7,7 @@ import ProgressIcon from './Icons/ProgressIcon'
 import RightArrowIcon from './Icons/RightArrowIcon'
 import SeverityIcon from './Icons/SeverityIcon'
 import SummaryIcon from './Icons/SummaryIcon'
+import * as Html from '../Services/Html'
 import './HomePage.css'
 
 export default function HomePage({
@@ -193,7 +194,13 @@ export default function HomePage({
               </div>
               <div className="summary-text-container">
                 <h2>{t('summary.label.' + panel.translationKey)}</h2>
-                <div className="subtext" dangerouslySetInnerHTML={{__html: t('summary.' + panel.translationKey + '.description', {count: panel.counter.total})}}></div>
+                <div aria-label={Html.getTextContent('<p>' + t('summary.' + panel.translationKey + '.description', {count: panel.counter.total}) + '</p>')}>
+                  <div
+                    className="subtext"
+                    aria-hidden="true"
+                    dangerouslySetInnerHTML={{__html: t('summary.' + panel.translationKey + '.description', {count: panel.counter.total})}}
+                    />
+                </div>
               </div>
               <div className="summary-percent-container">
                 <div className="subtext text-end">

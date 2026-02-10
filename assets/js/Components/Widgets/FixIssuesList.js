@@ -29,6 +29,34 @@ export default function FixIssuesList({
   }
   , [groupedList])
 
+  /* Aria Label for items is SEVERITY, CONTENT TYPE, CONTENT TITLE, MODULE(S). For example,
+     "Known Barrier, Page, 'Welcome to the course', found in: 'Introduction Module' */
+  const getIssueLabel = (issue) => {
+    let label = ''
+    if(issue.status === settings.ISSUE_FILTER.ACTIVE) {
+      label += t(`filter.label.severity.${issue.severity.toLowerCase()}_single`) + ', '
+    }
+    else if (issue.status === settings.ISSUE_FILTER.FIXED || issue.status == settings.ISSUE_FILTER.FIXEDANDRESOLVED) {
+      label += t('filter.label.resolution.fixed_single') + ', '
+    }
+    else if (issue.status === settings.ISSUE_FILTER.RESOLVED) {
+      label += t('filter.label.resolution.resolved_single') + ', '
+    }
+
+    label += t(`filter.label.type.${issue.contentType.toLowerCase()}_single`) + ', '
+
+    label += issue.contentTitle + ', '
+
+    if(issue.sectionNames.length > 0) {
+      label += t('fix.label.found_in') + ' ' + issue.sectionNames.join(', ')
+    }
+    else {
+      label += t('fix.label.no_references')
+    }
+
+    return label
+  }
+
   const toggleGroup = (group) => {
     const groupLabel = group.formLabel
     const updatedList = {...openList, [groupLabel]: !openList[groupLabel]}
@@ -48,23 +76,25 @@ export default function FixIssuesList({
                     toggleGroup(group)
                   }
                 }}
+                aria-label={`${ (group.issues.length === 1 ? t('filter.label.issue_count_single') : t('filter.label.issue_count_plural', {count: group.issues.length}))} - ${group.formLabel}`}
+                aria-controls={`list-items-${i}`}
+                aria-expanded={openList[group.formLabel] ? 'true' : 'false'}
+                role="button"
                 tabIndex="0">
-                <div className="flex-row gap-2">
+                <div className="flex-row gap-2" aria-hidden="true">
                   <div className="ufixit-list-heading-counter">
                     { group.issues.length }
                   </div>
                   <h3 className="allow-word-break">{group.formLabel}</h3>
                 </div>
-                {/* <div className="flex-row justify-content-end flex-shrink-0 gap-3">
-                  <div className="ufixit-list-heading-count align-self-center">
-                    { group.issues.length !== 1 ? t('filter.label.issue_count_plural', { count: group.issues.length }) : t('filter.label.issue_count_single')}
-                  </div> */}
-                  <div className="flex-column align-self-center">
-                    <SortIcon className={`expand-icon icon-lg gray ${openList[group.formLabel] ? 'rotate-180' : ''}`} />
-                  </div>
-                {/* </div> */}
+                <div className="flex-column align-self-center" aria-hidden="true">
+                  <SortIcon className={`expand-icon icon-lg gray ${openList[group.formLabel] ? 'rotate-180' : ''}`} />
+                </div>
               </div>
-              <div className={`ufixit-list-items-container ${openList[group.formLabel] ? 'open' : 'closed'}`}
+              <div
+                id={`list-items-${i}`}
+                className={`ufixit-list-items-container ${openList[group.formLabel] ? 'open' : 'closed'}`}
+                aria-hidden={openList[group.formLabel] ? 'false' : 'true'}
                 tabIndex="-1">
                 { group.issues.map((issue, j) => {
                   return (
@@ -77,22 +107,25 @@ export default function FixIssuesList({
                           setActiveIssue(issue)
                         }
                       }}
-                      tabIndex={openList[group.formLabel] ? '0' : '-1'}
-                      aria-hidden={openList[group.formLabel] ? 'false' : 'true'}>
-                        <div className="flex-row gap-2">
+                      /* Label is SEVERITY, CONTENT TYPE, CONTENT TITLE, MODULE(S). For example,
+                         "Known Barrier, Page, 'Welcome to the course', found in: 'Introduction Module' */
+                      aria-label={getIssueLabel(issue)}
+                      role="link"
+                      tabIndex={openList[group.formLabel] ? '0' : '-1'}>
+                        <div className="flex-row gap-2" aria-hidden="true">
                           <div className="ufixit-list-content-type-icon-container">
                             <ContentTypeIcon type={issue.contentType} className="gray icon-md"/>
                           </div>
-                          <div className="flex-column">
+                          <div className="flex-column justify-content-center">
                             <div className="list-item-title">
                               {issue.contentTitle}
                             </div>
                             <div className="list-item-subtitle">
-                              {(issue.sectionNames.join(', '))}
+                              {issue.sectionNames.length > 0 ? (issue.sectionNames.join(', ')) : t('fix.label.no_references')}
                             </div>
                           </div>
                         </div>
-                      <div className="flex-row">
+                      <div className="flex-row" aria-hidden="true">
                         <StatusPill
                           t={t}
                           settings={settings}
