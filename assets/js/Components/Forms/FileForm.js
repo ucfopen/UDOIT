@@ -300,7 +300,7 @@ export default function FileForm ({
                     <div className='flex-row align-items-center justify-content-between'>
                       <FileInformation t={t} file={copiedUploadedFile} fillColor={'var(--primary-color)'} />
                       <div className='close-icon'>
-                        <CloseIcon onClick={removeUploadedFile} onKeyDown={removeUploadedFile} className='remove-file' tabIndex='0' />
+                        <CloseIcon onClick={removeUploadedFile} onKeyDown={(e) => e.key == "Enter" ? removeUploadedFile() : ""} className='remove-file' tabIndex='0' />
                       </div>
                     </div> :
                     
