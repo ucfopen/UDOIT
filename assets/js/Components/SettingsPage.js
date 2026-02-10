@@ -148,26 +148,17 @@ export default function SettingsPage({
             </h2>
             <div className="subtext version-number">{t('welcome.version')} {settings.versionNumber}</div>
           </div>
-          <a href=''>{t('settings.label.release_notes')}</a>
-          <a href=''>{t('settings.label.documentation')}</a>
-          <a href=''>{t('settings.label.about_udoit')}</a>
-          <a href=''>{t('settings.label.about_ucfopen')}</a>
+          {/* <a href='' target='_blank' rel='noopener noreferrer'>{t('settings.label.release_notes')}</a>
+          <a href='' target='_blank' rel='noopener noreferrer'>{t('settings.label.documentation')}</a> */}
+          <a href='https://ucfopen.github.io/udoit.info/' target='_blank' rel='noopener noreferrer'>{t('settings.label.about_udoit')}</a>
+          <a href='https://ucfopen.github.io/' target='_blank' rel='noopener noreferrer'>{t('settings.label.about_ucfopen')}</a>
           <div className="divider" />
         </div>
 
         <div className="callout-container flex-column gap-2">
           <h2>{t('settings.title.disclaimer')}</h2>
-          <p>{t('settings.text.disclaimer')}</p>
+          <p className="m=0">{t('settings.text.disclaimer')}</p>
         </div>
-
-        {/* <div className="about-content flex-column ps-3 pe-3">
-          <img src={settings?.user?.roles?.dark_mode ? UDOITLogoDark : UDOITLogo} alt={t('alt.UDOIT')} className="logo-large"/>
-          <div dangerouslySetInnerHTML={{__html: t('settings.text.about')}} />
-          <div dangerouslySetInnerHTML={{__html: t('settings.text.tools')}} />
-          <div dangerouslySetInnerHTML={{__html: t('settings.text.history')}} />
-          <div dangerouslySetInnerHTML={{__html: t('settings.text.roadmap')}} />
-          <div dangerouslySetInnerHTML={{__html: t('settings.text.disclaimer')}} />
-        </div> */}
       </div>
     </div>
   </div>

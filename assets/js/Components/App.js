@@ -104,7 +104,7 @@ export default function App(initialData) {
             newLanguageSettings.labels = data.labels
             setSettings(newLanguageSettings)
           }
-          setUntranslatedMessage({ message: 'msg.settings.updated', severity: 'success', visible: true })
+          // setUntranslatedMessage({ message: 'msg.settings.updated', severity: 'success', visible: true })
         }
         else {
           setSettings(oldSettings)
