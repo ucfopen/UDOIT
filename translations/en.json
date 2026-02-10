@@ -223,6 +223,8 @@
 
   "fix.label.select_issue": "Select Issue",
   "fix.label.no_selection": "No Issue Selected",
+  "fix.label.found_in": "Found in:",
+  "fix.label.no_references": "Not found in any module",
   "fix.label.loading_content": "Loading Content",
   "fix.label.file_name": "Name",
   "fix.label.file_type": "Type",

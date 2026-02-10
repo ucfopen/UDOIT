@@ -701,6 +701,11 @@ export default function FixIssuesPage({
     const dialog = document.getElementById(dialogId)
     if(dialog) {
       dialog.showModal()
+
+      const title = dialog.querySelector('#dialog-title')
+      if(title) {
+        title.focus()
+      }
     }
   }
 
@@ -743,10 +748,10 @@ export default function FixIssuesPage({
           />
         </>
       ) }
-      <dialog id={dialogId} className="dialog-full-screen" onClose={closeDialog}>
+      <dialog id={dialogId} className="dialog-full-screen" onClose={closeDialog} aria-labelledby="dialog-title">
         <div className="flex-column h-100">
           <div className="dialog-header">
-            <h2>{tempActiveIssue?.formLabel}</h2>
+            <h2 id="dialog-title" tabIndex="-1">{tempActiveIssue?.formLabel}</h2>
             <CloseIcon
               onClick={closeDialog}
               onKeyDown={(e) => {
@@ -756,6 +761,7 @@ export default function FixIssuesPage({
               }}
               className="close-icon icon-lg text-color"
               tabIndex="0"
+              role="button"
               alt={t('fix.button.close')}
               title={t('fix.button.close')} />
           </div>

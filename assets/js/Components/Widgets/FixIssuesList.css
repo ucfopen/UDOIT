@@ -125,6 +125,7 @@
         font-size: .85em;
         font-weight: 200;
         line-height: normal;
+        color: var(--text-secondary-color);
       }
     
       &:hover, &:focus {
