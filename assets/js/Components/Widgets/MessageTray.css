@@ -23,20 +23,20 @@
     &.open {
       transform: translateX(0);
     }
-
+    
     &.error {
-      border: 1px solid var(--issue-color);
-      background-color: var(--issue-color-light);
+      border: 1px solid var(--pill-error-border);
+      background-color: var(--pill-error-background);
     }
 
     &.alert {
-      border: 1px solid var(--potential-color);
-      background-color: var(--potential-color-light);
+      border: 1px solid var(--pill-warning-border);
+      background-color: var(--pill-warning-background);
     }
 
     &.success {
-      border: 1px solid var(--success-color);
-      background-color: var(--success-color-light);
+      border: 1px solid var(--pill-success-border);
+      background-color: var(--pill-success-background);
     }
 
     &.info {
@@ -47,6 +47,7 @@
     &:hover {
       .closeButton {
         background-color: var(--white);
+        border-color: var(--border-color);
       }
     }
 
@@ -62,9 +63,11 @@
       position: absolute;
       top: .5rem;
       right: .5rem;
-      padding: 0.15rem;
+      padding: 0.25rem;
       border-radius: 2rem;
       background-color: transparent;
+      border: 1px solid transparent;
+      box-shadow: none;
     }
   }
 
@@ -79,7 +82,7 @@
       height: 100%;
 
       &.error {
-        background-color: var(--issue-color);
+        background-color: var(--error-color);
       }
 
       &.alert {
@@ -87,7 +90,7 @@
       }
 
       &.success {
-        background-color: var(--success-color);
+        background-color: var(--pill-success-text);
       }
 
       &.info {

@@ -5,21 +5,21 @@ import './ToggleSwitch.css'
 export default function ToggleSwitch({
     labelId,
     initialValue = false,
-    updateToggle
+    updateToggle,
+    isDisabled = false,
+    small = false
 }) {
 
     const [toggleValue, setToggleValue] = useState(initialValue)
 
-    useEffect(() => {
-        updateToggle(toggleValue)
-    }, [toggleValue])
-
     const handleClick = () => {
-        setToggleValue(!toggleValue)
+        let newValue = !toggleValue
+        setToggleValue(newValue)
+        updateToggle(newValue)
     }
 
     return (
-        <div className="css-switch">
+        <div className={`css-switch${small ? ' small' : ''}`}>
             <input
                 tabIndex="-1"
                 type="checkbox"
@@ -39,6 +39,8 @@ export default function ToggleSwitch({
                 tabIndex="0"
                 role="checkbox"
                 aria-checked={toggleValue}
+                aria-disabled={isDisabled}
+                disabled={isDisabled}
             />
         </div>
     )

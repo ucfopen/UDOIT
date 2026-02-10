@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react'
 import FixIssuesFilters from './Widgets/FixIssuesFilters'
 import FixIssuesList from './Widgets/FixIssuesList'
+import LearnMore from './Widgets/LearnMore'
 import UfixitWidget from './Widgets/UfixitWidget'
 import FixIssuesContentPreview from './Widgets/FixIssuesContentPreview'
 import LeftArrowIcon from './Icons/LeftArrowIcon'
 import RightArrowIcon from './Icons/RightArrowIcon'
-import { formNameFromRule } from '../Services/Ufixit'
+import CloseIcon from './Icons/CloseIcon'
+import { FORM_CLASSIFICATIONS, formFromIssue, formNameFromRule, formNames } from '../Services/Ufixit'
 import * as Html from '../Services/Html'
 import Api from '../Services/Api'
 
@@ -62,10 +64,18 @@ export default function FixIssuesPage({
     [FILTER.TYPE.MODULE]: FILTER.ALL,
   }
 
+  const WIDGET_STATE = settings.WIDGET_STATE
+
+  const dialogId = "issue-dialog"
+
   const [activeIssue, setActiveIssue] = useState(null)
   const [tempActiveIssue, setTempActiveIssue] = useState(null)
   const [activeContentItem, setActiveContentItem] = useState(null)
+  const [tempActiveContentItem, setTempActiveContentItem] = useState(null)
   const [contentItemsBeingScanned, setContentItemsBeingScanned] = useState([])
+  const [showLearnMore, setShowLearnMore] = useState(false)
+  const [markAsReviewed, setMarkAsReviewed] = useState(false)
+  const [formInvalid, setFormInvalid] = useState(true)
   const [isErrorFoundInContent, setIsErrorFoundInContent] = useState(false)
   const [searchTerm, setSearchTerm] = useState('')
   const [activeFilters, setActiveFilters] = useState(defaultFilters)
@@ -74,6 +84,19 @@ export default function FixIssuesPage({
   const [groupedList, setGroupedList] = useState([])
   const [widgetState, setWidgetState] = useState(settings.WIDGET_STATE.LOADING)
   const [liveUpdateToggle, setLiveUpdateToggle] = useState(true)
+  const [clickedInfo, setClickedInfo] = useState({})
+
+  const [elementFocus, setElementFocus] = useState(true)
+
+  const getSectionTitles = () => {
+    let sectionTitles = {}
+    report.contentSections.forEach((section) => {
+      sectionTitles[section.id] = section.title
+    })
+    return sectionTitles
+  }
+
+  const sectionTitles = getSectionTitles()
 
   // The database stores and returns certain issue data, but it needs additional attributes in order to
   // be really responsive on the front end. This function adds those attributes and stores the database
@@ -91,6 +114,7 @@ export default function FixIssuesPage({
     
     let issueContentType = FILTER.ALL
     let issueSectionIds = []
+    let issueSectionNames = []
     let published = true
 
     // PHPAlly returns a contentItemId that we can use to get the content type
@@ -114,9 +138,12 @@ export default function FixIssuesPage({
         issueContentType = contentTypeMap[tempContentType]
       }
 
-      // See if the issue's content is listed in one of the sections
-
       issueSectionIds = tempContentItem.sections || []
+      issueSectionIds.forEach((sectionId) => {
+        if(sectionTitles[sectionId]) {
+          issueSectionNames.push(sectionTitles[sectionId])
+        }
+      })
 
       if(tempContentItem.published === false) {
         published = false
@@ -150,6 +177,7 @@ export default function FixIssuesPage({
       status: issueResolution,
       published: published,
       sectionIds: issueSectionIds,
+      sectionNames: issueSectionNames,
       keywords: createKeywords(issue, formLabel, tempContentItem),
       scanRuleId: issue.scanRuleId,
       formName: formName,
@@ -193,6 +221,11 @@ export default function FixIssuesPage({
     uniqueFormLabels.forEach((formLabel) => {
       const issues = tempFilteredContent.filter((issue) => issue.formLabel === formLabel)
       tempGroupedList.push({ formLabel: formLabel, issues })
+    })
+
+    let lastLabel = t('form.review_only.title')
+    tempGroupedList.sort((a, b) => {
+      return (a.issues.length > b.issues.length && a.formLabel !== lastLabel) ? -1 : 1
     })
 
     return tempGroupedList
@@ -304,33 +337,28 @@ export default function FixIssuesPage({
     if(activeIssue === null) {
       setActiveContentItem(null)
       setTempActiveIssue(null)
-      setWidgetState(settings.WIDGET_STATE.LIST)
+      setWidgetState(WIDGET_STATE.LIST)
+      setShowLearnMore(false)
+      closeDialog()
       return
     }
   
     setWidgetState(settings.WIDGET_STATE.FIXIT)
     const activeIssueClone = JSON.parse(JSON.stringify(activeIssue))
 
-    if(activeIssue.contentType === FILTER.FILE_OBJECT) {
-      setTempActiveIssue(activeIssueClone)
-      setActiveContentItem(null)
-      setIsErrorFoundInContent(true)
-      return
-    }
-
     activeIssueClone.issueData.initialHtml = Html.getIssueHtml(activeIssueClone.issueData)
     setTempActiveIssue(activeIssueClone)
-
-    // If we've already downloaded the content for this issue, use that
+    
+    // If we already downloaded the content for this issue, use that
     const contentItemId = activeIssue.issueData.contentItemId
     if(contentItemCache[contentItemId]) {
       setActiveContentItem(contentItemCache[contentItemId])
-      return
     }
-
-    // Otherwise, clear the old content and download the content for this issue
-    setActiveContentItem(null)
-    loadContentItemByIssue(activeIssue)
+    else {
+      setActiveContentItem(null)
+    }
+    setShowLearnMore(false)
+    openDialog()
 
   }, [activeIssue])
 
@@ -340,7 +368,17 @@ export default function FixIssuesPage({
       tempContentItem = contentItemCache[activeIssue.issueData.contentItemId] || null
     }
     setActiveContentItem(tempContentItem)
+    setTempActiveContentItem(tempContentItem)
   }, [contentItemCache])
+
+  useEffect(() => {
+    if(showLearnMore) {
+      document.getElementById('btn-learn-more-back')?.focus()
+    }
+    else {
+      document.getElementById('btn-learn-more-open')?.focus()
+    }
+  }, [showLearnMore])
 
   const getFilteredContent = (allIssues, includedIssueId = null) => {
     let filteredList = []
@@ -432,25 +470,6 @@ export default function FixIssuesPage({
     return filteredList
   }
 
-  const loadContentItemByIssue = (issue) => {
-    let contentItemId = issue?.issueData?.contentItemId || null
-    if(contentItemId) {
-      addItemToBeingScanned(contentItemId)
-      let api = new Api(settings)
-      api.getIssueContent(issue.id)
-      .then((response) => {
-        return response.json()
-      }).then((data) => {
-        if(data?.data?.contentItem) {
-          const newContentItem = data.data.contentItem
-          addContentItemToCache(newContentItem)
-        }
-        removeItemFromBeingScanned(contentItemId)
-      })
-    }
-  }
-
-
   // All local information must be updated to match the new issue state:
   // - activeIssue
   // - unfilteredIssues
@@ -520,11 +539,129 @@ export default function FixIssuesPage({
     return tempDoc.body.innerHTML
   }
 
-  const handleIssueSave = async (issue, markAsReviewed = false) => {
-
-    if(!activeContentItem || !activeContentItem?.body || !issue) {
+  const handleContentIssueSave = (issue, contentItem, markAsReviewed = false) => {
+    console.log("Coming into main function")
+    if(!contentItem || !contentItem?.body || !issue) {
       return
     }
+
+    console.log("Test")
+    updateActiveSessionIssue(issue.id, settings.ISSUE_STATE.SAVING)
+    addItemToBeingScanned(issue.contentItemId)
+
+    const specificClassName = `udoit-ignore-${issue.scanRuleId.replaceAll("_", "-")}`
+    if (markAsReviewed) {
+      if (issue.status === 1) {
+        issue.status = 3
+        issue.newHtml = Html.toString(Html.addClass(issue.newHtml, specificClassName))
+      } else if (issue.status === 0) {
+        issue.status = 2
+        issue.newHtml = Html.toString(Html.addClass(issue.sourceHtml, specificClassName))
+      }
+    } else {
+      if (issue.status === 3) {
+        issue.status = 1
+        issue.newHtml = Html.toString(Html.removeClass(issue.newHtml, specificClassName))
+      } else if (issue.status === 2) {
+        issue.status = 0
+        issue.newHtml = Html.toString(Html.removeClass(issue.sourceHtml, specificClassName))
+      }
+    }
+
+    let fullPageHtml = contentItem.body
+    let fullPageDoc = new DOMParser().parseFromString(fullPageHtml, 'text/html')
+    let newElement = Html.findElementWithError(fullPageDoc, issue?.newHtml)
+    let newXpath = Html.findXpathFromElement(newElement)
+    if(newXpath) {
+      issue.xpath = newXpath
+    }
+    else {
+      issue.xpath = ""
+    }
+    activeContentItem.body = fullPageHtml
+
+    // Save the updated issue using the LMS API
+    let api = new Api(settings)
+    try {
+      api.saveIssue(issue, fullPageHtml, markAsReviewed)
+      .then((responseStr) => {
+        // Check for HTTP errors before parsing JSON
+          if (!responseStr.ok) {
+            processServerError(responseStr)
+            updateActiveSessionIssue(issue.id, settings.ISSUE_STATE.ERROR)
+            removeItemFromBeingScanned(issue.contentItemId)
+            return null
+          }
+          return responseStr.json()
+      })
+      .then((response) => {
+
+        // If the save falied, show the relevant error message
+        if (response.data.failed) {
+          updateActiveSessionIssue(issue.id, settings.ISSUE_STATE.ERROR)
+          removeItemFromBeingScanned(issue.contentItemId)
+          response.messages.forEach((msg) => addMessage(msg))
+            
+          if (Array.isArray(response.data.issues)) {
+            response.data.issues.forEach((issue) => {
+              addMessage({
+                severity: 'error',
+                message: t(`form.error.${issue.ruleId}`)
+              })
+            })
+          }
+
+          if (Array.isArray(response.data.errors)) {
+            response.data.errors.forEach((error) => {
+              addMessage({
+                severity: 'error',
+                message: error
+              })
+            })
+          }
+        }
+        else {
+          
+          // If the save was successful, show the success message
+          response.messages.forEach((msg) => addMessage(msg))
+          
+          if (response.data.issue) {
+            // Update the report object by rescanning the content
+            const newIssue = Object.assign({}, issue, response.data.issue)
+            // const formattedData = formatIssueData(newIssue)
+            // setActiveIssue(formattedData)
+            updateActiveSessionIssue(newIssue.id, settings.ISSUE_STATE.SAVED)
+
+            api.scanContent(newIssue.contentItemId)
+              .then((responseStr) => responseStr.json())
+              .then((res) => { 
+                const tempReport = Object.assign({}, res?.data)
+                processNewReport(tempReport)
+                removeItemFromBeingScanned(newIssue.contentItemId)
+              })
+          }
+          else {
+            // setActiveIssue(formatIssueData(issue))
+            updateActiveSessionIssue(issue.id, settings.ISSUE_STATE.SAVED)
+            removeItemFromBeingScanned(issue.contentItemId)
+          }
+        }
+      })
+    } catch (error) {
+      console.error(error)
+      updateActiveSessionIssue(issue.id, settings.ISSUE_STATE.ERROR)
+    }
+
+
+  }
+
+  const handleIssueSave = async () => {
+
+    if(!activeContentItem || !activeContentItem?.body || !tempActiveIssue || !tempActiveIssue?.issueData) {
+      return
+    }
+
+    let issue = tempActiveIssue.issueData
 
     updateActiveSessionIssue(issue.id, settings.ISSUE_STATE.SAVING)
     addItemToBeingScanned(issue.contentItemId)
@@ -623,6 +760,10 @@ export default function FixIssuesPage({
     }
   }
 
+  const handleActiveContentItem = (newContentItem) => {
+    setTempActiveContentItem(newContentItem)
+  }
+  
   const updateActiveFilters = (filter, value) => {
     setActiveFilters(Object.assign({}, activeFilters, {[filter]: value}))
   }
@@ -642,22 +783,6 @@ export default function FixIssuesPage({
       newIndex = 0
     }
     setActiveIssue(filteredIssues[newIndex])
-  }
-
-  const toggleListView = () => {
-    if (widgetState === settings.WIDGET_STATE.LIST) {
-      if(activeIssue) {
-        setWidgetState(settings.WIDGET_STATE.FIXIT)
-      }
-      else {
-        setWidgetState(settings.WIDGET_STATE.NO_RESULTS)
-      }
-    }
-    else {
-      setWidgetState(settings.WIDGET_STATE.LIST)
-      setActiveIssue(null)
-      setActiveContentItem(null)
-    }
   }
 
   const getContentById = (contentId) => {
@@ -690,12 +815,44 @@ export default function FixIssuesPage({
     setLiveUpdateToggle(!liveUpdateToggle)
   }
 
+  const isDialogOpen = () => {
+    const dialog = document.getElementById(dialogId)
+    return dialog && dialog.open
+  }
+
+  const openDialog = () => {
+    setWidgetState(WIDGET_STATE.FIXIT)
+
+    const dialog = document.getElementById(dialogId)
+    if(dialog) {
+      dialog.showModal()
+
+      const title = dialog.querySelector('#dialog-title')
+      if(title) {
+        title.focus()
+      }
+    }
+  }
+
+  const closeDialog = () => {
+    setWidgetState(WIDGET_STATE.LIST)
+    setActiveIssue(null)
+
+    const dialog = document.getElementById(dialogId)
+    if(dialog) {
+      dialog.close()
+    }
+  }
+
   return (
     <>
       { widgetState === settings.WIDGET_STATE.LOADING ? (
         <></>
-      ) : widgetState === settings.WIDGET_STATE.LIST ? (
+      ) : (
         <>
+          <h1 className="pageTitle">{t('barriers.title')}</h1>
+          <p className="pageSubtitle">{t('barriers.subtitle')}</p>
+
           <FixIssuesFilters
             t={t}
             settings={settings}
@@ -715,61 +872,117 @@ export default function FixIssuesPage({
             setActiveIssue={setActiveIssue}
           />
         </>
-      ) : (
-        <div className="flex-row gap-2 w-100 h-100">
-          <section className='ufixit-widget-container'>
-            <button onClick={toggleListView} className="btn btn-link btn-icon-left btn-small mb-2">
-              <LeftArrowIcon className="icon-sm link-color" />{t('fix.button.list')}
-            </button>
-            { tempActiveIssue ? (  
-                <UfixitWidget
-                  t={t}
-                  settings={settings}
+      ) }
+      <dialog id={dialogId} className="dialog-full-screen" onClose={closeDialog} aria-labelledby="dialog-title">
+        <div className="flex-column h-100">
+          <div className="dialog-header">
+            <h2 id="dialog-title" tabIndex="-1">{tempActiveIssue?.formLabel}</h2>
+            <CloseIcon
+              onClick={closeDialog}
+              onKeyDown={(e) => {
+                if(e.key === 'Enter' || e.key === ' ') {
+                  closeDialog()
+                }
+              }}
+              className="close-icon icon-lg text-color"
+              tabIndex="0"
+              role="button"
+              alt={t('fix.button.close')}
+              title={t('fix.button.close')} />
+          </div>
+          <div className="dialog-content">
+            <div className="flex-row w-100 h-100">
+              <section className='ufixit-widget-container'>
+                { tempActiveIssue && (
+                  <>
+                    <LearnMore
+                      t={t}
+                      settings={settings}
 
-                  activeContentItem={activeContentItem}
-                  addMessage={addMessage}
-                  handleIssueSave={handleIssueSave}
-                  isContentLoading={contentItemsBeingScanned.includes(tempActiveIssue?.issueData?.contentItemId)}
-                  isErrorFoundInContent={isErrorFoundInContent}
-                  setTempActiveIssue={setTempActiveIssue}
-                  tempActiveIssue={tempActiveIssue}
-                  triggerLiveUpdate={triggerLiveUpdate}
-                />
-            ) : ''}
-          </section>
-          <section className="ufixit-content-container">
-            {filteredIssues.length > 0 && (
-              <FixIssuesContentPreview
-                t={t}
-                settings={settings}
+                      tempActiveIssue={tempActiveIssue}
+                      showLearnMore={showLearnMore}
+                      hideLearnMore={() => setShowLearnMore(false)}
+                    />
+                    
+                    <UfixitWidget
+                      t={t}
+                      settings={settings}
 
-                activeContentItem={activeContentItem}
-                activeIssue={tempActiveIssue}
-                contentItemsBeingScanned={contentItemsBeingScanned}
-                liveUpdateToggle={liveUpdateToggle}
-                setIsErrorFoundInContent={setIsErrorFoundInContent}
-              />
-            )}
-            <div className="flex-row justify-content-end gap-2 mt-3">
+                      activeContentItem={activeContentItem}
+                      handleActiveContentItem={handleActiveContentItem}
+                      addMessage={addMessage}
+                      handleIssueSave={handleIssueSave}
+                      isContentLoading={contentItemsBeingScanned.includes(tempActiveIssue?.issueData?.contentItemId)}
+                      isErrorFoundInContent={isErrorFoundInContent}
+                      sessionIssues={sessionIssues}
+                      setTempActiveIssue={setTempActiveIssue}
+                      severity={tempActiveIssue.severity}
+                      tempActiveIssue={tempActiveIssue}
+                      triggerLiveUpdate={triggerLiveUpdate}
+                      markAsReviewed={markAsReviewed}
+                      setMarkAsReviewed={setMarkAsReviewed}
+                      setFormInvalid={setFormInvalid}
+                      handleLearnMoreClick={() => setShowLearnMore(true)}
+                      showLearnMore={showLearnMore}
+                      clickedInfo={clickedInfo}
+                      setClickedInfo={setClickedInfo}
+                      handleContentIssueSave={handleContentIssueSave}
+                      setElementFocus={setElementFocus}
+                    />
+                  </>
+                )}
+              </section>
+              <section className="ufixit-content-container">
+                {filteredIssues.length > 0 && (
+                  <FixIssuesContentPreview
+                    t={t}
+                    settings={settings}
+
+                    activeContentItem={activeContentItem}
+                    activeIssue={tempActiveIssue}
+                    contentItemsBeingScanned={contentItemsBeingScanned}
+                    liveUpdateToggle={liveUpdateToggle}
+                    setIsErrorFoundInContent={setIsErrorFoundInContent}
+                    clickedInfo={clickedInfo}
+                    setClickedInfo={setClickedInfo}
+                    elementFocus={elementFocus}
+                  />
+                )}
+              </section>
+            </div>
+          </div>
+          <div className="dialog-footer">
+            <div className="flex-row gap-2 align-items-center">
               <button
-                className={`btn btn-small btn-link btn-icon-left ${filteredIssues.length < 2 ? 'disabled' : ''}`}
+                className='btn btn-small btn-link btn-icon-left'
                 onClick={() => nextIssue(true)}
+                disabled={filteredIssues.length < 2}
                 tabIndex="0">
-                <LeftArrowIcon className={`icon-sm ` + (filteredIssues.length < 2 ? 'gray' : 'link-color')} />
-                <div className="flex-column justify-content-center">{t('fix.button.previous')}</div>
+                <LeftArrowIcon className='icon-sm' />
+                <div className="align-self-center">{t('fix.button.previous')}</div>
               </button>
 
               <button
-                className={`btn btn-small btn-link btn-icon-right ${filteredIssues.length < 2 ? 'disabled' : ''}`}
+                className='btn btn-small btn-link btn-icon-right'
                 onClick={() => nextIssue()}
+                disabled={filteredIssues.length < 2}
                 tabIndex="0">
-                <div className="flex-column justify-content-center">{t('fix.button.next')}</div>
-                <RightArrowIcon className={`icon-sm ` + (filteredIssues.length < 2 ? 'gray' : 'link-color')} />
+                <div className="align-self-center">{t('fix.button.next')}</div>
+                <RightArrowIcon className='icon-sm' />
               </button>
             </div>
-          </section>
+            <div className="align-self-center">
+              <button
+                onClick={handleIssueSave}
+                className="btn btn-primary btn-icon-left"
+                disabled={formInvalid || !isErrorFoundInContent || showLearnMore || contentItemsBeingScanned.includes(tempActiveIssue?.issueData?.contentItemId)}
+                tabIndex="0">
+                {t('form.submit')}
+              </button>
+            </div>
+          </div>
         </div>
-      )}
+      </dialog>
     </>
   )
 }

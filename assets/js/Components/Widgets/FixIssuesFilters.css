@@ -1,6 +1,4 @@
 .filter-container {
-  background-color: var(--background-color);
-  border-bottom: 1px solid var(--border-color);
   margin-left: -1rem;
   margin-right: -1rem;
   padding: .5rem 1rem;

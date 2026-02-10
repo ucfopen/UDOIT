@@ -6,8 +6,7 @@ import FileReviewPreview from './Widgets/FileReviewPreview'
 import FileTypeIcon from './Icons/FileTypeIcon'
 import LeftArrowIcon from './Icons/LeftArrowIcon'
 import RightArrowIcon from './Icons/RightArrowIcon'
-import SeverityPotentialIcon from './Icons/SeverityPotentialIcon'
-import FixedIcon from './Icons/FixedIcon'
+import StatusPill from './Widgets/StatusPill'
 import * as Text from '../Services/Text'
 import Api from '../Services/Api'
 
@@ -67,7 +66,6 @@ export default function ReviewFilesPage({
     { id: "type", text: t('fix.label.file_type')},
     { id: "references", text: t('fix.label.references')},
     { id: "date", text: t('fix.label.file_updated')},
-    { id: "size", text: t('fix.label.file_size')},
     { id: "status", text: t('fix.label.status')},
   ]
 
@@ -181,7 +179,7 @@ export default function ReviewFilesPage({
         name: tempFile.contentTitle ? { value: tempFile.contentTitle, display: getFileNameDisplay(tempFile)} : t('label.unknown'),
         type: tempFile.fileData.fileType ? { value: tempFile.fileData.fileType, display: getFileTypeDisplay(tempFile.fileData.fileType)}: t('label.mime.unknown'),
         date: tempFile.fileData.updated ? { value: tempFile.fileData.updated, display: Text.getReadableDateTime(tempFile.fileData.updated)} : t('label.unknown'),
-        size: tempFile.fileData.fileSize ? { value: parseInt(tempFile.fileData.fileSize), display: Text.getReadableFileSize(tempFile.fileData.fileSize) } : t('label.unknown'),
+        /* size: tempFile.fileData.fileSize ? { value: parseInt(tempFile.fileData.fileSize), display: Text.getReadableFileSize(tempFile.fileData.fileSize) } : t('label.unknown'), */
         references: (tempFile.fileData?.references.length) || 0,
         status: tempFile.status ? { value: t('fix.label.status.' + (tempFile.status.toLowerCase())), display: getFileStatusDisplay(tempFile.status)} : '',
         onClick: () => { jumpToFile(tempFile.id) },
@@ -398,14 +396,11 @@ export default function ReviewFilesPage({
 
   const getFileStatusDisplay = (status) => {
     return (
-      <div className={'table-status-container ' + status.toLowerCase()} aria-label={t('fix.label.status.' + (status.toLowerCase()))}>
-        {status === FILTER.UNREVIEWED ? (
-          <SeverityPotentialIcon className="icon-sm align-self-center" aria-hidden="true"/>
-        ) : (
-          <FixedIcon className="icon-sm align-self-center" aria-hidden="true" />
-        )}
-        <div className='pl-2' aria-hidden="true">{t('fix.label.status.' + (status.toLowerCase()))}</div>
-      </div>
+      <StatusPill
+        t={t}
+        settings={settings}
+        issue={{ status: status, severity: ''}}
+        />
     )
     
   }
@@ -935,8 +930,8 @@ const getSectionPostOptions = (newFile, sectionReferences) => {
         <></>
       ) : (
         <>
-          <h1>Review Files</h1>
-          <div className="subheader">Check files for common accessibility issues and update them if necessary.</div>
+          <h1 className="pageTitle">{t('files.title')}</h1>
+          <p className="pageSubtitle">{t('files.subtitle')}</p>
 
           <ReviewFilesFilters
             t={t}
@@ -1027,16 +1022,18 @@ const getSectionPostOptions = (newFile, sectionReferences) => {
           <div className='dialog-footer'>
             <div className="flex-row gap-2">
               <button
-                className={`btn btn-small btn-link btn-icon-left ${filteredFiles.length < 2 ? 'disabled' : ''}`}
+                className='btn btn-small btn-link btn-icon-left'
                 onClick={() => nextFile(true)}
+                disabled={filteredFiles.length < 2}
                 tabIndex="0">
                 <LeftArrowIcon className={`icon-sm ` + (filteredFiles.length < 2 ? 'gray' : 'link-color')} />
                 <div className="flex-column justify-content-center">{t('fix.button.previous')}</div>
               </button>
 
               <button
-                className={`btn btn-small btn-link btn-icon-right ${filteredFiles.length < 2 ? 'disabled' : ''}`}
+                className='btn btn-small btn-link btn-icon-right'
                 onClick={() => nextFile()}
+                disabled={filteredFiles.length < 2}
                 tabIndex="0">
                 <div className="flex-column justify-content-center">{t('fix.button.next')}</div>
                 <RightArrowIcon className={`icon-sm ` + (filteredFiles.length < 2 ? 'gray' : 'link-color')} />

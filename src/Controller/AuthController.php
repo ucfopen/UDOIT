@@ -24,6 +24,8 @@ class AuthController extends AbstractController
 
     private ManagerRegistry $doctrine;
 
+    private $session;
+
     public function __construct(ManagerRegistry $doctrine)
     {
         $this->doctrine = $doctrine;

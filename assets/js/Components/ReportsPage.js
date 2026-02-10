@@ -199,21 +199,20 @@ export default function ReportsPage({t, report, settings, quickSearchTerm}) {
 
   return (
     <div className="report-page-container scrollable">
-      <div className="flex-row justify-content-between gap-4">
-        <h1 className="primary-dark">{t('menu.reports')}</h1>
+      <div className="pageTitleRow">
+        <h1 className="pageTitle">{t('report.title')}</h1>
         { (fetchedReports && reports.length > 0) && (
-          <div className="flex-column justify-content-center">
-            <button className="btn-small btn-primary btn-icon-left" onClick={()=> printReport()}>
-              <PrintIcon className="icon-md" />
-              {t('report.button.print')}
-            </button>
-          </div>
+          <button className="btn-small btn-icon-left btn-secondary" onClick={()=> printReport()}>
+            <PrintIcon className="icon-md" />
+            {t('report.button.print')}
+          </button>
         )}
       </div>
+      <p className="pageSubtitle">{t('report.subtitle')}</p>
       { (!fetchedReports) && (
         <div className="mt-3 mb-3 flex-row justify-content-center">
           <div className="flex-column justify-content-center me-3">
-            <ProgressIcon className="icon-lg udoit-suggestion spinner" />
+            <ProgressIcon className="icon-lg udoit-progress spinner" />
           </div>
           <div className="flex-column justify-content-center">
             <h2 className="mt-0 mb-0">{t('report.label.loading_reports')}</h2>

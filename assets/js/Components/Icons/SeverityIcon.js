@@ -27,7 +27,7 @@ export default function SeverityIcon(props) {
 
   switch(props.type) {
     case('ISSUE'):
-      newProps.className += 'udoit-issue'
+      newProps.className += 'udoit-issue-highlight'
       if(filled) {
         return <SeverityIssueIconFilled {...newProps} />
       }
@@ -35,23 +35,15 @@ export default function SeverityIcon(props) {
         return <SeverityIssueIcon {...newProps} />
       }
     case('POTENTIAL'):
-      newProps.className += 'udoit-potential'
+      newProps.className += 'udoit-potential-highlight'
       if(filled) {
         return <SeverityPotentialIconFilled {...newProps} />
       }
       else {
         return <SeverityPotentialIcon {...newProps} />
       }
-    case('SUGGESTION'):
-      newProps.className += 'udoit-suggestion'
-      if(filled) {
-        return <SeveritySuggestionIconFilled {...newProps} />
-      }
-      else {
-        return <SeveritySuggestionIcon {...newProps} />
-      }
     case('FILE'):
-      newProps.className += 'udoit-suggestion'
+      newProps.className += 'udoit-file-highlight'
       if(filled) {
         return <ContentFileIconFilled {...newProps} />
       }

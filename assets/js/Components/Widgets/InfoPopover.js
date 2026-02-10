@@ -5,7 +5,7 @@ import './InfoPopover.css'
 export default function InfoPopover({
   content,
   t,
-  label = t('fix.button.close_learn_more'),
+  label = t('fix.button.close'),
   iconSize = 18,
   triggerAriaLabel = t('report.button.issue_tooltip')
 }) {

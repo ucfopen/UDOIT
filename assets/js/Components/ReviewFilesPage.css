@@ -8,6 +8,7 @@
       padding: .38rem .38rem;
       background: var(--gray-lighter);
       border-radius: 8px;
+      height: fit-content;
 
       svg {
         fill: transparent;
@@ -19,8 +20,7 @@
     .fileName {
       font-size: 1.25em;
       font-weight: 500;
-      max-width: 30em;
-      white-space: nowrap;
+      max-width: 25em;
       text-overflow: ellipsis;
       overflow: hidden;
     }

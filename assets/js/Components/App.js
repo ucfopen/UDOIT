@@ -1,4 +1,6 @@
 import React, { useState, useCallback, useEffect } from 'react'
+
+import '../../css/udoit4-theme.css'
 import Header from './Header'
 import WelcomePage from './WelcomePage'
 import HomePage from './HomePage'
@@ -9,7 +11,7 @@ import SettingsPage from './SettingsPage'
 import Api from '../Services/Api'
 import MessageTray from './Widgets/MessageTray'
 import { analyzeReport } from '../Services/Report'
-import { ISSUE_STATE, WIDGET_STATE, ISSUE_FILTER, FILE_FILTER, FILE_TYPES, FILE_TYPE_MAP, DEFAULT_USER_SETTINGS } from '../Services/Settings'
+import { ISSUE_STATE, WIDGET_STATE, ISSUE_FILTER, FILE_FILTER, FILE_TYPES, FILE_TYPE_MAP, DEFAULT_USER_SETTINGS, UFIXIT_OPTIONS } from '../Services/Settings'
 
 
 export default function App(initialData) {
@@ -25,7 +27,8 @@ export default function App(initialData) {
     { FILE_FILTER },
     { FILE_TYPES },
     { FILE_TYPE_MAP },
-    { DEFAULT_USER_SETTINGS }
+    { DEFAULT_USER_SETTINGS },
+    { UFIXIT_OPTIONS }
   ))
   const [sections, setSections] = useState([])
 
@@ -102,7 +105,7 @@ export default function App(initialData) {
             newLanguageSettings.labels = data.labels
             setSettings(newLanguageSettings)
           }
-          setUntranslatedMessage({ message: 'msg.settings.updated', severity: 'success', visible: true })
+          // setUntranslatedMessage({ message: 'msg.settings.updated', severity: 'success', visible: true })
         }
         else {
           setSettings(oldSettings)
@@ -366,7 +369,8 @@ export default function App(initialData) {
          className={`flex-column flex-grow-1 `
           + `${settings?.user?.roles?.font_size || settings.DEFAULT_USER_SETTINGS.FONT_SIZE} `
           + `${settings?.user?.roles?.font_family || settings.DEFAULT_USER_SETTINGS.FONT_FAMILY} `
-          + `${settings?.user?.roles?.dark_mode ? 'dark-mode' : ''}`}>
+          + `${settings?.user?.roles?.dark_mode ? 'dark-mode' : ''} `
+          + `${('summary' === navigation && welcomeClosed) ? 'clear-background' : ''}`}>
       { !welcomeClosed ?
         ( <WelcomePage
             t={t}
@@ -384,7 +388,7 @@ export default function App(initialData) {
               handleNavigation={handleNavigation}
              />
 
-            <main role="main">
+            <main role="main" id="main-content">
               {('summary' === navigation) &&
                 <HomePage
                   t={t}

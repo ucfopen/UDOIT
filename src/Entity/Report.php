@@ -50,10 +50,13 @@ class Report implements \JsonSerializable
 
     private $filesReviewed;
 
+    private $queueItems;
+
+    private $issues;
+
     // Constructor
     public function __construct()
     {
-        $this->queue_items = new ArrayCollection();
         $this->queueItems = new ArrayCollection();
         $this->issues = new ArrayCollection();
     }

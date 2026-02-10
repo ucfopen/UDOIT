@@ -9,7 +9,6 @@ import ContentQuizIcon from '../Icons/ContentQuizIcon'
 import ContentSyllabusIcon from '../Icons/ContentSyllabusIcon'
 import SeverityIssueIcon from '../Icons/SeverityIssueIcon'
 import SeverityPotentialIcon from '../Icons/SeverityPotentialIcon'
-import SeveritySuggestionIcon from '../Icons/SeveritySuggestionIcon'
 import FixedIcon from '../Icons/FixedIcon'
 import ResolvedIcon from '../Icons/ResolvedIcon'
 import SortIcon from '../Icons/SortIcon'
@@ -90,8 +89,6 @@ export default function Combobox({
       case settings.ISSUE_FILTER.POTENTIAL:
       case settings.ISSUE_FILTER.UNREVIEWED:
         return <SeverityPotentialIcon className={`${size} color-potential`} />
-      case settings.ISSUE_FILTER.SUGGESTION:
-        return <SeveritySuggestionIcon className={`${size} color-suggestion`} />
       case settings.ISSUE_FILTER.ANNOUNCEMENT:
         return <ContentAnnouncementIcon className={`${size} gray`} />
       case settings.ISSUE_FILTER.ASSIGNMENT:
@@ -428,16 +425,6 @@ export default function Combobox({
     updateMenuState(false)
   }
 
-  const onOptionMouseDown = () => {
-    // Clicking an option will cause a blur event,
-    // but we don't want to perform the default keyboard blur action
-    // let containerEl = document.getElementById('combo-container-' + id)
-    // if(!containerEl) {
-    //   return
-    // }
-    // containerEl.ignoreBlur = true
-  }
-
   const selectOption = (index) => {
     setActiveIndex(index)
     setSelectedIndex(index)
@@ -474,12 +461,14 @@ export default function Combobox({
     <div
       id={'combo-container-' + id}
       className="combo-container">
-      <label        // labelEl
-        id={'combo-label-' + id}
-        className="subtext align-self-center pe-2"
-        onClick={() => onLabelClick()}>
-          {label}
-      </label>
+      {label !== '' && (
+        <label        // labelEl
+          id={'combo-label-' + id}
+          className="subtext align-self-center pe-2 text-end"
+          onClick={() => onLabelClick()}>
+            {label}
+        </label>
+      )}
       <div className="combo-interactive-container flex-column">
         <div        // 'comboEl'
           id={'combo-' + id}
