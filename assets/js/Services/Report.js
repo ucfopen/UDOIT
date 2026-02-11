@@ -149,7 +149,7 @@ const checkImgAltBackground = (issue, element) => {
   return gradientRegex.test(style);
 };
 
-const runCustomChecks = (issue, element, parsedDocument) => {
+const runCustomChecks = (issue, element, parsedDocument = null) => {
   if(issue.scanRuleId === 'style_color_misuse') {
     return checkStyleColorMisuse(issue, element)
   }
@@ -223,7 +223,15 @@ const getSectionsFromFile = (contentSections, fileData) => {
     let tempSectionId = section.id
     section.items.forEach((item) => {
       if(item.type === 'File' && item.content_id && item.content_id.toString() === fileData.lmsFileId.toString()) {
-        fileSections.push(tempSectionId.toString())
+        fileSections.push({
+          moduleId: tempSectionId,
+          itemPosition: item.position,
+          contentItemTitle: section.title,
+          contentItemUrl: section.url,
+          contentType: 'section',
+          indent: item.indent,
+          itemId: item.id
+        })
       }
     })
   })
@@ -251,7 +259,6 @@ const getReferenceFromSection = (contentSections, sectionId) => {
 
 export function analyzeReport(report, ISSUE_STATE) {
   let tempReport = {
-    contentItems: {...report.contentItems},
     contentFixed: report.contentFixed || 0,
     contentResolved: report.contentResolved || 0,
     contentHandled: (report.contentFixed || 0) + (report.contentResolved || 0),
@@ -264,6 +271,7 @@ export function analyzeReport(report, ISSUE_STATE) {
     ready: report.ready || false,
   }
 
+  let usedContentItems = {}
   let parsedDocuments = {}
   let activeIssues = []
   let scanCounts = {
@@ -274,6 +282,7 @@ export function analyzeReport(report, ISSUE_STATE) {
   }
   let scanRules = {}
   let sessionIssues = {}
+  let sessionFiles = {}
   let currentTime = new Date()
   let millisecondsInADay = 86400000 // 1000 * 60 * 60 * 24
 
@@ -286,7 +295,7 @@ export function analyzeReport(report, ISSUE_STATE) {
     contentItem.sections = getSectionsFromContentItem(report.contentSections, contentItem)
     if(contentItem.body) {
       let tempBody = parser.parseFromString(contentItem.body, 'text/html')
-
+ 
       // Get all of the links to files in the content item.
       let links = tempBody.getElementsByTagName('a')
       const fileUrlPattern = /\/files\/(\d+)/
@@ -301,17 +310,19 @@ export function analyzeReport(report, ISSUE_STATE) {
               fileReferences[fileId] = []
             }
             fileReferences[fileId].push({
+              contentItemId: contentItem.id,
+              contentItemBody: contentItem.body,
               contentItemTitle: contentItem.title,
               contentItemUrl: contentItem.url,
               contentItemLmsId: contentItem.lmsContentId,
               contentType: contentItem.contentType,
-              sectionIds: contentItem.sections,
             })
           }
         }
       }
 
       parsedDocuments[contentItem.id] = tempBody
+      usedContentItems[contentItem.id] = contentItem
     }
   })
 
@@ -337,16 +348,18 @@ export function analyzeReport(report, ISSUE_STATE) {
             let specificError = 'udoit-ignore-' + issue.scanRuleId.replaceAll("_", "-")
             let classesArray = elementClasses.split(' ')
             if(classesArray.includes('phpally-ignore') || classesArray.includes(specificError)) {
+              // If the scanner found it, but it has an 'ignore' class, don't include it.
               issueIgnored = true
             }
           }
           
-          // For the text_block_heading rule, we need to check if the element is inside a table cell.
           if(runCustomChecks(issue, element, parsedDocument)) {
+            // If there are custom checks that indicate we should ignore this issue, do so.
             issueIgnored = true
           }
         }
         else {
+          // If we can't find the element in the content item body, we have to ignore the issue.
           issueIgnored = true
         }
       }
@@ -373,6 +386,10 @@ export function analyzeReport(report, ISSUE_STATE) {
         scanCounts.suggestions += 1
       }
 
+      if(!usedContentItems[issue.contentItemId] && report.contentItems[issue.contentItemId]) {
+        usedContentItems[issue.contentItemId] = report.contentItems[issue.contentItemId]
+      }
+
       if(!(issue.scanRuleId in scanRules)) {
         scanRules[issue.scanRuleId] = 1
       }
@@ -387,27 +404,11 @@ export function analyzeReport(report, ISSUE_STATE) {
   // each reference to a file should add its parent section to the list.
   // We ALSO want a list of references to include the section(s) the file appears in outside of
   // references (like when the file is linked in the modules directly).
+  const lmsIdToFileMap = {}
   report.files.forEach((file) => {
-    file.sections = getSectionsFromFile(report.contentSections, file)
-    let sectionReferences = []
-    file.sections.forEach((sectionId) => {
-      let sectionReference = getReferenceFromSection(report.contentSections, sectionId)
-      if(sectionReference) {
-        sectionReferences.push(sectionReference)
-      }
-    })
     file.references = fileReferences[parseInt(file.lmsFileId)] || []
-    file.references.forEach((reference) => {
-      let referenceSections = reference.sectionIds
-      referenceSections.forEach((sectionId) => {
-        if(!file.sections.includes(sectionId)) {
-          file.sections.push(sectionId)
-        }
-      })
-    })
-    sectionReferences.forEach((sectionReference) => {
-      file.references.push(sectionReference)
-    })
+    const sectionRefs =  getSectionsFromFile(report.contentSections, file)
+    file.sectionRefs = sectionRefs ? sectionRefs : []
   })
 
   let tempFilesReviewed = 0
@@ -418,13 +419,34 @@ export function analyzeReport(report, ISSUE_STATE) {
     else {
       scanCounts.files += 1
     }
+
+    lmsIdToFileMap[file.lmsFileId] = file
   })
 
+  report.files.forEach((file) => {
+    if(lmsIdToFileMap[file.metadata.replacementFileId]){
+       file.replacement = lmsIdToFileMap[file.metadata.replacementFileId]
+       let tempFile = file.replacement
+       while(tempFile.replacement){
+        tempFile = tempFile.replacement
+       }
+       file.replacement = tempFile
+    }
+    if(file.reviewed){
+      const fixedOn = new Date(file.updated)
+      if(currentTime - fixedOn < millisecondsInADay){
+        sessionFiles[file.id] = file.replacement ? ISSUE_STATE.SAVED : ISSUE_STATE.RESOLVED
+      }
+    }
+  })
+  
   tempReport.issues = activeIssues
   tempReport.scanCounts = scanCounts
   tempReport.scanRules = scanRules
   tempReport.files = {...report.files}
+  tempReport.contentItems = usedContentItems
   tempReport.sessionIssues = sessionIssues
+  tempReport.sessionFiles = sessionFiles
   tempReport.filesReviewed = tempFilesReviewed
 
   return tempReport
