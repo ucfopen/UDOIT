@@ -126,6 +126,11 @@ class IssuesController extends ApiController
             $apiResponse->addMessage($e->getMessage(), 'error');
         }
 
+        $contentItem = $issue->getContentItem();
+        if ($contentItem->getContentType() == "quiz_question") {
+          $apiResponse->addMessage('msg.sync.quiz_question', 'alert');
+        }
+
         return new JsonResponse($apiResponse);
     }
 

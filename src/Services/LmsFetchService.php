@@ -105,7 +105,7 @@ class LmsFetchService {
             /* Step 3: Delete issues for updated content items */
             $this->deleteContentItemIssues($contentItems);
 
-            $output->writeln("Scanning content items now...");
+            $output->writeln("Scanning ". count($contentItems) . " content items now...");
             /* Step 4: Process the updated content with PhpAlly and link to report */
             $this->scanContentItems($contentItems);
 
