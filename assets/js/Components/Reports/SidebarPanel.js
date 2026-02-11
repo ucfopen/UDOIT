@@ -27,6 +27,7 @@ export default function SidebarPanel({
   minWidth = 280,
 }) {
   const DEFAULT_PRESET_DAYS = "14";
+  const today = new Date().toISOString().slice(0, 10);
   const [selectedPreset, setSelectedPreset] = useState(DEFAULT_PRESET_DAYS);
 
   useEffect(() => {
@@ -99,6 +100,7 @@ export default function SidebarPanel({
             <div className="sidebar-panel-date-inputs">
               <input
                 type="date"
+                max={today}
                 value={dateStart || ""}
                 onChange={(e) => {
                   setDateStart(e.target.value);
@@ -114,7 +116,7 @@ export default function SidebarPanel({
                   setDateEnd(e.target.value);
                   setSelectedPreset("");
                 }}
-                max={new Date().toISOString().slice(0, 10)}
+                max={today}
                 className="sidebar-panel-date-input"
               />
             </div>
