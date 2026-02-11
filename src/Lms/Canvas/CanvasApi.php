@@ -14,7 +14,6 @@ class CanvasApi {
     protected $baseUrl;
     protected $apiToken;
     protected $httpClient;
-    protected $apiToken;
 
     public function __construct($baseUrl, $apiToken)
     {
