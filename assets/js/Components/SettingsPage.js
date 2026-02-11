@@ -157,7 +157,7 @@ export default function SettingsPage({
 
         <div className="callout-container flex-column gap-2">
           <h2>{t('settings.title.disclaimer')}</h2>
-          <p className="m=0">{t('settings.text.disclaimer')}</p>
+          <p className="m-0">{t('settings.text.disclaimer')}</p>
         </div>
       </div>
     </div>

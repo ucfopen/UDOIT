@@ -192,6 +192,11 @@
     font-weight: 600;
     line-height: normal;
     color: var(--text-color);
+
+    &:focus {
+      outline: 2px solid var(--focus-color);
+      outline-offset: 3px;
+    }
   }
 
   .pageTitle {
@@ -231,6 +236,17 @@
     }
   }
 
+  a {
+    color: var(--link-color);
+    font-weight: 300;
+
+    &:focus {
+      outline: 2px solid var(--focus-color);
+      outline-offset: 3px;
+      border-radius: 2px;
+    }
+  }
+  
   button {
     font-family: var(--heading-font-family);
     padding: .5rem 1rem;
@@ -559,6 +575,7 @@
       h2 {
         line-height: normal;
         align-self: center;
+        margin: 0;
       }
 
       .close-icon {

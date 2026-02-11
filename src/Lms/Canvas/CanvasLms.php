@@ -352,6 +352,7 @@ class CanvasLms implements LmsInterface {
     // Get content from Canvas and update content items
     public function updateCourseContent(Course $course, User $user, $force = false): array
     {
+        $output = new ConsoleOutput();
         $this->contentItemList = [];
         $urls = $this->getCourseContentUrls($course->getLmsCourseId());
         $apiDomain = $this->getApiDomain($user);
