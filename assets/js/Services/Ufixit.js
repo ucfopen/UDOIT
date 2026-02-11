@@ -12,16 +12,19 @@ import HeadingStyleForm from '../Components/Forms/HeadingStyleForm'
 // import InvalidAttributeForm from '../Components/Forms/InvalidAttributeForm'
 // import KeyboardTabbableForm from '../Components/Forms/KeyboardTabbableForm'
 import LabelForm from '../Components/Forms/LabelForm'
-// import LanguageForm from '../Components/Forms/LanguageForm'
+import LanguageForm from '../Components/Forms/LanguageForm'
 import LinkForm from '../Components/Forms/LinkForm'
 import ListForm from '../Components/Forms/ListForm'
 import MediaCaptionsForm from '../Components/Forms/MediaCaptionsForm'
 // import MultiPartForm from '../Components/Forms/MultiPartForm'
 import QuoteForm from '../Components/Forms/QuoteForm'
-// import SelectValidIdForm from '../Components/Forms/SelectValidIdForm'
+import SelectValidIdForm from '../Components/Forms/SelectValidIdForm'
 import SensoryMisuseForm from '../Components/Forms/SensoryMisuseForm'
 import TableCaptionForm from '../Components/Forms/TableCaptionForm'
 import TableHeadersForm from '../Components/Forms/TableHeadersForm'
+
+import InlineCSSForm from '../Components/Forms/InlineCSSForm'
+
 import UfixitReviewOnly from '../Components/Forms/UfixitReviewOnly'
 
 // These form names strictly match the translation keys in the language files (e.g. en.json).
@@ -53,6 +56,8 @@ export const formNames = {
   TABLE_CAPTION: 'table_caption',
   TABLE_HEADERS: 'table_headers',
 
+  INLINE_CSS: 'inline_css',
+
   REVIEW_ONLY: 'review_only',
 }
 
@@ -80,18 +85,42 @@ const formTypes = {
   // [formNames.KEYBOARD_TABBABLE]: KeyboardTabbableForm,
   [formNames.LABEL]: LabelForm,
   [formNames.LABEL_UNIQUE]: LabelForm,
-  // [formNames.LANGUAGE]: LanguageForm,
+  [formNames.LANGUAGE]: LanguageForm,
   [formNames.LINK]: LinkForm,
   [formNames.LIST]: ListForm,
   [formNames.MEDIA_CAPTIONS]: MediaCaptionsForm,
   // [formNames.MULTI_PART]: MultiPartForm,
   [formNames.QUOTE]: QuoteForm,
-  // [formNames.SELECT_VALID_ID]: SelectValidIdForm,
+  [formNames.SELECT_VALID_ID]: SelectValidIdForm,
   [formNames.SENSORY_MISUSE]: SensoryMisuseForm,
   [formNames.TABLE_CAPTION]: TableCaptionForm,
   [formNames.TABLE_HEADERS]: TableHeadersForm,
   
+  [formNames.INLINE_CSS]: InlineCSSForm,
+  
   [formNames.REVIEW_ONLY]: UfixitReviewOnly,
+}
+
+// Classify forms by error types to use for helper elements
+export const FORM_CLASSIFICATIONS = {
+    ALT_TEXT_RELATED : [
+      formNames.ALT_TEXT,            
+      formNames.ANCHOR_TEXT,
+      formNames.BLOCKQUOTE,
+      formNames.EMBEDDED_CONTENT_TITLE,
+      formNames.LABEL,
+      formNames.LABEL_UNIQUE,
+      formNames.SELECT_VALID_ID
+    ],
+  
+    HEADINGS_RELATED : [
+      formNames.HEADING_EMPTY,
+      formNames.HEADING_STYLE
+    ],
+
+    CLICKABLE_RELATED: [
+      formNames.SELECT_VALID_ID
+    ]
 }
 
 // Using the formNames as the only values prevents typos and other errors.
@@ -207,9 +236,9 @@ const rulesToFormNameMap = {
   aria_toolbar_label_unique: formNames.LABEL_UNIQUE,
   form_label_unique: formNames.LABEL_UNIQUE,
 
-  // element_lang_valid: formNames.LANGUAGE,
-  // html_lang_exists: formNames.LANGUAGE,
-  // html_lang_valid: formNames.LANGUAGE,
+  element_lang_valid: formNames.LANGUAGE,
+  html_lang_exists: formNames.LANGUAGE,
+  html_lang_valid: formNames.LANGUAGE,
 
   list_children_valid: formNames.LIST,
   list_markup_review: formNames.LIST,
@@ -220,6 +249,10 @@ const rulesToFormNameMap = {
   media_live_captioned: formNames.MEDIA_CAPTIONS,
   media_track_available: formNames.MEDIA_CAPTIONS,
 
+  aria_id_unique: formNames.SELECT_VALID_ID,
+  aria_complementary_label_visible: formNames.SELECT_VALID_ID,
+
+  text_sensory_misuse: formNames.SENSORY_MISUSE,
   // aria_child_valid: formNames.MULTI_PART,
   // aria_parent_required: formNames.MULTI_PART,
   // fieldset_label_valid: formNames.MULTI_PART,
@@ -242,6 +275,7 @@ const rulesToFormNameMap = {
   table_structure_misuse: formNames.TABLE_HEADERS,
 
   text_sensory_misuse: formNames.SENSORY_MISUSE,
+  text_spacing_valid: formNames.INLINE_CSS
 }
 
 /* When a REVIEW_ONLY rule uses the same summary as another rule, add it here.
@@ -292,7 +326,7 @@ export const sharedRuleDescriptions = {
   skip_main_described: 'rule.desc.html_skipnav_exists',
   skip_main_exists: 'rule.desc.html_skipnav_exists',
   style_viewport_resizable: 'rule.desc.meta_viewport_zoomable',
-  widget_tabbable_single: 'rule.desc.widget_tabbable_exists',
+  widget_tabbable_single: 'rule.desc.widget_tabbable_exists'
 }
 
 export function formFromIssue(activeIssue) {
@@ -344,6 +378,11 @@ export function disabilitiesFromRule(ruleId) {
       case formNames.INVALID_CSS:
       case formNames.LABEL:
       case formNames.LABEL_UNIQUE:
+        disabilities = [disabilityTypes.COGNITIVE, disabilityTypes.VISUAL]
+        break
+      case formNames.LANGUAGE:
+        disabilities = [disabilityTypes.COGNITIVE, disabilityTypes.LANGUAGE, disabilityTypes.VISUAL]
+        break
       case formNames.LINK:
       case formNames.LIST:
       case formNames.QUOTE:
@@ -361,7 +400,7 @@ export function disabilitiesFromRule(ruleId) {
         disabilities = [disabilityTypes.COGNITIVE, disabilityTypes.LANGUAGE, disabilityTypes.VISUAL]
         break
       case formNames.MEDIA_CAPTIONS:
-        disabilities = [disabilityTypes.COGNITIVE, disabilityTypes.HEARING, disabilityTypes.LANGUAGE]
+        disabilities = [disabilityTypes.COGNITIVE, disabilityTypes.HEARING, disabilityTypes.LANGUAGE, disabilityTypes.VISUAL]        
         break
       default:
         disabilities = []

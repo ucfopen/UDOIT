@@ -1,39 +1,27 @@
-.ufixit-content-label {
-  flex-shrink: 0;
-  flex-grow: 0;
-
+.live-preview-header {
   display: flex;
   flex-direction: row;
-  cursor: pointer;
   justify-content: space-between;
+  gap: 1rem;
+  padding-bottom: 1rem;
 
-  text-decoration: none;
-
-  &:hover {
-    text-decoration: underline;
-    text-decoration-color: var(--link-color);
+  h3 {
+    margin: 0;
   }
 
-  &:focus {
-    outline: 2px solid var(--focus-color);
-    outline-offset: 3px;
+  a {
+    font-weight: 300;
+    text-align: end;
+    text-decoration: none;
+    font-size: .9em;
+    display: flex;
+    flex-direction: row;
+
+    &:hover, &:focus {
+      text-decoration: underline;
+    }
   }
 
-  h2 {
-    font-size: 1.5rem;
-    font-weight: bold;
-    color: var(--link-color);
-    margin: 0px;
-    flex-grow: 1;
-  }
-
-  svg {
-    margin-left: 1rem;
-    cursor: pointer;
-    fill: var(--link-color);
-    flex-shrink: 0;
-    flex-grow: 0;
-  }
 }
 
 .ufixit-content-preview {
@@ -86,6 +74,7 @@
     width: 100%;
     box-sizing: border-box;
     overflow: auto;
+    background-color: var(--white);
     
     h1, h2, h3, h4, h5, h6 {
       color: var(--text-color);
@@ -94,7 +83,9 @@
 }
 
 .ufixit-content-preview-no-error {
-  background-color: var(--background-color);
+  position: absolute;
+  top: 0px;
+  background-color: var(--white);
   margin: 1.5rem;
   border: 1px solid var(--border-color);
   border-radius: 8px;
@@ -102,7 +93,7 @@
 }
 
 .ufixit-error-highlight {
-  outline: 3px dashed var(--issue-color);
+  outline: 3px dashed var(--error-color);
   outline-offset: 1px;
   anchor-name: --ufixit-error-highlight;
 
@@ -138,7 +129,7 @@
     opacity: 1;
   }
 
-  &.scroll-to-error-down {
+  &#scroll-to-error-down {
     align-self: end;
   }
 }
@@ -227,5 +218,164 @@
     width: 20px;
     text-align: center;
     border: 1px solid var(--white)
+  }
+}
+
+.file-reference-table{
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.8em;
+  overflow-x: auto;
+
+  thead {
+
+    tr {
+      border-bottom: 1px solid var(--border-color);
+
+      th {
+        font-family: var(--heading-font-family);
+        font-weight: 600;
+        cursor: pointer;
+        padding: .5rem;
+        color: var(--text-color);
+        fill: var(--text-color);
+        border-bottom: 1px solid var(--border-color);
+        background-color: var(--gray-lighter);
+        text-align: start;
+
+        &.divider {
+          border-right: 2px solid var(--primary-color-inverse);
+        }
+        
+        &:last-child{
+          text-align: right;
+        }
+
+        .header-spacer {
+          width: 32px;
+          min-width: 32px;
+          height: auto;
+        }
+      }
+    }
+  }
+
+  tbody {
+
+    tr {
+      background-color: var(--white);
+
+      &:not(:last-child) {
+        border-bottom: 1px solid var(--border-color);
+      }
+
+      td {
+        padding: .5rem;
+
+        &[textalign='end'] div {
+          text-align: right;
+        }
+
+        &:last-child{
+          text-align: right;
+        }
+
+        &.divider {
+          border-right: 2px solid var(--primary-color);
+        }
+      }
+
+      a {
+        color: var(--link-color);
+        text-decoration: none;
+        font-weight: 600;
+
+        &:hover,
+        &:focus {
+          text-decoration: underline;
+        }
+      }
+    }
+  }
+}
+
+
+.status-badge{
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+
+  border-radius: 6px;
+  font-size: 13px;
+  color: #4b5563;
+  text-transform: uppercase;
+}
+
+.old-file-status{
+  background-color: var(--gray-lighter);
+}
+
+.new-file-badge{
+  background-color: var(--primary-color-light);
+}
+
+.file-accessibility-info-wrapper{
+  background-color: white;
+  border-radius: 0.5em;
+}
+
+
+.accessibility-info-container{
+    border: solid;
+    border-color: var(--gray-lightest);
+    border-radius: 0.7em;
+    box-sizing: border-box;    
+} 
+
+.accessibility-instructions-container{
+    font-size: 0.65em;
+    background-color: var(--potential-color-light);
+    border-top: solid;
+    border-color: var(--potential-color);
+    box-sizing: border-box;
+    overflow: hidden;
+    margin: 0;
+    border-radius: 0 0 0.7em 0.7em; /* Match bottom corners if needed */
+}
+
+.no-reference-container{
+  background-color: var(--issue-color-light);
+  border: solid 1px var(--issue-color);
+  border-radius: 0.5em;
+  font-size: 0.75em;
+}
+
+.ufixit-content-preview-main.ufixit-clickable-container *:not(.ufixit-error-highlight):not(.ufixit-alt-text-preview):not(.ufixit-alt-text-preview *){
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.ufixit-content-preview-main.ufixit-clickable-container *:not(.ufixit-error-highlight):not(.ufixit-alt-text-preview):not(.ufixit-alt-text-preview *):hover{
+  background-color: rgb(207, 207, 207) !important;
+}
+
+.ufixit-content-preview-main.ufixit-clickable-container *:not(.ufixit-error-highlight):not(.ufixit-alt-text-preview .ufixit-alt-text-preview *):focus{
+  background-color: rgb(207, 207, 207) !important;
+}
+
+
+.ufixit-content-preview-main.ufixit-clickable-container *:not(.ufixit-error-highlight):not(.ufixit-alt-text-preview):not(.ufixit-alt-text-preview *):has(:hover){
+  background-color: transparent !important;
+}
+
+.ufixit-content-preview-main.ufixit-clickable-container *.ufixit-temp-selected{
+  outline: 3px solid blue;
+  outline-offset: 1px;
+  anchor-name: --ufixit-temp-selected;
+
+  /* Errors without text won't have an outline unless they have a border to provide size */
+  &:not(table) {
+    border: 1px solid transparent;
   }
 }

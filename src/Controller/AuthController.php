@@ -24,6 +24,8 @@ class AuthController extends AbstractController
 
     private ManagerRegistry $doctrine;
 
+    private $session;
+
     public function __construct(ManagerRegistry $doctrine)
     {
         $this->doctrine = $doctrine;
@@ -119,6 +121,7 @@ class AuthController extends AbstractController
         $institution = $user->getInstitution();
         $code = $this->request->query->get('code');
         $clientSecret = $institution->getApiClientSecret();
+        $userAgent = 'UDOIT/' . !empty($_ENV['VERSION_NUMBER']) ? $_ENV['VERSION_NUMBER'] : '4.0.0';
 
         if (empty($clientSecret)) {
             $institution->encryptDeveloperKey();
@@ -133,6 +136,9 @@ class AuthController extends AbstractController
                 'redirect_uri'  => LmsUserService::getOauthRedirectUri(),
                 'client_secret' => $institution->getApiClientSecret(),
                 'code'          => $code,
+            ],
+            'headers' => [
+                'User-Agent' => $userAgent,
             ],
             'verify_host' => false,
             'verify_peer' => false,

@@ -1,70 +1,109 @@
+.rounded-table-wrapper {
+  border-radius: var(--element-radius);
+  overflow: auto;
+  border: 1px solid var(--border-color);
+}
+
 .udoit-sortable-table {
   width: 100%;
   border-collapse: collapse;
   font-size: 0.8em;
   overflow-x: auto;
 
-  thead tr th {
-    font-family: var(--heading-font-family);
-    font-weight: 600;
-    text-transform: uppercase;
-    cursor: pointer;
+  thead {
 
-    padding: .5rem .15rem .25rem .15rem;
-    color: var(--primary-color-inverse);
-    fill: var(--primary-color-inverse);
-    border-bottom: 1px solid var(--primary-color);
-    background-color: var(--primary-color);
+    tr {
+      border-bottom: 1px solid var(--border-color);
 
-    &:focus {
-      outline: 2px solid var(--focus-color);
-      outline-offset: -2px;
-    }
+      th {
+        font-family: var(--heading-font-family);
+        font-weight: 600;
+        cursor: pointer;
+        padding: .5rem .5rem .25rem .5rem;
+        color: var(--text-color);
+        fill: var(--text-color);
+        border-bottom: 1px solid var(--border-color);
+        background-color: var(--gray-lighter);
+        text-align: start;
 
-    &:hover,
-    &:focus {
-      filter: brightness(var(--hover-brightness));
-      .clickable-text {
-        text-decoration: underline;
+        &:focus {
+          outline: 2px solid var(--focus-color);
+          outline-offset: -2px;
+        }
+
+        &:hover, &:focus {
+          /* filter: brightness(var(--hover-brightness)); */
+          background-color: var(--gray-lightest);
+
+          .clickable-text {
+            text-decoration: underline;
+          }
+        }
+
+        &.divider {
+          border-right: 2px solid var(--primary-color-inverse);
+        }
+
+        svg {
+          transition: transform var(--transition-time) ease-in-out;
+        }
+
+        .header-spacer {
+          width: 32px;
+          min-width: 32px;
+          height: auto;
+        }
       }
-    }
-
-    svg {
-      transition: transform var(--transition-time) ease-in-out;
-    }
-
-    .header-spacer {
-      width: 32px;
-      min-width: 32px;
-      height: auto;
     }
   }
 
   tbody {
-    tr {
-      td {
-        padding: .15rem;
 
-        &[textalign='end'] {
-          div {
-            text-align: right;
-          }
-        }
+    tr {
+      background-color: var(--white);
+
+      &:not(:last-child) {
+        border-bottom: 1px solid var(--border-color);
       }
 
-      a {
-        color: var(--link-color);
-        text-decoration: none;
-        font-weight: 600;
-
-        &:hover,
-        &:focus {
+      &:hover {
+        td div,
+        td span {
           text-decoration: underline;
         }
       }
 
       &.clickable {
         cursor: pointer;
+        /* color: var(--link-color);
+        text-decoration: none;
+        font-weight: 600; */
+
+        &:hover,
+        &:focus {
+          text-decoration: underline;
+          background-color: var(--link-color-light);
+        }
+
+        &:focus {
+          outline: 2px solid var(--focus-color);
+          outline-offset: -2px;
+        }
+      }
+
+      td {
+        padding: .5rem;
+
+        &[textalign='end'] div {
+          text-align: right;
+        }
+
+        &.divider {
+          border-right: 2px solid var(--primary-color);
+        }
+      }
+
+      a {
         color: var(--link-color);
         text-decoration: none;
         font-weight: 600;
@@ -87,25 +126,13 @@
           fill: var(--white);
         }
 
-        &.btn-disabled,
-        &.btn-disabled:hover,
-        &.btn-disabled:focus {
+        &:disabled,
+        &:disabled:hover,
+        &:disabled:focus {
           background-color: var(--gray-light);
           fill: var(--gray);
           cursor: not-allowed !important;
         }
-      }
-    }
-
-    tr:nth-child(even) {
-      td {
-        background-color: var(--primary-color-light);
-      }
-    }
-
-    tr:last-child {
-      td {
-        border-bottom: 1px solid var(--primary-color-dark);
       }
     }
   }
@@ -118,9 +145,10 @@
   background-color: transparent;
   color: var(--link-color);
   border-color: transparent;
+  box-shadow: none;
+}
 
-  &.selected {
-    background-color: var(--link-color);
-    color: var(--white);
-  }
+.paginationButton.selected {
+  background-color: var(--link-color);
+  color: var(--white);
 }

@@ -187,7 +187,7 @@ class LtiController extends AbstractController
                             ]
                         ]
                     ],
-                    "privacy_level" => "anonymous",
+                    "privacy_level" => "name_only",
                 ]
             ],
             "public_jwk" => [],
@@ -295,7 +295,12 @@ class LtiController extends AbstractController
         $httpClient = HttpClient::create();
         /* URL will be different for other LMSes */
         $url = $this->lmsApi->getLms()->getKeysetUrl();
-        $response = $httpClient->request('GET', $url);
+        $userAgent = 'UDOIT/' . (!empty($_ENV['VERSION_NUMBER']) ? $_ENV['VERSION_NUMBER'] : '4.0.0');
+        $response = $httpClient->request('GET', $url, [
+            'headers' => [
+                'User-Agent' => $userAgent,
+            ],
+        ]);
 
         $keys = $response->toArray();
         return $keys;

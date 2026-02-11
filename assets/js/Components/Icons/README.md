@@ -52,7 +52,7 @@ The following classes are available for various icon colors. If you need the hex
 To make a progress animation or other icon spin, give it the `spinner` class. For example, a button with a spinner icon inside is on the new WelcomePage.js.
 
 ```
-<button className="btn btn-disabled flex-row">
+<button className="btn flex-row" disabled>
   <div className="flex-column justify-content-center">
     <ProgressIcon className="icon-sm spinner" />
   </div>

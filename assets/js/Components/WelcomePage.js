@@ -56,7 +56,7 @@ export default function WelcomePage({
           </div>
           <div className="flex-row justify-content-center mt-3">
             { !syncComplete ? (
-                <button className="btn-large btn-disabled flex-row" tabIndex="0">
+                <button className="btn-large flex-row" tabIndex="0" disabled>
                   <div className="flex-column justify-content-center align-self-center">
                     <ProgressIcon className="icon-md spinner" />
                   </div>

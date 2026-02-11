@@ -94,6 +94,18 @@ export function setInnerText(element, newText) {
   return element
 }
 
+export function hasAttribute(element, name) {
+  if ('string' === typeof element) {
+    element = toElement(element)
+  }
+
+  if (!element) {
+    return false
+  }
+
+  return element.hasAttribute(name)
+}
+
 export function getAttribute(element, name) {
   if ('string' === typeof element) {
     element = toElement(element)
@@ -252,6 +264,18 @@ export function getAllIds(doc) {
   return ids
 }
 
+export function getTextContent(element) {
+  if ('string' === typeof element) {
+    element = toElement(element)
+  }
+
+  if (!element) {
+    return ''
+  }
+
+  return element.textContent
+}
+
 export function renameElement(element, newName) {
   if ('string' === typeof element) {
     element = toElement(element)
@@ -342,6 +366,18 @@ export function getAccessibleName(element) {
     https://www.w3.org/WAI/ARIA/apg/practices/names-and-descriptions/#name_calculation  */
 
   // 1. TODO: If the element has the 'aria-labelledby' attribute, use the value of the corresponding element.
+  let ariaLabelledby = getAttribute(element, "aria-labelledby")
+  if(ariaLabelledby){
+    let displayText = []
+    const ariaLabelledByIDs = ariaLabelledby.split(" ")
+    ariaLabelledByIDs.forEach((id) => {
+       const element = document.getElementById(id)
+       if(element){
+         displayText.push(getInnerText(element))
+       }
+    })
+    return displayText?.length > 0 ? displayText.join(" ") : null
+  }
   
   // 2. If the element has the 'aria-label' attribute, use that value.
   let ariaLabel = getAttribute(element, 'aria-label')
@@ -409,7 +445,81 @@ export function getAccessibleName(element) {
   return ''
 }
 
-export const findXpathFromElement = (element) => {
+export const elementOrChildrenHasStyleAttributes = (
+  element,
+  styles = ['color:', 'background:', 'background-color:'],
+  tags = ['span', 'div', 'p', 'strong', 'em', 'b', 'i', 'u']
+) => {
+
+  if ('string' === typeof element) {
+    element = toElement(element)
+  }
+
+  const elementHasStyleAttribute = (element) => {
+    const style = getAttribute(element, 'style')?.toLowerCase() || ''
+    const styleArray = style.split(';')
+
+    for (let i = 0; i < styleArray.length; i++) {
+      if(styles.some(trigger => styleArray[i].trim().startsWith(trigger))) {
+        return true
+      }
+    }
+    return false
+  }
+
+  const childTags = ['span', 'div', 'p', 'strong', 'em', 'b', 'i', 'u']
+  if (elementHasStyleAttribute(element)) {
+    return true
+  }
+
+  // Check immediate child elements for color styles as well. Further descendants are ignored.
+  const children = element.querySelectorAll(tags.join(','))
+  for (let i = 0; i < children.length; i++) {
+    const child = children[i]
+    if (elementHasStyleAttribute(child)) {
+      return true
+    }
+  }
+
+  return false
+}
+
+export const removeStyleAttributesFromElementAndChildren = (
+  element,
+  styles = ['color:', 'background:', 'background-color:'],
+  tags = ['span', 'div', 'p', 'strong', 'em', 'b', 'i', 'u']
+) => {
+
+  if ('string' === typeof element) {
+    element = toElement(element)
+  }
+
+  const removeElementStyleAttributes = (element) => {
+
+    let style = getAttribute(element, 'style')?.toLowerCase() || ''
+    let styleArray = style.split(';')
+
+    styleArray = styleArray.filter(styleItem => {
+      return !styles.some(trigger => styleItem.trim().startsWith(trigger))
+    })
+    setAttribute(element, 'style', styleArray.join(';'))
+  }
+
+  const children = element.querySelectorAll(tags.join(','))
+
+  // Remove color styles from the main element
+  element = removeElementStyleAttributes(element)
+
+  // Remove color styles from immediate child elements as well. Further descendants are ignored.
+  for (let i = 0; i < children.length; i++) {
+    const child = children[i]
+    removeElementStyleAttributes(child)
+  }
+
+  return element
+}
+
+export const findXpathFromElement = (element, id = null) => {
   if (!element) {
     return null
   }
@@ -417,6 +527,9 @@ export const findXpathFromElement = (element) => {
   // Get the path to the element
   let path = []
   while (element && element.nodeType === Node.ELEMENT_NODE) {
+    if(id && element.id && element.id == id){
+      break
+    }
     let tagName = element.tagName.toLowerCase()
     let siblings = Array.from(element.parentNode.children).filter(sibling => sibling.tagName.toLowerCase() === tagName)
     let index = siblings.indexOf(element) + 1 // +1 for 1-based index
@@ -481,7 +594,7 @@ export function findElementWithIssue(content, issue) {
   else {
     let errorHtml = issue?.sourceHtml || undefined
     if(issue.status.toString() === '1') {
-      errorHtml = issue?.newHtml || errorHtml
+      errorHtml = issue?.newHtml || undefined
     }
 
     if(errorHtml === undefined || errorHtml === '') {
@@ -490,4 +603,54 @@ export function findElementWithIssue(content, issue) {
 
     return findElementWithError(content, issue.sourceHtml)
   }
+}
+
+export function generateElementID(element){
+    if(element.id){
+      return element.id
+    }
+
+    let generated_id = ""
+
+    if(element.tagName == "img"){
+      const altText= getAttribute(element, 'alt')
+      if(altText){
+        generated_id = altText + "-udoit-clickable-id"
+      }
+      else{
+        generated_id = "image-udoit-clickable-id"
+      }
+    }
+    else{
+      const textContent = getInnerText(element).trim()
+      const firstWord = textContent.split(/\s+/)[0]
+      generated_id = firstWord + "-udoit-clickable-id"
+    }
+
+    let i = 1
+    while(document.getElementById(generated_id)){
+        generated_id = generated_id + "-" + i
+        i++;
+    }
+    return generated_id
+  
+}
+
+export function getAriaAttributes(element){
+   const ariaAttributes = []
+   if(!element){
+    return ariaAttributes
+   }
+
+   if(typeof element == "string"){
+      element = toElement(element)
+   }
+
+  for(const attr of element.attributes){
+    if(attr.name.startsWith("aria-")){
+      ariaAttributes.push(attr.name)
+    }
+  }
+
+  return ariaAttributes
 }
