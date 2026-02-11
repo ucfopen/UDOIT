@@ -2,49 +2,72 @@ import React, { useState, useEffect } from 'react'
 import BarrierInformation from './BarrierInformation'
 import FileForm from '../Forms/FileForm'
 import './UfixitWidget.css'
+import CheckIcon from '../Icons/CheckIcon'
+import SeverityPotentialIcon from '../Icons/SeverityPotentialIcon'
+import SeverityIssueIconFilled from '../Icons/SeverityIssueIconFilled'
 
 
 export default function FileFixitWidget({
   t,
   settings,
-
-  handleFileResolve,
-  handleFileUpload,
-  sessionIssues,
+  sessionFiles,
   tempActiveIssue,
+  uploadedFile,
+  setUploadedFile,
+  isDisabled,
+  setIsDisabled,
+  markAsReviewed,
+  setMarkAsReviewed,
+  setFormInvalid,
+  getReadableFileType,
+  handleFileResolveWrapper,
+  setMarkDelete,
+  markDelete,
+  setMarkRevert,
+  markRevert,
+  handleLearnMoreClick,
+  showLearnMore
 }) {
 
   return (
-    <div className="ufixit-widget flex-column flex-grow-1">
+    <div className="ufixit-widget flex-column flex-grow-1"  
+      aria-hidden={showLearnMore ? "false" : "true"}
+      style={{ display: showLearnMore ? "none" : "flex" }}>
+       <div className="flex-column gap-1">
+        <BarrierInformation
+          t={t}
+          settings={settings}
+          tempActiveIssue={tempActiveIssue}
+          handleLearnMoreClick={handleLearnMoreClick}
+        />
 
-      {/* Header with File Label */}
-      <div className="ufixit-widget-header flex-row justify-content-between mb-3 pb-1">
-        <div className="flex-column justify-content-center allow-word-break">
-          <h2 className="mt-0 mb-0 primary-text">{tempActiveIssue.formLabel}</h2>
+        <div className='review-status flex-row gap-1 align-items-center'>
+          <h3>{t('form.file.sub_heading')}</h3>
+          <div className={`file-review-status-container ${tempActiveIssue.fileData.reviewed ? 'file-reviewed' : 'file-progress'} flex-row align-items-center p-2 gap-1`}>
+              {tempActiveIssue.fileData.reviewed ? <CheckIcon fill={'var(--primary-color)'} /> : <SeverityIssueIconFilled fill={'var(--potential-color)'} />}
+              <div>{tempActiveIssue.fileData.reviewed ? t('report.header.resolved') : t('fix.label.status.unreviewed')}</div>
+          </div>
         </div>
-      </div>
-
-      {/* Barrier Information with "Learn More" and issue-specific info, where applicable*/}
-      <BarrierInformation
-        t={t}
-        settings={settings}
-        tempActiveIssue={tempActiveIssue}
-      />
-
-      {/* The "How to Repair This Barrier" area with the form */}
-      <div className="ufixit-widget-label primary mb-1">{t('fix.label.barrier_repair')}</div>
-      <div className="flex-column flex-grow-1 justify-content-between ufixit-form-content">
-        <div className="callout-container">
           <FileForm
             t={t}
             settings={settings}
-            
             activeFile={tempActiveIssue.fileData}
-            handleFileResolve={handleFileResolve}
-            handleFileUpload={handleFileUpload}
-            sessionIssues={sessionIssues} />
-        </div>
-      </div>
+            sessionFiles={sessionFiles}
+            uploadedFile={uploadedFile}
+            setUploadedFile={setUploadedFile}
+            isDisabled={isDisabled}
+            setIsDisabled={setIsDisabled}
+            markAsReviewed={markAsReviewed}
+            setMarkAsReviewed={setMarkAsReviewed}
+            setFormInvalid={setFormInvalid}
+            getReadableFileType={getReadableFileType}
+            handleFileResolveWrapper={handleFileResolveWrapper}
+            setMarkDelete={setMarkDelete}
+            markDelete={markDelete}
+            setMarkRevert={setMarkRevert}
+            markRevert={markRevert}
+          />
+       </div>
     </div>
   )
 }

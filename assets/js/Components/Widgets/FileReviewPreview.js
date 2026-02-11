@@ -1,111 +1,173 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import DownloadIcon from '../Icons/DownloadIcon'
 import ExternalLinkIcon from '../Icons/ExternalLinkIcon'
 import ContentTypeIcon from '../Icons/ContentTypeIcon'
 import * as Text from '../../Services/Text'
 import './FixIssuesContentPreview.css'
 import SeverityIcon from '../Icons/SeverityIcon'
-
+import ContentPageIcon from '../Icons/ContentPageIcon'
+import FileInformation from './FileInformation'
+import FileStatus from './FileStatus'
+import ProgressIcon from '../Icons/ProgressIcon'
+import DownwardArrowIcon from '../Icons/DownwardArrowIcon'
+import SeverityIssueIconFilled from '../Icons/SeverityIssueIconFilled'
 
 export default function FixIssuesContentPreview({
   t,
   settings,
-
   activeIssue,
+  getReadableFileType,
+  isDisabled
 }) {
 
-  const getReadableFileType = (fileType) => {
-    switch (fileType) {
-      case 'doc':
-        return t('label.mime.doc')
-      case 'ppt':
-        return t('label.mime.ppt')
-      case 'xls':
-        return t('label.mime.xls')
-      case 'pdf':
-        return t('label.mime.pdf')
-      case 'audio':
-        return t('label.mime.audio')
-      case 'video':
-        return t('label.mime.video')
-      default:
-        return t('label.mime.unknown')
+  const [fileReferenceHolder, setFileReferenceHolder] = useState([])
+  const [currentFile, setCurrentFile] = useState(null)
+  const [oldFile, setOldFile] = useState(null)
+
+  useEffect(() => {
+    if(activeIssue){
+      handleFileReference()
+      if(activeIssue.fileData.replacement){
+        const tempCurrFile = {
+          fileName: activeIssue.fileData.replacement.fileName,
+          fileType: getReadableFileType(activeIssue.fileData.replacement.fileType),
+          fileSize: Text.getReadableFileSize(activeIssue.fileData.replacement.fileSize),
+          fileLink: activeIssue.fileData.replacement.lmsUrl
+        }  
+        setCurrentFile(tempCurrFile)
+      }
+      const tempCurrFile = {
+        fileName: activeIssue.fileData.fileName,
+        fileType: getReadableFileType(activeIssue.fileData.fileType),
+        fileSize: Text.getReadableFileSize(activeIssue.fileData.fileSize),
+        fileLink: activeIssue.fileData.lmsUrl
+      }
+      if(!activeIssue.fileData.replacement){
+          setCurrentFile(tempCurrFile)
+      }
+      setOldFile(tempCurrFile)
+      
     }
-  }
+  }, [activeIssue])
+
+  const handleFileReference = () => {
+          let tempReferences = []
+  
+          activeIssue.fileData.replacement?.references?.forEach((ref) => {
+              let tempRef = JSON.parse(JSON.stringify(ref))
+              tempRef.status  = 1
+              tempReferences.push(tempRef)
+          })
+  
+          activeIssue.fileData.replacement?.sectionRefs?.forEach((ref) => {
+              let tempRef = JSON.parse(JSON.stringify(ref))
+              tempRef.status  = 1
+              tempReferences.push(tempRef)
+          })
+  
+  
+          activeIssue.fileData.references?.forEach((ref) => {
+              let tempRef = JSON.parse(JSON.stringify(ref))
+              tempRef.status  = 0
+              tempReferences.push(tempRef)
+          })
+  
+  
+          activeIssue.fileData.sectionRefs?.forEach((ref) => {
+              let tempRef = JSON.parse(JSON.stringify(ref))
+              tempRef.status  = 0
+              tempReferences.push(tempRef)
+          })
+          
+          setFileReferenceHolder(tempReferences)
+       }
+    
+
+
 
   return (
     <>
-      <a href={activeIssue.contentUrl} target="_blank" rel="noreferrer" className="ufixit-content-label flex-row justify-content-between mt-0 mb-3">
-        <div className="flex-column flex-center allow-word-break">
-          <h2 className="fake-h1">{activeIssue.contentTitle}</h2>
+    {isDisabled ? 
+    <div className="flex-column h-100 flex-grow-1 justify-content-center">
+      <div className="flex-row justify-content-center mb-4">
+        <div className="flex-column justify-content-center">
+          <ProgressIcon className="icon-lg udoit-suggestion spinner" />
         </div>
-        <div className="flex-column flex-center">
-          <ExternalLinkIcon className="icon-lg link-color" alt="" />
+        <div className="flex-column justify-content-center ms-3">
+          <h2 className="mt-0 mb-0">{t('fix.label.loading_content')}</h2>
         </div>
-      </a>
-      <div className="ufixit-content-preview">
-        <div className="ufixit-content-preview-main">
-          <div className="flex-grow-1">
-            <div className="ufixit-file-details">
-              <div className="flex-row mt-2">
-                <div className="flex-column flex-center ufixit-file-details-label">{t('fix.label.file_name')}</div>
-                <div className="flex-column flex-center allow-word-break">{activeIssue.fileData.fileName}</div>
-              </div>
-              <div className="flex-row mt-2">
-                <div className="flex-column flex-center ufixit-file-details-label">{t('fix.label.file_type')}</div>
-                <div className="flex-column flex-center allow-word-break">{getReadableFileType(activeIssue.fileData.fileType)}</div>
-              </div>
-              <div className="flex-row mt-2">
-                <div className="flex-column flex-center ufixit-file-details-label">{t('fix.label.file_size')}</div>
-                <div className="flex-column flex-center allow-word-break">{Text.getReadableFileSize(activeIssue.fileData.fileSize)}</div>
-              </div>
-              <div className="flex-row mt-2">
-                <div className="flex-column flex-center ufixit-file-details-label">{t('fix.label.file_updated')}</div>
-                <div className="flex-column flex-center allow-word-break">{Text.getReadableDateTime(activeIssue.fileData.updated)}</div>
-              </div>
+      </div>
+    </div> 
+    :
+    <div>
+    {activeIssue.fileData.replacement ? 
+      <div className='flex-column w-100 justify-content-center gap-1 align-items-center'>
+        <div className='file-accessibility-info-wrapper w-100'>
+          <div className='accessibility-info-container flex-column w-100'>
+            <div className='file-info p-2'>
+              <FileStatus t={t} fileStatus={0} fileTagText={t('form.file.current.label')}/>
             </div>
-            { activeIssue.fileData.references.length === 0 ? (
-              <div className="mt-3 callout-container">
-                <div className="flex-row">
-                  <div className="flex-column justify-content-start mr-2">
-                    <SeverityIcon severity="potential" className="icon-md potential-color" alt="" />
-                  </div>
-                  <div className="flex-column justify-content-start">
-                    {t('fix.message.no_references_found')}
-                  </div>
-                </div>
-              </div>
-            ) : (
-              <div className="mt-3">
-                <h3>{t('fix.label.references')}</h3>
-                  <div className='flex-column gap-2'>
-                  { activeIssue.fileData.references.map((reference, index) => (
-                    <a href={reference.contentItemUrl} target="_blank" rel="noreferrer" className='flex-row' key={index}>
-                      <ContentTypeIcon type={reference.contentType} className='link-color icon-md mr-3 flex-column align-self-center'/>
-                      <div className='flex-column align-self-center'>{reference.contentItemTitle}</div>
-                    </a>
-                  )) }
-                </div>
-              </div>
-            )}
-            
-            <div className="mt-3 flex-row justify-content-center gap-3">
-              { activeIssue.fileData.downloadUrl && (
-                <button className="btn btn-secondary btn-icon-left" onClick={() => window.open(activeIssue.fileData.downloadUrl, 'download')}>
-                  <DownloadIcon />
-                  <div className="flex-column justify-content-center">{t('fix.button.download_file')}</div>
-                </button>
-              )}
-              { activeIssue.fileData.lmsUrl && (
-                <button className="btn btn-secondary btn-icon-left" onClick={() => window.open(activeIssue.fileData.lmsUrl, '_blank', 'noopener,noreferrer')}>
-                  <ExternalLinkIcon />
-                  <div className="flex-column justify-content-center">{t('fix.button.view_in_lms')}</div>
-                </button>
-              )}
+            <FileInformation t={t} file={oldFile} />
+          </div>
+        </div>
+        <DownwardArrowIcon className="icon-md text-center" />        
+        <div className='file-accessibility-info-wrapper w-100'>
+          <div className='accessibility-info-container flex-column w-100'>
+            <div className='file-info p-2'>
+              <FileStatus t={t} fileStatus={1} fileTagText={t('form.file.new.label')}/>
             </div>
+            <FileInformation t={t} file={currentFile} />
           </div>
         </div>
       </div>
+    : currentFile && ( 
+      <div className='file-accessibility-info-wrapper w-100'>
+        <div className='accessibility-info-container flex-column w-100'>
+          <div className='file-info p-2'>
+            <FileStatus t={t} fileStatus={activeIssue.fileData.replacement ? 1 : 0} fileTagText={t()}/>
+          </div>
+          <FileInformation t={t} file={currentFile} />
+        </div>
+      </div>)
+      }
+
+     {fileReferenceHolder.length > 0 ? <div className="mt-3 rounded-table-wrapper">
+      <table className="file-reference-table">
+      <thead>
+        <tr>
+            <th>{t('form.file.content.label')}</th>
+            <th>{t('form.file.location.label')}</th>
+            <th>{t('form.file.status.label')}</th>
+        </tr>
+      </thead>
+      <tbody>
+          {fileReferenceHolder?.map((ref, index) => (
+                  <tr key={index}>
+                      <td className='content-title'>{ref.contentItemTitle}</td>
+                      <td>
+                          <a href={ref.contentItemUrl} target='_blank' className='location-link flex-row align-items-center'>
+                              {t('form.file.external_url.label')}
+                              <ExternalLinkIcon />
+                          </a>
+                      </td>
+                      <td>
+                          <span className={`status-badge ${activeIssue.fileData.replacement ? 'new-file-badge' : 'old-file-status'}`}>
+                              {ref.status == 1 ? t('form.file.new.label') : t('form.file.original.label')}
+                          </span>
+                      </td>
+                  </tr>
+              ))}
+      </tbody>
+      </table>
+     </div> : 
+      <div className='no-reference-container flex-row gap-1 justify-between align-items-center p-1 mt-3'>
+        <SeverityIssueIconFilled fill={'var(--issue-color)'} />
+        <div>{t('form.file.no_ref.label')}</div>
+      </div> 
+            }
+    </div> 
+    
+    }
     </>
   )
 }
