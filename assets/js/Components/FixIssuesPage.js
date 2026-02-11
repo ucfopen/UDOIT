@@ -82,7 +82,7 @@ export default function FixIssuesPage({
   const [unfilteredIssues, setUnfilteredIssues] = useState([])
   const [filteredIssues, setFilteredIssues] = useState([])
   const [groupedList, setGroupedList] = useState([])
-  const [widgetState, setWidgetState] = useState(WIDGET_STATE.LOADING)
+  const [widgetState, setWidgetState] = useState(settings.WIDGET_STATE.LOADING)
   const [liveUpdateToggle, setLiveUpdateToggle] = useState(true)
   const [clickedInfo, setClickedInfo] = useState({})
 
@@ -257,7 +257,7 @@ export default function FixIssuesPage({
     setFilteredIssues(tempFilteredContent)
     setGroupedList(groupList(tempFilteredContent))
 
-    setWidgetState(WIDGET_STATE.LIST)
+    setWidgetState(settings.WIDGET_STATE.LIST)
 
   }, [activeFilters, searchTerm])
 
@@ -323,7 +323,7 @@ export default function FixIssuesPage({
       }
 
       if(holdoverActiveIssue === null) {
-        setWidgetState(WIDGET_STATE.LIST)
+        setWidgetState(settings.WIDGET_STATE.LIST)
       }
     }
 
@@ -350,7 +350,7 @@ export default function FixIssuesPage({
       return
     }
   
-    setWidgetState(WIDGET_STATE.FIXIT)
+    setWidgetState(settings.WIDGET_STATE.FIXIT)
     const activeIssueClone = JSON.parse(JSON.stringify(activeIssue))
 
     activeIssueClone.issueData.initialHtml = Html.getIssueHtml(activeIssueClone.issueData)
@@ -853,7 +853,7 @@ export default function FixIssuesPage({
 
   return (
     <>
-      { widgetState === WIDGET_STATE.LOADING ? (
+      { widgetState === settings.WIDGET_STATE.LOADING ? (
         <></>
       ) : (
         <>
