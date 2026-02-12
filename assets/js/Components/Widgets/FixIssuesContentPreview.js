@@ -87,7 +87,7 @@ export default function FixIssuesContentPreview({
       <div className="live-preview-header">
         <h3 id="live-preview-label">Live Preview</h3>
         { activeIssue && (
-          <a href={activeIssue.contentUrl} target="_blank" rel="noreferrer">
+          <a href={activeIssue.contentUrl.includes("question") ? activeIssue.contentUrl.replace(/\/questions.*/, "/edit#questions_tab")  : activeIssue.contentUrl} target="_blank" rel="noreferrer">
             {activeIssue.contentTitle}
             <div className="flex-column justify-content-center ps-2" aria-hidden="true">
               <ExternalLinkIcon className="icon-sm link-color" alt="" />
