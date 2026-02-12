@@ -360,9 +360,6 @@ class CanvasLms implements LmsInterface {
         $apiToken = $this->getApiToken($user);
 
         $canvasApi = new CanvasApi($apiDomain, $apiToken);
-        $tempPages = [];
-        $pageUrls = [];
-        $asyncFetch = true;
 
         $start_time = microtime(true);
         foreach ($urls as $contentType => $url) {
@@ -382,7 +379,6 @@ class CanvasLms implements LmsInterface {
 
                 foreach ($contentList as $content) {
                     if ('file' === $contentType) {
-                      $output->writeln('Found file: ' . $content['display_name'] . ' Type: ' . $content['mime_class']);
                       if (in_array($content['mime_class'], $this->util->getUnscannableFileMimeClasses())) {
                         $this->updateFileItem($course, $content);
                         continue;
@@ -398,128 +394,14 @@ class CanvasLms implements LmsInterface {
                         continue;
                     }
 
-                    $lmsContent = $this->normalizeLmsContent($course, $contentType, $content);
-                    if (!$lmsContent) {
-                        continue;
-                    }
-
-                    /* Check to see if the existing content item is already in the database and hasn't been updated since.
-                       The $force variable is used to force the full rescan, and skips the 'already exists' check */
-
-                    $contentItem = $this->contentItemRepo->findOneBy([
-                        'contentType' => $contentType,
-                        'lmsContentId' => $lmsContent['id'],
-                        'course' => $course,
-                    ]);
-
-                    if (!$force && $contentItem) {
-                        $contentItemUpdated = $contentItem->getUpdated();
-                        $lmsUpdated = new \DateTime($lmsContent['updated'], UtilityService::$timezone);
-                        if ($contentItemUpdated == $lmsUpdated) {
-                            $contentItem->setActive(true);
-                            continue;
-                        }
-                        $output->writeln('Content item already exists but is out of date. Updating ' . $contentType . ': ' . $lmsContent['title']);
-                    }
-                    else {
-                        $output->writeln('New content item - ' . $contentType . ': ' . $lmsContent['title']);
-                    }
-
-                    if (!$contentItem) {
-                        $contentItem = new ContentItem();
-                        $contentItem->setCourse($course)
-                            ->setLmsContentId($lmsContent['id'])
-                            ->setActive(true)
-                            ->setContentType($contentType);
-                        $this->entityManager->persist($contentItem);
-                    }
-
-                    if ('page' === $contentType) {
-                        $url = "courses/{$course->getLmsCourseId()}/pages/{$lmsContent['id']}";  
-                        if($asyncFetch) {
-                            /* NEW PAGE FETCH: New asynchronous batch fetch. The real magic is in the $pageUrls handler beneath this foreach loop (line ~305). */
-                            $tempContentItems[] = $contentItem;
-                            $pageUrls[] = $url;
-                            continue;
-                        }
-                        else {
-                            /* OLD PAGE FETCH: 1-at-a-time synchronous fetch */
-                            $pageResponse = $canvasApi->apiGet($url);
-                            $pageObj = $pageResponse->getContent();
-
-                            if (!empty($pageObj['body'])) {
-                                $lmsContent['body'] = $pageObj['body'];
-                            }
-                        }
-                    }
-
-                    /* get HTML file content */
-                    if (('file' === $contentType) && ('html' === $content['mime_class'])) {
-                        $lmsContent['body'] = file_get_contents($content['url']);
-                    }
-
-                    // some content types don't have an updated date, so we'll compare content
-                    // to find out if content has changed.
-                    if (in_array($contentType, ['syllabus', 'discussion_topic', 'announcement', 'quiz'])) {
-                        if ($contentItem->getBody() === $lmsContent['body']) {
-                            if ($contentItem->getUpdated()) {
-                                $lmsContent['updated'] = $contentItem->getUpdated()->format('c');
-                            }
-                        }
-                    }
-
-                    if('quiz' === $contentType){
-                        $quiz_questions_url = "courses/{$courseId}/quizzes/{$lmsContent['id']}/questions";
-                        $quiz_questions = $canvasApi->apiGet($quiz_questions_url);
-                        $output->writeln("Quiz Questions: ");
-                        $output->writeln(json_encode($quiz_questions, JSON_PRETTY_PRINT));
-                    }
-
-                    $contentItem->update($lmsContent);
-                    if($contentItem->getBody() !== null) {
-                        $contentItems[] = $contentItem;
-                    }
+                    $this->saveOrUpdateContentItem($canvasApi, $course, $contentType, $content, $force);
                 }
             }
         }
-
-        // If there are any pages to fetch, handle that now...
-        if(count($pageUrls) > 0) {
-
-            $output->writeln('Fetching contents for ' . count($pageUrls) . ' pages asynchronously...');
-            
-            // Request pages in a batch instead of synchronously
-            $allPages = $canvasApi->apiGetBatch($pageUrls);
-            
-            // Save indices for the tempContentItems array so it will be easier (O(1)) to match up...
-            $tempContentItemsIndexById = [];
-            foreach($tempContentItems as $index => $item) {
-                $tempContentItemsIndexById[$item->getLmsContentId()] = $index;
-            }
-
-            foreach($allPages as $pageData) {
-                $lmsContent = $this->normalizeLmsContent($course, 'page', json_decode($pageData, true));
-
-                if (!empty($lmsContent['body'])) {
-                    $lmsContentId = $lmsContent['id'];
-                    // If the item exists in the tempContentItems array... Update and add to contentItems to scan.
-                    if(isset($tempContentItemsIndexById[$lmsContentId])) {
-                        $index = $tempContentItemsIndexById[$lmsContentId];
-                        $tempContentItems[$index]->update($lmsContent);
-                        $contentItems[] = $tempContentItems[$index];
-                    }
-                }
-            }
-        }
-
+        
         // push any updates made to content items to DB
         $this->entityManager->flush();
-
-        // Log how long things took (compare synchronous vs asynchronous page fetch)
-        $end_time = microtime(true);
-        $output->writeln('updateCourseContent - time taken: ' . ($end_time - $start_time) . ' seconds');
-
-        return $contentItems;
+        return $this->contentItemList;
     }
 
     public function getCourseSections(Course $course, User $user)
