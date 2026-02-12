@@ -5,18 +5,10 @@
     padding: 0 1rem 1rem 1rem;
   }
 
-  .options-container {
-    background-color: var(--background-color);
-    border-top: 1px solid var(--border-color);
-    border-bottom: 1px solid var(--border-color);
-    padding: .5rem 1rem;
-    margin: 0 -1rem;
-    font-size: 0.9em;
-  }
-
-  .options-label {
-    font-weight: 600;
-    text-transform: uppercase;
+  .data-table-container {
+    margin-block-start: 1.5rem;
+    border-block-start: 1px solid var(--border-color);
+    padding-block-start: 1.5rem;
   }
 
   .graph-container {
@@ -35,6 +27,11 @@
   }
 
   @media print {
+    @page {
+      size: landscape;
+      font-size: 12px;
+    }
+
     .print-area {
       display: block;
     }

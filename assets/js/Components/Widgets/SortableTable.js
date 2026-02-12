@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react'
-import SortIconFilled from '../Icons/SortIconFilled'
 import DownloadIcon from '../Icons/DownloadIcon'
+import LeftArrowIcon from '../Icons/LeftArrowIcon'
+import RightArrowIcon from '../Icons/RightArrowIcon'
+import SortIconFilled from '../Icons/SortIconFilled'
 
 import './SortableTable.css'
 
@@ -45,7 +47,7 @@ export default function SortableTable({
 
     rows.forEach(row => {
       const rowData = headers.map(header => {
-        const value = row[header.id];
+        const value = (typeof row[header.id] === 'object' && row[header.id + '_display']) ? row[header.id + '_display'] : row[header.id];
         return `"${value}"`;
       });
       csvData.push(rowData.join(','));
@@ -106,17 +108,18 @@ export default function SortableTable({
 
     //  
     return (
-      <div className="mt-3 flex-row justify-content-center">
+      <div className="mt-3 flex-row justify-content-between align-items-center gap-2 flex-wrap">
+        <div className="subtext align-content-center" dangerouslySetInnerHTML={{__html: t('report.label.table_visible', {first: start + 1, last: Math.min(start + rowsPerPage, rows.length), total: rows.length})}} />
         <nav
           className="pagination flex-row justify-content-center gap-1"
         >
           { tableSettings.pageNum > 0 && (
             <button
-              className="paginationButton"
+              className="paginationButton paginationBordered"
               title={t('report.button.previous')}
               aria-label={t('report.button.previous')}
               onClick={() => setPage(tableSettings.pageNum - 1)}>
-              &lt;
+              <LeftArrowIcon className='icon-sm' />
             </button>
           )}
           <button
@@ -134,11 +137,11 @@ export default function SortableTable({
           </button>
           { tableSettings.pageNum < (pageCount - 1) && (
             <button
-              className="paginationButton"
+              className="paginationButton paginationBordered"
               title={t('report.button.next')}
               aria-label={t('report.button.next')}
               onClick={() => setPage(tableSettings.pageNum + 1)}>
-              &gt;
+              <RightArrowIcon className='icon-sm' />
             </button>
           )}
         </nav>
@@ -149,9 +152,9 @@ export default function SortableTable({
   return (
     <>
       {( caption && caption.length > 0 ) &&
-        <div className="flex-row mb-2">
-          <div className="flex-grow-1 flex-row justify-content-center">
-            <h2 className="flex-column align-self-center primary-dark mt-0 mb-0" id={`caption-${captionId}`}>{caption}</h2>
+        <div className="flex-row flex-wrap mb-2 gap-2">
+          <div className="flex-grow-1 flex-row">
+            <h2 className="flex-column align-self-center m-0" id={`caption-${captionId}`}>{caption}</h2>
           </div>
           <div className="flex-grow-0">
             <button className="btn-secondary btn-small btn-icon-left" onClick={()=>exportToCSV()}>

@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import Chart, { Interaction } from "chart.js/auto";
-import SidebarPanel from "./SidebarPanel";
+import SliderSelect from "../Widgets/SliderSelect";
 import './ResolutionsReport.css';
 
 /** ---------- Mock data for testing (optional) ---------- */
@@ -33,21 +33,21 @@ const LINE_STYLES = [
   { color: "rgba(101, 98, 98, 1)", dash: [15, 5] },  
 ];
 
-// Display config for errors, potentials, and suggestions on line graphs
+// Display config for errors, potentials, and files on line graphs
 const METRIC_CONFIG = {
   errors: {
     label: (t) => t("report.header.issues"),
-    color: "rgb(249, 65, 68)",
+    color: "rgb(231, 0, 11)",
     dash: [],
   },
   potentials: {
     label: (t) => t("report.header.potential"),
-    color: "rgb(247, 150, 30)",
+    color: "rgb(245, 73, 0)",
     dash: [5, 5],
   },
-  suggestions: {
-    label: (t) => t("report.header.suggestions"),
-    color: "rgb(48, 176, 228)",
+  files: {
+    label: (t) => t("filter.label.review.unreviewed"),
+    color: "rgb(21, 93, 252)",
     dash: [2, 2],
   },
 };
@@ -56,7 +56,7 @@ export default function ResolutionsReport({
   t,
   reports = null,
   selectedCourse = null,
-  visibility = { issues: true, potentialIssues: true, suggestions: true },
+  visibility = { issues: true, potentialIssues: true, files: true },
 }) {
   const canvasRef = useRef(null);
   const chartRef = useRef(null);
@@ -66,6 +66,7 @@ export default function ResolutionsReport({
   const [searchTerm, setSearchTerm] = useState("");
   const [dateStart, setDateStart] = useState(null);
   const [dateEnd, setDateEnd] = useState(null);
+  const [selectedPreset, setSelectedPreset] = useState('30');
   const courseLimit = 5;
 
   /** ---------- Use memoization to avoid compute on re-render ---------- */
@@ -122,7 +123,7 @@ export default function ResolutionsReport({
 
       return {
         labels: dates,
-        datasets: ["errors", "potentials", "suggestions"].map((key) =>
+        datasets: ["errors", "potentials", "files"].map((key) =>
           makeMetricDataset({ key, data: getSeries(key), t })
         ),
         chartType: "line",
@@ -151,7 +152,7 @@ export default function ResolutionsReport({
       };
       return {
         labels: dates,
-        datasets: ["errors", "potentials", "suggestions"].map((key) =>
+        datasets: ["errors", "potentials", "files"].map((key) =>
           makeMetricDataset({
             key,
             data: dates.map((d) => valueAt(d, key)),
@@ -219,8 +220,8 @@ export default function ResolutionsReport({
     if (visibility.issues) bars.push(makeBar("errors", t("report.header.issues")));
     if (visibility.potentialIssues)
       bars.push(makeBar("potentials", t("report.header.potential")));
-    if (visibility.suggestions)
-      bars.push(makeBar("suggestions", t("report.header.suggestions")));
+    if (visibility.files)
+      bars.push(makeBar("files", t("filter.label.review.unreviewed")));
 
     return {
       labels: activeCourseNames,
@@ -236,13 +237,26 @@ export default function ResolutionsReport({
     chartMode,
     visibility.issues,
     visibility.potentialIssues,
-    visibility.suggestions,
+    visibility.files,
     allCourseNames,
     activeCourseNames,
     t,
     dateStart,
     dateEnd,
   ]);
+
+  const handlePreset = (daysStr) => {
+    let days = 9999
+    if(!isNaN(Number(daysStr))) {
+      days = Number(daysStr)
+    }
+    const today = new Date()
+    const from = new Date(today)
+    from.setDate(today.getDate() - days)
+    setDateStart(from.toISOString().slice(0, 10))
+    setDateEnd(today.toISOString().slice(0, 10))
+    setSelectedPreset(daysStr)
+  }
 
   /** ---------- Chart options ---------- */
   const options = useMemo(
@@ -316,11 +330,23 @@ export default function ResolutionsReport({
 
   return (
     <div className="resolutions-report-container">
-      {/* Main chart area */}
-      <div className="resolutions-chart-area">
-        <h2 className="resolutions-header">
+      <div className="flex-row flex-wrap gap-2 justify-content-between align-items-center">
+        <h2 className="m-0">
           {t('report.title.barriers_remaining')}
         </h2>
+        <SliderSelect
+          groupName = 'sliderSelect'
+          activeOption={selectedPreset}
+          setActiveOption={handlePreset}
+          options = {[
+            {name: t('report.time.1_week'), value: '7'},
+            {name: t('report.time.1_month'), value: '30'},
+            {name: t('report.time.6_months'), value: '180'},
+            {name: t('report.time.all_time'), value: 'all'},]}
+          />
+      </div>
+      {/* Main chart area */}
+      <div className="resolutions-chart-area">
         {showModeToggle && (
           <div className="resolutions-mode-toggle">
             <button
@@ -343,25 +369,6 @@ export default function ResolutionsReport({
           <canvas ref={canvasRef} id="resolutionsChart" />
         </div>
       </div>
-
-      {/* Sidebar: always rendered */}
-      <SidebarPanel
-        showCourseBrowser={!isSingleCourse && !isArrayHistory}
-        showDateFilter={chartMode !== "bar"}
-        filteredCourseNames={filteredCourseNames}
-        selectedCourses={selectedCourses}
-        setSelectedCourses={setSelectedCourses}
-        searchTerm={searchTerm}
-        setSearchTerm={setSearchTerm}
-        selectedCount={selectedCount}
-        courseLimit={courseLimit}
-        t={t}
-        dateStart={dateStart}
-        setDateStart={setDateStart}
-        dateEnd={dateEnd}
-        setDateEnd={setDateEnd}
-        minWidth={chartMode === "line" ? 305 : 280}
-      />
     </div>
   );
 }

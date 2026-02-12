@@ -9,6 +9,7 @@ export default function InfoPopover({
   iconSize = 18,
   triggerAriaLabel = t('report.button.issue_tooltip')
 }) {
+
   const [open, setOpen] = useState(false)
   const [coords, setCoords] = useState({ x: 0, y: 0 })
   const dialogRef = useRef(null)
@@ -16,27 +17,24 @@ export default function InfoPopover({
   const lastButtonRef = useRef(null)
 
   const handleOpen = (e) => {
+    e.preventDefault()
     e.stopPropagation()
+
     let x, y
-    // If opened by keyboard, e.clientX and e.clientY will be 0
-    if (e.clientX === 0 && e.clientY === 0 && lastButtonRef.current) {
-      const rect = lastButtonRef.current.getBoundingClientRect()
-      x = rect.right + window.scrollX + 12
-      y = rect.top + window.scrollY - 12 
-    } else {
-      x = e.clientX + window.scrollX + 12
-      y = e.clientY + window.scrollY + 4
-    }
+    let buttonRect = e.currentTarget.getBoundingClientRect()
+    x = buttonRect.right + window.scrollX + 12
+    y = buttonRect.top + window.scrollY - 4
     setCoords({ x, y })
     lastButtonRef.current = e.currentTarget
     setOpen(true)
   }
 
-  const handleClose = () => {
+  const handleClose = (e) => {
+    e.preventDefault()
+    e.stopPropagation()
     setOpen(false)
     lastButtonRef.current?.blur()
-}
-
+  }
 
   useEffect(() => {
     const dialog = dialogRef.current
@@ -86,13 +84,9 @@ export default function InfoPopover({
       return () => window.removeEventListener('click', closeOnClickOutside)
     } else if (dialogRef.current?.open) {
       dialogRef.current.close()
-    }
-  }, [open])
-
-  // restore focus to last trigger
-  useEffect(() => {
-    if (!open && lastButtonRef.current) {
-      lastButtonRef.current.focus()
+      if(lastButtonRef.current) {
+        lastButtonRef.current.focus()
+      }
     }
   }, [open])
 
@@ -106,6 +100,11 @@ export default function InfoPopover({
         aria-controls={open ? 'info-popover-dialog' : undefined}
         aria-label={triggerAriaLabel}
         onClick={handleOpen}
+        onKeyDown={(e) => {
+          if(e.key === 'Enter' || e.key === ' ') {
+            handleOpen(e)
+          }
+        }}
         ref={lastButtonRef}
       >
 
@@ -133,6 +132,11 @@ export default function InfoPopover({
             className="info-popover-close"
             ref={closeButtonRef}
             onClick={handleClose}
+            onKeyDown={(e) => {
+              if(e.key === 'Enter' || e.key === ' ') {
+                handleClose(e)
+              }
+            }}
           >
             {label}
           </button>

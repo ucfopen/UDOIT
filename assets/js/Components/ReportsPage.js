@@ -4,8 +4,11 @@ import Api from '../Services/Api'
 import ResolutionsReport from './Reports/ResolutionsReport'
 import ReportsTable from './Reports/ReportsTable'
 import IssuesTable from './Reports/IssuesTable'
+import { formNameFromRule } from '../Services/Ufixit'
+import InfoPopover from './Widgets/InfoPopover'
 import ProgressIcon from './Icons/ProgressIcon'
 import PrintIcon from './Icons/PrintIcon'
+import SortIcon from './Icons/SortIcon'
 import './ReportsPage.css'
 
 export default function ReportsPage({t, report, settings, quickSearchTerm}) {
@@ -13,7 +16,6 @@ export default function ReportsPage({t, report, settings, quickSearchTerm}) {
   const [reports, setReports] = useState([])
   const [fetchedReports, setFetchedReports] = useState(false)
   const [issues, setIssues] = useState([])
-  const [showChart, setShowChart] = useState(true)
   const [showTable, setShowTable] = useState(false)
 
   const getReportHistory = () => {
@@ -54,7 +56,63 @@ export default function ReportsPage({t, report, settings, quickSearchTerm}) {
       }
     }
 
-    return rules
+    let tempIssues = Object.values(rules)
+    tempIssues.map((issue => {
+      let label = ''
+      let searchTerm = ''
+      let formName = formNameFromRule(issue.id)
+      if(formName === 'review_only') {
+        label = t('report.label.unhandled') + issue.id
+        searchTerm = issue.id
+      }
+      else {
+        label = t(`form.${formName}.title`)
+        searchTerm = t(`form.${formName}.title`)
+      }
+      issue.display = label
+      issue.label = ( 
+        <span className="issue-label">
+          {label}
+          <InfoPopover
+            t={t}
+            content={t(`form.${formName}.summary`)}
+          />
+        </span>
+      )
+      issue.label_display = label
+      issue.summary = t(`form.${formName}.summary`)
+      if(quickSearchTerm !== null) {
+        issue.onClick = () => quickSearchTerm(searchTerm)
+      }
+      return issue
+    }))
+
+    let mergedIssues = []
+    let labels = []
+    tempIssues.forEach((issue) => {
+      if (!labels.includes(issue.label_display)) {
+        labels.push(issue.label_display)
+        if(issue.type === 'error' || issue.type === 'issue') {
+          issue.type = t('filter.label.severity.issue')
+        }
+        else if(issue.type === 'potential') {
+          issue.type = t('filter.label.severity.potential')
+        }
+        else if(issue.type === 'suggestion') {
+          issue.type = t('filter.label.severity.suggestion')
+        }
+        issue.handled = (issue.fixed + issue.resolved > 0 ? 1 : 0)
+        mergedIssues.push(issue)
+      }
+      else {
+        let index = mergedIssues.findIndex((i) => i.label_display === issue.label_display)
+        mergedIssues[index].total += issue.total
+        mergedIssues[index].active += issue.active
+        mergedIssues[index].handled += (issue.fixed + issue.resolved > 0 ? 1 : 0)
+      }
+    })
+
+    return mergedIssues
   }
 
   useEffect(() => {
@@ -111,7 +169,7 @@ export default function ReportsPage({t, report, settings, quickSearchTerm}) {
 
     const tableHeaders = headers.map(h => `<th>${h.text}</th>`).join('')
     const tableRows = rows.map(row => {
-      const cells = headers.map(h => `<td>${row[h.id] != null ? row[h.id] : ''}</td>`).join('')
+      const cells = headers.map(h => `<td>${(typeof row[h.id] === 'object' && row[h.id + '_display']) ? row[h.id + '_display'] : row[h.id]}</td>`).join('')
       return `<tr>${cells}</tr>`
     }).join('')
 
@@ -146,11 +204,20 @@ export default function ReportsPage({t, report, settings, quickSearchTerm}) {
             h2 {
               text-align: center;
             }
+            .subHeading {
+              width: 100%;
+              margin-top: -.5rem;
+              text-align: center;
+              font-size: 14px;
+              color: #777;
+              font-weight: 200;
+            }
             table {
               width: 100%; border-collapse: collapse;
             }
             table, th, td {
               border: 1px solid #000;
+              font-size: 12px;
             }
             th, td {
               padding: 8px;
@@ -165,10 +232,10 @@ export default function ReportsPage({t, report, settings, quickSearchTerm}) {
         </head>
         <body>
           <h2>${t('report.label.printed_report')}</h2>` +
-          (showChart ? `
-          <div id="printResolutionsReport">
+          `<div class="subHeading">${t('report.label.generated_on', {date: new Date().toLocaleString()})}</p>` +
+          `<div id="printResolutionsReport">
             <img src="${dataUrl}" alt="${t('report.label.resolutions_chart')}" style="max-width: 100%; height: auto; margin-bottom: 20px;" />
-          </div>` : '') +
+          </div>` +
           (showTable ?  `
           <div id="reportsTable">
             ${reportsTableRaw}
@@ -208,7 +275,6 @@ export default function ReportsPage({t, report, settings, quickSearchTerm}) {
           </button>
         )}
       </div>
-      <p className="pageSubtitle">{t('report.subtitle')}</p>
       { (!fetchedReports) && (
         <div className="mt-3 mb-3 flex-row justify-content-center">
           <div className="flex-column justify-content-center me-3">
@@ -226,49 +292,41 @@ export default function ReportsPage({t, report, settings, quickSearchTerm}) {
       )}
 
       { (fetchedReports && reports.length > 0) && (
-        <div className="flex-column">
-          <div className="flex-row justify-content-start gap-2 flex-wrap options-container">
-            <div className="options-label">{t('report.label.progress_over_time')}</div>
-            <div className="flex-row gap-1">
-              <input type="checkbox" id="showChart" name="showChart"
-                checked={showChart}
-                onChange={() => setShowChart(!showChart)} />
-              <label className="fw-bolder" htmlFor="showChart">{t('report.option.show_chart')}</label>
-            </div>
-            <div className="flex-row gap-1">
-              <input type="checkbox" id="showTable" name="showTable"
-                checked={showTable}
-                onChange={() => setShowTable(!showTable)} />
-              <label className="fw-bolder" htmlFor="showTable">{t('report.option.show_table')}</label>
-            </div>
-          </div>
-          <div className="flex-column w-100 flex-shrink-1 flex-grow-1">
-            { showChart && (
-              <div className="mt-4">
-                <div id="resolutionsReport" className="graph-container">
-                  <ResolutionsReport t={t} reports={reports}/>
+        <>
+          <p className="pageSubtitle">{t('report.subtitle')}</p>
+          <div className="flex-column">
+            <div className="callout-container p-4 flex-column w-100 flex-shrink-1 flex-grow-1">
+              <div id="resolutionsReport" className="graph-container">
+                <ResolutionsReport t={t} reports={reports}/>
+              </div>
+              <div className="flex-row justify-content-end">
+                <button 
+                  className="btn-small btn-icon-right btn-secondary"
+                  onClick={() => setShowTable(!showTable)}>
+                    {showTable ? t('report.option.hide_data') : t('report.option.show_data')}
+                    <SortIcon className={`icon-md ${showTable ? 'rotate-180' : ''}`} />
+                </button>
+              </div>
+
+              { showTable && (
+                <div className="data-table-container">
+                  <ReportsTable
+                    t={t}
+                    reports={reports}/>
                 </div>
-              </div>
-            )}
+              )}
+              
+            </div>
 
-            { showTable && (
-              <div className="mt-4">
-                <ReportsTable
-                  t={t}
-                  reports={reports}/>
-              </div>
-            )}
-            
+            <div className="mt-4">
+              <IssuesTable
+                t={t}
+                settings={settings}
+                quickSearchTerm={quickSearchTerm}
+                issues={issues}/>
+            </div>
           </div>
-
-          <div className="mt-4">
-            <IssuesTable
-              t={t}
-              settings={settings}
-              quickSearchTerm={quickSearchTerm}
-              issues={issues}/>
-          </div>
-        </div>
+        </>
       )}
     </div>
   )
