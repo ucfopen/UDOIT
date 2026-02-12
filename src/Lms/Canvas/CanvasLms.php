@@ -354,7 +354,8 @@ class CanvasLms implements LmsInterface {
     {
         $output = new ConsoleOutput();
         $this->contentItemList = [];
-        $urls = $this->getCourseContentUrls($course->getLmsCourseId());
+        $courseId = $course->getLmsCourseId();
+        $urls = $this->getCourseContentUrls($courseId);
         $apiDomain = $this->getApiDomain($user);
         $apiToken = $this->getApiToken($user);
 
@@ -465,6 +466,13 @@ class CanvasLms implements LmsInterface {
                                 $lmsContent['updated'] = $contentItem->getUpdated()->format('c');
                             }
                         }
+                    }
+
+                    if('quiz' === $contentType){
+                        $quiz_questions_url = "courses/{$courseId}/quizzes/{$lmsContent['id']}/questions";
+                        $quiz_questions = $canvasApi->apiGet($quiz_questions_url);
+                        $output->writeln("Quiz Questions: ");
+                        $output->writeln(json_encode($quiz_questions, JSON_PRETTY_PRINT));
                     }
 
                     $contentItem->update($lmsContent);
