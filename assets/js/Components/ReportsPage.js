@@ -6,8 +6,10 @@ import ReportsTable from './Reports/ReportsTable'
 import IssuesTable from './Reports/IssuesTable'
 import { formNameFromRule } from '../Services/Ufixit'
 import InfoPopover from './Widgets/InfoPopover'
+import StatusPill from './Widgets/StatusPill'
 import ProgressIcon from './Icons/ProgressIcon'
 import PrintIcon from './Icons/PrintIcon'
+import RightArrowIcon from './Icons/RightArrowIcon'
 import SortIcon from './Icons/SortIcon'
 import './ReportsPage.css'
 
@@ -60,22 +62,39 @@ export default function ReportsPage({t, report, settings, quickSearchTerm}) {
     tempIssues.map((issue => {
       let label = ''
       let searchTerm = ''
+      let content = ''
       let formName = formNameFromRule(issue.id)
       if(formName === 'review_only') {
         label = t('report.label.unhandled') + issue.id
+        let tempContent = t('rule.summary.'+ issue.id)
+        if(tempContent === `rule.summary.${issue.id}`) {
+          tempContent = t('form.review_only.summary')
+        }
+        content = tempContent
         searchTerm = issue.id
       }
       else {
         label = t(`form.${formName}.title`)
         searchTerm = t(`form.${formName}.title`)
+        content = t(`form.${formName}.summary`)
       }
       issue.display = label
       issue.label = ( 
-        <span className="issue-label">
+        <span className="issue-label clickable-text">
           {label}
           <InfoPopover
             t={t}
-            content={t(`form.${formName}.summary`)}
+            title={t('fix.label.barrier_information')}
+            content={content}
+            action={(
+              <button
+                className="btn-text btn-link btn-icon-right"
+                onClick={() => quickSearchTerm(searchTerm)}
+              >
+                {t('report.label.view_barriers')}
+                <RightArrowIcon className='icon-sm' />
+              </button>
+            )}
           />
         </span>
       )
@@ -93,13 +112,12 @@ export default function ReportsPage({t, report, settings, quickSearchTerm}) {
       if (!labels.includes(issue.label_display)) {
         labels.push(issue.label_display)
         if(issue.type === 'error' || issue.type === 'issue') {
-          issue.type = t('filter.label.severity.issue')
+          issue.type = (<StatusPill t={t} settings={settings} issue={{status: settings.ISSUE_FILTER.ACTIVE, severity: settings.ISSUE_FILTER.ISSUE}} />)
+          issue.type_display = t('filter.label.severity.issue')
         }
-        else if(issue.type === 'potential') {
-          issue.type = t('filter.label.severity.potential')
-        }
-        else if(issue.type === 'suggestion') {
-          issue.type = t('filter.label.severity.suggestion')
+        else if(issue.type === 'potential' || issue.type === 'suggestion') {
+          issue.type = (<StatusPill t={t} settings={settings} issue={{status: settings.ISSUE_FILTER.ACTIVE, severity: settings.ISSUE_FILTER.POTENTIAL}} />)
+          issue.type_display = t('filter.label.severity.potential')
         }
         issue.handled = (issue.fixed + issue.resolved > 0 ? 1 : 0)
         mergedIssues.push(issue)

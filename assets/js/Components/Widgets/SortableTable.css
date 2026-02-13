@@ -66,23 +66,16 @@
         border-bottom: 1px solid var(--border-color);
       }
 
-      &:hover {
-        td div,
-        td span {
-          text-decoration: underline;
-        }
-      }
-
       &.clickable {
         cursor: pointer;
-        /* color: var(--link-color);
-        text-decoration: none;
-        font-weight: 600; */
 
         &:hover,
         &:focus {
-          text-decoration: underline;
           background-color: var(--link-color-light);
+
+          .clickable-text {
+            text-decoration: underline;
+          }
         }
 
         &:focus {

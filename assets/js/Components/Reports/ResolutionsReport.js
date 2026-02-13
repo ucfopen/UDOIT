@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import Chart, { Interaction } from "chart.js/auto";
+import Chart from "chart.js/auto";
 import SliderSelect from "../Widgets/SliderSelect";
 import './ResolutionsReport.css';
 
@@ -66,7 +66,7 @@ export default function ResolutionsReport({
   const [searchTerm, setSearchTerm] = useState("");
   const [dateStart, setDateStart] = useState(null);
   const [dateEnd, setDateEnd] = useState(null);
-  const [selectedPreset, setSelectedPreset] = useState('30');
+  const [selectedPreset, setSelectedPreset] = useState('all');
   const courseLimit = 5;
 
   /** ---------- Use memoization to avoid compute on re-render ---------- */

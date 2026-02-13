@@ -103,6 +103,7 @@
   "report.label.presets": "Presets",
   "report.label.printed_report": "UDOIT Accessibility Report",
   "report.label.generated_on": "Generated on {date}",
+  "report.label.view_barriers": "View Barriers",
   "report.label.issue": "Barriers",
   "report.label.potential": "Potential Barriers",
   "report.label.suggestion": "Suggestion",
