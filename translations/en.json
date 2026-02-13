@@ -19,13 +19,15 @@
   "menu.nav.toggle_menu": "Toggle Menu",
 
   "welcome.title": "Welcome to",
-  "welcome.description": "UDOIT helps you through the process of removing accessibility barriers in your online course content.",
+  "welcome.subtitle": "Make Your Course Accessible",
+  "welcome.description": "UDOIT scans your online course content to identify accessibility barriers and gives you the tools to create inclusive learning experiences for all students.",
   "welcome.scan": "Find accessibility barriers quickly with an automated scan.",
   "welcome.fix": "Fix issues easily with simple tools and just-in-time instructions.",
   "welcome.report": "Make steady progress with small daily goals and easy reporting tools.",
   "welcome.product_tagline": "A Product of",
   "welcome.version": "Version ",
-  "welcome.button.scanning": "Scanning Course... Please Wait",
+  "welcome.label.scanning": "Scanning Course... Please Wait",
+  "welcome.label.scan_complete": "Scan Complete",
   "welcome.button.ready": "Get Started",
 
   "summary.title": "Accessibility Summary",

@@ -164,7 +164,7 @@ export default function HomePage({
           <button className="btn-small btn-icon-left" tabIndex="0" disabled>
             <ProgressIcon className="icon-sm spinner" />
             <div className="flex-column justify-content-center">
-              {t('welcome.button.scanning')}
+              {t('welcome.label.scanning')}
             </div>
           </button>
           ) : (
