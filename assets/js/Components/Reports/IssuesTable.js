@@ -37,9 +37,9 @@ export default function IssuesTable({
       let aValue = a[sortBy]
       let bValue = b[sortBy]
 
-      if (sortBy === "label") {
-        aValue = a.display || ""
-        bValue = b.display || ""
+      if (typeof(aValue) === "object" && typeof(bValue) === "object") {
+        aValue = a[sortBy + "_display"] || ""
+        bValue = b[sortBy + "_display"] || ""
       }
 
       if (isNaN(aValue) || isNaN(bValue)) {
