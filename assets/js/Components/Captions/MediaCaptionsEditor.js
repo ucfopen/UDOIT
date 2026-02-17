@@ -181,7 +181,7 @@ export default function MediaCaptionsEditor({
         end,
         drag: true,
         resize: true,
-        content: `#${i + 1}\t${cue.text}`,
+        content: cue.text,
         color: i === selectedIndex ? "rgba(50,150,255,0.35)" : "rgba(120,120,120,0.18)",
       });
 
@@ -195,7 +195,7 @@ export default function MediaCaptionsEditor({
         region.element.style.outline = 'none';
         region.element.setAttribute(
           'aria-label',
-          `Region ${i + 1}, from ${cue.start} to ${cue.end}: ${cue.text}`
+          `Region from ${cue.start} to ${cue.end}: ${cue.text}`
         );
       }
 
@@ -604,7 +604,7 @@ export default function MediaCaptionsEditor({
                     alignItems: "center",
                     gap: 8,
                     marginBottom: 8,
-                    background: active ? "#eef6ff" : undefined,
+                    background: active ? "#3296ff59" : undefined,
                     borderRadius: 4,
                     padding: 4,
                   }}
@@ -615,7 +615,6 @@ export default function MediaCaptionsEditor({
                   role="group"
                   aria-label={`Caption ${i + 1}`}
                 >
-                  <span style={{ minWidth: 24, textAlign: "right" }}>{i + 1}</span>
                   <input
                     id={`cue-field-${i}-0`}
                     type="text"
