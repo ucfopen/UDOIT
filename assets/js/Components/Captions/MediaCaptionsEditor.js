@@ -3,6 +3,7 @@ import WavesurferPlayer from "@wavesurfer/react";
 import Timeline from "wavesurfer.js/dist/plugins/timeline.esm.js";
 import Regions from "wavesurfer.js/dist/plugins/regions.esm.js";
 import CaptionEditDialog from "./CaptionEditDialog";
+import './MediaCaptions.css';
 import {
   parseVTT,
   buildVttText,
@@ -733,6 +734,7 @@ export default function MediaCaptionsEditor({
       {/* Waveform focus container */}
       <div style={{ border: "1px solid #ddd", borderRadius: 6, padding: 8 }}>
         <div
+          id="waveform"
           ref={waveformFocusRef}
           tabIndex={0}
           aria-label="Waveform. Press Enter to navigate regions, Tab to cycle, Escape to go back."

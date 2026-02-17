@@ -1,0 +1,5 @@
+#waveform ::part(region-content) {
+  position: absolute;
+  top: 0;
+  margin-top: 0px;
+}
