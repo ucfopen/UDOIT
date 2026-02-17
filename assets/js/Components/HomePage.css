@@ -32,6 +32,7 @@
   box-sizing: border-box;
   border: 1px solid var(--border-color);
   border-radius: var(--element-radius);
+  background-color: var(--white);
 
   .summary-icon-container {
     padding: .5rem;

@@ -193,7 +193,7 @@ export default function HomePage({
                 <SeverityIcon type={panel.type} className='icon-lg' />
               </div>
               <div className="summary-text-container">
-                <h2>{t('summary.label.' + panel.translationKey)}</h2>
+                <h2 className="mt-0">{t('summary.label.' + panel.translationKey)}</h2>
                 <div aria-label={Html.getTextContent('<p>' + t('summary.' + panel.translationKey + '.description', {count: panel.counter.total}) + '</p>')}>
                   <div
                     className="subtext"
@@ -228,7 +228,7 @@ export default function HomePage({
 
       <div className="widget-container">
         <div className="callout-container feedback-container flex-column h-fit p-4 flex-grow-1">
-          <h2 className="text-center">{t('summary.label.course_progress')}</h2>
+          <h2 className="mt-0 text-center">{t('summary.label.course_progress')}</h2>
           <div className="flex-row align-self-center">
             <div className="flex-column progress-container">
               <div className="flex-row justify-content-center" aria-label={`${combinedCount.percent.toFixed(0)}%`}>

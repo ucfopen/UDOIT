@@ -56,7 +56,16 @@ export default function ReportsTable({
   };
 
   const getContent = () => {
-    let list = getLatestReports(reports); // Preprocess reports to get the latest entry per course
+    let list = []
+    if(reports && reports.length > 0) {
+      if(reports[0].courseName) {
+        list = getLatestReports(reports)  // Preprocess reports to get the latest entry per course
+      }
+      else {
+        list = reports  // If reports are already in the expected format, use them directly
+      }
+    }
+
     if (!list) {
       return [];
     }
