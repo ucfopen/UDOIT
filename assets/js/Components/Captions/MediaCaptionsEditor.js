@@ -478,23 +478,6 @@ export default function MediaCaptionsEditor({
     if (ws && video.duration) ws.seekTo(newTime / video.duration);
   }, []);
 
-  const [focusLayer, setFocusLayer] = useState("top");
-  const [focusedRow, setFocusedRow] = useState(-1);
-  const [focusedField, setFocusedField] = useState(-1);
-
-  // Focus management for table and layers
-  useEffect(() => {
-    if (focusLayer === "table" && focusedRow === -1) {
-      document.getElementById("table-focus-layer")?.focus();
-    }
-    if (focusLayer === "table" && focusedRow >= 0) {
-      document.getElementById(`cue-row-${focusedRow}`)?.focus();
-    }
-    if (focusLayer === "row" && focusedRow >= 0 && focusedField >= 0) {
-      document.getElementById(`cue-field-${focusedRow}-${focusedField}`)?.focus();
-    }
-  }, [focusLayer, focusedRow, focusedField]);
-
   const [dialogOpen, setDialogOpen] = useState(false);
   const [dialogCueIndex, setDialogCueIndex] = useState(-1);
 
@@ -552,6 +535,21 @@ export default function MediaCaptionsEditor({
     return () => clearInterval(interval);
   }, []);
 
+  // Seek to highlighted row's start when selection changes
+  useEffect(() => {
+    if (selectedIndex < 0 || !cues[selectedIndex]) return;
+    const video = videoElRef.current;
+    const ws = wavesurferRef.current;
+    const startSec = vttToMS(cues[selectedIndex].start) / 1000;
+    if (video?.duration) {
+      video.currentTime = startSec;
+    }
+    const duration = ws?.getDuration?.();
+    if (ws && duration) {
+      ws.seekTo(startSec / duration);
+    }
+  }, [selectedIndex, cues, videoElRef, wavesurferRef]);
+
   return (
     <div className="media-captions-editor" style={{ display: "flex", flexDirection: "column", gap: 12 }}>
       <div style={{ display: "flex", gap: 12, flexWrap: "wrap", alignItems: "center" }}>
@@ -580,9 +578,8 @@ export default function MediaCaptionsEditor({
       </div>
 
       <div style={{ display: "grid", gridTemplateColumns: "60% 40%", gap: 12, minHeight: 0 }}>
-        {/* Left: table with focus layer */}
+        {/* Left: table without custom focus rules */}
         <div
-          tabIndex={focusLayer === "top" ? 0 : -1}
           id="table-focus-layer"
           aria-label="Captions List"
           style={{
@@ -594,25 +591,6 @@ export default function MediaCaptionsEditor({
             display: "flex",
             flexDirection: "column"
           }}
-          onKeyDown={(e) => {
-            if (focusLayer === "top" && (e.key === "Enter" || e.key === " ")) {
-              setFocusLayer("table");
-              setFocusedRow(0);
-              e.preventDefault();
-            }
-            if (focusLayer === "table" && focusedRow === -1 && e.key === "Enter") {
-              setFocusedRow(0);
-              e.preventDefault();
-            }
-            if (focusLayer === "table" && focusedRow === -1 && e.key === "Escape") {
-              setFocusLayer("top");
-              e.preventDefault();
-            }
-          }}
-          onFocus={() => {
-            if (focusLayer !== "row") setFocusLayer("table");
-            setFocusedRow(-1);
-          }}
         >
           <ul aria-label="Caption list" style={{ listStyle: "none", padding: 0, margin: 0 }}>
             {cues.map((cue, i) => {
@@ -621,7 +599,6 @@ export default function MediaCaptionsEditor({
                 <li
                   key={cue.id || i}
                   id={`cue-row-${i}`}
-                  tabIndex={focusLayer === "table" && focusedRow === i ? 0 : -1}
                   style={{
                     display: "flex",
                     alignItems: "center",
@@ -631,34 +608,12 @@ export default function MediaCaptionsEditor({
                     borderRadius: 4,
                     padding: 4,
                   }}
-                  onClick={() => setSelectedIndex(i)}
+                  onClick={() => {
+                    setSelectedIndex(i);
+                    selectCue(i, vttToMS(cue.start) / 1000);
+                  }}
                   role="group"
                   aria-label={`Caption ${i + 1}`}
-                  onDoubleClick={() => selectCue(i, vttToMS(cue.start) / 1000)}
-                  onKeyDown={(e) => {
-                    if (e.key === "ArrowDown" && i < cues.length - 1) {
-                      setFocusedRow(i + 1);
-                      e.preventDefault();
-                    }
-                    if (e.key === "ArrowUp" && i > 0) {
-                      setFocusedRow(i - 1);
-                      e.preventDefault();
-                    }
-                    if (e.key === "Escape") {
-                      setFocusedRow(-1);
-                      document.getElementById("table-focus-layer")?.focus();
-                      e.preventDefault();
-                    }
-                    if (e.key === "Enter") {
-                      setFocusLayer("row");
-                      setFocusedField(0);
-                      e.preventDefault();
-                    }
-                  }}
-                  onFocus={() => {
-                    setFocusLayer("table");
-                    setFocusedRow(i);
-                  }}
                 >
                   <span style={{ minWidth: 24, textAlign: "right" }}>{i + 1}</span>
                   <input
@@ -669,12 +624,7 @@ export default function MediaCaptionsEditor({
                     style={{ flex: 2, minWidth: 0 }}
                     aria-label={`Caption ${i + 1} text`}
                     onBlur={(e) => updateCueText(i, e.target.value)}
-                    onKeyDown={(e) => {
-                      if (e.key === "Enter") {
-                        e.currentTarget.blur();
-                        e.preventDefault();
-                      }
-                    }}
+                    onFocus={() => setSelectedIndex(i)}
                   />
                   <button
                     type="button"
@@ -686,6 +636,7 @@ export default function MediaCaptionsEditor({
                       setDialogOpen(true);
                       setDialogCueIndex(i);
                     }}
+                    onFocus={() => setSelectedIndex(i)}
                   >
                     Edit
                   </button>
@@ -695,6 +646,7 @@ export default function MediaCaptionsEditor({
           </ul>
           <div style={{ color: "red", minHeight: 18, marginTop: 6 }}>{error}</div>
         </div>
+
         {/* Right: video + controls */}
         <div style={{ display: "flex", flexDirection: "column", gap: 8, minHeight: 0 }}>
           <div style={{ background: "#000", borderRadius: 6, overflow: "hidden", aspectRatio: "16/9", width: "100%", maxWidth: "100%" }}>
