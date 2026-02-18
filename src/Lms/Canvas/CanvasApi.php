@@ -291,6 +291,9 @@ class CanvasApi {
                 if(str_contains($type, "quiz")){
                     $type = "quiz";
                 }
+                if (str_contains($url, 'question')) {
+                    $type = "quiz_question";
+                }
                 $lmsId = $matches[2];   
             }
             
