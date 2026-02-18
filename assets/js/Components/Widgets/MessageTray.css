@@ -2,7 +2,6 @@
   position: absolute;
   top: 3rem;
   right: 1rem;
-  transform: translateX(calc(100vw));
   transition: transform 0.5s cubic-bezier(0.68, -0.55, 0.25, 1.35);
   z-index: 1000;
   box-sizing: border-box;
@@ -55,7 +54,7 @@
       padding: 1rem 2.75rem 1rem 1rem;
       box-sizing: border-box;
       font-size: .9em;
-      font-weight: 500;
+      font-weight: 400;
       color: var(--text-color)
     }
 

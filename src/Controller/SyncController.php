@@ -81,14 +81,14 @@ class SyncController extends ApiController
             $reportArr['contentItems'] = $course->getContentItems();
             $reportArr['contentSections'] = $lmsFetch->getCourseSections($course, $user);
 
-            $reportArr['instructors'] = $this->getInstructorNamesForCourse(
-            $course,
-            $user,
-            $courseUserRepo,
-            $userRepo,
-            $em,
-            $lmsApi
-            );
+            // $reportArr['instructors'] = $this->getInstructorNamesForCourse(
+            //     $course,
+            //     $user,
+            //     $courseUserRepo,
+            //     $userRepo,
+            //     $em,
+            //     $lmsApi
+            // );
 
             $response->setData($reportArr);
 

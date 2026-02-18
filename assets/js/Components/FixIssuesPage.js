@@ -822,16 +822,11 @@ export default function FixIssuesPage({
     setLiveUpdateToggle(!liveUpdateToggle)
   }
 
-  const isDialogOpen = () => {
-    const dialog = document.getElementById(dialogId)
-    return dialog && dialog.open
-  }
-
   const openDialog = () => {
     setWidgetState(WIDGET_STATE.FIXIT)
 
     const dialog = document.getElementById(dialogId)
-    if(dialog) {
+    if(dialog && !dialog.open) {
       dialog.showModal()
 
       const title = dialog.querySelector('#dialog-title')
@@ -891,7 +886,7 @@ export default function FixIssuesPage({
                   closeDialog()
                 }
               }}
-              className="close-icon icon-lg text-color"
+              className="close-icon icon-md"
               tabIndex="0"
               role="button"
               alt={t('fix.button.close')}

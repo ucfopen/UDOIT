@@ -45,7 +45,7 @@
     --link-color-light: color-mix(in srgb, var(--link-color) 5%, var(--white) 100%);  /* #E9F3FF; */
     --link-color-dark: color-mix(in srgb, var(--link-color) 100%, var(--black) 10%);
     
-    --text-secondary-color: #2F3741; /* #4A5565; */
+    --text-secondary-color: #434D5B; /* #4A5565; #2F3741; */
     --text-disabled-color: #8B95A7; /* #D1D5DC; */
 
     /* PILLS have three colors: border color, light background color, and text color */
@@ -70,9 +70,10 @@
     --help-color-text: #BB4D00;
 
     --background-color: var(--gray-lightest);
+    --container-color: #F2F4F7;
     --border-color: #C5C9D3; /* #E5E7EB; */
     --progress-bar-background-color: var(--gray-light);
-    --progress-bar-color: var(--success-color);
+    --progress-bar-color: var(--selection-color);
     --shadow-color: #00000044;
     --backdrop-color: rgba(0, 0, 0, 0.25);
 
@@ -90,6 +91,7 @@
   }
 
   #app-container {
+    overflow: hidden;
     border: 1px solid var(--border-color);
     box-shadow: 3px 3px 3px var(--gray-light);
     background-color: var(--background-color);
@@ -192,6 +194,11 @@
     font-weight: 600;
     line-height: normal;
     color: var(--text-color);
+
+    &:focus {
+      outline: 2px solid var(--focus-color);
+      outline-offset: 3px;
+    }
   }
 
   .pageTitle {
@@ -231,6 +238,17 @@
     }
   }
 
+  a {
+    color: var(--link-color);
+    font-weight: 300;
+
+    &:focus {
+      outline: 2px solid var(--focus-color);
+      outline-offset: 3px;
+      border-radius: 2px;
+    }
+  }
+  
   button {
     font-family: var(--heading-font-family);
     padding: .5rem 1rem;
@@ -266,7 +284,6 @@
       }
     }
   }
-
 
   .btn-primary {
     background-color: var(--primary-color);
@@ -336,12 +353,13 @@
     background-color: transparent;
     color: var(--link-color);
     padding: .15rem 0.5rem;
-    border-radius: 8px;
+    border-radius: var(--element-radius);
     cursor: pointer;
+    box-shadow: none;
   }
 
   .btn-header {
-    border-radius: 8px !important;
+    border-radius: var(--element-radius) !important;
     justify-content: center;
     width: 100%;
     font-size: 0.9em;
@@ -559,17 +577,25 @@
       h2 {
         line-height: normal;
         align-self: center;
+        margin: 0;
       }
 
       .close-icon {
         cursor: pointer;
-        padding: .25rem;
+        padding: .2rem;
         margin-inline-end: -.5rem;
+        border: 1px solid transparent;
+        fill: var(--text-disabled-color);
+        box-shadow: none;
+        border-radius: 50%;
 
         &:hover,
         &:focus {
+          fill: var(--text-color);
           background-color: var(--gray-lighter);
-          border-radius: 50%;
+        }
+
+        &:focus {
           outline-offset: -2px;
           outline: 2px solid var(--focus-color);
         }
@@ -654,6 +680,22 @@
       color: var(--pill-success-text);
       fill: var(--pill-success-text);
       stroke: var(--pill-success-text);
+    }
+  }
+
+  .ufixit-widget code,
+  .ufixit-widget-dialog code,
+  .ufixit-learn-container code,
+  .info-popover-content code {
+    padding: 0.15rem 0.4rem;
+    background-color: var(--gray-dark);
+    color: var(--white);
+    border-radius: 4px;
+    font-size: 0.9em;
+
+    strong {
+      font-weight: 400;
+      text-decoration: underline;
     }
   }
 
@@ -1150,8 +1192,8 @@
   }
 
   .disabled {
-    color: var(--text-disabled);
-    fill: var(--text-disabled);
+    color: var(--text-disabled-color);
+    fill: var(--text-disabled-color);
   }
 
   .icon-sm {

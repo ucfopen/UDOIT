@@ -439,22 +439,8 @@
   overflow-y: auto;
 }
 
-.ufixit-widget code,
-.ufixit-widget-dialog code,
-.ufixit-learn-container code {
-    padding: 0.15rem 0.4rem;
-    background-color: var(--gray-dark);
-    color: var(--white);
-    border-radius: 4px;
-    font-size: 0.9em;
-
-    strong {
-      font-weight: 400;
-      text-decoration: underline;
-    }
-  }
-
 dialog::backdrop {
+  pointer-events: none;
   background: var(--backdrop-color);
   backdrop-filter: blur(3px);
 }
