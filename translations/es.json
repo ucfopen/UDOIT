@@ -19,13 +19,15 @@
   "menu.nav.toggle_menu": "TODO: Toggle Menu",
 
   "welcome.title": "Bienvenido a",
+  "welcome.subtitle": "TODO: Make Your Online Course Content Accessible",
   "welcome.description": "UDOIT te ayuda con el proceso de eliminar barreras de accesibilidad en el contenido de tu curso en línea.",
   "welcome.scan": "Encontrar barreras de accesibilidad rápidamente con un escaneo automatizado.",
   "welcome.fix": "Solucionar problemas rápidamente con herramientas simples e instrucciones inmediatas.",
   "welcome.report": "Progreso de forma constante con pequeñas metas diarias y herramientas fáciles de informes.",
   "welcome.product_tagline": "Un Producto de",
   "welcome.version": "Versión ",
-  "welcome.button.scanning": "Escaneando el Curso... Por Favor Espere",
+  "welcome.label.scanning": "Escaneando el Curso... Por Favor Espere",
+  "welcome.label.scan_complete": "Escaneo Completo",
   "welcome.button.ready": "Comenzar",
 
   "summary.title": "Resumen de Accesibilidad",
