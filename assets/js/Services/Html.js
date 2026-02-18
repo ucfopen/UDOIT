@@ -541,6 +541,9 @@ export const findXpathFromElement = (element, id = null) => {
 }
 
 export const findElementWithXpath = (content, xpath) => {
+  if (!content || !xpath) {
+    return null
+  }
   
   if(xpath.startsWith('/')) {
     xpath = xpath.substring(1)

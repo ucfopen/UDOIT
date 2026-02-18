@@ -1057,6 +1057,14 @@
     padding-right: 0 !important;
   }
 
+  input[type="color"] {
+    min-width: 7em;
+    height: 100%;
+    border-radius: 8px;
+    border: 2px solid var(--primary-color);
+    background-color: var(--background-color);
+  }
+  
   .pr-1, .pe-1 {
     padding-right: calc(0.25 * var(--spacer)) !important;
   }
@@ -1071,6 +1079,15 @@
 
   .pr-4, .pe-4 {
     padding-right: calc(1.5 * var(--spacer)) !important;
+  }
+  
+  .gradient-row {
+    margin-bottom: 0.75em;
+  }
+
+  .gradient-note {
+    font-style: italic;
+    color: #666;
   }
 
   .w-25 {
