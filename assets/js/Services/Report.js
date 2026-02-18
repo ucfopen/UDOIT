@@ -352,8 +352,8 @@ export function analyzeReport(report, ISSUE_STATE) {
               issueIgnored = true
             }
           }
-          
-          if(runCustomChecks(issue, element, parsedDocument)) {
+
+          if(runCustomChecks(issue, element, parsedDocuments[contentItemId])) {
             // If there are custom checks that indicate we should ignore this issue, do so.
             issueIgnored = true
           }
