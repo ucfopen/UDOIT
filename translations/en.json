@@ -439,11 +439,11 @@
   "form.contrast.replace_text": "Text Color",
   "form.contrast.replace_background": "Background Color",
   "form.contrast.label.ratio": "Contrast Ratio",
-  "form.contrast.label.auto_adjust_all": "Auto-Adjust All Colors",
+  "form.contrast.label.auto_adjust_all": "Auto-Adjust Background",
   "form.contrast.feedback.invalid": "Insufficient contrast of {current}",
   "form.contrast.feedback.valid": "Sufficient Contrast",
   "form.contrast.feedback.minimum": "Minimum: {required}",
-  "form.contrast.auto_adjust_error": "We couldn't auto-adjust your colors, please do so manually.",
+  "form.contrast.auto_adjust_error": "We couldn't auto-adjust your background colors, please adjust the text color and try again.",
   "form.contrast.ratio_note": "* lowest among all background colors",
   "form.contrast.show": "Show all colors",
   "form.contrast.hide": "Hide additional colors",
@@ -576,6 +576,8 @@
   "form.inline_css.title": "Text Spacing Should Not Be Forced",
   "form.inline_css.summary": "Forcing specific text spacing can cause issues for users who need to customize spacing for readability.",
   "form.inline_css.learn_more": "<h3>Ensuring Readability</h3><p>Some users with low vision or reading disabilities need to adjust text spacing in order to read more easily. If CSS or the <code>style</code> attributes include the <code>!important</code> declaration, it will override user settings and make it difficult for them to read. For instance, the CSS property <code>line-height</code> can be used to adjust the spacing between lines of text. If this property is forced to a fixed value, like using <code>style=&quot;line-height: 16px !important&quot;</code>, it can prevent users from adjusting the line spacing to their needs.</p><p>Specifically, never use <code>!important</code> to override the <code>letter-spacing</code>, <code>word-spacing</code>, or <code>line-height</code> styles.</p><h3>Best Practices</h3><ul><li>Avoid using CSS properties that force a specific letter spacing, word spacing, or line height</li><li>Use relative units (like <code>em</code> or <code>rem</code>) instead of fixed units (like <code>px</code>) for text spacing</li></ul></p><h3>For More Information</h3><p>W3.org: <a href='https://www.w3.org/WAI/WCAG21/Understanding/text-spacing.html' target='_blank'>Text Spacing</a></p>",
+  "form.inline_css.label.remove_style": "Remove Text Spacing Styles",
+  "form.inline_css.label.remove_important": "De-emphasize Text Spacing Styles",
   "rule.desc.text_spacing_valid": "",
 
   "form.keyboard_tabbable.title": "Interactive Elements Must Be Keyboard Accessible",
@@ -592,9 +594,6 @@
   "rule.info.element_tabbable_role_valid": "The highlighted element can be reached by keyboard, but has a <code>role</code> that is not interactive. If it is supposed to be interactive, remove the <code>role</code> or change it to a <a href='https://www.w3.org/TR/wai-aria-1.2/#widget' target='_blank'>valid widget role</a>. Otherwise, add the attribute <code>tabindex=&quot;-1&quot;</code>.",
   "rule.info.iframe_interactive_tabbable": "If this embedded content is interactive, it must be added to the keyboard navigation.",
   
-  "form.invalid_css.label.remove_style": "Remove Text Spacing Styles",
-  "form.invalid_css.label.remove_important": "De-emphasize Text Spacing Styles",
-
   "form.label.title": "Interactive and Landmark Areas Should Have Labels",
   "form.label.summary": "Interactive elements like buttons, links, and form fields should have descriptive labels that help users understand their purpose. Landmark regions should also have unique labels to help users navigate the page.",
   "form.label.learn_more": "<h3>Navigating Using Landmarks</h3><p>Web content is typically laid out in consistent patterns: a header at the top, page navigation menus, main content, sidebars, footers, etc. Standard sections are known as &quot;landmarks,&quot; and they help assistive technology (AT) users orient themselves and easily navigate to various regions of a page. When multiple regions with the same role exist on the same page (imagine two &quot;navigation&quot; menus or a long page with multiple &quot;articles&quot;), people using ATs may have difficulty identifying or distinguishing between them.</p><p>Landmarks are created by using specific HTML tags, like <code>&lt;nav&gt;</code>, <code>&lt;main&gt;</code>, and <code>&lt;footer&gt;</code>, or by adding the <code>role</code> attribute to a generic tag, like <code>role=&quot;navigation&quot;</code>.</p><p>Importantly, some landmarks are only allowed to be used once per page. If you have multiple of these landmarks, you will need to remove the extras or change their <code>role</code> values.<table><caption>HTML Landmarks and Equivalent Role Values</caption><thead><th scope='col'>HTML Tag</th><th scope='col'>Equivalent Role</th><th scope='col'>Allowed Once</th></thead><tbody><tr><td>&lt;header&gt;</td><td>role=&quot;banner&quot;</td><td><strong>Yes</strong></td></tr><tr><td>&lt;nav&gt;</td><td>role=&quot;navigation&quot;</td><td>No</td></tr><tr><td>N/A</td><td>role=&quot;search&quot;</td><td>No</td></tr><tr><td>&lt;aside&gt;</td><td>role=&quot;complementary&quot;</td><td>No</td></tr><tr><td>&lt;main&gt;</td><td>role=&quot;main&quot;</td><td><strong>Yes</strong></td></tr><tr><td>&lt;h1&gt;</td><td>N/A</td><td><strong>Yes</strong></td></tr><tr><td>&lt;article&gt;</td><td>role=&quot;article&quot;</td><td>No</td></tr><tr><td>&lt;section&gt;</td><td>role=&quot;region&quot;</td><td>No</td></tr><tr><td>&lt;form&gt;</td><td>role=&quot;form&quot;</td><td>No</td></tr><tr><td>&lt;footer&gt;</td><td>role=&quot;contentinfo&quot;</td><td><strong>Yes</strong></td></tr></table><h3>Best Practices</h3><ul><li>Use unique <code>aria-label</code> values to distinguish landmarks with the same role</li><li>Make sure that there is only one landmark each of <code>&lt;header&gt;</code>, <code>&lt;main&gt;</code>, <code>&lt;h1&gt;</code>, and <code>&lt;footer&gt;</code></li></ul><h3>For More Information</h3><p>WebAIM.org: <a href='https://webaim.org/techniques/semanticstructure/' target='_blank'>Semantic Structure</a> and <a href='https://webaim.org/techniques/aria/#landmarks' target='_blank'>ARIA Landmark Roles</a></p><p>W3.org: <a href='https://www.w3.org/WAI/ARIA/apg/practices/landmark-regions/' target='blank'>Landmark Regions</a></p>",

@@ -1,14 +1,12 @@
 import React, { useState, useEffect, useRef } from 'react'
-import DarkIcon from '../Icons/DarkIcon'
-import LightIcon from '../Icons/LightIcon'
 import CheckIcon from '../Icons/CheckIcon'
-import CloseIcon from '../Icons/CloseIcon'
-import SeverityIssueIcon from '../Icons/SeverityIssueIcon'
-import FixedIcon from '../Icons/FixedIcon'
-import ResolvedIcon from '../Icons/ResolvedIcon'
-import SaveIcon from '../Icons/SaveIcon'
+import ContrastIcon from '../Icons/ContrastIcon'
+import DarkIcon from '../Icons/DarkIcon'
+import ErrorIcon from '../Icons/ErrorIcon'
+import LightIcon from '../Icons/LightIcon'
 import * as Html from '../../Services/Html'
 import * as Contrast from '../../Services/Contrast'
+import './ContrastForm.css'
 
 export default function ContrastForm({
   t, 
@@ -16,9 +14,16 @@ export default function ContrastForm({
   activeIssue,
   isDisabled,
   handleActiveIssue,
-  handleIssueSave,
-  markAsReviewed,
+  activeOption,
+  setActiveOption,
+  formErrors,
+  setFormErrors
 }) {
+
+  const FORM_OPTIONS = {
+    SET_COLOR: settings.UFIXIT_OPTIONS.EDIT_ATTRIBUTE
+  }
+
   // Extract color strings from gradients
   const extractColors = (gradientString) => {
     const colorRegex = /#(?:[0-9a-fA-F]{3,8})\b|(?:rgba?|hsla?)\([^)]*\)/g
@@ -136,6 +141,17 @@ export default function ContrastForm({
   // Update preview and contrast ratio
   const updatePreview = () => {
     const html = Html.getIssueHtml(activeIssue)
+    const newHtml = processHtml(html, currentBgColors)
+    if (activeIssue.newHtml !== newHtml) {
+      activeIssue.newHtml = newHtml
+      handleActiveIssue(activeIssue)
+    }
+  }
+
+  const checkContrastRatio = () => {
+    const html = Html.getIssueHtml(activeIssue)
+    const element = Html.toElement(html)
+    const minRatio = isLargeText(element) ? 3 : 4.5
     let ratio = 1
     if (currentBgColors.length > 0 && textColor) {
       const ratios = currentBgColors.map(bg => Contrast.contrastRatio(
@@ -144,13 +160,21 @@ export default function ContrastForm({
       ratio = Math.min(...ratios)
     }
     setContrastRatio(ratio)
-    setRatioIsValid(ratio >= minRatio)
-  
-    const newHtml = processHtml(html, currentBgColors)
-    if (activeIssue.newHtml !== newHtml) {
-      activeIssue.newHtml = newHtml
-      handleActiveIssue(activeIssue)
+    const validRatio = ratio >= minRatio
+    setRatioIsValid(validRatio)
+    return validRatio
+  }
+
+  const checkFormErrors = () => {
+    let tempErrors = {
+      [FORM_OPTIONS.SET_COLOR]: []
     }
+
+    if(checkContrastRatio() === false) {
+      tempErrors[FORM_OPTIONS.SET_COLOR].push({ text: t('form.contrast.feedback.invalid', { current: contrastRatio ? contrastRatio.toFixed(2) : 'N/A' }), type: 'error' })
+    }
+
+    setFormErrors(tempErrors)
   }
 
   // Handlers
@@ -168,6 +192,7 @@ export default function ContrastForm({
     setTextColor(getTextColor())
     setAutoAdjustError(false)
     setShowAllColors(false)
+    setActiveOption(FORM_OPTIONS.SET_COLOR)
   }, [activeIssue])
 
   const updateBackgroundColor = (idx, value) => {
@@ -177,76 +202,66 @@ export default function ContrastForm({
     )
   }
 
-  const handleLightenText = () => setTextColor(Contrast.changeLuminance(textColor, 'lighten'))
-  const handleDarkenText = () => setTextColor(Contrast.changeLuminance(textColor, 'darken'))
-
-  const handleLightenBackground = idx => {
+  const handleBackgroundChange = (idx, value) => {
     setCurrentBgColors(colors =>
-      colors.map((c, i) => i === idx ? Contrast.changeLuminance(c, 'lighten') : c)
+      colors.map((c, i) => i === idx ? Contrast.setLuminance(c, value) : c)
     )
-  }
-  const handleDarkenBackground = idx => {
-    setCurrentBgColors(colors =>
-      colors.map((c, i) => i === idx ? Contrast.changeLuminance(c, 'darken') : c)
-    )
-  }
-
-  const handleSubmit = () => {
-    if (ratioIsValid || markAsReviewed) {
-      const issue = { ...activeIssue, newHtml: Contrast.convertHtmlRgb2Hex(activeIssue.newHtml) }
-      handleIssueSave(issue)
-    }
   }
 
   const debounceTimer = useRef(null)
   // Debounced updatePreview
   useEffect(() => {
-    if (debounceTimer.current) clearTimeout(debounceTimer.current)
-    debounceTimer.current = setTimeout(() => {
-      updatePreview()
-    }, 150)
-    return () => clearTimeout(debounceTimer.current)
+    checkFormErrors()
+    updatePreview()
+    // if (debounceTimer.current) clearTimeout(debounceTimer.current)
+    // debounceTimer.current = setTimeout(() => {
+    //   updatePreview()
+    // }, 150)
+    // return () => clearTimeout(debounceTimer.current)
   }, [textColor, currentBgColors])
 
   const handleAutoAdjustAll = () => {
-    let newBgColors = [...currentBgColors];
-    let changed = false;
-    let failed = false;
-    const element = Html.toElement(Html.getIssueHtml(activeIssue));
-    const minRatio = isLargeText(element) ? 3 : 4.5;
+    let newBgColors = [...currentBgColors]
+    let failed = false
+    const element = Html.toElement(Html.getIssueHtml(activeIssue))
+    const minRatio = isLargeText(element) ? 3 : 4.5
+
     for (let i = 0; i < newBgColors.length; i++) {
-      let bg = newBgColors[i];
-      let ratio = Contrast.contrastRatio(bg, textColor);
-      let attempts = 0;
-      while (ratio < minRatio && attempts < 20) {
-        const lighter = Contrast.changeLuminance(bg, 'lighten');
-        const darker = Contrast.changeLuminance(bg, 'darken');
-        const lighterRatio = Contrast.contrastRatio(lighter, textColor);
-        const darkerRatio = Contrast.contrastRatio(darker, textColor);
-        if (lighterRatio > darkerRatio) {
-          bg = lighter;
-          ratio = lighterRatio;
-        } else {
-          bg = darker;
-          ratio = darkerRatio;
+      let bg = newBgColors[i]
+      let ratio = Contrast.contrastRatio(bg, textColor)
+
+      if(ratio >= minRatio) continue
+
+      let changed = false
+      let lighter = Contrast.changeLuminance(bg, 'lighten');
+      let darker = Contrast.changeLuminance(bg, 'darken');
+
+      const max_iterations = 21
+      for(let attempts = 0; attempts < max_iterations; attempts++) {
+        const lighterRatio = Contrast.contrastRatio(lighter, textColor)
+        const darkerRatio = Contrast.contrastRatio(darker, textColor)
+        if (lighterRatio > minRatio) {
+          changed = true
+          bg = lighter
+          break
+        } else if (darkerRatio > minRatio) {
+          changed = true
+          bg = darker
+          break
         }
-        attempts++;
+        lighter = Contrast.changeLuminance(lighter, 'lighten')
+        darker = Contrast.changeLuminance(darker, 'darken')
       }
-      if (ratio < minRatio) {
-        failed = true;
-        break;
+      if(!changed) {
+        failed = true
       }
-      if (attempts > 0) changed = true;
-      newBgColors[i] = bg;
+      newBgColors[i] = bg
     }
-    if (failed) {
-      setCurrentBgColors(originalBgColors.map(bg => bg.hsl));
-      setAutoAdjustError(true);
-    } else if (changed) {
-      setCurrentBgColors(newBgColors);
-      setAutoAdjustError(false);
+    setCurrentBgColors(newBgColors)
+    if(failed) {
+      checkFormErrors(true)
     }
-  };
+  }
 
   function isLargeText(element) {
     if (!element) return false;
@@ -271,105 +286,95 @@ export default function ContrastForm({
   return (
     <>
       <div className="instructions">{t('form.contrast.label.adjust')}</div>
-      <div className="mt-2">
-        <label htmlFor="textColorInput">{t('form.contrast.replace_text')}</label>
-      </div>
-      <div className="flex-row justify-content-between mt-1">
-        <div className="flex-column justify-content-center">
-          <input
-            id="textColorInput"
-            type="color"
-            value={Contrast.hslToHex(textColor) || '#000000'}
-            onChange={updateText}
-            aria-label={t('form.contrast.label.text.show_color_picker')}
-            title={t('form.contrast.label.text.show_color_picker')}
-            tabIndex="0"
-            disabled={isDisabled}
-          />
-        </div>
-        <div className="flex-row gap-1">
+      <div className="flex-column">
+        <label id="text-label">{t('form.contrast.replace_text')}</label>
+        <div className="flex-row justify-content-between mt-1">
           <div className="flex-column justify-content-center">
-            <button
-              className="btn-small btn-icon-left btn-secondary"
+            <input
+              id="textColorInput"
+              type="color"
+              value={Contrast.hslToHex(textColor) || '#000000'}
+              onChange={updateText}
+              aria-labelledby="text-label"
               tabIndex="0"
               disabled={isDisabled}
-              onClick={handleLightenText}>
-              <LightIcon className="icon-md" alt="" />
-              {t('form.contrast.label.lighten')}
-            </button>
+            />
           </div>
-          <div className="flex-column justify-content-center">
-            <button
-              className="btn-small btn-icon-left btn-secondary"
-              tabIndex="0"
-              disabled={isDisabled}
-              onClick={handleDarkenText}>
-              <DarkIcon className="icon-md" alt="" />
-              {t('form.contrast.label.darken')}
-            </button>
-          </div>
-        </div>
-      </div>
-
-      <div className="mt-3">
-        <label>{t('form.contrast.replace_background')}</label>
-      </div>
-      {visibleBgColors.map((color, idx) => {
-        let showStatus = currentBgColors.length > 1;
-        let ratio = Contrast.contrastRatio(
-          Contrast.hslToHex(color), Contrast.hslToHex(textColor)
-        );
-        let isValid = ratio >= minRatio;
-
-        return (
-          <div key={idx} className="flex-row justify-content-between mt-1 gradient-row">
-            <div className="flex-row align-items-center">
-              <input
-                id={`backgroundColorInput${idx}`}
-                type="color"
-                value={Contrast.hslToHex(color) || '#ffffff'}
-                onChange={e => updateBackgroundColor(idx, e.target.value)}
-                aria-label={
-                  t('form.contrast.label.background.show_color_picker') +
-                  ' ' +
-                  (isValid
-                    ? t('form.contrast.feedback.valid')
-                    : t('form.contrast.feedback.invalid'))
-                }
-                title={t('form.contrast.label.background.show_color_picker')}
-                disabled={isDisabled}
+          <div className="flex-row align-items-center gap-1">
+            <DarkIcon className="icon-md" alt="" />
+            <input
+              type="range"
+              id="textLumSlider"
+              name="textLumSlider"
+              aria-labelledby="text-label"
+              min="0"
+              max="1"
+              step="0.025"
+              value={textColor?.l || 0}
+              onChange={(e) => {
+                setTextColor(Contrast.setLuminance(textColor, e.target.value))
+              }}
               />
-              {showStatus && (
-                isValid ? (
-                  <CheckIcon className="icon-md color-success ms-2" />
-                ) : (
-                  <CloseIcon className="icon-md color-issue ms-2" />
-                )
-              )}
-            </div>
-            <div className="flex-row gap-1">
-              <button
-                tabIndex="0"
-                disabled={isDisabled}
-                onClick={() => handleLightenBackground(idx)}
-                className="btn-small btn-icon-left btn-secondary"
-              >
-                <LightIcon className="icon-md" alt="" />
-                {t('form.contrast.label.lighten')}
-              </button>
-              <button
-                tabIndex="0"
-                disabled={isDisabled}
-                onClick={() => handleDarkenBackground(idx)}
-                className="btn-small btn-icon-left btn-secondary"
-              >
-                <DarkIcon className="icon-md" alt="" />
-                {t('form.contrast.label.darken')}
-              </button>
-            </div>
+            <LightIcon className="icon-md" alt="" />
           </div>
-        );
-      })}
+        </div>
+      </div>
+
+      <div className="flex-column">
+        <label>{t('form.contrast.replace_background')}</label>
+        {visibleBgColors.map((color, idx) => {
+          let showStatus = currentBgColors.length > 1;
+          let ratio = Contrast.contrastRatio(
+            Contrast.hslToHex(color), Contrast.hslToHex(textColor)
+          );
+          let isValid = ratio >= minRatio;
+
+          return (
+            <div key={idx} className="flex-row justify-content-between mt-1 gradient-row">
+              <div className="flex-row align-items-center">
+                <input
+                  id={`backgroundColorInput${idx}`}
+                  type="color"
+                  value={Contrast.hslToHex(color) || '#ffffff'}
+                  onChange={e => updateBackgroundColor(idx, e.target.value)}
+                  aria-label={
+                    t('form.contrast.label.background.show_color_picker') +
+                    ' ' +
+                    (isValid
+                      ? t('form.contrast.feedback.valid')
+                      : t('form.contrast.feedback.invalid'))
+                  }
+                  title={t('form.contrast.label.background.show_color_picker')}
+                  disabled={isDisabled}
+                />
+                {showStatus && (
+                  isValid ? (
+                    <CheckIcon className="icon-md color-success ms-2" />
+                  ) : (
+                    <ErrorIcon className="icon-md udoit-issue-highlight ms-2" />
+                  )
+                )}
+              </div>
+              <div className="flex-row align-items-center gap-1">
+                <DarkIcon className="icon-md" alt="" />
+                <input
+                  type="range"
+                  id="textLumSlider"
+                  name="textLumSlider"
+                  min="0"
+                  max="1"
+                  step="0.025"
+                  value={currentBgColors[idx]?.l || 0}
+                  onChange={(e) => {
+                    handleBackgroundChange(idx, e.target.value)
+                  }}
+                  />
+                <LightIcon className="icon-md" alt="" />
+              </div>
+            </div>
+          );
+        })}
+      </div>
 
       {shouldShowExpand && (
         <div className="flex-column align-items-center mt-2">
@@ -384,96 +389,48 @@ export default function ContrastForm({
         </div>
       )}
 
-      {currentBgColors.length > 1 && (
-        <div className="flex-row justify-content-end mt-2">
-          <button
-            className="btn-small btn-primary"
-            disabled={isDisabled}
-            onClick={handleAutoAdjustAll}
-          >
-            {t('form.contrast.label.auto_adjust_all')}
-          </button>
-        </div>
-      )}
+      <div className="flex-row justify-content-end">
+        <button
+          className="btn-small btn-icon-left btn-secondary"
+          disabled={isDisabled}
+          onClick={handleAutoAdjustAll}
+        >
+          <ContrastIcon className="icon-md" alt="" />
+          {t('form.contrast.label.auto_adjust_all')}
+        </button>
+      </div>
 
-      {autoAdjustError && (
-        <div className="flex-row justify-content-center">
-          <div className="color-issue mt-2">
-            {t('form.contrast.auto_adjust_error')}
-          </div>
-        </div>
-      )}
-
-      <div className="flex-row justify-content-between mt-4 mb-3">
-        <div className="flex-column justify-content-start">
-          <div className={`ratio-container flex-column ${ratioIsValid ? 'ratio-valid' : 'ratio-invalid'}`}>
-            <div className="flex-row justify-content-center">
-              <div className="ratio-label">{t('form.contrast.label.ratio')}</div>
-            </div>
-            <div className="flex-row justify-content-center gap-1">
-              <div className="flex-column justify-content-center">
-                {ratioIsValid ? (
-                  <FixedIcon className="icon-md color-success" />
-                ) : (
-                  <SeverityIssueIcon className="icon-md color-issue" />
-                )}
-              </div>
-              <div className="flex-column justify-content-center">
-                <div className="ratio-value">{contrastRatio?.toFixed(2)}</div>
-              </div>
-            </div>
-            <div className="flex-row justify-content-center">
-              <div className={`ratio-status text-center ${ratioIsValid ? 'valid' : 'invalid'}`}>
-                {ratioIsValid
-                  ? t('form.contrast.feedback.valid')
-                  : (
-                      <span>
-                        {t('form.contrast.feedback.minimum', {
-                          required: minRatio
-                        })}
-                      </span>
-                    )
-                }
-              </div>
-            </div>
-            {currentBgColors.length > 1 && (
-              <div className="flex-row justify-content-center">
-                <small className="gradient-note">
-                  {t('form.contrast.ratio_note')}
-                </small>
-              </div>
+      <div className={`ratio-container flex-column ${ratioIsValid ? 'ratio-valid' : 'ratio-invalid'}`}>
+          
+        <div className="flex-row align-items-center gap-1">
+            {ratioIsValid ? (
+              <CheckIcon className="icon-md color-success" />
+            ) : (
+              <ErrorIcon className="icon-md udoit-issue-highlight" />
             )}
-          </div>
+          <div className="ratio-label">{t('form.contrast.label.ratio')}</div>
         </div>
-        <div className="flex-column justify-content-start">
-          <div className="flex-row justify-content-between gap-1 mt-4">
-            <div className="flex-column justify-content-center flex-grow-1 gap-1">
-              {(activeIssue.status === 1 || activeIssue.status === 3) ? (
-                <div className="flex-row justify-content-end pe-2">
-                  <FixedIcon className="color-success icon-md flex-column align-self-center pe-2" />
-                  <div className="flex-column align-self-center fw-bolder primary">
-                    {t('filter.label.resolution.fixed_single')}
-                  </div>
-                </div>
-              ) : activeIssue.status === 2 ? (
-                <div className="flex-row justify-content-end pe-2">
-                  <ResolvedIcon className="color-success icon-md flex-column align-self-center pe-2" />
-                  <div className="flex-column align-self-center fw-bolder primary">
-                    {t('filter.label.resolution.resolved_single')}
-                  </div>
-                </div>
-              ) : ''}
-            </div>
-            <button
-              className="btn-primary btn-icon-left"
-              onClick={handleSubmit}
-              tabIndex="0"
-              disabled={isDisabled || !ratioIsValid}>
-              <SaveIcon className="icon-md" alt="" />
-              {t('form.submit')}
-            </button>
-          </div>
+        
+        <div className="ratio-value">{contrastRatio?.toFixed(2) + (currentBgColors.length > 1 ? '*' : '')}</div>
+        
+        <div className={`ratio-status ${ratioIsValid ? 'valid' : 'invalid'}`}>
+          {ratioIsValid
+            ? t('form.contrast.feedback.valid')
+            : (
+                <span>
+                  {t('form.contrast.feedback.minimum', {
+                    required: minRatio
+                  })}
+                </span>
+              )
+          }
         </div>
+
+        {currentBgColors.length > 1 && (
+          <div className="gradient-note">
+            {t('form.contrast.ratio_note')}
+          </div>
+        )}
       </div>
     </>
   )

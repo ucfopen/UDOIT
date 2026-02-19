@@ -1,0 +1,60 @@
+@layer udoit-component {
+
+  .instructions {
+    font-size: .9em;
+    color: var(--text-secondary-color);
+  }
+
+  .gradient-row {
+    margin-block-end: .5rem;
+  }
+
+  label {
+    font-size: .9em;
+    font-weight: 400;
+  }
+
+  .ratio-container {
+    width: 100%;
+    box-sizing: border-box;
+    border-radius: var(--element-radius);
+    padding: .75rem 1rem;
+    margin-block-start: 1rem;
+    border: 2px solid var(--border-color);
+
+    &.ratio-valid {
+      background-color: var(--pill-success-background);
+      border-color: var(--pill-success-border);
+      color: var(--pill-success-text);
+    }
+
+    &.ratio-invalid {
+      background-color: var(--pill-error-background);
+      border-color: var(--error-color);
+      color: var(--pill-error-text);
+    }
+
+    .ratio-label {
+      font-size: .85em;
+      font-weight: 400;
+      text-transform: uppercase;
+    }
+
+    .ratio-value {
+      font-size: 1.5em;
+      font-weight: 600;
+      margin: .5rem 0;
+    }
+
+    .ratio-status {
+      font-size: .85em;
+      font-weight: 300;
+    }
+
+    .gradient-note {
+      font-size: .75em;
+      color: var(--text-secondary-color);
+      text-align: end;
+    }
+  }
+}

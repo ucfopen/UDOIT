@@ -391,10 +391,12 @@
   }
 
   input[type="color"] {
-    min-width: 7em;
+    min-width: 10em;
+    min-height: 2.5em;
     height: 100%;
-    border-radius: 8px;
+    border-radius: var(--element-radius);
     border: 2px solid var(--primary-color);
+    background-color: transparent;
 
     &:focus {
       outline: 2px solid var(--focus-color);
@@ -1056,14 +1058,6 @@
   .pr-0, .pe-0 {
     padding-right: 0 !important;
   }
-
-  input[type="color"] {
-    min-width: 7em;
-    height: 100%;
-    border-radius: 8px;
-    border: 2px solid var(--primary-color);
-    background-color: var(--background-color);
-  }
   
   .pr-1, .pe-1 {
     padding-right: calc(0.25 * var(--spacer)) !important;
@@ -1079,15 +1073,6 @@
 
   .pr-4, .pe-4 {
     padding-right: calc(1.5 * var(--spacer)) !important;
-  }
-  
-  .gradient-row {
-    margin-bottom: 0.75em;
-  }
-
-  .gradient-note {
-    font-style: italic;
-    color: #666;
   }
 
   .w-25 {
@@ -1305,43 +1290,4 @@
     overflow-wrap: anywhere;
     cursor: pointer;
   }
-}
-
-/* The separator class is for a horizontal line with text in the middle on various forms */
-
-.separator {
-  display: flex;
-  align-items: center;
-  text-align: center;
-  text-transform: uppercase;
-  font-weight: 600;
-}
-
-.separator::before,
-.separator::after {
-  content: '';
-  flex: 1;
-  border-bottom: 1px solid var(--border-color);
-}
-
-.separator:not(:empty)::before {
-  margin-right: .5em;
-  margin-left: 1.5rem;
-  border-width: 2px;
-  border-color: var(--gray);
-}
-
-.separator:not(:empty)::after {
-  margin-left: .5em;
-  margin-right: 1.5rem;
-  border-width: 2px;
-  border-color: var(--gray);
-}
-
-.separator-pipe {
-  height: 1.5em;
-  width: 0px;
-  box-sizing: content-box;
-  align-self: center;
-  border-inline-start: 1px solid var(--border-color);
 }

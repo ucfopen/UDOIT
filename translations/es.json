@@ -442,7 +442,7 @@
   "form.contrast.feedback.invalid": "Contraste Insuficiente",
   "form.contrast.feedback.valid": "Contraste Suficiente",
   "form.contrast.feedback.minimum": "Mínimo: {required}",
-  "form.contrast.auto_adjust_error": "No se pudo ajustar automáticamente el color. Intenta ajustar manualmente los colores.",
+  "form.contrast.auto_adjust_error": "No se pudo ajustar automáticamente los colores de fondo. Ajusta el color del texto e intenta nuevamente.",
   "form.contrast.ratio_note": "* más bajo entre todos los colores",
   "form.contrast.show": "Mostrar Colores Adicionales",
   "form.contrast.hide": "Ocultar Colores Adicionales",

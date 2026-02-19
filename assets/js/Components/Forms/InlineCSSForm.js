@@ -1,24 +1,25 @@
 import React, { useState, useEffect } from 'react'
-import FormSaveOrReview from './FormSaveOrReview'
+import RadioSelector from '../Widgets/RadioSelector'
 import * as Html from '../../Services/Html'
-import * as Text from '../../Services/Text'
 import { getIssueHtml } from '../../Services/Html'
 
 export default function InlineCSSForm ({
   t,
   settings,
   activeIssue,
-  handleIssueSave,
   isDisabled,
   handleActiveIssue,
-  markAsReviewed,
-  setMarkAsReviewed
+  activeOption,
+  setActiveOption,
+  formErrors,
+  setFormErrors
  }) {
 
-  const [isStyleToggleChecked, setisStyleToggleChecked] = useState(false)
-  const [isImportantToggleChecked, setIsImportantToggleChecked] = useState(false)
-
-  const [formErrors, setFormErrors] = useState([])
+  const FORM_OPTIONS = {
+    REMOVE_STYLING: settings.UFIXIT_OPTIONS.DELETE_ATTRIBUTE,
+    DEEMPHASIZE_STYLING: settings.UFIXIT_OPTIONS.EDIT_ATTRIBUTE,
+    MARK_AS_REVIEWED: settings.UFIXIT_OPTIONS.MARK_AS_REVIEWED
+  }
 
   const getInlineCSS = () => {
     let html = activeIssue.sourceHtml
@@ -34,24 +35,15 @@ export default function InlineCSSForm ({
     return elementInlineCSSText
   }
 
-  const handleRemoveInlineStylesCheck = () => {
-    setisStyleToggleChecked(!isStyleToggleChecked)
-  }
-
-  const handleImportantCheckbox = () => {
-    setIsImportantToggleChecked(!isImportantToggleChecked)
-  }
-
   useEffect (() =>   {
     updateHtmlContent()
-    checkFormErrors()
-  }, [isStyleToggleChecked, isImportantToggleChecked, markAsReviewed])
+  }, [activeOption])
 
   const updateHtmlContent = () => {
     let issue = activeIssue
     issue.isModified = true
 
-    if (markAsReviewed) {
+    if (activeOption === FORM_OPTIONS.MARK_AS_REVIEWED) {
       issue.newHtml = issue.initialHtml
       handleActiveIssue(issue)
       return
@@ -67,20 +59,10 @@ export default function InlineCSSForm ({
     handleActiveIssue(issue)
   }
 
-  const checkFormErrors = () => {
-    let tempErrors = []
-
-    if(!isStyleToggleChecked && !isImportantToggleChecked){
-      tempErrors.push({text:'', type: 'error'})
-    }
-
-    setFormErrors(tempErrors)
-  }
-
   const removeInlineStyles = () => {
     let tempstyles = getInlineCSS()
 
-    if(isStyleToggleChecked){
+    if(activeOption === FORM_OPTIONS.REMOVE_STYLING){
       let isInStylesLH = tempstyles.findIndex(item => item.includes("line-height"));
       if(isInStylesLH>-1){
         tempstyles.splice(isInStylesLH, 1)
@@ -95,7 +77,7 @@ export default function InlineCSSForm ({
       }
     }
 
-    if(isImportantToggleChecked){
+    if(activeOption === FORM_OPTIONS.DEEMPHASIZE_STYLING){
       let isInStylesLH = tempstyles.findIndex(item => item.includes("line-height"));
       if(isInStylesLH>-1){
         tempstyles[isInStylesLH] =  tempstyles[isInStylesLH].replace('!important', '').trim()
@@ -113,80 +95,82 @@ export default function InlineCSSForm ({
     return tempstyles
   }
 
-  const updateCheckboxes = () => {
-    let tempstyles = getInlineCSS()
-
-    let isInStylesLH = tempstyles.findIndex(item => item.includes("line-height"));
-    let isInStylesWS = tempstyles.findIndex(item => item.includes("word-spacing"));
-    let isInStylesLS = tempstyles.findIndex(item => item.includes("letter-spacing"));
-    let tempimp = "!important"
-
-    if((isInStylesLH<=-1 && isInStylesWS<=-1 && isInStylesLS<=-1)){
-      setisStyleToggleChecked(true)
-    }
-    else{
-      setisStyleToggleChecked(false)
-    }
-
-    if(
-      (tempstyles[isInStylesLH]?.includes(tempimp))||
-      (tempstyles[isInStylesWS]?.includes(tempimp))||
-      (tempstyles[isInStylesLS]?.includes(tempimp))) {
-      setIsImportantToggleChecked(false)
-    }
-    else{
-      setIsImportantToggleChecked(true)
-    }
-  }
-
   useEffect(() => {
     if (!activeIssue) {
       return
     }
 
-    updateCheckboxes()
-    checkFormErrors()
-  }, [activeIssue])
+    const reviewed = activeIssue.newHtml && (activeIssue.status === 2 || activeIssue.status === 3)
+    const fixed = activeIssue.newHtml && activeIssue.status === 1
 
-  const handleSubmit = () => {
-    if (markAsReviewed || formErrors.length === 0) {
-      handleIssueSave(activeIssue)
+    if (reviewed) {
+      setActiveOption(FORM_OPTIONS.MARK_AS_REVIEWED)
     }
-  }
+    else if (fixed) {
+
+      let tempstyles = getInlineCSS()
+
+      let isInStylesLH = tempstyles.findIndex(item => item.includes("line-height"));
+      let isInStylesWS = tempstyles.findIndex(item => item.includes("word-spacing"));
+      let isInStylesLS = tempstyles.findIndex(item => item.includes("letter-spacing"));
+      
+      if ((isInStylesLH<=-1 && isInStylesWS<=-1 && isInStylesLS<=-1)){
+        setActiveOption(FORM_OPTIONS.REMOVE_STYLING)
+      }
+
+      else {
+        
+        let tempimp = "!important"
+        if (!(
+          (tempstyles[isInStylesLH]?.includes(tempimp))||
+          (tempstyles[isInStylesWS]?.includes(tempimp))||
+          (tempstyles[isInStylesLS]?.includes(tempimp)))) {
+          setActiveOption(FORM_OPTIONS.DEEMPHASIZE_STYLING)
+        }
+        else {
+          setActiveOption('')
+        }
+      }
+    }
+    else {
+      setActiveOption('')
+    }
+  }, [activeIssue])
 
   return (
     <>
-      <div className="flex-row justify-content-start gap-1 mt-2">
-        <input
-          type="checkbox"
-          id="removeInlineStylesCheck"
-          name="removeInlineStylesCheck"
-          tabIndex="0"
-          disabled={isDisabled}
-          checked={isStyleToggleChecked}
-          onChange={handleRemoveInlineStylesCheck} />
-        <label htmlFor="removeInlineStylesCheck" className="instructions">{t('form.invalid_css.label.remove_style')}</label>
+      {/* OPTION 1: Remove Styling. ID: "REMOVE_STYLING" */}
+      <div className={`resolve-option ${activeOption === FORM_OPTIONS.REMOVE_STYLING ? 'selected' : ''}`}>
+        <RadioSelector
+          activeOption={activeOption}
+          isDisabled={isDisabled}
+          setActiveOption={setActiveOption}
+          option={FORM_OPTIONS.REMOVE_STYLING}
+          labelText = {t('form.inline_css.label.remove_style')}
+          />
       </div>
-      <div className="flex-row justify-content-start gap-1 mt-2">
-        <input
-          type="checkbox"
-          id="removeImportantStylesCheck"
-          name="removeImportantStylesCheck"
-          tabIndex="0"
-          disabled={isDisabled}
-          checked={isImportantToggleChecked}
-          onChange={handleImportantCheckbox} />
-        <label htmlFor="removeImportantStylesCheck" className="instructions">{t('form.invalid_css.label.remove_important')}</label>
+
+      {/* OPTION 2: Deemphasize Styling. ID: "DEEMPHASIZE_STYLING" */}
+      <div className={`resolve-option ${activeOption === FORM_OPTIONS.DEEMPHASIZE_STYLING ? 'selected' : ''}`}>
+        <RadioSelector
+          activeOption={activeOption}
+          isDisabled={isDisabled}
+          setActiveOption={setActiveOption}
+          option={FORM_OPTIONS.DEEMPHASIZE_STYLING}
+          labelText = {t('form.inline_css.label.remove_important')}
+          />
       </div>
-      <FormSaveOrReview
-        t={t}
-        settings={settings}
-        activeIssue={activeIssue}
-        isDisabled={isDisabled}
-        handleSubmit={handleSubmit}
-        formErrors={formErrors}
-        markAsReviewed={markAsReviewed}
-        setMarkAsReviewed={setMarkAsReviewed} />
+
+      {/* OPTION 3: Mark as Reviewed. ID: "MARK_AS_REVIEWED" */}
+      <div className={`resolve-option ${activeOption === FORM_OPTIONS.MARK_AS_REVIEWED ? 'selected' : ''}`}>
+        <RadioSelector
+          activeOption={activeOption}
+          isDisabled={isDisabled}
+          setActiveOption={setActiveOption}
+          option={FORM_OPTIONS.MARK_AS_REVIEWED}
+          labelText = {t('fix.label.no_changes')}
+          />
+      </div>
     </>
   )
 }

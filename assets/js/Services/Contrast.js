@@ -31,6 +31,12 @@ export function changeLuminance(hsl, dir) {
   return { h: hsl.h, s: hsl.s, l: newL };
 }
 
+export function setLuminance(hsl, value) {
+  if (!hsl || typeof hsl.l !== 'number') return hsl;
+  const newL = Math.max(0, Math.min(1, value));
+  return { h: hsl.h, s: hsl.s, l: newL };
+}
+
 export function contrastRatio(back, fore) {
   try {
     return Math.round(chroma.contrast(back, fore) * 100) / 100;
