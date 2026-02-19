@@ -3,7 +3,6 @@ import RadioSelector from '../Widgets/RadioSelector'
 import OptionFeedback from '../Widgets/OptionFeedback'
 import ToggleSwitch from '../Widgets/ToggleSwitch'
 import * as Html from '../../Services/Html'
-import * as Contrast from '../../Services/Contrast'
 
 export default function EmphasisForm({
   t,
