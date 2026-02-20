@@ -1,21 +1,25 @@
 import React, { useEffect, useRef, useState } from 'react'
-import FormSaveOrReview from './FormSaveOrReview'
 import * as Html from '../../Services/Html'
 // The SensoryMisuseForm.css file is a copy of the tinyMCE oxide skin file, which does not consistently load at runtime, so we include it here
-// Failure to do so often results in the TinyMCE editor not display, especially the first time the componenet is rendered.
+// Failure to do so often results in the TinyMCE editor not display, especially the first time the component is rendered.
 import './SensoryMisuseForm.css'
 
 export default function SensoryMisuseForm({
-  t, 
-  settings, 
-  activeIssue, 
-  handleIssueSave, 
-  addMessage,
+  t,
+  settings,
+  activeIssue,
   isDisabled,
   handleActiveIssue,
-  markAsReviewed,
-  setMarkAsReviewed
+  activeOption,
+  setActiveOption,
+  formErrors,
+  setFormErrors
 }) {
+
+  const FORM_OPTIONS = {
+    EDIT_TEXT: settings.UFIXIT_OPTIONS.ADD_TEXT
+  }
+
   const [html, setHtml] = useState(Html.getIssueHtml(activeIssue))
   const [editorHtml, setEditorHtml] = useState(Html.getIssueHtml(activeIssue))
 
@@ -60,6 +64,8 @@ export default function SensoryMisuseForm({
     let html = Html.getIssueHtml(activeIssue)
     setHtml(html)
     setEditorHtml(html)
+    setActiveOption(FORM_OPTIONS.EDIT_TEXT)
+    setFormErrors([])
 
     tinymce.remove()
     tinymce.init({
@@ -67,8 +73,8 @@ export default function SensoryMisuseForm({
       license_key: "gpl",
       height: 250,
       menubar: false,
-      plugins: "code",
-      toolbar: "undo redo | bold italic underline | code ",
+      // plugins: "code",
+      toolbar: "undo redo | bold italic underline ", // | code
       // content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:14px }',
       branding: false,
       skin: "oxide",
@@ -82,6 +88,15 @@ export default function SensoryMisuseForm({
         editor.on('input', () => {
           handleEditorChange(editor.getContent())
         })
+
+        // By default, certain commands like undo/redo and toggling things like bold and italic do not trigger the 'input' event,
+        // meaning that the updatePreview function isn't called (which can affect saving).
+        editor.on('ExecCommand', (e) => {
+          const updateCommands = ['mceToggleFormat', 'undo', 'redo']
+          if(e.command && updateCommands.includes(e.command)) {
+            handleEditorChange(editor.getContent())
+          }
+        })
       }
     })
   }, [activeIssue])
@@ -93,6 +108,7 @@ export default function SensoryMisuseForm({
 
   const handleEditorChange = (html) => {
     setEditorHtml(html)
+    updatePreview(html)
   }
 
   const checkForSensoryWords = (html) => {
@@ -187,71 +203,39 @@ export default function SensoryMisuseForm({
   // This form does NOT have a "Disabled" state: Users can choose to save the text EVEN WHEN there are still
   // potential sensory misuse words in the text. If they choose to save a change, then we ALSO apply the 
   // `udoit-ignore-[rule_id]` class to the element, so that it is ignored in the future.
-  const handleSubmit = () => {
-    if (editorRef.current) {
-      let issue = activeIssue
+  const updatePreview = (html) => {
+    let element = Html.toElement(html)
+    let issue = activeIssue
+    const specificClassName = `udoit-ignore-${issue.scanRuleId.replaceAll("_", "-")}`
 
-      let editorCode = editorRef.current.getContent()
-      if( editorCode === null || editorCode === undefined || editorCode === '') {
-        addMessage('Problem getting HTML out of the editor...', 'error')
-        return
-      }
-      let editorElement = Html.toElement(editorCode)
-      if (editorElement === null || editorElement === undefined) {
-        addMessage('Problem converting the editor HTML to an element...', 'error')
-        return
-      }
-      let editorInnerHtml = editorElement.innerHTML
+    let newElement = Html.addClass(issue.sourceHtml, specificClassName)
+    newElement.innerHTML = element.innerHTML || html
+    issue.newHtml = Html.toString(newElement)
 
-      const specificClassName = `udoit-ignore-${issue.scanRuleId.replaceAll("_", "-")}`
-
-      let newElement = Html.addClass(issue.sourceHtml, specificClassName)
-      newElement.innerHTML = editorInnerHtml
-      issue.newHtml = Html.toString(newElement)
-
-      handleActiveIssue(issue)
-
-      handleIssueSave(issue)
-    }
+    handleActiveIssue(issue)
   }
 
   return (
     <>
       <div className="instructions">{t('form.sensory_misuse.label.instructions')}</div>
       { sensoryErrors.length > 0 ? (
-        <div className="mt-3">
-          <div className="flex-row flex-wrap gap-1 mt-2">
-            <div className="ufixit-widget-label flex-column align-self-center">{t('form.sensory_misuse.label.highlight')}</div>
-            {sensoryErrors.map((word) => (
-              <button
-                className="tag"
-                tabIndex="0"
-                key={word}
-                onClick={() => goToWord(word)}
-              >
-                {word}
-              </button>
-            ))}
-          </div>
+        <div className="flex-row flex-wrap gap-1 mt-2">
+          <div className="ufixit-widget-label flex-column align-self-center">{t('form.sensory_misuse.label.highlight')}</div>
+          {sensoryErrors.map((word) => (
+            <button
+              className="tag"
+              tabIndex="0"
+              key={word}
+              onClick={() => goToWord(word)}
+            >
+              {word}
+            </button>
+          ))}
         </div>
       ) : (
-        <div className="mt-3">
-          <div className="ufixit-widget-label">{t('form.sensory_misuse.label.none')}</div>
-        </div>
+        <div className="ufixit-widget-label mt-2">{t('form.sensory_misuse.label.none')}</div>
       )}
-      <div className="mt-3">
-        <textarea id="sensory-misuse-textarea"></textarea>
-      </div>
-
-      <FormSaveOrReview
-        t={t}
-        settings={settings}
-        activeIssue={activeIssue}
-        isDisabled={isDisabled}
-        handleSubmit={handleSubmit}
-        formErrors={[]}
-        markAsReviewed={markAsReviewed}
-        setMarkAsReviewed={setMarkAsReviewed} />
+      <textarea id="sensory-misuse-textarea"></textarea>
     </>
   )
 }
