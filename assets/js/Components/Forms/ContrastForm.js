@@ -108,9 +108,26 @@ export default function ContrastForm({
     let element = Html.toElement(html);
     if (bgColors.length > 1) {
       let gradientHtml = originalBgColors[0].originalString;
+      // There is an issue where a simple string replace can overwrite things.
+      // For example, I got: linear-gradient(to right, #404040, #004d4d, #4040400e5, #660066.....
+      // The third color is an unholy mashup of two replacements.
+
+      // Solution: Flag each original color with an index, then replace based on that index.
+      let indices = []
+      let minimumIndex = 0
       originalBgColors.forEach((bg, idx) => {
-        gradientHtml = gradientHtml.replace(bg.originalColorString, Contrast.hslToHex(bgColors[idx]));
-      });
+        const stringLocation = gradientHtml.indexOf(bg.originalColorString, minimumIndex)
+        if(stringLocation !== -1) {
+          minimumIndex = stringLocation + bg.originalColorString.length
+        }
+        indices.push(stringLocation)
+      })
+
+      // Now replace each color IN REVERSE ORDER (to avoid messing up indices)
+      for (let i = originalBgColors.length - 1; i >= 0; i--) {
+        gradientHtml = gradientHtml.substring(0, indices[i]) + Contrast.hslToHex(bgColors[i]) + gradientHtml.substring(indices[i] + originalBgColors[i].originalColorString.length);
+        // gradientHtml = gradientHtml.replace(bg.originalColorString, Contrast.hslToHex(bgColors[idx]));
+      }
       element.style.background = gradientHtml;
       element.style.backgroundColor = '';
     } else if (bgColors.length === 1) {
@@ -330,7 +347,7 @@ export default function ContrastForm({
           let isValid = ratio >= minRatio;
 
           return (
-            <div key={idx} className="flex-row justify-content-between mt-1 gradient-row">
+            <div key={idx} className="flex-row justify-content-between gradient-row">
               <div className="flex-row align-items-center">
                 <input
                   id={`backgroundColorInput${idx}`}
@@ -359,8 +376,8 @@ export default function ContrastForm({
                 <DarkIcon className="icon-md" alt="" />
                 <input
                   type="range"
-                  id="textLumSlider"
-                  name="textLumSlider"
+                  id={`backgroundLumSlider${idx}`}
+                  name={`backgroundLumSlider${idx}`}
                   min="0"
                   max="1"
                   step="0.025"
@@ -377,7 +394,7 @@ export default function ContrastForm({
       </div>
 
       {shouldShowExpand && (
-        <div className="flex-column align-items-center mt-2">
+        <div className="flex-column align-items-center mb-2">
           <button
             className="btn-small text-center btn-secondary"
             onClick={() => setShowAllColors(v => !v)}

@@ -111,7 +111,7 @@ export default function UfixitWidget({
               handleLearnMoreClick={handleLearnMoreClick}
             />
 
-            <div className="flex-row justify-content-between mt-3 mb-2">
+            <div className="flex-row justify-content-between mt-3 mb-3">
               <h3 className="ufixit-widget-label m-0 align-self-center">{t('fix.label.barrier_repair')}</h3>
               <div className="align-self-start flex-shrink-0">
                 <StatusPill
