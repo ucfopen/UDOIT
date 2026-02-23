@@ -86,6 +86,7 @@ export default function FixIssuesPage({
   const [widgetState, setWidgetState] = useState(settings.WIDGET_STATE.LOADING)
   const [liveUpdateToggle, setLiveUpdateToggle] = useState(true)
   const [clickedInfo, setClickedInfo] = useState({})
+  const [previewData, setPreviewData] = useState(null)
 
   const [elementFocus, setElementFocus] = useState(true)
 
@@ -397,9 +398,11 @@ export default function FixIssuesPage({
     const contentItemId = activeIssue.issueData.contentItemId
     if(contentItemCache[contentItemId]) {
       setActiveContentItem(contentItemCache[contentItemId])
+      setTempActiveContentItem(contentItemCache[contentItemId])
     }
     else {
       setActiveContentItem(null)
+      setTempActiveContentItem(null)
     }
     setShowLearnMore(false)
 
@@ -695,7 +698,7 @@ export default function FixIssuesPage({
 
   const handleIssueSave = async () => {
 
-    if(!activeContentItem || !activeContentItem?.body || !tempActiveIssue || !tempActiveIssue?.issueData) {
+    if(!tempActiveContentItem || !tempActiveContentItem?.body || !tempActiveIssue || !tempActiveIssue?.issueData) {
       return
     }
 
@@ -723,7 +726,7 @@ export default function FixIssuesPage({
       }
     }
 
-    let fullPageHtml = getNewFullPageHtml(activeContentItem, issue)
+    let fullPageHtml = getNewFullPageHtml(tempActiveContentItem, issue)
     let fullPageDoc = new DOMParser().parseFromString(fullPageHtml, 'text/html')
     let newElement = Html.findElementWithError(fullPageDoc, issue?.newHtml)
     let newXpath = Html.findXpathFromElement(newElement)
@@ -958,6 +961,7 @@ export default function FixIssuesPage({
                       setClickedInfo={setClickedInfo}
                       handleContentIssueSave={handleContentIssueSave}
                       setElementFocus={setElementFocus}
+                      setPreviewData={setPreviewData}
                     />
                   </>
                 )}
@@ -968,13 +972,14 @@ export default function FixIssuesPage({
                     t={t}
                     settings={settings}
 
-                    activeContentItem={activeContentItem}
+                    activeContentItem={tempActiveContentItem}
                     activeIssue={tempActiveIssue}
                     contentItemsBeingScanned={contentItemsBeingScanned}
                     liveUpdateToggle={liveUpdateToggle}
                     setIsErrorFoundInContent={setIsErrorFoundInContent}
                     clickedInfo={clickedInfo}
                     setClickedInfo={setClickedInfo}
+                    previewData={previewData}
                     elementFocus={elementFocus}
                   />
                 )}

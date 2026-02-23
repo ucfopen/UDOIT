@@ -116,7 +116,8 @@
 }
 
 #btn-learn-more-open {
-  font-size: .85em
+  float: right;
+  margin: 0 0 .4rem 1rem;
 }
 
 .dialog-indicator-background {

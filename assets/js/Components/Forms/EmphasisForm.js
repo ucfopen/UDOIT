@@ -56,21 +56,25 @@ export default function EmphasisForm({
     const bold = isBold()
     const italicized = isItalicized()
     const styleColor = hasStyleColor()
-    const reviewed = activeIssue.newHtml && (activeIssue.status === 2 || activeIssue.status === 3)
 
-    if (reviewed) {
-      setActiveOption(FORM_OPTIONS.MARK_AS_REVIEWED)
-    }
-    else if (bold || italicized || !styleColor) {
-      setActiveOption(FORM_OPTIONS.ADD_TEXT)
-    }
-    else {
-      setActiveOption('')
-    }
-    
     setUseBold(bold)
     setUseItalics(italicized)
     setRemoveColor(!styleColor)
+    
+    const fixed = activeIssue.newHtml && (activeIssue.status === 1 || activeIssue.status === 3)
+    const reviewed = activeIssue.newHtml && (activeIssue.status === 2 || activeIssue.status === 3)
+    let startingOption = ''
+
+    if (reviewed) {
+      startingOption = FORM_OPTIONS.MARK_AS_REVIEWED
+    }
+    if (fixed) {
+      if (bold || italicized || !styleColor) {
+        startingOption = FORM_OPTIONS.ADD_TEXT
+      }
+    }
+    setActiveOption(startingOption)
+
   }, [activeIssue])
 
   useEffect(() => {

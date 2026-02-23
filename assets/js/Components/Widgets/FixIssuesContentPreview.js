@@ -15,6 +15,7 @@ export default function FixIssuesContentPreview({
   contentItemsBeingScanned,
   clickedInfo,
   setClickedInfo,
+  previewData,
   liveUpdateToggle,
   isErrorFoundInContent,
   setIsErrorFoundInContent,
@@ -127,6 +128,7 @@ export default function FixIssuesContentPreview({
                   setIsErrorFoundInContent={setIsErrorFoundInContent}
                   clickedInfo={clickedInfo}
                   setClickedInfo={setClickedInfo}
+                  previewData={previewData}
                   handleScroll={handleScroll}
                   elementFocus={elementFocus}
                 />
