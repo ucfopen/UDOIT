@@ -99,6 +99,10 @@ export default function SensoryMisuseForm({
         })
       }
     })
+
+    return () => {
+      tinymce.remove()
+    }
   }, [activeIssue])
 
   useEffect(() => {

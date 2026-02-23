@@ -134,7 +134,7 @@
   }
 }
 
-.ufixit-alt-text-preview {
+#ufixit-alt-text-preview {
   background-color: var(--gray-dark);
   color: var(--white);
   border-radius: 8px;
@@ -145,13 +145,13 @@
   border: 2px solid var(--gray-dark);
   margin: 5px 0px;
   
-  .ufixit-alt-text-preview-icon {
+  #ufixit-alt-text-preview-icon {
     padding: 8px;
     line-height: 0px;
     fill: var(--white);
   }
 
-  .ufixit-alt-text-preview-text-container {
+  #ufixit-alt-text-preview-text-container {
     display: flex;
     flex-direction: column;
     padding: .5rem 1rem .5rem .25rem;
@@ -172,7 +172,7 @@
       }
     }
 
-    .ufixit-alt-text-preview-text {
+    #ufixit-alt-text-preview-text {
       font-weight: 400;
       font-size: .9em;
       line-height: 1.4em;
@@ -370,7 +370,7 @@
 }
 
 .ufixit-content-preview-main.ufixit-clickable-container *.ufixit-temp-selected{
-  outline: 3px solid blue;
+  outline: 3px solid var(--selection-color);
   outline-offset: 1px;
   anchor-name: --ufixit-temp-selected;
 

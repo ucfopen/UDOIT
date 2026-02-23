@@ -35,7 +35,49 @@ export default function InlineCSSForm ({
     return elementInlineCSSText
   }
 
+  useEffect(() => {
+    if (!activeIssue) {
+      return
+    }
+
+    const fixed = activeIssue.newHtml && (activeIssue.status === 1 || activeIssue.status === 3)
+    const reviewed = activeIssue.newHtml && (activeIssue.status === 2 || activeIssue.status === 3)
+    let startingOption = ''
+
+    if (reviewed) {
+      startingOption = FORM_OPTIONS.MARK_AS_REVIEWED
+    }
+    if (fixed) {
+
+      let tempstyles = getInlineCSS()
+
+      let isInStylesLH = tempstyles.findIndex(item => item.includes("line-height"));
+      let isInStylesWS = tempstyles.findIndex(item => item.includes("word-spacing"));
+      let isInStylesLS = tempstyles.findIndex(item => item.includes("letter-spacing"));
+      
+      if ((isInStylesLH<=-1 && isInStylesWS<=-1 && isInStylesLS<=-1)){
+        startingOption = FORM_OPTIONS.REMOVE_STYLING
+      }
+
+      else {
+        let tempimp = "!important"
+        if (!(
+          (tempstyles[isInStylesLH]?.includes(tempimp))||
+          (tempstyles[isInStylesWS]?.includes(tempimp))||
+          (tempstyles[isInStylesLS]?.includes(tempimp)))) {
+          startingOption = FORM_OPTIONS.DEEMPHASIZE_STYLING
+        }
+      }
+    }
+    setActiveOption(startingOption)
+    
+  }, [activeIssue])
+
   useEffect (() =>   {
+    if(!activeIssue) {
+      return
+    }
+
     updateHtmlContent()
   }, [activeOption])
 
@@ -94,48 +136,6 @@ export default function InlineCSSForm ({
 
     return tempstyles
   }
-
-  useEffect(() => {
-    if (!activeIssue) {
-      return
-    }
-
-    const reviewed = activeIssue.newHtml && (activeIssue.status === 2 || activeIssue.status === 3)
-    const fixed = activeIssue.newHtml && activeIssue.status === 1
-
-    if (reviewed) {
-      setActiveOption(FORM_OPTIONS.MARK_AS_REVIEWED)
-    }
-    else if (fixed) {
-
-      let tempstyles = getInlineCSS()
-
-      let isInStylesLH = tempstyles.findIndex(item => item.includes("line-height"));
-      let isInStylesWS = tempstyles.findIndex(item => item.includes("word-spacing"));
-      let isInStylesLS = tempstyles.findIndex(item => item.includes("letter-spacing"));
-      
-      if ((isInStylesLH<=-1 && isInStylesWS<=-1 && isInStylesLS<=-1)){
-        setActiveOption(FORM_OPTIONS.REMOVE_STYLING)
-      }
-
-      else {
-        
-        let tempimp = "!important"
-        if (!(
-          (tempstyles[isInStylesLH]?.includes(tempimp))||
-          (tempstyles[isInStylesWS]?.includes(tempimp))||
-          (tempstyles[isInStylesLS]?.includes(tempimp)))) {
-          setActiveOption(FORM_OPTIONS.DEEMPHASIZE_STYLING)
-        }
-        else {
-          setActiveOption('')
-        }
-      }
-    }
-    else {
-      setActiveOption('')
-    }
-  }, [activeIssue])
 
   return (
     <>

@@ -353,7 +353,7 @@ export function getIssueHtml(issue) {
   return issue.newHtml ? issue.newHtml : issue.sourceHtml
 }
 
-export function getAccessibleName(element) {
+export function getAccessibleName(element, tempDocument = null) {
   if ('string' === typeof element) {
     element = toElement(element)
   }
@@ -365,13 +365,13 @@ export function getAccessibleName(element) {
   /* Accessible Names for different elements can be computed differently, as described here:
     https://www.w3.org/WAI/ARIA/apg/practices/names-and-descriptions/#name_calculation  */
 
-  // 1. TODO: If the element has the 'aria-labelledby' attribute, use the value of the corresponding element.
+  // 1. If the element has the 'aria-labelledby' attribute, use the value of the corresponding element.
   let ariaLabelledby = getAttribute(element, "aria-labelledby")
   if(ariaLabelledby){
     let displayText = []
     const ariaLabelledByIDs = ariaLabelledby.split(" ")
     ariaLabelledByIDs.forEach((id) => {
-       const element = document.getElementById(id)
+       const element = tempDocument ? tempDocument.getElementById(id) : document.getElementById(id)
        if(element){
          displayText.push(getInnerText(element))
        }
@@ -482,6 +482,17 @@ export const elementOrChildrenHasStyleAttributes = (
   }
 
   return false
+}
+
+export const sanitizeString = (str) => {
+  if (!str || typeof str !== 'string') {
+    return ''
+  }
+
+  let tempElement = document.createElement('div')
+  tempElement.textContent = str
+
+  return tempElement.innerHTML
 }
 
 export const removeStyleAttributesFromElementAndChildren = (
@@ -613,22 +624,8 @@ export function generateElementID(element){
       return element.id
     }
 
-    let generated_id = ""
-
-    if(element.tagName == "img"){
-      const altText= getAttribute(element, 'alt')
-      if(altText){
-        generated_id = altText + "-udoit-clickable-id"
-      }
-      else{
-        generated_id = "image-udoit-clickable-id"
-      }
-    }
-    else{
-      const textContent = getInnerText(element).trim()
-      const firstWord = textContent.split(/\s+/)[0]
-      generated_id = firstWord + "-udoit-clickable-id"
-    }
+    const tagName = element.tagName.toLowerCase()
+    let generated_id = tagName + "-udoit-clickable-id"
 
     let i = 1
     while(document.getElementById(generated_id)){

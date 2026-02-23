@@ -28,7 +28,8 @@ export default function UfixitWidget({
   clickedInfo,
   setClickedInfo,
   handleContentIssueSave,
-  setElementFocus
+  setElementFocus,
+  setPreviewData
 }) {
 
   const [UfixitForm, setUfixitForm] = useState(null)
@@ -142,7 +143,8 @@ export default function UfixitWidget({
                 clickedInfo={clickedInfo}
                 setClickedInfo={setClickedInfo}
                 handleContentIssueSave={handleContentIssueSave}
-                setElementFocus={setElementFocus} />
+                setElementFocus={setElementFocus}
+                setPreviewData={setPreviewData} />
             </div>
           </div>
         </>

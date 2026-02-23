@@ -103,24 +103,29 @@ const formTypes = {
 
 // Classify forms by error types to use for helper elements
 export const FORM_CLASSIFICATIONS = {
-    ALT_TEXT_RELATED : [
-      formNames.ALT_TEXT,            
-      formNames.ANCHOR_TEXT,
-      formNames.BLOCKQUOTE,
-      formNames.EMBEDDED_CONTENT_TITLE,
-      formNames.LABEL,
-      formNames.LABEL_UNIQUE,
-      formNames.SELECT_VALID_ID
-    ],
-  
-    HEADINGS_RELATED : [
-      formNames.HEADING_EMPTY,
-      formNames.HEADING_STYLE
-    ],
+  ALT_TEXT_RELATED : [
+    formNames.ALT_TEXT,            
+    formNames.ANCHOR_TEXT,
+    formNames.BLOCKQUOTE,
+    formNames.EMBEDDED_CONTENT_TITLE,
+    formNames.LABEL,
+    formNames.LABEL_UNIQUE,
+    formNames.SELECT_VALID_ID
+  ],
 
-    CLICKABLE_RELATED: [
-      formNames.SELECT_VALID_ID
-    ]
+  HEADINGS_RELATED : [
+    formNames.HEADING_EMPTY,
+    formNames.HEADING_STYLE
+  ],
+
+  CLICKABLE_RELATED: [
+    formNames.LIST,
+    formNames.SELECT_VALID_ID
+  ],
+
+  VALID_ID_RELATED: [
+    formNames.SELECT_VALID_ID
+  ]
 }
 
 // Using the formNames as the only values prevents typos and other errors.

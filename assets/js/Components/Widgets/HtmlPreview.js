@@ -13,6 +13,7 @@ export default function HtmlPreview({
   setIsErrorFoundInContent,
   clickedInfo,
   setClickedInfo,
+  previewData,
   handleScroll,
   elementFocus
 }) {
@@ -39,9 +40,39 @@ export default function HtmlPreview({
       return doc
     }
 
+    if(FORM_CLASSIFICATIONS.CLICKABLE_RELATED.includes(formNameFromRule(activeIssue.scanRuleId))){
+      const allElements = doc.querySelectorAll('*')
+      allElements.forEach((el) => {
+        if (el.id?.includes('ufixit-alt-text-preview')) {
+          return
+        }
+        el.tabIndex = 0
+      })
+    }
+
+    if (FORM_CLASSIFICATIONS.VALID_ID_RELATED.includes(formNameFromRule(activeIssue.scanRuleId))) {
+      if(previewData && previewData.attributeId && previewData.idXpathMap) {
+        const idXpathMap = previewData.idXpathMap
+        const attributeId = previewData.attributeId
+
+        attributeId.forEach((attribute) => {
+          if(attribute?.selected && !attribute.deactivated){
+            const idsPointedToByAttribute = attribute.idStorage?.length > 0 ? attribute.idStorage : []
+            idsPointedToByAttribute?.forEach((id) => {
+              if(id){
+                const element = Html.findElementWithXpath(doc, idXpathMap[id].xpath)
+                element.classList.add("ufixit-temp-selected")
+              }
+            })
+          }
+        })
+      }
+    }
+
     // If the issue edits the alt text, we need to show the auto-updating alt text preview
     if (FORM_CLASSIFICATIONS.ALT_TEXT_RELATED.includes(formNameFromRule(activeIssue.scanRuleId))) {
-      let altText = Html.getAccessibleName(errorElement)
+      let altText = Html.getAccessibleName(errorElement, doc)
+      altText = Html.sanitizeString(altText)
       
       // If there is alt text to show...
       if (altText && altText.trim() !== '') {
@@ -54,15 +85,15 @@ export default function HtmlPreview({
         // Or create it from scratch if it doesn't exist.
         else {
           let altTextPreviewCode =
-            '<div class="ufixit-alt-text-preview">' +
-              '<div class="ufixit-alt-text-preview-icon" alt="" title="">' +
-                '<svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" class="icon-md"><path d="M360-500q42 0 71-29.5t29-70.5q0-42-29-71t-71-29q-42 0-71 29t-29 71q0 41 29 70.5t71 29.5Zm352 93q-15-6-21.5-20.5T690-456q15-34 22.5-70.5T720-600q0-37-7.5-73T690-743q-6-14 1-27.5t22-19.5q17-6 32.5 1.5T768-764q17 39 24.5 80.5T800-600q0 43-8 84.5T767-434q-7 17-22.5 25t-32.5 2Zm116 116q-14-7-20-21.5t2-27.5q35-59 52.5-124T880-598q0-69-18-134.5T809-858q-8-13-1.5-27.5T828-907q17-8 34.5-.5T889-883q35 66 53 137t18 146q0 75-18.5 147.5T888-314q-9 17-26 24t-34-1Zm-668 51q0-17-11.5-28.5T120-280q-17 0-28.5 11.5T80-240q0 66 47 113t113 47q62 0 101.5-31t60.5-91q17-50 32.5-70t71.5-64q62-50 98-113t36-151q0-119-80.5-199.5T360-880q-119 0-199.5 80.5T80-600q0 17 11.5 28.5T120-560q17 0 28.5-11.5T160-600q0-85 57.5-142.5T360-800q85 0 142.5 57.5T560-600q0 68-27 116t-77 86q-52 38-81 74t-43 78q-14 44-33.5 65T240-160q-33 0-56.5-23.5T160-240Z"></path></svg>' +
+            '<div id="ufixit-alt-text-preview">' +
+              '<div id="ufixit-alt-text-preview-icon" alt="" title="">' +
+                '<svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" id="ufixit-alt-text-preview-icon-svg" class="icon-md"><path d="M360-500q42 0 71-29.5t29-70.5q0-42-29-71t-71-29q-42 0-71 29t-29 71q0 41 29 70.5t71 29.5Zm352 93q-15-6-21.5-20.5T690-456q15-34 22.5-70.5T720-600q0-37-7.5-73T690-743q-6-14 1-27.5t22-19.5q17-6 32.5 1.5T768-764q17 39 24.5 80.5T800-600q0 43-8 84.5T767-434q-7 17-22.5 25t-32.5 2Zm116 116q-14-7-20-21.5t2-27.5q35-59 52.5-124T880-598q0-69-18-134.5T809-858q-8-13-1.5-27.5T828-907q17-8 34.5-.5T889-883q35 66 53 137t18 146q0 75-18.5 147.5T888-314q-9 17-26 24t-34-1Zm-668 51q0-17-11.5-28.5T120-280q-17 0-28.5 11.5T80-240q0 66 47 113t113 47q62 0 101.5-31t60.5-91q17-50 32.5-70t71.5-64q62-50 98-113t36-151q0-119-80.5-199.5T360-880q-119 0-199.5 80.5T80-600q0 17 11.5 28.5T120-560q17 0 28.5-11.5T160-600q0-85 57.5-142.5T360-800q85 0 142.5 57.5T560-600q0 68-27 116t-77 86q-52 38-81 74t-43 78q-14 44-33.5 65T240-160q-33 0-56.5-23.5T160-240Z"></path></svg>' +
               '</div>' +
-              '<div class="ufixit-alt-text-preview-text-container">' +
-                '<div class="ufixit-alt-text-preview-label">' +
+              '<div id="ufixit-alt-text-preview-text-container">' +
+                '<div id="ufixit-alt-text-preview-label">' +
                   t('fix.label.screen_reader') +
                 '</div>' +
-                '<div class="ufixit-alt-text-preview-text">' +
+                '<div id="ufixit-alt-text-preview-text">' +
                   altText.trim() +
                 '</div>' +
               '</div>' +
@@ -171,6 +202,11 @@ export default function HtmlPreview({
       return
     }
 
+    if(e.target.id?.includes('ufixit-alt-text-preview')) {
+      console.log("Clicked on the alt text preview, not the actual content")
+      return
+    }
+
 
     const element_info = {
       xpath: Html.findXpathFromElement(e.target, 'ufixit-content-preview-main'),
@@ -191,7 +227,7 @@ export default function HtmlPreview({
 
   useEffect(() => {
     checkTaggedContentUpdate()
-  }, [activeIssue, activeContentItem, liveUpdateToggle])
+  }, [activeIssue, activeContentItem, liveUpdateToggle, previewData])
 
   useEffect(() => {
     checkTaggedContentUpdate()

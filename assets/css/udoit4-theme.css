@@ -1181,6 +1181,11 @@
     fill: var(--text-disabled-color);
   }
 
+  .off-screen {
+    position: absolute;
+    left: 150vw;
+  }
+
   .icon-sm {
     width: 1em;
     min-width: 1em;
