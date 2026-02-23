@@ -397,7 +397,7 @@ class CanvasLms implements LmsInterface {
                     if (('assignment' === $contentType) && isset($content['discussion_topic'])) {
                         continue;
                     }
-                    if(('page' === $contentType) && ($asyncFetch)){
+                    if(('page' === $contentType) && $asyncFetch){
                         // If we are using async fetch we need the 
                         $lmsContent = $this->normalizeLmsContent($course, $contentType, $content);
                         $contentItem = $this->contentItemRepo->findOneBy([
@@ -405,6 +405,17 @@ class CanvasLms implements LmsInterface {
                             'lmsContentId' => $lmsContent['id'],
                             'course' => $course,
                         ]);
+
+                        if (!$force && $contentItem) {
+                            $contentItemUpdated = $contentItem->getUpdated();
+                            $lmsUpdated = new \DateTime($lmsContent['updated'], UtilityService::$timezone);
+                            if ($contentItemUpdated == $lmsUpdated) {
+                                $contentItem->setActive(true);
+                                continue;
+                            }
+                        }
+                        
+
 
                         if (!$contentItem) {
                         $contentItem = new ContentItem();
@@ -414,9 +425,11 @@ class CanvasLms implements LmsInterface {
                             ->setContentType($contentType);
                         $this->entityManager->persist($contentItem);
                     }
+
                     $url = "courses/{$course->getLmsCourseId()}/pages/{$lmsContent['id']}";  
                     $tempContentItems[] = $contentItem;
                     $pageUrls[] = $url;
+                    
                     continue;
                     }
 
@@ -452,7 +465,6 @@ class CanvasLms implements LmsInterface {
                 }
             }
         }
-        
         // push any updates made to content items to DB
         $this->entityManager->flush();
         return $this->contentItemList;
