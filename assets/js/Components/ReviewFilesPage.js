@@ -61,6 +61,7 @@ export default function ReviewFilesPage({
   const WIDGET_STATE = settings.WIDGET_STATE
 
   const dialogId = "file-dialog"
+  const unusedFileDialogId = "unused-files-dialog"
 
   const headers = [
     { id: "name", text: t('fix.label.file_name') },
@@ -103,6 +104,9 @@ export default function ReviewFilesPage({
 
   const [isDisabled, setIsDisabled] = useState(false)
   const [showLearnMore, setShowLearnMore] = useState(false)
+
+  const [unusedFiles, setUnusedFiles] = useState([])
+  const [fileDeleteQueue, setFileDeleteQueue] = useState([])
 
 
   const formatFileData = (fileData) => {
@@ -232,10 +236,16 @@ export default function ReviewFilesPage({
     let tempUnfilteredIssues = []
 
     let tempFiles = Object.assign({}, report.files)
+    let tempUnusedFiles = []
     for (const [key, value] of Object.entries(tempFiles)) {
       let tempFile = formatFileData(value)
       tempUnfilteredIssues.push(tempFile)
+      if(!tempFile?.fileData?.references || tempFile?.fileData?.references?.length == 0){
+        tempUnusedFiles.push(tempFile.fileData)
+      }
     }
+
+    console.log(tempUnusedFiles)
 
     tempUnfilteredIssues.sort((a, b) => {
       return (a.formLabel.toLowerCase() < b.formLabel.toLowerCase()) ? -1 : 1
@@ -350,7 +360,7 @@ export default function ReviewFilesPage({
   }
 
 
-  const openDialog = () => {
+  const openDialog = (dialogId) => {
     setWidgetState(WIDGET_STATE.FIXIT)
 
     const dialog = document.getElementById(dialogId)
@@ -359,7 +369,7 @@ export default function ReviewFilesPage({
     }
   }
 
-  const closeDialog = () => {
+  const closeDialog = (dialogId) => {
     setWidgetState(WIDGET_STATE.LIST)
     setActiveIssue(null)
 
@@ -597,7 +607,7 @@ export default function ReviewFilesPage({
         setActiveIssue(tempFileIssue)
       }
       else{
-        closeDialog()
+        closeDialog(dialogId)
       }
 
       // Add success messages 
@@ -886,7 +896,7 @@ const getSectionPostOptions = (newFile, sectionReferences) => {
     }
 
     setActiveIssue(filteredFiles[filteredFileIndex])
-    openDialog()
+    openDialog(dialogId)
   }
 
   const nextFile = (previous = false) => {
@@ -937,6 +947,7 @@ const getSectionPostOptions = (newFile, sectionReferences) => {
               type="button"
               className="btn-small btn-icon-left review-files-delete-button"
               tabIndex="0"
+              onClick={() => openDialog(unusedFileDialogId)}
               aria-label={t('files.button.delete_unused_files')}>
               <DeleteIcon className="icon-md" />
               <div className="flex-column justify-content-center">
@@ -977,11 +988,11 @@ const getSectionPostOptions = (newFile, sectionReferences) => {
           </div>
         </>
       )}
-      <dialog id={dialogId} className="dialog-full-screen" onClose={closeDialog}>
+      <dialog id={dialogId} className="dialog-full-screen" onClose={() => closeDialog(dialogId)}>
         <div className='flex-column h-100'>
           <div className='dialog-header'>
             <h2>{t(`form.file.title`)}</h2>
-            <CloseIcon onClick={closeDialog} onKeyDown={(e) => e.key == "Enter" ? closeDialog() : ""} className="close-icon icon-lg" tabIndex="0" alt={t('fix.button.close')} title={t('fix.button.close')} />
+            <CloseIcon onClick={() => closeDialog(dialogId)} onKeyDown={(e) => e.key == "Enter" ? closeDialog(dialogId) : ""} className="close-icon icon-lg" tabIndex="0" alt={t('fix.button.close')} title={t('fix.button.close')} />
           </div>
            <div className="dialog-content">
             <div className="flex-row gap-2 w-100 h-100">
@@ -1060,6 +1071,15 @@ const getSectionPostOptions = (newFile, sectionReferences) => {
               > 
               {markDelete ? t('form.delete') : t(`form.submit`)}
               </button>
+          </div>
+        </div>
+      </dialog>
+     
+     <dialog id={unusedFileDialogId} className="dialog-full-screen" onClose={() => closeDialog(unusedFileDialogId)}>
+        <div className='flex-column h-100'> 
+          <div className='dialog-header'>
+            <h2>{t('files.button.delete_unused_files')}</h2>
+            <CloseIcon onClick={() => closeDialog(unusedFileDialogId)} onKeyDown={(e) => e.key == "Enter" ? () => closeDialog(unusedFileDialogId) : ""} className="close-icon icon-lg" tabIndex="0" alt={t('fix.button.close')} title={t('fix.button.close')} />
           </div>
         </div>
       </dialog>
