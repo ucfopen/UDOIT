@@ -4,6 +4,7 @@ import SortableTable from './Widgets/SortableTable'
 import FileFixitWidget from './Widgets/FileFixitWidget'
 import FileReviewPreview from './Widgets/FileReviewPreview'
 import FileTypeIcon from './Icons/FileTypeIcon'
+import DeleteIcon from './Icons/DeleteIcon'
 import LeftArrowIcon from './Icons/LeftArrowIcon'
 import RightArrowIcon from './Icons/RightArrowIcon'
 import StatusPill from './Widgets/StatusPill'
@@ -930,7 +931,19 @@ const getSectionPostOptions = (newFile, sectionReferences) => {
         <></>
       ) : (
         <>
-          <h1 className="pageTitle">{t('files.title')}</h1>
+          <div className="pageTitleRow">
+            <h1 className="pageTitle">{t('files.title')}</h1>
+            <button
+              type="button"
+              className="btn-small btn-icon-left review-files-delete-button"
+              tabIndex="0"
+              aria-label={t('files.button.delete_unused_files')}>
+              <DeleteIcon className="icon-md" />
+              <div className="flex-column justify-content-center">
+                {t('files.button.delete_unused_files')}
+              </div>
+            </button>
+          </div>
           <p className="pageSubtitle">{t('files.subtitle')}</p>
 
           <ReviewFilesFilters
